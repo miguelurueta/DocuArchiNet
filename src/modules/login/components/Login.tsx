@@ -183,6 +183,7 @@ export default function Login() {
               type="text"
               placeholder=" "
               value={usuario}
+              autoComplete="username"
               onChange={(e) => setUsuario(e.target.value)}
             />
             <label htmlFor="usuario">usuario</label>
@@ -202,6 +203,7 @@ export default function Login() {
               id="password"
               placeholder=" "
               value={password}
+              autoComplete="current-password"
               onChange={(e) => setPassword(e.target.value)}
             />
             <label htmlFor="password">Contraseña</label>
@@ -227,7 +229,7 @@ export default function Login() {
           <div className={styles.aaa}>
             <button
               type="submit"
-              disabled={isLoadingEmpresa || isLoadingModulos}
+              disabled={isLoadingEmpresa || isLoadingModulos || isLoading}
             >
               Iniciar Sesión
             </button>
