@@ -25,27 +25,27 @@ clienteApi.interceptors.request.use((config) => {
 clienteApi.interceptors.response.use(
   response => response,
   error => {
-    // 🧨 ERROR COMPLETO DE AXIOS
-    console.group("❌ AXIOS ERROR");
-    
-    console.error("➡️ Mensaje:", error.message);
-    console.error("➡️ Código:", error.code);
-    console.error("➡️ Config:", error.config);
+    if (import.meta.env.MODE !== "production") {
+      // 🧨 ERROR COMPLETO DE AXIOS
+      console.group("❌ AXIOS ERROR");
 
-    if (error.response) {
-      console.error("➡️ Status:", error.response.status);
-      console.error("➡️ Status Text:", error.response.statusText);
-      console.error("➡️ Data:", error.response.data);
-      console.error("➡️ Headers:", error.response.headers);
-    } 
-    else if (error.request) {
-      console.error("➡️ Request (sin respuesta):", error.request);
-    } 
-    else {
-      console.error("➡️ Error desconocido:", error);
+      console.error("➡️ Mensaje:", error.message);
+      console.error("➡️ Código:", error.code);
+      console.error("➡️ Config:", error.config);
+
+      if (error.response) {
+        console.error("➡️ Status:", error.response.status);
+        console.error("➡️ Status Text:", error.response.statusText);
+        console.error("➡️ Data:", error.response.data);
+        console.error("➡️ Headers:", error.response.headers);
+      } else if (error.request) {
+        console.error("➡️ Request (sin respuesta):", error.request);
+      } else {
+        console.error("➡️ Error desconocido:", error);
+      }
+
+      console.groupEnd();
     }
-
-    console.groupEnd();
    //const status = error?.response?.status;
 
     // if (status === 401) {
@@ -61,4 +61,3 @@ clienteApi.interceptors.response.use(
 );
 
 export default clienteApi;
-
