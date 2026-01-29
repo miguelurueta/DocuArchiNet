@@ -54,11 +54,11 @@ export default function Login() {
   // ===========================
   useEffect(() => {
     if (isErrorEmpresa) notifyAxiosError(errorEmpresa);
-  }, [isErrorEmpresa, errorEmpresa]);
+  }, [isErrorEmpresa, errorEmpresa, notifyAxiosError]);
 
   useEffect(() => {
     if (isErrorModulos) notifyAxiosError(errorModulos);
-  }, [isErrorModulos, errorModulos]);
+  }, [isErrorModulos, errorModulos, notifyAxiosError]);
 
   // ===========================
   // Click fuera
@@ -82,17 +82,18 @@ export default function Login() {
     e.preventDefault();
     setSubmitIntentado(true);
     // 🔗 reconecta submit con validación por campo
-  if (idModulo === 0) {
-    setInvalidField("IdModulo");
-  }
+    if (idModulo === 0) {
+      setInvalidField("IdModulo");
+    }
+    const usuarioNormalizado = usuario.trim();
     const loginData: LoginRequestDTO = {
-      User: usuario,
+      User: usuarioNormalizado,
       Password: password,
       IdModulo: idModulo,
       IdEmpresa: idEmpresa,
     };
 
-    if (usuario && password && idModulo !== 0) {
+    if (usuarioNormalizado && password && idModulo !== 0) {
       setInvalidField(null); // limpia errores puntuales
       login(loginData);
     }
@@ -114,7 +115,7 @@ export default function Login() {
       state: {
         idModulo,
         idEmpresa,
-        loginUsuario: usuario
+        loginUsuario: usuario.trim()
       },
     });
   };
@@ -182,10 +183,14 @@ export default function Login() {
               type="text"
               placeholder=" "
               value={usuario}
+              autoComplete="username"
               onChange={(e) => setUsuario(e.target.value)}
             />
             <label htmlFor="usuario">usuario</label>
-            <RequiredTooltip visible={submitIntentado && !usuario} message="Debe informar el usuario" />
+            <RequiredTooltip
+              visible={submitIntentado && !usuario.trim()}
+              message="Debe informar el usuario"
+            />
           </div>
 
           {/* ===========================
@@ -194,10 +199,11 @@ export default function Login() {
           <div className={styles["input-contenedor"]}>
             <i className="fa-solid fa-lock"></i>
             <input
-              type={showPassword ? "text" : "contraseña"}
+              type={showPassword ? "text" : "password"}
               id="password"
               placeholder=" "
               value={password}
+              autoComplete="current-password"
               onChange={(e) => setPassword(e.target.value)}
             />
             <label htmlFor="password">Contraseña</label>
@@ -223,7 +229,7 @@ export default function Login() {
           <div className={styles.aaa}>
             <button
               type="submit"
-              disabled={isLoadingEmpresa || isLoadingModulos}
+              disabled={isLoadingEmpresa || isLoadingModulos || isLoading}
             >
               Iniciar Sesión
             </button>
