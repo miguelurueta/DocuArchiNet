@@ -2,7 +2,8 @@ import { BrowserRouter } from "react-router";
 import { AppRoutes } from "./app/routes";
 import { ToastContainer } from "react-toastify";
 import ErrorBoundaryWithNotifier from "./shared/errors/ErrorBoundaryWithNotifier";
-
+import { AutenticacionProvider } from "./app/auth/Estado/AutenticacionProvider";
+import TokenWatcher from "./app/auth/Monitoreo/TokenWatcher";
 function App() {
   return (
     <>
@@ -18,7 +19,10 @@ function App() {
         }
       >
         <BrowserRouter>
-          <AppRoutes />
+        <AutenticacionProvider>
+               <TokenWatcher/> 
+             <AppRoutes />
+        </AutenticacionProvider>
         </BrowserRouter>
       </ErrorBoundaryWithNotifier>
 

@@ -2,25 +2,25 @@ export function validarRespuestaAutenticacion(data: any) {
   const errores: string[] = [];
 
   if (!data) errores.push("La respuesta está vacía");
-  if (!data?.Token) errores.push("No se recibió el token de autenticación");
-  if (!data?.Expiracion) errores.push("No se recibió la fecha de expiración");
+  if (!data?.token) errores.push("No se recibió el token de autenticación");
+  if (!data?.expiracion) errores.push("No se recibió la fecha de expiración");
 
-  if (!data?.Usuario) {
+  if (!data?.usuario) {
     errores.push("No se recibió el objeto Usuario");
   } else {
-    if (!data.Usuario.UsuarioId)
+    if (!data.usuario.usuarioId)
       errores.push("UsuarioId no fue enviado por la API");
 
-    if (!data.Usuario.Login)
+    if (!data.usuario.login)
       errores.push("Login no fue enviado por la API");
 
-    if (!data.Usuario.Nombre)
+    if (!data.usuario.nombre)
       errores.push("Nombre no fue enviado por la API");
 
-    if (data.Usuario.Activo === undefined)
+    if (data.usuario.activo === undefined)
       errores.push("Activo no fue enviado por la API");
 
-    if (!Array.isArray(data.Usuario.Permisos))
+    if (!Array.isArray(data.usuario.permisos))
       errores.push("Permisos no fue enviado o no es una lista");
   }
 

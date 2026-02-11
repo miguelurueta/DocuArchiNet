@@ -1,5 +1,5 @@
 import axios from "axios";
-import { finalizarSesionYRedirigir, obtenerToken, tokenExpirado } from "../app/auth/ManejadorJWT";
+import { finalizarSesionYRedirigir, obtenerToken, tokenExpirado } from "../app/auth/Infraestructura/ManejadorJWT";
 //let redireccionEnCurso = false;
 const clienteApi = axios.create({
   baseURL: import.meta.env.VITE_API_URL,

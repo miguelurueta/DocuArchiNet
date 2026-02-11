@@ -1,4 +1,4 @@
-import { guardarTokenLocalStorage } from "../../../app/auth/ManejadorJWT";
+import { guardarTokenLocalStorage } from "../../../app/auth/Infraestructura/ManejadorJWT";
 import type RespuestaAutenticacion from "../../login/models/RespuestaAutenticacionDTO";
 
 

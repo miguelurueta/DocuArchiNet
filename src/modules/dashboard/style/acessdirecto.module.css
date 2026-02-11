@@ -1,0 +1,52 @@
+.header {
+  display: flex;
+  align-items: center;
+  width: 185px;
+
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  margin-left: 10px;
+
+  border-radius: 15px;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(245, 247, 250, 0.95)
+  );
+
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+
+  cursor: pointer;
+  transition: all 0.25s ease !important;
+}
+
+.header:hover {
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+
+  /* color: #2563eb !important; */
+  transform: translateY(-2px);
+}
+
+.title {
+  font-size: 15px !important;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-right: 4px !important;
+}
+
+
+
+.icon{
+  color: #2563eb !important;
+  transition: all 0.25s ease !important;
+}
+
+
+.rotated {
+  transform: rotate(-90deg);
+}

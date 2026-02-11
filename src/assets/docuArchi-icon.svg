@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradIcon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E3A8A"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M110 60 L250 60 
+           C360 60 440 140 440 256 
+           C440 372 360 452 250 452 
+           L110 452 Z"
+        fill="none"
+        stroke="url(#gradIcon)"
+        stroke-width="60"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <path d="M170 130 L250 130 
+           C330 130 380 180 380 256 
+           C380 332 330 382 250 382 
+           L170 382 Z"
+        fill="none"
+        stroke="#3B82F6"
+        stroke-width="40"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+</svg>

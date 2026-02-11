@@ -1,225 +1,200 @@
-import {
-  Box,
-  Drawer,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Popover,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import { useMemo, useState, type MouseEvent } from "react";
-import { NavLink } from "react-router";
-import { useMenuItems } from "../hooks/useMenuItems";
-import { buildMenuTree } from "../utils/menuTree";
+import { Layout, Menu, Spin, Tooltip, Badge } from "antd";
+import { useState, useMemo, useRef, useEffect } from "react";
+import type { MenuProps } from "antd";
 import type { MenuNode } from "../types/menu";
+import styles from "../style/side.module.css";
+import { useNavigate, useLocation } from "react-router-dom";
+
+const { Sider } = Layout;
 
 interface SidebarProps {
-  isOpen: boolean;
-  isMobile: boolean;
-  mobileOpen: boolean;
-  onClose: () => void;
+  collapsed: boolean;
+  onCollapse: (collapsed: boolean) => void;
+  menuTree: MenuNode[] | [];
+  metricMap: Map<number, number>;
+  isLoading: boolean;
 }
 
-const drawerWidth = 260;
-const collapsedWidth = 78;
+export default function Sidebar({
+  collapsed,
+  onCollapse,
+  menuTree,
+  metricMap,
+  isLoading,
+}: SidebarProps) {
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const siderRef = useRef<HTMLDivElement>(null);
 
-/**
- * Sidebar dinámico basado en el árbol de menú proporcionado por la API.
- */
-const Sidebar = ({ isOpen, isMobile, mobileOpen, onClose }: SidebarProps) => {
-  const { data, isLoading } = useMenuItems();
-  const menuTree = useMemo(() => buildMenuTree(data ?? []), [data]);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [activeParent, setActiveParent] = useState<MenuNode | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleOpenMenu = (event: MouseEvent<HTMLElement>, node: MenuNode) => {
-    setAnchorEl(event.currentTarget);
-    setActiveParent(node);
+  /* ---------- MAPAS ---------- */
+  const { keyParentMap, keyUrlMap } = useMemo(() => {
+    const parentMap: Record<string, string | null> = {};
+    const urlMap: Record<string, string> = {};
+
+    const walk = (nodes: MenuNode[], parent: string | null) => {
+      nodes.forEach((node) => {
+        const key = String(node.IdMenuPrincipal);
+        parentMap[key] = parent;
+
+        if (node.UrlNode) urlMap[key] = node.UrlNode;
+        if (node.children?.length) walk(node.children, key);
+      });
+    };
+
+    walk(menuTree, null);
+    return { keyParentMap: parentMap, keyUrlMap: urlMap };
+  }, [menuTree]);
+
+  /* ---------- SINCRONIZAR CON RUTA ---------- */
+  useEffect(() => {
+    if (collapsed) return;
+
+    const selectedEntry = Object.entries(keyUrlMap).find(
+      ([, url]) =>
+        location.pathname === url ||
+        location.pathname.startsWith(url + "/")
+    );
+
+    if (selectedEntry) {
+      const selectedKey = selectedEntry[0];
+
+      const parents: string[] = [];
+      let parent = keyParentMap[selectedKey];
+
+      while (parent) {
+        parents.push(parent);
+        parent = keyParentMap[parent];
+      }
+
+      setOpenKeys(parents);
+    }
+  }, [location.pathname, keyParentMap, keyUrlMap, collapsed]);
+
+  /* ---------- ACCORDION ---------- */
+  const onOpenChange = (keys: string[]) => {
+    const latest = keys.find((k) => !openKeys.includes(k));
+    if (!latest) return setOpenKeys(keys);
+
+    const parent = keyParentMap[latest];
+
+    if (!parent) {
+      setOpenKeys([latest]);
+    } else {
+      setOpenKeys(keys);
+    }
   };
 
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-    setActiveParent(null);
+  /* ---------- CLICK ---------- */
+  const onMenuClick: MenuProps["onClick"] = ({ key }) => {
+    const url = keyUrlMap[key as string];
+    if (url) navigate(url);
   };
 
-  const renderMenuIcon = (icon?: string) => (
-    <Box
-      component="span"
-      sx={{
-        minWidth: 24,
-        display: "inline-flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      {icon ? <i className={icon} aria-hidden /> : <i className="fa-regular fa-circle" aria-hidden />}
-    </Box>
-  );
+  /* ---------- ACTIVO ---------- */
+  const selectedKeys = useMemo(() => {
+    const entry = Object.entries(keyUrlMap).find(
+      ([, url]) =>
+        location.pathname === url ||
+        location.pathname.startsWith(url + "/")
+    );
+    return entry ? [entry[0]] : [];
+  }, [location.pathname, keyUrlMap]);
 
-  const drawerContent = (
-    <Box
-      sx={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <Box
-        sx={{
-          py: 3,
-          px: isOpen ? 3 : 2,
-          display: "flex",
-          alignItems: "center",
-          gap: 1.5,
-        }}
-      >
-        <Box
-          sx={{
-            width: 36,
-            height: 36,
-            borderRadius: 2,
-            backgroundColor: "primary.main",
-            color: "primary.contrastText",
-            display: "grid",
-            placeItems: "center",
-            fontWeight: 700,
-          }}
-        >
-          D
-        </Box>
-        {isOpen && (
-          <Typography variant="subtitle1" fontWeight={700}>
-            Docuarchi
-          </Typography>
-        )}
-      </Box>
+  /* ---------- ITEMS ---------- */
+  const buildMenuItems = (nodes: MenuNode[]): MenuProps["items"] =>
+    nodes
+      .filter((n) => n.VisibleNode === 1)
+      .sort((a, b) => a.Orden - b.Orden)
+      .map((node) => {
+        const key = String(node.IdMenuPrincipal);
+        const pending = metricMap.get(node.IdMenuPrincipal) ?? 0;
 
-      <List sx={{ flex: 1, px: 1 }}>
-        {isLoading && (
-          <Typography variant="body2" color="text.secondary" sx={{ px: 2 }}>
-            Cargando menú...
-          </Typography>
-        )}
-        {menuTree.map((node) => {
-          const hasChildren = node.children.length > 0;
-          const listItem = (
-            <ListItemButton
-              key={node.ValueNode}
-              onMouseEnter={(event) => hasChildren && !isMobile && handleOpenMenu(event, node)}
-              onFocus={(event) => hasChildren && handleOpenMenu(event, node)}
-              onClick={(event) => hasChildren && handleOpenMenu(event, node)}
-              component={hasChildren ? "div" : NavLink}
-              to={hasChildren ? undefined : `/dashboard/module/${node.ValueNode}`}
-              className={
-                hasChildren
-                  ? undefined
-                  : ({ isActive }: { isActive: boolean }) =>
-                      isActive ? "active" : ""
-              }
-              sx={{
-                borderRadius: 2,
-                mb: 0.5,
-                px: isOpen ? 2 : 1.5,
-                py: 1.2,
-                "&.active": {
-                  backgroundColor: "primary.main",
-                  color: "primary.contrastText",
-                },
-              }}
-            >
-              <ListItemIcon sx={{ minWidth: isOpen ? 36 : 28 }}>
-                {renderMenuIcon(node.Icono)}
-              </ListItemIcon>
-              {isOpen && <ListItemText primary={node.NombreModulo} />}
-              {isOpen && hasChildren && (
-                <i className="fa-solid fa-chevron-right" aria-hidden />
-              )}
-            </ListItemButton>
-          );
+        const expandedLabel = (
+          <div className={styles.menuRow}>
+            <span className={styles.menuText}>
+              {node.NombreModulo}
+            </span>
 
-          return isOpen ? (
-            <Box key={node.ValueNode}>{listItem}</Box>
-          ) : (
-            <Tooltip key={node.ValueNode} title={node.NombreModulo} placement="right">
-              <Box>{listItem}</Box>
-            </Tooltip>
-          );
-        })}
-      </List>
-    </Box>
+            {pending > 0 && (
+              <Badge
+                count={pending}
+                size="small"
+                overflowCount={99}
+                className={styles.menuBadge}
+              />
+            )}
+          </div>
+        );
+
+        const collapsedLabel = (
+          <Tooltip
+            title={node.ToltipNode || node.NombreModulo}
+            placement="right"
+            color="#505050"
+          >
+            <span>{node.NombreModulo}</span>
+          </Tooltip>
+        );
+
+        return {
+          key,
+          icon: node.Icono ? <i className={node.Icono} /> : undefined,
+          label: collapsed ? collapsedLabel : expandedLabel,
+          children: node.children?.length
+            ? buildMenuItems(node.children)
+            : undefined,
+        };
+      });
+
+  const menuItems = useMemo(
+    () => buildMenuItems(menuTree),
+    [menuTree, collapsed, metricMap]
   );
 
   return (
-    <>
-      <Drawer
-        variant={isMobile ? "temporary" : "permanent"}
-        open={isMobile ? mobileOpen : true}
-        onClose={onClose}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          width: isMobile ? drawerWidth : isOpen ? drawerWidth : collapsedWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: isMobile ? drawerWidth : isOpen ? drawerWidth : collapsedWidth,
-            boxSizing: "border-box",
-            transition: "width 0.2s",
-            borderRight: "1px solid",
-            borderColor: "divider",
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
+    <Sider
+      ref={siderRef}
+      collapsible
+      collapsed={collapsed}
+      onCollapse={onCollapse}
+      trigger={null}
+      width={300}
+      collapsedWidth={70}
+      theme="light"
+      className={styles.sider}
+    >
+      <div className={styles.logo}>
+        <img
+          src={
+            collapsed
+              ? "/src/assets/docuArchiD.png"
+              : "/src/assets/docuArchi.png"
+          }
+          alt="DocuArchi"
+        />
+      </div>
 
-      <Popover
-        open={Boolean(anchorEl && activeParent)}
-        anchorEl={anchorEl}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "left" }}
-        PaperProps={{
-          onMouseLeave: handleCloseMenu,
-          sx: { p: 1.5, minWidth: 240 },
-        }}
-        disableRestoreFocus
-      >
-        <Typography variant="subtitle2" sx={{ px: 1, mb: 1 }}>
-          {activeParent?.NombreModulo}
-        </Typography>
-        <List sx={{ p: 0 }}>
-          {activeParent?.children.map((child) => (
-            <ListItemButton
-              key={child.ValueNode}
-              component={NavLink}
-              to={`/dashboard/module/${child.ValueNode}`}
-              className={({ isActive }: { isActive: boolean }) =>
-                isActive ? "active" : ""
-              }
-              onClick={handleCloseMenu}
-              sx={{
-                borderRadius: 2,
-                mb: 0.5,
-                "&.active": {
-                  backgroundColor: "primary.main",
-                  color: "primary.contrastText",
-                },
-              }}
-            >
-              <ListItemIcon sx={{ minWidth: 36 }}>
-                {renderMenuIcon(child.Icono)}
-              </ListItemIcon>
-              <ListItemText
-                primary={child.NombreModulo}
-                secondary={child.ToltipNode}
-              />
-            </ListItemButton>
-          ))}
-        </List>
-      </Popover>
-    </>
+      {isLoading ? (
+        <div className={styles.loading}>
+          <Spin />
+        </div>
+      ) : (
+        <Menu
+          mode="inline"
+          items={menuItems}
+          inlineCollapsed={collapsed}
+          getPopupContainer={() =>
+            collapsed ? document.body : (siderRef.current ?? document.body)
+          }
+          selectedKeys={selectedKeys}
+          openKeys={collapsed ? undefined : openKeys}
+          onOpenChange={collapsed ? undefined : onOpenChange}
+          onClick={onMenuClick}
+          className={styles.menu}
+        />
+      )}
+    </Sider>
   );
-};
-
-export default Sidebar;
+}
