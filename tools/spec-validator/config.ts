@@ -30,4 +30,13 @@ export const SPEC_MODULES: SpecModuleConfig[] = [
       "src/modules/OTP/**/*.test.tsx",
     ],
   },
+  {
+    module: "dashboard",
+    behaviorSpecs: ["openspec/dashboard.behavior.yaml"],
+    contractSpecs: ["openspec/dashboard.contract.yaml"],
+    testGlobs: [
+      "src/modules/dashboard/**/*.test.ts",
+      "src/modules/dashboard/**/*.test.tsx",
+    ],
+  },
 ];

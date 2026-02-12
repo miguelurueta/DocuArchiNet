@@ -32,17 +32,26 @@ const run = async (): Promise<void> => {
   console.log(`Unknown tags in tests: ${unknownTags.length}`);
 
   console.log("\nCoverage by module:");
+  const modulesWithoutCoverage: string[] = [];
   for (const moduleConfig of SPEC_MODULES) {
     const moduleSpecIds = new Set(specResult.byModule[moduleConfig.module] ?? []);
     const moduleTestIds = new Set(testResult.byModule[moduleConfig.module] ?? []);
 
     const moduleCovered = Array.from(moduleSpecIds).filter(id => moduleTestIds.has(id));
     const moduleMissing = Array.from(moduleSpecIds).filter(id => !moduleTestIds.has(id));
+
+    if (moduleSpecIds.size > 0 && moduleCovered.length === 0) {
+      modulesWithoutCoverage.push(moduleConfig.module);
+    }
+
     console.log(
       `- ${moduleConfig.module}: ${moduleCovered.length}/${moduleSpecIds.size} covered` +
         `, ${moduleMissing.length} missing`
     );
   }
+
+  console.log("\nModules with OpenSpec and no test coverage:");
+  console.log(formatList(modulesWithoutCoverage));
 
   console.log("\nMissing spec coverage:");
   console.log(formatList(missingSpecs));
