@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
-    "spec:validate": "node --experimental-strip-types tools/spec-validator/validateSpec.ts"
+    "spec:validate": "tsx tools/spec-validator/validateSpec.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

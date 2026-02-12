@@ -1,5 +1,4 @@
 import process from "node:process";
-import { SPEC_MODULES } from "./config.ts";
 import { extractTestCases } from "./extractTestCases.ts";
 import { parseOpenSpec } from "./parseOpenSpec.ts";
 
@@ -31,27 +30,10 @@ const run = async (): Promise<void> => {
   console.log(`Specs missing: ${missingSpecs.length}`);
   console.log(`Unknown tags in tests: ${unknownTags.length}`);
 
-  console.log("\nCoverage by module:");
-  const modulesWithoutCoverage: string[] = [];
-  for (const moduleConfig of SPEC_MODULES) {
-    const moduleSpecIds = new Set(specResult.byModule[moduleConfig.module] ?? []);
-    const moduleTestIds = new Set(testResult.byModule[moduleConfig.module] ?? []);
-
-    const moduleCovered = Array.from(moduleSpecIds).filter(id => moduleTestIds.has(id));
-    const moduleMissing = Array.from(moduleSpecIds).filter(id => !moduleTestIds.has(id));
-
-    if (moduleSpecIds.size > 0 && moduleCovered.length === 0) {
-      modulesWithoutCoverage.push(moduleConfig.module);
-    }
-
-    console.log(
-      `- ${moduleConfig.module}: ${moduleCovered.length}/${moduleSpecIds.size} covered` +
-        `, ${moduleMissing.length} missing`
-    );
+  console.log("\nSpec IDs by source:");
+  for (const [sourcePath, sourceIds] of Object.entries(specResult.bySource)) {
+    console.log(`- ${sourcePath}: ${sourceIds.length} scenario(s)`);
   }
-
-  console.log("\nModules with OpenSpec and no test coverage:");
-  console.log(formatList(modulesWithoutCoverage));
 
   console.log("\nMissing spec coverage:");
   console.log(formatList(missingSpecs));
@@ -68,7 +50,7 @@ const run = async (): Promise<void> => {
   } else {
     byFileEntries.forEach(([filePath, tags]) => {
       const uniqueTags = Array.from(new Set(tags)).sort();
-      console.log(`- ${filePath}: ${uniqueTags.join(", ")}`);
+      console.log(`- ${filePath}: ${uniqueTags.join(", ") || "(none)"}`);
     });
   }
 

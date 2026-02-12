@@ -1,0 +1,38 @@
+module: recovery
+version: 1.0
+scenarios:
+  - id: REC-001
+    title: Solicitud recovery SUCCESS
+    given:
+      - Usuario ingresa un identificador válido
+    when:
+      - Envía el formulario de recuperación
+    then:
+      - Se envía la solicitud de recuperación
+
+  - id: REC-002
+    title: Usuario o email inválido en UI
+    given:
+      - Usuario no ingresa identificador
+    when:
+      - Intenta enviar el formulario
+    then:
+      - Se muestra validación obligatoria y no se envía la solicitud
+
+  - id: REC-003
+    title: Usuario inexistente con respuesta funcional
+    given:
+      - API responde funcionalmente sin error técnico
+    when:
+      - Finaliza la mutación de recovery
+    then:
+      - La SPA navega al flujo de verificación sin recarga
+
+  - id: REC-004
+    title: Error técnico al solicitar recuperación
+    given:
+      - API devuelve error técnico
+    when:
+      - La mutación falla
+    then:
+      - Se notifica el error y se desbloquea la operación

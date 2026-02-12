@@ -1,11 +1,10 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
-import { SPEC_MODULES, SPEC_TAG_REGEX } from "./config.ts";
+import { SPEC_VALIDATION_CONFIG } from "./config.ts";
 
 export type TestScanResult = {
   specIds: Set<string>;
   byFile: Record<string, string[]>;
-  byModule: Record<string, string[]>;
   totalTaggedTests: number;
 };
 
@@ -54,7 +53,7 @@ const collectFiles = async (dirPath: string): Promise<string[]> => {
 const extractSpecTagsFromContent = (content: string): string[] => {
   const ids: string[] = [];
 
-  for (const match of content.matchAll(SPEC_TAG_REGEX)) {
+  for (const match of content.matchAll(SPEC_VALIDATION_CONFIG.specTagRegex)) {
     const id = match[1];
     if (id) {
       ids.push(id);
@@ -66,47 +65,27 @@ const extractSpecTagsFromContent = (content: string): string[] => {
 
 export const extractTestCases = async (projectRoot: string): Promise<TestScanResult> => {
   const allSrcFiles = await collectFiles(path.resolve(projectRoot, "src"));
+  const matchers = SPEC_VALIDATION_CONFIG.testGlobs.map(globToRegex);
 
   const byFile: Record<string, string[]> = {};
-  const byModule: Record<string, string[]> = {};
   const specIds = new Set<string>();
   let totalTaggedTests = 0;
 
-  for (const moduleConfig of SPEC_MODULES) {
-    const matchers = moduleConfig.testGlobs.map(globToRegex);
-    const moduleFiles = allSrcFiles.filter(filePath => {
-      const relativePath = path.relative(projectRoot, filePath).replaceAll("\\", "/");
-      return matchers.some(matcher => matcher.test(relativePath));
-    });
+  const candidateFiles = allSrcFiles.filter(filePath => {
+    const relativePath = path.relative(projectRoot, filePath).replaceAll("\\", "/");
+    return matchers.some(matcher => matcher.test(relativePath));
+  });
 
-    const moduleIds = new Set<string>();
+  for (const filePath of candidateFiles) {
+    const content = await readFile(filePath, "utf-8");
+    const tags = extractSpecTagsFromContent(content);
 
-    for (const filePath of moduleFiles) {
-      const content = await readFile(filePath, "utf-8");
-      const tags = extractSpecTagsFromContent(content);
+    const relativePath = path.relative(projectRoot, filePath).replaceAll("\\", "/");
+    byFile[relativePath] = tags;
 
-      if (tags.length === 0) {
-        continue;
-      }
-
-      const relativePath = path.relative(projectRoot, filePath).replaceAll("\\", "/");
-      const previous = byFile[relativePath] ?? [];
-      byFile[relativePath] = [...previous, ...tags];
-
-      tags.forEach(id => {
-        specIds.add(id);
-        moduleIds.add(id);
-      });
-      totalTaggedTests += tags.length;
-    }
-
-    byModule[moduleConfig.module] = Array.from(moduleIds).sort();
+    tags.forEach(id => specIds.add(id));
+    totalTaggedTests += tags.length;
   }
 
-  return {
-    specIds,
-    byFile,
-    byModule,
-    totalTaggedTests,
-  };
+  return { specIds, byFile, totalTaggedTests };
 };

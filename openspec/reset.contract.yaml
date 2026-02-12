@@ -1,0 +1,25 @@
+module: reset
+version: 1.0
+scenarios:
+  - id: RST-001
+    title: Contract - Reset password success
+    request:
+      token: string
+      userId: number
+      idModule: number
+      newPassword: string
+      confirmNewPassword: string
+    response:
+      success: true
+
+  - id: RST-002
+    title: Contract - Invalid/expired/reused token
+    request:
+      token: string
+      userId: number
+      idModule: number
+      newPassword: string
+      confirmNewPassword: string
+    response:
+      success: false
+      errorCode: TOKEN_INVALID_OR_EXPIRED

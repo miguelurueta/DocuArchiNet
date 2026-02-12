@@ -1,0 +1,38 @@
+module: reset
+version: 1.0
+scenarios:
+  - id: RST-001
+    title: Reset SUCCESS con token válido
+    given:
+      - Usuario posee token válido y password válida
+    when:
+      - Envía el formulario de cambio
+    then:
+      - Navega al login sin recarga
+
+  - id: RST-002
+    title: Token inválido, expirado o reutilizado
+    given:
+      - API rechaza el token de reset
+    when:
+      - Falla la mutación de cambio de contraseña
+    then:
+      - Se notifica error y no navega al login
+
+  - id: RST-003
+    title: Validaciones UI de password
+    given:
+      - Usuario deja campos obligatorios vacíos o confirma distinto
+    when:
+      - Intenta enviar formulario
+    then:
+      - Se muestran validaciones y se bloquea el submit
+
+  - id: RST-004
+    title: Navegación SPA de retorno
+    given:
+      - Usuario usa acción volver
+    when:
+      - Click en volver
+    then:
+      - Navega con router sin recargar la página
