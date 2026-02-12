@@ -1,0 +1,20 @@
+module: dashboard
+version: 1.0
+scenarios:
+  - id: DASH-001
+    title: Render inicial con menú cargado
+    given:
+      - Usuario autenticado
+      - useMenuItems retorna menuTree con nodos visibles
+    when:
+      - Se navega a /dashboard
+    then:
+      - Se renderiza al menos una opción de acceso directo visible
+  - id: DASH-002
+    title: Navegación SPA al click en card
+    given:
+      - Existe card con UrlNode
+    when:
+      - Usuario hace click en card
+    then:
+      - Se llama navigate(UrlNode) sin recarga
