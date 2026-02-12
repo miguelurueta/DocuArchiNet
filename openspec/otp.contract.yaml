@@ -1,0 +1,16 @@
+module: otp
+version: 1.0
+contracts:
+  OtpVerifyRequest:
+    type: object
+    required:
+      - userId
+      - code
+    properties:
+      userId:
+        type: number
+      code:
+        type: string
+        minLength: 1
+  OtpVerifyResponse:
+    $ref: "./auth.contract.yaml#/contracts/AuthResponse"

@@ -1,4 +1,5 @@
 import process from "node:process";
+import { SPEC_MODULES } from "./config.ts";
 import { extractTestCases } from "./extractTestCases.ts";
 import { parseOpenSpec } from "./parseOpenSpec.ts";
 
@@ -20,7 +21,6 @@ const run = async (): Promise<void> => {
 
   const missingSpecs = specIds.filter(id => !testResult.specIds.has(id));
   const unknownTags = testIds.filter(id => !specResult.specIds.has(id));
-
   const coveredSpecs = specIds.length - missingSpecs.length;
 
   console.log("\nOpenSpec/Test Validation Report");
@@ -30,6 +30,19 @@ const run = async (): Promise<void> => {
   console.log(`Specs covered: ${coveredSpecs}`);
   console.log(`Specs missing: ${missingSpecs.length}`);
   console.log(`Unknown tags in tests: ${unknownTags.length}`);
+
+  console.log("\nCoverage by module:");
+  for (const moduleConfig of SPEC_MODULES) {
+    const moduleSpecIds = new Set(specResult.byModule[moduleConfig.module] ?? []);
+    const moduleTestIds = new Set(testResult.byModule[moduleConfig.module] ?? []);
+
+    const moduleCovered = Array.from(moduleSpecIds).filter(id => moduleTestIds.has(id));
+    const moduleMissing = Array.from(moduleSpecIds).filter(id => !moduleTestIds.has(id));
+    console.log(
+      `- ${moduleConfig.module}: ${moduleCovered.length}/${moduleSpecIds.size} covered` +
+        `, ${moduleMissing.length} missing`
+    );
+  }
 
   console.log("\nMissing spec coverage:");
   console.log(formatList(missingSpecs));
@@ -45,7 +58,8 @@ const run = async (): Promise<void> => {
     console.log("(none)");
   } else {
     byFileEntries.forEach(([filePath, tags]) => {
-      console.log(`- ${filePath}: ${tags.join(", ")}`);
+      const uniqueTags = Array.from(new Set(tags)).sort();
+      console.log(`- ${filePath}: ${uniqueTags.join(", ")}`);
     });
   }
 

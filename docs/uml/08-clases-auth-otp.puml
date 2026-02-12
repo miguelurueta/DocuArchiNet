@@ -1,0 +1,44 @@
+@startuml
+title Diagrama de Clases - Auth + OTP
+
+class AuthResponse {
+  +success: boolean
+  +tipo: "SUCCESS" | "SECOND_FACTOR" | "ERROR"
+  +payload?: AuthPayload
+  +message?: string
+  +errorMessage?: string
+}
+
+class AuthPayload {
+  +token?: string
+  +expiracion?: string
+  +userId?: number
+  +email?: string
+  +expires?: string
+}
+
+class OtpVerifyRequest {
+  +userId: number
+  +code: string
+}
+
+class useLogin {
+  +login(data): Promise<void>
+}
+
+class useOTPVerifyMutation {
+  +mutate(request): void
+}
+
+class AuthSessionService {
+  +iniciarSesion(auth): void
+  +cerrarSesion(): void
+}
+
+AuthResponse *-- AuthPayload
+useLogin ..> AuthResponse
+useOTPVerifyMutation ..> OtpVerifyRequest
+useOTPVerifyMutation ..> AuthResponse
+useLogin ..> AuthSessionService
+useOTPVerifyMutation ..> AuthSessionService
+@enduml

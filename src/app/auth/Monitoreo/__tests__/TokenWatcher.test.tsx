@@ -87,7 +87,7 @@ describe("TokenWatcher", () => {
     expect(screen.queryByText(/sesión ha caducado/i)).toBeNull();
   });
 
-  test("si ruta restringida y token expirado en modo redirect, muestra overlay y redirige", () => {
+  test("[SPEC:AUTH-003] ruta restringida con token expirado en modo redirect muestra overlay y redirige", () => {
     authConfig.tokenStrategy = "redirect";
 
     vi.spyOn(jwt, "tokenExpirado").mockReturnValue(true);
