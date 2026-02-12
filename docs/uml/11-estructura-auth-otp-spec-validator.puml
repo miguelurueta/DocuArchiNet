@@ -1,0 +1,34 @@
+@startuml
+title Estructura de archivos (OpenSpec + Validador + Tests)
+
+folder openspec {
+  file auth.behavior.yaml
+  file auth.contract.yaml
+  file otp.behavior.yaml
+  file otp.contract.yaml
+}
+
+folder tools {
+  folder spec-validator {
+    file config.ts
+    file parseOpenSpec.ts
+    file extractTestCases.ts
+    file validateSpec.ts
+  }
+}
+
+folder src {
+  folder modules {
+    folder login {
+      file hooks/useLogin.spec.test.ts
+    }
+    folder OTP {
+      file hooks/useOTPVerifyMutation.spec.test.ts
+      file components/FormularioToken.spec.test.tsx
+    }
+  }
+  folder app/auth/Monitoreo/__tests__ {
+    file TokenWatcher.test.tsx
+  }
+}
+@enduml

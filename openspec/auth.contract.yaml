@@ -1,0 +1,39 @@
+module: auth
+version: 1.0
+contracts:
+  AuthResponse:
+    type: object
+    required:
+      - success
+      - tipo
+    properties:
+      success:
+        type: boolean
+      tipo:
+        enum:
+          - SUCCESS
+          - SECOND_FACTOR
+          - ERROR
+      payload:
+        type: object
+        properties:
+          token:
+            type: string
+            minLength: 1
+          expiracion:
+            type: string
+            format: date-time
+          userId:
+            type: number
+          email:
+            type: string
+          expires:
+            type: string
+            format: date-time
+      message:
+        type: string
+      errorMessage:
+        type: string
+rules:
+  - "expiracion debe cumplir ISO 8601"
+  - "token debe ser string no vacío cuando tipo=SUCCESS"

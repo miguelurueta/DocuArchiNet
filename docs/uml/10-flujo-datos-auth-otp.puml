@@ -1,0 +1,33 @@
+@startuml
+title Flujo de datos entre capas (Auth + OTP)
+
+rectangle UI {
+  [Login.tsx]
+  [OTPVerifyPage.tsx]
+  [FormularioToken.tsx]
+}
+rectangle Hooks {
+  [useLogin]
+  [useOTPVerifyMutation]
+}
+rectangle API {
+  [seLoginUsuario]
+  [seVerificarSegundoFactor]
+}
+rectangle Infra {
+  [AuthSessionService]
+  [ManejadorJWT/localStorage]
+  [Router]
+}
+
+[Login.tsx] --> [useLogin]
+[OTPVerifyPage.tsx] --> [useOTPVerifyMutation]
+[FormularioToken.tsx] --> [useOTPVerifyMutation]
+[useLogin] --> [seLoginUsuario]
+[useOTPVerifyMutation] --> [seVerificarSegundoFactor]
+[useLogin] --> [AuthSessionService]
+[useOTPVerifyMutation] --> [AuthSessionService]
+[AuthSessionService] --> [ManejadorJWT/localStorage]
+[useLogin] --> [Router]
+[useOTPVerifyMutation] --> [Router]
+@enduml

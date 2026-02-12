@@ -1,0 +1,36 @@
+@startuml
+title Secuencia AUTH-001, AUTH-002 y OTP-001
+
+actor Usuario
+participant "Login UI" as LoginUI
+participant "useLogin" as UseLogin
+participant "Auth API" as AuthApi
+participant "OTP UI" as OtpUI
+participant "useOTPVerifyMutation" as OtpMutation
+participant "OTP API" as OtpApi
+participant "AuthSessionService" as Session
+participant "Router" as Router
+
+== AUTH-001 Login Success ==
+Usuario -> LoginUI: Ingresa credenciales válidas
+LoginUI -> UseLogin: login(credentials)
+UseLogin -> AuthApi: POST /login
+AuthApi --> UseLogin: SUCCESS(token, expiracion)
+UseLogin -> Session: iniciarSesion(auth)
+UseLogin -> Router: navigate(/dashboard)
+
+== AUTH-002 Login Second Factor ==
+Usuario -> LoginUI: Envía credenciales con 2FA
+LoginUI -> UseLogin: login(credentials)
+UseLogin -> AuthApi: POST /login
+AuthApi --> UseLogin: SECOND_FACTOR_REQUIRED(challenge)
+UseLogin -> Router: navigate(/verificar-otp, state)
+
+== OTP-001 Verify OTP Success ==
+Usuario -> OtpUI: Ingresa OTP válido
+OtpUI -> OtpMutation: mutate({challengeId, code})
+OtpMutation -> OtpApi: POST /verify-otp
+OtpApi --> OtpMutation: SUCCESS(token, expiracion)
+OtpMutation -> Session: iniciarSesion(auth)
+OtpMutation -> Router: navigate(/dashboard)
+@enduml
