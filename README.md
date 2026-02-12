@@ -76,3 +76,4 @@ export default defineConfig([
 
 - Manual OpenSpec + validación automática: `docs/manual-tecnico-openspec-validacion.md`
 - Manual de integración JIRA + GitHub + Codex: `docs/manual-integracion-jira-github-codex.md`
+- Guía de conexión Codex ↔ JIRA (sin cambios en UI): `docs/conexion-codex-jira.md`
