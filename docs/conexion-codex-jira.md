@@ -7,13 +7,23 @@ La conexión recomendada es externa (CLI/entorno del agente), usando credenciale
 
 Define estas variables en la terminal donde ejecutes Codex:
 
+### Opción 1 (Windows PowerShell)
+
+```powershell
+$env:JIRA_BASE_URL="https://tu-organizacion.atlassian.net"
+$env:JIRA_EMAIL="tu-usuario@empresa.com"
+$env:JIRA_API_TOKEN="<token-atlassian>"
+```
+
+### Opción 2 (Bash: Linux/macOS/Git Bash)
+
 ```bash
 export JIRA_BASE_URL="https://tu-organizacion.atlassian.net"
 export JIRA_EMAIL="tu-usuario@empresa.com"
 export JIRA_API_TOKEN="<token-atlassian>"
 ```
 
-> Genera el token en Atlassian Account (API tokens) y usa una cuenta con permisos sobre los proyectos/tickets que Codex consultará.
+> Genera el token en Atlassian Account (API tokens): https://id.atlassian.com/manage-profile/security/api-tokens y usa una cuenta con permisos sobre los proyectos/tickets que Codex consultará.
 
 ## 2) Validar conexión desde CLI
 
@@ -24,6 +34,8 @@ Se incluye un script para comprobar acceso a `GET /rest/api/3/myself`:
 ```
 
 Si está bien configurado, mostrará usuario y `accountId`.
+
+> En Windows, ejecuta el script desde **Git Bash** o WSL correctamente configurado. Si usas solo PowerShell sin Bash, puedes validar con `Invoke-RestMethod`.
 
 ## 3) Uso operativo con Codex
 
