@@ -71,3 +71,8 @@ export default defineConfig([
   },
 ])
 ```
+
+## Documentación técnica del proyecto
+
+- Manual OpenSpec + validación automática: `docs/manual-tecnico-openspec-validacion.md`
+- Manual de integración JIRA + GitHub + Codex: `docs/manual-integracion-jira-github-codex.md`
