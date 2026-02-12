@@ -103,6 +103,7 @@ import { useDashboardMenu } from "../hooks/useDashboardMenu";
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
 import type { MenuNode } from "../types/menu";
 import { useAppErrorNotifier } from "../../../shared/hooks/useAppErrorNotifier";
+import type { AppError } from "../../../shared/errors/AppError";
 
 export type DashboardOutletContext = {
   menuTree: MenuNode[];
@@ -136,7 +137,14 @@ export default function DashboardLayout() {
     const fingerprint = `${error.name}:${error.message}`;
     if (lastNotifiedErrorRef.current === fingerprint) return;
 
-    notifyError(error, "No se pudo cargar el menú del dashboard.");
+    const dashboardMenuError: AppError = {
+      source: "api",
+      severity: "error",
+      message: "No se pudo cargar el menú del dashboard.",
+      details: error,
+    };
+
+    notifyError(dashboardMenuError);
     lastNotifiedErrorRef.current = fingerprint;
   }, [error, notifyError]);
 
