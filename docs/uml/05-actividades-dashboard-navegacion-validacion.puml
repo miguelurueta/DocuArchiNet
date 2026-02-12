@@ -1,0 +1,40 @@
+@startuml
+title Diagrama de Actividades - Dashboard + Validación Spec
+
+start
+:Usuario entra a /dashboard;
+:Router resuelve DashboardLayout + Outlet;
+:DashboardHome inicia hooks;
+
+fork
+  :useMenuItems carga menú;
+  if (respuesta API válida?) then (sí)
+    :buildMenuTree normaliza nodos;
+  else (no)
+    :usar menuFallback;
+  endif
+fork again
+  :useDashboardMetrics carga métricas;
+end fork
+
+:Renderizar Sidebar + CardComponent;
+if (Usuario hace click en card?) then (sí)
+  :navigate(UrlNode) SPA;
+  :Renderizar módulo destino;
+else (no)
+  :Permanecer en dashboard;
+endif
+
+:CI ejecuta tests;
+if (tests pasan?) then (sí)
+  :CI ejecuta spec:validate;
+  if (specs alineados?) then (sí)
+    :Pipeline verde;
+  else (no)
+    :Pipeline falla por desalineación;
+  endif
+else (no)
+  :Pipeline falla por test;
+endif
+stop
+@enduml

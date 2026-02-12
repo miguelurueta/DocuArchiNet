@@ -15,9 +15,11 @@ import * as jwt from "../../Infraestructura/ManejadorJWT";
 import { authConfig } from "../../Configuracion/config";
 
 // 🔐 Mock ESM-safe
+const renovarTokenMock = vi.fn().mockResolvedValue(undefined);
+
 vi.mock("../../Hoks/useRenovarToken", async () => {
   return {
-    default: vi.fn().mockResolvedValue(undefined),
+    default: () => ({ renovarToken: renovarTokenMock }),
   };
 });
 
@@ -40,6 +42,7 @@ describe("TokenWatcher", () => {
     vi.clearAllTimers();
     vi.restoreAllMocks();
     refrescarClaimsMock.mockClear();
+    renovarTokenMock.mockClear();
   });
 
   test("no valida nada si la ruta NO es restringida", () => {
@@ -121,8 +124,6 @@ describe("TokenWatcher", () => {
     vi.spyOn(jwt, "tokenExpirado").mockReturnValue(true);
     vi.spyOn(jwt, "existeTokenRegistrado").mockReturnValue(true);
 
-    const renovarToken =
-      (await import("../../Hoks/useRenovarToken")).default;
 
     render(
       <MemoryRouter initialEntries={["/dashboard"]}>
@@ -138,7 +139,7 @@ describe("TokenWatcher", () => {
       vi.advanceTimersByTime(authConfig.checkIntervalMs);
     });
 
-    expect(renovarToken).toHaveBeenCalledTimes(1);
+    expect(renovarTokenMock).toHaveBeenCalledTimes(1);
     expect(refrescarClaimsMock).toHaveBeenCalledTimes(1);
     expect(jwt.finalizarSesionYRedirigir).not.toHaveBeenCalled();
     expect(screen.queryByText(/sesión ha caducado/i)).toBeNull();

@@ -1,0 +1,72 @@
+@startuml
+title Diagrama de Clases - Dashboard + Spec Validator
+
+class RawMenuItem {
+  +IdMenuPrincipal: number
+  +NombreModulo: string
+  +UrlNode: string
+  +VisibleNode: number
+  +IdPadre: number
+  +Orden: number
+  +AcesoDirecto: number
+}
+
+class MenuNode {
+  +children: MenuNode[]
+}
+RawMenuItem <|-- MenuNode
+
+class DashboardMetric {
+  +nodeId: number
+  +pendingCount: number
+}
+
+class CardComponent {
+  +menuTree: MenuNode[]
+  +metricMap: Map<number, number>
+}
+
+class useMenuItems
+class useDashboardMetrics
+class buildMenuTree {
+  +buildMenuTree(items: RawMenuItem[]): MenuNode[]
+}
+class BuildCard {
+  +BuildCard(tree: MenuNode[]): MenuNode[]
+}
+
+CardComponent --> MenuNode
+CardComponent --> DashboardMetric
+useMenuItems --> buildMenuTree
+CardComponent --> BuildCard
+
+class SpecScenario {
+  +id: string
+  +title?: string
+}
+class SpecParseResult {
+  +specIds: Set<string>
+  +scenarios: SpecScenario[]
+}
+class TestScanResult {
+  +specIds: Set<string>
+  +byFile: Record<string, string[]>
+  +totalTaggedTests: number
+}
+
+class parseOpenSpec {
+  +parseOpenSpec(projectRoot: string): Promise<SpecParseResult>
+}
+class extractTestCases {
+  +extractTestCases(projectRoot: string): Promise<TestScanResult>
+}
+class validateSpec {
+  +run(): Promise<void>
+}
+
+validateSpec --> parseOpenSpec
+validateSpec --> extractTestCases
+parseOpenSpec --> SpecParseResult
+parseOpenSpec --> SpecScenario
+extractTestCases --> TestScanResult
+@enduml

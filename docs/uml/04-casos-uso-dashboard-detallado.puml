@@ -1,0 +1,28 @@
+@startuml
+title Caso de Uso Detallado - Módulo Dashboard
+left to right direction
+
+actor "Usuario Autenticado" as User
+actor "QA/Arquitecto" as QA
+
+rectangle "Sistema SPA Dashboard" {
+  usecase "CU-01\nVisualizar dashboard" as CU1
+  usecase "CU-02\nConsultar menú jerárquico" as CU2
+  usecase "CU-03\nVisualizar métricas\nen cards" as CU3
+  usecase "CU-04\nNavegar por card\nsin recarga" as CU4
+  usecase "CU-05\nValidar alineación\nOpenSpec vs Tests" as CU5
+  usecase "CU-06\nEjecutar pipeline CI" as CU6
+}
+
+User --> CU1
+User --> CU2
+User --> CU3
+User --> CU4
+QA --> CU5
+QA --> CU6
+
+CU1 .> CU2 : <<include>>
+CU1 .> CU3 : <<include>>
+CU4 .> CU1 : <<extend>>
+CU6 .> CU5 : <<include>>
+@enduml
