@@ -29,7 +29,7 @@ describe("TokenWatcher", () => {
   beforeEach(() => {
     vi.useFakeTimers();
 
-    vi.spyOn(jwt, "finalizarSesionYRedirigir").mockImplementation(() => {});
+    vi.spyOn(jwt, "finalizarSesionYRedirigir").mockImplementation(() => undefined);
     vi.spyOn(jwt, "tokenExpirado").mockReturnValue(false);
     vi.spyOn(jwt, "existeTokenRegistrado").mockReturnValue(true);
 

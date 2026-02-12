@@ -93,7 +93,7 @@
 // }
 import { Layout } from "antd";
 import { Outlet } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 
@@ -102,6 +102,7 @@ import Navbar from "../components/Navbar";
 import { useDashboardMenu } from "../hooks/useDashboardMenu";
 import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
 import type { MenuNode } from "../types/menu";
+import { useAppErrorNotifier } from "../../../shared/hooks/useAppErrorNotifier";
 
 export type DashboardOutletContext = {
   menuTree: MenuNode[];
@@ -112,8 +113,10 @@ export type DashboardOutletContext = {
 const { Content } = Layout;
 
 export default function DashboardLayout() {
-  const { menuTree, isLoading } = useDashboardMenu();
+  const { menuTree, isLoading, error } = useDashboardMenu();
   const { metricMap, isLoading: metricsLoading } = useDashboardMetrics();
+  const notifyError = useAppErrorNotifier();
+  const lastNotifiedErrorRef = useRef<string | null>(null);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -122,6 +125,20 @@ export default function DashboardLayout() {
   useEffect(() => {
     setCollapsed(isMobile);
   }, [isMobile]);
+
+
+  useEffect(() => {
+    if (!error) {
+      lastNotifiedErrorRef.current = null;
+      return;
+    }
+
+    const fingerprint = `${error.name}:${error.message}`;
+    if (lastNotifiedErrorRef.current === fingerprint) return;
+
+    notifyError(error, "No se pudo cargar el menú del dashboard.");
+    lastNotifiedErrorRef.current = fingerprint;
+  }, [error, notifyError]);
 
   return (
     <Layout style={{ minHeight: "100vh", width: "100vw", overflow: "hidden" }}>

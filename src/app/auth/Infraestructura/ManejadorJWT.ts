@@ -1,4 +1,5 @@
 import type RespuestaAutenticacion from "../../../modules/login/models/RespuestaAutenticacionDTO";
+import type { NavigateFunction } from "react-router-dom";
 import type Claim from "../Dto/Claim";
 
 const llaveToken = "token";
@@ -106,7 +107,7 @@ function parsePermisos(raw: string): string[] {
     .filter((p) => p.length > 0);
 }
 
-export function finalizarSesionYRedirigir() {
+export function finalizarSesionYRedirigir(navigate: NavigateFunction) {
   logout();
-  window.location.href = "/LoginPage";
+  navigate("/LoginPage", { replace: true });
 }
