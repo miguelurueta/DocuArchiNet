@@ -90,10 +90,10 @@ export default function TokenWatcher() {
           if (authConfig.avisoDelayMs > 0) {
             timeoutRef.current = window.setTimeout(() => {
               logInfo("Redirigiendo por expiración.");
-              finalizarSesionYRedirigir();
+              finalizarSesionYRedirigir(navigate);
             }, authConfig.avisoDelayMs);
           } else {
-            finalizarSesionYRedirigir();
+            finalizarSesionYRedirigir(navigate);
           }
           return;
         }
@@ -108,12 +108,12 @@ export default function TokenWatcher() {
             logInfo("Token renovado y claims refrescados.");
           } catch (err) {
             logError("Fallo renovación. Cerrando sesión.", err);
-            finalizarSesionYRedirigir();
+            finalizarSesionYRedirigir(navigate);
           }
         }
       } catch (err) {
         logError("Error inesperado en watcher.", err);
-        finalizarSesionYRedirigir();
+        finalizarSesionYRedirigir(navigate);
       }
     }, authConfig.checkIntervalMs);
 
