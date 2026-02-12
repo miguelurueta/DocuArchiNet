@@ -71,3 +71,7 @@ export default defineConfig([
   },
 ])
 ```
+
+## Documentación técnica del proyecto
+
+- Manual OpenSpec + validación automática: `docs/manual-tecnico-openspec-validacion.md`
