@@ -1,0 +1,37 @@
+module: recovery
+version: 1.0
+scenarios:
+  - id: REC-001
+    title: Contract - Start recovery request
+    request:
+      user: string
+      idModule: number
+      IdEmpresa: number
+    response:
+      challengeId: string
+      destinoEnmascarado: string
+      tiempoExpira: number
+      userId: number
+      idModule: number
+
+  - id: REC-003
+    title: Contract - Functional response for non-disclosing user state
+    request:
+      user: string
+      idModule: number
+      IdEmpresa: number
+    response:
+      challengeId: string
+      destinoEnmascarado: string
+      tiempoExpira: number
+      userId: number
+      idModule: number
+
+  - id: REC-004
+    title: Contract - Technical failure handling
+    request:
+      user: string
+      idModule: number
+      IdEmpresa: number
+    response:
+      error: technical
