@@ -36,6 +36,7 @@ import RutaProtegida from "../auth/ProteccionRuta/RutaProtegida";
 import DashboardLayout from "../../modules/dashboard/components/DashboardLayout";
 import DashboardHome from "../../modules/dashboard/pages/DashboardHome";
 import WorkflowPage from "../../modules/Workflow/pages/WorkflowPage";
+import RadicacionRoutePage from "../../modules/radicacion/pages/RadicacionRoutePage";
 
 export const loginRoutes: RouteObject[] = [
   { path: "/", element: <LoginPage /> },
@@ -57,6 +58,10 @@ export const loginRoutes: RouteObject[] = [
         {
           path: "workflow",
           element: <WorkflowPage />, // ⬅ entra al MISMO <Outlet />
+        },
+        {
+          path: "radicacion",
+          element: <RadicacionRoutePage />,
         },
           // Crecimiento futuro sin refactor:
           // { path: "workflow/*", element: <WorkflowRoutesOrPage /> },
