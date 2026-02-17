@@ -5,37 +5,23 @@ import clienteApi from "../../../api/Clienteaxios";
 import type { ApiResponse } from "../../../api/ApiResponse";
 import { useAuth } from "../../../app/auth/Hoks/useAuth";
 import { useOperationBlocker } from "../../../app/Components/UI/OperationBlockerContext";
-import type {
-  CampoPlantillaDTO,
-  PlantillaCamposApiResponseDTO,
-} from "../models/CampoPlantillaDTO";
+import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 
 const PLANTILLA_ENDPOINT = "/api/PlantillaRadicado/listaPlantilla";
-
-function normalizeCamposPayload(
-  payload: ApiResponse<CampoPlantillaDTO[]> | PlantillaCamposApiResponseDTO,
-): ReadonlyArray<CampoPlantillaDTO> {
-  if ("data" in payload) {
-    return payload.data ?? [];
-  }
-
-  return payload.Data ?? [];
-}
 
 export function useCamposPlantilla() {
   const { estaLogueado } = useAuth();
   const { block, unblock } = useOperationBlocker();
 
-  const query = useQuery<ReadonlyArray<CampoPlantillaDTO>, AxiosError>({
+  const query = useQuery<ApiResponse<CampoPlantillaDTO[]>, AxiosError>({
     queryKey: ["radicacion-campos-plantilla"],
     enabled: estaLogueado,
     retry: false,
     queryFn: async () => {
-      const { data } = await clienteApi.get<
-        ApiResponse<CampoPlantillaDTO[]> | PlantillaCamposApiResponseDTO
-      >(PLANTILLA_ENDPOINT);
-
-      return normalizeCamposPayload(data);
+      const { data } = await clienteApi.get<ApiResponse<CampoPlantillaDTO[]>>(
+        PLANTILLA_ENDPOINT,
+      );
+      return data;
     },
     placeholderData: (previousData) => previousData,
   });
@@ -55,7 +41,7 @@ export function useCamposPlantilla() {
   }, [block, estaLogueado, query.isFetching, query.isLoading, unblock]);
 
   return {
-    data: query.data ?? [],
+    data: query.data?.data ?? [],
     isLoading: query.isLoading,
     error: query.error,
     refetch: query.refetch,
