@@ -51,12 +51,17 @@ export interface CampoPlantillaDTO {
   control_input_class: string | null;
   name_campo: string;
   aleas_campo: string | null;
+  title?: string | null;
+  title_control?: string | null;
   tipo_control: string | null;
   value_campo: string;
   obligatorio_campo: number;
   disable_campo: number;
   tipo_campo: string;
   max_leng_campo: number;
+  campo_tip?: number | null;
+  control_tip_correo?: number | null;
+  tbl_control?: string | null;
   error_gestion: string;
   tooltipAyuda: string;
   onChangeAction: string | null;

@@ -29,6 +29,16 @@ function createInitialValues(
   }, {});
 }
 
+function normalizeInputValue(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  return "";
+}
+
 export function useRadicacionDynamicForm(
   plantilla: PlantillaRadicadoDTO,
 ): UseRadicacionDynamicFormResult {
@@ -58,7 +68,7 @@ export function useRadicacionDynamicForm(
       setFieldValue(name, isChecked ? "true" : "false");
       return;
     }
-    setFieldValue(name, value);
+    setFieldValue(name, normalizeInputValue(value));
   };
 
   const serialize = (): RadicacionPayloadDTO =>

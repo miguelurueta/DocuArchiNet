@@ -52,8 +52,9 @@ const fieldTypeMap: Record<string, RadicacionInputType> = {
   checkbox: "checkbox",
 };
 
-function mapFieldType(sourceType: string): RadicacionInputType {
-  const normalized = sourceType.trim().toLowerCase();
+function mapFieldType(sourceType: unknown): RadicacionInputType {
+  const normalized =
+    typeof sourceType === "string" ? sourceType.trim().toLowerCase() : "";
   return fieldTypeMap[normalized] ?? "text";
 }
 

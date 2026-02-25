@@ -3,7 +3,7 @@ import {
   SelectField,
   TextAreaField,
   TextField,
-} from "./FieldComponents";
+} from "../components/FieldComponents";
 
 export const radicacionFieldRegistry = {
   text: TextField,

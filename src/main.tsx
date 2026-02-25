@@ -14,6 +14,9 @@ const queryClient = new QueryClient({
   },
 });
 
+document.documentElement.setAttribute("translate", "no");
+document.body?.classList.add("notranslate");
+
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <OperationBlockerProvider>
