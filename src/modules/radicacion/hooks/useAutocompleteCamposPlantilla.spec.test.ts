@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildAutocompletePayload,
+  normalizeAutoCompleteItems,
   resolveAutocompleteEndpoint,
 } from "./useAutocompleteCamposPlantilla";
 
@@ -27,10 +28,11 @@ describe("useAutocompleteCamposPlantilla endpoint resolver", () => {
       defaultDbAlias: "",
       tbl_control: "RAD_GESTION",
       name_campo: "REMITENTE_COR",
+      idScript: 84,
     });
 
     expect(payload).toEqual({
-      idScript: 0,
+      idScript: 84,
       nombreCampo: "REMITENTE_COR",
       valueCampo: "mi",
     });
@@ -51,5 +53,19 @@ describe("useAutocompleteCamposPlantilla endpoint resolver", () => {
       tbl_control: "rad_gestion",
       name_campo: "ANEXOS_COR",
     });
+  });
+
+  it("[SPEC:RMT-006] normaliza respuesta con estructura Data/valueCampo", () => {
+    const items = normalizeAutoCompleteItems({
+      Data: [
+        { idTercero: 101, valueCampo: "MIGUEL URUETA" },
+        { Id: "202", Value: "MARIA VICTORIA" },
+      ],
+    });
+
+    expect(items).toEqual([
+      { idValue: "101", texValue: "MIGUEL URUETA" },
+      { idValue: "202", texValue: "MARIA VICTORIA" },
+    ]);
   });
 });

@@ -451,6 +451,9 @@ describe("RadicacionForm", () => {
           disable_campo: 0,
           title_control: "Título Remitente",
           tooltipAyuda: "Ayuda Remitente",
+          TomPParameterTomSelelect: {
+            id_escript: 987,
+          },
         } as unknown as CampoPlantillaDTO,
       ],
       isLoading: false,
@@ -483,6 +486,7 @@ describe("RadicacionForm", () => {
         defaultDbAlias: "",
         tbl_control: "terceros",
         name_campo: "REMITENTE_COR",
+        idScript: 987,
       },
       true,
     );

@@ -17,6 +17,18 @@ type CampoPlantillaEx = CampoPlantillaDTO & {
   data_group?: string | null;
 };
 
+const resolveCampoIdScript = (campo: CampoPlantillaEx): number | undefined => {
+  const nestedId = campo.TomPParameterTomSelelect?.id_escript;
+  if (typeof nestedId === "number" && Number.isFinite(nestedId)) {
+    return nestedId;
+  }
+  const anyCampo = campo as unknown as { id_escript?: number | null };
+  if (typeof anyCampo.id_escript === "number" && Number.isFinite(anyCampo.id_escript)) {
+    return anyCampo.id_escript;
+  }
+  return undefined;
+};
+
 interface CamposPlantillaAutoCompleteRendererProps {
   camposPlantilla: ReadonlyArray<CampoPlantillaEx>;
   className?: string;
@@ -123,6 +135,7 @@ export function CampoPlantillaAutoCompleteField({
   const nameCampo = campo.name_campo;
   const dataIdent = `pl-radicacion-spe-${nameCampo}`;
   const tblControl = campo.tbl_control ?? "";
+  const campoIdScript = resolveCampoIdScript(campo);
   const labelText = getLabelText(campo, translate);
   const tooltipText = getTooltipText(campo, translate);
   const titleText = getTitleText(campo, translate);
@@ -136,6 +149,7 @@ export function CampoPlantillaAutoCompleteField({
           defaultDbAlias: "",
           tbl_control: tblControl,
           name_campo: nameCampo,
+          ...(campoIdScript !== undefined ? { idScript: campoIdScript } : {}),
         }
       : null,
     shouldQuery,
