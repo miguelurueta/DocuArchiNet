@@ -39,7 +39,7 @@ node scripts/opsxj.js opsxj:close SCRUM-12
 Alias soportados:
 
 - `close`
-- `opensxj:close`
+- `opesxj:close`
 
 ## Flujo funcional
 

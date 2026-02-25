@@ -200,7 +200,7 @@ const commandRegistry = new Map([
   ["archive", runArchive],
   ["opsxj:close", runClose],
   ["close", runClose],
-  ["opensxj:close", runClose],
+  ["opesxj:close", runClose],
 ]);
 
 export const runOpsxjCommand = async ({
@@ -241,7 +241,7 @@ export const runOpsxjCommand = async ({
         ? "[opsxj:archive]"
         : selectedCommand === "opsxj:close" ||
             selectedCommand === "close" ||
-            selectedCommand === "opensxj:close"
+            selectedCommand === "opesxj:close"
           ? "[opsxj:close]"
           : "[opsxj:new]";
     stdout.write(`${prefix} Proceso finalizado correctamente.\n`);
