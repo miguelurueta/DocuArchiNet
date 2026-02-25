@@ -16,6 +16,12 @@ export interface AutoCompleteCampoRequest {
   name_campo: string;
 }
 
+interface AutoCompleteTerceroRequest {
+  idScript: number;
+  nombreCampo: string;
+  valueCampo: string;
+}
+
 const AUTOCOMPLETE_ENDPOINT_DEFAULT =
   "/api/PlantillaRadicado/solicitaAutoCompleteCampos";
 const AUTOCOMPLETE_ENDPOINT_REMITENTE =
@@ -29,6 +35,20 @@ export const resolveAutocompleteEndpoint = (nameCampo: string | null | undefined
     return AUTOCOMPLETE_ENDPOINT_REMITENTE;
   }
   return AUTOCOMPLETE_ENDPOINT_DEFAULT;
+};
+
+export const buildAutocompletePayload = (
+  endpoint: string,
+  params: AutoCompleteCampoRequest,
+): AutoCompleteCampoRequest | AutoCompleteTerceroRequest => {
+  if (endpoint === AUTOCOMPLETE_ENDPOINT_REMITENTE) {
+    return {
+      idScript: 0,
+      nombreCampo: normalizeFieldName(params.name_campo),
+      valueCampo: params.TextoBuscado,
+    };
+  }
+  return params;
 };
 
 export function useAutocompleteCamposPlantilla(
@@ -62,9 +82,10 @@ export function useAutocompleteCamposPlantilla(
           data: [],
         };
       }
+      const payload = buildAutocompletePayload(endpoint, params);
       const { data } = await clienteApi.post<
         ApiResponse<AutoCompleteCampoItemDTO[]>
-      >(endpoint, params);
+      >(endpoint, payload);
       return data;
     },
   });
