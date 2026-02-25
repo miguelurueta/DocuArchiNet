@@ -21,11 +21,9 @@ export default function RadicacionRoutePage() {
   if (error) {
     return <Alert severity="error">No fue posible cargar la plantilla de radicación.</Alert>;
   }
-
   const plantilla =
     data.length > 0
       ? mapCamposPlantillaToPlantillaRadicado(data)
       : EMPTY_PLANTILLA_RADICADO;
-
   return <RadicacionPage plantilla={plantilla} />;
 }

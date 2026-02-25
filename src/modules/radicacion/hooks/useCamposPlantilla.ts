@@ -14,13 +14,14 @@ export function useCamposPlantilla() {
   const { block, unblock } = useOperationBlocker();
 
   const query = useQuery<ApiResponse<CampoPlantillaDTO[]>, AxiosError>({
-    queryKey: ["radicacion-campos-plantilla"],
+    queryKey: ["dashboard-radicacion-campos"],
     enabled: estaLogueado,
     retry: false,
     queryFn: async () => {
       const { data } = await clienteApi.get<ApiResponse<CampoPlantillaDTO[]>>(
         PLANTILLA_ENDPOINT,
       );
+      console.log(data);
       return data;
     },
     placeholderData: (previousData) => previousData,
