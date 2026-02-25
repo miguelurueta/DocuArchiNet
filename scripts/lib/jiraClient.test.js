@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { buildJiraAuthHeader, fetchJiraIssue, normalizeDescription } from "./jiraClient.js";
+import {
+  addJiraComment,
+  buildJiraAuthHeader,
+  fetchJiraIssue,
+  normalizeDescription,
+  transitionJiraIssue,
+} from "./jiraClient.js";
 
 describe("jiraClient", () => {
   it("buildJiraAuthHeader throws when credentials are missing", () => {
@@ -72,5 +78,55 @@ describe("jiraClient", () => {
         commandName: "generate-proposal-from-jira.js",
       })
     ).rejects.toThrow(/generate-proposal-from-jira\.js/i);
+  });
+
+  it("transitionJiraIssue picks done transition by status category", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          transitions: [
+            { id: "21", name: "Finalizado", to: { statusCategory: { key: "done" } } },
+          ],
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 204,
+        text: async () => "",
+      });
+
+    const transition = await transitionJiraIssue({
+      issueKey: "ABC-1",
+      baseUrl: "https://example.atlassian.net",
+      email: "user@example.com",
+      apiToken: "token",
+      target: "done",
+      fetchImpl,
+    });
+
+    expect(transition.id).toBe("21");
+  });
+
+  it("addJiraComment sends ADF payload", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 201,
+      json: async () => ({ id: "10001" }),
+    });
+
+    await addJiraComment({
+      issueKey: "ABC-1",
+      baseUrl: "https://example.atlassian.net",
+      email: "user@example.com",
+      apiToken: "token",
+      message: "PR: https://github.com/acme/repo/pull/1",
+      fetchImpl,
+    });
+
+    const secondArg = fetchImpl.mock.calls[0][1];
+    expect(secondArg.body).toMatch(/\"type\":\"doc\"/);
   });
 });

@@ -1,13 +1,27 @@
 import path from "node:path";
 import { createProposalFromJira } from "./jiraProposalService.js";
+import {
+  buildFeatureBranchName,
+  setupProposalBranchAndCommit,
+} from "./gitClient.js";
+import { archiveWithPullRequest } from "./archiveWorkflowService.js";
 
 const usage = [
   "Uso:",
   "  node scripts/opsxj.js opsxj:new <ISSUE-KEY>",
+  "  node scripts/opsxj.js opsxj:archive <ISSUE-KEY>",
   "  npm run opsxj:new -- <ISSUE-KEY>",
+  "  npm run opsxj:archive -- <ISSUE-KEY>",
 ].join("\n");
 
-const buildContext = ({
+const parseBoolean = (value, fallback) => {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
+  }
+  return String(value).toLowerCase() !== "false";
+};
+
+const buildNewContext = ({
   env,
   stdout,
   issueKey,
@@ -30,6 +44,22 @@ const buildContext = ({
   }
 };
 
+const printGitSummary = ({ stdout, gitResult }) => {
+  stdout.write(`[opsxj:new] Rama Git: ${gitResult.branchName}\n`);
+  if (gitResult.committed) {
+    stdout.write(
+      `[opsxj:new] Commit inicial creado con ${gitResult.proposalRelativePath}\n`,
+    );
+  } else {
+    stdout.write(
+      `[opsxj:new] Sin cambios para commit inicial (${gitResult.proposalRelativePath}).\n`,
+    );
+  }
+  if (gitResult.pushed) {
+    stdout.write("[opsxj:new] Rama enviada a remoto.\n");
+  }
+};
+
 const runNew = async ({
   args,
   env,
@@ -37,6 +67,7 @@ const runNew = async ({
   issueKeyFromArg,
   createProposalFn,
   baseDir,
+  setupProposalFn,
 }) => {
   const issueKey = issueKeyFromArg ?? args[0] ?? env.JIRA_ISSUE_KEY ?? "";
   if (!issueKey) {
@@ -53,7 +84,7 @@ const runNew = async ({
     folderStrategy: "summary",
   });
 
-  buildContext({
+  buildNewContext({
     env,
     stdout,
     issueKey,
@@ -62,11 +93,69 @@ const runNew = async ({
     proposalPath: result.proposalPath,
     baseDir,
   });
+
+  const gitResult = await setupProposalFn({
+    baseDir,
+    issueKey,
+    proposalPath: result.proposalPath,
+    autoPush: parseBoolean(env.GIT_AUTO_PUSH, true),
+  });
+  printGitSummary({ stdout, gitResult });
+};
+
+const runArchive = async ({
+  args,
+  env,
+  stdout,
+  issueKeyFromArg,
+  baseDir,
+  archiveFn,
+}) => {
+  const issueKey = issueKeyFromArg ?? args[0] ?? env.JIRA_ISSUE_KEY ?? "";
+  if (!issueKey) {
+    throw new Error(`Falta issueKey para opsxj:archive.\n${usage}`);
+  }
+
+  const branchName = buildFeatureBranchName(issueKey);
+  const result = await archiveFn({
+    issueKey,
+    baseDir,
+    branchName,
+    jira: {
+      baseUrl: env.JIRA_BASE_URL,
+      email: env.JIRA_EMAIL,
+      apiToken: env.JIRA_API_TOKEN,
+    },
+    github: {
+      token: env.GITHUB_TOKEN,
+      repo: env.GITHUB_REPO,
+      owner: env.GITHUB_OWNER,
+      repoName: env.GITHUB_REPO_NAME,
+      baseBranch: env.GITHUB_BASE_BRANCH || "main",
+    },
+  });
+
+  const prUrl = result.pullRequest?.html_url ?? "(sin URL)";
+  stdout.write(`[opsxj:archive] Ticket: ${String(issueKey).toUpperCase()}\n`);
+  stdout.write(`[opsxj:archive] Cambio archivado: ${result.changeName}\n`);
+  stdout.write(
+    `[opsxj:archive] PR ${result.pullRequestCreated ? "creado" : "reutilizado"}: ${prUrl}\n`,
+  );
+  stdout.write(
+    "[opsxj:archive] Jira comentado con enlace al PR. El cierre final se sincroniza cuando el PR se mergea/rechaza.\n",
+  );
+  if (result.archivedWithSkipSpecs) {
+    stdout.write(
+      "[opsxj:archive] Aviso: archive ejecuto fallback con --skip-specs.\n",
+    );
+  }
 };
 
 const commandRegistry = new Map([
   ["opsxj:new", runNew],
   ["new", runNew],
+  ["opsxj:archive", runArchive],
+  ["archive", runArchive],
 ]);
 
 export const runOpsxjCommand = async ({
@@ -76,6 +165,8 @@ export const runOpsxjCommand = async ({
   stderr = process.stderr,
   baseDir = process.cwd(),
   createProposalFn = createProposalFromJira,
+  setupProposalFn = setupProposalBranchAndCommit,
+  archiveFn = archiveWithPullRequest,
 }) => {
   const [command, issueKeyFromArg, ...rest] = argv;
   const selectedCommand = command || "opsxj:new";
@@ -94,9 +185,15 @@ export const runOpsxjCommand = async ({
       stdout,
       issueKeyFromArg,
       createProposalFn,
+      setupProposalFn,
+      archiveFn,
       baseDir,
     });
-    stdout.write("[opsxj:new] Proceso finalizado correctamente.\n");
+    const prefix =
+      selectedCommand === "opsxj:archive" || selectedCommand === "archive"
+        ? "[opsxj:archive]"
+        : "[opsxj:new]";
+    stdout.write(`${prefix} Proceso finalizado correctamente.\n`);
     return 0;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -104,3 +201,4 @@ export const runOpsxjCommand = async ({
     return 1;
   }
 };
+

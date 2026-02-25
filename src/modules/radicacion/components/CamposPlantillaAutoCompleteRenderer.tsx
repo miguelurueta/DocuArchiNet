@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { AutoComplete, Card, Col, Form, Row, Space, Tooltip } from "antd";
+import { AutoComplete, Card, Col, Form, Row, Select, Space, Tooltip } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
-import type { FocusEventHandler, SelectHTMLAttributes } from "react";
+import type { FocusEventHandler } from "react";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
 import styles from "../style/FormRadicacion.module.css";
@@ -90,6 +90,10 @@ function normalizeDynamicFieldValue(value: unknown) {
     return String(value);
   }
   return "";
+}
+
+function joinClassNames(...values: Array<string | undefined>) {
+  return values.filter(Boolean).join(" ");
 }
 
 export function CampoPlantillaAutoCompleteField({
@@ -182,7 +186,7 @@ export function CampoPlantillaAutoCompleteField({
       data-ident={dataIdent}
     >
       <AutoComplete
-        className={className}
+        className={joinClassNames(styles.dynamicAutocomplete, className)}
         value={resolvedValue}
         options={options}
         onSearch={(val) => {
@@ -255,72 +259,53 @@ function SelectField({
     </span>
   );
 
-  const maxLength =
-    typeof campo.max_leng_campo === "number" && campo.max_leng_campo > 0
-      ? campo.max_leng_campo
-      : undefined;
-
   const resolvedValue = value ?? undefined;
   const resolvedDefaultValue = value === undefined ? defaultValue : undefined;
-
-  const selectClassName = [styles.nativeSelect, className]
-    .filter(Boolean)
-    .join(" ");
+  const selectClassName = [styles.dynamicSelect, className].filter(Boolean).join(" ");
   const options = campo.ilist_row_drowlist ?? [];
-
-  const selectMaxLengthProps =
-    typeof maxLength === "number"
-      ? ({ maxLength } as SelectHTMLAttributes<HTMLSelectElement> & {
-          maxLength?: number;
-        })
-      : {};
+  const parsedOptions = options.map((option, index) => {
+    const anyOption = option as unknown as {
+      idValue?: string | number | null;
+      Value?: string | null;
+      id_value?: string | number | null;
+      value_campo?: string | null;
+    };
+    const optionValue = anyOption.idValue ?? anyOption.id_value ?? String(index);
+    const optionLabel =
+      anyOption.Value ?? anyOption.value_campo ?? String(optionValue ?? "");
+    return {
+      value: optionValue ?? "",
+      label: optionLabel,
+    };
+  });
 
   return (
     <Form.Item
       label={labelNode}
       required={campo.obligatorio_campo === 1}
       data-ident={dataIdent}
+      data-api-method={campo.apiMethod ?? undefined}
     >
-      <select
+      <Select
         className={selectClassName}
         id={dataIdent}
-        name={nameCampo}
         value={resolvedValue}
         defaultValue={resolvedDefaultValue}
-        required={campo.obligatorio_campo === 1}
+        placeholder="Seleccionar"
+        options={parsedOptions}
         disabled={campo.disable_campo === 1}
-        {...selectMaxLengthProps}
         data-ident={dataIdent}
         data-api-method={campo.apiMethod ?? undefined}
         aria-label={labelText}
         aria-describedby={tooltipId}
         aria-required={campo.obligatorio_campo === 1}
         title={titleText}
-        onChange={(event) => {
-          onChange?.(normalizeDynamicFieldValue(event.target.value), campo);
+        onChange={(val) => {
+          onChange?.(normalizeDynamicFieldValue(val), campo);
         }}
         onBlur={onBlur}
         onFocus={onFocus}
-      >
-        <option value="">Seleccionar</option>
-        {options.map((option, index) => {
-          const anyOption = option as unknown as {
-            idValue?: string | number | null;
-            Value?: string | null;
-            id_value?: string | number | null;
-            value_campo?: string | null;
-          };
-          const optionValue =
-            anyOption.idValue ?? anyOption.id_value ?? String(index);
-          const optionLabel =
-            anyOption.Value ?? anyOption.value_campo ?? String(optionValue ?? "");
-          return (
-            <option key={`${nameCampo}-${optionValue}-${index}`} value={optionValue ?? ""}>
-              {optionLabel}
-            </option>
-          );
-        })}
-      </select>
+      />
     </Form.Item>
   );
 }

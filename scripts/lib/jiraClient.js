@@ -74,3 +74,149 @@ export const fetchJiraIssue = async ({
 
   return { issueKey, summary, description };
 };
+
+const jiraRequest = async ({
+  method,
+  url,
+  email,
+  apiToken,
+  body,
+  fetchImpl = fetch,
+}) => {
+  const authHeader = buildJiraAuthHeader(email, apiToken);
+  const response = await fetchImpl(url, {
+    method,
+    headers: {
+      Authorization: authHeader,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    const raw = await response.text().catch(() => "");
+    const detail = raw ? ` Detalle: ${raw}` : "";
+    throw new Error(
+      `Error Jira (${response.status} ${response.statusText}).${detail}`,
+    );
+  }
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  return response.json();
+};
+
+export const getJiraTransitions = async ({
+  issueKey,
+  baseUrl,
+  email,
+  apiToken,
+  fetchImpl = fetch,
+}) => {
+  if (!baseUrl) {
+    throw new Error("Falta JIRA_BASE_URL. Definelo en el entorno antes de ejecutar.");
+  }
+
+  const normalizedBase = baseUrl.replace(/\/+$/, "");
+  return jiraRequest({
+    method: "GET",
+    url: `${normalizedBase}/rest/api/3/issue/${issueKey}/transitions`,
+    email,
+    apiToken,
+    fetchImpl,
+  });
+};
+
+const findTransition = ({ transitions, target }) => {
+  const list = Array.isArray(transitions) ? transitions : [];
+  if (target === "done") {
+    return (
+      list.find((item) => item?.to?.statusCategory?.key === "done") ??
+      list.find((item) => /done|final|cerrad|resuelt/i.test(item?.name ?? ""))
+    );
+  }
+
+  return (
+    list.find((item) => item?.to?.statusCategory?.key === "indeterminate") ??
+    list.find((item) => /progress|progreso|curso/i.test(item?.name ?? ""))
+  );
+};
+
+export const transitionJiraIssue = async ({
+  issueKey,
+  baseUrl,
+  email,
+  apiToken,
+  target,
+  fetchImpl = fetch,
+}) => {
+  const transitions = await getJiraTransitions({
+    issueKey,
+    baseUrl,
+    email,
+    apiToken,
+    fetchImpl,
+  });
+  const transition = findTransition({
+    transitions: transitions?.transitions ?? [],
+    target,
+  });
+
+  if (!transition?.id) {
+    throw new Error(
+      `No se encontro una transicion Jira compatible con target='${target}' para ${issueKey}.`,
+    );
+  }
+
+  const normalizedBase = baseUrl.replace(/\/+$/, "");
+  await jiraRequest({
+    method: "POST",
+    url: `${normalizedBase}/rest/api/3/issue/${issueKey}/transitions`,
+    email,
+    apiToken,
+    fetchImpl,
+    body: {
+      transition: {
+        id: String(transition.id),
+      },
+    },
+  });
+
+  return transition;
+};
+
+const toAdfParagraph = (text) => ({
+  type: "paragraph",
+  content: [{ type: "text", text }],
+});
+
+export const addJiraComment = async ({
+  issueKey,
+  baseUrl,
+  email,
+  apiToken,
+  message,
+  fetchImpl = fetch,
+}) => {
+  if (!message?.trim()) {
+    throw new Error("No se puede comentar en Jira: message es obligatorio.");
+  }
+  const normalizedBase = baseUrl.replace(/\/+$/, "");
+  await jiraRequest({
+    method: "POST",
+    url: `${normalizedBase}/rest/api/3/issue/${issueKey}/comment`,
+    email,
+    apiToken,
+    fetchImpl,
+    body: {
+      body: {
+        type: "doc",
+        version: 1,
+        content: [toAdfParagraph(message.trim())],
+      },
+    },
+  });
+};

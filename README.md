@@ -79,3 +79,4 @@ export default defineConfig([
 - Guía de conexión Codex ↔ JIRA (sin cambios en UI): `docs/conexion-codex-jira.md`
 - Comando `opsxj:new` (Jira → OpenSpec proposal): `docs/opsxj-new.md`
 - Ayuda de comandos (parámetros y ejemplos): `docs/ayuda-comandos-jira-proposal-generator.md`
+- Sync Jira por resultado de PR (GitHub Action): `.github/workflows/jira-pr-status-sync.yml`
