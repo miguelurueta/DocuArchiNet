@@ -48,15 +48,15 @@ interface Usuario {
 }
 
 interface SelectUsuariosProps {
-  label: string;
+  label: React.ReactNode;
   name: string;
   opciones: { label: string; value: number }[];
   abrirInformacion: (id: number) => void;
-
-  rules?: any; // 👈 AGREGA ESTA LÍNEA
-
-
-  // 🔹 NUEVAS PROPS CONFIGURABLES
+  rules?: any;
+  ariaLabel?: string;
+  selectDataIdent?: string;
+  formItemDataIdent?: string;
+  selectDisabled?: boolean;
   showUserPlusButton?: boolean;
   allowEdit?: boolean;
   allowDelete?: boolean;
@@ -71,7 +71,11 @@ const BaseSelectUsuarios: React.FC<SelectUsuariosProps> = ({
   name,
   opciones,
   abrirInformacion,
-  rules, // 👈 agregar aquí rules
+  rules,
+  ariaLabel,
+  selectDataIdent,
+  formItemDataIdent,
+  selectDisabled = false,
   showUserPlusButton = true,
   allowEdit = true,
   allowDelete = true,
@@ -172,20 +176,29 @@ const BaseSelectUsuarios: React.FC<SelectUsuariosProps> = ({
     );
   };
 
+  const placeholderName = (ariaLabel ?? name).toLowerCase();
+
   return (
-    <Form.Item name={name} label={label} rules={rules}>
+    <Form.Item
+      name={name}
+      label={label}
+      rules={rules}
+      data-ident={formItemDataIdent}
+    >
       <Space.Compact style={{ width: "100%" }}>
         <Select
           mode="multiple"
           value={value}
           showSearch
           searchValue={searchText}
-          placeholder={`Escriba para buscar ${label.toLowerCase()}`}
+          placeholder={`Escriba para buscar ${placeholderName}`}
           options={opciones}
           optionFilterProp="label"
           tagRender={customTagRender}
           open={openSelect}
-          disabled={tagMenuOpen}
+          disabled={tagMenuOpen || selectDisabled}
+          data-ident={selectDataIdent}
+          aria-label={ariaLabel}
           autoClearSearchValue={false}
           onSearch={(text) => {
             setSearchText(text);
@@ -496,10 +509,24 @@ const FormRadicacion: React.FC = () => {
     },
     [camposPlantillaSafe],
   );
+  const campoDestinatarioCor = useMemo(() => {
+    const campo = camposPlantillaSafe.find(
+      (item) => normalizeCampoName(item.name_campo) === "DESTINATARIO_COR",
+    );
+    if (!campo) return undefined;
+    return {
+      ...campo,
+      name_campo: "Destinatario_Cor",
+    };
+  }, [camposPlantillaSafe]);
+
   const camposEspecializados = useMemo(
     () =>
       camposPlantillaSafe.filter(
-        (campo) => normalizeCampoName(campo.name_campo) !== "REMITENTE_COR",
+        (campo) =>
+          !["REMITENTE_COR", "DESTINATARIO_COR"].includes(
+            normalizeCampoName(campo.name_campo),
+          ),
       ),
     [camposPlantillaSafe],
   );
@@ -642,6 +669,37 @@ const FormRadicacion: React.FC = () => {
             aria-label={`Mostrar ayuda para ${fechaLimiteLabel}`}
             aria-describedby={fechaLimiteTooltipId}
             data-tooltip-id={fechaLimiteTooltipId}
+          >
+            <InfoCircleOutlined />
+          </span>
+        </Tooltip>
+      ) : null}
+    </span>
+  );
+
+  const destinatarioLabel =
+    campoDestinatarioCor?.aleas_campo ?? "Destinatario";
+  const destinatarioTitle = campoDestinatarioCor?.title_control ?? "";
+  const destinatarioTooltip = campoDestinatarioCor?.tooltipAyuda ?? "";
+  const destinatarioTooltipId = destinatarioTooltip
+    ? "pl-radicacion-spe-tooltip-Destinatario_Cor"
+    : undefined;
+  const destinatarioRequired =
+    campoDestinatarioCor?.obligatorio_campo === 1 || !campoDestinatarioCor;
+  const destinatarioDisabled = campoDestinatarioCor?.disable_campo === 1;
+
+  const destinatarioLabelNode = (
+    <span title={destinatarioTitle}>
+      {destinatarioLabel}
+      {destinatarioTooltip ? (
+        <Tooltip title={destinatarioTooltip}>
+          <span
+            className={`${styles["tooltip-ayuda"]} tooltip-ayuda`}
+            role="button"
+            tabIndex={0}
+            aria-label={`Mostrar ayuda para ${destinatarioLabel}`}
+            aria-describedby={destinatarioTooltipId}
+            data-tooltip-id={destinatarioTooltipId}
           >
             <InfoCircleOutlined />
           </span>
@@ -865,11 +923,18 @@ const FormRadicacion: React.FC = () => {
             style={{ marginBottom: 24 }}
           >
             <SelectDestinatario
-              rules={[{ required: true, message: "Seleccione destinatario" }]}
+              rules={
+                destinatarioRequired
+                  ? [{ required: true, message: "Seleccione destinatario" }]
+                  : undefined
+              }
               key={`destinatario-${resetKey}`}
-              label="Destinatario"
+              label={destinatarioLabelNode}
               name="destinatario"
-              data-ident="pl-radicacion-spe-Destinatario_Cor"
+              formItemDataIdent="pl-radicacion-spe-Destinatario_Cor"
+              selectDataIdent="pl-radicacion-spe-Destinatario_Cor"
+              ariaLabel={destinatarioLabel}
+              selectDisabled={destinatarioDisabled}
               opciones={opcionesUsuarios}
               abrirInformacion={abrirInformacion}
             />

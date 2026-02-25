@@ -426,6 +426,44 @@ describe("RadicacionForm", () => {
     expect(input.value).toBe("Texto manual");
   });
 
+  it("[SPEC:DSC-001] aplica metadata de Destinatario_Cor (required, disabled, title y tooltip)", () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: " destinatario_cor ",
+          aleas_campo: "Destino Corporativo",
+          title_control: "Título Destinatario",
+          tooltipAyuda: "Ayuda Destinatario",
+          obligatorio_campo: 1,
+          disable_campo: 1,
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    const { container } = render(<RadicacionForm />);
+
+    const destinatarioLabel = screen
+      .getByText("Destino Corporativo")
+      .closest("label");
+    expect(destinatarioLabel).toBeTruthy();
+    expect(destinatarioLabel?.className).toContain("ant-form-item-required");
+    expect(screen.getByText("Destino Corporativo")).toHaveAttribute(
+      "title",
+      "Título Destinatario",
+    );
+    expect(
+      screen.getByLabelText("Mostrar ayuda para Destino Corporativo"),
+    ).toBeInTheDocument();
+
+    const destinatarioSelect = container.querySelector(
+      '.ant-select[data-ident="pl-radicacion-spe-Destinatario_Cor"]',
+    );
+    expect(destinatarioSelect?.className).toContain("ant-select-disabled");
+  });
+
   it("[SPEC:RBK-005] no falla al re-renderizar secciones de remitente y destinatario al limpiar", () => {
     render(<RadicacionForm />);
 
