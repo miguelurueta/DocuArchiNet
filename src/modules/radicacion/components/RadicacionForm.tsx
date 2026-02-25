@@ -289,6 +289,8 @@ const FormRadicacion: React.FC = () => {
   };
 
   const camposPlantillaSafe = camposPlantilla ?? [];
+  const normalizeCampoName = (value: string | null | undefined) =>
+    String(value ?? "").trim().toUpperCase();
 
   const campoTramite = useMemo(
     () =>
@@ -330,6 +332,26 @@ const FormRadicacion: React.FC = () => {
   );
   const campoAsunto = useMemo(
     () => camposPlantillaSafe.find((campo) => campo.name_campo === "ASUNTO"),
+    [camposPlantillaSafe],
+  );
+  const campoRemitenteCor = useMemo(
+    () => {
+      const campo = camposPlantillaSafe.find(
+        (item) => normalizeCampoName(item.name_campo) === "REMITENTE_COR",
+      );
+      if (!campo) return undefined;
+      return {
+        ...campo,
+        name_campo: "REMITENTE_COR",
+      };
+    },
+    [camposPlantillaSafe],
+  );
+  const camposEspecializados = useMemo(
+    () =>
+      camposPlantillaSafe.filter(
+        (campo) => normalizeCampoName(campo.name_campo) !== "REMITENTE_COR",
+      ),
     [camposPlantillaSafe],
   );
 
@@ -662,15 +684,18 @@ const FormRadicacion: React.FC = () => {
             size="small"
             style={{ marginBottom: 24 }}
           >
-            <SelectRemitente
-              rules={[{ required: true, message: "Seleccione remitente" }]}
-              key={`remitente-${resetKey}`}
-              label="Remitente"
-              name="remitente"
-              data-ident="pl-radicacion-spe-REMITENTE_COR"
-              opciones={opcionesUsuarios}
-              abrirInformacion={abrirInformacion}
-            />
+            {campoRemitenteCor ? (
+              <CampoPlantillaAutoCompleteField campo={campoRemitenteCor} />
+            ) : (
+              <SelectRemitente
+                rules={[{ required: true, message: "Seleccione remitente" }]}
+                key={`remitente-${resetKey}`}
+                label="Remitente"
+                name="remitente"
+                opciones={opcionesUsuarios}
+                abrirInformacion={abrirInformacion}
+              />
+            )}
           </Card>
           {/*=========================DESTINATARIO============================*/}
           <Card
@@ -695,9 +720,9 @@ const FormRadicacion: React.FC = () => {
             />
           </Card>
 
-          {camposPlantillaSafe.length > 0 ? (
+          {camposEspecializados.length > 0 ? (
             <CamposPlantillaAutoCompleteRenderer
-              camposPlantilla={camposPlantillaSafe}
+              camposPlantilla={camposEspecializados}
             />
           ) : null}
         </Form>

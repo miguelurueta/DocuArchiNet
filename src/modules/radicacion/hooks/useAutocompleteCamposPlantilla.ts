@@ -16,21 +16,35 @@ export interface AutoCompleteCampoRequest {
   name_campo: string;
 }
 
-const AUTOCOMPLETE_ENDPOINT =
+const AUTOCOMPLETE_ENDPOINT_DEFAULT =
   "/api/PlantillaRadicado/solicitaAutoCompleteCampos";
+const AUTOCOMPLETE_ENDPOINT_REMITENTE =
+  "/api/PlantillaRadicado/autoCompleteTercero";
+
+const normalizeFieldName = (value: string | null | undefined) =>
+  String(value ?? "").trim().toUpperCase();
+
+export const resolveAutocompleteEndpoint = (nameCampo: string | null | undefined) => {
+  if (normalizeFieldName(nameCampo) === "REMITENTE_COR") {
+    return AUTOCOMPLETE_ENDPOINT_REMITENTE;
+  }
+  return AUTOCOMPLETE_ENDPOINT_DEFAULT;
+};
 
 export function useAutocompleteCamposPlantilla(
   params: AutoCompleteCampoRequest | null,
   enabled: boolean,
 ) {
+  const endpoint = resolveAutocompleteEndpoint(params?.name_campo);
   const queryKey = useMemo(
     () => [
       "autocomplete-campos-plantilla",
+      endpoint,
       params?.name_campo ?? "",
       params?.tbl_control ?? "",
       params?.TextoBuscado ?? "",
     ],
-    [params?.TextoBuscado, params?.name_campo, params?.tbl_control],
+    [endpoint, params?.TextoBuscado, params?.name_campo, params?.tbl_control],
   );
 
   const query = useQuery<
@@ -50,7 +64,7 @@ export function useAutocompleteCamposPlantilla(
       }
       const { data } = await clienteApi.post<
         ApiResponse<AutoCompleteCampoItemDTO[]>
-      >(AUTOCOMPLETE_ENDPOINT, params);
+      >(endpoint, params);
       return data;
     },
   });
