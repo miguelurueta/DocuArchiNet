@@ -102,4 +102,38 @@ describe("opsxjCommandRunner", () => {
     expect(stdout.read()).toContain("PR creado");
     expect(stderr.read()).toBe("");
   });
+
+  it("runs opsxj:close and closes Jira when PR is merged", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const closeFn = vi.fn().mockResolvedValue({
+      pullRequest: { html_url: "https://github.com/acme/repo/pull/24" },
+      transition: { to: { name: "Finalizado" } },
+    });
+
+    const exitCode = await runOpsxjCommand({
+      argv: ["opsxj:close", "SCRUM-12"],
+      env: {
+        JIRA_BASE_URL: "https://example.atlassian.net",
+        JIRA_EMAIL: "user@example.com",
+        JIRA_API_TOKEN: "token",
+        GITHUB_TOKEN: "ghs_token",
+        GITHUB_REPO: "acme/repo",
+      },
+      stdout,
+      stderr,
+      closeFn,
+    });
+
+    expect(exitCode).toBe(0);
+    expect(closeFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        issueKey: "SCRUM-12",
+        branchName: "feature/SCRUM-12",
+      }),
+    );
+    expect(stdout.read()).toContain("PR mergeado validado");
+    expect(stdout.read()).toContain("Jira actualizado a: Finalizado");
+    expect(stderr.read()).toBe("");
+  });
 });

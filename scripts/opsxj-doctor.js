@@ -48,9 +48,10 @@ if (githubRepoOk) {
 }
 
 if (jira.ok && github.ok && githubRepoOk) {
-  console.log("[opsxj:doctor] Configuracion lista para opsxj:new y opsxj:archive.");
+console.log(
+  "[opsxj:doctor] Configuracion lista para opsxj:new, opsxj:archive y opsxj:close.",
+);
   process.exitCode = 0;
 } else {
   process.exitCode = 1;
 }
-

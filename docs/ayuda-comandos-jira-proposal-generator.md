@@ -173,6 +173,47 @@ Uso interno:
 node scripts/opsxj.js new <ISSUE-KEY>
 ```
 
+## 6) `opsxj:close` (cierre manual con validación de merge)
+
+Cierra el issue en Jira únicamente si detecta PR mergeado para `feature/<ISSUE-KEY>`.
+
+### Sintaxis
+
+```bash
+npm run opsxj:close -- <ISSUE-KEY>
+```
+
+o directo:
+
+```bash
+node scripts/opsxj.js opsxj:close <ISSUE-KEY>
+```
+
+### Parámetros
+
+- `<ISSUE-KEY>` (requerido): clave del ticket Jira.
+
+### Qué valida antes de cerrar
+
+1. Busca PRs cerrados en GitHub para `feature/<ISSUE-KEY>` contra `main` (o `GITHUB_BASE_BRANCH`).
+2. Verifica que exista PR con `merged_at` (merge real).
+3. Si no hay merge, falla y no modifica Jira.
+4. Si hay merge, transiciona Jira a `done` y comenta el enlace del PR.
+
+### Ejemplo
+
+```bash
+npm run opsxj:close -- SCRUM-12
+```
+
+Salida esperada (resumen):
+
+```text
+[opsxj:close] Ticket: SCRUM-12
+[opsxj:close] PR mergeado validado: https://github.com/.../pull/24
+[opsxj:close] Jira actualizado a: Finalizado
+```
+
 ## Errores comunes y solución
 
 - `[opsxj:error] Falta issueKey...`
@@ -196,6 +237,8 @@ node scripts/opsxj.js new <ISSUE-KEY>
 4. Continuar flujo OpenSpec (`design`, `specs`, `tasks`, implementación, verify, archive).
 5. Ejecutar:
    - `npm run opsxj:archive -- <ISSUE-KEY>`
-6. Jira se sincroniza automáticamente por GitHub Action:
+6. Si necesitas cierre manual controlado:
+   - `npm run opsxj:close -- <ISSUE-KEY>`
+7. Jira se sincroniza automáticamente por GitHub Action:
    - PR mergeado -> `Done`
    - PR cerrado sin merge -> `In Progress`

@@ -73,6 +73,24 @@ const findOpenPullRequest = async ({
   return Array.isArray(pulls) ? pulls[0] : null;
 };
 
+const listClosedPullRequestsByBranch = async ({
+  owner,
+  repo,
+  branchName,
+  baseBranch,
+  token,
+  fetchImpl,
+}) => {
+  const encodedHead = encodeURIComponent(`${owner}:${branchName}`);
+  const encodedBase = encodeURIComponent(baseBranch);
+  return requestGitHub({
+    method: "GET",
+    path: `/repos/${owner}/${repo}/pulls?state=closed&head=${encodedHead}&base=${encodedBase}`,
+    token,
+    fetchImpl,
+  });
+};
+
 export const createOrGetPullRequest = async ({
   repo,
   owner,
@@ -149,3 +167,36 @@ export const createOrGetPullRequest = async ({
   }
 };
 
+export const getMergedPullRequestByBranch = async ({
+  repo,
+  owner,
+  repoName,
+  token,
+  branchName,
+  baseBranch = "main",
+  fetchImpl = fetch,
+}) => {
+  const resolved = buildRepoInfo({
+    repo,
+    owner,
+    name: repoName,
+  });
+
+  const pulls = await listClosedPullRequestsByBranch({
+    owner: resolved.owner,
+    repo: resolved.repo,
+    branchName,
+    baseBranch,
+    token,
+    fetchImpl,
+  });
+
+  const merged = Array.isArray(pulls)
+    ? pulls.find((pr) => Boolean(pr?.merged_at))
+    : null;
+
+  return {
+    pullRequest: merged ?? null,
+    repository: resolved,
+  };
+};

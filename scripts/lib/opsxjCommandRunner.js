@@ -5,13 +5,16 @@ import {
   setupProposalBranchAndCommit,
 } from "./gitClient.js";
 import { archiveWithPullRequest } from "./archiveWorkflowService.js";
+import { closeIssueFromMergedPr } from "./closeWorkflowService.js";
 
 const usage = [
   "Uso:",
   "  node scripts/opsxj.js opsxj:new <ISSUE-KEY>",
   "  node scripts/opsxj.js opsxj:archive <ISSUE-KEY>",
+  "  node scripts/opsxj.js opsxj:close <ISSUE-KEY>",
   "  npm run opsxj:new -- <ISSUE-KEY>",
   "  npm run opsxj:archive -- <ISSUE-KEY>",
+  "  npm run opsxj:close -- <ISSUE-KEY>",
 ].join("\n");
 
 const parseBoolean = (value, fallback) => {
@@ -151,11 +154,53 @@ const runArchive = async ({
   }
 };
 
+const runClose = async ({
+  args,
+  env,
+  stdout,
+  issueKeyFromArg,
+  closeFn,
+}) => {
+  const issueKey = issueKeyFromArg ?? args[0] ?? env.JIRA_ISSUE_KEY ?? "";
+  if (!issueKey) {
+    throw new Error(`Falta issueKey para opsxj:close.\n${usage}`);
+  }
+
+  const branchName = buildFeatureBranchName(issueKey);
+  const result = await closeFn({
+    issueKey,
+    branchName,
+    jira: {
+      baseUrl: env.JIRA_BASE_URL,
+      email: env.JIRA_EMAIL,
+      apiToken: env.JIRA_API_TOKEN,
+    },
+    github: {
+      token: env.GITHUB_TOKEN,
+      repo: env.GITHUB_REPO,
+      owner: env.GITHUB_OWNER,
+      repoName: env.GITHUB_REPO_NAME,
+      baseBranch: env.GITHUB_BASE_BRANCH || "main",
+    },
+  });
+
+  stdout.write(`[opsxj:close] Ticket: ${String(issueKey).toUpperCase()}\n`);
+  stdout.write(
+    `[opsxj:close] PR mergeado validado: ${result.pullRequest?.html_url ?? "(sin URL)"}\n`,
+  );
+  stdout.write(
+    `[opsxj:close] Jira actualizado a: ${result.transition?.to?.name ?? "Done"}\n`,
+  );
+};
+
 const commandRegistry = new Map([
   ["opsxj:new", runNew],
   ["new", runNew],
   ["opsxj:archive", runArchive],
   ["archive", runArchive],
+  ["opsxj:close", runClose],
+  ["close", runClose],
+  ["opensxj:close", runClose],
 ]);
 
 export const runOpsxjCommand = async ({
@@ -167,6 +212,7 @@ export const runOpsxjCommand = async ({
   createProposalFn = createProposalFromJira,
   setupProposalFn = setupProposalBranchAndCommit,
   archiveFn = archiveWithPullRequest,
+  closeFn = closeIssueFromMergedPr,
 }) => {
   const [command, issueKeyFromArg, ...rest] = argv;
   const selectedCommand = command || "opsxj:new";
@@ -187,12 +233,17 @@ export const runOpsxjCommand = async ({
       createProposalFn,
       setupProposalFn,
       archiveFn,
+      closeFn,
       baseDir,
     });
     const prefix =
       selectedCommand === "opsxj:archive" || selectedCommand === "archive"
         ? "[opsxj:archive]"
-        : "[opsxj:new]";
+        : selectedCommand === "opsxj:close" ||
+            selectedCommand === "close" ||
+            selectedCommand === "opensxj:close"
+          ? "[opsxj:close]"
+          : "[opsxj:new]";
     stdout.write(`${prefix} Proceso finalizado correctamente.\n`);
     return 0;
   } catch (error) {
@@ -201,4 +252,3 @@ export const runOpsxjCommand = async ({
     return 1;
   }
 };
-
