@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { CamposPlantillaAutoCompleteRenderer } from "./CamposPlantillaAutoCompleteRenderer";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
@@ -90,7 +90,11 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
     expect(screen.getByLabelText("Código Cliente")).toBeInTheDocument();
     expect(screen.getByLabelText("Tipo Documento")).toBeInTheDocument();
     expect(screen.queryByLabelText("no_visible")).not.toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Seleccionar" })).toBeInTheDocument();
+    const selectRoot = screen
+      .getByLabelText("Tipo Documento")
+      .closest(".ant-select");
+    expect(selectRoot).toBeTruthy();
+    fireEvent.mouseDown(selectRoot as HTMLElement);
     expect(screen.getByRole("option", { name: "Cédula" })).toBeInTheDocument();
     expect(screen.getByText("Código Cliente")).toHaveClass(styles.labelCapitalize);
     expect(screen.getByText("Tipo Documento")).toHaveClass(styles.labelCapitalize);
@@ -142,17 +146,27 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
       />,
     );
 
-    const select = screen.getByLabelText("Tipo Cliente");
-    expect(select).toBeInTheDocument();
-    expect(select).toBeDisabled();
-    expect(select).toBeRequired();
-    expect(select).toHaveAttribute("data-api-method", "getTiposCliente");
-    expect(select).toHaveAttribute(
+    const selectRoot = document.querySelector(
+      '[data-ident="pl-radicacion-spe-tipo_cliente"]',
+    ) as HTMLElement | null;
+    expect(selectRoot).toBeTruthy();
+    expect(selectRoot).toHaveAttribute("data-api-method", "getTiposCliente");
+    expect(selectRoot).toHaveAttribute(
       "data-ident",
       "pl-radicacion-spe-tipo_cliente",
     );
+    const selectContainer = within(selectRoot as HTMLElement).getByRole("combobox", {
+      name: "Tipo Cliente",
+    }).closest(".ant-select");
+    expect(selectContainer).toHaveClass(styles.dynamicSelect);
+    const select = within(selectRoot as HTMLElement).getByRole("combobox", {
+      name: "Tipo Cliente",
+    });
+    expect(select).toBeInTheDocument();
+    expect(select).toBeDisabled();
+    expect(select).toHaveAttribute("aria-required", "true");
     expect(screen.getByLabelText("Mostrar ayuda para Tipo Cliente")).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Seleccionar" })).toBeInTheDocument();
+    expect(within(selectRoot as HTMLElement).getByText("Seleccionar")).toBeInTheDocument();
     expect(screen.getByText("Tipo Cliente")).toHaveClass(styles.labelCapitalize);
   });
 
@@ -231,5 +245,28 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
       "",
       expect.objectContaining({ name_campo: "Identificacion_remitente" }),
     );
+  });
+
+  it("[SPEC:ACS-001] aplica clase de estilo consistente a autocomplete dinamico", () => {
+    mockedUseAutocomplete.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: undefined,
+    });
+
+    const { container } = render(
+      <CamposPlantillaAutoCompleteRenderer
+        camposPlantilla={[
+          { ...baseCampo, name_campo: "placa", aleas_campo: "Campo Placa" },
+        ]}
+      />,
+    );
+
+    const autoCompleteRoot = container.querySelector(
+      '.ant-select[data-ident="pl-radicacion-spe-placa"]',
+    );
+    expect(autoCompleteRoot).toBeTruthy();
+    expect(autoCompleteRoot).toHaveClass(styles.dynamicAutocomplete);
   });
 });

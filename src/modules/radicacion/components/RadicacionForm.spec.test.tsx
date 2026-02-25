@@ -435,4 +435,60 @@ describe("RadicacionForm", () => {
       fireEvent.click(limpiarButton);
     }).not.toThrow();
   });
+
+  it("[SPEC:RMT-003] usa metadata de REMITENTE_COR y consulta autocompletado de tercero", async () => {
+    vi.useFakeTimers();
+
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: " remitente_cor ",
+          aleas_campo: "Remitente",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          tbl_control: "terceros",
+          obligatorio_campo: 1,
+          disable_campo: 0,
+          title_control: "Título Remitente",
+          tooltipAyuda: "Ayuda Remitente",
+          TomPParameterTomSelelect: {
+            id_escript: 987,
+          },
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    mockedUseAutocompleteCamposPlantilla.mockReturnValue({
+      data: [{ idValue: null, texValue: "Juan Perez" }],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    });
+
+    const { container } = render(<RadicacionForm />);
+    expect(
+      container.querySelector('[data-ident="pl-radicacion-spe-REMITENTE_COR"]'),
+    ).toBeTruthy();
+
+    const input = screen.getByLabelText("Remitente");
+    fireEvent.change(input, { target: { value: "juan" } });
+
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+    });
+
+    expect(mockedUseAutocompleteCamposPlantilla).toHaveBeenLastCalledWith(
+      {
+        TextoBuscado: "juan",
+        defaultDbAlias: "",
+        tbl_control: "terceros",
+        name_campo: "REMITENTE_COR",
+        idScript: 987,
+      },
+      true,
+    );
+  });
 });

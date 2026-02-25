@@ -11,10 +11,10 @@ RAD-ACTUALIZA-AUTOCOMPLETE-CAMPOS-DINAMICOS-STYLE. En el componente RadicacionFo
 ## Capabilities
 
 ### New Capabilities
-- `jira-proposal-generator`: Generacion automatica de propuestas OpenSpec desde Jira.
+- N/A
 
 ### Modified Capabilities
-- 
+- `autocomplete-campos-plantilla`: actualizar el estilo visual de campos dinamicos tipo autocomplete para consistencia con el formulario.
 
 ## Impact
 

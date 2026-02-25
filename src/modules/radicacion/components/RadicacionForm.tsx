@@ -32,6 +32,7 @@ import {
 
 import styles from "../style/FormRadicacion.module.css";
 import { useCamposPlantilla } from "../hooks/useCamposPlantilla";
+import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
 import {
   CampoPlantillaAutoCompleteField,
   CamposPlantillaAutoCompleteRenderer,
@@ -248,6 +249,154 @@ const SelectDestinatario: React.FC<SelectUsuariosProps> = (props) => {
   );
 };
 
+interface SelectRemitenteTokenProps {
+  campo: CampoPlantillaDTO;
+  onOpenInfo: (payload: { id: number; nombre: string }) => void;
+}
+
+const SelectRemitenteToken: React.FC<SelectRemitenteTokenProps> = ({
+  campo,
+  onOpenInfo,
+}) => {
+  const [value, setValue] = useState<Array<{ value: string; label: React.ReactNode }>>([]);
+  const [openSelect, setOpenSelect] = useState(false);
+  const [tagMenuOpen, setTagMenuOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
+
+  const resolveCampoIdScript = () => {
+    const nestedId = campo.TomPParameterTomSelelect?.id_escript;
+    if (typeof nestedId === "number" && Number.isFinite(nestedId)) {
+      return nestedId;
+    }
+    const anyCampo = campo as unknown as { id_escript?: number | null };
+    if (typeof anyCampo.id_escript === "number" && Number.isFinite(anyCampo.id_escript)) {
+      return anyCampo.id_escript;
+    }
+    return undefined;
+  };
+
+  const campoIdScript = resolveCampoIdScript();
+  const shouldQuery = searchText.trim().length > 0;
+  const { data, isLoading, isFetching } = useAutocompleteCamposPlantilla(
+    shouldQuery
+      ? {
+          TextoBuscado: searchText,
+          defaultDbAlias: "",
+          tbl_control: campo.tbl_control ?? "",
+          name_campo: "REMITENTE_COR",
+          ...(campoIdScript !== undefined ? { idScript: campoIdScript } : {}),
+        }
+      : null,
+    shouldQuery,
+  );
+
+  const options = data.map((item, index) => ({
+    value: item.idValue ?? `${item.texValue}-${index}`,
+    label: item.texValue,
+  }));
+
+  const handleChange = (values: Array<{ value: string; label: React.ReactNode }>) => {
+    const ultimo = values.slice(-1);
+    setValue(ultimo);
+    setOpenSelect(false);
+    setSearchText("");
+  };
+
+  const tagRender = (props: {
+    label: React.ReactNode;
+    value: string;
+    closable: boolean;
+    onClose: () => void;
+  }) => {
+    const { label, value, closable, onClose } = props;
+    return (
+      <Tag closable={false}>
+        {label}
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: "info",
+                label: (
+                  <Space>
+                    <InfoCircleOutlined />
+                    Información
+                  </Space>
+                ),
+                onClick: () => {
+                  onOpenInfo({
+                    id: Number(value) || 0,
+                    nombre: String(label ?? ""),
+                  });
+                },
+              },
+            ],
+          }}
+          trigger={["click"]}
+          onOpenChange={(open) => {
+            setTagMenuOpen(open);
+            if (open) setOpenSelect(false);
+          }}
+        >
+          <UnorderedListOutlined
+            style={{ marginLeft: 6, cursor: "pointer" }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </Dropdown>
+        {closable && (
+          <CloseOutlined
+            style={{ marginLeft: 6, cursor: "pointer" }}
+            onClick={onClose}
+          />
+        )}
+      </Tag>
+    );
+  };
+
+  return (
+    <Form.Item
+      name="remitente"
+      label={campo.aleas_campo ?? "Remitente"}
+      rules={[{ required: true, message: "Seleccione remitente" }]}
+      data-ident="pl-radicacion-spe-REMITENTE_COR"
+    >
+      <Space.Compact style={{ width: "100%" }} id="remitente">
+        <Select
+          mode="multiple"
+          labelInValue
+          value={value}
+          showSearch
+          searchValue={searchText}
+          placeholder="Escriba para buscar remitente"
+          options={options}
+          optionFilterProp="label"
+          tagRender={tagRender}
+          open={openSelect}
+          disabled={tagMenuOpen || campo.disable_campo === 1}
+          autoClearSearchValue={false}
+          loading={isLoading || isFetching}
+          maxCount={1}
+          data-ident="pl-radicacion-spe-REMITENTE_COR"
+          aria-label={campo.aleas_campo ?? "Remitente"}
+          aria-required={campo.obligatorio_campo === 1}
+          onSearch={(text) => {
+            setSearchText(text);
+            if (text.length > 0 && !tagMenuOpen) {
+              setOpenSelect(true);
+            } else {
+              setOpenSelect(false);
+            }
+          }}
+          onChange={handleChange}
+          onOpenChange={(visible) => {
+            if (!visible) setOpenSelect(false);
+          }}
+        />
+      </Space.Compact>
+    </Form.Item>
+  );
+};
+
 /* =========================================================
    COMPONENTE PRINCIPAL
 ========================================================= */
@@ -289,6 +438,8 @@ const FormRadicacion: React.FC = () => {
   };
 
   const camposPlantillaSafe = camposPlantilla ?? [];
+  const normalizeCampoName = (value: string | null | undefined) =>
+    String(value ?? "").trim().toUpperCase();
 
   const campoTramite = useMemo(
     () =>
@@ -330,6 +481,26 @@ const FormRadicacion: React.FC = () => {
   );
   const campoAsunto = useMemo(
     () => camposPlantillaSafe.find((campo) => campo.name_campo === "ASUNTO"),
+    [camposPlantillaSafe],
+  );
+  const campoRemitenteCor = useMemo(
+    () => {
+      const campo = camposPlantillaSafe.find(
+        (item) => normalizeCampoName(item.name_campo) === "REMITENTE_COR",
+      );
+      if (!campo) return undefined;
+      return {
+        ...campo,
+        name_campo: "REMITENTE_COR",
+      };
+    },
+    [camposPlantillaSafe],
+  );
+  const camposEspecializados = useMemo(
+    () =>
+      camposPlantillaSafe.filter(
+        (campo) => normalizeCampoName(campo.name_campo) !== "REMITENTE_COR",
+      ),
     [camposPlantillaSafe],
   );
 
@@ -662,15 +833,24 @@ const FormRadicacion: React.FC = () => {
             size="small"
             style={{ marginBottom: 24 }}
           >
-            <SelectRemitente
-              rules={[{ required: true, message: "Seleccione remitente" }]}
-              key={`remitente-${resetKey}`}
-              label="Remitente"
-              name="remitente"
-              data-ident="pl-radicacion-spe-REMITENTE_COR"
-              opciones={opcionesUsuarios}
-              abrirInformacion={abrirInformacion}
-            />
+            {campoRemitenteCor ? (
+              <SelectRemitenteToken
+                campo={campoRemitenteCor}
+                onOpenInfo={({ id, nombre }) => {
+                  setUsuarioSeleccionado({ id, nombre });
+                  setModalVisible(true);
+                }}
+              />
+            ) : (
+              <SelectRemitente
+                rules={[{ required: true, message: "Seleccione remitente" }]}
+                key={`remitente-${resetKey}`}
+                label="Remitente"
+                name="remitente"
+                opciones={opcionesUsuarios}
+                abrirInformacion={abrirInformacion}
+              />
+            )}
           </Card>
           {/*=========================DESTINATARIO============================*/}
           <Card
@@ -695,9 +875,9 @@ const FormRadicacion: React.FC = () => {
             />
           </Card>
 
-          {camposPlantillaSafe.length > 0 ? (
+          {camposEspecializados.length > 0 ? (
             <CamposPlantillaAutoCompleteRenderer
-              camposPlantilla={camposPlantillaSafe}
+              camposPlantilla={camposEspecializados}
             />
           ) : null}
         </Form>

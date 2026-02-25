@@ -11,10 +11,10 @@ ACULIZA-SELECCION-CAMPOS-DIANAMICOS. Necesito que los campos dinámicos presente
 ## Capabilities
 
 ### New Capabilities
-- `jira-proposal-generator`: Generacion automatica de propuestas OpenSpec desde Jira.
+- N/A
 
 ### Modified Capabilities
-- 
+- `campos-dinamicos-plantilla`: alinear visualmente campos dinamicos `SELECCION` con el estilo de los campos estaticos y mantener consistencia de UI.
 
 ## Impact
 

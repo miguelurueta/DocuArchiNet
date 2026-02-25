@@ -16,6 +16,13 @@ Definir variables de entorno Jira:
 - `JIRA_EMAIL`
 - `JIRA_API_TOKEN`
 
+Variables Git/GitHub para trazabilidad automática:
+
+- `GITHUB_TOKEN`
+- `GITHUB_REPO` (formato `owner/repo`) o `GITHUB_OWNER` + `GITHUB_REPO_NAME`
+- `GITHUB_BASE_BRANCH` (opcional, default `main`)
+- `GIT_AUTO_PUSH` (opcional, default `true`)
+
 Opcional:
 
 - `JIRA_ISSUE_KEY` (si no se pasa `<ISSUE-KEY>` por argumento)
@@ -42,6 +49,9 @@ node scripts/opsxj.js opsxj:new SCRUM-8
    - Ejemplo: `scrum-8-auto-complete-asunto`
 4. Escribe:
    - `openspec/changes/<changeName>/proposal.md`
+5. Crea/sincroniza rama `feature/<ISSUE-KEY>`.
+6. Crea commit inicial con `proposal.md`.
+7. Hace push de la rama (si `GIT_AUTO_PUSH=true`).
 5. Muestra confirmaciones centralizadas:
    - ticket procesado
    - resumen Jira usado
@@ -52,6 +62,8 @@ node scripts/opsxj.js opsxj:new SCRUM-8
 
 OpenSpec archiva basado en el nombre de carpeta del cambio.  
 Como `opsxj:new` crea la carpeta a partir del resumen Jira (normalizado), el archive conserva un nombre trazable al contexto funcional del ticket.
+
+Además, la rama queda preparada para `opsxj:archive`, que abre PR y comenta Jira.
 
 ## Manejo centralizado de errores
 

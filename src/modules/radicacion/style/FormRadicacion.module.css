@@ -166,6 +166,78 @@
   cursor: not-allowed;
 }
 
+.dynamicSelect {
+  width: 100%;
+}
+
+.dynamicSelect :global(.ant-select-selector) {
+  min-height: 38px !important;
+  border-radius: 8px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+  color: rgba(15, 23, 42, 0.95);
+  box-shadow: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.dynamicSelect:hover :global(.ant-select-selector) {
+  border-color: #94a3b8 !important;
+  background: #ffffff !important;
+}
+
+:global(.ant-select-focused).dynamicSelect :global(.ant-select-selector) {
+  border-color: #1677ff !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.14) !important;
+}
+
+.dynamicSelect :global(.ant-select-selection-placeholder) {
+  color: #64748b;
+}
+
+.dynamicSelect :global(.ant-select-arrow) {
+  color: #64748b;
+}
+
+:global(.ant-select-disabled).dynamicSelect :global(.ant-select-selector) {
+  background: #f5f5f5 !important;
+  color: rgba(0, 0, 0, 0.4) !important;
+  cursor: not-allowed !important;
+}
+
+/* Autocomplete dinamico con estilo consistente */
+.dynamicAutocomplete {
+  width: 100%;
+}
+
+.dynamicAutocomplete :global(.ant-select-selector) {
+  min-height: 38px !important;
+  border-radius: 8px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+  box-shadow: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.dynamicAutocomplete:hover :global(.ant-select-selector) {
+  border-color: #94a3b8 !important;
+  background: #ffffff !important;
+}
+
+:global(.ant-select-focused).dynamicAutocomplete :global(.ant-select-selector) {
+  border-color: #1677ff !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.14) !important;
+}
+
+.dynamicAutocomplete :global(.ant-select-input) {
+  color: rgba(15, 23, 42, 0.95);
+}
+
+.dynamicAutocomplete :global(.ant-select-selection-placeholder) {
+  color: #64748b;
+}
+
 
 /*===========FOOTER==============*/
 .footer {
