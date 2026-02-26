@@ -1,4 +1,4 @@
-import { access, mkdir, readdir, rename } from "node:fs/promises";
+import { access, cp, mkdir, readdir, rename, rm } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { execFile as execFileCb } from "node:child_process";
@@ -57,7 +57,16 @@ export const moveChangeToArchiveDir = async ({ baseDir, changeName }) => {
   }
 
   const target = await ensureArchivePath({ baseDir, changeName });
-  await rename(source, target);
+  try {
+    await rename(source, target);
+  } catch (error) {
+    const code = error && typeof error === "object" ? error.code : undefined;
+    if (!["EPERM", "EXDEV", "ENOTEMPTY"].includes(code)) {
+      throw error;
+    }
+    await cp(source, target, { recursive: true });
+    await rm(source, { recursive: true, force: true });
+  }
   return target;
 };
 
