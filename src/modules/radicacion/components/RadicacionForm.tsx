@@ -307,6 +307,12 @@ const SelectRemitenteToken: React.FC<SelectRemitenteTokenProps> = ({
     value: item.idValue ?? `${item.texValue}-${index}`,
     label: item.texValue,
   }));
+  const remitenteLabel = campo.aleas_campo ?? "Remitente";
+  const remitenteTitle = campo.title_control ?? "";
+  const remitenteTooltip = campo.tooltipAyuda ?? "";
+  const remitenteTooltipId = remitenteTooltip
+    ? "pl-radicacion-spe-tooltip-REMITENTE_COR"
+    : undefined;
 
   const handleChange = (values: Array<{ value: string; label: React.ReactNode }>) => {
     const ultimo = values.slice(-1);
@@ -369,8 +375,30 @@ const SelectRemitenteToken: React.FC<SelectRemitenteTokenProps> = ({
   return (
     <Form.Item
       name="remitente"
-      label={campo.aleas_campo ?? "Remitente"}
-      rules={[{ required: true, message: "Seleccione remitente" }]}
+      label={
+        <span title={remitenteTitle}>
+          {remitenteLabel}
+          {remitenteTooltip ? (
+            <Tooltip title={remitenteTooltip}>
+              <span
+                className={`${styles["tooltip-ayuda"]} tooltip-ayuda`}
+                role="button"
+                tabIndex={0}
+                aria-label={`Mostrar ayuda para ${remitenteLabel}`}
+                aria-describedby={remitenteTooltipId}
+                data-tooltip-id={remitenteTooltipId}
+              >
+                <InfoCircleOutlined />
+              </span>
+            </Tooltip>
+          ) : null}
+        </span>
+      }
+      rules={
+        campo.obligatorio_campo === 1
+          ? [{ required: true, message: "Seleccione remitente" }]
+          : undefined
+      }
       data-ident="pl-radicacion-spe-REMITENTE_COR"
     >
       <Space.Compact style={{ width: "100%" }} id="remitente">
@@ -390,7 +418,8 @@ const SelectRemitenteToken: React.FC<SelectRemitenteTokenProps> = ({
           loading={isLoading || isFetching}
           maxCount={1}
           data-ident="pl-radicacion-spe-REMITENTE_COR"
-          aria-label={campo.aleas_campo ?? "Remitente"}
+          aria-label={remitenteLabel}
+          aria-describedby={remitenteTooltipId}
           aria-required={campo.obligatorio_campo === 1}
           onSearch={(text) => {
             setSearchText(text);
@@ -905,6 +934,7 @@ const FormRadicacion: React.FC = () => {
                 key={`remitente-${resetKey}`}
                 label="Remitente"
                 name="remitente"
+                data-ident="pl-radicacion-spe-REMITENTE_COR"
                 opciones={opcionesUsuarios}
                 abrirInformacion={abrirInformacion}
               />
