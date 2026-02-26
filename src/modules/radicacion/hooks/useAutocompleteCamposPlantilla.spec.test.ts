@@ -192,4 +192,74 @@ describe("useAutocompleteCamposPlantilla endpoint resolver", () => {
       },
     );
   });
+
+  it("[SPEC:DSR-007] recarga autocomplete cuando cambia CDeRelacionEstadoRetriccionDto", async () => {
+    postMock.mockResolvedValue({
+      data: {
+        success: true,
+        message: "OK",
+        data: [{ idValue: "44", texValue: "Carlos Ruiz" }],
+      },
+    });
+
+    const baseParams = {
+      TextoBuscado: "car",
+      defaultDbAlias: "",
+      tbl_control: "RAD_GESTION",
+      name_campo: "Destinatario_Cor",
+    };
+
+    const { rerender } = renderHook(
+      ({ dto }) =>
+        useAutocompleteCamposPlantilla(
+          {
+            ...baseParams,
+            CDeRelacionEstadoRetriccionDto: dto,
+          },
+          true,
+        ),
+      {
+        wrapper: createWrapper(),
+        initialProps: {
+          dto: {
+            IdRestriTipoDestInterno: 0,
+            IdTipoRestriccion: 0,
+            DescripcionTipo: "",
+            MoluloRadicacion: 0,
+            ModuloRadicacionSimple: 0,
+            ModuloRadicacionInterna: 0,
+          },
+        },
+      },
+    );
+
+    await waitFor(() => expect(postMock).toHaveBeenCalledTimes(1));
+
+    rerender({
+      dto: {
+        IdRestriTipoDestInterno: 10,
+        IdTipoRestriccion: 2,
+        DescripcionTipo: "Restriccion actualizada",
+        MoluloRadicacion: 1,
+        ModuloRadicacionSimple: 1,
+        ModuloRadicacionInterna: 0,
+      },
+    });
+
+    await waitFor(() => expect(postMock).toHaveBeenCalledTimes(2));
+    expect(postMock).toHaveBeenLastCalledWith(
+      "/api/PlantillaRadicado/solicitaAutoCompleteDestinatarioRestriccion",
+      {
+        ValueAuto: "car",
+        CDeRelacionEstadoRetriccionDto: {
+          IdRestriTipoDestInterno: 10,
+          IdTipoRestriccion: 2,
+          DescripcionTipo: "Restriccion actualizada",
+          MoluloRadicacion: 1,
+          ModuloRadicacionSimple: 1,
+          ModuloRadicacionInterna: 0,
+        },
+      },
+    );
+  });
 });
