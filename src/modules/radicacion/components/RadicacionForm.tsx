@@ -35,9 +35,10 @@ import { useCamposPlantilla } from "../hooks/useCamposPlantilla";
 import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
 import { useFlujosRelacionadosTramite } from "../hooks/useFlujosRelacionadosTramite";
 import {
-  useRelacionEstadoRestriccionDestinatario,
-} from "../hooks/useRelacionEstadoRestriccionDestinatario";
+  useEstructuraRelacionTipoRestriccion,
+} from "../hooks/useEstructuraRelacionTipoRestriccion";
 import {
+  type CDeRelacionEstadoRetriccionDto,
   C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT,
 } from "../models/CDeRelacionEstadoRetriccionDto";
 import {
@@ -454,12 +455,14 @@ interface SelectDestinatarioTokenProps {
   campo: CampoPlantillaDTO;
   onOpenInfo: (payload: { id: number; nombre: string }) => void;
   selectDisabledByRestriction: boolean;
+  relacionEstadoRestriccionDestinatario: CDeRelacionEstadoRetriccionDto;
 }
 
 const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
   campo,
   onOpenInfo,
   selectDisabledByRestriction,
+  relacionEstadoRestriccionDestinatario,
 }) => {
   const [value, setValue] = useState<Array<{ value: string; label: React.ReactNode }>>([]);
   const [openSelect, setOpenSelect] = useState(false);
@@ -476,7 +479,7 @@ const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
           tbl_control: campo.tbl_control ?? "",
           name_campo: "Destinatario_Cor",
           ...(campoIdScript !== undefined ? { idScript: campoIdScript } : {}),
-          CDeRelacionEstadoRetriccionDto,
+          CDeRelacionEstadoRetriccionDto: relacionEstadoRestriccionDestinatario,
         }
       : null,
     shouldQuery,
@@ -657,7 +660,7 @@ const FormRadicacion: React.FC = () => {
 
   const [resetKey, setResetKey] = useState(0);
   const { data: relacionEstadoRestriccionDestinatario } =
-    useRelacionEstadoRestriccionDestinatario(CDeRelacionEstadoRetriccionDto, false);
+    useEstructuraRelacionTipoRestriccion(selectedTramiteId, true);
 
   const abrirInformacion = (id: number) => {
     const user = usuarios.find((u) => u.id === id);
@@ -1174,6 +1177,7 @@ const FormRadicacion: React.FC = () => {
               <SelectDestinatarioToken
                 campo={campoDestinatarioCor}
                 selectDisabledByRestriction={destinatarioDisabledByRestriccion}
+                relacionEstadoRestriccionDestinatario={relacionEstadoRestriccionDestinatario}
                 onOpenInfo={({ id, nombre }) => {
                   setUsuarioSeleccionado({ id, nombre });
                   setModalVisible(true);

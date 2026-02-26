@@ -4,7 +4,7 @@ import RadicacionForm from "./RadicacionForm";
 import { useCamposPlantilla } from "../hooks/useCamposPlantilla";
 import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
 import { useFlujosRelacionadosTramite } from "../hooks/useFlujosRelacionadosTramite";
-import { useRelacionEstadoRestriccionDestinatario } from "../hooks/useRelacionEstadoRestriccionDestinatario";
+import { useEstructuraRelacionTipoRestriccion } from "../hooks/useEstructuraRelacionTipoRestriccion";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 
 vi.mock("../hooks/useCamposPlantilla", () => ({
@@ -17,8 +17,8 @@ vi.mock("../hooks/useAutocompleteCamposPlantilla", () => ({
 vi.mock("../hooks/useFlujosRelacionadosTramite", () => ({
   useFlujosRelacionadosTramite: vi.fn(),
 }));
-vi.mock("../hooks/useRelacionEstadoRestriccionDestinatario", () => ({
-  useRelacionEstadoRestriccionDestinatario: vi.fn(),
+vi.mock("../hooks/useEstructuraRelacionTipoRestriccion", () => ({
+  useEstructuraRelacionTipoRestriccion: vi.fn(),
 }));
 
 const mockedUseCamposPlantilla = vi.mocked(useCamposPlantilla);
@@ -28,8 +28,8 @@ const mockedUseAutocompleteCamposPlantilla = vi.mocked(
 const mockedUseFlujosRelacionadosTramite = vi.mocked(
   useFlujosRelacionadosTramite,
 );
-const mockedUseRelacionEstadoRestriccionDestinatario = vi.mocked(
-  useRelacionEstadoRestriccionDestinatario,
+const mockedUseEstructuraRelacionTipoRestriccion = vi.mocked(
+  useEstructuraRelacionTipoRestriccion,
 );
 
 describe("RadicacionForm", () => {
@@ -54,7 +54,7 @@ describe("RadicacionForm", () => {
       error: null,
       shouldFetch: false,
     });
-    mockedUseRelacionEstadoRestriccionDestinatario.mockReturnValue({
+    mockedUseEstructuraRelacionTipoRestriccion.mockReturnValue({
       data: {
         IdRestriTipoDestInterno: 0,
         IdTipoRestriccion: 0,
@@ -66,6 +66,7 @@ describe("RadicacionForm", () => {
       isLoading: false,
       isFetching: false,
       error: null,
+      shouldFetch: false,
     });
   });
 
@@ -772,6 +773,10 @@ describe("RadicacionForm", () => {
     fireEvent.click(screen.getByText("CITACION"));
 
     expect(mockedUseFlujosRelacionadosTramite).toHaveBeenLastCalledWith("23", true);
+    expect(mockedUseEstructuraRelacionTipoRestriccion).toHaveBeenLastCalledWith(
+      "23",
+      true,
+    );
 
     const flujoSelect = container.querySelector(
       '[data-ident="pl-radicacion-spe-RE_flujo_trabajo"]',
@@ -803,6 +808,10 @@ describe("RadicacionForm", () => {
 
     const { container } = render(<RadicacionForm />);
     expect(mockedUseFlujosRelacionadosTramite).toHaveBeenLastCalledWith(null, true);
+    expect(mockedUseEstructuraRelacionTipoRestriccion).toHaveBeenLastCalledWith(
+      null,
+      true,
+    );
 
     const flujoSelect = container.querySelector(
       '[data-ident="pl-radicacion-spe-RE_flujo_trabajo"]',
@@ -811,7 +820,7 @@ describe("RadicacionForm", () => {
   });
 
   it("[SPEC:RDS-004] aplica restriccion de destinatario desde CDeRelacionEstadoRetriccionDto", () => {
-    mockedUseRelacionEstadoRestriccionDestinatario.mockReturnValue({
+    mockedUseEstructuraRelacionTipoRestriccion.mockReturnValue({
       data: {
         IdRestriTipoDestInterno: 1,
         IdTipoRestriccion: 10,
@@ -823,6 +832,7 @@ describe("RadicacionForm", () => {
       isLoading: false,
       isFetching: false,
       error: null,
+      shouldFetch: false,
     });
 
     const { container } = render(<RadicacionForm />);
