@@ -14,7 +14,7 @@ describe("useEstructuraRelacionTipoRestriccion helpers", () => {
 
   it("[SPEC:TRS-002] construye query params para estructura de restriccion", () => {
     expect(buildEstructuraRelacionTipoRestriccionParams("23")).toEqual({
-      idValue: "23",
+      idTipoTramite: "23",
     });
   });
 });

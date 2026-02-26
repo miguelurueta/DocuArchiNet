@@ -17,8 +17,10 @@ export const normalizeTramiteIdForRestriccion = (value: unknown): string | null 
   return normalized.length > 0 ? normalized : null;
 };
 
-export const buildEstructuraRelacionTipoRestriccionParams = (idValue: string) => ({
-  idValue,
+export const buildEstructuraRelacionTipoRestriccionParams = (
+  idTipoTramite: string,
+) => ({
+  idTipoTramite,
 });
 
 const mapToRestriccionDto = (payload: unknown): CDeRelacionEstadoRetriccionDto => {
