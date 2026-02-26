@@ -44,6 +44,7 @@ import {
   CampoPlantillaAutoCompleteField,
   CamposPlantillaAutoCompleteRenderer,
 } from "./CamposPlantillaAutoCompleteRenderer";
+import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 
 export const CDeRelacionEstadoRetriccionDto =
   C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT;
@@ -272,6 +273,18 @@ const SelectDestinatario: React.FC<SelectUsuariosProps> = (props) => {
   );
 };
 
+const resolveCampoIdScript = (campo: CampoPlantillaDTO): number | undefined => {
+  const nestedId = campo.TomPParameterTomSelelect?.id_escript;
+  if (typeof nestedId === "number" && Number.isFinite(nestedId)) {
+    return nestedId;
+  }
+  const anyCampo = campo as unknown as { id_escript?: number | null };
+  if (typeof anyCampo.id_escript === "number" && Number.isFinite(anyCampo.id_escript)) {
+    return anyCampo.id_escript;
+  }
+  return undefined;
+};
+
 interface SelectRemitenteTokenProps {
   campo: CampoPlantillaDTO;
   onOpenInfo: (payload: { id: number; nombre: string }) => void;
@@ -286,19 +299,7 @@ const SelectRemitenteToken: React.FC<SelectRemitenteTokenProps> = ({
   const [tagMenuOpen, setTagMenuOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
 
-  const resolveCampoIdScript = () => {
-    const nestedId = campo.TomPParameterTomSelelect?.id_escript;
-    if (typeof nestedId === "number" && Number.isFinite(nestedId)) {
-      return nestedId;
-    }
-    const anyCampo = campo as unknown as { id_escript?: number | null };
-    if (typeof anyCampo.id_escript === "number" && Number.isFinite(anyCampo.id_escript)) {
-      return anyCampo.id_escript;
-    }
-    return undefined;
-  };
-
-  const campoIdScript = resolveCampoIdScript();
+  const campoIdScript = resolveCampoIdScript(campo);
   const shouldQuery = searchText.trim().length > 0;
   const { data, isLoading, isFetching } = useAutocompleteCamposPlantilla(
     shouldQuery
@@ -449,6 +450,180 @@ const SelectRemitenteToken: React.FC<SelectRemitenteTokenProps> = ({
   );
 };
 
+interface SelectDestinatarioTokenProps {
+  campo: CampoPlantillaDTO;
+  onOpenInfo: (payload: { id: number; nombre: string }) => void;
+  selectDisabledByRestriction: boolean;
+}
+
+const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
+  campo,
+  onOpenInfo,
+  selectDisabledByRestriction,
+}) => {
+  const [value, setValue] = useState<Array<{ value: string; label: React.ReactNode }>>([]);
+  const [openSelect, setOpenSelect] = useState(false);
+  const [tagMenuOpen, setTagMenuOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
+
+  const campoIdScript = resolveCampoIdScript(campo);
+  const shouldQuery = searchText.trim().length > 0;
+  const { data, isLoading, isFetching, error } = useAutocompleteCamposPlantilla(
+    shouldQuery
+      ? {
+          TextoBuscado: searchText,
+          defaultDbAlias: "",
+          tbl_control: campo.tbl_control ?? "",
+          name_campo: "Destinatario_Cor",
+          ...(campoIdScript !== undefined ? { idScript: campoIdScript } : {}),
+          CDeRelacionEstadoRetriccionDto,
+        }
+      : null,
+    shouldQuery,
+  );
+
+  const options = data.map((item, index) => ({
+    value: item.idValue ?? `${item.texValue}-${index}`,
+    label: item.texValue,
+  }));
+
+  const destinatarioLabel = campo.aleas_campo ?? "Destinatario";
+  const destinatarioTitle = campo.title_control ?? "";
+  const destinatarioTooltip = campo.tooltipAyuda ?? "";
+  const destinatarioTooltipId = destinatarioTooltip
+    ? "pl-radicacion-spe-tooltip-Destinatario_Cor"
+    : undefined;
+  const hasError = Boolean(error);
+
+  const handleChange = (values: Array<{ value: string; label: React.ReactNode }>) => {
+    const ultimo = values.slice(-1);
+    setValue(ultimo);
+    setOpenSelect(false);
+    setSearchText("");
+  };
+
+  const tagRender = (props: {
+    label: React.ReactNode;
+    value: string;
+    closable: boolean;
+    onClose: () => void;
+  }) => {
+    const { label, value, closable, onClose } = props;
+    return (
+      <Tag closable={false}>
+        {label}
+        <Dropdown
+          menu={{
+            items: [
+              {
+                key: "info",
+                label: (
+                  <Space>
+                    <InfoCircleOutlined />
+                    Información
+                  </Space>
+                ),
+                onClick: () => {
+                  onOpenInfo({
+                    id: Number(value) || 0,
+                    nombre: String(label ?? ""),
+                  });
+                },
+              },
+            ],
+          }}
+          trigger={["click"]}
+          onOpenChange={(open) => {
+            setTagMenuOpen(open);
+            if (open) setOpenSelect(false);
+          }}
+        >
+          <UnorderedListOutlined
+            style={{ marginLeft: 6, cursor: "pointer" }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </Dropdown>
+        {closable && (
+          <CloseOutlined
+            style={{ marginLeft: 6, cursor: "pointer" }}
+            onClick={onClose}
+          />
+        )}
+      </Tag>
+    );
+  };
+
+  return (
+    <Form.Item
+      name="destinatario"
+      label={
+        <span title={destinatarioTitle}>
+          {destinatarioLabel}
+          {destinatarioTooltip ? (
+            <Tooltip title={destinatarioTooltip}>
+              <span
+                className={`${styles["tooltip-ayuda"]} tooltip-ayuda`}
+                role="button"
+                tabIndex={0}
+                aria-label={`Mostrar ayuda para ${destinatarioLabel}`}
+                aria-describedby={destinatarioTooltipId}
+                data-tooltip-id={destinatarioTooltipId}
+              >
+                <InfoCircleOutlined />
+              </span>
+            </Tooltip>
+          ) : null}
+        </span>
+      }
+      rules={
+        campo.obligatorio_campo === 1
+          ? [{ required: true, message: "Seleccione destinatario" }]
+          : undefined
+      }
+      validateStatus={hasError ? "error" : undefined}
+      help={
+        hasError ? "No fue posible cargar las opciones. Intenta nuevamente." : undefined
+      }
+      data-ident="pl-radicacion-spe-Destinatario_Cor"
+    >
+      <Space.Compact style={{ width: "100%" }} id="destinatario">
+        <Select
+          mode="multiple"
+          labelInValue
+          value={value}
+          showSearch
+          searchValue={searchText}
+          placeholder="Escriba para buscar destinatario"
+          options={options}
+          optionFilterProp="label"
+          tagRender={tagRender}
+          open={openSelect}
+          disabled={tagMenuOpen || campo.disable_campo === 1 || selectDisabledByRestriction}
+          autoClearSearchValue={false}
+          loading={isLoading || isFetching}
+          maxCount={1}
+          data-ident="pl-radicacion-spe-Destinatario_Cor"
+          aria-label={destinatarioLabel}
+          aria-describedby={destinatarioTooltipId}
+          aria-required={campo.obligatorio_campo === 1}
+          onSearch={(text) => {
+            setSearchText(text);
+            if (text.length > 0 && !tagMenuOpen) {
+              setOpenSelect(true);
+            } else {
+              setOpenSelect(false);
+            }
+          }}
+          onChange={handleChange}
+          onOpenChange={(visible) => {
+            if (!visible) setOpenSelect(false);
+          }}
+        />
+      </Space.Compact>
+    </Form.Item>
+  );
+};
+
 /* =========================================================
    COMPONENTE PRINCIPAL
 ========================================================= */
@@ -482,7 +657,7 @@ const FormRadicacion: React.FC = () => {
 
   const [resetKey, setResetKey] = useState(0);
   const { data: relacionEstadoRestriccionDestinatario } =
-    useRelacionEstadoRestriccionDestinatario(CDeRelacionEstadoRetriccionDto);
+    useRelacionEstadoRestriccionDestinatario(CDeRelacionEstadoRetriccionDto, false);
 
   const abrirInformacion = (id: number) => {
     const user = usuarios.find((u) => u.id === id);
@@ -995,22 +1170,33 @@ const FormRadicacion: React.FC = () => {
             size="small"
             style={{ marginBottom: 24 }}
           >
-            <SelectDestinatario
-              rules={
-                destinatarioRequired
-                  ? [{ required: true, message: "Seleccione destinatario" }]
-                  : undefined
-              }
-              key={`destinatario-${resetKey}`}
-              label={destinatarioLabelNode}
-              name="destinatario"
-              formItemDataIdent="pl-radicacion-spe-Destinatario_Cor"
-              selectDataIdent="pl-radicacion-spe-Destinatario_Cor"
-              ariaLabel={destinatarioLabel}
-              selectDisabled={destinatarioDisabled}
-              opciones={opcionesUsuarios}
-              abrirInformacion={abrirInformacion}
-            />
+            {campoDestinatarioCor ? (
+              <SelectDestinatarioToken
+                campo={campoDestinatarioCor}
+                selectDisabledByRestriction={destinatarioDisabledByRestriccion}
+                onOpenInfo={({ id, nombre }) => {
+                  setUsuarioSeleccionado({ id, nombre });
+                  setModalVisible(true);
+                }}
+              />
+            ) : (
+              <SelectDestinatario
+                rules={
+                  destinatarioRequired
+                    ? [{ required: true, message: "Seleccione destinatario" }]
+                    : undefined
+                }
+                key={`destinatario-${resetKey}`}
+                label={destinatarioLabelNode}
+                name="destinatario"
+                formItemDataIdent="pl-radicacion-spe-Destinatario_Cor"
+                selectDataIdent="pl-radicacion-spe-Destinatario_Cor"
+                ariaLabel={destinatarioLabel}
+                selectDisabled={destinatarioDisabled}
+                opciones={opcionesUsuarios}
+                abrirInformacion={abrirInformacion}
+              />
+            )}
           </Card>
 
           {camposEspecializados.length > 0 ? (

@@ -17,7 +17,7 @@ export const normalizeRestriccionDestinatario = (
     IdRestriTipoDestInterno:
       Number(row.IdRestriTipoDestInterno ?? 0) || 0,
     IdTipoRestriccion: Number(row.IdTipoRestriccion ?? 0) || 0,
-    DescripcionTipo: String(row.DescripcionTipo ?? "string"),
+    DescripcionTipo: String(row.DescripcionTipo ?? ""),
     MoluloRadicacion: Number(row.MoluloRadicacion ?? 0) || 0,
     ModuloRadicacionSimple: Number(row.ModuloRadicacionSimple ?? 0) || 0,
     ModuloRadicacionInterna: Number(row.ModuloRadicacionInterna ?? 0) || 0,
