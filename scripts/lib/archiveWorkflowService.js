@@ -1,4 +1,4 @@
-import { readdir } from "node:fs/promises";
+import { access, cp, mkdir, readdir, rename, rm } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { execFile as execFileCb } from "node:child_process";
@@ -27,6 +27,47 @@ const readActiveChanges = async (baseDir) => {
   return entries
     .filter((entry) => entry.isDirectory() && entry.name !== "archive")
     .map((entry) => entry.name);
+};
+
+const ensureArchivePath = async ({ baseDir, changeName }) => {
+  const archiveDir = path.join(baseDir, "openspec", "changes", "archive");
+  await mkdir(archiveDir, { recursive: true });
+  const datePrefix = new Date().toISOString().slice(0, 10);
+  const baseName = `${datePrefix}-${changeName}`;
+  let targetPath = path.join(archiveDir, baseName);
+  let suffix = 1;
+  // Prevent collisions if archive is retried the same day.
+  while (true) {
+    try {
+      await access(targetPath);
+      targetPath = path.join(archiveDir, `${baseName}-${suffix}`);
+      suffix += 1;
+    } catch {
+      return targetPath;
+    }
+  }
+};
+
+export const moveChangeToArchiveDir = async ({ baseDir, changeName }) => {
+  const source = path.join(baseDir, "openspec", "changes", changeName);
+  try {
+    await access(source);
+  } catch {
+    return null;
+  }
+
+  const target = await ensureArchivePath({ baseDir, changeName });
+  try {
+    await rename(source, target);
+  } catch (error) {
+    const code = error && typeof error === "object" ? error.code : undefined;
+    if (!["EPERM", "EXDEV", "ENOTEMPTY"].includes(code)) {
+      throw error;
+    }
+    await cp(source, target, { recursive: true });
+    await rm(source, { recursive: true, force: true });
+  }
+  return target;
 };
 
 export const resolveChangeNameFromIssueKey = async ({ baseDir, issueKey }) => {
@@ -71,6 +112,10 @@ export const archiveWithPullRequest = async ({
     baseDir,
     changeName,
   });
+  const archivedDirectoryPath = await moveChangeToArchiveDir({
+    baseDir,
+    changeName,
+  });
 
   const issue = await fetchJiraIssue({
     issueKey,
@@ -108,5 +153,6 @@ export const archiveWithPullRequest = async ({
     pullRequest: prResult.pullRequest,
     pullRequestCreated: prResult.created,
     archivedWithSkipSpecs: archiveResult.archivedWithSkipSpecs,
+    archivedDirectoryPath,
   };
 };
