@@ -529,4 +529,50 @@ describe("RadicacionForm", () => {
       true,
     );
   });
+
+  it("[SPEC:RMT-004] aplica required, disabled, title y tooltip en REMITENTE_COR", () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "REMITENTE_COR",
+          aleas_campo: "Remitente Dinamico",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          tbl_control: "terceros",
+          obligatorio_campo: 1,
+          disable_campo: 1,
+          title_control: "Título Remitente Dinamico",
+          tooltipAyuda: "Ayuda Remitente Dinamico",
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    mockedUseAutocompleteCamposPlantilla.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    });
+
+    const { container } = render(<RadicacionForm />);
+
+    const remitenteLabel = screen.getByText("Remitente Dinamico").closest("label");
+    expect(remitenteLabel).toBeTruthy();
+    expect(remitenteLabel?.className).toContain("ant-form-item-required");
+    expect(screen.getByText("Remitente Dinamico")).toHaveAttribute(
+      "title",
+      "Título Remitente Dinamico",
+    );
+    expect(
+      screen.getByLabelText("Mostrar ayuda para Remitente Dinamico"),
+    ).toBeInTheDocument();
+
+    const remitenteSelect = container.querySelector(
+      '.ant-select[data-ident="pl-radicacion-spe-REMITENTE_COR"]',
+    );
+    expect(remitenteSelect?.className).toContain("ant-select-disabled");
+  });
 });
