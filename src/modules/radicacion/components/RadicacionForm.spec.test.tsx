@@ -4,6 +4,7 @@ import RadicacionForm from "./RadicacionForm";
 import { useCamposPlantilla } from "../hooks/useCamposPlantilla";
 import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
 import { useFlujosRelacionadosTramite } from "../hooks/useFlujosRelacionadosTramite";
+import { useRelacionEstadoRestriccionDestinatario } from "../hooks/useRelacionEstadoRestriccionDestinatario";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 
 vi.mock("../hooks/useCamposPlantilla", () => ({
@@ -16,6 +17,9 @@ vi.mock("../hooks/useAutocompleteCamposPlantilla", () => ({
 vi.mock("../hooks/useFlujosRelacionadosTramite", () => ({
   useFlujosRelacionadosTramite: vi.fn(),
 }));
+vi.mock("../hooks/useRelacionEstadoRestriccionDestinatario", () => ({
+  useRelacionEstadoRestriccionDestinatario: vi.fn(),
+}));
 
 const mockedUseCamposPlantilla = vi.mocked(useCamposPlantilla);
 const mockedUseAutocompleteCamposPlantilla = vi.mocked(
@@ -23,6 +27,9 @@ const mockedUseAutocompleteCamposPlantilla = vi.mocked(
 );
 const mockedUseFlujosRelacionadosTramite = vi.mocked(
   useFlujosRelacionadosTramite,
+);
+const mockedUseRelacionEstadoRestriccionDestinatario = vi.mocked(
+  useRelacionEstadoRestriccionDestinatario,
 );
 
 describe("RadicacionForm", () => {
@@ -46,6 +53,19 @@ describe("RadicacionForm", () => {
       isFetching: false,
       error: null,
       shouldFetch: false,
+    });
+    mockedUseRelacionEstadoRestriccionDestinatario.mockReturnValue({
+      data: {
+        IdRestriTipoDestInterno: 0,
+        IdTipoRestriccion: 0,
+        DescripcionTipo: "string",
+        MoluloRadicacion: 0,
+        ModuloRadicacionSimple: 0,
+        ModuloRadicacionInterna: 0,
+      },
+      isLoading: false,
+      isFetching: false,
+      error: null,
     });
   });
 
@@ -661,5 +681,27 @@ describe("RadicacionForm", () => {
       '[data-ident="pl-radicacion-spe-RE_flujo_trabajo"]',
     );
     expect(flujoSelect?.className).toContain("ant-select-disabled");
+  });
+
+  it("[SPEC:RDS-004] aplica restriccion de destinatario desde CDeRelacionEstadoRetriccionDto", () => {
+    mockedUseRelacionEstadoRestriccionDestinatario.mockReturnValue({
+      data: {
+        IdRestriTipoDestInterno: 1,
+        IdTipoRestriccion: 10,
+        DescripcionTipo: "RESTRINGIDO",
+        MoluloRadicacion: 0,
+        ModuloRadicacionSimple: 0,
+        ModuloRadicacionInterna: 0,
+      },
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    });
+
+    const { container } = render(<RadicacionForm />);
+    const destinatarioSelect = container.querySelector(
+      '.ant-select[data-ident="pl-radicacion-spe-Destinatario_Cor"]',
+    );
+    expect(destinatarioSelect?.className).toContain("ant-select-disabled");
   });
 });
