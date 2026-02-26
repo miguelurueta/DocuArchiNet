@@ -58,7 +58,7 @@ describe("RadicacionForm", () => {
       data: {
         IdRestriTipoDestInterno: 0,
         IdTipoRestriccion: 0,
-        DescripcionTipo: "string",
+        DescripcionTipo: "",
         MoluloRadicacion: 0,
         ModuloRadicacionSimple: 0,
         ModuloRadicacionInterna: 0,
@@ -496,6 +496,133 @@ describe("RadicacionForm", () => {
       '.ant-select[data-ident="pl-radicacion-spe-Destinatario_Cor"]',
     );
     expect(destinatarioSelect?.className).toContain("ant-select-disabled");
+  });
+
+  it("[SPEC:DSR-003] consulta autocomplete restringido para Destinatario_Cor con idScript de plantilla", () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "DESTINATARIO_COR",
+          aleas_campo: "Destinatario",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          tbl_control: "terceros",
+          obligatorio_campo: 1,
+          disable_campo: 0,
+          TomPParameterTomSelelect: {
+            id_escript: 654,
+          },
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    mockedUseAutocompleteCamposPlantilla.mockReturnValue({
+      data: [{ idValue: "44", texValue: "Camila Urueta" }],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    });
+
+    render(<RadicacionForm />);
+
+    const input = screen.getByLabelText("Destinatario");
+    fireEvent.change(input, { target: { value: "cam" } });
+
+    expect(mockedUseAutocompleteCamposPlantilla).toHaveBeenLastCalledWith(
+      {
+        TextoBuscado: "cam",
+        defaultDbAlias: "",
+        tbl_control: "terceros",
+        name_campo: "Destinatario_Cor",
+        idScript: 654,
+        CDeRelacionEstadoRetriccionDto: {
+          IdRestriTipoDestInterno: 0,
+          IdTipoRestriccion: 0,
+          DescripcionTipo: "",
+          MoluloRadicacion: 0,
+          ModuloRadicacionSimple: 0,
+          ModuloRadicacionInterna: 0,
+        },
+      },
+      true,
+    );
+  });
+
+  it("[SPEC:DSR-004] limpia items cuando la busqueda de Destinatario_Cor queda vacia", () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "DESTINATARIO_COR",
+          aleas_campo: "Destinatario",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          tbl_control: "terceros",
+          obligatorio_campo: 1,
+          disable_campo: 0,
+          TomPParameterTomSelelect: {
+            id_escript: 654,
+          },
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    mockedUseAutocompleteCamposPlantilla.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    });
+
+    render(<RadicacionForm />);
+    const input = screen.getByLabelText("Destinatario");
+
+    fireEvent.change(input, { target: { value: "cam" } });
+    fireEvent.change(input, { target: { value: "" } });
+
+    expect(mockedUseAutocompleteCamposPlantilla).toHaveBeenLastCalledWith(
+      null,
+      false,
+    );
+  });
+
+  it("[SPEC:DSR-005] muestra error controlado cuando falla API de Destinatario_Cor", () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "DESTINATARIO_COR",
+          aleas_campo: "Destinatario",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          tbl_control: "terceros",
+          obligatorio_campo: 1,
+          disable_campo: 0,
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    mockedUseAutocompleteCamposPlantilla.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: new Error("boom"),
+    });
+
+    render(<RadicacionForm />);
+
+    expect(
+      screen.getAllByText(
+        "No fue posible cargar las opciones. Intenta nuevamente.",
+      ).length,
+    ).toBeGreaterThan(0);
   });
 
   it("[SPEC:RBK-005] no falla al re-renderizar secciones de remitente y destinatario al limpiar", () => {

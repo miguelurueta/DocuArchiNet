@@ -11,7 +11,7 @@ export const C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT: CDeRelacionEs
   {
     IdRestriTipoDestInterno: 0,
     IdTipoRestriccion: 0,
-    DescripcionTipo: "string",
+    DescripcionTipo: "",
     MoluloRadicacion: 0,
     ModuloRadicacionSimple: 0,
     ModuloRadicacionInterna: 0,

@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import clienteApi from "../../../api/Clienteaxios";
 import type { ApiResponse } from "../../../api/ApiResponse";
+import type { CDeRelacionEstadoRetriccionDto } from "../models/CDeRelacionEstadoRetriccionDto";
+import { C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT } from "../models/CDeRelacionEstadoRetriccionDto";
 
 export interface AutoCompleteCampoItemDTO {
   idValue: string | null;
@@ -15,6 +17,7 @@ export interface AutoCompleteCampoRequest {
   tbl_control: string;
   name_campo: string;
   idScript?: number;
+  CDeRelacionEstadoRetriccionDto?: CDeRelacionEstadoRetriccionDto;
 }
 
 interface AutoCompleteTerceroRequest {
@@ -23,17 +26,28 @@ interface AutoCompleteTerceroRequest {
   valueCampo: string;
 }
 
+interface AutoCompleteDestinatarioRestriccionRequest {
+  ValueAuto: string;
+  CDeRelacionEstadoRetriccionDto: CDeRelacionEstadoRetriccionDto;
+}
+
 const AUTOCOMPLETE_ENDPOINT_DEFAULT =
   "/api/PlantillaRadicado/solicitaAutoCompleteCampos";
 const AUTOCOMPLETE_ENDPOINT_REMITENTE =
   "/api/PlantillaRadicado/autoCompleteTercero";
+const AUTOCOMPLETE_ENDPOINT_DESTINATARIO =
+  "/api/PlantillaRadicado/solicitaAutoCompleteDestinatarioRestriccion";
 
 const normalizeFieldName = (value: string | null | undefined) =>
   String(value ?? "").trim().toUpperCase();
 
 export const resolveAutocompleteEndpoint = (nameCampo: string | null | undefined) => {
-  if (normalizeFieldName(nameCampo) === "REMITENTE_COR") {
+  const normalized = normalizeFieldName(nameCampo);
+  if (normalized === "REMITENTE_COR") {
     return AUTOCOMPLETE_ENDPOINT_REMITENTE;
+  }
+  if (normalized === "DESTINATARIO_COR") {
+    return AUTOCOMPLETE_ENDPOINT_DESTINATARIO;
   }
   return AUTOCOMPLETE_ENDPOINT_DEFAULT;
 };
@@ -41,12 +55,21 @@ export const resolveAutocompleteEndpoint = (nameCampo: string | null | undefined
 export const buildAutocompletePayload = (
   endpoint: string,
   params: AutoCompleteCampoRequest,
-): AutoCompleteCampoRequest | AutoCompleteTerceroRequest => {
+): AutoCompleteCampoRequest | AutoCompleteTerceroRequest | AutoCompleteDestinatarioRestriccionRequest => {
   if (endpoint === AUTOCOMPLETE_ENDPOINT_REMITENTE) {
     return {
       idScript: typeof params.idScript === "number" ? params.idScript : 0,
       nombreCampo: normalizeFieldName(params.name_campo),
       valueCampo: params.TextoBuscado,
+    };
+  }
+  if (endpoint === AUTOCOMPLETE_ENDPOINT_DESTINATARIO) {
+    const dto =
+      params.CDeRelacionEstadoRetriccionDto ??
+      C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT;
+    return {
+      ValueAuto: params.TextoBuscado,
+      CDeRelacionEstadoRetriccionDto: dto,
     };
   }
   return params;
