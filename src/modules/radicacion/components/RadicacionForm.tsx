@@ -657,10 +657,11 @@ const FormRadicacion: React.FC = () => {
   const [usuarioSeleccionado, setUsuarioSeleccionado] =
     useState<Usuario | null>(null);
   const [selectedTramiteId, setSelectedTramiteId] = useState<string | null>(null);
+  const [hasUserChangedTramite, setHasUserChangedTramite] = useState(false);
 
   const [resetKey, setResetKey] = useState(0);
   const { data: relacionEstadoRestriccionDestinatario } =
-    useEstructuraRelacionTipoRestriccion(selectedTramiteId, true);
+    useEstructuraRelacionTipoRestriccion(selectedTramiteId, hasUserChangedTramite);
 
   const abrirInformacion = (id: number) => {
     const user = usuarios.find((u) => u.id === id);
@@ -1078,6 +1079,7 @@ const FormRadicacion: React.FC = () => {
                     disabled={campoTramite?.disable_campo === 1}
                     aria-describedby={tramiteTooltipId}
                     onChange={(value) => {
+                      setHasUserChangedTramite(true);
                       const normalized = String(value ?? "").trim();
                       setSelectedTramiteId(normalized.length > 0 ? normalized : null);
                     }}

@@ -868,13 +868,22 @@ describe("RadicacionForm", () => {
     expect(mockedUseFlujosRelacionadosTramite).toHaveBeenLastCalledWith(null, true);
     expect(mockedUseEstructuraRelacionTipoRestriccion).toHaveBeenLastCalledWith(
       null,
-      true,
+      false,
     );
 
     const flujoSelect = container.querySelector(
       '[data-ident="pl-radicacion-spe-RE_flujo_trabajo"]',
     );
     expect(flujoSelect?.className).toContain("ant-select-disabled");
+  });
+
+  it("[SPEC:TRS-004] no habilita consulta de restriccion en primer render sin seleccion de tramite", () => {
+    render(<RadicacionForm />);
+
+    expect(mockedUseEstructuraRelacionTipoRestriccion).toHaveBeenLastCalledWith(
+      null,
+      false,
+    );
   });
 
   it("[SPEC:RDS-004] aplica restriccion de destinatario desde CDeRelacionEstadoRetriccionDto", () => {
