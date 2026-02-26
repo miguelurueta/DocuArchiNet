@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Form,
   Select,
@@ -33,6 +33,7 @@ import {
 import styles from "../style/FormRadicacion.module.css";
 import { useCamposPlantilla } from "../hooks/useCamposPlantilla";
 import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
+import { useFlujosRelacionadosTramite } from "../hooks/useFlujosRelacionadosTramite";
 import {
   CampoPlantillaAutoCompleteField,
   CamposPlantillaAutoCompleteRenderer,
@@ -468,6 +469,7 @@ const FormRadicacion: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [usuarioSeleccionado, setUsuarioSeleccionado] =
     useState<Usuario | null>(null);
+  const [selectedTramiteId, setSelectedTramiteId] = useState<string | null>(null);
 
   const [resetKey, setResetKey] = useState(0);
 
@@ -647,6 +649,23 @@ const FormRadicacion: React.FC = () => {
       ) : null}
     </span>
   );
+
+  const {
+    data: flujosRelacionados,
+    error: flujosRelacionadosError,
+    isLoading: isLoadingFlujosRelacionados,
+  } = useFlujosRelacionadosTramite(selectedTramiteId, true);
+
+  const flujoOptions = useMemo(
+    () => (selectedTramiteId ? flujosRelacionados : []),
+    [flujosRelacionados, selectedTramiteId],
+  );
+
+  useEffect(() => {
+    if (!selectedTramiteId || flujosRelacionadosError || flujoOptions.length === 0) {
+      form.setFieldValue("flujo", undefined);
+    }
+  }, [flujoOptions.length, flujosRelacionadosError, form, selectedTramiteId]);
 
   const tramiteLabel = campoTramite?.aleas_campo ?? "Trámite";
   const tramiteTitle = campoTramite?.title_control ?? "";
@@ -866,6 +885,10 @@ const FormRadicacion: React.FC = () => {
                     data-testid="ra_tipo_tramite_select"
                     disabled={campoTramite?.disable_campo === 1}
                     aria-describedby={tramiteTooltipId}
+                    onChange={(value) => {
+                      const normalized = String(value ?? "").trim();
+                      setSelectedTramiteId(normalized.length > 0 ? normalized : null);
+                    }}
                   />
                 </Form.Item>
               </Col>
@@ -874,8 +897,13 @@ const FormRadicacion: React.FC = () => {
                 <Form.Item label={flujoLabelNode} name="flujo">
                   <Select
                     placeholder="Seleccione"
+                    options={flujoOptions}
                     data-ident="pl-radicacion-spe-RE_flujo_trabajo"
-                    disabled={campoFlujo?.disable_campo === 1}
+                    disabled={
+                      campoFlujo?.disable_campo === 1 ||
+                      !selectedTramiteId ||
+                      isLoadingFlujosRelacionados
+                    }
                     aria-describedby={flujoTooltipId}
                   />
                 </Form.Item>

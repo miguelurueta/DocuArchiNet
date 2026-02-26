@@ -3,6 +3,7 @@ import { render, screen, fireEvent, act } from "@testing-library/react";
 import RadicacionForm from "./RadicacionForm";
 import { useCamposPlantilla } from "../hooks/useCamposPlantilla";
 import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
+import { useFlujosRelacionadosTramite } from "../hooks/useFlujosRelacionadosTramite";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 
 vi.mock("../hooks/useCamposPlantilla", () => ({
@@ -12,10 +13,16 @@ vi.mock("../hooks/useCamposPlantilla", () => ({
 vi.mock("../hooks/useAutocompleteCamposPlantilla", () => ({
   useAutocompleteCamposPlantilla: vi.fn(),
 }));
+vi.mock("../hooks/useFlujosRelacionadosTramite", () => ({
+  useFlujosRelacionadosTramite: vi.fn(),
+}));
 
 const mockedUseCamposPlantilla = vi.mocked(useCamposPlantilla);
 const mockedUseAutocompleteCamposPlantilla = vi.mocked(
   useAutocompleteCamposPlantilla,
+);
+const mockedUseFlujosRelacionadosTramite = vi.mocked(
+  useFlujosRelacionadosTramite,
 );
 
 describe("RadicacionForm", () => {
@@ -32,6 +39,13 @@ describe("RadicacionForm", () => {
       isLoading: false,
       isFetching: false,
       error: null,
+    });
+    mockedUseFlujosRelacionadosTramite.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      shouldFetch: false,
     });
   });
 
@@ -574,5 +588,78 @@ describe("RadicacionForm", () => {
       '.ant-select[data-ident="pl-radicacion-spe-REMITENTE_COR"]',
     );
     expect(remitenteSelect?.className).toContain("ant-select-disabled");
+  });
+
+  it("[SPEC:FLJ-001] consulta flujos al seleccionar tramite por idValue", () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "Descripcion_Documento",
+          aleas_campo: "Trámite",
+          ilist_row_drowlist: [{ idValue: 23, Value: "CITACION" }],
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "RE_flujo_trabajo",
+          aleas_campo: "Flujo Trámite",
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    mockedUseFlujosRelacionadosTramite.mockImplementation((idTipo) => ({
+      data:
+        String(idTipo ?? "") === "23"
+          ? [{ value: "11", label: "FLUJO RADICADO" }]
+          : [],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      shouldFetch: String(idTipo ?? "") === "23",
+    }));
+
+    const { container } = render(<RadicacionForm />);
+    const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
+    fireEvent.mouseDown(tramiteSelect);
+    fireEvent.click(screen.getByText("CITACION"));
+
+    expect(mockedUseFlujosRelacionadosTramite).toHaveBeenLastCalledWith("23", true);
+
+    const flujoSelect = container.querySelector(
+      '[data-ident="pl-radicacion-spe-RE_flujo_trabajo"]',
+    );
+    expect(flujoSelect?.className).not.toContain("ant-select-disabled");
+    if (flujoSelect) {
+      fireEvent.mouseDown(flujoSelect);
+    }
+    expect(screen.getByText("FLUJO RADICADO")).toBeInTheDocument();
+  });
+
+  it("[SPEC:FLJ-002] mantiene flujo deshabilitado y sin opciones cuando tramite es null", () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "Descripcion_Documento",
+          aleas_campo: "Trámite",
+          ilist_row_drowlist: [{ idValue: null, Value: "SIN ID" }],
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "RE_flujo_trabajo",
+          aleas_campo: "Flujo Trámite",
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    const { container } = render(<RadicacionForm />);
+    expect(mockedUseFlujosRelacionadosTramite).toHaveBeenLastCalledWith(null, true);
+
+    const flujoSelect = container.querySelector(
+      '[data-ident="pl-radicacion-spe-RE_flujo_trabajo"]',
+    );
+    expect(flujoSelect?.className).toContain("ant-select-disabled");
   });
 });
