@@ -20,4 +20,4 @@
 ### Evidencia de pruebas
 
 - Comando ejecutado: `npm.cmd test -- src/modules/radicacion/hooks/useFlujosRelacionadosTramite.spec.test.ts src/modules/radicacion/components/RadicacionForm.spec.test.tsx`
-- Resultado: `2 passed`, `20 passed`, `0 failed`.
+- Resultado: `2 files passed`, `21 tests passed`, `0 failed`.

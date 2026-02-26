@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildFlujosRelacionadosParams,
   normalizeFlujosRelacionados,
   normalizeTramiteId,
 } from "./useFlujosRelacionadosTramite";
@@ -24,5 +25,11 @@ describe("useFlujosRelacionadosTramite helpers", () => {
       { value: "1", label: "FLUJO 1" },
       { value: "2", label: "FLUJO 2" },
     ]);
+  });
+
+  it("[SPEC:FLJ-005] construye query params con idTipoDocEntrante", () => {
+    expect(buildFlujosRelacionadosParams("23")).toEqual({
+      idTipoDocEntrante: "23",
+    });
   });
 });

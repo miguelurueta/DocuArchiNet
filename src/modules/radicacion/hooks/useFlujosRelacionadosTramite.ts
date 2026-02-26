@@ -12,6 +12,10 @@ export interface FlujoRelacionadoOption {
   label: string;
 }
 
+export const buildFlujosRelacionadosParams = (idTipoDocEntrante: string) => ({
+  idTipoDocEntrante,
+});
+
 export const normalizeTramiteId = (value: unknown): string | null => {
   if (value === null || value === undefined) {
     return null;
@@ -65,9 +69,11 @@ export function useFlujosRelacionadosTramite(
     enabled: shouldFetch,
     retry: false,
     queryFn: async () => {
-      const { data } = await clienteApi.post<ApiResponse<unknown>>(
+      const { data } = await clienteApi.get<ApiResponse<unknown>>(
         FLUJOS_TRAMITE_ENDPOINT,
-        { idTipoDocEntrante: tramiteId },
+        {
+          params: buildFlujosRelacionadosParams(String(tramiteId)),
+        },
       );
       return data;
     },
