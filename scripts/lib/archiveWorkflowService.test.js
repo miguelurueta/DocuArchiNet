@@ -2,7 +2,10 @@ import { mkdtemp, mkdir, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { resolveChangeNameFromIssueKey } from "./archiveWorkflowService.js";
+import {
+  moveChangeToArchiveDir,
+  resolveChangeNameFromIssueKey,
+} from "./archiveWorkflowService.js";
 
 describe("archiveWorkflowService", () => {
   it("resolves active change by issue key prefix", async () => {
@@ -21,5 +24,29 @@ describe("archiveWorkflowService", () => {
       await rm(tempDir, { recursive: true, force: true });
     }
   });
-});
 
+  it("moves active change directory into openspec/changes/archive", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "archive-workflow-"));
+    const sourceDir = path.join(
+      tempDir,
+      "openspec",
+      "changes",
+      "scrum-17-demo-change",
+    );
+    await mkdir(sourceDir, { recursive: true });
+
+    try {
+      const movedPath = await moveChangeToArchiveDir({
+        baseDir: tempDir,
+        changeName: "scrum-17-demo-change",
+      });
+
+      expect(movedPath).toBeTruthy();
+      expect(movedPath).toContain(
+        path.join("openspec", "changes", "archive"),
+      );
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+});
