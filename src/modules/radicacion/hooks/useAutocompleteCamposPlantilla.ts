@@ -75,6 +75,20 @@ export const buildAutocompletePayload = (
   return params;
 };
 
+const buildRestriccionQueryKey = (
+  dto: CDeRelacionEstadoRetriccionDto | undefined,
+) => {
+  const source = dto ?? C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT;
+  return [
+    source.IdRestriTipoDestInterno,
+    source.IdTipoRestriccion,
+    source.DescripcionTipo,
+    source.MoluloRadicacion,
+    source.ModuloRadicacionSimple,
+    source.ModuloRadicacionInterna,
+  ] as const;
+};
+
 export const normalizeAutoCompleteItems = (
   payload: unknown,
 ): AutoCompleteCampoItemDTO[] => {
@@ -124,6 +138,9 @@ export function useAutocompleteCamposPlantilla(
   enabled: boolean,
 ) {
   const endpoint = resolveAutocompleteEndpoint(params?.name_campo);
+  const restriccionKey = buildRestriccionQueryKey(
+    params?.CDeRelacionEstadoRetriccionDto,
+  );
   const queryKey = useMemo(
     () => [
       "autocomplete-campos-plantilla",
@@ -131,8 +148,15 @@ export function useAutocompleteCamposPlantilla(
       params?.name_campo ?? "",
       params?.tbl_control ?? "",
       params?.TextoBuscado ?? "",
+      ...restriccionKey,
     ],
-    [endpoint, params?.TextoBuscado, params?.name_campo, params?.tbl_control],
+    [
+      endpoint,
+      params?.TextoBuscado,
+      params?.name_campo,
+      params?.tbl_control,
+      restriccionKey,
+    ],
   );
 
   const query = useQuery<

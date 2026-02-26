@@ -21,3 +21,8 @@
 - [x] 4.1 Ejecutar suite de pruebas de Radicacion y corregir regresiones.
 - [ ] 4.2 Validar manualmente seleccion de tramite y consulta de estructura de restriccion en UI.
 - [ ] 4.3 Dejar evidencia en OpenSpec y preparar archivado del cambio.
+
+## 5. Lista y seleccion de destinatario en autocomplete restringido
+
+- [x] 5.1 Ajustar `SelectDestinatarioToken` para comportamiento de autocomplete remoto con lista desplegable y seleccion de item sin filtro local.
+- [x] 5.2 Agregar prueba en `RadicacionForm` que cubra despliegue de opcion y seleccion de item en `Destinatario_Cor`.

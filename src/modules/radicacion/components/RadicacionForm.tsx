@@ -598,7 +598,7 @@ const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
           searchValue={searchText}
           placeholder="Escriba para buscar destinatario"
           options={options}
-          optionFilterProp="label"
+          filterOption={false}
           tagRender={tagRender}
           open={openSelect}
           disabled={tagMenuOpen || campo.disable_campo === 1 || selectDisabledByRestriction}
@@ -683,7 +683,6 @@ const FormRadicacion: React.FC = () => {
   );
 
   const tramiteOptions = useMemo(() => {
-    console.log(campoTramite);
     const opciones = campoTramite?.ilist_row_drowlist ?? [];
 
     return opciones

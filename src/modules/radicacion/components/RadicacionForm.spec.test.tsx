@@ -532,7 +532,7 @@ describe("RadicacionForm", () => {
     const input = screen.getByLabelText("Destinatario");
     fireEvent.change(input, { target: { value: "cam" } });
 
-    expect(mockedUseAutocompleteCamposPlantilla).toHaveBeenLastCalledWith(
+    expect(mockedUseAutocompleteCamposPlantilla).toHaveBeenCalledWith(
       {
         TextoBuscado: "cam",
         defaultDbAlias: "",
@@ -548,6 +548,64 @@ describe("RadicacionForm", () => {
           ModuloRadicacionInterna: 0,
         },
       },
+      true,
+    );
+  });
+
+  it("[SPEC:DSR-008] mantiene seleccion manual en Destinatario_Cor sin autoseleccion", async () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "DESTINATARIO_COR",
+          aleas_campo: "Destinatario",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          tbl_control: "terceros",
+          obligatorio_campo: 1,
+          disable_campo: 0,
+          TomPParameterTomSelelect: {
+            id_escript: 654,
+          },
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    mockedUseAutocompleteCamposPlantilla.mockImplementation((params) => {
+      const texto = params?.TextoBuscado ?? "";
+      if (texto.trim().length > 0) {
+        return {
+          data: [{ idValue: "44", texValue: "Camila Urueta" }],
+          isLoading: false,
+          isFetching: false,
+          error: null,
+        };
+      }
+      return {
+        data: [],
+        isLoading: false,
+        isFetching: false,
+        error: null,
+      };
+    });
+
+    const { container } = render(<RadicacionForm />);
+    const input = screen.getByLabelText("Destinatario");
+    fireEvent.change(input, { target: { value: "cam" } });
+
+    const select = container.querySelector(
+      '.ant-select[data-ident="pl-radicacion-spe-Destinatario_Cor"]',
+    );
+    expect(select?.className).toContain("ant-select-show-search");
+
+    await screen.findByText("Camila Urueta");
+    expect(mockedUseAutocompleteCamposPlantilla).toHaveBeenCalledWith(
+      expect.objectContaining({
+        TextoBuscado: "cam",
+        name_campo: "Destinatario_Cor",
+      }),
       true,
     );
   });

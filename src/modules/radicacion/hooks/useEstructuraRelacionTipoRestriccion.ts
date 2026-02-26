@@ -11,10 +11,10 @@ const ESTRUCTURA_RESTRICCION_ENDPOINT =
 
 export const normalizeTramiteIdForRestriccion = (value: unknown): string | null => {
   if (value === null || value === undefined) {
-    return null;
+    return "0";
   }
   const normalized = String(value).trim();
-  return normalized.length > 0 ? normalized : null;
+  return normalized.length > 0 ? normalized : "0";
 };
 
 export const buildEstructuraRelacionTipoRestriccionParams = (
@@ -23,7 +23,9 @@ export const buildEstructuraRelacionTipoRestriccionParams = (
   idTipoTramite,
 });
 
-const mapToRestriccionDto = (payload: unknown): CDeRelacionEstadoRetriccionDto => {
+export const normalizeEstructuraRelacionTipoRestriccionPayload = (
+  payload: unknown,
+): CDeRelacionEstadoRetriccionDto => {
   const source = payload as
     | Record<string, unknown>
     | { data?: unknown; Data?: unknown }
@@ -38,8 +40,22 @@ const mapToRestriccionDto = (payload: unknown): CDeRelacionEstadoRetriccionDto =
         ? ((source as { Data?: unknown }).Data as Array<Record<string, unknown>>)
         : [];
 
+  const dataObjectCandidate =
+    !Array.isArray(source) &&
+    source &&
+    typeof (source as { data?: unknown }).data === "object" &&
+    !Array.isArray((source as { data?: unknown }).data)
+      ? ((source as { data?: unknown }).data as Record<string, unknown>)
+      : !Array.isArray(source) &&
+          source &&
+          typeof (source as { Data?: unknown }).Data === "object" &&
+          !Array.isArray((source as { Data?: unknown }).Data)
+        ? ((source as { Data?: unknown }).Data as Record<string, unknown>)
+        : null;
+
   const row =
     (listCandidate[0] as Partial<CDeRelacionEstadoRetriccionDto> | undefined) ??
+    (dataObjectCandidate as Partial<CDeRelacionEstadoRetriccionDto> | null) ??
     (source as Partial<CDeRelacionEstadoRetriccionDto> | undefined) ??
     C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT;
 
@@ -58,7 +74,7 @@ export function useEstructuraRelacionTipoRestriccion(
   enabled = true,
 ) {
   const tramiteId = normalizeTramiteIdForRestriccion(selectedTramiteId);
-  const shouldFetch = enabled && Boolean(tramiteId);
+  const shouldFetch = enabled;
   const queryKey = useMemo(
     () => ["estructura-relacion-tipo-restriccion", tramiteId ?? ""],
     [tramiteId],
@@ -80,7 +96,7 @@ export function useEstructuraRelacionTipoRestriccion(
   });
 
   return {
-    data: mapToRestriccionDto(query.data),
+    data: normalizeEstructuraRelacionTipoRestriccionPayload(query.data),
     isLoading: query.isLoading,
     isFetching: query.isFetching,
     error: query.error,

@@ -20,3 +20,11 @@ El sistema SHALL mantener el comportamiento existente del formulario de radicaci
 #### Scenario: Convivencia con flujos existentes
 - **WHEN** se dispara la consulta de estructura de restriccion por seleccion de tramite
 - **THEN** los demas controles dependientes del tramite continúan operando sin regresion funcional
+
+### Requirement: Despliegue y seleccion de lista para Destinatario_Cor
+El sistema SHALL desplegar la lista de resultados de autocompletado para `Destinatario_Cor` y permitir seleccionar un item cuando el usuario digita texto y la API retorna coincidencias.
+
+#### Scenario: Usuario digita y selecciona destinatario desde lista
+- **WHEN** el usuario digita en `Destinatario_Cor` y la API `/api/PlantillaRadicado/solicitaAutoCompleteDestinatarioRestriccion` retorna opciones
+- **THEN** el sistema despliega la lista de opciones sin filtrar localmente resultados del backend
+- **AND** al seleccionar una opcion, el item queda seleccionado en el control tokenizado
