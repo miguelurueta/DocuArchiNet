@@ -35,9 +35,18 @@ import { useCamposPlantilla } from "../hooks/useCamposPlantilla";
 import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
 import { useFlujosRelacionadosTramite } from "../hooks/useFlujosRelacionadosTramite";
 import {
+  useRelacionEstadoRestriccionDestinatario,
+} from "../hooks/useRelacionEstadoRestriccionDestinatario";
+import {
+  C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT,
+} from "../models/CDeRelacionEstadoRetriccionDto";
+import {
   CampoPlantillaAutoCompleteField,
   CamposPlantillaAutoCompleteRenderer,
 } from "./CamposPlantillaAutoCompleteRenderer";
+
+export const CDeRelacionEstadoRetriccionDto =
+  C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT;
 
 /* =========================================================
    MODELOS
@@ -472,6 +481,8 @@ const FormRadicacion: React.FC = () => {
   const [selectedTramiteId, setSelectedTramiteId] = useState<string | null>(null);
 
   const [resetKey, setResetKey] = useState(0);
+  const { data: relacionEstadoRestriccionDestinatario } =
+    useRelacionEstadoRestriccionDestinatario(CDeRelacionEstadoRetriccionDto);
 
   const abrirInformacion = (id: number) => {
     const user = usuarios.find((u) => u.id === id);
@@ -734,7 +745,11 @@ const FormRadicacion: React.FC = () => {
     : undefined;
   const destinatarioRequired =
     campoDestinatarioCor?.obligatorio_campo === 1 || !campoDestinatarioCor;
-  const destinatarioDisabled = campoDestinatarioCor?.disable_campo === 1;
+  const destinatarioDisabledByRestriccion =
+    relacionEstadoRestriccionDestinatario.IdTipoRestriccion > 0 &&
+    relacionEstadoRestriccionDestinatario.ModuloRadicacionSimple === 0;
+  const destinatarioDisabled =
+    campoDestinatarioCor?.disable_campo === 1 || destinatarioDisabledByRestriccion;
 
   const destinatarioLabelNode = (
     <span title={destinatarioTitle}>
