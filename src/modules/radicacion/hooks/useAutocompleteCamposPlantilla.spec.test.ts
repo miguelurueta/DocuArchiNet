@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   useAutocompleteCamposPlantilla,
   buildAutocompletePayload,
+  normalizeRestriccionDtoForAutocomplete,
   normalizeAutoCompleteItems,
   resolveAutocompleteEndpoint,
 } from "./useAutocompleteCamposPlantilla";
@@ -123,6 +124,26 @@ describe("useAutocompleteCamposPlantilla endpoint resolver", () => {
         ModuloRadicacionSimple: 0,
         ModuloRadicacionInterna: 0,
       },
+    });
+  });
+
+  it("[SPEC:DSR-009] normaliza valores nulos en CDeRelacionEstadoRetriccionDto para payload restringido", () => {
+    const normalized = normalizeRestriccionDtoForAutocomplete({
+      IdRestriTipoDestInterno: null as unknown as number,
+      IdTipoRestriccion: undefined as unknown as number,
+      DescripcionTipo: null as unknown as string,
+      MoluloRadicacion: undefined as unknown as number,
+      ModuloRadicacionSimple: null as unknown as number,
+      ModuloRadicacionInterna: undefined as unknown as number,
+    });
+
+    expect(normalized).toEqual({
+      IdRestriTipoDestInterno: 0,
+      IdTipoRestriccion: 0,
+      DescripcionTipo: "",
+      MoluloRadicacion: 0,
+      ModuloRadicacionSimple: 0,
+      ModuloRadicacionInterna: 0,
     });
   });
 

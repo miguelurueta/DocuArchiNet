@@ -503,6 +503,11 @@ describe("RadicacionForm", () => {
     mockedUseCamposPlantilla.mockReturnValue({
       data: [
         {
+          name_campo: "Descripcion_Documento",
+          aleas_campo: "Trámite",
+          ilist_row_drowlist: [{ idValue: 23, Value: "CITACION" }],
+        } as unknown as CampoPlantillaDTO,
+        {
           name_campo: "DESTINATARIO_COR",
           aleas_campo: "Destinatario",
           campo_tip: 1,
@@ -529,11 +534,15 @@ describe("RadicacionForm", () => {
 
     render(<RadicacionForm />);
 
+    const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
+    fireEvent.mouseDown(tramiteSelect);
+    fireEvent.click(screen.getByText("CITACION"));
+
     const input = screen.getByLabelText("Destinatario");
     fireEvent.change(input, { target: { value: "cam" } });
 
     expect(mockedUseAutocompleteCamposPlantilla).toHaveBeenCalledWith(
-      {
+      expect.objectContaining({
         TextoBuscado: "cam",
         defaultDbAlias: "",
         tbl_control: "terceros",
@@ -547,14 +556,170 @@ describe("RadicacionForm", () => {
           ModuloRadicacionSimple: 0,
           ModuloRadicacionInterna: 0,
         },
-      },
+      }),
       true,
+    );
+  });
+
+  it("[SPEC:DSR-010] no consulta autocomplete de Destinatario_Cor sin tramite seleccionado", () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "DESTINATARIO_COR",
+          aleas_campo: "Destinatario",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          tbl_control: "terceros",
+          obligatorio_campo: 1,
+          disable_campo: 0,
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    mockedUseAutocompleteCamposPlantilla.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    });
+
+    render(<RadicacionForm />);
+
+    const input = screen.getByLabelText("Destinatario");
+    fireEvent.change(input, { target: { value: "cam" } });
+
+    expect(mockedUseAutocompleteCamposPlantilla).toHaveBeenLastCalledWith(
+      null,
+      false,
+    );
+  });
+
+  it("[SPEC:DSR-011] consulta Destinatario_Cor al hacer click cuando el control soporta AUTOCOMPLETE", async () => {
+    mockedUseEstructuraRelacionTipoRestriccion.mockReturnValue({
+      data: {
+        IdRestriTipoDestInterno: 1,
+        IdTipoRestriccion: 2,
+        DescripcionTipo: "RESTRINGIDO",
+        MoluloRadicacion: 1,
+        ModuloRadicacionSimple: 1,
+        ModuloRadicacionInterna: 0,
+      },
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      shouldFetch: true,
+    });
+
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "Descripcion_Documento",
+          aleas_campo: "Trámite",
+          ilist_row_drowlist: [{ idValue: 23, Value: "CITACION" }],
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "DESTINATARIO_COR",
+          aleas_campo: "Destinatario",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          tbl_control: "terceros",
+          obligatorio_campo: 1,
+          disable_campo: 0,
+          TomPParameterTomSelelect: {
+            id_escript: 654,
+          },
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    mockedUseAutocompleteCamposPlantilla.mockReturnValue({
+      data: [{ idValue: "44", texValue: "Camila Urueta" }],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    });
+
+    render(<RadicacionForm />);
+
+    const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
+    fireEvent.mouseDown(tramiteSelect);
+    fireEvent.click(screen.getByText("CITACION"));
+
+    const input = screen.getByLabelText("Destinatario");
+    fireEvent.mouseDown(input);
+
+    expect(mockedUseAutocompleteCamposPlantilla).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        TextoBuscado: "*.*",
+        name_campo: "Destinatario_Cor",
+        CDeRelacionEstadoRetriccionDto: expect.objectContaining({
+          IdTipoRestriccion: 2,
+        }),
+      }),
+      true,
+    );
+    expect(await screen.findByText("Camila Urueta")).toBeInTheDocument();
+  });
+
+  it("[SPEC:DSR-013] no consulta por click si el control Destinatario_Cor no tiene AUTOCOMPLETE", () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "Descripcion_Documento",
+          aleas_campo: "Trámite",
+          ilist_row_drowlist: [{ idValue: 23, Value: "CITACION" }],
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "DESTINATARIO_COR",
+          aleas_campo: "Destinatario",
+          campo_tip: 1,
+          ComportamientoCampo: "SELECCION",
+          tbl_control: "terceros",
+          obligatorio_campo: 1,
+          disable_campo: 0,
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    mockedUseAutocompleteCamposPlantilla.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    });
+
+    render(<RadicacionForm />);
+
+    const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
+    fireEvent.mouseDown(tramiteSelect);
+    fireEvent.click(screen.getByText("CITACION"));
+
+    const input = screen.getByLabelText("Destinatario");
+    fireEvent.mouseDown(input);
+
+    expect(mockedUseAutocompleteCamposPlantilla).toHaveBeenLastCalledWith(
+      null,
+      false,
     );
   });
 
   it("[SPEC:DSR-008] mantiene seleccion manual en Destinatario_Cor sin autoseleccion", async () => {
     mockedUseCamposPlantilla.mockReturnValue({
       data: [
+        {
+          name_campo: "Descripcion_Documento",
+          aleas_campo: "Trámite",
+          ilist_row_drowlist: [{ idValue: 23, Value: "CITACION" }],
+        } as unknown as CampoPlantillaDTO,
         {
           name_campo: "DESTINATARIO_COR",
           aleas_campo: "Destinatario",
@@ -592,6 +757,10 @@ describe("RadicacionForm", () => {
     });
 
     const { container } = render(<RadicacionForm />);
+    const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
+    fireEvent.mouseDown(tramiteSelect);
+    fireEvent.click(screen.getByText("CITACION"));
+
     const input = screen.getByLabelText("Destinatario");
     fireEvent.change(input, { target: { value: "cam" } });
 
@@ -610,9 +779,81 @@ describe("RadicacionForm", () => {
     );
   });
 
+  it("[SPEC:DSR-012] limpia destinatario seleccionado cuando cambia Descripcion_Documento", async () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "Descripcion_Documento",
+          aleas_campo: "Trámite",
+          ilist_row_drowlist: [
+            { idValue: 23, Value: "CITACION" },
+            { idValue: 37, Value: "PQRS" },
+          ],
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "DESTINATARIO_COR",
+          aleas_campo: "Destinatario",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          tbl_control: "terceros",
+          obligatorio_campo: 1,
+          disable_campo: 0,
+          TomPParameterTomSelelect: {
+            id_escript: 654,
+          },
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    mockedUseAutocompleteCamposPlantilla.mockImplementation((params) => {
+      const texto = params?.TextoBuscado ?? "";
+      if (texto.trim().length > 0) {
+        return {
+          data: [{ idValue: "44", texValue: "Camila Urueta" }],
+          isLoading: false,
+          isFetching: false,
+          error: null,
+        };
+      }
+      return {
+        data: [],
+        isLoading: false,
+        isFetching: false,
+        error: null,
+      };
+    });
+
+    const { container } = render(<RadicacionForm />);
+
+    const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
+    fireEvent.mouseDown(tramiteSelect);
+    fireEvent.click(screen.getByText("CITACION"));
+
+    const destinatarioInput = screen.getByLabelText("Destinatario");
+    fireEvent.change(destinatarioInput, { target: { value: "cam" } });
+    fireEvent.click(await screen.findByText("Camila Urueta"));
+
+    const tagBeforeChange = container.querySelector("#destinatario .ant-tag");
+    expect(tagBeforeChange?.textContent).toContain("Camila Urueta");
+
+    fireEvent.mouseDown(tramiteSelect);
+    fireEvent.click(screen.getByText("PQRS"));
+
+    const tagAfterChange = container.querySelector("#destinatario .ant-tag");
+    expect(tagAfterChange).toBeNull();
+  });
+
   it("[SPEC:DSR-004] limpia items cuando la busqueda de Destinatario_Cor queda vacia", () => {
     mockedUseCamposPlantilla.mockReturnValue({
       data: [
+        {
+          name_campo: "Descripcion_Documento",
+          aleas_campo: "Trámite",
+          ilist_row_drowlist: [{ idValue: 23, Value: "CITACION" }],
+        } as unknown as CampoPlantillaDTO,
         {
           name_campo: "DESTINATARIO_COR",
           aleas_campo: "Destinatario",
@@ -639,6 +880,10 @@ describe("RadicacionForm", () => {
     });
 
     render(<RadicacionForm />);
+    const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
+    fireEvent.mouseDown(tramiteSelect);
+    fireEvent.click(screen.getByText("CITACION"));
+
     const input = screen.getByLabelText("Destinatario");
 
     fireEvent.change(input, { target: { value: "cam" } });

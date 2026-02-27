@@ -17,6 +17,7 @@ export interface AutoCompleteCampoRequest {
   tbl_control: string;
   name_campo: string;
   idScript?: number;
+  requestNonce?: number;
   CDeRelacionEstadoRetriccionDto?: CDeRelacionEstadoRetriccionDto;
 }
 
@@ -41,6 +42,20 @@ const AUTOCOMPLETE_ENDPOINT_DESTINATARIO =
 const normalizeFieldName = (value: string | null | undefined) =>
   String(value ?? "").trim().toUpperCase();
 
+export const normalizeRestriccionDtoForAutocomplete = (
+  dto: CDeRelacionEstadoRetriccionDto | undefined,
+): CDeRelacionEstadoRetriccionDto => {
+  const source = dto ?? C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT;
+  return {
+    IdRestriTipoDestInterno: Number(source.IdRestriTipoDestInterno ?? 0) || 0,
+    IdTipoRestriccion: Number(source.IdTipoRestriccion ?? 0) || 0,
+    DescripcionTipo: String(source.DescripcionTipo ?? ""),
+    MoluloRadicacion: Number(source.MoluloRadicacion ?? 0) || 0,
+    ModuloRadicacionSimple: Number(source.ModuloRadicacionSimple ?? 0) || 0,
+    ModuloRadicacionInterna: Number(source.ModuloRadicacionInterna ?? 0) || 0,
+  };
+};
+
 export const resolveAutocompleteEndpoint = (nameCampo: string | null | undefined) => {
   const normalized = normalizeFieldName(nameCampo);
   if (normalized === "REMITENTE_COR") {
@@ -64,9 +79,9 @@ export const buildAutocompletePayload = (
     };
   }
   if (endpoint === AUTOCOMPLETE_ENDPOINT_DESTINATARIO) {
-    const dto =
-      params.CDeRelacionEstadoRetriccionDto ??
-      C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT;
+    const dto = normalizeRestriccionDtoForAutocomplete(
+      params.CDeRelacionEstadoRetriccionDto,
+    );
     return {
       ValueAuto: params.TextoBuscado,
       CDeRelacionEstadoRetriccionDto: dto,
@@ -78,7 +93,7 @@ export const buildAutocompletePayload = (
 const buildRestriccionQueryKey = (
   dto: CDeRelacionEstadoRetriccionDto | undefined,
 ) => {
-  const source = dto ?? C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT;
+  const source = normalizeRestriccionDtoForAutocomplete(dto);
   return [
     source.IdRestriTipoDestInterno,
     source.IdTipoRestriccion,
@@ -148,11 +163,13 @@ export function useAutocompleteCamposPlantilla(
       params?.name_campo ?? "",
       params?.tbl_control ?? "",
       params?.TextoBuscado ?? "",
+      params?.requestNonce ?? 0,
       ...restriccionKey,
     ],
     [
       endpoint,
       params?.TextoBuscado,
+      params?.requestNonce,
       params?.name_campo,
       params?.tbl_control,
       restriccionKey,
