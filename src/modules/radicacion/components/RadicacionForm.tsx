@@ -456,6 +456,7 @@ interface SelectDestinatarioTokenProps {
   onOpenInfo: (payload: { id: number; nombre: string }) => void;
   selectDisabledByRestriction: boolean;
   relacionEstadoRestriccionDestinatario: CDeRelacionEstadoRetriccionDto;
+  selectedTramiteId: string | null;
 }
 
 const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
@@ -463,18 +464,36 @@ const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
   onOpenInfo,
   selectDisabledByRestriction,
   relacionEstadoRestriccionDestinatario,
+  selectedTramiteId,
 }) => {
   const [value, setValue] = useState<Array<{ value: string; label: React.ReactNode }>>([]);
   const [openSelect, setOpenSelect] = useState(false);
   const [tagMenuOpen, setTagMenuOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [clickAutocompleteActive, setClickAutocompleteActive] = useState(false);
 
   const campoIdScript = resolveCampoIdScript(campo);
-  const shouldQuery = searchText.trim().length > 0;
+  const hasSelectedTramite = String(selectedTramiteId ?? "").trim().length > 0;
+  const comportamientoCampo = String(campo.ComportamientoCampo ?? "")
+    .trim()
+    .toUpperCase();
+  const canActivateAutocompleteOnClick = comportamientoCampo === "AUTOCOMPLETE";
+  const normalizedSearchText = searchText.trim();
+  const hasRestriccionActiva =
+    relacionEstadoRestriccionDestinatario.IdTipoRestriccion !== 0;
+  const textoBuscado =
+    clickAutocompleteActive &&
+    normalizedSearchText.length === 0 &&
+    hasRestriccionActiva
+      ? "*.*"
+      : searchText;
+  const shouldQuery =
+    hasSelectedTramite &&
+    (normalizedSearchText.length > 0 || clickAutocompleteActive);
   const { data, isLoading, isFetching, error } = useAutocompleteCamposPlantilla(
     shouldQuery
       ? {
-          TextoBuscado: searchText,
+          TextoBuscado: textoBuscado,
           defaultDbAlias: "",
           tbl_control: campo.tbl_control ?? "",
           name_campo: "Destinatario_Cor",
@@ -484,6 +503,13 @@ const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
       : null,
     shouldQuery,
   );
+
+  useEffect(() => {
+    setValue([]);
+    setSearchText("");
+    setClickAutocompleteActive(false);
+    setOpenSelect(false);
+  }, [selectedTramiteId]);
 
   const options = data.map((item, index) => ({
     value: item.idValue ?? `${item.texValue}-${index}`,
@@ -502,6 +528,7 @@ const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
     const ultimo = values.slice(-1);
     setValue(ultimo);
     setOpenSelect(false);
+    setClickAutocompleteActive(false);
     setSearchText("");
   };
 
@@ -611,6 +638,7 @@ const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
           aria-required={campo.obligatorio_campo === 1}
           onSearch={(text) => {
             setSearchText(text);
+            setClickAutocompleteActive(false);
             if (text.length > 0 && !tagMenuOpen) {
               setOpenSelect(true);
             } else {
@@ -619,7 +647,19 @@ const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
           }}
           onChange={handleChange}
           onOpenChange={(visible) => {
-            if (!visible) setOpenSelect(false);
+            if (!visible) {
+              setOpenSelect(false);
+              setClickAutocompleteActive(false);
+              return;
+            }
+            if (
+              canActivateAutocompleteOnClick &&
+              hasSelectedTramite &&
+              !tagMenuOpen
+            ) {
+              setClickAutocompleteActive(true);
+              setOpenSelect(true);
+            }
           }}
         />
       </Space.Compact>
@@ -638,14 +678,6 @@ const FormRadicacion: React.FC = () => {
     useCamposPlantilla();
 
   const usuarios: Usuario[] = [
-    { id: 1, nombre: "Juan Pérez" },
-    { id: 2, nombre: "María Gómez" },
-    { id: 3, nombre: "Maria Victoria" },
-    { id: 4, nombre: "Camila Urueta" },
-    { id: 5, nombre: "Yuli Alexandra" },
-    { id: 6, nombre: "Bertha Hernandez" },
-    { id: 7, nombre: "Carlos Rodríguez" },
-    { id: 8, nombre: "Ana Martínez" },
   ];
 
   const opcionesUsuarios = usuarios.map((user) => ({
@@ -1179,6 +1211,7 @@ const FormRadicacion: React.FC = () => {
                 campo={campoDestinatarioCor}
                 selectDisabledByRestriction={destinatarioDisabledByRestriccion}
                 relacionEstadoRestriccionDestinatario={relacionEstadoRestriccionDestinatario}
+                selectedTramiteId={selectedTramiteId}
                 onOpenInfo={({ id, nombre }) => {
                   setUsuarioSeleccionado({ id, nombre });
                   setModalVisible(true);
