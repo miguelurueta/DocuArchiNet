@@ -1,3 +1,4 @@
+export * from "./AppTabs";
 export * from "./AppModal";
 export * from "./AppInput";
 export * from "./AppButton";
