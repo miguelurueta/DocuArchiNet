@@ -1,3 +1,4 @@
+export * from "./AppDataTableMui";
 export * from "./AppTabs";
 export * from "./AppModal";
 export * from "./AppInput";

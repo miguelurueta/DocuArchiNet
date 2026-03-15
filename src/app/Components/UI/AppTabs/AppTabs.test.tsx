@@ -79,7 +79,9 @@ describe("AppTabs [SPEC:APP-TABS-001]", () => {
       <AppTabs items={baseItems} defaultActiveKey="general" orientation="vertical" />,
     );
 
-    expect(container.firstChild?.className).toMatch(/orientationVertical/);
+    expect((container.firstElementChild as HTMLElement | null)?.className).toMatch(
+      /orientationVertical/,
+    );
   });
 
   it("mantiene la relacion accesible entre tab activa y panel", () => {
