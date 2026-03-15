@@ -1,0 +1,48 @@
+.mask {
+  backdrop-filter: blur(3px);
+  background: rgba(9, 18, 31, 0.42) !important;
+}
+
+.wrapper {
+  padding-inline: 1rem;
+}
+
+.content {
+  border-radius: 20px !important;
+  box-shadow: 0 28px 64px rgba(10, 30, 56, 0.22) !important;
+  overflow: hidden;
+}
+
+.header {
+  border-bottom: 1px solid #e6ebf5;
+  padding: 1.1rem 1.35rem 0.95rem !important;
+}
+
+.title {
+  color: #132f49;
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.body {
+  padding: 1.2rem 1.35rem !important;
+}
+
+.bodyContent {
+  color: #314559;
+  display: grid;
+  gap: 0.8rem;
+  line-height: 1.5;
+}
+
+.footerShell {
+  border-top: 1px solid #e6ebf5;
+  padding: 0.95rem 1.35rem 1.2rem !important;
+}
+
+.footer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
