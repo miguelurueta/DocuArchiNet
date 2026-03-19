@@ -1,0 +1,168 @@
+.button {
+  --app-button-primary: #0f5bd8;
+  --app-button-primary-hover: #1f6df0;
+  --app-button-primary-active: #0c4bad;
+  --app-button-neutral: #f4f6fb;
+  --app-button-neutral-border: #c6cfdd;
+  --app-button-neutral-text: #16324f;
+  --app-button-success: #1d7a52;
+  --app-button-warning: #b7791f;
+  --app-button-danger: #b83232;
+  --app-button-ghost-hover: rgba(15, 91, 216, 0.08);
+  --app-button-shadow: 0 10px 24px rgba(15, 52, 96, 0.14);
+  align-items: center;
+  border-radius: 12px;
+  border-width: 1px;
+  box-shadow: var(--app-button-shadow);
+  display: inline-flex;
+  font-weight: 600;
+  justify-content: center;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.button:hover,
+.button:focus-visible {
+  transform: translateY(-1px);
+}
+
+.button:focus-visible {
+  outline: 3px solid rgba(15, 91, 216, 0.28);
+  outline-offset: 2px;
+}
+
+.button[aria-disabled="true"] {
+  box-shadow: none;
+  transform: none;
+}
+
+.content {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.rightIcon {
+  align-items: center;
+  display: inline-flex;
+}
+
+.tooltipWrapper {
+  display: inline-flex;
+}
+
+.fullWidth {
+  display: flex;
+  width: 100%;
+}
+
+.iconOnly {
+  aspect-ratio: 1;
+  padding-inline: 0;
+}
+
+.sizeSm {
+  font-size: 0.82rem;
+  min-height: 2rem;
+  padding-inline: 0.8rem;
+}
+
+.sizeMd {
+  font-size: 0.92rem;
+  min-height: 2.5rem;
+  padding-inline: 1rem;
+}
+
+.sizeLg {
+  font-size: 1rem;
+  min-height: 2.9rem;
+  padding-inline: 1.2rem;
+}
+
+.iconOnly.sizeSm {
+  min-width: 2rem;
+}
+
+.iconOnly.sizeMd {
+  min-width: 2.5rem;
+}
+
+.iconOnly.sizeLg {
+  min-width: 2.9rem;
+}
+
+.variantPrimary {
+  background: linear-gradient(135deg, var(--app-button-primary), #2977f5);
+  border-color: var(--app-button-primary);
+  color: #fff;
+}
+
+.variantPrimary:hover,
+.variantPrimary:focus-visible {
+  background: linear-gradient(135deg, var(--app-button-primary-hover), #3885ff) !important;
+  border-color: var(--app-button-primary-hover) !important;
+  color: #fff !important;
+}
+
+.variantPrimary:active {
+  background: var(--app-button-primary-active) !important;
+  border-color: var(--app-button-primary-active) !important;
+}
+
+.variantSecondary {
+  background: var(--app-button-neutral);
+  border-color: var(--app-button-neutral-border);
+  color: var(--app-button-neutral-text);
+}
+
+.variantSecondary:hover,
+.variantSecondary:focus-visible {
+  background: #e9eef7 !important;
+  border-color: #aebcd4 !important;
+  color: #102842 !important;
+}
+
+.variantSuccess {
+  background: linear-gradient(135deg, var(--app-button-success), #239c68);
+  border-color: var(--app-button-success);
+  color: #fff;
+}
+
+.variantWarning {
+  background: linear-gradient(135deg, var(--app-button-warning), #d79a2d);
+  border-color: var(--app-button-warning);
+  color: #fff;
+}
+
+.variantDanger {
+  background: linear-gradient(135deg, var(--app-button-danger), #db4b4b);
+  border-color: var(--app-button-danger);
+  color: #fff;
+}
+
+.variantGhost {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--app-button-primary);
+}
+
+.variantGhost:hover,
+.variantGhost:focus-visible {
+  background: var(--app-button-ghost-hover) !important;
+  border-color: transparent !important;
+  color: var(--app-button-primary) !important;
+}
+
+.variantLink {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--app-button-primary);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}

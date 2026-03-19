@@ -9,15 +9,14 @@ import {
 
 import styles from "../style/tabs.module.css";
 import CapDocument from "../components/CapDocument";
-import { RadicacionFormContent } from "../components/RadicacionForm";
+import RadicacionForm from "../components/RadicacionForm";
 import ModalPendiente from "../components/Modalpendiente";
-import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 
-interface TabsDocuProps {
-  camposPlantilla: CampoPlantillaDTO[];
-}
+const onChange = (key: string) => {
+  console.log(key);
+};
 
-const TabsDocu: React.FC<TabsDocuProps> = ({ camposPlantilla }) => {
+const TabsDocu: React.FC = () => {
   const items = [
     {
       key: "1",
@@ -37,7 +36,7 @@ const TabsDocu: React.FC<TabsDocuProps> = ({ camposPlantilla }) => {
           Radicación
         </Space>
       ),
-      children: <RadicacionFormContent camposPlantilla={camposPlantilla} />,
+      children: <RadicacionForm/>,
     },
     {
       key: "3",
@@ -65,6 +64,7 @@ const TabsDocu: React.FC<TabsDocuProps> = ({ camposPlantilla }) => {
     <div>
       <Tabs
         type="card"
+        onChange={onChange}
         items={items}
         className={styles.customTabs}
         tabBarExtraContent={{

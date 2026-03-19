@@ -9,12 +9,21 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
-    "spec:validate": "node --experimental-strip-types tools/spec-validator/validateSpec.ts"
+    "spec:validate": "node --experimental-strip-types tools/spec-validator/validateSpec.ts",
+    "opsxj:new": "node scripts/opsxj.js opsxj:new",
+    "opsxj:archive": "node scripts/opsxj.js opsxj:archive",
+    "opsxj:close": "node scripts/opsxj.js opsxj:close",
+    "opsxj:doctor": "node scripts/opsxj-doctor.js",
+    "opsxj:sync-pr-status": "node scripts/sync-jira-pr-status.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@fortawesome/fontawesome-free": "^7.1.0",
+    "@fortawesome/free-brands-svg-icons": "^7.2.0",
+    "@fortawesome/free-regular-svg-icons": "^7.2.0",
+    "@fortawesome/free-solid-svg-icons": "^7.2.0",
+    "@fortawesome/react-fontawesome": "^3.2.0",
     "@hookform/resolvers": "^5.2.2",
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",

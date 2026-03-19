@@ -1,9 +1,8 @@
 import "@testing-library/jest-dom";
-
+// Polyfills for UI libs in jsdom
 if (!window.matchMedia) {
-  Object.defineProperty(window, "matchMedia", {
-    writable: true,
-    value: (query: string) => ({
+  window.matchMedia = (query: string) =>
+    ({
       matches: false,
       media: query,
       onchange: null,
@@ -12,17 +11,15 @@ if (!window.matchMedia) {
       addEventListener: () => {},
       removeEventListener: () => {},
       dispatchEvent: () => false,
-    }),
-  });
+    }) as MediaQueryList;
 }
 
-if (!window.ResizeObserver) {
+if (!("ResizeObserver" in window)) {
   class ResizeObserverMock {
     observe() {}
     unobserve() {}
     disconnect() {}
   }
-
-  window.ResizeObserver = ResizeObserverMock;
-  globalThis.ResizeObserver = ResizeObserverMock;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).ResizeObserver = ResizeObserverMock;
 }

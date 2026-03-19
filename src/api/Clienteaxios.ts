@@ -1,6 +1,7 @@
 import axios from "axios";
 import { finalizarSesionYRedirigir, obtenerToken, tokenExpirado } from "../app/auth/Infraestructura/ManejadorJWT";
-//let redireccionEnCurso = false;
+
+
 const clienteApi = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
@@ -46,15 +47,7 @@ clienteApi.interceptors.response.use(
 
       console.groupEnd();
     }
-   //const status = error?.response?.status;
-
-    // if (status === 401) {
-    //   // ✅ Evita múltiples redirecciones si llegan varios 401 al tiempo
-    //   if (!redireccionEnCurso) {
-    //     redireccionEnCurso = true;
-    //     finalizarSesionYRedirigir();
-    //   }
-    // }
+  
     // 🔁 IMPORTANTE: seguir propagando el error
     return Promise.reject(error);
   }

@@ -671,16 +671,11 @@ const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
    COMPONENTE PRINCIPAL
 ========================================================= */
 
-interface RadicacionFormContentProps {
-  camposPlantilla: CampoPlantillaDTO[];
-  isLoadingCamposPlantilla?: boolean;
-}
-
-export const RadicacionFormContent: React.FC<RadicacionFormContentProps> = ({
-  camposPlantilla,
-  isLoadingCamposPlantilla = false,
-}) => {
+const FormRadicacion: React.FC = () => {
   const [form] = Form.useForm();
+
+  const { data: camposPlantilla, isLoading: isLoadingCamposPlantilla } =
+    useCamposPlantilla();
 
   const usuarios: Usuario[] = [
   ];
@@ -1309,18 +1304,6 @@ export const RadicacionFormContent: React.FC<RadicacionFormContentProps> = ({
         </div>
       </div>
     </div>
-  );
-};
-
-const FormRadicacion: React.FC = () => {
-  const { data: camposPlantilla, isLoading: isLoadingCamposPlantilla } =
-    useCamposPlantilla();
-
-  return (
-    <RadicacionFormContent
-      camposPlantilla={camposPlantilla}
-      isLoadingCamposPlantilla={isLoadingCamposPlantilla}
-    />
   );
 };
 

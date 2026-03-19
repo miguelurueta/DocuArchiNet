@@ -1,0 +1,30 @@
+.shell {
+  background: #ffffff;
+  border: 1px solid #dbe5ef;
+  border-radius: 20px;
+  box-shadow: 0 16px 36px rgba(17, 46, 76, 0.08);
+  overflow: hidden;
+  width: 100%;
+}
+
+.emptyState {
+  align-content: center;
+  color: #5f7488;
+  display: grid;
+  gap: 0.4rem;
+  justify-items: center;
+  min-height: 180px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.emptyTitle {
+  color: #17324b;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.emptyMessage {
+  line-height: 1.5;
+  max-width: 28rem;
+}

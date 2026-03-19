@@ -21,6 +21,7 @@ export function useCamposPlantilla() {
       const { data } = await clienteApi.get<ApiResponse<CampoPlantillaDTO[]>>(
         PLANTILLA_ENDPOINT,
       );
+      console.log(data);
       return data;
     },
     placeholderData: (previousData) => previousData,

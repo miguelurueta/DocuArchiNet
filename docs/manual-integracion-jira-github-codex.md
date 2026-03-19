@@ -108,6 +108,26 @@ Validación: npm run test -- --run && npm run spec:validate
 
 Con esto, la trazabilidad JIRA ↔ GitHub ↔ Codex es auditable en historial de rama, commits y pipeline.
 
+### Atajo operativo Jira -> OpenSpec
+
+Para crear proposal inicial desde Jira en un solo paso:
+
+```bash
+npm run opsxj:new -- <ISSUE-KEY>
+```
+
+Ejemplo:
+
+```bash
+npm run opsxj:new -- SCRUM-8
+```
+
+El comando:
+- consulta resumen y descripción en Jira,
+- genera `proposal.md`,
+- crea carpeta en `openspec/changes/` usando base del resumen del ticket (kebab-case),
+- muestra confirmación uniforme de resultado o error.
+
 ---
 
 ## 4) Validación automática (OpenSpec + CI/CD)
