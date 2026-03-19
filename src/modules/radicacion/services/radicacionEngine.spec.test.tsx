@@ -107,4 +107,40 @@ describe("radicacion engine", () => {
     expect(payload.Campos[0]?.IdDetallePlantillaRadicado).toBe(1);
     expect(payload.Campos[1]?.Valor).toBe("Contenido");
   });
+
+  it("[SPEC:RBK-003] maps unknown/null TipoCampo to text without crashing", () => {
+    const plantillaConTipoInvalido: PlantillaRadicadoDTO = {
+      ...plantilla,
+      DetallePlantillaRadicadoDTO: [
+        {
+          IdDetallePlantillaRadicado: 3,
+          NombreCampo: "input_test",
+          Etiqueta: "Input Test",
+          TipoCampo: null as unknown as string,
+          Requerido: false,
+          Orden: 3,
+          ValorDefecto: "",
+        },
+      ],
+    };
+
+    const fields = mapPlantillaToFieldConfig(plantillaConTipoInvalido);
+    expect(fields[0]?.type).toBe("text");
+  });
+
+  it("[SPEC:RBK-004] handles onInputChange with empty/undefined value safely", () => {
+    const { result } = renderHook(() => useRadicacionDynamicForm(plantilla));
+
+    act(() => {
+      result.current.onInputChange({
+        target: {
+          name: "asunto",
+          value: undefined,
+          type: "text",
+        },
+      } as unknown as import("react").ChangeEvent<HTMLInputElement>);
+    });
+
+    expect(result.current.getInputValue("asunto")).toBe("");
+  });
 });

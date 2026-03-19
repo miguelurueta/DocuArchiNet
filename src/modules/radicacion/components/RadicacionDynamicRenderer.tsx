@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import type { ChangeEventHandler } from "react";
 import type { RadicacionFieldConfig } from "../services/radicacionMetadataMapper";
 import type { RadicacionFormValues } from "../services/radicacionPayloadSerializer";
-import { radicacionFieldRegistry } from "./fieldRegistry";
+import { radicacionFieldRegistry } from "../services/fieldRegistry";
 import type { RadicacionFieldComponentProps } from "./FieldComponents";
 
 interface RadicacionDynamicRendererProps {
@@ -27,7 +27,6 @@ export function RadicacionDynamicRenderer({
           value: values[field.name] ?? "",
           onChange,
         };
-
         return (
           <div key={field.id}>
             <label htmlFor={field.name}>{field.label}</label>
