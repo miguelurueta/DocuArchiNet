@@ -1,4 +1,4 @@
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
@@ -38,6 +38,9 @@ describe("jiraProposalService", () => {
           "proposal.md",
         ),
       );
+      const content = await readFile(result.proposalPath, "utf8");
+      expect(content).toContain("`auto-complete-asunto`");
+      expect(content).not.toContain("`jira-proposal-generator`");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

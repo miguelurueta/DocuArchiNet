@@ -27,6 +27,18 @@ Opcional:
 
 - `JIRA_ISSUE_KEY` (si no se pasa `<ISSUE-KEY>` por argumento)
 
+## Regla operativa
+
+La lectura del ticket en Jira es obligatoria para `opsxj:new`.
+
+- Si Jira responde correctamente, el flujo continua.
+- Si Jira falla por credenciales, red, permisos o inexistencia del issue, el flujo se bloquea.
+- En ese caso `opsxj:new` NO debe:
+  - generar `proposal.md`
+  - crear rama
+  - crear commit
+  - hacer push
+
 ## Invocación
 
 Desde `npm`:
@@ -78,6 +90,7 @@ Casos cubiertos:
 - credenciales faltantes
 - errores de red/permisos Jira
 - errores de escritura de archivos
+- fallo de Jira antes de proposal/git, bloqueando el flujo
 
 ## Extensibilidad para futuros comandos
 

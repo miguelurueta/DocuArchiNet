@@ -59,6 +59,33 @@ describe("opsxjCommandRunner", () => {
     expect(stderr.read()).toBe("");
   });
 
+  it("blocks opsxj:new when jira lookup fails and does not continue to git", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const createProposalFn = vi.fn().mockRejectedValue(new Error("fetch failed"));
+    const setupProposalFn = vi.fn();
+
+    const exitCode = await runOpsxjCommand({
+      argv: ["opsxj:new", "SCRUM-8"],
+      env: {
+        JIRA_BASE_URL: "https://example.atlassian.net",
+        JIRA_EMAIL: "user@example.com",
+        JIRA_API_TOKEN: "token",
+      },
+      stdout,
+      stderr,
+      baseDir: "D:/repo",
+      createProposalFn,
+      setupProposalFn,
+    });
+
+    expect(exitCode).toBe(1);
+    expect(createProposalFn).toHaveBeenCalledTimes(1);
+    expect(setupProposalFn).not.toHaveBeenCalled();
+    expect(stdout.read()).toBe("");
+    expect(stderr.read()).toContain("[opsxj:error] fetch failed");
+  });
+
   it("returns clear error when command is unsupported", async () => {
     const stdout = buildBufferWriter();
     const stderr = buildBufferWriter();
