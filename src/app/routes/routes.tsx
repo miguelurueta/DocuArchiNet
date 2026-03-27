@@ -11,6 +11,9 @@ import DashboardLayout from "../../modules/dashboard/components/DashboardLayout"
 import DashboardHome from "../../modules/dashboard/pages/DashboardHome";
 import WorkflowPage from "../../modules/Workflow/pages/WorkflowPage";
 import RadicacionRoutePage from "../../modules/radicacion/pages/RadicacionRoutePage";
+import GestionCorrespondenciaLayout from "../../modules/gestionCorrespondencia/layout/GestionCorrespondenciaLayout";
+import GestionCorrespondenciaRoute from "../../modules/gestionCorrespondencia/routes/GestionCorrespondenciaRoute";
+import GestionRespuesta from "../../modules/gestionCorrespondencia/pages/GestionRespuesta";
 
 export const loginRoutes: RouteObject[] = [
   { path: "/", element: <LoginPage /> },
@@ -36,6 +39,23 @@ export const loginRoutes: RouteObject[] = [
           {
             path: "radicacion",
             element: <RadicacionRoutePage />,
+          },
+          {
+            path: "gestion-correspondencia",
+            element: <GestionCorrespondenciaLayout />,
+            children: [
+              {
+                element: <GestionCorrespondenciaRoute />,
+              },
+              {
+                path: "respuesta",
+                element: (
+                  <GestionCorrespondenciaRoute
+                    drawerContent={<GestionRespuesta />}
+                  />
+                ),
+              },
+            ],
           },
         ],
       },
