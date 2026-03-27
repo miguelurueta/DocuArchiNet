@@ -1,5 +1,6 @@
-import { Button, Card, Col, Flex, Row, Space, Tag, Typography } from "antd";
-import { Link } from "react-router-dom";
+import { Card, Col, Row, Space, Tag, Typography } from "antd";
+import { useNavigate } from "react-router-dom";
+import { AppToolbar } from "../../../app/Components/UI/AppToolbar";
 import styles from "../style/GestionCorrespondencia.module.css";
 
 const placeholderColumns = [
@@ -18,33 +19,37 @@ const placeholderColumns = [
 ];
 
 export default function GestionCorrespondencia() {
+  const navigate = useNavigate();
+
   return (
     <div className={styles.page}>
-      <Card variant="borderless">
-        <Flex justify="space-between" align="start" gap={16} wrap>
-          <Space orientation="vertical" size={6}>
-            <Typography.Title level={3} style={{ margin: 0 }}>
-              Centro operativo del modulo
-            </Typography.Title>
-            <Typography.Paragraph style={{ margin: 0, maxWidth: 720 }}>
-              Esta vista deja lista la composicion base para incorporar bandejas,
-              detalle de correspondencia y acciones de respuesta en iteraciones
-              posteriores.
-            </Typography.Paragraph>
-            <Space wrap>
-              <Tag color="blue">React Router anidado</Tag>
-              <Tag color="cyan">Ant Design</Tag>
-              <Tag color="geekblue">Sin logica de negocio</Tag>
-            </Space>
+      <AppToolbar
+        title="Centro operativo del modulo"
+        subtitle="AppToolbar enterprise"
+        description="Esta vista deja lista la composicion base para incorporar bandejas, detalle de correspondencia y acciones de respuesta en iteraciones posteriores."
+        breadcrumbs={[
+          { key: "dashboard", label: "Dashboard", to: "/dashboard" },
+          { key: "gestion-correspondencia", label: "Gestion de correspondencia", current: true },
+        ]}
+        extra={
+          <Space wrap>
+            <Tag color="blue">React Router anidado</Tag>
+            <Tag color="cyan">Ant Design</Tag>
+            <Tag color="geekblue">Sin logica de negocio</Tag>
           </Space>
-
-          <div className={styles.ctaRow}>
-            <Button type="primary">
-              <Link to="respuesta">Abrir respuesta contextual</Link>
-            </Button>
-          </div>
-        </Flex>
-      </Card>
+        }
+        actions={[{ key: "refresh", label: "Actualizar resumen", variant: "secondary" }]}
+        secondaryActions={[
+          { key: "share", label: "Compartir contexto", variant: "ghost" },
+          { key: "export", label: "Exportar vista", variant: "ghost" },
+        ]}
+        primaryAction={{
+          key: "open-response",
+          label: "Abrir respuesta contextual",
+          variant: "primary",
+          onClick: () => navigate("respuesta"),
+        }}
+      />
 
       <Row gutter={[16, 16]} className={styles.summaryRow}>
         {placeholderColumns.map((item) => (

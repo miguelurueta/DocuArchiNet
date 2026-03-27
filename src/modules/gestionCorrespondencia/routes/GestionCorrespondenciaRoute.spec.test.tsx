@@ -32,8 +32,12 @@ describe("[SPEC:GCORR-001] GestionCorrespondencia routing", () => {
       screen.getByRole("heading", { name: /Centro operativo del modulo/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: /Abrir respuesta contextual/i }),
-    ).toHaveAttribute("href", "/dashboard/gestion-correspondencia/respuesta");
+      screen.getByRole("navigation", { name: /breadcrumb/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Abrir respuesta contextual/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Actualizar resumen/i })).toBeInTheDocument();
   });
 
   test("abre el drawer por subruta y vuelve a la ruta base al cerrar", () => {
@@ -50,8 +54,6 @@ describe("[SPEC:GCORR-001] GestionCorrespondencia routing", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Close$/i }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: /Abrir respuesta contextual/i }),
-    ).toHaveAttribute("href", "/dashboard/gestion-correspondencia/respuesta");
+    expect(screen.getByRole("button", { name: /Abrir respuesta contextual/i })).toBeInTheDocument();
   });
 });

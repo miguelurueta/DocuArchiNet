@@ -11,12 +11,13 @@ CREA-COMPONENTE-TOOLBAR. PROMPT PROFESIONAL — Crear componente AppToolbar reut
 ## Capabilities
 
 ### New Capabilities
-- `jira-proposal-generator`: Generacion automatica de propuestas OpenSpec desde Jira.
+- `app-toolbar`: Componente reusable para encabezados contextuales, acciones y contenido auxiliar con comportamiento responsive.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nuevo script de generacion en `scripts/`.
-- Nuevo archivo `openspec/changes/<issueKey>/proposal.md`.
+- Nuevo componente compartido en `src/app/Components/UI/AppToolbar/`.
+- Integracion inicial del componente en un modulo consumidor real.
+- Nuevas pruebas de comportamiento para el contrato reusable del toolbar.
