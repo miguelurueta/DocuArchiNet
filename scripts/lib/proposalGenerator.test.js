@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildChangeNameFromJiraSummary,
   buildProposalContent,
+  inferProposalIntent,
   writeProposalFile,
 } from "./proposalGenerator.js";
 
@@ -21,6 +22,30 @@ describe("proposalGenerator", () => {
     expect(content).toContain("## Capabilities");
     expect(content).toContain("## Impact");
     expect(content).toContain("ABC-123");
+  });
+
+  it("infers app-toolbar capability for component creation tickets", () => {
+    const intent = inferProposalIntent({
+      summary: "CREA-COMPONENTE-TOOLBAR",
+      description: "Crear componente reusable enterprise.",
+    });
+
+    expect(intent.capability).toBe("app-toolbar");
+    expect(intent.kind).toBe("component");
+    expect(intent.impact.join(" ")).toContain("src/app/Components/UI/AppToolbar/");
+  });
+
+  it("builds proposal content aligned to the jira ticket instead of jira-proposal-generator", () => {
+    const content = buildProposalContent({
+      issueKey: "SCRUMCORE-12",
+      summary: "CREA-COMPONENTE-TOOLBAR",
+      description: "Crear componente AppToolbar reutilizable Enterprise.",
+    });
+
+    expect(content).toContain("`app-toolbar`");
+    expect(content).toContain("AppToolbar");
+    expect(content).not.toContain("`jira-proposal-generator`");
+    expect(content).toContain("src/app/Components/UI/AppToolbar/");
   });
 
   it("builds kebab-case change name from issue key + summary", () => {

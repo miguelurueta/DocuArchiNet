@@ -22,6 +22,22 @@ $env:GITHUB_TOKEN = "ghp_xxx"
 $env:GITHUB_REPO = "owner/repo"
 ```
 
+## Regla de bloqueo para `opsxj:new`
+
+`opsxj:new` requiere lectura exitosa del ticket en Jira.
+
+Si Jira falla por:
+- credenciales
+- conectividad
+- permisos
+- issue inexistente
+
+entonces el comando debe terminar con error y NO debe:
+- generar `proposal.md`
+- crear rama `feature/<ISSUE-KEY>`
+- crear commit inicial
+- hacer push
+
 ## 1) `opsxj:new` (comando recomendado)
 
 Comando de un paso para crear proposal OpenSpec desde Jira.
@@ -49,6 +65,12 @@ node scripts/opsxj.js opsxj:new <ISSUE-KEY>
 3. Crea carpeta OpenSpec con base en `issueKey + resumen` (slug kebab-case).
 4. Crea rama `feature/<ISSUE-KEY>`, commit inicial del `proposal.md` y push.
 5. Muestra confirmaciones y ruta final del proposal.
+
+### Qué NO hace si Jira falla
+
+- no genera proposal parcial
+- no intenta fallback local
+- no avanza a git
 
 ### Ejemplo
 
@@ -227,6 +249,9 @@ Salida esperada (resumen):
 
 - `Falta JIRA_BASE_URL...`
   - Solución: exportar variables de entorno antes de ejecutar.
+
+- `fetch failed` o errores de Jira
+  - Solución: restaurar acceso real a Jira antes de reintentar; `opsxj:new` no debe continuar sin lectura exitosa del ticket.
 
 ## Flujo recomendado para usuarios
 
