@@ -4,20 +4,21 @@ ACTUALIZACION-VISUAL-UI-APPBUTTON. PROMPT PROFESIONAL — Agregar botón "Actual
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-22.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se agrega un nuevo `AppButton` con etiqueta `Actualizar` dentro del `AppToolbar` de `GestionCorrespondencia`.
+- El nuevo botón usa `variant="ghost"`, `size="sm"` y `leftIcon={<UndoOutlined />}` siguiendo el design system existente.
+- Se mantiene el layout actual del toolbar y su comportamiento responsive en desktop, tablet y mobile.
+- Se ajusta `.page` en `GestionCorrespondencia.module.css` para usar `background-color: white`.
 
 ## Capabilities
 
 ### New Capabilities
-- `actualizacion-visual-ui-appbutton`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `boton-actualizar-toolbar-gestion-correspondencia`: Acción visual adicional en `AppToolbar` sin lógica de negocio real.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+- Ajustes en `src/modules/gestionCorrespondencia/pages/GestionCorrespondencia.tsx`.
+- Ajustes en `src/modules/gestionCorrespondencia/style/GestionCorrespondencia.module.css`.
+- Sin cambios en la lógica interna de `AppToolbar` ni en el contrato de `AppButton`.

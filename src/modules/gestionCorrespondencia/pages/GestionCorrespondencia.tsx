@@ -4,6 +4,7 @@ import {
   EyeFilled,
   FileExcelFilled,
   FilePdfFilled,
+  UndoOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { AppButton } from "../../../app/Components/UI/AppButton";
@@ -29,6 +30,9 @@ const placeholderColumns = [
 
 export default function GestionCorrespondencia() {
   const navigate = useNavigate();
+  const handleRefresh = () => {
+    console.log("Actualizar datos");
+  };
 
   return (
     <div className={styles.page}>
@@ -81,6 +85,17 @@ export default function GestionCorrespondencia() {
                 },
               ]}
             />
+
+            <AppButton
+              className={styles.toolbarControl}
+              variant="ghost"
+              size="sm"
+              leftIcon={<UndoOutlined />}
+              fullWidth
+              onClick={handleRefresh}
+            >
+              Actualizar
+            </AppButton>
 
             <AppButton
               className={styles.toolbarControl}
