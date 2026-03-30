@@ -1,0 +1,112 @@
+.root {
+  --app-content-max-width: 68rem;
+  --app-content-padding-inline: clamp(0.875rem, 1.8vw, 1.25rem);
+  --app-content-padding-block: 1rem;
+  --app-content-surface: #ffffff;
+  --app-content-border: rgba(23, 50, 75, 0.08);
+  --app-content-shadow: 0 12px 28px rgba(15, 37, 58, 0.06);
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  gap: 0.875rem;
+  min-height: 0;
+  overflow: hidden;
+  width: min(100%, var(--app-content-max-width));
+  margin: 0 auto;
+}
+
+.widthDefault {
+  --app-content-max-width: 68rem;
+}
+
+.widthWide {
+  --app-content-max-width: 76rem;
+}
+
+.widthFull {
+  --app-content-max-width: 100%;
+}
+
+.densityComfortable {
+  --app-content-padding-inline: clamp(0.875rem, 1.8vw, 1.25rem);
+  --app-content-padding-block: 1rem;
+}
+
+.densityCompact {
+  --app-content-padding-inline: clamp(0.75rem, 1.25vw, 1rem);
+  --app-content-padding-block: 0.875rem;
+}
+
+.header,
+.body,
+.footer {
+  background: var(--app-content-surface);
+  border: 1px solid var(--app-content-border);
+  border-radius: 16px;
+  box-shadow: var(--app-content-shadow);
+  min-width: 0;
+}
+
+.header,
+.footer {
+  padding: var(--app-content-padding-block) var(--app-content-padding-inline);
+}
+
+.body {
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: var(--app-content-padding-block) var(--app-content-padding-inline);
+}
+
+@media (max-width: 768px) {
+  .root {
+    flex: 1 1 auto;
+    height: 100%;
+    max-height: 100%;
+    gap: 0.75rem;
+    overflow: hidden;
+  }
+
+  .header,
+  .body,
+  .footer {
+    border-radius: 14px;
+  }
+
+  .body {
+    flex: 1 1 auto;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 768px) and (max-height: 900px) {
+  .root {
+    gap: 0.625rem;
+  }
+
+  .header,
+  .body,
+  .footer {
+    border-radius: 12px;
+  }
+
+  .header,
+  .footer,
+  .body {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .root {
+    width: 100%;
+  }
+}
