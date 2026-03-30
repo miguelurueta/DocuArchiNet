@@ -21,31 +21,21 @@ function renderGestionCorrespondencia(initialEntry: string) {
   );
 }
 
-describe("[SPEC:GCORR-001] GestionCorrespondencia routing", () => {
+describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
   test("renderiza layout y pagina principal en la ruta base", () => {
     renderGestionCorrespondencia("/dashboard/gestion-correspondencia");
 
-    expect(
-      screen.getByRole("heading", { name: /Gestion de Correspondencia/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: /Centro operativo del modulo/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("navigation", { name: /breadcrumb/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("gestion-correspondencia-content")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Exportar/i })).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Abrir respuesta contextual/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Actualizar resumen/i })).toBeInTheDocument();
   });
 
   test("abre el drawer por subruta y vuelve a la ruta base al cerrar", () => {
     renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta");
 
-    expect(
-      screen.getByRole("heading", { name: /Centro operativo del modulo/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Exportar/i })).toBeInTheDocument();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: /Gestion de respuesta/i }),

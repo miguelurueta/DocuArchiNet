@@ -32,7 +32,7 @@ export type AppToolbarAction = {
 };
 
 export type AppToolbarProps = {
-  title: ReactNode;
+  title?: ReactNode;
   subtitle?: ReactNode;
   description?: ReactNode;
   breadcrumbs?: AppToolbarBreadcrumbItem[];
@@ -41,6 +41,7 @@ export type AppToolbarProps = {
   secondaryActions?: AppToolbarAction[];
   extra?: ReactNode;
   children?: ReactNode;
+  actionContent?: ReactNode;
   className?: string;
   collapseBreakpoint?: AppToolbarBreakpoint;
   maxVisibleSecondaryActions?: number;
@@ -132,6 +133,7 @@ export function AppToolbar({
   secondaryActions = [],
   extra,
   children,
+  actionContent,
   className,
   collapseBreakpoint = "md",
   maxVisibleSecondaryActions = 2,
@@ -146,6 +148,13 @@ export function AppToolbar({
   const overflowActions = isCompact
     ? secondaryActions
     : secondaryActions.slice(maxVisibleSecondaryActions);
+  const hasContext =
+    Boolean(title) ||
+    Boolean(subtitle) ||
+    Boolean(description) ||
+    breadcrumbs.length > 0 ||
+    Boolean(children) ||
+    Boolean(extra);
 
   return (
     <section
@@ -157,44 +166,51 @@ export function AppToolbar({
         className,
       )}
     >
-      <div className={styles.context}>
-        {breadcrumbs.length > 0 ? (
-          <nav aria-label="Breadcrumb" className={styles.breadcrumbs}>
-            <ol className={styles.breadcrumbList}>
-              {breadcrumbs.map((item, index) => (
-                <li
-                  key={item.key ?? `${String(item.label)}-${index}`}
-                  className={styles.breadcrumbItem}
-                  aria-current={item.current ? "page" : undefined}
-                >
-                  {item.current ? (
-                    <span className={styles.breadcrumbCurrent}>{item.label}</span>
-                  ) : (
-                    renderBreadcrumb(item)
-                  )}
-                </li>
-              ))}
-            </ol>
-          </nav>
-        ) : null}
+      {hasContext ? (
+        <div className={styles.context}>
+          {breadcrumbs.length > 0 ? (
+            <nav aria-label="Breadcrumb" className={styles.breadcrumbs}>
+              <ol className={styles.breadcrumbList}>
+                {breadcrumbs.map((item, index) => (
+                  <li
+                    key={item.key ?? `${String(item.label)}-${index}`}
+                    className={styles.breadcrumbItem}
+                    aria-current={item.current ? "page" : undefined}
+                  >
+                    {item.current ? (
+                      <span className={styles.breadcrumbCurrent}>{item.label}</span>
+                    ) : (
+                      renderBreadcrumb(item)
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          ) : null}
 
-        <div className={styles.headingBlock}>
-          {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
-          <h2 id={titleId} className={styles.title}>
-            {title}
-          </h2>
-          {description ? <p className={styles.description}>{description}</p> : null}
+          {title || subtitle || description ? (
+            <div className={styles.headingBlock}>
+              {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
+              {title ? (
+                <h2 id={titleId} className={styles.title}>
+                  {title}
+                </h2>
+              ) : null}
+              {description ? <p className={styles.description}>{description}</p> : null}
+            </div>
+          ) : null}
+
+          {children || extra ? (
+            <div className={styles.extra}>
+              {children}
+              {extra}
+            </div>
+          ) : null}
         </div>
-
-        {children || extra ? (
-          <div className={styles.extra}>
-            {children}
-            {extra}
-          </div>
-        ) : null}
-      </div>
+      ) : null}
 
       <div className={styles.actions} data-compact={isCompact}>
+        {actionContent ? <>{actionContent}</> : null}
         {actions.length > 0 ? (
           <div className={styles.actionGroup}>{actions.map((action) => renderAction(action))}</div>
         ) : null}
