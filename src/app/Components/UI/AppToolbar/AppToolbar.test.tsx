@@ -72,6 +72,7 @@ describe("AppToolbar [SPEC:APP-TOOLBAR-001]", () => {
 
   it("colapsa acciones secundarias en overflow cuando el viewport es compacto", async () => {
     mockMatchMedia(true);
+    const onShare = vi.fn();
 
     render(
       <MemoryRouter>
@@ -80,7 +81,7 @@ describe("AppToolbar [SPEC:APP-TOOLBAR-001]", () => {
           primaryAction={{ key: "new", label: "Nueva" }}
           secondaryActions={[
             { key: "export", label: "Exportar" },
-            { key: "share", label: "Compartir" },
+            { key: "share", label: "Compartir", onClick: onShare },
           ]}
         />
       </MemoryRouter>,
@@ -94,6 +95,10 @@ describe("AppToolbar [SPEC:APP-TOOLBAR-001]", () => {
 
     expect(await screen.findByText("Exportar")).toBeInTheDocument();
     expect(screen.getByText("Compartir")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Compartir"));
+
+    expect(onShare).toHaveBeenCalledTimes(1);
   });
 
   it("mantiene nombre accesible para acciones icon-only", () => {
