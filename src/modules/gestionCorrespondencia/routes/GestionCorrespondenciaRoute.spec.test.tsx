@@ -27,6 +27,7 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
 
     expect(screen.getByTestId("gestion-correspondencia-content")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Exportar/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Actualizar/i })).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Abrir respuesta contextual/i }),
     ).toBeInTheDocument();
