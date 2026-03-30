@@ -1,101 +1,6 @@
-
-
-// import { Layout } from "antd";
-// import { Outlet } from "react-router-dom";
-// import { useEffect, useState } from "react";
-// import { useMediaQuery } from "@mui/material";
-// import { useTheme } from "@mui/material/styles";
-
-// import Sidebar from "../components/Sidebar";
-// import Navbar from "../components/Navbar";
-// import { useDashboardMenu } from "../hooks/useDashboardMenu";
-// import type { MenuNode } from "../types/menu";
-// import { useDashboardMetrics } from "../hooks/useDashboardMetrics";
-// import DashboardMetricsProvider from "../context/DashboardMetricsProvider";
-
-
-// export type DashboardOutletContext = {
-//   menuTree: MenuNode[];
-// };
-
-// const { Content } = Layout;
-
-// export default function DashboardLayout() {
-//   const { menuTree, isLoading } = useDashboardMenu();
-
-//   const theme = useTheme();
-//   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-//   const [collapsed, setCollapsed] = useState(false);
-
-//   /**
-//    * 📱 Auto-ocultar sidebar según tamaño de pantalla
-//    * - Mobile / Tablet → oculto
-//    * - Desktop → visible
-//    */
-//   useEffect(() => {
-//     setCollapsed(isMobile);
-//   }, [isMobile]);
-
-//   return (
-//     <DashboardMetricsProvider>
-//     <Layout
-//       style={{
-//         minHeight: "100vh",
-//         width: "100vw",
-//         overflow: "hidden",
-//       }}
-//     >
-//       {/* SIDEBAR */}
-//       <Sidebar
-//         collapsed={collapsed}
-//         onCollapse={setCollapsed}
-//         menuTree={menuTree}
-//         isLoading={isLoading}
-//       />
-
-//       {/* CONTENEDOR PRINCIPAL */}
-//       <Layout
-//         style={{
-//           flex: 1,
-//           minWidth: 0, // 🔑 crítico para flex layouts
-//           width: "100%",
-//         }}
-//       >
-//         {/* NAVBAR */}
-//         <Navbar
-//           collapsed={collapsed}
-//           onToggle={() => {
-//             // 🔐 Solo permitir toggle manual en desktop
-//             if (!isMobile) {
-//               setCollapsed((v) => !v);
-//             }
-//           }}
-//         />
-
-//         {/* CONTENIDO */}
-//         <Content
-//           style={{
-//             flex: 1,
-//             width: "100%",
-//             padding: 20,
-//             overflowY: "auto",
-//             overflowX: "hidden",
-//             background: "#f5f6fa",
-//           }}
-//         >
-//           <Outlet context={{ menuTree } satisfies DashboardOutletContext} />
-//         </Content>
-//       </Layout>
-//     </Layout>
-//     </DashboardMetricsProvider>
-//   );
-// }
-import { Layout } from "antd";
+import { Drawer, Grid, Layout } from "antd";
 import { Outlet } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { useMediaQuery } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -112,6 +17,7 @@ export type DashboardOutletContext = {
 };
 
 const { Content } = Layout;
+const { useBreakpoint } = Grid;
 
 export default function DashboardLayout() {
   const { menuTree, isLoading, error } = useDashboardMenu();
@@ -119,14 +25,17 @@ export default function DashboardLayout() {
   const notifyError = useAppErrorNotifier();
   const lastNotifiedErrorRef = useRef<string | null>(null);
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
   const [collapsed, setCollapsed] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     setCollapsed(isMobile);
+    if (!isMobile) {
+      setDrawerOpen(false);
+    }
   }, [isMobile]);
-
 
   useEffect(() => {
     if (!error) {
@@ -150,21 +59,26 @@ export default function DashboardLayout() {
 
   return (
     <Layout style={{ minHeight: "100vh", width: "100vw", overflow: "hidden" }}>
-      <Sidebar
-        collapsed={collapsed}
-        onCollapse={setCollapsed}
-        menuTree={menuTree}
-        metricMap={metricMap}
-        isLoading={isLoading}
-      />
+      {!isMobile ? (
+        <Sidebar
+          collapsed={collapsed}
+          onCollapse={setCollapsed}
+          menuTree={menuTree}
+          metricMap={metricMap}
+          isLoading={isLoading}
+        />
+      ) : null}
 
       <Layout style={{ flex: 1, minWidth: 0, width: "100%" }}>
         <Navbar
           collapsed={collapsed}
           onToggle={() => {
-            if (!isMobile) {
-              setCollapsed((v) => !v);
+            if (isMobile) {
+              setDrawerOpen(true);
+              return;
             }
+
+            setCollapsed((value) => !value);
           }}
         />
 
@@ -187,6 +101,26 @@ export default function DashboardLayout() {
           />
         </Content>
       </Layout>
+
+      {isMobile ? (
+        <Drawer
+          placement="left"
+          open={drawerOpen}
+          width={300}
+          onClose={() => setDrawerOpen(false)}
+          styles={{ body: { padding: 0 } }}
+          destroyOnHidden={false}
+        >
+          <Sidebar
+            collapsed={false}
+            onCollapse={() => undefined}
+            menuTree={menuTree}
+            metricMap={metricMap}
+            isLoading={isLoading}
+            renderInDrawer
+          />
+        </Drawer>
+      ) : null}
     </Layout>
   );
 }

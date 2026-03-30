@@ -1,9 +1,26 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppButton } from "../AppButton";
 import { AppDropdown } from "./AppDropdown";
 
+let breakpointState = { md: true };
+
+vi.mock("antd", async () => {
+  const actual = await vi.importActual<typeof import("antd")>("antd");
+  return {
+    ...actual,
+    Grid: {
+      ...actual.Grid,
+      useBreakpoint: () => breakpointState,
+    },
+  };
+});
+
 describe("AppDropdown [SPEC:APP-DROPDOWN-001]", () => {
+  beforeEach(() => {
+    breakpointState = { md: true };
+  });
+
   it("renderiza items y ejecuta callbacks al seleccionar una accion", async () => {
     const onSelect = vi.fn();
 
@@ -78,6 +95,28 @@ describe("AppDropdown [SPEC:APP-DROPDOWN-001]", () => {
 
     expect(await screen.findByText("Exportar en Excel")).toBeInTheDocument();
     expect(screen.getByTestId("excel-icon")).toBeInTheDocument();
+  });
+
+  it("en mobile renderiza children en modo inline para abrirlos debajo del item padre", async () => {
+    breakpointState = { md: false };
+
+    render(
+      <AppDropdown
+        trigger={<AppButton>Exportar</AppButton>}
+        items={[
+          {
+            key: "excel",
+            label: "Exportar en Excel",
+            children: [{ key: "excel-all", label: "Exportar Todo" }],
+          },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+
+    expect(await screen.findByText("Exportar en Excel")).toBeInTheDocument();
+    expect(await screen.findByText("Exportar Todo")).toBeInTheDocument();
   });
 });
 
