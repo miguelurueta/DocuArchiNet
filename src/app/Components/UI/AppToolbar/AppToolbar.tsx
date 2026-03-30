@@ -1,10 +1,9 @@
-import { Dropdown } from "antd";
-import type { MenuProps } from "antd";
 import type { ReactNode } from "react";
 import { useEffect, useId, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppButton } from "../AppButton";
 import type { AppButtonProps, AppButtonSize, AppButtonVariant } from "../AppButton";
+import { AppDropdown } from "../AppDropdown";
 import styles from "./AppToolbar.module.css";
 
 export type AppToolbarBreakpoint = "sm" | "md";
@@ -148,24 +147,6 @@ export function AppToolbar({
     ? secondaryActions
     : secondaryActions.slice(maxVisibleSecondaryActions);
 
-  const overflowMenuItems: MenuProps["items"] = overflowActions.map((action) => ({
-    key: action.key,
-    label: action.href ? (
-      <a href={action.href} onClick={(event) => event.stopPropagation()}>
-        {action.label}
-      </a>
-    ) : (
-      <span>{action.label}</span>
-    ),
-    disabled: action.disabled || action.loading,
-    onClick: action.onClick
-      ? ({ domEvent }) => {
-          domEvent.preventDefault();
-          action.onClick?.(domEvent as never);
-        }
-      : undefined,
-  }));
-
   return (
     <section
       aria-labelledby={titleId}
@@ -224,17 +205,27 @@ export function AppToolbar({
           </div>
         ) : null}
 
-        {overflowMenuItems.length > 0 ? (
-          <Dropdown menu={{ items: overflowMenuItems }} trigger={["click"]}>
-            <span>
+        {overflowActions.length > 0 ? (
+          <AppDropdown
+            ariaLabel={overflowLabel}
+            items={overflowActions.map((action) => ({
+              key: action.key,
+              label: action.label,
+              icon: action.icon,
+              danger: action.variant === "danger",
+              disabled: action.disabled || action.loading,
+              href: action.href,
+              onSelect: action.onClick ? () => action.onClick?.({} as never) : undefined,
+            }))}
+            trigger={
               <AppButton
                 aria-label={overflowLabel}
                 variant="ghost"
                 size="md"
                 icon={<span aria-hidden="true">...</span>}
               />
-            </span>
-          </Dropdown>
+            }
+          />
         ) : null}
 
         {primaryAction ? (
