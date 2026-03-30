@@ -55,6 +55,30 @@ describe("AppDropdown [SPEC:APP-DROPDOWN-001]", () => {
 
     expect(onDelete).not.toHaveBeenCalled();
   });
+
+  it("renderiza submenus jerarquicos con iconografia usando AppButton como trigger", async () => {
+    render(
+      <AppDropdown
+        trigger={<AppButton>Exportar</AppButton>}
+        items={[
+          {
+            key: "excel",
+            label: "Exportar en Excel",
+            leftIcon: <span data-testid="excel-icon">X</span>,
+            children: [
+              { key: "excel-all", label: "Exportar Todo" },
+              { key: "excel-selected", label: "Exportar Seleccionados" },
+            ],
+          },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+
+    expect(await screen.findByText("Exportar en Excel")).toBeInTheDocument();
+    expect(screen.getByTestId("excel-icon")).toBeInTheDocument();
+  });
 });
 
 describe("AppDropdown [SPEC:APP-DROPDOWN-002]", () => {

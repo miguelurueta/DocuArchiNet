@@ -28,10 +28,12 @@ export type AppDropdownItem = {
   key: string;
   label: ReactNode;
   icon?: ReactNode;
+  leftIcon?: ReactNode;
   danger?: boolean;
   disabled?: boolean;
   href?: string;
   onSelect?: () => void;
+  children?: AppDropdownItem[];
 };
 
 export type AppDropdownPlacement =
@@ -119,6 +121,46 @@ function mergeOpenState({
   return [currentOpen, setOpen] as const;
 }
 
+function buildMenuItems(items: AppDropdownItem[]): MenuProps["items"] {
+  return items.map((item) => {
+    const itemIcon = item.leftIcon ?? item.icon;
+
+    return {
+      key: item.key,
+      danger: item.danger,
+      disabled: item.disabled,
+      children: item.children ? buildMenuItems(item.children) : undefined,
+      label: item.href ? (
+        <a href={item.href} onClick={(event) => event.stopPropagation()}>
+          <span className={styles.itemLabel}>
+            {itemIcon ? (
+              <span className={styles.itemIcon} aria-hidden="true">
+                {itemIcon}
+              </span>
+            ) : null}
+            <span>{item.label}</span>
+          </span>
+        </a>
+      ) : (
+        <span className={styles.itemLabel}>
+          {itemIcon ? (
+            <span className={styles.itemIcon} aria-hidden="true">
+              {itemIcon}
+            </span>
+          ) : null}
+          <span>{item.label}</span>
+        </span>
+      ),
+      onClick:
+        item.disabled || item.children?.length
+          ? undefined
+          : () => {
+              item.onSelect?.();
+            },
+    };
+  });
+}
+
 export function AppDropdown({
   trigger,
   items,
@@ -138,41 +180,7 @@ export function AppDropdown({
     throw new Error("AppDropdown trigger icon-only requiere nombre accesible.");
   }
 
-  const menuItems = useMemo<MenuProps["items"]>(
-    () =>
-      items.map((item) => ({
-        key: item.key,
-        danger: item.danger,
-        disabled: item.disabled,
-        label: item.href ? (
-          <a href={item.href} onClick={(event) => event.stopPropagation()}>
-            <span className={styles.itemLabel}>
-              {item.icon ? (
-                <span className={styles.itemIcon} aria-hidden="true">
-                  {item.icon}
-                </span>
-              ) : null}
-              <span>{item.label}</span>
-            </span>
-          </a>
-        ) : (
-          <span className={styles.itemLabel}>
-            {item.icon ? (
-              <span className={styles.itemIcon} aria-hidden="true">
-                {item.icon}
-              </span>
-            ) : null}
-            <span>{item.label}</span>
-          </span>
-        ),
-        onClick: item.disabled
-          ? undefined
-          : () => {
-              item.onSelect?.();
-            },
-      })),
-    [items],
-  );
+  const menuItems = useMemo<MenuProps["items"]>(() => buildMenuItems(items), [items]);
 
   const triggerProps = typedTrigger.props;
   const originalOnKeyDown = triggerProps.onKeyDown;

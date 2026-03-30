@@ -1,5 +1,14 @@
-import { Card, Col, Row, Space, Tag, Typography } from "antd";
+import { Card, Col, Row, Typography } from "antd";
+import {
+  DownloadOutlined,
+  EyeFilled,
+  FileExcelFilled,
+  FilePdfFilled,
+} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { AppButton } from "../../../app/Components/UI/AppButton";
+import { AppContent } from "../../../app/Components/UI/AppContent";
+import { AppDropdown } from "../../../app/Components/UI/AppDropdown";
 import { AppToolbar } from "../../../app/Components/UI/AppToolbar";
 import styles from "../style/GestionCorrespondencia.module.css";
 
@@ -24,64 +33,107 @@ export default function GestionCorrespondencia() {
   return (
     <div className={styles.page}>
       <AppToolbar
-        title="Centro operativo del modulo"
-        subtitle="AppToolbar enterprise"
-        description="Esta vista deja lista la composicion base para incorporar bandejas, detalle de correspondencia y acciones de respuesta en iteraciones posteriores."
-        breadcrumbs={[
-          { key: "dashboard", label: "Dashboard", to: "/dashboard" },
-          { key: "gestion-correspondencia", label: "Gestion de correspondencia", current: true },
-        ]}
-        extra={
-          <Space wrap>
-            <Tag color="blue">React Router anidado</Tag>
-            <Tag color="cyan">Ant Design</Tag>
-            <Tag color="geekblue">Sin logica de negocio</Tag>
-          </Space>
+        className={styles.toolbar}
+        actionContent={
+          <div className={styles.toolbarActionGroup}>
+            <AppDropdown
+              ariaLabel="Exportar"
+              className={styles.toolbarControl}
+              trigger={
+                <AppButton variant="primary" size="sm" fullWidth>
+                  Exportar
+                </AppButton>
+              }
+              items={[
+                {
+                  key: "export-excel",
+                  label: "Exportar en Excel",
+                  leftIcon: <FileExcelFilled />,
+                  children: [
+                    {
+                      key: "export-excel-all",
+                      label: "Exportar Todo",
+                      leftIcon: <DownloadOutlined />,
+                    },
+                    {
+                      key: "export-excel-selected",
+                      label: "Exportar Seleccionados",
+                      leftIcon: <DownloadOutlined />,
+                    },
+                  ],
+                },
+                {
+                  key: "export-pdf",
+                  label: "Exportar en Pdf",
+                  leftIcon: <FilePdfFilled />,
+                  children: [
+                    {
+                      key: "export-pdf-all",
+                      label: "Exportar Todo",
+                      leftIcon: <DownloadOutlined />,
+                    },
+                    {
+                      key: "export-pdf-selected",
+                      label: "Exportar Seleccionados",
+                      leftIcon: <DownloadOutlined />,
+                    },
+                  ],
+                },
+              ]}
+            />
+
+            <AppButton
+              className={styles.toolbarControl}
+              variant="primary"
+              size="sm"
+              leftIcon={<EyeFilled />}
+              fullWidth
+              onClick={() => navigate("respuesta")}
+            >
+              Abrir respuesta contextual
+            </AppButton>
+          </div>
         }
-        actions={[{ key: "refresh", label: "Actualizar resumen", variant: "secondary" }]}
-        secondaryActions={[
-          { key: "share", label: "Compartir contexto", variant: "ghost" },
-          { key: "export", label: "Exportar vista", variant: "ghost" },
-        ]}
-        primaryAction={{
-          key: "open-response",
-          label: "Abrir respuesta contextual",
-          variant: "primary",
-          onClick: () => navigate("respuesta"),
-        }}
       />
 
-      <Row gutter={[16, 16]} className={styles.summaryRow}>
-        {placeholderColumns.map((item) => (
-          <Col key={item.title} xs={24} md={8}>
-            <Card title={item.title}>
-              <Typography.Paragraph style={{ marginBottom: 0 }}>
-                {item.description}
-              </Typography.Paragraph>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+      <AppContent
+        className={styles.content}
+        data-testid="gestion-correspondencia-content"
+        width="full"
+        density="compact"
+      >
+        <Row gutter={[16, 16]} className={styles.summaryRow}>
+          {placeholderColumns.map((item) => (
+            <Col key={item.title} xs={24} md={8}>
+              <Card title={item.title}>
+                <Typography.Paragraph style={{ marginBottom: 0 }}>
+                  {item.description}
+                </Typography.Paragraph>
+              </Card>
+            </Col>
+          ))}
+        </Row>
 
-      <Card title="Proxima evolucion del modulo">
-        <ul className={styles.featureList}>
-          <li>
-            <Typography.Text>
-              Integracion con bandejas reales y filtros operativos.
-            </Typography.Text>
-          </li>
-          <li>
-            <Typography.Text>
-              Detalle de correspondencia con historial y anexos.
-            </Typography.Text>
-          </li>
-          <li>
-            <Typography.Text>
-              Flujos de respuesta con permisos y trazabilidad.
-            </Typography.Text>
-          </li>
-        </ul>
-      </Card>
+        <Card title="Proxima evolucion del modulo">
+          <ul className={styles.featureList}>
+            <li>
+              <Typography.Text>
+                Integracion con bandejas reales y filtros operativos.
+              </Typography.Text>
+            </li>
+            <li>
+              <Typography.Text>
+                Detalle de correspondencia con historial y anexos.
+              </Typography.Text>
+            </li>
+            <li>
+              <Typography.Text>
+                Flujos de respuesta con permisos y trazabilidad.
+              </Typography.Text>
+            </li>
+          </ul>
+        </Card>
+      </AppContent>
     </div>
   );
 }
