@@ -4,20 +4,22 @@ ACTUALIZACION-VISUAL-UI-PAGE. PROMPT PROFESIONAL — Ajustar estilos en .page (G
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-21.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se ajusta la clase `.page` en `GestionCorrespondencia.module.css` para aplicar estilos visuales enterprise sin alterar el layout existente.
+- Se agrega `gap: 2px` para compactar la separacion entre `AppToolbar` y `AppContent`.
+- Se agrega `border-radius: 24px` y `background-color: #f5f5f5` para reforzar el contenedor visual de la pagina.
+- Se alinean las acciones de `GestionCorrespondencia` al estilo `ghost` y se fija texto negro para `.variantGhost` en `AppButton`.
+- Se mantiene el comportamiento consistente en desktop, tablet y mobile sin tocar logica ni JSX.
 
 ## Capabilities
 
 ### New Capabilities
-- `actualizacion-visual-ui-page`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `refinamiento-visual-page-gestion-correspondencia`: Ajuste visual del wrapper `.page` con fondo, radio y separacion consistentes.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+- Ajustes en `src/modules/gestionCorrespondencia/style/GestionCorrespondencia.module.css`.
+- Ajustes en `src/modules/gestionCorrespondencia/pages/GestionCorrespondencia.tsx`.
+- Ajustes visuales en `src/app/Components/UI/AppButton/AppButton.module.css`.

@@ -148,7 +148,7 @@
   background: transparent;
   border-color: transparent;
   box-shadow: none;
-  color: var(--app-button-primary);
+  color: black;
 }
 
 .variantGhost:hover,

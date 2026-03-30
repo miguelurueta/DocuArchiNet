@@ -40,7 +40,7 @@ export default function GestionCorrespondencia() {
               ariaLabel="Exportar"
               className={styles.toolbarControl}
               trigger={
-                <AppButton variant="primary" size="sm" fullWidth>
+                <AppButton variant="ghost" size="sm" fullWidth>
                   Exportar
                 </AppButton>
               }
@@ -84,7 +84,7 @@ export default function GestionCorrespondencia() {
 
             <AppButton
               className={styles.toolbarControl}
-              variant="primary"
+              variant="ghost"
               size="sm"
               leftIcon={<EyeFilled />}
               fullWidth
