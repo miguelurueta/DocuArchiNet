@@ -1,6 +1,7 @@
-import { Layout, Button, Avatar, Dropdown, Space, Typography } from "antd";
+import { Layout, Button, Avatar, Dropdown, Grid, Space, Typography } from "antd";
 import {
   MenuFoldOutlined,
+  MenuOutlined,
   MenuUnfoldOutlined,
   UserOutlined,
   LogoutOutlined,
@@ -44,20 +45,26 @@ const profileMenu = {
 
 const Navbar = ({ collapsed, onToggle }: NavbarProps) => {
   const navigate = useNavigate();
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
 
   return (
     <Header className={styles.header}>
-      {/* LEFT */}
       <div className={styles.left}>
         <Button
           type="text"
-          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          icon={
+            isMobile
+              ? <MenuOutlined />
+              : collapsed
+                ? <MenuUnfoldOutlined />
+                : <MenuFoldOutlined />
+          }
           onClick={onToggle}
           className={styles.trigger}
-          aria-label="Colapsar menú"
+          aria-label={isMobile ? "Abrir menú" : "Colapsar menú"}
         />
 
-        {/* HOME – SPA */}
         <Button
           type="text"
           icon={<HomeOutlined />}
@@ -67,7 +74,6 @@ const Navbar = ({ collapsed, onToggle }: NavbarProps) => {
         />
       </div>
 
-      {/* RIGHT */}
       <div className={styles.right}>
         <Dropdown menu={profileMenu} trigger={["click"]}>
           <Space className={styles.profile}>

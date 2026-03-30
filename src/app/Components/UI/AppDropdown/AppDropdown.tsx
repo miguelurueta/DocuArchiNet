@@ -1,4 +1,4 @@
-import { Dropdown } from "antd";
+import { Dropdown, Grid } from "antd";
 import type { MenuProps } from "antd";
 import {
   cloneElement,
@@ -121,15 +121,15 @@ function mergeOpenState({
   return [currentOpen, setOpen] as const;
 }
 
-function buildMenuItems(items: AppDropdownItem[]): MenuProps["items"] {
-  return items.map((item) => {
+function buildMenuItems(items: AppDropdownItem[], flattenChildren = false): MenuProps["items"] {
+  return items.flatMap((item) => {
     const itemIcon = item.leftIcon ?? item.icon;
-
-    return {
+    const currentItem = {
       key: item.key,
       danger: item.danger,
-      disabled: item.disabled,
-      children: item.children ? buildMenuItems(item.children) : undefined,
+      disabled: item.disabled || (flattenChildren && Boolean(item.children?.length)),
+      children:
+        item.children && !flattenChildren ? buildMenuItems(item.children, false) : undefined,
       label: item.href ? (
         <a href={item.href} onClick={(event) => event.stopPropagation()}>
           <span className={styles.itemLabel}>
@@ -158,6 +158,37 @@ function buildMenuItems(items: AppDropdownItem[]): MenuProps["items"] {
               item.onSelect?.();
             },
     };
+
+    if (!flattenChildren || !item.children?.length) {
+      return [currentItem];
+    }
+
+    const childItems = item.children.map((child) => {
+      const childIcon = child.leftIcon ?? child.icon;
+
+      return {
+        key: child.key,
+        danger: child.danger,
+        disabled: child.disabled,
+        label: (
+          <span className={styles.childItemLabel}>
+            {childIcon ? (
+              <span className={styles.itemIcon} aria-hidden="true">
+                {childIcon}
+              </span>
+            ) : null}
+            <span>{child.label}</span>
+          </span>
+        ),
+        onClick: child.disabled
+          ? undefined
+          : () => {
+              child.onSelect?.();
+            },
+      };
+    });
+
+    return [currentItem, ...childItems];
   });
 }
 
@@ -172,6 +203,8 @@ export function AppDropdown({
   ariaLabel,
   className,
 }: AppDropdownProps) {
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
   const typedTrigger = trigger as ReactElement<AppDropdownTriggerProps>;
   const menuId = useId();
   const [currentOpen, setCurrentOpen] = mergeOpenState({ open, defaultOpen, onOpenChange });
@@ -180,7 +213,10 @@ export function AppDropdown({
     throw new Error("AppDropdown trigger icon-only requiere nombre accesible.");
   }
 
-  const menuItems = useMemo<MenuProps["items"]>(() => buildMenuItems(items), [items]);
+  const menuItems = useMemo<MenuProps["items"]>(
+    () => buildMenuItems(items, isMobile),
+    [isMobile, items],
+  );
 
   const triggerProps = typedTrigger.props;
   const originalOnKeyDown = triggerProps.onKeyDown;

@@ -13,6 +13,7 @@ interface SidebarProps {
   menuTree: MenuNode[] | [];
   metricMap: Map<number, number>;
   isLoading: boolean;
+  renderInDrawer?: boolean;
 }
 
 export default function Sidebar({
@@ -21,6 +22,7 @@ export default function Sidebar({
   menuTree,
   metricMap,
   isLoading,
+  renderInDrawer = false,
 }: SidebarProps) {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const siderRef = useRef<HTMLDivElement>(null);
@@ -153,18 +155,8 @@ export default function Sidebar({
     [menuTree, collapsed, metricMap]
   );
 
-  return (
-    <Sider
-      ref={siderRef}
-      collapsible
-      collapsed={collapsed}
-      onCollapse={onCollapse}
-      trigger={null}
-      width={300}
-      collapsedWidth={70}
-      theme="light"
-      className={styles.sider}
-    >
+  const sidebarContent = (
+    <>
       <div className={styles.logo}>
         <img
           src={
@@ -195,6 +187,30 @@ export default function Sidebar({
           className={styles.menu}
         />
       )}
+    </>
+  );
+
+  if (renderInDrawer) {
+    return (
+      <div ref={siderRef} className={`${styles.sider} ${styles.drawerContent}`}>
+        {sidebarContent}
+      </div>
+    );
+  }
+
+  return (
+    <Sider
+      ref={siderRef}
+      collapsible
+      collapsed={collapsed}
+      onCollapse={onCollapse}
+      trigger={null}
+      width={300}
+      collapsedWidth={70}
+      theme="light"
+      className={styles.sider}
+    >
+      {sidebarContent}
     </Sider>
   );
 }
