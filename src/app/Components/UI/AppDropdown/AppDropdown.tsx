@@ -1,7 +1,6 @@
 import { Dropdown } from "antd";
 import type { MenuProps } from "antd";
 import {
-  Children,
   cloneElement,
   isValidElement,
   useEffect,
@@ -13,6 +12,17 @@ import {
   type ReactNode,
 } from "react";
 import styles from "./AppDropdown.module.css";
+
+type AppDropdownTriggerProps = {
+  children?: ReactNode;
+  title?: string;
+  onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void;
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
+  "aria-haspopup"?: "menu";
+  "aria-expanded"?: boolean;
+  "aria-controls"?: string;
+};
 
 export type AppDropdownItem = {
   key: string;
@@ -60,18 +70,18 @@ function getTextContent(node: ReactNode): string {
   }
 
   if (isValidElement(node)) {
-    return getTextContent(node.props.children);
+    return getTextContent((node.props as AppDropdownTriggerProps).children);
   }
 
   return "";
 }
 
-function hasAccessibleName(trigger: ReactElement, ariaLabel?: string) {
+function hasAccessibleName(trigger: ReactElement<AppDropdownTriggerProps>, ariaLabel?: string) {
   if (isNonEmptyString(ariaLabel)) {
     return true;
   }
 
-  const props = trigger.props as Record<string, unknown>;
+  const props = trigger.props;
   const childText = getTextContent(props.children);
 
   return (
@@ -120,10 +130,11 @@ export function AppDropdown({
   ariaLabel,
   className,
 }: AppDropdownProps) {
+  const typedTrigger = trigger as ReactElement<AppDropdownTriggerProps>;
   const menuId = useId();
   const [currentOpen, setCurrentOpen] = mergeOpenState({ open, defaultOpen, onOpenChange });
 
-  if (!hasAccessibleName(trigger, ariaLabel)) {
+  if (!hasAccessibleName(typedTrigger, ariaLabel)) {
     throw new Error("AppDropdown trigger icon-only requiere nombre accesible.");
   }
 
@@ -163,10 +174,10 @@ export function AppDropdown({
     [items],
   );
 
-  const triggerProps = trigger.props as Record<string, unknown>;
-  const originalOnKeyDown = triggerProps.onKeyDown as ((event: KeyboardEvent<HTMLElement>) => void) | undefined;
+  const triggerProps = typedTrigger.props;
+  const originalOnKeyDown = triggerProps.onKeyDown;
 
-  const enhancedTrigger = cloneElement(trigger, {
+  const enhancedTrigger = cloneElement<AppDropdownTriggerProps>(typedTrigger, {
     "aria-label": ariaLabel ?? triggerProps["aria-label"],
     "aria-haspopup": "menu",
     "aria-expanded": currentOpen,
