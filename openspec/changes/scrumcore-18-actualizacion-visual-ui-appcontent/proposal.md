@@ -5,19 +5,22 @@ ACTUALIZACION-VISUAL-UI-APPCONTENT. PROMPT PROFESIONAL — Ajustar AppContent co
 ## What Changes
 
 - Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-18.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se ajusta `AppContent` para ocupar el espacio vertical restante debajo del `AppToolbar` sin depender de calculos manuales.
+- Se convierte el layout consumidor a una columna flex con `overflow: hidden` para evitar scroll en el body o en la pagina completa.
+- Se configura `AppContent` con `flex: 1`, `min-height: 0` y scroll interno vertical cuando el contenido excede el espacio disponible.
+- Se mantiene estable el layout de `GestionCorrespondencia` en desktop, tablet y mobile.
 
 ## Capabilities
 
 ### New Capabilities
-- `actualizacion-visual-ui-appcontent`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `altura-dinamica-appcontent-gestion-correspondencia`: Ajuste visual y estructural para que `AppContent` ocupe el alto restante con scroll interno controlado.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+- Ajustes de layout en `src/modules/gestionCorrespondencia/style/GestionCorrespondenciaLayout.module.css`.
+- Ajustes de page container en `src/modules/gestionCorrespondencia/style/GestionCorrespondencia.module.css`.
+- Ajustes de `AppContent` en `src/app/Components/UI/AppContent/AppContent.module.css`.
+- Sin cambios en logica de negocio, navegacion ni acciones de toolbar.
