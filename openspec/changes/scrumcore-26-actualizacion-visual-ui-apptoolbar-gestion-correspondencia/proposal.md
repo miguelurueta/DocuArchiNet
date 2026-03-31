@@ -1,23 +1,20 @@
 ## Why
 
-ACTUALIZACION-VISUAL-UI-APPTOOLBAR-GESTION-CORRESPONDENCIA. Realiza de manera profesional el ajuste visual UI de CSS en la Ruta: src\modules\gestionCorrespondencia\style\GestionCorrespondencia.module.css
+ACTUALIZACION-VISUAL-UI-APPTOOLBAR-GESTION-CORRESPONDENCIA. Ajustar el estilo del toolbar en GestionCorrespondencia para usar `--toolbar-surface: white;` segun el ticket.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-26.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se actualiza la variable `--toolbar-surface` en `GestionCorrespondencia.module.css`.
+- Se mantiene el resto de estilos y estructura sin cambios.
 
 ## Capabilities
 
 ### New Capabilities
-- `actualizacion-visual-ui-apptoolbar-gestion-correspondencia`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `actualizacion-visual-ui-apptoolbar-gestion-correspondencia`: Ajuste visual del toolbar en GestionCorrespondencia.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+- Cambio visual en el fondo del toolbar del modulo de Gestion de Correspondencia.
