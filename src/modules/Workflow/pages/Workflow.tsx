@@ -36,42 +36,38 @@ export default function Workflow() {
     <div className={styles.container} data-testid="workflow-content">
       <div data-testid="workflow-toolbar">
         <AppToolbar
+          className={styles.toolbarSurface}
           actionContent={
-            <div className={styles.toolbarRow}>
-              <div className={styles.toolbarLeft}>
-                <span className={styles.title}>Workflow</span>
-              </div>
-              <div className={styles.toolbarRight}>
-                <AppDropdown
-                  ariaLabel="Opciones"
-                  className={styles.toolbarControl}
-                  trigger={
-                    <AppButton variant="ghost" size="sm" fullWidth>
-                      Opciones
-                    </AppButton>
-                  }
-                  items={dropdownItems}
-                />
-                <AppButton className={styles.toolbarControl} variant="ghost" size="sm">
-                  Actualizar
-                </AppButton>
-                <AppButton
-                  className={styles.toolbarControl}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate("asignacion")}
-                >
-                  Abrir asignacion
-                </AppButton>
-                <AppButton
-                  className={styles.toolbarControl}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate("enlace")}
-                >
-                  Abrir enlace
-                </AppButton>
-              </div>
+            <div className={styles.toolbarAction}>
+              <AppDropdown
+                ariaLabel="Opciones"
+                className={styles.toolbarControl}
+                trigger={
+                  <AppButton variant="ghost" size="sm" fullWidth>
+                    Opciones
+                  </AppButton>
+                }
+                items={dropdownItems}
+              />
+              <AppButton className={styles.toolbarControl} variant="ghost" size="sm">
+                Actualizar
+              </AppButton>
+              <AppButton
+                className={styles.toolbarControl}
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("asignacion")}
+              >
+                Abrir asignacion
+              </AppButton>
+              <AppButton
+                className={styles.toolbarControl}
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("enlace")}
+              >
+                Abrir enlace
+              </AppButton>
             </div>
           }
         />

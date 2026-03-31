@@ -3,33 +3,26 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  gap: 16px;
+  gap: 2px; /*este se agrega*/
+  width: 100%;
 }
 
-.toolbarRow {
+
+.toolbarAction {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  border-radius: 24px;
+  justify-content: flex-start;
+  gap: 8px;
   width: 100%;
   flex-wrap: wrap;
+  height: 26px;
 }
 
-.toolbarLeft {
-  display: flex;
-  align-items: center;
-}
-
-.title {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.toolbarRight {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
+.toolbarSurface {
+  background: #ffffff;
+  padding: 8px 12px;
+  min-height: 55px;
 }
 
 .toolbarControl {
@@ -39,11 +32,13 @@
 .content {
   flex: 1 1 auto;
   min-height: 0;
+  min-width: 0;
 }
 
 .contentBody {
   overflow-x: auto;
   overflow-y: auto;
+  min-width: 0;
 }
 
 .contentWrapper {
@@ -65,15 +60,15 @@
 }
 
 @media (max-width: 1024px) {
-  .toolbarRight {
+  .toolbarAction {
     gap: 6px;
   }
 }
 
 @media (max-width: 768px) {
-  .toolbarRight {
-    width: 100%;
-    justify-content: space-between;
+  .toolbarAction {
+    justify-content: flex-start;
+    height: auto;
   }
 
   .contentWrapper {
