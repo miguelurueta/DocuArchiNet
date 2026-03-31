@@ -25,3 +25,6 @@ dist-ssr
 
 # Local Jira credentials
 .env.jira
+
+# Local environment overrides
+.env

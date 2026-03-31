@@ -9,7 +9,11 @@ import RutaProtegida from "../auth/ProteccionRuta/RutaProtegida";
 
 import DashboardLayout from "../../modules/dashboard/components/DashboardLayout";
 import DashboardHome from "../../modules/dashboard/pages/DashboardHome";
-import WorkflowPage from "../../modules/Workflow/pages/WorkflowPage";
+import WorkflowLayout from "../../modules/Workflow/layout/WorkflowLayout";
+import Workflow from "../../modules/Workflow/pages/Workflow";
+import WorkflowAsignacion from "../../modules/Workflow/pages/WorkflowAsignacion";
+import WorkflowEnlace from "../../modules/Workflow/pages/WorkflowEnlace";
+import WorkflowRoute from "../../modules/Workflow/routes/WorkflowRoute";
 import RadicacionRoutePage from "../../modules/radicacion/pages/RadicacionRoutePage";
 import GestionCorrespondenciaLayout from "../../modules/gestionCorrespondencia/layout/GestionCorrespondenciaLayout";
 import GestionCorrespondenciaRoute from "../../modules/gestionCorrespondencia/routes/GestionCorrespondenciaRoute";
@@ -34,7 +38,31 @@ export const loginRoutes: RouteObject[] = [
           { index: true, element: <DashboardHome /> },
           {
             path: "workflow",
-            element: <WorkflowPage />,
+            element: <WorkflowLayout />,
+            children: [
+              {
+                index: true,
+                element: <Workflow />,
+              },
+              {
+                path: "asignacion",
+                element: (
+                  <WorkflowRoute
+                    drawerTitle="Asignacion de workflow"
+                    drawerContent={<WorkflowAsignacion />}
+                  />
+                ),
+              },
+              {
+                path: "enlace",
+                element: (
+                  <WorkflowRoute
+                    drawerTitle="Enlace de workflow"
+                    drawerContent={<WorkflowEnlace />}
+                  />
+                ),
+              },
+            ],
           },
           {
             path: "radicacion",
@@ -45,6 +73,7 @@ export const loginRoutes: RouteObject[] = [
             element: <GestionCorrespondenciaLayout />,
             children: [
               {
+                index: true,
                 element: <GestionCorrespondenciaRoute />,
               },
               {

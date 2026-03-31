@@ -1,0 +1,42 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f5f7fb;
+  border: 1px solid #e4e8f0;
+}
+
+.heroTitle {
+  margin-bottom: 4px;
+}
+
+.heroText {
+  margin: 0;
+  color: #5f6b7a;
+}
+
+.heroActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.summaryRow {
+  margin-top: 4px;
+}
+
+.featureList {
+  margin: 0;
+  padding-left: 18px;
+}
