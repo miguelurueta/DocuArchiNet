@@ -1,19 +1,31 @@
-import { Button, Card, Col, Row, Typography } from "antd";
+import { FileSearchOutlined, SnippetsFilled, UnorderedListOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { AppButton } from "../../../app/Components/UI/AppButton";
+import { AppContent } from "../../../app/Components/UI/AppContent";
+import { AppDropdown } from "../../../app/Components/UI/AppDropdown";
+import { AppToolbar } from "../../../app/Components/UI/AppToolbar";
 import styles from "../style/Workflow.module.css";
 
-const highlights = [
+const dropdownItems = [
   {
-    title: "Asignacion inteligente",
-    description: "Zona preparada para reglas de priorizacion y responsables.",
+    key: "recuperar-tarea",
+    label: "Recuperar Tarea",
+    leftIcon: <FileSearchOutlined />,
   },
   {
-    title: "Enlaces operativos",
-    description: "Espacio para conexiones entre procesos y dependencias.",
+    key: "detalle-sesion",
+    label: "Detalle de la Sesion",
+    leftIcon: <UnorderedListOutlined />,
   },
   {
-    title: "Visibilidad total",
-    description: "Panel futuro con estados, tiempos y cuellos de botella.",
+    key: "grupo-relacionado",
+    label: "Grupo Relacionado",
+    leftIcon: <UsergroupAddOutlined />,
+  },
+  {
+    key: "estado-paginacion",
+    label: "Estado Paginacion",
+    leftIcon: <SnippetsFilled />,
   },
 ];
 
@@ -21,56 +33,60 @@ export default function Workflow() {
   const navigate = useNavigate();
 
   return (
-    <div className={styles.page} data-testid="workflow-content">
-      <div className={styles.hero}>
-        <div>
-          <Typography.Title level={3} className={styles.heroTitle}>
-            Centro de Workflow
-          </Typography.Title>
-          <Typography.Paragraph className={styles.heroText}>
-            Base visual para gestionar flujos, dependencias y acciones de soporte sin
-            logica de negocio.
-          </Typography.Paragraph>
-        </div>
-        <div className={styles.heroActions}>
-          <Button type="primary" onClick={() => navigate("asignacion")}>
-            Abrir asignacion
-          </Button>
-          <Button onClick={() => navigate("enlace")}>Abrir enlace</Button>
-        </div>
+    <div className={styles.container} data-testid="workflow-content">
+      <div data-testid="workflow-toolbar">
+        <AppToolbar
+          className={styles.toolbarSurface}
+          actionContent={
+            <div className={styles.toolbarAction}>
+              <AppDropdown
+                ariaLabel="Opciones"
+                className={styles.toolbarControl}
+                trigger={
+                  <AppButton variant="ghost" size="sm" fullWidth>
+                    Opciones
+                  </AppButton>
+                }
+                items={dropdownItems}
+              />
+              <AppButton className={styles.toolbarControl} variant="ghost" size="sm">
+                Actualizar
+              </AppButton>
+              <AppButton
+                className={styles.toolbarControl}
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("asignacion")}
+              >
+                Abrir asignacion
+              </AppButton>
+              <AppButton
+                className={styles.toolbarControl}
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("enlace")}
+              >
+                Abrir enlace
+              </AppButton>
+            </div>
+          }
+        />
       </div>
 
-      <Row gutter={[16, 16]} className={styles.summaryRow}>
-        {highlights.map((item) => (
-          <Col key={item.title} xs={24} md={8}>
-            <Card title={item.title}>
-              <Typography.Paragraph style={{ marginBottom: 0 }}>
-                {item.description}
-              </Typography.Paragraph>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-
-      <Card title="Siguientes pasos sugeridos">
-        <ul className={styles.featureList}>
-          <li>
-            <Typography.Text>
-              Integrar reglas de asignacion y validaciones por perfil.
-            </Typography.Text>
-          </li>
-          <li>
-            <Typography.Text>
-              Incorporar indicadores de desempeno y tiempos de ciclo.
-            </Typography.Text>
-          </li>
-          <li>
-            <Typography.Text>
-              Conectar con servicios de correspondencia y alertas contextuales.
-            </Typography.Text>
-          </li>
-        </ul>
-      </Card>
+      <AppContent
+        data-testid="workflow-appcontent"
+        className={styles.content}
+        contentClassName={styles.contentBody}
+        width="full"
+        density="compact"
+      >
+        <div className={styles.contentWrapper}>
+          <h2>Listado de Workflow</h2>
+          <div className={styles.tablePlaceholder}>
+            Aqui ira la tabla (AG Grid / Ant Design)
+          </div>
+        </div>
+      </AppContent>
     </div>
   );
 }
