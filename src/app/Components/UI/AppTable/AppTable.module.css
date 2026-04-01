@@ -1,0 +1,10 @@
+.root {
+  width: 100%;
+  min-width: 0;
+}
+
+.grid {
+  width: 100%;
+  min-width: 0;
+  min-height: 320px;
+}

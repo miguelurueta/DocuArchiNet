@@ -3,6 +3,9 @@ import type { ColDef, GridReadyEvent } from "ag-grid-community";
 import { useMemo, useRef } from "react";
 import type { AppTableProps, AppTableRow } from "./AppTable.types";
 import { useAgGridBaseConfig } from "./hooks/useAgGridBaseConfig";
+import styles from "./AppTable.module.css";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-quartz.css";
 
 const resolveRowId = <T extends AppTableRow>(
   row: T,
@@ -19,6 +22,9 @@ const resolveRowId = <T extends AppTableRow>(
 
   return JSON.stringify(row);
 };
+
+const joinClasses = (...values: Array<string | false | null | undefined>) =>
+  values.filter(Boolean).join(" ");
 
 export default function AppTable<T extends AppTableRow>({
   rows,
@@ -90,9 +96,9 @@ export default function AppTable<T extends AppTableRow>({
   }, [loading, rowData.length]);
 
   return (
-    <div className={className} data-total={total ?? undefined}>
+    <div className={joinClasses(styles.root, className)} data-total={total ?? undefined}>
       <div
-        className={gridClassName}
+        className={joinClasses(styles.grid, "ag-theme-quartz", gridClassName)}
         data-overlay={overlayStatus}
         data-testid="app-table-grid"
       >
