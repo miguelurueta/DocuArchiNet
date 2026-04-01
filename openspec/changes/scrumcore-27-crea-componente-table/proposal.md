@@ -1,24 +1,22 @@
 ## Why
 
-CREA-COMPONENTE-TABLE. PROMPT ARQUITECTÓNICO — Fase 1A AG Grid (AppTable)PROMPT ARQUITECTÓNICO — Fase 1A AG Grid(Componente Base Reusable Presentacional)
+CREA-COMPONENTE-TABLE. Crear un componente base reusable `AppTable` con AG Grid Community, presentacional y desacoplado del backend.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-27.
-- Se formaliza la propuesta OpenSpec para implementar AppTable a partir del ticket Jira.
-- Se define la capability `app-table` como parte de la capa UI reutilizable.
-- Se conserva el contexto funcional del ticket como base para los siguientes artefactos OpenSpec.
+- Se crea `AppTable` generico para renderizar AG Grid con configuracion base reutilizable.
+- Se agregan tipos, hook de configuracion base y util de defaults.
+- Se incluyen estados de loading, empty y callbacks tipados.
+- Se agrega documentacion del componente en `docs/Components/AppTable/README.md`.
 
 ## Capabilities
 
 ### New Capabilities
-- `app-table`: Componente reusable AppTable para la capa UI compartida del proyecto.
+- `crea-componente-table`: Componente base `AppTable` reutilizable con AG Grid, tipado fuerte y sin logica de negocio.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nuevo componente compartido en `src/app/Components/UI/AppTable/`.
-- Posible integracion inicial en un modulo consumidor real del proyecto.
-- Nuevas pruebas de comportamiento para el contrato reusable del componente.
+- Nuevos archivos en `src/components/Grid/AppTable/` y documentacion en `docs/Components/AppTable/`.
