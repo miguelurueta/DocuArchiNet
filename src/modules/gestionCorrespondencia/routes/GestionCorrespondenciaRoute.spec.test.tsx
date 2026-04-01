@@ -1,9 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import GestionCorrespondenciaLayout from "../layout/GestionCorrespondenciaLayout";
 import GestionRespuesta from "../pages/GestionRespuesta";
 import GestionCorrespondenciaRoute from "./GestionCorrespondenciaRoute";
+
+vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
+  default: () => <div>Mocked AppTable</div>,
+}));
 
 function renderGestionCorrespondencia(initialEntry: string) {
   return render(
@@ -26,6 +30,9 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
     renderGestionCorrespondencia("/dashboard/gestion-correspondencia");
 
     expect(screen.getByTestId("gestion-correspondencia-content")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Buscar\.\.\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Categoria/i)).toBeInTheDocument();
+    expect(screen.getByText(/Mocked AppTable/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Exportar/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Actualizar/i })).toBeInTheDocument();
     expect(

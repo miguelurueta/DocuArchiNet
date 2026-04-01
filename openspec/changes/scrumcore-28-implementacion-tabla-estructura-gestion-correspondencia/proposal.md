@@ -1,23 +1,22 @@
 ## Why
 
-IMPLEMENTACION-TABLA-ESTRUCTURA-GESTION-CORRESPONDENCIA. PROMPT PROFESIONAL — Implementación AppTable + Filtros + Paginación (Enterprise)
+IMPLEMENTACION-TABLA-ESTRUCTURA-GESTION-CORRESPONDENCIA. Implementar AppTable con filtros y paginacion en GestionCorrespondencia usando AppInput y AppContent.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-28.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se reemplaza el contenido actual de AppContent por estructura con filtros, paginacion y AppTable.
+- Se agregan estados controlados para search, categoria y pageSize.
+- Se actualizan estilos CSS Modules para el layout requerido y responsive.
 
 ## Capabilities
 
 ### New Capabilities
-- `implementacion-tabla-estructura-gestion-correspondencia`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `implementacion-tabla-estructura-gestion-correspondencia`: Vista de tabla con filtros y paginacion en GestionCorrespondencia.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+- Cambios en `src/modules/gestionCorrespondencia/pages/GestionCorrespondencia.tsx`.
+- Actualizacion de `src/modules/gestionCorrespondencia/style/GestionCorrespondencia.module.css`.

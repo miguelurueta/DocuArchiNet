@@ -1,41 +1,36 @@
-import { Card, Col, Row, Typography } from "antd";
-import {
-  DownloadOutlined,
-  EyeFilled,
-  FileExcelFilled,
-  FilePdfFilled,
-  UndoOutlined,
-} from "@ant-design/icons";
+import { DownloadOutlined, EyeFilled, FileExcelFilled, FilePdfFilled, UndoOutlined } from "@ant-design/icons";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppButton } from "../../../app/Components/UI/AppButton";
 import { AppContent } from "../../../app/Components/UI/AppContent";
 import { AppDropdown } from "../../../app/Components/UI/AppDropdown";
+import AppTable from "../../../app/Components/UI/AppTable/AppTable";
+import { AppInput } from "../../../app/Components/UI/AppInput";
 import { AppToolbar } from "../../../app/Components/UI/AppToolbar";
 import styles from "../style/GestionCorrespondencia.module.css";
 
-const placeholderColumns = [
-  {
-    title: "Bandeja prioritaria",
-    description: "Resumen para documentos pendientes de clasificacion y respuesta.",
-  },
-  {
-    title: "Trazabilidad",
-    description: "Zona preparada para estados, tiempos de atencion y responsables.",
-  },
-  {
-    title: "Acciones guiadas",
-    description: "Espacio para iniciar respuestas, revisiones y flujos derivados.",
-  },
-];
-
 export default function GestionCorrespondencia() {
   const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState<string | undefined>();
+  const [pageSize, setPageSize] = useState(10);
+
+  const rows = [
+    { id: "1", asunto: "Documento A", categoria: "Entrada" },
+    { id: "2", asunto: "Documento B", categoria: "Salida" },
+  ];
+
+  const columns = [
+    { field: "asunto", headerName: "Asunto", flex: 1 },
+    { field: "categoria", headerName: "Categoria", flex: 1 },
+  ];
+
   const handleRefresh = () => {
     console.log("Actualizar datos");
   };
 
   return (
-    <div className={styles.page}>
+    <div className={styles.shell}>
       <AppToolbar
         className={styles.toolbar}
         actionContent={
@@ -117,37 +112,55 @@ export default function GestionCorrespondencia() {
         width="full"
         density="compact"
       >
-        <Row gutter={[16, 16]} className={styles.summaryRow}>
-          {placeholderColumns.map((item) => (
-            <Col key={item.title} xs={24} md={8}>
-              <Card title={item.title}>
-                <Typography.Paragraph style={{ marginBottom: 0 }}>
-                  {item.description}
-                </Typography.Paragraph>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+        <div className={styles.page}>
+          <div className={styles.filtersRow}>
+            <AppInput
+              type="search"
+              placeholder="Buscar..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
 
-        <Card title="Proxima evolucion del modulo">
-          <ul className={styles.featureList}>
-            <li>
-              <Typography.Text>
-                Integracion con bandejas reales y filtros operativos.
-              </Typography.Text>
-            </li>
-            <li>
-              <Typography.Text>
-                Detalle de correspondencia con historial y anexos.
-              </Typography.Text>
-            </li>
-            <li>
-              <Typography.Text>
-                Flujos de respuesta con permisos y trazabilidad.
-              </Typography.Text>
-            </li>
-          </ul>
-        </Card>
+            <AppInput
+              type="select"
+              placeholder="Categoria"
+              value={category}
+              onChange={(value) => setCategory(String(value))}
+              options={[
+                { label: "Entrada", value: "entrada" },
+                { label: "Salida", value: "salida" },
+              ]}
+            />
+          </div>
+
+          <div className={styles.paginationRow}>
+            <span className={styles.total}>Cantidad de registros: {rows.length}</span>
+
+            <div className={styles.paginationControls}>
+              <span>Paginacion</span>
+
+              <AppInput
+                type="select"
+                value={pageSize}
+                onChange={(value) => setPageSize(Number(value))}
+                options={[
+                  { label: "10", value: 10 },
+                  { label: "20", value: 20 },
+                  { label: "30", value: 30 },
+                ]}
+              />
+            </div>
+          </div>
+
+          <div className={styles.tableWrapper}>
+            <AppTable
+              rows={rows}
+              columns={columns}
+              rowSelection="multiple"
+              loading={false}
+            />
+          </div>
+        </div>
       </AppContent>
     </div>
   );
