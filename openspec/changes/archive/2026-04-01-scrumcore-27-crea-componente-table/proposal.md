@@ -19,4 +19,4 @@ CREA-COMPONENTE-TABLE. Crear un componente base reusable `AppTable` con AG Grid 
 
 ## Impact
 
-- Nuevos archivos en `src/components/Grid/AppTable/` y documentacion en `docs/Components/AppTable/`.
+- Nuevos archivos en `src/app/Components/UI/AppTable/` y documentacion en `docs/Components/AppTable/`.

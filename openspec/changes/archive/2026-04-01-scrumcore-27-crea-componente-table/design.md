@@ -30,7 +30,7 @@ Se requiere un componente base `AppTable` usando AG Grid Community para estandar
 ## Migration Plan
 
 - Componentes nuevos aislados; no requiere migracion.
-- Rollback: eliminar carpeta `AppTable` y README asociado.
+- Rollback: eliminar carpeta `src/app/Components/UI/AppTable` y README asociado.
 
 ## Open Questions
 

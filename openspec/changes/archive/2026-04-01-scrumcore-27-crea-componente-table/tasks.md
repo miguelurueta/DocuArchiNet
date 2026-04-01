@@ -1,6 +1,6 @@
 ## 1. Estructura base del componente
 
-- [x] 1.1 Crear carpeta `src/components/Grid/AppTable/` con `AppTable.tsx` y `AppTable.types.ts`
+- [x] 1.1 Crear carpeta `src/app/Components/UI/AppTable/` con `AppTable.tsx` y `AppTable.types.ts`
 - [x] 1.2 Agregar `hooks/useAgGridBaseConfig.ts` y `utils/agGridDefaultConfig.ts`
 
 ## 2. Implementacion de AppTable
@@ -16,4 +16,4 @@
 
 ## Evidencia de pruebas
 
-- `npm.cmd test -- --run src/components/Grid/AppTable/tests/AppTable.test.tsx`
+- `npm.cmd test -- --run src/app/Components/UI/AppTable/tests/AppTable.test.tsx`

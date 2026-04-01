@@ -2,6 +2,8 @@
 
 Componente base reusable para renderizar tablas con AG Grid Community. Es 100% presentacional, desacoplado del backend y pensado como infraestructura visual para futuras fases.
 
+**Ubicacion**: `src/app/Components/UI/AppTable/`
+
 ## Rol en la arquitectura
 
 - Provee una base consistente de grilla para multiples modulos.
