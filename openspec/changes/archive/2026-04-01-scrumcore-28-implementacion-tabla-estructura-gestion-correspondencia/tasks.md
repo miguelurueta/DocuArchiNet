@@ -8,6 +8,7 @@
 
 - [x] 2.1 Actualizar CSS Modules con filtrosRow, paginationRow, paginationControls y tableWrapper
 - [x] 2.2 Ajustar responsive para filtros en columna y paginacion apilada
+- [x] 2.3 Asegurar visibilidad de tabla con tema AG Grid y altura minima
 
 ## 3. Validacion
 

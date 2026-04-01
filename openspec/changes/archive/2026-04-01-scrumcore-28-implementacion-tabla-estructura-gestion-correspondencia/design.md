@@ -19,11 +19,13 @@ GestionCorrespondencia requiere una vista de tabla con filtros y paginacion usan
 - **Estructura fija por filas**: se mantiene el layout exacto solicitado para filtros, paginacion y tabla.
 - **Estado local**: search, category y pageSize se controlan con `useState` sin efectos secundarios.
 - **Mock data**: filas y columnas basicas para validar render y layout.
+- **Visibilidad de tabla**: se habilita el tema de AG Grid y se define altura minima del contenedor para asegurar render visible.
 
 ## Risks / Trade-offs
 
 - [AppInput select no estaba soportado] -> Mitigacion: extender AppInput para manejar `type="select"` con opciones.
 - [Diferencias de layout en mobile] -> Mitigacion: reglas responsive en CSS para columnas y controles.
+- [Tabla no visible por falta de tema/altura] -> Mitigacion: importar estilos AG Grid y definir `min-height` en el contenedor.
 
 ## Migration Plan
 
