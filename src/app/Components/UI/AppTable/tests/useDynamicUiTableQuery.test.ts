@@ -151,6 +151,43 @@ describe("[SPEC:CREA-QUERY-AG-GRID-FASE3] useDynamicUiTableQuery", () => {
     });
   });
 
+  it("prefers backend pagination values when the API normalizes the requested page", async () => {
+    const { result } = renderHook(
+      () =>
+        useDynamicUiTableQuery({
+          input: {
+            ...baseInput,
+            page: 99,
+            pageSize: 100,
+          },
+          requestMapper: (input) => input,
+          queryFn: async () =>
+            createResponse({
+              Columns: [],
+              Rows: [],
+              Pagination: {
+                Page: 3,
+                PageSize: 25,
+                Total: 60,
+              },
+            }),
+        }),
+      {
+        wrapper: createWrapper(),
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.pagination).toEqual({
+      page: 3,
+      pageSize: 25,
+    });
+    expect(result.current.total).toBe(60);
+  });
+
   it("surfaces success false as an Error", async () => {
     const { result } = renderHook(
       () =>
@@ -202,5 +239,28 @@ describe("[SPEC:CREA-QUERY-AG-GRID-FASE3] useDynamicUiTableQuery", () => {
     expect(result.current.columns).toEqual([]);
     expect(result.current.total).toBe(0);
     expect(result.current.isEmpty).toBe(true);
+  });
+
+  it("does not expose loading when the query is disabled", () => {
+    const queryFn = vi.fn();
+
+    const { result } = renderHook(
+      () =>
+        useDynamicUiTableQuery({
+          input: baseInput,
+          requestMapper: (input) => input,
+          queryFn,
+          enabled: false,
+        }),
+      {
+        wrapper: createWrapper(),
+      },
+    );
+
+    expect(queryFn).not.toHaveBeenCalled();
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeNull();
+    expect(result.current.rows).toEqual([]);
+    expect(result.current.columns).toEqual([]);
   });
 });

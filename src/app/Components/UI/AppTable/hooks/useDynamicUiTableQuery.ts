@@ -30,8 +30,8 @@ const resolvePagination = (
   pagination: DynamicUiPaginationDto | null | undefined,
   input: DynamicTableQueryInput,
 ): DynamicUiTableQueryPagination => ({
-  page: resolvePageNumber(input.page, pagination?.page, pagination?.Page),
-  pageSize: resolvePageNumber(input.pageSize, pagination?.pageSize, pagination?.PageSize, DEFAULT_PAGE_SIZE),
+  page: resolvePageNumber(pagination?.page, pagination?.Page, input.page),
+  pageSize: resolvePageNumber(pagination?.pageSize, pagination?.PageSize, input.pageSize, DEFAULT_PAGE_SIZE),
 });
 
 const resolveTotal = (pagination: DynamicUiPaginationDto | null | undefined): number => {
@@ -150,7 +150,7 @@ export function useDynamicUiTableQuery<TRequest>({
     columns: data.columns,
     total: data.total,
     pagination: data.pagination,
-    loading: query.isPending,
+    loading: query.isFetching,
     error: query.error ? normalizeError(query.error) : null,
     isEmpty: data.isEmpty,
     refetch: () => {
