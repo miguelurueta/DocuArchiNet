@@ -1,0 +1,75 @@
+# Action Layer para Dynamic UI Table
+
+Esta fase agrega la capa transversal de acciones dinámicas para `AppTable` sin contaminar el grid base ni reutilizar concerns de dominio.
+
+## Alcance
+
+- centraliza ejecución HTTP de acciones sobre `clienteApi`
+- encapsula la mutación con React Query en `useDynamicUiTableActions`
+- resuelve `behavior` y `presentation` como metadata extensible
+- construye payloads de ejecución sin mutar metadata
+- evalúa disponibilidad de acciones solo con reglas seguras en frontend
+
+## Archivos
+
+- `src/app/Components/UI/AppTable/types/dynamicUiTableAction.types.ts`
+- `src/app/Components/UI/AppTable/services/dynamicUiAction.service.ts`
+- `src/app/Components/UI/AppTable/hooks/useDynamicUiTableActions.ts`
+- `src/app/Components/UI/AppTable/utils/dynamicUiActionPayloadBuilder.ts`
+- `src/app/Components/UI/AppTable/utils/dynamicUiActionGuard.ts`
+- `src/app/Components/UI/AppTable/utils/dynamicUiActionBehaviorResolver.ts`
+- `src/app/Components/UI/AppTable/utils/dynamicUiActionPresentationResolver.ts`
+
+## Separación metadata vs ejecución
+
+- los adapters y contratos de fases previas preservan la metadata de acción
+- el service solo ejecuta HTTP y preserva el contrato backend
+- el hook solo orquesta la mutación y expone helpers reutilizables
+- los utils siguen siendo funciones puras, sin navegación, modales ni render UI
+
+## Payload
+
+El payload builder usa esta precedencia:
+
+1. campos derivados desde fila/selección por `PayloadFields`
+2. metadata `request`
+3. payload propio de la acción
+4. payload manual, que sobrescribe todo lo anterior
+
+También soporta:
+
+- `RowIdField`
+- `selectedRowIds`
+- fallback a `context.row.id` si no hay `RowIdField`
+
+## Guard y límites frontend
+
+El guard evalúa:
+
+- `RequiredClaimsAny`
+- `RequiredClaimsAll`
+- `ClaimKey`
+- reglas booleanas simples como `visible/isVisible` y `enabled/isEnabled`
+
+No intenta interpretar reglas arbitrarias del backend. Si encuentra reglas no seguras de evaluar en frontend, las reporta en `reasons` y evita inventar semántica.
+
+## Extensibilidad
+
+Los resolvers de `behavior` y `presentation`:
+
+- reconocen los valores conocidos actuales
+- preservan el valor original
+- mantienen soporte para futuros valores sin enums rígidos
+- no ejecutan efectos secundarios
+
+## Preparación para Fase 4
+
+Esta fase deja listo:
+
+- servicio reusable con endpoint default e inyectable
+- hook reusable para contenedores
+- evaluación de disponibilidad
+- payload reusable de ejecución
+- clasificación de metadata de acciones
+
+Todavía no renderiza toolbar, menús, botones o bulk actions. Esa integración visual queda para la siguiente fase.
