@@ -179,6 +179,41 @@ describe("[SPEC:CREATE-COTRATO-AG-GRID-FASE-2] dynamicUiToAgGridColumns", () => 
     );
   });
 
+  it("mantiene lockPinned undefined cuando el backend no envia metadata", () => {
+    const table: DynamicUiTableDto = {
+      Columns: [
+        {
+          DataIndex: "RADICADO",
+          Title: "Radicado",
+          Visible: true,
+          Pinned: "left",
+        },
+        {
+          DataIndex: "acciones",
+          Title: "Acciones",
+          Visible: true,
+          IsActionColumn: true,
+        },
+      ],
+    };
+
+    const result = mapDynamicUiColumnsToAppGridColumns(table);
+
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        field: "RADICADO",
+        pinned: "left",
+        lockPinned: undefined,
+      }),
+    );
+    expect(result[1]).toEqual(
+      expect.objectContaining({
+        field: "acciones",
+        lockPinned: undefined,
+      }),
+    );
+  });
+
   it("ensambla el modelo completo AppDataTableAgGrid desde el payload real", () => {
     const table: DynamicUiTableDto = {
       TableId: "workflowInboxgestion",

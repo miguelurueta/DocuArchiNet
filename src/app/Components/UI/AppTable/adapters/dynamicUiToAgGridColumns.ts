@@ -11,12 +11,9 @@ import { mapDynamicUiRowsToAppGridRows } from "./dynamicUiToAgGridRows";
 const pickString = (...values: Array<string | null | undefined>): string | undefined =>
   values.find((value) => typeof value === "string" && value.trim().length > 0)?.trim();
 
-const pickBoolean = (
-  fallback: boolean,
-  ...values: Array<boolean | null | undefined>
-): boolean => {
+const pickBoolean = (...values: Array<boolean | null | undefined>): boolean | undefined => {
   const match = values.find((value) => typeof value === "boolean");
-  return match ?? fallback;
+  return match;
 };
 
 const pickNumber = (...values: Array<number | null | undefined>): number | undefined =>
@@ -73,11 +70,11 @@ const mapActionColumn = (
     field,
     headerName: resolveHeaderName(column, field),
     visible: resolveVisible(column),
-    sortable: pickBoolean(false, column.sortable, column.Sortable),
-    filterable: pickBoolean(false, column.filterable, column.Filterable),
+    sortable: pickBoolean(column.sortable, column.Sortable) ?? false,
+    filterable: pickBoolean(column.filterable, column.Filterable) ?? false,
     width: pickNumber(column.width, column.Width),
     pinned: pickString(column.pinned, column.Pinned) as AppGridColumn["pinned"],
-    lockPinned: pickBoolean(false, column.lockPinned, column.LockPinned),
+    lockPinned: pickBoolean(column.lockPinned, column.LockPinned),
     align: column.align ?? column.Align ?? undefined,
     isActionColumn: true,
     renderType: pickString(column.renderType, column.RenderType, column.presentation, column.Presentation, "actions"),
@@ -103,7 +100,7 @@ export const mapDynamicUiColumnsToAppGridColumns = (
     .map((column, index) => {
       const field = resolveField(column, index);
       const columnKey = resolveColumnKey(column, field);
-      const isActionColumn = pickBoolean(false, column.isActionColumn, column.IsActionColumn);
+      const isActionColumn = pickBoolean(column.isActionColumn, column.IsActionColumn) ?? false;
 
       if (isActionColumn) {
         return mapActionColumn(column, field, columnKey, table);
@@ -113,11 +110,11 @@ export const mapDynamicUiColumnsToAppGridColumns = (
         field,
         headerName: resolveHeaderName(column, field),
         visible: resolveVisible(column),
-        sortable: pickBoolean(true, column.sortable, column.Sortable),
-        filterable: pickBoolean(true, column.filterable, column.Filterable),
+        sortable: pickBoolean(column.sortable, column.Sortable) ?? true,
+        filterable: pickBoolean(column.filterable, column.Filterable) ?? true,
         width: pickNumber(column.width, column.Width),
         pinned: pickString(column.pinned, column.Pinned) as AppGridColumn["pinned"],
-        lockPinned: pickBoolean(false, column.lockPinned, column.LockPinned),
+        lockPinned: pickBoolean(column.lockPinned, column.LockPinned),
         align: column.align ?? column.Align ?? undefined,
         renderType: pickString(column.renderType, column.RenderType),
         dataType: pickString(column.dataType, column.DataType),
