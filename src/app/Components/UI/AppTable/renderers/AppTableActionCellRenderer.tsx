@@ -6,7 +6,7 @@ import {
   EyeOutlined,
 } from "@ant-design/icons";
 import { useMemo, useState } from "react";
-import { AppButton } from "../../AppButton";
+import { AppIconActionButton } from "../../AppButton";
 import { AppDropdown, type AppDropdownItem } from "../../AppDropdown";
 import { useDynamicUiTableActions } from "../hooks/useDynamicUiTableActions";
 import type {
@@ -306,7 +306,7 @@ export default function AppTableActionCellRenderer(
               disabled={!availability.isEnabled}
               items={dropdownItems}
               trigger={
-                <AppButton
+                <AppIconActionButton
                   size="sm"
                   icon={<EllipsisOutlined />}
                   variant={resolveButtonVariant(action.tone)}
@@ -322,7 +322,7 @@ export default function AppTableActionCellRenderer(
         }
 
         return (
-          <AppButton
+          <AppIconActionButton
             key={key}
             size="sm"
             icon={resolveActionIcon(action)}
