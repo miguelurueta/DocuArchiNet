@@ -65,6 +65,28 @@ La resolución del `field` de columna sigue este orden estricto:
 La columna se considera visible salvo que `Visible = false`.
 Cuando existe `Order`, las columnas visibles se ordenan por ese valor.
 
+## Soporte de pinning dinámico
+
+La línea dinámica ahora puede preservar metadata de columnas fijas sin cambiar la API pública de `AppTable`.
+
+Campos soportados en `UiColumnDto`:
+
+- `Pinned` / `pinned`
+- `LockPinned` / `lockPinned`
+
+Propagación:
+
+1. `UiColumnDto`
+2. `AppGridColumn`
+3. `ColDef`
+
+Reglas:
+
+- `Pinned` se mapea a `AppGridColumn.pinned` y luego a `ColDef.pinned`
+- `LockPinned` se mapea a `AppGridColumn.lockPinned` y luego a `ColDef.lockPinned`
+- si la metadata no existe, no se aplica pinning por defecto
+- en esta fase no se impone una convención automática para `isActionColumn`
+
 ## Shape final de filas
 
 El adapter de filas retorna:
