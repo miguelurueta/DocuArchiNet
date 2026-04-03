@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type { ReactElement, ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AppTableActionCellRenderer from "../renderers/AppTableActionCellRenderer";
 import type { AppTableActionCellRendererParams } from "../types/dynamicUiTableAction.types";
@@ -16,6 +17,36 @@ const hookState = {
 
 vi.mock("../hooks/useDynamicUiTableActions", () => ({
   useDynamicUiTableActions: () => hookState,
+}));
+
+vi.mock("../../AppDropdown", () => ({
+  AppDropdown: ({
+    trigger,
+    items,
+    disabled,
+    ariaLabel,
+  }: {
+    trigger: ReactElement;
+    items: Array<{ key: string; label: ReactNode; disabled?: boolean }>;
+    disabled?: boolean;
+    ariaLabel?: string;
+  }) => (
+    <div data-testid="mock-app-dropdown" data-disabled={disabled ? "true" : "false"}>
+      {trigger}
+      <div data-testid="mock-app-dropdown-label">{ariaLabel}</div>
+      <ul>
+        {items.map((item) => (
+          <li
+            key={item.key}
+            data-testid="mock-app-dropdown-item"
+            data-disabled={item.disabled ? "true" : "false"}
+          >
+            {item.label}
+          </li>
+        ))}
+      </ul>
+    </div>
+  ),
 }));
 
 const createParams = (
@@ -94,9 +125,7 @@ describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION] AppTableActionCellRenderer", 
   it("renders a visible action button for supported icon_button actions", () => {
     render(<AppTableActionCellRenderer {...createParams()} />);
 
-    expect(
-      screen.getByRole("button", { name: /Gestionar trámite/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Gestionar trámite/i })).toBeInTheDocument();
   });
 
   it("does not render actions that are not visible", () => {
@@ -126,7 +155,13 @@ describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION] AppTableActionCellRenderer", 
     expect(hookState.executeAction).not.toHaveBeenCalled();
   });
 
-  it("builds payload and executes the action through the shared action layer", async () => {
+  it("builds payload and executes api_call actions through the shared action layer", async () => {
+    hookState.resolveActionBehavior.mockReturnValue({
+      kind: "api_call",
+      rawValue: "api_call",
+      isKnown: true,
+    });
+
     render(<AppTableActionCellRenderer {...createParams()} />);
 
     fireEvent.click(screen.getByRole("button", { name: /Gestionar trámite/i }));
@@ -156,6 +191,42 @@ describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION] AppTableActionCellRenderer", 
         id_tarea: 924,
       },
     });
+  });
+
+  it("does not execute HTTP for client_event actions in this phase", () => {
+    render(<AppTableActionCellRenderer {...createParams()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Gestionar trámite/i }));
+
+    expect(hookState.buildActionPayload).not.toHaveBeenCalled();
+    expect(hookState.executeAction).not.toHaveBeenCalled();
+  });
+
+  it("renders a dropdown trigger with ellipsis when client_event includes menuItems", () => {
+    render(
+      <AppTableActionCellRenderer
+        {...createParams({
+          actions: [
+            {
+              actionId: "gestionar_tramite",
+              label: "Gestionar trámite",
+              placement: "row",
+              presentation: "icon_button",
+              behavior: "client_event",
+              behaviorConfig: {
+                menuItems: ["gestionar_tramite_menu", "archivar_tramite"],
+              },
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("mock-app-dropdown")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Gestionar trámite/i })).toBeInTheDocument();
+    expect(screen.getAllByTestId("mock-app-dropdown-item")).toHaveLength(2);
+    expect(screen.getByText("Gestionar Tramite Menu")).toBeInTheDocument();
+    expect(screen.getByText("Archivar Tramite")).toBeInTheDocument();
   });
 
   it("preserves backend order when rendering multiple actions", () => {

@@ -7,6 +7,7 @@ import {
 } from "@ant-design/icons";
 import { useMemo, useState } from "react";
 import { AppButton } from "../../AppButton";
+import { AppDropdown, type AppDropdownItem } from "../../AppDropdown";
 import { useDynamicUiTableActions } from "../hooks/useDynamicUiTableActions";
 import type {
   AppGridCellAction,
@@ -62,6 +63,32 @@ const toSelectedAppGridRows = (selectedRows: unknown[]): AppGridRow[] =>
 
 const toSelectedRowIds = (selectedRows: AppGridRow[]): string[] =>
   selectedRows.map((row) => row.id);
+
+const humanizeMenuItemLabel = (value: string): string =>
+  value
+    .split("_")
+    .filter((segment) => segment.trim().length > 0)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase())
+    .join(" ");
+
+const resolveMenuItemIds = (action: AppGridCellAction): string[] => {
+  const rawMenuItems = action.behaviorConfig?.menuItems;
+
+  if (!Array.isArray(rawMenuItems)) {
+    return [];
+  }
+
+  return rawMenuItems
+    .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+    .map((item) => item.trim());
+};
+
+const buildDropdownItems = (action: AppGridCellAction): AppDropdownItem[] =>
+  resolveMenuItemIds(action).map((itemId) => ({
+    key: `${action.actionId}:${itemId}`,
+    label: humanizeMenuItemLabel(itemId),
+    disabled: true,
+  }));
 
 const resolveButtonVariant = (tone?: string) => {
   switch (tone) {
@@ -147,8 +174,16 @@ export default function AppTableActionCellRenderer(
     ({ presentation }) => presentation.kind === "icon_button",
   );
 
-  const handleActionClick = async (action: AppGridCellAction, actionKey: string) => {
+  const handleActionClick = async (
+    action: AppGridCellAction,
+    actionKey: string,
+    behaviorKind: string,
+  ) => {
     if (!params.tableId) {
+      return;
+    }
+
+    if (behaviorKind !== "api_call") {
       return;
     }
 
@@ -182,28 +217,54 @@ export default function AppTableActionCellRenderer(
 
   return (
     <div className={styles.root} data-testid="app-table-action-cell">
-      {supportedVisibleActions.map(({ action, availability, behavior, key }) => (
-        <AppButton
-          key={key}
-          size="sm"
-          icon={resolveActionIcon(action)}
-          variant={resolveButtonVariant(action.tone)}
-          aria-label={action.label || action.actionId}
-          tooltip={action.label || action.actionId}
-          disabled={!availability.isEnabled || !params.tableId}
-          loading={isExecutingAction && activeActionKey === key}
-          data-action-id={action.actionId}
-          data-action-behavior={behavior.rawValue}
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            if (!availability.isEnabled) {
-              return;
-            }
-            void handleActionClick(action, key);
-          }}
-        />
-      ))}
+      {supportedVisibleActions.map(({ action, availability, behavior, key }) => {
+        const hasMenuItems = resolveMenuItemIds(action).length > 0;
+
+        if (behavior.kind === "client_event" && hasMenuItems) {
+          return (
+            <AppDropdown
+              key={key}
+              ariaLabel={action.label || action.actionId}
+              disabled={!availability.isEnabled}
+              items={buildDropdownItems(action)}
+              trigger={
+                <AppButton
+                  size="sm"
+                  icon={<EllipsisOutlined />}
+                  variant={resolveButtonVariant(action.tone)}
+                  aria-label={action.label || action.actionId}
+                  tooltip={action.label || action.actionId}
+                  data-action-id={action.actionId}
+                  data-action-behavior={behavior.rawValue}
+                />
+              }
+            />
+          );
+        }
+
+        return (
+          <AppButton
+            key={key}
+            size="sm"
+            icon={resolveActionIcon(action)}
+            variant={resolveButtonVariant(action.tone)}
+            aria-label={action.label || action.actionId}
+            tooltip={action.label || action.actionId}
+            disabled={!availability.isEnabled || !params.tableId}
+            loading={isExecutingAction && activeActionKey === key}
+            data-action-id={action.actionId}
+            data-action-behavior={behavior.rawValue}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              if (!availability.isEnabled) {
+                return;
+              }
+              void handleActionClick(action, key, behavior.kind);
+            }}
+          />
+        );
+      })}
       {supportedVisibleActions.length === 0 && hasUnsupportedVisibleActions ? (
         <span
           className={joinClasses(styles.fallback)}
