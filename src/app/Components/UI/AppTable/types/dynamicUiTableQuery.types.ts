@@ -5,13 +5,20 @@ import type {
   AppGridRow,
   DynamicUiTableDto,
 } from "./dynamicUiTable.types";
+import type {
+  AppTableSearchType,
+  AppTableStructuredFilter,
+} from "./appTableQueryState.types";
 
 export type DynamicTableQueryInput = {
   tableId: string;
   page?: number;
   pageSize?: number;
   search?: string;
+  searchType?: AppTableSearchType;
+  structuredFilters?: AppTableStructuredFilter[];
   sortField?: string;
+  sortDir?: "asc" | "desc";
   sortDirection?: "asc" | "desc";
   includeConfig?: boolean;
 };

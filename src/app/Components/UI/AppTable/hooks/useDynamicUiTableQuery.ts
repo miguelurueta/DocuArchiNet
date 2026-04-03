@@ -24,6 +24,10 @@ type DynamicUiTableQueryData = {
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 25;
 
+const resolveSortDirection = (
+  input: DynamicTableQueryInput,
+): "asc" | "desc" | undefined => input.sortDir ?? input.sortDirection;
+
 const resolvePageNumber = (...values: Array<number | null | undefined>): number => {
   const match = values.find((value) => typeof value === "number" && Number.isFinite(value) && value > 0);
   return match ?? DEFAULT_PAGE;
@@ -116,6 +120,8 @@ export function useDynamicUiTableQuery<TRequest>({
   queryFn,
   enabled = true,
 }: UseDynamicUiTableQueryParams<TRequest>): DynamicUiTableQueryResult {
+  const sortDirection = resolveSortDirection(input);
+
   const query = useQuery<DynamicUiTableQueryData, Error>({
     queryKey: [
       "dynamic-ui-table",
@@ -123,8 +129,10 @@ export function useDynamicUiTableQuery<TRequest>({
       input.page,
       input.pageSize,
       input.search,
+      input.searchType,
+      JSON.stringify(input.structuredFilters ?? []),
       input.sortField,
-      input.sortDirection,
+      sortDirection,
       input.includeConfig,
     ],
     queryFn: async () => {
