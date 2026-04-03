@@ -55,6 +55,8 @@ export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTa
       sortable: column.sortable,
       filter: resolveFilter(column),
       width: column.width,
+      pinned: column.pinned,
+      lockPinned: column.lockPinned,
       cellStyle: resolveCellStyle(column),
       colId: column.field,
     };

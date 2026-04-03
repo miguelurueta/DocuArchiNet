@@ -1,6 +1,7 @@
 import type { ColDef } from "ag-grid-community";
 
 export type DynamicUiAlign = "left" | "center" | "right";
+export type DynamicUiPinned = "left" | "right";
 
 export type DynamicUiVisibility = boolean | null | undefined;
 
@@ -122,6 +123,10 @@ export type UiColumnDto = {
   filterable?: boolean | null;
   Width?: number | null;
   width?: number | null;
+  Pinned?: DynamicUiPinned | null;
+  pinned?: DynamicUiPinned | null;
+  LockPinned?: boolean | null;
+  lockPinned?: boolean | null;
   Align?: DynamicUiAlign | null;
   align?: DynamicUiAlign | null;
   RenderType?: string | null;
@@ -228,6 +233,8 @@ export type AppGridColumn = {
   sortable: boolean;
   filterable: boolean;
   width?: number;
+  pinned?: DynamicUiPinned;
+  lockPinned?: boolean;
   align?: DynamicUiAlign;
   isActionColumn?: boolean;
   renderType?: string;

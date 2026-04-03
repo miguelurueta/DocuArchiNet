@@ -11,6 +11,8 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
         sortable: true,
         filterable: true,
         width: 220,
+        pinned: "left",
+        lockPinned: true,
         align: "left",
         agGridFilterType: "agTextColumnFilter",
       },
@@ -23,6 +25,8 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
         sortable: true,
         filter: "agTextColumnFilter",
         width: 220,
+        pinned: "left",
+        lockPinned: true,
         hide: false,
       }),
     ]);
@@ -82,5 +86,20 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
       tableId: "workflowInboxgestion",
       userClaims: ["tramites.gestionar"],
     });
+  });
+
+  it("does not invent pinning defaults for dynamic columns without pinning metadata", () => {
+    const [column] = mapAppGridColumnsToAppTableColumns([
+      {
+        field: "ASUNTO",
+        headerName: "Asunto",
+        visible: true,
+        sortable: true,
+        filterable: true,
+      },
+    ]);
+
+    expect(column.pinned).toBeUndefined();
+    expect(column.lockPinned).toBeUndefined();
   });
 });
