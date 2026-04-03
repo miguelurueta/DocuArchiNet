@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AppButton } from "../AppButton";
+import { AppButton, AppIconActionButton } from "../AppButton";
 import { AppDropdown } from "./AppDropdown";
 
 let breakpointState = { md: true };
@@ -220,5 +220,24 @@ describe("AppDropdown [SPEC:APP-DROPDOWN-002]", () => {
         />,
       ),
     ).toThrow(/nombre accesible/i);
+  });
+
+  it("acepta AppIconActionButton como trigger compatible", async () => {
+    render(
+      <AppDropdown
+        trigger={
+          <AppIconActionButton
+            icon={<span aria-hidden="true">...</span>}
+            aria-label="Abrir acciones"
+            tooltip="Abrir acciones"
+          />
+        }
+        items={[{ key: "export", label: "Exportar" }]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Abrir acciones" }));
+
+    expect(await screen.findByText("Exportar")).toBeInTheDocument();
   });
 });

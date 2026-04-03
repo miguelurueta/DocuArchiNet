@@ -4,6 +4,7 @@ export * from "./AppModal";
 export * from "./AppInput";
 export * from "./AppButton";
 export * from "./AppDropdown";
+export * from "./AppTable/AppTableQueryWrapper";
 export * from "./AppContent";
 export * from "./AppToolbar";
 export * from "./OperationBlockerContext";
