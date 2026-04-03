@@ -1,7 +1,11 @@
 import { AgGridReact } from "ag-grid-react";
 import type { ColDef, GridReadyEvent } from "ag-grid-community";
 import { useMemo, useRef } from "react";
-import type { AppTableProps, AppTableRow } from "./AppTable.types";
+import type {
+  AppTablePaginationMode,
+  AppTableProps,
+  AppTableRow,
+} from "./AppTable.types";
 import { useAgGridBaseConfig } from "./hooks/useAgGridBaseConfig";
 import styles from "./AppTable.module.css";
 import "ag-grid-community/styles/ag-grid.css";
@@ -26,11 +30,25 @@ const resolveRowId = <T extends AppTableRow>(
 const joinClasses = (...values: Array<string | false | null | undefined>) =>
   values.filter(Boolean).join(" ");
 
+const resolveQuickFilterText = (
+  paginationMode: AppTablePaginationMode | undefined,
+  quickFilterText: string | undefined,
+) => {
+  if (paginationMode === "server") {
+    return undefined;
+  }
+
+  return quickFilterText;
+};
+
 export default function AppTable<T extends AppTableRow>({
   rows,
   columns,
   loading = false,
   total,
+  paginationMode,
+  quickFilterText,
+  clientPaginationPageSize,
   rowSelection = "multiple",
   suppressRowClickSelection = false,
   domLayout = "autoHeight",
@@ -46,6 +64,8 @@ export default function AppTable<T extends AppTableRow>({
   const gridOptions = useAgGridBaseConfig<T>({
     rowSelection,
     domLayout,
+    paginationMode,
+    clientPaginationPageSize,
     suppressRowClickSelection,
     onRowSelected: (event) => {
       if (!event.node.isSelected()) {
@@ -75,6 +95,10 @@ export default function AppTable<T extends AppTableRow>({
 
   const columnDefs = useMemo<ColDef<T>[]>(() => columns, [columns]);
   const rowData = useMemo<T[]>(() => rows, [rows]);
+  const resolvedQuickFilterText = useMemo(
+    () => resolveQuickFilterText(paginationMode, quickFilterText),
+    [paginationMode, quickFilterText],
+  );
 
   const onGridReady = (event: GridReadyEvent<T>) => {
     if (loading) {
@@ -107,6 +131,7 @@ export default function AppTable<T extends AppTableRow>({
           rowData={rowData}
           columnDefs={columnDefs}
           gridOptions={gridOptions}
+          quickFilterText={resolvedQuickFilterText}
           theme="legacy"
           onGridReady={onGridReady}
           getRowId={(params) => resolveRowId(params.data, getRowId)}

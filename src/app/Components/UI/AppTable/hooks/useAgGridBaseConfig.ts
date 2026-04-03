@@ -3,9 +3,11 @@ import type { GridOptions } from "ag-grid-community";
 import type {
   AppTableAgGridHandlers,
   AppTableDomLayout,
+  AppTablePaginationMode,
   AppTableRow,
   AppTableRowSelection,
 } from "../AppTable.types";
+import { DEFAULT_APP_TABLE_CLIENT_PAGE_SIZE } from "../AppTable.types";
 import {
   buildAgGridDefaults,
   createRowSelectionConfig,
@@ -14,12 +16,16 @@ import {
 type UseAgGridBaseConfigParams<T extends AppTableRow> = {
   rowSelection?: AppTableRowSelection;
   domLayout?: AppTableDomLayout;
+  paginationMode?: AppTablePaginationMode;
+  clientPaginationPageSize?: number;
   suppressRowClickSelection?: boolean;
 } & AppTableAgGridHandlers<T>;
 
 export const useAgGridBaseConfig = <T extends AppTableRow>({
   rowSelection,
   domLayout,
+  paginationMode,
+  clientPaginationPageSize,
   suppressRowClickSelection,
   onRowClicked,
   onRowSelected,
@@ -36,17 +42,24 @@ export const useAgGridBaseConfig = <T extends AppTableRow>({
         suppressRowClickSelection ?? false,
       ),
       domLayout: domLayout ?? defaults.domLayout,
+      pagination: paginationMode === "client",
+      paginationPageSize:
+        paginationMode === "client"
+          ? (clientPaginationPageSize ?? DEFAULT_APP_TABLE_CLIENT_PAGE_SIZE)
+          : undefined,
       onRowClicked,
       onRowSelected,
       onCellClicked,
       onSelectionChanged,
     };
   }, [
+    clientPaginationPageSize,
     domLayout,
     onCellClicked,
     onRowClicked,
     onRowSelected,
     onSelectionChanged,
+    paginationMode,
     rowSelection,
     suppressRowClickSelection,
   ]);

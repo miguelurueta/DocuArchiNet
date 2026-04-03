@@ -10,6 +10,9 @@ export type AppTableRow = Record<string, unknown>;
 
 export type AppTableRowSelection = "single" | "multiple";
 export type AppTableDomLayout = "autoHeight" | "normal" | "print";
+export type AppTablePaginationMode = "none" | "client" | "server";
+
+export const DEFAULT_APP_TABLE_CLIENT_PAGE_SIZE = 25;
 
 export type AppTableCellClick<T extends AppTableRow> = {
   row: T;
@@ -22,6 +25,9 @@ export type AppTableProps<T extends AppTableRow> = {
   columns: ColDef<T>[];
   loading?: boolean;
   total?: number;
+  paginationMode?: AppTablePaginationMode;
+  quickFilterText?: string;
+  clientPaginationPageSize?: number;
   rowSelection?: AppTableRowSelection;
   suppressRowClickSelection?: boolean;
   domLayout?: AppTableDomLayout;
