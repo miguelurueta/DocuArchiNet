@@ -10,10 +10,17 @@ Definir una estructura inicial desacoplada y escalable para futuras bandejas, de
 
 ```text
 src/modules/gestionCorrespondencia/
+  adapters/
+    gestionCorrespondenciaTableRequestMapper.ts
+  components/
+    GestionCorrespondenciaTableSkeleton.tsx
+  hooks/
+    useGestionCorrespondenciaTable.ts
   layout/
     GestionCorrespondenciaLayout.tsx
   pages/
     GestionCorrespondencia.tsx
+    GestionCorrespondenciaRoutePage.tsx
     GestionRespuesta.tsx
   routes/
     GestionCorrespondenciaRoute.tsx
@@ -23,7 +30,10 @@ src/modules/gestionCorrespondencia/
 ## Responsabilidad por capa
 
 - `layout/`: shell visual del modulo. Define header, descripcion, contenedor principal y `Outlet`.
-- `pages/`: composicion de UI y placeholders visibles para la vista principal y la vista secundaria.
+- `adapters/`: mapeo del input del modulo al request real del backend.
+- `components/`: piezas visuales auxiliares del modulo como skeletons de pantalla.
+- `hooks/`: orquestacion de la carga de datos del modulo usando la infraestructura compartida de `AppTable`.
+- `pages/`: composicion de UI y pantallas visibles de la vista principal y la vista secundaria.
 - `routes/`: orquestacion del patron `Outlet + Drawer` controlado por la URL.
 
 ## Patron Outlet + Drawer
@@ -31,6 +41,7 @@ src/modules/gestionCorrespondencia/
 - `GestionCorrespondenciaLayout` renderiza el `Outlet` del modulo.
 - `GestionCorrespondenciaRoute` mantiene visible la pagina principal y abre un `Drawer` cuando la ruta hija `respuesta` esta activa.
 - `GestionRespuesta` se renderiza dentro del `Drawer` como vista secundaria contextual.
+- `GestionCorrespondenciaRoutePage` envuelve la carga inicial de datos, el estado de error y la pantalla principal sin romper el Drawer.
 
 Este patron permite deep-linking, navegacion con historial y preserva el contexto de la pantalla principal.
 
@@ -47,3 +58,18 @@ Este patron permite deep-linking, navegacion con historial y preserva el context
 - Agregar nuevas rutas hijas dentro del adapter de rutas para futuros drawers o paneles contextuales.
 - Incorporar hooks, services y modelos solo cuando entren funcionalidades reales del dominio.
 - Mantener las reglas de negocio fuera del layout y de las paginas placeholder.
+
+## Integracion actual de bandeja
+
+La pantalla principal ya consume la bandeja dinamica `workflowInboxgestion` usando la infraestructura compartida de `AppTable`:
+
+- query layer dinamica
+- adapters del modelo intermedio `AppGrid -> AppTable`
+- `Skeleton` de primera carga a nivel de ruta
+
+El renderer visual final sigue siendo `AppTable`.
+
+## Limites actuales
+
+- la columna `acciones` se preserva en la metadata dinamica, pero su render visual final dentro de `AppTable` sigue siendo basico hasta una fase visual posterior
+- la pantalla sincroniza total y `pageSize`, pero la navegacion completa entre paginas puede requerir una iteracion adicional segun backlog
