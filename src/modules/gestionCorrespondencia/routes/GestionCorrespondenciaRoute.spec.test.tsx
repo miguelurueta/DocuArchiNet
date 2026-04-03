@@ -5,8 +5,8 @@ import GestionCorrespondenciaLayout from "../layout/GestionCorrespondenciaLayout
 import GestionRespuesta from "../pages/GestionRespuesta";
 import GestionCorrespondenciaRoute from "./GestionCorrespondenciaRoute";
 
-vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
-  default: () => <div>Mocked AppTable</div>,
+vi.mock("../pages/GestionCorrespondenciaRoutePage", () => ({
+  default: () => <div>Mocked GestionCorrespondenciaRoutePage</div>,
 }));
 
 function renderGestionCorrespondencia(initialEntry: string) {
@@ -29,21 +29,13 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
   test("renderiza layout y pagina principal en la ruta base", () => {
     renderGestionCorrespondencia("/dashboard/gestion-correspondencia");
 
-    expect(screen.getByTestId("gestion-correspondencia-content")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Buscar\.\.\./i)).toBeInTheDocument();
-    expect(screen.getByText(/Categoria/i)).toBeInTheDocument();
-    expect(screen.getByText(/Mocked AppTable/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Exportar/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Actualizar/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /Abrir respuesta contextual/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
   });
 
   test("abre el drawer por subruta y vuelve a la ruta base al cerrar", () => {
     renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta");
 
-    expect(screen.getByRole("button", { name: /Exportar/i })).toBeInTheDocument();
+    expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: /Gestion de respuesta/i }),
@@ -52,6 +44,6 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Close$/i }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Abrir respuesta contextual/i })).toBeInTheDocument();
+    expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
   });
 });

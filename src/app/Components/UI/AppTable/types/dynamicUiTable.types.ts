@@ -238,6 +238,8 @@ export type AppGridRow = {
   meta?: DynamicUiUnknownRecord;
 };
 
+export type AppTableRow = Record<string, unknown>;
+
 export type AppDataTableAgGrid = {
   tableId?: string;
   title?: string;

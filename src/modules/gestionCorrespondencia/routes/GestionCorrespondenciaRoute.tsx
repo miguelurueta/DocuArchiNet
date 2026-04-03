@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Drawer } from "antd";
 import { useNavigate } from "react-router-dom";
-import GestionCorrespondencia from "../pages/GestionCorrespondencia";
+import GestionCorrespondenciaRoutePage from "../pages/GestionCorrespondenciaRoutePage";
 
 interface GestionCorrespondenciaRouteProps {
   drawerContent?: ReactNode;
@@ -19,7 +19,7 @@ export default function GestionCorrespondenciaRoute({
 
   return (
     <>
-      <GestionCorrespondencia />
+      <GestionCorrespondenciaRoutePage />
       <Drawer
         title="Respuesta contextual"
         placement="right"

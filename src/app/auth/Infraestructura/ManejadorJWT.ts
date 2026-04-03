@@ -107,7 +107,15 @@ function parsePermisos(raw: string): string[] {
     .filter((p) => p.length > 0);
 }
 
-export function finalizarSesionYRedirigir(navigate: NavigateFunction) {
+export function finalizarSesionYRedirigir(navigate?: NavigateFunction) {
   logout();
-  navigate("/LoginPage", { replace: true });
+
+  if (navigate) {
+    navigate("/LoginPage", { replace: true });
+    return;
+  }
+
+  if (typeof window !== "undefined") {
+    window.location.replace("/LoginPage");
+  }
 }

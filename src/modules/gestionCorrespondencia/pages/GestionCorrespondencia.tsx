@@ -1,32 +1,27 @@
 import { DownloadOutlined, EyeFilled, FileExcelFilled, FilePdfFilled, UndoOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import type { ColDef } from "ag-grid-community";
 import { useNavigate } from "react-router-dom";
 import { AppButton } from "../../../app/Components/UI/AppButton";
 import { AppContent } from "../../../app/Components/UI/AppContent";
 import { AppDropdown } from "../../../app/Components/UI/AppDropdown";
 import AppTable from "../../../app/Components/UI/AppTable/AppTable";
+import type { AppTableRow } from "../../../app/Components/UI/AppTable/AppTable.types";
 import { AppInput } from "../../../app/Components/UI/AppInput";
 import { AppToolbar } from "../../../app/Components/UI/AppToolbar";
+import type { GestionCorrespondenciaTableResult } from "../hooks/useGestionCorrespondenciaTable";
 import styles from "../style/GestionCorrespondencia.module.css";
 
-export default function GestionCorrespondencia() {
+type GestionCorrespondenciaProps<T extends AppTableRow = AppTableRow> = {
+  table: GestionCorrespondenciaTableResult<T>;
+};
+
+export default function GestionCorrespondencia<T extends AppTableRow = AppTableRow>({
+  table,
+}: GestionCorrespondenciaProps<T>) {
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState<string | undefined>();
-  const [pageSize, setPageSize] = useState(10);
-
-  const rows = [
-    { id: "1", asunto: "Documento A", categoria: "Entrada" },
-    { id: "2", asunto: "Documento B", categoria: "Salida" },
-  ];
-
-  const columns = [
-    { field: "asunto", headerName: "Asunto", flex: 1 },
-    { field: "categoria", headerName: "Categoria", flex: 1 },
-  ];
 
   const handleRefresh = () => {
-    console.log("Actualizar datos");
+    table.refetch();
   };
 
   return (
@@ -86,6 +81,7 @@ export default function GestionCorrespondencia() {
               variant="ghost"
               size="sm"
               leftIcon={<UndoOutlined />}
+              loading={table.loading && table.hasLoadedOnce}
               fullWidth
               onClick={handleRefresh}
             >
@@ -117,15 +113,15 @@ export default function GestionCorrespondencia() {
             <AppInput
               type="search"
               placeholder="Buscar..."
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              value={table.search}
+              onChange={(event) => table.setSearch(event.target.value)}
             />
 
             <AppInput
               type="select"
               placeholder="Categoria"
-              value={category}
-              onChange={(value) => setCategory(String(value))}
+              value={table.category}
+              onChange={(value) => table.setCategory(value ? String(value) : undefined)}
               options={[
                 { label: "Entrada", value: "entrada" },
                 { label: "Salida", value: "salida" },
@@ -134,18 +130,19 @@ export default function GestionCorrespondencia() {
           </div>
 
           <div className={styles.paginationRow}>
-            <span className={styles.total}>Cantidad de registros: {rows.length}</span>
+            <span className={styles.total}>Cantidad de registros: {table.total}</span>
 
             <div className={styles.paginationControls}>
               <span>Paginacion</span>
 
               <AppInput
                 type="select"
-                value={pageSize}
-                onChange={(value) => setPageSize(Number(value))}
+                value={table.pageSize}
+                onChange={(value) => table.setPageSize(Number(value))}
                 options={[
                   { label: "10", value: 10 },
                   { label: "20", value: 20 },
+                  { label: "25", value: 25 },
                   { label: "30", value: 30 },
                 ]}
               />
@@ -154,10 +151,11 @@ export default function GestionCorrespondencia() {
 
           <div className={styles.tableWrapper}>
             <AppTable
-              rows={rows}
-              columns={columns}
+              rows={table.rows}
+              columns={table.columns as ColDef<T>[]}
               rowSelection="multiple"
-              loading={false}
+              total={table.total}
+              loading={table.loading && table.hasLoadedOnce}
             />
           </div>
         </div>
