@@ -106,7 +106,7 @@ export default function DashboardLayout() {
         <Drawer
           placement="left"
           open={drawerOpen}
-          width={300}
+          size="default"
           onClose={() => setDrawerOpen(false)}
           styles={{ body: { padding: 0 } }}
           destroyOnHidden={false}

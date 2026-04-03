@@ -6,7 +6,10 @@ import type {
   AppTableRow,
   AppTableRowSelection,
 } from "../AppTable.types";
-import { buildAgGridDefaults } from "../utils/agGridDefaultConfig";
+import {
+  buildAgGridDefaults,
+  createRowSelectionConfig,
+} from "../utils/agGridDefaultConfig";
 
 type UseAgGridBaseConfigParams<T extends AppTableRow> = {
   rowSelection?: AppTableRowSelection;
@@ -28,12 +31,11 @@ export const useAgGridBaseConfig = <T extends AppTableRow>({
 
     return {
       ...defaults,
-      rowSelection: rowSelection ?? defaults.rowSelection,
+      rowSelection: createRowSelectionConfig(
+        rowSelection ?? "multiple",
+        suppressRowClickSelection ?? false,
+      ),
       domLayout: domLayout ?? defaults.domLayout,
-      suppressRowClickSelection:
-        typeof suppressRowClickSelection === "boolean"
-          ? suppressRowClickSelection
-          : defaults.suppressRowClickSelection,
       onRowClicked,
       onRowSelected,
       onCellClicked,

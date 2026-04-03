@@ -107,6 +107,7 @@ export default function AppTable<T extends AppTableRow>({
           rowData={rowData}
           columnDefs={columnDefs}
           gridOptions={gridOptions}
+          theme="legacy"
           onGridReady={onGridReady}
           getRowId={(params) => resolveRowId(params.data, getRowId)}
         />
