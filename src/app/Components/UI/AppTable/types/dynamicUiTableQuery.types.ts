@@ -23,8 +23,10 @@ export type DynamicUiTableQueryPagination = {
 };
 
 export type DynamicUiTableQueryResult = {
+  tableId?: string;
   rows: AppGridRow[];
   columns: AppGridColumn[];
+  userClaims?: string[];
   total: number;
   pagination: DynamicUiTableQueryPagination;
   loading: boolean;
