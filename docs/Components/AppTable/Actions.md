@@ -109,3 +109,22 @@ Regla visual:
 - `userClaims` depende de que la query dinámica los propague hasta el adapter final de columnas
 - `selectedRows` solo se usa si puede derivarse de forma segura desde la selección actual del grid
 - presentaciones distintas a `icon_button` todavía no tienen render dedicado
+
+## Menús dinámicos con MenuActions
+
+La integración de menús contextuales ya no humaniza ids. Cuando una acción principal trae `behaviorConfig.menuItems`, `AppTable` resuelve esos ids contra `MenuActions` preservados desde el DTO backend hasta el renderer.
+
+Flujo:
+
+1. `DynamicUiTableDto.MenuActions`
+2. normalización compartida de `AppTable`
+3. `AppTableActionCellRenderer`
+4. `AppDropdown`
+
+Reglas actuales:
+
+- ids no resueltos se ignoran sin romper render
+- si no hay items válidos resueltos, se mantiene el fallback de acción directa
+- `Children` se mapea recursivamente a `children`
+- `IsDivider` se mapea a `type: "divider"` y nunca ejecuta action layer
+- solo items resolubles y ejecutables usan `guard`, `payload builder`, `resolvers` y `executeAction`

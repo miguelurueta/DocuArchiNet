@@ -140,6 +140,7 @@ export const mapDynamicUiTableToAppDataTableAgGrid = (
   toolbarActions: mapDynamicUiActions(table?.toolbarActions ?? table?.ToolbarActions),
   bulkActions: mapDynamicUiActions(table?.bulkActions ?? table?.BulkActions),
   rowActions: mapDynamicUiActions(table?.rowActions ?? table?.RowActions),
+  menuActions: mapDynamicUiActions(table?.menuActions ?? table?.MenuActions),
   userClaims: [...(table?.userClaims ?? table?.UserClaims ?? [])],
   metadata: pickRecord(table?.meta, table?.metadata, table?.Metadata),
 });

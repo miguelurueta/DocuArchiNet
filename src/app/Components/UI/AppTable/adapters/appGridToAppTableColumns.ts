@@ -1,6 +1,7 @@
 import type { ColDef } from "ag-grid-community";
 import AppTableActionCellRenderer from "../renderers/AppTableActionCellRenderer";
 import type {
+  AppGridCellAction,
   AppGridColumn,
   AppTableRow,
   DynamicUiUnknownRecord,
@@ -9,6 +10,7 @@ import type {
 export type AppTableColumnAdapterOptions = {
   tableId?: string;
   userClaims?: string[];
+  menuActions?: AppGridCellAction[];
 };
 
 const resolveFilter = (column: AppGridColumn): ColDef<AppTableRow>["filter"] => {
@@ -65,6 +67,7 @@ export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTa
       colDef.cellRendererParams = {
         appGridColumn: column,
         actions: [...(column.actions ?? [])],
+        menuActions: [...(options.menuActions ?? [])],
         tableId: options.tableId,
         userClaims: [...(options.userClaims ?? [])],
       };

@@ -1,9 +1,9 @@
 import {
+  DeleteOutlined,
+  DownloadOutlined,
   EditOutlined,
   EllipsisOutlined,
   EyeOutlined,
-  DownloadOutlined,
-  DeleteOutlined,
 } from "@ant-design/icons";
 import { useMemo, useState } from "react";
 import { AppButton } from "../../AppButton";
@@ -24,6 +24,28 @@ const ACTION_ICON_MAP = {
   download: <DownloadOutlined />,
   delete: <DeleteOutlined />,
 } as const;
+
+type RenderedAction = {
+  action: AppGridCellAction;
+  availability: { isVisible: boolean; isEnabled: boolean };
+  behavior: { kind: string; rawValue: string };
+  presentation: { kind: string; rawValue: string };
+  key: string;
+};
+
+type DropdownBuilderDependencies = {
+  evaluateActionAvailability: ReturnType<typeof useDynamicUiTableActions>["evaluateActionAvailability"];
+  resolveActionBehavior: ReturnType<typeof useDynamicUiTableActions>["resolveActionBehavior"];
+  resolveActionPresentation: ReturnType<typeof useDynamicUiTableActions>["resolveActionPresentation"];
+  onSelectAction: (action: AppGridCellAction, actionKey: string, behaviorKind: string) => void;
+  context: {
+    row?: AppGridRow;
+    selectedRows: AppGridRow[];
+    columnKey: string;
+    userClaims?: string[];
+  };
+  tableId?: string;
+};
 
 const joinClasses = (...values: Array<string | false | null | undefined>) =>
   values.filter(Boolean).join(" ");
@@ -64,13 +86,6 @@ const toSelectedAppGridRows = (selectedRows: unknown[]): AppGridRow[] =>
 const toSelectedRowIds = (selectedRows: AppGridRow[]): string[] =>
   selectedRows.map((row) => row.id);
 
-const humanizeMenuItemLabel = (value: string): string =>
-  value
-    .split("_")
-    .filter((segment) => segment.trim().length > 0)
-    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase())
-    .join(" ");
-
 const resolveMenuItemIds = (action: AppGridCellAction): string[] => {
   const rawMenuItems = action.behaviorConfig?.menuItems;
 
@@ -82,13 +97,6 @@ const resolveMenuItemIds = (action: AppGridCellAction): string[] => {
     .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
     .map((item) => item.trim());
 };
-
-const buildDropdownItems = (action: AppGridCellAction): AppDropdownItem[] =>
-  resolveMenuItemIds(action).map((itemId) => ({
-    key: `${action.actionId}:${itemId}`,
-    label: humanizeMenuItemLabel(itemId),
-    disabled: true,
-  }));
 
 const resolveButtonVariant = (tone?: string) => {
   switch (tone) {
@@ -117,6 +125,65 @@ const resolveActionIcon = (action: AppGridCellAction) => {
 
 const buildActionKey = (actionId: string, rowId?: string) => `${actionId}:${rowId ?? "no-row"}`;
 
+const buildMenuActionLookup = (menuActions: AppGridCellAction[] | undefined): Map<string, AppGridCellAction> =>
+  new Map(
+    (menuActions ?? [])
+      .filter((action) => action.actionId.trim().length > 0)
+      .map((action) => [action.actionId, action] as const),
+  );
+
+const resolveCatalogMenuActions = (
+  action: AppGridCellAction,
+  menuActionLookup: Map<string, AppGridCellAction>,
+): AppGridCellAction[] =>
+  resolveMenuItemIds(action)
+    .map((itemId) => menuActionLookup.get(itemId))
+    .filter((item): item is AppGridCellAction => Boolean(item));
+
+const mapActionToDropdownItem = (
+  action: AppGridCellAction,
+  path: string[],
+  dependencies: DropdownBuilderDependencies,
+): AppDropdownItem | null => {
+  if (action.isDivider) {
+    return {
+      key: [...path, "divider"].join(":"),
+      type: "divider",
+    };
+  }
+
+  const availability = dependencies.evaluateActionAvailability(action, dependencies.context);
+  if (!availability.isVisible) {
+    return null;
+  }
+
+  const presentation = dependencies.resolveActionPresentation(action);
+  const behavior = dependencies.resolveActionBehavior(action);
+  const itemKey = [...path, action.actionId].join(":");
+  const children = (action.children ?? [])
+    .map((child, index) =>
+      mapActionToDropdownItem(child, [...path, action.actionId, String(index)], dependencies),
+    )
+    .filter((item): item is AppDropdownItem => Boolean(item));
+
+  if (presentation.kind !== "menu_item" && children.length === 0) {
+    return null;
+  }
+
+  return {
+    key: itemKey,
+    label: action.label,
+    disabled: !availability.isEnabled || (!dependencies.tableId && children.length === 0),
+    onSelect:
+      !availability.isEnabled || children.length > 0
+        ? undefined
+        : () => {
+            dependencies.onSelectAction(action, itemKey, behavior.kind);
+          },
+    children: children.length > 0 ? children : undefined,
+  };
+};
+
 export default function AppTableActionCellRenderer(
   params: AppTableActionCellRendererParams,
 ) {
@@ -132,46 +199,19 @@ export default function AppTableActionCellRenderer(
 
   const row = toAppGridRow(params.data);
   const selectedRows = toSelectedAppGridRows(params.api?.getSelectedRows?.() ?? []);
-
-  const renderedActions = useMemo(
-    () =>
-      params.actions.map((action) => {
-        const availability = evaluateActionAvailability(action, {
-          row,
-          selectedRows,
-          columnKey: params.appGridColumn.field,
-          userClaims: params.userClaims,
-        });
-        const presentation = resolveActionPresentation(action);
-        const behavior = resolveActionBehavior(action);
-        const key = buildActionKey(action.actionId, row?.id);
-
-        return {
-          action,
-          availability,
-          behavior,
-          presentation,
-          key,
-        };
-      }),
-    [
-      evaluateActionAvailability,
-      params.actions,
-      params.appGridColumn.field,
-      params.userClaims,
-      resolveActionBehavior,
-      resolveActionPresentation,
+  const actionContext = useMemo(
+    () => ({
       row,
       selectedRows,
-    ],
+      columnKey: params.appGridColumn.field,
+      userClaims: params.userClaims,
+    }),
+    [params.appGridColumn.field, params.userClaims, row, selectedRows],
   );
 
-  const visibleActions = renderedActions.filter(({ availability }) => availability.isVisible);
-  const hasUnsupportedVisibleActions = visibleActions.some(
-    ({ presentation }) => presentation.kind !== "icon_button",
-  );
-  const supportedVisibleActions = visibleActions.filter(
-    ({ presentation }) => presentation.kind === "icon_button",
+  const menuActionLookup = useMemo(
+    () => buildMenuActionLookup(params.menuActions),
+    [params.menuActions],
   );
 
   const handleActionClick = async (
@@ -179,21 +219,11 @@ export default function AppTableActionCellRenderer(
     actionKey: string,
     behaviorKind: string,
   ) => {
-    if (!params.tableId) {
+    if (!params.tableId || behaviorKind !== "api_call") {
       return;
     }
 
-    if (behaviorKind !== "api_call") {
-      return;
-    }
-
-    const context = {
-      row,
-      selectedRows,
-      columnKey: params.appGridColumn.field,
-      userClaims: params.userClaims,
-    };
-    const payload = buildActionPayload(context, action);
+    const payload = buildActionPayload(actionContext, action);
 
     setActiveActionKey(actionKey);
 
@@ -211,6 +241,40 @@ export default function AppTableActionCellRenderer(
     }
   };
 
+  const renderedActions = useMemo<RenderedAction[]>(
+    () =>
+      params.actions.map((action) => {
+        const availability = evaluateActionAvailability(action, actionContext);
+        const presentation = resolveActionPresentation(action);
+        const behavior = resolveActionBehavior(action);
+        const key = buildActionKey(action.actionId, row?.id);
+
+        return {
+          action,
+          availability,
+          behavior,
+          presentation,
+          key,
+        };
+      }),
+    [
+      actionContext,
+      evaluateActionAvailability,
+      params.actions,
+      resolveActionBehavior,
+      resolveActionPresentation,
+      row?.id,
+    ],
+  );
+
+  const visibleActions = renderedActions.filter(({ availability }) => availability.isVisible);
+  const hasUnsupportedVisibleActions = visibleActions.some(
+    ({ presentation }) => presentation.kind !== "icon_button",
+  );
+  const supportedVisibleActions = visibleActions.filter(
+    ({ presentation }) => presentation.kind === "icon_button",
+  );
+
   if (supportedVisibleActions.length === 0 && !hasUnsupportedVisibleActions) {
     return null;
   }
@@ -218,15 +282,29 @@ export default function AppTableActionCellRenderer(
   return (
     <div className={styles.root} data-testid="app-table-action-cell">
       {supportedVisibleActions.map(({ action, availability, behavior, key }) => {
-        const hasMenuItems = resolveMenuItemIds(action).length > 0;
+        const resolvedMenuActions = resolveCatalogMenuActions(action, menuActionLookup);
+        const dropdownItems = resolvedMenuActions
+          .map((menuAction, index) =>
+            mapActionToDropdownItem(menuAction, [action.actionId, String(index)], {
+              evaluateActionAvailability,
+              resolveActionBehavior,
+              resolveActionPresentation,
+              onSelectAction: (menuAction, actionKey, behaviorKind) => {
+                void handleActionClick(menuAction, actionKey, behaviorKind);
+              },
+              context: actionContext,
+              tableId: params.tableId,
+            }),
+          )
+          .filter((item): item is AppDropdownItem => Boolean(item));
 
-        if (behavior.kind === "client_event" && hasMenuItems) {
+        if (behavior.kind === "client_event" && dropdownItems.length > 0) {
           return (
             <AppDropdown
               key={key}
               ariaLabel={action.label || action.actionId}
               disabled={!availability.isEnabled}
-              items={buildDropdownItems(action)}
+              items={dropdownItems}
               trigger={
                 <AppButton
                   size="sm"

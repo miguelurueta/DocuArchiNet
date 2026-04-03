@@ -26,7 +26,8 @@ type AppDropdownTriggerProps = {
 
 export type AppDropdownItem = {
   key: string;
-  label: ReactNode;
+  label?: ReactNode;
+  type?: "item" | "divider";
   icon?: ReactNode;
   leftIcon?: ReactNode;
   danger?: boolean;
@@ -123,6 +124,10 @@ function mergeOpenState({
 
 function buildMenuItems(items: AppDropdownItem[], flattenChildren = false): MenuProps["items"] {
   return items.flatMap((item) => {
+    if (item.type === "divider") {
+      return [{ type: "divider" as const, key: item.key }];
+    }
+
     const itemIcon = item.leftIcon ?? item.icon;
     const currentItem = {
       key: item.key,
@@ -164,6 +169,13 @@ function buildMenuItems(items: AppDropdownItem[], flattenChildren = false): Menu
     }
 
     const childItems = item.children.map((child) => {
+      if (child.type === "divider") {
+        return {
+          type: "divider" as const,
+          key: child.key,
+        };
+      }
+
       const childIcon = child.leftIcon ?? child.icon;
 
       return {

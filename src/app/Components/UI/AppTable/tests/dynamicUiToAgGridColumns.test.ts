@@ -199,6 +199,26 @@ describe("[SPEC:CREATE-COTRATO-AG-GRID-FASE-2] dynamicUiToAgGridColumns", () => 
           },
         },
       ],
+      MenuActions: [
+        {
+          ActionId: "reasignar_tramite",
+          Label: "Reasignar trámite",
+          Presentation: "menu_item",
+          Behavior: "api_call",
+          Children: [
+            {
+              ActionId: "reasignar_usuario",
+              Label: "Reasignar usuario",
+              Presentation: "menu_item",
+              Behavior: "api_call",
+            },
+          ],
+        },
+        {
+          IsDivider: true,
+          Label: "",
+        },
+      ],
       Pagination: {
         Page: 1,
         PageSize: 25,
@@ -258,5 +278,19 @@ describe("[SPEC:CREATE-COTRATO-AG-GRID-FASE-2] dynamicUiToAgGridColumns", () => 
         ],
       }),
     );
+
+    expect(result.menuActions).toEqual([
+      expect.objectContaining({
+        actionId: "reasignar_tramite",
+        children: [
+          expect.objectContaining({
+            actionId: "reasignar_usuario",
+          }),
+        ],
+      }),
+      expect.objectContaining({
+        isDivider: true,
+      }),
+    ]);
   });
 });

@@ -29,6 +29,39 @@ const resolveActionId = (action: UiActionDto | UiCellActionDto, index: number): 
 const unwrapAction = (action: UiActionDto | UiCellActionDto): UiActionDto | UiCellActionDto =>
   action.action ?? action.Action ?? action;
 
+const mapDynamicUiAction = (
+  rawAction: UiActionDto | UiCellActionDto,
+  index: number,
+): AppGridCellAction => {
+  const action = unwrapAction(rawAction);
+  const children = action.children ?? action.Children;
+
+  return {
+    actionId: resolveActionId(action, index),
+    label: pickString(action.label, action.Label) ?? "Sin etiqueta",
+    placement: pickString(action.placement, action.Placement) ?? "row",
+    presentation: pickString(action.presentation, action.Presentation) ?? "default",
+    behavior: pickString(action.behavior, action.Behavior) ?? "noop",
+    isDivider: pickBoolean(action.isDivider, action.IsDivider) ?? false,
+    behaviorConfig: pickRecord(action.behaviorConfig, action.BehaviorConfig),
+    request: pickRecord(action.request, action.Request),
+    icon: pickString(action.icon, action.Icon),
+    tone: pickString(action.tone, action.Tone),
+    requiresConfirm: pickBoolean(action.requiresConfirm, action.RequiresConfirm),
+    confirmTitle: pickString(action.confirmTitle, action.ConfirmTitle),
+    confirmMessage: pickString(action.confirmMessage, action.ConfirmMessage),
+    requiredClaimsAny: pickStringArray(action.requiredClaimsAny, action.RequiredClaimsAny),
+    requiredClaimsAll: pickStringArray(action.requiredClaimsAll, action.RequiredClaimsAll),
+    claimKey: pickString(action.claimKey, action.ClaimKey),
+    rules: pickRecord(action.rules, action.Rules),
+    payload: pickRecord(action.payload, action.Payload),
+    metadata: pickRecord(action.metadata, action.Metadata),
+    children: Array.isArray(children)
+      ? children.map((child, childIndex) => mapDynamicUiAction(child, childIndex))
+      : undefined,
+  };
+};
+
 export const mapDynamicUiActions = (
   actions: ReadonlyArray<UiActionDto | UiCellActionDto> | null | undefined,
 ): AppGridCellAction[] => {
@@ -36,30 +69,7 @@ export const mapDynamicUiActions = (
     return [];
   }
 
-  return actions.map((rawAction, index) => {
-    const action = unwrapAction(rawAction);
-
-    return {
-      actionId: resolveActionId(action, index),
-      label: pickString(action.label, action.Label) ?? "Sin etiqueta",
-      placement: pickString(action.placement, action.Placement) ?? "row",
-      presentation: pickString(action.presentation, action.Presentation) ?? "default",
-      behavior: pickString(action.behavior, action.Behavior) ?? "noop",
-      behaviorConfig: pickRecord(action.behaviorConfig, action.BehaviorConfig),
-      request: pickRecord(action.request, action.Request),
-      icon: pickString(action.icon, action.Icon),
-      tone: pickString(action.tone, action.Tone),
-      requiresConfirm: pickBoolean(action.requiresConfirm, action.RequiresConfirm),
-      confirmTitle: pickString(action.confirmTitle, action.ConfirmTitle),
-      confirmMessage: pickString(action.confirmMessage, action.ConfirmMessage),
-      requiredClaimsAny: pickStringArray(action.requiredClaimsAny, action.RequiredClaimsAny),
-      requiredClaimsAll: pickStringArray(action.requiredClaimsAll, action.RequiredClaimsAll),
-      claimKey: pickString(action.claimKey, action.ClaimKey),
-      rules: pickRecord(action.rules, action.Rules),
-      payload: pickRecord(action.payload, action.Payload),
-      metadata: pickRecord(action.metadata, action.Metadata),
-    };
-  });
+  return actions.map((rawAction, index) => mapDynamicUiAction(rawAction, index));
 };
 
 export const groupCellActionsByColumnKey = (

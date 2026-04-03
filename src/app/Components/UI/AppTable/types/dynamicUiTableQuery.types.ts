@@ -1,5 +1,6 @@
 import type {
   ApiResponse,
+  AppGridCellAction,
   AppGridColumn,
   AppGridRow,
   DynamicUiTableDto,
@@ -26,6 +27,7 @@ export type DynamicUiTableQueryResult = {
   tableId?: string;
   rows: AppGridRow[];
   columns: AppGridColumn[];
+  menuActions?: AppGridCellAction[];
   userClaims?: string[];
   total: number;
   pagination: DynamicUiTableQueryPagination;

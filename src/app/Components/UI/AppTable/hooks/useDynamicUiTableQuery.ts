@@ -13,6 +13,7 @@ type DynamicUiTableQueryData = {
   tableId?: string;
   rows: DynamicUiTableQueryResult["rows"];
   columns: DynamicUiTableQueryResult["columns"];
+  menuActions?: DynamicUiTableQueryResult["menuActions"];
   userClaims?: string[];
   total: number;
   pagination: DynamicUiTableQueryPagination;
@@ -100,6 +101,7 @@ const buildQueryData = (
     tableId: mapped.tableId ?? input.tableId,
     rows: mapped.rows,
     columns: mapped.columns,
+    menuActions: mapped.menuActions,
     userClaims: mapped.userClaims,
     total,
     pagination,
@@ -143,6 +145,7 @@ export function useDynamicUiTableQuery<TRequest>({
       tableId: input.tableId,
       rows: [],
       columns: [],
+      menuActions: [],
       userClaims: [],
       total: 0,
       pagination: resolvePagination(undefined, input),
@@ -155,6 +158,7 @@ export function useDynamicUiTableQuery<TRequest>({
     tableId: data.tableId,
     rows: data.rows,
     columns: data.columns,
+    menuActions: data.menuActions,
     userClaims: data.userClaims,
     total: data.total,
     pagination: data.pagination,

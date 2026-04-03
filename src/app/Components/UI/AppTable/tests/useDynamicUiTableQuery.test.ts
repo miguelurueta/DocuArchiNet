@@ -54,6 +54,14 @@ describe("[SPEC:CREA-QUERY-AG-GRID-FASE3] useDynamicUiTableQuery", () => {
     const queryFn = vi.fn().mockResolvedValue(
       createResponse({
         TableId: "workflowInboxgestion",
+        MenuActions: [
+          {
+            ActionId: "reasignar_tramite",
+            Label: "Reasignar trámite",
+            Presentation: "menu_item",
+            Behavior: "api_call",
+          },
+        ],
         Columns: [
           {
             DataIndex: "RADICADO",
@@ -119,6 +127,12 @@ describe("[SPEC:CREA-QUERY-AG-GRID-FASE3] useDynamicUiTableQuery", () => {
       page: 1,
       pageSize: 25,
     });
+    expect(result.current.menuActions).toEqual([
+      expect.objectContaining({
+        actionId: "reasignar_tramite",
+        label: "Reasignar trámite",
+      }),
+    ]);
     expect(result.current.isEmpty).toBe(false);
     expect(result.current.error).toBeNull();
   });
