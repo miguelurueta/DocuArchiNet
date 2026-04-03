@@ -37,11 +37,36 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
         sortable: true,
         filterable: true,
         isActionColumn: true,
+        actions: [
+          {
+            actionId: "gestionar_tramite",
+            label: "Gestionar",
+            placement: "row",
+            presentation: "icon_button",
+            behavior: "client_event",
+          },
+        ],
       },
-    ]);
+    ], {
+      tableId: "workflowInboxgestion",
+      userClaims: ["tramites.gestionar"],
+    });
 
     expect(actionColumn.sortable).toBe(false);
     expect(actionColumn.filter).toBe(false);
     expect(actionColumn.valueGetter?.({} as never)).toBe("");
+    expect(actionColumn.cellRenderer).toBeDefined();
+    expect(actionColumn.cellRendererParams).toEqual({
+      appGridColumn: expect.objectContaining({
+        field: "acciones",
+      }),
+      actions: [
+        expect.objectContaining({
+          actionId: "gestionar_tramite",
+        }),
+      ],
+      tableId: "workflowInboxgestion",
+      userClaims: ["tramites.gestionar"],
+    });
   });
 });

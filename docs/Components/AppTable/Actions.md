@@ -73,3 +73,39 @@ Esta fase deja listo:
 - clasificación de metadata de acciones
 
 Todavía no renderiza toolbar, menús, botones o bulk actions. Esa integración visual queda para la siguiente fase.
+
+## Render visual de cell actions
+
+La fase visual de cell actions agrega un renderer reusable dentro de `AppTable` para columnas marcadas como `isActionColumn`.
+
+Arquitectura:
+
+- `appGridToAppTableColumns.ts` detecta la columna de acción
+- el adapter inyecta `cellRenderer` y `cellRendererParams`
+- `AppTableActionCellRenderer.tsx` reutiliza `useDynamicUiTableActions`
+
+Flujo del renderer:
+
+1. evaluar disponibilidad con el guard compartido
+2. construir payload con el payload builder compartido
+3. ejecutar con `executeAction`
+
+El renderer usa `behavior` y `presentation` solo para clasificar metadata. No navega, no abre modales y no dispara descargas reales.
+
+## Soporte mínimo actual
+
+- `Presentation = icon_button`
+- render inline de múltiples acciones
+- preservación del orden recibido desde backend
+- fallback neutro para presentaciones no soportadas
+
+Regla visual:
+
+- `isVisible = false` -> no renderiza la acción
+- `isVisible = true` y `isEnabled = false` -> renderiza disabled
+
+## Límites actuales
+
+- `userClaims` depende de que la query dinámica los propague hasta el adapter final de columnas
+- `selectedRows` solo se usa si puede derivarse de forma segura desde la selección actual del grid
+- presentaciones distintas a `icon_button` todavía no tienen render dedicado

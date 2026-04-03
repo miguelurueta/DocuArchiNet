@@ -10,8 +10,10 @@ import type {
 } from "../types/dynamicUiTableQuery.types";
 
 type DynamicUiTableQueryData = {
+  tableId?: string;
   rows: DynamicUiTableQueryResult["rows"];
   columns: DynamicUiTableQueryResult["columns"];
+  userClaims?: string[];
   total: number;
   pagination: DynamicUiTableQueryPagination;
   isEmpty: boolean;
@@ -95,8 +97,10 @@ const buildQueryData = (
   const total = resolveTotal(table?.pagination ?? table?.Pagination);
 
   return {
+    tableId: mapped.tableId,
     rows: mapped.rows,
     columns: mapped.columns,
+    userClaims: mapped.userClaims,
     total,
     pagination,
     isEmpty: mapped.rows.length === 0 && mapped.columns.length === 0,
@@ -136,8 +140,10 @@ export function useDynamicUiTableQuery<TRequest>({
     }
 
     return {
+      tableId: input.tableId,
       rows: [],
       columns: [],
+      userClaims: [],
       total: 0,
       pagination: resolvePagination(undefined, input),
       isEmpty: true,
@@ -146,8 +152,10 @@ export function useDynamicUiTableQuery<TRequest>({
   }, [input, query.data]);
 
   return {
+    tableId: data.tableId,
     rows: data.rows,
     columns: data.columns,
+    userClaims: data.userClaims,
     total: data.total,
     pagination: data.pagination,
     loading: query.isFetching,

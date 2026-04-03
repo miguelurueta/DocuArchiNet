@@ -53,8 +53,12 @@ export const useGestionCorrespondenciaTable = <
     [query.rows],
   );
   const columns = useMemo(
-    () => mapAppGridColumnsToAppTableColumns<T>(query.columns),
-    [query.columns],
+    () =>
+      mapAppGridColumnsToAppTableColumns<T>(query.columns, {
+        tableId: query.tableId,
+        userClaims: query.userClaims,
+      }),
+    [query.columns, query.tableId, query.userClaims],
   );
 
   return {

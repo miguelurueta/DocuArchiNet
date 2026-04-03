@@ -1,7 +1,10 @@
+import type { ICellRendererParams } from "ag-grid-community";
 import type {
   ApiResponse,
   AppGridCellAction,
+  AppGridColumn,
   AppGridRow,
+  AppTableRow,
   DynamicUiUnknownRecord,
   UiActionDto,
 } from "./dynamicUiTable.types";
@@ -74,6 +77,13 @@ export type DynamicUiActionHookResult = {
   isExecutingAction: boolean;
   actionError: Error | null;
   lastActionResult: DynamicUiActionExecutionResult | null;
+};
+
+export type AppTableActionCellRendererParams = ICellRendererParams<AppTableRow> & {
+  appGridColumn: AppGridColumn;
+  actions: AppGridCellAction[];
+  tableId?: string;
+  userClaims?: string[];
 };
 
 export type UseDynamicUiTableActionsParams = {

@@ -1,9 +1,15 @@
 import type { ColDef } from "ag-grid-community";
+import AppTableActionCellRenderer from "../renderers/AppTableActionCellRenderer";
 import type {
   AppGridColumn,
   AppTableRow,
   DynamicUiUnknownRecord,
 } from "../types/dynamicUiTable.types";
+
+export type AppTableColumnAdapterOptions = {
+  tableId?: string;
+  userClaims?: string[];
+};
 
 const resolveFilter = (column: AppGridColumn): ColDef<AppTableRow>["filter"] => {
   if (!column.filterable) {
@@ -33,6 +39,7 @@ const buildActionValueGetter = (field: string) => () => "";
 
 export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTableRow>(
   columns: ReadonlyArray<AppGridColumn> | null | undefined,
+  options: AppTableColumnAdapterOptions = {},
 ): ColDef<T>[] => {
   if (!columns?.length) {
     return [];
@@ -54,6 +61,13 @@ export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTa
       colDef.sortable = false;
       colDef.filter = false;
       colDef.valueGetter = buildActionValueGetter(column.field);
+      colDef.cellRenderer = AppTableActionCellRenderer;
+      colDef.cellRendererParams = {
+        appGridColumn: column,
+        actions: [...(column.actions ?? [])],
+        tableId: options.tableId,
+        userClaims: [...(options.userClaims ?? [])],
+      };
     }
 
     if (column.metadata) {
