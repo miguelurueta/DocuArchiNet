@@ -97,7 +97,7 @@ const buildQueryData = (
   const total = resolveTotal(table?.pagination ?? table?.Pagination);
 
   return {
-    tableId: mapped.tableId,
+    tableId: mapped.tableId ?? input.tableId,
     rows: mapped.rows,
     columns: mapped.columns,
     userClaims: mapped.userClaims,

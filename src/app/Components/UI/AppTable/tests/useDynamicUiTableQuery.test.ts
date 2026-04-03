@@ -151,6 +151,35 @@ describe("[SPEC:CREA-QUERY-AG-GRID-FASE3] useDynamicUiTableQuery", () => {
     });
   });
 
+  it("preserves input tableId when the response omits TableId", async () => {
+    const { result } = renderHook(
+      () =>
+        useDynamicUiTableQuery({
+          input: baseInput,
+          requestMapper: (input) => input,
+          queryFn: async () =>
+            createResponse({
+              Columns: [],
+              Rows: [],
+              Pagination: {
+                Page: 1,
+                PageSize: 25,
+                Total: 0,
+              },
+            }),
+        }),
+      {
+        wrapper: createWrapper(),
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.tableId).toBe("workflowInboxgestion");
+  });
+
   it("prefers backend pagination values when the API normalizes the requested page", async () => {
     const { result } = renderHook(
       () =>

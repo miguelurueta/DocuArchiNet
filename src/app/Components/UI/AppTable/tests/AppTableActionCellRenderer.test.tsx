@@ -229,6 +229,35 @@ describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION] AppTableActionCellRenderer", 
     expect(screen.getByText("Archivar Tramite")).toBeInTheDocument();
   });
 
+  it("renders the dropdown trigger button as disabled when the action is not enabled", () => {
+    hookState.evaluateActionAvailability.mockReturnValue({
+      isVisible: true,
+      isEnabled: false,
+    });
+
+    render(
+      <AppTableActionCellRenderer
+        {...createParams({
+          actions: [
+            {
+              actionId: "gestionar_tramite",
+              label: "Gestionar trámite",
+              placement: "row",
+              presentation: "icon_button",
+              behavior: "client_event",
+              behaviorConfig: {
+                menuItems: ["gestionar_tramite_menu"],
+              },
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: /Gestionar trámite/i })).toBeDisabled();
+    expect(screen.getByTestId("mock-app-dropdown")).toHaveAttribute("data-disabled", "true");
+  });
+
   it("preserves backend order when rendering multiple actions", () => {
     render(
       <AppTableActionCellRenderer

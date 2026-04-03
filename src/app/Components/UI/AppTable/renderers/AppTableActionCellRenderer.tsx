@@ -234,6 +234,7 @@ export default function AppTableActionCellRenderer(
                   variant={resolveButtonVariant(action.tone)}
                   aria-label={action.label || action.actionId}
                   tooltip={action.label || action.actionId}
+                  disabled={!availability.isEnabled}
                   data-action-id={action.actionId}
                   data-action-behavior={behavior.rawValue}
                 />
