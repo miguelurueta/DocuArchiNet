@@ -9,7 +9,7 @@
   overflow: hidden;
   width: 100%;
   border-radius: 24px;
-  background-color:white;
+  background-color: white;
 }
 
 .page {
@@ -25,9 +25,9 @@
 }
 
 .toolbar {
-  --toolbar-border: rgba(15, 23, 42, 0.08); 
+  --toolbar-border: rgba(15, 23, 42, 0.08);
   --toolbar-surface: white;
-  --toolbar-shadow:  0 12px 28px rgba(15, 23, 42, 0.12);
+  --toolbar-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -39,7 +39,7 @@
   min-height: fit-content;
   overflow: visible;
   flex-shrink: 0;
-  }
+}
 
 .toolbarActionGroup {
   display: flex;
@@ -53,16 +53,17 @@
   overflow: visible;
 }
 
+.queryWrapper {
+  width: 100%;
+}
+
 .toolbarControl {
   width: auto;
   min-width: 0;
 }
 
-.toolbarControl :global(.ant-btn) {
-  width: 100%;
-}
-
-.summaryRow {
+.toolbarControl :global(.ant-btn),
+.toolbarControl :global(.ant-select) {
   width: 100%;
 }
 
@@ -70,31 +71,6 @@
   display: flex;
   flex: 1 1 auto;
   min-height: 0;
-}
-
-.filtersRow {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.paginationRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.paginationControls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.total {
-  font-size: 14px;
-  color: #555;
 }
 
 .tableWrapper {
@@ -117,15 +93,15 @@
     overflow: hidden;
   }
 
+  .toolbarActionGroup {
+    align-items: stretch;
+    gap: 6px;
+  }
+
   .toolbar {
     gap: 6px;
     padding: 8px 10px;
     border-radius: 20px;
-  }
-
-  .toolbarActionGroup {
-    align-items: stretch;
-    gap: 6px;
   }
 
   .toolbarControl {
@@ -139,22 +115,6 @@
     max-height: 100%;
     min-height: 0;
     overflow: hidden;
-  }
-
-  .filtersRow {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .paginationRow {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .paginationControls {
-    width: 100%;
-    justify-content: space-between;
   }
 }
 

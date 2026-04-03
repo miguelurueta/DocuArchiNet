@@ -3,6 +3,8 @@ import { getDynamicTable } from "../../../app/Components/UI/AppTable/services/dy
 import { mapAppGridColumnsToAppTableColumns } from "../../../app/Components/UI/AppTable/adapters/appGridToAppTableColumns";
 import { mapAppGridRowsToAppTableRows } from "../../../app/Components/UI/AppTable/adapters/appGridToAppTableRows";
 import { useDynamicUiTableQuery } from "../../../app/Components/UI/AppTable/hooks/useDynamicUiTableQuery";
+import { useAppTableQueryState } from "../../../app/Components/UI/AppTable/hooks/useAppTableQueryState";
+import type { AppTableQueryState } from "../../../app/Components/UI/AppTable/types/appTableQueryState.types";
 import type { AppTableRow } from "../../../app/Components/UI/AppTable/AppTable.types";
 import type { ColDef } from "ag-grid-community";
 import { mapGestionCorrespondenciaTableRequest } from "../adapters/gestionCorrespondenciaTableRequestMapper";
@@ -13,35 +15,39 @@ export type GestionCorrespondenciaTableResult<T extends AppTableRow = AppTableRo
   total: number;
   page: number;
   pageSize: number;
-  search: string;
+  queryState: AppTableQueryState;
+  onQueryChange: (patch: Partial<AppTableQueryState>) => void;
   category?: string;
   loading: boolean;
   error: Error | null;
   isEmpty: boolean;
   hasLoadedOnce: boolean;
-  setSearch: (value: string) => void;
   setCategory: (value: string | undefined) => void;
-  setPageSize: (value: number) => void;
   refetch: () => void;
 };
-
-const DEFAULT_PAGE_SIZE = 25;
 
 export const useGestionCorrespondenciaTable = <
   T extends AppTableRow = AppTableRow,
 >(): GestionCorrespondenciaTableResult<T> => {
-  const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string | undefined>();
-  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const { queryState, onQueryChange } = useAppTableQueryState({
+    page: 1,
+    pageSize: 10,
+    search: "",
+    sortField: "fecha_inicio",
+    sortDir: "desc",
+  });
 
   const query = useDynamicUiTableQuery({
     input: {
       tableId: "workflowInboxgestion",
-      page: 1,
-      pageSize,
-      search,
-      sortField: "fecha_inicio",
-      sortDirection: "desc",
+      page: queryState.page,
+      pageSize: queryState.pageSize,
+      search: queryState.search,
+      searchType: queryState.searchType,
+      structuredFilters: queryState.structuredFilters,
+      sortField: queryState.sortField,
+      sortDir: queryState.sortDir,
       includeConfig: true,
     },
     requestMapper: mapGestionCorrespondenciaTableRequest,
@@ -62,21 +68,29 @@ export const useGestionCorrespondenciaTable = <
     [query.columns, query.menuActions, query.tableId, query.userClaims],
   );
 
+  const effectiveQueryState = useMemo<AppTableQueryState>(
+    () => ({
+      ...queryState,
+      page: query.pagination.page,
+      pageSize: query.pagination.pageSize,
+    }),
+    [query.pagination.page, query.pagination.pageSize, queryState],
+  );
+
   return {
     rows,
     columns,
     total: query.total,
     page: query.pagination.page,
     pageSize: query.pagination.pageSize,
-    search,
+    queryState: effectiveQueryState,
+    onQueryChange,
     category,
     loading: query.loading,
     error: query.error,
     isEmpty: query.isEmpty,
     hasLoadedOnce: Boolean(query.rawResponse) || Boolean(query.error),
-    setSearch,
     setCategory,
-    setPageSize,
     refetch: query.refetch,
   };
 };

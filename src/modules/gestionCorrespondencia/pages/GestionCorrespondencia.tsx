@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { AppButton } from "../../../app/Components/UI/AppButton";
 import { AppContent } from "../../../app/Components/UI/AppContent";
 import { AppDropdown } from "../../../app/Components/UI/AppDropdown";
+import { AppTableQueryWrapper } from "../../../app/Components/UI/AppTable/AppTableQueryWrapper";
 import AppTable from "../../../app/Components/UI/AppTable/AppTable";
 import type { AppTableRow } from "../../../app/Components/UI/AppTable/AppTable.types";
-import { AppInput } from "../../../app/Components/UI/AppInput";
 import { AppToolbar } from "../../../app/Components/UI/AppToolbar";
 import type { GestionCorrespondenciaTableResult } from "../hooks/useGestionCorrespondenciaTable";
 import styles from "../style/GestionCorrespondencia.module.css";
@@ -19,10 +19,6 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
   table,
 }: GestionCorrespondenciaProps<T>) {
   const navigate = useNavigate();
-
-  const handleRefresh = () => {
-    table.refetch();
-  };
 
   return (
     <div className={styles.shell}>
@@ -83,7 +79,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
               leftIcon={<UndoOutlined />}
               loading={table.loading && table.hasLoadedOnce}
               fullWidth
-              onClick={handleRefresh}
+              onClick={table.refetch}
             >
               Actualizar
             </AppButton>
@@ -109,55 +105,25 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
         density="compact"
       >
         <div className={styles.page}>
-          <div className={styles.filtersRow}>
-            <AppInput
-              type="search"
-              placeholder="Buscar..."
-              value={table.search}
-              onChange={(event) => table.setSearch(event.target.value)}
-            />
-
-            <AppInput
-              type="select"
-              placeholder="Categoria"
-              value={table.category}
-              onChange={(value) => table.setCategory(value ? String(value) : undefined)}
-              options={[
-                { label: "Entrada", value: "entrada" },
-                { label: "Salida", value: "salida" },
-              ]}
-            />
-          </div>
-
-          <div className={styles.paginationRow}>
-            <span className={styles.total}>Cantidad de registros: {table.total}</span>
-
-            <div className={styles.paginationControls}>
-              <span>Paginacion</span>
-
-              <AppInput
-                type="select"
-                value={table.pageSize}
-                onChange={(value) => table.setPageSize(Number(value))}
-                options={[
-                  { label: "10", value: 10 },
-                  { label: "20", value: 20 },
-                  { label: "25", value: 25 },
-                  { label: "30", value: 30 },
-                ]}
+          <AppTableQueryWrapper
+            className={styles.queryWrapper}
+            queryState={table.queryState}
+            onQueryChange={table.onQueryChange}
+            total={table.total}
+            loading={table.loading && table.hasLoadedOnce}
+            showSearch={false}
+          >
+            <div className={styles.tableWrapper}>
+              <AppTable
+                rows={table.rows}
+                columns={table.columns as ColDef<T>[]}
+                rowSelection="multiple"
+                total={table.total}
+                loading={table.loading && table.hasLoadedOnce}
+                paginationMode="server"
               />
             </div>
-          </div>
-
-          <div className={styles.tableWrapper}>
-            <AppTable
-              rows={table.rows}
-              columns={table.columns as ColDef<T>[]}
-              rowSelection="multiple"
-              total={table.total}
-              loading={table.loading && table.hasLoadedOnce}
-            />
-          </div>
+          </AppTableQueryWrapper>
         </div>
       </AppContent>
     </div>

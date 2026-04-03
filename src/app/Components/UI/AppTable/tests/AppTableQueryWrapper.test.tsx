@@ -76,4 +76,20 @@ describe("AppTableQueryWrapper", () => {
 
     expect(onQueryChange).toHaveBeenCalledWith({ pageSize: 50 });
   });
+
+  it("permite ocultar el buscador sin afectar el resto del wrapper", () => {
+    render(
+      <AppTableQueryWrapper
+        queryState={createQueryState()}
+        onQueryChange={vi.fn()}
+        total={87}
+        showSearch={false}
+      >
+        <div>Tabla mock</div>
+      </AppTableQueryWrapper>,
+    );
+
+    expect(screen.queryByRole("textbox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
+    expect(screen.getByTestId("app-table-query-range")).toHaveTextContent("26-50 de 87");
+  });
 });
