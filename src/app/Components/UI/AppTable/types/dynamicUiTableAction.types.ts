@@ -82,6 +82,7 @@ export type DynamicUiActionHookResult = {
 export type AppTableActionCellRendererParams = ICellRendererParams<AppTableRow> & {
   appGridColumn: AppGridColumn;
   actions: AppGridCellAction[];
+  menuActions?: AppGridCellAction[];
   tableId?: string;
   userClaims?: string[];
 };

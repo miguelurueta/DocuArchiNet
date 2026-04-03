@@ -84,6 +84,10 @@ export type UiActionDto = {
   metadata?: DynamicUiUnknownRecord | null;
   Payload?: DynamicUiUnknownRecord | null;
   payload?: DynamicUiUnknownRecord | null;
+  Children?: UiActionDto[] | null;
+  children?: UiActionDto[] | null;
+  IsDivider?: boolean | null;
+  isDivider?: boolean | null;
 };
 
 export type UiCellActionDto = UiActionDto & {
@@ -179,6 +183,8 @@ export type DynamicUiTableDto = {
   bulkActions?: UiActionDto[] | null;
   RowActions?: UiActionDto[] | null;
   rowActions?: UiActionDto[] | null;
+  MenuActions?: UiActionDto[] | null;
+  menuActions?: UiActionDto[] | null;
   CellActions?: UiCellActionDto[] | null;
   cellActions?: UiCellActionDto[] | null;
   UserClaims?: string[] | null;
@@ -198,6 +204,7 @@ export type AppGridCellAction = {
   placement: string;
   presentation: string;
   behavior: string;
+  isDivider?: boolean;
   behaviorConfig?: DynamicUiUnknownRecord;
   request?: DynamicUiUnknownRecord;
   icon?: string;
@@ -211,6 +218,7 @@ export type AppGridCellAction = {
   rules?: DynamicUiUnknownRecord;
   payload?: DynamicUiUnknownRecord;
   metadata?: DynamicUiUnknownRecord;
+  children?: AppGridCellAction[];
 };
 
 export type AppGridColumn = {
@@ -250,6 +258,7 @@ export type AppDataTableAgGrid = {
   toolbarActions?: AppGridCellAction[];
   bulkActions?: AppGridCellAction[];
   rowActions?: AppGridCellAction[];
+  menuActions?: AppGridCellAction[];
   userClaims?: string[];
   metadata?: DynamicUiUnknownRecord;
 };

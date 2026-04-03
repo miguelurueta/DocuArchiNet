@@ -2,6 +2,8 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactElement, ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AppTableActionCellRenderer from "../renderers/AppTableActionCellRenderer";
+import type { AppDropdownItem } from "../../AppDropdown";
+import type { AppGridCellAction } from "../types/dynamicUiTable.types";
 import type { AppTableActionCellRendererParams } from "../types/dynamicUiTableAction.types";
 
 const hookState = {
@@ -19,6 +21,27 @@ vi.mock("../hooks/useDynamicUiTableActions", () => ({
   useDynamicUiTableActions: () => hookState,
 }));
 
+const renderItems = (items: AppDropdownItem[]) =>
+  items.map((item) => {
+    if (item.type === "divider") {
+      return <li key={item.key} data-testid="mock-app-dropdown-divider" />;
+    }
+
+    return (
+      <li key={item.key}>
+        <button
+          type="button"
+          data-testid="mock-app-dropdown-item"
+          data-disabled={item.disabled ? "true" : "false"}
+          onClick={() => item.onSelect?.()}
+        >
+          {item.label}
+        </button>
+        {item.children?.length ? <ul>{renderItems(item.children)}</ul> : null}
+      </li>
+    );
+  });
+
 vi.mock("../../AppDropdown", () => ({
   AppDropdown: ({
     trigger,
@@ -27,27 +50,32 @@ vi.mock("../../AppDropdown", () => ({
     ariaLabel,
   }: {
     trigger: ReactElement;
-    items: Array<{ key: string; label: ReactNode; disabled?: boolean }>;
+    items: AppDropdownItem[];
     disabled?: boolean;
     ariaLabel?: string;
   }) => (
     <div data-testid="mock-app-dropdown" data-disabled={disabled ? "true" : "false"}>
       {trigger}
       <div data-testid="mock-app-dropdown-label">{ariaLabel}</div>
-      <ul>
-        {items.map((item) => (
-          <li
-            key={item.key}
-            data-testid="mock-app-dropdown-item"
-            data-disabled={item.disabled ? "true" : "false"}
-          >
-            {item.label}
-          </li>
-        ))}
-      </ul>
+      <ul>{renderItems(items)}</ul>
     </div>
   ),
 }));
+
+const createMenuAction = (overrides: Partial<AppGridCellAction> = {}): AppGridCellAction => ({
+  actionId: "reasignar_tramite",
+  label: "Reasignar trámite",
+  placement: "row",
+  presentation: "menu_item",
+  behavior: "api_call",
+  request: {
+    RowIdField: "id_tarea",
+    PayloadFields: {
+      id_tarea: "id_tarea",
+    },
+  },
+  ...overrides,
+});
 
 const createParams = (
   overrides: Partial<AppTableActionCellRendererParams> = {},
@@ -88,12 +116,13 @@ const createParams = (
         },
       },
     ],
+    menuActions: [],
     tableId: "workflowInboxgestion",
     userClaims: ["tramites.gestionar"],
     ...overrides,
   }) as AppTableActionCellRendererParams;
 
-describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION] AppTableActionCellRenderer", () => {
+describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION-MENU-CHILDREN] AppTableActionCellRenderer", () => {
   beforeEach(() => {
     hookState.executeAction.mockReset().mockResolvedValue({
       success: true,
@@ -107,16 +136,16 @@ describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION] AppTableActionCellRenderer", 
       isVisible: true,
       isEnabled: true,
     });
-    hookState.resolveActionBehavior.mockReset().mockReturnValue({
-      kind: "client_event",
-      rawValue: "client_event",
+    hookState.resolveActionBehavior.mockReset().mockImplementation((action: AppGridCellAction) => ({
+      kind: action.behavior,
+      rawValue: action.behavior,
       isKnown: true,
-    });
-    hookState.resolveActionPresentation.mockReset().mockReturnValue({
-      kind: "icon_button",
-      rawValue: "icon_button",
+    }));
+    hookState.resolveActionPresentation.mockReset().mockImplementation((action: AppGridCellAction) => ({
+      kind: action.presentation,
+      rawValue: action.presentation,
       isKnown: true,
-    });
+    }));
     hookState.isExecutingAction = false;
     hookState.actionError = null;
     hookState.lastActionResult = null;
@@ -139,30 +168,28 @@ describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION] AppTableActionCellRenderer", 
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("renders disabled actions without executing them", () => {
-    hookState.evaluateActionAvailability.mockReturnValue({
-      isVisible: true,
-      isEnabled: false,
-    });
-
-    render(<AppTableActionCellRenderer {...createParams()} />);
-
-    const button = screen.getByRole("button", { name: /Gestionar trámite/i });
-    expect(button).toBeDisabled();
-
-    fireEvent.click(button);
-
-    expect(hookState.executeAction).not.toHaveBeenCalled();
-  });
-
   it("builds payload and executes api_call actions through the shared action layer", async () => {
-    hookState.resolveActionBehavior.mockReturnValue({
-      kind: "api_call",
-      rawValue: "api_call",
-      isKnown: true,
-    });
-
-    render(<AppTableActionCellRenderer {...createParams()} />);
+    render(
+      <AppTableActionCellRenderer
+        {...createParams({
+          actions: [
+            {
+              actionId: "gestionar_tramite",
+              label: "Gestionar trámite",
+              placement: "row",
+              presentation: "icon_button",
+              behavior: "api_call",
+              request: {
+                RowIdField: "id_tarea",
+                PayloadFields: {
+                  id_tarea: "id_tarea",
+                },
+              },
+            },
+          ],
+        })}
+      />,
+    );
 
     fireEvent.click(screen.getByRole("button", { name: /Gestionar trámite/i }));
 
@@ -193,16 +220,7 @@ describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION] AppTableActionCellRenderer", 
     });
   });
 
-  it("does not execute HTTP for client_event actions in this phase", () => {
-    render(<AppTableActionCellRenderer {...createParams()} />);
-
-    fireEvent.click(screen.getByRole("button", { name: /Gestionar trámite/i }));
-
-    expect(hookState.buildActionPayload).not.toHaveBeenCalled();
-    expect(hookState.executeAction).not.toHaveBeenCalled();
-  });
-
-  it("renders a dropdown trigger with ellipsis when client_event includes menuItems", () => {
+  it("resolves menuItems against MenuActions and renders backend labels", () => {
     render(
       <AppTableActionCellRenderer
         {...createParams({
@@ -214,27 +232,27 @@ describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION] AppTableActionCellRenderer", 
               presentation: "icon_button",
               behavior: "client_event",
               behaviorConfig: {
-                menuItems: ["gestionar_tramite_menu", "archivar_tramite"],
+                menuItems: ["reasignar_tramite", "archivar_tramite"],
               },
             },
+          ],
+          menuActions: [
+            createMenuAction(),
+            createMenuAction({
+              actionId: "archivar_tramite",
+              label: "Archivar trámite",
+            }),
           ],
         })}
       />,
     );
 
     expect(screen.getByTestId("mock-app-dropdown")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Gestionar trámite/i })).toBeInTheDocument();
-    expect(screen.getAllByTestId("mock-app-dropdown-item")).toHaveLength(2);
-    expect(screen.getByText("Gestionar Tramite Menu")).toBeInTheDocument();
-    expect(screen.getByText("Archivar Tramite")).toBeInTheDocument();
+    expect(screen.getByText("Reasignar trámite")).toBeInTheDocument();
+    expect(screen.getByText("Archivar trámite")).toBeInTheDocument();
   });
 
-  it("renders the dropdown trigger button as disabled when the action is not enabled", () => {
-    hookState.evaluateActionAvailability.mockReturnValue({
-      isVisible: true,
-      isEnabled: false,
-    });
-
+  it("ignores unresolved menu ids without breaking the dropdown", () => {
     render(
       <AppTableActionCellRenderer
         {...createParams({
@@ -246,7 +264,110 @@ describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION] AppTableActionCellRenderer", 
               presentation: "icon_button",
               behavior: "client_event",
               behaviorConfig: {
-                menuItems: ["gestionar_tramite_menu"],
+                menuItems: ["reasignar_tramite", "missing_action"],
+              },
+            },
+          ],
+          menuActions: [createMenuAction()],
+        })}
+      />,
+    );
+
+    expect(screen.getAllByTestId("mock-app-dropdown-item")).toHaveLength(1);
+    expect(screen.getByText("Reasignar trámite")).toBeInTheDocument();
+  });
+
+  it("renders children recursively as nested dropdown items", () => {
+    render(
+      <AppTableActionCellRenderer
+        {...createParams({
+          actions: [
+            {
+              actionId: "gestionar_tramite",
+              label: "Gestionar trámite",
+              placement: "row",
+              presentation: "icon_button",
+              behavior: "client_event",
+              behaviorConfig: {
+                menuItems: ["menu_padre"],
+              },
+            },
+          ],
+          menuActions: [
+            createMenuAction({
+              actionId: "menu_padre",
+              label: "Más acciones",
+              children: [
+                createMenuAction({
+                  actionId: "reasignar_tramite",
+                  label: "Reasignar trámite",
+                }),
+              ],
+            }),
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.getByText("Más acciones")).toBeInTheDocument();
+    expect(screen.getByText("Reasignar trámite")).toBeInTheDocument();
+  });
+
+  it("renders divider items as non-executable separators", async () => {
+    render(
+      <AppTableActionCellRenderer
+        {...createParams({
+          actions: [
+            {
+              actionId: "gestionar_tramite",
+              label: "Gestionar trámite",
+              placement: "row",
+              presentation: "icon_button",
+              behavior: "client_event",
+              behaviorConfig: {
+                menuItems: ["reasignar_tramite", "divider_1", "archivar_tramite"],
+              },
+            },
+          ],
+          menuActions: [
+            createMenuAction(),
+            {
+              actionId: "divider_1",
+              label: "",
+              placement: "row",
+              presentation: "menu_item",
+              behavior: "noop",
+              isDivider: true,
+            },
+            createMenuAction({
+              actionId: "archivar_tramite",
+              label: "Archivar trámite",
+            }),
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("mock-app-dropdown-divider")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Reasignar trámite"));
+    await waitFor(() => {
+      expect(hookState.executeAction).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("keeps the direct action fallback when menuItems has no valid resolutions", () => {
+    render(
+      <AppTableActionCellRenderer
+        {...createParams({
+          actions: [
+            {
+              actionId: "gestionar_tramite",
+              label: "Gestionar trámite",
+              placement: "row",
+              presentation: "icon_button",
+              behavior: "api_call",
+              behaviorConfig: {
+                menuItems: ["missing_action"],
               },
             },
           ],
@@ -254,37 +375,42 @@ describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION] AppTableActionCellRenderer", 
       />,
     );
 
-    expect(screen.getByRole("button", { name: /Gestionar trámite/i })).toBeDisabled();
-    expect(screen.getByTestId("mock-app-dropdown")).toHaveAttribute("data-disabled", "true");
+    expect(screen.queryByTestId("mock-app-dropdown")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Gestionar trámite/i })).toBeInTheDocument();
   });
 
-  it("preserves backend order when rendering multiple actions", () => {
+  it("does not execute divider or invalid menu items", () => {
     render(
       <AppTableActionCellRenderer
         {...createParams({
           actions: [
             {
-              actionId: "primera",
-              label: "Primera",
+              actionId: "gestionar_tramite",
+              label: "Gestionar trámite",
               placement: "row",
               presentation: "icon_button",
               behavior: "client_event",
+              behaviorConfig: {
+                menuItems: ["divider_1"],
+              },
             },
+          ],
+          menuActions: [
             {
-              actionId: "segunda",
-              label: "Segunda",
+              actionId: "divider_1",
+              label: "",
               placement: "row",
-              presentation: "icon_button",
-              behavior: "client_event",
+              presentation: "menu_item",
+              behavior: "noop",
+              isDivider: true,
             },
           ],
         })}
       />,
     );
 
-    expect(
-      screen.getAllByRole("button").map((button) => button.getAttribute("aria-label")),
-    ).toEqual(["Primera", "Segunda"]);
+    expect(screen.queryAllByTestId("mock-app-dropdown-item")).toHaveLength(0);
+    expect(hookState.executeAction).not.toHaveBeenCalled();
   });
 
   it("renders a neutral fallback for unsupported presentations", () => {

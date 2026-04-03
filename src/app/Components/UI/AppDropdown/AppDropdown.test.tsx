@@ -118,6 +118,24 @@ describe("AppDropdown [SPEC:APP-DROPDOWN-001]", () => {
     expect(await screen.findByText("Exportar en Excel")).toBeInTheDocument();
     expect(await screen.findByText("Exportar Todo")).toBeInTheDocument();
   });
+
+  it("soporta divisores sin romper items ni submenus existentes", async () => {
+    render(
+      <AppDropdown
+        trigger={<AppButton>Acciones</AppButton>}
+        items={[
+          { key: "export", label: "Exportar" },
+          { key: "divider-1", type: "divider" },
+          { key: "share", label: "Compartir" },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Acciones" }));
+
+    expect(await screen.findByText("Exportar")).toBeInTheDocument();
+    expect(screen.getByText("Compartir")).toBeInTheDocument();
+  });
 });
 
 describe("AppDropdown [SPEC:APP-DROPDOWN-002]", () => {

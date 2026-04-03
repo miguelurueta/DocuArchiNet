@@ -56,9 +56,10 @@ export const useGestionCorrespondenciaTable = <
     () =>
       mapAppGridColumnsToAppTableColumns<T>(query.columns, {
         tableId: query.tableId,
+        menuActions: query.menuActions,
         userClaims: query.userClaims,
       }),
-    [query.columns, query.tableId, query.userClaims],
+    [query.columns, query.menuActions, query.tableId, query.userClaims],
   );
 
   return {

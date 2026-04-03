@@ -48,6 +48,15 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
         ],
       },
     ], {
+      menuActions: [
+        {
+          actionId: "reasignar_tramite",
+          label: "Reasignar trámite",
+          placement: "row",
+          presentation: "menu_item",
+          behavior: "api_call",
+        },
+      ],
       tableId: "workflowInboxgestion",
       userClaims: ["tramites.gestionar"],
     });
@@ -63,6 +72,11 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
       actions: [
         expect.objectContaining({
           actionId: "gestionar_tramite",
+        }),
+      ],
+      menuActions: [
+        expect.objectContaining({
+          actionId: "reasignar_tramite",
         }),
       ],
       tableId: "workflowInboxgestion",
