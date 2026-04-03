@@ -119,6 +119,35 @@ describe("AppDropdown [SPEC:APP-DROPDOWN-001]", () => {
     expect(await screen.findByText("Exportar Todo")).toBeInTheDocument();
   });
 
+  it("en mobile preserva nietos al aplanar submenus anidados", async () => {
+    breakpointState = { md: false };
+
+    render(
+      <AppDropdown
+        trigger={<AppButton>Exportar</AppButton>}
+        items={[
+          {
+            key: "excel",
+            label: "Exportar en Excel",
+            children: [
+              {
+                key: "excel-group",
+                label: "Opciones avanzadas",
+                children: [{ key: "excel-all", label: "Exportar Todo" }],
+              },
+            ],
+          },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+
+    expect(await screen.findByText("Exportar en Excel")).toBeInTheDocument();
+    expect(await screen.findByText("Opciones avanzadas")).toBeInTheDocument();
+    expect(await screen.findByText("Exportar Todo")).toBeInTheDocument();
+  });
+
   it("soporta divisores sin romper items ni submenus existentes", async () => {
     render(
       <AppDropdown

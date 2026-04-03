@@ -122,40 +122,75 @@ function mergeOpenState({
   return [currentOpen, setOpen] as const;
 }
 
+function renderMenuItemLabel(
+  item: AppDropdownItem,
+  labelClassName: string,
+) {
+  const itemIcon = item.leftIcon ?? item.icon;
+
+  return item.href ? (
+    <a href={item.href} onClick={(event) => event.stopPropagation()}>
+      <span className={labelClassName}>
+        {itemIcon ? (
+          <span className={styles.itemIcon} aria-hidden="true">
+            {itemIcon}
+          </span>
+        ) : null}
+        <span>{item.label}</span>
+      </span>
+    </a>
+  ) : (
+    <span className={labelClassName}>
+      {itemIcon ? (
+        <span className={styles.itemIcon} aria-hidden="true">
+          {itemIcon}
+        </span>
+      ) : null}
+      <span>{item.label}</span>
+    </span>
+  );
+}
+
+function buildFlatMenuItems(items: AppDropdownItem[]): MenuProps["items"] {
+  return items.flatMap((item) => {
+    if (item.type === "divider") {
+      return [{ type: "divider" as const, key: item.key }];
+    }
+
+    const currentItem = {
+      key: item.key,
+      danger: item.danger,
+      disabled: item.disabled || Boolean(item.children?.length),
+      label: renderMenuItemLabel(item, styles.childItemLabel),
+      onClick:
+        item.disabled || item.children?.length
+          ? undefined
+          : () => {
+              item.onSelect?.();
+            },
+    };
+
+    if (!item.children?.length) {
+      return [currentItem];
+    }
+
+    return [currentItem, ...buildFlatMenuItems(item.children)];
+  });
+}
+
 function buildMenuItems(items: AppDropdownItem[], flattenChildren = false): MenuProps["items"] {
   return items.flatMap((item) => {
     if (item.type === "divider") {
       return [{ type: "divider" as const, key: item.key }];
     }
 
-    const itemIcon = item.leftIcon ?? item.icon;
     const currentItem = {
       key: item.key,
       danger: item.danger,
       disabled: item.disabled || (flattenChildren && Boolean(item.children?.length)),
       children:
         item.children && !flattenChildren ? buildMenuItems(item.children, false) : undefined,
-      label: item.href ? (
-        <a href={item.href} onClick={(event) => event.stopPropagation()}>
-          <span className={styles.itemLabel}>
-            {itemIcon ? (
-              <span className={styles.itemIcon} aria-hidden="true">
-                {itemIcon}
-              </span>
-            ) : null}
-            <span>{item.label}</span>
-          </span>
-        </a>
-      ) : (
-        <span className={styles.itemLabel}>
-          {itemIcon ? (
-            <span className={styles.itemIcon} aria-hidden="true">
-              {itemIcon}
-            </span>
-          ) : null}
-          <span>{item.label}</span>
-        </span>
-      ),
+      label: renderMenuItemLabel(item, styles.itemLabel),
       onClick:
         item.disabled || item.children?.length
           ? undefined
@@ -168,39 +203,7 @@ function buildMenuItems(items: AppDropdownItem[], flattenChildren = false): Menu
       return [currentItem];
     }
 
-    const childItems = item.children.map((child) => {
-      if (child.type === "divider") {
-        return {
-          type: "divider" as const,
-          key: child.key,
-        };
-      }
-
-      const childIcon = child.leftIcon ?? child.icon;
-
-      return {
-        key: child.key,
-        danger: child.danger,
-        disabled: child.disabled,
-        label: (
-          <span className={styles.childItemLabel}>
-            {childIcon ? (
-              <span className={styles.itemIcon} aria-hidden="true">
-                {childIcon}
-              </span>
-            ) : null}
-            <span>{child.label}</span>
-          </span>
-        ),
-        onClick: child.disabled
-          ? undefined
-          : () => {
-              child.onSelect?.();
-            },
-      };
-    });
-
-    return [currentItem, ...childItems];
+    return [currentItem, ...buildFlatMenuItems(item.children)];
   });
 }
 
