@@ -1,4 +1,5 @@
 import type { ColDef } from "ag-grid-community";
+import { useDeferredLoadingVeil } from "../hooks/useDeferredLoadingVeil";
 import AppTableActionCellRenderer from "./AppTableActionCellRenderer";
 import type { AppGridCellAction, AppGridColumn, AppTableRow } from "../types/dynamicUiTable.types";
 import type { AppTableProps } from "../AppTable.types";
@@ -80,6 +81,8 @@ export function AppTableCardRenderer<T extends AppTableRow>({
   onRowClicked,
   resolvedLayoutMode,
 }: AppTableCardRendererProps<T>) {
+  const isSoftLoading = loading && rows.length > 0;
+  const showLoadingVeil = useDeferredLoadingVeil(isSoftLoading);
   const valueColumns = columns.filter((column) => {
     if (column.hide || isActionColumn(column)) {
       return false;
@@ -164,6 +167,14 @@ export function AppTableCardRenderer<T extends AppTableRow>({
             </article>
           ))
         )}
+        {showLoadingVeil ? (
+          <div className={styles.loadingVeil} data-testid="app-table-loading-veil">
+            <span className={styles.loadingBadge}>
+              <span className={styles.loadingBadgeDot} />
+              Actualizando datos
+            </span>
+          </div>
+        ) : null}
       </div>
     </div>
   );
