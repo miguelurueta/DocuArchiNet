@@ -3,12 +3,18 @@ import type {
   GridOptions,
   RowSelectionOptions,
 } from "ag-grid-community";
-import type { AppTableDomLayout, AppTableRow, AppTableRowSelection } from "../AppTable.types";
+import {
+  DEFAULT_APP_TABLE_SUPPRESS_CELL_FOCUS,
+  type AppTableDomLayout,
+  type AppTableRow,
+  type AppTableRowSelection,
+} from "../AppTable.types";
 
 export type AppTableDefaultConfig<T extends AppTableRow> = {
   rowSelection: RowSelectionOptions<T>;
   domLayout: AppTableDomLayout;
   defaultColDef: ColDef<T>;
+  suppressCellFocus: boolean;
   overlayLoadingTemplate: string;
   overlayNoRowsTemplate: string;
 };
@@ -29,6 +35,7 @@ export const createRowSelectionConfig = <T extends AppTableRow>(
 export const createAgGridDefaultConfig = <T extends AppTableRow>(): AppTableDefaultConfig<T> => ({
   rowSelection: createRowSelectionConfig<T>("multiple"),
   domLayout: "autoHeight",
+  suppressCellFocus: DEFAULT_APP_TABLE_SUPPRESS_CELL_FOCUS,
   defaultColDef: {
     resizable: true,
     sortable: true,
@@ -44,6 +51,7 @@ export const buildAgGridDefaults = <T extends AppTableRow>(): GridOptions<T> => 
   return {
     rowSelection: defaults.rowSelection,
     domLayout: defaults.domLayout,
+    suppressCellFocus: defaults.suppressCellFocus,
     defaultColDef: defaults.defaultColDef,
     overlayLoadingTemplate: defaults.overlayLoadingTemplate,
     overlayNoRowsTemplate: defaults.overlayNoRowsTemplate,

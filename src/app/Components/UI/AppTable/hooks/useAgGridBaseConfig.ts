@@ -21,6 +21,7 @@ type UseAgGridBaseConfigParams<T extends AppTableRow> = {
   paginationMode?: AppTablePaginationMode;
   clientPaginationPageSize?: number;
   suppressRowClickSelection?: boolean;
+  suppressCellFocus?: boolean;
 } & AppTableAgGridHandlers<T>;
 
 export const useAgGridBaseConfig = <T extends AppTableRow>({
@@ -30,6 +31,7 @@ export const useAgGridBaseConfig = <T extends AppTableRow>({
   paginationMode,
   clientPaginationPageSize,
   suppressRowClickSelection,
+  suppressCellFocus,
   onRowClicked,
   onRowSelected,
   onCellClicked,
@@ -44,6 +46,7 @@ export const useAgGridBaseConfig = <T extends AppTableRow>({
         rowSelection ?? "multiple",
         suppressRowClickSelection ?? false,
       ),
+      suppressCellFocus: suppressCellFocus ?? defaults.suppressCellFocus,
       domLayout: layoutMode === "fill" ? "normal" : (domLayout ?? defaults.domLayout),
       pagination: paginationMode === "client",
       paginationPageSize:
@@ -65,6 +68,7 @@ export const useAgGridBaseConfig = <T extends AppTableRow>({
     onSelectionChanged,
     paginationMode,
     rowSelection,
+    suppressCellFocus,
     suppressRowClickSelection,
   ]);
 };

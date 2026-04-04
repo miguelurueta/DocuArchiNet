@@ -72,12 +72,17 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
     render(<AppTable rows={[{ id: "1", name: "Alpha" }]} columns={columns} />);
 
     const lastCall = agGridReactSpy.mock.calls.at(-1)?.[0] as {
-      gridOptions?: { pagination?: boolean; paginationPageSize?: number };
+      gridOptions?: {
+        pagination?: boolean;
+        paginationPageSize?: number;
+        suppressCellFocus?: boolean;
+      };
       quickFilterText?: string;
     };
 
     expect(lastCall.gridOptions?.pagination).toBe(false);
     expect(lastCall.gridOptions?.paginationPageSize).toBeUndefined();
+    expect(lastCall.gridOptions?.suppressCellFocus).toBe(true);
     expect(lastCall.quickFilterText).toBeUndefined();
   });
 
@@ -324,6 +329,22 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
       "data-presentation-mode",
       "table",
     );
+  });
+
+  test("permite habilitar foco de celda explicitamente", () => {
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        suppressCellFocus={false}
+      />,
+    );
+
+    const lastCall = agGridReactSpy.mock.calls.at(-1)?.[0] as {
+      gridOptions?: { suppressCellFocus?: boolean };
+    };
+
+    expect(lastCall.gridOptions?.suppressCellFocus).toBe(false);
   });
 
   test("sincroniza overlay cuando loading cambia despues del montaje", () => {
