@@ -52,7 +52,7 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
       data: [{ idValue: null, texValue: "55" }],
       isLoading: false,
       isFetching: false,
-      error: undefined,
+      error: null,
     });
 
     const campos: CampoPlantillaDTO[] = [
@@ -126,7 +126,7 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
       data: [],
       isLoading: false,
       isFetching: false,
-      error: undefined,
+      error: null,
     });
 
     render(
@@ -175,7 +175,7 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
       data: [],
       isLoading: false,
       isFetching: false,
-      error: undefined,
+      error: null,
     });
 
     const handleChange = vi.fn();
@@ -208,7 +208,7 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
       data: [],
       isLoading: false,
       isFetching: false,
-      error: undefined,
+      error: null,
     });
 
     const handleChange = vi.fn();
@@ -252,7 +252,7 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
       data: [],
       isLoading: false,
       isFetching: false,
-      error: undefined,
+      error: null,
     });
 
     const { container } = render(

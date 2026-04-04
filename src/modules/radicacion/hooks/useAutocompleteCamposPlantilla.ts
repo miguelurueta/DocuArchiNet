@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { AxiosError } from "axios";
 import clienteApi from "../../../api/Clienteaxios";
 import type { ApiResponse } from "../../../api/ApiResponse";
 import type { CDeRelacionEstadoRetriccionDto } from "../models/CDeRelacionEstadoRetriccionDto";
@@ -176,10 +175,7 @@ export function useAutocompleteCamposPlantilla(
     ],
   );
 
-  const query = useQuery<
-    ApiResponse<AutoCompleteCampoItemDTO[]>,
-    AxiosError
-  >({
+  const query = useQuery<ApiResponse<unknown>, Error>({
     queryKey,
     enabled,
     retry: false,
@@ -192,9 +188,7 @@ export function useAutocompleteCamposPlantilla(
         };
       }
       const payload = buildAutocompletePayload(endpoint, params);
-      const { data } = await clienteApi.post<
-        ApiResponse<unknown>
-      >(endpoint, payload);
+      const { data } = await clienteApi.post<ApiResponse<unknown>>(endpoint, payload);
       return data;
     },
   });

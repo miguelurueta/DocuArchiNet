@@ -54,7 +54,7 @@ function getInputType(field: CampoPlantillaEx) {
   return "text";
 }
 
-function getInputPattern(field: CampoPlantillaEx, type: string) {
+function getInputPattern(_field: CampoPlantillaEx, type: string) {
   if (type === "email") {
     return "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
   }
