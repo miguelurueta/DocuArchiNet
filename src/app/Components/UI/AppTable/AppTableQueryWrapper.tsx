@@ -21,6 +21,7 @@ export type AppTableQueryWrapperProps = {
   className?: string;
   pageSizeOptions?: number[];
   searchPlaceholder?: string;
+  showSearch?: boolean;
 };
 
 const getVisibleRange = (page: number, pageSize: number, total: number) => {
@@ -47,6 +48,7 @@ export function AppTableQueryWrapper({
   className,
   pageSizeOptions = [...DEFAULT_PAGE_SIZE_OPTIONS],
   searchPlaceholder = "Buscar en la tabla",
+  showSearch = true,
 }: AppTableQueryWrapperProps) {
   const totalPages =
     total > 0 ? Math.max(1, Math.ceil(total / Math.max(queryState.pageSize, 1))) : 1;
@@ -60,13 +62,15 @@ export function AppTableQueryWrapper({
     <section className={joinClasses(styles.root, className)} data-testid="app-table-query-wrapper">
       <div className={styles.header}>
         <div className={styles.searchGroup}>
-          <AppInput
-            className={styles.searchInput}
-            placeholder={searchPlaceholder}
-            value={queryState.search}
-            onChange={(event) => onQueryChange({ search: event.target.value })}
-            aria-label="Buscar en la tabla"
-          />
+          {showSearch ? (
+            <AppInput
+              className={styles.searchInput}
+              placeholder={searchPlaceholder}
+              value={queryState.search}
+              onChange={(event) => onQueryChange({ search: event.target.value })}
+              aria-label="Buscar en la tabla"
+            />
+          ) : null}
           {onRefresh ? (
             <AppIconActionButton
               icon={<ReloadOutlined />}
@@ -80,8 +84,6 @@ export function AppTableQueryWrapper({
 
         {headerActions ? <div className={styles.headerActions}>{headerActions}</div> : null}
       </div>
-
-      <div className={styles.tableContainer}>{children}</div>
 
       <div className={styles.pagination}>
         <span className={styles.range} data-testid="app-table-query-range">
@@ -132,6 +134,8 @@ export function AppTableQueryWrapper({
           </div>
         </div>
       </div>
+
+      <div className={styles.tableContainer}>{children}</div>
     </section>
   );
 }

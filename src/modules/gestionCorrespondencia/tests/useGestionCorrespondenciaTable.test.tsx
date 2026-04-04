@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import React, { type ReactNode } from "react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { useGestionCorrespondenciaTable } from "../hooks/useGestionCorrespondenciaTable";
@@ -59,7 +59,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] useGestionCorrespo
         ],
         Pagination: {
           Page: 1,
-          PageSize: 25,
+          PageSize: 10,
           Total: 7,
         },
       },
@@ -78,7 +78,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] useGestionCorrespo
       expect.objectContaining({
         TableId: "workflowInboxgestion",
         Page: 1,
-        PageSize: 25,
+        PageSize: 10,
         SortField: "fecha_inicio",
         SortDir: "DESC",
         IncludeConfig: true,
@@ -97,7 +97,22 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] useGestionCorrespo
       }),
     ]);
     expect(result.current.total).toBe(7);
-    expect(result.current.pageSize).toBe(25);
+    expect(result.current.pageSize).toBe(10);
+    expect(result.current.queryState).toEqual(
+      expect.objectContaining({
+        page: 1,
+        pageSize: 10,
+        search: "",
+        sortField: "fecha_inicio",
+        sortDir: "desc",
+      }),
+    );
     expect(result.current.hasLoadedOnce).toBe(true);
+
+    act(() => {
+      result.current.onQueryChange({ search: "radicado" });
+    });
+
+    expect(result.current.queryState.search).toBe("radicado");
   });
 });
