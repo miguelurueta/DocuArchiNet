@@ -3,6 +3,7 @@ import type { ColDef, GridReadyEvent } from "ag-grid-community";
 import { useEffect, useMemo, useRef } from "react";
 import type { AppTablePaginationMode, AppTableProps, AppTableRow } from "../AppTable.types";
 import { useAgGridBaseConfig } from "../hooks/useAgGridBaseConfig";
+import { useDeferredLoadingVeil } from "../hooks/useDeferredLoadingVeil";
 import styles from "../AppTable.module.css";
 
 const resolveRowId = <T extends AppTableRow>(
@@ -61,6 +62,8 @@ export function AppTableGridRenderer<T extends AppTableRow>({
   resolvedLayoutMode,
 }: AppTableGridRendererProps<T>) {
   const gridRef = useRef<AgGridReact<T>>(null);
+  const isSoftLoading = loading && rows.length > 0;
+  const showLoadingVeil = useDeferredLoadingVeil(isSoftLoading);
   const gridOptions = useAgGridBaseConfig<T>({
     rowSelection,
     domLayout,
@@ -109,7 +112,12 @@ export function AppTableGridRenderer<T extends AppTableRow>({
     }
 
     if (loading) {
-      api.showLoadingOverlay();
+      if (rowData.length === 0) {
+        api.showLoadingOverlay();
+        return;
+      }
+
+      api.hideOverlay();
       return;
     }
 
@@ -123,7 +131,12 @@ export function AppTableGridRenderer<T extends AppTableRow>({
 
   const onGridReady = (event: GridReadyEvent<T>) => {
     if (loading) {
-      event.api.showLoadingOverlay();
+      if (rowData.length === 0) {
+        event.api.showLoadingOverlay();
+        return;
+      }
+
+      event.api.hideOverlay();
       return;
     }
 
@@ -172,6 +185,14 @@ export function AppTableGridRenderer<T extends AppTableRow>({
           onGridReady={onGridReady}
           getRowId={(params) => resolveRowId(params.data, getRowId)}
         />
+        {showLoadingVeil ? (
+          <div className={styles.loadingVeil} data-testid="app-table-loading-veil">
+            <span className={styles.loadingBadge}>
+              <span className={styles.loadingBadgeDot} />
+              Actualizando datos
+            </span>
+          </div>
+        ) : null}
       </div>
     </div>
   );

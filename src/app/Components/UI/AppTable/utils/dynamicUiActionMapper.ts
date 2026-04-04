@@ -26,8 +26,17 @@ const pickRecord = (
 const resolveActionId = (action: UiActionDto | UiCellActionDto, index: number): string =>
   pickString(action.actionId, action.ActionId, action.label, action.Label) ?? `action-${index}`;
 
-const unwrapAction = (action: UiActionDto | UiCellActionDto): UiActionDto | UiCellActionDto =>
-  action.action ?? action.Action ?? action;
+const unwrapAction = (action: UiActionDto | UiCellActionDto): UiActionDto | UiCellActionDto => {
+  if ("action" in action && action.action) {
+    return action.action;
+  }
+
+  if ("Action" in action && action.Action) {
+    return action.Action;
+  }
+
+  return action;
+};
 
 const mapDynamicUiAction = (
   rawAction: UiActionDto | UiCellActionDto,

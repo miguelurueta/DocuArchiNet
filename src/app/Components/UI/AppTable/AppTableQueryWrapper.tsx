@@ -101,7 +101,7 @@ export function AppTableQueryWrapper({
               label: `${option} por página`,
               value: option,
             }))}
-            onChange={(value) => {
+            onChange={(value: string | number | undefined) => {
               if (typeof value === "number") {
                 onQueryChange({ pageSize: value });
               }

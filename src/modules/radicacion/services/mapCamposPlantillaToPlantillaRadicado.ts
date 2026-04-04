@@ -15,7 +15,7 @@ function mapDetalleCampo(
     TipoCampo: campo.tipo_control || campo.tipo_campo,
     Requerido: campo.obligatorio_campo === 1,
     Orden: index + 1,
-    Placeholder: campo.placeholder || campo.Place_Holder,
+    Placeholder: campo.placeholder || campo.Place_Holder || undefined,
     ValorDefecto: campo.value_campo,
     Opciones: [],
   };

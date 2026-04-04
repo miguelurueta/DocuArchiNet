@@ -11,6 +11,8 @@ interface RadicacionPageProps {
 export function RadicacionPage({ plantilla, onSubmit }: RadicacionPageProps) {
   //const { fields, values, onInputChange, serialize } =
     //useRadicacionDynamicForm(plantilla);
+  void plantilla;
+  void onSubmit;
     
   return (
     <>

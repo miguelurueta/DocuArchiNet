@@ -59,7 +59,7 @@ function getLabelText(
   const raw = field.aleas_campo ?? field.name_campo;
   const resolved = translate ? translate(raw, field) : raw;
   const lower = resolved.toLocaleLowerCase();
-  return lower.replace(/(^|\s)(\S)/g, (match, prefix, letter) => {
+  return lower.replace(/(^|\s)(\S)/g, (_fullMatch, prefix, letter) => {
     return `${prefix}${letter.toLocaleUpperCase()}`;
   });
 }
@@ -142,7 +142,7 @@ export function CampoPlantillaAutoCompleteField({
 
   const shouldQuery = debouncedValue.trim().length > 0;
 
-  const { data, isLoading, isFetching, error } = useAutocompleteCamposPlantilla(
+  const { data, error } = useAutocompleteCamposPlantilla(
     shouldQuery
       ? {
           TextoBuscado: debouncedValue,
@@ -218,7 +218,6 @@ export function CampoPlantillaAutoCompleteField({
         data-ident={dataIdent}
         aria-label={labelText}
         aria-describedby={tooltipId}
-        loading={isLoading || isFetching}
       />
     </Form.Item>
   );
@@ -363,7 +362,7 @@ export function CamposPlantillaAutoCompleteRenderer({
       style={{ marginBottom: 24 }}
     >
       <Row gutter={16}>
-        {camposFiltrados.map((campo, index) => {
+        {camposFiltrados.map((campo) => {
           const dataGroup = campo.data_group ?? campo.TagSesion ?? undefined;
           const baseKey = [
             campo.name_campo || "campo-dinamico",

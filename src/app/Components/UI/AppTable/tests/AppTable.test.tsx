@@ -60,12 +60,21 @@ const columns: ColDef<Row>[] = [
 ];
 
 describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
+  beforeAll(() => {
+    vi.useFakeTimers();
+  });
+
   afterEach(() => {
     resizeObserverCallback = null;
     agGridReactSpy.mockClear();
     showLoadingOverlaySpy.mockClear();
     showNoRowsOverlaySpy.mockClear();
     hideOverlaySpy.mockClear();
+    vi.clearAllTimers();
+  });
+
+  afterAll(() => {
+    vi.useRealTimers();
   });
 
   test("preserva compatibilidad hacia atrás sin paginationMode", () => {
@@ -101,8 +110,7 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
 
   test("expone estado loading cuando loading es true", () => {
     render(<AppTable rows={[]} columns={columns} loading />);
-    const wrapper = screen.getByTestId("app-table-grid");
-    expect(wrapper).toHaveAttribute("data-overlay", "loading");
+    expect(screen.getByTestId("app-table-grid-skeleton")).toBeInTheDocument();
   });
 
   test("configura client mode con paginación nativa y page size custom", () => {
@@ -217,7 +225,7 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
   });
 
   test("usa cards como presentacion alternativa sin romper el contrato base", () => {
-    const cardColumns: ColDef<Row>[] = [
+    const cardColumns: ColDef<Row & { acciones?: string }>[] = [
       { field: "name", headerName: "Nombre" },
       {
         field: "acciones",
@@ -256,6 +264,12 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
 
     expect(screen.getByText("Sin registros")).toBeInTheDocument();
     expect(screen.getByTestId("app-table-cards")).toHaveAttribute("data-overlay", "empty");
+  });
+
+  test("cards renderiza skeleton en first load sin filas", () => {
+    render(<AppTable rows={[]} columns={columns} presentationMode="cards" loading />);
+
+    expect(screen.getByTestId("app-table-card-skeleton")).toBeInTheDocument();
   });
 
   test("cards permite restringir y ordenar campos visibles mediante cardFields", () => {
@@ -355,11 +369,48 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
   test("sincroniza overlay cuando loading cambia despues del montaje", () => {
     const { rerender } = render(<AppTable rows={[]} columns={columns} loading />);
 
-    expect(showLoadingOverlaySpy).toHaveBeenCalled();
+    expect(screen.getByTestId("app-table-grid-skeleton")).toBeInTheDocument();
 
     rerender(<AppTable rows={[{ id: "1", name: "Alpha" }]} columns={columns} loading={false} />);
 
     expect(hideOverlaySpy).toHaveBeenCalled();
+  });
+
+  test("mantiene grid visible durante refetch cuando ya existen filas", () => {
+    render(<AppTable rows={[{ id: "1", name: "Alpha" }]} columns={columns} loading />);
+
+    expect(screen.getByTestId("app-table-grid")).toBeInTheDocument();
+    expect(screen.queryByTestId("app-table-loading-veil")).not.toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(140);
+    });
+
+    expect(screen.getByTestId("app-table-loading-veil")).toBeInTheDocument();
+    expect(screen.queryByTestId("app-table-grid-skeleton")).not.toBeInTheDocument();
+    expect(showLoadingOverlaySpy).not.toHaveBeenCalled();
+    expect(hideOverlaySpy).toHaveBeenCalled();
+  });
+
+  test("mantiene cards visibles durante refetch y agrega una carga suave", () => {
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        presentationMode="cards"
+        loading
+      />,
+    );
+
+    expect(screen.getByTestId("app-table-cards")).toBeInTheDocument();
+    expect(screen.queryByTestId("app-table-loading-veil")).not.toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(140);
+    });
+
+    expect(screen.getByTestId("app-table-loading-veil")).toBeInTheDocument();
+    expect(screen.queryByTestId("app-table-card-skeleton")).not.toBeInTheDocument();
   });
 
   test("ejecuta callbacks de seleccion y click", () => {

@@ -47,7 +47,7 @@ import {
 } from "./CamposPlantillaAutoCompleteRenderer";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 
-export const CDeRelacionEstadoRetriccionDto =
+export const C_DE_RELACION_ESTADO_RETRICCION_DTO_DEFAULT =
   C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT;
 
 /* =========================================================

@@ -29,6 +29,7 @@
 }
 
 .grid {
+  position: relative;
   width: 100%;
   min-width: 0;
   min-height: 320px;
@@ -73,6 +74,7 @@
 }
 
 .cards {
+  position: relative;
   display: grid;
   gap: 0.875rem;
   width: 100%;
@@ -86,6 +88,108 @@
   min-height: 0;
   overflow-y: auto;
   padding-right: 0.25rem;
+}
+
+.skeletonRoot {
+  width: 100%;
+  min-width: 0;
+  min-height: 320px;
+}
+
+.skeletonRootFill {
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+}
+
+.skeletonTable {
+  display: grid;
+  gap: 0;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.96));
+}
+
+.skeletonHeaderRow,
+.skeletonBodyRow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+}
+
+.skeletonHeaderRow {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(248, 250, 252, 0.95);
+}
+
+.skeletonBody {
+  display: grid;
+}
+
+.skeletonBodyRow + .skeletonBodyRow {
+  border-top: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.skeletonHeaderCell,
+.skeletonBodyCell,
+.skeletonCardLabel,
+.skeletonCardValue,
+.skeletonCardAction {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.18);
+}
+
+.skeletonHeaderCell::after,
+.skeletonBodyCell::after,
+.skeletonCardLabel::after,
+.skeletonCardValue::after,
+.skeletonCardAction::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.58) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: appTableSkeletonPulse 1.35s ease-in-out infinite;
+}
+
+.skeletonHeaderCell {
+  height: 0.75rem;
+}
+
+.skeletonBodyCell {
+  height: 0.875rem;
+}
+
+.skeletonCardLabel {
+  width: 34%;
+  height: 0.68rem;
+}
+
+.skeletonCardValue {
+  width: 72%;
+  height: 0.9rem;
+}
+
+.skeletonCardAction {
+  width: 5.25rem;
+  height: 2rem;
+}
+
+@keyframes appTableSkeletonPulse {
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .card {
@@ -146,4 +250,78 @@
   font-size: var(--app-table-row-font-size);
   font-weight: var(--app-table-row-font-weight);
   line-height: var(--app-table-row-line-height);
+}
+
+.loadingVeil {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 1rem;
+  border-radius: inherit;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(248, 250, 252, 0.2)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.34) 50%, rgba(255, 255, 255, 0) 100%);
+  background-size: auto, 220px 100%;
+  background-repeat: no-repeat;
+  background-position: 0 0, -220px 0;
+  animation:
+    appTableLoadingVeilFade 180ms ease-out,
+    appTableLoadingVeilSweep 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.loadingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #334155;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(6px);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.loadingBadgeDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #64748b;
+  animation: appTableLoadingBadgePulse 1s ease-in-out infinite;
+}
+
+@keyframes appTableLoadingVeilFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes appTableLoadingVeilSweep {
+  100% {
+    background-position: 0 0, calc(100% + 220px) 0;
+  }
+}
+
+@keyframes appTableLoadingBadgePulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

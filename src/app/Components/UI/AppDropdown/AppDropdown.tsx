@@ -174,7 +174,7 @@ function buildFlatMenuItems(items: AppDropdownItem[]): MenuProps["items"] {
       return [currentItem];
     }
 
-    return [currentItem, ...buildFlatMenuItems(item.children)];
+    return [currentItem, ...(buildFlatMenuItems(item.children) ?? [])];
   });
 }
 
@@ -203,7 +203,7 @@ function buildMenuItems(items: AppDropdownItem[], flattenChildren = false): Menu
       return [currentItem];
     }
 
-    return [currentItem, ...buildFlatMenuItems(item.children)];
+    return [currentItem, ...(buildFlatMenuItems(item.children) ?? [])];
   });
 }
 
