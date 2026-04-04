@@ -12,6 +12,10 @@ vi.mock("ag-grid-react", () => ({
   },
 }));
 
+vi.mock("../renderers/AppTableActionCellRenderer", () => ({
+  default: () => <div data-testid="mock-card-actions">Mocked Card Actions</div>,
+}));
+
 type Row = {
   id: string;
   name: string;
@@ -162,6 +166,64 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
 
     expect(root).toHaveAttribute("data-layout-mode", "fill");
     expect(lastCall.gridOptions?.domLayout).toBe("normal");
+  });
+
+  test("usa cards como presentacion alternativa sin romper el contrato base", () => {
+    const cardColumns: ColDef<Row>[] = [
+      { field: "name", headerName: "Nombre" },
+      {
+        field: "acciones",
+        headerName: "Acciones",
+        cellRendererParams: {
+          appGridColumn: { field: "acciones", headerName: "Acciones", visible: true, sortable: false, filterable: false },
+          actions: [],
+        },
+      },
+    ];
+
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={cardColumns}
+        presentationMode="cards"
+      />,
+    );
+
+    expect(screen.getByTestId("app-table-cards").parentElement).toHaveAttribute(
+      "data-presentation-mode",
+      "cards",
+    );
+    expect(screen.getByTestId("app-table-card")).toBeInTheDocument();
+    expect(screen.getByText("Nombre")).toBeInTheDocument();
+    expect(screen.getByText("Alpha")).toBeInTheDocument();
+    expect(screen.getByTestId("mock-card-actions")).toBeInTheDocument();
+  });
+
+  test("cards renderiza empty state cuando no hay filas", () => {
+    render(<AppTable rows={[]} columns={columns} presentationMode="cards" />);
+
+    expect(screen.getByText("Sin registros")).toBeInTheDocument();
+    expect(screen.getByTestId("app-table-cards")).toHaveAttribute("data-overlay", "empty");
+  });
+
+  test("cards permite restringir y ordenar campos visibles mediante cardFields", () => {
+    const cardColumns: ColDef<Row & { status: string }>[] = [
+      { field: "name", headerName: "Nombre" },
+      { field: "status", headerName: "Estado" },
+    ];
+
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha", status: "Activo" }]}
+        columns={cardColumns}
+        presentationMode="cards"
+        cardFields={["status"]}
+      />,
+    );
+
+    expect(screen.queryByText("Nombre")).not.toBeInTheDocument();
+    expect(screen.getByText("Estado")).toBeInTheDocument();
+    expect(screen.getByText("Activo")).toBeInTheDocument();
   });
 
   test("ejecuta callbacks de seleccion y click", () => {
