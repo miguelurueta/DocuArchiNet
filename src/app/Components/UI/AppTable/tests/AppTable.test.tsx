@@ -101,8 +101,7 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
 
   test("expone estado loading cuando loading es true", () => {
     render(<AppTable rows={[]} columns={columns} loading />);
-    const wrapper = screen.getByTestId("app-table-grid");
-    expect(wrapper).toHaveAttribute("data-overlay", "loading");
+    expect(screen.getByTestId("app-table-grid-skeleton")).toBeInTheDocument();
   });
 
   test("configura client mode con paginación nativa y page size custom", () => {
@@ -258,6 +257,12 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
     expect(screen.getByTestId("app-table-cards")).toHaveAttribute("data-overlay", "empty");
   });
 
+  test("cards renderiza skeleton en first load sin filas", () => {
+    render(<AppTable rows={[]} columns={columns} presentationMode="cards" loading />);
+
+    expect(screen.getByTestId("app-table-card-skeleton")).toBeInTheDocument();
+  });
+
   test("cards permite restringir y ordenar campos visibles mediante cardFields", () => {
     const cardColumns: ColDef<Row & { status: string }>[] = [
       { field: "name", headerName: "Nombre" },
@@ -355,11 +360,19 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
   test("sincroniza overlay cuando loading cambia despues del montaje", () => {
     const { rerender } = render(<AppTable rows={[]} columns={columns} loading />);
 
-    expect(showLoadingOverlaySpy).toHaveBeenCalled();
+    expect(screen.getByTestId("app-table-grid-skeleton")).toBeInTheDocument();
 
     rerender(<AppTable rows={[{ id: "1", name: "Alpha" }]} columns={columns} loading={false} />);
 
     expect(hideOverlaySpy).toHaveBeenCalled();
+  });
+
+  test("mantiene grid visible durante refetch cuando ya existen filas", () => {
+    render(<AppTable rows={[{ id: "1", name: "Alpha" }]} columns={columns} loading />);
+
+    expect(screen.getByTestId("app-table-grid")).toBeInTheDocument();
+    expect(screen.queryByTestId("app-table-grid-skeleton")).not.toBeInTheDocument();
+    expect(showLoadingOverlaySpy).toHaveBeenCalled();
   });
 
   test("ejecuta callbacks de seleccion y click", () => {

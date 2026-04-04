@@ -13,6 +13,7 @@ export type AppTableDomLayout = "autoHeight" | "normal" | "print";
 export type AppTablePaginationMode = "none" | "client" | "server";
 export type AppTableLayoutMode = "content" | "fill";
 export type AppTablePresentationMode = "table" | "cards";
+export type AppTableLoadingMode = "overlay" | "skeleton";
 export type AppTableResponsivePresentation = {
   enabled?: boolean;
   cardsBelow?: number;
@@ -38,6 +39,7 @@ export type AppTableProps<T extends AppTableRow> = {
   clientPaginationPageSize?: number;
   layoutMode?: AppTableLayoutMode;
   presentationMode?: AppTablePresentationMode;
+  loadingMode?: AppTableLoadingMode;
   responsivePresentation?: AppTableResponsivePresentation;
   rowSelection?: AppTableRowSelection;
   suppressRowClickSelection?: boolean;

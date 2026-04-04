@@ -7,12 +7,15 @@ import type {
   AppTableRow,
 } from "./AppTable.types";
 import { AppTableCardRenderer } from "./renderers/AppTableCardRenderer";
+import { AppTableCardSkeleton } from "./renderers/AppTableCardSkeleton";
 import { AppTableGridRenderer } from "./renderers/AppTableGridRenderer";
+import { AppTableGridSkeleton } from "./renderers/AppTableGridSkeleton";
 import styles from "./AppTable.module.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 
 const DEFAULT_CARDS_BELOW = 768;
+const DEFAULT_LOADING_MODE = "skeleton";
 
 const resolveLayoutMode = (
   layoutMode: AppTableLayoutMode | undefined,
@@ -92,6 +95,10 @@ export default function AppTable<T extends AppTableRow>(props: AppTableProps<T>)
     responsivePresentation,
     containerWidth,
   );
+  const resolvedLoadingMode = props.loadingMode ?? DEFAULT_LOADING_MODE;
+  const hasRenderableRows = props.rows.length > 0;
+  const shouldRenderSkeleton =
+    resolvedLoadingMode === "skeleton" && props.loading === true && !hasRenderableRows;
 
   return (
     <div
@@ -100,7 +107,19 @@ export default function AppTable<T extends AppTableRow>(props: AppTableProps<T>)
       data-responsive-enabled={responsivePresentation.enabled ? "true" : "false"}
       data-responsive-width={containerWidth ?? undefined}
     >
-      {resolvedPresentationMode === "cards" ? (
+      {shouldRenderSkeleton ? (
+        resolvedPresentationMode === "cards" ? (
+          <AppTableCardSkeleton
+            className={props.className}
+            resolvedLayoutMode={resolvedLayoutMode}
+          />
+        ) : (
+          <AppTableGridSkeleton
+            className={props.className}
+            resolvedLayoutMode={resolvedLayoutMode}
+          />
+        )
+      ) : resolvedPresentationMode === "cards" ? (
         <AppTableCardRenderer
           rows={props.rows}
           columns={props.columns}
