@@ -1,4 +1,5 @@
 import { Layout, Button, Avatar, Dropdown, Space, Typography } from "antd";
+import type { MenuProps } from "antd";
 import {
   MenuFoldOutlined,
   MenuOutlined,
@@ -20,7 +21,7 @@ interface NavbarProps {
   onToggle: () => void;
 }
 
-const profileMenu = {
+const profileMenu: MenuProps = {
   items: [
     {
       key: "profile",
@@ -33,7 +34,7 @@ const profileMenu = {
       label: "Configuración",
     },
     {
-      type: "divider",
+      type: "divider" as const,
     },
     {
       key: "logout",
@@ -76,7 +77,7 @@ const Navbar = ({ collapsed, isMobile, onToggle }: NavbarProps) => {
       <div className={styles.right}>
         <Dropdown menu={profileMenu} trigger={["click"]}>
           <Space className={styles.profile}>
-            <Avatar size="medium" icon={<UserOutlined />} />
+            <Avatar size="default" icon={<UserOutlined />} />
             <Text className={styles.username}>Miguel Urueta</Text>
           </Space>
         </Dropdown>

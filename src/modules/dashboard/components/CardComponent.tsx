@@ -250,7 +250,7 @@
 // }
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/GridLegacy";
 import Collapse from "@mui/material/Collapse";
 import Badge from "@mui/material/Badge";
 import Tooltip from "@mui/material/Tooltip";
