@@ -8,6 +8,7 @@ import type { AppTableQueryState } from "../../../app/Components/UI/AppTable/typ
 import type { AppTableRow } from "../../../app/Components/UI/AppTable/AppTable.types";
 import type { ColDef } from "ag-grid-community";
 import { mapGestionCorrespondenciaTableRequest } from "../adapters/gestionCorrespondenciaTableRequestMapper";
+import type { GestionCorrespondenciaTableRequest } from "../adapters/gestionCorrespondenciaTableRequestMapper";
 
 export type GestionCorrespondenciaTableResult<T extends AppTableRow = AppTableRow> = {
   rows: T[];
@@ -38,7 +39,7 @@ export const useGestionCorrespondenciaTable = <
     sortDir: "desc",
   });
 
-  const query = useDynamicUiTableQuery({
+  const query = useDynamicUiTableQuery<GestionCorrespondenciaTableRequest>({
     input: {
       tableId: "workflowInboxgestion",
       page: queryState.page,

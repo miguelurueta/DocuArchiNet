@@ -67,7 +67,8 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
 
     expect(actionColumn.sortable).toBe(false);
     expect(actionColumn.filter).toBe(false);
-    expect(actionColumn.valueGetter?.({} as never)).toBe("");
+    expect(typeof actionColumn.valueGetter).toBe("function");
+    expect((actionColumn.valueGetter as (params: never) => string)({} as never)).toBe("");
     expect(actionColumn.cellRenderer).toBeDefined();
     expect(actionColumn.cellRendererParams).toEqual({
       appGridColumn: expect.objectContaining({

@@ -10,5 +10,5 @@ export const mapAppGridRowsToAppTableRows = <T extends AppTableRow = AppTableRow
   return rows.map((row) => ({
     id: row.id,
     ...row.data,
-  })) as T[];
+  })) as unknown as T[];
 };

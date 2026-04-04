@@ -225,7 +225,7 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
   });
 
   test("usa cards como presentacion alternativa sin romper el contrato base", () => {
-    const cardColumns: ColDef<Row>[] = [
+    const cardColumns: ColDef<Row & { acciones?: string }>[] = [
       { field: "name", headerName: "Nombre" },
       {
         field: "acciones",

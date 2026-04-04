@@ -25,9 +25,9 @@ const resolveFilter = (column: AppGridColumn): ColDef<AppTableRow>["filter"] => 
   return true;
 };
 
-const resolveCellStyle = (
+const resolveCellStyle = <T extends AppTableRow>(
   column: AppGridColumn,
-): ColDef<AppTableRow>["cellStyle"] => {
+): ColDef<T>["cellStyle"] => {
   if (!column.align) {
     return undefined;
   }
@@ -37,7 +37,7 @@ const resolveCellStyle = (
   };
 };
 
-const buildActionValueGetter = (field: string) => () => "";
+const buildActionValueGetter = () => "";
 
 export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTableRow>(
   columns: ReadonlyArray<AppGridColumn> | null | undefined,
@@ -49,7 +49,7 @@ export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTa
 
   return columns.map((column) => {
     const colDef: ColDef<T> = {
-      field: column.field as keyof T & string,
+      field: column.field as ColDef<T>["field"],
       headerName: column.headerName,
       hide: column.visible === false,
       sortable: column.sortable,
@@ -57,14 +57,14 @@ export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTa
       width: column.width,
       pinned: column.pinned,
       lockPinned: column.lockPinned,
-      cellStyle: resolveCellStyle(column),
+      cellStyle: resolveCellStyle<T>(column),
       colId: column.field,
     };
 
     if (column.isActionColumn) {
       colDef.sortable = false;
       colDef.filter = false;
-      colDef.valueGetter = buildActionValueGetter(column.field);
+      colDef.valueGetter = buildActionValueGetter;
       colDef.cellRenderer = AppTableActionCellRenderer;
       colDef.cellRendererParams = {
         appGridColumn: column,

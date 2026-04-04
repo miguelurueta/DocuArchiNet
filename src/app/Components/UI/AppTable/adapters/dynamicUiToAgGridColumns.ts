@@ -17,7 +17,7 @@ const pickBoolean = (...values: Array<boolean | null | undefined>): boolean | un
 };
 
 const pickNumber = (...values: Array<number | null | undefined>): number | undefined =>
-  values.find((value) => typeof value === "number" && Number.isFinite(value));
+  values.find((value): value is number => typeof value === "number" && Number.isFinite(value));
 
 const pickRecord = (
   ...values: Array<DynamicUiUnknownRecord | null | undefined>
@@ -89,8 +89,12 @@ const mapActionColumn = (
 };
 
 export const mapDynamicUiColumnsToAppGridColumns = (
-  table: Pick<DynamicUiTableDto, "columns" | "Columns" | "rowActions" | "RowActions" | "cellActions" | "CellActions"> | null | undefined,
+  table: DynamicUiTableDto | null | undefined,
 ): AppGridColumn[] => {
+  if (!table) {
+    return [];
+  }
+
   const columns = table?.columns ?? table?.Columns;
   if (!columns?.length) {
     return [];
