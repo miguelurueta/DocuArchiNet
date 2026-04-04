@@ -2,7 +2,7 @@ import { AppButton, type AppButtonProps } from "./AppButton";
 
 export type AppIconActionButtonProps = Omit<
   AppButtonProps,
-  "children" | "leftIcon" | "rightIcon"
+  "children" | "leftIcon" | "rightIcon" | "ref"
 > & {
   icon: NonNullable<AppButtonProps["icon"]>;
   "aria-label": string;
