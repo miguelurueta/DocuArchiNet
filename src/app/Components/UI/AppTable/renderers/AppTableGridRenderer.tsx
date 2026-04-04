@@ -1,6 +1,6 @@
 import { AgGridReact } from "ag-grid-react";
 import type { ColDef, GridReadyEvent } from "ag-grid-community";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { AppTablePaginationMode, AppTableProps, AppTableRow } from "../AppTable.types";
 import { useAgGridBaseConfig } from "../hooks/useAgGridBaseConfig";
 import styles from "../AppTable.module.css";
@@ -99,6 +99,25 @@ export function AppTableGridRenderer<T extends AppTableRow>({
     () => resolveQuickFilterText(paginationMode, quickFilterText),
     [paginationMode, quickFilterText],
   );
+
+  useEffect(() => {
+    const api = gridRef.current?.api;
+    if (!api) {
+      return;
+    }
+
+    if (loading) {
+      api.showLoadingOverlay();
+      return;
+    }
+
+    if (rowData.length === 0) {
+      api.showNoRowsOverlay();
+      return;
+    }
+
+    api.hideOverlay();
+  }, [loading, rowData]);
 
   const onGridReady = (event: GridReadyEvent<T>) => {
     if (loading) {

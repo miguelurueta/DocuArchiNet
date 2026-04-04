@@ -1,15 +1,26 @@
 import { act, render, screen } from "@testing-library/react";
+import { forwardRef, useImperativeHandle } from "react";
 import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 import type { ColDef } from "ag-grid-community";
 import AppTable from "../AppTable";
 
 const agGridReactSpy = vi.fn();
+const showLoadingOverlaySpy = vi.fn();
+const showNoRowsOverlaySpy = vi.fn();
+const hideOverlaySpy = vi.fn();
 
 vi.mock("ag-grid-react", () => ({
-  AgGridReact: (props: unknown) => {
+  AgGridReact: forwardRef((props: unknown, ref) => {
     agGridReactSpy(props);
+    useImperativeHandle(ref, () => ({
+      api: {
+        showLoadingOverlay: showLoadingOverlaySpy,
+        showNoRowsOverlay: showNoRowsOverlaySpy,
+        hideOverlay: hideOverlaySpy,
+      },
+    }));
     return <div>Mocked Grid</div>;
-  },
+  }),
 }));
 
 vi.mock("../renderers/AppTableActionCellRenderer", () => ({
@@ -51,6 +62,10 @@ const columns: ColDef<Row>[] = [
 describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
   afterEach(() => {
     resizeObserverCallback = null;
+    agGridReactSpy.mockClear();
+    showLoadingOverlaySpy.mockClear();
+    showNoRowsOverlaySpy.mockClear();
+    hideOverlaySpy.mockClear();
   });
 
   test("preserva compatibilidad hacia atrás sin paginationMode", () => {
@@ -309,6 +324,16 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
       "data-presentation-mode",
       "table",
     );
+  });
+
+  test("sincroniza overlay cuando loading cambia despues del montaje", () => {
+    const { rerender } = render(<AppTable rows={[]} columns={columns} loading />);
+
+    expect(showLoadingOverlaySpy).toHaveBeenCalled();
+
+    rerender(<AppTable rows={[{ id: "1", name: "Alpha" }]} columns={columns} loading={false} />);
+
+    expect(hideOverlaySpy).toHaveBeenCalled();
   });
 
   test("ejecuta callbacks de seleccion y click", () => {
