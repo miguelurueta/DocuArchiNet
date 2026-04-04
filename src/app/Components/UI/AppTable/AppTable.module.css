@@ -22,3 +22,72 @@
   height: 100%;
   min-height: 0;
 }
+
+.cards {
+  display: grid;
+  gap: 0.875rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.cardsFill {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.card {
+  display: grid;
+  gap: 0.875rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border-default, rgba(15, 23, 42, 0.1));
+  border-radius: 1rem;
+  background: var(--color-surface-default, #ffffff);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.cardBody {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.cardField {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.cardLabel {
+  color: var(--color-text-secondary, #595959);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.cardValue {
+  color: var(--color-text-primary, #141414);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.cardEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem;
+  border: 1px dashed rgba(15, 23, 42, 0.14);
+  border-radius: 1rem;
+  color: var(--color-text-secondary, #595959);
+  background: rgba(255, 255, 255, 0.88);
+}

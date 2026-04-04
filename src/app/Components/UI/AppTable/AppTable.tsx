@@ -1,46 +1,8 @@
-import { AgGridReact } from "ag-grid-react";
-import type { ColDef, GridReadyEvent } from "ag-grid-community";
-import { useMemo, useRef } from "react";
-import type {
-  AppTableLayoutMode,
-  AppTablePaginationMode,
-  AppTableProps,
-  AppTableRow,
-} from "./AppTable.types";
-import { useAgGridBaseConfig } from "./hooks/useAgGridBaseConfig";
-import styles from "./AppTable.module.css";
+import type { AppTableLayoutMode, AppTablePresentationMode, AppTableProps, AppTableRow } from "./AppTable.types";
+import { AppTableCardRenderer } from "./renderers/AppTableCardRenderer";
+import { AppTableGridRenderer } from "./renderers/AppTableGridRenderer";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
-
-const resolveRowId = <T extends AppTableRow>(
-  row: T,
-  getRowId?: (row: T) => string,
-): string => {
-  if (getRowId) {
-    return getRowId(row);
-  }
-
-  const candidate = row.id;
-  if (typeof candidate === "string" || typeof candidate === "number") {
-    return String(candidate);
-  }
-
-  return JSON.stringify(row);
-};
-
-const joinClasses = (...values: Array<string | false | null | undefined>) =>
-  values.filter(Boolean).join(" ");
-
-const resolveQuickFilterText = (
-  paginationMode: AppTablePaginationMode | undefined,
-  quickFilterText: string | undefined,
-) => {
-  if (paginationMode === "server") {
-    return undefined;
-  }
-
-  return quickFilterText;
-};
 
 const resolveLayoutMode = (
   layoutMode: AppTableLayoutMode | undefined,
@@ -53,121 +15,31 @@ const resolveLayoutMode = (
   return domLayout === "normal" ? "fill" : "content";
 };
 
-export default function AppTable<T extends AppTableRow>({
-  rows,
-  columns,
-  loading = false,
-  total,
-  paginationMode,
-  quickFilterText,
-  clientPaginationPageSize,
-  layoutMode,
-  rowSelection = "multiple",
-  suppressRowClickSelection = false,
-  domLayout = "autoHeight",
-  className,
-  gridClassName,
-  getRowId,
-  onRowSelected,
-  onCellClicked,
-  onRowClicked,
-  onSelectionChanged,
-}: AppTableProps<T>) {
-  const gridRef = useRef<AgGridReact<T>>(null);
+const resolvePresentationMode = (
+  presentationMode: AppTablePresentationMode | undefined,
+): AppTablePresentationMode => presentationMode ?? "table";
+
+export default function AppTable<T extends AppTableRow>(props: AppTableProps<T>) {
   const resolvedLayoutMode = resolveLayoutMode(
-    layoutMode,
-    domLayout as AppTableProps<AppTableRow>["domLayout"],
+    props.layoutMode,
+    props.domLayout as AppTableProps<AppTableRow>["domLayout"],
   );
-  const gridOptions = useAgGridBaseConfig<T>({
-    rowSelection,
-    domLayout,
-    layoutMode: resolvedLayoutMode,
-    paginationMode,
-    clientPaginationPageSize,
-    suppressRowClickSelection,
-    onRowSelected: (event) => {
-      if (!event.node.isSelected()) {
-        onRowSelected?.(null);
-        return;
-      }
-      onRowSelected?.(event.data ?? null);
-    },
-    onRowClicked: (event) => {
-      if (event.data) {
-        onRowClicked?.(event.data);
-      }
-    },
-    onCellClicked: (event) => {
-      if (!event.data) return;
-      onCellClicked?.({
-        row: event.data,
-        field: event.colDef?.field ?? null,
-        value: event.value,
-      });
-    },
-    onSelectionChanged: (event) => {
-      const selectedRows = event.api.getSelectedRows();
-      onSelectionChanged?.(selectedRows);
-    },
-  });
+  const resolvedPresentationMode = resolvePresentationMode(props.presentationMode);
 
-  const columnDefs = useMemo<ColDef<T>[]>(() => columns, [columns]);
-  const rowData = useMemo<T[]>(() => rows, [rows]);
-  const resolvedQuickFilterText = useMemo(
-    () => resolveQuickFilterText(paginationMode, quickFilterText),
-    [paginationMode, quickFilterText],
-  );
+  if (resolvedPresentationMode === "cards") {
+    return (
+      <AppTableCardRenderer
+        rows={props.rows}
+        columns={props.columns}
+        cardFields={props.cardFields}
+        loading={props.loading}
+        total={props.total}
+        className={props.className}
+        onRowClicked={props.onRowClicked}
+        resolvedLayoutMode={resolvedLayoutMode}
+      />
+    );
+  }
 
-  const onGridReady = (event: GridReadyEvent<T>) => {
-    if (loading) {
-      event.api.showLoadingOverlay();
-      return;
-    }
-
-    if (rowData.length === 0) {
-      event.api.showNoRowsOverlay();
-    } else {
-      event.api.hideOverlay();
-    }
-  };
-
-  const overlayStatus = useMemo(() => {
-    if (loading) return "loading";
-    if (rowData.length === 0) return "empty";
-    return "ready";
-  }, [loading, rowData.length]);
-
-  return (
-    <div
-      className={joinClasses(
-        styles.root,
-        resolvedLayoutMode === "fill" && styles.rootFill,
-        className,
-      )}
-      data-layout-mode={resolvedLayoutMode}
-      data-total={total ?? undefined}
-    >
-      <div
-        className={joinClasses(
-          styles.grid,
-          resolvedLayoutMode === "fill" && styles.gridFill,
-          "ag-theme-quartz",
-          gridClassName,
-        )}
-        data-overlay={overlayStatus}
-        data-testid="app-table-grid"
-      >
-        <AgGridReact<T>
-          ref={gridRef}
-          rowData={rowData}
-          columnDefs={columnDefs}
-          gridOptions={gridOptions}
-          quickFilterText={resolvedQuickFilterText}
-          theme="legacy"
-          onGridReady={onGridReady}
-          getRowId={(params) => resolveRowId(params.data, getRowId)}
-        />
-      </div>
-    </div>
-  );
+  return <AppTableGridRenderer {...props} resolvedLayoutMode={resolvedLayoutMode} />;
 }

@@ -12,6 +12,7 @@ export type AppTableRowSelection = "single" | "multiple";
 export type AppTableDomLayout = "autoHeight" | "normal" | "print";
 export type AppTablePaginationMode = "none" | "client" | "server";
 export type AppTableLayoutMode = "content" | "fill";
+export type AppTablePresentationMode = "table" | "cards";
 
 export const DEFAULT_APP_TABLE_CLIENT_PAGE_SIZE = 25;
 
@@ -24,12 +25,14 @@ export type AppTableCellClick<T extends AppTableRow> = {
 export type AppTableProps<T extends AppTableRow> = {
   rows: T[];
   columns: ColDef<T>[];
+  cardFields?: string[];
   loading?: boolean;
   total?: number;
   paginationMode?: AppTablePaginationMode;
   quickFilterText?: string;
   clientPaginationPageSize?: number;
   layoutMode?: AppTableLayoutMode;
+  presentationMode?: AppTablePresentationMode;
   rowSelection?: AppTableRowSelection;
   suppressRowClickSelection?: boolean;
   domLayout?: AppTableDomLayout;
