@@ -132,6 +132,38 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
     expect(lastCall.quickFilterText).toBeUndefined();
   });
 
+  test("preserva layout content por defecto", () => {
+    render(<AppTable rows={[{ id: "1", name: "Alpha" }]} columns={columns} />);
+
+    const wrapper = screen.getByTestId("app-table-grid");
+    const root = wrapper.parentElement;
+    const lastCall = agGridReactSpy.mock.calls.at(-1)?.[0] as {
+      gridOptions?: { domLayout?: string };
+    };
+
+    expect(root).toHaveAttribute("data-layout-mode", "content");
+    expect(lastCall.gridOptions?.domLayout).toBe("autoHeight");
+  });
+
+  test("usa layout fill con domLayout normal y conserva altura estable", () => {
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        layoutMode="fill"
+      />,
+    );
+
+    const wrapper = screen.getByTestId("app-table-grid");
+    const root = wrapper.parentElement;
+    const lastCall = agGridReactSpy.mock.calls.at(-1)?.[0] as {
+      gridOptions?: { domLayout?: string };
+    };
+
+    expect(root).toHaveAttribute("data-layout-mode", "fill");
+    expect(lastCall.gridOptions?.domLayout).toBe("normal");
+  });
+
   test("ejecuta callbacks de seleccion y click", () => {
     const onRowClicked = vi.fn();
     const onCellClicked = vi.fn();

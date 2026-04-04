@@ -2,6 +2,7 @@ import { AgGridReact } from "ag-grid-react";
 import type { ColDef, GridReadyEvent } from "ag-grid-community";
 import { useMemo, useRef } from "react";
 import type {
+  AppTableLayoutMode,
   AppTablePaginationMode,
   AppTableProps,
   AppTableRow,
@@ -41,6 +42,17 @@ const resolveQuickFilterText = (
   return quickFilterText;
 };
 
+const resolveLayoutMode = (
+  layoutMode: AppTableLayoutMode | undefined,
+  domLayout: AppTableProps<AppTableRow>["domLayout"] | undefined,
+): AppTableLayoutMode => {
+  if (layoutMode) {
+    return layoutMode;
+  }
+
+  return domLayout === "normal" ? "fill" : "content";
+};
+
 export default function AppTable<T extends AppTableRow>({
   rows,
   columns,
@@ -49,6 +61,7 @@ export default function AppTable<T extends AppTableRow>({
   paginationMode,
   quickFilterText,
   clientPaginationPageSize,
+  layoutMode,
   rowSelection = "multiple",
   suppressRowClickSelection = false,
   domLayout = "autoHeight",
@@ -61,9 +74,14 @@ export default function AppTable<T extends AppTableRow>({
   onSelectionChanged,
 }: AppTableProps<T>) {
   const gridRef = useRef<AgGridReact<T>>(null);
+  const resolvedLayoutMode = resolveLayoutMode(
+    layoutMode,
+    domLayout as AppTableProps<AppTableRow>["domLayout"],
+  );
   const gridOptions = useAgGridBaseConfig<T>({
     rowSelection,
     domLayout,
+    layoutMode: resolvedLayoutMode,
     paginationMode,
     clientPaginationPageSize,
     suppressRowClickSelection,
@@ -120,9 +138,22 @@ export default function AppTable<T extends AppTableRow>({
   }, [loading, rowData.length]);
 
   return (
-    <div className={joinClasses(styles.root, className)} data-total={total ?? undefined}>
+    <div
+      className={joinClasses(
+        styles.root,
+        resolvedLayoutMode === "fill" && styles.rootFill,
+        className,
+      )}
+      data-layout-mode={resolvedLayoutMode}
+      data-total={total ?? undefined}
+    >
       <div
-        className={joinClasses(styles.grid, "ag-theme-quartz", gridClassName)}
+        className={joinClasses(
+          styles.grid,
+          resolvedLayoutMode === "fill" && styles.gridFill,
+          "ag-theme-quartz",
+          gridClassName,
+        )}
         data-overlay={overlayStatus}
         data-testid="app-table-grid"
       >
