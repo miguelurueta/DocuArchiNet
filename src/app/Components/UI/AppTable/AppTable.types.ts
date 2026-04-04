@@ -13,6 +13,10 @@ export type AppTableDomLayout = "autoHeight" | "normal" | "print";
 export type AppTablePaginationMode = "none" | "client" | "server";
 export type AppTableLayoutMode = "content" | "fill";
 export type AppTablePresentationMode = "table" | "cards";
+export type AppTableResponsivePresentation = {
+  enabled?: boolean;
+  cardsBelow?: number;
+};
 
 export const DEFAULT_APP_TABLE_CLIENT_PAGE_SIZE = 25;
 
@@ -33,6 +37,7 @@ export type AppTableProps<T extends AppTableRow> = {
   clientPaginationPageSize?: number;
   layoutMode?: AppTableLayoutMode;
   presentationMode?: AppTablePresentationMode;
+  responsivePresentation?: AppTableResponsivePresentation;
   rowSelection?: AppTableRowSelection;
   suppressRowClickSelection?: boolean;
   domLayout?: AppTableDomLayout;

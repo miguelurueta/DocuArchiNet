@@ -2,7 +2,16 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, test, vi, beforeEach } from "vitest";
 
-let breakpointState = { md: true };
+let breakpointState = { md: true, xl: true };
+
+const setViewportWidth = (width: number) => {
+  Object.defineProperty(window, "innerWidth", {
+    configurable: true,
+    writable: true,
+    value: width,
+  });
+  window.dispatchEvent(new Event("resize"));
+};
 
 vi.mock("antd", async () => {
   const actual = await vi.importActual<typeof import("antd")>("antd");
@@ -50,7 +59,8 @@ import DashboardLayout from "./DashboardLayout";
 
 describe("DashboardLayout responsive navigation", () => {
   beforeEach(() => {
-    breakpointState = { md: true };
+    breakpointState = { md: true, xl: true };
+    setViewportWidth(1280);
   });
 
   test("mantiene sidebar fijo en desktop", () => {
@@ -69,8 +79,48 @@ describe("DashboardLayout responsive navigation", () => {
     expect(screen.getByLabelText("Colapsar menú")).toBeInTheDocument();
   });
 
+  test("inicia con sidebar colapsado en tablet", () => {
+    breakpointState = { md: true, xl: false };
+    setViewportWidth(1024);
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard/home"]}>
+        <Routes>
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route path="home" element={<div>Contenido</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByAltText("DocuArchi")).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Expandir menú")).toBeInTheDocument();
+  });
+
+  test("usa drawer en anchos estrechos aunque md siga activo", async () => {
+    breakpointState = { md: true, xl: false };
+    setViewportWidth(853);
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard/home"]}>
+        <Routes>
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route path="home" element={<div>Contenido</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    );
+
+    const trigger = screen.getByLabelText("Abrir menú");
+    fireEvent.click(trigger);
+
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+  });
+
   test("abre drawer del sidebar en mobile", async () => {
-    breakpointState = { md: false };
+    breakpointState = { md: false, xl: false };
+    setViewportWidth(600);
 
     render(
       <MemoryRouter initialEntries={["/dashboard/home"]}>

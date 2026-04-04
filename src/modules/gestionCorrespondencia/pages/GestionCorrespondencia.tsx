@@ -123,6 +123,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
                 loading={table.loading && table.hasLoadedOnce}
                 paginationMode="server"
                 layoutMode="fill"
+                responsivePresentation={{ enabled: true, cardsBelow: 768 }}
               />
             </div>
           </AppTableQueryWrapper>
