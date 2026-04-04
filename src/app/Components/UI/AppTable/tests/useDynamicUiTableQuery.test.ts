@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import React, { type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useDynamicUiTableQuery } from "../hooks/useDynamicUiTableQuery";
@@ -305,5 +305,144 @@ describe("[SPEC:CREA-QUERY-AG-GRID-FASE3] useDynamicUiTableQuery", () => {
     expect(result.current.error).toBeNull();
     expect(result.current.rows).toEqual([]);
     expect(result.current.columns).toEqual([]);
+  });
+
+  it("keeps previous rows and total while fetching a new server page", async () => {
+    let resolveSecondResponse: ((value: ApiResponse<DynamicUiTableDto | null>) => void) | undefined;
+    const queryFn = vi
+      .fn()
+      .mockResolvedValueOnce(
+        createResponse({
+          TableId: "workflowInboxgestion",
+          Columns: [
+            {
+              DataIndex: "RADICADO",
+              HeaderName: "Radicado",
+              Visible: true,
+              Order: 1,
+            },
+          ],
+          Rows: [
+            {
+              Id: "924",
+              Values: {
+                RADICADO: "2500456700023",
+              },
+            },
+          ],
+          Pagination: {
+            Page: 1,
+            PageSize: 25,
+            Total: 40,
+          },
+        }),
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise<ApiResponse<DynamicUiTableDto | null>>((resolve) => {
+            resolveSecondResponse = resolve;
+          }),
+      );
+
+    const { result, rerender } = renderHook(
+      ({ input }) =>
+        useDynamicUiTableQuery({
+          input,
+          requestMapper: (nextInput) => nextInput,
+          queryFn,
+        }),
+      {
+        initialProps: { input: baseInput },
+        wrapper: createWrapper(),
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.rows).toEqual([
+      {
+        id: "924",
+        data: {
+          RADICADO: "2500456700023",
+        },
+        meta: undefined,
+      },
+    ]);
+    expect(result.current.total).toBe(40);
+
+    rerender({
+      input: {
+        ...baseInput,
+        page: 2,
+      },
+    });
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(true);
+    });
+
+    expect(result.current.rows).toEqual([
+      {
+        id: "924",
+        data: {
+          RADICADO: "2500456700023",
+        },
+        meta: undefined,
+      },
+    ]);
+    expect(result.current.total).toBe(40);
+    expect(result.current.pagination).toEqual({
+      page: 1,
+      pageSize: 25,
+    });
+
+    await act(async () => {
+      resolveSecondResponse?.(
+        createResponse({
+          TableId: "workflowInboxgestion",
+          Columns: [
+            {
+              DataIndex: "RADICADO",
+              HeaderName: "Radicado",
+              Visible: true,
+              Order: 1,
+            },
+          ],
+          Rows: [
+            {
+              Id: "925",
+              Values: {
+                RADICADO: "2500456700024",
+              },
+            },
+          ],
+          Pagination: {
+            Page: 2,
+            PageSize: 25,
+            Total: 40,
+          },
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.rows).toEqual([
+      {
+        id: "925",
+        data: {
+          RADICADO: "2500456700024",
+        },
+        meta: undefined,
+      },
+    ]);
+    expect(result.current.pagination).toEqual({
+      page: 2,
+      pageSize: 25,
+    });
   });
 });
