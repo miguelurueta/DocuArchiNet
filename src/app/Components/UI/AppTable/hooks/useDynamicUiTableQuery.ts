@@ -140,6 +140,7 @@ export function useDynamicUiTableQuery<TRequest>({
       const response = await queryFn(request);
       return buildQueryData(response, input);
     },
+    placeholderData: (previousData) => previousData,
     enabled,
     retry: false,
   });
