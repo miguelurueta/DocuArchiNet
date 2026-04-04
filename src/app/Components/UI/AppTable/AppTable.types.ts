@@ -19,6 +19,7 @@ export type AppTableResponsivePresentation = {
 };
 
 export const DEFAULT_APP_TABLE_CLIENT_PAGE_SIZE = 25;
+export const DEFAULT_APP_TABLE_SUPPRESS_CELL_FOCUS = true;
 
 export type AppTableCellClick<T extends AppTableRow> = {
   row: T;
@@ -40,6 +41,7 @@ export type AppTableProps<T extends AppTableRow> = {
   responsivePresentation?: AppTableResponsivePresentation;
   rowSelection?: AppTableRowSelection;
   suppressRowClickSelection?: boolean;
+  suppressCellFocus?: boolean;
   domLayout?: AppTableDomLayout;
   className?: string;
   gridClassName?: string;

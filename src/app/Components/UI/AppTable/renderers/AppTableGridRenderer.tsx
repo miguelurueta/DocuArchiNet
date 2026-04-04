@@ -49,6 +49,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
   clientPaginationPageSize,
   rowSelection = "multiple",
   suppressRowClickSelection = false,
+  suppressCellFocus,
   domLayout = "autoHeight",
   className,
   gridClassName,
@@ -67,6 +68,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
     paginationMode,
     clientPaginationPageSize,
     suppressRowClickSelection,
+    suppressCellFocus,
     onRowSelected: (event) => {
       if (!event.node.isSelected()) {
         onRowSelected?.(null);
