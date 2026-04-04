@@ -100,6 +100,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
 
       <AppContent
         className={styles.content}
+        contentClassName={styles.contentBody}
         data-testid="gestion-correspondencia-content"
         width="full"
         density="compact"
@@ -121,6 +122,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
                 total={table.total}
                 loading={table.loading && table.hasLoadedOnce}
                 paginationMode="server"
+                layoutMode="fill"
               />
             </div>
           </AppTableQueryWrapper>

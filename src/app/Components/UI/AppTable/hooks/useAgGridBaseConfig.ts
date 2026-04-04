@@ -3,6 +3,7 @@ import type { GridOptions } from "ag-grid-community";
 import type {
   AppTableAgGridHandlers,
   AppTableDomLayout,
+  AppTableLayoutMode,
   AppTablePaginationMode,
   AppTableRow,
   AppTableRowSelection,
@@ -16,6 +17,7 @@ import {
 type UseAgGridBaseConfigParams<T extends AppTableRow> = {
   rowSelection?: AppTableRowSelection;
   domLayout?: AppTableDomLayout;
+  layoutMode?: AppTableLayoutMode;
   paginationMode?: AppTablePaginationMode;
   clientPaginationPageSize?: number;
   suppressRowClickSelection?: boolean;
@@ -24,6 +26,7 @@ type UseAgGridBaseConfigParams<T extends AppTableRow> = {
 export const useAgGridBaseConfig = <T extends AppTableRow>({
   rowSelection,
   domLayout,
+  layoutMode,
   paginationMode,
   clientPaginationPageSize,
   suppressRowClickSelection,
@@ -41,7 +44,7 @@ export const useAgGridBaseConfig = <T extends AppTableRow>({
         rowSelection ?? "multiple",
         suppressRowClickSelection ?? false,
       ),
-      domLayout: domLayout ?? defaults.domLayout,
+      domLayout: layoutMode === "fill" ? "normal" : (domLayout ?? defaults.domLayout),
       pagination: paginationMode === "client",
       paginationPageSize:
         paginationMode === "client"
@@ -55,6 +58,7 @@ export const useAgGridBaseConfig = <T extends AppTableRow>({
   }, [
     clientPaginationPageSize,
     domLayout,
+    layoutMode,
     onCellClicked,
     onRowClicked,
     onRowSelected,

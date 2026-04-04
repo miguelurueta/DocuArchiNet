@@ -11,6 +11,7 @@ export type AppTableRow = Record<string, unknown>;
 export type AppTableRowSelection = "single" | "multiple";
 export type AppTableDomLayout = "autoHeight" | "normal" | "print";
 export type AppTablePaginationMode = "none" | "client" | "server";
+export type AppTableLayoutMode = "content" | "fill";
 
 export const DEFAULT_APP_TABLE_CLIENT_PAGE_SIZE = 25;
 
@@ -28,6 +29,7 @@ export type AppTableProps<T extends AppTableRow> = {
   paginationMode?: AppTablePaginationMode;
   quickFilterText?: string;
   clientPaginationPageSize?: number;
+  layoutMode?: AppTableLayoutMode;
   rowSelection?: AppTableRowSelection;
   suppressRowClickSelection?: boolean;
   domLayout?: AppTableDomLayout;

@@ -5,8 +5,18 @@ import GestionCorrespondencia from "../pages/GestionCorrespondencia";
 import type { GestionCorrespondenciaTableResult } from "../hooks/useGestionCorrespondenciaTable";
 
 vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
-  default: ({ paginationMode }: { paginationMode?: string }) => (
-    <div data-testid="mock-app-table" data-pagination-mode={paginationMode}>
+  default: ({
+    paginationMode,
+    layoutMode,
+  }: {
+    paginationMode?: string;
+    layoutMode?: string;
+  }) => (
+    <div
+      data-testid="mock-app-table"
+      data-pagination-mode={paginationMode}
+      data-layout-mode={layoutMode}
+    >
       Mocked AppTable
     </div>
   ),
@@ -52,6 +62,7 @@ describe("GestionCorrespondencia", () => {
       "data-pagination-mode",
       "server",
     );
+    expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-layout-mode", "fill");
     expect(screen.getByRole("button", { name: /Exportar/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Actualizar/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Abrir respuesta contextual/i })).toBeInTheDocument();
