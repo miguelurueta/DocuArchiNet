@@ -8,14 +8,18 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
   default: ({
     paginationMode,
     layoutMode,
+    responsivePresentation,
   }: {
     paginationMode?: string;
     layoutMode?: string;
+    responsivePresentation?: { enabled?: boolean; cardsBelow?: number };
   }) => (
     <div
       data-testid="mock-app-table"
       data-pagination-mode={paginationMode}
       data-layout-mode={layoutMode}
+      data-responsive-enabled={responsivePresentation?.enabled ? "true" : "false"}
+      data-cards-below={responsivePresentation?.cardsBelow}
     >
       Mocked AppTable
     </div>
@@ -63,6 +67,11 @@ describe("GestionCorrespondencia", () => {
       "server",
     );
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-layout-mode", "fill");
+    expect(screen.getByTestId("mock-app-table")).toHaveAttribute(
+      "data-responsive-enabled",
+      "true",
+    );
+    expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-cards-below", "768");
     expect(screen.getByRole("button", { name: /Exportar/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Actualizar/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Abrir respuesta contextual/i })).toBeInTheDocument();

@@ -1,4 +1,4 @@
-import { Layout, Button, Avatar, Dropdown, Grid, Space, Typography } from "antd";
+import { Layout, Button, Avatar, Dropdown, Space, Typography } from "antd";
 import {
   MenuFoldOutlined,
   MenuOutlined,
@@ -16,6 +16,7 @@ const { Text } = Typography;
 
 interface NavbarProps {
   collapsed: boolean;
+  isMobile: boolean;
   onToggle: () => void;
 }
 
@@ -43,10 +44,8 @@ const profileMenu = {
   ],
 };
 
-const Navbar = ({ collapsed, onToggle }: NavbarProps) => {
+const Navbar = ({ collapsed, isMobile, onToggle }: NavbarProps) => {
   const navigate = useNavigate();
-  const screens = Grid.useBreakpoint();
-  const isMobile = !screens.md;
 
   return (
     <Header className={styles.header}>
@@ -62,7 +61,7 @@ const Navbar = ({ collapsed, onToggle }: NavbarProps) => {
           }
           onClick={onToggle}
           className={styles.trigger}
-          aria-label={isMobile ? "Abrir menú" : "Colapsar menú"}
+          aria-label={isMobile ? "Abrir menú" : collapsed ? "Expandir menú" : "Colapsar menú"}
         />
 
         <Button

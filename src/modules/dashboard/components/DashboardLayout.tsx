@@ -18,6 +18,15 @@ export type DashboardOutletContext = {
 
 const { Content } = Layout;
 const { useBreakpoint } = Grid;
+const MOBILE_DRAWER_BELOW = 900;
+
+const resolveIsNarrowViewport = () => {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.innerWidth < MOBILE_DRAWER_BELOW;
+};
 
 export default function DashboardLayout() {
   const { menuTree, isLoading, error } = useDashboardMenu();
@@ -26,16 +35,35 @@ export default function DashboardLayout() {
   const lastNotifiedErrorRef = useRef<string | null>(null);
 
   const screens = useBreakpoint();
-  const isMobile = !screens.md;
+  const [isNarrowViewport, setIsNarrowViewport] = useState(resolveIsNarrowViewport);
+  const isMobile = !screens.md || isNarrowViewport;
+  const isTablet = Boolean(screens.md) && !screens.xl;
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
-    setCollapsed(isMobile);
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const onResize = () => {
+      setIsNarrowViewport(resolveIsNarrowViewport());
+    };
+
+    window.addEventListener("resize", onResize);
+    onResize();
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    setCollapsed(isMobile || (!isMobile && isTablet));
     if (!isMobile) {
       setDrawerOpen(false);
     }
-  }, [isMobile]);
+  }, [isMobile, isTablet]);
 
   useEffect(() => {
     if (!error) {
@@ -72,6 +100,7 @@ export default function DashboardLayout() {
       <Layout style={{ flex: 1, minWidth: 0, width: "100%" }}>
         <Navbar
           collapsed={collapsed}
+          isMobile={isMobile}
           onToggle={() => {
             if (isMobile) {
               setDrawerOpen(true);
