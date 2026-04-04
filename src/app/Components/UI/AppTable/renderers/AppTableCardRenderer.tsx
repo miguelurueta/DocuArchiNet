@@ -104,6 +104,7 @@ export function AppTableCardRenderer<T extends AppTableRow>({
       )}
       data-layout-mode={resolvedLayoutMode}
       data-presentation-mode="cards"
+      data-typography="inbox"
       data-total={total ?? undefined}
     >
       <div

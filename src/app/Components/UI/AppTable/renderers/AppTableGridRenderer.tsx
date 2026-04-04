@@ -149,6 +149,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
       )}
       data-layout-mode={resolvedLayoutMode}
       data-presentation-mode="table"
+      data-typography="inbox"
       data-total={total ?? undefined}
     >
       <div
