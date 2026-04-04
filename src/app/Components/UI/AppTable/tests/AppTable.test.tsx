@@ -193,6 +193,7 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
     };
 
     expect(root).toHaveAttribute("data-layout-mode", "content");
+    expect(root).toHaveAttribute("data-typography", "inbox");
     expect(lastCall.gridOptions?.domLayout).toBe("autoHeight");
   });
 
@@ -239,6 +240,10 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
     expect(screen.getByTestId("app-table-cards").parentElement).toHaveAttribute(
       "data-presentation-mode",
       "cards",
+    );
+    expect(screen.getByTestId("app-table-cards").parentElement).toHaveAttribute(
+      "data-typography",
+      "inbox",
     );
     expect(screen.getByTestId("app-table-card")).toBeInTheDocument();
     expect(screen.getByText("Nombre")).toBeInTheDocument();
