@@ -8,16 +8,19 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
   default: ({
     paginationMode,
     layoutMode,
+    rowSelection,
     responsivePresentation,
   }: {
     paginationMode?: string;
     layoutMode?: string;
+    rowSelection?: string;
     responsivePresentation?: { enabled?: boolean; cardsBelow?: number };
   }) => (
     <div
       data-testid="mock-app-table"
       data-pagination-mode={paginationMode}
       data-layout-mode={layoutMode}
+      data-row-selection={rowSelection}
       data-responsive-enabled={responsivePresentation?.enabled ? "true" : "false"}
       data-cards-below={responsivePresentation?.cardsBelow}
     >
@@ -67,6 +70,7 @@ describe("GestionCorrespondencia", () => {
       "server",
     );
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-layout-mode", "fill");
+    expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-row-selection", "single");
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute(
       "data-responsive-enabled",
       "true",

@@ -118,7 +118,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
               <AppTable
                 rows={table.rows}
                 columns={table.columns as ColDef<T>[]}
-                rowSelection="multiple"
+                rowSelection="single"
                 total={table.total}
                 loading={table.loading && table.hasLoadedOnce}
                 paginationMode="server"
