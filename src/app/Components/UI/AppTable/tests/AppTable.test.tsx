@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, test, vi } from "vitest";
+import { act, render, screen } from "@testing-library/react";
+import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 import type { ColDef } from "ag-grid-community";
 import AppTable from "../AppTable";
 
@@ -16,6 +16,29 @@ vi.mock("../renderers/AppTableActionCellRenderer", () => ({
   default: () => <div data-testid="mock-card-actions">Mocked Card Actions</div>,
 }));
 
+let resizeObserverCallback:
+  | ((entries: Array<{ contentRect: { width: number } }>) => void)
+  | null = null;
+const originalResizeObserver = window.ResizeObserver;
+
+class ResizeObserverTestMock {
+  constructor(callback: (entries: Array<{ contentRect: { width: number } }>) => void) {
+    resizeObserverCallback = callback;
+  }
+
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+beforeAll(() => {
+  window.ResizeObserver = ResizeObserverTestMock as unknown as typeof ResizeObserver;
+});
+
+afterAll(() => {
+  window.ResizeObserver = originalResizeObserver;
+});
+
 type Row = {
   id: string;
   name: string;
@@ -26,6 +49,10 @@ const columns: ColDef<Row>[] = [
 ];
 
 describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
+  afterEach(() => {
+    resizeObserverCallback = null;
+  });
+
   test("preserva compatibilidad hacia atrás sin paginationMode", () => {
     render(<AppTable rows={[{ id: "1", name: "Alpha" }]} columns={columns} />);
 
@@ -224,6 +251,64 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
     expect(screen.queryByText("Nombre")).not.toBeInTheDocument();
     expect(screen.getByText("Estado")).toBeInTheDocument();
     expect(screen.getByText("Activo")).toBeInTheDocument();
+  });
+
+  test("activa cards automaticamente cuando el contenedor cae por debajo del umbral", () => {
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        responsivePresentation={{ enabled: true, cardsBelow: 700 }}
+      />,
+    );
+
+    act(() => {
+      resizeObserverCallback?.([{ contentRect: { width: 640 } }]);
+    });
+
+    expect(screen.getByTestId("app-table-cards").parentElement).toHaveAttribute(
+      "data-presentation-mode",
+      "cards",
+    );
+  });
+
+  test("mantiene table cuando el contenedor supera el umbral responsive", () => {
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        responsivePresentation={{ enabled: true, cardsBelow: 700 }}
+      />,
+    );
+
+    act(() => {
+      resizeObserverCallback?.([{ contentRect: { width: 900 } }]);
+    });
+
+    expect(screen.getByTestId("app-table-grid").parentElement).toHaveAttribute(
+      "data-presentation-mode",
+      "table",
+    );
+  });
+
+  test("presentationMode manual tiene prioridad sobre el calculo responsive", () => {
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        presentationMode="table"
+        responsivePresentation={{ enabled: true, cardsBelow: 700 }}
+      />,
+    );
+
+    act(() => {
+      resizeObserverCallback?.([{ contentRect: { width: 320 } }]);
+    });
+
+    expect(screen.getByTestId("app-table-grid").parentElement).toHaveAttribute(
+      "data-presentation-mode",
+      "table",
+    );
   });
 
   test("ejecuta callbacks de seleccion y click", () => {
