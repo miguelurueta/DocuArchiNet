@@ -53,6 +53,7 @@ export function AppTableExport<T extends AppTableRow>({
   );
 
   const selectedRowsCount = selectedRows.length;
+  const selectedRowsAvailable = availableModes.includes("selectedRows");
 
   const handleExport = async (
     format: AppTableExportFormat,

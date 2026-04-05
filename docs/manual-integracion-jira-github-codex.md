@@ -70,7 +70,9 @@ Codex debe recibir explícitamente el contexto mínimo:
 ### Política sugerida de agentes
 
 - subagente mini para exploración, artefactos OpenSpec, pruebas focales y documentación
-- agente principal para integración, refactors sensibles, `opsxj:archive` y `opsxj:close`
+- subagente mini también permitido para implementaciones pequeñas y fixes focales con alcance acotado
+- subagente mini permitido para lectura/consulta de Jira y Git, revisión de PRs y preparación de mensajes
+- agente principal para escritura en Jira/Git, commits finales, push, creación/cierre de PRs, integración, refactors sensibles, `opsxj:archive` y `opsxj:close`
 
 Referencia:
 
