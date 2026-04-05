@@ -77,6 +77,19 @@ Como `opsxj:new` crea la carpeta a partir del resumen Jira (normalizado), el arc
 
 Además, la rama queda preparada para `opsxj:archive`, que abre PR y comenta Jira.
 
+## Sugerencia operativa para agentes Codex
+
+`opsxj:new` no controla qué modelo o agente usa Codex. Esa decisión pertenece a la sesión externa que ejecuta el comando.
+
+Como política operativa recomendada:
+
+- usar subagente mini para `design.md`, `spec.md`, `tasks.md` y exploración puntual
+- usar agente principal para validación de coherencia, implementación e integración final
+
+Referencia:
+
+- `docs/codex-agent-strategy.md`
+
 ## Manejo centralizado de errores
 
 Todos los errores de `opsxj` se reportan con prefijo uniforme:

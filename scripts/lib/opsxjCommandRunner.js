@@ -63,6 +63,28 @@ const printGitSummary = ({ stdout, gitResult }) => {
   }
 };
 
+const printCodexAgentHint = ({ stdout, command }) => {
+  if (command === "new") {
+    stdout.write(
+      "[opsxj:new] Sugerencia Codex: use subagente mini para design/spec/tasks y agente principal para implementacion e integracion final.\n",
+    );
+    return;
+  }
+
+  if (command === "archive") {
+    stdout.write(
+      "[opsxj:archive] Sugerencia Codex: use agente principal para verify, archive, revision final de diff y coordinacion del PR.\n",
+    );
+    return;
+  }
+
+  if (command === "close") {
+    stdout.write(
+      "[opsxj:close] Sugerencia Codex: use agente principal para validar merge, cierre Jira y sincronizacion final del flujo.\n",
+    );
+  }
+};
+
 const runNew = async ({
   args,
   env,
@@ -104,6 +126,7 @@ const runNew = async ({
     autoPush: parseBoolean(env.GIT_AUTO_PUSH, true),
   });
   printGitSummary({ stdout, gitResult });
+  printCodexAgentHint({ stdout, command: "new" });
 };
 
 const runArchive = async ({
@@ -152,6 +175,7 @@ const runArchive = async ({
       "[opsxj:archive] Aviso: archive ejecuto fallback con --skip-specs.\n",
     );
   }
+  printCodexAgentHint({ stdout, command: "archive" });
 };
 
 const runClose = async ({
@@ -191,6 +215,7 @@ const runClose = async ({
   stdout.write(
     `[opsxj:close] Jira actualizado a: ${result.transition?.to?.name ?? "Done"}\n`,
   );
+  printCodexAgentHint({ stdout, command: "close" });
 };
 
 const commandRegistry = new Map([

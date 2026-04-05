@@ -6,6 +6,7 @@ export * from "./AppButton";
 export * from "./AppDropdown";
 export * from "./AppTable/AppTable.types";
 export * from "./AppTable/AppTableExport.types";
+export * from "./AppTable/AppTableExport";
 export * from "./AppTable/AppTableQueryWrapper";
 export * from "./AppContent";
 export * from "./AppToolbar";

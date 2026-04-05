@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { ColDef } from "ag-grid-community";
 import type { AppTableRow } from "../AppTable.types";
 import {
   APP_TABLE_EXPORT_FORMATS,
@@ -70,6 +71,7 @@ describe("[SPEC:APPTABLE-EXPORT-15] AppTable export contracts", () => {
     };
 
     const props: AppTableExportProps<InboxRow> = {
+      columns: [{ field: "radicado", headerName: "Radicado" }] satisfies ColDef<InboxRow>[],
       dataSource: {
         getCurrentPageRows: () => [{ id: "1", radicado: "RAD-1" }],
       },

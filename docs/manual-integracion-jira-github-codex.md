@@ -67,6 +67,15 @@ Codex debe recibir explícitamente el contexto mínimo:
 4. Codex trabaja sobre rama vinculada al ticket:
    - `feature/AUTH-001-login-success`.
 
+### Política sugerida de agentes
+
+- subagente mini para exploración, artefactos OpenSpec, pruebas focales y documentación
+- agente principal para integración, refactors sensibles, `opsxj:archive` y `opsxj:close`
+
+Referencia:
+
+- `docs/codex-agent-strategy.md`
+
 ### Estándares técnicos obligatorios
 
 - TypeScript estricto.
