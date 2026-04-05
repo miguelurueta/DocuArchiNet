@@ -48,7 +48,7 @@
   min-width: 0;
 }
 
-.pagination {
+.controlsBand {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -61,11 +61,29 @@
   font-size: 0.875rem;
 }
 
+.paginationInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1 1 24rem;
+  min-width: 16rem;
+  flex-wrap: wrap;
+}
+
 .paginationActions {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+.paginationSideActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex: 0 1 auto;
+  min-width: 10rem;
 }
 
 .pageSizeControl {
@@ -84,18 +102,25 @@
   }
 
   .header,
-  .pagination {
+  .controlsBand,
+  .paginationInfo {
     align-items: stretch;
   }
 
   .searchGroup,
   .headerActions,
-  .paginationActions {
+  .paginationInfo,
+  .paginationActions,
+  .paginationSideActions {
     width: 100%;
     min-width: 0;
   }
 
   .paginationActions {
     justify-content: space-between;
+  }
+
+  .paginationSideActions {
+    justify-content: flex-start;
   }
 }

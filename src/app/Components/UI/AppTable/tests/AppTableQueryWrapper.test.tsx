@@ -1,7 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ColDef } from "ag-grid-community";
 import { describe, expect, it, vi } from "vitest";
+import { AppTableExport } from "../AppTableExport";
 import { AppTableQueryWrapper } from "../AppTableQueryWrapper";
 import type { AppTableQueryState } from "../types/appTableQueryState.types";
+import type { AppTableRow } from "../AppTable.types";
+import type { AppTableExportReportMeta } from "../AppTableExport.types";
 
 const createQueryState = (
   overrides: Partial<AppTableQueryState> = {},
@@ -13,7 +17,24 @@ const createQueryState = (
   ...overrides,
 });
 
-describe("AppTableQueryWrapper", () => {
+type ExportRow = AppTableRow & {
+  id: string;
+  name: string;
+};
+
+const exportColumns: ColDef<ExportRow>[] = [{ field: "name", headerName: "Nombre" }];
+const exportReportMeta: AppTableExportReportMeta = {
+  reportName: "Bandeja",
+  generatedBy: "DocuArchiCore",
+  moduleName: "Gestion Correspondencia",
+  reportType: "Operativo",
+  generatedAt: "2026-04-05T05:00:00.000Z",
+  rowCount: 1,
+  description: "Exportacion de prueba",
+  companyImageAsset: "public/branding/reports/company-report-logo.png",
+};
+
+describe("AppTableQueryWrapper [SPEC:APPTABLE-EXPORT-18]", () => {
   it("renderiza la estructura completa con rango visible y children", () => {
     render(
       <AppTableQueryWrapper
@@ -21,6 +42,7 @@ describe("AppTableQueryWrapper", () => {
         onQueryChange={vi.fn()}
         total={87}
         headerActions={<button type="button">Acción extra</button>}
+        paginationActions={<button type="button">Exportar tabla</button>}
       >
         <div>Tabla mock</div>
       </AppTableQueryWrapper>,
@@ -29,6 +51,9 @@ describe("AppTableQueryWrapper", () => {
     expect(screen.getByTestId("app-table-query-wrapper")).toBeInTheDocument();
     expect(screen.getByText("Tabla mock")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Acción extra" })).toBeInTheDocument();
+    expect(screen.getByTestId("app-table-pagination-actions")).toContainElement(
+      screen.getByRole("button", { name: "Exportar tabla" }),
+    );
     expect(screen.getByTestId("app-table-query-range")).toHaveTextContent("26-50 de 87");
   });
 
@@ -91,5 +116,52 @@ describe("AppTableQueryWrapper", () => {
 
     expect(screen.queryByRole("textbox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
     expect(screen.getByTestId("app-table-query-range")).toHaveTextContent("26-50 de 87");
+  });
+
+  it("integra AppTableExport dentro de la banda de controles sin ocultar la tabla", async () => {
+    const createObjectUrlSpy = vi.fn(() => "blob:mock");
+    const revokeObjectUrlSpy = vi.fn();
+    const anchorClickSpy = vi.fn();
+
+    vi.stubGlobal("URL", {
+      createObjectURL: createObjectUrlSpy,
+      revokeObjectURL: revokeObjectUrlSpy,
+    });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(anchorClickSpy);
+
+    render(
+      <AppTableQueryWrapper
+        queryState={createQueryState()}
+        onQueryChange={vi.fn()}
+        total={87}
+        paginationActions={
+          <AppTableExport
+            columns={exportColumns}
+            dataSource={{
+              getCurrentPageRows: () => [{ id: "1", name: "Alpha" }],
+            }}
+            formats={["csv"]}
+            reportMeta={exportReportMeta}
+            enabledModes={["currentPage"]}
+          />
+        }
+      >
+        <div>Tabla mock</div>
+      </AppTableQueryWrapper>,
+    );
+
+    expect(screen.getByTestId("app-table-pagination-actions")).toContainElement(
+      screen.getByRole("button", { name: "Exportar" }),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+    fireEvent.click(await screen.findByText("Página actual"));
+
+    expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
+    expect(anchorClickSpy).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("Tabla mock")).toBeInTheDocument();
+
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 });

@@ -32,7 +32,7 @@ const columns: ColDef<Row>[] = [
   },
 ];
 
-describe("AppTableExport", () => {
+describe("AppTableExport [SPEC:APPTABLE-EXPORT-17] [SPEC:APPTABLE-EXPORT-18]", () => {
   let capturedBlob: Blob | null;
   let createObjectUrlSpy: ReturnType<typeof vi.fn>;
   let revokeObjectUrlSpy: ReturnType<typeof vi.fn>;
@@ -101,6 +101,30 @@ describe("AppTableExport", () => {
     expect(capturedBlob).toBeTruthy();
   });
 
+  it("exporta allLoaded cuando el datasource lo soporta", async () => {
+    render(
+      <AppTableExport
+        columns={columns}
+        dataSource={{
+          getCurrentPageRows: () => [{ id: "1", name: "Alpha" }],
+          getAllLoadedRows: () => [
+            { id: "1", name: "Alpha" },
+            { id: "2", name: "Beta" },
+          ],
+        }}
+        formats={["csv"]}
+        reportMeta={reportMeta}
+        enabledModes={["currentPage", "allLoaded"]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+    fireEvent.click(await screen.findByText("Todos los cargados"));
+
+    expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
+    expect(capturedBlob).toBeTruthy();
+  });
+
   it("deshabilita selectedRows cuando no hay seleccion", async () => {
     render(
       <AppTableExport
@@ -136,5 +160,44 @@ describe("AppTableExport", () => {
 
     expect(await screen.findByText("Página actual")).toBeInTheDocument();
     expect(screen.queryByText("Seleccionados")).not.toBeInTheDocument();
+  });
+
+  it("no expone allLoaded cuando el datasource no implementa getAllLoadedRows", async () => {
+    render(
+      <AppTableExport
+        columns={columns}
+        dataSource={{
+          getCurrentPageRows: () => [{ id: "1", name: "Alpha" }],
+        }}
+        formats={["csv"]}
+        reportMeta={reportMeta}
+        enabledModes={["currentPage", "allLoaded"]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+
+    expect(await screen.findByText("Página actual")).toBeInTheDocument();
+    expect(screen.queryByText("Todos los cargados")).not.toBeInTheDocument();
+  });
+
+  it("marca formatos no implementados como visibles pero no ejecutables [SPEC:APPTABLE-EXPORT-18]", async () => {
+    render(
+      <AppTableExport
+        columns={columns}
+        dataSource={{
+          getCurrentPageRows: () => [{ id: "1", name: "Alpha" }],
+        }}
+        formats={["xlsx"]}
+        reportMeta={reportMeta}
+        enabledModes={["currentPage"]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+
+    expect(await screen.findByText("Exportar en Excel (próximamente)")).toBeInTheDocument();
+    expect(screen.getByText("Página actual")).toBeInTheDocument();
+    expect(createObjectUrlSpy).not.toHaveBeenCalled();
   });
 });

@@ -17,6 +17,7 @@ export type AppTableQueryWrapperProps = {
   total: number;
   loading?: boolean;
   headerActions?: ReactNode;
+  paginationActions?: ReactNode;
   children: ReactNode;
   className?: string;
   pageSizeOptions?: number[];
@@ -44,6 +45,7 @@ export function AppTableQueryWrapper({
   total,
   loading = false,
   headerActions,
+  paginationActions,
   children,
   className,
   pageSizeOptions = [...DEFAULT_PAGE_SIZE_OPTIONS],
@@ -85,54 +87,62 @@ export function AppTableQueryWrapper({
         {headerActions ? <div className={styles.headerActions}>{headerActions}</div> : null}
       </div>
 
-      <div className={styles.pagination}>
-        <span className={styles.range} data-testid="app-table-query-range">
-          {getVisibleRange(queryState.page, queryState.pageSize, total)}
-        </span>
+      <div className={styles.controlsBand}>
+        <div className={styles.paginationInfo}>
+          <span className={styles.range} data-testid="app-table-query-range">
+            {getVisibleRange(queryState.page, queryState.pageSize, total)}
+          </span>
 
-        <div className={styles.paginationActions}>
-          <AppInput
-            type="select"
-            className={styles.pageSizeControl}
-            aria-label="Cantidad de registros por página"
-            placeholder="Tamaño"
-            value={pageSizeValue}
-            options={pageSizeOptions.map((option) => ({
-              label: `${option} por página`,
-              value: option,
-            }))}
-            onChange={(value: string | number | undefined) => {
-              if (typeof value === "number") {
-                onQueryChange({ pageSize: value });
-              }
-            }}
-          />
-
-          <div className={styles.navButtons}>
-            <AppIconActionButton
-              icon={<LeftOutlined />}
-              aria-label="Página anterior"
-              tooltip="Página anterior"
-              disabled={!canGoPrevious || loading}
-              onClick={() => {
-                if (canGoPrevious) {
-                  onQueryChange({ page: queryState.page - 1 });
+          <div className={styles.paginationActions}>
+            <AppInput
+              type="select"
+              className={styles.pageSizeControl}
+              aria-label="Cantidad de registros por página"
+              placeholder="Tamaño"
+              value={pageSizeValue}
+              options={pageSizeOptions.map((option) => ({
+                label: `${option} por página`,
+                value: option,
+              }))}
+              onChange={(value: string | number | undefined) => {
+                if (typeof value === "number") {
+                  onQueryChange({ pageSize: value });
                 }
               }}
             />
-            <AppIconActionButton
-              icon={<RightOutlined />}
-              aria-label="Página siguiente"
-              tooltip="Página siguiente"
-              disabled={!canGoNext || loading}
-              onClick={() => {
-                if (canGoNext) {
-                  onQueryChange({ page: queryState.page + 1 });
-                }
-              }}
-            />
+
+            <div className={styles.navButtons}>
+              <AppIconActionButton
+                icon={<LeftOutlined />}
+                aria-label="Página anterior"
+                tooltip="Página anterior"
+                disabled={!canGoPrevious || loading}
+                onClick={() => {
+                  if (canGoPrevious) {
+                    onQueryChange({ page: queryState.page - 1 });
+                  }
+                }}
+              />
+              <AppIconActionButton
+                icon={<RightOutlined />}
+                aria-label="Página siguiente"
+                tooltip="Página siguiente"
+                disabled={!canGoNext || loading}
+                onClick={() => {
+                  if (canGoNext) {
+                    onQueryChange({ page: queryState.page + 1 });
+                  }
+                }}
+              />
+            </div>
           </div>
         </div>
+
+        {paginationActions ? (
+          <div className={styles.paginationSideActions} data-testid="app-table-pagination-actions">
+            {paginationActions}
+          </div>
+        ) : null}
       </div>
 
       <div className={styles.tableContainer}>{children}</div>

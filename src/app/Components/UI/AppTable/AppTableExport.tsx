@@ -10,13 +10,19 @@ import {
   getAppTableExportableColumns,
 } from "./AppTableExport.utils";
 import type { AppTableRow } from "./AppTable.types";
+import styles from "./AppTableExport.module.css";
 
-const LOCAL_EXPORT_MODES = ["currentPage", "selectedRows"] as const satisfies readonly AppTableExportMode[];
+const LOCAL_EXPORT_MODES = [
+  "currentPage",
+  "selectedRows",
+  "allLoaded",
+] as const satisfies readonly AppTableExportMode[];
 const SUPPORTED_FORMATS = new Set<AppTableExportFormat>(["csv"]);
 
 const MODE_LABELS: Record<(typeof LOCAL_EXPORT_MODES)[number], string> = {
   currentPage: "Página actual",
   selectedRows: "Seleccionados",
+  allLoaded: "Todos los cargados",
 };
 
 const FORMAT_LABELS: Record<AppTableExportFormat, string> = {
@@ -26,6 +32,7 @@ const FORMAT_LABELS: Record<AppTableExportFormat, string> = {
 };
 
 const buildItemKey = (format: AppTableExportFormat, mode: AppTableExportMode) => `${format}-${mode}`;
+const EXPORT_TRIGGER_ICON = <span className={styles.triggerIcon} aria-hidden="true"><DownloadOutlined /></span>;
 
 export function AppTableExport<T extends AppTableRow>({
   columns,
@@ -71,6 +78,7 @@ export function AppTableExport<T extends AppTableRow>({
       mode,
       getCurrentPageRows: dataSource.getCurrentPageRows,
       getSelectedRows: dataSource.getSelectedRows,
+      getAllLoadedRows: dataSource.getAllLoadedRows,
     });
 
     setExportLoading(true);
@@ -127,13 +135,12 @@ export function AppTableExport<T extends AppTableRow>({
       trigger={
         <AppButton
           aria-label={typeof triggerLabel === "string" ? triggerLabel : "Exportar"}
-          variant="secondary"
-          size="md"
+          variant="ghost"
+          size="sm"
           loading={exportLoading}
-          icon={<DownloadOutlined />}
-        >
-          {triggerLabel}
-        </AppButton>
+          icon={EXPORT_TRIGGER_ICON}
+          className={styles.triggerButton}
+        />
       }
     />
   );
