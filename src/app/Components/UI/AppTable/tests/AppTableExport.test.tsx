@@ -36,7 +36,7 @@ describe("AppTableExport", () => {
   let capturedBlob: Blob | null;
   let createObjectUrlSpy: ReturnType<typeof vi.fn>;
   let revokeObjectUrlSpy: ReturnType<typeof vi.fn>;
-  let anchorClickSpy: ReturnType<typeof vi.fn<() => void>>;
+  let anchorClickSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     capturedBlob = null;
@@ -45,15 +45,13 @@ describe("AppTableExport", () => {
       return "blob:mock";
     });
     revokeObjectUrlSpy = vi.fn();
-    anchorClickSpy = vi.fn<() => void>();
+    anchorClickSpy = vi.fn();
 
     vi.stubGlobal("URL", {
       createObjectURL: createObjectUrlSpy,
       revokeObjectURL: revokeObjectUrlSpy,
     });
-    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {
-      anchorClickSpy();
-    });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(anchorClickSpy);
   });
 
   afterEach(() => {

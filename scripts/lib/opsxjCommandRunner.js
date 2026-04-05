@@ -66,21 +66,21 @@ const printGitSummary = ({ stdout, gitResult }) => {
 const printCodexAgentHint = ({ stdout, command }) => {
   if (command === "new") {
     stdout.write(
-      "[opsxj:new] Sugerencia Codex: use subagente mini para design/spec/tasks y agente principal para implementacion e integracion final.\n",
+      "[opsxj:new] Sugerencia Codex: use subagente mini para lectura Jira, design/spec/tasks, creacion de artefactos e implementaciones pequenas; deje commit/push e integracion final al agente principal.\n",
     );
     return;
   }
 
   if (command === "archive") {
     stdout.write(
-      "[opsxj:archive] Sugerencia Codex: use agente principal para verify, archive, revision final de diff y coordinacion del PR.\n",
+      "[opsxj:archive] Sugerencia Codex: use mini para consultas, chequeos focales y diagnostico puntual; deje verify, archive, revision final de diff y coordinacion del PR al agente principal.\n",
     );
     return;
   }
 
   if (command === "close") {
     stdout.write(
-      "[opsxj:close] Sugerencia Codex: use agente principal para validar merge, cierre Jira y sincronizacion final del flujo.\n",
+      "[opsxj:close] Sugerencia Codex: use mini solo para consulta de estado remoto; deje validar merge, cierre Jira y sincronizacion final del flujo al agente principal.\n",
     );
   }
 };
