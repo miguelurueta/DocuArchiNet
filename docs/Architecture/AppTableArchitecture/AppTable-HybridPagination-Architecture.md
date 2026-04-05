@@ -1,8 +1,8 @@
-# Arquitectura Maestra: AppTable con Paginacion Hibrida y Busqueda Avanzada
+# Arquitectura Maestra: AppTable con Paginacion Hibrida, Busqueda y Exportacion Reusable
 
 ## Objetivo
 
-Definir una arquitectura reusable para evolucionar `AppTable` hacia un modelo de consulta de tabla que soporte, sin romper compatibilidad:
+Definir una arquitectura reusable para evolucionar `AppTable` hacia un modelo de consulta y exportacion que soporte, sin romper compatibilidad:
 
 - paginacion cliente nativa de AG Grid
 - paginacion servidor tipo Gmail
@@ -10,7 +10,10 @@ Definir una arquitectura reusable para evolucionar `AppTable` hacia un modelo de
 - busqueda simple servidor
 - busqueda avanzada servidor
 - refresco manual de la consulta
-- integracion visual reusable entre controles y tabla
+- exportacion de pagina actual
+- exportacion de registros seleccionados
+- exportacion de resultados completos de la consulta
+- integracion visual reusable entre controles, tabla y acciones de exportacion
 
 Este documento busca reducir ambiguedad y servir como fuente unica de verdad para:
 
@@ -25,6 +28,8 @@ Este documento busca reducir ambiguedad y servir como fuente unica de verdad par
 Aplica a:
 
 - `AppTable`
+- `AppTableQueryWrapper`
+- futuro `AppTableExport`
 - tablas dinamicas basadas en `DynamicUiTableDto`
 - `workflowInboxgestion`
 - futuros modulos que reutilicen la misma infraestructura
@@ -34,6 +39,7 @@ No aplica a:
 - rediseño visual general del sistema
 - cambios de negocio especificos de un modulo
 - reemplazo de AG Grid
+- definiciones de layout especificas de una sola pantalla
 
 ## Estado actual
 
@@ -44,21 +50,27 @@ No aplica a:
 - renderiza `AgGridReact`
 - soporta `ColDef[]`
 - soporta seleccion, loading, overlays y actions dinamicas
-- no trae toolbar propia de busqueda o paginacion
-- no soporta aun una barra reusable tipo Gmail
+- soporta `paginationMode = "none" | "client" | "server"`
+- soporta `quickFilterText` solo en modos locales
+- no trae exportacion reusable nativa
+- no trae toolbar propia de exportacion embebida en el core
 
 La pantalla de `GestionCorrespondencia` ya tiene:
 
-- input de busqueda
-- selector de page size
-- total visible
+- wrapper reusable de consulta
 - boton `Actualizar`
+- dropdown visual de `Exportar`
+- paginacion server-side con `AppTableQueryState`
 
-Pero esos controles viven en la pagina, no en una capa reusable acoplada a la tabla.
+Pero hoy:
+
+- las opciones de exportacion son solo UI
+- no existe un contrato reusable de exportacion para `AppTable`
+- no existe una estrategia comun para exportar pagina, seleccion o consulta completa
 
 ### Backend
 
-El endpoint `POST /api/workflowInboxgestion/inboxgestion` ya soporta parcialmente:
+El endpoint `POST /api/workflowInboxgestion/inboxgestion` ya soporta el modelo base de consulta:
 
 - `Page`
 - `PageSize`
@@ -67,39 +79,34 @@ El endpoint `POST /api/workflowInboxgestion/inboxgestion` ya soporta parcialment
 - `StructuredFilters`
 - `SortField`
 - `SortDir`
-- `Pinned`
-- `LockPinned`
-- `MenuActions`
-- `Children`
-- `IsDivider`
 
-Problemas detectados:
+El backend de lectura paginada existe, pero no hay un contrato transversal de exportacion definido para:
 
-- el controller de `workflowInboxgestion` sigue hardcodeado
-- `Pagination.Total` no es el total global real de la consulta
-- el backend retorna total basado en `rows.Count`
-- la paginacion servidor no esta lista para una UX tipo Gmail real
-- la respuesta vacia no siempre mantiene una estructura de tabla completa y consistente
+- exportar con la misma consulta activa
+- exportar todo el matching set sin depender del page actual del front
+- devolver archivos listos en formatos como `xlsx` o `pdf`
 
 ## Problema a resolver
 
-Se requiere un modelo de tabla que permita coexistencia entre dos modos:
+Se requiere un modelo de tabla que permita coexistencia entre dos dimensiones:
 
-1. `client`
-   - usa paginacion local de AG Grid
-   - util para datasets pequeños o pantallas sin backend listo
+1. consulta
+   - `client`
+   - `server`
 
-2. `server`
-   - usa paginacion tipo Gmail
-   - depende de `page`, `pageSize`, `total`
-   - debe convivir con busqueda avanzada y ordenamiento
+2. exportacion
+   - pagina actual
+   - seleccionados
+   - todo lo cargado en memoria
+   - todos los resultados de la consulta activa
 
 La implementacion debe evitar:
 
-- duplicacion de lógica por modulo
-- mezclar paginacion cliente y servidor simultaneamente
-- desacoplar `search`, `structuredFilters`, `sort` y `pagination`
-- recalcular totals inconsistentes con la consulta activa
+- duplicacion de logica por modulo
+- mezclar exportacion local y server sin reglas explicitas
+- acoplar `AppTable` a `GestionCorrespondencia`
+- asumir que `rows` contiene todo el universo de datos cuando hay paginacion server-side
+- usar iteracion de paginas desde el navegador como estrategia principal de exportacion total
 
 ## Principios de arquitectura
 
@@ -109,25 +116,23 @@ La implementacion debe evitar:
 
 Responsabilidades de `AppTable`:
 
-- renderizar grid
+- renderizar grid o cards
 - exponer configuracion reusable
 - soportar modos de paginacion
 - soportar quick filter local si aplica
+- exponer seleccion y datos visibles al contenedor
 
 No debe asumir por defecto:
 
 - toolbar fija
-- layout completo de pagina
-- buscador avanzado acoplado
+- exportacion directa contra backend
 - experiencia Gmail embebida de forma obligatoria
+- formatos de archivo
+- logica de negocio de una pantalla
 
-### 2. La experiencia tipo Gmail debe vivir en un wrapper/contenedor reusable
+### 2. La experiencia tipo Gmail vive en un wrapper/contenedor reusable
 
-Se debe crear un componente superior, reutilizable, por ejemplo:
-
-- `AppTableQueryWrapper`
-- o `AppTableDataContainer`
-- o `AppTableShell`
+La experiencia de consulta debe vivir en `AppTableQueryWrapper` o en un contenedor equivalente.
 
 Este wrapper debe acoplar visualmente:
 
@@ -136,7 +141,14 @@ Este wrapper debe acoplar visualmente:
 - total/rango
 - selector de page size
 - navegacion anterior/siguiente
+- acciones de exportacion
 - tabla renderizada
+
+Regla visual:
+
+- las acciones de exportacion deben convivir en la misma franja de controles donde vive la paginacion
+- no deben renderizarse como toolbar desconectada o bloque separado de la tabla
+- el layout debe reacomodarse de forma responsive sin romper la lectura ni el acceso a paginacion y descarga
 
 ### 3. La consulta debe modelarse como un estado unico
 
@@ -184,15 +196,51 @@ Regla:
 - se debe resetear `page = 1`
 - se conserva `pageSize`
 
+### 4. La exportacion debe ser una capacidad reusable y desacoplada
+
+La exportacion no debe vivir hardcodeada en una pantalla.
+
+Debe existir una pieza reusable, por ejemplo:
+
+- `AppTableExport`
+- o `AppTableExportMenu`
+- o `useAppTableExport`
+
+Esta pieza debe:
+
+- reutilizar columnas y metadata visibles de `AppTable`
+- soportar distintos modos de exportacion
+- delegar la carga completa de datos a un proveedor configurable
+- no conocer endpoints concretos de negocio
+
+### 5. Exportar todo no debe depender del dataset visible en front
+
+Cuando `paginationMode = "server"`, `rows` representa solo la pagina actual.
+
+Por tanto:
+
+- `currentPage` puede resolverse desde `rows`
+- `selectedRows` puede resolverse desde seleccion local
+- `allLoaded` solo aplica a datasets ya cargados en memoria
+- `allMatching` requiere backend o una estrategia explicita de carga adicional
+
 ## Arquitectura objetivo
 
 ```txt
 Backend
-  -> DynamicUiTableDto
+  -> endpoint de consulta paginada
+  -> endpoint o servicio de exportacion total
+  -> DynamicUiTableDto / archivo exportado
+
+Frontend
   -> useDynamicUiTableQuery / hooks del modulo
   -> AppTableQueryWrapper
-      -> barra de busqueda y acciones
-      -> barra de paginacion tipo Gmail
+      -> busqueda, refresh, paginacion y exportacion
+      -> AppTableExport
+          -> currentPage
+          -> selectedRows
+          -> allLoaded
+          -> allMatching
       -> AppTable
           -> AG Grid
 ```
@@ -201,18 +249,20 @@ Backend
 
 ### AppTable
 
-Se recomienda evolucionar `AppTable` con estas capacidades:
+`AppTable` mantiene estas capacidades:
 
 ```ts
 type AppTablePaginationMode = "none" | "client" | "server";
 ```
 
-Props nuevas sugeridas:
+Props relevantes ya presentes:
 
 ```ts
 paginationMode?: AppTablePaginationMode;
 quickFilterText?: string;
 clientPaginationPageSize?: number;
+rowSelection?: "single" | "multiple";
+onSelectionChanged?: (rows: T[]) => void;
 ```
 
 Comportamiento:
@@ -232,9 +282,7 @@ Comportamiento:
 
 ### Wrapper reusable
 
-Se recomienda crear un componente tipo:
-
-`AppTableQueryWrapper`
+`AppTableQueryWrapper` debe seguir siendo el contenedor visual de la experiencia de consulta.
 
 Responsabilidades:
 
@@ -245,114 +293,293 @@ Responsabilidades:
   - selector de page size
   - rango visible tipo Gmail
   - botones anterior / siguiente
-- aceptar children o renderizar internamente `AppTable`
-- ajustarse visualmente con la tabla en un mismo contenedor
+  - slot de acciones extra, incluida exportacion
 
-Posible contrato:
+Regla de composicion:
+
+- `AppTableExport` debe ubicarse en la misma fila o banda funcional de los controles de paginacion
+- en desktop deben verse como parte de una unica pieza visual
+- en responsive pueden reflowear, pero deben seguir perteneciendo al mismo bloque de controles de tabla
+- `headerActions` debe reservarse para acciones de cabecera genuinas y no para acciones operativas de tabla como exportacion
+- las acciones operativas de tabla deben vivir en la banda compartida de paginacion/controles
+
+Layout contractual de referencia:
+
+```txt
++----------------------------------------------------------------------------------+
+| Buscar | Actualizar | Total/Rango | Page size | Prev | Next | Exportar [v]      |
++----------------------------------------------------------------------------------+
+| Tabla / Cards                                                                   |
++----------------------------------------------------------------------------------+
+```
+
+Regla responsive de referencia:
+
+```txt
++--------------------------------------------------+
+| Buscar | Actualizar | Exportar [v]               |
+| Total/Rango | Page size | Prev | Next            |
++--------------------------------------------------+
+| Tabla / Cards                                    |
++--------------------------------------------------+
+```
+
+Objetivo:
+
+- que descarga y paginacion sigan leyendose como parte del mismo sistema de control de tabla
+- que el reflow responsive reorganice, pero no separe conceptualmente las acciones
+
+### Componente reusable de exportacion
+
+Se recomienda crear un componente tipo:
+
+`AppTableExport`
+
+Responsabilidades:
+
+- construir el menu o trigger de exportacion
+- resolver modos disponibles segun capacidades del datasource
+- ejecutar el flujo de generacion de archivo
+- mantenerse desacoplado de cualquier modulo concreto
+
+No debe:
+
+- conocer `workflowInboxgestion`
+- conocer `GestionCorrespondencia`
+- asumir una API backend fija
+- asumir que todas las tablas son server-side
+
+### Estado visual durante la descarga
+
+La exportacion debe tener un estado visual propio y separado del loading de datos de la tabla.
+
+Reglas:
+
+- no activar `Skeleton Screen` de `AppTable` durante una descarga
+- no reemplazar filas ni cards mientras se genera un archivo
+- la tabla debe mantenerse visible y estable
+- el trigger de descarga debe reflejar `loading`
+- el menu de exportacion debe quedar bloqueado o deshabilitado mientras la operacion esta en curso
+
+Si la descarga es breve:
+
+- basta con `loading` en el trigger `Exportar`
+
+Si la descarga es perceptiblemente larga:
+
+- puede mostrarse una señal no destructiva sobre la banda de controles
+- no sobre el cuerpo completo de la tabla
+
+Opciones validas:
+
+- spinner en `AppDropdown`
+- estado `loading` del trigger
+- veil liviano o mensaje de progreso en la fila de controles
+
+Opciones no validas:
+
+- skeleton de filas
+- ocultar la tabla
+- overlay agresivo que haga parecer que la consulta de tabla esta recargando
+
+### Formato profesional del reporte exportado
+
+La salida de los reportes debe usar un formato profesional ejecutivo y no limitarse a una exportacion plana de datos.
+
+Todo reporte generado debe incluir un encabezado con metadatos obligatorios:
+
+- nombre del reporte
+- usuario que genero el reporte
+- modulo que genero el reporte
+- tipo de reporte
+- fecha y hora de generacion
+- numero de filas exportadas
+- descripcion del reporte
+
+Adicionalmente:
+
+- se debe incorporar la imagen corporativa de la empresa
+- la imagen debe resolverse desde un asset versionado dentro del repo
+- no debe depender de rutas locales del equipo del usuario
+- la imagen no debe referenciarse como URL externa dentro del reporte final
+- la imagen debe insertarse o incrustarse en el archivo exportado
+- el diseño final debe verse consistente y ejecutivo tanto en formatos tabulares como imprimibles
+
+Reglas de arquitectura:
+
+- estos metadatos deben pertenecer al contrato de exportacion y no quedar hardcodeados por modulo
+- el proveedor de exportacion debe poder recibir metadata contextual del reporte
+- el nombre de archivo y el encabezado visual deben mantenerse coherentes
+
+Contrato sugerido de metadata:
 
 ```ts
-type AppTableQueryWrapperProps = {
-  queryState: AppTableQueryState;
-  onQueryChange: (patch: Partial<AppTableQueryState>) => void;
-  onRefresh?: () => void;
-  total: number;
-  loading?: boolean;
-  headerActions?: ReactNode;
-  children: ReactNode;
+type AppTableExportReportMeta = {
+  reportName: string;
+  generatedBy: string;
+  moduleName: string;
+  reportType: string;
+  generatedAt: string;
+  rowCount: number;
+  description: string;
+  companyImageAsset: string;
 };
 ```
 
-### Contenedor visual
+Regla de origen del logo:
 
-Se recomienda que el wrapper tenga un contenedor acoplado, por ejemplo:
+- `companyImageAsset` debe referenciar un recurso controlado por el repositorio
+- si la exportacion ocurre server-side, el backend o adaptador debe resolver el asset y embebelo en el archivo
+- si la exportacion ocurre client-side, el frontend debe cargar el asset y embebelo en el archivo generado
+- el reporte final no debe depender de una URL para pintar el logo
 
-- `headerControls`
-- `paginationStrip`
-- `tableBody`
+Convencion recomendada para este repo:
 
-Objetivo:
+- usar una ruta publica y estable para reportes exportados
+- crear o reservar la carpeta `public/branding/reports/`
+- ubicar alli el logo oficial corporativo del reporte
+- nombre recomendado del asset:
+  - `public/branding/reports/company-report-logo.png`
 
-- que la UX se vea como una sola pieza
-- no como toolbar suelta y tabla desconectada
+Justificacion:
 
-### Refresh Button
+- una ruta en `public/` evita ambiguedad entre import interno de React y acceso directo para generadores de archivos
+- facilita tanto exportacion client-side como estrategias server-side que necesiten una referencia estable
+- evita que cada modulo termine apuntando a assets distintos en `src/assets/`
 
-Los controles accionables iconograficos asociados a tabla deben reutilizar `AppButton` como base del sistema UI.
+Regla por formato de salida:
 
-Reglas:
+- `xlsx`
+  - debe incrustar la imagen corporativa dentro de la hoja del reporte
+  - debe incluir encabezado ejecutivo visible en la parte superior
 
-- no crear un boton aislado fuera del sistema de componentes
-- crear una base reusable oficial:
-  - `AppIconActionButton`
-- especializaciones permitidas:
-  - `AppRefreshButton`
-  - `AppTableCellActionButton`
-  - `AppToolbarActionButton`
-- debe soportar:
-  - icono
-  - `loading`
-  - `disabled`
-  - `aria-label`
-  - tooltip opcional
+- `pdf`
+  - debe incrustar la imagen corporativa dentro del encabezado del documento
+  - debe mantener composicion ejecutiva lista para impresion o distribucion
 
-### Lineamiento visual del refresh
+- `csv`
+  - no requiere imagen incrustada
+  - debe incluir solo metadata textual si el formato lo permite sin romper compatibilidad
+  - si no existe una forma limpia de encabezado enriquecido, puede exportarse como dataset plano con convencion de nombre de archivo
 
-La base reusable de acciones iconograficas y sus especializaciones deben aproximarse al patron visual de Gmail:
+Regla de consistencia:
 
-- apariencia ligera
-- tamaño compacto
-- prioridad visual baja o media
-- apto para toolbar de tabla
-- consistente con el sistema visual existente
+- no se debe prometer el mismo nivel visual en `csv` que en `xlsx` o `pdf`
+- el formato ejecutivo completo aplica prioritariamente a `xlsx` y `pdf`
 
-No se recomienda usarlo como boton primario pesado.
+### Contrato recomendado
 
-### Integracion con AppDropdown
+```ts
+type AppTableExportMode =
+  | "currentPage"
+  | "selectedRows"
+  | "allLoaded"
+  | "allMatching";
 
-Cuando una accion dinamica use `Presentation = icon_button`, el trigger visual estandar debe reutilizar la misma base `AppIconActionButton`, incluso si la accion abre un `AppDropdown`.
+type AppTableExportFormat = "csv" | "xlsx" | "pdf";
 
-Reglas:
+type AppTableExportDataSource<T> = {
+  getCurrentPageRows: () => T[];
+  getSelectedRows?: () => T[];
+  getAllLoadedRows?: () => T[];
+  getAllMatchingRows?: () => Promise<T[]>;
+};
 
-- no crear triggers iconograficos paralelos para dropdowns de tabla
-- `AppDropdown` puede recibir como trigger:
-  - `AppIconActionButton`
-  - o una especializacion directa basada en esa misma pieza
-- el renderer de acciones de celda debe mantener consistencia visual entre:
-  - refresh
-  - accion directa
-  - accion que abre dropdown
+type AppTableExportProps<T> = {
+  columns: ColDef<T>[];
+  dataSource: AppTableExportDataSource<T>;
+  formats: AppTableExportFormat[];
+  enabledModes?: AppTableExportMode[];
+  fileName?: string;
+  queryState?: AppTableQueryState;
+};
+```
 
-Objetivo:
+### Semantica de cada modo
 
-- una sola familia visual para acciones compactas de tabla
-- menor duplicacion de estilos y estados
-- consistencia entre toolbar, celdas y menus contextuales
+#### `currentPage`
 
-### Refresh
+- exporta los registros visibles en la pagina actual
+- aplica tanto a `client` como a `server`
 
-El control de actualizar debe tener una unica semantica reusable:
+#### `selectedRows`
 
-- ejecutar `onRefresh` con el estado de consulta actual si el callback existe
-- no resetear filtros
-- no resetear `page`
-- no resetear `pageSize`
-- no alterar `search`, `structuredFilters` ni `sort`
+- exporta solo los registros seleccionados
+- requiere seleccion habilitada
+- si no hay seleccion, la opcion no debe aparecer o debe quedar disabled
 
-Reglas por modo:
+#### `allLoaded`
 
-- `server mode`
-  - `onRefresh` debe volver a ejecutar la consulta backend con el query state actual
+- exporta todo lo ya cargado en memoria
+- sirve para tablas `client`
+- no debe ofrecerse por defecto en `server` si el front solo posee la pagina actual
 
-- `client mode`
-  - `onRefresh` solo aplica si la pantalla provee una recarga externa del dataset
-  - si no existe `onRefresh`, el control no debe renderizarse o debe quedar disabled
+#### `allMatching`
 
-- `none mode`
-  - aplica la misma regla que `client mode`
+- exporta todos los registros que cumplen la consulta activa
+- debe respetar:
+  - `search`
+  - `searchType`
+  - `structuredFilters`
+  - `sortField`
+  - `sortDir`
+- en `server mode` requiere `getAllMatchingRows` o un endpoint backend de exportacion
+
+### Integracion visual
+
+La exportacion debe vivir como accion de tabla reusable, no como detalle de una sola pagina.
+
+Opciones validas:
+
+- dentro del `AppTableQueryWrapper` como `headerActions`
+- como componente hermano de `AppTable`
+- como trigger reutilizable basado en `AppDropdown`
+
+Regla:
+
+- `AppTableExport` pertenece al ecosistema `AppTable`
+- pero no al core de render de `AppTable.tsx`
+- la implementacion grafica debe usar `AppDropdown` como patron visual estandar para mostrar las opciones de descarga
+
+### Patron visual del menu de descarga
+
+`AppDropdown` debe ser el componente oficial para exponer las opciones de exportacion.
+
+Responsabilidades de `AppDropdown` en este contexto:
+
+- actuar como trigger visual del menu
+- renderizar jerarquia de opciones por formato y alcance
+- reflejar estados disabled o loading cuando aplique
+
+No debe:
+
+- contener la logica de transformacion de archivos
+- conocer backends concretos
+- resolver por si mismo que modos estan disponibles
+
+Ejemplo esperado de estructura visual:
+
+- `Exportar en Excel`
+- `Exportar en PDF`
+- `Pagina actual`
+- `Seleccionados`
+- `Todo cargado`
+- `Todos los resultados`
+
+Regla de coherencia:
+
+- las opciones visibles del `AppDropdown` deben depender estrictamente de las capacidades reales del datasource de `AppTableExport`
+- no deben mostrarse opciones que el flujo no pueda resolver realmente
+
+Regla de layout responsive:
+
+- el trigger de descarga debe encajar visualmente con el grupo de paginacion
+- si el ancho no alcanza, debe reubicarse sin quedar separado del contenedor de controles de tabla
+- la solucion responsive debe priorizar continuidad visual sobre apilar toolbars inconexas
 
 ## Diseño backend
 
-### Requerimientos minimos
+### Requerimientos minimos de consulta
 
 Para soportar paginacion tipo Gmail real, el backend debe:
 
@@ -367,19 +594,29 @@ Para soportar paginacion tipo Gmail real, el backend debe:
 - retornar `Pagination.PageSize`
 - retornar `Pagination.Total` real
 
+### Requerimientos de exportacion
+
+Para soportar `allMatching`, el backend debe ofrecer una de estas dos estrategias:
+
+1. endpoint de exportacion directa
+   - recibe el mismo query state
+   - devuelve archivo final o URL temporal
+
+2. endpoint de consulta total sin paginacion
+   - recibe el mismo query state
+   - devuelve todos los registros
+   - el frontend genera el archivo
+
+La estrategia recomendada es la primera para `xlsx` y `pdf`.
+
 ### Requisito critico
 
-`Pagination.Total` debe representar el total global de la consulta filtrada, no solo los registros devueltos en la pagina actual.
+El backend de exportacion total debe reutilizar la misma semantica de filtros y ordenamiento de la consulta principal.
 
-### workflowInboxgestion
+No se debe permitir que:
 
-En `workflowInboxgestion` hace falta:
-
-- quitar hardcode del controller
-- validar claims reales
-- propagar total real desde repository/query builder
-- mantener consistencia entre filtros y paginacion
-- devolver tabla vacia estructuralmente consistente cuando no haya filas
+- la tabla muestre un conjunto
+- y la exportacion total se resuelva con otra semantica distinta
 
 ## Busqueda simple y avanzada
 
@@ -387,7 +624,7 @@ En `workflowInboxgestion` hace falta:
 
 En `client mode`, puede usarse quick filter de AG Grid:
 
-- util para refinar la pagina/local dataset
+- util para refinar el dataset local
 - no reemplaza busqueda backend
 
 ### Busqueda servidor
@@ -421,7 +658,7 @@ entonces:
 - `pageSize` se conserva
 - se recalcula `total`
 
-Esto es obligatorio para no romper la paginacion.
+Esto es obligatorio para no romper la paginacion y para mantener la exportacion total coherente con la consulta activa.
 
 ## Decisiones explicitas
 
@@ -439,12 +676,23 @@ La experiencia tipo Gmail debe implementarse como `server mode` con barra extern
 
 ### Decision 4
 
-`AppTable` no debe absorber por defecto toda la UX de consulta.  
-El contenedor reusable debe encargarse del layout de controles.
+`AppTable` no debe absorber por defecto toda la UX de consulta ni la logica de exportacion total.
 
 ### Decision 5
 
 La busqueda avanzada debe integrarse al request backend y compartir el mismo query state que la paginacion.
+
+### Decision 6
+
+`AppTableExport` debe ser reusable, pero alimentado por un datasource o strategy inyectable.
+
+### Decision 7
+
+`allMatching` no debe implementarse iterando paginas desde el navegador como estrategia principal del sistema.
+
+### Decision 8
+
+`csv` puede resolverse en frontend para casos locales; `xlsx` y `pdf` deben preferir backend cuando se exporta `allMatching`.
 
 ## Plan de migracion
 
@@ -452,11 +700,10 @@ La busqueda avanzada debe integrarse al request backend y compartir el mismo que
 
 Objetivo:
 
-- dejar `/api/workflowInboxgestion/inboxgestion` consistente para server mode
+- dejar la consulta paginada consistente para `server mode`
 
 Entregables:
 
-- claims reales en controller
 - `Pagination.Total` real
 - `Page` y `PageSize` consistentes
 - vacio estructurado
@@ -477,7 +724,7 @@ Entregables:
 
 Objetivo:
 
-- crear el wrapper reusable tipo Gmail
+- consolidar el wrapper reusable tipo Gmail
 
 Entregables:
 
@@ -499,116 +746,82 @@ Entregables:
 - compatibilidad con AG Grid pagination local
 - compatibilidad con wrapper server mode
 
-### Fase 5: Integracion en GestionCorrespondencia
+### Fase 5: Infraestructura reusable de exportacion
 
 Objetivo:
 
-- adoptar la arquitectura completa en el primer modulo real
+- crear `AppTableExport` desacoplado de modulos concretos
 
 Entregables:
 
-- reemplazo de wiring actual
-- integracion con query state
-- prueba funcional del flujo
+- contrato `AppTableExportMode`
+- datasource strategy
+- integracion con `AppDropdown`
+- soporte de `currentPage`, `selectedRows`, `allLoaded`, `allMatching`
 
-### Fase 6: Adopcion en otros modulos
+### Fase 6: Adaptadores por pantalla
 
 Objetivo:
 
-- reutilizar el modelo en otras tablas dinamicas
+- permitir que cada modulo conecte su backend sin romper la abstraccion reusable
+
+Entregables:
+
+- adapter de exportacion para pantallas server-side
+- uso directo de `rows` para pantallas client-side
+- naming consistente de archivos y formatos
 
 ## Secuencia obligatoria de implementacion
 
-La implementacion debe seguir esta secuencia para minimizar choques entre frontend y backend y evitar regresiones sobre `AppTable`, `workflowInboxgestion` y las acciones dinamicas ya existentes.
+La implementacion debe seguir esta secuencia para minimizar choques entre frontend y backend y evitar regresiones sobre `AppTable` y modulos que lo reutilizan.
 
-### Etapa 1: Backend primero
-
-Orden obligatorio:
-
-1. normalizar el endpoint `workflowInboxgestion`
-2. exponer total real de la consulta filtrada
-3. asegurar respuesta vacia estructurada
-
-Razon:
-
-- frontend no debe diseñar `server mode` sobre un backend que aun no devuelve `Pagination.Total` real
-- el query state compartido depende de un contrato estable de API
-
-### Etapa 2: Modelo compartido frontend
+### Etapa 1: Contrato reusable primero
 
 Orden obligatorio:
 
-4. crear `AppTableQueryState`
-5. definir las reglas de reset de pagina
-6. adaptar los hooks dinamicos para consumir ese estado
+1. definir `AppTableExportMode`
+2. definir `AppTableExportDataSource`
+3. definir formatos soportados y reglas de disponibilidad
 
 Razon:
 
-- el wrapper y la paginacion tipo Gmail no deben inventar su propio estado interno
+- sin contrato reusable la exportacion termina acoplada a una sola pantalla
 
-### Etapa 3: Infraestructura visual reusable
+### Etapa 2: Capacidades locales
 
 Orden obligatorio:
 
-7. crear `AppIconActionButton`
-8. crear `AppTableQueryWrapper`
-9. si hace falta, extraer `AppRefreshButton` y `AppTablePaginationBar`
+4. implementar `currentPage`
+5. implementar `selectedRows`
+6. implementar `allLoaded`
 
 Razon:
 
-- primero debe existir la base reusable de acciones compactas
-- luego se construye el contenedor visual que acopla controles y tabla
+- estos modos no dependen de backend y validan la API reusable
 
-### Etapa 4: Evolucion de AppTable
+### Etapa 3: Capacidades server-side
 
 Orden obligatorio:
 
-10. agregar `paginationMode: "none" | "client" | "server"`
-11. agregar `quickFilterText` para busqueda local
-12. preservar compatibilidad hacia atras con usos actuales
+7. definir `getAllMatchingRows` o endpoint server de exportacion
+8. propagar `queryState` actual
+9. asegurar coherencia con filtros y sort
 
 Razon:
 
-- `AppTable` debe soportar los modos, pero no debe absorber antes de tiempo la UX completa de consulta
+- `allMatching` no debe salir de suposiciones sobre `rows`
 
-### Etapa 5: Integracion funcional
+### Etapa 4: Integracion visual
 
 Orden obligatorio:
 
-13. integrar busqueda avanzada backend con el query state compartido
-14. migrar `GestionCorrespondencia`
-15. validar regresion sobre `MenuActions`, `Pinned`, overlays y seleccion
+10. integrar `AppTableExport` con `AppDropdown`
+11. conectarlo al wrapper o toolbar reusable
+12. mantener `AppTable.tsx` libre de logica backend
 
 Razon:
 
-- la primera pantalla real debe adoptarse solo cuando infraestructura y backend ya esten estables
-
-## Artefactos por ticket
-
-Los tickets detallados de esta iniciativa viven en esta misma carpeta:
-
-- `01-BE-Normalizar-workflowInboxgestion-paginacion-consistente.md`
-- `02-BE-Total-real-y-conteo-filtrado-workflowInboxgestion.md`
-- `03-FE-AppTableQueryState-reusable.md`
-- `04-FE-AppIconActionButton-y-AppTableQueryWrapper.md`
-- `05-FE-Modos-paginacion-AppTable.md`
-- `06-FE-Busqueda-avanzada-server-sin-romper-paginacion.md`
-- `07-FE-Migracion-GestionCorrespondencia.md`
-
-## Desglose de tickets Jira
-
-### Backend
-
-1. `Normalizar workflowInboxgestion para paginacion consistente y claims reales`
-2. `Exponer total real y conteo filtrado en workflowInboxgestion`
-
-### Frontend
-
-3. `Crear AppTableQueryState reusable para tablas dinamicas`
-4. `Crear AppIconActionButton y AppTableQueryWrapper`
-5. `Agregar modos de paginacion client/server/none en AppTable`
-6. `Integrar busqueda avanzada server sin romper paginacion`
-7. `Migrar GestionCorrespondencia al modelo hibrido de tabla`
+- la UX debe verse integrada sin mover responsabilidades al renderer base
 
 ## Estrategia de pruebas
 
@@ -616,72 +829,61 @@ Los tickets detallados de esta iniciativa viven en esta misma carpeta:
 
 Cubrir:
 
-- calculo de rango visible
-- prev/next deshabilitado cuando aplica
-- reset de pagina al cambiar filtros
-- `client mode`
-- `server mode`
-- `none mode`
-- quick filter local
-- refresh con estado actual
+- resolucion de modos habilitados
+- exportacion de `currentPage`
+- exportacion de `selectedRows`
+- exportacion de `allLoaded`
+- `allMatching` invoca el datasource correcto
+- opciones disabled cuando faltan capacidades
 
 ### Frontend integracion
 
 Cubrir:
 
-- wrapper + AppTable
-- wrapper + hook de consulta
-- render con total real
-- render con empty state
-- render con loading
+- wrapper + AppTable + exportacion
+- exportacion respetando columnas visibles
+- exportacion con seleccion
+- exportacion con `paginationMode = "server"`
+- exportacion con `paginationMode = "client"`
 
-### Backend unitarias
-
-Cubrir:
-
-- total real de consulta
-- page/pageSize
-- busqueda simple
-- busqueda avanzada
-- structured filters
-- sort
-- claims invalidos
-
-### Backend integracion
+### Backend
 
 Cubrir:
 
-- endpoint completo `workflowInboxgestion/inboxgestion`
-- respuesta con paginacion
-- respuesta con filtros
-- respuesta vacia consistente
+- consistencia entre consulta visible y exportacion total
+- filtros y ordenamiento aplicados en exportacion
+- respuesta valida del endpoint de exportacion
 
 ### Regresion
 
 Cubrir:
 
-- acciones dinamicas
-- `Pinned/LockPinned`
-- `MenuActions/Children/IsDivider`
-- modulos que usan `AppTable` sin paginacion servidor
+- tablas que no usan exportacion
+- pantallas con exportacion local solamente
+- pantallas con exportacion server-side
+- acciones dinamicas ya existentes
 
 ## Riesgos
 
-- mezclar paginacion cliente y servidor en la misma pantalla
-- recalcular mal `total`
-- no resetear pagina al cambiar filtros
-- acoplar demasiado `AppTable` a un caso de uso
-- duplicar query state por modulo
+- acoplar `AppTableExport` a `GestionCorrespondencia`
+- asumir que `server mode` conoce todos los registros
+- iterar todas las paginas desde el navegador
+- exportar con filtros distintos a los visibles
+- mezclar semanticas `allLoaded` y `allMatching`
+- poner demasiada responsabilidad dentro de `AppTable.tsx`
 
 ## Recomendacion final
 
-No implementar esta iniciativa como un solo ticket.
+Esta iniciativa debe tratarse como una arquitectura reusable del ecosistema `AppTable`, no como un feature puntual de una sola pantalla.
 
-Debe tratarse como una migracion por fases con una arquitectura clara:
+La solucion correcta es:
 
 - `AppTable` como renderer base
-- `AppTableQueryWrapper` como contenedor reusable
-- backend consistente para server mode
-- query state unificado
+- `AppTableQueryWrapper` como contenedor reusable de consulta
+- `AppTableExport` como capacidad reusable de exportacion
+- `AppTableQueryState` como fuente unica de verdad para consulta server-side
+- backend como responsable de `allMatching` cuando los datos no estan completos en memoria
 
-La experiencia tipo Gmail debe vivir en el wrapper/contenedor, no como una responsabilidad obligatoria y rigida de `AppTable`.
+La exportacion de pagina y seleccion puede resolverse en frontend.
+
+La exportacion de todos los resultados de la consulta debe resolverse con estrategia server-side o datasource inyectable, nunca asumiendo que la tabla visible contiene todo.
