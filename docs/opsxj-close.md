@@ -70,3 +70,17 @@ Casos comunes:
 - `No existe un PR mergeado para <ISSUE>`: el PR aún no fue mergeado.
 - `Falta GITHUB_TOKEN`: falta configuración GitHub.
 - `No se encontro una transicion Jira compatible con target='done'`: revisar workflow/transiciones de Jira.
+
+## Sugerencia operativa para agentes Codex
+
+`opsxj:close` debe ejecutarse preferiblemente con el agente principal.
+
+Razón:
+
+- valida merge real
+- toca cierre final de Jira
+- cierra la trazabilidad del flujo
+
+Referencia:
+
+- `docs/codex-agent-strategy.md`

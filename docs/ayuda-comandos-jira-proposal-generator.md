@@ -267,3 +267,17 @@ Salida esperada (resumen):
 7. Jira se sincroniza automáticamente por GitHub Action:
    - PR mergeado -> `Done`
    - PR cerrado sin merge -> `In Progress`
+
+## Recomendación de uso con agentes Codex
+
+Los comandos `opsxj` no seleccionan modelos por sí mismos. La elección de subagente mini o agente principal depende del entorno de Codex que los ejecuta.
+
+Política recomendada:
+
+- `opsxj:new`: mini para artefactos OpenSpec, principal para implementación
+- `opsxj:archive`: principal para verify, archive y PR
+- `opsxj:close`: principal para cierre final de Jira
+
+Referencia:
+
+- `docs/codex-agent-strategy.md`
