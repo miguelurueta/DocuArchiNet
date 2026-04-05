@@ -1,3 +1,5 @@
+import type { ColDef } from "ag-grid-community";
+import type { ReactNode } from "react";
 import type { AppTableRow } from "./AppTable.types";
 
 export type AppTableExportMode =
@@ -27,10 +29,14 @@ export type AppTableExportReportMeta = {
 };
 
 export type AppTableExportProps<T extends AppTableRow = AppTableRow> = {
+  columns: ColDef<T>[];
   dataSource: AppTableExportDataSource<T>;
   formats: AppTableExportFormat[];
   reportMeta: AppTableExportReportMeta;
   enabledModes?: AppTableExportMode[];
+  fileName?: string;
+  triggerLabel?: ReactNode;
+  disabled?: boolean;
 };
 
 export const APP_TABLE_EXPORT_MODES: readonly AppTableExportMode[] = [
