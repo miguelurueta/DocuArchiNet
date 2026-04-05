@@ -54,8 +54,8 @@ const createTable = (): GestionCorrespondenciaTableResult => ({
   refetch: vi.fn(),
 });
 
-describe("GestionCorrespondencia", () => {
-  it("compone AppTableQueryWrapper con AppTable en server mode", () => {
+describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18]", () => {
+  it("compone AppTableQueryWrapper con AppTable en server mode y ubica exportacion en paginationActions", () => {
     const table = createTable();
 
     render(
@@ -76,7 +76,9 @@ describe("GestionCorrespondencia", () => {
       "true",
     );
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-cards-below", "768");
-    expect(screen.getByRole("button", { name: /Exportar/i })).toBeInTheDocument();
+    expect(screen.getByTestId("app-table-pagination-actions")).toContainElement(
+      screen.getByRole("button", { name: /Exportar/i }),
+    );
     expect(screen.getByRole("button", { name: /Actualizar/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Abrir respuesta contextual/i })).toBeInTheDocument();
     expect(screen.queryByRole("textbox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();

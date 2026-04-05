@@ -1,9 +1,10 @@
-import { DownloadOutlined, EyeFilled, FileExcelFilled, FilePdfFilled, UndoOutlined } from "@ant-design/icons";
+import { EyeFilled, UndoOutlined } from "@ant-design/icons";
 import type { ColDef } from "ag-grid-community";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppButton } from "../../../app/Components/UI/AppButton";
 import { AppContent } from "../../../app/Components/UI/AppContent";
-import { AppDropdown } from "../../../app/Components/UI/AppDropdown";
+import { AppTableExport } from "../../../app/Components/UI/AppTable/AppTableExport";
 import { AppTableQueryWrapper } from "../../../app/Components/UI/AppTable/AppTableQueryWrapper";
 import AppTable from "../../../app/Components/UI/AppTable/AppTable";
 import type { AppTableRow } from "../../../app/Components/UI/AppTable/AppTable.types";
@@ -19,6 +20,20 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
   table,
 }: GestionCorrespondenciaProps<T>) {
   const navigate = useNavigate();
+  const [selectedRows, setSelectedRows] = useState<T[]>([]);
+  const exportReportMeta = useMemo(
+    () => ({
+      reportName: "Bandeja de gestion correspondencia",
+      generatedBy: "DocuArchiCore",
+      moduleName: "Gestion Correspondencia",
+      reportType: "Operativo",
+      generatedAt: new Date().toISOString(),
+      rowCount: table.rows.length,
+      description: "Exportacion desde la bandeja operativa",
+      companyImageAsset: "public/branding/reports/company-report-logo.png",
+    }),
+    [table.rows.length],
+  );
 
   return (
     <div className={styles.shell}>
@@ -26,52 +41,6 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
         className={styles.toolbar}
         actionContent={
           <div className={styles.toolbarActionGroup}>
-            <AppDropdown
-              ariaLabel="Exportar"
-              className={styles.toolbarControl}
-              trigger={
-                <AppButton variant="ghost" size="sm" fullWidth>
-                  Exportar
-                </AppButton>
-              }
-              items={[
-                {
-                  key: "export-excel",
-                  label: "Exportar en Excel",
-                  leftIcon: <FileExcelFilled />,
-                  children: [
-                    {
-                      key: "export-excel-all",
-                      label: "Exportar Todo",
-                      leftIcon: <DownloadOutlined />,
-                    },
-                    {
-                      key: "export-excel-selected",
-                      label: "Exportar Seleccionados",
-                      leftIcon: <DownloadOutlined />,
-                    },
-                  ],
-                },
-                {
-                  key: "export-pdf",
-                  label: "Exportar en Pdf",
-                  leftIcon: <FilePdfFilled />,
-                  children: [
-                    {
-                      key: "export-pdf-all",
-                      label: "Exportar Todo",
-                      leftIcon: <DownloadOutlined />,
-                    },
-                    {
-                      key: "export-pdf-selected",
-                      label: "Exportar Seleccionados",
-                      leftIcon: <DownloadOutlined />,
-                    },
-                  ],
-                },
-              ]}
-            />
-
             <AppButton
               className={styles.toolbarControl}
               variant="ghost"
@@ -113,6 +82,18 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
             total={table.total}
             loading={table.loading && table.hasLoadedOnce}
             showSearch={false}
+            paginationActions={
+              <AppTableExport
+                columns={table.columns as ColDef<T>[]}
+                dataSource={{
+                  getCurrentPageRows: () => table.rows,
+                  getSelectedRows: () => selectedRows,
+                }}
+                formats={["csv"]}
+                reportMeta={exportReportMeta}
+                enabledModes={["currentPage", "selectedRows"]}
+              />
+            }
           >
             <div className={styles.tableWrapper}>
               <AppTable
@@ -124,6 +105,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
                 paginationMode="server"
                 layoutMode="fill"
                 responsivePresentation={{ enabled: true, cardsBelow: 768 }}
+                onSelectionChanged={setSelectedRows}
               />
             </div>
           </AppTableQueryWrapper>

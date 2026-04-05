@@ -50,4 +50,20 @@ describe("AppTableExport utilities", () => {
       }),
     ).toEqual([{ id: "2", name: "Beta" }]);
   });
+
+  it("resuelve allLoaded desde getAllLoadedRows y no desde currentPage", () => {
+    expect(
+      getAppTableExportRows({
+        mode: "allLoaded",
+        getCurrentPageRows: () => [{ id: "1", name: "Alpha" }],
+        getAllLoadedRows: () => [
+          { id: "1", name: "Alpha" },
+          { id: "2", name: "Beta" },
+        ],
+      }),
+    ).toEqual([
+      { id: "1", name: "Alpha" },
+      { id: "2", name: "Beta" },
+    ]);
+  });
 });

@@ -86,13 +86,19 @@ export const getAppTableExportRows = <T extends AppTableRow>({
   mode,
   getCurrentPageRows,
   getSelectedRows,
+  getAllLoadedRows,
 }: {
-  mode: Extract<AppTableExportMode, "currentPage" | "selectedRows">;
+  mode: Extract<AppTableExportMode, "currentPage" | "selectedRows" | "allLoaded">;
   getCurrentPageRows: () => T[];
   getSelectedRows?: () => T[];
+  getAllLoadedRows?: () => T[];
 }): T[] => {
   if (mode === "selectedRows") {
     return getSelectedRows?.() ?? [];
+  }
+
+  if (mode === "allLoaded") {
+    return getAllLoadedRows?.() ?? [];
   }
 
   return getCurrentPageRows();
