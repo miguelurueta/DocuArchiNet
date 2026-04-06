@@ -2,7 +2,7 @@ import { LeftOutlined, ReloadOutlined, RightOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
 import { AppButton } from "../AppButton";
 import { AppDropdown } from "../AppDropdown";
-import { AppInput } from "../AppInput";
+import { AppInputSearch } from "../AppInputSearch";
 import type { AppTableQueryState } from "./types/appTableQueryState.types";
 import styles from "./AppTableQueryWrapper.module.css";
 
@@ -71,7 +71,7 @@ export function AppTableQueryWrapper({
       <div className={styles.header}>
         <div className={styles.searchGroup}>
           {showSearch ? (
-            <AppInput
+            <AppInputSearch
               className={styles.searchInput}
               placeholder={searchPlaceholder}
               value={queryState.search}

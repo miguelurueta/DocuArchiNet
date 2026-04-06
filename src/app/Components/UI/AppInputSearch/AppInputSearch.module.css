@@ -1,0 +1,18 @@
+.input {
+  width: 100%;
+}
+
+.input :global(.ant-input-prefix) {
+  color: var(--color-text-secondary, #595959);
+  margin-inline-end: 0.45rem;
+}
+
+.icon {
+  align-items: center;
+  display: inline-flex;
+  line-height: 1;
+}
+
+.icon :global(svg) {
+  display: block;
+}
