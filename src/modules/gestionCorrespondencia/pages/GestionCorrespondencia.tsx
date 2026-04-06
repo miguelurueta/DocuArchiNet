@@ -88,10 +88,12 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
                 dataSource={{
                   getCurrentPageRows: () => table.rows,
                   getSelectedRows: () => selectedRows,
+                  getAllMatchingRows: table.getAllMatchingRows,
+                  getBackendExportFile: table.getBackendExportFile,
                 }}
-                formats={["csv"]}
+                formats={["csv", "xlsx", "pdf"]}
                 reportMeta={exportReportMeta}
-                enabledModes={["currentPage", "selectedRows"]}
+                enabledModes={["currentPage", "selectedRows", "allMatching"]}
               />
             }
           >

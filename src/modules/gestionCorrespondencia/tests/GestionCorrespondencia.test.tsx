@@ -52,9 +52,18 @@ const createTable = (): GestionCorrespondenciaTableResult => ({
   hasLoadedOnce: true,
   setCategory: vi.fn(),
   refetch: vi.fn(),
+  getAllMatchingRows: vi.fn().mockResolvedValue([
+    { id: "924", RADICADO: "2500456700023" },
+  ]),
+  getBackendExportFile: vi.fn().mockResolvedValue({
+    blob: new Blob(["xlsx"], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }),
+    fileName: "gestion.xlsx",
+  }),
 });
 
-describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18]", () => {
+describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT-21] [SPEC:22-FE-INTEGRAR-APPTABLEEXPORT-CON-API-APPTABLE-EXPORT-MD]", () => {
   it("compone AppTableQueryWrapper con AppTable en server mode y ubica exportacion en paginationActions", () => {
     const table = createTable();
 
@@ -98,5 +107,25 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18]", () => {
 
     expect(table.onQueryChange).not.toHaveBeenCalled();
     expect(table.refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("expone formatos ejecutivos sobre allMatching y mantiene la tabla visible durante la exportacion backend", async () => {
+    const table = createTable();
+
+    render(
+      <MemoryRouter>
+        <GestionCorrespondencia table={table} />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Exportar/i }));
+
+    expect((await screen.findAllByText("Página actual")).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Seleccionados (sin selección)").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Todos los resultados").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Todos los cargados")).not.toBeInTheDocument();
+    expect(screen.getByText("Exportar en Excel")).toBeInTheDocument();
+    expect(screen.getByText("Exportar en PDF")).toBeInTheDocument();
+    expect(screen.getByTestId("mock-app-table")).toBeInTheDocument();
   });
 });

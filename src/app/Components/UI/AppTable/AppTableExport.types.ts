@@ -10,11 +10,33 @@ export type AppTableExportMode =
 
 export type AppTableExportFormat = "csv" | "xlsx" | "pdf";
 
+export type AppTableExportColumn<T extends AppTableRow = AppTableRow> = {
+  field: Extract<keyof T, string> | string;
+  headerName: string;
+};
+
+export type AppTableBackendExportRequest<T extends AppTableRow = AppTableRow> = {
+  columns: AppTableExportColumn<T>[];
+  format: AppTableExportFormat;
+  mode: AppTableExportMode;
+  reportMeta: AppTableExportReportMeta;
+  fileName?: string;
+};
+
+export type AppTableBackendExportFile = {
+  blob: Blob;
+  fileName?: string;
+  contentType?: string;
+};
+
 export type AppTableExportDataSource<T extends AppTableRow = AppTableRow> = {
   getCurrentPageRows: () => T[];
   getSelectedRows?: () => T[];
   getAllLoadedRows?: () => T[];
   getAllMatchingRows?: () => Promise<T[]>;
+  getBackendExportFile?: (
+    request: AppTableBackendExportRequest<T>,
+  ) => Promise<AppTableBackendExportFile>;
 };
 
 export type AppTableExportReportMeta = {
@@ -64,7 +86,10 @@ export const hasAppTableExportDataSourceCapability = <T extends AppTableRow>(
     case "allLoaded":
       return typeof dataSource.getAllLoadedRows === "function";
     case "allMatching":
-      return typeof dataSource.getAllMatchingRows === "function";
+      return (
+        typeof dataSource.getAllMatchingRows === "function" ||
+        typeof dataSource.getBackendExportFile === "function"
+      );
     default:
       return false;
   }
@@ -75,3 +100,28 @@ export const getAvailableAppTableExportModes = <T extends AppTableRow>(
   enabledModes: readonly AppTableExportMode[] = APP_TABLE_EXPORT_MODES,
 ): AppTableExportMode[] =>
   enabledModes.filter((mode) => hasAppTableExportDataSourceCapability(dataSource, mode));
+
+export const shouldUseBackendAppTableExport = <T extends AppTableRow>(
+  dataSource: AppTableExportDataSource<T>,
+  format: AppTableExportFormat,
+  mode: AppTableExportMode,
+): boolean =>
+  typeof dataSource.getBackendExportFile === "function" &&
+  mode === "allMatching" &&
+  (format === "csv" || format === "xlsx" || format === "pdf");
+
+export const isAppTableExportExecutable = <T extends AppTableRow>(
+  dataSource: AppTableExportDataSource<T>,
+  format: AppTableExportFormat,
+  mode: AppTableExportMode,
+): boolean => {
+  if (!hasAppTableExportDataSourceCapability(dataSource, mode)) {
+    return false;
+  }
+
+  if (shouldUseBackendAppTableExport(dataSource, format, mode)) {
+    return true;
+  }
+
+  return format === "csv";
+};
