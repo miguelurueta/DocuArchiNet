@@ -36,7 +36,7 @@ describe("AppTableExport [SPEC:APPTABLE-EXPORT-17] [SPEC:APPTABLE-EXPORT-18] [SP
   let capturedBlob: Blob | null;
   let createObjectUrlSpy: ReturnType<typeof vi.fn>;
   let revokeObjectUrlSpy: ReturnType<typeof vi.fn>;
-  let anchorClickSpy: ReturnType<typeof vi.fn>;
+  let anchorClickSpy: () => void;
 
   beforeEach(() => {
     capturedBlob = null;
@@ -51,7 +51,9 @@ describe("AppTableExport [SPEC:APPTABLE-EXPORT-17] [SPEC:APPTABLE-EXPORT-18] [SP
       createObjectURL: createObjectUrlSpy,
       revokeObjectURL: revokeObjectUrlSpy,
     });
-    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(anchorClickSpy);
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {
+      anchorClickSpy();
+    });
   });
 
   afterEach(() => {
