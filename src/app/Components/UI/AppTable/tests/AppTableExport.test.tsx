@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ColDef } from "ag-grid-community";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppTableExport } from "../AppTableExport";
@@ -32,7 +32,7 @@ const columns: ColDef<Row>[] = [
   },
 ];
 
-describe("AppTableExport [SPEC:APPTABLE-EXPORT-17] [SPEC:APPTABLE-EXPORT-18]", () => {
+describe("AppTableExport [SPEC:APPTABLE-EXPORT-17] [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT-20] [SPEC:22-FE-INTEGRAR-APPTABLEEXPORT-CON-API-APPTABLE-EXPORT-MD]", () => {
   let capturedBlob: Blob | null;
   let createObjectUrlSpy: ReturnType<typeof vi.fn>;
   let revokeObjectUrlSpy: ReturnType<typeof vi.fn>;
@@ -181,23 +181,206 @@ describe("AppTableExport [SPEC:APPTABLE-EXPORT-17] [SPEC:APPTABLE-EXPORT-18]", (
     expect(screen.queryByText("Todos los cargados")).not.toBeInTheDocument();
   });
 
-  it("marca formatos no implementados como visibles pero no ejecutables [SPEC:APPTABLE-EXPORT-18]", async () => {
+  it("mantiene formatos ejecutivos como no ejecutables fuera de allMatching", async () => {
     render(
       <AppTableExport
         columns={columns}
         dataSource={{
           getCurrentPageRows: () => [{ id: "1", name: "Alpha" }],
+          getAllMatchingRows: async () => [{ id: "1", name: "Alpha" }],
+          getBackendExportFile: vi.fn().mockResolvedValue({
+            blob: new Blob(["xlsx"], {
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            }),
+            fileName: "gestion.xlsx",
+          }),
         }}
         formats={["xlsx"]}
         reportMeta={reportMeta}
-        enabledModes={["currentPage"]}
+        enabledModes={["currentPage", "allMatching"]}
       />,
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
 
-    expect(await screen.findByText("Exportar en Excel (próximamente)")).toBeInTheDocument();
+    expect(await screen.findByText("Exportar en Excel")).toBeInTheDocument();
     expect(screen.getByText("Página actual")).toBeInTheDocument();
+    expect(screen.getByText("Todos los resultados")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Página actual"));
     expect(createObjectUrlSpy).not.toHaveBeenCalled();
+  });
+
+  it("expone allMatching solo cuando el datasource async lo soporta y lo diferencia de allLoaded", async () => {
+    render(
+      <AppTableExport
+        columns={columns}
+        dataSource={{
+          getCurrentPageRows: () => [{ id: "1", name: "Alpha" }],
+          getAllLoadedRows: () => [{ id: "1", name: "Alpha" }],
+          getAllMatchingRows: async () => [
+            { id: "1", name: "Alpha" },
+            { id: "2", name: "Beta" },
+          ],
+        }}
+        formats={["csv"]}
+        reportMeta={reportMeta}
+        enabledModes={["currentPage", "allLoaded", "allMatching"]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+
+    expect(await screen.findByText("Todos los cargados")).toBeInTheDocument();
+    expect(screen.getByText("Todos los resultados")).toBeInTheDocument();
+  });
+
+  it("usa el datasource async remoto para exportar allMatching", async () => {
+    const getAllMatchingRows = vi.fn().mockResolvedValue([
+      { id: "1", name: "Alpha" },
+      { id: "2", name: "Beta" },
+    ]);
+
+    render(
+      <AppTableExport
+        columns={columns}
+        dataSource={{
+          getCurrentPageRows: () => [{ id: "9", name: "Visible" }],
+          getAllMatchingRows,
+        }}
+        formats={["csv"]}
+        reportMeta={reportMeta}
+        enabledModes={["allMatching"]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+    fireEvent.click(await screen.findByText("Todos los resultados"));
+
+    await waitFor(() => {
+      expect(getAllMatchingRows).toHaveBeenCalledTimes(1);
+    });
+    expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
+    expect(capturedBlob).toBeTruthy();
+  });
+
+  it("recupera el estado interactivo cuando allMatching falla sin activar descarga", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const getAllMatchingRows = vi.fn()
+      .mockRejectedValueOnce(new Error("remote export failed"))
+      .mockResolvedValueOnce([{ id: "2", name: "Beta" }]);
+
+    render(
+      <AppTableExport
+        columns={columns}
+        dataSource={{
+          getCurrentPageRows: () => [{ id: "1", name: "Alpha" }],
+          getAllMatchingRows,
+        }}
+        formats={["csv"]}
+        reportMeta={reportMeta}
+        enabledModes={["allMatching"]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+    fireEvent.click(await screen.findByText("Todos los resultados"));
+
+    await waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith(
+        "AppTable export failed",
+        expect.any(Error),
+      );
+    });
+    expect(createObjectUrlSpy).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+    fireEvent.click(await screen.findByText("Todos los resultados"));
+
+    await waitFor(() => {
+      expect(getAllMatchingRows).toHaveBeenCalledTimes(2);
+      expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("usa la estrategia backend para descargar allMatching en formatos ejecutivos", async () => {
+    const getBackendExportFile = vi.fn().mockResolvedValue({
+      blob: new Blob(["xlsx"], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }),
+      fileName: "gestion.xlsx",
+    });
+
+    render(
+      <AppTableExport
+        columns={columns}
+        dataSource={{
+          getCurrentPageRows: () => [{ id: "1", name: "Visible" }],
+          getAllMatchingRows: async () => [{ id: "1", name: "Visible" }],
+          getBackendExportFile,
+        }}
+        formats={["xlsx"]}
+        reportMeta={reportMeta}
+        enabledModes={["allMatching"]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+    fireEvent.click(await screen.findByText("Todos los resultados"));
+
+    await waitFor(() => {
+      expect(getBackendExportFile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          format: "xlsx",
+          mode: "allMatching",
+          reportMeta,
+        }),
+      );
+    });
+    expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
+    expect(anchorClickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("recupera el estado interactivo cuando la exportacion backend falla", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const getBackendExportFile = vi.fn()
+      .mockRejectedValueOnce(new Error("server export failed"))
+      .mockResolvedValueOnce({
+        blob: new Blob(["csv"], { type: "text/csv;charset=utf-8;" }),
+        fileName: "gestion.csv",
+      });
+
+    render(
+      <AppTableExport
+        columns={columns}
+        dataSource={{
+          getCurrentPageRows: () => [{ id: "1", name: "Visible" }],
+          getAllMatchingRows: async () => [{ id: "1", name: "Visible" }],
+          getBackendExportFile,
+        }}
+        formats={["csv"]}
+        reportMeta={reportMeta}
+        enabledModes={["allMatching"]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+    fireEvent.click(await screen.findByText("Todos los resultados"));
+
+    await waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith(
+        "AppTable export failed",
+        expect.any(Error),
+      );
+    });
+    expect(createObjectUrlSpy).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+    fireEvent.click(await screen.findByText("Todos los resultados"));
+
+    await waitFor(() => {
+      expect(getBackendExportFile).toHaveBeenCalledTimes(2);
+      expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
+    });
   });
 });

@@ -1,15 +1,12 @@
 import type { ColDef } from "ag-grid-community";
 import type {
+  AppTableBackendExportFile,
+  AppTableExportColumn,
   AppTableExportFormat,
   AppTableExportMode,
   AppTableExportReportMeta,
 } from "./AppTableExport.types";
 import type { AppTableRow } from "./AppTable.types";
-
-export type AppTableExportColumn<T extends AppTableRow = AppTableRow> = {
-  field: Extract<keyof T, string> | string;
-  headerName: string;
-};
 
 type AppTableExportRequest<T extends AppTableRow> = {
   columns: AppTableExportColumn<T>[];
@@ -156,10 +153,20 @@ export const downloadAppTableExportFile = <T extends AppTableRow>({
     fileName,
   });
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  downloadBlobAppTableExportFile({
+    blob,
+    fileName: finalFileName,
+  });
+};
+
+export const downloadBlobAppTableExportFile = ({
+  blob,
+  fileName,
+}: AppTableBackendExportFile & { fileName: string }) => {
   const blobUrl = window.URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = blobUrl;
-  anchor.download = finalFileName;
+  anchor.download = fileName;
   anchor.click();
   window.URL.revokeObjectURL(blobUrl);
 };

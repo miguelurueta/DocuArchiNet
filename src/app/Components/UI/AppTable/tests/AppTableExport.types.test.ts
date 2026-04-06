@@ -6,6 +6,8 @@ import {
   APP_TABLE_EXPORT_MODES,
   getAvailableAppTableExportModes,
   hasAppTableExportDataSourceCapability,
+  isAppTableExportExecutable,
+  shouldUseBackendAppTableExport,
   type AppTableExportDataSource,
   type AppTableExportProps,
   type AppTableExportReportMeta,
@@ -47,6 +49,9 @@ describe("[SPEC:APPTABLE-EXPORT-15] AppTable export contracts", () => {
     const dataSource: AppTableExportDataSource<InboxRow> = {
       getCurrentPageRows: () => [],
       getAllLoadedRows: () => [],
+      getBackendExportFile: async () => ({
+        blob: new Blob(["export"], { type: "text/plain" }),
+      }),
     };
 
     expect(
@@ -54,8 +59,26 @@ describe("[SPEC:APPTABLE-EXPORT-15] AppTable export contracts", () => {
         "currentPage",
         "selectedRows",
         "allLoaded",
+        "allMatching",
       ]),
-    ).toEqual(["currentPage", "allLoaded"]);
+    ).toEqual(["currentPage", "allLoaded", "allMatching"]);
+  });
+
+  it("routes only allMatching to backend and keeps csv local for the rest", () => {
+    const dataSource: AppTableExportDataSource<InboxRow> = {
+      getCurrentPageRows: () => [{ id: "1", radicado: "RAD-1" }],
+      getAllMatchingRows: async () => [{ id: "1", radicado: "RAD-1" }],
+      getBackendExportFile: async () => ({
+        blob: new Blob(["export"], { type: "text/plain" }),
+      }),
+    };
+
+    expect(shouldUseBackendAppTableExport(dataSource, "csv", "currentPage")).toBe(false);
+    expect(shouldUseBackendAppTableExport(dataSource, "xlsx", "currentPage")).toBe(false);
+    expect(shouldUseBackendAppTableExport(dataSource, "xlsx", "allMatching")).toBe(true);
+    expect(isAppTableExportExecutable(dataSource, "csv", "currentPage")).toBe(true);
+    expect(isAppTableExportExecutable(dataSource, "xlsx", "currentPage")).toBe(false);
+    expect(isAppTableExportExecutable(dataSource, "pdf", "allMatching")).toBe(true);
   });
 
   it("supports report metadata and generic props over AppTable rows", () => {

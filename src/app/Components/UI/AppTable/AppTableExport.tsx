@@ -3,8 +3,14 @@ import { useMemo, useState, startTransition } from "react";
 import { AppButton } from "../AppButton";
 import { AppDropdown, type AppDropdownItem } from "../AppDropdown";
 import type { AppTableExportFormat, AppTableExportMode, AppTableExportProps } from "./AppTableExport.types";
-import { getAvailableAppTableExportModes } from "./AppTableExport.types";
 import {
+  getAvailableAppTableExportModes,
+  isAppTableExportExecutable,
+  shouldUseBackendAppTableExport,
+} from "./AppTableExport.types";
+import {
+  buildAppTableExportFileName,
+  downloadBlobAppTableExportFile,
   downloadAppTableExportFile,
   getAppTableExportRows,
   getAppTableExportableColumns,
@@ -12,17 +18,18 @@ import {
 import type { AppTableRow } from "./AppTable.types";
 import styles from "./AppTableExport.module.css";
 
-const LOCAL_EXPORT_MODES = [
+const EXECUTABLE_EXPORT_MODES = [
   "currentPage",
   "selectedRows",
   "allLoaded",
+  "allMatching",
 ] as const satisfies readonly AppTableExportMode[];
-const SUPPORTED_FORMATS = new Set<AppTableExportFormat>(["csv"]);
 
-const MODE_LABELS: Record<(typeof LOCAL_EXPORT_MODES)[number], string> = {
+const MODE_LABELS: Record<(typeof EXECUTABLE_EXPORT_MODES)[number], string> = {
   currentPage: "Página actual",
   selectedRows: "Seleccionados",
   allLoaded: "Todos los cargados",
+  allMatching: "Todos los resultados",
 };
 
 const FORMAT_LABELS: Record<AppTableExportFormat, string> = {
@@ -39,7 +46,7 @@ export function AppTableExport<T extends AppTableRow>({
   dataSource,
   formats,
   reportMeta,
-  enabledModes = [...LOCAL_EXPORT_MODES],
+  enabledModes = [...EXECUTABLE_EXPORT_MODES],
   fileName,
   triggerLabel = "Exportar",
   disabled = false,
@@ -49,8 +56,8 @@ export function AppTableExport<T extends AppTableRow>({
   const exportableColumns = useMemo(() => getAppTableExportableColumns(columns), [columns]);
   const availableModes = useMemo(
     () => getAvailableAppTableExportModes(dataSource, enabledModes).filter((mode) =>
-      LOCAL_EXPORT_MODES.includes(mode as (typeof LOCAL_EXPORT_MODES)[number]),
-    ) as Array<(typeof LOCAL_EXPORT_MODES)[number]>,
+      EXECUTABLE_EXPORT_MODES.includes(mode as (typeof EXECUTABLE_EXPORT_MODES)[number]),
+    ) as Array<(typeof EXECUTABLE_EXPORT_MODES)[number]>,
     [dataSource, enabledModes],
   );
 
@@ -64,9 +71,9 @@ export function AppTableExport<T extends AppTableRow>({
 
   const handleExport = async (
     format: AppTableExportFormat,
-    mode: (typeof LOCAL_EXPORT_MODES)[number],
+    mode: (typeof EXECUTABLE_EXPORT_MODES)[number],
   ) => {
-    if (exportLoading || disabled || !SUPPORTED_FORMATS.has(format)) {
+    if (exportLoading || disabled || !isAppTableExportExecutable(dataSource, format, mode)) {
       return;
     }
 
@@ -74,15 +81,45 @@ export function AppTableExport<T extends AppTableRow>({
       return;
     }
 
-    const rows = getAppTableExportRows({
-      mode,
-      getCurrentPageRows: dataSource.getCurrentPageRows,
-      getSelectedRows: dataSource.getSelectedRows,
-      getAllLoadedRows: dataSource.getAllLoadedRows,
-    });
-
     setExportLoading(true);
     try {
+      if (shouldUseBackendAppTableExport(dataSource, format, mode)) {
+        const backendFile = await dataSource.getBackendExportFile?.({
+          columns: exportableColumns,
+          format,
+          mode,
+          reportMeta,
+          fileName,
+        });
+
+        if (!backendFile) {
+          throw new Error("Backend export returned no file");
+        }
+
+        downloadBlobAppTableExportFile({
+          ...backendFile,
+          fileName:
+            backendFile.fileName ??
+            buildAppTableExportFileName({
+              reportMeta,
+              mode,
+              format,
+              fileName,
+            }),
+        });
+        return;
+      }
+
+      const rows =
+        mode === "allMatching"
+          ? (await dataSource.getAllMatchingRows?.()) ?? []
+          : getAppTableExportRows({
+              mode,
+              getCurrentPageRows: dataSource.getCurrentPageRows,
+              getSelectedRows: dataSource.getSelectedRows,
+              getAllLoadedRows: dataSource.getAllLoadedRows,
+            });
+
       downloadAppTableExportFile({
         columns: exportableColumns,
         rows,
@@ -94,6 +131,8 @@ export function AppTableExport<T extends AppTableRow>({
         },
         fileName,
       });
+    } catch (error) {
+      console.error("AppTable export failed", error);
     } finally {
       startTransition(() => {
         setExportLoading(false);
@@ -103,29 +142,30 @@ export function AppTableExport<T extends AppTableRow>({
 
   const items = useMemo<AppDropdownItem[]>(() => {
     return formats.map((format) => {
-      const formatSupported = SUPPORTED_FORMATS.has(format);
       const children = availableModes.map<AppDropdownItem>((mode) => {
         const noSelection = mode === "selectedRows" && selectedRowsCount === 0;
+        const executable = isAppTableExportExecutable(dataSource, format, mode);
         return {
           key: buildItemKey(format, mode),
           label: noSelection ? `${MODE_LABELS[mode]} (sin selección)` : MODE_LABELS[mode],
-          disabled: exportLoading || !formatSupported || noSelection,
+          disabled: exportLoading || !executable || noSelection,
           onSelect: () => {
             void handleExport(format, mode);
           },
         };
       });
+      const hasExecutableChildren = children.some((child) => !child.disabled);
 
       return {
         key: format,
-        label: formatSupported
+        label: hasExecutableChildren
           ? `Exportar en ${FORMAT_LABELS[format]}`
           : `Exportar en ${FORMAT_LABELS[format]} (próximamente)`,
-        disabled: exportLoading || !formatSupported || children.length === 0,
+        disabled: exportLoading || children.length === 0,
         children,
       };
     });
-  }, [availableModes, exportLoading, formats, selectedRowsCount]);
+  }, [availableModes, dataSource, exportLoading, formats, selectedRowsCount]);
 
   return (
     <AppDropdown
