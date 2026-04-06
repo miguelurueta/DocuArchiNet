@@ -34,7 +34,7 @@ const exportReportMeta: AppTableExportReportMeta = {
   companyImageAsset: "public/branding/reports/company-report-logo.png",
 };
 
-describe("AppTableQueryWrapper [SPEC:APPTABLE-EXPORT-18] [SPEC:refinar-apptablequerywrapper]", () => {
+describe("AppTableQueryWrapper [SPEC:APPTABLE-EXPORT-18] [SPEC:refinar-apptablequerywrapper] [SPEC:app-input-search]", () => {
   it("renderiza la estructura completa con rango visible y children", () => {
     render(
       <AppTableQueryWrapper

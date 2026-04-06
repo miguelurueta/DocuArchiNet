@@ -31,7 +31,7 @@ export type AppInputSelectProps = Omit<AntSelectProps, "options" | "onChange" | 
 
 export type AppInputTextProps = Omit<
   AntInputProps,
-  "prefix" | "suffix" | "status" | "size"
+  "suffix" | "status" | "size"
 > &
   AppInputBaseProps & {
     type?: Exclude<AntInputProps["type"], "select">;
