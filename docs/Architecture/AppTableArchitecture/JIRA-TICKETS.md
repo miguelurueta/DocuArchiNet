@@ -46,6 +46,12 @@ Este índice vincula los documentos técnicos de `AppTableArchitecture` con los 
   - Proyecto sugerido: `SCRUMCORE`
   - Estado: `Pendiente de creacion manual`
 
+- [25-FE-Refinar-controles-AppTableQueryWrapper.md](D:/imagenesda/GestorDocumental/DocuArchiCore.react/docs/Architecture/AppTableArchitecture/25-FE-Refinar-controles-AppTableQueryWrapper.md)
+  - Jira: `Pendiente`
+  - Resumen sugerido: `[APPTABLE_25] Refinar controles AppTableQueryWrapper`
+  - Proyecto sugerido: `SCRUMCORE`
+  - Estado: `Pendiente de creacion manual`
+
 ## Backend
 
 - [19-BE-Definir-estrategia-de-exportacion-total-allMatching.md](D:/imagenesda/GestorDocumental/DocuArchiCore.react/docs/Architecture/AppTableArchitecture/19-BE-Definir-estrategia-de-exportacion-total-allMatching.md)

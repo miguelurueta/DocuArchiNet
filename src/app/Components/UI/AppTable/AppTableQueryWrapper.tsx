@@ -1,6 +1,7 @@
 import { LeftOutlined, ReloadOutlined, RightOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
-import { AppIconActionButton } from "../AppButton";
+import { AppButton } from "../AppButton";
+import { AppDropdown } from "../AppDropdown";
 import { AppInput } from "../AppInput";
 import type { AppTableQueryState } from "./types/appTableQueryState.types";
 import styles from "./AppTableQueryWrapper.module.css";
@@ -56,9 +57,14 @@ export function AppTableQueryWrapper({
     total > 0 ? Math.max(1, Math.ceil(total / Math.max(queryState.pageSize, 1))) : 1;
   const canGoPrevious = queryState.page > 1;
   const canGoNext = queryState.page < totalPages;
-  const pageSizeValue = pageSizeOptions.includes(queryState.pageSize)
-    ? queryState.pageSize
-    : undefined;
+  const pageSizeLabel = `${queryState.pageSize} por página`;
+  const pageSizeItems = pageSizeOptions.map((option) => ({
+    key: String(option),
+    label: `${option} por página`,
+    onSelect: () => {
+      onQueryChange({ pageSize: option });
+    },
+  }));
 
   return (
     <section className={joinClasses(styles.root, className)} data-testid="app-table-query-wrapper">
@@ -74,10 +80,12 @@ export function AppTableQueryWrapper({
             />
           ) : null}
           {onRefresh ? (
-            <AppIconActionButton
+            <AppButton
               icon={<ReloadOutlined />}
               aria-label="Actualizar tabla"
               tooltip="Actualizar tabla"
+              variant="ghost"
+              size="md"
               onClick={onRefresh}
               loading={loading}
             />
@@ -94,28 +102,30 @@ export function AppTableQueryWrapper({
           </span>
 
           <div className={styles.paginationActions}>
-            <AppInput
-              type="select"
+            <AppDropdown
+              ariaLabel="Cantidad de registros por página"
               className={styles.pageSizeControl}
-              aria-label="Cantidad de registros por página"
-              placeholder="Tamaño"
-              value={pageSizeValue}
-              options={pageSizeOptions.map((option) => ({
-                label: `${option} por página`,
-                value: option,
-              }))}
-              onChange={(value: string | number | undefined) => {
-                if (typeof value === "number") {
-                  onQueryChange({ pageSize: value });
-                }
-              }}
+              items={pageSizeItems}
+              trigger={
+                <AppButton
+                  variant="ghost"
+                  size="sm"
+                  className={styles.pageSizeTrigger}
+                  aria-label="Cantidad de registros por página"
+                >
+                  {pageSizeLabel}
+                </AppButton>
+              }
             />
 
             <div className={styles.navButtons}>
-              <AppIconActionButton
+              <AppButton
                 icon={<LeftOutlined />}
                 aria-label="Página anterior"
                 tooltip="Página anterior"
+                variant="ghost"
+                size="md"
+                className={styles.navButton}
                 disabled={!canGoPrevious || loading}
                 onClick={() => {
                   if (canGoPrevious) {
@@ -123,10 +133,13 @@ export function AppTableQueryWrapper({
                   }
                 }}
               />
-              <AppIconActionButton
+              <AppButton
                 icon={<RightOutlined />}
                 aria-label="Página siguiente"
                 tooltip="Página siguiente"
+                variant="ghost"
+                size="md"
+                className={styles.navButton}
                 disabled={!canGoNext || loading}
                 onClick={() => {
                   if (canGoNext) {

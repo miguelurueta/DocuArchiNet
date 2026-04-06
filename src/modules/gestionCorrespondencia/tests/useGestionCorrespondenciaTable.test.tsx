@@ -30,7 +30,7 @@ const createWrapper = () => {
     React.createElement(QueryClientProvider, { client: queryClient }, children);
 };
 
-describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXPORT-21] useGestionCorrespondenciaTable", () => {
+describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXPORT-21] [SPEC:refinar-apptablequerywrapper] useGestionCorrespondenciaTable", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(dynamicUiTableService.exportAppTableFile).mockResolvedValue({
@@ -65,7 +65,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXP
         ],
         Pagination: {
           Page: 1,
-          PageSize: 10,
+          PageSize: 25,
           Total: 7,
         },
       },
@@ -84,7 +84,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXP
       expect.objectContaining({
         TableId: "workflowInboxgestion",
         Page: 1,
-        PageSize: 10,
+        PageSize: 25,
         SortField: "fecha_inicio",
         SortDir: "DESC",
         IncludeConfig: true,
@@ -103,11 +103,11 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXP
       }),
     ]);
     expect(result.current.total).toBe(7);
-    expect(result.current.pageSize).toBe(10);
+    expect(result.current.pageSize).toBe(25);
     expect(result.current.queryState).toEqual(
       expect.objectContaining({
         page: 1,
-        pageSize: 10,
+        pageSize: 25,
         search: "",
         sortField: "fecha_inicio",
         sortDir: "desc",
@@ -148,7 +148,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXP
           ],
           Pagination: {
             Page: 2,
-            PageSize: 10,
+            PageSize: 25,
             Total: 7,
           },
         },
@@ -200,7 +200,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXP
       expect.objectContaining({
         TableId: "workflowInboxgestion",
         Page: 1,
-        PageSize: 10,
+        PageSize: 25,
         SortField: "fecha_inicio",
         SortDir: "DESC",
         IncludeConfig: false,
@@ -235,7 +235,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXP
         ],
         Pagination: {
           Page: 2,
-          PageSize: 10,
+          PageSize: 25,
           Total: 25,
         },
       },
@@ -256,7 +256,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXP
         structuredFilters: [
           {
             field: "estado",
-            operator: "equals",
+            operator: "eq",
             value: "Pendiente",
           },
         ],
@@ -297,7 +297,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXP
         StructuredFilters: [
           {
             Field: "estado",
-            Operator: "equals",
+            Operator: "eq",
             Value: "Pendiente",
             ValueFrom: undefined,
             ValueTo: undefined,

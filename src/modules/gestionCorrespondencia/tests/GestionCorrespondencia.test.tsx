@@ -34,10 +34,10 @@ const createTable = (): GestionCorrespondenciaTableResult => ({
   columns: [{ field: "RADICADO", headerName: "Radicado" }],
   total: 7,
   page: 1,
-  pageSize: 10,
+  pageSize: 25,
   queryState: {
     page: 1,
-    pageSize: 10,
+    pageSize: 25,
     search: "",
     structuredFilters: [],
     sortField: "fecha_inicio",
@@ -63,7 +63,7 @@ const createTable = (): GestionCorrespondenciaTableResult => ({
   }),
 });
 
-describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT-21] [SPEC:22-FE-INTEGRAR-APPTABLEEXPORT-CON-API-APPTABLE-EXPORT-MD]", () => {
+describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT-21] [SPEC:22-FE-INTEGRAR-APPTABLEEXPORT-CON-API-APPTABLE-EXPORT-MD] [SPEC:refinar-apptablequerywrapper]", () => {
   it("compone AppTableQueryWrapper con AppTable en server mode y ubica exportacion en paginationActions", () => {
     const table = createTable();
 

@@ -34,7 +34,7 @@ const exportReportMeta: AppTableExportReportMeta = {
   companyImageAsset: "public/branding/reports/company-report-logo.png",
 };
 
-describe("AppTableQueryWrapper [SPEC:APPTABLE-EXPORT-18]", () => {
+describe("AppTableQueryWrapper [SPEC:APPTABLE-EXPORT-18] [SPEC:refinar-apptablequerywrapper]", () => {
   it("renderiza la estructura completa con rango visible y children", () => {
     render(
       <AppTableQueryWrapper
@@ -77,6 +77,25 @@ describe("AppTableQueryWrapper [SPEC:APPTABLE-EXPORT-18]", () => {
     expect(onQueryChange).toHaveBeenNthCalledWith(3, { page: 3 });
   });
 
+  it("bloquea navegación anterior y siguiente cuando no hay páginas disponibles", () => {
+    const onQueryChange = vi.fn();
+
+    render(
+      <AppTableQueryWrapper
+        queryState={createQueryState({ page: 1 })}
+        onQueryChange={onQueryChange}
+        total={25}
+      >
+        <div>Tabla mock</div>
+      </AppTableQueryWrapper>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Página anterior" }));
+    fireEvent.click(screen.getByRole("button", { name: "Página siguiente" }));
+
+    expect(onQueryChange).not.toHaveBeenCalled();
+  });
+
   it("ejecuta refresh sin alterar el query state y permite cambiar page size", async () => {
     const onQueryChange = vi.fn();
     const onRefresh = vi.fn();
@@ -96,7 +115,11 @@ describe("AppTableQueryWrapper [SPEC:APPTABLE-EXPORT-18]", () => {
     expect(onRefresh).toHaveBeenCalledTimes(1);
     expect(onQueryChange).not.toHaveBeenCalled();
 
-    fireEvent.mouseDown(screen.getByLabelText("Cantidad de registros por página"));
+    expect(screen.getByRole("button", { name: "Cantidad de registros por página" })).toHaveTextContent(
+      "25 por página",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Cantidad de registros por página" }));
     fireEvent.click(await screen.findByText("50 por página"));
 
     expect(onQueryChange).toHaveBeenCalledWith({ pageSize: 50 });
