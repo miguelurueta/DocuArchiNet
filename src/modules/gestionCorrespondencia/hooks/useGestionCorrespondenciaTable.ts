@@ -80,7 +80,7 @@ export const useGestionCorrespondenciaTable = <
   const [category, setCategory] = useState<string | undefined>();
   const { queryState, onQueryChange } = useAppTableQueryState({
     page: 1,
-    pageSize: 10,
+    pageSize: 25,
     search: "",
     sortField: "fecha_inicio",
     sortDir: "desc",

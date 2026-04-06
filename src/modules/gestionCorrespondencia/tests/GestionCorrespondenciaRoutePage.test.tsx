@@ -12,17 +12,17 @@ vi.mock("../pages/GestionCorrespondencia", () => ({
 
 const { useGestionCorrespondenciaTable } = await import("../hooks/useGestionCorrespondenciaTable");
 
-describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] GestionCorrespondenciaRoutePage", () => {
+describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:refinar-apptablequerywrapper] GestionCorrespondenciaRoutePage", () => {
   it("renders the screen skeleton during first load", () => {
     vi.mocked(useGestionCorrespondenciaTable).mockReturnValue({
       rows: [],
       columns: [],
       total: 0,
       page: 1,
-      pageSize: 10,
+      pageSize: 25,
       queryState: {
         page: 1,
-        pageSize: 10,
+        pageSize: 25,
         search: "",
         structuredFilters: [],
         sortField: "fecha_inicio",
@@ -37,6 +37,8 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] GestionCorresponde
       hasLoadedOnce: false,
       setCategory: vi.fn(),
       refetch: vi.fn(),
+      getAllMatchingRows: vi.fn(),
+      getBackendExportFile: vi.fn(),
     });
 
     render(<GestionCorrespondenciaRoutePage />);
@@ -50,10 +52,10 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] GestionCorresponde
       columns: [],
       total: 0,
       page: 1,
-      pageSize: 10,
+      pageSize: 25,
       queryState: {
         page: 1,
-        pageSize: 10,
+        pageSize: 25,
         search: "",
         structuredFilters: [],
         sortField: "fecha_inicio",
@@ -68,6 +70,8 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] GestionCorresponde
       hasLoadedOnce: true,
       setCategory: vi.fn(),
       refetch: vi.fn(),
+      getAllMatchingRows: vi.fn(),
+      getBackendExportFile: vi.fn(),
     });
 
     render(<GestionCorrespondenciaRoutePage />);
@@ -83,10 +87,10 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] GestionCorresponde
       columns: [{ field: "RADICADO", headerName: "Radicado" }],
       total: 1,
       page: 1,
-      pageSize: 10,
+      pageSize: 25,
       queryState: {
         page: 1,
-        pageSize: 10,
+        pageSize: 25,
         search: "",
         structuredFilters: [],
         sortField: "fecha_inicio",
@@ -101,6 +105,8 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] GestionCorresponde
       hasLoadedOnce: true,
       setCategory: vi.fn(),
       refetch: vi.fn(),
+      getAllMatchingRows: vi.fn(),
+      getBackendExportFile: vi.fn(),
     });
 
     render(<GestionCorrespondenciaRoutePage />);
