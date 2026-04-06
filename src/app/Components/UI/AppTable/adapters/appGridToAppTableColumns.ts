@@ -1,11 +1,14 @@
 import type { ColDef } from "ag-grid-community";
 import AppTableActionCellRenderer from "../renderers/AppTableActionCellRenderer";
+import { formatAppTableDateValue } from "../utils/appTableValueFormatters";
 import type {
   AppGridCellAction,
   AppGridColumn,
   AppTableRow,
   DynamicUiUnknownRecord,
 } from "../types/dynamicUiTable.types";
+
+const ACTION_CELL_CLASS = "app-table-action-cell";
 
 export type AppTableColumnAdapterOptions = {
   tableId?: string;
@@ -37,6 +40,43 @@ const resolveCellStyle = <T extends AppTableRow>(
   };
 };
 
+const resolveActionCellStyle = <T extends AppTableRow>(
+  column: AppGridColumn,
+): ColDef<T>["cellStyle"] => ({
+  alignItems: "center",
+  display: "flex",
+  height: "100%",
+  justifyContent:
+    column.align === "left" ? "flex-start" : column.align === "right" ? "flex-end" : "center",
+  lineHeight: "normal",
+  textAlign: column.align ?? "center",
+});
+
+const normalizeColumnType = (value: string | undefined): string =>
+  value?.trim().toLowerCase() ?? "";
+
+const isDateColumn = (column: AppGridColumn): boolean => {
+  const dataType = normalizeColumnType(column.dataType);
+  const renderType = normalizeColumnType(column.renderType);
+  const filterType = normalizeColumnType(column.filterType);
+  const agGridFilterType = normalizeColumnType(column.agGridFilterType);
+
+  return (
+    dataType.includes("date") ||
+    renderType.includes("date") ||
+    filterType.includes("date") ||
+    agGridFilterType.includes("date")
+  );
+};
+
+const shouldIncludeTime = (column: AppGridColumn): boolean =>
+  normalizeColumnType(column.dataType).includes("datetime");
+
+const buildDateValueFormatter =
+  (column: AppGridColumn): NonNullable<ColDef<AppTableRow>["valueFormatter"]> =>
+  (params) =>
+    formatAppTableDateValue(params.value, { includeTime: shouldIncludeTime(column) });
+
 const buildActionValueGetter = () => "";
 
 export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTableRow>(
@@ -64,6 +104,8 @@ export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTa
     if (column.isActionColumn) {
       colDef.sortable = false;
       colDef.filter = false;
+      colDef.cellClass = ACTION_CELL_CLASS;
+      colDef.cellStyle = resolveActionCellStyle<T>(column);
       colDef.valueGetter = buildActionValueGetter;
       colDef.cellRenderer = AppTableActionCellRenderer;
       colDef.cellRendererParams = {
@@ -73,6 +115,10 @@ export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTa
         tableId: options.tableId,
         userClaims: [...(options.userClaims ?? [])],
       };
+    }
+
+    if (!column.isActionColumn && isDateColumn(column)) {
+      colDef.valueFormatter = buildDateValueFormatter(column) as ColDef<T>["valueFormatter"];
     }
 
     if (column.metadata) {

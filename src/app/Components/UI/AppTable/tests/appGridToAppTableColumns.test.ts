@@ -67,6 +67,16 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
 
     expect(actionColumn.sortable).toBe(false);
     expect(actionColumn.filter).toBe(false);
+    expect(actionColumn.cellClass).toBe("app-table-action-cell");
+    expect(actionColumn.cellStyle).toEqual(
+      expect.objectContaining({
+        alignItems: "center",
+        display: "flex",
+        height: "100%",
+        justifyContent: "center",
+        textAlign: "center",
+      }),
+    );
     expect(typeof actionColumn.valueGetter).toBe("function");
     expect((actionColumn.valueGetter as (params: never) => string)({} as never)).toBe("");
     expect(actionColumn.cellRenderer).toBeDefined();
@@ -102,5 +112,43 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
 
     expect(column.pinned).toBeUndefined();
     expect(column.lockPinned).toBeUndefined();
+  });
+
+  it("formats date columns from dynamic ISO values", () => {
+    const [dateColumn, dateTimeColumn] = mapAppGridColumnsToAppTableColumns([
+      {
+        field: "FECHAVENCIMIENTO",
+        headerName: "Fecha vencimiento",
+        visible: true,
+        sortable: true,
+        filterable: true,
+        dataType: "date",
+        renderType: "grid_datetime",
+      },
+      {
+        field: "FECHARADICADO",
+        headerName: "Fecha radicado",
+        visible: true,
+        sortable: true,
+        filterable: true,
+        dataType: "datetime",
+        renderType: "grid_datetime",
+      },
+    ]);
+
+    const dateFormatter = dateColumn?.valueFormatter;
+    const dateTimeFormatter = dateTimeColumn?.valueFormatter;
+
+    expect(typeof dateFormatter).toBe("function");
+    expect(typeof dateTimeFormatter).toBe("function");
+
+    if (typeof dateFormatter !== "function" || typeof dateTimeFormatter !== "function") {
+      throw new Error("Expected date value formatters");
+    }
+
+    expect(dateFormatter({ value: "2025-04-08T00:00:00" } as never)).toBe("08/04/2025");
+    expect(dateTimeFormatter({ value: "2025-04-08T13:45:10" } as never)).toBe(
+      "08/04/2025 13:45",
+    );
   });
 });

@@ -110,6 +110,43 @@ describe("[SPEC:CREATE-COTRATO-AG-GRID-FASE-2] dynamicUiToAgGridColumns", () => 
     ]);
   });
 
+  it("detecta columnas de accion por RenderType grid_actions aunque no venga IsActionColumn", () => {
+    const table: DynamicUiTableDto = {
+      Columns: [
+        {
+          DataIndex: "publicar",
+          Title: "Publicar",
+          RenderType: "grid_actions",
+          Align: "center",
+        },
+      ],
+      RowActions: [
+        {
+          ActionId: "publicar",
+          Label: "Publicar",
+          Behavior: "client_event",
+          Presentation: "icon_button",
+        },
+      ],
+    };
+
+    const result = mapDynamicUiColumnsToAppGridColumns(table);
+
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        field: "publicar",
+        headerName: "Publicar",
+        isActionColumn: true,
+        renderType: "grid_actions",
+        actions: [
+          expect.objectContaining({
+            actionId: "publicar",
+          }),
+        ],
+      }),
+    );
+  });
+
   it("preserva orden y metadata de filtros del backend real", () => {
     const table: DynamicUiTableDto = {
       Columns: [
