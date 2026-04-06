@@ -40,6 +40,12 @@ Este índice vincula los documentos técnicos de `AppTableArchitecture` con los 
   - Proyecto: `SCRUMCORE`
   - Sprint: `CREA-COMPONENTE-TABLE-AG-GRID`
 
+- [24-FE-Alinear-celdas-y-formatear-fechas-AppTable.md](D:/imagenesda/GestorDocumental/DocuArchiCore.react/docs/Architecture/AppTableArchitecture/24-FE-Alinear-celdas-y-formatear-fechas-AppTable.md)
+  - Jira: `Pendiente`
+  - Resumen sugerido: `[APPTABLE_24] Alinear celdas y formatear fechas AppTable`
+  - Proyecto sugerido: `SCRUMCORE`
+  - Estado: `Pendiente de creacion manual`
+
 ## Backend
 
 - [19-BE-Definir-estrategia-de-exportacion-total-allMatching.md](D:/imagenesda/GestorDocumental/DocuArchiCore.react/docs/Architecture/AppTableArchitecture/19-BE-Definir-estrategia-de-exportacion-total-allMatching.md)

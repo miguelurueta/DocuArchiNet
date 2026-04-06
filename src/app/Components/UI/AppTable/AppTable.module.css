@@ -58,6 +58,23 @@
   line-height: var(--app-table-row-line-height);
 }
 
+.grid :global(.ag-cell:not(.ag-cell-inline-editing)) {
+  display: flex;
+  align-items: center;
+  line-height: normal;
+}
+
+.grid :global(.ag-cell:not(.ag-cell-inline-editing) .ag-cell-wrapper) {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 100%;
+}
+
+.grid :global(.ag-cell:not(.ag-cell-inline-editing) .ag-cell-value) {
+  width: 100%;
+}
+
 .grid :global(.ag-header-cell),
 .grid :global(.ag-header-cell-label),
 .grid :global(.ag-header-cell-text) {
@@ -65,6 +82,26 @@
   font-size: var(--app-table-header-font-size);
   font-weight: var(--app-table-header-font-weight);
   line-height: var(--app-table-header-line-height);
+}
+
+.grid :global(.app-table-action-cell),
+.grid :global(.app-table-action-cell .ag-cell-wrapper),
+.grid :global(.app-table-action-cell .ag-cell-value),
+.grid :global(.app-table-action-cell .ag-react-container) {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.grid :global(.app-table-action-cell) {
+  justify-content: center;
+  line-height: normal;
+}
+
+.grid :global(.app-table-action-cell .ag-cell-wrapper),
+.grid :global(.app-table-action-cell .ag-cell-value),
+.grid :global(.app-table-action-cell .ag-react-container) {
+  width: 100%;
 }
 
 .gridFill {

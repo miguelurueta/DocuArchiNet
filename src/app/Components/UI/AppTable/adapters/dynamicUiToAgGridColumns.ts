@@ -49,6 +49,15 @@ const resolveHeaderName = (column: UiColumnDto, field: string): string =>
 const resolveColumnKey = (column: UiColumnDto, field: string): string =>
   pickString(column.columnKey, column.ColumnKey, column.key, column.Key, column.id, column.Id) ?? field;
 
+const normalizeRenderType = (column: UiColumnDto): string =>
+  pickString(column.renderType, column.RenderType, column.presentation, column.Presentation)?.toLowerCase() ??
+  "";
+
+const isDynamicActionColumn = (column: UiColumnDto): boolean =>
+  (pickBoolean(column.isActionColumn, column.IsActionColumn) ?? false) ||
+  normalizeRenderType(column) === "grid_actions" ||
+  normalizeRenderType(column) === "actions";
+
 const resolveVisible = (column: UiColumnDto): boolean => {
   const visible = column.visible ?? column.Visible;
   return visible !== false;
@@ -104,7 +113,7 @@ export const mapDynamicUiColumnsToAppGridColumns = (
     .map((column, index) => {
       const field = resolveField(column, index);
       const columnKey = resolveColumnKey(column, field);
-      const isActionColumn = pickBoolean(column.isActionColumn, column.IsActionColumn) ?? false;
+      const isActionColumn = isDynamicActionColumn(column);
 
       if (isActionColumn) {
         return mapActionColumn(column, field, columnKey, table);

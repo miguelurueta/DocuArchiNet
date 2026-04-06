@@ -36,6 +36,28 @@ const formatCardValue = (value: unknown): string => {
   return String(value);
 };
 
+const formatColumnCardValue = <T extends AppTableRow>(
+  column: ColDef<T>,
+  row: T,
+  value: unknown,
+): string => {
+  if (typeof column.valueFormatter === "function") {
+    const formattedValue = column.valueFormatter({
+      value,
+      data: row,
+      colDef: column,
+      column: null,
+      node: null,
+      api: null,
+      context: null,
+    } as never);
+
+    return formatCardValue(formattedValue);
+  }
+
+  return formatCardValue(value);
+};
+
 const resolveActionRendererParams = <T extends AppTableRow>(
   column: ColDef<T>,
   row: T,
@@ -132,7 +154,7 @@ export function AppTableCardRenderer<T extends AppTableRow>({
                 {valueColumns.map((column) => {
                   const field = column.field;
                   const value = field ? row[field] : undefined;
-                  const formattedValue = formatCardValue(value);
+                  const formattedValue = formatColumnCardValue(column, row, value);
 
                   if (!field || formattedValue.length === 0) {
                     return null;
