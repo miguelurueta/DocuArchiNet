@@ -1,0 +1,148 @@
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.label {
+  color: #14324a;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.controlRow {
+  align-items: center;
+  display: flex;
+  gap: 0.45rem;
+}
+
+.autoComplete {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.autoComplete :global(.ant-select-selector),
+.autoComplete :global(.ant-input-affix-wrapper) {
+  border-radius: 12px;
+  border-width: 1px;
+  box-shadow: 0 8px 22px rgba(15, 52, 96, 0.08);
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.autoComplete :global(.ant-input-affix-wrapper:hover),
+.autoComplete :global(.ant-select-selector:hover) {
+  border-color: #6f9ff0 !important;
+}
+
+.autoComplete :global(.ant-input-affix-wrapper-focused),
+.autoComplete :global(.ant-input-affix-wrapper:focus-within),
+.autoComplete :global(.ant-select-focused .ant-select-selector) {
+  border-color: #0f5bd8 !important;
+  box-shadow: 0 0 0 3px rgba(15, 91, 216, 0.16) !important;
+  outline: none;
+}
+
+.sizeSM :global(.ant-input-affix-wrapper) {
+  min-height: 2.2rem;
+  padding-inline: 0.65rem;
+}
+
+.sizeMD :global(.ant-input-affix-wrapper) {
+  min-height: 2.75rem;
+  padding-inline: 0.95rem;
+}
+
+.sizeLG :global(.ant-input-affix-wrapper) {
+  min-height: 3.2rem;
+  padding-inline: 1.1rem;
+}
+
+.inputError :global(.ant-input-affix-wrapper) {
+  background: #fff8f8 !important;
+  border-color: #c63d3d !important;
+}
+
+.inputError :global(.ant-input-affix-wrapper-focused),
+.inputError :global(.ant-input-affix-wrapper:focus-within) {
+  box-shadow: 0 0 0 3px rgba(198, 61, 61, 0.16) !important;
+}
+
+.inputDisabled :global(.ant-input-affix-wrapper) {
+  background: #f4f6fb !important;
+  box-shadow: none;
+  color: #6d7b8b !important;
+}
+
+.suffixActions {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.iconButton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: #14324a;
+  cursor: pointer;
+  display: inline-flex;
+  height: 1.5rem;
+  justify-content: center;
+  padding: 0;
+  width: 1.5rem;
+}
+
+.iconButton:disabled {
+  color: #8a96a3;
+  cursor: not-allowed;
+}
+
+.toolbar {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.removeAllButton {
+  flex: 0 0 auto;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.tag {
+  align-items: center;
+  border-radius: 8px;
+  display: inline-flex;
+  gap: 0.25rem;
+  min-height: 1.8rem;
+}
+
+.tagRemoveButton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  height: 1.1rem;
+  justify-content: center;
+  padding: 0;
+  width: 1.1rem;
+}
+
+.helperText {
+  color: #516272;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.helperTextError {
+  color: #b83232;
+}
