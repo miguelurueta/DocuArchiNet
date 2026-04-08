@@ -61,6 +61,17 @@
   color: #0f172a;
 }
 
+.detailDescription {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #475569;
+}
+
+.detailReturnAction {
+  flex-shrink: 0;
+}
+
 .detailBody {
   display: flex;
   flex: 1 1 auto;
@@ -81,8 +92,17 @@
     grid-template-rows: minmax(0, 1fr) auto;
   }
 
-  .detailRegion {
+.detailRegion {
     min-height: 20rem;
     max-height: 45dvh;
+  }
+
+  .detailHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .detailReturnAction {
+    width: 100%;
   }
 }

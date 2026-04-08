@@ -46,8 +46,9 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
       screen.getByRole("heading", { name: /Gestion de respuesta/i }),
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Respuesta contextual/i })).toBeInTheDocument();
+    expect(screen.getByText(/Revisa el detalle sin salir de la bandeja/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Cerrar panel contextual/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Volver a la bandeja/i }));
 
     expect(screen.queryByTestId("gestion-correspondencia-detail-region")).not.toBeInTheDocument();
     expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
@@ -67,5 +68,14 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
     expect(screen.getByTestId("gestion-correspondencia-main-region")).toBeVisible();
     expect(screen.getByTestId("gestion-correspondencia-detail-region")).toBeVisible();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  test("muestra una accion visible de retorno consistente con el patron master-detail", () => {
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta");
+
+    expect(
+      screen.getByRole("button", { name: /Volver a la bandeja/i }),
+    ).toBeVisible();
+    expect(screen.getByText(/Retorno contextual/i)).toBeInTheDocument();
   });
 });

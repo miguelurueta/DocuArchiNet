@@ -1,4 +1,4 @@
-import { CloseOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppButton } from "../../../app/Components/UI/AppButton";
@@ -36,18 +36,25 @@ export default function GestionCorrespondenciaRoute({
         >
           <header className={styles.detailHeader}>
             <div className={styles.detailHeaderCopy}>
-              <span className={styles.detailEyebrow}>Vista secundaria</span>
+              <span className={styles.detailEyebrow}>Detalle contextual</span>
               <h2 className={styles.detailTitle}>Respuesta contextual</h2>
+              <p className={styles.detailDescription}>
+                Revisa el detalle sin salir de la bandeja y vuelve al listado
+                con la misma navegacion del modulo.
+              </p>
             </div>
 
             <AppButton
-              aria-label="Cerrar panel contextual"
-              icon={<CloseOutlined />}
+              aria-label="Volver a la bandeja"
+              className={styles.detailReturnAction}
+              leftIcon={<ArrowLeftOutlined />}
               size="sm"
-              tooltip="Cerrar panel contextual"
+              tooltip="Volver a la bandeja"
               variant="ghost"
               onClick={handleClose}
-            />
+            >
+              Volver a la bandeja
+            </AppButton>
           </header>
 
           <div className={styles.detailBody}>{detailContent}</div>

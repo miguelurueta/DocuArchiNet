@@ -49,6 +49,7 @@ src/modules/gestionCorrespondencia/
 - `GestionCorrespondenciaRoute` mantiene visible la pagina principal y abre una region secundaria persistente cuando la ruta hija `respuesta` esta activa.
 - `GestionRespuesta` se renderiza dentro del panel secundario como vista contextual desacoplada.
 - `GestionCorrespondenciaRoutePage` envuelve la carga inicial de datos, el estado de error y la pantalla principal sin romper el shell.
+- la accion dominante de retorno vive en el shell del modulo y devuelve al listado sin acoplar `GestionRespuesta` al router.
 
 Este patron permite deep-linking, navegacion con historial y preserva el contexto de la pantalla principal mientras la vista secundaria vive en el mismo shell.
 
@@ -58,7 +59,8 @@ Este patron permite deep-linking, navegacion con historial y preserva el context
 2. Se renderiza la pagina principal `GestionCorrespondencia`.
 3. El usuario navega a `/dashboard/gestion-correspondencia/respuesta`.
 4. Se activa el panel secundario del shell y se muestra `GestionRespuesta` sin reemplazar el listado principal.
-5. Al cerrar el panel, la aplicacion vuelve a la ruta base del modulo.
+5. El usuario usa la accion visible `Volver a la bandeja`.
+6. La aplicacion vuelve a la ruta base del modulo sin romper el contexto principal.
 
 ## Como escalar el modulo
 
@@ -104,3 +106,4 @@ La integracion actual sigue estas reglas:
 - la columna `acciones` se preserva en la metadata dinamica, pero su render visual final dentro de `AppTable` sigue siendo basico hasta una fase visual posterior
 - la pantalla sincroniza total y `pageSize`, pero la navegacion completa entre paginas puede requerir una iteracion adicional segun backlog
 - el panel secundario actual usa una composicion persistente simple y queda preparado para futuras vistas secundarias, no como detalle funcional final
+- la accion de retorno es unica y visible, pero el detalle sigue siendo placeholder hasta fases funcionales posteriores
