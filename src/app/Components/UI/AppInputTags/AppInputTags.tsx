@@ -16,6 +16,7 @@ export type AppInputTagsOption = {
   label: string;
   value: string;
   id?: number;
+  meta?: Record<string, unknown>;
 };
 
 export type AppInputTagsProps = {

@@ -197,6 +197,60 @@ describe("AppInputTags [SPEC:app-input-tags]", () => {
     expect(onAddTag).toHaveBeenCalledWith("ana");
   });
 
+  it("renderiza opciones con metadata sin interpretar datos de dominio", () => {
+    const onAddTag = vi.fn();
+    const options = [
+      {
+        label: "Ana Perez",
+        value: "ana",
+        id: 7,
+        meta: { endpoint: "usuarios", rawId: 7 },
+      },
+    ];
+
+    renderTags({ onAddTag, options });
+
+    const input = screen.getByLabelText("Destinatarios");
+    fireEvent.change(input, { target: { value: "Ana" } });
+    fireEvent.click(screen.getByText("Ana Perez"));
+
+    expect(onAddTag).toHaveBeenCalledWith("ana");
+    expect(options[0]).toEqual({
+      label: "Ana Perez",
+      value: "ana",
+      id: 7,
+      meta: { endpoint: "usuarios", rawId: 7 },
+    });
+  });
+
+  it("mantiene AppInputTags desacoplado de hooks y servicios de dominio", async () => {
+    const source = await import("./AppInputTags?raw");
+
+    expect(source.default).not.toContain("useAutocompleteCamposPlantilla");
+    expect(source.default).not.toContain("clienteApi");
+    expect(source.default).not.toContain("axios");
+    expect(source.default).not.toContain("src/modules");
+  });
+
+  it("renderiza acciones secundarias por slot sin bloquear autocomplete", () => {
+    const onSearch = vi.fn();
+    renderTags({
+      loading: true,
+      onSearch,
+      toolbar: {
+        render: () => <button type="button">Accion secundaria</button>,
+      },
+    });
+
+    const input = screen.getByLabelText("Destinatarios");
+    expect(screen.getByRole("button", { name: "Accion secundaria" })).toBeInTheDocument();
+    expect(input).not.toBeDisabled();
+
+    fireEvent.change(input, { target: { value: "Ana" } });
+
+    expect(onSearch).toHaveBeenCalledWith("Ana");
+  });
+
   it("aplica clases de size, error, helperText y className externa", () => {
     renderTags({
       className: "custom-tags",
