@@ -35,6 +35,7 @@ export const useAgGridBaseConfig = <T extends AppTableRow>({
   onRowClicked,
   onRowSelected,
   onCellClicked,
+  onCellKeyDown,
   onSelectionChanged,
 }: UseAgGridBaseConfigParams<T>) => {
   return useMemo<GridOptions<T>>(() => {
@@ -56,6 +57,7 @@ export const useAgGridBaseConfig = <T extends AppTableRow>({
       onRowClicked,
       onRowSelected,
       onCellClicked,
+      onCellKeyDown,
       onSelectionChanged,
     };
   }, [
@@ -63,6 +65,7 @@ export const useAgGridBaseConfig = <T extends AppTableRow>({
     domLayout,
     layoutMode,
     onCellClicked,
+    onCellKeyDown,
     onRowClicked,
     onRowSelected,
     onSelectionChanged,

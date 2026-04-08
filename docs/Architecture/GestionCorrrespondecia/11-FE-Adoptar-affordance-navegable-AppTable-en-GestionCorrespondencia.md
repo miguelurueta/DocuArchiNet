@@ -4,29 +4,34 @@
 
 ## Rol esperado
 
-Arquitecto de software senior frontend (React, componentes reutilizables, tablas enterprise, adopcion de design system, separacion de capas).
+Arquitecto de software senior frontend
+(React, componentes reutilizables, tablas enterprise, adopcion de design system, accesibilidad, separacion de capas)
 
 ## Objetivo
 
-Adoptar en `GestionCorrespondencia` la nueva capacidad reusable de `AppTable` para expresar affordance visual de navegacion, reemplazando la solucion CSS local actualmente usada en el modulo.
+Adoptar en `GestionCorrespondencia` la capacidad reusable de `AppTable` para expresar affordance visual de navegacion, reemplazando completamente la solucion CSS local actualmente usada en el modulo.
 
-La solucion debe permitir:
+La solucion debe:
 
 - activar la affordance visual desde el contrato shared de `AppTable`
-- mantener la navegacion actual de `GestionCorrespondencia`
-- eliminar el CSS local duplicado que hoy resuelve el cursor navegable
+- mantener intacta la navegacion actual del modulo
+- eliminar cualquier implementacion CSS local equivalente
+- mantener soporte de interaccion por teclado (`Enter`)
+- garantizar consistencia visual y funcional
 
 ## Dependencia
 
-Este ticket depende de que exista el contrato reusable definido en:
+Este ticket depende de:
 
-- `10-FE-Agregar-affordance-navegable-reutilizable-AppTable.md`
+```txt
+docs/Architecture/AppTableArchitecture/10-FE-Agregar-affordance-navegable-reutilizable-AppTable.md
+```
 
 ## Contexto existente
 
 - Pantalla objetivo:
   - `src/modules/gestionCorrespondencia/pages/GestionCorrespondencia.tsx`
-- Estilos actuales del modulo:
+- Estilos actuales:
   - `src/modules/gestionCorrespondencia/style/GestionCorrespondencia.module.css`
 - Componente shared:
   - `src/app/Components/UI/AppTable/AppTable.tsx`
@@ -34,12 +39,15 @@ Este ticket depende de que exista el contrato reusable definido en:
 
 ## Estado actual
 
-Hoy `GestionCorrespondencia` usa una solucion local:
+Actualmente el modulo implementa affordance mediante:
 
-- `gridClassName={styles.navigableGrid}`
-- reglas CSS del modulo para aplicar `cursor: pointer` a celdas navegables
+```tsx
+gridClassName={styles.navigableGrid}
+```
 
-Eso funciona, pero ya no debe mantenerse si `AppTable` expone un contrato reusable para la misma affordance.
+y reglas CSS locales para aplicar `cursor: pointer`.
+
+Esto debe eliminarse en favor del contrato reusable.
 
 ## Ubicacion esperada
 
@@ -51,27 +59,24 @@ src/modules/gestionCorrespondencia/tests/*
 
 ## Restricciones obligatorias
 
-- no volver a implementar affordance visual manual en CSS del modulo si ya existe el contrato shared
-- no mover la logica de navegacion fuera de `GestionCorrespondencia`
-- no acoplar `AppTable` al dominio del modulo
-- no romper el menu de acciones ni la seleccion de filas
-- no usar `any`
+- NO reimplementar affordance visual en CSS del modulo
+- NO mantener simultaneamente CSS local y prop reusable
+- NO mover la logica de navegacion fuera de `GestionCorrespondencia`
+- NO acoplar `AppTable` al dominio del modulo
+- NO romper seleccion de filas ni menu de acciones
+- NO usar `any`
 
 ## Regla arquitectonica obligatoria
 
-Una vez exista la capacidad reusable en `AppTable`, `GestionCorrespondencia` debe consumirla como modulo cliente y eliminar la solucion CSS local equivalente.
+Una vez exista la capacidad reusable en `AppTable`, el modulo debe consumirla como cliente y eliminar cualquier implementacion equivalente local.
 
 Esto implica:
 
-- `AppTable` resuelve la affordance visual
-- `GestionCorrespondencia` solo activa la prop
-- `GestionCorrespondencia` conserva callbacks:
-  - `onCellClicked`
-  - `onActionTriggered`
+- `AppTable` resuelve affordance visual y soporte de teclado
+- `GestionCorrespondencia` conserva la navegacion
+- eliminacion total de duplicacion
 
 ## Contrato esperado
-
-Ejemplo recomendado:
 
 ```tsx
 <AppTable
@@ -82,44 +87,114 @@ Ejemplo recomendado:
 />
 ```
 
-Si el contrato definitivo reusable usa otro nombre, por ejemplo `navigableCells`, la adopcion debe alinearse a ese contrato y no reintroducir CSS local redundante.
+Si el contrato final usa otro nombre (ej: `navigableCells`), debe adoptarse ese contrato.
 
 ## Reglas de implementacion obligatorias
 
-1. Reemplazar en `GestionCorrespondencia.tsx` el uso de `gridClassName={styles.navigableGrid}` por la nueva prop reusable de `AppTable`.
-2. Mantener intacta la logica de navegacion actual de `GestionCorrespondencia`.
-3. Eliminar del CSS del modulo las reglas dedicadas exclusivamente a la affordance navegable local.
-4. Verificar que la columna `acciones` sigue sin comportarse como superficie navegable.
-5. Verificar que la columna de seleccion sigue sin comportarse como superficie navegable.
-6. No cambiar el contrato de rutas ni el flujo `respuesta/:id`.
+1. Reemplazar `gridClassName={styles.navigableGrid}` por la prop reusable de `AppTable`.
+2. Mantener intacta la logica de navegacion actual.
+3. Eliminar del CSS del modulo:
+   - clases usadas para cursor pointer
+   - hover de celdas navegables
+   - cualquier regla relacionada con affordance
+4. Eliminar tambien clases residuales no utilizadas relacionadas con este patron.
+5. Validar que:
+   - columna `acciones` no adquiere affordance navegable
+   - columna de seleccion no adquiere affordance
+6. No modificar rutas ni flujo `respuesta/:id`.
+7. Validar que la affordance reusable cubre completamente el comportamiento antes de eliminar CSS.
+8. No implementar manejo de `Enter` en el modulo; solo adoptar y validar el comportamiento provisto por `AppTable`.
+
+## Reglas de migracion segura
+
+```txt
+La eliminacion del CSS local solo debe realizarse despues de validar que la prop reusable reproduce completamente el comportamiento visual esperado.
+```
+
+## Reglas de consistencia visual
+
+```txt
+La experiencia visual final debe ser equivalente o superior a la implementacion anterior.
+```
+
+## Reglas de interaccion
+
+- mantener click de celda funcionando
+- mantener navegacion actual
+- mantener comportamiento de acciones contextuales
+- no interferir con elementos interactivos dentro de la celda
+
+## Accesibilidad y teclado
+
+Debe validarse que:
+
+```txt
+Enter sigue ejecutando la accion de fila esperada
+```
+
+y que:
+
+- no se rompe navegacion por teclado
+- no se rompe accesibilidad existente
 
 ## Riesgos a evitar
 
-- dejar activa la prop reusable y tambien el CSS local, generando duplicacion
-- reintroducir navegacion al hacer click en la columna `acciones`
-- afectar el cursor de controles internos del menu contextual
-- perder la affordance visual sobre celdas de datos navegables
+- coexistencia de CSS local y prop reusable
+- perdida de affordance visual
+- affordance aplicada incorrectamente en columna `acciones`
+- romper interaccion de botones dentro de celdas
+- romper navegacion por teclado
+- regresiones visuales
 
 ## Pruebas unitarias obligatorias
 
-- `GestionCorrespondencia` activa la nueva prop reusable de `AppTable`
-- `GestionCorrespondencia` ya no depende de `gridClassName={styles.navigableGrid}` para ese caso
-- la navegacion por celda de datos sigue funcionando
-- la columna `acciones` no dispara navegacion por click de celda
-- el menu contextual sigue funcionando
+- `GestionCorrespondencia` usa `rowClickAffordance`
+- no se usa `gridClassName={styles.navigableGrid}`
+- no existe CSS activo relacionado con affordance local
+- navegacion sigue funcionando
+- columna `acciones` no navega
+- seleccion de filas no se altera
+- interaccion por teclado (`Enter`) funciona correctamente a traves de `AppTable`
+- no existe doble aplicacion de affordance
 
 ## Pruebas QT / calidad
 
-- el usuario sigue viendo cursor navegable sobre celdas de datos
-- el usuario no ve affordance navegable sobre la columna `acciones`
-- el usuario no pierde el menu contextual
-- la navegacion a `respuesta/:id` sigue funcionando
-- no queda CSS local redundante para este comportamiento
+- cursor navegable visible en celdas correctas
+- cursor no visible en columna `acciones`
+- menu contextual funciona correctamente
+- navegacion a `respuesta/:id` sigue funcionando
+- no existe CSS duplicado
+- comportamiento consistente con otros modulos que adopten el patron
+- interaccion con teclado funcional
 
 ## Criterios de aceptacion
 
-- `GestionCorrespondencia` adopta la affordance reusable de `AppTable`
-- se elimina la solucion local equivalente del modulo
-- la navegacion actual no se rompe
-- la columna `acciones` mantiene su comportamiento contextual sin activar navegacion accidental
-- el modulo queda alineado con el contrato shared y sin duplicacion visual
+- `GestionCorrespondencia` adopta el contrato reusable
+- se elimina completamente la implementacion local equivalente
+- no existe duplicacion visual ni tecnica
+- la navegacion no se rompe
+- accesibilidad y teclado funcionan correctamente
+- experiencia visual consistente o mejorada
+- el modulo queda alineado con el design system
+
+## Instruccion final
+
+Antes de implementar:
+
+- revisar `GestionCorrespondencia.tsx`
+- revisar implementacion del Ticket 10
+- identificar CSS local relacionado con affordance
+
+Luego:
+
+- activar prop reusable
+- eliminar CSS local
+- validar comportamiento completo
+
+Finalmente reportar:
+
+- cambios realizados
+- CSS eliminado
+- validacion visual
+- pruebas ejecutadas
+- confirmacion de ausencia de duplicacion
