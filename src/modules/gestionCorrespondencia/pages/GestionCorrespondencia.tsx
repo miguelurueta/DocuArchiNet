@@ -11,6 +11,7 @@ import AppTable from "../../../app/Components/UI/AppTable/AppTable";
 import type { AppTableRow } from "../../../app/Components/UI/AppTable/AppTable.types";
 import { AppToolbar } from "../../../app/Components/UI/AppToolbar";
 import type { GestionCorrespondenciaTableResult } from "../hooks/useGestionCorrespondenciaTable";
+import { useWorkflowInboxAutocomplete } from "../hooks/useWorkflowInboxAutocomplete";
 import styles from "../style/GestionCorrespondencia.module.css";
 
 type GestionCorrespondenciaProps<T extends AppTableRow = AppTableRow> = {
@@ -22,6 +23,11 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
 }: GestionCorrespondenciaProps<T>) {
   const navigate = useNavigate();
   const [selectedRows, setSelectedRows] = useState<T[]>([]);
+  const [searchDraft, setSearchDraft] = useState(table.queryState.search);
+  const autocomplete = useWorkflowInboxAutocomplete({
+    minLength: 2,
+    limit: 10,
+  });
   const exportReportMeta = useMemo(
     () => ({
       reportName: "Bandeja de gestion correspondencia",
@@ -36,6 +42,24 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
     [table.rows.length],
   );
 
+  const applySearch = (search: string) => {
+    const normalizedSearch = search.trim();
+    setSearchDraft(normalizedSearch);
+    autocomplete.setSearchText(normalizedSearch);
+    table.onQueryChange({ search: normalizedSearch });
+  };
+
+  const handleSearchChange = (search: string) => {
+    setSearchDraft(search);
+    autocomplete.setSearchText(search);
+  };
+
+  const handleSearchClear = () => {
+    setSearchDraft("");
+    autocomplete.clear();
+    table.onQueryChange({ search: "" });
+  };
+
   return (
     <div className={styles.shell}>
       <AppToolbar
@@ -45,9 +69,14 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
             <AppInputSearch
               aria-label="Buscar tareas workflow"
               className={styles.toolbarSearch}
+              debounceMs={0}
+              loading={autocomplete.loading}
+              options={autocomplete.items}
               placeholder="Buscar tareas workflow"
-              value={table.queryState.search}
-              onChange={(search) => table.onQueryChange({ search })}
+              value={searchDraft}
+              onChange={handleSearchChange}
+              onClear={handleSearchClear}
+              onSearch={applySearch}
             />
 
             <AppButton

@@ -16,6 +16,7 @@ src/modules/gestionCorrespondencia/
     GestionCorrespondenciaTableSkeleton.tsx
   hooks/
     useGestionCorrespondenciaTable.ts
+    useWorkflowInboxAutocomplete.ts
   layout/
     GestionCorrespondenciaLayout.tsx
   pages/
@@ -24,6 +25,10 @@ src/modules/gestionCorrespondencia/
     GestionRespuesta.tsx
   routes/
     GestionCorrespondenciaRoute.tsx
+  services/
+    workflowInboxAutocomplete.service.ts
+  types/
+    workflowInboxAutocomplete.types.ts
   README.md
 ```
 
@@ -32,9 +37,11 @@ src/modules/gestionCorrespondencia/
 - `layout/`: shell visual del modulo. Define header, descripcion, contenedor principal y `Outlet`.
 - `adapters/`: mapeo del input del modulo al request real del backend.
 - `components/`: piezas visuales auxiliares del modulo como skeletons de pantalla.
-- `hooks/`: orquestacion de la carga de datos del modulo usando la infraestructura compartida de `AppTable`.
+- `hooks/`: orquestacion de la carga de datos del modulo usando la infraestructura compartida de `AppTable` y features desacopladas como autocomplete.
 - `pages/`: composicion de UI y pantallas visibles de la vista principal y la vista secundaria.
 - `routes/`: orquestacion del patron `Outlet + Drawer` controlado por la URL.
+- `services/`: acceso HTTP del dominio del modulo sin acoplar componentes UI a endpoints.
+- `types/`: contratos tipados del modulo para requests, responses e items auxiliares.
 
 ## Patron Outlet + Drawer
 
@@ -68,6 +75,29 @@ La pantalla principal ya consume la bandeja dinamica `workflowInboxgestion` usan
 - `Skeleton` de primera carga a nivel de ruta
 
 El renderer visual final sigue siendo `AppTable`.
+
+## Busqueda y autocomplete
+
+La pantalla principal mantiene dos flujos separados:
+
+- busqueda real de tabla:
+  - Enter
+  - click en el icono de busqueda
+  - seleccion de sugerencia
+- autocomplete de sugerencias:
+  - escritura del usuario
+  - `minLength`
+  - debounce
+  - request limitado al endpoint dedicado
+
+La integracion actual sigue estas reglas:
+
+- `GestionCorrespondencia` renderiza `AppInputSearch` en el toolbar.
+- `AppTableQueryWrapper` conserva `showSearch={false}`.
+- `useWorkflowInboxAutocomplete` maneja debounce, loading, error y respuestas obsoletas.
+- `workflowInboxAutocomplete.service.ts` encapsula el endpoint `/api/workflowInboxgestion/inboxgestion/autocomplete`.
+- `AppInputSearch` sigue siendo presentacional y no conoce endpoints.
+- `table.onQueryChange({ search })` sigue siendo el unico puente para aplicar filtro real a la tabla.
 
 ## Limites actuales
 
