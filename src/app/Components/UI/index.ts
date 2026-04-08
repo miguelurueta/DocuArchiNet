@@ -3,6 +3,7 @@ export * from "./AppTabs";
 export * from "./AppModal";
 export * from "./AppInput";
 export * from "./AppInputSearch";
+export * from "./AppInputTags";
 export * from "./AppButton";
 export * from "./AppDropdown";
 export * from "./AppTable/AppTable.types";
