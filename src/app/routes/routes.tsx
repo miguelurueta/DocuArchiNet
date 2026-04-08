@@ -77,7 +77,7 @@ export const loginRoutes: RouteObject[] = [
                 element: <GestionCorrespondenciaRoute />,
               },
               {
-                path: "respuesta",
+                path: "respuesta/:id",
                 element: (
                   <GestionCorrespondenciaRoute
                     detailContent={<GestionRespuesta />}

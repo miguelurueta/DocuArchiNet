@@ -1,4 +1,4 @@
-import { EyeFilled, UndoOutlined } from "@ant-design/icons";
+import { UndoOutlined } from "@ant-design/icons";
 import type { ColDef } from "ag-grid-community";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,11 @@ import { AppInputSearch } from "../../../app/Components/UI/AppInputSearch";
 import { AppTableExport } from "../../../app/Components/UI/AppTable/AppTableExport";
 import { AppTableQueryWrapper } from "../../../app/Components/UI/AppTable/AppTableQueryWrapper";
 import AppTable from "../../../app/Components/UI/AppTable/AppTable";
-import type { AppTableRow } from "../../../app/Components/UI/AppTable/AppTable.types";
+import type {
+  AppTableCellClick,
+  AppTableActionTriggered,
+  AppTableRow,
+} from "../../../app/Components/UI/AppTable/AppTable.types";
 import { AppToolbar } from "../../../app/Components/UI/AppToolbar";
 import type { GestionCorrespondenciaTableResult } from "../hooks/useGestionCorrespondenciaTable";
 import { useWorkflowInboxAutocomplete } from "../hooks/useWorkflowInboxAutocomplete";
@@ -60,6 +64,31 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
     table.onQueryChange({ search: "" });
   };
 
+  const navigateToRowDetail = (row: T) => {
+    const rowId = row.id;
+    if (typeof rowId !== "string" && typeof rowId !== "number") {
+      return;
+    }
+
+    navigate(`respuesta/${String(rowId)}`);
+  };
+
+  const handleTableAction = ({ actionId, row }: AppTableActionTriggered<T>) => {
+    if (actionId !== "gestionar_tramite" && actionId !== "gestionar_tramite_menu") {
+      return;
+    }
+
+    navigateToRowDetail(row);
+  };
+
+  const handleTableCellClick = ({ row, field }: AppTableCellClick<T>) => {
+    if (!field || field === "acciones" || field === "ag-Grid-SelectionColumn") {
+      return;
+    }
+
+    navigateToRowDetail(row);
+  };
+
   return (
     <div className={styles.shell}>
       <AppToolbar
@@ -89,17 +118,6 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
               onClick={table.refetch}
             >
               Actualizar
-            </AppButton>
-
-            <AppButton
-              className={styles.toolbarControl}
-              variant="ghost"
-              size="sm"
-              leftIcon={<EyeFilled />}
-              fullWidth
-              onClick={() => navigate("respuesta")}
-            >
-              Abrir respuesta contextual
             </AppButton>
           </div>
         }
@@ -144,7 +162,10 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
                 loading={table.loading && table.hasLoadedOnce}
                 paginationMode="server"
                 layoutMode="fill"
+                gridClassName={styles.navigableGrid}
                 responsivePresentation={{ enabled: true, cardsBelow: 768 }}
+                onCellClicked={handleTableCellClick}
+                onActionTriggered={handleTableAction}
                 onSelectionChanged={setSelectedRows}
               />
             </div>

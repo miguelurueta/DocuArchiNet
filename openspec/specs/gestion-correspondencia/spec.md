@@ -81,6 +81,10 @@ El sistema SHALL implementar `GestionCorrespondenciaRoute` como un shell de nave
 - **WHEN** la vista secundaria esta activa en el shell del modulo
 - **THEN** la region principal del listado MUST permanecer montada y visible como contexto base del patron master-detail
 
+#### Scenario: La subruta secundaria incluye el identificador del registro
+- **WHEN** el usuario abre el detalle contextual desde una accion de fila
+- **THEN** la navegacion MUST resolverse mediante una ruta tipo `respuesta/:id` usando el identificador del registro seleccionado
+
 ### Requirement: GestionRespuesta SHALL renderizarse como vista secundaria desacoplada dentro del shell del modulo
 El sistema SHALL implementar `GestionRespuesta` como una pagina secundaria preparada para mostrarse dentro de la region persistente del shell de `GestionCorrespondencia`, con estructura visual profesional y sin conocimiento directo del mecanismo de routing o de logica de negocio.
 
@@ -122,6 +126,10 @@ El sistema SHALL cubrir con Vitest y Testing Library el render del shell, la pre
 #### Scenario: Cobertura de deep link con shell completo
 - **WHEN** se ejecutan las pruebas entrando directamente a la subruta secundaria
 - **THEN** la suite MUST verificar simultaneamente shell, region principal y region secundaria observables en la misma navegacion
+
+#### Scenario: La accion de toolbar ya no abre el detalle contextual
+- **WHEN** `GestionCorrespondencia` renderiza las acciones principales del toolbar
+- **THEN** el flujo de apertura de `GestionRespuesta` MUST depender de la accion contextual de fila y MUST NOT exponerse tambien como boton global redundante
 
 ### Requirement: El modulo SHALL documentar su arquitectura inicial
 El sistema SHALL incluir un `README.md` dentro del modulo que documente el proposito de Gestion Correspondencia, su estructura de carpetas, la responsabilidad de cada capa y el flujo de shell persistente gobernado por routing previsto para futuras ampliaciones.

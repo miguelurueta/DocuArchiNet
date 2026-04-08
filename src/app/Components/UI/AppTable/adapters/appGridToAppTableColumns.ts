@@ -14,6 +14,11 @@ export type AppTableColumnAdapterOptions = {
   tableId?: string;
   userClaims?: string[];
   menuActions?: AppGridCellAction[];
+  onClientEvent?: (input: {
+    actionId: string;
+    row: AppTableRow;
+    columnKey?: string;
+  }) => void;
 };
 
 const resolveFilter = (column: AppGridColumn): ColDef<AppTableRow>["filter"] => {
@@ -114,6 +119,7 @@ export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTa
         menuActions: [...(options.menuActions ?? [])],
         tableId: options.tableId,
         userClaims: [...(options.userClaims ?? [])],
+        onClientEvent: options.onClientEvent,
       };
     }
 

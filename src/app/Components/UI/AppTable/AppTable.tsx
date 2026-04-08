@@ -128,6 +128,7 @@ export default function AppTable<T extends AppTableRow>(props: AppTableProps<T>)
           total={props.total}
           className={props.className}
           onRowClicked={props.onRowClicked}
+          onActionTriggered={props.onActionTriggered}
           resolvedLayoutMode={resolvedLayoutMode}
         />
       ) : (
