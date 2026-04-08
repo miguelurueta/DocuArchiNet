@@ -69,6 +69,10 @@ El sistema SHALL implementar `GestionCorrespondenciaRoute` como un shell de nave
 - **WHEN** el modulo se renderiza en pantallas reducidas
 - **THEN** el sistema SHALL preservar la navegacion gobernada por routing y SHALL adaptar la region secundaria sin romper la experiencia principal del listado
 
+#### Scenario: Retorno visible desde el shell secundario
+- **WHEN** la vista secundaria esta activa dentro del shell
+- **THEN** el sistema SHALL exponer una accion de retorno o cierre claramente visible y consistente con el contexto master-detail del modulo
+
 ### Requirement: GestionRespuesta SHALL renderizarse como vista secundaria desacoplada dentro del shell del modulo
 El sistema SHALL implementar `GestionRespuesta` como una pagina secundaria preparada para mostrarse dentro de la region persistente del shell de `GestionCorrespondencia`, con estructura visual profesional y sin conocimiento directo del mecanismo de routing o de logica de negocio.
 
@@ -80,6 +84,10 @@ El sistema SHALL implementar `GestionRespuesta` como una pagina secundaria prepa
 - **WHEN** `GestionRespuesta` se renderiza como contenido del shell
 - **THEN** la pagina SHALL depender de la capa routes para apertura, cierre y navegacion, y no SHALL gestionar directamente el flujo de rutas
 
+#### Scenario: Retorno contextual sin acoplar la pagina al router
+- **WHEN** el usuario interactua con el flujo de retorno visible desde la experiencia secundaria
+- **THEN** `GestionRespuesta` SHALL seguir desacoplada del router y la resolucion de navegacion SHALL permanecer en la capa del shell del modulo
+
 ### Requirement: El modulo SHALL incluir pruebas de comportamiento del flujo estructural
 El sistema SHALL cubrir con Vitest y Testing Library el render del shell, la presencia de la pagina principal y la integracion entre rutas anidadas y la region secundaria persistente, enfocandose en comportamiento observable del modulo.
 
@@ -90,6 +98,10 @@ El sistema SHALL cubrir con Vitest y Testing Library el render del shell, la pre
 #### Scenario: Cobertura del shell gobernado por rutas
 - **WHEN** se ejecutan las pruebas sobre la ruta secundaria del modulo
 - **THEN** el conjunto de tests SHALL verificar que la region secundaria se abre por routing y que `GestionRespuesta` se renderiza sin reemplazar la pagina principal
+
+#### Scenario: Cobertura del retorno visible
+- **WHEN** se ejecutan las pruebas del flujo secundario del modulo
+- **THEN** el conjunto de tests SHALL verificar que el usuario dispone de una accion observable de retorno/cierre y que esta lo devuelve a la ruta base sin desmontar la bandeja principal antes del cambio de ruta
 
 ### Requirement: El modulo SHALL documentar su arquitectura inicial
 El sistema SHALL incluir un `README.md` dentro del modulo que documente el proposito de Gestion Correspondencia, su estructura de carpetas, la responsabilidad de cada capa y el flujo de shell persistente gobernado por routing previsto para futuras ampliaciones.

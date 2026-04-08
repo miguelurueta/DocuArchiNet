@@ -1,33 +1,36 @@
 .shell {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
+  position: relative;
+  display: flex;
   flex: 1 1 auto;
   min-height: 0;
   min-width: 0;
   height: 100%;
+  overflow: hidden;
 }
 
 .shellWithDetail {
-  grid-template-columns: minmax(0, 1fr) minmax(22rem, 30rem);
-  align-items: stretch;
+  isolation: isolate;
 }
 
 .mainRegion {
   display: flex;
+  flex: 1 1 auto;
   min-height: 0;
   min-width: 0;
 }
 
 .detailRegion {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   min-height: 0;
   min-width: 0;
   border-radius: 24px;
   background: white;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: none;
   overflow: hidden;
 }
 
@@ -61,6 +64,17 @@
   color: #0f172a;
 }
 
+.detailDescription {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #475569;
+}
+
+.detailReturnAction {
+  flex-shrink: 0;
+}
+
 .detailBody {
   display: flex;
   flex: 1 1 auto;
@@ -69,20 +83,18 @@
   padding: 18px;
 }
 
-@media (max-width: 1200px) {
-  .shellWithDetail {
-    grid-template-columns: minmax(0, 1fr) minmax(20rem, 24rem);
-  }
-}
-
 @media (max-width: 960px) {
-  .shellWithDetail {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) auto;
+  .detailRegion {
+    inset: 0;
+    border-radius: 20px;
   }
 
-  .detailRegion {
-    min-height: 20rem;
-    max-height: 45dvh;
+  .detailHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .detailReturnAction {
+    width: 100%;
   }
 }
