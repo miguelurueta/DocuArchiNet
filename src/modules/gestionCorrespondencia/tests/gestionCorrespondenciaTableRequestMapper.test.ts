@@ -56,6 +56,21 @@ describe("mapGestionCorrespondenciaTableRequest [SPEC:gestion-correspondencia]",
     );
   });
 
+  it("preserva SearchType explícito distinto de 3 cuando no hay texto efectivo", () => {
+    expect(
+      mapGestionCorrespondenciaTableRequest({
+        tableId: "workflowInboxgestion",
+        search: "   ",
+        searchType: 1,
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        Search: undefined,
+        SearchType: 1,
+      }),
+    );
+  });
+
   it("preserva filtros estructurados, paginación y ordenamiento", () => {
     expect(
       mapGestionCorrespondenciaTableRequest({

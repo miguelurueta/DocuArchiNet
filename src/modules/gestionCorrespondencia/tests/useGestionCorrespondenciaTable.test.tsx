@@ -159,6 +159,36 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXP
         message: "OK",
         data: {
           TableId: "workflowInboxgestion",
+          Columns: [
+            {
+              DataIndex: "RADICADO",
+              HeaderName: "Radicado",
+              Visible: true,
+              Sortable: true,
+              Filterable: true,
+            },
+          ],
+          Rows: [
+            {
+              Id: "924",
+              Values: {
+                RADICADO: "2500456700023",
+              },
+            },
+          ],
+          Pagination: {
+            Page: 1,
+            PageSize: 25,
+            Total: 7,
+          },
+        },
+        errors: [],
+      })
+      .mockResolvedValueOnce({
+        success: true,
+        message: "OK",
+        data: {
+          TableId: "workflowInboxgestion",
           Columns: [],
           Rows: [
             {
@@ -191,6 +221,19 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXP
       expect(result.current.loading).toBe(false);
     });
 
+    act(() => {
+      result.current.onQueryChange({ search: "radicado" });
+    });
+
+    await waitFor(() => {
+      expect(dynamicUiTableService.getDynamicTable).toHaveBeenCalledWith(
+        expect.objectContaining({
+          Search: "radicado",
+          SearchType: 2,
+        }),
+      );
+    });
+
     let rows: Awaited<ReturnType<typeof result.current.getAllMatchingRows>> = [];
     await act(async () => {
       rows = await result.current.getAllMatchingRows();
@@ -201,6 +244,8 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXP
         TableId: "workflowInboxgestion",
         Page: 1,
         PageSize: 25,
+        Search: "radicado",
+        SearchType: 2,
         SortField: "fecha_inicio",
         SortDir: "DESC",
         IncludeConfig: false,
