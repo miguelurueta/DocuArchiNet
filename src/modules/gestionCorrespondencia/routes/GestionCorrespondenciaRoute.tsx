@@ -1,37 +1,58 @@
+import { CloseOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
-import { Drawer } from "antd";
 import { useNavigate } from "react-router-dom";
+import { AppButton } from "../../../app/Components/UI/AppButton";
 import GestionCorrespondenciaRoutePage from "../pages/GestionCorrespondenciaRoutePage";
+import styles from "../style/GestionCorrespondenciaRoute.module.css";
 
 interface GestionCorrespondenciaRouteProps {
-  drawerContent?: ReactNode;
+  detailContent?: ReactNode;
 }
 
 export default function GestionCorrespondenciaRoute({
-  drawerContent,
+  detailContent,
 }: GestionCorrespondenciaRouteProps) {
   const navigate = useNavigate();
-  const isDrawerOpen = Boolean(drawerContent);
+  const hasDetail = Boolean(detailContent);
 
   const handleClose = () => {
     navigate("/dashboard/gestion-correspondencia");
   };
 
   return (
-    <>
-      <GestionCorrespondenciaRoutePage />
-      <Drawer
-        title="Respuesta contextual"
-        placement="right"
-        size="large"
-        open={isDrawerOpen}
-        onClose={handleClose}
-        destroyOnClose
-        getContainer={false}
-        maskClosable
-      >
-        {drawerContent}
-      </Drawer>
-    </>
+    <section
+      className={`${styles.shell} ${hasDetail ? styles.shellWithDetail : ""}`.trim()}
+      data-testid="gestion-correspondencia-route-shell"
+    >
+      <div className={styles.mainRegion} data-testid="gestion-correspondencia-main-region">
+        <GestionCorrespondenciaRoutePage />
+      </div>
+
+      {hasDetail ? (
+        <aside
+          className={styles.detailRegion}
+          aria-label="Panel contextual de gestion de correspondencia"
+          data-testid="gestion-correspondencia-detail-region"
+        >
+          <header className={styles.detailHeader}>
+            <div className={styles.detailHeaderCopy}>
+              <span className={styles.detailEyebrow}>Vista secundaria</span>
+              <h2 className={styles.detailTitle}>Respuesta contextual</h2>
+            </div>
+
+            <AppButton
+              aria-label="Cerrar panel contextual"
+              icon={<CloseOutlined />}
+              size="sm"
+              tooltip="Cerrar panel contextual"
+              variant="ghost"
+              onClick={handleClose}
+            />
+          </header>
+
+          <div className={styles.detailBody}>{detailContent}</div>
+        </aside>
+      ) : null}
+    </section>
   );
 }
