@@ -1,5 +1,6 @@
 import type {
   CellClickedEvent,
+  CellKeyDownEvent,
   ColDef,
   RowClickedEvent,
   RowSelectedEvent,
@@ -50,6 +51,7 @@ export type AppTableProps<T extends AppTableRow> = {
   rowSelection?: AppTableRowSelection;
   suppressRowClickSelection?: boolean;
   suppressCellFocus?: boolean;
+  rowClickAffordance?: boolean;
   domLayout?: AppTableDomLayout;
   className?: string;
   gridClassName?: string;
@@ -65,5 +67,6 @@ export type AppTableAgGridHandlers<T extends AppTableRow> = {
   onRowSelected?: (event: RowSelectedEvent<T>) => void;
   onRowClicked?: (event: RowClickedEvent<T>) => void;
   onCellClicked?: (event: CellClickedEvent<T>) => void;
+  onCellKeyDown?: (event: CellKeyDownEvent<T>) => void;
   onSelectionChanged?: (event: SelectionChangedEvent<T>) => void;
 };

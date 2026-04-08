@@ -1,5 +1,5 @@
 import { AgGridReact } from "ag-grid-react";
-import type { ColDef, GridReadyEvent } from "ag-grid-community";
+import type { CellKeyDownEvent, ColDef, GridReadyEvent } from "ag-grid-community";
 import { useEffect, useMemo, useRef } from "react";
 import type { AppTablePaginationMode, AppTableProps, AppTableRow } from "../AppTable.types";
 import type { AppTableActionCellRendererParams } from "../types/dynamicUiTableAction.types";
@@ -25,6 +25,61 @@ const resolveRowId = <T extends AppTableRow>(
 
 const joinClasses = (...values: Array<string | false | null | undefined>) =>
   values.filter(Boolean).join(" ");
+
+const normalizeCellClass = (
+  value: string | string[] | null | undefined,
+): string | undefined => {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === "string" && item.length > 0).join(" ");
+  }
+
+  return undefined;
+};
+
+const ACTION_COLUMN_FIELD = "acciones";
+const SELECTION_COLUMN_FIELD = "ag-Grid-SelectionColumn";
+
+const isInteractiveElement = (target: EventTarget | null): target is HTMLElement => {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  return Boolean(
+    target.closest("button, a, input, textarea, select, [role=\"button\"]"),
+  );
+};
+
+const isNavigableField = (field?: string | null) =>
+  Boolean(field && field !== ACTION_COLUMN_FIELD && field !== SELECTION_COLUMN_FIELD);
+
+const getKeyboardEventKey = (event: Event | null | undefined) => {
+  if (!event || typeof event !== "object" || !("key" in event)) {
+    return null;
+  }
+
+  const key = event.key;
+  return typeof key === "string" ? key : null;
+};
+
+const isNavigableCellEvent = <T extends AppTableRow>(event: {
+  colDef?: { field?: string | null };
+  event?: Event | null;
+  data?: T | null;
+}) => {
+  if (!event.data || !isNavigableField(event.colDef?.field ?? null)) {
+    return false;
+  }
+
+  if (isInteractiveElement(event.event?.target ?? null)) {
+    return false;
+  }
+
+  return true;
+};
 
 const resolveQuickFilterText = (
   paginationMode: AppTablePaginationMode | undefined,
@@ -82,6 +137,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
   rowSelection = "multiple",
   suppressRowClickSelection = false,
   suppressCellFocus,
+  rowClickAffordance = false,
   domLayout = "autoHeight",
   className,
   gridClassName,
@@ -103,7 +159,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
     paginationMode,
     clientPaginationPageSize,
     suppressRowClickSelection,
-    suppressCellFocus,
+    suppressCellFocus: rowClickAffordance ? (suppressCellFocus ?? false) : suppressCellFocus,
     onRowSelected: (event) => {
       if (!event.node.isSelected()) {
         onRowSelected?.(null);
@@ -124,6 +180,25 @@ export function AppTableGridRenderer<T extends AppTableRow>({
         value: event.value,
       });
     },
+    onCellKeyDown: (event: CellKeyDownEvent<T>) => {
+      if (!rowClickAffordance || getKeyboardEventKey(event.event) !== "Enter") {
+        return;
+      }
+
+      if (!isNavigableCellEvent(event)) {
+        return;
+      }
+
+      if (!event.data) {
+        return;
+      }
+
+      onCellClicked?.({
+        row: event.data,
+        field: event.colDef?.field ?? null,
+        value: event.value,
+      });
+    },
     onSelectionChanged: (event) => {
       const selectedRows = event.api.getSelectedRows();
       onSelectionChanged?.(selectedRows);
@@ -131,8 +206,34 @@ export function AppTableGridRenderer<T extends AppTableRow>({
   });
 
   const columnDefs = useMemo<ColDef<T>[]>(
-    () => enrichActionColumns(columns, onActionTriggered),
-    [columns, onActionTriggered],
+    () =>
+      enrichActionColumns(columns, onActionTriggered).map((column) => {
+        if (!rowClickAffordance) {
+          return column;
+        }
+
+        const existingCellClass = column.cellClass;
+        const resolvedField = column.field ?? column.colId ?? null;
+
+        if (!isNavigableField(resolvedField)) {
+          return column;
+        }
+
+        return {
+          ...column,
+          cellClass: (params) => {
+            const existing = typeof existingCellClass === "function"
+              ? existingCellClass(params)
+              : existingCellClass;
+
+            return joinClasses(
+              normalizeCellClass(existing),
+              styles.navigableCell,
+            );
+          },
+        };
+      }),
+    [columns, onActionTriggered, rowClickAffordance],
   );
   const rowData = useMemo<T[]>(() => rows, [rows]);
   const resolvedQuickFilterText = useMemo(

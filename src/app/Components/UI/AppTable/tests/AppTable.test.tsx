@@ -1,7 +1,7 @@
 import { act, render, screen } from "@testing-library/react";
 import { forwardRef, useImperativeHandle } from "react";
 import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from "vitest";
-import type { ColDef } from "ag-grid-community";
+import type { CellKeyDownEvent, ColDef } from "ag-grid-community";
 import AppTable from "../AppTable";
 
 const agGridReactSpy = vi.fn();
@@ -54,6 +54,24 @@ type Row = {
   id: string;
   name: string;
 };
+
+const createCellKeyDownEvent = (
+  field: string,
+  target: HTMLElement,
+): CellKeyDownEvent<Row> =>
+  ({
+    event: { key: "Enter", target } as unknown as KeyboardEvent,
+    data: { id: "1", name: "Alpha" },
+    colDef: { field: field as never },
+    column: null,
+    node: null,
+    rowIndex: 0,
+    rowPinned: null,
+    api: null,
+    context: null,
+    type: "cellKeyDown",
+    value: "Alpha",
+  }) as unknown as CellKeyDownEvent<Row>;
 
 const columns: ColDef<Row>[] = [
   { field: "name", headerName: "Nombre" },
@@ -431,5 +449,107 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
     expect(onRowClicked).not.toHaveBeenCalled();
     expect(onCellClicked).not.toHaveBeenCalled();
     expect(onSelectionChanged).not.toHaveBeenCalled();
+  });
+
+  test("no aplica affordance navegable por defecto", () => {
+    render(<AppTable rows={[{ id: "1", name: "Alpha" }]} columns={columns} />);
+
+    const lastCall = agGridReactSpy.mock.calls.at(-1)?.[0] as {
+      columnDefs?: Array<{ cellClass?: string | ((params: unknown) => string | string[] | undefined) }>;
+      gridOptions?: { onCellKeyDown?: (event: CellKeyDownEvent<Row>) => void };
+    };
+
+    const dataColumn = lastCall.columnDefs?.[0];
+    expect(dataColumn?.cellClass).toBeUndefined();
+
+    const onCellKeyDown = lastCall.gridOptions?.onCellKeyDown;
+    const onCellClicked = vi.fn();
+
+    onCellKeyDown?.(createCellKeyDownEvent("name", document.createElement("div")));
+
+    expect(onCellClicked).not.toHaveBeenCalled();
+  });
+
+  test("aplica affordance navegable solo en celdas de datos cuando rowClickAffordance esta activo", () => {
+    const actionColumns = [
+      { field: "name", headerName: "Nombre" },
+      { field: "ag-Grid-SelectionColumn" as never, headerName: "Seleccion" },
+      { field: "acciones" as never, headerName: "Acciones", cellClass: "app-table-action-cell" },
+    ] as ColDef<Row>[];
+
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={actionColumns}
+        rowClickAffordance
+      />,
+    );
+
+    const lastCall = agGridReactSpy.mock.calls.at(-1)?.[0] as {
+      columnDefs?: Array<{ field?: string; cellClass?: string | ((params: unknown) => string | string[] | undefined) }>;
+    };
+
+    const dataColumn = lastCall.columnDefs?.find((column) => column.field === "name");
+    const selectionColumn = lastCall.columnDefs?.find(
+      (column) => column.field === "ag-Grid-SelectionColumn",
+    );
+    const actionColumn = lastCall.columnDefs?.find((column) => column.field === "acciones");
+
+    expect(typeof dataColumn?.cellClass).toBe("function");
+    expect(
+      (dataColumn?.cellClass as (params: unknown) => string)({}),
+    ).toContain("navigableCell");
+    expect(selectionColumn?.cellClass).toBeUndefined();
+    expect(actionColumn?.cellClass).toBe("app-table-action-cell");
+  });
+
+  test("rowClickAffordance habilita foco de celda por defecto para soportar teclado", () => {
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        rowClickAffordance
+      />,
+    );
+
+    const lastCall = agGridReactSpy.mock.calls.at(-1)?.[0] as {
+      gridOptions?: { suppressCellFocus?: boolean };
+    };
+
+    expect(lastCall.gridOptions?.suppressCellFocus).toBe(false);
+  });
+
+  test("Enter reutiliza onCellClicked sobre celdas navegables y excluye controles internos", () => {
+    const onCellClicked = vi.fn();
+
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        rowClickAffordance
+        onCellClicked={onCellClicked}
+      />,
+    );
+
+    const lastCall = agGridReactSpy.mock.calls.at(-1)?.[0] as {
+      gridOptions?: { onCellKeyDown?: (event: CellKeyDownEvent<Row>) => void };
+    };
+
+    const onCellKeyDown = lastCall.gridOptions?.onCellKeyDown;
+    const plainTarget = document.createElement("div");
+    const buttonTarget = document.createElement("button");
+
+    onCellKeyDown?.(createCellKeyDownEvent("name", plainTarget));
+
+    onCellKeyDown?.(createCellKeyDownEvent("name", buttonTarget));
+
+    onCellKeyDown?.(createCellKeyDownEvent("acciones", plainTarget));
+
+    expect(onCellClicked).toHaveBeenCalledTimes(1);
+    expect(onCellClicked).toHaveBeenCalledWith({
+      row: { id: "1", name: "Alpha" },
+      field: "name",
+      value: "Alpha",
+    });
   });
 });

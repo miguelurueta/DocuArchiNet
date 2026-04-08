@@ -1,33 +1,33 @@
 # crea-componente-table Specification
 
-## Purpose
-TBD - created by archiving change scrumcore-27-crea-componente-table. Update Purpose after archive.
-## Requirements
-### Requirement: AppTable presentacional con AG Grid
-El sistema MUST proveer un componente `AppTable<T extends Record<string, unknown>>` que renderice AG Grid Community, no conozca backend ni DTOs y permanezca desacoplado de dominio y navegacion de modulos consumidores.
+## MODIFIED Requirements
 
-#### Scenario: Render basico sin backend
-- **WHEN** se renderiza `AppTable` con `rows` y `columns`
-- **THEN** se muestra la grilla sin realizar llamadas a APIs
+### Requirement: AppTable presentacional con AG Grid
+
+El sistema MUST mantener `AppTable<T extends Record<string, unknown>>` como componente shared presentacional, desacoplado de backend, dominio y navegacion de modulos consumidores, incluso cuando exponga affordance navegable reusable.
 
 #### Scenario: Row click affordance is opt-in
+
 - **GIVEN** un `AppTable` sin configuracion explicita de affordance
 - **WHEN** la tabla se renderiza con filas y columnas
 - **THEN** el sistema MUST NOT aplicar cursor navegable, hover navegable ni comportamiento extra de teclado asociado a affordance
 
 #### Scenario: Row click affordance is enabled declaratively
+
 - **GIVEN** un `AppTable` configurado con `rowClickAffordance`
 - **WHEN** la tabla se renderiza en modo `table`
 - **THEN** el sistema MUST aplicar una affordance visual reusable a celdas de datos navegables
 - **AND** MUST NOT ejecutar navegacion automaticamente dentro del shared component
 
 #### Scenario: Action and selection columns remain excluded
+
 - **GIVEN** un `AppTable` configurado con `rowClickAffordance`
 - **WHEN** la tabla renderiza una columna de acciones o la columna de seleccion
 - **THEN** esas celdas MUST NOT recibir affordance navegable
 - **AND** MUST conservar su comportamiento interactivo actual sin regresiones
 
 #### Scenario: Internal interactive controls keep ownership of interaction
+
 - **GIVEN** un `AppTable` configurado con `rowClickAffordance`
 - **AND** una celda contiene un control interactivo interno como `button`, `a`, `input`, `textarea`, `select` o `[role="button"]`
 - **WHEN** el usuario interactua con ese control
@@ -36,6 +36,7 @@ El sistema MUST proveer un componente `AppTable<T extends Record<string, unknown
 - **AND** MUST NOT degradar su accesibilidad existente
 
 #### Scenario: Enter reuses the primary consumer interaction flow
+
 - **GIVEN** un `AppTable` configurado con `rowClickAffordance`
 - **AND** el foco del grid esta sobre una celda navegable de datos
 - **WHEN** el usuario presiona `Enter`
@@ -43,46 +44,15 @@ El sistema MUST proveer un componente `AppTable<T extends Record<string, unknown
 - **AND** MUST NOT hardcodear navegacion ni conocimiento de modulo dentro de `AppTable`
 
 #### Scenario: Enter does not activate excluded surfaces
+
 - **GIVEN** un `AppTable` configurado con `rowClickAffordance`
 - **WHEN** el foco esta en la columna de acciones, seleccion o un control interactivo interno
 - **AND** el usuario presiona `Enter`
 - **THEN** el sistema MUST NOT disparar la accion primaria de fila o celda navegable
 
 #### Scenario: Existing event contracts remain unchanged
+
 - **GIVEN** un `AppTable` configurado con `rowClickAffordance`
 - **WHEN** el usuario hace click o interactua por teclado
 - **THEN** el sistema MUST preservar el contrato observable de `onRowClicked`, `onCellClicked` y `onActionTriggered`
 - **AND** MUST NOT cambiar bubbling ni prioridades de eventos existentes
-
-### Requirement: Props tipadas y callbacks
-El sistema SHALL exponer props tipadas para seleccion, eventos de filas/celdas y `getRowId` opcional con fallback a `row.id`.
-
-#### Scenario: Seleccion y callbacks
-- **WHEN** el usuario selecciona filas o hace click en una celda
-- **THEN** los callbacks tipados se ejecutan con datos de la fila
-
-### Requirement: Configuracion base reusable
-El sistema MUST centralizar defaults en `agGridDefaultConfig` y componer configuracion final en `useAgGridBaseConfig`.
-
-#### Scenario: Defaults aplicados
-- **WHEN** no se pasan overrides de configuracion
-- **THEN** la grilla aplica defaults de seleccion multiple, columnas resizables y filtros
-
-### Requirement: Loading y empty state
-El sistema SHALL mostrar estados de loading y empty state cuando aplique.
-
-#### Scenario: Loading activo
-- **WHEN** `loading` es `true`
-- **THEN** se muestra overlay de carga
-
-#### Scenario: Sin filas
-- **WHEN** `rows` esta vacio y `loading` es `false`
-- **THEN** se muestra overlay de estado vacio
-
-### Requirement: Documentacion obligatoria
-El sistema MUST incluir documentacion de `AppTable` en `docs/Components/AppTable/README.md`.
-
-#### Scenario: README disponible
-- **WHEN** se consulta la documentacion
-- **THEN** existen descripcion, API, ejemplos y limites del componente
-
