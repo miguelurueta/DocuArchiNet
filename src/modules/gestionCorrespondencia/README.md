@@ -46,7 +46,7 @@ src/modules/gestionCorrespondencia/
 ## Shell persistente gobernado por routing
 
 - `GestionCorrespondenciaLayout` renderiza el `Outlet` del modulo.
-- `GestionCorrespondenciaRoute` mantiene visible la pagina principal y superpone un panel secundario cuando la ruta hija `respuesta` esta activa.
+- `GestionCorrespondenciaRoute` mantiene visible la pagina principal y superpone un panel secundario cuando la ruta hija `respuesta/:id` esta activa.
 - `GestionRespuesta` se renderiza dentro del panel secundario como vista contextual desacoplada.
 - `GestionCorrespondenciaRoutePage` envuelve la carga inicial de datos, el estado de error y la pantalla principal sin romper el shell.
 - la accion dominante de retorno vive en el shell del modulo y devuelve al listado sin acoplar `GestionRespuesta` al router.
@@ -57,7 +57,7 @@ Este patron permite deep-linking, navegacion con historial y preserva el context
 
 1. El usuario entra a `/dashboard/gestion-correspondencia`.
 2. Se renderiza la pagina principal `GestionCorrespondencia`.
-3. El usuario navega a `/dashboard/gestion-correspondencia/respuesta`.
+3. El usuario dispara la accion contextual de una fila y navega a `/dashboard/gestion-correspondencia/respuesta/:id`.
 4. Se superpone el panel secundario del shell y se muestra `GestionRespuesta` encima del listado, sin desmontarlo.
 5. El usuario usa la accion visible `Volver a la bandeja`.
 6. La aplicacion vuelve a la ruta base del modulo sin romper el contexto principal.
@@ -103,7 +103,7 @@ La integracion actual sigue estas reglas:
 
 ## Limites actuales
 
-- la columna `acciones` se preserva en la metadata dinamica, pero su render visual final dentro de `AppTable` sigue siendo basico hasta una fase visual posterior
+- la columna `acciones` ya puede emitir `client_event` reutilizable hacia el modulo consumidor, pero la interpretacion funcional del evento sigue viviendo fuera de `AppTable`
 - la pantalla sincroniza total y `pageSize`, pero la navegacion completa entre paginas puede requerir una iteracion adicional segun backlog
 - el panel secundario actual usa una composicion persistente simple y queda preparado para futuras vistas secundarias, no como detalle funcional final
 - la accion de retorno es unica y visible, pero el detalle sigue siendo placeholder hasta fases funcionales posteriores

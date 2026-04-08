@@ -85,6 +85,11 @@ export type AppTableActionCellRendererParams = ICellRendererParams<AppTableRow> 
   menuActions?: AppGridCellAction[];
   tableId?: string;
   userClaims?: string[];
+  onClientEvent?: (input: {
+    actionId: string;
+    row: AppTableRow;
+    columnKey?: string;
+  }) => void;
 };
 
 export type UseDynamicUiTableActionsParams = {

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import GestionCorrespondencia from "../pages/GestionCorrespondencia";
 import type { GestionCorrespondenciaTableResult } from "../hooks/useGestionCorrespondenciaTable";
@@ -11,11 +11,23 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
     layoutMode,
     rowSelection,
     responsivePresentation,
+    onActionTriggered,
+    onCellClicked,
   }: {
     paginationMode?: string;
     layoutMode?: string;
     rowSelection?: string;
     responsivePresentation?: { enabled?: boolean; cardsBelow?: number };
+    onActionTriggered?: (input: {
+      actionId: string;
+      row: { id: string };
+      columnKey?: string;
+    }) => void;
+    onCellClicked?: (input: {
+      row: { id: string };
+      field?: string | null;
+      value?: unknown;
+    }) => void;
   }) => (
     <div
       data-testid="mock-app-table"
@@ -26,6 +38,42 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
       data-cards-below={responsivePresentation?.cardsBelow}
     >
       Mocked AppTable
+      <button
+        type="button"
+        onClick={() =>
+          onActionTriggered?.({
+            actionId: "gestionar_tramite_menu",
+            row: { id: "924" },
+            columnKey: "acciones",
+          })
+        }
+      >
+        Disparar acción de fila
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          onCellClicked?.({
+            row: { id: "924" },
+            field: "RADICADO",
+            value: "2500456700023",
+          })
+        }
+      >
+        Disparar click de celda
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          onCellClicked?.({
+            row: { id: "924" },
+            field: "acciones",
+            value: "",
+          })
+        }
+      >
+        Disparar click en acciones
+      </button>
     </div>
   ),
 }));
@@ -68,6 +116,12 @@ const createTable = (): GestionCorrespondenciaTableResult => ({
   }),
 });
 
+function LocationProbe() {
+  const location = useLocation();
+
+  return <div data-testid="location-probe">{location.pathname}</div>;
+}
+
 describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT-21] [SPEC:22-FE-INTEGRAR-APPTABLEEXPORT-CON-API-APPTABLE-EXPORT-MD] [SPEC:refinar-apptablequerywrapper]", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -107,7 +161,6 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
       screen.getByRole("button", { name: /Exportar/i }),
     );
     expect(screen.getByRole("button", { name: /Actualizar/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Abrir respuesta contextual/i })).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Buscar tareas workflow" })).toBeInTheDocument();
     expect(screen.queryByRole("combobox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
   });
@@ -195,20 +248,85 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
     expect(table.onQueryChange).toHaveBeenCalledWith({ search: "RAD-1" });
   });
 
-  it("usa las acciones del hook para refresh y navegación secundaria", () => {
+  it("usa las acciones del hook para refresh y navegación secundaria por accion de fila", () => {
     const table = createTable();
 
     render(
-      <MemoryRouter>
-        <GestionCorrespondencia table={table} />
+      <MemoryRouter initialEntries={["/dashboard/gestion-correspondencia"]}>
+        <Routes>
+          <Route
+            path="/dashboard/gestion-correspondencia/*"
+            element={
+              <>
+                <LocationProbe />
+                <GestionCorrespondencia table={table} />
+              </>
+            }
+          />
+        </Routes>
       </MemoryRouter>,
     );
 
     fireEvent.click(screen.getByRole("button", { name: /Actualizar/i }));
-    fireEvent.click(screen.getByRole("button", { name: /Abrir respuesta contextual/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Disparar acción de fila/i }));
 
     expect(table.onQueryChange).not.toHaveBeenCalled();
     expect(table.refetch).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("location-probe")).toHaveTextContent(
+      "/dashboard/gestion-correspondencia/respuesta/924",
+    );
+  });
+
+  it("navega al detalle contextual al hacer click sobre una celda de datos", () => {
+    const table = createTable();
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard/gestion-correspondencia"]}>
+        <Routes>
+          <Route
+            path="/dashboard/gestion-correspondencia/*"
+            element={
+              <>
+                <LocationProbe />
+                <GestionCorrespondencia table={table} />
+              </>
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Disparar click de celda/i }));
+
+    expect(screen.getByTestId("location-probe")).toHaveTextContent(
+      "/dashboard/gestion-correspondencia/respuesta/924",
+    );
+  });
+
+  it("no navega al hacer click sobre la columna de acciones", () => {
+    const table = createTable();
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard/gestion-correspondencia"]}>
+        <Routes>
+          <Route
+            path="/dashboard/gestion-correspondencia/*"
+            element={
+              <>
+                <LocationProbe />
+                <GestionCorrespondencia table={table} />
+              </>
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Disparar click en acciones/i }));
+
+    expect(screen.getByTestId("location-probe")).toHaveTextContent(
+      "/dashboard/gestion-correspondencia",
+    );
   });
 
   it("expone formatos ejecutivos sobre allMatching y mantiene la tabla visible durante la exportacion backend", async () => {

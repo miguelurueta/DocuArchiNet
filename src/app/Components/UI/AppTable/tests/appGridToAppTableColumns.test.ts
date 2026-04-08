@@ -33,6 +33,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
   });
 
   it("disables sort and filter for dynamic action columns without breaking AppTable", () => {
+    const onClientEvent = () => undefined;
     const [actionColumn] = mapAppGridColumnsToAppTableColumns([
       {
         field: "acciones",
@@ -63,6 +64,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
       ],
       tableId: "workflowInboxgestion",
       userClaims: ["tramites.gestionar"],
+      onClientEvent,
     });
 
     expect(actionColumn.sortable).toBe(false);
@@ -96,6 +98,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
       ],
       tableId: "workflowInboxgestion",
       userClaims: ["tramites.gestionar"],
+      onClientEvent,
     });
   });
 

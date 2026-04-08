@@ -2,6 +2,7 @@ import { AgGridReact } from "ag-grid-react";
 import type { ColDef, GridReadyEvent } from "ag-grid-community";
 import { useEffect, useMemo, useRef } from "react";
 import type { AppTablePaginationMode, AppTableProps, AppTableRow } from "../AppTable.types";
+import type { AppTableActionCellRendererParams } from "../types/dynamicUiTableAction.types";
 import { useAgGridBaseConfig } from "../hooks/useAgGridBaseConfig";
 import { useDeferredLoadingVeil } from "../hooks/useDeferredLoadingVeil";
 import styles from "../AppTable.module.css";
@@ -36,6 +37,36 @@ const resolveQuickFilterText = (
   return quickFilterText;
 };
 
+const enrichActionColumns = <T extends AppTableRow>(
+  columns: ColDef<T>[],
+  onActionTriggered: AppTableProps<T>["onActionTriggered"],
+): ColDef<T>[] => {
+  if (!onActionTriggered) {
+    return columns;
+  }
+
+  return columns.map((column) => {
+    const params = column.cellRendererParams as Partial<AppTableActionCellRendererParams> | undefined;
+    if (!params?.appGridColumn || !Array.isArray(params.actions)) {
+      return column;
+    }
+
+    return {
+      ...column,
+      cellRendererParams: {
+        ...params,
+        onClientEvent: (input: { actionId: string; row: AppTableRow; columnKey?: string }) => {
+          onActionTriggered({
+            actionId: input.actionId,
+            row: input.row as T,
+            columnKey: input.columnKey,
+          });
+        },
+      },
+    };
+  });
+};
+
 type AppTableGridRendererProps<T extends AppTableRow> = AppTableProps<T> & {
   resolvedLayoutMode: "content" | "fill";
 };
@@ -58,6 +89,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
   onRowSelected,
   onCellClicked,
   onRowClicked,
+  onActionTriggered,
   onSelectionChanged,
   resolvedLayoutMode,
 }: AppTableGridRendererProps<T>) {
@@ -98,7 +130,10 @@ export function AppTableGridRenderer<T extends AppTableRow>({
     },
   });
 
-  const columnDefs = useMemo<ColDef<T>[]>(() => columns, [columns]);
+  const columnDefs = useMemo<ColDef<T>[]>(
+    () => enrichActionColumns(columns, onActionTriggered),
+    [columns, onActionTriggered],
+  );
   const rowData = useMemo<T[]>(() => rows, [rows]);
   const resolvedQuickFilterText = useMemo(
     () => resolveQuickFilterText(paginationMode, quickFilterText),

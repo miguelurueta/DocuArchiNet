@@ -16,7 +16,7 @@ function renderGestionCorrespondencia(initialEntry: string) {
         <Route path="/dashboard/gestion-correspondencia" element={<GestionCorrespondenciaLayout />}>
           <Route index element={<GestionCorrespondenciaRoute />} />
           <Route
-            path="respuesta"
+            path="respuesta/:id"
             element={<GestionCorrespondenciaRoute detailContent={<GestionRespuesta />} />}
           />
         </Route>
@@ -37,7 +37,7 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
   });
 
   test("abre el panel superpuesto por subruta y vuelve a la ruta base al cerrar", () => {
-    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta");
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
 
     expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
     expect(screen.getByTestId("gestion-correspondencia-detail-region")).toBeInTheDocument();
@@ -55,14 +55,14 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
   });
 
   test("resuelve deep link manteniendo principal y secundaria visibles", () => {
-    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta");
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
 
     expect(screen.getByTestId("gestion-correspondencia-main-region")).toBeInTheDocument();
     expect(screen.getByTestId("gestion-correspondencia-detail-region")).toBeInTheDocument();
   });
 
   test("usa un shell observable con panel superpuesto en lugar de dialog modal", () => {
-    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta");
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
 
     expect(screen.getByTestId("gestion-correspondencia-route-shell")).toBeInTheDocument();
     expect(screen.getByTestId("gestion-correspondencia-main-region")).toBeVisible();
@@ -74,7 +74,7 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
   });
 
   test("muestra una accion visible de retorno consistente con el patron master-detail", () => {
-    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta");
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
 
     expect(
       screen.getByRole("button", { name: /Volver a la bandeja/i }),

@@ -28,6 +28,12 @@ export type AppTableCellClick<T extends AppTableRow> = {
   value?: unknown;
 };
 
+export type AppTableActionTriggered<T extends AppTableRow> = {
+  actionId: string;
+  row: T;
+  columnKey?: string;
+};
+
 export type AppTableProps<T extends AppTableRow> = {
   rows: T[];
   columns: ColDef<T>[];
@@ -51,6 +57,7 @@ export type AppTableProps<T extends AppTableRow> = {
   onRowSelected?: (row: T | null) => void;
   onCellClicked?: (params: AppTableCellClick<T>) => void;
   onRowClicked?: (row: T) => void;
+  onActionTriggered?: (params: AppTableActionTriggered<T>) => void;
   onSelectionChanged?: (rows: T[]) => void;
 };
 

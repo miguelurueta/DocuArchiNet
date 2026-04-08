@@ -78,12 +78,20 @@ const resolveActionRendererParams = <T extends AppTableRow>(
     menuActions: [...(params.menuActions ?? [])],
     tableId: params.tableId,
     userClaims: [...(params.userClaims ?? [])],
+    onClientEvent: params.onClientEvent,
   } as AppTableActionCellRendererParams;
 };
 
 type AppTableCardRendererProps<T extends AppTableRow> = Pick<
   AppTableProps<T>,
-  "rows" | "columns" | "cardFields" | "loading" | "total" | "className" | "onRowClicked"
+  | "rows"
+  | "columns"
+  | "cardFields"
+  | "loading"
+  | "total"
+  | "className"
+  | "onRowClicked"
+  | "onActionTriggered"
 > & {
   resolvedLayoutMode: "content" | "fill";
 };
@@ -101,6 +109,7 @@ export function AppTableCardRenderer<T extends AppTableRow>({
   total,
   className,
   onRowClicked,
+  onActionTriggered,
   resolvedLayoutMode,
 }: AppTableCardRendererProps<T>) {
   const isSoftLoading = loading && rows.length > 0;
@@ -181,6 +190,13 @@ export function AppTableCardRenderer<T extends AppTableRow>({
                       <AppTableActionCellRenderer
                         key={column.colId ?? column.field ?? "actions"}
                         {...actionParams}
+                        onClientEvent={(input) => {
+                          onActionTriggered?.({
+                            actionId: input.actionId,
+                            row: input.row as T,
+                            columnKey: input.columnKey,
+                          });
+                        }}
                       />
                     );
                   })}
