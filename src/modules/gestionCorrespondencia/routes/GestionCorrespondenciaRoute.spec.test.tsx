@@ -17,7 +17,7 @@ function renderGestionCorrespondencia(initialEntry: string) {
           <Route index element={<GestionCorrespondenciaRoute />} />
           <Route
             path="respuesta"
-            element={<GestionCorrespondenciaRoute drawerContent={<GestionRespuesta />} />}
+            element={<GestionCorrespondenciaRoute detailContent={<GestionRespuesta />} />}
           />
         </Route>
       </Routes>
@@ -30,20 +30,42 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
     renderGestionCorrespondencia("/dashboard/gestion-correspondencia");
 
     expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
+    expect(screen.getByTestId("gestion-correspondencia-main-region")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("gestion-correspondencia-detail-region"),
+    ).not.toBeInTheDocument();
   });
 
-  test("abre el drawer por subruta y vuelve a la ruta base al cerrar", () => {
+  test("abre la region persistente por subruta y vuelve a la ruta base al cerrar", () => {
     renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta");
 
     expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByTestId("gestion-correspondencia-detail-region")).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: /Gestion de respuesta/i }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Respuesta contextual/i })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /^Close$/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Cerrar panel contextual/i }));
 
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("gestion-correspondencia-detail-region")).not.toBeInTheDocument();
     expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
+  });
+
+  test("resuelve deep link manteniendo principal y secundaria visibles", () => {
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta");
+
+    expect(screen.getByTestId("gestion-correspondencia-main-region")).toBeInTheDocument();
+    expect(screen.getByTestId("gestion-correspondencia-detail-region")).toBeInTheDocument();
+  });
+
+  test("usa un shell observable en lugar de overlay modal", () => {
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta");
+
+    expect(screen.getByTestId("gestion-correspondencia-route-shell")).toBeInTheDocument();
+    expect(screen.getByTestId("gestion-correspondencia-main-region")).toBeVisible();
+    expect(screen.getByTestId("gestion-correspondencia-detail-region")).toBeVisible();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });

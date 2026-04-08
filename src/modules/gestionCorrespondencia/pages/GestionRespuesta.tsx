@@ -9,7 +9,7 @@ export default function GestionRespuesta() {
       <Typography.Paragraph style={{ margin: 0 }}>
         Esta vista secundaria funciona como placeholder del flujo de respuesta
         contextual. Su renderizacion depende de la ruta hija y se presenta
-        dentro del Drawer del modulo.
+        dentro del panel persistente del modulo.
       </Typography.Paragraph>
 
       <Alert
