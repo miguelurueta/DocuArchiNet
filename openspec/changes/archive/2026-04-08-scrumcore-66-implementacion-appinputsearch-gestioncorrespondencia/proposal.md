@@ -12,10 +12,11 @@ IMPLEMENTACION-APPINPUTSEARCH-GESTIONCORRESPONDENCIA. PROMPT ARQUITECTONICO Tick
 ## Capabilities
 
 ### New Capabilities
-- `implementacion-appinputsearch-gestioncorrespondencia`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+-
 
 ### Modified Capabilities
-- 
+- `app-input-search`: Evoluciona el componente reusable de busqueda con contrato por valor, eventos de busqueda, autocomplete presentacional, loading, clear, tamanos y accesibilidad.
+- `gestion-correspondencia`: Integra el buscador en la toolbar de Gestion Correspondencia y normaliza la busqueda simple hacia `SearchType = 2`.
 
 ## Impact
 

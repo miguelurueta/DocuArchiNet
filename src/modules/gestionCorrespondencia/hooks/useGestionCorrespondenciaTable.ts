@@ -71,9 +71,6 @@ type GestionCorrespondenciaExportRequest = {
   StructuredFilters?: GestionCorrespondenciaTableRequest["StructuredFilters"];
 };
 
-const resolveSearchType = (searchType: AppTableQueryState["searchType"]) =>
-  typeof searchType === "number" ? searchType : 1;
-
 export const useGestionCorrespondenciaTable = <
   T extends AppTableRow = AppTableRow,
 >(): GestionCorrespondenciaTableResult<T> => {
@@ -150,13 +147,24 @@ export const useGestionCorrespondenciaTable = <
     mode,
     reportMeta,
   }: AppTableBackendExportRequest<T>) => {
+    const mappedQuery = mapGestionCorrespondenciaTableRequest({
+      tableId: GESTION_CORRESPONDENCIA_TABLE_ID,
+      page: 1,
+      pageSize: resolveAllMatchingPageSize(query.total, effectiveQueryState.pageSize),
+      search: effectiveQueryState.search,
+      searchType: effectiveQueryState.searchType,
+      structuredFilters: effectiveQueryState.structuredFilters,
+      sortField: effectiveQueryState.sortField,
+      sortDir: effectiveQueryState.sortDir,
+      includeConfig: false,
+    });
     const request: GestionCorrespondenciaExportRequest = {
       ColumnMode: GESTION_CORRESPONDENCIA_EXPORT_COLUMN_MODE,
       EstadoTramite: "",
-      SearchType: resolveSearchType(effectiveQueryState.searchType),
-      Search: effectiveQueryState.search?.trim() || undefined,
-      SortField: effectiveQueryState.sortField,
-      SortDir: effectiveQueryState.sortDir === "desc" ? "DESC" : "ASC",
+      SearchType: mappedQuery.SearchType ?? 1,
+      Search: mappedQuery.Search,
+      SortField: mappedQuery.SortField,
+      SortDir: mappedQuery.SortDir,
       Page: 1,
       PageSize: resolveAllMatchingPageSize(query.total, effectiveQueryState.pageSize),
       Format: format,
@@ -164,17 +172,7 @@ export const useGestionCorrespondenciaTable = <
       ReportTitle: reportMeta.reportName,
       StructuredFilters:
         effectiveQueryState.structuredFilters.length > 0
-          ? mapGestionCorrespondenciaTableRequest({
-              tableId: GESTION_CORRESPONDENCIA_TABLE_ID,
-              page: 1,
-              pageSize: effectiveQueryState.pageSize,
-              search: effectiveQueryState.search,
-              searchType: effectiveQueryState.searchType,
-              structuredFilters: effectiveQueryState.structuredFilters,
-              sortField: effectiveQueryState.sortField,
-              sortDir: effectiveQueryState.sortDir,
-              includeConfig: false,
-            }).StructuredFilters
+          ? mappedQuery.StructuredFilters
           : undefined,
     };
 

@@ -75,7 +75,7 @@ export function AppTableQueryWrapper({
               className={styles.searchInput}
               placeholder={searchPlaceholder}
               value={queryState.search}
-              onChange={(event) => onQueryChange({ search: event.target.value })}
+              onChange={(search) => onQueryChange({ search })}
               aria-label="Buscar en la tabla"
             />
           ) : null}

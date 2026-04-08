@@ -1,8 +1,5 @@
-# app-input-search Specification
+## MODIFIED Requirements
 
-## Purpose
-Define el componente de busqueda reusable `AppInputSearch` para la capa UI compartida, preservando el contrato base de `AppInput` y evitando que los consumidores repitan semantica, iconografia y accesibilidad de campos de busqueda.
-## Requirements
 ### Requirement: Reusable search input component
 The system SHALL provide an `AppInputSearch` component in the shared UI layer that renders a text search control with `AutoComplete` + `Input`, exposes a value-based contract, and does not own API or domain state.
 
@@ -52,6 +49,8 @@ The system SHALL use `AppInputSearch` for the search field inside `AppTableQuery
 - **WHEN** `AppTableQueryWrapper` is rendered with search disabled
 - **THEN** the wrapper MUST NOT render `AppInputSearch`
 
+## ADDED Requirements
+
 ### Requirement: Deterministic search events
 The system SHALL make `AppInputSearch` execute `onSearch` deterministically from Enter, search icon activation, option selection, and optional typing debounce.
 
@@ -100,4 +99,3 @@ The system SHALL provide `sm`, `md`, and `lg` size variants for `AppInputSearch`
 #### Scenario: Default size is md
 - **WHEN** a consumer renders `AppInputSearch` without `size`
 - **THEN** the component MUST use `md` as the default size
-

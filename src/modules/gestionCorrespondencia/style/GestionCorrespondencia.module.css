@@ -69,6 +69,12 @@
   min-width: 0;
 }
 
+.toolbarSearch {
+  flex: 1 1 18rem;
+  max-width: 26rem;
+  min-width: 14rem;
+}
+
 .toolbarControl :global(.ant-btn),
 .toolbarControl :global(.ant-select) {
   width: 100%;
@@ -123,6 +129,12 @@
     width: 50%;
   }
 
+  .toolbarSearch {
+    flex: 1 1 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
   .content {
     display: flex;
     flex: 1 1 auto;
@@ -157,6 +169,10 @@
   }
 
   .toolbarControl {
+    width: 100%;
+  }
+
+  .toolbarSearch {
     width: 100%;
   }
 }

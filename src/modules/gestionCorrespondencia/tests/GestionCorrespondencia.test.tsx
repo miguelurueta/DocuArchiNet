@@ -90,7 +90,28 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
     );
     expect(screen.getByRole("button", { name: /Actualizar/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Abrir respuesta contextual/i })).toBeInTheDocument();
-    expect(screen.queryByRole("textbox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Buscar tareas workflow" })).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
+  });
+
+  it("usa queryState para buscar sin duplicar el buscador del wrapper", () => {
+    const table = createTable();
+
+    render(
+      <MemoryRouter>
+        <GestionCorrespondencia table={table} />
+      </MemoryRouter>,
+    );
+
+    const searchInputs = screen.getAllByRole("combobox", {
+      name: "Buscar tareas workflow",
+    });
+    expect(searchInputs).toHaveLength(1);
+
+    fireEvent.change(searchInputs[0], { target: { value: "radicado" } });
+
+    expect(table.onQueryChange).toHaveBeenCalledWith({ search: "radicado" });
+    expect(screen.queryByRole("combobox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
   });
 
   it("usa las acciones del hook para refresh y navegación secundaria", () => {
