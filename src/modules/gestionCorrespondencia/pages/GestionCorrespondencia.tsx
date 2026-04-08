@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppButton } from "../../../app/Components/UI/AppButton";
 import { AppContent } from "../../../app/Components/UI/AppContent";
+import { AppInputSearch } from "../../../app/Components/UI/AppInputSearch";
 import { AppTableExport } from "../../../app/Components/UI/AppTable/AppTableExport";
 import { AppTableQueryWrapper } from "../../../app/Components/UI/AppTable/AppTableQueryWrapper";
 import AppTable from "../../../app/Components/UI/AppTable/AppTable";
@@ -41,6 +42,14 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
         className={styles.toolbar}
         actionContent={
           <div className={styles.toolbarActionGroup}>
+            <AppInputSearch
+              aria-label="Buscar tareas workflow"
+              className={styles.toolbarSearch}
+              placeholder="Buscar tareas workflow"
+              value={table.queryState.search}
+              onChange={(search) => table.onQueryChange({ search })}
+            />
+
             <AppButton
               className={styles.toolbarControl}
               variant="ghost"

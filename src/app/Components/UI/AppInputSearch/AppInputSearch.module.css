@@ -1,18 +1,128 @@
-.input {
+.field {
+  display: grid;
+  gap: 0.45rem;
   width: 100%;
 }
 
-.input :global(.ant-input-prefix) {
-  color: var(--color-text-secondary, #595959);
-  margin-inline-end: 0.45rem;
+.label {
+  color: #14324a;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
-.icon {
+.autoComplete {
+  width: 100%;
+}
+
+.input {
+  border-radius: 12px;
+  border-width: 1px;
+  box-shadow: 0 8px 22px rgba(15, 52, 96, 0.08);
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+  width: 100%;
+}
+
+.input:hover {
+  border-color: #6f9ff0 !important;
+}
+
+.input:focus,
+.input:focus-within {
+  border-color: #0f5bd8 !important;
+  box-shadow: 0 0 0 3px rgba(15, 91, 216, 0.16) !important;
+  outline: none;
+}
+
+.sm {
+  min-height: 2.25rem;
+  padding-inline: 0.7rem;
+}
+
+.md {
+  min-height: 2.75rem;
+  padding-inline: 0.95rem;
+}
+
+.lg {
+  min-height: 3.15rem;
+  padding-inline: 1.1rem;
+}
+
+.inputError {
+  background: #fff8f8 !important;
+  border-color: #c63d3d !important;
+}
+
+.inputError:focus,
+.inputError:focus-within {
+  box-shadow: 0 0 0 3px rgba(198, 61, 61, 0.16) !important;
+}
+
+.inputDisabled {
+  background: #f4f6fb !important;
+  box-shadow: none;
+  color: #6d7b8b !important;
+}
+
+.suffix {
   align-items: center;
+  display: inline-flex;
+  gap: 0.35rem;
+  line-height: 1;
+}
+
+.iconButton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--color-text-secondary, #595959);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  line-height: 1;
+  padding: 0;
+}
+
+.iconButton:hover,
+.iconButton:focus-visible {
+  color: var(--app-button-primary, #0f5bd8);
+  outline: none;
+}
+
+.iconButton:disabled {
+  color: #8c98a8;
+  cursor: not-allowed;
+}
+
+.loadingIcon {
+  align-items: center;
+  color: var(--color-text-secondary, #595959);
   display: inline-flex;
   line-height: 1;
 }
 
-.icon :global(svg) {
-  display: block;
+.sm .suffix {
+  font-size: 0.9rem;
+}
+
+.md .suffix {
+  font-size: 1rem;
+}
+
+.lg .suffix {
+  font-size: 1.08rem;
+}
+
+.helperText {
+  color: #516272;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.helperTextError {
+  color: #b83232;
 }

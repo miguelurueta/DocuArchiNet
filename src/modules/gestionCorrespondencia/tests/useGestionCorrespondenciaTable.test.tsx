@@ -285,7 +285,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXP
       expect.objectContaining({
         ColumnMode: 2,
         EstadoTramite: "",
-        SearchType: 1,
+        SearchType: 2,
         Search: "radicado",
         SortField: "fecha_inicio",
         SortDir: "DESC",
