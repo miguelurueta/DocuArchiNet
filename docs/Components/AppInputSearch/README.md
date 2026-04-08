@@ -115,13 +115,31 @@ Cuando `showSearch={false}`, el wrapper no renderiza el buscador.
 <AppInputSearch
   aria-label="Buscar tareas workflow"
   className={styles.toolbarSearch}
+  debounceMs={0}
+  loading={autocomplete.loading}
+  options={autocomplete.items}
   placeholder="Buscar tareas workflow"
-  value={table.queryState.search}
-  onChange={(search) => table.onQueryChange({ search })}
+  value={searchDraft}
+  onChange={(search) => {
+    setSearchDraft(search);
+    autocomplete.setSearchText(search);
+  }}
+  onSearch={(search) => table.onQueryChange({ search: search.trim() })}
+  onClear={() => {
+    autocomplete.clear();
+    table.onQueryChange({ search: "" });
+  }}
 />
 ```
 
-La pantalla no consume APIs desde el buscador. La consulta real sigue el flujo del hook de tabla.
+La pantalla no consume APIs desde el buscador. La consulta real sigue el flujo del hook de tabla y las sugerencias viajan por un hook de dominio separado.
+
+Patron recomendado:
+
+- `onChange(value)`: actualiza texto visible y alimenta autocomplete
+- `onSearch(value)`: aplica busqueda real a tabla
+- `onClear()`: limpia sugerencias y limpia el filtro de tabla
+- `debounceMs={0}` cuando el debounce de sugerencias viva en un hook como `useWorkflowInboxAutocomplete`
 
 ## Accesibilidad
 

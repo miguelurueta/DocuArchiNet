@@ -1,8 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import GestionCorrespondencia from "../pages/GestionCorrespondencia";
 import type { GestionCorrespondenciaTableResult } from "../hooks/useGestionCorrespondenciaTable";
+import * as workflowInboxAutocompleteHook from "../hooks/useWorkflowInboxAutocomplete";
 
 vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
   default: ({
@@ -27,6 +28,10 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
       Mocked AppTable
     </div>
   ),
+}));
+
+vi.mock("../hooks/useWorkflowInboxAutocomplete", () => ({
+  useWorkflowInboxAutocomplete: vi.fn(),
 }));
 
 const createTable = (): GestionCorrespondenciaTableResult => ({
@@ -64,6 +69,19 @@ const createTable = (): GestionCorrespondenciaTableResult => ({
 });
 
 describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT-21] [SPEC:22-FE-INTEGRAR-APPTABLEEXPORT-CON-API-APPTABLE-EXPORT-MD] [SPEC:refinar-apptablequerywrapper]", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(
+      workflowInboxAutocompleteHook.useWorkflowInboxAutocomplete,
+    ).mockReturnValue({
+      items: [{ value: "RAD-1", label: "Radicado sugerido" }],
+      loading: false,
+      error: null,
+      setSearchText: vi.fn(),
+      clear: vi.fn(),
+    });
+  });
+
   it("compone AppTableQueryWrapper con AppTable en server mode y ubica exportacion en paginationActions", () => {
     const table = createTable();
 
@@ -94,7 +112,7 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
     expect(screen.queryByRole("combobox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
   });
 
-  it("usa queryState para buscar sin duplicar el buscador del wrapper", () => {
+  it("escribe contra autocomplete sin disparar la tabla por cada tecla", () => {
     const table = createTable();
 
     render(
@@ -110,7 +128,11 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
 
     fireEvent.change(searchInputs[0], { target: { value: "radicado" } });
 
-    expect(table.onQueryChange).toHaveBeenCalledWith({ search: "radicado" });
+    expect(
+      vi.mocked(workflowInboxAutocompleteHook.useWorkflowInboxAutocomplete).mock.results[0]?.value
+        ?.setSearchText,
+    ).toHaveBeenCalledWith("radicado");
+    expect(table.onQueryChange).not.toHaveBeenCalled();
     expect(screen.queryByRole("combobox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
   });
 
@@ -130,7 +152,47 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
 
     fireEvent.click(screen.getByRole("button", { name: "Limpiar" }));
 
+    expect(
+      vi.mocked(workflowInboxAutocompleteHook.useWorkflowInboxAutocomplete).mock.results[0]?.value
+        ?.clear,
+    ).toHaveBeenCalledTimes(1);
     expect(table.onQueryChange).toHaveBeenCalledWith({ search: "" });
+  });
+
+  it("aplica búsqueda real por Enter y por el icono de buscar", () => {
+    const table = createTable();
+
+    render(
+      <MemoryRouter>
+        <GestionCorrespondencia table={table} />
+      </MemoryRouter>,
+    );
+
+    const input = screen.getByRole("combobox", { name: "Buscar tareas workflow" });
+
+    fireEvent.change(input, { target: { value: "radicado" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    fireEvent.click(screen.getByRole("button", { name: "Buscar" }));
+
+    expect(table.onQueryChange).toHaveBeenNthCalledWith(1, { search: "radicado" });
+    expect(table.onQueryChange).toHaveBeenNthCalledWith(2, { search: "radicado" });
+  });
+
+  it("aplica búsqueda real al seleccionar una sugerencia", async () => {
+    const table = createTable();
+
+    render(
+      <MemoryRouter>
+        <GestionCorrespondencia table={table} />
+      </MemoryRouter>,
+    );
+
+    const input = screen.getByRole("combobox", { name: "Buscar tareas workflow" });
+
+    fireEvent.change(input, { target: { value: "rad" } });
+    fireEvent.click(await screen.findByText("Radicado sugerido"));
+
+    expect(table.onQueryChange).toHaveBeenCalledWith({ search: "RAD-1" });
   });
 
   it("usa las acciones del hook para refresh y navegación secundaria", () => {
