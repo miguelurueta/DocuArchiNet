@@ -114,6 +114,25 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
     expect(screen.queryByRole("combobox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
   });
 
+  it("limpia el buscador usando el flujo de queryState", () => {
+    const table = createTable();
+    table.queryState.search = "radicado";
+
+    render(
+      <MemoryRouter>
+        <GestionCorrespondencia table={table} />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("combobox", { name: "Buscar tareas workflow" })).toHaveValue(
+      "radicado",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Limpiar" }));
+
+    expect(table.onQueryChange).toHaveBeenCalledWith({ search: "" });
+  });
+
   it("usa las acciones del hook para refresh y navegación secundaria", () => {
     const table = createTable();
 
