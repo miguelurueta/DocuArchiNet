@@ -162,6 +162,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
                 loading={table.loading && table.hasLoadedOnce}
                 paginationMode="server"
                 layoutMode="fill"
+                gridClassName={styles.navigableGrid}
                 responsivePresentation={{ enabled: true, cardsBelow: 768 }}
                 onCellClicked={handleTableCellClick}
                 onActionTriggered={handleTableAction}

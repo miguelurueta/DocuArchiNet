@@ -99,6 +99,15 @@
   min-height: 320px;
 }
 
+.navigableGrid :global(.ag-cell:not(.app-table-action-cell):not([col-id="ag-Grid-SelectionColumn"])) {
+  cursor: pointer;
+}
+
+.navigableGrid :global(.ag-cell.app-table-action-cell),
+.navigableGrid :global(.ag-cell[col-id="ag-Grid-SelectionColumn"]) {
+  cursor: default;
+}
+
 .featureList {
   margin: 0;
   padding-left: 20px;
