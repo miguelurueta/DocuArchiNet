@@ -46,7 +46,7 @@ src/modules/gestionCorrespondencia/
 ## Shell persistente gobernado por routing
 
 - `GestionCorrespondenciaLayout` renderiza el `Outlet` del modulo.
-- `GestionCorrespondenciaRoute` mantiene visible la pagina principal y abre una region secundaria persistente cuando la ruta hija `respuesta` esta activa.
+- `GestionCorrespondenciaRoute` mantiene visible la pagina principal y superpone un panel secundario cuando la ruta hija `respuesta` esta activa.
 - `GestionRespuesta` se renderiza dentro del panel secundario como vista contextual desacoplada.
 - `GestionCorrespondenciaRoutePage` envuelve la carga inicial de datos, el estado de error y la pantalla principal sin romper el shell.
 - la accion dominante de retorno vive en el shell del modulo y devuelve al listado sin acoplar `GestionRespuesta` al router.
@@ -58,7 +58,7 @@ Este patron permite deep-linking, navegacion con historial y preserva el context
 1. El usuario entra a `/dashboard/gestion-correspondencia`.
 2. Se renderiza la pagina principal `GestionCorrespondencia`.
 3. El usuario navega a `/dashboard/gestion-correspondencia/respuesta`.
-4. Se activa el panel secundario del shell y se muestra `GestionRespuesta` sin reemplazar el listado principal.
+4. Se superpone el panel secundario del shell y se muestra `GestionRespuesta` encima del listado, sin desmontarlo.
 5. El usuario usa la accion visible `Volver a la bandeja`.
 6. La aplicacion vuelve a la ruta base del modulo sin romper el contexto principal.
 

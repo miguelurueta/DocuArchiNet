@@ -31,7 +31,7 @@ export default function GestionCorrespondenciaRoute({
       {hasDetail ? (
         <aside
           className={styles.detailRegion}
-          aria-label="Panel contextual de gestion de correspondencia"
+          aria-label="Panel superpuesto de gestion de correspondencia"
           data-testid="gestion-correspondencia-detail-region"
         >
           <header className={styles.detailHeader}>
