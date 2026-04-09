@@ -684,6 +684,60 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
     expect(screen.queryByTestId("mock-tooltip")).not.toBeInTheDocument();
   });
 
+  test("tooltip navegable en grid reposiciona la ancla al cambiar de celda", () => {
+    const twoColumnRows = [{ id: "1", name: "Alpha", status: "Activo" }] as Array<
+      Row & { status: string }
+    >;
+    const twoColumnDefs: ColDef<Row & { status: string }>[] = [
+      { field: "name", headerName: "Nombre" },
+      { field: "status", headerName: "Estado" },
+    ];
+
+    render(
+      <AppTable
+        rows={twoColumnRows}
+        columns={twoColumnDefs}
+        rowClickAffordance
+        rowClickTooltip="Abrir detalle"
+      />,
+    );
+
+    const grid = screen.getByTestId("app-table-grid");
+    const firstCell = screen.getByRole("gridcell", { name: "Alpha" });
+    const secondCell = screen.getByRole("gridcell", { name: "Activo" });
+
+    Object.defineProperty(grid, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({ left: 0, top: 0, width: 500, height: 300 }),
+    });
+    Object.defineProperty(firstCell, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({ left: 10, top: 20, width: 120, height: 42 }),
+    });
+    Object.defineProperty(secondCell, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({ left: 180, top: 62, width: 120, height: 42 }),
+    });
+
+    fireEvent.mouseOver(firstCell);
+
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+
+    expect(screen.getByTestId("app-table-grid-tooltip-anchor")).toHaveStyle({
+      left: "10px",
+      top: "20px",
+    });
+
+    fireEvent.mouseOver(secondCell);
+
+    expect(screen.getByTestId("app-table-grid-tooltip-anchor")).toHaveStyle({
+      left: "180px",
+      top: "62px",
+    });
+  });
+
   test("Enter reutiliza onCellClicked sobre celdas navegables y excluye controles internos", () => {
     const onCellClicked = vi.fn();
 

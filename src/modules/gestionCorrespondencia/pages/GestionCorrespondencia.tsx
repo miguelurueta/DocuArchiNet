@@ -159,6 +159,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
                 columns={table.columns as ColDef<T>[]}
                 rowSelection="single"
                 rowClickAffordance
+                rowClickTooltip="Gestionar trámite"
                 total={table.total}
                 loading={table.loading && table.hasLoadedOnce}
                 paginationMode="server"

@@ -161,6 +161,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
   const gridRef = useRef<AgGridReact<T>>(null);
   const tooltipShowTimerRef = useRef<number | null>(null);
   const gridContainerRef = useRef<HTMLDivElement | null>(null);
+  const activeTooltipCellRef = useRef<HTMLElement | null>(null);
   const isSoftLoading = loading && rows.length > 0;
   const showLoadingVeil = useDeferredLoadingVeil(isSoftLoading);
   const [tooltipAnchor, setTooltipAnchor] = useState<GridTooltipAnchor | null>(null);
@@ -312,6 +313,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
 
   const hideTooltip = () => {
     clearTooltipTimer();
+    activeTooltipCellRef.current = null;
     setTooltipAnchor(null);
   };
 
@@ -338,6 +340,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
     }
 
     clearTooltipTimer();
+    activeTooltipCellRef.current = cell;
     tooltipShowTimerRef.current = window.setTimeout(() => {
       updateTooltipAnchor(cell);
       tooltipShowTimerRef.current = null;
@@ -350,8 +353,13 @@ export function AppTableGridRenderer<T extends AppTableRow>({
     }
 
     clearTooltipTimer();
+    activeTooltipCellRef.current = cell;
     updateTooltipAnchor(cell);
   };
+
+  const tooltipAnchorKey = tooltipAnchor
+    ? `${tooltipAnchor.left}-${tooltipAnchor.top}-${tooltipAnchor.width}-${tooltipAnchor.height}`
+    : "hidden";
 
   const resolveValidTooltipCell = (target: EventTarget | null) => {
     if (isInteractiveElement(target)) {
@@ -393,12 +401,26 @@ export function AppTableGridRenderer<T extends AppTableRow>({
             return;
           }
 
+          if (activeTooltipCellRef.current === cell) {
+            return;
+          }
+
+          if (tooltipAnchor) {
+            showTooltipForCell(cell);
+            return;
+          }
+
           scheduleTooltipForCell(cell);
         }}
         onMouseMove={(event) => {
           const cell = resolveValidTooltipCell(event.target);
           if (!cell) {
             hideTooltip();
+            return;
+          }
+
+          if (activeTooltipCellRef.current !== cell && tooltipAnchor) {
+            showTooltipForCell(cell);
             return;
           }
 
@@ -439,7 +461,13 @@ export function AppTableGridRenderer<T extends AppTableRow>({
           getRowId={(params) => resolveRowId(params.data, getRowId)}
         />
         {isTooltipEnabled && tooltipAnchor ? (
-          <Tooltip title={rowClickTooltip} open placement="top" mouseEnterDelay={0.35}>
+          <Tooltip
+            key={tooltipAnchorKey}
+            title={rowClickTooltip}
+            open
+            placement="top"
+            mouseEnterDelay={0.35}
+          >
             <span
               aria-hidden="true"
               className={styles.tooltipAnchor}
