@@ -52,6 +52,7 @@ export type AppTableProps<T extends AppTableRow> = {
   suppressRowClickSelection?: boolean;
   suppressCellFocus?: boolean;
   rowClickAffordance?: boolean;
+  rowClickTooltip?: string;
   domLayout?: AppTableDomLayout;
   className?: string;
   gridClassName?: string;
