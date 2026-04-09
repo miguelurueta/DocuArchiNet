@@ -9,6 +9,7 @@
   --tabs-surface-muted: #f6f9fc;
   --tabs-text: #17324b;
   --tabs-text-muted: #5f7488;
+  --tabs-gap: 0.25rem;
   width: fit-content;
 }
 
@@ -26,6 +27,10 @@
 
 .orientationHorizontal :global(.ant-tabs-nav) {
   margin-bottom: 1rem;
+}
+
+.orientationHorizontal :global(.ant-tabs-nav-wrap) {
+  overflow: hidden;
 }
 
 .orientationVertical {
@@ -70,7 +75,8 @@
 }
 
 .header :global(.ant-tabs-nav-list) {
-  gap: 0.25rem;
+  gap: var(--tabs-gap);
+  flex-wrap: nowrap;
 }
 
 .item {
@@ -84,6 +90,23 @@
 
 .item:global(.ant-tabs-tab-disabled) {
   color: #99a9b8;
+}
+
+.root :global(.ant-tabs-tab-disabled) {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.root :global(.ant-tabs-tab-disabled .ant-tabs-tab-btn) {
+  cursor: not-allowed;
+}
+
+.root :global(.ant-tabs-tab-disabled:hover) {
+  background: transparent;
+}
+
+.root :global(.ant-tabs-tab-disabled .ant-tabs-tab-btn:hover) {
+  color: inherit;
 }
 
 .content {
@@ -121,6 +144,24 @@
   margin-left: 0.2rem;
 }
 
+.customTabs {
+}
+
+.moreLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+.moreCount {
+  color: var(--tabs-text-muted);
+}
+
+.root :global(.ant-tabs-nav-operations) {
+  margin-left: auto;
+}
+
 .sizeSM :global(.ant-tabs-tab) {
   padding: var(--tabs-padding-sm, 6px 12px) !important;
 }
@@ -131,4 +172,21 @@
 
 .sizeLG :global(.ant-tabs-tab) {
   padding: var(--tabs-padding-lg, 10px 22px) !important;
+}
+
+@media (max-width: 1024px) {
+  .root {
+    --tabs-gap: 0.15rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .orientationHorizontal :global(.ant-tabs-nav-wrap) {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .orientationHorizontal :global(.ant-tabs-nav-list) {
+    flex-wrap: nowrap;
+  }
 }

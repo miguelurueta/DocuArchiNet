@@ -96,3 +96,41 @@ describe("AppTabs [SPEC:APP-TABS-001]", () => {
     expect(screen.getByRole("tabpanel")).toHaveTextContent("Contenido general");
   });
 });
+
+describe("AppTabs [SPEC:APP-TABS-002]", () => {
+  it("renderiza iconos y badges", () => {
+    render(
+      <AppTabs
+        items={[
+          {
+            key: "alertas",
+            label: "Alertas",
+            icon: <span data-testid="tab-icon">!</span>,
+            badge: 3,
+            children: <div>Contenido alertas</div>,
+          },
+        ]}
+        defaultActiveKey="alertas"
+      />,
+    );
+
+    expect(screen.getByTestId("tab-icon")).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+  });
+
+  it("aplica clase customTabs", () => {
+    const { container } = render(<AppTabs items={baseItems} />);
+
+    expect(container.querySelector(".customTabs")).toBeInTheDocument();
+  });
+
+  it("marca estado visual disabled", () => {
+    render(<AppTabs items={baseItems} defaultActiveKey="general" />);
+
+    const disabledTabBtn = screen.getByRole("tab", { name: /Bloqueado/ });
+    const disabledTab = disabledTabBtn.closest(".ant-tabs-tab");
+
+    expect(disabledTab).toHaveClass("ant-tabs-tab-disabled");
+    expect(disabledTabBtn).toHaveAttribute("aria-disabled", "true");
+  });
+});

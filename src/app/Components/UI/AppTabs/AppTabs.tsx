@@ -103,6 +103,7 @@ export function AppTabs({
   });
   const effectiveActiveKey = isControlled ? activeKey : internalActiveKey;
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const [overflowCount, setOverflowCount] = useState(0);
 
   useEffect(() => {
     if (isControlled) return;
@@ -144,6 +145,67 @@ export function AppTabs({
 
   const resolvedTabPosition = tabPosition ?? orientationToPlacement[orientation];
 
+  const moreLabel = useMemo(
+    () => (
+      <span className={styles.moreLabel}>
+        <span>Mas</span>
+        {overflowCount > 0 ? (
+          <span className={styles.moreCount}>+{overflowCount}</span>
+        ) : null}
+      </span>
+    ),
+    [overflowCount],
+  );
+
+  const resolvedMore = useMemo(
+    () => ({
+      ...more,
+      trigger: "hover",
+      icon: moreLabel,
+    }),
+    [more, moreLabel],
+  );
+
+  const measureOverflow = useCallback(() => {
+    if (orientation === "vertical") {
+      setOverflowCount(0);
+      return;
+    }
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    const navList = wrapper.querySelector<HTMLElement>(".ant-tabs-nav-list");
+    if (!navList) return;
+    const rect = navList.getBoundingClientRect();
+    if (rect.width === 0) {
+      setOverflowCount(0);
+      return;
+    }
+    const tabs = Array.from(navList.querySelectorAll<HTMLElement>(".ant-tabs-tab"));
+    if (tabs.length === 0) {
+      setOverflowCount(0);
+      return;
+    }
+    const hiddenTabs = tabs.filter((tab) => tab.offsetParent === null);
+    setOverflowCount(hiddenTabs.length);
+  }, [orientation]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const frame = window.requestAnimationFrame(() => measureOverflow());
+    return () => window.cancelAnimationFrame(frame);
+  }, [measureOverflow, mappedItems, size, variant, orientation, fullWidth]);
+
+  useEffect(() => {
+    if (typeof ResizeObserver === "undefined") return;
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    const observer = new ResizeObserver(() => measureOverflow());
+    observer.observe(wrapper);
+    const navList = wrapper.querySelector<HTMLElement>(".ant-tabs-nav-list");
+    if (navList) observer.observe(navList);
+    return () => observer.disconnect();
+  }, [measureOverflow]);
+
   return (
     <div ref={wrapperRef} className={styles.wrapper} role="tablist">
       <Tabs
@@ -153,9 +215,11 @@ export function AppTabs({
         onChange={handleChange}
         type={variantToType[variant]}
         tabPosition={resolvedTabPosition}
-        more={more}
+        more={resolvedMore}
         className={joinClasses(
+          "customTabs",
           styles.root,
+          styles.customTabs,
           styles[`orientation${orientation === "vertical" ? "Vertical" : "Horizontal"}`],
           styles[`variant${variant.charAt(0).toUpperCase()}${variant.slice(1)}`],
           styles[`size${size.toUpperCase()}`],
