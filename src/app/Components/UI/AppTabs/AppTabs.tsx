@@ -27,7 +27,13 @@ export type AppTabItem = {
 
 export type AppTabsProps = Omit<
   AntTabsProps,
-  "items" | "activeKey" | "defaultActiveKey" | "onChange" | "tabPosition" | "type"
+  "items"
+  | "activeKey"
+  | "defaultActiveKey"
+  | "onChange"
+  | "tabPosition"
+  | "tabPlacement"
+  | "type"
 > & {
   items: AppTabItem[];
   activeKey?: string;
@@ -41,6 +47,7 @@ export type AppTabsProps = Omit<
   onTabVisible?: (key: string) => void;
   onChange?: (activeKey: string) => void;
   tabPosition?: TabsProps["tabPosition"];
+  tabPlacement?: TabsProps["tabPlacement"];
   orientation?: AppTabsOrientation;
   fullWidth?: boolean;
 };
@@ -76,7 +83,7 @@ export function mapToAntdItems(
   }));
 }
 
-const orientationToPlacement: Record<AppTabsOrientation, TabsProps["tabPosition"]> = {
+const orientationToPlacement: Record<AppTabsOrientation, TabsProps["tabPlacement"]> = {
   horizontal: "top",
   vertical: "left",
 };
@@ -101,6 +108,7 @@ export function AppTabs({
   lazy = false,
   onTabVisible,
   tabPosition,
+  tabPlacement,
   orientation = "horizontal",
   fullWidth = false,
   className,
@@ -208,7 +216,8 @@ export function AppTabs({
     [items, lazy, visibleKeys],
   );
 
-  const resolvedTabPosition = tabPosition ?? orientationToPlacement[orientation];
+  const resolvedTabPlacement =
+    tabPlacement ?? tabPosition ?? orientationToPlacement[orientation];
 
   const moreLabel = useMemo(
     () => (
@@ -316,7 +325,7 @@ export function AppTabs({
         activeKey={effectiveActiveKey}
         onChange={handleChange}
         type={variantToType[variant]}
-        tabPosition={resolvedTabPosition}
+        tabPlacement={resolvedTabPlacement}
         more={resolvedMore}
         className={joinClasses(
           "customTabs",
