@@ -1,3 +1,7 @@
+﻿.wrapper {
+  width: 100%;
+}
+
 .root {
   --tabs-accent: #1f6aa5;
   --tabs-border: #d8e3ef;
@@ -57,6 +61,14 @@
   background: var(--tabs-surface);
 }
 
+.variantUnderline :global(.ant-tabs-ink-bar) {
+  background: linear-gradient(90deg, var(--tabs-accent), #45a6b8);
+}
+
+.variantPills :global(.ant-tabs-tab) {
+  border-radius: 999px !important;
+}
+
 .header :global(.ant-tabs-nav-list) {
   gap: 0.25rem;
 }
@@ -88,4 +100,35 @@
   gap: 0.75rem;
   line-height: 1.5;
   padding: 1.15rem 1.2rem;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.labelIcon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.labelText {
+  display: inline-flex;
+}
+
+.labelBadge {
+  margin-left: 0.2rem;
+}
+
+.sizeSM :global(.ant-tabs-tab) {
+  padding: var(--tabs-padding-sm, 6px 12px) !important;
+}
+
+.sizeMD :global(.ant-tabs-tab) {
+  padding: var(--tabs-padding-md, 8px 18px) !important;
+}
+
+.sizeLG :global(.ant-tabs-tab) {
+  padding: var(--tabs-padding-lg, 10px 22px) !important;
 }

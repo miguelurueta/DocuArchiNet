@@ -1,0 +1,177 @@
+﻿.root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.uploader {
+  border-radius: 12px;
+}
+
+.dragLabel {
+  padding: 24px;
+  text-align: center;
+  color: #5f5f5f;
+}
+
+.dragValid {
+  border: 1px dashed #2f9e44;
+  background: #f0fff4;
+}
+
+.dragInvalid {
+  border: 1px dashed #e03131;
+  background: #fff5f5;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+}
+
+.grid {
+  grid-template-columns: repeat(var(--appupload-columns, 46), minmax(0, 1fr));
+}
+
+.listView {
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  grid-column: span var(--appupload-span, 6);
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e6e6e6;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  aspect-ratio: 1 / 1;
+}
+
+.card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.cardList {
+  flex-direction: row;
+  align-items: center;
+  aspect-ratio: auto;
+}
+
+.preview {
+  border: none;
+  background: transparent;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.previewFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  text-align: center;
+  font-size: 12px;
+  color: #6b6b6b;
+}
+
+.cardMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #4d4d4d;
+}
+
+.fileName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filePercent {
+  font-weight: 600;
+}
+
+.actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.card:hover .actions,
+.card:focus-within .actions {
+  opacity: 1;
+}
+
+.actionButton,
+.removeButton {
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.actionButton:focus-visible,
+.removeButton:focus-visible,
+.preview:focus-visible {
+  outline: 2px solid #4c6ef5;
+  outline-offset: 2px;
+}
+
+.sizeSM {
+  --appupload-span: 5;
+}
+
+.sizeMD {
+  --appupload-span: 6;
+}
+
+.sizeLG {
+  --appupload-span: 8;
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    --appupload-columns: 23;
+  }
+
+  .sizeLG {
+    --appupload-span: 6;
+  }
+}
+
+@media (max-width: 720px) {
+  .grid {
+    --appupload-columns: 2;
+  }
+
+  .card {
+    padding: 6px;
+  }
+}
