@@ -63,3 +63,26 @@ The system SHALL expose `useDynamicUiTableActions` as the only React Query layer
 - **WHEN** a consumer calls `executeAction` from the hook with a valid request
 - **THEN** the hook MUST run the mutation, expose execution state and return a structured execution result without coupling to navigation, modals or domain-specific side effects
 
+### Requirement: Action renderer can notify reusable client events without domain coupling
+The system SHALL allow the AppTable action layer to notify consumers when a visible `client_event` action is triggered, providing reusable action metadata without embedding module-specific navigation logic inside the shared renderer.
+
+#### Scenario: Renderer emits client event metadata to the consumer
+- **WHEN** a visible action with `behavior = "client_event"` is activated from the action cell
+- **THEN** the action layer MUST be able to notify the consumer with at least `actionId`, `row`, and `columnKey`
+
+#### Scenario: Shared action renderer does not hardcode navigation
+- **WHEN** a `client_event` action is triggered from a row action cell
+- **THEN** the shared action layer MUST NOT call `navigate`, build module URLs, or depend on a specific domain route
+
+#### Scenario: Missing callback preserves current renderer behavior
+- **WHEN** the consumer does not provide a reusable client-event callback
+- **THEN** the action renderer MUST keep its current safe behavior and MUST NOT fail or assume a default navigation
+
+#### Scenario: Api-call actions remain unaffected
+- **WHEN** an action with `behavior = "api_call"` is triggered from the same action cell
+- **THEN** the action layer MUST continue executing through the existing execution service and MUST NOT reroute that behavior through the client-event callback
+
+#### Scenario: Action metadata uses the effective row model
+- **WHEN** the action layer emits a reusable client event
+- **THEN** the `row` payload MUST come from the effective row model already normalized for the table and MUST preserve the effective row identifier when available
+

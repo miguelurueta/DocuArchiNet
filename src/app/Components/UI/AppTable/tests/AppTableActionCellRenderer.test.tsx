@@ -220,6 +220,30 @@ describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION-MENU-CHILDREN] AppTableActionC
     });
   });
 
+  it("emits reusable client_event callbacks without ejecutar api_call", () => {
+    const onClientEvent = vi.fn();
+
+    render(
+      <AppTableActionCellRenderer
+        {...createParams({
+          onClientEvent,
+        })}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Gestionar trámite/i }));
+
+    expect(onClientEvent).toHaveBeenCalledWith({
+      actionId: "gestionar_tramite",
+      row: expect.objectContaining({
+        id: "924",
+        id_tarea: 924,
+      }),
+      columnKey: "acciones",
+    });
+    expect(hookState.executeAction).not.toHaveBeenCalled();
+  });
+
   it("resolves menuItems against MenuActions and renders backend labels", () => {
     render(
       <AppTableActionCellRenderer
@@ -353,6 +377,47 @@ describe("[SPEC:ACTUALIZACION-AG-GRID-CELL-ACTION-MENU-CHILDREN] AppTableActionC
     await waitFor(() => {
       expect(hookState.executeAction).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("emits reusable client_event callbacks from dropdown items", () => {
+    const onClientEvent = vi.fn();
+
+    render(
+      <AppTableActionCellRenderer
+        {...createParams({
+          actions: [
+            {
+              actionId: "gestionar_tramite",
+              label: "Gestionar trámite",
+              placement: "row",
+              presentation: "icon_button",
+              behavior: "client_event",
+              behaviorConfig: {
+                menuItems: ["reasignar_tramite"],
+              },
+            },
+          ],
+          menuActions: [
+            createMenuAction({
+              actionId: "reasignar_tramite",
+              behavior: "client_event",
+            }),
+          ],
+          onClientEvent,
+        })}
+      />,
+    );
+
+    fireEvent.click(screen.getByText("Reasignar trámite"));
+
+    expect(onClientEvent).toHaveBeenCalledWith({
+      actionId: "reasignar_tramite",
+      row: expect.objectContaining({
+        id: "924",
+      }),
+      columnKey: "acciones",
+    });
+    expect(hookState.executeAction).not.toHaveBeenCalled();
   });
 
   it("keeps the direct action fallback when menuItems has no valid resolutions", () => {

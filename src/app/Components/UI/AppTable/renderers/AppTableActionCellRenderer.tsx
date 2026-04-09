@@ -173,7 +173,9 @@ const mapActionToDropdownItem = (
   return {
     key: itemKey,
     label: action.label,
-    disabled: !availability.isEnabled || (!dependencies.tableId && children.length === 0),
+    disabled:
+      !availability.isEnabled ||
+      (behavior.kind === "api_call" && !dependencies.tableId && children.length === 0),
     onSelect:
       !availability.isEnabled || children.length > 0
         ? undefined
@@ -219,6 +221,17 @@ export default function AppTableActionCellRenderer(
     actionKey: string,
     behaviorKind: string,
   ) => {
+    if (behaviorKind === "client_event") {
+      if (params.data) {
+        params.onClientEvent?.({
+          actionId: action.actionId,
+          row: params.data,
+          columnKey: params.appGridColumn.field,
+        });
+      }
+      return;
+    }
+
     if (!params.tableId || behaviorKind !== "api_call") {
       return;
     }
@@ -329,7 +342,10 @@ export default function AppTableActionCellRenderer(
             variant={resolveButtonVariant(action.tone)}
             aria-label={action.label || action.actionId}
             tooltip={action.label || action.actionId}
-            disabled={!availability.isEnabled || !params.tableId}
+            disabled={
+              !availability.isEnabled ||
+              (behavior.kind === "api_call" && !params.tableId)
+            }
             loading={isExecutingAction && activeActionKey === key}
             data-action-id={action.actionId}
             data-action-behavior={behavior.rawValue}

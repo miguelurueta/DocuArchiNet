@@ -1,15 +1,21 @@
-import { EyeFilled, UndoOutlined } from "@ant-design/icons";
+import { UndoOutlined } from "@ant-design/icons";
 import type { ColDef } from "ag-grid-community";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppButton } from "../../../app/Components/UI/AppButton";
 import { AppContent } from "../../../app/Components/UI/AppContent";
+import { AppInputSearch } from "../../../app/Components/UI/AppInputSearch";
 import { AppTableExport } from "../../../app/Components/UI/AppTable/AppTableExport";
 import { AppTableQueryWrapper } from "../../../app/Components/UI/AppTable/AppTableQueryWrapper";
 import AppTable from "../../../app/Components/UI/AppTable/AppTable";
-import type { AppTableRow } from "../../../app/Components/UI/AppTable/AppTable.types";
+import type {
+  AppTableCellClick,
+  AppTableActionTriggered,
+  AppTableRow,
+} from "../../../app/Components/UI/AppTable/AppTable.types";
 import { AppToolbar } from "../../../app/Components/UI/AppToolbar";
 import type { GestionCorrespondenciaTableResult } from "../hooks/useGestionCorrespondenciaTable";
+import { useWorkflowInboxAutocomplete } from "../hooks/useWorkflowInboxAutocomplete";
 import styles from "../style/GestionCorrespondencia.module.css";
 
 type GestionCorrespondenciaProps<T extends AppTableRow = AppTableRow> = {
@@ -21,6 +27,11 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
 }: GestionCorrespondenciaProps<T>) {
   const navigate = useNavigate();
   const [selectedRows, setSelectedRows] = useState<T[]>([]);
+  const [searchDraft, setSearchDraft] = useState(table.queryState.search);
+  const autocomplete = useWorkflowInboxAutocomplete({
+    minLength: 2,
+    limit: 10,
+  });
   const exportReportMeta = useMemo(
     () => ({
       reportName: "Bandeja de gestion correspondencia",
@@ -35,12 +46,68 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
     [table.rows.length],
   );
 
+  const applySearch = (search: string) => {
+    const normalizedSearch = search.trim();
+    setSearchDraft(normalizedSearch);
+    autocomplete.setSearchText(normalizedSearch);
+    table.onQueryChange({ search: normalizedSearch });
+  };
+
+  const handleSearchChange = (search: string) => {
+    setSearchDraft(search);
+    autocomplete.setSearchText(search);
+  };
+
+  const handleSearchClear = () => {
+    setSearchDraft("");
+    autocomplete.clear();
+    table.onQueryChange({ search: "" });
+  };
+
+  const navigateToRowDetail = (row: T) => {
+    const rowId = row.id;
+    if (typeof rowId !== "string" && typeof rowId !== "number") {
+      return;
+    }
+
+    navigate(`respuesta/${String(rowId)}`);
+  };
+
+  const handleTableAction = ({ actionId, row }: AppTableActionTriggered<T>) => {
+    if (actionId !== "gestionar_tramite" && actionId !== "gestionar_tramite_menu") {
+      return;
+    }
+
+    navigateToRowDetail(row);
+  };
+
+  const handleTableCellClick = ({ row, field }: AppTableCellClick<T>) => {
+    if (!field || field === "acciones" || field === "ag-Grid-SelectionColumn") {
+      return;
+    }
+
+    navigateToRowDetail(row);
+  };
+
   return (
     <div className={styles.shell}>
       <AppToolbar
         className={styles.toolbar}
         actionContent={
           <div className={styles.toolbarActionGroup}>
+            <AppInputSearch
+              aria-label="Buscar tareas workflow"
+              className={styles.toolbarSearch}
+              debounceMs={0}
+              loading={autocomplete.loading}
+              options={autocomplete.items}
+              placeholder="Buscar tareas workflow"
+              value={searchDraft}
+              onChange={handleSearchChange}
+              onClear={handleSearchClear}
+              onSearch={applySearch}
+            />
+
             <AppButton
               className={styles.toolbarControl}
               variant="ghost"
@@ -51,17 +118,6 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
               onClick={table.refetch}
             >
               Actualizar
-            </AppButton>
-
-            <AppButton
-              className={styles.toolbarControl}
-              variant="ghost"
-              size="sm"
-              leftIcon={<EyeFilled />}
-              fullWidth
-              onClick={() => navigate("respuesta")}
-            >
-              Abrir respuesta contextual
             </AppButton>
           </div>
         }
@@ -102,11 +158,15 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
                 rows={table.rows}
                 columns={table.columns as ColDef<T>[]}
                 rowSelection="single"
+                rowClickAffordance
+                rowClickTooltip="Gestionar trámite"
                 total={table.total}
                 loading={table.loading && table.hasLoadedOnce}
                 paginationMode="server"
                 layoutMode="fill"
                 responsivePresentation={{ enabled: true, cardsBelow: 768 }}
+                onCellClicked={handleTableCellClick}
+                onActionTriggered={handleTableAction}
                 onSelectionChanged={setSelectedRows}
               />
             </div>

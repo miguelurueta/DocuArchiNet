@@ -1,32 +1,94 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import GestionCorrespondencia from "../pages/GestionCorrespondencia";
 import type { GestionCorrespondenciaTableResult } from "../hooks/useGestionCorrespondenciaTable";
+import * as workflowInboxAutocompleteHook from "../hooks/useWorkflowInboxAutocomplete";
 
 vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
   default: ({
     paginationMode,
     layoutMode,
     rowSelection,
+    rowClickAffordance,
+    rowClickTooltip,
+    gridClassName,
     responsivePresentation,
+    onActionTriggered,
+    onCellClicked,
   }: {
     paginationMode?: string;
     layoutMode?: string;
     rowSelection?: string;
+    rowClickAffordance?: boolean;
+    rowClickTooltip?: string;
+    gridClassName?: string;
     responsivePresentation?: { enabled?: boolean; cardsBelow?: number };
+    onActionTriggered?: (input: {
+      actionId: string;
+      row: { id: string };
+      columnKey?: string;
+    }) => void;
+    onCellClicked?: (input: {
+      row: { id: string };
+      field?: string | null;
+      value?: unknown;
+    }) => void;
   }) => (
     <div
       data-testid="mock-app-table"
       data-pagination-mode={paginationMode}
       data-layout-mode={layoutMode}
       data-row-selection={rowSelection}
+      data-row-click-affordance={rowClickAffordance ? "true" : "false"}
+      data-row-click-tooltip={rowClickTooltip ?? ""}
+      data-grid-class-name={gridClassName ?? ""}
       data-responsive-enabled={responsivePresentation?.enabled ? "true" : "false"}
       data-cards-below={responsivePresentation?.cardsBelow}
     >
       Mocked AppTable
+      <button
+        type="button"
+        onClick={() =>
+          onActionTriggered?.({
+            actionId: "gestionar_tramite_menu",
+            row: { id: "924" },
+            columnKey: "acciones",
+          })
+        }
+      >
+        Disparar acción de fila
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          onCellClicked?.({
+            row: { id: "924" },
+            field: "RADICADO",
+            value: "2500456700023",
+          })
+        }
+      >
+        Disparar click de celda
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          onCellClicked?.({
+            row: { id: "924" },
+            field: "acciones",
+            value: "",
+          })
+        }
+      >
+        Disparar click en acciones
+      </button>
     </div>
   ),
+}));
+
+vi.mock("../hooks/useWorkflowInboxAutocomplete", () => ({
+  useWorkflowInboxAutocomplete: vi.fn(),
 }));
 
 const createTable = (): GestionCorrespondenciaTableResult => ({
@@ -63,7 +125,26 @@ const createTable = (): GestionCorrespondenciaTableResult => ({
   }),
 });
 
+function LocationProbe() {
+  const location = useLocation();
+
+  return <div data-testid="location-probe">{location.pathname}</div>;
+}
+
 describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT-21] [SPEC:22-FE-INTEGRAR-APPTABLEEXPORT-CON-API-APPTABLE-EXPORT-MD] [SPEC:refinar-apptablequerywrapper]", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(
+      workflowInboxAutocompleteHook.useWorkflowInboxAutocomplete,
+    ).mockReturnValue({
+      items: [{ value: "RAD-1", label: "Radicado sugerido" }],
+      loading: false,
+      error: null,
+      setSearchText: vi.fn(),
+      clear: vi.fn(),
+    });
+  });
+
   it("compone AppTableQueryWrapper con AppTable en server mode y ubica exportacion en paginationActions", () => {
     const table = createTable();
 
@@ -81,6 +162,15 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-layout-mode", "fill");
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-row-selection", "single");
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute(
+      "data-row-click-affordance",
+      "true",
+    );
+    expect(screen.getByTestId("mock-app-table")).toHaveAttribute(
+      "data-row-click-tooltip",
+      "Gestionar trámite",
+    );
+    expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-grid-class-name", "");
+    expect(screen.getByTestId("mock-app-table")).toHaveAttribute(
       "data-responsive-enabled",
       "true",
     );
@@ -89,11 +179,11 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
       screen.getByRole("button", { name: /Exportar/i }),
     );
     expect(screen.getByRole("button", { name: /Actualizar/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Abrir respuesta contextual/i })).toBeInTheDocument();
-    expect(screen.queryByRole("textbox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Buscar tareas workflow" })).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
   });
 
-  it("usa las acciones del hook para refresh y navegación secundaria", () => {
+  it("escribe contra autocomplete sin disparar la tabla por cada tecla", () => {
     const table = createTable();
 
     render(
@@ -102,11 +192,159 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
       </MemoryRouter>,
     );
 
+    const searchInputs = screen.getAllByRole("combobox", {
+      name: "Buscar tareas workflow",
+    });
+    expect(searchInputs).toHaveLength(1);
+
+    fireEvent.change(searchInputs[0], { target: { value: "radicado" } });
+
+    expect(
+      vi.mocked(workflowInboxAutocompleteHook.useWorkflowInboxAutocomplete).mock.results[0]?.value
+        ?.setSearchText,
+    ).toHaveBeenCalledWith("radicado");
+    expect(table.onQueryChange).not.toHaveBeenCalled();
+    expect(screen.queryByRole("combobox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
+  });
+
+  it("limpia el buscador usando el flujo de queryState", () => {
+    const table = createTable();
+    table.queryState.search = "radicado";
+
+    render(
+      <MemoryRouter>
+        <GestionCorrespondencia table={table} />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("combobox", { name: "Buscar tareas workflow" })).toHaveValue(
+      "radicado",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Limpiar" }));
+
+    expect(
+      vi.mocked(workflowInboxAutocompleteHook.useWorkflowInboxAutocomplete).mock.results[0]?.value
+        ?.clear,
+    ).toHaveBeenCalledTimes(1);
+    expect(table.onQueryChange).toHaveBeenCalledWith({ search: "" });
+  });
+
+  it("aplica búsqueda real por Enter y por el icono de buscar", () => {
+    const table = createTable();
+
+    render(
+      <MemoryRouter>
+        <GestionCorrespondencia table={table} />
+      </MemoryRouter>,
+    );
+
+    const input = screen.getByRole("combobox", { name: "Buscar tareas workflow" });
+
+    fireEvent.change(input, { target: { value: "radicado" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    fireEvent.click(screen.getByRole("button", { name: "Buscar" }));
+
+    expect(table.onQueryChange).toHaveBeenNthCalledWith(1, { search: "radicado" });
+    expect(table.onQueryChange).toHaveBeenNthCalledWith(2, { search: "radicado" });
+  });
+
+  it("aplica búsqueda real al seleccionar una sugerencia", async () => {
+    const table = createTable();
+
+    render(
+      <MemoryRouter>
+        <GestionCorrespondencia table={table} />
+      </MemoryRouter>,
+    );
+
+    const input = screen.getByRole("combobox", { name: "Buscar tareas workflow" });
+
+    fireEvent.change(input, { target: { value: "rad" } });
+    fireEvent.click(await screen.findByText("Radicado sugerido"));
+
+    expect(table.onQueryChange).toHaveBeenCalledWith({ search: "RAD-1" });
+  });
+
+  it("usa las acciones del hook para refresh y navegación secundaria por accion de fila", () => {
+    const table = createTable();
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard/gestion-correspondencia"]}>
+        <Routes>
+          <Route
+            path="/dashboard/gestion-correspondencia/*"
+            element={
+              <>
+                <LocationProbe />
+                <GestionCorrespondencia table={table} />
+              </>
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+
     fireEvent.click(screen.getByRole("button", { name: /Actualizar/i }));
-    fireEvent.click(screen.getByRole("button", { name: /Abrir respuesta contextual/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Disparar acción de fila/i }));
 
     expect(table.onQueryChange).not.toHaveBeenCalled();
     expect(table.refetch).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("location-probe")).toHaveTextContent(
+      "/dashboard/gestion-correspondencia/respuesta/924",
+    );
+  });
+
+  it("navega al detalle contextual al hacer click sobre una celda de datos", () => {
+    const table = createTable();
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard/gestion-correspondencia"]}>
+        <Routes>
+          <Route
+            path="/dashboard/gestion-correspondencia/*"
+            element={
+              <>
+                <LocationProbe />
+                <GestionCorrespondencia table={table} />
+              </>
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Disparar click de celda/i }));
+
+    expect(screen.getByTestId("location-probe")).toHaveTextContent(
+      "/dashboard/gestion-correspondencia/respuesta/924",
+    );
+  });
+
+  it("no navega al hacer click sobre la columna de acciones", () => {
+    const table = createTable();
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard/gestion-correspondencia"]}>
+        <Routes>
+          <Route
+            path="/dashboard/gestion-correspondencia/*"
+            element={
+              <>
+                <LocationProbe />
+                <GestionCorrespondencia table={table} />
+              </>
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Disparar click en acciones/i }));
+
+    expect(screen.getByTestId("location-probe")).toHaveTextContent(
+      "/dashboard/gestion-correspondencia",
+    );
   });
 
   it("expone formatos ejecutivos sobre allMatching y mantiene la tabla visible durante la exportacion backend", async () => {

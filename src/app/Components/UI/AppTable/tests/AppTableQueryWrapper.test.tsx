@@ -66,7 +66,7 @@ describe("AppTableQueryWrapper [SPEC:APPTABLE-EXPORT-18] [SPEC:refinar-apptableq
       </AppTableQueryWrapper>,
     );
 
-    fireEvent.change(screen.getByRole("textbox", { name: "Buscar en la tabla" }), {
+    fireEvent.change(screen.getByRole("combobox", { name: "Buscar en la tabla" }), {
       target: { value: "radicado" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Página anterior" }));
@@ -137,7 +137,7 @@ describe("AppTableQueryWrapper [SPEC:APPTABLE-EXPORT-18] [SPEC:refinar-apptableq
       </AppTableQueryWrapper>,
     );
 
-    expect(screen.queryByRole("textbox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
     expect(screen.getByTestId("app-table-query-range")).toHaveTextContent("26-50 de 87");
   });
 

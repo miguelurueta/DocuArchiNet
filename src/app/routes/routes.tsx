@@ -77,10 +77,10 @@ export const loginRoutes: RouteObject[] = [
                 element: <GestionCorrespondenciaRoute />,
               },
               {
-                path: "respuesta",
+                path: "respuesta/:id",
                 element: (
                   <GestionCorrespondenciaRoute
-                    drawerContent={<GestionRespuesta />}
+                    detailContent={<GestionRespuesta />}
                   />
                 ),
               },

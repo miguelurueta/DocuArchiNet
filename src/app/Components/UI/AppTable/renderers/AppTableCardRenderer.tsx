@@ -1,9 +1,12 @@
+import { Tooltip } from "antd";
 import type { ColDef } from "ag-grid-community";
+import { useEffect, useRef, useState } from "react";
 import { useDeferredLoadingVeil } from "../hooks/useDeferredLoadingVeil";
 import AppTableActionCellRenderer from "./AppTableActionCellRenderer";
 import type { AppGridCellAction, AppGridColumn, AppTableRow } from "../types/dynamicUiTable.types";
 import type { AppTableProps } from "../AppTable.types";
 import type { AppTableActionCellRendererParams } from "../types/dynamicUiTableAction.types";
+import { isInteractiveElement, isRowClickTooltipEnabled } from "../utils/navigableAffordance";
 import styles from "../AppTable.module.css";
 
 const joinClasses = (...values: Array<string | false | null | undefined>) =>
@@ -78,19 +81,39 @@ const resolveActionRendererParams = <T extends AppTableRow>(
     menuActions: [...(params.menuActions ?? [])],
     tableId: params.tableId,
     userClaims: [...(params.userClaims ?? [])],
+    onClientEvent: params.onClientEvent,
   } as AppTableActionCellRendererParams;
 };
 
 type AppTableCardRendererProps<T extends AppTableRow> = Pick<
   AppTableProps<T>,
-  "rows" | "columns" | "cardFields" | "loading" | "total" | "className" | "onRowClicked"
+  | "rows"
+  | "columns"
+  | "cardFields"
+  | "loading"
+  | "total"
+  | "className"
+  | "onRowClicked"
+  | "onActionTriggered"
+  | "rowClickAffordance"
+  | "rowClickTooltip"
 > & {
   resolvedLayoutMode: "content" | "fill";
 };
 
+const TOOLTIP_MOUSE_DELAY_MS = 350;
+
 const isActionColumn = <T extends AppTableRow>(column: ColDef<T>): boolean => {
   const params = column.cellRendererParams as Partial<AppTableActionCellRendererParams> | undefined;
   return Boolean(params?.appGridColumn && Array.isArray(params.actions));
+};
+
+const isTooltipExcludedTarget = (target: EventTarget | null, actionClassName: string) => {
+  if (isInteractiveElement(target)) {
+    return true;
+  }
+
+  return target instanceof HTMLElement && Boolean(target.closest(`.${actionClassName}`));
 };
 
 export function AppTableCardRenderer<T extends AppTableRow>({
@@ -101,10 +124,17 @@ export function AppTableCardRenderer<T extends AppTableRow>({
   total,
   className,
   onRowClicked,
+  onActionTriggered,
+  rowClickAffordance = false,
+  rowClickTooltip,
   resolvedLayoutMode,
 }: AppTableCardRendererProps<T>) {
+  const tooltipShowTimerRef = useRef<number | null>(null);
   const isSoftLoading = loading && rows.length > 0;
   const showLoadingVeil = useDeferredLoadingVeil(isSoftLoading);
+  const [activeTooltipCardKey, setActiveTooltipCardKey] = useState<string | null>(null);
+  const isTooltipEnabled =
+    typeof onRowClicked === "function" && isRowClickTooltipEnabled(rowClickAffordance, rowClickTooltip);
   const valueColumns = columns.filter((column) => {
     if (column.hide || isActionColumn(column)) {
       return false;
@@ -119,6 +149,41 @@ export function AppTableCardRenderer<T extends AppTableRow>({
   });
   const actionColumns = columns.filter((column) => !column.hide && isActionColumn(column));
   const overlayStatus = loading ? "loading" : rows.length === 0 ? "empty" : "ready";
+
+  const clearTooltipTimer = () => {
+    if (tooltipShowTimerRef.current != null) {
+      window.clearTimeout(tooltipShowTimerRef.current);
+      tooltipShowTimerRef.current = null;
+    }
+  };
+
+  const hideTooltip = () => {
+    clearTooltipTimer();
+    setActiveTooltipCardKey(null);
+  };
+
+  const scheduleTooltip = (cardKey: string) => {
+    if (!isTooltipEnabled) {
+      return;
+    }
+
+    clearTooltipTimer();
+    tooltipShowTimerRef.current = window.setTimeout(() => {
+      setActiveTooltipCardKey(cardKey);
+      tooltipShowTimerRef.current = null;
+    }, TOOLTIP_MOUSE_DELAY_MS);
+  };
+
+  const showTooltip = (cardKey: string) => {
+    if (!isTooltipEnabled) {
+      return;
+    }
+
+    clearTooltipTimer();
+    setActiveTooltipCardKey(cardKey);
+  };
+
+  useEffect(() => () => clearTooltipTimer(), []);
 
   return (
     <div
@@ -143,51 +208,117 @@ export function AppTableCardRenderer<T extends AppTableRow>({
         {rows.length === 0 ? (
           <div className={styles.cardEmpty}>Sin registros</div>
         ) : (
-          rows.map((row, rowIndex) => (
-            <article
-              key={String(row.id ?? rowIndex)}
-              className={styles.card}
-              data-testid="app-table-card"
-              onClick={() => onRowClicked?.(row)}
-            >
-              <div className={styles.cardBody}>
-                {valueColumns.map((column) => {
-                  const field = column.field;
-                  const value = field ? row[field] : undefined;
-                  const formattedValue = formatColumnCardValue(column, row, value);
+          rows.map((row, rowIndex) => {
+            const cardKey = String(row.id ?? rowIndex);
 
-                  if (!field || formattedValue.length === 0) {
-                    return null;
-                  }
-
-                  return (
-                    <div key={column.colId ?? field} className={styles.cardField}>
-                      <span className={styles.cardLabel}>{column.headerName ?? field}</span>
-                      <span className={styles.cardValue}>{formattedValue}</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {actionColumns.length > 0 ? (
-                <div className={styles.cardActions}>
-                  {actionColumns.map((column) => {
-                    const actionParams = resolveActionRendererParams(column, row);
-                    if (!actionParams) {
-                      return null;
+            return (
+              <Tooltip
+                key={cardKey}
+                title={rowClickTooltip}
+                open={isTooltipEnabled && activeTooltipCardKey === cardKey}
+                placement="top"
+                mouseEnterDelay={0.35}
+              >
+                <article
+                  className={joinClasses(
+                    styles.card,
+                    rowClickAffordance && typeof onRowClicked === "function" && styles.cardNavigable,
+                  )}
+                  data-testid="app-table-card"
+                  tabIndex={rowClickAffordance && typeof onRowClicked === "function" ? 0 : undefined}
+                  onClick={() => onRowClicked?.(row)}
+                  onKeyDown={(event) => {
+                    if (event.key !== "Enter") {
+                      return;
                     }
 
-                    return (
-                      <AppTableActionCellRenderer
-                        key={column.colId ?? column.field ?? "actions"}
-                        {...actionParams}
-                      />
-                    );
-                  })}
-                </div>
-              ) : null}
-            </article>
-          ))
+                    event.preventDefault();
+                    onRowClicked?.(row);
+                  }}
+                  onMouseOver={(event) => {
+                    if (isTooltipExcludedTarget(event.target, styles.cardActions)) {
+                      hideTooltip();
+                      return;
+                    }
+
+                    scheduleTooltip(cardKey);
+                  }}
+                  onMouseMove={(event) => {
+                    if (isTooltipExcludedTarget(event.target, styles.cardActions)) {
+                      hideTooltip();
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    hideTooltip();
+                  }}
+                  onFocusCapture={(event) => {
+                    if (isTooltipExcludedTarget(event.target, styles.cardActions)) {
+                      hideTooltip();
+                      return;
+                    }
+
+                    showTooltip(cardKey);
+                  }}
+                  onBlurCapture={(event) => {
+                    const nextTarget = event.relatedTarget;
+                    if (nextTarget instanceof HTMLElement && event.currentTarget.contains(nextTarget)) {
+                      return;
+                    }
+
+                    hideTooltip();
+                  }}
+                >
+                  <div className={styles.cardBody}>
+                    {valueColumns.map((column) => {
+                      const field = column.field;
+                      const value = field ? row[field] : undefined;
+                      const formattedValue = formatColumnCardValue(column, row, value);
+
+                      if (!field || formattedValue.length === 0) {
+                        return null;
+                      }
+
+                      return (
+                        <div key={column.colId ?? field} className={styles.cardField}>
+                          <span className={styles.cardLabel}>{column.headerName ?? field}</span>
+                          <span className={styles.cardValue}>{formattedValue}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {actionColumns.length > 0 ? (
+                    <div
+                      className={styles.cardActions}
+                      onClick={(event) => event.stopPropagation()}
+                      onKeyDown={(event) => event.stopPropagation()}
+                    >
+                      {actionColumns.map((column) => {
+                        const actionParams = resolveActionRendererParams(column, row);
+                        if (!actionParams) {
+                          return null;
+                        }
+
+                        return (
+                          <AppTableActionCellRenderer
+                            key={column.colId ?? column.field ?? "actions"}
+                            {...actionParams}
+                            onClientEvent={(input) => {
+                              onActionTriggered?.({
+                                actionId: input.actionId,
+                                row: input.row as T,
+                                columnKey: input.columnKey,
+                              });
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </article>
+              </Tooltip>
+            );
+          })
         )}
         {showLoadingVeil ? (
           <div className={styles.loadingVeil} data-testid="app-table-loading-veil">
