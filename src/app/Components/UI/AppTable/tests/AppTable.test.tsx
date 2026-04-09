@@ -117,6 +117,7 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
     render(<AppTable rows={[{ id: "1", name: "Alpha" }]} columns={columns} />);
     const wrapper = screen.getByTestId("app-table-grid");
     expect(wrapper).toHaveAttribute("data-overlay", "ready");
+    expect(wrapper.className).not.toContain("gridAffordance");
     expect(screen.getByText("Mocked Grid")).toBeInTheDocument();
   });
 
@@ -512,10 +513,12 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
       />,
     );
 
+    const wrapper = screen.getByTestId("app-table-grid");
     const lastCall = agGridReactSpy.mock.calls.at(-1)?.[0] as {
       gridOptions?: { suppressCellFocus?: boolean };
     };
 
+    expect(wrapper.className).toContain("gridAffordance");
     expect(lastCall.gridOptions?.suppressCellFocus).toBe(false);
   });
 

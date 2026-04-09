@@ -92,6 +92,14 @@
   background-image: none;
 }
 
+.gridAffordance :global(.ag-cell.ag-cell-focus),
+.gridAffordance :global(.ag-cell.ag-cell-range-selected.ag-cell-focus),
+.gridAffordance :global(.ag-cell-focus:not(.ag-cell-range-selected)) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
 .grid :global(.ag-cell).navigableCell button,
 .grid :global(.ag-cell).navigableCell a,
 .grid :global(.ag-cell).navigableCell input,

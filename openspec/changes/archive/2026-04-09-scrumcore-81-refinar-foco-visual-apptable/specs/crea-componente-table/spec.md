@@ -1,8 +1,5 @@
-# crea-componente-table Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change scrumcore-27-crea-componente-table. Update Purpose after archive.
-## Requirements
 ### Requirement: AppTable presentacional con AG Grid
 El sistema MUST proveer un componente `AppTable<T extends Record<string, unknown>>` que renderice AG Grid Community, no conozca backend ni DTOs y permanezca desacoplado de dominio y navegacion de modulos consumidores.
 
@@ -72,36 +69,3 @@ El sistema MUST proveer un componente `AppTable<T extends Record<string, unknown
 - **WHEN** uno de esos elementos recibe foco
 - **THEN** el sistema MUST conservar el foco visible del elemento interactivo
 - **AND** MUST NOT neutralizarlo por el override visual aplicado al foco de celda
-
-### Requirement: Props tipadas y callbacks
-El sistema SHALL exponer props tipadas para seleccion, eventos de filas/celdas y `getRowId` opcional con fallback a `row.id`.
-
-#### Scenario: Seleccion y callbacks
-- **WHEN** el usuario selecciona filas o hace click en una celda
-- **THEN** los callbacks tipados se ejecutan con datos de la fila
-
-### Requirement: Configuracion base reusable
-El sistema MUST centralizar defaults en `agGridDefaultConfig` y componer configuracion final en `useAgGridBaseConfig`.
-
-#### Scenario: Defaults aplicados
-- **WHEN** no se pasan overrides de configuracion
-- **THEN** la grilla aplica defaults de seleccion multiple, columnas resizables y filtros
-
-### Requirement: Loading y empty state
-El sistema SHALL mostrar estados de loading y empty state cuando aplique.
-
-#### Scenario: Loading activo
-- **WHEN** `loading` es `true`
-- **THEN** se muestra overlay de carga
-
-#### Scenario: Sin filas
-- **WHEN** `rows` esta vacio y `loading` es `false`
-- **THEN** se muestra overlay de estado vacio
-
-### Requirement: Documentacion obligatoria
-El sistema MUST incluir documentacion de `AppTable` en `docs/Components/AppTable/README.md`.
-
-#### Scenario: README disponible
-- **WHEN** se consulta la documentacion
-- **THEN** existen descripcion, API, ejemplos y limites del componente
-
