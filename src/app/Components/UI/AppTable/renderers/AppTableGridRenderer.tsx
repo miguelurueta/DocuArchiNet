@@ -304,6 +304,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
       <div
         className={joinClasses(
           styles.grid,
+          rowClickAffordance && styles.gridAffordance,
           resolvedLayoutMode === "fill" && styles.gridFill,
           "ag-theme-quartz",
           gridClassName,

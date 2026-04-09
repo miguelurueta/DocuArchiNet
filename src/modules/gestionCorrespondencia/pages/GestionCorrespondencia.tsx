@@ -158,11 +158,11 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
                 rows={table.rows}
                 columns={table.columns as ColDef<T>[]}
                 rowSelection="single"
+                rowClickAffordance
                 total={table.total}
                 loading={table.loading && table.hasLoadedOnce}
                 paginationMode="server"
                 layoutMode="fill"
-                gridClassName={styles.navigableGrid}
                 responsivePresentation={{ enabled: true, cardsBelow: 768 }}
                 onCellClicked={handleTableCellClick}
                 onActionTriggered={handleTableAction}

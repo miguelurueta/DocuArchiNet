@@ -10,6 +10,8 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
     paginationMode,
     layoutMode,
     rowSelection,
+    rowClickAffordance,
+    gridClassName,
     responsivePresentation,
     onActionTriggered,
     onCellClicked,
@@ -17,6 +19,8 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
     paginationMode?: string;
     layoutMode?: string;
     rowSelection?: string;
+    rowClickAffordance?: boolean;
+    gridClassName?: string;
     responsivePresentation?: { enabled?: boolean; cardsBelow?: number };
     onActionTriggered?: (input: {
       actionId: string;
@@ -34,6 +38,8 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
       data-pagination-mode={paginationMode}
       data-layout-mode={layoutMode}
       data-row-selection={rowSelection}
+      data-row-click-affordance={rowClickAffordance ? "true" : "false"}
+      data-grid-class-name={gridClassName ?? ""}
       data-responsive-enabled={responsivePresentation?.enabled ? "true" : "false"}
       data-cards-below={responsivePresentation?.cardsBelow}
     >
@@ -152,6 +158,11 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
     );
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-layout-mode", "fill");
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-row-selection", "single");
+    expect(screen.getByTestId("mock-app-table")).toHaveAttribute(
+      "data-row-click-affordance",
+      "true",
+    );
+    expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-grid-class-name", "");
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute(
       "data-responsive-enabled",
       "true",

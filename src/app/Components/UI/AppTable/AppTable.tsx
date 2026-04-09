@@ -16,6 +16,8 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 
 const DEFAULT_CARDS_BELOW = 768;
 const DEFAULT_LOADING_MODE = "skeleton";
+const ACTION_COLUMN_FIELD = "acciones";
+const SELECTION_COLUMN_FIELD = "ag-Grid-SelectionColumn";
 
 const resolveLayoutMode = (
   layoutMode: AppTableLayoutMode | undefined,
@@ -59,6 +61,42 @@ const resolvePresentationMode = (
   return "table";
 };
 
+const resolvePrimaryCardField = <T extends AppTableRow>(
+  columns: AppTableProps<T>["columns"],
+  cardFields: AppTableProps<T>["cardFields"],
+): string | null => {
+  const allowedCardFields = Array.isArray(cardFields) && cardFields.length > 0
+    ? new Set(cardFields)
+    : null;
+
+  for (const column of columns) {
+    const field = column.field ?? column.colId;
+    if (!field || field === ACTION_COLUMN_FIELD || field === SELECTION_COLUMN_FIELD) {
+      continue;
+    }
+
+    if (column.hide) {
+      continue;
+    }
+
+    const cellClass = column.cellClass;
+    if (
+      typeof cellClass === "string" &&
+      cellClass.split(/\s+/).includes("app-table-action-cell")
+    ) {
+      continue;
+    }
+
+    if (allowedCardFields && !allowedCardFields.has(field)) {
+      continue;
+    }
+
+    return field;
+  }
+
+  return null;
+};
+
 export default function AppTable<T extends AppTableRow>(props: AppTableProps<T>) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
@@ -99,6 +137,18 @@ export default function AppTable<T extends AppTableRow>(props: AppTableProps<T>)
   const hasRenderableRows = props.rows.length > 0;
   const shouldRenderSkeleton =
     resolvedLoadingMode === "skeleton" && props.loading === true && !hasRenderableRows;
+  const primaryCardField = resolvePrimaryCardField(props.columns, props.cardFields);
+  const handlePrimaryCardAction =
+    props.onRowClicked ??
+    (props.rowClickAffordance && props.onCellClicked && primaryCardField
+      ? ((row: T) => {
+          props.onCellClicked?.({
+            row,
+            field: primaryCardField,
+            value: row[primaryCardField],
+          });
+        })
+      : undefined);
 
   return (
     <div
@@ -127,8 +177,9 @@ export default function AppTable<T extends AppTableRow>(props: AppTableProps<T>)
           loading={props.loading}
           total={props.total}
           className={props.className}
-          onRowClicked={props.onRowClicked}
+          onRowClicked={handlePrimaryCardAction}
           onActionTriggered={props.onActionTriggered}
+          rowClickAffordance={props.rowClickAffordance}
           resolvedLayoutMode={resolvedLayoutMode}
         />
       ) : (

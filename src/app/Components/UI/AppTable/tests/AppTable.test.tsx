@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { forwardRef, useImperativeHandle } from "react";
 import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 import type { CellKeyDownEvent, ColDef } from "ag-grid-community";
@@ -551,5 +551,88 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
       field: "name",
       value: "Alpha",
     });
+  });
+
+  test("cards reutiliza onCellClicked como accion primaria cuando rowClickAffordance esta activo", () => {
+    const onCellClicked = vi.fn();
+
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        presentationMode="cards"
+        rowClickAffordance
+        onCellClicked={onCellClicked}
+      />,
+    );
+
+    const card = screen.getByTestId("app-table-card");
+    fireEvent.click(card);
+
+    expect(onCellClicked).toHaveBeenCalledTimes(1);
+    expect(onCellClicked).toHaveBeenCalledWith({
+      row: { id: "1", name: "Alpha" },
+      field: "name",
+      value: "Alpha",
+    });
+  });
+
+  test("cards ejecuta la accion primaria con Enter cuando rowClickAffordance esta activo", () => {
+    const onCellClicked = vi.fn();
+
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        presentationMode="cards"
+        rowClickAffordance
+        onCellClicked={onCellClicked}
+      />,
+    );
+
+    const card = screen.getByTestId("app-table-card");
+    fireEvent.keyDown(card, { key: "Enter" });
+
+    expect(onCellClicked).toHaveBeenCalledTimes(1);
+    expect(onCellClicked).toHaveBeenCalledWith({
+      row: { id: "1", name: "Alpha" },
+      field: "name",
+      value: "Alpha",
+    });
+  });
+
+  test("cards no propaga el click del area de acciones hacia la accion primaria", () => {
+    const onCellClicked = vi.fn();
+    const actionColumns: ColDef<Row & { acciones?: string }>[] = [
+      { field: "name", headerName: "Nombre" },
+      {
+        field: "acciones",
+        headerName: "Acciones",
+        cellRendererParams: {
+          appGridColumn: {
+            field: "acciones",
+            headerName: "Acciones",
+            visible: true,
+            sortable: false,
+            filterable: false,
+          },
+          actions: [],
+        },
+      },
+    ];
+
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={actionColumns}
+        presentationMode="cards"
+        rowClickAffordance
+        onCellClicked={onCellClicked}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("mock-card-actions"));
+
+    expect(onCellClicked).not.toHaveBeenCalled();
   });
 });

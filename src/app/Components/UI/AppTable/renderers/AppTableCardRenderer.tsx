@@ -92,6 +92,7 @@ type AppTableCardRendererProps<T extends AppTableRow> = Pick<
   | "className"
   | "onRowClicked"
   | "onActionTriggered"
+  | "rowClickAffordance"
 > & {
   resolvedLayoutMode: "content" | "fill";
 };
@@ -110,6 +111,7 @@ export function AppTableCardRenderer<T extends AppTableRow>({
   className,
   onRowClicked,
   onActionTriggered,
+  rowClickAffordance = false,
   resolvedLayoutMode,
 }: AppTableCardRendererProps<T>) {
   const isSoftLoading = loading && rows.length > 0;
@@ -155,9 +157,21 @@ export function AppTableCardRenderer<T extends AppTableRow>({
           rows.map((row, rowIndex) => (
             <article
               key={String(row.id ?? rowIndex)}
-              className={styles.card}
+              className={joinClasses(
+                styles.card,
+                rowClickAffordance && typeof onRowClicked === "function" && styles.cardNavigable,
+              )}
               data-testid="app-table-card"
+              tabIndex={rowClickAffordance && typeof onRowClicked === "function" ? 0 : undefined}
               onClick={() => onRowClicked?.(row)}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter") {
+                  return;
+                }
+
+                event.preventDefault();
+                onRowClicked?.(row);
+              }}
             >
               <div className={styles.cardBody}>
                 {valueColumns.map((column) => {
@@ -179,7 +193,11 @@ export function AppTableCardRenderer<T extends AppTableRow>({
               </div>
 
               {actionColumns.length > 0 ? (
-                <div className={styles.cardActions}>
+                <div
+                  className={styles.cardActions}
+                  onClick={(event) => event.stopPropagation()}
+                  onKeyDown={(event) => event.stopPropagation()}
+                >
                   {actionColumns.map((column) => {
                     const actionParams = resolveActionRendererParams(column, row);
                     if (!actionParams) {
