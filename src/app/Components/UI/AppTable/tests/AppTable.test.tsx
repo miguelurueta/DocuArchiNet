@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { forwardRef, useImperativeHandle } from "react";
+import type { ReactNode } from "react";
 import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 import type { CellKeyDownEvent, ColDef } from "ag-grid-community";
 import AppTable from "../AppTable";
@@ -8,6 +9,23 @@ const agGridReactSpy = vi.fn();
 const showLoadingOverlaySpy = vi.fn();
 const showNoRowsOverlaySpy = vi.fn();
 const hideOverlaySpy = vi.fn();
+
+vi.mock("antd", () => ({
+  Tooltip: ({
+    title,
+    open,
+    children,
+  }: {
+    title?: string;
+    open?: boolean;
+    children: ReactNode;
+  }) => (
+    <>
+      {children}
+      {open && title ? <span data-testid="mock-tooltip">{title}</span> : null}
+    </>
+  ),
+}));
 
 vi.mock("ag-grid-react", () => ({
   AgGridReact: forwardRef((props: unknown, ref) => {
@@ -19,7 +37,55 @@ vi.mock("ag-grid-react", () => ({
         hideOverlay: hideOverlaySpy,
       },
     }));
-    return <div>Mocked Grid</div>;
+
+    const typedProps = props as {
+      rowData?: Row[];
+      columnDefs?: Array<{
+        field?: string;
+        cellClass?:
+          | string
+          | ((params: {
+              data: Row;
+              value: unknown;
+              colDef: { field?: string };
+            }) => string | string[] | undefined);
+      }>;
+    };
+    const row = typedProps.rowData?.[0];
+
+    return (
+      <div data-testid="mocked-grid-root">
+        <div>Mocked Grid</div>
+        {row && typedProps.columnDefs ? (
+          <div className="ag-row">
+            {typedProps.columnDefs.map((column, index) => {
+              const field = column.field ?? `column-${index}`;
+              const value = row[field as keyof Row];
+              const resolvedCellClass =
+                typeof column.cellClass === "function"
+                  ? column.cellClass({
+                      data: row,
+                      value,
+                      colDef: { field },
+                    })
+                  : column.cellClass;
+
+              return (
+                <div
+                  key={field}
+                  role="gridcell"
+                  className={["ag-cell", resolvedCellClass].filter(Boolean).join(" ")}
+                  data-field={field}
+                  tabIndex={-1}
+                >
+                  {String(value ?? "")}
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
+    );
   }),
 }));
 
@@ -522,6 +588,156 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
     expect(lastCall.gridOptions?.suppressCellFocus).toBe(false);
   });
 
+  test("no renderiza tooltip navegable por defecto", () => {
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        rowClickAffordance
+      />,
+    );
+
+    fireEvent.mouseOver(screen.getByRole("gridcell", { name: "Alpha" }));
+
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+
+    expect(screen.queryByTestId("mock-tooltip")).not.toBeInTheDocument();
+  });
+
+  test("tooltip navegable en grid solo se activa con rowClickAffordance y rowClickTooltip", () => {
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        rowClickAffordance
+        rowClickTooltip="Abrir detalle"
+      />,
+    );
+
+    fireEvent.mouseOver(screen.getByRole("gridcell", { name: "Alpha" }));
+
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+
+    expect(screen.getByTestId("mock-tooltip")).toHaveTextContent("Abrir detalle");
+    expect(screen.getByTestId("app-table-grid-tooltip-anchor")).toBeInTheDocument();
+  });
+
+  test("tooltip navegable no se activa en grid sin rowClickAffordance aunque exista texto", () => {
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        rowClickTooltip="Abrir detalle"
+      />,
+    );
+
+    fireEvent.mouseOver(screen.getByRole("gridcell", { name: "Alpha" }));
+
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+
+    expect(screen.queryByTestId("mock-tooltip")).not.toBeInTheDocument();
+  });
+
+  test("tooltip navegable excluye columnas de acciones y seleccion en grid", () => {
+    const mixedColumns = [
+      { field: "name", headerName: "Nombre" },
+      { field: "ag-Grid-SelectionColumn" as never, headerName: "Seleccion" },
+      { field: "acciones" as never, headerName: "Acciones", cellClass: "app-table-action-cell" },
+    ] as ColDef<Row>[];
+
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={mixedColumns}
+        rowClickAffordance
+        rowClickTooltip="Abrir detalle"
+      />,
+    );
+
+    const gridRoot = screen.getByTestId("mocked-grid-root");
+    const actionCell = gridRoot.querySelector("[data-field='acciones']");
+    const selectionCell = gridRoot.querySelector("[data-field='ag-Grid-SelectionColumn']");
+
+    expect(actionCell).not.toBeNull();
+    expect(selectionCell).not.toBeNull();
+
+    fireEvent.mouseOver(actionCell as Element);
+
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+
+    expect(screen.queryByTestId("mock-tooltip")).not.toBeInTheDocument();
+
+    fireEvent.mouseOver(selectionCell as Element);
+
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+
+    expect(screen.queryByTestId("mock-tooltip")).not.toBeInTheDocument();
+  });
+
+  test("tooltip navegable en grid reposiciona la ancla al cambiar de celda", () => {
+    const twoColumnRows = [{ id: "1", name: "Alpha", status: "Activo" }] as Array<
+      Row & { status: string }
+    >;
+    const twoColumnDefs: ColDef<Row & { status: string }>[] = [
+      { field: "name", headerName: "Nombre" },
+      { field: "status", headerName: "Estado" },
+    ];
+
+    render(
+      <AppTable
+        rows={twoColumnRows}
+        columns={twoColumnDefs}
+        rowClickAffordance
+        rowClickTooltip="Abrir detalle"
+      />,
+    );
+
+    const grid = screen.getByTestId("app-table-grid");
+    const firstCell = screen.getByRole("gridcell", { name: "Alpha" });
+    const secondCell = screen.getByRole("gridcell", { name: "Activo" });
+
+    Object.defineProperty(grid, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({ left: 0, top: 0, width: 500, height: 300 }),
+    });
+    Object.defineProperty(firstCell, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({ left: 10, top: 20, width: 120, height: 42 }),
+    });
+    Object.defineProperty(secondCell, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({ left: 180, top: 62, width: 120, height: 42 }),
+    });
+
+    fireEvent.mouseOver(firstCell);
+
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+
+    expect(screen.getByTestId("app-table-grid-tooltip-anchor")).toHaveStyle({
+      left: "10px",
+      top: "20px",
+    });
+
+    fireEvent.mouseOver(secondCell);
+
+    expect(screen.getByTestId("app-table-grid-tooltip-anchor")).toHaveStyle({
+      left: "180px",
+      top: "62px",
+    });
+  });
+
   test("Enter reutiliza onCellClicked sobre celdas navegables y excluye controles internos", () => {
     const onCellClicked = vi.fn();
 
@@ -578,6 +794,66 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
       field: "name",
       value: "Alpha",
     });
+  });
+
+  test("cards muestran tooltip navegable cuando se configura", () => {
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={columns}
+        presentationMode="cards"
+        rowClickAffordance
+        rowClickTooltip="Abrir detalle"
+        onCellClicked={vi.fn()}
+      />,
+    );
+
+    fireEvent.mouseOver(screen.getByTestId("app-table-card"));
+
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+
+    expect(screen.getByTestId("mock-tooltip")).toHaveTextContent("Abrir detalle");
+  });
+
+  test("cards no muestran tooltip al interactuar con acciones", () => {
+    const actionColumns: ColDef<Row & { acciones?: string }>[] = [
+      { field: "name", headerName: "Nombre" },
+      {
+        field: "acciones",
+        headerName: "Acciones",
+        cellRendererParams: {
+          appGridColumn: {
+            field: "acciones",
+            headerName: "Acciones",
+            visible: true,
+            sortable: false,
+            filterable: false,
+          },
+          actions: [],
+        },
+      },
+    ];
+
+    render(
+      <AppTable
+        rows={[{ id: "1", name: "Alpha" }]}
+        columns={actionColumns}
+        presentationMode="cards"
+        rowClickAffordance
+        rowClickTooltip="Abrir detalle"
+        onCellClicked={vi.fn()}
+      />,
+    );
+
+    fireEvent.mouseOver(screen.getByTestId("mock-card-actions"));
+
+    act(() => {
+      vi.advanceTimersByTime(400);
+    });
+
+    expect(screen.queryByTestId("mock-tooltip")).not.toBeInTheDocument();
   });
 
   test("cards ejecuta la accion primaria con Enter cuando rowClickAffordance esta activo", () => {

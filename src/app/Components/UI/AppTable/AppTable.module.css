@@ -82,6 +82,13 @@
   transition: background-color 120ms ease-in-out;
 }
 
+.tooltipAnchor {
+  position: absolute;
+  z-index: 3;
+  display: block;
+  pointer-events: none;
+}
+
 .gridAffordance :global(.ag-row-hover:not(.ag-full-width-row)::before),
 .gridAffordance :global(.ag-row-hover.ag-full-width-row.ag-row-group::before),
 .gridAffordance :global(.ag-row-hover.ag-row-selected::before) {

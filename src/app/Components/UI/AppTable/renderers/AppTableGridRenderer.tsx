@@ -1,10 +1,16 @@
+import { Tooltip } from "antd";
 import { AgGridReact } from "ag-grid-react";
 import type { CellKeyDownEvent, ColDef, GridReadyEvent } from "ag-grid-community";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { AppTablePaginationMode, AppTableProps, AppTableRow } from "../AppTable.types";
 import type { AppTableActionCellRendererParams } from "../types/dynamicUiTableAction.types";
 import { useAgGridBaseConfig } from "../hooks/useAgGridBaseConfig";
 import { useDeferredLoadingVeil } from "../hooks/useDeferredLoadingVeil";
+import {
+  isInteractiveElement,
+  isNavigableField,
+  isRowClickTooltipEnabled,
+} from "../utils/navigableAffordance";
 import styles from "../AppTable.module.css";
 
 const resolveRowId = <T extends AppTableRow>(
@@ -39,22 +45,6 @@ const normalizeCellClass = (
 
   return undefined;
 };
-
-const ACTION_COLUMN_FIELD = "acciones";
-const SELECTION_COLUMN_FIELD = "ag-Grid-SelectionColumn";
-
-const isInteractiveElement = (target: EventTarget | null): target is HTMLElement => {
-  if (!(target instanceof HTMLElement)) {
-    return false;
-  }
-
-  return Boolean(
-    target.closest("button, a, input, textarea, select, [role=\"button\"]"),
-  );
-};
-
-const isNavigableField = (field?: string | null) =>
-  Boolean(field && field !== ACTION_COLUMN_FIELD && field !== SELECTION_COLUMN_FIELD);
 
 const getKeyboardEventKey = (event: Event | null | undefined) => {
   if (!event || typeof event !== "object" || !("key" in event)) {
@@ -126,6 +116,24 @@ type AppTableGridRendererProps<T extends AppTableRow> = AppTableProps<T> & {
   resolvedLayoutMode: "content" | "fill";
 };
 
+type GridTooltipAnchor = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
+
+const TOOLTIP_MOUSE_DELAY_MS = 350;
+const NAVIGABLE_CELL_CLASS = "app-table-navigable-cell";
+
+const getNavigableCellElement = (target: EventTarget | null): HTMLElement | null => {
+  if (!(target instanceof HTMLElement)) {
+    return null;
+  }
+
+  return target.closest(`.ag-cell.${NAVIGABLE_CELL_CLASS}`);
+};
+
 export function AppTableGridRenderer<T extends AppTableRow>({
   rows,
   columns,
@@ -138,6 +146,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
   suppressRowClickSelection = false,
   suppressCellFocus,
   rowClickAffordance = false,
+  rowClickTooltip,
   domLayout = "autoHeight",
   className,
   gridClassName,
@@ -150,8 +159,13 @@ export function AppTableGridRenderer<T extends AppTableRow>({
   resolvedLayoutMode,
 }: AppTableGridRendererProps<T>) {
   const gridRef = useRef<AgGridReact<T>>(null);
+  const tooltipShowTimerRef = useRef<number | null>(null);
+  const gridContainerRef = useRef<HTMLDivElement | null>(null);
+  const activeTooltipCellRef = useRef<HTMLElement | null>(null);
   const isSoftLoading = loading && rows.length > 0;
   const showLoadingVeil = useDeferredLoadingVeil(isSoftLoading);
+  const [tooltipAnchor, setTooltipAnchor] = useState<GridTooltipAnchor | null>(null);
+  const isTooltipEnabled = isRowClickTooltipEnabled(rowClickAffordance, rowClickTooltip);
   const gridOptions = useAgGridBaseConfig<T>({
     rowSelection,
     domLayout,
@@ -228,6 +242,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
 
             return joinClasses(
               normalizeCellClass(existing),
+              NAVIGABLE_CELL_CLASS,
               styles.navigableCell,
             );
           },
@@ -289,6 +304,73 @@ export function AppTableGridRenderer<T extends AppTableRow>({
     return "ready";
   }, [loading, rowData.length]);
 
+  const clearTooltipTimer = () => {
+    if (tooltipShowTimerRef.current != null) {
+      window.clearTimeout(tooltipShowTimerRef.current);
+      tooltipShowTimerRef.current = null;
+    }
+  };
+
+  const hideTooltip = () => {
+    clearTooltipTimer();
+    activeTooltipCellRef.current = null;
+    setTooltipAnchor(null);
+  };
+
+  const updateTooltipAnchor = (cell: HTMLElement) => {
+    const container = gridContainerRef.current;
+    if (!container) {
+      return;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const cellRect = cell.getBoundingClientRect();
+
+    setTooltipAnchor({
+      left: cellRect.left - containerRect.left,
+      top: cellRect.top - containerRect.top,
+      width: cellRect.width,
+      height: cellRect.height,
+    });
+  };
+
+  const scheduleTooltipForCell = (cell: HTMLElement) => {
+    if (!isTooltipEnabled) {
+      return;
+    }
+
+    clearTooltipTimer();
+    activeTooltipCellRef.current = cell;
+    tooltipShowTimerRef.current = window.setTimeout(() => {
+      updateTooltipAnchor(cell);
+      tooltipShowTimerRef.current = null;
+    }, TOOLTIP_MOUSE_DELAY_MS);
+  };
+
+  const showTooltipForCell = (cell: HTMLElement) => {
+    if (!isTooltipEnabled) {
+      return;
+    }
+
+    clearTooltipTimer();
+    activeTooltipCellRef.current = cell;
+    updateTooltipAnchor(cell);
+  };
+
+  const tooltipAnchorKey = tooltipAnchor
+    ? `${tooltipAnchor.left}-${tooltipAnchor.top}-${tooltipAnchor.width}-${tooltipAnchor.height}`
+    : "hidden";
+
+  const resolveValidTooltipCell = (target: EventTarget | null) => {
+    if (isInteractiveElement(target)) {
+      return null;
+    }
+
+    return getNavigableCellElement(target);
+  };
+
+  useEffect(() => () => clearTooltipTimer(), []);
+
   return (
     <div
       className={joinClasses(
@@ -302,6 +384,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
       data-total={total ?? undefined}
     >
       <div
+        ref={gridContainerRef}
         className={joinClasses(
           styles.grid,
           rowClickAffordance && styles.gridAffordance,
@@ -311,6 +394,61 @@ export function AppTableGridRenderer<T extends AppTableRow>({
         )}
         data-overlay={overlayStatus}
         data-testid="app-table-grid"
+        onMouseOver={(event) => {
+          const cell = resolveValidTooltipCell(event.target);
+          if (!cell) {
+            hideTooltip();
+            return;
+          }
+
+          if (activeTooltipCellRef.current === cell) {
+            return;
+          }
+
+          if (tooltipAnchor) {
+            showTooltipForCell(cell);
+            return;
+          }
+
+          scheduleTooltipForCell(cell);
+        }}
+        onMouseMove={(event) => {
+          const cell = resolveValidTooltipCell(event.target);
+          if (!cell) {
+            hideTooltip();
+            return;
+          }
+
+          if (activeTooltipCellRef.current !== cell && tooltipAnchor) {
+            showTooltipForCell(cell);
+            return;
+          }
+
+          if (tooltipAnchor) {
+            updateTooltipAnchor(cell);
+          }
+        }}
+        onMouseLeave={() => {
+          hideTooltip();
+        }}
+        onFocusCapture={(event) => {
+          const cell = resolveValidTooltipCell(event.target);
+          if (!cell) {
+            hideTooltip();
+            return;
+          }
+
+          showTooltipForCell(cell);
+        }}
+        onBlurCapture={(event) => {
+          const nextTarget = event.relatedTarget;
+          const nextCell = resolveValidTooltipCell(nextTarget);
+          if (nextCell) {
+            return;
+          }
+
+          hideTooltip();
+        }}
       >
         <AgGridReact<T>
           ref={gridRef}
@@ -322,6 +460,27 @@ export function AppTableGridRenderer<T extends AppTableRow>({
           onGridReady={onGridReady}
           getRowId={(params) => resolveRowId(params.data, getRowId)}
         />
+        {isTooltipEnabled && tooltipAnchor ? (
+          <Tooltip
+            key={tooltipAnchorKey}
+            title={rowClickTooltip}
+            open
+            placement="top"
+            mouseEnterDelay={0.35}
+          >
+            <span
+              aria-hidden="true"
+              className={styles.tooltipAnchor}
+              data-testid="app-table-grid-tooltip-anchor"
+              style={{
+                left: `${tooltipAnchor.left}px`,
+                top: `${tooltipAnchor.top}px`,
+                width: `${tooltipAnchor.width}px`,
+                height: `${tooltipAnchor.height}px`,
+              }}
+            />
+          </Tooltip>
+        ) : null}
         {showLoadingVeil ? (
           <div className={styles.loadingVeil} data-testid="app-table-loading-veil">
             <span className={styles.loadingBadge}>

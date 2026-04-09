@@ -10,15 +10,13 @@ import { AppTableCardRenderer } from "./renderers/AppTableCardRenderer";
 import { AppTableCardSkeleton } from "./renderers/AppTableCardSkeleton";
 import { AppTableGridRenderer } from "./renderers/AppTableGridRenderer";
 import { AppTableGridSkeleton } from "./renderers/AppTableGridSkeleton";
+import { isNavigableField } from "./utils/navigableAffordance";
 import styles from "./AppTable.module.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
 
 const DEFAULT_CARDS_BELOW = 768;
 const DEFAULT_LOADING_MODE = "skeleton";
-const ACTION_COLUMN_FIELD = "acciones";
-const SELECTION_COLUMN_FIELD = "ag-Grid-SelectionColumn";
-
 const resolveLayoutMode = (
   layoutMode: AppTableLayoutMode | undefined,
   domLayout: AppTableProps<AppTableRow>["domLayout"] | undefined,
@@ -70,10 +68,17 @@ const resolvePrimaryCardField = <T extends AppTableRow>(
     : null;
 
   for (const column of columns) {
-    const field = column.field ?? column.colId;
-    if (!field || field === ACTION_COLUMN_FIELD || field === SELECTION_COLUMN_FIELD) {
+    const fieldCandidate = column.field ?? column.colId;
+    const field = typeof fieldCandidate === "string" ? fieldCandidate : null;
+    if (!isNavigableField(field)) {
       continue;
     }
+
+    if (field === null) {
+      continue;
+    }
+
+    const navigableField = field;
 
     if (column.hide) {
       continue;
@@ -87,11 +92,11 @@ const resolvePrimaryCardField = <T extends AppTableRow>(
       continue;
     }
 
-    if (allowedCardFields && !allowedCardFields.has(field)) {
+    if (allowedCardFields && !allowedCardFields.has(navigableField)) {
       continue;
     }
 
-    return field;
+    return navigableField;
   }
 
   return null;
@@ -180,6 +185,7 @@ export default function AppTable<T extends AppTableRow>(props: AppTableProps<T>)
           onRowClicked={handlePrimaryCardAction}
           onActionTriggered={props.onActionTriggered}
           rowClickAffordance={props.rowClickAffordance}
+          rowClickTooltip={props.rowClickTooltip}
           resolvedLayoutMode={resolvedLayoutMode}
         />
       ) : (

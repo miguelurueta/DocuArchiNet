@@ -11,6 +11,7 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
     layoutMode,
     rowSelection,
     rowClickAffordance,
+    rowClickTooltip,
     gridClassName,
     responsivePresentation,
     onActionTriggered,
@@ -20,6 +21,7 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
     layoutMode?: string;
     rowSelection?: string;
     rowClickAffordance?: boolean;
+    rowClickTooltip?: string;
     gridClassName?: string;
     responsivePresentation?: { enabled?: boolean; cardsBelow?: number };
     onActionTriggered?: (input: {
@@ -39,6 +41,7 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
       data-layout-mode={layoutMode}
       data-row-selection={rowSelection}
       data-row-click-affordance={rowClickAffordance ? "true" : "false"}
+      data-row-click-tooltip={rowClickTooltip ?? ""}
       data-grid-class-name={gridClassName ?? ""}
       data-responsive-enabled={responsivePresentation?.enabled ? "true" : "false"}
       data-cards-below={responsivePresentation?.cardsBelow}
@@ -161,6 +164,10 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute(
       "data-row-click-affordance",
       "true",
+    );
+    expect(screen.getByTestId("mock-app-table")).toHaveAttribute(
+      "data-row-click-tooltip",
+      "Gestionar trámite",
     );
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-grid-class-name", "");
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute(
