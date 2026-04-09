@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { AppTabs } from "./AppTabs";
 
@@ -94,5 +95,130 @@ describe("AppTabs [SPEC:APP-TABS-001]", () => {
 
     expect(handleChange).not.toHaveBeenCalled();
     expect(screen.getByRole("tabpanel")).toHaveTextContent("Contenido general");
+  });
+});
+
+describe("AppTabs [SPEC:APP-TABS-002]", () => {
+  it("renderiza iconos y badges", () => {
+    render(
+      <AppTabs
+        items={[
+          {
+            key: "alertas",
+            label: "Alertas",
+            icon: <span data-testid="tab-icon">!</span>,
+            badge: 3,
+            children: <div>Contenido alertas</div>,
+          },
+        ]}
+        defaultActiveKey="alertas"
+      />,
+    );
+
+    expect(screen.getByTestId("tab-icon")).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+  });
+
+  it("aplica clase customTabs", () => {
+    const { container } = render(<AppTabs items={baseItems} />);
+
+    expect(container.querySelector(".customTabs")).toBeInTheDocument();
+  });
+
+  it("marca estado visual disabled", () => {
+    render(<AppTabs items={baseItems} defaultActiveKey="general" />);
+
+    const disabledTabBtn = screen.getByRole("tab", { name: /Bloqueado/ });
+    const disabledTab = disabledTabBtn.closest(".ant-tabs-tab");
+
+    expect(disabledTab).toHaveClass("ant-tabs-tab-disabled");
+    expect(disabledTabBtn).toHaveAttribute("aria-disabled", "true");
+  });
+});
+
+describe("AppTabs [SPEC:APP-TABS-003]", () => {
+  it("sincroniza tab con query param", () => {
+    render(
+      <MemoryRouter initialEntries={["/tabs?tab=historial"]}>
+        <AppTabs items={baseItems} syncWithRouter />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("tab", { name: /Historial/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
+  it("sincroniza tab con path segment", () => {
+    render(
+      <MemoryRouter initialEntries={["/tabs/historial"]}>
+        <AppTabs items={baseItems} syncWithRouter />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("tab", { name: /Historial/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
+  it("hace fallback cuando el key del router no existe", () => {
+    render(
+      <MemoryRouter initialEntries={["/tabs/inexistente"]}>
+        <AppTabs items={baseItems} syncWithRouter />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("tab", { name: /General/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
+  it("router gana sobre activeKey", () => {
+    render(
+      <MemoryRouter initialEntries={["/tabs?tab=historial"]}>
+        <AppTabs items={baseItems} activeKey="general" syncWithRouter />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("tab", { name: /Historial/ })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+  });
+
+  it("lazy rendering renderiza contenido solo al activar tab", async () => {
+    render(<AppTabs items={baseItems} defaultActiveKey="general" lazy />);
+
+    expect(screen.queryByText("Contenido historial")).not.toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("tab", { name: /Historial/ }));
+    });
+
+    expect(screen.getByText("Contenido historial")).toBeInTheDocument();
+  });
+
+  it("dispara onTabVisible cuando una tab se vuelve visible", async () => {
+    const handleVisible = vi.fn();
+
+    render(
+      <AppTabs
+        items={baseItems}
+        defaultActiveKey="general"
+        onTabVisible={handleVisible}
+      />,
+    );
+
+    expect(handleVisible).toHaveBeenCalledWith("general");
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("tab", { name: /Historial/ }));
+    });
+
+    expect(handleVisible).toHaveBeenCalledWith("historial");
+    expect(handleVisible).toHaveBeenCalledTimes(2);
   });
 });
