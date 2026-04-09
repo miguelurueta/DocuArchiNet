@@ -20,6 +20,9 @@ import { AppTabs } from "src/app/Components/UI";
 | `variant` | `"default" \| "card" \| "underline" \| "pills"` | `"default"` | Variante visual del control. |
 | `size` | `"sm" \| "md" \| "lg"` | `"md"` | Tamano visual de tabs (padding y tipografia). |
 | `fullWidth` | `boolean` | `false` | Hace que el tabset ocupe todo el ancho disponible. |
+| `syncWithRouter` | `boolean` | `false` | Sincroniza la tab activa con el URL (path segment o `?tab=`). |
+| `lazy` | `boolean` | `false` | Renderiza contenido solo cuando la tab se activa. |
+| `onTabVisible` | `(key: string) => void` | `undefined` | Callback cuando una tab se vuelve visible. |
 | `className` | `string` | `undefined` | Permite combinar clases externas con estilos internos. |
 
 ## Ejemplos
@@ -94,6 +97,25 @@ import { AppTabs } from "src/app/Components/UI";
 />
 ```
 
+### Sync con router
+
+```tsx
+<AppTabs
+  syncWithRouter
+  items={items}
+/>
+```
+
+### Lazy rendering + telemetry
+
+```tsx
+<AppTabs
+  lazy
+  onTabVisible={(key) => track("tab_visible", { key })}
+  items={items}
+/>
+```
+
 ## Buenas practicas
 
 - Usa `key` estables y semanticamente significativas para cada tab.
@@ -101,3 +123,4 @@ import { AppTabs } from "src/app/Components/UI";
 - Usa `defaultActiveKey` para flujos simples donde la vista no necesita controlar la seleccion.
 - Marca tabs no disponibles con `disabled` en lugar de ocultarlas si el usuario debe entender que existen pero no aplican aun.
 - Define `variant` y `size` para asegurar consistencia visual en todo el modulo.
+- Usa `syncWithRouter` solo cuando el contenedor tiene un router activo.
