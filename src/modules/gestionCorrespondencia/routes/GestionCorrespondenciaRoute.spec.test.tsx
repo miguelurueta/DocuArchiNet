@@ -42,11 +42,12 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
     expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
     expect(screen.getByTestId("gestion-correspondencia-detail-region")).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: /Gestion de respuesta/i }),
-    ).toBeInTheDocument();
     expect(screen.getByText("Contexto")).toBeInTheDocument();
     expect(screen.getByText("Detalle")).toBeInTheDocument();
+    expect(screen.getByText("Adjuntos")).toBeInTheDocument();
+    expect(screen.getByText(/Resumen de respuesta/i)).toBeInTheDocument();
+    const disabledTab = screen.getByText("Adjuntos").closest(".ant-tabs-tab");
+    expect(disabledTab).toHaveClass("ant-tabs-tab-disabled");
 
     fireEvent.click(screen.getByRole("button", { name: /Volver a la bandeja/i }));
 
@@ -79,6 +80,5 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
     expect(
       screen.getByRole("button", { name: /Volver a la bandeja/i }),
     ).toBeVisible();
-    expect(screen.getByText(/Retorno contextual/i)).toBeInTheDocument();
   });
 });

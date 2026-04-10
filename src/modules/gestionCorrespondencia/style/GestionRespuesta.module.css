@@ -1,0 +1,45 @@
+.tabsShell {
+  width: 100%;
+}
+
+.tabsShell :global(.ant-tabs-nav-wrap) {
+  overflow-x: auto;
+}
+
+.tabsShell :global(.ant-tabs-nav-list) {
+  flex-wrap: nowrap;
+}
+
+.tabs {
+  width: 100%;
+}
+
+.tabSection {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.sectionTitle {
+  margin: 0;
+}
+
+.sectionCopy {
+  margin: 0;
+  color: #4b5f73;
+}
+
+.sectionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: #6b7f92;
+}
+
+.sectionDivider {
+  margin: 0.5rem 0;
+}
+
+.sectionHint {
+  color: #6b7f92;
+}
