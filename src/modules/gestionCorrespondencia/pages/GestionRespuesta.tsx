@@ -1,3 +1,4 @@
+import { FileTextOutlined, InfoCircleOutlined, PaperClipOutlined } from "@ant-design/icons";
 import { Divider, Typography } from "antd";
 import type { AppTabItem } from "../../../app/Components/UI/AppTabs";
 import { AppTabs } from "../../../app/Components/UI/AppTabs";
@@ -8,6 +9,7 @@ export default function GestionRespuesta() {
     {
       key: "contexto",
       label: "Contexto",
+      icon: <InfoCircleOutlined />,
       children: (
         <section className={styles.tabSection}>
           <Typography.Title level={5} className={styles.sectionTitle}>
@@ -27,6 +29,7 @@ export default function GestionRespuesta() {
     {
       key: "detalle",
       label: "Detalle",
+      icon: <FileTextOutlined />,
       children: (
         <section className={styles.tabSection}>
           <Typography.Title level={5} className={styles.sectionTitle}>
@@ -45,6 +48,7 @@ export default function GestionRespuesta() {
     {
       key: "adjuntos",
       label: "Adjuntos",
+      icon: <PaperClipOutlined />,
       disabled: true,
       children: null,
     },
