@@ -45,8 +45,8 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
     expect(
       screen.getByRole("heading", { name: /Gestion de respuesta/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /Respuesta contextual/i })).toBeInTheDocument();
-    expect(screen.getByText(/Revisa el detalle sin salir de la bandeja/i)).toBeInTheDocument();
+    expect(screen.getByText("Contexto")).toBeInTheDocument();
+    expect(screen.getByText("Detalle")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Volver a la bandeja/i }));
 
