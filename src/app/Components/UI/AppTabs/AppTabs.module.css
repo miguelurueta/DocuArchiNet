@@ -9,7 +9,14 @@
   --tabs-surface-muted: #f6f9fc;
   --tabs-text: #17324b;
   --tabs-text-muted: #5f7488;
-  --tabs-gap: 0.25rem;
+  --tabs-pill-bg: #f1f5f9;
+  --tabs-pill-hover: #e2e8f0;
+  --tabs-pill-text: #334155;
+  --tabs-pill-text-hover: #1e293b;
+  --tabs-pill-active: #ffffff;
+  --tabs-pill-active-text: #1677ff;
+  --tabs-pill-ink-start: #1677ff;
+  --tabs-pill-ink-end: #0958d9;
   width: fit-content;
 }
 
@@ -27,10 +34,6 @@
 
 .orientationHorizontal :global(.ant-tabs-nav) {
   margin-bottom: 1rem;
-}
-
-.orientationHorizontal :global(.ant-tabs-nav-wrap) {
-  overflow: hidden;
 }
 
 .orientationVertical {
@@ -75,8 +78,7 @@
 }
 
 .header :global(.ant-tabs-nav-list) {
-  gap: var(--tabs-gap);
-  flex-wrap: nowrap;
+  gap: 0;
 }
 
 .item {
@@ -147,6 +149,70 @@
 .customTabs {
 }
 
+.variantDefault.customTabs :global(.ant-tabs-tab),
+.variantUnderline.customTabs :global(.ant-tabs-tab) {
+  background: var(--tabs-pill-bg) !important;
+  border-top: 1px solid var(--tabs-border) !important;
+  border-left: 1px solid var(--tabs-border) !important;
+  border-right: 1px solid var(--tabs-border) !important;
+  border-bottom: 0 !important;
+  margin-right: 2px !important;
+  margin-left: 0 !important;
+  border-radius: 10px 10px 0 0 !important;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: var(--tabs-pill-text);
+  position: relative;
+}
+
+.variantDefault.customTabs :global(.ant-tabs-tab:hover),
+.variantUnderline.customTabs :global(.ant-tabs-tab:hover) {
+  background: var(--tabs-pill-hover) !important;
+  color: var(--tabs-pill-text-hover) !important;
+  transform: translateY(-1px);
+}
+
+.variantDefault.customTabs :global(.ant-tabs-tab-active),
+.variantUnderline.customTabs :global(.ant-tabs-tab-active) {
+  background: var(--tabs-pill-active) !important;
+  font-weight: 600;
+  color: var(--tabs-pill-active-text) !important;
+}
+
+.variantDefault.customTabs :global(.ant-tabs-ink-bar),
+.variantUnderline.customTabs :global(.ant-tabs-ink-bar) {
+  display: none !important;
+}
+
+.variantDefault.customTabs :global(.ant-tabs-tab .ant-tabs-tab-btn),
+.variantUnderline.customTabs :global(.ant-tabs-tab .ant-tabs-tab-btn) {
+  position: relative;
+}
+
+.variantDefault.customTabs :global(.ant-tabs-tab .ant-tabs-tab-btn::after),
+.variantUnderline.customTabs :global(.ant-tabs-tab .ant-tabs-tab-btn::after) {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
+  width: 60%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--tabs-pill-ink-start),
+    var(--tabs-pill-ink-end)
+  );
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.variantDefault.customTabs :global(.ant-tabs-tab-active .ant-tabs-tab-btn::after),
+.variantUnderline.customTabs :global(.ant-tabs-tab-active .ant-tabs-tab-btn::after) {
+  transform: translateX(-50%) scaleX(1);
+}
+
 .moreLabel {
   display: inline-flex;
   align-items: center;
@@ -172,21 +238,4 @@
 
 .sizeLG :global(.ant-tabs-tab) {
   padding: var(--tabs-padding-lg, 10px 22px) !important;
-}
-
-@media (max-width: 1024px) {
-  .root {
-    --tabs-gap: 0.15rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .orientationHorizontal :global(.ant-tabs-nav-wrap) {
-    overflow-x: auto;
-    scrollbar-width: thin;
-  }
-
-  .orientationHorizontal :global(.ant-tabs-nav-list) {
-    flex-wrap: nowrap;
-  }
 }

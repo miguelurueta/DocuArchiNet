@@ -35,15 +35,6 @@ export default function GestionCorrespondenciaRoute({
           data-testid="gestion-correspondencia-detail-region"
         >
           <header className={styles.detailHeader}>
-            <div className={styles.detailHeaderCopy}>
-              <span className={styles.detailEyebrow}>Detalle contextual</span>
-              <h2 className={styles.detailTitle}>Respuesta contextual</h2>
-              <p className={styles.detailDescription}>
-                Revisa el detalle sin salir de la bandeja y vuelve al listado
-                con la misma navegacion del modulo.
-              </p>
-            </div>
-
             <AppButton
               aria-label="Volver a la bandeja"
               className={styles.detailReturnAction}

@@ -212,6 +212,7 @@ Impacta:
 - clase base: `.customTabs`
 - desactivar ink-bar original
 - linea animada inferior
+- variantes `default` y `underline` usan estilo tipo pill con borde superior/lateral
 
 Contenido base requerido:
 
@@ -282,6 +283,28 @@ Contenido base requerido:
 Aplicacion:
 
 <Tabs className={styles.customTabs} {...props} />
+
+## Actualizaciones CSS (2026-04-10)
+
+Cambios aplicados en `src/app/Components/UI/AppTabs/AppTabs.module.css`:
+
+- Tokens nuevos en `:root` del componente para estilo pill:
+  - `--tabs-pill-bg`, `--tabs-pill-hover`, `--tabs-pill-text`, `--tabs-pill-text-hover`
+  - `--tabs-pill-active`, `--tabs-pill-active-text`
+  - `--tabs-pill-ink-start`, `--tabs-pill-ink-end`
+- Estilo pill aplicado a variantes `default` y `underline`:
+  - fondo base `var(--tabs-pill-bg)`
+  - borde solo arriba y laterales (`border-top/left/right`) y sin borde abajo
+  - radio superior `10px 10px 0 0`
+  - color de texto con tokens pill
+- Hover mas sutil:
+  - `transform: translateY(-1px)`
+  - conserva color y fondo por tokens pill
+- Separacion entre tabs reducida:
+  - `gap` del nav list en `0`
+  - `margin-right` en tabs `2px` (separacion minima visible)
+- Ink-bar de AntD deshabilitado para `default` y `underline`:
+  - underline animado controlado por `::after` en `.ant-tabs-tab-btn`
 
 ## Accesibilidad
 
