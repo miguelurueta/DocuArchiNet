@@ -6,6 +6,7 @@ export * from "./AppInputSearch";
 export * from "./AppUpload";
 export * from "./AppInputTags";
 export * from "./AppButton";
+export * from "./AppCollapseRail";
 export * from "./AppDropdown";
 export * from "./AppTable/AppTable.types";
 export * from "./AppTable/AppTableExport.types";
