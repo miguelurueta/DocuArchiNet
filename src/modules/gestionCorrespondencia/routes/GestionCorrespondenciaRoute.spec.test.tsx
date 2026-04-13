@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, test, vi } from "vitest";
 import GestionCorrespondenciaLayout from "../layout/GestionCorrespondenciaLayout";
@@ -42,12 +42,9 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
     expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
     expect(screen.getByTestId("gestion-correspondencia-detail-region")).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(screen.getByText("Contexto")).toBeInTheDocument();
-    expect(screen.getByText("Detalle")).toBeInTheDocument();
-    expect(screen.getByText("Adjuntos")).toBeInTheDocument();
-    expect(screen.getByText(/Resumen de respuesta/i)).toBeInTheDocument();
-    const disabledTab = screen.getByText("Adjuntos").closest(".ant-tabs-tab");
-    expect(disabledTab).toHaveClass("ant-tabs-tab-disabled");
+    expect(screen.getByText("Gestion")).toBeInTheDocument();
+    expect(screen.getByText("Documentos")).toBeInTheDocument();
+    expect(screen.getByText(/Guardar borrador/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Volver a la bandeja/i }));
 
@@ -60,6 +57,17 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
 
     expect(screen.getByTestId("gestion-correspondencia-main-region")).toBeInTheDocument();
     expect(screen.getByTestId("gestion-correspondencia-detail-region")).toBeInTheDocument();
+  });
+
+  test("mantiene el contenido del segundo tab sin regresiones", async () => {
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("tab", { name: /Documentos/i }));
+    });
+
+    expect(await screen.findByText(/Detalle operativo/i)).toBeInTheDocument();
+    expect(await screen.findByText(/La integracion funcional se activara/i)).toBeInTheDocument();
   });
 
   test("usa un shell observable con panel superpuesto en lugar de dialog modal", () => {

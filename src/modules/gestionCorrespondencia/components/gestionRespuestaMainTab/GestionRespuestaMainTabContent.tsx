@@ -1,0 +1,118 @@
+import {
+  LeftOutlined,
+  SaveOutlined,
+  SendOutlined,
+  ToolOutlined,
+  UserAddOutlined,
+} from "@ant-design/icons";
+import { useEffect, useId, useState } from "react";
+import { AppButton } from "../../../../app/Components/UI/AppButton";
+import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
+import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
+import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
+import styles from "./GestionRespuestaMainTabContent.module.css";
+import { GestionRespuestaEditorContainer } from "./GestionRespuestaEditorContainer";
+import { GestionRespuestaInfoHeader } from "./GestionRespuestaInfoHeader";
+import { GestionRespuestaRightToolsPanel } from "./GestionRespuestaRightToolsPanel";
+
+const DEFAULT_MEDIA_QUERY = "(max-width: 1024px)";
+
+const useMediaQuery = (query: string) => {
+  const getMatches = () =>
+    typeof window !== "undefined" ? window.matchMedia(query).matches : false;
+  const [matches, setMatches] = useState(getMatches);
+
+  useEffect(() => {
+    const mediaQueryList = window.matchMedia(query);
+    const update = (event: MediaQueryListEvent) => {
+      setMatches(event.matches);
+    };
+
+    setMatches(mediaQueryList.matches);
+    mediaQueryList.addEventListener("change", update);
+    return () => {
+      mediaQueryList.removeEventListener("change", update);
+    };
+  }, [query]);
+
+  return matches;
+};
+
+export function GestionRespuestaMainTabContent() {
+  const panelId = useId();
+  const isCompact = useMediaQuery(DEFAULT_MEDIA_QUERY);
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(isCompact);
+  const [files, setFiles] = useState<AppUploadFile[]>([]);
+
+  useEffect(() => {
+    setIsPanelCollapsed(isCompact);
+  }, [isCompact]);
+
+  return (
+    <section className={styles.mainTab} aria-label="Contenido principal de respuesta">
+      <GestionRespuestaInfoHeader
+        metadata={[
+          { label: "Origen", value: "Bandeja de correspondencia" },
+          { label: "Estado", value: "Pendiente de validacion" },
+          { label: "SLA", value: "4 horas restantes" },
+        ]}
+      />
+
+      <div className={styles.workbench}>
+        <AppToolbar
+          className={styles.toolbar}
+          actions={[
+            { key: "guardar", label: "Guardar borrador", size: "sm", icon: <SaveOutlined /> },
+            { key: "asignar", label: "Asignar revisor", size: "sm", icon: <UserAddOutlined /> },
+          ]}
+          primaryAction={{
+            key: "enviar",
+            label: "Enviar respuesta",
+            size: "sm",
+            icon: <SendOutlined />,
+          }}
+        />
+
+        <div
+          className={styles.workbenchBody}
+          data-panel-collapsed={isPanelCollapsed}
+          data-testid="gestion-respuesta-workbench"
+        >
+          <GestionRespuestaEditorContainer
+            title="Editor principal"
+            description="Zona dominante del workspace para construir la respuesta."
+          />
+          <div className={styles.toolsRail} data-collapsed={isPanelCollapsed}>
+            {isPanelCollapsed ? (
+              <AppButton
+                variant="ghost"
+                size="sm"
+                className={styles.toolsRestore}
+                onClick={() => setIsPanelCollapsed(false)}
+                aria-label="Mostrar panel de herramientas"
+                icon={<LeftOutlined />}
+              >
+                {isCompact ? (
+                  <span className={styles.toolsRestoreLabel}>Herramientas</span>
+                ) : null}
+              </AppButton>
+            ) : null}
+          </div>
+          <GestionRespuestaRightToolsPanel
+            collapsed={isPanelCollapsed}
+            panelId={panelId}
+            onToggle={() => setIsPanelCollapsed((prev) => !prev)}
+          />
+        </div>
+      </div>
+
+      <div className={styles.attachments}>
+        <div className={styles.attachmentsHeader}>
+          <h3 className={styles.attachmentsTitle}>Adjuntos</h3>
+          <span className={styles.infoCopy}>Carga de soportes y anexos del expediente.</span>
+        </div>
+        <AppUpload value={files} onChange={setFiles} drag size="md" />
+      </div>
+    </section>
+  );
+}

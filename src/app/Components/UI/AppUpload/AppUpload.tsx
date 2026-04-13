@@ -9,6 +9,7 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import type { ReactNode } from "react";
@@ -135,6 +136,14 @@ const createAppUploadFile = (file: RcFile): AppUploadFile => ({
   originFile: file as File,
 });
 
+const IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg"];
+
+const isImageFile = (file: AppUploadFile) =>
+  Boolean(
+    file.type?.startsWith("image/") ||
+      IMAGE_EXTENSIONS.some((ext) => file.name.toLowerCase().endsWith(ext)),
+  );
+
 const FilePreview = ({
   file,
   onPreview,
@@ -146,7 +155,7 @@ const FilePreview = ({
 }) => {
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
   const previewUrl = file.thumbUrl ?? file.url ?? objectUrl ?? undefined;
-  const isImage = file.type?.startsWith("image/") || Boolean(previewUrl);
+  const isImage = isImageFile(file) && Boolean(previewUrl);
 
   useEffect(() => {
     if (!file.originFile || previewUrl) return undefined;
@@ -303,7 +312,7 @@ export const AppUpload = forwardRef<AppUploadHandle, AppUploadProps>(
       onError,
       onTelemetry,
       onPreview,
-      previewOnClick = false,
+      previewOnClick = true,
       customRequest,
       renderItem,
       renderActions,
@@ -316,6 +325,21 @@ export const AppUpload = forwardRef<AppUploadHandle, AppUploadProps>(
     const files = value ?? internalFiles;
     const isControlled = value !== undefined;
     const [dragState, setDragState] = useState<"valid" | "invalid" | null>(null);
+    const createdThumbUrlsRef = useRef(new Map<string, string>());
+
+    useEffect(() => {
+      const liveIds = new Set(files.map((file) => file.uid));
+      createdThumbUrlsRef.current.forEach((url, uid) => {
+        if (!liveIds.has(uid)) {
+          URL.revokeObjectURL(url);
+          createdThumbUrlsRef.current.delete(uid);
+        }
+      });
+      return () => {
+        createdThumbUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+        createdThumbUrlsRef.current.clear();
+      };
+    }, [files]);
 
     const emitTelemetry = useCallback(
       (type: AppUploadTelemetryEvent["type"], file?: AppUploadFile, meta?: Record<string, unknown>) => {
@@ -332,7 +356,28 @@ export const AppUpload = forwardRef<AppUploadHandle, AppUploadProps>(
     const handlePreview = useCallback(
       (file: AppUploadFile) => {
         emitTelemetry("preview_open", file);
-        onPreview?.(file);
+        if (onPreview) {
+          onPreview(file);
+          return;
+        }
+        if (typeof window === "undefined") return;
+        const directUrl = file.url ?? file.thumbUrl;
+        if (directUrl) {
+          window.open(directUrl, "_blank", "noopener");
+          return;
+        }
+        if (file.originFile) {
+          const objectUrl = URL.createObjectURL(file.originFile);
+          const opened = window.open(objectUrl, "_blank", "noopener");
+          if (!opened) {
+            const link = document.createElement("a");
+            link.href = objectUrl;
+            link.target = "_blank";
+            link.rel = "noopener";
+            link.click();
+          }
+          window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+        }
       },
       [emitTelemetry, onPreview],
     );
@@ -370,6 +415,11 @@ export const AppUpload = forwardRef<AppUploadHandle, AppUploadProps>(
 
     const handleRemove = useCallback(
       (file: AppUploadFile) => {
+        const createdUrl = createdThumbUrlsRef.current.get(file.uid);
+        if (createdUrl) {
+          URL.revokeObjectURL(createdUrl);
+          createdThumbUrlsRef.current.delete(file.uid);
+        }
         const nextFiles = files.filter((item) => item.uid !== file.uid);
         emitChange(nextFiles);
         emitTelemetry("remove", file);
@@ -485,6 +535,11 @@ export const AppUpload = forwardRef<AppUploadHandle, AppUploadProps>(
       const result = await validateFileInput(file, fileList);
       if (result === Upload.LIST_IGNORE) return Upload.LIST_IGNORE;
       const nextFile = createAppUploadFile(file);
+      if (isImageFile(nextFile) && !nextFile.thumbUrl && !nextFile.url) {
+        const thumbUrl = URL.createObjectURL(file);
+        nextFile.thumbUrl = thumbUrl;
+        createdThumbUrlsRef.current.set(nextFile.uid, thumbUrl);
+      }
       const nextFiles = [...files, nextFile].slice(0, maxCount ?? files.length + 1);
       emitChange(nextFiles);
       emitTelemetry("select", nextFile, { count: nextFiles.length });
