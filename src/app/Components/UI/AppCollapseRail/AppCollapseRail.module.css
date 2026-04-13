@@ -59,6 +59,10 @@
   outline-offset: 2px;
 }
 
+.toggle:hover {
+  background: rgba(226, 232, 240, 0.7);
+}
+
 .surface {
   min-height: 0;
   height: 100%;
@@ -109,6 +113,10 @@
   min-width: 0;
   color: #1f2937;
   gap: 6px;
+}
+
+.railButton:hover {
+  background: #f8fafc;
 }
 
 .railButton:focus-visible {
@@ -167,6 +175,11 @@
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
     border: 1px solid rgba(148, 163, 184, 0.35);
+  }
+
+  .rail[data-placement="left"] {
+    left: 16px;
+    right: auto;
   }
 
   .railLabel {
