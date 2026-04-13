@@ -1,34 +1,21 @@
-import { FileTextOutlined, InfoCircleOutlined, PaperClipOutlined } from "@ant-design/icons";
+import { FileTextOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { Divider, Typography } from "antd";
 import type { AppTabItem } from "../../../app/Components/UI/AppTabs";
 import { AppTabs } from "../../../app/Components/UI/AppTabs";
+import { GestionRespuestaMainTabContent } from "../components/gestionRespuestaMainTab/GestionRespuestaMainTabContent";
 import styles from "../style/GestionRespuesta.module.css";
 
 export default function GestionRespuesta() {
   const items: AppTabItem[] = [
     {
-      key: "contexto",
-      label: "Contexto",
+      key: "gestion",
+      label: "Gestion",
       icon: <InfoCircleOutlined />,
-      children: (
-        <section className={styles.tabSection}>
-          <Typography.Title level={5} className={styles.sectionTitle}>
-            Resumen de respuesta
-          </Typography.Title>
-          <Typography.Paragraph className={styles.sectionCopy}>
-            Vista secundaria con el contexto minimo para revisar la respuesta
-            sin salir de la bandeja principal.
-          </Typography.Paragraph>
-          <div className={styles.sectionMeta}>
-            <span>Origen: Bandeja de correspondencia</span>
-            <span>Estado: Pendiente de validacion</span>
-          </div>
-        </section>
-      ),
+      children: <GestionRespuestaMainTabContent />,
     },
     {
-      key: "detalle",
-      label: "Detalle",
+      key: "documentos",
+      label: "Documentos",
       icon: <FileTextOutlined />,
       children: (
         <section className={styles.tabSection}>
@@ -44,13 +31,6 @@ export default function GestionRespuesta() {
           </Typography.Text>
         </section>
       ),
-    },
-    {
-      key: "adjuntos",
-      label: "Adjuntos",
-      icon: <PaperClipOutlined />,
-      disabled: true,
-      children: null,
     },
   ];
 

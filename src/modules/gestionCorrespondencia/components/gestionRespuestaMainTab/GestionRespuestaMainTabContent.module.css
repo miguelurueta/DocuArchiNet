@@ -1,0 +1,316 @@
+.mainTab {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.infoHeader {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.infoTitle {
+  margin: 0;
+}
+
+.infoCopy {
+  margin: 0;
+  color: #4b5f73;
+}
+
+.infoMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  font-size: 0.85rem;
+  color: #6b7f92;
+}
+
+.infoMetaItem {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.workbench {
+  display: grid;
+  gap: 1rem;
+}
+
+.toolbar {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+}
+
+.workbenchBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+  gap: 1rem;
+  min-height: 320px;
+  height: clamp(320px, 55vh, 560px);
+  transition: grid-template-columns 0.2s ease;
+  position: relative;
+  align-items: stretch;
+  overflow: hidden;
+  overflow-x: hidden;
+}
+
+.workbenchBody[data-panel-collapsed="true"] {
+  grid-template-columns: minmax(0, 1fr) 0;
+  gap: 0;
+}
+
+.editorContainer {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #ffffff;
+  min-height: 0;
+}
+
+.editorSurface {
+  min-height: 0;
+  height: 100%;
+  overflow: auto;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  background: #fdfefe;
+}
+
+.toolsPanel {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem;
+  background: #f9fafb;
+  min-width: 0;
+  min-height: 0;
+  opacity: 1;
+  transition: opacity 0.2s ease, transform 0.2s ease, padding 0.2s ease;
+}
+
+.toolsPanel[data-collapsed="true"] {
+  opacity: 0;
+  transform: translateX(12px);
+  padding: 0;
+  pointer-events: none;
+}
+
+.toolsRail {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 1px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(241, 245, 249, 0.95);
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1);
+}
+
+.toolsRail[data-collapsed="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.toolsPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.toolsPanelTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.toolsToggle {
+  border-radius: 999px;
+}
+
+.toolsToggle:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.toolsRestore {
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
+  padding: 0;
+  min-width: 0;
+  color: #1f2937;
+}
+
+.toolsRestoreLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1f2937;
+  display: none;
+}
+
+.toolsRestore :global(.ant-btn) {
+  width: 18px;
+  height: 18px;
+}
+
+.toolsRestore :global(.anticon) {
+  transform: translateX(0.5px);
+}
+
+.toolsRestore:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+.toolsPanelSurface {
+  min-height: 0;
+  height: 100%;
+  overflow: auto;
+  border-radius: 10px;
+  border: 1px dashed #cbd5f5;
+  padding: 0.75rem;
+  background: #ffffff;
+}
+
+.toolsList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.toolsItem {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.attachments {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.attachmentsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.attachmentsTitle {
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .workbenchBody {
+    grid-template-columns: minmax(0, 1fr) 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .workbenchBody {
+    height: clamp(280px, 55vh, 520px);
+  }
+
+  .toolsPanel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 75%;
+    border-radius: 20px 20px 0 0;
+    border-bottom: 0;
+    box-shadow: 0 -18px 36px rgba(15, 23, 42, 0.22);
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    transform: translateY(0);
+    opacity: 1;
+    z-index: 2;
+  }
+
+  .toolsPanel::before {
+    content: "";
+    width: 44px;
+    height: 4px;
+    border-radius: 999px;
+    background: #cbd5f5;
+    justify-self: center;
+  }
+
+  .toolsPanelHeader {
+    padding-top: 0.25rem;
+  }
+
+  .toolsPanelTitle {
+    font-size: 0.95rem;
+  }
+
+  .toolsPanel[data-collapsed="true"] {
+    transform: translateY(110%);
+    opacity: 1;
+    padding: 1rem;
+  }
+
+  .toolsRail {
+    right: 16px;
+    top: auto;
+    bottom: 16px;
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+  }
+
+  .toolsRail[data-collapsed="true"] {
+    opacity: 1;
+  }
+
+  .toolsRestore {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    padding: 0 6px;
+    gap: 6px;
+  }
+
+  .toolsRestore :global(.ant-btn) {
+    width: auto;
+    height: 28px;
+  }
+
+  .toolsRestore :global(.anticon) {
+    font-size: 14px;
+  }
+
+  .toolsRestoreLabel {
+    font-size: 0.85rem;
+    display: inline-flex;
+  }
+
+  .toolsPanelSurface {
+    background: #ffffff;
+    border-style: solid;
+    border-color: #e2e8f0;
+  }
+}
