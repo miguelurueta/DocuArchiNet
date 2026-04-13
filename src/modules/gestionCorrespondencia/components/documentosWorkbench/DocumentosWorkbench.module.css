@@ -1,0 +1,199 @@
+.workbench {
+  display: grid;
+  gap: 1rem;
+}
+
+.toolbar {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+}
+
+.toolbarBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.workbenchBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 340px);
+  gap: 1rem;
+  min-height: 320px;
+  height: clamp(320px, 55vh, 620px);
+  position: relative;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.workbenchBody[data-collapsed="true"] {
+  grid-template-columns: minmax(0, 1fr) 0;
+  gap: 0;
+}
+
+.mainArea {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1rem;
+  background: #ffffff;
+  min-height: 0;
+}
+
+.mainHeader {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.mainTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.mainCopy {
+  margin: 0;
+  color: #5b6b7c;
+  font-size: 0.9rem;
+}
+
+.mainSurface {
+  min-height: 0;
+  height: 100%;
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px dashed #cbd5f5;
+  padding: 1rem;
+  background: #fdfefe;
+  display: grid;
+  place-items: center;
+}
+
+.mainHint {
+  margin: 0;
+  color: #6b7f92;
+  text-align: center;
+  max-width: 320px;
+}
+
+.collapseRail {
+  min-width: 0;
+}
+
+.panelContent {
+  display: grid;
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+.documentList {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.documentCard {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.documentIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+
+.documentTitle {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.documentMeta {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6b7f92;
+}
+
+.preview {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 0.5rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem;
+  background: #ffffff;
+  min-height: 0;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.previewTitle {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.previewMeta {
+  font-size: 0.75rem;
+  color: #6b7f92;
+}
+
+.previewSurface {
+  min-height: 0;
+  height: 100%;
+  border-radius: 10px;
+  border: 1px dashed #cbd5f5;
+  background: #f8fafc;
+  display: grid;
+  place-items: center;
+  padding: 0.75rem;
+}
+
+.previewPlaceholder {
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.previewHint {
+  color: #6b7f92;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 1024px) {
+  .workbenchBody {
+    grid-template-columns: minmax(0, 1fr) 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .workbenchBody {
+    height: clamp(280px, 55vh, 520px);
+  }
+
+  .mainArea {
+    border-radius: 16px;
+  }
+}

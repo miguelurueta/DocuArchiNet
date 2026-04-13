@@ -1,5 +1,5 @@
 import { FileTextOutlined, InfoCircleOutlined } from "@ant-design/icons";
-import { Divider, Typography } from "antd";
+import { DocumentosWorkbench } from "../components/documentosWorkbench";
 import type { AppTabItem } from "../../../app/Components/UI/AppTabs";
 import { AppTabs } from "../../../app/Components/UI/AppTabs";
 import { GestionRespuestaMainTabContent } from "../components/gestionRespuestaMainTab/GestionRespuestaMainTabContent";
@@ -17,20 +17,7 @@ export default function GestionRespuesta() {
       key: "documentos",
       label: "Documentos",
       icon: <FileTextOutlined />,
-      children: (
-        <section className={styles.tabSection}>
-          <Typography.Title level={5} className={styles.sectionTitle}>
-            Detalle operativo
-          </Typography.Title>
-          <Typography.Paragraph className={styles.sectionCopy}>
-            Espacio reservado para datos del documento, acciones y trazabilidad.
-          </Typography.Paragraph>
-          <Divider className={styles.sectionDivider} />
-          <Typography.Text className={styles.sectionHint}>
-            La integracion funcional se activara en el siguiente refinement.
-          </Typography.Text>
-        </section>
-      ),
+      children: <DocumentosWorkbench />,
     },
   ];
 
