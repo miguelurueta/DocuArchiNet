@@ -58,3 +58,26 @@ describe("[SPEC:APP-COLLAPSE-RAIL-003] AppCollapseRail persistence", () => {
     expect(screen.getByText("Contenido persistente")).toBeInTheDocument();
   });
 });
+
+describe("[SPEC:APP-COLLAPSE-RAIL-004] AppCollapseRail placement/variant", () => {
+  test("aplica data attrs para placement y variant", () => {
+    const { container } = render(
+      <AppCollapseRail
+        title="Herramientas"
+        collapsed
+        onToggle={() => undefined}
+        placement="left"
+        variant="overlay"
+        railLabel="Rail"
+      >
+        <div>Contenido</div>
+      </AppCollapseRail>,
+    );
+
+    const wrapper = container.querySelector("[data-placement][data-variant]");
+    expect(wrapper).toHaveAttribute("data-placement", "left");
+    expect(wrapper).toHaveAttribute("data-variant", "overlay");
+
+    expect(screen.getAllByRole("button", { name: /Mostrar Herramientas/i }).length).toBeGreaterThan(0);
+  });
+});

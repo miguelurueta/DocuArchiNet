@@ -54,6 +54,7 @@ Mobile (<= 768px)
 - Altura maxima 70% - 80% del viewport.
 - Rail flotante abajo derecha con label visible.
 - Handle visual superior (barra horizontal).
+- Soporte visual para placement left/right en rail y panel.
 
 ## Tokens sugeridos
 
