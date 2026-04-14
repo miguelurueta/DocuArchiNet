@@ -18,12 +18,12 @@ const createMatchMedia = (matches: MatchMediaMap) => (query: string) => ({
 describe(
   "[SPEC:documentos-workbench-tab] [SPEC:implementacion-visual-tab-documentos-03-fe] Documentos workbench",
   () => {
-  beforeEach(() => {
-    window.matchMedia = createMatchMedia({
-      [TABLET_QUERY]: false,
-      [MOBILE_QUERY]: false,
+    beforeEach(() => {
+      window.matchMedia = createMatchMedia({
+        [TABLET_QUERY]: false,
+        [MOBILE_QUERY]: false,
+      });
     });
-  });
 
   it("renderiza el workbench y deja el panel expandido en desktop", () => {
     render(<DocumentosWorkbench />);
