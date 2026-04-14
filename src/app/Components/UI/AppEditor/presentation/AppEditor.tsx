@@ -48,6 +48,7 @@ export function AppEditor({
   "aria-label": ariaLabel,
 }: AppEditorProps) {
   const fieldId = useId();
+  const labelId = label ? `${fieldId}-label` : undefined;
   const helperId = helperText ? `${fieldId}-helper` : undefined;
   const errorId = error ? `${fieldId}-error` : undefined;
   const describedBy = [errorId, helperId].filter(Boolean).join(" ") || undefined;
@@ -78,7 +79,7 @@ export function AppEditor({
       ) : null}
 
       {label ? (
-        <label className={styles.label} htmlFor={fieldId}>
+        <label id={labelId} className={styles.label}>
           {label}
         </label>
       ) : null}
@@ -96,6 +97,7 @@ export function AppEditor({
           <TiptapEditorContent
             editor={editor}
             className={styles.editorContent}
+            aria-labelledby={labelId}
             aria-label={buildAriaLabel({ "aria-label": ariaLabel, label, title })}
             aria-describedby={describedBy}
             aria-invalid={Boolean(error)}
