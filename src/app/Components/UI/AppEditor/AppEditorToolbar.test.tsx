@@ -52,6 +52,8 @@ describe("AppEditorToolbar [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", ()
     expect(screen.getByRole("toolbar")).toBeInTheDocument();
     expect(screen.getByLabelText("Negrita")).toBeDisabled();
     expect(screen.getByLabelText("Insertar imagen")).toBeDisabled();
+    expect(screen.getByRole("group", { name: "Formato de texto" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Insercion de contenido" })).toBeInTheDocument();
   });
 
   it("ejecuta comandos de formato basico", () => {

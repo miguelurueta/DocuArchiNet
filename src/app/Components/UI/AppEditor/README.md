@@ -13,6 +13,7 @@
 - Encabezado contextual opcional
 - Toolbar con formato, listas, headings, alineacion, links e imagenes
 - Estados `disabled`, `readOnly`, `error` y `helperText`
+- Tokens CSS preparados para light/dark mode y refinamiento visual responsive
 
 ## Ejemplo
 
