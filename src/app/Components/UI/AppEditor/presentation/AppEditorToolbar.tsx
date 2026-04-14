@@ -47,6 +47,14 @@ const HEADING_OPTIONS = [
   { value: "h3", label: "Titulo 3", icon: faParagraph },
 ] as const;
 
+const TOOLBAR_GROUPS = {
+  formatting: ["bold", "italic", "underline"],
+  structure: ["bullet-list", "ordered-list", "task-list"],
+  align: ["align-left", "align-center", "align-right", "align-justify"],
+  history: ["undo", "redo"],
+  insert: ["link", "image"],
+} as const;
+
 function getCurrentHeadingValue(editor: Editor | null) {
   if (!editor) {
     return "paragraph";
@@ -258,9 +266,35 @@ function AppEditorToolbarComponent({ editor, disabled = false }: AppEditorToolba
     },
   ];
 
+  const groupedButtons = {
+    formatting: buttons.filter((button) => TOOLBAR_GROUPS.formatting.includes(button.key as never)),
+    structure: buttons.filter((button) => TOOLBAR_GROUPS.structure.includes(button.key as never)),
+    align: buttons.filter((button) => TOOLBAR_GROUPS.align.includes(button.key as never)),
+    history: buttons.filter((button) => TOOLBAR_GROUPS.history.includes(button.key as never)),
+    insert: buttons.filter((button) => TOOLBAR_GROUPS.insert.includes(button.key as never)),
+  };
+
+  const renderButtonGroup = (group: ToolbarButtonConfig[], label: string) => (
+    <div className={styles.toolbarButtonGroup} role="group" aria-label={label}>
+      {group.map((button) => (
+        <AppButton
+          key={button.key}
+          variant={button.isActive ? "primary" : "ghost"}
+          size="sm"
+          icon={<FontAwesomeIcon icon={button.icon} />}
+          aria-label={button.label}
+          tooltip={button.label}
+          disabled={button.disabled}
+          onClick={button.onClick}
+          className={joinClasses(button.isActive && styles.toolbarButtonActive)}
+        />
+      ))}
+    </div>
+  );
+
   return (
     <div className={styles.toolbar} role="toolbar" aria-label="Barra de herramientas del editor">
-      <div className={styles.toolbarSection}>
+      <div className={styles.toolbarSection} data-group="heading">
         <Select
           value={getCurrentHeadingValue(editor)}
           onChange={handleHeadingChange}
@@ -274,20 +308,12 @@ function AppEditorToolbarComponent({ editor, disabled = false }: AppEditorToolba
         />
       </div>
 
-      <div className={styles.toolbarSection}>
-        {buttons.map((button) => (
-          <AppButton
-            key={button.key}
-            variant={button.isActive ? "primary" : "ghost"}
-            size="sm"
-            icon={<FontAwesomeIcon icon={button.icon} />}
-            aria-label={button.label}
-            tooltip={button.label}
-            disabled={button.disabled}
-            onClick={button.onClick}
-            className={joinClasses(button.isActive && styles.toolbarButtonActive)}
-          />
-        ))}
+      <div className={styles.toolbarSection} data-group="actions">
+        {renderButtonGroup(groupedButtons.formatting, "Formato de texto")}
+        {renderButtonGroup(groupedButtons.structure, "Estructura de contenido")}
+        {renderButtonGroup(groupedButtons.align, "Alineacion")}
+        {renderButtonGroup(groupedButtons.history, "Historial de cambios")}
+        {renderButtonGroup(groupedButtons.insert, "Insercion de contenido")}
       </div>
     </div>
   );

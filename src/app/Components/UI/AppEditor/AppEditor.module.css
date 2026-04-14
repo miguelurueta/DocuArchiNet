@@ -1,5 +1,6 @@
 .editor {
   --editor-bg: #ffffff;
+  --editor-surface-bg: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
   --editor-border: #d9dde7;
   --editor-toolbar-bg: #f7f9fc;
   --editor-toolbar-border: #e5e9f2;
@@ -7,6 +8,11 @@
   --editor-muted: #667085;
   --editor-error: #d92d20;
   --editor-text: #101828;
+  --editor-muted-surface: #eef3fb;
+  --editor-toolbar-chip: rgba(15, 23, 42, 0.04);
+  --editor-toolbar-chip-border: rgba(148, 163, 184, 0.3);
+  --editor-toolbar-chip-active: rgba(47, 111, 237, 0.14);
+  --editor-toolbar-chip-active-border: rgba(47, 111, 237, 0.32);
   --editor-surface-shadow: 0 12px 32px rgba(16, 24, 40, 0.08);
   display: flex;
   flex-direction: column;
@@ -37,9 +43,10 @@
 .title {
   margin: 0;
   color: var(--editor-text);
-  font-size: 1.125rem;
+  font-size: clamp(1.125rem, 1rem + 0.6vw, 1.55rem);
   font-weight: 700;
   line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .description {
@@ -60,41 +67,84 @@
   flex-direction: column;
   min-height: 0;
   border: 1px solid var(--editor-border);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   overflow: hidden;
-  background: var(--editor-bg);
+  background: var(--editor-surface-bg);
   box-shadow: var(--editor-surface-shadow);
+  transition:
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.editor[data-error="true"] .frame {
+  border-color: color-mix(in srgb, var(--editor-error) 44%, var(--editor-border));
+  box-shadow:
+    0 14px 34px rgba(16, 24, 40, 0.08),
+    0 0 0 3px color-mix(in srgb, var(--editor-error) 10%, transparent);
+}
+
+.editor[data-readonly="true"] .frame,
+.editor[data-disabled="true"] .frame {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--editor-bg) 96%, #000 4%) 0%, var(--editor-bg) 100%);
 }
 
 .toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
+  gap: 0.875rem;
+  padding: 0.875rem;
   border-bottom: 1px solid var(--editor-toolbar-border);
-  background: var(--editor-toolbar-bg);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--editor-toolbar-bg) 96%, #fff 4%) 0%, var(--editor-toolbar-bg) 100%);
 }
 
 .toolbarSection {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.toolbarButtonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.325rem;
+  border: 1px solid var(--editor-toolbar-chip-border);
+  border-radius: 999px;
+  background: var(--editor-toolbar-chip);
+}
+
+.toolbarButtonGroup :global(.ant-btn) {
+  min-height: 2.5rem;
+}
+
+.toolbarButtonGroup :global(.ant-btn:focus-visible) {
+  outline-color: color-mix(in srgb, var(--editor-focus) 36%, transparent);
 }
 
 .toolbarButtonActive {
+  background: var(--editor-toolbar-chip-active) !important;
+  border-color: var(--editor-toolbar-chip-active-border) !important;
+  color: var(--editor-focus) !important;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
 }
 
 .headingSelect {
-  min-width: 8.5rem;
+  min-width: 9.5rem;
 }
 
 .surface {
   min-height: var(--app-editor-min-height);
   min-width: 0;
-  background: var(--editor-bg);
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--editor-muted-surface) 60%, transparent) 0%, transparent 32%),
+    var(--editor-bg);
 }
 
 .surfaceError {
@@ -114,6 +164,10 @@
   font-size: 1rem;
   line-height: 1.6;
   word-break: break-word;
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease;
 }
 
 .editorContent :global(.ProseMirror p.is-editor-empty:first-child::before) {
@@ -122,6 +176,7 @@
   height: 0;
   pointer-events: none;
   color: var(--editor-muted);
+  opacity: 0.82;
 }
 
 .editorContent :global(.ProseMirror h1),
@@ -158,6 +213,8 @@
 .editorContent :global(.ProseMirror a) {
   color: var(--editor-focus);
   text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.16em;
 }
 
 .editorContent :global(.ProseMirror img) {
@@ -170,6 +227,20 @@
 
 .editorContent :global(.ProseMirror-focused) {
   box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--editor-focus) 26%, transparent);
+}
+
+.editor[data-readonly="true"] .editorContent :global(.ProseMirror),
+.editor[data-disabled="true"] .editorContent :global(.ProseMirror) {
+  background: color-mix(in srgb, var(--editor-bg) 94%, #0f172a 6%);
+}
+
+.editor[data-disabled="true"] .toolbar {
+  opacity: 0.72;
+}
+
+.editor[data-disabled="true"] .toolbarButtonGroup,
+.editor[data-disabled="true"] .headingSelect {
+  filter: grayscale(0.12);
 }
 
 .helperText,
@@ -187,6 +258,26 @@
   color: var(--editor-error);
 }
 
+@media (prefers-color-scheme: dark) {
+  .editor {
+    --editor-bg: #0f172a;
+    --editor-surface-bg: linear-gradient(180deg, #0f172a 0%, #111c32 100%);
+    --editor-border: #314056;
+    --editor-toolbar-bg: #111a2c;
+    --editor-toolbar-border: #243247;
+    --editor-focus: #7cb4ff;
+    --editor-muted: #9fb0c8;
+    --editor-error: #ff7b7b;
+    --editor-text: #eef4ff;
+    --editor-muted-surface: #1a2740;
+    --editor-toolbar-chip: rgba(148, 163, 184, 0.08);
+    --editor-toolbar-chip-border: rgba(148, 163, 184, 0.18);
+    --editor-toolbar-chip-active: rgba(124, 180, 255, 0.18);
+    --editor-toolbar-chip-active-border: rgba(124, 180, 255, 0.36);
+    --editor-surface-shadow: 0 14px 36px rgba(2, 6, 23, 0.42);
+  }
+}
+
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
@@ -198,7 +289,7 @@
     padding: 0.625rem;
   }
 
-  .toolbarSection {
+  .toolbarSection[data-group="heading"] {
     width: 100%;
   }
 
@@ -206,7 +297,32 @@
     width: 100%;
   }
 
+  .toolbarSection[data-group="actions"] {
+    gap: 0.5rem;
+  }
+
+  .toolbarButtonGroup {
+    width: 100%;
+    justify-content: flex-start;
+    border-radius: 1rem;
+  }
+
+  .toolbarButtonGroup :global(.ant-btn) {
+    min-height: 2.625rem;
+  }
+
   .editorContent :global(.ProseMirror) {
     padding: 0.875rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .toolbar {
+    gap: 0.625rem;
+    padding: 0.75rem;
+  }
+
+  .toolbarButtonGroup {
+    gap: 0.35rem;
   }
 }

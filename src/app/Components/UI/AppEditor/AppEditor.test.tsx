@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { AppEditor } from "./presentation/AppEditor";
+import styles from "./AppEditor.module.css";
 
 describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
   it("renderiza encabezado contextual, label y helperText", async () => {
@@ -57,5 +58,25 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     expect(screen.getByText("El contenido es obligatorio")).toBeInTheDocument();
     expect(container.querySelector("[contenteditable='false']")).toBeInTheDocument();
     expect(screen.getByLabelText("Contenido")).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("marca el shell con data-attributes de estados visuales", async () => {
+    const { container } = render(
+      <AppEditor
+        title="Editor visual"
+        error="Error visual"
+        disabled
+        defaultValue="<p>Bloqueado</p>"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Bloqueado")).toBeInTheDocument();
+    });
+
+    const shell = container.querySelector(`.${styles.editor}`);
+    expect(shell).toHaveAttribute("data-disabled", "true");
+    expect(shell).toHaveAttribute("data-error", "true");
+    expect(shell).toHaveAttribute("data-readonly", "false");
   });
 });

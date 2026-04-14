@@ -61,7 +61,12 @@ export function AppEditor({
   });
 
   return (
-    <section className={joinClasses(styles.editor, className)} data-disabled={disabled}>
+    <section
+      className={joinClasses(styles.editor, className)}
+      data-disabled={disabled}
+      data-readonly={readOnly}
+      data-error={Boolean(error)}
+    >
       {title || description || headerActions ? (
         <header className={styles.header}>
           <div className={styles.headerContent}>
