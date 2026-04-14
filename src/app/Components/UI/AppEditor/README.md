@@ -12,8 +12,14 @@
 - Soporta modo controlado y no controlado
 - Encabezado contextual opcional
 - Toolbar con formato, listas, headings, alineacion, links e imagenes
+- La alineacion de texto se resuelve desde un dropdown compacto en la toolbar
+- Boton visible para alternar entre tema claro y oscuro
+- UI visible para enlaces e imagenes
+- Insercion de imagen por URL o archivo
+- Control persistido de tamaño de imagen
 - Estados `disabled`, `readOnly`, `error` y `helperText`
 - Tokens CSS preparados para light/dark mode y refinamiento visual responsive
+- Scroll vertical interno del contenido con scrollbar adaptado al tema
 
 ## Props principales
 
@@ -24,6 +30,7 @@
 - `label`, `helperText`, `error`: semantica accesible y feedback de campo
 - `title`, `description`, `headerActions`: contexto del shell del editor
 - `className`, `surfaceClassName`, `minHeight`, `aria-label`: personalizacion de layout
+- `showThemeToggle`, `themeMode`, `defaultThemeMode`, `onThemeModeChange`: control visual del tema del editor
 
 ## Ejemplo basico
 
@@ -102,6 +109,6 @@ export function LockedExamples() {
 
 ## Limitaciones conocidas
 
-- La insercion de links e imagenes usa `window.prompt`, suficiente para shared UI base pero no para una UX avanzada.
-- No existe aun integracion real en un modulo consumidor del producto; la validacion actual es focalizada y de integracion representativa.
+- El resize de imagen actual se resuelve por atributos persistidos y controles de toolbar; aun no existe NodeView con drag handles.
+- Ya existe integracion embebida en `gestionCorrespondencia`, ademas de la validacion focalizada del componente shared.
 - Los shortcuts avanzados dependen del comportamiento de Tiptap y no se documentan como API publica estable del componente.

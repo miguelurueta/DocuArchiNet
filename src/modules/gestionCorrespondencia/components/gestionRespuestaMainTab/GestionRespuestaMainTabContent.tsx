@@ -2,11 +2,11 @@ import {
   LeftOutlined,
   SaveOutlined,
   SendOutlined,
-  ToolOutlined,
   UserAddOutlined,
 } from "@ant-design/icons";
 import { useEffect, useId, useState } from "react";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
+import { AppEditor } from "../../../../app/Components/UI/AppEditor";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
 import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
 import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
@@ -43,6 +43,7 @@ export function GestionRespuestaMainTabContent() {
   const isCompact = useMediaQuery(DEFAULT_MEDIA_QUERY);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(isCompact);
   const [files, setFiles] = useState<AppUploadFile[]>([]);
+  const [editorValue, setEditorValue] = useState<string>("");
 
   useEffect(() => {
     setIsPanelCollapsed(isCompact);
@@ -81,7 +82,17 @@ export function GestionRespuestaMainTabContent() {
           <GestionRespuestaEditorContainer
             title="Editor principal"
             description="Zona dominante del workspace para construir la respuesta."
-          />
+          >
+            <AppEditor
+              value={editorValue}
+              onChange={setEditorValue}
+              placeholder="Escribe aqui la respuesta principal..."
+              aria-label="Contenido del editor principal de respuesta"
+              className={styles.embeddedAppEditor}
+              surfaceClassName={styles.embeddedAppEditorSurface}
+              minHeight="100%"
+            />
+          </GestionRespuestaEditorContainer>
           <div className={styles.toolsRail} data-collapsed={isPanelCollapsed}>
             {isPanelCollapsed ? (
               <AppButton

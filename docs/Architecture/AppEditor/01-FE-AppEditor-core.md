@@ -116,9 +116,22 @@ Debe sincronizar correctamente cambios externos sin:
   - redo.
 - Funcionalidades adicionales obligatorias:
   - UI para agregar y editar enlaces;
-  - soporte de carga de imagenes;
+  - soporte de carga de imagenes por URL y por archivo;
   - `disabled` y `readOnly` funcionales;
   - `placeholder` configurable.
+
+## Baseline de preservacion obligatoria
+
+Toda implementacion futura sobre `AppEditor` debe conservar como minimo:
+
+- toolbar basada en componentes shared;
+- dropdown de encabezados visible dentro del toolbar;
+- UI visible para enlaces e imagenes;
+- deshacer y rehacer operativos;
+- scroll vertical interno del contenido;
+- soporte de tema `light` y `dark` desde boton visible;
+- compatibilidad de modo embebido sin header duplicado;
+- pruebas focalizadas del editor pasando.
 
 ## Reglas de performance
 

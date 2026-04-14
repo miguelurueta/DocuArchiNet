@@ -62,11 +62,14 @@ No debe ser reutilizado fuera del componente.
 - Toolbar clara, compacta y reusable
 - Superficie del editor con alta legibilidad
 - Estados `hover`, `focus` y `active` visibles
-- Dropdown de headings usable y consistente
+- Dropdown de headings usable y consistente, implementado con componentes
+  shared del sistema
 - Controles de enlaces e imágenes claros para el usuario
 - Estados visuales para `disabled`, `readOnly` y `error`
 - Jerarquía visual clara entre toolbar, editor y estados
 - Consistencia con el design system existente
+- Botón visible de tema para alternar entre `light` y `dark`
+- Scroll vertical interno del contenido con scrollbar coherente con el tema
 
 ## Responsive (obligatorio)
 
@@ -138,13 +141,23 @@ Debe soportar override para dark mode.
 ## Criterios de aceptación
 
 - UI responsive consistente en los 3 breakpoints
-- Light/Dark mode funcional desde fábrica
+- Light/Dark mode funcional desde fábrica y accesible desde botón visible
 - Usabilidad correcta en dispositivos táctiles y desktop
 - Sin parpadeos, saltos o quiebres visuales
 - Sin overflow horizontal
 - Accesibilidad visual validada
 - Integración limpia con `AppEditor`
 - Alineación con design system
+
+## Regla de preservacion visual
+
+Ninguna implementacion posterior debe simplificar la toolbar actual ni remover:
+
+- boton de tema `light/dark`;
+- dropdown de encabezados en toolbar;
+- popovers o UI visible de enlaces e imagenes;
+- scroll vertical interno del contenido;
+- estilos de scrollbar adaptados a tema.
 
 ## Instrucción final
 
