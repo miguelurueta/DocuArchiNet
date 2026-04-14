@@ -160,7 +160,7 @@ export function AppTableExport<T extends AppTableRow>({
         label: hasExecutableChildren
           ? `Exportar en ${FORMAT_LABELS[format]}`
           : `Exportar en ${FORMAT_LABELS[format]} (próximamente)`,
-        disabled: exportLoading || children.length === 0,
+        disabled: exportLoading || children.length === 0 || !hasExecutableChildren,
         children,
       };
     });
