@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { Editor } from "@tiptap/react";
 
 export type AppEditorHeadingLevel = 1 | 2 | 3;
+export type AppEditorThemeMode = "system" | "light" | "dark";
 
 export type AppEditorProps = {
   value?: string;
@@ -19,6 +20,10 @@ export type AppEditorProps = {
   headerActions?: ReactNode;
   surfaceClassName?: string;
   minHeight?: number | string;
+  showThemeToggle?: boolean;
+  themeMode?: AppEditorThemeMode;
+  defaultThemeMode?: AppEditorThemeMode;
+  onThemeModeChange?: (mode: AppEditorThemeMode) => void;
   "aria-label"?: string;
 };
 

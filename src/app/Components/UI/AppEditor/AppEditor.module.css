@@ -14,10 +14,67 @@
   --editor-toolbar-chip-active: rgba(47, 111, 237, 0.14);
   --editor-toolbar-chip-active-border: rgba(47, 111, 237, 0.32);
   --editor-surface-shadow: 0 12px 32px rgba(16, 24, 40, 0.08);
+  --editor-scrollbar-thumb: rgba(102, 112, 133, 0.35);
+  --editor-scrollbar-track: transparent;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   min-width: 0;
+}
+
+.editor[data-theme="light"] {
+  --editor-bg: #ffffff;
+  --editor-surface-bg: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  --editor-border: #d9dde7;
+  --editor-toolbar-bg: #f7f9fc;
+  --editor-toolbar-border: #e5e9f2;
+  --editor-focus: #2f6fed;
+  --editor-muted: #667085;
+  --editor-error: #d92d20;
+  --editor-text: #101828;
+  --editor-muted-surface: #eef3fb;
+  --editor-toolbar-chip: rgba(15, 23, 42, 0.04);
+  --editor-toolbar-chip-border: rgba(148, 163, 184, 0.3);
+  --editor-toolbar-chip-active: rgba(47, 111, 237, 0.14);
+  --editor-toolbar-chip-active-border: rgba(47, 111, 237, 0.32);
+  --editor-surface-shadow: 0 12px 32px rgba(16, 24, 40, 0.08);
+  --editor-scrollbar-thumb: rgba(102, 112, 133, 0.35);
+  --editor-scrollbar-track: transparent;
+}
+
+.editor[data-theme="dark"] {
+  --editor-bg: #0f172a;
+  --editor-surface-bg: linear-gradient(180deg, #0f172a 0%, #111c32 100%);
+  --editor-border: #314056;
+  --editor-toolbar-bg: #111a2c;
+  --editor-toolbar-border: #243247;
+  --editor-focus: #7cb4ff;
+  --editor-muted: #9fb0c8;
+  --editor-error: #ff7b7b;
+  --editor-text: #eef4ff;
+  --editor-muted-surface: #1a2740;
+  --editor-toolbar-chip: rgba(148, 163, 184, 0.08);
+  --editor-toolbar-chip-border: rgba(148, 163, 184, 0.18);
+  --editor-toolbar-chip-active: rgba(124, 180, 255, 0.18);
+  --editor-toolbar-chip-active-border: rgba(124, 180, 255, 0.36);
+  --editor-surface-shadow: 0 14px 36px rgba(2, 6, 23, 0.42);
+  --editor-scrollbar-thumb: rgba(159, 176, 200, 0.38);
+  --editor-scrollbar-track: rgba(15, 23, 42, 0.38);
+}
+
+.editor[data-theme="dark"] .toolbarButtonGroup :global(.ant-btn),
+.editor[data-theme="dark"] .headingButton,
+.editor[data-theme="dark"] .alignButton {
+  color: #f8fbff;
+}
+
+.editor[data-theme="dark"] .toolbarButtonGroup :global(.ant-btn:hover),
+.editor[data-theme="dark"] .toolbarButtonGroup :global(.ant-btn:focus-visible),
+.editor[data-theme="dark"] .headingButton:hover,
+.editor[data-theme="dark"] .headingButton:focus-visible,
+.editor[data-theme="dark"] .alignButton:hover,
+.editor[data-theme="dark"] .alignButton:focus-visible {
+  color: #ffffff !important;
 }
 
 .header {
@@ -65,6 +122,7 @@
 .frame {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   min-height: 0;
   border: 1px solid var(--editor-border);
   border-radius: 1.25rem;
@@ -94,8 +152,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.875rem;
-  padding: 0.875rem;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
   border-bottom: 1px solid var(--editor-toolbar-border);
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--editor-toolbar-bg) 96%, #fff 4%) 0%, var(--editor-toolbar-bg) 100%);
@@ -105,7 +163,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.5rem;
   min-width: 0;
 }
 
@@ -113,15 +171,16 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.325rem;
-  border: 1px solid var(--editor-toolbar-chip-border);
-  border-radius: 999px;
-  background: var(--editor-toolbar-chip);
+  gap: 0.3rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .toolbarButtonGroup :global(.ant-btn) {
-  min-height: 2.5rem;
+  min-height: 2.2rem;
+  padding-inline: 0.65rem;
 }
 
 .toolbarButtonGroup :global(.ant-btn:focus-visible) {
@@ -135,13 +194,77 @@
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
 }
 
-.headingSelect {
-  min-width: 9.5rem;
+.toolbarPopoverContent {
+  display: grid;
+  gap: 0.625rem;
+  min-width: min(18rem, 72vw);
+}
+
+.toolbarPopoverLabel {
+  color: var(--editor-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.toolbarPopoverActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.toolbarPresetGroup {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.toolbarHiddenInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.headingDropdown {
+  flex: 0 0 auto;
+}
+
+.headingButton {
+  min-width: 4.25rem;
+  min-height: 2.2rem;
+  padding-inline: 0.55rem;
+  justify-content: center;
+}
+
+.alignButton {
+  min-width: 0;
+  min-height: 2.2rem;
+  padding-inline: 0.35rem;
+  justify-content: space-between;
+}
+
+.toolbarCompactLabel {
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+}
+
+.alignButton :global(.content) {
+  gap: 0.25rem;
 }
 
 .surface {
   min-height: var(--app-editor-min-height);
   min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  overflow: hidden;
   background:
     radial-gradient(circle at top left, color-mix(in srgb, var(--editor-muted-surface) 60%, transparent) 0%, transparent 32%),
     var(--editor-bg);
@@ -153,13 +276,20 @@
 
 .editorContent {
   min-height: var(--app-editor-min-height);
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .editorContent :global(.ProseMirror) {
+  height: 100%;
   min-height: var(--app-editor-min-height);
   padding: 1rem;
   outline: none;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--editor-scrollbar-thumb) var(--editor-scrollbar-track);
   color: var(--editor-text);
   font-size: 1rem;
   line-height: 1.6;
@@ -168,6 +298,21 @@
     background-color 160ms ease,
     box-shadow 160ms ease,
     color 160ms ease;
+}
+
+.editorContent :global(.ProseMirror::-webkit-scrollbar) {
+  width: 10px;
+}
+
+.editorContent :global(.ProseMirror::-webkit-scrollbar-thumb) {
+  background: var(--editor-scrollbar-thumb);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.editorContent :global(.ProseMirror::-webkit-scrollbar-track) {
+  background: var(--editor-scrollbar-track);
 }
 
 .editorContent :global(.ProseMirror p.is-editor-empty:first-child::before) {
@@ -223,6 +368,23 @@
   height: auto;
   border-radius: 0.75rem;
   margin: 1rem 0;
+  cursor: pointer;
+  transition:
+    box-shadow 160ms ease,
+    outline-color 160ms ease,
+    transform 160ms ease;
+}
+
+.editorContent :global(.ProseMirror img:hover) {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--editor-focus) 18%, transparent);
+}
+
+.editorContent :global(.ProseMirror img.ProseMirror-selectednode) {
+  outline: 3px solid color-mix(in srgb, var(--editor-focus) 70%, transparent);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 6px color-mix(in srgb, var(--editor-focus) 14%, transparent),
+    0 14px 28px color-mix(in srgb, var(--editor-focus) 12%, transparent);
 }
 
 .editorContent :global(.ProseMirror-focused) {
@@ -239,7 +401,7 @@
 }
 
 .editor[data-disabled="true"] .toolbarButtonGroup,
-.editor[data-disabled="true"] .headingSelect {
+.editor[data-disabled="true"] .headingButton {
   filter: grayscale(0.12);
 }
 
@@ -259,7 +421,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .editor {
+  .editor[data-theme="system"] {
     --editor-bg: #0f172a;
     --editor-surface-bg: linear-gradient(180deg, #0f172a 0%, #111c32 100%);
     --editor-border: #314056;
@@ -285,30 +447,37 @@
   }
 
   .toolbar {
-    gap: 0.5rem;
-    padding: 0.625rem;
+    gap: 0.45rem;
+    padding: 0.55rem;
   }
 
   .toolbarSection[data-group="heading"] {
     width: 100%;
   }
 
-  .headingSelect {
+  .headingDropdown {
+    width: 100%;
+  }
+
+  .headingButton {
+    width: 100%;
+  }
+
+  .alignButton {
     width: 100%;
   }
 
   .toolbarSection[data-group="actions"] {
-    gap: 0.5rem;
+    gap: 0.45rem;
   }
 
   .toolbarButtonGroup {
     width: 100%;
     justify-content: flex-start;
-    border-radius: 1rem;
   }
 
   .toolbarButtonGroup :global(.ant-btn) {
-    min-height: 2.625rem;
+    min-height: 2.35rem;
   }
 
   .editorContent :global(.ProseMirror) {
@@ -318,11 +487,11 @@
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .toolbar {
-    gap: 0.625rem;
-    padding: 0.75rem;
+    gap: 0.5rem;
+    padding: 0.625rem 0.7rem;
   }
 
   .toolbarButtonGroup {
-    gap: 0.35rem;
+    gap: 0.3rem;
   }
 }

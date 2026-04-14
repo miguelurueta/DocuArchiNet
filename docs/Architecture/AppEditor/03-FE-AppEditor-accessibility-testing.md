@@ -104,6 +104,7 @@ No mezclar capas en los tests.
 ## Pruebas de calidad (obligatorio)
 
 - Render estable en light/dark mode
+- Alternancia del boton visible `light/dark`
 - Toolbar responsive y usable en touch
 - Serialización consistente del contenido HTML
 - Accesibilidad: focus, labels y navegación por teclado
@@ -144,12 +145,25 @@ No mezclar capas en los tests.
 - Formato `bold`, `italic` y `underline`
 - Listas `bullet`, `ordered` y `task list`
 - Heading dropdown
+- Trigger de encabezados basado en `AppButton` + `AppDropdown`
 - Alineación `left`, `center`, `right` y `justify`
 - Inserción y edición de links
 - Inserción de imágenes
 - Undo y redo
 - `disabled` y `readOnly`
 - Compatibilidad responsive y de tema
+
+## Regla de regresion obligatoria
+
+Toda evolucion futura del componente debe probar explicitamente que no se
+rompen:
+
+- toolbar completa;
+- boton visible de tema;
+- dropdown de encabezados;
+- formularios visibles para enlaces e imagenes;
+- scroll interno del contenido editable;
+- integracion shared desde `src/app/Components/UI/index.ts`.
 
 ### Arquitectura
 

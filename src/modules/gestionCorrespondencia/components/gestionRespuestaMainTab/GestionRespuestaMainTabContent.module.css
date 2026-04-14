@@ -75,11 +75,21 @@
 .editorSurface {
   min-height: 0;
   height: 100%;
-  overflow: auto;
+  overflow: hidden;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
-  padding: 1rem;
+  padding: 0.75rem;
   background: #fdfefe;
+}
+
+.embeddedAppEditor {
+  height: 100%;
+  min-height: 0;
+}
+
+.embeddedAppEditorSurface {
+  height: 100%;
+  min-height: 0;
 }
 
 .toolsPanel {

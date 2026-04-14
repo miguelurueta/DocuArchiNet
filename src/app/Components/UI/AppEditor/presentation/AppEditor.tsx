@@ -1,6 +1,6 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 import type { CSSProperties } from "react";
-import type { AppEditorProps } from "../domain/editor.types";
+import type { AppEditorProps, AppEditorThemeMode } from "../domain/editor.types";
 import { useAppEditor } from "../application/useAppEditor";
 import { TiptapEditorContent } from "../infrastructure/TiptapEditorContent";
 import { AppEditorToolbar } from "./AppEditorToolbar";
@@ -45,13 +45,19 @@ export function AppEditor({
   headerActions,
   surfaceClassName,
   minHeight = 280,
+  showThemeToggle = true,
+  themeMode,
+  defaultThemeMode = "light",
+  onThemeModeChange,
   "aria-label": ariaLabel,
 }: AppEditorProps) {
   const fieldId = useId();
+  const [internalThemeMode, setInternalThemeMode] = useState<AppEditorThemeMode>(defaultThemeMode);
   const labelId = label ? `${fieldId}-label` : undefined;
   const helperId = helperText ? `${fieldId}-helper` : undefined;
   const errorId = error ? `${fieldId}-error` : undefined;
   const describedBy = [errorId, helperId].filter(Boolean).join(" ") || undefined;
+  const resolvedThemeMode = themeMode ?? internalThemeMode;
   const { editor, isEditable } = useAppEditor({
     value,
     defaultValue,
@@ -61,12 +67,21 @@ export function AppEditor({
     readOnly,
   });
 
+  const handleThemeModeChange = (nextThemeMode: AppEditorThemeMode) => {
+    if (themeMode === undefined) {
+      setInternalThemeMode(nextThemeMode);
+    }
+
+    onThemeModeChange?.(nextThemeMode);
+  };
+
   return (
     <section
       className={joinClasses(styles.editor, className)}
       data-disabled={disabled}
       data-readonly={readOnly}
       data-error={Boolean(error)}
+      data-theme={resolvedThemeMode}
     >
       {title || description || headerActions ? (
         <header className={styles.header}>
@@ -85,7 +100,13 @@ export function AppEditor({
       ) : null}
 
       <div className={styles.frame}>
-        <AppEditorToolbar editor={editor} disabled={!isEditable} />
+        <AppEditorToolbar
+          editor={editor}
+          disabled={!isEditable}
+          showThemeToggle={showThemeToggle}
+          themeMode={resolvedThemeMode}
+          onThemeModeChange={handleThemeModeChange}
+        />
         <div
           className={joinClasses(
             styles.surface,

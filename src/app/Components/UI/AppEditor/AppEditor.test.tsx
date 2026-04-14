@@ -139,4 +139,40 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     expect(screen.getByDisplayValue("<p>Payload estable</p>")).toBeInTheDocument();
     expect(screen.getByTestId("submit-output")).toHaveTextContent("<p>Payload estable</p>");
   });
+
+  it("permite alternar tema entre claro y oscuro desde el boton visible", () => {
+    const { container } = render(<AppEditor label="Contenido tematico" defaultValue="<p>Texto</p>" />);
+
+    const shell = container.querySelector(`.${styles.editor}`);
+    const themeButton = screen.getByRole("button", {
+      name: "Tema claro activo. Cambiar a oscuro",
+    });
+
+    expect(shell).toHaveAttribute("data-theme", "light");
+
+    fireEvent.click(themeButton);
+    expect(shell).toHaveAttribute("data-theme", "dark");
+    expect(
+      screen.getByRole("button", { name: "Tema oscuro activo. Cambiar a claro" }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Tema oscuro activo. Cambiar a claro" }));
+    expect(shell).toHaveAttribute("data-theme", "light");
+  });
+
+  it("renderiza imagenes con ancho persistido desde la extension shared", async () => {
+    const { container } = render(
+      <AppEditor
+        label="Contenido con imagen"
+        defaultValue={'<p>Intro</p><img src="https://cdn.example.com/image.png" data-width="75%" />'}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Intro")).toBeInTheDocument();
+    });
+
+    const image = container.querySelector("img");
+    expect(image).toHaveAttribute("data-width", "75%");
+  });
 });

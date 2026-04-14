@@ -47,6 +47,42 @@ Backend
 
 - No requiere dependencias de backend.
 
+## Baseline actual obligatorio
+
+Cualquier implementacion futura, refactor o integracion de `AppEditor` debe
+preservar como minimo el estado funcional y visual actual del componente
+shared.
+
+Baseline obligatorio actual:
+
+- editor enriquecido basado en Tiptap;
+- toolbar visible con controles de:
+  - negrita;
+  - cursiva;
+  - subrayado;
+  - listas con viñetas;
+  - listas ordenadas;
+  - listas de tareas;
+  - alineacion izquierda;
+  - alineacion centro;
+  - alineacion derecha;
+  - alineacion justificada;
+  - encabezados mediante dropdown;
+  - insercion y edicion de enlaces mediante UI visible;
+  - insercion de imagen por URL y por archivo;
+  - deshacer y rehacer;
+- boton visible de tema con alternancia entre `light` y `dark`;
+- compatibilidad de estilos con tema claro y oscuro;
+- scroll vertical interno del contenido editable;
+- scrollbar del contenido adaptado al tema;
+- soporte controlled y uncontrolled;
+- estados `disabled`, `readOnly`, `error`, `helperText` y `label`;
+- variante embebida compatible con `GestionRespuestaEditorContainer` sin
+  duplicar header.
+
+Esta prohibido que un ticket futuro reduzca este baseline salvo que el cambio
+lo indique explicitamente, documente el motivo y actualice esta arquitectura.
+
 ## Principios
 
 - Reusable y desacoplado del dominio.
