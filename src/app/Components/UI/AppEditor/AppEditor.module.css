@@ -1,0 +1,212 @@
+.editor {
+  --editor-bg: #ffffff;
+  --editor-border: #d9dde7;
+  --editor-toolbar-bg: #f7f9fc;
+  --editor-toolbar-border: #e5e9f2;
+  --editor-focus: #2f6fed;
+  --editor-muted: #667085;
+  --editor-error: #d92d20;
+  --editor-text: #101828;
+  --editor-surface-shadow: 0 12px 32px rgba(16, 24, 40, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.title {
+  margin: 0;
+  color: var(--editor-text);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.description {
+  margin: 0;
+  color: var(--editor-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.label {
+  color: var(--editor-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.frame {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--editor-border);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: var(--editor-bg);
+  box-shadow: var(--editor-surface-shadow);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--editor-toolbar-border);
+  background: var(--editor-toolbar-bg);
+}
+
+.toolbarSection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toolbarButtonActive {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.headingSelect {
+  min-width: 8.5rem;
+}
+
+.surface {
+  min-height: var(--app-editor-min-height);
+  min-width: 0;
+  background: var(--editor-bg);
+}
+
+.surfaceError {
+  box-shadow: inset 0 0 0 1px var(--editor-error);
+}
+
+.editorContent {
+  min-height: var(--app-editor-min-height);
+}
+
+.editorContent :global(.ProseMirror) {
+  min-height: var(--app-editor-min-height);
+  padding: 1rem;
+  outline: none;
+  overflow: auto;
+  color: var(--editor-text);
+  font-size: 1rem;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.editorContent :global(.ProseMirror p.is-editor-empty:first-child::before) {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--editor-muted);
+}
+
+.editorContent :global(.ProseMirror h1),
+.editorContent :global(.ProseMirror h2),
+.editorContent :global(.ProseMirror h3) {
+  color: var(--editor-text);
+  line-height: 1.25;
+  margin: 1.25rem 0 0.75rem;
+}
+
+.editorContent :global(.ProseMirror h1) {
+  font-size: 1.75rem;
+}
+
+.editorContent :global(.ProseMirror h2) {
+  font-size: 1.5rem;
+}
+
+.editorContent :global(.ProseMirror h3) {
+  font-size: 1.25rem;
+}
+
+.editorContent :global(.ProseMirror p),
+.editorContent :global(.ProseMirror ul),
+.editorContent :global(.ProseMirror ol) {
+  margin: 0 0 0.75rem;
+}
+
+.editorContent :global(.ProseMirror ul),
+.editorContent :global(.ProseMirror ol) {
+  padding-left: 1.5rem;
+}
+
+.editorContent :global(.ProseMirror a) {
+  color: var(--editor-focus);
+  text-decoration: underline;
+}
+
+.editorContent :global(.ProseMirror img) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  margin: 1rem 0;
+}
+
+.editorContent :global(.ProseMirror-focused) {
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--editor-focus) 26%, transparent);
+}
+
+.helperText,
+.errorText {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.helperText {
+  color: var(--editor-muted);
+}
+
+.errorText {
+  color: var(--editor-error);
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar {
+    gap: 0.5rem;
+    padding: 0.625rem;
+  }
+
+  .toolbarSection {
+    width: 100%;
+  }
+
+  .headingSelect {
+    width: 100%;
+  }
+
+  .editorContent :global(.ProseMirror) {
+    padding: 0.875rem;
+  }
+}
