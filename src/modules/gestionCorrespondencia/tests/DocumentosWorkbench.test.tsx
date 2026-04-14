@@ -15,13 +15,15 @@ const createMatchMedia = (matches: MatchMediaMap) => (query: string) => ({
   dispatchEvent: () => false,
 });
 
-describe("[SPEC:documentos-workbench-tab] Documentos workbench", () => {
-  beforeEach(() => {
-    window.matchMedia = createMatchMedia({
-      [TABLET_QUERY]: false,
-      [MOBILE_QUERY]: false,
+describe(
+  "[SPEC:documentos-workbench-tab] [SPEC:implementacion-visual-tab-documentos-03-fe] Documentos workbench",
+  () => {
+    beforeEach(() => {
+      window.matchMedia = createMatchMedia({
+        [TABLET_QUERY]: false,
+        [MOBILE_QUERY]: false,
+      });
     });
-  });
 
   it("renderiza el workbench y deja el panel expandido en desktop", () => {
     render(<DocumentosWorkbench />);
@@ -57,4 +59,5 @@ describe("[SPEC:documentos-workbench-tab] Documentos workbench", () => {
     const panel = screen.getByLabelText("Visualizar documentos");
     expect(panel).toHaveAttribute("data-variant", "overlay");
   });
-});
+  },
+);
