@@ -183,19 +183,21 @@ describe("AppTableExport [SPEC:APPTABLE-EXPORT-17] [SPEC:APPTABLE-EXPORT-18] [SP
     expect(screen.queryByText("Todos los cargados")).not.toBeInTheDocument();
   });
 
-  it("mantiene formatos ejecutivos como no ejecutables fuera de allMatching", async () => {
+  it("usa backend export para currentPage en formatos ejecutivos cuando existe getBackendExportFile", async () => {
+    const getBackendExportFile = vi.fn().mockResolvedValue({
+      blob: new Blob(["xlsx"], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }),
+      fileName: "gestion.xlsx",
+    });
+
     render(
       <AppTableExport
         columns={columns}
         dataSource={{
           getCurrentPageRows: () => [{ id: "1", name: "Alpha" }],
           getAllMatchingRows: async () => [{ id: "1", name: "Alpha" }],
-          getBackendExportFile: vi.fn().mockResolvedValue({
-            blob: new Blob(["xlsx"], {
-              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            }),
-            fileName: "gestion.xlsx",
-          }),
+          getBackendExportFile,
         }}
         formats={["xlsx"]}
         reportMeta={reportMeta}
@@ -210,6 +212,65 @@ describe("AppTableExport [SPEC:APPTABLE-EXPORT-17] [SPEC:APPTABLE-EXPORT-18] [SP
     expect(screen.getByText("Todos los resultados")).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("Página actual"));
+
+    await waitFor(() => {
+      expect(getBackendExportFile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          format: "xlsx",
+          mode: "currentPage",
+          reportMeta,
+        }),
+      );
+    });
+    expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
+    expect(anchorClickSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("mantiene selectedRows como no ejecutable para xlsx aunque exista backend export", async () => {
+    const getBackendExportFile = vi.fn().mockResolvedValue({
+      blob: new Blob(["xlsx"], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }),
+      fileName: "gestion.xlsx",
+    });
+
+    render(
+      <AppTableExport
+        columns={columns}
+        dataSource={{
+          getCurrentPageRows: () => [{ id: "1", name: "Alpha" }],
+          getSelectedRows: () => [{ id: "2", name: "Beta" }],
+          getBackendExportFile,
+        }}
+        formats={["xlsx"]}
+        reportMeta={reportMeta}
+        enabledModes={["selectedRows"]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+    fireEvent.click(await screen.findByText("Seleccionados"));
+
+    expect(getBackendExportFile).not.toHaveBeenCalled();
+    expect(createObjectUrlSpy).not.toHaveBeenCalled();
+  });
+
+  it("no permite exportar cuando el componente esta deshabilitado", async () => {
+    render(
+      <AppTableExport
+        columns={columns}
+        dataSource={{
+          getCurrentPageRows: () => [{ id: "1", name: "Alpha" }],
+        }}
+        formats={["csv"]}
+        reportMeta={reportMeta}
+        disabled
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+
+    expect(screen.queryByText("Página actual")).not.toBeInTheDocument();
     expect(createObjectUrlSpy).not.toHaveBeenCalled();
   });
 
@@ -303,6 +364,31 @@ describe("AppTableExport [SPEC:APPTABLE-EXPORT-17] [SPEC:APPTABLE-EXPORT-18] [SP
       expect(getAllMatchingRows).toHaveBeenCalledTimes(2);
       expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("bloquea ejecuciones repetidas mientras exportLoading esta activo", async () => {
+    const getAllMatchingRows = vi.fn(() => new Promise<Row[]>(() => undefined));
+
+    render(
+      <AppTableExport
+        columns={columns}
+        dataSource={{
+          getCurrentPageRows: () => [{ id: "1", name: "Alpha" }],
+          getAllMatchingRows,
+        }}
+        formats={["csv"]}
+        reportMeta={reportMeta}
+        enabledModes={["allMatching"]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+    fireEvent.click(await screen.findByText("Todos los resultados"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Exportar" }));
+    fireEvent.click(await screen.findByText("Todos los resultados"));
+
+    expect(getAllMatchingRows).toHaveBeenCalledTimes(1);
   });
 
   it("usa la estrategia backend para descargar allMatching en formatos ejecutivos", async () => {
