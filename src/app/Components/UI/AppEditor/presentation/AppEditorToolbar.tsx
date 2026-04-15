@@ -32,6 +32,7 @@ import styles from "../AppEditor.module.css";
 type AppEditorToolbarProps = {
   editor: Editor | null;
   disabled?: boolean;
+  onInsertLocalImage?: (file: File, width?: string) => Promise<void>;
 };
 
 type ToolbarButtonConfig = {
@@ -261,6 +262,7 @@ function hasActiveImageSelection(editor: Editor | null) {
 function AppEditorToolbarComponent({
   editor,
   disabled = false,
+  onInsertLocalImage,
 }: AppEditorToolbarProps) {
   const isBlocked = disabled || !editor;
   const isCompactToolbar = useCompactToolbarMode();
@@ -413,37 +415,14 @@ function AppEditorToolbarComponent({
 
     const normalizedWidth = normalizeImageWidth(imageWidthValue);
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = typeof reader.result === "string" ? reader.result : "";
-      if (!result) {
-        return;
-      }
+    if (onInsertLocalImage) {
+      void onInsertLocalImage(file, normalizedWidth);
+    }
 
-      editor
-        .chain()
-        .focus()
-        .setImage({
-          src: result,
-        })
-        .run();
-
-      if (normalizedWidth) {
-        editor
-          .chain()
-          .focus()
-          .updateAttributes("image", {
-            width: normalizedWidth,
-          })
-          .run();
-      }
-
-      setImageUrlValue("");
-      setImageWidthValue("");
-      setIsImagePopoverOpen(false);
-    };
-    reader.readAsDataURL(file);
     event.target.value = "";
+    setImageUrlValue("");
+    setImageWidthValue("");
+    setIsImagePopoverOpen(false);
   };
 
   const linkPopoverContent = (

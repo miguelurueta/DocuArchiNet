@@ -120,7 +120,7 @@ export function AppEditor({
     pageOrientation,
     pageMargins,
   });
-  const { editor, isEditable } = useAppEditor({
+  const { editor, isEditable, insertLocalImage } = useAppEditor({
     value,
     defaultValue,
     onChange,
@@ -169,7 +169,7 @@ export function AppEditor({
       ) : null}
 
       <div className={styles.frame}>
-        <AppEditorToolbar editor={editor} disabled={!isEditable} />
+        <AppEditorToolbar editor={editor} disabled={!isEditable} onInsertLocalImage={insertLocalImage} />
         {isVisualPagination ? (
           <div
             className={styles.editorWrapper}

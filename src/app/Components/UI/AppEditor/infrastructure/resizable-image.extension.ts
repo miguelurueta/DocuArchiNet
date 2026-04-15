@@ -71,6 +71,26 @@ export const ResizableImage = Image.extend({
           "data-align": attributes.align ?? "left",
         }),
       },
+      localImageId: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-local-image-id"),
+        renderHTML: (attributes) =>
+          attributes.localImageId
+            ? {
+                "data-local-image-id": attributes.localImageId,
+              }
+            : {},
+      },
+      source: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-source"),
+        renderHTML: (attributes) =>
+          attributes.source
+            ? {
+                "data-source": attributes.source,
+              }
+            : {},
+      },
       width: {
         default: null,
         parseHTML: (element) =>

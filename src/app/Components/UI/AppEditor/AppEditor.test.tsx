@@ -1,7 +1,23 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+
+const { saveImageMock, getImageMock } = vi.hoisted(() => ({
+  saveImageMock: vi.fn(),
+  getImageMock: vi.fn(),
+}));
+
+vi.mock("./infrastructure/indexeddb/appEditorImageStore", () => ({
+  appEditorImageStore: {
+    init: vi.fn(() => Promise.resolve()),
+    saveImage: saveImageMock,
+    getImage: getImageMock,
+    deleteImage: vi.fn(() => Promise.resolve()),
+    clearByScope: vi.fn(() => Promise.resolve()),
+  },
+}));
+
 import { AppEditor } from "./presentation/AppEditor";
 import styles from "./AppEditor.module.css";
 
@@ -9,6 +25,8 @@ const originalElementGetClientRects = Element.prototype.getClientRects;
 const originalElementGetBoundingClientRect = Element.prototype.getBoundingClientRect;
 const originalRangeGetClientRects = Range.prototype.getClientRects;
 const originalRangeGetBoundingClientRect = Range.prototype.getBoundingClientRect;
+const originalCreateObjectURL = URL.createObjectURL;
+const originalRevokeObjectURL = URL.revokeObjectURL;
 
 function createRectList(): DOMRectList {
   const rect = {
@@ -63,6 +81,9 @@ beforeAll(() => {
   Range.prototype.getBoundingClientRect = function getBoundingClientRect() {
     return createRect();
   };
+
+  URL.createObjectURL = vi.fn(() => "blob:mock-local-image");
+  URL.revokeObjectURL = vi.fn();
 });
 
 afterAll(() => {
@@ -70,6 +91,19 @@ afterAll(() => {
   Element.prototype.getBoundingClientRect = originalElementGetBoundingClientRect;
   Range.prototype.getClientRects = originalRangeGetClientRects;
   Range.prototype.getBoundingClientRect = originalRangeGetBoundingClientRect;
+  URL.createObjectURL = originalCreateObjectURL;
+  URL.revokeObjectURL = originalRevokeObjectURL;
+});
+
+beforeEach(() => {
+  saveImageMock.mockReset();
+  getImageMock.mockReset();
+  vi.mocked(URL.createObjectURL).mockReturnValue("blob:mock-local-image");
+  vi.mocked(URL.revokeObjectURL).mockReset();
+});
+
+afterEach(() => {
+  vi.clearAllMocks();
 });
 
 describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
@@ -256,6 +290,46 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     });
   });
 
+  it("inserta una imagen local usando IndexedDB y serializa data-local-image-id", async () => {
+    saveImageMock.mockImplementation(async (image) => image);
+    vi.spyOn(crypto, "randomUUID").mockReturnValue(
+      "local-1-uuid-2-uuid" as `${string}-${string}-${string}-${string}-${string}`,
+    );
+
+    const { container } = render(
+      <AppEditor label="Contenido con imagen local" defaultValue="<p>Inicio</p>" />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Inicio")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByLabelText("Insertar imagen"));
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(["local-image"], "logo.png", { type: "image/png" });
+    fireEvent.change(fileInput, {
+      target: { files: [file] },
+    });
+
+    await waitFor(() => {
+      expect(saveImageMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "img_local_local-1-uuid-2-uuid",
+          fileName: "logo.png",
+          contentType: "image/png",
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      const image = container.querySelector(
+        'img[data-local-image-id="img_local_local-1-uuid-2-uuid"]',
+      );
+      expect(image).toHaveAttribute("src", "blob:mock-local-image");
+      expect(image).toHaveAttribute("data-source", "local");
+    });
+  });
+
   it("rehidrata alineacion horizontal persistida de imagen", async () => {
     const { container } = render(
       <AppEditor
@@ -273,6 +347,101 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     const image = container.querySelector("img");
     expect(image).toHaveAttribute("data-width", "75%");
     expect(image).toHaveAttribute("data-align", "center");
+  });
+
+  it("rehidrata una imagen local desde IndexedDB dentro de la sesion", async () => {
+    getImageMock.mockResolvedValue({
+      id: "img_local_rehydrated",
+      fileName: "logo.png",
+      contentType: "image/png",
+      size: 12,
+      blob: new Blob(["rehydrated"], { type: "image/png" }),
+      createdAt: Date.now(),
+    });
+    vi.mocked(URL.createObjectURL).mockReturnValue("blob:rehydrated-image");
+
+    const { container } = render(
+      <AppEditor
+        label="Contenido con imagen local rehidratada"
+        defaultValue={
+          '<p>Intro</p><img src="blob:stale-image" data-local-image-id="img_local_rehydrated" data-source="local" data-width="75%" data-align="center" />'
+        }
+      />,
+    );
+
+    await waitFor(() => {
+      const image = container.querySelector('img[data-local-image-id="img_local_rehydrated"]');
+      expect(image).toHaveAttribute("src", "blob:rehydrated-image");
+      expect(image).toHaveAttribute("data-align", "center");
+      expect(image).toHaveAttribute("data-width", "75%");
+    });
+  });
+
+  it("libera object urls al desmontar el editor", async () => {
+    getImageMock.mockResolvedValue({
+      id: "img_local_rehydrated",
+      fileName: "logo.png",
+      contentType: "image/png",
+      size: 12,
+      blob: new Blob(["rehydrated"], { type: "image/png" }),
+      createdAt: Date.now(),
+    });
+    vi.mocked(URL.createObjectURL).mockReturnValue("blob:rehydrated-image");
+
+    const { unmount } = render(
+      <AppEditor
+        label="Contenido con limpieza local"
+        defaultValue={
+          '<p>Intro</p><img src="blob:stale-image" data-local-image-id="img_local_rehydrated" data-source="local" />'
+        }
+      />,
+    );
+
+    await waitFor(() => {
+      expect(getImageMock).toHaveBeenCalledWith("img_local_rehydrated");
+    });
+
+    unmount();
+
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:rehydrated-image");
+  });
+
+  it("reutiliza la misma object url para una imagen local ya rehidratada", async () => {
+    getImageMock.mockResolvedValue({
+      id: "img_local_rehydrated",
+      fileName: "logo.png",
+      contentType: "image/png",
+      size: 12,
+      blob: new Blob(["rehydrated"], { type: "image/png" }),
+      createdAt: Date.now(),
+    });
+    vi.mocked(URL.createObjectURL).mockReturnValue("blob:rehydrated-image");
+
+    const initialValue =
+      '<p>Intro</p><img src="blob:stale-image" data-local-image-id="img_local_rehydrated" data-source="local" />';
+
+    const { rerender } = render(
+      <AppEditor
+        label="Contenido con imagen local estable"
+        value={initialValue}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(getImageMock).toHaveBeenCalledTimes(1);
+    });
+
+    rerender(
+      <AppEditor
+        label="Contenido con imagen local estable"
+        value={initialValue}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
+      expect(getImageMock).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("renderiza el modo visual con canvas y hoja centrada sin cambiar la semantica del editor", async () => {
