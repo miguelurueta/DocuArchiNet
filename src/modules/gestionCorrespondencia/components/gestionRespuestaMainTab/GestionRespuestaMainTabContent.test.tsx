@@ -17,12 +17,10 @@ vi.mock("../../../../app/Components/UI/AppUpload/AppUpload", () => ({
 }));
 
 describe("GestionRespuestaMainTabContent [SPEC:IMPLEMENTACION-APPEDITOR-GESTION-RESPUESTA-EDITORCONTAINER-04-FE]", () => {
-  it("reemplaza el placeholder del editor por AppEditor dentro de editorSurface", async () => {
+  it("renderiza AppEditor como superficie principal del contenedor", async () => {
     render(<GestionRespuestaMainTabContent />);
 
     expect(screen.queryByText(/Aqui se renderizara el editor de contenido/i)).not.toBeInTheDocument();
-    expect(screen.getByText("Editor principal")).toBeInTheDocument();
-    expect(screen.getByText("Zona dominante del workspace para construir la respuesta.")).toBeInTheDocument();
     expect(screen.getByLabelText("Editor principal de respuesta")).toBeInTheDocument();
 
     await waitFor(() => {

@@ -62,27 +62,12 @@
 }
 
 .editorContainer {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1rem;
-  background: #ffffff;
+  display: flex;
   min-height: 0;
-}
-
-.editorSurface {
-  min-height: 0;
-  height: 100%;
-  overflow: hidden;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  padding: 0.75rem;
-  background: #fdfefe;
 }
 
 .embeddedAppEditor {
+  flex: 1 1 auto;
   height: 100%;
   min-height: 0;
 }
