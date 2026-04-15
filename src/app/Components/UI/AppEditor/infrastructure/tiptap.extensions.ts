@@ -6,6 +6,7 @@ import { TaskList } from "@tiptap/extension-task-list";
 import { TaskItem } from "@tiptap/extension-task-item";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { StarterKit } from "@tiptap/starter-kit";
+import { PageBreak } from "./page-break.extension";
 import { ResizableImage } from "./resizable-image.extension";
 
 export function buildAppEditorExtensions(placeholder?: string): AnyExtension[] {
@@ -43,5 +44,6 @@ export function buildAppEditorExtensions(placeholder?: string): AnyExtension[] {
       alignments: ["left", "center", "right", "justify"],
       defaultAlignment: "left",
     }),
+    PageBreak,
   ];
 }

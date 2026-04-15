@@ -8,6 +8,8 @@ type PaginationMetrics = {
   pageContentHeight: number;
   totalPages: number;
   guideOffsets: number[];
+  pageBoundaries: number[];
+  manualBreakOffsets: number[];
 };
 
 type UsePaginationMetricsOptions = {
@@ -24,6 +26,8 @@ const DEFAULT_METRICS: PaginationMetrics = {
   pageContentHeight: 0,
   totalPages: 1,
   guideOffsets: [],
+  pageBoundaries: [],
+  manualBreakOffsets: [],
 };
 
 function areMetricsEqual(left: PaginationMetrics, right: PaginationMetrics) {
@@ -31,6 +35,10 @@ function areMetricsEqual(left: PaginationMetrics, right: PaginationMetrics) {
     left.contentHeight === right.contentHeight &&
     left.pageContentHeight === right.pageContentHeight &&
     left.totalPages === right.totalPages &&
+    left.pageBoundaries.length === right.pageBoundaries.length &&
+    left.pageBoundaries.every((offset, index) => offset === right.pageBoundaries[index]) &&
+    left.manualBreakOffsets.length === right.manualBreakOffsets.length &&
+    left.manualBreakOffsets.every((offset, index) => offset === right.manualBreakOffsets[index]) &&
     left.guideOffsets.length === right.guideOffsets.length &&
     left.guideOffsets.every((offset, index) => offset === right.guideOffsets[index])
   );
@@ -40,23 +48,54 @@ export function calculatePaginationMetrics({
   contentHeight,
   pageHeight,
   pageMargins,
+  manualBreakOffsets = [],
 }: {
   contentHeight: number;
   pageHeight: number;
   pageMargins: AppEditorPageMargins;
+  manualBreakOffsets?: number[];
 }): PaginationMetrics {
   const safeContentHeight = Math.max(0, Math.ceil(contentHeight));
   const pageContentHeight = Math.max(1, pageHeight - pageMargins.top - pageMargins.bottom);
-  const totalPages = Math.max(1, Math.ceil(safeContentHeight / pageContentHeight));
-  const guideOffsets = Array.from({ length: Math.max(0, totalPages - 1) }, (_, index) =>
-    (index + 1) * pageContentHeight + pageMargins.top,
-  );
+  const normalizedManualBreakOffsets = Array.from(
+    new Set(
+      manualBreakOffsets
+        .map((offset) => Math.max(0, Math.ceil(offset)))
+        .filter((offset) => offset > 0 && offset < safeContentHeight),
+    ),
+  ).sort((left, right) => left - right);
+  const pageBoundaries: number[] = [];
+  const guideOffsets: number[] = [];
+  let segmentStart = 0;
+
+  const appendSoftBoundaries = (segmentEnd: number) => {
+    const segmentHeight = Math.max(0, segmentEnd - segmentStart);
+    const segmentPages = Math.max(1, Math.ceil(segmentHeight / pageContentHeight));
+
+    for (let pageIndex = 1; pageIndex < segmentPages; pageIndex += 1) {
+      const boundary = segmentStart + pageIndex * pageContentHeight;
+      pageBoundaries.push(boundary);
+      guideOffsets.push(boundary + pageMargins.top);
+    }
+  };
+
+  normalizedManualBreakOffsets.forEach((manualBreakOffset) => {
+    appendSoftBoundaries(manualBreakOffset);
+    pageBoundaries.push(manualBreakOffset);
+    segmentStart = manualBreakOffset;
+  });
+
+  appendSoftBoundaries(safeContentHeight);
+
+  const totalPages = Math.max(1, pageBoundaries.length + 1);
 
   return {
     contentHeight: safeContentHeight,
     pageContentHeight,
     totalPages,
     guideOffsets,
+    pageBoundaries,
+    manualBreakOffsets: normalizedManualBreakOffsets,
   };
 }
 
@@ -109,6 +148,11 @@ export function usePaginationMetrics({
         contentHeight: proseMirror.scrollHeight,
         pageHeight,
         pageMargins,
+        manualBreakOffsets: Array.from(
+          proseMirror.querySelectorAll('[data-page-break="true"]'),
+        )
+          .filter((element): element is HTMLElement => element instanceof HTMLElement)
+          .map((element) => element.offsetTop),
       }),
     );
   }, [commitMetrics, containerRef, enabled, pageHeight, pageMargins]);

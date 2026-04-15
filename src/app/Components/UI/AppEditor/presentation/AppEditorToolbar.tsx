@@ -23,6 +23,7 @@ import {
   faSun,
   faChevronDown,
   faHeading,
+  faGripLines,
 } from "@fortawesome/free-solid-svg-icons";
 import type { Editor } from "@tiptap/react";
 import { AppDropdown } from "../../AppDropdown";
@@ -62,7 +63,7 @@ const TOOLBAR_GROUPS = {
   structure: ["bullet-list", "ordered-list", "task-list"],
   align: ["align-left", "align-center", "align-right", "align-justify"],
   history: ["undo", "redo"],
-  insert: ["link", "image"],
+  insert: ["link", "image", "page-break"],
 } as const;
 
 function getNextThemeMode(themeMode: AppEditorThemeMode): AppEditorThemeMode {
@@ -146,6 +147,32 @@ function canRun(editor: Editor | null, command: (instance: Editor) => boolean) {
   }
 
   return command(editor);
+}
+
+function canInsertPageBreak(editor: Editor | null) {
+  if (!editor) {
+    return false;
+  }
+
+  const canChain = editor.can().chain().focus() as {
+    insertPageBreak?: () => { run: () => boolean };
+  };
+
+  return typeof canChain.insertPageBreak === "function" && canChain.insertPageBreak().run();
+}
+
+function runInsertPageBreak(editor: Editor | null) {
+  if (!editor) {
+    return;
+  }
+
+  const chain = editor.chain().focus() as {
+    insertPageBreak?: () => { run: () => boolean };
+  };
+
+  if (typeof chain.insertPageBreak === "function") {
+    chain.insertPageBreak().run();
+  }
 }
 
 function formatUrl(value: string) {
@@ -632,6 +659,14 @@ function AppEditorToolbarComponent({
       icon: faImage,
       disabled: isBlocked,
       onClick: () => undefined,
+    },
+    {
+      key: "page-break",
+      label: "Insertar salto de pagina",
+      icon: faGripLines,
+      isActive: editor?.isActive("pageBreak"),
+      disabled: isBlocked || !canInsertPageBreak(editor),
+      onClick: () => runInsertPageBreak(editor),
     },
   ];
 
