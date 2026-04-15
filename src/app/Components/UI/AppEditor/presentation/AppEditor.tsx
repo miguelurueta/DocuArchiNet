@@ -128,7 +128,7 @@ export function AppEditor({
     disabled,
     readOnly,
   });
-  const { guideOffsets, totalPages, pageBoundaries } = usePaginationMetrics({
+  const { totalPages, pageBoundaries } = usePaginationMetrics({
     editor,
     enabled: isVisualPagination,
     pageHeight: paginationMetrics.pageHeightValue,
@@ -186,33 +186,24 @@ export function AppEditor({
           >
             <div className={styles.canvas} ref={paginationCanvasRef}>
               <div className={styles.sheet} data-pagination-sheet="true">
-                {guideOffsets.length > 0 ? (
-                  <div className={styles.pageGuides} aria-hidden="true">
-                    {guideOffsets.map((offset, index) => (
-                      <div
-                        key={`page-guide-${offset}-${index}`}
-                        className={styles.pageGuide}
-                        style={{ top: `${offset}px` }}
-                      />
-                    ))}
+                <div className={styles.pageDocument}>
+                  <div
+                    className={joinClasses(
+                      styles.surface,
+                      styles.surfacePaged,
+                      surfaceClassName,
+                      Boolean(error) && styles.surfaceError,
+                    )}
+                  >
+                    <TiptapEditorContent
+                      editor={editor}
+                      className={joinClasses(styles.editorContent, styles.editorContentPaged)}
+                      aria-labelledby={labelId}
+                      aria-label={buildAriaLabel({ "aria-label": ariaLabel, label, title })}
+                      aria-describedby={describedBy}
+                      aria-invalid={Boolean(error)}
+                    />
                   </div>
-                ) : null}
-                <div
-                  className={joinClasses(
-                    styles.surface,
-                    styles.surfacePaged,
-                    surfaceClassName,
-                    Boolean(error) && styles.surfaceError,
-                  )}
-                >
-                  <TiptapEditorContent
-                    editor={editor}
-                    className={joinClasses(styles.editorContent, styles.editorContentPaged)}
-                    aria-labelledby={labelId}
-                    aria-label={buildAriaLabel({ "aria-label": ariaLabel, label, title })}
-                    aria-describedby={describedBy}
-                    aria-invalid={Boolean(error)}
-                  />
                 </div>
                 <div className={styles.pageCounter} aria-live="polite">
                   Pagina {currentPage} de {totalPages}

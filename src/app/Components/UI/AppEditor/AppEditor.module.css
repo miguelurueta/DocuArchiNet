@@ -293,8 +293,8 @@
   display: flex;
   overflow: hidden;
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--editor-muted-surface) 32%, transparent) 0%, transparent 100%),
-    color-mix(in srgb, var(--editor-bg) 92%, var(--editor-muted-surface));
+    radial-gradient(circle at top, color-mix(in srgb, var(--editor-muted-surface) 48%, transparent) 0%, transparent 46%),
+    linear-gradient(180deg, color-mix(in srgb, var(--editor-muted-surface) 70%, var(--editor-bg)) 0%, color-mix(in srgb, var(--editor-bg) 88%, var(--editor-muted-surface)) 100%);
 }
 
 .canvas {
@@ -302,7 +302,7 @@
   min-width: 0;
   flex: 1 1 auto;
   overflow: auto;
-  padding: 1.5rem;
+  padding: 2rem 1.75rem;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -314,33 +314,57 @@
   min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
   display: flex;
   flex-direction: column;
-  background: #ffffff;
-  border: 1px solid color-mix(in srgb, var(--editor-border) 92%, white);
-  border-radius: 0.5rem;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+  border: 1px solid color-mix(in srgb, var(--editor-border) 88%, white);
+  border-radius: 0.85rem;
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.65) inset,
-    0 18px 45px rgba(15, 23, 42, 0.14);
+    0 1px 0 rgba(255, 255, 255, 0.78) inset,
+    0 20px 52px rgba(15, 23, 42, 0.16),
+    0 0 0 12px color-mix(in srgb, var(--editor-bg) 36%, transparent);
+}
+
+.pageDocument {
+  position: relative;
+  min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
+  padding:
+    var(--app-editor-page-margin-top)
+    var(--app-editor-page-margin-right)
+    var(--app-editor-page-margin-bottom)
+    var(--app-editor-page-margin-left);
+}
+
+.pageDocument::before {
+  content: "";
+  position: absolute;
+  inset:
+    var(--app-editor-page-margin-top)
+    var(--app-editor-page-margin-right)
+    var(--app-editor-page-margin-bottom)
+    var(--app-editor-page-margin-left);
+  border: 1px solid color-mix(in srgb, var(--editor-border) 38%, transparent);
+  border-radius: 0.35rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.52) 100%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .surfacePaged {
   min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
   background: transparent;
   overflow: visible;
-}
-
-.pageGuides {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 3;
-}
-
-.pageGuide {
-  position: absolute;
-  left: 0;
-  right: 0;
-  border-top: 1px dashed color-mix(in srgb, var(--editor-focus) 38%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, #ffffff 72%, transparent);
+  position: relative;
+  z-index: 1;
+  min-height: max(
+    calc(
+      var(--app-editor-page-height) - var(--app-editor-page-margin-top) - var(--app-editor-page-margin-bottom)
+    ),
+    var(--app-editor-min-height)
+  );
+  border-radius: 0.35rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.62) 100%);
 }
 
 .pageCounter {
@@ -377,7 +401,12 @@
 }
 
 .editorContentPaged {
-  min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
+  min-height: max(
+    calc(
+      var(--app-editor-page-height) - var(--app-editor-page-margin-top) - var(--app-editor-page-margin-bottom)
+    ),
+    var(--app-editor-min-height)
+  );
   overflow: visible;
 }
 
@@ -407,13 +436,9 @@
     ),
     var(--app-editor-min-height)
   );
-  padding:
-    var(--app-editor-page-margin-top)
-    var(--app-editor-page-margin-right)
-    var(--app-editor-page-margin-bottom)
-    var(--app-editor-page-margin-left);
+  padding: 0;
   overflow: visible;
-  background: #ffffff;
+  background: transparent;
 }
 
 .editorContent :global(.ProseMirror::-webkit-scrollbar) {
@@ -664,7 +689,7 @@
   }
 
   .canvas {
-    padding: 1rem;
+    padding: 1.15rem 0.95rem;
   }
 
   .sheet {
@@ -672,7 +697,7 @@
     min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
   }
 
-  .editorContentPaged :global(.ProseMirror) {
+  .pageDocument {
     padding:
       min(var(--app-editor-page-margin-top), 1rem)
       min(var(--app-editor-page-margin-right), 0.875rem)
