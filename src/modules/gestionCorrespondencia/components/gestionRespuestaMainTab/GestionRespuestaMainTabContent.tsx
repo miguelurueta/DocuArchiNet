@@ -1,6 +1,15 @@
 import { SaveOutlined, SendOutlined, ToolOutlined, UserAddOutlined } from "@ant-design/icons";
 import { useEffect, useId, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
+import {
+  LeftOutlined,
+  SaveOutlined,
+  SendOutlined,
+  UserAddOutlined,
+} from "@ant-design/icons";
+import { useEffect, useId, useState } from "react";
+import { AppButton } from "../../../../app/Components/UI/AppButton";
+import { AppEditor } from "../../../../app/Components/UI/AppEditor";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
 import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
 import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
@@ -38,6 +47,7 @@ export function GestionRespuestaMainTabContent() {
   const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(isCompact);
   const [files, setFiles] = useState<AppUploadFile[]>([]);
+  const [editorValue, setEditorValue] = useState<string>("");
 
   useEffect(() => {
     setIsPanelCollapsed(isCompact);
@@ -80,6 +90,34 @@ export function GestionRespuestaMainTabContent() {
           />
           <AppCollapseRail
             title="Herramientas"
+          <GestionRespuestaEditorContainer>
+            <AppEditor
+              value={editorValue}
+              onChange={setEditorValue}
+              placeholder="Escribe aqui la respuesta principal..."
+              aria-label="Contenido del editor principal de respuesta"
+              className={styles.embeddedAppEditor}
+              surfaceClassName={styles.embeddedAppEditorSurface}
+              minHeight="100%"
+            />
+          </GestionRespuestaEditorContainer>
+          <div className={styles.toolsRail} data-collapsed={isPanelCollapsed}>
+            {isPanelCollapsed ? (
+              <AppButton
+                variant="ghost"
+                size="sm"
+                className={styles.toolsRestore}
+                onClick={() => setIsPanelCollapsed(false)}
+                aria-label="Mostrar panel de herramientas"
+                icon={<LeftOutlined />}
+              >
+                {isCompact ? (
+                  <span className={styles.toolsRestoreLabel}>Herramientas</span>
+                ) : null}
+              </AppButton>
+            ) : null}
+          </div>
+          <GestionRespuestaRightToolsPanel
             collapsed={isPanelCollapsed}
             onToggle={() => setIsPanelCollapsed((prev) => !prev)}
             placement="right"

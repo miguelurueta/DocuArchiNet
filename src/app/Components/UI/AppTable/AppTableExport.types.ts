@@ -107,7 +107,7 @@ export const shouldUseBackendAppTableExport = <T extends AppTableRow>(
   mode: AppTableExportMode,
 ): boolean =>
   typeof dataSource.getBackendExportFile === "function" &&
-  mode === "allMatching" &&
+  (mode === "allMatching" || mode === "currentPage") &&
   (format === "csv" || format === "xlsx" || format === "pdf");
 
 export const isAppTableExportExecutable = <T extends AppTableRow>(

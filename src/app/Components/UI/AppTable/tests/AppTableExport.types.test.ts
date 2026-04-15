@@ -64,7 +64,7 @@ describe("[SPEC:APPTABLE-EXPORT-15] AppTable export contracts", () => {
     ).toEqual(["currentPage", "allLoaded", "allMatching"]);
   });
 
-  it("routes only allMatching to backend and keeps csv local for the rest", () => {
+  it("routes currentPage and allMatching to backend when available", () => {
     const dataSource: AppTableExportDataSource<InboxRow> = {
       getCurrentPageRows: () => [{ id: "1", radicado: "RAD-1" }],
       getAllMatchingRows: async () => [{ id: "1", radicado: "RAD-1" }],
@@ -73,11 +73,11 @@ describe("[SPEC:APPTABLE-EXPORT-15] AppTable export contracts", () => {
       }),
     };
 
-    expect(shouldUseBackendAppTableExport(dataSource, "csv", "currentPage")).toBe(false);
-    expect(shouldUseBackendAppTableExport(dataSource, "xlsx", "currentPage")).toBe(false);
+    expect(shouldUseBackendAppTableExport(dataSource, "csv", "currentPage")).toBe(true);
+    expect(shouldUseBackendAppTableExport(dataSource, "xlsx", "currentPage")).toBe(true);
     expect(shouldUseBackendAppTableExport(dataSource, "xlsx", "allMatching")).toBe(true);
     expect(isAppTableExportExecutable(dataSource, "csv", "currentPage")).toBe(true);
-    expect(isAppTableExportExecutable(dataSource, "xlsx", "currentPage")).toBe(false);
+    expect(isAppTableExportExecutable(dataSource, "xlsx", "currentPage")).toBe(true);
     expect(isAppTableExportExecutable(dataSource, "pdf", "allMatching")).toBe(true);
   });
 
