@@ -464,6 +464,7 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     const wrapper = container.querySelector(`.${styles.editorWrapper}`);
     const canvas = container.querySelector(`.${styles.canvas}`);
     const sheet = container.querySelector(`.${styles.sheet}`);
+    const pageDocument = container.querySelector(`.${styles.pageDocument}`);
     const surface = container.querySelector(`.${styles.surfacePaged}`);
     const editor = screen.getByLabelText("Contenido paginado");
 
@@ -471,11 +472,12 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     expect(wrapper).toBeInTheDocument();
     expect(canvas).toBeInTheDocument();
     expect(sheet).toBeInTheDocument();
+    expect(pageDocument).toBeInTheDocument();
     expect(surface).toBeInTheDocument();
     expect(editor).toBeInTheDocument();
   });
 
-  it("dibuja guias visuales cuando el contenido medido supera varias paginas", async () => {
+  it("mantiene el calculo interno de paginas sin dibujar lineas guia visibles", async () => {
     const { container } = render(
       <AppEditor
         label="Contenido con guias"
@@ -502,8 +504,12 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     fireEvent(window, new Event("resize"));
 
     await waitFor(() => {
-      expect(container.querySelectorAll(`.${styles.pageGuide}`)).toHaveLength(2);
+      expect(screen.getByText("Pagina 1 de 3")).toBeInTheDocument();
     });
+
+    expect(
+      container.querySelector('[data-pagination-sheet="true"] > [aria-hidden="true"]'),
+    ).not.toBeInTheDocument();
   });
 
   it("muestra el contador de pagina actual en modo visual", async () => {
