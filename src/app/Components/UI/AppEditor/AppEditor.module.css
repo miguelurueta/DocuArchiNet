@@ -254,6 +254,17 @@
   justify-content: space-between;
 }
 
+.compactGroupButton {
+  min-width: 0;
+  min-height: 2.2rem;
+  padding-inline: 0.5rem;
+  justify-content: center;
+}
+
+.compactButtonLabel {
+  display: inline-block;
+}
+
 .toolbarCompactLabel {
   display: inline-block;
   width: 0;
@@ -598,33 +609,39 @@
     padding: 0.55rem;
   }
 
-  .toolbarSection[data-group="heading"] {
-    width: 100%;
+  .toolbar[data-toolbar-mode="compact"] {
+    gap: 0.35rem;
+    padding: 0.45rem 0.5rem;
   }
 
-  .headingDropdown {
-    width: 100%;
+  .toolbar[data-toolbar-mode="compact"] .toolbarSection {
+    gap: 0.35rem;
   }
 
-  .headingButton {
-    width: 100%;
+  .toolbar[data-toolbar-mode="compact"] .toolbarSection[data-group="actions"] {
+    flex: 1 1 auto;
   }
 
-  .alignButton {
-    width: 100%;
+  .toolbar[data-toolbar-mode="compact"] .toolbarButtonGroup {
+    width: auto;
+    flex-wrap: nowrap;
+    gap: 0.2rem;
   }
 
-  .toolbarSection[data-group="actions"] {
-    gap: 0.45rem;
+  .toolbar[data-toolbar-mode="compact"] .toolbarButtonGroup :global(.ant-btn) {
+    min-height: 2rem;
+    padding-inline: 0.45rem;
   }
 
-  .toolbarButtonGroup {
-    width: 100%;
-    justify-content: flex-start;
+  .toolbar[data-toolbar-mode="compact"] .headingButton,
+  .toolbar[data-toolbar-mode="compact"] .alignButton,
+  .toolbar[data-toolbar-mode="compact"] .compactGroupButton {
+    min-height: 2rem;
+    padding-inline: 0.4rem;
   }
 
-  .toolbarButtonGroup :global(.ant-btn) {
-    min-height: 2.35rem;
+  .toolbar[data-toolbar-mode="compact"] .compactButtonLabel {
+    display: none;
   }
 
   .editorContent :global(.ProseMirror) {
@@ -657,5 +674,30 @@
 
   .toolbarButtonGroup {
     gap: 0.3rem;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] {
+    gap: 0.45rem;
+    padding: 0.55rem 0.65rem;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarSection {
+    gap: 0.4rem;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarButtonGroup {
+    gap: 0.25rem;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarButtonGroup :global(.ant-btn) {
+    min-height: 2.05rem;
+    padding-inline: 0.5rem;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .headingButton,
+  .toolbar[data-toolbar-mode="compact"] .alignButton,
+  .toolbar[data-toolbar-mode="compact"] .compactGroupButton {
+    min-height: 2.05rem;
+    padding-inline: 0.45rem;
   }
 }

@@ -1,6 +1,6 @@
-import { useId, useRef, useState } from "react";
+import { useId, useRef } from "react";
 import type { CSSProperties } from "react";
-import type { AppEditorProps, AppEditorThemeMode } from "../domain/editor.types";
+import type { AppEditorProps } from "../domain/editor.types";
 import { useAppEditor } from "../application/useAppEditor";
 import { usePageContext } from "../application/usePageContext";
 import { usePaginationMetrics } from "../application/usePaginationMetrics";
@@ -97,10 +97,8 @@ export function AppEditor({
   headerActions,
   surfaceClassName,
   minHeight = 280,
-  showThemeToggle = true,
   themeMode,
   defaultThemeMode = "light",
-  onThemeModeChange,
   paginationMode = "none",
   pageFormat = "A4",
   pageOrientation = "portrait",
@@ -110,12 +108,11 @@ export function AppEditor({
   const fieldId = useId();
   const paginationContainerRef = useRef<HTMLDivElement>(null);
   const paginationCanvasRef = useRef<HTMLDivElement>(null);
-  const [internalThemeMode, setInternalThemeMode] = useState<AppEditorThemeMode>(defaultThemeMode);
   const labelId = label ? `${fieldId}-label` : undefined;
   const helperId = helperText ? `${fieldId}-helper` : undefined;
   const errorId = error ? `${fieldId}-error` : undefined;
   const describedBy = [errorId, helperId].filter(Boolean).join(" ") || undefined;
-  const resolvedThemeMode = themeMode ?? internalThemeMode;
+  const resolvedThemeMode = themeMode ?? defaultThemeMode;
   const isVisualPagination = paginationMode === "visual";
   const paginationMetrics = resolvePaginationMetrics({
     minHeight,
@@ -146,14 +143,6 @@ export function AppEditor({
     canvasRef: paginationCanvasRef,
   });
 
-  const handleThemeModeChange = (nextThemeMode: AppEditorThemeMode) => {
-    if (themeMode === undefined) {
-      setInternalThemeMode(nextThemeMode);
-    }
-
-    onThemeModeChange?.(nextThemeMode);
-  };
-
   return (
     <section
       className={joinClasses(styles.editor, className)}
@@ -180,13 +169,7 @@ export function AppEditor({
       ) : null}
 
       <div className={styles.frame}>
-        <AppEditorToolbar
-          editor={editor}
-          disabled={!isEditable}
-          showThemeToggle={showThemeToggle}
-          themeMode={resolvedThemeMode}
-          onThemeModeChange={handleThemeModeChange}
-        />
+        <AppEditorToolbar editor={editor} disabled={!isEditable} />
         {isVisualPagination ? (
           <div
             className={styles.editorWrapper}

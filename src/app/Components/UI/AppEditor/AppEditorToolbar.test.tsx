@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppEditorToolbar } from "./presentation/AppEditorToolbar";
 
 function createChainMock() {
-  const chain = {
+  const chain: Record<string, ReturnType<typeof vi.fn> | unknown> = {
     focus: vi.fn(() => chain),
     toggleBold: vi.fn(() => chain),
     toggleItalic: vi.fn(() => chain),
@@ -24,12 +24,34 @@ function createChainMock() {
     run: vi.fn(() => true),
   };
 
-  return chain;
+  return chain as {
+    focus: ReturnType<typeof vi.fn>;
+    toggleBold: ReturnType<typeof vi.fn>;
+    toggleItalic: ReturnType<typeof vi.fn>;
+    toggleUnderline: ReturnType<typeof vi.fn>;
+    toggleBulletList: ReturnType<typeof vi.fn>;
+    toggleOrderedList: ReturnType<typeof vi.fn>;
+    toggleTaskList: ReturnType<typeof vi.fn>;
+    setTextAlign: ReturnType<typeof vi.fn>;
+    undo: ReturnType<typeof vi.fn>;
+    redo: ReturnType<typeof vi.fn>;
+    extendMarkRange: ReturnType<typeof vi.fn>;
+    setLink: ReturnType<typeof vi.fn>;
+    unsetLink: ReturnType<typeof vi.fn>;
+    setImage: ReturnType<typeof vi.fn>;
+    updateAttributes: ReturnType<typeof vi.fn>;
+    toggleHeading: ReturnType<typeof vi.fn>;
+    setParagraph: ReturnType<typeof vi.fn>;
+    insertPageBreak?: ReturnType<typeof vi.fn>;
+    run: ReturnType<typeof vi.fn>;
+  };
 }
 
 function createEditorMock() {
   const actionChain = createChainMock();
   const canChain = createChainMock();
+  canChain.insertPageBreak = vi.fn(() => canChain);
+  actionChain.insertPageBreak = vi.fn(() => actionChain);
 
   return {
     isActive: vi.fn((name: unknown) => Boolean(name === "bold")),
@@ -61,6 +83,7 @@ describe("AppEditorToolbar [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", ()
     expect(screen.getByLabelText("Insertar imagen")).toBeDisabled();
     expect(screen.getByLabelText("Deshacer")).toBeDisabled();
     expect(screen.getByLabelText("Rehacer")).toBeDisabled();
+    expect(screen.queryByRole("button", { name: /Tema .* activo/i })).not.toBeInTheDocument();
     expect(screen.getByRole("group", { name: "Formato de texto" })).toBeInTheDocument();
     expect(screen.getByRole("group", { name: "Insercion de contenido" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Nivel de encabezado" })).toBeInTheDocument();
@@ -90,6 +113,36 @@ describe("AppEditorToolbar [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", ()
     await waitFor(() => {
       expect(editor.__actionChain.setTextAlign).toHaveBeenCalledWith("right");
     });
+  });
+
+  it("compacta la toolbar y colapsa estructura en tablet/mobile", async () => {
+    const previousWidth = window.innerWidth;
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      writable: true,
+      value: 896,
+    });
+
+    const editor = createEditorMock();
+    const { container } = render(<AppEditorToolbar editor={editor as never} />);
+
+    fireEvent(window, new Event("resize"));
+
+    expect(container.querySelector('[data-toolbar-mode="compact"]')).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Estructura de contenido" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Estructura de contenido" }));
+    fireEvent.click(await screen.findByText("Lista numerada"));
+
+    await waitFor(() => {
+      expect(editor.__actionChain.toggleOrderedList).toHaveBeenCalledTimes(1);
+    });
+
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      writable: true,
+      value: previousWidth,
+    });
+    fireEvent(window, new Event("resize"));
   });
 
   it("abre el formulario de enlace y aplica la URL normalizada", async () => {

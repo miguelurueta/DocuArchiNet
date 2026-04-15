@@ -1,4 +1,4 @@
-import { memo, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { Input, Popover } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import type { ChangeEvent } from "react";
@@ -19,8 +19,6 @@ import {
   faAlignRight,
   faAlignJustify,
   faParagraph,
-  faMoon,
-  faSun,
   faChevronDown,
   faHeading,
   faGripLines,
@@ -28,15 +26,12 @@ import {
 import type { Editor } from "@tiptap/react";
 import { AppDropdown } from "../../AppDropdown";
 import { AppButton } from "../../AppButton";
-import type { AppEditorHeadingLevel, AppEditorThemeMode } from "../domain/editor.types";
+import type { AppEditorHeadingLevel } from "../domain/editor.types";
 import styles from "../AppEditor.module.css";
 
 type AppEditorToolbarProps = {
   editor: Editor | null;
   disabled?: boolean;
-  showThemeToggle?: boolean;
-  themeMode?: AppEditorThemeMode;
-  onThemeModeChange?: (mode: AppEditorThemeMode) => void;
 };
 
 type ToolbarButtonConfig = {
@@ -61,27 +56,33 @@ const HEADING_OPTIONS = [
 const TOOLBAR_GROUPS = {
   formatting: ["bold", "italic", "underline"],
   structure: ["bullet-list", "ordered-list", "task-list"],
-  align: ["align-left", "align-center", "align-right", "align-justify"],
   history: ["undo", "redo"],
   insert: ["link", "image", "page-break"],
 } as const;
 
-function getNextThemeMode(themeMode: AppEditorThemeMode): AppEditorThemeMode {
-  return themeMode === "dark" ? "light" : "dark";
-}
+function useCompactToolbarMode(maxWidth = 1024) {
+  const [isCompact, setIsCompact] = useState(
+    () => typeof window !== "undefined" && window.innerWidth <= maxWidth,
+  );
 
-function getThemeActionMeta(themeMode: AppEditorThemeMode) {
-  if (themeMode === "dark") {
-    return {
-      label: "Tema oscuro activo. Cambiar a claro",
-      icon: faMoon,
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return undefined;
+    }
+
+    const handleResize = () => {
+      setIsCompact(window.innerWidth <= maxWidth);
     };
-  }
 
-  return {
-    label: "Tema claro activo. Cambiar a oscuro",
-    icon: faSun,
-  };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [maxWidth]);
+
+  return isCompact;
 }
 
 function getCurrentHeadingValue(editor: Editor | null) {
@@ -231,11 +232,9 @@ function hasActiveImageSelection(editor: Editor | null) {
 function AppEditorToolbarComponent({
   editor,
   disabled = false,
-  showThemeToggle = false,
-  themeMode = "system",
-  onThemeModeChange,
 }: AppEditorToolbarProps) {
   const isBlocked = disabled || !editor;
+  const isCompactToolbar = useCompactToolbarMode();
   const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false);
   const [isImagePopoverOpen, setIsImagePopoverOpen] = useState(false);
   const [linkValue, setLinkValue] = useState("");
@@ -677,7 +676,6 @@ function AppEditorToolbarComponent({
     insert: buttons.filter((button) => TOOLBAR_GROUPS.insert.includes(button.key as never)),
   };
 
-  const themeActionMeta = getThemeActionMeta(themeMode);
   const currentHeading = getHeadingOption(getCurrentHeadingValue(editor));
   const currentTextAlign = getTextAlignMeta(getCurrentTextAlign(editor));
   const headingItems = HEADING_OPTIONS.map((option) => ({
@@ -712,6 +710,26 @@ function AppEditorToolbarComponent({
       onSelect: () => editor?.chain().focus().setTextAlign("justify").run(),
     },
   ];
+  const structureItems = [
+    {
+      key: "bullet-list",
+      label: "Lista con vietas",
+      leftIcon: <FontAwesomeIcon icon={faListUl} />,
+      onSelect: () => editor?.chain().focus().toggleBulletList().run(),
+    },
+    {
+      key: "ordered-list",
+      label: "Lista numerada",
+      leftIcon: <FontAwesomeIcon icon={faListOl} />,
+      onSelect: () => editor?.chain().focus().toggleOrderedList().run(),
+    },
+    {
+      key: "task-list",
+      label: "Lista de tareas",
+      leftIcon: <FontAwesomeIcon icon={faListCheck} />,
+      onSelect: () => editor?.chain().focus().toggleTaskList().run(),
+    },
+  ];
 
   const renderButtonGroup = (group: ToolbarButtonConfig[], label: string) => (
     <div className={styles.toolbarButtonGroup} role="group" aria-label={label}>
@@ -720,7 +738,12 @@ function AppEditorToolbarComponent({
   );
 
   return (
-    <div className={styles.toolbar} role="toolbar" aria-label="Barra de herramientas del editor">
+    <div
+      className={styles.toolbar}
+      role="toolbar"
+      aria-label="Barra de herramientas del editor"
+      data-toolbar-mode={isCompactToolbar ? "compact" : "default"}
+    >
       <div className={styles.toolbarSection} data-group="heading">
         <AppDropdown
           trigger={
@@ -744,21 +767,31 @@ function AppEditorToolbarComponent({
       </div>
 
       <div className={styles.toolbarSection} data-group="actions">
-        {showThemeToggle ? (
-          <div className={styles.toolbarButtonGroup} role="group" aria-label="Tema del editor">
-            <AppButton
-              variant="ghost"
-              size="sm"
-              icon={<FontAwesomeIcon icon={themeActionMeta.icon} />}
-              aria-label={themeActionMeta.label}
-              tooltip={themeActionMeta.label}
-              disabled={disabled}
-              onClick={() => onThemeModeChange?.(getNextThemeMode(themeMode))}
+        {renderButtonGroup(groupedButtons.formatting, "Formato de texto")}
+        {isCompactToolbar ? (
+          <div className={styles.toolbarButtonGroup} role="group" aria-label="Estructura de contenido">
+            <AppDropdown
+              trigger={
+                <AppButton
+                  variant="ghost"
+                  size="sm"
+                  leftIcon={<FontAwesomeIcon icon={faListUl} />}
+                  rightIcon={<FontAwesomeIcon icon={faChevronDown} />}
+                  className={styles.compactGroupButton}
+                  aria-label="Estructura de contenido"
+                >
+                  <span className={styles.compactButtonLabel}>Bloques</span>
+                </AppButton>
+              }
+              items={structureItems}
+              disabled={isBlocked}
+              ariaLabel="Estructura de contenido"
+              placement="bottomLeft"
             />
           </div>
-        ) : null}
-        {renderButtonGroup(groupedButtons.formatting, "Formato de texto")}
-        {renderButtonGroup(groupedButtons.structure, "Estructura de contenido")}
+        ) : (
+          renderButtonGroup(groupedButtons.structure, "Estructura de contenido")
+        )}
         <div className={styles.toolbarButtonGroup} role="group" aria-label="Alineacion">
           <AppDropdown
             trigger={
