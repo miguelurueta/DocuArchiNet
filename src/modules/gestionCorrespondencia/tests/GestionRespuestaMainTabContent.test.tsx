@@ -6,8 +6,9 @@ describe("[SCRUMCORE-89] GestionRespuesta main tab workbench", () => {
   test("renderiza toolbar y zona de adjuntos", () => {
     render(<GestionRespuestaMainTabContent />);
 
-    expect(screen.getByText(/Guardar borrador/i)).toBeInTheDocument();
-    expect(screen.getByText(/Enviar respuesta/i)).toBeInTheDocument();
+    expect(screen.getByText(/Solicitud de Aprobacion/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Guardar$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Enviar$/i)).toBeInTheDocument();
     expect(screen.getByText(/Adjuntos/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Arrastra archivos/i })).toBeInTheDocument();
   });
