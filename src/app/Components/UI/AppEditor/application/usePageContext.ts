@@ -6,9 +6,10 @@ type UsePageContextOptions = {
   editor: Editor | null;
   enabled: boolean;
   totalPages: number;
-  pageContentHeight: number;
+  pageBoundaries: number[];
   canvasRef: RefObject<HTMLElement | null>;
   debounceMs?: number;
+  scrollPriorityMs?: number;
 };
 
 const DEFAULT_PAGE = 1;
@@ -17,37 +18,37 @@ function clampPage(page: number, totalPages: number) {
   return Math.min(Math.max(page, DEFAULT_PAGE), Math.max(DEFAULT_PAGE, totalPages));
 }
 
-function resolvePageFromOffset(offset: number, pageContentHeight: number, totalPages: number) {
-  if (pageContentHeight <= 0) {
-    return DEFAULT_PAGE;
-  }
-
-  return clampPage(Math.floor(Math.max(0, offset) / pageContentHeight) + 1, totalPages);
+function resolvePageFromOffset(offset: number, pageBoundaries: number[], totalPages: number) {
+  const safeOffset = Math.max(0, offset);
+  const crossedBoundaries = pageBoundaries.filter((boundary) => safeOffset >= boundary).length;
+  return clampPage(crossedBoundaries + 1, totalPages);
 }
 
 export function calculatePageFromOffset({
   offset,
-  pageContentHeight,
+  pageBoundaries,
   totalPages,
 }: {
   offset: number;
-  pageContentHeight: number;
+  pageBoundaries: number[];
   totalPages: number;
 }) {
-  return resolvePageFromOffset(offset, pageContentHeight, totalPages);
+  return resolvePageFromOffset(offset, pageBoundaries, totalPages);
 }
 
 export function usePageContext({
   editor,
   enabled,
   totalPages,
-  pageContentHeight,
+  pageBoundaries,
   canvasRef,
   debounceMs = 32,
+  scrollPriorityMs = 240,
 }: UsePageContextOptions) {
   const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
   const timeoutRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);
+  const lastScrollAtRef = useRef<number>(0);
 
   const clearPending = useCallback(() => {
     if (timeoutRef.current !== null) {
@@ -73,12 +74,12 @@ export function usePageContext({
 
     const sheet = canvas.querySelector('[data-pagination-sheet="true"]');
     if (!(sheet instanceof HTMLElement)) {
-      return resolvePageFromOffset(canvas.scrollTop, pageContentHeight, totalPages);
+      return resolvePageFromOffset(canvas.scrollTop, pageBoundaries, totalPages);
     }
 
     const offset = Math.max(0, canvas.scrollTop - sheet.offsetTop);
-    return resolvePageFromOffset(offset, pageContentHeight, totalPages);
-  }, [canvasRef, pageContentHeight, totalPages]);
+    return resolvePageFromOffset(offset, pageBoundaries, totalPages);
+  }, [canvasRef, pageBoundaries, totalPages]);
 
   const resolvePageFromCursor = useCallback(() => {
     if (!editor?.isFocused) {
@@ -95,11 +96,11 @@ export function usePageContext({
       const coords = editor.view.coordsAtPos(from);
       const proseMirrorRect = proseMirror.getBoundingClientRect();
       const offset = coords.top - proseMirrorRect.top;
-      return resolvePageFromOffset(offset, pageContentHeight, totalPages);
+      return resolvePageFromOffset(offset, pageBoundaries, totalPages);
     } catch {
       return null;
     }
-  }, [canvasRef, editor, pageContentHeight, totalPages]);
+  }, [canvasRef, editor, pageBoundaries, totalPages]);
 
   const updateCurrentPage = useCallback(() => {
     if (!enabled) {
@@ -107,9 +108,17 @@ export function usePageContext({
       return;
     }
 
+    const shouldPrioritizeScroll =
+      lastScrollAtRef.current > 0 && Date.now() - lastScrollAtRef.current <= scrollPriorityMs;
+
+    if (shouldPrioritizeScroll) {
+      commitPage(resolvePageFromScroll());
+      return;
+    }
+
     const pageFromCursor = resolvePageFromCursor();
     commitPage(pageFromCursor ?? resolvePageFromScroll());
-  }, [commitPage, enabled, resolvePageFromCursor, resolvePageFromScroll]);
+  }, [commitPage, enabled, resolvePageFromCursor, resolvePageFromScroll, scrollPriorityMs]);
 
   const scheduleUpdate = useCallback(() => {
     clearPending();
@@ -134,6 +143,7 @@ export function usePageContext({
 
     const canvas = canvasRef.current;
     const handleScroll = () => {
+      lastScrollAtRef.current = Date.now();
       scheduleUpdate();
     };
 

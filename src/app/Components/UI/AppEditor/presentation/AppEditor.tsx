@@ -131,7 +131,7 @@ export function AppEditor({
     disabled,
     readOnly,
   });
-  const { guideOffsets, totalPages, pageContentHeight } = usePaginationMetrics({
+  const { guideOffsets, totalPages, pageBoundaries } = usePaginationMetrics({
     editor,
     enabled: isVisualPagination,
     pageHeight: paginationMetrics.pageHeightValue,
@@ -142,7 +142,7 @@ export function AppEditor({
     editor,
     enabled: isVisualPagination,
     totalPages,
-    pageContentHeight,
+    pageBoundaries,
     canvasRef: paginationCanvasRef,
   });
 
