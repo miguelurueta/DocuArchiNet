@@ -1,6 +1,7 @@
 .wrapper {
   position: relative;
   min-width: 0;
+  isolation: isolate;
 }
 
 .panel {
@@ -11,23 +12,24 @@
   border-radius: 12px;
   padding: 1rem;
   background: #f9fafb;
+  height: 100%;
   min-width: 0;
   min-height: 0;
   opacity: 1;
   transition: opacity 0.2s ease, transform 0.2s ease, padding 0.2s ease;
 }
 
-.panel[data-collapsed="true"] {
+.panel[data-variant="inline"][data-collapsed="true"] {
   opacity: 0;
   padding: 0;
   pointer-events: none;
 }
 
-.panel[data-placement="right"][data-collapsed="true"] {
+.panel[data-placement="right"][data-variant="inline"][data-collapsed="true"] {
   transform: translateX(12px);
 }
 
-.panel[data-placement="left"][data-collapsed="true"] {
+.panel[data-placement="left"][data-variant="inline"][data-collapsed="true"] {
   transform: translateX(-12px);
 }
 
@@ -88,7 +90,7 @@
   background: rgba(241, 245, 249, 0.95);
   border-radius: 999px;
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1);
-  z-index: 1;
+  z-index: 3;
 }
 
 .rail[data-placement="right"] {
@@ -104,15 +106,61 @@
   pointer-events: auto;
 }
 
+.rail[data-collapsed="false"] {
+  top: 0;
+  bottom: auto;
+  height: 100%;
+  transform: none;
+}
+
 .railButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 999px;
+  overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.25);
   background: #ffffff;
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
-  padding: 0 6px;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  line-height: 1;
   min-width: 0;
   color: #1f2937;
-  gap: 6px;
+}
+
+.railButton :global(.anticon) {
+  transform: none;
+  font-size: 12px;
+}
+
+.railButton :global(.anticon svg) {
+  display: block;
+}
+
+@media (min-width: 769px) {
+  .rail[data-collapsed="true"] {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+  }
+
+  .railButton {
+    width: 26px;
+    height: 26px;
+  }
+
+  :global(.ant-btn).railButton {
+    width: 26px;
+    height: 26px;
+  }
+
+  .railButton :global(.anticon) {
+    font-size: 12px;
+  }
 }
 
 .railButton:hover {
@@ -129,22 +177,46 @@
   font-size: 0.85rem;
   font-weight: 600;
   color: #1f2937;
+  align-items: center;
+  gap: 6px;
 }
+
+.railLabelIcon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.95em;
+}
+
 
 @media (max-width: 768px) {
   .panel[data-variant="overlay"] {
-    position: absolute;
+    position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
-    max-height: 75%;
+    width: 100vw;
+    max-height: 70vh;
+    height: auto;
     border-radius: 20px 20px 0 0;
     border-bottom: 0;
     box-shadow: 0 -18px 36px rgba(15, 23, 42, 0.22);
     background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    transform: translateY(0);
+    transition: transform 0.22s ease, visibility 0s linear 0s;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+    backface-visibility: hidden;
+    contain: paint;
+    isolation: isolate;
+    visibility: visible;
     opacity: 1;
     z-index: 2;
+  }
+
+  .panel[data-variant="overlay"][data-collapsed="false"] {
+    padding: 1rem;
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
   }
 
   .panel[data-variant="overlay"]::before {
@@ -157,9 +229,12 @@
   }
 
   .panel[data-variant="overlay"][data-collapsed="true"] {
-    transform: translateY(110%);
-    opacity: 1;
+    transform: translate3d(0, 120%, 0);
     padding: 1rem;
+    opacity: 1;
+    visibility: hidden;
+    transition: transform 0.22s ease, visibility 0s linear 0.22s;
+    pointer-events: none;
   }
 
   .rail {
@@ -168,13 +243,19 @@
     top: auto;
     bottom: 16px;
     transform: none;
-    opacity: 1;
-    pointer-events: auto;
-    padding: 6px 10px;
+    opacity: 0;
+    pointer-events: none;
+    padding: 4px 8px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
     border: 1px solid rgba(148, 163, 184, 0.35);
+    z-index: 3;
+  }
+
+  .rail[data-collapsed="true"] {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .rail[data-placement="left"] {
@@ -182,13 +263,37 @@
     right: auto;
   }
 
+
   .railLabel {
     display: inline-flex;
+    max-width: none;
+    overflow: visible;
+    text-overflow: unset;
+    white-space: nowrap;
   }
 
   .railButton {
-    background: transparent;
-    border: 0;
-    box-shadow: none;
+    width: auto;
+    height: 36px;
+    padding: 0 56px;
+    border-radius: 24px;
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.08);
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.1);
+    gap: 8px;
+  }
+
+  .railButton :global(.anticon) {
+    display: none;
+  }
+
+  .railButton :global(.ant-btn) {
+    width: auto;
+    height: 28px;
+  }
+
+  .railButton:focus-visible {
+    outline: 2px solid #1d4ed8;
+    outline-offset: 2px;
   }
 }

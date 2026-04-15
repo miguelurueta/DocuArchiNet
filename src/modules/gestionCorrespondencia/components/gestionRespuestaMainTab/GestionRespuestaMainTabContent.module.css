@@ -1,6 +1,7 @@
 .mainTab {
   display: grid;
   gap: 1.5rem;
+  padding-bottom: 1rem;
 }
 
 .infoHeader {
@@ -47,8 +48,8 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
   gap: 1rem;
-  min-height: 320px;
-  height: clamp(320px, 55vh, 560px);
+  min-height: 460px;
+  height: clamp(460px, 74vh, 860px);
   transition: grid-template-columns 0.2s ease;
   position: relative;
   align-items: stretch;
@@ -56,30 +57,58 @@
   overflow-x: hidden;
 }
 
+@media (min-width: 769px) and (max-height: 950px) {
+  .workbenchBody {
+    min-height: 620px;
+    height: clamp(620px, 84vh, 980px);
+  }
+}
+
 .workbenchBody[data-panel-collapsed="true"] {
+  grid-template-columns: minmax(0, 1fr) 0;
+  gap: 0;
+}
+
+.workbenchBody[data-variant="overlay"] {
   grid-template-columns: minmax(0, 1fr) 0;
   gap: 0;
 }
 
 .editorContainer {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 0.75rem;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 1rem;
   background: #ffffff;
   min-height: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  align-self: stretch;
 }
 
 .editorSurface {
   min-height: 0;
-  height: 100%;
+  height: auto;
   overflow: auto;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
   padding: 1rem;
   background: #fdfefe;
+  box-sizing: border-box;
+}
+
+@media (min-width: 769px) {
+  .editorContainer {
+    height: 100%;
+    max-height: 100%;
+  }
+
+  .editorSurface {
+    height: 100%;
+    max-height: 100%;
+  }
 }
 
 .toolsPanel {
@@ -227,7 +256,8 @@
 
 @media (max-width: 768px) {
   .workbenchBody {
-    height: clamp(280px, 55vh, 520px);
+    min-height: 360px;
+    height: clamp(360px, 68vh, 640px);
   }
 
   .toolsPanel {
