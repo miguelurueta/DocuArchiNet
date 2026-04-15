@@ -1,0 +1,83 @@
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.label {
+  color: #14324a;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.select {
+  width: 100%;
+}
+
+.select :global(.ant-select-selector) {
+  border-radius: 10px !important;
+  border-width: 1px !important;
+  box-shadow: 0 8px 22px rgba(15, 52, 96, 0.08);
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.select :global(.ant-select-selector:hover) {
+  border-color: #6f9ff0 !important;
+}
+
+.select :global(.ant-select-focused .ant-select-selector),
+.select :global(.ant-select-selector:focus),
+.select :global(.ant-select-selector:focus-within) {
+  border-color: #0f5bd8 !important;
+  box-shadow: 0 0 0 3px rgba(15, 91, 216, 0.16) !important;
+  outline: none;
+}
+
+.sm :global(.ant-select-selector) {
+  min-height: 2rem !important;
+}
+
+.md :global(.ant-select-selector) {
+  min-height: 2.5rem !important;
+}
+
+.lg :global(.ant-select-selector) {
+  min-height: 2.9rem !important;
+}
+
+.selectError :global(.ant-select-selector) {
+  background: #fff8f8 !important;
+  border-color: #c63d3d !important;
+}
+
+.selectDisabled :global(.ant-select-selector) {
+  background: #f4f6fb !important;
+  box-shadow: none !important;
+}
+
+.emptyContent {
+  padding: 0.4rem 0;
+}
+
+.helperText {
+  color: #516272;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.helperTextError {
+  color: #b83232;
+}
+
+@media (max-width: 768px) {
+  .select :global(.ant-select-selector) {
+    border-radius: 10px !important;
+  }
+
+  .lg :global(.ant-select-selector) {
+    min-height: 3rem !important;
+  }
+}
