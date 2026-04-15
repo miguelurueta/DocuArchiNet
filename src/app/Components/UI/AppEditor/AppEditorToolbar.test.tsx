@@ -219,4 +219,22 @@ describe("AppEditorToolbar [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", ()
       expect(editor.__actionChain.setImageAlign).toHaveBeenCalledWith("center");
     });
   });
+
+  it("delegates local image insertion to the provided handler", async () => {
+    const editor = createEditorMock();
+    const handleInsertLocalImage = vi.fn(() => Promise.resolve());
+    render(<AppEditorToolbar editor={editor as never} onInsertLocalImage={handleInsertLocalImage} />);
+
+    fireEvent.click(screen.getByLabelText("Insertar imagen"));
+
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(["img"], "logo.png", { type: "image/png" });
+    fireEvent.change(input, {
+      target: { files: [file] },
+    });
+
+    await waitFor(() => {
+      expect(handleInsertLocalImage).toHaveBeenCalledWith(file, "50%");
+    });
+  });
 });

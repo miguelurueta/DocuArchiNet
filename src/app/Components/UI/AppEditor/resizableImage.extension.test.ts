@@ -37,4 +37,25 @@ describe("ResizableImage extension [SPEC:AJUSTE-DESPLAZAMIENTO-IMAGEN-APPEDITOR-
 
     editor.destroy();
   });
+
+  it("serializa y rehidrata atributos de imagen local", () => {
+    const editor = new Editor({
+      extensions: buildAppEditorExtensions(),
+      content:
+        '<img src="blob:local-image" data-local-image-id="img_local_1" data-source="local" data-width="50%" data-align="left" />',
+    });
+
+    const html = editor.getHTML();
+
+    expect(html).toContain('data-local-image-id="img_local_1"');
+    expect(html).toContain('data-source="local"');
+    expect(editor.getJSON().content?.[0]?.attrs).toMatchObject({
+      localImageId: "img_local_1",
+      source: "local",
+      width: "50%",
+      align: "left",
+    });
+
+    editor.destroy();
+  });
 });
