@@ -112,7 +112,7 @@ function renderAction(action: AppToolbarAction, size: AppButtonSize = "md") {
       href={action.href}
       variant={action.variant ?? "secondary"}
       size={action.size ?? size}
-      icon={action.icon}
+      leftIcon={action.icon}
       disabled={action.disabled}
       loading={action.loading}
       tooltip={action.tooltip}
@@ -162,6 +162,7 @@ export function AppToolbar({
       className={joinClasses(
         styles.toolbar,
         isCompact && styles.compact,
+        !hasContext && styles.contextless,
         sticky && styles.sticky,
         className,
       )}

@@ -1,4 +1,4 @@
-import { SaveOutlined, SendOutlined, ToolOutlined, UserAddOutlined } from "@ant-design/icons";
+import { CarryOutFilled, MailFilled, SaveFilled, ToolOutlined } from "@ant-design/icons";
 import { useEffect, useId, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
@@ -57,15 +57,28 @@ export function GestionRespuestaMainTabContent() {
         <AppToolbar
           className={styles.toolbar}
           actions={[
-            { key: "guardar", label: "Guardar borrador", size: "sm", icon: <SaveOutlined /> },
-            { key: "asignar", label: "Asignar revisor", size: "sm", icon: <UserAddOutlined /> },
+            {
+              key: "solicitud-aprobacion",
+              label: "Solicitud de Aprobacion",
+              size: "sm",
+              variant: "ghost",
+              icon: <CarryOutFilled />,
+            },
+            {
+              key: "guardar",
+              label: "Guardar",
+              size: "sm",
+              variant: "ghost",
+              icon: <SaveFilled />,
+            },
+            {
+              key: "enviar",
+              label: "Enviar",
+              size: "sm",
+              variant: "ghost",
+              icon: <MailFilled />,
+            },
           ]}
-          primaryAction={{
-            key: "enviar",
-            label: "Enviar respuesta",
-            size: "sm",
-            icon: <SendOutlined />,
-          }}
         />
 
         <div
