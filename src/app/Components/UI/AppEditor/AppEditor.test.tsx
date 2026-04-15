@@ -1,9 +1,76 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AppEditor } from "./presentation/AppEditor";
 import styles from "./AppEditor.module.css";
+
+const originalElementGetClientRects = Element.prototype.getClientRects;
+const originalElementGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+const originalRangeGetClientRects = Range.prototype.getClientRects;
+const originalRangeGetBoundingClientRect = Range.prototype.getBoundingClientRect;
+
+function createRectList(): DOMRectList {
+  const rect = {
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+    toJSON: () => ({}),
+  };
+
+  return {
+    0: rect,
+    length: 1,
+    item: () => rect,
+    [Symbol.iterator]: function* iterator() {
+      yield rect;
+    },
+  } as DOMRectList;
+}
+
+function createRect(): DOMRect {
+  return {
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+    toJSON: () => ({}),
+  } as DOMRect;
+}
+
+beforeAll(() => {
+  Element.prototype.getClientRects = function getClientRects() {
+    return createRectList();
+  };
+
+  Element.prototype.getBoundingClientRect = function getBoundingClientRect() {
+    return createRect();
+  };
+
+  Range.prototype.getClientRects = function getClientRects() {
+    return createRectList();
+  };
+
+  Range.prototype.getBoundingClientRect = function getBoundingClientRect() {
+    return createRect();
+  };
+});
+
+afterAll(() => {
+  Element.prototype.getClientRects = originalElementGetClientRects;
+  Element.prototype.getBoundingClientRect = originalElementGetBoundingClientRect;
+  Range.prototype.getClientRects = originalRangeGetClientRects;
+  Range.prototype.getBoundingClientRect = originalRangeGetBoundingClientRect;
+});
 
 describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
   it("renderiza encabezado contextual, label y helperText", async () => {
@@ -166,6 +233,46 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
 
     const image = container.querySelector("img");
     expect(image).toHaveAttribute("data-width", "75%");
+  });
+
+  it("permite insertar una imagen nueva desde la UI del editor", async () => {
+    const { container } = render(
+      <AppEditor label="Contenido con insercion de imagen" defaultValue="<p>Inicio</p>" />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Inicio")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByLabelText("Insertar imagen"));
+    fireEvent.change(await screen.findByLabelText("URL de la imagen"), {
+      target: { value: "cdn.example.com/nueva.png" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /^Insertar$/ }));
+
+    await waitFor(() => {
+      const image = container.querySelector('img[src="https://cdn.example.com/nueva.png"]');
+      expect(image).toBeInTheDocument();
+    });
+  });
+
+  it("rehidrata alineacion horizontal persistida de imagen", async () => {
+    const { container } = render(
+      <AppEditor
+        label="Contenido con imagen alineada"
+        defaultValue={
+          '<p>Intro</p><img src="https://cdn.example.com/image.png" data-width="75%" data-align="center" />'
+        }
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Intro")).toBeInTheDocument();
+    });
+
+    const image = container.querySelector("img");
+    expect(image).toHaveAttribute("data-width", "75%");
+    expect(image).toHaveAttribute("data-align", "center");
   });
 
   it("renderiza el modo visual con canvas y hoja centrada sin cambiar la semantica del editor", async () => {

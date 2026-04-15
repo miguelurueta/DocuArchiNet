@@ -19,6 +19,7 @@ function createChainMock() {
     unsetLink: vi.fn(() => chain),
     setImage: vi.fn(() => chain),
     updateAttributes: vi.fn(() => chain),
+    setImageAlign: vi.fn(() => chain),
     toggleHeading: vi.fn(() => chain),
     setParagraph: vi.fn(() => chain),
     run: vi.fn(() => true),
@@ -40,6 +41,7 @@ function createChainMock() {
     unsetLink: ReturnType<typeof vi.fn>;
     setImage: ReturnType<typeof vi.fn>;
     updateAttributes: ReturnType<typeof vi.fn>;
+    setImageAlign: ReturnType<typeof vi.fn>;
     toggleHeading: ReturnType<typeof vi.fn>;
     setParagraph: ReturnType<typeof vi.fn>;
     insertPageBreak?: ReturnType<typeof vi.fn>;
@@ -61,7 +63,7 @@ function createEditorMock() {
     chain: vi.fn(() => actionChain),
     getAttributes: vi.fn((name: unknown) => {
       if (name === "image") {
-        return { width: "50%" };
+        return { width: "50%", align: "left" };
       }
 
       return { href: "https://openai.com" };
@@ -199,6 +201,22 @@ describe("AppEditorToolbar [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", ()
       expect(editor.__actionChain.updateAttributes).toHaveBeenCalledWith("image", {
         width: "100%",
       });
+    });
+  });
+
+  it("unifica la alineacion de imagen dentro del popover de imagen", async () => {
+    const editor = createEditorMock();
+    editor.isActive = vi.fn((name: unknown) => name === "image");
+
+    render(<AppEditorToolbar editor={editor as never} />);
+
+    expect(screen.queryByRole("button", { name: "Alineacion de imagen" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("Insertar imagen"));
+    fireEvent.click(await screen.findByRole("button", { name: "Centro" }));
+
+    await waitFor(() => {
+      expect(editor.__actionChain.setImageAlign).toHaveBeenCalledWith("center");
     });
   });
 });
