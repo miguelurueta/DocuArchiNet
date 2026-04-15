@@ -95,4 +95,23 @@ describe("AppInputSelect [SPEC:app-input-select]", () => {
     expect(wrapper).toHaveClass(styles.select);
     expect(wrapper).toHaveClass(styles.sm);
   });
+
+  it("mantiene clases visuales para multiple y warning", () => {
+    render(
+      <AppInputSelect
+        aria-label="Roles"
+        mode="multiple"
+        status="warning"
+        value={["editor", "revisor"]}
+        options={[
+          { label: "Editor con nombre muy largo para validar wrap visual", value: "editor" },
+          { label: "Revisor", value: "revisor" },
+        ]}
+      />,
+    );
+
+    const wrapper = screen.getByRole("combobox", { name: "Roles" }).closest(".ant-select");
+    expect(wrapper).toHaveClass(styles.multiple);
+    expect(wrapper).toHaveClass("ant-select-status-warning");
+  });
 });

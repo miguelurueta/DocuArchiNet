@@ -188,12 +188,15 @@ export const AppInputSelect = forwardRef<BaseSelectRef, AppInputSelectProps>(
           className={joinClasses(
             styles.select,
             styles[size],
+            styles[mode],
             hasError && styles.selectError,
             disabled && styles.selectDisabled,
           )}
+          classNames={{ popup: { root: styles.dropdown } }}
           disabled={disabled}
           id={selectId}
           loading={effectiveLoading}
+          maxTagCount={mode === "single" ? undefined : "responsive"}
           mode={MODE_MAP[mode]}
           notFoundContent={emptyNode}
           onChange={(nextValue, nextOption) => {
