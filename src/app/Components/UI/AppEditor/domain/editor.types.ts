@@ -3,6 +3,15 @@ import type { Editor } from "@tiptap/react";
 
 export type AppEditorHeadingLevel = 1 | 2 | 3;
 export type AppEditorThemeMode = "system" | "light" | "dark";
+export type AppEditorPaginationMode = "none" | "visual";
+export type AppEditorPageFormat = "A4";
+export type AppEditorPageOrientation = "portrait" | "landscape";
+export type AppEditorPageMargins = {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+};
 
 export type AppEditorProps = {
   value?: string;
@@ -24,6 +33,10 @@ export type AppEditorProps = {
   themeMode?: AppEditorThemeMode;
   defaultThemeMode?: AppEditorThemeMode;
   onThemeModeChange?: (mode: AppEditorThemeMode) => void;
+  paginationMode?: AppEditorPaginationMode;
+  pageFormat?: AppEditorPageFormat;
+  pageOrientation?: AppEditorPageOrientation;
+  pageMargins?: Partial<AppEditorPageMargins>;
   "aria-label"?: string;
 };
 

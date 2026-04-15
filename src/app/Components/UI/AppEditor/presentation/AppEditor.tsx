@@ -6,6 +6,26 @@ import { TiptapEditorContent } from "../infrastructure/TiptapEditorContent";
 import { AppEditorToolbar } from "./AppEditorToolbar";
 import styles from "../AppEditor.module.css";
 
+const DEFAULT_PAGE_MARGINS = {
+  top: 96,
+  right: 72,
+  bottom: 96,
+  left: 72,
+} as const;
+
+const PAGE_DIMENSIONS = {
+  A4: {
+    portrait: {
+      width: 794,
+      height: 1123,
+    },
+    landscape: {
+      width: 1123,
+      height: 794,
+    },
+  },
+} as const;
+
 const joinClasses = (...values: Array<string | false | null | undefined>) =>
   values.filter(Boolean).join(" ");
 
@@ -29,6 +49,34 @@ function buildAriaLabel({
   return "Editor enriquecido";
 }
 
+function resolvePaginationMetrics({
+  minHeight,
+  pageFormat,
+  pageOrientation,
+  pageMargins,
+}: Pick<
+  AppEditorProps,
+  "minHeight" | "pageFormat" | "pageOrientation" | "pageMargins"
+>) {
+  const dimensions = PAGE_DIMENSIONS[pageFormat ?? "A4"][pageOrientation ?? "portrait"];
+  const resolvedMargins = {
+    top: pageMargins?.top ?? DEFAULT_PAGE_MARGINS.top,
+    right: pageMargins?.right ?? DEFAULT_PAGE_MARGINS.right,
+    bottom: pageMargins?.bottom ?? DEFAULT_PAGE_MARGINS.bottom,
+    left: pageMargins?.left ?? DEFAULT_PAGE_MARGINS.left,
+  };
+
+  return {
+    pageHeight: `${dimensions.height}px`,
+    pageWidth: `${dimensions.width}px`,
+    minHeight: typeof minHeight === "number" ? `${minHeight}px` : minHeight,
+    marginTop: `${resolvedMargins.top}px`,
+    marginRight: `${resolvedMargins.right}px`,
+    marginBottom: `${resolvedMargins.bottom}px`,
+    marginLeft: `${resolvedMargins.left}px`,
+  };
+}
+
 export function AppEditor({
   value,
   defaultValue,
@@ -49,6 +97,10 @@ export function AppEditor({
   themeMode,
   defaultThemeMode = "light",
   onThemeModeChange,
+  paginationMode = "none",
+  pageFormat = "A4",
+  pageOrientation = "portrait",
+  pageMargins,
   "aria-label": ariaLabel,
 }: AppEditorProps) {
   const fieldId = useId();
@@ -58,6 +110,13 @@ export function AppEditor({
   const errorId = error ? `${fieldId}-error` : undefined;
   const describedBy = [errorId, helperId].filter(Boolean).join(" ") || undefined;
   const resolvedThemeMode = themeMode ?? internalThemeMode;
+  const isVisualPagination = paginationMode === "visual";
+  const paginationMetrics = resolvePaginationMetrics({
+    minHeight,
+    pageFormat,
+    pageOrientation,
+    pageMargins,
+  });
   const { editor, isEditable } = useAppEditor({
     value,
     defaultValue,
@@ -82,6 +141,7 @@ export function AppEditor({
       data-readonly={readOnly}
       data-error={Boolean(error)}
       data-theme={resolvedThemeMode}
+      data-pagination-mode={paginationMode}
     >
       {title || description || headerActions ? (
         <header className={styles.header}>
@@ -107,23 +167,60 @@ export function AppEditor({
           themeMode={resolvedThemeMode}
           onThemeModeChange={handleThemeModeChange}
         />
-        <div
-          className={joinClasses(
-            styles.surface,
-            surfaceClassName,
-            Boolean(error) && styles.surfaceError,
-          )}
-          style={{ "--app-editor-min-height": typeof minHeight === "number" ? `${minHeight}px` : minHeight } as CSSProperties}
-        >
-          <TiptapEditorContent
-            editor={editor}
-            className={styles.editorContent}
-            aria-labelledby={labelId}
-            aria-label={buildAriaLabel({ "aria-label": ariaLabel, label, title })}
-            aria-describedby={describedBy}
-            aria-invalid={Boolean(error)}
-          />
-        </div>
+        {isVisualPagination ? (
+          <div
+            className={styles.editorWrapper}
+            style={{
+              "--app-editor-min-height": paginationMetrics.minHeight,
+              "--app-editor-page-height": paginationMetrics.pageHeight,
+              "--app-editor-page-width": paginationMetrics.pageWidth,
+              "--app-editor-page-margin-top": paginationMetrics.marginTop,
+              "--app-editor-page-margin-right": paginationMetrics.marginRight,
+              "--app-editor-page-margin-bottom": paginationMetrics.marginBottom,
+              "--app-editor-page-margin-left": paginationMetrics.marginLeft,
+            } as CSSProperties}
+          >
+            <div className={styles.canvas}>
+              <div className={styles.sheet}>
+                <div
+                  className={joinClasses(
+                    styles.surface,
+                    styles.surfacePaged,
+                    surfaceClassName,
+                    Boolean(error) && styles.surfaceError,
+                  )}
+                >
+                  <TiptapEditorContent
+                    editor={editor}
+                    className={joinClasses(styles.editorContent, styles.editorContentPaged)}
+                    aria-labelledby={labelId}
+                    aria-label={buildAriaLabel({ "aria-label": ariaLabel, label, title })}
+                    aria-describedby={describedBy}
+                    aria-invalid={Boolean(error)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div
+            className={joinClasses(
+              styles.surface,
+              surfaceClassName,
+              Boolean(error) && styles.surfaceError,
+            )}
+            style={{ "--app-editor-min-height": paginationMetrics.minHeight } as CSSProperties}
+          >
+            <TiptapEditorContent
+              editor={editor}
+              className={styles.editorContent}
+              aria-labelledby={labelId}
+              aria-label={buildAriaLabel({ "aria-label": ariaLabel, label, title })}
+              aria-describedby={describedBy}
+              aria-invalid={Boolean(error)}
+            />
+          </div>
+        )}
       </div>
 
       {error ? (

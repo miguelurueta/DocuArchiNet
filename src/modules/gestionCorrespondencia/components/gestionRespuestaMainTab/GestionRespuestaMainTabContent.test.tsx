@@ -18,7 +18,7 @@ vi.mock("../../../../app/Components/UI/AppUpload/AppUpload", () => ({
 
 describe("GestionRespuestaMainTabContent [SPEC:IMPLEMENTACION-APPEDITOR-GESTION-RESPUESTA-EDITORCONTAINER-04-FE]", () => {
   it("renderiza AppEditor como superficie principal del contenedor", async () => {
-    render(<GestionRespuestaMainTabContent />);
+    const { container } = render(<GestionRespuestaMainTabContent />);
 
     expect(screen.queryByText(/Aqui se renderizara el editor de contenido/i)).not.toBeInTheDocument();
     expect(screen.getByLabelText("Editor principal de respuesta")).toBeInTheDocument();
@@ -28,6 +28,10 @@ describe("GestionRespuestaMainTabContent [SPEC:IMPLEMENTACION-APPEDITOR-GESTION-
         screen.getByLabelText("Contenido del editor principal de respuesta"),
       ).toBeInTheDocument();
     });
+
+    expect(
+      container.querySelector('[data-pagination-mode="visual"]'),
+    ).toBeInTheDocument();
   });
 
   it("mantiene operativo el colapso y expansion del panel lateral", async () => {
