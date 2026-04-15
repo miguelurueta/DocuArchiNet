@@ -99,6 +99,10 @@ export function GestionRespuestaMainTabContent() {
               className={styles.embeddedAppEditor}
               surfaceClassName={styles.embeddedAppEditorSurface}
               minHeight="100%"
+              paginationMode="visual"
+              pageFormat="A4"
+              pageOrientation="portrait"
+              pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
             />
           </GestionRespuestaEditorContainer>
           <div className={styles.toolsRail} data-collapsed={isPanelCollapsed}>

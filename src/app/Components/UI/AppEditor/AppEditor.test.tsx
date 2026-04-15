@@ -81,6 +81,7 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     expect(shell).toHaveAttribute("data-disabled", "true");
     expect(shell).toHaveAttribute("data-error", "true");
     expect(shell).toHaveAttribute("data-readonly", "false");
+    expect(shell).toHaveAttribute("data-pagination-mode", "none");
   });
 
   it("asocia helper y error al editor mediante aria-describedby", async () => {
@@ -174,5 +175,36 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
 
     const image = container.querySelector("img");
     expect(image).toHaveAttribute("data-width", "75%");
+  });
+
+  it("renderiza el modo visual con canvas y hoja centrada sin cambiar la semantica del editor", async () => {
+    const { container } = render(
+      <AppEditor
+        label="Contenido paginado"
+        paginationMode="visual"
+        pageFormat="A4"
+        pageOrientation="portrait"
+        pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
+        defaultValue="<p>Documento paginado</p>"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Documento paginado")).toBeInTheDocument();
+    });
+
+    const shell = container.querySelector(`.${styles.editor}`);
+    const wrapper = container.querySelector(`.${styles.editorWrapper}`);
+    const canvas = container.querySelector(`.${styles.canvas}`);
+    const sheet = container.querySelector(`.${styles.sheet}`);
+    const surface = container.querySelector(`.${styles.surfacePaged}`);
+    const editor = screen.getByLabelText("Contenido paginado");
+
+    expect(shell).toHaveAttribute("data-pagination-mode", "visual");
+    expect(wrapper).toBeInTheDocument();
+    expect(canvas).toBeInTheDocument();
+    expect(sheet).toBeInTheDocument();
+    expect(surface).toBeInTheDocument();
+    expect(editor).toBeInTheDocument();
   });
 });

@@ -270,6 +270,47 @@
     var(--editor-bg);
 }
 
+.editorWrapper {
+  min-height: var(--app-editor-min-height);
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--editor-muted-surface) 32%, transparent) 0%, transparent 100%),
+    color-mix(in srgb, var(--editor-bg) 92%, var(--editor-muted-surface));
+}
+
+.canvas {
+  min-height: 0;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.sheet {
+  width: min(100%, var(--app-editor-page-width));
+  min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid color-mix(in srgb, var(--editor-border) 92%, white);
+  border-radius: 0.5rem;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    0 18px 45px rgba(15, 23, 42, 0.14);
+}
+
+.surfacePaged {
+  min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
+  background: transparent;
+  overflow: visible;
+}
+
 .surfaceError {
   box-shadow: inset 0 0 0 1px var(--editor-error);
 }
@@ -279,6 +320,11 @@
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
+}
+
+.editorContentPaged {
+  min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
+  overflow: visible;
 }
 
 .editorContent :global(.ProseMirror) {
@@ -298,6 +344,22 @@
     background-color 160ms ease,
     box-shadow 160ms ease,
     color 160ms ease;
+}
+
+.editorContentPaged :global(.ProseMirror) {
+  min-height: max(
+    calc(
+      var(--app-editor-page-height) - var(--app-editor-page-margin-top) - var(--app-editor-page-margin-bottom)
+    ),
+    var(--app-editor-min-height)
+  );
+  padding:
+    var(--app-editor-page-margin-top)
+    var(--app-editor-page-margin-right)
+    var(--app-editor-page-margin-bottom)
+    var(--app-editor-page-margin-left);
+  overflow: visible;
+  background: #ffffff;
 }
 
 .editorContent :global(.ProseMirror::-webkit-scrollbar) {
@@ -482,6 +544,23 @@
 
   .editorContent :global(.ProseMirror) {
     padding: 0.875rem;
+  }
+
+  .canvas {
+    padding: 1rem;
+  }
+
+  .sheet {
+    width: 100%;
+    min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
+  }
+
+  .editorContentPaged :global(.ProseMirror) {
+    padding:
+      min(var(--app-editor-page-margin-top), 1rem)
+      min(var(--app-editor-page-margin-right), 0.875rem)
+      min(var(--app-editor-page-margin-bottom), 1rem)
+      min(var(--app-editor-page-margin-left), 0.875rem);
   }
 }
 
