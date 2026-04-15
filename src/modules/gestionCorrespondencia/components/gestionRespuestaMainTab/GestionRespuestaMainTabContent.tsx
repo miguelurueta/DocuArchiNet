@@ -79,10 +79,7 @@ export function GestionRespuestaMainTabContent() {
           data-panel-collapsed={isPanelCollapsed}
           data-testid="gestion-respuesta-workbench"
         >
-          <GestionRespuestaEditorContainer
-            title="Editor principal"
-            description="Zona dominante del workspace para construir la respuesta."
-          >
+          <GestionRespuestaEditorContainer>
             <AppEditor
               value={editorValue}
               onChange={setEditorValue}
