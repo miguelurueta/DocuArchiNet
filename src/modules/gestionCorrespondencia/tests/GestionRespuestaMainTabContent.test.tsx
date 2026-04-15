@@ -16,7 +16,7 @@ describe("[SCRUMCORE-89] GestionRespuesta main tab workbench", () => {
     render(<GestionRespuestaMainTabContent />);
 
     const toggle = screen
-      .getAllByRole("button", { name: /panel de herramientas/i })
+      .getAllByRole("button", { name: /herramientas/i })
       .find((button) => button.getAttribute("aria-expanded") !== null);
     if (!toggle) {
       throw new Error("No se encontro el toggle del panel de herramientas.");

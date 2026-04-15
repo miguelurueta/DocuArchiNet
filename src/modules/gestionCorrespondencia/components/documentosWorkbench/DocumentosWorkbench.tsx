@@ -41,6 +41,7 @@ export function DocumentosWorkbench() {
   }, [isTablet]);
 
   const variant = useMemo(() => (isMobile ? "overlay" : "inline"), [isMobile]);
+  const layoutCollapsed = variant === "overlay" ? true : collapsed;
 
   return (
     <section className={styles.workbench} aria-label="Workbench de documentos">
@@ -48,7 +49,7 @@ export function DocumentosWorkbench() {
 
       <div
         className={styles.workbenchBody}
-        data-collapsed={collapsed}
+        data-collapsed={layoutCollapsed}
         data-variant={variant}
         data-testid="documentos-workbench"
       >
@@ -73,7 +74,7 @@ export function DocumentosWorkbench() {
           placement="right"
           variant={variant}
           panelId={panelId}
-          railLabel="Documentos"
+          railLabel="Ver documentos"
           railIcon={<BookOutlined />}
           className={styles.collapseRail}
         >

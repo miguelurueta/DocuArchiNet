@@ -48,6 +48,27 @@ describe(
     expect(collapsedButtons.length).toBeGreaterThan(0);
   });
 
+  it("mantiene el contenido del panel montado al colapsar", () => {
+    render(<DocumentosWorkbench />);
+
+    const toggle = screen.getByRole("button", {
+      name: /Ocultar Visualizar documentos/i,
+    });
+    fireEvent.click(toggle);
+
+    expect(screen.getByText("Radicado_2026_0413.pdf")).toBeInTheDocument();
+  });
+
+  it("permite enfocar el toggle del panel con teclado", () => {
+    render(<DocumentosWorkbench />);
+
+    const toggle = screen.getByRole("button", {
+      name: /Ocultar Visualizar documentos/i,
+    });
+    toggle.focus();
+    expect(toggle).toHaveFocus();
+  });
+
   it("aplica variant overlay en mobile", () => {
     window.matchMedia = createMatchMedia({
       [TABLET_QUERY]: true,

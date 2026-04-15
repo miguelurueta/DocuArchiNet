@@ -1,3 +1,6 @@
+import { SaveOutlined, SendOutlined, ToolOutlined, UserAddOutlined } from "@ant-design/icons";
+import { useEffect, useId, useState } from "react";
+import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import {
   LeftOutlined,
   SaveOutlined,
@@ -13,9 +16,9 @@ import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
 import styles from "./GestionRespuestaMainTabContent.module.css";
 import { GestionRespuestaEditorContainer } from "./GestionRespuestaEditorContainer";
 import { GestionRespuestaInfoHeader } from "./GestionRespuestaInfoHeader";
-import { GestionRespuestaRightToolsPanel } from "./GestionRespuestaRightToolsPanel";
 
 const DEFAULT_MEDIA_QUERY = "(max-width: 1024px)";
+const MOBILE_MEDIA_QUERY = "(max-width: 768px)";
 
 const useMediaQuery = (query: string) => {
   const getMatches = () =>
@@ -41,6 +44,7 @@ const useMediaQuery = (query: string) => {
 export function GestionRespuestaMainTabContent() {
   const panelId = useId();
   const isCompact = useMediaQuery(DEFAULT_MEDIA_QUERY);
+  const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(isCompact);
   const [files, setFiles] = useState<AppUploadFile[]>([]);
   const [editorValue, setEditorValue] = useState<string>("");
@@ -77,8 +81,15 @@ export function GestionRespuestaMainTabContent() {
         <div
           className={styles.workbenchBody}
           data-panel-collapsed={isPanelCollapsed}
+          data-variant={isMobile ? "overlay" : "inline"}
           data-testid="gestion-respuesta-workbench"
         >
+          <GestionRespuestaEditorContainer
+            title="Editor principal"
+            description="Zona dominante del workspace para construir la respuesta."
+          />
+          <AppCollapseRail
+            title="Herramientas"
           <GestionRespuestaEditorContainer>
             <AppEditor
               value={editorValue}
@@ -108,9 +119,34 @@ export function GestionRespuestaMainTabContent() {
           </div>
           <GestionRespuestaRightToolsPanel
             collapsed={isPanelCollapsed}
-            panelId={panelId}
             onToggle={() => setIsPanelCollapsed((prev) => !prev)}
-          />
+            placement="right"
+            variant={isMobile ? "overlay" : "inline"}
+            panelId={panelId}
+            railLabel="Herramientas"
+            railIcon={<ToolOutlined />}
+          >
+            <div className={styles.toolsPanelSurface}>
+              <div className={styles.toolsList}>
+                <div className={styles.toolsItem}>
+                  <strong>Checklist de validacion</strong>
+                  <span className={styles.infoCopy}>
+                    Estado del analisis y observaciones tecnicas.
+                  </span>
+                </div>
+                <div className={styles.toolsItem}>
+                  <strong>Referencias del expediente</strong>
+                  <span className={styles.infoCopy}>Links y notas operativas clave.</span>
+                </div>
+                <div className={styles.toolsItem}>
+                  <strong>Historial reciente</strong>
+                  <span className={styles.infoCopy}>
+                    Resumen de cambios y actividades asociadas.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </AppCollapseRail>
         </div>
       </div>
 
