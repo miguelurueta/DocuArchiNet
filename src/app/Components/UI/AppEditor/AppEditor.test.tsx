@@ -207,4 +207,35 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     expect(surface).toBeInTheDocument();
     expect(editor).toBeInTheDocument();
   });
+
+  it("dibuja guias visuales cuando el contenido medido supera varias paginas", async () => {
+    const { container } = render(
+      <AppEditor
+        label="Contenido con guias"
+        paginationMode="visual"
+        pageFormat="A4"
+        pageOrientation="portrait"
+        pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
+        defaultValue="<p>Documento largo</p>"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Documento largo")).toBeInTheDocument();
+    });
+
+    const proseMirror = container.querySelector(".ProseMirror");
+    expect(proseMirror).toBeInstanceOf(HTMLElement);
+
+    Object.defineProperty(proseMirror as HTMLElement, "scrollHeight", {
+      configurable: true,
+      value: 2200,
+    });
+
+    fireEvent(window, new Event("resize"));
+
+    await waitFor(() => {
+      expect(container.querySelectorAll(`.${styles.pageGuide}`)).toHaveLength(2);
+    });
+  });
 });

@@ -1,7 +1,8 @@
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { AppEditorProps, AppEditorThemeMode } from "../domain/editor.types";
 import { useAppEditor } from "../application/useAppEditor";
+import { usePaginationMetrics } from "../application/usePaginationMetrics";
 import { TiptapEditorContent } from "../infrastructure/TiptapEditorContent";
 import { AppEditorToolbar } from "./AppEditorToolbar";
 import styles from "../AppEditor.module.css";
@@ -67,9 +68,11 @@ function resolvePaginationMetrics({
   };
 
   return {
+    pageHeightValue: dimensions.height,
     pageHeight: `${dimensions.height}px`,
     pageWidth: `${dimensions.width}px`,
     minHeight: typeof minHeight === "number" ? `${minHeight}px` : minHeight,
+    resolvedMargins,
     marginTop: `${resolvedMargins.top}px`,
     marginRight: `${resolvedMargins.right}px`,
     marginBottom: `${resolvedMargins.bottom}px`,
@@ -104,6 +107,7 @@ export function AppEditor({
   "aria-label": ariaLabel,
 }: AppEditorProps) {
   const fieldId = useId();
+  const paginationContainerRef = useRef<HTMLDivElement>(null);
   const [internalThemeMode, setInternalThemeMode] = useState<AppEditorThemeMode>(defaultThemeMode);
   const labelId = label ? `${fieldId}-label` : undefined;
   const helperId = helperText ? `${fieldId}-helper` : undefined;
@@ -124,6 +128,13 @@ export function AppEditor({
     placeholder,
     disabled,
     readOnly,
+  });
+  const { guideOffsets } = usePaginationMetrics({
+    editor,
+    enabled: isVisualPagination,
+    pageHeight: paginationMetrics.pageHeightValue,
+    pageMargins: paginationMetrics.resolvedMargins,
+    containerRef: paginationContainerRef,
   });
 
   const handleThemeModeChange = (nextThemeMode: AppEditorThemeMode) => {
@@ -170,6 +181,7 @@ export function AppEditor({
         {isVisualPagination ? (
           <div
             className={styles.editorWrapper}
+            ref={paginationContainerRef}
             style={{
               "--app-editor-min-height": paginationMetrics.minHeight,
               "--app-editor-page-height": paginationMetrics.pageHeight,
@@ -182,6 +194,17 @@ export function AppEditor({
           >
             <div className={styles.canvas}>
               <div className={styles.sheet}>
+                {guideOffsets.length > 0 ? (
+                  <div className={styles.pageGuides} aria-hidden="true">
+                    {guideOffsets.map((offset, index) => (
+                      <div
+                        key={`page-guide-${offset}-${index}`}
+                        className={styles.pageGuide}
+                        style={{ top: `${offset}px` }}
+                      />
+                    ))}
+                  </div>
+                ) : null}
                 <div
                   className={joinClasses(
                     styles.surface,
