@@ -238,4 +238,52 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
       expect(container.querySelectorAll(`.${styles.pageGuide}`)).toHaveLength(2);
     });
   });
+
+  it("muestra el contador de pagina actual en modo visual", async () => {
+    const { container } = render(
+      <AppEditor
+        label="Contenido con contador"
+        paginationMode="visual"
+        pageFormat="A4"
+        pageOrientation="portrait"
+        pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
+        defaultValue="<p>Documento con contador</p>"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Documento con contador")).toBeInTheDocument();
+    });
+
+    const proseMirror = container.querySelector(".ProseMirror");
+    const canvas = container.querySelector(`.${styles.canvas}`);
+    const sheet = container.querySelector('[data-pagination-sheet="true"]');
+
+    expect(proseMirror).toBeInstanceOf(HTMLElement);
+    expect(canvas).toBeInstanceOf(HTMLElement);
+    expect(sheet).toBeInstanceOf(HTMLElement);
+
+    Object.defineProperty(proseMirror as HTMLElement, "scrollHeight", {
+      configurable: true,
+      value: 2200,
+    });
+
+    Object.defineProperty(canvas as HTMLElement, "scrollTop", {
+      configurable: true,
+      writable: true,
+      value: 1000,
+    });
+
+    Object.defineProperty(sheet as HTMLElement, "offsetTop", {
+      configurable: true,
+      value: 0,
+    });
+
+    fireEvent(window, new Event("resize"));
+    fireEvent.scroll(canvas as HTMLElement);
+
+    await waitFor(() => {
+      expect(screen.getByText("Pagina 2 de 3")).toBeInTheDocument();
+    });
+  });
 });
