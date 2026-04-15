@@ -1,5 +1,16 @@
 import { mergeAttributes } from "@tiptap/core";
 import { Image } from "@tiptap/extension-image";
+import type { EditorState } from "@tiptap/pm/state";
+
+type ImageAlign = "left" | "center" | "right";
+
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    resizableImage: {
+      setImageAlign: (align: ImageAlign) => ReturnType;
+    };
+  }
+}
 
 const WIDTH_STYLE_PATTERN = /width:\s*([^;]+)/i;
 
@@ -34,10 +45,32 @@ function buildImageStyle(
   return styleTokens.join("; ");
 }
 
+function hasActiveImageSelection(state: EditorState) {
+  const selection = state.selection as
+    | {
+        node?: { type?: { name?: string } } | null;
+        $anchor?: { parent?: { type?: { name?: string } } };
+      }
+    | undefined;
+
+  if (selection?.node?.type?.name === "image") {
+    return true;
+  }
+
+  return selection?.$anchor?.parent?.type?.name === "image";
+}
+
 export const ResizableImage = Image.extend({
   addAttributes() {
     return {
       ...this.parent?.(),
+      align: {
+        default: "left",
+        parseHTML: (element) => element.getAttribute("data-align") ?? "left",
+        renderHTML: (attributes) => ({
+          "data-align": attributes.align ?? "left",
+        }),
+      },
       width: {
         default: null,
         parseHTML: (element) =>
@@ -56,6 +89,23 @@ export const ResizableImage = Image.extend({
           };
         },
       },
+    };
+  },
+
+  addCommands() {
+    return {
+      ...this.parent?.(),
+      setImageAlign:
+        (align: ImageAlign) =>
+        ({ editor, commands, state }) => {
+          if (!editor.isActive("image") && !hasActiveImageSelection(state)) {
+            return false;
+          }
+
+          return commands.updateAttributes("image", {
+            align,
+          });
+        },
     };
   },
 

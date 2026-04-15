@@ -176,6 +176,35 @@ function runInsertPageBreak(editor: Editor | null) {
   }
 }
 
+function canSetImageAlign(editor: Editor | null) {
+  if (!editor) {
+    return false;
+  }
+
+  const canChain = editor.can().chain().focus() as {
+    setImageAlign?: (align: "left" | "center" | "right") => { run: () => boolean };
+  };
+
+  return (
+    typeof canChain.setImageAlign === "function" &&
+    canChain.setImageAlign("left").run()
+  );
+}
+
+function runSetImageAlign(editor: Editor | null, align: "left" | "center" | "right") {
+  if (!editor) {
+    return;
+  }
+
+  const chain = editor.chain().focus() as {
+    setImageAlign?: (align: "left" | "center" | "right") => { run: () => boolean };
+  };
+
+  if (typeof chain.setImageAlign === "function") {
+    chain.setImageAlign(align).run();
+  }
+}
+
 function formatUrl(value: string) {
   if (/^https?:\/\//i.test(value)) {
     return value;
@@ -241,7 +270,7 @@ function AppEditorToolbarComponent({
   const [imageUrlValue, setImageUrlValue] = useState("");
   const [imageWidthValue, setImageWidthValue] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const isImageActive = hasActiveImageSelection(editor) || isImagePopoverOpen;
+  const hasSelectedImage = hasActiveImageSelection(editor);
 
   const handleHeadingChange = (value: string) => {
     if (!editor || disabled) {
@@ -319,7 +348,7 @@ function AppEditorToolbarComponent({
 
     const normalizedWidth = normalizeImageWidth(imageWidthValue);
     const normalizedSrc = imageUrlValue.trim();
-    if (!normalizedSrc && isImageActive) {
+    if (!normalizedSrc && hasSelectedImage) {
       editor
         .chain()
         .focus()
@@ -365,7 +394,7 @@ function AppEditorToolbarComponent({
 
     setImageWidthValue(preset);
 
-    if (isImageActive) {
+    if (hasSelectedImage) {
       editor
         .chain()
         .focus()
@@ -488,6 +517,44 @@ function AppEditorToolbarComponent({
           </AppButton>
         ))}
       </div>
+      {hasSelectedImage ? (
+        <>
+          <label className={styles.toolbarPopoverLabel}>Alineacion horizontal</label>
+          <div
+            className={styles.toolbarPresetGroup}
+            role="group"
+            aria-label="Alineacion horizontal de imagen"
+          >
+            <AppButton
+              variant="ghost"
+              size="sm"
+              aria-label="Izquierda"
+              onClick={() => runSetImageAlign(editor, "left")}
+              disabled={isBlocked || !canSetImageAlign(editor)}
+            >
+              <FontAwesomeIcon icon={faAlignLeft} />
+            </AppButton>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              aria-label="Centro"
+              onClick={() => runSetImageAlign(editor, "center")}
+              disabled={isBlocked || !canSetImageAlign(editor)}
+            >
+              <FontAwesomeIcon icon={faAlignCenter} />
+            </AppButton>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              aria-label="Derecha"
+              onClick={() => runSetImageAlign(editor, "right")}
+              disabled={isBlocked || !canSetImageAlign(editor)}
+            >
+              <FontAwesomeIcon icon={faAlignRight} />
+            </AppButton>
+          </div>
+        </>
+      ) : null}
       <div className={styles.toolbarPopoverActions}>
         <AppButton
           variant="secondary"
@@ -498,7 +565,7 @@ function AppEditorToolbarComponent({
           Cargar archivo
         </AppButton>
         <AppButton variant="primary" size="sm" onClick={handleApplyImageUrl} disabled={isBlocked}>
-          {isImageActive && !imageUrlValue.trim() ? "Aplicar tamaño" : "Insertar"}
+          {hasSelectedImage && !imageUrlValue.trim() ? "Aplicar tamaño" : "Insertar"}
         </AppButton>
       </div>
       <input
@@ -730,7 +797,6 @@ function AppEditorToolbarComponent({
       onSelect: () => editor?.chain().focus().toggleTaskList().run(),
     },
   ];
-
   const renderButtonGroup = (group: ToolbarButtonConfig[], label: string) => (
     <div className={styles.toolbarButtonGroup} role="group" aria-label={label}>
       {group.map((button) => renderActionButton(button))}

@@ -491,6 +491,21 @@
     transform 160ms ease;
 }
 
+.editorContent :global(.ProseMirror img[data-align="left"]) {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.editorContent :global(.ProseMirror img[data-align="center"]) {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.editorContent :global(.ProseMirror img[data-align="right"]) {
+  margin-left: auto;
+  margin-right: 0;
+}
+
 .editorContent :global(.ProseMirror img:hover) {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--editor-focus) 18%, transparent);
 }
