@@ -124,6 +124,7 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
+  isolation: isolate;
   border: 1px solid var(--editor-border);
   border-radius: 1.25rem;
   overflow: hidden;
@@ -153,6 +154,10 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.625rem;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  flex-shrink: 0;
   padding: 0.625rem 0.75rem;
   border-bottom: 1px solid var(--editor-toolbar-border);
   background:
@@ -293,6 +298,7 @@
 }
 
 .sheet {
+  position: relative;
   width: min(100%, var(--app-editor-page-width));
   min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
   display: flex;
@@ -309,6 +315,21 @@
   min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
   background: transparent;
   overflow: visible;
+}
+
+.pageGuides {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.pageGuide {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed color-mix(in srgb, var(--editor-focus) 38%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, #ffffff 72%, transparent);
 }
 
 .surfaceError {
