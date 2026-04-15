@@ -2,6 +2,7 @@ export * from "./AppDataTableMui";
 export * from "./AppTabs";
 export * from "./AppModal";
 export * from "./AppInput";
+export * from "./AppInputSelect";
 export * from "./AppInputSearch";
 export * from "./AppUpload";
 export * from "./AppInputTags";
