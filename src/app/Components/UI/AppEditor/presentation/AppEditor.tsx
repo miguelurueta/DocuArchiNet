@@ -2,6 +2,7 @@ import { useId, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { AppEditorProps, AppEditorThemeMode } from "../domain/editor.types";
 import { useAppEditor } from "../application/useAppEditor";
+import { usePageContext } from "../application/usePageContext";
 import { usePaginationMetrics } from "../application/usePaginationMetrics";
 import { TiptapEditorContent } from "../infrastructure/TiptapEditorContent";
 import { AppEditorToolbar } from "./AppEditorToolbar";
@@ -108,6 +109,7 @@ export function AppEditor({
 }: AppEditorProps) {
   const fieldId = useId();
   const paginationContainerRef = useRef<HTMLDivElement>(null);
+  const paginationCanvasRef = useRef<HTMLDivElement>(null);
   const [internalThemeMode, setInternalThemeMode] = useState<AppEditorThemeMode>(defaultThemeMode);
   const labelId = label ? `${fieldId}-label` : undefined;
   const helperId = helperText ? `${fieldId}-helper` : undefined;
@@ -129,12 +131,19 @@ export function AppEditor({
     disabled,
     readOnly,
   });
-  const { guideOffsets } = usePaginationMetrics({
+  const { guideOffsets, totalPages, pageContentHeight } = usePaginationMetrics({
     editor,
     enabled: isVisualPagination,
     pageHeight: paginationMetrics.pageHeightValue,
     pageMargins: paginationMetrics.resolvedMargins,
     containerRef: paginationContainerRef,
+  });
+  const { currentPage } = usePageContext({
+    editor,
+    enabled: isVisualPagination,
+    totalPages,
+    pageContentHeight,
+    canvasRef: paginationCanvasRef,
   });
 
   const handleThemeModeChange = (nextThemeMode: AppEditorThemeMode) => {
@@ -192,8 +201,8 @@ export function AppEditor({
               "--app-editor-page-margin-left": paginationMetrics.marginLeft,
             } as CSSProperties}
           >
-            <div className={styles.canvas}>
-              <div className={styles.sheet}>
+            <div className={styles.canvas} ref={paginationCanvasRef}>
+              <div className={styles.sheet} data-pagination-sheet="true">
                 {guideOffsets.length > 0 ? (
                   <div className={styles.pageGuides} aria-hidden="true">
                     {guideOffsets.map((offset, index) => (
@@ -221,6 +230,9 @@ export function AppEditor({
                     aria-describedby={describedBy}
                     aria-invalid={Boolean(error)}
                   />
+                </div>
+                <div className={styles.pageCounter} aria-live="polite">
+                  Pagina {currentPage} de {totalPages}
                 </div>
               </div>
             </div>
