@@ -562,26 +562,4 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     });
   });
 
-  it("permite insertar un salto de pagina manual desde el toolbar", async () => {
-    const { container } = render(
-      <AppEditor
-        label="Contenido con salto"
-        paginationMode="visual"
-        pageFormat="A4"
-        pageOrientation="portrait"
-        pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
-        defaultValue="<p>Antes</p><p>Despues</p>"
-      />,
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText("Antes")).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: "Insertar salto de pagina" }));
-
-    await waitFor(() => {
-      expect(container.querySelector('[data-page-break="true"]')).toBeInTheDocument();
-    });
-  });
 });

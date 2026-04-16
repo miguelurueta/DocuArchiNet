@@ -24,6 +24,17 @@ function resolvePageFromOffset(offset: number, pageBoundaries: number[], totalPa
   return clampPage(crossedBoundaries + 1, totalPages);
 }
 
+function resolvePageFromElement(element: Element | null, totalPages: number) {
+  const pageAttribute = element?.closest("[data-pagination-page]")?.getAttribute("data-pagination-page");
+  const pageNumber = pageAttribute ? Number(pageAttribute) : Number.NaN;
+
+  if (!Number.isFinite(pageNumber)) {
+    return null;
+  }
+
+  return clampPage(pageNumber, totalPages);
+}
+
 export function calculatePageFromOffset({
   offset,
   pageBoundaries,
@@ -93,6 +104,19 @@ export function usePageContext({
 
     try {
       const { from } = editor.state.selection;
+      const domNode =
+        typeof editor.view.nodeDOM === "function"
+          ? editor.view.nodeDOM(from)
+          : editor.view.domAtPos(from).node;
+      const pageFromElement = resolvePageFromElement(
+        domNode instanceof Element ? domNode : domNode?.parentElement ?? null,
+        totalPages,
+      );
+
+      if (pageFromElement !== null) {
+        return pageFromElement;
+      }
+
       const coords = editor.view.coordsAtPos(from);
       const proseMirrorRect = proseMirror.getBoundingClientRect();
       const offset = coords.top - proseMirrorRect.top;

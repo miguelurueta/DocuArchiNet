@@ -21,7 +21,6 @@ import {
   faParagraph,
   faChevronDown,
   faHeading,
-  faGripLines,
 } from "@fortawesome/free-solid-svg-icons";
 import type { Editor } from "@tiptap/react";
 import { AppDropdown } from "../../AppDropdown";
@@ -58,7 +57,7 @@ const TOOLBAR_GROUPS = {
   formatting: ["bold", "italic", "underline"],
   structure: ["bullet-list", "ordered-list", "task-list"],
   history: ["undo", "redo"],
-  insert: ["link", "image", "page-break"],
+  insert: ["link", "image"],
 } as const;
 
 function useCompactToolbarMode(maxWidth = 1024) {
@@ -149,32 +148,6 @@ function canRun(editor: Editor | null, command: (instance: Editor) => boolean) {
   }
 
   return command(editor);
-}
-
-function canInsertPageBreak(editor: Editor | null) {
-  if (!editor) {
-    return false;
-  }
-
-  const canChain = editor.can().chain().focus() as {
-    insertPageBreak?: () => { run: () => boolean };
-  };
-
-  return typeof canChain.insertPageBreak === "function" && canChain.insertPageBreak().run();
-}
-
-function runInsertPageBreak(editor: Editor | null) {
-  if (!editor) {
-    return;
-  }
-
-  const chain = editor.chain().focus() as {
-    insertPageBreak?: () => { run: () => boolean };
-  };
-
-  if (typeof chain.insertPageBreak === "function") {
-    chain.insertPageBreak().run();
-  }
 }
 
 function canSetImageAlign(editor: Editor | null) {
@@ -704,14 +677,6 @@ function AppEditorToolbarComponent({
       icon: faImage,
       disabled: isBlocked,
       onClick: () => undefined,
-    },
-    {
-      key: "page-break",
-      label: "Insertar salto de pagina",
-      icon: faGripLines,
-      isActive: editor?.isActive("pageBreak"),
-      disabled: isBlocked || !canInsertPageBreak(editor),
-      onClick: () => runInsertPageBreak(editor),
     },
   ];
 

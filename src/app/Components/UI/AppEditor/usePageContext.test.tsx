@@ -179,4 +179,51 @@ describe("usePageContext [SPEC:IMPLEMENTACION-PAGINACION-APPEDITOR-08-FE]", () =
       expect(screen.getByTestId("current-page")).toHaveTextContent("2");
     });
   });
+
+  it("usa la pagina visual derivada del nodo seleccionado cuando esta disponible", async () => {
+    const canvasRef = createRef<HTMLDivElement>();
+    const pageNode = document.createElement("p");
+    pageNode.setAttribute("data-pagination-page", "3");
+    const editor = {
+      isFocused: true,
+      state: {
+        selection: {
+          from: 4,
+        },
+      },
+      view: {
+        nodeDOM: () => pageNode,
+        coordsAtPos: () => ({ top: 10 }),
+      },
+      on: () => undefined,
+      off: () => undefined,
+    };
+
+    function Harness() {
+      const { currentPage } = usePageContext({
+        editor: editor as never,
+        enabled: true,
+        totalPages: 4,
+        pageBoundaries: [1155, 2310, 3465],
+        canvasRef,
+        debounceMs: 0,
+        scrollPriorityMs: 0,
+      });
+
+      return (
+        <div>
+          <div ref={canvasRef}>
+            <div className="ProseMirror">contenido</div>
+          </div>
+          <output data-testid="current-page">{currentPage}</output>
+        </div>
+      );
+    }
+
+    render(<Harness />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("current-page")).toHaveTextContent("3");
+    });
+  });
 });
