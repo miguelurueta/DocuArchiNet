@@ -464,7 +464,9 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     const wrapper = container.querySelector(`.${styles.editorWrapper}`);
     const canvas = container.querySelector(`.${styles.canvas}`);
     const sheet = container.querySelector(`.${styles.sheet}`);
-    const pageDocument = container.querySelector(`.${styles.pageDocument}`);
+    const pageStack = container.querySelector(`.${styles.pageStack}`);
+    const pageShell = container.querySelector(`.${styles.pageShell}`);
+    const contentFlow = container.querySelector(`.${styles.contentFlow}`);
     const surface = container.querySelector(`.${styles.surfacePaged}`);
     const editor = screen.getByLabelText("Contenido paginado");
 
@@ -472,7 +474,9 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     expect(wrapper).toBeInTheDocument();
     expect(canvas).toBeInTheDocument();
     expect(sheet).toBeInTheDocument();
-    expect(pageDocument).toBeInTheDocument();
+    expect(pageStack).toBeInTheDocument();
+    expect(pageShell).toBeInTheDocument();
+    expect(contentFlow).toBeInTheDocument();
     expect(surface).toBeInTheDocument();
     expect(editor).toBeInTheDocument();
   });
@@ -507,9 +511,7 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
       expect(screen.getByText("Pagina 1 de 3")).toBeInTheDocument();
     });
 
-    expect(
-      container.querySelector('[data-pagination-sheet="true"] > [aria-hidden="true"]'),
-    ).not.toBeInTheDocument();
+    expect(container.querySelectorAll(`.${styles.pageShell}`)).toHaveLength(3);
   });
 
   it("muestra el contador de pagina actual en modo visual", async () => {
@@ -544,7 +546,7 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     Object.defineProperty(canvas as HTMLElement, "scrollTop", {
       configurable: true,
       writable: true,
-      value: 1000,
+      value: 1300,
     });
 
     Object.defineProperty(sheet as HTMLElement, "offsetTop", {

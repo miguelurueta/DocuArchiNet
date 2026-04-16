@@ -311,9 +311,29 @@
 .sheet {
   position: relative;
   width: min(100%, var(--app-editor-page-width));
-  min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
+  min-height: max(
+    calc(
+      var(--app-editor-total-pages) * var(--app-editor-page-height) +
+        (var(--app-editor-total-pages) - 1) * var(--app-editor-page-gap)
+    ),
+    var(--app-editor-min-height)
+  );
+  display: block;
+}
+
+.pageStack {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
+  gap: var(--app-editor-page-gap);
+  pointer-events: none;
+}
+
+.pageShell {
+  position: relative;
+  flex: 0 0 var(--app-editor-page-height);
+  min-height: var(--app-editor-page-height);
   background:
     linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
   border: 1px solid color-mix(in srgb, var(--editor-border) 88%, white);
@@ -324,17 +344,7 @@
     0 0 0 12px color-mix(in srgb, var(--editor-bg) 36%, transparent);
 }
 
-.pageDocument {
-  position: relative;
-  min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
-  padding:
-    var(--app-editor-page-margin-top)
-    var(--app-editor-page-margin-right)
-    var(--app-editor-page-margin-bottom)
-    var(--app-editor-page-margin-left);
-}
-
-.pageDocument::before {
+.pageShell::before {
   content: "";
   position: absolute;
   inset:
@@ -346,36 +356,56 @@
   border-radius: 0.35rem;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.52) 100%);
-  pointer-events: none;
-  z-index: 0;
 }
 
-.surfacePaged {
-  min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
-  background: transparent;
-  overflow: visible;
+.contentFlow {
   position: relative;
   z-index: 1;
   min-height: max(
     calc(
-      var(--app-editor-page-height) - var(--app-editor-page-margin-top) - var(--app-editor-page-margin-bottom)
+      var(--app-editor-total-pages) * var(--app-editor-page-height) +
+        (var(--app-editor-total-pages) - 1) * var(--app-editor-page-gap) -
+        var(--app-editor-page-margin-top) -
+        var(--app-editor-page-margin-bottom)
     ),
     var(--app-editor-min-height)
   );
+  padding:
+    var(--app-editor-page-margin-top)
+    var(--app-editor-page-margin-right)
+    var(--app-editor-page-margin-bottom)
+    var(--app-editor-page-margin-left);
+}
+
+.surfacePaged {
+  min-height: max(
+    calc(
+      var(--app-editor-total-pages) * var(--app-editor-page-height) +
+        (var(--app-editor-total-pages) - 1) * var(--app-editor-page-gap) -
+        var(--app-editor-page-margin-top) -
+        var(--app-editor-page-margin-bottom)
+    ),
+    var(--app-editor-min-height)
+  );
+  background: transparent;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
   border-radius: 0.35rem;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.62) 100%);
+  background: transparent;
 }
 
 .pageCounter {
   position: sticky;
-  left: calc(100% - 10.5rem);
-  bottom: 1rem;
-  align-self: flex-end;
+  bottom: 0.35rem;
+  display: flex;
+  width: fit-content;
+  max-width: calc(100% - 1rem);
   z-index: 4;
   margin-top: auto;
-  margin-right: 1rem;
-  margin-bottom: 1rem;
+  margin-left: auto;
+  margin-right: 0.35rem;
+  margin-bottom: 0.35rem;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--editor-border) 72%, white);
@@ -401,12 +431,7 @@
 }
 
 .editorContentPaged {
-  min-height: max(
-    calc(
-      var(--app-editor-page-height) - var(--app-editor-page-margin-top) - var(--app-editor-page-margin-bottom)
-    ),
-    var(--app-editor-min-height)
-  );
+  min-height: var(--app-editor-visual-content-height, var(--app-editor-min-height));
   overflow: visible;
 }
 
@@ -439,6 +464,10 @@
   padding: 0;
   overflow: visible;
   background: transparent;
+}
+
+.editorContentPaged :global(.ProseMirror > *) {
+  border-top: var(--app-editor-block-gap-before, 0px) solid transparent;
 }
 
 .editorContent :global(.ProseMirror::-webkit-scrollbar) {
@@ -546,47 +575,26 @@
 .editorContent :global(.ProseMirror [data-page-break="true"]) {
   position: relative;
   display: block;
-  height: 3rem;
-  margin: 1.5rem 0;
+  height: 0;
+  margin: 0;
   border: 0;
   cursor: pointer;
 }
 
 .editorContent :global(.ProseMirror [data-page-break="true"]::before) {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  border-top: 2px solid color-mix(in srgb, var(--editor-focus) 44%, var(--editor-border));
-  transform: translateY(-50%);
+  content: none;
 }
 
 .editorContent :global(.ProseMirror [data-page-break="true"]::after) {
-  content: "Salto de pagina";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  padding: 0.15rem 0.55rem;
-  border: 1px solid color-mix(in srgb, var(--editor-border) 82%, white);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--editor-bg) 94%, white);
-  color: var(--editor-muted);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  transform: translate(-50%, -50%);
-  white-space: nowrap;
+  content: none;
 }
 
 .editorContent :global(.ProseMirror [data-page-break="true"].ProseMirror-selectednode) {
-  outline: 3px solid color-mix(in srgb, var(--editor-focus) 36%, transparent);
-  outline-offset: 4px;
-  border-radius: 0.75rem;
+  outline: none;
 }
 
 .editorContent :global(.ProseMirror-focused) {
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--editor-focus) 26%, transparent);
+  box-shadow: none;
 }
 
 .editor[data-readonly="true"] .editorContent :global(.ProseMirror),
@@ -694,15 +702,6 @@
 
   .sheet {
     width: 100%;
-    min-height: max(var(--app-editor-page-height), var(--app-editor-min-height));
-  }
-
-  .pageDocument {
-    padding:
-      min(var(--app-editor-page-margin-top), 1rem)
-      min(var(--app-editor-page-margin-right), 0.875rem)
-      min(var(--app-editor-page-margin-bottom), 1rem)
-      min(var(--app-editor-page-margin-left), 0.875rem);
   }
 }
 

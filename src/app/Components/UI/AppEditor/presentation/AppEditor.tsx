@@ -14,6 +14,7 @@ const DEFAULT_PAGE_MARGINS = {
   bottom: 96,
   left: 72,
 } as const;
+const DEFAULT_PAGE_GAP = 32;
 
 const PAGE_DIMENSIONS = {
   A4: {
@@ -70,8 +71,10 @@ function resolvePaginationMetrics({
 
   return {
     pageHeightValue: dimensions.height,
+    pageGapValue: DEFAULT_PAGE_GAP,
     pageHeight: `${dimensions.height}px`,
     pageWidth: `${dimensions.width}px`,
+    pageGap: `${DEFAULT_PAGE_GAP}px`,
     minHeight: typeof minHeight === "number" ? `${minHeight}px` : minHeight,
     resolvedMargins,
     marginTop: `${resolvedMargins.top}px`,
@@ -128,18 +131,20 @@ export function AppEditor({
     disabled,
     readOnly,
   });
-  const { totalPages, pageBoundaries } = usePaginationMetrics({
+  const { totalPages, visualPageBoundaries } = usePaginationMetrics({
     editor,
     enabled: isVisualPagination,
     pageHeight: paginationMetrics.pageHeightValue,
+    pageGap: paginationMetrics.pageGapValue,
     pageMargins: paginationMetrics.resolvedMargins,
     containerRef: paginationContainerRef,
   });
+  const pageIndices = Array.from({ length: totalPages }, (_, index) => index + 1);
   const { currentPage } = usePageContext({
     editor,
     enabled: isVisualPagination,
     totalPages,
-    pageBoundaries,
+    pageBoundaries: visualPageBoundaries,
     canvasRef: paginationCanvasRef,
   });
 
@@ -178,6 +183,8 @@ export function AppEditor({
               "--app-editor-min-height": paginationMetrics.minHeight,
               "--app-editor-page-height": paginationMetrics.pageHeight,
               "--app-editor-page-width": paginationMetrics.pageWidth,
+              "--app-editor-page-gap": paginationMetrics.pageGap,
+              "--app-editor-total-pages": String(totalPages),
               "--app-editor-page-margin-top": paginationMetrics.marginTop,
               "--app-editor-page-margin-right": paginationMetrics.marginRight,
               "--app-editor-page-margin-bottom": paginationMetrics.marginBottom,
@@ -186,7 +193,12 @@ export function AppEditor({
           >
             <div className={styles.canvas} ref={paginationCanvasRef}>
               <div className={styles.sheet} data-pagination-sheet="true">
-                <div className={styles.pageDocument}>
+                <div className={styles.pageStack} aria-hidden="true">
+                  {pageIndices.map((pageNumber) => (
+                    <div key={pageNumber} className={styles.pageShell} data-pagination-page-shell={pageNumber} />
+                  ))}
+                </div>
+                <div className={styles.contentFlow} data-pagination-content-flow="true">
                   <div
                     className={joinClasses(
                       styles.surface,
