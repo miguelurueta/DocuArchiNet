@@ -41,18 +41,28 @@ describe("[SCRUMCORE-89] GestionRespuesta main tab workbench", () => {
     expect(screen.getByText(/Confirmar envio de respuesta/i)).toBeInTheDocument();
     expect(screen.getByText(/^Firma de la respuesta$/i)).toBeInTheDocument();
     expect(screen.getByText(/^Tipo de respuesta$/i)).toBeInTheDocument();
-    expect(
-      screen.getByLabelText(
-        /Solicita al centro de envio de correspondencia el envio de la respuesta/i,
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText(/Confirma respuesta al correo electronico del peticionario/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText(/Certificar digitalmente el documento de respuesta/i),
-    ).toBeInTheDocument();
+    const solicitaCentroEnvio = screen.getByRole("checkbox", {
+      name: /Solicita al centro de envio de correspondencia el envio de la respuesta/i,
+    });
+    const confirmaCorreo = screen.getByRole("checkbox", {
+      name: /Confirma respuesta al correo electronico del peticionario/i,
+    });
+    const certificaDocumento = screen.getByRole("checkbox", {
+      name: /Certificar digitalmente el documento de respuesta/i,
+    });
+
+    expect(solicitaCentroEnvio).toBeInTheDocument();
+    expect(confirmaCorreo).toBeChecked();
+    expect(certificaDocumento).not.toBeChecked();
     expect(screen.getByText(/^Direccion de correos$/i)).toBeInTheDocument();
+
+    fireEvent.click(solicitaCentroEnvio);
+    fireEvent.click(confirmaCorreo);
+    fireEvent.click(certificaDocumento);
+
+    expect(solicitaCentroEnvio).toBeChecked();
+    expect(confirmaCorreo).not.toBeChecked();
+    expect(certificaDocumento).toBeChecked();
 
     fireEvent.click(screen.getByRole("button", { name: /Cancelar/i }));
 
