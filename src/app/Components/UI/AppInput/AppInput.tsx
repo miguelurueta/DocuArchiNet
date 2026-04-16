@@ -1,6 +1,6 @@
 import { forwardRef, useId } from "react";
 import { Input as AntInput, Select } from "antd";
-import type { ComponentProps, ReactNode } from "react";
+import type { ChangeEventHandler, ComponentProps, ReactNode } from "react";
 import type { InputRef, SelectProps } from "antd";
 import styles from "./AppInput.module.css";
 
@@ -29,6 +29,15 @@ export type AppInputSelectProps = Omit<AntSelectProps, "options" | "onChange" | 
     onChange?: (value: string | number | undefined) => void;
   };
 
+export type AppInputCheckboxProps = AppInputBaseProps & {
+  type: "checkbox";
+  checked?: boolean;
+  defaultChecked?: boolean;
+  onChange?: ChangeEventHandler<HTMLInputElement>;
+  name?: string;
+  value?: string;
+};
+
 export type AppInputTextProps = Omit<
   AntInputProps,
   "suffix" | "status" | "size"
@@ -38,7 +47,7 @@ export type AppInputTextProps = Omit<
     options?: never;
   };
 
-export type AppInputProps = AppInputSelectProps | AppInputTextProps;
+export type AppInputProps = AppInputSelectProps | AppInputCheckboxProps | AppInputTextProps;
 
 const joinClasses = (...values: Array<string | false | null | undefined>) =>
   values.filter(Boolean).join(" ");
@@ -64,10 +73,11 @@ export const AppInput = forwardRef<InputRef, AppInputProps>(
     const describedBy = [ariaDescribedBy, helperId].filter(Boolean).join(" ") || undefined;
     const hasError = error || state === "error";
     const isSelect = (restProps as AppInputSelectProps).type === "select";
+    const isCheckbox = (restProps as AppInputCheckboxProps).type === "checkbox";
 
     return (
       <div className={styles.field}>
-        {label ? (
+        {label && !isCheckbox ? (
           <label className={styles.label} htmlFor={inputId}>
             {label}
           </label>
@@ -91,6 +101,27 @@ export const AppInput = forwardRef<InputRef, AppInputProps>(
               (restProps as AppInputSelectProps).onChange?.(value ?? undefined)
             }
           />
+        ) : isCheckbox ? (
+          <label className={joinClasses(styles.checkboxLabel, className)} htmlFor={inputId}>
+            <input
+              id={inputId}
+              type="checkbox"
+              name={(restProps as AppInputCheckboxProps).name}
+              value={(restProps as AppInputCheckboxProps).value}
+              checked={(restProps as AppInputCheckboxProps).checked}
+              defaultChecked={(restProps as AppInputCheckboxProps).defaultChecked}
+              onChange={(restProps as AppInputCheckboxProps).onChange}
+              disabled={disabled}
+              aria-invalid={hasError}
+              aria-describedby={describedBy}
+              className={joinClasses(
+                styles.checkbox,
+                hasError && styles.checkboxError,
+                disabled && styles.checkboxDisabled,
+              )}
+            />
+            {label ? <span className={styles.checkboxText}>{label}</span> : null}
+          </label>
         ) : (
           <AntInput
             {...(restProps as AppInputTextProps)}

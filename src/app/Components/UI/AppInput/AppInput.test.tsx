@@ -72,4 +72,24 @@ describe("AppInput [SPEC:APP-INPUT-001]", () => {
     expect(screen.getByLabelText("Filtro")).toHaveClass("custom-input");
     expect(screen.getByLabelText("Filtro")).toHaveClass(styles.input);
   });
+
+  it("soporta checkbox con label accesible y estado controlado", () => {
+    const handleChange = vi.fn();
+
+    render(
+      <AppInput
+        type="checkbox"
+        label="Acepta terminos"
+        checked
+        onChange={handleChange}
+      />,
+    );
+
+    const checkbox = screen.getByLabelText("Acepta terminos");
+    expect(checkbox).toBeChecked();
+
+    fireEvent.click(checkbox);
+
+    expect(handleChange).toHaveBeenCalledTimes(1);
+  });
 });

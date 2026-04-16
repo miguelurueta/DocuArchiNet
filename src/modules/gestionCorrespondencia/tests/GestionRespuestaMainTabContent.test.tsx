@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 import { GestionRespuestaMainTabContent } from "../components/gestionRespuestaMainTab/GestionRespuestaMainTabContent";
 
@@ -31,5 +31,23 @@ describe("[SCRUMCORE-89] GestionRespuesta main tab workbench", () => {
 
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(workbench).toHaveAttribute("data-panel-collapsed", "true");
+  });
+
+  test("abre y cierra el modal de solicitud de aprobacion", async () => {
+    render(<GestionRespuestaMainTabContent />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Solicitud de Aprobacion/i }));
+
+    expect(screen.getByText(/Gestionar Documento/i)).toBeInTheDocument();
+    expect(screen.getByText(/Solicitud de aprobacion documental/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Tipo de documento$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Requiere firma del responsable/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Etiquetas de gestion$/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Cancelar/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Gestionar Documento/i)).not.toBeInTheDocument();
+    });
   });
 });

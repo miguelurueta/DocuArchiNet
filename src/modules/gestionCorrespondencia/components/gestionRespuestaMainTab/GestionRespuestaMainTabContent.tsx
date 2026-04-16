@@ -7,6 +7,7 @@ import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
 import styles from "./GestionRespuestaMainTabContent.module.css";
 import { GestionRespuestaEditorContainer } from "./GestionRespuestaEditorContainer";
 import { GestionRespuestaInfoHeader } from "./GestionRespuestaInfoHeader";
+import { GestionDocumentoModal } from "./modalGestionDocumento";
 
 const DEFAULT_MEDIA_QUERY = "(max-width: 1024px)";
 const MOBILE_MEDIA_QUERY = "(max-width: 768px)";
@@ -37,6 +38,7 @@ export function GestionRespuestaMainTabContent() {
   const isCompact = useMediaQuery(DEFAULT_MEDIA_QUERY);
   const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(isCompact);
+  const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] = useState(false);
   const [files, setFiles] = useState<AppUploadFile[]>([]);
 
   useEffect(() => {
@@ -63,6 +65,7 @@ export function GestionRespuestaMainTabContent() {
               size: "sm",
               variant: "ghost",
               icon: <CarryOutFilled />,
+              onClick: () => setIsGestionDocumentoModalOpen(true),
             },
             {
               key: "guardar",
@@ -132,6 +135,11 @@ export function GestionRespuestaMainTabContent() {
         </div>
         <AppUpload value={files} onChange={setFiles} drag size="md" />
       </div>
+
+      <GestionDocumentoModal
+        open={isGestionDocumentoModalOpen}
+        onClose={() => setIsGestionDocumentoModalOpen(false)}
+      />
     </section>
   );
 }
