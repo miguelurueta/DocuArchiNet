@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { AppCheckbox, AppCheckboxGroup } from "./AppCheckbox";
+import { AppCheckbox, AppCheckboxCheckAll, AppCheckboxGroup } from "./AppCheckbox";
 import styles from "./AppCheckbox.module.css";
 
 describe("AppCheckbox [SPEC:APP-CHECKBOX-001]", () => {
@@ -175,5 +175,113 @@ describe("AppCheckboxGroup [SPEC:APP-CHECKBOX-002]", () => {
 
     expect(screen.getByText("Campo requerido")).toHaveClass(styles.helperTextError);
     expect(screen.getByRole("group")).toHaveClass(styles.groupError);
+  });
+});
+
+describe("AppCheckboxCheckAll [SPEC:APP-CHECKBOX-003]", () => {
+  const options = [
+    { label: "Correo", value: "correo" },
+    { label: "SMS", value: "sms" },
+    { label: "WhatsApp", value: "whatsapp", disabled: true },
+  ] as const;
+
+  it("renderiza el checkbox maestro y el grupo reutilizando la familia shared", () => {
+    render(
+      <AppCheckboxCheckAll
+        checkAllLabel="Todos los canales"
+        onChange={vi.fn()}
+        options={options}
+        value={[]}
+      />,
+    );
+
+    expect(screen.getByRole("checkbox", { name: /Todos los canales/i })).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: /Correo/i })).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: /SMS/i })).toBeInTheDocument();
+  });
+
+  it("selecciona todos los valores habilitados", () => {
+    const handleChange = vi.fn();
+    render(
+      <AppCheckboxCheckAll
+        checkAllLabel="Todos los canales"
+        onChange={handleChange}
+        options={options}
+        value={[]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("checkbox", { name: /Todos los canales/i }));
+
+    expect(handleChange).toHaveBeenCalledWith(["correo", "sms"]);
+  });
+
+  it("limpia todos los valores cuando ya estan seleccionados", () => {
+    const handleChange = vi.fn();
+    render(
+      <AppCheckboxCheckAll
+        checkAllLabel="Todos los canales"
+        onChange={handleChange}
+        options={options}
+        value={["correo", "sms"]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("checkbox", { name: /Todos los canales/i }));
+
+    expect(handleChange).toHaveBeenCalledWith([]);
+  });
+
+  it("muestra indeterminate con seleccion parcial", () => {
+    render(
+      <AppCheckboxCheckAll
+        checkAllLabel="Todos los canales"
+        onChange={vi.fn()}
+        options={options}
+        value={["correo"]}
+      />,
+    );
+
+    expect(
+      screen
+        .getByRole("checkbox", { name: /Todos los canales/i })
+        .closest(".ant-checkbox-wrapper")
+        ?.querySelector(".ant-checkbox-indeterminate"),
+    ).toBeInTheDocument();
+  });
+
+  it("respeta disabled y no dispara cambios", () => {
+    const handleChange = vi.fn();
+    render(
+      <AppCheckboxCheckAll
+        checkAllLabel="Todos los canales"
+        disabled
+        onChange={handleChange}
+        options={options}
+        value={[]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("checkbox", { name: /Todos los canales/i }));
+    fireEvent.click(screen.getByRole("checkbox", { name: /Correo/i }));
+
+    expect(handleChange).not.toHaveBeenCalled();
+    expect(screen.getByRole("checkbox", { name: /Todos los canales/i })).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: /Correo/i })).toBeDisabled();
+  });
+
+  it("renderiza helperText del control maestro y mantiene el grupo debajo", () => {
+    render(
+      <AppCheckboxCheckAll
+        checkAllLabel="Todos los canales"
+        helperText="Selecciona todos los canales disponibles"
+        onChange={vi.fn()}
+        options={options}
+        value={[]}
+      />,
+    );
+
+    expect(screen.getByText("Selecciona todos los canales disponibles")).toBeInTheDocument();
+    expect(screen.getByText("Correo").closest(`.${styles.checkAllGroup}`)).toBeInTheDocument();
   });
 });
