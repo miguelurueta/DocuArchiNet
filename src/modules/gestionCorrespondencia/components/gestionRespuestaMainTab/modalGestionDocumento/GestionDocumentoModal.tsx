@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { AppButton } from "../../../../../app/Components/UI/AppButton";
-import { AppInput } from "../../../../../app/Components/UI/AppInput";
+import { AppCheckbox } from "../../../../../app/Components/UI/AppCheckbox";
 import { AppInputSelect } from "../../../../../app/Components/UI/AppInputSelect";
 import { AppInputTags } from "../../../../../app/Components/UI/AppInputTags";
 import { AppModal } from "../../../../../app/Components/UI/AppModal";
@@ -36,9 +36,9 @@ export function GestionDocumentoModal({ open, onClose }: GestionDocumentoModalPr
   const [prioridadDocumento, setPrioridadDocumento] = useState<
     string | number | undefined
   >();
-  const [requiereFirma, setRequiereFirma] = useState(false);
-  const [requiereAnexos, setRequiereAnexos] = useState(true);
-  const [notificarResponsable, setNotificarResponsable] = useState(false);
+  const [solicitaCentroEnvio, setSolicitaCentroEnvio] = useState(false);
+  const [confirmaCorreoPeticionario, setConfirmaCorreoPeticionario] = useState(true);
+  const [certificaDigitalmente, setCertificaDigitalmente] = useState(false);
   const [etiquetas, setEtiquetas] = useState<string[]>([]);
 
   useEffect(() => {
@@ -60,25 +60,25 @@ export function GestionDocumentoModal({ open, onClose }: GestionDocumentoModalPr
     >
       <div className={styles.container}>
         <div className={styles.checksGroup}>
-          <AppInput
-            type="checkbox"
+          <AppCheckbox
+            checked={solicitaCentroEnvio}
             label="Solicita al centro de envio de correspondencia el envio de la respuesta"
-            checked={requiereFirma}
-            onChange={(event) => setRequiereFirma(event.target.checked)}
+            onChange={(checked) => setSolicitaCentroEnvio(checked)}
+            size="md"
           />
 
-          <AppInput
-            type="checkbox"
+          <AppCheckbox
+            checked={confirmaCorreoPeticionario}
             label="Confirma respuesta al correo electronico del peticionario"
-            checked={requiereAnexos}
-            onChange={(event) => setRequiereAnexos(event.target.checked)}
+            onChange={(checked) => setConfirmaCorreoPeticionario(checked)}
+            size="md"
           />
 
-          <AppInput
-            type="checkbox"
+          <AppCheckbox
+            checked={certificaDigitalmente}
             label="Certificar digitalmente el documento de respuesta"
-            checked={notificarResponsable}
-            onChange={(event) => setNotificarResponsable(event.target.checked)}
+            onChange={(checked) => setCertificaDigitalmente(checked)}
+            size="md"
           />
         </div>
 
