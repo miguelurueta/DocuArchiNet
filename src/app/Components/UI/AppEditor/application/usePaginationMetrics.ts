@@ -22,6 +22,7 @@ type UsePaginationMetricsOptions = {
   pageGap: number;
   pageMargins: AppEditorPageMargins;
   containerRef: RefObject<HTMLElement | null>;
+  zoomLevel?: number;
   debounceMs?: number;
 };
 
@@ -268,6 +269,7 @@ export function usePaginationMetrics({
   pageGap,
   pageMargins,
   containerRef,
+  zoomLevel = 1,
   debounceMs = 32,
 }: UsePaginationMetricsOptions): PaginationMetrics {
   const [metrics, setMetrics] = useState<PaginationMetrics>(DEFAULT_METRICS);
@@ -429,6 +431,7 @@ export function usePaginationMetrics({
     enabled,
     pageGap,
     scheduleMeasure,
+    zoomLevel,
   ]);
 
   return metrics;

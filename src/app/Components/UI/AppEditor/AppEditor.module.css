@@ -172,6 +172,11 @@
   min-width: 0;
 }
 
+.toolbarSectionEnd {
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
 .toolbarButtonGroup {
   display: flex;
   flex-wrap: wrap;
@@ -291,10 +296,59 @@
   min-width: 0;
   flex: 1 1 auto;
   display: flex;
+  flex-direction: column;
   overflow: hidden;
   background:
     radial-gradient(circle at top, color-mix(in srgb, var(--editor-muted-surface) 48%, transparent) 0%, transparent 46%),
     linear-gradient(180deg, color-mix(in srgb, var(--editor-muted-surface) 70%, var(--editor-bg)) 0%, color-mix(in srgb, var(--editor-bg) 88%, var(--editor-muted-surface)) 100%);
+}
+
+.zoomControls {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.zoomButton {
+  min-width: 2rem;
+  min-height: 2rem;
+  border: 1px solid color-mix(in srgb, var(--editor-border) 76%, white);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--editor-bg) 92%, white);
+  color: var(--editor-text);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.zoomButton:hover:not(:disabled),
+.zoomButton:focus-visible:not(:disabled) {
+  border-color: color-mix(in srgb, var(--editor-focus) 44%, var(--editor-border));
+  color: var(--editor-focus);
+}
+
+.zoomButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.zoomValue {
+  min-width: 3.75rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--editor-border) 72%, white);
+  background: color-mix(in srgb, var(--editor-bg) 90%, rgba(255, 255, 255, 0.85));
+  color: var(--editor-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
 }
 
 .canvas {
@@ -308,17 +362,23 @@
   align-items: flex-start;
 }
 
+.zoomStage {
+  position: relative;
+  width: var(--app-editor-zoomed-sheet-width);
+  min-width: var(--app-editor-zoomed-sheet-width);
+  min-height: var(--app-editor-zoomed-sheet-height);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 .sheet {
   position: relative;
-  width: min(100%, var(--app-editor-page-width));
-  min-height: max(
-    calc(
-      var(--app-editor-total-pages) * var(--app-editor-page-height) +
-        (var(--app-editor-total-pages) - 1) * var(--app-editor-page-gap)
-    ),
-    var(--app-editor-min-height)
-  );
+  width: var(--app-editor-page-width);
+  min-height: var(--app-editor-sheet-height);
   display: block;
+  transform: scale(var(--app-editor-zoom, 1));
+  transform-origin: top center;
 }
 
 .pageStack {
@@ -670,6 +730,12 @@
     flex: 1 1 auto;
   }
 
+  .toolbar[data-toolbar-mode="compact"] .toolbarSectionEnd {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+
   .toolbar[data-toolbar-mode="compact"] .toolbarButtonGroup {
     width: auto;
     flex-wrap: nowrap;
@@ -701,7 +767,7 @@
   }
 
   .sheet {
-    width: 100%;
+    width: var(--app-editor-page-width);
   }
 }
 

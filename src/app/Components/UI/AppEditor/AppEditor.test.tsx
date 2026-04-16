@@ -479,6 +479,7 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     expect(contentFlow).toBeInTheDocument();
     expect(surface).toBeInTheDocument();
     expect(editor).toBeInTheDocument();
+    expect(screen.queryByText(/Pagina \d+ de \d+/i)).not.toBeInTheDocument();
   });
 
   it("mantiene el calculo interno de paginas sin dibujar lineas guia visibles", async () => {
@@ -560,6 +561,101 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     await waitFor(() => {
       expect(screen.getByText("Pagina 2 de 3")).toBeInTheDocument();
     });
+  });
+
+  it("muestra control de zoom solo en modo visual con valor por defecto de 100 por ciento", async () => {
+    const { rerender } = render(
+      <AppEditor
+        label="Contenido con zoom"
+        paginationMode="visual"
+        defaultValue="<p>Documento con zoom</p>"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Documento con zoom")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("group", { name: "Control de zoom" })).toBeInTheDocument();
+    expect(screen.getByText("100%")).toBeInTheDocument();
+
+    rerender(<AppEditor label="Contenido continuo" defaultValue="<p>Documento con zoom</p>" />);
+
+    expect(screen.queryByRole("group", { name: "Control de zoom" })).not.toBeInTheDocument();
+  });
+
+  it("respeta limites minimos y maximos del zoom visual", async () => {
+    render(
+      <AppEditor
+        label="Contenido con limites de zoom"
+        paginationMode="visual"
+        defaultZoomLevel={1}
+        minZoomLevel={0.75}
+        maxZoomLevel={1.25}
+        defaultValue="<p>Documento acotado</p>"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Documento acotado")).toBeInTheDocument();
+    });
+
+    const decreaseButton = screen.getByRole("button", { name: "Reducir zoom" });
+    const increaseButton = screen.getByRole("button", { name: "Aumentar zoom" });
+
+    fireEvent.click(increaseButton);
+    await waitFor(() => {
+      expect(screen.getByText("125%")).toBeInTheDocument();
+    });
+    expect(increaseButton).toBeDisabled();
+
+    fireEvent.click(decreaseButton);
+    fireEvent.click(decreaseButton);
+
+    await waitFor(() => {
+      expect(screen.getByText("75%")).toBeInTheDocument();
+    });
+    expect(decreaseButton).toBeDisabled();
+  });
+
+  it("soporta zoom controlado sin mutar contenido ni disparar onChange del editor", async () => {
+    function ZoomHarness() {
+      const [currentZoom, setCurrentZoom] = useState(1);
+      const handleChange = vi.fn();
+
+      return (
+        <div>
+          <AppEditor
+            label="Contenido con zoom controlado"
+            paginationMode="visual"
+            zoomLevel={currentZoom}
+            onZoomChange={setCurrentZoom}
+            onChange={handleChange}
+            defaultValue='<p>Intro</p><img src="https://cdn.example.com/image.png" data-width="75%" data-align="center" />'
+          />
+          <output data-testid="zoom-output">{currentZoom}</output>
+          <output data-testid="change-output">{handleChange.mock.calls.length}</output>
+        </div>
+      );
+    }
+
+    const { container } = render(<ZoomHarness />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Intro")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Aumentar zoom" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("125%")).toBeInTheDocument();
+      expect(screen.getByTestId("zoom-output")).toHaveTextContent("1.25");
+    });
+
+    const image = container.querySelector("img");
+    expect(image).toHaveAttribute("data-width", "75%");
+    expect(image).toHaveAttribute("data-align", "center");
+    expect(screen.getByTestId("change-output")).toHaveTextContent("0");
   });
 
 });

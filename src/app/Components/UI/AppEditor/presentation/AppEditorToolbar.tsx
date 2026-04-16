@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { Input, Popover } from "antd";
 import { DownOutlined } from "@ant-design/icons";
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, ReactNode } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBold,
@@ -32,6 +32,7 @@ type AppEditorToolbarProps = {
   editor: Editor | null;
   disabled?: boolean;
   onInsertLocalImage?: (file: File, width?: string) => Promise<void>;
+  trailingContent?: ReactNode;
 };
 
 type ToolbarButtonConfig = {
@@ -236,6 +237,7 @@ function AppEditorToolbarComponent({
   editor,
   disabled = false,
   onInsertLocalImage,
+  trailingContent,
 }: AppEditorToolbarProps) {
   const isBlocked = disabled || !editor;
   const isCompactToolbar = useCompactToolbarMode();
@@ -825,6 +827,11 @@ function AppEditorToolbarComponent({
         {renderButtonGroup(groupedButtons.history, "Historial de cambios")}
         {renderButtonGroup(groupedButtons.insert, "Insercion de contenido")}
       </div>
+      {trailingContent ? (
+        <div className={joinClasses(styles.toolbarSection, styles.toolbarSectionEnd)} data-group="view">
+          {trailingContent}
+        </div>
+      ) : null}
     </div>
   );
 }

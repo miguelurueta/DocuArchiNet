@@ -48,6 +48,26 @@ describe("usePageContext [SPEC:IMPLEMENTACION-PAGINACION-APPEDITOR-08-FE]", () =
     ).toBe(3);
   });
 
+  it("escala los limites visuales cuando el zoom modifica el offset percibido", () => {
+    expect(
+      calculatePageFromOffset({
+        offset: 1600,
+        pageBoundaries: [1155, 2310],
+        totalPages: 3,
+        boundaryScale: 1.25,
+      }),
+    ).toBe(2);
+
+    expect(
+      calculatePageFromOffset({
+        offset: 3100,
+        pageBoundaries: [1155, 2310],
+        totalPages: 3,
+        boundaryScale: 1.25,
+      }),
+    ).toBe(3);
+  });
+
   it("usa el fallback por scroll cuando no hay cursor activo", async () => {
     const canvasRef = createRef<HTMLDivElement>();
 
