@@ -8,6 +8,7 @@ type UsePageContextOptions = {
   totalPages: number;
   pageBoundaries: number[];
   canvasRef: RefObject<HTMLElement | null>;
+  zoomLevel?: number;
   debounceMs?: number;
   scrollPriorityMs?: number;
 };
@@ -18,9 +19,17 @@ function clampPage(page: number, totalPages: number) {
   return Math.min(Math.max(page, DEFAULT_PAGE), Math.max(DEFAULT_PAGE, totalPages));
 }
 
-function resolvePageFromOffset(offset: number, pageBoundaries: number[], totalPages: number) {
+function resolvePageFromOffset(
+  offset: number,
+  pageBoundaries: number[],
+  totalPages: number,
+  boundaryScale = 1,
+) {
   const safeOffset = Math.max(0, offset);
-  const crossedBoundaries = pageBoundaries.filter((boundary) => safeOffset >= boundary).length;
+  const safeBoundaryScale = Math.max(0.1, boundaryScale);
+  const crossedBoundaries = pageBoundaries.filter(
+    (boundary) => safeOffset >= boundary * safeBoundaryScale,
+  ).length;
   return clampPage(crossedBoundaries + 1, totalPages);
 }
 
@@ -39,12 +48,14 @@ export function calculatePageFromOffset({
   offset,
   pageBoundaries,
   totalPages,
+  boundaryScale = 1,
 }: {
   offset: number;
   pageBoundaries: number[];
   totalPages: number;
+  boundaryScale?: number;
 }) {
-  return resolvePageFromOffset(offset, pageBoundaries, totalPages);
+  return resolvePageFromOffset(offset, pageBoundaries, totalPages, boundaryScale);
 }
 
 export function usePageContext({
@@ -53,6 +64,7 @@ export function usePageContext({
   totalPages,
   pageBoundaries,
   canvasRef,
+  zoomLevel = 1,
   debounceMs = 32,
   scrollPriorityMs = 240,
 }: UsePageContextOptions) {
@@ -85,12 +97,12 @@ export function usePageContext({
 
     const sheet = canvas.querySelector('[data-pagination-sheet="true"]');
     if (!(sheet instanceof HTMLElement)) {
-      return resolvePageFromOffset(canvas.scrollTop, pageBoundaries, totalPages);
+      return resolvePageFromOffset(canvas.scrollTop, pageBoundaries, totalPages, zoomLevel);
     }
 
     const offset = Math.max(0, canvas.scrollTop - sheet.offsetTop);
-    return resolvePageFromOffset(offset, pageBoundaries, totalPages);
-  }, [canvasRef, pageBoundaries, totalPages]);
+    return resolvePageFromOffset(offset, pageBoundaries, totalPages, zoomLevel);
+  }, [canvasRef, pageBoundaries, totalPages, zoomLevel]);
 
   const resolvePageFromCursor = useCallback(() => {
     if (!editor?.isFocused) {
@@ -120,11 +132,11 @@ export function usePageContext({
       const coords = editor.view.coordsAtPos(from);
       const proseMirrorRect = proseMirror.getBoundingClientRect();
       const offset = coords.top - proseMirrorRect.top;
-      return resolvePageFromOffset(offset, pageBoundaries, totalPages);
+      return resolvePageFromOffset(offset, pageBoundaries, totalPages, zoomLevel);
     } catch {
       return null;
     }
-  }, [canvasRef, editor, pageBoundaries, totalPages]);
+  }, [canvasRef, editor, pageBoundaries, totalPages, zoomLevel]);
 
   const updateCurrentPage = useCallback(() => {
     if (!enabled) {

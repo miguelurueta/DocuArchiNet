@@ -37,6 +37,11 @@ export type AppEditorProps = {
   pageFormat?: AppEditorPageFormat;
   pageOrientation?: AppEditorPageOrientation;
   pageMargins?: Partial<AppEditorPageMargins>;
+  zoomLevel?: number;
+  defaultZoomLevel?: number;
+  minZoomLevel?: number;
+  maxZoomLevel?: number;
+  onZoomChange?: (zoom: number) => void;
   "aria-label"?: string;
 };
 
