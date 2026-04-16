@@ -9,13 +9,17 @@ type PaginationMetrics = {
   totalPages: number;
   guideOffsets: number[];
   pageBoundaries: number[];
+  visualPageBoundaries: number[];
   manualBreakOffsets: number[];
+  pageStride: number;
+  visualContentHeight: number;
 };
 
 type UsePaginationMetricsOptions = {
   editor: Editor | null;
   enabled: boolean;
   pageHeight: number;
+  pageGap: number;
   pageMargins: AppEditorPageMargins;
   containerRef: RefObject<HTMLElement | null>;
   debounceMs?: number;
@@ -27,7 +31,10 @@ const DEFAULT_METRICS: PaginationMetrics = {
   totalPages: 1,
   guideOffsets: [],
   pageBoundaries: [],
+  visualPageBoundaries: [],
   manualBreakOffsets: [],
+  pageStride: 0,
+  visualContentHeight: 0,
 };
 
 function areMetricsEqual(left: PaginationMetrics, right: PaginationMetrics) {
@@ -37,26 +44,35 @@ function areMetricsEqual(left: PaginationMetrics, right: PaginationMetrics) {
     left.totalPages === right.totalPages &&
     left.pageBoundaries.length === right.pageBoundaries.length &&
     left.pageBoundaries.every((offset, index) => offset === right.pageBoundaries[index]) &&
+    left.visualPageBoundaries.length === right.visualPageBoundaries.length &&
+    left.visualPageBoundaries.every(
+      (offset, index) => offset === right.visualPageBoundaries[index],
+    ) &&
     left.manualBreakOffsets.length === right.manualBreakOffsets.length &&
     left.manualBreakOffsets.every((offset, index) => offset === right.manualBreakOffsets[index]) &&
     left.guideOffsets.length === right.guideOffsets.length &&
-    left.guideOffsets.every((offset, index) => offset === right.guideOffsets[index])
+    left.guideOffsets.every((offset, index) => offset === right.guideOffsets[index]) &&
+    left.pageStride === right.pageStride &&
+    left.visualContentHeight === right.visualContentHeight
   );
 }
 
 export function calculatePaginationMetrics({
   contentHeight,
   pageHeight,
+  pageGap = 0,
   pageMargins,
   manualBreakOffsets = [],
 }: {
   contentHeight: number;
   pageHeight: number;
+  pageGap?: number;
   pageMargins: AppEditorPageMargins;
   manualBreakOffsets?: number[];
 }): PaginationMetrics {
   const safeContentHeight = Math.max(0, Math.ceil(contentHeight));
   const pageContentHeight = Math.max(1, pageHeight - pageMargins.top - pageMargins.bottom);
+  const pageStride = Math.max(1, pageHeight + pageGap);
   const normalizedManualBreakOffsets = Array.from(
     new Set(
       manualBreakOffsets
@@ -88,6 +104,12 @@ export function calculatePaginationMetrics({
   appendSoftBoundaries(safeContentHeight);
 
   const totalPages = Math.max(1, pageBoundaries.length + 1);
+  const visualPageBoundaries = Array.from(
+    { length: Math.max(0, totalPages - 1) },
+    (_, index) => (index + 1) * pageStride,
+  );
+  const visualContentHeight =
+    Math.max(0, totalPages - 1) * pageStride + pageContentHeight;
 
   return {
     contentHeight: safeContentHeight,
@@ -95,7 +117,126 @@ export function calculatePaginationMetrics({
     totalPages,
     guideOffsets,
     pageBoundaries,
+    visualPageBoundaries,
     manualBreakOffsets: normalizedManualBreakOffsets,
+    pageStride,
+    visualContentHeight,
+  };
+}
+
+function clearBlockShiftStyles(proseMirror: HTMLElement) {
+  Array.from(proseMirror.children).forEach((child) => {
+    if (!(child instanceof HTMLElement)) {
+      return;
+    }
+
+    child.style.removeProperty("--app-editor-block-gap-before");
+    child.removeAttribute("data-pagination-page");
+    child.removeAttribute("data-pagination-gap-before");
+  });
+}
+
+function applyVisualPaginationLayout({
+  proseMirror,
+  pageHeight,
+  pageGap,
+  pageContentHeight,
+}: {
+  proseMirror: HTMLElement;
+  pageHeight: number;
+  pageGap: number;
+  pageContentHeight: number;
+}) {
+  const pageStride = Math.max(1, pageHeight + pageGap);
+  let cumulativeAppliedGap = 0;
+  const blocks = Array.from(proseMirror.children)
+    .filter((child): child is HTMLElement => child instanceof HTMLElement)
+    .map((block, index, siblings) => {
+      const nextSibling = siblings[index + 1];
+      const blockGapBefore = Number(block.getAttribute("data-pagination-gap-before") ?? "0");
+      cumulativeAppliedGap += blockGapBefore;
+      const naturalTop = Math.max(0, Math.ceil(block.offsetTop - cumulativeAppliedGap));
+      const blockHeight = Math.max(
+        1,
+        Math.ceil(block.offsetHeight || block.getBoundingClientRect().height || block.scrollHeight || 0),
+      );
+      const nextSiblingGapBefore =
+        nextSibling instanceof HTMLElement
+          ? Number(nextSibling.getAttribute("data-pagination-gap-before") ?? "0")
+          : 0;
+      const nextTop =
+        nextSibling instanceof HTMLElement
+          ? Math.max(
+              naturalTop,
+              Math.ceil(nextSibling.offsetTop - (cumulativeAppliedGap + nextSiblingGapBefore)),
+            )
+          : null;
+      const flowHeight = Math.max(blockHeight, nextTop === null ? blockHeight : nextTop - naturalTop);
+
+      return {
+        block,
+        naturalTop,
+        blockHeight,
+        flowHeight,
+        isPageBreak: block.matches('[data-page-break="true"]'),
+      };
+    });
+
+  if (blocks.length === 0) {
+    clearBlockShiftStyles(proseMirror);
+    return {
+      totalPagesFromLayout: 1,
+      visualContentHeight: 0,
+    };
+  }
+
+  let currentPage = 0;
+  let currentOffsetWithinPage = 0;
+  let cumulativeGapBefore = 0;
+  let maxVisualBottom = 0;
+
+  blocks.forEach((entry) => {
+    const requiresNextPage =
+      !entry.isPageBreak &&
+      currentOffsetWithinPage > 0 &&
+      currentOffsetWithinPage + entry.flowHeight > pageContentHeight &&
+      entry.flowHeight <= pageContentHeight;
+
+    if (requiresNextPage) {
+      currentPage += 1;
+      currentOffsetWithinPage = 0;
+    }
+
+    const visualTop = currentPage * pageStride + currentOffsetWithinPage;
+    const gapBefore = Math.max(0, Math.round(visualTop - entry.naturalTop - cumulativeGapBefore));
+
+    entry.block.style.setProperty("--app-editor-block-gap-before", `${gapBefore}px`);
+    entry.block.setAttribute("data-pagination-page", String(currentPage + 1));
+    entry.block.setAttribute("data-pagination-gap-before", String(gapBefore));
+    cumulativeGapBefore += gapBefore;
+
+    maxVisualBottom = Math.max(maxVisualBottom, visualTop + entry.blockHeight);
+
+    if (entry.isPageBreak) {
+      currentPage += 1;
+      currentOffsetWithinPage = 0;
+      return;
+    }
+
+    currentOffsetWithinPage += entry.flowHeight;
+  });
+
+  const totalPagesFromLayout = Math.max(
+    currentPage + 1,
+    Math.max(1, Math.ceil(maxVisualBottom / pageStride)),
+  );
+  const minimumVisualContentHeight =
+    Math.max(0, totalPagesFromLayout - 1) * pageStride + pageContentHeight;
+  const visualContentHeight = Math.max(maxVisualBottom, minimumVisualContentHeight);
+
+  return {
+    totalPagesFromLayout,
+    visualContentHeight,
   };
 }
 
@@ -103,6 +244,7 @@ export function usePaginationMetrics({
   editor,
   enabled,
   pageHeight,
+  pageGap,
   pageMargins,
   containerRef,
   debounceMs = 32,
@@ -143,19 +285,38 @@ export function usePaginationMetrics({
       return;
     }
 
-    commitMetrics(
-      calculatePaginationMetrics({
-        contentHeight: proseMirror.scrollHeight,
-        pageHeight,
-        pageMargins,
-        manualBreakOffsets: Array.from(
-          proseMirror.querySelectorAll('[data-page-break="true"]'),
-        )
-          .filter((element): element is HTMLElement => element instanceof HTMLElement)
-          .map((element) => element.offsetTop),
-      }),
-    );
-  }, [commitMetrics, containerRef, enabled, pageHeight, pageMargins]);
+    const nextMetrics = calculatePaginationMetrics({
+      contentHeight: proseMirror.scrollHeight,
+      pageHeight,
+      pageGap,
+      pageMargins,
+      manualBreakOffsets: Array.from(
+        proseMirror.querySelectorAll('[data-page-break="true"]'),
+      )
+        .filter((element): element is HTMLElement => element instanceof HTMLElement)
+        .map((element) => element.offsetTop),
+    });
+    const layoutResult = applyVisualPaginationLayout({
+      proseMirror,
+      pageHeight,
+      pageGap,
+      pageContentHeight: nextMetrics.pageContentHeight,
+    });
+    const totalPages = Math.max(nextMetrics.totalPages, layoutResult.totalPagesFromLayout);
+
+    commitMetrics({
+      ...nextMetrics,
+      totalPages,
+      visualPageBoundaries: Array.from(
+        { length: Math.max(0, totalPages - 1) },
+        (_, index) => (index + 1) * nextMetrics.pageStride,
+      ),
+      visualContentHeight: Math.max(
+        layoutResult.visualContentHeight,
+        Math.max(0, totalPages - 1) * nextMetrics.pageStride + nextMetrics.pageContentHeight,
+      ),
+    });
+  }, [commitMetrics, containerRef, enabled, pageGap, pageHeight, pageMargins]);
 
   const scheduleMeasure = useCallback(() => {
     clearPendingMeasure();
@@ -172,6 +333,10 @@ export function usePaginationMetrics({
   useLayoutEffect(() => {
     if (!enabled) {
       clearPendingMeasure();
+      const proseMirror = containerRef.current?.querySelector(".ProseMirror");
+      if (proseMirror instanceof HTMLElement) {
+        clearBlockShiftStyles(proseMirror);
+      }
       commitMetrics(DEFAULT_METRICS);
       return undefined;
     }
@@ -206,6 +371,10 @@ export function usePaginationMetrics({
 
     return () => {
       clearPendingMeasure();
+      const proseMirror = containerRef.current?.querySelector(".ProseMirror");
+      if (proseMirror instanceof HTMLElement) {
+        clearBlockShiftStyles(proseMirror);
+      }
       window.removeEventListener("resize", handleResize);
       resizeObserver?.disconnect();
       editor?.off("update", scheduleMeasure);
@@ -216,6 +385,7 @@ export function usePaginationMetrics({
     containerRef,
     editor,
     enabled,
+    pageGap,
     scheduleMeasure,
   ]);
 
