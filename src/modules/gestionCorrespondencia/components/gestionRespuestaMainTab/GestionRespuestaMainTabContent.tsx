@@ -65,7 +65,6 @@ export function GestionRespuestaMainTabContent() {
               size: "sm",
               variant: "ghost",
               icon: <CarryOutFilled />,
-              onClick: () => setIsGestionDocumentoModalOpen(true),
             },
             {
               key: "guardar",
@@ -80,6 +79,7 @@ export function GestionRespuestaMainTabContent() {
               size: "sm",
               variant: "ghost",
               icon: <MailFilled />,
+              onClick: () => setIsGestionDocumentoModalOpen(true),
             },
           ]}
         />

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { describe, expect, it, vi, afterEach } from "vitest";
 import { AppInputTags } from "./AppInputTags";
@@ -32,10 +32,7 @@ describe("AppInputTags [SPEC:app-input-tags]", () => {
     renderTags({ value: ["Ana"] });
 
     expect(screen.getByText("Ana")).toBeInTheDocument();
-    expect(screen.getByLabelText("Destinatarios")).toHaveAttribute(
-      "placeholder",
-      "Buscar destinatario",
-    );
+    expect(screen.getByLabelText("Destinatarios")).not.toHaveAttribute("placeholder");
   });
 
   it("usa defaultValue en modo no controlado", () => {
@@ -44,7 +41,7 @@ describe("AppInputTags [SPEC:app-input-tags]", () => {
     expect(screen.getByText("Ana")).toBeInTheDocument();
   });
 
-  it("en modo single reemplaza el tag visible al confirmar", () => {
+  it("en modo single reemplaza el tag visible al confirmar", async () => {
     const onAddTag = vi.fn();
     renderTags({ defaultValue: ["Ana"], mode: "single", onAddTag });
 
@@ -52,12 +49,14 @@ describe("AppInputTags [SPEC:app-input-tags]", () => {
     fireEvent.change(input, { target: { value: "Luis" } });
     fireEvent.keyDown(input, { key: "Enter" });
 
-    expect(onAddTag).toHaveBeenCalledWith("Luis");
+    await waitFor(() => {
+      expect(onAddTag).toHaveBeenCalledWith("Luis");
+    });
     expect(screen.queryByText("Ana")).not.toBeInTheDocument();
     expect(screen.getByText("Luis")).toBeInTheDocument();
   });
 
-  it("en modo multiple acumula tags sin duplicar", () => {
+  it("en modo multiple acumula tags sin duplicar", async () => {
     const onAddTag = vi.fn();
     renderTags({ defaultValue: ["Ana"], mode: "multiple", onAddTag });
 
@@ -67,7 +66,9 @@ describe("AppInputTags [SPEC:app-input-tags]", () => {
     fireEvent.change(input, { target: { value: "Luis" } });
     fireEvent.keyDown(input, { key: "Enter" });
 
-    expect(onAddTag).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(onAddTag).toHaveBeenCalledTimes(2);
+    });
     expect(screen.getByText("Ana")).toBeInTheDocument();
     expect(screen.getAllByText("Luis")).toHaveLength(1);
   });
@@ -121,34 +122,13 @@ describe("AppInputTags [SPEC:app-input-tags]", () => {
     expect(onSearch).toHaveBeenCalledWith("Ana");
   });
 
-  it("el click en icono dispara busqueda inmediata sin duplicados", () => {
-    vi.useFakeTimers();
-    const onSearch = vi.fn();
-    renderTags({ debounceMs: 250, onSearch });
-
-    const input = screen.getByLabelText("Destinatarios");
-    fireEvent.change(input, { target: { value: "Ana" } });
-    fireEvent.click(screen.getByRole("button", { name: "Buscar" }));
-
-    expect(onSearch).toHaveBeenCalledWith("Ana");
-    expect(onSearch).toHaveBeenCalledTimes(1);
-
-    act(() => {
-      vi.advanceTimersByTime(250);
-    });
-
-    expect(onSearch).toHaveBeenCalledTimes(1);
-  });
-
-  it("limpia con boton y Escape sin disparar onSearch vacio", () => {
+  it("limpia con Escape sin disparar onSearch vacio y no renderiza boton de limpiar", () => {
     const onSearch = vi.fn();
     renderTags({ clearOnEscape: true, onSearch });
 
     const input = screen.getByLabelText("Destinatarios");
     fireEvent.change(input, { target: { value: "Ana" } });
-    fireEvent.click(screen.getByRole("button", { name: "Limpiar" }));
-    expect(input).toHaveValue("");
-    expect(onSearch).not.toHaveBeenCalledWith("");
+    expect(screen.queryByRole("button", { name: "Limpiar" })).toBeNull();
 
     fireEvent.change(input, { target: { value: "Luis" } });
     fireEvent.keyDown(input, { key: "Escape" });
@@ -195,6 +175,24 @@ describe("AppInputTags [SPEC:app-input-tags]", () => {
     fireEvent.click(option);
 
     expect(onAddTag).toHaveBeenCalledWith("ana");
+  });
+
+  it("no duplica el tag cuando Enter confirma una sugerencia del autocomplete", async () => {
+    const onAddTag = vi.fn();
+    renderTags({
+      onAddTag,
+      options: [{ label: "Ana", value: "ana" }],
+    });
+
+    const input = screen.getByLabelText("Destinatarios");
+    fireEvent.change(input, { target: { value: "Ana" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    await waitFor(() => {
+      expect(onAddTag).toHaveBeenCalledTimes(1);
+    });
+    expect(onAddTag).toHaveBeenCalledWith("ana");
+    expect(input).toHaveValue("");
   });
 
   it("renderiza opciones con metadata sin interpretar datos de dominio", () => {
@@ -271,5 +269,61 @@ describe("AppInputTags [SPEC:app-input-tags]", () => {
 
     const list = screen.getByRole("list", { name: "Etiquetas seleccionadas" });
     expect(within(list).getByRole("listitem")).toHaveTextContent("Ana");
+  });
+
+  it("renderiza las tags dentro del campo sin icono de busqueda", () => {
+    renderTags({ defaultValue: ["Ana"] });
+
+    const input = screen.getByLabelText("Destinatarios");
+    const wrapper = input.closest(".ant-input-affix-wrapper");
+    const list = screen.getByRole("list", { name: "Etiquetas seleccionadas" });
+
+    expect(wrapper).toContainElement(list);
+    expect(screen.queryByRole("button", { name: "Buscar" })).toBeNull();
+  });
+
+  it("no abre autocomplete al enfocar vacio y solo muestra opciones al escribir", () => {
+    renderTags({
+      options: [{ label: "Ana Perez", value: "ana" }],
+    });
+
+    const input = screen.getByLabelText("Destinatarios");
+    fireEvent.focus(input);
+
+    expect(screen.queryByText("Ana Perez")).toBeNull();
+
+    fireEvent.change(input, { target: { value: "Ana" } });
+
+    expect(screen.getByText("Ana Perez")).toBeInTheDocument();
+  });
+
+  it("oculta el placeholder al enfocar y lo restaura al salir", () => {
+    renderTags();
+
+    const input = screen.getByLabelText("Destinatarios");
+    expect(input).toHaveAttribute("placeholder", "Buscar destinatario");
+
+    fireEvent.focus(input);
+    expect(input).not.toHaveAttribute("placeholder");
+
+    fireEvent.blur(input);
+    expect(input).toHaveAttribute("placeholder", "Buscar destinatario");
+  });
+
+  it("oculta el placeholder cuando ya existen tags seleccionadas", () => {
+    renderTags({ defaultValue: ["Ana"] });
+
+    const input = screen.getByLabelText("Destinatarios");
+    expect(input).not.toHaveAttribute("placeholder");
+  });
+
+  it("mueve eliminar todos dentro del input", () => {
+    renderTags({ defaultValue: ["Ana", "Luis"] });
+
+    const input = screen.getByLabelText("Destinatarios");
+    const controlRow = input.closest(`.${styles.controlRow}`);
+    const removeAll = screen.getByRole("button", { name: "Eliminar todos" });
+
+    expect(controlRow).toContainElement(removeAll);
   });
 });

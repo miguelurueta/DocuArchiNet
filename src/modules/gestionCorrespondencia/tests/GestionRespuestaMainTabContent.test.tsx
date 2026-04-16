@@ -33,21 +33,31 @@ describe("[SCRUMCORE-89] GestionRespuesta main tab workbench", () => {
     expect(workbench).toHaveAttribute("data-panel-collapsed", "true");
   });
 
-  test("abre y cierra el modal de solicitud de aprobacion", async () => {
+  test("abre y cierra el modal desde el boton enviar", async () => {
     render(<GestionRespuestaMainTabContent />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Solicitud de Aprobacion/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Enviar$/i }));
 
-    expect(screen.getByText(/Gestionar Documento/i)).toBeInTheDocument();
-    expect(screen.getByText(/Solicitud de aprobacion documental/i)).toBeInTheDocument();
-    expect(screen.getByText(/^Tipo de documento$/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Requiere firma del responsable/i)).toBeInTheDocument();
-    expect(screen.getByText(/^Etiquetas de gestion$/i)).toBeInTheDocument();
+    expect(screen.getByText(/Confirmar envio de respuesta/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Firma de la respuesta$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Tipo de respuesta$/i)).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(
+        /Solicita al centro de envio de correspondencia el envio de la respuesta/i,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/Confirma respuesta al correo electronico del peticionario/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/Certificar digitalmente el documento de respuesta/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/^Direccion de correos$/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Cancelar/i }));
 
     await waitFor(() => {
-      expect(screen.queryByText(/Gestionar Documento/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Confirmar envio de respuesta/i)).not.toBeInTheDocument();
     });
   });
 });
