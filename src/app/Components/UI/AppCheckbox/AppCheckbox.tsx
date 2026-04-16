@@ -43,6 +43,7 @@ export type AppCheckboxGroupProps<TValue extends Primitive = string> = {
   error?: boolean;
   name?: string;
   rules?: Rule[];
+  className?: string;
   onChange: (value: TValue[]) => void;
 };
 
@@ -93,6 +94,76 @@ export function AppCheckbox({
       >
         {label ? <span className={styles.label}>{label}</span> : null}
       </Checkbox>
+
+      {helperText ? (
+        <div
+          className={joinClasses(styles.helperText, error && styles.helperTextError)}
+          id={helperId}
+        >
+          {helperText}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+export function AppCheckboxGroup<TValue extends Primitive = string>({
+  value,
+  options,
+  disabled = false,
+  size = "md",
+  direction = "vertical",
+  label,
+  helperText,
+  error = false,
+  name,
+  className,
+  onChange,
+}: AppCheckboxGroupProps<TValue>) {
+  const generatedId = useId();
+  const groupId = `app-checkbox-group-${generatedId}`;
+  const helperId = helperText ? `${groupId}-helper` : undefined;
+
+  const handleOptionToggle = (optionValue: TValue, checked: boolean) => {
+    if (checked) {
+      onChange(value.includes(optionValue) ? value : [...value, optionValue]);
+      return;
+    }
+
+    onChange(value.filter((currentValue) => currentValue !== optionValue));
+  };
+
+  return (
+    <div className={joinClasses(styles.field, className)}>
+      {label ? (
+        <div className={styles.groupLabel} id={groupId}>
+          {label}
+        </div>
+      ) : null}
+
+      <div
+        aria-describedby={helperId}
+        aria-labelledby={label ? groupId : undefined}
+        className={joinClasses(
+          styles.group,
+          direction === "horizontal" ? styles.groupHorizontal : styles.groupVertical,
+          error && styles.groupError,
+        )}
+        role="group"
+      >
+        {options.map((option) => (
+          <AppCheckbox
+            key={String(option.value)}
+            checked={value.includes(option.value)}
+            className={styles.groupItem}
+            disabled={disabled || option.disabled}
+            label={option.label}
+            name={name}
+            onChange={(checked) => handleOptionToggle(option.value, checked)}
+            size={size}
+          />
+        ))}
+      </div>
 
       {helperText ? (
         <div

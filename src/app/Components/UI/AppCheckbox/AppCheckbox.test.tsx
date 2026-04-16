@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { AppCheckbox } from "./AppCheckbox";
+import { AppCheckbox, AppCheckboxGroup } from "./AppCheckbox";
 import styles from "./AppCheckbox.module.css";
 
 describe("AppCheckbox [SPEC:APP-CHECKBOX-001]", () => {
@@ -88,5 +88,92 @@ describe("AppCheckbox [SPEC:APP-CHECKBOX-001]", () => {
       "aria-describedby",
       expect.stringContaining("checkbox-help"),
     );
+  });
+});
+
+describe("AppCheckboxGroup [SPEC:APP-CHECKBOX-002]", () => {
+  const options = [
+    { label: "Correo", value: "correo" },
+    { label: "SMS", value: "sms" },
+    { label: "WhatsApp", value: "whatsapp", disabled: true },
+  ] as const;
+
+  it("renderiza grupo vertical con label y helperText", () => {
+    render(
+      <AppCheckboxGroup
+        helperText="Seleccion multiple"
+        label="Canales"
+        onChange={vi.fn()}
+        options={options}
+        value={["correo"]}
+      />,
+    );
+
+    expect(screen.getByRole("group")).toHaveClass(styles.groupVertical);
+    expect(screen.getByText("Canales")).toBeInTheDocument();
+    expect(screen.getByText("Seleccion multiple")).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: /Correo/i })).toBeChecked();
+  });
+
+  it("renderiza grupo horizontal", () => {
+    render(
+      <AppCheckboxGroup direction="horizontal" onChange={vi.fn()} options={options} value={[]} />,
+    );
+
+    expect(screen.getByRole("group")).toHaveClass(styles.groupHorizontal);
+  });
+
+  it("dispara onChange con el nuevo arreglo controlado", () => {
+    const handleChange = vi.fn();
+    render(<AppCheckboxGroup onChange={handleChange} options={options} value={["correo"]} />);
+
+    fireEvent.click(screen.getByRole("checkbox", { name: /SMS/i }));
+
+    expect(handleChange).toHaveBeenCalledWith(["correo", "sms"]);
+  });
+
+  it("remueve un valor seleccionado cuando se desmarca", () => {
+    const handleChange = vi.fn();
+    render(<AppCheckboxGroup onChange={handleChange} options={options} value={["correo"]} />);
+
+    fireEvent.click(screen.getByRole("checkbox", { name: /Correo/i }));
+
+    expect(handleChange).toHaveBeenCalledWith([]);
+  });
+
+  it("respeta disabled a nivel de grupo y por opcion", () => {
+    const handleChange = vi.fn();
+    const { rerender } = render(
+      <AppCheckboxGroup onChange={handleChange} options={options} value={[]} />,
+    );
+
+    expect(screen.getByRole("checkbox", { name: /WhatsApp/i })).toBeDisabled();
+
+    rerender(<AppCheckboxGroup disabled onChange={handleChange} options={options} value={[]} />);
+
+    fireEvent.click(screen.getByRole("checkbox", { name: /Correo/i }));
+    expect(screen.getByRole("checkbox", { name: /Correo/i })).toBeDisabled();
+    expect(handleChange).not.toHaveBeenCalled();
+  });
+
+  it("propaga tamanos a los items del grupo", () => {
+    render(<AppCheckboxGroup onChange={vi.fn()} options={options} size="lg" value={[]} />);
+
+    expect(screen.getByText("Correo").closest(`.${styles.checkbox}`)).toHaveClass(styles.sizeLG);
+  });
+
+  it("renderiza helperText y error del grupo", () => {
+    render(
+      <AppCheckboxGroup
+        error
+        helperText="Campo requerido"
+        onChange={vi.fn()}
+        options={options}
+        value={[]}
+      />,
+    );
+
+    expect(screen.getByText("Campo requerido")).toHaveClass(styles.helperTextError);
+    expect(screen.getByRole("group")).toHaveClass(styles.groupError);
   });
 });
