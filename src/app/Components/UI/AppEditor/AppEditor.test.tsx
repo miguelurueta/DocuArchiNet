@@ -164,6 +164,23 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     expect(screen.getByLabelText("Contenido")).toHaveAttribute("aria-invalid", "true");
   });
 
+  it("renderiza acciones custom dentro de la toolbar del editor", async () => {
+    render(
+      <AppEditor
+        label="Contenido"
+        defaultValue="<p>Texto inicial</p>"
+        toolbarActions={<button type="button" aria-label="Guardar en toolbar" />}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Texto inicial")).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("button", { name: "Guardar en toolbar" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Acciones del editor" })).toBeInTheDocument();
+  });
+
   it("marca el shell con data-attributes de estados visuales", async () => {
     const { container } = render(
       <AppEditor
