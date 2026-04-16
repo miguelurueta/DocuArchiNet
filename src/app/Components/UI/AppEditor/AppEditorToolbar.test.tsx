@@ -44,7 +44,6 @@ function createChainMock() {
     setImageAlign: ReturnType<typeof vi.fn>;
     toggleHeading: ReturnType<typeof vi.fn>;
     setParagraph: ReturnType<typeof vi.fn>;
-    insertPageBreak?: ReturnType<typeof vi.fn>;
     run: ReturnType<typeof vi.fn>;
   };
 }
@@ -52,8 +51,6 @@ function createChainMock() {
 function createEditorMock() {
   const actionChain = createChainMock();
   const canChain = createChainMock();
-  canChain.insertPageBreak = vi.fn(() => canChain);
-  actionChain.insertPageBreak = vi.fn(() => actionChain);
 
   return {
     isActive: vi.fn((name: unknown) => Boolean(name === "bold")),

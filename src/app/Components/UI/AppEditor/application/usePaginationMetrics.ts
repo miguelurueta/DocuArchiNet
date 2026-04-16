@@ -130,9 +130,17 @@ function clearBlockShiftStyles(proseMirror: HTMLElement) {
       return;
     }
 
-    child.style.removeProperty("--app-editor-block-gap-before");
-    child.removeAttribute("data-pagination-page");
-    child.removeAttribute("data-pagination-gap-before");
+    if (child.style.getPropertyValue("--app-editor-block-gap-before")) {
+      child.style.removeProperty("--app-editor-block-gap-before");
+    }
+
+    if (child.hasAttribute("data-pagination-page")) {
+      child.removeAttribute("data-pagination-page");
+    }
+
+    if (child.hasAttribute("data-pagination-gap-before")) {
+      child.removeAttribute("data-pagination-gap-before");
+    }
   });
 }
 
@@ -210,9 +218,22 @@ function applyVisualPaginationLayout({
     const visualTop = currentPage * pageStride + currentOffsetWithinPage;
     const gapBefore = Math.max(0, Math.round(visualTop - entry.naturalTop - cumulativeGapBefore));
 
-    entry.block.style.setProperty("--app-editor-block-gap-before", `${gapBefore}px`);
-    entry.block.setAttribute("data-pagination-page", String(currentPage + 1));
-    entry.block.setAttribute("data-pagination-gap-before", String(gapBefore));
+    const gapBeforeValue = `${gapBefore}px`;
+    const pageValue = String(currentPage + 1);
+    const gapAttributeValue = String(gapBefore);
+
+    if (entry.block.style.getPropertyValue("--app-editor-block-gap-before") !== gapBeforeValue) {
+      entry.block.style.setProperty("--app-editor-block-gap-before", gapBeforeValue);
+    }
+
+    if (entry.block.getAttribute("data-pagination-page") !== pageValue) {
+      entry.block.setAttribute("data-pagination-page", pageValue);
+    }
+
+    if (entry.block.getAttribute("data-pagination-gap-before") !== gapAttributeValue) {
+      entry.block.setAttribute("data-pagination-gap-before", gapAttributeValue);
+    }
+
     cumulativeGapBefore += gapBefore;
 
     maxVisualBottom = Math.max(maxVisualBottom, visualTop + entry.blockHeight);
@@ -367,6 +388,24 @@ export function usePaginationMetrics({
       resizeObserver?.observe(proseMirror);
     }
 
+    const imageLoadListeners =
+      proseMirror instanceof HTMLElement
+        ? Array.from(proseMirror.querySelectorAll("img"))
+            .filter((image): image is HTMLImageElement => image instanceof HTMLImageElement)
+            .map((image) => {
+              const handleImageLoad = () => {
+                scheduleMeasure();
+              };
+
+              image.addEventListener("load", handleImageLoad, { once: true });
+
+              return {
+                image,
+                handleImageLoad,
+              };
+            })
+        : [];
+
     editor?.on("update", scheduleMeasure);
 
     return () => {
@@ -377,6 +416,9 @@ export function usePaginationMetrics({
       }
       window.removeEventListener("resize", handleResize);
       resizeObserver?.disconnect();
+      imageLoadListeners.forEach(({ image, handleImageLoad }) => {
+        image.removeEventListener("load", handleImageLoad);
+      });
       editor?.off("update", scheduleMeasure);
     };
   }, [
