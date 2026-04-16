@@ -53,6 +53,9 @@ export type AppCheckboxCheckAllProps<TValue extends Primitive = string> = {
   disabled?: boolean;
   size?: AppCheckboxSize;
   checkAllLabel?: ReactNode;
+  helperText?: ReactNode;
+  error?: boolean;
+  className?: string;
   name?: string;
   rules?: Rule[];
   onChange: (value: TValue[]) => void;
@@ -60,6 +63,25 @@ export type AppCheckboxCheckAllProps<TValue extends Primitive = string> = {
 
 const joinClasses = (...values: Array<string | false | null | undefined>) =>
   values.filter(Boolean).join(" ");
+
+const getSelectableValues = <TValue extends Primitive>(
+  options: AppCheckboxOption<TValue>[],
+) => options.filter((option) => !option.disabled).map((option) => option.value);
+
+const getCheckAllState = <TValue extends Primitive>(
+  value: TValue[],
+  options: AppCheckboxOption<TValue>[],
+) => {
+  const selectableValues = getSelectableValues(options);
+  const selectedSelectableCount = selectableValues.filter((optionValue) =>
+    value.includes(optionValue)
+  ).length;
+  const checkedAll = selectableValues.length > 0 && selectedSelectableCount === selectableValues.length;
+  const indeterminate =
+    selectedSelectableCount > 0 && selectedSelectableCount < selectableValues.length;
+
+  return { selectableValues, checkedAll, indeterminate };
+};
 
 export function AppCheckbox({
   label,
@@ -173,6 +195,53 @@ export function AppCheckboxGroup<TValue extends Primitive = string>({
           {helperText}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+export function AppCheckboxCheckAll<TValue extends Primitive = string>({
+  options,
+  value,
+  disabled = false,
+  size = "md",
+  checkAllLabel = "Seleccionar todo",
+  helperText,
+  error = false,
+  className,
+  name,
+  onChange,
+}: AppCheckboxCheckAllProps<TValue>) {
+  const { selectableValues, checkedAll, indeterminate } = getCheckAllState(value, options);
+
+  const handleCheckAll = (checked: boolean) => {
+    onChange(checked ? selectableValues : []);
+  };
+
+  return (
+    <div className={joinClasses(styles.checkAllWrapper, className)}>
+      <AppCheckbox
+        checked={checkedAll}
+        className={styles.checkAllMaster}
+        disabled={disabled || selectableValues.length === 0}
+        error={error}
+        helperText={helperText}
+        indeterminate={indeterminate}
+        label={checkAllLabel}
+        name={name}
+        onChange={handleCheckAll}
+        size={size}
+      />
+
+      <AppCheckboxGroup
+        className={styles.checkAllGroup}
+        disabled={disabled}
+        error={error}
+        name={name}
+        onChange={onChange}
+        options={options}
+        size={size}
+        value={value}
+      />
     </div>
   );
 }
