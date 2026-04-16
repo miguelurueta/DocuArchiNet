@@ -1,0 +1,29 @@
+.saveActionIdle {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: #677489 !important;
+  box-shadow: none !important;
+}
+
+.saveActionIdle:hover,
+.saveActionIdle:focus-visible {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: #677489 !important;
+  transform: none !important;
+}
+
+.saveActionDirty {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: #111827 !important;
+  box-shadow: none !important;
+}
+
+.saveActionDirty:hover,
+.saveActionDirty:focus-visible {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: #000000 !important;
+  transform: none !important;
+}

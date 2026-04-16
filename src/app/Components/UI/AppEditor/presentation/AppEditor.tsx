@@ -112,6 +112,7 @@ export function AppEditor({
   title,
   description,
   headerActions,
+  toolbarActions,
   surfaceClassName,
   minHeight = 280,
   themeMode,
@@ -246,6 +247,7 @@ export function AppEditor({
           editor={editor}
           disabled={!isEditable}
           onInsertLocalImage={insertLocalImage}
+          toolbarActions={toolbarActions}
           trailingContent={
             isVisualPagination ? (
               <div className={styles.zoomControls} role="group" aria-label="Control de zoom">

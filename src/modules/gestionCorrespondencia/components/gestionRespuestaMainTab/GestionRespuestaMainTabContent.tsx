@@ -9,7 +9,11 @@ import {
 } from "@ant-design/icons";
 import { useEffect, useId, useState } from "react";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
-import { AppEditor } from "../../../../app/Components/UI/AppEditor";
+import {
+  AppEditor,
+  AppEditorSaveAction,
+  useAppEditorSaveState,
+} from "../../../../app/Components/UI/AppEditor";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
 import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
 import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
@@ -50,6 +54,11 @@ export function GestionRespuestaMainTabContent() {
   const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] = useState(false);
   const [files, setFiles] = useState<AppUploadFile[]>([]);
   const [editorValue, setEditorValue] = useState<string>("");
+  const [savedEditorValue, setSavedEditorValue] = useState<string>("");
+  const { saveStatus } = useAppEditorSaveState({
+    currentValue: editorValue,
+    savedValue: savedEditorValue,
+  });
 
   useEffect(() => {
     setIsPanelCollapsed(isCompact);
@@ -110,6 +119,15 @@ export function GestionRespuestaMainTabContent() {
             <AppEditor
               value={editorValue}
               onChange={setEditorValue}
+              toolbarActions={
+                <AppEditorSaveAction
+                  iconOnly
+                  saveStatus={saveStatus}
+                  onSave={() => {
+                    setSavedEditorValue(editorValue);
+                  }}
+                />
+              }
               placeholder="Escribe aqui la respuesta principal..."
               aria-label="Contenido del editor principal de respuesta"
               className={styles.embeddedAppEditor}

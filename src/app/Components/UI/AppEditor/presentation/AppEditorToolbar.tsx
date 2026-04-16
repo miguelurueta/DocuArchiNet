@@ -32,6 +32,7 @@ type AppEditorToolbarProps = {
   editor: Editor | null;
   disabled?: boolean;
   onInsertLocalImage?: (file: File, width?: string) => Promise<void>;
+  toolbarActions?: ReactNode;
   trailingContent?: ReactNode;
 };
 
@@ -237,6 +238,7 @@ function AppEditorToolbarComponent({
   editor,
   disabled = false,
   onInsertLocalImage,
+  toolbarActions,
   trailingContent,
 }: AppEditorToolbarProps) {
   const isBlocked = disabled || !editor;
@@ -826,6 +828,11 @@ function AppEditorToolbarComponent({
         </div>
         {renderButtonGroup(groupedButtons.history, "Historial de cambios")}
         {renderButtonGroup(groupedButtons.insert, "Insercion de contenido")}
+        {toolbarActions ? (
+          <div className={styles.toolbarButtonGroup} role="group" aria-label="Acciones del editor">
+            {toolbarActions}
+          </div>
+        ) : null}
       </div>
       {trailingContent ? (
         <div className={joinClasses(styles.toolbarSection, styles.toolbarSectionEnd)} data-group="view">

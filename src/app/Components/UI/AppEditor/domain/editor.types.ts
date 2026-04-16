@@ -27,6 +27,7 @@ export type AppEditorProps = {
   title?: ReactNode;
   description?: ReactNode;
   headerActions?: ReactNode;
+  toolbarActions?: ReactNode;
   surfaceClassName?: string;
   minHeight?: number | string;
   showThemeToggle?: boolean;

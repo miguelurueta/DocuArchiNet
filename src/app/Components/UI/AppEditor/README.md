@@ -11,6 +11,7 @@
 - Basado en Tiptap con extensiones MIT
 - Soporta modo controlado y no controlado
 - Encabezado contextual opcional
+- Soporte para `headerActions` con acciones contextuales del shell
 - Toolbar con formato, listas, headings, alineacion, links e imagenes
 - La alineacion de texto se resuelve desde un dropdown compacto en la toolbar
 - Boton visible para alternar entre tema claro y oscuro
@@ -31,6 +32,7 @@
 - `title`, `description`, `headerActions`: contexto del shell del editor
 - `className`, `surfaceClassName`, `minHeight`, `aria-label`: personalizacion de layout
 - `showThemeToggle`, `themeMode`, `defaultThemeMode`, `onThemeModeChange`: control visual del tema del editor
+- `AppEditorSaveAction`, `useAppEditorSaveState`, `normalizeEditorHtml`: piezas companion para dirty state y boton Guardar fuera del editor
 
 ## Ejemplo basico
 
@@ -75,6 +77,41 @@ export function ControlledEditor() {
 }
 ```
 
+## Ejemplo con boton Guardar
+
+```tsx
+import { useState } from "react";
+import {
+  AppEditor,
+  AppEditorSaveAction,
+  useAppEditorSaveState,
+} from "../UI";
+
+export function EditorWithSave() {
+  const [currentValue, setCurrentValue] = useState("<p>Contenido inicial</p>");
+  const [savedValue, setSavedValue] = useState("<p>Contenido inicial</p>");
+  const { saveStatus } = useAppEditorSaveState({
+    currentValue,
+    savedValue,
+  });
+
+  return (
+    <AppEditor
+      title="Contenido"
+      label="Cuerpo"
+      value={currentValue}
+      onChange={setCurrentValue}
+      headerActions={
+        <AppEditorSaveAction
+          saveStatus={saveStatus}
+          onSave={() => setSavedValue(currentValue)}
+        />
+      }
+    />
+  );
+}
+```
+
 ## Ejemplo disabled y readOnly
 
 ```tsx
@@ -105,6 +142,7 @@ export function LockedExamples() {
 - Usa `readOnly` para vistas de consulta y `disabled` cuando la accion este bloqueada.
 - Provee `label` o `aria-label` para no depender solo del contexto visual.
 - Mantiene `headerActions` para acciones contextuales del shell, no para comandos del editor.
+- Usa dirty state y baseline guardado fuera de `AppEditor`; el shared component no gestiona persistencia.
 - Trata el valor como HTML serializado y sanitiza en backend o al renderizar fuera del editor si aplica.
 
 ## Limitaciones conocidas

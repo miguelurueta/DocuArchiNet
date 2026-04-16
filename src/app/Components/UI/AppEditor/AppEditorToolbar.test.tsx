@@ -101,6 +101,20 @@ describe("AppEditorToolbar [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", ()
     expect(editor.__actionChain.run).toHaveBeenCalled();
   });
 
+  it("renderiza acciones custom junto a la seccion de insercion", () => {
+    const editor = createEditorMock();
+
+    render(
+      <AppEditorToolbar
+        editor={editor as never}
+        toolbarActions={<button type="button" aria-label="Guardar en toolbar" />}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Guardar en toolbar" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Acciones del editor" })).toBeInTheDocument();
+  });
+
   it("agrupa la alineacion de texto en un dropdown compacto", async () => {
     const editor = createEditorMock();
 
