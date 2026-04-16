@@ -21,6 +21,12 @@ export type AppInputSelectFetchResult<TValue extends Primitive = string> = {
   total?: number;
 };
 
+export type AppInputSelectBackendItem = {
+  id: Primitive;
+  nombre: ReactNode;
+  activo?: boolean;
+};
+
 export type AppInputSelectMode = "single" | "multiple" | "tags";
 
 export type AppInputSelectProps<TValue extends Primitive = string> = {
@@ -68,6 +74,15 @@ const MODE_MAP: Record<AppInputSelectMode, undefined | "multiple" | "tags"> = {
   tags: "tags",
 };
 
+export const toAppInputSelectOption = <TValue extends Primitive = Primitive>(
+  item: AppInputSelectBackendItem,
+) =>
+  ({
+    label: item.nombre,
+    value: item.id as TValue,
+    disabled: item.activo === false,
+  }) satisfies AppInputSelectOption<TValue>;
+
 export const AppInputSelect = forwardRef<BaseSelectRef, AppInputSelectProps>(
   function AppInputSelect(
     {
@@ -106,6 +121,7 @@ export const AppInputSelect = forwardRef<BaseSelectRef, AppInputSelectProps>(
     const [remoteOptions, setRemoteOptions] = useState<AppInputSelectOption[]>([]);
     const [remoteLoading, setRemoteLoading] = useState(false);
     const [hasLoadedRemotely, setHasLoadedRemotely] = useState(false);
+    const [remoteError, setRemoteError] = useState(false);
     const requestIdRef = useRef(0);
     const usesRemoteOptions = Boolean(fetchOptions);
 
@@ -117,14 +133,22 @@ export const AppInputSelect = forwardRef<BaseSelectRef, AppInputSelectProps>(
       const requestId = requestIdRef.current + 1;
       requestIdRef.current = requestId;
       setRemoteLoading(true);
+      setRemoteError(false);
 
       try {
         const result = await fetchOptions(query);
         if (requestId !== requestIdRef.current) {
           return;
         }
-        setRemoteOptions(result.options);
+        setRemoteOptions(result.options ?? []);
         setHasLoadedRemotely(true);
+      } catch {
+        if (requestId !== requestIdRef.current) {
+          return;
+        }
+        setRemoteOptions([]);
+        setHasLoadedRemotely(true);
+        setRemoteError(true);
       } finally {
         if (requestId === requestIdRef.current) {
           setRemoteLoading(false);
@@ -156,12 +180,16 @@ export const AppInputSelect = forwardRef<BaseSelectRef, AppInputSelectProps>(
         return <div className={styles.emptyContent}>{noDataText}</div>;
       }
 
+      if (remoteError) {
+        return <div className={styles.emptyContent}>No fue posible cargar las opciones</div>;
+      }
+
       return (
         <div className={styles.emptyContent}>
           <Empty description="Sin datos" image={Empty.PRESENTED_IMAGE_SIMPLE} />
         </div>
       );
-    }, [effectiveLoading, noDataText]);
+    }, [effectiveLoading, noDataText, remoteError]);
 
     const handleSearch = (query: string) => {
       onSearch?.(query);
@@ -190,6 +218,7 @@ export const AppInputSelect = forwardRef<BaseSelectRef, AppInputSelectProps>(
             styles[size],
             styles[mode],
             hasError && styles.selectError,
+            remoteError && styles.selectWarning,
             disabled && styles.selectDisabled,
           )}
           classNames={{ popup: { root: styles.dropdown } }}
