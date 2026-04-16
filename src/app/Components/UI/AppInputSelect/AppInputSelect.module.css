@@ -87,6 +87,10 @@
   border-color: #c63d3d !important;
 }
 
+.selectWarning :global(.ant-select-selector) {
+  border-color: #d79a2d !important;
+}
+
 .selectDisabled :global(.ant-select-selector) {
   background: #f4f6fb !important;
   box-shadow: none !important;

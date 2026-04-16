@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { AppInputSelect } from "./AppInputSelect";
+import { AppInputSelect, toAppInputSelectOption } from "./AppInputSelect";
 import styles from "./AppInputSelect.module.css";
 
 describe("AppInputSelect [SPEC:app-input-select]", () => {
@@ -113,5 +113,56 @@ describe("AppInputSelect [SPEC:app-input-select]", () => {
     const wrapper = screen.getByRole("combobox", { name: "Roles" }).closest(".ant-select");
     expect(wrapper).toHaveClass(styles.multiple);
     expect(wrapper).toHaveClass("ant-select-status-warning");
+  });
+
+  it("tolera error remoto y mantiene estado estable", async () => {
+    const fetchOptions = vi.fn().mockRejectedValue(new Error("network"));
+
+    render(
+      <AppInputSelect
+        aria-label="Buscar area"
+        searchable
+        fetchOptions={fetchOptions}
+      />,
+    );
+
+    fireEvent.change(screen.getByRole("combobox", { name: "Buscar area" }), {
+      target: { value: "juridica" },
+    });
+
+    await waitFor(() => {
+      expect(fetchOptions).toHaveBeenCalledWith("juridica");
+    });
+
+    expect(await screen.findByText("No fue posible cargar las opciones")).toBeInTheDocument();
+  });
+
+  it("enlaza helperText mediante aria-describedby", () => {
+    render(
+      <AppInputSelect
+        aria-label="Dependencia"
+        helperText="Seleccione una dependencia activa"
+      />,
+    );
+
+    const helper = screen.getByText("Seleccione una dependencia activa");
+    const combobox = screen.getByRole("combobox", { name: "Dependencia" });
+
+    expect(helper).toHaveAttribute("id");
+    expect(combobox).toHaveAttribute("aria-describedby", helper.getAttribute("id") ?? "");
+  });
+
+  it("expone helper de adaptacion backend a opcion reusable", () => {
+    expect(
+      toAppInputSelectOption({
+        id: 12,
+        nombre: "Talento humano",
+        activo: false,
+      }),
+    ).toEqual({
+      label: "Talento humano",
+      value: 12,
+      disabled: true,
+    });
   });
 });
