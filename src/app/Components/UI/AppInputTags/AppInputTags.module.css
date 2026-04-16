@@ -14,6 +14,11 @@
   align-items: center;
   display: flex;
   gap: 0.45rem;
+  position: relative;
+}
+
+.controlRowWithRemoveAll .autoComplete :global(.ant-input-affix-wrapper) {
+  padding-right: 2.75rem;
 }
 
 .autoComplete {
@@ -26,10 +31,27 @@
   border-radius: 12px;
   border-width: 1px;
   box-shadow: 0 8px 22px rgba(15, 52, 96, 0.08);
+  display: flex;
+  flex-wrap: nowrap;
   transition:
     border-color 120ms ease,
     box-shadow 120ms ease,
     background-color 120ms ease;
+}
+
+.autoComplete :global(.ant-input-prefix) {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  margin-inline-end: 0.45rem;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.autoComplete :global(.ant-input) {
+  flex: 1 0 8rem;
+  min-width: 8rem;
 }
 
 .autoComplete :global(.ant-input-affix-wrapper:hover),
@@ -95,9 +117,26 @@
   width: 1.5rem;
 }
 
+.iconButton:hover:not(:disabled) {
+  color: #0f5bd8;
+}
+
 .iconButton:disabled {
   color: #8a96a3;
   cursor: not-allowed;
+}
+
+.removeAllFloatingButton {
+  color: #8b4351;
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.removeAllFloatingButton:hover:not(:disabled) {
+  color: #b83232;
 }
 
 .toolbar {
@@ -106,14 +145,12 @@
   flex: 0 0 auto;
 }
 
-.removeAllButton {
-  flex: 0 0 auto;
-}
-
-.tags {
+.tagsInline {
   display: flex;
+  flex: 1 1 auto;
   flex-wrap: wrap;
   gap: 0.35rem;
+  max-width: 100%;
 }
 
 .tag {

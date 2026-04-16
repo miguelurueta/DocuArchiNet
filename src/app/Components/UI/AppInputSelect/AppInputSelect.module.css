@@ -16,7 +16,7 @@
 
 .select :global(.ant-select-selector) {
   align-items: center;
-  border-radius: 10px !important;
+  border-radius: 16px !important;
   border-width: 1px !important;
   box-shadow: 0 8px 22px rgba(15, 52, 96, 0.08);
   padding-inline: 0.75rem !important;
@@ -39,17 +39,17 @@
 }
 
 .sm :global(.ant-select-selector) {
-  min-height: 2rem !important;
-  padding-block: 0.1rem !important;
+  min-height: 2.2rem !important;
+  padding-block: 0.12rem !important;
 }
 
 .md :global(.ant-select-selector) {
-  min-height: 2.5rem !important;
+  min-height: 2.75rem !important;
   padding-block: 0.24rem !important;
 }
 
 .lg :global(.ant-select-selector) {
-  min-height: 2.9rem !important;
+  min-height: 3.2rem !important;
   padding-block: 0.34rem !important;
 }
 
@@ -112,12 +112,12 @@
 
 @media (max-width: 768px) {
   .select :global(.ant-select-selector) {
-    border-radius: 10px !important;
+    border-radius: 16px !important;
     padding-inline: 0.7rem !important;
   }
 
   .lg :global(.ant-select-selector) {
-    min-height: 3rem !important;
+    min-height: 3.2rem !important;
   }
 
   .multiple :global(.ant-select-selector),

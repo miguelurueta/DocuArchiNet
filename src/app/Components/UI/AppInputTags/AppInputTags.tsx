@@ -1,9 +1,5 @@
-import {
-  CloseOutlined,
-  DeleteOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import { AutoComplete, Button, Input, Spin, Tag } from "antd";
+import { CloseOutlined, DeleteOutlined } from "@ant-design/icons";
+import { AutoComplete, Input, Spin, Tag } from "antd";
 import type { KeyboardEvent, ReactNode } from "react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import styles from "./AppInputTags.module.css";
@@ -108,13 +104,14 @@ export function AppInputTags({
   const helperId = helperText ? `${inputId}-helper` : undefined;
   const [internalTags, setInternalTags] = useState<string[]>(defaultValue);
   const [inputValue, setInputValue] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const didSelectAutocompleteOptionRef = useRef(false);
 
   const isControlled = Array.isArray(value);
   const visibleTags = isControlled ? value : internalTags;
   const isDisabled = disabled || selectDisabled;
   const hasError = error || state === "error";
-  const canClear = inputValue.length > 0 && !isDisabled;
   const canRemoveAll = visibleTags.length > 0 && !isDisabled;
 
   const autocompleteOptions = useMemo(
@@ -125,6 +122,24 @@ export function AppInputTags({
       })),
     [options],
   );
+
+  const filteredAutocompleteOptions = useMemo(() => {
+    const normalizedQuery = inputValue.trim().toLocaleLowerCase();
+
+    if (!normalizedQuery) {
+      return autocompleteOptions;
+    }
+
+    return autocompleteOptions.filter((option) => {
+      const normalizedLabel = String(option.label).toLocaleLowerCase();
+      const normalizedValue = option.value.toLocaleLowerCase();
+
+      return (
+        normalizedLabel.includes(normalizedQuery) ||
+        normalizedValue.includes(normalizedQuery)
+      );
+    });
+  }, [autocompleteOptions, inputValue]);
 
   useEffect(
     () => () => {
@@ -220,13 +235,9 @@ export function AppInputTags({
   };
 
   const handleInputChange = (nextValue: string) => {
+    didSelectAutocompleteOptionRef.current = false;
     setInputValue(nextValue);
     scheduleSearch(nextValue.trim());
-  };
-
-  const handleImmediateSearch = () => {
-    cancelPendingSearch();
-    dispatchSearch(inputValue.trim());
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -234,7 +245,30 @@ export function AppInputTags({
       event.preventDefault();
       cancelPendingSearch();
       dispatchSearch(inputValue.trim());
-      addTag(inputValue);
+      queueMicrotask(() => {
+        if (didSelectAutocompleteOptionRef.current) {
+          didSelectAutocompleteOptionRef.current = false;
+          return;
+        }
+
+        const normalizedInputValue = inputValue.trim().toLocaleLowerCase();
+        const matchingOption = filteredAutocompleteOptions.find((option) => {
+          const normalizedLabel = String(option.label).trim().toLocaleLowerCase();
+          const normalizedValue = option.value.trim().toLocaleLowerCase();
+
+          return (
+            normalizedLabel === normalizedInputValue ||
+            normalizedValue === normalizedInputValue
+          );
+        });
+
+        if (matchingOption) {
+          addTag(matchingOption.value);
+          return;
+        }
+
+        addTag(inputValue);
+      });
       return;
     }
 
@@ -247,25 +281,6 @@ export function AppInputTags({
   const suffix = (
     <span className={styles.suffixActions}>
       {loading ? <Spin aria-label="Cargando" size="small" /> : null}
-      {canClear ? (
-        <button
-          aria-label="Limpiar"
-          className={styles.iconButton}
-          onClick={clearInput}
-          type="button"
-        >
-          <CloseOutlined />
-        </button>
-      ) : null}
-      <button
-        aria-label="Buscar"
-        className={styles.iconButton}
-        disabled={isDisabled}
-        onClick={handleImmediateSearch}
-        type="button"
-      >
-        <SearchOutlined />
-      </button>
     </span>
   );
 
@@ -280,7 +295,7 @@ export function AppInputTags({
         </label>
       ) : null}
 
-      <div className={styles.controlRow}>
+      <div className={joinClasses(styles.controlRow, canRemoveAll && styles.controlRowWithRemoveAll)}>
         <AutoComplete
           className={joinClasses(
             styles.autoComplete,
@@ -289,9 +304,13 @@ export function AppInputTags({
             isDisabled && styles.inputDisabled,
           )}
           disabled={isDisabled}
+          open={inputValue.trim().length > 0 && canSearch(inputValue.trim())}
           onChange={handleInputChange}
-          onSelect={(selectedValue) => addTag(selectedValue)}
-          options={autocompleteOptions}
+          onSelect={(selectedValue) => {
+            didSelectAutocompleteOptionRef.current = true;
+            addTag(selectedValue);
+          }}
+          options={filteredAutocompleteOptions}
           value={inputValue}
         >
           <Input
@@ -302,44 +321,52 @@ export function AppInputTags({
             data-ident={selectDataIdent}
             disabled={isDisabled}
             id={inputId}
+            onBlur={() => setIsFocused(false)}
+            onFocus={() => setIsFocused(true)}
             onKeyDown={handleKeyDown}
-            placeholder={placeholder}
+            placeholder={isFocused || visibleTags.length > 0 ? undefined : placeholder}
+            prefix={
+              visibleTags.length > 0 ? (
+                <div
+                  aria-label="Etiquetas seleccionadas"
+                  className={styles.tagsInline}
+                  role="list"
+                >
+                  {visibleTags.map((tag) => (
+                    <Tag className={styles.tag} key={tag} role="listitem">
+                      <span>{tag}</span>
+                      {!isDisabled ? (
+                        <button
+                          aria-label={`Eliminar ${tag}`}
+                          className={styles.tagRemoveButton}
+                          onClick={() => removeTag(tag)}
+                          type="button"
+                        >
+                          <CloseOutlined />
+                        </button>
+                      ) : null}
+                    </Tag>
+                  ))}
+                </div>
+              ) : null
+            }
             suffix={suffix}
           />
         </AutoComplete>
 
-        {toolbar ? <div className={styles.toolbar}>{toolbar.render()}</div> : null}
-
         {canRemoveAll ? (
-          <Button
+          <button
             aria-label="Eliminar todos"
-            className={styles.removeAllButton}
-            icon={<DeleteOutlined />}
+            className={joinClasses(styles.iconButton, styles.removeAllFloatingButton)}
             onClick={removeAllTags}
-            type="text"
-          />
+            type="button"
+          >
+            <DeleteOutlined />
+          </button>
         ) : null}
-      </div>
 
-      {visibleTags.length > 0 ? (
-        <div aria-label="Etiquetas seleccionadas" className={styles.tags} role="list">
-          {visibleTags.map((tag) => (
-            <Tag className={styles.tag} key={tag} role="listitem">
-              <span>{tag}</span>
-              {!isDisabled ? (
-                <button
-                  aria-label={`Eliminar ${tag}`}
-                  className={styles.tagRemoveButton}
-                  onClick={() => removeTag(tag)}
-                  type="button"
-                >
-                  <CloseOutlined />
-                </button>
-              ) : null}
-            </Tag>
-          ))}
-        </div>
-      ) : null}
+        {toolbar ? <div className={styles.toolbar}>{toolbar.render()}</div> : null}
+      </div>
 
       {helperText ? (
         <div
