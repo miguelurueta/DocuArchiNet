@@ -18,6 +18,25 @@ describe("PageBreak extension [SPEC:IMPLEMENTACION-PAGINACION-APPEDITOR-09-FE]",
     editor.destroy();
   });
 
+  it("serializa atributos del salto automatico", () => {
+    const editor = new Editor({
+      extensions: buildAppEditorExtensions(),
+      content: "<p>Uno</p>",
+    });
+
+    editor.commands.setTextSelection(3);
+    const inserted = editor.commands.insertPageBreak({
+      auto: true,
+      spacerHeight: 288,
+    });
+
+    expect(inserted).toBe(true);
+    expect(editor.getHTML()).toContain('data-page-break-auto="true"');
+    expect(editor.getHTML()).toContain('data-page-break-spacer="288"');
+
+    editor.destroy();
+  });
+
   it("rehidrata pageBreak desde HTML persistido", () => {
     const editor = new Editor({
       extensions: buildAppEditorExtensions(),

@@ -157,39 +157,9 @@ function applyVisualPaginationLayout({
   pageContentHeight: number;
 }) {
   const pageStride = Math.max(1, pageHeight + pageGap);
-  let cumulativeAppliedGap = 0;
-  const blocks = Array.from(proseMirror.children)
-    .filter((child): child is HTMLElement => child instanceof HTMLElement)
-    .map((block, index, siblings) => {
-      const nextSibling = siblings[index + 1];
-      const blockGapBefore = Number(block.getAttribute("data-pagination-gap-before") ?? "0");
-      cumulativeAppliedGap += blockGapBefore;
-      const naturalTop = Math.max(0, Math.ceil(block.offsetTop - cumulativeAppliedGap));
-      const blockHeight = Math.max(
-        1,
-        Math.ceil(block.offsetHeight || block.getBoundingClientRect().height || block.scrollHeight || 0),
-      );
-      const nextSiblingGapBefore =
-        nextSibling instanceof HTMLElement
-          ? Number(nextSibling.getAttribute("data-pagination-gap-before") ?? "0")
-          : 0;
-      const nextTop =
-        nextSibling instanceof HTMLElement
-          ? Math.max(
-              naturalTop,
-              Math.ceil(nextSibling.offsetTop - (cumulativeAppliedGap + nextSiblingGapBefore)),
-            )
-          : null;
-      const flowHeight = Math.max(blockHeight, nextTop === null ? blockHeight : nextTop - naturalTop);
-
-      return {
-        block,
-        naturalTop,
-        blockHeight,
-        flowHeight,
-        isPageBreak: block.matches('[data-page-break="true"]'),
-      };
-    });
+  const blocks = Array.from(proseMirror.children).filter(
+    (child): child is HTMLElement => child instanceof HTMLElement,
+  );
 
   if (blocks.length === 0) {
     clearBlockShiftStyles(proseMirror);
@@ -199,57 +169,34 @@ function applyVisualPaginationLayout({
     };
   }
 
-  let currentPage = 0;
-  let currentOffsetWithinPage = 0;
-  let cumulativeGapBefore = 0;
   let maxVisualBottom = 0;
 
-  blocks.forEach((entry) => {
-    const requiresNextPage =
-      !entry.isPageBreak &&
-      currentOffsetWithinPage > 0 &&
-      currentOffsetWithinPage + entry.flowHeight > pageContentHeight &&
-      entry.flowHeight <= pageContentHeight;
+  blocks.forEach((block) => {
+    const top = Math.max(0, Math.ceil(block.offsetTop));
+    const height = Math.max(
+      1,
+      Math.ceil(block.offsetHeight || block.getBoundingClientRect().height || block.scrollHeight || 0),
+    );
+    const page = Math.max(1, Math.floor(top / pageStride) + 1);
+    const pageValue = String(page);
 
-    if (requiresNextPage) {
-      currentPage += 1;
-      currentOffsetWithinPage = 0;
+    if (block.style.getPropertyValue("--app-editor-block-gap-before")) {
+      block.style.removeProperty("--app-editor-block-gap-before");
     }
 
-    const visualTop = currentPage * pageStride + currentOffsetWithinPage;
-    const gapBefore = Math.max(0, Math.round(visualTop - entry.naturalTop - cumulativeGapBefore));
-
-    const gapBeforeValue = `${gapBefore}px`;
-    const pageValue = String(currentPage + 1);
-    const gapAttributeValue = String(gapBefore);
-
-    if (entry.block.style.getPropertyValue("--app-editor-block-gap-before") !== gapBeforeValue) {
-      entry.block.style.setProperty("--app-editor-block-gap-before", gapBeforeValue);
+    if (block.getAttribute("data-pagination-page") !== pageValue) {
+      block.setAttribute("data-pagination-page", pageValue);
     }
 
-    if (entry.block.getAttribute("data-pagination-page") !== pageValue) {
-      entry.block.setAttribute("data-pagination-page", pageValue);
+    if (block.getAttribute("data-pagination-gap-before") !== "0") {
+      block.setAttribute("data-pagination-gap-before", "0");
     }
 
-    if (entry.block.getAttribute("data-pagination-gap-before") !== gapAttributeValue) {
-      entry.block.setAttribute("data-pagination-gap-before", gapAttributeValue);
-    }
-
-    cumulativeGapBefore += gapBefore;
-
-    maxVisualBottom = Math.max(maxVisualBottom, visualTop + entry.blockHeight);
-
-    if (entry.isPageBreak) {
-      currentPage += 1;
-      currentOffsetWithinPage = 0;
-      return;
-    }
-
-    currentOffsetWithinPage += entry.flowHeight;
+    maxVisualBottom = Math.max(maxVisualBottom, top + height);
   });
 
   const totalPagesFromLayout = Math.max(
-    currentPage + 1,
+    1,
     Math.max(1, Math.ceil(maxVisualBottom / pageStride)),
   );
   const minimumVisualContentHeight =
@@ -259,6 +206,37 @@ function applyVisualPaginationLayout({
   return {
     totalPagesFromLayout,
     visualContentHeight,
+  };
+}
+
+function collectNaturalPaginationStructure(proseMirror: HTMLElement) {
+  let cumulativeBreakHeight = 0;
+  let naturalContentHeight = 0;
+  const manualBreakOffsets: number[] = [];
+
+  Array.from(proseMirror.children).forEach((child) => {
+    if (!(child instanceof HTMLElement)) {
+      return;
+    }
+
+    const top = Math.max(0, Math.ceil(child.offsetTop - cumulativeBreakHeight));
+    const height = Math.max(
+      0,
+      Math.ceil(child.offsetHeight || child.getBoundingClientRect().height || child.scrollHeight || 0),
+    );
+
+    if (child.matches('[data-page-break="true"]')) {
+      manualBreakOffsets.push(top);
+      cumulativeBreakHeight += height;
+      return;
+    }
+
+    naturalContentHeight = Math.max(naturalContentHeight, top + height);
+  });
+
+  return {
+    contentHeight: naturalContentHeight,
+    manualBreakOffsets,
   };
 }
 
@@ -308,16 +286,16 @@ export function usePaginationMetrics({
       return;
     }
 
+    const naturalStructure = collectNaturalPaginationStructure(proseMirror);
     const nextMetrics = calculatePaginationMetrics({
-      contentHeight: proseMirror.scrollHeight,
+      contentHeight:
+        naturalStructure.contentHeight > 0
+          ? naturalStructure.contentHeight
+          : proseMirror.scrollHeight,
       pageHeight,
       pageGap,
       pageMargins,
-      manualBreakOffsets: Array.from(
-        proseMirror.querySelectorAll('[data-page-break="true"]'),
-      )
-        .filter((element): element is HTMLElement => element instanceof HTMLElement)
-        .map((element) => element.offsetTop),
+      manualBreakOffsets: naturalStructure.manualBreakOffsets,
     });
     const layoutResult = applyVisualPaginationLayout({
       proseMirror,
@@ -378,6 +356,12 @@ export function usePaginationMetrics({
             scheduleMeasure();
           })
         : null;
+    const mutationObserver =
+      typeof MutationObserver !== "undefined"
+        ? new MutationObserver(() => {
+            scheduleMeasure();
+          })
+        : null;
 
     const container = containerRef.current;
     const proseMirror = container?.querySelector(".ProseMirror");
@@ -388,6 +372,12 @@ export function usePaginationMetrics({
 
     if (proseMirror instanceof HTMLElement) {
       resizeObserver?.observe(proseMirror);
+      mutationObserver?.observe(proseMirror, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["style", "data-page-break-spacer"],
+      });
     }
 
     const imageLoadListeners =
@@ -407,6 +397,11 @@ export function usePaginationMetrics({
               };
             })
         : [];
+    const handlePaginationUpdated = () => {
+      scheduleMeasure();
+    };
+
+    proseMirror?.addEventListener("app-editor-pagination-updated", handlePaginationUpdated);
 
     editor?.on("update", scheduleMeasure);
 
@@ -418,9 +413,11 @@ export function usePaginationMetrics({
       }
       window.removeEventListener("resize", handleResize);
       resizeObserver?.disconnect();
+      mutationObserver?.disconnect();
       imageLoadListeners.forEach(({ image, handleImageLoad }) => {
         image.removeEventListener("load", handleImageLoad);
       });
+      proseMirror?.removeEventListener("app-editor-pagination-updated", handlePaginationUpdated);
       editor?.off("update", scheduleMeasure);
     };
   }, [

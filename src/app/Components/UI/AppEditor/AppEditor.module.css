@@ -162,6 +162,11 @@
   border-bottom: 1px solid var(--editor-toolbar-border);
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--editor-toolbar-bg) 96%, #fff 4%) 0%, var(--editor-toolbar-bg) 100%);
+  pointer-events: none;
+}
+
+.toolbar > * {
+  pointer-events: auto;
 }
 
 .toolbarSection {
@@ -416,11 +421,14 @@
   border-radius: 0.35rem;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.52) 100%);
+  pointer-events: none;
 }
 
 .contentFlow {
   position: relative;
   z-index: 1;
+  width: 100%;
+  box-sizing: border-box;
   min-height: max(
     calc(
       var(--app-editor-total-pages) * var(--app-editor-page-height) +
@@ -438,6 +446,8 @@
 }
 
 .surfacePaged {
+  width: 100%;
+  box-sizing: border-box;
   min-height: max(
     calc(
       var(--app-editor-total-pages) * var(--app-editor-page-height) +
@@ -491,6 +501,8 @@
 }
 
 .editorContentPaged {
+  width: 100%;
+  box-sizing: border-box;
   min-height: var(--app-editor-visual-content-height, var(--app-editor-min-height));
   overflow: visible;
 }
@@ -515,19 +527,51 @@
 }
 
 .editorContentPaged :global(.ProseMirror) {
+  width: 100%;
+  box-sizing: border-box;
   min-height: max(
     calc(
       var(--app-editor-page-height) - var(--app-editor-page-margin-top) - var(--app-editor-page-margin-bottom)
     ),
     var(--app-editor-min-height)
   );
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   padding: 0;
   overflow: visible;
   background: transparent;
 }
 
 .editorContentPaged :global(.ProseMirror > *) {
+  flex: 0 0 auto;
+  margin: 0 !important;
   border-top: var(--app-editor-block-gap-before, 0px) solid transparent;
+}
+
+.editorContentPaged
+  :global(.ProseMirror > :not([data-page-break="true"]) + :not([data-page-break="true"])) {
+  margin-top: 0.75rem !important;
+}
+
+.editorContentPaged :global(.ProseMirror > h1 + :not([data-page-break="true"])),
+.editorContentPaged :global(.ProseMirror > h2 + :not([data-page-break="true"])),
+.editorContentPaged :global(.ProseMirror > h3 + :not([data-page-break="true"])) {
+  margin-top: 0.85rem !important;
+}
+
+.editorContentPaged :global(.ProseMirror > :not([data-page-break="true"]) + h1),
+.editorContentPaged :global(.ProseMirror > :not([data-page-break="true"]) + h2),
+.editorContentPaged :global(.ProseMirror > :not([data-page-break="true"]) + h3) {
+  margin-top: 1.1rem !important;
+}
+
+.editorContentPaged :global(.ProseMirror > [data-page-break="true"] + *) {
+  margin-top: 0 !important;
+}
+
+.editorContentPaged :global(.ProseMirror .app-editor-image-node) {
+  margin: 0;
 }
 
 .editorContent :global(.ProseMirror::-webkit-scrollbar) {
@@ -592,41 +636,104 @@
   text-underline-offset: 0.16em;
 }
 
-.editorContent :global(.ProseMirror img) {
+.editorContent :global(.ProseMirror .app-editor-image-node) {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 1rem 0;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 0;
+  padding: 0;
+  transition: none;
+  position: relative;
+}
+
+.editorContent :global(.ProseMirror .app-editor-image-node[data-align="left"]) {
+  align-self: stretch;
+}
+
+.editorContent :global(.ProseMirror .app-editor-image-node[data-align="center"]) {
+  align-self: stretch;
+}
+
+.editorContent :global(.ProseMirror .app-editor-image-node[data-align="right"]) {
+  align-self: stretch;
+}
+
+.editorContent :global(.ProseMirror .app-editor-image-node > img) {
   display: block;
   max-width: 100%;
   height: auto;
   border-radius: 0.75rem;
-  margin: 1rem 0;
-  cursor: pointer;
+  margin: 0;
   transition:
     box-shadow 160ms ease,
     outline-color 160ms ease,
     transform 160ms ease;
+  user-select: none;
 }
 
-.editorContent :global(.ProseMirror img[data-align="left"]) {
+.editorContent :global(.ProseMirror .app-editor-image-node > img[data-align="left"]) {
   margin-left: 0;
   margin-right: auto;
 }
 
-.editorContent :global(.ProseMirror img[data-align="center"]) {
+.editorContent :global(.ProseMirror .app-editor-image-node > img[data-align="center"]) {
   margin-left: auto;
   margin-right: auto;
 }
 
-.editorContent :global(.ProseMirror img[data-align="right"]) {
+.editorContent :global(.ProseMirror .app-editor-image-node > img[data-align="right"]) {
   margin-left: auto;
   margin-right: 0;
 }
 
-.editorContent :global(.ProseMirror img:hover) {
+.editorContent :global(.ProseMirror .app-editor-image-node:hover > img) {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--editor-focus) 18%, transparent);
 }
 
-.editorContent :global(.ProseMirror img.ProseMirror-selectednode) {
+.editorContent
+  :global(.ProseMirror .app-editor-image-node[data-selected="true"]),
+.editorContent
+  :global(.ProseMirror .app-editor-image-node[data-app-editor-image-active="true"]),
+.editorContent
+  :global(.ProseMirror .app-editor-image-node.ProseMirror-selectednode) {
+  background: transparent;
+  box-shadow: none;
+}
+
+.editorContent
+  :global(.ProseMirror .app-editor-image-node[data-selected="true"] > img),
+.editorContent
+  :global(.ProseMirror .app-editor-image-node[data-app-editor-image-active="true"] > img),
+.editorContent
+  :global(.ProseMirror .app-editor-image-node[data-app-editor-image-persistent="true"] > img),
+.editorContent
+  :global(.ProseMirror .app-editor-image-node > img[data-app-editor-image-active="true"]),
+.editorContent
+  :global(.ProseMirror .app-editor-image-node > img[data-app-editor-image-persistent="true"]),
+.editorContent
+  :global(.ProseMirror .app-editor-image-node.ProseMirror-selectednode > img) {
   outline: 3px solid color-mix(in srgb, var(--editor-focus) 70%, transparent);
   outline-offset: 2px;
+  box-shadow:
+    0 0 0 6px color-mix(in srgb, var(--editor-focus) 14%, transparent),
+    0 14px 28px color-mix(in srgb, var(--editor-focus) 12%, transparent);
+}
+
+.editorContent
+  :global(.ProseMirror .app-editor-image-node[data-selected="true"]:hover > img),
+.editorContent
+  :global(.ProseMirror .app-editor-image-node[data-app-editor-image-active="true"]:hover > img),
+.editorContent
+  :global(.ProseMirror .app-editor-image-node[data-app-editor-image-persistent="true"]:hover > img),
+.editorContent
+  :global(.ProseMirror .app-editor-image-node > img[data-app-editor-image-active="true"]:hover),
+.editorContent
+  :global(.ProseMirror .app-editor-image-node > img[data-app-editor-image-persistent="true"]:hover),
+.editorContent
+  :global(.ProseMirror .app-editor-image-node.ProseMirror-selectednode:hover > img) {
   box-shadow:
     0 0 0 6px color-mix(in srgb, var(--editor-focus) 14%, transparent),
     0 14px 28px color-mix(in srgb, var(--editor-focus) 12%, transparent);
@@ -639,6 +746,10 @@
   margin: 0;
   border: 0;
   cursor: pointer;
+}
+
+.editorContentPaged :global(.ProseMirror [data-page-break="true"]) {
+  min-height: 0;
 }
 
 .editorContent :global(.ProseMirror [data-page-break="true"]::before) {

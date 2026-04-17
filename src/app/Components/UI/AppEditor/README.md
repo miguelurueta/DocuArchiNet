@@ -147,6 +147,6 @@ export function LockedExamples() {
 
 ## Limitaciones conocidas
 
-- El resize de imagen actual se resuelve por atributos persistidos y controles de toolbar; aun no existe NodeView con drag handles.
+- El resize de imagen actual se resuelve por atributos persistidos y controles de toolbar; no existen drag handles visuales para resize directo sobre la imagen.
 - Ya existe integracion embebida en `gestionCorrespondencia`, ademas de la validacion focalizada del componente shared.
 - Los shortcuts avanzados dependen del comportamiento de Tiptap y no se documentan como API publica estable del componente.

@@ -5,7 +5,11 @@ import type { ResolvedPos } from "@tiptap/pm/model";
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     pageBreak: {
-      insertPageBreak: () => ReturnType;
+      insertPageBreak: (attributes?: {
+        auto?: boolean;
+        mergeOnRemove?: boolean;
+        spacerHeight?: number | null;
+      }) => ReturnType;
     };
   }
 }
@@ -45,6 +49,53 @@ export const PageBreak = Node.create({
   selectable: true,
   isolating: true,
 
+  addAttributes() {
+    return {
+      spacerHeight: {
+        default: null,
+        parseHTML: (element) => {
+          const value = element.getAttribute("data-page-break-spacer");
+          return value ? Number(value) : null;
+        },
+        renderHTML: (attributes) => {
+          const spacerHeight =
+            typeof attributes.spacerHeight === "number" && Number.isFinite(attributes.spacerHeight)
+              ? Math.max(0, Math.round(attributes.spacerHeight))
+              : null;
+
+          if (spacerHeight === null) {
+            return {};
+          }
+
+          return {
+            "data-page-break-spacer": String(spacerHeight),
+            style: `height: ${spacerHeight}px;`,
+          };
+        },
+      },
+      auto: {
+        default: false,
+        parseHTML: (element) => element.getAttribute("data-page-break-auto") === "true",
+        renderHTML: (attributes) =>
+          attributes.auto
+            ? {
+                "data-page-break-auto": "true",
+              }
+            : {},
+      },
+      mergeOnRemove: {
+        default: false,
+        parseHTML: (element) => element.getAttribute("data-page-break-merge") === "true",
+        renderHTML: (attributes) =>
+          attributes.mergeOnRemove
+            ? {
+                "data-page-break-merge": "true",
+              }
+            : {},
+      },
+    };
+  },
+
   parseHTML() {
     return [
       {
@@ -65,7 +116,7 @@ export const PageBreak = Node.create({
   addCommands() {
     return {
       insertPageBreak:
-        () =>
+        (attributes = {}) =>
         ({ state, commands }) => {
           const nodeType = state.schema.nodes[this.name];
           if (!nodeType) {
@@ -79,6 +130,7 @@ export const PageBreak = Node.create({
 
           return commands.insertContent({
             type: this.name,
+            attrs: attributes,
           });
         },
     };

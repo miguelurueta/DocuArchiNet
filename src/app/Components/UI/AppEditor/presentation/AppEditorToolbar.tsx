@@ -1,8 +1,10 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Input, Popover } from "antd";
 import { DownOutlined } from "@ant-design/icons";
-import type { ChangeEvent, ReactNode } from "react";
+import type { ChangeEvent, MouseEvent, ReactNode } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Fragment } from "@tiptap/pm/model";
+import { NodeSelection } from "@tiptap/pm/state";
 import {
   faBold,
   faItalic,
@@ -21,11 +23,15 @@ import {
   faParagraph,
   faChevronDown,
   faHeading,
+  faArrowUp,
+  faArrowDown,
 } from "@fortawesome/free-solid-svg-icons";
 import type { Editor } from "@tiptap/react";
 import { AppDropdown } from "../../AppDropdown";
 import { AppButton } from "../../AppButton";
 import type { AppEditorHeadingLevel } from "../domain/editor.types";
+import { clampSelection } from "../domain/editor.model";
+import { generateEditorImageId } from "../application/localImageIds";
 import styles from "../AppEditor.module.css";
 
 type AppEditorToolbarProps = {
@@ -43,6 +49,20 @@ type ToolbarButtonConfig = {
   isActive?: boolean;
   disabled?: boolean;
   onClick: () => void;
+};
+
+type EditorWithImagePosition = Editor & {
+  __appEditorLastImagePos?: number | null;
+  __appEditorLastImageIdentity?: {
+    imageId?: string | null;
+    localImageId?: string | null;
+    src?: string | null;
+  } | null;
+};
+
+type TextSelectionRange = {
+  from: number;
+  to: number;
 };
 
 const joinClasses = (...values: Array<string | false | null | undefined>) =>
@@ -153,18 +173,130 @@ function canRun(editor: Editor | null, command: (instance: Editor) => boolean) {
 }
 
 function canSetImageAlign(editor: Editor | null) {
-  if (!editor) {
+  if (editor?.isActive("image")) {
+    return true;
+  }
+
+  return getResolvedImagePosition(editor) !== null;
+}
+
+function canMoveResolvedImage(editor: Editor | null, direction: "up" | "down") {
+  if (!editor?.state?.doc) {
     return false;
   }
 
-  const canChain = editor.can().chain().focus() as {
-    setImageAlign?: (align: "left" | "center" | "right") => { run: () => boolean };
+  const position = getResolvedImagePosition(editor);
+  if (position === null) {
+    return false;
+  }
+
+  const entries: Array<{ pos: number; nodeSize: number; typeName: string }> = [];
+  editor.state.doc.forEach((node, offset) => {
+    entries.push({
+      pos: offset,
+      nodeSize: node.nodeSize,
+      typeName: node.type.name,
+    });
+  });
+
+  const imageIndex = entries.findIndex(
+    (entry) => entry.pos === position && entry.typeName === "image",
+  );
+
+  if (imageIndex === -1) {
+    return false;
+  }
+
+  return direction === "up" ? imageIndex > 0 : imageIndex < entries.length - 1;
+}
+
+function moveResolvedImage(editor: Editor | null, direction: "up" | "down") {
+  if (!editor?.state?.doc) {
+    return false;
+  }
+
+  const position = getResolvedImagePosition(editor);
+  if (position === null) {
+    return false;
+  }
+
+  const entries: Array<{ pos: number; node: NonNullable<ReturnType<Editor["state"]["doc"]["nodeAt"]>> }> = [];
+  editor.state.doc.forEach((node, offset) => {
+    entries.push({
+      pos: offset,
+      node,
+    });
+  });
+
+  const imageIndex = entries.findIndex(
+    (entry) => entry.pos === position && entry.node.type.name === "image",
+  );
+
+  if (imageIndex === -1) {
+    return false;
+  }
+
+  const targetIndex = direction === "up" ? imageIndex - 1 : imageIndex + 1;
+  if (targetIndex < 0 || targetIndex >= entries.length) {
+    return false;
+  }
+
+  const nextNodes = entries.map((entry) => entry.node);
+  const [imageNode] = nextNodes.splice(imageIndex, 1);
+  nextNodes.splice(targetIndex, 0, imageNode);
+
+  let transaction = editor.state.tr.replaceWith(
+    0,
+    editor.state.doc.content.size,
+    Fragment.fromArray(nextNodes),
+  );
+
+  let nextImagePosition = 0;
+  for (let index = 0; index < targetIndex; index += 1) {
+    nextImagePosition += nextNodes[index].nodeSize;
+  }
+
+  transaction = transaction.setSelection(
+    NodeSelection.create(transaction.doc, nextImagePosition),
+  );
+  editor.view.dispatch(transaction);
+
+  (editor as EditorWithImagePosition).__appEditorLastImagePos = nextImagePosition;
+  (editor as EditorWithImagePosition).__appEditorLastImageIdentity = {
+    imageId: typeof imageNode.attrs.imageId === "string" ? imageNode.attrs.imageId : null,
+    localImageId:
+      typeof imageNode.attrs.localImageId === "string" ? imageNode.attrs.localImageId : null,
+    src: typeof imageNode.attrs.src === "string" ? imageNode.attrs.src : null,
   };
 
-  return (
-    typeof canChain.setImageAlign === "function" &&
-    canChain.setImageAlign("left").run()
-  );
+  return true;
+}
+
+function runHistoryCommand(editor: Editor | null, action: "undo" | "redo") {
+  if (!editor) {
+    return;
+  }
+
+  const commands = (editor.commands ?? {}) as {
+    undo?: () => boolean;
+    redo?: () => boolean;
+  };
+
+  const directCommand = commands[action];
+  if (typeof directCommand === "function") {
+    directCommand.call(commands);
+    return;
+  }
+
+  const chain = editor.chain() as {
+    undo?: () => { run: () => boolean };
+    redo?: () => { run: () => boolean };
+  };
+
+  const chainedCommand = chain[action];
+  if (typeof chainedCommand === "function") {
+    chainedCommand.call(chain).run();
+  }
 }
 
 function runSetImageAlign(editor: Editor | null, align: "left" | "center" | "right") {
@@ -172,11 +304,16 @@ function runSetImageAlign(editor: Editor | null, align: "left" | "center" | "rig
     return;
   }
 
-  const chain = editor.chain().focus() as {
-    setImageAlign?: (align: "left" | "center" | "right") => { run: () => boolean };
+  if (getResolvedImagePosition(editor) !== null) {
+    updateResolvedImageAttributes(editor, { align });
+    return;
+  }
+
+  const chain = editor.chain() as {
+    setImageAlign?: (value: "left" | "center" | "right") => { run: () => boolean };
   };
 
-  if (typeof chain.setImageAlign === "function") {
+  if (editor.isActive("image") && typeof chain.setImageAlign === "function") {
     chain.setImageAlign(align).run();
   }
 }
@@ -212,26 +349,155 @@ function normalizeImageWidth(value: string) {
 }
 
 function hasActiveImageSelection(editor: Editor | null) {
-  if (!editor) {
-    return false;
+  if (editor?.isActive("image")) {
+    return true;
+  }
+
+  return getResolvedImagePosition(editor) !== null;
+}
+
+function getLastImagePosition(editor: Editor | null) {
+  if (!editor?.state?.doc) {
+    return null;
+  }
+
+  let lastImagePosition: number | null = null;
+
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === "image") {
+      lastImagePosition = pos;
+    }
+  });
+
+  return lastImagePosition;
+}
+
+function getResolvedImagePosition(editor: Editor | null) {
+  if (!editor || !editor.state?.doc) {
+    return null;
   }
 
   const selection = editor.state?.selection as
     | {
+        from?: number;
         node?: { type?: { name?: string } } | null;
         $anchor?: { parent?: { type?: { name?: string } } };
       }
     | undefined;
 
-  if (editor.isActive("image")) {
-    return true;
+  if (selection?.node?.type?.name === "image" && typeof selection.from === "number") {
+    return selection.from;
   }
 
-  if (selection?.node?.type?.name === "image") {
-    return true;
+  const lastImagePosition = (editor as EditorWithImagePosition).__appEditorLastImagePos;
+  if (
+    typeof lastImagePosition === "number" &&
+    editor.state.doc.nodeAt(lastImagePosition)?.type.name === "image"
+  ) {
+    return lastImagePosition;
   }
 
-  return selection?.$anchor?.parent?.type?.name === "image";
+  const lastImageIdentity = (editor as EditorWithImagePosition).__appEditorLastImageIdentity;
+  if (lastImageIdentity) {
+    let matchedPosition: number | null = null;
+
+    editor.state.doc.descendants((node, pos) => {
+      if (matchedPosition !== null || node.type.name !== "image") {
+        return false;
+      }
+
+      const nodeImageId = typeof node.attrs.imageId === "string" ? node.attrs.imageId : null;
+      const nodeLocalImageId =
+        typeof node.attrs.localImageId === "string" ? node.attrs.localImageId : null;
+      const nodeSrc = typeof node.attrs.src === "string" ? node.attrs.src : null;
+
+      if (
+        (lastImageIdentity.imageId && nodeImageId === lastImageIdentity.imageId) ||
+        (lastImageIdentity.localImageId &&
+          nodeLocalImageId === lastImageIdentity.localImageId) ||
+        (lastImageIdentity.src && nodeSrc === lastImageIdentity.src)
+      ) {
+        matchedPosition = pos;
+        return false;
+      }
+
+      return undefined;
+    });
+
+    if (matchedPosition !== null) {
+      return matchedPosition;
+    }
+  }
+
+  let imageCount = 0;
+  let singleImagePosition: number | null = null;
+
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name !== "image") {
+      return;
+    }
+
+    imageCount += 1;
+    if (imageCount === 1) {
+      singleImagePosition = pos;
+    }
+  });
+
+  if (imageCount === 1) {
+    return singleImagePosition;
+  }
+
+  return getLastImagePosition(editor);
+}
+
+function getResolvedImageAttributes(editor: Editor | null) {
+  const position = getResolvedImagePosition(editor);
+
+  if (!editor || position === null) {
+    return null;
+  }
+
+  const node = editor.state.doc.nodeAt(position);
+  if (!node || node.type.name !== "image") {
+    return null;
+  }
+
+  return node.attrs as Record<string, unknown>;
+}
+
+function updateResolvedImageAttributes(
+  editor: Editor | null,
+  attrs: Record<string, unknown>,
+) {
+  const position = getResolvedImagePosition(editor);
+
+  if (!editor || position === null) {
+    return false;
+  }
+
+  const node = editor.state.doc.nodeAt(position);
+  if (!node || node.type.name !== "image") {
+    return false;
+  }
+
+  let transaction = editor.state.tr.setNodeMarkup(position, undefined, {
+    ...node.attrs,
+    ...attrs,
+  });
+
+  const nextNode = transaction.doc.nodeAt(position);
+  if (nextNode?.type.name === "image") {
+    transaction = transaction.setSelection(NodeSelection.create(transaction.doc, position));
+  }
+
+  editor.view.dispatch(transaction);
+  (editor as EditorWithImagePosition).__appEditorLastImagePos = position;
+  (editor as EditorWithImagePosition).__appEditorLastImageIdentity = {
+    imageId: typeof node.attrs.imageId === "string" ? node.attrs.imageId : null,
+    localImageId: typeof node.attrs.localImageId === "string" ? node.attrs.localImageId : null,
+    src: typeof node.attrs.src === "string" ? node.attrs.src : null,
+  };
+  return true;
 }
 
 function AppEditorToolbarComponent({
@@ -242,16 +508,134 @@ function AppEditorToolbarComponent({
   trailingContent,
 }: AppEditorToolbarProps) {
   const isBlocked = disabled || !editor;
+  const [, setEditorSnapshotVersion] = useState(0);
   const isCompactToolbar = useCompactToolbarMode();
   const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false);
   const [isImagePopoverOpen, setIsImagePopoverOpen] = useState(false);
+  const [isAlignDropdownOpen, setIsAlignDropdownOpen] = useState(false);
   const [linkValue, setLinkValue] = useState("");
   const [imageUrlValue, setImageUrlValue] = useState("");
   const [imageWidthValue, setImageWidthValue] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const alignSelectionRef = useRef<{ from: number; to: number } | null>(null);
+  const textSelectionRef = useRef<TextSelectionRange | null>(null);
   const hasSelectedImage = hasActiveImageSelection(editor);
 
-  const handleHeadingChange = (value: string) => {
+  useEffect(() => {
+    if (!editor || typeof (editor as { on?: unknown }).on !== "function") {
+      return undefined;
+    }
+
+    const syncToolbarState = () => {
+      const selection = editor.state?.selection;
+      if (
+        selection &&
+        typeof selection.from === "number" &&
+        typeof selection.to === "number" &&
+        selection.from !== selection.to &&
+        selection.node?.type?.name !== "image"
+      ) {
+        textSelectionRef.current = {
+          from: selection.from,
+          to: selection.to,
+        };
+      }
+
+      setEditorSnapshotVersion((currentVersion) => currentVersion + 1);
+    };
+
+    editor.on("transaction", syncToolbarState);
+    editor.on("selectionUpdate", syncToolbarState);
+    editor.on("focus", syncToolbarState);
+    editor.on("blur", syncToolbarState);
+
+    return () => {
+      if (typeof (editor as { off?: unknown }).off !== "function") {
+        return;
+      }
+
+      editor.off("transaction", syncToolbarState);
+      editor.off("selectionUpdate", syncToolbarState);
+      editor.off("focus", syncToolbarState);
+      editor.off("blur", syncToolbarState);
+    };
+  }, [editor]);
+
+  const handleToolbarMouseDownCapture = useCallback((event: MouseEvent<HTMLDivElement>) => {
+    const target = event.target;
+
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+
+    if (
+      target.closest("input") ||
+      target.closest("textarea") ||
+      target.closest('[contenteditable="true"]') ||
+      target.closest('[role="menu"]') ||
+      target.closest(".ant-popover") ||
+      target.closest(".ant-dropdown")
+    ) {
+      return;
+    }
+
+    const selection = editor?.state?.selection;
+    if (
+      selection &&
+      typeof selection.from === "number" &&
+      typeof selection.to === "number" &&
+      selection.from !== selection.to &&
+      selection.node?.type?.name !== "image"
+    ) {
+      textSelectionRef.current = {
+        from: selection.from,
+        to: selection.to,
+      };
+    }
+
+    event.preventDefault();
+  }, [editor]);
+
+  const runWithPreservedTextSelection = useCallback(
+    (applyCommand: (chain: Editor["chain"] extends () => infer T ? T : never) => { run: () => boolean }) => {
+      if (!editor || disabled) {
+        return;
+      }
+
+      const maxPosition = editor.state?.doc?.content?.size;
+      const currentSelection =
+        editor.state?.selection &&
+        typeof editor.state.selection.from === "number" &&
+        typeof editor.state.selection.to === "number" &&
+        editor.state.selection.from !== editor.state.selection.to &&
+        editor.state.selection.node?.type?.name !== "image"
+          ? {
+              from: editor.state.selection.from,
+              to: editor.state.selection.to,
+            }
+          : null;
+      const savedSelection = currentSelection ?? textSelectionRef.current;
+      let chain = editor.chain().focus() as Editor["chain"] extends () => infer T ? T : never;
+
+      if (
+        savedSelection &&
+        typeof maxPosition === "number" &&
+        typeof (chain as { setTextSelection?: unknown }).setTextSelection === "function"
+      ) {
+        chain = (chain as {
+          setTextSelection: (selection: TextSelectionRange) => Editor["chain"] extends () => infer T ? T : never;
+        }).setTextSelection({
+          from: clampSelection(savedSelection.from, maxPosition),
+          to: clampSelection(savedSelection.to, maxPosition),
+        });
+      }
+
+      applyCommand(chain).run();
+    },
+    [disabled, editor],
+  );
+
+  const handleHeadingChange = useCallback((value: string) => {
     if (!editor || disabled) {
       return;
     }
@@ -263,9 +647,9 @@ function AppEditorToolbarComponent({
 
     const level = Number(value.replace("h", "")) as AppEditorHeadingLevel;
     editor.chain().focus().toggleHeading({ level }).run();
-  };
+  }, [disabled, editor]);
 
-  const handleOpenLinkPopover = (open: boolean) => {
+  const handleOpenLinkPopover = useCallback((open: boolean) => {
     if (disabled || !editor) {
       setIsLinkPopoverOpen(false);
       return;
@@ -277,9 +661,9 @@ function AppEditorToolbarComponent({
     }
 
     setIsLinkPopoverOpen(open);
-  };
+  }, [disabled, editor]);
 
-  const handleApplyLink = () => {
+  const handleApplyLink = useCallback(() => {
     if (!editor || disabled) {
       return;
     }
@@ -299,16 +683,38 @@ function AppEditorToolbarComponent({
       .run();
 
     setIsLinkPopoverOpen(false);
-  };
+  }, [disabled, editor, linkValue]);
 
-  const handleOpenImagePopover = (open: boolean) => {
+  const handleOpenImagePopover = useCallback((open: boolean) => {
     if (disabled || !editor) {
       setIsImagePopoverOpen(false);
       return;
     }
 
     if (open) {
-      const currentWidth = editor.getAttributes("image").width as string | undefined;
+      const resolvedPosition = getResolvedImagePosition(editor);
+      if (resolvedPosition !== null) {
+        const resolvedNode = editor.state.doc.nodeAt(resolvedPosition);
+        if (resolvedNode?.type.name === "image") {
+          (editor as EditorWithImagePosition).__appEditorLastImagePos = resolvedPosition;
+          (editor as EditorWithImagePosition).__appEditorLastImageIdentity = {
+            imageId:
+              typeof resolvedNode.attrs.imageId === "string"
+                ? resolvedNode.attrs.imageId
+                : null,
+            localImageId:
+              typeof resolvedNode.attrs.localImageId === "string"
+                ? resolvedNode.attrs.localImageId
+                : null,
+            src: typeof resolvedNode.attrs.src === "string" ? resolvedNode.attrs.src : null,
+          };
+        }
+      }
+
+      const currentImageAttributes =
+        getResolvedImageAttributes(editor) ??
+        (editor.getAttributes("image") as Record<string, unknown>);
+      const currentWidth = currentImageAttributes?.width as string | undefined;
       setImageWidthValue(currentWidth ?? "");
     }
 
@@ -318,9 +724,61 @@ function AppEditorToolbarComponent({
     }
 
     setIsImagePopoverOpen(open);
-  };
+  }, [disabled, editor]);
 
-  const handleApplyImageUrl = () => {
+  const handleAlignDropdownOpenChange = useCallback((open: boolean) => {
+    if (
+      open &&
+      editor &&
+      editor.state?.selection &&
+      typeof editor.state.selection.from === "number" &&
+      typeof editor.state.selection.to === "number"
+    ) {
+      alignSelectionRef.current = {
+        from: editor.state.selection.from,
+        to: editor.state.selection.to,
+      };
+    } else if (open) {
+      alignSelectionRef.current = null;
+    }
+
+    setIsAlignDropdownOpen(open);
+  }, [editor]);
+
+  const applySavedTextAlign = useCallback((align: "left" | "center" | "right" | "justify") => {
+    if (!editor || disabled) {
+      return;
+    }
+
+    const savedSelection = alignSelectionRef.current;
+    const maxPosition = editor.state?.doc?.content?.size;
+    const chain = editor.chain().focus() as {
+      setTextSelection?: (selection: { from: number; to: number }) => {
+        setTextAlign: (value: "left" | "center" | "right" | "justify") => { run: () => boolean };
+      };
+      setTextAlign: (value: "left" | "center" | "right" | "justify") => { run: () => boolean };
+    };
+
+    if (
+      savedSelection &&
+      typeof maxPosition === "number" &&
+      typeof chain.setTextSelection === "function"
+    ) {
+      chain
+        .setTextSelection({
+          from: clampSelection(savedSelection.from, maxPosition),
+          to: clampSelection(savedSelection.to, maxPosition),
+        })
+        .setTextAlign(align)
+        .run();
+    } else {
+      chain.setTextAlign(align).run();
+    }
+
+    setIsAlignDropdownOpen(false);
+  }, [disabled, editor]);
+
+  const handleApplyImageUrl = useCallback(() => {
     if (!editor || disabled) {
       return;
     }
@@ -328,13 +786,19 @@ function AppEditorToolbarComponent({
     const normalizedWidth = normalizeImageWidth(imageWidthValue);
     const normalizedSrc = imageUrlValue.trim();
     if (!normalizedSrc && hasSelectedImage) {
-      editor
-        .chain()
-        .focus()
-        .updateAttributes("image", {
+      if (editor.isActive("image")) {
+        editor
+          .chain()
+          .focus()
+          .updateAttributes("image", {
+            width: normalizedWidth ?? null,
+          })
+          .run();
+      } else {
+        updateResolvedImageAttributes(editor, {
           width: normalizedWidth ?? null,
-        })
-        .run();
+        });
+      }
       setIsImagePopoverOpen(false);
       return;
     }
@@ -347,6 +811,7 @@ function AppEditorToolbarComponent({
       .chain()
       .focus()
       .setImage({
+        imageId: generateEditorImageId(),
         src: formatUrl(normalizedSrc),
       })
       .run();
@@ -364,9 +829,9 @@ function AppEditorToolbarComponent({
     setImageUrlValue("");
     setImageWidthValue("");
     setIsImagePopoverOpen(false);
-  };
+  }, [disabled, editor, hasSelectedImage, imageUrlValue, imageWidthValue]);
 
-  const handleApplyImagePreset = (preset: string) => {
+  const handleApplyImagePreset = useCallback((preset: string) => {
     if (!editor || disabled) {
       return;
     }
@@ -374,17 +839,23 @@ function AppEditorToolbarComponent({
     setImageWidthValue(preset);
 
     if (hasSelectedImage) {
-      editor
-        .chain()
-        .focus()
-        .updateAttributes("image", {
+      if (editor.isActive("image")) {
+        editor
+          .chain()
+          .focus()
+          .updateAttributes("image", {
+            width: preset,
+          })
+          .run();
+      } else {
+        updateResolvedImageAttributes(editor, {
           width: preset,
-        })
-        .run();
+        });
+      }
     }
-  };
+  }, [disabled, editor, hasSelectedImage]);
 
-  const handleImageFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleImageFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !editor || disabled) {
       return;
@@ -400,9 +871,9 @@ function AppEditorToolbarComponent({
     setImageUrlValue("");
     setImageWidthValue("");
     setIsImagePopoverOpen(false);
-  };
+  }, [disabled, editor, imageWidthValue, onInsertLocalImage]);
 
-  const linkPopoverContent = (
+  const linkPopoverContent = useMemo(() => (
     <div className={styles.toolbarPopoverContent}>
       <label className={styles.toolbarPopoverLabel} htmlFor="app-editor-link-url">
         URL del enlace
@@ -436,9 +907,9 @@ function AppEditorToolbarComponent({
         </AppButton>
       </div>
     </div>
-  );
+  ), [editor, disabled, handleApplyLink, isBlocked, linkValue]);
 
-  const imagePopoverContent = (
+  const imagePopoverContent = useMemo(() => (
     <div className={styles.toolbarPopoverContent}>
       <label className={styles.toolbarPopoverLabel} htmlFor="app-editor-image-url">
         URL de la imagen
@@ -509,6 +980,31 @@ function AppEditorToolbarComponent({
               <FontAwesomeIcon icon={faAlignRight} />
             </AppButton>
           </div>
+          <label className={styles.toolbarPopoverLabel}>Mover imagen</label>
+          <div
+            className={styles.toolbarPresetGroup}
+            role="group"
+            aria-label="Movimiento vertical de imagen"
+          >
+            <AppButton
+              variant="ghost"
+              size="sm"
+              aria-label="Mover arriba"
+              onClick={() => moveResolvedImage(editor, "up")}
+              disabled={isBlocked || !canMoveResolvedImage(editor, "up")}
+            >
+              <FontAwesomeIcon icon={faArrowUp} />
+            </AppButton>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              aria-label="Mover abajo"
+              onClick={() => moveResolvedImage(editor, "down")}
+              disabled={isBlocked || !canMoveResolvedImage(editor, "down")}
+            >
+              <FontAwesomeIcon icon={faArrowDown} />
+            </AppButton>
+          </div>
         </>
       ) : null}
       <div className={styles.toolbarPopoverActions}>
@@ -533,9 +1029,19 @@ function AppEditorToolbarComponent({
         tabIndex={-1}
       />
     </div>
-  );
+  ), [
+    disabled,
+    editor,
+    handleApplyImagePreset,
+    handleApplyImageUrl,
+    handleImageFileChange,
+    hasSelectedImage,
+    imageUrlValue,
+    imageWidthValue,
+    isBlocked,
+  ]);
 
-  const renderActionButton = (button: ToolbarButtonConfig) => {
+  const renderActionButton = useCallback((button: ToolbarButtonConfig) => {
     if (button.key === "link") {
       return (
         <Popover
@@ -599,16 +1105,16 @@ function AppEditorToolbarComponent({
         className={joinClasses(button.isActive && styles.toolbarButtonActive)}
       />
     );
-  };
+  }, [handleOpenImagePopover, handleOpenLinkPopover, imagePopoverContent, isImagePopoverOpen, isLinkPopoverOpen, linkPopoverContent]);
 
-  const buttons: ToolbarButtonConfig[] = [
+  const buttons: ToolbarButtonConfig[] = useMemo(() => [
     {
       key: "bold",
       label: "Negrita",
       icon: faBold,
       isActive: editor?.isActive("bold"),
       disabled: isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().toggleBold().run()),
-      onClick: () => editor?.chain().focus().toggleBold().run(),
+      onClick: () => runWithPreservedTextSelection((chain) => chain.toggleBold()),
     },
     {
       key: "italic",
@@ -616,7 +1122,7 @@ function AppEditorToolbarComponent({
       icon: faItalic,
       isActive: editor?.isActive("italic"),
       disabled: isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().toggleItalic().run()),
-      onClick: () => editor?.chain().focus().toggleItalic().run(),
+      onClick: () => runWithPreservedTextSelection((chain) => chain.toggleItalic()),
     },
     {
       key: "underline",
@@ -624,7 +1130,7 @@ function AppEditorToolbarComponent({
       icon: faUnderline,
       isActive: editor?.isActive("underline"),
       disabled: isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().toggleUnderline().run()),
-      onClick: () => editor?.chain().focus().toggleUnderline().run(),
+      onClick: () => runWithPreservedTextSelection((chain) => chain.toggleUnderline()),
     },
     {
       key: "bullet-list",
@@ -633,7 +1139,7 @@ function AppEditorToolbarComponent({
       isActive: editor?.isActive("bulletList"),
       disabled:
         isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().toggleBulletList().run()),
-      onClick: () => editor?.chain().focus().toggleBulletList().run(),
+      onClick: () => runWithPreservedTextSelection((chain) => chain.toggleBulletList()),
     },
     {
       key: "ordered-list",
@@ -642,7 +1148,7 @@ function AppEditorToolbarComponent({
       isActive: editor?.isActive("orderedList"),
       disabled:
         isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().toggleOrderedList().run()),
-      onClick: () => editor?.chain().focus().toggleOrderedList().run(),
+      onClick: () => runWithPreservedTextSelection((chain) => chain.toggleOrderedList()),
     },
     {
       key: "task-list",
@@ -651,21 +1157,21 @@ function AppEditorToolbarComponent({
       isActive: editor?.isActive("taskList"),
       disabled:
         isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().toggleTaskList().run()),
-      onClick: () => editor?.chain().focus().toggleTaskList().run(),
+      onClick: () => runWithPreservedTextSelection((chain) => chain.toggleTaskList()),
     },
     {
       key: "undo",
       label: "Deshacer",
       icon: faArrowRotateLeft,
-      disabled: isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().undo().run()),
-      onClick: () => editor?.chain().focus().undo().run(),
+      disabled: isBlocked,
+      onClick: () => runHistoryCommand(editor, "undo"),
     },
     {
       key: "redo",
       label: "Rehacer",
       icon: faArrowRotateRight,
-      disabled: isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().redo().run()),
-      onClick: () => editor?.chain().focus().redo().run(),
+      disabled: isBlocked,
+      onClick: () => runHistoryCommand(editor, "redo"),
     },
     {
       key: "link",
@@ -682,74 +1188,80 @@ function AppEditorToolbarComponent({
       disabled: isBlocked,
       onClick: () => undefined,
     },
-  ];
+  ], [editor, isBlocked, runWithPreservedTextSelection]);
 
-  const groupedButtons = {
+  const groupedButtons = useMemo(() => ({
     formatting: buttons.filter((button) => TOOLBAR_GROUPS.formatting.includes(button.key as never)),
     structure: buttons.filter((button) => TOOLBAR_GROUPS.structure.includes(button.key as never)),
     history: buttons.filter((button) => TOOLBAR_GROUPS.history.includes(button.key as never)),
     insert: buttons.filter((button) => TOOLBAR_GROUPS.insert.includes(button.key as never)),
-  };
+  }), [buttons]);
 
-  const currentHeading = getHeadingOption(getCurrentHeadingValue(editor));
-  const currentTextAlign = getTextAlignMeta(getCurrentTextAlign(editor));
-  const headingItems = HEADING_OPTIONS.map((option) => ({
+  const currentHeading = useMemo(
+    () => getHeadingOption(getCurrentHeadingValue(editor)),
+    [editor],
+  );
+  const currentTextAlign = useMemo(
+    () => getTextAlignMeta(getCurrentTextAlign(editor)),
+    [editor],
+  );
+  const headingItems = useMemo(() => HEADING_OPTIONS.map((option) => ({
     key: option.value,
     label: option.label,
     leftIcon: <FontAwesomeIcon icon={option.icon} />,
     onSelect: () => handleHeadingChange(option.value),
-  }));
-  const alignItems = [
+  })), [handleHeadingChange]);
+  const alignItems = useMemo(() => [
     {
       key: "align-left",
       label: "Izquierda",
       leftIcon: <FontAwesomeIcon icon={faAlignLeft} />,
-      onSelect: () => editor?.chain().focus().setTextAlign("left").run(),
+      onSelect: () => applySavedTextAlign("left"),
     },
     {
       key: "align-center",
       label: "Centro",
       leftIcon: <FontAwesomeIcon icon={faAlignCenter} />,
-      onSelect: () => editor?.chain().focus().setTextAlign("center").run(),
+      onSelect: () => applySavedTextAlign("center"),
     },
     {
       key: "align-right",
       label: "Derecha",
       leftIcon: <FontAwesomeIcon icon={faAlignRight} />,
-      onSelect: () => editor?.chain().focus().setTextAlign("right").run(),
+      onSelect: () => applySavedTextAlign("right"),
     },
     {
       key: "align-justify",
       label: "Justificar",
       leftIcon: <FontAwesomeIcon icon={faAlignJustify} />,
-      onSelect: () => editor?.chain().focus().setTextAlign("justify").run(),
+      onSelect: () => applySavedTextAlign("justify"),
     },
-  ];
-  const structureItems = [
+  ], [applySavedTextAlign]);
+  const structureItems = useMemo(() => [
     {
       key: "bullet-list",
       label: "Lista con vietas",
       leftIcon: <FontAwesomeIcon icon={faListUl} />,
-      onSelect: () => editor?.chain().focus().toggleBulletList().run(),
+      onSelect: () => runWithPreservedTextSelection((chain) => chain.toggleBulletList()),
     },
     {
       key: "ordered-list",
       label: "Lista numerada",
       leftIcon: <FontAwesomeIcon icon={faListOl} />,
-      onSelect: () => editor?.chain().focus().toggleOrderedList().run(),
+      onSelect: () => runWithPreservedTextSelection((chain) => chain.toggleOrderedList()),
     },
     {
       key: "task-list",
       label: "Lista de tareas",
       leftIcon: <FontAwesomeIcon icon={faListCheck} />,
-      onSelect: () => editor?.chain().focus().toggleTaskList().run(),
+      onSelect: () => runWithPreservedTextSelection((chain) => chain.toggleTaskList()),
     },
-  ];
-  const renderButtonGroup = (group: ToolbarButtonConfig[], label: string) => (
+  ], [runWithPreservedTextSelection]);
+  const renderButtonGroup = useCallback((group: ToolbarButtonConfig[], label: string) => (
     <div className={styles.toolbarButtonGroup} role="group" aria-label={label}>
       {group.map((button) => renderActionButton(button))}
     </div>
-  );
+  ), [renderActionButton]);
 
   return (
     <div
@@ -757,6 +1269,7 @@ function AppEditorToolbarComponent({
       role="toolbar"
       aria-label="Barra de herramientas del editor"
       data-toolbar-mode={isCompactToolbar ? "compact" : "default"}
+      onMouseDownCapture={handleToolbarMouseDownCapture}
     >
       <div className={styles.toolbarSection} data-group="heading">
         <AppDropdown
@@ -808,6 +1321,8 @@ function AppEditorToolbarComponent({
         )}
         <div className={styles.toolbarButtonGroup} role="group" aria-label="Alineacion">
           <AppDropdown
+            open={isAlignDropdownOpen}
+            onOpenChange={handleAlignDropdownOpenChange}
             trigger={
               <AppButton
                 variant="ghost"

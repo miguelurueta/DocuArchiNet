@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { AppEditorProps } from "../domain/editor.types";
 import { useAppEditor } from "../application/useAppEditor";
@@ -128,13 +128,20 @@ export function AppEditor({
   onZoomChange,
   "aria-label": ariaLabel,
 }: AppEditorProps) {
+  const resolvedPageMarginsTop = pageMargins?.top ?? DEFAULT_PAGE_MARGINS.top;
+  const resolvedPageMarginsRight = pageMargins?.right ?? DEFAULT_PAGE_MARGINS.right;
+  const resolvedPageMarginsBottom = pageMargins?.bottom ?? DEFAULT_PAGE_MARGINS.bottom;
+  const resolvedPageMarginsLeft = pageMargins?.left ?? DEFAULT_PAGE_MARGINS.left;
   const fieldId = useId();
   const paginationContainerRef = useRef<HTMLDivElement>(null);
   const paginationCanvasRef = useRef<HTMLDivElement>(null);
   const labelId = label ? `${fieldId}-label` : undefined;
   const helperId = helperText ? `${fieldId}-helper` : undefined;
   const errorId = error ? `${fieldId}-error` : undefined;
-  const describedBy = [errorId, helperId].filter(Boolean).join(" ") || undefined;
+  const describedBy = useMemo(
+    () => [errorId, helperId].filter(Boolean).join(" ") || undefined,
+    [errorId, helperId],
+  );
   const resolvedThemeMode = themeMode ?? defaultThemeMode;
   const isVisualPagination = paginationMode === "visual";
   const resolvedMinZoomLevel = Math.min(minZoomLevel, maxZoomLevel);
@@ -143,12 +150,29 @@ export function AppEditor({
   const [uncontrolledZoomLevel, setUncontrolledZoomLevel] = useState(() =>
     normalizeZoomLevel(defaultZoomLevel, resolvedMinZoomLevel, resolvedMaxZoomLevel),
   );
-  const paginationMetrics = resolvePaginationMetrics({
-    minHeight,
-    pageFormat,
-    pageOrientation,
-    pageMargins,
-  });
+  const paginationMetrics = useMemo(
+    () =>
+      resolvePaginationMetrics({
+        minHeight,
+        pageFormat,
+        pageOrientation,
+        pageMargins: {
+          top: resolvedPageMarginsTop,
+          right: resolvedPageMarginsRight,
+          bottom: resolvedPageMarginsBottom,
+          left: resolvedPageMarginsLeft,
+        },
+      }),
+    [
+      minHeight,
+      pageFormat,
+      pageOrientation,
+      resolvedPageMarginsBottom,
+      resolvedPageMarginsLeft,
+      resolvedPageMarginsRight,
+      resolvedPageMarginsTop,
+    ],
+  );
   const resolvedZoomLevel = normalizeZoomLevel(
     isControlledZoom ? zoomLevel ?? defaultZoomLevel : uncontrolledZoomLevel,
     resolvedMinZoomLevel,
@@ -162,8 +186,13 @@ export function AppEditor({
     placeholder,
     disabled,
     readOnly,
+    paginationMode,
+    pageHeight: paginationMetrics.pageHeightValue,
+    pageGap: paginationMetrics.pageGapValue,
+    pageMargins: paginationMetrics.resolvedMargins,
+    zoomLevel: effectiveZoomLevel,
   });
-  const { totalPages, visualPageBoundaries } = usePaginationMetrics({
+  const { totalPages, visualPageBoundaries, visualContentHeight } = usePaginationMetrics({
     editor,
     enabled: isVisualPagination,
     pageHeight: paginationMetrics.pageHeightValue,
@@ -172,7 +201,10 @@ export function AppEditor({
     containerRef: paginationContainerRef,
     zoomLevel: effectiveZoomLevel,
   });
-  const pageIndices = Array.from({ length: totalPages }, (_, index) => index + 1);
+  const pageIndices = useMemo(
+    () => Array.from({ length: totalPages }, (_, index) => index + 1),
+    [totalPages],
+  );
   const { currentPage } = usePageContext({
     editor,
     enabled: isVisualPagination,
@@ -188,6 +220,89 @@ export function AppEditor({
   const zoomedSheetHeightValue = sheetHeightValue * effectiveZoomLevel;
   const canDecreaseZoom = effectiveZoomLevel > resolvedMinZoomLevel;
   const canIncreaseZoom = effectiveZoomLevel < resolvedMaxZoomLevel;
+  const resolvedAriaLabel = useMemo(
+    () => buildAriaLabel({ "aria-label": ariaLabel, label, title }),
+    [ariaLabel, label, title],
+  );
+  const zoomTrailingContent = useMemo(() => {
+    if (!isVisualPagination) {
+      return null;
+    }
+
+    return (
+      <div className={styles.zoomControls} role="group" aria-label="Control de zoom">
+        <button
+          type="button"
+          className={styles.zoomButton}
+          aria-label="Reducir zoom"
+          disabled={!canDecreaseZoom}
+          onClick={() => handleZoomChange(resolvedZoomLevel - ZOOM_STEP)}
+        >
+          -
+        </button>
+        <output className={styles.zoomValue} aria-live="polite">
+          {Math.round(effectiveZoomLevel * 100)}%
+        </output>
+        <button
+          type="button"
+          className={styles.zoomButton}
+          aria-label="Aumentar zoom"
+          disabled={!canIncreaseZoom}
+          onClick={() => handleZoomChange(resolvedZoomLevel + ZOOM_STEP)}
+        >
+          +
+        </button>
+      </div>
+    );
+  }, [
+    canDecreaseZoom,
+    canIncreaseZoom,
+    effectiveZoomLevel,
+    isVisualPagination,
+    resolvedZoomLevel,
+  ]);
+  const visualWrapperStyle = useMemo(
+    () =>
+      ({
+        "--app-editor-min-height": paginationMetrics.minHeight,
+        "--app-editor-page-height": paginationMetrics.pageHeight,
+        "--app-editor-page-width": paginationMetrics.pageWidth,
+        "--app-editor-page-gap": paginationMetrics.pageGap,
+        "--app-editor-total-pages": String(totalPages),
+        "--app-editor-page-margin-top": paginationMetrics.marginTop,
+        "--app-editor-page-margin-right": paginationMetrics.marginRight,
+        "--app-editor-page-margin-bottom": paginationMetrics.marginBottom,
+        "--app-editor-page-margin-left": paginationMetrics.marginLeft,
+        "--app-editor-zoom": String(effectiveZoomLevel),
+        "--app-editor-sheet-height": `${sheetHeightValue}px`,
+        "--app-editor-zoomed-sheet-width": `${zoomedSheetWidthValue}px`,
+        "--app-editor-zoomed-sheet-height": `${zoomedSheetHeightValue}px`,
+        "--app-editor-visual-content-height": `${Math.max(
+          visualContentHeight,
+          paginationMetrics.pageHeightValue - resolvedPageMarginsTop - resolvedPageMarginsBottom,
+        )}px`,
+      }) as CSSProperties,
+    [
+      effectiveZoomLevel,
+      paginationMetrics.marginBottom,
+      paginationMetrics.marginLeft,
+      paginationMetrics.marginRight,
+      paginationMetrics.marginTop,
+      paginationMetrics.minHeight,
+      paginationMetrics.pageGap,
+      paginationMetrics.pageHeight,
+      paginationMetrics.pageWidth,
+      sheetHeightValue,
+      totalPages,
+      visualContentHeight,
+      zoomedSheetHeightValue,
+      zoomedSheetWidthValue,
+    ],
+  );
+  const continuousWrapperStyle = useMemo(
+    () => ({ "--app-editor-min-height": paginationMetrics.minHeight }) as CSSProperties,
+    [paginationMetrics.minHeight],
+  );
 
   useEffect(() => {
     if (isControlledZoom) {
@@ -248,55 +363,13 @@ export function AppEditor({
           disabled={!isEditable}
           onInsertLocalImage={insertLocalImage}
           toolbarActions={toolbarActions}
-          trailingContent={
-            isVisualPagination ? (
-              <div className={styles.zoomControls} role="group" aria-label="Control de zoom">
-                <button
-                  type="button"
-                  className={styles.zoomButton}
-                  aria-label="Reducir zoom"
-                  disabled={!canDecreaseZoom}
-                  onClick={() => handleZoomChange(resolvedZoomLevel - ZOOM_STEP)}
-                >
-                  -
-                </button>
-                <output className={styles.zoomValue} aria-live="polite">
-                  {Math.round(effectiveZoomLevel * 100)}%
-                </output>
-                <button
-                  type="button"
-                  className={styles.zoomButton}
-                  aria-label="Aumentar zoom"
-                  disabled={!canIncreaseZoom}
-                  onClick={() => handleZoomChange(resolvedZoomLevel + ZOOM_STEP)}
-                >
-                  +
-                </button>
-              </div>
-            ) : null
-          }
+          trailingContent={zoomTrailingContent}
         />
         {isVisualPagination ? (
           <div
             className={styles.editorWrapper}
             ref={paginationContainerRef}
-            style={
-              {
-                "--app-editor-min-height": paginationMetrics.minHeight,
-                "--app-editor-page-height": paginationMetrics.pageHeight,
-                "--app-editor-page-width": paginationMetrics.pageWidth,
-                "--app-editor-page-gap": paginationMetrics.pageGap,
-                "--app-editor-total-pages": String(totalPages),
-                "--app-editor-page-margin-top": paginationMetrics.marginTop,
-                "--app-editor-page-margin-right": paginationMetrics.marginRight,
-                "--app-editor-page-margin-bottom": paginationMetrics.marginBottom,
-                "--app-editor-page-margin-left": paginationMetrics.marginLeft,
-                "--app-editor-zoom": String(effectiveZoomLevel),
-                "--app-editor-sheet-height": `${sheetHeightValue}px`,
-                "--app-editor-zoomed-sheet-width": `${zoomedSheetWidthValue}px`,
-                "--app-editor-zoomed-sheet-height": `${zoomedSheetHeightValue}px`,
-              } as CSSProperties
-            }
+            style={visualWrapperStyle}
           >
             <div className={styles.canvas} ref={paginationCanvasRef}>
               <div className={styles.zoomStage}>
@@ -323,7 +396,7 @@ export function AppEditor({
                         editor={editor}
                         className={joinClasses(styles.editorContent, styles.editorContentPaged)}
                         aria-labelledby={labelId}
-                        aria-label={buildAriaLabel({ "aria-label": ariaLabel, label, title })}
+                        aria-label={resolvedAriaLabel}
                         aria-describedby={describedBy}
                         aria-invalid={Boolean(error)}
                       />
@@ -345,13 +418,13 @@ export function AppEditor({
               surfaceClassName,
               Boolean(error) && styles.surfaceError,
             )}
-            style={{ "--app-editor-min-height": paginationMetrics.minHeight } as CSSProperties}
+            style={continuousWrapperStyle}
           >
             <TiptapEditorContent
               editor={editor}
               className={styles.editorContent}
               aria-labelledby={labelId}
-              aria-label={buildAriaLabel({ "aria-label": ariaLabel, label, title })}
+              aria-label={resolvedAriaLabel}
               aria-describedby={describedBy}
               aria-invalid={Boolean(error)}
             />
