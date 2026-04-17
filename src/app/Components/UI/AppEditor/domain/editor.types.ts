@@ -48,8 +48,19 @@ export type AppEditorProps = {
 
 export type UseAppEditorOptions = Pick<
   AppEditorProps,
-  "value" | "defaultValue" | "onChange" | "placeholder" | "disabled" | "readOnly"
->;
+  | "value"
+  | "defaultValue"
+  | "onChange"
+  | "placeholder"
+  | "disabled"
+  | "readOnly"
+  | "paginationMode"
+  | "zoomLevel"
+> & {
+  pageHeight?: number;
+  pageGap?: number;
+  pageMargins?: AppEditorPageMargins;
+};
 
 export type UseAppEditorResult = {
   editor: Editor | null;

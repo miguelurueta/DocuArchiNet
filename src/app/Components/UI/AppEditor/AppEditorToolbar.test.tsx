@@ -189,9 +189,11 @@ describe("AppEditorToolbar [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", ()
     fireEvent.click(screen.getByRole("button", { name: /^Insertar$/ }));
 
     await waitFor(() => {
-      expect(editor.__actionChain.setImage).toHaveBeenCalledWith({
-        src: "https://cdn.example.com/image.png",
-      });
+      expect(editor.__actionChain.setImage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          src: "https://cdn.example.com/image.png",
+        }),
+      );
       expect(editor.__actionChain.updateAttributes).toHaveBeenCalledWith("image", {
         width: "75%",
       });

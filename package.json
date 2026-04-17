@@ -9,6 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
     "spec:validate": "node --experimental-strip-types tools/spec-validator/validateSpec.ts",
     "opsxj:new": "node scripts/opsxj.js opsxj:new",
     "opsxj:archive": "node scripts/opsxj.js opsxj:archive",
@@ -55,6 +58,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.59.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^24.10.1",
