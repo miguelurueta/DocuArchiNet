@@ -73,6 +73,37 @@ describe("AppInputTags [SPEC:app-input-tags]", () => {
     expect(screen.getAllByText("Luis")).toHaveLength(1);
   });
 
+  it("variant email agrega correos separados por coma y normaliza a lowercase", async () => {
+    const onAddTag = vi.fn();
+    renderTags({ variant: "email", onAddTag });
+
+    const input = screen.getByLabelText("Destinatarios");
+    expect(input).toHaveAttribute("type", "email");
+
+    fireEvent.change(input, { target: { value: "TEST@EXAMPLE.COM, otra@dom.com" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    await waitFor(() => {
+      expect(onAddTag).toHaveBeenCalledWith("test@example.com");
+    });
+    expect(onAddTag).toHaveBeenCalledWith("otra@dom.com");
+  });
+
+  it("variant email valida formato y muestra helperText cuando es invalido", async () => {
+    const onAddTag = vi.fn();
+    renderTags({ variant: "email", onAddTag });
+
+    const input = screen.getByLabelText("Destinatarios");
+    fireEvent.change(input, { target: { value: "no-es-correo" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Correo inválido/i)).toBeInTheDocument();
+    });
+    expect(onAddTag).not.toHaveBeenCalled();
+    expect(input).toHaveAttribute("aria-invalid", "true");
+  });
+
   it("elimina un tag y elimina todos con acciones accesibles", () => {
     const onRemoveTag = vi.fn();
     const onRemoveAll = vi.fn();
