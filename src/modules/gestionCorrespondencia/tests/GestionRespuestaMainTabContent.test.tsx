@@ -1,13 +1,34 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import { GestionRespuestaMainTabContent } from "../components/gestionRespuestaMainTab/GestionRespuestaMainTabContent";
+import * as estructuraRespuestaHook from "../hooks/useEstructuraRespuestaIdTarea";
+
+vi.mock("../hooks/useEstructuraRespuestaIdTarea", () => ({
+  useEstructuraRespuestaIdTarea: vi.fn(),
+}));
+
+beforeEach(() => {
+  vi.mocked(estructuraRespuestaHook.useEstructuraRespuestaIdTarea).mockReturnValue({
+    estrucTuraRespuesta: {
+      Radicado: "2025-0001",
+      Destinatario: "Contasoft Company",
+      TramiteDocumento: "Respuesta a derecho de petición",
+    },
+    loading: false,
+    error: null,
+    isEmpty: false,
+  });
+});
 
 describe("[SCRUMCORE-89] GestionRespuesta main tab workbench", () => {
   test("renderiza toolbar y zona de adjuntos", () => {
     render(<GestionRespuestaMainTabContent />);
 
+    expect(screen.getByText("2025-0001")).toBeInTheDocument();
+    expect(screen.getByText("Contasoft Company")).toBeInTheDocument();
+    expect(screen.getByText("Respuesta a derecho de petición")).toBeInTheDocument();
     expect(screen.getByText(/Solicitud de Aprobacion/i)).toBeInTheDocument();
-    expect(screen.getByText(/^Guardar$/i)).toBeInTheDocument();
+    expect(screen.queryByText(/^Guardar$/i)).not.toBeInTheDocument();
     expect(screen.getByText(/^Enviar$/i)).toBeInTheDocument();
     expect(screen.getByText(/Adjuntos/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Arrastra archivos/i })).toBeInTheDocument();
