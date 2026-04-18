@@ -1,6 +1,19 @@
 import { CarryOutFilled, MailFilled, ToolOutlined } from "@ant-design/icons";
 import { useEffect, useId, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
+import {
+  LeftOutlined,
+  SaveOutlined,
+  SendOutlined,
+  UserAddOutlined,
+} from "@ant-design/icons";
+import { useEffect, useId, useState } from "react";
+import { AppButton } from "../../../../app/Components/UI/AppButton";
+import {
+  AppEditor,
+  AppEditorSaveAction,
+  useAppEditorSaveState,
+} from "../../../../app/Components/UI/AppEditor";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
 import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
 import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
@@ -60,6 +73,12 @@ export function GestionRespuestaMainTabContent({
           : isEmpty
             ? `Sin datos de estructura para la tarea ${idTareaWf}.`
             : undefined;
+  const [editorValue, setEditorValue] = useState<string>("");
+  const [savedEditorValue, setSavedEditorValue] = useState<string>("");
+  const { saveStatus } = useAppEditorSaveState({
+    currentValue: editorValue,
+    savedValue: savedEditorValue,
+  });
 
   useEffect(() => {
     setIsPanelCollapsed(isCompact);
@@ -110,6 +129,47 @@ export function GestionRespuestaMainTabContent({
           />
           <AppCollapseRail
             title="Herramientas"
+          <GestionRespuestaEditorContainer>
+            <AppEditor
+              value={editorValue}
+              onChange={setEditorValue}
+              toolbarActions={
+                <AppEditorSaveAction
+                  iconOnly
+                  saveStatus={saveStatus}
+                  onSave={() => {
+                    setSavedEditorValue(editorValue);
+                  }}
+                />
+              }
+              placeholder="Escribe aqui la respuesta principal..."
+              aria-label="Contenido del editor principal de respuesta"
+              className={styles.embeddedAppEditor}
+              surfaceClassName={styles.embeddedAppEditorSurface}
+              minHeight="100%"
+              paginationMode="visual"
+              pageFormat="A4"
+              pageOrientation="portrait"
+              pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
+            />
+          </GestionRespuestaEditorContainer>
+          <div className={styles.toolsRail} data-collapsed={isPanelCollapsed}>
+            {isPanelCollapsed ? (
+              <AppButton
+                variant="ghost"
+                size="sm"
+                className={styles.toolsRestore}
+                onClick={() => setIsPanelCollapsed(false)}
+                aria-label="Mostrar panel de herramientas"
+                icon={<LeftOutlined />}
+              >
+                {isCompact ? (
+                  <span className={styles.toolsRestoreLabel}>Herramientas</span>
+                ) : null}
+              </AppButton>
+            ) : null}
+          </div>
+          <GestionRespuestaRightToolsPanel
             collapsed={isPanelCollapsed}
             onToggle={() => setIsPanelCollapsed((prev) => !prev)}
             placement="right"
