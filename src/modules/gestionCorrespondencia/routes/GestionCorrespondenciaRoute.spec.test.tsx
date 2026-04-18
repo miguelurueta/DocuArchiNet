@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, test, vi } from "vitest";
+import * as estructuraRespuestaHook from "../hooks/useEstructuraRespuestaIdTarea";
 import GestionCorrespondenciaLayout from "../layout/GestionCorrespondenciaLayout";
 import GestionRespuesta from "../pages/GestionRespuesta";
 import GestionCorrespondenciaRoute from "./GestionCorrespondenciaRoute";
@@ -8,6 +9,21 @@ import GestionCorrespondenciaRoute from "./GestionCorrespondenciaRoute";
 vi.mock("../pages/GestionCorrespondenciaRoutePage", () => ({
   default: () => <div>Mocked GestionCorrespondenciaRoutePage</div>,
 }));
+
+vi.mock("../hooks/useEstructuraRespuestaIdTarea", () => ({
+  useEstructuraRespuestaIdTarea: vi.fn(),
+}));
+
+vi.mocked(estructuraRespuestaHook.useEstructuraRespuestaIdTarea).mockReturnValue({
+  estrucTuraRespuesta: {
+    Radicado: "2025-0001",
+    Destinatario: "Contasoft Company",
+    TramiteDocumento: "Respuesta a derecho de petición",
+  },
+  loading: false,
+  error: null,
+  isEmpty: false,
+});
 
 function renderGestionCorrespondencia(initialEntry: string) {
   return render(
@@ -44,7 +60,7 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.getByText("Gestion")).toBeInTheDocument();
     expect(screen.getByText("Documentos")).toBeInTheDocument();
-    expect(screen.getByText(/Guardar borrador/i)).toBeInTheDocument();
+    expect(screen.queryByText(/^Guardar$/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Volver a la bandeja/i }));
 
@@ -66,8 +82,10 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
       fireEvent.click(screen.getByRole("tab", { name: /Documentos/i }));
     });
 
-    expect(await screen.findByText(/Detalle operativo/i)).toBeInTheDocument();
-    expect(await screen.findByText(/La integracion funcional se activara/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Contenido principal/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Zona de edicion y lectura del documento seleccionado/i),
+    ).toBeInTheDocument();
   });
 
   test("usa un shell observable con panel superpuesto en lugar de dialog modal", () => {

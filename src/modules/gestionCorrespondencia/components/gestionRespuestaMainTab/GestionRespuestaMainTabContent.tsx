@@ -1,9 +1,10 @@
-import { CarryOutFilled, MailFilled, SaveFilled, ToolOutlined } from "@ant-design/icons";
+import { CarryOutFilled, MailFilled, ToolOutlined } from "@ant-design/icons";
 import { useEffect, useId, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
 import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
 import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
+import { useEstructuraRespuestaIdTarea } from "../../hooks/useEstructuraRespuestaIdTarea";
 import styles from "./GestionRespuestaMainTabContent.module.css";
 import { GestionRespuestaEditorContainer } from "./GestionRespuestaEditorContainer";
 import { GestionRespuestaInfoHeader } from "./GestionRespuestaInfoHeader";
@@ -33,13 +34,32 @@ const useMediaQuery = (query: string) => {
   return matches;
 };
 
-export function GestionRespuestaMainTabContent() {
+type GestionRespuestaMainTabContentProps = {
+  idTareaWf?: number;
+};
+
+export function GestionRespuestaMainTabContent({
+  idTareaWf,
+}: GestionRespuestaMainTabContentProps = {}) {
   const panelId = useId();
   const isCompact = useMediaQuery(DEFAULT_MEDIA_QUERY);
   const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(isCompact);
   const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] = useState(false);
   const [files, setFiles] = useState<AppUploadFile[]>([]);
+  const { estrucTuraRespuesta, loading, error, isEmpty } =
+    useEstructuraRespuestaIdTarea(idTareaWf);
+
+  const headerDescription =
+    typeof idTareaWf !== "number"
+      ? "No se pudo resolver el identificador de la tarea (idTareaWf)."
+      : loading
+        ? "Cargando estructura de respuesta..."
+        : error
+          ? `No fue posible cargar la estructura de respuesta: ${error.message}`
+          : isEmpty
+            ? `Sin datos de estructura para la tarea ${idTareaWf}.`
+            : undefined;
 
   useEffect(() => {
     setIsPanelCollapsed(isCompact);
@@ -48,10 +68,11 @@ export function GestionRespuestaMainTabContent() {
   return (
     <section className={styles.mainTab} aria-label="Contenido principal de respuesta">
       <GestionRespuestaInfoHeader
+        description={headerDescription}
         metadata={[
-          { label: "Origen", value: "Bandeja de correspondencia" },
-          { label: "Estado", value: "Pendiente de validacion" },
-          { label: "SLA", value: "4 horas restantes" },
+          { label: "Radicado", value: loading ? "..." : (estrucTuraRespuesta?.Radicado ?? "-") },
+          { label: "Remitente", value: loading ? "..." : (estrucTuraRespuesta?.Destinatario ?? "-") },
+          { label: "Trámite", value: estrucTuraRespuesta?.TramiteDocumento ?? "-" },
         ]}
       />
 
@@ -65,13 +86,6 @@ export function GestionRespuestaMainTabContent() {
               size: "sm",
               variant: "ghost",
               icon: <CarryOutFilled />,
-            },
-            {
-              key: "guardar",
-              label: "Guardar",
-              size: "sm",
-              variant: "ghost",
-              icon: <SaveFilled />,
             },
             {
               key: "enviar",
