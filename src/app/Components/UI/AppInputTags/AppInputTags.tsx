@@ -7,6 +7,7 @@ import styles from "./AppInputTags.module.css";
 export type AppInputTagsMode = "single" | "multiple";
 export type AppInputTagsSize = "sm" | "md" | "lg";
 export type AppInputTagsState = "default" | "error";
+export type AppInputTagsVariant = "default" | "email";
 
 export type AppInputTagsOption = {
   label: string;
@@ -20,6 +21,7 @@ export type AppInputTagsProps = {
   label?: ReactNode;
   value?: string[];
   defaultValue?: string[];
+  variant?: AppInputTagsVariant;
   mode?: AppInputTagsMode;
   options?: AppInputTagsOption[];
   placeholder?: string;
@@ -59,6 +61,17 @@ const sizeClassBySize: Record<AppInputTagsSize, string> = {
 
 const normalizeTag = (value: string) => value.trim();
 
+const normalizeEmailTag = (value: string) => normalizeTag(value).toLocaleLowerCase();
+
+const splitEmailTags = (value: string) =>
+  value
+    .split(/[,\s;]+/g)
+    .map((candidate) => candidate.trim())
+    .filter(Boolean);
+
+// Pragmatic validator (not full RFC 5322). Keeps UX predictable.
+const isValidEmailTag = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
 const getNextTags = (
   currentTags: string[],
   nextTag: string,
@@ -75,6 +88,7 @@ export function AppInputTags({
   label,
   value,
   defaultValue = [],
+  variant = "default",
   mode = "multiple",
   options = [],
   placeholder,
@@ -101,17 +115,22 @@ export function AppInputTags({
 }: AppInputTagsProps) {
   const generatedId = useId();
   const inputId = `app-input-tags-${generatedId}`;
-  const helperId = helperText ? `${inputId}-helper` : undefined;
   const [internalTags, setInternalTags] = useState<string[]>(defaultValue);
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [emailValidationMessage, setEmailValidationMessage] = useState<string | null>(
+    null,
+  );
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const didSelectAutocompleteOptionRef = useRef(false);
+
+  const resolvedHelperText = emailValidationMessage ?? helperText;
+  const helperId = resolvedHelperText ? `${inputId}-helper` : undefined;
 
   const isControlled = Array.isArray(value);
   const visibleTags = isControlled ? value : internalTags;
   const isDisabled = disabled || selectDisabled;
-  const hasError = error || state === "error";
+  const hasError = error || state === "error" || Boolean(emailValidationMessage);
   const canRemoveAll = visibleTags.length > 0 && !isDisabled;
 
   const autocompleteOptions = useMemo(
@@ -207,6 +226,55 @@ export function AppInputTags({
     setInputValue("");
   };
 
+  const addEmailTags = (rawValue: string) => {
+    if (isDisabled) {
+      return;
+    }
+
+    const candidates = splitEmailTags(rawValue);
+
+    if (candidates.length === 0) {
+      return;
+    }
+
+    cancelPendingSearch();
+
+    let hasInvalid = false;
+    let didAdd = false;
+    let nextTags = visibleTags;
+
+    for (const candidate of candidates) {
+      const nextEmail = normalizeEmailTag(candidate);
+
+      if (!nextEmail) {
+        continue;
+      }
+
+      if (!isValidEmailTag(nextEmail)) {
+        hasInvalid = true;
+        continue;
+      }
+
+      nextTags = getNextTags(nextTags, nextEmail, mode);
+      onAddTag?.(nextEmail);
+      didAdd = true;
+    }
+
+    updateUncontrolledTags(nextTags);
+
+    if (didAdd) {
+      setInputValue("");
+    }
+
+    if (hasInvalid) {
+      setEmailValidationMessage("Correo inválido");
+      return;
+    }
+
+    setEmailValidationMessage(null);
+    setInputValue("");
+  };
+
   const removeTag = (tag: string) => {
     if (isDisabled) {
       return;
@@ -236,6 +304,9 @@ export function AppInputTags({
 
   const handleInputChange = (nextValue: string) => {
     didSelectAutocompleteOptionRef.current = false;
+    if (emailValidationMessage) {
+      setEmailValidationMessage(null);
+    }
     setInputValue(nextValue);
     scheduleSearch(nextValue.trim());
   };
@@ -263,11 +334,19 @@ export function AppInputTags({
         });
 
         if (matchingOption) {
-          addTag(matchingOption.value);
+          if (variant === "email") {
+            addEmailTags(matchingOption.value);
+          } else {
+            addTag(matchingOption.value);
+          }
           return;
         }
 
-        addTag(inputValue);
+        if (variant === "email") {
+          addEmailTags(inputValue);
+        } else {
+          addTag(inputValue);
+        }
       });
       return;
     }
@@ -303,12 +382,20 @@ export function AppInputTags({
             hasError && styles.inputError,
             isDisabled && styles.inputDisabled,
           )}
+          popupClassName={styles.popup}
+          getPopupContainer={(triggerNode) =>
+            triggerNode.closest(".ant-modal") ?? triggerNode.parentElement ?? document.body
+          }
           disabled={isDisabled}
           open={inputValue.trim().length > 0 && canSearch(inputValue.trim())}
           onChange={handleInputChange}
           onSelect={(selectedValue) => {
             didSelectAutocompleteOptionRef.current = true;
-            addTag(selectedValue);
+            if (variant === "email") {
+              addEmailTags(selectedValue);
+            } else {
+              addTag(selectedValue);
+            }
           }}
           options={filteredAutocompleteOptions}
           value={inputValue}
@@ -320,6 +407,12 @@ export function AppInputTags({
             aria-labelledby={ariaLabelledBy}
             data-ident={selectDataIdent}
             disabled={isDisabled}
+            type={variant === "email" ? "email" : "text"}
+            inputMode={variant === "email" ? "email" : undefined}
+            autoComplete={variant === "email" ? "email" : undefined}
+            autoCapitalize={variant === "email" ? "none" : undefined}
+            autoCorrect={variant === "email" ? "off" : undefined}
+            spellCheck={variant === "email" ? false : undefined}
             id={inputId}
             onBlur={() => setIsFocused(false)}
             onFocus={() => setIsFocused(true)}
@@ -334,7 +427,7 @@ export function AppInputTags({
                 >
                   {visibleTags.map((tag) => (
                     <Tag className={styles.tag} key={tag} role="listitem">
-                      <span>{tag}</span>
+                      <span className={styles.tagText}>{tag}</span>
                       {!isDisabled ? (
                         <button
                           aria-label={`Eliminar ${tag}`}
@@ -368,12 +461,12 @@ export function AppInputTags({
         {toolbar ? <div className={styles.toolbar}>{toolbar.render()}</div> : null}
       </div>
 
-      {helperText ? (
+      {resolvedHelperText ? (
         <div
           className={joinClasses(styles.helperText, hasError && styles.helperTextError)}
           id={helperId}
         >
-          {helperText}
+          {resolvedHelperText}
         </div>
       ) : null}
     </div>

@@ -6,6 +6,8 @@ type RequiredTooltipProps = {
    */
   visible?: boolean;
 
+  inline?: boolean;
+
   /**
    * 🆕 MODO FIELD-DRIVEN
    */
@@ -20,12 +22,14 @@ type RequiredTooltipProps = {
 
 export default function RequiredTooltip({
   visible,
+  inline = false,
   field,
   invalidField,
   message,
 }: RequiredTooltipProps) {
 
   const text = message ?? "Este campo es obligatorio.";
+  const className = inline ? "tooltip-required tooltip-required-inline" : "tooltip-required";
 
   // ============================
   // 🔁 COMPATIBILIDAD LEGACY
@@ -33,7 +37,7 @@ export default function RequiredTooltip({
   if (typeof visible === "boolean") {
     if (!visible) return null;
     return (
-      <div className="tooltip-required">
+      <div className={className}>
         {text}
       </div>
     );
@@ -45,7 +49,7 @@ export default function RequiredTooltip({
   if (!field || field !== invalidField) return null;
 
   return (
-    <div className="tooltip-required">
+    <div className={className}>
       {text}
     </div>
   );

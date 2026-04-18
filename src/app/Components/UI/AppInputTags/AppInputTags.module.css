@@ -151,6 +151,7 @@
   flex-wrap: wrap;
   gap: 0.35rem;
   max-width: 100%;
+  min-width: 0;
 }
 
 .tag {
@@ -159,6 +160,17 @@
   display: inline-flex;
   gap: 0.25rem;
   min-height: 1.8rem;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.tagText {
+  display: inline-block;
+  max-width: 16rem;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tagRemoveButton {
@@ -182,4 +194,49 @@
 
 .helperTextError {
   color: #b83232;
+}
+
+.popup {
+  /* Default styling lives in Ant; this hook exists mainly to control portal behavior per component. */
+}
+
+@media (max-width: 768px) {
+  .controlRow {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .tagsInline {
+    /* Prevent the input from growing unbounded when many tags are selected. */
+    max-height: 5.5rem;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-block: 0.15rem;
+  }
+
+  .tagText {
+    max-width: 11rem;
+  }
+
+  .controlRowWithRemoveAll .autoComplete :global(.ant-input-affix-wrapper) {
+    padding-right: 0.95rem;
+  }
+
+  .autoComplete :global(.ant-input) {
+    flex-basis: 4rem;
+    min-width: 4rem;
+  }
+
+  .removeAllFloatingButton {
+    position: static;
+    right: auto;
+    top: auto;
+    transform: none;
+    align-self: center;
+    height: 2.75rem;
+    width: 2.75rem;
+    border-radius: 12px;
+    background: rgba(244, 246, 251, 0.9);
+    border: 1px solid rgba(230, 235, 245, 0.9);
+  }
 }

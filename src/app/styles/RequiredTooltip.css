@@ -10,3 +10,14 @@
   z-index: 1;
   white-space: nowrap;
 }
+
+.tooltip-required-inline {
+  position: static;
+  margin-top: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #b83232;
+  white-space: normal;
+  font-size: inherit;
+}
