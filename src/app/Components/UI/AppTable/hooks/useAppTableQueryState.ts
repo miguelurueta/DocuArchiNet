@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { AppTableQueryState } from "../types/appTableQueryState.types";
 import {
   createAppTableQueryState,
@@ -17,6 +17,9 @@ export const useAppTableQueryState = (
   initialState?: Partial<AppTableQueryState>,
 ): UseAppTableQueryStateResult => {
   const [queryState, setQueryState] = useState<AppTableQueryState>(() => createAppTableQueryState(initialState));
+  const onQueryChange = useCallback((patch: Partial<AppTableQueryState>) => {
+    setQueryState((prev) => updateAppTableQueryState(prev, patch));
+  }, [setQueryState]);
 
   const serializedQueryState = useMemo(
     () => serializeAppTableQueryState(queryState),
@@ -25,9 +28,7 @@ export const useAppTableQueryState = (
 
   return {
     queryState,
-    onQueryChange: (patch) => {
-      setQueryState((prev) => updateAppTableQueryState(prev, patch));
-    },
+    onQueryChange,
     setQueryState,
     serializedQueryState,
   };
