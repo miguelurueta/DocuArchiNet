@@ -1,14 +1,9 @@
-import { CarryOutFilled, MailFilled, ToolOutlined } from "@ant-design/icons";
-import { useEffect, useId, useState } from "react";
-import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import {
-  LeftOutlined,
-  SaveOutlined,
-  SendOutlined,
-  UserAddOutlined,
+  CarryOutFilled,
+  MailFilled,
 } from "@ant-design/icons";
-import { useEffect, useId, useState } from "react";
-import { AppButton } from "../../../../app/Components/UI/AppButton";
+import { useId, useState, useSyncExternalStore } from "react";
+import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import {
   AppEditor,
   AppEditorSaveAction,
@@ -27,24 +22,24 @@ const DEFAULT_MEDIA_QUERY = "(max-width: 1024px)";
 const MOBILE_MEDIA_QUERY = "(max-width: 768px)";
 
 const useMediaQuery = (query: string) => {
-  const getMatches = () =>
+  const getSnapshot = () =>
     typeof window !== "undefined" ? window.matchMedia(query).matches : false;
-  const [matches, setMatches] = useState(getMatches);
 
-  useEffect(() => {
+  const subscribe = (onStoreChange: () => void) => {
+    if (typeof window === "undefined") {
+      return () => undefined;
+    }
+
     const mediaQueryList = window.matchMedia(query);
-    const update = (event: MediaQueryListEvent) => {
-      setMatches(event.matches);
-    };
+    const onChange = () => onStoreChange();
 
-    setMatches(mediaQueryList.matches);
-    mediaQueryList.addEventListener("change", update);
+    mediaQueryList.addEventListener("change", onChange);
     return () => {
-      mediaQueryList.removeEventListener("change", update);
+      mediaQueryList.removeEventListener("change", onChange);
     };
-  }, [query]);
+  };
 
-  return matches;
+  return useSyncExternalStore(subscribe, getSnapshot, () => false);
 };
 
 type GestionRespuestaMainTabContentProps = {
@@ -79,10 +74,6 @@ export function GestionRespuestaMainTabContent({
     currentValue: editorValue,
     savedValue: savedEditorValue,
   });
-
-  useEffect(() => {
-    setIsPanelCollapsed(isCompact);
-  }, [isCompact]);
 
   return (
     <section className={styles.mainTab} aria-label="Contenido principal de respuesta">
@@ -126,10 +117,7 @@ export function GestionRespuestaMainTabContent({
           <GestionRespuestaEditorContainer
             title="Editor principal"
             description="Zona dominante del workspace para construir la respuesta."
-          />
-          <AppCollapseRail
-            title="Herramientas"
-          <GestionRespuestaEditorContainer>
+          >
             <AppEditor
               value={editorValue}
               onChange={setEditorValue}
@@ -153,49 +141,31 @@ export function GestionRespuestaMainTabContent({
               pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
             />
           </GestionRespuestaEditorContainer>
-          <div className={styles.toolsRail} data-collapsed={isPanelCollapsed}>
-            {isPanelCollapsed ? (
-              <AppButton
-                variant="ghost"
-                size="sm"
-                className={styles.toolsRestore}
-                onClick={() => setIsPanelCollapsed(false)}
-                aria-label="Mostrar panel de herramientas"
-                icon={<LeftOutlined />}
-              >
-                {isCompact ? (
-                  <span className={styles.toolsRestoreLabel}>Herramientas</span>
-                ) : null}
-              </AppButton>
-            ) : null}
-          </div>
-          <GestionRespuestaRightToolsPanel
+
+          <AppCollapseRail
+            title="Herramientas"
             collapsed={isPanelCollapsed}
             onToggle={() => setIsPanelCollapsed((prev) => !prev)}
+            panelId={panelId}
             placement="right"
             variant={isMobile ? "overlay" : "inline"}
-            panelId={panelId}
-            railLabel="Herramientas"
-            railIcon={<ToolOutlined />}
           >
-            <div className={styles.toolsPanelSurface}>
-              <div className={styles.toolsList}>
-                <div className={styles.toolsItem}>
-                  <strong>Checklist de validacion</strong>
-                  <span className={styles.infoCopy}>
-                    Estado del analisis y observaciones tecnicas.
-                  </span>
-                </div>
-                <div className={styles.toolsItem}>
-                  <strong>Referencias del expediente</strong>
-                  <span className={styles.infoCopy}>Links y notas operativas clave.</span>
-                </div>
-                <div className={styles.toolsItem}>
-                  <strong>Historial reciente</strong>
-                  <span className={styles.infoCopy}>
-                    Resumen de cambios y actividades asociadas.
-                  </span>
-                </div>
+            <div className={styles.toolsList}>
+              <div className={styles.toolsItem}>
+                <strong>Checklist de validacion</strong>
+                <span className={styles.infoCopy}>
+                  Estado del analisis y observaciones tecnicas.
+                </span>
+              </div>
+              <div className={styles.toolsItem}>
+                <strong>Referencias del expediente</strong>
+                <span className={styles.infoCopy}>Links y notas operativas clave.</span>
+              </div>
+              <div className={styles.toolsItem}>
+                <strong>Historial reciente</strong>
+                <span className={styles.infoCopy}>
+                  Resumen de cambios y actividades asociadas.
+                </span>
               </div>
             </div>
           </AppCollapseRail>
