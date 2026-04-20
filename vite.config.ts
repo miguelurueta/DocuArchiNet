@@ -23,6 +23,7 @@ export default defineConfig({
     globals: true,
     setupFiles: "./src/setupTests.ts",
     css: false,
+    exclude: ["playwright/**", "dist/**", "**/node_modules/**"],
   },
 });
 

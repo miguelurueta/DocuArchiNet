@@ -121,7 +121,6 @@ export default function AppTable<T extends AppTableRow>(props: AppTableProps<T>)
     });
 
     observer.observe(element);
-    setContainerWidth(element.getBoundingClientRect().width || null);
 
     return () => {
       observer.disconnect();

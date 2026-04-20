@@ -3,7 +3,6 @@ import type { MenuProps } from "antd";
 import {
   cloneElement,
   isValidElement,
-  useEffect,
   useId,
   useMemo,
   useState,
@@ -95,19 +94,13 @@ function hasAccessibleName(trigger: ReactElement<AppDropdownTriggerProps>, ariaL
   );
 }
 
-function mergeOpenState({
+function useMergedOpenState({
   open,
   defaultOpen = false,
   onOpenChange,
 }: Pick<AppDropdownProps, "open" | "defaultOpen" | "onOpenChange">) {
   const isControlled = typeof open === "boolean";
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
-
-  useEffect(() => {
-    if (!isControlled) {
-      setUncontrolledOpen(defaultOpen);
-    }
-  }, [defaultOpen, isControlled]);
 
   const currentOpen = isControlled ? open : uncontrolledOpen;
 
@@ -222,7 +215,7 @@ export function AppDropdown({
   const isMobile = !screens.md;
   const typedTrigger = trigger as ReactElement<AppDropdownTriggerProps>;
   const menuId = useId();
-  const [currentOpen, setCurrentOpen] = mergeOpenState({ open, defaultOpen, onOpenChange });
+  const [currentOpen, setCurrentOpen] = useMergedOpenState({ open, defaultOpen, onOpenChange });
 
   if (!hasAccessibleName(typedTrigger, ariaLabel)) {
     throw new Error("AppDropdown trigger icon-only requiere nombre accesible.");

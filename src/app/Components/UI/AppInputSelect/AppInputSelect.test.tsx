@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { AppInputSelect, toAppInputSelectOption } from "./AppInputSelect";
+import { AppInputSelect } from "./AppInputSelect";
+import { toAppInputSelectOption } from "./toAppInputSelectOption";
 import styles from "./AppInputSelect.module.css";
 
 describe("AppInputSelect [SPEC:app-input-select]", () => {

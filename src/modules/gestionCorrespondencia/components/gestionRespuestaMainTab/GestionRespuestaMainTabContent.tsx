@@ -1,14 +1,5 @@
-import { CarryOutFilled, MailFilled, ToolOutlined } from "@ant-design/icons";
 import { useEffect, useId, useState } from "react";
-import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
-import {
-  LeftOutlined,
-  SaveOutlined,
-  SendOutlined,
-  UserAddOutlined,
-} from "@ant-design/icons";
-import { useEffect, useId, useState } from "react";
-import { AppButton } from "../../../../app/Components/UI/AppButton";
+import { CarryOutFilled, MailFilled } from "@ant-design/icons";
 import {
   AppEditor,
   AppEditorSaveAction,
@@ -22,6 +13,7 @@ import styles from "./GestionRespuestaMainTabContent.module.css";
 import { GestionRespuestaEditorContainer } from "./GestionRespuestaEditorContainer";
 import { GestionRespuestaInfoHeader } from "./GestionRespuestaInfoHeader";
 import { GestionDocumentoModal } from "./modalGestionDocumento";
+import { GestionRespuestaRightToolsPanel } from "./GestionRespuestaRightToolsPanel";
 
 const DEFAULT_MEDIA_QUERY = "(max-width: 1024px)";
 const MOBILE_MEDIA_QUERY = "(max-width: 768px)";
@@ -58,7 +50,8 @@ export function GestionRespuestaMainTabContent({
   const isCompact = useMediaQuery(DEFAULT_MEDIA_QUERY);
   const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(isCompact);
-  const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] = useState(false);
+  const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] =
+    useState(false);
   const [files, setFiles] = useState<AppUploadFile[]>([]);
   const { estrucTuraRespuesta, loading, error, isEmpty } =
     useEstructuraRespuestaIdTarea(idTareaWf);
@@ -123,12 +116,6 @@ export function GestionRespuestaMainTabContent({
           data-variant={isMobile ? "overlay" : "inline"}
           data-testid="gestion-respuesta-workbench"
         >
-          <GestionRespuestaEditorContainer
-            title="Editor principal"
-            description="Zona dominante del workspace para construir la respuesta."
-          />
-          <AppCollapseRail
-            title="Herramientas"
           <GestionRespuestaEditorContainer>
             <AppEditor
               value={editorValue}
@@ -153,52 +140,11 @@ export function GestionRespuestaMainTabContent({
               pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
             />
           </GestionRespuestaEditorContainer>
-          <div className={styles.toolsRail} data-collapsed={isPanelCollapsed}>
-            {isPanelCollapsed ? (
-              <AppButton
-                variant="ghost"
-                size="sm"
-                className={styles.toolsRestore}
-                onClick={() => setIsPanelCollapsed(false)}
-                aria-label="Mostrar panel de herramientas"
-                icon={<LeftOutlined />}
-              >
-                {isCompact ? (
-                  <span className={styles.toolsRestoreLabel}>Herramientas</span>
-                ) : null}
-              </AppButton>
-            ) : null}
-          </div>
           <GestionRespuestaRightToolsPanel
             collapsed={isPanelCollapsed}
-            onToggle={() => setIsPanelCollapsed((prev) => !prev)}
-            placement="right"
-            variant={isMobile ? "overlay" : "inline"}
             panelId={panelId}
-            railLabel="Herramientas"
-            railIcon={<ToolOutlined />}
-          >
-            <div className={styles.toolsPanelSurface}>
-              <div className={styles.toolsList}>
-                <div className={styles.toolsItem}>
-                  <strong>Checklist de validacion</strong>
-                  <span className={styles.infoCopy}>
-                    Estado del analisis y observaciones tecnicas.
-                  </span>
-                </div>
-                <div className={styles.toolsItem}>
-                  <strong>Referencias del expediente</strong>
-                  <span className={styles.infoCopy}>Links y notas operativas clave.</span>
-                </div>
-                <div className={styles.toolsItem}>
-                  <strong>Historial reciente</strong>
-                  <span className={styles.infoCopy}>
-                    Resumen de cambios y actividades asociadas.
-                  </span>
-                </div>
-              </div>
-            </div>
-          </AppCollapseRail>
+            onToggle={() => setIsPanelCollapsed((prev) => !prev)}
+          />
         </div>
       </div>
 

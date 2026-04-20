@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useId, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { AppEditorProps } from "../domain/editor.types";
 import { useAppEditor } from "../application/useAppEditor";
@@ -224,6 +224,36 @@ export function AppEditor({
     () => buildAriaLabel({ "aria-label": ariaLabel, label, title }),
     [ariaLabel, label, title],
   );
+
+  const handleZoomChange = useCallback(
+    (nextZoomLevel: number) => {
+      const normalizedNextZoomLevel = normalizeZoomLevel(
+        nextZoomLevel,
+        resolvedMinZoomLevel,
+        resolvedMaxZoomLevel,
+      );
+
+      if (!isControlledZoom) {
+        setUncontrolledZoomLevel((previousZoomLevel) =>
+          previousZoomLevel === normalizedNextZoomLevel
+            ? previousZoomLevel
+            : normalizedNextZoomLevel,
+        );
+      }
+
+      if (normalizedNextZoomLevel !== resolvedZoomLevel) {
+        onZoomChange?.(normalizedNextZoomLevel);
+      }
+    },
+    [
+      isControlledZoom,
+      onZoomChange,
+      resolvedMaxZoomLevel,
+      resolvedMinZoomLevel,
+      resolvedZoomLevel,
+    ],
+  );
+
   const zoomTrailingContent = useMemo(() => {
     if (!isVisualPagination) {
       return null;
@@ -257,6 +287,7 @@ export function AppEditor({
   }, [
     canDecreaseZoom,
     canIncreaseZoom,
+    handleZoomChange,
     effectiveZoomLevel,
     isVisualPagination,
     resolvedZoomLevel,
@@ -303,34 +334,6 @@ export function AppEditor({
     () => ({ "--app-editor-min-height": paginationMetrics.minHeight }) as CSSProperties,
     [paginationMetrics.minHeight],
   );
-
-  useEffect(() => {
-    if (isControlledZoom) {
-      return;
-    }
-
-    setUncontrolledZoomLevel((previousZoomLevel) =>
-      normalizeZoomLevel(previousZoomLevel, resolvedMinZoomLevel, resolvedMaxZoomLevel),
-    );
-  }, [isControlledZoom, resolvedMaxZoomLevel, resolvedMinZoomLevel]);
-
-  const handleZoomChange = (nextZoomLevel: number) => {
-    const normalizedNextZoomLevel = normalizeZoomLevel(
-      nextZoomLevel,
-      resolvedMinZoomLevel,
-      resolvedMaxZoomLevel,
-    );
-
-    if (!isControlledZoom) {
-      setUncontrolledZoomLevel((previousZoomLevel) =>
-        previousZoomLevel === normalizedNextZoomLevel ? previousZoomLevel : normalizedNextZoomLevel,
-      );
-    }
-
-    if (normalizedNextZoomLevel !== resolvedZoomLevel) {
-      onZoomChange?.(normalizedNextZoomLevel);
-    }
-  };
 
   return (
     <section
