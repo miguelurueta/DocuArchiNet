@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { mapDynamicUiTableToAppDataTableAgGrid } from "../adapters/dynamicUiToAgGridColumns";
 import type { ApiResponse, DynamicUiPaginationDto, DynamicUiTableDto } from "../types/dynamicUiTable.types";
@@ -163,6 +163,10 @@ export function useDynamicUiTableQuery<TRequest>({
     };
   }, [input, query.data]);
 
+  const refetch = useCallback(() => {
+    void query.refetch();
+  }, [query.refetch]);
+
   return {
     tableId: data.tableId,
     rows: data.rows,
@@ -174,9 +178,7 @@ export function useDynamicUiTableQuery<TRequest>({
     loading: query.isFetching,
     error: query.error ? normalizeError(query.error) : null,
     isEmpty: data.isEmpty,
-    refetch: () => {
-      void query.refetch();
-    },
+    refetch,
     rawResponse: data.rawResponse,
   };
 }
