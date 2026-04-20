@@ -13,6 +13,8 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
     "spec:validate": "node --experimental-strip-types tools/spec-validator/validateSpec.ts",
+    "git:verify": "powershell -NoProfile -ExecutionPolicy Bypass -File Tools/git-verify-synced.ps1",
+    "git:update": "powershell -NoProfile -ExecutionPolicy Bypass -File Tools/git-update.ps1",
     "opsxj:new": "node scripts/opsxj.js opsxj:new",
     "opsxj:archive": "node scripts/opsxj.js opsxj:archive",
     "opsxj:close": "node scripts/opsxj.js opsxj:close",
