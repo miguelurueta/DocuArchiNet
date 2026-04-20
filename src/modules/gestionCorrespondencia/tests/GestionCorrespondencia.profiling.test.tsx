@@ -298,11 +298,11 @@ describe("GestionCorrespondencia profiling evidence", () => {
     const refreshDiff = diffFrom(refreshBaseline);
 
     expect(typingDiff.AppInputSearch).toBeGreaterThanOrEqual(5);
-    expect(typingDiff.AppTableExport).toBeGreaterThanOrEqual(5);
+    expect(typingDiff.AppTableExport).toBe(0);
     expect(typingDiff.AppTable).toBe(0);
 
     expect(clearDiff.AppInputSearch).toBeGreaterThanOrEqual(1);
-    expect(clearDiff.AppTableExport).toBeGreaterThanOrEqual(1);
+    expect(clearDiff.AppTableExport).toBe(0);
     expect(clearDiff.AppTable).toBe(0);
 
     expect(selectionDiff.AppTableExport).toBeGreaterThanOrEqual(1);
