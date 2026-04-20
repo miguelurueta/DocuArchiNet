@@ -1,23 +1,26 @@
 ## Why
 
-CORRECCION-RERENDER-GESTIONCORRESPONDENCIA-18-FE. # PROMPT ARQUITECTONICO Ticket 18 FE
+El profiling de `SCRUMCORE-136` confirmo que `AppTableExport` seguia rerenderizando durante typing y clear en `GestionCorrespondencia`, incluso despues de estabilizar `dataSource` y otros callbacks. La evidencia apunto a props frecuentes todavia recreadas en el page component, especialmente arrays inline y la region `paginationActions`.
+
+El ticket `SCRUMCORE-137` busca aislar esa frontera de render con el menor cambio posible para reducir recomposicion innecesaria del export sin alterar su comportamiento.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-137.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Estabilizar `formats` y `enabledModes` de `AppTableExport`.
+- Memoizar `paginationActions` para evitar recrear la region de exportacion en rerenders equivalentes.
+- Confirmar con profiling automatizado que `AppTableExport` deja de rerenderizar durante typing y clear.
+- Mantener intacto el contrato funcional de exportacion actual.
 
 ## Capabilities
 
 ### New Capabilities
-- `correccion-rerender-gestioncorrespondencia-18-fe`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- Ninguna.
 
 ### Modified Capabilities
-- 
+- `gestion-correspondencia-export-boundary`: la frontera de render de exportacion recibe props mas estables desde `GestionCorrespondencia`.
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+- Reduce rerenders innecesarios de `AppTableExport` durante typing y clear.
+- No cambia modos visibles ni comportamiento de export backend/local.
+- Usa un aislamiento de bajo riesgo sin introducir abstracciones innecesarias.
