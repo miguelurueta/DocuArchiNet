@@ -43,6 +43,23 @@ describe("[SPEC:SCRUMCORE-39] useAppTableQueryState", () => {
     expect(result.current.queryState.search).toBe("nuevo");
   });
 
+  it("keeps onQueryChange referentially stable across rerenders and state updates", () => {
+    const { result, rerender } = renderHook(() => useAppTableQueryState());
+    const initialOnQueryChange = result.current.onQueryChange;
+
+    rerender();
+
+    expect(result.current.onQueryChange).toBe(initialOnQueryChange);
+
+    act(() => {
+      result.current.onQueryChange({
+        search: "estable",
+      });
+    });
+
+    expect(result.current.onQueryChange).toBe(initialOnQueryChange);
+  });
+
   it("keeps a serialized view aligned with the current state", () => {
     const { result } = renderHook(() => useAppTableQueryState());
 
