@@ -351,4 +351,148 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] [SPEC:APPTABLE-EXP
       }),
     );
   });
+
+  it("keeps export handlers referentially stable while using the latest query state", async () => {
+    vi.mocked(dynamicUiTableService.getDynamicTable)
+      .mockResolvedValueOnce({
+        success: true,
+        message: "OK",
+        data: {
+          TableId: "workflowInboxgestion",
+          Columns: [],
+          Rows: [],
+          Pagination: {
+            Page: 2,
+            PageSize: 25,
+            Total: 25,
+          },
+        },
+        errors: [],
+      })
+      .mockResolvedValueOnce({
+        success: true,
+        message: "OK",
+        data: {
+          TableId: "workflowInboxgestion",
+          Columns: [],
+          Rows: [],
+          Pagination: {
+            Page: 1,
+            PageSize: 25,
+            Total: 25,
+          },
+        },
+        errors: [],
+      })
+      .mockResolvedValueOnce({
+        success: true,
+        message: "OK",
+        data: {
+          TableId: "workflowInboxgestion",
+          Columns: [],
+          Rows: [
+            {
+              Id: "924",
+              Values: {
+                RADICADO: "2500456700023",
+              },
+            },
+          ],
+          Pagination: {
+            Page: 1,
+            PageSize: 25,
+            Total: 25,
+          },
+        },
+        errors: [],
+      });
+
+    const { result, rerender } = renderHook(() => useGestionCorrespondenciaTable(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    const initialGetAllMatchingRows = result.current.getAllMatchingRows;
+    const initialGetBackendExportFile = result.current.getBackendExportFile;
+
+    rerender();
+
+    expect(result.current.getAllMatchingRows).toBe(initialGetAllMatchingRows);
+    expect(result.current.getBackendExportFile).toBe(initialGetBackendExportFile);
+
+    act(() => {
+      result.current.onQueryChange({
+        search: "radicado",
+        structuredFilters: [
+          {
+            field: "estado",
+            operator: "eq",
+            value: "Pendiente",
+          },
+        ],
+      });
+    });
+
+    await waitFor(() => {
+      expect(dynamicUiTableService.getDynamicTable).toHaveBeenCalledWith(
+        expect.objectContaining({
+          Search: "radicado",
+          SearchType: 2,
+        }),
+      );
+    });
+
+    expect(result.current.getAllMatchingRows).toBe(initialGetAllMatchingRows);
+    expect(result.current.getBackendExportFile).toBe(initialGetBackendExportFile);
+
+    await act(async () => {
+      await result.current.getAllMatchingRows();
+      await result.current.getBackendExportFile({
+        columns: [{ field: "RADICADO", headerName: "Radicado" }],
+        format: "xlsx",
+        mode: "allMatching",
+        reportMeta: {
+          reportName: "Bandeja de gestion correspondencia",
+          generatedBy: "DocuArchiCore",
+          moduleName: "Gestion Correspondencia",
+          reportType: "Operativo",
+          generatedAt: "2026-04-05T05:00:00.000Z",
+          rowCount: 1,
+          description: "Exportacion desde la bandeja operativa",
+          companyImageAsset: "public/branding/reports/company-report-logo.png",
+        },
+      });
+    });
+
+    expect(dynamicUiTableService.getDynamicTable).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        TableId: "workflowInboxgestion",
+        Page: 1,
+        PageSize: 25,
+        Search: "radicado",
+        SearchType: 2,
+        SortField: "fecha_inicio",
+        SortDir: "DESC",
+        IncludeConfig: false,
+      }),
+    );
+    expect(dynamicUiTableService.exportAppTableFile).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        Search: "radicado",
+        SearchType: 2,
+        StructuredFilters: [
+          {
+            Field: "estado",
+            Operator: "eq",
+            Value: "Pendiente",
+            ValueFrom: undefined,
+            ValueTo: undefined,
+          },
+        ],
+      }),
+    );
+  });
 });
