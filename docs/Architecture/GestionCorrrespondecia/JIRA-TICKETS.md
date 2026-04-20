@@ -1,6 +1,6 @@
 # Tickets Gestion Correspondencia
 
-Indice de tickets documentales derivados de `WorkflowInbox-Busqueda-Autocomplete-Architecture.md`.
+Indice de tickets documentales del modulo.
 
 ## Frontend
 
@@ -10,6 +10,9 @@ Indice de tickets documentales derivados de `WorkflowInbox-Busqueda-Autocomplete
 | 02 FE | [Integrar AppInputSearch en AppToolbar GestionCorrespondencia](./02-FE-Integrar-AppInputSearch-en-AppToolbar-GestionCorrespondencia.md) | Ubicar el buscador en `AppToolbar.actionContent` sin duplicarlo en `AppTableQueryWrapper`. |
 | 03 FE | [Conectar busqueda LIKE GestionCorrespondencia](./03-FE-Conectar-busqueda-like-GestionCorrespondencia.md) | Enviar busqueda simple con `SearchType = 2` para activar `LIKE` backend. |
 | 04 FE | [Implementar autocomplete workflow inbox frontend](./04-FE-Implementar-autocomplete-workflow-inbox-frontend.md) | Crear hook/servicio frontend para sugerencias sin acoplar `AppInputSearch` a backend. |
+| 13 FE | [AppModal Reasignar Respuesta (UI)](./13-FE-AppModal-Reasignar-Respuesta-UI.md) | Implementar el modal `ReasignarRespuestaModal` (AppModal + AppInputTags + AppButton) con responsive y accesibilidad. |
+| 14 FE | [Conectar Dropdown Reasignar Tramite](./14-FE-Conectar-Dropdown-Reasignar-Tramite.md) | Conectar la opcion "Reasignar Tramite" del dropdown (acciones de la tabla) para abrir el modal sin modificar la tabla. |
+| 15 FE | [Pruebas AppModal Reasignar Respuesta](./15-FE-Pruebas-AppModal-Reasignar-Respuesta.md) | Cubrir con pruebas unitarias/UI el modal y su integracion de apertura/cierre desde la accion del dropdown. |
 
 ## Backend
 
