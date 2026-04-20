@@ -22,6 +22,8 @@ type GestionCorrespondenciaProps<T extends AppTableRow = AppTableRow> = {
   table: GestionCorrespondenciaTableResult<T>;
 };
 
+const EXPORT_FORMATS = ["csv", "xlsx", "pdf"] as const;
+const EXPORT_ENABLED_MODES = ["currentPage", "selectedRows", "allMatching"] as const;
 const RESPONSIVE_PRESENTATION = {
   enabled: true,
   cardsBelow: 768,
@@ -106,6 +108,18 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
     }),
     [getCurrentPageRows, getSelectedRows, table.getAllMatchingRows, table.getBackendExportFile],
   );
+  const paginationActions = useMemo(
+    () => (
+      <AppTableExport
+        columns={table.columns as ColDef<T>[]}
+        dataSource={exportDataSource}
+        formats={EXPORT_FORMATS}
+        reportMeta={exportReportMeta}
+        enabledModes={EXPORT_ENABLED_MODES}
+      />
+    ),
+    [exportDataSource, exportReportMeta, table.columns],
+  );
 
   return (
     <div className={styles.shell}>
@@ -156,15 +170,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
             total={table.total}
             loading={table.loading && table.hasLoadedOnce}
             showSearch={false}
-            paginationActions={
-              <AppTableExport
-                columns={table.columns as ColDef<T>[]}
-                dataSource={exportDataSource}
-                formats={["csv", "xlsx", "pdf"]}
-                reportMeta={exportReportMeta}
-                enabledModes={["currentPage", "selectedRows", "allMatching"]}
-              />
-            }
+            paginationActions={paginationActions}
           >
             <div className={styles.tableWrapper}>
               <AppTable
