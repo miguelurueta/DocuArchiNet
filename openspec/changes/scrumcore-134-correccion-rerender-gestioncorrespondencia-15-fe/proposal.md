@@ -1,23 +1,26 @@
 ## Why
 
-CORRECCION-RERENDER-GESTIONCORRESPONDENCIA-15-FE. # PROMPT ARQUITECTONICO Ticket 15 FE
+`useGestionCorrespondenciaTable` recrea `getAllMatchingRows` y `getBackendExportFile` en cada render. Eso impide estabilizar el `dataSource` que consume `AppTableExport` en `GestionCorrespondencia` y contribuye a rerenders evitables del flujo de exportacion.
+
+El ticket `SCRUMCORE-134` busca estabilizar esos handlers sin perder acceso al estado efectivo mas reciente de filtros, busqueda, orden y total de filas.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-134.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Estabilizar `getAllMatchingRows` y `getBackendExportFile` en `useGestionCorrespondenciaTable`.
+- Usar referencias al estado efectivo mas reciente para evitar closures stale en exportacion y carga `allMatching`.
+- Agregar cobertura automatizada que verifique estabilidad referencial y uso correcto del estado actualizado.
+- Mantener intacto el contrato publico de `GestionCorrespondenciaTableResult`.
 
 ## Capabilities
 
 ### New Capabilities
-- `correccion-rerender-gestioncorrespondencia-15-fe`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- Ninguna.
 
 ### Modified Capabilities
-- 
+- `gestion-correspondencia-table`: el hook expone handlers estables para export backend y carga de filas `allMatching`.
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+- Reduce invalidaciones de props en `AppTableExport`.
+- Preserva exportacion backend y calculo de `allMatching` con el estado mas reciente.
+- Requiere validacion focal sobre `useGestionCorrespondenciaTable`.
