@@ -26,7 +26,7 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
     responsivePresentation?: { enabled?: boolean; cardsBelow?: number };
     onActionTriggered?: (input: {
       actionId: string;
-      row: { id: string };
+      row: { id: string; RADICADO?: string; Asunto?: string };
       columnKey?: string;
     }) => void;
     onCellClicked?: (input: {
@@ -58,6 +58,22 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
         }
       >
         Disparar acción de fila
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          onActionTriggered?.({
+            actionId: "reasignar_tramite",
+            row: {
+              id: "924",
+              RADICADO: "2500456700023",
+              Asunto: "Respuesta pendiente de reasignacion",
+            },
+            columnKey: "acciones",
+          })
+        }
+      >
+        Disparar reasignar tramite
       </button>
       <button
         type="button"
@@ -319,6 +335,22 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
     expect(screen.getByTestId("location-probe")).toHaveTextContent(
       "/dashboard/gestion-correspondencia/respuesta/924",
     );
+  });
+
+  it("abre el modal de reasignacion cuando la accion es reasignar_tramite", () => {
+    const table = createTable();
+
+    render(
+      <MemoryRouter>
+        <GestionCorrespondencia table={table} />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Disparar reasignar tramite/i }));
+
+    expect(screen.getByRole("heading", { name: "Reasignar Respuesta" })).toBeInTheDocument();
+    expect(screen.getByText("RAD. 2500456700023")).toBeInTheDocument();
+    expect(screen.getByText("Respuesta pendiente de reasignacion")).toBeInTheDocument();
   });
 
   it("no navega al hacer click sobre la columna de acciones", () => {
