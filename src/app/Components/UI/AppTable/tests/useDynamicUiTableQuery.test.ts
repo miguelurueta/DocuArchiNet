@@ -445,4 +445,55 @@ describe("[SPEC:CREA-QUERY-AG-GRID-FASE3] useDynamicUiTableQuery", () => {
       pageSize: 25,
     });
   });
+
+  it("keeps refetch referentially stable across rerenders and still executes the query", async () => {
+    const queryFn = vi
+      .fn()
+      .mockResolvedValue(
+        createResponse({
+          TableId: "workflowInboxgestion",
+          Columns: [],
+          Rows: [],
+          Pagination: {
+            Page: 1,
+            PageSize: 25,
+            Total: 0,
+          },
+        }),
+      );
+
+    const { result, rerender } = renderHook(
+      ({ input }) =>
+        useDynamicUiTableQuery({
+          input,
+          requestMapper: (nextInput) => nextInput,
+          queryFn,
+        }),
+      {
+        initialProps: { input: baseInput },
+        wrapper: createWrapper(),
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    const initialRefetch = result.current.refetch;
+    const initialCallCount = queryFn.mock.calls.length;
+
+    rerender({ input: baseInput });
+
+    expect(result.current.refetch).toBe(initialRefetch);
+
+    await act(async () => {
+      result.current.refetch();
+    });
+
+    await waitFor(() => {
+      expect(queryFn.mock.calls.length).toBeGreaterThan(initialCallCount);
+    });
+
+    expect(result.current.refetch).toBe(initialRefetch);
+  });
 });
