@@ -87,6 +87,19 @@ Salida esperada (resumen):
 [opsxj:new] Proceso finalizado correctamente.
 ```
 
+## Pre-check manual antes de `opsxj:archive` (recomendado)
+
+Antes de archivar, valide que NO hay cambios sin commit y que la rama esta sincronizada con upstream:
+
+```bash
+git status -sb
+git diff --name-only
+git diff --cached --name-only
+git rev-list --left-right --count @{upstream}...HEAD
+```
+
+- Debe estar limpio (sin `M`, `D`, `??`) y el conteo debe ser `0 0`.
+
 ## 2) `generate-proposal-from-jira.js` (modo clásico)
 
 Genera proposal usando carpeta basada en `issueKey` (sin slug del resumen).

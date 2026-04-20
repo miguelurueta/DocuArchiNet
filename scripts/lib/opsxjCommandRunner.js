@@ -1,6 +1,7 @@
 import path from "node:path";
 import { createProposalFromJira } from "./jiraProposalService.js";
 import {
+  assertGitCleanAndSynced,
   buildFeatureBranchName,
   setupProposalBranchAndCommit,
 } from "./gitClient.js";
@@ -143,6 +144,7 @@ const runArchive = async ({
   }
 
   const branchName = buildFeatureBranchName(issueKey);
+  await assertGitCleanAndSynced({ baseDir, expectedBranchName: branchName });
   const result = await archiveFn({
     issueKey,
     baseDir,
