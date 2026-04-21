@@ -1,5 +1,5 @@
 import { SwapOutlined } from "@ant-design/icons";
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useMemo, useRef } from "react";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
 import { AppInputTags } from "../../../../app/Components/UI/AppInputTags";
 import { AppModal } from "../../../../app/Components/UI/AppModal";
@@ -17,6 +17,14 @@ export type ReasignarRespuestaModalProps = {
   onSubmit: () => void;
 };
 
+const RESPONSABLE_SUGGESTIONS = [
+  { label: "Angelica Torres (angelica.torres@contasoft.com)", value: "angelica.torres@contasoft.com" },
+  { label: "Carlos Vega (carlos.vega@contasoft.com)", value: "carlos.vega@contasoft.com" },
+  { label: "Laura Mendoza (laura.mendoza@contasoft.com)", value: "laura.mendoza@contasoft.com" },
+  { label: "Sofia Rojas (sofia.rojas@contasoft.com)", value: "sofia.rojas@contasoft.com" },
+  { label: "Juan Pardo (juan.pardo@contasoft.com)", value: "juan.pardo@contasoft.com" },
+];
+
 export function ReasignarRespuestaModal({
   open,
   onClose,
@@ -30,6 +38,15 @@ export function ReasignarRespuestaModal({
 }: ReasignarRespuestaModalProps) {
   const titleId = useId();
   const primaryButtonRef = useRef<HTMLButtonElement | null>(null);
+  const responsableOptions = useMemo(
+    () => [
+      ...RESPONSABLE_SUGGESTIONS,
+      ...users
+        .filter((value) => !RESPONSABLE_SUGGESTIONS.some((item) => item.value === value))
+        .map((value) => ({ label: value, value })),
+    ],
+    [users],
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -62,6 +79,8 @@ export function ReasignarRespuestaModal({
         <AppInputTags
           label="Responsable"
           value={users}
+          options={responsableOptions}
+          helperText="Escribe nombre o correo, selecciona sugerencia y presiona Enter para agregar."
           placeholder="Seleccionar responsable"
           onAddTag={onAddUser}
           onRemoveTag={onRemoveUser}
@@ -74,7 +93,10 @@ export function ReasignarRespuestaModal({
             <span className={styles.noteLabel}>Nota</span>
             <span className={styles.noteDivider} aria-hidden="true" />
           </div>
-          <div className={styles.noteBox}>{nota}</div>
+          <div className={styles.noteBox}>
+            <p className={styles.noteLead}>Contexto del tramite a reasignar</p>
+            <p className={styles.noteText}>{nota}</p>
+          </div>
         </section>
 
         <footer className={styles.actions} aria-label="Acciones">
@@ -89,4 +111,3 @@ export function ReasignarRespuestaModal({
     </AppModal>
   );
 }
-
