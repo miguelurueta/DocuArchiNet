@@ -330,7 +330,7 @@ describe("AppInputTags [SPEC:app-input-tags]", () => {
     expect(screen.getByText("Ana Perez")).toBeInTheDocument();
   });
 
-  it("oculta el placeholder al enfocar y lo restaura al salir", () => {
+  it("oculta el placeholder al enfocar y lo restaura al salir", async () => {
     renderTags();
 
     const input = screen.getByLabelText("Destinatarios");
@@ -340,7 +340,9 @@ describe("AppInputTags [SPEC:app-input-tags]", () => {
     expect(input).not.toHaveAttribute("placeholder");
 
     fireEvent.blur(input);
-    expect(input).toHaveAttribute("placeholder", "Buscar destinatario");
+    await waitFor(() => {
+      expect(input).toHaveAttribute("placeholder", "Buscar destinatario");
+    });
   });
 
   it("oculta el placeholder cuando ya existen tags seleccionadas", () => {

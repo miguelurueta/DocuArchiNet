@@ -32,6 +32,7 @@ export type AppInputTagsProps = {
   disabled?: boolean;
   selectDisabled?: boolean;
   openOnFocus?: boolean;
+  closeOnSelect?: boolean;
   size?: AppInputTagsSize;
   error?: boolean;
   state?: AppInputTagsState;
@@ -100,6 +101,7 @@ export function AppInputTags({
   disabled = false,
   selectDisabled = false,
   openOnFocus = false,
+  closeOnSelect = false,
   size = "md",
   error = false,
   state = "default",
@@ -120,11 +122,13 @@ export function AppInputTags({
   const [internalTags, setInternalTags] = useState<string[]>(defaultValue);
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [isClosedAfterSelection, setIsClosedAfterSelection] = useState(false);
   const [emailValidationMessage, setEmailValidationMessage] = useState<string | null>(
     null,
   );
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const didSelectAutocompleteOptionRef = useRef(false);
+  const pointerDownOnDropdownRef = useRef(false);
 
   const resolvedHelperText = emailValidationMessage ?? helperText;
   const helperId = resolvedHelperText ? `${inputId}-helper` : undefined;
@@ -170,6 +174,20 @@ export function AppInputTags({
     },
     [],
   );
+
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      pointerDownOnDropdownRef.current = Boolean(
+        target?.closest(".ant-select-dropdown"),
+      );
+    };
+
+    document.addEventListener("mousedown", handlePointerDown, true);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown, true);
+    };
+  }, []);
 
   const canSearch = (query: string) =>
     minLength === undefined || query.length >= minLength;
@@ -311,6 +329,9 @@ export function AppInputTags({
 
   const handleInputChange = (nextValue: string) => {
     didSelectAutocompleteOptionRef.current = false;
+    if (isClosedAfterSelection) {
+      setIsClosedAfterSelection(false);
+    }
     if (emailValidationMessage) {
       setEmailValidationMessage(null);
     }
@@ -390,14 +411,17 @@ export function AppInputTags({
             isDisabled && styles.inputDisabled,
           )}
           popupClassName={styles.popup}
-          getPopupContainer={(triggerNode) =>
-            triggerNode.closest(".ant-modal") ?? triggerNode.parentElement ?? document.body
-          }
+          getPopupContainer={() => document.body}
           disabled={isDisabled}
-          open={shouldOpenAutocomplete}
+          open={shouldOpenAutocomplete && !isClosedAfterSelection}
           onChange={handleInputChange}
           onSelect={(selectedValue) => {
             didSelectAutocompleteOptionRef.current = true;
+            pointerDownOnDropdownRef.current = false;
+            if (closeOnSelect) {
+              setIsClosedAfterSelection(true);
+              setIsFocused(false);
+            }
             if (variant === "email") {
               addEmailTags(selectedValue);
             } else {
@@ -421,8 +445,21 @@ export function AppInputTags({
             autoCorrect={variant === "email" ? "off" : undefined}
             spellCheck={variant === "email" ? false : undefined}
             id={inputId}
-            onBlur={() => setIsFocused(false)}
-            onFocus={() => setIsFocused(true)}
+            onBlur={() => {
+              setTimeout(() => {
+                if (pointerDownOnDropdownRef.current) {
+                  pointerDownOnDropdownRef.current = false;
+                  return;
+                }
+                setIsFocused(false);
+              }, 0);
+            }}
+            onFocus={() => {
+              if (isClosedAfterSelection) {
+                setIsClosedAfterSelection(false);
+              }
+              setIsFocused(true);
+            }}
             onKeyDown={handleKeyDown}
             placeholder={isFocused || visibleTags.length > 0 ? undefined : placeholder}
             prefix={

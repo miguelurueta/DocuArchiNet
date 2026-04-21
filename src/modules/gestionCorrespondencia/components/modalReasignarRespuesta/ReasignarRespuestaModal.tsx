@@ -1,5 +1,5 @@
 import { SwapOutlined } from "@ant-design/icons";
-import { useEffect, useId, useMemo, useRef } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
 import { AppInputTags } from "../../../../app/Components/UI/AppInputTags";
 import { AppModal } from "../../../../app/Components/UI/AppModal";
@@ -38,6 +38,7 @@ export function ReasignarRespuestaModal({
 }: ReasignarRespuestaModalProps) {
   const titleId = useId();
   const primaryButtonRef = useRef<HTMLButtonElement | null>(null);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const responsableOptions = useMemo(
     () => [
       ...RESPONSABLE_SUGGESTIONS,
@@ -52,6 +53,14 @@ export function ReasignarRespuestaModal({
     if (!open) return;
     setTimeout(() => primaryButtonRef.current?.focus(), 0);
   }, [open]);
+
+  useEffect(() => {
+    if (open) {
+      setAttemptedSubmit(false);
+    }
+  }, [open]);
+
+  const missingResponsables = users.length === 0;
 
   return (
     <AppModal
@@ -81,7 +90,14 @@ export function ReasignarRespuestaModal({
           value={users}
           options={responsableOptions}
           openOnFocus
-          helperText="Escribe nombre o correo, selecciona sugerencia y presiona Enter para agregar."
+          closeOnSelect
+          error={attemptedSubmit && missingResponsables}
+          state={attemptedSubmit && missingResponsables ? "error" : "default"}
+          helperText={
+            attemptedSubmit && missingResponsables
+              ? "Debe seleccionar al menos un responsable."
+              : "Escribe nombre o correo, selecciona sugerencia y presiona Enter para agregar."
+          }
           placeholder="Seleccionar responsable"
           onAddTag={onAddUser}
           onRemoveTag={onRemoveUser}
@@ -104,7 +120,14 @@ export function ReasignarRespuestaModal({
           <AppButton variant="secondary" onClick={onClose}>
             Cancelar
           </AppButton>
-          <AppButton ref={primaryButtonRef} onClick={onSubmit}>
+          <AppButton
+            ref={primaryButtonRef}
+            onClick={() => {
+              setAttemptedSubmit(true);
+              if (missingResponsables) return;
+              onSubmit();
+            }}
+          >
             Enviar
           </AppButton>
         </footer>
