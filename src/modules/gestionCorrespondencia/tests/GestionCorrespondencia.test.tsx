@@ -353,6 +353,22 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
     expect(screen.getByText("Respuesta pendiente de reasignacion")).toBeInTheDocument();
   });
 
+  it("cierra el modal de reasignacion al pulsar Cancelar despues de abrir por reasignar_tramite", () => {
+    const table = createTable();
+
+    render(
+      <MemoryRouter>
+        <GestionCorrespondencia table={table} />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Disparar reasignar tramite/i }));
+    expect(screen.getByRole("heading", { name: "Reasignar Respuesta" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+    expect(screen.queryByRole("heading", { name: "Reasignar Respuesta" })).not.toBeInTheDocument();
+  });
+
   it("no navega al hacer click sobre la columna de acciones", () => {
     const table = createTable();
 

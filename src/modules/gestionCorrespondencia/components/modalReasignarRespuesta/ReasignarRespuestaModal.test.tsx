@@ -53,7 +53,7 @@ describe("ReasignarRespuestaModal [SPEC:implementacion-visual-appmodal-gestion-c
         onClose={vi.fn()}
         radicado="2500056897"
         nota="Nota"
-        users={[]}
+        users={["ana@contasoft.com"]}
         onAddUser={vi.fn()}
         onRemoveUser={vi.fn()}
         onRemoveAllUsers={vi.fn()}
@@ -63,6 +63,27 @@ describe("ReasignarRespuestaModal [SPEC:implementacion-visual-appmodal-gestion-c
 
     fireEvent.click(screen.getByRole("button", { name: "Enviar" }));
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it("no envia y muestra error cuando no hay responsables", () => {
+    const onSubmit = vi.fn();
+    render(
+      <ReasignarRespuestaModal
+        open
+        onClose={vi.fn()}
+        radicado="2500056897"
+        nota="Nota"
+        users={[]}
+        onAddUser={vi.fn()}
+        onRemoveUser={vi.fn()}
+        onRemoveAllUsers={vi.fn()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Enviar" }));
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByText("Debe seleccionar al menos un responsable.")).toBeInTheDocument();
   });
 
   it("permite eliminar tags y dispara callback", () => {
@@ -85,4 +106,3 @@ describe("ReasignarRespuestaModal [SPEC:implementacion-visual-appmodal-gestion-c
     expect(onRemoveUser).toHaveBeenCalledWith("ana@contasoft.com");
   });
 });
-

@@ -1,5 +1,5 @@
 import { SwapOutlined } from "@ant-design/icons";
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
 import { AppInputTags } from "../../../../app/Components/UI/AppInputTags";
 import { AppModal } from "../../../../app/Components/UI/AppModal";
@@ -17,6 +17,14 @@ export type ReasignarRespuestaModalProps = {
   onSubmit: () => void;
 };
 
+const RESPONSABLE_SUGGESTIONS = [
+  { label: "Angelica Torres (angelica.torres@contasoft.com)", value: "angelica.torres@contasoft.com" },
+  { label: "Carlos Vega (carlos.vega@contasoft.com)", value: "carlos.vega@contasoft.com" },
+  { label: "Laura Mendoza (laura.mendoza@contasoft.com)", value: "laura.mendoza@contasoft.com" },
+  { label: "Sofia Rojas (sofia.rojas@contasoft.com)", value: "sofia.rojas@contasoft.com" },
+  { label: "Juan Pardo (juan.pardo@contasoft.com)", value: "juan.pardo@contasoft.com" },
+];
+
 export function ReasignarRespuestaModal({
   open,
   onClose,
@@ -30,11 +38,29 @@ export function ReasignarRespuestaModal({
 }: ReasignarRespuestaModalProps) {
   const titleId = useId();
   const primaryButtonRef = useRef<HTMLButtonElement | null>(null);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const responsableOptions = useMemo(
+    () => [
+      ...RESPONSABLE_SUGGESTIONS,
+      ...users
+        .filter((value) => !RESPONSABLE_SUGGESTIONS.some((item) => item.value === value))
+        .map((value) => ({ label: value, value })),
+    ],
+    [users],
+  );
 
   useEffect(() => {
     if (!open) return;
     setTimeout(() => primaryButtonRef.current?.focus(), 0);
   }, [open]);
+
+  useEffect(() => {
+    if (open) {
+      setAttemptedSubmit(false);
+    }
+  }, [open]);
+
+  const missingResponsables = users.length === 0;
 
   return (
     <AppModal
@@ -62,6 +88,16 @@ export function ReasignarRespuestaModal({
         <AppInputTags
           label="Responsable"
           value={users}
+          options={responsableOptions}
+          openOnFocus
+          closeOnSelect
+          error={attemptedSubmit && missingResponsables}
+          state={attemptedSubmit && missingResponsables ? "error" : "default"}
+          helperText={
+            attemptedSubmit && missingResponsables
+              ? "Debe seleccionar al menos un responsable."
+              : "Escribe nombre o correo, selecciona sugerencia y presiona Enter para agregar."
+          }
           placeholder="Seleccionar responsable"
           onAddTag={onAddUser}
           onRemoveTag={onRemoveUser}
@@ -74,14 +110,24 @@ export function ReasignarRespuestaModal({
             <span className={styles.noteLabel}>Nota</span>
             <span className={styles.noteDivider} aria-hidden="true" />
           </div>
-          <div className={styles.noteBox}>{nota}</div>
+          <div className={styles.noteBox}>
+            <p className={styles.noteLead}>Contexto del tramite a reasignar</p>
+            <p className={styles.noteText}>{nota}</p>
+          </div>
         </section>
 
         <footer className={styles.actions} aria-label="Acciones">
           <AppButton variant="secondary" onClick={onClose}>
             Cancelar
           </AppButton>
-          <AppButton ref={primaryButtonRef} onClick={onSubmit}>
+          <AppButton
+            ref={primaryButtonRef}
+            onClick={() => {
+              setAttemptedSubmit(true);
+              if (missingResponsables) return;
+              onSubmit();
+            }}
+          >
             Enviar
           </AppButton>
         </footer>
@@ -89,4 +135,3 @@ export function ReasignarRespuestaModal({
     </AppModal>
   );
 }
-
