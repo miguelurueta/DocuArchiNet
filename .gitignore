@@ -30,3 +30,6 @@ env.jira
 # Local environment overrides
 .env
 env
+
+# Local tooling cache
+.npm-cache/
