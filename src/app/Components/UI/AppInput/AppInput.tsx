@@ -10,11 +10,14 @@ type AntSelectProps = SelectProps;
 export type AppInputState = "default" | "error";
 
 type AppInputBaseProps = {
+  id?: string;
   label?: ReactNode;
   helperText?: ReactNode;
   error?: boolean;
   state?: AppInputState;
   className?: string;
+  disabled?: boolean;
+  "aria-describedby"?: string;
 };
 
 export type AppInputOption = {

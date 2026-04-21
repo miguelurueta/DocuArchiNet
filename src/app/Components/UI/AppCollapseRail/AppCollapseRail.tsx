@@ -93,10 +93,11 @@ export function AppCollapseRail({
             className={styles.railButton}
             onClick={onToggle}
             aria-label={`Mostrar ${title}`}
-            icon={!isOverlay ? expandIcon : undefined}
+            icon={railIcon ?? (!isOverlay ? expandIcon : undefined)}
           >
             {isOverlay ? (
               <span className={styles.railLabel}>
+                {railIcon ? <span className={styles.railLabelIcon}>{railIcon}</span> : null}
                 {resolvedRailLabel}
               </span>
             ) : null}

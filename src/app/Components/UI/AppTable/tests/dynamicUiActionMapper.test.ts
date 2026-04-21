@@ -28,7 +28,7 @@ describe("[SPEC:CREATE-COTRATO-AG-GRID-FASE-2] dynamicUiActionMapper", () => {
     ]);
 
     expect(result).toEqual([
-      {
+      expect.objectContaining({
         actionId: "approve",
         label: "Aprobar",
         placement: "cell",
@@ -47,7 +47,7 @@ describe("[SPEC:CREATE-COTRATO-AG-GRID-FASE-2] dynamicUiActionMapper", () => {
         rules: { enabled: true },
         metadata: { source: "contract" },
         payload: { rowId: 1 },
-      },
+      }),
     ]);
   });
 

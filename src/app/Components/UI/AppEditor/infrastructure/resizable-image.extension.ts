@@ -1,4 +1,6 @@
 import { mergeAttributes } from "@tiptap/core";
+import type { CommandProps } from "@tiptap/core";
+import type { Editor } from "@tiptap/core";
 import { Image } from "@tiptap/extension-image";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { NodeSelection } from "@tiptap/pm/state";
@@ -210,16 +212,17 @@ export const ResizableImage = Image.extend({
       ...this.parent?.(),
       align: {
         default: "left",
-        parseHTML: (element) => element.getAttribute("data-align") ?? "left",
-        renderHTML: (attributes) => ({
-          "data-align": attributes.align ?? "left",
+        parseHTML: (element: HTMLElement) => element.getAttribute("data-align") ?? "left",
+        renderHTML: (attributes: Record<string, unknown>) => ({
+          "data-align":
+            typeof attributes.align === "string" ? attributes.align : "left",
         }),
       },
       localImageId: {
         default: null,
-        parseHTML: (element) => element.getAttribute("data-local-image-id"),
-        renderHTML: (attributes) =>
-          attributes.localImageId
+        parseHTML: (element: HTMLElement) => element.getAttribute("data-local-image-id"),
+        renderHTML: (attributes: Record<string, unknown>) =>
+          typeof attributes.localImageId === "string" && attributes.localImageId
             ? {
                 "data-local-image-id": attributes.localImageId,
               }
@@ -227,9 +230,9 @@ export const ResizableImage = Image.extend({
       },
       imageId: {
         default: null,
-        parseHTML: (element) => element.getAttribute("data-image-id"),
-        renderHTML: (attributes) =>
-          attributes.imageId
+        parseHTML: (element: HTMLElement) => element.getAttribute("data-image-id"),
+        renderHTML: (attributes: Record<string, unknown>) =>
+          typeof attributes.imageId === "string" && attributes.imageId
             ? {
                 "data-image-id": attributes.imageId,
               }
@@ -237,9 +240,9 @@ export const ResizableImage = Image.extend({
       },
       source: {
         default: null,
-        parseHTML: (element) => element.getAttribute("data-source"),
-        renderHTML: (attributes) =>
-          attributes.source
+        parseHTML: (element: HTMLElement) => element.getAttribute("data-source"),
+        renderHTML: (attributes: Record<string, unknown>) =>
+          typeof attributes.source === "string" && attributes.source
             ? {
                 "data-source": attributes.source,
               }
@@ -247,19 +250,20 @@ export const ResizableImage = Image.extend({
       },
       width: {
         default: null,
-        parseHTML: (element) =>
+        parseHTML: (element: HTMLElement) =>
           element.getAttribute("data-width") ??
           element.getAttribute("width") ??
           extractWidth(element.getAttribute("style")),
-        renderHTML: (attributes) => {
-          if (!attributes.width) {
+        renderHTML: (attributes: Record<string, unknown>) => {
+          const width = typeof attributes.width === "string" ? attributes.width : null;
+          if (!width) {
             return {};
           }
 
           return {
-            "data-width": attributes.width,
-            width: attributes.width,
-            style: buildImageStyle(attributes.width, null),
+            "data-width": width,
+            width,
+            style: buildImageStyle(width, null),
           };
         },
       },
@@ -271,7 +275,7 @@ export const ResizableImage = Image.extend({
       ...this.parent?.(),
       setImageAlign:
         (align: ImageAlign) =>
-        ({ editor, commands, state }) => {
+        ({ editor, commands, state }: CommandProps) => {
           if (!editor.isActive("image") && !hasActiveImageSelection(state)) {
             return false;
           }
@@ -284,7 +288,15 @@ export const ResizableImage = Image.extend({
   },
 
   addNodeView() {
-    return ({ node, editor, getPos }) => {
+    return ({
+      node,
+      editor,
+      getPos,
+    }: {
+      node: ProseMirrorNode;
+      editor: Editor;
+      getPos?: () => number | undefined;
+    }) => {
       let currentNode = node;
       const wrapper = document.createElement("div");
       wrapper.className = "app-editor-image-node";
@@ -407,14 +419,24 @@ export const ResizableImage = Image.extend({
     };
   },
 
-  renderHTML({ HTMLAttributes }) {
-    const { width, style, ...restAttributes } = HTMLAttributes;
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, unknown> }) {
+    const { width, style, ...restAttributes } = HTMLAttributes as Record<
+      string,
+      string | number | boolean | null | undefined
+    >;
+    const widthValue =
+      typeof width === "string"
+        ? width
+        : typeof width === "number"
+          ? String(width)
+          : null;
+    const styleValue = typeof style === "string" ? style : null;
 
     return [
       "img",
       mergeAttributes(restAttributes, {
-        ...(width ? { "data-width": width } : {}),
-        style: buildImageStyle(width, style),
+        ...(widthValue ? { "data-width": widthValue } : {}),
+        style: buildImageStyle(widthValue, styleValue),
       }),
     ];
   },

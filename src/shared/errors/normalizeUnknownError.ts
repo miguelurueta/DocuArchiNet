@@ -1,9 +1,11 @@
-// shared/errors/normalizeUnknownError.ts
 import type { AppError } from "./AppError";
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
 
 export function normalizeUnknownError(
   error: unknown,
-  fallbackMessage = "Ocurrió un error inesperado."
+  fallbackMessage = "Ocurrio un error inesperado.",
 ): AppError {
   if (error instanceof Error) {
     return {
@@ -22,16 +24,16 @@ export function normalizeUnknownError(
     };
   }
 
-  if (typeof error === "object" && error !== null) {
-    const anyErr = error as any;
+  if (isRecord(error)) {
+    const message =
+      (typeof error.message === "string" && error.message) ||
+      (typeof error.Message === "string" && error.Message) ||
+      fallbackMessage;
 
     return {
       source: "unknown",
       severity: "error",
-      message:
-        anyErr.message ||
-        anyErr.Message ||
-        fallbackMessage,
+      message,
       details: error,
     };
   }
@@ -43,3 +45,4 @@ export function normalizeUnknownError(
     details: error,
   };
 }
+

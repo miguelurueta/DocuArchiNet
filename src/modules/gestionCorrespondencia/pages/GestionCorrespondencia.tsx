@@ -6,6 +6,10 @@ import { AppButton } from "../../../app/Components/UI/AppButton";
 import { AppContent } from "../../../app/Components/UI/AppContent";
 import { AppInputSearch } from "../../../app/Components/UI/AppInputSearch";
 import { AppTableExport } from "../../../app/Components/UI/AppTable/AppTableExport";
+import type {
+  AppTableExportFormat,
+  AppTableExportMode,
+} from "../../../app/Components/UI/AppTable/AppTableExport.types";
 import { AppTableQueryWrapper } from "../../../app/Components/UI/AppTable/AppTableQueryWrapper";
 import AppTable from "../../../app/Components/UI/AppTable/AppTable";
 import type {
@@ -14,6 +18,7 @@ import type {
   AppTableRow,
 } from "../../../app/Components/UI/AppTable/AppTable.types";
 import { AppToolbar } from "../../../app/Components/UI/AppToolbar";
+import { ReasignarRespuestaModal } from "../components/modalReasignarRespuesta";
 import type { GestionCorrespondenciaTableResult } from "../hooks/useGestionCorrespondenciaTable";
 import { useWorkflowInboxAutocomplete } from "../hooks/useWorkflowInboxAutocomplete";
 import styles from "../style/GestionCorrespondencia.module.css";
@@ -22,8 +27,23 @@ type GestionCorrespondenciaProps<T extends AppTableRow = AppTableRow> = {
   table: GestionCorrespondenciaTableResult<T>;
 };
 
-const EXPORT_FORMATS = ["csv", "xlsx", "pdf"] as const;
-const EXPORT_ENABLED_MODES = ["currentPage", "selectedRows", "allMatching"] as const;
+const resolveStringField = (row: AppTableRow | null, keys: string[]): string | null => {
+  if (!row) return null;
+
+  for (const key of keys) {
+    const value = row[key];
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value.trim();
+    }
+    if (typeof value === "number") {
+      return String(value);
+    }
+  }
+
+  return null;
+};
+const EXPORT_FORMATS: AppTableExportFormat[] = ["csv", "xlsx", "pdf"];
+const EXPORT_ENABLED_MODES: AppTableExportMode[] = ["currentPage", "selectedRows", "allMatching"];
 const RESPONSIVE_PRESENTATION = {
   enabled: true,
   cardsBelow: 768,
@@ -34,6 +54,9 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
 }: GestionCorrespondenciaProps<T>) {
   const navigate = useNavigate();
   const [selectedRows, setSelectedRows] = useState<T[]>([]);
+  const [isReasignarOpen, setIsReasignarOpen] = useState(false);
+  const [reasignarContextRow, setReasignarContextRow] = useState<T | null>(null);
+  const [reasignarUsers, setReasignarUsers] = useState<string[]>([]);
   const [searchDraft, setSearchDraft] = useState(table.queryState.search);
   const autocomplete = useWorkflowInboxAutocomplete({
     minLength: 2,
@@ -84,11 +107,18 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
   }, [navigate]);
 
   const handleTableAction = useCallback(({ actionId, row }: AppTableActionTriggered<T>) => {
-    if (actionId !== "gestionar_tramite" && actionId !== "gestionar_tramite_menu") {
+    const normalizedActionId = actionId.trim().toLocaleLowerCase();
+
+    if (normalizedActionId === "reasignar_tramite" || normalizedActionId === "reasignar_tramite_menu") {
+      setReasignarContextRow(row);
+      setReasignarUsers([]);
+      setIsReasignarOpen(true);
       return;
     }
 
-    navigateToRowDetail(row);
+    if (normalizedActionId === "gestionar_tramite" || normalizedActionId === "gestionar_tramite_menu") {
+      navigateToRowDetail(row);
+    }
   }, [navigateToRowDetail]);
 
   const handleTableCellClick = useCallback(({ row, field }: AppTableCellClick<T>) => {
@@ -120,6 +150,28 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
     ),
     [exportDataSource, exportReportMeta, table.columns],
   );
+
+  const radicadoReasignar =
+    resolveStringField(reasignarContextRow, [
+      "RADICADO",
+      "Radicado",
+      "radicado",
+      "NumeroRadicado",
+      "numeroRadicado",
+      "id",
+    ]) ?? "-";
+
+  const notaReasignar =
+    resolveStringField(reasignarContextRow, [
+      "ASUNTO",
+      "Asunto",
+      "asunto",
+      "DESCRIPCION",
+      "Descripcion",
+      "descripcion",
+      "TramiteDocumento",
+      "tramiteDocumento",
+    ]) ?? "Buen dia, Angelica. Se solicita reasignacion del tramite para continuidad operativa.";
 
   return (
     <div className={styles.shell}>
@@ -192,6 +244,22 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
           </AppTableQueryWrapper>
         </div>
       </AppContent>
+
+      <ReasignarRespuestaModal
+        open={isReasignarOpen}
+        onClose={() => setIsReasignarOpen(false)}
+        radicado={radicadoReasignar}
+        nota={notaReasignar}
+        users={reasignarUsers}
+        onAddUser={(value) =>
+          setReasignarUsers((current) => (current.includes(value) ? current : [...current, value]))
+        }
+        onRemoveUser={(value) =>
+          setReasignarUsers((current) => current.filter((item) => item !== value))
+        }
+        onRemoveAllUsers={() => setReasignarUsers([])}
+        onSubmit={() => setIsReasignarOpen(false)}
+      />
     </div>
   );
 }

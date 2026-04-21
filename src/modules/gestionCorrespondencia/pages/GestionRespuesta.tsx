@@ -1,17 +1,24 @@
 import { FileTextOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
-import { DocumentosWorkbench } from "../components/documentosWorkbench";
 import type { AppTabItem } from "../../../app/Components/UI/AppTabs";
 import { AppTabs } from "../../../app/Components/UI/AppTabs";
+import { DocumentosWorkbench } from "../components/documentosWorkbench";
 import { GestionRespuestaMainTabContent } from "../components/gestionRespuestaMainTab/GestionRespuestaMainTabContent";
 import styles from "../style/GestionRespuesta.module.css";
 
-export default function GestionRespuesta() {
+type GestionRespuestaProps = {
+  idTareaWf?: number;
+  detailState?: "loading" | "ready" | "blocked-empty" | "blocked-error" | "blocked-invalid-id";
+};
+
+export default function GestionRespuesta({ idTareaWf: idTareaWfFromRoute }: GestionRespuestaProps = {}) {
   const params = useParams();
   const rawId = params.id;
-  // `useParams()` siempre retorna string | undefined. `Number("924-foo")` da NaN, pero
-  // el backend espera un número; `parseInt` nos permite tolerar sufijos accidentales.
-  const idTareaWf = typeof rawId === "string" ? Number.parseInt(rawId, 10) : Number.NaN;
+  const fallbackId = typeof rawId === "string" ? Number.parseInt(rawId, 10) : Number.NaN;
+  const idTareaWf =
+    typeof idTareaWfFromRoute === "number" && Number.isFinite(idTareaWfFromRoute)
+      ? idTareaWfFromRoute
+      : fallbackId;
 
   const items: AppTabItem[] = [
     {

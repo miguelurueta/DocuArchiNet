@@ -1,9 +1,10 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 import * as estructuraRespuestaHook from "../hooks/useEstructuraRespuestaIdTarea";
 import GestionCorrespondenciaLayout from "../layout/GestionCorrespondenciaLayout";
 import GestionRespuesta from "../pages/GestionRespuesta";
+import type { UseEstructuraRespuestaIdTareaResult } from "../hooks/useEstructuraRespuestaIdTarea";
 import GestionCorrespondenciaRoute from "./GestionCorrespondenciaRoute";
 
 vi.mock("../pages/GestionCorrespondenciaRoutePage", () => ({
@@ -14,16 +15,19 @@ vi.mock("../hooks/useEstructuraRespuestaIdTarea", () => ({
   useEstructuraRespuestaIdTarea: vi.fn(),
 }));
 
-vi.mocked(estructuraRespuestaHook.useEstructuraRespuestaIdTarea).mockReturnValue({
-  estrucTuraRespuesta: {
-    Radicado: "2025-0001",
-    Destinatario: "Contasoft Company",
-    TramiteDocumento: "Respuesta a derecho de petición",
-  },
-  loading: false,
-  error: null,
-  isEmpty: false,
-});
+const setHookState = (state: Partial<UseEstructuraRespuestaIdTareaResult>) => {
+  vi.mocked(estructuraRespuestaHook.useEstructuraRespuestaIdTarea).mockReturnValue({
+    estrucTuraRespuesta: {
+      Radicado: "2025-0001",
+      Destinatario: "Contasoft Company",
+      TramiteDocumento: "Respuesta a derecho de peticion",
+    },
+    loading: false,
+    error: null,
+    isEmpty: false,
+    ...state,
+  });
+};
 
 function renderGestionCorrespondencia(initialEntry: string) {
   return render(
@@ -41,6 +45,10 @@ function renderGestionCorrespondencia(initialEntry: string) {
   );
 }
 
+beforeEach(() => {
+  setHookState({});
+});
+
 describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
   test("renderiza layout y pagina principal en la ruta base", () => {
     renderGestionCorrespondencia("/dashboard/gestion-correspondencia");
@@ -57,10 +65,13 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
 
     expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
     expect(screen.getByTestId("gestion-correspondencia-detail-region")).toBeInTheDocument();
+    expect(screen.getByText("2025-0001")).toBeInTheDocument();
+    expect(screen.getByText("Contasoft Company")).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.getByText("Gestion")).toBeInTheDocument();
     expect(screen.getByText("Documentos")).toBeInTheDocument();
     expect(screen.queryByText(/^Guardar$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Volver a la bandeja/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Volver a la bandeja/i }));
 
@@ -106,5 +117,79 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
     expect(
       screen.getByRole("button", { name: /Volver a la bandeja/i }),
     ).toBeVisible();
+  });
+});
+
+describe("[SPEC:SCRUMCORE-143] Bloqueo por estructura gestion respuesta", () => {
+  test("muestra estado de carga y evita render operativo mientras resuelve estructura", () => {
+    setHookState({
+      estrucTuraRespuesta: null,
+      loading: true,
+    });
+
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
+
+    expect(screen.getByTestId("gestion-correspondencia-loading-state")).toBeInTheDocument();
+    expect(screen.queryByText("Gestion")).not.toBeInTheDocument();
+    expect(screen.queryByText("Documentos")).not.toBeInTheDocument();
+  });
+
+  test("bloquea detalle cuando la estructura viene vacia", () => {
+    setHookState({
+      estrucTuraRespuesta: null,
+      isEmpty: true,
+    });
+
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
+
+    expect(screen.getByTestId("gestion-correspondencia-blocked-state")).toBeInTheDocument();
+    expect(screen.getByText(/Gestion respuesta bloqueada/i)).toBeInTheDocument();
+    expect(screen.queryByText("Gestion")).not.toBeInTheDocument();
+  });
+
+  test("bloquea detalle cuando la consulta falla", () => {
+    setHookState({
+      estrucTuraRespuesta: null,
+      error: new Error("HTTP 500"),
+    });
+
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
+
+    expect(screen.getByTestId("gestion-correspondencia-blocked-state")).toBeInTheDocument();
+    expect(screen.getByText(/No fue posible consultar la estructura/i)).toBeInTheDocument();
+    expect(screen.queryByText("Documentos")).not.toBeInTheDocument();
+  });
+
+  test("bloquea detalle cuando el idTareaWf es invalido", () => {
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/no-valido");
+
+    expect(screen.getByTestId("gestion-correspondencia-blocked-state")).toBeInTheDocument();
+    expect(screen.getByText(/No se pudo resolver una tarea valida/i)).toBeInTheDocument();
+    expect(screen.queryByText("Gestion")).not.toBeInTheDocument();
+  });
+
+  test("permite retornar a bandeja desde estado bloqueado", () => {
+    setHookState({
+      estrucTuraRespuesta: null,
+      isEmpty: true,
+    });
+
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
+
+    fireEvent.click(screen.getByRole("button", { name: /Volver a bandeja/i }));
+
+    expect(screen.queryByTestId("gestion-correspondencia-detail-region")).not.toBeInTheDocument();
+    expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
+  });
+
+  test("renderiza contenido operativo cuando la estructura esta lista", () => {
+    setHookState({});
+
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
+
+    expect(screen.queryByTestId("gestion-correspondencia-loading-state")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("gestion-correspondencia-blocked-state")).not.toBeInTheDocument();
+    expect(screen.getByText("Gestion")).toBeInTheDocument();
+    expect(screen.getByText("Documentos")).toBeInTheDocument();
   });
 });
