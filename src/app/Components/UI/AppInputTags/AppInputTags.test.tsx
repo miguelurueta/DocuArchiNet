@@ -78,7 +78,9 @@ describe("AppInputTags [SPEC:app-input-tags]", () => {
     renderTags({ variant: "email", onAddTag });
 
     const input = screen.getByLabelText("Destinatarios");
-    expect(input).toHaveAttribute("type", "email");
+    expect(input).toHaveAttribute("type", "text");
+    expect(input).toHaveAttribute("inputmode", "email");
+    expect(input).toHaveAttribute("autocomplete", "email");
 
     fireEvent.change(input, { target: { value: "TEST@EXAMPLE.COM, otra@dom.com" } });
     fireEvent.keyDown(input, { key: "Enter" });

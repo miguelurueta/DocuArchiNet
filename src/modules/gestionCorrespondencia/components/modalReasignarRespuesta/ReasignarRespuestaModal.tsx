@@ -80,6 +80,7 @@ export function ReasignarRespuestaModal({
           label="Responsable"
           value={users}
           options={responsableOptions}
+          openOnFocus
           helperText="Escribe nombre o correo, selecciona sugerencia y presiona Enter para agregar."
           placeholder="Seleccionar responsable"
           onAddTag={onAddUser}

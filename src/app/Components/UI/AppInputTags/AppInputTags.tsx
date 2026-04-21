@@ -31,6 +31,7 @@ export type AppInputTagsProps = {
   clearOnEscape?: boolean;
   disabled?: boolean;
   selectDisabled?: boolean;
+  openOnFocus?: boolean;
   size?: AppInputTagsSize;
   error?: boolean;
   state?: AppInputTagsState;
@@ -98,6 +99,7 @@ export function AppInputTags({
   clearOnEscape = false,
   disabled = false,
   selectDisabled = false,
+  openOnFocus = false,
   size = "md",
   error = false,
   state = "default",
@@ -171,6 +173,11 @@ export function AppInputTags({
 
   const canSearch = (query: string) =>
     minLength === undefined || query.length >= minLength;
+
+  const shouldOpenAutocomplete =
+    !isDisabled &&
+    ((openOnFocus && isFocused && filteredAutocompleteOptions.length > 0) ||
+      (inputValue.trim().length > 0 && canSearch(inputValue.trim())));
 
   const cancelPendingSearch = () => {
     if (timerRef.current) {
@@ -387,7 +394,7 @@ export function AppInputTags({
             triggerNode.closest(".ant-modal") ?? triggerNode.parentElement ?? document.body
           }
           disabled={isDisabled}
-          open={inputValue.trim().length > 0 && canSearch(inputValue.trim())}
+          open={shouldOpenAutocomplete}
           onChange={handleInputChange}
           onSelect={(selectedValue) => {
             didSelectAutocompleteOptionRef.current = true;
@@ -407,7 +414,7 @@ export function AppInputTags({
             aria-labelledby={ariaLabelledBy}
             data-ident={selectDataIdent}
             disabled={isDisabled}
-            type={variant === "email" ? "email" : "text"}
+            type="text"
             inputMode={variant === "email" ? "email" : undefined}
             autoComplete={variant === "email" ? "email" : undefined}
             autoCapitalize={variant === "email" ? "none" : undefined}
