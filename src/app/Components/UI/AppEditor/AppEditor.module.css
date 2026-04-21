@@ -285,17 +285,6 @@
   gap: 0.25rem;
 }
 
-.surface {
-  min-height: var(--app-editor-min-height);
-  min-width: 0;
-  flex: 1 1 auto;
-  display: flex;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at top left, color-mix(in srgb, var(--editor-muted-surface) 60%, transparent) 0%, transparent 32%),
-    var(--editor-bg);
-}
-
 .editorWrapper {
   min-height: var(--app-editor-min-height);
   min-width: 0;
@@ -410,17 +399,13 @@
 }
 
 .pageShell::before {
-  content: "";
+  content: none;
   position: absolute;
   inset:
     var(--app-editor-page-margin-top)
     var(--app-editor-page-margin-right)
     var(--app-editor-page-margin-bottom)
     var(--app-editor-page-margin-left);
-  border: 1px solid color-mix(in srgb, var(--editor-border) 38%, transparent);
-  border-radius: 0.35rem;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.52) 100%);
   pointer-events: none;
 }
 
@@ -443,26 +428,6 @@
     var(--app-editor-page-margin-right)
     var(--app-editor-page-margin-bottom)
     var(--app-editor-page-margin-left);
-}
-
-.surfacePaged {
-  width: 100%;
-  box-sizing: border-box;
-  min-height: max(
-    calc(
-      var(--app-editor-total-pages) * var(--app-editor-page-height) +
-        (var(--app-editor-total-pages) - 1) * var(--app-editor-page-gap) -
-        var(--app-editor-page-margin-top) -
-        var(--app-editor-page-margin-bottom)
-    ),
-    var(--app-editor-min-height)
-  );
-  background: transparent;
-  overflow: visible;
-  position: relative;
-  z-index: 1;
-  border-radius: 0.35rem;
-  background: transparent;
 }
 
 .pageCounter {
@@ -498,6 +463,10 @@
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
+  display: flex;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--editor-muted-surface) 60%, transparent) 0%, transparent 32%),
+    var(--editor-bg);
 }
 
 .editorContentPaged {
@@ -505,6 +474,10 @@
   box-sizing: border-box;
   min-height: var(--app-editor-visual-content-height, var(--app-editor-min-height));
   overflow: visible;
+  position: relative;
+  z-index: 1;
+  border-radius: 0.35rem;
+  background: transparent;
 }
 
 .editorContent :global(.ProseMirror) {

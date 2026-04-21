@@ -484,7 +484,7 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     const pageStack = container.querySelector(`.${styles.pageStack}`);
     const pageShell = container.querySelector(`.${styles.pageShell}`);
     const contentFlow = container.querySelector(`.${styles.contentFlow}`);
-    const surface = container.querySelector(`.${styles.surfacePaged}`);
+    const editorContent = container.querySelector(`.${styles.editorContentPaged}`);
     const editor = screen.getByLabelText("Contenido paginado");
 
     expect(shell).toHaveAttribute("data-pagination-mode", "visual");
@@ -494,9 +494,30 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     expect(pageStack).toBeInTheDocument();
     expect(pageShell).toBeInTheDocument();
     expect(contentFlow).toBeInTheDocument();
-    expect(surface).toBeInTheDocument();
+    expect(editorContent).toBeInTheDocument();
+    expect(editorContent?.parentElement).toBe(contentFlow);
     expect(editor).toBeInTheDocument();
     expect(screen.queryByText(/Pagina \d+ de \d+/i)).not.toBeInTheDocument();
+  });
+
+  it("renderiza el modo continuo sin wrapper intermedio redundante", async () => {
+    const { container } = render(
+      <AppEditor
+        label="Contenido continuo estructural"
+        defaultValue="<p>Documento continuo</p>"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Documento continuo")).toBeInTheDocument();
+    });
+
+    const frame = container.querySelector(`.${styles.frame}`);
+    const editorContent = container.querySelector(`.${styles.editorContent}`);
+
+    expect(frame).toBeInTheDocument();
+    expect(editorContent).toBeInTheDocument();
+    expect(editorContent?.parentElement).toBe(frame);
   });
 
   it("mantiene el calculo interno de paginas sin dibujar lineas guia visibles", async () => {

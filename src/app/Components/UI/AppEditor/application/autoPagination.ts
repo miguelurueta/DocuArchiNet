@@ -23,15 +23,13 @@ function resolveBlockPosition(editor: Editor, childIndex: number) {
     const blockNode = editor.state.doc.child(index);
 
     if (index === childIndex) {
-      if (!blockNode.isTextblock || blockNode.content.size === 0) {
+      if (blockNode.content.size === 0) {
         return null;
       }
 
       return {
         blockPosition,
         blockNode,
-        textStart: blockPosition + 1,
-        textEnd: blockPosition + blockNode.nodeSize - 1,
       };
     }
 
@@ -39,6 +37,20 @@ function resolveBlockPosition(editor: Editor, childIndex: number) {
   }
 
   return null;
+}
+
+function resolveTextBlockPosition(editor: Editor, childIndex: number) {
+  const blockPositionInfo = resolveTopLevelBlockPosition(editor, childIndex);
+
+  if (!blockPositionInfo?.blockNode.isTextblock) {
+    return null;
+  }
+
+  return {
+    ...blockPositionInfo,
+    textStart: blockPositionInfo.blockPosition + 1,
+    textEnd: blockPositionInfo.blockPosition + blockPositionInfo.blockNode.nodeSize - 1,
+  };
 }
 
 function clampCandidatePosition({
@@ -325,15 +337,15 @@ export function resolveAutoPageBreakActions({
       continue;
     }
 
-    const blockPositionInfo = resolveBlockPosition(editor, childIndex);
+    const blockPositionInfo = resolveTopLevelBlockPosition(editor, childIndex);
     if (!blockPositionInfo) {
       continue;
     }
 
-    const { blockPosition, textStart, textEnd } = blockPositionInfo;
+    const { blockPosition, blockNode } = blockPositionInfo;
 
     if (blockHeight <= pageContentHeight) {
-      if (actions[actions.length - 1]?.position !== blockPosition) {
+      if (blockPosition > 0 && actions[actions.length - 1]?.position !== blockPosition) {
         actions.push({
           type: "before",
           position: blockPosition,
@@ -341,6 +353,17 @@ export function resolveAutoPageBreakActions({
       }
       continue;
     }
+
+    if (!blockNode.isTextblock) {
+      continue;
+    }
+
+    const textBlockPositionInfo = resolveTextBlockPosition(editor, childIndex);
+    if (!textBlockPositionInfo) {
+      continue;
+    }
+
+    const { textStart, textEnd } = textBlockPositionInfo;
 
     let searchStart = textStart + MIN_LEADING_TEXT_CHARS;
     const firstOverflowPage = resolveContentPageIndex(blockTop, pageStride, pageContentHeight);
