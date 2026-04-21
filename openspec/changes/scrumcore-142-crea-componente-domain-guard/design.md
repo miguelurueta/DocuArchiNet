@@ -86,3 +86,12 @@ Referencias funcionales:
 - Documentar API y uso recomendado.
 - (Siguiente ticket) Adoptar en pantalla piloto (Gestión Respuesta) y validar no regresión.
 
+## Implementación (estado actual)
+
+- `DomainGuard` implementado en `src/app/Components/UI/DomainGuard/DomainGuard.tsx`.
+- Re-export en `src/app/Components/UI/DomainGuard/index.ts`.
+- Hook helper `useDomainGuard` implementado en `src/shared/hooks/useDomainGuard.ts` (la carpeta `src/app/hooks/` no existe en esta versión del repo).
+- Pruebas en `src/app/Components/UI/DomainGuard/DomainGuard.test.tsx` verifican:
+  - render de children cuando `isBlocked=false`;
+  - render de fallback cuando `isBlocked=true`;
+  - children no se montan en estado bloqueado (no corre `useEffect`).
