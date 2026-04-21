@@ -115,8 +115,7 @@ export function GestionRespuestaMainTabContent({
           data-testid="gestion-respuesta-workbench"
         >
           <GestionRespuestaEditorContainer
-            title="Editor principal"
-            description="Zona dominante del workspace para construir la respuesta."
+           
           >
             <AppEditor
               value={editorValue}
