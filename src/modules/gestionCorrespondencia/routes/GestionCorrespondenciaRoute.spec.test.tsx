@@ -121,6 +121,19 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
 });
 
 describe("[SPEC:SCRUMCORE-143] Bloqueo por estructura gestion respuesta", () => {
+  test("muestra estado de carga y evita render operativo mientras resuelve estructura", () => {
+    setHookState({
+      estrucTuraRespuesta: null,
+      loading: true,
+    });
+
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
+
+    expect(screen.getByTestId("gestion-correspondencia-loading-state")).toBeInTheDocument();
+    expect(screen.queryByText("Gestion")).not.toBeInTheDocument();
+    expect(screen.queryByText("Documentos")).not.toBeInTheDocument();
+  });
+
   test("bloquea detalle cuando la estructura viene vacia", () => {
     setHookState({
       estrucTuraRespuesta: null,
@@ -167,5 +180,16 @@ describe("[SPEC:SCRUMCORE-143] Bloqueo por estructura gestion respuesta", () => 
 
     expect(screen.queryByTestId("gestion-correspondencia-detail-region")).not.toBeInTheDocument();
     expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
+  });
+
+  test("renderiza contenido operativo cuando la estructura esta lista", () => {
+    setHookState({});
+
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
+
+    expect(screen.queryByTestId("gestion-correspondencia-loading-state")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("gestion-correspondencia-blocked-state")).not.toBeInTheDocument();
+    expect(screen.getByText("Gestion")).toBeInTheDocument();
+    expect(screen.getByText("Documentos")).toBeInTheDocument();
   });
 });
