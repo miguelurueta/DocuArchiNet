@@ -10,6 +10,8 @@ interface GestionCorrespondenciaRouteProps {
   detailContent?: ReactNode;
 }
 
+type DetailState = "loading" | "ready" | "blocked-empty" | "blocked-error" | "blocked-invalid-id";
+
 export default function GestionCorrespondenciaRoute({
   detailContent,
 }: GestionCorrespondenciaRouteProps) {
@@ -17,17 +19,43 @@ export default function GestionCorrespondenciaRoute({
   const params = useParams();
   const parsedId = Number.parseInt(params.id ?? "", 10);
   const hasDetail = Boolean(detailContent);
-  const { estrucTuraRespuesta, loading } = useEstructuraRespuestaIdTarea(
-    hasDetail && Number.isFinite(parsedId) ? parsedId : undefined,
-  );
+  const hasValidId = Number.isFinite(parsedId) && parsedId > 0;
+
+  const {
+    estrucTuraRespuesta,
+    loading,
+    error,
+    isEmpty,
+  } = useEstructuraRespuestaIdTarea(hasDetail && hasValidId ? parsedId : undefined);
+
+  const detailState: DetailState = !hasDetail
+    ? "ready"
+    : !hasValidId
+      ? "blocked-invalid-id"
+      : loading
+        ? "loading"
+        : error
+          ? "blocked-error"
+          : isEmpty
+            ? "blocked-empty"
+            : "ready";
+
+  const isReady = detailState === "ready";
+
+  const blockedMessage =
+    detailState === "blocked-invalid-id"
+      ? "No se pudo resolver una tarea valida para cargar la gestion de respuesta."
+      : detailState === "blocked-error"
+        ? "No fue posible consultar la estructura de la tarea. Vuelve a la bandeja para reintentar."
+        : "No existe estructura disponible para esta tarea de gestion respuesta.";
 
   const metadata = [
-    { label: "Radicado", value: loading ? "..." : (estrucTuraRespuesta?.Radicado ?? "-") },
+    { label: "Radicado", value: loading ? "..." : (isReady ? (estrucTuraRespuesta?.Radicado ?? "-") : "-") },
     {
       label: "Remitente",
-      value: loading ? "..." : (estrucTuraRespuesta?.Destinatario ?? "-"),
+      value: loading ? "..." : (isReady ? (estrucTuraRespuesta?.Destinatario ?? "-") : "-"),
     },
-    { label: "Trámite", value: estrucTuraRespuesta?.TramiteDocumento ?? "-" },
+    { label: "Tramite", value: isReady ? (estrucTuraRespuesta?.TramiteDocumento ?? "-") : "-" },
   ];
 
   const handleClose = () => {
@@ -72,7 +100,26 @@ export default function GestionCorrespondenciaRoute({
             </div>
           </header>
 
-          <div className={styles.detailBody}>{detailContent}</div>
+          <div className={styles.detailBody}>
+            {isReady ? (
+              detailContent
+            ) : detailState === "loading" ? (
+              <div className={styles.blockedState} data-testid="gestion-correspondencia-loading-state">
+                <h3 className={styles.blockedTitle}>Cargando estructura de la tarea</h3>
+                <p className={styles.blockedCopy}>
+                  Espera un momento mientras validamos la informacion de la gestion respuesta.
+                </p>
+              </div>
+            ) : (
+              <div className={styles.blockedState} data-testid="gestion-correspondencia-blocked-state">
+                <h3 className={styles.blockedTitle}>Gestion respuesta bloqueada</h3>
+                <p className={styles.blockedCopy}>{blockedMessage}</p>
+                <AppButton size="sm" variant="secondary" onClick={handleClose}>
+                  Volver a bandeja
+                </AppButton>
+              </div>
+            )}
+          </div>
         </aside>
       ) : null}
     </section>
