@@ -87,6 +87,25 @@ Salida esperada (resumen):
 [opsxj:new] Proceso finalizado correctamente.
 ```
 
+## Pre-check manual antes de `opsxj:archive` (recomendado)
+
+Antes de archivar, valide que NO hay cambios sin commit y que la rama esta sincronizada con upstream:
+
+```bash
+git status -sb
+git diff --name-only
+git diff --cached --name-only
+git rev-list --left-right --count @{upstream}...HEAD
+```
+
+- Debe estar limpio (sin `M`, `D`, `??`) y el conteo debe ser `0 0`.
+
+## Utilidades Git (opcional)
+
+- `npm run git:verify`: valida que la rama local este limpia y sincronizada con su upstream.
+- `npm run git:update`: hace `git add -A`, commit con mensaje fijo, push y crea PR automaticamente.
+  - Requiere `GITHUB_TOKEN` y `GITHUB_REPO` en el entorno.
+
 ## 2) `generate-proposal-from-jira.js` (modo clásico)
 
 Genera proposal usando carpeta basada en `issueKey` (sin slug del resumen).

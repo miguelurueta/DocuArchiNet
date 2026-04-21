@@ -1,6 +1,12 @@
 import { useEffect, useId, useState } from "react";
 import { CarryOutFilled, MailFilled } from "@ant-design/icons";
 import {
+  CarryOutFilled,
+  MailFilled,
+} from "@ant-design/icons";
+import { useId, useState, useSyncExternalStore } from "react";
+import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
+import {
   AppEditor,
   AppEditorSaveAction,
   useAppEditorSaveState,
@@ -19,24 +25,24 @@ const DEFAULT_MEDIA_QUERY = "(max-width: 1024px)";
 const MOBILE_MEDIA_QUERY = "(max-width: 768px)";
 
 const useMediaQuery = (query: string) => {
-  const getMatches = () =>
+  const getSnapshot = () =>
     typeof window !== "undefined" ? window.matchMedia(query).matches : false;
-  const [matches, setMatches] = useState(getMatches);
 
-  useEffect(() => {
+  const subscribe = (onStoreChange: () => void) => {
+    if (typeof window === "undefined") {
+      return () => undefined;
+    }
+
     const mediaQueryList = window.matchMedia(query);
-    const update = (event: MediaQueryListEvent) => {
-      setMatches(event.matches);
-    };
+    const onChange = () => onStoreChange();
 
-    setMatches(mediaQueryList.matches);
-    mediaQueryList.addEventListener("change", update);
+    mediaQueryList.addEventListener("change", onChange);
     return () => {
-      mediaQueryList.removeEventListener("change", update);
+      mediaQueryList.removeEventListener("change", onChange);
     };
-  }, [query]);
+  };
 
-  return matches;
+  return useSyncExternalStore(subscribe, getSnapshot, () => false);
 };
 
 type GestionRespuestaMainTabContentProps = {
@@ -72,10 +78,6 @@ export function GestionRespuestaMainTabContent({
     currentValue: editorValue,
     savedValue: savedEditorValue,
   });
-
-  useEffect(() => {
-    setIsPanelCollapsed(isCompact);
-  }, [isCompact]);
 
   return (
     <section className={styles.mainTab} aria-label="Contenido principal de respuesta">
@@ -117,6 +119,9 @@ export function GestionRespuestaMainTabContent({
           data-testid="gestion-respuesta-workbench"
         >
           <GestionRespuestaEditorContainer>
+          <GestionRespuestaEditorContainer
+           
+          >
             <AppEditor
               value={editorValue}
               onChange={setEditorValue}
@@ -145,6 +150,34 @@ export function GestionRespuestaMainTabContent({
             panelId={panelId}
             onToggle={() => setIsPanelCollapsed((prev) => !prev)}
           />
+
+          <AppCollapseRail
+            title="Herramientas"
+            collapsed={isPanelCollapsed}
+            onToggle={() => setIsPanelCollapsed((prev) => !prev)}
+            panelId={panelId}
+            placement="right"
+            variant={isMobile ? "overlay" : "inline"}
+          >
+            <div className={styles.toolsList}>
+              <div className={styles.toolsItem}>
+                <strong>Checklist de validacion</strong>
+                <span className={styles.infoCopy}>
+                  Estado del analisis y observaciones tecnicas.
+                </span>
+              </div>
+              <div className={styles.toolsItem}>
+                <strong>Referencias del expediente</strong>
+                <span className={styles.infoCopy}>Links y notas operativas clave.</span>
+              </div>
+              <div className={styles.toolsItem}>
+                <strong>Historial reciente</strong>
+                <span className={styles.infoCopy}>
+                  Resumen de cambios y actividades asociadas.
+                </span>
+              </div>
+            </div>
+          </AppCollapseRail>
         </div>
       </div>
 

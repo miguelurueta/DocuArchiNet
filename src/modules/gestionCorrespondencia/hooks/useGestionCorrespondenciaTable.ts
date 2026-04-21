@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   exportAppTableFile,
   getDynamicTable,
@@ -121,18 +121,25 @@ export const useGestionCorrespondenciaTable = <
     }),
     [query.pagination.page, query.pagination.pageSize, queryState],
   );
+  const latestQueryStateRef = useRef(effectiveQueryState);
+  const latestTotalRef = useRef(query.total);
 
-  const getAllMatchingRows = async () => {
+  latestQueryStateRef.current = effectiveQueryState;
+  latestTotalRef.current = query.total;
+
+  const getAllMatchingRows = useCallback(async () => {
+    const latestQueryState = latestQueryStateRef.current;
+    const latestTotal = latestTotalRef.current;
     const response = await getDynamicTable(
       mapGestionCorrespondenciaTableRequest({
         tableId: GESTION_CORRESPONDENCIA_TABLE_ID,
         page: 1,
-        pageSize: resolveAllMatchingPageSize(query.total, effectiveQueryState.pageSize),
-        search: effectiveQueryState.search,
-        searchType: effectiveQueryState.searchType,
-        structuredFilters: effectiveQueryState.structuredFilters,
-        sortField: effectiveQueryState.sortField,
-        sortDir: effectiveQueryState.sortDir,
+        pageSize: resolveAllMatchingPageSize(latestTotal, latestQueryState.pageSize),
+        search: latestQueryState.search,
+        searchType: latestQueryState.searchType,
+        structuredFilters: latestQueryState.structuredFilters,
+        sortField: latestQueryState.sortField,
+        sortDir: latestQueryState.sortDir,
         includeConfig: false,
       }),
     );
@@ -140,22 +147,24 @@ export const useGestionCorrespondenciaTable = <
     return mapAppGridRowsToAppTableRows<T>(
       mapUiRowsToAppGridRows(response.data?.Rows ?? response.Data?.Rows),
     );
-  };
+  }, []);
 
-  const getBackendExportFile = async ({
+  const getBackendExportFile = useCallback(async ({
     format,
     mode,
     reportMeta,
   }: AppTableBackendExportRequest<T>) => {
+    const latestQueryState = latestQueryStateRef.current;
+    const latestTotal = latestTotalRef.current;
     const mappedQuery = mapGestionCorrespondenciaTableRequest({
       tableId: GESTION_CORRESPONDENCIA_TABLE_ID,
       page: 1,
-      pageSize: resolveAllMatchingPageSize(query.total, effectiveQueryState.pageSize),
-      search: effectiveQueryState.search,
-      searchType: effectiveQueryState.searchType,
-      structuredFilters: effectiveQueryState.structuredFilters,
-      sortField: effectiveQueryState.sortField,
-      sortDir: effectiveQueryState.sortDir,
+      pageSize: resolveAllMatchingPageSize(latestTotal, latestQueryState.pageSize),
+      search: latestQueryState.search,
+      searchType: latestQueryState.searchType,
+      structuredFilters: latestQueryState.structuredFilters,
+      sortField: latestQueryState.sortField,
+      sortDir: latestQueryState.sortDir,
       includeConfig: false,
     });
     const request: GestionCorrespondenciaExportRequest = {
@@ -166,18 +175,18 @@ export const useGestionCorrespondenciaTable = <
       SortField: mappedQuery.SortField,
       SortDir: mappedQuery.SortDir,
       Page: 1,
-      PageSize: resolveAllMatchingPageSize(query.total, effectiveQueryState.pageSize),
+      PageSize: resolveAllMatchingPageSize(latestTotal, latestQueryState.pageSize),
       Format: format,
       ExportMode: mode,
       ReportTitle: reportMeta.reportName,
       StructuredFilters:
-        effectiveQueryState.structuredFilters.length > 0
+        latestQueryState.structuredFilters.length > 0
           ? mappedQuery.StructuredFilters
           : undefined,
     };
 
     return exportAppTableFile(request);
-  };
+  }, []);
 
   return {
     rows,

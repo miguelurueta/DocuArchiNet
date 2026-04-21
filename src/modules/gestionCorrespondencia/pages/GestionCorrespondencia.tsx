@@ -1,6 +1,6 @@
 import { UndoOutlined } from "@ant-design/icons";
 import type { ColDef } from "ag-grid-community";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppButton } from "../../../app/Components/UI/AppButton";
 import { AppContent } from "../../../app/Components/UI/AppContent";
@@ -38,6 +38,12 @@ const resolveStringField = (row: AppTableRow | null, keys: string[]): string | n
 
   return null;
 };
+const EXPORT_FORMATS = ["csv", "xlsx", "pdf"] as const;
+const EXPORT_ENABLED_MODES = ["currentPage", "selectedRows", "allMatching"] as const;
+const RESPONSIVE_PRESENTATION = {
+  enabled: true,
+  cardsBelow: 768,
+} as const;
 
 export default function GestionCorrespondencia<T extends AppTableRow = AppTableRow>({
   table,
@@ -52,6 +58,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
     minLength: 2,
     limit: 10,
   });
+
   const exportReportMeta = useMemo(
     () => ({
       reportName: "Bandeja de gestion correspondencia",
@@ -65,33 +72,35 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
     }),
     [table.rows.length],
   );
+  const getCurrentPageRows = useCallback(() => table.rows, [table.rows]);
+  const getSelectedRows = useCallback(() => selectedRows, [selectedRows]);
 
-  const applySearch = (search: string) => {
+  const applySearch = useCallback((search: string) => {
     const normalizedSearch = search.trim();
     setSearchDraft(normalizedSearch);
     autocomplete.setSearchText(normalizedSearch);
     table.onQueryChange({ search: normalizedSearch });
-  };
+  }, [autocomplete, table]);
 
-  const handleSearchChange = (search: string) => {
+  const handleSearchChange = useCallback((search: string) => {
     setSearchDraft(search);
     autocomplete.setSearchText(search);
-  };
+  }, [autocomplete]);
 
-  const handleSearchClear = () => {
+  const handleSearchClear = useCallback(() => {
     setSearchDraft("");
     autocomplete.clear();
     table.onQueryChange({ search: "" });
-  };
+  }, [autocomplete, table]);
 
-  const navigateToRowDetail = (row: T) => {
+  const navigateToRowDetail = useCallback((row: T) => {
     const rowId = row.id;
     if (typeof rowId !== "string" && typeof rowId !== "number") {
       return;
     }
 
     navigate(`respuesta/${String(rowId)}`);
-  };
+  }, [navigate]);
 
   const handleTableAction = ({ actionId, row }: AppTableActionTriggered<T>) => {
     const normalizedActionId = actionId.trim().toLocaleLowerCase();
@@ -103,20 +112,43 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
       return;
     }
 
+  const handleTableAction = useCallback(({ actionId, row }: AppTableActionTriggered<T>) => {
     if (actionId !== "gestionar_tramite" && actionId !== "gestionar_tramite_menu") {
       return;
     }
 
     navigateToRowDetail(row);
-  };
+  }, [navigateToRowDetail]);
 
-  const handleTableCellClick = ({ row, field }: AppTableCellClick<T>) => {
+  const handleTableCellClick = useCallback(({ row, field }: AppTableCellClick<T>) => {
     if (!field || field === "acciones" || field === "ag-Grid-SelectionColumn") {
       return;
     }
 
     navigateToRowDetail(row);
-  };
+  }, [navigateToRowDetail]);
+
+  const exportDataSource = useMemo(
+    () => ({
+      getCurrentPageRows,
+      getSelectedRows,
+      getAllMatchingRows: table.getAllMatchingRows,
+      getBackendExportFile: table.getBackendExportFile,
+    }),
+    [getCurrentPageRows, getSelectedRows, table.getAllMatchingRows, table.getBackendExportFile],
+  );
+  const paginationActions = useMemo(
+    () => (
+      <AppTableExport
+        columns={table.columns as ColDef<T>[]}
+        dataSource={exportDataSource}
+        formats={EXPORT_FORMATS}
+        reportMeta={exportReportMeta}
+        enabledModes={EXPORT_ENABLED_MODES}
+      />
+    ),
+    [exportDataSource, exportReportMeta, table.columns],
+  );
 
   const radicadoReasignar =
     resolveStringField(reasignarContextRow, [
@@ -189,20 +221,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
             total={table.total}
             loading={table.loading && table.hasLoadedOnce}
             showSearch={false}
-            paginationActions={
-              <AppTableExport
-                columns={table.columns as ColDef<T>[]}
-                dataSource={{
-                  getCurrentPageRows: () => table.rows,
-                  getSelectedRows: () => selectedRows,
-                  getAllMatchingRows: table.getAllMatchingRows,
-                  getBackendExportFile: table.getBackendExportFile,
-                }}
-                formats={["csv", "xlsx", "pdf"]}
-                reportMeta={exportReportMeta}
-                enabledModes={["currentPage", "selectedRows", "allMatching"]}
-              />
-            }
+            paginationActions={paginationActions}
           >
             <div className={styles.tableWrapper}>
               <AppTable
@@ -215,7 +234,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
                 loading={table.loading && table.hasLoadedOnce}
                 paginationMode="server"
                 layoutMode="fill"
-                responsivePresentation={{ enabled: true, cardsBelow: 768 }}
+                responsivePresentation={RESPONSIVE_PRESENTATION}
                 onCellClicked={handleTableCellClick}
                 onActionTriggered={handleTableAction}
                 onSelectionChanged={setSelectedRows}
