@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import type { APIRequestContext } from "@playwright/test";
 
 type AuthResponse = {
   data?: {
@@ -11,16 +12,15 @@ type AuthResponse = {
 };
 
 function getRequiredEnv(name: string) {
-  const env = (globalThis as any).process?.env;
-  const value = env?.[name];
+  const value = process.env[name];
   if (!value || value.trim().length === 0) {
     throw new Error(`Missing required env var: ${name}`);
   }
   return value.trim();
 }
 
-async function loginByApi(request: any) {
-  const apiUrl = ((globalThis as any).process?.env?.PLAYWRIGHT_API_URL ?? "http://localhost/DocuArchiApi").replace(/\/+$/, "");
+async function loginByApi(request: APIRequestContext) {
+  const apiUrl = (process.env.PLAYWRIGHT_API_URL ?? "http://localhost/DocuArchiApi").replace(/\/+$/, "");
 
   const response = await request.post(`${apiUrl}/api/accout/ValidaUserAplicacion`, {
     data: {

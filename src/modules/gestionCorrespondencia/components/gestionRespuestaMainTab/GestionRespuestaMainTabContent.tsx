@@ -1,3 +1,5 @@
+import { useEffect, useId, useState } from "react";
+import { CarryOutFilled, MailFilled } from "@ant-design/icons";
 import {
   CarryOutFilled,
   MailFilled,
@@ -17,6 +19,7 @@ import styles from "./GestionRespuestaMainTabContent.module.css";
 import { GestionRespuestaEditorContainer } from "./GestionRespuestaEditorContainer";
 import { GestionRespuestaInfoHeader } from "./GestionRespuestaInfoHeader";
 import { GestionDocumentoModal } from "./modalGestionDocumento";
+import { GestionRespuestaRightToolsPanel } from "./GestionRespuestaRightToolsPanel";
 
 const DEFAULT_MEDIA_QUERY = "(max-width: 1024px)";
 const MOBILE_MEDIA_QUERY = "(max-width: 768px)";
@@ -53,7 +56,8 @@ export function GestionRespuestaMainTabContent({
   const isCompact = useMediaQuery(DEFAULT_MEDIA_QUERY);
   const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(isCompact);
-  const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] = useState(false);
+  const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] =
+    useState(false);
   const [files, setFiles] = useState<AppUploadFile[]>([]);
   const { estrucTuraRespuesta, loading, error, isEmpty } =
     useEstructuraRespuestaIdTarea(idTareaWf);
@@ -114,6 +118,7 @@ export function GestionRespuestaMainTabContent({
           data-variant={isMobile ? "overlay" : "inline"}
           data-testid="gestion-respuesta-workbench"
         >
+          <GestionRespuestaEditorContainer>
           <GestionRespuestaEditorContainer
            
           >
@@ -140,6 +145,11 @@ export function GestionRespuestaMainTabContent({
               pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
             />
           </GestionRespuestaEditorContainer>
+          <GestionRespuestaRightToolsPanel
+            collapsed={isPanelCollapsed}
+            panelId={panelId}
+            onToggle={() => setIsPanelCollapsed((prev) => !prev)}
+          />
 
           <AppCollapseRail
             title="Herramientas"

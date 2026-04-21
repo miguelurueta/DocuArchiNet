@@ -1,7 +1,8 @@
 import { Empty, Select } from "antd";
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode, RefAttributes } from "react";
 import { forwardRef, useEffect, useId, useMemo, useRef, useState } from "react";
-import type { BaseSelectRef } from "rc-select";
+import type { ForwardedRef } from "react";
+import type { BaseSelectRef } from "@rc-component/select";
 import styles from "./AppInputSelect.module.css";
 
 type Primitive = string | number;
@@ -74,51 +75,41 @@ const MODE_MAP: Record<AppInputSelectMode, undefined | "multiple" | "tags"> = {
   tags: "tags",
 };
 
-export const toAppInputSelectOption = <TValue extends Primitive = Primitive>(
-  item: AppInputSelectBackendItem,
-) =>
-  ({
-    label: item.nombre,
-    value: item.id as TValue,
-    disabled: item.activo === false,
-  }) satisfies AppInputSelectOption<TValue>;
-
-export const AppInputSelect = forwardRef<BaseSelectRef, AppInputSelectProps>(
-  function AppInputSelect(
-    {
-      id,
-      value,
-      defaultValue,
-      options = [],
-      placeholder,
-      size = "md",
-      mode = "single",
-      disabled = false,
-      loading = false,
-      allowClear = false,
-      searchable = false,
-      noDataText,
-      onChange,
-      onSearch,
-      fetchOptions,
-      className,
-      status,
-      label,
-      helperText,
-      error = false,
-      state = "default",
-      "aria-label": ariaLabel,
-      "aria-labelledby": ariaLabelledBy,
-      "aria-describedby": ariaDescribedBy,
-    },
-    ref,
-  ) {
+const AppInputSelectInner = <TValue extends Primitive = string>(
+  {
+    id,
+    value,
+    defaultValue,
+    options = [],
+    placeholder,
+    size = "md",
+    mode = "single",
+    disabled = false,
+    loading = false,
+    allowClear = false,
+    searchable = false,
+    noDataText,
+    onChange,
+    onSearch,
+    fetchOptions,
+    className,
+    status,
+    label,
+    helperText,
+    error = false,
+    state = "default",
+    "aria-label": ariaLabel,
+    "aria-labelledby": ariaLabelledBy,
+    "aria-describedby": ariaDescribedBy,
+  }: AppInputSelectProps<TValue>,
+  ref: ForwardedRef<BaseSelectRef>,
+) => {
     const generatedId = useId();
     const selectId = id ?? `app-input-select-${generatedId}`;
     const helperId = helperText ? `${selectId}-helper` : undefined;
     const describedBy = [ariaDescribedBy, helperId].filter(Boolean).join(" ") || undefined;
     const hasError = error || state === "error";
-    const [remoteOptions, setRemoteOptions] = useState<AppInputSelectOption[]>([]);
+    const [remoteOptions, setRemoteOptions] = useState<AppInputSelectOption<TValue>[]>([]);
     const [remoteLoading, setRemoteLoading] = useState(false);
     const [hasLoadedRemotely, setHasLoadedRemotely] = useState(false);
     const [remoteError, setRemoteError] = useState(false);
@@ -266,5 +257,10 @@ export const AppInputSelect = forwardRef<BaseSelectRef, AppInputSelectProps>(
         ) : null}
       </div>
     );
-  },
-);
+};
+
+type AppInputSelectComponent = <TValue extends Primitive = string>(
+  props: AppInputSelectProps<TValue> & RefAttributes<BaseSelectRef>,
+) => ReactElement;
+
+export const AppInputSelect = forwardRef(AppInputSelectInner) as AppInputSelectComponent;

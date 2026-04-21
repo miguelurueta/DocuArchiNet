@@ -2,8 +2,35 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { AppDataTableMuiColumn } from "./AppDataTableMui";
 import { AppDataTableMui } from "./AppDataTableMui";
+import type { ReactNode } from "react";
 
 vi.mock("@mui/x-data-grid", () => {
+  type MockDataGridColumn = {
+    field: string;
+    headerName?: ReactNode;
+  };
+
+  type MockDataGridRowId = string | number;
+
+  type MockDataGridRow = {
+    id: MockDataGridRowId;
+    [key: string]: ReactNode;
+  };
+
+  type MockRowSelectionModel =
+    | { type: "include"; ids: Set<MockDataGridRowId> }
+    | { type: "exclude"; ids: Set<MockDataGridRowId> };
+
+  type MockDataGridProps = {
+    rows: MockDataGridRow[];
+    columns: MockDataGridColumn[];
+    loading?: boolean;
+    checkboxSelection?: boolean;
+    onRowSelectionModelChange?: (model: MockRowSelectionModel, details: unknown) => void;
+    slots?: { noRowsOverlay?: () => JSX.Element };
+    "aria-label"?: string;
+  };
+
   const MockDataGrid = ({
     rows,
     columns,
@@ -12,7 +39,7 @@ vi.mock("@mui/x-data-grid", () => {
     onRowSelectionModelChange,
     slots,
     "aria-label": ariaLabel,
-  }: any) => {
+  }: MockDataGridProps) => {
     if (loading) {
       return <div role="progressbar" />;
     }
@@ -29,14 +56,14 @@ vi.mock("@mui/x-data-grid", () => {
     return (
       <div role="grid" aria-label={ariaLabel}>
         <div role="rowgroup">
-          {columns.map((column: any) => (
+          {columns.map((column) => (
             <div key={column.field} role="columnheader">
               {column.headerName}
             </div>
           ))}
         </div>
         <div role="rowgroup">
-          {rows.map((row: any) => (
+          {rows.map((row) => (
             <div key={row.id} role="row">
               {checkboxSelection ? (
                 <input
@@ -47,7 +74,7 @@ vi.mock("@mui/x-data-grid", () => {
                   }
                 />
               ) : null}
-              {columns.map((column: any) => (
+              {columns.map((column) => (
                 <div key={column.field} role="gridcell">
                   {row[column.field]}
                 </div>

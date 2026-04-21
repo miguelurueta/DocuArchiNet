@@ -2,6 +2,15 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { GestionRespuestaMainTabContent } from "./GestionRespuestaMainTabContent";
 
+vi.mock("../../hooks/useEstructuraRespuestaIdTarea", () => ({
+  useEstructuraRespuestaIdTarea: () => ({
+    estrucTuraRespuesta: null,
+    loading: false,
+    error: null,
+    isEmpty: true,
+  }),
+}));
+
 vi.mock("../../../../app/Components/UI/AppUpload/AppUpload", () => ({
   AppUpload: ({
     value,
