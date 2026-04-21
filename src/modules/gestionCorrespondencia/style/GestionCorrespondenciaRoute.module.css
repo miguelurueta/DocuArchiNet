@@ -89,6 +89,8 @@
   flex-wrap: wrap;
   gap: 0.6rem 1rem;
   min-width: 0;
+  margin-left: auto;
+  justify-content: flex-end;
 }
 
 .detailMetaItem {
@@ -105,6 +107,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 24ch;
+  text-align: right;
 }
 
 .detailBody {
@@ -133,6 +136,8 @@
 
   .detailMeta {
     width: 100%;
+    margin-left: 0;
+    justify-content: flex-start;
   }
 
   .detailReturnAction {

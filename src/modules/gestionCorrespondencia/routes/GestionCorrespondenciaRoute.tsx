@@ -1,4 +1,4 @@
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import { LeftOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppButton } from "../../../app/Components/UI/AppButton";
@@ -54,7 +54,7 @@ export default function GestionCorrespondenciaRoute({
               <AppButton
                 aria-label="Volver a la bandeja"
                 className={styles.detailReturnAction}
-                icon={<ArrowLeftOutlined />}
+                icon={<LeftOutlined />}
                 size="sm"
                 tooltip="Volver a la bandeja"
                 variant="ghost"

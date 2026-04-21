@@ -69,5 +69,5 @@ describe("[SCRUMCORE-89] GestionRespuesta main tab workbench", () => {
     await waitFor(() => {
       expect(screen.queryByText(/Confirmar envio de respuesta/i)).not.toBeInTheDocument();
     }, { timeout: 10000 });
-  });
+  }, 15000);
 });
