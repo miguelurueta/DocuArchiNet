@@ -384,23 +384,19 @@ export function AppEditor({
                     ))}
                   </div>
                   <div className={styles.contentFlow} data-pagination-content-flow="true">
-                    <div
+                    <TiptapEditorContent
+                      editor={editor}
                       className={joinClasses(
-                        styles.surface,
-                        styles.surfacePaged,
+                        styles.editorContent,
+                        styles.editorContentPaged,
                         surfaceClassName,
                         Boolean(error) && styles.surfaceError,
                       )}
-                    >
-                      <TiptapEditorContent
-                        editor={editor}
-                        className={joinClasses(styles.editorContent, styles.editorContentPaged)}
-                        aria-labelledby={labelId}
-                        aria-label={resolvedAriaLabel}
-                        aria-describedby={describedBy}
-                        aria-invalid={Boolean(error)}
-                      />
-                    </div>
+                      aria-labelledby={labelId}
+                      aria-label={resolvedAriaLabel}
+                      aria-describedby={describedBy}
+                      aria-invalid={Boolean(error)}
+                    />
                   </div>
                   {totalPages > 1 ? (
                     <div className={styles.pageCounter} aria-live="polite">
@@ -412,23 +408,19 @@ export function AppEditor({
             </div>
           </div>
         ) : (
-          <div
+          <TiptapEditorContent
+            editor={editor}
             className={joinClasses(
-              styles.surface,
+              styles.editorContent,
               surfaceClassName,
               Boolean(error) && styles.surfaceError,
             )}
             style={continuousWrapperStyle}
-          >
-            <TiptapEditorContent
-              editor={editor}
-              className={styles.editorContent}
-              aria-labelledby={labelId}
-              aria-label={resolvedAriaLabel}
-              aria-describedby={describedBy}
-              aria-invalid={Boolean(error)}
-            />
-          </div>
+            aria-labelledby={labelId}
+            aria-label={resolvedAriaLabel}
+            aria-describedby={describedBy}
+            aria-invalid={Boolean(error)}
+          />
         )}
       </div>
 
