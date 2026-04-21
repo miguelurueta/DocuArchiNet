@@ -1,11 +1,5 @@
 import { CarryOutFilled, MailFilled } from "@ant-design/icons";
-import { useEffect, useId, useState } from "react";
-import {
-  CarryOutFilled,
-  MailFilled,
-} from "@ant-design/icons";
 import { useId, useState, useSyncExternalStore } from "react";
-import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import {
   AppEditor,
   AppEditorSaveAction,
@@ -95,9 +89,6 @@ export function GestionRespuestaMainTabContent(
           data-testid="gestion-respuesta-workbench"
         >
           <GestionRespuestaEditorContainer>
-          <GestionRespuestaEditorContainer
-           
-          >
             <AppEditor
               value={editorValue}
               onChange={setEditorValue}
@@ -126,34 +117,6 @@ export function GestionRespuestaMainTabContent(
             panelId={panelId}
             onToggle={() => setIsPanelCollapsed((prev) => !prev)}
           />
-
-          <AppCollapseRail
-            title="Herramientas"
-            collapsed={isPanelCollapsed}
-            onToggle={() => setIsPanelCollapsed((prev) => !prev)}
-            panelId={panelId}
-            placement="right"
-            variant={isMobile ? "overlay" : "inline"}
-          >
-            <div className={styles.toolsList}>
-              <div className={styles.toolsItem}>
-                <strong>Checklist de validacion</strong>
-                <span className={styles.infoCopy}>
-                  Estado del analisis y observaciones tecnicas.
-                </span>
-              </div>
-              <div className={styles.toolsItem}>
-                <strong>Referencias del expediente</strong>
-                <span className={styles.infoCopy}>Links y notas operativas clave.</span>
-              </div>
-              <div className={styles.toolsItem}>
-                <strong>Historial reciente</strong>
-                <span className={styles.infoCopy}>
-                  Resumen de cambios y actividades asociadas.
-                </span>
-              </div>
-            </div>
-          </AppCollapseRail>
         </div>
       </div>
 

@@ -6,6 +6,10 @@ import { AppButton } from "../../../app/Components/UI/AppButton";
 import { AppContent } from "../../../app/Components/UI/AppContent";
 import { AppInputSearch } from "../../../app/Components/UI/AppInputSearch";
 import { AppTableExport } from "../../../app/Components/UI/AppTable/AppTableExport";
+import type {
+  AppTableExportFormat,
+  AppTableExportMode,
+} from "../../../app/Components/UI/AppTable/AppTableExport.types";
 import { AppTableQueryWrapper } from "../../../app/Components/UI/AppTable/AppTableQueryWrapper";
 import AppTable from "../../../app/Components/UI/AppTable/AppTable";
 import type {
@@ -38,8 +42,8 @@ const resolveStringField = (row: AppTableRow | null, keys: string[]): string | n
 
   return null;
 };
-const EXPORT_FORMATS = ["csv", "xlsx", "pdf"] as const;
-const EXPORT_ENABLED_MODES = ["currentPage", "selectedRows", "allMatching"] as const;
+const EXPORT_FORMATS: AppTableExportFormat[] = ["csv", "xlsx", "pdf"];
+const EXPORT_ENABLED_MODES: AppTableExportMode[] = ["currentPage", "selectedRows", "allMatching"];
 const RESPONSIVE_PRESENTATION = {
   enabled: true,
   cardsBelow: 768,
@@ -102,7 +106,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
     navigate(`respuesta/${String(rowId)}`);
   }, [navigate]);
 
-  const handleTableAction = ({ actionId, row }: AppTableActionTriggered<T>) => {
+  const handleTableAction = useCallback(({ actionId, row }: AppTableActionTriggered<T>) => {
     const normalizedActionId = actionId.trim().toLocaleLowerCase();
 
     if (normalizedActionId === "reasignar_tramite" || normalizedActionId === "reasignar_tramite_menu") {
@@ -112,12 +116,9 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
       return;
     }
 
-  const handleTableAction = useCallback(({ actionId, row }: AppTableActionTriggered<T>) => {
-    if (actionId !== "gestionar_tramite" && actionId !== "gestionar_tramite_menu") {
-      return;
+    if (normalizedActionId === "gestionar_tramite" || normalizedActionId === "gestionar_tramite_menu") {
+      navigateToRowDetail(row);
     }
-
-    navigateToRowDetail(row);
   }, [navigateToRowDetail]);
 
   const handleTableCellClick = useCallback(({ row, field }: AppTableCellClick<T>) => {
