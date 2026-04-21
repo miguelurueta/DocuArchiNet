@@ -1,5 +1,6 @@
 import { LeftOutlined } from "@ant-design/icons";
-import type { ReactNode } from "react";
+import { cloneElement, isValidElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppButton } from "../../../app/Components/UI/AppButton";
 import { useEstructuraRespuestaIdTarea } from "../hooks/useEstructuraRespuestaIdTarea";
@@ -11,6 +12,10 @@ interface GestionCorrespondenciaRouteProps {
 }
 
 type DetailState = "loading" | "ready" | "blocked-empty" | "blocked-error" | "blocked-invalid-id";
+type DetailContentContextProps = {
+  idTareaWf?: number;
+  detailState?: DetailState;
+};
 
 export default function GestionCorrespondenciaRoute({
   detailContent,
@@ -41,6 +46,16 @@ export default function GestionCorrespondenciaRoute({
             : "ready";
 
   const isReady = detailState === "ready";
+  const detailContentWithContext =
+    hasDetail && isReady && isValidElement(detailContent)
+      ? cloneElement(
+          detailContent as ReactElement<DetailContentContextProps>,
+          {
+            idTareaWf: parsedId,
+            detailState,
+          },
+        )
+      : null;
 
   const blockedMessage =
     detailState === "blocked-invalid-id"
@@ -102,7 +117,7 @@ export default function GestionCorrespondenciaRoute({
 
           <div className={styles.detailBody}>
             {isReady ? (
-              detailContent
+              detailContentWithContext
             ) : detailState === "loading" ? (
               <div className={styles.blockedState} data-testid="gestion-correspondencia-loading-state">
                 <h3 className={styles.blockedTitle}>Cargando estructura de la tarea</h3>
