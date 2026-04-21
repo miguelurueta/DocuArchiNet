@@ -97,4 +97,3 @@ Regla crítica:
 ## Notas
 
 Este ticket nace como mejora de robustez del flujo `opsxj:new` para asegurar aislamiento por ticket/cambio.
-

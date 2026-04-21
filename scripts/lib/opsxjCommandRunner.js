@@ -1,6 +1,7 @@
 import path from "node:path";
 import { createProposalFromJira } from "./jiraProposalService.js";
 import {
+  assertGitClean,
   assertGitCleanAndSynced,
   buildFeatureBranchName,
   setupProposalBranchAndCommit,
@@ -94,11 +95,15 @@ const runNew = async ({
   createProposalFn,
   baseDir,
   setupProposalFn,
+  assertGitCleanFn,
 }) => {
   const issueKey = issueKeyFromArg ?? args[0] ?? env.JIRA_ISSUE_KEY ?? "";
   if (!issueKey) {
     throw new Error(`Falta issueKey para opsxj:new.\n${usage}`);
   }
+
+  const verifyGit = assertGitCleanFn ?? assertGitClean;
+  await verifyGit({ baseDir, commandLabel: "opsxj:new" });
 
   const result = await createProposalFn({
     issueKey,
@@ -137,6 +142,7 @@ const runArchive = async ({
   issueKeyFromArg,
   baseDir,
   archiveFn,
+  assertGitCleanAndSyncedFn,
 }) => {
   const issueKey = issueKeyFromArg ?? args[0] ?? env.JIRA_ISSUE_KEY ?? "";
   if (!issueKey) {
@@ -144,7 +150,8 @@ const runArchive = async ({
   }
 
   const branchName = buildFeatureBranchName(issueKey);
-  await assertGitCleanAndSynced({ baseDir, expectedBranchName: branchName });
+  const verifyGit = assertGitCleanAndSyncedFn ?? assertGitCleanAndSynced;
+  await verifyGit({ baseDir, expectedBranchName: branchName });
   const result = await archiveFn({
     issueKey,
     baseDir,
@@ -240,6 +247,8 @@ export const runOpsxjCommand = async ({
   setupProposalFn = setupProposalBranchAndCommit,
   archiveFn = archiveWithPullRequest,
   closeFn = closeIssueFromMergedPr,
+  assertGitCleanFn,
+  assertGitCleanAndSyncedFn,
 }) => {
   const [command, issueKeyFromArg, ...rest] = argv;
   const selectedCommand = command || "opsxj:new";
@@ -262,6 +271,8 @@ export const runOpsxjCommand = async ({
       archiveFn,
       closeFn,
       baseDir,
+      assertGitCleanFn,
+      assertGitCleanAndSyncedFn,
     });
     const prefix =
       selectedCommand === "opsxj:archive" || selectedCommand === "archive"
