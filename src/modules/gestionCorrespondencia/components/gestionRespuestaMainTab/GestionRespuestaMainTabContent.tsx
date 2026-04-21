@@ -1,5 +1,5 @@
-import { useEffect, useId, useState } from "react";
 import { CarryOutFilled, MailFilled } from "@ant-design/icons";
+import { useEffect, useId, useState } from "react";
 import {
   AppEditor,
   AppEditorSaveAction,
@@ -8,12 +8,10 @@ import {
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
 import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
 import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
-import { useEstructuraRespuestaIdTarea } from "../../hooks/useEstructuraRespuestaIdTarea";
 import styles from "./GestionRespuestaMainTabContent.module.css";
 import { GestionRespuestaEditorContainer } from "./GestionRespuestaEditorContainer";
-import { GestionRespuestaInfoHeader } from "./GestionRespuestaInfoHeader";
-import { GestionDocumentoModal } from "./modalGestionDocumento";
 import { GestionRespuestaRightToolsPanel } from "./GestionRespuestaRightToolsPanel";
+import { GestionDocumentoModal } from "./modalGestionDocumento";
 
 const DEFAULT_MEDIA_QUERY = "(max-width: 1024px)";
 const MOBILE_MEDIA_QUERY = "(max-width: 768px)";
@@ -43,9 +41,9 @@ type GestionRespuestaMainTabContentProps = {
   idTareaWf?: number;
 };
 
-export function GestionRespuestaMainTabContent({
-  idTareaWf,
-}: GestionRespuestaMainTabContentProps = {}) {
+export function GestionRespuestaMainTabContent(
+  _props: GestionRespuestaMainTabContentProps = {},
+) {
   const panelId = useId();
   const isCompact = useMediaQuery(DEFAULT_MEDIA_QUERY);
   const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY);
@@ -53,19 +51,6 @@ export function GestionRespuestaMainTabContent({
   const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] =
     useState(false);
   const [files, setFiles] = useState<AppUploadFile[]>([]);
-  const { estrucTuraRespuesta, loading, error, isEmpty } =
-    useEstructuraRespuestaIdTarea(idTareaWf);
-
-  const headerDescription =
-    typeof idTareaWf !== "number"
-      ? "No se pudo resolver el identificador de la tarea (idTareaWf)."
-      : loading
-        ? "Cargando estructura de respuesta..."
-        : error
-          ? `No fue posible cargar la estructura de respuesta: ${error.message}`
-          : isEmpty
-            ? `Sin datos de estructura para la tarea ${idTareaWf}.`
-            : undefined;
   const [editorValue, setEditorValue] = useState<string>("");
   const [savedEditorValue, setSavedEditorValue] = useState<string>("");
   const { saveStatus } = useAppEditorSaveState({
@@ -79,15 +64,6 @@ export function GestionRespuestaMainTabContent({
 
   return (
     <section className={styles.mainTab} aria-label="Contenido principal de respuesta">
-      <GestionRespuestaInfoHeader
-        description={headerDescription}
-        metadata={[
-          { label: "Radicado", value: loading ? "..." : (estrucTuraRespuesta?.Radicado ?? "-") },
-          { label: "Remitente", value: loading ? "..." : (estrucTuraRespuesta?.Destinatario ?? "-") },
-          { label: "Trámite", value: estrucTuraRespuesta?.TramiteDocumento ?? "-" },
-        ]}
-      />
-
       <div className={styles.workbench}>
         <AppToolbar
           className={styles.toolbar}
@@ -153,7 +129,7 @@ export function GestionRespuestaMainTabContent({
           <h3 className={styles.attachmentsTitle}>Adjuntos</h3>
           <span className={styles.infoCopy}>Carga de soportes y anexos del expediente.</span>
         </div>
-        <AppUpload value={files} onChange={setFiles} drag size="md" />
+        <AppUpload value={files} onChange={setFiles} drag size="sm" />
       </div>
 
       <GestionDocumentoModal

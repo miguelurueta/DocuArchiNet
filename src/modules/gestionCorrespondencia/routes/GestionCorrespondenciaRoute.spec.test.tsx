@@ -57,10 +57,13 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
 
     expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
     expect(screen.getByTestId("gestion-correspondencia-detail-region")).toBeInTheDocument();
+    expect(screen.getByText("2025-0001")).toBeInTheDocument();
+    expect(screen.getByText("Contasoft Company")).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.getByText("Gestion")).toBeInTheDocument();
     expect(screen.getByText("Documentos")).toBeInTheDocument();
     expect(screen.queryByText(/^Guardar$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Volver a la bandeja/i)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Volver a la bandeja/i }));
 
