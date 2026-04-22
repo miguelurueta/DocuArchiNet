@@ -83,6 +83,92 @@ export function insertPageBreakBeforeBlock(
   return true;
 }
 
+function isListStructuredNodeName(nodeName: string) {
+  return nodeName === "bulletList" || nodeName === "orderedList" || nodeName === "taskList";
+}
+
+export function splitListBlockBeforeItemAndInsertPageBreak(
+  editor: Editor,
+  listPosition: number,
+  itemPosition: number,
+  attributes?: PageBreakAttributes,
+  options?: SplitPageBreakOptions,
+) {
+  const listNode = editor.state.doc.nodeAt(listPosition);
+  const pageBreakType = editor.state.schema.nodes.pageBreak;
+
+  if (!listNode || !pageBreakType || !isListStructuredNodeName(listNode.type.name)) {
+    return false;
+  }
+
+  let childOffset = 0;
+  let targetChildOffset: number | null = null;
+
+  for (let index = 0; index < listNode.childCount; index += 1) {
+    const child = listNode.child(index);
+    const currentItemPosition = listPosition + 1 + childOffset;
+
+    if (currentItemPosition === itemPosition) {
+      if (index === 0) {
+        return false;
+      }
+
+      targetChildOffset = childOffset;
+      break;
+    }
+
+    childOffset += child.nodeSize;
+  }
+
+  if (
+    targetChildOffset === null ||
+    targetChildOffset <= 0 ||
+    targetChildOffset >= listNode.content.size
+  ) {
+    return false;
+  }
+
+  const leftContent = listNode.content.cut(0, targetChildOffset);
+  const rightContent = listNode.content.cut(targetChildOffset, listNode.content.size);
+
+  if (leftContent.size === 0 || rightContent.size === 0) {
+    return false;
+  }
+
+  const leftList = listNode.type.create(listNode.attrs, leftContent, listNode.marks);
+  const rightList = listNode.type.create(listNode.attrs, rightContent, listNode.marks);
+  const pageBreakNode = pageBreakType.create(attributes);
+  let transaction = editor.state.tr.replaceWith(
+    listPosition,
+    listPosition + listNode.nodeSize,
+    [leftList, pageBreakNode, rightList],
+  );
+
+  if (!options?.preserveSelection) {
+    const rightListPosition = listPosition + leftList.nodeSize + pageBreakNode.nodeSize;
+    const nextSelectionPosition = Math.min(
+      rightListPosition + 2,
+      rightListPosition + rightList.nodeSize - 1,
+    );
+
+    if (nextSelectionPosition <= rightListPosition) {
+      return false;
+    }
+
+    transaction = transaction.setSelection(
+      TextSelection.create(transaction.doc, nextSelectionPosition),
+    );
+  }
+
+  if (options?.preserveSelection) {
+    editor.view.dispatch(transaction);
+    return true;
+  }
+
+  editor.view.dispatch(transaction.scrollIntoView());
+  return true;
+}
+
 export function splitTextBlockAtPositionAndInsertPageBreak(
   editor: Editor,
   position: number,
@@ -109,6 +195,9 @@ export function splitTextBlockAtPositionAndInsertPageBreak(
   const splitOffset = position - parentStart;
   const leftBlock = blockNode.cut(0, splitOffset);
   const rightBlock = blockNode.cut(splitOffset, blockNode.content.size);
+  const originalSelectionFrom = editor.state.selection.from;
+  const originalSelectionTo = editor.state.selection.to;
+  const isCollapsedSelection = originalSelectionFrom === originalSelectionTo;
 
   if (leftBlock.content.size === 0 || rightBlock.content.size === 0) {
     return false;
@@ -120,25 +209,32 @@ export function splitTextBlockAtPositionAndInsertPageBreak(
     pageBreakNode,
     rightBlock,
   ]);
+  const nextSelectionFrom = transaction.mapping.map(originalSelectionFrom, 1);
+  const nextSelectionTo = transaction.mapping.map(originalSelectionTo, 1);
+  const rightBlockPosition = blockPosition + leftBlock.nodeSize + pageBreakNode.nodeSize;
+  const rightBlockTextStart = rightBlockPosition + 1;
+  const rightBlockTextEnd = rightBlockPosition + rightBlock.content.size;
+  const safeSelectionFrom =
+    isCollapsedSelection && originalSelectionFrom >= position
+      ? Math.max(
+          rightBlockTextStart,
+          Math.min(rightBlockTextStart + (originalSelectionFrom - position), rightBlockTextEnd),
+        )
+      : Math.max(1, Math.min(nextSelectionFrom, transaction.doc.content.size));
+  const safeSelectionTo =
+    isCollapsedSelection && originalSelectionTo >= position
+      ? Math.max(
+          rightBlockTextStart,
+          Math.min(rightBlockTextStart + (originalSelectionTo - position), rightBlockTextEnd),
+        )
+      : Math.max(1, Math.min(nextSelectionTo, transaction.doc.content.size));
 
-  if (!options?.preserveSelection) {
-    const originalSelectionFrom = editor.state.selection.from;
-    const rightBlockPosition = blockPosition + leftBlock.nodeSize + pageBreakNode.nodeSize;
-    const rightContentStart = rightBlockPosition + 1;
-    const selectionOffsetWithinRight = Math.max(0, originalSelectionFrom - position);
-    const nextSelectionPosition = Math.min(
-      rightContentStart + selectionOffsetWithinRight,
-      rightContentStart + rightBlock.content.size,
-    );
-
-    if (nextSelectionPosition <= rightContentStart - 1) {
-      return false;
-    }
-
-    transaction = transaction.setSelection(
-      TextSelection.create(transaction.doc, nextSelectionPosition),
-    );
-  }
+  transaction = transaction.setSelection(
+    TextSelection.between(
+      transaction.doc.resolve(safeSelectionFrom),
+      transaction.doc.resolve(safeSelectionTo),
+    ),
+  );
 
   if (options?.preserveSelection) {
     editor.view.dispatch(transaction);
