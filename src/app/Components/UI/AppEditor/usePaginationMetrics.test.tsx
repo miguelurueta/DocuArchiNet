@@ -44,4 +44,16 @@ describe("usePaginationMetrics [SPEC:IMPLEMENTACION-PAGINACION-APPEDITOR-07-FE]"
     expect(result.guideOffsets).toEqual([1527]);
     expect(result.visualPageBoundaries).toEqual([1155, 2310]);
   });
+
+  it("no deja que auto pageBreaks residuales inflen el total logico de paginas", () => {
+    const result = calculatePaginationMetrics({
+      contentHeight: 931,
+      pageHeight: 1123,
+      pageGap: 32,
+      pageMargins: { top: 96, right: 72, bottom: 96, left: 72 },
+    });
+
+    expect(result.totalPages).toBe(1);
+    expect(result.visualPageBoundaries).toEqual([]);
+  });
 });

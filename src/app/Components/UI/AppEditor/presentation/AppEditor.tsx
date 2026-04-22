@@ -193,7 +193,6 @@ export function AppEditor({
     zoomLevel: effectiveZoomLevel,
   });
   const { totalPages, visualPageBoundaries, visualContentHeight } = usePaginationMetrics({
-    editor,
     enabled: isVisualPagination,
     pageHeight: paginationMetrics.pageHeightValue,
     pageGap: paginationMetrics.pageGapValue,
@@ -206,7 +205,6 @@ export function AppEditor({
     [totalPages],
   );
   const { currentPage } = usePageContext({
-    editor,
     enabled: isVisualPagination,
     totalPages,
     pageBoundaries: visualPageBoundaries,
@@ -395,17 +393,17 @@ export function AppEditor({
                       aria-labelledby={labelId}
                       aria-label={resolvedAriaLabel}
                       aria-describedby={describedBy}
-                      aria-invalid={Boolean(error)}
+                        aria-invalid={Boolean(error)}
                     />
                   </div>
-                  {totalPages > 1 ? (
-                    <div className={styles.pageCounter} aria-live="polite">
-                      Pagina {currentPage} de {totalPages}
-                    </div>
-                  ) : null}
                 </div>
               </div>
             </div>
+            {totalPages > 1 ? (
+              <div className={styles.pageCounter} aria-live="polite">
+                Pagina {currentPage} de {totalPages}
+              </div>
+            ) : null}
           </div>
         ) : (
           <TiptapEditorContent

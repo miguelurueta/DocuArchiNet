@@ -286,6 +286,7 @@
 }
 
 .editorWrapper {
+  position: relative;
   min-height: var(--app-editor-min-height);
   min-width: 0;
   flex: 1 1 auto;
@@ -346,10 +347,12 @@
 }
 
 .canvas {
+  position: relative;
   min-height: 0;
   min-width: 0;
   flex: 1 1 auto;
   overflow: auto;
+  overscroll-behavior: contain;
   padding: 2rem 1.75rem;
   display: flex;
   justify-content: center;
@@ -371,6 +374,15 @@
   width: var(--app-editor-page-width);
   min-height: var(--app-editor-sheet-height);
   display: block;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      #ffffff 0,
+      #fcfdff var(--app-editor-page-height),
+      transparent var(--app-editor-page-height),
+      transparent calc(var(--app-editor-page-height) + var(--app-editor-page-gap))
+    );
   transform: scale(var(--app-editor-zoom, 1));
   transform-origin: top center;
 }
@@ -414,6 +426,7 @@
   z-index: 1;
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
   min-height: max(
     calc(
       var(--app-editor-total-pages) * var(--app-editor-page-height) +
@@ -431,16 +444,13 @@
 }
 
 .pageCounter {
-  position: sticky;
-  bottom: 0.35rem;
+  position: absolute;
+  top: 0.75rem;
+  right: 0.85rem;
   display: flex;
   width: fit-content;
-  max-width: calc(100% - 1rem);
-  z-index: 4;
-  margin-top: auto;
-  margin-left: auto;
-  margin-right: 0.35rem;
-  margin-bottom: 0.35rem;
+  max-width: calc(100% - 1.3rem);
+  z-index: 6;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--editor-border) 72%, white);

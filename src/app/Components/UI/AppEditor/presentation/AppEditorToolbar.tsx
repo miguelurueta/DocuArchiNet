@@ -591,6 +591,8 @@ function AppEditorToolbarComponent({
         from: selection.from,
         to: selection.to,
       };
+    } else {
+      textSelectionRef.current = null;
     }
 
     event.preventDefault();
@@ -607,7 +609,6 @@ function AppEditorToolbarComponent({
         editor.state?.selection &&
         typeof editor.state.selection.from === "number" &&
         typeof editor.state.selection.to === "number" &&
-        editor.state.selection.from !== editor.state.selection.to &&
         editor.state.selection.node?.type?.name !== "image"
           ? {
               from: editor.state.selection.from,
@@ -615,9 +616,18 @@ function AppEditorToolbarComponent({
             }
           : null;
       const savedSelection = currentSelection ?? textSelectionRef.current;
-      let chain = editor.chain().focus() as Editor["chain"] extends () => infer T ? T : never;
+      const shouldRestoreSelection =
+        !!savedSelection &&
+        (
+          !currentSelection ||
+          currentSelection.from !== savedSelection.from ||
+          currentSelection.to !== savedSelection.to
+        );
+      const needsFocus = !editor.isFocused || shouldRestoreSelection;
+      let chain = (needsFocus ? editor.chain().focus() : editor.chain()) as Editor["chain"] extends () => infer T ? T : never;
 
       if (
+        shouldRestoreSelection &&
         savedSelection &&
         typeof maxPosition === "number" &&
         typeof (chain as { setTextSelection?: unknown }).setTextSelection === "function"
@@ -631,6 +641,7 @@ function AppEditorToolbarComponent({
       }
 
       applyCommand(chain).run();
+      textSelectionRef.current = null;
     },
     [disabled, editor],
   );
