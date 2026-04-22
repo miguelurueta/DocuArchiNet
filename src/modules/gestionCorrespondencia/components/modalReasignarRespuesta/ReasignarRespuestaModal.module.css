@@ -136,6 +136,16 @@
   min-width: 132px;
 }
 
+.lockedInputTags :global(.ant-input) {
+  pointer-events: none;
+  user-select: none;
+  caret-color: transparent;
+}
+
+.lockedInputTags :global(.ant-input-affix-wrapper) {
+  background-color: #f8fafc;
+}
+
 @media (max-width: 900px) {
   .modal :global(.ant-modal-content) {
     max-height: calc(100svh - 1rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));

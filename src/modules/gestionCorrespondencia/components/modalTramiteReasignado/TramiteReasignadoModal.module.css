@@ -1,0 +1,130 @@
+.wrap {
+  overflow: hidden !important;
+  padding: 0.75rem 0.75rem calc(0.75rem + env(safe-area-inset-bottom)) !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  padding-bottom: 0 !important;
+  top: 0 !important;
+}
+
+.modal :global(.ant-modal-content) {
+  max-height: calc(100svh - 1.5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #fdfefe 0%, #f8fbff 100%);
+}
+
+.modal :global(.ant-modal-header) {
+  padding: 0.55rem 1.05rem 0.2rem !important;
+  border-bottom: 0 !important;
+}
+
+.modal :global(.ant-modal-body) {
+  padding-top: 0.35rem !important;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.container {
+  display: grid;
+  gap: 1rem;
+}
+
+.header {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+  padding-bottom: 0.7rem;
+}
+
+.title {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 0.5rem;
+  color: #0f172a;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.successIcon {
+  color: #16a34a;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.content {
+  display: grid;
+  gap: 0.5rem;
+  text-align: center;
+  color: #1f3348;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.content p {
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.2rem;
+}
+
+.actions :global(.ant-btn) {
+  min-width: 148px;
+}
+
+@media (max-width: 900px) {
+  .modal :global(.ant-modal-content) {
+    max-height: calc(100svh - 1rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+
+  .modal :global(.ant-modal-header) {
+    padding: 0.5rem 0.95rem 0.15rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .wrap {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .container {
+    gap: 0.85rem;
+    justify-items: center;
+  }
+
+  .header {
+    width: 100%;
+    text-align: center;
+  }
+
+  .title {
+    justify-content: center;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+    justify-items: center;
+  }
+
+  .actions :global(.ant-btn) {
+    width: 100%;
+    min-width: 0;
+    max-width: 360px;
+  }
+}
