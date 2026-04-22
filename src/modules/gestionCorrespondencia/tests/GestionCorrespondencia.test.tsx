@@ -7,6 +7,7 @@ import * as workflowInboxAutocompleteHook from "../hooks/useWorkflowInboxAutocom
 
 vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
   default: ({
+    rows,
     paginationMode,
     layoutMode,
     rowSelection,
@@ -17,6 +18,12 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
     onActionTriggered,
     onCellClicked,
   }: {
+    rows?: Array<{
+      id: string;
+      RADICADO?: string;
+      Asunto?: string;
+      [key: string]: unknown;
+    }>;
     paginationMode?: string;
     layoutMode?: string;
     rowSelection?: string;
@@ -34,8 +41,15 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
       field?: string | null;
       value?: unknown;
     }) => void;
-  }) => (
-    <div
+  }) => {
+    const baseRow = rows?.[0] ?? { id: "924", RADICADO: "2500456700023" };
+    const reasignarRow = {
+      ...baseRow,
+      Asunto: typeof baseRow.Asunto === "string" ? baseRow.Asunto : "Respuesta pendiente de reasignacion",
+    };
+
+    return (
+      <div
       data-testid="mock-app-table"
       data-pagination-mode={paginationMode}
       data-layout-mode={layoutMode}
@@ -52,7 +66,7 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
         onClick={() =>
           onActionTriggered?.({
             actionId: "gestionar_tramite_menu",
-            row: { id: "924" },
+            row: { ...baseRow },
             columnKey: "acciones",
           })
         }
@@ -64,11 +78,7 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
         onClick={() =>
           onActionTriggered?.({
             actionId: "reasignar_tramite",
-            row: {
-              id: "924",
-              RADICADO: "2500456700023",
-              Asunto: "Respuesta pendiente de reasignacion",
-            },
+            row: reasignarRow,
             columnKey: "acciones",
           })
         }
@@ -79,9 +89,9 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
         type="button"
         onClick={() =>
           onCellClicked?.({
-            row: { id: "924" },
+            row: { id: baseRow.id },
             field: "RADICADO",
-            value: "2500456700023",
+            value: baseRow.RADICADO ?? "2500456700023",
           })
         }
       >
@@ -91,7 +101,7 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
         type="button"
         onClick={() =>
           onCellClicked?.({
-            row: { id: "924" },
+            row: { id: baseRow.id },
             field: "acciones",
             value: "",
           })
@@ -99,16 +109,19 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
       >
         Disparar click en acciones
       </button>
-    </div>
-  ),
+      </div>
+    );
+  },
 }));
 
 vi.mock("../hooks/useWorkflowInboxAutocomplete", () => ({
   useWorkflowInboxAutocomplete: vi.fn(),
 }));
 
-const createTable = (): GestionCorrespondenciaTableResult => ({
-  rows: [{ id: "924", RADICADO: "2500456700023" }],
+const createTable = (
+  rows: Array<{ id: string; [key: string]: unknown }> = [{ id: "924", RADICADO: "2500456700023" }],
+): GestionCorrespondenciaTableResult => ({
+  rows,
   columns: [{ field: "RADICADO", headerName: "Radicado" }],
   total: 7,
   page: 1,
@@ -130,9 +143,7 @@ const createTable = (): GestionCorrespondenciaTableResult => ({
   hasLoadedOnce: true,
   setCategory: vi.fn(),
   refetch: vi.fn(),
-  getAllMatchingRows: vi.fn().mockResolvedValue([
-    { id: "924", RADICADO: "2500456700023" },
-  ]),
+  getAllMatchingRows: vi.fn().mockResolvedValue(rows),
   getBackendExportFile: vi.fn().mockResolvedValue({
     blob: new Blob(["xlsx"], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -306,6 +317,38 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
 
     expect(table.onQueryChange).not.toHaveBeenCalled();
     expect(table.refetch).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("location-probe")).toHaveTextContent(
+      "/dashboard/gestion-correspondencia/respuesta/924",
+    );
+  });
+
+  it("prioriza idTareaWf de la fila sobre el id interno para navegar al detalle", () => {
+    const table = createTable([
+      {
+        id: "row-interno-1",
+        IdTareaWf: "924",
+        RADICADO: "2500456700023",
+      },
+    ]);
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard/gestion-correspondencia"]}>
+        <Routes>
+          <Route
+            path="/dashboard/gestion-correspondencia/*"
+            element={
+              <>
+                <LocationProbe />
+                <GestionCorrespondencia table={table} />
+              </>
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Disparar acción de fila/i }));
+
     expect(screen.getByTestId("location-probe")).toHaveTextContent(
       "/dashboard/gestion-correspondencia/respuesta/924",
     );
