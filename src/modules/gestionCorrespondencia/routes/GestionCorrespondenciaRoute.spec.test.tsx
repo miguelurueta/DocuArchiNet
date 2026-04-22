@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import * as estructuraRespuestaHook from "../hooks/useEstructuraRespuestaIdTarea";
@@ -23,8 +23,11 @@ const setHookState = (state: Partial<UseEstructuraRespuestaIdTareaResult>) => {
       TramiteDocumento: "Respuesta a derecho de peticion",
     },
     loading: false,
+    fetching: false,
     error: null,
     isEmpty: false,
+    isEmptyLatched: false,
+    resolved: true,
     ...state,
   });
 };
@@ -147,7 +150,7 @@ describe("[SPEC:SCRUMCORE-143] Bloqueo por estructura gestion respuesta", () => 
     expect(screen.queryByText("Gestion")).not.toBeInTheDocument();
   });
 
-  test("bloquea detalle cuando la consulta falla", () => {
+  test("cierra panel y retorna a bandeja cuando la consulta falla", async () => {
     setHookState({
       estrucTuraRespuesta: null,
       error: new Error("HTTP 500"),
@@ -155,17 +158,19 @@ describe("[SPEC:SCRUMCORE-143] Bloqueo por estructura gestion respuesta", () => 
 
     renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
 
-    expect(screen.getByTestId("gestion-correspondencia-blocked-state")).toBeInTheDocument();
-    expect(screen.getByText(/No fue posible consultar la estructura/i)).toBeInTheDocument();
-    expect(screen.queryByText("Documentos")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId("gestion-correspondencia-detail-region")).not.toBeInTheDocument();
+    });
+    expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
   });
 
-  test("bloquea detalle cuando el idTareaWf es invalido", () => {
+  test("cierra panel cuando el idTareaWf es invalido", async () => {
     renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/no-valido");
 
-    expect(screen.getByTestId("gestion-correspondencia-blocked-state")).toBeInTheDocument();
-    expect(screen.getByText(/No se pudo resolver una tarea valida/i)).toBeInTheDocument();
-    expect(screen.queryByText("Gestion")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId("gestion-correspondencia-detail-region")).not.toBeInTheDocument();
+    });
+    expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
   });
 
   test("permite retornar a bandeja desde estado bloqueado", () => {
