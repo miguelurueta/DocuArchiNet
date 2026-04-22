@@ -1,9 +1,10 @@
 import { LeftOutlined, LoadingOutlined, ToolOutlined } from "@ant-design/icons";
 import { cloneElement, isValidElement } from "react";
 import type { ReactElement, ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppButton } from "../../../app/Components/UI/AppButton";
+import { AppLoadingState } from "../../../app/Components/UI/AppLoadingState";
 import { useEstructuraRespuestaIdTarea } from "../hooks/useEstructuraRespuestaIdTarea";
 import GestionCorrespondenciaRoutePage from "../pages/GestionCorrespondenciaRoutePage";
 import styles from "../style/GestionCorrespondenciaRoute.module.css";
@@ -23,7 +24,6 @@ export default function GestionCorrespondenciaRoute({
 }: GestionCorrespondenciaRouteProps) {
   const navigate = useNavigate();
   const params = useParams();
-  const [showDelayedLoader, setShowDelayedLoader] = useState(false);
   const parsedId = Number.parseInt(params.id ?? "", 10);
   const hasDetail = Boolean(detailContent);
   const hasValidId = Number.isFinite(parsedId) && parsedId > 0;
@@ -52,19 +52,6 @@ export default function GestionCorrespondenciaRoute({
       : (isEmpty || isEmptyLatched)
         ? "blocked-empty"
         : "ready";
-
-  useEffect(() => {
-    if (detailState !== "loading") {
-      setShowDelayedLoader(false);
-      return;
-    }
-
-    const timeout = window.setTimeout(() => {
-      setShowDelayedLoader(true);
-    }, 500);
-
-    return () => window.clearTimeout(timeout);
-  }, [detailState]);
 
   const isReady = detailState === "ready";
   const detailContentWithContext =
@@ -143,16 +130,18 @@ export default function GestionCorrespondenciaRoute({
               detailContentWithContext
             ) : detailState === "loading" ? (
               <div className={styles.loadingState} data-testid="gestion-correspondencia-loading-state">
-                {showDelayedLoader ? (
-                  <>
-                    <h3 className={styles.blockedTitle}>Cargando estructura de la tarea</h3>
-                    <p className={styles.blockedCopy}>
-                      <LoadingOutlined style={{ marginRight: 8 }} spin />
-                      <ToolOutlined style={{ marginRight: 8 }} />
-                      Validando información…
-                    </p>
-                  </>
-                ) : null}
+                <AppLoadingState
+                  loading={detailState === "loading"}
+                  delayMs={500}
+                  title="Cargando estructura de la tarea"
+                  message="Validando información…"
+                  icon={
+                    <>
+                      <LoadingOutlined spin />
+                      <ToolOutlined style={{ marginLeft: 8 }} />
+                    </>
+                  }
+                />
               </div>
             ) : (
               <div className={styles.blockedState} data-testid="gestion-correspondencia-blocked-state">
