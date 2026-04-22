@@ -31,6 +31,7 @@ export type AppInputTagsProps = {
   clearOnEscape?: boolean;
   disabled?: boolean;
   selectDisabled?: boolean;
+  inputReadOnly?: boolean;
   openOnFocus?: boolean;
   closeOnSelect?: boolean;
   size?: AppInputTagsSize;
@@ -100,6 +101,7 @@ export function AppInputTags({
   clearOnEscape = false,
   disabled = false,
   selectDisabled = false,
+  inputReadOnly = false,
   openOnFocus = false,
   closeOnSelect = false,
   size = "md",
@@ -136,6 +138,7 @@ export function AppInputTags({
   const isControlled = Array.isArray(value);
   const visibleTags = isControlled ? value : internalTags;
   const isDisabled = disabled || selectDisabled;
+  const isInputLocked = isDisabled || inputReadOnly;
   const hasError = error || state === "error" || Boolean(emailValidationMessage);
   const canRemoveAll = visibleTags.length > 0 && !isDisabled;
 
@@ -193,7 +196,7 @@ export function AppInputTags({
     minLength === undefined || query.length >= minLength;
 
   const shouldOpenAutocomplete =
-    !isDisabled &&
+    !isInputLocked &&
     ((openOnFocus && isFocused && filteredAutocompleteOptions.length > 0) ||
       (inputValue.trim().length > 0 && canSearch(inputValue.trim())));
 
@@ -328,6 +331,9 @@ export function AppInputTags({
   };
 
   const handleInputChange = (nextValue: string) => {
+    if (isInputLocked) {
+      return;
+    }
     didSelectAutocompleteOptionRef.current = false;
     if (isClosedAfterSelection) {
       setIsClosedAfterSelection(false);
@@ -438,6 +444,7 @@ export function AppInputTags({
             aria-labelledby={ariaLabelledBy}
             data-ident={selectDataIdent}
             disabled={isDisabled}
+            readOnly={inputReadOnly}
             type="text"
             inputMode={variant === "email" ? "email" : undefined}
             autoComplete={variant === "email" ? "email" : undefined}
@@ -455,6 +462,10 @@ export function AppInputTags({
               }, 0);
             }}
             onFocus={() => {
+              if (isInputLocked) {
+                setIsFocused(false);
+                return;
+              }
               if (isClosedAfterSelection) {
                 setIsClosedAfterSelection(false);
               }
