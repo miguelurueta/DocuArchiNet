@@ -22,8 +22,12 @@ import {
   syncAutoPageBreakSpacerHeights,
 } from "./autoPagination";
 
-const AUTO_PAGINATION_DEBOUNCE_MS = 150;
+const AUTO_PAGINATION_DEBOUNCE_MS = 180;
 const IMAGE_INTERACTION_LOCK_MS = 600;
+
+type PaginationScrollAnchor = {
+  viewportOffset: number;
+};
 
 function resolveAutoPaginationDebounceMs() {
   if (
@@ -55,6 +59,134 @@ function findScrollableAncestor(element: HTMLElement | null) {
   }
 
   return null;
+}
+
+export function capturePaginationScrollAnchor(
+  editor: Editor,
+  scrollContainer: HTMLElement | null,
+) {
+  const selection = editor.state.selection;
+
+  if (!scrollContainer || selection instanceof NodeSelection) {
+    return null;
+  }
+
+  const containerRect = scrollContainer.getBoundingClientRect();
+  let caretRect: ReturnType<typeof editor.view.coordsAtPos>;
+
+  try {
+    caretRect = editor.view.coordsAtPos(selection.to);
+  } catch {
+    return null;
+  }
+
+  return {
+    viewportOffset: caretRect.top - containerRect.top,
+  } satisfies PaginationScrollAnchor;
+}
+
+export function restorePaginationScrollAnchor(
+  editor: Editor,
+  scrollContainer: HTMLElement | null,
+  anchor: PaginationScrollAnchor | null,
+) {
+  const selection = editor.state.selection;
+
+  if (!scrollContainer || !anchor || selection instanceof NodeSelection) {
+    return;
+  }
+
+  const containerRect = scrollContainer.getBoundingClientRect();
+  let caretRect: ReturnType<typeof editor.view.coordsAtPos>;
+
+  try {
+    caretRect = editor.view.coordsAtPos(selection.to);
+  } catch {
+    return;
+  }
+
+  const currentViewportOffset = caretRect.top - containerRect.top;
+  const nextScrollTop = Math.max(
+    0,
+    scrollContainer.scrollTop + (currentViewportOffset - anchor.viewportOffset),
+  );
+
+  if (Math.abs(nextScrollTop - scrollContainer.scrollTop) > 1) {
+    scrollContainer.scrollTop = nextScrollTop;
+  }
+}
+
+function resolveSelectionPageIndex(
+  editor: Editor,
+  proseMirror: HTMLElement,
+  pageStride: number,
+  zoomLevel: number,
+) {
+  const selection = editor.state.selection;
+
+  if (selection instanceof NodeSelection) {
+    return null;
+  }
+
+  const proseMirrorRect = proseMirror.getBoundingClientRect();
+  let caretRect: ReturnType<typeof editor.view.coordsAtPos>;
+
+  try {
+    caretRect = editor.view.coordsAtPos(selection.to);
+  } catch {
+    return null;
+  }
+
+  const safeZoomLevel = Math.max(0.1, zoomLevel);
+  const safePageStride = Math.max(1, pageStride * safeZoomLevel);
+  const caretTop = Math.max(0, caretRect.top - proseMirrorRect.top);
+
+  return Math.max(0, Math.floor(caretTop / safePageStride));
+}
+
+function scrollSelectionIntoViewWithinContainer(
+  editor: Editor,
+  scrollContainer: HTMLElement | null,
+  targetViewportOffset: number,
+) {
+  const selection = editor.state.selection;
+
+  if (!scrollContainer || selection instanceof NodeSelection) {
+    return;
+  }
+
+  const containerRect = scrollContainer.getBoundingClientRect();
+  let caretRect: ReturnType<typeof editor.view.coordsAtPos>;
+
+  try {
+    caretRect = editor.view.coordsAtPos(selection.to);
+  } catch {
+    return;
+  }
+
+  const currentViewportOffset = caretRect.top - containerRect.top;
+  const nextScrollTop = Math.max(
+    0,
+    scrollContainer.scrollTop + (currentViewportOffset - targetViewportOffset),
+  );
+
+  if (Math.abs(nextScrollTop - scrollContainer.scrollTop) > 1) {
+    scrollContainer.scrollTop = nextScrollTop;
+  }
+}
+
+function hasTrailingAutoPageBreakAtSelection(editor: Editor) {
+  const selection = editor.state.selection;
+
+  if (selection instanceof NodeSelection || selection.from !== selection.to || !selection.$from.parent.isTextblock) {
+    return false;
+  }
+
+  const topLevelIndex = selection.$from.index(0);
+  const nextTopLevelNode =
+    topLevelIndex < editor.state.doc.childCount - 1 ? editor.state.doc.child(topLevelIndex + 1) : null;
+
+  return nextTopLevelNode?.type.name === "pageBreak" && nextTopLevelNode.attrs.auto === true;
 }
 
 function syncControlledValue(editor: Editor, nextValue: string) {
@@ -631,11 +763,20 @@ export function useAppEditor({
       let needsFollowUpRun = false;
 
       try {
+        const scrollAnchor = capturePaginationScrollAnchor(editor, scrollContainer);
+        const selectionPageBefore = resolveSelectionPageIndex(
+          editor,
+          proseMirror,
+          pageStride,
+          zoomLevel,
+        );
         const originalSelectionState = editor.state.selection;
         const originalSelectionRange = {
           from: originalSelectionState.from,
           to: originalSelectionState.to,
         };
+        const shouldPreserveAbsoluteSelectionThroughCleanup =
+          hasTrailingAutoPageBreakAtSelection(editor);
         const originalSelectedImage =
           originalSelectionState instanceof NodeSelection &&
           originalSelectionState.node.type.name === "image"
@@ -666,8 +807,14 @@ export function useAppEditor({
           200,
           Math.max(24, Math.ceil(editor.state.doc.childCount * 2)),
         );
-
         const removedAutoBreaks = removeAutoPageBreaks(editor, dirtyStartPosition);
+        const actionStartChildIndex =
+          editor.state.doc.childCount > 0
+            ? resolveTopLevelChildIndexFromPosition(
+                editor,
+                Math.min(dirtyStartPosition, editor.state.doc.content.size),
+              )
+            : 0;
 
         if (
           removedAutoBreaks &&
@@ -675,18 +822,31 @@ export function useAppEditor({
           !(originalSelectionState instanceof NodeSelection)
         ) {
           const maxPositionAfterCleanup = editor.state.doc.content.size;
-          const restoredFrom = clampSelection(originalSelectionRange.from, maxPositionAfterCleanup);
-          const restoredTo = clampSelection(originalSelectionRange.to, maxPositionAfterCleanup);
           const currentSelectionAfterCleanup = editor.state.selection;
 
           if (
-            currentSelectionAfterCleanup.from !== restoredFrom ||
-            currentSelectionAfterCleanup.to !== restoredTo
+            shouldPreserveAbsoluteSelectionThroughCleanup ||
+            currentSelectionAfterCleanup.from < 0 ||
+            currentSelectionAfterCleanup.to > maxPositionAfterCleanup
           ) {
             const restoreSelectionTransaction = editor.state.tr.setSelection(
               TextSelection.between(
-                editor.state.doc.resolve(restoredFrom),
-                editor.state.doc.resolve(restoredTo),
+                editor.state.doc.resolve(
+                  clampSelection(
+                    shouldPreserveAbsoluteSelectionThroughCleanup
+                      ? originalSelectionRange.from
+                      : currentSelectionAfterCleanup.from,
+                    maxPositionAfterCleanup,
+                  ),
+                ),
+                editor.state.doc.resolve(
+                  clampSelection(
+                    shouldPreserveAbsoluteSelectionThroughCleanup
+                      ? originalSelectionRange.to
+                      : currentSelectionAfterCleanup.to,
+                    maxPositionAfterCleanup,
+                  ),
+                ),
               ),
             );
             editor.view.dispatch(restoreSelectionTransaction);
@@ -707,7 +867,7 @@ export function useAppEditor({
             pageContentHeight,
             pageStride,
             zoomLevel,
-            startChildIndex: dirtyStartChildIndex,
+            startChildIndex: actionStartChildIndex,
           });
 
           const nextAction = pageBreakActions[0];
@@ -718,6 +878,8 @@ export function useAppEditor({
           if (nextAction.type === "before") {
             const inserted = insertPageBreakBeforeBlock(editor, nextAction.position, {
               auto: true,
+            }, {
+              preserveSelection: true,
             });
 
             if (!inserted) {
@@ -809,6 +971,26 @@ export function useAppEditor({
           finalProseMirror.dispatchEvent(
             new CustomEvent("app-editor-pagination-updated", { bubbles: true }),
           );
+          const selectionPageAfter = resolveSelectionPageIndex(
+            editor,
+            finalProseMirror,
+            pageStride,
+            zoomLevel,
+          );
+          const movedSelectionForwardAcrossPages =
+            selectionPageBefore !== null &&
+            selectionPageAfter !== null &&
+            selectionPageAfter > selectionPageBefore;
+
+          if (movedSelectionForwardAcrossPages) {
+            scrollSelectionIntoViewWithinContainer(
+              editor,
+              scrollContainer,
+              Math.max(24, pageMargins.top * Math.max(0.1, zoomLevel)),
+            );
+          } else {
+            restorePaginationScrollAnchor(editor, scrollContainer, scrollAnchor);
+          }
 
           needsFollowUpRun =
             resolveAutoPageBreakActions({
@@ -817,7 +999,7 @@ export function useAppEditor({
               pageContentHeight,
               pageStride,
               zoomLevel,
-              startChildIndex: dirtyStartChildIndex,
+              startChildIndex: actionStartChildIndex,
             }).length > 0;
           dirtyStartChildIndexRef.current = null;
           dirtyNeedsPreviousBreakCleanupRef.current = false;
@@ -894,6 +1076,13 @@ export function useAppEditor({
     }: {
       transaction: {
         docChanged?: boolean;
+        selectionSet?: boolean;
+        getMeta?: (key: string) => unknown;
+        mapping?: {
+          invert: () => {
+            map: (position: number, assoc?: number) => number;
+          };
+        };
         selection?: { from?: number };
         before?: {
           childCount: number;
@@ -929,8 +1118,14 @@ export function useAppEditor({
         previousDoc && previousDirtyIndex !== null ? previousDoc.child(previousDirtyIndex) : null;
       const nextChild =
         editor.state.doc.childCount > 0 ? editor.state.doc.child(nextDirtyStartIndex) : null;
+      const previousSiblingInCurrentDoc =
+        nextDirtyStartIndex > 0 ? editor.state.doc.child(nextDirtyStartIndex - 1) : null;
+      const hasPreviousAutoPageBreakInCurrentDoc =
+        previousSiblingInCurrentDoc?.type.name === "pageBreak" &&
+        previousSiblingInCurrentDoc.attrs.auto === true;
       const needsPreviousBreakCleanup =
-        previousChild?.type.name !== nextChild?.type.name;
+        previousChild?.type.name !== nextChild?.type.name ||
+        hasPreviousAutoPageBreakInCurrentDoc;
 
       dirtyStartChildIndexRef.current =
         dirtyStartChildIndexRef.current === null
@@ -938,7 +1133,16 @@ export function useAppEditor({
           : Math.min(dirtyStartChildIndexRef.current, nextDirtyStartIndex);
       dirtyNeedsPreviousBreakCleanupRef.current =
         dirtyNeedsPreviousBreakCleanupRef.current || needsPreviousBreakCleanup;
-      scheduleAutoPagination("immediate");
+      const isPasteLikeTransaction =
+        transaction.getMeta?.("uiEvent") === "paste" ||
+        transaction.getMeta?.("paste") === true;
+      const isSimpleTypingTransaction =
+        !isPasteLikeTransaction &&
+        !needsPreviousBreakCleanup &&
+        previousChild?.type.name === nextChild?.type.name &&
+        previousDoc?.childCount === editor.state.doc.childCount;
+
+      scheduleAutoPagination(isSimpleTypingTransaction ? "deferred" : "immediate");
     };
 
     editor.on("transaction", handleEditorTransaction);

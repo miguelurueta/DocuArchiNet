@@ -5,6 +5,7 @@ import { AppEditorToolbar } from "./presentation/AppEditorToolbar";
 function createChainMock() {
   const chain: Record<string, ReturnType<typeof vi.fn> | unknown> = {
     focus: vi.fn(() => chain),
+    setTextSelection: vi.fn(() => chain),
     toggleBold: vi.fn(() => chain),
     toggleItalic: vi.fn(() => chain),
     toggleUnderline: vi.fn(() => chain),
@@ -27,6 +28,7 @@ function createChainMock() {
 
   return chain as {
     focus: ReturnType<typeof vi.fn>;
+    setTextSelection: ReturnType<typeof vi.fn>;
     toggleBold: ReturnType<typeof vi.fn>;
     toggleItalic: ReturnType<typeof vi.fn>;
     toggleUnderline: ReturnType<typeof vi.fn>;
@@ -53,6 +55,20 @@ function createEditorMock() {
   const canChain = createChainMock();
 
   return {
+    isFocused: false,
+    state: {
+      doc: {
+        content: {
+          size: 100,
+        },
+        descendants: vi.fn(),
+      },
+      selection: {
+        from: 3,
+        to: 8,
+        node: null,
+      },
+    },
     isActive: vi.fn((name: unknown) => Boolean(name === "bold")),
     can: vi.fn(() => ({
       chain: vi.fn(() => canChain),
@@ -99,6 +115,27 @@ describe("AppEditorToolbar [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", ()
     expect(editor.__actionChain.toggleBold).toHaveBeenCalledTimes(1);
     expect(editor.__actionChain.undo).toHaveBeenCalledTimes(1);
     expect(editor.__actionChain.run).toHaveBeenCalled();
+  });
+
+  it("mantiene la seleccion para aplicar formato combinado consecutivo", () => {
+    const editor = createEditorMock();
+
+    render(<AppEditorToolbar editor={editor as never} />);
+
+    fireEvent.mouseDown(screen.getByLabelText("Negrita"));
+    fireEvent.click(screen.getByLabelText("Negrita"));
+    editor.state.selection = {
+      from: 3,
+      to: 3,
+      node: null,
+    };
+
+    fireEvent.mouseDown(screen.getByLabelText("Cursiva"));
+    fireEvent.click(screen.getByLabelText("Cursiva"));
+
+    expect(editor.__actionChain.setTextSelection).toHaveBeenCalledWith({ from: 3, to: 8 });
+    expect(editor.__actionChain.toggleBold).toHaveBeenCalledTimes(1);
+    expect(editor.__actionChain.toggleItalic).toHaveBeenCalledTimes(1);
   });
 
   it("renderiza acciones custom junto a la seccion de insercion", () => {

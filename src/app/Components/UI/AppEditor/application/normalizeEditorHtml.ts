@@ -9,10 +9,18 @@ const EMPTY_EDITOR_HTML_VALUES = new Set([
 const EMPTY_PARAGRAPH_PATTERN =
   /^<p(?:\s+[^>]*)?>\s*(?:<br(?:\s+[^>]*)?\s*\/?>)?\s*<\/p>$/i;
 
-export function normalizeEditorHtml(value: string | null | undefined) {
-  const normalizedValue = String(value ?? "")
+const AUTO_PAGE_BREAK_PATTERN =
+  /<div\b(?=[^>]*\bdata-page-break="true")(?=[^>]*\bdata-page-break-auto="true")[^>]*><\/div>/gi;
+
+export function stripAutoLayoutMetadata(value: string | null | undefined) {
+  return String(value ?? "")
+    .replace(AUTO_PAGE_BREAK_PATTERN, "")
     .replace(/\u200B/g, "")
     .trim();
+}
+
+export function normalizeEditorHtml(value: string | null | undefined) {
+  const normalizedValue = stripAutoLayoutMetadata(value);
 
   if (!normalizedValue) {
     return "";

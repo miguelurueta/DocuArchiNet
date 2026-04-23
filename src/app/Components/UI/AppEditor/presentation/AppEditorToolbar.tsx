@@ -540,6 +540,7 @@ function AppEditorToolbarComponent({
 
     const syncToolbarState = () => {
       const selection = editor.state?.selection;
+      const hasSelectedImage = selection instanceof NodeSelection && selection.node.type.name === "image";
       if (
         selection &&
         typeof selection.from === "number" &&
@@ -592,6 +593,7 @@ function AppEditorToolbarComponent({
     }
 
     const selection = editor?.state?.selection;
+    const hasSelectedImage = selection instanceof NodeSelection && selection.node.type.name === "image";
     if (
       selection &&
       typeof selection.from === "number" &&
@@ -603,6 +605,8 @@ function AppEditorToolbarComponent({
         from: selection.from,
         to: selection.to,
       };
+    } else if (hasSelectedImage) {
+      textSelectionRef.current = null;
     }
 
     event.preventDefault();
@@ -615,6 +619,9 @@ function AppEditorToolbarComponent({
       }
 
       const maxPosition = editor.state?.doc?.content?.size;
+      const hasSelectedImage =
+        editor.state?.selection instanceof NodeSelection &&
+        editor.state.selection.node.type.name === "image";
       const currentSelection =
         editor.state?.selection &&
         typeof editor.state.selection.from === "number" &&
@@ -626,10 +633,23 @@ function AppEditorToolbarComponent({
               to: editor.state.selection.to,
             }
           : null;
-      const savedSelection = currentSelection ?? textSelectionRef.current;
-      let chain = editor.chain().focus() as Editor["chain"] extends () => infer T ? T : never;
+      const currentTextSelection =
+        currentSelection && currentSelection.from !== currentSelection.to
+          ? currentSelection
+          : null;
+      const savedSelection = currentTextSelection ?? textSelectionRef.current;
+      const shouldRestoreSelection =
+        !!savedSelection &&
+        (
+          !currentSelection ||
+          currentSelection.from !== savedSelection.from ||
+          currentSelection.to !== savedSelection.to
+        );
+      const needsFocus = !editor.isFocused || shouldRestoreSelection;
+      let chain = (needsFocus ? editor.chain().focus() : editor.chain()) as Editor["chain"] extends () => infer T ? T : never;
 
       if (
+        shouldRestoreSelection &&
         savedSelection &&
         typeof maxPosition === "number" &&
         typeof (chain as { setTextSelection?: unknown }).setTextSelection === "function"
@@ -643,6 +663,26 @@ function AppEditorToolbarComponent({
       }
 
       applyCommand(chain).run();
+      const hasResultingImageSelection =
+        editor.state?.selection instanceof NodeSelection &&
+        editor.state.selection.node.type.name === "image";
+      const resultingSelection =
+        editor.state?.selection &&
+        typeof editor.state.selection.from === "number" &&
+        typeof editor.state.selection.to === "number" &&
+        !hasResultingImageSelection
+          ? {
+              from: editor.state.selection.from,
+              to: editor.state.selection.to,
+            }
+          : null;
+
+      textSelectionRef.current =
+        resultingSelection && resultingSelection.from !== resultingSelection.to
+          ? resultingSelection
+          : savedSelection && savedSelection.from !== savedSelection.to
+            ? savedSelection
+            : null;
     },
     [disabled, editor],
   );

@@ -193,7 +193,6 @@ export function AppEditor({
     zoomLevel: effectiveZoomLevel,
   });
   const { totalPages, visualPageBoundaries, visualContentHeight } = usePaginationMetrics({
-    editor,
     enabled: isVisualPagination,
     pageHeight: paginationMetrics.pageHeightValue,
     pageGap: paginationMetrics.pageGapValue,
@@ -206,7 +205,6 @@ export function AppEditor({
     [totalPages],
   );
   const { currentPage } = usePageContext({
-    editor,
     enabled: isVisualPagination,
     totalPages,
     pageBoundaries: visualPageBoundaries,
@@ -260,28 +258,33 @@ export function AppEditor({
     }
 
     return (
-      <div className={styles.zoomControls} role="group" aria-label="Control de zoom">
-        <button
-          type="button"
-          className={styles.zoomButton}
-          aria-label="Reducir zoom"
-          disabled={!canDecreaseZoom}
-          onClick={() => handleZoomChange(resolvedZoomLevel - ZOOM_STEP)}
-        >
-          -
-        </button>
-        <output className={styles.zoomValue} aria-live="polite">
-          {Math.round(effectiveZoomLevel * 100)}%
+      <div className={styles.toolbarMeta}>
+        <output className={styles.pageCounterBadge} aria-live="polite">
+          Pagina {currentPage} de {totalPages}
         </output>
-        <button
-          type="button"
-          className={styles.zoomButton}
-          aria-label="Aumentar zoom"
-          disabled={!canIncreaseZoom}
-          onClick={() => handleZoomChange(resolvedZoomLevel + ZOOM_STEP)}
-        >
-          +
-        </button>
+        <div className={styles.zoomControls} role="group" aria-label="Control de zoom">
+          <button
+            type="button"
+            className={styles.zoomButton}
+            aria-label="Reducir zoom"
+            disabled={!canDecreaseZoom}
+            onClick={() => handleZoomChange(resolvedZoomLevel - ZOOM_STEP)}
+          >
+            -
+          </button>
+          <output className={styles.zoomValue} aria-live="polite">
+            {Math.round(effectiveZoomLevel * 100)}%
+          </output>
+          <button
+            type="button"
+            className={styles.zoomButton}
+            aria-label="Aumentar zoom"
+            disabled={!canIncreaseZoom}
+            onClick={() => handleZoomChange(resolvedZoomLevel + ZOOM_STEP)}
+          >
+            +
+          </button>
+        </div>
       </div>
     );
   }, [
@@ -291,6 +294,7 @@ export function AppEditor({
     effectiveZoomLevel,
     isVisualPagination,
     resolvedZoomLevel,
+    totalPages,
   ]);
   const visualWrapperStyle = useMemo(
     () =>
@@ -299,6 +303,10 @@ export function AppEditor({
         "--app-editor-page-height": paginationMetrics.pageHeight,
         "--app-editor-page-width": paginationMetrics.pageWidth,
         "--app-editor-page-gap": paginationMetrics.pageGap,
+        "--app-editor-page-content-height": `${Math.max(
+          1,
+          paginationMetrics.pageHeightValue - resolvedPageMarginsTop - resolvedPageMarginsBottom,
+        )}px`,
         "--app-editor-total-pages": String(totalPages),
         "--app-editor-page-margin-top": paginationMetrics.marginTop,
         "--app-editor-page-margin-right": paginationMetrics.marginRight,
@@ -323,6 +331,7 @@ export function AppEditor({
       paginationMetrics.pageGap,
       paginationMetrics.pageHeight,
       paginationMetrics.pageWidth,
+      paginationMetrics.pageHeightValue,
       sheetHeightValue,
       totalPages,
       visualContentHeight,
@@ -366,7 +375,7 @@ export function AppEditor({
           disabled={!isEditable}
           onInsertLocalImage={insertLocalImage}
           toolbarActions={toolbarActions}
-          trailingContent={zoomTrailingContent}
+          trailingContent={paginationTrailingContent}
         />
         {isVisualPagination ? (
           <div
@@ -398,14 +407,9 @@ export function AppEditor({
                       aria-labelledby={labelId}
                       aria-label={resolvedAriaLabel}
                       aria-describedby={describedBy}
-                      aria-invalid={Boolean(error)}
+                        aria-invalid={Boolean(error)}
                     />
                   </div>
-                  {totalPages > 1 ? (
-                    <div className={styles.pageCounter} aria-live="polite">
-                      Pagina {currentPage} de {totalPages}
-                    </div>
-                  ) : null}
                 </div>
               </div>
             </div>

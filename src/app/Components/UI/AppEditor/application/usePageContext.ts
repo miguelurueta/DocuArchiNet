@@ -1,19 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
-import type { Editor } from "@tiptap/react";
-
 type UsePageContextOptions = {
-  editor: Editor | null;
   enabled: boolean;
   totalPages: number;
   pageBoundaries: number[];
   canvasRef: RefObject<HTMLElement | null>;
   zoomLevel?: number;
   debounceMs?: number;
-  scrollPriorityMs?: number;
 };
 
 const DEFAULT_PAGE = 1;
+const MIN_HYSTERESIS_PX = 18;
+const MAX_HYSTERESIS_PX = 56;
 
 function clampPage(page: number, totalPages: number) {
   return Math.min(Math.max(page, DEFAULT_PAGE), Math.max(DEFAULT_PAGE, totalPages));
@@ -33,15 +31,67 @@ function resolvePageFromOffset(
   return clampPage(crossedBoundaries + 1, totalPages);
 }
 
-function resolvePageFromElement(element: Element | null, totalPages: number) {
-  const pageAttribute = element?.closest("[data-pagination-page]")?.getAttribute("data-pagination-page");
-  const pageNumber = pageAttribute ? Number(pageAttribute) : Number.NaN;
+function resolvePageHysteresis({
+  viewportHeight,
+  boundaryScale,
+}: {
+  viewportHeight: number;
+  boundaryScale: number;
+}) {
+  const safeViewportHeight = Math.max(0, viewportHeight);
+  const safeBoundaryScale = Math.max(0.1, boundaryScale);
+  const normalizedViewportHeight = safeViewportHeight / safeBoundaryScale;
+  return Math.min(
+    Math.max(Math.round(normalizedViewportHeight * 0.04), MIN_HYSTERESIS_PX),
+    MAX_HYSTERESIS_PX,
+  );
+}
 
-  if (!Number.isFinite(pageNumber)) {
-    return null;
+function resolveStablePageFromOffset({
+  offset,
+  pageBoundaries,
+  totalPages,
+  boundaryScale = 1,
+  previousPage,
+  hysteresisPx,
+}: {
+  offset: number;
+  pageBoundaries: number[];
+  totalPages: number;
+  boundaryScale?: number;
+  previousPage: number;
+  hysteresisPx: number;
+}) {
+  const nextPage = resolvePageFromOffset(offset, pageBoundaries, totalPages, boundaryScale);
+  const stablePreviousPage = clampPage(previousPage, totalPages);
+
+  if (nextPage === stablePreviousPage || Math.abs(nextPage - stablePreviousPage) > 1) {
+    return nextPage;
   }
 
-  return clampPage(pageNumber, totalPages);
+  const safeBoundaryScale = Math.max(0.1, boundaryScale);
+  const safeOffset = Math.max(0, offset);
+  const safeHysteresisPx = Math.max(0, hysteresisPx);
+
+  if (nextPage > stablePreviousPage) {
+    const forwardBoundary = pageBoundaries[stablePreviousPage - 1];
+    if (typeof forwardBoundary !== "number") {
+      return nextPage;
+    }
+
+    return safeOffset >= forwardBoundary * safeBoundaryScale + safeHysteresisPx
+      ? nextPage
+      : stablePreviousPage;
+  }
+
+  const backwardBoundary = pageBoundaries[stablePreviousPage - 2];
+  if (typeof backwardBoundary !== "number") {
+    return nextPage;
+  }
+
+  return safeOffset < backwardBoundary * safeBoundaryScale - safeHysteresisPx
+    ? nextPage
+    : stablePreviousPage;
 }
 
 export function calculatePageFromOffset({
@@ -59,19 +109,17 @@ export function calculatePageFromOffset({
 }
 
 export function usePageContext({
-  editor,
   enabled,
   totalPages,
   pageBoundaries,
   canvasRef,
   zoomLevel = 1,
   debounceMs = 32,
-  scrollPriorityMs = 240,
 }: UsePageContextOptions) {
   const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
   const timeoutRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);
-  const lastScrollAtRef = useRef<number>(0);
+  const currentPageRef = useRef(DEFAULT_PAGE);
 
   const clearPending = useCallback(() => {
     if (timeoutRef.current !== null) {
@@ -86,6 +134,7 @@ export function usePageContext({
   }, []);
 
   const commitPage = useCallback((nextPage: number) => {
+    currentPageRef.current = nextPage;
     setCurrentPage((previousPage) => (previousPage === nextPage ? previousPage : nextPage));
   }, []);
 
@@ -96,68 +145,46 @@ export function usePageContext({
     }
 
     const sheet = canvas.querySelector('[data-pagination-sheet="true"]');
-    if (!(sheet instanceof HTMLElement)) {
-      return resolvePageFromOffset(canvas.scrollTop, pageBoundaries, totalPages, zoomLevel);
-    }
+    const offset = !(sheet instanceof HTMLElement)
+      ? canvas.scrollTop
+      : Math.max(0, canvas.scrollTop - sheet.offsetTop);
 
-    const offset = Math.max(0, canvas.scrollTop - sheet.offsetTop);
-    return resolvePageFromOffset(offset, pageBoundaries, totalPages, zoomLevel);
+    return resolveStablePageFromOffset({
+      offset,
+      pageBoundaries,
+      totalPages,
+      boundaryScale: zoomLevel,
+      previousPage: currentPageRef.current,
+      hysteresisPx: resolvePageHysteresis({
+        viewportHeight: canvas.clientHeight,
+        boundaryScale: zoomLevel,
+      }),
+    });
   }, [canvasRef, pageBoundaries, totalPages, zoomLevel]);
-
-  const resolvePageFromCursor = useCallback(() => {
-    if (!editor?.isFocused) {
-      return null;
-    }
-
-    const proseMirror = canvasRef.current?.querySelector(".ProseMirror");
-    if (!(proseMirror instanceof HTMLElement)) {
-      return null;
-    }
-
-    try {
-      const { from } = editor.state.selection;
-      const domNode =
-        typeof editor.view.nodeDOM === "function"
-          ? editor.view.nodeDOM(from)
-          : editor.view.domAtPos(from).node;
-      const pageFromElement = resolvePageFromElement(
-        domNode instanceof Element ? domNode : domNode?.parentElement ?? null,
-        totalPages,
-      );
-
-      if (pageFromElement !== null) {
-        return pageFromElement;
-      }
-
-      const coords = editor.view.coordsAtPos(from);
-      const proseMirrorRect = proseMirror.getBoundingClientRect();
-      const offset = coords.top - proseMirrorRect.top;
-      return resolvePageFromOffset(offset, pageBoundaries, totalPages, zoomLevel);
-    } catch {
-      return null;
-    }
-  }, [canvasRef, editor, pageBoundaries, totalPages, zoomLevel]);
 
   const updateCurrentPage = useCallback(() => {
     if (!enabled) {
       commitPage(DEFAULT_PAGE);
       return;
     }
+    commitPage(resolvePageFromScroll());
+  }, [commitPage, enabled, resolvePageFromScroll]);
 
-    const shouldPrioritizeScroll =
-      lastScrollAtRef.current > 0 && Date.now() - lastScrollAtRef.current <= scrollPriorityMs;
+  const scheduleUpdate = useCallback((priority: "immediate" | "frame" | "deferred" = "deferred") => {
+    clearPending();
 
-    if (shouldPrioritizeScroll) {
-      commitPage(resolvePageFromScroll());
+    if (priority === "immediate") {
+      updateCurrentPage();
       return;
     }
 
-    const pageFromCursor = resolvePageFromCursor();
-    commitPage(pageFromCursor ?? resolvePageFromScroll());
-  }, [commitPage, enabled, resolvePageFromCursor, resolvePageFromScroll, scrollPriorityMs]);
-
-  const scheduleUpdate = useCallback(() => {
-    clearPending();
+    if (priority === "frame") {
+      frameRef.current = window.requestAnimationFrame(() => {
+        updateCurrentPage();
+        frameRef.current = null;
+      });
+      return;
+    }
 
     timeoutRef.current = window.setTimeout(() => {
       if (typeof window.requestAnimationFrame !== "function") {
@@ -180,29 +207,27 @@ export function usePageContext({
       return undefined;
     }
 
-    scheduleUpdate();
+    scheduleUpdate("deferred");
 
     const canvas = canvasRef.current;
     const handleScroll = () => {
-      lastScrollAtRef.current = Date.now();
-      scheduleUpdate();
+      scheduleUpdate("frame");
+    };
+    const handlePaginationUpdated = () => {
+      scheduleUpdate("immediate");
     };
 
     canvas?.addEventListener("scroll", handleScroll, { passive: true });
-    editor?.on("selectionUpdate", scheduleUpdate);
-    editor?.on("focus", scheduleUpdate);
-    editor?.on("blur", scheduleUpdate);
-    editor?.on("update", scheduleUpdate);
-
+    canvas?.addEventListener("app-editor-pagination-updated", handlePaginationUpdated as EventListener);
     return () => {
       clearPending();
       canvas?.removeEventListener("scroll", handleScroll);
-      editor?.off("selectionUpdate", scheduleUpdate);
-      editor?.off("focus", scheduleUpdate);
-      editor?.off("blur", scheduleUpdate);
-      editor?.off("update", scheduleUpdate);
+      canvas?.removeEventListener(
+        "app-editor-pagination-updated",
+        handlePaginationUpdated as EventListener,
+      );
     };
-  }, [canvasRef, clearPending, commitPage, editor, enabled, scheduleUpdate]);
+  }, [canvasRef, clearPending, commitPage, enabled, scheduleUpdate]);
 
   return {
     currentPage: enabled ? clampPage(currentPage, totalPages) : DEFAULT_PAGE,
