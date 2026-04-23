@@ -16,6 +16,18 @@
   width: 100%;
 }
 
+.sizeSM .steps {
+  font-size: 0.85rem;
+}
+
+.sizeMD .steps {
+  font-size: 0.95rem;
+}
+
+.sizeLG .steps {
+  font-size: 1.05rem;
+}
+
 .stepTitle {
   color: var(--app-steps-text);
 }
@@ -36,10 +48,33 @@
   font-size: 0.8rem;
 }
 
+.variantTimeline .stepDescription {
+  border-left: 2px solid rgba(95, 116, 136, 0.35);
+  padding-left: 0.6rem;
+}
+
+.srOnly {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
 .steps :global(.ant-steps-item-error .ant-steps-item-title) {
   color: var(--app-steps-error) !important;
 }
 
 .steps :global(.ant-steps-item-process .ant-steps-item-icon) {
   border-color: var(--app-steps-accent);
+}
+
+.steps :global(.ant-steps-item-container:focus-visible) {
+  outline: 2px solid var(--app-steps-accent);
+  outline-offset: 3px;
+  border-radius: 8px;
 }

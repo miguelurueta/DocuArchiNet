@@ -28,6 +28,30 @@ const sizeToAntSize: Record<NonNullable<AppStepsProps["size"]>, StepsProps["size
   lg: "default",
 };
 
+const useIsNarrowViewport = (enabled: boolean, maxWidthPx: number) => {
+  const [isNarrow, setIsNarrow] = useState(false);
+
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      setIsNarrow(false);
+      return;
+    }
+
+    const media = window.matchMedia(`(max-width: ${maxWidthPx}px)`);
+    const onChange = (event: MediaQueryListEvent) => {
+      setIsNarrow(event.matches);
+    };
+
+    setIsNarrow(media.matches);
+    media.addEventListener("change", onChange);
+    return () => {
+      media.removeEventListener("change", onChange);
+    };
+  }, [enabled, maxWidthPx]);
+
+  return isNarrow;
+};
+
 const resolveOrientation = (
   variant: NonNullable<AppStepsProps["variant"]>,
   direction: AppStepsProps["direction"],
@@ -66,6 +90,14 @@ export function AppSteps<TData = unknown>({
   }, [isControlled, items]);
 
   const antOrientation = resolveOrientation(variant, direction);
+  const isNarrowViewport = useIsNarrowViewport(
+    responsive && variant !== "timeline" && antOrientation === "horizontal",
+    900,
+  );
+  const effectiveOrientation =
+    responsive && antOrientation === "horizontal" && isNarrowViewport
+      ? "vertical"
+      : antOrientation;
   const antSize = sizeToAntSize[size];
 
   const antItems = useMemo(
@@ -78,6 +110,7 @@ export function AppSteps<TData = unknown>({
         titleClassName: styles.stepTitle,
         descriptionClassName: styles.stepDescription,
         timestampClassName: styles.stepTimestamp,
+        srOnlyClassName: styles.srOnly,
       }),
     [errorStepIndex, items, resolvedCurrent, variant],
   );
@@ -115,7 +148,14 @@ export function AppSteps<TData = unknown>({
   );
 
   return (
-    <section className={joinClasses(styles.root, className)}>
+    <section
+      className={joinClasses(
+        styles.root,
+        styles[`variant${variant.charAt(0).toUpperCase()}${variant.slice(1)}`],
+        styles[`size${size.toUpperCase()}`],
+        className,
+      )}
+    >
       {variant === "progress" && typeof progressPercent === "number" ? (
         <div className={styles.progress}>
           <Progress percent={clampPercent(progressPercent)} size="small" />
@@ -125,7 +165,7 @@ export function AppSteps<TData = unknown>({
       <Steps
         className={styles.steps}
         current={resolvedCurrent}
-        orientation={antOrientation}
+        orientation={effectiveOrientation}
         size={antSize}
         responsive={responsive}
         items={antItems}
