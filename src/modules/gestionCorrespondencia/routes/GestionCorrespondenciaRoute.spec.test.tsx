@@ -147,6 +147,7 @@ describe("[SPEC:SCRUMCORE-143] Bloqueo por estructura gestion respuesta", () => 
 
     expect(screen.getByTestId("gestion-correspondencia-blocked-state")).toBeInTheDocument();
     expect(screen.getByText(/Gestion respuesta bloqueada/i)).toBeInTheDocument();
+    expect(screen.getByText(/IdTareaWf:\s*924/i)).toBeInTheDocument();
     expect(screen.queryByText("Gestion")).not.toBeInTheDocument();
   });
 

@@ -28,6 +28,7 @@ describe("[SPEC:app-loading-state] AppLoadingState", () => {
       vi.advanceTimersByTime(200);
     });
     expect(screen.getByText("Cargando")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toBeInTheDocument();
 
     vi.useRealTimers();
   });
