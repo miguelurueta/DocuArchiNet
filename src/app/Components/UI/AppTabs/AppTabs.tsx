@@ -31,6 +31,7 @@ export type AppTabsProps = Omit<
   | "activeKey"
   | "defaultActiveKey"
   | "onChange"
+  | "size"
   | "tabPosition"
   | "tabPlacement"
   | "type"
@@ -85,7 +86,20 @@ export function mapToAntdItems(
 
 const orientationToPlacement: Record<AppTabsOrientation, TabsProps["tabPlacement"]> = {
   horizontal: "top",
-  vertical: "left",
+  vertical: "start",
+};
+
+const positionToPlacement: Record<NonNullable<TabsProps["tabPosition"]>, TabsProps["tabPlacement"]> = {
+  top: "top",
+  bottom: "bottom",
+  left: "start",
+  right: "end",
+};
+
+const sizeToAntdSize: Record<AppTabsSize, TabsProps["size"]> = {
+  sm: "small",
+  md: "middle",
+  lg: "large",
 };
 
 const variantToType: Record<AppTabsVariant, TabsProps["type"]> = {
@@ -217,7 +231,9 @@ export function AppTabs({
   );
 
   const resolvedTabPlacement =
-    tabPlacement ?? tabPosition ?? orientationToPlacement[orientation];
+    tabPlacement ??
+    (tabPosition ? positionToPlacement[tabPosition] : undefined) ??
+    orientationToPlacement[orientation];
 
   const moreLabel = useMemo(
     () => (
@@ -234,7 +250,7 @@ export function AppTabs({
   const resolvedMore = useMemo(
     () => ({
       ...more,
-      trigger: "hover",
+      trigger: "hover" as const,
       icon: moreLabel,
     }),
     [more, moreLabel],
@@ -327,6 +343,7 @@ export function AppTabs({
         type={variantToType[variant]}
         tabPlacement={resolvedTabPlacement}
         more={resolvedMore}
+        size={sizeToAntdSize[size]}
         className={joinClasses(
           "customTabs",
           styles.root,

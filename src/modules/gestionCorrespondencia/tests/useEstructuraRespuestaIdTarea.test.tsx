@@ -35,6 +35,9 @@ describe("[SPEC:gestion-correspondencia] useEstructuraRespuestaIdTarea", () => {
     expect(estructuraService.getSolicitaEstructuraRespuestaIdTarea).not.toHaveBeenCalled();
     expect(result.current.estrucTuraRespuesta).toBeNull();
     expect(result.current.isEmpty).toBe(false);
+    expect(result.current.isEmptyLatched).toBe(false);
+    expect(result.current.fetching).toBe(false);
+    expect(result.current.resolved).toBe(false);
   });
 
   it("normaliza el primer item del backend como estrucTuraRespuesta", async () => {
@@ -66,6 +69,9 @@ describe("[SPEC:gestion-correspondencia] useEstructuraRespuestaIdTarea", () => {
       TramiteDocumento: "Respuesta a derecho de petición",
     });
     expect(result.current.isEmpty).toBe(false);
+    expect(result.current.isEmptyLatched).toBe(false);
+    expect(result.current.fetching).toBe(false);
+    expect(result.current.resolved).toBe(true);
   });
 
   it("expone isEmpty cuando success es true y data es vacía", async () => {
@@ -86,6 +92,9 @@ describe("[SPEC:gestion-correspondencia] useEstructuraRespuestaIdTarea", () => {
 
     expect(result.current.estrucTuraRespuesta).toBeNull();
     expect(result.current.isEmpty).toBe(true);
+    expect(result.current.isEmptyLatched).toBe(true);
+    expect(result.current.fetching).toBe(false);
+    expect(result.current.resolved).toBe(true);
   });
 
   it("maneja error sin producir estructura utilizable", async () => {
@@ -104,5 +113,8 @@ describe("[SPEC:gestion-correspondencia] useEstructuraRespuestaIdTarea", () => {
     expect(result.current.estrucTuraRespuesta).toBeNull();
     expect(result.current.error).toEqual(expect.any(Error));
     expect(result.current.isEmpty).toBe(false);
+    expect(result.current.isEmptyLatched).toBe(false);
+    expect(result.current.fetching).toBe(false);
+    expect(result.current.resolved).toBe(true);
   });
 });

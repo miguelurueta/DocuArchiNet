@@ -1,5 +1,15 @@
 #!/usr/bin/env node
 
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { loadEnvFile } from "./lib/loadEnvFile.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(__dirname, "..");
+
+// Allow running doctor from a plain shell by loading .env.jira (gitignored).
+loadEnvFile({ baseDir: repoRoot, filename: ".env.jira" });
+
 const required = {
   jira: ["JIRA_BASE_URL", "JIRA_EMAIL", "JIRA_API_TOKEN"],
   github: ["GITHUB_TOKEN"],

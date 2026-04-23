@@ -31,6 +31,7 @@ describe("opsxjCommandRunner", () => {
       proposalRelativePath:
         "openspec/changes/scrum-8-auto-complete-asunto/proposal.md",
     });
+    const assertGitCleanFn = vi.fn().mockResolvedValue(undefined);
 
     const exitCode = await runOpsxjCommand({
       argv: ["opsxj:new", "SCRUM-8"],
@@ -44,6 +45,7 @@ describe("opsxjCommandRunner", () => {
       baseDir: "D:/repo",
       createProposalFn,
       setupProposalFn,
+      assertGitCleanFn,
     });
 
     expect(exitCode).toBe(0);
@@ -64,6 +66,7 @@ describe("opsxjCommandRunner", () => {
     const stderr = buildBufferWriter();
     const createProposalFn = vi.fn().mockRejectedValue(new Error("fetch failed"));
     const setupProposalFn = vi.fn();
+    const assertGitCleanFn = vi.fn().mockResolvedValue(undefined);
 
     const exitCode = await runOpsxjCommand({
       argv: ["opsxj:new", "SCRUM-8"],
@@ -77,6 +80,7 @@ describe("opsxjCommandRunner", () => {
       baseDir: "D:/repo",
       createProposalFn,
       setupProposalFn,
+      assertGitCleanFn,
     });
 
     expect(exitCode).toBe(1);
@@ -84,6 +88,36 @@ describe("opsxjCommandRunner", () => {
     expect(setupProposalFn).not.toHaveBeenCalled();
     expect(stdout.read()).toBe("");
     expect(stderr.read()).toContain("[opsxj:error] fetch failed");
+  });
+
+  it("blocks opsxj:new when git has pending changes before consulting Jira", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const createProposalFn = vi.fn();
+    const setupProposalFn = vi.fn();
+
+    const assertGitCleanFn = vi.fn().mockRejectedValue(new Error("Git tiene cambios sin commit"));
+
+    const exitCode = await runOpsxjCommand({
+      argv: ["opsxj:new", "SCRUM-8"],
+      env: {
+        JIRA_BASE_URL: "https://example.atlassian.net",
+        JIRA_EMAIL: "user@example.com",
+        JIRA_API_TOKEN: "token",
+      },
+      stdout,
+      stderr,
+      baseDir: "D:/repo",
+      createProposalFn,
+      setupProposalFn,
+      assertGitCleanFn,
+    });
+
+    expect(exitCode).toBe(1);
+    expect(assertGitCleanFn).toHaveBeenCalledTimes(1);
+    expect(createProposalFn).not.toHaveBeenCalled();
+    expect(setupProposalFn).not.toHaveBeenCalled();
+    expect(stderr.read()).toContain("Git tiene cambios sin commit");
   });
 
   it("returns clear error when command is unsupported", async () => {
@@ -109,6 +143,7 @@ describe("opsxjCommandRunner", () => {
       archivedWithSkipSpecs: false,
       pullRequest: { html_url: "https://github.com/acme/repo/pull/10" },
     });
+    const assertGitCleanAndSyncedFn = vi.fn().mockResolvedValue(undefined);
 
     const exitCode = await runOpsxjCommand({
       argv: ["opsxj:archive", "SCRUM-10"],
@@ -123,6 +158,7 @@ describe("opsxjCommandRunner", () => {
       stderr,
       baseDir: "D:/repo",
       archiveFn,
+      assertGitCleanAndSyncedFn,
     });
 
     expect(exitCode).toBe(0);

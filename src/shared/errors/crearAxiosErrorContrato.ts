@@ -1,20 +1,25 @@
 import { AxiosError } from "axios";
+import type { AxiosResponse } from "axios";
 
 export default function crearAxiosErrorContrato(mensajes: string[]): AxiosError {
+  const response = {
+    status: 500,
+    statusText: "Error de contrato",
+    headers: {},
+    config: {},
+    data: {
+      message:
+        "La API respondio pero el contrato de respuesta de la API no es correcto.",
+      detalles: mensajes,
+    },
+  } as unknown as AxiosResponse;
+
   return new AxiosError(
-    "Respuesta de autenticación inválida",
+    "Respuesta de autenticacion invalida",
     "CONTRACT_ERROR",
     undefined,
     undefined,
-    {
-      status: 500,
-      statusText: "Error de contrato",
-      headers: {},
-      config: {},
-      data: {
-        message: "La API respondió pero el contrato de respuesta de la api no es orrecto",
-        detalles: mensajes
-      }
-    } as any
+    response,
   );
 }
+

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { AppEditor } from "./presentation/AppEditor";
@@ -18,12 +18,6 @@ function SaveHarness({
     currentValue,
     savedValue,
   });
-
-  useEffect(() => {
-    setCurrentValue(initialValue);
-    setSavedValue(initialValue);
-    changeCountRef.current = 0;
-  }, [initialValue]);
 
   return (
     <div>

@@ -80,7 +80,7 @@ describe("[SPEC:APP-COLLAPSE-RAIL-004] AppCollapseRail placement/variant", () =>
     expect(wrapper).toHaveAttribute("data-placement", "left");
     expect(wrapper).toHaveAttribute("data-variant", "overlay");
 
-    const panel = container.querySelector(
+    const panel = document.body.querySelector(
       "aside[data-variant=\"overlay\"][data-placement=\"left\"]",
     );
     expect(panel).toBeTruthy();

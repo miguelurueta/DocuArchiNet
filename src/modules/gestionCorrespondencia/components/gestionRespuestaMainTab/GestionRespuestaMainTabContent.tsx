@@ -1,21 +1,17 @@
-import {
-  CarryOutFilled,
-  MailFilled,
-} from "@ant-design/icons";
-import { useId, useState, useSyncExternalStore } from "react";
-import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
+import { CarryOutFilled, MailFilled } from "@ant-design/icons";
+import { useCallback, useId, useMemo, useState, useSyncExternalStore } from "react";
 import {
   AppEditor,
   AppEditorSaveAction,
   useAppEditorSaveState,
 } from "../../../../app/Components/UI/AppEditor";
+import { AppSteps } from "../../../../app/Components/UI/AppSteps";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
 import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
 import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
-import { useEstructuraRespuestaIdTarea } from "../../hooks/useEstructuraRespuestaIdTarea";
 import styles from "./GestionRespuestaMainTabContent.module.css";
 import { GestionRespuestaEditorContainer } from "./GestionRespuestaEditorContainer";
-import { GestionRespuestaInfoHeader } from "./GestionRespuestaInfoHeader";
+import { GestionRespuestaRightToolsPanel } from "./GestionRespuestaRightToolsPanel";
 import { GestionDocumentoModal } from "./modalGestionDocumento";
 
 const DEFAULT_MEDIA_QUERY = "(max-width: 1024px)";
@@ -46,47 +42,100 @@ type GestionRespuestaMainTabContentProps = {
   idTareaWf?: number;
 };
 
-export function GestionRespuestaMainTabContent({
-  idTareaWf,
-}: GestionRespuestaMainTabContentProps = {}) {
+export function GestionRespuestaMainTabContent(
+  _props: GestionRespuestaMainTabContentProps = {},
+) {
   const panelId = useId();
   const isCompact = useMediaQuery(DEFAULT_MEDIA_QUERY);
   const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(isCompact);
-  const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] = useState(false);
+  const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] =
+    useState(false);
   const [files, setFiles] = useState<AppUploadFile[]>([]);
-  const { estrucTuraRespuesta, loading, error, isEmpty } =
-    useEstructuraRespuestaIdTarea(idTareaWf);
-
-  const headerDescription =
-    typeof idTareaWf !== "number"
-      ? "No se pudo resolver el identificador de la tarea (idTareaWf)."
-      : loading
-        ? "Cargando estructura de respuesta..."
-        : error
-          ? `No fue posible cargar la estructura de respuesta: ${error.message}`
-          : isEmpty
-            ? `Sin datos de estructura para la tarea ${idTareaWf}.`
-            : undefined;
+  const [currentStep, setCurrentStep] = useState(0);
   const [editorValue, setEditorValue] = useState<string>("");
   const [savedEditorValue, setSavedEditorValue] = useState<string>("");
   const { saveStatus } = useAppEditorSaveState({
     currentValue: editorValue,
     savedValue: savedEditorValue,
   });
+  const canAdvanceToSend = files.length > 0;
+
+  const stepItems = useMemo(
+    () => [
+      {
+        key: "redaccion",
+        title: "Redaccion",
+        description: "Construye el contenido de la respuesta",
+        status: currentStep > 0 ? "finish" : "process",
+      },
+      {
+        key: "adjuntos",
+        title: "Adjuntos",
+        description: canAdvanceToSend
+          ? `${files.length} archivo(s) listo(s) para envio`
+          : "Adjunta al menos un archivo para continuar",
+        status: currentStep > 1 ? "finish" : currentStep === 1 ? "process" : "wait",
+      },
+      {
+        key: "envio",
+        title: "Envio",
+        description: "Confirma y finaliza el envio",
+        status: currentStep === 2 ? "process" : "wait",
+      },
+    ],
+    [canAdvanceToSend, currentStep, files.length],
+  );
+
+  const goToSendStep = useCallback(() => {
+    if (!canAdvanceToSend) {
+      setCurrentStep(1);
+      return;
+    }
+    setCurrentStep(2);
+    setIsGestionDocumentoModalOpen(true);
+  }, [canAdvanceToSend]);
+
+  const handleStepChange = useCallback(
+    (nextStep: number) => {
+      if (nextStep === 2) {
+        goToSendStep();
+        return;
+      }
+      setCurrentStep(nextStep);
+    },
+    [goToSendStep],
+  );
+
+  const validateStep = useCallback(
+    (stepIndex: number) => {
+      if (stepIndex === 1) {
+        return canAdvanceToSend;
+      }
+      return true;
+    },
+    [canAdvanceToSend],
+  );
 
   return (
     <section className={styles.mainTab} aria-label="Contenido principal de respuesta">
-      <GestionRespuestaInfoHeader
-        description={headerDescription}
-        metadata={[
-          { label: "Radicado", value: loading ? "..." : (estrucTuraRespuesta?.Radicado ?? "-") },
-          { label: "Remitente", value: loading ? "..." : (estrucTuraRespuesta?.Destinatario ?? "-") },
-          { label: "Trámite", value: estrucTuraRespuesta?.TramiteDocumento ?? "-" },
-        ]}
-      />
-
       <div className={styles.workbench}>
+        <div className={styles.workflowSteps}>
+          <AppSteps
+            items={stepItems}
+            variant="form"
+            size="sm"
+            current={currentStep}
+            onChange={handleStepChange}
+            validateStep={validateStep}
+          />
+          {!canAdvanceToSend ? (
+            <p className={styles.workflowHint}>
+              Para habilitar envio, carga al menos un archivo en el bloque de adjuntos.
+            </p>
+          ) : null}
+        </div>
+
         <AppToolbar
           className={styles.toolbar}
           actions={[
@@ -103,7 +152,7 @@ export function GestionRespuestaMainTabContent({
               size: "sm",
               variant: "ghost",
               icon: <MailFilled />,
-              onClick: () => setIsGestionDocumentoModalOpen(true),
+              onClick: () => goToSendStep(),
             },
           ]}
         />
@@ -114,10 +163,7 @@ export function GestionRespuestaMainTabContent({
           data-variant={isMobile ? "overlay" : "inline"}
           data-testid="gestion-respuesta-workbench"
         >
-          <GestionRespuestaEditorContainer
-            title="Editor principal"
-            description="Zona dominante del workspace para construir la respuesta."
-          >
+          <GestionRespuestaEditorContainer>
             <AppEditor
               value={editorValue}
               onChange={setEditorValue}
@@ -141,34 +187,11 @@ export function GestionRespuestaMainTabContent({
               pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
             />
           </GestionRespuestaEditorContainer>
-
-          <AppCollapseRail
-            title="Herramientas"
+          <GestionRespuestaRightToolsPanel
             collapsed={isPanelCollapsed}
-            onToggle={() => setIsPanelCollapsed((prev) => !prev)}
             panelId={panelId}
-            placement="right"
-            variant={isMobile ? "overlay" : "inline"}
-          >
-            <div className={styles.toolsList}>
-              <div className={styles.toolsItem}>
-                <strong>Checklist de validacion</strong>
-                <span className={styles.infoCopy}>
-                  Estado del analisis y observaciones tecnicas.
-                </span>
-              </div>
-              <div className={styles.toolsItem}>
-                <strong>Referencias del expediente</strong>
-                <span className={styles.infoCopy}>Links y notas operativas clave.</span>
-              </div>
-              <div className={styles.toolsItem}>
-                <strong>Historial reciente</strong>
-                <span className={styles.infoCopy}>
-                  Resumen de cambios y actividades asociadas.
-                </span>
-              </div>
-            </div>
-          </AppCollapseRail>
+            onToggle={() => setIsPanelCollapsed((prev) => !prev)}
+          />
         </div>
       </div>
 
@@ -177,12 +200,17 @@ export function GestionRespuestaMainTabContent({
           <h3 className={styles.attachmentsTitle}>Adjuntos</h3>
           <span className={styles.infoCopy}>Carga de soportes y anexos del expediente.</span>
         </div>
-        <AppUpload value={files} onChange={setFiles} drag size="md" />
+        <AppUpload value={files} onChange={setFiles} drag size="sm" />
       </div>
 
       <GestionDocumentoModal
         open={isGestionDocumentoModalOpen}
-        onClose={() => setIsGestionDocumentoModalOpen(false)}
+        onClose={() => {
+          setIsGestionDocumentoModalOpen(false);
+          if (currentStep === 2) {
+            setCurrentStep(1);
+          }
+        }}
       />
     </section>
   );

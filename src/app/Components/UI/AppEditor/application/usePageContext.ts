@@ -187,6 +187,12 @@ export function usePageContext({
     }
 
     timeoutRef.current = window.setTimeout(() => {
+      if (typeof window.requestAnimationFrame !== "function") {
+        updateCurrentPage();
+        timeoutRef.current = null;
+        return;
+      }
+
       frameRef.current = window.requestAnimationFrame(() => {
         updateCurrentPage();
         frameRef.current = null;
@@ -198,7 +204,6 @@ export function usePageContext({
   useEffect(() => {
     if (!enabled) {
       clearPending();
-      commitPage(DEFAULT_PAGE);
       return undefined;
     }
 
@@ -225,6 +230,6 @@ export function usePageContext({
   }, [canvasRef, clearPending, commitPage, enabled, scheduleUpdate]);
 
   return {
-    currentPage: clampPage(currentPage, totalPages),
+    currentPage: enabled ? clampPage(currentPage, totalPages) : DEFAULT_PAGE,
   };
 }

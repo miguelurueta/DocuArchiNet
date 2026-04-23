@@ -37,6 +37,36 @@ const normalizeLines = (value) =>
     .map((line) => line.trim())
     .filter(Boolean);
 
+export const assertGitClean = async ({ baseDir, commandLabel = "opsxj:new" }) => {
+  if (!baseDir) {
+    throw new Error("No se pudo validar Git: baseDir es obligatorio.");
+  }
+
+  const status = await runGit({
+    args: ["status", "--porcelain"],
+    cwd: baseDir,
+  });
+  const statusLines = normalizeLines(status.stdout);
+  if (statusLines.length > 0) {
+    const preview = statusLines.slice(0, 10).join("\n");
+    throw new Error(
+      `Git tiene cambios sin commit. ${commandLabel} se bloquea para evitar mezclar tickets.\n\nCambios detectados (preview):\n${preview}\n\nSolucion:\n- Revise: git status\n- Luego: git add -A && git commit -m \"...\" (o git stash) y reintente.`,
+    );
+  }
+
+  const staged = await runGit({
+    args: ["diff", "--cached", "--name-only"],
+    cwd: baseDir,
+  });
+  const stagedLines = normalizeLines(staged.stdout);
+  if (stagedLines.length > 0) {
+    const preview = stagedLines.slice(0, 10).join("\n");
+    throw new Error(
+      `Git tiene cambios staged sin commit. ${commandLabel} se bloquea.\n\nStaged (preview):\n${preview}\n\nSolucion:\n- Commit: git commit -m \"...\" (o reset/stash) y reintente.`,
+    );
+  }
+};
+
 export const assertGitCleanAndSynced = async ({
   baseDir,
   expectedBranchName,

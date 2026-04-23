@@ -19,6 +19,7 @@
     "opsxj:archive": "node scripts/opsxj.js opsxj:archive",
     "opsxj:close": "node scripts/opsxj.js opsxj:close",
     "opsxj:doctor": "node scripts/opsxj-doctor.js",
+    "jira:test": "node scripts/jira-test-connection.js",
     "opsxj:sync-pr-status": "node scripts/sync-jira-pr-status.js"
   },
   "dependencies": {

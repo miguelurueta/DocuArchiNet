@@ -51,14 +51,26 @@ type ToolbarButtonConfig = {
   onClick: () => void;
 };
 
-type EditorWithImagePosition = Editor & {
-  __appEditorLastImagePos?: number | null;
-  __appEditorLastImageIdentity?: {
-    imageId?: string | null;
-    localImageId?: string | null;
-    src?: string | null;
-  } | null;
+type LastImageIdentity = {
+  imageId?: string | null;
+  localImageId?: string | null;
+  src?: string | null;
 };
+
+type LastImageCache = {
+  pos: number | null;
+  identity: LastImageIdentity | null;
+};
+
+const lastImageCacheByEditor = new WeakMap<Editor, LastImageCache>();
+
+function getLastImageCache(editor: Editor): LastImageCache {
+  return lastImageCacheByEditor.get(editor) ?? { pos: null, identity: null };
+}
+
+function setLastImageCache(editor: Editor, next: LastImageCache) {
+  lastImageCacheByEditor.set(editor, next);
+}
 
 type TextSelectionRange = {
   from: number;
@@ -75,12 +87,8 @@ const HEADING_OPTIONS = [
   { value: "h3", label: "Titulo 3", shortLabel: "H3", icon: faHeading },
 ] as const;
 
-const TOOLBAR_GROUPS = {
-  formatting: ["bold", "italic", "underline"],
-  structure: ["bullet-list", "ordered-list", "task-list"],
-  history: ["undo", "redo"],
-  insert: ["link", "image"],
-} as const;
+// Grouping is intentionally positional to keep the render path simple for the lint rules
+// enforced in this repo.
 
 function useCompactToolbarMode(maxWidth = 1024) {
   const [isCompact, setIsCompact] = useState(
@@ -261,13 +269,15 @@ function moveResolvedImage(editor: Editor | null, direction: "up" | "down") {
   );
   editor.view.dispatch(transaction);
 
-  (editor as EditorWithImagePosition).__appEditorLastImagePos = nextImagePosition;
-  (editor as EditorWithImagePosition).__appEditorLastImageIdentity = {
-    imageId: typeof imageNode.attrs.imageId === "string" ? imageNode.attrs.imageId : null,
-    localImageId:
-      typeof imageNode.attrs.localImageId === "string" ? imageNode.attrs.localImageId : null,
-    src: typeof imageNode.attrs.src === "string" ? imageNode.attrs.src : null,
-  };
+  setLastImageCache(editor, {
+    pos: nextImagePosition,
+    identity: {
+      imageId: typeof imageNode.attrs.imageId === "string" ? imageNode.attrs.imageId : null,
+      localImageId:
+        typeof imageNode.attrs.localImageId === "string" ? imageNode.attrs.localImageId : null,
+      src: typeof imageNode.attrs.src === "string" ? imageNode.attrs.src : null,
+    },
+  });
 
   return true;
 }
@@ -389,7 +399,7 @@ function getResolvedImagePosition(editor: Editor | null) {
     return selection.from;
   }
 
-  const lastImagePosition = (editor as EditorWithImagePosition).__appEditorLastImagePos;
+  const lastImagePosition = getLastImageCache(editor).pos;
   if (
     typeof lastImagePosition === "number" &&
     editor.state.doc.nodeAt(lastImagePosition)?.type.name === "image"
@@ -397,7 +407,7 @@ function getResolvedImagePosition(editor: Editor | null) {
     return lastImagePosition;
   }
 
-  const lastImageIdentity = (editor as EditorWithImagePosition).__appEditorLastImageIdentity;
+  const lastImageIdentity = getLastImageCache(editor).identity;
   if (lastImageIdentity) {
     let matchedPosition: number | null = null;
 
@@ -491,12 +501,14 @@ function updateResolvedImageAttributes(
   }
 
   editor.view.dispatch(transaction);
-  (editor as EditorWithImagePosition).__appEditorLastImagePos = position;
-  (editor as EditorWithImagePosition).__appEditorLastImageIdentity = {
-    imageId: typeof node.attrs.imageId === "string" ? node.attrs.imageId : null,
-    localImageId: typeof node.attrs.localImageId === "string" ? node.attrs.localImageId : null,
-    src: typeof node.attrs.src === "string" ? node.attrs.src : null,
-  };
+  setLastImageCache(editor, {
+    pos: position,
+    identity: {
+      imageId: typeof node.attrs.imageId === "string" ? node.attrs.imageId : null,
+      localImageId: typeof node.attrs.localImageId === "string" ? node.attrs.localImageId : null,
+      src: typeof node.attrs.src === "string" ? node.attrs.src : null,
+    },
+  });
   return true;
 }
 
@@ -534,7 +546,7 @@ function AppEditorToolbarComponent({
         typeof selection.from === "number" &&
         typeof selection.to === "number" &&
         selection.from !== selection.to &&
-        !hasSelectedImage
+        !(selection instanceof NodeSelection && selection.node.type.name === "image")
       ) {
         textSelectionRef.current = {
           from: selection.from,
@@ -587,7 +599,7 @@ function AppEditorToolbarComponent({
       typeof selection.from === "number" &&
       typeof selection.to === "number" &&
       selection.from !== selection.to &&
-      !hasSelectedImage
+      !(selection instanceof NodeSelection && selection.node.type.name === "image")
     ) {
       textSelectionRef.current = {
         from: selection.from,
@@ -614,7 +626,8 @@ function AppEditorToolbarComponent({
         editor.state?.selection &&
         typeof editor.state.selection.from === "number" &&
         typeof editor.state.selection.to === "number" &&
-        !hasSelectedImage
+        editor.state.selection.from !== editor.state.selection.to &&
+        !(editor.state.selection instanceof NodeSelection && editor.state.selection.node.type.name === "image")
           ? {
               from: editor.state.selection.from,
               to: editor.state.selection.to,
@@ -735,18 +748,20 @@ function AppEditorToolbarComponent({
       if (resolvedPosition !== null) {
         const resolvedNode = editor.state.doc.nodeAt(resolvedPosition);
         if (resolvedNode?.type.name === "image") {
-          (editor as EditorWithImagePosition).__appEditorLastImagePos = resolvedPosition;
-          (editor as EditorWithImagePosition).__appEditorLastImageIdentity = {
-            imageId:
-              typeof resolvedNode.attrs.imageId === "string"
-                ? resolvedNode.attrs.imageId
-                : null,
-            localImageId:
-              typeof resolvedNode.attrs.localImageId === "string"
-                ? resolvedNode.attrs.localImageId
-                : null,
-            src: typeof resolvedNode.attrs.src === "string" ? resolvedNode.attrs.src : null,
-          };
+          setLastImageCache(editor, {
+            pos: resolvedPosition,
+            identity: {
+              imageId:
+                typeof resolvedNode.attrs.imageId === "string"
+                  ? resolvedNode.attrs.imageId
+                  : null,
+              localImageId:
+                typeof resolvedNode.attrs.localImageId === "string"
+                  ? resolvedNode.attrs.localImageId
+                  : null,
+              src: typeof resolvedNode.attrs.src === "string" ? resolvedNode.attrs.src : null,
+            },
+          });
         }
       }
 
@@ -1146,95 +1161,118 @@ function AppEditorToolbarComponent({
     );
   }, [handleOpenImagePopover, handleOpenLinkPopover, imagePopoverContent, isImagePopoverOpen, isLinkPopoverOpen, linkPopoverContent]);
 
-  const buttons: ToolbarButtonConfig[] = useMemo(() => [
-    {
-      key: "bold",
-      label: "Negrita",
-      icon: faBold,
-      isActive: editor?.isActive("bold"),
-      disabled: isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().toggleBold().run()),
-      onClick: () => runWithPreservedTextSelection((chain) => chain.toggleBold()),
-    },
-    {
-      key: "italic",
-      label: "Cursiva",
-      icon: faItalic,
-      isActive: editor?.isActive("italic"),
-      disabled: isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().toggleItalic().run()),
-      onClick: () => runWithPreservedTextSelection((chain) => chain.toggleItalic()),
-    },
-    {
-      key: "underline",
-      label: "Subrayado",
-      icon: faUnderline,
-      isActive: editor?.isActive("underline"),
-      disabled: isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().toggleUnderline().run()),
-      onClick: () => runWithPreservedTextSelection((chain) => chain.toggleUnderline()),
-    },
-    {
-      key: "bullet-list",
-      label: "Lista con vietas",
-      icon: faListUl,
-      isActive: editor?.isActive("bulletList"),
-      disabled:
-        isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().toggleBulletList().run()),
-      onClick: () => runWithPreservedTextSelection((chain) => chain.toggleBulletList()),
-    },
-    {
-      key: "ordered-list",
-      label: "Lista numerada",
-      icon: faListOl,
-      isActive: editor?.isActive("orderedList"),
-      disabled:
-        isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().toggleOrderedList().run()),
-      onClick: () => runWithPreservedTextSelection((chain) => chain.toggleOrderedList()),
-    },
-    {
-      key: "task-list",
-      label: "Lista de tareas",
-      icon: faListCheck,
-      isActive: editor?.isActive("taskList"),
-      disabled:
-        isBlocked || !canRun(editor, (instance) => instance.can().chain().focus().toggleTaskList().run()),
-      onClick: () => runWithPreservedTextSelection((chain) => chain.toggleTaskList()),
-    },
-    {
-      key: "undo",
-      label: "Deshacer",
-      icon: faArrowRotateLeft,
-      disabled: isBlocked,
-      onClick: () => runHistoryCommand(editor, "undo"),
-    },
-    {
-      key: "redo",
-      label: "Rehacer",
-      icon: faArrowRotateRight,
-      disabled: isBlocked,
-      onClick: () => runHistoryCommand(editor, "redo"),
-    },
-    {
-      key: "link",
-      label: "Insertar enlace",
-      icon: faLink,
-      isActive: editor?.isActive("link"),
-      disabled: isBlocked,
-      onClick: () => undefined,
-    },
-    {
-      key: "image",
-      label: "Insertar imagen",
-      icon: faImage,
-      disabled: isBlocked,
-      onClick: () => undefined,
-    },
-  ], [editor, isBlocked, runWithPreservedTextSelection]);
+  const groupedButtons = useMemo(() => {
+    const allButtons: ToolbarButtonConfig[] = [
+      {
+        key: "bold",
+        label: "Negrita",
+        icon: faBold,
+        isActive: editor?.isActive("bold"),
+        disabled:
+          isBlocked ||
+          !canRun(editor, (instance) =>
+            instance.can().chain().focus().toggleBold().run(),
+          ),
+        onClick: () => runWithPreservedTextSelection((chain) => chain.toggleBold()),
+      },
+      {
+        key: "italic",
+        label: "Cursiva",
+        icon: faItalic,
+        isActive: editor?.isActive("italic"),
+        disabled:
+          isBlocked ||
+          !canRun(editor, (instance) =>
+            instance.can().chain().focus().toggleItalic().run(),
+          ),
+        onClick: () => runWithPreservedTextSelection((chain) => chain.toggleItalic()),
+      },
+      {
+        key: "underline",
+        label: "Subrayado",
+        icon: faUnderline,
+        isActive: editor?.isActive("underline"),
+        disabled:
+          isBlocked ||
+          !canRun(editor, (instance) =>
+            instance.can().chain().focus().toggleUnderline().run(),
+          ),
+        onClick: () => runWithPreservedTextSelection((chain) => chain.toggleUnderline()),
+      },
+      {
+        key: "bullet-list",
+        label: "Lista con vietas",
+        icon: faListUl,
+        isActive: editor?.isActive("bulletList"),
+        disabled:
+          isBlocked ||
+          !canRun(editor, (instance) =>
+            instance.can().chain().focus().toggleBulletList().run(),
+          ),
+        onClick: () => runWithPreservedTextSelection((chain) => chain.toggleBulletList()),
+      },
+      {
+        key: "ordered-list",
+        label: "Lista numerada",
+        icon: faListOl,
+        isActive: editor?.isActive("orderedList"),
+        disabled:
+          isBlocked ||
+          !canRun(editor, (instance) =>
+            instance.can().chain().focus().toggleOrderedList().run(),
+          ),
+        onClick: () => runWithPreservedTextSelection((chain) => chain.toggleOrderedList()),
+      },
+      {
+        key: "task-list",
+        label: "Lista de tareas",
+        icon: faListCheck,
+        isActive: editor?.isActive("taskList"),
+        disabled:
+          isBlocked ||
+          !canRun(editor, (instance) =>
+            instance.can().chain().focus().toggleTaskList().run(),
+          ),
+        onClick: () => runWithPreservedTextSelection((chain) => chain.toggleTaskList()),
+      },
+      {
+        key: "undo",
+        label: "Deshacer",
+        icon: faArrowRotateLeft,
+        disabled: isBlocked,
+        onClick: () => runHistoryCommand(editor, "undo"),
+      },
+      {
+        key: "redo",
+        label: "Rehacer",
+        icon: faArrowRotateRight,
+        disabled: isBlocked,
+        onClick: () => runHistoryCommand(editor, "redo"),
+      },
+      {
+        key: "link",
+        label: "Insertar enlace",
+        icon: faLink,
+        isActive: editor?.isActive("link"),
+        disabled: isBlocked,
+        onClick: () => undefined,
+      },
+      {
+        key: "image",
+        label: "Insertar imagen",
+        icon: faImage,
+        disabled: isBlocked,
+        onClick: () => undefined,
+      },
+    ];
 
-  const groupedButtons = useMemo(() => ({
-    formatting: buttons.filter((button) => TOOLBAR_GROUPS.formatting.includes(button.key as never)),
-    structure: buttons.filter((button) => TOOLBAR_GROUPS.structure.includes(button.key as never)),
-    history: buttons.filter((button) => TOOLBAR_GROUPS.history.includes(button.key as never)),
-    insert: buttons.filter((button) => TOOLBAR_GROUPS.insert.includes(button.key as never)),
-  }), [buttons]);
+    return {
+      formatting: [allButtons[0], allButtons[1], allButtons[2]],
+      structure: [allButtons[3], allButtons[4], allButtons[5]],
+      history: [allButtons[6], allButtons[7]],
+      insert: [allButtons[8], allButtons[9]],
+    };
+  }, [editor, isBlocked, runWithPreservedTextSelection]);
 
   const currentHeading = useMemo(
     () => getHeadingOption(getCurrentHeadingValue(editor)),

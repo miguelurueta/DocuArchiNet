@@ -365,7 +365,6 @@ export function usePaginationMetrics({
       if (proseMirror instanceof HTMLElement) {
         clearBlockShiftStyles(proseMirror);
       }
-      commitMetrics(DEFAULT_METRICS);
       return undefined;
     }
 
@@ -457,5 +456,5 @@ export function usePaginationMetrics({
     zoomLevel,
   ]);
 
-  return metrics;
+  return enabled ? metrics : DEFAULT_METRICS;
 }
