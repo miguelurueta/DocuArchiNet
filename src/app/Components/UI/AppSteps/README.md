@@ -38,3 +38,41 @@ import { AppSteps } from "src/app/Components/UI";
   ]}
 />
 ```
+
+## Ejemplo `progress`
+
+```tsx
+<AppSteps
+  variant="progress"
+  current={2}
+  progressPercent={67}
+  items={[
+    { key: "1", title: "Creado", status: "finish" },
+    { key: "2", title: "Revision", status: "process" },
+    { key: "3", title: "Aprobacion", status: "wait" },
+  ]}
+/>
+```
+
+## Ejemplo `timeline`
+
+```tsx
+<AppSteps
+  variant="timeline"
+  items={[
+    {
+      key: "t1",
+      title: "Radicado recibido",
+      description: "Ingreso en ventanilla unica",
+      timestamp: "2026-04-23 08:34",
+      status: "finish",
+    },
+    {
+      key: "t2",
+      title: "Asignado a analista",
+      timestamp: "2026-04-23 09:10",
+      status: "process",
+    },
+  ]}
+/>
+```

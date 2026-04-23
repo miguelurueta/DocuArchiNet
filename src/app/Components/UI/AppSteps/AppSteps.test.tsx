@@ -8,6 +8,14 @@ const baseItems = [
   { key: "step-3", title: "Paso 3", disabled: true },
 ];
 
+const makeMatchMedia = (matches: boolean) =>
+  vi.fn().mockImplementation(() => ({
+    matches,
+    media: "(max-width: 900px)",
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }));
+
 describe("AppSteps [SPEC:APP-APPSTEPS-01-FE]", () => {
   it("renderiza items y permite cambio de step habilitado", async () => {
     const onChange = vi.fn();
@@ -124,5 +132,79 @@ describe("AppSteps [SPEC:APP-APPSTEPS-01-FE]", () => {
     await waitFor(() => {
       expect(onChange).toHaveBeenCalledWith(1);
     });
+  });
+});
+
+describe("AppSteps [SPEC:APP-APPSTEPS-02-FE]", () => {
+  it("renderiza progreso global cuando variant progress recibe progressPercent", () => {
+    render(
+      <AppSteps
+        items={baseItems}
+        variant="progress"
+        progressPercent={68}
+        defaultCurrent={1}
+      />,
+    );
+
+    expect(screen.getByText("68%")).toBeInTheDocument();
+  });
+
+  it("no renderiza bloque de progreso cuando falta progressPercent", () => {
+    render(<AppSteps items={baseItems} variant="progress" defaultCurrent={1} />);
+
+    expect(screen.queryByText(/%/)).not.toBeInTheDocument();
+  });
+
+  it("timeline fuerza orientacion vertical y renderiza timestamp", () => {
+    render(
+      <AppSteps
+        items={[
+          {
+            key: "t1",
+            title: "Recepcion",
+            description: "Solicitud recibida",
+            timestamp: "2026-04-23 09:15",
+            status: "process",
+          },
+          { key: "t2", title: "Revision", timestamp: "2026-04-23 10:30" },
+        ]}
+        variant="timeline"
+        direction="horizontal"
+      />,
+    );
+
+    expect(screen.getByText("2026-04-23 09:15")).toBeInTheDocument();
+    const steps = document.querySelector(".ant-steps");
+    expect(steps).toHaveClass("ant-steps-vertical");
+  });
+
+  it("hace fallback vertical en viewport angosto para variantes horizontales", () => {
+    const originalMatchMedia = window.matchMedia;
+    const mock = makeMatchMedia(true);
+    window.matchMedia = mock;
+
+    render(<AppSteps items={baseItems} variant="progress" defaultCurrent={0} responsive />);
+
+    const steps = document.querySelector(".ant-steps");
+    expect(steps).toHaveClass("ant-steps-vertical");
+    expect(mock).toHaveBeenCalled();
+
+    window.matchMedia = originalMatchMedia;
+  });
+
+  it("expone señales semánticas de estado además del color", () => {
+    render(
+      <AppSteps
+        items={[
+          { key: "s1", title: "Paso activo", status: "process" },
+          { key: "s2", title: "Paso error", status: "error" },
+        ]}
+        defaultCurrent={0}
+      />,
+    );
+
+    expect(screen.getByText(/estado process/i)).toBeInTheDocument();
+    expect(screen.getByText(/estado error/i)).toBeInTheDocument();
+    expect(screen.getByText("Paso activo")).toHaveAttribute("aria-current", "step");
   });
 });
