@@ -65,7 +65,9 @@ export default function GestionCorrespondenciaRoute({
         )
       : null;
 
-  const blockedMessage = "No existe estructura disponible para esta tarea de gestion respuesta.";
+  const blockedMessage = hasValidId
+    ? `No existe estructura disponible para la tarea (IdTareaWf: ${parsedId}).`
+    : "No existe estructura disponible para esta tarea de gestion respuesta.";
 
   const metadata = [
     { label: "Radicado", value: loading ? "..." : (isReady ? (estrucTuraRespuesta?.Radicado ?? "-") : "-") },
