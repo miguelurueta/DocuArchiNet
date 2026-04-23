@@ -76,3 +76,13 @@ import { AppSteps } from "src/app/Components/UI";
   ]}
 />
 ```
+
+## Integracion real (`gestionCorrespondencia`)
+
+`AppSteps` se consume en
+`src/modules/gestionCorrespondencia/components/gestionRespuestaMainTab/GestionRespuestaMainTabContent.tsx`
+para orquestar el flujo `Redaccion -> Adjuntos -> Envio`.
+
+- El consumidor controla `current` y `onChange`.
+- La regla de negocio para avanzar a `Envio` (tener adjuntos) vive en `validateStep` del consumidor.
+- `AppSteps` mantiene su rol reusable de UI y no contiene logica de dominio del modulo.

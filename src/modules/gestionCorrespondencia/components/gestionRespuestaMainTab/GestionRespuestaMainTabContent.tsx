@@ -1,10 +1,11 @@
 import { CarryOutFilled, MailFilled } from "@ant-design/icons";
-import { useId, useState, useSyncExternalStore } from "react";
+import { useCallback, useId, useMemo, useState, useSyncExternalStore } from "react";
 import {
   AppEditor,
   AppEditorSaveAction,
   useAppEditorSaveState,
 } from "../../../../app/Components/UI/AppEditor";
+import { AppSteps } from "../../../../app/Components/UI/AppSteps";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
 import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
 import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
@@ -51,16 +52,90 @@ export function GestionRespuestaMainTabContent(
   const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] =
     useState(false);
   const [files, setFiles] = useState<AppUploadFile[]>([]);
+  const [currentStep, setCurrentStep] = useState(0);
   const [editorValue, setEditorValue] = useState<string>("");
   const [savedEditorValue, setSavedEditorValue] = useState<string>("");
   const { saveStatus } = useAppEditorSaveState({
     currentValue: editorValue,
     savedValue: savedEditorValue,
   });
+  const canAdvanceToSend = files.length > 0;
+
+  const stepItems = useMemo(
+    () => [
+      {
+        key: "redaccion",
+        title: "Redaccion",
+        description: "Construye el contenido de la respuesta",
+        status: currentStep > 0 ? "finish" : "process",
+      },
+      {
+        key: "adjuntos",
+        title: "Adjuntos",
+        description: canAdvanceToSend
+          ? `${files.length} archivo(s) listo(s) para envio`
+          : "Adjunta al menos un archivo para continuar",
+        status: currentStep > 1 ? "finish" : currentStep === 1 ? "process" : "wait",
+      },
+      {
+        key: "envio",
+        title: "Envio",
+        description: "Confirma y finaliza el envio",
+        status: currentStep === 2 ? "process" : "wait",
+      },
+    ],
+    [canAdvanceToSend, currentStep, files.length],
+  );
+
+  const goToSendStep = useCallback(() => {
+    if (!canAdvanceToSend) {
+      setCurrentStep(1);
+      return;
+    }
+    setCurrentStep(2);
+    setIsGestionDocumentoModalOpen(true);
+  }, [canAdvanceToSend]);
+
+  const handleStepChange = useCallback(
+    (nextStep: number) => {
+      if (nextStep === 2) {
+        goToSendStep();
+        return;
+      }
+      setCurrentStep(nextStep);
+    },
+    [goToSendStep],
+  );
+
+  const validateStep = useCallback(
+    (stepIndex: number) => {
+      if (stepIndex === 1) {
+        return canAdvanceToSend;
+      }
+      return true;
+    },
+    [canAdvanceToSend],
+  );
 
   return (
     <section className={styles.mainTab} aria-label="Contenido principal de respuesta">
       <div className={styles.workbench}>
+        <div className={styles.workflowSteps}>
+          <AppSteps
+            items={stepItems}
+            variant="form"
+            size="sm"
+            current={currentStep}
+            onChange={handleStepChange}
+            validateStep={validateStep}
+          />
+          {!canAdvanceToSend ? (
+            <p className={styles.workflowHint}>
+              Para habilitar envio, carga al menos un archivo en el bloque de adjuntos.
+            </p>
+          ) : null}
+        </div>
+
         <AppToolbar
           className={styles.toolbar}
           actions={[
@@ -77,7 +152,7 @@ export function GestionRespuestaMainTabContent(
               size: "sm",
               variant: "ghost",
               icon: <MailFilled />,
-              onClick: () => setIsGestionDocumentoModalOpen(true),
+              onClick: () => goToSendStep(),
             },
           ]}
         />
@@ -130,7 +205,12 @@ export function GestionRespuestaMainTabContent(
 
       <GestionDocumentoModal
         open={isGestionDocumentoModalOpen}
-        onClose={() => setIsGestionDocumentoModalOpen(false)}
+        onClose={() => {
+          setIsGestionDocumentoModalOpen(false);
+          if (currentStep === 2) {
+            setCurrentStep(1);
+          }
+        }}
       />
     </section>
   );

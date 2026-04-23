@@ -13,13 +13,24 @@ vi.mock("../../hooks/useEstructuraRespuestaIdTarea", () => ({
 
 vi.mock("../../../../app/Components/UI/AppUpload/AppUpload", () => ({
   AppUpload: ({
-    value,
     onChange,
   }: {
-    value: unknown[];
     onChange: (files: unknown[]) => void;
   }) => (
-    <button type="button" onClick={() => onChange(value)} aria-label="Mock upload">
+    <button
+      type="button"
+      onClick={() =>
+        onChange([
+          {
+            uid: "test-file-1",
+            name: "soporte.pdf",
+            size: 1234,
+            status: "done",
+          },
+        ])
+      }
+      aria-label="Mock upload"
+    >
       Mock upload
     </button>
   ),
@@ -58,5 +69,34 @@ describe("GestionRespuestaMainTabContent [SPEC:IMPLEMENTACION-APPEDITOR-GESTION-
     await waitFor(() => {
       expect(screen.getByLabelText("Ocultar panel de herramientas")).toBeInTheDocument();
     });
+  });
+
+  it("[SPEC:APP-APPSTEPS-03-FE] integra AppSteps y bloquea Envio hasta tener adjuntos", async () => {
+    render(<GestionRespuestaMainTabContent />);
+
+    const getStepButton = (label: string) =>
+      screen.getByRole("button", { name: new RegExp(`${label}estado`, "i") });
+
+    fireEvent.click(getStepButton("Adjuntos"));
+    await waitFor(() => {
+      expect(
+        getStepButton("Adjuntos").querySelector('[aria-current="step"]'),
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(getStepButton("Envio"));
+    await waitFor(() => {
+      expect(
+        getStepButton("Adjuntos").querySelector('[aria-current="step"]'),
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByLabelText("Mock upload"));
+    fireEvent.click(getStepButton("Envio"));
+
+    await waitFor(() => {
+      expect(getStepButton("Envio").querySelector('[aria-current="step"]')).toBeInTheDocument();
+    });
+    expect(screen.getByText("Confirmar envio de respuesta")).toBeInTheDocument();
   });
 });

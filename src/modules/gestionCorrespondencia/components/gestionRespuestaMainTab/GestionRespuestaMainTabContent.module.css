@@ -37,6 +37,21 @@
   gap: 1rem;
 }
 
+.workflowSteps {
+  display: grid;
+  gap: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: #ffffff;
+}
+
+.workflowHint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
 .toolbar {
   border: 1px solid #e2e8f0;
   border-radius: 10px;
