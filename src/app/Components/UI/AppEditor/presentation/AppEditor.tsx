@@ -222,42 +222,49 @@ export function AppEditor({
     () => buildAriaLabel({ "aria-label": ariaLabel, label, title }),
     [ariaLabel, label, title],
   );
-  const zoomTrailingContent = useMemo(() => {
+  const paginationTrailingContent = useMemo(() => {
     if (!isVisualPagination) {
       return null;
     }
 
     return (
-      <div className={styles.zoomControls} role="group" aria-label="Control de zoom">
-        <button
-          type="button"
-          className={styles.zoomButton}
-          aria-label="Reducir zoom"
-          disabled={!canDecreaseZoom}
-          onClick={() => handleZoomChange(resolvedZoomLevel - ZOOM_STEP)}
-        >
-          -
-        </button>
-        <output className={styles.zoomValue} aria-live="polite">
-          {Math.round(effectiveZoomLevel * 100)}%
+      <div className={styles.toolbarMeta}>
+        <output className={styles.pageCounterBadge} aria-live="polite">
+          Pagina {currentPage} de {totalPages}
         </output>
-        <button
-          type="button"
-          className={styles.zoomButton}
-          aria-label="Aumentar zoom"
-          disabled={!canIncreaseZoom}
-          onClick={() => handleZoomChange(resolvedZoomLevel + ZOOM_STEP)}
-        >
-          +
-        </button>
+        <div className={styles.zoomControls} role="group" aria-label="Control de zoom">
+          <button
+            type="button"
+            className={styles.zoomButton}
+            aria-label="Reducir zoom"
+            disabled={!canDecreaseZoom}
+            onClick={() => handleZoomChange(resolvedZoomLevel - ZOOM_STEP)}
+          >
+            -
+          </button>
+          <output className={styles.zoomValue} aria-live="polite">
+            {Math.round(effectiveZoomLevel * 100)}%
+          </output>
+          <button
+            type="button"
+            className={styles.zoomButton}
+            aria-label="Aumentar zoom"
+            disabled={!canIncreaseZoom}
+            onClick={() => handleZoomChange(resolvedZoomLevel + ZOOM_STEP)}
+          >
+            +
+          </button>
+        </div>
       </div>
     );
   }, [
     canDecreaseZoom,
     canIncreaseZoom,
+    currentPage,
     effectiveZoomLevel,
     isVisualPagination,
     resolvedZoomLevel,
+    totalPages,
   ]);
   const visualWrapperStyle = useMemo(
     () =>
@@ -266,6 +273,10 @@ export function AppEditor({
         "--app-editor-page-height": paginationMetrics.pageHeight,
         "--app-editor-page-width": paginationMetrics.pageWidth,
         "--app-editor-page-gap": paginationMetrics.pageGap,
+        "--app-editor-page-content-height": `${Math.max(
+          1,
+          paginationMetrics.pageHeightValue - resolvedPageMarginsTop - resolvedPageMarginsBottom,
+        )}px`,
         "--app-editor-total-pages": String(totalPages),
         "--app-editor-page-margin-top": paginationMetrics.marginTop,
         "--app-editor-page-margin-right": paginationMetrics.marginRight,
@@ -290,6 +301,7 @@ export function AppEditor({
       paginationMetrics.pageGap,
       paginationMetrics.pageHeight,
       paginationMetrics.pageWidth,
+      paginationMetrics.pageHeightValue,
       sheetHeightValue,
       totalPages,
       visualContentHeight,
@@ -361,7 +373,7 @@ export function AppEditor({
           disabled={!isEditable}
           onInsertLocalImage={insertLocalImage}
           toolbarActions={toolbarActions}
-          trailingContent={zoomTrailingContent}
+          trailingContent={paginationTrailingContent}
         />
         {isVisualPagination ? (
           <div
@@ -399,11 +411,6 @@ export function AppEditor({
                 </div>
               </div>
             </div>
-            {totalPages > 1 ? (
-              <div className={styles.pageCounter} aria-live="polite">
-                Pagina {currentPage} de {totalPages}
-              </div>
-            ) : null}
           </div>
         ) : (
           <TiptapEditorContent

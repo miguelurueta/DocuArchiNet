@@ -269,6 +269,83 @@ describe("usePageContext [SPEC:IMPLEMENTACION-PAGINACION-APPEDITOR-08-FE]", () =
     });
   });
 
+  it("evita cambiar de hoja por microvariaciones alrededor del borde visible", async () => {
+    const canvasRef = createRef<HTMLDivElement>();
+
+    function Harness() {
+      const { currentPage } = usePageContext({
+        enabled: true,
+        totalPages: 3,
+        pageBoundaries: [931, 1862],
+        canvasRef,
+        debounceMs: 0,
+      });
+
+      return (
+        <div>
+          <div ref={canvasRef}>
+            <div data-pagination-sheet="true">sheet</div>
+          </div>
+          <output data-testid="current-page">{currentPage}</output>
+        </div>
+      );
+    }
+
+    render(<Harness />);
+
+    const canvas = canvasRef.current;
+    const sheet = canvas?.querySelector('[data-pagination-sheet="true"]');
+
+    expect(canvas).toBeInstanceOf(HTMLElement);
+    expect(sheet).toBeInstanceOf(HTMLElement);
+
+    Object.defineProperty(canvas as HTMLDivElement, "scrollTop", {
+      configurable: true,
+      writable: true,
+      value: 900,
+    });
+
+    Object.defineProperty(canvas as HTMLDivElement, "clientHeight", {
+      configurable: true,
+      value: 600,
+    });
+
+    Object.defineProperty(sheet as HTMLDivElement, "offsetTop", {
+      configurable: true,
+      value: 0,
+    });
+
+    fireEvent.scroll(canvas as HTMLDivElement);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("current-page")).toHaveTextContent("1");
+    });
+
+    Object.defineProperty(canvas as HTMLDivElement, "scrollTop", {
+      configurable: true,
+      writable: true,
+      value: 940,
+    });
+
+    fireEvent.scroll(canvas as HTMLDivElement);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("current-page")).toHaveTextContent("1");
+    });
+
+    Object.defineProperty(canvas as HTMLDivElement, "scrollTop", {
+      configurable: true,
+      writable: true,
+      value: 980,
+    });
+
+    fireEvent.scroll(canvas as HTMLDivElement);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("current-page")).toHaveTextContent("2");
+    });
+  });
+
   it("mantiene el scroll como fuente prioritaria al navegar hacia la ultima hoja", async () => {
     const canvasRef = createRef<HTMLDivElement>();
     function Harness() {

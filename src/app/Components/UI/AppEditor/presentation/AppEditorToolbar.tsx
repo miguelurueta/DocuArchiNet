@@ -528,12 +528,13 @@ function AppEditorToolbarComponent({
 
     const syncToolbarState = () => {
       const selection = editor.state?.selection;
+      const hasSelectedImage = selection instanceof NodeSelection && selection.node.type.name === "image";
       if (
         selection &&
         typeof selection.from === "number" &&
         typeof selection.to === "number" &&
         selection.from !== selection.to &&
-        selection.node?.type?.name !== "image"
+        !hasSelectedImage
       ) {
         textSelectionRef.current = {
           from: selection.from,
@@ -580,18 +581,19 @@ function AppEditorToolbarComponent({
     }
 
     const selection = editor?.state?.selection;
+    const hasSelectedImage = selection instanceof NodeSelection && selection.node.type.name === "image";
     if (
       selection &&
       typeof selection.from === "number" &&
       typeof selection.to === "number" &&
       selection.from !== selection.to &&
-      selection.node?.type?.name !== "image"
+      !hasSelectedImage
     ) {
       textSelectionRef.current = {
         from: selection.from,
         to: selection.to,
       };
-    } else {
+    } else if (hasSelectedImage) {
       textSelectionRef.current = null;
     }
 
@@ -605,17 +607,24 @@ function AppEditorToolbarComponent({
       }
 
       const maxPosition = editor.state?.doc?.content?.size;
+      const hasSelectedImage =
+        editor.state?.selection instanceof NodeSelection &&
+        editor.state.selection.node.type.name === "image";
       const currentSelection =
         editor.state?.selection &&
         typeof editor.state.selection.from === "number" &&
         typeof editor.state.selection.to === "number" &&
-        editor.state.selection.node?.type?.name !== "image"
+        !hasSelectedImage
           ? {
               from: editor.state.selection.from,
               to: editor.state.selection.to,
             }
           : null;
-      const savedSelection = currentSelection ?? textSelectionRef.current;
+      const currentTextSelection =
+        currentSelection && currentSelection.from !== currentSelection.to
+          ? currentSelection
+          : null;
+      const savedSelection = currentTextSelection ?? textSelectionRef.current;
       const shouldRestoreSelection =
         !!savedSelection &&
         (
@@ -641,7 +650,26 @@ function AppEditorToolbarComponent({
       }
 
       applyCommand(chain).run();
-      textSelectionRef.current = null;
+      const hasResultingImageSelection =
+        editor.state?.selection instanceof NodeSelection &&
+        editor.state.selection.node.type.name === "image";
+      const resultingSelection =
+        editor.state?.selection &&
+        typeof editor.state.selection.from === "number" &&
+        typeof editor.state.selection.to === "number" &&
+        !hasResultingImageSelection
+          ? {
+              from: editor.state.selection.from,
+              to: editor.state.selection.to,
+            }
+          : null;
+
+      textSelectionRef.current =
+        resultingSelection && resultingSelection.from !== resultingSelection.to
+          ? resultingSelection
+          : savedSelection && savedSelection.from !== savedSelection.to
+            ? savedSelection
+            : null;
     },
     [disabled, editor],
   );

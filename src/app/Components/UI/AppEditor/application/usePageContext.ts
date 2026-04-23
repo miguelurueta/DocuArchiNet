@@ -10,6 +10,8 @@ type UsePageContextOptions = {
 };
 
 const DEFAULT_PAGE = 1;
+const MIN_HYSTERESIS_PX = 18;
+const MAX_HYSTERESIS_PX = 56;
 
 function clampPage(page: number, totalPages: number) {
   return Math.min(Math.max(page, DEFAULT_PAGE), Math.max(DEFAULT_PAGE, totalPages));
@@ -27,6 +29,69 @@ function resolvePageFromOffset(
     (boundary) => safeOffset >= boundary * safeBoundaryScale,
   ).length;
   return clampPage(crossedBoundaries + 1, totalPages);
+}
+
+function resolvePageHysteresis({
+  viewportHeight,
+  boundaryScale,
+}: {
+  viewportHeight: number;
+  boundaryScale: number;
+}) {
+  const safeViewportHeight = Math.max(0, viewportHeight);
+  const safeBoundaryScale = Math.max(0.1, boundaryScale);
+  const normalizedViewportHeight = safeViewportHeight / safeBoundaryScale;
+  return Math.min(
+    Math.max(Math.round(normalizedViewportHeight * 0.04), MIN_HYSTERESIS_PX),
+    MAX_HYSTERESIS_PX,
+  );
+}
+
+function resolveStablePageFromOffset({
+  offset,
+  pageBoundaries,
+  totalPages,
+  boundaryScale = 1,
+  previousPage,
+  hysteresisPx,
+}: {
+  offset: number;
+  pageBoundaries: number[];
+  totalPages: number;
+  boundaryScale?: number;
+  previousPage: number;
+  hysteresisPx: number;
+}) {
+  const nextPage = resolvePageFromOffset(offset, pageBoundaries, totalPages, boundaryScale);
+  const stablePreviousPage = clampPage(previousPage, totalPages);
+
+  if (nextPage === stablePreviousPage || Math.abs(nextPage - stablePreviousPage) > 1) {
+    return nextPage;
+  }
+
+  const safeBoundaryScale = Math.max(0.1, boundaryScale);
+  const safeOffset = Math.max(0, offset);
+  const safeHysteresisPx = Math.max(0, hysteresisPx);
+
+  if (nextPage > stablePreviousPage) {
+    const forwardBoundary = pageBoundaries[stablePreviousPage - 1];
+    if (typeof forwardBoundary !== "number") {
+      return nextPage;
+    }
+
+    return safeOffset >= forwardBoundary * safeBoundaryScale + safeHysteresisPx
+      ? nextPage
+      : stablePreviousPage;
+  }
+
+  const backwardBoundary = pageBoundaries[stablePreviousPage - 2];
+  if (typeof backwardBoundary !== "number") {
+    return nextPage;
+  }
+
+  return safeOffset < backwardBoundary * safeBoundaryScale - safeHysteresisPx
+    ? nextPage
+    : stablePreviousPage;
 }
 
 export function calculatePageFromOffset({
@@ -54,6 +119,7 @@ export function usePageContext({
   const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
   const timeoutRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);
+  const currentPageRef = useRef(DEFAULT_PAGE);
 
   const clearPending = useCallback(() => {
     if (timeoutRef.current !== null) {
@@ -68,6 +134,7 @@ export function usePageContext({
   }, []);
 
   const commitPage = useCallback((nextPage: number) => {
+    currentPageRef.current = nextPage;
     setCurrentPage((previousPage) => (previousPage === nextPage ? previousPage : nextPage));
   }, []);
 
@@ -78,12 +145,21 @@ export function usePageContext({
     }
 
     const sheet = canvas.querySelector('[data-pagination-sheet="true"]');
-    if (!(sheet instanceof HTMLElement)) {
-      return resolvePageFromOffset(canvas.scrollTop, pageBoundaries, totalPages, zoomLevel);
-    }
+    const offset = !(sheet instanceof HTMLElement)
+      ? canvas.scrollTop
+      : Math.max(0, canvas.scrollTop - sheet.offsetTop);
 
-    const offset = Math.max(0, canvas.scrollTop - sheet.offsetTop);
-    return resolvePageFromOffset(offset, pageBoundaries, totalPages, zoomLevel);
+    return resolveStablePageFromOffset({
+      offset,
+      pageBoundaries,
+      totalPages,
+      boundaryScale: zoomLevel,
+      previousPage: currentPageRef.current,
+      hysteresisPx: resolvePageHysteresis({
+        viewportHeight: canvas.clientHeight,
+        boundaryScale: zoomLevel,
+      }),
+    });
   }, [canvasRef, pageBoundaries, totalPages, zoomLevel]);
 
   const updateCurrentPage = useCallback(() => {
@@ -135,14 +211,16 @@ export function usePageContext({
     const handlePaginationUpdated = () => {
       scheduleUpdate("immediate");
     };
-    const proseMirror = canvasRef.current?.querySelector(".ProseMirror");
 
     canvas?.addEventListener("scroll", handleScroll, { passive: true });
-    proseMirror?.addEventListener("app-editor-pagination-updated", handlePaginationUpdated);
+    canvas?.addEventListener("app-editor-pagination-updated", handlePaginationUpdated as EventListener);
     return () => {
       clearPending();
       canvas?.removeEventListener("scroll", handleScroll);
-      proseMirror?.removeEventListener("app-editor-pagination-updated", handlePaginationUpdated);
+      canvas?.removeEventListener(
+        "app-editor-pagination-updated",
+        handlePaginationUpdated as EventListener,
+      );
     };
   }, [canvasRef, clearPending, commitPage, enabled, scheduleUpdate]);
 

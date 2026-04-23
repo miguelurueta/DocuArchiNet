@@ -497,7 +497,7 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     expect(editorContent).toBeInTheDocument();
     expect(editorContent?.parentElement).toBe(contentFlow);
     expect(editor).toBeInTheDocument();
-    expect(screen.queryByText(/Pagina \d+ de \d+/i)).not.toBeInTheDocument();
+    expect(screen.getByText("Pagina 1 de 1")).toBeInTheDocument();
   });
 
   it("renderiza el modo continuo sin wrapper intermedio redundante", async () => {
@@ -634,6 +634,11 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     await waitFor(() => {
       expect(screen.getByText("Pagina 2 de 3")).toBeInTheDocument();
     });
+
+    expect(container.querySelector(`.${styles.pageCounterBadge}`)).toBeInTheDocument();
+    expect(container.querySelector(`.${styles.editorWrapper}`)?.textContent).not.toContain(
+      "Pagina 2 de 3",
+    );
   });
 
   it("muestra control de zoom solo en modo visual con valor por defecto de 100 por ciento", async () => {

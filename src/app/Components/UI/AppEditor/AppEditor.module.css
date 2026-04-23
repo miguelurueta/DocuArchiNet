@@ -298,10 +298,33 @@
     linear-gradient(180deg, color-mix(in srgb, var(--editor-muted-surface) 70%, var(--editor-bg)) 0%, color-mix(in srgb, var(--editor-bg) 88%, var(--editor-muted-surface)) 100%);
 }
 
+.toolbarMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .zoomControls {
   display: flex;
   align-items: center;
   gap: 0.45rem;
+}
+
+.pageCounterBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--editor-border) 72%, white);
+  background: color-mix(in srgb, var(--editor-bg) 90%, rgba(255, 255, 255, 0.85));
+  color: var(--editor-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .zoomButton {
@@ -441,27 +464,6 @@
     var(--app-editor-page-margin-right)
     var(--app-editor-page-margin-bottom)
     var(--app-editor-page-margin-left);
-}
-
-.pageCounter {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.85rem;
-  display: flex;
-  width: fit-content;
-  max-width: calc(100% - 1.3rem);
-  z-index: 6;
-  padding: 0.35rem 0.7rem;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--editor-border) 72%, white);
-  background: color-mix(in srgb, var(--editor-bg) 92%, rgba(255, 255, 255, 0.85));
-  color: var(--editor-muted);
-  font-size: 0.8rem;
-  font-weight: 600;
-  line-height: 1;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
-  pointer-events: none;
-  backdrop-filter: blur(6px);
 }
 
 .surfaceError {
@@ -827,6 +829,11 @@
   .toolbar[data-toolbar-mode="compact"] .toolbarSectionEnd {
     width: 100%;
     margin-left: 0;
+    justify-content: flex-end;
+  }
+
+  .toolbarMeta {
+    width: 100%;
     justify-content: flex-end;
   }
 

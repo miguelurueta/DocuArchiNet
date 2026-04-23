@@ -445,4 +445,74 @@ describe("autoPagination", () => {
 
     editor.destroy();
   });
+
+  it("no intenta devolver una lista a la pagina anterior cuando el primer item ya inicia en la nueva hoja", () => {
+    const editor = new Editor({
+      extensions: buildAppEditorExtensions(),
+      content: "<p>intro</p><ul><li><p>uno</p></li><li><p>dos</p></li></ul>",
+    });
+
+    const proseMirror = editor.view.dom as HTMLElement;
+    const [, bulletListBlock] = Array.from(proseMirror.children) as HTMLElement[];
+    const [firstItem, secondItem] = Array.from(bulletListBlock.children) as HTMLElement[];
+
+    proseMirror.getBoundingClientRect = () => createDomRect(0, 320);
+    bulletListBlock.getBoundingClientRect = () => createDomRect(122, 202);
+    firstItem.getBoundingClientRect = () => createDomRect(122, 162);
+    secondItem.getBoundingClientRect = () => createDomRect(170, 202);
+
+    Object.defineProperty(firstItem, "offsetTop", { configurable: true, value: 0 });
+    Object.defineProperty(firstItem, "offsetHeight", { configurable: true, value: 40 });
+    Object.defineProperty(secondItem, "offsetTop", { configurable: true, value: 48 });
+    Object.defineProperty(secondItem, "offsetHeight", { configurable: true, value: 32 });
+
+    const actions = resolveAutoPageBreakActions({
+      editor: editor as never,
+      proseMirror,
+      pageContentHeight: 100,
+      pageStride: 120,
+    });
+
+    expect(actions).toEqual([]);
+
+    editor.destroy();
+  });
+
+  it("detecta overflow de list items usando offset absoluto cuando la lista ya esta en una pagina posterior", () => {
+    const editor = new Editor({
+      extensions: buildAppEditorExtensions(),
+      content: "<p>intro</p><ul><li><p>uno</p></li><li><p>dos</p></li></ul>",
+    });
+
+    const proseMirror = editor.view.dom as HTMLElement;
+    const [, bulletListBlock] = Array.from(proseMirror.children) as HTMLElement[];
+    const [firstItem, secondItem] = Array.from(bulletListBlock.children) as HTMLElement[];
+
+    proseMirror.getBoundingClientRect = () => createDomRect(0, 360);
+    bulletListBlock.getBoundingClientRect = () => createDomRect(122, 250);
+    firstItem.getBoundingClientRect = () => createDomRect(122, 170);
+    secondItem.getBoundingClientRect = () => createDomRect(198, 250);
+
+    Object.defineProperty(firstItem, "offsetTop", { configurable: true, value: 0 });
+    Object.defineProperty(firstItem, "offsetHeight", { configurable: true, value: 48 });
+    Object.defineProperty(secondItem, "offsetTop", { configurable: true, value: 76 });
+    Object.defineProperty(secondItem, "offsetHeight", { configurable: true, value: 52 });
+
+    const actions = resolveAutoPageBreakActions({
+      editor: editor as never,
+      proseMirror,
+      pageContentHeight: 100,
+      pageStride: 120,
+    });
+
+    expect(actions).toEqual([
+      {
+        type: "list-item",
+        listPosition: editor.state.doc.child(0).nodeSize,
+        itemPosition: editor.state.doc.child(0).nodeSize + 8,
+      },
+    ]);
+
+    editor.destroy();
+  });
 });

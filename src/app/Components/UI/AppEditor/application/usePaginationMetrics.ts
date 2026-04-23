@@ -428,7 +428,7 @@ export function usePaginationMetrics({
       scheduleMeasure("immediate");
     };
 
-    proseMirror?.addEventListener("app-editor-pagination-updated", handlePaginationUpdated);
+    container?.addEventListener("app-editor-pagination-updated", handlePaginationUpdated as EventListener);
 
     return () => {
       clearPendingMeasure();
@@ -442,7 +442,10 @@ export function usePaginationMetrics({
       imageLoadListeners.forEach(({ image, handleImageLoad }) => {
         image.removeEventListener("load", handleImageLoad);
       });
-      proseMirror?.removeEventListener("app-editor-pagination-updated", handlePaginationUpdated);
+      container?.removeEventListener(
+        "app-editor-pagination-updated",
+        handlePaginationUpdated as EventListener,
+      );
     };
   }, [
     clearPendingMeasure,

@@ -1,4 +1,5 @@
 import type { Editor } from "@tiptap/react";
+import { TextSelection } from "@tiptap/pm/state";
 
 export const AUTO_PAGE_BREAK_SAFETY_MARGIN = 12;
 const PAGE_BOUNDARY_TOLERANCE = 2;
@@ -21,6 +22,14 @@ export type AutoPageBreakAction =
       type: "split";
       position: number;
     };
+
+function getPositionedActionPosition(action: AutoPageBreakAction | undefined) {
+  if (!action || action.type === "list-item") {
+    return null;
+  }
+
+  return action.position;
+}
 
 type BlockLayoutKind =
   | "text-divisible"
@@ -315,6 +324,10 @@ function resolvePreferredTextSplitPosition({
   return normalizedCandidate;
 }
 
+function isPositionWithinContentRange(position: number, start: number, end: number) {
+  return position >= start && position <= end;
+}
+
 function resolveContentPageIndex(
   offset: number,
   pageStride: number,
@@ -332,8 +345,6 @@ function resolveSplitPositionForBoundary({
   editor,
   block,
   proseMirrorRect,
-  blockTop,
-  blockBottom,
   textStart,
   textEnd,
   searchStart,
@@ -343,8 +354,6 @@ function resolveSplitPositionForBoundary({
   editor: Editor;
   block: HTMLElement;
   proseMirrorRect: DOMRect;
-  blockTop: number;
-  blockBottom: number;
   textStart: number;
   textEnd: number;
   searchStart: number;
@@ -450,11 +459,14 @@ export function syncAutoPageBreakSpacerHeights(
   });
 
   if (hasChanges) {
-    editor.view.dispatch(transaction);
+    editor.view.dispatch(transaction.setMeta("addToHistory", false));
   }
 }
 
-export function removeAutoPageBreaks(editor: Editor, fromPosition = 0) {
+export function removeAutoPageBreaks(
+  editor: Editor,
+  fromPosition = 0,
+) {
   const positionsToRemove: number[] = [];
   const safeFromPosition = Math.max(0, fromPosition);
 
@@ -500,27 +512,87 @@ export function removeAutoPageBreaks(editor: Editor, fromPosition = 0) {
         pageBreakNode.attrs.mergeOnRemove === true &&
         canMergeStructuredNodes
       ) {
+        const currentSelectionFrom = transaction.selection.from;
+        const currentSelectionTo = transaction.selection.to;
         const previousStart = position - previousNode.nodeSize;
+        const previousContentStart = previousStart + 1;
+        const previousContentEnd = previousStart + previousNode.content.size;
+        const nextStart = position + pageBreakNode.nodeSize;
+        const nextContentStart = nextStart + 1;
+        const nextContentEnd = nextStart + nextNode.content.size;
         const nextEnd = position + pageBreakNode.nodeSize + nextNode.nodeSize;
         const mergedNode = previousNode.type.create(
           previousNode.attrs,
           previousNode.content.append(nextNode.content),
           previousNode.marks,
         );
+        const mergedContentStart = previousStart + 1;
+        const mergedContentEnd = previousStart + mergedNode.content.size;
 
         transaction = transaction.replaceWith(previousStart, nextEnd, mergedNode);
+
+        if (previousNode.isTextblock && nextNode.isTextblock) {
+          const resolveMergedSelectionPosition = (selectionPosition: number) => {
+            if (
+              isPositionWithinContentRange(
+                selectionPosition,
+                previousContentStart,
+                previousContentEnd,
+              )
+            ) {
+              return Math.max(
+                mergedContentStart,
+                Math.min(
+                  mergedContentStart + (selectionPosition - previousContentStart),
+                  mergedContentEnd,
+                ),
+              );
+            }
+
+            if (
+              isPositionWithinContentRange(
+                selectionPosition,
+                nextContentStart,
+                nextContentEnd,
+              )
+            ) {
+              return Math.max(
+                mergedContentStart,
+                Math.min(
+                  mergedContentStart +
+                    previousNode.content.size +
+                    (selectionPosition - nextContentStart),
+                  mergedContentEnd,
+                ),
+              );
+            }
+
+            return Math.max(
+              1,
+              Math.min(transaction.mapping.map(selectionPosition, 1), transaction.doc.content.size),
+            );
+          };
+
+          transaction = transaction.setSelection(
+            TextSelection.between(
+              transaction.doc.resolve(resolveMergedSelectionPosition(currentSelectionFrom)),
+              transaction.doc.resolve(resolveMergedSelectionPosition(currentSelectionTo)),
+            ),
+          );
+        }
         return;
       }
 
       transaction = transaction.delete(position, position + pageBreakNode.nodeSize);
     });
 
-  editor.view.dispatch(transaction);
+  editor.view.dispatch(transaction.setMeta("addToHistory", false));
   return true;
 }
 
 function resolveDirectChildOverflowAction({
   block,
+  blockTop,
   blockNode,
   blockPosition,
   blockPage,
@@ -529,6 +601,7 @@ function resolveDirectChildOverflowAction({
   overflowTolerance,
 }: {
   block: HTMLElement;
+  blockTop: number;
   blockNode: NonNullable<ReturnType<typeof resolveTopLevelBlockPosition>>["blockNode"];
   blockPosition: number;
   blockPage: number;
@@ -547,7 +620,7 @@ function resolveDirectChildOverflowAction({
 
   for (let index = 0; index < directChildren.length; index += 1) {
     const child = directChildren[index];
-    const childTop = Math.max(0, child.offsetTop);
+    const childTop = Math.max(0, blockTop + child.offsetTop);
     const childBottom = childTop + Math.max(
       1,
       child.offsetHeight || child.getBoundingClientRect().height || child.scrollHeight || 0,
@@ -652,7 +725,7 @@ export function resolveAutoPageBreakActions({
       if (
         blockPosition > 0 &&
         blockTop > pageStart + overflowTolerance &&
-        actions[actions.length - 1]?.position !== blockPosition
+        getPositionedActionPosition(actions[actions.length - 1]) !== blockPosition
       ) {
         actions.push({
           type: "before",
@@ -665,6 +738,7 @@ export function resolveAutoPageBreakActions({
     if (layoutKind === "list-structured") {
       const listAction = resolveDirectChildOverflowAction({
         block,
+        blockTop,
         blockNode,
         blockPosition,
         blockPage,
@@ -725,8 +799,6 @@ export function resolveAutoPageBreakActions({
         editor,
         block,
         proseMirrorRect,
-        blockTop,
-        blockBottom,
         textStart,
         textEnd,
         searchStart,
@@ -751,7 +823,7 @@ export function resolveAutoPageBreakActions({
         continue;
       }
 
-      if (actions[actions.length - 1]?.position !== normalizedSplitPosition) {
+      if (getPositionedActionPosition(actions[actions.length - 1]) !== normalizedSplitPosition) {
         actions.push({
           type: "split",
           position: normalizedSplitPosition,

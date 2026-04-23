@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { normalizeEditorHtml } from "./application/normalizeEditorHtml";
-import { useAppEditor } from "./application/useAppEditor";
+import {
+  capturePaginationScrollAnchor,
+  restorePaginationScrollAnchor,
+  useAppEditor,
+} from "./application/useAppEditor";
 import { usePageContext } from "./application/usePageContext";
 import { usePaginationMetrics } from "./application/usePaginationMetrics";
 import { TiptapEditorContent } from "./infrastructure/TiptapEditorContent";
@@ -154,6 +158,13 @@ function VisualTypingHarness() {
       <button
         type="button"
         onClick={() => {
+          if (editor) {
+            const endPosition = editor.state.doc.content.size;
+            editor.commands.setTextSelection({
+              from: endPosition,
+              to: endPosition,
+            });
+          }
           const selectionBeforeTyping = editor?.state.selection.to ?? 0;
           editor?.commands.insertContent("<p>Linea final adicional</p>");
           if (editor) {
@@ -168,10 +179,26 @@ function VisualTypingHarness() {
       >
         type-tail-line
       </button>
+      <button
+        type="button"
+        onClick={() => {
+          editor?.commands.undo();
+          setHasTypedTailLine(false);
+        }}
+      >
+        undo-tail-line
+      </button>
+      <output data-testid="typing-html">{editor?.getHTML() ?? ""}</output>
       <output data-testid="typing-total-pages">{totalPages}</output>
       <output data-testid="typing-current-page">{currentPage}</output>
       <output data-testid="typing-selection-delta">
         {String((window as typeof window & { __appEditorSelectionDelta?: number }).__appEditorSelectionDelta ?? 0)}
+      </output>
+      <output data-testid="typing-selection-parent-text">
+        {editor?.state.selection.$from.parent.textContent ?? ""}
+      </output>
+      <output data-testid="typing-selection-parent-offset">
+        {String(editor?.state.selection.$from.parentOffset ?? 0)}
       </output>
     </div>
   );
@@ -254,6 +281,13 @@ function VisualPasteHarness() {
       <button
         type="button"
         onClick={() => {
+          if (editor) {
+            const endPosition = editor.state.doc.content.size;
+            editor.commands.setTextSelection({
+              from: endPosition,
+              to: endPosition,
+            });
+          }
           editor?.commands.insertContent(
             Array.from({ length: 20 }, (_, index) => `<p>Parrafo pegado ${index + 1}</p>`).join(""),
           );
@@ -262,13 +296,230 @@ function VisualPasteHarness() {
       >
         paste-long-content
       </button>
+      <output data-testid="paste-selection-parent-text">
+        {editor?.state.selection.$from.parent.textContent ?? ""}
+      </output>
+      <output data-testid="paste-selection-parent-offset">
+        {String(editor?.state.selection.$from.parentOffset ?? 0)}
+      </output>
       <output data-testid="paste-total-pages">{totalPages}</output>
       <output data-testid="paste-current-page">{currentPage}</output>
     </div>
   );
 }
 
+function MultiPasteHarness() {
+  const { editor } = useAppEditor({
+    defaultValue: "<p>Inicio</p>",
+    paginationMode: "visual",
+    pageHeight: 1123,
+    pageGap: 32,
+    pageMargins: { top: 96, right: 72, bottom: 96, left: 72 },
+    zoomLevel: 1,
+  });
+  const [, setSnapshotVersion] = useState(0);
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    const syncSnapshot = () => {
+      setSnapshotVersion((currentVersion) => currentVersion + 1);
+    };
+
+    editor.on("transaction", syncSnapshot);
+    editor.on("selectionUpdate", syncSnapshot);
+
+    return () => {
+      editor.off("transaction", syncSnapshot);
+      editor.off("selectionUpdate", syncSnapshot);
+    };
+  }, [editor]);
+
+  const appendChunk = (start: number, count: number) => {
+    if (!editor) {
+      return;
+    }
+
+    const endPosition = editor.state.doc.content.size;
+    editor.commands.setTextSelection({
+      from: endPosition,
+      to: endPosition,
+    });
+    editor.commands.insertContent(
+      Array.from({ length: count }, (_, index) => `<p>Bloque pegado ${start + index}</p>`).join(""),
+    );
+  };
+
+  return (
+    <div>
+      <button type="button" onClick={() => appendChunk(1, 10)}>
+        paste-batch-1
+      </button>
+      <button type="button" onClick={() => appendChunk(11, 10)}>
+        paste-batch-2
+      </button>
+      <button type="button" onClick={() => appendChunk(21, 10)}>
+        paste-batch-3
+      </button>
+      <output data-testid="multi-paste-selection-parent-text">
+        {editor?.state.selection.$from.parent.textContent ?? ""}
+      </output>
+      <output data-testid="multi-paste-selection-parent-offset">
+        {String(editor?.state.selection.$from.parentOffset ?? 0)}
+      </output>
+      <output data-testid="multi-paste-html">{editor?.getHTML() ?? ""}</output>
+    </div>
+  );
+}
+
+function VisualAutoBreakCleanupHarness() {
+  const { editor } = useAppEditor({
+    defaultValue: "<p>Base</p>",
+    paginationMode: "visual",
+    pageHeight: 1123,
+    pageGap: 32,
+    pageMargins: { top: 96, right: 72, bottom: 96, left: 72 },
+    zoomLevel: 1,
+  });
+  const [, setSnapshotVersion] = useState(0);
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    const syncSnapshot = () => {
+      setSnapshotVersion((currentVersion) => currentVersion + 1);
+    };
+
+    editor.on("transaction", syncSnapshot);
+    editor.on("selectionUpdate", syncSnapshot);
+
+    return () => {
+      editor.off("transaction", syncSnapshot);
+      editor.off("selectionUpdate", syncSnapshot);
+    };
+  }, [editor]);
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => {
+          editor?.commands.setContent(
+            '<p>Uno</p><div data-page-break="true" data-page-break-auto="true" data-page-break-merge="true" data-page-break-spacer="120"></div><p>Dos</p><div data-page-break="true" data-page-break-auto="true" data-page-break-merge="true" data-page-break-spacer="120"></div><p>Tres final</p>',
+          );
+
+          if (editor) {
+            const endPosition = editor.state.doc.content.size;
+            editor.commands.setTextSelection({
+              from: endPosition,
+              to: endPosition,
+            });
+          }
+        }}
+      >
+        cleanup-auto-breaks
+      </button>
+      <output data-testid="cleanup-selection-parent-text">
+        {editor?.state.selection.$from.parent.textContent ?? ""}
+      </output>
+      <output data-testid="cleanup-selection-parent-offset">
+        {String(editor?.state.selection.$from.parentOffset ?? 0)}
+      </output>
+    </div>
+  );
+}
+
 describe("useAppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
+  it("preserva el anclaje vertical del caret al restaurar scroll tras repaginacion", () => {
+    const editor = {
+      state: {
+        selection: {
+          from: 20,
+          to: 20,
+        },
+      },
+      view: {
+        coordsAtPos: vi
+          .fn()
+          .mockReturnValueOnce({ top: 460 })
+          .mockReturnValueOnce({ top: 640 }),
+      },
+    } as unknown as Parameters<typeof capturePaginationScrollAnchor>[0];
+
+    const scrollContainer = document.createElement("div");
+    Object.defineProperty(scrollContainer, "scrollTop", {
+      configurable: true,
+      writable: true,
+      value: 900,
+    });
+    Object.defineProperty(scrollContainer, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({
+        top: 100,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: 0,
+        height: 0,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }),
+    });
+
+    const anchor = capturePaginationScrollAnchor(editor, scrollContainer);
+    restorePaginationScrollAnchor(editor, scrollContainer, anchor);
+
+    expect(scrollContainer.scrollTop).toBe(1080);
+  });
+
+  it("preserva el anclaje vertical tambien cuando el formato parte de una seleccion de texto", () => {
+    const editor = {
+      state: {
+        selection: {
+          from: 10,
+          to: 16,
+        },
+      },
+      view: {
+        coordsAtPos: vi
+          .fn()
+          .mockReturnValueOnce({ top: 420 })
+          .mockReturnValueOnce({ top: 560 }),
+      },
+    } as unknown as Parameters<typeof capturePaginationScrollAnchor>[0];
+
+    const scrollContainer = document.createElement("div");
+    Object.defineProperty(scrollContainer, "scrollTop", {
+      configurable: true,
+      writable: true,
+      value: 700,
+    });
+    Object.defineProperty(scrollContainer, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({
+        top: 100,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: 0,
+        height: 0,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }),
+    });
+
+    const anchor = capturePaginationScrollAnchor(editor, scrollContainer);
+    restorePaginationScrollAnchor(editor, scrollContainer, anchor);
+
+    expect(scrollContainer.scrollTop).toBe(840);
+  });
+
   it("inicializa en modo no controlado y propaga onChange", async () => {
     const handleChange = vi.fn();
 
@@ -359,6 +610,31 @@ describe("useAppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => 
       expect(screen.getByTestId("typing-total-pages")).toHaveTextContent("2");
       expect(screen.getByTestId("typing-current-page")).toHaveTextContent("2");
       expect(Number(screen.getByTestId("typing-selection-delta").textContent)).toBeGreaterThan(0);
+      expect(screen.getByTestId("typing-selection-parent-text")).toHaveTextContent(
+        "Linea final adicional",
+      );
+      expect(Number(screen.getByTestId("typing-selection-parent-offset").textContent)).toBe(
+        "Linea final adicional".length,
+      );
+    });
+  });
+
+  it("permite deshacer la escritura paginada sin exigir deshacer pageBreaks automaticos intermedios", async () => {
+    render(<VisualTypingHarness />);
+
+    fireEvent.click(screen.getByText("type-tail-line"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("typing-total-pages")).toHaveTextContent("2");
+      expect(screen.getByTestId("typing-html")).toHaveTextContent("Linea final adicional");
+    });
+
+    fireEvent.click(screen.getByText("undo-tail-line"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("typing-total-pages")).toHaveTextContent("1");
+      expect(screen.getByTestId("typing-html")).not.toHaveTextContent("Linea final adicional");
+      expect(screen.getByTestId("typing-html")).toHaveTextContent("Linea inicial");
     });
   });
 
@@ -375,6 +651,52 @@ describe("useAppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => 
     await waitFor(() => {
       expect(screen.getByTestId("paste-total-pages")).toHaveTextContent("4");
       expect(screen.getByTestId("paste-current-page")).toHaveTextContent("3");
+    });
+  });
+
+  it("mantiene el cursor en el ultimo bloque tras pegar contenido largo multipagina", async () => {
+    render(<VisualPasteHarness />);
+
+    fireEvent.click(screen.getByText("paste-long-content"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("paste-selection-parent-text")).toHaveTextContent(
+        "Parrafo pegado 20",
+      );
+      expect(Number(screen.getByTestId("paste-selection-parent-offset").textContent)).toBe(
+        "Parrafo pegado 20".length,
+      );
+    });
+  });
+
+  it("conserva el cursor al final tras limpiar auto pageBreaks previos durante repaginacion", async () => {
+    render(<VisualAutoBreakCleanupHarness />);
+
+    fireEvent.click(screen.getByText("cleanup-auto-breaks"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cleanup-selection-parent-text")).toHaveTextContent("Tres final");
+      expect(Number(screen.getByTestId("cleanup-selection-parent-offset").textContent)).toBe(
+        "Tres final".length,
+      );
+    });
+  });
+
+  it("mantiene el cursor en el ultimo bloque tras varios pegados consecutivos", async () => {
+    render(<MultiPasteHarness />);
+
+    fireEvent.click(screen.getByText("paste-batch-1"));
+    fireEvent.click(screen.getByText("paste-batch-2"));
+    fireEvent.click(screen.getByText("paste-batch-3"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("multi-paste-html")).toHaveTextContent("Bloque pegado 30");
+      expect(screen.getByTestId("multi-paste-selection-parent-text")).toHaveTextContent(
+        "Bloque pegado 30",
+      );
+      expect(Number(screen.getByTestId("multi-paste-selection-parent-offset").textContent)).toBe(
+        "Bloque pegado 30".length,
+      );
     });
   });
 });
