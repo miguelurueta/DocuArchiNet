@@ -66,15 +66,15 @@ export function AppLoadingState({
   const rootClassName = [styles.root, className].filter(Boolean).join(" ");
 
   return (
-    <section className={rootClassName} aria-describedby={message ? statusId : undefined}>
+    <section
+      className={rootClassName}
+      role="status"
+      aria-live="polite"
+      aria-describedby={message ? statusId : undefined}
+    >
       {title ? <h3 className={styles.title}>{title}</h3> : null}
       {message || icon ? (
-        <p
-          id={statusId}
-          className={styles.message}
-          role="status"
-          aria-live="polite"
-        >
+        <p id={statusId} className={styles.message}>
           {icon ? <span className={styles.icon}>{icon}</span> : null}
           {message ?? ""}
         </p>
@@ -82,4 +82,3 @@ export function AppLoadingState({
     </section>
   );
 }
-
