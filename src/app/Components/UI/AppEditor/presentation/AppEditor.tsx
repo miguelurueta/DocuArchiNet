@@ -375,7 +375,7 @@ export function AppEditor({
           disabled={!isEditable}
           onInsertLocalImage={insertLocalImage}
           toolbarActions={toolbarActions}
-          trailingContent={paginationTrailingContent}
+          trailingContent={zoomTrailingContent}
         />
         {isVisualPagination ? (
           <div
