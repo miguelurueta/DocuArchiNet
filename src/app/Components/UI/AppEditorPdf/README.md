@@ -11,4 +11,5 @@
 - Reutiliza `AppEditor` como engine shared para evitar duplicacion.
 - Mantiene contrato tipado compatible para modo controlado/no controlado.
 - Permite evolucion incremental por tickets posteriores sin acoplar dominio.
-
+- Incluye un shell CSS propio (`AppEditorPdf.module.css`) para ajustes visuales
+  responsive sin romper el contrato funcional del editor.
