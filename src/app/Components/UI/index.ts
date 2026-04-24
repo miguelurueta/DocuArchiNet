@@ -9,6 +9,7 @@ export * from "./AppInputTags";
 export * from "./AppCheckbox";
 export * from "./AppButton";
 export * from "./AppEditor";
+export * from "./AppEditorPdf";
 export * from "./AppCollapseRail";
 export * from "./AppDropdown";
 export * from "./AppTable/AppTable.types";
