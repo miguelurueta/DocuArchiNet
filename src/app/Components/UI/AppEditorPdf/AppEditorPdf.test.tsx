@@ -9,7 +9,7 @@ vi.mock("../AppEditor", () => ({
   AppEditor: (props: unknown) => appEditorMock(props),
 }));
 
-describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-01-FE]", () => {
+describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-03-FE]", () => {
   it("renderiza usando AppEditor como engine shared", () => {
     render(<AppEditorPdf label="Editor PDF" defaultValue="<p>Inicial</p>" />);
 
@@ -45,6 +45,43 @@ describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-01-FE]", () => {
     expect(appEditorMock).toHaveBeenCalledWith(
       expect.objectContaining({
         className: `${styles.root} custom-shell`,
+      }),
+    );
+  });
+
+  it("prioriza aria-label explicito cuando esta presente", () => {
+    render(
+      <AppEditorPdf
+        label="Label visible"
+        aria-label="Editor PDF accesible"
+      />,
+    );
+
+    expect(appEditorMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        label: "Label visible",
+        "aria-label": "Editor PDF accesible",
+      }),
+    );
+  });
+
+  it("usa label string como aria-label cuando no se provee uno explicito", () => {
+    render(<AppEditorPdf label="Label como aria" />);
+
+    expect(appEditorMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        label: "Label como aria",
+        "aria-label": "Label como aria",
+      }),
+    );
+  });
+
+  it("aplica fallback accesible cuando no hay label string ni aria-label", () => {
+    render(<AppEditorPdf />);
+
+    expect(appEditorMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        "aria-label": "Editor PDF",
       }),
     );
   });
