@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { AppEditorPdf } from "./AppEditorPdf";
+import styles from "./AppEditorPdf.module.css";
 
 const appEditorMock = vi.fn(() => <div data-testid="app-editor-mock" />);
 
@@ -37,5 +38,14 @@ describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-01-FE]", () => {
       }),
     );
   });
-});
 
+  it("compone className responsive propio con className externo", () => {
+    render(<AppEditorPdf label="Editor con clase" className="custom-shell" />);
+
+    expect(appEditorMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        className: `${styles.root} custom-shell`,
+      }),
+    );
+  });
+});
