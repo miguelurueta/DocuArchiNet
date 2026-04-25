@@ -15,4 +15,4 @@
 - [x] 3.1 Actualizar pruebas unitarias de `AppEditorPdf` a `SPEC:APP-APPEDITORPDF-06-FE`.
 - [x] 3.2 Agregar pruebas para defaults de paginacion visual y overrides parciales.
 - [x] 3.3 Ejecutar suite focal de `AppEditorPdf` y registrar resultado.
-- [ ] 3.4 Dejar cambio listo para `opsxj:archive`.
+- [x] 3.4 Dejar cambio listo para `opsxj:archive`.
