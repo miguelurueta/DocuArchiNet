@@ -36,8 +36,8 @@ vi.mock("../../../../app/Components/UI/AppUpload/AppUpload", () => ({
   ),
 }));
 
-describe("GestionRespuestaMainTabContent [SPEC:IMPLEMENTACION-APPEDITOR-GESTION-RESPUESTA-EDITORCONTAINER-04-FE]", () => {
-  it("renderiza AppEditor como superficie principal del contenedor", async () => {
+describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-04-FE]", () => {
+  it("renderiza AppEditorPdf como superficie principal del contenedor", async () => {
     const { container } = render(<GestionRespuestaMainTabContent />);
 
     expect(screen.queryByText(/Aqui se renderizara el editor de contenido/i)).not.toBeInTheDocument();
@@ -97,6 +97,8 @@ describe("GestionRespuestaMainTabContent [SPEC:IMPLEMENTACION-APPEDITOR-GESTION-
     await waitFor(() => {
       expect(getStepButton("Envio").querySelector('[aria-current="step"]')).toBeInTheDocument();
     });
-    expect(screen.getByText("Confirmar envio de respuesta")).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Para habilitar envio, carga al menos un archivo/i),
+    ).not.toBeInTheDocument();
   });
 });
