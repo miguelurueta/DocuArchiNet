@@ -1,10 +1,10 @@
 import { CarryOutFilled, MailFilled } from "@ant-design/icons";
 import { useCallback, useId, useMemo, useState, useSyncExternalStore } from "react";
 import {
-  AppEditor,
-  AppEditorSaveAction,
-  useAppEditorSaveState,
-} from "../../../../app/Components/UI/AppEditor";
+  AppEditorPdf,
+  AppEditorPdfSaveAction,
+  useAppEditorPdfSaveState,
+} from "../../../../app/Components/UI/AppEditorPdf";
 import { AppSteps } from "../../../../app/Components/UI/AppSteps";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
 import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
@@ -55,7 +55,7 @@ export function GestionRespuestaMainTabContent(
   const [currentStep, setCurrentStep] = useState(0);
   const [editorValue, setEditorValue] = useState<string>("");
   const [savedEditorValue, setSavedEditorValue] = useState<string>("");
-  const { saveStatus } = useAppEditorSaveState({
+  const { saveStatus } = useAppEditorPdfSaveState({
     currentValue: editorValue,
     savedValue: savedEditorValue,
   });
@@ -164,11 +164,11 @@ export function GestionRespuestaMainTabContent(
           data-testid="gestion-respuesta-workbench"
         >
           <GestionRespuestaEditorContainer>
-            <AppEditor
+            <AppEditorPdf
               value={editorValue}
               onChange={setEditorValue}
               toolbarActions={
-                <AppEditorSaveAction
+                <AppEditorPdfSaveAction
                   iconOnly
                   saveStatus={saveStatus}
                   onSave={() => {

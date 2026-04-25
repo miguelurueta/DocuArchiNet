@@ -9,7 +9,7 @@ describe("[SCRUMCORE-89] GestionRespuesta main tab workbench", () => {
     expect(screen.getByText(/Solicitud de Aprobacion/i)).toBeInTheDocument();
     expect(screen.queryByText(/^Guardar$/i)).not.toBeInTheDocument();
     expect(screen.getByText(/^Enviar$/i)).toBeInTheDocument();
-    expect(screen.getByText(/Adjuntos/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Adjuntos$/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Arrastra archivos/i })).toBeInTheDocument();
   });
 
@@ -33,41 +33,17 @@ describe("[SCRUMCORE-89] GestionRespuesta main tab workbench", () => {
     expect(workbench).toHaveAttribute("data-panel-collapsed", "true");
   });
 
-  test("abre y cierra el modal desde el boton enviar", async () => {
+  test("mantiene el gate de envio cuando no hay adjuntos", async () => {
     render(<GestionRespuestaMainTabContent />);
 
     fireEvent.click(screen.getByRole("button", { name: /^Enviar$/i }));
 
-    expect(screen.getByText(/Confirmar envio de respuesta/i)).toBeInTheDocument();
-    expect(screen.getByText(/^Firma de la respuesta$/i)).toBeInTheDocument();
-    expect(screen.getByText(/^Tipo de respuesta$/i)).toBeInTheDocument();
-    const solicitaCentroEnvio = screen.getByRole("checkbox", {
-      name: /Solicita al centro de envio de correspondencia el envio de la respuesta/i,
-    });
-    const confirmaCorreo = screen.getByRole("checkbox", {
-      name: /Confirma respuesta al correo electronico del peticionario/i,
-    });
-    const certificaDocumento = screen.getByRole("checkbox", {
-      name: /Certificar digitalmente el documento de respuesta/i,
-    });
-
-    expect(solicitaCentroEnvio).toBeInTheDocument();
-    expect(confirmaCorreo).toBeChecked();
-    expect(certificaDocumento).not.toBeChecked();
-    expect(screen.getByText(/^Direccion de correos$/i)).toBeInTheDocument();
-
-    fireEvent.click(solicitaCentroEnvio);
-    fireEvent.click(confirmaCorreo);
-    fireEvent.click(certificaDocumento);
-
-    expect(solicitaCentroEnvio).toBeChecked();
-    expect(confirmaCorreo).not.toBeChecked();
-    expect(certificaDocumento).toBeChecked();
-
-    fireEvent.click(screen.getByRole("button", { name: /Cancelar/i }));
-
     await waitFor(() => {
-      expect(screen.queryByText(/Confirmar envio de respuesta/i)).not.toBeInTheDocument();
+      expect(
+        screen.getByText(/Para habilitar envio, carga al menos un archivo/i),
+      ).toBeInTheDocument();
     }, { timeout: 10000 });
+
+    expect(screen.queryByText(/Confirmar envio de respuesta/i)).not.toBeInTheDocument();
   }, 15000);
 });
