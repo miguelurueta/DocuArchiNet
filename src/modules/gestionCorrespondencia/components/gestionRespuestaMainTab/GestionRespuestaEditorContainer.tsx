@@ -9,7 +9,11 @@ export function GestionRespuestaEditorContainer({
   children,
 }: GestionRespuestaEditorContainerProps) {
   return (
-    <section className={styles.editorContainer} aria-label="Editor principal de respuesta">
+    <section
+      className={styles.editorContainer}
+      aria-label="Editor principal de respuesta"
+      data-editor-shell="neutral"
+    >
       {children}
     </section>
   );

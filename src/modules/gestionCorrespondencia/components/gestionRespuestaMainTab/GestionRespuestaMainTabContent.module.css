@@ -92,14 +92,8 @@
 }
 
 .editorContainer {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1rem;
-  background: #ffffff;
   display: flex;
+  flex: 1 1 auto;
   min-height: 0;
   box-sizing: border-box;
   overflow: hidden;
@@ -108,24 +102,14 @@
 
 .embeddedAppEditor {
   flex: 1 1 auto;
-  height: 100%;
   min-height: 0;
-  height: auto;
+  width: 100%;
   overflow: hidden;
-  border-radius: 0;
-  border: 0;
-  padding: 0;
-  background: transparent;
   box-sizing: border-box;
 }
 
 @media (min-width: 769px) {
   .editorContainer {
-    height: 100%;
-    max-height: 100%;
-  }
-
-  .editorSurface {
     height: 100%;
     max-height: 100%;
   }
