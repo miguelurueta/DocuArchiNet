@@ -11,7 +11,8 @@ export type {
   AppEditorPdfPageOrientation,
   AppEditorPdfProps,
   AppEditorPdfThemeMode,
+  AppEditorPdfVisualGuides,
+  AppEditorPdfVisualMetrics,
   UseAppEditorPdfOptions,
   UseAppEditorPdfResult,
 } from "./domain/editor-pdf.types";
-

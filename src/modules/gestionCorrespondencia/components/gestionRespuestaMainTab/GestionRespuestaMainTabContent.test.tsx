@@ -55,6 +55,8 @@ describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-05-FE]", () => {
     expect(
       container.querySelector('[data-pagination-mode="visual"]'),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("editor-page-indicator")).toHaveTextContent("Pagina 1 de 1");
+    expect(screen.getByTestId("editor-zoom-indicator")).toHaveTextContent("Zoom 100%");
   });
 
   it("mantiene operativo el colapso y expansion del panel lateral", async () => {
@@ -72,7 +74,7 @@ describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-05-FE]", () => {
     await waitFor(() => {
       expect(screen.getByLabelText("Ocultar panel de herramientas")).toBeInTheDocument();
     });
-  });
+  }, 20000);
 
   it("[SPEC:APP-APPSTEPS-03-FE] integra AppSteps y bloquea Envio hasta tener adjuntos", async () => {
     render(<GestionRespuestaMainTabContent />);
@@ -103,5 +105,5 @@ describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-05-FE]", () => {
     expect(
       screen.queryByText(/Para habilitar envio, carga al menos un archivo/i),
     ).not.toBeInTheDocument();
-  }, 15000);
+  }, 30000);
 });

@@ -93,11 +93,22 @@
 
 .editorContainer {
   display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
   box-sizing: border-box;
   overflow: hidden;
   align-self: stretch;
+  gap: 0.5rem;
+}
+
+.editorMetrics {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: #475569;
 }
 
 .embeddedAppEditor {
