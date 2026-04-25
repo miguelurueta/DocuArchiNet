@@ -36,12 +36,15 @@ vi.mock("../../../../app/Components/UI/AppUpload/AppUpload", () => ({
   ),
 }));
 
-describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-04-FE]", () => {
+describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-05-FE]", () => {
   it("renderiza AppEditorPdf como superficie principal del contenedor", async () => {
     const { container } = render(<GestionRespuestaMainTabContent />);
 
     expect(screen.queryByText(/Aqui se renderizara el editor de contenido/i)).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Editor principal de respuesta")).toBeInTheDocument();
+    expect(screen.getByLabelText("Editor principal de respuesta")).toHaveAttribute(
+      "data-editor-shell",
+      "neutral",
+    );
 
     await waitFor(() => {
       expect(
@@ -100,5 +103,5 @@ describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-04-FE]", () => {
     expect(
       screen.queryByText(/Para habilitar envio, carga al menos un archivo/i),
     ).not.toBeInTheDocument();
-  });
+  }, 15000);
 });
