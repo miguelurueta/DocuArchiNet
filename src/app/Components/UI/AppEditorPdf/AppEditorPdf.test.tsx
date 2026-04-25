@@ -9,7 +9,7 @@ vi.mock("../AppEditor", () => ({
   AppEditor: (props: unknown) => appEditorMock(props),
 }));
 
-describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-03-FE]", () => {
+describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-06-FE]", () => {
   it("renderiza usando AppEditor como engine shared", () => {
     render(<AppEditorPdf label="Editor PDF" defaultValue="<p>Inicial</p>" />);
 
@@ -82,6 +82,48 @@ describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-03-FE]", () => {
     expect(appEditorMock).toHaveBeenCalledWith(
       expect.objectContaining({
         "aria-label": "Editor PDF",
+      }),
+    );
+  });
+
+  it("aplica paginacion visual base por defecto", () => {
+    render(<AppEditorPdf />);
+
+    expect(appEditorMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        paginationMode: "visual",
+        pageFormat: "A4",
+        pageOrientation: "portrait",
+        pageMargins: {
+          top: 96,
+          right: 72,
+          bottom: 96,
+          left: 72,
+        },
+      }),
+    );
+  });
+
+  it("permite override explicito del contrato de paginacion", () => {
+    render(
+      <AppEditorPdf
+        paginationMode="none"
+        pageOrientation="landscape"
+        pageMargins={{ top: 40 }}
+      />,
+    );
+
+    expect(appEditorMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        paginationMode: "none",
+        pageFormat: "A4",
+        pageOrientation: "landscape",
+        pageMargins: {
+          top: 40,
+          right: 72,
+          bottom: 96,
+          left: 72,
+        },
       }),
     );
   });
