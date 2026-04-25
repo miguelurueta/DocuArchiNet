@@ -17,6 +17,7 @@ type HarnessProps = {
   placeholder?: string;
   disabled?: boolean;
   readOnly?: boolean;
+  paginationMode?: "none" | "visual";
   onChange?: (value: string) => void;
 };
 
@@ -556,6 +557,82 @@ describe("useAppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => 
     });
   });
 
+  it("recrea el schema cuando un valor controlado visual pasa de plano a paginado", async () => {
+    const { rerender } = render(<HookHarness value="<p>Uno</p>" paginationMode="visual" />);
+
+    await waitFor(() => {
+      const html = screen.getByTestId("html").textContent ?? "";
+      expect(html).toContain("Uno");
+      expect(html).not.toContain('data-app-editor-page="true"');
+    });
+
+    rerender(
+      <HookHarness
+        value={'<p>Uno</p><div data-page-break="true"></div><p>Dos</p>'}
+        paginationMode="visual"
+      />,
+    );
+
+    await waitFor(() => {
+      const html = screen.getByTestId("html").textContent ?? "";
+      expect(html).toContain('data-app-editor-page="true"');
+      expect(html).toContain("Uno");
+      expect(html).toContain("Dos");
+    });
+  });
+
+  it("omite pageBreaks automaticos al inicializar contenido externo", async () => {
+    render(
+      <HookHarness
+        defaultValue={
+          '<p>Uno</p><div data-page-break="true" data-page-break-auto="true" data-page-break-merge="true" data-page-break-spacer="120"></div><p>Dos</p>'
+        }
+      />,
+    );
+
+    await waitFor(() => {
+      const html = screen.getByTestId("html").textContent ?? "";
+      expect(html).toContain("Uno");
+      expect(html).toContain("Dos");
+      expect(html).not.toContain("data-page-break-auto");
+    });
+  });
+
+  it("serializa limpio contenido inicial con pageBreak manual en modo visual", async () => {
+    render(
+      <HookHarness
+        defaultValue={'<p>Uno</p><div data-page-break="true"></div><p>Dos</p>'}
+        onChange={() => {}}
+        paginationMode="visual"
+      />,
+    );
+
+    await waitFor(() => {
+      const html = screen.getByTestId("html").textContent ?? "";
+      expect(html).toContain("data-app-editor-page");
+      expect(html).not.toContain('data-page-break="true"');
+    });
+  });
+
+  it("rehidrata contenido ya paginado en wrappers reales al inicializar modo visual", async () => {
+    render(
+      <HookHarness
+        defaultValue={
+          '<div data-app-editor-page="true"><p>Uno</p></div><div data-app-editor-page="true"><p>Dos</p></div>'
+        }
+        paginationMode="visual"
+      />,
+    );
+
+    await waitFor(() => {
+      const html = screen.getByTestId("html").textContent ?? "";
+      expect(html).toContain('data-app-editor-page="true"');
+      expect(html.match(/data-app-editor-page="true"/g)?.length).toBe(2);
+      expect(html).toContain("Uno");
+      expect(html).toContain("Dos");
+    });
+  });
+
   it("desactiva la edicion cuando disabled o readOnly estan activos", () => {
     const { rerender } = render(<HookHarness disabled />);
 
@@ -593,6 +670,21 @@ describe("useAppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => 
       const latestValue = handleChange.mock.lastCall?.[0];
       expect(String(latestValue)).toContain('data-page-break="true"');
       expect(String(latestValue)).not.toContain("data-page-break-auto");
+    });
+  });
+
+  it("serializa paginas reales a pageBreaks manuales al propagar onChange en modo visual", async () => {
+    const handleChange = vi.fn();
+
+    render(<HookHarness onChange={handleChange} paginationMode="visual" />);
+
+    fireEvent.click(screen.getByText("set-manual-page-break-content"));
+
+    await waitFor(() => {
+      expect(handleChange).toHaveBeenCalled();
+      const latestValue = String(handleChange.mock.lastCall?.[0] ?? "");
+      expect(latestValue).toContain('<div data-page-break="true"></div>');
+      expect(latestValue).not.toContain('data-app-editor-page="true"');
     });
   });
 

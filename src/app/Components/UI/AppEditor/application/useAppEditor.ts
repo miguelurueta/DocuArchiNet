@@ -10,6 +10,12 @@ import { appEditorImageStore } from "../infrastructure/indexeddb/appEditorImageS
 import type { LocalImage } from "../infrastructure/indexeddb/localImage.types";
 import { normalizeEditorHtml } from "./normalizeEditorHtml";
 import {
+  hasManualPageBreaks,
+  hasVisualPageWrappers,
+  serializeVisualPageHtml,
+  wrapHtmlInVisualPages,
+} from "./pageDocument";
+import {
   insertPageBreakBeforeBlock,
   splitListBlockBeforeItemAndInsertPageBreak,
   splitTextBlockAtPositionAndInsertPageBreak,
@@ -190,15 +196,29 @@ function hasTrailingAutoPageBreakAtSelection(editor: Editor) {
 }
 
 function syncControlledValue(editor: Editor, nextValue: string) {
-  const currentValue = normalizeEditorValue(normalizeEditorHtml(editor.getHTML()));
-  const normalizedNextValue = normalizeEditorValue(normalizeEditorHtml(nextValue));
+  const editorHtml = editor.getHTML();
+  const currentValue = normalizeEditorValue(
+    normalizeEditorHtml(serializeVisualPageHtml(editorHtml)),
+  );
+  const normalizedNextValue = normalizeEditorValue(
+    normalizeEditorHtml(serializeVisualPageHtml(nextValue)),
+  );
 
   if (currentValue === normalizedNextValue) {
     return;
   }
 
   const { from, to } = editor.state.selection;
-  editor.commands.setContent(nextValue, { emitUpdate: false });
+  const shouldUsePaginatedDocument =
+    hasVisualPageWrappers(editorHtml) ||
+    hasManualPageBreaks(editorHtml) ||
+    hasVisualPageWrappers(nextValue) ||
+    hasManualPageBreaks(nextValue);
+  const editorContent = shouldUsePaginatedDocument
+    ? wrapHtmlInVisualPages(normalizedNextValue)
+    : normalizedNextValue;
+
+  editor.commands.setContent(editorContent, { emitUpdate: false });
 
   const maxPosition = editor.state.doc.content.size;
   editor.commands.setTextSelection({
@@ -379,8 +399,17 @@ export function useAppEditor({
   zoomLevel = 1,
 }: UseAppEditorOptions): UseAppEditorResult {
   const isControlled = value !== undefined;
+  const externalSourceContent = isControlled ? value : defaultValue;
+  const externalInitialContent = normalizeEditorValue(
+    normalizeEditorHtml(serializeVisualPageHtml(externalSourceContent)),
+  );
+  const usePaginatedDocument =
+    paginationMode === "visual" &&
+    (hasVisualPageWrappers(externalSourceContent) || hasManualPageBreaks(externalSourceContent));
   const initialContentRef = useRef(
-    normalizeEditorValue(isControlled ? value : defaultValue),
+    usePaginatedDocument
+      ? wrapHtmlInVisualPages(externalInitialContent)
+      : externalInitialContent,
   );
   const lastKnownValueRef = useRef(initialContentRef.current);
   const localImageUrlsRef = useRef(new Map<string, string>());
@@ -396,6 +425,7 @@ export function useAppEditor({
         content: initialContentRef.current,
         placeholder,
         editable: !(disabled || readOnly),
+        paginatedDocument: usePaginatedDocument,
         onUpdate: ({ editor: currentEditor }) => {
           const currentLocalImageIds = collectLocalImageIds(currentEditor);
 
@@ -406,7 +436,9 @@ export function useAppEditor({
             }
           }
 
-          const nextValue = normalizeEditorValue(normalizeEditorHtml(currentEditor.getHTML()));
+          const nextValue = normalizeEditorValue(
+            normalizeEditorHtml(serializeVisualPageHtml(currentEditor.getHTML())),
+          );
           lastKnownValueRef.current = nextValue;
           onChange?.(nextValue);
         },
@@ -414,6 +446,7 @@ export function useAppEditor({
       immediatelyRender: false,
       shouldRerenderOnTransaction: false,
     },
+    [usePaginatedDocument],
   );
 
   const rehydrateLocalImages = useCallback(async () => {
@@ -678,6 +711,7 @@ export function useAppEditor({
   useEffect(() => {
     if (
       !editor ||
+      usePaginatedDocument ||
       paginationMode !== "visual" ||
       pageHeight <= 0 ||
       !pageMargins
@@ -922,7 +956,12 @@ export function useAppEditor({
 
           const repaginatedProseMirror = editor.view.dom;
           if (repaginatedProseMirror instanceof HTMLElement) {
-            syncAutoPageBreakSpacerHeights(editor, repaginatedProseMirror, pageStride);
+            syncAutoPageBreakSpacerHeights(
+              editor,
+              repaginatedProseMirror,
+              pageStride,
+              pageContentHeight,
+            );
           }
 
           iterations += 1;
@@ -930,7 +969,12 @@ export function useAppEditor({
 
         const finalProseMirror = editor.view.dom;
         if (finalProseMirror instanceof HTMLElement) {
-          syncAutoPageBreakSpacerHeights(editor, finalProseMirror, pageStride);
+          syncAutoPageBreakSpacerHeights(
+            editor,
+            finalProseMirror,
+            pageStride,
+            pageContentHeight,
+          );
           const maxPosition = editor.state.doc.content.size;
           const nextFrom = clampSelection(originalSelectionRange.from, maxPosition);
           const nextTo = clampSelection(originalSelectionRange.to, maxPosition);
@@ -1158,7 +1202,7 @@ export function useAppEditor({
       scrollContainer?.removeEventListener("scroll", handleScrollActivity);
       editor.off("transaction", handleEditorTransaction);
     };
-  }, [editor, pageGap, pageHeight, pageMargins, paginationMode, zoomLevel]);
+  }, [editor, pageGap, pageHeight, pageMargins, paginationMode, usePaginatedDocument, zoomLevel]);
 
   return {
     editor,

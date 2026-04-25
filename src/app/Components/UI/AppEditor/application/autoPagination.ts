@@ -265,6 +265,7 @@ export function syncAutoPageBreakSpacerHeights(
   editor: Editor,
   proseMirror: HTMLElement,
   pageStride: number,
+  pageContentHeight: number,
 ) {
   let cumulativeAutoSpacerHeight = 0;
   let previousNaturalBottom = 0;
@@ -293,8 +294,13 @@ export function syncAutoPageBreakSpacerHeights(
 
     if (child.matches('[data-page-break="true"]')) {
       const previousVisualBottom = previousNaturalBottom + cumulativeAutoSpacerHeight;
-      const remainder = previousVisualBottom % pageStride;
-      const spacerHeight = remainder === 0 ? 0 : Math.max(0, pageStride - remainder);
+      const currentPageIndex = resolveContentPageIndex(
+        previousVisualBottom,
+        pageStride,
+        pageContentHeight,
+      );
+      const nextPageContentStart = (currentPageIndex + 1) * pageStride;
+      const spacerHeight = Math.max(0, nextPageContentStart - previousVisualBottom);
 
       if (node?.type.name === "pageBreak" && previousSpacerHeight !== spacerHeight) {
         transaction = transaction.setNodeMarkup(position, undefined, {
