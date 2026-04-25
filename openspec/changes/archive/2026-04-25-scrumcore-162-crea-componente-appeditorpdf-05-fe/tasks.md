@@ -14,4 +14,4 @@
 
 - [x] 3.1 Actualizar pruebas de `GestionRespuestaMainTabContent` para reflejar contrato `05-FE`.
 - [x] 3.2 Ejecutar suite focal de pruebas (`GestionRespuesta` + `AppEditorPdf`) y registrar evidencia.
-- [ ] 3.3 Dejar cambio listo para `opsxj:archive`.
+- [x] 3.3 Dejar cambio listo para `opsxj:archive`.
