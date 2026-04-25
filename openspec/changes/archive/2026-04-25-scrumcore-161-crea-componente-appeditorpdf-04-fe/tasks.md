@@ -13,5 +13,5 @@
 ## 3. Cierre y trazabilidad del cambio
 
 - [x] 3.1 Actualizar tareas marcando lo ejecutado.
-- [ ] 3.2 Consolidar cambios OpenSpec + codigo en commit del branch `feature/SCRUMCORE-161`.
-- [ ] 3.3 Archivar change para abrir PR y comentar Jira.
+- [x] 3.2 Consolidar cambios OpenSpec + codigo en commit del branch `feature/SCRUMCORE-161`.
+- [x] 3.3 Archivar change para abrir PR y comentar Jira.
