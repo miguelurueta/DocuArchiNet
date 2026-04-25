@@ -1,11 +1,12 @@
 import { CarryOutFilled, MailFilled } from "@ant-design/icons";
-import { useCallback, useId, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
 import {
   AppEditorPdf,
   AppEditorPdfSaveAction,
+  type AppEditorPdfVisualMetrics,
   useAppEditorPdfSaveState,
 } from "../../../../app/Components/UI/AppEditorPdf";
-import { AppSteps } from "../../../../app/Components/UI/AppSteps";
+import { AppSteps, type AppStepItem } from "../../../../app/Components/UI/AppSteps";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
 import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
 import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
@@ -55,13 +56,35 @@ export function GestionRespuestaMainTabContent(
   const [currentStep, setCurrentStep] = useState(0);
   const [editorValue, setEditorValue] = useState<string>("");
   const [savedEditorValue, setSavedEditorValue] = useState<string>("");
+  const [editorPage, setEditorPage] = useState(1);
+  const [editorMetrics, setEditorMetrics] = useState<AppEditorPdfVisualMetrics | null>(
+    null,
+  );
   const { saveStatus } = useAppEditorPdfSaveState({
     currentValue: editorValue,
     savedValue: savedEditorValue,
   });
   const canAdvanceToSend = files.length > 0;
+  const computedTotalPages = Math.max(1, Math.ceil(editorValue.length / 1200));
+  const editorVisualGuides = useMemo(
+    () => ({
+      enabled: true,
+      showPageBoundaries: true,
+      showReadingFrame: true,
+      readingFrameInset: 20,
+    }),
+    [],
+  );
+  const editorPageMargins = useMemo(
+    () => ({ top: 96, right: 72, bottom: 96, left: 72 }),
+    [],
+  );
 
-  const stepItems = useMemo(
+  useEffect(() => {
+    setEditorPage((previousPage) => Math.min(previousPage, computedTotalPages));
+  }, [computedTotalPages]);
+
+  const stepItems = useMemo<AppStepItem[]>(
     () => [
       {
         key: "redaccion",
@@ -164,9 +187,24 @@ export function GestionRespuestaMainTabContent(
           data-testid="gestion-respuesta-workbench"
         >
           <GestionRespuestaEditorContainer>
+            <div className={styles.editorMetrics} aria-live="polite">
+              <span data-testid="editor-page-indicator">
+                Pagina {editorMetrics?.currentPage ?? editorPage} de{" "}
+                {editorMetrics?.totalPages ?? computedTotalPages}
+              </span>
+              <span data-testid="editor-zoom-indicator">
+                Zoom {Math.round((editorMetrics?.zoomLevel ?? 1) * 100)}%
+              </span>
+            </div>
             <AppEditorPdf
               value={editorValue}
               onChange={setEditorValue}
+              documentSource="gestion-respuesta-main-tab"
+              totalPages={computedTotalPages}
+              activePage={editorPage}
+              onActivePageChange={setEditorPage}
+              onMetricsChange={setEditorMetrics}
+              visualGuides={editorVisualGuides}
               toolbarActions={
                 <AppEditorPdfSaveAction
                   iconOnly
@@ -184,7 +222,7 @@ export function GestionRespuestaMainTabContent(
               paginationMode="visual"
               pageFormat="A4"
               pageOrientation="portrait"
-              pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
+              pageMargins={editorPageMargins}
             />
           </GestionRespuestaEditorContainer>
           <GestionRespuestaRightToolsPanel

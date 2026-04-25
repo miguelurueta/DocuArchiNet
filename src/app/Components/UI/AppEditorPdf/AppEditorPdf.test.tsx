@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppEditorPdf } from "./AppEditorPdf";
 import styles from "./AppEditorPdf.module.css";
 
@@ -9,7 +9,11 @@ vi.mock("../AppEditor", () => ({
   AppEditor: (props: unknown) => appEditorMock(props),
 }));
 
-describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-06-FE]", () => {
+describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-07-FE]", () => {
+  beforeEach(() => {
+    appEditorMock.mockClear();
+  });
+
   it("renderiza usando AppEditor como engine shared", () => {
     render(<AppEditorPdf label="Editor PDF" defaultValue="<p>Inicial</p>" />);
 
@@ -126,5 +130,66 @@ describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-06-FE]", () => {
         },
       }),
     );
+  });
+
+  it("muestra guias visuales cuando la paginacion visual esta activa", () => {
+    render(<AppEditorPdf paginationMode="visual" />);
+
+    expect(screen.getByTestId("app-editor-pdf-page-boundary-guide")).toBeInTheDocument();
+    expect(screen.getByTestId("app-editor-pdf-reading-frame-guide")).toBeInTheDocument();
+  });
+
+  it("publica metricas cuando cambia documento, pagina o zoom", () => {
+    const onMetricsChange = vi.fn();
+    const { rerender } = render(
+      <AppEditorPdf
+        paginationMode="visual"
+        documentSource="doc-a"
+        activePage={1}
+        totalPages={3}
+        zoomLevel={1}
+        onMetricsChange={onMetricsChange}
+      />,
+    );
+
+    rerender(
+      <AppEditorPdf
+        paginationMode="visual"
+        documentSource="doc-b"
+        activePage={2}
+        totalPages={3}
+        zoomLevel={1.25}
+        onMetricsChange={onMetricsChange}
+      />,
+    );
+
+    expect(onMetricsChange).toHaveBeenCalled();
+    expect(onMetricsChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        documentSource: "doc-b",
+        currentPage: 2,
+        totalPages: 3,
+        zoomLevel: 1.25,
+      }),
+    );
+  });
+
+  it("notifica cambio de pagina al navegar con controles internos", () => {
+    const onActivePageChange = vi.fn();
+
+    render(
+      <AppEditorPdf
+        paginationMode="visual"
+        totalPages={3}
+        activePage={2}
+        onActivePageChange={onActivePageChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Pagina siguiente" }));
+    expect(onActivePageChange).toHaveBeenCalledWith(3);
+
+    fireEvent.click(screen.getByRole("button", { name: "Pagina anterior" }));
+    expect(onActivePageChange).toHaveBeenCalledWith(1);
   });
 });
