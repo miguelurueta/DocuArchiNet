@@ -1,3 +1,5 @@
+import { serializeVisualPageHtml } from "./pageDocument";
+
 const EMPTY_EDITOR_HTML_VALUES = new Set([
   "",
   "<p></p>",
@@ -10,10 +12,10 @@ const EMPTY_PARAGRAPH_PATTERN =
   /^<p(?:\s+[^>]*)?>\s*(?:<br(?:\s+[^>]*)?\s*\/?>)?\s*<\/p>$/i;
 
 const AUTO_PAGE_BREAK_PATTERN =
-  /<div\b(?=[^>]*\bdata-page-break="true")(?=[^>]*\bdata-page-break-auto="true")[^>]*><\/div>/gi;
+  /<div\b(?=[^>]*\bdata-page-break="true")(?=[^>]*\bdata-page-break-auto="true")[^>]*>[\s\u200B]*<\/div>/gi;
 
 export function stripAutoLayoutMetadata(value: string | null | undefined) {
-  return String(value ?? "")
+  return serializeVisualPageHtml(String(value ?? ""))
     .replace(AUTO_PAGE_BREAK_PATTERN, "")
     .replace(/\u200B/g, "")
     .trim();

@@ -82,6 +82,14 @@ describe("AppEditorSaveAction [SPEC:IMPLEMENTACION-BOTON-GUARDAR-APPEDITOR-17-FE
     ).toBe("<p>Uno</p><p>Dos</p>");
   });
 
+  it("convierte paginas reales a pageBreaks manuales al normalizar HTML persistible", () => {
+    expect(
+      normalizeEditorHtml(
+        '<div data-app-editor-page="true"><p>Uno</p></div><div data-app-editor-page="true"><p>Dos</p></div>',
+      ),
+    ).toBe('<p>Uno</p><div data-page-break="true"></div><p>Dos</p>');
+  });
+
   it("inicia en gris cuando currentValue y savedValue son equivalentes", async () => {
     render(<SaveHarness initialValue="<p></p>" />);
 

@@ -224,6 +224,43 @@ function applyVisualPaginationLayout({
   };
 }
 
+export function calculateFixedPageMetrics({
+  totalPages,
+  pageHeight,
+  pageGap = 0,
+  pageMargins,
+}: {
+  totalPages: number;
+  pageHeight: number;
+  pageGap?: number;
+  pageMargins: AppEditorPageMargins;
+}): PaginationMetrics {
+  const safeTotalPages = Math.max(1, Math.ceil(totalPages));
+  const pageContentHeight = Math.max(1, pageHeight - pageMargins.top - pageMargins.bottom);
+  const pageStride = Math.max(1, pageHeight + pageGap);
+
+  return {
+    contentHeight: safeTotalPages * pageContentHeight,
+    pageContentHeight,
+    totalPages: safeTotalPages,
+    guideOffsets: Array.from(
+      { length: Math.max(0, safeTotalPages - 1) },
+      (_, index) => (index + 1) * pageContentHeight + pageMargins.top,
+    ),
+    pageBoundaries: Array.from(
+      { length: Math.max(0, safeTotalPages - 1) },
+      (_, index) => (index + 1) * pageContentHeight,
+    ),
+    visualPageBoundaries: Array.from(
+      { length: Math.max(0, safeTotalPages - 1) },
+      (_, index) => (index + 1) * pageStride,
+    ),
+    manualBreakOffsets: [],
+    pageStride,
+    visualContentHeight: Math.max(0, safeTotalPages - 1) * pageStride + pageContentHeight,
+  };
+}
+
 function collectNaturalPaginationStructure(proseMirror: HTMLElement): NaturalPaginationStructure {
   let cumulativeBreakHeight = 0;
   let naturalContentHeight = 0;
@@ -302,6 +339,23 @@ export function usePaginationMetrics({
 
     if (!(proseMirror instanceof HTMLElement)) {
       commitMetrics(DEFAULT_METRICS);
+      return;
+    }
+
+    const pageWrappers = Array.from(proseMirror.children).filter(
+      (child): child is HTMLElement =>
+        child instanceof HTMLElement && child.matches('[data-app-editor-page="true"]'),
+    );
+
+    if (pageWrappers.length > 0) {
+      commitMetrics(
+        calculateFixedPageMetrics({
+          totalPages: pageWrappers.length,
+          pageHeight,
+          pageGap,
+          pageMargins,
+        }),
+      );
       return;
     }
 

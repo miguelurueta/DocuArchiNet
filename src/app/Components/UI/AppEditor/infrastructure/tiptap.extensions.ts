@@ -8,16 +8,29 @@ import { TextAlign } from "@tiptap/extension-text-align";
 import { StarterKit } from "@tiptap/starter-kit";
 import { PageBreak } from "./page-break.extension";
 import { ResizableImage } from "./resizable-image.extension";
+import { PageDocument } from "./page-document.extension";
+import { PageNode } from "./page-node.extension";
 
-export function buildAppEditorExtensions(placeholder?: string): AnyExtension[] {
+type BuildAppEditorExtensionsOptions = {
+  paginatedDocument?: boolean;
+};
+
+export function buildAppEditorExtensions(
+  placeholder?: string,
+  options?: BuildAppEditorExtensionsOptions,
+): AnyExtension[] {
+  const paginatedDocument = options?.paginatedDocument === true;
+
   return [
     StarterKit.configure({
+      document: paginatedDocument ? false : undefined,
       heading: {
         levels: [1, 2, 3],
       },
       link: false,
       underline: false,
     }),
+    ...(paginatedDocument ? [PageDocument, PageNode] : []),
     Placeholder.configure({
       placeholder: placeholder?.trim() || "Escribe aqui...",
     }),
