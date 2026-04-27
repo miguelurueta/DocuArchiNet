@@ -57,6 +57,9 @@ describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-05-FE]", () => {
     ).toBeInTheDocument();
     expect(screen.getByTestId("editor-page-indicator")).toHaveTextContent("Pagina 1 de 1");
     expect(screen.getByTestId("editor-zoom-indicator")).toHaveTextContent("Zoom 100%");
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-page-source")).toHaveTextContent(/Contexto (scroll|cursor)/);
+    });
   });
 
   it("mantiene operativo el colapso y expansion del panel lateral", async () => {
