@@ -104,7 +104,6 @@ export function GestionRespuestaMainTabContent(
         >
           <GestionRespuestaEditorContainer>
             <AppEditor
-              label="Editor principal de respuesta"
               value={editorValue}
               onChange={setEditorValue}
               toolbarActions={
