@@ -310,6 +310,20 @@ describe("AppEditorToolbar [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", ()
     });
   });
 
+  it("cubre contrato FE-11: alinear imagen horizontalmente sin perder atributos", async () => {
+    const editor = createEditorMock();
+    editor.isActive = vi.fn((name: unknown) => name === "image");
+
+    render(<AppEditorToolbar editor={editor as never} />);
+
+    fireEvent.click(screen.getByLabelText("Insertar imagen"));
+    fireEvent.click(await screen.findByRole("button", { name: "Derecha" }));
+
+    await waitFor(() => {
+      expect(editor.__actionChain.setImageAlign).toHaveBeenCalledWith("right");
+    });
+  });
+
   it("delegates local image insertion to the provided handler", async () => {
     const editor = createEditorMock();
     const handleInsertLocalImage = vi.fn(() => Promise.resolve());
