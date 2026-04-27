@@ -159,10 +159,9 @@ describe("[SPEC:SCRUMCORE-143] Bloqueo por estructura gestion respuesta", () => 
 
     renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
 
-    await waitFor(() => {
-      expect(screen.queryByTestId("gestion-correspondencia-detail-region")).not.toBeInTheDocument();
-    });
-    expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
+    expect(screen.getByTestId("gestion-correspondencia-blocked-state")).toBeInTheDocument();
+    expect(screen.getByText(/HTTP 500/i)).toBeInTheDocument();
+    expect(screen.getByText(/IdTareaWf:\s*924/i)).toBeInTheDocument();
   });
 
   test("cierra panel cuando el idTareaWf es invalido", async () => {

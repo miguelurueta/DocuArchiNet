@@ -37,8 +37,8 @@ export default function GestionCorrespondenciaRoute({
     resolved,
   } = useEstructuraRespuestaIdTarea(hasDetail && hasValidId ? parsedId : undefined);
 
-  const shouldAutoClose =
-    hasDetail && (!hasValidId || (!loading && Boolean(error)));
+  // Invalid ids should not keep a sticky detail panel; errors should show a blocked state.
+  const shouldAutoClose = hasDetail && !hasValidId;
 
   useEffect(() => {
     if (!shouldAutoClose) return;
@@ -66,7 +66,11 @@ export default function GestionCorrespondenciaRoute({
       : null;
 
   const blockedMessage = hasValidId
-    ? `No existe estructura disponible para la tarea (IdTareaWf: ${parsedId}).`
+    ? Boolean(error)
+      ? `No fue posible cargar la estructura para la tarea (IdTareaWf: ${parsedId}). ${String(
+          error?.message ?? "",
+        )}`.trim()
+      : `No existe estructura disponible para la tarea (IdTareaWf: ${parsedId}).`
     : "No existe estructura disponible para esta tarea de gestion respuesta.";
 
   const metadata = [
