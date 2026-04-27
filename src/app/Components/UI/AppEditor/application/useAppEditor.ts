@@ -8,18 +8,32 @@ import { createAppEditorConfig } from "../infrastructure/tiptap.config";
 import { generateEditorImageId, generateLocalImageId } from "./localImageIds";
 import { appEditorImageStore } from "../infrastructure/indexeddb/appEditorImageStore";
 import type { LocalImage } from "../infrastructure/indexeddb/localImage.types";
+import { normalizeEditorHtml } from "./normalizeEditorHtml";
+import {
+  hasManualPageBreaks,
+  hasVisualPageWrappers,
+  serializeVisualPageHtml,
+  wrapHtmlInVisualPages,
+} from "./pageDocument";
 import {
   insertPageBreakBeforeBlock,
+  splitListBlockBeforeItemAndInsertPageBreak,
   splitTextBlockAtPositionAndInsertPageBreak,
 } from "./autoPageBreak";
 import {
   removeAutoPageBreaks,
+  resolveAutoPageBreakCleanupStartPosition,
+  resolveTopLevelChildIndexFromPosition,
   resolveAutoPageBreakActions,
   syncAutoPageBreakSpacerHeights,
 } from "./autoPagination";
 
-const AUTO_PAGINATION_DEBOUNCE_MS = 150;
+const AUTO_PAGINATION_DEBOUNCE_MS = 180;
 const IMAGE_INTERACTION_LOCK_MS = 600;
+
+type PaginationScrollAnchor = {
+  viewportOffset: number;
+};
 
 function resolveAutoPaginationDebounceMs() {
   if (
@@ -53,15 +67,158 @@ function findScrollableAncestor(element: HTMLElement | null) {
   return null;
 }
 
-function syncControlledValue(editor: Editor, nextValue: string) {
-  const currentValue = normalizeEditorValue(editor.getHTML());
+export function capturePaginationScrollAnchor(
+  editor: Editor,
+  scrollContainer: HTMLElement | null,
+) {
+  const selection = editor.state.selection;
 
-  if (currentValue === nextValue) {
+  if (!scrollContainer || selection instanceof NodeSelection) {
+    return null;
+  }
+
+  const containerRect = scrollContainer.getBoundingClientRect();
+  let caretRect: ReturnType<typeof editor.view.coordsAtPos>;
+
+  try {
+    caretRect = editor.view.coordsAtPos(selection.to);
+  } catch {
+    return null;
+  }
+
+  return {
+    viewportOffset: caretRect.top - containerRect.top,
+  } satisfies PaginationScrollAnchor;
+}
+
+export function restorePaginationScrollAnchor(
+  editor: Editor,
+  scrollContainer: HTMLElement | null,
+  anchor: PaginationScrollAnchor | null,
+) {
+  const selection = editor.state.selection;
+
+  if (!scrollContainer || !anchor || selection instanceof NodeSelection) {
+    return;
+  }
+
+  const containerRect = scrollContainer.getBoundingClientRect();
+  let caretRect: ReturnType<typeof editor.view.coordsAtPos>;
+
+  try {
+    caretRect = editor.view.coordsAtPos(selection.to);
+  } catch {
+    return;
+  }
+
+  const currentViewportOffset = caretRect.top - containerRect.top;
+  const nextScrollTop = Math.max(
+    0,
+    scrollContainer.scrollTop + (currentViewportOffset - anchor.viewportOffset),
+  );
+
+  if (Math.abs(nextScrollTop - scrollContainer.scrollTop) > 1) {
+    scrollContainer.scrollTop = nextScrollTop;
+  }
+}
+
+function resolveSelectionPageIndex(
+  editor: Editor,
+  proseMirror: HTMLElement,
+  pageStride: number,
+  zoomLevel: number,
+) {
+  const selection = editor.state.selection;
+
+  if (selection instanceof NodeSelection) {
+    return null;
+  }
+
+  const proseMirrorRect = proseMirror.getBoundingClientRect();
+  let caretRect: ReturnType<typeof editor.view.coordsAtPos>;
+
+  try {
+    caretRect = editor.view.coordsAtPos(selection.to);
+  } catch {
+    return null;
+  }
+
+  const safeZoomLevel = Math.max(0.1, zoomLevel);
+  const safePageStride = Math.max(1, pageStride * safeZoomLevel);
+  const caretTop = Math.max(0, caretRect.top - proseMirrorRect.top);
+
+  return Math.max(0, Math.floor(caretTop / safePageStride));
+}
+
+function scrollSelectionIntoViewWithinContainer(
+  editor: Editor,
+  scrollContainer: HTMLElement | null,
+  targetViewportOffset: number,
+) {
+  const selection = editor.state.selection;
+
+  if (!scrollContainer || selection instanceof NodeSelection) {
+    return;
+  }
+
+  const containerRect = scrollContainer.getBoundingClientRect();
+  let caretRect: ReturnType<typeof editor.view.coordsAtPos>;
+
+  try {
+    caretRect = editor.view.coordsAtPos(selection.to);
+  } catch {
+    return;
+  }
+
+  const currentViewportOffset = caretRect.top - containerRect.top;
+  const nextScrollTop = Math.max(
+    0,
+    scrollContainer.scrollTop + (currentViewportOffset - targetViewportOffset),
+  );
+
+  if (Math.abs(nextScrollTop - scrollContainer.scrollTop) > 1) {
+    scrollContainer.scrollTop = nextScrollTop;
+  }
+}
+
+function hasTrailingAutoPageBreakAtSelection(editor: Editor) {
+  const selection = editor.state.selection;
+
+  if (selection instanceof NodeSelection || selection.from !== selection.to || !selection.$from.parent.isTextblock) {
+    return false;
+  }
+
+  const topLevelIndex = selection.$from.index(0);
+  const nextTopLevelNode =
+    topLevelIndex < editor.state.doc.childCount - 1 ? editor.state.doc.child(topLevelIndex + 1) : null;
+
+  return nextTopLevelNode?.type.name === "pageBreak" && nextTopLevelNode.attrs.auto === true;
+}
+
+function syncControlledValue(editor: Editor, nextValue: string) {
+  const editorHtml = editor.getHTML();
+  const currentValue = normalizeEditorValue(
+    normalizeEditorHtml(serializeVisualPageHtml(editorHtml)),
+  );
+  const normalizedNextValue = normalizeEditorValue(
+    normalizeEditorHtml(serializeVisualPageHtml(nextValue)),
+  );
+
+  if (currentValue === normalizedNextValue) {
     return;
   }
 
   const { from, to } = editor.state.selection;
-  editor.commands.setContent(nextValue, { emitUpdate: false });
+  const shouldUsePaginatedDocument =
+    hasVisualPageWrappers(editorHtml) ||
+    hasManualPageBreaks(editorHtml) ||
+    hasVisualPageWrappers(nextValue) ||
+    hasManualPageBreaks(nextValue);
+  const editorContent = shouldUsePaginatedDocument
+    ? wrapHtmlInVisualPages(normalizedNextValue)
+    : normalizedNextValue;
+
+  editor.commands.setContent(editorContent, { emitUpdate: false });
 
   const maxPosition = editor.state.doc.content.size;
   editor.commands.setTextSelection({
@@ -242,14 +399,25 @@ export function useAppEditor({
   zoomLevel = 1,
 }: UseAppEditorOptions): UseAppEditorResult {
   const isControlled = value !== undefined;
+  const externalSourceContent = isControlled ? value : defaultValue;
+  const externalInitialContent = normalizeEditorValue(
+    normalizeEditorHtml(serializeVisualPageHtml(externalSourceContent)),
+  );
+  const usePaginatedDocument =
+    paginationMode === "visual" &&
+    (hasVisualPageWrappers(externalSourceContent) || hasManualPageBreaks(externalSourceContent));
   const initialContentRef = useRef(
-    normalizeEditorValue(isControlled ? value : defaultValue),
+    usePaginatedDocument
+      ? wrapHtmlInVisualPages(externalInitialContent)
+      : externalInitialContent,
   );
   const lastKnownValueRef = useRef(initialContentRef.current);
   const localImageUrlsRef = useRef(new Map<string, string>());
   const localImageScopeRef = useRef(buildLocalImageScope());
   const localImageSyncTokenRef = useRef(0);
   const lastImageInteractionAtRef = useRef(0);
+  const dirtyStartChildIndexRef = useRef<number | null>(null);
+  const dirtyNeedsPreviousBreakCleanupRef = useRef(false);
 
   const editor = useEditor(
     {
@@ -257,6 +425,7 @@ export function useAppEditor({
         content: initialContentRef.current,
         placeholder,
         editable: !(disabled || readOnly),
+        paginatedDocument: usePaginatedDocument,
         onUpdate: ({ editor: currentEditor }) => {
           const currentLocalImageIds = collectLocalImageIds(currentEditor);
 
@@ -267,7 +436,9 @@ export function useAppEditor({
             }
           }
 
-          const nextValue = normalizeEditorValue(currentEditor.getHTML());
+          const nextValue = normalizeEditorValue(
+            normalizeEditorHtml(serializeVisualPageHtml(currentEditor.getHTML())),
+          );
           lastKnownValueRef.current = nextValue;
           onChange?.(nextValue);
         },
@@ -275,6 +446,7 @@ export function useAppEditor({
       immediatelyRender: false,
       shouldRerenderOnTransaction: false,
     },
+    [usePaginatedDocument],
   );
 
   const rehydrateLocalImages = useCallback(async () => {
@@ -539,6 +711,7 @@ export function useAppEditor({
   useEffect(() => {
     if (
       !editor ||
+      usePaginatedDocument ||
       paginationMode !== "visual" ||
       pageHeight <= 0 ||
       !pageMargins
@@ -548,9 +721,11 @@ export function useAppEditor({
 
     let frameId = 0;
     let pendingTimerId = 0;
+    let userScrollIdleTimerId = 0;
     let resizeObserver: ResizeObserver | null = null;
     let isRunning = false;
     let suppressScheduling = false;
+    let isUserScrolling = false;
     const pendingImageElements = new WeakSet<HTMLImageElement>();
 
     const pageContentHeight = Math.max(
@@ -559,6 +734,11 @@ export function useAppEditor({
     );
     const pageStride = pageHeight + pageGap;
     const autoPaginationDebounceMs = resolveAutoPaginationDebounceMs();
+    const initialProseMirror = editor.view.dom;
+    const scrollContainer =
+      initialProseMirror instanceof HTMLElement
+        ? findScrollableAncestor(initialProseMirror)
+        : null;
 
     const hasPendingImageLoad = (root: HTMLElement) => {
       const images = Array.from(root.querySelectorAll("img")).filter(
@@ -580,7 +760,7 @@ export function useAppEditor({
 
         const handleImageSettled = () => {
           pendingImageElements.delete(image);
-          scheduleAutoPagination();
+          scheduleAutoPagination("immediate");
         };
 
         pendingImageElements.add(image);
@@ -589,193 +769,341 @@ export function useAppEditor({
       });
     };
 
-    const runAutoPagination = () => {
+    const performAutoPagination = () => {
+      const proseMirror = editor.view.dom;
+
+      if (!(proseMirror instanceof HTMLElement)) {
+        return;
+      }
+
+      const hasActiveImageNodeSelection =
+        editor.state.selection instanceof NodeSelection &&
+        editor.state.selection.node.type.name === "image";
+      const isWithinImageInteractionLock =
+        Date.now() - lastImageInteractionAtRef.current < IMAGE_INTERACTION_LOCK_MS;
+
+      if (hasActiveImageNodeSelection || isWithinImageInteractionLock) {
+        scheduleAutoPagination("immediate");
+        return;
+      }
+
+      if (hasPendingImageLoad(proseMirror)) {
+        subscribeToPendingImages(proseMirror);
+        return;
+      }
+
+      isRunning = true;
+      suppressScheduling = true;
+      let needsFollowUpRun = false;
+
+      try {
+        const scrollAnchor = capturePaginationScrollAnchor(editor, scrollContainer);
+        const selectionPageBefore = resolveSelectionPageIndex(
+          editor,
+          proseMirror,
+          pageStride,
+          zoomLevel,
+        );
+        const originalSelectionState = editor.state.selection;
+        const originalSelectionRange = {
+          from: originalSelectionState.from,
+          to: originalSelectionState.to,
+        };
+        const shouldPreserveAbsoluteSelectionThroughCleanup =
+          hasTrailingAutoPageBreakAtSelection(editor);
+        const originalSelectedImage =
+          originalSelectionState instanceof NodeSelection &&
+          originalSelectionState.node.type.name === "image"
+            ? {
+                imageId:
+                  typeof originalSelectionState.node.attrs.imageId === "string"
+                    ? originalSelectionState.node.attrs.imageId
+                    : null,
+                localImageId:
+                  typeof originalSelectionState.node.attrs.localImageId === "string"
+                    ? originalSelectionState.node.attrs.localImageId
+                    : null,
+                src:
+                  typeof originalSelectionState.node.attrs.src === "string"
+                    ? originalSelectionState.node.attrs.src
+                    : null,
+              }
+            : null;
+        const dirtyStartChildIndex = dirtyStartChildIndexRef.current ?? 0;
+        const dirtyStartPosition = resolveAutoPageBreakCleanupStartPosition(
+          editor,
+          dirtyStartChildIndex,
+          {
+            includePreviousAutoBreak: dirtyNeedsPreviousBreakCleanupRef.current,
+          },
+        );
+        const maxIterations = Math.min(
+          200,
+          Math.max(24, Math.ceil(editor.state.doc.childCount * 2)),
+        );
+        const removedAutoBreaks = removeAutoPageBreaks(editor, dirtyStartPosition);
+        const actionStartChildIndex =
+          editor.state.doc.childCount > 0
+            ? resolveTopLevelChildIndexFromPosition(
+                editor,
+                Math.min(dirtyStartPosition, editor.state.doc.content.size),
+              )
+            : 0;
+
+        if (
+          removedAutoBreaks &&
+          !originalSelectedImage &&
+          !(originalSelectionState instanceof NodeSelection)
+        ) {
+          const maxPositionAfterCleanup = editor.state.doc.content.size;
+          const currentSelectionAfterCleanup = editor.state.selection;
+
+          if (
+            shouldPreserveAbsoluteSelectionThroughCleanup ||
+            currentSelectionAfterCleanup.from < 0 ||
+            currentSelectionAfterCleanup.to > maxPositionAfterCleanup
+          ) {
+            const restoreSelectionTransaction = editor.state.tr.setSelection(
+              TextSelection.between(
+                editor.state.doc.resolve(
+                  clampSelection(
+                    shouldPreserveAbsoluteSelectionThroughCleanup
+                      ? originalSelectionRange.from
+                      : currentSelectionAfterCleanup.from,
+                    maxPositionAfterCleanup,
+                  ),
+                ),
+                editor.state.doc.resolve(
+                  clampSelection(
+                    shouldPreserveAbsoluteSelectionThroughCleanup
+                      ? originalSelectionRange.to
+                      : currentSelectionAfterCleanup.to,
+                    maxPositionAfterCleanup,
+                  ),
+                ),
+              ),
+            );
+            editor.view.dispatch(restoreSelectionTransaction);
+          }
+        }
+
+        let iterations = 0;
+
+        while (iterations < maxIterations) {
+          const currentProseMirror = editor.view.dom;
+          if (!(currentProseMirror instanceof HTMLElement)) {
+            return;
+          }
+
+          const pageBreakActions = resolveAutoPageBreakActions({
+            editor,
+            proseMirror: currentProseMirror,
+            pageContentHeight,
+            pageStride,
+            zoomLevel,
+            startChildIndex: actionStartChildIndex,
+          });
+
+          const nextAction = pageBreakActions[0];
+          if (!nextAction) {
+            break;
+          }
+
+          if (nextAction.type === "before") {
+            const inserted = insertPageBreakBeforeBlock(editor, nextAction.position, {
+              auto: true,
+            }, {
+              preserveSelection: true,
+            });
+
+            if (!inserted) {
+              break;
+            }
+          } else if (nextAction.type === "list-item") {
+            const inserted = splitListBlockBeforeItemAndInsertPageBreak(
+              editor,
+              nextAction.listPosition,
+              nextAction.itemPosition,
+              {
+                auto: true,
+                mergeOnRemove: true,
+              },
+              {
+                preserveSelection: true,
+              },
+            );
+
+            if (!inserted) {
+              break;
+            }
+          } else {
+            const inserted = splitTextBlockAtPositionAndInsertPageBreak(
+              editor,
+              nextAction.position,
+              {
+                auto: true,
+                mergeOnRemove: true,
+              },
+              {
+                preserveSelection: true,
+              },
+            );
+
+            if (!inserted) {
+              break;
+            }
+          }
+
+          const repaginatedProseMirror = editor.view.dom;
+          if (repaginatedProseMirror instanceof HTMLElement) {
+            syncAutoPageBreakSpacerHeights(
+              editor,
+              repaginatedProseMirror,
+              pageStride,
+              pageContentHeight,
+            );
+          }
+
+          iterations += 1;
+        }
+
+        const finalProseMirror = editor.view.dom;
+        if (finalProseMirror instanceof HTMLElement) {
+          syncAutoPageBreakSpacerHeights(
+            editor,
+            finalProseMirror,
+            pageStride,
+            pageContentHeight,
+          );
+          const maxPosition = editor.state.doc.content.size;
+          const nextFrom = clampSelection(originalSelectionRange.from, maxPosition);
+          const nextTo = clampSelection(originalSelectionRange.to, maxPosition);
+          const currentSelection = editor.state.selection;
+
+          if (originalSelectedImage || originalSelectionState instanceof NodeSelection) {
+            const resolvedImagePosition = findImagePositionByIdentity(
+              editor,
+              originalSelectedImage,
+            );
+            const resolvedSelectionPosition =
+              typeof resolvedImagePosition === "number" &&
+              editor.state.doc.nodeAt(resolvedImagePosition)?.type.name === "image"
+                ? resolvedImagePosition
+                : nextFrom;
+
+            if (
+              currentSelection.from !== resolvedSelectionPosition ||
+              currentSelection.to !== resolvedSelectionPosition
+            ) {
+              const restoredSelection = NodeSelection.create(
+                editor.state.doc,
+                resolvedSelectionPosition,
+              );
+              const selectionTransaction = editor.state.tr.setSelection(restoredSelection);
+              editor.view.dispatch(selectionTransaction);
+            }
+          } else if (
+            currentSelection.from < 0 ||
+            currentSelection.to > maxPosition
+          ) {
+            const selectionTransaction = editor.state.tr.setSelection(
+              TextSelection.create(editor.state.doc, nextFrom, nextTo),
+            );
+            editor.view.dispatch(selectionTransaction);
+          }
+
+          finalProseMirror.dispatchEvent(
+            new CustomEvent("app-editor-pagination-updated", { bubbles: true }),
+          );
+          const selectionPageAfter = resolveSelectionPageIndex(
+            editor,
+            finalProseMirror,
+            pageStride,
+            zoomLevel,
+          );
+          const movedSelectionForwardAcrossPages =
+            selectionPageBefore !== null &&
+            selectionPageAfter !== null &&
+            selectionPageAfter > selectionPageBefore;
+
+          if (movedSelectionForwardAcrossPages) {
+            scrollSelectionIntoViewWithinContainer(
+              editor,
+              scrollContainer,
+              Math.max(24, pageMargins.top * Math.max(0.1, zoomLevel)),
+            );
+          } else {
+            restorePaginationScrollAnchor(editor, scrollContainer, scrollAnchor);
+          }
+
+          needsFollowUpRun =
+            resolveAutoPageBreakActions({
+              editor,
+              proseMirror: finalProseMirror,
+              pageContentHeight,
+              pageStride,
+              zoomLevel,
+              startChildIndex: actionStartChildIndex,
+            }).length > 0;
+          dirtyStartChildIndexRef.current = null;
+          dirtyNeedsPreviousBreakCleanupRef.current = false;
+        }
+      } finally {
+        isRunning = false;
+        suppressScheduling = false;
+        if (needsFollowUpRun) {
+          scheduleAutoPagination(isUserScrolling ? "deferred" : "immediate");
+        }
+      }
+    };
+
+    const runAutoPagination = (priority: "immediate" | "deferred" = "deferred") => {
       if (isRunning || suppressScheduling) {
         return;
       }
 
+      if (priority === "immediate") {
+        window.cancelAnimationFrame(frameId);
+        frameId = window.requestAnimationFrame(() => {
+          frameId = 0;
+          performAutoPagination();
+        });
+        return;
+      }
+
       frameId = window.requestAnimationFrame(() => {
-        const proseMirror = editor.view.dom;
-
-        if (!(proseMirror instanceof HTMLElement)) {
-          return;
-        }
-
-        const hasActiveImageNodeSelection =
-          editor.state.selection instanceof NodeSelection &&
-          editor.state.selection.node.type.name === "image";
-        const isWithinImageInteractionLock =
-          Date.now() - lastImageInteractionAtRef.current < IMAGE_INTERACTION_LOCK_MS;
-
-        if (hasActiveImageNodeSelection || isWithinImageInteractionLock) {
-          scheduleAutoPagination();
-          return;
-        }
-
-        if (hasPendingImageLoad(proseMirror)) {
-          subscribeToPendingImages(proseMirror);
-          return;
-        }
-
-        isRunning = true;
-        suppressScheduling = true;
-        let needsFollowUpRun = false;
-
-        try {
-          const originalSelectionState = editor.state.selection;
-          const originalSelectionRange = {
-            from: originalSelectionState.from,
-            to: originalSelectionState.to,
-          };
-          const originalSelectedImage =
-            originalSelectionState instanceof NodeSelection &&
-            originalSelectionState.node.type.name === "image"
-              ? {
-                  imageId:
-                    typeof originalSelectionState.node.attrs.imageId === "string"
-                      ? originalSelectionState.node.attrs.imageId
-                      : null,
-                  localImageId:
-                    typeof originalSelectionState.node.attrs.localImageId === "string"
-                      ? originalSelectionState.node.attrs.localImageId
-                      : null,
-                  src:
-                    typeof originalSelectionState.node.attrs.src === "string"
-                      ? originalSelectionState.node.attrs.src
-                      : null,
-                }
-              : null;
-          const scrollContainer = findScrollableAncestor(proseMirror);
-          const preservedScrollTop = scrollContainer?.scrollTop ?? 0;
-          const preservedScrollLeft = scrollContainer?.scrollLeft ?? 0;
-
-          removeAutoPageBreaks(editor);
-
-          let iterations = 0;
-
-          while (iterations < 12) {
-            const currentProseMirror = editor.view.dom;
-            if (!(currentProseMirror instanceof HTMLElement)) {
-              return;
-            }
-
-            const pageBreakActions = resolveAutoPageBreakActions({
-              editor,
-              proseMirror: currentProseMirror,
-              pageContentHeight,
-              pageStride,
-              zoomLevel,
-            });
-
-            const nextAction = pageBreakActions[0];
-            if (!nextAction) {
-              break;
-            }
-
-            if (nextAction.type === "before") {
-              const inserted = insertPageBreakBeforeBlock(editor, nextAction.position, {
-                auto: true,
-              });
-
-              if (!inserted) {
-                break;
-              }
-            } else {
-              const inserted = splitTextBlockAtPositionAndInsertPageBreak(
-                editor,
-                nextAction.position,
-                {
-                  auto: true,
-                  mergeOnRemove: true,
-                },
-                {
-                  preserveSelection: true,
-                },
-              );
-
-              if (!inserted) {
-                break;
-              }
-            }
-
-            const repaginatedProseMirror = editor.view.dom;
-            if (repaginatedProseMirror instanceof HTMLElement) {
-              syncAutoPageBreakSpacerHeights(editor, repaginatedProseMirror, pageStride);
-            }
-
-            iterations += 1;
-          }
-
-          const finalProseMirror = editor.view.dom;
-          if (finalProseMirror instanceof HTMLElement) {
-            syncAutoPageBreakSpacerHeights(editor, finalProseMirror, pageStride);
-            const maxPosition = editor.state.doc.content.size;
-            const nextFrom = clampSelection(originalSelectionRange.from, maxPosition);
-            const nextTo = clampSelection(originalSelectionRange.to, maxPosition);
-
-            if (
-              editor.state.selection.from !== nextFrom ||
-              editor.state.selection.to !== nextTo
-            ) {
-              const resolvedImagePosition = findImagePositionByIdentity(
-                editor,
-                originalSelectedImage,
-              );
-              const restoredSelection =
-                typeof resolvedImagePosition === "number" &&
-                editor.state.doc.nodeAt(resolvedImagePosition)?.type.name === "image"
-                  ? NodeSelection.create(editor.state.doc, resolvedImagePosition)
-                  : originalSelectionState instanceof NodeSelection &&
-                      editor.state.doc.nodeAt(nextFrom)
-                    ? NodeSelection.create(editor.state.doc, nextFrom)
-                    : TextSelection.create(editor.state.doc, nextFrom, nextTo);
-              const selectionTransaction = editor.state.tr.setSelection(restoredSelection);
-              editor.view.dispatch(selectionTransaction);
-            }
-
-            finalProseMirror.dispatchEvent(
-              new CustomEvent("app-editor-pagination-updated", { bubbles: true }),
-            );
-
-            if (scrollContainer) {
-              scrollContainer.scrollTop = preservedScrollTop;
-              scrollContainer.scrollLeft = preservedScrollLeft;
-            }
-
-            needsFollowUpRun =
-              resolveAutoPageBreakActions({
-                editor,
-                proseMirror: finalProseMirror,
-                pageContentHeight,
-                pageStride,
-                zoomLevel,
-              }).length > 0;
-          }
-        } finally {
-          window.setTimeout(() => {
-            isRunning = false;
-            suppressScheduling = false;
-            if (needsFollowUpRun) {
-              scheduleAutoPagination();
-            }
-          }, 0);
-        }
+        frameId = 0;
+        performAutoPagination();
       });
     };
 
-    const scheduleAutoPagination = () => {
+    const scheduleAutoPagination = (priority: "immediate" | "deferred" = "deferred") => {
       if (suppressScheduling) {
         return;
       }
 
       window.clearTimeout(pendingTimerId);
+      if (priority === "immediate") {
+        runAutoPagination("immediate");
+        return;
+      }
+
       pendingTimerId = window.setTimeout(() => {
-        runAutoPagination();
+        runAutoPagination("deferred");
       }, autoPaginationDebounceMs);
     };
 
     const handleWindowResize = () => {
+      dirtyStartChildIndexRef.current = 0;
       scheduleAutoPagination();
+    };
+
+    const handleScrollActivity = () => {
+      isUserScrolling = true;
+      window.clearTimeout(userScrollIdleTimerId);
+      userScrollIdleTimerId = window.setTimeout(() => {
+        isUserScrolling = false;
+      }, 140);
     };
 
     if (typeof ResizeObserver !== "undefined") {
@@ -785,18 +1113,96 @@ export function useAppEditor({
       resizeObserver.observe(editor.view.dom);
     }
 
-    editor.on("update", scheduleAutoPagination);
+    scrollContainer?.addEventListener("scroll", handleScrollActivity, { passive: true });
+
+    const handleEditorTransaction = ({
+      transaction,
+    }: {
+      transaction: {
+        docChanged?: boolean;
+        selectionSet?: boolean;
+        getMeta?: (key: string) => unknown;
+        mapping?: {
+          invert: () => {
+            map: (position: number, assoc?: number) => number;
+          };
+        };
+        selection?: { from?: number };
+        before?: {
+          childCount: number;
+          child: (index: number) => { type: { name: string } } | null;
+          content: { size: number };
+          resolve: (position: number) => { index: (depth: number) => number };
+        };
+      };
+    }) => {
+      if (!transaction.docChanged) {
+        return;
+      }
+
+      const affectedPosition =
+        typeof transaction.selection?.from === "number"
+          ? transaction.selection.from
+          : editor.state.selection.from;
+      const nextDirtyStartIndex = resolveTopLevelChildIndexFromPosition(editor, affectedPosition);
+      const previousDoc = transaction.before;
+      const previousDirtyIndex =
+        previousDoc && previousDoc.childCount > 0
+          ? Math.max(
+              0,
+              Math.min(
+                previousDoc.resolve(
+                  Math.max(0, Math.min(affectedPosition, previousDoc.content.size)),
+                ).index(0),
+                previousDoc.childCount - 1,
+              ),
+            )
+          : null;
+      const previousChild =
+        previousDoc && previousDirtyIndex !== null ? previousDoc.child(previousDirtyIndex) : null;
+      const nextChild =
+        editor.state.doc.childCount > 0 ? editor.state.doc.child(nextDirtyStartIndex) : null;
+      const previousSiblingInCurrentDoc =
+        nextDirtyStartIndex > 0 ? editor.state.doc.child(nextDirtyStartIndex - 1) : null;
+      const hasPreviousAutoPageBreakInCurrentDoc =
+        previousSiblingInCurrentDoc?.type.name === "pageBreak" &&
+        previousSiblingInCurrentDoc.attrs.auto === true;
+      const needsPreviousBreakCleanup =
+        previousChild?.type.name !== nextChild?.type.name ||
+        hasPreviousAutoPageBreakInCurrentDoc;
+
+      dirtyStartChildIndexRef.current =
+        dirtyStartChildIndexRef.current === null
+          ? nextDirtyStartIndex
+          : Math.min(dirtyStartChildIndexRef.current, nextDirtyStartIndex);
+      dirtyNeedsPreviousBreakCleanupRef.current =
+        dirtyNeedsPreviousBreakCleanupRef.current || needsPreviousBreakCleanup;
+      const isPasteLikeTransaction =
+        transaction.getMeta?.("uiEvent") === "paste" ||
+        transaction.getMeta?.("paste") === true;
+      const isSimpleTypingTransaction =
+        !isPasteLikeTransaction &&
+        !needsPreviousBreakCleanup &&
+        previousChild?.type.name === nextChild?.type.name &&
+        previousDoc?.childCount === editor.state.doc.childCount;
+
+      scheduleAutoPagination(isSimpleTypingTransaction ? "deferred" : "immediate");
+    };
+
+    editor.on("transaction", handleEditorTransaction);
     window.addEventListener("resize", handleWindowResize);
-    scheduleAutoPagination();
+    scheduleAutoPagination("immediate");
 
     return () => {
       window.clearTimeout(pendingTimerId);
+      window.clearTimeout(userScrollIdleTimerId);
       window.cancelAnimationFrame(frameId);
       resizeObserver?.disconnect();
       window.removeEventListener("resize", handleWindowResize);
-      editor.off("update", scheduleAutoPagination);
+      scrollContainer?.removeEventListener("scroll", handleScrollActivity);
+      editor.off("transaction", handleEditorTransaction);
     };
-  }, [editor, pageGap, pageHeight, pageMargins, paginationMode, zoomLevel]);
+  }, [editor, pageGap, pageHeight, pageMargins, paginationMode, usePaginatedDocument, zoomLevel]);
 
   return {
     editor,

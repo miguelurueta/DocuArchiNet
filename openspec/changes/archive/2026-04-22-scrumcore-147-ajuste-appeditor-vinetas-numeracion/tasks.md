@@ -66,5 +66,7 @@
   directamente de `frame` o `contentFlow` segun el modo del editor.
 - Pruebas ejecutadas:
   - `node .\\node_modules\\vitest\\vitest.mjs --run src/app/Components/UI/AppEditor/AppEditor.test.tsx src/app/Components/UI/AppEditor/AppEditorToolbar.test.tsx src/app/Components/UI/AppEditor/useAppEditor.test.tsx src/app/Components/UI/AppEditor/AppEditor.integration.test.tsx` -> `4 files passed`, `37 tests passed`
+- Validacion adicional ejecutada:
+  - `npm run build` -> falla por residuos ajenos al ticket en `src/modules/gestionCorrespondencia/tests/GestionCorrespondencia.profiling.test.tsx` (`TS1185: Merge conflict marker encountered`)
 - Pendiente:
-  - ejecutar validacion TypeScript completa si se requiere evidencia adicional
+  - resolver residuos ajenos en `GestionCorrespondencia.profiling.test.tsx` para poder cerrar la validacion TypeScript global del repositorio

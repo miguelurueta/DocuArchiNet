@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { saveImageMock, getImageMock } = vi.hoisted(() => ({
@@ -497,7 +497,7 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     expect(editorContent).toBeInTheDocument();
     expect(editorContent?.parentElement).toBe(contentFlow);
     expect(editor).toBeInTheDocument();
-    expect(screen.queryByText(/Pagina \d+ de \d+/i)).not.toBeInTheDocument();
+    expect(screen.getByText("Pagina 1 de 1")).toBeInTheDocument();
   });
 
   it("renderiza el modo continuo sin wrapper intermedio redundante", async () => {
@@ -553,6 +553,41 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     expect(container.querySelectorAll(`.${styles.pageShell}`)).toHaveLength(3);
   });
 
+  it("sincroniza el contador de paginas cuando la repaginacion notifica un update visual", async () => {
+    const { container } = render(
+      <AppEditor
+        label="Contenido con repaginacion notificada"
+        paginationMode="visual"
+        pageFormat="A4"
+        pageOrientation="portrait"
+        pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
+        defaultValue="<p>Documento base</p>"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Documento base")).toBeInTheDocument();
+    });
+
+    const proseMirror = container.querySelector(".ProseMirror");
+    expect(proseMirror).toBeInstanceOf(HTMLElement);
+
+    Object.defineProperty(proseMirror as HTMLElement, "scrollHeight", {
+      configurable: true,
+      value: 2200,
+    });
+
+    act(() => {
+      (proseMirror as HTMLElement).dispatchEvent(
+        new CustomEvent("app-editor-pagination-updated", { bubbles: true }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Pagina 1 de 3")).toBeInTheDocument();
+    });
+  });
+
   it("muestra el contador de pagina actual en modo visual", async () => {
     const { container } = render(
       <AppEditor
@@ -599,6 +634,11 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     await waitFor(() => {
       expect(screen.getByText("Pagina 2 de 3")).toBeInTheDocument();
     });
+
+    expect(container.querySelector(`.${styles.pageCounterBadge}`)).toBeInTheDocument();
+    expect(container.querySelector(`.${styles.editorWrapper}`)?.textContent).not.toContain(
+      "Pagina 2 de 3",
+    );
   });
 
   it("muestra control de zoom solo en modo visual con valor por defecto de 100 por ciento", async () => {
@@ -620,6 +660,52 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     rerender(<AppEditor label="Contenido continuo" defaultValue="<p>Documento con zoom</p>" />);
 
     expect(screen.queryByRole("group", { name: "Control de zoom" })).not.toBeInTheDocument();
+  });
+
+  it("retira contador y estructura paginada al volver de modo visual a continuo", async () => {
+    const { container, rerender } = render(
+      <AppEditor
+        label="Contenido que cambia de modo"
+        paginationMode="visual"
+        pageFormat="A4"
+        pageOrientation="portrait"
+        pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
+        defaultValue="<p>Documento que cambia de modo</p>"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Documento que cambia de modo")).toBeInTheDocument();
+    });
+
+    const proseMirror = container.querySelector(".ProseMirror");
+    expect(proseMirror).toBeInstanceOf(HTMLElement);
+
+    Object.defineProperty(proseMirror as HTMLElement, "scrollHeight", {
+      configurable: true,
+      value: 2200,
+    });
+
+    fireEvent(window, new Event("resize"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Pagina 1 de 3")).toBeInTheDocument();
+    });
+
+    rerender(
+      <AppEditor
+        label="Contenido que cambia de modo"
+        defaultValue="<p>Documento que cambia de modo</p>"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText("Pagina 1 de 3")).not.toBeInTheDocument();
+    });
+
+    expect(container.querySelector(`.${styles.pageStack}`)).not.toBeInTheDocument();
+    expect(container.querySelector(`.${styles.editorWrapper}`)).not.toBeInTheDocument();
+    expect(container.querySelector(`.${styles.editorContent}`)).toBeInTheDocument();
   });
 
   it("respeta limites minimos y maximos del zoom visual", async () => {

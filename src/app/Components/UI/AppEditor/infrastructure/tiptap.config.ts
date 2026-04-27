@@ -5,6 +5,7 @@ type CreateAppEditorConfigOptions = {
   content: string;
   placeholder?: string;
   editable: boolean;
+  paginatedDocument?: boolean;
   onUpdate: NonNullable<UseEditorOptions["onUpdate"]>;
 };
 
@@ -12,10 +13,11 @@ export function createAppEditorConfig({
   content,
   placeholder,
   editable,
+  paginatedDocument = false,
   onUpdate,
 }: CreateAppEditorConfigOptions): UseEditorOptions {
   return {
-    extensions: buildAppEditorExtensions(placeholder),
+    extensions: buildAppEditorExtensions(placeholder, { paginatedDocument }),
     content,
     editable,
     editorProps: {

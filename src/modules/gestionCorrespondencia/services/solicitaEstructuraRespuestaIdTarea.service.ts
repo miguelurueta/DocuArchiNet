@@ -14,5 +14,19 @@ export const getSolicitaEstructuraRespuestaIdTarea = async (
     },
   );
 
+  if (import.meta.env.MODE !== "production") {
+    const anyData = data as any;
+    const success = anyData?.success ?? anyData?.Success;
+    const payload = anyData?.data ?? anyData?.Data;
+    const size = Array.isArray(payload) ? payload.length : payload ? 1 : 0;
+
+    console.groupCollapsed(
+      `[gestion-correspondencia] estructura-respuesta idTareaWf=${idTareaWf} success=${String(success)} items=${size}`,
+    );
+    console.log("endpoint:", SOLICITA_ESTRUCTURA_RESPUESTA_ID_TAREA_ENDPOINT);
+    console.log("raw response:", data);
+    console.groupEnd();
+  }
+
   return data;
 };

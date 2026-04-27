@@ -1,8 +1,10 @@
-import { LeftOutlined } from "@ant-design/icons";
+import { LeftOutlined, LoadingOutlined, ToolOutlined } from "@ant-design/icons";
 import { cloneElement, isValidElement } from "react";
 import type { ReactElement, ReactNode } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppButton } from "../../../app/Components/UI/AppButton";
+import { AppLoadingState } from "../../../app/Components/UI/AppLoadingState";
 import { useEstructuraRespuestaIdTarea } from "../hooks/useEstructuraRespuestaIdTarea";
 import GestionCorrespondenciaRoutePage from "../pages/GestionCorrespondenciaRoutePage";
 import styles from "../style/GestionCorrespondenciaRoute.module.css";
@@ -11,7 +13,7 @@ interface GestionCorrespondenciaRouteProps {
   detailContent?: ReactNode;
 }
 
-type DetailState = "loading" | "ready" | "blocked-empty" | "blocked-error" | "blocked-invalid-id";
+type DetailState = "loading" | "ready" | "blocked-empty";
 type DetailContentContextProps = {
   idTareaWf?: number;
   detailState?: DetailState;
@@ -31,19 +33,25 @@ export default function GestionCorrespondenciaRoute({
     loading,
     error,
     isEmpty,
+    isEmptyLatched,
+    resolved,
   } = useEstructuraRespuestaIdTarea(hasDetail && hasValidId ? parsedId : undefined);
+
+  const shouldAutoClose =
+    hasDetail && (!hasValidId || (!loading && Boolean(error)));
+
+  useEffect(() => {
+    if (!shouldAutoClose) return;
+    navigate("/dashboard/gestion-correspondencia", { replace: true });
+  }, [navigate, shouldAutoClose]);
 
   const detailState: DetailState = !hasDetail
     ? "ready"
-    : !hasValidId
-      ? "blocked-invalid-id"
-      : loading
-        ? "loading"
-        : error
-          ? "blocked-error"
-          : isEmpty
-            ? "blocked-empty"
-            : "ready";
+    : loading || !resolved
+      ? "loading"
+      : (isEmpty || isEmptyLatched)
+        ? "blocked-empty"
+        : "ready";
 
   const isReady = detailState === "ready";
   const detailContentWithContext =
@@ -57,12 +65,9 @@ export default function GestionCorrespondenciaRoute({
         )
       : null;
 
-  const blockedMessage =
-    detailState === "blocked-invalid-id"
-      ? "No se pudo resolver una tarea valida para cargar la gestion de respuesta."
-      : detailState === "blocked-error"
-        ? "No fue posible consultar la estructura de la tarea. Vuelve a la bandeja para reintentar."
-        : "No existe estructura disponible para esta tarea de gestion respuesta.";
+  const blockedMessage = hasValidId
+    ? `No existe estructura disponible para la tarea (IdTareaWf: ${parsedId}).`
+    : "No existe estructura disponible para esta tarea de gestion respuesta.";
 
   const metadata = [
     { label: "Radicado", value: loading ? "..." : (isReady ? (estrucTuraRespuesta?.Radicado ?? "-") : "-") },
@@ -115,15 +120,30 @@ export default function GestionCorrespondenciaRoute({
             </div>
           </header>
 
-          <div className={styles.detailBody}>
+          <div
+            className={styles.detailBody}
+            data-detail-state={detailState}
+            data-estructura-loading={loading ? "true" : "false"}
+            data-estructura-resolved={resolved ? "true" : "false"}
+            data-estructura-empty={isEmpty ? "true" : "false"}
+            data-estructura-error={error ? "true" : "false"}
+          >
             {isReady ? (
               detailContentWithContext
             ) : detailState === "loading" ? (
-              <div className={styles.blockedState} data-testid="gestion-correspondencia-loading-state">
-                <h3 className={styles.blockedTitle}>Cargando estructura de la tarea</h3>
-                <p className={styles.blockedCopy}>
-                  Espera un momento mientras validamos la informacion de la gestion respuesta.
-                </p>
+              <div className={styles.loadingState} data-testid="gestion-correspondencia-loading-state">
+                <AppLoadingState
+                  loading={detailState === "loading"}
+                  delayMs={500}
+                  title="Cargando estructura de la tarea"
+                  message="Validando información…"
+                  icon={
+                    <>
+                      <LoadingOutlined spin />
+                      <ToolOutlined style={{ marginLeft: 8 }} />
+                    </>
+                  }
+                />
               </div>
             ) : (
               <div className={styles.blockedState} data-testid="gestion-correspondencia-blocked-state">
