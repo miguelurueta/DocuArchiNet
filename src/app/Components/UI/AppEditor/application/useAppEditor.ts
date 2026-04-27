@@ -1069,6 +1069,20 @@ export function useAppEditor({
     let suppressScheduling = false;
     let isUserScrolling = false;
     const pendingImageElements = new WeakSet<HTMLImageElement>();
+
+    const observeProseMirrorBlocks = (root: HTMLElement) => {
+      if (!blockResizeObserver) {
+        return;
+      }
+
+      Array.from(root.children).forEach((child) => {
+        if (!(child instanceof HTMLElement)) {
+          return;
+        }
+
+        blockResizeObserver.observe(child);
+      });
+    };
     const pageContentHeight = resolvePageContentHeight(pageHeight, pageMargins);
     const pageStride = pageHeight + pageGap;
     const paginationDebounceMs = resolveAutoPaginationDebounceMs();
@@ -1313,6 +1327,7 @@ export function useAppEditor({
     let pendingTimerId = 0;
     let userScrollIdleTimerId = 0;
     let resizeObserver: ResizeObserver | null = null;
+    let blockResizeObserver: ResizeObserver | null = null;
     let isRunning = false;
     let suppressScheduling = false;
     let isUserScrolling = false;
@@ -1552,6 +1567,7 @@ export function useAppEditor({
               pageStride,
               pageContentHeight,
             );
+            observeProseMirrorBlocks(repaginatedProseMirror);
           }
 
           iterations += 1;
@@ -1559,6 +1575,7 @@ export function useAppEditor({
 
         const finalProseMirror = editor.view.dom;
         if (finalProseMirror instanceof HTMLElement) {
+          observeProseMirrorBlocks(finalProseMirror);
           syncAutoPageBreakSpacerHeights(
             editor,
             finalProseMirror,
@@ -1703,6 +1720,52 @@ export function useAppEditor({
       resizeObserver.observe(editor.view.dom);
     }
 
+    if (typeof ResizeObserver !== "undefined") {
+      blockResizeObserver = new ResizeObserver((entries) => {
+        if (suppressScheduling || isRunning) {
+          return;
+        }
+
+        const root = editor.view.dom;
+        if (!(root instanceof HTMLElement)) {
+          return;
+        }
+
+        const children = Array.from(root.children);
+        let minDirtyIndex: number | null = null;
+
+        entries.forEach((entry) => {
+          const target = entry.target;
+          if (!(target instanceof HTMLElement)) {
+            return;
+          }
+
+          const index = children.indexOf(target);
+          if (index < 0) {
+            return;
+          }
+
+          minDirtyIndex = minDirtyIndex === null ? index : Math.min(minDirtyIndex, index);
+        });
+
+        if (minDirtyIndex === null) {
+          dirtyStartChildIndexRef.current = 0;
+        } else {
+          dirtyStartChildIndexRef.current =
+            dirtyStartChildIndexRef.current === null
+              ? minDirtyIndex
+              : Math.min(dirtyStartChildIndexRef.current, minDirtyIndex);
+        }
+
+        scheduleAutoPagination("deferred");
+      });
+
+      const root = editor.view.dom;
+      if (root instanceof HTMLElement) {
+        observeProseMirrorBlocks(root);
+      }
+    }
+
     scrollContainer?.addEventListener("scroll", handleScrollActivity, { passive: true });
 
     const handleEditorTransaction = ({
@@ -1734,7 +1797,7 @@ export function useAppEditor({
         typeof transaction.selection?.from === "number"
           ? transaction.selection.from
           : editor.state.selection.from;
-      const nextDirtyStartIndex = resolveTopLevelChildIndexFromPosition(editor, affectedPosition);
+      const resolvedDirtyIndex = resolveTopLevelChildIndexFromPosition(editor, affectedPosition);
       const previousDoc = transaction.before;
       const previousDirtyIndex =
         previousDoc && previousDoc.childCount > 0
@@ -1753,10 +1816,14 @@ export function useAppEditor({
       const nextChild =
         editor.state.doc.childCount > 0 ? editor.state.doc.child(nextDirtyStartIndex) : null;
       const previousSiblingInCurrentDoc =
-        nextDirtyStartIndex > 0 ? editor.state.doc.child(nextDirtyStartIndex - 1) : null;
+        resolvedDirtyIndex > 0 ? editor.state.doc.child(resolvedDirtyIndex - 1) : null;
       const hasPreviousAutoPageBreakInCurrentDoc =
         previousSiblingInCurrentDoc?.type.name === "pageBreak" &&
         previousSiblingInCurrentDoc.attrs.auto === true;
+      const nextDirtyStartIndex = Math.max(
+        0,
+        resolvedDirtyIndex - (hasPreviousAutoPageBreakInCurrentDoc ? 2 : 1),
+      );
       const needsPreviousBreakCleanup =
         previousChild?.type.name !== nextChild?.type.name ||
         hasPreviousAutoPageBreakInCurrentDoc;
@@ -1776,6 +1843,11 @@ export function useAppEditor({
         previousChild?.type.name === nextChild?.type.name &&
         previousDoc?.childCount === editor.state.doc.childCount;
 
+      const root = editor.view.dom;
+      if (root instanceof HTMLElement) {
+        observeProseMirrorBlocks(root);
+      }
+
       scheduleAutoPagination(isSimpleTypingTransaction ? "deferred" : "immediate");
     };
 
@@ -1788,6 +1860,7 @@ export function useAppEditor({
       window.clearTimeout(userScrollIdleTimerId);
       window.cancelAnimationFrame(frameId);
       resizeObserver?.disconnect();
+      blockResizeObserver?.disconnect();
       window.removeEventListener("resize", handleWindowResize);
       scrollContainer?.removeEventListener("scroll", handleScrollActivity);
       editor.off("transaction", handleEditorTransaction);

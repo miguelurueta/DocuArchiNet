@@ -23,6 +23,40 @@ export type AutoPageBreakAction =
       position: number;
     };
 
+type BlockLayoutKind =
+  | "text-divisible"
+  | "list-structured"
+  | "atomic-indivisible"
+  | "generic-block";
+
+function resolveBlockLayoutKind(nodeTypeName: string, isTextblock: boolean): BlockLayoutKind {
+  if (nodeTypeName === "bulletList" || nodeTypeName === "orderedList" || nodeTypeName === "taskList") {
+    return "list-structured";
+  }
+
+  if (nodeTypeName === "image") {
+    return "atomic-indivisible";
+  }
+
+  if (isTextblock) {
+    return "text-divisible";
+  }
+
+  return "generic-block";
+}
+
+function getPositionedActionPosition(action: AutoPageBreakAction | undefined) {
+  if (!action) {
+    return null;
+  }
+
+  if (action.type === "list-item") {
+    return action.itemPosition;
+  }
+
+  return action.position;
+}
+
 function resolveBlockPosition(editor: Editor, childIndex: number) {
   let blockPosition = 0;
 
@@ -48,6 +82,10 @@ function resolveBlockPosition(editor: Editor, childIndex: number) {
   }
 
   return null;
+}
+
+function resolveTopLevelBlockPosition(editor: Editor, childIndex: number) {
+  return resolveBlockPosition(editor, childIndex);
 }
 
 export function resolveTopLevelBlockStartPosition(editor: Editor, childIndex: number) {
@@ -192,6 +230,36 @@ function resolveContentPageIndex(
     0,
     Math.floor((offset + nonContentHeight + PAGE_BOUNDARY_TOLERANCE) / pageStride),
   );
+}
+
+function resolveSplitPositionFromDomText({
+  // NOTE: This is an optional fast-path. When it can't be resolved safely,
+  // we fall back to the binary-search based approach using coordsAtPos.
+  // Keeping this conservative prevents incorrect splits.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  editor,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  block,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  proseMirrorRect,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  targetBoundary,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  minPosition,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  maxPosition,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  zoomLevel,
+}: {
+  editor: Editor;
+  block: HTMLElement;
+  proseMirrorRect: DOMRect;
+  targetBoundary: number;
+  minPosition: number;
+  maxPosition: number;
+  zoomLevel: number;
+}) {
+  return null as number | null;
 }
 
 function resolveSplitPositionForBoundary({
