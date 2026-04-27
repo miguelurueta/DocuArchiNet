@@ -1,5 +1,14 @@
 #!/usr/bin/env node
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { transitionJiraIssue, addJiraComment } from "./lib/jiraClient.js";
+import { loadEnvFile } from "./lib/loadEnvFile.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(__dirname, "..");
+
+// Allow running from a plain shell by loading .env.jira (gitignored).
+loadEnvFile({ baseDir: repoRoot, filename: ".env.jira" });
 
 const usage = () => {
   // eslint-disable-next-line no-console
