@@ -54,6 +54,7 @@ export type AppEditorPdfProps = AppEditorProps & {
   defaultActivePage?: number;
   onActivePageChange?: (page: number) => void;
   onPageContextChange?: (context: AppEditorPdfPageContext) => void;
+  showPageBreakAction?: boolean;
   visualGuides?: AppEditorPdfVisualGuides;
   onMetricsChange?: (metrics: AppEditorPdfVisualMetrics) => void;
 };

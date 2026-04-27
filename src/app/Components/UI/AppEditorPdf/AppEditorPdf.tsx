@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import { AppEditor } from "../AppEditor";
+import { AppEditorPdfPageBreakAction } from "./AppEditorPdfPageBreakAction";
 import type {
   AppEditorPdfPageContext,
   AppEditorPdfPageMargins,
@@ -93,10 +94,12 @@ export function AppEditorPdf(props: AppEditorPdfProps) {
     defaultActivePage = 1,
     onActivePageChange,
     onPageContextChange,
+    showPageBreakAction = false,
     visualGuides,
     onMetricsChange,
     zoomLevel,
     defaultZoomLevel = 1,
+    toolbarActions,
     "aria-label": ariaLabel,
     ...rest
   } = props;
@@ -117,6 +120,9 @@ export function AppEditorPdf(props: AppEditorPdfProps) {
   const fallbackTotalPages = Math.max(1, Math.floor(totalPages));
   const [resolvedPageContext, setResolvedPageContext] =
     useState<AppEditorPdfPageContext | null>(null);
+  const [insertPageBreakCommand, setInsertPageBreakCommand] = useState<
+    (() => boolean) | null
+  >(null);
   const resolvedTotalPages =
     paginationMode === "visual" && resolvedPageContext
       ? Math.max(1, Math.floor(resolvedPageContext.totalPages))
@@ -152,6 +158,11 @@ export function AppEditorPdf(props: AppEditorPdfProps) {
       setResolvedPageContext(null);
     }
   }, [paginationMode]);
+  useEffect(() => {
+    if (!showPageBreakAction) {
+      setInsertPageBreakCommand(null);
+    }
+  }, [showPageBreakAction]);
 
   const metrics = useMemo<AppEditorPdfVisualMetrics>(() => {
     const contentWidth = Math.max(
@@ -211,6 +222,35 @@ export function AppEditorPdf(props: AppEditorPdfProps) {
     },
     [onPageContextChange],
   );
+  const handlePageBreakCommandReady = useCallback(
+    (command: (() => boolean) | null) => {
+      setInsertPageBreakCommand(command ? () => command : null);
+    },
+    [],
+  );
+  const composedToolbarActions = useMemo(() => {
+    if (!showPageBreakAction) {
+      return toolbarActions;
+    }
+
+    const pageBreakAction = (
+      <AppEditorPdfPageBreakAction
+        disabled={!insertPageBreakCommand}
+        onInsertPageBreak={() => insertPageBreakCommand?.() ?? false}
+      />
+    );
+
+    if (!toolbarActions) {
+      return pageBreakAction;
+    }
+
+    return (
+      <>
+        {toolbarActions}
+        {pageBreakAction}
+      </>
+    );
+  }, [insertPageBreakCommand, showPageBreakAction, toolbarActions]);
 
   const handleNavigateToPage = useCallback(
     (nextPage: number) => {
@@ -246,8 +286,10 @@ export function AppEditorPdf(props: AppEditorPdfProps) {
         zoomLevel={zoomLevel}
         defaultZoomLevel={defaultZoomLevel}
         onPageContextChange={handlePageContextChange}
+        onPageBreakCommandReady={handlePageBreakCommandReady}
         aria-label={resolvedAriaLabel}
         className={joinClassNames(styles.root, className)}
+        toolbarActions={composedToolbarActions}
       />
       {paginationMode === "visual" && guidesConfig.enabled ? (
         <div className={styles.guides} aria-hidden="true">

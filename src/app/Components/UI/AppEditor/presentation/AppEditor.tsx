@@ -127,6 +127,7 @@ export function AppEditor({
   maxZoomLevel = DEFAULT_MAX_ZOOM_LEVEL,
   onZoomChange,
   onPageContextChange,
+  onPageBreakCommandReady,
   "aria-label": ariaLabel,
 }: AppEditorProps) {
   const resolvedPageMarginsTop = pageMargins?.top ?? DEFAULT_PAGE_MARGINS.top;
@@ -231,6 +232,26 @@ export function AppEditor({
     onPageContextChange,
     totalPages,
   ]);
+  useEffect(() => {
+    if (!isVisualPagination) {
+      onPageBreakCommandReady?.(null);
+      return;
+    }
+
+    const insertPageBreak = () => {
+      if (!editor) {
+        return false;
+      }
+
+      return editor.commands.insertPageBreak();
+    };
+
+    onPageBreakCommandReady?.(insertPageBreak);
+
+    return () => {
+      onPageBreakCommandReady?.(null);
+    };
+  }, [editor, isVisualPagination, onPageBreakCommandReady]);
   const sheetHeightValue =
     totalPages * paginationMetrics.pageHeightValue +
     Math.max(0, totalPages - 1) * paginationMetrics.pageGapValue;

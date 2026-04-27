@@ -37,7 +37,7 @@ vi.mock("../../../../app/Components/UI/AppUpload/AppUpload", () => ({
 }));
 
 describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-05-FE]", () => {
-  it("renderiza AppEditorPdf como superficie principal del contenedor", async () => {
+  it("[SPEC:APP-APPEDITORPDF-09-FE] renderiza AppEditorPdf como superficie principal del contenedor", async () => {
     const { container } = render(<GestionRespuestaMainTabContent />);
 
     expect(screen.queryByText(/Aqui se renderizara el editor de contenido/i)).not.toBeInTheDocument();
@@ -57,6 +57,7 @@ describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-05-FE]", () => {
     ).toBeInTheDocument();
     expect(screen.getByTestId("editor-page-indicator")).toHaveTextContent("Pagina 1 de 1");
     expect(screen.getByTestId("editor-zoom-indicator")).toHaveTextContent("Zoom 100%");
+    expect(screen.getByTestId("app-editor-pdf-page-break-action")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByTestId("editor-page-source")).toHaveTextContent(/Contexto (scroll|cursor)/);
     });
