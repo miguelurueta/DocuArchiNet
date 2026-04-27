@@ -36,31 +36,17 @@ vi.mock("../../../../app/Components/UI/AppUpload/AppUpload", () => ({
   ),
 }));
 
-describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-05-FE]", () => {
-  it("[SPEC:APP-APPEDITORPDF-09-FE] renderiza AppEditorPdf como superficie principal del contenedor", async () => {
+describe("GestionRespuestaMainTabContent", () => {
+  it("renderiza el editor principal dentro del contenedor", async () => {
     const { container } = render(<GestionRespuestaMainTabContent />);
 
     expect(screen.queryByText(/Aqui se renderizara el editor de contenido/i)).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Editor principal de respuesta")).toHaveAttribute(
-      "data-editor-shell",
-      "neutral",
-    );
 
     await waitFor(() => {
-      expect(
-        screen.getByLabelText("Contenido del editor principal de respuesta"),
-      ).toBeInTheDocument();
+      expect(screen.getByLabelText("Contenido del editor principal de respuesta")).toBeInTheDocument();
     });
 
-    expect(
-      container.querySelector('[data-pagination-mode="visual"]'),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("editor-page-indicator")).toHaveTextContent("Pagina 1 de 1");
-    expect(screen.getByTestId("editor-zoom-indicator")).toHaveTextContent("Zoom 100%");
-    expect(screen.getByTestId("app-editor-pdf-page-break-action")).toBeInTheDocument();
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-page-source")).toHaveTextContent(/Contexto (scroll|cursor)/);
-    });
+    expect(container.querySelector('[data-pagination-mode="visual"]')).toBeInTheDocument();
   });
 
   it("mantiene operativo el colapso y expansion del panel lateral", async () => {

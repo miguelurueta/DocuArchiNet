@@ -1,12 +1,10 @@
 import { CarryOutFilled, MailFilled } from "@ant-design/icons";
-import { useCallback, useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useId, useMemo, useState, useSyncExternalStore } from "react";
 import {
-  AppEditorPdf,
-  AppEditorPdfSaveAction,
-  type AppEditorPdfPageContextSource,
-  type AppEditorPdfVisualMetrics,
-  useAppEditorPdfSaveState,
-} from "../../../../app/Components/UI/AppEditorPdf";
+  AppEditor,
+  AppEditorSaveAction,
+  useAppEditorSaveState,
+} from "../../../../app/Components/UI/AppEditor";
 import { AppSteps, type AppStepItem } from "../../../../app/Components/UI/AppSteps";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
 import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
@@ -57,35 +55,16 @@ export function GestionRespuestaMainTabContent(
   const [currentStep, setCurrentStep] = useState(0);
   const [editorValue, setEditorValue] = useState<string>("");
   const [savedEditorValue, setSavedEditorValue] = useState<string>("");
-  const [editorPage, setEditorPage] = useState(1);
-  const [editorPageContextSource, setEditorPageContextSource] =
-    useState<AppEditorPdfPageContextSource>("external");
-  const [editorMetrics, setEditorMetrics] = useState<AppEditorPdfVisualMetrics | null>(
-    null,
-  );
-  const { saveStatus } = useAppEditorPdfSaveState({
+  const { saveStatus } = useAppEditorSaveState({
     currentValue: editorValue,
     savedValue: savedEditorValue,
   });
   const canAdvanceToSend = files.length > 0;
-  const computedTotalPages = Math.max(1, Math.ceil(editorValue.length / 1200));
-  const editorVisualGuides = useMemo(
-    () => ({
-      enabled: true,
-      showPageBoundaries: true,
-      showReadingFrame: true,
-      readingFrameInset: 20,
-    }),
-    [],
-  );
+  // Visual guides are managed by AppEditorPdf; this view intentionally stays on AppEditor.
   const editorPageMargins = useMemo(
     () => ({ top: 96, right: 72, bottom: 96, left: 72 }),
     [],
   );
-
-  useEffect(() => {
-    setEditorPage((previousPage) => Math.min(previousPage, computedTotalPages));
-  }, [computedTotalPages]);
 
   const stepItems = useMemo<AppStepItem[]>(
     () => [
@@ -142,23 +121,8 @@ export function GestionRespuestaMainTabContent(
     },
     [canAdvanceToSend],
   );
-  const handlePageContextChange = useCallback(
-    ({
-      currentPage,
-      source,
-    }: {
-      currentPage: number;
-      source: AppEditorPdfPageContextSource;
-    }) => {
-      setEditorPage((previousPage) =>
-        previousPage === currentPage ? previousPage : currentPage,
-      );
-      setEditorPageContextSource((previousSource) =>
-        previousSource === source ? previousSource : source,
-      );
-    },
-    [],
-  );
+  // NOTE: Page context/metrics tracking is intentionally owned by AppEditorPdf.
+  // This consumer stays decoupled from AppEditorPdf and only uses AppEditor as engine.
 
   return (
     <section className={styles.mainTab} aria-label="Contenido principal de respuesta">
@@ -207,30 +171,12 @@ export function GestionRespuestaMainTabContent(
           data-testid="gestion-respuesta-workbench"
         >
           <GestionRespuestaEditorContainer>
-            <div className={styles.editorMetrics} aria-live="polite">
-              <span data-testid="editor-page-indicator">
-                Pagina {editorMetrics?.currentPage ?? editorPage} de{" "}
-                {editorMetrics?.totalPages ?? computedTotalPages}
-              </span>
-              <span data-testid="editor-zoom-indicator">
-                Zoom {Math.round((editorMetrics?.zoomLevel ?? 1) * 100)}%
-              </span>
-              <span data-testid="editor-page-source">
-                Contexto {editorPageContextSource}
-              </span>
-            </div>
-            <AppEditorPdf
+            <AppEditor
+              label="Editor principal de respuesta"
               value={editorValue}
               onChange={setEditorValue}
-              documentSource="gestion-respuesta-main-tab"
-              totalPages={computedTotalPages}
-              activePage={editorPage}
-              onActivePageChange={setEditorPage}
-              onPageContextChange={handlePageContextChange}
-              onMetricsChange={setEditorMetrics}
-              visualGuides={editorVisualGuides}
               toolbarActions={
-                <AppEditorPdfSaveAction
+                <AppEditorSaveAction
                   iconOnly
                   saveStatus={saveStatus}
                   onSave={() => {
@@ -247,7 +193,6 @@ export function GestionRespuestaMainTabContent(
               pageFormat="A4"
               pageOrientation="portrait"
               pageMargins={editorPageMargins}
-              showPageBreakAction
             />
           </GestionRespuestaEditorContainer>
           <GestionRespuestaRightToolsPanel
