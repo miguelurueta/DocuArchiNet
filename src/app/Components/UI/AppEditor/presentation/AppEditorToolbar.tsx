@@ -287,6 +287,18 @@ function runHistoryCommand(editor: Editor | null, action: "undo" | "redo") {
     return;
   }
 
+  const appHistory = (editor as Editor & {
+    appEditorHistory?: {
+      undo?: () => boolean;
+      redo?: () => boolean;
+    };
+  }).appEditorHistory;
+  const appHistoryCommand = appHistory?.[action];
+  if (typeof appHistoryCommand === "function") {
+    appHistoryCommand();
+    return;
+  }
+
   const commands = (editor.commands ?? {}) as {
     undo?: () => boolean;
     redo?: () => boolean;

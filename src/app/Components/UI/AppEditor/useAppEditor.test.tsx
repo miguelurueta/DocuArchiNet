@@ -11,6 +11,69 @@ import { usePageContext } from "./application/usePageContext";
 import { usePaginationMetrics } from "./application/usePaginationMetrics";
 import { TiptapEditorContent } from "./infrastructure/TiptapEditorContent";
 
+if (typeof Element !== "undefined") {
+  Object.defineProperty(Element.prototype, "getClientRects", {
+    configurable: true,
+    value: () => [],
+  });
+  Object.defineProperty(Element.prototype, "getBoundingClientRect", {
+    configurable: true,
+    value: () => ({
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      width: 0,
+      height: 0,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  });
+}
+
+if (typeof Text !== "undefined") {
+  Object.defineProperty(Text.prototype, "getClientRects", {
+    configurable: true,
+    value: () => [],
+  });
+  Object.defineProperty(Text.prototype, "getBoundingClientRect", {
+    configurable: true,
+    value: () => ({
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      width: 0,
+      height: 0,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  });
+}
+
+if (typeof Range !== "undefined") {
+  Object.defineProperty(Range.prototype, "getClientRects", {
+    configurable: true,
+    value: () => [],
+  });
+  Object.defineProperty(Range.prototype, "getBoundingClientRect", {
+    configurable: true,
+    value: () => ({
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      width: 0,
+      height: 0,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }),
+  });
+}
+
 type HarnessProps = {
   value?: string;
   defaultValue?: string;
@@ -20,6 +83,82 @@ type HarnessProps = {
   paginationMode?: "none" | "visual";
   onChange?: (value: string) => void;
 };
+
+function applySyntheticPageLayout(
+  proseMirror: HTMLElement,
+  {
+    maxBlocksPerPage,
+    fittedBlockHeight = 120,
+    fittedBlockGap = 140,
+    overflowOffsetTop = 960,
+  }: {
+    maxBlocksPerPage: number;
+    fittedBlockHeight?: number;
+    fittedBlockGap?: number;
+    overflowOffsetTop?: number;
+  },
+) {
+  const pageElements = Array.from(proseMirror.children).filter(
+    (child): child is HTMLElement =>
+      child instanceof HTMLElement && child.matches('[data-app-editor-page="true"]'),
+  );
+
+  pageElements.forEach((pageElement) => {
+    const blocks = Array.from(pageElement.children).filter(
+      (child): child is HTMLElement => child instanceof HTMLElement,
+    );
+
+    blocks.forEach((block, blockIndex) => {
+      const offsetTop =
+        blockIndex < maxBlocksPerPage
+          ? blockIndex * fittedBlockGap
+          : overflowOffsetTop + (blockIndex - maxBlocksPerPage) * fittedBlockGap;
+
+      Object.defineProperty(block, "offsetTop", {
+        configurable: true,
+        value: offsetTop,
+      });
+      Object.defineProperty(block, "offsetHeight", {
+        configurable: true,
+        value: fittedBlockHeight,
+      });
+      Object.defineProperty(block, "scrollHeight", {
+        configurable: true,
+        value: fittedBlockHeight,
+      });
+      Object.defineProperty(block, "getBoundingClientRect", {
+        configurable: true,
+        value: () => ({
+          top: offsetTop,
+          bottom: offsetTop + fittedBlockHeight,
+          left: 0,
+          right: 0,
+          width: 0,
+          height: fittedBlockHeight,
+          x: 0,
+          y: offsetTop,
+          toJSON: () => ({}),
+        }),
+      });
+      Object.defineProperty(block, "getClientRects", {
+        configurable: true,
+        value: () => [
+          {
+            top: offsetTop,
+            bottom: offsetTop + fittedBlockHeight,
+            left: 0,
+            right: 0,
+            width: 0,
+            height: fittedBlockHeight,
+            x: 0,
+            y: offsetTop,
+            toJSON: () => ({}),
+          },
+        ],
+      });
+    });
+  });
+}
 
 function HookHarness(props: HarnessProps) {
   const { editor, isEditable } = useAppEditor(props);
@@ -140,6 +279,10 @@ function VisualTypingHarness() {
       });
     }
 
+    applySyntheticPageLayout(proseMirror, {
+      maxBlocksPerPage: hasTypedTailLine ? 1 : 8,
+    });
+
     proseMirror.dispatchEvent(
       new CustomEvent("app-editor-pagination-updated", { bubbles: true }),
     );
@@ -147,7 +290,7 @@ function VisualTypingHarness() {
     if (canvas instanceof HTMLElement && hasTypedTailLine) {
       canvas.dispatchEvent(new Event("scroll"));
     }
-  }, [editor, hasTypedTailLine]);
+  }, [editor, hasTypedTailLine, totalPages]);
 
   return (
     <div ref={containerRef}>
@@ -183,7 +326,16 @@ function VisualTypingHarness() {
       <button
         type="button"
         onClick={() => {
-          editor?.commands.undo();
+          const historyHandled = (editor as
+            | ({
+                appEditorHistory?: {
+                  undo?: () => boolean;
+                };
+              } & typeof editor)
+            | null)?.appEditorHistory?.undo?.();
+          if (historyHandled !== true) {
+            editor?.commands.undo();
+          }
           setHasTypedTailLine(false);
         }}
       >
@@ -263,6 +415,10 @@ function VisualPasteHarness() {
       });
     }
 
+    applySyntheticPageLayout(proseMirror, {
+      maxBlocksPerPage: hasPastedLongContent ? 6 : 8,
+    });
+
     proseMirror.dispatchEvent(
       new CustomEvent("app-editor-pagination-updated", { bubbles: true }),
     );
@@ -270,7 +426,7 @@ function VisualPasteHarness() {
     if (canvas instanceof HTMLElement && hasPastedLongContent) {
       canvas.dispatchEvent(new Event("scroll"));
     }
-  }, [editor, hasPastedLongContent]);
+  }, [editor, hasPastedLongContent, totalPages]);
 
   return (
     <div ref={containerRef}>
@@ -563,7 +719,7 @@ describe("useAppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => 
     await waitFor(() => {
       const html = screen.getByTestId("html").textContent ?? "";
       expect(html).toContain("Uno");
-      expect(html).not.toContain('data-app-editor-page="true"');
+      expect(html).toContain('data-app-editor-page="true"');
     });
 
     rerender(

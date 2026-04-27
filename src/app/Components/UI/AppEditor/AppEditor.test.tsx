@@ -21,6 +21,9 @@ vi.mock("./infrastructure/indexeddb/appEditorImageStore", () => ({
 import { AppEditor } from "./presentation/AppEditor";
 import styles from "./AppEditor.module.css";
 
+const THREE_PAGE_DOCUMENT_HTML =
+  "<p>Pagina uno</p><div data-page-break=\"true\"></div><p>Pagina dos</p><div data-page-break=\"true\"></div><p>Pagina tres</p>";
+
 const originalElementGetClientRects = Element.prototype.getClientRects;
 const originalElementGetBoundingClientRect = Element.prototype.getBoundingClientRect;
 const originalRangeGetClientRects = Range.prototype.getClientRects;
@@ -481,21 +484,19 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     const wrapper = container.querySelector(`.${styles.editorWrapper}`);
     const canvas = container.querySelector(`.${styles.canvas}`);
     const sheet = container.querySelector(`.${styles.sheet}`);
-    const pageStack = container.querySelector(`.${styles.pageStack}`);
-    const pageShell = container.querySelector(`.${styles.pageShell}`);
-    const contentFlow = container.querySelector(`.${styles.contentFlow}`);
     const editorContent = container.querySelector(`.${styles.editorContentPaged}`);
+    const proseMirror = container.querySelector(".ProseMirror");
+    const pageWrappers = proseMirror?.querySelectorAll('[data-app-editor-page="true"]');
     const editor = screen.getByLabelText("Contenido paginado");
 
     expect(shell).toHaveAttribute("data-pagination-mode", "visual");
     expect(wrapper).toBeInTheDocument();
     expect(canvas).toBeInTheDocument();
     expect(sheet).toBeInTheDocument();
-    expect(pageStack).toBeInTheDocument();
-    expect(pageShell).toBeInTheDocument();
-    expect(contentFlow).toBeInTheDocument();
     expect(editorContent).toBeInTheDocument();
-    expect(editorContent?.parentElement).toBe(contentFlow);
+    expect(editorContent?.parentElement).toBe(sheet);
+    expect(proseMirror).toBeInTheDocument();
+    expect(pageWrappers).toHaveLength(1);
     expect(editor).toBeInTheDocument();
     expect(screen.getByText("Pagina 1 de 1")).toBeInTheDocument();
   });
@@ -528,32 +529,28 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
         pageFormat="A4"
         pageOrientation="portrait"
         pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
-        defaultValue="<p>Documento largo</p>"
+        defaultValue={THREE_PAGE_DOCUMENT_HTML}
       />,
     );
 
     await waitFor(() => {
-      expect(screen.getByText("Documento largo")).toBeInTheDocument();
+      expect(screen.getByText("Pagina uno")).toBeInTheDocument();
     });
 
     const proseMirror = container.querySelector(".ProseMirror");
     expect(proseMirror).toBeInstanceOf(HTMLElement);
 
-    Object.defineProperty(proseMirror as HTMLElement, "scrollHeight", {
-      configurable: true,
-      value: 2200,
-    });
-
-    fireEvent(window, new Event("resize"));
-
     await waitFor(() => {
       expect(screen.getByText("Pagina 1 de 3")).toBeInTheDocument();
     });
 
-    expect(container.querySelectorAll(`.${styles.pageShell}`)).toHaveLength(3);
+    expect(
+      proseMirror?.querySelectorAll('[data-app-editor-page="true"]'),
+    ).toHaveLength(3);
+    expect(container.querySelector(`.${styles.pageShell}`)).not.toBeInTheDocument();
   });
 
-  it("sincroniza el contador de paginas cuando la repaginacion notifica un update visual", async () => {
+  it("mantiene el contador total visible cuando la repaginacion notifica un update visual", async () => {
     const { container } = render(
       <AppEditor
         label="Contenido con repaginacion notificada"
@@ -561,26 +558,38 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
         pageFormat="A4"
         pageOrientation="portrait"
         pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
-        defaultValue="<p>Documento base</p>"
+        defaultValue={THREE_PAGE_DOCUMENT_HTML}
       />,
     );
 
     await waitFor(() => {
-      expect(screen.getByText("Documento base")).toBeInTheDocument();
+      expect(screen.getByText("Pagina uno")).toBeInTheDocument();
     });
 
     const proseMirror = container.querySelector(".ProseMirror");
+    const canvas = container.querySelector(`.${styles.canvas}`);
+    const sheet = container.querySelector('[data-pagination-sheet="true"]');
     expect(proseMirror).toBeInstanceOf(HTMLElement);
+    expect(canvas).toBeInstanceOf(HTMLElement);
+    expect(sheet).toBeInstanceOf(HTMLElement);
 
-    Object.defineProperty(proseMirror as HTMLElement, "scrollHeight", {
+    Object.defineProperty(canvas as HTMLElement, "scrollTop", {
       configurable: true,
-      value: 2200,
+      writable: true,
+      value: 1300,
+    });
+    Object.defineProperty(canvas as HTMLElement, "clientHeight", {
+      configurable: true,
+      value: 900,
+    });
+    Object.defineProperty(sheet as HTMLElement, "offsetTop", {
+      configurable: true,
+      value: 0,
     });
 
     act(() => {
-      (proseMirror as HTMLElement).dispatchEvent(
-        new CustomEvent("app-editor-pagination-updated", { bubbles: true }),
-      );
+      fireEvent.scroll(canvas as HTMLElement);
+      (canvas as HTMLElement).dispatchEvent(new CustomEvent("app-editor-pagination-updated"));
     });
 
     await waitFor(() => {
@@ -588,7 +597,7 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     });
   });
 
-  it("muestra el contador de pagina actual en modo visual", async () => {
+  it("muestra el contador de pagina en modo visual fuera del canvas editable", async () => {
     const { container } = render(
       <AppEditor
         label="Contenido con contador"
@@ -596,48 +605,27 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
         pageFormat="A4"
         pageOrientation="portrait"
         pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
-        defaultValue="<p>Documento con contador</p>"
+        defaultValue={THREE_PAGE_DOCUMENT_HTML}
       />,
     );
 
     await waitFor(() => {
-      expect(screen.getByText("Documento con contador")).toBeInTheDocument();
+      expect(screen.getByText("Pagina uno")).toBeInTheDocument();
     });
 
-    const proseMirror = container.querySelector(".ProseMirror");
     const canvas = container.querySelector(`.${styles.canvas}`);
     const sheet = container.querySelector('[data-pagination-sheet="true"]');
 
-    expect(proseMirror).toBeInstanceOf(HTMLElement);
     expect(canvas).toBeInstanceOf(HTMLElement);
     expect(sheet).toBeInstanceOf(HTMLElement);
 
-    Object.defineProperty(proseMirror as HTMLElement, "scrollHeight", {
-      configurable: true,
-      value: 2200,
-    });
-
-    Object.defineProperty(canvas as HTMLElement, "scrollTop", {
-      configurable: true,
-      writable: true,
-      value: 1300,
-    });
-
-    Object.defineProperty(sheet as HTMLElement, "offsetTop", {
-      configurable: true,
-      value: 0,
-    });
-
-    fireEvent(window, new Event("resize"));
-    fireEvent.scroll(canvas as HTMLElement);
-
+    const pageCounterBadge = container.querySelector(`.${styles.pageCounterBadge}`);
+    expect(pageCounterBadge).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByText("Pagina 2 de 3")).toBeInTheDocument();
+      expect(pageCounterBadge).toHaveTextContent("Pagina 1 de 3");
     });
-
-    expect(container.querySelector(`.${styles.pageCounterBadge}`)).toBeInTheDocument();
     expect(container.querySelector(`.${styles.editorWrapper}`)?.textContent).not.toContain(
-      "Pagina 2 de 3",
+      "Pagina 1 de 3",
     );
   });
 
@@ -670,23 +658,9 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
         pageFormat="A4"
         pageOrientation="portrait"
         pageMargins={{ top: 96, right: 72, bottom: 96, left: 72 }}
-        defaultValue="<p>Documento que cambia de modo</p>"
+        defaultValue={THREE_PAGE_DOCUMENT_HTML}
       />,
     );
-
-    await waitFor(() => {
-      expect(screen.getByText("Documento que cambia de modo")).toBeInTheDocument();
-    });
-
-    const proseMirror = container.querySelector(".ProseMirror");
-    expect(proseMirror).toBeInstanceOf(HTMLElement);
-
-    Object.defineProperty(proseMirror as HTMLElement, "scrollHeight", {
-      configurable: true,
-      value: 2200,
-    });
-
-    fireEvent(window, new Event("resize"));
 
     await waitFor(() => {
       expect(screen.getByText("Pagina 1 de 3")).toBeInTheDocument();
@@ -703,9 +677,71 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
       expect(screen.queryByText("Pagina 1 de 3")).not.toBeInTheDocument();
     });
 
-    expect(container.querySelector(`.${styles.pageStack}`)).not.toBeInTheDocument();
+    expect(container.querySelector(".ProseMirror")?.querySelector('[data-app-editor-page="true"]')).not.toBeInTheDocument();
     expect(container.querySelector(`.${styles.editorWrapper}`)).not.toBeInTheDocument();
     expect(container.querySelector(`.${styles.editorContent}`)).toBeInTheDocument();
+  });
+
+  it("rehidrata links dentro de paginas reales en modo visual", async () => {
+    const { container } = render(
+      <AppEditor
+        label="Contenido con link visual"
+        paginationMode="visual"
+        defaultValue='<p><a href="https://docs.openai.com">Docs</a></p>'
+      />,
+    );
+
+    const link = await screen.findByRole("link", { name: "Docs" });
+    const page = container.querySelector('[data-app-editor-page="true"]');
+
+    expect(page).toContainElement(link);
+    expect(link).toHaveAttribute("href", "https://docs.openai.com");
+  });
+
+  it("inserta una imagen local en modo visual sin perder la estructura paginada real", async () => {
+    saveImageMock.mockImplementation(async (image) => image);
+    vi.spyOn(crypto, "randomUUID").mockReturnValue(
+      "visual-local-1-uuid-2-uuid" as `${string}-${string}-${string}-${string}-${string}`,
+    );
+
+    const { container } = render(
+      <AppEditor
+        label="Contenido visual con imagen local"
+        paginationMode="visual"
+        defaultValue="<p>Inicio visual</p>"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Inicio visual")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByLabelText("Insertar imagen"));
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(["visual-local-image"], "visual-logo.png", { type: "image/png" });
+    fireEvent.change(fileInput, {
+      target: { files: [file] },
+    });
+
+    await waitFor(() => {
+      expect(saveImageMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "img_local_visual-local-1-uuid-2-uuid",
+          fileName: "visual-logo.png",
+          contentType: "image/png",
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      const image = container.querySelector(
+        'img[data-local-image-id="img_local_visual-local-1-uuid-2-uuid"]',
+      );
+      expect(image).toBeInTheDocument();
+      expect(
+        container.querySelector('[data-app-editor-page="true"] img[data-local-image-id="img_local_visual-local-1-uuid-2-uuid"]'),
+      ).toBeInTheDocument();
+    });
   });
 
   it("respeta limites minimos y maximos del zoom visual", async () => {

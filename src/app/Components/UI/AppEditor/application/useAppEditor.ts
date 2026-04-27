@@ -10,8 +10,6 @@ import { appEditorImageStore } from "../infrastructure/indexeddb/appEditorImageS
 import type { LocalImage } from "../infrastructure/indexeddb/localImage.types";
 import { normalizeEditorHtml } from "./normalizeEditorHtml";
 import {
-  hasManualPageBreaks,
-  hasVisualPageWrappers,
   serializeVisualPageHtml,
   wrapHtmlInVisualPages,
 } from "./pageDocument";
@@ -33,6 +31,13 @@ const IMAGE_INTERACTION_LOCK_MS = 600;
 
 type PaginationScrollAnchor = {
   viewportOffset: number;
+};
+
+type EditorWithAppHistory = Editor & {
+  appEditorHistory?: {
+    undo?: () => boolean;
+    redo?: () => boolean;
+  };
 };
 
 function resolveAutoPaginationDebounceMs() {
@@ -209,14 +214,7 @@ function syncControlledValue(editor: Editor, nextValue: string) {
   }
 
   const { from, to } = editor.state.selection;
-  const shouldUsePaginatedDocument =
-    hasVisualPageWrappers(editorHtml) ||
-    hasManualPageBreaks(editorHtml) ||
-    hasVisualPageWrappers(nextValue) ||
-    hasManualPageBreaks(nextValue);
-  const editorContent = shouldUsePaginatedDocument
-    ? wrapHtmlInVisualPages(normalizedNextValue)
-    : normalizedNextValue;
+  const editorContent = wrapHtmlInVisualPages(normalizedNextValue);
 
   editor.commands.setContent(editorContent, { emitUpdate: false });
 
@@ -385,6 +383,222 @@ function syncActiveImageIndicator(editor: Editor) {
   );
 }
 
+type PageOverflowMove = {
+  pageIndex: number;
+  overflowStartIndex: number;
+};
+
+function resolvePageNodePosition(editor: Editor, pageIndex: number) {
+  let pagePosition = 0;
+
+  for (let index = 0; index < pageIndex; index += 1) {
+    pagePosition += editor.state.doc.child(index)?.nodeSize ?? 0;
+  }
+
+  return pagePosition;
+}
+
+function resolvePageContentHeight(pageHeight: number, pageMargins: NonNullable<UseAppEditorOptions["pageMargins"]>) {
+  return Math.max(1, pageHeight - pageMargins.top - pageMargins.bottom);
+}
+
+function resolveMeasuredElementHeight(element: HTMLElement) {
+  return Math.max(
+    1,
+    Math.ceil(
+      element.offsetHeight ||
+        element.getBoundingClientRect().height ||
+        element.scrollHeight ||
+        0,
+    ),
+  );
+}
+
+function resolvePageOverflowMove({
+  editor,
+  pageContentHeight,
+}: {
+  editor: Editor;
+  pageContentHeight: number;
+}) {
+  const proseMirror = editor.view.dom;
+  if (!(proseMirror instanceof HTMLElement)) {
+    return null;
+  }
+
+  const pageElements = Array.from(proseMirror.children).filter(
+    (child): child is HTMLElement =>
+      child instanceof HTMLElement && child.matches('[data-app-editor-page="true"]'),
+  );
+
+  for (
+    let pageIndex = 0;
+    pageIndex < Math.min(pageElements.length, editor.state.doc.childCount);
+    pageIndex += 1
+  ) {
+    const pageElement = pageElements[pageIndex];
+    const pagePaddingTop = Number.parseFloat(
+      window.getComputedStyle(pageElement).paddingTop || "0",
+    );
+    const blocks = Array.from(pageElement.children).filter(
+      (child): child is HTMLElement => child instanceof HTMLElement,
+    );
+
+    for (let blockIndex = 0; blockIndex < blocks.length; blockIndex += 1) {
+      const block = blocks[blockIndex];
+      const blockBottom = Math.max(
+        0,
+        Math.ceil(block.offsetTop + resolveMeasuredElementHeight(block) - pagePaddingTop),
+      );
+
+      if (blockBottom <= pageContentHeight + 2) {
+        continue;
+      }
+
+      if (blockIndex === 0) {
+        break;
+      }
+
+      return {
+        pageIndex,
+        overflowStartIndex: blockIndex,
+      } satisfies PageOverflowMove;
+    }
+  }
+
+  return null;
+}
+
+function moveOverflowBlocksToNextPage(editor: Editor, move: PageOverflowMove) {
+  const pageType = editor.state.schema.nodes.page;
+  if (!pageType) {
+    return false;
+  }
+
+  const currentPage = editor.state.doc.child(move.pageIndex);
+  const nextPage =
+    move.pageIndex < editor.state.doc.childCount - 1
+      ? editor.state.doc.child(move.pageIndex + 1)
+      : null;
+
+  if (!currentPage || move.overflowStartIndex <= 0) {
+    return false;
+  }
+
+  let overflowOffset = 0;
+  for (let index = 0; index < move.overflowStartIndex; index += 1) {
+    overflowOffset += currentPage.child(index)?.nodeSize ?? 0;
+  }
+
+  const movedContent = currentPage.content.cut(overflowOffset, currentPage.content.size);
+  if (overflowOffset <= 0 || movedContent.size === 0) {
+    return false;
+  }
+
+  const currentPagePosition = resolvePageNodePosition(editor, move.pageIndex);
+  const nextPagePosition = nextPage
+    ? resolvePageNodePosition(editor, move.pageIndex + 1)
+    : editor.state.doc.content.size;
+  const movedSelectionStart = currentPagePosition + 1 + overflowOffset;
+  const movedSelectionEnd = currentPagePosition + currentPage.content.size;
+  const originalSelection = editor.state.selection;
+  const shouldMoveSelection =
+    originalSelection.from >= movedSelectionStart &&
+    originalSelection.to <= movedSelectionEnd;
+  let transaction = editor.state.tr;
+  const movedContentStart = currentPagePosition + 1 + overflowOffset;
+  const movedContentEnd = currentPagePosition + 1 + currentPage.content.size;
+  const nextPagePositionAfterMove =
+    currentPagePosition + currentPage.nodeSize - movedContent.size;
+  const deleteStepIndex = transaction.steps.length;
+
+  transaction = transaction.delete(movedContentStart, movedContentEnd);
+
+  const insertStepIndex = transaction.steps.length;
+  if (nextPage) {
+    const nextPageContentPosition = transaction.mapping.map(nextPagePosition + 1, 1);
+    transaction = transaction.insert(nextPageContentPosition, movedContent);
+  } else {
+    transaction = transaction.insert(
+      transaction.doc.content.size,
+      pageType.create(currentPage.attrs, movedContent, currentPage.marks),
+    );
+  }
+  transaction.mapping.setMirror(deleteStepIndex, insertStepIndex);
+
+  if (shouldMoveSelection) {
+    const nextSelectionFrom = clampSelection(
+      nextPagePositionAfterMove + 1 + (originalSelection.from - movedSelectionStart),
+      transaction.doc.content.size,
+    );
+    const nextSelectionTo = clampSelection(
+      nextPagePositionAfterMove + 1 + (originalSelection.to - movedSelectionStart),
+      transaction.doc.content.size,
+    );
+
+    transaction = transaction.setSelection(
+      originalSelection instanceof NodeSelection
+        ? NodeSelection.create(transaction.doc, nextSelectionFrom)
+        : nextSelectionFrom === nextSelectionTo
+          ? TextSelection.create(transaction.doc, nextSelectionFrom)
+          : TextSelection.between(
+              transaction.doc.resolve(nextSelectionFrom),
+              transaction.doc.resolve(nextSelectionTo),
+            ),
+    );
+  }
+
+  editor.view.dispatch(
+    transaction
+      .setMeta("addToHistory", false)
+      .setMeta("appEditorPagination", true),
+  );
+  return true;
+}
+
+function isDisposableTrailingPage(page: Editor["state"]["doc"]) {
+  if (page.childCount === 0) {
+    return true;
+  }
+
+  if (page.childCount !== 1) {
+    return false;
+  }
+
+  const onlyChild = page.child(0);
+  return onlyChild.isTextblock && onlyChild.content.size === 0;
+}
+
+function removeDisposableTrailingPages(editor: Editor) {
+  if (editor.state.doc.childCount <= 1) {
+    return false;
+  }
+
+  let firstDisposablePageIndex = editor.state.doc.childCount;
+  for (let pageIndex = editor.state.doc.childCount - 1; pageIndex > 0; pageIndex -= 1) {
+    const page = editor.state.doc.child(pageIndex);
+    if (!isDisposableTrailingPage(page)) {
+      break;
+    }
+
+    firstDisposablePageIndex = pageIndex;
+  }
+
+  if (firstDisposablePageIndex >= editor.state.doc.childCount) {
+    return false;
+  }
+
+  const deleteFrom = resolvePageNodePosition(editor, firstDisposablePageIndex);
+  const deleteTo = editor.state.doc.content.size;
+  editor.view.dispatch(
+    editor.state.tr
+      .delete(deleteFrom, deleteTo)
+      .setMeta("addToHistory", false)
+      .setMeta("appEditorPagination", true),
+  );
+  return true;
+}
+
 export function useAppEditor({
   value,
   defaultValue,
@@ -403,21 +617,22 @@ export function useAppEditor({
   const externalInitialContent = normalizeEditorValue(
     normalizeEditorHtml(serializeVisualPageHtml(externalSourceContent)),
   );
-  const usePaginatedDocument =
-    paginationMode === "visual" &&
-    (hasVisualPageWrappers(externalSourceContent) || hasManualPageBreaks(externalSourceContent));
+  const usePaginatedDocument = paginationMode === "visual";
   const initialContentRef = useRef(
     usePaginatedDocument
       ? wrapHtmlInVisualPages(externalInitialContent)
       : externalInitialContent,
   );
-  const lastKnownValueRef = useRef(initialContentRef.current);
+  const lastKnownValueRef = useRef(externalInitialContent);
   const localImageUrlsRef = useRef(new Map<string, string>());
   const localImageScopeRef = useRef(buildLocalImageScope());
   const localImageSyncTokenRef = useRef(0);
   const lastImageInteractionAtRef = useRef(0);
   const dirtyStartChildIndexRef = useRef<number | null>(null);
   const dirtyNeedsPreviousBreakCleanupRef = useRef(false);
+  const logicalHistoryDoneRef = useRef<string[]>([externalInitialContent]);
+  const logicalHistoryUndoneRef = useRef<string[]>([]);
+  const logicalHistoryApplyingRef = useRef(false);
 
   const editor = useEditor(
     {
@@ -532,6 +747,129 @@ export function useAppEditor({
     editor.view.dispatch(transaction);
   }, [editor]);
 
+  useEffect(() => {
+    if (!editor || !usePaginatedDocument || isControlled) {
+      return undefined;
+    }
+
+    logicalHistoryDoneRef.current = [
+      normalizeEditorValue(
+        normalizeEditorHtml(serializeVisualPageHtml(editor.getHTML())),
+      ),
+    ];
+    logicalHistoryUndoneRef.current = [];
+
+    const handleTransaction = ({
+      transaction,
+    }: {
+      transaction: {
+        docChanged?: boolean;
+        getMeta?: (key: string) => unknown;
+      };
+    }) => {
+      if (!transaction.docChanged) {
+        return;
+      }
+
+      const nextValue = normalizeEditorValue(
+        normalizeEditorHtml(serializeVisualPageHtml(editor.getHTML())),
+      );
+      const currentValue =
+        logicalHistoryDoneRef.current.length > 0
+          ? logicalHistoryDoneRef.current[logicalHistoryDoneRef.current.length - 1]
+          : externalInitialContent;
+
+      if (nextValue === currentValue) {
+        return;
+      }
+
+      if (
+        logicalHistoryApplyingRef.current ||
+        transaction.getMeta?.("appEditorPagination") === true
+      ) {
+        if (logicalHistoryDoneRef.current.length === 0) {
+          logicalHistoryDoneRef.current.push(nextValue);
+        } else {
+          logicalHistoryDoneRef.current[logicalHistoryDoneRef.current.length - 1] = nextValue;
+        }
+        return;
+      }
+
+      logicalHistoryDoneRef.current.push(nextValue);
+      logicalHistoryUndoneRef.current = [];
+    };
+
+    const historyAwareEditor = editor as EditorWithAppHistory;
+    const previousAppHistory = historyAwareEditor.appEditorHistory;
+    const applyHistorySnapshot = (value: string) => {
+      logicalHistoryApplyingRef.current = true;
+
+      try {
+        const applied = editor.commands.setContent(wrapHtmlInVisualPages(value));
+        if (!applied) {
+          return false;
+        }
+
+        editor.commands.setTextSelection(editor.state.doc.content.size);
+        return true;
+      } finally {
+        logicalHistoryApplyingRef.current = false;
+      }
+    };
+    const runLogicalUndo = () => {
+      if (logicalHistoryDoneRef.current.length <= 1) {
+        return false;
+      }
+
+      const currentValue = logicalHistoryDoneRef.current.pop();
+      const previousValue =
+        logicalHistoryDoneRef.current[logicalHistoryDoneRef.current.length - 1];
+      if (!currentValue || !previousValue) {
+        return false;
+      }
+
+      logicalHistoryUndoneRef.current.push(currentValue);
+      return applyHistorySnapshot(previousValue);
+    };
+    const runLogicalRedo = () => {
+      const nextValue = logicalHistoryUndoneRef.current.pop();
+      if (!nextValue) {
+        return false;
+      }
+
+      logicalHistoryDoneRef.current.push(nextValue);
+      return applyHistorySnapshot(nextValue);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) {
+        return;
+      }
+
+      const isUndo = !event.shiftKey && event.key.toLowerCase() === "z";
+      const isRedo =
+        (event.shiftKey && event.key.toLowerCase() === "z") ||
+        event.key.toLowerCase() === "y";
+      const handled = isUndo ? runLogicalUndo() : isRedo ? runLogicalRedo() : false;
+
+      if (handled) {
+        event.preventDefault();
+      }
+    };
+
+    historyAwareEditor.appEditorHistory = {
+      undo: runLogicalUndo,
+      redo: runLogicalRedo,
+    };
+    editor.on("transaction", handleTransaction);
+    editor.view.dom.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      historyAwareEditor.appEditorHistory = previousAppHistory;
+      editor.view.dom.removeEventListener("keydown", handleKeyDown);
+      editor.off("transaction", handleTransaction);
+    };
+  }, [editor, externalInitialContent, isControlled, usePaginatedDocument]);
+
   const insertLocalImage = useCallback(
     async (file: File, width?: string) => {
       if (!editor) {
@@ -609,9 +947,13 @@ export function useAppEditor({
       return;
     }
 
-    syncControlledValue(editor, nextValue);
+    if (usePaginatedDocument) {
+      syncControlledValue(editor, nextValue);
+    } else {
+      editor.commands.setContent(nextValue, { emitUpdate: false });
+    }
     lastKnownValueRef.current = nextValue;
-  }, [editor, isControlled, value]);
+  }, [editor, isControlled, usePaginatedDocument, value]);
 
   useEffect(() => {
     if (!editor) {
@@ -707,6 +1049,254 @@ export function useAppEditor({
       localImageUrlsRef.current.clear();
     };
   }, []);
+
+  useEffect(() => {
+    if (
+      !editor ||
+      !usePaginatedDocument ||
+      paginationMode !== "visual" ||
+      pageHeight <= 0 ||
+      !pageMargins
+    ) {
+      return undefined;
+    }
+
+    let frameId = 0;
+    let pendingTimerId = 0;
+    let userScrollIdleTimerId = 0;
+    let resizeObserver: ResizeObserver | null = null;
+    let isRunning = false;
+    let suppressScheduling = false;
+    let isUserScrolling = false;
+    const pendingImageElements = new WeakSet<HTMLImageElement>();
+    const pageContentHeight = resolvePageContentHeight(pageHeight, pageMargins);
+    const pageStride = pageHeight + pageGap;
+    const paginationDebounceMs = resolveAutoPaginationDebounceMs();
+    const initialProseMirror = editor.view.dom;
+    const scrollContainer =
+      initialProseMirror instanceof HTMLElement
+        ? findScrollableAncestor(initialProseMirror)
+        : null;
+
+    const hasPendingImageLoad = (root: HTMLElement) => {
+      const images = Array.from(root.querySelectorAll("img")).filter(
+        (image): image is HTMLImageElement => image instanceof HTMLImageElement,
+      );
+
+      return images.some((image) => !image.complete || image.naturalWidth === 0);
+    };
+
+    const subscribeToPendingImages = (root: HTMLElement) => {
+      const images = Array.from(root.querySelectorAll("img")).filter(
+        (image): image is HTMLImageElement => image instanceof HTMLImageElement,
+      );
+
+      images.forEach((image) => {
+        if ((image.complete && image.naturalWidth > 0) || pendingImageElements.has(image)) {
+          return;
+        }
+
+        const handleImageSettled = () => {
+          pendingImageElements.delete(image);
+          schedulePagination("immediate");
+        };
+
+        pendingImageElements.add(image);
+        image.addEventListener("load", handleImageSettled, { once: true });
+        image.addEventListener("error", handleImageSettled, { once: true });
+      });
+    };
+
+    const performPagination = () => {
+      const proseMirror = editor.view.dom;
+      if (!(proseMirror instanceof HTMLElement)) {
+        return;
+      }
+
+      const hasActiveImageNodeSelection =
+        editor.state.selection instanceof NodeSelection &&
+        editor.state.selection.node.type.name === "image";
+      const isWithinImageInteractionLock =
+        Date.now() - lastImageInteractionAtRef.current < IMAGE_INTERACTION_LOCK_MS;
+
+      if (hasActiveImageNodeSelection || isWithinImageInteractionLock) {
+        schedulePagination("immediate");
+        return;
+      }
+
+      if (hasPendingImageLoad(proseMirror)) {
+        subscribeToPendingImages(proseMirror);
+        return;
+      }
+
+      isRunning = true;
+      suppressScheduling = true;
+      let needsFollowUpRun = false;
+
+      try {
+        const scrollAnchor = capturePaginationScrollAnchor(editor, scrollContainer);
+        const selectionPageBefore = resolveSelectionPageIndex(
+          editor,
+          proseMirror,
+          pageStride,
+          zoomLevel,
+        );
+        const maxIterations = Math.min(
+          120,
+          Math.max(12, Math.ceil(editor.state.doc.childCount * 3)),
+        );
+        let iterations = 0;
+
+        while (iterations < maxIterations) {
+          if (removeDisposableTrailingPages(editor)) {
+            iterations += 1;
+            continue;
+          }
+
+          const nextMove = resolvePageOverflowMove({
+            editor,
+            pageContentHeight,
+          });
+
+          if (!nextMove || !moveOverflowBlocksToNextPage(editor, nextMove)) {
+            break;
+          }
+
+          iterations += 1;
+        }
+
+        const finalProseMirror = editor.view.dom;
+        if (!(finalProseMirror instanceof HTMLElement)) {
+          return;
+        }
+
+        finalProseMirror.dispatchEvent(
+          new CustomEvent("app-editor-pagination-updated", { bubbles: true }),
+        );
+        const selectionPageAfter = resolveSelectionPageIndex(
+          editor,
+          finalProseMirror,
+          pageStride,
+          zoomLevel,
+        );
+        const movedSelectionForwardAcrossPages =
+          selectionPageBefore !== null &&
+          selectionPageAfter !== null &&
+          selectionPageAfter > selectionPageBefore;
+
+        if (movedSelectionForwardAcrossPages) {
+          scrollSelectionIntoViewWithinContainer(
+            editor,
+            scrollContainer,
+            Math.max(24, pageMargins.top * Math.max(0.1, zoomLevel)),
+          );
+        } else {
+          restorePaginationScrollAnchor(editor, scrollContainer, scrollAnchor);
+        }
+
+        needsFollowUpRun =
+          resolvePageOverflowMove({
+            editor,
+            pageContentHeight,
+          }) !== null;
+      } finally {
+        isRunning = false;
+        suppressScheduling = false;
+        if (needsFollowUpRun) {
+          schedulePagination(isUserScrolling ? "deferred" : "immediate");
+        }
+      }
+    };
+
+    const runPagination = (priority: "immediate" | "deferred" = "deferred") => {
+      if (isRunning || suppressScheduling) {
+        return;
+      }
+
+      if (priority === "immediate") {
+        window.cancelAnimationFrame(frameId);
+        frameId = window.requestAnimationFrame(() => {
+          frameId = 0;
+          performPagination();
+        });
+        return;
+      }
+
+      frameId = window.requestAnimationFrame(() => {
+        frameId = 0;
+        performPagination();
+      });
+    };
+
+    const schedulePagination = (priority: "immediate" | "deferred" = "deferred") => {
+      if (suppressScheduling) {
+        return;
+      }
+
+      window.clearTimeout(pendingTimerId);
+      if (priority === "immediate") {
+        runPagination("immediate");
+        return;
+      }
+
+      pendingTimerId = window.setTimeout(() => {
+        runPagination("deferred");
+      }, paginationDebounceMs);
+    };
+
+    const handleWindowResize = () => {
+      schedulePagination();
+    };
+
+    const handleScrollActivity = () => {
+      isUserScrolling = true;
+      window.clearTimeout(userScrollIdleTimerId);
+      userScrollIdleTimerId = window.setTimeout(() => {
+        isUserScrolling = false;
+      }, 140);
+    };
+
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => {
+        schedulePagination();
+      });
+      resizeObserver.observe(editor.view.dom);
+    }
+
+    scrollContainer?.addEventListener("scroll", handleScrollActivity, { passive: true });
+
+    const handleEditorTransaction = ({
+      transaction,
+    }: {
+      transaction: {
+        docChanged?: boolean;
+        getMeta?: (key: string) => unknown;
+      };
+    }) => {
+      if (!transaction.docChanged) {
+        return;
+      }
+
+      const isPasteLikeTransaction =
+        transaction.getMeta?.("uiEvent") === "paste" ||
+        transaction.getMeta?.("paste") === true;
+      schedulePagination(isPasteLikeTransaction ? "immediate" : "deferred");
+    };
+
+    editor.on("transaction", handleEditorTransaction);
+    window.addEventListener("resize", handleWindowResize);
+    schedulePagination("immediate");
+
+    return () => {
+      window.clearTimeout(pendingTimerId);
+      window.clearTimeout(userScrollIdleTimerId);
+      window.cancelAnimationFrame(frameId);
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", handleWindowResize);
+      scrollContainer?.removeEventListener("scroll", handleScrollActivity);
+      editor.off("transaction", handleEditorTransaction);
+    };
+  }, [editor, pageGap, pageHeight, pageMargins, paginationMode, usePaginatedDocument, zoomLevel]);
 
   useEffect(() => {
     if (
