@@ -601,6 +601,26 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     });
   });
 
+  it("[SPEC:APP-APPEDITORPDF-09-FE] expone el comando de salto manual cuando la paginacion visual esta activa", async () => {
+    const onPageBreakCommandReady = vi.fn();
+
+    render(
+      <AppEditor
+        label="Contenido con salto manual"
+        paginationMode="visual"
+        onPageBreakCommandReady={onPageBreakCommandReady}
+        defaultValue="<p>Documento con salto</p>"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(onPageBreakCommandReady).toHaveBeenCalled();
+    });
+
+    const command = onPageBreakCommandReady.mock.calls.at(-1)?.[0];
+    expect(command).toEqual(expect.any(Function));
+  });
+
   it("muestra control de zoom solo en modo visual con valor por defecto de 100 por ciento", async () => {
     const { rerender } = render(
       <AppEditor

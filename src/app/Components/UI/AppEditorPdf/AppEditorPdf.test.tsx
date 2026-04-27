@@ -1,9 +1,18 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppEditorPdf } from "./AppEditorPdf";
 import styles from "./AppEditorPdf.module.css";
 
-const appEditorMock = vi.fn(() => <div data-testid="app-editor-mock" />);
+const appEditorMock = vi.fn((props: unknown) => {
+  const toolbarActions = (props as { toolbarActions?: ReactNode }).toolbarActions;
+
+  return (
+    <div data-testid="app-editor-mock">
+      <div data-testid="app-editor-toolbar-actions">{toolbarActions}</div>
+    </div>
+  );
+});
 
 vi.mock("../AppEditor", () => ({
   AppEditor: (props: unknown) => appEditorMock(props),
@@ -24,7 +33,15 @@ function emitPageContextChange(context: {
   onPageContextChange?.(context);
 }
 
-describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-07-FE] [SPEC:APP-APPEDITORPDF-08-FE]", () => {
+function emitPageBreakCommandReady(command: (() => boolean) | null) {
+  const onPageBreakCommandReady = getLatestAppEditorProps()
+    .onPageBreakCommandReady as ((value: typeof command) => void) | undefined;
+  onPageBreakCommandReady?.(command);
+}
+
+describe(
+  "AppEditorPdf [SPEC:APP-APPEDITORPDF-07-FE] [SPEC:APP-APPEDITORPDF-08-FE] [SPEC:APP-APPEDITORPDF-09-FE]",
+  () => {
   beforeEach(() => {
     appEditorMock.mockClear();
   });
@@ -263,4 +280,38 @@ describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-07-FE] [SPEC:APP-APPEDITORPDF-08-F
 
     expect(screen.getByText("Pagina 2 de 5")).toBeInTheDocument();
   });
-});
+
+  it("renderiza accion manual de salto de pagina cuando se habilita la toolbar FE-09", () => {
+    const insertPageBreak = vi.fn(() => true);
+
+    render(<AppEditorPdf paginationMode="visual" showPageBreakAction />);
+
+    act(() => {
+      emitPageBreakCommandReady(insertPageBreak);
+    });
+
+    fireEvent.click(screen.getByTestId("app-editor-pdf-page-break-action"));
+
+    expect(insertPageBreak).toHaveBeenCalledTimes(1);
+  });
+
+  it("compone la accion de salto manual con toolbarActions externas", () => {
+    const insertPageBreak = vi.fn(() => true);
+
+    render(
+      <AppEditorPdf
+        paginationMode="visual"
+        showPageBreakAction
+        toolbarActions={<button type="button">Accion externa</button>}
+      />,
+    );
+
+    act(() => {
+      emitPageBreakCommandReady(insertPageBreak);
+    });
+
+    expect(screen.getByRole("button", { name: "Accion externa" })).toBeInTheDocument();
+    expect(screen.getByTestId("app-editor-pdf-page-break-action")).toBeInTheDocument();
+  });
+  },
+);

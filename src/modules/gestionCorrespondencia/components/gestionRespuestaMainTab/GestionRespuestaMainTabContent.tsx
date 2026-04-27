@@ -247,6 +247,7 @@ export function GestionRespuestaMainTabContent(
               pageFormat="A4"
               pageOrientation="portrait"
               pageMargins={editorPageMargins}
+              showPageBreakAction
             />
           </GestionRespuestaEditorContainer>
           <GestionRespuestaRightToolsPanel

@@ -50,6 +50,7 @@ export type AppEditorProps = {
   maxZoomLevel?: number;
   onZoomChange?: (zoom: number) => void;
   onPageContextChange?: (context: AppEditorPageContext) => void;
+  onPageBreakCommandReady?: (command: (() => boolean) | null) => void;
   "aria-label"?: string;
 };
 
