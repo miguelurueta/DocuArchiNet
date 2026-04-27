@@ -100,7 +100,7 @@ export function GestionRespuestaMainTabContent(
             <AppEditor
               value={editorValue}
               onChange={setEditorValue}
-              headerActions={
+              toolbarActions={
                 <AppEditorSaveAction
                   iconOnly
                   saveStatus={saveStatus}
