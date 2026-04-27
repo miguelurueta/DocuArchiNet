@@ -1,12 +1,10 @@
 import { CarryOutFilled, MailFilled } from "@ant-design/icons";
-import { useCallback, useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useId, useState, useSyncExternalStore } from "react";
 import {
-  AppEditorPdf,
-  AppEditorPdfSaveAction,
-  type AppEditorPdfVisualMetrics,
-  useAppEditorPdfSaveState,
-} from "../../../../app/Components/UI/AppEditorPdf";
-import { AppSteps, type AppStepItem } from "../../../../app/Components/UI/AppSteps";
+  AppEditor,
+  AppEditorSaveAction,
+  useAppEditorSaveState,
+} from "../../../../app/Components/UI/AppEditor";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
 import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
 import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
@@ -53,112 +51,24 @@ export function GestionRespuestaMainTabContent(
   const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] =
     useState(false);
   const [files, setFiles] = useState<AppUploadFile[]>([]);
-  const [currentStep, setCurrentStep] = useState(0);
   const [editorValue, setEditorValue] = useState<string>("");
   const [savedEditorValue, setSavedEditorValue] = useState<string>("");
-  const [editorPage, setEditorPage] = useState(1);
-  const [editorMetrics, setEditorMetrics] = useState<AppEditorPdfVisualMetrics | null>(
-    null,
-  );
-  const { saveStatus } = useAppEditorPdfSaveState({
+  const { saveStatus } = useAppEditorSaveState({
     currentValue: editorValue,
     savedValue: savedEditorValue,
   });
   const canAdvanceToSend = files.length > 0;
-  const computedTotalPages = Math.max(1, Math.ceil(editorValue.length / 1200));
-  const editorVisualGuides = useMemo(
-    () => ({
-      enabled: true,
-      showPageBoundaries: true,
-      showReadingFrame: true,
-      readingFrameInset: 20,
-    }),
-    [],
-  );
-  const editorPageMargins = useMemo(
-    () => ({ top: 96, right: 72, bottom: 96, left: 72 }),
-    [],
-  );
-
-  useEffect(() => {
-    setEditorPage((previousPage) => Math.min(previousPage, computedTotalPages));
-  }, [computedTotalPages]);
-
-  const stepItems = useMemo<AppStepItem[]>(
-    () => [
-      {
-        key: "redaccion",
-        title: "Redaccion",
-        description: "Construye el contenido de la respuesta",
-        status: currentStep > 0 ? "finish" : "process",
-      },
-      {
-        key: "adjuntos",
-        title: "Adjuntos",
-        description: canAdvanceToSend
-          ? `${files.length} archivo(s) listo(s) para envio`
-          : "Adjunta al menos un archivo para continuar",
-        status: currentStep > 1 ? "finish" : currentStep === 1 ? "process" : "wait",
-      },
-      {
-        key: "envio",
-        title: "Envio",
-        description: "Confirma y finaliza el envio",
-        status: currentStep === 2 ? "process" : "wait",
-      },
-    ],
-    [canAdvanceToSend, currentStep, files.length],
-  );
 
   const goToSendStep = useCallback(() => {
     if (!canAdvanceToSend) {
-      setCurrentStep(1);
       return;
     }
-    setCurrentStep(2);
     setIsGestionDocumentoModalOpen(true);
   }, [canAdvanceToSend]);
-
-  const handleStepChange = useCallback(
-    (nextStep: number) => {
-      if (nextStep === 2) {
-        goToSendStep();
-        return;
-      }
-      setCurrentStep(nextStep);
-    },
-    [goToSendStep],
-  );
-
-  const validateStep = useCallback(
-    (stepIndex: number) => {
-      if (stepIndex === 1) {
-        return canAdvanceToSend;
-      }
-      return true;
-    },
-    [canAdvanceToSend],
-  );
 
   return (
     <section className={styles.mainTab} aria-label="Contenido principal de respuesta">
       <div className={styles.workbench}>
-        <div className={styles.workflowSteps}>
-          <AppSteps
-            items={stepItems}
-            variant="form"
-            size="sm"
-            current={currentStep}
-            onChange={handleStepChange}
-            validateStep={validateStep}
-          />
-          {!canAdvanceToSend ? (
-            <p className={styles.workflowHint}>
-              Para habilitar envio, carga al menos un archivo en el bloque de adjuntos.
-            </p>
-          ) : null}
-        </div>
-
         <AppToolbar
           className={styles.toolbar}
           actions={[
@@ -187,26 +97,11 @@ export function GestionRespuestaMainTabContent(
           data-testid="gestion-respuesta-workbench"
         >
           <GestionRespuestaEditorContainer>
-            <div className={styles.editorMetrics} aria-live="polite">
-              <span data-testid="editor-page-indicator">
-                Pagina {editorMetrics?.currentPage ?? editorPage} de{" "}
-                {editorMetrics?.totalPages ?? computedTotalPages}
-              </span>
-              <span data-testid="editor-zoom-indicator">
-                Zoom {Math.round((editorMetrics?.zoomLevel ?? 1) * 100)}%
-              </span>
-            </div>
-            <AppEditorPdf
+            <AppEditor
               value={editorValue}
               onChange={setEditorValue}
-              documentSource="gestion-respuesta-main-tab"
-              totalPages={computedTotalPages}
-              activePage={editorPage}
-              onActivePageChange={setEditorPage}
-              onMetricsChange={setEditorMetrics}
-              visualGuides={editorVisualGuides}
-              toolbarActions={
-                <AppEditorPdfSaveAction
+              headerActions={
+                <AppEditorSaveAction
                   iconOnly
                   saveStatus={saveStatus}
                   onSave={() => {
@@ -219,10 +114,6 @@ export function GestionRespuestaMainTabContent(
               className={styles.embeddedAppEditor}
               surfaceClassName={styles.embeddedAppEditorSurface}
               minHeight="100%"
-              paginationMode="visual"
-              pageFormat="A4"
-              pageOrientation="portrait"
-              pageMargins={editorPageMargins}
             />
           </GestionRespuestaEditorContainer>
           <GestionRespuestaRightToolsPanel
@@ -245,9 +136,6 @@ export function GestionRespuestaMainTabContent(
         open={isGestionDocumentoModalOpen}
         onClose={() => {
           setIsGestionDocumentoModalOpen(false);
-          if (currentStep === 2) {
-            setCurrentStep(1);
-          }
         }}
       />
     </section>

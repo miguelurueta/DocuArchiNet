@@ -36,15 +36,11 @@ vi.mock("../../../../app/Components/UI/AppUpload/AppUpload", () => ({
   ),
 }));
 
-describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-05-FE]", () => {
-  it("renderiza AppEditorPdf como superficie principal del contenedor", async () => {
+describe("GestionRespuestaMainTabContent", () => {
+  it("renderiza AppEditor como superficie principal del contenedor", async () => {
     const { container } = render(<GestionRespuestaMainTabContent />);
 
     expect(screen.queryByText(/Aqui se renderizara el editor de contenido/i)).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Editor principal de respuesta")).toHaveAttribute(
-      "data-editor-shell",
-      "neutral",
-    );
 
     await waitFor(() => {
       expect(
@@ -52,11 +48,7 @@ describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-05-FE]", () => {
       ).toBeInTheDocument();
     });
 
-    expect(
-      container.querySelector('[data-pagination-mode="visual"]'),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("editor-page-indicator")).toHaveTextContent("Pagina 1 de 1");
-    expect(screen.getByTestId("editor-zoom-indicator")).toHaveTextContent("Zoom 100%");
+    expect(container.querySelector('[aria-label="Contenido del editor principal de respuesta"]')).toBeInTheDocument();
   });
 
   it("mantiene operativo el colapso y expansion del panel lateral", async () => {
@@ -75,35 +67,4 @@ describe("GestionRespuestaMainTabContent [SPEC:APP-APPEDITORPDF-05-FE]", () => {
       expect(screen.getByLabelText("Ocultar panel de herramientas")).toBeInTheDocument();
     });
   }, 20000);
-
-  it("[SPEC:APP-APPSTEPS-03-FE] integra AppSteps y bloquea Envio hasta tener adjuntos", async () => {
-    render(<GestionRespuestaMainTabContent />);
-
-    const getStepButton = (label: string) =>
-      screen.getByRole("button", { name: new RegExp(`${label}estado`, "i") });
-
-    fireEvent.click(getStepButton("Adjuntos"));
-    await waitFor(() => {
-      expect(
-        getStepButton("Adjuntos").querySelector('[aria-current="step"]'),
-      ).toBeInTheDocument();
-    });
-
-    fireEvent.click(getStepButton("Envio"));
-    await waitFor(() => {
-      expect(
-        getStepButton("Adjuntos").querySelector('[aria-current="step"]'),
-      ).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByLabelText("Mock upload"));
-    fireEvent.click(getStepButton("Envio"));
-
-    await waitFor(() => {
-      expect(getStepButton("Envio").querySelector('[aria-current="step"]')).toBeInTheDocument();
-    });
-    expect(
-      screen.queryByText(/Para habilitar envio, carga al menos un archivo/i),
-    ).not.toBeInTheDocument();
-  }, 30000);
 });

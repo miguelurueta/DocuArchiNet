@@ -117,7 +117,7 @@ export function AppEditor({
   minHeight = 280,
   themeMode,
   defaultThemeMode = "light",
-  paginationMode = "none",
+  paginationMode = "visual",
   pageFormat = "A4",
   pageOrientation = "portrait",
   pageMargins,
