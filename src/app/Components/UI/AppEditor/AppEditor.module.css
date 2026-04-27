@@ -396,16 +396,10 @@
   position: relative;
   width: var(--app-editor-page-width);
   min-height: var(--app-editor-sheet-height);
-  display: block;
-  overflow: hidden;
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      #ffffff 0,
-      #fcfdff var(--app-editor-page-height),
-      transparent var(--app-editor-page-height),
-      transparent calc(var(--app-editor-page-height) + var(--app-editor-page-gap))
-    );
+  display: flex;
+  justify-content: center;
+  overflow: visible;
+  background: transparent;
   transform: scale(var(--app-editor-zoom, 1));
   transform-origin: top center;
 }
@@ -482,13 +476,13 @@
 }
 
 .editorContentPaged {
-  width: 100%;
+  width: var(--app-editor-page-width);
   box-sizing: border-box;
-  min-height: var(--app-editor-visual-content-height, var(--app-editor-min-height));
+  min-height: var(--app-editor-sheet-height);
   overflow: visible;
   position: relative;
   z-index: 1;
-  border-radius: 0.35rem;
+  border-radius: 0;
   background: transparent;
 }
 
@@ -512,17 +506,13 @@
 }
 
 .editorContentPaged :global(.ProseMirror) {
-  width: 100%;
+  width: var(--app-editor-page-width);
   box-sizing: border-box;
-  min-height: max(
-    calc(
-      var(--app-editor-page-height) - var(--app-editor-page-margin-top) - var(--app-editor-page-margin-bottom)
-    ),
-    var(--app-editor-min-height)
-  );
+  min-height: var(--app-editor-sheet-height);
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  gap: var(--app-editor-page-gap);
   padding: 0;
   overflow: visible;
   background: transparent;
@@ -531,25 +521,28 @@
 .editorContentPaged :global(.ProseMirror > *) {
   flex: 0 0 auto;
   margin: 0 !important;
-  border-top: var(--app-editor-block-gap-before, 0px) solid transparent;
 }
 
 .editorContentPaged :global(.ProseMirror > [data-app-editor-page="true"]) {
-  min-height: max(
-    calc(
-      var(--app-editor-page-height) - var(--app-editor-page-margin-top) - var(--app-editor-page-margin-bottom)
-    ),
-    var(--app-editor-min-height)
-  );
+  width: 100%;
+  min-height: var(--app-editor-page-height);
   display: flex;
   flex-direction: column;
   align-items: stretch;
   box-sizing: border-box;
-}
-
-.editorContentPaged
-  :global(.ProseMirror > [data-app-editor-page="true"] + [data-app-editor-page="true"]) {
-  margin-top: var(--app-editor-page-gap) !important;
+  padding:
+    var(--app-editor-page-margin-top)
+    var(--app-editor-page-margin-right)
+    var(--app-editor-page-margin-bottom)
+    var(--app-editor-page-margin-left);
+  border: 1px solid color-mix(in srgb, var(--editor-border) 88%, white);
+  border-radius: 0.85rem;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.78) inset,
+    0 20px 52px rgba(15, 23, 42, 0.16),
+    0 0 0 12px color-mix(in srgb, var(--editor-bg) 36%, transparent);
 }
 
 .editorContentPaged :global(.ProseMirror > [data-app-editor-page="true"] > *) {
@@ -557,23 +550,32 @@
 }
 
 .editorContentPaged
-  :global(.ProseMirror > :not([data-page-break="true"]) + :not([data-page-break="true"])) {
+  :global(
+    .ProseMirror > [data-app-editor-page="true"] > :not([data-page-break="true"]) + :not([data-page-break="true"])
+  ) {
   margin-top: 0.75rem !important;
 }
 
-.editorContentPaged :global(.ProseMirror > h1 + :not([data-page-break="true"])),
-.editorContentPaged :global(.ProseMirror > h2 + :not([data-page-break="true"])),
-.editorContentPaged :global(.ProseMirror > h3 + :not([data-page-break="true"])) {
+.editorContentPaged
+  :global(.ProseMirror > [data-app-editor-page="true"] > h1 + :not([data-page-break="true"])),
+.editorContentPaged
+  :global(.ProseMirror > [data-app-editor-page="true"] > h2 + :not([data-page-break="true"])),
+.editorContentPaged
+  :global(.ProseMirror > [data-app-editor-page="true"] > h3 + :not([data-page-break="true"])) {
   margin-top: 0.85rem !important;
 }
 
-.editorContentPaged :global(.ProseMirror > :not([data-page-break="true"]) + h1),
-.editorContentPaged :global(.ProseMirror > :not([data-page-break="true"]) + h2),
-.editorContentPaged :global(.ProseMirror > :not([data-page-break="true"]) + h3) {
+.editorContentPaged
+  :global(.ProseMirror > [data-app-editor-page="true"] > :not([data-page-break="true"]) + h1),
+.editorContentPaged
+  :global(.ProseMirror > [data-app-editor-page="true"] > :not([data-page-break="true"]) + h2),
+.editorContentPaged
+  :global(.ProseMirror > [data-app-editor-page="true"] > :not([data-page-break="true"]) + h3) {
   margin-top: 1.1rem !important;
 }
 
-.editorContentPaged :global(.ProseMirror > [data-page-break="true"] + *) {
+.editorContentPaged
+  :global(.ProseMirror > [data-app-editor-page="true"] > [data-page-break="true"] + *) {
   margin-top: 0 !important;
 }
 

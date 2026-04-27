@@ -200,10 +200,6 @@ export function AppEditor({
     containerRef: paginationContainerRef,
     zoomLevel: effectiveZoomLevel,
   });
-  const pageIndices = useMemo(
-    () => Array.from({ length: totalPages }, (_, index) => index + 1),
-    [totalPages],
-  );
   const { currentPage } = usePageContext({
     enabled: isVisualPagination,
     totalPages,
@@ -386,30 +382,19 @@ export function AppEditor({
             <div className={styles.canvas} ref={paginationCanvasRef}>
               <div className={styles.zoomStage}>
                 <div className={styles.sheet} data-pagination-sheet="true">
-                  <div className={styles.pageStack} aria-hidden="true">
-                    {pageIndices.map((pageNumber) => (
-                      <div
-                        key={pageNumber}
-                        className={styles.pageShell}
-                        data-pagination-page-shell={pageNumber}
-                      />
-                    ))}
-                  </div>
-                  <div className={styles.contentFlow} data-pagination-content-flow="true">
-                    <TiptapEditorContent
-                      editor={editor}
-                      className={joinClasses(
-                        styles.editorContent,
-                        styles.editorContentPaged,
-                        surfaceClassName,
-                        Boolean(error) && styles.surfaceError,
-                      )}
-                      aria-labelledby={labelId}
-                      aria-label={resolvedAriaLabel}
-                      aria-describedby={describedBy}
-                        aria-invalid={Boolean(error)}
-                    />
-                  </div>
+                  <TiptapEditorContent
+                    editor={editor}
+                    className={joinClasses(
+                      styles.editorContent,
+                      styles.editorContentPaged,
+                      surfaceClassName,
+                      Boolean(error) && styles.surfaceError,
+                    )}
+                    aria-labelledby={labelId}
+                    aria-label={resolvedAriaLabel}
+                    aria-describedby={describedBy}
+                    aria-invalid={Boolean(error)}
+                  />
                 </div>
               </div>
             </div>
