@@ -120,10 +120,7 @@ export function usePageContext({
   const [pageState, setPageState] = useState<{
     currentPage: number;
     source: PageContextSource;
-  }>({
-    currentPage: DEFAULT_PAGE,
-    source: "scroll",
-  });
+  }>({ currentPage: DEFAULT_PAGE, source: "scroll" });
   const timeoutRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);
   const currentPageRef = useRef(DEFAULT_PAGE);
@@ -141,14 +138,12 @@ export function usePageContext({
   }, []);
 
   const commitPage = useCallback((nextPage: number, source: PageContextSource) => {
+    currentPageRef.current = nextPage;
     setPageState((previousState) =>
       previousState.currentPage === nextPage && previousState.source === source
         ? previousState
         : { currentPage: nextPage, source },
     );
-  const commitPage = useCallback((nextPage: number) => {
-    currentPageRef.current = nextPage;
-    setCurrentPage((previousPage) => (previousPage === nextPage ? previousPage : nextPage));
   }, []);
 
   const resolvePageFromScroll = useCallback(() => {
@@ -180,55 +175,43 @@ export function usePageContext({
       commitPage(DEFAULT_PAGE, "scroll");
       return;
     }
-    commitPage(resolvePageFromScroll());
-  }, [commitPage, enabled, resolvePageFromScroll]);
-
-  const scheduleUpdate = useCallback((priority: "immediate" | "frame" | "deferred" = "deferred") => {
-    clearPending();
-
-    if (shouldPrioritizeScroll) {
-      commitPage(resolvePageFromScroll(), "scroll");
-      return;
-    }
-
-    const pageFromCursor = resolvePageFromCursor();
-    if (pageFromCursor !== null) {
-      commitPage(pageFromCursor, "cursor");
-      return;
-    }
 
     commitPage(resolvePageFromScroll(), "scroll");
-  }, [commitPage, enabled, resolvePageFromCursor, resolvePageFromScroll, scrollPriorityMs]);
+  }, [commitPage, enabled, resolvePageFromScroll]);
 
-  const scheduleUpdate = useCallback(() => {
-    clearPending();
-    if (priority === "immediate") {
-      updateCurrentPage();
-      return;
-    }
+  const scheduleUpdate = useCallback(
+    (priority: "immediate" | "frame" | "deferred" = "deferred") => {
+      clearPending();
 
-    if (priority === "frame") {
-      frameRef.current = window.requestAnimationFrame(() => {
+      if (priority === "immediate") {
         updateCurrentPage();
-        frameRef.current = null;
-      });
-      return;
-    }
-
-    timeoutRef.current = window.setTimeout(() => {
-      if (typeof window.requestAnimationFrame !== "function") {
-        updateCurrentPage();
-        timeoutRef.current = null;
         return;
       }
 
-      frameRef.current = window.requestAnimationFrame(() => {
-        updateCurrentPage();
-        frameRef.current = null;
-      });
-      timeoutRef.current = null;
-    }, debounceMs);
-  }, [clearPending, debounceMs, updateCurrentPage]);
+      if (priority === "frame") {
+        frameRef.current = window.requestAnimationFrame(() => {
+          updateCurrentPage();
+          frameRef.current = null;
+        });
+        return;
+      }
+
+      timeoutRef.current = window.setTimeout(() => {
+        if (typeof window.requestAnimationFrame !== "function") {
+          updateCurrentPage();
+          timeoutRef.current = null;
+          return;
+        }
+
+        frameRef.current = window.requestAnimationFrame(() => {
+          updateCurrentPage();
+          frameRef.current = null;
+        });
+        timeoutRef.current = null;
+      }, debounceMs);
+    },
+    [clearPending, debounceMs, updateCurrentPage],
+  );
 
   useEffect(() => {
     if (!enabled) {
@@ -256,7 +239,7 @@ export function usePageContext({
         handlePaginationUpdated as EventListener,
       );
     };
-  }, [canvasRef, clearPending, commitPage, enabled, scheduleUpdate]);
+  }, [canvasRef, clearPending, enabled, scheduleUpdate]);
 
   return {
     currentPage: enabled ? clampPage(pageState.currentPage, totalPages) : DEFAULT_PAGE,

@@ -207,8 +207,6 @@ export function AppEditor({
     [totalPages],
   );
   const { currentPage, currentPageSource } = usePageContext({
-    editor,
-  const { currentPage } = usePageContext({
     enabled: isVisualPagination,
     totalPages,
     pageBoundaries: visualPageBoundaries,
