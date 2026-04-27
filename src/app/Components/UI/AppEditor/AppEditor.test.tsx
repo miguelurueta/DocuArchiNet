@@ -505,6 +505,7 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     const { container } = render(
       <AppEditor
         label="Contenido continuo estructural"
+        paginationMode="none"
         defaultValue="<p>Documento continuo</p>"
       />,
     );
@@ -665,7 +666,13 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     expect(screen.getByRole("group", { name: "Control de zoom" })).toBeInTheDocument();
     expect(screen.getByText("100%")).toBeInTheDocument();
 
-    rerender(<AppEditor label="Contenido continuo" defaultValue="<p>Documento con zoom</p>" />);
+    rerender(
+      <AppEditor
+        label="Contenido continuo"
+        paginationMode="none"
+        defaultValue="<p>Documento con zoom</p>"
+      />,
+    );
 
     expect(screen.queryByRole("group", { name: "Control de zoom" })).not.toBeInTheDocument();
   });
@@ -689,6 +696,7 @@ describe("AppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
     rerender(
       <AppEditor
         label="Contenido que cambia de modo"
+        paginationMode="none"
         defaultValue="<p>Documento que cambia de modo</p>"
       />,
     );

@@ -298,6 +298,7 @@
     linear-gradient(180deg, color-mix(in srgb, var(--editor-muted-surface) 70%, var(--editor-bg)) 0%, color-mix(in srgb, var(--editor-bg) 88%, var(--editor-muted-surface)) 100%);
 }
 
+
 .toolbarMeta {
   display: flex;
   align-items: center;
@@ -516,6 +517,9 @@
   padding: 0;
   overflow: visible;
   background: transparent;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .editorContentPaged :global(.ProseMirror > *) {

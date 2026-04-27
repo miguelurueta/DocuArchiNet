@@ -121,10 +121,6 @@ export function GestionRespuestaMainTabContent(
               className={styles.embeddedAppEditor}
               surfaceClassName={styles.embeddedAppEditorSurface}
               minHeight="100%"
-              paginationMode="visual"
-              pageFormat="A4"
-              pageOrientation="portrait"
-              pageMargins={editorPageMargins}
             />
           </GestionRespuestaEditorContainer>
           <GestionRespuestaRightToolsPanel
