@@ -7,6 +7,8 @@ export type {
   AppEditorPdfHeadingLevel,
   AppEditorPdfPaginationMode,
   AppEditorPdfPageFormat,
+  AppEditorPdfPageContext,
+  AppEditorPdfPageContextSource,
   AppEditorPdfPageMargins,
   AppEditorPdfPageOrientation,
   AppEditorPdfProps,

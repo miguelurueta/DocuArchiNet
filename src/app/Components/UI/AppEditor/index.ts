@@ -3,6 +3,8 @@ export { AppEditorSaveAction } from "./presentation/AppEditorSaveAction";
 export { normalizeEditorHtml } from "./application/normalizeEditorHtml";
 export { useAppEditorSaveState } from "./application/useAppEditorSaveState";
 export type {
+  AppEditorPageContext,
+  AppEditorPageContextSource,
   AppEditorProps,
   AppEditorHeadingLevel,
   UseAppEditorOptions,
