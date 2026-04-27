@@ -739,6 +739,108 @@ function VisualCrossPageSelectionHarness() {
   );
 }
 
+function VisualPasteRichContentHarness() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [hasPastedRichContent, setHasPastedRichContent] = useState(false);
+  const { editor } = useAppEditor({
+    defaultValue: "<p>Inicio</p>",
+    paginationMode: "visual",
+    pageHeight: 1123,
+    pageGap: 32,
+    pageMargins: { top: 96, right: 72, bottom: 96, left: 72 },
+    zoomLevel: 1,
+  });
+  const { totalPages, visualPageBoundaries } = usePaginationMetrics({
+    enabled: true,
+    pageHeight: 1123,
+    pageGap: 32,
+    pageMargins: { top: 96, right: 72, bottom: 96, left: 72 },
+    containerRef,
+    zoomLevel: 1,
+    debounceMs: 0,
+  });
+  const { currentPage } = usePageContext({
+    enabled: true,
+    totalPages,
+    pageBoundaries: visualPageBoundaries,
+    canvasRef,
+    zoomLevel: 1,
+    debounceMs: 0,
+  });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const sheet = canvas?.querySelector('[data-pagination-sheet="true"]');
+    const proseMirror = containerRef.current?.querySelector(".ProseMirror");
+    if (!(proseMirror instanceof HTMLElement)) {
+      return;
+    }
+
+    Object.defineProperty(proseMirror, "scrollHeight", {
+      configurable: true,
+      value: hasPastedRichContent ? 3560 : 880,
+    });
+
+    if (canvas instanceof HTMLElement) {
+      Object.defineProperty(canvas, "scrollTop", {
+        configurable: true,
+        writable: true,
+        value: hasPastedRichContent ? 2500 : 0,
+      });
+    }
+
+    if (sheet instanceof HTMLElement) {
+      Object.defineProperty(sheet, "offsetTop", {
+        configurable: true,
+        value: 0,
+      });
+    }
+
+    applySyntheticPageLayout(proseMirror, {
+      maxBlocksPerPage: hasPastedRichContent ? 6 : 8,
+    });
+
+    proseMirror.dispatchEvent(
+      new CustomEvent("app-editor-pagination-updated", { bubbles: true }),
+    );
+
+    if (canvas instanceof HTMLElement && hasPastedRichContent) {
+      canvas.dispatchEvent(new Event("scroll"));
+    }
+  }, [editor, hasPastedRichContent, totalPages]);
+
+  return (
+    <div ref={containerRef}>
+      <div ref={canvasRef}>
+        <div data-pagination-sheet="true">
+          <TiptapEditorContent editor={editor} />
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => {
+          const richHtml = [
+            '<p>Parrafo con <a href="https://example.com">link persistente</a> y mas texto.</p>',
+            "<ul><li><p>Item uno</p></li><li><p>Item dos</p></li><li><p>Item tres</p></li></ul>",
+            '<p>Entre lista e imagen.</p>',
+            '<img src="https://example.com/image.png" data-width="640" data-align="center" />',
+            ...Array.from({ length: 16 }, (_, index) => `<p>Parrafo pegado ${index + 1}</p>`),
+          ].join("");
+
+          editor?.commands.insertContent(richHtml);
+          setHasPastedRichContent(true);
+        }}
+      >
+        paste-rich-content
+      </button>
+      <output data-testid="rich-total-pages">{totalPages}</output>
+      <output data-testid="rich-current-page">{currentPage}</output>
+      <output data-testid="rich-html">{editor?.getHTML() ?? ""}</output>
+    </div>
+  );
+}
+
 describe("useAppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
   it("preserva el anclaje vertical del caret al restaurar scroll tras repaginacion", () => {
     const editor = {
@@ -1094,6 +1196,20 @@ describe("useAppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => 
       expect(Number(screen.getByTestId("multi-paste-selection-parent-offset").textContent)).toBe(
         "Bloque pegado 30".length,
       );
+    });
+  });
+
+  it("soporta paste largo con links, listas e imagen sin corromper el flujo multipagina", async () => {
+    render(<VisualPasteRichContentHarness />);
+
+    fireEvent.click(screen.getByText("paste-rich-content"));
+
+    await waitFor(() => {
+      const html = screen.getByTestId("rich-html").textContent ?? "";
+      expect(html).toContain('href="https://example.com"');
+      expect(html).toContain("<ul>");
+      expect(html).toContain("<img");
+      expect(html).toContain("Parrafo pegado 16");
     });
   });
 
