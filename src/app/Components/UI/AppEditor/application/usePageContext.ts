@@ -8,6 +8,7 @@ type UsePageContextOptions = {
   zoomLevel?: number;
   debounceMs?: number;
 };
+type PageContextSource = "cursor" | "scroll";
 
 const DEFAULT_PAGE = 1;
 const MIN_HYSTERESIS_PX = 18;
@@ -116,7 +117,13 @@ export function usePageContext({
   zoomLevel = 1,
   debounceMs = 32,
 }: UsePageContextOptions) {
-  const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
+  const [pageState, setPageState] = useState<{
+    currentPage: number;
+    source: PageContextSource;
+  }>({
+    currentPage: DEFAULT_PAGE,
+    source: "scroll",
+  });
   const timeoutRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);
   const currentPageRef = useRef(DEFAULT_PAGE);
@@ -133,6 +140,12 @@ export function usePageContext({
     }
   }, []);
 
+  const commitPage = useCallback((nextPage: number, source: PageContextSource) => {
+    setPageState((previousState) =>
+      previousState.currentPage === nextPage && previousState.source === source
+        ? previousState
+        : { currentPage: nextPage, source },
+    );
   const commitPage = useCallback((nextPage: number) => {
     currentPageRef.current = nextPage;
     setCurrentPage((previousPage) => (previousPage === nextPage ? previousPage : nextPage));
@@ -164,7 +177,7 @@ export function usePageContext({
 
   const updateCurrentPage = useCallback(() => {
     if (!enabled) {
-      commitPage(DEFAULT_PAGE);
+      commitPage(DEFAULT_PAGE, "scroll");
       return;
     }
     commitPage(resolvePageFromScroll());
@@ -173,6 +186,22 @@ export function usePageContext({
   const scheduleUpdate = useCallback((priority: "immediate" | "frame" | "deferred" = "deferred") => {
     clearPending();
 
+    if (shouldPrioritizeScroll) {
+      commitPage(resolvePageFromScroll(), "scroll");
+      return;
+    }
+
+    const pageFromCursor = resolvePageFromCursor();
+    if (pageFromCursor !== null) {
+      commitPage(pageFromCursor, "cursor");
+      return;
+    }
+
+    commitPage(resolvePageFromScroll(), "scroll");
+  }, [commitPage, enabled, resolvePageFromCursor, resolvePageFromScroll, scrollPriorityMs]);
+
+  const scheduleUpdate = useCallback(() => {
+    clearPending();
     if (priority === "immediate") {
       updateCurrentPage();
       return;
@@ -230,6 +259,7 @@ export function usePageContext({
   }, [canvasRef, clearPending, commitPage, enabled, scheduleUpdate]);
 
   return {
-    currentPage: enabled ? clampPage(currentPage, totalPages) : DEFAULT_PAGE,
+    currentPage: enabled ? clampPage(pageState.currentPage, totalPages) : DEFAULT_PAGE,
+    currentPageSource: pageState.source,
   };
 }

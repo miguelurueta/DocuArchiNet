@@ -3,6 +3,7 @@ import { useCallback, useEffect, useId, useMemo, useState, useSyncExternalStore 
 import {
   AppEditorPdf,
   AppEditorPdfSaveAction,
+  type AppEditorPdfPageContextSource,
   type AppEditorPdfVisualMetrics,
   useAppEditorPdfSaveState,
 } from "../../../../app/Components/UI/AppEditorPdf";
@@ -57,6 +58,8 @@ export function GestionRespuestaMainTabContent(
   const [editorValue, setEditorValue] = useState<string>("");
   const [savedEditorValue, setSavedEditorValue] = useState<string>("");
   const [editorPage, setEditorPage] = useState(1);
+  const [editorPageContextSource, setEditorPageContextSource] =
+    useState<AppEditorPdfPageContextSource>("external");
   const [editorMetrics, setEditorMetrics] = useState<AppEditorPdfVisualMetrics | null>(
     null,
   );
@@ -139,6 +142,23 @@ export function GestionRespuestaMainTabContent(
     },
     [canAdvanceToSend],
   );
+  const handlePageContextChange = useCallback(
+    ({
+      currentPage,
+      source,
+    }: {
+      currentPage: number;
+      source: AppEditorPdfPageContextSource;
+    }) => {
+      setEditorPage((previousPage) =>
+        previousPage === currentPage ? previousPage : currentPage,
+      );
+      setEditorPageContextSource((previousSource) =>
+        previousSource === source ? previousSource : source,
+      );
+    },
+    [],
+  );
 
   return (
     <section className={styles.mainTab} aria-label="Contenido principal de respuesta">
@@ -195,6 +215,9 @@ export function GestionRespuestaMainTabContent(
               <span data-testid="editor-zoom-indicator">
                 Zoom {Math.round((editorMetrics?.zoomLevel ?? 1) * 100)}%
               </span>
+              <span data-testid="editor-page-source">
+                Contexto {editorPageContextSource}
+              </span>
             </div>
             <AppEditorPdf
               value={editorValue}
@@ -203,6 +226,7 @@ export function GestionRespuestaMainTabContent(
               totalPages={computedTotalPages}
               activePage={editorPage}
               onActivePageChange={setEditorPage}
+              onPageContextChange={handlePageContextChange}
               onMetricsChange={setEditorMetrics}
               visualGuides={editorVisualGuides}
               toolbarActions={

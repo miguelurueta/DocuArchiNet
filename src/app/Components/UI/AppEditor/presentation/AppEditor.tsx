@@ -1,4 +1,4 @@
-import { useCallback, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { AppEditorProps } from "../domain/editor.types";
 import { useAppEditor } from "../application/useAppEditor";
@@ -126,6 +126,7 @@ export function AppEditor({
   minZoomLevel = DEFAULT_MIN_ZOOM_LEVEL,
   maxZoomLevel = DEFAULT_MAX_ZOOM_LEVEL,
   onZoomChange,
+  onPageContextChange,
   "aria-label": ariaLabel,
 }: AppEditorProps) {
   const resolvedPageMarginsTop = pageMargins?.top ?? DEFAULT_PAGE_MARGINS.top;
@@ -200,6 +201,12 @@ export function AppEditor({
     containerRef: paginationContainerRef,
     zoomLevel: effectiveZoomLevel,
   });
+  const pageIndices = useMemo(
+    () => Array.from({ length: totalPages }, (_, index) => index + 1),
+    [totalPages],
+  );
+  const { currentPage, currentPageSource } = usePageContext({
+    editor,
   const { currentPage } = usePageContext({
     enabled: isVisualPagination,
     totalPages,
@@ -207,6 +214,23 @@ export function AppEditor({
     canvasRef: paginationCanvasRef,
     zoomLevel: effectiveZoomLevel,
   });
+  useEffect(() => {
+    if (!isVisualPagination) {
+      return;
+    }
+
+    onPageContextChange?.({
+      currentPage,
+      totalPages,
+      source: currentPageSource,
+    });
+  }, [
+    currentPage,
+    currentPageSource,
+    isVisualPagination,
+    onPageContextChange,
+    totalPages,
+  ]);
   const sheetHeightValue =
     totalPages * paginationMetrics.pageHeightValue +
     Math.max(0, totalPages - 1) * paginationMetrics.pageGapValue;

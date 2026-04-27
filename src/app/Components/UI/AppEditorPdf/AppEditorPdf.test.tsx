@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppEditorPdf } from "./AppEditorPdf";
 import styles from "./AppEditorPdf.module.css";
@@ -9,7 +9,22 @@ vi.mock("../AppEditor", () => ({
   AppEditor: (props: unknown) => appEditorMock(props),
 }));
 
-describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-07-FE]", () => {
+function getLatestAppEditorProps() {
+  const latestCall = appEditorMock.mock.calls.at(-1);
+  return (latestCall?.[0] ?? {}) as Record<string, unknown>;
+}
+
+function emitPageContextChange(context: {
+  currentPage: number;
+  totalPages: number;
+  source: "cursor" | "scroll";
+}) {
+  const onPageContextChange = getLatestAppEditorProps()
+    .onPageContextChange as ((value: typeof context) => void) | undefined;
+  onPageContextChange?.(context);
+}
+
+describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-07-FE] [SPEC:APP-APPEDITORPDF-08-FE]", () => {
   beforeEach(() => {
     appEditorMock.mockClear();
   });
@@ -191,5 +206,61 @@ describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-07-FE]", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Pagina anterior" }));
     expect(onActivePageChange).toHaveBeenCalledWith(1);
+  });
+
+  it("usa contexto de pagina del editor con prioridad de cursor para el contador FE-08", () => {
+    render(<AppEditorPdf paginationMode="visual" totalPages={2} defaultActivePage={1} />);
+
+    expect(screen.getByText("Pagina 1 de 2")).toBeInTheDocument();
+
+    act(() => {
+      emitPageContextChange({
+        currentPage: 3,
+        totalPages: 5,
+        source: "cursor",
+      });
+    });
+
+    expect(screen.getByText("Pagina 3 de 5")).toBeInTheDocument();
+  });
+
+  it("publica callback opcional de contexto de pagina para consumidores avanzados", () => {
+    const onPageContextChange = vi.fn();
+
+    render(
+      <AppEditorPdf
+        paginationMode="visual"
+        totalPages={4}
+        onPageContextChange={onPageContextChange}
+      />,
+    );
+
+    act(() => {
+      emitPageContextChange({
+        currentPage: 2,
+        totalPages: 4,
+        source: "scroll",
+      });
+    });
+
+    expect(onPageContextChange).toHaveBeenCalledWith({
+      currentPage: 2,
+      totalPages: 4,
+      source: "scroll",
+    });
+  });
+
+  it("preserva pagina controlada por props mientras actualiza totalPages desde contexto visual", () => {
+    render(<AppEditorPdf paginationMode="visual" activePage={2} totalPages={3} />);
+
+    act(() => {
+      emitPageContextChange({
+        currentPage: 4,
+        totalPages: 5,
+        source: "cursor",
+      });
+    });
+
+    expect(screen.getByText("Pagina 2 de 5")).toBeInTheDocument();
   });
 });
