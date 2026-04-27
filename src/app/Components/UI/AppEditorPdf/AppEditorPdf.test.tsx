@@ -40,7 +40,7 @@ function emitPageBreakCommandReady(command: (() => boolean) | null) {
 }
 
 describe(
-  "AppEditorPdf [SPEC:APP-APPEDITORPDF-07-FE] [SPEC:APP-APPEDITORPDF-08-FE] [SPEC:APP-APPEDITORPDF-09-FE]",
+  "AppEditorPdf [SPEC:APP-APPEDITORPDF-07-FE] [SPEC:APP-APPEDITORPDF-08-FE] [SPEC:APP-APPEDITORPDF-09-FE] [SPEC:APP-APPEDITORPDF-10-FE]",
   () => {
   beforeEach(() => {
     appEditorMock.mockClear();
@@ -332,6 +332,12 @@ describe(
 
     expect(screen.getByRole("button", { name: "Accion externa" })).toBeInTheDocument();
     expect(screen.getByTestId("app-editor-pdf-page-break-action")).toBeInTheDocument();
+  });
+
+  it("no expone toggle de tema en la toolbar por defecto (FE-10)", () => {
+    render(<AppEditorPdf paginationMode="visual" />);
+
+    expect(screen.queryByRole("button", { name: /tema/i })).not.toBeInTheDocument();
   });
   },
 );

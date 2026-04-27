@@ -20,3 +20,7 @@
 - [ ] 4.2 Agregar prueba que confirme ausencia de toggle de tema en toolbar por defecto.
 - [ ] 4.3 Ejecutar `npm.cmd run test -- --run` y `npm.cmd run spec:validate`, dejando evidencia en el cambio.
 
+## Evidencia (2026-04-27)
+
+- `npm.cmd run spec:validate`: OK.
+- `npm.cmd run test -- --run`: falla al cargar `vite.config.ts` con `Error: spawn EPERM` desde `esbuild` (Vite) en este entorno.
