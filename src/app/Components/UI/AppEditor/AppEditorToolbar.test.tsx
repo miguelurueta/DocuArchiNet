@@ -195,46 +195,6 @@ describe("AppEditorToolbar [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", ()
     fireEvent(window, new Event("resize"));
   });
 
-  it("compacta la toolbar segun el ancho real del contenedor (ResizeObserver)", async () => {
-    const previousResizeObserver = window.ResizeObserver;
-    const triggers: Array<(width: number) => void> = [];
-
-    window.ResizeObserver = class ResizeObserverMock {
-      private readonly cb: ResizeObserverCallback;
-
-      constructor(cb: ResizeObserverCallback) {
-        this.cb = cb;
-        triggers.push((width: number) => {
-          this.cb(
-            [
-              {
-                contentRect: { width } as DOMRectReadOnly,
-              } as ResizeObserverEntry,
-            ],
-            this as unknown as ResizeObserver,
-          );
-        });
-      }
-
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    } as unknown as typeof ResizeObserver;
-
-    const editor = createEditorMock();
-    const { container } = render(<AppEditorToolbar editor={editor as never} />);
-
-    // Starts in default mode (window-based), then container observation flips it.
-    expect(container.querySelector('[data-toolbar-mode="default"]')).toBeInTheDocument();
-    triggers[0]?.(480);
-
-    await waitFor(() => {
-      expect(container.querySelector('[data-toolbar-mode="compact"]')).toBeInTheDocument();
-    });
-
-    window.ResizeObserver = previousResizeObserver;
-  });
-
   it("abre el formulario de enlace y aplica la URL normalizada", async () => {
     const editor = createEditorMock();
 

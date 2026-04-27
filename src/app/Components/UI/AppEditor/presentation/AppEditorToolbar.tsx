@@ -90,43 +90,14 @@ const HEADING_OPTIONS = [
 // Grouping is intentionally positional to keep the render path simple for the lint rules
 // enforced in this repo.
 
-function useCompactToolbarMode({
-  ref,
-  maxWidth = 1024,
-}: {
-  ref: React.RefObject<HTMLElement | null>;
-  maxWidth?: number;
-}) {
-  const [isCompact, setIsCompact] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    return window.innerWidth <= maxWidth;
-  });
+function useCompactToolbarMode(maxWidth = 1024) {
+  const [isCompact, setIsCompact] = useState(
+    () => typeof window !== "undefined" && window.innerWidth <= maxWidth,
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") {
       return undefined;
-    }
-
-    const element = ref.current;
-    const ResizeObserverCtor = window.ResizeObserver;
-
-    if (element && typeof ResizeObserverCtor === "function") {
-      const observer = new ResizeObserverCtor((entries) => {
-        const entry = entries[0];
-        const width = entry?.contentRect?.width ?? 0;
-        // JSDOM can report width=0; don't flip to compact based on an unmeasurable box.
-        if (width <= 0) {
-          return;
-        }
-
-        setIsCompact(width <= maxWidth);
-      });
-
-      observer.observe(element);
-      return () => observer.disconnect();
     }
 
     const handleResize = () => {
@@ -139,7 +110,7 @@ function useCompactToolbarMode({
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [maxWidth, ref]);
+  }, [maxWidth]);
 
   return isCompact;
 }
@@ -562,8 +533,7 @@ function AppEditorToolbarComponent({
 }: AppEditorToolbarProps) {
   const isBlocked = disabled || !editor;
   const [, setEditorSnapshotVersion] = useState(0);
-  const toolbarRef = useRef<HTMLDivElement>(null);
-  const isCompactToolbar = useCompactToolbarMode({ ref: toolbarRef });
+  const isCompactToolbar = useCompactToolbarMode();
   const [isLinkPopoverOpen, setIsLinkPopoverOpen] = useState(false);
   const [isImagePopoverOpen, setIsImagePopoverOpen] = useState(false);
   const [isAlignDropdownOpen, setIsAlignDropdownOpen] = useState(false);
@@ -1388,7 +1358,6 @@ function AppEditorToolbarComponent({
       role="toolbar"
       aria-label="Barra de herramientas del editor"
       data-toolbar-mode={isCompactToolbar ? "compact" : "default"}
-      ref={toolbarRef}
       onMouseDownCapture={handleToolbarMouseDownCapture}
     >
       <div className={styles.toolbarSection} data-group="heading">
