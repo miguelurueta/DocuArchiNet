@@ -2,7 +2,7 @@ import { Editor } from "@tiptap/core";
 import { describe, expect, it } from "vitest";
 import { buildAppEditorExtensions } from "./infrastructure/tiptap.extensions";
 
-describe("ResizableImage extension [SPEC:AJUSTE-DESPLAZAMIENTO-IMAGEN-APPEDITOR-GESTIONCORRESPONDENCIA-11-FE]", () => {
+describe("ResizableImage extension [SPEC:AJUSTE-DESPLAZAMIENTO-IMAGEN-APPEDITOR-GESTIONCORRESPONDENCIA-11-FE] [SPEC:APP-APPEDITORPDF-11-FE]", () => {
   it("serializa y rehidrata data-align junto con data-width", () => {
     const editor = new Editor({
       extensions: buildAppEditorExtensions(),

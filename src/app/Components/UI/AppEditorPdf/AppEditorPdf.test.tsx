@@ -1,15 +1,47 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppEditorPdf } from "./AppEditorPdf";
 import styles from "./AppEditorPdf.module.css";
 
-const appEditorMock = vi.fn(() => <div data-testid="app-editor-mock" />);
+const appEditorMock = vi.fn((props: unknown) => {
+  const toolbarActions = (props as { toolbarActions?: ReactNode }).toolbarActions;
+
+  return (
+    <div data-testid="app-editor-mock">
+      <div data-testid="app-editor-toolbar-actions">{toolbarActions}</div>
+    </div>
+  );
+});
 
 vi.mock("../AppEditor", () => ({
   AppEditor: (props: unknown) => appEditorMock(props),
 }));
 
-describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-07-FE]", () => {
+function getLatestAppEditorProps() {
+  const latestCall = appEditorMock.mock.calls.at(-1);
+  return (latestCall?.[0] ?? {}) as Record<string, unknown>;
+}
+
+function emitPageContextChange(context: {
+  currentPage: number;
+  totalPages: number;
+  source: "cursor" | "scroll";
+}) {
+  const onPageContextChange = getLatestAppEditorProps()
+    .onPageContextChange as ((value: typeof context) => void) | undefined;
+  onPageContextChange?.(context);
+}
+
+function emitPageBreakCommandReady(command: (() => boolean) | null) {
+  const onPageBreakCommandReady = getLatestAppEditorProps()
+    .onPageBreakCommandReady as ((value: typeof command) => void) | undefined;
+  onPageBreakCommandReady?.(command);
+}
+
+describe(
+  "AppEditorPdf [SPEC:APP-APPEDITORPDF-07-FE] [SPEC:APP-APPEDITORPDF-08-FE] [SPEC:APP-APPEDITORPDF-09-FE] [SPEC:APP-APPEDITORPDF-10-FE]",
+  () => {
   beforeEach(() => {
     appEditorMock.mockClear();
   });
@@ -192,4 +224,120 @@ describe("AppEditorPdf [SPEC:APP-APPEDITORPDF-07-FE]", () => {
     fireEvent.click(screen.getByRole("button", { name: "Pagina anterior" }));
     expect(onActivePageChange).toHaveBeenCalledWith(1);
   });
-});
+
+  it("usa contexto de pagina del editor con prioridad de cursor para el contador FE-08", () => {
+    render(<AppEditorPdf paginationMode="visual" totalPages={2} defaultActivePage={1} />);
+
+    expect(screen.getByText("Pagina 1 de 2")).toBeInTheDocument();
+
+    act(() => {
+      emitPageContextChange({
+        currentPage: 3,
+        totalPages: 5,
+        source: "cursor",
+      });
+    });
+
+    expect(screen.getByText("Pagina 3 de 5")).toBeInTheDocument();
+  });
+
+  it("publica callback opcional de contexto de pagina para consumidores avanzados", () => {
+    const onPageContextChange = vi.fn();
+
+    render(
+      <AppEditorPdf
+        paginationMode="visual"
+        totalPages={4}
+        onPageContextChange={onPageContextChange}
+      />,
+    );
+
+    act(() => {
+      emitPageContextChange({
+        currentPage: 2,
+        totalPages: 4,
+        source: "scroll",
+      });
+    });
+
+    expect(onPageContextChange).toHaveBeenCalledWith({
+      currentPage: 2,
+      totalPages: 4,
+      source: "scroll",
+    });
+  });
+
+  it("preserva pagina controlada por props mientras actualiza totalPages desde contexto visual", () => {
+    render(<AppEditorPdf paginationMode="visual" activePage={2} totalPages={3} />);
+
+    act(() => {
+      emitPageContextChange({
+        currentPage: 4,
+        totalPages: 5,
+        source: "cursor",
+      });
+    });
+
+    expect(screen.getByText("Pagina 2 de 5")).toBeInTheDocument();
+  });
+
+  it("renderiza accion manual de salto de pagina cuando se habilita la toolbar FE-09", () => {
+    const insertPageBreak = vi.fn(() => true);
+
+    render(<AppEditorPdf paginationMode="visual" showPageBreakAction />);
+
+    expect(screen.getByTestId("app-editor-pdf-page-break-action")).toBeDisabled();
+
+    act(() => {
+      emitPageBreakCommandReady(insertPageBreak);
+    });
+
+    fireEvent.click(screen.getByTestId("app-editor-pdf-page-break-action"));
+
+    expect(insertPageBreak).toHaveBeenCalledTimes(1);
+  });
+
+  it("no expone accion manual cuando el consumidor no la solicita", () => {
+    render(<AppEditorPdf paginationMode="visual" />);
+
+    expect(screen.queryByTestId("app-editor-pdf-page-break-action")).not.toBeInTheDocument();
+  });
+
+  it("mantiene la accion manual como control opcional aunque el editor subyacente entregue el comando", () => {
+    const insertPageBreak = vi.fn(() => true);
+
+    render(<AppEditorPdf paginationMode="visual" showPageBreakAction={false} />);
+
+    act(() => {
+      emitPageBreakCommandReady(insertPageBreak);
+    });
+
+    expect(screen.queryByTestId("app-editor-pdf-page-break-action")).not.toBeInTheDocument();
+  });
+
+  it("compone la accion de salto manual con toolbarActions externas", () => {
+    const insertPageBreak = vi.fn(() => true);
+
+    render(
+      <AppEditorPdf
+        paginationMode="visual"
+        showPageBreakAction
+        toolbarActions={<button type="button">Accion externa</button>}
+      />,
+    );
+
+    act(() => {
+      emitPageBreakCommandReady(insertPageBreak);
+    });
+
+    expect(screen.getByRole("button", { name: "Accion externa" })).toBeInTheDocument();
+    expect(screen.getByTestId("app-editor-pdf-page-break-action")).toBeInTheDocument();
+  });
+
+  it("no expone toggle de tema en la toolbar por defecto (FE-10)", () => {
+    render(<AppEditorPdf paginationMode="visual" />);
+
+    expect(screen.queryByRole("button", { name: /tema/i })).not.toBeInTheDocument();
+  });
+  },
+);

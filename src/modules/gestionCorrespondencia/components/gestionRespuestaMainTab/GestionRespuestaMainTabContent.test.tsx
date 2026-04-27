@@ -37,18 +37,16 @@ vi.mock("../../../../app/Components/UI/AppUpload/AppUpload", () => ({
 }));
 
 describe("GestionRespuestaMainTabContent", () => {
-  it("renderiza AppEditor como superficie principal del contenedor", async () => {
+  it("renderiza el editor principal dentro del contenedor", async () => {
     const { container } = render(<GestionRespuestaMainTabContent />);
 
     expect(screen.queryByText(/Aqui se renderizara el editor de contenido/i)).not.toBeInTheDocument();
 
     await waitFor(() => {
-      expect(
-        screen.getByLabelText("Contenido del editor principal de respuesta"),
-      ).toBeInTheDocument();
+      expect(screen.getByLabelText("Contenido del editor principal de respuesta")).toBeInTheDocument();
     });
 
-    expect(container.querySelector('[aria-label="Contenido del editor principal de respuesta"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-pagination-mode="visual"]')).toBeInTheDocument();
   });
 
   it("mantiene operativo el colapso y expansion del panel lateral", async () => {

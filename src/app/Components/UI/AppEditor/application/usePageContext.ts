@@ -8,6 +8,7 @@ type UsePageContextOptions = {
   zoomLevel?: number;
   debounceMs?: number;
 };
+type PageContextSource = "cursor" | "scroll";
 
 const DEFAULT_PAGE = 1;
 const MIN_HYSTERESIS_PX = 18;
@@ -116,7 +117,10 @@ export function usePageContext({
   zoomLevel = 1,
   debounceMs = 32,
 }: UsePageContextOptions) {
-  const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
+  const [pageState, setPageState] = useState<{
+    currentPage: number;
+    source: PageContextSource;
+  }>({ currentPage: DEFAULT_PAGE, source: "scroll" });
   const timeoutRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);
   const currentPageRef = useRef(DEFAULT_PAGE);
@@ -133,9 +137,13 @@ export function usePageContext({
     }
   }, []);
 
-  const commitPage = useCallback((nextPage: number) => {
+  const commitPage = useCallback((nextPage: number, source: PageContextSource) => {
     currentPageRef.current = nextPage;
-    setCurrentPage((previousPage) => (previousPage === nextPage ? previousPage : nextPage));
+    setPageState((previousState) =>
+      previousState.currentPage === nextPage && previousState.source === source
+        ? previousState
+        : { currentPage: nextPage, source },
+    );
   }, []);
 
   const resolvePageFromScroll = useCallback(() => {
@@ -164,42 +172,46 @@ export function usePageContext({
 
   const updateCurrentPage = useCallback(() => {
     if (!enabled) {
-      commitPage(DEFAULT_PAGE);
+      commitPage(DEFAULT_PAGE, "scroll");
       return;
     }
-    commitPage(resolvePageFromScroll());
+
+    commitPage(resolvePageFromScroll(), "scroll");
   }, [commitPage, enabled, resolvePageFromScroll]);
 
-  const scheduleUpdate = useCallback((priority: "immediate" | "frame" | "deferred" = "deferred") => {
-    clearPending();
+  const scheduleUpdate = useCallback(
+    (priority: "immediate" | "frame" | "deferred" = "deferred") => {
+      clearPending();
 
-    if (priority === "immediate") {
-      updateCurrentPage();
-      return;
-    }
-
-    if (priority === "frame") {
-      frameRef.current = window.requestAnimationFrame(() => {
+      if (priority === "immediate") {
         updateCurrentPage();
-        frameRef.current = null;
-      });
-      return;
-    }
-
-    timeoutRef.current = window.setTimeout(() => {
-      if (typeof window.requestAnimationFrame !== "function") {
-        updateCurrentPage();
-        timeoutRef.current = null;
         return;
       }
 
-      frameRef.current = window.requestAnimationFrame(() => {
-        updateCurrentPage();
-        frameRef.current = null;
-      });
-      timeoutRef.current = null;
-    }, debounceMs);
-  }, [clearPending, debounceMs, updateCurrentPage]);
+      if (priority === "frame") {
+        frameRef.current = window.requestAnimationFrame(() => {
+          updateCurrentPage();
+          frameRef.current = null;
+        });
+        return;
+      }
+
+      timeoutRef.current = window.setTimeout(() => {
+        if (typeof window.requestAnimationFrame !== "function") {
+          updateCurrentPage();
+          timeoutRef.current = null;
+          return;
+        }
+
+        frameRef.current = window.requestAnimationFrame(() => {
+          updateCurrentPage();
+          frameRef.current = null;
+        });
+        timeoutRef.current = null;
+      }, debounceMs);
+    },
+    [clearPending, debounceMs, updateCurrentPage],
+  );
 
   useEffect(() => {
     if (!enabled) {
@@ -227,9 +239,10 @@ export function usePageContext({
         handlePaginationUpdated as EventListener,
       );
     };
-  }, [canvasRef, clearPending, commitPage, enabled, scheduleUpdate]);
+  }, [canvasRef, clearPending, enabled, scheduleUpdate]);
 
   return {
-    currentPage: enabled ? clampPage(currentPage, totalPages) : DEFAULT_PAGE,
+    currentPage: enabled ? clampPage(pageState.currentPage, totalPages) : DEFAULT_PAGE,
+    currentPageSource: pageState.source,
   };
 }

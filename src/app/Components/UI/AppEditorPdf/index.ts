@@ -1,4 +1,5 @@
 export { AppEditorPdf } from "./AppEditorPdf";
+export { AppEditorPdfPageBreakAction } from "./AppEditorPdfPageBreakAction";
 export { AppEditorSaveAction as AppEditorPdfSaveAction } from "../AppEditor";
 export { normalizeEditorHtml as normalizeEditorPdfHtml } from "../AppEditor";
 export { useAppEditorSaveState as useAppEditorPdfSaveState } from "../AppEditor";
@@ -7,6 +8,8 @@ export type {
   AppEditorPdfHeadingLevel,
   AppEditorPdfPaginationMode,
   AppEditorPdfPageFormat,
+  AppEditorPdfPageContext,
+  AppEditorPdfPageContextSource,
   AppEditorPdfPageMargins,
   AppEditorPdfPageOrientation,
   AppEditorPdfProps,

@@ -12,6 +12,12 @@ export type AppEditorPageMargins = {
   bottom: number;
   left: number;
 };
+export type AppEditorPageContextSource = "cursor" | "scroll";
+export type AppEditorPageContext = {
+  currentPage: number;
+  totalPages: number;
+  source: AppEditorPageContextSource;
+};
 
 export type AppEditorProps = {
   value?: string;
@@ -43,6 +49,8 @@ export type AppEditorProps = {
   minZoomLevel?: number;
   maxZoomLevel?: number;
   onZoomChange?: (zoom: number) => void;
+  onPageContextChange?: (context: AppEditorPageContext) => void;
+  onPageBreakCommandReady?: (command: (() => boolean) | null) => void;
   "aria-label"?: string;
 };
 

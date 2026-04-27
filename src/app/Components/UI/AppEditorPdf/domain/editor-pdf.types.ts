@@ -2,6 +2,7 @@ import type {
   AppEditorHeadingLevel,
   AppEditorPaginationMode,
   AppEditorPageFormat,
+  AppEditorPageContextSource,
   AppEditorPageMargins,
   AppEditorPageOrientation,
   AppEditorProps,
@@ -37,6 +38,14 @@ export type AppEditorPdfVisualMetrics = {
   contentHeight: number;
   pageMargins: AppEditorPdfPageMargins;
 };
+export type AppEditorPdfPageContextSource =
+  | AppEditorPageContextSource
+  | "external";
+export type AppEditorPdfPageContext = {
+  currentPage: number;
+  totalPages: number;
+  source: AppEditorPdfPageContextSource;
+};
 
 export type AppEditorPdfProps = AppEditorProps & {
   documentSource?: string;
@@ -44,6 +53,8 @@ export type AppEditorPdfProps = AppEditorProps & {
   activePage?: number;
   defaultActivePage?: number;
   onActivePageChange?: (page: number) => void;
+  onPageContextChange?: (context: AppEditorPdfPageContext) => void;
+  showPageBreakAction?: boolean;
   visualGuides?: AppEditorPdfVisualGuides;
   onMetricsChange?: (metrics: AppEditorPdfVisualMetrics) => void;
 };
