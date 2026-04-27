@@ -73,6 +73,46 @@ describe("autoPageBreak", () => {
     editor.destroy();
   });
 
+  it("preserva el mark de link al partir un parrafo dentro del link", () => {
+    const editor = new Editor({
+      extensions: buildAppEditorExtensions(),
+      content: '<p>ab<a href="https://example.com">cdef</a>gh</p>',
+    });
+
+    // Cursor dentro del texto enlazado.
+    editor.commands.setTextSelection(6);
+
+    const result = splitBlockAndInsertPageBreak(editor as never);
+
+    expect(result).toBe(true);
+    const html = editor.getHTML();
+    expect(html).toContain('<div data-page-break="true"></div>');
+    // El href debe sobrevivir al split (idealmente en ambos fragmentos).
+    expect(html.split('href="https://example.com"').length - 1).toBeGreaterThanOrEqual(1);
+
+    editor.destroy();
+  });
+
+  it("preserva marks inline (bold/italic/underline) al partir un parrafo", () => {
+    const editor = new Editor({
+      extensions: buildAppEditorExtensions(),
+      content: "<p><strong>abcd</strong><em>efgh</em><u>ijkl</u></p>",
+    });
+
+    editor.commands.setTextSelection(6);
+
+    const result = splitBlockAndInsertPageBreak(editor as never);
+
+    expect(result).toBe(true);
+    const html = editor.getHTML();
+    expect(html).toContain('<div data-page-break="true"></div>');
+    expect(html).toContain("<strong>");
+    expect(html).toContain("<em>");
+    expect(html).toContain("<u>");
+
+    editor.destroy();
+  });
+
   it("usa la posicion objetivo aunque la seleccion actual este en otro bloque", () => {
     const editor = new Editor({
       extensions: buildAppEditorExtensions(),

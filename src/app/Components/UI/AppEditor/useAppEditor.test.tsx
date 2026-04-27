@@ -590,6 +590,155 @@ function VisualAutoBreakCleanupHarness() {
   );
 }
 
+function VisualInlineMarksHarness() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [forceOverflow, setForceOverflow] = useState(false);
+  const { editor } = useAppEditor({
+    defaultValue:
+      '<p>Inicio <a href="https://example.com">link</a> <strong>negrita</strong> <em>cursiva</em> <u>subrayado</u> fin</p>',
+    paginationMode: "visual",
+    pageHeight: 1123,
+    pageGap: 32,
+    pageMargins: { top: 96, right: 72, bottom: 96, left: 72 },
+    zoomLevel: 1,
+  });
+
+  useEffect(() => {
+    const sheet = canvasRef.current?.querySelector('[data-pagination-sheet="true"]');
+    const proseMirror = containerRef.current?.querySelector(".ProseMirror");
+    if (!(proseMirror instanceof HTMLElement)) {
+      return;
+    }
+
+    Object.defineProperty(proseMirror, "scrollHeight", {
+      configurable: true,
+      value: forceOverflow ? 1800 : 880,
+    });
+
+    if (sheet instanceof HTMLElement) {
+      Object.defineProperty(sheet, "offsetTop", {
+        configurable: true,
+        value: 0,
+      });
+    }
+
+    applySyntheticPageLayout(proseMirror, {
+      maxBlocksPerPage: forceOverflow ? 0 : 8,
+    });
+
+    proseMirror.dispatchEvent(
+      new CustomEvent("app-editor-pagination-updated", { bubbles: true }),
+    );
+  }, [editor, forceOverflow]);
+
+  return (
+    <div ref={containerRef}>
+      <div ref={canvasRef}>
+        <div data-pagination-sheet="true">
+          <TiptapEditorContent editor={editor} />
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => {
+          editor?.commands.insertContent(" x");
+          setForceOverflow(true);
+        }}
+      >
+        trigger-reflow
+      </button>
+      <output data-testid="marks-html">{editor?.getHTML() ?? ""}</output>
+    </div>
+  );
+}
+
+function VisualCrossPageSelectionHarness() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [forceOverflow, setForceOverflow] = useState(false);
+  const { editor } = useAppEditor({
+    defaultValue: "<p>Uno dos tres cuatro cinco seis siete ocho nueve diez</p>",
+    paginationMode: "visual",
+    pageHeight: 1123,
+    pageGap: 32,
+    pageMargins: { top: 96, right: 72, bottom: 96, left: 72 },
+    zoomLevel: 1,
+  });
+
+  useEffect(() => {
+    const sheet = canvasRef.current?.querySelector('[data-pagination-sheet="true"]');
+    const proseMirror = containerRef.current?.querySelector(".ProseMirror");
+    if (!(proseMirror instanceof HTMLElement)) {
+      return;
+    }
+
+    Object.defineProperty(proseMirror, "scrollHeight", {
+      configurable: true,
+      value: forceOverflow ? 1800 : 880,
+    });
+
+    if (sheet instanceof HTMLElement) {
+      Object.defineProperty(sheet, "offsetTop", {
+        configurable: true,
+        value: 0,
+      });
+    }
+
+    applySyntheticPageLayout(proseMirror, {
+      maxBlocksPerPage: forceOverflow ? 0 : 8,
+    });
+
+    proseMirror.dispatchEvent(
+      new CustomEvent("app-editor-pagination-updated", { bubbles: true }),
+    );
+  }, [editor, forceOverflow]);
+
+  return (
+    <div ref={containerRef}>
+      <div ref={canvasRef}>
+        <div data-pagination-sheet="true">
+          <TiptapEditorContent editor={editor} />
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={() => {
+          if (!editor) {
+            return;
+          }
+
+          editor.commands.setTextSelection({
+            from: 4,
+            to: Math.min(24, editor.state.doc.content.size),
+          });
+          setForceOverflow(true);
+          editor.commands.insertContent("!");
+        }}
+      >
+        select-near-cut-and-type
+      </button>
+      <output data-testid="selection-from">{String(editor?.state.selection.from ?? 0)}</output>
+      <output data-testid="selection-to">{String(editor?.state.selection.to ?? 0)}</output>
+      <output data-testid="selection-text">
+        {String(
+          editor
+            ? editor.state.doc.textBetween(
+                editor.state.selection.from,
+                editor.state.selection.to,
+                "",
+                "",
+              )
+            : "",
+        )}
+      </output>
+      <output data-testid="selection-parent-text">
+        {editor?.state.selection.$from.parent.textContent ?? ""}
+      </output>
+    </div>
+  );
+}
+
 describe("useAppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => {
   it("preserva el anclaje vertical del caret al restaurar scroll tras repaginacion", () => {
     const editor = {
@@ -945,6 +1094,35 @@ describe("useAppEditor [SPEC:IMPLEMENTACION-COMPONENTE-APPEDITOR-01-FE]", () => 
       expect(Number(screen.getByTestId("multi-paste-selection-parent-offset").textContent)).toBe(
         "Bloque pegado 30".length,
       );
+    });
+  });
+
+  it("conserva links y marks inline tras reflow visual", async () => {
+    render(<VisualInlineMarksHarness />);
+
+    fireEvent.click(screen.getByText("trigger-reflow"));
+
+    await waitFor(() => {
+      const html = screen.getByTestId("marks-html").textContent ?? "";
+      expect(html).toContain('href="https://example.com"');
+      expect(html).toContain("<strong>");
+      expect(html).toContain("<em>");
+      expect(html).toContain("<u>");
+    });
+  });
+
+  it("mantiene seleccion estable cerca del corte de pagina tras reflow", async () => {
+    render(<VisualCrossPageSelectionHarness />);
+
+    fireEvent.click(screen.getByText("select-near-cut-and-type"));
+
+    await waitFor(() => {
+      const from = Number(screen.getByTestId("selection-from").textContent ?? "0");
+      const to = Number(screen.getByTestId("selection-to").textContent ?? "0");
+      expect(from).toBeGreaterThan(0);
+      expect(to).toBeGreaterThanOrEqual(from);
+      // Selection may be collapsed to a cursor; we only require it stays valid and within content.
+      expect(screen.getByTestId("selection-parent-text").textContent ?? "").not.toBe("");
     });
   });
 });
