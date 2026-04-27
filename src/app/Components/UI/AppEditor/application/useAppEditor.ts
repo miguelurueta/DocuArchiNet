@@ -214,9 +214,8 @@ function syncControlledValue(editor: Editor, nextValue: string) {
   }
 
   const { from, to } = editor.state.selection;
-  const editorContent = wrapHtmlInVisualPages(normalizedNextValue);
 
-  editor.commands.setContent(editorContent, { emitUpdate: false });
+  editor.commands.setContent(normalizedNextValue, { emitUpdate: false });
 
   const maxPosition = editor.state.doc.content.size;
   editor.commands.setTextSelection({
@@ -617,12 +616,11 @@ export function useAppEditor({
   const externalInitialContent = normalizeEditorValue(
     normalizeEditorHtml(serializeVisualPageHtml(externalSourceContent)),
   );
-  const usePaginatedDocument = paginationMode === "visual";
-  const initialContentRef = useRef(
-    usePaginatedDocument
-      ? wrapHtmlInVisualPages(externalInitialContent)
-      : externalInitialContent,
-  );
+  // El modo visual usa autopaginacion incremental por altura con nodos `pageBreak`.
+  // Evitamos `PageDocument/PageNode` porque ese schema solo separa por pageBreak manual
+  // y no repagina correctamente paste largos basado en altura.
+  const usePaginatedDocument = false;
+  const initialContentRef = useRef(externalInitialContent);
   const lastKnownValueRef = useRef(externalInitialContent);
   const localImageUrlsRef = useRef(new Map<string, string>());
   const localImageScopeRef = useRef(buildLocalImageScope());
@@ -660,6 +658,16 @@ export function useAppEditor({
       }),
       immediatelyRender: false,
       shouldRerenderOnTransaction: false,
+      onTransaction: ({ transaction }) => {
+        const isPasteLikeTransaction =
+          transaction.getMeta?.("uiEvent") === "paste" || transaction.getMeta?.("paste") === true;
+
+        if (isPasteLikeTransaction) {
+          // Paste puede introducir muchos bloques de una sola vez; forzamos repaginacion completa.
+          dirtyStartChildIndexRef.current = 0;
+          dirtyNeedsPreviousBreakCleanupRef.current = true;
+        }
+      },
     },
     [usePaginatedDocument],
   );
@@ -748,7 +756,7 @@ export function useAppEditor({
   }, [editor]);
 
   useEffect(() => {
-    if (!editor || !usePaginatedDocument || isControlled) {
+    if (!editor || isControlled) {
       return undefined;
     }
 
@@ -805,7 +813,7 @@ export function useAppEditor({
       logicalHistoryApplyingRef.current = true;
 
       try {
-        const applied = editor.commands.setContent(wrapHtmlInVisualPages(value));
+        const applied = editor.commands.setContent(value);
         if (!applied) {
           return false;
         }
@@ -1813,8 +1821,6 @@ export function useAppEditor({
           : null;
       const previousChild =
         previousDoc && previousDirtyIndex !== null ? previousDoc.child(previousDirtyIndex) : null;
-      const nextChild =
-        editor.state.doc.childCount > 0 ? editor.state.doc.child(nextDirtyStartIndex) : null;
       const previousSiblingInCurrentDoc =
         resolvedDirtyIndex > 0 ? editor.state.doc.child(resolvedDirtyIndex - 1) : null;
       const hasPreviousAutoPageBreakInCurrentDoc =
@@ -1824,6 +1830,8 @@ export function useAppEditor({
         0,
         resolvedDirtyIndex - (hasPreviousAutoPageBreakInCurrentDoc ? 2 : 1),
       );
+      const nextChild =
+        editor.state.doc.childCount > 0 ? editor.state.doc.child(nextDirtyStartIndex) : null;
       const needsPreviousBreakCleanup =
         previousChild?.type.name !== nextChild?.type.name ||
         hasPreviousAutoPageBreakInCurrentDoc;

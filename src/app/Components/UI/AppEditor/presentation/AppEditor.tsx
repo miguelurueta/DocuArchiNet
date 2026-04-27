@@ -425,19 +425,26 @@ export function AppEditor({
             <div className={styles.canvas} ref={paginationCanvasRef}>
               <div className={styles.zoomStage}>
                 <div className={styles.sheet} data-pagination-sheet="true">
-                  <TiptapEditorContent
-                    editor={editor}
-                    className={joinClasses(
-                      styles.editorContent,
-                      styles.editorContentPaged,
-                      surfaceClassName,
-                      Boolean(error) && styles.surfaceError,
-                    )}
-                    aria-labelledby={labelId}
-                    aria-label={resolvedAriaLabel}
-                    aria-describedby={describedBy}
-                    aria-invalid={Boolean(error)}
-                  />
+                  <div className={styles.pageStack} aria-hidden="true">
+                    {Array.from({ length: totalPages }, (_, index) => (
+                      <div key={index} className={styles.pageShell} />
+                    ))}
+                  </div>
+                  <div className={styles.contentFlow}>
+                    <TiptapEditorContent
+                      editor={editor}
+                      className={joinClasses(
+                        styles.editorContent,
+                        styles.editorContentPaged,
+                        surfaceClassName,
+                        Boolean(error) && styles.surfaceError,
+                      )}
+                      aria-labelledby={labelId}
+                      aria-label={resolvedAriaLabel}
+                      aria-describedby={describedBy}
+                      aria-invalid={Boolean(error)}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
