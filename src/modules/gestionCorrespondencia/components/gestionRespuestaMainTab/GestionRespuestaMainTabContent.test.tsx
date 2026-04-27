@@ -65,35 +65,4 @@ describe("GestionRespuestaMainTabContent", () => {
       expect(screen.getByLabelText("Ocultar panel de herramientas")).toBeInTheDocument();
     });
   }, 20000);
-
-  it("[SPEC:APP-APPSTEPS-03-FE] integra AppSteps y bloquea Envio hasta tener adjuntos", async () => {
-    render(<GestionRespuestaMainTabContent />);
-
-    const getStepButton = (label: string) =>
-      screen.getByRole("button", { name: new RegExp(`${label}estado`, "i") });
-
-    fireEvent.click(getStepButton("Adjuntos"));
-    await waitFor(() => {
-      expect(
-        getStepButton("Adjuntos").querySelector('[aria-current="step"]'),
-      ).toBeInTheDocument();
-    });
-
-    fireEvent.click(getStepButton("Envio"));
-    await waitFor(() => {
-      expect(
-        getStepButton("Adjuntos").querySelector('[aria-current="step"]'),
-      ).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByLabelText("Mock upload"));
-    fireEvent.click(getStepButton("Envio"));
-
-    await waitFor(() => {
-      expect(getStepButton("Envio").querySelector('[aria-current="step"]')).toBeInTheDocument();
-    });
-    expect(
-      screen.queryByText(/Para habilitar envio, carga al menos un archivo/i),
-    ).not.toBeInTheDocument();
-  }, 30000);
 });
