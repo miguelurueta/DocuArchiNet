@@ -286,6 +286,8 @@ describe(
 
     render(<AppEditorPdf paginationMode="visual" showPageBreakAction />);
 
+    expect(screen.getByTestId("app-editor-pdf-page-break-action")).toBeDisabled();
+
     act(() => {
       emitPageBreakCommandReady(insertPageBreak);
     });
@@ -293,6 +295,24 @@ describe(
     fireEvent.click(screen.getByTestId("app-editor-pdf-page-break-action"));
 
     expect(insertPageBreak).toHaveBeenCalledTimes(1);
+  });
+
+  it("no expone accion manual cuando el consumidor no la solicita", () => {
+    render(<AppEditorPdf paginationMode="visual" />);
+
+    expect(screen.queryByTestId("app-editor-pdf-page-break-action")).not.toBeInTheDocument();
+  });
+
+  it("mantiene la accion manual como control opcional aunque el editor subyacente entregue el comando", () => {
+    const insertPageBreak = vi.fn(() => true);
+
+    render(<AppEditorPdf paginationMode="visual" showPageBreakAction={false} />);
+
+    act(() => {
+      emitPageBreakCommandReady(insertPageBreak);
+    });
+
+    expect(screen.queryByTestId("app-editor-pdf-page-break-action")).not.toBeInTheDocument();
   });
 
   it("compone la accion de salto manual con toolbarActions externas", () => {
