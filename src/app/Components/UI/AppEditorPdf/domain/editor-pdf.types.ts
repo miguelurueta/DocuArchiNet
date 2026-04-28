@@ -57,4 +57,9 @@ export type AppEditorPdfProps = AppEditorProps & {
   showPageBreakAction?: boolean;
   visualGuides?: AppEditorPdfVisualGuides;
   onMetricsChange?: (metrics: AppEditorPdfVisualMetrics) => void;
+  /**
+   * Dev-only helper to diagnose unnecessary rerenders without affecting the editor engine.
+   * When enabled, AppEditorPdf sets `data-render-count` on the shell.
+   */
+  debugRenders?: boolean;
 };
