@@ -16,6 +16,8 @@ export function PdfDocumentViewer({ src, title = "Documento PDF" }: PdfDocumentV
   const [numPages, setNumPages] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [zoom, setZoom] = useState(1);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const canPrev = pageNumber > 1;
   const canNext = numPages > 0 && pageNumber < numPages;
@@ -23,6 +25,7 @@ export function PdfDocumentViewer({ src, title = "Documento PDF" }: PdfDocumentV
   const handleLoadSuccess = useCallback(({ numPages: nextNumPages }: { numPages: number }) => {
     setNumPages(nextNumPages);
     setPageNumber(1);
+    setLoadError(null);
   }, []);
 
   const zoomLabel = useMemo(() => `${Math.round(zoom * 100)}%`, [zoom]);
@@ -90,9 +93,52 @@ export function PdfDocumentViewer({ src, title = "Documento PDF" }: PdfDocumentV
       </header>
 
       <div className={styles.pdfCanvas} aria-label={title}>
-        <Document file={src} onLoadSuccess={handleLoadSuccess} loading="Cargando PDF...">
-          <Page pageNumber={pageNumber} scale={zoom} renderTextLayer={false} renderAnnotationLayer />
-        </Document>
+        {loadError ? (
+          <div className={styles.pdfError} role="alert" aria-label="No se pudo cargar el PDF">
+            <p className={styles.pdfErrorTitle}>No pudimos cargar el documento</p>
+            <p className={styles.pdfErrorCopy}>
+              Verifica que el archivo exista y que tu navegador permita abrir PDFs. Si el problema
+              persiste, abre el documento en una pestaña nueva.
+            </p>
+            <div className={styles.pdfErrorActions}>
+              <button
+                type="button"
+                className={styles.pdfButton}
+                onClick={() => {
+                  setLoadError(null);
+                  setReloadKey((prev) => prev + 1);
+                }}
+              >
+                Reintentar
+              </button>
+              <a className={styles.pdfLink} href={src} target="_blank" rel="noreferrer">
+                Abrir en pestaña
+              </a>
+            </div>
+            <p className={styles.pdfErrorHint}>
+              Detalle tecnico: {loadError}
+            </p>
+          </div>
+        ) : (
+          <Document
+            key={reloadKey}
+            file={src}
+            onLoadSuccess={handleLoadSuccess}
+            onLoadError={(err) => setLoadError(err?.message || "Error desconocido")}
+            onSourceError={(err) => setLoadError(err?.message || "Error de origen")}
+            loading={<div className={styles.pdfLoading}>Cargando documento...</div>}
+            error={<div className={styles.pdfLoading}>No se pudo mostrar el documento.</div>}
+            noData={<div className={styles.pdfLoading}>No hay documento para mostrar.</div>}
+          >
+            <Page
+              pageNumber={pageNumber}
+              scale={zoom}
+              renderTextLayer={false}
+              renderAnnotationLayer
+              loading={<div className={styles.pdfLoading}>Cargando pagina...</div>}
+            />
+          </Document>
+        )}
       </div>
     </section>
   );
