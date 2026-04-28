@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { AppEditor } from "../AppEditor";
 import { AppEditorPdfPageBreakAction } from "./AppEditorPdfPageBreakAction";
@@ -80,6 +80,23 @@ function normalizeGuidesConfig(visualGuides?: AppEditorPdfVisualGuides) {
   };
 }
 
+function areMetricsEqual(left: AppEditorPdfVisualMetrics, right: AppEditorPdfVisualMetrics) {
+  return (
+    left.documentSource === right.documentSource &&
+    left.currentPage === right.currentPage &&
+    left.totalPages === right.totalPages &&
+    left.zoomLevel === right.zoomLevel &&
+    left.pageWidth === right.pageWidth &&
+    left.pageHeight === right.pageHeight &&
+    left.contentWidth === right.contentWidth &&
+    left.contentHeight === right.contentHeight &&
+    left.pageMargins.top === right.pageMargins.top &&
+    left.pageMargins.right === right.pageMargins.right &&
+    left.pageMargins.bottom === right.pageMargins.bottom &&
+    left.pageMargins.left === right.pageMargins.left
+  );
+}
+
 export function AppEditorPdf(props: AppEditorPdfProps) {
   const {
     className,
@@ -100,9 +117,13 @@ export function AppEditorPdf(props: AppEditorPdfProps) {
     zoomLevel,
     defaultZoomLevel = 1,
     toolbarActions,
+    debugRenders = false,
     "aria-label": ariaLabel,
     ...rest
   } = props;
+
+  const renderCountRef = useRef(0);
+  renderCountRef.current += 1;
 
   const resolvedPageMargins = useMemo(
     () => ({
@@ -195,8 +216,19 @@ export function AppEditorPdf(props: AppEditorPdfProps) {
     resolvedZoomLevel,
   ]);
 
+  const lastPublishedMetricsRef = useRef<AppEditorPdfVisualMetrics | null>(null);
   useEffect(() => {
-    onMetricsChange?.(metrics);
+    if (!onMetricsChange) return;
+
+    // Avoid spamming consumers if a rerender didn't change the calculated metrics.
+    // This is important for FE-18 since AppEditorPdf can rerender due to unrelated props.
+    const previous = lastPublishedMetricsRef.current;
+    if (previous && areMetricsEqual(previous, metrics)) {
+      return;
+    }
+
+    lastPublishedMetricsRef.current = metrics;
+    onMetricsChange(metrics);
   }, [metrics, onMetricsChange]);
   const handlePageContextChange = useCallback(
     (context: {
@@ -275,6 +307,7 @@ export function AppEditorPdf(props: AppEditorPdfProps) {
       data-total-pages={resolvedTotalPages}
       data-pagination-mode={paginationMode}
       data-zoom-level={resolvedZoomLevel}
+      data-render-count={debugRenders ? String(renderCountRef.current) : undefined}
     >
       <AppEditor
         {...rest}
