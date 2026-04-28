@@ -12,6 +12,10 @@
 .guides {
   position: absolute;
   inset: 0;
+  width: calc(100% / var(--app-editor-pdf-zoom, 1));
+  height: calc(100% / var(--app-editor-pdf-zoom, 1));
+  transform: scale(var(--app-editor-pdf-zoom, 1));
+  transform-origin: top left;
   pointer-events: none;
   z-index: 2;
 }

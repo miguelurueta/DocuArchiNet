@@ -283,7 +283,7 @@ export function AppEditorPdf(props: AppEditorPdfProps) {
         pageFormat={pageFormat}
         pageOrientation={pageOrientation}
         pageMargins={resolvedPageMargins}
-        zoomLevel={zoomLevel}
+        zoomLevel={resolvedZoomLevel}
         defaultZoomLevel={defaultZoomLevel}
         onPageContextChange={handlePageContextChange}
         onPageBreakCommandReady={handlePageBreakCommandReady}
@@ -292,7 +292,15 @@ export function AppEditorPdf(props: AppEditorPdfProps) {
         toolbarActions={composedToolbarActions}
       />
       {paginationMode === "visual" && guidesConfig.enabled ? (
-        <div className={styles.guides} aria-hidden="true">
+        <div
+          className={styles.guides}
+          aria-hidden="true"
+          style={
+            {
+              "--app-editor-pdf-zoom": String(resolvedZoomLevel),
+            } as CSSProperties
+          }
+        >
           {guidesConfig.showPageBoundaries ? (
             <div
               className={styles.pageBoundary}

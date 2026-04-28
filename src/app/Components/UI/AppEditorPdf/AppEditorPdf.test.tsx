@@ -206,6 +206,27 @@ describe(
     );
   });
 
+  it("propaga defaultZoomLevel como zoomLevel efectivo cuando no se controla zoomLevel", () => {
+    render(<AppEditorPdf paginationMode="visual" defaultZoomLevel={1.3} />);
+
+    expect(appEditorMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        zoomLevel: 1.3,
+        defaultZoomLevel: 1.3,
+      }),
+    );
+  });
+
+  it("escala guias visuales usando el zoom efectivo", () => {
+    render(<AppEditorPdf paginationMode="visual" zoomLevel={1.25} />);
+
+    // Any guide implies the wrapper was rendered.
+    expect(screen.getByTestId("app-editor-pdf-page-boundary-guide")).toBeInTheDocument();
+
+    const guidesWrapper = screen.getByTestId("app-editor-pdf-page-boundary-guide").parentElement;
+    expect(guidesWrapper).toHaveStyle({ "--app-editor-pdf-zoom": "1.25" });
+  });
+
   it("notifica cambio de pagina al navegar con controles internos", () => {
     const onActivePageChange = vi.fn();
 
