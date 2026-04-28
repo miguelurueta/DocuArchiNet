@@ -123,6 +123,8 @@
   overflow: hidden;
   background: #ffffff;
   border: 1px solid #e2e8f0;
+  display: grid;
+  grid-template-rows: auto 1fr;
 }
 
 .pdfObject {
@@ -137,6 +139,78 @@
   padding: 1rem;
   color: #334155;
   font-size: 0.9rem;
+}
+
+.pdfToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.pdfToolbarGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pdfButton {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.8rem;
+  line-height: 1.1;
+}
+
+.pdfButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pdfMeta {
+  font-size: 0.8rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+.pdfLink {
+  font-size: 0.8rem;
+  color: #1d4ed8;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0.25rem 0.35rem;
+  border-radius: 8px;
+}
+
+.pdfLink:hover {
+  text-decoration: underline;
+}
+
+.pdfCanvas {
+  min-height: 0;
+  overflow: auto;
+  background:
+    radial-gradient(circle at top, rgba(148, 163, 184, 0.22), transparent 65%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+  padding: 1rem;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+}
+
+.pdfCanvas :global(.react-pdf__Page) {
+  background: transparent;
+  margin: 0.75rem 0;
+}
+
+.pdfCanvas :global(.react-pdf__Page__canvas) {
+  border-radius: 10px;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
 }
 
 .pdfEmpty {
