@@ -9,6 +9,20 @@
   min-width: 0;
 }
 
+/* FE-19: Keep lists inside the usable page area and avoid horizontal overflow. */
+.root :global(.ProseMirror ul),
+.root :global(.ProseMirror ol) {
+  box-sizing: border-box;
+  max-inline-size: 100%;
+  padding-inline-start: clamp(1.1rem, 2.5vw, 2.25rem);
+  margin-inline-start: 0;
+}
+
+.root :global(.ProseMirror li) {
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
 .guides {
   position: absolute;
   inset: 0;
