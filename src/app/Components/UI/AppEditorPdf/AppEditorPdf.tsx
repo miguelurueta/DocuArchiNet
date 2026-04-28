@@ -283,7 +283,7 @@ export function AppEditorPdf(props: AppEditorPdfProps) {
         pageFormat={pageFormat}
         pageOrientation={pageOrientation}
         pageMargins={resolvedPageMargins}
-        zoomLevel={zoomLevel}
+        zoomLevel={resolvedZoomLevel}
         defaultZoomLevel={defaultZoomLevel}
         onPageContextChange={handlePageContextChange}
         onPageBreakCommandReady={handlePageBreakCommandReady}

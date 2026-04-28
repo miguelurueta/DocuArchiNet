@@ -206,6 +206,17 @@ describe(
     );
   });
 
+  it("propaga defaultZoomLevel como zoomLevel efectivo cuando no se controla zoomLevel", () => {
+    render(<AppEditorPdf paginationMode="visual" defaultZoomLevel={1.3} />);
+
+    expect(appEditorMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        zoomLevel: 1.3,
+        defaultZoomLevel: 1.3,
+      }),
+    );
+  });
+
   it("notifica cambio de pagina al navegar con controles internos", () => {
     const onActivePageChange = vi.fn();
 
