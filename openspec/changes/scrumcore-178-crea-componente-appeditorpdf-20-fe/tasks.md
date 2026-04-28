@@ -10,6 +10,7 @@
 ## Implementacion (Futuro)
 
 - [ ] Implementar visual del tab Documentos en `GestionRespuesta`.
+- [ ] Integrar `AppEditorPdf` dentro del tab **Documentos**, en la seccion **Contenido principal** (panel/area principal del tab), sin duplicar engine ni mover logica a shared.
 - [ ] Agregar tests del tab Documentos.
 
 ## Flujo
@@ -18,4 +19,3 @@
 - [ ] Abrir PR hacia `main`.
 - [ ] Merge.
 - [ ] Mover ticket JIRA a Done/Finalizada.
-
