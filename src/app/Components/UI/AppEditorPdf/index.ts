@@ -4,6 +4,8 @@ export { AppEditorSaveAction as AppEditorPdfSaveAction } from "../AppEditor";
 export { normalizeEditorHtml as normalizeEditorPdfHtml } from "../AppEditor";
 export { useAppEditorSaveState as useAppEditorPdfSaveState } from "../AppEditor";
 export type { AppEditorSaveStatus as AppEditorPdfSaveStatus } from "../AppEditor";
+export { useAppEditorPdfDirtyState } from "./presentation/useAppEditorPdfDirtyState";
+export type { UseAppEditorPdfDirtyStateOptions } from "./presentation/useAppEditorPdfDirtyState";
 export type {
   AppEditorPdfHeadingLevel,
   AppEditorPdfPaginationMode,
