@@ -82,10 +82,10 @@
   overflow: auto;
   border-radius: 12px;
   border: 1px dashed #cbd5f5;
-  padding: 1rem;
+  padding: 0.5rem;
   background: #fdfefe;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: stretch;
 }
 
 .mainHint {
@@ -93,6 +93,12 @@
   color: #6b7f92;
   text-align: center;
   max-width: 320px;
+}
+
+.mainEditor {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
 }
 
 .collapseRail {

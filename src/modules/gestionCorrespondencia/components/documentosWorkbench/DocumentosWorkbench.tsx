@@ -1,6 +1,11 @@
 import { BookOutlined } from "@ant-design/icons";
 import { useEffect, useId, useMemo, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
+import {
+  AppEditorPdf,
+  AppEditorPdfSaveAction,
+  useAppEditorPdfDirtyState,
+} from "../../../../app/Components/UI/AppEditorPdf";
 import styles from "./DocumentosWorkbench.module.css";
 import { DocumentosList } from "./DocumentosList";
 import { DocumentosPreview } from "./DocumentosPreview";
@@ -35,6 +40,12 @@ export function DocumentosWorkbench() {
   const isTablet = useMediaQuery(TABLET_QUERY);
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [collapsed, setCollapsed] = useState(isTablet);
+  const [value, setValue] = useState("<p></p>");
+  const [savedValue, setSavedValue] = useState("<p></p>");
+  const { saveStatus } = useAppEditorPdfDirtyState({
+    currentValue: value,
+    savedValue,
+  });
 
   useEffect(() => {
     setCollapsed(isTablet);
@@ -61,9 +72,17 @@ export function DocumentosWorkbench() {
             </p>
           </header>
           <div className={styles.mainSurface}>
-            <p className={styles.mainHint}>
-              Arrastra aqui los componentes principales del editor.
-            </p>
+            <AppEditorPdf
+              value={value}
+              onChange={setValue}
+              className={styles.mainEditor}
+              toolbarActions={
+                <AppEditorPdfSaveAction
+                  saveStatus={saveStatus}
+                  onSave={() => setSavedValue(value)}
+                />
+              }
+            />
           </div>
         </main>
 
