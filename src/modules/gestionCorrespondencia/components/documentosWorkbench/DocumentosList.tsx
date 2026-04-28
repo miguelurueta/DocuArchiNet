@@ -16,7 +16,7 @@ export const DOCUMENTS: DocumentoWorkbenchItem[] = [
     meta: "PDF · 2.4 MB",
     kind: "pdf",
     // Placeholder: en integracion real vendra desde backend/almacenamiento.
-    href: null,
+    href: "/demo/Radicado_2026_0413.pdf",
   },
   {
     id: "doc-002",
