@@ -1,11 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { DocumentosWorkbench } from "../components/documentosWorkbench/DocumentosWorkbench";
 
-jest.mock("../../../app/Components/UI/AppEditorPdf", () => ({
-  AppEditorPdf: () => <div data-testid="app-editor-pdf" />,
-  AppEditorPdfSaveAction: () => <button type="button">Guardar</button>,
-  useAppEditorPdfDirtyState: () => ({ saveStatus: "saved", isDirty: false }),
-}));
+jest.mock(
+  "../components/documentosWorkbench/PdfDocumentViewer",
+  () => ({
+    PdfDocumentViewer: () => <div data-testid="pdf-document-viewer" />,
+  }),
+);
 
 const TABLET_QUERY = "(max-width: 1024px)";
 const MOBILE_QUERY = "(max-width: 768px)";
@@ -87,11 +88,10 @@ describe(
     expect(panel).toHaveAttribute("data-variant", "overlay");
   });
 
-  it("muestra el AppEditorPdf en el contenido principal", () => {
+  it("muestra el visor PDF en el contenido principal", () => {
     render(<DocumentosWorkbench />);
 
-    expect(screen.getByTestId("app-editor-pdf")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Guardar/i })).toBeInTheDocument();
+    expect(screen.getByTestId("pdf-document-viewer")).toBeInTheDocument();
   });
   },
 );

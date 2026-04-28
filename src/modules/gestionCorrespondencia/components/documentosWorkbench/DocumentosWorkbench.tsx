@@ -1,15 +1,12 @@
 import { BookOutlined } from "@ant-design/icons";
 import { useEffect, useId, useMemo, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
-import {
-  AppEditorPdf,
-  AppEditorPdfSaveAction,
-  useAppEditorPdfDirtyState,
-} from "../../../../app/Components/UI/AppEditorPdf";
 import styles from "./DocumentosWorkbench.module.css";
 import { DocumentosList } from "./DocumentosList";
+import type { DocumentoWorkbenchItem } from "./DocumentosList";
 import { DocumentosPreview } from "./DocumentosPreview";
 import { DocumentosToolbar } from "./DocumentosToolbar";
+import { PdfDocumentViewer } from "./PdfDocumentViewer";
 
 const TABLET_QUERY = "(max-width: 1024px)";
 const MOBILE_QUERY = "(max-width: 768px)";
@@ -40,12 +37,8 @@ export function DocumentosWorkbench() {
   const isTablet = useMediaQuery(TABLET_QUERY);
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [collapsed, setCollapsed] = useState(isTablet);
-  const [value, setValue] = useState("<p></p>");
-  const [savedValue, setSavedValue] = useState("<p></p>");
-  const { saveStatus } = useAppEditorPdfDirtyState({
-    currentValue: value,
-    savedValue,
-  });
+  const [selectedDoc, setSelectedDoc] = useState<DocumentoWorkbenchItem | null>(null);
+  const selectedPdfHref = selectedDoc?.kind === "pdf" ? selectedDoc.href ?? null : null;
 
   useEffect(() => {
     setCollapsed(isTablet);
@@ -72,17 +65,7 @@ export function DocumentosWorkbench() {
             </p>
           </header>
           <div className={styles.mainSurface}>
-            <AppEditorPdf
-              value={value}
-              onChange={setValue}
-              className={styles.mainEditor}
-              toolbarActions={
-                <AppEditorPdfSaveAction
-                  saveStatus={saveStatus}
-                  onSave={() => setSavedValue(value)}
-                />
-              }
-            />
+            <PdfDocumentViewer src={selectedPdfHref} title={selectedDoc?.title} />
           </div>
         </main>
 
@@ -98,7 +81,10 @@ export function DocumentosWorkbench() {
           className={styles.collapseRail}
         >
           <div className={styles.panelContent}>
-            <DocumentosList />
+            <DocumentosList
+              selectedId={selectedDoc?.id ?? null}
+              onSelect={(doc) => setSelectedDoc(doc)}
+            />
             <DocumentosPreview />
           </div>
         </AppCollapseRail>
