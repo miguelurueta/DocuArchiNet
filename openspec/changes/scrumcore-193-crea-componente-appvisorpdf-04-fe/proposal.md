@@ -19,6 +19,6 @@ CREA-COMPONENTE-APPVISORPDF-04-FE. # Ticket 04 FE
 
 ## Impact
 
-- Nuevo componente compartido en `src/app/Components/UI/AppAppvisorpdf04Fe/`.
-- Posible integracion inicial en un modulo consumidor real del proyecto.
-- Nuevas pruebas de comportamiento para el contrato reusable del componente.
+- Cambios en `AppVisorPdf` (capability `app-appvisorpdf-04-fe`) dentro de `src/app/Components/UI/AppVisorPdf/`.
+- NO se integra en m\u00f3dulos/pantallas consumidoras como parte de este ticket; solo se crea/expone funcionalidad reusable.
+- Nuevas pruebas para el contrato reusable del componente/engine.
