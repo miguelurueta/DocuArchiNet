@@ -12,14 +12,13 @@
 
 ## 3. PDF engine integration (fase 01)
 
-- [ ] 3.1 Crear una abstracci\u00f3n de motor (adapter) para renderizar PDF (interfaces + implementaci\u00f3n concreta)
-- [ ] 3.2 Implementar render m\u00ednimo (al menos 1 p\u00e1gina) y eventos de estado: loading \u2192 ready / error
-- [ ] 3.3 Implementar navegaci\u00f3n b\u00e1sica (siguiente/anterior o selecci\u00f3n de p\u00e1gina) sin romper estabilidad visual
+Fuera de alcance para `SCRUMCORE-190` (seg\u00fan Jira): este ticket NO implementa el motor PDF real.
+Estas tareas quedan para un ticket posterior donde se seleccione e integre el engine (pdf.js/fabric/etc).
 
 ## 4. Tests (contract/spec coverage)
 
 - [x] 4.1 Agregar tests de comportamiento (Vitest + Testing Library) para estados loading/ready/error del componente
-- [ ] 4.2 Agregar tests que validen desacople de dominio (sin imports desde `src/modules/**`) y contrato por props/callbacks
+- [x] 4.2 Agregar tests que validen desacople de dominio (sin imports desde `src/modules/**`) y contrato por props/callbacks
 - [x] 4.3 Incluir tags `[SPEC:...]` en tests para cubrir escenarios del spec del visor (crear IDs si se decide mover a YAML behavior/contract)
 
 ## 5. Documentation
