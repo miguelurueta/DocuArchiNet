@@ -7,7 +7,10 @@ vi.mock("pdfjs-dist", () => {
       numPages: 1,
       fingerprints: ["abc"],
       getPage: vi.fn(async () => ({
-        getViewport: ({ scale }: { scale: number }) => ({ width: 100 * scale, height: 200 * scale }),
+        getViewport: ({ scale }: { scale: number }) => ({
+          width: 100 * scale,
+          height: 200 * scale,
+        }),
         render: vi.fn(() => ({
           promise: Promise.resolve(),
           cancel: vi.fn(),
@@ -31,13 +34,47 @@ vi.mock("./pdfjsWorker", () => ({
   ensurePdfjsWorkerConfigured: () => undefined,
 }));
 
+function createMock2dContext() {
+  const fn = () => undefined;
+  return {
+    canvas: { width: 0, height: 0 },
+    save: fn,
+    restore: fn,
+    scale: fn,
+    translate: fn,
+    transform: fn,
+    setTransform: fn,
+    resetTransform: fn,
+    clearRect: fn,
+    fillRect: fn,
+    strokeRect: fn,
+    beginPath: fn,
+    closePath: fn,
+    rect: fn,
+    clip: fn,
+    fill: fn,
+    stroke: fn,
+    moveTo: fn,
+    lineTo: fn,
+    bezierCurveTo: fn,
+    quadraticCurveTo: fn,
+    arc: fn,
+    fillText: fn,
+    strokeText: fn,
+    measureText: () => ({ width: 0 }),
+    drawImage: fn,
+    createImageData: (w: number, h: number) => ({ width: w, height: h, data: new Uint8ClampedArray(w * h * 4) }),
+    getImageData: (x: number, y: number, w: number, h: number) => ({ width: w, height: h, data: new Uint8ClampedArray(w * h * 4) }),
+    putImageData: fn,
+    getLineDash: () => [],
+    setLineDash: fn,
+  };
+}
+
 function mockCanvas() {
   const canvas = document.createElement("canvas");
   // @ts-expect-error minimal context for tests
-  canvas.getContext = () => ({
-    clearRect: () => undefined,
-    drawImage: () => undefined,
-  });
+  canvas.getContext = () => createMock2dContext();
   return canvas;
 }
 
@@ -82,4 +119,3 @@ describe("pdfjsEngine [SPEC:SCRUMCORE-191]", () => {
     expect(renderB.height).toBeGreaterThan(renderA.height);
   });
 });
-

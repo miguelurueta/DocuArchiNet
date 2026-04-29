@@ -26,7 +26,7 @@
 
 ## 5. Tests
 
-- [ ] 5.1 Agregar fixture PDF demo y test: `load()` + renderiza p\u00e1gina 1 a canvas (sin freeze)
+- [x] 5.1 Agregar fixture PDF demo y test: `load()` + renderiza p\u00e1gina 1 a canvas (sin freeze)
 - [x] 5.2 Test: cambiar `zoom` invalida cache/actualiza render (assert sobre llamadas a engine)
 - [x] 5.3 Test de virtualizaci\u00f3n: al cambiar de p\u00e1gina, no renderiza p\u00e1ginas lejanas (assert sobre llamadas)
 

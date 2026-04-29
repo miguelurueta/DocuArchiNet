@@ -20,10 +20,13 @@ const toFriendlyError = (error: unknown) => {
 
 export type PdfjsEngineOptions = {
   maxCacheEntries?: number;
+  disableWorker?: boolean;
 };
 
 export function createPdfjsEngine(options: PdfjsEngineOptions = {}): PdfEngine {
-  ensurePdfjsWorkerConfigured();
+  if (!options.disableWorker) {
+    ensurePdfjsWorkerConfigured();
+  }
 
   const maxCacheEntries = options.maxCacheEntries ?? 12;
   const cache = new LruCache<string, CachedPage>({ maxEntries: maxCacheEntries });
@@ -62,7 +65,8 @@ export function createPdfjsEngine(options: PdfjsEngineOptions = {}): PdfEngine {
     try {
       const loadingTask = getDocument({
         ...src,
-        // Keep worker enabled; configured via ensurePdfjsWorkerConfigured()
+        // Keep worker enabled by default; configurable for tests.
+        disableWorker: Boolean(options.disableWorker),
       });
       signal.addEventListener("abort", () => loadingTask.destroy(), { once: true });
 
@@ -160,4 +164,3 @@ export function createPdfjsEngine(options: PdfjsEngineOptions = {}): PdfEngine {
     destroy,
   };
 }
-
