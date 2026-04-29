@@ -8,6 +8,8 @@ import { AppVisorPdfToolbar } from "./presentation/AppVisorPdfToolbar";
 import { createPdfjsEngine } from "./engine/pdfjsEngine";
 import { createFabricEngine } from "./engine/fabricEngine";
 import { VisorPdfViewport } from "./presentation/VisorPdfViewport";
+import { useIsCompact } from "./presentation/useIsCompact";
+import { VisorPdfThumbnails } from "./presentation/VisorPdfThumbnails";
 
 const joinClasses = (...values: Array<string | false | null | undefined>) =>
   values.filter(Boolean).join(" ");
@@ -40,6 +42,7 @@ export function AppVisorPdf(props: AppVisorPdfProps) {
 
   const resolvedAriaLabel = resolveAriaLabel({ ariaLabel });
   const controller = useAppVisorPdfController(controllerProps);
+  const isCompact = useIsCompact(768);
 
   const engine = useMemo(() => createPdfjsEngine({ maxCacheEntries: 12 }), []);
   useEffect(() => () => engine.destroy(), [engine]);
@@ -49,6 +52,10 @@ export function AppVisorPdf(props: AppVisorPdfProps) {
   useEffect(() => {
     annotateEngine.setTool(controller.tool);
   }, [annotateEngine, controller.tool]);
+
+  const [pageCount, setPageCount] = useState<number>(0);
+  const [thumbnailsOpen, setThumbnailsOpen] = useState(false);
+  const thumbnailsLabelId = "app-visorpdf-thumbnails-toggle";
 
   const [internalLoading, setInternalLoading] = useState(false);
   const [internalError, setInternalError] = useState<string | null>(null);
@@ -74,6 +81,11 @@ export function AppVisorPdf(props: AppVisorPdfProps) {
           onToolChange={controller.setTool}
           onUndo={readOnly ? undefined : () => annotateEngine.undo()}
           onRedo={readOnly ? undefined : () => annotateEngine.redo()}
+          isCompact={isCompact}
+          thumbnailsOpen={thumbnailsOpen}
+          thumbnailsControlsId="app-visorpdf-thumbnails"
+          thumbnailsLabelId={thumbnailsLabelId}
+          onToggleThumbnails={() => setThumbnailsOpen((v) => !v)}
         />
         {renderStatus("No hay PDF seleccionado")}
       </section>
@@ -95,8 +107,26 @@ export function AppVisorPdf(props: AppVisorPdfProps) {
         onToolChange={controller.setTool}
         onUndo={readOnly ? undefined : () => annotateEngine.undo()}
         onRedo={readOnly ? undefined : () => annotateEngine.redo()}
+        isCompact={isCompact}
+        thumbnailsOpen={thumbnailsOpen}
+        thumbnailsControlsId="app-visorpdf-thumbnails"
+        thumbnailsLabelId={thumbnailsLabelId}
+        onToggleThumbnails={() => setThumbnailsOpen((v) => !v)}
       />
-      <div className={styles.viewport}>
+      <div className={styles.layout}>
+        <div className={styles.thumbnailsRail}>
+          <VisorPdfThumbnails
+            pageCount={pageCount}
+            activePage={controller.page}
+            onSelectPage={controller.setPage}
+            onRequestClose={() => setThumbnailsOpen(false)}
+            variant="rail"
+            isOpen={!isCompact && thumbnailsOpen}
+            labelledById={thumbnailsLabelId}
+            restoreFocusId={thumbnailsLabelId}
+          />
+        </div>
+        <div className={styles.viewport}>
         <VisorPdfViewport
           input={input}
           engine={engine}
@@ -104,6 +134,7 @@ export function AppVisorPdf(props: AppVisorPdfProps) {
           page={controller.page}
           zoom={controller.zoom}
           buffer={1}
+          onDocumentInfo={(info) => setPageCount(info.pageCount)}
           onLoadStateChange={(state) => {
             if (loadingProp === undefined) {
               setInternalLoading(state === "loading");
@@ -117,6 +148,16 @@ export function AppVisorPdf(props: AppVisorPdfProps) {
               setInternalError(message);
             }
           }}
+        />
+        <VisorPdfThumbnails
+          pageCount={pageCount}
+          activePage={controller.page}
+          onSelectPage={controller.setPage}
+          onRequestClose={() => setThumbnailsOpen(false)}
+          variant="overlay"
+          isOpen={isCompact && thumbnailsOpen}
+          labelledById={thumbnailsLabelId}
+          restoreFocusId={thumbnailsLabelId}
         />
         {effectiveLoading ? (
           <div className={styles.overlay}>
@@ -137,6 +178,7 @@ export function AppVisorPdf(props: AppVisorPdfProps) {
             </div>
           </div>
         ) : null}
+      </div>
       </div>
     </section>
   );

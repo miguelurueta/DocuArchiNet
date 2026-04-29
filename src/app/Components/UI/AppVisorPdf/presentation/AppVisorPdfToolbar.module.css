@@ -7,6 +7,11 @@
   background: rgba(0, 0, 0, 0.02);
 }
 
+.toolbar :global(button) {
+  min-width: 40px;
+  min-height: 40px;
+}
+
 .group {
   display: inline-flex;
   gap: 6px;

@@ -1,0 +1,81 @@
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: grid;
+  place-items: center;
+  z-index: 20;
+}
+
+.panel {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+  width: min(90vw, 420px);
+  max-height: min(80vh, 540px);
+  display: flex;
+  flex-direction: column;
+}
+
+.overlay {
+}
+
+.rail {
+  width: 220px;
+  max-height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  min-height: 40px;
+}
+
+.title {
+  font-weight: 600;
+}
+
+.close {
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 8px;
+}
+
+.close:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.list {
+  padding: 12px;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.item {
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+}
+
+.item:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.active {
+  border-color: #2563eb;
+}
+

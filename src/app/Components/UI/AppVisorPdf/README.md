@@ -74,6 +74,13 @@ Los tests unitarios mockean `Clienteaxios` con `vi.mock("@/api/Clienteaxios", ..
 
 - `grafo assets/placements` queda pendiente (solo se documenta; sin endpoints implementados en 04-FE).
 
+## Responsive + A11y (05-FE)
+
+- Mobile (<=768px): toolbar en modo compacto (`data-compact="true"`) y thumbnails como overlay/drawer.
+- Tablet/Desktop: thumbnails como rail lateral colapsable.
+- Touch targets: controles principales con hit-target >= 40px.
+- Thumbnails toggle expone `aria-expanded`/`aria-controls` y se gestiona focus al abrir/cerrar.
+
 ## Ejemplos
 
 ### Ejemplo con URL
