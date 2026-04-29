@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import type { AppVisorPdfTool } from "../domain/visorPdf.types";
 import { AppButton } from "../../AppButton";
 import { AppDropdown } from "../../AppDropdown";
@@ -15,6 +16,11 @@ type Props = {
   onToolChange: (tool: AppVisorPdfTool) => void;
   onUndo?: () => void;
   onRedo?: () => void;
+  isCompact?: boolean;
+  thumbnailsOpen?: boolean;
+  onToggleThumbnails?: () => void;
+  thumbnailsControlsId?: string;
+  thumbnailsLabelId?: string;
 };
 
 const TOOL_LABELS: Record<AppVisorPdfTool, string> = {
@@ -37,6 +43,11 @@ export function AppVisorPdfToolbar({
   onToolChange,
   onUndo,
   onRedo,
+  isCompact = false,
+  thumbnailsOpen = false,
+  onToggleThumbnails,
+  thumbnailsControlsId,
+  thumbnailsLabelId,
 }: Props) {
   const toolItems = useMemo<AppDropdownItem[]>(
     () =>
@@ -49,9 +60,46 @@ export function AppVisorPdfToolbar({
     [disabled, onToolChange],
   );
 
+  const secondaryItems = useMemo<AppDropdownItem[]>(
+    () => [
+      {
+        key: "undo",
+        label: "Undo",
+        onSelect: () => onUndo?.(),
+        disabled: disabled || !onUndo,
+      },
+      {
+        key: "redo",
+        label: "Redo",
+        onSelect: () => onRedo?.(),
+        disabled: disabled || !onRedo,
+      },
+    ],
+    [disabled, onRedo, onUndo],
+  );
+
   return (
-    <div className={styles.toolbar}>
+    <div className={styles.toolbar} data-compact={isCompact ? "true" : "false"}>
       <div className={styles.group}>
+        <AppButton
+          id={thumbnailsLabelId}
+          aria-label="Thumbnails"
+          variant="secondary"
+          size="sm"
+          disabled={disabled || !onToggleThumbnails}
+          onClick={() => onToggleThumbnails?.()}
+          aria-expanded={thumbnailsOpen}
+          aria-controls={thumbnailsControlsId}
+          onKeyDown={(event: ReactKeyboardEvent) => {
+            if (disabled || !onToggleThumbnails) return;
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              onToggleThumbnails();
+            }
+          }}
+        >
+          Pages
+        </AppButton>
         <AppButton
           aria-label="Pagina anterior"
           variant="secondary"
@@ -100,24 +148,44 @@ export function AppVisorPdfToolbar({
       </div>
 
       <div className={styles.group}>
-        <AppButton
-          aria-label="Undo"
-          variant="secondary"
-          size="sm"
-          disabled={disabled || !onUndo}
-          onClick={() => onUndo?.()}
-        >
-          Undo
-        </AppButton>
-        <AppButton
-          aria-label="Redo"
-          variant="secondary"
-          size="sm"
-          disabled={disabled || !onRedo}
-          onClick={() => onRedo?.()}
-        >
-          Redo
-        </AppButton>
+        {isCompact ? (
+          <AppDropdown
+            ariaLabel="Acciones"
+            disabled={disabled}
+            items={secondaryItems}
+            trigger={
+              <AppButton
+                aria-label="Acciones"
+                variant="secondary"
+                size="sm"
+                disabled={disabled}
+              >
+                More
+              </AppButton>
+            }
+          />
+        ) : (
+          <>
+            <AppButton
+              aria-label="Undo"
+              variant="secondary"
+              size="sm"
+              disabled={disabled || !onUndo}
+              onClick={() => onUndo?.()}
+            >
+              Undo
+            </AppButton>
+            <AppButton
+              aria-label="Redo"
+              variant="secondary"
+              size="sm"
+              disabled={disabled || !onRedo}
+              onClick={() => onRedo?.()}
+            >
+              Redo
+            </AppButton>
+          </>
+        )}
       </div>
 
       <div className={styles.group}>

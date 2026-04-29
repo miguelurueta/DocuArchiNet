@@ -4,9 +4,31 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 const appButtonMock = vi.fn((props: unknown) => {
-  const typed = props as { children?: unknown; ["aria-label"]?: string; onClick?: () => void };
+  const typed = props as {
+    children?: unknown;
+    id?: string;
+    ["aria-label"]?: string;
+    ["aria-controls"]?: string;
+    ["aria-expanded"]?: boolean;
+    onClick?: () => void;
+    onKeyDown?: (event: { key: string; preventDefault: () => void }) => void;
+  };
   return (
-    <button type="button" aria-label={typed["aria-label"]} onClick={typed.onClick}>
+    <button
+      type="button"
+      id={typed.id}
+      aria-label={typed["aria-label"]}
+      aria-controls={typed["aria-controls"]}
+      aria-expanded={typed["aria-expanded"]}
+      onClick={typed.onClick}
+      // Minimal keyboard support for toolbar tests.
+      onKeyDown={(event) =>
+        typed.onKeyDown?.({
+          key: (event as unknown as KeyboardEvent).key,
+          preventDefault: () => (event as unknown as KeyboardEvent).preventDefault(),
+        })
+      }
+    >
       {typed.children}
     </button>
   );
@@ -109,5 +131,31 @@ describe("AppVisorPdf [SPEC:SCRUMCORE-190]", () => {
     const { AppVisorPdf } = await import("./AppVisorPdf");
     render(<AppVisorPdf input={null} />);
     expect(appButtonMock).toHaveBeenCalled();
+  });
+
+  it("en mobile activa toolbar compacta", async () => {
+    Object.defineProperty(window, "innerWidth", { value: 500, configurable: true });
+    window.dispatchEvent(new Event("resize"));
+
+    const { AppVisorPdf } = await import("./AppVisorPdf");
+    const { container } = render(<AppVisorPdf input={null} />);
+    expect(container.querySelector('[data-compact="true"]')).toBeTruthy();
+  });
+
+  it("toggle thumbnails expone aria-expanded y responde a teclado", async () => {
+    Object.defineProperty(window, "innerWidth", { value: 500, configurable: true });
+    window.dispatchEvent(new Event("resize"));
+
+    const { AppVisorPdf } = await import("./AppVisorPdf");
+    render(<AppVisorPdf input={null} />);
+
+    const toggle = screen.getByRole("button", { name: "Thumbnails" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+
+    act(() => {
+      toggle.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    });
+
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
   });
 });

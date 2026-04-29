@@ -11,6 +11,7 @@ export type VisorPdfViewportProps = {
   page: number;
   zoom: number;
   buffer?: number;
+  onDocumentInfo?: (info: { pageCount: number; fingerprint?: string }) => void;
   onLoadStateChange?: (state: "loading" | "ready" | "error") => void;
   onError?: (message: string) => void;
 };
@@ -22,6 +23,7 @@ export function VisorPdfViewport({
   page,
   zoom,
   buffer = 1,
+  onDocumentInfo,
   onLoadStateChange,
   onError,
 }: VisorPdfViewportProps) {
@@ -48,8 +50,12 @@ export function VisorPdfViewport({
     const run = async () => {
       onLoadStateChange?.("loading");
       try {
-        await engine.load(input);
+        const loadResult = await engine.load(input);
         if (abortController.signal.aborted || cancelled) return;
+        onDocumentInfo?.({
+          pageCount: loadResult.pageCount,
+          fingerprint: loadResult.fingerprint,
+        });
 
         // Give React a couple ticks to commit canvas refs before rendering pages.
         await new Promise<void>((resolve) => setTimeout(resolve, 0));
@@ -96,6 +102,7 @@ export function VisorPdfViewport({
     annotateEngine,
     engine,
     input,
+    onDocumentInfo,
     onError,
     onLoadStateChange,
     pagesToRender,
