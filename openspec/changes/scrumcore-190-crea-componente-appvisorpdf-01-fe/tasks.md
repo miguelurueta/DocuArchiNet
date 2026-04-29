@@ -21,9 +21,3 @@
 - [ ] 4.1 Agregar tests de comportamiento (Vitest + Testing Library) para estados loading/ready/error del componente
 - [ ] 4.2 Agregar tests que validen desacople de dominio (sin imports desde `src/modules/**`) y contrato por props/callbacks
 - [ ] 4.3 Incluir tags `[SPEC:...]` en tests para cubrir escenarios del spec del visor (crear IDs si se decide mover a YAML behavior/contract)
-
-## 5. Integration (opcional)
-
-- [ ] 5.1 Integrar `AppVisorPdf` en un consumidor real o vista demo (sin acoplar reglas de negocio al componente)
-- [ ] 5.2 Validar build/performance (`npm run build`) y ajustar si el motor PDF incrementa bundle significativamente
-
