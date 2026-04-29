@@ -33,3 +33,6 @@ env
 
 # Local tooling cache
 .npm-cache/
+
+# Codex local artifacts
+.codex/memories/
