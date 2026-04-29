@@ -38,4 +38,3 @@ Componente UI reusable para visualizaci\u00f3n de documentos PDF (shell + toolba
 - Proveer `"aria-label"` para el visor.
 - Mensajes de estado (empty/loading/error) deben exponerse con `role="status"` cuando aplique.
 - La toolbar debe ser navegable por teclado y mantener focus visible.
-
