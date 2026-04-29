@@ -149,11 +149,24 @@ const runArchive = async ({
     throw new Error(`Falta issueKey para opsxj:archive.\n${usage}`);
   }
 
+  const parseAlsoKeys = (rawArgs) => {
+    const alsoIndex = rawArgs.findIndex((value) => value === "--also");
+    if (alsoIndex === -1) return [];
+    const raw = rawArgs[alsoIndex + 1] ?? "";
+    return String(raw)
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean);
+  };
+
+  const alsoIssueKeys = parseAlsoKeys(args);
+
   const branchName = buildFeatureBranchName(issueKey);
   const verifyGit = assertGitCleanAndSyncedFn ?? assertGitCleanAndSynced;
   await verifyGit({ baseDir, expectedBranchName: branchName });
   const result = await archiveFn({
     issueKey,
+    alsoIssueKeys,
     baseDir,
     branchName,
     jira: {
@@ -182,6 +195,11 @@ const runArchive = async ({
   if (result.archivedWithSkipSpecs) {
     stdout.write(
       "[opsxj:archive] Aviso: archive ejecuto fallback con --skip-specs.\n",
+    );
+  }
+  if (alsoIssueKeys.length > 0) {
+    stdout.write(
+      `[opsxj:archive] Cambios adicionales movidos a archive: ${alsoIssueKeys.join(", ")}\n`,
     );
   }
   printCodexAgentHint({ stdout, command: "archive" });
