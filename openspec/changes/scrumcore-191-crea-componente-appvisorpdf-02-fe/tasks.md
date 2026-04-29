@@ -8,18 +8,21 @@
 - [ ] 2.1 Implementar `src/app/Components/UI/AppVisorPdf/engine/pdfjsEngine.ts` con `load(input)` retornando `pageCount` y `fingerprint` (si aplica)
 - [ ] 2.2 Implementar `renderPage(req, canvas, signal?)` usando `AbortSignal` para cancelar renders obsoletos
 - [ ] 2.3 Implementar `destroy()` para abortar renders en curso, limpiar cache y liberar referencias del `pdfDocument`
+- [ ] 2.4 Manejar errores del engine con mensajes amigables (sin exponer stack traces en UI)
 
 ## 3. Cache & invalidation
 
 - [ ] 3.1 Implementar cache por `pageNumber|zoom` con pol\u00edtica LRU y l\u00edmite `maxCacheEntries` (default: 12)
 - [ ] 3.2 Limpiar cache completa cuando cambia `input` (nuevo PDF)
 - [ ] 3.3 Invalidar/gestionar cache al cambiar `zoom` (por key o limpieza selectiva seg\u00fan l\u00edmites)
+- [ ] 3.4 Definir l\u00edmites de cache `maxCacheBytes` (default 128 MB) o documentar por qu\u00e9 se usa solo `maxCacheEntries`
 
 ## 4. Viewport virtualization
 
 - [ ] 4.1 Crear `src/app/Components/UI/AppVisorPdf/presentation/VisorPdfViewport.tsx` (canvas + scrolling)
 - [ ] 4.2 Implementar virtualizaci\u00f3n: renderizar p\u00e1gina activa + buffer (default 1) y no renderizar p\u00e1ginas lejanas
 - [ ] 4.3 Conectar viewport con engine y estados reales `loading/error` en `AppVisorPdf`
+- [ ] 4.4 Asegurar que el render incremental no bloquee la UI en PDFs grandes (yield/abort/scheduling seg\u00fan aplique)
 
 ## 5. Tests
 
@@ -31,4 +34,3 @@
 
 - [ ] 6.1 Actualizar `src/app/Components/UI/AppVisorPdf/README.md` con performance (virtualizaci\u00f3n + cache) y configuraci\u00f3n
 - [ ] 6.2 Documentar troubleshooting (worker, CORS, PDFs grandes) y limitaciones conocidas
-
