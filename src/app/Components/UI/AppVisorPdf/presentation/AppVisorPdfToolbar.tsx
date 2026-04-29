@@ -13,6 +13,8 @@ type Props = {
   onZoomChange: (zoom: number) => void;
   tool: AppVisorPdfTool;
   onToolChange: (tool: AppVisorPdfTool) => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
 };
 
 const TOOL_LABELS: Record<AppVisorPdfTool, string> = {
@@ -33,6 +35,8 @@ export function AppVisorPdfToolbar({
   onZoomChange,
   tool,
   onToolChange,
+  onUndo,
+  onRedo,
 }: Props) {
   const toolItems = useMemo<AppDropdownItem[]>(
     () =>
@@ -92,6 +96,27 @@ export function AppVisorPdfToolbar({
           onClick={() => onZoomChange(zoom + 0.1)}
         >
           {"+"}
+        </AppButton>
+      </div>
+
+      <div className={styles.group}>
+        <AppButton
+          aria-label="Undo"
+          variant="secondary"
+          size="sm"
+          disabled={disabled || !onUndo}
+          onClick={() => onUndo?.()}
+        >
+          Undo
+        </AppButton>
+        <AppButton
+          aria-label="Redo"
+          variant="secondary"
+          size="sm"
+          disabled={disabled || !onRedo}
+          onClick={() => onRedo?.()}
+        >
+          Redo
         </AppButton>
       </div>
 

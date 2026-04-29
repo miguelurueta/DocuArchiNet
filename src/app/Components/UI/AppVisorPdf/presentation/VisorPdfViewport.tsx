@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { PdfEngine } from "../engine/pdfEngine.types";
 import type { AppVisorPdfInput } from "../domain/visorPdf.types";
+import type { AnnotateEngine } from "../domain/annotations.types";
 import styles from "./VisorPdfViewport.module.css";
 
 export type VisorPdfViewportProps = {
   input: AppVisorPdfInput;
   engine: PdfEngine;
+  annotateEngine?: AnnotateEngine;
   page: number;
   zoom: number;
   buffer?: number;
@@ -16,6 +18,7 @@ export type VisorPdfViewportProps = {
 export function VisorPdfViewport({
   input,
   engine,
+  annotateEngine,
   page,
   zoom,
   buffer = 1,
@@ -24,6 +27,7 @@ export function VisorPdfViewport({
 }: VisorPdfViewportProps) {
   const abortRef = useRef<AbortController | null>(null);
   const canvasRefs = useRef<Map<number, HTMLCanvasElement>>(new Map());
+  const overlayRefs = useRef<Map<number, HTMLCanvasElement>>(new Map());
 
   const pagesToRender = useMemo(() => {
     const normalizedBuffer = Math.max(0, Math.floor(buffer));
@@ -52,6 +56,7 @@ export function VisorPdfViewport({
         await new Promise<void>((resolve) => setTimeout(resolve, 0));
         for (const pageNumber of pagesToRender) {
           const canvas = canvasRefs.current.get(pageNumber);
+          const overlay = overlayRefs.current.get(pageNumber);
           if (!canvas) continue;
           await engine.renderPage(
             { pageNumber, zoom },
@@ -59,6 +64,12 @@ export function VisorPdfViewport({
             abortController.signal,
           );
           if (abortController.signal.aborted || cancelled) return;
+
+          if (overlay) {
+            overlay.width = canvas.width;
+            overlay.height = canvas.height;
+            annotateEngine?.attach(pageNumber, overlay);
+          }
           await new Promise<void>((resolve) => setTimeout(resolve, 0));
         }
 
@@ -76,24 +87,47 @@ export function VisorPdfViewport({
     return () => {
       cancelled = true;
       abortController.abort();
+      for (const pageNumber of overlayRefs.current.keys()) {
+        annotateEngine?.detach(pageNumber);
+      }
       engine.destroy();
     };
-  }, [engine, input, onError, onLoadStateChange, pagesToRender, zoom]);
+  }, [
+    annotateEngine,
+    engine,
+    input,
+    onError,
+    onLoadStateChange,
+    pagesToRender,
+    zoom,
+  ]);
 
   return (
     <div className={styles.root}>
       {pagesToRender.map((pageNumber) => (
         <div key={pageNumber} className={styles.page} data-page={pageNumber}>
-          <canvas
-            className={styles.canvas}
-            ref={(node) => {
-              if (!node) {
-                canvasRefs.current.delete(pageNumber);
-                return;
-              }
-              canvasRefs.current.set(pageNumber, node);
-            }}
-          />
+          <div className={styles.layer}>
+            <canvas
+              className={styles.canvas}
+              ref={(node) => {
+                if (!node) {
+                  canvasRefs.current.delete(pageNumber);
+                  return;
+                }
+                canvasRefs.current.set(pageNumber, node);
+              }}
+            />
+            <canvas
+              className={styles.overlay}
+              ref={(node) => {
+                if (!node) {
+                  overlayRefs.current.delete(pageNumber);
+                  return;
+                }
+                overlayRefs.current.set(pageNumber, node);
+              }}
+            />
+          </div>
         </div>
       ))}
     </div>
