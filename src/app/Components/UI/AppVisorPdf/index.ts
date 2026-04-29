@@ -9,4 +9,6 @@ export type {
   AnnotateEngine,
   VisorPdfAnnotationsPayloadV1,
 } from "./domain/annotations.types";
+export type { AppVisorPdfApi, VisorPdfStampConfig } from "./domain/visorPdfApi.types";
+export { createAppVisorPdfApi } from "./infrastructure/visorPdfApi";
 
