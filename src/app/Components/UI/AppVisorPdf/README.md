@@ -41,6 +41,39 @@ Componente UI reusable para visualizaci\u00f3n de documentos PDF (shell + toolba
 - `objects` se mantiene como `unknown[]` para forward-compat.
 - En `restore(payload)` los objetos desconocidos se ignoran sin crashear.
 
+## Backend integration (04-FE)
+
+Este ticket define un adapter desacoplado para consumo de backend usando:
+
+- `src/api/Clienteaxios.ts`
+- `src/api/ApiResponse.ts` (envelope `ApiResponse<T>`)
+
+### Contratos
+
+- `AppVisorPdfApi` y `VisorPdfStampConfig`: `src/app/Components/UI/AppVisorPdf/domain/visorPdfApi.types.ts`
+- Adapter: `src/app/Components/UI/AppVisorPdf/infrastructure/visorPdfApi.ts`
+
+### Operaciones esperadas (backend)
+
+- `getPdfUrl(documentId)` -> `ApiResponse<{ url; expiresAtIso? }>`
+- `getAnnotations(documentId)` -> `ApiResponse<VisorPdfAnnotationsPayloadV1>`
+- `saveAnnotations(documentId, payload)` -> `ApiResponse<{ savedAtIso }>`
+- `getStampConfig()` -> `ApiResponse<VisorPdfStampConfig>`
+- `saveStampConfig(payload)` -> `ApiResponse<{ savedAtIso }>`
+
+### Manejo de errores 400/401/403
+
+- 401/403 se propagan (reject) para manejo centralizado con `useAxiosErrorNotifier`.
+- 400: se mantiene el envelope `ApiResponse<T>` si el backend responde con estructura.
+
+### Testing (mocks)
+
+Los tests unitarios mockean `Clienteaxios` con `vi.mock("@/api/Clienteaxios", ...)` para validar payloads y envelopes.
+
+### Fuera de alcance
+
+- `grafo assets/placements` queda pendiente (solo se documenta; sin endpoints implementados en 04-FE).
+
 ## Ejemplos
 
 ### Ejemplo con URL
