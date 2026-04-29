@@ -19,6 +19,28 @@ Componente UI reusable para visualizaci\u00f3n de documentos PDF (shell + toolba
 - `onRequestSaveAnnotations`: solicitud para guardar anotaciones (desacoplado)
 - `onRequestExport`: solicitud para exportar (desacoplado)
 
+## Anotaciones (03-FE)
+
+- Las anotaciones se implementan mediante un `AnnotateEngine` desacoplado de la UI (basado en Fabric).
+- El viewport monta un overlay canvas por página visible y el engine se `attach()`/`detach()` según virtualización.
+- Herramientas soportadas: `pan`, `select`, `freehand`, `text`, `rect`, `arrow`.
+- `stamp_grafo` NO está implementado en `SCRUMCORE-192` (se mapea a `select` de forma segura) hasta que exista requerimiento explícito.
+
+### Payload `VisorPdfAnnotationsPayloadV1`
+
+```json
+{
+  "version": 1,
+  "fingerprint": "optional",
+  "pages": [
+    { "pageNumber": 1, "objects": [] }
+  ]
+}
+```
+
+- `objects` se mantiene como `unknown[]` para forward-compat.
+- En `restore(payload)` los objetos desconocidos se ignoran sin crashear.
+
 ## Ejemplos
 
 ### Ejemplo con URL
@@ -54,3 +76,4 @@ Componente UI reusable para visualizaci\u00f3n de documentos PDF (shell + toolba
 
 - Render basado en canvas (text-layer/selecci\u00f3n no garantizados en esta etapa).
 - Thumbnails no son parte del alcance del ticket 02-FE.
+- Undo/redo se aplica sobre el último overlay visible (definición UX actual del engine).

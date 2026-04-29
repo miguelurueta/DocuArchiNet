@@ -1,6 +1,5 @@
 import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { AppVisorPdf } from "./AppVisorPdf";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
@@ -17,13 +16,36 @@ vi.mock("../AppButton", () => ({
   AppButton: (props: unknown) => appButtonMock(props),
 }));
 
+vi.mock("./engine/pdfjsEngine", () => ({
+  createPdfjsEngine: () => ({
+    load: vi.fn(),
+    renderPage: vi.fn(),
+    destroy: vi.fn(),
+  }),
+}));
+
+vi.mock("./engine/fabricEngine", () => ({
+  createFabricEngine: () => ({
+    attach: vi.fn(),
+    detach: vi.fn(),
+    setTool: vi.fn(),
+    undo: vi.fn(),
+    redo: vi.fn(),
+    serialize: vi.fn(),
+    restore: vi.fn(),
+    destroy: vi.fn(),
+  }),
+}));
+
 describe("AppVisorPdf [SPEC:SCRUMCORE-190]", () => {
-  it("renderiza empty state cuando no hay input", () => {
+  it("renderiza empty state cuando no hay input", async () => {
+    const { AppVisorPdf } = await import("./AppVisorPdf");
     render(<AppVisorPdf input={null} aria-label="Visor" />);
     expect(screen.getByRole("status")).toHaveTextContent("No hay PDF seleccionado");
   });
 
-  it("permanece desacoplado de src/modules (no imports directos en el componente shared)", () => {
+  it("permanece desacoplado de src/modules (no imports directos en el componente shared)", async () => {
+    const { AppVisorPdf: _ } = await import("./AppVisorPdf");
     const baseDir = path.resolve(import.meta.dirname);
     const visit = (dir: string, files: string[] = []) => {
       for (const entry of readdirSync(dir)) {
@@ -57,7 +79,8 @@ describe("AppVisorPdf [SPEC:SCRUMCORE-190]", () => {
     }
   });
 
-  it("dispara callbacks de page/zoom al interactuar con la toolbar", () => {
+  it("dispara callbacks de page/zoom al interactuar con la toolbar", async () => {
+    const { AppVisorPdf } = await import("./AppVisorPdf");
     const onPageChange = vi.fn();
     const onZoomChange = vi.fn();
 
@@ -82,7 +105,8 @@ describe("AppVisorPdf [SPEC:SCRUMCORE-190]", () => {
     expect(onZoomChange).toHaveBeenCalled();
   });
 
-  it("usa AppButton para acciones de la toolbar", () => {
+  it("usa AppButton para acciones de la toolbar", async () => {
+    const { AppVisorPdf } = await import("./AppVisorPdf");
     render(<AppVisorPdf input={null} />);
     expect(appButtonMock).toHaveBeenCalled();
   });

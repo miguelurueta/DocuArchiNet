@@ -6,6 +6,7 @@ import type { AppVisorPdfProps } from "./domain/visorPdf.types";
 import { useAppVisorPdfController } from "./application/useAppVisorPdfController";
 import { AppVisorPdfToolbar } from "./presentation/AppVisorPdfToolbar";
 import { createPdfjsEngine } from "./engine/pdfjsEngine";
+import { createFabricEngine } from "./engine/fabricEngine";
 import { VisorPdfViewport } from "./presentation/VisorPdfViewport";
 
 const joinClasses = (...values: Array<string | false | null | undefined>) =>
@@ -43,6 +44,12 @@ export function AppVisorPdf(props: AppVisorPdfProps) {
   const engine = useMemo(() => createPdfjsEngine({ maxCacheEntries: 12 }), []);
   useEffect(() => () => engine.destroy(), [engine]);
 
+  const annotateEngine = useMemo(() => createFabricEngine(), []);
+  useEffect(() => () => annotateEngine.destroy(), [annotateEngine]);
+  useEffect(() => {
+    annotateEngine.setTool(controller.tool);
+  }, [annotateEngine, controller.tool]);
+
   const [internalLoading, setInternalLoading] = useState(false);
   const [internalError, setInternalError] = useState<string | null>(null);
 
@@ -65,6 +72,8 @@ export function AppVisorPdf(props: AppVisorPdfProps) {
           onZoomChange={controller.setZoom}
           tool={controller.tool}
           onToolChange={controller.setTool}
+          onUndo={readOnly ? undefined : () => annotateEngine.undo()}
+          onRedo={readOnly ? undefined : () => annotateEngine.redo()}
         />
         {renderStatus("No hay PDF seleccionado")}
       </section>
@@ -84,11 +93,14 @@ export function AppVisorPdf(props: AppVisorPdfProps) {
         onZoomChange={controller.setZoom}
         tool={controller.tool}
         onToolChange={controller.setTool}
+        onUndo={readOnly ? undefined : () => annotateEngine.undo()}
+        onRedo={readOnly ? undefined : () => annotateEngine.redo()}
       />
       <div className={styles.viewport}>
         <VisorPdfViewport
           input={input}
           engine={engine}
+          annotateEngine={readOnly ? undefined : annotateEngine}
           page={controller.page}
           zoom={controller.zoom}
           buffer={1}
