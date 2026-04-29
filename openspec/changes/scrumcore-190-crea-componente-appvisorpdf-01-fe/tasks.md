@@ -21,3 +21,7 @@
 - [ ] 4.1 Agregar tests de comportamiento (Vitest + Testing Library) para estados loading/ready/error del componente
 - [ ] 4.2 Agregar tests que validen desacople de dominio (sin imports desde `src/modules/**`) y contrato por props/callbacks
 - [ ] 4.3 Incluir tags `[SPEC:...]` en tests para cubrir escenarios del spec del visor (crear IDs si se decide mover a YAML behavior/contract)
+
+## 5. Documentation
+
+- [ ] 5.1 Crear `src/app/Components/UI/AppVisorPdf/README.md` con proposito, props principales, ejemplos (URL y bytes) y consideraciones de accesibilidad
