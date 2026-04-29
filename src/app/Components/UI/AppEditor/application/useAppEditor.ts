@@ -72,6 +72,23 @@ function findScrollableAncestor(element: HTMLElement | null) {
   return null;
 }
 
+function observeProseMirrorBlocks(
+  root: HTMLElement,
+  blockResizeObserver: ResizeObserver | null,
+) {
+  if (!blockResizeObserver) {
+    return;
+  }
+
+  Array.from(root.children).forEach((child) => {
+    if (!(child instanceof HTMLElement)) {
+      return;
+    }
+
+    blockResizeObserver.observe(child);
+  });
+}
+
 export function capturePaginationScrollAnchor(
   editor: Editor,
   scrollContainer: HTMLElement | null,
@@ -1077,20 +1094,6 @@ export function useAppEditor({
     let suppressScheduling = false;
     let isUserScrolling = false;
     const pendingImageElements = new WeakSet<HTMLImageElement>();
-
-    const observeProseMirrorBlocks = (root: HTMLElement) => {
-      if (!blockResizeObserver) {
-        return;
-      }
-
-      Array.from(root.children).forEach((child) => {
-        if (!(child instanceof HTMLElement)) {
-          return;
-        }
-
-        blockResizeObserver.observe(child);
-      });
-    };
     const pageContentHeight = resolvePageContentHeight(pageHeight, pageMargins);
     const pageStride = pageHeight + pageGap;
     const paginationDebounceMs = resolveAutoPaginationDebounceMs();
@@ -1575,7 +1578,7 @@ export function useAppEditor({
               pageStride,
               pageContentHeight,
             );
-            observeProseMirrorBlocks(repaginatedProseMirror);
+            observeProseMirrorBlocks(repaginatedProseMirror, blockResizeObserver);
           }
 
           iterations += 1;
@@ -1583,7 +1586,7 @@ export function useAppEditor({
 
         const finalProseMirror = editor.view.dom;
         if (finalProseMirror instanceof HTMLElement) {
-          observeProseMirrorBlocks(finalProseMirror);
+          observeProseMirrorBlocks(finalProseMirror, blockResizeObserver);
           syncAutoPageBreakSpacerHeights(
             editor,
             finalProseMirror,
@@ -1770,7 +1773,7 @@ export function useAppEditor({
 
       const root = editor.view.dom;
       if (root instanceof HTMLElement) {
-        observeProseMirrorBlocks(root);
+        observeProseMirrorBlocks(root, blockResizeObserver);
       }
     }
 
@@ -1853,7 +1856,7 @@ export function useAppEditor({
 
       const root = editor.view.dom;
       if (root instanceof HTMLElement) {
-        observeProseMirrorBlocks(root);
+        observeProseMirrorBlocks(root, blockResizeObserver);
       }
 
       scheduleAutoPagination(isSimpleTypingTransaction ? "deferred" : "immediate");

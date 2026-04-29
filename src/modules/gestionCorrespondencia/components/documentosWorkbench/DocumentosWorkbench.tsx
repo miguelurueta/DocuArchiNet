@@ -3,8 +3,10 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import styles from "./DocumentosWorkbench.module.css";
 import { DocumentosList } from "./DocumentosList";
+import type { DocumentoWorkbenchItem } from "./DocumentosList";
 import { DocumentosPreview } from "./DocumentosPreview";
 import { DocumentosToolbar } from "./DocumentosToolbar";
+import { PdfDocumentViewer } from "./PdfDocumentViewer";
 
 const TABLET_QUERY = "(max-width: 1024px)";
 const MOBILE_QUERY = "(max-width: 768px)";
@@ -35,6 +37,8 @@ export function DocumentosWorkbench() {
   const isTablet = useMediaQuery(TABLET_QUERY);
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [collapsed, setCollapsed] = useState(isTablet);
+  const [selectedDoc, setSelectedDoc] = useState<DocumentoWorkbenchItem | null>(null);
+  const selectedPdfHref = selectedDoc?.kind === "pdf" ? selectedDoc.href ?? null : null;
 
   useEffect(() => {
     setCollapsed(isTablet);
@@ -61,9 +65,7 @@ export function DocumentosWorkbench() {
             </p>
           </header>
           <div className={styles.mainSurface}>
-            <p className={styles.mainHint}>
-              Arrastra aqui los componentes principales del editor.
-            </p>
+            <PdfDocumentViewer src={selectedPdfHref} title={selectedDoc?.title} />
           </div>
         </main>
 
@@ -79,7 +81,10 @@ export function DocumentosWorkbench() {
           className={styles.collapseRail}
         >
           <div className={styles.panelContent}>
-            <DocumentosList />
+            <DocumentosList
+              selectedId={selectedDoc?.id ?? null}
+              onSelect={(doc) => setSelectedDoc(doc)}
+            />
             <DocumentosPreview />
           </div>
         </AppCollapseRail>
