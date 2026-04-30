@@ -42,4 +42,53 @@ describe("VisorPdfViewport [SPEC:SCRUMCORE-191]", () => {
     expect(sorted.includes(10)).toBe(true);
     expect(sorted.every((value) => value >= 9 && value <= 11)).toBe(true);
   });
+
+  it("no deja loading colgado cuando se aborta por cambio de props", async () => {
+    // JSDOM doesn't implement canvas; provide minimal stub.
+    // @ts-expect-error test-only stub
+    HTMLCanvasElement.prototype.getContext = vi.fn(() => ({}));
+
+    let resolveLoad: ((value: { pageCount: number }) => void) | null = null;
+    const loadPromise = new Promise<{ pageCount: number }>((resolve) => {
+      resolveLoad = resolve;
+    });
+
+    const engine: PdfEngine = {
+      load: vi.fn(() => loadPromise),
+      renderPage: vi.fn(async () => ({ width: 100, height: 200 })),
+      destroy: vi.fn(() => undefined),
+    };
+
+    const onLoadStateChange = vi.fn();
+
+    const { rerender } = render(
+      <VisorPdfViewport
+        input={{ kind: "bytes", bytes: new Uint8Array([1, 2, 3]) }}
+        engine={engine}
+        page={1}
+        zoom={1}
+        buffer={0}
+        onLoadStateChange={onLoadStateChange}
+      />,
+    );
+
+    rerender(
+      <VisorPdfViewport
+        input={{ kind: "bytes", bytes: new Uint8Array([1, 2, 3]) }}
+        engine={engine}
+        page={2}
+        zoom={1}
+        buffer={0}
+        onLoadStateChange={onLoadStateChange}
+      />,
+    );
+
+    await act(async () => {
+      resolveLoad?.({ pageCount: 2 });
+      await new Promise((r) => setTimeout(r, 0));
+    });
+
+    expect(onLoadStateChange).toHaveBeenCalledWith("loading");
+    expect(onLoadStateChange).toHaveBeenCalledWith("ready");
+  });
 });

@@ -44,7 +44,10 @@ export function AppVisorPdf(props: AppVisorPdfProps) {
   const controller = useAppVisorPdfController(controllerProps);
   const isCompact = useIsCompact(768);
 
-  const engine = useMemo(() => createPdfjsEngine({ maxCacheEntries: 12 }), []);
+  const engine = useMemo(
+    () => createPdfjsEngine({ maxCacheEntries: 12, loadTimeoutMs: 20_000 }),
+    [],
+  );
   useEffect(() => () => engine.destroy(), [engine]);
 
   const annotateEngine = useMemo(() => createFabricEngine(), []);

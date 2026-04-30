@@ -1,5 +1,5 @@
 import { act, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
@@ -60,8 +60,13 @@ vi.mock("./engine/fabricEngine", () => ({
 }));
 
 describe("AppVisorPdf [SPEC:SCRUMCORE-190]", () => {
-  it("renderiza empty state cuando no hay input", async () => {
-    const { AppVisorPdf } = await import("./AppVisorPdf");
+  let AppVisorPdf: typeof import("./AppVisorPdf").AppVisorPdf;
+
+  beforeAll(async () => {
+    ({ AppVisorPdf } = await import("./AppVisorPdf"));
+  });
+
+  it("renderiza empty state cuando no hay input", () => {
     render(<AppVisorPdf input={null} aria-label="Visor" />);
     expect(screen.getByRole("status")).toHaveTextContent("No hay PDF seleccionado");
   });
@@ -102,7 +107,6 @@ describe("AppVisorPdf [SPEC:SCRUMCORE-190]", () => {
   });
 
   it("dispara callbacks de page/zoom al interactuar con la toolbar", async () => {
-    const { AppVisorPdf } = await import("./AppVisorPdf");
     const onPageChange = vi.fn();
     const onZoomChange = vi.fn();
 
@@ -128,7 +132,6 @@ describe("AppVisorPdf [SPEC:SCRUMCORE-190]", () => {
   });
 
   it("usa AppButton para acciones de la toolbar", async () => {
-    const { AppVisorPdf } = await import("./AppVisorPdf");
     render(<AppVisorPdf input={null} />);
     expect(appButtonMock).toHaveBeenCalled();
   });
@@ -137,7 +140,6 @@ describe("AppVisorPdf [SPEC:SCRUMCORE-190]", () => {
     Object.defineProperty(window, "innerWidth", { value: 500, configurable: true });
     window.dispatchEvent(new Event("resize"));
 
-    const { AppVisorPdf } = await import("./AppVisorPdf");
     const { container } = render(<AppVisorPdf input={null} />);
     expect(container.querySelector('[data-compact="true"]')).toBeTruthy();
   });
@@ -146,7 +148,6 @@ describe("AppVisorPdf [SPEC:SCRUMCORE-190]", () => {
     Object.defineProperty(window, "innerWidth", { value: 500, configurable: true });
     window.dispatchEvent(new Event("resize"));
 
-    const { AppVisorPdf } = await import("./AppVisorPdf");
     render(<AppVisorPdf input={null} />);
 
     const toggle = screen.getByRole("button", { name: "Thumbnails" });

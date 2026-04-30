@@ -1,11 +1,10 @@
 import { BookOutlined } from "@ant-design/icons";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
-import { AppVisorPdf } from "../../../../app/Components/UI/AppVisorPdf";
+import { AppVisorPdfCore } from "../../../../app/Components/UI/AppVisorPdf";
 import styles from "./DocumentosWorkbench.module.css";
-import { DocumentosList } from "./DocumentosList";
+import { DocumentosList, DOCUMENTS } from "./DocumentosList";
 import { DocumentosToolbar } from "./DocumentosToolbar";
-import { useGestionRespuestaDocumentos } from "../../hooks/useGestionRespuestaDocumentos";
 
 const MOBILE_QUERY = "(max-width: 768px)";
 
@@ -41,34 +40,16 @@ function resolveIsTablet() {
   return isTouchDevice && width > 768 && width <= 1366;
 }
 
-type DocumentosWorkbenchProps = {
-  idTareaWf?: number;
-};
+const isPdfDocument = (docTitle: string) => docTitle.toLowerCase().endsWith(".pdf");
 
-const formatBytes = (size: number) => {
-  if (!Number.isFinite(size) || size <= 0) return "0 B";
-  const units = ["B", "KB", "MB", "GB"] as const;
-  const idx = Math.min(Math.floor(Math.log(size) / Math.log(1024)), units.length - 1);
-  const value = size / 1024 ** idx;
-  const display = value >= 10 || idx === 0 ? Math.round(value) : Math.round(value * 10) / 10;
-  return `${display} ${units[idx]}`;
-};
-
-const isPdfFile = (fileName: string, mime?: string) =>
-  (mime?.toLowerCase() === "application/pdf" || fileName.toLowerCase().endsWith(".pdf")) ?? false;
-
-export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
+export function DocumentosWorkbench() {
   const panelId = useId();
   const rootRef = useRef<HTMLElement | null>(null);
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [isTablet, setIsTablet] = useState(resolveIsTablet);
   const [collapsed, setCollapsed] = useState(isTablet);
-  const { files } = useGestionRespuestaDocumentos();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
-  const [selectedUnsupported, setSelectedUnsupported] = useState<string | null>(null);
-  const [selectedUploading, setSelectedUploading] = useState<string | null>(null);
-  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+  const [documents, setDocuments] = useState(() => DOCUMENTS);
+  const [selectedId, setSelectedId] = useState<string | null>(DOCUMENTS[0]?.id ?? null);
 
   useEffect(() => {
     const handler = () => setIsTablet(resolveIsTablet());
@@ -86,95 +67,29 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   );
   const layoutCollapsed = variant === "overlay" ? true : collapsed;
 
-  const listItems = useMemo(() => {
-    return files.map((file) => ({
-      id: file.uid,
-      title: file.name,
-      meta: `${isPdfFile(file.name, file.type) ? "PDF" : "Documento"} · ${formatBytes(file.size)}`,
-      kind: isPdfFile(file.name, file.type) ? ("pdf" as const) : ("doc" as const),
-      disabled: file.status !== "done",
-    }));
-  }, [files]);
-
-  const selectedFile = useMemo(
-    () => files.find((f) => f.uid === selectedId) ?? null,
-    [files, selectedId],
+  const selectedDoc = useMemo(
+    () => documents.find((doc) => doc.id === selectedId) ?? null,
+    [documents, selectedId],
   );
 
   const visorInput = useMemo(() => {
-    return selectedUrl ? ({ kind: "url", url: selectedUrl } as const) : null;
-  }, [selectedUrl]);
-
-  useEffect(() => {
-    if (!selectedId) return;
-    if (files.some((file) => file.uid === selectedId)) return;
-    setSelectedId(null);
-  }, [files, selectedId]);
-
-  useEffect(() => {
-    setSelectedUnsupported(null);
-    setSelectedUploading(null);
-    setSelectedFileName(selectedFile?.name ?? null);
-
-    if (!selectedFile) {
-      setSelectedUrl(null);
-      return;
-    }
-
-    if (selectedFile.status !== "done") {
-      setSelectedUrl(null);
-      setSelectedUploading(selectedFile.name);
-      return;
-    }
-
-    if (!isPdfFile(selectedFile.name, selectedFile.type)) {
-      setSelectedUrl(null);
-      setSelectedUnsupported(selectedFile.name);
-      return;
-    }
-
-    if (selectedFile.url) {
-      setSelectedUrl(selectedFile.url);
-      return;
-    }
-
-    if (!selectedFile.originFile) {
-      setSelectedUrl(null);
-      setSelectedUnsupported(selectedFile.name);
-      return;
-    }
-
-    const url = URL.createObjectURL(selectedFile.originFile);
-    setSelectedUrl(url);
-    return () => {
-      URL.revokeObjectURL(url);
-    };
-  }, [
-    selectedId,
-    selectedFile?.name,
-    selectedFile?.originFile,
-    selectedFile?.status,
-    selectedFile?.type,
-    selectedFile?.url,
-  ]);
-
-  const canOpenSelected = Boolean(selectedUrl);
-
-  const openSelectedInNewTab = () => {
-    if (!canOpenSelected || !selectedUrl) return;
-    if (typeof window === "undefined") return;
-    window.open(selectedUrl, "_blank", "noopener,noreferrer");
-  };
+    if (!selectedDoc) return null;
+    if (!isPdfDocument(selectedDoc.title)) return null;
+    const href = selectedDoc.href ?? null;
+    return href ? ({ kind: "url", url: href } as const) : null;
+  }, [selectedDoc]);
 
   useEffect(() => {
     if (variant !== "overlay") return;
     const root = rootRef.current;
     if (!root || typeof MutationObserver === "undefined") return;
 
+    const tabPane = root.closest(".ant-tabs-tabpane") as HTMLElement | null;
+    if (!tabPane) return;
+
     const isHidden = () => {
-      const hiddenAttr = root.hasAttribute("hidden");
-      const ariaHidden = root.getAttribute("aria-hidden") === "true";
-      return hiddenAttr || ariaHidden;
+      // Antd Tabs hides inactive panels by toggling tabpane classes (display: none).
+      return tabPane.classList.contains("ant-tabs-tabpane-hidden");
     };
 
     // If the tab system hides panels without unmounting, ensure overlay closes.
@@ -184,9 +99,9 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       }
     });
 
-    observer.observe(root, {
+    observer.observe(tabPane, {
       attributes: true,
-      attributeFilter: ["hidden", "aria-hidden", "style", "class"],
+      attributeFilter: ["class", "style"],
     });
 
     return () => observer.disconnect();
@@ -202,15 +117,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     >
       <DocumentosToolbar
         className={styles.toolbar}
-        hasDocuments={listItems.length > 0}
-        canOpenSelected={canOpenSelected}
-        onOpenDocuments={() => {
-          if (canOpenSelected) {
-            openSelectedInNewTab();
-            return;
-          }
-          setCollapsed(false);
-        }}
+        hasDocuments={documents.length > 0}
+        onOpenDocuments={() => setCollapsed(false)}
         onSearchDocuments={() => setCollapsed(false)}
       />
       <div
@@ -223,29 +131,22 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
           <header className={styles.mainHeader}>
             <h3 className={styles.mainTitle} aria-hidden="true" />
           </header>
-          <div className={styles.mainSurface}>
-            {selectedUploading ? (
-              <p className={styles.mainHint} role="status" aria-label="Zona de documento">
-                El archivo &quot;{selectedUploading}&quot; aún se está cargando. Espera a que finalice la carga.
-              </p>
-            ) : selectedUnsupported ? (
-              <p className={styles.mainHint} role="status" aria-label="Zona de documento">
-                El archivo &quot;{selectedUnsupported}&quot; no es compatible con el visor PDF.
-              </p>
-            ) : selectedUrl ? (
-              <AppVisorPdf
+           <div className={styles.mainSurface}>
+             {visorInput ? (
+              <AppVisorPdfCore
                 input={visorInput}
-                documentId={selectedId ?? undefined}
                 aria-label="Visor de documentos PDF"
                 className={styles.viewer}
               />
-            ) : listItems.length === 0 ? (
+            ) : documents.length === 0 ? (
               <p className={styles.mainHint} role="status" aria-label="Zona de documento">
                 No hay documentos adjuntos para visualizar.
               </p>
             ) : (
               <p className={styles.mainHint} role="status" aria-label="Zona de documento">
-                Selecciona un documento PDF para visualizarlo.
+                {selectedDoc && !isPdfDocument(selectedDoc.title)
+                  ? `El archivo "${selectedDoc.title}" no es compatible con el visor PDF.`
+                  : "Selecciona un documento PDF para visualizarlo."}
               </p>
             )}
           </div>
@@ -266,26 +167,32 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             <section className={styles.preview} aria-label="Panel de documentos">
               <div className={styles.previewHeader}>
                 <h4 className={styles.previewTitle}>Listado</h4>
-                <span className={styles.previewMeta}>
-                  {typeof idTareaWf === "number" && Number.isFinite(idTareaWf) && idTareaWf > 0
-                    ? `IdTareaWf ${idTareaWf}`
-                    : "Sin contexto"}
-                </span>
+                <span className={styles.previewMeta}>Demo</span>
               </div>
               <div className={styles.previewSurface}>
-                {listItems.length === 0 ? (
+                {documents.length === 0 ? (
                   <div className={styles.previewPlaceholder}>
                     <p className={styles.previewHint}>Sin documentos adjuntos.</p>
                   </div>
                 ) : (
                   <DocumentosList
-                    items={listItems}
+                    items={documents}
                     selectedId={selectedId}
                     onSelect={(doc) => {
                       setSelectedId(doc.id);
                       if (variant === "overlay") {
                         setCollapsed(true);
                       }
+                    }}
+                    onDelete={(doc) => {
+                      setDocuments((prev) => {
+                        const remaining = prev.filter((item) => item.id !== doc.id);
+                        setSelectedId((prevSelected) => {
+                          if (prevSelected !== doc.id) return prevSelected;
+                          return remaining[0]?.id ?? null;
+                        });
+                        return remaining;
+                      });
                     }}
                   />
                 )}

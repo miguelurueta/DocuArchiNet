@@ -18,9 +18,16 @@ const toFriendlyError = (error: unknown) => {
   return message.trim() ? message : "No se pudo cargar el PDF.";
 };
 
+const isRenderCancelledError = (error: unknown) => {
+  if (error instanceof DOMException && error.name === "AbortError") return true;
+  const message = error instanceof Error ? error.message : String(error);
+  return /render(ing)?\s+cancel(ed|led)/i.test(message) || /cancelado/i.test(message);
+};
+
 export type PdfjsEngineOptions = {
   maxCacheEntries?: number;
   disableWorker?: boolean;
+  loadTimeoutMs?: number;
 };
 
 export function createPdfjsEngine(options: PdfjsEngineOptions = {}): PdfEngine {
@@ -70,7 +77,17 @@ export function createPdfjsEngine(options: PdfjsEngineOptions = {}): PdfEngine {
       });
       signal.addEventListener("abort", () => loadingTask.destroy(), { once: true });
 
-      const doc = await loadingTask.promise;
+      const timeoutMs = options.loadTimeoutMs ?? 20_000;
+      const doc = await Promise.race([
+        loadingTask.promise,
+        new Promise<never>((_, reject) => {
+          const timer = setTimeout(() => {
+            clearTimeout(timer);
+            loadingTask.destroy();
+            reject(new Error("Tiempo de espera agotado cargando el PDF."));
+          }, timeoutMs);
+        }),
+      ]);
       if (signal.aborted) {
         await doc.destroy();
         throw new Error("Carga cancelada.");
@@ -113,7 +130,7 @@ export function createPdfjsEngine(options: PdfjsEngineOptions = {}): PdfEngine {
     try {
       const page = await pdfDocument.getPage(req.pageNumber);
       if (signal?.aborted) {
-        throw new Error("Render cancelado.");
+        throw new DOMException("Render cancelado.", "AbortError");
       }
 
       const viewport = page.getViewport({ scale: req.zoom });
@@ -136,7 +153,7 @@ export function createPdfjsEngine(options: PdfjsEngineOptions = {}): PdfEngine {
 
       await renderTask.promise;
       if (signal?.aborted) {
-        throw new Error("Render cancelado.");
+        throw new DOMException("Render cancelado.", "AbortError");
       }
 
       const cachedCanvas = document.createElement("canvas");
@@ -154,6 +171,9 @@ export function createPdfjsEngine(options: PdfjsEngineOptions = {}): PdfEngine {
 
       return { width: canvas.width, height: canvas.height };
     } catch (error) {
+      if (signal?.aborted || isRenderCancelledError(error)) {
+        throw new DOMException("Render cancelado.", "AbortError");
+      }
       throw new Error(toFriendlyError(error));
     }
   };

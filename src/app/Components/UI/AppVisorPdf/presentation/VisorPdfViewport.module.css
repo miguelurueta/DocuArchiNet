@@ -23,6 +23,12 @@
   border-radius: 6px;
 }
 
+.placeholder {
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+}
+
 .overlay {
   position: absolute;
   inset: 0;

@@ -1,4 +1,6 @@
 export * from "./AppVisorPdf";
+export * from "./AppVisorPdfCore";
+export * from "./AppVisorPdfSimple";
 export type {
   AppVisorPdfExportFormat,
   AppVisorPdfInput,
