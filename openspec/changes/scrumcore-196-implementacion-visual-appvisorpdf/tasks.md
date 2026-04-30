@@ -5,12 +5,17 @@
 
 ## 2. Capa de datos (negocio)
 
+- [ ] 2.0 Definir contrato/flujo real de documentos (fuente de verdad)
+  - endpoint/servicio para listar documentos por `idTareaWf`
+  - endpoint/servicio para obtener el PDF (URL firmada/bytes/base64) + auth/headers
+  - soporte (o descarte explícito) de no-PDF
 - [ ] 2.1 Identificar/crear servicio en `src/modules/gestionCorrespondencia/services/` para:
   - listar documentos por `idTareaWf`
   - obtener contenido/URL del PDF por documento
 - [ ] 2.2 Crear hook en `src/modules/gestionCorrespondencia/hooks/` para encapsular:
   - estados `loading/error/empty`
   - cache del documento seleccionado (evitar descargas repetidas)
+- [ ] 2.2.1 Manejar cancelación/race conditions al cambiar rápidamente de documento (ignorar respuestas viejas)
 - [ ] 2.3 Tipar modelos DTO del listado/visor sin usar `any`
 
 ## 3. Integración UI (Tab Documentos)
@@ -26,9 +31,15 @@
   - `empty` (sin docs)
   - `error` con acción “Reintentar”
   - `unauthorized/forbidden` (si aplica)
+- [ ] 3.4.1 Manejar caso “no soportado” (documento no PDF o no renderizable) con UI clara
 - [ ] 3.5 Mantener el comportamiento overlay:
   - backdrop/`inert` (sin `aria-hidden` con foco)
   - autocierre al cambiar de tab (mantener el mecanismo existente)
+
+## 6. Toolbar (acciones)
+
+- [ ] 6.1 Conectar acciones del toolbar a flujos reales si existen (buscar, vincular, abrir)
+- [ ] 6.2 Si una acción no está disponible, dejarla deshabilitada con estado/tooltip (sin romper UI)
 
 ## 4. Responsive / estilos
 
@@ -43,4 +54,3 @@
 - [ ] 5.1 Actualizar `src/modules/gestionCorrespondencia/tests/DocumentosWorkbench.test.tsx` para el flujo real (mock de servicios/hook)
 - [ ] 5.2 Asegurar que los tests del tab/routing no queden rotos (`GestionCorrespondenciaRoute.spec.test.tsx`)
 - [ ] 5.3 Ejecutar `npm.cmd test` (o subset) y documentar resultados
-
