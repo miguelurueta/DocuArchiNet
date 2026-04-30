@@ -67,6 +67,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
   const [selectedUnsupported, setSelectedUnsupported] = useState<string | null>(null);
+  const [selectedUploading, setSelectedUploading] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
 
   useEffect(() => {
@@ -91,6 +92,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       title: file.name,
       meta: `${isPdfFile(file.name, file.type) ? "PDF" : "Documento"} · ${formatBytes(file.size)}`,
       kind: isPdfFile(file.name, file.type) ? ("pdf" as const) : ("doc" as const),
+      disabled: file.status !== "done",
     }));
   }, [files]);
 
@@ -98,6 +100,10 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     () => files.find((f) => f.uid === selectedId) ?? null,
     [files, selectedId],
   );
+
+  const visorInput = useMemo(() => {
+    return selectedUrl ? ({ kind: "url", url: selectedUrl } as const) : null;
+  }, [selectedUrl]);
 
   useEffect(() => {
     if (!selectedId) return;
@@ -107,10 +113,17 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
 
   useEffect(() => {
     setSelectedUnsupported(null);
+    setSelectedUploading(null);
     setSelectedFileName(selectedFile?.name ?? null);
 
     if (!selectedFile) {
       setSelectedUrl(null);
+      return;
+    }
+
+    if (selectedFile.status !== "done") {
+      setSelectedUrl(null);
+      setSelectedUploading(selectedFile.name);
       return;
     }
 
@@ -136,7 +149,14 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     return () => {
       URL.revokeObjectURL(url);
     };
-  }, [selectedFile]);
+  }, [
+    selectedId,
+    selectedFile?.name,
+    selectedFile?.originFile,
+    selectedFile?.status,
+    selectedFile?.type,
+    selectedFile?.url,
+  ]);
 
   const canOpenSelected = Boolean(selectedUrl);
 
@@ -204,13 +224,17 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             <h3 className={styles.mainTitle} aria-hidden="true" />
           </header>
           <div className={styles.mainSurface}>
-            {selectedUnsupported ? (
+            {selectedUploading ? (
+              <p className={styles.mainHint} role="status" aria-label="Zona de documento">
+                El archivo &quot;{selectedUploading}&quot; aún se está cargando. Espera a que finalice la carga.
+              </p>
+            ) : selectedUnsupported ? (
               <p className={styles.mainHint} role="status" aria-label="Zona de documento">
                 El archivo &quot;{selectedUnsupported}&quot; no es compatible con el visor PDF.
               </p>
             ) : selectedUrl ? (
               <AppVisorPdf
-                input={{ kind: "url", url: selectedUrl }}
+                input={visorInput}
                 documentId={selectedId ?? undefined}
                 aria-label="Visor de documentos PDF"
                 className={styles.viewer}

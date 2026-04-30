@@ -6,6 +6,7 @@ export type DocumentoWorkbenchItem = {
   title: string;
   meta: string;
   kind: "pdf" | "image" | "doc";
+  disabled?: boolean;
 };
 
 export type DocumentosListProps = {
@@ -24,6 +25,8 @@ export function DocumentosList({ items, selectedId, onSelect }: DocumentosListPr
           className={styles.documentCard}
           role="listitem"
           data-selected={item.id === selectedId}
+          disabled={item.disabled}
+          aria-disabled={item.disabled || undefined}
           onClick={() => onSelect?.(item)}
         >
           <span className={styles.documentIcon} aria-hidden="true">
@@ -38,4 +41,3 @@ export function DocumentosList({ items, selectedId, onSelect }: DocumentosListPr
     </div>
   );
 }
-
