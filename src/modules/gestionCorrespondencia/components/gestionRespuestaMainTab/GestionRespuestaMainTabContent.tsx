@@ -58,7 +58,6 @@ export function GestionRespuestaMainTabContent(
     savedValue: savedEditorValue,
   });
   const canAdvanceToSend = files.length > 0;
-  // Visual guides are managed by AppEditorPdf; this view intentionally stays on AppEditor.
   const editorPageMargins = useMemo(
     () => ({ top: 96, right: 72, bottom: 96, left: 72 }),
     [],
@@ -69,8 +68,6 @@ export function GestionRespuestaMainTabContent(
     }
     setIsGestionDocumentoModalOpen(true);
   }, [canAdvanceToSend]);
-  // NOTE: Page context/metrics tracking is intentionally owned by AppEditorPdf.
-  // This consumer stays decoupled from AppEditorPdf and only uses AppEditor as engine.
 
   return (
     <section className={styles.mainTab} aria-label="Contenido principal de respuesta">
