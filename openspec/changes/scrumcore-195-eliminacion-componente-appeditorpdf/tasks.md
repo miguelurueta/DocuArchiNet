@@ -21,3 +21,7 @@
 - [x] 4.2 Validar `rg -n "AppEditorPdf" src` retorna 0 matches
 - [ ] 4.3 Validar `npm.cmd test` pasa
 - [ ] 4.4 (Si aplica) Validar `npm.cmd run build` pasa
+
+Notas:
+- `npm.cmd test` estÃ¡ bloqueado por `vite/esbuild` con `spawn EPERM` en este entorno.
+- `tsc` ya venÃ­a fallando por errores existentes en `AppEditor` / `AppVisorPdf` no relacionados con este cambio.

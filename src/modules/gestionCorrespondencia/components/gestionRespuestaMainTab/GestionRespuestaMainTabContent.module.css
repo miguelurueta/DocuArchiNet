@@ -288,7 +288,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .workbenchBody {
     min-height: 360px;
     height: clamp(360px, 68vh, 640px);
