@@ -157,7 +157,7 @@ export function GestionRespuestaMainTabContent(
           <h3 className={styles.attachmentsTitle}>Adjuntos</h3>
           <span className={styles.infoCopy}>Carga de soportes y anexos del expediente.</span>
         </div>
-        <AppUpload value={files} onChange={setFiles} drag size="sm" />
+        <AppUpload value={files} onChange={setFiles} drag size="sm" strategy="auto" />
       </div>
 
       <GestionDocumentoModal
