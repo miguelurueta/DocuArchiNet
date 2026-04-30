@@ -1,6 +1,6 @@
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
-import { useId } from "react";
+import { useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
 import { AppButton } from "../AppButton";
 import styles from "./AppCollapseRail.module.css";
@@ -46,6 +46,7 @@ export function AppCollapseRail({
   const toggleIcon = collapsed ? expandIcon : collapseIcon;
   const resolvedRailLabel = railLabel ?? title;
   const isOverlay = variant === "overlay";
+  const overlayRootRef = useRef<HTMLDivElement | null>(null);
   const panelNode = (
     <aside
       className={styles.panel}
@@ -76,6 +77,40 @@ export function AppCollapseRail({
     </aside>
   );
 
+  useEffect(() => {
+    const overlayRoot = overlayRootRef.current;
+    if (!overlayRoot) return;
+
+    if (collapsed) {
+      const activeElement = typeof document !== "undefined" ? document.activeElement : null;
+      if (activeElement instanceof HTMLElement && overlayRoot.contains(activeElement)) {
+        activeElement.blur();
+      }
+      overlayRoot.setAttribute("inert", "");
+    } else {
+      overlayRoot.removeAttribute("inert");
+    }
+  }, [collapsed]);
+
+  const overlayNode = (
+    <div
+      ref={(node) => {
+        overlayRootRef.current = node;
+      }}
+      className={styles.overlayRoot}
+      data-collapsed={collapsed}
+    >
+      {!collapsed ? (
+        <div
+          className={styles.backdrop}
+          role="presentation"
+          onClick={onToggle}
+        />
+      ) : null}
+      {panelNode}
+    </div>
+  );
+
   return (
     <div
       className={joinClasses(styles.wrapper, className)}
@@ -83,7 +118,9 @@ export function AppCollapseRail({
       data-variant={variant}
     >
       {!isOverlay ? panelNode : null}
-      {isOverlay && typeof document !== "undefined" ? createPortal(panelNode, document.body) : null}
+      {isOverlay && typeof document !== "undefined"
+        ? createPortal(overlayNode, document.body)
+        : null}
 
       <div className={styles.rail} data-collapsed={collapsed} data-placement={placement}>
         {collapsed ? (

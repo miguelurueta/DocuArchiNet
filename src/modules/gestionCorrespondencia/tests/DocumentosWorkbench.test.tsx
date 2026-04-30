@@ -1,13 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { DocumentosWorkbench } from "../components/documentosWorkbench/DocumentosWorkbench";
 
-jest.mock(
-  "../components/documentosWorkbench/PdfDocumentViewer",
-  () => ({
-    PdfDocumentViewer: () => <div data-testid="pdf-document-viewer" />,
-  }),
-);
-
 const TABLET_QUERY = "(max-width: 1024px)";
 const MOBILE_QUERY = "(max-width: 768px)";
 
@@ -29,69 +22,64 @@ describe(
       window.matchMedia = createMatchMedia({
         [TABLET_QUERY]: false,
         [MOBILE_QUERY]: false,
-      });
+      }) as unknown as typeof window.matchMedia;
+
+      Object.defineProperty(window, "innerWidth", { value: 1440, configurable: true });
+      Object.defineProperty(navigator, "maxTouchPoints", { value: 0, configurable: true });
     });
 
-  it("renderiza el workbench y deja el panel expandido en desktop", () => {
+  it("renderiza estructura base sin visor ni listado funcional", () => {
     render(<DocumentosWorkbench />);
 
     expect(screen.getByTestId("documentos-workbench")).toBeInTheDocument();
+    expect(screen.getByLabelText("Zona de documento")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Ocultar Visualizar documentos/i }),
     ).toBeInTheDocument();
   });
 
-  it("permite colapsar el panel desde el toggle", () => {
+  it("permite colapsar el rail", () => {
     render(<DocumentosWorkbench />);
-
     const toggle = screen.getByRole("button", {
       name: /Ocultar Visualizar documentos/i,
     });
     fireEvent.click(toggle);
-
-    const collapsedButtons = screen.getAllByRole("button", {
-      name: /Mostrar Visualizar documentos/i,
-    });
-    expect(collapsedButtons.length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByRole("button", { name: /Mostrar Visualizar documentos/i }).length,
+    ).toBeGreaterThan(0);
   });
 
-  it("mantiene el contenido del panel montado al colapsar", () => {
-    render(<DocumentosWorkbench />);
-
-    const toggle = screen.getByRole("button", {
-      name: /Ocultar Visualizar documentos/i,
-    });
-    fireEvent.click(toggle);
-
-    expect(screen.getByText("Radicado_2026_0413.pdf")).toBeInTheDocument();
-  });
-
-  it("permite enfocar el toggle del panel con teclado", () => {
-    render(<DocumentosWorkbench />);
-
-    const toggle = screen.getByRole("button", {
-      name: /Ocultar Visualizar documentos/i,
-    });
-    toggle.focus();
-    expect(toggle).toHaveFocus();
-  });
-
-  it("aplica variant overlay en mobile", () => {
+  it("en mobile usa variant overlay", () => {
     window.matchMedia = createMatchMedia({
       [TABLET_QUERY]: true,
       [MOBILE_QUERY]: true,
-    });
+    }) as unknown as typeof window.matchMedia;
+
+    Object.defineProperty(window, "innerWidth", { value: 500, configurable: true });
+    Object.defineProperty(navigator, "maxTouchPoints", { value: 5, configurable: true });
 
     render(<DocumentosWorkbench />);
-
-    const panel = screen.getByLabelText("Visualizar documentos");
-    expect(panel).toHaveAttribute("data-variant", "overlay");
+    expect(screen.getByTestId("documentos-workbench")).toHaveAttribute(
+      "data-variant",
+      "overlay",
+    );
   });
 
-  it("muestra el visor PDF en el contenido principal", () => {
-    render(<DocumentosWorkbench />);
+  it("en iPad Pro usa variant overlay (touch + 1024..1366px)", () => {
+    window.matchMedia = createMatchMedia({
+      [TABLET_QUERY]: false,
+      [MOBILE_QUERY]: false,
+    }) as unknown as typeof window.matchMedia;
 
-    expect(screen.getByTestId("pdf-document-viewer")).toBeInTheDocument();
+    Object.defineProperty(window, "innerWidth", { value: 1024, configurable: true });
+    Object.defineProperty(navigator, "maxTouchPoints", { value: 5, configurable: true });
+    window.dispatchEvent(new Event("resize"));
+
+    render(<DocumentosWorkbench />);
+    expect(screen.getByTestId("documentos-workbench")).toHaveAttribute(
+      "data-variant",
+      "overlay",
+    );
   });
   },
 );

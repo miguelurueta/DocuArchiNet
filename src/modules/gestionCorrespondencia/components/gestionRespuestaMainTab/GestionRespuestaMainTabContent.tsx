@@ -1,5 +1,5 @@
 import { CarryOutFilled, MailFilled } from "@ant-design/icons";
-import { useCallback, useId, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import {
   AppEditor,
   AppEditorSaveAction,
@@ -14,7 +14,6 @@ import { GestionRespuestaRightToolsPanel } from "./GestionRespuestaRightToolsPan
 import { GestionDocumentoModal } from "./modalGestionDocumento";
 
 const DEFAULT_MEDIA_QUERY = "(max-width: 1024px)";
-const MOBILE_MEDIA_QUERY = "(max-width: 768px)";
 
 const useMediaQuery = (query: string) => {
   const getSnapshot = () =>
@@ -45,8 +44,8 @@ export function GestionRespuestaMainTabContent(
   _props: GestionRespuestaMainTabContentProps = {},
 ) {
   const panelId = useId();
+  const rootRef = useRef<HTMLElement | null>(null);
   const isCompact = useMediaQuery(DEFAULT_MEDIA_QUERY);
-  const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(isCompact);
   const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] =
     useState(false);
@@ -58,22 +57,45 @@ export function GestionRespuestaMainTabContent(
     savedValue: savedEditorValue,
   });
   const canAdvanceToSend = files.length > 0;
-  // Visual guides are managed by AppEditorPdf; this view intentionally stays on AppEditor.
-  const editorPageMargins = useMemo(
-    () => ({ top: 96, right: 72, bottom: 96, left: 72 }),
-    [],
-  );
   const goToSendStep = useCallback(() => {
     if (!canAdvanceToSend) {
       return;
     }
     setIsGestionDocumentoModalOpen(true);
   }, [canAdvanceToSend]);
-  // NOTE: Page context/metrics tracking is intentionally owned by AppEditorPdf.
-  // This consumer stays decoupled from AppEditorPdf and only uses AppEditor as engine.
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || typeof MutationObserver === "undefined") return;
+
+    const isHidden = () => {
+      const hiddenAttr = root.hasAttribute("hidden");
+      const ariaHidden = root.getAttribute("aria-hidden") === "true";
+      return hiddenAttr || ariaHidden;
+    };
+
+    const observer = new MutationObserver(() => {
+      if (isHidden()) {
+        setIsPanelCollapsed(true);
+      }
+    });
+
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ["hidden", "aria-hidden", "style", "class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <section className={styles.mainTab} aria-label="Contenido principal de respuesta">
+    <section
+      ref={(node) => {
+        rootRef.current = node;
+      }}
+      className={styles.mainTab}
+      aria-label="Contenido principal de respuesta"
+    >
       <div className={styles.workbench}>
         <AppToolbar
           className={styles.toolbar}
@@ -99,7 +121,7 @@ export function GestionRespuestaMainTabContent(
         <div
           className={styles.workbenchBody}
           data-panel-collapsed={isPanelCollapsed}
-          data-variant={isMobile ? "overlay" : "inline"}
+          data-variant={isCompact ? "overlay" : "inline"}
           data-testid="gestion-respuesta-workbench"
         >
           <GestionRespuestaEditorContainer>
