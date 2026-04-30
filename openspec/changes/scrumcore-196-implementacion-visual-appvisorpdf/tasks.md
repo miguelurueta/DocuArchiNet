@@ -1,56 +1,44 @@
 ## 1. Plomería de contexto (`idTareaWf`)
 
-- [ ] 1.1 Pasar `idTareaWf` desde `src/modules/gestionCorrespondencia/pages/GestionRespuesta.tsx` a `DocumentosWorkbench`
-- [ ] 1.2 Actualizar `DocumentosWorkbench` para aceptar `idTareaWf?: number` y manejar el caso inválido/vacío
+- [x] 1.1 Pasar `idTareaWf` desde `src/modules/gestionCorrespondencia/pages/GestionRespuesta.tsx` a `DocumentosWorkbench`
+- [x] 1.2 Actualizar `DocumentosWorkbench` para aceptar `idTareaWf?: number` y manejar el caso inválido/vacío
 
 ## 2. Capa de datos (negocio)
 
-- [ ] 2.0 Definir contrato/flujo real de documentos (fuente de verdad)
-  - endpoint/servicio para listar documentos por `idTareaWf`
-  - endpoint/servicio para obtener el PDF (URL firmada/bytes/base64) + auth/headers
-  - soporte (o descarte explícito) de no-PDF
-- [ ] 2.1 Identificar/crear servicio en `src/modules/gestionCorrespondencia/services/` para:
-  - listar documentos por `idTareaWf`
-  - obtener contenido/URL del PDF por documento
-- [ ] 2.2 Crear hook en `src/modules/gestionCorrespondencia/hooks/` para encapsular:
-  - estados `loading/error/empty`
-  - cache del documento seleccionado (evitar descargas repetidas)
-- [ ] 2.2.1 Manejar cancelación/race conditions al cambiar rápidamente de documento (ignorar respuestas viejas)
-- [ ] 2.3 Tipar modelos DTO del listado/visor sin usar `any`
+Fuente de verdad (sin backend nuevo): documentos adjuntos cargados en el tab **Gestión** (`AppUpload`) compartidos con el tab **Documentos**.
+
+- [x] 2.1 Crear un contexto/provider para compartir `files` entre tabs
+- [x] 2.2 Crear un hook para consumir el contexto (`files`, `setFiles`) desde ambos tabs
+- [x] 2.3 Mapear `AppUploadFile` → items del listado (nombre, tamaño, tipo)
+- [x] 2.4 Resolver el PDF seleccionado como `objectURL` y revocarlo en cleanup (evitar leaks)
+- [ ] 2.5 (Si aplica) Integrar backend real de documentos por `idTareaWf` (listar + URL/bytes + auth)
 
 ## 3. Integración UI (Tab Documentos)
 
-- [ ] 3.1 Reemplazar el placeholder “Sin visor ni acciones” por `AppVisorPdf` en `DocumentosWorkbench`
-- [ ] 3.2 Integrar el listado real en el rail (reusar `DocumentosList` o reemplazarlo por lista real)
-- [ ] 3.3 Al seleccionar documento:
-  - cargar el PDF
-  - renderizarlo en el visor
-  - (opcional) autocerrar overlay en mobile/tablet por UX
-- [ ] 3.4 Implementar estados visibles:
-  - `loading` (listado/visor)
-  - `empty` (sin docs)
-  - `error` con acción “Reintentar”
-  - `unauthorized/forbidden` (si aplica)
-- [ ] 3.4.1 Manejar caso “no soportado” (documento no PDF o no renderizable) con UI clara
-- [ ] 3.5 Mantener el comportamiento overlay:
+- [x] 3.1 Reemplazar el placeholder por `AppVisorPdf` en `DocumentosWorkbench`
+- [x] 3.2 Integrar el listado en el rail (reusando `DocumentosList`)
+- [x] 3.3 Al seleccionar documento:
+  - cargar el PDF en `AppVisorPdf`
+  - autocerrar overlay en mobile/tablet (UX)
+- [x] 3.4 Manejar caso “no soportado” (documento no PDF o no renderizable) con UI clara
+- [x] 3.5 Mantener el comportamiento overlay:
   - backdrop/`inert` (sin `aria-hidden` con foco)
   - autocierre al cambiar de tab (mantener el mecanismo existente)
+- [ ] 3.6 Implementar estados `loading/error` si se incorpora descarga real (backend)
+
+## 4. Responsive / estilos
+
+- [x] 4.1 Ajustar `DocumentosWorkbench.module.css` para layout estable (min-height/overflow/scroll interno)
+- [ ] 4.2 Validar breakpoints: 360×800, 768×1024, 1024×1366, 901–1122, >=1280
+
+## 5. Tests y validación
+
+- [x] 5.1 Actualizar `src/modules/gestionCorrespondencia/tests/DocumentosWorkbench.test.tsx` según el nuevo comportamiento
+- [x] 5.2 Asegurar que los tests del tab/routing no queden rotos (`GestionCorrespondenciaRoute.spec.test.tsx`)
+- [ ] 5.3 Ejecutar `npm.cmd test` (o subset) y documentar resultados
 
 ## 6. Toolbar (acciones)
 
 - [ ] 6.1 Conectar acciones del toolbar a flujos reales si existen (buscar, vincular, abrir)
 - [ ] 6.2 Si una acción no está disponible, dejarla deshabilitada con estado/tooltip (sin romper UI)
 
-## 4. Responsive / estilos
-
-- [ ] 4.1 Ajustar `DocumentosWorkbench.module.css` para layout estable:
-  - wrappers con `min-height: 0`
-  - evitar overflow horizontal
-  - scroll interno del visor
-- [ ] 4.2 Validar breakpoints: 360×800, 768×1024, 1024×1366, 901–1122, >=1280
-
-## 5. Tests y validación
-
-- [ ] 5.1 Actualizar `src/modules/gestionCorrespondencia/tests/DocumentosWorkbench.test.tsx` para el flujo real (mock de servicios/hook)
-- [ ] 5.2 Asegurar que los tests del tab/routing no queden rotos (`GestionCorrespondenciaRoute.spec.test.tsx`)
-- [ ] 5.3 Ejecutar `npm.cmd test` (o subset) y documentar resultados

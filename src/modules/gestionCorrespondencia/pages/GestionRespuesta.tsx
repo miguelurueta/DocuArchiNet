@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import type { AppTabItem } from "../../../app/Components/UI/AppTabs";
 import { AppTabs } from "../../../app/Components/UI/AppTabs";
 import { DocumentosWorkbench } from "../components/documentosWorkbench";
+import { GestionRespuestaDocumentosProvider } from "../context/GestionRespuestaDocumentosContext";
 import { GestionRespuestaMainTabContent } from "../components/gestionRespuestaMainTab/GestionRespuestaMainTabContent";
 import styles from "../style/GestionRespuesta.module.css";
 
@@ -31,13 +32,15 @@ export default function GestionRespuesta({ idTareaWf: idTareaWfFromRoute }: Gest
       key: "documentos",
       label: "Documentos",
       icon: <FileTextOutlined />,
-      children: <DocumentosWorkbench />,
+      children: <DocumentosWorkbench idTareaWf={Number.isFinite(idTareaWf) ? idTareaWf : undefined} />,
     },
   ];
 
   return (
     <div className={styles.tabsShell}>
-      <AppTabs items={items} fullWidth className={styles.tabs} />
+      <GestionRespuestaDocumentosProvider>
+        <AppTabs items={items} fullWidth className={styles.tabs} />
+      </GestionRespuestaDocumentosProvider>
     </div>
   );
 }

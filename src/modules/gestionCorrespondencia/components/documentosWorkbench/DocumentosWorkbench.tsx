@@ -1,8 +1,11 @@
 import { BookOutlined } from "@ant-design/icons";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
+import { AppVisorPdf } from "../../../../app/Components/UI/AppVisorPdf";
 import styles from "./DocumentosWorkbench.module.css";
+import { DocumentosList } from "./DocumentosList";
 import { DocumentosToolbar } from "./DocumentosToolbar";
+import { useGestionRespuestaDocumentos } from "../../hooks/useGestionRespuestaDocumentos";
 
 const MOBILE_QUERY = "(max-width: 768px)";
 
@@ -38,12 +41,32 @@ function resolveIsTablet() {
   return isTouchDevice && width > 768 && width <= 1366;
 }
 
-export function DocumentosWorkbench() {
+type DocumentosWorkbenchProps = {
+  idTareaWf?: number;
+};
+
+const formatBytes = (size: number) => {
+  if (!Number.isFinite(size) || size <= 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB"] as const;
+  const idx = Math.min(Math.floor(Math.log(size) / Math.log(1024)), units.length - 1);
+  const value = size / 1024 ** idx;
+  const display = value >= 10 || idx === 0 ? Math.round(value) : Math.round(value * 10) / 10;
+  return `${display} ${units[idx]}`;
+};
+
+const isPdfFile = (fileName: string, mime?: string) =>
+  (mime?.toLowerCase() === "application/pdf" || fileName.toLowerCase().endsWith(".pdf")) ?? false;
+
+export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const panelId = useId();
   const rootRef = useRef<HTMLElement | null>(null);
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [isTablet, setIsTablet] = useState(resolveIsTablet);
   const [collapsed, setCollapsed] = useState(isTablet);
+  const { files } = useGestionRespuestaDocumentos();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
+  const [selectedUnsupported, setSelectedUnsupported] = useState<string | null>(null);
 
   useEffect(() => {
     const handler = () => setIsTablet(resolveIsTablet());
@@ -61,8 +84,55 @@ export function DocumentosWorkbench() {
   );
   const layoutCollapsed = variant === "overlay" ? true : collapsed;
 
+  const listItems = useMemo(() => {
+    return files.map((file) => ({
+      id: file.uid,
+      title: file.name,
+      meta: `${isPdfFile(file.name, file.type) ? "PDF" : "Documento"} · ${formatBytes(file.size)}`,
+      kind: isPdfFile(file.name, file.type) ? ("pdf" as const) : ("doc" as const),
+    }));
+  }, [files]);
+
+  const selectedFile = useMemo(
+    () => files.find((f) => f.uid === selectedId) ?? null,
+    [files, selectedId],
+  );
+
   useEffect(() => {
-    if (!isMobile) return;
+    if (!selectedId) return;
+    if (files.some((file) => file.uid === selectedId)) return;
+    setSelectedId(null);
+  }, [files, selectedId]);
+
+  useEffect(() => {
+    setSelectedUnsupported(null);
+
+    if (!selectedFile) {
+      setSelectedUrl(null);
+      return;
+    }
+
+    if (!isPdfFile(selectedFile.name, selectedFile.type)) {
+      setSelectedUrl(null);
+      setSelectedUnsupported(selectedFile.name);
+      return;
+    }
+
+    if (!selectedFile.originFile) {
+      setSelectedUrl(null);
+      setSelectedUnsupported(selectedFile.name);
+      return;
+    }
+
+    const url = URL.createObjectURL(selectedFile.originFile);
+    setSelectedUrl(url);
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [selectedFile]);
+
+  useEffect(() => {
+    if (variant !== "overlay") return;
     const root = rootRef.current;
     if (!root || typeof MutationObserver === "undefined") return;
 
@@ -85,7 +155,7 @@ export function DocumentosWorkbench() {
     });
 
     return () => observer.disconnect();
-  }, [isMobile]);
+  }, [variant]);
 
   return (
     <section
@@ -107,9 +177,26 @@ export function DocumentosWorkbench() {
             <h3 className={styles.mainTitle} aria-hidden="true" />
           </header>
           <div className={styles.mainSurface}>
-            <p className={styles.mainHint} aria-label="Zona de documento">
-              Sin visor ni acciones. Solo layout base.
-            </p>
+            {selectedUnsupported ? (
+              <p className={styles.mainHint} role="status" aria-label="Zona de documento">
+                El archivo &quot;{selectedUnsupported}&quot; no es compatible con el visor PDF.
+              </p>
+            ) : selectedUrl ? (
+              <AppVisorPdf
+                input={{ kind: "url", url: selectedUrl }}
+                documentId={selectedId ?? undefined}
+                aria-label="Visor de documentos PDF"
+                className={styles.viewer}
+              />
+            ) : listItems.length === 0 ? (
+              <p className={styles.mainHint} role="status" aria-label="Zona de documento">
+                No hay documentos adjuntos para visualizar.
+              </p>
+            ) : (
+              <p className={styles.mainHint} role="status" aria-label="Zona de documento">
+                Selecciona un documento PDF para visualizarlo.
+              </p>
+            )}
           </div>
         </main>
 
@@ -128,14 +215,29 @@ export function DocumentosWorkbench() {
             <section className={styles.preview} aria-label="Panel de documentos">
               <div className={styles.previewHeader}>
                 <h4 className={styles.previewTitle}>Listado</h4>
-                <span className={styles.previewMeta}>Demo</span>
+                <span className={styles.previewMeta}>
+                  {typeof idTareaWf === "number" && Number.isFinite(idTareaWf) && idTareaWf > 0
+                    ? `IdTareaWf ${idTareaWf}`
+                    : "Sin contexto"}
+                </span>
               </div>
               <div className={styles.previewSurface}>
-                <div className={styles.previewPlaceholder}>
-                  <p className={styles.previewHint}>Documento 1</p>
-                  <p className={styles.previewHint}>Documento 2</p>
-                  <p className={styles.previewHint}>Documento 3</p>
-                </div>
+                {listItems.length === 0 ? (
+                  <div className={styles.previewPlaceholder}>
+                    <p className={styles.previewHint}>Sin documentos adjuntos.</p>
+                  </div>
+                ) : (
+                  <DocumentosList
+                    items={listItems}
+                    selectedId={selectedId}
+                    onSelect={(doc) => {
+                      setSelectedId(doc.id);
+                      if (variant === "overlay") {
+                        setCollapsed(true);
+                      }
+                    }}
+                  />
+                )}
               </div>
             </section>
           </div>
