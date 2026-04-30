@@ -165,7 +165,12 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       className={styles.workbench}
       aria-label="Workbench de documentos"
     >
-      <DocumentosToolbar className={styles.toolbar} />
+      <DocumentosToolbar
+        className={styles.toolbar}
+        hasDocuments={listItems.length > 0}
+        onOpenDocuments={() => setCollapsed(false)}
+        onSearchDocuments={() => setCollapsed(false)}
+      />
       <div
         className={styles.workbenchBody}
         data-collapsed={layoutCollapsed}
