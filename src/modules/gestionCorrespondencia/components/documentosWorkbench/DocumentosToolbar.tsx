@@ -4,6 +4,7 @@ import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
 export type DocumentosToolbarProps = {
   className?: string;
   hasDocuments?: boolean;
+  canOpenSelected?: boolean;
   onOpenDocuments?: () => void;
   onSearchDocuments?: () => void;
   onLinkDocuments?: () => void;
@@ -12,6 +13,7 @@ export type DocumentosToolbarProps = {
 export function DocumentosToolbar({
   className,
   hasDocuments = false,
+  canOpenSelected = false,
   onOpenDocuments,
   onSearchDocuments,
   onLinkDocuments,
@@ -45,7 +47,7 @@ export function DocumentosToolbar({
       ]}
       primaryAction={{
         key: "abrir",
-        label: "Abrir documento",
+        label: canOpenSelected ? "Abrir documento" : "Ver documentos",
         size: "sm",
         variant: "ghost",
         icon: <EyeOutlined />,

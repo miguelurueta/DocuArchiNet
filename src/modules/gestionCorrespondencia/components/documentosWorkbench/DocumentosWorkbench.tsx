@@ -67,6 +67,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
   const [selectedUnsupported, setSelectedUnsupported] = useState<string | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
 
   useEffect(() => {
     const handler = () => setIsTablet(resolveIsTablet());
@@ -106,6 +107,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
 
   useEffect(() => {
     setSelectedUnsupported(null);
+    setSelectedFileName(selectedFile?.name ?? null);
 
     if (!selectedFile) {
       setSelectedUrl(null);
@@ -115,6 +117,11 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     if (!isPdfFile(selectedFile.name, selectedFile.type)) {
       setSelectedUrl(null);
       setSelectedUnsupported(selectedFile.name);
+      return;
+    }
+
+    if (selectedFile.url) {
+      setSelectedUrl(selectedFile.url);
       return;
     }
 
@@ -130,6 +137,14 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       URL.revokeObjectURL(url);
     };
   }, [selectedFile]);
+
+  const canOpenSelected = Boolean(selectedUrl);
+
+  const openSelectedInNewTab = () => {
+    if (!canOpenSelected || !selectedUrl) return;
+    if (typeof window === "undefined") return;
+    window.open(selectedUrl, "_blank", "noopener,noreferrer");
+  };
 
   useEffect(() => {
     if (variant !== "overlay") return;
@@ -168,7 +183,14 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       <DocumentosToolbar
         className={styles.toolbar}
         hasDocuments={listItems.length > 0}
-        onOpenDocuments={() => setCollapsed(false)}
+        canOpenSelected={canOpenSelected}
+        onOpenDocuments={() => {
+          if (canOpenSelected) {
+            openSelectedInNewTab();
+            return;
+          }
+          setCollapsed(false);
+        }}
         onSearchDocuments={() => setCollapsed(false)}
       />
       <div
