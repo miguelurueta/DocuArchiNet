@@ -1,6 +1,13 @@
-# AppVisorPdf
+# AppVisorPdf (legacy)
 
 Componente UI reusable para visualizaci\u00f3n de documentos PDF (shell + toolbar + contratos).
+
+## Estado
+
+`AppVisorPdf` (legacy) fue retirado del export público. Visores disponibles:
+
+- `AppVisorPdfCore`: visor funcional (scroll + zoom) con virtualización básica.
+- `AppVisorPdfSimple`: baseline mínimo.
 
 ## Performance (PDFs grandes)
 

@@ -1,7 +1,12 @@
 ## 1. Inventario
 
-- [ ] 1.1 Buscar imports/uso de `AppVisorPdf` (y exports públicos) en `src/**`.
-- [ ] 1.2 Identificar variantes: `AppVisorPdf`, `AppVisorPdfCore`, `AppVisorPdfSimple`, `VisorPdfViewport`, etc.
+- [x] 1.1 Buscar imports/uso de `AppVisorPdf` (y exports públicos) en `src/**`.
+- [x] 1.2 Identificar variantes: `AppVisorPdf`, `AppVisorPdfCore`, `AppVisorPdfSimple`, `VisorPdfViewport`, etc.
+
+Hallazgos (2026-05-04):
+- Export público: `src/app/Components/UI/index.ts` re-exporta `./AppVisorPdf`.
+- Módulo visor: `src/app/Components/UI/AppVisorPdf/AppVisorPdf.tsx` (legacy) + `AppVisorPdfCore.tsx` + `AppVisorPdfSimple.tsx`.
+- Consumidor en módulos: `src/modules/gestionCorrespondencia/components/documentosWorkbench/DocumentosWorkbench.tsx` importa `AppVisorPdfCore`.
 
 ## 2. Migración de consumidores
 
@@ -18,4 +23,3 @@
 
 - [ ] 4.1 Ejecutar `tsc --noEmit`.
 - [ ] 4.2 Ejecutar tests relevantes (`vitest` / `playwright`) si están disponibles.
-
