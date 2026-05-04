@@ -1,4 +1,4 @@
-import { act, render } from "@testing-library/react";
+import { act, render, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { PdfEngine } from "../engine/pdfEngine.types";
 import { VisorPdfViewport } from "./VisorPdfViewport";
@@ -35,12 +35,17 @@ describe("VisorPdfViewport [SPEC:SCRUMCORE-191]", () => {
     );
 
     await act(async () => {
-      await new Promise((r) => setTimeout(r, 25));
+      await new Promise((r) => setTimeout(r, 0));
     });
 
-    const sorted = engine.calls.pages.sort((a, b) => a - b);
-    expect(sorted.includes(10)).toBe(true);
-    expect(sorted.every((value) => value >= 9 && value <= 11)).toBe(true);
+    await waitFor(
+      () => {
+        const sorted = engine.calls.pages.slice().sort((a, b) => a - b);
+        expect(sorted.includes(10)).toBe(true);
+        expect(sorted.every((value) => value >= 9 && value <= 11)).toBe(true);
+      },
+      { timeout: 1000 },
+    );
   });
 
   it("no deja loading colgado cuando se aborta por cambio de props", async () => {

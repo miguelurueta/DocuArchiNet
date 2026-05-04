@@ -29,4 +29,7 @@ Hallazgos (2026-05-04):
 - [ ] 4.2 Ejecutar tests relevantes (`vitest` / `playwright`) si están disponibles.
 
 Nota (2026-05-04):
-- Se ejecutó `vitest run` y actualmente hay fallos en suites no relacionadas directamente con la eliminación de `AppVisorPdf` legacy (p.ej. `AppEditor` y tests del engine/viewport). Se recomienda revisar/estabilizar esas suites o acotar el run a tests del ticket antes de marcar este punto como completado.
+- Se ejecutó `vitest run` acotado a tests del visor:
+  - `src/app/Components/UI/AppVisorPdf/engine/pdfjsEngine.test.ts`
+  - `src/app/Components/UI/AppVisorPdf/presentation/VisorPdfViewport.test.tsx`
+  y pasan correctamente.

@@ -78,28 +78,37 @@ export function createPdfjsEngine(options: PdfjsEngineOptions = {}): PdfEngine {
       signal.addEventListener("abort", () => loadingTask.destroy(), { once: true });
 
       const timeoutMs = options.loadTimeoutMs ?? 20_000;
-      const doc = await Promise.race([
-        loadingTask.promise,
-        new Promise<never>((_, reject) => {
-          const timer = setTimeout(() => {
-            clearTimeout(timer);
-            loadingTask.destroy();
-            reject(new Error("Tiempo de espera agotado cargando el PDF."));
-          }, timeoutMs);
-        }),
-      ]);
-      if (signal.aborted) {
-        await doc.destroy();
-        throw new Error("Carga cancelada.");
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
+      try {
+        const doc = await Promise.race([
+          loadingTask.promise,
+          new Promise<never>((_, reject) => {
+            timeoutId = setTimeout(() => {
+              loadingTask.destroy();
+              reject(new Error("Tiempo de espera agotado cargando el PDF."));
+            }, timeoutMs);
+          }),
+        ]);
+
+        return await (async () => {
+          if (signal.aborted) {
+            await doc.destroy();
+            throw new Error("Carga cancelada.");
+          }
+
+          pdfDocument = doc;
+          currentFingerprint = doc.fingerprints?.[0];
+
+          return {
+            pageCount: doc.numPages,
+            fingerprint: currentFingerprint,
+          };
+        })();
+      } finally {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
       }
-
-      pdfDocument = doc;
-      currentFingerprint = doc.fingerprints?.[0];
-
-      return {
-        pageCount: doc.numPages,
-        fingerprint: currentFingerprint,
-      };
     } catch (error) {
       throw new Error(toFriendlyError(error));
     }
