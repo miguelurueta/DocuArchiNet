@@ -10,16 +10,23 @@ Hallazgos (2026-05-04):
 
 ## 2. Migración de consumidores
 
-- [ ] 2.1 Reemplazar todos los consumidores que usen `AppVisorPdf` por el visor temporal aprobado.
-- [ ] 2.2 Verificar que no queden imports desde `src/app/Components/UI/AppVisorPdf/AppVisorPdf.tsx`.
+- [x] 2.1 Reemplazar todos los consumidores que usen `AppVisorPdf` por el visor temporal aprobado.
+- [x] 2.2 Verificar que no queden imports desde `src/app/Components/UI/AppVisorPdf/AppVisorPdf.tsx`.
+
+Hallazgos (2026-05-04):
+- No se encontraron consumidores en `src/**` importando `AppVisorPdf` legacy.
+- Se mantiene `AppVisorPdfCore` como visor funcional actual en `DocumentosWorkbench`.
 
 ## 3. Remoción legacy
 
-- [ ] 3.1 Remover export de `AppVisorPdf` desde `src/app/Components/UI/AppVisorPdf/index.ts` (solo cuando no haya consumidores).
-- [ ] 3.2 Eliminar `src/app/Components/UI/AppVisorPdf/AppVisorPdf.tsx` y tests relacionados si aplica.
-- [ ] 3.3 Limpiar documentación legacy que ya no aplique.
+- [x] 3.1 Remover export de `AppVisorPdf` desde `src/app/Components/UI/AppVisorPdf/index.ts` (solo cuando no haya consumidores).
+- [x] 3.2 Eliminar `src/app/Components/UI/AppVisorPdf/AppVisorPdf.tsx` y tests relacionados si aplica.
+- [x] 3.3 Limpiar documentación legacy que ya no aplique.
 
 ## 4. Validación
 
-- [ ] 4.1 Ejecutar `tsc --noEmit`.
+- [x] 4.1 Ejecutar `tsc --noEmit`.
 - [ ] 4.2 Ejecutar tests relevantes (`vitest` / `playwright`) si están disponibles.
+
+Nota (2026-05-04):
+- Se ejecutó `vitest run` y actualmente hay fallos en suites no relacionadas directamente con la eliminación de `AppVisorPdf` legacy (p.ej. `AppEditor` y tests del engine/viewport). Se recomienda revisar/estabilizar esas suites o acotar el run a tests del ticket antes de marcar este punto como completado.

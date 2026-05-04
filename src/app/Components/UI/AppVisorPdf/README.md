@@ -93,7 +93,7 @@ Los tests unitarios mockean `Clienteaxios` con `vi.mock("@/api/Clienteaxios", ..
 ### Ejemplo con URL
 
 ```tsx
-<AppVisorPdf
+<AppVisorPdfCore
   input={{ kind: "url", url: "https://example.com/document.pdf" }}
   aria-label="Visor PDF"
 />
@@ -102,7 +102,7 @@ Los tests unitarios mockean `Clienteaxios` con `vi.mock("@/api/Clienteaxios", ..
 ### Ejemplo con bytes
 
 ```tsx
-<AppVisorPdf
+<AppVisorPdfCore
   input={{ kind: "bytes", bytes: new Uint8Array([]), fileName: "documento.pdf" }}
   aria-label="Visor PDF"
 />
