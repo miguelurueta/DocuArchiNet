@@ -26,7 +26,7 @@ Hallazgos (2026-05-04):
 ## 4. Validación
 
 - [x] 4.1 Ejecutar `tsc --noEmit`.
-- [ ] 4.2 Ejecutar tests relevantes (`vitest` / `playwright`) si están disponibles.
+- [x] 4.2 Ejecutar tests relevantes (`vitest` / `playwright`) si están disponibles.
 
 Nota (2026-05-04):
 - Se ejecutó `vitest run` acotado a tests del visor:
