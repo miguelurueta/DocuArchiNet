@@ -39,3 +39,4 @@ export function DocumentosToolbar({ className }: DocumentosToolbarProps) {
     />
   );
 }
+

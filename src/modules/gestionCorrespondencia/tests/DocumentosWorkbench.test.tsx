@@ -32,7 +32,7 @@ describe(
     render(<DocumentosWorkbench />);
 
     expect(screen.getByTestId("documentos-workbench")).toBeInTheDocument();
-    expect(screen.getByLabelText("Zona de documento")).toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "Zona de documento" })).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Ocultar Visualizar documentos/i }),
     ).toBeInTheDocument();

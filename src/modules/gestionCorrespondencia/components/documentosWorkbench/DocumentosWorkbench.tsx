@@ -2,6 +2,7 @@ import { BookOutlined } from "@ant-design/icons";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import styles from "./DocumentosWorkbench.module.css";
+import { DocumentosList, DOCUMENTS } from "./DocumentosList";
 import { DocumentosToolbar } from "./DocumentosToolbar";
 
 const MOBILE_QUERY = "(max-width: 768px)";
@@ -38,12 +39,16 @@ function resolveIsTablet() {
   return isTouchDevice && width > 768 && width <= 1366;
 }
 
+const isPdfDocument = (docTitle: string) => docTitle.toLowerCase().endsWith(".pdf");
+
 export function DocumentosWorkbench() {
   const panelId = useId();
   const rootRef = useRef<HTMLElement | null>(null);
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [isTablet, setIsTablet] = useState(resolveIsTablet);
   const [collapsed, setCollapsed] = useState(isTablet);
+  const [documents, setDocuments] = useState(() => DOCUMENTS);
+  const [selectedId, setSelectedId] = useState<string | null>(DOCUMENTS[0]?.id ?? null);
 
   useEffect(() => {
     const handler = () => setIsTablet(resolveIsTablet());
@@ -61,15 +66,29 @@ export function DocumentosWorkbench() {
   );
   const layoutCollapsed = variant === "overlay" ? true : collapsed;
 
+  const selectedDoc = useMemo(
+    () => documents.find((doc) => doc.id === selectedId) ?? null,
+    [documents, selectedId],
+  );
+
+  const visorInput = useMemo(() => {
+    if (!selectedDoc) return null;
+    if (!isPdfDocument(selectedDoc.title)) return null;
+    const href = selectedDoc.href ?? null;
+    return href ? ({ kind: "url", url: href } as const) : null;
+  }, [selectedDoc]);
+
   useEffect(() => {
-    if (!isMobile) return;
+    if (variant !== "overlay") return;
     const root = rootRef.current;
     if (!root || typeof MutationObserver === "undefined") return;
 
+    const tabPane = root.closest(".ant-tabs-tabpane") as HTMLElement | null;
+    if (!tabPane) return;
+
     const isHidden = () => {
-      const hiddenAttr = root.hasAttribute("hidden");
-      const ariaHidden = root.getAttribute("aria-hidden") === "true";
-      return hiddenAttr || ariaHidden;
+      // Antd Tabs hides inactive panels by toggling tabpane classes (display: none).
+      return tabPane.classList.contains("ant-tabs-tabpane-hidden");
     };
 
     // If the tab system hides panels without unmounting, ensure overlay closes.
@@ -79,13 +98,13 @@ export function DocumentosWorkbench() {
       }
     });
 
-    observer.observe(root, {
+    observer.observe(tabPane, {
       attributes: true,
-      attributeFilter: ["hidden", "aria-hidden", "style", "class"],
+      attributeFilter: ["class", "style"],
     });
 
     return () => observer.disconnect();
-  }, [isMobile]);
+  }, [variant]);
 
   return (
     <section
@@ -95,7 +114,12 @@ export function DocumentosWorkbench() {
       className={styles.workbench}
       aria-label="Workbench de documentos"
     >
-      <DocumentosToolbar className={styles.toolbar} />
+      <DocumentosToolbar
+        className={styles.toolbar}
+        hasDocuments={documents.length > 0}
+        onOpenDocuments={() => setCollapsed(false)}
+        onSearchDocuments={() => setCollapsed(false)}
+      />
       <div
         className={styles.workbenchBody}
         data-collapsed={layoutCollapsed}
@@ -106,10 +130,22 @@ export function DocumentosWorkbench() {
           <header className={styles.mainHeader}>
             <h3 className={styles.mainTitle} aria-hidden="true" />
           </header>
-          <div className={styles.mainSurface}>
-            <p className={styles.mainHint} aria-label="Zona de documento">
-              Sin visor ni acciones. Solo layout base.
-            </p>
+           <div className={styles.mainSurface}>
+             {visorInput ? (
+              <p className={styles.mainHint} role="status" aria-label="Zona de documento">
+                Visor PDF eliminado. Selecciona otro documento o habilita el nuevo visor.
+              </p>
+            ) : documents.length === 0 ? (
+              <p className={styles.mainHint} role="status" aria-label="Zona de documento">
+                No hay documentos adjuntos para visualizar.
+              </p>
+            ) : (
+              <p className={styles.mainHint} role="status" aria-label="Zona de documento">
+                {selectedDoc && !isPdfDocument(selectedDoc.title)
+                  ? `El archivo "${selectedDoc.title}" no es compatible con el visor PDF.`
+                  : "Selecciona un documento PDF para visualizarlo."}
+              </p>
+            )}
           </div>
         </main>
 
@@ -131,11 +167,32 @@ export function DocumentosWorkbench() {
                 <span className={styles.previewMeta}>Demo</span>
               </div>
               <div className={styles.previewSurface}>
-                <div className={styles.previewPlaceholder}>
-                  <p className={styles.previewHint}>Documento 1</p>
-                  <p className={styles.previewHint}>Documento 2</p>
-                  <p className={styles.previewHint}>Documento 3</p>
-                </div>
+                {documents.length === 0 ? (
+                  <div className={styles.previewPlaceholder}>
+                    <p className={styles.previewHint}>Sin documentos adjuntos.</p>
+                  </div>
+                ) : (
+                  <DocumentosList
+                    items={documents}
+                    selectedId={selectedId}
+                    onSelect={(doc) => {
+                      setSelectedId(doc.id);
+                      if (variant === "overlay") {
+                        setCollapsed(true);
+                      }
+                    }}
+                    onDelete={(doc) => {
+                      setDocuments((prev) => {
+                        const remaining = prev.filter((item) => item.id !== doc.id);
+                        setSelectedId((prevSelected) => {
+                          if (prevSelected !== doc.id) return prevSelected;
+                          return remaining[0]?.id ?? null;
+                        });
+                        return remaining;
+                      });
+                    }}
+                  />
+                )}
               </div>
             </section>
           </div>

@@ -6,8 +6,8 @@ import {
   useAppEditorSaveState,
 } from "../../../../app/Components/UI/AppEditor";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
-import type { AppUploadFile } from "../../../../app/Components/UI/AppUpload/AppUpload";
 import { AppUpload } from "../../../../app/Components/UI/AppUpload/AppUpload";
+import { useGestionRespuestaDocumentos } from "../../hooks/useGestionRespuestaDocumentos";
 import styles from "./GestionRespuestaMainTabContent.module.css";
 import { GestionRespuestaEditorContainer } from "./GestionRespuestaEditorContainer";
 import { GestionRespuestaRightToolsPanel } from "./GestionRespuestaRightToolsPanel";
@@ -49,7 +49,7 @@ export function GestionRespuestaMainTabContent(
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(isCompact);
   const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] =
     useState(false);
-  const [files, setFiles] = useState<AppUploadFile[]>([]);
+  const { files, setFiles } = useGestionRespuestaDocumentos();
   const [editorValue, setEditorValue] = useState<string>("");
   const [savedEditorValue, setSavedEditorValue] = useState<string>("");
   const { saveStatus } = useAppEditorSaveState({
@@ -157,7 +157,7 @@ export function GestionRespuestaMainTabContent(
           <h3 className={styles.attachmentsTitle}>Adjuntos</h3>
           <span className={styles.infoCopy}>Carga de soportes y anexos del expediente.</span>
         </div>
-        <AppUpload value={files} onChange={setFiles} drag size="sm" />
+        <AppUpload value={files} onChange={setFiles} drag size="sm" strategy="auto" />
       </div>
 
       <GestionDocumentoModal

@@ -20,4 +20,3 @@ export * from "./AppToolbar";
 export * from "./AppSteps";
 export * from "./OperationBlockerContext";
 export * from "./AppLoadingState";
-export * from "./AppVisorPdf";

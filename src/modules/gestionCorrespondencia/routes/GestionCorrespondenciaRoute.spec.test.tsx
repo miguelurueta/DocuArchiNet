@@ -98,7 +98,7 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
 
     expect(await screen.findByText(/Contenido principal/i)).toBeInTheDocument();
     expect(
-      await screen.findByText(/Zona de edicion y lectura del documento seleccionado/i),
+      await screen.findByRole("status", { name: /Zona de documento/i }),
     ).toBeInTheDocument();
   });
 
