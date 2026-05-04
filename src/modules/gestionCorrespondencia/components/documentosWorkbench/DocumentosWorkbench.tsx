@@ -1,7 +1,6 @@
 import { BookOutlined } from "@ant-design/icons";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
-import { AppVisorPdfCore } from "../../../../app/Components/UI/AppVisorPdf";
 import styles from "./DocumentosWorkbench.module.css";
 import { DocumentosList, DOCUMENTS } from "./DocumentosList";
 import { DocumentosToolbar } from "./DocumentosToolbar";
@@ -133,11 +132,9 @@ export function DocumentosWorkbench() {
           </header>
            <div className={styles.mainSurface}>
              {visorInput ? (
-              <AppVisorPdfCore
-                input={visorInput}
-                aria-label="Visor de documentos PDF"
-                className={styles.viewer}
-              />
+              <p className={styles.mainHint} role="status" aria-label="Zona de documento">
+                Visor PDF eliminado. Selecciona otro documento o habilita el nuevo visor.
+              </p>
             ) : documents.length === 0 ? (
               <p className={styles.mainHint} role="status" aria-label="Zona de documento">
                 No hay documentos adjuntos para visualizar.
