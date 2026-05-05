@@ -5,7 +5,9 @@ export type DocumentosToolbarProps = {
   className?: string;
 };
 
-export function DocumentosToolbar({ className }: DocumentosToolbarProps) {
+export function DocumentosToolbar({
+  className,
+}: DocumentosToolbarProps) {
   return (
     <AppToolbar
       className={className}
@@ -39,4 +41,3 @@ export function DocumentosToolbar({ className }: DocumentosToolbarProps) {
     />
   );
 }
-

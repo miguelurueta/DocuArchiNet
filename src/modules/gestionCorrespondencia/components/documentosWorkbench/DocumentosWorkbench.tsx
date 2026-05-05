@@ -2,8 +2,7 @@ import { BookOutlined } from "@ant-design/icons";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import styles from "./DocumentosWorkbench.module.css";
-import { DocumentosList, DOCUMENTS } from "./DocumentosList";
-import { DocumentosToolbar } from "./DocumentosToolbar";
+import { DocumentosList } from "./DocumentosList";
 
 const MOBILE_QUERY = "(max-width: 768px)";
 
@@ -39,16 +38,14 @@ function resolveIsTablet() {
   return isTouchDevice && width > 768 && width <= 1366;
 }
 
-const isPdfDocument = (docTitle: string) => docTitle.toLowerCase().endsWith(".pdf");
-
 export function DocumentosWorkbench() {
   const panelId = useId();
   const rootRef = useRef<HTMLElement | null>(null);
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [isTablet, setIsTablet] = useState(resolveIsTablet);
   const [collapsed, setCollapsed] = useState(isTablet);
-  const [documents, setDocuments] = useState(() => DOCUMENTS);
-  const [selectedId, setSelectedId] = useState<string | null>(DOCUMENTS[0]?.id ?? null);
+  const [documents, setDocuments] = useState(() => []);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     const handler = () => setIsTablet(resolveIsTablet());
@@ -70,13 +67,6 @@ export function DocumentosWorkbench() {
     () => documents.find((doc) => doc.id === selectedId) ?? null,
     [documents, selectedId],
   );
-
-  const visorInput = useMemo(() => {
-    if (!selectedDoc) return null;
-    if (!isPdfDocument(selectedDoc.title)) return null;
-    const href = selectedDoc.href ?? null;
-    return href ? ({ kind: "url", url: href } as const) : null;
-  }, [selectedDoc]);
 
   useEffect(() => {
     if (variant !== "overlay") return;
@@ -114,12 +104,6 @@ export function DocumentosWorkbench() {
       className={styles.workbench}
       aria-label="Workbench de documentos"
     >
-      <DocumentosToolbar
-        className={styles.toolbar}
-        hasDocuments={documents.length > 0}
-        onOpenDocuments={() => setCollapsed(false)}
-        onSearchDocuments={() => setCollapsed(false)}
-      />
       <div
         className={styles.workbenchBody}
         data-collapsed={layoutCollapsed}
@@ -130,22 +114,14 @@ export function DocumentosWorkbench() {
           <header className={styles.mainHeader}>
             <h3 className={styles.mainTitle} aria-hidden="true" />
           </header>
-           <div className={styles.mainSurface}>
-             {visorInput ? (
-              <p className={styles.mainHint} role="status" aria-label="Zona de documento">
-                Visor PDF eliminado. Selecciona otro documento o habilita el nuevo visor.
-              </p>
-            ) : documents.length === 0 ? (
-              <p className={styles.mainHint} role="status" aria-label="Zona de documento">
-                No hay documentos adjuntos para visualizar.
-              </p>
-            ) : (
-              <p className={styles.mainHint} role="status" aria-label="Zona de documento">
-                {selectedDoc && !isPdfDocument(selectedDoc.title)
-                  ? `El archivo "${selectedDoc.title}" no es compatible con el visor PDF.`
-                  : "Selecciona un documento PDF para visualizarlo."}
-              </p>
-            )}
+          <div className={styles.mainSurface}>
+            <p className={styles.mainHint} role="status" aria-label="Zona de documento">
+              {documents.length === 0
+                ? "Espacio reservado para el visor de documentos (pendiente de implementación)."
+                : selectedDoc
+                  ? `Documento seleccionado: ${selectedDoc.title}`
+                  : "Selecciona un documento para visualizarlo (pendiente de implementación)."}
+            </p>
           </div>
         </main>
 
@@ -164,7 +140,7 @@ export function DocumentosWorkbench() {
             <section className={styles.preview} aria-label="Panel de documentos">
               <div className={styles.previewHeader}>
                 <h4 className={styles.previewTitle}>Listado</h4>
-                <span className={styles.previewMeta}>Demo</span>
+                <span className={styles.previewMeta}>Mockup</span>
               </div>
               <div className={styles.previewSurface}>
                 {documents.length === 0 ? (
