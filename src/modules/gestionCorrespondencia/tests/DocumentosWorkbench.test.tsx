@@ -1,5 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { vi } from "vitest";
 import { DocumentosWorkbench } from "../components/documentosWorkbench/DocumentosWorkbench";
+
+vi.mock("../../../app/Components/UI/AppVisorEmbedPdf", () => ({
+  AppVisorEmbedPdf: () => <div data-testid="app-visor-embedpdf-mock" />,
+}));
 
 const TABLET_QUERY = "(max-width: 1024px)";
 const MOBILE_QUERY = "(max-width: 768px)";
@@ -28,11 +33,12 @@ describe(
       Object.defineProperty(navigator, "maxTouchPoints", { value: 0, configurable: true });
     });
 
-  it("renderiza estructura base sin visor ni listado funcional", () => {
+  it("[SPEC:SCRUMCORE-202] renderiza estructura base con visor embebido", () => {
     render(<DocumentosWorkbench />);
 
     expect(screen.getByTestId("documentos-workbench")).toBeInTheDocument();
     expect(screen.getByRole("status", { name: "Zona de documento" })).toBeInTheDocument();
+    expect(screen.getByTestId("app-visor-embedpdf-mock")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Ocultar Visualizar documentos/i }),
     ).toBeInTheDocument();
