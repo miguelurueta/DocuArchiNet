@@ -1,8 +1,8 @@
 import { BookOutlined } from "@ant-design/icons";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
+import { AppVisorEmbedPdf } from "../../../../app/Components/UI/AppVisorEmbedPdf";
 import styles from "./DocumentosWorkbench.module.css";
-import { DocumentosList } from "./DocumentosList";
 
 const MOBILE_QUERY = "(max-width: 768px)";
 
@@ -34,7 +34,6 @@ function resolveIsTablet() {
   const isTouchDevice =
     typeof navigator !== "undefined" && (navigator.maxTouchPoints ?? 0) > 0;
 
-  // iPad Pro/Air commonly report widths up to 1366; treat touch devices in this range as tablet.
   return isTouchDevice && width > 768 && width <= 1366;
 }
 
@@ -44,8 +43,6 @@ export function DocumentosWorkbench() {
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [isTablet, setIsTablet] = useState(resolveIsTablet);
   const [collapsed, setCollapsed] = useState(isTablet);
-  const [documents, setDocuments] = useState(() => []);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     const handler = () => setIsTablet(resolveIsTablet());
@@ -63,11 +60,6 @@ export function DocumentosWorkbench() {
   );
   const layoutCollapsed = variant === "overlay" ? true : collapsed;
 
-  const selectedDoc = useMemo(
-    () => documents.find((doc) => doc.id === selectedId) ?? null,
-    [documents, selectedId],
-  );
-
   useEffect(() => {
     if (variant !== "overlay") return;
     const root = rootRef.current;
@@ -76,12 +68,8 @@ export function DocumentosWorkbench() {
     const tabPane = root.closest(".ant-tabs-tabpane") as HTMLElement | null;
     if (!tabPane) return;
 
-    const isHidden = () => {
-      // Antd Tabs hides inactive panels by toggling tabpane classes (display: none).
-      return tabPane.classList.contains("ant-tabs-tabpane-hidden");
-    };
+    const isHidden = () => tabPane.classList.contains("ant-tabs-tabpane-hidden");
 
-    // If the tab system hides panels without unmounting, ensure overlay closes.
     const observer = new MutationObserver(() => {
       if (isHidden()) {
         setCollapsed(true);
@@ -110,20 +98,7 @@ export function DocumentosWorkbench() {
         data-variant={variant}
         data-testid="documentos-workbench"
       >
-        <main className={styles.mainArea}>
-          <header className={styles.mainHeader}>
-            <h3 className={styles.mainTitle} aria-hidden="true" />
-          </header>
-          <div className={styles.mainSurface}>
-            <p className={styles.mainHint} role="status" aria-label="Zona de documento">
-              {documents.length === 0
-                ? "Espacio reservado para el visor de documentos (pendiente de implementación)."
-                : selectedDoc
-                  ? `Documento seleccionado: ${selectedDoc.title}`
-                  : "Selecciona un documento para visualizarlo (pendiente de implementación)."}
-            </p>
-          </div>
-        </main>
+        <AppVisorEmbedPdf className={styles.viewer} />
 
         <AppCollapseRail
           title="Visualizar documentos"
@@ -140,35 +115,12 @@ export function DocumentosWorkbench() {
             <section className={styles.preview} aria-label="Panel de documentos">
               <div className={styles.previewHeader}>
                 <h4 className={styles.previewTitle}>Listado</h4>
-                <span className={styles.previewMeta}>Mockup</span>
+                <span className={styles.previewMeta}>Vacío</span>
               </div>
               <div className={styles.previewSurface}>
-                {documents.length === 0 ? (
-                  <div className={styles.previewPlaceholder}>
-                    <p className={styles.previewHint}>Sin documentos adjuntos.</p>
-                  </div>
-                ) : (
-                  <DocumentosList
-                    items={documents}
-                    selectedId={selectedId}
-                    onSelect={(doc) => {
-                      setSelectedId(doc.id);
-                      if (variant === "overlay") {
-                        setCollapsed(true);
-                      }
-                    }}
-                    onDelete={(doc) => {
-                      setDocuments((prev) => {
-                        const remaining = prev.filter((item) => item.id !== doc.id);
-                        setSelectedId((prevSelected) => {
-                          if (prevSelected !== doc.id) return prevSelected;
-                          return remaining[0]?.id ?? null;
-                        });
-                        return remaining;
-                      });
-                    }}
-                  />
-                )}
+                <div className={styles.previewPlaceholder}>
+                  <p className={styles.previewHint}>Sin documentos adjuntos.</p>
+                </div>
               </div>
             </section>
           </div>

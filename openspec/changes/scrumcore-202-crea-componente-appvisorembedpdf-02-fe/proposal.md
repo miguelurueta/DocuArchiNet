@@ -5,20 +5,19 @@ CREA-COMPONENTE-APPVISOREMBEDPDF-02-FE. Prompt 02 — Integración visual en Doc
 ## What Changes
 
 - Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-202.
-- Se formaliza la propuesta OpenSpec para implementar AppAppvisorembedpdf02Fe a partir del ticket Jira.
-- Se define la capability `app-appvisorembedpdf-02-fe` como parte de la capa UI reutilizable.
+- Se formaliza la propuesta OpenSpec para integrar visualmente `AppVisorEmbedPdf` en `DocumentosWorkbench` (02-FE) a partir del ticket Jira.
+- Se define la capability `app-appvisorembedpdf-02-fe` como parte de la integración UI.
 - Se conserva el contexto funcional del ticket como base para los siguientes artefactos OpenSpec.
 
 ## Capabilities
 
 ### New Capabilities
-- `app-appvisorembedpdf-02-fe`: Componente reusable AppAppvisorembedpdf02Fe para la capa UI compartida del proyecto.
+- `app-appvisorembedpdf-02-fe`: Integración visual de `AppVisorEmbedPdf` en `DocumentosWorkbench`.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nuevo componente compartido en `src/app/Components/UI/AppAppvisorembedpdf02Fe/`.
-- Posible integracion inicial en un modulo consumidor real del proyecto.
-- Nuevas pruebas de comportamiento para el contrato reusable del componente.
+- `DocumentosWorkbench` renderiza `AppVisorEmbedPdf` usando el demo PDF predeterminado (sin listado/selección en 02-FE).
+- Ajustes de layout y pruebas de integración del workbench.
