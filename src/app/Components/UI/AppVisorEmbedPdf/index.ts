@@ -6,4 +6,5 @@ export type {
   EmbedPdfRenderRequest,
   EmbedPdfRenderResult,
 } from "./engine/embedPdfEngine.types";
+export { AppVisorEmbedPdf } from "./AppVisorEmbedPdf";
 
