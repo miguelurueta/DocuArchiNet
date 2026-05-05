@@ -23,15 +23,6 @@
     "opsxj:sync-pr-status": "node scripts/sync-jira-pr-status.js"
   },
   "dependencies": {
-    "@embedpdf/core": "^2.14.2",
-    "@embedpdf/engines": "^2.14.2",
-    "@embedpdf/pdfium": "^2.14.2",
-    "@embedpdf/plugin-document-manager": "^2.14.2",
-    "@embedpdf/plugin-interaction-manager": "^2.14.2",
-    "@embedpdf/plugin-render": "^2.14.2",
-    "@embedpdf/plugin-scroll": "^2.14.2",
-    "@embedpdf/plugin-viewport": "^2.14.2",
-    "@embedpdf/plugin-zoom": "^2.14.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@fortawesome/fontawesome-free": "^7.1.0",
