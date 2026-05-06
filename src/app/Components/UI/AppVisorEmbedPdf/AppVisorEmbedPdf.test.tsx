@@ -1,5 +1,6 @@
 import type React from "react";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { AppVisorEmbedPdf } from "./AppVisorEmbedPdf";
@@ -28,6 +29,17 @@ vi.mock("./hooks/useDemoPdfUrl", () => ({
 }));
 
 let lastDocumentContentSrc: string | undefined;
+
+const zoomInMock = vi.fn();
+const zoomOutMock = vi.fn();
+const requestZoomMock = vi.fn();
+vi.mock("@embedpdf/plugin-zoom/react", () => ({
+  useZoom: () => ({
+    state: { zoomLevel: 1, currentZoomLevel: 1, isMarqueeZoomActive: false },
+    provides: { zoomIn: zoomInMock, zoomOut: zoomOutMock, requestZoom: requestZoomMock },
+  }),
+}));
+
 vi.mock("./engine/embedPdfAdapter", () => ({
   EmbedPDF: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="embedpdf">{children}</div>
@@ -99,6 +111,26 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
 
     expect(useDemoPdfUrlMock).toHaveBeenCalled();
     expect(screen.getByTestId("render-layer")).toBeInTheDocument();
+  });
+
+  it("[SPEC:SCRUMCORE-204] renderiza toolbar y permite zoom in/out/reset", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    zoomInMock.mockClear();
+    zoomOutMock.mockClear();
+    requestZoomMock.mockClear();
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    expect(screen.getByRole("toolbar", { name: /toolbar pdf/i })).toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /zoom in/i }));
+    await user.click(screen.getByRole("button", { name: /zoom out/i }));
+    await user.click(screen.getByRole("button", { name: /reset zoom/i }));
+
+    expect(zoomInMock).toHaveBeenCalledTimes(1);
+    expect(zoomOutMock).toHaveBeenCalledTimes(1);
+    expect(requestZoomMock).toHaveBeenCalledWith(1);
   });
 
   it("permite consumo desde index sin exponer detalles del engine", () => {

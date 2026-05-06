@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { useZoom } from "@embedpdf/plugin-zoom/react";
 
 import {
   DocumentContent,
@@ -18,6 +19,7 @@ import {
   EngineLoadingState,
   ErrorState,
 } from "./presentation/States";
+import { AppPdfToolbar } from "./presentation/AppPdfToolbar";
 import styles from "./styles/AppVisorEmbedPdf.module.css";
 import type { AppVisorEmbedPdfProps } from "./types/AppVisorEmbedPdfProps";
 
@@ -92,14 +94,7 @@ function EmbedPdfDocumentHost({ fileUrl }: { fileUrl: string }) {
     <DocumentContent documentId={activeDocumentId}>
       {({ isLoaded, isError, isLoading }) =>
         isLoaded ? (
-          <Viewport documentId={activeDocumentId} className={styles.viewport}>
-            <Scroller
-              documentId={activeDocumentId}
-              renderPage={({ pageIndex }) => (
-                <RenderLayer documentId={activeDocumentId} pageIndex={pageIndex} />
-              )}
-            />
-          </Viewport>
+          <EmbedPdfLoadedDocumentView documentId={activeDocumentId} />
         ) : isError ? (
           <ErrorState />
         ) : isLoading ? (
@@ -109,5 +104,39 @@ function EmbedPdfDocumentHost({ fileUrl }: { fileUrl: string }) {
         )
       }
     </DocumentContent>
+  );
+}
+
+function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
+  const zoom = useZoom(documentId);
+  const zoomLevel = typeof zoom.state.currentZoomLevel === "number" ? zoom.state.currentZoomLevel : 1;
+
+  const onZoomIn = useCallback(() => {
+    if (zoomLevel >= 4) return;
+    zoom.provides?.zoomIn();
+  }, [zoom.provides, zoomLevel]);
+
+  const onZoomOut = useCallback(() => zoom.provides?.zoomOut(), [zoom.provides]);
+  const onResetZoom = useCallback(() => zoom.provides?.requestZoom(1), [zoom.provides]);
+
+  return (
+    <>
+      <div className={styles.toolbarShell} role="toolbar" aria-label="Toolbar PDF">
+        <AppPdfToolbar
+          zoomLevel={zoomLevel}
+          onZoomIn={onZoomIn}
+          onZoomOut={onZoomOut}
+          onResetZoom={onResetZoom}
+        />
+      </div>
+      <Viewport documentId={documentId} className={styles.viewport}>
+        <Scroller
+          documentId={documentId}
+          renderPage={({ pageIndex }) => (
+            <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+          )}
+        />
+      </Viewport>
+    </>
   );
 }
