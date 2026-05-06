@@ -3,7 +3,9 @@ import { vi } from "vitest";
 import { DocumentosWorkbench } from "../components/documentosWorkbench/DocumentosWorkbench";
 
 vi.mock("../../../app/Components/UI/AppVisorEmbedPdf", () => ({
-  AppVisorEmbedPdf: () => <div data-testid="app-visor-embedpdf-mock" />,
+  AppVisorEmbedPdf: () => (
+    <div role="status" aria-label="Zona de documento" data-testid="app-visor-embedpdf-mock" />
+  ),
 }));
 
 const TABLET_QUERY = "(max-width: 1024px)";
