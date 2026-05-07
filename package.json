@@ -28,6 +28,7 @@
     "@embedpdf/plugin-document-manager": "^2.14.2",
     "@embedpdf/plugin-render": "^2.14.2",
     "@embedpdf/plugin-scroll": "^2.14.2",
+    "@embedpdf/plugin-thumbnail": "^2.14.2",
     "@embedpdf/plugin-viewport": "^2.14.2",
     "@embedpdf/plugin-zoom": "^2.14.2",
     "@emotion/react": "^11.14.0",

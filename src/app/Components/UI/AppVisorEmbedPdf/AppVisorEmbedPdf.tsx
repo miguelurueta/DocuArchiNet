@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useZoom } from "@embedpdf/plugin-zoom/react";
+import { ThumbnailsPane, ThumbImg } from "@embedpdf/plugin-thumbnail/react";
+import { useScroll } from "@embedpdf/plugin-scroll/react";
 
 import {
   DocumentContent,
@@ -110,6 +112,8 @@ function EmbedPdfDocumentHost({ fileUrl }: { fileUrl: string }) {
 function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
   const zoom = useZoom(documentId);
   const zoomLevel = typeof zoom.state.currentZoomLevel === "number" ? zoom.state.currentZoomLevel : 1;
+  const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
+  const scroll = useScroll(documentId);
 
   const onZoomIn = useCallback(() => {
     if (zoomLevel >= 4) return;
@@ -118,6 +122,14 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
 
   const onZoomOut = useCallback(() => zoom.provides?.zoomOut(), [zoom.provides]);
   const onResetZoom = useCallback(() => zoom.provides?.requestZoom(1), [zoom.provides]);
+  const onToggleThumbnails = useCallback(() => setIsThumbnailOpen((value) => !value), []);
+  const currentPageIndex = Math.max(0, (scroll.state.currentPage || 1) - 1);
+  const onSelectThumbnail = useCallback(
+    (pageIndex: number) => {
+      scroll.provides?.scrollToPage({ pageNumber: pageIndex + 1, behavior: "smooth", alignY: 0 });
+    },
+    [scroll.provides],
+  );
 
   return (
     <>
@@ -127,16 +139,43 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
           onZoomIn={onZoomIn}
           onZoomOut={onZoomOut}
           onResetZoom={onResetZoom}
+          onToggleThumbnails={onToggleThumbnails}
+          isThumbnailOpen={isThumbnailOpen}
         />
       </div>
-      <Viewport documentId={documentId} className={styles.viewport}>
-        <Scroller
-          documentId={documentId}
-          renderPage={({ pageIndex }) => (
-            <RenderLayer documentId={documentId} pageIndex={pageIndex} />
-          )}
-        />
-      </Viewport>
+      <div className={styles.main}>
+        {isThumbnailOpen ? (
+          <aside className={styles.thumbnails} aria-label="Panel thumbnails">
+            <ThumbnailsPane documentId={documentId} className={styles.thumbnailsPane}>
+              {(meta) => (
+                <div
+                  key={meta.pageIndex}
+                  className={`${styles.thumbRow} ${meta.pageIndex === currentPageIndex ? styles.thumbRowActive : ""}`}
+                  style={{ top: meta.top, height: meta.wrapperHeight }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Ir a página ${meta.pageIndex + 1}`}
+                  onClick={() => onSelectThumbnail(meta.pageIndex)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") onSelectThumbnail(meta.pageIndex);
+                  }}
+                >
+                  <ThumbImg documentId={documentId} meta={meta} className={styles.thumbImg} />
+                  <div className={styles.thumbLabel}>{meta.pageIndex + 1}</div>
+                </div>
+              )}
+            </ThumbnailsPane>
+          </aside>
+        ) : null}
+        <Viewport documentId={documentId} className={styles.viewport}>
+          <Scroller
+            documentId={documentId}
+            renderPage={({ pageIndex }) => (
+              <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+            )}
+          />
+        </Viewport>
+      </div>
     </>
   );
 }
