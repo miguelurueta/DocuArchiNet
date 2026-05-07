@@ -7,6 +7,8 @@ export interface AppPdfToolbarProps {
   onZoomIn(): void;
   onZoomOut(): void;
   onResetZoom(): void;
+  onToggleThumbnails(): void;
+  isThumbnailOpen: boolean;
 }
 
 function formatZoom(zoomLevel: number) {
@@ -19,9 +21,21 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
   onZoomIn,
   onZoomOut,
   onResetZoom,
+  onToggleThumbnails,
+  isThumbnailOpen,
 }: AppPdfToolbarProps) {
   return (
     <>
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onToggleThumbnails}
+        aria-label="Abrir thumbnails"
+        aria-pressed={isThumbnailOpen}
+        title="Abrir thumbnails"
+      >
+        ☰
+      </button>
       <button type="button" className={styles.button} onClick={onZoomOut} aria-label="Zoom out">
         -
       </button>

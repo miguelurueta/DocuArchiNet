@@ -40,6 +40,31 @@ vi.mock("@embedpdf/plugin-zoom/react", () => ({
   }),
 }));
 
+const scrollToPageMock = vi.fn();
+vi.mock("@embedpdf/plugin-scroll/react", () => ({
+  useScroll: () => ({
+    provides: { scrollToPage: scrollToPageMock },
+    state: { currentPage: 1, totalPages: 3 },
+  }),
+}));
+
+vi.mock("@embedpdf/plugin-thumbnail/react", () => ({
+  ThumbnailsPane: ({
+    documentId,
+    children,
+  }: {
+    documentId: string;
+    children: (meta: { pageIndex: number; top: number; wrapperHeight: number }) => React.ReactNode;
+  }) => (
+    <div data-testid="thumbnails-pane" data-document-id={documentId}>
+      {children({ pageIndex: 0, top: 0, wrapperHeight: 100 })}
+    </div>
+  ),
+  ThumbImg: ({ meta }: { meta: { pageIndex: number } }) => (
+    <img data-testid="thumb-img" alt={`thumb-${meta.pageIndex}`} />
+  ),
+}));
+
 vi.mock("./engine/embedPdfAdapter", () => ({
   EmbedPDF: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="embedpdf">{children}</div>
@@ -131,6 +156,26 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     expect(zoomInMock).toHaveBeenCalledTimes(1);
     expect(zoomOutMock).toHaveBeenCalledTimes(1);
     expect(requestZoomMock).toHaveBeenCalledWith(1);
+  });
+
+  it("[SPEC:SCRUMCORE-205] toggle thumbnails abre/cierra panel sin romper el visor", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    const user = userEvent.setup();
+    expect(screen.queryByTestId("thumbnails-pane")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /abrir thumbnails/i }));
+    expect(screen.getByTestId("thumbnails-pane")).toBeInTheDocument();
+
+    scrollToPageMock.mockClear();
+    await user.click(screen.getByRole("button", { name: /ir a página 1/i }));
+    expect(scrollToPageMock).toHaveBeenCalledWith({ pageNumber: 1, behavior: "smooth", alignY: 0 });
+
+    await user.click(screen.getByRole("button", { name: /abrir thumbnails/i }));
+    expect(screen.queryByTestId("thumbnails-pane")).not.toBeInTheDocument();
+
+    expect(screen.getByTestId("render-layer")).toBeInTheDocument();
   });
 
   it("permite consumo desde index sin exponer detalles del engine", () => {

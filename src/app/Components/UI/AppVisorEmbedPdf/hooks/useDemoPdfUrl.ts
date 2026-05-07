@@ -1,4 +1,4 @@
-const DEFAULT_DEMO_PDF = "/demo/oficio-prueba.pdf";
+const DEFAULT_DEMO_PDF = "/demo/20260410DiagnosticoCCV.pdf";
 
 export function useDemoPdfUrl(): string {
   const configured =
