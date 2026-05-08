@@ -130,19 +130,28 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
   const rafRef = useRef<number | null>(null);
   const isZoomDisabled = rotationSteps !== 0;
 
+  const getViewportCenter = useCallback(() => {
+    const scope = viewport.provides?.forDocument(documentId);
+    const m = scope?.getMetrics();
+    if (!m) return undefined;
+    return { vx: m.clientWidth / 2, vy: m.clientHeight / 2 };
+  }, [viewport.provides, documentId]);
+
   const onZoomIn = useCallback(() => {
     if (isZoomDisabled) return;
-    zoom.provides?.zoomIn();
-  }, [zoom.provides, isZoomDisabled]);
+    // Usar API oficial con "center" explícito para evitar que el viewport se re-anclé
+    // al top/left al cambiar el scale (se mantiene centrado).
+    zoom.provides?.requestZoomBy(0.1, getViewportCenter());
+  }, [zoom.provides, isZoomDisabled, getViewportCenter]);
 
   const onZoomOut = useCallback(() => {
     if (isZoomDisabled) return;
-    zoom.provides?.zoomOut();
-  }, [zoom.provides, isZoomDisabled]);
+    zoom.provides?.requestZoomBy(-0.1, getViewportCenter());
+  }, [zoom.provides, isZoomDisabled, getViewportCenter]);
   const onResetZoom = useCallback(() => {
     if (isZoomDisabled) return;
-    zoom.provides?.requestZoom(1);
-  }, [zoom.provides, isZoomDisabled]);
+    zoom.provides?.requestZoom(1, getViewportCenter());
+  }, [zoom.provides, isZoomDisabled, getViewportCenter]);
   const onToggleThumbnails = useCallback(() => setIsThumbnailOpen((value) => !value), []);
   const currentPageIndex = Math.max(0, (scroll.state.currentPage || 1) - 1);
   const onSelectThumbnail = useCallback(
