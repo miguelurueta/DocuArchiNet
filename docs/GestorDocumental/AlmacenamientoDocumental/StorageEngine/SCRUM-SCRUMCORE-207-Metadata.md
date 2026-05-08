@@ -8,4 +8,5 @@
 - Fecha ejecución: `2026-05-08`
 - Estado ticket: `TBD (Jira)`
 - Branch relacionada: `feature/SCRUMCORE-207`
-- Commit relacionado: `7857591`
+- Commit relacionado (merge a `main`): `b9f6912`
+- PR relacionada: `#241`
