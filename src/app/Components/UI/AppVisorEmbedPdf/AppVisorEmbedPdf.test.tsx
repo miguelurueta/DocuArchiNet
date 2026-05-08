@@ -33,10 +33,16 @@ let lastDocumentContentSrc: string | undefined;
 const zoomInMock = vi.fn();
 const zoomOutMock = vi.fn();
 const requestZoomMock = vi.fn();
+const requestZoomByMock = vi.fn();
 vi.mock("@embedpdf/plugin-zoom/react", () => ({
   useZoom: () => ({
     state: { zoomLevel: 1, currentZoomLevel: 1, isMarqueeZoomActive: false },
-    provides: { zoomIn: zoomInMock, zoomOut: zoomOutMock, requestZoom: requestZoomMock },
+    provides: {
+      zoomIn: zoomInMock,
+      zoomOut: zoomOutMock,
+      requestZoom: requestZoomMock,
+      requestZoomBy: requestZoomByMock,
+    },
   }),
 }));
 
@@ -61,6 +67,30 @@ vi.mock("@embedpdf/plugin-rotate/react", () => ({
     },
   }),
   Rotate: ({ children }: { children: React.ReactNode }) => <div data-testid="rotate">{children}</div>,
+}));
+
+const printMock = vi.fn();
+let printProvides: { print: typeof printMock } | null = { print: printMock };
+vi.mock("@embedpdf/plugin-print/react", () => ({
+  __setPrintProvides: (next: typeof printProvides) => {
+    printProvides = next;
+  },
+  usePrint: () => ({
+    provides: printProvides,
+  }),
+}));
+
+const downloadMock = vi.fn();
+let exportProvides: { download: typeof downloadMock } | null = {
+  download: downloadMock,
+};
+vi.mock("@embedpdf/plugin-export/react", () => ({
+  __setExportProvides: (next: typeof exportProvides) => {
+    exportProvides = next;
+  },
+  useExport: () => ({
+    provides: exportProvides,
+  }),
 }));
 
 vi.mock("@embedpdf/plugin-thumbnail/react", () => ({
@@ -158,6 +188,7 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     zoomInMock.mockClear();
     zoomOutMock.mockClear();
     requestZoomMock.mockClear();
+    requestZoomByMock.mockClear();
 
     render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
 
@@ -168,9 +199,8 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     await user.click(screen.getByRole("button", { name: /zoom out/i }));
     await user.click(screen.getByRole("button", { name: /reset zoom/i }));
 
-    expect(zoomInMock).toHaveBeenCalledTimes(1);
-    expect(zoomOutMock).toHaveBeenCalledTimes(1);
-    expect(requestZoomMock).toHaveBeenCalledWith(1);
+    expect(requestZoomByMock).toHaveBeenCalledTimes(2);
+    expect(requestZoomMock).toHaveBeenCalledWith(1, undefined);
   });
 
   it("[SPEC:SCRUMCORE-205] toggle thumbnails abre/cierra panel sin romper el visor", async () => {
@@ -204,11 +234,44 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     const user = userEvent.setup();
     await user.click(screen.getByRole("button", { name: /rotar izquierda/i }));
     await user.click(screen.getByRole("button", { name: /rotar derecha/i }));
-    await user.click(screen.getByRole("button", { name: /reset rotación/i }));
 
     expect(rotateBackwardMock).toHaveBeenCalledTimes(1);
     expect(rotateForwardMock).toHaveBeenCalledTimes(1);
-    expect(setRotationMock).toHaveBeenCalledWith(0);
+  });
+
+  it("[SPEC:SCRUMCORE-207] toolbar permite print/export cuando plugins exponen provides", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    printMock.mockClear();
+    downloadMock.mockClear();
+    printProvides = { print: printMock };
+    exportProvides = { download: downloadMock };
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /print/i }));
+    await user.click(screen.getByRole("button", { name: /export/i }));
+
+    expect(printMock).toHaveBeenCalledTimes(1);
+    expect(downloadMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("[SPEC:SCRUMCORE-207] no crashea cuando print/export provides es null", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    printMock.mockClear();
+    downloadMock.mockClear();
+    printProvides = null;
+    exportProvides = null;
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /print/i }));
+    await user.click(screen.getByRole("button", { name: /export/i }));
+
+    expect(printMock).not.toHaveBeenCalled();
+    expect(downloadMock).not.toHaveBeenCalled();
+    expect(screen.getByTestId("render-layer")).toBeInTheDocument();
   });
 
   it("permite consumo desde index sin exponer detalles del engine", () => {

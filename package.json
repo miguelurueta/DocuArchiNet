@@ -28,6 +28,8 @@
     "@embedpdf/core": "^2.14.2",
     "@embedpdf/engines": "^2.14.2",
     "@embedpdf/plugin-document-manager": "^2.14.2",
+    "@embedpdf/plugin-export": "^2.14.2",
+    "@embedpdf/plugin-print": "^2.14.2",
     "@embedpdf/plugin-render": "^2.14.2",
     "@embedpdf/plugin-rotate": "^2.14.2",
     "@embedpdf/plugin-scroll": "^2.14.2",

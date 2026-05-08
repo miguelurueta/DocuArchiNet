@@ -5,6 +5,8 @@ import { useScroll } from "@embedpdf/plugin-scroll/react";
 import { Rotate, useRotate } from "@embedpdf/plugin-rotate/react";
 import { useViewportCapability } from "@embedpdf/plugin-viewport/react";
 import { UpOutlined } from "@ant-design/icons";
+import { usePrint } from "@embedpdf/plugin-print/react";
+import { useExport } from "@embedpdf/plugin-export/react";
 
 import {
   DocumentContent,
@@ -129,6 +131,8 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const rafRef = useRef<number | null>(null);
   const isZoomDisabled = rotationSteps !== 0;
+  const print = usePrint(documentId);
+  const exportApi = useExport(documentId);
 
   const getViewportCenter = useCallback(() => {
     const scope = viewport.provides?.forDocument(documentId);
@@ -164,6 +168,12 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
   const onRotateLeft = useCallback(() => rotate.provides?.rotateBackward(), [rotate.provides]);
   const onRotateRight = useCallback(() => rotate.provides?.rotateForward(), [rotate.provides]);
   const onResetRotation = useCallback(() => rotate.provides?.setRotation(0), [rotate.provides]);
+  const onPrint = useCallback(() => {
+    print.provides?.print();
+  }, [print.provides]);
+  const onExport = useCallback(() => {
+    exportApi.provides?.download();
+  }, [exportApi.provides]);
 
   useEffect(() => {
     const provides = viewport.provides;
@@ -210,6 +220,8 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
           isZoomDisabled={isZoomDisabled}
           onRotateLeft={onRotateLeft}
           onRotateRight={onRotateRight}
+          onPrint={onPrint}
+          onExport={onExport}
         />
       </div>
       <div className={styles.main}>

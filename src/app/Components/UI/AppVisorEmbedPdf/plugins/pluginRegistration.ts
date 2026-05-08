@@ -6,6 +6,8 @@ import { RenderPluginPackage } from "@embedpdf/plugin-render";
 import { ZoomPluginPackage } from "@embedpdf/plugin-zoom";
 import { ThumbnailPluginPackage } from "@embedpdf/plugin-thumbnail";
 import { RotatePluginPackage } from "@embedpdf/plugin-rotate";
+import { PrintPluginPackage } from "@embedpdf/plugin-print/react";
+import { ExportPluginPackage } from "@embedpdf/plugin-export/react";
 
 export function createBasicPluginRegistration() {
   return [
@@ -23,5 +25,7 @@ export function createBasicPluginRegistration() {
       scrollBehavior: "smooth",
     }),
     createPluginRegistration(RotatePluginPackage),
+    createPluginRegistration(PrintPluginPackage),
+    createPluginRegistration(ExportPluginPackage),
   ];
 }

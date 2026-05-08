@@ -39,3 +39,8 @@
   line-height: 1;
   opacity: 0.9;
 }
+
+.spacer {
+  flex: 1 1 auto;
+  min-width: 8px;
+}
