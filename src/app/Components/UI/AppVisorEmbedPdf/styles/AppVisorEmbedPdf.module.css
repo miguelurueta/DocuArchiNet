@@ -32,6 +32,7 @@
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
+  position: relative;
 }
 
 .thumbnails {
@@ -89,9 +90,59 @@
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
+  overflow-anchor: none;
+  position: relative;
   background:
     radial-gradient(circle at top, rgba(148, 163, 184, 0.24), transparent 60%),
     linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+}
+
+.viewport * {
+  overflow-anchor: none;
+}
+
+.pageLayer {
+  position: relative;
+  overflow: visible;
+}
+
+.scrollTopFab {
+  position: absolute;
+  right: 20px;
+  bottom: 12px;
+  z-index: 50;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.96);
+  color: #64748b;
+  cursor: pointer;
+  box-shadow:
+    0 10px 22px rgba(15, 23, 42, 0.16),
+    0 0 0 1px rgba(15, 23, 42, 0.03) inset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.scrollTopFab:hover {
+  color: #475569;
+  background: rgba(255, 255, 255, 1);
+}
+
+.scrollTopFabHidden {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.scrollTopFab:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 .center {

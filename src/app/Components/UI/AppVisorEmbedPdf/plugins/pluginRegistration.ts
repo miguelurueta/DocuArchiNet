@@ -5,6 +5,7 @@ import { ScrollPluginPackage } from "@embedpdf/plugin-scroll";
 import { RenderPluginPackage } from "@embedpdf/plugin-render";
 import { ZoomPluginPackage } from "@embedpdf/plugin-zoom";
 import { ThumbnailPluginPackage } from "@embedpdf/plugin-thumbnail";
+import { RotatePluginPackage } from "@embedpdf/plugin-rotate";
 
 export function createBasicPluginRegistration() {
   return [
@@ -15,10 +16,12 @@ export function createBasicPluginRegistration() {
     createPluginRegistration(ZoomPluginPackage, {
       // Guardrail enterprise: evita zooms extremos que pueden colgar el browser (memoria/tiempo).
       maxZoom: 4,
+      zoomStep: 0.1,
     }),
     createPluginRegistration(ThumbnailPluginPackage, {
       autoScroll: true,
       scrollBehavior: "smooth",
     }),
+    createPluginRegistration(RotatePluginPackage),
   ];
 }

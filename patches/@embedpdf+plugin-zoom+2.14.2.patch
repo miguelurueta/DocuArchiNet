@@ -1,0 +1,59 @@
+diff --git a/node_modules/@embedpdf/plugin-zoom/dist/index.js b/node_modules/@embedpdf/plugin-zoom/dist/index.js
+index a4ba538..1c676fd 100644
+--- a/node_modules/@embedpdf/plugin-zoom/dist/index.js
++++ b/node_modules/@embedpdf/plugin-zoom/dist/index.js
+@@ -453,7 +453,7 @@ const _ZoomPlugin = class _ZoomPlugin extends BasePlugin {
+   // ─────────────────────────────────────────────────────────
+   // Main Zoom Logic
+   // ─────────────────────────────────────────────────────────
+-  handleRequest({ level, delta = 0, center, focus = VerticalZoomFocus.Center, align = "keep" }, documentId) {
++  handleRequest({ level, delta = 0, center, focus = VerticalZoomFocus.Top, align = "keep" }, documentId) {
+     const id = documentId ?? this.getActiveDocumentId();
+     const docState = this.getDocumentStateOrThrow(id);
+     const coreDoc = this.coreState.core.documents[id];
+@@ -472,7 +472,7 @@ const _ZoomPlugin = class _ZoomPlugin extends BasePlugin {
+       vx: metrics.clientWidth / 2,
+       vy: focus === VerticalZoomFocus.Top ? 0 : metrics.clientHeight / 2
+     };
+-    const { desiredScrollLeft, desiredScrollTop } = this.computeScrollForZoomChange(
++    let { desiredScrollLeft, desiredScrollTop } = this.computeScrollForZoomChange(
+       id,
+       metrics,
+       oldZoom,
+@@ -480,6 +480,18 @@ const _ZoomPlugin = class _ZoomPlugin extends BasePlugin {
+       focusPoint,
+       align
+     );
++    // Enterprise stability patch:
++    // When zoom is triggered programmatically (e.g. toolbar buttons) without an explicit `center`,
++    // keep the current scroll position to avoid perceptible "jump" on zoom-in.
++    const isProgrammaticToolbarZoom =
++      delta !== 0 &&
++      center !== void 0 &&
++      Math.abs(center.vx - metrics.clientWidth / 2) < 1 &&
++      Math.abs(center.vy - metrics.clientHeight / 2) < 1;
++    if (center === void 0 || isProgrammaticToolbarZoom) {
++      desiredScrollLeft = metrics.scrollLeft;
++      desiredScrollTop = metrics.scrollTop;
++    }
+     if (!isNaN(desiredScrollLeft) && !isNaN(desiredScrollTop)) {
+       this.viewportPlugin.setViewportScrollMetrics(id, {
+         scrollLeft: desiredScrollLeft,
+@@ -546,7 +558,7 @@ const _ZoomPlugin = class _ZoomPlugin extends BasePlugin {
+     const contentH = layout.totalContentSize.height;
+     const availableWidth = vp.clientWidth - 2 * vpGap;
+     const availableHeight = vp.clientHeight - 2 * vpGap;
+-    const off = (availableSpace, cw, zoom) => cw * zoom < availableSpace ? (availableSpace - cw * zoom) / 2 : 0;
++    const off = () => 0; 
+     const offXold = off(availableWidth, contentW, oldZoom);
+     const offYold = off(availableHeight, contentH, oldZoom);
+     const offXnew = off(availableWidth, contentW, newZoom);
+@@ -592,7 +604,7 @@ const _ZoomPlugin = class _ZoomPlugin extends BasePlugin {
+     const pageAbsY = vItem.y + pageRel.y;
+     const cxContent = pageAbsX + rotatedRect.origin.x + rotatedRect.size.width / 2;
+     const cyContent = pageAbsY + rotatedRect.origin.y + rotatedRect.size.height / 2;
+-    const off = (avail, cw, z) => cw * z < avail ? (avail - cw * z) / 2 : 0;
++    const off = () => 0; 
+     const offXold = off(availableW, layout.totalContentSize.width, oldZ);
+     const offYold = off(availableH, layout.totalContentSize.height, oldZ);
+     const centerVX = vpGap + offXold + cxContent * oldZ - vp.scrollLeft;

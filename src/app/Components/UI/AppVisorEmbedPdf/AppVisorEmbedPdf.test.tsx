@@ -48,6 +48,21 @@ vi.mock("@embedpdf/plugin-scroll/react", () => ({
   }),
 }));
 
+const rotateForwardMock = vi.fn();
+const rotateBackwardMock = vi.fn();
+const setRotationMock = vi.fn();
+vi.mock("@embedpdf/plugin-rotate/react", () => ({
+  useRotate: () => ({
+    rotation: 0,
+    provides: {
+      rotateForward: rotateForwardMock,
+      rotateBackward: rotateBackwardMock,
+      setRotation: setRotationMock,
+    },
+  }),
+  Rotate: ({ children }: { children: React.ReactNode }) => <div data-testid="rotate">{children}</div>,
+}));
+
 vi.mock("@embedpdf/plugin-thumbnail/react", () => ({
   ThumbnailsPane: ({
     documentId,
@@ -176,6 +191,24 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     expect(screen.queryByTestId("thumbnails-pane")).not.toBeInTheDocument();
 
     expect(screen.getByTestId("render-layer")).toBeInTheDocument();
+  });
+
+  it("[SPEC:SCRUMCORE-206] toolbar permite rotar derecha/izquierda y reset", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    rotateForwardMock.mockClear();
+    rotateBackwardMock.mockClear();
+    setRotationMock.mockClear();
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /rotar izquierda/i }));
+    await user.click(screen.getByRole("button", { name: /rotar derecha/i }));
+    await user.click(screen.getByRole("button", { name: /reset rotación/i }));
+
+    expect(rotateBackwardMock).toHaveBeenCalledTimes(1);
+    expect(rotateForwardMock).toHaveBeenCalledTimes(1);
+    expect(setRotationMock).toHaveBeenCalledWith(0);
   });
 
   it("permite consumo desde index sin exponer detalles del engine", () => {
