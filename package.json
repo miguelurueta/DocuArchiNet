@@ -20,13 +20,16 @@
     "opsxj:close": "node scripts/opsxj.js opsxj:close",
     "opsxj:doctor": "node scripts/opsxj-doctor.js",
     "jira:test": "node scripts/jira-test-connection.js",
-    "opsxj:sync-pr-status": "node scripts/sync-jira-pr-status.js"
+    "opsxj:sync-pr-status": "node scripts/sync-jira-pr-status.js",
+    "postinstall": "patch-package"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.2.2",
     "@embedpdf/core": "^2.14.2",
     "@embedpdf/engines": "^2.14.2",
     "@embedpdf/plugin-document-manager": "^2.14.2",
     "@embedpdf/plugin-render": "^2.14.2",
+    "@embedpdf/plugin-rotate": "^2.14.2",
     "@embedpdf/plugin-scroll": "^2.14.2",
     "@embedpdf/plugin-thumbnail": "^2.14.2",
     "@embedpdf/plugin-viewport": "^2.14.2",
@@ -86,6 +89,7 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
     "jsdom": "^28.0.0",
+    "patch-package": "^8.0.0",
     "prettier": "^3.8.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
