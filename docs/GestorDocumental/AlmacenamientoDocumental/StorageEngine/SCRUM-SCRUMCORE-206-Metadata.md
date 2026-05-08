@@ -5,8 +5,8 @@
 - Ticket ID: `SCRUMCORE-206`
 - Sprint: `TBD (Jira)`
 - Responsable implementación (Assignee): `TBD (Jira)`
-- Fecha ejecución: `TBD`
+- Fecha ejecución: 2026-05-08
 - Estado ticket: `TBD (Jira)`
 - Branch relacionada: `feature/SCRUMCORE-206`
-- Commit relacionado: `TBD`
+- Commit relacionado: 51b9131
 

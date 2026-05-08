@@ -5,6 +5,8 @@ import { useScroll } from "@embedpdf/plugin-scroll/react";
 import { Rotate, useRotate } from "@embedpdf/plugin-rotate/react";
 import { useViewportCapability } from "@embedpdf/plugin-viewport/react";
 import { UpOutlined } from "@ant-design/icons";
+import { usePrint } from "@embedpdf/plugin-print/react";
+import { useExport } from "@embedpdf/plugin-export/react";
 
 import {
   DocumentContent,
@@ -118,59 +120,42 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
   const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
   const scroll = useScroll(documentId);
   const rotate = useRotate(documentId);
-  const rotation = rotate.rotation ?? 0;
+  const rotationRaw = rotate.rotation ?? 0;
+  // `Rotation` en EmbedPDF suele ser 0..3, pero en algunos adapters puede venir como grados (0/90/180/270).
+  // Normalizamos a "steps" (0..3) para que las condiciones de layout sean correctas.
+  const rotationSteps =
+    typeof rotationRaw === "number" && rotationRaw > 3
+      ? (((Math.round(rotationRaw / 90) % 4) + 4) % 4)
+      : rotationRaw;
   const viewport = useViewportCapability();
   const [showScrollTop, setShowScrollTop] = useState(false);
   const rafRef = useRef<number | null>(null);
-  const isZoomDisabled = rotation !== 0;
+  const isZoomDisabled = rotationSteps !== 0;
+  const print = usePrint(documentId);
+  const exportApi = useExport(documentId);
+
+  const getViewportCenter = useCallback(() => {
+    const scope = viewport.provides?.forDocument(documentId);
+    const m = scope?.getMetrics();
+    if (!m) return undefined;
+    return { vx: m.clientWidth / 2, vy: m.clientHeight / 2 };
+  }, [viewport.provides, documentId]);
 
   const onZoomIn = useCallback(() => {
     if (isZoomDisabled) return;
-    if (rotation === 0) {
-      zoom.provides?.zoomIn();
-      return;
-    }
-
-    const scope = viewport.provides?.forDocument(documentId);
-    const m = scope?.getMetrics();
-    const snap = m ? { x: m.scrollLeft, y: m.scrollTop } : null;
-
-    zoom.provides?.zoomIn();
-
-    if (scope && snap) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          scope.scrollTo({ x: snap.x, y: snap.y, behavior: "instant" });
-        });
-      });
-    }
-  }, [zoom.provides, rotation, viewport.provides, documentId, isZoomDisabled]);
+    // Usar API oficial con "center" explícito para evitar que el viewport se re-anclé
+    // al top/left al cambiar el scale (se mantiene centrado).
+    zoom.provides?.requestZoomBy(0.1, getViewportCenter());
+  }, [zoom.provides, isZoomDisabled, getViewportCenter]);
 
   const onZoomOut = useCallback(() => {
     if (isZoomDisabled) return;
-    if (rotation === 0) {
-      zoom.provides?.zoomOut();
-      return;
-    }
-
-    const scope = viewport.provides?.forDocument(documentId);
-    const m = scope?.getMetrics();
-    const snap = m ? { x: m.scrollLeft, y: m.scrollTop } : null;
-
-    zoom.provides?.zoomOut();
-
-    if (scope && snap) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          scope.scrollTo({ x: snap.x, y: snap.y, behavior: "instant" });
-        });
-      });
-    }
-  }, [zoom.provides, rotation, viewport.provides, documentId, isZoomDisabled]);
+    zoom.provides?.requestZoomBy(-0.1, getViewportCenter());
+  }, [zoom.provides, isZoomDisabled, getViewportCenter]);
   const onResetZoom = useCallback(() => {
     if (isZoomDisabled) return;
-    zoom.provides?.requestZoom(1);
-  }, [zoom.provides, isZoomDisabled]);
+    zoom.provides?.requestZoom(1, getViewportCenter());
+  }, [zoom.provides, isZoomDisabled, getViewportCenter]);
   const onToggleThumbnails = useCallback(() => setIsThumbnailOpen((value) => !value), []);
   const currentPageIndex = Math.max(0, (scroll.state.currentPage || 1) - 1);
   const onSelectThumbnail = useCallback(
@@ -183,6 +168,12 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
   const onRotateLeft = useCallback(() => rotate.provides?.rotateBackward(), [rotate.provides]);
   const onRotateRight = useCallback(() => rotate.provides?.rotateForward(), [rotate.provides]);
   const onResetRotation = useCallback(() => rotate.provides?.setRotation(0), [rotate.provides]);
+  const onPrint = useCallback(() => {
+    print.provides?.print();
+  }, [print.provides]);
+  const onExport = useCallback(() => {
+    exportApi.provides?.download();
+  }, [exportApi.provides]);
 
   useEffect(() => {
     const provides = viewport.provides;
@@ -229,6 +220,8 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
           isZoomDisabled={isZoomDisabled}
           onRotateLeft={onRotateLeft}
           onRotateRight={onRotateRight}
+          onPrint={onPrint}
+          onExport={onExport}
         />
       </div>
       <div className={styles.main}>
@@ -270,16 +263,50 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
             renderPage={({ pageIndex, width, height, rotatedWidth, rotatedHeight }) => (
               <div
                 className={styles.pageLayer}
-                // Mantener el layout estable para evitar "jump" del scroll virtualizado.
-                // El Rotate plugin transforma el contenido, pero el "slot" del layout
-                // se mantiene en dimensiones base (no rotadas).
-                style={rotation === 0 ? { width: "100%", height: "100%" } : { width, height }}
+                // `width/height` aquí representan el "slot" calculado por el Scroll plugin
+                // para la página actual (ya considera rotación/escala).
+                style={{
+                  width: Math.ceil(rotationSteps % 2 === 1 ? rotatedWidth : width),
+                  // Guardrail: algunos PDFs/escala generan rounding y el slot queda 1-2px corto,
+                  // Mantener el slot exactamente como lo calcula EmbedPDF para evitar
+                  // diferencias visuales vs. rotación 0 y evitar solapamientos.
+                  height: Math.ceil(rotationSteps % 2 === 1 ? rotatedHeight : height),
+                }}
               >
-                {rotation === 0 ? (
+                {rotationSteps === 0 ? (
                   <RenderLayer documentId={documentId} pageIndex={pageIndex} />
                 ) : (
-                  <Rotate documentId={documentId} pageIndex={pageIndex}>
-                    <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                  <Rotate
+                    documentId={documentId}
+                    pageIndex={pageIndex}
+                    // `Rotate` aplica `contain: ... paint` y define width/height del contenedor.
+                    // En 90/270, 1px de rounding puede cortar contenido. Expandimos levemente
+                    // el contenedor rotado (sin cambiar el slot del scroller) para evitar clipping.
+                    style={
+                      rotationSteps % 2 === 1
+                        ? {
+                            width: Math.ceil(rotatedWidth) + 2,
+                            // Para 90/270 el clipping se manifiesta principalmente en el eje Y.
+                            // Usamos el alto base (`height`) para evitar recorte del contenido rotado.
+                            height: Math.ceil(height),
+                          }
+                        : undefined
+                    }
+                  >
+                    {/* 
+                      Rotate aplica una transform matrix sobre un contenedor ABSOLUTE.
+                      Para evitar "stretch" / clipping en 90/270, el contenido debe
+                      mantener su tamaño base (sin rotación): (height x width).
+                      El slot del scroller (width x height) ya es el tamaño rotado.
+                    */}
+                    <div
+                      style={{
+                        width: Math.ceil(width),
+                        height: Math.ceil(height),
+                      }}
+                    >
+                      <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                    </div>
                   </Rotate>
                 )}
               </div>

@@ -1,7 +1,9 @@
-import { memo } from "react";
+﻿import { memo } from "react";
 import {
+  DownloadOutlined,
   FileSyncOutlined,
   MenuOutlined,
+  PrinterOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
   ZoomInOutlined,
@@ -20,6 +22,8 @@ export interface AppPdfToolbarProps {
   isZoomDisabled?: boolean;
   onRotateLeft(): void;
   onRotateRight(): void;
+  onPrint(): void;
+  onExport(): void;
 }
 
 function formatZoom(zoomLevel: number) {
@@ -37,6 +41,8 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
   isZoomDisabled = false,
   onRotateLeft,
   onRotateRight,
+  onPrint,
+  onExport,
 }: AppPdfToolbarProps) {
   const zoomDisabledTitle = isZoomDisabled
     ? "Zoom deshabilitado cuando hay rotación (estabilidad)"
@@ -116,6 +122,19 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
       >
         <span className={styles.icon} aria-hidden="true">
           <RotateRightOutlined />
+        </span>
+      </button>
+
+      <span className={styles.spacer} aria-hidden="true" />
+
+      <button type="button" className={styles.button} onClick={onPrint} aria-label="Print" title="Print">
+        <span className={styles.icon} aria-hidden="true">
+          <PrinterOutlined />
+        </span>
+      </button>
+      <button type="button" className={styles.button} onClick={onExport} aria-label="Export" title="Export">
+        <span className={styles.icon} aria-hidden="true">
+          <DownloadOutlined />
         </span>
       </button>
     </>
