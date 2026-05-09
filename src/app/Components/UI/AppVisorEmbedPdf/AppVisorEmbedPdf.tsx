@@ -4,7 +4,7 @@ import { ThumbnailsPane, ThumbImg } from "@embedpdf/plugin-thumbnail/react";
 import { useScroll } from "@embedpdf/plugin-scroll/react";
 import { Rotate, useRotate } from "@embedpdf/plugin-rotate/react";
 import { useViewportCapability } from "@embedpdf/plugin-viewport/react";
-import { UpOutlined } from "@ant-design/icons";
+import { LeftOutlined, RightOutlined, UpOutlined } from "@ant-design/icons";
 import { usePrint } from "@embedpdf/plugin-print/react";
 import { useExport } from "@embedpdf/plugin-export/react";
 
@@ -158,6 +158,14 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
   }, [zoom.provides, isZoomDisabled, getViewportCenter]);
   const onToggleThumbnails = useCallback(() => setIsThumbnailOpen((value) => !value), []);
   const currentPageIndex = Math.max(0, (scroll.state.currentPage || 1) - 1);
+  const currentPage = scroll.state.currentPage || 1;
+  const totalPages = scroll.state.totalPages || 0;
+  const onPreviousPage = useCallback(() => {
+    scroll.provides?.scrollToPreviousPage?.();
+  }, [scroll.provides]);
+  const onNextPage = useCallback(() => {
+    scroll.provides?.scrollToNextPage?.();
+  }, [scroll.provides]);
   const onSelectThumbnail = useCallback(
     (pageIndex: number) => {
       scroll.provides?.scrollToPage({ pageNumber: pageIndex + 1, behavior: "smooth", alignY: 0 });
@@ -225,6 +233,33 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
         />
       </div>
       <div className={styles.main}>
+        <div className={styles.paginationOverlay} role="group" aria-label="Paginación">
+          <button
+            type="button"
+            className={styles.paginationButton}
+            onClick={onPreviousPage}
+            aria-label="Página anterior"
+            title="Página anterior"
+          >
+            <LeftOutlined aria-hidden="true" />
+          </button>
+          <div
+            className={styles.paginationIndicator}
+            aria-label={`Página ${currentPage} de ${totalPages}`}
+            title={`Página ${currentPage} de ${totalPages}`}
+          >
+            {currentPage}/{totalPages}
+          </div>
+          <button
+            type="button"
+            className={styles.paginationButton}
+            onClick={onNextPage}
+            aria-label="Página siguiente"
+            title="Página siguiente"
+          >
+            <RightOutlined aria-hidden="true" />
+          </button>
+        </div>
         <button
           type="button"
           className={`${styles.scrollTopFab} ${showScrollTop ? "" : styles.scrollTopFabHidden}`}

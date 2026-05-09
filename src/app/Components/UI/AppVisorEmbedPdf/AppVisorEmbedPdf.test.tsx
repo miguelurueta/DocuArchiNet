@@ -47,10 +47,25 @@ vi.mock("@embedpdf/plugin-zoom/react", () => ({
 }));
 
 const scrollToPageMock = vi.fn();
+const scrollToNextPageMock = vi.fn();
+const scrollToPreviousPageMock = vi.fn();
+let scrollProvides: {
+  scrollToPage: typeof scrollToPageMock;
+  scrollToNextPage: typeof scrollToNextPageMock;
+  scrollToPreviousPage: typeof scrollToPreviousPageMock;
+} | null = {
+  scrollToPage: scrollToPageMock,
+  scrollToNextPage: scrollToNextPageMock,
+  scrollToPreviousPage: scrollToPreviousPageMock,
+};
+let scrollState: { currentPage: number; totalPages: number } = {
+  currentPage: 1,
+  totalPages: 3,
+};
 vi.mock("@embedpdf/plugin-scroll/react", () => ({
   useScroll: () => ({
-    provides: { scrollToPage: scrollToPageMock },
-    state: { currentPage: 1, totalPages: 3 },
+    provides: scrollProvides,
+    state: scrollState,
   }),
 }));
 
@@ -205,6 +220,15 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
 
   it("[SPEC:SCRUMCORE-205] toggle thumbnails abre/cierra panel sin romper el visor", async () => {
     useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    scrollToPageMock.mockClear();
+    scrollToNextPageMock.mockClear();
+    scrollToPreviousPageMock.mockClear();
+    scrollProvides = {
+      scrollToPage: scrollToPageMock,
+      scrollToNextPage: scrollToNextPageMock,
+      scrollToPreviousPage: scrollToPreviousPageMock,
+    };
+    scrollState = { currentPage: 1, totalPages: 3 };
     render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
 
     const user = userEvent.setup();
@@ -221,6 +245,46 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     expect(screen.queryByTestId("thumbnails-pane")).not.toBeInTheDocument();
 
     expect(screen.getByTestId("render-layer")).toBeInTheDocument();
+  });
+
+  it("[SPEC:SCRUMCORE-208] paginación usa scroll plugin (prev/next) y muestra indicador", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    scrollToNextPageMock.mockClear();
+    scrollToPreviousPageMock.mockClear();
+    scrollProvides = {
+      scrollToPage: scrollToPageMock,
+      scrollToNextPage: scrollToNextPageMock,
+      scrollToPreviousPage: scrollToPreviousPageMock,
+    };
+    scrollState = { currentPage: 4, totalPages: 20 };
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    expect(screen.getByLabelText(/página 4 de 20/i)).toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /página anterior/i }));
+    await user.click(screen.getByRole("button", { name: /página siguiente/i }));
+
+    expect(scrollToPreviousPageMock).toHaveBeenCalledTimes(1);
+    expect(scrollToNextPageMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("[SPEC:SCRUMCORE-208] no crashea cuando scroll.provides es null", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    scrollToNextPageMock.mockClear();
+    scrollToPreviousPageMock.mockClear();
+    scrollProvides = null;
+    scrollState = { currentPage: 1, totalPages: 1 };
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /página anterior/i }));
+    await user.click(screen.getByRole("button", { name: /página siguiente/i }));
+
+    expect(scrollToPreviousPageMock).not.toHaveBeenCalled();
+    expect(scrollToNextPageMock).not.toHaveBeenCalled();
   });
 
   it("[SPEC:SCRUMCORE-206] toolbar permite rotar derecha/izquierda y reset", async () => {

@@ -1,4 +1,4 @@
-﻿import { memo } from "react";
+import { memo } from "react";
 import {
   DownloadOutlined,
   FileSyncOutlined,
@@ -14,14 +14,19 @@ import styles from "./AppPdfToolbar.module.css";
 
 export interface AppPdfToolbarProps {
   zoomLevel: number;
+
   onZoomIn(): void;
   onZoomOut(): void;
   onResetZoom(): void;
+
   onToggleThumbnails(): void;
   isThumbnailOpen: boolean;
+
   isZoomDisabled?: boolean;
+
   onRotateLeft(): void;
   onRotateRight(): void;
+
   onPrint(): void;
   onExport(): void;
 }
@@ -62,6 +67,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
           <MenuOutlined />
         </span>
       </button>
+
       <button
         type="button"
         className={styles.button}
@@ -101,7 +107,9 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
           <FileSyncOutlined />
         </span>
       </button>
+
       <span className={styles.divider} aria-hidden="true" />
+
       <button
         type="button"
         className={styles.button}
@@ -127,12 +135,24 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
 
       <span className={styles.spacer} aria-hidden="true" />
 
-      <button type="button" className={styles.button} onClick={onPrint} aria-label="Print" title="Print">
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onPrint}
+        aria-label="Print"
+        title="Print"
+      >
         <span className={styles.icon} aria-hidden="true">
           <PrinterOutlined />
         </span>
       </button>
-      <button type="button" className={styles.button} onClick={onExport} aria-label="Export" title="Export">
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onExport}
+        aria-label="Export"
+        title="Export"
+      >
         <span className={styles.icon} aria-hidden="true">
           <DownloadOutlined />
         </span>

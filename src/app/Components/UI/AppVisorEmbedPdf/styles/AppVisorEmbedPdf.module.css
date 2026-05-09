@@ -35,6 +35,53 @@
   position: relative;
 }
 
+.paginationOverlay {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.14);
+  backdrop-filter: blur(8px);
+}
+
+.paginationButton {
+  height: 28px;
+  min-width: 30px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(100, 116, 139, 0.35);
+  background: rgba(248, 250, 252, 0.9);
+  color: #0f172a;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paginationButton:hover {
+  background: rgba(226, 232, 240, 0.9);
+}
+
+.paginationIndicator {
+  min-width: 56px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f172a;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
 .thumbnails {
   width: 220px;
   border-right: 1px solid rgba(148, 163, 184, 0.55);
