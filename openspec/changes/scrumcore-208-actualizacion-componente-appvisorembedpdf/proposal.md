@@ -1,10 +1,10 @@
 ## Why
 
-ACTUALIZACION-COMPONENTE-APPVISOREMBEDPDF. PROMPT — IMPLEMENTACIÓN ENTERPRISE PLUGINS PRINT + EXPORT EN AppVisorEmbedPdf
+ACTUALIZACION-COMPONENTE-APPVISOREMBEDPDF. PROMPT — IMPLEMENTACIÓN ENTERPRISE PAGINACIÓN NATIVA EMBEDPDF EN AppVisorEmbedPdf
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-207.
+- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-208.
 - Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
 - Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
 - Se deja lista una base coherente para continuar con design, specs y tasks.
