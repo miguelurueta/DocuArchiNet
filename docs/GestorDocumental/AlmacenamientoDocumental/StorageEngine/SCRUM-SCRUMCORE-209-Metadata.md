@@ -8,5 +8,4 @@
 - Fecha ejecución: `2026-05-11`
 - Estado ticket: `TBD (Jira)`
 - Branch relacionada: `feature/SCRUMCORE-209`
-- Commit relacionado: `TBD`
-
+- Commit relacionado: `25a9c50`

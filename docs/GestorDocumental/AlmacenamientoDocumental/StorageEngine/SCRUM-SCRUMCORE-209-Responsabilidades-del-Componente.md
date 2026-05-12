@@ -1,25 +1,21 @@
 # SCRUMCORE-209 — Responsabilidades del Componente
 
-## Responsabilidades de `AppVisorEmbedPdf`
-- Encapsular EmbedPDF/Pdfium y el `DocumentManager` dentro del componente.
-- Orquestar el flujo de apertura del documento y reintentos de carga.
-- Renderizar estados UX (loading/error/empty) y overlays enterprise del visor.
-- Manejar el ciclo de vida del prompt de contraseña:
-  - abrir/cerrar overlay
-  - bloquear/desbloquear input durante validación
-  - reflejar “contraseña inválida”
+## Responsabilidades principales (AppVisorEmbedPdf)
+- Encapsular el flujo de apertura de documento (demo o `fileUrl`) usando EmbedPDF.
+- Orquestar el `DocumentManager` para:
+  - abrir documento (`openDocumentUrl`)
+  - manejar error de password (`onDocumentError` + `PdfErrorCode.Password`)
+  - reintentar (`retryDocument`) sin exponer lógica a `DocumentosWorkbench`.
+- Mantener estados enterprise para password:
+  - overlay/prompt
+  - loading “Validando…”
+  - invalid password (reintento)
 
-## Responsabilidades del `DocumentManager` (oficial EmbedPDF)
-- Determinar si un PDF requiere password o si la password es incorrecta.
-- Ejecutar la carga del documento con password/permissions usando el engine Pdfium.
-- Emitir errores de documento (`onDocumentError`) y proveer `Task` de carga.
+## Qué NO debe hacer
+- No debe implementar desencriptación/parseo de PDFs.
+- No debe persistir contraseñas.
+- No debe exponer engine/plugins/estados internos al Workbench.
 
-## Qué NO hace `AppVisorEmbedPdf`
-- No desencripta PDFs manualmente.
-- No usa `pdf.js` ni librerías externas de crypto.
-- No implementa heurísticas DOM/listeners custom para detectar password.
-- No expone detalles internos al `DocumentosWorkbench`.
-
-## Responsabilidades del consumidor
-- Consumir el visor vía props (`fileUrl`) sin manejar password plugin/engine.
-
+## Responsabilidades del consumidor (Workbench/otros)
+- Proveer `fileUrl` (opcional).
+- No conocer ni manejar estados del password prompt.

@@ -1,28 +1,21 @@
 # SCRUMCORE-209 — Información Técnica del Componente
 
-- Componente: `AppVisorEmbedPdf`
-- Ruta: `src/app/Components/UI/AppVisorEmbedPdf/`
+## Componente
+- Nombre: `AppVisorEmbedPdf`
+- Ruta: `src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.tsx`
+- Prompt UI: `src/app/Components/UI/AppVisorEmbedPdf/presentation/AppPdfPasswordPrompt.tsx`
 
-## UI Password Prompt
-- Archivo: `src/app/Components/UI/AppVisorEmbedPdf/presentation/AppPdfPasswordPrompt.tsx`
-- Estilos: `src/app/Components/UI/AppVisorEmbedPdf/presentation/AppPdfPasswordPrompt.module.css`
-- API pública:
-  - `isInvalidPassword?: boolean`
-  - `isLoading?: boolean`
-  - `onSubmit(password: string): void`
-- Accesibilidad:
-  - `role="dialog"` en el overlay
-  - `aria-label` en input y botones
-  - mensaje inválido con `role="alert"`
+## Configuración demo (sin hardcode “externo”)
+- Hook: `src/app/Components/UI/AppVisorEmbedPdf/hooks/useDemoPdfUrl.ts`
+- Default local: `/demo/20260410DiagnosticoCCV_protected.pdf`
+- Override por env: `VITE_EMBEDPDF_DEMO_PDF`
 
-## Autofill hardening
-- Se evita autofill con:
-  - `autoComplete="new-password"`
-  - `data-lpignore="true"`, `data-1p-ignore="true"`, `data-form-type="other"`
+## Props públicas (sin cambios en esta fase)
+- `fileUrl?: string`
+- `className?: string`
+- `style?: React.CSSProperties`
 
-## Integración DocumentManager
-- Apertura inicial: `provides.openDocumentUrl({ url, autoActivate: true })`
-- Reintento: `provides.retryDocument(documentId, { password })`
-- Detección password: `provides.onDocumentError(...)` + `PdfErrorCode.Password`
-- Éxito/fallo real: `OpenDocumentResponse.task.wait(...)`
-
+## UX / Accesibilidad del prompt
+- Prompt como `role="dialog"` + `aria-label="Documento protegido"`.
+- Input con `autoComplete="new-password"` y flags (`data-lpignore`, `data-1p-ignore`) para minimizar autofill de gestores.
+- Toggle de visibilidad de contraseña (iconos Ant Design: `EyeOutlined` / `EyeInvisibleOutlined`).

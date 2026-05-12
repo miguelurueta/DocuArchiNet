@@ -1,14 +1,13 @@
 # SCRUMCORE-209 — Objetivo General
 
-Extender el componente reusable `AppVisorEmbedPdf` para soportar PDFs protegidos con contraseña **sin plugins npm adicionales** y **sin lógica custom de desencriptación**, reutilizando únicamente capacidades oficiales del `DocumentManager` de EmbedPDF:
+Extender el componente reusable `AppVisorEmbedPdf` para soportar PDFs protegidos con contraseña, **sin implementar desencriptación custom** y reutilizando capacidades oficiales del `DocumentManager` de EmbedPDF:
 
-- Detección de error de password vía `onDocumentError` (código `PdfErrorCode.Password`).
-- Reintento de carga vía `retryDocument(documentId, { password })`.
-- Cierre del estado “Validando…” y del overlay al resolver el `task` interno de carga del documento (`OpenDocumentResponse.task`).
+- Detectar “password required / invalid password” vía `onDocumentError` (`PdfErrorCode.Password`).
+- Reintentar la carga vía `retryDocument(documentId, { password })`.
+- Cerrar el estado de “Validando…” únicamente cuando el `OpenDocumentResponse.task` termina (éxito o falla).
 
 Resultado esperado:
-- PDFs protegidos solicitan contraseña mediante un prompt desacoplado.
-- Contraseña inválida permite reintento sin bloquear el input.
+- Si el PDF requiere contraseña, se muestra un prompt desacoplado para ingresarla.
+- Contraseña inválida permite reintentar sin bloquear el input (sin quedar “pegado” en “Validando…”).
 - Contraseña válida desbloquea el PDF y cierra el prompt automáticamente.
-- No se rompen funcionalidades existentes (virtualización, zoom, rotate, thumbnails, paginación, print, export, toolbar).
-
+- No se rompe el comportamiento existente del visor (virtualización, zoom, rotate, thumbnails, paginación, toolbar, etc.).

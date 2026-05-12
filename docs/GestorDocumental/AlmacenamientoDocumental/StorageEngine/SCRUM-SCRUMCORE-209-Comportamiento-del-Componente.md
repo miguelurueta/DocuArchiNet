@@ -1,22 +1,21 @@
 # SCRUMCORE-209 — Comportamiento del Componente
 
 ## Estados principales
-- `engine loading`: se mantiene `EngineLoadingState`.
-- `document loading`: se mantiene `DocumentLoadingState`.
+- `engine loading`: muestra `EngineLoadingState`.
+- `engine error`: muestra `ErrorState`.
+- `empty`: cuando no hay `fileUrl` y no hay demo (no esperado) muestra `EmptyState`.
+- `document loading`: estado normal del visor (existente).
 - `password required / invalid password`:
   - Overlay `AppPdfPasswordPrompt` visible.
-  - `isLoading=true` solo mientras el `task` de carga está ejecutándose.
-  - `isInvalidPassword=true` cuando el último intento incluyó password y el DocumentManager reporta `PdfErrorCode.Password`.
+  - `isLoading=true` sólo mientras se espera `OpenDocumentResponse.task`.
+  - `isInvalidPassword=true` cuando el intento anterior incluyó password y `DocumentManager` reporta `PdfErrorCode.Password`.
 - `success`:
-  - `response.task` resuelve → se cierra el prompt y se habilita el visor.
-- `error`:
-  - se mantiene `ErrorState` existente (sin romper UX del visor).
+  - cuando el documento queda activo (`activeDocumentId`) se cierra el prompt y se limpia el estado de error.
 
-## Lifecycle y cleanup
-- Al cambiar `fileUrl`, se resetea el estado del prompt.
-- Los callbacks de tasks se cancelan en cleanup para evitar `setState` en unmount.
+## Reintentos (sin bloqueo)
+- Se permite reintentar con la misma contraseña (mismo string) incrementando un contador de intento interno.
+- Si un intento falla, se vuelve a habilitar el input y se muestra invalid password.
 
-## Performance
-- No se agregan listeners manuales de scroll ni cálculos de páginas.
-- No se afectan plugins existentes (zoom/rotate/thumbnails/pagination/print/export).
-
+## Cleanup / memory safety
+- Al cambiar `fileUrl` se resetea estado de password prompt y refs asociadas.
+- Se evita que tasks previas actualicen estado al cambiar documento (guardrails con refs).
