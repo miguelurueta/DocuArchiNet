@@ -8,6 +8,11 @@ import { ThumbnailPluginPackage } from "@embedpdf/plugin-thumbnail";
 import { RotatePluginPackage } from "@embedpdf/plugin-rotate";
 import { PrintPluginPackage } from "@embedpdf/plugin-print/react";
 import { ExportPluginPackage } from "@embedpdf/plugin-export/react";
+import { InteractionManagerPluginPackage } from "@embedpdf/plugin-interaction-manager";
+import { SelectionPluginPackage } from "@embedpdf/plugin-selection";
+import { HistoryPluginPackage } from "@embedpdf/plugin-history";
+import { AnnotationPluginPackage } from "@embedpdf/plugin-annotation";
+import { SignaturePluginPackage } from "@embedpdf/plugin-signature";
 
 export function createBasicPluginRegistration() {
   return [
@@ -15,6 +20,13 @@ export function createBasicPluginRegistration() {
     createPluginRegistration(ViewportPluginPackage),
     createPluginRegistration(ScrollPluginPackage),
     createPluginRegistration(RenderPluginPackage),
+    // Dependencias oficiales para selección/interacción/annotations/signatures.
+    // Importante: registrar como plugins oficiales (sin lógica custom).
+    createPluginRegistration(InteractionManagerPluginPackage),
+    createPluginRegistration(SelectionPluginPackage),
+    createPluginRegistration(HistoryPluginPackage),
+    createPluginRegistration(AnnotationPluginPackage),
+    createPluginRegistration(SignaturePluginPackage),
     createPluginRegistration(ZoomPluginPackage, {
       // Guardrail enterprise: evita zooms extremos que pueden colgar el browser (memoria/tiempo).
       maxZoom: 4,

@@ -29,6 +29,8 @@
 - [ ] Crear `src/app/Components/UI/AppVisorEmbedPdf/presentation/AppPdfSignatureModal.module.css`
 - [ ] Accesibilidad modal: `role="dialog"`, `aria-modal`, focus inicial, Escape cierra
 - [ ] Modal desacoplado: NO recibe engine/plugins/documentId (solo callbacks/flags)
+- [ ] Modal entrega `SignatureFieldDefinition` seleccionado al contenedor (`onStartPlacement(signature)`)
+- [ ] Modal se renderiza con React Portal a `document.body` para evitar stacking contexts del Workbench (Navbar sticky)
 
 ## Integración Signature (sin lógica custom)
 - [ ] Integrar `useSignatureCapability()` en `AppVisorEmbedPdf.tsx` (encapsulado)

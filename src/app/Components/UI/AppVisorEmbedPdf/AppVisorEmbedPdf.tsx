@@ -8,6 +8,15 @@ import { LeftOutlined, RightOutlined, UpOutlined } from "@ant-design/icons";
 import { usePrint } from "@embedpdf/plugin-print/react";
 import { useExport } from "@embedpdf/plugin-export/react";
 import { PdfErrorCode } from "@embedpdf/models";
+import { SelectionLayer } from "@embedpdf/plugin-selection/react";
+import { AnnotationLayer } from "@embedpdf/plugin-annotation/react";
+import {
+  deserializeEntries,
+  serializeEntries,
+  useSignatureCapability,
+  useSignatureEntries,
+} from "@embedpdf/plugin-signature/react";
+import type { SignatureFieldDefinition } from "@embedpdf/plugin-signature";
 
 import {
   DocumentContent,
@@ -29,6 +38,7 @@ import {
 } from "./presentation/States";
 import { AppPdfToolbar } from "./presentation/AppPdfToolbar";
 import { AppPdfPasswordPrompt } from "./presentation/AppPdfPasswordPrompt";
+import { AppPdfSignatureModal } from "./presentation/AppPdfSignatureModal";
 import styles from "./styles/AppVisorEmbedPdf.module.css";
 import type { AppVisorEmbedPdfProps } from "./types/AppVisorEmbedPdfProps";
 
@@ -117,6 +127,7 @@ function EmbedPdfDocumentHost({ fileUrl }: { fileUrl: string }) {
     setPasswordPromptOpen(false);
     setInvalidPassword(false);
   }, [activeDocumentId]);
+
   useEffect(() => {
     if (!provides) return;
     if (!fileUrl) return;
@@ -171,7 +182,7 @@ function EmbedPdfDocumentHost({ fileUrl }: { fileUrl: string }) {
     return () => {
       cancelled = true;
     };
-  }, [fileUrl, provides, password]);
+  }, [fileUrl, provides, password, passwordAttempt]);
 
   useEffect(() => {
     if (!provides) return;
@@ -330,6 +341,41 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
   const zoom = useZoom(documentId);
   const zoomLevel = typeof zoom.state.currentZoomLevel === "number" ? zoom.state.currentZoomLevel : 1;
   const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
+  const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+
+  // Signature (oficial): capability + entries para persistencia local (temporal).
+  const signatureCap = useSignatureCapability();
+  const signatureEntries = useSignatureEntries();
+  const didRestoreEntriesRef = useRef(false);
+
+  const signatureStorageKey = useMemo(
+    () => `appvisor:embedpdf:annotations:${documentId}`,
+    [documentId],
+  );
+
+  useEffect(() => {
+    if (!signatureCap.provides) return;
+    if (didRestoreEntriesRef.current) return;
+    didRestoreEntriesRef.current = true;
+    try {
+      const raw = localStorage.getItem(signatureStorageKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as unknown;
+      const restored = deserializeEntries(parsed as any);
+      signatureCap.provides.loadEntries(restored);
+    } catch {
+      // Guardrail: no bloquear el visor por storage corrupto.
+    }
+  }, [signatureCap.provides, signatureStorageKey]);
+
+  useEffect(() => {
+    const entries = signatureEntries.entries ?? [];
+    try {
+      localStorage.setItem(signatureStorageKey, JSON.stringify(serializeEntries(entries as any)));
+    } catch {
+      // No-op (quota/blocked storage)
+    }
+  }, [signatureEntries.entries, signatureStorageKey]);
   const scroll = useScroll(documentId);
   const rotate = useRotate(documentId);
   const rotationRaw = rotate.rotation ?? 0;
@@ -388,12 +434,23 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
   const onRotateLeft = useCallback(() => rotate.provides?.rotateBackward(), [rotate.provides]);
   const onRotateRight = useCallback(() => rotate.provides?.rotateForward(), [rotate.provides]);
   const onResetRotation = useCallback(() => rotate.provides?.setRotation(0), [rotate.provides]);
+  const onToggleSignatureModal = useCallback(() => setIsSignatureModalOpen((v) => !v), []);
   const onPrint = useCallback(() => {
     print.provides?.print();
   }, [print.provides]);
   const onExport = useCallback(() => {
     exportApi.provides?.download();
   }, [exportApi.provides]);
+
+  const onStartSignaturePlacement = useCallback(
+    (signature: SignatureFieldDefinition) => {
+      if (!signatureCap.provides) return;
+      const entryId = signatureCap.provides.addEntry({ signature });
+      signatureCap.provides.forDocument(documentId).activateSignaturePlacement(entryId);
+      setIsSignatureModalOpen(false);
+    },
+    [documentId, signatureCap.provides],
+  );
 
   useEffect(() => {
     const provides = viewport.provides;
@@ -440,10 +497,17 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
           isZoomDisabled={isZoomDisabled}
           onRotateLeft={onRotateLeft}
           onRotateRight={onRotateRight}
+          onToggleSignatureModal={onToggleSignatureModal}
+          isSignatureModalOpen={isSignatureModalOpen}
           onPrint={onPrint}
           onExport={onExport}
         />
       </div>
+      <AppPdfSignatureModal
+        isOpen={isSignatureModalOpen}
+        onClose={() => setIsSignatureModalOpen(false)}
+        onStartPlacement={onStartSignaturePlacement}
+      />
       <div className={styles.main}>
         <div className={styles.paginationOverlay} role="group" aria-label="PaginaciÃ³n">
           <button
@@ -521,7 +585,11 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
                 }}
               >
                 {rotationSteps === 0 ? (
-                  <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                  <>
+                    <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                    <SelectionLayer documentId={documentId} pageIndex={pageIndex} />
+                    <AnnotationLayer documentId={documentId} pageIndex={pageIndex} />
+                  </>
                 ) : (
                   <Rotate
                     documentId={documentId}
@@ -553,6 +621,8 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
                       }}
                     >
                       <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                      <SelectionLayer documentId={documentId} pageIndex={pageIndex} />
+                      <AnnotationLayer documentId={documentId} pageIndex={pageIndex} />
                     </div>
                   </Rotate>
                 )}

@@ -2,6 +2,7 @@ import { memo } from "react";
 import {
   DownloadOutlined,
   FileSyncOutlined,
+  FormOutlined,
   MenuOutlined,
   PrinterOutlined,
   RotateLeftOutlined,
@@ -27,6 +28,9 @@ export interface AppPdfToolbarProps {
   onRotateLeft(): void;
   onRotateRight(): void;
 
+  onToggleSignatureModal(): void;
+  isSignatureModalOpen: boolean;
+
   onPrint(): void;
   onExport(): void;
 }
@@ -46,6 +50,8 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
   isZoomDisabled = false,
   onRotateLeft,
   onRotateRight,
+  onToggleSignatureModal,
+  isSignatureModalOpen,
   onPrint,
   onExport,
 }: AppPdfToolbarProps) {
@@ -133,6 +139,19 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         </span>
       </button>
 
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onToggleSignatureModal}
+        aria-label="Signature"
+        aria-pressed={isSignatureModalOpen}
+        title={isSignatureModalOpen ? "Cerrar firmas" : "Abrir firmas"}
+      >
+        <span className={styles.icon} aria-hidden="true">
+          <FormOutlined />
+        </span>
+      </button>
+
       <span className={styles.spacer} aria-hidden="true" />
 
       <button
@@ -160,3 +179,4 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
     </>
   );
 });
+

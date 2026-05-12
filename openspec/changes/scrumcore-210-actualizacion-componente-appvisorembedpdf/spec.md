@@ -52,7 +52,7 @@ interface AppPdfSignatureModalProps {
    * Dispara el flujo oficial de placement (se implementa en AppVisorEmbedPdf).
    * El modal NO debe conocer engine/plugins/documentId.
    */
-  onStartPlacement(): void;
+  onStartPlacement(signature: import("@embedpdf/plugin-signature").SignatureFieldDefinition): void;
 }
 ```
 
@@ -66,6 +66,7 @@ onToggleSignatureModal(): void
 - Click Signature: abre modal.
 - Cerrar: botón close y tecla Escape.
 - Modal responsive.
+- Render del modal mediante **React Portal** a `document.body` para garantizar overlay sobre toda la app (incluye `Navbar` sticky) y evitar stacking contexts del Workbench.
 
 ### Draw Signature
 - Usar exclusivamente `<SignatureDrawPad />`.

@@ -95,8 +95,11 @@ sequenceDiagram
 - Solo **CSS Modules**.
 - Modal enterprise minimalista y responsive.
 - Sin wrappers extra alrededor del visor.
+- **Modal via Portal**: renderizar el modal en `document.body` (React Portal) para evitar stacking contexts del Workbench
+  y asegurar overlay real sobre toda la UI (incluye `Navbar` sticky).
 
 ## Criterios de “done” de diseño
 - El modal es 100% desacoplado del engine/plugins (no recibe `documentId`, engine, ni objetos EmbedPDF).
 - La activación de placement ocurre en `AppVisorEmbedPdf.tsx` (encapsulado).
 - El render de firmas ocurre por `AnnotationLayer` (oficial) dentro del pipeline existente.
+- El modal no debe provocar toggles/side-effects del layout del dashboard (Navbar/Sidebar).
