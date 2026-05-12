@@ -23,7 +23,7 @@ Sin introducir lógica custom de PDF ni alterar la arquitectura del visor (zoom/
   - Toolbar → `onOpenSignatureModal`
   - Modal → `onClose`
   - Signature capability → `activateSignaturePlacement()` (oficial)
-- Integra `AnnotationLayer` en el pipeline de render (sin wrappers extra).
+- Integra `AnnotationLayer` en el pipeline de render **sin crear viewers paralelos** y **sin wrappers extra**.
 - Gestiona persistencia temporal con `serializeEntries()` / `deserializeEntries()` a `localStorage`.
 
 ### `presentation/AppPdfToolbar.tsx`
@@ -38,7 +38,7 @@ Sin introducir lógica custom de PDF ni alterar la arquitectura del visor (zoom/
   - `<SignatureTypePad />`
   - Sección upload usando `useSignatureUpload()` (oficial)
 - Al “seleccionar” una firma:
-  - Llama callback `onStartPlacement()` (provisto por `AppVisorEmbedPdf.tsx`) que ejecuta `activateSignaturePlacement()`
+  - Llama callback `onStartPlacement()` (provisto por `AppVisorEmbedPdf.tsx`) que ejecuta `activateSignaturePlacement()` (oficial)
   - Cierra modal automáticamente para permitir click en el PDF (flow requerido).
 
 ## Pipeline de render (actualizado)
@@ -50,7 +50,7 @@ flowchart TD
   B --> C[DocumentManager]
   B --> D[Viewport + Scroller]
   D --> E[RenderLayer]
-  E --> F[SelectionLayer]
+  E --> F[Selection Plugin]
   F --> G[AnnotationLayer]
   G --> H[Signatures rendered by EmbedPDF]
 ```
@@ -81,6 +81,7 @@ sequenceDiagram
   - `serializeEntries()` → `localStorage`
   - `deserializeEntries()` desde `localStorage` al abrir documento
 - **No backend** en esta fase.
+- Key recomendada (interna, encapsulada): `appvisor:embedpdf:annotations:<documentId>`
 
 ## Accesibilidad
 - Toolbar: `aria-label` en el botón Signature.
@@ -95,3 +96,7 @@ sequenceDiagram
 - Modal enterprise minimalista y responsive.
 - Sin wrappers extra alrededor del visor.
 
+## Criterios de “done” de diseño
+- El modal es 100% desacoplado del engine/plugins (no recibe `documentId`, engine, ni objetos EmbedPDF).
+- La activación de placement ocurre en `AppVisorEmbedPdf.tsx` (encapsulado).
+- El render de firmas ocurre por `AnnotationLayer` (oficial) dentro del pipeline existente.

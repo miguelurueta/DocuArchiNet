@@ -27,18 +27,19 @@
 - [ ] Crear `src/app/Components/UI/AppVisorEmbedPdf/presentation/AppPdfSignatureModal.tsx`
 - [ ] Crear `src/app/Components/UI/AppVisorEmbedPdf/presentation/AppPdfSignatureModal.module.css`
 - [ ] Accesibilidad modal: `role="dialog"`, `aria-modal`, focus inicial, Escape cierra
+- [ ] Modal desacoplado: NO recibe engine/plugins/documentId (solo callbacks/flags)
 
 ## Integración Signature (sin lógica custom)
 - [ ] Integrar `useSignatureCapability()` en `AppVisorEmbedPdf.tsx` (encapsulado)
 - [ ] Implementar `activateSignaturePlacement()` (oficial) al seleccionar firma
 - [ ] Auto-close modal al activar placement
-- [ ] Integrar `<AnnotationLayer />` en el pipeline (RenderLayer → SelectionLayer → AnnotationLayer)
+- [ ] Integrar `<AnnotationLayer />` en el pipeline (RenderLayer → (Selection Plugin) → AnnotationLayer)
 - [ ] Upload: integrar `useSignatureUpload()` (oficial) para PNG/JPG/SVG
 
 ## Persistencia temporal
 - [ ] Implementar `serializeEntries()` → `localStorage`
 - [ ] Implementar `deserializeEntries()` desde `localStorage` al abrir documento
-- [ ] Definir key estable por documento (sin exponer al Workbench)
+- [ ] Definir key estable por documento (sin exponer al Workbench): `appvisor:embedpdf:annotations:<documentId>`
 
 ## Cleanup / Estabilidad
 - [ ] Cleanup al cerrar modal/cambiar documento: placement session/listeners/subscriptions (sin leaks)
@@ -53,6 +54,7 @@
   - annotation layer render (smoke)
   - localStorage serialize/deserialize
   - coexistencia plugins actuales (smoke)
+- [ ] Asegurar mocks de `@embedpdf/plugin-signature/react` (sin WASM real)
 
 ## Documentación enterprise (obligatoria)
 Ruta: `docs/GestorDocumental/AlmacenamientoDocumental/StorageEngine/`
@@ -69,4 +71,3 @@ Ruta: `docs/GestorDocumental/AlmacenamientoDocumental/StorageEngine/`
 ## Validación
 - [ ] `npm.cmd test -- src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.test.tsx`
 - [ ] (Opcional) Playwright smoke del visor (si aplica al flujo)
-

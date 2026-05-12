@@ -45,6 +45,11 @@ Prop mínima requerida:
 interface AppPdfSignatureModalProps {
   isOpen: boolean;
   onClose(): void;
+  /**
+   * Dispara el flujo oficial de placement (se implementa en AppVisorEmbedPdf).
+   * El modal NO debe conocer engine/plugins/documentId.
+   */
+  onStartPlacement(): void;
 }
 ```
 
@@ -81,11 +86,12 @@ onToggleSignatureModal(): void
 ### Rendering oficial (obligatorio)
 - Render de firmas vía `<AnnotationLayer />`.
 - Integración en pipeline:
-  `RenderLayer → SelectionLayer → AnnotationLayer`
+  `RenderLayer → (Selection Plugin) → AnnotationLayer`
 
 ### Persistencia temporal
 - Guardar `serializeEntries()` en `localStorage` asociado al documento (clave definida en implementación).
 - Cargar con `deserializeEntries()` al abrir documento.
+ - Clave recomendada (encapsulada): `appvisor:embedpdf:annotations:<documentId>`
 
 ## Performance / estabilidad
 - No recrear plugin registration por render (usar memo/const estable como hoy).
@@ -101,6 +107,9 @@ Actualizar `src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.test.tsx`:
 - Render annotation: asegurar que `<AnnotationLayer />` está en el árbol cuando el documento está loaded.
 - Persistencia: mock `localStorage` y validar serialize/deserialize.
 - Coexistencia: no rompe zoom/rotate/thumbnails/print/export/pagination/password (smoke assertions).
+
+Notas:
+- Los tests deben mockear APIs de `@embedpdf/plugin-signature/react` (y capas de annotation/selection si aplica). No usar WASM real.
 
 ## Documentación enterprise (obligatoria)
 Actualizar/crear bajo:
@@ -122,4 +131,3 @@ Diagramas Mermaid obligatorios:
 - Flujo placement
 - Secuencia toolbar/modal/signature
 - Estados modal
-
