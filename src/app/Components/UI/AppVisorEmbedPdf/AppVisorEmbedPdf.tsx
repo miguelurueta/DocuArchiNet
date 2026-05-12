@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useZoom } from "@embedpdf/plugin-zoom/react";
 import { ThumbnailsPane, ThumbImg } from "@embedpdf/plugin-thumbnail/react";
 import { useScroll } from "@embedpdf/plugin-scroll/react";
@@ -7,6 +7,7 @@ import { useViewportCapability } from "@embedpdf/plugin-viewport/react";
 import { LeftOutlined, RightOutlined, UpOutlined } from "@ant-design/icons";
 import { usePrint } from "@embedpdf/plugin-print/react";
 import { useExport } from "@embedpdf/plugin-export/react";
+import { PdfErrorCode } from "@embedpdf/models";
 
 import {
   DocumentContent,
@@ -27,6 +28,7 @@ import {
   ErrorState,
 } from "./presentation/States";
 import { AppPdfToolbar } from "./presentation/AppPdfToolbar";
+import { AppPdfPasswordPrompt } from "./presentation/AppPdfPasswordPrompt";
 import styles from "./styles/AppVisorEmbedPdf.module.css";
 import type { AppVisorEmbedPdfProps } from "./types/AppVisorEmbedPdfProps";
 
@@ -37,8 +39,8 @@ function cx(...parts: Array<string | undefined>) {
 /**
  * AppVisorEmbedPdf (01-FE)
  *
- * NOTA: Este componente encapsula EmbedPDF/Pdfium y expone una API mínima.
- * Se prohíbe filtrar detalles del engine hacia módulos consumidores.
+ * NOTA: Este componente encapsula EmbedPDF/Pdfium y expone una API mÃ­nima.
+ * Se prohÃ­be filtrar detalles del engine hacia mÃ³dulos consumidores.
  */
 export function AppVisorEmbedPdf({ fileUrl, className, style }: AppVisorEmbedPdfProps) {
   const demoUrl = useDemoPdfUrl();
@@ -84,34 +86,244 @@ function EmbedPdfDocumentHost({ fileUrl }: { fileUrl: string }) {
   const { provides } = useDocumentManagerCapability();
   const { activeDocumentId } = useActiveDocument();
 
-  const lastOpenedUrlRef = useRef<string | null>(null);
+  const [password, setPassword] = useState<string | null>(null);
+  const [passwordAttempt, setPasswordAttempt] = useState(0);
+  const [passwordPromptOpen, setPasswordPromptOpen] = useState(false);
+  const [invalidPassword, setInvalidPassword] = useState(false);
+  const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
+
+  const openedDocumentIdRef = useRef<string | null>(null);
+  const lastOpenedRef = useRef<
+    { url: string; password: string | null; attempt: number } | null
+  >(null);
+  const lastAttemptHadPasswordRef = useRef(false);
+
+  useEffect(() => {
+    // Al cambiar el documento, reiniciar el estado del prompt/password (enterprise hardening).
+    setPassword(null);
+    setPasswordAttempt(0);
+    setPasswordPromptOpen(false);
+    setInvalidPassword(false);
+    setIsSubmittingPassword(false);
+    openedDocumentIdRef.current = null;
+    lastOpenedRef.current = null;
+    lastAttemptHadPasswordRef.current = false;
+  }, [fileUrl]);
+
+  useEffect(() => {
+    if (!activeDocumentId) return;
+    // Documento activado: ya no se requiere "submitting" ni prompt activo.
+    setIsSubmittingPassword(false);
+    setPasswordPromptOpen(false);
+    setInvalidPassword(false);
+  }, [activeDocumentId]);
   useEffect(() => {
     if (!provides) return;
     if (!fileUrl) return;
-    if (lastOpenedUrlRef.current === fileUrl) return;
-    lastOpenedUrlRef.current = fileUrl;
-    provides.openDocumentUrl({ url: fileUrl, name: "document.pdf", autoActivate: true });
-  }, [fileUrl, provides]);
+    const last = lastOpenedRef.current;
+    // Importante: permitir reintento aunque el usuario envíe la misma contraseña (mismo string).
+    // Por eso incluimos `passwordAttempt` como parte de la identidad del intento.
+    if (last && last.url === fileUrl && last.password === password && last.attempt === passwordAttempt) return;
+    lastOpenedRef.current = { url: fileUrl, password, attempt: passwordAttempt };
+    lastAttemptHadPasswordRef.current = Boolean(password);
+    setIsSubmittingPassword(Boolean(password));
+    const openTask = provides.openDocumentUrl({
+      url: fileUrl,
+      name: "document.pdf",
+      autoActivate: true,
+      ...(password ? { password } : null),
+    });
+
+    // El DocumentManager devuelve un Task que resuelve con { documentId, task }.
+    // Importante: el "éxito/fracaso real" de abrir el PDF ocurre en `response.task`
+    // (carga del documento), no en el task externo (que puede resolver al despachar la carga).
+    let cancelled = false;
+    openTask.wait(
+      (response) => {
+        if (cancelled) return;
+        openedDocumentIdRef.current = response.documentId;
+
+        // Esperar el task interno de carga del PDF para cerrar el estado "Validando…"
+        // incluso si el documento no llega a activarse (activeDocumentId sigue null).
+        response.task.wait(
+          () => {
+            if (cancelled) return;
+            setIsSubmittingPassword(false);
+            setPasswordPromptOpen(false);
+            setInvalidPassword(false);
+          },
+          () => {
+            if (cancelled) return;
+            setIsSubmittingPassword(false);
+            setPasswordPromptOpen(true);
+            setInvalidPassword(lastAttemptHadPasswordRef.current);
+          },
+        );
+      },
+      () => {
+        if (cancelled) return;
+        setIsSubmittingPassword(false);
+        setPasswordPromptOpen(true);
+        setInvalidPassword(lastAttemptHadPasswordRef.current);
+      },
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fileUrl, provides, password]);
+
+  useEffect(() => {
+    if (!provides) return;
+    const off = provides.onDocumentError((evt) => {
+      if (!openedDocumentIdRef.current) return;
+      if (evt.documentId !== openedDocumentIdRef.current) return;
+      if (evt.reason?.code !== PdfErrorCode.Password) return;
+
+      setIsSubmittingPassword(false);
+      setPasswordPromptOpen(true);
+      setInvalidPassword(lastAttemptHadPasswordRef.current);
+    });
+    return () => {
+      off?.();
+    };
+  }, [provides]);
+  const onSubmitPassword = useCallback((next: string) => {
+    setPasswordPromptOpen(true);
+    setInvalidPassword(false);
+    setIsSubmittingPassword(true);
+    lastAttemptHadPasswordRef.current = true;
+
+    if (!provides) return;
+    const openedId = openedDocumentIdRef.current;
+    if (!openedId) return;
+
+    // Reintento oficial del DocumentManager (sin reabrir URL / sin lógica custom)
+    const retryTask = provides.retryDocument(openedId, { password: next });
+    retryTask.wait(
+      (response) => {
+    response.task.wait(
+      () => {
+        setIsSubmittingPassword(false);
+        setPasswordPromptOpen(false);
+        setInvalidPassword(false);
+      },
+      () => {
+        setIsSubmittingPassword(false);
+        setPasswordPromptOpen(true);
+        setInvalidPassword(true);
+      },
+        );
+      },
+      () => {
+        setIsSubmittingPassword(false);
+        setPasswordPromptOpen(true);
+        setInvalidPassword(true);
+      },
+    );
+  }, [provides]);
+
+  const onPasswordError = useCallback(() => {
+    // Si el documento vuelve a fallar luego de enviar password, dejar de "validar"
+    // y mostrar estado inválido para permitir reintento.
+    setIsSubmittingPassword(false);
+    setPasswordPromptOpen(true);
+    setInvalidPassword(lastAttemptHadPasswordRef.current);
+  }, []);
 
   if (!activeDocumentId) {
-    return <DocumentLoadingState />;
+    return (
+      <>
+        <DocumentLoadingState />
+        {passwordPromptOpen ? (
+          <AppPdfPasswordPrompt
+            isInvalidPassword={invalidPassword}
+            isLoading={isSubmittingPassword}
+            onSubmit={onSubmitPassword}
+          />
+        ) : null}
+      </>
+    );
   }
 
   return (
     <DocumentContent documentId={activeDocumentId}>
-      {({ isLoaded, isError, isLoading }) =>
-        isLoaded ? (
-          <EmbedPdfLoadedDocumentView documentId={activeDocumentId} />
-        ) : isError ? (
-          <ErrorState />
-        ) : isLoading ? (
-          <DocumentLoadingState />
-        ) : (
-          <DocumentLoadingState />
-        )
-      }
+      {({ isLoaded, isError, isLoading }) => (
+        <EmbedPdfDocumentStateView
+          documentId={activeDocumentId}
+          isLoaded={isLoaded}
+          isError={isError}
+          isLoading={isLoading}
+          passwordPromptOpen={passwordPromptOpen}
+          invalidPassword={invalidPassword}
+          isSubmittingPassword={isSubmittingPassword}
+          lastAttemptHadPassword={lastAttemptHadPasswordRef.current}
+          onSubmitPassword={onSubmitPassword}
+          onPasswordError={onPasswordError}
+        />
+      )}
     </DocumentContent>
   );
+}
+
+function EmbedPdfDocumentStateView({
+  documentId,
+  isLoaded,
+  isError,
+  isLoading,
+  passwordPromptOpen,
+  invalidPassword,
+  isSubmittingPassword,
+  lastAttemptHadPassword,
+  onSubmitPassword,
+  onPasswordError,
+}: {
+  documentId: string;
+  isLoaded: boolean;
+  isError: boolean;
+  isLoading: boolean;
+  passwordPromptOpen: boolean;
+  invalidPassword: boolean;
+  isSubmittingPassword: boolean;
+  lastAttemptHadPassword: boolean;
+  onSubmitPassword(password: string): void;
+  onPasswordError(): void;
+}) {
+  useEffect(() => {
+    if (!isError) return;
+    onPasswordError();
+  }, [isError, onPasswordError]);
+
+  if (isLoaded) {
+    return (
+      <>
+        <EmbedPdfLoadedDocumentView documentId={documentId} />
+        {passwordPromptOpen ? (
+          <AppPdfPasswordPrompt
+            isInvalidPassword={invalidPassword}
+            isLoading={isSubmittingPassword}
+            onSubmit={onSubmitPassword}
+          />
+        ) : null}
+      </>
+    );
+  }
+
+  if (isError) {
+    return (
+      <>
+        <ErrorState />
+        <AppPdfPasswordPrompt
+          isInvalidPassword={lastAttemptHadPassword}
+          isLoading={isSubmittingPassword}
+          onSubmit={onSubmitPassword}
+        />
+      </>
+    );
+  }
+
+  if (isLoading) return <DocumentLoadingState />;
+  return <DocumentLoadingState />;
 }
 
 function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
@@ -143,7 +355,7 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
 
   const onZoomIn = useCallback(() => {
     if (isZoomDisabled) return;
-    // Usar API oficial con "center" explícito para evitar que el viewport se re-anclé
+    // Usar API oficial con "center" explÃ­cito para evitar que el viewport se re-anclÃ©
     // al top/left al cambiar el scale (se mantiene centrado).
     zoom.provides?.requestZoomBy(0.1, getViewportCenter());
   }, [zoom.provides, isZoomDisabled, getViewportCenter]);
@@ -192,7 +404,7 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
     const sync = () => {
       rafRef.current = null;
       const m = scope.getMetrics();
-      // Comportamiento tipo WhatsApp: aparece solo cuando realmente estás "abajo".
+      // Comportamiento tipo WhatsApp: aparece solo cuando realmente estÃ¡s "abajo".
       setShowScrollTop(m.scrollTop > Math.max(120, m.clientHeight * 0.5));
     };
 
@@ -233,20 +445,20 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
         />
       </div>
       <div className={styles.main}>
-        <div className={styles.paginationOverlay} role="group" aria-label="Paginación">
+        <div className={styles.paginationOverlay} role="group" aria-label="PaginaciÃ³n">
           <button
             type="button"
             className={styles.paginationButton}
             onClick={onPreviousPage}
-            aria-label="Página anterior"
-            title="Página anterior"
+            aria-label="PÃ¡gina anterior"
+            title="PÃ¡gina anterior"
           >
             <LeftOutlined aria-hidden="true" />
           </button>
           <div
             className={styles.paginationIndicator}
-            aria-label={`Página ${currentPage} de ${totalPages}`}
-            title={`Página ${currentPage} de ${totalPages}`}
+            aria-label={`PÃ¡gina ${currentPage} de ${totalPages}`}
+            title={`PÃ¡gina ${currentPage} de ${totalPages}`}
           >
             {currentPage}/{totalPages}
           </div>
@@ -254,8 +466,8 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
             type="button"
             className={styles.paginationButton}
             onClick={onNextPage}
-            aria-label="Página siguiente"
-            title="Página siguiente"
+            aria-label="PÃ¡gina siguiente"
+            title="PÃ¡gina siguiente"
           >
             <RightOutlined aria-hidden="true" />
           </button>
@@ -279,7 +491,7 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
                   style={{ top: meta.top, height: meta.wrapperHeight }}
                   role="button"
                   tabIndex={0}
-                  aria-label={`Ir a página ${meta.pageIndex + 1}`}
+                  aria-label={`Ir a pÃ¡gina ${meta.pageIndex + 1}`}
                   onClick={() => onSelectThumbnail(meta.pageIndex)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") onSelectThumbnail(meta.pageIndex);
@@ -298,13 +510,13 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
             renderPage={({ pageIndex, width, height, rotatedWidth, rotatedHeight }) => (
               <div
                 className={styles.pageLayer}
-                // `width/height` aquí representan el "slot" calculado por el Scroll plugin
-                // para la página actual (ya considera rotación/escala).
+                // `width/height` aquÃ­ representan el "slot" calculado por el Scroll plugin
+                // para la pÃ¡gina actual (ya considera rotaciÃ³n/escala).
                 style={{
                   width: Math.ceil(rotationSteps % 2 === 1 ? rotatedWidth : width),
                   // Guardrail: algunos PDFs/escala generan rounding y el slot queda 1-2px corto,
                   // Mantener el slot exactamente como lo calcula EmbedPDF para evitar
-                  // diferencias visuales vs. rotación 0 y evitar solapamientos.
+                  // diferencias visuales vs. rotaciÃ³n 0 y evitar solapamientos.
                   height: Math.ceil(rotationSteps % 2 === 1 ? rotatedHeight : height),
                 }}
               >
@@ -331,8 +543,8 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
                     {/* 
                       Rotate aplica una transform matrix sobre un contenedor ABSOLUTE.
                       Para evitar "stretch" / clipping en 90/270, el contenido debe
-                      mantener su tamaño base (sin rotación): (height x width).
-                      El slot del scroller (width x height) ya es el tamaño rotado.
+                      mantener su tamaÃ±o base (sin rotaciÃ³n): (height x width).
+                      El slot del scroller (width x height) ya es el tamaÃ±o rotado.
                     */}
                     <div
                       style={{

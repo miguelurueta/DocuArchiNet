@@ -1,7 +1,7 @@
-import type React from "react";
+﻿import type React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppVisorEmbedPdf } from "./AppVisorEmbedPdf";
 import { AppVisorEmbedPdf as AppVisorEmbedPdfFromIndex } from "./index";
@@ -29,6 +29,56 @@ vi.mock("./hooks/useDemoPdfUrl", () => ({
 }));
 
 let lastDocumentContentSrc: string | undefined;
+let documentContentRenderState: { isLoaded: boolean; isError: boolean; isLoading: boolean } = {
+  isLoaded: true,
+  isError: false,
+  isLoading: false,
+};
+
+const openDocumentUrlMock = vi.fn<
+  [
+    {
+      url: string;
+      name?: string;
+      autoActivate?: boolean;
+      password?: string;
+    },
+  ],
+  {
+    wait: (
+      resolved: (v: { documentId: string; task: { wait: (r: (v: unknown) => void, e: (x: unknown) => void) => void } }) => void,
+      rejected: (e: unknown) => void,
+    ) => void;
+  }
+>(() => ({
+  wait: (resolved) =>
+    resolved({
+      documentId: "doc-1",
+      task: {
+        wait: (r) => r({}),
+      },
+    }),
+}));
+
+const retryDocumentMock = vi.fn<
+  [string, { password?: string }],
+  {
+    wait: (
+      resolved: (v: { documentId: string; task: { wait: (r: (v: unknown) => void, e: (x: unknown) => void) => void } }) => void,
+      rejected: (e: unknown) => void,
+    ) => void;
+  }
+>(() => ({
+  wait: (resolved) =>
+    resolved({
+      documentId: "doc-1",
+      task: {
+        wait: (r) => r({}),
+      },
+    }),
+}));
+
+const onDocumentErrorMock = vi.fn();
 
 const zoomInMock = vi.fn();
 const zoomOutMock = vi.fn();
@@ -131,7 +181,14 @@ vi.mock("./engine/embedPdfAdapter", () => ({
   ),
   useActiveDocument: () => ({ activeDocumentId: "doc-1" }),
   useDocumentManagerCapability: () => ({
-    provides: { openDocumentUrl: vi.fn() },
+    provides: {
+      openDocumentUrl: openDocumentUrlMock,
+      retryDocument: retryDocumentMock,
+      onDocumentError: (cb: (evt: unknown) => void) => {
+        onDocumentErrorMock.mockImplementation(cb);
+        return () => onDocumentErrorMock.mockReset();
+      },
+    },
   }),
   DocumentContent: ({
     documentId,
@@ -143,7 +200,7 @@ vi.mock("./engine/embedPdfAdapter", () => ({
     lastDocumentContentSrc = documentId;
     return (
       <div data-testid="document-content">
-        {children({ isLoaded: true, isError: false, isLoading: false })}
+        {children(documentContentRenderState)}
       </div>
     );
   },
@@ -170,6 +227,10 @@ vi.mock("./engine/embedPdfAdapter", () => ({
 }));
 
 describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
+  beforeEach(() => {
+    documentContentRenderState = { isLoaded: true, isError: false, isLoading: false };
+  });
+
   it("muestra loader mientras carga el engine", () => {
     useEmbedPdfEngineMock.mockReturnValue(engineStateLoading);
 
@@ -238,7 +299,7 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     expect(screen.getByTestId("thumbnails-pane")).toBeInTheDocument();
 
     scrollToPageMock.mockClear();
-    await user.click(screen.getByRole("button", { name: /ir a página 1/i }));
+    await user.click(screen.getByRole("button", { name: /ir a pÃ¡gina 1/i }));
     expect(scrollToPageMock).toHaveBeenCalledWith({ pageNumber: 1, behavior: "smooth", alignY: 0 });
 
     await user.click(screen.getByRole("button", { name: /abrir thumbnails/i }));
@@ -247,7 +308,7 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     expect(screen.getByTestId("render-layer")).toBeInTheDocument();
   });
 
-  it("[SPEC:SCRUMCORE-208] paginación usa scroll plugin (prev/next) y muestra indicador", async () => {
+  it("[SPEC:SCRUMCORE-208] paginaciÃ³n usa scroll plugin (prev/next) y muestra indicador", async () => {
     useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
     scrollToNextPageMock.mockClear();
     scrollToPreviousPageMock.mockClear();
@@ -260,14 +321,24 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
 
     render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
 
-    expect(screen.getByLabelText(/página 4 de 20/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/pÃ¡gina 4 de 20/i)).toBeInTheDocument();
 
     const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: /página anterior/i }));
-    await user.click(screen.getByRole("button", { name: /página siguiente/i }));
+    await user.click(screen.getByRole("button", { name: /pÃ¡gina anterior/i }));
+    await user.click(screen.getByRole("button", { name: /pÃ¡gina siguiente/i }));
 
     expect(scrollToPreviousPageMock).toHaveBeenCalledTimes(1);
     expect(scrollToNextPageMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("[SPEC:SCRUMCORE-209] muestra password prompt cuando el documento requiere contraseÃƒÆ’Ã‚Â±a", () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    documentContentRenderState = { isLoaded: false, isError: true, isLoading: false };
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/protected.pdf" />);
+
+    expect(screen.getByRole("dialog", { name: /documento protegido/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/contraseña del documento/i)).toBeInTheDocument();
   });
 
   it("[SPEC:SCRUMCORE-208] no crashea cuando scroll.provides es null", async () => {
@@ -280,8 +351,8 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
 
     const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: /página anterior/i }));
-    await user.click(screen.getByRole("button", { name: /página siguiente/i }));
+    await user.click(screen.getByRole("button", { name: /pÃ¡gina anterior/i }));
+    await user.click(screen.getByRole("button", { name: /pÃ¡gina siguiente/i }));
 
     expect(scrollToPreviousPageMock).not.toHaveBeenCalled();
     expect(scrollToNextPageMock).not.toHaveBeenCalled();
