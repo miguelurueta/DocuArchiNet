@@ -40,6 +40,9 @@ No crear `viewers` paralelos ni nuevos managers.
 ## Toolbar API (extensión)
 Actualizar `presentation/AppPdfToolbar.tsx` con un nuevo botón.
 
+Requisito de layout:
+- El botón **Signature** debe ubicarse **después** del grupo de botones de **Rotate** (manteniendo el orden actual del toolbar: Zoom → Rotate → Signature → …).
+
 Prop mínima requerida:
 ```ts
 interface AppPdfSignatureModalProps {

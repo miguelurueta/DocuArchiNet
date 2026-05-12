@@ -22,6 +22,7 @@
 ## UI: Toolbar
 - [ ] Actualizar `src/app/Components/UI/AppVisorEmbedPdf/presentation/AppPdfToolbar.tsx` para agregar botón Signature (icono + tooltip)
 - [ ] Mantener toolbar desacoplada (no conocer engine/plugins) y memoizada
+- [ ] Ubicar el botón Signature después del grupo Rotate (orden: Zoom → Rotate → Signature → …)
 
 ## UI: Modal
 - [ ] Crear `src/app/Components/UI/AppVisorEmbedPdf/presentation/AppPdfSignatureModal.tsx`
