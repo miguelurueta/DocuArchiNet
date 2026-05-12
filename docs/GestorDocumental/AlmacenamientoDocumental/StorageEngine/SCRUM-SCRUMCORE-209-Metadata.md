@@ -9,3 +9,4 @@
 - Estado ticket: `TBD (Jira)`
 - Branch relacionada: `feature/SCRUMCORE-209`
 - Commit relacionado: `25a9c50` (implementación) / `2dde762` (docs + evidencias)
+- PR relacionado: `#243`
