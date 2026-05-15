@@ -134,6 +134,72 @@ vi.mock("@embedpdf/plugin-rotate/react", () => ({
   Rotate: ({ children }: { children: React.ReactNode }) => <div data-testid="rotate">{children}</div>,
 }));
 
+vi.mock("@embedpdf/plugin-selection/react", () => ({
+  SelectionLayer: ({ documentId, pageIndex }: { documentId: string; pageIndex: number }) => (
+    <div data-testid="selection-layer" data-document-id={documentId} data-page-index={pageIndex} />
+  ),
+}));
+
+vi.mock("@embedpdf/plugin-annotation/react", () => ({
+  AnnotationLayer: ({ documentId, pageIndex }: { documentId: string; pageIndex: number }) => (
+    <div data-testid="annotation-layer" data-document-id={documentId} data-page-index={pageIndex} />
+  ),
+  useAnnotation: () => ({
+    state: { selectedUids: [] },
+    provides: {
+      deleteAnnotation: vi.fn(),
+    },
+  }),
+}));
+
+const signatureAddEntryMock = vi.fn(() => "sig-1");
+const activateSignaturePlacementMock = vi.fn();
+const loadEntriesMock = vi.fn();
+let signatureEntriesState: unknown[] = [];
+let signatureProvides: {
+  addEntry: typeof signatureAddEntryMock;
+  loadEntries: typeof loadEntriesMock;
+  forDocument: (documentId: string) => { activateSignaturePlacement: typeof activateSignaturePlacementMock };
+} | null = {
+  addEntry: signatureAddEntryMock,
+  loadEntries: loadEntriesMock,
+  forDocument: () => ({ activateSignaturePlacement: activateSignaturePlacementMock }),
+};
+
+vi.mock("@embedpdf/plugin-signature/react", () => ({
+  // hooks
+  useSignatureCapability: () => ({ provides: signatureProvides, ready: Promise.resolve() }),
+  useSignatureEntries: () => ({ entries: signatureEntriesState, provides: signatureProvides }),
+  useActivePlacement: () => null,
+  // helpers
+  serializeEntries: (entries: unknown[]) => entries,
+  deserializeEntries: (data: unknown[]) => data,
+  // components used by modal (render-only in tests)
+  SignatureDrawPad: ({ onResult }: { onResult: (r: unknown) => void }) => (
+    <button type="button" onClick={() => onResult({ creationType: "draw" })}>
+      draw-pad
+    </button>
+  ),
+  SignatureTypePad: ({ onResult }: { onResult: (r: unknown) => void }) => (
+    <button type="button" onClick={() => onResult({ creationType: "type" })}>
+      type-pad
+    </button>
+  ),
+  useSignatureUpload: ({ onResult }: { onResult: (r: unknown) => void }) => ({
+    inputRef: { current: null },
+    openFilePicker: () => onResult({ creationType: "upload" }),
+    processFile: vi.fn(),
+    handleFileInputChange: vi.fn(),
+    handleDrop: vi.fn(),
+    handleDragOver: vi.fn(),
+    handleDragLeave: vi.fn(),
+    previewUrl: null,
+    isDragging: false,
+    clear: vi.fn(),
+    accept: "image/png,image/jpeg,image/svg+xml",
+  }),
+}));
+
 const printMock = vi.fn();
 let printProvides: { print: typeof printMock } | null = { print: printMock };
 vi.mock("@embedpdf/plugin-print/react", () => ({
@@ -407,6 +473,26 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     expect(printMock).not.toHaveBeenCalled();
     expect(downloadMock).not.toHaveBeenCalled();
     expect(screen.getByTestId("render-layer")).toBeInTheDocument();
+  });
+
+  it("[SPEC:SCRUMCORE-210] toolbar abre modal de firmas y activa placement oficial", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    signatureAddEntryMock.mockClear();
+    activateSignaturePlacementMock.mockClear();
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /signature/i }));
+
+    expect(screen.getByRole("dialog", { name: /firmas/i })).toBeInTheDocument();
+
+    // Simular elección de firma y uso (modal emite SignatureFieldDefinition).
+    await user.click(screen.getByRole("button", { name: /draw-pad/i }));
+    await user.click(screen.getByRole("button", { name: /usar firma/i }));
+
+    expect(signatureAddEntryMock).toHaveBeenCalledTimes(1);
+    expect(activateSignaturePlacementMock).toHaveBeenCalledTimes(1);
   });
 
   it("permite consumo desde index sin exponer detalles del engine", () => {

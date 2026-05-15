@@ -8,6 +8,19 @@ import { LeftOutlined, RightOutlined, UpOutlined } from "@ant-design/icons";
 import { usePrint } from "@embedpdf/plugin-print/react";
 import { useExport } from "@embedpdf/plugin-export/react";
 import { PdfErrorCode } from "@embedpdf/models";
+import { AnnotationLayer } from "@embedpdf/plugin-annotation/react";
+import { PagePointerProvider } from "@embedpdf/plugin-interaction-manager/react";
+import { useAnnotation, useAnnotationCapability } from "@embedpdf/plugin-annotation/react";
+import { LockModeType } from "@embedpdf/plugin-annotation";
+import { useSelectionCapability } from "@embedpdf/plugin-selection/react";
+import {
+  deserializeEntries,
+  serializeEntries,
+  useActivePlacement,
+  useSignatureCapability,
+  useSignatureEntries,
+} from "@embedpdf/plugin-signature/react";
+import type { SignatureFieldDefinition } from "@embedpdf/plugin-signature";
 
 import {
   DocumentContent,
@@ -29,11 +42,46 @@ import {
 } from "./presentation/States";
 import { AppPdfToolbar } from "./presentation/AppPdfToolbar";
 import { AppPdfPasswordPrompt } from "./presentation/AppPdfPasswordPrompt";
+import { AppPdfSignatureModal } from "./presentation/AppPdfSignatureModal";
 import styles from "./styles/AppVisorEmbedPdf.module.css";
 import type { AppVisorEmbedPdfProps } from "./types/AppVisorEmbedPdfProps";
 
 function cx(...parts: Array<string | undefined>) {
   return parts.filter(Boolean).join(" ");
+}
+
+function waitPdfTask<T>(task: { wait(onOk: (value: T) => void, onErr: (err: unknown) => void): void }) {
+  return new Promise<T>((resolve, reject) => {
+    try {
+      task.wait(resolve, reject);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+async function saveBlobToIndexedDb(params: { documentId: string; name: string; blob: Blob }) {
+  const { documentId, name, blob } = params;
+  const db = await new Promise<IDBDatabase>((resolve, reject) => {
+    const request = indexedDB.open("docuarchi-appvisor", 1);
+    request.onupgradeneeded = () => {
+      const database = request.result;
+      if (!database.objectStoreNames.contains("signed_pdfs")) {
+        database.createObjectStore("signed_pdfs", { keyPath: "documentId" });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error ?? new Error("IndexedDB open failed"));
+  });
+
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction("signed_pdfs", "readwrite");
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error ?? new Error("IndexedDB transaction failed"));
+    tx.objectStore("signed_pdfs").put({ documentId, name, blob, savedAt: new Date().toISOString() });
+  });
+
+  db.close();
 }
 
 /**
@@ -117,6 +165,7 @@ function EmbedPdfDocumentHost({ fileUrl }: { fileUrl: string }) {
     setPasswordPromptOpen(false);
     setInvalidPassword(false);
   }, [activeDocumentId]);
+
   useEffect(() => {
     if (!provides) return;
     if (!fileUrl) return;
@@ -171,7 +220,7 @@ function EmbedPdfDocumentHost({ fileUrl }: { fileUrl: string }) {
     return () => {
       cancelled = true;
     };
-  }, [fileUrl, provides, password]);
+  }, [fileUrl, provides, password, passwordAttempt]);
 
   useEffect(() => {
     if (!provides) return;
@@ -330,6 +379,60 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
   const zoom = useZoom(documentId);
   const zoomLevel = typeof zoom.state.currentZoomLevel === "number" ? zoom.state.currentZoomLevel : 1;
   const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
+  const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+
+  // Signature (oficial): capability + entries para persistencia local (temporal).
+  const signatureCap = useSignatureCapability();
+  const signatureEntries = useSignatureEntries();
+  const didRestoreEntriesRef = useRef(false);
+  const [isSignaturePlacementReady, setIsSignaturePlacementReady] = useState(false);
+  const activePlacement = useActivePlacement(documentId);
+
+  const signatureStorageKey = useMemo(
+    () => `appvisor:embedpdf:annotations:${documentId}`,
+    [documentId],
+  );
+
+  useEffect(() => {
+    if (!signatureCap.provides) return;
+    if (didRestoreEntriesRef.current) return;
+    didRestoreEntriesRef.current = true;
+    try {
+      const raw = localStorage.getItem(signatureStorageKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as unknown;
+      const restored = deserializeEntries(parsed as any);
+      signatureCap.provides.loadEntries(restored);
+    } catch {
+      // Guardrail: no bloquear el visor por storage corrupto.
+    }
+  }, [signatureCap.provides, signatureStorageKey]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsSignaturePlacementReady(false);
+    signatureCap.ready
+      .then(() => {
+        if (cancelled) return;
+        setIsSignaturePlacementReady(true);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setIsSignaturePlacementReady(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [signatureCap.ready]);
+
+  useEffect(() => {
+    const entries = signatureEntries.entries ?? [];
+    try {
+      localStorage.setItem(signatureStorageKey, JSON.stringify(serializeEntries(entries as any)));
+    } catch {
+      // No-op (quota/blocked storage)
+    }
+  }, [signatureEntries.entries, signatureStorageKey]);
   const scroll = useScroll(documentId);
   const rotate = useRotate(documentId);
   const rotationRaw = rotate.rotation ?? 0;
@@ -345,6 +448,205 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
   const isZoomDisabled = rotationSteps !== 0;
   const print = usePrint(documentId);
   const exportApi = useExport(documentId);
+  const annotation = useAnnotation(documentId);
+  const annotationCap = useAnnotationCapability();
+  const selection = useSelectionCapability();
+  const [isSignatureLocked, setIsSignatureLocked] = useState(false);
+  const [isSavingSignedPdf, setIsSavingSignedPdf] = useState(false);
+
+  const downloadBuffer = useCallback((buffer: ArrayBuffer | Uint8Array, filename: string) => {
+    const blob = new Blob([buffer], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }, []);
+
+  // DEV-only debug hook para diagnosticar selección/borrado de firmas sin adivinar.
+  // Se elimina cuando resolvamos el flujo.
+  // (cleanup) Se removiÃ³ el debug hook `__APPVISOR_DEBUG__`.
+
+  useEffect(() => {
+    if (!selection.provides) return;
+    // Mantener plugin `selection` (requerido por `annotation`) pero desactivar su comportamiento
+    // para evitar overlays/hitboxes de texto.
+    selection.provides.enableForMode(
+      "default",
+      {
+        enableSelection: false,
+        enableMarquee: false,
+        showSelectionRects: false,
+        showMarqueeRects: false,
+      },
+      documentId,
+    );
+  }, [selection.provides, documentId]);
+
+  const getSelectedSignature = useCallback(() => {
+    const scope = annotation.provides;
+    if (!scope) return null;
+    const selectedIds = scope.getSelectedAnnotationIds?.() ?? [];
+    const selectedUid = selectedIds[0];
+    if (!selectedUid) return null;
+    const selected = scope.getAnnotationById?.(selectedUid);
+    if (!selected) return null;
+
+    // Heurística: las firmas se crean como STAMP o INK (según Signature plugin).
+    const type = (selected.object as any)?.type;
+    const subject = (selected.object as any)?.subject;
+    const isSignature =
+      type === "STAMP" ||
+      type === "INK" ||
+      type === "stamp" ||
+      type === "ink" ||
+      type === 15 ||
+      subject === "Signature";
+    if (!isSignature) return null;
+
+    const pageIndexFromObject = (selected.object as any)?.pageIndex;
+    let pageIndex: number | null = typeof pageIndexFromObject === "number" ? pageIndexFromObject : null;
+
+    const pages = annotation.state.pages ?? {};
+    if (pageIndex == null) {
+      for (const [pageKey, ids] of Object.entries(pages)) {
+        // `pages` guarda IDs internos (UIDs) del plugin, no necesariamente `object.id`.
+        if (Array.isArray(ids) && ids.includes(selectedUid)) {
+          pageIndex = Number(pageKey);
+          break;
+        }
+      }
+    }
+    if (pageIndex == null || Number.isNaN(pageIndex)) return null;
+
+    return { pageIndex, uid: selectedUid, objectId: selected.object.id };
+  }, [annotation.provides, annotation.state.pages]);
+
+  const hasAnySignaturePlaced = useMemo(() => {
+    const scope = annotation.provides;
+    if (!scope) return false;
+    const pages = annotation.state.pages ?? {};
+    for (const ids of Object.values(pages)) {
+      if (!Array.isArray(ids) || ids.length === 0) continue;
+      for (const uid of ids) {
+        const ann = scope.getAnnotationById?.(uid);
+        if (!ann) continue;
+        const type = (ann.object as any)?.type;
+        const subject = (ann.object as any)?.subject;
+        const isSignature =
+          type === "STAMP" ||
+          type === "INK" ||
+          type === "stamp" ||
+          type === "ink" ||
+          type === 15 ||
+          subject === "Signature";
+        if (isSignature) return true;
+      }
+    }
+    return false;
+  }, [annotation.provides, annotation.state.pages]);
+
+  const onDeleteSelectedSignature = useCallback(async () => {
+    if (isSignatureLocked) return;
+    const selected = getSelectedSignature();
+    if (!selected) return;
+    const scope = annotation.provides;
+    const cap = annotationCap.provides;
+    if (!scope || !cap) return;
+
+    // Importante: NO usar `purgeAnnotation` aquÃ­. `purgeAnnotation` solo afecta UI/state y puede
+    // impedir que el commit elimine la anotaciÃ³n del PDF real (lo que rompe export/print).
+    try {
+      // Persistir el delete en el PDF real: en este plugin, `deleteAnnotation` opera por ID de objeto.
+      cap.deleteAnnotation?.(selected.pageIndex, selected.objectId);
+    } catch {
+      // ignore
+    }
+    try {
+      scope.deleteAnnotation?.(selected.pageIndex, selected.objectId);
+    } catch {
+      // ignore
+    }
+
+    // Fallback: en algunos builds, el delete funciona por uid.
+    try {
+      cap.deleteAnnotation?.(selected.pageIndex, selected.uid);
+    } catch {
+      // ignore
+    }
+    try {
+      scope.deleteAnnotation?.(selected.pageIndex, selected.uid);
+    } catch {
+      // ignore
+    }
+
+    // Importante: algunas operaciones (purge/delete) actualizan UI inmediatamente, pero el PDF
+    // subyacente requiere commit para que export/print reflejen el estado final.
+    try {
+      if (cap.commit) {
+        await waitPdfTask<boolean>(cap.commit());
+      }
+    } catch {
+      // ignore
+    }
+  }, [
+    annotation.provides,
+    annotationCap.provides,
+    documentId,
+    getSelectedSignature,
+    isSignatureLocked,
+  ]);
+
+  const unlockSignatures = useCallback(() => {
+    setIsSignatureLocked(false);
+    try {
+      // Rehabilitar anotaciones (incluye firmas) si estaban bloqueadas por "Guardar/Bloquear".
+      annotationCap.provides?.setLocked?.({ type: LockModeType.None, categories: [] } as any, documentId);
+    } catch {
+      // ignore
+    }
+  }, [annotationCap.provides, documentId]);
+
+  const onSaveSignedPdf = useCallback(async () => {
+    if (isSignatureLocked) {
+      unlockSignatures();
+      return;
+    }
+    if (!hasAnySignaturePlaced) return;
+    if (!exportApi.provides) return;
+
+    setIsSavingSignedPdf(true);
+    try {
+      // Asegurar que la firma quede aplicada en el documento antes de exportar.
+      if (annotationCap.provides?.commit) {
+        await waitPdfTask<void>(annotationCap.provides.commit());
+      }
+
+      const buffer = await waitPdfTask<ArrayBuffer | Uint8Array>(exportApi.provides.saveAsCopy(documentId) as any);
+      const blob = new Blob([buffer], { type: "application/pdf" });
+      await saveBlobToIndexedDb({ documentId, name: `signed-${documentId}.pdf`, blob });
+
+      // Intento de lock por categorÃ­a (si el engine categoriza firmas).
+      // El guardrail real se asegura por UI (deshabilitar eliminar/agregar firma luego de guardar).
+      try {
+        // Nota: las firmas subidas como PNG suelen materializarse como STAMP/INK sin categorÃ­a "signature"
+        // consistente. Para garantizar que no se puedan remover/editar tras "Guardar", bloqueamos el
+        // layer de anotaciones completo a nivel de documento.
+        annotationCap.provides?.setLocked?.({ type: LockModeType.All, categories: [] } as any, documentId);
+      } catch {
+        // ignore
+      }
+
+      setIsSignatureLocked(true);
+      setIsSignatureModalOpen(false);
+    } finally {
+      setIsSavingSignedPdf(false);
+    }
+  }, [annotationCap.provides, documentId, exportApi.provides, hasAnySignaturePlaced, isSignatureLocked, unlockSignatures]);
+
 
   const getViewportCenter = useCallback(() => {
     const scope = viewport.provides?.forDocument(documentId);
@@ -388,12 +690,45 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
   const onRotateLeft = useCallback(() => rotate.provides?.rotateBackward(), [rotate.provides]);
   const onRotateRight = useCallback(() => rotate.provides?.rotateForward(), [rotate.provides]);
   const onResetRotation = useCallback(() => rotate.provides?.setRotation(0), [rotate.provides]);
-  const onPrint = useCallback(() => {
+
+  const onToggleSignatureModal = useCallback(() => {
+    // UX: si estaba bloqueado y el usuario intenta adjuntar otra firma, desbloquear automÃ¡ticamente.
+    if (isSignatureLocked) unlockSignatures();
+    setIsSignatureModalOpen((v) => !v);
+  }, [isSignatureLocked, unlockSignatures]);
+  const onPrint = useCallback(async () => {
+    // Mantener plugin oficial para print, pero garantizando commit primero.
+    try {
+      if (annotationCap.provides?.commit) await waitPdfTask<void>(annotationCap.provides.commit());
+    } catch {
+      // ignore
+    }
     print.provides?.print();
-  }, [print.provides]);
-  const onExport = useCallback(() => {
-    exportApi.provides?.download();
-  }, [exportApi.provides]);
+  }, [annotationCap.provides, print.provides]);
+
+  const onExport = useCallback(async () => {
+    // Opción 4 (sin parpadeo): exportar buffer ya "materializado" y descargarlo nosotros.
+    // Esto evita que el plugin `download()` use un snapshot anterior.
+    try {
+      if (annotationCap.provides?.commit) await waitPdfTask<void>(annotationCap.provides.commit());
+    } catch {
+      // ignore
+    }
+
+    if (!exportApi.provides) return;
+    const buffer = await waitPdfTask<ArrayBuffer | Uint8Array>(exportApi.provides.saveAsCopy(documentId) as any);
+    downloadBuffer(buffer, `document-${documentId}.pdf`);
+  }, [annotationCap.provides, documentId, downloadBuffer, exportApi.provides]);
+
+  const onStartSignaturePlacement = useCallback(
+    (signature: SignatureFieldDefinition) => {
+      if (!signatureCap.provides) return;
+      const entryId = signatureCap.provides.addEntry({ signature });
+      signatureCap.provides.forDocument(documentId).activateSignaturePlacement(entryId);
+      setIsSignatureModalOpen(false);
+    },
+    [documentId, signatureCap.provides],
+  );
 
   useEffect(() => {
     const provides = viewport.provides;
@@ -440,11 +775,29 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
           isZoomDisabled={isZoomDisabled}
           onRotateLeft={onRotateLeft}
           onRotateRight={onRotateRight}
+          onToggleSignatureModal={onToggleSignatureModal}
+          isSignatureModalOpen={isSignatureModalOpen}
+          onDeleteSelectedSignature={onDeleteSelectedSignature}
+          canDeleteSelectedSignature={Boolean(getSelectedSignature()) && !isSignatureLocked}
+          onSaveSignedPdf={onSaveSignedPdf}
+          isSignatureLocked={isSignatureLocked}
+          isSaveSignedPdfDisabled={!hasAnySignaturePlaced && !isSignatureLocked}
+          isSavingSignedPdf={isSavingSignedPdf}
           onPrint={onPrint}
           onExport={onExport}
         />
       </div>
-      <div className={styles.main}>
+      <AppPdfSignatureModal
+        isOpen={isSignatureModalOpen}
+        onClose={() => setIsSignatureModalOpen(false)}
+        onStartPlacement={onStartSignaturePlacement}
+        isPlacementReady={isSignaturePlacementReady && Boolean(signatureCap.provides)}
+      />
+      <div
+        className={styles.main}
+        data-signature-active-placement={activePlacement ? "true" : "false"}
+        data-signature-entry-count={String(signatureEntries.entries?.length ?? 0)}
+      >
         <div className={styles.paginationOverlay} role="group" aria-label="PaginaciÃ³n">
           <button
             type="button"
@@ -521,7 +874,20 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
                 }}
               >
                 {rotationSteps === 0 ? (
-                  <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                  <PagePointerProvider
+                    documentId={documentId}
+                    pageIndex={pageIndex}
+                    scale={zoomLevel}
+                    rotation={rotationRaw as any}
+                  >
+                    <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                    <AnnotationLayer
+                      documentId={documentId}
+                      pageIndex={pageIndex}
+                      scale={zoomLevel}
+                      rotation={rotationRaw as any}
+                    />
+                  </PagePointerProvider>
                 ) : (
                   <Rotate
                     documentId={documentId}
@@ -552,7 +918,20 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
                         height: Math.ceil(height),
                       }}
                     >
-                      <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                      <PagePointerProvider
+                        documentId={documentId}
+                        pageIndex={pageIndex}
+                        scale={zoomLevel}
+                        rotation={rotationRaw as any}
+                      >
+                        <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                        <AnnotationLayer
+                          documentId={documentId}
+                          pageIndex={pageIndex}
+                          scale={zoomLevel}
+                          rotation={rotationRaw as any}
+                        />
+                      </PagePointerProvider>
                     </div>
                   </Rotate>
                 )}
