@@ -6,4 +6,4 @@
 - Fecha ejecución: `2026-05-15`
 - Estado ticket: _pendiente (Jira)_
 - Branch relacionada: `feature/SCRUMCORE-210`
-- Commit relacionado: `228e018fbe63350f31137cbcab3dd78091734cc4`
+- Commit relacionado: `bfd7d0783a46b7db22c19d06f4a30f612eb6b3d0`
