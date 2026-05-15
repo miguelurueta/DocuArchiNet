@@ -1,8 +1,11 @@
 import { memo } from "react";
 import {
   DownloadOutlined,
+  DeleteOutlined,
   FileSyncOutlined,
   FormOutlined,
+  LockOutlined,
+  UnlockOutlined,
   MenuOutlined,
   PrinterOutlined,
   RotateLeftOutlined,
@@ -31,6 +34,14 @@ export interface AppPdfToolbarProps {
   onToggleSignatureModal(): void;
   isSignatureModalOpen: boolean;
 
+  onDeleteSelectedSignature(): void;
+  canDeleteSelectedSignature: boolean;
+
+  onSaveSignedPdf(): void;
+  isSignatureLocked: boolean;
+  isSaveSignedPdfDisabled?: boolean;
+  isSavingSignedPdf?: boolean;
+
   onPrint(): void;
   onExport(): void;
 }
@@ -52,6 +63,12 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
   onRotateRight,
   onToggleSignatureModal,
   isSignatureModalOpen,
+  onDeleteSelectedSignature,
+  canDeleteSelectedSignature,
+  onSaveSignedPdf,
+  isSignatureLocked,
+  isSaveSignedPdfDisabled = false,
+  isSavingSignedPdf = false,
   onPrint,
   onExport,
 }: AppPdfToolbarProps) {
@@ -152,6 +169,44 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         </span>
       </button>
 
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onSaveSignedPdf}
+        aria-label={isSignatureLocked ? "Desbloquear firma" : "Bloquear firma"}
+        title={
+          isSavingSignedPdf
+            ? "Validando\u2026"
+            : isSignatureLocked
+              ? "Seleccionar para desbloquear"
+              : isSaveSignedPdfDisabled
+                ? "Bloquear firma (requiere al menos 1 firma)"
+                : "Bloquear firma"
+        }
+        disabled={isSaveSignedPdfDisabled || isSavingSignedPdf}
+      >
+        <span className={styles.icon} aria-hidden="true">
+          {isSignatureLocked ? <LockOutlined /> : <UnlockOutlined />}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onDeleteSelectedSignature}
+        aria-label="Eliminar firma seleccionada"
+        title={
+          canDeleteSelectedSignature
+            ? "Eliminar firma seleccionada"
+            : "Selecciona una firma para eliminarla"
+        }
+        disabled={!canDeleteSelectedSignature}
+      >
+        <span className={styles.icon} aria-hidden="true">
+          <DeleteOutlined />
+        </span>
+      </button>
+
       <span className={styles.spacer} aria-hidden="true" />
 
       <button
@@ -179,4 +234,3 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
     </>
   );
 });
-

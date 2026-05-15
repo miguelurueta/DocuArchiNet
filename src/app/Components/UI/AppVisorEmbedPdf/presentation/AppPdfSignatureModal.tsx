@@ -1,8 +1,8 @@
 import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { CloseOutlined, UploadOutlined } from "@ant-design/icons";
 import {
   SignatureDrawPad,
-  SignatureTypePad,
   useSignatureUpload,
 } from "@embedpdf/plugin-signature/react";
 import type {
@@ -13,27 +13,37 @@ import type {
 
 import styles from "./AppPdfSignatureModal.module.css";
 
-type TabKey = "draw" | "type" | "upload";
+type TabKey = "draw" | "upload";
 
 export interface AppPdfSignatureModalProps {
   isOpen: boolean;
   onClose(): void;
   onStartPlacement(signature: SignatureFieldDefinition): void;
+  isPlacementReady?: boolean;
 }
 
 export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
   isOpen,
   onClose,
   onStartPlacement,
+  isPlacementReady = true,
 }: AppPdfSignatureModalProps) {
   const [tab, setTab] = useState<TabKey>("draw");
   const [current, setCurrent] = useState<SignatureFieldDefinition | null>(null);
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [drawResetKey, setDrawResetKey] = useState(0);
 
   const initialFocusRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
     initialFocusRef.current?.focus();
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    // Reset UI state on open so a previous filename doesn't leak across sessions.
+    setUploadedFileName(null);
   }, [isOpen]);
 
   useEffect(() => {
@@ -55,9 +65,21 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
 
   if (!isOpen) return null;
 
-  const canUse = Boolean(current);
+  const canUse = Boolean(current) && isPlacementReady;
+  const clearUploadedSignature = () => {
+    setCurrent(null);
+    setUploadedFileName(null);
+    if (upload.inputRef.current) upload.inputRef.current.value = "";
+  };
+  const resetModalStateAfterUse = () => {
+    setCurrent(null);
+    setUploadedFileName(null);
+    if (upload.inputRef.current) upload.inputRef.current.value = "";
+    // Si venimos de "Draw", forzar reset del canvas para no dejar el trazo anterior.
+    setDrawResetKey((v) => v + 1);
+  };
 
-  return (
+  const content = (
     <div
       className={styles.overlay}
       role="dialog"
@@ -86,6 +108,7 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
           <p className={styles.hint}>
             Selecciona una firma y luego haz click sobre el PDF para ubicarla
             (placement oficial EmbedPDF).
+            {!isPlacementReady ? " (Inicializando plugins\u2026)" : null}
           </p>
 
           <div className={styles.tabs} role="tablist" aria-label="Tipo de firma">
@@ -99,19 +122,7 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
               aria-label="Dibujar firma"
               aria-pressed={tab === "draw"}
             >
-              Draw
-            </button>
-            <button
-              type="button"
-              className={`${styles.tab} ${tab === "type" ? styles.tabActive : ""}`}
-              onClick={() => {
-                setTab("type");
-                setCurrent(null);
-              }}
-              aria-label="Firma tipeada"
-              aria-pressed={tab === "type"}
-            >
-              Type
+              Dibujar firma
             </button>
             <button
               type="button"
@@ -119,29 +130,22 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
               onClick={() => {
                 setTab("upload");
                 setCurrent(null);
+                setUploadedFileName(null);
               }}
               aria-label="Subir imagen"
               aria-pressed={tab === "upload"}
             >
-              Upload
+              Subir firma
             </button>
           </div>
 
           <div className={styles.padShell}>
             {tab === "draw" ? (
               <SignatureDrawPad
+                key={drawResetKey}
                 onResult={(result: SignatureInkFieldDefinition | null) =>
                   setCurrent(result)
                 }
-              />
-            ) : null}
-
-            {tab === "type" ? (
-              <SignatureTypePad
-                onResult={(result: SignatureStampFieldDefinition | null) =>
-                  setCurrent(result)
-                }
-                placeholder="Tu nombre"
               />
             ) : null}
 
@@ -152,28 +156,63 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
                   type="file"
                   accept={upload.accept}
                   style={{ display: "none" }}
-                  onChange={(e) => upload.handleFileInputChange(e.nativeEvent)}
+                  onChange={(e) => {
+                    const file = e.currentTarget.files?.[0] ?? null;
+                    setUploadedFileName(file?.name ?? null);
+                    upload.handleFileInputChange(e.nativeEvent);
+                  }}
                 />
                 <button
                   type="button"
                   className={styles.primary}
                   onClick={() => upload.openFilePicker()}
                   aria-label="Subir imagen de firma"
-                  title="Subir imagen"
+                  title={uploadedFileName ? "Reemplazar firma" : "Subir firma"}
                 >
-                  <UploadOutlined aria-hidden="true" /> Subir
+                  <UploadOutlined aria-hidden="true" /> {uploadedFileName ? "Reemplazar firma" : "Subir firma"}
                 </button>
+                {uploadedFileName ? (
+                  <div className={styles.uploadMeta} aria-label="Archivo adjunto">
+                    <span className={styles.uploadMetaName} title={uploadedFileName}>
+                      {uploadedFileName}
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.uploadMetaClear}
+                      onClick={clearUploadedSignature}
+                      aria-label="Quitar firma adjunta"
+                      title="Quitar firma adjunta"
+                    >
+                      <CloseOutlined aria-hidden="true" />
+                    </button>
+                  </div>
+                ) : null}
               </>
             ) : null}
           </div>
 
           <div className={styles.actions}>
+            {tab === "draw" && current ? (
+              <button
+                type="button"
+                className={styles.secondary}
+                onClick={() => {
+                  setCurrent(null);
+                  setDrawResetKey((v) => v + 1);
+                }}
+                aria-label="Limpiar firma"
+                title="Limpiar firma"
+              >
+                Limpiar
+              </button>
+            ) : null}
             <button
               type="button"
               className={styles.primary}
               onClick={() => {
                 if (!current) return;
                 onStartPlacement(current);
+                resetModalStateAfterUse();
               }}
               aria-label="Usar firma"
               title="Usar firma"
@@ -186,5 +225,8 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
       </div>
     </div>
   );
-});
 
+  // Portal a `document.body` para evitar stacking contexts del Workbench (overflow/transform),
+  // y garantizar que el modal cubra toda la UI (incluido Navbar sticky).
+  return typeof document !== "undefined" ? createPortal(content, document.body) : content;
+});

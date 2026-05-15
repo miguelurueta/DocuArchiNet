@@ -6,16 +6,16 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  z-index: 1000;
+  z-index: 2000;
 }
 
 .panel {
   width: min(720px, 100%);
-  background: var(--app-surface, #111418);
-  color: var(--app-text, #e7e7e7);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid rgba(17, 24, 39, 0.12);
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 12px 40px rgba(17, 24, 39, 0.18);
   overflow: hidden;
 }
 
@@ -24,7 +24,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
 }
 
 .title {
@@ -45,7 +45,7 @@
 }
 
 .close:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(17, 24, 39, 0.06);
 }
 
 .body {
@@ -61,8 +61,8 @@
 
 .tab {
   appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(17, 24, 39, 0.14);
+  background: #ffffff;
   color: inherit;
   padding: 8px 10px;
   border-radius: 10px;
@@ -71,14 +71,14 @@
 }
 
 .tabActive {
-  background: rgba(255, 255, 255, 0.10);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(59, 130, 246, 0.10);
+  border-color: rgba(59, 130, 246, 0.35);
 }
 
 .padShell {
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(17, 24, 39, 0.12);
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.20);
+  background: rgba(17, 24, 39, 0.02);
   padding: 10px;
 }
 
@@ -88,10 +88,46 @@
   gap: 10px;
 }
 
+.uploadMeta {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.03);
+  color: rgba(0, 0, 0, 0.72);
+  font-size: 12px;
+  line-height: 1.2;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.uploadMetaName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uploadMetaClear {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  line-height: 0;
+}
+
+.uploadMetaClear:hover {
+  color: rgba(0, 0, 0, 0.85);
+}
+
 .primary {
   appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(17, 24, 39, 0.14);
+  background: rgba(17, 24, 39, 0.04);
   color: inherit;
   padding: 8px 12px;
   border-radius: 10px;
@@ -104,9 +140,23 @@
   cursor: not-allowed;
 }
 
+.secondary {
+  appearance: none;
+  border: 1px solid rgba(17, 24, 39, 0.18);
+  background: transparent;
+  color: inherit;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.secondary:hover {
+  background: rgba(17, 24, 39, 0.03);
+}
+
 .hint {
   font-size: 12px;
   opacity: 0.85;
   margin: 0;
 }
-

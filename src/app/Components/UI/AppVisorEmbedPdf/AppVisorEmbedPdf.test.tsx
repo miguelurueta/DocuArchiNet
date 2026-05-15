@@ -144,6 +144,12 @@ vi.mock("@embedpdf/plugin-annotation/react", () => ({
   AnnotationLayer: ({ documentId, pageIndex }: { documentId: string; pageIndex: number }) => (
     <div data-testid="annotation-layer" data-document-id={documentId} data-page-index={pageIndex} />
   ),
+  useAnnotation: () => ({
+    state: { selectedUids: [] },
+    provides: {
+      deleteAnnotation: vi.fn(),
+    },
+  }),
 }));
 
 const signatureAddEntryMock = vi.fn(() => "sig-1");
@@ -162,8 +168,9 @@ let signatureProvides: {
 
 vi.mock("@embedpdf/plugin-signature/react", () => ({
   // hooks
-  useSignatureCapability: () => ({ provides: signatureProvides }),
+  useSignatureCapability: () => ({ provides: signatureProvides, ready: Promise.resolve() }),
   useSignatureEntries: () => ({ entries: signatureEntriesState, provides: signatureProvides }),
+  useActivePlacement: () => null,
   // helpers
   serializeEntries: (entries: unknown[]) => entries,
   deserializeEntries: (data: unknown[]) => data,

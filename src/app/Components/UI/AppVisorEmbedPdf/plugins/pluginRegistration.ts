@@ -10,9 +10,8 @@ import { PrintPluginPackage } from "@embedpdf/plugin-print/react";
 import { ExportPluginPackage } from "@embedpdf/plugin-export/react";
 import { InteractionManagerPluginPackage } from "@embedpdf/plugin-interaction-manager";
 import { SelectionPluginPackage } from "@embedpdf/plugin-selection";
-import { HistoryPluginPackage } from "@embedpdf/plugin-history";
 import { AnnotationPluginPackage } from "@embedpdf/plugin-annotation";
-import { SignaturePluginPackage } from "@embedpdf/plugin-signature";
+import { SignatureMode, SignaturePluginPackage } from "@embedpdf/plugin-signature";
 
 export function createBasicPluginRegistration() {
   return [
@@ -24,9 +23,30 @@ export function createBasicPluginRegistration() {
     // Importante: registrar como plugins oficiales (sin lógica custom).
     createPluginRegistration(InteractionManagerPluginPackage),
     createPluginRegistration(SelectionPluginPackage),
-    createPluginRegistration(HistoryPluginPackage),
-    createPluginRegistration(AnnotationPluginPackage),
-    createPluginRegistration(SignaturePluginPackage),
+    createPluginRegistration(AnnotationPluginPackage, {
+      // Enterprise: las firmas se deben poder eliminar, pero no mover/redimensionar.
+      // Evita que aparezcan handles de resize/drag (data-epdf-handle) alrededor de la firma.
+      tools: [
+        {
+          id: "signatureStamp",
+          interaction: {
+            isDraggable: false,
+            isResizable: false,
+          },
+        },
+        {
+          id: "signatureInk",
+          interaction: {
+            isDraggable: false,
+            isResizable: false,
+          },
+        },
+      ],
+    }),
+    createPluginRegistration(SignaturePluginPackage, {
+      // Enterprise default: solo firma (no iniciales) hasta que el producto requiera ambos.
+      mode: SignatureMode.SignatureOnly,
+    }),
     createPluginRegistration(ZoomPluginPackage, {
       // Guardrail enterprise: evita zooms extremos que pueden colgar el browser (memoria/tiempo).
       maxZoom: 4,
