@@ -1,10 +1,18 @@
 ﻿import type React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppVisorEmbedPdf } from "./AppVisorEmbedPdf";
 import { AppVisorEmbedPdf as AppVisorEmbedPdfFromIndex } from "./index";
+
+const clienteApiGetMock = vi.fn();
+vi.mock("../../../../../api/Clienteaxios", () => ({
+  default: {
+    defaults: { baseURL: "https://localhost:7101" },
+    get: (...args: unknown[]) => clienteApiGetMock(...args),
+  },
+}));
 
 const engineStateLoading = { status: "loading" as const };
 const engineStateError = { status: "error" as const, error: new Error("boom") };
@@ -479,6 +487,7 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
     signatureAddEntryMock.mockClear();
     activateSignaturePlacementMock.mockClear();
+    clienteApiGetMock.mockReset();
 
     render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
 
@@ -493,6 +502,140 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
 
     expect(signatureAddEntryMock).toHaveBeenCalledTimes(1);
     expect(activateSignaturePlacementMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("[SPEC:SCRUMCORE-211] pestaña Firma personal renderiza y permite usar firma descargada", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    signatureAddEntryMock.mockClear();
+    activateSignaturePlacementMock.mockClear();
+    clienteApiGetMock.mockReset();
+
+    const createObjectUrlSpy = vi
+      .spyOn(URL, "createObjectURL")
+      .mockImplementation(() => "blob:personal-sig");
+    const revokeObjectUrlSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+
+    clienteApiGetMock.mockImplementation((url: string) => {
+      if (url === "/api/workflow/usuarios/firma-temporal") {
+        return Promise.resolve({
+          data: {
+            success: true,
+            message: "YES",
+            data: {
+              IdUsuarioWorkflow: 141,
+              FileName: "firma.png",
+              ContentType: "image/png",
+              RelativePath: "signatures/firma.png",
+              UrlTemporal: "/api/workflow/usuarios/firma-temporal/download/tok-1",
+              ExpiresAt: "2026-05-15T00:00:00Z",
+            },
+            errors: [],
+          },
+        });
+      }
+
+      if (String(url).includes("/api/workflow/usuarios/firma-temporal/download/")) {
+        return Promise.resolve({
+          data: new Blob(["png"], { type: "image/png" }),
+        });
+      }
+
+      throw new Error(`Unexpected GET: ${url}`);
+    });
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /signature/i }));
+
+    expect(screen.getByRole("dialog", { name: /firmas/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /firma personal/i }));
+
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /usar firma personal/i })).toBeInTheDocument()
+    );
+
+    await user.click(screen.getByRole("button", { name: /usar firma personal/i }));
+    await user.click(screen.getByRole("button", { name: /usar firma/i }));
+
+    expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
+    expect(signatureAddEntryMock).toHaveBeenCalledTimes(1);
+    expect(activateSignaturePlacementMock).toHaveBeenCalledTimes(1);
+
+    // Cleanup al usar y resetear modal (revoca objectURL y limpia estado)
+    expect(revokeObjectUrlSpy).toHaveBeenCalled();
+
+    createObjectUrlSpy.mockRestore();
+    revokeObjectUrlSpy.mockRestore();
+  });
+
+  it("[SPEC:SCRUMCORE-211] download 404 reintenta metadata y descarga una vez", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    clienteApiGetMock.mockReset();
+
+    const createObjectUrlSpy = vi
+      .spyOn(URL, "createObjectURL")
+      .mockImplementation(() => "blob:personal-sig");
+    const revokeObjectUrlSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+
+    let metaCall = 0;
+    let downloadCall = 0;
+
+    clienteApiGetMock.mockImplementation((url: string) => {
+      if (url === "/api/workflow/usuarios/firma-temporal") {
+        metaCall += 1;
+        const tok = metaCall === 1 ? "tok-1" : "tok-2";
+        return Promise.resolve({
+          data: {
+            success: true,
+            message: "YES",
+            data: {
+              IdUsuarioWorkflow: 141,
+              FileName: `firma-${tok}.png`,
+              ContentType: "image/png",
+              RelativePath: `signatures/firma-${tok}.png`,
+              UrlTemporal: `/api/workflow/usuarios/firma-temporal/download/${tok}`,
+              ExpiresAt: "2026-05-15T00:00:00Z",
+            },
+            errors: [],
+          },
+        });
+      }
+
+      if (String(url).includes("/api/workflow/usuarios/firma-temporal/download/")) {
+        downloadCall += 1;
+        if (downloadCall === 1) {
+          return Promise.reject({ response: { status: 404 } });
+        }
+        return Promise.resolve({
+          data: new Blob(["png"], { type: "image/png" }),
+        });
+      }
+
+      throw new Error(`Unexpected GET: ${url}`);
+    });
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /signature/i }));
+    await user.click(screen.getByRole("button", { name: /firma personal/i }));
+
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /usar firma personal/i })).toBeInTheDocument()
+    );
+
+    expect(metaCall).toBe(2);
+    expect(downloadCall).toBe(2);
+    expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
+
+    // Cleanup en cierre del modal
+    await user.click(screen.getByRole("button", { name: /cerrar modal de firmas/i }));
+    expect(revokeObjectUrlSpy).toHaveBeenCalled();
+
+    createObjectUrlSpy.mockRestore();
+    revokeObjectUrlSpy.mockRestore();
   });
 
   it("permite consumo desde index sin exponer detalles del engine", () => {

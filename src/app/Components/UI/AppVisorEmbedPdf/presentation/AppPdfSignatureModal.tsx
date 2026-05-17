@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { CloseOutlined, UploadOutlined } from "@ant-design/icons";
+import { CloseOutlined, ReloadOutlined, UploadOutlined } from "@ant-design/icons";
 import {
   SignatureDrawPad,
   useSignatureUpload,
@@ -12,8 +12,9 @@ import type {
 } from "@embedpdf/plugin-signature";
 
 import styles from "./AppPdfSignatureModal.module.css";
+import { useWorkflowPersonalSignature } from "../hooks/useWorkflowPersonalSignature";
 
-type TabKey = "draw" | "upload";
+type TabKey = "draw" | "upload" | "personal";
 
 export interface AppPdfSignatureModalProps {
   isOpen: boolean;
@@ -33,6 +34,8 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [drawResetKey, setDrawResetKey] = useState(0);
 
+  const personal = useWorkflowPersonalSignature();
+
   const initialFocusRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
@@ -45,6 +48,12 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
     // Reset UI state on open so a previous filename doesn't leak across sessions.
     setUploadedFileName(null);
   }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) return;
+    // Garantiza cleanup (ObjectURL) y no persistir firma temporal fuera del modal.
+    personal.clear();
+  }, [isOpen, personal]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -74,6 +83,7 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
   const resetModalStateAfterUse = () => {
     setCurrent(null);
     setUploadedFileName(null);
+    personal.clear();
     if (upload.inputRef.current) upload.inputRef.current.value = "";
     // Si venimos de "Draw", forzar reset del canvas para no dejar el trazo anterior.
     setDrawResetKey((v) => v + 1);
@@ -118,6 +128,7 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
               onClick={() => {
                 setTab("draw");
                 setCurrent(null);
+                personal.clear();
               }}
               aria-label="Dibujar firma"
               aria-pressed={tab === "draw"}
@@ -131,11 +142,27 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
                 setTab("upload");
                 setCurrent(null);
                 setUploadedFileName(null);
+                personal.clear();
               }}
               aria-label="Subir imagen"
               aria-pressed={tab === "upload"}
             >
               Subir firma
+            </button>
+            <button
+              type="button"
+              className={`${styles.tab} ${tab === "personal" ? styles.tabActive : ""}`}
+              onClick={() => {
+                setTab("personal");
+                setCurrent(null);
+                setUploadedFileName(null);
+                // Carga just-in-time: al entrar a la pestaña.
+                void personal.load();
+              }}
+              aria-label="Firma personal"
+              aria-pressed={tab === "personal"}
+            >
+              Firma personal
             </button>
           </div>
 
@@ -188,6 +215,75 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
                   </div>
                 ) : null}
               </>
+            ) : null}
+
+            {tab === "personal" ? (
+              <div aria-label="Firma personal">
+                {personal.status === "loading" ? (
+                  <div className={styles.hint} aria-label="Cargando firma personal">
+                    Cargando firma personal\u2026
+                  </div>
+                ) : null}
+
+                {personal.status === "empty" ? (
+                  <div className={styles.hint} aria-label="Sin firma personal configurada">
+                    No hay firma personal configurada para este usuario.
+                  </div>
+                ) : null}
+
+                {personal.status === "error" ? (
+                  <div className={styles.hint} aria-label="Error cargando firma personal">
+                    {personal.errorMessage ?? "No fue posible cargar la firma personal."}
+                    <div className={styles.actions}>
+                      <button
+                        type="button"
+                        className={styles.secondary}
+                        onClick={() => {
+                          personal.clear();
+                          void personal.load();
+                        }}
+                        aria-label="Reintentar carga de firma personal"
+                        title="Reintentar"
+                      >
+                        <ReloadOutlined aria-hidden="true" /> Reintentar
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+
+                {personal.status === "ready" && personal.blobUrl && personal.imageData ? (
+                  <>
+                    <div className={styles.hint} aria-label="Firma personal lista">
+                      {personal.meta?.fileName ? (
+                        <span title={personal.meta.fileName}>
+                          {personal.meta.fileName}
+                        </span>
+                      ) : (
+                        "Firma personal lista"
+                      )}
+                    </div>
+                    <div className={styles.actions}>
+                      <button
+                        type="button"
+                        className={styles.primary}
+                        onClick={() => {
+                          const stamp: SignatureStampFieldDefinition = {
+                            creationType: "upload",
+                            previewDataUrl: personal.blobUrl,
+                            imageMimeType: personal.meta?.contentType,
+                            imageData: personal.imageData,
+                          };
+                          setCurrent(stamp);
+                        }}
+                        aria-label="Usar firma personal"
+                        title="Usar firma personal"
+                      >
+                        Usar firma personal
+                      </button>
+                    </div>
+                  </>
+                ) : null}
+              </div>
             ) : null}
           </div>
 
