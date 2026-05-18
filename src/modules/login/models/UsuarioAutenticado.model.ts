@@ -7,6 +7,6 @@ export default interface UsuarioAutenticado {
   nombre: string;
   activo: boolean;
   fechaLimiteAcceso?: Date;
-  permisos: string[];
-  claims:Claim[];
+  permisos?: string[];
+  claims?: Claim[];
 }
