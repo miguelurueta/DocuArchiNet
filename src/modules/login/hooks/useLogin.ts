@@ -46,8 +46,9 @@ export default function useLogin() {
               ? new Date(dataResp.usuario.fechaLimiteAcceso)
               : undefined,
             permisos: dataResp.usuario.permisos ?? [],
+            claims: dataResp.usuario.claims ?? dataResp.claims ?? [],
           }
-        }
+        },
       };
     },
     onSuccess: (result) => {

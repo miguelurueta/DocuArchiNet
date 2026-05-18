@@ -36,7 +36,8 @@
 import type React from "react";
 import { useContext, useMemo } from "react";
 import AutenticacionContext from "../Estado/AutenticacionContext";
-import type Claim from "../Dto/Claim";
+import { hasPermissionClaim } from "../Infraestructura/authClaimsAdapter";
+import { sesionValida } from "../Infraestructura/ManejadorJWT";
 
 interface AutorizadoProps {
   autorizado: React.ReactNode;
@@ -52,8 +53,8 @@ export default function Autorizado({
   const { claims: userClaims } = useContext(AutenticacionContext);
 
   const tieneAcceso = useMemo(() => {
-    // 1️⃣ No hay sesión
-    if (!userClaims || userClaims.length === 0) {
+    // 1️⃣ No hay sesión válida
+    if (!sesionValida()) {
       return false;
     }
 
@@ -63,11 +64,7 @@ export default function Autorizado({
     }
 
     // 3️⃣ Validación de permisos
-    return requeridos.some(req =>
-      userClaims.some(
-        (c: Claim) => c.nombre === "perm" && c.valor === req
-      )
-    );
+    return requeridos.some((req) => hasPermissionClaim(userClaims, req));
   }, [userClaims, requeridos]);
 
   return <>{tieneAcceso ? autorizado : noAutorizado}</>;
