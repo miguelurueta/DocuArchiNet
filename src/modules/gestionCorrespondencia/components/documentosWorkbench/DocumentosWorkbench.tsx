@@ -119,7 +119,9 @@ export function DocumentosWorkbench() {
                 <span className={styles.previewMeta}>Vacío</span>
               </div>
               <div className={styles.previewSurface}>
-                <AppTreeTable rows={[]} emptyMessage="Sin documentos adjuntos." />
+                <div className={styles.listSurface}>
+                  <AppTreeTable rows={[]} emptyMessage="Sin documentos adjuntos." />
+                </div>
               </div>
             </section>
           </div>
