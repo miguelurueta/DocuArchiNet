@@ -553,10 +553,12 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     await user.click(screen.getByRole("button", { name: /firma personal/i }));
 
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: /usar firma personal/i })).toBeInTheDocument()
+      expect(screen.getByRole("img", { name: /firma personal/i })).toBeInTheDocument()
     );
 
-    await user.click(screen.getByRole("button", { name: /usar firma personal/i }));
+    expect(screen.queryByRole("button", { name: /usar firma personal/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/blob:/i)).not.toBeInTheDocument();
+
     await user.click(screen.getByRole("button", { name: /usar firma/i }));
 
     expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
@@ -623,7 +625,7 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     await user.click(screen.getByRole("button", { name: /firma personal/i }));
 
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: /usar firma personal/i })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /usar firma/i })).toBeInTheDocument()
     );
 
     expect(metaCall).toBe(2);
@@ -636,6 +638,28 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
 
     createObjectUrlSpy.mockRestore();
     revokeObjectUrlSpy.mockRestore();
+  });
+
+  it("[SPEC:SCRUMCORE-213] paginaci\u00f3n permite escribir n\u00famero y navega con scrollToPage", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    scrollToPageMock.mockClear();
+    scrollProvides = {
+      scrollToPage: scrollToPageMock,
+      scrollToNextPage: scrollToNextPageMock,
+      scrollToPreviousPage: scrollToPreviousPageMock,
+    };
+    scrollState = { currentPage: 4, totalPages: 20 };
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    const user = userEvent.setup();
+    await user.click(screen.getByText("4/20"));
+
+    const input = screen.getByRole("textbox");
+    await user.clear(input);
+    await user.type(input, "10{enter}");
+
+    expect(scrollToPageMock).toHaveBeenCalledWith({ pageNumber: 10, behavior: "smooth", alignY: 0 });
   });
 
   it("permite consumo desde index sin exponer detalles del engine", () => {

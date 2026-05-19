@@ -47,6 +47,11 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
     if (!isOpen) return;
     // Reset UI state on open so a previous filename doesn't leak across sessions.
     setUploadedFileName(null);
+    // UX enterprise: abrir siempre en un estado consistente (evita quedar "pegado" en Firma personal
+    // con ObjectURL revocado o estado idle).
+    setTab("draw");
+    setCurrent(null);
+    personal.clear();
   }, [isOpen]);
 
   useEffect(() => {
@@ -253,33 +258,29 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
 
                 {personal.status === "ready" && personal.blobUrl && personal.imageData ? (
                   <>
-                    <div className={styles.hint} aria-label="Firma personal lista">
-                      {personal.meta?.fileName ? (
-                        <span title={personal.meta.fileName}>
-                          {personal.meta.fileName}
-                        </span>
-                      ) : (
-                        "Firma personal lista"
-                      )}
-                    </div>
-                    <div className={styles.actions}>
-                      <button
-                        type="button"
-                        className={styles.primary}
-                        onClick={() => {
-                          const stamp: SignatureStampFieldDefinition = {
-                            creationType: "upload",
-                            previewDataUrl: personal.blobUrl,
-                            imageMimeType: personal.meta?.contentType,
-                            imageData: personal.imageData,
-                          };
-                          setCurrent(stamp);
+                    <div className={styles.previewCard} aria-label="Vista previa firma personal">
+                      <img
+                        className={styles.previewImg}
+                        src={personal.blobUrl}
+                        alt="Firma personal"
+                        draggable={false}
+                        onError={() => {
+                          // Fallback simple: si falla el preview, mantenemos el CTA habilitado,
+                          // pero mostramos un mensaje de negocio (sin exponer URLs).
+                          // No cambiamos estado del hook para evitar loops.
+                          // eslint-disable-next-line no-console
+                          console.warn("[Firma personal] No fue posible previsualizar la imagen.");
                         }}
-                        aria-label="Usar firma personal"
-                        title="Usar firma personal"
-                      >
-                        Usar firma personal
-                      </button>
+                      />
+                      <div className={styles.previewMeta} aria-label="Metadata firma personal">
+                        {personal.meta?.fileName ? (
+                          <div className={styles.previewFileName} title={personal.meta.fileName}>
+                            {personal.meta.fileName}
+                          </div>
+                        ) : (
+                          <div className={styles.previewFileName}>Firma personal</div>
+                        )}
+                      </div>
                     </div>
                   </>
                 ) : null}
@@ -302,17 +303,35 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
                 Limpiar
               </button>
             ) : null}
+
             <button
               type="button"
               className={styles.primary}
               onClick={() => {
+                if (tab === "personal") {
+                  if (!personal.blobUrl || !personal.imageData) return;
+                  const stamp: SignatureStampFieldDefinition = {
+                    creationType: "upload",
+                    previewDataUrl: personal.blobUrl,
+                    imageMimeType: personal.meta?.contentType,
+                    imageData: personal.imageData,
+                  };
+                  onStartPlacement(stamp);
+                  resetModalStateAfterUse();
+                  return;
+                }
+
                 if (!current) return;
                 onStartPlacement(current);
                 resetModalStateAfterUse();
               }}
               aria-label="Usar firma"
               title="Usar firma"
-              disabled={!canUse}
+              disabled={
+                tab === "personal"
+                  ? !isPlacementReady || !personal.blobUrl || !personal.imageData
+                  : !canUse
+              }
             >
               Usar firma
             </button>

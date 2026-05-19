@@ -82,6 +82,25 @@
   white-space: nowrap;
 }
 
+.paginationInput {
+  width: 56px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(100, 116, 139, 0.35);
+  background: rgba(248, 250, 252, 0.9);
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+}
+
+.paginationInput:focus {
+  border-color: rgba(37, 99, 235, 0.65);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+}
+
 .thumbnails {
   width: 220px;
   border-right: 1px solid rgba(148, 163, 184, 0.55);

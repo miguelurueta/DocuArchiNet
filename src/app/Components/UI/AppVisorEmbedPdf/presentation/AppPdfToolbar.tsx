@@ -185,7 +185,10 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         }
         disabled={isSaveSignedPdfDisabled || isSavingSignedPdf}
       >
-        <span className={styles.icon} aria-hidden="true">
+        <span
+          className={`${styles.icon} ${isSignatureLocked ? styles.lockLocked : styles.lockUnlocked}`}
+          aria-hidden="true"
+        >
           {isSignatureLocked ? <LockOutlined /> : <UnlockOutlined />}
         </span>
       </button>
