@@ -8,6 +8,10 @@ vi.mock("../../../app/Components/UI/AppVisorEmbedPdf", () => ({
   ),
 }));
 
+vi.mock("../../../app/Components/UI/AppTreeTable", () => ({
+  AppTreeTable: () => <div data-testid="app-tree-table-mock" />,
+}));
+
 const TABLET_QUERY = "(max-width: 1024px)";
 const MOBILE_QUERY = "(max-width: 768px)";
 
@@ -44,6 +48,7 @@ describe(
     expect(
       screen.getByRole("button", { name: /Ocultar Visualizar documentos/i }),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("app-tree-table-mock")).toBeInTheDocument();
   });
 
   it("permite colapsar el rail", () => {

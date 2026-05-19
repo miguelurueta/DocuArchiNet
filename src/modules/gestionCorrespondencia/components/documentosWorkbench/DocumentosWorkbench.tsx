@@ -1,6 +1,7 @@
 import { BookOutlined } from "@ant-design/icons";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
+import { AppTreeTable } from "../../../../app/Components/UI/AppTreeTable";
 import { AppVisorEmbedPdf } from "../../../../app/Components/UI/AppVisorEmbedPdf";
 import styles from "./DocumentosWorkbench.module.css";
 
@@ -118,8 +119,8 @@ export function DocumentosWorkbench() {
                 <span className={styles.previewMeta}>Vacío</span>
               </div>
               <div className={styles.previewSurface}>
-                <div className={styles.previewPlaceholder}>
-                  <p className={styles.previewHint}>Sin documentos adjuntos.</p>
+                <div className={styles.listSurface}>
+                  <AppTreeTable rows={[]} emptyMessage="Sin documentos adjuntos." />
                 </div>
               </div>
             </section>
