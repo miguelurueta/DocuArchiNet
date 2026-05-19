@@ -680,6 +680,34 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
   const onNextPage = useCallback(() => {
     scroll.provides?.scrollToNextPage?.();
   }, [scroll.provides]);
+
+  const [isPaginationEditing, setIsPaginationEditing] = useState(false);
+  const [paginationDraft, setPaginationDraft] = useState("");
+  const paginationInputRef = useRef<HTMLInputElement | null>(null);
+
+  const commitPaginationDraft = useCallback(() => {
+    const raw = paginationDraft.trim();
+    setIsPaginationEditing(false);
+    setPaginationDraft("");
+
+    if (!raw) return;
+    const pageNumber = Number.parseInt(raw, 10);
+    if (!Number.isFinite(pageNumber)) return;
+
+    const clampedPage = Math.min(Math.max(pageNumber, 1), totalPages || 1);
+    scroll.provides?.scrollToPage({ pageNumber: clampedPage, behavior: "smooth", alignY: 0 });
+  }, [paginationDraft, scroll.provides, totalPages]);
+
+  useEffect(() => {
+    if (!isPaginationEditing) return;
+    paginationInputRef.current?.focus();
+    paginationInputRef.current?.select();
+  }, [isPaginationEditing]);
+
+  const onStartPaginationEdit = useCallback(() => {
+    setPaginationDraft(String(currentPage));
+    setIsPaginationEditing(true);
+  }, [currentPage]);
   const onSelectThumbnail = useCallback(
     (pageIndex: number) => {
       scroll.provides?.scrollToPage({ pageNumber: pageIndex + 1, behavior: "smooth", alignY: 0 });
@@ -808,13 +836,38 @@ function EmbedPdfLoadedDocumentView({ documentId }: { documentId: string }) {
           >
             <LeftOutlined aria-hidden="true" />
           </button>
-          <div
+          {isPaginationEditing ? (
+            <input
+              ref={paginationInputRef}
+              className={styles.paginationInput}
+              aria-label={`Ir a pÃƒÂ¡gina (1-${totalPages || 1})`}
+              inputMode="numeric"
+              value={paginationDraft}
+              onChange={(event) => setPaginationDraft(event.target.value)}
+              onBlur={commitPaginationDraft}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") commitPaginationDraft();
+                if (event.key === "Escape") {
+                  setIsPaginationEditing(false);
+                  setPaginationDraft("");
+                }
+              }}
+            />
+          ) : (
+            <div
             className={styles.paginationIndicator}
+            role="button"
+            tabIndex={0}
+            onClick={onStartPaginationEdit}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") onStartPaginationEdit();
+            }}
             aria-label={`PÃ¡gina ${currentPage} de ${totalPages}`}
             title={`PÃ¡gina ${currentPage} de ${totalPages}`}
           >
             {currentPage}/{totalPages}
           </div>
+          )}
           <button
             type="button"
             className={styles.paginationButton}

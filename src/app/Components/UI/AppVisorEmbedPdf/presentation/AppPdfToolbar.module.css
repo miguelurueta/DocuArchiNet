@@ -40,6 +40,14 @@
   opacity: 0.9;
 }
 
+.lockUnlocked {
+  color: #2563eb;
+}
+
+.lockLocked {
+  color: #dc2626;
+}
+
 .spacer {
   flex: 1 1 auto;
   min-width: 8px;
