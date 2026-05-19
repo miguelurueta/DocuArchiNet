@@ -53,13 +53,39 @@ function getBaseUrl(): string {
   return fromEnv.replace(/\/+$/, "");
 }
 
+function computeBasePathname(base: string): string {
+  const trimmed = base.trim();
+  try {
+    if (/^https?:\/\//i.test(trimmed)) {
+      return new URL(trimmed).pathname.replace(/\/+$/, "") || "/";
+    }
+  } catch {
+    // ignore
+  }
+  return trimmed.startsWith("/") ? trimmed.replace(/\/+$/, "") : "";
+}
+
 function buildDownloadUrl(baseUrl: string, urlTemporal: string): string {
   const trimmed = urlTemporal.trim();
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
   // UrlTemporal contractual: normalmente inicia con "/api/..."
   if (!baseUrl) return trimmed;
-  if (!trimmed.startsWith("/")) return `${baseUrl}/${trimmed}`;
-  return `${baseUrl}${trimmed}`;
+  const base = baseUrl.replace(/\/+$/, "");
+  const path = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+
+  // Normalización defensiva (sin tocar token):
+  // Si baseUrl ya incluye un prefijo (ej. "/DocuArchiApi") y UrlTemporal también lo trae,
+  // evitamos duplicar: "/DocuArchiApi" + "/DocuArchiApi/api/..." => "/DocuArchiApi/api/..."
+  //
+  // Esto NO parsea ni modifica el token; solo normaliza el prefijo de ruta.
+  const basePathname = computeBasePathname(base);
+
+  if (basePathname && path.startsWith(`${basePathname}/`)) {
+    const normalized = path.slice(basePathname.length) || "/";
+    return `${base}${normalized}`;
+  }
+
+  return `${base}${path}`;
 }
 
 function toMeta(dto: FirmaTemporalUsuarioWorkflowDto): WorkflowPersonalSignatureMeta {
@@ -125,7 +151,16 @@ export function useWorkflowPersonalSignature(): WorkflowPersonalSignatureState {
     async (downloadUrl: string): Promise<Blob> => {
       // Importante: mantener Authorization Bearer (interceptor axios) y no manipular token.
       // Para UrlTemporal absoluta necesitamos salirnos de baseURL; axios permite URL absoluta.
-      const res = await clienteApi.get(downloadUrl, { responseType: "blob" });
+      const basePathname = computeBasePathname(String(clienteApi.defaults.baseURL ?? ""));
+      // Si el baseURL del axios es relativo (ej. "/DocuArchiApi") y downloadUrl ya lo incluye,
+      // axios volverá a anteponer el baseURL y duplicará el prefijo.
+      // En ese caso, pasamos solo la parte relativa al baseURL: "/api/..."
+      const urlForAxios =
+        basePathname && !/^https?:\/\//i.test(downloadUrl) && downloadUrl.startsWith(`${basePathname}/`)
+          ? downloadUrl.slice(basePathname.length) || "/"
+          : downloadUrl;
+
+      const res = await clienteApi.get(urlForAxios, { responseType: "blob" });
       return res.data as Blob;
     },
     []
