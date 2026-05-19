@@ -31,6 +31,20 @@ describe("AppTreeTable", () => {
     expect(await screen.findByText(/error: falló/i)).toBeInTheDocument();
   });
 
+  it("[SPEC:APP-APPTREETABLE-004] permite reintentar cuando load falla", async () => {
+    const load = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: false, message: "Falló" })
+      .mockResolvedValueOnce({ ok: true, rows: [] });
+
+    render(<AppTreeTable load={load} />);
+    expect(await screen.findByText(/error: falló/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /reintentar/i }));
+    expect(await screen.findByText(/sin registros/i)).toBeInTheDocument();
+    expect(load).toHaveBeenCalledTimes(2);
+  });
+
   it("[SPEC:APP-APPTREETABLE-003] expand/collapse muestra/oculta hijos correctamente", () => {
     const rows: AppTreeTableRow[] = [
       { id: "a", label: "A", children: [{ id: "a-1", label: "A1" }] },

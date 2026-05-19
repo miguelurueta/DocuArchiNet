@@ -30,6 +30,7 @@ export function AppTreeTable({
   load,
   onSelectRow,
   emptyMessage = "Sin registros.",
+  isRetryEnabled = true,
   className,
 }: AppTreeTableProps) {
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
@@ -79,7 +80,26 @@ export function AppTreeTable({
   if (state.status === "error") {
     return (
       <div className={rootClassName}>
-        <div className={styles.state}>Error: {state.message}</div>
+        <div className={styles.state}>
+          <div>Error: {state.message}</div>
+          {load && isRetryEnabled ? (
+            <button
+              type="button"
+              className={styles.retry}
+              onClick={() => {
+                setState({ status: "loading" });
+                load()
+                  .then((result: AppTreeTableLoadResult) => {
+                    if (result.ok) setState({ status: "ready", rows: result.rows });
+                    else setState({ status: "error", message: result.message });
+                  })
+                  .catch(() => setState({ status: "error", message: "No fue posible cargar el listado." }));
+              }}
+            >
+              Reintentar
+            </button>
+          ) : null}
+        </div>
       </div>
     );
   }
@@ -137,4 +157,3 @@ export function AppTreeTable({
     </div>
   );
 }
-

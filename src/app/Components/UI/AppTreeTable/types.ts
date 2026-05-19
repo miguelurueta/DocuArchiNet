@@ -15,6 +15,6 @@ export type AppTreeTableProps = {
   load?: () => Promise<AppTreeTableLoadResult>;
   onSelectRow?: (rowId: AppTreeTableRowId) => void;
   emptyMessage?: string;
+  isRetryEnabled?: boolean;
   className?: string;
 };
-

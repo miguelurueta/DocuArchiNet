@@ -12,6 +12,24 @@
   background: rgba(248, 250, 252, 0.9);
   color: rgba(15, 23, 42, 0.85);
   font-size: 13px;
+  display: grid;
+  gap: 8px;
+}
+
+.retry {
+  justify-self: start;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(100, 116, 139, 0.35);
+  background: rgba(255, 255, 255, 0.92);
+  color: #0f172a;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.retry:hover {
+  background: rgba(226, 232, 240, 0.92);
 }
 
 .row {
@@ -60,4 +78,3 @@
   width: 18px;
   height: 18px;
 }
-
