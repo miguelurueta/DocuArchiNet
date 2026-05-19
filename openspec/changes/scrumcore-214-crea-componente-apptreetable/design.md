@@ -22,7 +22,7 @@ Este cambio crea una base técnica y de contrato para un nuevo componente UI, si
 **Non-Goals:**
 
 - No implementar un árbol/tabla “hardcoded” por un módulo específico.
-- No acoplar el componente a un endpoint único: el componente debe recibir `dataSource`/`loader` o `props` (según spec).
+- No acoplar el componente a un endpoint único: el componente debe recibir `load()`/`dataSource` o `props` (según spec).
 - No introducir nuevas dependencias grandes si no son estrictamente necesarias.
 
 ## Decisions
@@ -86,7 +86,7 @@ Este cambio crea una base técnica y de contrato para un nuevo componente UI, si
 
 - **[Riesgo] Contrato SCRUM-205 no está explícito en este change** → Mitigación: capturar requisitos mínimos en la spec y dejar “Open Questions” para validar con el ticket SCRUM-205.
 - **[Riesgo] Backend-driven requiere metadata compleja (columnas/acciones/permisos)** → Mitigación: diseñar un DTO extensible y mapear a ViewModel.
-- **[Trade-off] Soportar 2 modos (props vs loader) aumenta superficie** → Mitigación: definir prioridades claras en spec (ej. loader tiene precedencia).
+- **[Trade-off] Soportar 2 modos (props vs loader) aumenta superficie** → Mitigación: definir prioridades claras en spec (por ejemplo: si existe `load()`, tiene precedencia sobre `rows`).
 
 ## Migration Plan
 
