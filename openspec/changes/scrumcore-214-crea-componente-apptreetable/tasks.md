@@ -10,12 +10,14 @@
 - [ ] 2.3 Implementar modo backend-driven con `load()` (loading/empty/error)
 - [ ] 2.4 Implementar callbacks tipados (selección, expand/collapse) según spec
 - [ ] 2.5 Asegurar aislamiento: no efectos globales (no navegación, no side effects fuera del componente)
+- [ ] 2.6 Integrar `AppTreeTable` en `src/modules/gestionCorrespondencia/components/documentosWorkbench/DocumentosWorkbench.tsx` dentro del “Listado” en `AppCollapseRail` sin afectar AppVisor ni otras regiones
 
 ## 3. Tests (Vitest + RTL)
 
 - [ ] 3.1 Test `[SPEC:APP-APPTREETABLE-001]` renderiza filas jerárquicas desde `rows`
 - [ ] 3.2 Test `[SPEC:APP-APPTREETABLE-002]` renderiza loading/empty/error con `load()` mock
 - [ ] 3.3 Test `[SPEC:APP-APPTREETABLE-003]` expand/collapse muestra/oculta hijos correctamente
+- [ ] 3.4 Test `[SPEC:APP-APPTREETABLE-006]` DocumentosWorkbench renderiza AppTreeTable en Listado/AppCollapseRail sin afectar el contenedor del AppVisor (smoke test)
 
 ## 4. Documentación enterprise (SCRUMCORE-214)
 

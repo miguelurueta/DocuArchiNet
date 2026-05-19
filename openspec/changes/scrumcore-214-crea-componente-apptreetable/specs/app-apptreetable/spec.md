@@ -25,6 +25,22 @@ The component MUST be self-contained and MUST NOT change global state, routes, o
 - **WHEN** the component is mounted and interacted with
 - **THEN** no navigation is triggered and no external layout elements are affected
 
+#### Scenario: Integration in DocumentosWorkbench does not affect AppVisor
+- **WHEN** `AppTreeTable` is rendered inside `DocumentosWorkbench` in the “Listado” section (within `AppCollapseRail`)
+- **THEN** the AppVisor (PDF viewer) behavior and layout remain unchanged (no side effects, no event leakage, no layout shifts outside the rail)
+
+### Requirement: APP-APPTREETABLE-006 Integrate AppTreeTable in DocumentosWorkbench Listado (AppCollapseRail)
+The system SHALL integrate the `AppTreeTable` component in:
+
+- `src/modules/gestionCorrespondencia/components/documentosWorkbench/DocumentosWorkbench.tsx`
+- Specifically in the “Listado” area inside `AppCollapseRail`
+
+This integration MUST be clean and MUST NOT affect other modules or components.
+
+#### Scenario: Listado renders AppTreeTable in AppCollapseRail
+- **WHEN** the user opens `DocumentosWorkbench`
+- **THEN** the “Listado” section renders `AppTreeTable` inside `AppCollapseRail` without changing other UI regions
+
 ### Requirement: APP-APPTREETABLE-004 AppTreeTable provides loading, empty, and error states
 The component SHALL provide UI states for loading, empty results, and error conditions when using the backend-driven mode.
 

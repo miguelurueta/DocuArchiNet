@@ -91,7 +91,7 @@ Este cambio crea una base técnica y de contrato para un nuevo componente UI, si
 ## Migration Plan
 
 - Crear componente `AppTreeTable` sin consumidores.
-- Agregar un consumidor mínimo (si el ticket lo exige) en un módulo real, detrás de una integración no invasiva.
+- Agregar integración mínima en `src/modules/gestionCorrespondencia/components/documentosWorkbench/DocumentosWorkbench.tsx` (Listado dentro de `AppCollapseRail`), manteniendo aislamiento y sin afectar AppVisor ni otras regiones.
 - Agregar tests unitarios (Vitest + RTL) para el contrato base.
 - Rollback: revertir carpeta del componente y su export (sin tocar módulos existentes).
 
