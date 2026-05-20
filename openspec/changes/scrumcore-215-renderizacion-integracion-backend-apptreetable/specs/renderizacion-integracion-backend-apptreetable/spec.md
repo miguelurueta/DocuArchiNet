@@ -7,7 +7,15 @@ El sistema SHALL permitir que el consumidor de `AppTreeTable` cargue filas desde
 - **WHEN** el consumidor invoca `load()` y el backend responde HTTP 200 con `success=true` y `data.Rows[]`
 - **THEN** el sistema renderiza una fila por cada elemento en `Rows[]`
 - **THEN** el sistema renderiza columnas/celdas basadas en `Rows[].Values`
+- **THEN** el sistema determina el orden de columnas según la estructura backend (ver regla de orden)
 - **THEN** el sistema conserva metadatos por fila basados en `Rows[].Meta` para expand/acciones
+
+#### Scenario: Orden de columnas backend-driven con fallback determinístico
+- **WHEN** el backend incluye configuración de tabla/columnas (por ejemplo `data.Config`/`data.Columns`/equivalente) al enviar `IncludeConfig=true`
+- **THEN** el sistema respeta el orden/visibilidad de columnas definido por dicha configuración
+- **WHEN** el backend NO incluye configuración de columnas en el response (solo `Rows[].Values`)
+- **THEN** el sistema usa un fallback determinístico: el orden de claves observado en `Rows[0].Values` (primera fila) y lo aplica a todas las filas
+- **THEN** si `Rows` está vacío, el sistema muestra estado vacío sin intentar inferir columnas
 
 #### Scenario: Error funcional controlado (success=false)
 - **WHEN** el backend responde HTTP 200 con `success=false`
@@ -52,4 +60,3 @@ El sistema SHALL garantizar que la integración backend-driven del Listado en `D
 - **WHEN** el usuario carga el rail de “Listado” y navega el visor de PDF en `DocumentosWorkbench`
 - **THEN** el visor mantiene su comportamiento previo (sin cambios en zoom/rotate/plugins)
 - **THEN** el listado renderiza/scroll dentro de su contenedor sin romper el layout existente
-

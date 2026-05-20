@@ -13,6 +13,9 @@
   - [ ] `action` (POST) (mínimo `ver_documento`)
   - [ ] `visualizacion/resolve` (POST) invocado por frontend directo (sin API->API)
 - [ ] Implementar adaptador `Rows[] -> AppTreeTableRow[]` (incluye `hasChildren` desde `Meta.HasChildren` y payload para acciones).
+- [ ] Implementar estrategia de columnas:
+  - [ ] Si el response incluye config/columns cuando `IncludeConfig=true`, respetar orden/visibilidad del backend.
+  - [ ] Si no hay config, usar fallback determinístico: orden de claves de `Rows[0].Values`.
 - [ ] Extender `AppTreeTable` sin breaking changes:
   - [ ] API para lazy-load de hijos al expandir (callback)
   - [ ] estados: `loading`, `empty`, `error`, `loadingChildren`
@@ -32,4 +35,3 @@
   - [ ] `docs/.../SCRUMCORE-215-Metadata.md` (branch, commit SHA, tests ejecutados)
   - [ ] Contrato consumido (request/response + reglas)
   - [ ] Decisiones y trade-offs (por qué UI vs services)
-
