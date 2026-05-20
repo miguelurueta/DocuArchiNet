@@ -24,7 +24,6 @@ describe("AppTreeTable", () => {
     const { rerender } = render(<AppTreeTable load={loadOk} />);
     expect(screen.getByText(/cargando/i)).toBeInTheDocument();
 
-    // 1er resolve: empty
     expect(await screen.findByText(/sin registros/i)).toBeInTheDocument();
 
     rerender(<AppTreeTable load={loadFail} />);
@@ -57,4 +56,17 @@ describe("AppTreeTable", () => {
     fireEvent.click(screen.getByRole("button", { name: /colapsar a/i }));
     expect(screen.queryByText("A1")).not.toBeInTheDocument();
   });
+
+  it("[SPEC:APP-APPTREETABLE-005] infiere columnas desde Values y las renderiza", () => {
+    const rows: AppTreeTableRow[] = [
+      { id: "a", label: "A", values: { ID: 1, TIPODOCUMENTO: "Factura" } },
+    ];
+
+    render(<AppTreeTable rows={rows} />);
+    expect(screen.getByText("ID")).toBeInTheDocument();
+    expect(screen.getByText("TIPODOCUMENTO")).toBeInTheDocument();
+    expect(screen.getByText("1")).toBeInTheDocument();
+    expect(screen.getByText("Factura")).toBeInTheDocument();
+  });
 });
+

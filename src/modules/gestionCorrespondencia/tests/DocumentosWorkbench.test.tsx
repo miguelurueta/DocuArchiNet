@@ -2,6 +2,15 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import { DocumentosWorkbench } from "../components/documentosWorkbench/DocumentosWorkbench";
 
+vi.mock("../hooks/useListaDocumentosRadicadosTreeTable", () => ({
+  useListaDocumentosRadicadosTreeTable: () => ({
+    load: vi.fn(),
+    loadChildren: vi.fn(),
+    onSelectRow: vi.fn(),
+    columns: [],
+  }),
+}));
+
 vi.mock("../../../app/Components/UI/AppVisorEmbedPdf", () => ({
   AppVisorEmbedPdf: () => (
     <div role="status" aria-label="Zona de documento" data-testid="app-visor-embedpdf-mock" />

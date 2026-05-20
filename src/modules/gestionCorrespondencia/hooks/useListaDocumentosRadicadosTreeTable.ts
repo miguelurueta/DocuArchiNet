@@ -1,0 +1,145 @@
+import { useCallback, useMemo, useRef } from "react";
+import type { AppTreeTableLoadChildrenResult, AppTreeTableLoadResult, AppTreeTableRow } from "../../../app/Components/UI/AppTreeTable";
+import {
+  actionListaDocumentosRadicados,
+  queryListaDocumentosRadicados,
+  resolveDocumentoVisualizacion,
+} from "../services/listaDocumentosRadicados.service";
+import type {
+  ListaDocumentosRadicadosQueryRequest,
+  ListaDocumentosRadicadosRowDto,
+} from "../types/listaDocumentosRadicados.types";
+
+const TABLE_ID = "InboxListaRadicados";
+
+const buildInitialQuery = (): ListaDocumentosRadicadosQueryRequest => ({
+  ViewMode: "flatDocuments",
+  Page: 1,
+  PageSize: 25,
+  SortDir: "ASC",
+  Search: "",
+  StructuredFilters: [],
+  IncludeConfig: true,
+  EnablePagination: false,
+  EnableColumnFilters: false,
+  ParentRowId: null,
+  ParentNodeType: null,
+  Level: 1,
+});
+
+const inferColumnsFromRows = (rows: ListaDocumentosRadicadosRowDto[]): string[] => {
+  const first = rows.find((row) => row.Values && Object.keys(row.Values).length > 0);
+  return first ? Object.keys(first.Values) : [];
+};
+
+const mapRow = (row: ListaDocumentosRadicadosRowDto): AppTreeTableRow => {
+  const columns = Object.keys(row.Values ?? {});
+  const firstValue =
+    columns.length > 0 ? row.Values[columns[0]] : undefined;
+  const label = typeof firstValue === "string" && firstValue.trim().length > 0
+    ? firstValue.trim()
+    : String(firstValue ?? row.RowId);
+
+  return {
+    id: row.RowId,
+    label,
+    values: row.Values,
+    meta: { ...(row.Meta ?? {}) },
+    hasChildren: Boolean(row.Meta?.HasChildren),
+    children: row.Meta?.HasChildren ? [] : undefined,
+  };
+};
+
+export type ListaDocumentosRadicadosTreeTable = {
+  columns: string[];
+  load: () => Promise<AppTreeTableLoadResult>;
+  loadChildren: (row: AppTreeTableRow) => Promise<AppTreeTableLoadChildrenResult>;
+  onSelectRow: (rowId: string) => Promise<void>;
+};
+
+export const useListaDocumentosRadicadosTreeTable = (): ListaDocumentosRadicadosTreeTable => {
+  const latestRowRef = useRef<Map<string, ListaDocumentosRadicadosRowDto>>(new Map());
+
+  const load = useCallback(async (): Promise<AppTreeTableLoadResult> => {
+    try {
+      const response = await queryListaDocumentosRadicados(buildInitialQuery());
+      if (!response.success || !response.data) {
+        const message =
+          response.errors?.[0]?.errorMessage ?? response.message ?? "No fue posible cargar el listado.";
+        return { ok: false, message };
+      }
+      const rows = response.data.Rows ?? [];
+      latestRowRef.current = new Map(rows.map((row) => [row.RowId, row]));
+      return { ok: true, rows: rows.map(mapRow) };
+    } catch {
+      return { ok: false, message: "No fue posible cargar el listado." };
+    }
+  }, []);
+
+  const loadChildren = useCallback(async (row: AppTreeTableRow): Promise<AppTreeTableLoadChildrenResult> => {
+    const parentNodeType = String(row.meta?.NodeType ?? row.meta?.nodeType ?? "");
+    const request: ListaDocumentosRadicadosQueryRequest = {
+      ...buildInitialQuery(),
+      ViewMode: "hierarchical",
+      ParentRowId: row.id,
+      ParentNodeType: parentNodeType || null,
+      Level: 2,
+    };
+    try {
+      const response = await queryListaDocumentosRadicados(request);
+      if (!response.success || !response.data) {
+        const message =
+          response.errors?.[0]?.errorMessage ?? response.message ?? "No fue posible cargar el listado.";
+        return { ok: false, message };
+      }
+      const rows = response.data.Rows ?? [];
+      for (const childRow of rows) {
+        latestRowRef.current.set(childRow.RowId, childRow);
+      }
+      return { ok: true, rows: rows.map(mapRow) };
+    } catch {
+      return { ok: false, message: "No fue posible cargar el listado." };
+    }
+  }, []);
+
+  const onSelectRow = useCallback(async (rowId: string) => {
+    const selected = latestRowRef.current.get(rowId);
+    const nodeType = String(selected?.Meta?.NodeType ?? "documento");
+    const documentIdFromMeta = selected?.Meta?.DocumentId;
+    const gabinete = selected?.Meta?.NombreGabinete;
+
+    const actionResponse = await actionListaDocumentosRadicados({
+      TableId: TABLE_ID,
+      ViewMode: "flatDocuments",
+      ActionId: "ver_documento",
+      RowId: rowId,
+      ParentRowId: null,
+      NodeType: nodeType,
+      Payload: {
+        IdDocumento: typeof documentIdFromMeta === "number" ? documentIdFromMeta : undefined,
+        DocumentId: typeof documentIdFromMeta === "number" ? documentIdFromMeta : undefined,
+        NombreGabinete: typeof gabinete === "string" ? gabinete : undefined,
+      },
+    });
+
+    const resolveRequest = actionResponse.data?.DocumentResolveRequest;
+    if (actionResponse.success && resolveRequest) {
+      await resolveDocumentoVisualizacion(resolveRequest);
+    }
+  }, []);
+
+  const columns = useMemo(() => {
+    // La regla del contrato: si no hay config en response, el orden se infiere determinísticamente
+    // desde la primera fila. Esta implementación expone columnas vía `load()`; el consumidor puede
+    // pasar columns explícitas a AppTreeTable si necesita estabilidad previa al render.
+    // Como no tenemos `load` sync, aquí devolvemos un valor fijo vacío y dejamos al componente inferir.
+    return [] as string[];
+  }, []);
+
+  return {
+    columns,
+    load,
+    loadChildren,
+    onSelectRow,
+  };
+};

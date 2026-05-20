@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import { AppTreeTable } from "../../../../app/Components/UI/AppTreeTable";
 import { AppVisorEmbedPdf } from "../../../../app/Components/UI/AppVisorEmbedPdf";
+import { useListaDocumentosRadicadosTreeTable } from "../../hooks/useListaDocumentosRadicadosTreeTable";
 import styles from "./DocumentosWorkbench.module.css";
 
 const MOBILE_QUERY = "(max-width: 768px)";
@@ -44,6 +45,7 @@ export function DocumentosWorkbench() {
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [isTablet, setIsTablet] = useState(resolveIsTablet);
   const [collapsed, setCollapsed] = useState(isTablet);
+  const listaRadicados = useListaDocumentosRadicadosTreeTable();
 
   useEffect(() => {
     const handler = () => setIsTablet(resolveIsTablet());
@@ -120,7 +122,14 @@ export function DocumentosWorkbench() {
               </div>
               <div className={styles.previewSurface}>
                 <div className={styles.listSurface}>
-                  <AppTreeTable rows={[]} emptyMessage="Sin documentos adjuntos." />
+                  <AppTreeTable
+                    load={listaRadicados.load}
+                    loadChildren={listaRadicados.loadChildren}
+                    onSelectRow={(rowId) => {
+                      void listaRadicados.onSelectRow(rowId);
+                    }}
+                    emptyMessage="Sin documentos adjuntos."
+                  />
                 </div>
               </div>
             </section>
