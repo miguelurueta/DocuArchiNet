@@ -1,24 +1,35 @@
 ## Tasks
 
-- [ ] Refinar contrato objetivo (confirmar endpoints `query/action` + `visualizacion/resolve`, `TableId` y `ViewMode` soportados) y documentarlo en el spec del cambio.
-- [ ] Crear DTOs tipados para wrapper `success/message/data/errors` y para `Rows[]` (`Values`, `Meta`) en el módulo consumidor (sin `any`).
-- [ ] Implementar servicio `query` (POST) con payload mínimo recomendado y soporte de flags (`EnablePagination`, `EnableColumnFilters`, `IncludeConfig`).
-- [ ] Implementar servicio `query` jerárquico para hijos (POST) usando `ParentRowId`, `ParentNodeType`, `Level`.
-- [ ] Implementar servicio `action` (POST) soportando al menos `ver_documento` y el mapping a `DocumentResolveRequest`.
-- [ ] Implementar servicio `visualizacion/resolve` (POST) invocado directamente desde frontend (sin API->API).
-- [ ] Implementar adaptador `Rows[] -> AppTreeTableRow[]` (incluye `hasChildren` y meta de dominio para acciones).
-- [ ] Extender `AppTreeTable` para soportar lazy-load de hijos al expandir (API de callbacks) sin romper el modo actual `rows` / `load()`.
-- [ ] Integrar `AppTreeTable` en `DocumentosWorkbench` “Listado” usando `load()` real y handlers de expand/acción (sin tocar `AppVisorEmbedPdf`).
+- [ ] Confirmar contrato objetivo (SCRUM-205 ListaDocumentosRadicados): endpoints, `TableId`, `ViewMode`, `ActionId` soportadas.
+- [ ] Definir DTOs tipados (sin `any`) para:
+  - [ ] Wrapper `success/message/data/meta/errors`
+  - [ ] `QueryRequest` (incluye `ViewMode`, `Page`, `PageSize`, `SortDir`, flags)
+  - [ ] `QueryResponse` (`Rows[]` con `Values` y `Meta`)
+  - [ ] `ActionRequest` / `ActionResponse`
+  - [ ] `ResolveRequest` / `ResolveResponse` (si aplica)
+- [ ] Implementar servicios (axios) en el módulo consumidor:
+  - [ ] `query` (POST) carga inicial (`ViewMode=flatDocuments` default)
+  - [ ] `query` jerárquico para hijos (`ViewMode=hierarchical`, `ParentRowId`, `ParentNodeType`, `Level`)
+  - [ ] `action` (POST) (mínimo `ver_documento`)
+  - [ ] `visualizacion/resolve` (POST) invocado por frontend directo (sin API->API)
+- [ ] Implementar adaptador `Rows[] -> AppTreeTableRow[]` (incluye `hasChildren` desde `Meta.HasChildren` y payload para acciones).
+- [ ] Extender `AppTreeTable` sin breaking changes:
+  - [ ] API para lazy-load de hijos al expandir (callback)
+  - [ ] estados: `loading`, `empty`, `error`, `loadingChildren`
+  - [ ] soporte de error funcional (HTTP 200 + `success=false`)
+- [ ] Integrar `AppTreeTable` en `DocumentosWorkbench` “Listado” usando hook/servicio real:
+  - [ ] mantener estilos y contenedor del rail
+  - [ ] no tocar `AppVisorEmbedPdf` ni otros plugins
 - [ ] Manejo de errores:
-  - [ ] HTTP no-2xx -> error técnico + reintento opcional
-  - [ ] `success=false` -> error funcional desde `errors[0].errorMessage`/`message`
+  - [ ] HTTP no-2xx / red -> error técnico + reintento opcional
+  - [ ] `success=false` -> error funcional (`errors[0].errorMessage` / `message`)
 - [ ] Tests (Vitest/RTL):
-  - [ ] `AppTreeTable`: carga inicial + estado loading/empty/error
-  - [ ] `AppTreeTable`: expand dispara lazy-load y renderiza hijos
-  - [ ] Workbench: monta listado con hook mock sin afectar visor
-  - [ ] Acción `ver_documento`: action -> resolve (mocks) y validación de payload
-- [ ] Documentación enterprise del ticket:
-  - [ ] Metadatos (branch/commit/tests ejecutados)
+  - [ ] `AppTreeTable`: carga inicial (loading/empty/error) `[SPEC:SCRUMCORE-215-001]`
+  - [ ] `AppTreeTable`: expand -> lazy-load -> render hijos `[SPEC:SCRUMCORE-215-002]`
+  - [ ] Workbench: monta Listado con hook mock sin afectar visor `[SPEC:SCRUMCORE-215-003]`
+  - [ ] Acción `ver_documento`: `action` -> `resolve` (mocks) y validación de payload `[SPEC:SCRUMCORE-215-004]`
+- [ ] Documentación enterprise:
+  - [ ] `docs/.../SCRUMCORE-215-Metadata.md` (branch, commit SHA, tests ejecutados)
   - [ ] Contrato consumido (request/response + reglas)
   - [ ] Decisiones y trade-offs (por qué UI vs services)
 

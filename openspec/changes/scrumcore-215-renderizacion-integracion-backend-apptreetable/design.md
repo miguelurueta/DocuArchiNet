@@ -1,106 +1,105 @@
 ## Context
 
-En `SCRUMCORE-214` se introdujo `AppTreeTable` como componente reutilizable y se integró en `DocumentosWorkbench` dentro del rail de “Listado”, garantizando no interferir con `AppVisorEmbedPdf` ni otros plugins.
+En `SCRUMCORE-214` se introdujo `AppTreeTable` como componente reutilizable (UI) y se integró en `DocumentosWorkbench` dentro del rail de “Listado”, garantizando no interferir con `AppVisorEmbedPdf` ni otros plugins.
 
-`SCRUMCORE-215` busca evolucionar ese componente para soportar renderización e integración “backend-driven” basada en contratos de API (query/action) sin romper el comportamiento actual del Workbench ni afectar otros módulos.
+`SCRUMCORE-215` evoluciona `AppTreeTable` para soportar renderización e integración “backend-driven” basada en un contrato `query/action` (tipo SCRUM-205 ListaDocumentosRadicados), manteniendo compatibilidad hacia atrás y evitando impactos colaterales en el Workbench.
 
-Restricciones clave del producto / repo:
+Contrato objetivo (referencia funcional):
+- `POST /api/GestorDocumental/Documentos/ListaDocumentosRadicados/query`
+- `POST /api/GestorDocumental/Documentos/ListaDocumentosRadicados/action`
+- `POST /api/gestor-documental/documentos/visualizacion/resolve` (frontend directo)
+
+Restricciones clave:
 - TypeScript estricto, ESM y Vite.
 - Tests con Vitest/Testing Library.
-- No introducir lógica “hacky” (por ejemplo, ocultar UI con CSS en vez de corregir el pipeline).
-- Evitar impactos en otros plugins/operaciones (especialmente `AppVisorEmbedPdf`).
+- No “mitigar” problemas ocultando elementos con CSS si la causa está en pipeline/composición.
+- No afectar comportamiento de plugins y operaciones existentes (especialmente `AppVisorEmbedPdf`).
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Permitir que `AppTreeTable` consuma una API “query” y renderice filas/columnas desde `Rows[].Values` + `Rows[].Meta`.
-- Soportar modo jerárquico (lazy-load de hijos al expandir) sin degradar el modo plano.
-- Integrar acciones por fila (“action”) que disparen operaciones (por ejemplo, ver documento) de manera desacoplada.
-- Mantener separación limpia: `UI` (AppTreeTable) vs. `data access` (services/hooks por módulo consumidor).
-- Asegurar que la integración en `DocumentosWorkbench` no afecte el visor ni otros componentes existentes.
+- Permitir que `AppTreeTable` renderice datos provenientes de `query` (wrapper `success/message/data/errors`) mediante un adaptador del consumidor.
+- Soportar modo jerárquico (`ViewMode=hierarchical`) con lazy-load de hijos al expandir nodos.
+- Habilitar acciones por fila mediante `action` (ej. `ver_documento`) y orquestación frontend de `visualizacion/resolve`.
+- Mantener separación limpia: `AppTreeTable` (UI genérica) vs. `services/hooks` del módulo consumidor (Gestor Documental / Gestión Correspondencia).
+- Integrar el listado en `DocumentosWorkbench` sin modificar el visor ni otros rails.
 
 **Non-Goals:**
-- No rediseñar `AppTreeTable` como reemplazo total de `AppTable` ni introducir un framework nuevo de grids.
-- No implementar consumo API->API (si hay “resolve” u otros endpoints, el frontend los invoca directamente).
-- No cambiar el layout general del Workbench fuera de lo estrictamente necesario.
-- No introducir cache persistente o almacenamiento durable; el estado es por sesión de UI.
+- No reescribir `AppTreeTable` como un “AppTable v2”.
+- No implementar consumo API->API para el flujo `ver_documento`.
+- No añadir dependencias grandes ni un nuevo grid system.
+- No introducir persistencia de cache; el estado es en memoria del componente/sesión.
 
 ## Decisions
 
-### 1) Mantener `AppTreeTable` como componente “headless-ish”
-**Decisión:** `AppTreeTable` seguirá siendo un componente UI que puede operar con:
-- `rows` (modo controlado por el consumidor), o
-- `load()` (modo de carga inicial), y se extenderá para soportar “fetch children” al expandir nodos.
+### 1) `AppTreeTable` permanece agnóstico al dominio
+**Decisión:** `AppTreeTable` no conoce endpoints ni DTOs de negocio. El consumo se hace en hooks/servicios del módulo consumidor, que entrega al componente:
+- `load()` para carga inicial
+- `loadChildren(row)` (o equivalente) para lazy-load jerárquico
+- `onRowAction(actionId, row)` para acciones (opcional)
 
-**Rationale:** evita acoplar el componente UI a endpoints específicos o a un dominio (Gestor Documental). La lógica de consumo y tipado de contratos vive en `services/hooks` del módulo consumidor.
+**Rationale:** reusabilidad, testeo y evita acoplamiento a Gestor Documental.
 
 **Alternativas consideradas:**
-- (A) Meter axios/servicios dentro del componente: descartado por acoplamiento y dificultad de testear/reusar.
-- (B) Duplicar componente “TreeTableGD”: descartado por deuda y divergencia.
+- Servicios axios dentro de `AppTreeTable`: descartado por acoplamiento y dificultad de pruebas.
+- Duplicar un componente específico para Gestor Documental: descartado por deuda técnica.
 
-### 2) Adaptador de contrato: `Rows[]` -> `AppTreeTableRow[]`
-**Decisión:** el consumidor implementa un adaptador tipado que convierte el response del backend a filas del componente.
+### 2) Adaptador explícito: `Rows[]` -> `AppTreeTableRow[]`
+**Decisión:** el consumidor implementa un adaptador tipado para transformar:
+- `RowId` -> id técnico de UI
+- `Values` -> celdas/columnas renderizadas
+- `Meta` -> `hasChildren`, `nodeType`, payload para acciones (DocumentId, NombreGabinete, etc.)
 
-**Rationale:** el backend define columnas dinámicas vía `Values`, y meta funcional vía `Meta`. El adaptador es el lugar correcto para:
-- mapear `RowId`
-- derivar `label`/`cells`
-- mapear `hasChildren` desde `Meta.HasChildren`
-- conservar payload de dominio (por ejemplo `Meta.DocumentId`, `Meta.NombreGabinete`, `Meta.NodeType`) para acciones.
+**Rationale:** `Values` y `Meta` pueden variar por configuración/contrato; el adaptador aisla cambios.
 
-### 3) Lazy-load jerárquico con “contract safe inputs”
-**Decisión:** el expand/collapse dispara una función `loadChildren(row)` provista por el consumidor, la cual ejecuta el query con:
+### 3) Lazy-load jerárquico via callback (sin lógica de dominio en UI)
+**Decisión:** al expandir una fila con `HasChildren=true`, `AppTreeTable` invoca `loadChildren(row)` provisto por el consumidor. Ese callback ejecuta `query` con:
 - `ViewMode="hierarchical"`
-- `ParentRowId=row.rowId`
-- `ParentNodeType=row.meta.nodeType` (o equivalente)
-- `Level=nextLevel`
+- `ParentRowId=<RowId del padre>`
+- `ParentNodeType=<NodeType del padre>`
+- `Level=<nivel siguiente>`
 
-**Rationale:** el componente no debe conocer cómo se calcula `Level` ni qué `NodeType` aplica; el contrato es del dominio.
+**Rationale:** el cálculo de `Level` y la semántica de `NodeType` pertenecen al dominio, no al componente UI.
 
-### 4) Acciones: `action` retorna contrato y el frontend ejecuta el “resolve”
-**Decisión:** para “ver_documento”, el flujo recomendado es:
-1) `POST .../action` con `{ActionId:"ver_documento", RowId, NodeType, Payload{IdDocumento, NombreGabinete}}`
-2) si el backend retorna `DocumentResolveRequest`, el frontend invoca directamente `POST /api/.../visualizacion/resolve`.
+### 4) Acciones: `action` -> (opcional) `visualizacion/resolve`
+**Decisión:** para `ver_documento`:
+1) frontend llama `action` con `RowId`, `NodeType`, `Payload.{IdDocumento, NombreGabinete}`
+2) si `action` retorna `DocumentResolveRequest`, frontend llama `visualizacion/resolve` directamente
 
-**Rationale:** mantiene el frontend como orquestador, evita patrones API->API, y desacopla la evolución del backend.
+**Rationale:** sin API->API, y compatible con el contrato (backend devuelve “qué resolver”, frontend ejecuta).
 
-### 5) Manejo de error funcional vs. error HTTP
-**Decisión:** diferenciar:
-- HTTP no-2xx: error técnico (mostrar mensaje genérico + reintentar).
-- `200` con `success=false`: error funcional/validación (mostrar `errors[0].errorMessage` / `message`).
-
-**Rationale:** consistente con contratos existentes (wrapper `success/message/errors`) y evita UX confuso.
+### 5) Error funcional vs. error técnico
+**Decisión:** distinguir:
+- HTTP no-2xx / network: error técnico (mensaje genérico + reintento)
+- HTTP 200 con `success=false`: error funcional (mostrar `errors[0].errorMessage` o `message`)
 
 ## Risks / Trade-offs
 
-- **[Riesgo] Columnas dinámicas cambian en backend** → Mitigación: renderizar `Values` por claves/orden provisto por configuración (si existe) y fallback a orden estable; pruebas con respuestas mock.
-- **[Riesgo] Jerarquía inconsistente (HasChildren true pero no retorna hijos)** → Mitigación: tratar como leaf tras primer fetch vacío y no romper UI.
-- **[Riesgo] Regresiones en Workbench layout** → Mitigación: mantener cambios CSS aislados al rail de Listado y tests de montaje.
-- **[Riesgo] Acoplamiento accidental a Gestor Documental** → Mitigación: tipos/servicios del contrato viven en el módulo consumidor; `AppTreeTable` expone contratos UI genéricos.
+- **[Riesgo] Columnas dinámicas cambian en backend** → Mitigación: adaptador controla mapping; tests con respuestas mock.
+- **[Riesgo] Inconsistencia HasChildren** → Mitigación: si hijos retornan vacío, tratar nodo como hoja sin loops.
+- **[Riesgo] Regresiones de layout en Workbench** → Mitigación: estilos aislados al rail Listado; test de montaje.
+- **[Riesgo] Acoplamiento accidental a Gestor Documental** → Mitigación: contratos/DTOs viven en módulo consumidor, no en UI.
 
 ## Migration Plan
 
-1) Extender `AppTreeTable` (sin breaking changes) para:
-   - soportar carga de hijos al expandir (callbacks)
-   - exponer estado `expanded/loadingChildren`
-2) Implementar servicios/hooks en el módulo consumidor para:
+1) Extender `AppTreeTable` sin breaking changes:
+   - expand/collapse
+   - lazy-load children (callbacks)
+   - estados: `loading`, `error`, `empty`, `loadingChildren`
+2) Implementar servicios/hooks del contrato en el módulo consumidor:
    - `query` inicial
    - `query` hijos
    - `action`
-   - `resolve` (si aplica)
-3) Conectar `DocumentosWorkbench` para usar `load()` real (dejar de pasar `rows={[]}`).
-4) Agregar tests:
-   - `AppTreeTable`: expand con lazy-load y render de hijos
-   - `DocumentosWorkbench`: integra hook mock sin afectar el visor
-5) Documentar en OpenSpec:
-   - Spec de contrato (request/response + reglas)
-   - Evidencia de tests ejecutados
+   - `visualizacion/resolve`
+3) Conectar `DocumentosWorkbench` “Listado” al hook (dejar `rows={[]}` solo como fallback).
+4) Tests focales (Vitest/RTL) + evidencia en documentación.
 
 Rollback:
-- Revert commit(s) del ticket en `feature/SCRUMCORE-215` o deshabilitar el loader del Workbench volviendo a `rows` estático.
+- Revertir commits del ticket en `feature/SCRUMCORE-215`, o deshabilitar el loader volviendo temporalmente a `rows` estático.
 
 ## Open Questions
 
-- ¿Qué contrato exacto se usará en esta iteración (por ejemplo SCRUM-205 `ListaDocumentosRadicados`), y cuál es el `TableId` estándar para acciones?
-- ¿Cómo se obtiene `jwt`/claims en el cliente para este dominio (manejador actual vs. wrapper central)?
-- ¿Se requiere soporte de “EnablePagination/EnableColumnFilters” en UI o solo respetar flags (off) inicialmente?
+- Confirmar `TableId` estándar (ej. `InboxListaRadicados`) y conjunto de `ActionId` soportadas.
+- Confirmar si `IncludeConfig=true` es requerido siempre en primera carga.
+- Definir orden/selección de columnas cuando `Values` es dinámico (si existe `config` en response).
 
