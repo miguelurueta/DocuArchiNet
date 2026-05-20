@@ -12,6 +12,26 @@ import type {
 
 const TABLE_ID = "InboxListaRadicados";
 
+const readString = (record: unknown, ...keys: string[]): string | undefined => {
+  if (!record || typeof record !== "object") return undefined;
+  const source = record as Record<string, unknown>;
+  for (const key of keys) {
+    const value = source[key];
+    if (typeof value === "string" && value.trim().length > 0) return value.trim();
+  }
+  return undefined;
+};
+
+const readNumber = (record: unknown, ...keys: string[]): number | undefined => {
+  if (!record || typeof record !== "object") return undefined;
+  const source = record as Record<string, unknown>;
+  for (const key of keys) {
+    const value = source[key];
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+  }
+  return undefined;
+};
+
 const buildInitialQuery = (): ListaDocumentosRadicadosQueryRequest => ({
   ViewMode: "flatDocuments",
   Page: 1,
@@ -104,9 +124,20 @@ export const useListaDocumentosRadicadosTreeTable = (): ListaDocumentosRadicados
 
   const onSelectRow = useCallback(async (rowId: string) => {
     const selected = latestRowRef.current.get(rowId);
-    const nodeType = String(selected?.Meta?.NodeType ?? "documento");
-    const documentIdFromMeta = selected?.Meta?.DocumentId;
-    const gabinete = selected?.Meta?.NombreGabinete;
+    const meta = selected?.Meta;
+    const values = selected?.Values;
+
+    const nodeType = readString(meta, "NodeType", "nodeType") ?? "documento";
+    const documentIdFromMeta = readNumber(meta, "DocumentId", "documentId");
+    const gabinete =
+      readString(meta, "NombreGabinete", "nombreGabinete", "NOMBRE_GABINETE") ??
+      readString(values, "NOMBRE_GABINETE", "NombreGabinete", "NOMBREGABINETE");
+
+    if (!gabinete) {
+      // Evita disparar action inválida y deja un error funcional visible en consola.
+      // La UI consume este error mediante el wrapper `success=false` del servicio.
+      throw new Error("NombreGabinete requerido");
+    }
 
     const actionResponse = await actionListaDocumentosRadicados({
       TableId: TABLE_ID,
@@ -118,7 +149,7 @@ export const useListaDocumentosRadicadosTreeTable = (): ListaDocumentosRadicados
       Payload: {
         IdDocumento: typeof documentIdFromMeta === "number" ? documentIdFromMeta : undefined,
         DocumentId: typeof documentIdFromMeta === "number" ? documentIdFromMeta : undefined,
-        NombreGabinete: typeof gabinete === "string" ? gabinete : undefined,
+        NombreGabinete: gabinete,
       },
     });
 
