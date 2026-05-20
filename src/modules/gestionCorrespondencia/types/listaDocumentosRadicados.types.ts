@@ -24,13 +24,26 @@ export type ListaDocumentosRadicadosQueryRequest = {
   SearchType?: number;
   Search?: string;
   SortField?: string;
-  StructuredFilters?: unknown[];
+  StructuredFilters?: Array<{
+    Field: string;
+    Operator: string;
+    Value?: string;
+    ValueFrom?: string;
+    ValueTo?: string;
+  }>;
   IncludeConfig?: boolean;
   EnablePagination?: boolean | null;
   EnableColumnFilters?: boolean | null;
   ParentRowId?: string | null;
   ParentNodeType?: string | null;
   Level?: number;
+
+  // Extensiones adicionales usadas por el backend (fuera del contrato mínimo SCRUM-205).
+  TableId?: string;
+  NombreGabinete?: string;
+  CampoRadicado?: string;
+  Radicado?: string;
+  AplicaTrd?: number;
 };
 
 export type ListaDocumentosRadicadosRowMeta = {
@@ -85,4 +98,3 @@ export type ListaDocumentosRadicadosActionData = {
   Row?: unknown;
   DocumentResolveRequest?: DocumentResolveRequestDto;
 };
-

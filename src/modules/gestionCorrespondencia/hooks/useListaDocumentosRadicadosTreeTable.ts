@@ -11,6 +11,7 @@ import type {
 } from "../types/listaDocumentosRadicados.types";
 
 const TABLE_ID = "InboxListaRadicados";
+const DEFAULT_APLICA_TRD = 0;
 
 const readString = (record: unknown, ...keys: string[]): string | undefined => {
   if (!record || typeof record !== "object") return undefined;
@@ -45,6 +46,12 @@ const buildInitialQuery = (): ListaDocumentosRadicadosQueryRequest => ({
   ParentRowId: null,
   ParentNodeType: null,
   Level: 1,
+
+  TableId: TABLE_ID,
+  NombreGabinete: "",
+  CampoRadicado: "",
+  Radicado: "",
+  AplicaTrd: DEFAULT_APLICA_TRD,
 });
 
 const inferColumnsFromRows = (rows: ListaDocumentosRadicadosRowDto[]): string[] => {
