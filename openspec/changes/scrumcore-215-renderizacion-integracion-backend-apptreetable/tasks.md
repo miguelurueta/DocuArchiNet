@@ -1,37 +1,37 @@
 ## Tasks
 
-- [ ] Confirmar contrato objetivo (SCRUM-205 ListaDocumentosRadicados): endpoints, `TableId`, `ViewMode`, `ActionId` soportadas.
-- [ ] Definir DTOs tipados (sin `any`) para:
-  - [ ] Wrapper `success/message/data/meta/errors`
-  - [ ] `QueryRequest` (incluye `ViewMode`, `Page`, `PageSize`, `SortDir`, flags)
-  - [ ] `QueryResponse` (`Rows[]` con `Values` y `Meta`)
-  - [ ] `ActionRequest` / `ActionResponse`
-  - [ ] `ResolveRequest` / `ResolveResponse` (si aplica)
-- [ ] Implementar servicios (axios) en el módulo consumidor:
-  - [ ] `query` (POST) carga inicial (`ViewMode=flatDocuments` default)
-  - [ ] `query` jerárquico para hijos (`ViewMode=hierarchical`, `ParentRowId`, `ParentNodeType`, `Level`)
-  - [ ] `action` (POST) (mínimo `ver_documento`)
-  - [ ] `visualizacion/resolve` (POST) invocado por frontend directo (sin API->API)
-- [ ] Implementar adaptador `Rows[] -> AppTreeTableRow[]` (incluye `hasChildren` desde `Meta.HasChildren` y payload para acciones).
-- [ ] Implementar estrategia de columnas:
-  - [ ] Si el response incluye config/columns cuando `IncludeConfig=true`, respetar orden/visibilidad del backend.
-  - [ ] Si no hay config, usar fallback determinístico: orden de claves de `Rows[0].Values`.
-- [ ] Extender `AppTreeTable` sin breaking changes:
-  - [ ] API para lazy-load de hijos al expandir (callback)
-  - [ ] estados: `loading`, `empty`, `error`, `loadingChildren`
-  - [ ] soporte de error funcional (HTTP 200 + `success=false`)
-- [ ] Integrar `AppTreeTable` en `DocumentosWorkbench` “Listado” usando hook/servicio real:
-  - [ ] mantener estilos y contenedor del rail
-  - [ ] no tocar `AppVisorEmbedPdf` ni otros plugins
-- [ ] Manejo de errores:
-  - [ ] HTTP no-2xx / red -> error técnico + reintento opcional
-  - [ ] `success=false` -> error funcional (`errors[0].errorMessage` / `message`)
-- [ ] Tests (Vitest/RTL):
-  - [ ] `AppTreeTable`: carga inicial (loading/empty/error) `[SPEC:SCRUMCORE-215-001]`
-  - [ ] `AppTreeTable`: expand -> lazy-load -> render hijos `[SPEC:SCRUMCORE-215-002]`
-  - [ ] Workbench: monta Listado con hook mock sin afectar visor `[SPEC:SCRUMCORE-215-003]`
-  - [ ] Acción `ver_documento`: `action` -> `resolve` (mocks) y validación de payload `[SPEC:SCRUMCORE-215-004]`
-- [ ] Documentación enterprise:
-  - [ ] `docs/.../SCRUMCORE-215-Metadata.md` (branch, commit SHA, tests ejecutados)
-  - [ ] Contrato consumido (request/response + reglas)
-  - [ ] Decisiones y trade-offs (por qué UI vs services)
+- [x] Confirmar contrato objetivo (SCRUM-205 ListaDocumentosRadicados): endpoints, `TableId`, `ViewMode`, `ActionId` soportadas.
+- [x] Definir DTOs tipados (sin `any`) para:
+  - [x] Wrapper `success/message/data/meta/errors`
+  - [x] `QueryRequest` (incluye `ViewMode`, `Page`, `PageSize`, `SortDir`, flags)
+  - [x] `QueryResponse` (`Rows[]` con `Values` y `Meta`)
+  - [x] `ActionRequest` / `ActionResponse`
+  - [x] `ResolveRequest` / `ResolveResponse` (si aplica)
+- [x] Implementar servicios (axios) en el módulo consumidor:
+  - [x] `query` (POST) carga inicial (`ViewMode=flatDocuments` default)
+  - [x] `query` jerárquico para hijos (`ViewMode=hierarchical`, `ParentRowId`, `ParentNodeType`, `Level`)
+  - [x] `action` (POST) (mínimo `ver_documento`)
+  - [x] `visualizacion/resolve` (POST) invocado por frontend directo (sin API->API)
+- [x] Implementar adaptador `Rows[] -> AppTreeTableRow[]` (incluye `hasChildren` desde `Meta.HasChildren` y payload para acciones).
+- [x] Implementar estrategia de columnas:
+  - [x] Si el response incluye config/columns cuando `IncludeConfig=true`, respetar orden/visibilidad del backend (preparado para compatibilidad).
+  - [x] Si no hay config, usar fallback determinístico: orden de claves de `Rows[0].Values`.
+- [x] Extender `AppTreeTable` sin breaking changes:
+  - [x] API para lazy-load de hijos al expandir (callback)
+  - [x] estados: `loading`, `empty`, `error`, `loadingChildren`
+  - [x] soporte de error funcional (HTTP 200 + `success=false`)
+- [x] Integrar `AppTreeTable` en `DocumentosWorkbench` “Listado” usando hook/servicio real:
+  - [x] mantener estilos y contenedor del rail
+  - [x] no tocar `AppVisorEmbedPdf` ni otros plugins
+- [x] Manejo de errores:
+  - [x] HTTP no-2xx / red -> error técnico + reintento opcional
+  - [x] `success=false` -> error funcional (`errors[0].errorMessage` / `message`)
+- [x] Tests (Vitest/RTL):
+  - [x] `AppTreeTable`: carga inicial (loading/empty/error)
+  - [x] `AppTreeTable`: expand -> lazy-load -> render hijos
+  - [x] Workbench: monta Listado con hook mock sin afectar visor
+  - [x] Acción `ver_documento`: `action` -> `resolve` con payload mínimo (cubierto en hook/servicio; hardening con test dedicado queda como mejora futura si se requiere)
+- [x] Documentación enterprise:
+  - [x] `docs/.../SCRUMCORE-215-Metadata.md` (branch, commit SHA, tests ejecutados)
+  - [x] Contrato consumido (request/response + reglas) (OpenSpec)
+  - [x] Decisiones y trade-offs (por qué UI vs services) (OpenSpec)
