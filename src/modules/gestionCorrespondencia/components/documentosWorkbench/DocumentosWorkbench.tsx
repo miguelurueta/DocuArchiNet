@@ -121,6 +121,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             load={documentosTable.load}
             loadChildren={documentosTable.loadChildren}
             tableColumns={documentosTable.getTableColumns()}
+            columns={documentosTable.getColumns()}
             onSelectRow={(rowId) => {
               void documentosTable.onSelectRow(rowId).then((result) => {
                 if (!result?.fileUrl) return;

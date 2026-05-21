@@ -1,7 +1,10 @@
 import type { ListaDocumentosRadicadosQueryRequest } from "../types/listaDocumentosRadicados.types";
 
-const TABLE_ID = "InboxListaRadicados";
+const TABLE_ID = "InboxListaDocumentosRadicado";
 const DEFAULT_APLICA_TRD = 0;
+const DEFAULT_COLUMN_MODE = 2;
+const DEFAULT_SEARCH_TYPE = 1;
+const DEFAULT_SORT_FIELD = "ID";
 
 export type GestionRespuestaDocumentosQueryContext = {
   idTareaWf?: number;
@@ -18,7 +21,10 @@ export const buildListaDocumentosRadicadosRootQuery = (
     Page: 1,
     PageSize: 25,
     SortDir: "ASC",
+    ColumnMode: DEFAULT_COLUMN_MODE,
+    SearchType: DEFAULT_SEARCH_TYPE,
     Search: "",
+    SortField: DEFAULT_SORT_FIELD,
     StructuredFilters: [],
     IncludeConfig: true,
     EnablePagination: false,
@@ -28,6 +34,7 @@ export const buildListaDocumentosRadicadosRootQuery = (
     Level: 1,
 
     TableId: TABLE_ID,
+    EstadoTramite: "",
     CampoRadicado: "",
     Radicado: "",
     AplicaTrd: DEFAULT_APLICA_TRD,
@@ -64,4 +71,3 @@ export const buildListaDocumentosRadicadosChildrenQuery = (input: {
     ...(nombreGabinete ? { NombreGabinete: nombreGabinete } : {}),
   };
 };
-

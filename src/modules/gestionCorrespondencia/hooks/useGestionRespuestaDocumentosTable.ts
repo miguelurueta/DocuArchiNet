@@ -14,7 +14,7 @@ import {
 } from "../adapters/gestionRespuestaDocumentosRequestMapper";
 import type { ListaDocumentosRadicadosRowDto } from "../types/listaDocumentosRadicados.types";
 
-const TABLE_ID = "InboxListaRadicados";
+const DEFAULT_TABLE_ID = "InboxListaDocumentosRadicado";
 
 const readString = (record: unknown, ...keys: string[]): string | undefined => {
   if (!record || typeof record !== "object") return undefined;
@@ -56,7 +56,9 @@ export type GestionRespuestaDocumentoActivo = {
 export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
   const latestRowRef = useRef<Map<string, ListaDocumentosRadicadosRowDto>>(new Map());
   const gabineteRef = useRef<string | undefined>(undefined);
+  const tableIdRef = useRef<string>(DEFAULT_TABLE_ID);
   const [tableColumns, setTableColumns] = useState<import("ag-grid-community").ColDef<Record<string, unknown>>[]>();
+  const [columns, setColumns] = useState<string[]>();
 
   const load = useCallback(async (): Promise<AppTreeTableLoadResult> => {
     try {
@@ -82,9 +84,11 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
         return { ok: false, message };
       }
 
-      const model = adaptListaDocumentosRadicadosToWorkbenchModel(response.data);
+      const model = adaptListaDocumentosRadicadosToWorkbenchModel(response.data, { viewMode: "flatDocuments" });
       latestRowRef.current = new Map((response.data.Rows ?? []).map((row) => [row.RowId, row]));
+      if (model.tableId) tableIdRef.current = model.tableId;
       setTableColumns(model.tableColumns);
+      setColumns(model.columns);
       return { ok: true, rows: model.rows };
     } catch {
       return { ok: false, message: "No fue posible cargar el listado." };
@@ -111,7 +115,7 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
           return { ok: false, message };
         }
 
-        const model = adaptListaDocumentosRadicadosToWorkbenchModel(response.data);
+        const model = adaptListaDocumentosRadicadosToWorkbenchModel(response.data, { viewMode: "hierarchical" });
         for (const childRow of response.data.Rows ?? []) {
           latestRowRef.current.set(childRow.RowId, childRow);
         }
@@ -123,34 +127,14 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
     [],
   );
 
-  const performVerDocumento = useCallback(async (rowId: string): Promise<GestionRespuestaDocumentoActivo | null> => {
-    const selected = latestRowRef.current.get(rowId);
-    const meta = selected?.Meta;
-    const values = selected?.Values;
+  const resolveFromActionResponse = useCallback(async (actionResponse: unknown): Promise<GestionRespuestaDocumentoActivo | null> => {
+    if (!actionResponse || typeof actionResponse !== "object") return null;
+    const response = actionResponse as import("../types/listaDocumentosRadicados.types").ApiResponse<
+      import("../types/listaDocumentosRadicados.types").ListaDocumentosRadicadosActionData
+    >;
 
-    const nodeType = readString(meta, "NodeType", "nodeType") ?? "documento";
-    const documentIdFromMeta = readNumber(meta, "DocumentId", "documentId");
-    const gabinete =
-      readString(meta, "NombreGabinete", "nombreGabinete", "NOMBRE_GABINETE") ??
-      readString(values, "NOMBRE_GABINETE", "NombreGabinete", "NOMBREGABINETE");
-
-    if (!gabinete) {
-      return null;
-    }
-
-    const actionResponse = await actionListaDocumentosRadicados(
-      buildListaDocumentosRadicadosActionRequest({
-        context: { tableId: TABLE_ID, viewMode: "flatDocuments" },
-        actionId: "ver_documento",
-        rowId,
-        nodeType,
-        documentId: documentIdFromMeta,
-        nombreGabinete: gabinete,
-      }),
-    );
-
-    const resolveRequest = actionResponse.data?.DocumentResolveRequest;
-    if (!actionResponse.success || !resolveRequest) {
+    const resolveRequest = response.data?.DocumentResolveRequest;
+    if (!response.success || !resolveRequest) {
       return null;
     }
 
@@ -164,23 +148,77 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       fileUrl,
       documentId: resolveRequest.IdDocumento,
       nombreGabinete: resolveRequest.NombreGabinete,
-      rowId,
+      rowId: "",
     };
   }, []);
+
+  const buildActionContextFromRow = useCallback(
+    (rowId: string) => {
+      const selected = latestRowRef.current.get(rowId);
+      const meta = selected?.Meta;
+      const values = selected?.Values;
+
+      const nodeType = readString(meta, "NodeType", "nodeType") ?? "documento";
+      const documentIdFromMeta = readNumber(meta, "DocumentId", "documentId");
+      const gabinete =
+        readString(meta, "NombreGabinete", "nombreGabinete", "NOMBRE_GABINETE") ??
+        readString(values, "NOMBRE_GABINETE", "NombreGabinete", "NOMBREGABINETE");
+
+      return { nodeType, documentIdFromMeta, gabinete };
+    },
+    [],
+  );
+
+  const performAction = useCallback(
+    async (input: { actionId: string; rowId: string }): Promise<GestionRespuestaDocumentoActivo | null> => {
+      const { nodeType, documentIdFromMeta, gabinete } = buildActionContextFromRow(input.rowId);
+      if (!gabinete) return null;
+      const tableId = tableIdRef.current || DEFAULT_TABLE_ID;
+
+      const actionResponse = await actionListaDocumentosRadicados(
+        buildListaDocumentosRadicadosActionRequest({
+          context: { tableId, viewMode: "flatDocuments" },
+          actionId: input.actionId,
+          rowId: input.rowId,
+          nodeType,
+          documentId: documentIdFromMeta,
+          nombreGabinete: gabinete,
+        }),
+      );
+
+      if (actionResponse.data?.RequiresReloadNode) {
+        // Mejor esfuerzo: refrescar la lista raíz sin romper UX.
+        await load();
+      }
+
+      const resolved = await resolveFromActionResponse(actionResponse);
+      if (!resolved) return null;
+
+      return { ...resolved, rowId: input.rowId };
+    },
+    [buildActionContextFromRow, load, resolveFromActionResponse],
+  );
+
+  const performVerDocumento = useCallback(
+    async (rowId: string): Promise<GestionRespuestaDocumentoActivo | null> => {
+      const result = await performAction({ actionId: "ver_documento", rowId });
+      if (!result) return null;
+      return { ...result, rowId };
+    },
+    [performAction],
+  );
 
   const onSelectRow = useCallback(async (rowId: string) => performVerDocumento(rowId), [performVerDocumento]);
 
   const onActionTriggered = useCallback(
     async (params: { actionId: string; rowId: string }) => {
-      if (params.actionId === "ver_documento") {
-        return performVerDocumento(params.rowId);
-      }
-      return null;
+      return performAction(params);
     },
-    [performVerDocumento],
+    [performAction],
   );
 
   const getTableColumns = useCallback(() => tableColumns, [tableColumns]);
+  const getColumns = useCallback(() => columns, [columns]);
 
   return useMemo(
     () => ({
@@ -189,7 +227,8 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       onSelectRow,
       onActionTriggered,
       getTableColumns,
+      getColumns,
     }),
-    [getTableColumns, load, loadChildren, onActionTriggered, onSelectRow],
+    [getColumns, getTableColumns, load, loadChildren, onActionTriggered, onSelectRow],
   );
 };

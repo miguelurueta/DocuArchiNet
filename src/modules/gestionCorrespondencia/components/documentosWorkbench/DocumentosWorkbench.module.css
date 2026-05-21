@@ -120,6 +120,14 @@
   padding-bottom: 12px;
 }
 
+.listSurface :global(button:focus-visible),
+.listSurface :global([role="button"]:focus-visible),
+.listSurface :global([tabindex]:focus-visible) {
+  outline: 2px solid rgba(59, 130, 246, 0.9);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
 .previewPlaceholder {
   display: grid;
   place-items: center;

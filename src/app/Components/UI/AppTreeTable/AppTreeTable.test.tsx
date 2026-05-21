@@ -12,6 +12,8 @@ vi.mock("../AppTable/AppTable", () => ({
       cellRenderer?: (params: { data?: Record<string, unknown> }) => unknown;
     }>;
     onRowClicked?: (row: Record<string, unknown>) => void;
+    onCellClicked?: (input: { row: Record<string, unknown>; columnKey?: string }) => void;
+    onActionTriggered?: (input: { actionId: string; row: Record<string, unknown>; columnKey?: string }) => void;
   }) => {
     return (
       <div data-testid="mock-apptable">
@@ -37,6 +39,9 @@ vi.mock("../AppTable/AppTable", () => ({
                 <span
                   key={String(key)}
                   onClick={() => props.onRowClicked?.(row)}
+                  onDoubleClick={() =>
+                    props.onCellClicked?.({ row, columnKey: col.field ?? col.headerName })
+                  }
                   role="button"
                   tabIndex={0}
                 >
@@ -46,6 +51,13 @@ vi.mock("../AppTable/AppTable", () => ({
             })}
           </div>
         ))}
+
+        <button
+          type="button"
+          onClick={() => props.onActionTriggered?.({ actionId: "ver_documento", row: props.rows[0] })}
+        >
+          trigger-action
+        </button>
       </div>
     );
   },
@@ -123,5 +135,21 @@ describe("[SPEC:APPTREETABLE-216] AppTreeTable wrapper sobre AppTable", () => {
     const rows: AppTreeTableRow[] = [{ id: "a", label: "A" }];
     render(<AppTreeTable rows={rows} />);
     expect(screen.getByText("A")).toBeInTheDocument();
+  });
+
+  it("[SPEC:APPTREETABLE-217] reexpone onCellClicked y onActionTriggered sin romper wrapper", () => {
+    const rows: AppTreeTableRow[] = [{ id: "a", label: "A", values: { TIPODOCUMENTO: "DOC 1" } }];
+    const onCellClicked = vi.fn();
+    const onActionTriggered = vi.fn();
+
+    render(<AppTreeTable rows={rows} onCellClicked={onCellClicked} onActionTriggered={onActionTriggered} />);
+
+    const candidates = screen.getAllByRole("button", { name: "DOC 1" });
+    const labelButton = candidates.find((el) => el.tagName.toLowerCase() === "button") ?? candidates[0];
+    fireEvent.doubleClick(labelButton);
+    expect(onCellClicked).toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: /trigger-action/i }));
+    expect(onActionTriggered).toHaveBeenCalledWith(expect.objectContaining({ actionId: "ver_documento", rowId: "a" }));
   });
 });

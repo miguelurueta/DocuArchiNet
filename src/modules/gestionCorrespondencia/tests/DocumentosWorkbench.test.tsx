@@ -9,6 +9,7 @@ vi.mock("../hooks/useGestionRespuestaDocumentosTable", () => ({
     onSelectRow: vi.fn(async () => ({ fileUrl: "http://example.test/doc.pdf", rowId: "r1" })),
     onActionTriggered: vi.fn(async () => ({ fileUrl: "http://example.test/doc2.pdf", rowId: "r1" })),
     getTableColumns: () => undefined,
+    getColumns: () => undefined,
   }),
 }));
 

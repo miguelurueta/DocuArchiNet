@@ -44,3 +44,11 @@ Comandos ejecutados (2026-05-21):
 - `npm test -- --run src/modules/gestionCorrespondencia/adapters/documentosWorkbenchResponseAdapter.test.ts` (PASS)
 - `npm test -- --run src/modules/gestionCorrespondencia/adapters/documentosWorkbenchActionMapper.test.ts` (PASS)
 - `npm test -- --run src/modules/gestionCorrespondencia/tests/DocumentosWorkbench.test.tsx` (PASS)
+
+Comandos ejecutados (2026-05-21) - validaciÃ³n estÃ¡tica:
+- `npx tsc -p tsconfig.json --noEmit` (PASS)
+
+Comandos ejecutados (2026-05-21) - regresiÃ³n acotada (ticket):
+- `npm test -- --run src/modules/gestionCorrespondencia/adapters/gestionRespuestaDocumentosRequestMapper.test.ts src/modules/gestionCorrespondencia/adapters/documentosWorkbenchResponseAdapter.test.ts src/modules/gestionCorrespondencia/adapters/documentosWorkbenchActionMapper.test.ts src/modules/gestionCorrespondencia/tests/DocumentosWorkbench.test.tsx src/app/Components/UI/AppTreeTable/AppTreeTable.test.tsx --pool=threads` (PASS)
+
+Nota: en este entorno la ejecuciÃ³n de Vitest/Playwright puede fallar con `Error: spawn EPERM` al cargar `vite.config.ts` (esbuild/vite). En ese caso, ejecutar pruebas fuera del sandbox o con permisos adecuados.
