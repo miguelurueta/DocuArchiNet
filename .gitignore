@@ -13,6 +13,8 @@ public/demo/DIG00005004 (2).pdf
 node_modules
 dist
 dist-ssr
+test-results/
+playwright-report/
 *.local
 
 # Editor directories and files

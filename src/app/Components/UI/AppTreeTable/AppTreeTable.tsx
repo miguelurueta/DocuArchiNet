@@ -56,6 +56,9 @@ export function AppTreeTable({
   load,
   loadChildren,
   onSelectRow,
+  onCellClicked,
+  onActionTriggered,
+  tableColumns: tableColumnsOverride,
   columns,
   emptyMessage = "Sin registros.",
   isRetryEnabled = true,
@@ -130,6 +133,10 @@ export function AppTreeTable({
   );
 
   const tableColumns: ColDef<(typeof appTableRows)[number]>[] = useMemo(() => {
+    if (tableColumnsOverride && tableColumnsOverride.length > 0) {
+      return tableColumnsOverride as unknown as ColDef<(typeof appTableRows)[number]>[];
+    }
+
     const columnsToRender = resolvedColumns.length > 0 ? resolvedColumns : ["Label"];
 
     return columnsToRender.map((column, index) => ({
@@ -220,7 +227,15 @@ export function AppTreeTable({
         );
       },
     }));
-  }, [expansion, loadChildren, loadingChildren, onSelectRow, resolvedColumns, resolvedRows]);
+  }, [
+    expansion,
+    loadChildren,
+    loadingChildren,
+    onSelectRow,
+    resolvedColumns,
+    resolvedRows,
+    tableColumnsOverride,
+  ]);
 
   if (state.status === "loading") {
     return (
@@ -266,6 +281,11 @@ export function AppTreeTable({
         rowClickAffordance={false}
         getRowId={(row) => String(row.id)}
         onRowClicked={(row) => onSelectRow?.(row.id)}
+        onCellClicked={(params) => {
+          const tree = (params.row as (typeof appTableRows)[number]).__tree;
+          if (!tree) return;
+          onCellClicked?.({ rowId: tree.node.id, field: params.field, value: params.value });
+        }}
         onActionTriggered={(params) => {
           const tree = (params.row as (typeof appTableRows)[number]).__tree;
           if (!tree) return;
@@ -277,7 +297,14 @@ export function AppTreeTable({
 
           if (params.actionId === "select_row") {
             onSelectRow?.(tree.node.id);
+            return;
           }
+
+          onActionTriggered?.({
+            actionId: params.actionId,
+            rowId: tree.node.id,
+            columnKey: params.columnKey,
+          });
         }}
       />
     </div>
