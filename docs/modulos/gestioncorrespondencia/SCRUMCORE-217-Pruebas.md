@@ -26,11 +26,12 @@
 
 ## E2E (Playwright)
 
-Pendiente: agregar pruebas E2E para flujo real:
-- carga real de documentos por tarea
-- `ver_documento` actualiza visor
-- menú secundario funciona
-- responsive intacto
+Se agregó un smoke E2E:
+- Archivo: `playwright/gestionCorrespondencia/documentosWorkbench.smoke.spec.ts`
+
+Ejecución (2026-05-21):
+- `npm run test:e2e -- playwright/gestionCorrespondencia/documentosWorkbench.smoke.spec.ts`
+  - Resultado: FAIL por missing env var `PLAYWRIGHT_LOGIN_EMPRESA_ID` (configuración de entorno requerida).
 
 ## Regresión
 

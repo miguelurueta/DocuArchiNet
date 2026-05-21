@@ -73,7 +73,7 @@
   - menú dinámico / action triggered
   - integración visor (documento activo)
 - [ ] 5.3 Browser interaction tests (manual checklist) documentados: click documento, expand/collapse, menú, retry error, responsive/focus
-- [ ] 5.4 E2E (Playwright) obligatorios: carga real, `ver_documento` actualiza visor, menú secundario, responsive intacto
+- [ ] 5.4 E2E (Playwright) obligatorios: carga real, `ver_documento` actualiza visor, menú secundario, responsive intacto (bloqueado por env vars Playwright en el entorno actual)
 - [ ] 5.5 Regresión: asegurar `AppTreeTable` y `AppTable` siguen funcionando (tests existentes + smoke)
 - [x] 5.6 Registrar evidencia de ejecución (comandos + salida relevante) en documentación del cambio
 
