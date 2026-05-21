@@ -3,8 +3,56 @@ import { describe, expect, it, vi } from "vitest";
 import { AppTreeTable } from "./AppTreeTable";
 import type { AppTreeTableRow } from "./types";
 
+vi.mock("../AppTable/AppTable", () => ({
+  default: (props: {
+    rows: Array<Record<string, unknown>>;
+    columns: Array<{
+      headerName?: string;
+      field?: string;
+      cellRenderer?: (params: { data?: Record<string, unknown> }) => unknown;
+    }>;
+    onRowClicked?: (row: Record<string, unknown>) => void;
+  }) => {
+    return (
+      <div data-testid="mock-apptable">
+        <div>
+          {props.columns.map((col, index) => (
+            <span key={col.field ?? col.headerName ?? String(index)}>
+              {col.headerName ?? col.field}
+            </span>
+          ))}
+        </div>
+
+        {props.rows.map((row, rowIndex) => (
+          <div key={String(row.id ?? rowIndex)}>
+            {props.columns.map((col, colIndex) => {
+              const key = col.field ?? col.headerName ?? String(colIndex);
+              const rendered = col.cellRenderer
+                ? col.cellRenderer({ data: row })
+                : col.field
+                  ? row[col.field]
+                  : null;
+
+              return (
+                <span
+                  key={String(key)}
+                  onClick={() => props.onRowClicked?.(row)}
+                  role="button"
+                  tabIndex={0}
+                >
+                  {rendered as any}
+                </span>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  },
+}));
+
 describe("AppTreeTable", () => {
-  it("[SPEC:APP-APPTREETABLE-001] renderiza filas jerárquicas desde rows", () => {
+  it("[SPEC:APP-APPTREETABLE-001] renderiza filas jerarquicas desde rows", () => {
     const rows: AppTreeTableRow[] = [
       { id: "a", label: "A", children: [{ id: "a-1", label: "A1" }] },
     ];
@@ -19,7 +67,7 @@ describe("AppTreeTable", () => {
 
   it("[SPEC:APP-APPTREETABLE-002] renderiza loading/empty/error con load() mock", async () => {
     const loadOk = vi.fn().mockResolvedValue({ ok: true, rows: [] });
-    const loadFail = vi.fn().mockResolvedValue({ ok: false, message: "Falló" });
+    const loadFail = vi.fn().mockResolvedValue({ ok: false, message: "Fallo" });
 
     const { rerender } = render(<AppTreeTable load={loadOk} />);
     expect(screen.getByText(/cargando/i)).toBeInTheDocument();
@@ -27,17 +75,17 @@ describe("AppTreeTable", () => {
     expect(await screen.findByText(/sin registros/i)).toBeInTheDocument();
 
     rerender(<AppTreeTable load={loadFail} />);
-    expect(await screen.findByText(/error: falló/i)).toBeInTheDocument();
+    expect(await screen.findByText(/error: fallo/i)).toBeInTheDocument();
   });
 
   it("[SPEC:APP-APPTREETABLE-004] permite reintentar cuando load falla", async () => {
     const load = vi
       .fn()
-      .mockResolvedValueOnce({ ok: false, message: "Falló" })
+      .mockResolvedValueOnce({ ok: false, message: "Fallo" })
       .mockResolvedValueOnce({ ok: true, rows: [] });
 
     render(<AppTreeTable load={load} />);
-    expect(await screen.findByText(/error: falló/i)).toBeInTheDocument();
+    expect(await screen.findByText(/error: fallo/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /reintentar/i }));
     expect(await screen.findByText(/sin registros/i)).toBeInTheDocument();
@@ -70,3 +118,10 @@ describe("AppTreeTable", () => {
   });
 });
 
+describe("[SPEC:APPTREETABLE-216] AppTreeTable wrapper sobre AppTable", () => {
+  it("mantiene compatibilidad sin afectar consumidores", () => {
+    const rows: AppTreeTableRow[] = [{ id: "a", label: "A" }];
+    render(<AppTreeTable rows={rows} />);
+    expect(screen.getByText("A")).toBeInTheDocument();
+  });
+});
