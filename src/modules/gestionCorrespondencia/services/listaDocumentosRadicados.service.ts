@@ -46,4 +46,3 @@ export async function resolveDocumentoVisualizacion(
   );
   return response.data;
 }
-

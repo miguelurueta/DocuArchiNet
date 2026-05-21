@@ -5,6 +5,7 @@ import {
   queryListaDocumentosRadicados,
   resolveDocumentoVisualizacion,
 } from "../services/listaDocumentosRadicados.service";
+import { getSolicitaGabinetePorTareaWorkflow } from "../services/solicitaGabineteRadicadoWorkflow.service";
 import type {
   ListaDocumentosRadicadosQueryRequest,
   ListaDocumentosRadicadosRowDto,
@@ -33,26 +34,32 @@ const readNumber = (record: unknown, ...keys: string[]): number | undefined => {
   return undefined;
 };
 
-const buildInitialQuery = (): ListaDocumentosRadicadosQueryRequest => ({
-  ViewMode: "flatDocuments",
-  Page: 1,
-  PageSize: 25,
-  SortDir: "ASC",
-  Search: "",
-  StructuredFilters: [],
-  IncludeConfig: true,
-  EnablePagination: false,
-  EnableColumnFilters: false,
-  ParentRowId: null,
-  ParentNodeType: null,
-  Level: 1,
+const buildInitialQuery = (options?: {
+  nombreGabinete?: string;
+}): ListaDocumentosRadicadosQueryRequest => {
+  const base: ListaDocumentosRadicadosQueryRequest = {
+    ViewMode: "flatDocuments",
+    Page: 1,
+    PageSize: 25,
+    SortDir: "ASC",
+    Search: "",
+    StructuredFilters: [],
+    IncludeConfig: true,
+    EnablePagination: false,
+    EnableColumnFilters: false,
+    ParentRowId: null,
+    ParentNodeType: null,
+    Level: 1,
 
-  TableId: TABLE_ID,
-  NombreGabinete: "",
-  CampoRadicado: "",
-  Radicado: "",
-  AplicaTrd: DEFAULT_APLICA_TRD,
-});
+    TableId: TABLE_ID,
+    CampoRadicado: "",
+    Radicado: "",
+    AplicaTrd: DEFAULT_APLICA_TRD,
+  };
+
+  const nombreGabinete = options?.nombreGabinete?.trim();
+  return nombreGabinete ? { ...base, NombreGabinete: nombreGabinete } : base;
+};
 
 const inferColumnsFromRows = (rows: ListaDocumentosRadicadosRowDto[]): string[] => {
   const first = rows.find((row) => row.Values && Object.keys(row.Values).length > 0);
@@ -84,12 +91,30 @@ export type ListaDocumentosRadicadosTreeTable = {
   onSelectRow: (rowId: string) => Promise<void>;
 };
 
-export const useListaDocumentosRadicadosTreeTable = (): ListaDocumentosRadicadosTreeTable => {
+export const useListaDocumentosRadicadosTreeTable = (
+  idTareaWf?: number,
+): ListaDocumentosRadicadosTreeTable => {
   const latestRowRef = useRef<Map<string, ListaDocumentosRadicadosRowDto>>(new Map());
+  const gabineteRef = useRef<string | undefined>(undefined);
 
   const load = useCallback(async (): Promise<AppTreeTableLoadResult> => {
     try {
-      const response = await queryListaDocumentosRadicados(buildInitialQuery());
+      let gabinete: string | undefined;
+      if (typeof idTareaWf === "number" && Number.isFinite(idTareaWf) && idTareaWf > 0) {
+        const gabineteResponse = await getSolicitaGabinetePorTareaWorkflow(idTareaWf);
+        gabinete = gabineteResponse?.data?.NombreGabinete;
+        if (!gabineteResponse.success) {
+          const message =
+            (gabineteResponse.errors as any)?.[0]?.Message ??
+            (gabineteResponse.errors as any)?.[0]?.errorMessage ??
+            gabineteResponse.message ??
+            "No fue posible resolver el gabinete del radicado.";
+          return { ok: false, message };
+        }
+      }
+
+      gabineteRef.current = gabinete;
+      const response = await queryListaDocumentosRadicados(buildInitialQuery({ nombreGabinete: gabinete }));
       if (!response.success || !response.data) {
         const message =
           response.errors?.[0]?.errorMessage ?? response.message ?? "No fue posible cargar el listado.";
@@ -101,12 +126,13 @@ export const useListaDocumentosRadicadosTreeTable = (): ListaDocumentosRadicados
     } catch {
       return { ok: false, message: "No fue posible cargar el listado." };
     }
-  }, []);
+  }, [idTareaWf]);
 
   const loadChildren = useCallback(async (row: AppTreeTableRow): Promise<AppTreeTableLoadChildrenResult> => {
     const parentNodeType = String(row.meta?.NodeType ?? row.meta?.nodeType ?? "");
+    const gabinete = gabineteRef.current;
     const request: ListaDocumentosRadicadosQueryRequest = {
-      ...buildInitialQuery(),
+      ...buildInitialQuery({ nombreGabinete: gabinete }),
       ViewMode: "hierarchical",
       ParentRowId: row.id,
       ParentNodeType: parentNodeType || null,

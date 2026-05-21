@@ -39,13 +39,17 @@ function resolveIsTablet() {
   return isTouchDevice && width > 768 && width <= 1366;
 }
 
-export function DocumentosWorkbench() {
+type DocumentosWorkbenchProps = {
+  idTareaWf?: number;
+};
+
+export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const panelId = useId();
   const rootRef = useRef<HTMLElement | null>(null);
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [isTablet, setIsTablet] = useState(resolveIsTablet);
   const [collapsed, setCollapsed] = useState(isTablet);
-  const listaRadicados = useListaDocumentosRadicadosTreeTable();
+  const listaRadicados = useListaDocumentosRadicadosTreeTable(idTareaWf);
 
   useEffect(() => {
     const handler = () => setIsTablet(resolveIsTablet());
@@ -92,50 +96,36 @@ export function DocumentosWorkbench() {
       ref={(node) => {
         rootRef.current = node;
       }}
-      className={styles.workbench}
+      className={styles.workbenchBody}
       aria-label="Workbench de documentos"
+      data-collapsed={layoutCollapsed}
+      data-variant={variant}
+      data-testid="documentos-workbench"
     >
-      <div
-        className={styles.workbenchBody}
-        data-collapsed={layoutCollapsed}
-        data-variant={variant}
-        data-testid="documentos-workbench"
-      >
-        <AppVisorEmbedPdf className={styles.viewer} />
+      <AppVisorEmbedPdf className={styles.viewer} />
 
-        <AppCollapseRail
-          title="Visualizar documentos"
-          collapsed={collapsed}
-          onToggle={() => setCollapsed((prev) => !prev)}
-          placement="right"
-          variant={variant}
-          panelId={panelId}
-          railLabel="Ver documentos"
-          railIcon={<BookOutlined />}
-          className={styles.collapseRail}
-        >
-          <div className={styles.panelContent}>
-            <section className={styles.preview} aria-label="Panel de documentos">
-              <div className={styles.previewHeader}>
-                <h4 className={styles.previewTitle}>Listado</h4>
-                <span className={styles.previewMeta}>Vacío</span>
-              </div>
-              <div className={styles.previewSurface}>
-                <div className={styles.listSurface}>
-                  <AppTreeTable
-                    load={listaRadicados.load}
-                    loadChildren={listaRadicados.loadChildren}
-                    onSelectRow={(rowId) => {
-                      void listaRadicados.onSelectRow(rowId);
-                    }}
-                    emptyMessage="Sin documentos adjuntos."
-                  />
-                </div>
-              </div>
-            </section>
-          </div>
-        </AppCollapseRail>
-      </div>
+      <AppCollapseRail
+        title="Visualizar documentos"
+        collapsed={collapsed}
+        onToggle={() => setCollapsed((prev) => !prev)}
+        placement="right"
+        variant={variant}
+        panelId={panelId}
+        railLabel="Ver documentos"
+        railIcon={<BookOutlined />}
+        className={styles.collapseRail}
+      >
+        <div className={styles.listSurface} aria-label="Listado de documentos">
+          <AppTreeTable
+            load={listaRadicados.load}
+            loadChildren={listaRadicados.loadChildren}
+            onSelectRow={(rowId) => {
+              void listaRadicados.onSelectRow(rowId);
+            }}
+            emptyMessage="Sin documentos adjuntos."
+          />
+        </div>
+      </AppCollapseRail>
     </section>
   );
 }

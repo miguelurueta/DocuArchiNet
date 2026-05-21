@@ -23,6 +23,7 @@
 - [x] Integrar `AppTreeTable` en `DocumentosWorkbench` “Listado” usando hook/servicio real:
   - [x] mantener estilos y contenedor del rail
   - [x] no tocar `AppVisorEmbedPdf` ni otros plugins
+- [x] Ajustar layout Workbench para evitar recorte de alto en visor + listado (remover wrapper `workbenchBody` y usar `height: 100%` + `min-height: 0`).
 - [x] Manejo de errores:
   - [x] HTTP no-2xx / red -> error técnico + reintento opcional
   - [x] `success=false` -> error funcional (`errors[0].errorMessage` / `message`)
