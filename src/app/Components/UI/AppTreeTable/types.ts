@@ -1,3 +1,5 @@
+import type { ColDef } from "ag-grid-community";
+
 export type AppTreeTableRowId = string;
 
 export type AppTreeTableCellValue = string | number | boolean | null;
@@ -24,6 +26,9 @@ export type AppTreeTableProps = {
   load?: () => Promise<AppTreeTableLoadResult>;
   loadChildren?: (row: AppTreeTableRow) => Promise<AppTreeTableLoadChildrenResult>;
   onSelectRow?: (rowId: AppTreeTableRowId) => void;
+  onCellClicked?: (params: { rowId: AppTreeTableRowId; field?: string | null; value?: unknown }) => void;
+  onActionTriggered?: (params: { actionId: string; rowId: AppTreeTableRowId; columnKey?: string }) => void;
+  tableColumns?: ColDef<Record<string, unknown>>[];
   columns?: string[];
   emptyMessage?: string;
   isRetryEnabled?: boolean;

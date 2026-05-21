@@ -3,7 +3,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import { AppTreeTable } from "../../../../app/Components/UI/AppTreeTable";
 import { AppVisorEmbedPdf } from "../../../../app/Components/UI/AppVisorEmbedPdf";
-import { useListaDocumentosRadicadosTreeTable } from "../../hooks/useListaDocumentosRadicadosTreeTable";
+import { useGestionRespuestaDocumentosTable } from "../../hooks/useGestionRespuestaDocumentosTable";
 import styles from "./DocumentosWorkbench.module.css";
 
 const MOBILE_QUERY = "(max-width: 768px)";
@@ -49,7 +49,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [isTablet, setIsTablet] = useState(resolveIsTablet);
   const [collapsed, setCollapsed] = useState(isTablet);
-  const listaRadicados = useListaDocumentosRadicadosTreeTable(idTareaWf);
+  const documentosTable = useGestionRespuestaDocumentosTable(idTareaWf);
+  const [activeFileUrl, setActiveFileUrl] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const handler = () => setIsTablet(resolveIsTablet());
@@ -102,7 +103,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       data-variant={variant}
       data-testid="documentos-workbench"
     >
-      <AppVisorEmbedPdf className={styles.viewer} />
+      <AppVisorEmbedPdf className={styles.viewer} fileUrl={activeFileUrl} />
 
       <AppCollapseRail
         title="Visualizar documentos"
@@ -117,10 +118,22 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       >
         <div className={styles.listSurface} aria-label="Listado de documentos">
           <AppTreeTable
-            load={listaRadicados.load}
-            loadChildren={listaRadicados.loadChildren}
+            load={documentosTable.load}
+            loadChildren={documentosTable.loadChildren}
+            tableColumns={documentosTable.getTableColumns()}
             onSelectRow={(rowId) => {
-              void listaRadicados.onSelectRow(rowId);
+              void documentosTable.onSelectRow(rowId).then((result) => {
+                if (!result?.fileUrl) return;
+                setActiveFileUrl(result.fileUrl);
+              });
+            }}
+            onActionTriggered={(params) => {
+              void documentosTable
+                .onActionTriggered({ actionId: params.actionId, rowId: params.rowId })
+                .then((result) => {
+                  if (!result?.fileUrl) return;
+                  setActiveFileUrl(result.fileUrl);
+                });
             }}
             emptyMessage="Sin documentos adjuntos."
           />

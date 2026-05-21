@@ -2,12 +2,13 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import { DocumentosWorkbench } from "../components/documentosWorkbench/DocumentosWorkbench";
 
-vi.mock("../hooks/useListaDocumentosRadicadosTreeTable", () => ({
-  useListaDocumentosRadicadosTreeTable: () => ({
+vi.mock("../hooks/useGestionRespuestaDocumentosTable", () => ({
+  useGestionRespuestaDocumentosTable: () => ({
     load: vi.fn(),
     loadChildren: vi.fn(),
-    onSelectRow: vi.fn(),
-    columns: [],
+    onSelectRow: vi.fn(async () => null),
+    onActionTriggered: vi.fn(async () => null),
+    getTableColumns: () => undefined,
   }),
 }));
 
