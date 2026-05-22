@@ -85,6 +85,7 @@ export function AppTreeTable({
   rowSelectionCheckboxes,
   rowSelectionHeaderCheckbox,
   suppressRowClickSelection = true,
+  onSelectionChanged,
   tableDomLayout = "autoHeight",
   tableLayoutMode = "content",
   tableColumns: tableColumnsOverride,
@@ -364,6 +365,12 @@ export function AppTreeTable({
             rowId: tree.node.id,
             columnKey: params.columnKey,
           });
+        }}
+        onSelectionChanged={(selectedRows) => {
+          const ids = selectedRows
+            .map((row) => (row.__tree?.node.id ? String(row.__tree.node.id) : ""))
+            .filter((id) => id.length > 0);
+          onSelectionChanged?.(ids);
         }}
       />
     </div>

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   AppTreeTableLoadChildrenResult,
   AppTreeTableLoadResult,
@@ -15,7 +15,11 @@ import {
   buildListaDocumentosRadicadosChildrenQuery,
   buildListaDocumentosRadicadosRootQuery,
 } from "../adapters/gestionRespuestaDocumentosRequestMapper";
-import type { ListaDocumentosRadicadosRowDto } from "../types/listaDocumentosRadicados.types";
+import type {
+  ApiResponse,
+  ListaDocumentosRadicadosQueryData,
+  ListaDocumentosRadicadosRowDto,
+} from "../types/listaDocumentosRadicados.types";
 
 const DEFAULT_TABLE_ID = "InboxListaDocumentosRadicado";
 
@@ -46,6 +50,32 @@ const inferColumnsFromRows = (rows: AppTreeTableRow[]): string[] | undefined => 
   return keys.length > 0 ? keys : undefined;
 };
 
+const readTotalCandidate = (value: unknown): number | undefined => {
+  if (!value || typeof value !== "object") return undefined;
+  const source = value as Record<string, unknown>;
+  const candidates = [
+    source.Total,
+    source.total,
+    source.TotalRecords,
+    source.totalRecords,
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === "number" && Number.isFinite(candidate) && candidate >= 0) {
+      return candidate;
+    }
+  }
+
+  return undefined;
+};
+
+const resolveBackendTotal = (
+  response: ApiResponse<ListaDocumentosRadicadosQueryData>,
+): number | undefined =>
+  readTotalCandidate(response.data) ??
+  readTotalCandidate(response.meta) ??
+  readTotalCandidate(response);
+
 const resolveFileUrlFromResolveResponse = (input: unknown): string | undefined => {
   if (!input || typeof input !== "object") return undefined;
   const obj = input as Record<string, unknown>;
@@ -63,12 +93,24 @@ export type GestionRespuestaDocumentoActivo = {
   rowId: string;
 };
 
+type DocumentosCountState = {
+  rowsCount: number;
+  backendTotal?: number;
+  runtimePreferred: boolean;
+};
+
 export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
   const latestRowRef = useRef<Map<string, ListaDocumentosRadicadosRowDto>>(new Map());
   const gabineteRef = useRef<string | undefined>(undefined);
   const tableIdRef = useRef<string>(DEFAULT_TABLE_ID);
   const [tableColumns, setTableColumns] = useState<import("ag-grid-community").ColDef<Record<string, unknown>>[]>();
   const [columns, setColumns] = useState<string[]>();
+  const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
+  const [countState, setCountState] = useState<DocumentosCountState>({
+    rowsCount: 0,
+    backendTotal: undefined,
+    runtimePreferred: false,
+  });
 
   const load = useCallback(async (): Promise<AppTreeTableLoadResult> => {
     try {
@@ -98,6 +140,12 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       latestRowRef.current = new Map(
         (response.data.Rows ?? []).map((row, index) => [resolveDocumentWorkbenchRowId(row, index), row]),
       );
+      const backendTotal = resolveBackendTotal(response);
+      setCountState((prev) => ({
+        rowsCount: model.rows.length,
+        backendTotal,
+        runtimePreferred: prev.runtimePreferred,
+      }));
       tableIdRef.current = model.tableId || DEFAULT_TABLE_ID;
       const resolvedColumns = model.columns && model.columns.length > 0 ? model.columns : inferColumnsFromRows(model.rows);
       setTableColumns(model.tableColumns);
@@ -133,6 +181,10 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
         for (const [index, childRow] of (response.data.Rows ?? []).entries()) {
           latestRowRef.current.set(resolveDocumentWorkbenchRowId(childRow, index), childRow);
         }
+        setCountState((prev) => ({
+          ...prev,
+          rowsCount: latestRowRef.current.size,
+        }));
         return { ok: true, rows: model.rows };
       } catch {
         return { ok: false, message: "No fue posible cargar el listado." };
@@ -206,6 +258,10 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
         }),
       );
 
+      if (input.actionId === "agregar_item" || input.actionId === "eliminar_item") {
+        setCountState((prev) => ({ ...prev, runtimePreferred: true }));
+      }
+
       if (actionResponse.data?.RequiresReloadNode) {
         // Mejor esfuerzo: refrescar la lista raíz sin romper UX.
         await load();
@@ -237,6 +293,26 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
     [performAction],
   );
 
+  const onSelectionChanged = useCallback((rowIds: string[]) => {
+    setSelectedRowIds(Array.from(new Set(rowIds)));
+  }, []);
+
+  useEffect(() => {
+    if (selectedRowIds.length === 0) return;
+    setSelectedRowIds((prev) => {
+      const filtered = prev.filter((rowId) => latestRowRef.current.has(rowId));
+      return filtered.length === prev.length ? prev : filtered;
+    });
+  }, [countState.rowsCount, selectedRowIds]);
+
+  const totalDocumentsCount = useMemo(() => {
+    if (countState.runtimePreferred) return countState.rowsCount;
+    if (typeof countState.backendTotal === "number") return countState.backendTotal;
+    return countState.rowsCount;
+  }, [countState.backendTotal, countState.rowsCount, countState.runtimePreferred]);
+
+  const selectedDocumentsCount = useMemo(() => selectedRowIds.length, [selectedRowIds.length]);
+
   const getTableColumns = useCallback(() => tableColumns, [tableColumns]);
   const getColumns = useCallback(() => columns, [columns]);
 
@@ -246,9 +322,22 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       loadChildren,
       onSelectRow,
       onActionTriggered,
+      onSelectionChanged,
       getTableColumns,
       getColumns,
+      totalDocumentsCount,
+      selectedDocumentsCount,
     }),
-    [getColumns, getTableColumns, load, loadChildren, onActionTriggered, onSelectRow],
+    [
+      getColumns,
+      getTableColumns,
+      load,
+      loadChildren,
+      onActionTriggered,
+      onSelectRow,
+      onSelectionChanged,
+      selectedDocumentsCount,
+      totalDocumentsCount,
+    ],
   );
 };
