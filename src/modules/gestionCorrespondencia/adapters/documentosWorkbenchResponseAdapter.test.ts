@@ -139,6 +139,49 @@ describe("[SPEC:APPTREETABLE-217] documentosWorkbenchResponseAdapter", () => {
     expect(rendererParams?.menuActions?.length).toBeGreaterThan(0);
   });
 
+  it("[SPEC:APPTREETABLE-225-001] en Workbench limita Dynamic UI a 2 columnas y aplica sizing preset", () => {
+    const dynamicTableWithLegacy = {
+      ...dynamicTable,
+      Columns: [
+        { ColumnKey: "PAG", DataIndex: "PAG", HeaderName: "PAG" },
+        ...(dynamicTable.Columns ?? []),
+      ],
+    };
+
+    const data: ListaDocumentosRadicadosQueryData = {
+      Rows: [
+        {
+          RowId: "r-action",
+          Values: { TIPODOCUMENTO: "DOC 2001", PAG: 10 },
+          Meta: { NodeType: "documento", HasChildren: false },
+        },
+      ],
+      Columns: ["TIPODOCUMENTO", "PAG"],
+      Config: dynamicTableWithLegacy as unknown as ListaDocumentosRadicadosQueryData["Config"],
+    } as unknown as ListaDocumentosRadicadosQueryData;
+
+    const model = adaptListaDocumentosRadicadosToWorkbenchModel(data, { viewMode: "flatDocuments" });
+    expect(model.tableId).toBe("InboxListaDocumentosRadicado");
+    expect(model.tableColumns).toBeDefined();
+    expect(model.tableColumns).toHaveLength(2);
+
+    expect(model.tableColumns?.[0]).toEqual(
+      expect.objectContaining({
+        field: "TIPODOCUMENTO",
+        flex: 2,
+        minWidth: 60,
+      }),
+    );
+
+    expect(model.tableColumns?.[1]).toEqual(
+      expect.objectContaining({
+        field: "ACCIONES",
+        flex: 1,
+        minWidth: 80,
+      }),
+    );
+  });
+
   it("normaliza row id cuando RowId no viene y evita undefined", () => {
     const rowWithoutId = {
       RowId: "" as unknown as string,

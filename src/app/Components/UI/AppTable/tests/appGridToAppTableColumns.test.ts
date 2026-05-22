@@ -154,4 +154,71 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
       "08/04/2025 13:45",
     );
   });
+
+  it("[SPEC:APPTREETABLE-225-001] scopes Workbench table to two columns and applies sizing preset", () => {
+    const result = mapAppGridColumnsToAppTableColumns(
+      [
+        {
+          field: "ID",
+          headerName: "ID",
+          visible: true,
+          sortable: true,
+          filterable: true,
+        },
+        {
+          field: "PAG",
+          headerName: "PAG",
+          visible: true,
+          sortable: true,
+          filterable: true,
+        },
+        {
+          field: "TIPODOCUMENTO",
+          headerName: "Documento",
+          visible: true,
+          sortable: true,
+          filterable: true,
+        },
+        {
+          field: "acciones",
+          headerName: "Acciones",
+          visible: true,
+          sortable: true,
+          filterable: true,
+          isActionColumn: true,
+          actions: [
+            {
+              actionId: "ver_documento",
+              label: "Ver",
+              placement: "row",
+              presentation: "icon_button",
+              behavior: "client_event",
+            },
+          ],
+        },
+      ],
+      {
+        tableId: "InboxListaDocumentosRadicado",
+        userClaims: [],
+        menuActions: [],
+        onClientEvent: () => undefined,
+      },
+    );
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        field: "TIPODOCUMENTO",
+        flex: 2,
+        minWidth: 60,
+      }),
+    );
+    expect(result[1]).toEqual(
+      expect.objectContaining({
+        field: "acciones",
+        flex: 1,
+        minWidth: 80,
+      }),
+    );
+  });
 });
