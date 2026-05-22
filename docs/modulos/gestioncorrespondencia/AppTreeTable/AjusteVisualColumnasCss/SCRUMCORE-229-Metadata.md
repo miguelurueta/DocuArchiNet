@@ -28,4 +28,6 @@
 
 ## PR / Commit
 - PR: (completar)
-- Commit: `6c91f71`
+- Commit(s):
+  - `6c91f71`
+  - `6afd02a`
