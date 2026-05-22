@@ -2,6 +2,7 @@ import { fetchJiraIssue } from "./jiraClient.js";
 import {
   buildChangeNameFromJiraSummary,
   buildProposalContent,
+  writeRefinementArtifacts,
   writeProposalFile,
 } from "./proposalGenerator.js";
 
@@ -37,10 +38,19 @@ export const createProposalFromJira = async ({
     baseDir,
   });
 
+  const refinementArtifacts = await writeRefinementArtifacts({
+    issueKey: issue.issueKey,
+    changeName,
+    summary: issue.summary,
+    description: issue.description,
+    baseDir,
+  });
+
   return {
     issue,
     content,
     proposalPath,
     changeName,
+    refinementArtifacts,
   };
 };

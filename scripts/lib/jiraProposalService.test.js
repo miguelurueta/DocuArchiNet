@@ -41,6 +41,12 @@ describe("jiraProposalService", () => {
       const content = await readFile(result.proposalPath, "utf8");
       expect(content).toContain("`auto-complete-asunto`");
       expect(content).not.toContain("`jira-proposal-generator`");
+      expect(result.refinementArtifacts?.designPath).toContain(
+        path.join("openspec", "changes", "scrum-8-auto-complete-asunto", "design.md"),
+      );
+      expect(result.refinementArtifacts?.tasksPath).toContain(
+        path.join("openspec", "changes", "scrum-8-auto-complete-asunto", "tasks.md"),
+      );
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

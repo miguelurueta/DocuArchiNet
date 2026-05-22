@@ -6,6 +6,7 @@ import {
   buildChangeNameFromJiraSummary,
   buildProposalContent,
   inferProposalIntent,
+  writeRefinementArtifacts,
   writeProposalFile,
 } from "./proposalGenerator.js";
 
@@ -19,9 +20,22 @@ describe("proposalGenerator", () => {
 
     expect(content).toContain("## Why");
     expect(content).toContain("## What Changes");
+    expect(content).toContain("## Jira Details");
     expect(content).toContain("## Capabilities");
     expect(content).toContain("## Impact");
     expect(content).toContain("ABC-123");
+  });
+
+  it("keeps multiline jira description in proposal details", () => {
+    const content = buildProposalContent({
+      issueKey: "ABC-124",
+      summary: "Resumen",
+      description: "Linea uno\nLinea dos\nLinea tres",
+    });
+
+    expect(content).toContain("> Linea uno");
+    expect(content).toContain("> Linea dos");
+    expect(content).toContain("> Linea tres");
   });
 
   it("infers app-toolbar capability for component creation tickets", () => {
@@ -74,6 +88,31 @@ describe("proposalGenerator", () => {
       );
       const saved = await readFile(filePath, "utf8");
       expect(saved).toBe(content);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("writes initial design/spec/tasks artifacts from jira context", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "proposal-artifacts-"));
+
+    try {
+      const result = await writeRefinementArtifacts({
+        issueKey: "SCRUM-8",
+        changeName: "scrum-8-auto-complete-asunto",
+        summary: "Auto complete asunto",
+        description: "Detalle completo\nCon lineas",
+        baseDir: tempDir,
+      });
+
+      const design = await readFile(result.designPath, "utf8");
+      const spec = await readFile(result.specPath, "utf8");
+      const tasks = await readFile(result.tasksPath, "utf8");
+
+      expect(design).toContain("## Context");
+      expect(design).toContain("SCRUM-8: Auto complete asunto");
+      expect(spec).toContain("## ADDED Requirements");
+      expect(tasks).toContain("## 1. Refinement");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

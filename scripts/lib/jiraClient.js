@@ -50,7 +50,16 @@ export const fetchJiraIssue = async ({
 
   const authHeader = buildJiraAuthHeader(email, apiToken);
   const normalizedBase = baseUrl.replace(/\/+$/, "");
-  const url = `${normalizedBase}/rest/api/3/issue/${issueKey}?fields=summary,description`;
+  const requestedFields = [
+    "summary",
+    "description",
+    "issuetype",
+    "priority",
+    "labels",
+    "components",
+    "subtasks",
+  ].join(",");
+  const url = `${normalizedBase}/rest/api/3/issue/${issueKey}?fields=${requestedFields}`;
 
   const response = await fetchImpl(url, {
     headers: {
@@ -71,8 +80,40 @@ export const fetchJiraIssue = async ({
   const fields = payload?.fields ?? {};
   const summary = fields.summary ?? "";
   const description = normalizeDescription(fields.description);
+  const labels = Array.isArray(fields.labels) ? fields.labels : [];
+  const components = Array.isArray(fields.components)
+    ? fields.components
+        .map((item) => (typeof item?.name === "string" ? item.name : null))
+        .filter(Boolean)
+    : [];
+  const subtasks = Array.isArray(fields.subtasks)
+    ? fields.subtasks
+        .map((item) =>
+          typeof item?.key === "string"
+            ? {
+                key: item.key,
+                summary:
+                  typeof item?.fields?.summary === "string"
+                    ? item.fields.summary
+                    : "",
+              }
+            : null,
+        )
+        .filter(Boolean)
+    : [];
 
-  return { issueKey, summary, description };
+  return {
+    issueKey,
+    summary,
+    description,
+    metadata: {
+      issueType: fields?.issuetype?.name ?? "",
+      priority: fields?.priority?.name ?? "",
+      labels,
+      components,
+      subtasks,
+    },
+  };
 };
 
 const jiraRequest = async ({
