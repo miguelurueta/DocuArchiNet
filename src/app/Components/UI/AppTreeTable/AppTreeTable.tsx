@@ -85,6 +85,8 @@ export function AppTreeTable({
   rowSelectionCheckboxes,
   rowSelectionHeaderCheckbox,
   suppressRowClickSelection = true,
+  tableDomLayout = "autoHeight",
+  tableLayoutMode = "content",
   tableColumns: tableColumnsOverride,
   columns,
   emptyMessage = "Sin registros.",
@@ -155,8 +157,11 @@ export function AppTreeTable({
   );
 
   const rootClassName = useMemo(
-    () => [styles.root, className].filter(Boolean).join(" "),
-    [className],
+    () =>
+      [styles.root, tableLayoutMode === "fill" ? styles.rootFill : undefined, className]
+        .filter(Boolean)
+        .join(" "),
+    [className, tableLayoutMode],
   );
 
   const tableColumns: ColDef<(typeof appTableRows)[number]>[] = useMemo(() => {
@@ -324,8 +329,8 @@ export function AppTreeTable({
       <AppTable
         rows={appTableRows}
         columns={tableColumns}
-        domLayout="autoHeight"
-        layoutMode="content"
+        domLayout={tableDomLayout}
+        layoutMode={tableLayoutMode}
         rowSelection={rowSelection}
         rowSelectionCheckboxes={rowSelectionCheckboxes}
         rowSelectionHeaderCheckbox={rowSelectionHeaderCheckbox}

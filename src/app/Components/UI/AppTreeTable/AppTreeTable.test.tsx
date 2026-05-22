@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import { AppTreeTable } from "./AppTreeTable";
 import type { AppTreeTableRow } from "./types";
 
+const appTableSpy = vi.fn();
+
 vi.mock("../AppTable/AppTable", () => ({
   default: (props: {
     rows: Array<Record<string, unknown>>;
@@ -14,7 +16,10 @@ vi.mock("../AppTable/AppTable", () => ({
     onRowClicked?: (row: Record<string, unknown>) => void;
     onCellClicked?: (input: { row: Record<string, unknown>; columnKey?: string }) => void;
     onActionTriggered?: (input: { actionId: string; row: Record<string, unknown>; columnKey?: string }) => void;
+    domLayout?: string;
+    layoutMode?: string;
   }) => {
+    appTableSpy(props);
     return (
       <div data-testid="mock-apptable">
         <div>
@@ -64,6 +69,17 @@ vi.mock("../AppTable/AppTable", () => ({
 }));
 
 describe("AppTreeTable", () => {
+  it("permite configurar layout del AppTable interno", () => {
+    const rows: AppTreeTableRow[] = [{ id: "a", label: "A" }];
+    appTableSpy.mockClear();
+
+    render(<AppTreeTable rows={rows} tableLayoutMode="fill" tableDomLayout="normal" />);
+
+    expect(appTableSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ layoutMode: "fill", domLayout: "normal" }),
+    );
+  });
+
   it("[SPEC:APP-APPTREETABLE-001] renderiza filas jerarquicas desde rows", () => {
     const rows: AppTreeTableRow[] = [
       { id: "a", label: "A", children: [{ id: "a-1", label: "A1" }] },
