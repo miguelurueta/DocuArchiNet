@@ -1,5 +1,9 @@
 import type { ColDef } from "ag-grid-community";
-import type { AppTableRowSelection } from "../AppTable/AppTable.types";
+import type {
+  AppTableDomLayout,
+  AppTableLayoutMode,
+  AppTableRowSelection,
+} from "../AppTable/AppTable.types";
 
 export type AppTreeTableRowId = string;
 
@@ -36,6 +40,8 @@ export type AppTreeTableProps = {
   rowSelectionCheckboxes?: boolean;
   rowSelectionHeaderCheckbox?: boolean;
   suppressRowClickSelection?: boolean;
+  tableDomLayout?: AppTableDomLayout;
+  tableLayoutMode?: AppTableLayoutMode;
   tableColumns?: ColDef<Record<string, unknown>>[];
   columns?: string[];
   emptyMessage?: string;

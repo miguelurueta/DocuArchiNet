@@ -131,6 +131,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             loadChildren={documentosTable.loadChildren}
             tableColumns={documentosTable.getTableColumns()}
             columns={documentosTable.getColumns()}
+            tableLayoutMode="fill"
             rowClickAffordance
             rowClickTooltip="Visualizar documento"
             rowSelection="multiple"

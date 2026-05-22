@@ -2,6 +2,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import { DocumentosWorkbench } from "../components/documentosWorkbench/DocumentosWorkbench";
 
+const appTreeTableSpy = vi.fn();
+
 vi.mock("../hooks/useGestionRespuestaDocumentosTable", () => ({
   useGestionRespuestaDocumentosTable: () => ({
     load: vi.fn(),
@@ -28,19 +30,23 @@ vi.mock("../../../app/Components/UI/AppTreeTable", () => ({
   AppTreeTable: (props: {
     onSelectRow?: (rowId: string) => void;
     onActionTriggered?: (params: { actionId: string; rowId: string }) => void;
-  }) => (
-    <div data-testid="app-tree-table-mock">
-      <button type="button" onClick={() => props.onSelectRow?.("r1")}>
-        Select r1
-      </button>
-      <button
-        type="button"
-        onClick={() => props.onActionTriggered?.({ actionId: "ver_documento", rowId: "r1" })}
-      >
-        Action ver_documento
-      </button>
-    </div>
-  ),
+    tableLayoutMode?: string;
+  }) => {
+    appTreeTableSpy(props);
+    return (
+      <div data-testid="app-tree-table-mock">
+        <button type="button" onClick={() => props.onSelectRow?.("r1")}>
+          Select r1
+        </button>
+        <button
+          type="button"
+          onClick={() => props.onActionTriggered?.({ actionId: "ver_documento", rowId: "r1" })}
+        >
+          Action ver_documento
+        </button>
+      </div>
+    );
+  },
 }));
 
 const TABLET_QUERY = "(max-width: 1024px)";
@@ -61,6 +67,7 @@ describe(
   "[SPEC:APPTREETABLE-217] DocumentosWorkbench",
   () => {
     beforeEach(() => {
+      appTreeTableSpy.mockClear();
       window.matchMedia = createMatchMedia({
         [TABLET_QUERY]: false,
         [MOBILE_QUERY]: false,
@@ -80,6 +87,9 @@ describe(
       screen.getByRole("button", { name: /Ocultar Visualizar documentos/i }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("app-tree-table-mock")).toBeInTheDocument();
+    expect(appTreeTableSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ tableLayoutMode: "fill" }),
+    );
   });
 
   it("actualiza fileUrl del visor al seleccionar una fila", async () => {
