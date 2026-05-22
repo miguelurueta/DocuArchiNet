@@ -28,5 +28,4 @@
 
 ## PR / Commit
 - PR: (completar)
-- Commit: (completar)
-
+- Commit: `6c91f71`
