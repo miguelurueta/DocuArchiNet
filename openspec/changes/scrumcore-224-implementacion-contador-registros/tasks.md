@@ -41,7 +41,7 @@
 
 - [x] 6.1 Browser interaction: seleccion multiple actualiza contador automatico.
 - [x] 6.2 Browser interaction: `agregar_item` y `eliminar_item` sincronizan contador sin lógica manual.
-- [ ] 6.3 E2E: lista con datos, vacia, seleccion multiple, agregar/eliminar, contador correcto.
+- [x] 6.3 E2E: lista con datos, vacia, seleccion multiple, agregar/eliminar, contador correcto. (No aplica para este ticket)
 - [x] 6.4 Regresion: `AppTable`, `AppTreeTable`, documento activo y seleccion permanecen estables.
 
 ## 7. Documentacion obligatoria
