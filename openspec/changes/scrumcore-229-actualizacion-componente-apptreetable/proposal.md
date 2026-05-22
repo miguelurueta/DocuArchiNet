@@ -8,6 +8,7 @@ ACTUALIZACION-COMPONENTE-APPTREETABLE. Ver detalle funcional completo del ticket
 - Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
 - Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
 - Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se enfoca el change en un **ajuste visual CSS-only** del listado `AppTreeTable` en Workbench (sin tocar `AppTable`, sin cambios funcionales, sin cambios de sizing/columnas desde cÃ³digo).
 
 ## Jira Details
 

@@ -40,8 +40,46 @@ async function loginByApi(request: APIRequestContext) {
   };
 }
 
-test.describe("[SPEC:APPTREETABLE-225-001] GestionCorrespondencia real - DocumentosWorkbench columnas", () => {
-  test("renderiza exactamente 2 headers visibles en listado (Workbench)", async ({ page, request }) => {
+test.describe("SCRUMCORE-229 - DocumentosWorkbench visual (real env)", () => {
+  test("headers visibles tienen tooltip y look de título", async ({ page, request }) => {
+    await page.setViewportSize({ width: 1366, height: 768 });
+    const session = await loginByApi(request);
+
+    const consoleErrors: string[] = [];
+    page.on("console", (msg) => {
+      if (msg.type() === "error") consoleErrors.push(msg.text());
+    });
+
+    await page.addInitScript((auth) => {
+      localStorage.setItem("token", auth.token);
+      localStorage.setItem("token-expiracion", auth.expiracion);
+      localStorage.setItem("permisos", JSON.stringify(auth.permisos));
+    }, session);
+
+    await page.goto("/dashboard/gestion-correspondencia/respuesta/934");
+
+    const workbench = page.getByTestId("documentos-workbench");
+    await expect(workbench).toBeVisible();
+
+    const documentoHeader = workbench.getByRole("columnheader", { name: "Documento" });
+    await expect(documentoHeader).toBeVisible();
+    await expect(documentoHeader).toHaveAttribute("title", /Documento/i);
+
+    const accionesHeader = workbench.getByRole("columnheader", { name: /acciones/i });
+    await expect(accionesHeader).toBeVisible();
+    await expect(accionesHeader).toHaveAttribute("title", /acciones/i);
+
+    const headerCell = workbench.locator(".ag-header-cell").first();
+    const headerCellBorderRight = await headerCell.evaluate((node) => {
+      const style = window.getComputedStyle(node as HTMLElement);
+      return style.borderRightWidth;
+    });
+    expect(headerCellBorderRight).toBe("0px");
+
+    expect(consoleErrors).toEqual([]);
+  });
+
+  test("click en fila selecciona la fila completa (aria-selected)", async ({ page, request }) => {
     await page.setViewportSize({ width: 1366, height: 768 });
     const session = await loginByApi(request);
 
@@ -56,11 +94,18 @@ test.describe("[SPEC:APPTREETABLE-225-001] GestionCorrespondencia real - Documen
     const workbench = page.getByTestId("documentos-workbench");
     await expect(workbench).toBeVisible();
 
-    const headers = workbench.getByRole("columnheader");
-    await expect(headers).toHaveCount(2);
+    const firstRow = workbench.locator(".ag-center-cols-container .ag-row").first();
+    await expect(firstRow).toBeVisible();
+
+    await firstRow.click();
+    await expect(firstRow).toHaveAttribute("aria-selected", "true");
+
+    await firstRow.hover();
+    const hovered = workbench.locator(".ag-row-hover").first();
+    await expect(hovered).toBeVisible();
   });
 
-  test.skip("click primario actualiza visor sin romper layout (requiere entorno real)", async ({ page, request }) => {
+  test("focus visible en celda navegable (teclado)", async ({ page, request }) => {
     await page.setViewportSize({ width: 1366, height: 768 });
     const session = await loginByApi(request);
 
@@ -71,18 +116,15 @@ test.describe("[SPEC:APPTREETABLE-225-001] GestionCorrespondencia real - Documen
     }, session);
 
     await page.goto("/dashboard/gestion-correspondencia/respuesta/934");
-  });
 
-  test.skip("acción secundaria no rompe selección/visor (requiere entorno real)", async ({ page, request }) => {
-    await page.setViewportSize({ width: 1366, height: 768 });
-    const session = await loginByApi(request);
+    const workbench = page.getByTestId("documentos-workbench");
+    await expect(workbench).toBeVisible();
 
-    await page.addInitScript((auth) => {
-      localStorage.setItem("token", auth.token);
-      localStorage.setItem("token-expiracion", auth.expiracion);
-      localStorage.setItem("permisos", JSON.stringify(auth.permisos));
-    }, session);
+    const firstCell = workbench.locator(".ag-center-cols-container .ag-row:first-child .ag-cell").nth(1);
+    await firstCell.click();
+    await page.keyboard.press("ArrowDown");
 
-    await page.goto("/dashboard/gestion-correspondencia/respuesta/934");
+    const focusedCell = workbench.locator(".ag-cell-focus");
+    await expect(focusedCell).toBeVisible();
   });
 });

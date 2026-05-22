@@ -1,5 +1,6 @@
-import { BookOutlined } from "@ant-design/icons";
+import { BookOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { AppButton } from "../../../../app/Components/UI/AppButton";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import { AppTreeTable } from "../../../../app/Components/UI/AppTreeTable";
 import { AppVisorEmbedPdf } from "../../../../app/Components/UI/AppVisorEmbedPdf";
@@ -76,6 +77,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       : `Documentos (${total})`;
   }, [documentosTable.selectedDocumentsCount, documentosTable.totalDocumentsCount]);
 
+  const toggleIcon = layoutCollapsed ? <LeftOutlined /> : <RightOutlined />;
+
   const openViewerFromRow = useCallback((rowId: string) => {
     setActiveRowId(rowId);
     void documentosTable.onSelectRow(rowId).then((result) => {
@@ -122,22 +125,30 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       <AppVisorEmbedPdf className={styles.viewer} fileUrl={activeFileUrl} />
 
       <AppCollapseRail
-        title="Visualizar documentos"
+        title="Documentos"
         collapsed={collapsed}
         onToggle={() => setCollapsed((prev) => !prev)}
         placement="right"
         variant={variant}
         panelId={panelId}
-        railLabel="Ver documentos"
+        railLabel="Documentos"
         railIcon={<BookOutlined />}
         className={styles.collapseRail}
       >
         <div className={styles.listPanel}>
           <header className={styles.listHeader}>
             <h3 className={styles.listTitle}>{documentsCounter}</h3>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              onClick={() => setCollapsed((prev) => !prev)}
+              aria-label={layoutCollapsed ? "Mostrar documentos" : "Ocultar documentos"}
+              icon={toggleIcon}
+              className={styles.collapseButton}
+            />
           </header>
           <div className={styles.listSurface} aria-label="Listado de documentos">
-            <AppTreeTable
+          <AppTreeTable
               load={documentosTable.load}
               loadChildren={documentosTable.loadChildren}
               tableColumns={documentosTable.getTableColumns()}
@@ -148,7 +159,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
               rowSelection="multiple"
               rowSelectionCheckboxes
               rowSelectionHeaderCheckbox
-              suppressRowClickSelection
+              suppressRowClickSelection={false}
               onSelectionChanged={documentosTable.onSelectionChanged}
               activeRowId={activeRowId}
               onSelectRow={openViewerFromRow}
