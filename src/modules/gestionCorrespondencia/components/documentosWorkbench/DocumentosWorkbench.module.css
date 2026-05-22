@@ -120,6 +120,29 @@
   padding-bottom: 0;
 }
 
+.listPanel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.listHeader {
+  display: flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0 0.25rem 0.5rem;
+}
+
+.listTitle {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #1f2937;
+}
+
 .listSurface :global(button:focus-visible),
 .listSurface :global([role="button"]:focus-visible),
 .listSurface :global([tabindex]:focus-visible) {

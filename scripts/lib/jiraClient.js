@@ -33,6 +33,21 @@ export const normalizeDescription = (description) => {
   return text.replace(/\n{3,}/g, "\n\n");
 };
 
+const normalizeComments = (commentsField) => {
+  const comments = commentsField?.comments;
+  if (!Array.isArray(comments)) return [];
+
+  return comments
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const id = typeof item.id === "string" ? item.id : "";
+      const body = normalizeDescription(item.body);
+      if (!id && !body) return null;
+      return { id, body };
+    })
+    .filter(Boolean);
+};
+
 export const fetchJiraIssue = async ({
   issueKey,
   baseUrl,
@@ -50,7 +65,17 @@ export const fetchJiraIssue = async ({
 
   const authHeader = buildJiraAuthHeader(email, apiToken);
   const normalizedBase = baseUrl.replace(/\/+$/, "");
-  const url = `${normalizedBase}/rest/api/3/issue/${issueKey}?fields=summary,description`;
+  const requestedFields = [
+    "summary",
+    "description",
+    "issuetype",
+    "priority",
+    "labels",
+    "components",
+    "subtasks",
+    "comment",
+  ].join(",");
+  const url = `${normalizedBase}/rest/api/3/issue/${issueKey}?fields=${requestedFields}`;
 
   const response = await fetchImpl(url, {
     headers: {
@@ -71,8 +96,42 @@ export const fetchJiraIssue = async ({
   const fields = payload?.fields ?? {};
   const summary = fields.summary ?? "";
   const description = normalizeDescription(fields.description);
+  const labels = Array.isArray(fields.labels) ? fields.labels : [];
+  const components = Array.isArray(fields.components)
+    ? fields.components
+        .map((item) => (typeof item?.name === "string" ? item.name : null))
+        .filter(Boolean)
+    : [];
+  const subtasks = Array.isArray(fields.subtasks)
+    ? fields.subtasks
+        .map((item) =>
+          typeof item?.key === "string"
+            ? {
+                key: item.key,
+                summary:
+                  typeof item?.fields?.summary === "string"
+                    ? item.fields.summary
+                    : "",
+              }
+            : null,
+        )
+        .filter(Boolean)
+    : [];
+  const comments = normalizeComments(fields.comment);
 
-  return { issueKey, summary, description };
+  return {
+    issueKey,
+    summary,
+    description,
+    metadata: {
+      issueType: fields?.issuetype?.name ?? "",
+      priority: fields?.priority?.name ?? "",
+      labels,
+      components,
+      subtasks,
+      comments,
+    },
+  };
 };
 
 const jiraRequest = async ({

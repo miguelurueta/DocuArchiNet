@@ -33,6 +33,7 @@ const buildNewContext = ({
   issue,
   changeName,
   proposalPath,
+  refinementArtifacts,
   baseDir,
 }) => {
   const relativeProposalPath = path.relative(baseDir, proposalPath);
@@ -42,6 +43,20 @@ const buildNewContext = ({
   stdout.write(`[opsxj:new] Resumen Jira: ${issue.summary || "(sin resumen)"}\n`);
   stdout.write(`[opsxj:new] Carpeta OpenSpec: ${changeDir}\n`);
   stdout.write(`[opsxj:new] Proposal creado: ${relativeProposalPath}\n`);
+  if (refinementArtifacts) {
+    const designRelative = path.relative(baseDir, refinementArtifacts.designPath);
+    const specRelative = path.relative(baseDir, refinementArtifacts.specPath);
+    const tasksRelative = path.relative(baseDir, refinementArtifacts.tasksPath);
+    const jiraContextRelative = refinementArtifacts.jiraContextPath
+      ? path.relative(baseDir, refinementArtifacts.jiraContextPath)
+      : null;
+    stdout.write(`[opsxj:new] Design creado: ${designRelative}\n`);
+    stdout.write(`[opsxj:new] Spec creado: ${specRelative}\n`);
+    stdout.write(`[opsxj:new] Tasks creado: ${tasksRelative}\n`);
+    if (jiraContextRelative) {
+      stdout.write(`[opsxj:new] Jira context creado: ${jiraContextRelative}\n`);
+    }
+  }
   if (!env.JIRA_BASE_URL || !env.JIRA_EMAIL || !env.JIRA_API_TOKEN) {
     stdout.write(
       "[opsxj:new] Aviso: faltan variables JIRA_* en entorno; configure .env.jira para ejecucion estable.\n",
@@ -122,6 +137,7 @@ const runNew = async ({
     issue: result.issue,
     changeName: result.changeName,
     proposalPath: result.proposalPath,
+    refinementArtifacts: result.refinementArtifacts,
     baseDir,
   });
 

@@ -23,6 +23,14 @@ describe("opsxjCommandRunner", () => {
       },
       changeName: "scrum-8-auto-complete-asunto",
       proposalPath: "D:/repo/openspec/changes/scrum-8-auto-complete-asunto/proposal.md",
+      refinementArtifacts: {
+        designPath: "D:/repo/openspec/changes/scrum-8-auto-complete-asunto/design.md",
+        specPath:
+          "D:/repo/openspec/changes/scrum-8-auto-complete-asunto/specs/auto-complete-asunto/spec.md",
+        tasksPath: "D:/repo/openspec/changes/scrum-8-auto-complete-asunto/tasks.md",
+        jiraContextPath:
+          "D:/repo/openspec/changes/scrum-8-auto-complete-asunto/specs/auto-complete-asunto/jira-context.md",
+      },
     });
     const setupProposalFn = vi.fn().mockResolvedValue({
       branchName: "feature/SCRUM-8",
@@ -56,6 +64,9 @@ describe("opsxjCommandRunner", () => {
       }),
     );
     expect(stdout.read()).toContain("Carpeta OpenSpec: openspec");
+    expect(stdout.read()).toMatch(
+      /Jira context creado: openspec[\\/]changes[\\/]scrum-8-auto-complete-asunto[\\/]specs[\\/]auto-complete-asunto[\\/]jira-context\.md/,
+    );
     expect(stdout.read()).toContain("Rama Git: feature/SCRUM-8");
     expect(stdout.read()).toContain("Proceso finalizado correctamente");
     expect(stderr.read()).toBe("");

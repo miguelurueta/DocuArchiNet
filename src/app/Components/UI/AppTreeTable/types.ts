@@ -40,6 +40,7 @@ export type AppTreeTableProps = {
   rowSelectionCheckboxes?: boolean;
   rowSelectionHeaderCheckbox?: boolean;
   suppressRowClickSelection?: boolean;
+  onSelectionChanged?: (rowIds: AppTreeTableRowId[]) => void;
   tableDomLayout?: AppTableDomLayout;
   tableLayoutMode?: AppTableLayoutMode;
   tableColumns?: ColDef<Record<string, unknown>>[];

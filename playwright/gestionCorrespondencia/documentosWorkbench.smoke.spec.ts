@@ -49,5 +49,6 @@ test.describe("GestionCorrespondencia real - DocumentosWorkbench", () => {
     await expect(page.getByTestId("documentos-workbench")).toHaveAttribute("data-variant", /inline|overlay/);
     await expect(page.getByRole("status", { name: "Zona de documento" })).toBeVisible();
     await expect(page.getByRole("button", { name: /Ocultar Visualizar documentos|Mostrar Visualizar documentos/i })).toBeVisible();
+    await expect(page.getByText(/Documentos \(\d+\)/)).toBeVisible();
   });
 });

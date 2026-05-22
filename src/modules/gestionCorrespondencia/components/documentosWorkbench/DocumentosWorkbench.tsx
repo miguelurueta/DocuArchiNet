@@ -68,6 +68,13 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     [isMobile, isTablet],
   );
   const layoutCollapsed = variant === "overlay" ? true : collapsed;
+  const documentsCounter = useMemo(() => {
+    const total = documentosTable.totalDocumentsCount ?? 0;
+    const selected = documentosTable.selectedDocumentsCount ?? 0;
+    return selected > 0
+      ? `Documentos (${total}) · Seleccionados (${selected})`
+      : `Documentos (${total})`;
+  }, [documentosTable.selectedDocumentsCount, documentosTable.totalDocumentsCount]);
 
   const openViewerFromRow = useCallback((rowId: string) => {
     setActiveRowId(rowId);
@@ -125,32 +132,38 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
         railIcon={<BookOutlined />}
         className={styles.collapseRail}
       >
-        <div className={styles.listSurface} aria-label="Listado de documentos">
-          <AppTreeTable
-            load={documentosTable.load}
-            loadChildren={documentosTable.loadChildren}
-            tableColumns={documentosTable.getTableColumns()}
-            columns={documentosTable.getColumns()}
-            tableLayoutMode="fill"
-            rowClickAffordance
-            rowClickTooltip="Visualizar documento"
-            rowSelection="multiple"
-            rowSelectionCheckboxes
-            rowSelectionHeaderCheckbox
-            suppressRowClickSelection
-            activeRowId={activeRowId}
-            onSelectRow={openViewerFromRow}
-            onActionTriggered={(params) => {
-              void documentosTable
-                .onActionTriggered({ actionId: params.actionId, rowId: params.rowId })
-                .then((result) => {
-                  if (!result?.fileUrl) return;
-                  setActiveFileUrl(result.fileUrl);
-                  setActiveRowId(params.rowId);
-                });
-            }}
-            emptyMessage="Sin documentos adjuntos."
-          />
+        <div className={styles.listPanel}>
+          <header className={styles.listHeader}>
+            <h3 className={styles.listTitle}>{documentsCounter}</h3>
+          </header>
+          <div className={styles.listSurface} aria-label="Listado de documentos">
+            <AppTreeTable
+              load={documentosTable.load}
+              loadChildren={documentosTable.loadChildren}
+              tableColumns={documentosTable.getTableColumns()}
+              columns={documentosTable.getColumns()}
+              tableLayoutMode="fill"
+              rowClickAffordance
+              rowClickTooltip="Visualizar documento"
+              rowSelection="multiple"
+              rowSelectionCheckboxes
+              rowSelectionHeaderCheckbox
+              suppressRowClickSelection
+              onSelectionChanged={documentosTable.onSelectionChanged}
+              activeRowId={activeRowId}
+              onSelectRow={openViewerFromRow}
+              onActionTriggered={(params) => {
+                void documentosTable
+                  .onActionTriggered({ actionId: params.actionId, rowId: params.rowId })
+                  .then((result) => {
+                    if (!result?.fileUrl) return;
+                    setActiveFileUrl(result.fileUrl);
+                    setActiveRowId(params.rowId);
+                  });
+              }}
+              emptyMessage="Sin documentos adjuntos."
+            />
+          </div>
         </div>
       </AppCollapseRail>
     </section>
