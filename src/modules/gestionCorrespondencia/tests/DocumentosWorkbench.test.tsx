@@ -42,6 +42,7 @@ vi.mock("../../../app/Components/UI/AppTreeTable", () => ({
     onActionTriggered?: (params: { actionId: string; rowId: string }) => void;
     onSelectionChanged?: (rowIds: string[]) => void;
     tableLayoutMode?: string;
+    tableColumns?: Array<{ headerName?: string; field?: string }>;
   }) => {
     appTreeTableSpy(props);
     return (
@@ -112,6 +113,27 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     expect(appTreeTableSpy).toHaveBeenCalledWith(
       expect.objectContaining({ tableLayoutMode: "fill" }),
     );
+  });
+
+  it("[SPEC:APPTREETABLE-225-001] propaga tableColumns de 2 columnas al AppTreeTable en Workbench", () => {
+    mockTableApi.getTableColumns = () => [
+      { headerName: "Documento", field: "TIPODOCUMENTO" },
+      { headerName: "Acciones", field: "ACCIONES" },
+    ];
+
+    render(<DocumentosWorkbench />);
+
+    expect(appTreeTableSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tableColumns: expect.arrayContaining([
+          expect.objectContaining({ field: "TIPODOCUMENTO" }),
+          expect.objectContaining({ field: "ACCIONES" }),
+        ]),
+      }),
+    );
+
+    const lastCall = appTreeTableSpy.mock.calls.at(-1)?.[0] as { tableColumns?: unknown[] } | undefined;
+    expect(lastCall?.tableColumns).toHaveLength(2);
   });
 
   it("muestra contador documental total", () => {
