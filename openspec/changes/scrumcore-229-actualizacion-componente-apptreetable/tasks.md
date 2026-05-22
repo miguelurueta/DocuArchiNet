@@ -44,4 +44,4 @@ Ruta: `docs/modulos/gestioncorrespondencia/AppTreeTable/AjusteVisualColumnasCss/
 
 - [x] 5.1 `npm.cmd test` (suite focal o la recomendada por el módulo)
 - [x] 5.2 `npm.cmd run opsxj:validate` (si existe en el repo) o `spec:validate`
-- [ ] 5.3 Commit/push/PR siguiendo flujo opsxj (sin mezclar con otros tickets)
+- [x] 5.3 Commit/push/PR siguiendo flujo opsxj (sin mezclar con otros tickets)
