@@ -51,13 +51,40 @@ const updateRowById = (
   return touched ? next : rows;
 };
 
+const appendActiveCellClass = (
+  existing: unknown,
+  isActive: boolean,
+): string | undefined => {
+  const classes: string[] = [];
+  if (typeof existing === "string" && existing.trim().length > 0) {
+    classes.push(existing.trim());
+  } else if (Array.isArray(existing)) {
+    classes.push(
+      ...existing.filter((item): item is string => typeof item === "string" && item.trim().length > 0),
+    );
+  }
+
+  if (isActive) {
+    classes.push("doc-workbench-active-cell");
+  }
+
+  return classes.length > 0 ? classes.join(" ") : undefined;
+};
+
 export function AppTreeTable({
   rows,
   load,
   loadChildren,
   onSelectRow,
+  activeRowId,
   onCellClicked,
   onActionTriggered,
+  rowClickAffordance = false,
+  rowClickTooltip,
+  rowSelection = "single",
+  rowSelectionCheckboxes,
+  rowSelectionHeaderCheckbox,
+  suppressRowClickSelection = true,
   tableColumns: tableColumnsOverride,
   columns,
   emptyMessage = "Sin registros.",
@@ -133,13 +160,35 @@ export function AppTreeTable({
   );
 
   const tableColumns: ColDef<(typeof appTableRows)[number]>[] = useMemo(() => {
+    const decorateActiveRowCellClass = (
+      base: ColDef<(typeof appTableRows)[number]>[],
+    ): ColDef<(typeof appTableRows)[number]>[] =>
+      base.map((column) => {
+        const previousCellClass = column.cellClass;
+        return {
+          ...column,
+          cellClass: (params) => {
+            const row = params.data as (typeof appTableRows)[number] | undefined;
+            const rowId = row ? String(row.__rowId ?? row.__tree?.node.id ?? row.id) : "";
+            const isActive = !!activeRowId && rowId === String(activeRowId);
+            const existing =
+              typeof previousCellClass === "function"
+                ? previousCellClass(params)
+                : previousCellClass;
+            return appendActiveCellClass(existing, isActive);
+          },
+        };
+      });
+
     if (tableColumnsOverride && tableColumnsOverride.length > 0) {
-      return tableColumnsOverride as unknown as ColDef<(typeof appTableRows)[number]>[];
+      return decorateActiveRowCellClass(
+        tableColumnsOverride as unknown as ColDef<(typeof appTableRows)[number]>[],
+      );
     }
 
     const columnsToRender = resolvedColumns.length > 0 ? resolvedColumns : ["Label"];
 
-    return columnsToRender.map((column, index) => ({
+    const generated = columnsToRender.map((column, index) => ({
       headerName: column,
       field: resolvedColumns.length > 0 ? column : "__label",
       flex: index === 0 ? 1 : undefined,
@@ -227,7 +276,9 @@ export function AppTreeTable({
         );
       },
     }));
+    return decorateActiveRowCellClass(generated);
   }, [
+    activeRowId,
     expansion,
     loadChildren,
     loadingChildren,
@@ -275,12 +326,15 @@ export function AppTreeTable({
         columns={tableColumns}
         domLayout="autoHeight"
         layoutMode="content"
-        rowSelection="single"
-        suppressRowClickSelection
+        rowSelection={rowSelection}
+        rowSelectionCheckboxes={rowSelectionCheckboxes}
+        rowSelectionHeaderCheckbox={rowSelectionHeaderCheckbox}
+        suppressRowClickSelection={suppressRowClickSelection}
         suppressCellFocus={false}
-        rowClickAffordance={false}
-        getRowId={(row) => String(row.id)}
-        onRowClicked={(row) => onSelectRow?.(row.id)}
+        rowClickAffordance={rowClickAffordance}
+        rowClickTooltip={rowClickTooltip}
+        getRowId={(row) => String(row.__rowId ?? row.__tree?.node.id ?? row.id)}
+        onRowClicked={(row) => onSelectRow?.(row.__tree?.node.id ?? String(row.__rowId ?? row.id))}
         onCellClicked={(params) => {
           const tree = (params.row as (typeof appTableRows)[number]).__tree;
           if (!tree) return;

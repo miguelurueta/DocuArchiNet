@@ -914,4 +914,49 @@ describe("[SPEC:CREA-COMPONENTE-TABLE] AppTable", () => {
 
     expect(onCellClicked).not.toHaveBeenCalled();
   });
+
+  test("single selection normaliza a una sola fila cuando el grid reporta multiples seleccionadas", () => {
+    const onSelectionChanged = vi.fn();
+    render(
+      <AppTable
+        rows={[
+          { id: "1", name: "Alpha" },
+          { id: "2", name: "Beta" },
+        ]}
+        columns={columns}
+        rowSelection="single"
+        onSelectionChanged={onSelectionChanged}
+      />,
+    );
+
+    const lastCall = agGridReactSpy.mock.calls.at(-1)?.[0] as {
+      gridOptions?: { onSelectionChanged?: (event: unknown) => void };
+    };
+    const onGridSelectionChanged = lastCall.gridOptions?.onSelectionChanged;
+    const firstNode = { setSelected: vi.fn() };
+    const secondNode = { setSelected: vi.fn() };
+    const deselectAll = vi.fn();
+
+    onGridSelectionChanged?.({
+      api: {
+        getSelectedNodes: () => [firstNode, secondNode],
+        deselectAll,
+        getSelectedRows: () => [{ id: "1", name: "Alpha" }, { id: "2", name: "Beta" }],
+      },
+    });
+
+    expect(deselectAll).toHaveBeenCalledTimes(1);
+    expect(secondNode.setSelected).toHaveBeenCalledWith(true);
+    expect(onSelectionChanged).not.toHaveBeenCalled();
+
+    onGridSelectionChanged?.({
+      api: {
+        getSelectedNodes: () => [secondNode],
+        deselectAll,
+        getSelectedRows: () => [{ id: "2", name: "Beta" }],
+      },
+    });
+
+    expect(onSelectionChanged).toHaveBeenCalledWith([{ id: "2", name: "Beta" }]);
+  });
 });

@@ -1,5 +1,5 @@
 import { BookOutlined } from "@ant-design/icons";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import { AppTreeTable } from "../../../../app/Components/UI/AppTreeTable";
 import { AppVisorEmbedPdf } from "../../../../app/Components/UI/AppVisorEmbedPdf";
@@ -51,6 +51,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const [collapsed, setCollapsed] = useState(isTablet);
   const documentosTable = useGestionRespuestaDocumentosTable(idTareaWf);
   const [activeFileUrl, setActiveFileUrl] = useState<string | undefined>(undefined);
+  const [activeRowId, setActiveRowId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const handler = () => setIsTablet(resolveIsTablet());
@@ -67,6 +68,14 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     [isMobile, isTablet],
   );
   const layoutCollapsed = variant === "overlay" ? true : collapsed;
+
+  const openViewerFromRow = useCallback((rowId: string) => {
+    setActiveRowId(rowId);
+    void documentosTable.onSelectRow(rowId).then((result) => {
+      if (!result?.fileUrl) return;
+      setActiveFileUrl(result.fileUrl);
+    });
+  }, [documentosTable]);
 
   useEffect(() => {
     if (variant !== "overlay") return;
@@ -122,18 +131,21 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             loadChildren={documentosTable.loadChildren}
             tableColumns={documentosTable.getTableColumns()}
             columns={documentosTable.getColumns()}
-            onSelectRow={(rowId) => {
-              void documentosTable.onSelectRow(rowId).then((result) => {
-                if (!result?.fileUrl) return;
-                setActiveFileUrl(result.fileUrl);
-              });
-            }}
+            rowClickAffordance
+            rowClickTooltip="Visualizar documento"
+            rowSelection="multiple"
+            rowSelectionCheckboxes
+            rowSelectionHeaderCheckbox
+            suppressRowClickSelection
+            activeRowId={activeRowId}
+            onSelectRow={openViewerFromRow}
             onActionTriggered={(params) => {
               void documentosTable
                 .onActionTriggered({ actionId: params.actionId, rowId: params.rowId })
                 .then((result) => {
                   if (!result?.fileUrl) return;
                   setActiveFileUrl(result.fileUrl);
+                  setActiveRowId(params.rowId);
                 });
             }}
             emptyMessage="Sin documentos adjuntos."

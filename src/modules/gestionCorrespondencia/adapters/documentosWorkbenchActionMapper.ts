@@ -10,19 +10,30 @@ export const buildListaDocumentosRadicadosActionRequest = (input: {
   actionId: string;
   rowId: string;
   nodeType: string;
+  idDocumento?: number;
   documentId?: number;
   nombreGabinete?: string;
-}): ListaDocumentosRadicadosActionRequest => ({
-  TableId: input.context.tableId,
-  ViewMode: input.context.viewMode,
-  ActionId: input.actionId,
-  RowId: input.rowId,
-  ParentRowId: null,
-  NodeType: input.nodeType,
-  Payload: {
-    IdDocumento: input.documentId,
-    DocumentId: input.documentId,
-    NombreGabinete: input.nombreGabinete,
-  },
-});
+}): ListaDocumentosRadicadosActionRequest => {
+  const payload: ListaDocumentosRadicadosActionRequest["Payload"] = {};
+
+  if (typeof input.idDocumento === "number" && Number.isFinite(input.idDocumento)) {
+    payload.IdDocumento = input.idDocumento;
+  } else if (typeof input.documentId === "number" && Number.isFinite(input.documentId)) {
+    payload.DocumentId = input.documentId;
+  }
+
+  if (typeof input.nombreGabinete === "string" && input.nombreGabinete.trim().length > 0) {
+    payload.NombreGabinete = input.nombreGabinete;
+  }
+
+  return {
+    TableId: input.context.tableId,
+    ViewMode: input.context.viewMode,
+    ActionId: input.actionId,
+    RowId: input.rowId,
+    ParentRowId: null,
+    NodeType: input.nodeType,
+    Payload: payload,
+  };
+};
 

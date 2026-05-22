@@ -128,6 +128,22 @@
   border-radius: 6px;
 }
 
+/* In this table, checkbox selection is only for bulk operations.
+   Do not use AG Grid's row-selected paint as the visual "active document" state. */
+.listSurface :global(.ag-theme-quartz) {
+  --ag-selected-row-background-color: transparent;
+  --ag-range-selection-background-color: transparent;
+}
+
+/* Visual state for the single document currently opened in the viewer. */
+.listSurface :global(.ag-row:has(.ag-cell.doc-workbench-active-cell) .ag-cell) {
+  background-color: rgba(37, 99, 235, 0.14) !important;
+}
+
+.listSurface :global(.ag-row-hover:has(.ag-cell.doc-workbench-active-cell) .ag-cell) {
+  background-color: rgba(37, 99, 235, 0.2) !important;
+}
+
 .previewPlaceholder {
   display: grid;
   place-items: center;

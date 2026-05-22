@@ -1,4 +1,5 @@
 import type { ColDef } from "ag-grid-community";
+import type { AppTableRowSelection } from "../AppTable/AppTable.types";
 
 export type AppTreeTableRowId = string;
 
@@ -26,8 +27,15 @@ export type AppTreeTableProps = {
   load?: () => Promise<AppTreeTableLoadResult>;
   loadChildren?: (row: AppTreeTableRow) => Promise<AppTreeTableLoadChildrenResult>;
   onSelectRow?: (rowId: AppTreeTableRowId) => void;
+  activeRowId?: AppTreeTableRowId;
   onCellClicked?: (params: { rowId: AppTreeTableRowId; field?: string | null; value?: unknown }) => void;
   onActionTriggered?: (params: { actionId: string; rowId: AppTreeTableRowId; columnKey?: string }) => void;
+  rowClickAffordance?: boolean;
+  rowClickTooltip?: string;
+  rowSelection?: AppTableRowSelection;
+  rowSelectionCheckboxes?: boolean;
+  rowSelectionHeaderCheckbox?: boolean;
+  suppressRowClickSelection?: boolean;
   tableColumns?: ColDef<Record<string, unknown>>[];
   columns?: string[];
   emptyMessage?: string;
