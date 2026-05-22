@@ -9,6 +9,7 @@
 - 2026-05-22: Creación de artifacts OpenSpec (proposal/design/specs/tasks) y arranque de implementación (selector + preset columnas).
 - 2026-05-22: Ajuste de sizing preset para Workbench (Documento `minWidth=60`, Acciones `minWidth=80`) para mejorar visibilidad en panel estrecho.
 - 2026-05-22: Documentación ampliada (arquitectura/implementación/pruebas) con trazabilidad y criterios de Go/No-Go.
+- 2026-05-22: Commit `a903306` (SCRUMCORE-225: ajuste visual columnas AppTreeTable (Workbench)).
 
 ## Referencias cruzadas
 - Arquitectura: `docs/modulos/gestioncorrespondencia/AppTreeTable/AjusteVisualColumnas/SCRUMCORE-225-Arquitectura.md`
