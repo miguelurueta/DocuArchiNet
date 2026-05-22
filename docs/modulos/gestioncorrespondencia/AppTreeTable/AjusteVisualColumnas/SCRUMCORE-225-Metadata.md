@@ -12,6 +12,7 @@
 - 2026-05-22: Commit `a903306` (SCRUMCORE-225: ajuste visual columnas AppTreeTable (Workbench)).
 - 2026-05-22: PR `#256` creado: `https://github.com/miguelurueta/DocuArchiCore.react/pull/256`.
 - 2026-05-22: Merge a `main` en commit `d425236` (Merge pull request #256).
+- 2026-05-22: `opsxj:archive` ejecutado. PR de archive `#257`: `https://github.com/miguelurueta/DocuArchiCore.react/pull/257`.
 
 ## Referencias cruzadas
 - Arquitectura: `docs/modulos/gestioncorrespondencia/AppTreeTable/AjusteVisualColumnas/SCRUMCORE-225-Arquitectura.md`
