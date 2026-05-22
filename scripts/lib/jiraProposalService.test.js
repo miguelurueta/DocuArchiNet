@@ -47,6 +47,16 @@ describe("jiraProposalService", () => {
       expect(result.refinementArtifacts?.tasksPath).toContain(
         path.join("openspec", "changes", "scrum-8-auto-complete-asunto", "tasks.md"),
       );
+      expect(result.refinementArtifacts?.jiraContextPath).toContain(
+        path.join(
+          "openspec",
+          "changes",
+          "scrum-8-auto-complete-asunto",
+          "specs",
+          "auto-complete-asunto",
+          "jira-context.md",
+        ),
+      );
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

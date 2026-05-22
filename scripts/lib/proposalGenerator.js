@@ -48,6 +48,29 @@ const toMarkdownQuote = (value) =>
     .map((line) => `> ${line}`)
     .join("\n");
 
+const renderMetadataSection = (metadata) => {
+  const metadataLines = [];
+  if (metadata?.issueType) metadataLines.push(`- Tipo: ${metadata.issueType}`);
+  if (metadata?.priority) metadataLines.push(`- Prioridad: ${metadata.priority}`);
+  if (Array.isArray(metadata?.components) && metadata.components.length > 0) {
+    metadataLines.push(`- Componentes: ${metadata.components.join(", ")}`);
+  }
+  if (Array.isArray(metadata?.labels) && metadata.labels.length > 0) {
+    metadataLines.push(`- Labels: ${metadata.labels.join(", ")}`);
+  }
+  if (Array.isArray(metadata?.subtasks) && metadata.subtasks.length > 0) {
+    metadataLines.push(
+      ...metadata.subtasks.map((item) => `- Subtask ${item.key}: ${item.summary || "(sin resumen)"}`),
+    );
+  }
+  if (Array.isArray(metadata?.comments) && metadata.comments.length > 0) {
+    metadataLines.push(
+      ...metadata.comments.map((item) => `- Comment ${item.id}: ${item.body || "(sin contenido)"}`),
+    );
+  }
+  return metadataLines;
+};
+
 export const inferProposalIntent = ({ summary, description }) => {
   const safeSummary = summary?.trim() || "";
   const summarySlug = slugifyForOpenSpec(safeSummary);
@@ -211,20 +234,7 @@ export const buildProposalContent = ({ issueKey, summary, description, metadata 
   ].join("\n");
 
   const impact = toBullet(intent.impact);
-  const metadataLines = [];
-  if (metadata?.issueType) metadataLines.push(`- Tipo: ${metadata.issueType}`);
-  if (metadata?.priority) metadataLines.push(`- Prioridad: ${metadata.priority}`);
-  if (Array.isArray(metadata?.components) && metadata.components.length > 0) {
-    metadataLines.push(`- Componentes: ${metadata.components.join(", ")}`);
-  }
-  if (Array.isArray(metadata?.labels) && metadata.labels.length > 0) {
-    metadataLines.push(`- Labels: ${metadata.labels.join(", ")}`);
-  }
-  if (Array.isArray(metadata?.subtasks) && metadata.subtasks.length > 0) {
-    metadataLines.push(
-      ...metadata.subtasks.map((item) => `- Subtask ${item.key}: ${item.summary || "(sin resumen)"}`),
-    );
-  }
+  const metadataLines = renderMetadataSection(metadata);
 
   return [
     "## Why",
@@ -262,11 +272,31 @@ const buildCapabilityName = ({ issueKey, changeName, fallbackCapability }) => {
   return chosen || "ticket-change";
 };
 
+const buildJiraContextContent = ({ issueKey, summary, description, metadata }) => {
+  const cleanDescription = collapseBlankLines(description);
+  const metadataLines = renderMetadataSection(metadata);
+
+  return [
+    `# Jira Context - ${issueKey}`,
+    "",
+    `## Summary`,
+    "",
+    summary || "(sin resumen)",
+    "",
+    "## Description",
+    "",
+    cleanDescription ? toMarkdownQuote(cleanDescription) : "> (Sin descripcion detallada en Jira)",
+    ...(metadataLines.length > 0 ? ["", "## Metadata", "", ...metadataLines] : []),
+    "",
+  ].join("\n");
+};
+
 export const writeRefinementArtifacts = async ({
   issueKey,
   changeName,
   summary,
   description,
+  metadata,
   baseDir,
 }) => {
   const resolvedChangeName = slugifyForOpenSpec(changeName || issueKey);
@@ -289,6 +319,7 @@ export const writeRefinementArtifacts = async ({
   const designPath = path.join(changeDir, "design.md");
   const tasksPath = path.join(changeDir, "tasks.md");
   const specPath = path.join(specsDir, "spec.md");
+  const jiraContextPath = path.join(specsDir, "jira-context.md");
 
   await writeFile(
     designPath,
@@ -297,8 +328,13 @@ export const writeRefinementArtifacts = async ({
   );
   await writeFile(specPath, buildInitialSpecContent({ issueKey, summary, description }), "utf8");
   await writeFile(tasksPath, buildInitialTasksContent(), "utf8");
+  await writeFile(
+    jiraContextPath,
+    buildJiraContextContent({ issueKey, summary, description, metadata }),
+    "utf8",
+  );
 
-  return { designPath, specPath, tasksPath, capability };
+  return { designPath, specPath, tasksPath, jiraContextPath, capability };
 };
 
 export const writeProposalFile = async ({

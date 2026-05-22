@@ -30,7 +30,18 @@ describe("jiraClient", () => {
     const fetchImpl = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        fields: { summary: "Titulo", description: "Descripcion" },
+        fields: {
+          summary: "Titulo",
+          description: "Descripcion",
+          issuetype: { name: "Story" },
+          priority: { name: "High" },
+          labels: ["frontend"],
+          components: [{ name: "gestion" }],
+          subtasks: [{ key: "ABC-2", fields: { summary: "Subtask demo" } }],
+          comment: {
+            comments: [{ id: "1001", body: "Comentario demo" }],
+          },
+        },
       }),
     });
 
@@ -46,6 +57,14 @@ describe("jiraClient", () => {
       issueKey: "ABC-1",
       summary: "Titulo",
       description: "Descripcion",
+      metadata: {
+        issueType: "Story",
+        priority: "High",
+        labels: ["frontend"],
+        components: ["gestion"],
+        subtasks: [{ key: "ABC-2", summary: "Subtask demo" }],
+        comments: [{ id: "1001", body: "Comentario demo" }],
+      },
     });
   });
 

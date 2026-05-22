@@ -47,9 +47,15 @@ const buildNewContext = ({
     const designRelative = path.relative(baseDir, refinementArtifacts.designPath);
     const specRelative = path.relative(baseDir, refinementArtifacts.specPath);
     const tasksRelative = path.relative(baseDir, refinementArtifacts.tasksPath);
+    const jiraContextRelative = refinementArtifacts.jiraContextPath
+      ? path.relative(baseDir, refinementArtifacts.jiraContextPath)
+      : null;
     stdout.write(`[opsxj:new] Design creado: ${designRelative}\n`);
     stdout.write(`[opsxj:new] Spec creado: ${specRelative}\n`);
     stdout.write(`[opsxj:new] Tasks creado: ${tasksRelative}\n`);
+    if (jiraContextRelative) {
+      stdout.write(`[opsxj:new] Jira context creado: ${jiraContextRelative}\n`);
+    }
   }
   if (!env.JIRA_BASE_URL || !env.JIRA_EMAIL || !env.JIRA_API_TOKEN) {
     stdout.write(

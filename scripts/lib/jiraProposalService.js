@@ -43,6 +43,7 @@ export const createProposalFromJira = async ({
     changeName,
     summary: issue.summary,
     description: issue.description,
+    metadata: issue.metadata,
     baseDir,
   });
 

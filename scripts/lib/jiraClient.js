@@ -33,6 +33,21 @@ export const normalizeDescription = (description) => {
   return text.replace(/\n{3,}/g, "\n\n");
 };
 
+const normalizeComments = (commentsField) => {
+  const comments = commentsField?.comments;
+  if (!Array.isArray(comments)) return [];
+
+  return comments
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const id = typeof item.id === "string" ? item.id : "";
+      const body = normalizeDescription(item.body);
+      if (!id && !body) return null;
+      return { id, body };
+    })
+    .filter(Boolean);
+};
+
 export const fetchJiraIssue = async ({
   issueKey,
   baseUrl,
@@ -58,6 +73,7 @@ export const fetchJiraIssue = async ({
     "labels",
     "components",
     "subtasks",
+    "comment",
   ].join(",");
   const url = `${normalizedBase}/rest/api/3/issue/${issueKey}?fields=${requestedFields}`;
 
@@ -101,6 +117,7 @@ export const fetchJiraIssue = async ({
         )
         .filter(Boolean)
     : [];
+  const comments = normalizeComments(fields.comment);
 
   return {
     issueKey,
@@ -112,6 +129,7 @@ export const fetchJiraIssue = async ({
       labels,
       components,
       subtasks,
+      comments,
     },
   };
 };
