@@ -49,6 +49,8 @@ export type AppTableProps<T extends AppTableRow> = {
   loadingMode?: AppTableLoadingMode;
   responsivePresentation?: AppTableResponsivePresentation;
   rowSelection?: AppTableRowSelection;
+  rowSelectionCheckboxes?: boolean;
+  rowSelectionHeaderCheckbox?: boolean;
   suppressRowClickSelection?: boolean;
   suppressCellFocus?: boolean;
   rowClickAffordance?: boolean;

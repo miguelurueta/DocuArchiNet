@@ -7,7 +7,10 @@ import type {
 import { actionListaDocumentosRadicados, queryListaDocumentosRadicados, resolveDocumentoVisualizacion } from "../services/listaDocumentosRadicados.service";
 import { getSolicitaGabinetePorTareaWorkflow } from "../services/solicitaGabineteRadicadoWorkflow.service";
 import { buildListaDocumentosRadicadosActionRequest } from "../adapters/documentosWorkbenchActionMapper";
-import { adaptListaDocumentosRadicadosToWorkbenchModel } from "../adapters/documentosWorkbenchResponseAdapter";
+import {
+  adaptListaDocumentosRadicadosToWorkbenchModel,
+  resolveDocumentWorkbenchRowId,
+} from "../adapters/documentosWorkbenchResponseAdapter";
 import {
   buildListaDocumentosRadicadosChildrenQuery,
   buildListaDocumentosRadicadosRootQuery,
@@ -34,6 +37,13 @@ const readNumber = (record: unknown, ...keys: string[]): number | undefined => {
     if (typeof value === "number" && Number.isFinite(value)) return value;
   }
   return undefined;
+};
+
+const inferColumnsFromRows = (rows: AppTreeTableRow[]): string[] | undefined => {
+  const first = rows.find((row) => row.values && Object.keys(row.values).length > 0);
+  if (!first?.values) return undefined;
+  const keys = Object.keys(first.values);
+  return keys.length > 0 ? keys : undefined;
 };
 
 const resolveFileUrlFromResolveResponse = (input: unknown): string | undefined => {
@@ -85,10 +95,13 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       }
 
       const model = adaptListaDocumentosRadicadosToWorkbenchModel(response.data, { viewMode: "flatDocuments" });
-      latestRowRef.current = new Map((response.data.Rows ?? []).map((row) => [row.RowId, row]));
-      if (model.tableId) tableIdRef.current = model.tableId;
+      latestRowRef.current = new Map(
+        (response.data.Rows ?? []).map((row, index) => [resolveDocumentWorkbenchRowId(row, index), row]),
+      );
+      tableIdRef.current = model.tableId || DEFAULT_TABLE_ID;
+      const resolvedColumns = model.columns && model.columns.length > 0 ? model.columns : inferColumnsFromRows(model.rows);
       setTableColumns(model.tableColumns);
-      setColumns(model.columns);
+      setColumns(resolvedColumns);
       return { ok: true, rows: model.rows };
     } catch {
       return { ok: false, message: "No fue posible cargar el listado." };
@@ -116,8 +129,9 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
         }
 
         const model = adaptListaDocumentosRadicadosToWorkbenchModel(response.data, { viewMode: "hierarchical" });
-        for (const childRow of response.data.Rows ?? []) {
-          latestRowRef.current.set(childRow.RowId, childRow);
+        tableIdRef.current = model.tableId || tableIdRef.current || DEFAULT_TABLE_ID;
+        for (const [index, childRow] of (response.data.Rows ?? []).entries()) {
+          latestRowRef.current.set(resolveDocumentWorkbenchRowId(childRow, index), childRow);
         }
         return { ok: true, rows: model.rows };
       } catch {
@@ -159,19 +173,24 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       const values = selected?.Values;
 
       const nodeType = readString(meta, "NodeType", "nodeType") ?? "documento";
-      const documentIdFromMeta = readNumber(meta, "DocumentId", "documentId");
+      const idDocumento =
+        readNumber(values, "IdDocumento", "ID_DOCUMENTO", "IDDOCUMENTO") ??
+        readNumber(meta, "IdDocumento", "idDocumento", "ID_DOCUMENTO");
+      const documentId =
+        readNumber(values, "DocumentId", "DOCUMENTID") ??
+        readNumber(meta, "DocumentId", "documentId");
       const gabinete =
         readString(meta, "NombreGabinete", "nombreGabinete", "NOMBRE_GABINETE") ??
         readString(values, "NOMBRE_GABINETE", "NombreGabinete", "NOMBREGABINETE");
 
-      return { nodeType, documentIdFromMeta, gabinete };
+      return { nodeType, idDocumento, documentId, gabinete };
     },
     [],
   );
 
   const performAction = useCallback(
     async (input: { actionId: string; rowId: string }): Promise<GestionRespuestaDocumentoActivo | null> => {
-      const { nodeType, documentIdFromMeta, gabinete } = buildActionContextFromRow(input.rowId);
+      const { nodeType, idDocumento, documentId, gabinete } = buildActionContextFromRow(input.rowId);
       if (!gabinete) return null;
       const tableId = tableIdRef.current || DEFAULT_TABLE_ID;
 
@@ -181,7 +200,8 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
           actionId: input.actionId,
           rowId: input.rowId,
           nodeType,
-          documentId: documentIdFromMeta,
+          idDocumento,
+          documentId,
           nombreGabinete: gabinete,
         }),
       );

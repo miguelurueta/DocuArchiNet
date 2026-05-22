@@ -3,6 +3,7 @@ import type { AppTreeTableRow } from "../types";
 import type { TreeTableRow } from "./flattenTree";
 
 export type AppTreeTableAppTableRow = AppTableRow & {
+  __rowId: string;
   id: string;
   __tree: {
     level: number;
@@ -29,8 +30,11 @@ export function mapTreeRowsToAppTableRows(input: {
     const loadingChildren = loadingChildrenIds.has(row.id);
 
     return {
-      id: row.id,
       ...values,
+      // Internal stable id used by AppTreeTable/AppTable. It must never be overwritten
+      // by backend data fields like `Values.id`.
+      __rowId: row.id,
+      id: row.id,
       __tree: {
         level: row.level,
         hasChildren: row.hasChildren,

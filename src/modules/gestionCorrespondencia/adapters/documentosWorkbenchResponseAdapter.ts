@@ -23,8 +23,45 @@ const inferLabel = (row: ListaDocumentosRadicadosRowDto): string => {
   return String(firstValue ?? row.RowId);
 };
 
-const toTreeRow = (row: ListaDocumentosRadicadosRowDto): AppTreeTableRow => ({
-  id: row.RowId,
+const readRowIdCandidate = (value: unknown): string | null => {
+  if (typeof value === "string" && value.trim().length > 0) return value.trim();
+  if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  return null;
+};
+
+export const resolveDocumentWorkbenchRowId = (
+  row: ListaDocumentosRadicadosRowDto,
+  index: number,
+): string => {
+  const fromRowId = readRowIdCandidate(row.RowId);
+  if (fromRowId) return fromRowId;
+
+  const values = row.Values ?? {};
+  const fallbackFromValues =
+    readRowIdCandidate(values.RowId) ??
+    readRowIdCandidate(values.ROWID) ??
+    readRowIdCandidate(values.IdDocumento) ??
+    readRowIdCandidate(values.IDDOCUMENTO) ??
+    readRowIdCandidate(values.DocumentId) ??
+    readRowIdCandidate(values.DOCUMENTID) ??
+    readRowIdCandidate(values.ID) ??
+    readRowIdCandidate(values.Id);
+
+  if (fallbackFromValues) return fallbackFromValues;
+
+  const firstKey = Object.keys(values)[0];
+  const firstValue = firstKey ? values[firstKey] : undefined;
+  const fallbackToken = readRowIdCandidate(firstValue);
+  if (fallbackToken) {
+    const normalized = fallbackToken.replace(/\s+/g, "-");
+    return `row-${index}-${normalized}`;
+  }
+
+  return `row-${index}`;
+};
+
+const toTreeRow = (row: ListaDocumentosRadicadosRowDto, index: number): AppTreeTableRow => ({
+  id: resolveDocumentWorkbenchRowId(row, index),
   label: inferLabel(row),
   values: row.Values,
   meta: { ...(row.Meta ?? {}) },
@@ -32,10 +69,39 @@ const toTreeRow = (row: ListaDocumentosRadicadosRowDto): AppTreeTableRow => ({
   children: row.Meta?.HasChildren ? [] : undefined,
 });
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const hasDynamicTableShape = (value: unknown): value is DynamicUiTableDto => {
+  if (!isRecord(value)) return false;
+
+  const candidate = value as Record<string, unknown>;
+  const tableId = candidate.TableId ?? candidate.tableId;
+  const rawColumns = candidate.Columns ?? candidate.columns;
+  const rawActions = [
+    candidate.CellActions,
+    candidate.cellActions,
+    candidate.MenuActions,
+    candidate.menuActions,
+    candidate.RowActions,
+    candidate.rowActions,
+  ];
+
+  const hasActionCollections = rawActions.some((item) => Array.isArray(item));
+  const hasObjectColumns =
+    Array.isArray(rawColumns) &&
+    rawColumns.some((column) => typeof column === "object" && column !== null);
+  const hasTableId = typeof tableId === "string" && tableId.trim().length > 0;
+
+  return hasActionCollections || hasObjectColumns || hasTableId;
+};
+
 const pickDynamicUiTable = (data: ListaDocumentosRadicadosQueryData): DynamicUiTableDto | null => {
-  const raw = data.Config;
-  if (!raw || typeof raw !== "object") return null;
-  return raw as DynamicUiTableDto;
+  if (isRecord(data.Config)) {
+    return data.Config as DynamicUiTableDto;
+  }
+
+  return hasDynamicTableShape(data) ? (data as unknown as DynamicUiTableDto) : null;
 };
 
 export type DocumentosWorkbenchTableModel = {
@@ -77,7 +143,7 @@ export const adaptListaDocumentosRadicadosToWorkbenchModel = (
   data: ListaDocumentosRadicadosQueryData,
   options?: { viewMode?: DocumentosWorkbenchViewMode },
 ): DocumentosWorkbenchTableModel => {
-  const rows = (data.Rows ?? []).map(toTreeRow);
+  const rows = (data.Rows ?? []).map((row, index) => toTreeRow(row, index));
   let columns = pickColumnsKeys(data);
 
   if (options?.viewMode === "flatDocuments") {

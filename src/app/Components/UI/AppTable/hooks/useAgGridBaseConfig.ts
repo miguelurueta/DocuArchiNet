@@ -16,6 +16,8 @@ import {
 
 type UseAgGridBaseConfigParams<T extends AppTableRow> = {
   rowSelection?: AppTableRowSelection;
+  rowSelectionCheckboxes?: boolean;
+  rowSelectionHeaderCheckbox?: boolean;
   domLayout?: AppTableDomLayout;
   layoutMode?: AppTableLayoutMode;
   paginationMode?: AppTablePaginationMode;
@@ -26,6 +28,8 @@ type UseAgGridBaseConfigParams<T extends AppTableRow> = {
 
 export const useAgGridBaseConfig = <T extends AppTableRow>({
   rowSelection,
+  rowSelectionCheckboxes,
+  rowSelectionHeaderCheckbox,
   domLayout,
   layoutMode,
   paginationMode,
@@ -46,6 +50,10 @@ export const useAgGridBaseConfig = <T extends AppTableRow>({
       rowSelection: createRowSelectionConfig(
         rowSelection ?? "multiple",
         suppressRowClickSelection ?? false,
+        {
+          checkboxes: rowSelectionCheckboxes,
+          headerCheckbox: rowSelectionHeaderCheckbox,
+        },
       ),
       suppressCellFocus: suppressCellFocus ?? defaults.suppressCellFocus,
       domLayout: layoutMode === "fill" ? "normal" : (domLayout ?? defaults.domLayout),
@@ -71,6 +79,8 @@ export const useAgGridBaseConfig = <T extends AppTableRow>({
     onSelectionChanged,
     paginationMode,
     rowSelection,
+    rowSelectionCheckboxes,
+    rowSelectionHeaderCheckbox,
     suppressCellFocus,
     suppressRowClickSelection,
   ]);

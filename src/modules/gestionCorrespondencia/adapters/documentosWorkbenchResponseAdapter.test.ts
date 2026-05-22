@@ -1,8 +1,46 @@
 import { describe, expect, it } from "vitest";
-import { adaptListaDocumentosRadicadosToWorkbenchModel } from "./documentosWorkbenchResponseAdapter";
+import {
+  adaptListaDocumentosRadicadosToWorkbenchModel,
+  resolveDocumentWorkbenchRowId,
+} from "./documentosWorkbenchResponseAdapter";
 import type { ListaDocumentosRadicadosQueryData } from "../types/listaDocumentosRadicados.types";
 
 describe("[SPEC:APPTREETABLE-217] documentosWorkbenchResponseAdapter", () => {
+  const dynamicTable = {
+    TableId: "InboxListaDocumentosRadicado",
+    Columns: [
+      { ColumnKey: "TIPODOCUMENTO", DataIndex: "TIPODOCUMENTO", HeaderName: "Tipo documento" },
+      {
+        ColumnKey: "ACCIONES",
+        DataIndex: "ACCIONES",
+        HeaderName: "Acciones",
+        IsActionColumn: true,
+        RenderType: "actions",
+      },
+    ],
+    RowActions: [],
+    MenuActions: [
+      {
+        ActionId: "ver_documento",
+        Label: "Ver documento",
+        Behavior: "client_event",
+        Presentation: "menu_item",
+      },
+    ],
+    CellActions: [
+      {
+        ColumnKey: "ACCIONES",
+        Action: {
+          ActionId: "acciones_menu",
+          Label: "Acciones",
+          Behavior: "client_event",
+          Presentation: "icon_button",
+          BehaviorConfig: { menuItems: ["ver_documento"] },
+        },
+      },
+    ],
+  };
+
   it("mapea Rows a AppTreeTableRow preservando Meta y HasChildren", () => {
     const data: ListaDocumentosRadicadosQueryData = {
       Rows: [
@@ -53,13 +91,70 @@ describe("[SPEC:APPTREETABLE-217] documentosWorkbenchResponseAdapter", () => {
     const data: ListaDocumentosRadicadosQueryData = {
       Rows: [],
       Columns: null,
-      Config: {
-        tableId: "InboxListaDocumentosRadicado",
-        columns: [],
-      },
+      Config: dynamicTable,
     } as unknown as ListaDocumentosRadicadosQueryData;
 
     const model = adaptListaDocumentosRadicadosToWorkbenchModel(data, { viewMode: "flatDocuments" });
     expect(model.tableId).toBe("InboxListaDocumentosRadicado");
+    expect(model.tableColumns?.length).toBeGreaterThan(0);
+  });
+
+  it("mapea tableId cuando la tabla viene en data directo", () => {
+    const data = {
+      Rows: [],
+      Columns: dynamicTable.Columns,
+      TableId: "InboxListaDocumentosRadicado",
+      RowActions: dynamicTable.RowActions,
+      MenuActions: dynamicTable.MenuActions,
+      CellActions: dynamicTable.CellActions,
+    } as unknown as ListaDocumentosRadicadosQueryData;
+
+    const model = adaptListaDocumentosRadicadosToWorkbenchModel(data, { viewMode: "flatDocuments" });
+    expect(model.tableId).toBe("InboxListaDocumentosRadicado");
+    expect(model.tableColumns?.length).toBeGreaterThan(0);
+  });
+
+  it("en flatDocuments conserva columna principal y acciones de CellActions/MenuActions", () => {
+    const data: ListaDocumentosRadicadosQueryData = {
+      Rows: [
+        {
+          RowId: "r-action",
+          Values: { TIPODOCUMENTO: "DOC 2001" },
+          Meta: { NodeType: "documento", HasChildren: false },
+        },
+      ],
+      Columns: ["TIPODOCUMENTO"],
+      Config: dynamicTable,
+    } as unknown as ListaDocumentosRadicadosQueryData;
+
+    const model = adaptListaDocumentosRadicadosToWorkbenchModel(data, { viewMode: "flatDocuments" });
+    expect(model.columns).toEqual(["TIPODOCUMENTO"]);
+
+    const actionColumn = model.tableColumns?.find((column) => column.field === "ACCIONES");
+    const rendererParams = actionColumn?.cellRendererParams as
+      | { actions?: unknown[]; menuActions?: unknown[] }
+      | undefined;
+
+    expect(rendererParams?.actions?.length).toBeGreaterThan(0);
+    expect(rendererParams?.menuActions?.length).toBeGreaterThan(0);
+  });
+
+  it("normaliza row id cuando RowId no viene y evita undefined", () => {
+    const rowWithoutId = {
+      RowId: "" as unknown as string,
+      Values: { IdDocumento: 15416, TIPODOCUMENTO: "DOC 15416" },
+      Meta: { NodeType: "documento", HasChildren: false },
+    };
+
+    expect(resolveDocumentWorkbenchRowId(rowWithoutId, 0)).toBe("15416");
+
+    const data = {
+      Rows: [rowWithoutId],
+      Config: null,
+      Columns: ["TIPODOCUMENTO"],
+    } as unknown as ListaDocumentosRadicadosQueryData;
+
+    const model = adaptListaDocumentosRadicadosToWorkbenchModel(data, { viewMode: "flatDocuments" });
+    expect(model.rows[0].id).toBe("15416");
   });
 });
