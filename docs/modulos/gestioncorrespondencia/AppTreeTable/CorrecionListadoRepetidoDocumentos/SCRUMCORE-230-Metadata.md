@@ -16,7 +16,7 @@
 - `docs/modulos/gestioncorrespondencia/AppTreeTable/CorrecionListadoRepetidoDocumentos/SCRUMCORE-230-Pruebas.md`
 
 ## PR / Commits
-- PR: (pendiente)
+- PR: `https://github.com/miguelurueta/DocuArchiCore.react/pull/261`
 - Commits (orden cronológico inverso):
   - `c151c2b` SCRUMCORE-230: no mostrar error al cancelar load
   - `219a9cf` SCRUMCORE-230: close remaining tasks (playwright + docs)
@@ -33,4 +33,3 @@
 - Contratos BE/DTOs NO alterados.
 - `AppTable`/`AppTreeTable` NO modificados globalmente.
 - Sin uso de `any` en código productivo.
-
