@@ -173,6 +173,12 @@ export function AppTreeTable({
         const previousCellClass = column.cellClass;
         return {
           ...column,
+          headerTooltip:
+            typeof column.headerTooltip === "string"
+              ? column.headerTooltip
+              : typeof column.headerName === "string"
+                ? column.headerName
+                : undefined,
           cellClass: (params) => {
             const row = params.data as (typeof appTableRows)[number] | undefined;
             const rowId = row ? String(row.__rowId ?? row.__tree?.node.id ?? row.id) : "";
@@ -196,6 +202,7 @@ export function AppTreeTable({
 
     const generated = columnsToRender.map((column, index) => ({
       headerName: column,
+      headerTooltip: column,
       field: resolvedColumns.length > 0 ? column : "__label",
       flex: index === 0 ? 1 : undefined,
       minWidth: index === 0 ? 220 : 180,

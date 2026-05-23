@@ -63,6 +63,20 @@
   align-self: stretch;
 }
 
+.collapseRail :global(aside > div:first-child) {
+  display: none;
+}
+
+.collapseRail :global(aside) {
+  display: flex;
+  flex-direction: column;
+}
+
+.collapseRail :global(aside > div:last-child) {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .panelContent {
   display: grid;
   gap: 0.75rem;
@@ -118,6 +132,7 @@
   overflow: hidden;
   box-sizing: border-box;
   padding-bottom: 0;
+  margin-top: -2px;
 }
 
 .listPanel {
@@ -131,8 +146,10 @@
 .listHeader {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   min-height: 2.25rem;
-  padding: 0 0.25rem 0.5rem;
+  padding: 0.35rem 0.25rem 0.25rem;
 }
 
 .listTitle {
@@ -141,6 +158,10 @@
   font-weight: 700;
   line-height: 1.25;
   color: #1f2937;
+}
+
+.collapseButton {
+  margin-left: auto;
 }
 
 .listSurface :global(button:focus-visible),
@@ -158,13 +179,103 @@
   --ag-range-selection-background-color: transparent;
 }
 
-/* Visual state for the single document currently opened in the viewer. */
-.listSurface :global(.ag-row:has(.ag-cell.doc-workbench-active-cell) .ag-cell) {
-  background-color: rgba(37, 99, 235, 0.14) !important;
+/* SCRUMCORE-229: CSS-only visual refresh (scoped to Workbench) */
+.listSurface :global(.ag-theme-quartz) {
+  --docu-wb-text-strong: #0b1220;
+  --docu-wb-border-weak: rgba(148, 163, 184, 0.22);
+  --docu-wb-border-weaker: rgba(148, 163, 184, 0.12);
+  --docu-wb-row-hover: rgba(15, 23, 42, 0.045);
+  --docu-wb-row-selected: rgba(15, 23, 42, 0.035);
+  --docu-wb-focus-ring: rgba(59, 130, 246, 0.9);
+  --docu-wb-action-hover: rgba(15, 23, 42, 0.05);
+  --docu-wb-action-active: rgba(15, 23, 42, 0.08);
+
+  --ag-border-color: rgba(148, 163, 184, 0.28);
+  --ag-row-border-color: var(--docu-wb-border-weak);
+  --ag-odd-row-background-color: #ffffff;
+  --ag-background-color: #ffffff;
+  --ag-header-background-color: #ffffff;
+  --ag-header-foreground-color: #111827;
+  --ag-header-height: 44px;
+  --ag-row-height: 42px;
+  --ag-font-size: 12.5px;
+
+  /* Subtle hover (no heavy borders). */
+  --ag-row-hover-color: var(--docu-wb-row-hover);
+
+  /* Remove vertical grid lines / column separators (keep row separators via custom border-bottom). */
+  --ag-borders: none;
+  --ag-borders-secondary: none;
+  --ag-header-column-separator-display: none;
 }
 
-.listSurface :global(.ag-row-hover:has(.ag-cell.doc-workbench-active-cell) .ag-cell) {
-  background-color: rgba(37, 99, 235, 0.2) !important;
+/* Header: clean and lightweight */
+.listSurface :global(.ag-theme-quartz .ag-header) {
+  border-bottom: 1px solid var(--docu-wb-border-weak);
+}
+
+.listSurface :global(.ag-theme-quartz .ag-header-cell) {
+  border-right: 0;
+  border-left: 0;
+  box-shadow: none;
+}
+
+.listSurface :global(.ag-theme-quartz .ag-header-cell::after),
+.listSurface :global(.ag-theme-quartz .ag-cell::after) {
+  display: none;
+}
+
+.listSurface :global(.ag-theme-quartz .ag-header-cell-label) {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.listSurface :global(.ag-theme-quartz .ag-header-cell-text) {
+  color: var(--docu-wb-text-strong);
+  font-size: 13px;
+}
+
+/* Rows: clean separators, no boxed look */
+.listSurface :global(.ag-theme-quartz .ag-row) {
+  border-bottom: 1px solid var(--docu-wb-border-weaker);
+}
+
+.listSurface :global(.ag-theme-quartz .ag-cell) {
+  border-right: 0;
+  border-left: 0;
+  box-shadow: none;
+}
+
+/* Selected row: respect aria-selected without relying on AG Grid selected paint */
+.listSurface :global(.ag-theme-quartz .ag-row[aria-selected="true"] .ag-cell) {
+  background-color: var(--docu-wb-row-selected);
+}
+
+/* Keyboard focus: keep ring clean and consistent inside the table */
+.listSurface :global(.ag-theme-quartz .ag-cell-focus),
+.listSurface :global(.ag-theme-quartz .ag-cell:focus-within) {
+  outline: 2px solid var(--docu-wb-focus-ring);
+  outline-offset: -1px;
+  border-radius: 6px;
+}
+
+/* Action cell: reduce visual noise of the ellipsis button (CSS-only) */
+.listSurface :global(.ag-theme-quartz .app-table-action-cell) {
+  gap: 0.25rem;
+}
+
+.listSurface :global(.ag-theme-quartz .app-table-action-cell .ant-btn) {
+  border-color: transparent;
+  background: transparent;
+}
+
+.listSurface :global(.ag-theme-quartz .app-table-action-cell .ant-btn:hover) {
+  background: var(--docu-wb-action-hover);
+}
+
+.listSurface :global(.ag-theme-quartz .app-table-action-cell .ant-btn:active) {
+  background: var(--docu-wb-action-active);
 }
 
 .previewPlaceholder {

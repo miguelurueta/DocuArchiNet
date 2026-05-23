@@ -32,11 +32,17 @@ async function loginByApi(request: APIRequestContext) {
   });
 
   expect(response.ok()).toBeTruthy();
-  const body = (await response.json()) as any;
+  const body = (await response.json()) as {
+    data?: {
+      token?: string;
+      expiracion?: string;
+      usuario?: { permisos?: unknown[] };
+    };
+  };
 
   return {
-    token: body.data?.token as string,
-    expiracion: body.data?.expiracion as string,
+    token: body.data?.token ?? "",
+    expiracion: body.data?.expiracion ?? "",
     permisos: body.data?.usuario?.permisos ?? [],
   };
 }

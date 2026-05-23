@@ -22,11 +22,17 @@ async function loginByApi(request: APIRequestContext) {
   });
 
   expect(response.ok()).toBeTruthy();
-  const body = (await response.json()) as any;
+  const body = (await response.json()) as {
+    data?: {
+      token?: string;
+      expiracion?: string;
+      usuario?: { permisos?: unknown[] };
+    };
+  };
 
   return {
-    token: body.data?.token as string,
-    expiracion: body.data?.expiracion as string,
+    token: body.data?.token ?? "",
+    expiracion: body.data?.expiracion ?? "",
     permisos: body.data?.usuario?.permisos ?? [],
   };
 }
@@ -48,7 +54,7 @@ test.describe("GestionCorrespondencia real - DocumentosWorkbench", () => {
 
     await expect(page.getByTestId("documentos-workbench")).toHaveAttribute("data-variant", /inline|overlay/);
     await expect(page.getByRole("status", { name: "Zona de documento" })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Ocultar Visualizar documentos|Mostrar Visualizar documentos/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Ocultar documentos|Mostrar documentos/i })).toBeVisible();
     await expect(page.getByText(/Documentos \(\d+\)/)).toBeVisible();
   });
 });
