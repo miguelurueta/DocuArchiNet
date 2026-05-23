@@ -12,9 +12,8 @@
 ## PR / Commits
 - PR: (pendiente)
 - Commits (orden cronológico inverso):
+  - `ce5717c` SCRUMCORE-230: tests UI + docs enterprise
   - `a178f7a` SCRUMCORE-230: filter documentos by radicado + anti-stale
   - `e74da79` SCRUMCORE-230: align tasks with prompt
   - `a58e9ad` SCRUMCORE-230: refine design/spec/tasks
   - `abccdad` feat(SCRUMCORE-230): proposal inicial OpenSpec
-  - (pendiente) commit de cierre: pruebas/ajustes docs
-
