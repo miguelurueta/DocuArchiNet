@@ -4,10 +4,10 @@ CORRECION-LISTADO-REPETIDO-DOCUMENTOS. Ver detalle funcional completo del ticket
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-230.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Corregir el bug donde `DocumentosWorkbench` muestra el mismo set de documentos entre tareas distintas por ausencia de filtro efectivo por `Radicado` en el query `ListaDocumentosRadicados/query`.
+- Endurecer la validaciÃ³n de contexto (Radicado + EstadoExistenciaRadicado) **antes** de consultar documentos.
+- Implementar estrategia anti-stale al cambiar `idTareaWf` para evitar que respuestas previas sobrescriban el estado actual.
+- Mantener compatibilidad con `AppTreeTable`/`AppTable`, selecciÃ³n mÃºltiple y flujo `ver_documento` sin cambios de contratos ni endpoints.
 
 ## Jira Details
 
@@ -484,5 +484,9 @@ CORRECION-LISTADO-REPETIDO-DOCUMENTOS. Ver detalle funcional completo del ticket
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+- Archivos esperados a tocar:
+  - Hook: `src/modules/gestionCorrespondencia/hooks/useGestionRespuestaDocumentosTable.ts`
+  - Mapper de request: `src/modules/gestionCorrespondencia/adapters/gestionRespuestaDocumentosRequestMapper.ts`
+  - Tipos (si faltan campos): `src/modules/gestionCorrespondencia/types/solicitaGabineteRadicadoWorkflow.types.ts`
+  - Tests: `src/modules/gestionCorrespondencia/tests/**` y/o `src/modules/gestionCorrespondencia/adapters/*.test.ts`
+- No se modifican endpoints ni backend.

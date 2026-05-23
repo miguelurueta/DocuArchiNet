@@ -464,24 +464,45 @@ SCRUMCORE-230: CORRECION-LISTADO-REPETIDO-DOCUMENTOS
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Garantizar aislamiento documental por tarea: el listado de documentos del Workbench debe filtrarse por `Radicado` (source of truth: endpoint de gabinete por tarea).
+- Evitar datos stale al cambiar `idTareaWf`: no mostrar ni persistir documentos de la tarea previa.
+- Evitar race conditions: si cambia `idTareaWf` durante una carga, ignorar respuestas antiguas.
+- Mantener UX estable: estados loading/error consistentes, sin flicker severo.
+- Mantener compatibilidad: no romper selecciÃ³n mÃºltiple, `loadChildren`, ni el flujo `ver_documento`.
 
 **Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+- No modificar backend, endpoints ni contratos.
+- No refactorizar `AppTreeTable`/`AppTable`.
+- No introducir estilos globales.
 
 ## Decisions
 
-1. TBD
+1. **Source of truth**: el `Radicado` vÃ¡lido proviene exclusivamente de `getSolicitaGabinetePorTareaWorkflow(idTareaWf)` (no se deriva de la UI ni se reutiliza).
+2. **ValidaciÃ³n previa**: si `Radicado` estÃ¡ vacÃ­o o `EstadoExistenciaRadicado === \"NO\"`, el hook no ejecuta el query documental y retorna `{ ok:false, message:<error funcional> }`.
+3. **Filtro efectivo**: el request a `ListaDocumentosRadicados/query` incluirÃ¡ `CampoRadicado=\"ENLASE\"` y `Radicado=<trim>`.
+4. **Anti-stale / concurrencia**: `load()` usarÃ¡ un contador/nonce (o AbortController si estÃ¡ disponible en el cliente) para que solo la Ãºltima ejecuciÃ³n active aplique sus resultados a estado (rows/columns/count).
+5. **Reset al cambiar tarea**: al cambiar `idTareaWf`, se limpia estado local relacionado al listado (rowsCount, backendTotal, tableColumns/columns, latestRowRef, selectedRowIds) para prevenir render de datos previos.
 
 ## Risks / Trade-offs
 
-- TBD
+- Riesgo: el backend podrÃ­a aceptar `Radicado` en un campo distinto. MitigaciÃ³n: tests del mapper + logging dev-only con payload construido.
+- Riesgo: UX (error) si faltan datos del gabinete. MitigaciÃ³n: mensajes funcionales claros y no renderizar datos stale.
+- Riesgo: doble llamada a gabinete. MitigaciÃ³n: resolver gabinete una vez por `load()` y reusar para `loadChildren` y acciones.
 
 ## Migration Plan
 
-1. TBD
+1. Actualizar tipos/parseo del response de gabinete para leer `Radicado` y `EstadoExistenciaRadicado`.
+2. Actualizar `buildListaDocumentosRadicadosRootQuery` para incluir `CampoRadicado`/`Radicado` y mantener `NombreGabinete`.
+3. Actualizar hook `useGestionRespuestaDocumentosTable`:
+   - Validar `Radicado`/estado existencia antes del query.
+   - Implementar anti-stale (solo Ãºltima respuesta aplica).
+   - Reset de estado al cambiar tarea.
+4. Agregar pruebas unitarias:
+   - Mapper: incluye `CampoRadicado=\"ENLASE\"`, `Radicado` trim, no usa `Search` como fallback.
+   - Hook: no query si radicado vacÃ­o / estado \"NO\"; query si radicado ok.
+5. Agregar/actualizar Playwright (si el repo tiene entorno real configurado) o pruebas de integraciÃ³n de componente/hook con mocks.
 
 ## Open Questions
 
-- TBD
+- El endpoint de gabinete expone `EstadoExistenciaRadicado` siempre? (string \"SI\"/\"NO\" o boolean). Confirmar tipo real para parseo y validaciÃ³n.
+- El backend requiere `CampoRadicado` fijo \"ENLASE\" o depende de configuraciÃ³n/empresa? (por defecto \"ENLASE\" segÃºn ticket).
