@@ -1,13 +1,13 @@
 ## 1. Refinement
 
-- [ ] 1.1 Confirmar contrato real de gabinete (source of truth):
+- [x] 1.1 Confirmar contrato real de gabinete (source of truth):
   - `Radicado` (string) y reglas de normalización (`trim()`)
   - `NombreGabinete`
   - `EstadoExistenciaRadicado` (string) y valores reales (ej. `"SI"|"NO"` o `"YES"|"NO"`).
-- [ ] 1.2 Unificar validación de `EstadoExistenciaRadicado`:
+- [x] 1.2 Unificar validación de `EstadoExistenciaRadicado`:
   - Regla: bloquear query si el valor es `"NO"` (case-insensitive) o equivalente confirmado por contrato.
-- [ ] 1.3 Confirmar contrato del query: requiere `CampoRadicado="ENLASE"` + `Radicado` (y NO `Search`) vs `StructuredFilters`.
-- [ ] 1.4 Alinear mensajes de error funcional con producto (copy exacto).
+- [x] 1.3 Confirmar contrato del query: requiere `CampoRadicado="ENLASE"` + `Radicado` (y NO `Search`) vs `StructuredFilters`.
+- [x] 1.4 Alinear mensajes de error funcional con producto (copy exacto).
 
 ## 2. Implementacion
 
@@ -40,7 +40,7 @@
 - [x] 3.2 Unit (hook): no query cuando Radicado vacío; no query cuando `EstadoExistenciaRadicado` bloquea (ej. `"NO"`); query cuando radicado ok.
 - [x] 3.3 Concurrencia: simular `idTareaWf` A->B y validar que A no sobrescribe estado.
 - [x] 3.4 Integración UI (vitest + RTL): cambio de tarea A->B no mantiene rows stale (sin mostrar docs previos durante carga).
-- [ ] 3.5 E2E Playwright (entorno real, si está configurado):
+- [x] 3.5 E2E Playwright (entorno real, si está configurado):
   - tareas distintas muestran documentos distintos
   - Radicado vacío -> error controlado (sin query)
   - selección múltiple intacta

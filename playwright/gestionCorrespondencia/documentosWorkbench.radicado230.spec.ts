@@ -1,12 +1,24 @@
 import { expect, test } from "@playwright/test";
 import type { APIRequestContext } from "@playwright/test";
 
-function getRequiredEnv(name: string) {
+function getOptionalEnv(name: string) {
   const value = process.env[name];
-  if (!value || value.trim().length === 0) {
-    throw new Error(`Missing required env var: ${name}`);
-  }
-  return value.trim();
+  return value?.trim() ?? "";
+}
+
+function ensureEnvOrSkip() {
+  const required = [
+    "PLAYWRIGHT_LOGIN_EMPRESA_ID",
+    "PLAYWRIGHT_LOGIN_MODULO_ID",
+    "PLAYWRIGHT_LOGIN_USER",
+    "PLAYWRIGHT_LOGIN_PASSWORD",
+  ];
+
+  const missing = required.filter((name) => getOptionalEnv(name).length === 0);
+  test.skip(
+    missing.length > 0,
+    `E2E requiere variables de entorno. Faltan: ${missing.join(", ")}`,
+  );
 }
 
 async function loginByApi(request: APIRequestContext) {
@@ -15,12 +27,17 @@ async function loginByApi(request: APIRequestContext) {
     "",
   );
 
+  const empresaId = getOptionalEnv("PLAYWRIGHT_LOGIN_EMPRESA_ID");
+  const moduloId = getOptionalEnv("PLAYWRIGHT_LOGIN_MODULO_ID");
+  const user = getOptionalEnv("PLAYWRIGHT_LOGIN_USER");
+  const password = getOptionalEnv("PLAYWRIGHT_LOGIN_PASSWORD");
+
   const response = await request.post(`${apiUrl}/api/accout/ValidaUserAplicacion`, {
     data: {
-      IdEmpresa: Number(getRequiredEnv("PLAYWRIGHT_LOGIN_EMPRESA_ID")),
-      IdModulo: Number(getRequiredEnv("PLAYWRIGHT_LOGIN_MODULO_ID")),
-      User: getRequiredEnv("PLAYWRIGHT_LOGIN_USER"),
-      Password: getRequiredEnv("PLAYWRIGHT_LOGIN_PASSWORD"),
+      IdEmpresa: Number(empresaId),
+      IdModulo: Number(moduloId),
+      User: user,
+      Password: password,
     },
   });
 
@@ -38,6 +55,7 @@ async function loginByApi(request: APIRequestContext) {
 
 test.describe("SCRUMCORE-230 - DocumentosWorkbench Radicado filter (real env)", () => {
   test("cambiar entre tareas no deja listado stale (smoke)", async ({ page, request }) => {
+    ensureEnvOrSkip();
     const session = await loginByApi(request);
 
     await page.addInitScript((auth) => {
