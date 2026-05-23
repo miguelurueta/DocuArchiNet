@@ -5,16 +5,19 @@ const DEFAULT_APLICA_TRD = 0;
 const DEFAULT_COLUMN_MODE = 2;
 const DEFAULT_SEARCH_TYPE = 1;
 const DEFAULT_SORT_FIELD = "ID";
+const DEFAULT_CAMPO_RADICADO = "ENLASE";
 
 export type GestionRespuestaDocumentosQueryContext = {
   idTareaWf?: number;
   nombreGabinete?: string;
+  radicado?: string;
 };
 
 export const buildListaDocumentosRadicadosRootQuery = (
   context: GestionRespuestaDocumentosQueryContext,
 ): ListaDocumentosRadicadosQueryRequest => {
   const nombreGabinete = context.nombreGabinete?.trim();
+  const radicado = context.radicado?.trim();
 
   return {
     ViewMode: "flatDocuments",
@@ -35,8 +38,8 @@ export const buildListaDocumentosRadicadosRootQuery = (
 
     TableId: TABLE_ID,
     EstadoTramite: "",
-    CampoRadicado: "",
-    Radicado: "",
+    CampoRadicado: DEFAULT_CAMPO_RADICADO,
+    Radicado: radicado ?? "",
     AplicaTrd: DEFAULT_APLICA_TRD,
     ...(nombreGabinete ? { NombreGabinete: nombreGabinete } : {}),
   };
@@ -44,11 +47,13 @@ export const buildListaDocumentosRadicadosRootQuery = (
 
 export const buildListaDocumentosRadicadosChildrenQuery = (input: {
   nombreGabinete?: string;
+  radicado?: string;
   parentRowId: string;
   parentNodeType?: string | null;
   level: number;
 }): ListaDocumentosRadicadosQueryRequest => {
   const nombreGabinete = input.nombreGabinete?.trim();
+  const radicado = input.radicado?.trim();
 
   return {
     ViewMode: "hierarchical",
@@ -65,8 +70,8 @@ export const buildListaDocumentosRadicadosChildrenQuery = (input: {
     Level: input.level,
 
     TableId: TABLE_ID,
-    CampoRadicado: "",
-    Radicado: "",
+    CampoRadicado: DEFAULT_CAMPO_RADICADO,
+    Radicado: radicado ?? "",
     AplicaTrd: DEFAULT_APLICA_TRD,
     ...(nombreGabinete ? { NombreGabinete: nombreGabinete } : {}),
   };

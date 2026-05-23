@@ -9,6 +9,7 @@ describe("[SPEC:APPTREETABLE-217] gestionRespuestaDocumentosRequestMapper", () =
     const request = buildListaDocumentosRadicadosRootQuery({
       idTareaWf: 123,
       nombreGabinete: "GAB-1",
+      radicado: " 2025-0001 ",
     });
 
     expect(request.ViewMode).toBe("flatDocuments");
@@ -17,11 +18,14 @@ describe("[SPEC:APPTREETABLE-217] gestionRespuestaDocumentosRequestMapper", () =
     expect(request.ParentNodeType).toBeNull();
     expect(request.Level).toBe(1);
     expect(request.NombreGabinete).toBe("GAB-1");
+    expect(request.CampoRadicado).toBe("ENLASE");
+    expect(request.Radicado).toBe("2025-0001");
   });
 
   it("construye query children hierarchical con ParentRowId y ParentNodeType", () => {
     const request = buildListaDocumentosRadicadosChildrenQuery({
       nombreGabinete: "GAB-1",
+      radicado: "2025-0002",
       parentRowId: "row-1",
       parentNodeType: "folder",
       level: 2,
@@ -32,6 +36,8 @@ describe("[SPEC:APPTREETABLE-217] gestionRespuestaDocumentosRequestMapper", () =
     expect(request.ParentNodeType).toBe("folder");
     expect(request.Level).toBe(2);
     expect(request.NombreGabinete).toBe("GAB-1");
+    expect(request.CampoRadicado).toBe("ENLASE");
+    expect(request.Radicado).toBe("2025-0002");
   });
 });
 
