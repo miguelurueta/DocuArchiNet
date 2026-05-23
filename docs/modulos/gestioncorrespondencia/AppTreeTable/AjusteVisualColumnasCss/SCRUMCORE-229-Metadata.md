@@ -27,7 +27,7 @@
 - 2026-05-22: Creación de documentación y consolidación de cambios visuales/UX.
 
 ## PR / Commit
-- PR: (completar)
+- PR: `#259`
 - Commit(s):
   - `6c91f71`
   - `6afd02a`
