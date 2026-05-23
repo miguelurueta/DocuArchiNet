@@ -2,6 +2,9 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useGestionRespuestaDocumentosTable } from "../hooks/useGestionRespuestaDocumentosTable";
 import * as listaDocumentosService from "../services/listaDocumentosRadicados.service";
+import * as gabineteService from "../services/solicitaGabineteRadicadoWorkflow.service";
+import type { SolicitaGabineteRadicadoWorkflowResponse } from "../types/solicitaGabineteRadicadoWorkflow.types";
+import type { ListaDocumentosRadicadosQueryRequest } from "../types/listaDocumentosRadicados.types";
 
 vi.mock("../services/listaDocumentosRadicados.service", async () => {
   const actual = await vi.importActual<
@@ -13,6 +16,16 @@ vi.mock("../services/listaDocumentosRadicados.service", async () => {
     queryListaDocumentosRadicados: vi.fn(),
     actionListaDocumentosRadicados: vi.fn(),
     resolveDocumentoVisualizacion: vi.fn(),
+  };
+});
+
+vi.mock("../services/solicitaGabineteRadicadoWorkflow.service", async () => {
+  const actual = await vi.importActual<
+    typeof import("../services/solicitaGabineteRadicadoWorkflow.service")
+  >("../services/solicitaGabineteRadicadoWorkflow.service");
+  return {
+    ...actual,
+    getSolicitaGabinetePorTareaWorkflow: vi.fn(),
   };
 });
 
@@ -62,6 +75,16 @@ describe("useGestionRespuestaDocumentosTable [SCRUMCORE-224]", () => {
       message: "OK",
       data: { fileUrl: "http://example.test/doc.pdf" },
     });
+    const gabineteOk: SolicitaGabineteRadicadoWorkflowResponse = {
+      success: true,
+      message: "OK",
+      data: {
+        NombreGabinete: "WF_DOCS",
+        Radicado: "2025-0001",
+        EstadoExistenciaRadicado: "YES",
+      },
+    };
+    vi.mocked(gabineteService.getSolicitaGabinetePorTareaWorkflow).mockResolvedValue(gabineteOk);
   });
 
   it("prioriza Total backend cuando existe", async () => {
@@ -190,6 +213,118 @@ describe("useGestionRespuestaDocumentosTable [SCRUMCORE-224]", () => {
     await waitFor(() => {
       expect(result.current.totalDocumentsCount).toBe(1);
       expect(result.current.selectedDocumentsCount).toBe(1);
+    });
+  });
+
+  it("no consulta query cuando el radicado es vacio", async () => {
+    const gabineteSinRadicado: SolicitaGabineteRadicadoWorkflowResponse = {
+      success: true,
+      message: "OK",
+      data: { NombreGabinete: "WF_DOCS", Radicado: "   ", EstadoExistenciaRadicado: "YES" },
+    };
+    vi.mocked(gabineteService.getSolicitaGabinetePorTareaWorkflow).mockResolvedValueOnce(gabineteSinRadicado);
+
+    const { result } = renderHook(() => useGestionRespuestaDocumentosTable(10));
+
+    const response = await act(async () => result.current.load());
+
+    expect(vi.mocked(listaDocumentosService.queryListaDocumentosRadicados)).not.toHaveBeenCalled();
+    expect(response.ok).toBe(false);
+    expect(response.message).toMatch(/radicado.*obligatorio/i);
+  });
+
+  it("no consulta query cuando EstadoExistenciaRadicado es NO", async () => {
+    const gabineteNoExiste: SolicitaGabineteRadicadoWorkflowResponse = {
+      success: true,
+      message: "OK",
+      data: { NombreGabinete: "WF_DOCS", Radicado: "2025-0001", EstadoExistenciaRadicado: "NO" },
+    };
+    vi.mocked(gabineteService.getSolicitaGabinetePorTareaWorkflow).mockResolvedValueOnce(gabineteNoExiste);
+
+    const { result } = renderHook(() => useGestionRespuestaDocumentosTable(10));
+
+    const response = await act(async () => result.current.load());
+
+    expect(vi.mocked(listaDocumentosService.queryListaDocumentosRadicados)).not.toHaveBeenCalled();
+    expect(response.ok).toBe(false);
+    expect(response.message).toMatch(/no existe/i);
+  });
+
+  it("consulta query cuando radicado es valido y lo incluye en el request", async () => {
+    vi.mocked(listaDocumentosService.queryListaDocumentosRadicados).mockResolvedValueOnce(
+      buildQueryResponse({ ids: ["r1", "r2"], total: 40 }),
+    );
+
+    const { result } = renderHook(() => useGestionRespuestaDocumentosTable(10));
+
+    await act(async () => {
+      await result.current.load();
+    });
+
+    expect(vi.mocked(listaDocumentosService.queryListaDocumentosRadicados)).toHaveBeenCalledTimes(1);
+    const req = vi.mocked(listaDocumentosService.queryListaDocumentosRadicados).mock
+      .calls[0]?.[0] as ListaDocumentosRadicadosQueryRequest;
+    expect(req?.CampoRadicado).toBe("ENLASE");
+    expect(req?.Radicado).toBe("2025-0001");
+  });
+
+  it("ignora respuestas stale cuando cambia idTareaWf (anti-stale)", async () => {
+    const deferred = <T,>() => {
+      let resolve!: (value: T) => void;
+      let reject!: (reason?: unknown) => void;
+      const promise = new Promise<T>((res, rej) => {
+        resolve = res;
+        reject = rej;
+      });
+      return { promise, resolve, reject };
+    };
+
+    const slow = deferred<import("../types/listaDocumentosRadicados.types").ApiResponse<
+      import("../types/listaDocumentosRadicados.types").ListaDocumentosRadicadosQueryData
+    >>();
+
+    vi.mocked(gabineteService.getSolicitaGabinetePorTareaWorkflow)
+      .mockResolvedValueOnce({
+        success: true,
+        message: "OK",
+        data: { NombreGabinete: "WF_DOCS", Radicado: "2025-0001", EstadoExistenciaRadicado: "YES" },
+      })
+      .mockResolvedValueOnce({
+        success: true,
+        message: "OK",
+        data: { NombreGabinete: "WF_DOCS", Radicado: "2025-0002", EstadoExistenciaRadicado: "YES" },
+      });
+
+    vi.mocked(listaDocumentosService.queryListaDocumentosRadicados)
+      .mockImplementationOnce(async () => slow.promise)
+      .mockResolvedValueOnce(buildQueryResponse({ ids: ["b1"], total: 1 }));
+
+    const { result, rerender } = renderHook(
+      ({ id }) => useGestionRespuestaDocumentosTable(id),
+      { initialProps: { id: 1 } },
+    );
+
+    // start load for A (slow) without awaiting (simulates in-flight request)
+    const loadAPromise = result.current.load();
+
+    // switch to B and load (fast)
+    rerender({ id: 2 });
+    await act(async () => {
+      await result.current.load();
+    });
+
+    await waitFor(() => {
+      expect(result.current.totalDocumentsCount).toBe(1);
+    });
+
+    // Resolve A late (should not overwrite)
+    slow.resolve(buildQueryResponse({ ids: ["a1", "a2"], total: 2 }));
+    await act(async () => {
+      await loadAPromise;
+    });
+
+    await waitFor(() => {
+      expect(result.current.totalDocumentsCount).toBe(1);
     });
   });
 });

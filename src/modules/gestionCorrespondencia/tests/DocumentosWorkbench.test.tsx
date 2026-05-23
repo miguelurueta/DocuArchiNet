@@ -8,21 +8,22 @@ type MockTableApi = {
   load: () => Promise<unknown>;
   loadChildren: () => Promise<unknown>;
   onSelectRow: (rowId: string) => Promise<{ fileUrl?: string; rowId: string } | null>;
-  onActionTriggered: (params: {
-    actionId: string;
-    rowId: string;
-  }) => Promise<{ fileUrl?: string; rowId: string } | null>;
+  onActionTriggered: (params: { actionId: string; rowId: string }) => Promise<{ fileUrl?: string; rowId: string } | null>;
   onSelectionChanged: (rowIds: string[]) => void;
-  getTableColumns: () => undefined;
+  getTableColumns: () => undefined | Array<{ headerName?: string; field?: string }>;
   getColumns: () => undefined;
   totalDocumentsCount: number;
   selectedDocumentsCount: number;
 };
 
 let mockTableApi: MockTableApi;
+let lastHookId: number | undefined;
 
 vi.mock("../hooks/useGestionRespuestaDocumentosTable", () => ({
-  useGestionRespuestaDocumentosTable: () => mockTableApi,
+  useGestionRespuestaDocumentosTable: (idTareaWf?: number) => {
+    lastHookId = idTareaWf;
+    return mockTableApi;
+  },
 }));
 
 vi.mock("../../../app/Components/UI/AppVisorEmbedPdf", () => ({
@@ -50,10 +51,7 @@ vi.mock("../../../app/Components/UI/AppTreeTable", () => ({
         <button type="button" onClick={() => props.onSelectRow?.("r1")}>
           Select r1
         </button>
-        <button
-          type="button"
-          onClick={() => props.onActionTriggered?.({ actionId: "ver_documento", rowId: "r1" })}
-        >
+        <button type="button" onClick={() => props.onActionTriggered?.({ actionId: "ver_documento", rowId: "r1" })}>
           Action ver_documento
         </button>
         <button type="button" onClick={() => props.onSelectionChanged?.(["r1", "r2"])}>
@@ -81,6 +79,7 @@ const createMatchMedia = (matches: MatchMediaMap) => (query: string) => ({
 describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
   beforeEach(() => {
     appTreeTableSpy.mockClear();
+    lastHookId = undefined;
     mockTableApi = {
       load: vi.fn(async () => ({ ok: true, rows: [] })),
       loadChildren: vi.fn(async () => ({ ok: true, rows: [] })),
@@ -108,11 +107,9 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     expect(screen.getByTestId("documentos-workbench")).toBeInTheDocument();
     expect(screen.getByRole("status", { name: "Zona de documento" })).toBeInTheDocument();
     expect(screen.getByTestId("app-visor-embedpdf-mock")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Ocultar Visualizar documentos/i })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Ocultar documentos/i }).length).toBeGreaterThan(0);
     expect(screen.getByTestId("app-tree-table-mock")).toBeInTheDocument();
-    expect(appTreeTableSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ tableLayoutMode: "fill" }),
-    );
+    expect(appTreeTableSpy).toHaveBeenCalledWith(expect.objectContaining({ tableLayoutMode: "fill" }));
   });
 
   it("[SPEC:APPTREETABLE-225-001] propaga tableColumns de 2 columnas al AppTreeTable en Workbench", () => {
@@ -141,10 +138,21 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     expect(screen.getByText("Documentos (25)")).toBeInTheDocument();
   });
 
+  it("al cambiar idTareaWf re-renderiza con nuevo contexto (no stale)", () => {
+    const { rerender } = render(<DocumentosWorkbench idTareaWf={111} />);
+    expect(lastHookId).toBe(111);
+
+    mockTableApi.totalDocumentsCount = 7;
+    rerender(<DocumentosWorkbench idTareaWf={222} />);
+
+    expect(lastHookId).toBe(222);
+    expect(screen.getByText("Documentos (7)")).toBeInTheDocument();
+  });
+
   it("muestra contador de seleccionados cuando hay seleccion", () => {
     mockTableApi.selectedDocumentsCount = 2;
     render(<DocumentosWorkbench />);
-    expect(screen.getByText("Documentos (25) · Seleccionados (2)")).toBeInTheDocument();
+    expect(screen.getByText(/Documentos \(25\).*Seleccionados \(2\)/)).toBeInTheDocument();
   });
 
   it("propaga el cambio de seleccion desde AppTreeTable al hook", () => {
@@ -173,13 +181,9 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
 
   it("permite colapsar el rail", () => {
     render(<DocumentosWorkbench />);
-    const toggle = screen.getByRole("button", {
-      name: /Ocultar Visualizar documentos/i,
-    });
+    const toggle = screen.getAllByRole("button", { name: /Ocultar documentos/i })[0];
     fireEvent.click(toggle);
-    expect(screen.getAllByRole("button", { name: /Mostrar Visualizar documentos/i }).length).toBeGreaterThan(
-      0,
-    );
+    expect(screen.getAllByRole("button", { name: /Mostrar documentos/i }).length).toBeGreaterThan(0);
   });
 
   it("en mobile usa variant overlay", () => {
@@ -209,4 +213,3 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     expect(screen.getByTestId("documentos-workbench")).toHaveAttribute("data-variant", "overlay");
   });
 });
-

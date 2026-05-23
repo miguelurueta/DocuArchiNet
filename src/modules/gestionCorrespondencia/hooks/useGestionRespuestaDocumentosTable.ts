@@ -22,6 +22,13 @@ import type {
 } from "../types/listaDocumentosRadicados.types";
 
 const DEFAULT_TABLE_ID = "InboxListaDocumentosRadicado";
+const RADICADO_REQUIRED_MESSAGE =
+  "No fue posible cargar documentos: el radicado de la tarea es obligatorio.";
+const RADICADO_NOT_FOUND_MESSAGE =
+  "No fue posible cargar documentos: el radicado no existe para la tarea.";
+
+const isEstadoExistenciaNo = (value: unknown): boolean =>
+  typeof value === "string" && value.trim().toUpperCase() === "NO";
 
 const readString = (record: unknown, ...keys: string[]): string | undefined => {
   if (!record || typeof record !== "object") return undefined;
@@ -101,8 +108,10 @@ type DocumentosCountState = {
 
 export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
   const latestRowRef = useRef<Map<string, ListaDocumentosRadicadosRowDto>>(new Map());
-  const gabineteRef = useRef<string | undefined>(undefined);
+  const lastSuccessfulRowsRef = useRef<AppTreeTableRow[]>([]);
+  const gabineteRef = useRef<{ nombreGabinete?: string; radicado?: string; estadoExistencia?: string }>({});
   const tableIdRef = useRef<string>(DEFAULT_TABLE_ID);
+  const loadSeqRef = useRef(0);
   const [tableColumns, setTableColumns] = useState<import("ag-grid-community").ColDef<Record<string, unknown>>[]>();
   const [columns, setColumns] = useState<string[]>();
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
@@ -112,10 +121,30 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
     runtimePreferred: false,
   });
 
+  useEffect(() => {
+    // Reset visual state when task changes to avoid rendering stale rows.
+    // Nota: no incrementamos `loadSeqRef` aquí porque `load()` puede ejecutarse antes de los effects,
+    // lo que produciría cancelaciones falsas y un listado vacío.
+    latestRowRef.current.clear();
+    lastSuccessfulRowsRef.current = [];
+    gabineteRef.current = {};
+    tableIdRef.current = DEFAULT_TABLE_ID;
+    setSelectedRowIds([]);
+    setTableColumns(undefined);
+    setColumns(undefined);
+    setCountState({ rowsCount: 0, backendTotal: undefined, runtimePreferred: false });
+  }, [idTareaWf]);
+
   const load = useCallback(async (): Promise<AppTreeTableLoadResult> => {
+    const seq = ++loadSeqRef.current;
     try {
-      let gabinete: string | undefined;
-      if (typeof idTareaWf === "number" && Number.isFinite(idTareaWf) && idTareaWf > 0) {
+      let nombreGabinete: string | undefined;
+      let radicado: string | undefined;
+      let estadoExistenciaRadicado: string | undefined;
+      const hasValidTask =
+        typeof idTareaWf === "number" && Number.isFinite(idTareaWf) && idTareaWf > 0;
+
+      if (hasValidTask) {
         const gabineteResponse = await getSolicitaGabinetePorTareaWorkflow(idTareaWf);
         if (!gabineteResponse.success) {
           const message =
@@ -125,11 +154,53 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
           return { ok: false, message };
         }
 
-        gabinete = gabineteResponse.data?.NombreGabinete;
+        nombreGabinete = gabineteResponse.data?.NombreGabinete;
+        radicado = gabineteResponse.data?.Radicado;
+        estadoExistenciaRadicado = gabineteResponse.data?.EstadoExistenciaRadicado;
       }
 
-      gabineteRef.current = gabinete;
-      const response = await queryListaDocumentosRadicados(buildListaDocumentosRadicadosRootQuery({ idTareaWf, nombreGabinete: gabinete }));
+      if (import.meta.env?.DEV) {
+        console.debug("[DocumentosWorkbench] load documentos", {
+          idTareaWf,
+          nombreGabinete,
+          radicado,
+          viewMode: "flatDocuments",
+        });
+      }
+
+      const resolvedRadicado = radicado?.trim();
+      if (hasValidTask) {
+        if (!resolvedRadicado) {
+          gabineteRef.current = {
+            nombreGabinete,
+            radicado: resolvedRadicado,
+            estadoExistencia: estadoExistenciaRadicado,
+          };
+          return { ok: false, message: RADICADO_REQUIRED_MESSAGE };
+        }
+
+        if (isEstadoExistenciaNo(estadoExistenciaRadicado)) {
+          gabineteRef.current = {
+            nombreGabinete,
+            radicado: resolvedRadicado,
+            estadoExistencia: estadoExistenciaRadicado,
+          };
+          return { ok: false, message: RADICADO_NOT_FOUND_MESSAGE };
+        }
+      }
+
+      gabineteRef.current = { nombreGabinete, radicado: resolvedRadicado, estadoExistencia: estadoExistenciaRadicado };
+      const response = await queryListaDocumentosRadicados(
+        buildListaDocumentosRadicadosRootQuery({
+          idTareaWf,
+          nombreGabinete,
+          radicado: hasValidTask ? resolvedRadicado : undefined,
+        }),
+      );
+      if (seq !== loadSeqRef.current) {
+        // La carga quedó obsoleta por cambio de tarea: no limpiar el UI ni mostrar error.
+        return { ok: true, rows: lastSuccessfulRowsRef.current };
+      }
       if (!response.success || !response.data) {
         const message =
           response.errors?.[0]?.errorMessage ?? response.message ?? "No fue posible cargar el listado.";
@@ -141,6 +212,10 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
         (response.data.Rows ?? []).map((row, index) => [resolveDocumentWorkbenchRowId(row, index), row]),
       );
       const backendTotal = resolveBackendTotal(response);
+      if (seq !== loadSeqRef.current) {
+        // Evitar mostrar error si cambió la tarea durante la actualización de estado.
+        return { ok: true, rows: lastSuccessfulRowsRef.current };
+      }
       setCountState((prev) => ({
         rowsCount: model.rows.length,
         backendTotal,
@@ -150,6 +225,7 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       const resolvedColumns = model.columns && model.columns.length > 0 ? model.columns : inferColumnsFromRows(model.rows);
       setTableColumns(model.tableColumns);
       setColumns(resolvedColumns);
+      lastSuccessfulRowsRef.current = model.rows;
       return { ok: true, rows: model.rows };
     } catch {
       return { ok: false, message: "No fue posible cargar el listado." };
@@ -159,12 +235,13 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
   const loadChildren = useCallback(
     async (row: AppTreeTableRow): Promise<AppTreeTableLoadChildrenResult> => {
       const parentNodeType = String(row.meta?.NodeType ?? row.meta?.nodeType ?? "");
-      const gabinete = gabineteRef.current;
+      const { nombreGabinete, radicado } = gabineteRef.current;
 
       try {
         const response = await queryListaDocumentosRadicados(
           buildListaDocumentosRadicadosChildrenQuery({
-            nombreGabinete: gabinete,
+            nombreGabinete,
+            radicado,
             parentRowId: row.id,
             parentNodeType: parentNodeType || null,
             level: Number(row.meta?.Level ?? 2),
