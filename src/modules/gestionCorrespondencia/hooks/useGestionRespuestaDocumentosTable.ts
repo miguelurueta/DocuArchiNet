@@ -108,6 +108,7 @@ type DocumentosCountState = {
 
 export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
   const latestRowRef = useRef<Map<string, ListaDocumentosRadicadosRowDto>>(new Map());
+  const lastSuccessfulRowsRef = useRef<AppTreeTableRow[]>([]);
   const gabineteRef = useRef<{ nombreGabinete?: string; radicado?: string; estadoExistencia?: string }>({});
   const tableIdRef = useRef<string>(DEFAULT_TABLE_ID);
   const loadSeqRef = useRef(0);
@@ -121,9 +122,11 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
   });
 
   useEffect(() => {
-    // Anti-stale: invalidate in-flight loads when task changes.
-    loadSeqRef.current += 1;
+    // Reset visual state when task changes to avoid rendering stale rows.
+    // Nota: no incrementamos `loadSeqRef` aquí porque `load()` puede ejecutarse antes de los effects,
+    // lo que produciría cancelaciones falsas y un listado vacío.
     latestRowRef.current.clear();
+    lastSuccessfulRowsRef.current = [];
     gabineteRef.current = {};
     tableIdRef.current = DEFAULT_TABLE_ID;
     setSelectedRowIds([]);
@@ -195,7 +198,8 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
         }),
       );
       if (seq !== loadSeqRef.current) {
-        return { ok: false, message: "Carga cancelada por cambio de tarea." };
+        // La carga quedó obsoleta por cambio de tarea: no limpiar el UI ni mostrar error.
+        return { ok: true, rows: lastSuccessfulRowsRef.current };
       }
       if (!response.success || !response.data) {
         const message =
@@ -209,7 +213,8 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       );
       const backendTotal = resolveBackendTotal(response);
       if (seq !== loadSeqRef.current) {
-        return { ok: false, message: "Carga cancelada por cambio de tarea." };
+        // Evitar mostrar error si cambió la tarea durante la actualización de estado.
+        return { ok: true, rows: lastSuccessfulRowsRef.current };
       }
       setCountState((prev) => ({
         rowsCount: model.rows.length,
@@ -220,6 +225,7 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       const resolvedColumns = model.columns && model.columns.length > 0 ? model.columns : inferColumnsFromRows(model.rows);
       setTableColumns(model.tableColumns);
       setColumns(resolvedColumns);
+      lastSuccessfulRowsRef.current = model.rows;
       return { ok: true, rows: model.rows };
     } catch {
       return { ok: false, message: "No fue posible cargar el listado." };
