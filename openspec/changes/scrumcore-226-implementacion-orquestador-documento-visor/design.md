@@ -1,396 +1,144 @@
-## Context
+# Design - SCRUMCORE-226
 
-SCRUMCORE-226: IMPLEMENTACION-ORQUESTADOR-DOCUMENTO-VISOR
+## Contexto
 
-## Jira Details
+Ticket: `SCRUMCORE-226` — **IMPLEMENTACION-ORQUESTADOR-DOCUMENTO-VISOR**
 
-> PROMPT ARQUITECTÓNICO — Núcleo reusable AppDocumentViewerOrchestrator (resolve + firma + estado visor)
-> Rol esperado
-> Arquitecto frontend senior  (React 19, TypeScript estricto, Clean Architecture, integración API enterprise, state orchestration, testing enterprise)
-> Objetivo
-> Crear un núcleo reusable de visualización documental llamado:
-> AppDocumentViewerOrchestrator
-> para que múltiples módulos puedan:
-> Resolver visualización documental.
-> 
-> Resolver URL final del visor.
-> 
-> Detectar si el documento es PDF.
-> 
-> Consultar firma electrónica solo para PDF.
-> 
-> Consolidar estado documental runtime para AppVisorEmbedPdf.
-> 
-> Este ticket NO integra UI específica de módulos.El objetivo es exclusivamente crear la plataforma reusable.
-> IMPORTANTE
-> El orquestador NO conoce permisos del visor PDF.
-> Responsabilidades del orquestador:
-> resolve documental
-> 
-> resolve URL
-> 
-> consulta firma electrónica
-> 
-> consolidación estado documental runtime
-> 
-> NO:
-> permisos UI
-> 
-> toolbar permissions
-> 
-> edición/anotaciones
-> 
-> Este ticket NO debe:
-> modificar backend
-> 
-> cambiar endpoints
-> 
-> depender de DocumentosWorkbench
-> 
-> depender de AppTreeTable
-> 
-> incorporar lógica visual
-> 
-> persistir URLs temporales
-> 
-> invocar action/ver_documento
-> 
-> El núcleo reusable SOLO debe:
-> recibir contexto documental ya resuelto
-> 
-> ejecutar resolve visualización
-> 
-> consultar firma
-> 
-> consolidar estado runtime
-> 
-> Dependencia
-> AppVisorEmbedPdf
-> 
-> visualizacion/resolve
-> 
-> firma-electronica
-> 
-> Dynamic UI ecosystem
-> 
-> Contexto existente
-> Actualmente múltiples módulos podrían necesitar:
-> visualización documental
-> 
-> resolve URL
-> 
-> consulta firma
-> 
-> consolidación estado visor
-> 
-> No existe aún una plataforma reusable y desacoplada para este flujo.
-> Estado actual
-> La lógica de visualización documental podría terminar duplicándose entre módulos, generando:
-> inconsistencias
-> 
-> race conditions
-> 
-> manejo desigual de errores
-> 
-> divergencia de comportamiento
-> 
-> Ubicación esperada
-> Plataforma reusable:
-> src/app/Components/UI/AppDocumentViewerOrchestrator/
-> Archivos:
-> src/app/Components/UI/AppDocumentViewerOrchestrator/├── AppDocumentViewerOrchestrator.types.ts├── AppDocumentViewerOrchestrator.service.ts├── AppDocumentViewerOrchestrator.adapter.ts├── useDocumentViewerOrchestrator.ts├── index.ts└── tests/
-> Restricciones obligatorias
-> NO cambiar backendNO cambiar endpointsNO usar anyNO depender de módulos específicosNO depender de action/ver_documentoNO persistir URLs temporalesNO introducir lógica visualNO introducir lógica de permisos
-> Regla arquitectónica obligatoria
-> El núcleo reusable debe encargarse exclusivamente de:
-> resolve documental
-> 
-> selección URL
-> 
-> consulta firma
-> 
-> consolidación estado runtime
-> 
-> La obtención de:
-> DocumentResolveRequest
-> 
-> action/ver_documento
-> 
-> metadata de fila
-> 
-> pertenece exclusivamente al módulo consumidor.
-> Regla de source of truth
-> El núcleo reusable recibe como contrato canónico:
-> {  documentId: number,  nombreGabinete: string}
-> No debe:
-> inferir datos
-> 
-> reconstruir payloads
-> 
-> depender de rows DTO
-> 
-> Regla de concurrencia obligatoria
-> El orquestador debe protegerse contra:
-> race conditions
-> 
-> stale responses
-> 
-> múltiples visualizaciones concurrentes
-> 
-> Esto implica:
-> cancelar requests previos
-> 
-> ignorar respuestas stale
-> 
-> preservar estabilidad del visor
-> 
-> Regla de estabilidad del visor
-> Si falla:
-> resolve
-> 
-> firma electrónica
-> 
-> NO debe perderse el documento previamente visible.
-> Regla de seguridad obligatoria
-> Las URLs:
-> UrlTemporal
-> 
-> UrlTemporalAbsoluta
-> 
-> NO deben persistirse en:
-> localStorage
-> 
-> sessionStorage
-> 
-> caches persistentes
-> 
-> Contrato backend obligatorio
-> Resolve visualización
-> 
-> POST /api/gestor-documental/documentos/visualizacion/resolve
-> Request:{  "NombreGabinete": string,  "IdDocumento": number}
-> Response:{  "IdDocumento": number,  "NombreGabinete": string,  "FileName": string,  "ContentType": string,  "Origen": "ORIGINAL|TIF_TO_PDF",  "UrlTemporal": string,  "UrlTemporalAbsoluta": string | null,  "ExpiresAt": string}
-> Firma electrónica
-> 
-> GET /api/gestor-documental/documentos/{idArchivo}/firma-electronica?nombreGabinete={nombreGabinete}
-> Response:{  "IdArchivo": number,  "NombreGabinete": string,  "FirmadoElectronico": boolean,  "IdCertificado": number}
-> Reglas contractuales críticas
-> URL final:
-> UrlTemporalAbsoluta
-> 
-> UrlTemporal
-> 
-> NO depender de:
-> fileUrl legacy
-> 
-> url legacy
-> 
-> idArchivo firma:
-> IdDocumento resuelto
-> 
-> Contrato de entrada obligatorio
-> {  documentId: number,  nombreGabinete: string,  context?: {    idTareaWorkflow?: number,    radicado?: string,    grafo?: object  }}
-> IMPORTANTE:context es opcional y solo para trazabilidad futura cross-módulo.
-> Contrato de salida obligatorio
-> {  documentId: number,  nombreGabinete: string,  fileUrl: string | null,  contentType: string | null,  isPdf: boolean,  isElectronicallySigned: boolean | null,  firmaCheckStatus:    | "not_required"    | "resolved"    | "failed",  resolveStatus:    | "idle"    | "loading"    | "resolved"    | "failed"    | "cancelled",  errors: string[]}
-> Contrato del hook reusable
-> useDocumentViewerOrchestrator()
-> Debe exponer:
-> visualizarDocumento()
-> 
-> documentoActivo
-> 
-> loading
-> 
-> error
-> 
-> reset
-> 
-> cancelCurrentRequest
-> 
-> Reglas de implementación obligatorias
-> Resolve visualización
-> 
-> invocar resolve
-> 
-> resolver URL final
-> 
-> consolidar estado runtime
-> 
-> Firma electrónica
-> 
-> SOLO para PDF
-> 
-> NO bloquear visualización
-> 
-> Concurrencia
-> 
-> cancelar requests previos
-> 
-> ignorar stale responses
-> 
-> Consolidación
-> 
-> documentoActivo estable
-> 
-> no flicker
-> 
-> no pérdida documento previo
-> 
-> Reglas de interacción
-> consumidores llaman visualizarDocumento()
-> 
-> consumidores NO implementan lógica resolve/firma
-> 
-> AppVisorEmbedPdf consume únicamente estado consolidado
-> 
-> Accesibilidad y UX
-> loading perceptible
-> 
-> errores visibles
-> 
-> no flicker visor
-> 
-> focus estable
-> 
-> Reglas de performance
-> evitar múltiples resolves simultáneos
-> 
-> memoizar handlers
-> 
-> estabilidad runtime
-> 
-> Manejo de errores obligatorio
-> Si resolve falla:
-> fileUrl = null
-> 
-> resolveStatus = failed
-> 
-> NO consultar firma
-> 
-> Si firma falla:
-> mantener visualización
-> 
-> firmaCheckStatus = failed
-> 
-> isElectronicallySigned = null
-> 
-> Nunca lanzar excepciones no controladas.
-> Riesgos a evitar
-> race conditions
-> 
-> stale responses
-> 
-> pérdida documento activo
-> 
-> persistencia insegura URLs
-> 
-> duplicación lógica
-> 
-> coupling módulos
-> 
-> Pruebas unitarias obligatorias
-> UrlTemporalAbsoluta prioridad
-> 
-> fallback UrlTemporal
-> 
-> PDF => consulta firma
-> 
-> no PDF => no consulta firma
-> 
-> firma falla => visor estable
-> 
-> stale responses ignoradas
-> 
-> Pruebas de integración UI obligatorias
-> integración AppVisorEmbedPdf
-> 
-> loading
-> 
-> error
-> 
-> documentoActivo estable
-> 
-> Pruebas de interacción en navegador obligatorias
-> clicks rápidos múltiples documentos
-> 
-> estabilidad visor
-> 
-> no flicker
-> 
-> cancelación requests
-> 
-> Pruebas E2E obligatorias
-> PDF firmado
-> 
-> PDF no firmado
-> 
-> resolve error
-> 
-> firma error
-> 
-> cancelación concurrente
-> 
-> Pruebas QT / calidad
-> sin errores build
-> 
-> sin warnings TS/lint
-> 
-> sin errores consola
-> 
-> sin memory leaks
-> 
-> Criterios de aceptación
-> visualizacion/resolve funciona correctamente
-> 
-> Solo PDF consulta firma
-> 
-> Documento previo se mantiene en errores
-> 
-> URLs temporales no se persisten
-> 
-> Hook reusable desacoplado funcionando
-> 
-> Tests pasan correctamente
-> 
-> Documentación obligatoria
-> Ruta:
-> docs/Components/AppDocumentViewerOrchestrator/
-> Archivos obligatorios:
-> SCRUMCORE-[XX]-Arquitectura.md
-> 
-> SCRUMCORE-[XX]-Implementacion-Detallada.md
-> 
-> SCRUM-[XX]-Integracion-BackEnd.md
-> 
-> SCRUM-[XX]-Pruebas.md
-> 
-> SCRUM-[ID]-Metadata.md
-> 
-> Instrucción final
-> Implementar AppDocumentViewerOrchestrator como núcleo reusable enterprise de visualización documental desacoplado de módulos específicos, garantizando resolve documental, consulta de firma, consolidación de estado runtime y control robusto de concurrencia sin introducir regresiones ni persistencia insegura de URLs.
+Construir un núcleo reusable (sin UI) llamado `AppDocumentViewerOrchestrator` para orquestar:
 
-## Goals / Non-Goals
+- Resolve de visualización documental (`visualizacion/resolve`)
+- Selección de URL final (preferir `UrlTemporalAbsoluta`, fallback `UrlTemporal`)
+- Detección de PDF
+- Consulta de firma electrónica **solo si es PDF**
+- Consolidación de estado runtime para consumo por `AppVisorEmbedPdf`
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+El objetivo es crear la plataforma reusable; la UI/permissions pertenecen al módulo consumidor.
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+## Objetivos / No-objetivos
 
-## Decisions
+**Objetivos**
+- Evitar duplicación de lógica de visualización en módulos consumidores.
+- Evitar *race conditions* / respuestas *stale* y mantener estabilidad del visor.
+- Definir contratos estrictos (TypeScript estricto, sin `any`).
 
-1. TBD
+**No-objetivos**
+- No introducir lógica visual (UI), permisos, ni toolbars.
+- No cambiar backend ni endpoints.
+- No depender de módulos específicos (p.ej. `DocumentosWorkbench`, `AppTreeTable`).
+- No invocar `action/ver_documento`.
+- No persistir URLs temporales (local/session storage, caches persistentes).
+- No reconstruir payloads ni inferir datos a partir de DTOs de UI (rows/metadata). El consumidor aporta el contrato canónico y el orquestador orquesta.
 
-## Risks / Trade-offs
+## Ubicación esperada (código)
 
-- TBD
+`src/app/Components/UI/AppDocumentViewerOrchestrator/`
 
-## Migration Plan
+- `AppDocumentViewerOrchestrator.types.ts`
+- `AppDocumentViewerOrchestrator.adapter.ts`
+- `AppDocumentViewerOrchestrator.service.ts`
+- `useDocumentViewerOrchestrator.ts`
+- `index.ts`
+- `tests/`
 
-1. TBD
+## Diseño propuesto
 
-## Open Questions
+### Contratos (source of truth)
 
-- TBD
+Entrada canónica mínima:
+
+```ts
+{ documentId: number; nombreGabinete: string }
+```
+
+Entrada extendida (solo trazabilidad futura, opcional):
+
+```ts
+{
+  documentId: number;
+  nombreGabinete: string;
+  context?: { idTareaWorkflow?: number; radicado?: string; grafo?: object };
+}
+```
+
+Salida consolidada (state runtime):
+
+```ts
+{
+  documentId: number;
+  nombreGabinete: string;
+  fileUrl: string | null;
+  contentType: string | null;
+  isPdf: boolean;
+  isElectronicallySigned: boolean | null;
+  firmaCheckStatus: "not_required" | "resolved" | "failed";
+  resolveStatus: "idle" | "loading" | "resolved" | "failed" | "cancelled";
+  errors: string[];
+}
+```
+
+### Regla “source of truth” (del prompt)
+
+- El orquestador recibe **únicamente** `{ documentId, nombreGabinete }` como contrato canónico.
+- La obtención de `DocumentResolveRequest`, `action/ver_documento` o metadata de filas pertenece al módulo consumidor.
+- El orquestador **no** debe inferir datos, reconstruir payloads alternos, ni depender de DTOs de UI.
+
+### Endpoints (contrato backend)
+
+Resolve visualización:
+
+`POST /api/gestor-documental/documentos/visualizacion/resolve`
+
+Request:
+
+```json
+{ "NombreGabinete": "string", "IdDocumento": 123 }
+```
+
+Firma electrónica:
+
+`GET /api/gestor-documental/documentos/{idArchivo}/firma-electronica?nombreGabinete={nombreGabinete}`
+
+### Flujos
+
+**Flujo principal**
+1. El consumidor invoca `visualizarDocumento({ documentId, nombreGabinete, context? })`.
+2. Se cancela cualquier request previa y se crea un `requestId` para ignorar respuestas stale.
+3. Se llama a `visualizacion/resolve`.
+4. Se determina `fileUrl` (prioridad `UrlTemporalAbsoluta`, fallback `UrlTemporal`). No se persiste.
+5. Se detecta PDF por `ContentType` (fallback por extensión `FileName` si aplica).
+6. Si no es PDF: `firmaCheckStatus = "not_required"` y termina.
+7. Si es PDF: se consulta firma electrónica sin bloquear la visualización.
+
+**Regla de estabilidad**
+- Si falla `resolve`: no consultar firma. El intento fallido no produce un `fileUrl` nuevo (`fileUrl = null` para el intento).
+- Si falla firma: mantener visualización; `isElectronicallySigned = null` y `firmaCheckStatus = "failed"`.
+- Nunca “vaciar” el documento previamente visible por un fallo en una nueva visualización (no pérdida de estabilidad del visor).
+
+### Concurrencia (anti-race)
+
+- Cancelación: `AbortController` por request.
+- Ignorar stale: `requestId` incremental + validación al resolver.
+- Evitar flicker: actualizar `documentoActivo` solo cuando el resolve es exitoso (y mantener el anterior si el nuevo falla).
+
+## Decisiones
+
+1. Orquestador = core reusable sin UI; consumidores solo aportan `{ documentId, nombreGabinete }`.
+2. Firma electrónica es un *side effect* solo para PDF y no bloquea el resolve.
+3. URLs temporales viven en memoria únicamente.
+
+## Riesgos / trade-offs
+
+- Diferencias en `ContentType` requieren fallback robusto de detección PDF.
+- El manejo “no perder documento previo” necesita reducer/estado cuidadoso.
+- Clicks rápidos: respuestas out-of-order deben ser ignoradas (test obligatorio).
+
+## Plan de migración
+
+1. Introducir `AppDocumentViewerOrchestrator` + tests unitarios del core.
+2. Integrar `AppVisorEmbedPdf` para consumir estado consolidado (sin tocar permisos/UI).
+3. Migrar módulos consumidores gradualmente a `visualizarDocumento()`.
+
+## Preguntas abiertas
+
+- ¿Qué wrapper HTTP se usa hoy para requests y cancelación (axios interceptors / fetch wrapper)?
+- ¿Cuáles módulos serán primeros consumidores (para asegurar API correcta desde el inicio)?

@@ -21,3 +21,4 @@ export * from "./AppSteps";
 export * from "./OperationBlockerContext";
 export * from "./AppLoadingState";
 export * from "./AppTreeTable";
+export * from "./AppDocumentViewerOrchestrator";

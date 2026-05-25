@@ -4,10 +4,9 @@ IMPLEMENTACION-ORQUESTADOR-DOCUMENTO-VISOR. Ver detalle funcional completo del t
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-226.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira `SCRUMCORE-226`.
+- Se define el alcance: núcleo reusable `AppDocumentViewerOrchestrator` (sin UI) para resolve + firma (solo PDF) + estado runtime consumido por `AppVisorEmbedPdf`.
+- Se establece un plan de implementación y pruebas en `tasks.md` y reglas en `design.md`/`spec.md`.
 
 ## Jira Details
 
