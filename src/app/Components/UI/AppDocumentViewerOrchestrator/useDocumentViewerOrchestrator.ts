@@ -4,13 +4,18 @@ import type {
   AppDocumentViewerRuntimeState,
   FirmaCheckStatus,
 } from "./AppDocumentViewerOrchestrator.types";
+import axios from "axios";
 import {
   buildInitialRuntimeState,
   buildResolvedRuntimeState,
   isPdfFromContentType,
   pickResolvedFileUrl,
 } from "./AppDocumentViewerOrchestrator.adapter";
-import { fetchFirmaElectronica, resolveVisualizacionDocumento } from "./AppDocumentViewerOrchestrator.service";
+import {
+  downloadVisualizacionBlob,
+  fetchFirmaElectronica,
+  resolveVisualizacionDocumento,
+} from "./AppDocumentViewerOrchestrator.service";
 
 type OrchestratorState = {
   documentoActivo: AppDocumentViewerRuntimeState | null;
@@ -18,7 +23,23 @@ type OrchestratorState = {
   error: string | null;
 };
 
-const buildErrorMessage = (err: unknown): string => {
+type ApiErrorItem = { Message?: unknown };
+type ApiEnvelope = { message?: unknown; errors?: unknown };
+
+function extractApiErrorMessage(err: unknown): string | null {
+  if (!axios.isAxiosError(err)) return null;
+  const data = err.response?.data as ApiEnvelope | undefined;
+
+  const errors = Array.isArray(data?.errors) ? (data?.errors as unknown[]) : null;
+  const first = errors?.[0] as ApiErrorItem | undefined;
+  if (typeof first?.Message === "string" && first.Message.trim()) return first.Message.trim();
+
+  if (typeof data?.message === "string" && data.message.trim()) return data.message.trim();
+
+  return null;
+}
+
+const buildErrorSignal = (err: unknown): string => {
   if (err instanceof DOMException && err.name === "AbortError") return "cancelled";
   if (err instanceof Error) return err.message || "error";
   return "error";
@@ -33,6 +54,22 @@ export function useDocumentViewerOrchestrator() {
 
   const requestIdRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
+  const blobUrlRef = useRef<string | null>(null);
+  const revokeTimersRef = useRef<number[]>([]);
+
+  const scheduleRevoke = useCallback((url: string) => {
+    // Guardrail: revocar diferido para evitar invalidar el blob mientras el visor aún lo consume.
+    // En escenarios de clicks rápidos o PDFs grandes, el engine puede seguir leyendo bytes
+    // del blob anterior por unos instantes.
+    const id = window.setTimeout(() => {
+      try {
+        URL.revokeObjectURL(url);
+      } catch {
+        // noop
+      }
+    }, 5000);
+    revokeTimersRef.current.push(id);
+  }, []);
 
   const cancelCurrentRequest = useCallback(() => {
     abortRef.current?.abort();
@@ -49,6 +86,12 @@ export function useDocumentViewerOrchestrator() {
 
   const reset = useCallback(() => {
     cancelCurrentRequest();
+    revokeTimersRef.current.forEach((id) => window.clearTimeout(id));
+    revokeTimersRef.current = [];
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current);
+      blobUrlRef.current = null;
+    }
     setState({ documentoActivo: null, loading: false, error: null });
   }, [cancelCurrentRequest]);
 
@@ -77,7 +120,27 @@ export function useDocumentViewerOrchestrator() {
 
       if (requestId !== requestIdRef.current) return;
 
-      const fileUrl = pickResolvedFileUrl(resolveDto);
+      const tokenUrl = pickResolvedFileUrl(resolveDto);
+      if (!tokenUrl) {
+        // No hay URL; tratar como fallo lógico sin romper estabilidad del documento previo.
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: "No fue posible resolver la URL del documento.",
+          documentoActivo: prev.documentoActivo
+            ? { ...prev.documentoActivo, resolveStatus: "failed", errors: ["RESOLVE_FAILED"] }
+            : prev.documentoActivo,
+        }));
+        return;
+      }
+
+      // Descargar autenticado como Blob para evitar 401/403 en download/{token} por falta de credenciales.
+      const blob = await downloadVisualizacionBlob({ fileUrl: tokenUrl, signal: abortController.signal });
+      if (requestId !== requestIdRef.current) return;
+
+      const previousBlobUrl = blobUrlRef.current;
+      const fileUrl = URL.createObjectURL(blob);
+      blobUrlRef.current = fileUrl;
       const contentType = resolveDto.ContentType ?? null;
       const isPdf = isPdfFromContentType(contentType, resolveDto.FileName);
       // Estado consolidado tras resolve (firma por defecto se define después).
@@ -88,11 +151,16 @@ export function useDocumentViewerOrchestrator() {
         documentoActivo: buildResolvedRuntimeState({
           input,
           resolve: resolveDto,
+          fileUrlOverride: fileUrl,
           resolveStatus: "resolved",
           firmaCheckStatus: isPdf ? "resolved" : "not_required",
           isElectronicallySigned: isPdf ? null : null,
         }),
       }));
+
+      // Cleanup diferido: evitar revocar el blobUrl que aún podría estar siendo consumido
+      // por el visor hasta que React pinte el nuevo `fileUrl`.
+      if (previousBlobUrl && previousBlobUrl !== fileUrl) scheduleRevoke(previousBlobUrl);
 
       if (!fileUrl) {
         // No hay URL; tratar como fallo lógico sin romper estabilidad del documento previo.
@@ -148,19 +216,22 @@ export function useDocumentViewerOrchestrator() {
       }));
     } catch (err) {
       if (requestId !== requestIdRef.current) return;
-      const message = buildErrorMessage(err);
+      const signal = buildErrorSignal(err);
+      const apiMessage = extractApiErrorMessage(err);
       setState((prev) => ({
         ...prev,
         loading: false,
-        error: message === "cancelled" ? null : "No fue posible resolver el documento.",
+        error: signal === "cancelled" ? null : apiMessage ?? "No fue posible resolver el documento.",
         documentoActivo: prev.documentoActivo
           ? {
               ...prev.documentoActivo,
-              resolveStatus: message === "cancelled" ? "cancelled" : "failed",
+              resolveStatus: signal === "cancelled" ? "cancelled" : "failed",
               errors:
-                message === "cancelled"
+                signal === "cancelled"
                   ? prev.documentoActivo.errors
-                  : Array.from(new Set([...(prev.documentoActivo.errors || []), "RESOLVE_FAILED"])),
+                  : Array.from(
+                      new Set([...(prev.documentoActivo.errors || []), ...(apiMessage ? [apiMessage] : []), "RESOLVE_FAILED"]),
+                    ),
             }
           : prev.documentoActivo,
       }));

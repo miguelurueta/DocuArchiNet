@@ -4,7 +4,7 @@ import type {
   AppTreeTableLoadResult,
   AppTreeTableRow,
 } from "../../../app/Components/UI/AppTreeTable";
-import { actionListaDocumentosRadicados, queryListaDocumentosRadicados, resolveDocumentoVisualizacion } from "../services/listaDocumentosRadicados.service";
+import { actionListaDocumentosRadicados, queryListaDocumentosRadicados } from "../services/listaDocumentosRadicados.service";
 import { getSolicitaGabinetePorTareaWorkflow } from "../services/solicitaGabineteRadicadoWorkflow.service";
 import { buildListaDocumentosRadicadosActionRequest } from "../adapters/documentosWorkbenchActionMapper";
 import {
@@ -83,21 +83,16 @@ const resolveBackendTotal = (
   readTotalCandidate(response.meta) ??
   readTotalCandidate(response);
 
-const resolveFileUrlFromResolveResponse = (input: unknown): string | undefined => {
-  if (!input || typeof input !== "object") return undefined;
-  const obj = input as Record<string, unknown>;
-  return (
-    readString(obj, "fileUrl", "FileUrl", "url", "Url") ??
-    readString(obj.data, "fileUrl", "FileUrl", "url", "Url") ??
-    readString(obj.meta, "fileUrl", "FileUrl", "url", "Url")
-  );
-};
-
 export type GestionRespuestaDocumentoActivo = {
-  fileUrl: string;
+  documentResolveRequest: { IdDocumento: number; NombreGabinete: string };
   documentId?: number;
   nombreGabinete?: string;
   rowId: string;
+};
+
+export type GestionRespuestaWorkbenchContext = {
+  nombreGabinete?: string;
+  radicado?: string;
 };
 
 type DocumentosCountState = {
@@ -270,7 +265,7 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
     [],
   );
 
-  const resolveFromActionResponse = useCallback(async (actionResponse: unknown): Promise<GestionRespuestaDocumentoActivo | null> => {
+  const extractResolveRequestFromActionResponse = useCallback((actionResponse: unknown): GestionRespuestaDocumentoActivo | null => {
     if (!actionResponse || typeof actionResponse !== "object") return null;
     const response = actionResponse as import("../types/listaDocumentosRadicados.types").ApiResponse<
       import("../types/listaDocumentosRadicados.types").ListaDocumentosRadicadosActionData
@@ -281,14 +276,8 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       return null;
     }
 
-    const resolved = await resolveDocumentoVisualizacion(resolveRequest);
-    const fileUrl = resolveFileUrlFromResolveResponse(resolved);
-    if (!fileUrl) {
-      return null;
-    }
-
     return {
-      fileUrl,
+      documentResolveRequest: resolveRequest,
       documentId: resolveRequest.IdDocumento,
       nombreGabinete: resolveRequest.NombreGabinete,
       rowId: "",
@@ -318,7 +307,7 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
   );
 
   const performAction = useCallback(
-    async (input: { actionId: string; rowId: string }): Promise<GestionRespuestaDocumentoActivo | null> => {
+    async (input: { actionId: string; rowId: string }): Promise<unknown> => {
       const { nodeType, idDocumento, documentId, gabinete } = buildActionContextFromRow(input.rowId);
       if (!gabinete) return null;
       const tableId = tableIdRef.current || DEFAULT_TABLE_ID;
@@ -344,30 +333,32 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
         await load();
       }
 
-      const resolved = await resolveFromActionResponse(actionResponse);
-      if (!resolved) return null;
-
-      return { ...resolved, rowId: input.rowId };
+      return actionResponse;
     },
-    [buildActionContextFromRow, load, resolveFromActionResponse],
+    [buildActionContextFromRow, load],
   );
 
   const performVerDocumento = useCallback(
     async (rowId: string): Promise<GestionRespuestaDocumentoActivo | null> => {
-      const result = await performAction({ actionId: "ver_documento", rowId });
-      if (!result) return null;
-      return { ...result, rowId };
+      const actionResponse = await performAction({ actionId: "ver_documento", rowId });
+      const extracted = extractResolveRequestFromActionResponse(actionResponse);
+      if (!extracted) return null;
+      return { ...extracted, rowId };
     },
-    [performAction],
+    [extractResolveRequestFromActionResponse, performAction],
   );
 
   const onSelectRow = useCallback(async (rowId: string) => performVerDocumento(rowId), [performVerDocumento]);
 
   const onActionTriggered = useCallback(
     async (params: { actionId: string; rowId: string }) => {
-      return performAction(params);
+      if (params.actionId === "ver_documento") {
+        return performVerDocumento(params.rowId);
+      }
+      await performAction(params);
+      return null;
     },
-    [performAction],
+    [performAction, performVerDocumento],
   );
 
   const onSelectionChanged = useCallback((rowIds: string[]) => {
@@ -392,6 +383,10 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
 
   const getTableColumns = useCallback(() => tableColumns, [tableColumns]);
   const getColumns = useCallback(() => columns, [columns]);
+  const getWorkbenchContext = useCallback(
+    (): GestionRespuestaWorkbenchContext => ({ ...gabineteRef.current }),
+    [],
+  );
 
   return useMemo(
     () => ({
@@ -402,12 +397,14 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       onSelectionChanged,
       getTableColumns,
       getColumns,
+      getWorkbenchContext,
       totalDocumentsCount,
       selectedDocumentsCount,
     }),
     [
       getColumns,
       getTableColumns,
+      getWorkbenchContext,
       load,
       loadChildren,
       onActionTriggered,

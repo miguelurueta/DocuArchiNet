@@ -1,9 +1,13 @@
 import { BookOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { toast } from "react-toastify";
+import type { ToastId } from "react-toastify";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import { AppTreeTable } from "../../../../app/Components/UI/AppTreeTable";
 import { AppVisorEmbedPdf } from "../../../../app/Components/UI/AppVisorEmbedPdf";
+import type { AppVisorEmbedPdfRef } from "../../../../app/Components/UI/AppVisorEmbedPdf";
+import { useDocumentViewerOrchestrator } from "../../../../app/Components/UI/AppDocumentViewerOrchestrator";
 import { useGestionRespuestaDocumentosTable } from "../../hooks/useGestionRespuestaDocumentosTable";
 import styles from "./DocumentosWorkbench.module.css";
 
@@ -47,12 +51,26 @@ type DocumentosWorkbenchProps = {
 export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const panelId = useId();
   const rootRef = useRef<HTMLElement | null>(null);
+  const viewSeqRef = useRef(0);
+  const lastNotifiedErrorRef = useRef<string | null>(null);
+  const toastIdRef = useRef<ToastId | null>(null);
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [isTablet, setIsTablet] = useState(resolveIsTablet);
   const [collapsed, setCollapsed] = useState(isTablet);
   const documentosTable = useGestionRespuestaDocumentosTable(idTareaWf);
+  const visorRef = useRef<AppVisorEmbedPdfRef | null>(null);
   const [activeFileUrl, setActiveFileUrl] = useState<string | undefined>(undefined);
   const [activeRowId, setActiveRowId] = useState<string | undefined>(undefined);
+  const [viewerError, setViewerError] = useState<string | null>(null);
+  const [documentContext, setDocumentContext] = useState<{
+    documentId?: number;
+    nombreGabinete?: string;
+    isPdf?: boolean;
+    viewerKind?: "pdf" | "image" | "unknown";
+    isElectronicallySigned?: boolean | null;
+    firmaCheckStatus?: string;
+  } | null>(null);
+  const documentViewer = useDocumentViewerOrchestrator();
 
   useEffect(() => {
     const handler = () => setIsTablet(resolveIsTablet());
@@ -79,13 +97,121 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
 
   const toggleIcon = layoutCollapsed ? <LeftOutlined /> : <RightOutlined />;
 
-  const openViewerFromRow = useCallback((rowId: string) => {
-    setActiveRowId(rowId);
-    void documentosTable.onSelectRow(rowId).then((result) => {
-      if (!result?.fileUrl) return;
-      setActiveFileUrl(result.fileUrl);
+  useEffect(() => {
+    const fileUrl = documentViewer.documentoActivo?.fileUrl ?? null;
+    if (!fileUrl) return;
+    setActiveFileUrl(fileUrl);
+  }, [documentViewer.documentoActivo?.fileUrl]);
+
+  useEffect(() => {
+    const doc = documentViewer.documentoActivo;
+    if (!doc) return;
+      setDocumentContext({
+      documentId: doc.documentId,
+      nombreGabinete: doc.nombreGabinete,
+      isPdf: doc.isPdf,
+      viewerKind: doc.viewerKind,
+      isElectronicallySigned: doc.isElectronicallySigned,
+      firmaCheckStatus: doc.firmaCheckStatus,
     });
-  }, [documentosTable]);
+  }, [documentViewer.documentoActivo]);
+
+  useEffect(() => {
+    // Modo managed del visor: cargar con contexto consolidado + permisos/policy.
+    const doc = documentViewer.documentoActivo;
+    if (!doc) return;
+    if (!doc.isPdf) return;
+    if (!activeFileUrl) return;
+    const ctx = documentosTable.getWorkbenchContext?.();
+    const radicado = ctx?.radicado ?? "";
+    const idTareaWorkflow = typeof idTareaWf === "number" ? idTareaWf : 0;
+
+    void visorRef.current?.load({
+      url: activeFileUrl,
+      isElectronicallySigned: Boolean(doc.isElectronicallySigned),
+      idImagen: doc.documentId,
+      nombreGabinete: doc.nombreGabinete,
+      idTareaWorkflow,
+      radicado,
+      nombre_modulo: "gestioncorrespondencia",
+      metadata: {
+        activeRowId,
+      },
+    });
+  }, [activeFileUrl, activeRowId, documentViewer.documentoActivo, documentosTable, idTareaWf]);
+
+  useEffect(() => {
+    const doc = documentViewer.documentoActivo;
+    if (!doc) return;
+
+    const message = doc.errors?.[0];
+    if (!message) return;
+
+    if (doc.resolveStatus === "failed") {
+      setViewerError(message);
+    } else if (doc.firmaCheckStatus === "failed") {
+      setViewerError(message);
+    }
+  }, [documentViewer.documentoActivo]);
+
+  useEffect(() => {
+    if (!viewerError) return;
+    if (viewerError === lastNotifiedErrorRef.current) return;
+
+    lastNotifiedErrorRef.current = viewerError;
+    toastIdRef.current = toast.error(viewerError, { autoClose: false, closeOnClick: false });
+  }, [viewerError]);
+
+  useEffect(() => {
+    if (!toastIdRef.current) return;
+
+    let cancelled = false;
+
+    const dismiss = () => {
+      if (cancelled) return;
+      const toastId = toastIdRef.current;
+      if (toastId) toast.dismiss(toastId);
+      toastIdRef.current = null;
+      setViewerError(null);
+    };
+
+    // Evita cerrar el toast inmediatamente por el mismo click que lo disparó.
+    const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
+      window.addEventListener("pointerdown", dismiss, { capture: true });
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+      window.removeEventListener("pointerdown", dismiss, { capture: true });
+    };
+  }, [viewerError]);
+
+  const openViewerFromRow = useCallback(
+    (rowId: string) => {
+      viewSeqRef.current += 1;
+      const seq = viewSeqRef.current;
+      setViewerError(null);
+      // Permite que el mismo mensaje vuelva a notificarse si el usuario reintenta
+      // abrir el documento (click repetido en la misma fila).
+      lastNotifiedErrorRef.current = null;
+      void documentosTable.onSelectRow(rowId).then((result) => {
+        if (seq !== viewSeqRef.current) return;
+        if (!result?.documentResolveRequest) {
+          setViewerError("No fue posible abrir el documento.");
+          return;
+        }
+        setActiveRowId(rowId);
+        void documentViewer.visualizarDocumento({
+          documentId: result.documentResolveRequest.IdDocumento,
+          nombreGabinete: result.documentResolveRequest.NombreGabinete,
+          context: typeof idTareaWf === "number" ? { idTareaWorkflow: idTareaWf } : undefined,
+        });
+      });
+    },
+    [documentViewer, documentosTable, idTareaWf],
+  );
 
   useEffect(() => {
     if (variant !== "overlay") return;
@@ -122,7 +248,19 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       data-variant={variant}
       data-testid="documentos-workbench"
     >
-      <AppVisorEmbedPdf className={styles.viewer} fileUrl={activeFileUrl} />
+      <div className={styles.viewer}>
+        {documentViewer.documentoActivo?.viewerKind === "pdf" ? (
+          <AppVisorEmbedPdf ref={visorRef} fileUrl={activeFileUrl} />
+        ) : documentViewer.documentoActivo?.viewerKind === "image" && activeFileUrl ? (
+          <img
+            src={activeFileUrl}
+            alt="Documento"
+            style={{ width: "100%", height: "100%", objectFit: "contain", background: "#fff" }}
+          />
+        ) : (
+          <AppVisorEmbedPdf ref={visorRef} fileUrl={activeFileUrl} />
+        )}
+      </div>
 
       <AppCollapseRail
         title="Documentos"
@@ -164,13 +302,12 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
               activeRowId={activeRowId}
               onSelectRow={openViewerFromRow}
               onActionTriggered={(params) => {
-                void documentosTable
-                  .onActionTriggered({ actionId: params.actionId, rowId: params.rowId })
-                  .then((result) => {
-                    if (!result?.fileUrl) return;
-                    setActiveFileUrl(result.fileUrl);
-                    setActiveRowId(params.rowId);
-                  });
+                if (params.actionId === "ver_documento") {
+                  openViewerFromRow(params.rowId);
+                  return;
+                }
+
+                void documentosTable.onActionTriggered({ actionId: params.actionId, rowId: params.rowId });
               }}
               emptyMessage="Sin documentos adjuntos."
             />

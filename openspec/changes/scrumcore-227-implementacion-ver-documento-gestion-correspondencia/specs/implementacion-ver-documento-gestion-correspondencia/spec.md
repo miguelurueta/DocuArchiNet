@@ -1,335 +1,108 @@
-## ADDED Requirements
-### Requirement: IMPLEMENTACION-VER-DOCUMENTO-GESTION-CORRESPONDENCIA
-El sistema SHALL implementar el alcance definido para SCRUMCORE-227.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+# Spec - SCRUMCORE-227: Ver documento (Gestión Correspondencia)
 
-#### Scenario: Reglas del ticket
-- PROMPT ARQUITECTÓNICO — Integración de AppDocumentViewerOrchestrator en DocumentosWorkbench
-- Rol esperado
-- Arquitecto frontend senior  (React 19, TypeScript estricto, AppTreeTable, AppVisorEmbedPdf, Dynamic UI, orchestration integration, testing enterprise)
-- Objetivo
-- Integrar AppDocumentViewerOrchestrator dentro de DocumentosWorkbench para:
-- unificar visualización documental
-- 
-- soportar row_click y menu_action
-- 
-- resolver DocumentResolveRequest
-- 
-- cargar AppVisorEmbedPdf efectivamente
-- 
-- mantener estabilidad UX
-- 
-- Sin introducir duplicación de lógica ni romper selección múltiple/documento activo.
-- IMPORTANTE
-- DocumentosWorkbench NO aplica permisos del visor.
-- Solo:
-- obtiene DocumentResolveRequest
-- 
-- usa AppDocumentViewerOrchestrator
-- 
-- pasa resultado consolidado a AppVisorEmbedPdf.load()
-- 
-- AppVisorEmbedPdf.load() es responsable de:
-- permisos
-- 
-- override por firma
-- 
-- policy efectiva del visor
-- 
-- Este ticket NO debe:
-- modificar backend
-- 
-- cambiar endpoints
-- 
-- alterar permisos internos del visor
-- 
-- duplicar lógica resolve/firma
-- 
-- romper Dynamic UI
-- 
-- romper AppTreeTable
-- 
-- El objetivo es exclusivamente:
-- integrar el núcleo reusable
-- 
-- conectar action/ver_documento
-- 
-- actualizar visor runtime
-- 
-- Dependencia
-- AppDocumentViewerOrchestrator
-- 
-- AppTreeTable
-- 
-- AppVisorEmbedPdf
-- 
-- SCRUM-205
-- 
-- Dynamic UI
-- 
-- Contexto existente
-- Actualmente:
-- row_click puede abrir documento
-- 
-- menu_action puede abrir documento
-- 
-- el flujo puede divergir
-- 
-- DocumentResolveRequest proviene de action/ver_documento
-- 
-- Estado actual
-- No existe una integración consolidada y desacoplada entre:
-- Dynamic UI
-- 
-- AppTreeTable
-- 
-- action/ver_documento
-- 
-- AppDocumentViewerOrchestrator
-- 
-- AppVisorEmbedPdf
-- 
-- Ubicación esperada
-- Workbench:src/modules/gestionCorrespondencia/components/documentosWorkbench/DocumentosWorkbench.tsx
-- Hooks:src/modules/gestionCorrespondencia/hooks/*
-- Adapters:src/modules/gestionCorrespondencia/adapters/*
-- Tests:src/modules/gestionCorrespondencia/tests/*
-- Restricciones obligatorias
-- NO cambiar backendNO cambiar endpointsNO usar anyNO duplicar resolve/firmaNO romper selección múltipleNO romper documento activoNO tocar lógica interna AppVisorEmbedPdf
-- Regla arquitectónica obligatoria
-- DocumentosWorkbench debe actuar únicamente como consumidor del núcleo reusable AppDocumentViewerOrchestrator.
-- Esto implica:
-- DocumentosWorkbench obtiene DocumentResolveRequest
-- 
-- DocumentosWorkbench invoca visualizarDocumento()
-- 
-- DocumentosWorkbench NO implementa resolve/firma
-- 
-- row_click y menu_action convergen en misma integración
-- 
-- Regla de source of truth
-- DocumentResolveRequest obtenido desde:POST /api/GestorDocumental/Documentos/ListaDocumentosRadicados/action
-- es el único contrato canónico válido para invocar AppDocumentViewerOrchestrator.
-- Contrato backend obligatorio
-- Action/ver_documento request:
-- TableId
-- 
-- ViewMode
-- 
-- ActionId
-- 
-- RowId
-- 
-- ParentRowId
-- 
-- NodeType
-- 
-- Payload.IdDocumento
-- 
-- Payload.NombreGabinete
-- 
-- IdTareaWorkflow
-- 
-- Radicado
-- 
-- Grafo
-- 
-- Response:{  "success": true,  "data": {    "DocumentResolveRequest": {      "NombreGabinete": string,      "IdDocumento": number    }  }}
-- Contrato de integración obligatorio
-- DocumentosWorkbench debe:
-- resolver action/ver_documento
-- 
-- obtener DocumentResolveRequest
-- 
-- invocar:visualizarDocumento()
-- 
-- con:{  documentId,  nombreGabinete,  context: {    idTareaWorkflow,    radicado,    grafo  }}
-- Contrato de salida visor
-- DocumentosWorkbench debe mantener:
-- activeFileUrl
-- 
-- activeRowId
-- 
-- document context:
-- documentId
-- 
-- nombreGabinete
-- 
-- isPdf
-- 
-- isElectronicallySigned
-- 
-- firmaCheckStatus
-- 
-- y pasar al visor:
-- fileUrl={activeFileUrl}
-- Reglas de implementación obligatorias
-- Convergencia handlers
-- 
-- Ambos:
-- row_click
-- 
-- menu_action
-- 
-- deben converger en:
-- misma función orquestadora local
-- 
-- Resolve canónico
-- 
-- SIEMPRE usar:DocumentResolveRequest
-- Integración visor
-- 
-- actualizar documento activo consolidado
-- 
-- mantener documento previo en errores
-- 
-- no romper visor
-- 
-- Selección múltiple
-- 
-- NO alterarse
-- 
-- NO perderse
-- 
-- NO mezclarse con documento activo
-- 
-- Reglas de interacción
-- click fila => visualizar
-- 
-- menu_action ver_documento => visualizar
-- 
-- selección múltiple intacta
-- 
-- documento activo estable
-- 
-- Accesibilidad y UX
-- loading visual
-- 
-- errores visibles
-- 
-- no flicker visor
-- 
-- focus estable
-- 
-- no pérdida scroll/contexto
-- 
-- Reglas de performance
-- evitar múltiples visualizaciones simultáneas
-- 
-- estabilidad visor
-- 
-- memoizar handlers
-- 
-- evitar re-render completo
-- 
-- Manejo de errores obligatorio
-- Si falla action/ver_documento:
-- NO llamar visualizarDocumento()
-- 
-- Si falla resolve/firma:
-- mantener documento previo
-- 
-- no romper visor
-- 
-- Riesgos a evitar
-- duplicación lógica
-- 
-- stale state
-- 
-- pérdida documento activo
-- 
-- race conditions
-- 
-- coupling a DTO backend
-- 
-- selección múltiple rota
-- 
-- Pruebas unitarias obligatorias
-- row_click usa mismo flujo
-- 
-- menu_action usa mismo flujo
-- 
-- payload visualizarDocumento correcto
-- 
-- preserve documento previo
-- 
-- Pruebas de integración UI obligatorias
-- row_click -> action -> visualizarDocumento
-- 
-- menu_action -> action -> visualizarDocumento
-- 
-- visor carga correctamente
-- 
-- selección múltiple intacta
-- 
-- Pruebas de interacción en navegador obligatorias
-- click rápido múltiples documentos
-- 
-- estabilidad visor
-- 
-- foco estable
-- 
-- menú funciona correctamente
-- 
-- Pruebas E2E obligatorias
-- row_click visualiza documento
-- 
-- menu_action visualiza documento
-- 
-- PDF firmado/no firmado
-- 
-- resolve error
-- 
-- firma error
-- 
-- selección múltiple intacta
-- 
-- Pruebas QT / calidad
-- sin errores build
-- 
-- sin warnings TS/lint
-- 
-- sin errores consola
-- 
-- sin memory leaks
-- 
-- sin regresiones visuales
-- 
-- Criterios de aceptación
-- row_click y menu_action convergen correctamente
-- 
-- DocumentResolveRequest es contrato canónico
-- 
-- AppDocumentViewerOrchestrator funciona correctamente
-- 
-- Visor carga efectivamente documento
-- 
-- Selección múltiple permanece estable
-- 
-- Documento activo permanece estable
-- 
-- Tests pasan correctamente
-- 
-- Documentación obligatoria
-- Ruta:
-- docs/modulos/gestioncorrespondencia/implenetacionverdocumento
-- Archivos obligatorios:
-- SCRUMCORE-[XX]-Arquitectura.md
-- 
-- SCRUMCORE-[XX]-Implementacion-Detallada.md
-- 
-- SCRUM-[XX]-Integracion-BackEnd.md
-- 
-- SCRUM-[XX]-Pruebas.md
-- 
-- SCRUM-[ID]-Metadata.md
-- 
-- Instrucción final
-- Integrar DocumentosWorkbench con AppDocumentViewerOrchestrator usando DocumentResolveRequest como contrato canónico, garantizando una única orquestación de visualización documental, estabilidad del visor y ausencia de regresiones en Dynamic UI, selección múltiple y AppTreeTable/AppVisorEmbedPdf.
+## Alcance
+
+Integrar `AppDocumentViewerOrchestrator` en `DocumentosWorkbench` para unificar el flujo “ver documento” desde `row_click` y `menu_action`, usando `DocumentResolveRequest` (obtenido vía `action/ver_documento`) como contrato canónico, y consolidando estado estable para `AppVisorEmbedPdf`.
+
+## Guardrails (no negociables)
+
+- NO cambiar backend ni endpoints.
+- NO duplicar lógica resolve/firma en `DocumentosWorkbench`.
+- NO usar `any`.
+- NO tocar la lógica interna de `AppVisorEmbedPdf` (permisos/policy).
+- NO romper Dynamic UI, `AppTreeTable`, selección múltiple ni documento activo.
+
+## Contratos y source of truth
+
+### Source of truth (integración)
+
+`DocumentResolveRequest` proviene de:
+
+`POST /api/GestorDocumental/Documentos/ListaDocumentosRadicados/action` (acción `ver_documento`).
+
+Response esperada:
+
+```json
+{
+  "success": true,
+  "data": {
+    "DocumentResolveRequest": { "NombreGabinete": "string", "IdDocumento": 123 }
+  }
+}
+```
+
+### Input al orquestador
+
+`DocumentosWorkbench` SHALL invocar:
+
+```ts
+visualizarDocumento({
+  documentId,
+  nombreGabinete,
+  context: { idTareaWorkflow?, radicado?, grafo? }
+})
+```
+
+### Output para el visor
+
+`DocumentosWorkbench` SHALL mantener:
+
+- `activeRowId`
+- `activeFileUrl` (derivado del estado consolidado del orquestador)
+
+y SHALL pasar al visor:
+
+- `fileUrl={activeFileUrl}`
+
+## Requirements
+
+### R1: Convergencia de handlers
+
+El sistema SHALL asegurar que `row_click` y `menu_action ver_documento` convergen en una única función orquestadora local.
+
+#### Scenario R1.1: Click en fila
+- **WHEN** el usuario hace click en una fila
+- **THEN** se ejecuta la misma función orquestadora usada por `menu_action`
+
+#### Scenario R1.2: Acción de menú ver_documento
+- **WHEN** el usuario ejecuta `menu_action` con `ver_documento`
+- **THEN** se ejecuta la misma función orquestadora usada por `row_click`
+
+### R2: Uso obligatorio de DocumentResolveRequest
+
+El sistema SHALL usar `DocumentResolveRequest` como único contrato canónico para invocar `visualizarDocumento()`.
+
+#### Scenario R2.1: Action OK
+- **GIVEN** `action/ver_documento` responde `success=true`
+- **WHEN** existe `DocumentResolveRequest`
+- **THEN** `visualizarDocumento()` MUST ser llamado con `{ documentId, nombreGabinete }` derivados de ese contrato
+
+#### Scenario R2.2: Action falla
+- **WHEN** `action/ver_documento` falla (error o `success=false`)
+- **THEN** NO se debe llamar `visualizarDocumento()`
+- **AND** el documento previamente visible MUST mantenerse
+
+### R3: Integración con visor estable
+
+El sistema SHALL actualizar el visor con `activeFileUrl` sin romper estabilidad.
+
+#### Scenario R3.1: Resolve/firma ok
+- **WHEN** el orquestador resuelve `fileUrl`
+- **THEN** `activeFileUrl` se actualiza y el visor carga el documento
+
+#### Scenario R3.2: Resolve/firma falla
+- **WHEN** falla resolve o firma dentro del orquestador
+- **THEN** el documento previamente visible MUST mantenerse (sin flicker / sin pérdida)
+
+### R4: Selección múltiple intacta
+
+El sistema SHALL preservar selección múltiple de `AppTreeTable`.
+
+#### Scenario R4.1: Visualización no altera selección
+- **WHEN** se visualiza un documento por click o menú
+- **THEN** la selección múltiple MUST permanecer intacta y no mezclarse con documento activo
+
+## Calidad y pruebas (mínimo)
+
+- Unit tests: convergencia de handlers y payload correcto hacia `visualizarDocumento`.
+- Integration UI: click/menu -> action -> orquestador -> visor (sin romper selección múltiple).

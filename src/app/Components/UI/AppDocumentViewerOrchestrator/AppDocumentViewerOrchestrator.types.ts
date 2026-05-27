@@ -12,11 +12,14 @@ export type ResolveStatus = "idle" | "loading" | "resolved" | "failed" | "cancel
 
 export type FirmaCheckStatus = "not_required" | "resolved" | "failed";
 
+export type DocumentViewerKind = "pdf" | "image" | "unknown";
+
 export type AppDocumentViewerRuntimeState = {
   documentId: number;
   nombreGabinete: string;
   fileUrl: string | null;
   contentType: string | null;
+  viewerKind: DocumentViewerKind;
   isPdf: boolean;
   isElectronicallySigned: boolean | null;
   firmaCheckStatus: FirmaCheckStatus;

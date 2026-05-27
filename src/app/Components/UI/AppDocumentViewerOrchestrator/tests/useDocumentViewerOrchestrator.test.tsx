@@ -5,16 +5,21 @@ import { useDocumentViewerOrchestrator } from "../useDocumentViewerOrchestrator"
 const mocks = vi.hoisted(() => ({
   resolveVisualizacionDocumento: vi.fn(),
   fetchFirmaElectronica: vi.fn(),
+  downloadVisualizacionBlob: vi.fn(),
 }));
 
 vi.mock("../AppDocumentViewerOrchestrator.service", () => ({
   resolveVisualizacionDocumento: (params: unknown) => mocks.resolveVisualizacionDocumento(params),
   fetchFirmaElectronica: (params: unknown) => mocks.fetchFirmaElectronica(params),
+  downloadVisualizacionBlob: (params: unknown) => mocks.downloadVisualizacionBlob(params),
 }));
 
 describe("useDocumentViewerOrchestrator", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.downloadVisualizacionBlob.mockResolvedValue(new Blob(["%PDF-1.7"], { type: "application/pdf" }));
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
   });
 
   it("no PDF => no consulta firma y firmaCheckStatus=not_required", async () => {
@@ -38,7 +43,7 @@ describe("useDocumentViewerOrchestrator", () => {
     expect(mocks.fetchFirmaElectronica).not.toHaveBeenCalled();
     expect(result.current.documentoActivo?.isPdf).toBe(false);
     expect(result.current.documentoActivo?.firmaCheckStatus).toBe("not_required");
-    expect(result.current.documentoActivo?.fileUrl).toBe("/tmp/x");
+    expect(result.current.documentoActivo?.fileUrl).toBe("blob:mock");
   });
 
   it("PDF => consulta firma y llena isElectronicallySigned", async () => {
@@ -67,7 +72,7 @@ describe("useDocumentViewerOrchestrator", () => {
 
     expect(mocks.fetchFirmaElectronica).toHaveBeenCalledTimes(1);
     expect(result.current.documentoActivo?.isPdf).toBe(true);
-    expect(result.current.documentoActivo?.fileUrl).toBe("https://cdn/x.pdf");
+    expect(result.current.documentoActivo?.fileUrl).toBe("blob:mock");
     expect(result.current.documentoActivo?.isElectronicallySigned).toBe(true);
   });
 
@@ -99,7 +104,7 @@ describe("useDocumentViewerOrchestrator", () => {
     });
 
     const previousUrl = result.current.documentoActivo?.fileUrl;
-    expect(previousUrl).toBe("https://cdn/1.pdf");
+    expect(previousUrl).toBe("blob:mock");
 
     await act(async () => {
       await result.current.visualizarDocumento({ documentId: 2, nombreGabinete: "G" });
@@ -147,7 +152,7 @@ describe("useDocumentViewerOrchestrator", () => {
 
     await waitFor(() => {
       expect(result.current.documentoActivo?.documentId).toBe(2);
-      expect(result.current.documentoActivo?.fileUrl).toBe("https://cdn/b.pdf");
+      expect(result.current.documentoActivo?.fileUrl).toBe("blob:mock");
     });
 
     // Respuesta vieja llega tarde: debe ignorarse.
@@ -164,7 +169,7 @@ describe("useDocumentViewerOrchestrator", () => {
 
     await waitFor(() => {
       expect(result.current.documentoActivo?.documentId).toBe(2);
-      expect(result.current.documentoActivo?.fileUrl).toBe("https://cdn/b.pdf");
+      expect(result.current.documentoActivo?.fileUrl).toBe("blob:mock");
     });
   });
 
