@@ -33,17 +33,22 @@ export interface AppPdfToolbarProps {
 
   onToggleSignatureModal(): void;
   isSignatureModalOpen: boolean;
+  isSignatureDisabled?: boolean;
 
   onDeleteSelectedSignature(): void;
   canDeleteSelectedSignature: boolean;
+  isDeleteSelectedSignatureDisabled?: boolean;
 
   onSaveSignedPdf(): void;
   isSignatureLocked: boolean;
   isSaveSignedPdfDisabled?: boolean;
   isSavingSignedPdf?: boolean;
+  isSignatureLockToggleDisabled?: boolean;
 
   onPrint(): void;
   onExport(): void;
+  isPrintDisabled?: boolean;
+  isExportDisabled?: boolean;
 }
 
 function formatZoom(zoomLevel: number) {
@@ -63,14 +68,19 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
   onRotateRight,
   onToggleSignatureModal,
   isSignatureModalOpen,
+  isSignatureDisabled = false,
   onDeleteSelectedSignature,
   canDeleteSelectedSignature,
+  isDeleteSelectedSignatureDisabled = false,
   onSaveSignedPdf,
   isSignatureLocked,
   isSaveSignedPdfDisabled = false,
   isSavingSignedPdf = false,
+  isSignatureLockToggleDisabled = false,
   onPrint,
   onExport,
+  isPrintDisabled = false,
+  isExportDisabled = false,
 }: AppPdfToolbarProps) {
   const zoomDisabledTitle = isZoomDisabled
     ? "Zoom deshabilitado cuando hay rotación (estabilidad)"
@@ -162,7 +172,14 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         onClick={onToggleSignatureModal}
         aria-label="Signature"
         aria-pressed={isSignatureModalOpen}
-        title={isSignatureModalOpen ? "Cerrar firmas" : "Abrir firmas"}
+        title={
+          isSignatureDisabled
+            ? "Firmas deshabilitadas por política"
+            : isSignatureModalOpen
+              ? "Cerrar firmas"
+              : "Abrir firmas"
+        }
+        disabled={isSignatureDisabled}
       >
         <span className={styles.icon} aria-hidden="true">
           <FormOutlined />
@@ -179,11 +196,13 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
             ? "Validando\u2026"
             : isSignatureLocked
               ? "Seleccionar para desbloquear"
-              : isSaveSignedPdfDisabled
+              : isSignatureLockToggleDisabled
+                ? "Bloquear firma deshabilitado por política"
+                : isSaveSignedPdfDisabled
                 ? "Bloquear firma (requiere al menos 1 firma)"
                 : "Bloquear firma"
         }
-        disabled={isSaveSignedPdfDisabled || isSavingSignedPdf}
+        disabled={isSaveSignedPdfDisabled || isSavingSignedPdf || isSignatureLockToggleDisabled}
       >
         <span
           className={`${styles.icon} ${isSignatureLocked ? styles.lockLocked : styles.lockUnlocked}`}
@@ -199,11 +218,13 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         onClick={onDeleteSelectedSignature}
         aria-label="Eliminar firma seleccionada"
         title={
-          canDeleteSelectedSignature
+          isDeleteSelectedSignatureDisabled
+            ? "Eliminar firma deshabilitado por política"
+            : canDeleteSelectedSignature
             ? "Eliminar firma seleccionada"
             : "Selecciona una firma para eliminarla"
         }
-        disabled={!canDeleteSelectedSignature}
+        disabled={!canDeleteSelectedSignature || isDeleteSelectedSignatureDisabled}
       >
         <span className={styles.icon} aria-hidden="true">
           <DeleteOutlined />
@@ -217,7 +238,8 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         className={styles.button}
         onClick={onPrint}
         aria-label="Print"
-        title="Print"
+        title={isPrintDisabled ? "Impresión deshabilitada por política" : "Print"}
+        disabled={isPrintDisabled}
       >
         <span className={styles.icon} aria-hidden="true">
           <PrinterOutlined />
@@ -228,7 +250,8 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         className={styles.button}
         onClick={onExport}
         aria-label="Export"
-        title="Export"
+        title={isExportDisabled ? "Exportación deshabilitada por política" : "Export"}
+        disabled={isExportDisabled}
       >
         <span className={styles.icon} aria-hidden="true">
           <DownloadOutlined />

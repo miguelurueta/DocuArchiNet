@@ -150,6 +150,74 @@ Implementado:
 - `fetchFirmaElectronica({ idArchivo, nombreGabinete, signal })` llama el endpoint de firma electrónica (solo cuando corresponde, desde el hook).
 - Se soporta cancelación usando `AbortSignal` (axios `ERR_CANCELED` → `AbortError`).
 
+### Propagación del mensaje del backend (decisión UX vigente)
+
+**Decisión:** el frontend **no reescribe** los mensajes de negocio/validación del backend. Si el backend responde con un mensaje humano (por ejemplo: `No existe carpeta física del documento`), ese texto se **propaga** al consumidor para que se muestre tal cual en la UI.
+
+### Por qué lo maneja el orquestador (y no el módulo consumidor)
+
+Este comportamiento se implementa en el orquestador porque el error ocurre **dentro del flujo de integración** que el orquestador encapsula (`visualizacion/resolve` y, si aplica, `firma-electronica`). En términos arquitectónicos, el orquestador es el **único punto** que debe conocer y orquestar:
+
+- Cómo se invoca `visualizacion/resolve` y cómo se interpreta su respuesta.
+- Cómo se normalizan fallos HTTP a un estado runtime consistente (sin excepciones no controladas).
+- Cómo se preserva la **estabilidad del visor**: si un nuevo intento falla, no se pierde el documento previamente visible.
+- Cómo se evita duplicación: sin esta normalización central, cada módulo consumidor tendría que parsear el `400` y decidir qué mensaje mostrar, produciendo divergencias y manejo desigual de errores.
+
+Por diseño, el módulo consumidor solo decide **cuándo** llamar `visualizarDocumento()` y con qué contrato canónico; el orquestador decide **cómo** resolver y cómo consolidar el estado y errores para consumo de UI.
+
+**Dónde se implementa (source of truth):**
+
+- `src/app/Components/UI/AppDocumentViewerOrchestrator/useDocumentViewerOrchestrator.ts`
+  - En el `catch` del flujo `resolveVisualizacionDocumento(...)` el hook intenta extraer un mensaje del error HTTP (Axios):
+    - Prioridad 1: `response.data.errors[0].Message`
+    - Prioridad 2 (fallback): `response.data.message`
+  - Si existe `apiMessage`:
+    - `state.error` se establece en `apiMessage` (mensaje listo para UI).
+    - `documentoActivo.errors[]` incluye `apiMessage` y, adicionalmente, conserva el código interno `RESOLVE_FAILED` como respaldo técnico.
+
+**Motivación:**
+
+- Evitar duplicación de copy de errores (backend y frontend).
+- Mantener trazabilidad del mensaje real que explica por qué el documento no es resoluble.
+- El consumidor puede mostrar el mensaje en:
+  - un toast global (notificaciones del proyecto), o
+  - un banner inline en el módulo,
+  sin que el orquestador dicte UI.
+
+**Implicaciones:**
+
+- Si el backend cambia el texto del mensaje, el frontend lo mostrará actualizado sin despliegues.
+- El mensaje puede variar en redacción; si en el futuro se requiere estandarizar UX, se recomienda introducir `code` estable en backend y un diccionario centralizado en frontend (ver sección de Deuda técnica).
+
+**Ejemplo real (caso storage sin carpeta física):**
+
+Backend (`POST /api/gestor-documental/documentos/visualizacion/resolve`) responde `400`:
+
+```json
+{
+  "success": false,
+  "message": "Error de validacion",
+  "data": null,
+  "meta": { "Status": "validation" },
+  "errors": [
+    { "Type": "Validation", "Message": "No existe carpeta física del documento", "Field": "storage" }
+  ]
+}
+```
+
+Orquestador (estado consolidado) deja disponible el mensaje para UI:
+
+```ts
+{
+  resolveStatus: "failed",
+  error: "No existe carpeta física del documento",
+  documentoActivo: {
+    // ...documentId/nombreGabinete previos (no se pierde el documento visible)
+    errors: ["No existe carpeta física del documento", "RESOLVE_FAILED"]
+  }
+}
+```
+
 ## Adapter (mapeo/decisiones puras)
 
 Archivo:
@@ -179,6 +247,37 @@ El orquestador no renderiza UI. Sin embargo, define señales consistentes para U
 - `loading`: consumidores lo usan para mostrar estado perceptible.
 - `error` / `errors[]`: consumidores lo usan para mensajes visibles sin romper el visor.
 - Estabilidad: evita flicker/pérdida del documento en fallos de nuevas visualizaciones.
+
+## Descarga autenticada (blob) para `download/{token}`
+
+Para evitar fallos `401/403` al abrir URLs protegidas (por ejemplo `visualizacion/download/{token}`) sin `Authorization` header, el orquestador descarga el archivo con el cliente HTTP autenticado del proyecto y entrega al visor un `blob:` URL en memoria:
+
+- Service: `downloadVisualizacionBlob({ fileUrl, signal })` usa `clienteApi.get(..., { responseType: "blob" })` (con `withCredentials` y Bearer si aplica por interceptores).
+- Normalización robusta de URL:
+  - Si `fileUrl` es absoluta (p.ej. `http://localhost/.../download/{token}`), se normaliza a ruta relativa (`pathname + search`) para que `clienteApi` aplique `baseURL`, cookies e interceptores.
+  - Guardrail anti-duplicación: si el `baseURL` ya contiene un prefijo de path (p.ej. `/DocuArchiApi`) y el `pathname` también lo trae, el service recorta el prefijo para evitar URLs como `/DocuArchiApi/DocuArchiApi/api/...`.
+- Runtime: el hook crea `URL.createObjectURL(blob)` y lo expone como `documentoActivo.fileUrl` (formato `blob:`) para `AppVisorEmbedPdf`.
+- Cleanup/Leak prevention:
+  - En cancelación (`cancelCurrentRequest`) se revoca el `blob:` URL (`URL.revokeObjectURL(...)`).
+  - En visualizaciones consecutivas se revoca el `blob:` anterior antes de crear uno nuevo.
+
+### Control de loading y estabilidad del visor (blob lifecycle)
+
+Para evitar “falsos positivos” de documento protegido/dañado bajo clicks rápidos (race conditions) y para soportar documentos grandes:
+
+- El orquestador **no revoca inmediatamente** el `blob:` URL previo cuando llega un nuevo documento.
+- En su lugar, programa la revocación de forma diferida (guardrail) para reducir el riesgo de invalidar el blob mientras el motor del visor aún lo está leyendo.
+- Esto preserva la regla: *si falla/cancela una nueva visualización, el documento previamente visible no se pierde*.
+
+### Motivación (incidente real)
+
+En ambiente local se observó:
+
+- `visualizacion/resolve` retornaba `200` con `UrlTemporalAbsoluta` apuntando a `http://localhost/...` (sin puerto).
+- `AppVisorEmbedPdf` intentaba abrir el `download/{token}` directo (sin header `Authorization`) y el backend respondía `401`.
+- El visor interpretaba el response no-PDF como documento “dañado/protegido” (password prompt/errores).
+
+La descarga como `Blob` mediante `clienteApi` elimina la dependencia de cookies/origin del request directo y hace el flujo estable en dev/QA/prod.
 
 ## Trazabilidad (archivo -> símbolo -> test)
 

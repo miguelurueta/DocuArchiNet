@@ -1,6 +1,7 @@
 import type {
   AppDocumentViewerOrchestratorInput,
   AppDocumentViewerRuntimeState,
+  DocumentViewerKind,
   DocumentVisualizacionResolveResponseDto,
   FirmaCheckStatus,
   ResolveStatus,
@@ -24,6 +25,13 @@ export const isPdfFromContentType = (contentType: string | null, fileName?: stri
   return safeName.endsWith(".pdf");
 };
 
+export const getViewerKindFromContentType = (contentType: string | null, fileName?: string): DocumentViewerKind => {
+  const normalized = (contentType || "").toLowerCase();
+  if (isPdfFromContentType(contentType, fileName)) return "pdf";
+  if (normalized.startsWith("image/")) return "image";
+  return "unknown";
+};
+
 export const buildInitialRuntimeState = (
   input: AppDocumentViewerOrchestratorInput,
 ): AppDocumentViewerRuntimeState => ({
@@ -31,6 +39,7 @@ export const buildInitialRuntimeState = (
   nombreGabinete: input.nombreGabinete,
   fileUrl: null,
   contentType: null,
+  viewerKind: "unknown",
   isPdf: false,
   isElectronicallySigned: null,
   firmaCheckStatus: "not_required",
@@ -41,19 +50,22 @@ export const buildInitialRuntimeState = (
 export const buildResolvedRuntimeState = (params: {
   input: AppDocumentViewerOrchestratorInput;
   resolve: DocumentVisualizacionResolveResponseDto;
+  fileUrlOverride?: string | null;
   resolveStatus: Extract<ResolveStatus, "resolved">;
   firmaCheckStatus: FirmaCheckStatus;
   isElectronicallySigned: boolean | null;
 }): AppDocumentViewerRuntimeState => {
-  const { input, resolve, resolveStatus, firmaCheckStatus, isElectronicallySigned } = params;
-  const fileUrl = pickResolvedFileUrl(resolve);
+  const { input, resolve, fileUrlOverride, resolveStatus, firmaCheckStatus, isElectronicallySigned } = params;
+  const fileUrl = (fileUrlOverride ?? null) || pickResolvedFileUrl(resolve);
   const contentType = resolve.ContentType ?? null;
   const isPdf = isPdfFromContentType(contentType, resolve.FileName);
+  const viewerKind = getViewerKindFromContentType(contentType, resolve.FileName);
   return {
     documentId: input.documentId,
     nombreGabinete: input.nombreGabinete,
     fileUrl,
     contentType,
+    viewerKind,
     isPdf,
     isElectronicallySigned,
     firmaCheckStatus,
