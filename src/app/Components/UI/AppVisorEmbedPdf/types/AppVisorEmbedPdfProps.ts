@@ -3,6 +3,11 @@ import type { AppVisorEmbedPdfRef, AppVisorLoadInput, AppVisorLoadResult, Viewer
 
 export interface AppVisorEmbedPdfProps {
   fileUrl?: string;
+  /**
+   * Solo UX: cuando true, el visor puede mostrar un estado de carga (p.ej. skeleton en toolbar)
+   * y bloquear interacciones mientras se obtiene la fuente (fileUrl/blobUrl).
+   */
+  loading?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }

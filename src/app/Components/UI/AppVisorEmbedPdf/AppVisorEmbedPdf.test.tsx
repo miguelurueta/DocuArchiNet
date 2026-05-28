@@ -56,6 +56,7 @@ beforeEach(() => {
       return "";
     }
   };
+  activeDocumentIdState = "doc-1";
 });
 
 afterEach(() => {
@@ -71,6 +72,8 @@ let documentContentRenderState: { isLoaded: boolean; isError: boolean; isLoading
   isError: false,
   isLoading: false,
 };
+
+let activeDocumentIdState: string | null = "doc-1";
 
 const openDocumentUrlMock = vi.fn<
   [
@@ -288,7 +291,10 @@ vi.mock("./engine/embedPdfAdapter", () => ({
   EmbedPDF: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="embedpdf">{children}</div>
   ),
-  useActiveDocument: () => ({ activeDocumentId: "doc-1" }),
+  __setActiveDocumentId: (next: string | null) => {
+    activeDocumentIdState = next;
+  },
+  useActiveDocument: () => ({ activeDocumentId: activeDocumentIdState }),
   useDocumentManagerCapability: () => ({
     provides: {
       openDocumentUrl: openDocumentUrlMock,
@@ -448,6 +454,32 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
 
     expect(screen.getByRole("dialog", { name: /documento protegido/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/contraseña del documento/i)).toBeInTheDocument();
+  });
+
+  it("[SPEC:SCRUMCORE-233] no muestra password prompt en OPEN_FAILED (evita falso 'Documento protegido')", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    documentContentRenderState = { isLoaded: false, isError: false, isLoading: true };
+
+    const { __setActiveDocumentId } = await import("./engine/embedPdfAdapter");
+    __setActiveDocumentId(null);
+
+    openDocumentUrlMock.mockImplementationOnce(() => ({
+      wait: (resolved) =>
+        resolved({
+          documentId: "doc-1",
+          task: {
+            wait: (_r, e) => e(new Error("boom")),
+          },
+        }),
+    }));
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: /documento protegido/i })).not.toBeInTheDocument();
+    });
+
+    __setActiveDocumentId("doc-1");
   });
 
   it("[SPEC:SCRUMCORE-208] no crashea cuando scroll.provides es null", async () => {

@@ -5,6 +5,7 @@ import { useScroll } from "@embedpdf/plugin-scroll/react";
 import { Rotate, useRotate } from "@embedpdf/plugin-rotate/react";
 import { useViewportCapability } from "@embedpdf/plugin-viewport/react";
 import { LeftOutlined, RightOutlined, UpOutlined } from "@ant-design/icons";
+import { Skeleton } from "antd";
 import { usePrint } from "@embedpdf/plugin-print/react";
 import { useExport } from "@embedpdf/plugin-export/react";
 import { PdfErrorCode } from "@embedpdf/models";
@@ -63,8 +64,28 @@ function cx(...parts: Array<string | undefined>) {
   return parts.filter(Boolean).join(" ");
 }
 
+function dvDebugEnabled(): boolean {
+  return typeof window !== "undefined" && Boolean((window as any).__DV_DEBUG__);
+}
+
+function dvLog(...args: unknown[]) {
+  if (!dvDebugEnabled()) return;
+  // eslint-disable-next-line no-console
+  console.log(...args);
+}
+
 function waitPdfTask<T>(task: { wait(onOk: (value: T) => void, onErr: (err: unknown) => void): void }) {
   return new Promise<T>((resolve, reject) => {
+    try {
+      task.wait(resolve, reject);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+function waitPdfTaskVoid(task: { wait(onOk: () => void, onErr: (err: unknown) => void): void }) {
+  return new Promise<void>((resolve, reject) => {
     try {
       task.wait(resolve, reject);
     } catch (err) {
@@ -104,7 +125,7 @@ async function saveBlobToIndexedDb(params: { documentId: string; name: string; b
  * Se prohÃ­be filtrar detalles del engine hacia mÃ³dulos consumidores.
  */
 export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdfProps>(function AppVisorEmbedPdf(
-  { fileUrl, className, style }: AppVisorEmbedPdfProps,
+  { fileUrl, loading = false, className, style }: AppVisorEmbedPdfProps,
   ref,
 ) {
   const demoUrl = useDemoPdfUrl();
@@ -121,6 +142,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
 
   const loadSeqRef = useRef(0);
   const loadAbortRef = useRef<AbortController | null>(null);
+  const lastLoadIdentityRef = useRef<{ attemptId?: number; documentKey?: string } | null>(null);
   const lastOpenResultRef = useRef<{ url: string; ok: boolean } | null>(null);
   const managedSnapshotRef = useRef<{
     permissionsRaw: Record<string, boolean>;
@@ -163,6 +185,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
   }, [managedErrors, managedPermissionStatus, managedPermissionsEffective, managedPermissionsRaw, managedSigned, managedUrl]);
 
   const cancelCurrentLoad = useCallback(() => {
+    dvLog("[DV][visor]", "cancelCurrentLoad()");
     loadAbortRef.current?.abort();
     loadAbortRef.current = null;
 
@@ -171,7 +194,10 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     pendingLoadResolverRef.current = null;
     pending.resolve({
       ok: false,
+      attemptId: lastLoadIdentityRef.current?.attemptId,
+      documentKey: lastLoadIdentityRef.current?.documentKey,
       fileUrl: managedUrl,
+      loadStatus: "cancelled",
       permissionsRaw: managedPermissionsRaw,
       permissionsEffective: managedPermissionsEffective,
       isElectronicallySigned: managedSigned,
@@ -193,10 +219,12 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
   const load = useCallback(async (input: AppVisorLoadInput): Promise<AppVisorLoadResult> => {
     loadSeqRef.current += 1;
     const seq = loadSeqRef.current;
+    dvLog("[DV][visor]", "load() start", { seq, attemptId: input.attemptId, documentKey: input.documentKey });
 
     loadAbortRef.current?.abort();
     const abortController = new AbortController();
     loadAbortRef.current = abortController;
+    lastLoadIdentityRef.current = { attemptId: input.attemptId, documentKey: input.documentKey };
 
     setManagedErrors([]);
     setManagedSigned(Boolean(input.isElectronicallySigned));
@@ -208,7 +236,10 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
       // No bloquea esperando un open redundante del engine.
       return {
         ok: last.ok,
+        attemptId: input.attemptId,
+        documentKey: input.documentKey,
         fileUrl: last.ok ? input.url : null,
+        loadStatus: last.ok ? "loaded" : "failed",
         permissionsRaw: managedSnapshotRef.current.permissionsRaw,
         permissionsEffective: managedSnapshotRef.current.permissionsEffective,
         isElectronicallySigned: Boolean(input.isElectronicallySigned),
@@ -234,7 +265,10 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
         if (seq !== loadSeqRef.current) {
           return {
             ok: false,
+            attemptId: input.attemptId,
+            documentKey: input.documentKey,
             fileUrl: input.url,
+            loadStatus: "cancelled",
             permissionsRaw: {},
             permissionsEffective: failClosedEffectivePermissions(),
             isElectronicallySigned: Boolean(input.isElectronicallySigned),
@@ -256,7 +290,10 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
         if (seq !== loadSeqRef.current) {
           return {
             ok: false,
+            attemptId: input.attemptId,
+            documentKey: input.documentKey,
             fileUrl: input.url,
+            loadStatus: "cancelled",
             permissionsRaw: {},
             permissionsEffective: failClosedEffectivePermissions(),
             isElectronicallySigned: Boolean(input.isElectronicallySigned),
@@ -277,6 +314,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     }
 
     return await new Promise<AppVisorLoadResult>((resolve) => {
+      dvLog("[DV][visor]", "load() pending handshake", { seq });
       pendingLoadResolverRef.current = { seq, resolve };
     });
   }, []);
@@ -326,6 +364,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
   if (!effectiveFileUrl) {
     return (
       <div className={cx(styles.root, className)} style={style} role="status" aria-label="Zona de documento">
+        {loading ? <FullLoadingOverlay /> : null}
         <EmptyState />
       </div>
     );
@@ -333,10 +372,12 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
 
   return (
     <div className={cx(styles.root, className)} style={style} role="status" aria-label="Zona de documento">
+      {loading ? <FullLoadingOverlay /> : null}
       <EmbedPDF engine={engineState.engine} plugins={pluginRegistration}>
         <EmbedPdfDocumentHost
           fileUrl={effectiveFileUrl}
           managedSeq={loadSeqRef.current}
+          loading={loading}
           permissionsEffective={permissionsForRender}
           onManagedOpenResult={(payload) => {
             const pending = pendingLoadResolverRef.current;
@@ -351,6 +392,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
               isElectronicallySigned: managedSigned,
               permissionStatus: managedPermissionStatus,
               extraErrors: managedErrors,
+              identity: lastLoadIdentityRef.current ?? undefined,
               resolve: pending.resolve,
             });
             lastOpenResultRef.current = { url: effectiveFileUrl, ok: payload.ok };
@@ -361,6 +403,35 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
   );
 });
 
+function FullLoadingOverlay() {
+  return (
+    <div className={styles.fullLoadingOverlay} aria-label="Cargando documento" role="status" aria-busy="true">
+      <div className={styles.fullLoadingSkeleton} aria-hidden="true">
+        <div className={styles.fullLoadingSkeletonUniform}>
+          <Skeleton.Button active size="default" shape="circle" />
+          <Skeleton.Button active size="default" shape="round" />
+          <Skeleton.Button active size="default" shape="round" />
+          <Skeleton.Button active size="default" shape="round" />
+          <Skeleton.Button active size="default" shape="circle" />
+          <div className={styles.fullLoadingSkeletonImageWrap}>
+            <Skeleton.Image active />
+          </div>
+          <div className={styles.fullLoadingSkeletonParagraph}>
+            <Skeleton
+              active
+              title={false}
+              paragraph={{
+                rows: 6,
+                width: ["100%", "100%", "100%", "100%", "100%", "100%"],
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function resolve(params: {
   payload: { seq: number; ok: boolean; errors: string[] };
   fileUrl: string;
@@ -368,7 +439,8 @@ function resolve(params: {
   permissionsEffective: ViewerEffectivePermissions;
   isElectronicallySigned: boolean;
   permissionStatus: AppVisorLoadResult["permissionStatus"];
-  extraErrors: string[];
+  extraErrors: string[]; 
+  identity?: { attemptId?: number; documentKey?: string };
   resolve: (value: AppVisorLoadResult) => void;
 }) {
   const {
@@ -380,11 +452,15 @@ function resolve(params: {
     permissionStatus,
     extraErrors,
     resolve: resolveFn,
+    identity,
   } = params;
   const errors = Array.from(new Set([...(extraErrors ?? []), ...(payload.errors ?? [])]));
   resolveFn({
     ok: payload.ok,
+    attemptId: identity?.attemptId,
+    documentKey: identity?.documentKey,
     fileUrl: payload.ok ? fileUrl : null,
+    loadStatus: payload.ok ? "loaded" : "failed",
     permissionsRaw,
     permissionsEffective,
     isElectronicallySigned,
@@ -396,10 +472,11 @@ function resolve(params: {
 function EmbedPdfDocumentHost(props: {
   fileUrl: string;
   managedSeq: number;
+  loading?: boolean;
   permissionsEffective: ViewerEffectivePermissions;
   onManagedOpenResult(payload: { seq: number; ok: boolean; errors: string[] }): void;
 }) {
-  const { fileUrl, managedSeq, permissionsEffective, onManagedOpenResult } = props;
+  const { fileUrl, managedSeq, loading = false, permissionsEffective, onManagedOpenResult } = props;
   const { provides } = useDocumentManagerCapability();
   const { activeDocumentId } = useActiveDocument();
 
@@ -410,10 +487,15 @@ function EmbedPdfDocumentHost(props: {
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
 
   const openedDocumentIdRef = useRef<string | null>(null);
+  const latestManagedSeqRef = useRef(managedSeq);
   const lastOpenedRef = useRef<
     { url: string; password: string | null; attempt: number } | null
   >(null);
   const lastAttemptHadPasswordRef = useRef(false);
+
+  useEffect(() => {
+    latestManagedSeqRef.current = managedSeq;
+  }, [managedSeq]);
 
   useEffect(() => {
     // Al cambiar el documento, reiniciar el estado del prompt/password (enterprise hardening).
@@ -422,7 +504,6 @@ function EmbedPdfDocumentHost(props: {
     setPasswordPromptOpen(false);
     setInvalidPassword(false);
     setIsSubmittingPassword(false);
-    openedDocumentIdRef.current = null;
     lastOpenedRef.current = null;
     lastAttemptHadPasswordRef.current = false;
   }, [fileUrl]);
@@ -445,6 +526,22 @@ function EmbedPdfDocumentHost(props: {
     lastOpenedRef.current = { url: fileUrl, password, attempt: passwordAttempt };
     lastAttemptHadPasswordRef.current = Boolean(password);
     setIsSubmittingPassword(Boolean(password));
+
+    // Enterprise hardening: el DocumentManager tiene un máximo de documentos abiertos (por defecto 10).
+    // Para evitar `Maximum number of documents (10) reached`, aplicamos política "single-active document":
+    // cerramos el documento previamente abierto antes de abrir uno nuevo.
+    const previouslyOpenedId = openedDocumentIdRef.current;
+    if (previouslyOpenedId && provides.isDocumentOpen(previouslyOpenedId)) {
+      try {
+        dvLog("[DV][visor]", "closeDocument before open (guard maxDocuments)", { managedSeq, documentId: previouslyOpenedId });
+        // Best-effort: si falla, continuamos para no bloquear UX.
+        void waitPdfTaskVoid(provides.closeDocument(previouslyOpenedId));
+      } catch (err) {
+        dvLog("[DV][visor]", "closeDocument threw (best-effort)", { managedSeq, err });
+      }
+    }
+
+    dvLog("[DV][visor]", "openDocumentUrl start", { managedSeq });
     const openTask = provides.openDocumentUrl({
       url: fileUrl,
       name: "document.pdf",
@@ -459,7 +556,10 @@ function EmbedPdfDocumentHost(props: {
     openTask.wait(
       (response) => {
         if (cancelled) return;
+        // stale guard (latest-wins): si este efecto ya no corresponde al intento vigente, no mutar UI.
+        if (managedSeq !== latestManagedSeqRef.current) return;
         openedDocumentIdRef.current = response.documentId;
+        dvLog("[DV][visor]", "openDocumentUrl dispatched", { managedSeq, documentId: response.documentId });
 
         // Esperar el task interno de carga del PDF para cerrar el estado "Validando…"
         // incluso si el documento no llega a activarse (activeDocumentId sigue null).
@@ -469,22 +569,27 @@ function EmbedPdfDocumentHost(props: {
             setIsSubmittingPassword(false);
             setPasswordPromptOpen(false);
             setInvalidPassword(false);
+            dvLog("[DV][visor]", "engine ready (task ok)", { managedSeq });
             onManagedOpenResult({ seq: managedSeq, ok: true, errors: [] });
           },
           () => {
             if (cancelled) return;
+            if (managedSeq !== latestManagedSeqRef.current) return;
             setIsSubmittingPassword(false);
-            setPasswordPromptOpen(true);
-            setInvalidPassword(lastAttemptHadPasswordRef.current);
+            // OPEN_FAILED no implica contraseña; evitar prompt falso bajo cancelación/stale.
+            setPasswordPromptOpen(false);
+            dvLog("[DV][visor]", "engine open failed (task err)", { managedSeq });
             onManagedOpenResult({ seq: managedSeq, ok: false, errors: ["OPEN_FAILED"] });
           },
         );
       },
-      () => {
+      (err) => {
         if (cancelled) return;
+        if (managedSeq !== latestManagedSeqRef.current) return;
         setIsSubmittingPassword(false);
-        setPasswordPromptOpen(true);
-        setInvalidPassword(lastAttemptHadPasswordRef.current);
+        // OPEN_FAILED no implica contraseña; evitar prompt falso bajo cancelación/stale.
+        setPasswordPromptOpen(false);
+        dvLog("[DV][visor]", "openDocumentUrl failed (outer task)", { managedSeq, err });
         onManagedOpenResult({ seq: managedSeq, ok: false, errors: ["OPEN_FAILED"] });
       },
     );
@@ -500,6 +605,8 @@ function EmbedPdfDocumentHost(props: {
       if (!openedDocumentIdRef.current) return;
       if (evt.documentId !== openedDocumentIdRef.current) return;
       if (evt.reason?.code !== PdfErrorCode.Password) return;
+      // stale guard: solo el intento vigente puede abrir prompt.
+      if (managedSeq !== latestManagedSeqRef.current) return;
 
       setIsSubmittingPassword(false);
       setPasswordPromptOpen(true);
@@ -579,6 +686,7 @@ function EmbedPdfDocumentHost(props: {
           isLoaded={isLoaded}
           isError={isError}
           isLoading={isLoading}
+          loading={loading}
           permissionsEffective={permissionsEffective}
           passwordPromptOpen={passwordPromptOpen}
           invalidPassword={invalidPassword}
@@ -597,6 +705,7 @@ function EmbedPdfDocumentStateView({
   isLoaded,
   isError,
   isLoading,
+  loading = false,
   permissionsEffective,
   passwordPromptOpen,
   invalidPassword,
@@ -609,6 +718,7 @@ function EmbedPdfDocumentStateView({
   isLoaded: boolean;
   isError: boolean;
   isLoading: boolean;
+  loading?: boolean;
   permissionsEffective: ViewerEffectivePermissions;
   passwordPromptOpen: boolean;
   invalidPassword: boolean;
@@ -625,7 +735,11 @@ function EmbedPdfDocumentStateView({
   if (isLoaded) {
     return (
       <div className={styles.overlayScope}>
-        <EmbedPdfLoadedDocumentView documentId={documentId} permissionsEffective={permissionsEffective} />
+        <EmbedPdfLoadedDocumentView
+          documentId={documentId}
+          permissionsEffective={permissionsEffective}
+          loading={loading}
+        />
         {passwordPromptOpen ? (
           <AppPdfPasswordPrompt
             isInvalidPassword={invalidPassword}
@@ -654,8 +768,12 @@ function EmbedPdfDocumentStateView({
   return <DocumentLoadingState />;
 }
 
-function EmbedPdfLoadedDocumentView(props: { documentId: string; permissionsEffective: ViewerEffectivePermissions }) {
-  const { documentId, permissionsEffective } = props;
+function EmbedPdfLoadedDocumentView(props: {
+  documentId: string;
+  permissionsEffective: ViewerEffectivePermissions;
+  loading?: boolean;
+}) {
+  const { documentId, permissionsEffective, loading = false } = props;
   const zoom = useZoom(documentId);
   const zoomLevel = typeof zoom.state.currentZoomLevel === "number" ? zoom.state.currentZoomLevel : 1;
   const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
@@ -1082,33 +1200,45 @@ function EmbedPdfLoadedDocumentView(props: { documentId: string; permissionsEffe
 
   return (
     <>
+      {/** overlay se monta en AppVisorEmbedPdf (raíz) para cubrir también primer click */}
       <div className={styles.toolbarShell} role="toolbar" aria-label="Toolbar PDF">
-        <AppPdfToolbar
-          zoomLevel={zoomLevel}
-          onZoomIn={onZoomIn}
-          onZoomOut={onZoomOut}
-          onResetZoom={onResetZoom}
-          onToggleThumbnails={onToggleThumbnails}
-          isThumbnailOpen={isThumbnailOpen}
-          isZoomDisabled={isZoomDisabled}
-          onRotateLeft={onRotateLeft}
-          onRotateRight={onRotateRight}
-          onToggleSignatureModal={onToggleSignatureModal}
-          isSignatureModalOpen={isSignatureModalOpen}
-          isSignatureDisabled={!permissionsEffective.allowSignaturePlacement}
-          onDeleteSelectedSignature={onDeleteSelectedSignature}
-          canDeleteSelectedSignature={Boolean(getSelectedSignature()) && !isSignatureLocked}
-          isDeleteSelectedSignatureDisabled={!permissionsEffective.allowSignatureDelete}
-          onSaveSignedPdf={onSaveSignedPdf}
-          isSignatureLocked={isSignatureLocked}
-          isSaveSignedPdfDisabled={!hasAnySignaturePlaced && !isSignatureLocked}
-          isSavingSignedPdf={isSavingSignedPdf}
-          isSignatureLockToggleDisabled={!permissionsEffective.allowSignatureLockToggle}
-          onPrint={onPrint}
-          onExport={onExport}
-          isPrintDisabled={!permissionsEffective.allowPrint}
-          isExportDisabled={!permissionsEffective.allowExport}
-        />
+        {loading ? (
+          <div className={styles.toolbarSkeleton} aria-label="Cargando toolbar" role="status" aria-busy="true">
+            <span className={styles.toolbarSkeletonBlock} />
+            <span className={styles.toolbarSkeletonBlock} />
+            <span className={styles.toolbarSkeletonBlock} />
+            <span className={styles.toolbarSkeletonBlockWide} />
+            <span className={styles.toolbarSkeletonBlock} />
+            <span className={styles.toolbarSkeletonBlock} />
+          </div>
+        ) : (
+          <AppPdfToolbar
+            zoomLevel={zoomLevel}
+            onZoomIn={onZoomIn}
+            onZoomOut={onZoomOut}
+            onResetZoom={onResetZoom}
+            onToggleThumbnails={onToggleThumbnails}
+            isThumbnailOpen={isThumbnailOpen}
+            isZoomDisabled={isZoomDisabled}
+            onRotateLeft={onRotateLeft}
+            onRotateRight={onRotateRight}
+            onToggleSignatureModal={onToggleSignatureModal}
+            isSignatureModalOpen={isSignatureModalOpen}
+            isSignatureDisabled={!permissionsEffective.allowSignaturePlacement}
+            onDeleteSelectedSignature={onDeleteSelectedSignature}
+            canDeleteSelectedSignature={Boolean(getSelectedSignature()) && !isSignatureLocked}
+            isDeleteSelectedSignatureDisabled={!permissionsEffective.allowSignatureDelete}
+            onSaveSignedPdf={onSaveSignedPdf}
+            isSignatureLocked={isSignatureLocked}
+            isSaveSignedPdfDisabled={!hasAnySignaturePlaced && !isSignatureLocked}
+            isSavingSignedPdf={isSavingSignedPdf}
+            isSignatureLockToggleDisabled={!permissionsEffective.allowSignatureLockToggle}
+            onPrint={onPrint}
+            onExport={onExport}
+            isPrintDisabled={!permissionsEffective.allowPrint}
+            isExportDisabled={!permissionsEffective.allowExport}
+          />
+        )}
       </div>
       <AppPdfSignatureModal
         isOpen={isSignatureModalOpen}
@@ -1122,6 +1252,13 @@ function EmbedPdfLoadedDocumentView(props: { documentId: string; permissionsEffe
         data-signature-entry-count={String(signatureEntries.entries?.length ?? 0)}
       >
         <div className={styles.paginationOverlay} role="group" aria-label="PaginaciÃ³n">
+          {loading ? (
+            <div className={styles.paginationSkeleton} aria-label="Cargando paginación" role="status" aria-busy="true">
+              <span className={styles.paginationSkeletonButton} />
+              <span className={styles.paginationSkeletonIndicator} />
+              <span className={styles.paginationSkeletonButton} />
+            </div>
+          ) : null}
           <button
             type="button"
             className={styles.paginationButton}

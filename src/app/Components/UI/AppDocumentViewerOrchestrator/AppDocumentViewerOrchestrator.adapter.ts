@@ -35,6 +35,8 @@ export const getViewerKindFromContentType = (contentType: string | null, fileNam
 export const buildInitialRuntimeState = (
   input: AppDocumentViewerOrchestratorInput,
 ): AppDocumentViewerRuntimeState => ({
+  attemptId: input.attemptId,
+  documentKey: input.documentKey,
   documentId: input.documentId,
   nombreGabinete: input.nombreGabinete,
   fileUrl: null,
@@ -61,6 +63,8 @@ export const buildResolvedRuntimeState = (params: {
   const isPdf = isPdfFromContentType(contentType, resolve.FileName);
   const viewerKind = getViewerKindFromContentType(contentType, resolve.FileName);
   return {
+    attemptId: input.attemptId,
+    documentKey: input.documentKey,
     documentId: input.documentId,
     nombreGabinete: input.nombreGabinete,
     fileUrl,

@@ -8,6 +8,7 @@
   border: 1px solid rgba(148, 163, 184, 0.55);
   border-radius: 12px;
   overflow: hidden;
+  position: relative;
 }
 
 .toolbarShell {
@@ -28,11 +29,128 @@
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
 }
 
+.toolbarSkeleton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding-right: 6px;
+}
+
+.toolbarSkeletonBlock,
+.toolbarSkeletonBlockWide {
+  position: relative;
+  height: 28px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    rgba(226, 232, 240, 0.74) 0%,
+    rgba(203, 213, 225, 0.6) 100%
+  );
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.toolbarSkeletonBlock {
+  width: 34px;
+}
+
+.toolbarSkeletonBlockWide {
+  width: 84px;
+}
+
+.toolbarSkeletonBlock::after,
+.toolbarSkeletonBlockWide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.8) 45%,
+    transparent 90%
+  );
+  animation: toolbarShimmer 1.15s ease-in-out infinite;
+}
+
+@keyframes toolbarShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 .main {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   position: relative;
+}
+
+.fullLoadingOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 999;
+  border-radius: 10px;
+  background: transparent;
+  display: block;
+}
+
+.fullLoadingOverlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    900px 520px at 35% 0%,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 250, 252, 0.97) 40%,
+    rgba(241, 245, 249, 0.96) 70%,
+    rgba(255, 255, 255, 0.95) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(148, 163, 184, 0.22),
+    inset 0 -1px 0 rgba(148, 163, 184, 0.14);
+  backdrop-filter: blur(8px);
+}
+
+.fullLoadingSkeleton {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+}
+
+.fullLoadingSkeletonUniform {
+  height: 100%;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: auto auto auto 1fr auto;
+  grid-auto-rows: min-content;
+  align-content: start;
+  gap: 10px;
+  width: 100%;
+}
+
+.fullLoadingSkeletonImageWrap {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  border-radius: 12px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.fullLoadingSkeletonParagraph {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.fullLoadingSkeletonParagraph :global(.ant-skeleton) {
+  width: 100%;
 }
 
 .overlayScope {
@@ -60,6 +178,51 @@
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.14);
   backdrop-filter: blur(8px);
+}
+
+.paginationSkeleton {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.paginationSkeletonButton,
+.paginationSkeletonIndicator {
+  position: relative;
+  border-radius: 999px;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    rgba(226, 232, 240, 0.74) 0%,
+    rgba(203, 213, 225, 0.6) 100%
+  );
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.paginationSkeletonButton {
+  width: 30px;
+  height: 28px;
+}
+
+.paginationSkeletonIndicator {
+  width: 60px;
+  height: 22px;
+}
+
+.paginationSkeletonButton::after,
+.paginationSkeletonIndicator::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.8) 45%,
+    transparent 90%
+  );
+  animation: toolbarShimmer 1.15s ease-in-out infinite;
 }
 
 .paginationButton {

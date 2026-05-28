@@ -45,6 +45,15 @@ const buildErrorSignal = (err: unknown): string => {
   return "error";
 };
 
+const dvDebugEnabled = (): boolean =>
+  typeof window !== "undefined" && Boolean((window as any).__DV_DEBUG__);
+
+const dvLog = (...args: unknown[]) => {
+  if (!dvDebugEnabled()) return;
+  // eslint-disable-next-line no-console
+  console.log(...args);
+};
+
 export function useDocumentViewerOrchestrator() {
   const [state, setState] = useState<OrchestratorState>({
     documentoActivo: null,
@@ -98,6 +107,7 @@ export function useDocumentViewerOrchestrator() {
   const visualizarDocumento = useCallback(async (input: AppDocumentViewerOrchestratorInput) => {
     requestIdRef.current += 1;
     const requestId = requestIdRef.current;
+    const attemptKey = `[DV][attempt:${input.attemptId ?? "na"}][req:${requestId}]`;
 
     abortRef.current?.abort();
     const abortController = new AbortController();
@@ -113,12 +123,19 @@ export function useDocumentViewerOrchestrator() {
     });
 
     try {
+      dvLog(attemptKey, "resolve start", { documentId: input.documentId, nombreGabinete: input.nombreGabinete });
       const resolveDto = await resolveVisualizacionDocumento({
         request: { IdDocumento: input.documentId, NombreGabinete: input.nombreGabinete },
         signal: abortController.signal,
       });
 
       if (requestId !== requestIdRef.current) return;
+      dvLog(attemptKey, "resolve ok", {
+        documentId: resolveDto.IdDocumento,
+        nombreGabinete: resolveDto.NombreGabinete,
+        contentType: resolveDto.ContentType,
+        fileName: resolveDto.FileName,
+      });
 
       const tokenUrl = pickResolvedFileUrl(resolveDto);
       if (!tokenUrl) {
@@ -135,12 +152,15 @@ export function useDocumentViewerOrchestrator() {
       }
 
       // Descargar autenticado como Blob para evitar 401/403 en download/{token} por falta de credenciales.
+      dvLog(attemptKey, "download blob start");
       const blob = await downloadVisualizacionBlob({ fileUrl: tokenUrl, signal: abortController.signal });
       if (requestId !== requestIdRef.current) return;
+      dvLog(attemptKey, "download blob ok", { blobSize: blob.size, blobType: blob.type });
 
       const previousBlobUrl = blobUrlRef.current;
       const fileUrl = URL.createObjectURL(blob);
       blobUrlRef.current = fileUrl;
+      dvLog(attemptKey, "blobUrl created", { fileUrl, previousBlobUrl });
       const contentType = resolveDto.ContentType ?? null;
       const isPdf = isPdfFromContentType(contentType, resolveDto.FileName);
       // Estado consolidado tras resolve (firma por defecto se define después).
@@ -161,6 +181,7 @@ export function useDocumentViewerOrchestrator() {
       // Cleanup diferido: evitar revocar el blobUrl que aún podría estar siendo consumido
       // por el visor hasta que React pinte el nuevo `fileUrl`.
       if (previousBlobUrl && previousBlobUrl !== fileUrl) scheduleRevoke(previousBlobUrl);
+      if (previousBlobUrl && previousBlobUrl !== fileUrl) dvLog(attemptKey, "schedule revoke previousBlobUrl", previousBlobUrl);
 
       if (!fileUrl) {
         // No hay URL; tratar como fallo lógico sin romper estabilidad del documento previo.
@@ -176,11 +197,13 @@ export function useDocumentViewerOrchestrator() {
       }
 
       if (!isPdf) {
+        dvLog(attemptKey, "not pdf -> skip firma");
         setState((prev) => ({ ...prev, loading: false, error: null }));
         return;
       }
 
       // Firma electrónica: solo PDF y no bloquea visualización.
+      dvLog(attemptKey, "firma start");
       let firmaCheckStatus: FirmaCheckStatus = "resolved";
       let signed: boolean | null = null;
       try {
@@ -190,9 +213,11 @@ export function useDocumentViewerOrchestrator() {
           signal: abortController.signal,
         });
         signed = Boolean(firmaDto.FirmadoElectronico);
+        dvLog(attemptKey, "firma ok", { signed });
       } catch (err) {
         firmaCheckStatus = err instanceof DOMException && err.name === "AbortError" ? "failed" : "failed";
         signed = null;
+        dvLog(attemptKey, "firma failed", err);
       }
 
       if (requestId !== requestIdRef.current) return;
@@ -218,6 +243,7 @@ export function useDocumentViewerOrchestrator() {
       if (requestId !== requestIdRef.current) return;
       const signal = buildErrorSignal(err);
       const apiMessage = extractApiErrorMessage(err);
+      dvLog(attemptKey, "pipeline failed", { signal, apiMessage, err });
       setState((prev) => ({
         ...prev,
         loading: false,
