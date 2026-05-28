@@ -136,3 +136,80 @@ stateDiagram-v2
    - el último `[DV][attempt:N][req:R]` del Orquestador.
 4) Si el error es `"Maximum number of documents (10) reached"`, la falla está en el engine y se corrige con “single-active document” (close-before-open) + gate anti-duplicados.
 
+## 7) Loaders / Overlays (UX y timing)
+
+### 7.1 Principio
+- El Workbench controla el estado de “viewer loading” (intención UX) y lo pasa al visor como `loading`.
+- El Visor pinta el **FullLoadingOverlay** (skeleton) para cubrir el viewport del PDF y evitar “fondo” visible durante swaps/cargas largas.
+- El overlay usa un micro-delay (hoy: ~100ms) para evitar flicker en documentos pequeños y aparecer rápido en documentos pesados.
+
+### 7.2 Por qué el overlay vive en el visor
+- La región correcta a cubrir es el contenedor/viewport del engine PDF, no el layout del Workbench.
+- El visor conoce el borde/radius/stacking (z-index) correcto para que sea consistente con el viewport.
+- Evita duplicación de overlays entre Workbench y Visor.
+
+### 7.3 Implicación operativa (primera carga vs swaps)
+- El overlay se monta a nivel root del Visor (no solo dentro de la vista “Loaded”) para que se vea:
+  - en el primer click (cuando aún no hay `documentId`/`effectiveFileUrl`),
+  - durante transiciones (cancel/next) y cargas largas.
+
+## 8) Lifecycle de blobs y riesgo de `ERR_FILE_NOT_FOUND`
+
+### 8.1 Flujo actual (orquestador)
+- El orquestador descarga el archivo como `Blob` y genera una URL runtime con `URL.createObjectURL(blob)` (`blob:http://...`).
+- Mantiene referencia al blobUrl previo y programa su revocación (`URL.revokeObjectURL`) para evitar leaks.
+
+### 8.2 Riesgo observado
+Cuando hay swaps rápidos, el navegador puede intentar leer el `blob:` anterior (p. ej. layers del engine) y si el blobUrl se revoca antes de que el engine deje de usarlo aparece:
+- `GET blob:... net::ERR_FILE_NOT_FOUND`
+
+Esto no es backend ni permisos: es invalidación de fuente runtime.
+
+### 8.3 Mitigación aplicada en este ticket (lado visor)
+- “Single-active document” (close-before-open) reduce acumulación en el engine (mitiga `maxDocuments=10`).
+- Cancel chain + latest-wins reduce solapamiento de lecturas sobre blobs anteriores.
+
+Nota: a largo plazo la solución enterprise completa es “handshake ready + swap seguro active/pending” y coordinar ownership de revocación del blobUrl (quien crea el blobUrl decide cuándo revocar).
+
+## 9) Plugins del visor (EmbedPDF)
+
+El visor registra plugins (scroll/render/interaction/etc.) que determinan:
+- render por página (layers),
+- scroll/virtualización,
+- herramientas (selección/anotación/firma),
+- acciones (export/print/rotate/zoom).
+
+Source of truth: `src/app/Components/UI/AppVisorEmbedPdf/plugins/pluginRegistration.ts`.
+
+Listado actual (orden de registro):
+- `DocumentManagerPluginPackage` (estado/instancias de documento).
+- `ViewportPluginPackage` (viewport/layout del documento).
+- `ScrollPluginPackage` (scroll/virtualización de viewport).
+- `RenderPluginPackage` (render por página/layers).
+- `InteractionManagerPluginPackage` (routing de interacción).
+- `SelectionPluginPackage` (selección).
+- `AnnotationPluginPackage` con herramientas de firma no-draggable/no-resizable:
+  - `signatureStamp` (`isDraggable=false`, `isResizable=false`)
+  - `signatureInk` (`isDraggable=false`, `isResizable=false`)
+- `SignaturePluginPackage` con `mode=SignatureOnly` (default enterprise).
+- `ZoomPluginPackage` con guardrails:
+  - `maxZoom=4`
+  - `zoomStep=0.1`
+- `ThumbnailPluginPackage`:
+  - `autoScroll=true`
+  - `scrollBehavior="smooth"`
+- `RotatePluginPackage`
+- `PrintPluginPackage`
+- `ExportPluginPackage`
+
+## 10) Observabilidad (sin datos sensibles)
+
+### 10.1 Gating
+La trazabilidad temporal está protegida por `window.__DV_DEBUG__` para evitar ruido en producción.
+
+### 10.2 Reglas
+- No loguear URLs temporales completas ni tokens.
+- Correlación por:
+  - `[DV][attempt:N][seq:S]` (Workbench),
+  - `[DV][attempt:N][req:R]` (Orquestador),
+  - `[DV][visor] ...` (Visor / engine).

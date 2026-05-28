@@ -39,6 +39,13 @@ Escenario B — cancelación:
   - el intento A se cancela silenciosamente;
   - B termina cargando (latest‑wins).
 
+Escenario B2 — overlay/skeleton (documento pesado):
+- Click en un documento grande (p. ej. cientos de MB).
+- Esperado:
+  - aparece overlay/skeleton del visor tras ~100ms (sin flicker en docs pequeños);
+  - el overlay se quita cuando el engine confirma “ready” (documento usable);
+  - si se cancela y se clickea otro documento, el overlay no queda pegado indefinidamente.
+
 Escenario C — action falla:
 - Forzar falla o demora de `ver_documento`.
 - Esperado:

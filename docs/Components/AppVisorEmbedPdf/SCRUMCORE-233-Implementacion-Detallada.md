@@ -102,6 +102,8 @@ Qué buscar:
 ## 3) Invariantes / garantías logradas
 
 - El visor **no acumula** documentos abiertos indefinidamente (close-before-open best‑effort).
-- El Workbench no invoca `visorRef.load(...)` (se usa legacy `fileUrl`), evitando doble carga; el hint textual inicial se removiÃ³ y queda solo skeleton diferido.
+- El Workbench aplica cancel chain best‑effort y controla el estado `loading` del visor (micro-delay ~100ms para evitar flicker).
+- El overlay (skeleton) se renderiza dentro del Visor (no en el Workbench) y está montado a nivel root para aparecer incluso en el primer click (antes de `documentId/effectiveFileUrl`).
+- El skeleton usa Ant Design (`Skeleton`) con animación nativa y líneas full-width para cubrir el viewport del PDF.
 - Cancelación es un estado normal: no se presenta como error.
 - Prompt de contraseña no se dispara por fallos genéricos del engine.
