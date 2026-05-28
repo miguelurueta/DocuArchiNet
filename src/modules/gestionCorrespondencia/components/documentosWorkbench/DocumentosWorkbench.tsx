@@ -138,7 +138,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       setShowViewerLoading(true);
       // setShowViewerLoadingHint(false);
       // (hint removido)
-    }, 250);
+    }, 100);
   }, []);
 
   const stopViewerLoading = useCallback((key: string) => {

@@ -364,6 +364,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
   if (!effectiveFileUrl) {
     return (
       <div className={cx(styles.root, className)} style={style} role="status" aria-label="Zona de documento">
+        {loading ? <FullLoadingOverlay /> : null}
         <EmptyState />
       </div>
     );
@@ -371,6 +372,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
 
   return (
     <div className={cx(styles.root, className)} style={style} role="status" aria-label="Zona de documento">
+      {loading ? <FullLoadingOverlay /> : null}
       <EmbedPDF engine={engineState.engine} plugins={pluginRegistration}>
         <EmbedPdfDocumentHost
           fileUrl={effectiveFileUrl}
@@ -400,6 +402,35 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     </div>
   );
 });
+
+function FullLoadingOverlay() {
+  return (
+    <div className={styles.fullLoadingOverlay} aria-label="Cargando documento" role="status" aria-busy="true">
+      <div className={styles.fullLoadingSkeleton} aria-hidden="true">
+        <div className={styles.fullLoadingSkeletonUniform}>
+          <Skeleton.Button active size="default" shape="circle" />
+          <Skeleton.Button active size="default" shape="round" />
+          <Skeleton.Button active size="default" shape="round" />
+          <Skeleton.Button active size="default" shape="round" />
+          <Skeleton.Button active size="default" shape="circle" />
+          <div className={styles.fullLoadingSkeletonImageWrap}>
+            <Skeleton.Image active />
+          </div>
+          <div className={styles.fullLoadingSkeletonParagraph}>
+            <Skeleton
+              active
+              title={false}
+              paragraph={{
+                rows: 6,
+                width: ["100%", "100%", "100%", "100%", "100%", "100%"],
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function resolve(params: {
   payload: { seq: number; ok: boolean; errors: string[] };
@@ -1169,32 +1200,7 @@ function EmbedPdfLoadedDocumentView(props: {
 
   return (
     <>
-      {loading ? (
-        <div className={styles.fullLoadingOverlay} aria-label="Cargando documento" role="status" aria-busy="true">
-          <div className={styles.fullLoadingSkeleton} aria-hidden="true">
-            <div className={styles.fullLoadingSkeletonUniform}>
-              <Skeleton.Button active size="default" shape="circle" />
-              <Skeleton.Button active size="default" shape="round" />
-              <Skeleton.Button active size="default" shape="round" />
-              <Skeleton.Button active size="default" shape="round" />
-              <Skeleton.Button active size="default" shape="circle" />
-              <div className={styles.fullLoadingSkeletonImageWrap}>
-                <Skeleton.Image active />
-              </div>
-              <div className={styles.fullLoadingSkeletonParagraph}>
-                <Skeleton
-                  active
-                  title={false}
-                  paragraph={{
-                    rows: 6,
-                    width: ["100%", "100%", "100%", "100%", "100%", "100%"],
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {/** overlay se monta en AppVisorEmbedPdf (raíz) para cubrir también primer click */}
       <div className={styles.toolbarShell} role="toolbar" aria-label="Toolbar PDF">
         {loading ? (
           <div className={styles.toolbarSkeleton} aria-label="Cargando toolbar" role="status" aria-busy="true">
