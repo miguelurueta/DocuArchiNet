@@ -127,12 +127,14 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     viewerLoadingShownAtRef.current = null;
     // setShowViewerLoadingHint(true);
     setShowViewerLoading(false);
+    dvLog("[DV][loading] startViewerLoading", { key, at: Date.now() });
     if (viewerLoadingDelayRef.current) window.clearTimeout(viewerLoadingDelayRef.current);
     if (viewerLoadingMinHideRef.current) window.clearTimeout(viewerLoadingMinHideRef.current);
     viewerLoadingMinHideRef.current = null;
     viewerLoadingDelayRef.current = window.setTimeout(() => {
       if (viewerLoadingKeyRef.current !== key) return;
       viewerLoadingShownAtRef.current = Date.now();
+      dvLog("[DV][loading] skeleton ON (after delay)", { key, at: viewerLoadingShownAtRef.current });
       setShowViewerLoading(true);
       // setShowViewerLoadingHint(false);
       // (hint removido)
@@ -143,6 +145,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     if (viewerLoadingKeyRef.current !== key) return;
     if (viewerLoadingDelayRef.current) window.clearTimeout(viewerLoadingDelayRef.current);
     viewerLoadingDelayRef.current = null;
+    dvLog("[DV][loading] stopViewerLoading", { key, at: Date.now(), skeletonShownAt: viewerLoadingShownAtRef.current });
 
     const hintShownAt = null;
     const skeletonShownAt = viewerLoadingShownAtRef.current;
@@ -454,20 +457,6 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       data-testid="documentos-workbench"
     >
       <div className={styles.viewer}>
-        {showViewerLoading ? (
-          <div
-            className={styles.viewerLoadingOverlay}
-            aria-label="Cargando documento"
-            role="status"
-            aria-busy="true"
-          >
-            {showViewerLoading ? (
-              <Skeleton active title paragraph={{ rows: 8 }} />
-            ) : (
-              null
-            )}
-          </div>
-        ) : null}
         {documentViewer.documentoActivo?.viewerKind === "pdf" ? (
           <AppVisorEmbedPdf
             ref={visorRef}

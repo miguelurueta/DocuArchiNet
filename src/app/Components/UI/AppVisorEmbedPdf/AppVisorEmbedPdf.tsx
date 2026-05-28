@@ -5,6 +5,7 @@ import { useScroll } from "@embedpdf/plugin-scroll/react";
 import { Rotate, useRotate } from "@embedpdf/plugin-rotate/react";
 import { useViewportCapability } from "@embedpdf/plugin-viewport/react";
 import { LeftOutlined, RightOutlined, UpOutlined } from "@ant-design/icons";
+import { Skeleton } from "antd";
 import { usePrint } from "@embedpdf/plugin-print/react";
 import { useExport } from "@embedpdf/plugin-export/react";
 import { PdfErrorCode } from "@embedpdf/models";
@@ -1169,7 +1170,30 @@ function EmbedPdfLoadedDocumentView(props: {
   return (
     <>
       {loading ? (
-        <div className={styles.fullLoadingOverlay} aria-label="Cargando documento" role="status" aria-busy="true" />
+        <div className={styles.fullLoadingOverlay} aria-label="Cargando documento" role="status" aria-busy="true">
+          <div className={styles.fullLoadingSkeleton} aria-hidden="true">
+            <div className={styles.fullLoadingSkeletonUniform}>
+              <Skeleton.Button active size="default" shape="circle" />
+              <Skeleton.Button active size="default" shape="round" />
+              <Skeleton.Button active size="default" shape="round" />
+              <Skeleton.Button active size="default" shape="round" />
+              <Skeleton.Button active size="default" shape="circle" />
+              <div className={styles.fullLoadingSkeletonImageWrap}>
+                <Skeleton.Image active />
+              </div>
+              <div className={styles.fullLoadingSkeletonParagraph}>
+                <Skeleton
+                  active
+                  title={false}
+                  paragraph={{
+                    rows: 6,
+                    width: ["100%", "100%", "100%", "100%", "100%", "100%"],
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       ) : null}
       <div className={styles.toolbarShell} role="toolbar" aria-label="Toolbar PDF">
         {loading ? (
