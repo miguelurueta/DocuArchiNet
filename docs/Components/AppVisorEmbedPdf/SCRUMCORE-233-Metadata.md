@@ -17,6 +17,15 @@
 - **Endpoints**: **NO modificados**
 - **Persistencia de URLs/tokens**: **NO** (`localStorage/sessionStorage/IndexedDB/caches persistentes`)
 
+## Evidencia (commits)
+
+- Rama: `feature/SCRUMCORE-233`
+- Últimos commits relevantes:
+  - `ad92b72` — document viewer/orchestrator flow (loaders, blobs, plugins)
+  - `af60438` — mount visor fullLoadingOverlay at root
+  - `91635d1` — visor overlay skeleton (antd) + timing logs
+  - `62961fd` — remove Workbench hint + redundant visor load
+
 ## Evidencia (error raíz)
 
 - **Error real observado** (visor / EmbedPDF DocumentManager):
@@ -32,4 +41,3 @@
 - **Single-active document** en `AppVisorEmbedPdf`: cerrar (best-effort) el documento previo antes de abrir el nuevo.
 - **Latest-wins + cancel chain** desde `DocumentosWorkbench`: `cancelCurrentLoad()` (visor) + `cancelCurrentRequest()` (orquestador).
 - **Gate anti-duplicados** en `DocumentosWorkbench`: evita ejecutar `visorRef.load()` repetidamente para el mismo `(documentId, fileUrl, attemptId/documentKey)`.
-
