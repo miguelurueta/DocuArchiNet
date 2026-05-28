@@ -1,6 +1,14 @@
 export type AppDocumentViewerOrchestratorInput = {
   documentId: number;
   nombreGabinete: string;
+  /**
+   * Identidad del intento (latest-wins). Opcional para compatibilidad.
+   */
+  attemptId?: number;
+  /**
+   * Alternativa estable para correlación (latest-wins). Opcional para compatibilidad.
+   */
+  documentKey?: string;
   context?: {
     idTareaWorkflow?: number;
     radicado?: string;
@@ -15,6 +23,8 @@ export type FirmaCheckStatus = "not_required" | "resolved" | "failed";
 export type DocumentViewerKind = "pdf" | "image" | "unknown";
 
 export type AppDocumentViewerRuntimeState = {
+  attemptId?: number;
+  documentKey?: string;
   documentId: number;
   nombreGabinete: string;
   fileUrl: string | null;

@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import "./app/styles/RequiredTooltip.css";
 import "./shared/Style/global.css"
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import "react-toastify/dist/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { OperationBlockerProvider } from "./app/Components/UI/OperationBlockerContext.tsx";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
