@@ -1,13 +1,22 @@
 ## Why
 
-ACTUALIZACION-COMPONENTE-APPVISOREMBEDPDF. Ver detalle funcional completo del ticket en la seccion Jira Details.
+Algunos PDFs llegan con orientación/rotación metadata no ideal para lectura (portrait/landscape) y el visor no ajusta de forma consistente al viewport. Se requiere un **Auto‑Fit determinístico** que mejore UX sin romper zoom/scroll ni introducir heurísticas.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-234.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se agregará Auto‑Fit determinístico en `AppVisorEmbedPdf`:
+  - fit-to-width / fit-to-page + centering post‑ready,
+  - reaplicación en resize con debounce,
+  - convivencia con zoom manual (“no pelear con el usuario”),
+  - stale‑ignore por `documentId/loadSeq`.
+- Se agregará toggle “Smart Fit” accesible (aria‑pressed) y acción “Reaplicar fit”.
+- Se agregarán pruebas unitarias/integración mínimas y documentación enterprise del feature.
+
+## Non‑Goals
+
+- No auto‑rotate por contenido (OCR/imagen/ML).
+- No cambios de backend/endpoints.
+- No persistencia de URLs temporales/tokens.
 
 ## Jira Details
 
