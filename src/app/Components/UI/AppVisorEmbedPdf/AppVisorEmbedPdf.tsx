@@ -1097,7 +1097,9 @@ function EmbedPdfLoadedDocumentView(props: {
       const normalized = ((nextSteps % 4) + 4) % 4;
       rotationByDocumentKeyRef.current.set(documentKey, normalized);
       try {
-        localStorage.setItem(`appvisor:embedpdf:rotation:${documentKey}`, String(normalized));
+        // Persistimos el DELTA de UI (rotación del plugin) por documento.
+        // No representa la rotación base del PDF (/Rotate). No debe “pisar” la base.
+        localStorage.setItem(`appvisor:embedpdf:rotation_delta:${documentKey}`, String(normalized));
       } catch {
         // no-op (quota/blocked storage)
       }
@@ -1109,7 +1111,7 @@ function EmbedPdfLoadedDocumentView(props: {
     if (!documentKey) return;
     if (rotationByDocumentKeyRef.current.has(documentKey)) return;
     try {
-      const raw = localStorage.getItem(`appvisor:embedpdf:rotation:${documentKey}`);
+      const raw = localStorage.getItem(`appvisor:embedpdf:rotation_delta:${documentKey}`);
       if (!raw) return;
       const parsed = Number.parseInt(raw, 10);
       if (!Number.isFinite(parsed)) return;
@@ -1120,34 +1122,44 @@ function EmbedPdfLoadedDocumentView(props: {
     }
   }, [documentKey, rotationByDocumentKeyRef]);
 
+  // Aplica el DELTA persistido solo después de que el documento está Loaded (base /Rotate ya aplicada por engine).
+  // Guardrail: si el delta es 0, no forzar setRotation(0) (evita “pisar” visualmente en implementaciones donde el
+  // plugin no modela delta puro).
+  const appliedPersistedDeltaRef = useRef<{ documentId: string; documentKey?: string } | null>(null);
+  useEffect(() => {
+    if (!documentKey) return;
+    if (!rotate.provides) return;
+    const already = appliedPersistedDeltaRef.current;
+    if (already && already.documentId === documentId && already.documentKey === documentKey) return;
+
+    const persistedDelta = rotationByDocumentKeyRef.current.get(documentKey);
+    if (typeof persistedDelta !== "number") return;
+    if (persistedDelta === 0) {
+      appliedPersistedDeltaRef.current = { documentId, documentKey };
+      return;
+    }
+
+    // Apply-once por documento cargado. En caso de error, best-effort.
+    try {
+      // Espera un tick para evitar competir con activación interna del engine.
+      const id = window.setTimeout(() => {
+        try {
+          rotate.provides?.setRotation(persistedDelta);
+        } catch {
+          // ignore
+        }
+      }, 0);
+      return () => window.clearTimeout(id);
+    } finally {
+      appliedPersistedDeltaRef.current = { documentId, documentKey };
+    }
+  }, [documentId, documentKey, rotate.provides, rotationByDocumentKeyRef]);
+
   useEffect(() => {
     if (autoFitAppliedRef.current) return;
     const intent = autoFitIntentRef.current;
     if (!intent) return;
     if (intent.documentId !== documentId) return;
-
-    let persistedSteps: number | undefined;
-    if (documentKey) {
-      persistedSteps = rotationByDocumentKeyRef.current.get(documentKey);
-      if (typeof persistedSteps !== "number") {
-        try {
-          const raw = localStorage.getItem(`appvisor:embedpdf:rotation:${documentKey}`);
-          if (raw) {
-            const parsed = Number.parseInt(raw, 10);
-            if (Number.isFinite(parsed)) persistedSteps = ((parsed % 4) + 4) % 4;
-          }
-        } catch {
-          // ignore
-        }
-      }
-    }
-    if (typeof persistedSteps === "number" && persistedSteps !== rotationSteps) {
-      try {
-        rotate.provides?.setRotation(persistedSteps);
-      } catch {
-        // best-effort
-      }
-    }
 
     const result = applyAutoFitOnce({
       documentId,
