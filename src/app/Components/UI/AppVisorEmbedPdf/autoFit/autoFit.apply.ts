@@ -1,6 +1,16 @@
 import type { FitMode } from "./autoFit.math";
 import { computeFitScale } from "./autoFit.math";
 
+function dvDebugEnabled(): boolean {
+  return typeof window !== "undefined" && Boolean((window as any).__DV_DEBUG__);
+}
+
+function dvLog(...args: unknown[]) {
+  if (!dvDebugEnabled()) return;
+  // eslint-disable-next-line no-console
+  console.log(...args);
+}
+
 type ViewportMetrics = {
   clientWidth: number;
   clientHeight: number;
@@ -30,23 +40,46 @@ export function applyAutoFitOnce(params: {
   viewportProvides: ViewportProvides | undefined;
 }): { ok: boolean; appliedZoom?: number } {
   const { documentId, fitMode, rotationSteps, zoomLevel, zoomProvides, viewportProvides } = params;
-  if (!zoomProvides) return { ok: false };
-  if (!viewportProvides) return { ok: false };
+  if (!zoomProvides) {
+    dvLog("[DV][autofit] skipped: no zoomProvides", { documentId, fitMode, rotationSteps, zoomLevel });
+    return { ok: false };
+  }
+  if (!viewportProvides) {
+    dvLog("[DV][autofit] skipped: no viewportProvides", { documentId, fitMode, rotationSteps, zoomLevel });
+    return { ok: false };
+  }
 
   const scope = viewportProvides.forDocument(documentId);
   const m = scope.getMetrics();
 
   const clientWidth = Number(m.clientWidth);
   const clientHeight = Number(m.clientHeight);
-  if (!Number.isFinite(clientWidth) || clientWidth <= 0) return { ok: false };
-  if (!Number.isFinite(clientHeight) || clientHeight <= 0) return { ok: false };
+  if (!Number.isFinite(clientWidth) || clientWidth <= 0) {
+    dvLog("[DV][autofit] skipped: invalid clientWidth", { documentId, clientWidth, clientHeight });
+    return { ok: false };
+  }
+  if (!Number.isFinite(clientHeight) || clientHeight <= 0) {
+    dvLog("[DV][autofit] skipped: invalid clientHeight", { documentId, clientWidth, clientHeight });
+    return { ok: false };
+  }
 
   // Estimación determinística del tamaño base (zoom=1):
   // Si el engine expone scrollWidth/scrollHeight del contenido renderizado,
   // se puede normalizar por zoom actual.
   const scrollWidth = typeof m.scrollWidth === "number" ? m.scrollWidth : undefined;
   const scrollHeight = typeof m.scrollHeight === "number" ? m.scrollHeight : undefined;
-  if (!scrollWidth || !scrollHeight) return { ok: false };
+  if (!scrollWidth || !scrollHeight) {
+    dvLog("[DV][autofit] skipped: missing scroll metrics", {
+      documentId,
+      clientWidth,
+      clientHeight,
+      scrollWidth,
+      scrollHeight,
+      zoomLevel,
+      rotationSteps,
+    });
+    return { ok: false };
+  }
 
   const baseZoom = Number.isFinite(zoomLevel) && zoomLevel > 0 ? zoomLevel : 1;
   let baseContentWidth = scrollWidth / baseZoom;
@@ -73,5 +106,18 @@ export function applyAutoFitOnce(params: {
 
   // Nota: el centering exacto depende del engine; el zoom con centro reduce “anclaje” top/left.
   // No forzamos scrollTo adicional para evitar saltos.
+  dvLog("[DV][autofit] apply", {
+    documentId,
+    fitMode,
+    rotationSteps: normalizedSteps,
+    zoomLevel,
+    clientWidth,
+    clientHeight,
+    scrollWidth,
+    scrollHeight,
+    baseContentWidth,
+    baseContentHeight,
+    targetZoom,
+  });
   return { ok: true, appliedZoom: targetZoom };
 }
