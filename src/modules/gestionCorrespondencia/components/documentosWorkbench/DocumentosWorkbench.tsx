@@ -397,7 +397,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             documentId: result.documentResolveRequest.IdDocumento,
             nombreGabinete: result.documentResolveRequest.NombreGabinete,
             attemptId,
-            documentKey: `${result.documentResolveRequest.NombreGabinete}:${result.documentResolveRequest.IdDocumento}:${attemptId}`,
+            // Clave estable por documento (sin attemptId) para features por-documento en runtime (p.ej. rotación).
+            documentKey: `${result.documentResolveRequest.NombreGabinete}:${result.documentResolveRequest.IdDocumento}`,
             context: typeof idTareaWf === "number" ? { idTareaWorkflow: idTareaWf } : undefined,
           });
         } catch (err) {

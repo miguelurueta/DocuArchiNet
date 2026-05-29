@@ -475,11 +475,12 @@ function resolve(params: {
 function EmbedPdfDocumentHost(props: {
   fileUrl: string;
   managedSeq: number;
+  documentKey?: string;
   loading?: boolean;
   permissionsEffective: ViewerEffectivePermissions;
   onManagedOpenResult(payload: { seq: number; ok: boolean; errors: string[] }): void;
 }) {
-  const { fileUrl, managedSeq, loading = false, permissionsEffective, onManagedOpenResult } = props;
+  const { fileUrl, managedSeq, documentKey, loading = false, permissionsEffective, onManagedOpenResult } = props;
   const { provides } = useDocumentManagerCapability();
   const { activeDocumentId } = useActiveDocument();
   const fitMode: FitMode = "width";
@@ -493,6 +494,7 @@ function EmbedPdfDocumentHost(props: {
   const openedDocumentIdRef = useRef<string | null>(null);
   const autoFitIntentRef = useRef<{ documentId: string; seq: number } | null>(null);
   const autoFitAppliedRef = useRef(false);
+  const rotationByDocumentKeyRef = useRef<Map<string, number>>(new Map());
   const latestManagedSeqRef = useRef(managedSeq);
   const lastOpenedRef = useRef<
     { url: string; password: string | null; attempt: number } | null
@@ -701,6 +703,8 @@ function EmbedPdfDocumentHost(props: {
           fitMode={fitMode}
           autoFitIntentRef={autoFitIntentRef}
           autoFitAppliedRef={autoFitAppliedRef}
+          documentKey={documentKey}
+          rotationByDocumentKeyRef={rotationByDocumentKeyRef}
           passwordPromptOpen={passwordPromptOpen}
           invalidPassword={invalidPassword}
           isSubmittingPassword={isSubmittingPassword}
@@ -723,6 +727,8 @@ function EmbedPdfDocumentStateView({
   fitMode,
   autoFitIntentRef,
   autoFitAppliedRef,
+  documentKey,
+  rotationByDocumentKeyRef,
   passwordPromptOpen,
   invalidPassword,
   isSubmittingPassword,
@@ -739,6 +745,8 @@ function EmbedPdfDocumentStateView({
   fitMode: FitMode;
   autoFitIntentRef: MutableRefObject<{ documentId: string; seq: number } | null>;
   autoFitAppliedRef: MutableRefObject<boolean>;
+  documentKey?: string;
+  rotationByDocumentKeyRef: MutableRefObject<Map<string, number>>;
   passwordPromptOpen: boolean;
   invalidPassword: boolean;
   isSubmittingPassword: boolean;
@@ -761,6 +769,8 @@ function EmbedPdfDocumentStateView({
           fitMode={fitMode}
           autoFitIntentRef={autoFitIntentRef}
           autoFitAppliedRef={autoFitAppliedRef}
+          documentKey={documentKey}
+          rotationByDocumentKeyRef={rotationByDocumentKeyRef}
         />
         {passwordPromptOpen ? (
           <AppPdfPasswordPrompt
@@ -797,8 +807,10 @@ function EmbedPdfLoadedDocumentView(props: {
   fitMode: FitMode;
   autoFitIntentRef: MutableRefObject<{ documentId: string; seq: number } | null>;
   autoFitAppliedRef: MutableRefObject<boolean>;
+  documentKey?: string;
+  rotationByDocumentKeyRef: MutableRefObject<Map<string, number>>;
 }) {
-  const { documentId, permissionsEffective, loading = false, fitMode, autoFitIntentRef, autoFitAppliedRef } = props;
+  const { documentId, permissionsEffective, loading = false, fitMode, autoFitIntentRef, autoFitAppliedRef, documentKey, rotationByDocumentKeyRef } = props;
   const zoom = useZoom(documentId);
   const zoomLevel = typeof zoom.state.currentZoomLevel === "number" ? zoom.state.currentZoomLevel : 1;
   const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
@@ -1078,11 +1090,28 @@ function EmbedPdfLoadedDocumentView(props: {
     return { vx: m.clientWidth / 2, vy: m.clientHeight / 2 };
   }, [viewport.provides, documentId]);
 
+  const persistRotationSteps = useCallback(
+    (nextSteps: number) => {
+      if (!documentKey) return;
+      rotationByDocumentKeyRef.current.set(documentKey, nextSteps);
+    },
+    [documentKey, rotationByDocumentKeyRef],
+  );
+
   useEffect(() => {
     if (autoFitAppliedRef.current) return;
     const intent = autoFitIntentRef.current;
     if (!intent) return;
     if (intent.documentId !== documentId) return;
+
+    const persistedSteps = documentKey ? rotationByDocumentKeyRef.current.get(documentKey) : undefined;
+    if (typeof persistedSteps === "number" && persistedSteps !== rotationSteps) {
+      try {
+        rotate.provides?.setRotation(persistedSteps);
+      } catch {
+        // best-effort
+      }
+    }
 
     const result = applyAutoFitOnce({
       documentId,
@@ -1162,6 +1191,16 @@ function EmbedPdfLoadedDocumentView(props: {
   const onRotateLeft = useCallback(() => rotate.provides?.rotateBackward(), [rotate.provides]);
   const onRotateRight = useCallback(() => rotate.provides?.rotateForward(), [rotate.provides]);
   const onResetRotation = useCallback(() => rotate.provides?.setRotation(0), [rotate.provides]);
+
+  const onRotateLeftPersisted = useCallback(() => {
+    onRotateLeft();
+    persistRotationSteps(((rotationSteps + 3) % 4 + 4) % 4);
+  }, [onRotateLeft, persistRotationSteps, rotationSteps]);
+
+  const onRotateRightPersisted = useCallback(() => {
+    onRotateRight();
+    persistRotationSteps(((rotationSteps + 1) % 4 + 4) % 4);
+  }, [onRotateRight, persistRotationSteps, rotationSteps]);
 
   const onToggleSignatureModal = useCallback(() => {
     // UX: si estaba bloqueado y el usuario intenta adjuntar otra firma, desbloquear automÃ¡ticamente.
@@ -1266,8 +1305,8 @@ function EmbedPdfLoadedDocumentView(props: {
             onToggleThumbnails={onToggleThumbnails}
             isThumbnailOpen={isThumbnailOpen}
             isZoomDisabled={isZoomDisabled}
-            onRotateLeft={onRotateLeft}
-            onRotateRight={onRotateRight}
+            onRotateLeft={onRotateLeftPersisted}
+            onRotateRight={onRotateRightPersisted}
             onToggleSignatureModal={onToggleSignatureModal}
             isSignatureModalOpen={isSignatureModalOpen}
             isSignatureDisabled={!permissionsEffective.allowSignaturePlacement}
