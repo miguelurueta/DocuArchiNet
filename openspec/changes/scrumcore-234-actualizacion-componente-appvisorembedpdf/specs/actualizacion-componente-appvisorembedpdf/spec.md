@@ -20,14 +20,17 @@ Reglas:
 ### R2 — No pelear con el usuario (zoom manual)
 **GIVEN** que el usuario realizó zoom manual (wheel/pinch/botones)  
 **WHEN** ocurre un resize del viewport o un re-render  
-**THEN** el visor NO reaplica auto‑fit automáticamente hasta que:
-- el usuario reactive “Smart Fit”, o
-- se cargue un documento distinto (nueva sesión de auto‑fit).
+**THEN** el visor NO reaplica auto‑fit automáticamente durante esa misma sesión de documento.
+
+Regla:
+- El auto‑fit es **automático solo una vez** post‑ready por documento (y opcionalmente post‑ready tras rotación manual, si se decide), pero no se re‑auto‑aplica por resize después de interacción manual.
 
 ### R3 — Resize handling (estable, sin loops)
-**GIVEN** que `smartFitEnabled=true` y `userZoomDirty=false`  
+**GIVEN** que el documento ya fue auto‑ajustado post‑ready  
 **WHEN** cambia el tamaño del viewport  
-**THEN** el visor recalcula y reaplica auto‑fit con debounce (50–100ms) sin provocar loops (no re‑encadenar fit indefinidamente).
+**THEN** el visor NO debe forzar re‑auto‑fit si el usuario ya interactuó (zoom/scroll) y debe evitar loops.
+
+Nota: si producto requiere re‑fit en resize, debe ser un ticket separado con una regla de UX explícita (para no romper intención del usuario).
 
 ### R4 — Rotación
 **GIVEN** un documento con rotación metadata por página  
@@ -51,8 +54,7 @@ El sistema SHALL mantener:
 ## 3) Criterios de aceptación
 
 - AC1: Al cargar un PDF, se aplica auto‑fit post‑ready (cuando `smartFitEnabled=true`).
-- AC2: Si el usuario hace zoom manual, resize no re‑auto‑fit (a menos que reactive Smart Fit).
-- AC3: No hay loops ni flicker en resize.
+- AC2: Si el usuario hace zoom manual, resize no re‑auto‑fit (sin controles adicionales en UI).
+- AC3: No hay loops ni flicker.
 - AC4: No se introducen heurísticas OCR/imagen/ML.
 - AC5: Pruebas unitarias para `computeFitScale` y guards; pruebas de integración básicas del flujo.
-

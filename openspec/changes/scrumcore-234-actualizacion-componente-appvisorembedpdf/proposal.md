@@ -6,10 +6,9 @@ Algunos PDFs llegan con orientación/rotación metadata no ideal para lectura (p
 
 - Se agregará Auto‑Fit determinístico en `AppVisorEmbedPdf`:
   - fit-to-width / fit-to-page + centering post‑ready,
-  - reaplicación en resize con debounce,
-  - convivencia con zoom manual (“no pelear con el usuario”),
+  - apply-once post‑ready por documento,
+  - convivencia con zoom manual (“no pelear con el usuario”, sin controles adicionales en UI),
   - stale‑ignore por `documentId/loadSeq`.
-- Se agregará toggle “Smart Fit” accesible (aria‑pressed) y acción “Reaplicar fit”.
 - Se agregarán pruebas unitarias/integración mínimas y documentación enterprise del feature.
 
 ## Non‑Goals

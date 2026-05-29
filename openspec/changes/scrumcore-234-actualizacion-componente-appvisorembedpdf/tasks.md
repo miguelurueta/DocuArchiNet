@@ -2,7 +2,7 @@
 
 - [ ] 1.1 Confirmar alcance: auto‑fit determinístico (NO heurísticas OCR/imagen/ML).
 - [ ] 1.2 Definir política exacta: `fitMode` default (`width` vs `page`) + cuándo reaplicar en resize.
-- [ ] 1.3 Acordar “no pelear con el usuario”: criterio de `userZoomDirty` y cuándo se resetea (nueva carga, toggle).
+- [ ] 1.3 Acordar “no pelear con el usuario”: auto‑fit apply-once post‑ready + criterio de `userZoomDirty` (sin toggle/manual UI).
 - [ ] 1.4 Identificar APIs reales disponibles en EmbedPDF (zoom/viewport/page size) para evitar supuestos.
 
 ## 2) Diseño (artefactos)
@@ -17,10 +17,9 @@
 
 - [ ] 3.1 Crear módulo `src/app/Components/UI/AppVisorEmbedPdf/autoFit/` (types/math/controller/apply).
 - [ ] 3.2 Integrar auto‑fit post‑ready en `AppVisorEmbedPdf` (solo una vez por load si aplica).
-- [ ] 3.3 Integrar handler de resize (debounce 50–100ms) que reaplica solo si `smartFitEnabled && !userZoomDirty`.
+- [ ] 3.3 Integrar handler de resize (debounce 50–100ms) solo para métricas/observabilidad; NO re‑auto‑fit por defecto.
 - [ ] 3.4 Instrumentar tracking de “zoom manual” para setear `userZoomDirty` (wheel/pinch/buttons) sin loops.
-- [ ] 3.5 Agregar toggle UI “Smart Fit” (aria‑pressed) y acción “Reaplicar fit”.
-- [ ] 3.6 Stale‑safe: ignorar auto‑fit si cambió `documentId/loadSeq` o si se canceló el load.
+- [ ] 3.5 Stale‑safe: ignorar auto‑fit si cambió `documentId/loadSeq` o si se canceló el load.
 
 ## 4) Pruebas
 

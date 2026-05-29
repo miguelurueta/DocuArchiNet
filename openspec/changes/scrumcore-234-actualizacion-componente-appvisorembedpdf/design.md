@@ -7,7 +7,7 @@ Este change implementa **Auto‑Fit determinístico** en `AppVisorEmbedPdf` sin 
 ## Objetivo (resumen)
 
 - Aplicar auto‑fit (fit-to-width / fit-to-page) + centrado al cargar el documento (post‑ready).
-- Reaplicar auto‑fit en resize solo si el usuario no ha hecho zoom manual (no “pelear” con el usuario).
+- Auto‑fit es automático y **se aplica una vez** post‑ready por documento (no es un flujo manual).
 - Respetar rotación metadata real del PDF reportada por el engine.
 - Mantener compatibilidad con el flujo actual (cancel chain/latest‑wins, loaders, plugins).
 - No modificar backend/endpoints ni introducir OCR/imagen/ML.
@@ -19,11 +19,11 @@ El auto‑fit se ejecuta **solo** después del handshake “ready” del engine 
 
 ### D2 — Estado mínimo de UX
 Se usa un estado mínimo:
-- `smartFitEnabled` (default: ON por documento nuevo).
-- `userZoomDirty` (true si el usuario hace zoom manual: wheel/pinch/botones).
+- `autoFitApplied` (para asegurar “apply once” post‑ready).
+- `userZoomDirty` (true si el usuario hace zoom manual: wheel/pinch/botones; evita re‑auto‑fit).
 
 Regla:
-- Auto‑fit automático solo si `smartFitEnabled && !userZoomDirty`.
+- Auto‑fit post‑ready solo si `!autoFitApplied` (apply once) y `!userZoomDirty`.
 
 ### D3 — Cálculo determinístico (sin heurísticas)
 `fitScale` se calcula con:
@@ -50,8 +50,7 @@ Crear `src/app/Components/UI/AppVisorEmbedPdf/autoFit/`:
 
 ### Puntos de integración en `AppVisorEmbedPdf`
 - Post‑ready: `applyAutoFitIfAllowed()`.
-- Resize: `applyAutoFitIfAllowed()` (debounced) si está permitido.
-- Toolbar: toggle “Smart Fit” (`aria-pressed`) + acción “Reaplicar”.
+- Resize: no forzar re‑auto‑fit por defecto (para no romper intención del usuario).
 
 ## Riesgos y mitigaciones
 
@@ -64,4 +63,3 @@ Crear `src/app/Components/UI/AppVisorEmbedPdf/autoFit/`:
 
 - Auto‑rotate por “contenido” (OCR/imagen/ML).
 - Persistencia cross‑session del modo de fit o rotación.
-
