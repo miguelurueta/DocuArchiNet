@@ -1087,6 +1087,7 @@ function EmbedPdfLoadedDocumentView(props: {
     const result = applyAutoFitOnce({
       documentId,
       fitMode,
+      rotationSteps,
       zoomLevel,
       zoomProvides: zoom.provides ?? undefined,
       viewportProvides: viewport.provides ?? undefined,

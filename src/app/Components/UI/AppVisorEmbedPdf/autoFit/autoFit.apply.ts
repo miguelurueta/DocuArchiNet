@@ -24,11 +24,12 @@ type ZoomProvides = {
 export function applyAutoFitOnce(params: {
   documentId: string;
   fitMode: FitMode;
+  rotationSteps?: number;
   zoomLevel: number;
   zoomProvides: ZoomProvides | undefined;
   viewportProvides: ViewportProvides | undefined;
 }): { ok: boolean; appliedZoom?: number } {
-  const { documentId, fitMode, zoomLevel, zoomProvides, viewportProvides } = params;
+  const { documentId, fitMode, rotationSteps, zoomLevel, zoomProvides, viewportProvides } = params;
   if (!zoomProvides) return { ok: false };
   if (!viewportProvides) return { ok: false };
 
@@ -48,8 +49,18 @@ export function applyAutoFitOnce(params: {
   if (!scrollWidth || !scrollHeight) return { ok: false };
 
   const baseZoom = Number.isFinite(zoomLevel) && zoomLevel > 0 ? zoomLevel : 1;
-  const baseContentWidth = scrollWidth / baseZoom;
-  const baseContentHeight = scrollHeight / baseZoom;
+  let baseContentWidth = scrollWidth / baseZoom;
+  let baseContentHeight = scrollHeight / baseZoom;
+
+  // Si la rotación metadata es 90/270, el “ancho efectivo” y “alto efectivo”
+  // se invierten para calcular fit-to-width/page de forma determinística.
+  const steps = typeof rotationSteps === "number" ? rotationSteps : 0;
+  const normalizedSteps = ((steps % 4) + 4) % 4;
+  if (normalizedSteps === 1 || normalizedSteps === 3) {
+    const tmp = baseContentWidth;
+    baseContentWidth = baseContentHeight;
+    baseContentHeight = tmp;
+  }
 
   const targetZoom = computeFitScale({
     viewport: { width: clientWidth, height: clientHeight },
@@ -64,4 +75,3 @@ export function applyAutoFitOnce(params: {
   // No forzamos scrollTo adicional para evitar saltos.
   return { ok: true, appliedZoom: targetZoom };
 }
-
