@@ -1,4 +1,5 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import type { MutableRefObject } from "react";
 import { useZoom } from "@embedpdf/plugin-zoom/react";
 import { ThumbnailsPane, ThumbImg } from "@embedpdf/plugin-thumbnail/react";
 import { useScroll } from "@embedpdf/plugin-scroll/react";
@@ -59,6 +60,8 @@ import {
   resolveCodigoImplementacion,
 } from "./AppVisorEmbedPdf.permissions";
 import { fetchMisPermisosVisorPdf } from "./AppVisorEmbedPdf.service";
+import { applyAutoFitOnce } from "./autoFit/autoFit.apply";
+import type { FitMode } from "./autoFit/autoFit.math";
 
 function cx(...parts: Array<string | undefined>) {
   return parts.filter(Boolean).join(" ");
@@ -479,6 +482,7 @@ function EmbedPdfDocumentHost(props: {
   const { fileUrl, managedSeq, loading = false, permissionsEffective, onManagedOpenResult } = props;
   const { provides } = useDocumentManagerCapability();
   const { activeDocumentId } = useActiveDocument();
+  const fitMode: FitMode = "width";
 
   const [password, setPassword] = useState<string | null>(null);
   const [passwordAttempt, setPasswordAttempt] = useState(0);
@@ -487,6 +491,8 @@ function EmbedPdfDocumentHost(props: {
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
 
   const openedDocumentIdRef = useRef<string | null>(null);
+  const autoFitIntentRef = useRef<{ documentId: string; seq: number } | null>(null);
+  const autoFitAppliedRef = useRef(false);
   const latestManagedSeqRef = useRef(managedSeq);
   const lastOpenedRef = useRef<
     { url: string; password: string | null; attempt: number } | null
@@ -506,6 +512,8 @@ function EmbedPdfDocumentHost(props: {
     setIsSubmittingPassword(false);
     lastOpenedRef.current = null;
     lastAttemptHadPasswordRef.current = false;
+    autoFitIntentRef.current = null;
+    autoFitAppliedRef.current = false;
   }, [fileUrl]);
 
   useEffect(() => {
@@ -570,6 +578,8 @@ function EmbedPdfDocumentHost(props: {
             setPasswordPromptOpen(false);
             setInvalidPassword(false);
             dvLog("[DV][visor]", "engine ready (task ok)", { managedSeq });
+            autoFitIntentRef.current = { documentId: response.documentId, seq: managedSeq };
+            autoFitAppliedRef.current = false;
             onManagedOpenResult({ seq: managedSeq, ok: true, errors: [] });
           },
           () => {
@@ -688,6 +698,9 @@ function EmbedPdfDocumentHost(props: {
           isLoading={isLoading}
           loading={loading}
           permissionsEffective={permissionsEffective}
+          fitMode={fitMode}
+          autoFitIntentRef={autoFitIntentRef}
+          autoFitAppliedRef={autoFitAppliedRef}
           passwordPromptOpen={passwordPromptOpen}
           invalidPassword={invalidPassword}
           isSubmittingPassword={isSubmittingPassword}
@@ -707,6 +720,9 @@ function EmbedPdfDocumentStateView({
   isLoading,
   loading = false,
   permissionsEffective,
+  fitMode,
+  autoFitIntentRef,
+  autoFitAppliedRef,
   passwordPromptOpen,
   invalidPassword,
   isSubmittingPassword,
@@ -720,6 +736,9 @@ function EmbedPdfDocumentStateView({
   isLoading: boolean;
   loading?: boolean;
   permissionsEffective: ViewerEffectivePermissions;
+  fitMode: FitMode;
+  autoFitIntentRef: MutableRefObject<{ documentId: string; seq: number } | null>;
+  autoFitAppliedRef: MutableRefObject<boolean>;
   passwordPromptOpen: boolean;
   invalidPassword: boolean;
   isSubmittingPassword: boolean;
@@ -739,6 +758,9 @@ function EmbedPdfDocumentStateView({
           documentId={documentId}
           permissionsEffective={permissionsEffective}
           loading={loading}
+          fitMode={fitMode}
+          autoFitIntentRef={autoFitIntentRef}
+          autoFitAppliedRef={autoFitAppliedRef}
         />
         {passwordPromptOpen ? (
           <AppPdfPasswordPrompt
@@ -772,8 +794,11 @@ function EmbedPdfLoadedDocumentView(props: {
   documentId: string;
   permissionsEffective: ViewerEffectivePermissions;
   loading?: boolean;
+  fitMode: FitMode;
+  autoFitIntentRef: MutableRefObject<{ documentId: string; seq: number } | null>;
+  autoFitAppliedRef: MutableRefObject<boolean>;
 }) {
-  const { documentId, permissionsEffective, loading = false } = props;
+  const { documentId, permissionsEffective, loading = false, fitMode, autoFitIntentRef, autoFitAppliedRef } = props;
   const zoom = useZoom(documentId);
   const zoomLevel = typeof zoom.state.currentZoomLevel === "number" ? zoom.state.currentZoomLevel : 1;
   const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
@@ -1052,6 +1077,26 @@ function EmbedPdfLoadedDocumentView(props: {
     if (!m) return undefined;
     return { vx: m.clientWidth / 2, vy: m.clientHeight / 2 };
   }, [viewport.provides, documentId]);
+
+  useEffect(() => {
+    if (autoFitAppliedRef.current) return;
+    const intent = autoFitIntentRef.current;
+    if (!intent) return;
+    if (intent.documentId !== documentId) return;
+
+    const result = applyAutoFitOnce({
+      documentId,
+      fitMode,
+      zoomLevel,
+      zoomProvides: zoom.provides ?? undefined,
+      viewportProvides: viewport.provides ?? undefined,
+    });
+
+    if (!result.ok) return;
+    autoFitAppliedRef.current = true;
+    autoFitIntentRef.current = null;
+    dvLog("[DV][visor]", "autoFit applied", { documentId, fitMode, appliedZoom: result.appliedZoom });
+  }, [documentId, fitMode, viewport.provides, zoom.provides, zoomLevel, autoFitAppliedRef, autoFitIntentRef]);
 
   const onZoomIn = useCallback(() => {
     if (isZoomDisabled) return;
