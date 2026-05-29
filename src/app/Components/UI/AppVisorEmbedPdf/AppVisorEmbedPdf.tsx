@@ -380,6 +380,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
         <EmbedPdfDocumentHost
           fileUrl={effectiveFileUrl}
           managedSeq={loadSeqRef.current}
+          documentKey={lastLoadIdentityRef.current?.documentKey}
           loading={loading}
           permissionsEffective={permissionsForRender}
           onManagedOpenResult={(payload) => {
@@ -1093,10 +1094,31 @@ function EmbedPdfLoadedDocumentView(props: {
   const persistRotationSteps = useCallback(
     (nextSteps: number) => {
       if (!documentKey) return;
-      rotationByDocumentKeyRef.current.set(documentKey, nextSteps);
+      const normalized = ((nextSteps % 4) + 4) % 4;
+      rotationByDocumentKeyRef.current.set(documentKey, normalized);
+      try {
+        localStorage.setItem(`appvisor:embedpdf:rotation:${documentKey}`, String(normalized));
+      } catch {
+        // no-op (quota/blocked storage)
+      }
     },
     [documentKey, rotationByDocumentKeyRef],
   );
+
+  useEffect(() => {
+    if (!documentKey) return;
+    if (rotationByDocumentKeyRef.current.has(documentKey)) return;
+    try {
+      const raw = localStorage.getItem(`appvisor:embedpdf:rotation:${documentKey}`);
+      if (!raw) return;
+      const parsed = Number.parseInt(raw, 10);
+      if (!Number.isFinite(parsed)) return;
+      const normalized = ((parsed % 4) + 4) % 4;
+      rotationByDocumentKeyRef.current.set(documentKey, normalized);
+    } catch {
+      // ignore
+    }
+  }, [documentKey, rotationByDocumentKeyRef]);
 
   useEffect(() => {
     if (autoFitAppliedRef.current) return;
@@ -1104,7 +1126,21 @@ function EmbedPdfLoadedDocumentView(props: {
     if (!intent) return;
     if (intent.documentId !== documentId) return;
 
-    const persistedSteps = documentKey ? rotationByDocumentKeyRef.current.get(documentKey) : undefined;
+    let persistedSteps: number | undefined;
+    if (documentKey) {
+      persistedSteps = rotationByDocumentKeyRef.current.get(documentKey);
+      if (typeof persistedSteps !== "number") {
+        try {
+          const raw = localStorage.getItem(`appvisor:embedpdf:rotation:${documentKey}`);
+          if (raw) {
+            const parsed = Number.parseInt(raw, 10);
+            if (Number.isFinite(parsed)) persistedSteps = ((parsed % 4) + 4) % 4;
+          }
+        } catch {
+          // ignore
+        }
+      }
+    }
     if (typeof persistedSteps === "number" && persistedSteps !== rotationSteps) {
       try {
         rotate.provides?.setRotation(persistedSteps);
