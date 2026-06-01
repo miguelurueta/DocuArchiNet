@@ -30,6 +30,6 @@
 
 ## 5) Documentación y cierre
 
-- [ ] 5.1 Crear docs enterprise en `docs/Components/AppTable/Auto-Fit/` (estructura SCRUMCORE‑234).
-- [ ] 5.2 Registrar evidencia de pruebas ejecutadas (comandos + resultados).
+- [x] 5.1 Crear docs enterprise en `docs/Components/AppTable/Auto-Fit/` (estructura SCRUMCORE‑234).
+- [x] 5.2 Registrar evidencia de pruebas ejecutadas (comandos + resultados).
 - [ ] 5.3 `opsxj:archive` + PR + cierre Jira cuando esté mergeado.

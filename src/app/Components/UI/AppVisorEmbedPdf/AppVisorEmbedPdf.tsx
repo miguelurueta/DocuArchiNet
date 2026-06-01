@@ -14,7 +14,11 @@ import { AnnotationLayer } from "@embedpdf/plugin-annotation/react";
 import { PagePointerProvider } from "@embedpdf/plugin-interaction-manager/react";
 import { useAnnotation, useAnnotationCapability } from "@embedpdf/plugin-annotation/react";
 import { LockModeType } from "@embedpdf/plugin-annotation";
-import { useSelectionCapability } from "@embedpdf/plugin-selection/react";
+import {
+  SelectionLayer,
+  useSelectionCapability,
+  type SelectionSelectionMenuProps,
+} from "@embedpdf/plugin-selection/react";
 import {
   deserializeEntries,
   serializeEntries,
@@ -908,18 +912,86 @@ function EmbedPdfLoadedDocumentView(props: {
 
   useEffect(() => {
     if (!selection.provides) return;
-    // Mantener plugin `selection` (requerido por `annotation`) pero desactivar su comportamiento
-    // para evitar overlays/hitboxes de texto.
+    // Activar selección de texto en PDFs.
     selection.provides.enableForMode(
       "default",
       {
-        enableSelection: false,
+        enableSelection: true,
+        // Selección tipo navegador: sin "marquee" overlay al arrastrar.
         enableMarquee: false,
-        showSelectionRects: false,
+        showSelectionRects: true,
         showMarqueeRects: false,
       },
       documentId,
     );
+  }, [selection.provides, documentId]);
+
+  const selectionMenu = useCallback(
+    (props: SelectionSelectionMenuProps) => {
+      const { rect, menuWrapperProps, placement } = props;
+      const top = placement.suggestTop ? -40 : rect.size.height + 8;
+      return (
+        <div {...menuWrapperProps}>
+          <div
+            style={{
+              position: "absolute",
+              top,
+              pointerEvents: "auto",
+              cursor: "default",
+            }}
+          >
+            <button
+              type="button"
+              className={styles.selectionCopyButton}
+              onClick={() => {
+                try {
+                  const scope = selection.provides?.forDocument(documentId);
+                  scope?.copyToClipboard?.();
+                  scope?.clear?.();
+                } catch {
+                  // ignore
+                }
+              }}
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+      );
+    },
+    [documentId, selection.provides],
+  );
+
+  // Copiar selección (tipo demo): intercepta Ctrl/Cmd+C cuando existe selección del plugin
+  // y delega a `copyToClipboard()` para evitar depender del native selection del DOM.
+  const hasSelectionRef = useRef(false);
+  useEffect(() => {
+    const provides = selection.provides;
+    if (!provides) return;
+    const scope = provides.forDocument(documentId);
+
+    const off = scope.onSelectionChange?.((sel: unknown) => {
+      hasSelectionRef.current = Boolean(sel);
+    });
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      const isCopy = (event.ctrlKey || event.metaKey) && (event.key === "c" || event.key === "C");
+      if (!isCopy) return;
+      try {
+        if (!hasSelectionRef.current && !scope.getState().selection) return;
+        event.preventDefault();
+        scope.copyToClipboard?.();
+      } catch {
+        // ignore
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown, { capture: true });
+    return () => {
+      window.removeEventListener("keydown", onKeyDown, { capture: true } as any);
+      off?.();
+      hasSelectionRef.current = false;
+    };
   }, [selection.provides, documentId]);
 
   const getSelectedSignature = useCallback(() => {
@@ -1482,20 +1554,58 @@ function EmbedPdfLoadedDocumentView(props: {
         >
             <Scroller
               documentId={documentId}
-            renderPage={({ pageIndex, width, height, rotatedWidth, rotatedHeight }) => (
+            renderPage={({ pageIndex, width, height, rotatedWidth, rotatedHeight }) => {
+              const slotWidth = Math.ceil(rotatedWidth);
+              const slotHeight = Math.ceil(rotatedHeight);
+              const baseWidth = Math.ceil(width);
+              const baseHeight = Math.ceil(height);
+              const slotLooksRotated = slotWidth !== baseWidth || slotHeight !== baseHeight;
+
+              return (
               <div
                 className={styles.pageLayer}
                 // `width/height` aquÃ­ representan el "slot" calculado por el Scroll plugin
                 // para la pÃ¡gina actual (ya considera rotaciÃ³n/escala).
                 style={{
-                  width: Math.ceil(rotationSteps % 2 === 1 ? rotatedWidth : width),
-                  // Guardrail: algunos PDFs/escala generan rounding y el slot queda 1-2px corto,
-                  // Mantener el slot exactamente como lo calcula EmbedPDF para evitar
-                  // diferencias visuales vs. rotaciÃ³n 0 y evitar solapamientos.
-                  height: Math.ceil(rotationSteps % 2 === 1 ? rotatedHeight : height),
+                  width: slotWidth,
+                  height: slotHeight,
+                  // Evitar clipping cuando el slot efectivo es rotado (/Rotate) y el contenido se envuelve en <Rotate>.
+                  // Mantener visible el contenido mientras el engine termina de calcular y pintar.
+                  overflow: "visible",
                 }}
               >
-                {rotationSteps === 0 ? (
+                {rotationSteps === 0 && slotLooksRotated ? (
+                  <Rotate
+                    documentId={documentId}
+                    pageIndex={pageIndex}
+                    // Para 90/270 el clipping suele ocurrir en el eje "alto" del contenedor rotado.
+                    // Reusamos la misma estrategia del branch normal de <Rotate>: el slot es (rotatedW x rotatedH),
+                    // pero el contenedor rotado necesita suficiente "alto base" para que el contenido portrait no se recorte.
+                    style={{ width: slotWidth + 2, height: baseHeight + 2 }}
+                  >
+                    <div style={{ width: baseWidth, height: baseHeight }}>
+                  <PagePointerProvider
+                    documentId={documentId}
+                    pageIndex={pageIndex}
+                    scale={zoomLevel}
+                    rotation={1 as any}
+                  >
+                    <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                    <SelectionLayer
+                      documentId={documentId}
+                      pageIndex={pageIndex}
+                      selectionMenu={selectionMenu}
+                    />
+                    <AnnotationLayer
+                      documentId={documentId}
+                      pageIndex={pageIndex}
+                      scale={zoomLevel}
+                      rotation={1 as any}
+                    />
+                  </PagePointerProvider>
+                    </div>
+                  </Rotate>
+                ) : rotationSteps === 0 ? (
                   <PagePointerProvider
                     documentId={documentId}
                     pageIndex={pageIndex}
@@ -1503,6 +1613,11 @@ function EmbedPdfLoadedDocumentView(props: {
                     rotation={rotationRaw as any}
                   >
                     <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                    <SelectionLayer
+                      documentId={documentId}
+                      pageIndex={pageIndex}
+                      selectionMenu={selectionMenu}
+                    />
                     <AnnotationLayer
                       documentId={documentId}
                       pageIndex={pageIndex}
@@ -1525,7 +1640,12 @@ function EmbedPdfLoadedDocumentView(props: {
                             // Usamos el alto base (`height`) para evitar recorte del contenido rotado.
                             height: Math.ceil(height),
                           }
-                        : undefined
+                        : {
+                            // Para 180 (y 0 en teoría, aunque este branch no corre en 0),
+                            // el slot no cambia de orientación pero puede haber clipping por rounding subpixel.
+                            width: Math.ceil(width) + 2,
+                            height: Math.ceil(height) + 2,
+                          }
                     }
                   >
                     {/* 
@@ -1547,6 +1667,11 @@ function EmbedPdfLoadedDocumentView(props: {
                         rotation={rotationRaw as any}
                       >
                         <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                        <SelectionLayer
+                          documentId={documentId}
+                          pageIndex={pageIndex}
+                          selectionMenu={selectionMenu}
+                        />
                         <AnnotationLayer
                           documentId={documentId}
                           pageIndex={pageIndex}
@@ -1558,7 +1683,8 @@ function EmbedPdfLoadedDocumentView(props: {
                   </Rotate>
                 )}
               </div>
-            )}
+              );
+            }}
           />
         </Viewport>
       </div>

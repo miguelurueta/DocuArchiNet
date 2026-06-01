@@ -345,6 +345,33 @@
   overflow: visible;
 }
 
+/* UX: evitar “drag” del bitmap renderizado (icono rojo de bloque) cuando el usuario intenta seleccionar texto.
+   La interacción debe ocurrir sobre SelectionLayer/InteractionManager, no sobre el <img>. */
+.pageLayer img {
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+.selectionCopyButton {
+  appearance: none;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  background: rgba(255, 255, 255, 0.96);
+  color: #0f172a;
+  font-size: 12px;
+  line-height: 1;
+  padding: 8px 10px;
+  border-radius: 10px;
+  box-shadow:
+    0 10px 22px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(15, 23, 42, 0.04) inset;
+}
+
+.selectionCopyButton:hover {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.22);
+}
+
 .scrollTopFab {
   position: absolute;
   right: 20px;

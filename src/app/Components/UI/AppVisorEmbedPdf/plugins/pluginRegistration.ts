@@ -8,8 +8,8 @@ import { ThumbnailPluginPackage } from "@embedpdf/plugin-thumbnail";
 import { RotatePluginPackage } from "@embedpdf/plugin-rotate";
 import { PrintPluginPackage } from "@embedpdf/plugin-print/react";
 import { ExportPluginPackage } from "@embedpdf/plugin-export/react";
-import { InteractionManagerPluginPackage } from "@embedpdf/plugin-interaction-manager";
-import { SelectionPluginPackage } from "@embedpdf/plugin-selection";
+import { InteractionManagerPluginPackage } from "@embedpdf/plugin-interaction-manager/react";
+import { SelectionPluginPackage } from "@embedpdf/plugin-selection/react";
 import { AnnotationPluginPackage } from "@embedpdf/plugin-annotation";
 import { SignatureMode, SignaturePluginPackage } from "@embedpdf/plugin-signature";
 
