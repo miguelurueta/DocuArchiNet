@@ -23,3 +23,7 @@
   border-radius: 8px;
   border: 1px solid rgba(37, 99, 235, 0.32);
 }
+
+.driver-active [data-guide-tour-id="pdf-toolbar"]:has(> .driver-active-element) {
+  overflow: visible !important;
+}
