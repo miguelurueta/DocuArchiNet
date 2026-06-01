@@ -8,6 +8,7 @@ import {
   UnlockOutlined,
   MenuOutlined,
   PrinterOutlined,
+  QuestionCircleOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
   ZoomInOutlined,
@@ -49,6 +50,9 @@ export interface AppPdfToolbarProps {
   onExport(): void;
   isPrintDisabled?: boolean;
   isExportDisabled?: boolean;
+
+  onStartGuideTour?: () => void;
+  isGuideTourAvailable?: boolean;
 }
 
 function formatZoom(zoomLevel: number) {
@@ -81,10 +85,14 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
   onExport,
   isPrintDisabled = false,
   isExportDisabled = false,
+  onStartGuideTour,
+  isGuideTourAvailable = false,
 }: AppPdfToolbarProps) {
   const zoomDisabledTitle = isZoomDisabled
     ? "Zoom deshabilitado cuando hay rotación (estabilidad)"
     : undefined;
+
+  const showGuideTourButton = Boolean(onStartGuideTour) && isGuideTourAvailable;
 
   return (
     <>
@@ -92,6 +100,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         type="button"
         className={styles.button}
         onClick={onToggleThumbnails}
+        data-guide-tour-id="pdf-thumbnails-toggle"
         aria-label="Abrir thumbnails"
         aria-pressed={isThumbnailOpen}
         title={isThumbnailOpen ? "Cerrar thumbnails" : "Abrir thumbnails"}
@@ -105,6 +114,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         type="button"
         className={styles.button}
         onClick={onZoomOut}
+        data-guide-tour-id="pdf-zoom-out"
         aria-label="Zoom out"
         disabled={isZoomDisabled}
         title={zoomDisabledTitle ?? "Zoom -"}
@@ -113,13 +123,14 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
           <ZoomOutOutlined />
         </span>
       </button>
-      <div className={styles.zoomLevel} aria-label="Zoom actual">
+      <div className={styles.zoomLevel} data-guide-tour-id="pdf-zoom-level" aria-label="Zoom actual">
         {formatZoom(zoomLevel)}
       </div>
       <button
         type="button"
         className={styles.button}
         onClick={onZoomIn}
+        data-guide-tour-id="pdf-zoom-in"
         aria-label="Zoom in"
         disabled={isZoomDisabled}
         title={zoomDisabledTitle ?? "Zoom +"}
@@ -132,6 +143,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         type="button"
         className={styles.button}
         onClick={onResetZoom}
+        data-guide-tour-id="pdf-reset-zoom"
         aria-label="Reset zoom"
         disabled={isZoomDisabled}
         title={zoomDisabledTitle ?? "Reset zoom (100%)"}
@@ -147,6 +159,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         type="button"
         className={styles.button}
         onClick={onRotateLeft}
+        data-guide-tour-id="pdf-rotate-left"
         aria-label="Rotar izquierda"
         title="Rotar izquierda (90°)"
       >
@@ -158,6 +171,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         type="button"
         className={styles.button}
         onClick={onRotateRight}
+        data-guide-tour-id="pdf-rotate-right"
         aria-label="Rotar derecha"
         title="Rotar derecha (90°)"
       >
@@ -170,6 +184,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         type="button"
         className={styles.button}
         onClick={onToggleSignatureModal}
+        data-guide-tour-id="pdf-signature"
         aria-label="Signature"
         aria-pressed={isSignatureModalOpen}
         title={
@@ -190,6 +205,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         type="button"
         className={styles.button}
         onClick={onSaveSignedPdf}
+        data-guide-tour-id="pdf-lock-signature"
         aria-label={isSignatureLocked ? "Desbloquear firma" : "Bloquear firma"}
         title={
           isSavingSignedPdf
@@ -216,6 +232,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         type="button"
         className={styles.button}
         onClick={onDeleteSelectedSignature}
+        data-guide-tour-id="pdf-delete-signature"
         aria-label="Eliminar firma seleccionada"
         title={
           isDeleteSelectedSignatureDisabled
@@ -237,6 +254,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         type="button"
         className={styles.button}
         onClick={onPrint}
+        data-guide-tour-id="pdf-print"
         aria-label="Print"
         title={isPrintDisabled ? "Impresión deshabilitada por política" : "Print"}
         disabled={isPrintDisabled}
@@ -249,6 +267,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         type="button"
         className={styles.button}
         onClick={onExport}
+        data-guide-tour-id="pdf-export"
         aria-label="Export"
         title={isExportDisabled ? "Exportación deshabilitada por política" : "Export"}
         disabled={isExportDisabled}
@@ -257,6 +276,20 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
           <DownloadOutlined />
         </span>
       </button>
+      {showGuideTourButton ? (
+        <button
+          type="button"
+          className={styles.button}
+          onClick={onStartGuideTour}
+          data-guide-tour-id="pdf-help"
+          aria-label="Guia interactiva"
+          title="Ayuda - Guia interactiva"
+        >
+          <span className={styles.icon} aria-hidden="true">
+            <QuestionCircleOutlined />
+          </span>
+        </button>
+      ) : null}
     </>
   );
 });

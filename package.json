@@ -67,6 +67,7 @@
     "ag-grid-react": "^35.2.0",
     "antd": "^6.2.3",
     "axios": "^1.13.2",
+    "driver.js": "^1.4.0",
     "fabric": "^7.3.1",
     "jwt-decode": "^4.0.0",
     "pdfjs-dist": "^5.7.284",

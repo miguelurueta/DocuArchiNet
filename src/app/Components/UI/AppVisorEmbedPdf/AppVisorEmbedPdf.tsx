@@ -49,6 +49,8 @@ import {
 import { AppPdfToolbar } from "./presentation/AppPdfToolbar";
 import { AppPdfPasswordPrompt } from "./presentation/AppPdfPasswordPrompt";
 import { AppPdfSignatureModal } from "./presentation/AppPdfSignatureModal";
+import { AppGuideTour } from "../AppGuideTour";
+import type { AppGuideTourEvent, AppGuideTourRef } from "../AppGuideTour";
 import styles from "./styles/AppVisorEmbedPdf.module.css";
 import type { AppVisorEmbedPdfProps } from "./types/AppVisorEmbedPdfProps";
 import type {
@@ -66,6 +68,10 @@ import {
 import { fetchMisPermisosVisorPdf } from "./AppVisorEmbedPdf.service";
 import { applyAutoFitOnce } from "./autoFit/autoFit.apply";
 import type { FitMode } from "./autoFit/autoFit.math";
+import {
+  APP_VISOR_EMBED_PDF_GUIDE_STEPS,
+  APP_VISOR_EMBED_PDF_GUIDE_TOUR_ID,
+} from "./AppVisorEmbedPdf.guideTour";
 
 function cx(...parts: Array<string | undefined>) {
   return parts.filter(Boolean).join(" ");
@@ -820,6 +826,7 @@ function EmbedPdfLoadedDocumentView(props: {
   const zoomLevel = typeof zoom.state.currentZoomLevel === "number" ? zoom.state.currentZoomLevel : 1;
   const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+  const guideTourRef = useRef<AppGuideTourRef | null>(null);
 
   // Signature (oficial): capability + entries para persistencia local (temporal).
   const signatureCap = useSignatureCapability();
@@ -1403,10 +1410,25 @@ function EmbedPdfLoadedDocumentView(props: {
     scope?.scrollTo({ x: 0, y: 0, behavior: "smooth" });
   }, [viewport.provides, documentId]);
 
+  const onGuideTourEvent = useCallback((event: AppGuideTourEvent) => {
+    if (typeof window === "undefined") return;
+    window.dispatchEvent(new CustomEvent("app-guide-tour:event", { detail: event }));
+  }, []);
+
+  const onStartGuideTour = useCallback(() => {
+    guideTourRef.current?.start();
+  }, []);
+
   return (
     <>
+      <AppGuideTour
+        ref={guideTourRef}
+        tourId={APP_VISOR_EMBED_PDF_GUIDE_TOUR_ID}
+        steps={APP_VISOR_EMBED_PDF_GUIDE_STEPS}
+        onEvent={onGuideTourEvent}
+      />
       {/** overlay se monta en AppVisorEmbedPdf (raíz) para cubrir también primer click */}
-      <div className={styles.toolbarShell} role="toolbar" aria-label="Toolbar PDF">
+      <div className={styles.toolbarShell} role="toolbar" aria-label="Toolbar PDF" data-guide-tour-id="pdf-toolbar">
         {loading ? (
           <div className={styles.toolbarSkeleton} aria-label="Cargando toolbar" role="status" aria-busy="true">
             <span className={styles.toolbarSkeletonBlock} />
@@ -1442,6 +1464,8 @@ function EmbedPdfLoadedDocumentView(props: {
             onExport={onExport}
             isPrintDisabled={!permissionsEffective.allowPrint}
             isExportDisabled={!permissionsEffective.allowExport}
+            onStartGuideTour={onStartGuideTour}
+            isGuideTourAvailable
           />
         )}
       </div>
@@ -1456,7 +1480,12 @@ function EmbedPdfLoadedDocumentView(props: {
         data-signature-active-placement={activePlacement ? "true" : "false"}
         data-signature-entry-count={String(signatureEntries.entries?.length ?? 0)}
       >
-        <div className={styles.paginationOverlay} role="group" aria-label="PaginaciÃ³n">
+        <div
+          className={styles.paginationOverlay}
+          role="group"
+          aria-label="PaginaciÃ³n"
+          data-guide-tour-id="pdf-pagination"
+        >
           {loading ? (
             <div className={styles.paginationSkeleton} aria-label="Cargando paginación" role="status" aria-busy="true">
               <span className={styles.paginationSkeletonButton} />
@@ -1519,6 +1548,7 @@ function EmbedPdfLoadedDocumentView(props: {
           type="button"
           className={`${styles.scrollTopFab} ${showScrollTop ? "" : styles.scrollTopFabHidden}`}
           onClick={onScrollToTop}
+          data-guide-tour-id="pdf-scroll-top"
           aria-label="Ir arriba"
           title="Ir arriba"
         >

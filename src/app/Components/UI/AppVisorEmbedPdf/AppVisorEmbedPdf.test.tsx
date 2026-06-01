@@ -6,6 +6,23 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppVisorEmbedPdf } from "./AppVisorEmbedPdf";
 import { AppVisorEmbedPdf as AppVisorEmbedPdfFromIndex } from "./index";
 
+const appGuideTourMock = vi.hoisted(() => ({
+  start: vi.fn(),
+  stop: vi.fn(),
+  refresh: vi.fn(),
+}));
+
+vi.mock("../AppGuideTour", async () => {
+  const ReactRuntime = await import("react");
+
+  return {
+    AppGuideTour: ({ ref }: { ref?: React.Ref<{ start: () => void; stop: () => void; refresh: () => void }> }) => {
+      ReactRuntime.useImperativeHandle(ref, () => appGuideTourMock);
+      return <div data-testid="app-guide-tour" />;
+    },
+  };
+});
+
 const clienteApiGetMock = vi.fn();
 vi.mock("../../../../../api/Clienteaxios", () => ({
   default: {
@@ -530,6 +547,28 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
 
     expect(printMock).toHaveBeenCalledTimes(1);
     expect(downloadMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("[SPEC:SCRUMCORE-235] muestra ayuda y conecta inicio de guia interactiva sin cambiar toolbar", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    appGuideTourMock.start.mockClear();
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    expect(screen.getByTestId("app-guide-tour")).toBeInTheDocument();
+    expect(screen.getByRole("toolbar", { name: /toolbar pdf/i })).toHaveAttribute(
+      "data-guide-tour-id",
+      "pdf-toolbar",
+    );
+
+    const helpButton = screen.getByRole("button", { name: /guia interactiva/i });
+    expect(helpButton).toHaveAttribute("data-guide-tour-id", "pdf-help");
+
+    const user = userEvent.setup();
+    await user.click(helpButton);
+
+    expect(appGuideTourMock.start).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("button", { name: /buscar texto/i })).not.toBeInTheDocument();
   });
 
   it("[SPEC:SCRUMCORE-207] no crashea cuando print/export provides es null", async () => {
