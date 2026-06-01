@@ -1,3 +1,5 @@
+import { FileSearchOutlined } from "@ant-design/icons";
+
 import styles from "../styles/AppVisorEmbedPdf.module.css";
 
 export function EngineLoadingState() {
@@ -11,7 +13,15 @@ export function DocumentLoadingState() {
 export function EmptyState() {
   return (
     <div className={styles.center}>
-      <span className={styles.muted}>No hay documento para visualizar</span>
+      <div className={styles.emptyDocumentState}>
+        <span className={styles.emptyDocumentIcon} aria-hidden="true">
+          <FileSearchOutlined />
+        </span>
+        <span className={styles.emptyDocumentTitle}>Selecciona un documento</span>
+        <span className={styles.emptyDocumentDescription}>
+          Elige un archivo del listado lateral de documentos para visualizarlo aqui.
+        </span>
+      </div>
     </div>
   );
 }
