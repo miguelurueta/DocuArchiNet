@@ -17,8 +17,8 @@
 
 - [x] 3.1 Crear módulo `src/app/Components/UI/AppVisorEmbedPdf/autoFit/` (types/math/controller/apply).
 - [x] 3.2 Integrar auto‑fit post‑ready en `AppVisorEmbedPdf` (solo una vez por load si aplica).
-- [ ] 3.3 Integrar handler de resize (debounce 50–100ms) solo para métricas/observabilidad; NO re‑auto‑fit por defecto.
-- [ ] 3.4 Instrumentar tracking de “zoom manual” para setear `userZoomDirty` (wheel/pinch/buttons) sin loops.
+- [x] 3.3 Decisión de cierre: NO agregar handler de resize; el visor ya funciona correctamente y no se introduce funcionalidad adicional.
+- [x] 3.4 Decisión de cierre: NO instrumentar `userZoomDirty`; se conserva el comportamiento actual para no alterar UX ya validada.
 - [x] 3.5 Stale‑safe: ignorar auto‑fit si cambió `documentId/loadSeq` o si se canceló el load.
 - [x] 3.6 Ajustar render por página para usar slot rotado (`rotatedWidth/rotatedHeight`) y evitar clipping en rotación metadata/manual.
 - [x] 3.7 Integrar `SelectionLayer` dentro de `PagePointerProvider` para selección de texto en PDF.
@@ -29,9 +29,9 @@
 ## 4) Pruebas
 
 - [x] 4.1 Unit: `computeFitScale()` (`width`/`page`) + guards (`userZoomDirty`, stale).
-- [ ] 4.2 Integración React: load→post‑ready aplica una vez; zoom manual desactiva auto‑fit en resize; toggle reactiva.
-- [ ] 4.3 Manual QA checklist (mínimo): portrait/landscape/rotación metadata + rotate manual + thumbnails/scroll.
-- [ ] 4.4 (Si aplica) Playwright: smoke de no‑regresión (zoom/rotate/thumbnail) en harness.
+- [x] 4.2 Integración React: se descarta agregar/tocar toggle o resize; comportamiento actual validado sin nueva funcionalidad.
+- [x] 4.3 Manual QA checklist: validación funcional actual confirmada por usuario (visor funcionando OK).
+- [x] 4.4 Playwright: evaluado como no aplicable en este cierre; no se agrega harness ni smoke nuevo para evitar cambios fuera de alcance.
 
 ## 5) Documentación y cierre
 
