@@ -207,7 +207,7 @@ export type AppGuideTourDriver = {
 
 ## AppVisorEmbedPdf Tour Steps
 
-Initial required targets:
+Initial required targets based on the current `AppPdfToolbar` implementation:
 
 | Step id | Selector | Purpose |
 | --- | --- | --- |
@@ -229,6 +229,14 @@ Initial required targets:
 | `pdf-scroll-top` | `[data-guide-tour-id="pdf-scroll-top"]` | Volver arriba cuando aplique. |
 
 Steps for unavailable features may be omitted at runtime if their element is not present. The adapter/service must filter missing targets before starting.
+
+Controls mentioned by Jira but not present as explicit toolbar buttons today:
+
+- Search / Buscar texto.
+- Fit Width.
+- Fit Page.
+
+Those controls are intentionally not added by this ticket. The guide documents and tours the toolbar that exists today. If product wants these buttons, they require a separate functional change before they can become tour targets.
 
 ## Integration Strategy
 
@@ -357,5 +365,6 @@ stateDiagram-v2
 
 - The component name is `AppGuideTour`, not `AppAppguidetour`.
 - The primary integration target is `AppVisorEmbedPdf`.
-- Search is listed in Jira, but current `AppPdfToolbar` does not expose search. It must not be invented in this ticket; only visible/implemented controls are included.
-- Fit Width / Fit Page are mentioned in Jira, but current toolbar exposes Auto-Fit behavior and reset zoom, not explicit fit buttons. Do not add new fit buttons as part of the tour.
+- Search is listed in Jira, but current `AppPdfToolbar` does not expose a search button. It is excluded from tour targets for this ticket.
+- Fit Width / Fit Page are listed in Jira, but current `AppPdfToolbar` exposes zoom out, zoom level, zoom in and reset zoom, not explicit fit buttons. They are excluded from tour targets for this ticket.
+- The implementation must add the help button only; all other tour targets must map to controls already present in the toolbar.

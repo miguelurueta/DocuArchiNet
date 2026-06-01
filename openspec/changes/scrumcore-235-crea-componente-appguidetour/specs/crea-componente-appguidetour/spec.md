@@ -93,12 +93,14 @@ The system SHALL provide a configured guide for visible `AppVisorEmbedPdf` contr
 - **GIVEN** toolbar controls are visible
 - **WHEN** the PDF guide runs
 - **THEN** the guide includes steps for thumbnails, zoom out, zoom level, zoom in, reset zoom, rotate left, rotate right, signature, lock signature, delete signature, print, export and help
+- **AND** the guide may include pagination and scroll-to-top only when those overlays are present
 
 #### Scenario: Guide does not invent unavailable controls
 
 - **GIVEN** the current toolbar does not expose search, explicit Fit Width or explicit Fit Page buttons
 - **WHEN** the PDF guide is configured
 - **THEN** those unavailable controls are not added as new functional controls by this ticket
+- **AND** those controls are not required as tour targets until they exist in the toolbar
 
 ### Requirement: Accessibility
 

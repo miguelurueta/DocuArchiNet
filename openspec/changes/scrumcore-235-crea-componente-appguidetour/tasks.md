@@ -2,7 +2,7 @@
 
 - [x] 1.1 Consolidar alcance final desde Jira + contexto real de `AppVisorEmbedPdf`.
 - [x] 1.2 Corregir naming del componente: `AppGuideTour` (no `AppAppguidetour`).
-- [x] 1.3 Definir controles reales del tour segun toolbar existente; no inventar Search/Fit Width/Fit Page si no existen en la UI actual.
+- [x] 1.3 Definir controles reales del tour segun toolbar existente: thumbnails, zoom out, zoom level, zoom in, reset zoom, rotate left/right, signature, lock/unlock, delete signature, print, export y ayuda.
 - [x] 1.4 Ajustar `design.md` con arquitectura, contratos, decisiones, riesgos y diagramas Mermaid.
 - [x] 1.5 Ajustar `spec.md` con requisitos verificables y escenarios concretos.
 
@@ -33,12 +33,12 @@
 - [ ] 4.1 Agregar `data-guide-tour-id` estables a controles reales de `AppPdfToolbar`.
 - [ ] 4.2 Extender `AppPdfToolbarProps` con props opcionales de guia sin romper consumers.
 - [ ] 4.3 Agregar boton de ayuda accesible en toolbar usando estilo existente.
-- [ ] 4.4 Crear configuracion de steps para `AppVisorEmbedPdf`.
+- [ ] 4.4 Crear configuracion de steps para los botones reales de `AppPdfToolbar`: thumbnails, zoom out, zoom level, zoom in, reset zoom, rotate left/right, signature, lock/unlock, delete signature, print, export y ayuda.
 - [ ] 4.5 Integrar `useAppGuideTour`/`AppGuideTour` en `AppVisorEmbedPdf` sin tocar logica PDF.
 - [ ] 4.6 Agregar targets para overlays visibles relevantes: paginacion y scroll-to-top si existen.
 - [ ] 4.7 Verificar que zoom, rotate, print, export, firma, anotaciones, thumbnails y scroll no cambian comportamiento.
 - [ ] 4.8 Confirmar que el boton de ayuda es visible en desktop y mobile sin alterar layout.
-- [ ] 4.9 Confirmar que el tour solo cubre controles visibles/reales; Search, Fit Width y Fit Page no se agregan si no existen en la toolbar actual.
+- [ ] 4.9 Confirmar que Search, Fit Width y Fit Page quedan fuera del tour porque no existen como botones actuales de `AppPdfToolbar`; no crear esos controles en este ticket.
 
 ## 5. Accesibilidad, observabilidad y performance
 

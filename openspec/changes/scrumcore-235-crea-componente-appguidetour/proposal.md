@@ -5,9 +5,35 @@ CREA-COMPONENTE-APPGUIDETOUR. Ver detalle funcional completo del ticket en la se
 ## What Changes
 
 - Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-235.
-- Se formaliza la propuesta OpenSpec para implementar AppAppguidetour a partir del ticket Jira.
-- Se define la capability `app-appguidetour` como parte de la capa UI reutilizable.
-- Se conserva el contexto funcional del ticket como base para los siguientes artefactos OpenSpec.
+- Se formaliza la propuesta OpenSpec para implementar `AppGuideTour` a partir del ticket Jira.
+- Se define la capability `crea-componente-appguidetour` como parte de la capa UI reutilizable.
+- Se integra el primer tour en `AppVisorEmbedPdf` usando los botones reales actuales de `AppPdfToolbar`.
+- Se conserva el contexto funcional del ticket como base, aclarando que controles mencionados por Jira pero no existentes actualmente en la toolbar no se crean en este ticket.
+
+## Current AppPdfToolbar Scope
+
+El tour obligatorio de `AppVisorEmbedPdf` debe cubrir los controles reales visibles en el toolbar actual:
+
+- Abrir/cerrar thumbnails.
+- Zoom out.
+- Indicador de zoom actual.
+- Zoom in.
+- Reset zoom.
+- Rotar izquierda.
+- Rotar derecha.
+- Abrir/cerrar firmas.
+- Bloquear/desbloquear firma.
+- Eliminar firma seleccionada.
+- Print.
+- Export.
+- Ayuda / Guia interactiva.
+
+Adicionalmente, puede cubrir overlays visibles del visor si existen en DOM durante el recorrido:
+
+- Paginacion.
+- Ir arriba.
+
+No se agregan como parte de este ticket botones nuevos de Search, Fit Width o Fit Page, porque no existen como controles explicitos en `AppPdfToolbar` al momento del refinamiento. Si producto requiere esos botones, corresponde a un cambio funcional separado.
 
 ## Jira Details
 
@@ -497,13 +523,13 @@ CREA-COMPONENTE-APPGUIDETOUR. Ver detalle funcional completo del ticket en la se
 ## Capabilities
 
 ### New Capabilities
-- `app-appguidetour`: Componente reusable AppAppguidetour para la capa UI compartida del proyecto.
+- `crea-componente-appguidetour`: Componente reusable `AppGuideTour` para la capa UI compartida del proyecto.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nuevo componente compartido en `src/app/Components/UI/AppAppguidetour/`.
-- Posible integracion inicial en un modulo consumidor real del proyecto.
+- Nuevo componente compartido en `src/app/Components/UI/AppGuideTour/`.
+- Integracion inicial en `src/app/Components/UI/AppVisorEmbedPdf/`.
 - Nuevas pruebas de comportamiento para el contrato reusable del componente.
