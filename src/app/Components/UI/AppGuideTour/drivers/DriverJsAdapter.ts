@@ -1,6 +1,7 @@
 import { driver } from "driver.js";
 import type { Config, DriveStep, Driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import "../AppGuideTour.css";
 
 import type {
   AppGuideTourDriver,
