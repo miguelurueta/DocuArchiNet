@@ -1,4 +1,4 @@
-import { FileSearchOutlined } from "@ant-design/icons";
+import { CheckCircleFilled, FileTextOutlined } from "@ant-design/icons";
 
 import styles from "../styles/AppVisorEmbedPdf.module.css";
 
@@ -15,11 +15,12 @@ export function EmptyState() {
     <div className={styles.center}>
       <div className={styles.emptyDocumentState}>
         <span className={styles.emptyDocumentIcon} aria-hidden="true">
-          <FileSearchOutlined />
+          <FileTextOutlined />
+          <CheckCircleFilled className={styles.emptyDocumentIconBadge} />
         </span>
         <span className={styles.emptyDocumentTitle}>Selecciona un documento</span>
         <span className={styles.emptyDocumentDescription}>
-          Elige un archivo del listado lateral de documentos para visualizarlo aqui.
+          Elige un archivo del listado lateral derecho de documentos para visualizarlo aqui.
         </span>
       </div>
     </div>

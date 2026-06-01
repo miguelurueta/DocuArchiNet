@@ -280,13 +280,13 @@
 
 .thumbnailsPane {
   height: 100%;
-  padding: 10px;
+  padding: 6px;
 }
 
 .thumbRow {
   position: absolute;
-  left: 10px;
-  right: 10px;
+  left: 6px;
+  right: 6px;
   display: grid;
   place-items: center;
   gap: 4px;
@@ -431,6 +431,7 @@
 }
 
 .emptyDocumentIcon {
+  position: relative;
   width: 52px;
   height: 52px;
   border-radius: 14px;
@@ -440,6 +441,19 @@
   background: rgba(37, 99, 235, 0.08);
   color: #2563eb;
   font-size: 24px;
+}
+
+.emptyDocumentIconBadge {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 19px;
+  height: 19px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #2563eb;
+  font-size: 18px;
+  box-shadow: 0 0 0 2px #ffffff;
 }
 
 .emptyDocumentTitle {
