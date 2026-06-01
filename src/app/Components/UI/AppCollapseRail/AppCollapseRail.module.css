@@ -29,6 +29,15 @@
   transform: translateX(12px);
 }
 
+.panel[data-placement="right"][data-variant="inline"][data-collapsed="false"] {
+  gap: 0.5rem;
+  padding: 0.625rem;
+}
+
+.panel[data-placement="right"][data-variant="inline"][data-collapsed="false"] .surface {
+  padding: 0.5rem;
+}
+
 .panel[data-placement="left"][data-variant="inline"][data-collapsed="true"] {
   transform: translateX(-12px);
 }
