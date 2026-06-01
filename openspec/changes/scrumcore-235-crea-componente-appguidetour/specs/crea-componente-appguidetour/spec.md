@@ -1,489 +1,183 @@
 ## ADDED Requirements
-### Requirement: CREA-COMPONENTE-APPGUIDETOUR
-El sistema SHALL implementar el alcance definido para SCRUMCORE-235.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- PROMPT ENTERPRISE — Implementación de AppGuideTour (Driver.js) en AppVisorEmbedPdf
-- Rol esperado
-- Arquitecto Frontend Senior (React 19, TypeScript Strict, Design System Enterprise, Driver.js, UX Enterprise, Accesibilidad, Testing Enterprise, Clean Architecture)
-- Objetivo
-- Implementar un sistema de guía interactiva reutilizable basado en Driver.js para AppVisorEmbedPdf mediante un componente enterprise llamado:
-- AppGuideTour
-- El objetivo es permitir que cualquier usuario pueda entender visualmente las funcionalidades del visor PDF mediante recorridos guiados no intrusivos.
-- La implementación debe:
-- Utilizar Driver.js como motor de tour.
-- 
-- Integrarse de forma desacoplada con AppVisorEmbedPdf.
-- 
-- Ser reusable para otros componentes del Design System.
-- 
-- No modificar la lógica funcional existente del visor.
-- 
-- No introducir coupling entre Driver.js y los componentes internos.
-- 
-- Mantener compatibilidad futura con cualquier componente UI del ecosistema.
-- 
-- Dependencias
-- npm install driver.js
-- Contexto
-- Actualmente AppVisorEmbedPdf posee múltiples funcionalidades:
-- Toolbar principal
-- 
-- Zoom In
-- 
-- Zoom Out
-- 
-- Fit Width
-- 
-- Fit Page
-- 
-- Rotación
-- 
-- Descarga
-- 
-- Impresión
-- 
-- Navegación de páginas
-- 
-- Búsqueda
-- 
-- Anotaciones
-- 
-- Firma electrónica
-- 
-- Sidebar
-- 
-- Miniaturas
-- 
-- Herramientas futuras
-- 
-- No existe actualmente un sistema guiado para explicar dichas funcionalidades.
-- Objetivo UX
-- Agregar un botón permanente de ayuda en la Toolbar.
-- Características:
-- Icono: ?
-- 
-- Tooltip:
-- "Ayuda"
-- 
-- "Guía interactiva"
-- 
-- Accesible por teclado
-- 
-- Visible en desktop y mobile
-- 
-- Integrado visualmente con el Design System
-- 
-- Al hacer click:
-- Iniciar Tour Interactivo
-- Ubicación esperada
-- src/app/Components/UI/AppGuideTour/
-- ├── AppGuideTour.tsx
-- ├── AppGuideTour.types.ts
-- ├── AppGuideTour.service.ts
-- ├── AppGuideTour.adapter.ts
-- ├── AppGuideTour.constants.ts
-- ├── hooks/
-- │   └── useAppGuideTour.ts
-- ├── providers/
-- │   └── AppGuideTourProvider.tsx
-- ├── drivers/
-- │   └── DriverJsAdapter.ts
-- ├── tests/
-- └── index.ts
-- Integración:
-- src/app/Components/UI/AppVisorEmbedPdf/
-- Restricciones obligatorias
-- NO modificar lógica existente de:
-- Toolbar
-- 
-- Zoom
-- 
-- Rotate
-- 
-- Search
-- 
-- Download
-- 
-- Print
-- 
-- Signature
-- 
-- Annotation
-- 
-- Sidebar
-- 
-- NO introducir lógica Driver.js dentro de:
-- plugins
-- 
-- hooks existentes
-- 
-- reducers existentes
-- 
-- NO usar any.
-- NO generar dependencia circular.
-- NO romper consumers actuales.
-- Arquitectura obligatoria
-- AppGuideTour debe funcionar como una capa de presentación desacoplada.
-- AppVisorEmbedPdf
--         │
--         ▼
-- AppGuideTour
--         │
--         ▼
-- DriverJsAdapter
--         │
--         ▼
-- Driver.js
-- Responsabilidades
-- AppGuideTour
-- Responsable de:
-- iniciar tour
-- 
-- detener tour
-- 
-- registrar pasos
-- 
-- manejar eventos visuales
-- 
-- NO responsable de:
-- lógica PDF
-- 
-- permisos
-- 
-- anotaciones
-- 
-- firma
-- 
-- estado documental
-- 
-- DriverJsAdapter
-- Responsable de:
-- encapsular Driver.js
-- 
-- evitar dependencia directa en consumers
-- 
-- permitir reemplazo futuro
-- 
-- useAppGuideTour
-- Responsable de:
-- exponer API reusable
-- 
-- gestionar ciclo de vida
-- 
-- coordinar eventos del tour
-- 
-- API pública esperada
-- type AppGuideTourStep = {
--   id: string;
--   element: string;
--   title: string;
--   description: string;
--   side?: "top" | "bottom" | "left" | "right";
-- };
-- 
-- type AppGuideTourProps = {
--   tourId: string;
--   steps: AppGuideTourStep[];
-- };
-- Tour obligatorio AppVisorEmbedPdf
-- El recorrido debe cubrir todos los elementos visibles de la Toolbar.
-- Ejemplo:
-- Toolbar principal
-- 
-- Navegación páginas
-- 
-- Zoom In
-- 
-- Zoom Out
-- 
-- Fit Width
-- 
-- Fit Page
-- 
-- Rotar documento
-- 
-- Buscar texto
-- 
-- Descargar documento
-- 
-- Imprimir documento
-- 
-- Panel lateral
-- 
-- Miniaturas
-- 
-- Herramientas de anotación
-- 
-- Firma electrónica
-- 
-- Ayuda
-- 
-- Cada paso debe explicar:
-- qué hace
-- 
-- cuándo usarlo
-- 
-- impacto funcional
-- 
-- Botón de ayuda obligatorio
-- Agregar en Toolbar:
-- [ ? ]
-- Requisitos:
-- Tooltip "Ayuda"
-- 
-- Tooltip "Guía interactiva"
-- 
-- Focus visible
-- 
-- Keyboard accessible
-- 
-- Responsive
-- 
-- No alterar layout existente
-- 
-- Al hacer click:
-- guideTour.start();
-- Accesibilidad obligatoria
-- WCAG AA
-- Incluir:
-- navegación teclado
-- 
-- aria-label
-- 
-- aria-describedby
-- 
-- focus visible
-- 
-- escape para cerrar
-- 
-- screen reader friendly
-- 
-- Performance
-- Crear Driver.js una sola vez.
-- 
-- Evitar reinicializaciones innecesarias.
-- 
-- Memoizar steps.
-- 
-- No provocar rerenders del visor PDF.
-- 
-- No afectar renderizado documental.
-- 
-- Observabilidad
-- Registrar eventos:
-- guide_started
-- guide_completed
-- guide_cancelled
-- guide_step_changed
-- No registrar:
-- URLs
-- 
-- tokens
-- 
-- información documental sensible
-- 
-- Pruebas obligatorias
-- Unitarias
-- render AppGuideTour
-- 
-- registro de steps
-- 
-- start()
-- 
-- stop()
-- 
-- adapter Driver.js
-- 
-- hook useAppGuideTour
-- 
-- Integración
-- Toolbar muestra botón ayuda
-- 
-- click inicia tour
-- 
-- recorrido completo
-- 
-- cierre correcto
-- 
-- Playwright
-- Validar:
-- botón ayuda visible
-- 
-- tooltip visible
-- 
-- apertura del tour
-- 
-- navegación siguiente/anterior
-- 
-- finalización tour
-- 
-- responsive desktop
-- 
-- responsive tablet
-- 
-- responsive mobile
-- 
-- Regresión
-- Validar:
-- zoom intacto
-- 
-- rotate intacto
-- 
-- print intacto
-- 
-- download intacto
-- 
-- firma intacta
-- 
-- anotaciones intactas
-- 
-- Criterios de aceptación
-- Existe AppGuideTour reusable.
-- 
-- Driver.js encapsulado correctamente.
-- 
-- AppVisorEmbedPdf integra guía interactiva.
-- 
-- Toolbar incluye botón de ayuda.
-- 
-- Tour cubre todos los elementos visibles.
-- 
-- No existen regresiones funcionales.
-- 
-- Tests exitosos.
-- 
-- Compatible con futuras extensiones.
-- 
-- Documentación Enterprise Obligatoria
-- Ruta:
-- docs/Components/AppGuideTour/GuiaVisorPDF
-- 1. SCRUMCORE-[ID]-Arquitectura.md
-- Documentar:
-- Objetivo técnico
-- 
-- Decisiones arquitectónicas
-- 
-- Separación de responsabilidades
-- 
-- Integración con AppVisorEmbedPdf
-- 
-- DriverJsAdapter
-- 
-- Estrategia reusable
-- 
-- Diagramas Mermaid obligatorios:
-- classDiagram
-- Relación entre:
-- AppGuideTour
-- 
-- DriverJsAdapter
-- 
-- useAppGuideTour
-- 
-- AppVisorEmbedPdf
-- 
-- sequenceDiagram
-- Flujo:
-- Usuario→ Click Ayuda→ AppGuideTour→ DriverJsAdapter→ Driver.js→ Render Tour
-- stateDiagram-v2
-- Estados:
-- idle
-- loading
-- running
-- paused
-- completed
-- cancelled
-- error
-- 2. SCRUMCORE-[ID]-Implementacion-Detallada.md
-- Documentar:
-- Archivos creados
-- 
-- Archivos modificados
-- 
-- Props
-- 
-- Hooks
-- 
-- Eventos
-- 
-- Flujo interno
-- 
-- Integración Toolbar
-- 
-- Responsive
-- 
-- Accesibilidad
-- 
-- Casos borde
-- 
-- 3. SCRUMCORE-[ID]-Pruebas.md
-- Documentar:
-- Unit Tests
-- 
-- Integration Tests
-- 
-- Playwright
-- 
-- Evidencias
-- 
-- Cobertura
-- 
-- Casos críticos
-- 
-- Riesgos residuales
-- 
-- 4. SCRUMCORE-[ID]-Metadata.md
-- Incluir:
-- Ticket JIRA
-- 
-- Autor
-- 
-- Fecha
-- 
-- Versión
-- 
-- Branch
-- 
-- Commit
-- 
-- Referencias cruzadas
-- 
-- Estado implementación
-- 
-- Trazabilidad obligatoria
-- Tabla:
-- Elemento
-- Archivo
-- Evidencia
-- Estado
-- AppGuideTour
-- ruta real
-- componente
-- Completo
-- DriverJsAdapter
-- ruta real
-- adapter
-- Completo
-- useAppGuideTour
-- ruta real
-- hook
-- Completo
-- HelpButton
-- ruta real
-- toolbar
-- Completo
-- Playwright
-- ruta real
-- test
-- Completo
-- Instrucción final
-- Implementar AppGuideTour como componente reusable enterprise basado en Driver.js, integrado en AppVisorEmbedPdf mediante un botón de ayuda en la Toolbar, desacoplado de la lógica PDF, extensible para cualquier componente del Design System, completamente documentado, testeado y mantenible a largo plazo.
+### Requirement: Reusable AppGuideTour component
+
+The system SHALL provide a reusable `AppGuideTour` component for guided UI tours, independent from PDF-specific business logic.
+
+#### Scenario: Render tour component without starting
+
+- **GIVEN** a consumer renders `AppGuideTour` with `tourId` and valid `steps`
+- **WHEN** `autoStart` is false or omitted
+- **THEN** the component initializes without starting the visual tour automatically
+
+#### Scenario: Start tour through public API
+
+- **GIVEN** `useAppGuideTour` is configured with valid steps
+- **WHEN** `start()` is called
+- **THEN** the adapter receives filtered valid steps
+- **AND** the state transitions to `running`
+
+#### Scenario: Stop tour through public API
+
+- **GIVEN** a tour is running
+- **WHEN** `stop()` is called
+- **THEN** the adapter stops Driver.js
+- **AND** the state transitions to `cancelled` or `idle` after cleanup
+
+### Requirement: Driver.js encapsulation
+
+The system SHALL isolate Driver.js behind `DriverJsAdapter` so consumers do not import or depend on Driver.js directly.
+
+#### Scenario: Consumer uses adapter abstraction
+
+- **GIVEN** a consumer imports `AppGuideTour` or `useAppGuideTour`
+- **WHEN** the consumer starts or stops a tour
+- **THEN** it interacts with the AppGuideTour API
+- **AND** it does not import `driver.js`
+
+#### Scenario: Adapter maps steps to Driver.js
+
+- **GIVEN** AppGuideTour receives `AppGuideTourStep[]`
+- **WHEN** DriverJsAdapter starts the tour
+- **THEN** each step is converted to Driver.js step configuration with target element, title, description and side
+
+### Requirement: AppVisorEmbedPdf help tour integration
+
+The system SHALL integrate AppGuideTour into `AppVisorEmbedPdf` through an accessible help button in `AppPdfToolbar`.
+
+#### Scenario: Toolbar exposes help button
+
+- **GIVEN** `AppVisorEmbedPdf` is loaded and toolbar is visible
+- **WHEN** the user views the toolbar
+- **THEN** a keyboard-accessible help button is visible
+- **AND** the button has accessible name "Guia interactiva" or "Ayuda"
+- **AND** the button uses the same visual language as existing toolbar buttons
+
+#### Scenario: Click help starts PDF guide
+
+- **GIVEN** the help button is visible
+- **WHEN** the user activates it by click or keyboard
+- **THEN** the PDF guide tour starts
+- **AND** the first valid visible step is shown
+
+#### Scenario: Existing toolbar consumers remain compatible
+
+- **GIVEN** a consumer renders `AppPdfToolbar` without guide props
+- **WHEN** the toolbar renders
+- **THEN** no help button is required
+- **AND** existing props and behavior continue to work
+
+### Requirement: Stable tour targets
+
+The system SHALL use stable `data-guide-tour-id` attributes for tour targets instead of CSS module class names or translated text.
+
+#### Scenario: Toolbar target exists
+
+- **GIVEN** `AppPdfToolbar` renders a guided control
+- **WHEN** the DOM is inspected
+- **THEN** the element has a stable `data-guide-tour-id`
+
+#### Scenario: Missing targets are skipped
+
+- **GIVEN** a configured step targets an element not present in the current viewport or policy state
+- **WHEN** the tour starts
+- **THEN** the missing step is skipped
+- **AND** the tour continues if at least one valid step remains
+
+### Requirement: PDF guide content
+
+The system SHALL provide a configured guide for visible `AppVisorEmbedPdf` controls.
+
+#### Scenario: Guide covers visible toolbar controls
+
+- **GIVEN** toolbar controls are visible
+- **WHEN** the PDF guide runs
+- **THEN** the guide includes steps for thumbnails, zoom out, zoom level, zoom in, reset zoom, rotate left, rotate right, signature, lock signature, delete signature, print, export and help
+
+#### Scenario: Guide does not invent unavailable controls
+
+- **GIVEN** the current toolbar does not expose search, explicit Fit Width or explicit Fit Page buttons
+- **WHEN** the PDF guide is configured
+- **THEN** those unavailable controls are not added as new functional controls by this ticket
+
+### Requirement: Accessibility
+
+The system SHALL satisfy baseline WCAG AA expectations for the help entry point and tour lifecycle.
+
+#### Scenario: Keyboard accessible help
+
+- **GIVEN** the user navigates with keyboard
+- **WHEN** focus reaches the help button
+- **THEN** focus is visible
+- **AND** pressing Enter or Space starts the guide
+
+#### Scenario: Escape closes tour
+
+- **GIVEN** the guide is running
+- **WHEN** the user presses Escape
+- **THEN** the tour closes
+- **AND** focus returns to a stable control when possible
+
+### Requirement: Observability without sensitive data
+
+The system SHALL emit non-sensitive tour events without document data.
+
+#### Scenario: Start event
+
+- **WHEN** a guide starts
+- **THEN** `guide_started` is emitted with `tourId` and step counts only
+
+#### Scenario: Step change event
+
+- **WHEN** the active step changes
+- **THEN** `guide_step_changed` is emitted with `tourId`, `stepId`, `stepIndex` and `totalSteps`
+
+#### Scenario: No sensitive data
+
+- **WHEN** any guide event is emitted
+- **THEN** it does not include URLs, tokens, file names, PDF text or document identifiers
+
+### Requirement: Performance and lifecycle
+
+The system SHALL avoid unnecessary Driver.js reinitialization and PDF rerenders.
+
+#### Scenario: Stable driver lifecycle
+
+- **GIVEN** `AppGuideTour` rerenders with the same `tourId` and memoized steps
+- **WHEN** no tour action occurs
+- **THEN** Driver.js is not recreated unnecessarily
+
+#### Scenario: Cleanup on unmount
+
+- **GIVEN** a component using AppGuideTour unmounts
+- **WHEN** cleanup runs
+- **THEN** the adapter destroys the Driver.js instance
+
+### Requirement: Enterprise documentation
+
+The system SHALL include enterprise documentation for the component and PDF integration.
+
+#### Scenario: Documentation files exist
+
+- **WHEN** implementation is complete
+- **THEN** documentation exists under `docs/Components/AppGuideTour/GuiaVisorPDF/`
+- **AND** includes architecture, detailed implementation, tests and metadata files
+
+### Requirement: Tests and regression coverage
+
+The system SHALL include automated tests for AppGuideTour and its PDF integration.
+
+#### Scenario: Unit tests cover reusable module
+
+- **WHEN** unit tests run
+- **THEN** they cover component render, hook start/stop, step filtering and DriverJsAdapter mapping
+
+#### Scenario: Integration tests cover PDF toolbar
+
+- **WHEN** `AppVisorEmbedPdf` tests run
+- **THEN** they assert the help button is visible and starts the guide without breaking existing toolbar actions
+
+#### Scenario: Playwright validates user flow
+
+- **WHEN** Playwright smoke runs for the guide
+- **THEN** it validates help button visibility, tooltip, tour opening, next/previous navigation, finish/cancel and responsive desktop/tablet/mobile behavior
