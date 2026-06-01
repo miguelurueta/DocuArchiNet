@@ -5,5 +5,6 @@ export type {
   AppVisorLoadResult,
   ViewerEffectivePermissions,
 } from "./AppVisorEmbedPdf.types";
+export type { FitMode } from "./autoFit/autoFit.math";
 export { AppVisorEmbedPdf } from "./AppVisorEmbedPdf";
 

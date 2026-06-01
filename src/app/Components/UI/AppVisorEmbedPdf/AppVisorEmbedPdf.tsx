@@ -1,4 +1,5 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import type { MutableRefObject } from "react";
 import { useZoom } from "@embedpdf/plugin-zoom/react";
 import { ThumbnailsPane, ThumbImg } from "@embedpdf/plugin-thumbnail/react";
 import { useScroll } from "@embedpdf/plugin-scroll/react";
@@ -13,7 +14,11 @@ import { AnnotationLayer } from "@embedpdf/plugin-annotation/react";
 import { PagePointerProvider } from "@embedpdf/plugin-interaction-manager/react";
 import { useAnnotation, useAnnotationCapability } from "@embedpdf/plugin-annotation/react";
 import { LockModeType } from "@embedpdf/plugin-annotation";
-import { useSelectionCapability } from "@embedpdf/plugin-selection/react";
+import {
+  SelectionLayer,
+  useSelectionCapability,
+  type SelectionSelectionMenuProps,
+} from "@embedpdf/plugin-selection/react";
 import {
   deserializeEntries,
   serializeEntries,
@@ -59,6 +64,8 @@ import {
   resolveCodigoImplementacion,
 } from "./AppVisorEmbedPdf.permissions";
 import { fetchMisPermisosVisorPdf } from "./AppVisorEmbedPdf.service";
+import { applyAutoFitOnce } from "./autoFit/autoFit.apply";
+import type { FitMode } from "./autoFit/autoFit.math";
 
 function cx(...parts: Array<string | undefined>) {
   return parts.filter(Boolean).join(" ");
@@ -377,6 +384,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
         <EmbedPdfDocumentHost
           fileUrl={effectiveFileUrl}
           managedSeq={loadSeqRef.current}
+          documentKey={lastLoadIdentityRef.current?.documentKey}
           loading={loading}
           permissionsEffective={permissionsForRender}
           onManagedOpenResult={(payload) => {
@@ -472,13 +480,15 @@ function resolve(params: {
 function EmbedPdfDocumentHost(props: {
   fileUrl: string;
   managedSeq: number;
+  documentKey?: string;
   loading?: boolean;
   permissionsEffective: ViewerEffectivePermissions;
   onManagedOpenResult(payload: { seq: number; ok: boolean; errors: string[] }): void;
 }) {
-  const { fileUrl, managedSeq, loading = false, permissionsEffective, onManagedOpenResult } = props;
+  const { fileUrl, managedSeq, documentKey, loading = false, permissionsEffective, onManagedOpenResult } = props;
   const { provides } = useDocumentManagerCapability();
   const { activeDocumentId } = useActiveDocument();
+  const fitMode: FitMode = "width";
 
   const [password, setPassword] = useState<string | null>(null);
   const [passwordAttempt, setPasswordAttempt] = useState(0);
@@ -487,6 +497,9 @@ function EmbedPdfDocumentHost(props: {
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
 
   const openedDocumentIdRef = useRef<string | null>(null);
+  const autoFitIntentRef = useRef<{ documentId: string; seq: number } | null>(null);
+  const autoFitAppliedRef = useRef(false);
+  const rotationByDocumentKeyRef = useRef<Map<string, number>>(new Map());
   const latestManagedSeqRef = useRef(managedSeq);
   const lastOpenedRef = useRef<
     { url: string; password: string | null; attempt: number } | null
@@ -506,6 +519,8 @@ function EmbedPdfDocumentHost(props: {
     setIsSubmittingPassword(false);
     lastOpenedRef.current = null;
     lastAttemptHadPasswordRef.current = false;
+    autoFitIntentRef.current = null;
+    autoFitAppliedRef.current = false;
   }, [fileUrl]);
 
   useEffect(() => {
@@ -570,6 +585,8 @@ function EmbedPdfDocumentHost(props: {
             setPasswordPromptOpen(false);
             setInvalidPassword(false);
             dvLog("[DV][visor]", "engine ready (task ok)", { managedSeq });
+            autoFitIntentRef.current = { documentId: response.documentId, seq: managedSeq };
+            autoFitAppliedRef.current = false;
             onManagedOpenResult({ seq: managedSeq, ok: true, errors: [] });
           },
           () => {
@@ -688,6 +705,11 @@ function EmbedPdfDocumentHost(props: {
           isLoading={isLoading}
           loading={loading}
           permissionsEffective={permissionsEffective}
+          fitMode={fitMode}
+          autoFitIntentRef={autoFitIntentRef}
+          autoFitAppliedRef={autoFitAppliedRef}
+          documentKey={documentKey}
+          rotationByDocumentKeyRef={rotationByDocumentKeyRef}
           passwordPromptOpen={passwordPromptOpen}
           invalidPassword={invalidPassword}
           isSubmittingPassword={isSubmittingPassword}
@@ -707,6 +729,11 @@ function EmbedPdfDocumentStateView({
   isLoading,
   loading = false,
   permissionsEffective,
+  fitMode,
+  autoFitIntentRef,
+  autoFitAppliedRef,
+  documentKey,
+  rotationByDocumentKeyRef,
   passwordPromptOpen,
   invalidPassword,
   isSubmittingPassword,
@@ -720,6 +747,11 @@ function EmbedPdfDocumentStateView({
   isLoading: boolean;
   loading?: boolean;
   permissionsEffective: ViewerEffectivePermissions;
+  fitMode: FitMode;
+  autoFitIntentRef: MutableRefObject<{ documentId: string; seq: number } | null>;
+  autoFitAppliedRef: MutableRefObject<boolean>;
+  documentKey?: string;
+  rotationByDocumentKeyRef: MutableRefObject<Map<string, number>>;
   passwordPromptOpen: boolean;
   invalidPassword: boolean;
   isSubmittingPassword: boolean;
@@ -739,6 +771,11 @@ function EmbedPdfDocumentStateView({
           documentId={documentId}
           permissionsEffective={permissionsEffective}
           loading={loading}
+          fitMode={fitMode}
+          autoFitIntentRef={autoFitIntentRef}
+          autoFitAppliedRef={autoFitAppliedRef}
+          documentKey={documentKey}
+          rotationByDocumentKeyRef={rotationByDocumentKeyRef}
         />
         {passwordPromptOpen ? (
           <AppPdfPasswordPrompt
@@ -772,8 +809,13 @@ function EmbedPdfLoadedDocumentView(props: {
   documentId: string;
   permissionsEffective: ViewerEffectivePermissions;
   loading?: boolean;
+  fitMode: FitMode;
+  autoFitIntentRef: MutableRefObject<{ documentId: string; seq: number } | null>;
+  autoFitAppliedRef: MutableRefObject<boolean>;
+  documentKey?: string;
+  rotationByDocumentKeyRef: MutableRefObject<Map<string, number>>;
 }) {
-  const { documentId, permissionsEffective, loading = false } = props;
+  const { documentId, permissionsEffective, loading = false, fitMode, autoFitIntentRef, autoFitAppliedRef, documentKey, rotationByDocumentKeyRef } = props;
   const zoom = useZoom(documentId);
   const zoomLevel = typeof zoom.state.currentZoomLevel === "number" ? zoom.state.currentZoomLevel : 1;
   const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
@@ -870,18 +912,86 @@ function EmbedPdfLoadedDocumentView(props: {
 
   useEffect(() => {
     if (!selection.provides) return;
-    // Mantener plugin `selection` (requerido por `annotation`) pero desactivar su comportamiento
-    // para evitar overlays/hitboxes de texto.
+    // Activar selección de texto en PDFs.
     selection.provides.enableForMode(
       "default",
       {
-        enableSelection: false,
+        enableSelection: true,
+        // Selección tipo navegador: sin "marquee" overlay al arrastrar.
         enableMarquee: false,
-        showSelectionRects: false,
+        showSelectionRects: true,
         showMarqueeRects: false,
       },
       documentId,
     );
+  }, [selection.provides, documentId]);
+
+  const selectionMenu = useCallback(
+    (props: SelectionSelectionMenuProps) => {
+      const { rect, menuWrapperProps, placement } = props;
+      const top = placement.suggestTop ? -40 : rect.size.height + 8;
+      return (
+        <div {...menuWrapperProps}>
+          <div
+            style={{
+              position: "absolute",
+              top,
+              pointerEvents: "auto",
+              cursor: "default",
+            }}
+          >
+            <button
+              type="button"
+              className={styles.selectionCopyButton}
+              onClick={() => {
+                try {
+                  const scope = selection.provides?.forDocument(documentId);
+                  scope?.copyToClipboard?.();
+                  scope?.clear?.();
+                } catch {
+                  // ignore
+                }
+              }}
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+      );
+    },
+    [documentId, selection.provides],
+  );
+
+  // Copiar selección (tipo demo): intercepta Ctrl/Cmd+C cuando existe selección del plugin
+  // y delega a `copyToClipboard()` para evitar depender del native selection del DOM.
+  const hasSelectionRef = useRef(false);
+  useEffect(() => {
+    const provides = selection.provides;
+    if (!provides) return;
+    const scope = provides.forDocument(documentId);
+
+    const off = scope.onSelectionChange?.((sel: unknown) => {
+      hasSelectionRef.current = Boolean(sel);
+    });
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      const isCopy = (event.ctrlKey || event.metaKey) && (event.key === "c" || event.key === "C");
+      if (!isCopy) return;
+      try {
+        if (!hasSelectionRef.current && !scope.getState().selection) return;
+        event.preventDefault();
+        scope.copyToClipboard?.();
+      } catch {
+        // ignore
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown, { capture: true });
+    return () => {
+      window.removeEventListener("keydown", onKeyDown, { capture: true } as any);
+      off?.();
+      hasSelectionRef.current = false;
+    };
   }, [selection.provides, documentId]);
 
   const getSelectedSignature = useCallback(() => {
@@ -1053,6 +1163,91 @@ function EmbedPdfLoadedDocumentView(props: {
     return { vx: m.clientWidth / 2, vy: m.clientHeight / 2 };
   }, [viewport.provides, documentId]);
 
+  const persistRotationSteps = useCallback(
+    (nextSteps: number) => {
+      if (!documentKey) return;
+      const normalized = ((nextSteps % 4) + 4) % 4;
+      rotationByDocumentKeyRef.current.set(documentKey, normalized);
+      try {
+        // Persistimos el DELTA de UI (rotación del plugin) por documento.
+        // No representa la rotación base del PDF (/Rotate). No debe “pisar” la base.
+        localStorage.setItem(`appvisor:embedpdf:rotation_delta:${documentKey}`, String(normalized));
+      } catch {
+        // no-op (quota/blocked storage)
+      }
+    },
+    [documentKey, rotationByDocumentKeyRef],
+  );
+
+  useEffect(() => {
+    if (!documentKey) return;
+    if (rotationByDocumentKeyRef.current.has(documentKey)) return;
+    try {
+      const raw = localStorage.getItem(`appvisor:embedpdf:rotation_delta:${documentKey}`);
+      if (!raw) return;
+      const parsed = Number.parseInt(raw, 10);
+      if (!Number.isFinite(parsed)) return;
+      const normalized = ((parsed % 4) + 4) % 4;
+      rotationByDocumentKeyRef.current.set(documentKey, normalized);
+    } catch {
+      // ignore
+    }
+  }, [documentKey, rotationByDocumentKeyRef]);
+
+  // Aplica el DELTA persistido solo después de que el documento está Loaded (base /Rotate ya aplicada por engine).
+  // Guardrail: si el delta es 0, no forzar setRotation(0) (evita “pisar” visualmente en implementaciones donde el
+  // plugin no modela delta puro).
+  const appliedPersistedDeltaRef = useRef<{ documentId: string; documentKey?: string } | null>(null);
+  useEffect(() => {
+    if (!documentKey) return;
+    if (!rotate.provides) return;
+    const already = appliedPersistedDeltaRef.current;
+    if (already && already.documentId === documentId && already.documentKey === documentKey) return;
+
+    const persistedDelta = rotationByDocumentKeyRef.current.get(documentKey);
+    if (typeof persistedDelta !== "number") return;
+    if (persistedDelta === 0) {
+      appliedPersistedDeltaRef.current = { documentId, documentKey };
+      return;
+    }
+
+    // Apply-once por documento cargado. En caso de error, best-effort.
+    try {
+      // Espera un tick para evitar competir con activación interna del engine.
+      const id = window.setTimeout(() => {
+        try {
+          rotate.provides?.setRotation(persistedDelta);
+        } catch {
+          // ignore
+        }
+      }, 0);
+      return () => window.clearTimeout(id);
+    } finally {
+      appliedPersistedDeltaRef.current = { documentId, documentKey };
+    }
+  }, [documentId, documentKey, rotate.provides, rotationByDocumentKeyRef]);
+
+  useEffect(() => {
+    if (autoFitAppliedRef.current) return;
+    const intent = autoFitIntentRef.current;
+    if (!intent) return;
+    if (intent.documentId !== documentId) return;
+
+    const result = applyAutoFitOnce({
+      documentId,
+      fitMode,
+      rotationSteps,
+      zoomLevel,
+      zoomProvides: zoom.provides ?? undefined,
+      viewportProvides: viewport.provides ?? undefined,
+    });
+
+    if (!result.ok) return;
+    autoFitAppliedRef.current = true;
+    autoFitIntentRef.current = null;
+    dvLog("[DV][visor]", "autoFit applied", { documentId, fitMode, appliedZoom: result.appliedZoom });
+  }, [documentId, fitMode, viewport.provides, zoom.provides, zoomLevel, autoFitAppliedRef, autoFitIntentRef]);
+
   const onZoomIn = useCallback(() => {
     if (isZoomDisabled) return;
     // Usar API oficial con "center" explÃ­cito para evitar que el viewport se re-anclÃ©
@@ -1116,6 +1311,16 @@ function EmbedPdfLoadedDocumentView(props: {
   const onRotateLeft = useCallback(() => rotate.provides?.rotateBackward(), [rotate.provides]);
   const onRotateRight = useCallback(() => rotate.provides?.rotateForward(), [rotate.provides]);
   const onResetRotation = useCallback(() => rotate.provides?.setRotation(0), [rotate.provides]);
+
+  const onRotateLeftPersisted = useCallback(() => {
+    onRotateLeft();
+    persistRotationSteps(((rotationSteps + 3) % 4 + 4) % 4);
+  }, [onRotateLeft, persistRotationSteps, rotationSteps]);
+
+  const onRotateRightPersisted = useCallback(() => {
+    onRotateRight();
+    persistRotationSteps(((rotationSteps + 1) % 4 + 4) % 4);
+  }, [onRotateRight, persistRotationSteps, rotationSteps]);
 
   const onToggleSignatureModal = useCallback(() => {
     // UX: si estaba bloqueado y el usuario intenta adjuntar otra firma, desbloquear automÃ¡ticamente.
@@ -1220,8 +1425,8 @@ function EmbedPdfLoadedDocumentView(props: {
             onToggleThumbnails={onToggleThumbnails}
             isThumbnailOpen={isThumbnailOpen}
             isZoomDisabled={isZoomDisabled}
-            onRotateLeft={onRotateLeft}
-            onRotateRight={onRotateRight}
+            onRotateLeft={onRotateLeftPersisted}
+            onRotateRight={onRotateRightPersisted}
             onToggleSignatureModal={onToggleSignatureModal}
             isSignatureModalOpen={isSignatureModalOpen}
             isSignatureDisabled={!permissionsEffective.allowSignaturePlacement}
@@ -1349,20 +1554,58 @@ function EmbedPdfLoadedDocumentView(props: {
         >
             <Scroller
               documentId={documentId}
-            renderPage={({ pageIndex, width, height, rotatedWidth, rotatedHeight }) => (
+            renderPage={({ pageIndex, width, height, rotatedWidth, rotatedHeight }) => {
+              const slotWidth = Math.ceil(rotatedWidth);
+              const slotHeight = Math.ceil(rotatedHeight);
+              const baseWidth = Math.ceil(width);
+              const baseHeight = Math.ceil(height);
+              const slotLooksRotated = slotWidth !== baseWidth || slotHeight !== baseHeight;
+
+              return (
               <div
                 className={styles.pageLayer}
                 // `width/height` aquÃ­ representan el "slot" calculado por el Scroll plugin
                 // para la pÃ¡gina actual (ya considera rotaciÃ³n/escala).
                 style={{
-                  width: Math.ceil(rotationSteps % 2 === 1 ? rotatedWidth : width),
-                  // Guardrail: algunos PDFs/escala generan rounding y el slot queda 1-2px corto,
-                  // Mantener el slot exactamente como lo calcula EmbedPDF para evitar
-                  // diferencias visuales vs. rotaciÃ³n 0 y evitar solapamientos.
-                  height: Math.ceil(rotationSteps % 2 === 1 ? rotatedHeight : height),
+                  width: slotWidth,
+                  height: slotHeight,
+                  // Evitar clipping cuando el slot efectivo es rotado (/Rotate) y el contenido se envuelve en <Rotate>.
+                  // Mantener visible el contenido mientras el engine termina de calcular y pintar.
+                  overflow: "visible",
                 }}
               >
-                {rotationSteps === 0 ? (
+                {rotationSteps === 0 && slotLooksRotated ? (
+                  <Rotate
+                    documentId={documentId}
+                    pageIndex={pageIndex}
+                    // Para 90/270 el clipping suele ocurrir en el eje "alto" del contenedor rotado.
+                    // Reusamos la misma estrategia del branch normal de <Rotate>: el slot es (rotatedW x rotatedH),
+                    // pero el contenedor rotado necesita suficiente "alto base" para que el contenido portrait no se recorte.
+                    style={{ width: slotWidth + 2, height: baseHeight + 2 }}
+                  >
+                    <div style={{ width: baseWidth, height: baseHeight }}>
+                  <PagePointerProvider
+                    documentId={documentId}
+                    pageIndex={pageIndex}
+                    scale={zoomLevel}
+                    rotation={1 as any}
+                  >
+                    <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                    <SelectionLayer
+                      documentId={documentId}
+                      pageIndex={pageIndex}
+                      selectionMenu={selectionMenu}
+                    />
+                    <AnnotationLayer
+                      documentId={documentId}
+                      pageIndex={pageIndex}
+                      scale={zoomLevel}
+                      rotation={1 as any}
+                    />
+                  </PagePointerProvider>
+                    </div>
+                  </Rotate>
+                ) : rotationSteps === 0 ? (
                   <PagePointerProvider
                     documentId={documentId}
                     pageIndex={pageIndex}
@@ -1370,6 +1613,11 @@ function EmbedPdfLoadedDocumentView(props: {
                     rotation={rotationRaw as any}
                   >
                     <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                    <SelectionLayer
+                      documentId={documentId}
+                      pageIndex={pageIndex}
+                      selectionMenu={selectionMenu}
+                    />
                     <AnnotationLayer
                       documentId={documentId}
                       pageIndex={pageIndex}
@@ -1392,7 +1640,12 @@ function EmbedPdfLoadedDocumentView(props: {
                             // Usamos el alto base (`height`) para evitar recorte del contenido rotado.
                             height: Math.ceil(height),
                           }
-                        : undefined
+                        : {
+                            // Para 180 (y 0 en teoría, aunque este branch no corre en 0),
+                            // el slot no cambia de orientación pero puede haber clipping por rounding subpixel.
+                            width: Math.ceil(width) + 2,
+                            height: Math.ceil(height) + 2,
+                          }
                     }
                   >
                     {/* 
@@ -1414,6 +1667,11 @@ function EmbedPdfLoadedDocumentView(props: {
                         rotation={rotationRaw as any}
                       >
                         <RenderLayer documentId={documentId} pageIndex={pageIndex} />
+                        <SelectionLayer
+                          documentId={documentId}
+                          pageIndex={pageIndex}
+                          selectionMenu={selectionMenu}
+                        />
                         <AnnotationLayer
                           documentId={documentId}
                           pageIndex={pageIndex}
@@ -1425,7 +1683,8 @@ function EmbedPdfLoadedDocumentView(props: {
                   </Rotate>
                 )}
               </div>
-            )}
+              );
+            }}
           />
         </Viewport>
       </div>
