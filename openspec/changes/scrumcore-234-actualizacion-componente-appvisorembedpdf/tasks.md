@@ -20,6 +20,11 @@
 - [ ] 3.3 Integrar handler de resize (debounce 50–100ms) solo para métricas/observabilidad; NO re‑auto‑fit por defecto.
 - [ ] 3.4 Instrumentar tracking de “zoom manual” para setear `userZoomDirty` (wheel/pinch/buttons) sin loops.
 - [x] 3.5 Stale‑safe: ignorar auto‑fit si cambió `documentId/loadSeq` o si se canceló el load.
+- [x] 3.6 Ajustar render por página para usar slot rotado (`rotatedWidth/rotatedHeight`) y evitar clipping en rotación metadata/manual.
+- [x] 3.7 Integrar `SelectionLayer` dentro de `PagePointerProvider` para selección de texto en PDF.
+- [x] 3.8 Registrar `InteractionManagerPluginPackage` y `SelectionPluginPackage` desde entradas React oficiales (`/react`) para habilitar copy-to-clipboard.
+- [x] 3.9 Agregar menú contextual `Copy` y soporte `Ctrl/Cmd+C` usando `selection.provides.forDocument(documentId).copyToClipboard()`.
+- [x] 3.10 Ajustar CSS para evitar drag del bitmap renderizado y priorizar la interacción sobre `SelectionLayer`.
 
 ## 4) Pruebas
 
@@ -32,4 +37,7 @@
 
 - [x] 5.1 Crear docs enterprise en `docs/Components/AppTable/Auto-Fit/` (estructura SCRUMCORE‑234).
 - [x] 5.2 Registrar evidencia de pruebas ejecutadas (comandos + resultados).
-- [ ] 5.3 `opsxj:archive` + PR + cierre Jira cuando esté mergeado.
+- [x] 5.3 Documentar minuciosamente zoom, rotación, render por página, selección de texto, plugin selection React y flujo copy-to-clipboard.
+- [x] 5.4 Crear copia canonical de documentación en `docs/Components/AppVisorEmbedPdf/Auto-Fit/` y espejo en `docs/Components/AppTable/Auto-Fit/`.
+- [x] 5.5 Crear commit de documentación y ajustes relacionados: `8475bfc SCRUMCORE-234: document zoom and selection updates`.
+- [ ] 5.6 `opsxj:archive` + PR + cierre Jira cuando esté mergeado.
