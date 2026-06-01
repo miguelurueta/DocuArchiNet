@@ -73,7 +73,29 @@ Resultado:
 - PASS.
 - `1` test file passed.
 - `4` tests passed.
-- Ultima duracion reportada por Vitest: `1.81s`.
+- Ultima duracion reportada por Vitest: `2.17s`.
+
+### Test unitario/integracion AppVisorEmbedPdf
+
+Comando ejecutado:
+
+```powershell
+npm run test -- src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.test.tsx
+```
+
+Resultado:
+
+- PASS.
+- `1` test file passed.
+- `15` tests passed.
+- `2` tests skipped.
+- Duracion reportada por Vitest: `39.96s`.
+
+Notas no bloqueantes:
+
+- React reporto un warning de test por update no envuelto en `act(...)`.
+- React reporto warning de estilo por `NaN` en `width` durante un caso de test.
+- Ninguno de los warnings hizo fallar el suite.
 
 ### Build general
 
@@ -87,7 +109,7 @@ Resultado:
 
 - Falla.
 - La falla ya no incluye el error anterior de `scope.getSelection` en el flujo de seleccion/copiado.
-- Persisten errores TypeScript no resueltos y algunos del visor no relacionados directamente con la documentacion Auto-Fit.
+- Persisten errores TypeScript no resueltos, incluyendo deuda previa en `AppEditor`, tipos de tareas EmbedPDF/BlobPart en `AppVisorEmbedPdf`, contrato `exclusive` en annotation tools, firmas y `gestionCorrespondencia`.
 
 Errores relevantes observados:
 
@@ -98,7 +120,8 @@ Errores relevantes observados:
 Interpretacion:
 
 - El build general no es evidencia de cierre completo.
-- Para SCRUMCORE-234, la evidencia automatizada disponible y acotada es el test unitario de math; debe ejecutarse antes de archive.
+- Para SCRUMCORE-234, la evidencia automatizada acotada al cambio es positiva: Auto-Fit math y suite `AppVisorEmbedPdf` pasan.
+- El build general requiere un ticket de saneamiento TypeScript separado o ampliacion explicita de alcance.
 
 ## Comandos Recomendados Antes de Cierre
 

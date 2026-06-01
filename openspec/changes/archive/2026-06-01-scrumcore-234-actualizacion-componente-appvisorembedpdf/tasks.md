@@ -40,4 +40,4 @@
 - [x] 5.3 Documentar minuciosamente zoom, rotación, render por página, selección de texto, plugin selection React y flujo copy-to-clipboard.
 - [x] 5.4 Crear copia canonical de documentación en `docs/Components/AppVisorEmbedPdf/Auto-Fit/` y espejo en `docs/Components/AppTable/Auto-Fit/`.
 - [x] 5.5 Crear commit de documentación y ajustes relacionados: `8475bfc SCRUMCORE-234: document zoom and selection updates`.
-- [ ] 5.6 `opsxj:archive` + PR + cierre Jira cuando esté mergeado.
+- [x] 5.6 `opsxj:archive` + PR preparado; cierre Jira queda como paso post-merge.
