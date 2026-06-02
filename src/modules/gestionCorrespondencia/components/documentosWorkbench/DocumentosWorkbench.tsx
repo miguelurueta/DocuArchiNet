@@ -99,6 +99,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const viewerLoadingKeyRef = useRef<string | null>(null);
   const viewerLoadingShownAtRef = useRef<number | null>(null);
   const viewerLoadingMinHideRef = useRef<number | null>(null);
+  const documentHintTimeoutRef = useRef<number | null>(null);
   const attemptIdRef = useRef(0);
   const lastNotifiedErrorRef = useRef<string | null>(null);
   const toastIdRef = useRef<ToastId | null>(null);
@@ -111,6 +112,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const [activeRowId, setActiveRowId] = useState<string | undefined>(undefined);
   const [viewerError, setViewerError] = useState<string | null>(null);
   const [showViewerLoading, setShowViewerLoading] = useState(false);
+  const [documentHintActive, setDocumentHintActive] = useState(false);
   const [documentContext, setDocumentContext] = useState<{
     documentId?: number;
     nombreGabinete?: string;
@@ -232,6 +234,23 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
 
   const toggleIcon = layoutCollapsed ? <LeftOutlined /> : <RightOutlined />;
 
+  const triggerDocumentListHint = useCallback(() => {
+    setCollapsed(false);
+    setDocumentHintActive(false);
+    if (documentHintTimeoutRef.current) window.clearTimeout(documentHintTimeoutRef.current);
+
+    const scheduleFrame =
+      window.requestAnimationFrame ??
+      ((callback: FrameRequestCallback) => window.setTimeout(() => callback(performance.now()), 0));
+    scheduleFrame(() => {
+      setDocumentHintActive(true);
+      documentHintTimeoutRef.current = window.setTimeout(() => {
+        setDocumentHintActive(false);
+        documentHintTimeoutRef.current = null;
+      }, 1600);
+    });
+  }, []);
+
   useEffect(() => {
     const fileUrl = documentViewer.documentoActivo?.fileUrl ?? null;
     if (!fileUrl) return;
@@ -323,6 +342,13 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     lastNotifiedErrorRef.current = viewerError;
     toastIdRef.current = toast.error(viewerError, { autoClose: false, closeOnClick: false });
   }, [viewerError]);
+
+  useEffect(
+    () => () => {
+      if (documentHintTimeoutRef.current) window.clearTimeout(documentHintTimeoutRef.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!toastIdRef.current) return;
@@ -463,6 +489,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             ref={visorRef}
             fileUrl={activeFileUrl}
             loading={showViewerLoading}
+            onEmptyDocumentHintRequest={triggerDocumentListHint}
           />
         ) : documentViewer.documentoActivo?.viewerKind === "image" && activeFileUrl ? (
           <img
@@ -477,6 +504,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             ref={visorRef}
             fileUrl={activeFileUrl}
             loading={showViewerLoading}
+            onEmptyDocumentHintRequest={triggerDocumentListHint}
           />
         )}
       </div>
@@ -504,7 +532,11 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
               className={styles.collapseButton}
             />
           </header>
-          <div className={styles.listSurface} aria-label="Listado de documentos">
+          <div
+            className={styles.listSurface}
+            aria-label="Listado de documentos"
+            data-document-hint-active={documentHintActive}
+          >
           <AppTreeTable
               load={documentosTable.load}
               loadChildren={documentosTable.loadChildren}

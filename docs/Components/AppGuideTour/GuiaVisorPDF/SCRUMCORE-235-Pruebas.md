@@ -26,6 +26,41 @@ Cobertura agregada:
 - Click/keyboard sobre ayuda inicia el flujo.
 - `AppVisorEmbedPdf` renderiza `AppGuideTour`, expone targets y conecta el boton de ayuda.
 
+## Workbench de documentos
+
+Comando ejecutado durante los refinamientos visuales:
+
+```bash
+npm test -- --run src/modules/gestionCorrespondencia/tests/DocumentosWorkbench.test.tsx
+```
+
+Resultado:
+
+```text
+1 file passed
+6 tests passed
+```
+
+Cobertura agregada:
+
+- El visor embebido recibe `onEmptyDocumentHintRequest`.
+- El click sobre el icono de ayuda del estado vacio activa `data-document-hint-active="true"` en el listado.
+- El hint es visual y no reemplaza el flujo real de seleccion de fila.
+
+Validacion enfocada posterior:
+
+```bash
+npm test -- --run src/modules/gestionCorrespondencia/tests/DocumentosWorkbench.test.tsx src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.test.tsx
+```
+
+Resultado:
+
+```text
+2 files passed
+22 tests passed
+2 skipped heredados
+```
+
 ## Playwright
 
 Smoke del tour:

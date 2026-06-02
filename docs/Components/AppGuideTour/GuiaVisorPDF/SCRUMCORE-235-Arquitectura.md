@@ -95,6 +95,27 @@ sequenceDiagram
   H-->>V: onEvent(event)
 ```
 
+## sequenceDiagram - Hint de seleccion de documento
+
+```mermaid
+sequenceDiagram
+  participant U as Usuario
+  participant E as EmptyState
+  participant V as AppVisorEmbedPdf
+  participant W as DocumentosWorkbench
+  participant L as Listado AG Grid
+
+  U->>E: Click icono documento/flecha
+  E->>V: onDocumentHintRequest()
+  V->>W: onEmptyDocumentHintRequest()
+  W->>W: setCollapsed(false)
+  W->>W: setDocumentHintActive(true)
+  W->>L: data-document-hint-active=true
+  L-->>U: Titileo primera fila completa
+  W->>W: timeout 1600ms
+  W->>L: data-document-hint-active=false
+```
+
 ## stateDiagram-v2
 
 ```mermaid

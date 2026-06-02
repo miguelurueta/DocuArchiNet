@@ -138,7 +138,7 @@ async function saveBlobToIndexedDb(params: { documentId: string; name: string; b
  * Se prohÃ­be filtrar detalles del engine hacia mÃ³dulos consumidores.
  */
 export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdfProps>(function AppVisorEmbedPdf(
-  { fileUrl, loading = false, className, style }: AppVisorEmbedPdfProps,
+  { fileUrl, loading = false, className, style, onEmptyDocumentHintRequest }: AppVisorEmbedPdfProps,
   ref,
 ) {
   const demoUrl = useDemoPdfUrl();
@@ -378,7 +378,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     return (
       <div className={cx(styles.root, className)} style={style} role="status" aria-label="Zona de documento">
         {loading ? <FullLoadingOverlay /> : null}
-        <EmptyState />
+        <EmptyState onDocumentHintRequest={onEmptyDocumentHintRequest} />
       </div>
     );
   }

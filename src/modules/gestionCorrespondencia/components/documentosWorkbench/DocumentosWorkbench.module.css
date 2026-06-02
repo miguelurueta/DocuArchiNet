@@ -282,6 +282,23 @@
   box-shadow: none;
 }
 
+.listSurface[data-document-hint-active="true"] :global(.ag-theme-quartz .ag-row[row-index="0"] .ag-cell) {
+  animation: documentHintPulse 0.8s ease-in-out 2;
+}
+
+@keyframes documentHintPulse {
+  0%,
+  100% {
+    background-color: transparent;
+    color: inherit;
+  }
+
+  45% {
+    background-color: rgba(15, 23, 42, 0.09);
+    color: inherit;
+  }
+}
+
 /* Selected row: respect aria-selected without relying on AG Grid selected paint */
 .listSurface :global(.ag-theme-quartz .ag-row[aria-selected="true"] .ag-cell) {
   background-color: var(--docu-wb-row-selected);
