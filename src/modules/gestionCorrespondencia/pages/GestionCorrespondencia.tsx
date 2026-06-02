@@ -76,38 +76,30 @@ const resolveStatusValue = (row: AppTableRow | null | undefined): string => {
   return "";
 };
 
-const resolveStatusTone = (value: string): "success" | "warning" | "danger" | "neutral" => {
-  const normalized = value.trim().toLocaleLowerCase();
+type StatusTone = "success" | "warning" | "info" | "review" | "archived" | "danger" | "neutral";
+
+const normalizeStatusKey = (value: string): string =>
+  value
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase();
+
+const STATUS_TONE_BY_VALUE: Record<string, StatusTone> = {
+  "por tramitar": "warning",
+  "en tramite": "info",
+  tramitado: "success",
+  "solicitud aprobada": "success",
+  "solicitud por aprobacion": "review",
+  "tramitado archivado": "archived",
+};
+
+const resolveStatusTone = (value: string): StatusTone => {
+  const normalized = normalizeStatusKey(value);
 
   if (!normalized) return "neutral";
-  if (
-    normalized.includes("venc") ||
-    normalized.includes("rechaz") ||
-    normalized.includes("error") ||
-    normalized.includes("bloque")
-  ) {
-    return "danger";
-  }
-  if (
-    normalized.includes("pend") ||
-    normalized.includes("curso") ||
-    normalized.includes("proceso") ||
-    normalized.includes("revision") ||
-    normalized.includes("revisi")
-  ) {
-    return "warning";
-  }
-  if (
-    normalized.includes("final") ||
-    normalized.includes("cerr") ||
-    normalized.includes("complet") ||
-    normalized.includes("aprob") ||
-    normalized.includes("resuelt")
-  ) {
-    return "success";
-  }
 
-  return "neutral";
+  return STATUS_TONE_BY_VALUE[normalized] ?? "neutral";
 };
 
 function GestionEstadoSemaforoCell<T extends AppTableRow>({ data }: { data?: T }) {

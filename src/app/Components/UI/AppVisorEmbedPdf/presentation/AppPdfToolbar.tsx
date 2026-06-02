@@ -279,7 +279,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
       {showGuideTourButton ? (
         <button
           type="button"
-          className={styles.button}
+          className={`${styles.button} ${styles.guideButton}`}
           onClick={onStartGuideTour}
           data-guide-tour-id="pdf-help"
           aria-label="Guia interactiva"
@@ -287,6 +287,9 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         >
           <span className={styles.icon} aria-hidden="true">
             <QuestionCircleOutlined />
+          </span>
+          <span className={styles.guideButtonDot} aria-hidden="true">
+            1
           </span>
         </button>
       ) : null}

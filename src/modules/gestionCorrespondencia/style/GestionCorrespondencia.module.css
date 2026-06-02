@@ -269,27 +269,42 @@
   height: 9px;
   border-radius: 999px;
   background: #94a3b8;
-  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.14);
+  box-shadow: none;
 }
 
 .statusSemaphoreDot[data-tone="success"] {
   background: #16a34a;
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.14);
+  box-shadow: none;
 }
 
 .statusSemaphoreDot[data-tone="warning"] {
   background: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+  box-shadow: none;
+}
+
+.statusSemaphoreDot[data-tone="info"] {
+  background: #0ea5e9;
+  box-shadow: none;
+}
+
+.statusSemaphoreDot[data-tone="review"] {
+  background: #3b82f6;
+  box-shadow: none;
+}
+
+.statusSemaphoreDot[data-tone="archived"] {
+  background: #64748b;
+  box-shadow: none;
 }
 
 .statusSemaphoreDot[data-tone="danger"] {
   background: #dc2626;
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14);
+  box-shadow: none;
 }
 
 .statusSemaphoreDot[data-tone="neutral"] {
   background: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+  box-shadow: none;
 }
 
 .featureList {
