@@ -200,6 +200,50 @@
   background: var(--gestion-table-action-active);
 }
 
+.statusSemaphoreHeader {
+  padding-inline: 0 !important;
+}
+
+.statusSemaphoreCell {
+  padding-inline: 0 !important;
+}
+
+.statusSemaphore {
+  display: inline-flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.statusSemaphoreDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #94a3b8;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.14);
+}
+
+.statusSemaphoreDot[data-tone="success"] {
+  background: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.14);
+}
+
+.statusSemaphoreDot[data-tone="warning"] {
+  background: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.16);
+}
+
+.statusSemaphoreDot[data-tone="danger"] {
+  background: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14);
+}
+
+.statusSemaphoreDot[data-tone="neutral"] {
+  background: #64748b;
+  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.14);
+}
+
 .featureList {
   margin: 0;
   padding-left: 20px;
