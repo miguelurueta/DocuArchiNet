@@ -12,6 +12,29 @@ const appGuideTourMock = vi.hoisted(() => ({
   refresh: vi.fn(),
 }));
 
+type MockPersonalSignatureStatus = "idle" | "loading" | "ready" | "error" | "empty";
+
+const workflowPersonalSignatureMock = vi.hoisted(() => {
+  const load = vi.fn();
+  const reload = vi.fn();
+  const clear = vi.fn();
+  return {
+    load,
+    reload,
+    clear,
+    state: {
+      status: "idle" as MockPersonalSignatureStatus,
+      meta: null as { fileName: string; contentType: string; expiresAt: string; urlTemporal: string } | null,
+      blobUrl: null as string | null,
+      imageData: null as ArrayBuffer | null,
+      errorMessage: null as string | null,
+      load,
+      reload,
+      clear,
+    },
+  };
+});
+
 vi.mock("../AppGuideTour", async () => {
   const ReactRuntime = await import("react");
 
@@ -53,6 +76,10 @@ vi.mock("./hooks/useDemoPdfUrl", () => ({
   useDemoPdfUrl: () => useDemoPdfUrlMock(),
 }));
 
+vi.mock("./hooks/useWorkflowPersonalSignature", () => ({
+  useWorkflowPersonalSignature: () => workflowPersonalSignatureMock.state,
+}));
+
 // JSDOM no soporta bien cargar recursos `blob:` en <img> en unit tests.
 // Evitamos que el ResourceLoader intente "navegar" el blobUrl.
 let originalImageCtor: unknown = null;
@@ -74,6 +101,14 @@ beforeEach(() => {
     }
   };
   activeDocumentIdState = "doc-1";
+  workflowPersonalSignatureMock.load.mockReset();
+  workflowPersonalSignatureMock.reload.mockReset();
+  workflowPersonalSignatureMock.clear.mockReset();
+  workflowPersonalSignatureMock.state.status = "idle";
+  workflowPersonalSignatureMock.state.meta = null;
+  workflowPersonalSignatureMock.state.blobUrl = null;
+  workflowPersonalSignatureMock.state.imageData = null;
+  workflowPersonalSignatureMock.state.errorMessage = null;
 });
 
 afterEach(() => {
@@ -350,8 +385,24 @@ vi.mock("./engine/embedPdfAdapter", () => ({
   Scroller: ({
     renderPage,
   }: {
-    renderPage: (props: { pageIndex: number }) => React.ReactNode;
-  }) => <div data-testid="scroller">{renderPage({ pageIndex: 0 })}</div>,
+    renderPage: (props: {
+      pageIndex: number;
+      width: number;
+      height: number;
+      rotatedWidth: number;
+      rotatedHeight: number;
+    }) => React.ReactNode;
+  }) => (
+    <div data-testid="scroller">
+      {renderPage({
+        pageIndex: 0,
+        width: 612,
+        height: 792,
+        rotatedWidth: 612,
+        rotatedHeight: 792,
+      })}
+    </div>
+  ),
   RenderLayer: ({ pageIndex }: { pageIndex: number }) => (
     <div data-testid="render-layer">page:{pageIndex}</div>
   ),
@@ -381,14 +432,16 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     ).toBeInTheDocument();
   });
 
-  it("usa el demo pdf cuando fileUrl no existe", () => {
+  it("usa el demo pdf cuando fileUrl no existe", async () => {
     useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
     lastDocumentContentSrc = undefined;
 
     render(<AppVisorEmbedPdf />);
 
     expect(useDemoPdfUrlMock).toHaveBeenCalled();
-    expect(screen.getByTestId("render-layer")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("render-layer")).toBeInTheDocument();
+    });
   });
 
   it("[SPEC:SCRUMCORE-204] renderiza toolbar y permite zoom in/out/reset", async () => {
@@ -610,44 +663,19 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     expect(activateSignaturePlacementMock).toHaveBeenCalledTimes(1);
   });
 
-  it.skip("[SPEC:SCRUMCORE-211] pestaña Firma personal renderiza y permite usar firma descargada", async () => {
+  it("[SPEC:SCRUMCORE-211] pestaña Firma personal renderiza y permite usar firma descargada", async () => {
     useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
     signatureAddEntryMock.mockClear();
     activateSignaturePlacementMock.mockClear();
-    clienteApiGetMock.mockReset();
-
-    const createObjectUrlSpy = vi
-      .spyOn(URL, "createObjectURL")
-      .mockImplementation(() => "blob:http://localhost/personal-sig");
-    const revokeObjectUrlSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
-
-    clienteApiGetMock.mockImplementation((url: string) => {
-      if (url === "/api/workflow/usuarios/firma-temporal") {
-        return Promise.resolve({
-          data: {
-            success: true,
-            message: "YES",
-            data: {
-              IdUsuarioWorkflow: 141,
-              FileName: "firma.png",
-              ContentType: "image/png",
-              RelativePath: "signatures/firma.png",
-              UrlTemporal: "/api/workflow/usuarios/firma-temporal/download/tok-1",
-              ExpiresAt: "2026-05-15T00:00:00Z",
-            },
-            errors: [],
-          },
-        });
-      }
-
-      if (String(url).includes("/api/workflow/usuarios/firma-temporal/download/")) {
-        return Promise.resolve({
-          data: new Blob(["png"], { type: "image/png" }),
-        });
-      }
-
-      throw new Error(`Unexpected GET: ${url}`);
-    });
+    workflowPersonalSignatureMock.state.status = "ready";
+    workflowPersonalSignatureMock.state.meta = {
+      fileName: "firma.png",
+      contentType: "image/png",
+      expiresAt: "2026-05-15T00:00:00Z",
+      urlTemporal: "/api/workflow/usuarios/firma-temporal/download/tok-1",
+    };
+    workflowPersonalSignatureMock.state.blobUrl = "data:image/png;base64,cG5n";
+    workflowPersonalSignatureMock.state.imageData = new ArrayBuffer(3);
 
     render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
 
@@ -658,71 +686,30 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
 
     await user.click(screen.getByRole("button", { name: /firma personal/i }));
 
-    await waitFor(() =>
-      expect(screen.getByRole("button", { name: /firma personal/i })).toBeInTheDocument()
-    );
+    expect(workflowPersonalSignatureMock.load).toHaveBeenCalledTimes(1);
+    expect(screen.getByLabelText(/vista previa firma personal/i)).toBeInTheDocument();
+    expect(screen.getByText("firma.png")).toBeInTheDocument();
 
     expect(screen.queryByRole("button", { name: /usar firma personal/i })).not.toBeInTheDocument();
-    expect(screen.queryByText(/blob:/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/data:image/i)).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /usar firma/i }));
 
-    expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
     expect(signatureAddEntryMock).toHaveBeenCalledTimes(1);
+    expect(signatureAddEntryMock).toHaveBeenCalledWith({
+      signature: expect.objectContaining({
+        previewDataUrl: "data:image/png;base64,cG5n",
+        imageMimeType: "image/png",
+        imageData: workflowPersonalSignatureMock.state.imageData,
+      }),
+    });
     expect(activateSignaturePlacementMock).toHaveBeenCalledTimes(1);
-
-    // Cleanup al usar y resetear modal (revoca objectURL y limpia estado)
-    expect(revokeObjectUrlSpy).toHaveBeenCalled();
-
-    createObjectUrlSpy.mockRestore();
-    revokeObjectUrlSpy.mockRestore();
+    expect(workflowPersonalSignatureMock.clear).toHaveBeenCalled();
   });
 
-  it.skip("[SPEC:SCRUMCORE-211] download 404 reintenta metadata y descarga una vez", async () => {
+  it("[SPEC:SCRUMCORE-211] pestaña Firma personal muestra estado de carga y pide load al entrar", async () => {
     useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
-    clienteApiGetMock.mockReset();
-
-    const createObjectUrlSpy = vi
-      .spyOn(URL, "createObjectURL")
-      .mockImplementation(() => "blob:http://localhost/personal-sig");
-    const revokeObjectUrlSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
-
-    let metaCall = 0;
-    let downloadCall = 0;
-
-    clienteApiGetMock.mockImplementation((url: string) => {
-      if (url === "/api/workflow/usuarios/firma-temporal") {
-        metaCall += 1;
-        const tok = metaCall === 1 ? "tok-1" : "tok-2";
-        return Promise.resolve({
-          data: {
-            success: true,
-            message: "YES",
-            data: {
-              IdUsuarioWorkflow: 141,
-              FileName: `firma-${tok}.png`,
-              ContentType: "image/png",
-              RelativePath: `signatures/firma-${tok}.png`,
-              UrlTemporal: `/api/workflow/usuarios/firma-temporal/download/${tok}`,
-              ExpiresAt: "2026-05-15T00:00:00Z",
-            },
-            errors: [],
-          },
-        });
-      }
-
-      if (String(url).includes("/api/workflow/usuarios/firma-temporal/download/")) {
-        downloadCall += 1;
-        if (downloadCall === 1) {
-          return Promise.reject({ response: { status: 404 } });
-        }
-        return Promise.resolve({
-          data: new Blob(["png"], { type: "image/png" }),
-        });
-      }
-
-      throw new Error(`Unexpected GET: ${url}`);
-    });
+    workflowPersonalSignatureMock.state.status = "loading";
 
     render(<AppVisorEmbedPdf fileUrl="/demo/Radicado_2026_0413.pdf" />);
 
@@ -730,20 +717,8 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     await user.click(screen.getByRole("button", { name: /signature/i }));
     await user.click(screen.getByRole("button", { name: /firma personal/i }));
 
-    await waitFor(() =>
-      expect(screen.getByRole("button", { name: /usar firma/i })).toBeInTheDocument()
-    );
-
-    expect(metaCall).toBe(2);
-    expect(downloadCall).toBe(2);
-    expect(createObjectUrlSpy).toHaveBeenCalledTimes(1);
-
-    // Cleanup en cierre del modal
-    await user.click(screen.getByRole("button", { name: /cerrar modal de firmas/i }));
-    expect(revokeObjectUrlSpy).toHaveBeenCalled();
-
-    createObjectUrlSpy.mockRestore();
-    revokeObjectUrlSpy.mockRestore();
+    expect(workflowPersonalSignatureMock.load).toHaveBeenCalledTimes(1);
+    expect(screen.getByLabelText(/cargando firma personal/i)).toBeInTheDocument();
   });
 
   it("[SPEC:SCRUMCORE-213] paginaci\u00f3n permite escribir n\u00famero y navega con scrollToPage", async () => {

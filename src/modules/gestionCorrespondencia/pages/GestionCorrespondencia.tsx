@@ -315,6 +315,8 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
                 rows={table.rows}
                 columns={displayColumns}
                 rowSelection="single"
+                rowSelectionCheckboxes={false}
+                rowSelectionHeaderCheckbox={false}
                 rowClickAffordance
                 rowClickTooltip="Gestionar trámite"
                 total={table.total}

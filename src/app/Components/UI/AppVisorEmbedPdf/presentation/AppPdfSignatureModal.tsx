@@ -10,6 +10,7 @@ import type {
   SignatureInkFieldDefinition,
   SignatureStampFieldDefinition,
 } from "@embedpdf/plugin-signature";
+import { SignatureCreationType } from "@embedpdf/plugin-signature";
 
 import styles from "./AppPdfSignatureModal.module.css";
 import { useWorkflowPersonalSignature } from "../hooks/useWorkflowPersonalSignature";
@@ -311,7 +312,7 @@ export const AppPdfSignatureModal = memo(function AppPdfSignatureModal({
                 if (tab === "personal") {
                   if (!personal.blobUrl || !personal.imageData) return;
                   const stamp: SignatureStampFieldDefinition = {
-                    creationType: "upload",
+                    creationType: SignatureCreationType.Upload,
                     previewDataUrl: personal.blobUrl,
                     imageMimeType: personal.meta?.contentType,
                     imageData: personal.imageData,

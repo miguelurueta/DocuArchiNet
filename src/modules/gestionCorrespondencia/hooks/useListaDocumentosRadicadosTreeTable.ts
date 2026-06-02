@@ -61,11 +61,6 @@ const buildInitialQuery = (options?: {
   return nombreGabinete ? { ...base, NombreGabinete: nombreGabinete } : base;
 };
 
-const inferColumnsFromRows = (rows: ListaDocumentosRadicadosRowDto[]): string[] => {
-  const first = rows.find((row) => row.Values && Object.keys(row.Values).length > 0);
-  return first ? Object.keys(first.Values) : [];
-};
-
 const mapRow = (row: ListaDocumentosRadicadosRowDto): AppTreeTableRow => {
   const columns = Object.keys(row.Values ?? {});
   const firstValue =

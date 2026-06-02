@@ -97,14 +97,23 @@ function waitPdfTask<T>(task: { wait(onOk: (value: T) => void, onErr: (err: unkn
   });
 }
 
-function waitPdfTaskVoid(task: { wait(onOk: () => void, onErr: (err: unknown) => void): void }) {
+function waitPdfTaskVoid(task: { wait(onOk: (value: unknown) => void, onErr: (err: unknown) => void): void }) {
   return new Promise<void>((resolve, reject) => {
     try {
-      task.wait(resolve, reject);
+      task.wait(() => resolve(), reject);
     } catch (err) {
       reject(err);
     }
   });
+}
+
+function toPdfBlobPart(buffer: ArrayBuffer | Uint8Array<ArrayBufferLike>): BlobPart {
+  if (buffer instanceof ArrayBuffer) return buffer;
+
+  const source = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+  const copy = new Uint8Array(source.byteLength);
+  copy.set(source);
+  return copy.buffer;
 }
 
 async function saveBlobToIndexedDb(params: { documentId: string; name: string; blob: Blob }) {
@@ -901,8 +910,8 @@ function EmbedPdfLoadedDocumentView(props: {
   const [isSignatureLocked, setIsSignatureLocked] = useState(false);
   const [isSavingSignedPdf, setIsSavingSignedPdf] = useState(false);
 
-  const downloadBuffer = useCallback((buffer: ArrayBuffer | Uint8Array, filename: string) => {
-    const blob = new Blob([buffer], { type: "application/pdf" });
+  const downloadBuffer = useCallback((buffer: ArrayBuffer | Uint8Array<ArrayBufferLike>, filename: string) => {
+    const blob = new Blob([toPdfBlobPart(buffer)], { type: "application/pdf" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -1137,11 +1146,11 @@ function EmbedPdfLoadedDocumentView(props: {
     try {
       // Asegurar que la firma quede aplicada en el documento antes de exportar.
       if (annotationCap.provides?.commit) {
-        await waitPdfTask<void>(annotationCap.provides.commit());
+        await waitPdfTaskVoid(annotationCap.provides.commit());
       }
 
-      const buffer = await waitPdfTask<ArrayBuffer | Uint8Array>(exportApi.provides.saveAsCopy(documentId) as any);
-      const blob = new Blob([buffer], { type: "application/pdf" });
+      const buffer = await waitPdfTask<ArrayBuffer | Uint8Array<ArrayBufferLike>>(exportApi.provides.saveAsCopy());
+      const blob = new Blob([toPdfBlobPart(buffer)], { type: "application/pdf" });
       await saveBlobToIndexedDb({ documentId, name: `signed-${documentId}.pdf`, blob });
 
       // Intento de lock por categorÃ­a (si el engine categoriza firmas).
@@ -1317,8 +1326,6 @@ function EmbedPdfLoadedDocumentView(props: {
 
   const onRotateLeft = useCallback(() => rotate.provides?.rotateBackward(), [rotate.provides]);
   const onRotateRight = useCallback(() => rotate.provides?.rotateForward(), [rotate.provides]);
-  const onResetRotation = useCallback(() => rotate.provides?.setRotation(0), [rotate.provides]);
-
   const onRotateLeftPersisted = useCallback(() => {
     onRotateLeft();
     persistRotationSteps(((rotationSteps + 3) % 4 + 4) % 4);
@@ -1337,7 +1344,7 @@ function EmbedPdfLoadedDocumentView(props: {
   const onPrint = useCallback(async () => {
     // Mantener plugin oficial para print, pero garantizando commit primero.
     try {
-      if (annotationCap.provides?.commit) await waitPdfTask<void>(annotationCap.provides.commit());
+      if (annotationCap.provides?.commit) await waitPdfTaskVoid(annotationCap.provides.commit());
     } catch {
       // ignore
     }
@@ -1348,7 +1355,7 @@ function EmbedPdfLoadedDocumentView(props: {
     // Opción 4 (sin parpadeo): exportar buffer ya "materializado" y descargarlo nosotros.
     // Esto evita que el plugin `download()` use un snapshot anterior.
     try {
-      if (annotationCap.provides?.commit) await waitPdfTask<void>(annotationCap.provides.commit());
+      if (annotationCap.provides?.commit) await waitPdfTaskVoid(annotationCap.provides.commit());
     } catch {
       // ignore
     }
@@ -1364,7 +1371,7 @@ function EmbedPdfLoadedDocumentView(props: {
       return;
     }
 
-    const buffer = await waitPdfTask<ArrayBuffer | Uint8Array>(exportApi.provides.saveAsCopy(documentId) as any);
+    const buffer = await waitPdfTask<ArrayBuffer | Uint8Array<ArrayBufferLike>>(exportApi.provides.saveAsCopy());
     downloadBuffer(buffer, `document-${documentId}.pdf`);
   }, [annotationCap.provides, documentId, downloadBuffer, exportApi.provides]);
 

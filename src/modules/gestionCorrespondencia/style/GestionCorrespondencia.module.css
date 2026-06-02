@@ -152,7 +152,8 @@
   --gestion-table-border-weak: rgba(148, 163, 184, 0.20);
   --gestion-table-border-weaker: rgba(148, 163, 184, 0.12);
   --gestion-table-row-hover: rgba(15, 23, 42, 0.045);
-  --gestion-table-row-selected: rgba(15, 23, 42, 0.035);
+  --gestion-table-row-selected: rgba(100, 116, 139, 0.14);
+  --gestion-table-row-selected-text: #111827;
   --gestion-table-focus-ring: rgba(59, 130, 246, 0.86);
   --gestion-table-action-hover: rgba(15, 23, 42, 0.05);
   --gestion-table-action-active: rgba(15, 23, 42, 0.08);
@@ -222,13 +223,14 @@
 
 .tableWrapper :global(.ag-theme-quartz .ag-row[aria-selected="true"] .ag-cell) {
   background-color: var(--gestion-table-row-selected);
+  color: var(--gestion-table-row-selected-text);
+  font-weight: 600;
 }
 
 .tableWrapper :global(.ag-theme-quartz .ag-cell-focus),
 .tableWrapper :global(.ag-theme-quartz .ag-cell:focus-within) {
-  outline: 2px solid var(--gestion-table-focus-ring);
-  outline-offset: -1px;
-  border-radius: 6px;
+  outline: 0;
+  border-radius: 0;
 }
 
 .tableWrapper :global(.ag-theme-quartz .app-table-action-cell) {
