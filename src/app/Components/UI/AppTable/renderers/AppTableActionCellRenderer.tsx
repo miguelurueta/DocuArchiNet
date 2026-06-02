@@ -4,6 +4,7 @@ import {
   EditOutlined,
   EllipsisOutlined,
   EyeOutlined,
+  MoreOutlined,
 } from "@ant-design/icons";
 import { useMemo, useState } from "react";
 import { AppIconActionButton } from "../../AppButton";
@@ -321,7 +322,7 @@ export default function AppTableActionCellRenderer(
               trigger={
                 <AppIconActionButton
                   size="sm"
-                  icon={<EllipsisOutlined />}
+                  icon={<MoreOutlined />}
                   variant={resolveButtonVariant(action.tone)}
                   aria-label={action.label || action.actionId}
                   tooltip={action.label || action.actionId}

@@ -288,7 +288,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
 
             <AppButton
               className={styles.toolbarControl}
-              variant="ghost"
+              variant="primary"
               size="sm"
               leftIcon={<UndoOutlined />}
               loading={table.loading && table.hasLoadedOnce}

@@ -35,7 +35,7 @@
   align-items: center;
   align-content: flex-start;
   gap: 8px;
-  border-radius: 24px;
+  border-radius: 12px;
   padding: 12px 16px;
   height: auto;
   min-height: fit-content;
@@ -50,7 +50,7 @@
   align-content: flex-start;
   gap: 8px;
   width: 100%;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-width: 0;
   overflow: visible;
 }
@@ -65,19 +65,67 @@
 }
 
 .toolbarControl {
+  flex: 0 0 auto;
   width: auto;
   min-width: 0;
 }
 
 .toolbarSearch {
-  flex: 1 1 18rem;
-  max-width: 26rem;
-  min-width: 14rem;
+  flex: 1 1 auto;
+  max-width: none;
+  min-width: 16rem;
+}
+
+.toolbarSearch :global(.ant-input-affix-wrapper) {
+  min-height: 34px;
+  border-radius: 10px;
+  border-color: rgba(203, 213, 225, 0.92);
+  background: rgba(248, 250, 252, 0.88);
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+  padding-inline: 12px 8px;
+}
+
+.toolbarSearch :global(.ant-input-affix-wrapper:hover) {
+  border-color: rgba(148, 163, 184, 0.95) !important;
+  background: #ffffff;
+}
+
+.toolbarSearch :global(.ant-input-affix-wrapper-focused),
+.toolbarSearch :global(.ant-input-affix-wrapper:focus-within) {
+  border-color: rgba(59, 130, 246, 0.72) !important;
+  background: #ffffff;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.toolbarSearch :global(.ant-input-affix-wrapper-focused::after),
+.toolbarSearch :global(.ant-input-affix-wrapper:focus-within::after),
+.toolbarSearch :global(.ant-input-affix-wrapper-focused::before),
+.toolbarSearch :global(.ant-input-affix-wrapper:focus-within::before) {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.toolbarSearch :global(.ant-select-selector),
+.toolbarSearch :global(.ant-select-focused .ant-select-selector),
+.toolbarSearch :global(.ant-select-open .ant-select-selector),
+.toolbarSearch :global(.ant-select-customize-input .ant-select-selector) {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.toolbarSearch :global(.ant-input) {
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.toolbarSearch :global(.ant-input-suffix) {
+  margin-inline-start: 8px;
 }
 
 .toolbarControl :global(.ant-btn),
 .toolbarControl :global(.ant-select) {
-  width: 100%;
+  width: auto;
 }
 
 .content {
@@ -113,7 +161,7 @@
   --ag-row-border-color: var(--gestion-table-border-weak);
   --ag-odd-row-background-color: #ffffff;
   --ag-background-color: #ffffff;
-  --ag-header-background-color: #f1f5f9;
+  --ag-header-background-color: #f8fafc;
   --ag-header-foreground-color: #111827;
   --ag-header-height: 44px;
   --ag-row-height: 42px;
@@ -230,8 +278,8 @@
 }
 
 .statusSemaphoreDot[data-tone="warning"] {
-  background: #d97706;
-  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.16);
+  background: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
 }
 
 .statusSemaphoreDot[data-tone="danger"] {
@@ -240,8 +288,8 @@
 }
 
 .statusSemaphoreDot[data-tone="neutral"] {
-  background: #64748b;
-  box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.14);
+  background: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
 }
 
 .featureList {
@@ -262,12 +310,13 @@
   .toolbarActionGroup {
     align-items: stretch;
     gap: 6px;
+    flex-wrap: wrap;
   }
 
   .toolbar {
     gap: 6px;
     padding: 8px 10px;
-    border-radius: 20px;
+    border-radius: 12px;
   }
 
   .toolbarControl {
@@ -278,6 +327,11 @@
     flex: 1 1 100%;
     max-width: none;
     min-width: 0;
+  }
+
+  .toolbarControl :global(.ant-btn),
+  .toolbarControl :global(.ant-select) {
+    width: 100%;
   }
 
   .content {
