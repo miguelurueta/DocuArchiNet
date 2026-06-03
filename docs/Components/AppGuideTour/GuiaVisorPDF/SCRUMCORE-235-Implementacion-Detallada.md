@@ -896,3 +896,40 @@ sin errores
 ```
 
 Esto actualiza la situacion previa documentada, donde `npm run build` quedaba bloqueado por deuda TypeScript. La deuda listada fue corregida para los archivos detectados en `tsc -b`.
+
+## Ajuste visual final del shell dashboard
+
+Archivo:
+
+```text
+src/modules/dashboard/style/side.module.css
+```
+
+Cambio aplicado:
+
+```css
+.sider {
+  background: #ffffff;
+}
+```
+
+Motivo:
+
+- El navbar actual usa fondo blanco.
+- Se solicito que el sidebar quedara con el mismo color del navbar.
+- El ajuste homologa ambas superficies del shell principal sin introducir una nueva paleta ni tocar el markup.
+
+Alcance tecnico:
+
+- Solo se modifica CSS del sidebar.
+- No se modifica `DashboardLayout.tsx`.
+- No se modifica `Sidebar.tsx`.
+- No se modifica `Navbar.tsx`.
+- No se cambia `collapsed`, `drawerOpen`, `openKeys`, `selectedKeys` ni `onMenuClick`.
+- No se cambia la carga del menu, metricas, badges ni rutas.
+
+Impacto visual:
+
+- El sidebar pasa de `#f8fafc` a `#ffffff`.
+- Navbar y sidebar quedan alineados por color base.
+- Se conservan radio, sombra, logo, items, hover, seleccion y scroll existentes del sidebar.

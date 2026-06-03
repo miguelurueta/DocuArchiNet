@@ -29,6 +29,7 @@
 | Tabla sin checks visibles | `src/modules/gestionCorrespondencia/pages/GestionCorrespondencia.tsx` | `rowSelectionCheckboxes={false}` y `rowSelectionHeaderCheckbox={false}` conservando `rowSelection="single"` | Implementado |
 | Fila seleccionada enterprise | `src/modules/gestionCorrespondencia/style/GestionCorrespondencia.module.css` | Fondo gris notable, texto negro `#111827`, peso `600`, sin outline de celda | Implementado |
 | Toolbar Gestion Correspondencia | `src/modules/gestionCorrespondencia/style/GestionCorrespondencia.module.css` | Input compacto, foco sin ruido visual, boton actualizar primario, layout alineado | Implementado |
+| Sidebar dashboard alineado con navbar | `src/modules/dashboard/style/side.module.css` | Fondo del sidebar homologado a `#ffffff`, mismo color base del navbar, sin alterar `DashboardLayout`, `Sidebar.tsx` ni rutas | Implementado |
 | Correcciones TypeScript AppEditor | `src/app/Components/UI/AppEditor/application/*`, `src/app/Components/UI/AppEditor/presentation/*` | `npx tsc -b` sin errores | Implementado |
 | Correcciones TypeScript visor | `src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.tsx`, `plugins/pluginRegistration.ts`, `presentation/AppPdfSignatureModal.tsx` | Tasks, `BlobPart`, `saveAsCopy`, enum de firma y `exclusive` corregidos | Implementado |
 | Correcciones TypeScript Gestion | `src/modules/gestionCorrespondencia/hooks/useGestionRespuestaDocumentos.ts`, `useGestionRespuestaDocumentosTable.ts`, `useListaDocumentosRadicadosTreeTable.ts` | Fallback mutable, lectura segura de errores, helper no usado removido | Implementado |
@@ -58,3 +59,4 @@
 - Las correcciones TypeScript se hicieron con wrappers defensivos y eliminacion de codigo no usado, sin cambiar contratos publicos.
 - Los skips heredados de firma personal se corrigieron con mocks de frontera y pruebas del hook; no se cambio codigo productivo para hacer pasar esas pruebas.
 - Los warnings `NaN width` y `act(...)` se corrigieron ajustando el contrato del mock de `Scroller` y la espera async del test demo PDF; no se cambio comportamiento runtime.
+- El sidebar del dashboard se iguala visualmente al navbar usando fondo blanco en CSS; no cambia estructura, colapso, drawer, navegación ni construcción del menu.

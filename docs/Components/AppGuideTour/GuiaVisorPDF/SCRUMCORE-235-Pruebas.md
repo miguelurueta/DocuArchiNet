@@ -264,3 +264,31 @@ Resultado:
 18 tests passed
 sin warnings NaN width ni act(...)
 ```
+
+## Validacion ajuste visual dashboard shell
+
+Cambio validado:
+
+- Sidebar del dashboard con fondo `#ffffff`, mismo color base del navbar.
+- Cambio limitado a CSS en `src/modules/dashboard/style/side.module.css`.
+- Sin cambios de estructura ni logica en `DashboardLayout`, `Sidebar` o `Navbar`.
+
+Comando:
+
+```bash
+npm test -- --run src/modules/dashboard/components/DashboardLayout.test.tsx
+```
+
+Resultado:
+
+```text
+1 file passed
+4 tests passed
+```
+
+Observaciones no bloqueantes heredadas del test:
+
+- Warning de `act(...)` asociado a internals de Ant Design/ForwardRef.
+- `Not implemented: Window's getComputedStyle() method: with pseudo-elements` en JSDOM.
+
+Estas advertencias no fueron introducidas por el cambio de color del sidebar y no fallan la suite.
