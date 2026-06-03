@@ -160,6 +160,42 @@ Configurar las variables anteriores en `.env.local` o en el entorno del proceso 
 npm run test:e2e -- playwright/gestionCorrespondencia/gestionRespuesta.estructura934.spec.ts
 ```
 
+## Obtencion de credenciales Playwright
+
+Las credenciales requeridas no deben inventarse ni generarse desde el frontend. Deben ser provistas por el equipo responsable del ambiente de pruebas, normalmente QA, DevOps o backend.
+
+Solicitar un usuario tecnico de QA con permisos minimos para Gestion Correspondencia y acceso al flujo de estructura por tarea.
+
+Variables a solicitar:
+
+```text
+PLAYWRIGHT_LOGIN_EMPRESA_ID
+PLAYWRIGHT_LOGIN_MODULO_ID
+PLAYWRIGHT_LOGIN_USER
+PLAYWRIGHT_LOGIN_PASSWORD
+PLAYWRIGHT_API_URL
+```
+
+Descripcion:
+
+- `PLAYWRIGHT_LOGIN_EMPRESA_ID`: identificador de empresa valido para autenticacion.
+- `PLAYWRIGHT_LOGIN_MODULO_ID`: identificador del modulo usado por DocuArchi.
+- `PLAYWRIGHT_LOGIN_USER`: usuario tecnico de pruebas.
+- `PLAYWRIGHT_LOGIN_PASSWORD`: password del usuario tecnico de pruebas.
+- `PLAYWRIGHT_API_URL`: URL base del API del ambiente local, QA o staging.
+
+Ubicacion recomendada:
+
+- En desarrollo local: `.env.local`, sin commitear secretos.
+- En CI/CD: secrets del pipeline o del proveedor de automatizacion.
+
+Restricciones:
+
+- No subir credenciales al repositorio.
+- No documentar valores reales en archivos markdown.
+- No usar usuarios personales.
+- No usar permisos superiores a los requeridos por el flujo de Gestion Correspondencia.
+
 Cuando el E2E pueda iniciar sesion y recorrer el flujo real, se podran cerrar las tareas:
 
 ```text
