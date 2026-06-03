@@ -5,7 +5,6 @@ import type {
   AppTreeTableRow,
 } from "../../../app/Components/UI/AppTreeTable";
 import { actionListaDocumentosRadicados, queryListaDocumentosRadicados } from "../services/listaDocumentosRadicados.service";
-import { getSolicitaGabinetePorTareaWorkflow } from "../services/solicitaGabineteRadicadoWorkflow.service";
 import { buildListaDocumentosRadicadosActionRequest } from "../adapters/documentosWorkbenchActionMapper";
 import {
   adaptListaDocumentosRadicadosToWorkbenchModel,
@@ -20,6 +19,7 @@ import type {
   ListaDocumentosRadicadosQueryData,
   ListaDocumentosRadicadosRowDto,
 } from "../types/listaDocumentosRadicados.types";
+import { useGestionRespuestaDocumentos } from "./useGestionRespuestaDocumentos";
 
 const DEFAULT_TABLE_ID = "InboxListaDocumentosRadicado";
 const RADICADO_REQUIRED_MESSAGE =
@@ -48,12 +48,6 @@ const readNumber = (record: unknown, ...keys: string[]): number | undefined => {
     if (typeof value === "number" && Number.isFinite(value)) return value;
   }
   return undefined;
-};
-
-const readApiErrorMessage = (error: unknown): string | undefined => {
-  if (!error || typeof error !== "object") return undefined;
-  const value = (error as { errorMessage?: unknown }).errorMessage;
-  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
 };
 
 const inferColumnsFromRows = (rows: AppTreeTableRow[]): string[] | undefined => {
@@ -108,6 +102,12 @@ type DocumentosCountState = {
 };
 
 export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
+  const {
+    nombreGabinete: contextNombreGabinete,
+    radicado: contextRadicado,
+    gabineteLoading,
+    gabineteError,
+  } = useGestionRespuestaDocumentos();
   const latestRowRef = useRef<Map<string, ListaDocumentosRadicadosRowDto>>(new Map());
   const lastSuccessfulRowsRef = useRef<AppTreeTableRow[]>([]);
   const gabineteRef = useRef<{ nombreGabinete?: string; radicado?: string; estadoExistencia?: string }>({});
@@ -146,18 +146,16 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
         typeof idTareaWf === "number" && Number.isFinite(idTareaWf) && idTareaWf > 0;
 
       if (hasValidTask) {
-        const gabineteResponse = await getSolicitaGabinetePorTareaWorkflow(idTareaWf);
-        if (!gabineteResponse.success) {
-          const message =
-            readApiErrorMessage(gabineteResponse.errors?.[0]) ??
-            gabineteResponse.message ??
-            "No fue posible resolver el gabinete del radicado.";
-          return { ok: false, message };
+        if (gabineteLoading) {
+          return { ok: true, rows: lastSuccessfulRowsRef.current };
         }
 
-        nombreGabinete = gabineteResponse.data?.NombreGabinete;
-        radicado = gabineteResponse.data?.Radicado;
-        estadoExistenciaRadicado = gabineteResponse.data?.EstadoExistenciaRadicado;
+        if (gabineteError) {
+          return { ok: false, message: gabineteError };
+        }
+
+        nombreGabinete = contextNombreGabinete;
+        radicado = contextRadicado;
       }
 
       if (import.meta.env?.DEV) {
@@ -231,7 +229,7 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
     } catch {
       return { ok: false, message: "No fue posible cargar el listado." };
     }
-  }, [idTareaWf]);
+  }, [contextNombreGabinete, contextRadicado, gabineteError, gabineteLoading, idTareaWf]);
 
   const loadChildren = useCallback(
     async (row: AppTreeTableRow): Promise<AppTreeTableLoadChildrenResult> => {

@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import * as estructuraRespuestaHook from "../hooks/useEstructuraRespuestaIdTarea";
+import * as gabineteService from "../services/solicitaGabineteRadicadoWorkflow.service";
 import GestionCorrespondenciaLayout from "../layout/GestionCorrespondenciaLayout";
 import GestionRespuesta from "../pages/GestionRespuesta";
 import type { UseEstructuraRespuestaIdTareaResult } from "../hooks/useEstructuraRespuestaIdTarea";
@@ -14,6 +15,16 @@ vi.mock("../pages/GestionCorrespondenciaRoutePage", () => ({
 vi.mock("../hooks/useEstructuraRespuestaIdTarea", () => ({
   useEstructuraRespuestaIdTarea: vi.fn(),
 }));
+
+vi.mock("../services/solicitaGabineteRadicadoWorkflow.service", async () => {
+  const actual = await vi.importActual<
+    typeof import("../services/solicitaGabineteRadicadoWorkflow.service")
+  >("../services/solicitaGabineteRadicadoWorkflow.service");
+  return {
+    ...actual,
+    getSolicitaGabinetePorTareaWorkflow: vi.fn(),
+  };
+});
 
 const setHookState = (state: Partial<UseEstructuraRespuestaIdTareaResult>) => {
   vi.mocked(estructuraRespuestaHook.useEstructuraRespuestaIdTarea).mockReturnValue({
@@ -50,6 +61,15 @@ function renderGestionCorrespondencia(initialEntry: string) {
 
 beforeEach(() => {
   setHookState({});
+  vi.mocked(gabineteService.getSolicitaGabinetePorTareaWorkflow).mockResolvedValue({
+    success: true,
+    message: "OK",
+    data: {
+      NombreGabinete: "WF_DOCS",
+      Radicado: "2025-0001",
+      EstadoExistenciaRadicado: "YES",
+    },
+  });
 });
 
 describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {

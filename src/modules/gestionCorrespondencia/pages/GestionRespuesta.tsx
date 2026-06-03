@@ -9,10 +9,16 @@ import styles from "../style/GestionRespuesta.module.css";
 
 type GestionRespuestaProps = {
   idTareaWf?: number;
+  radicado?: string;
+  idRespuestaRadicado?: string | number;
   detailState?: "loading" | "ready" | "blocked-empty" | "blocked-error" | "blocked-invalid-id";
 };
 
-export default function GestionRespuesta({ idTareaWf: idTareaWfFromRoute }: GestionRespuestaProps = {}) {
+export default function GestionRespuesta({
+  idTareaWf: idTareaWfFromRoute,
+  radicado,
+  idRespuestaRadicado,
+}: GestionRespuestaProps = {}) {
   const params = useParams();
   const rawId = params.id;
   const fallbackId = typeof rawId === "string" ? Number.parseInt(rawId, 10) : Number.NaN;
@@ -38,7 +44,11 @@ export default function GestionRespuesta({ idTareaWf: idTareaWfFromRoute }: Gest
 
   return (
     <div className={styles.tabsShell}>
-      <GestionRespuestaDocumentosProvider>
+      <GestionRespuestaDocumentosProvider
+        idTareaWf={Number.isFinite(idTareaWf) ? idTareaWf : undefined}
+        radicado={radicado}
+        idRespuestaRadicado={idRespuestaRadicado}
+      >
         <AppTabs items={items} fullWidth className={styles.tabs} />
       </GestionRespuestaDocumentosProvider>
     </div>
