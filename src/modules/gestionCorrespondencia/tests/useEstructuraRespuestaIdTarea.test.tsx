@@ -22,7 +22,7 @@ const createWrapper = () => {
   );
 };
 
-describe("[SPEC:gestion-correspondencia] useEstructuraRespuestaIdTarea", () => {
+describe("[SPEC:gestion-correspondencia][SPEC:SCRUMCORE-219] useEstructuraRespuestaIdTarea", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -72,6 +72,72 @@ describe("[SPEC:gestion-correspondencia] useEstructuraRespuestaIdTarea", () => {
     expect(result.current.isEmptyLatched).toBe(false);
     expect(result.current.fetching).toBe(false);
     expect(result.current.resolved).toBe(true);
+  });
+
+  it("retorna idRespuestaRadicado normalizado desde el hook", async () => {
+    vi.mocked(estructuraService.getSolicitaEstructuraRespuestaIdTarea).mockResolvedValue({
+      success: true,
+      message: "YES",
+      data: [
+        {
+          Radicado: "2025-0002",
+          Destinatario: "Contasoft Company",
+          TramiteDocumento: "Respuesta a oficio",
+          ID_RESPUESTA_RADICADO: 7788,
+        },
+      ],
+      errors: [],
+    });
+
+    const { result } = renderHook(() => useEstructuraRespuestaIdTarea(924), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.estrucTuraRespuesta).toEqual({
+      Radicado: "2025-0002",
+      Destinatario: "Contasoft Company",
+      TramiteDocumento: "Respuesta a oficio",
+      idRespuestaRadicado: 7788,
+    });
+    expect(result.current.isEmpty).toBe(false);
+    expect(result.current.isEmptyLatched).toBe(false);
+    expect(result.current.fetching).toBe(false);
+    expect(result.current.resolved).toBe(true);
+  });
+
+  it("mantiene payloads legacy sin idRespuestaRadicado sin errores runtime", async () => {
+    vi.mocked(estructuraService.getSolicitaEstructuraRespuestaIdTarea).mockResolvedValue({
+      success: true,
+      message: "YES",
+      data: [
+        {
+          Radicado: "2025-0003",
+          Destinatario: "Contasoft Company",
+          TramiteDocumento: "Respuesta legacy",
+        },
+      ],
+      errors: [],
+    });
+
+    const { result } = renderHook(() => useEstructuraRespuestaIdTarea(924), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.error).toBeNull();
+    expect(result.current.estrucTuraRespuesta?.idRespuestaRadicado).toBeUndefined();
+    expect(result.current.estrucTuraRespuesta).toEqual({
+      Radicado: "2025-0003",
+      Destinatario: "Contasoft Company",
+      TramiteDocumento: "Respuesta legacy",
+    });
   });
 
   it("expone isEmpty cuando success es true y data es vacía", async () => {
