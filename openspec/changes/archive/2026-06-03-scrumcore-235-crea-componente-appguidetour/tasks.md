@@ -87,4 +87,4 @@
 - [x] 9.2 Ejecutar Playwright afectado y registrar evidencia.
 - [x] 9.3 Ejecutar build o registrar deuda TypeScript no relacionada si falla.
 - [x] 9.4 Validar OpenSpec (`spec:validate` si aplica).
-- [ ] 9.5 Preparar `opsxj:archive`, PR y cierre Jira post-merge.
+- [x] 9.5 Preparar `opsxj:archive`, PR y cierre Jira post-merge.
