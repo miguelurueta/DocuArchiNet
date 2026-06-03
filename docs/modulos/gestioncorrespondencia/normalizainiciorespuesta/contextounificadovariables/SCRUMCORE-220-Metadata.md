@@ -6,7 +6,7 @@
 - Nombre: Contexto transversal unificado de GestionRespuesta
 - Fecha: 2026-06-03
 - Autor: Codex
-- Version: 1.0.1
+- Version: 1.0.2
 
 ## Alcance
 
@@ -27,6 +27,7 @@ Refactor del contexto documental de `GestionRespuesta` para centralizar estado t
 | --- | --- | --- |
 | 1.0.0 | 2026-06-03 | Implementacion inicial de contexto transversal documental, gabinete idempotente, wiring desde estructura por tarea, pruebas y documentacion enterprise. |
 | 1.0.1 | 2026-06-03 | Cierre de revision final: se confirma diff sin cambios UI ni logica de negocio fuera de alcance, el contexto no importa axios y la interpretacion de errores queda estructural sin exponer detalles HTTP a consumidores. |
+| 1.0.2 | 2026-06-03 | Commit/push de implementacion y apertura de PR `#269` con resumen tecnico, pruebas ejecutadas, riesgos y documentacion generada. |
 
 ## Referencias cruzadas
 
@@ -58,6 +59,10 @@ Docs:
 - `SCRUMCORE-220-Integracion-BackEnd.md`
 - `SCRUMCORE-220-Pruebas.md`
 - `SCRUMCORE-220-Metadata.md`
+
+Pull request:
+
+- `https://github.com/miguelurueta/DocuArchiCore.react/pull/269`
 
 ## Resultado de pruebas
 

@@ -59,6 +59,6 @@
 
 - [x] 7.1 Ejecutar `openspec validate scrumcore-220-implementacion-contexto-trasversal-unificado-gestion-respuesta --strict`.
 - [x] 7.2 Revisar diff final para confirmar que no hay cambios UI ni logica de negocio fuera de alcance.
-- [ ] 7.3 Commit y push de refinamiento/implementacion/documentacion segun fase.
-- [ ] 7.4 Crear PR con resumen tecnico, pruebas ejecutadas, riesgos y documentacion generada.
+- [x] 7.3 Commit y push de refinamiento/implementacion/documentacion segun fase.
+- [x] 7.4 Crear PR con resumen tecnico, pruebas ejecutadas, riesgos y documentacion generada.
 - [ ] 7.5 Tras merge, archivar OpenSpec y actualizar estado Jira segun flujo SCRUM.
