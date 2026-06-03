@@ -49,6 +49,8 @@ import {
 import { AppPdfToolbar } from "./presentation/AppPdfToolbar";
 import { AppPdfPasswordPrompt } from "./presentation/AppPdfPasswordPrompt";
 import { AppPdfSignatureModal } from "./presentation/AppPdfSignatureModal";
+import { AppGuideTour } from "../AppGuideTour";
+import type { AppGuideTourEvent, AppGuideTourRef } from "../AppGuideTour";
 import styles from "./styles/AppVisorEmbedPdf.module.css";
 import type { AppVisorEmbedPdfProps } from "./types/AppVisorEmbedPdfProps";
 import type {
@@ -66,6 +68,10 @@ import {
 import { fetchMisPermisosVisorPdf } from "./AppVisorEmbedPdf.service";
 import { applyAutoFitOnce } from "./autoFit/autoFit.apply";
 import type { FitMode } from "./autoFit/autoFit.math";
+import {
+  APP_VISOR_EMBED_PDF_GUIDE_STEPS,
+  APP_VISOR_EMBED_PDF_GUIDE_TOUR_ID,
+} from "./AppVisorEmbedPdf.guideTour";
 
 function cx(...parts: Array<string | undefined>) {
   return parts.filter(Boolean).join(" ");
@@ -91,14 +97,23 @@ function waitPdfTask<T>(task: { wait(onOk: (value: T) => void, onErr: (err: unkn
   });
 }
 
-function waitPdfTaskVoid(task: { wait(onOk: () => void, onErr: (err: unknown) => void): void }) {
+function waitPdfTaskVoid(task: { wait(onOk: (value: unknown) => void, onErr: (err: unknown) => void): void }) {
   return new Promise<void>((resolve, reject) => {
     try {
-      task.wait(resolve, reject);
+      task.wait(() => resolve(), reject);
     } catch (err) {
       reject(err);
     }
   });
+}
+
+function toPdfBlobPart(buffer: ArrayBuffer | Uint8Array<ArrayBufferLike>): BlobPart {
+  if (buffer instanceof ArrayBuffer) return buffer;
+
+  const source = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+  const copy = new Uint8Array(source.byteLength);
+  copy.set(source);
+  return copy.buffer;
 }
 
 async function saveBlobToIndexedDb(params: { documentId: string; name: string; blob: Blob }) {
@@ -132,7 +147,7 @@ async function saveBlobToIndexedDb(params: { documentId: string; name: string; b
  * Se prohÃ­be filtrar detalles del engine hacia mÃ³dulos consumidores.
  */
 export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdfProps>(function AppVisorEmbedPdf(
-  { fileUrl, loading = false, className, style }: AppVisorEmbedPdfProps,
+  { fileUrl, loading = false, className, style, onEmptyDocumentHintRequest }: AppVisorEmbedPdfProps,
   ref,
 ) {
   const demoUrl = useDemoPdfUrl();
@@ -372,7 +387,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     return (
       <div className={cx(styles.root, className)} style={style} role="status" aria-label="Zona de documento">
         {loading ? <FullLoadingOverlay /> : null}
-        <EmptyState />
+        <EmptyState onDocumentHintRequest={onEmptyDocumentHintRequest} />
       </div>
     );
   }
@@ -820,6 +835,7 @@ function EmbedPdfLoadedDocumentView(props: {
   const zoomLevel = typeof zoom.state.currentZoomLevel === "number" ? zoom.state.currentZoomLevel : 1;
   const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+  const guideTourRef = useRef<AppGuideTourRef | null>(null);
 
   // Signature (oficial): capability + entries para persistencia local (temporal).
   const signatureCap = useSignatureCapability();
@@ -894,8 +910,8 @@ function EmbedPdfLoadedDocumentView(props: {
   const [isSignatureLocked, setIsSignatureLocked] = useState(false);
   const [isSavingSignedPdf, setIsSavingSignedPdf] = useState(false);
 
-  const downloadBuffer = useCallback((buffer: ArrayBuffer | Uint8Array, filename: string) => {
-    const blob = new Blob([buffer], { type: "application/pdf" });
+  const downloadBuffer = useCallback((buffer: ArrayBuffer | Uint8Array<ArrayBufferLike>, filename: string) => {
+    const blob = new Blob([toPdfBlobPart(buffer)], { type: "application/pdf" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -1130,11 +1146,11 @@ function EmbedPdfLoadedDocumentView(props: {
     try {
       // Asegurar que la firma quede aplicada en el documento antes de exportar.
       if (annotationCap.provides?.commit) {
-        await waitPdfTask<void>(annotationCap.provides.commit());
+        await waitPdfTaskVoid(annotationCap.provides.commit());
       }
 
-      const buffer = await waitPdfTask<ArrayBuffer | Uint8Array>(exportApi.provides.saveAsCopy(documentId) as any);
-      const blob = new Blob([buffer], { type: "application/pdf" });
+      const buffer = await waitPdfTask<ArrayBuffer | Uint8Array<ArrayBufferLike>>(exportApi.provides.saveAsCopy());
+      const blob = new Blob([toPdfBlobPart(buffer)], { type: "application/pdf" });
       await saveBlobToIndexedDb({ documentId, name: `signed-${documentId}.pdf`, blob });
 
       // Intento de lock por categorÃ­a (si el engine categoriza firmas).
@@ -1310,8 +1326,6 @@ function EmbedPdfLoadedDocumentView(props: {
 
   const onRotateLeft = useCallback(() => rotate.provides?.rotateBackward(), [rotate.provides]);
   const onRotateRight = useCallback(() => rotate.provides?.rotateForward(), [rotate.provides]);
-  const onResetRotation = useCallback(() => rotate.provides?.setRotation(0), [rotate.provides]);
-
   const onRotateLeftPersisted = useCallback(() => {
     onRotateLeft();
     persistRotationSteps(((rotationSteps + 3) % 4 + 4) % 4);
@@ -1330,7 +1344,7 @@ function EmbedPdfLoadedDocumentView(props: {
   const onPrint = useCallback(async () => {
     // Mantener plugin oficial para print, pero garantizando commit primero.
     try {
-      if (annotationCap.provides?.commit) await waitPdfTask<void>(annotationCap.provides.commit());
+      if (annotationCap.provides?.commit) await waitPdfTaskVoid(annotationCap.provides.commit());
     } catch {
       // ignore
     }
@@ -1341,7 +1355,7 @@ function EmbedPdfLoadedDocumentView(props: {
     // Opción 4 (sin parpadeo): exportar buffer ya "materializado" y descargarlo nosotros.
     // Esto evita que el plugin `download()` use un snapshot anterior.
     try {
-      if (annotationCap.provides?.commit) await waitPdfTask<void>(annotationCap.provides.commit());
+      if (annotationCap.provides?.commit) await waitPdfTaskVoid(annotationCap.provides.commit());
     } catch {
       // ignore
     }
@@ -1357,7 +1371,7 @@ function EmbedPdfLoadedDocumentView(props: {
       return;
     }
 
-    const buffer = await waitPdfTask<ArrayBuffer | Uint8Array>(exportApi.provides.saveAsCopy(documentId) as any);
+    const buffer = await waitPdfTask<ArrayBuffer | Uint8Array<ArrayBufferLike>>(exportApi.provides.saveAsCopy());
     downloadBuffer(buffer, `document-${documentId}.pdf`);
   }, [annotationCap.provides, documentId, downloadBuffer, exportApi.provides]);
 
@@ -1403,10 +1417,25 @@ function EmbedPdfLoadedDocumentView(props: {
     scope?.scrollTo({ x: 0, y: 0, behavior: "smooth" });
   }, [viewport.provides, documentId]);
 
+  const onGuideTourEvent = useCallback((event: AppGuideTourEvent) => {
+    if (typeof window === "undefined") return;
+    window.dispatchEvent(new CustomEvent("app-guide-tour:event", { detail: event }));
+  }, []);
+
+  const onStartGuideTour = useCallback(() => {
+    guideTourRef.current?.start();
+  }, []);
+
   return (
     <>
+      <AppGuideTour
+        ref={guideTourRef}
+        tourId={APP_VISOR_EMBED_PDF_GUIDE_TOUR_ID}
+        steps={APP_VISOR_EMBED_PDF_GUIDE_STEPS}
+        onEvent={onGuideTourEvent}
+      />
       {/** overlay se monta en AppVisorEmbedPdf (raíz) para cubrir también primer click */}
-      <div className={styles.toolbarShell} role="toolbar" aria-label="Toolbar PDF">
+      <div className={styles.toolbarShell} role="toolbar" aria-label="Toolbar PDF" data-guide-tour-id="pdf-toolbar">
         {loading ? (
           <div className={styles.toolbarSkeleton} aria-label="Cargando toolbar" role="status" aria-busy="true">
             <span className={styles.toolbarSkeletonBlock} />
@@ -1442,6 +1471,8 @@ function EmbedPdfLoadedDocumentView(props: {
             onExport={onExport}
             isPrintDisabled={!permissionsEffective.allowPrint}
             isExportDisabled={!permissionsEffective.allowExport}
+            onStartGuideTour={onStartGuideTour}
+            isGuideTourAvailable
           />
         )}
       </div>
@@ -1456,7 +1487,12 @@ function EmbedPdfLoadedDocumentView(props: {
         data-signature-active-placement={activePlacement ? "true" : "false"}
         data-signature-entry-count={String(signatureEntries.entries?.length ?? 0)}
       >
-        <div className={styles.paginationOverlay} role="group" aria-label="PaginaciÃ³n">
+        <div
+          className={styles.paginationOverlay}
+          role="group"
+          aria-label="PaginaciÃ³n"
+          data-guide-tour-id="pdf-pagination"
+        >
           {loading ? (
             <div className={styles.paginationSkeleton} aria-label="Cargando paginación" role="status" aria-busy="true">
               <span className={styles.paginationSkeletonButton} />
@@ -1519,6 +1555,7 @@ function EmbedPdfLoadedDocumentView(props: {
           type="button"
           className={`${styles.scrollTopFab} ${showScrollTop ? "" : styles.scrollTopFabHidden}`}
           onClick={onScrollToTop}
+          data-guide-tour-id="pdf-scroll-top"
           aria-label="Ir arriba"
           title="Ir arriba"
         >

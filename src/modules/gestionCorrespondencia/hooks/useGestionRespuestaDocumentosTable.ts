@@ -50,6 +50,12 @@ const readNumber = (record: unknown, ...keys: string[]): number | undefined => {
   return undefined;
 };
 
+const readApiErrorMessage = (error: unknown): string | undefined => {
+  if (!error || typeof error !== "object") return undefined;
+  const value = (error as { errorMessage?: unknown }).errorMessage;
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+};
+
 const inferColumnsFromRows = (rows: AppTreeTableRow[]): string[] | undefined => {
   const first = rows.find((row) => row.values && Object.keys(row.values).length > 0);
   if (!first?.values) return undefined;
@@ -143,7 +149,7 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
         const gabineteResponse = await getSolicitaGabinetePorTareaWorkflow(idTareaWf);
         if (!gabineteResponse.success) {
           const message =
-            gabineteResponse.errors?.[0]?.errorMessage ??
+            readApiErrorMessage(gabineteResponse.errors?.[0]) ??
             gabineteResponse.message ??
             "No fue posible resolver el gabinete del radicado.";
           return { ok: false, message };

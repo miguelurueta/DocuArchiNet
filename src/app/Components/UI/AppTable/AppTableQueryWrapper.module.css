@@ -107,14 +107,14 @@
 
 .pageSizeTrigger {
   align-items: center;
-  color: var(--color-text-secondary, #595959);
+  color: #ffffff !important;
   display: inline-flex;
   font-weight: 400;
 }
 
 .pageSizeTrigger:hover,
 .pageSizeTrigger:focus-visible {
-  color: var(--app-button-primary) !important;
+  color: #ffffff !important;
 }
 
 .navButtons {

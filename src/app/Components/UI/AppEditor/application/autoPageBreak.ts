@@ -150,7 +150,10 @@ function isListStructuredNodeName(nodeName: string) {
   return nodeName === "bulletList" || nodeName === "orderedList" || nodeName === "taskList";
 }
 
-function resolveFirstTextRangeInNode(node: ProseMirrorNode, nodePosition: number) {
+function resolveFirstTextRangeInNode(
+  node: ProseMirrorNode,
+  nodePosition: number,
+): { start: number; end: number } | null {
   let firstTextRange: { start: number; end: number } | null = null;
 
   node.descendants((descendant, pos) => {

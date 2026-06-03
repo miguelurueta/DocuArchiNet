@@ -232,25 +232,7 @@ function resolveContentPageIndex(
   );
 }
 
-function resolveSplitPositionFromDomText({
-  // NOTE: This is an optional fast-path. When it can't be resolved safely,
-  // we fall back to the binary-search based approach using coordsAtPos.
-  // Keeping this conservative prevents incorrect splits.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  editor,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  block,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  proseMirrorRect,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  targetBoundary,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  minPosition,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  maxPosition,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  zoomLevel,
-}: {
+function resolveSplitPositionFromDomText(_params: {
   editor: Editor;
   block: HTMLElement;
   proseMirrorRect: DOMRect;
@@ -259,6 +241,9 @@ function resolveSplitPositionFromDomText({
   maxPosition: number;
   zoomLevel: number;
 }) {
+  // NOTE: This is an optional fast-path. When it can't be resolved safely,
+  // we fall back to the binary-search based approach using coordsAtPos.
+  // Keeping this conservative prevents incorrect splits.
   return null as number | null;
 }
 

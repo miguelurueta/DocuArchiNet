@@ -44,13 +44,17 @@ vi.mock("../../../app/Components/UI/AppDocumentViewerOrchestrator", () => ({
 }));
 
 vi.mock("../../../app/Components/UI/AppVisorEmbedPdf", () => ({
-  AppVisorEmbedPdf: (props: { fileUrl?: string }) => (
+  AppVisorEmbedPdf: (props: { fileUrl?: string; onEmptyDocumentHintRequest?: () => void }) => (
     <div
       role="status"
       aria-label="Zona de documento"
       data-testid="app-visor-embedpdf-mock"
       data-file-url={props.fileUrl ?? ""}
-    />
+    >
+      <button type="button" onClick={props.onEmptyDocumentHintRequest}>
+        Resaltar listado de documentos
+      </button>
+    </div>
   ),
 }));
 
@@ -145,6 +149,16 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     expect(screen.getAllByRole("button", { name: /Ocultar documentos/i }).length).toBeGreaterThan(0);
     expect(screen.getByTestId("app-tree-table-mock")).toBeInTheDocument();
     expect(appTreeTableSpy).toHaveBeenCalledWith(expect.objectContaining({ tableLayoutMode: "fill" }));
+  });
+
+  it("resalta temporalmente el listado cuando el visor vacio solicita ayuda de seleccion", async () => {
+    render(<DocumentosWorkbench />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Resaltar listado de documentos" }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Listado de documentos")).toHaveAttribute("data-document-hint-active", "true");
+    });
   });
 
   it("[SPEC:SCRUMCORE-227] row_click invoca visualizarDocumento usando DocumentResolveRequest (handler unificado)", async () => {

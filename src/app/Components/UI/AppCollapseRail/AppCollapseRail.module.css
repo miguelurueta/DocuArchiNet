@@ -29,6 +29,16 @@
   transform: translateX(12px);
 }
 
+.panel[data-placement="right"][data-variant="inline"][data-collapsed="false"] {
+  gap: 0.5rem;
+  border: none;
+  padding: 0;
+}
+
+.panel[data-placement="right"][data-variant="inline"][data-collapsed="false"] .surface {
+  padding: 0.5rem;
+}
+
 .panel[data-placement="left"][data-variant="inline"][data-collapsed="true"] {
   transform: translateX(-12px);
 }
@@ -70,7 +80,7 @@
   height: 100%;
   overflow: auto;
   border-radius: 10px;
-  border: 1px dashed #cbd5f5;
+  border: 1px solid rgba(203, 213, 225, 0.78);
   padding: 0.75rem;
   background: #ffffff;
 }
