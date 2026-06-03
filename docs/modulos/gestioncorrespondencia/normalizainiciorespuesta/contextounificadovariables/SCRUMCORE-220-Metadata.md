@@ -6,7 +6,7 @@
 - Nombre: Contexto transversal unificado de GestionRespuesta
 - Fecha: 2026-06-03
 - Autor: Codex
-- Version: 1.0.2
+- Version: 1.0.3
 
 ## Alcance
 
@@ -28,6 +28,7 @@ Refactor del contexto documental de `GestionRespuesta` para centralizar estado t
 | 1.0.0 | 2026-06-03 | Implementacion inicial de contexto transversal documental, gabinete idempotente, wiring desde estructura por tarea, pruebas y documentacion enterprise. |
 | 1.0.1 | 2026-06-03 | Cierre de revision final: se confirma diff sin cambios UI ni logica de negocio fuera de alcance, el contexto no importa axios y la interpretacion de errores queda estructural sin exponer detalles HTTP a consumidores. |
 | 1.0.2 | 2026-06-03 | Commit/push de implementacion y apertura de PR `#269` con resumen tecnico, pruebas ejecutadas, riesgos y documentacion generada. |
+| 1.0.3 | 2026-06-03 | Validacion documental enterprise: se agrega trazabilidad Jira/post-merge, rama, commits y estado operativo del cierre SCRUM. |
 
 ## Referencias cruzadas
 
@@ -63,6 +64,21 @@ Docs:
 Pull request:
 
 - `https://github.com/miguelurueta/DocuArchiCore.react/pull/269`
+
+Git:
+
+- Rama: `feature/SCRUMCORE-220`
+- Commit implementacion: `d049005`
+- Commit cierre PR/metadata: `49f6468`
+- Estado del working tree al cierre: limpio.
+
+Jira / SCRUM:
+
+- Ticket Jira: `SCRUMCORE-220`
+- Estado documentado del flujo: implementacion completa y PR abierto para merge.
+- Paso SCRUM pendiente: despues del merge, archivar OpenSpec y actualizar Jira a `Done`.
+- Task OpenSpec pendiente por dependencia externa: `7.5 Tras merge, archivar OpenSpec y actualizar estado Jira segun flujo SCRUM`.
+- Motivo de no marcar `7.5`: requiere PR mergeado para cerrar sin adelantar estado de Jira.
 
 ## Resultado de pruebas
 
