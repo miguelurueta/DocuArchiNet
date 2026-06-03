@@ -1,498 +1,118 @@
 ## ADDED Requirements
-### Requirement: IMPLEMENTACION-CONTEXTO-TRASVERSAL-UNIFICADO-GESTION-RESPUESTA
-El sistema SHALL implementar el alcance definido para SCRUMCORE-220.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- PROMPT ARQUITECTÓNICO — Contexto transversal unificado de GestionRespuesta
-- Rol esperado
-- Arquitecto de software senior frontend  (React 19, TypeScript estricto, React Context, state orchestration, Clean Architecture, testing enterprise)
-- Objetivo
-- Refactorizar el contexto actual de GestionRespuesta para centralizar y propagar estado transversal compartido relacionado con:
-- idTareaWf
-- 
-- radicado
-- 
-- idRespuestaRadicado
-- 
-- nombreGabinete
-- 
-- files/setFiles
-- 
-- Garantizando:
-- compatibilidad con consumidores actuales
-- 
-- desacoplamiento del módulo
-- 
-- manejo seguro de carga de gabinete
-- 
-- estabilidad del estado compartido
-- 
-- ausencia de regresiones en adjuntos y visor
-- 
-- IMPORTANTE
-- Este contexto NO debe convertirse en un “god context” del módulo.
-- Debe limitarse exclusivamente a:
-- datos transversales compartidos
-- 
-- estado documental
-- 
-- información requerida por visor/adjuntos/documentos
-- 
-- NO debe absorber:
-- lógica de negocio
-- 
-- estados locales de formularios
-- 
-- estado UI no transversal
-- 
-- orchestration pesada del módulo
-- 
-- Dependencia
-- GestionRespuesta
-- 
-- flujo de estructura por tarea
-- 
-- solicitaGabineteRadicadoWorkflow.service.ts
-- 
-- flujo actual de adjuntos
-- 
-- AppVisorEmbedPdf
-- 
-- DocumentosWorkbench
-- 
-- Contexto existente
-- Actualmente:
-- GestionRespuestaDocumentosContext expone:
-- files
-- 
-- setFiles
-- 
-- Pero no centraliza:
-- idTareaWf
-- 
-- radicado
-- 
-- idRespuestaRadicado
-- 
-- nombreGabinete
-- 
-- Esto provoca:
-- fetches dispersos
-- 
-- posibles duplicaciones
-- 
-- dificultad de compartir contexto transversal
-- 
-- acoplamiento potencial entre componentes
-- 
-- Estado actual
-- El nombre de gabinete aún no está centralizado ni cacheado a nivel contextual, y diferentes consumidores podrían terminar resolviendo datos similares de forma redundante.
-- Ubicación esperada
-- Context:src/modules/gestionCorrespondencia/context/GestionRespuestaDocumentosContext.tsx
-- Hook:src/modules/gestionCorrespondencia/hooks/useGestionRespuestaDocumentos.ts
-- Page:src/modules/gestionCorrespondencia/pages/GestionRespuesta.tsx
-- Service:src/modules/gestionCorrespondencia/services/solicitaGabineteRadicadoWorkflow.service.ts
-- Tests:src/modules/gestionCorrespondencia/tests/*
-- Restricciones obligatorias
-- NO usar anyNO romper flujo actual de adjuntosNO usar axios directo en componentesNO convertir el contexto en estado global del móduloNO introducir lógica de negocio en el providerNO duplicar fetches de gabineteNO generar re-fetch innecesario
-- Regla arquitectónica obligatoria
-- GestionRespuestaDocumentosContext debe funcionar como contexto transversal documental del módulo y NO como contenedor global de estado.
-- Esto implica:
-- El provider centraliza únicamente datos compartidos relevantes
-- 
-- El fetch de gabinete vive en service/hook
-- 
-- El contexto expone estado ya normalizado
-- 
-- Los consumidores NO llaman directamente al service
-- 
-- El contexto NO absorbe estados UI ajenos
-- 
-- Contrato esperado
-- GestionRespuestaDocumentosContext debe exponer:
-- idTareaWf?: number
-- 
-- radicado?: string
-- 
-- idRespuestaRadicado?: string | number
-- 
-- nombreGabinete?: string
-- 
-- gabineteLoading: boolean
-- 
-- gabineteError?: string
-- 
-- reloadGabinete: () => Promise<void>
-- 
-- files
-- 
-- setFiles
-- 
-- Contrato de source of truth
-- GestionRespuesta:
-- provee:
-- idTareaWf
-- 
-- radicado
-- 
-- idRespuestaRadicado
-- 
-- Context:
-- resuelve:
-- nombreGabinete
-- 
-- Service:
-- ejecuta request backend
-- 
-- Reglas de implementación obligatorias
-- Extender contexto
-- 
-- Agregar:
-- idTareaWf
-- 
-- radicado
-- 
-- idRespuestaRadicado
-- 
-- nombreGabinete
-- 
-- gabineteLoading
-- 
-- gabineteError
-- 
-- reloadGabinete
-- 
-- Provider
-- 
-- Debe recibir:
-- idTareaWf
-- 
-- radicado
-- 
-- idRespuestaRadicado
-- 
-- Desde:
-- GestionRespuesta
-- 
-- Resolución de gabinete
-- 
-- Debe cargar:GET /api/workflow/ruta-trabajo/tareas/{idTareaWorkflow}/gabinete
-- Reglas:
-- cargar una sola vez por idTareaWf
-- 
-- no duplicar requests
-- 
-- soportar reload explícito
-- 
-- soportar abort/cancelación
-- 
-- Error handling
-- 
-- error NO rompe render
-- 
-- gabineteError visible para consumers
-- 
-- fallback seguro cuando no existe gabinete
-- 
-- Compatibilidad
-- 
-- mantener files/setFiles
-- 
-- mantener API del hook compatible cuando sea posible
-- 
-- si cambia API:
-- migración controlada
-- 
-- backward-compatible
-- 
-- Reglas de idempotencia
-- nombreGabinete debe resolverse de forma idempotente:
-- no re-fetch si idTareaWf no cambia
-- 
-- cancelar request anterior si cambia rápido
-- 
-- evitar race conditions
-- 
-- Reglas de memoización
-- reloadGabinete debe ser:
-- estable
-- 
-- memoizado
-- 
-- seguro frente a re-render
-- 
-- Reglas de interacción
-- consumers leen datos solo desde hook/context
-- 
-- components NO llaman service directamente
-- 
-- visor/documentos pueden compartir estado de gabinete
-- 
-- Reglas de migración segura
-- no romper flujo de adjuntos
-- 
-- no romper visor PDF
-- 
-- no romper DocumentosWorkbench
-- 
-- no romper consumers actuales
-- 
-- mantener render estable
-- 
-- Accesibilidad y UX
-- gabineteLoading debe permitir feedback visual
-- 
-- gabineteError no debe bloquear UX
-- 
-- no generar flicker visual
-- 
-- no provocar renders vacíos inesperados
-- 
-- Riesgos a evitar
-- god context
-- 
-- doble fetch
-- 
-- race conditions
-- 
-- stale gabinete state
-- 
-- re-fetch innecesario
-- 
-- coupling entre consumers
-- 
-- pérdida de estado de adjuntos
-- 
-- memory leaks por requests no cancelados
-- 
-- Pruebas unitarias obligatorias
-- provider expone estado correctamente
-- 
-- reloadGabinete funciona
-- 
-- gabineteLoading cambia correctamente
-- 
-- gabineteError se maneja correctamente
-- 
-- idempotencia por idTareaWf
-- 
-- cancelación segura de requests
-- 
-- Pruebas de integración UI obligatorias
-- consumers reciben nombreGabinete correctamente
-- 
-- visor/documentos siguen funcionando
-- 
-- files/setFiles siguen operativos
-- 
-- error no rompe render
-- 
-- Pruebas de interacción en navegador obligatorias
-- reloadGabinete actualiza contexto
-- 
-- cambio rápido de idTareaWf no rompe estado
-- 
-- no hay loading infinito
-- 
-- no hay re-render masivo
-- 
-- Pruebas E2E obligatorias
-- GestionRespuesta comparte gabinete correctamente
-- 
-- visor/documentos usan contexto unificado
-- 
-- flujo adjuntos sigue estable
-- 
-- reload funciona correctamente
-- 
-- Pruebas QT / calidad
-- sin errores build
-- 
-- sin warnings TS/lint
-- 
-- sin errores consola
-- 
-- sin regresiones visuales
-- 
-- sin memory leaks
-- 
-- Criterios de aceptación
-- Contexto expone:
-- idTareaWf
-- 
-- radicado
-- 
-- idRespuestaRadicado
-- 
-- nombreGabinete
-- 
-- nombreGabinete se resuelve una sola vez por idTareaWf
-- 
-- files/setFiles siguen funcionando
-- 
-- reloadGabinete funciona
-- 
-- no hay regresiones
-- 
-- tests pasan
-- 
-- Documentación obligatoria
-- Ruta:
-- docs/modulos/gestioncorrespondencia/normalizainiciorespuesta/contextounificadovariables
-- Archivos obligatorios:
-- SCRUMCORE-[XX]-Arquitectura.md
-- 
-- Debe incluir:
-- SCRUM-[ID] - Arquitectura
-- 1. Resumen arquitectónico
-- objetivo técnico
-- 
-- decisiones
-- 
-- restricciones
-- 
-- 2. Vista estática
-- Capas:
-- context
-- 
-- hooks
-- 
-- services
-- 
-- pages
-- 
-- types
-- 
-- 3. Diagramas de clases
-- Mermaid classDiagram:
-- Context
-- 
-- Provider
-- 
-- Hook
-- 
-- Service
-- 
-- Consumers
-- 
-- 4. Diagramas de secuencia
-- Mermaid sequenceDiagram:
-- mount provider
-- 
-- resolve gabinete
-- 
-- reloadGabinete
-- 
-- cambio idTareaWf
-- 
-- 5. Diagramas de estados
-- stateDiagram-v2:
-- idle
-- 
-- loading
-- 
-- ready
-- 
-- error
-- 
-- 6. ADRs resumidas
-- contexto transversal
-- 
-- evitar god context
-- 
-- idempotencia gabinete
-- 
-- 7. Riesgos técnicos y mitigaciones
-- 8. Trazabilidad a código
-- SCRUMCORE-[XX]-Implementacion-Detallada.md
-- 
-- Debe incluir:
-- context actualizado
-- 
-- hooks
-- 
-- services
-- 
-- wiring GestionRespuesta
-- 
-- estrategia idempotencia
-- 
-- cancelación requests
-- 
-- Capas:
-- context
-- 
-- hooks
-- 
-- services
-- 
-- pages
-- 
-- SCRUM-[XX]-Integracion-BackEnd.md
-- 
-- Debe incluir:
-- endpoint gabinete
-- 
-- request
-- 
-- response
-- 
-- errores
-- 
-- retry
-- 
-- fallback
-- 
-- integración FE-BE
-- 
-- SCRUM-[XX]-Pruebas.md
-- 
-- Debe incluir:
-- unitarias
-- 
-- integración
-- 
-- browser interaction
-- 
-- E2E
-- 
-- regresión
-- 
-- matriz de cobertura
-- 
-- SCRUM-[ID]-Metadata.md
-- 
-- Debe incluir:
-- ticket
-- 
-- autor
-- 
-- fecha
-- 
-- versión
-- 
-- control de cambios
-- 
-- referencias cruzadas
-- 
-- Entregables
-- Código actualizado
-- 
-- Tests ajustados/agregados
-- 
-- Documentación técnica generada
-- 
-- Estrategia de cache/idempotencia documentada
-- 
-- Resultado de pruebas ejecutadas
-- 
-- Instrucción final
-- Refactorizar GestionRespuestaDocumentosContext como contexto transversal documental desacoplado, centralizando únicamente estado compartido relevante, resolviendo nombreGabinete de forma segura e idempotente y preservando compatibilidad total con visor, adjuntos y consumidores actuales.
+### Requirement: Contexto documental transversal de GestionRespuesta
+El sistema SHALL exponer un contexto documental transversal acotado para `GestionRespuesta` con `idTareaWf`, `radicado`, `idRespuestaRadicado`, `nombreGabinete`, `gabineteLoading`, `gabineteError`, `reloadGabinete`, `files` y `setFiles`.
+
+#### Scenario: Provider expone identificadores y adjuntos compartidos
+- **GIVEN** `GestionRespuestaDocumentosProvider` recibe `idTareaWf`, `radicado` e `idRespuestaRadicado`
+- **WHEN** un consumer invoca `useGestionRespuestaDocumentos`
+- **THEN** el hook retorna esos valores junto con `files`, `setFiles` y `available: true`
+
+#### Scenario: Compatibilidad con consumers actuales
+- **GIVEN** un consumer actual solo usa `files` y `setFiles`
+- **WHEN** se actualiza el contexto con el nuevo contrato
+- **THEN** el consumer sigue funcionando sin cambiar su logica de adjuntos
+
+#### Scenario: Hook fuera del provider conserva fallback seguro
+- **GIVEN** `useGestionRespuestaDocumentos` se invoca fuera del provider
+- **WHEN** el hook resuelve su estado
+- **THEN** retorna `available: false`, `files: []`, `setFiles` no-op, `gabineteLoading: false`, `gabineteError: undefined`, `nombreGabinete: undefined` y `reloadGabinete` como promesa resuelta
+
+#### Scenario: El contexto no se convierte en god context
+- **GIVEN** se agregan nuevos datos al contexto
+- **WHEN** se revisa el contrato publico
+- **THEN** solo contiene datos documentales compartidos y no incluye estados locales de formularios, flags visuales locales ni reglas de negocio
+
+### Requirement: Resolucion idempotente y cancelable de gabinete
+El sistema SHALL resolver `nombreGabinete` desde `GET /api/workflow/ruta-trabajo/tareas/{idTareaWorkflow}/gabinete` una sola vez por `idTareaWf`, con reload explicito, cancelacion segura y sin requests duplicados.
+
+#### Scenario: Carga automatica una sola vez por idTareaWf
+- **GIVEN** el provider recibe `idTareaWf` valido
+- **WHEN** se monta o re-renderiza sin cambiar `idTareaWf`
+- **THEN** ejecuta como maximo una request automatica de gabinete para ese id
+
+#### Scenario: Sin idTareaWf valido no se consulta backend
+- **GIVEN** el provider no recibe `idTareaWf` o recibe un valor no finito
+- **WHEN** se monta
+- **THEN** no llama el service de gabinete y expone `nombreGabinete: undefined`
+
+#### Scenario: Response backend normaliza NombreGabinete
+- **GIVEN** el service retorna un response con `data.NombreGabinete`
+- **WHEN** el provider procesa el resultado
+- **THEN** el contexto expone `nombreGabinete` con ese valor normalizado
+
+#### Scenario: Fallback seguro cuando no hay gabinete
+- **GIVEN** el backend retorna `data: null` o sin `NombreGabinete`
+- **WHEN** el provider procesa el resultado
+- **THEN** `nombreGabinete` queda `undefined` y el render no se rompe
+
+#### Scenario: reloadGabinete fuerza recarga explicita
+- **GIVEN** `idTareaWf` ya fue cargado
+- **WHEN** un consumer llama `reloadGabinete`
+- **THEN** el provider ejecuta una nueva request para el id actual y actualiza `nombreGabinete`
+
+#### Scenario: Cambio rapido de idTareaWf cancela request anterior
+- **GIVEN** existe una request de gabinete en curso para un `idTareaWf`
+- **WHEN** el provider recibe un `idTareaWf` diferente antes de completar la request
+- **THEN** la request anterior se cancela o queda invalidada y no puede sobrescribir el estado del nuevo id
+
+#### Scenario: Error backend no rompe render
+- **GIVEN** el service de gabinete falla
+- **WHEN** el provider captura el error
+- **THEN** expone `gabineteError` como string, `gabineteLoading: false`, mantiene render estable y no lanza error durante render
+
+#### Scenario: reloadGabinete es estable
+- **GIVEN** el provider re-renderiza por cambios de estado no relacionados
+- **WHEN** un consumer compara la referencia de `reloadGabinete`
+- **THEN** la funcion mantiene identidad estable mientras no cambie su dependencia funcional necesaria
+
+### Requirement: Fronteras de arquitectura y consumidores
+El sistema SHALL mantener la request backend en service/hook/context y SHALL impedir que componentes UI resuelvan gabinete o casing backend manualmente.
+
+#### Scenario: Componentes UI no usan axios directo
+- **GIVEN** se revisan `GestionRespuesta`, `AppVisorEmbedPdf`, `DocumentosWorkbench` y componentes de adjuntos
+- **WHEN** requieren datos de gabinete o estado documental compartido
+- **THEN** acceden mediante `useGestionRespuestaDocumentos` o props existentes y no llaman axios directamente
+
+#### Scenario: Service conserva endpoint backend
+- **GIVEN** se implementa soporte de cancelacion
+- **WHEN** el service de gabinete se actualiza
+- **THEN** mantiene el endpoint `/api/workflow/ruta-trabajo/tareas/{idTareaWorkflow}/gabinete` y no cambia el contrato backend
+
+#### Scenario: Visor y documentos comparten estado sin regresion
+- **GIVEN** `AppVisorEmbedPdf`, `DocumentosWorkbench` y adjuntos operan dentro del provider
+- **WHEN** se carga o recarga gabinete
+- **THEN** los flujos existentes siguen renderizando y el estado de adjuntos no se pierde
+
+### Requirement: Pruebas, documentacion y calidad del cambio
+El sistema SHALL entregar pruebas y documentacion explicita para SCRUMCORE-220, cubriendo contrato, idempotencia, cancelacion, compatibilidad y regresion.
+
+#### Scenario: Pruebas unitarias cubren provider y hook
+- **GIVEN** se ejecutan las pruebas afectadas
+- **WHEN** se valida el contexto documental
+- **THEN** existen casos para estado expuesto, `reloadGabinete`, `gabineteLoading`, `gabineteError`, fallback fuera del provider y compatibilidad `files/setFiles`
+
+#### Scenario: Pruebas cubren idempotencia y cancelacion
+- **GIVEN** se simulan re-renders, reload y cambio rapido de `idTareaWf`
+- **WHEN** se inspeccionan llamadas al service
+- **THEN** no hay fetch duplicado automatico, reload fuerza fetch y respuestas stale no sobrescriben estado
+
+#### Scenario: Pruebas de integracion validan consumers
+- **GIVEN** se montan consumers representativos del modulo
+- **WHEN** leen `nombreGabinete`, adjuntos y estado documental
+- **THEN** reciben datos desde el contexto y no presentan regresion de visor, documentos ni adjuntos
+
+#### Scenario: Documentacion obligatoria generada
+- **GIVEN** finaliza la implementacion
+- **WHEN** se revisa `docs/modulos/gestioncorrespondencia/normalizainiciorespuesta/contextounificadovariables/`
+- **THEN** existen `SCRUMCORE-220-Arquitectura.md`, `SCRUMCORE-220-Implementacion-Detallada.md`, `SCRUMCORE-220-Integracion-BackEnd.md`, `SCRUMCORE-220-Pruebas.md` y `SCRUMCORE-220-Metadata.md`
+
+#### Scenario: Documentacion contiene trazabilidad completa
+- **GIVEN** se revisan los documentos de SCRUMCORE-220
+- **WHEN** se comparan contra el alcance del ticket
+- **THEN** incluyen decisiones, restricciones, diagramas Mermaid, endpoint, estrategia de idempotencia/cache, cancelacion, fallback, pruebas ejecutadas, riesgos, mitigaciones y referencias a codigo
+
+#### Scenario: Calidad sin regresiones
+- **GIVEN** se ejecuta la validacion final
+- **WHEN** se corren TypeScript/build/tests relevantes y validacion OpenSpec
+- **THEN** no hay errores TypeScript, no hay warnings runtime nuevos, no hay errores consola conocidos y no hay regresiones funcionales en visor/documentos/adjuntos
