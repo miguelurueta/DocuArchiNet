@@ -17,6 +17,8 @@ type DetailState = "loading" | "ready" | "blocked-empty";
 type DetailContentContextProps = {
   idTareaWf?: number;
   detailState?: DetailState;
+  radicado?: string;
+  idRespuestaRadicado?: string | number;
 };
 
 export default function GestionCorrespondenciaRoute({
@@ -61,6 +63,8 @@ export default function GestionCorrespondenciaRoute({
           {
             idTareaWf: parsedId,
             detailState,
+            radicado: estrucTuraRespuesta?.Radicado,
+            idRespuestaRadicado: estrucTuraRespuesta?.idRespuestaRadicado,
           },
         )
       : null;
