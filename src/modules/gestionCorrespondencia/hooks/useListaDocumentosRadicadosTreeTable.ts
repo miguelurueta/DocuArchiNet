@@ -5,11 +5,11 @@ import {
   queryListaDocumentosRadicados,
   resolveDocumentoVisualizacion,
 } from "../services/listaDocumentosRadicados.service";
-import { getSolicitaGabinetePorTareaWorkflow } from "../services/solicitaGabineteRadicadoWorkflow.service";
 import type {
   ListaDocumentosRadicadosQueryRequest,
   ListaDocumentosRadicadosRowDto,
 } from "../types/listaDocumentosRadicados.types";
+import { useGestionRespuestaDocumentos } from "./useGestionRespuestaDocumentos";
 
 const TABLE_ID = "InboxListaRadicados";
 const DEFAULT_APLICA_TRD = 0;
@@ -89,27 +89,32 @@ export type ListaDocumentosRadicadosTreeTable = {
 export const useListaDocumentosRadicadosTreeTable = (
   idTareaWf?: number,
 ): ListaDocumentosRadicadosTreeTable => {
+  void idTareaWf;
   const latestRowRef = useRef<Map<string, ListaDocumentosRadicadosRowDto>>(new Map());
-  const gabineteRef = useRef<string | undefined>(undefined);
+  const {
+    nombreGabinete: gabineteNombreContextual,
+    gabineteLoading,
+    gabineteError,
+    available: gabineteDisponible,
+  } = useGestionRespuestaDocumentos();
 
   const load = useCallback(async (): Promise<AppTreeTableLoadResult> => {
     try {
-      let gabinete: string | undefined;
-      if (typeof idTareaWf === "number" && Number.isFinite(idTareaWf) && idTareaWf > 0) {
-        const gabineteResponse = await getSolicitaGabinetePorTareaWorkflow(idTareaWf);
-        gabinete = gabineteResponse?.data?.NombreGabinete;
-        if (!gabineteResponse.success) {
-          const message =
-            (gabineteResponse.errors as any)?.[0]?.Message ??
-            (gabineteResponse.errors as any)?.[0]?.errorMessage ??
-            gabineteResponse.message ??
-            "No fue posible resolver el gabinete del radicado.";
-          return { ok: false, message };
-        }
+      if (gabineteLoading) {
+        return { ok: false, message: "Cargando informacion del gabinete. Intenta nuevamente." };
       }
 
-      gabineteRef.current = gabinete;
-      const response = await queryListaDocumentosRadicados(buildInitialQuery({ nombreGabinete: gabinete }));
+      if (gabineteError) {
+        return { ok: false, message: gabineteError };
+      }
+
+      if (!gabineteNombreContextual) {
+        return { ok: false, message: "NombreGabinete requerido" };
+      }
+
+      const response = await queryListaDocumentosRadicados(
+        buildInitialQuery({ nombreGabinete: gabineteNombreContextual }),
+      );
       if (!response.success || !response.data) {
         const message =
           response.errors?.[0]?.errorMessage ?? response.message ?? "No fue posible cargar el listado.";
@@ -121,13 +126,24 @@ export const useListaDocumentosRadicadosTreeTable = (
     } catch {
       return { ok: false, message: "No fue posible cargar el listado." };
     }
-  }, [idTareaWf]);
+  }, [gabineteDisponible, gabineteError, gabineteLoading, gabineteNombreContextual]);
 
   const loadChildren = useCallback(async (row: AppTreeTableRow): Promise<AppTreeTableLoadChildrenResult> => {
+    if (gabineteLoading) {
+      return { ok: false, message: "Cargando informacion del gabinete. Intenta nuevamente." };
+    }
+
+    if (gabineteError) {
+      return { ok: false, message: gabineteError };
+    }
+
+    if (!gabineteNombreContextual) {
+      return { ok: false, message: "NombreGabinete requerido" };
+    }
+
     const parentNodeType = String(row.meta?.NodeType ?? row.meta?.nodeType ?? "");
-    const gabinete = gabineteRef.current;
     const request: ListaDocumentosRadicadosQueryRequest = {
-      ...buildInitialQuery({ nombreGabinete: gabinete }),
+      ...buildInitialQuery({ nombreGabinete: gabineteNombreContextual }),
       ViewMode: "hierarchical",
       ParentRowId: row.id,
       ParentNodeType: parentNodeType || null,
@@ -148,22 +164,24 @@ export const useListaDocumentosRadicadosTreeTable = (
     } catch {
       return { ok: false, message: "No fue posible cargar el listado." };
     }
-  }, []);
+  }, [gabineteDisponible, gabineteError, gabineteLoading, gabineteNombreContextual]);
 
   const onSelectRow = useCallback(async (rowId: string) => {
     const selected = latestRowRef.current.get(rowId);
     const meta = selected?.Meta;
-    const values = selected?.Values;
+
+    if (gabineteLoading) {
+      throw new Error("Cargando informacion del gabinete. Intenta nuevamente.");
+    }
+
+    if (gabineteError) {
+      throw new Error(gabineteError);
+    }
 
     const nodeType = readString(meta, "NodeType", "nodeType") ?? "documento";
     const documentIdFromMeta = readNumber(meta, "DocumentId", "documentId");
-    const gabinete =
-      readString(meta, "NombreGabinete", "nombreGabinete", "NOMBRE_GABINETE") ??
-      readString(values, "NOMBRE_GABINETE", "NombreGabinete", "NOMBREGABINETE");
 
-    if (!gabinete) {
-      // Evita disparar action inválida y deja un error funcional visible en consola.
-      // La UI consume este error mediante el wrapper `success=false` del servicio.
+    if (!gabineteNombreContextual) {
       throw new Error("NombreGabinete requerido");
     }
 
@@ -177,7 +195,7 @@ export const useListaDocumentosRadicadosTreeTable = (
       Payload: {
         IdDocumento: typeof documentIdFromMeta === "number" ? documentIdFromMeta : undefined,
         DocumentId: typeof documentIdFromMeta === "number" ? documentIdFromMeta : undefined,
-        NombreGabinete: gabinete,
+        NombreGabinete: gabineteNombreContextual,
       },
     });
 
@@ -185,13 +203,11 @@ export const useListaDocumentosRadicadosTreeTable = (
     if (actionResponse.success && resolveRequest) {
       await resolveDocumentoVisualizacion(resolveRequest);
     }
-  }, []);
+  }, [gabineteDisponible, gabineteError, gabineteLoading, gabineteNombreContextual]);
 
   const columns = useMemo(() => {
-    // La regla del contrato: si no hay config en response, el orden se infiere determinísticamente
-    // desde la primera fila. Esta implementación expone columnas vía `load()`; el consumidor puede
-    // pasar columns explícitas a AppTreeTable si necesita estabilidad previa al render.
-    // Como no tenemos `load` sync, aquí devolvemos un valor fijo vacío y dejamos al componente inferir.
+    // Contracto: si no hay config en response, el orden se infiere de la primera fila.
+    // Este hook devuelve columnas [] y el consumidor puede inferirlas desde los rows.
     return [] as string[];
   }, []);
 
