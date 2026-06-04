@@ -1,5 +1,4 @@
 import { BookOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
-import { Skeleton } from "antd";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { toast, type Id as ToastId } from "react-toastify";
 import axios from "axios";
@@ -99,6 +98,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const viewerLoadingKeyRef = useRef<string | null>(null);
   const viewerLoadingShownAtRef = useRef<number | null>(null);
   const viewerLoadingMinHideRef = useRef<number | null>(null);
+  const documentHintTimeoutRef = useRef<number | null>(null);
   const attemptIdRef = useRef(0);
   const lastNotifiedErrorRef = useRef<string | null>(null);
   const toastIdRef = useRef<ToastId | null>(null);
@@ -107,18 +107,12 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const [collapsed, setCollapsed] = useState(isTablet);
   const documentosTable = useGestionRespuestaDocumentosTable(idTareaWf);
   const visorRef = useRef<AppVisorEmbedPdfRef | null>(null);
+  const lastVisorLoadKeyRef = useRef<string | null>(null);
   const [activeFileUrl, setActiveFileUrl] = useState<string | undefined>(undefined);
   const [activeRowId, setActiveRowId] = useState<string | undefined>(undefined);
   const [viewerError, setViewerError] = useState<string | null>(null);
   const [showViewerLoading, setShowViewerLoading] = useState(false);
-  const [documentContext, setDocumentContext] = useState<{
-    documentId?: number;
-    nombreGabinete?: string;
-    isPdf?: boolean;
-    viewerKind?: "pdf" | "image" | "unknown";
-    isElectronicallySigned?: boolean | null;
-    firmaCheckStatus?: string;
-  } | null>(null);
+  const [documentHintActive, setDocumentHintActive] = useState(false);
   const documentViewer = useDocumentViewerOrchestrator();
 
   const startViewerLoading = useCallback((key: string) => {
@@ -232,6 +226,23 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
 
   const toggleIcon = layoutCollapsed ? <LeftOutlined /> : <RightOutlined />;
 
+  const triggerDocumentListHint = useCallback(() => {
+    setCollapsed(false);
+    setDocumentHintActive(false);
+    if (documentHintTimeoutRef.current) window.clearTimeout(documentHintTimeoutRef.current);
+
+    const scheduleFrame =
+      window.requestAnimationFrame ??
+      ((callback: FrameRequestCallback) => window.setTimeout(() => callback(performance.now()), 0));
+    scheduleFrame(() => {
+      setDocumentHintActive(true);
+      documentHintTimeoutRef.current = window.setTimeout(() => {
+        setDocumentHintActive(false);
+        documentHintTimeoutRef.current = null;
+      }, 1600);
+    });
+  }, []);
+
   useEffect(() => {
     const fileUrl = documentViewer.documentoActivo?.fileUrl ?? null;
     if (!fileUrl) return;
@@ -240,54 +251,68 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     if (typeof attemptId === "number") stopViewerLoading(String(attemptId));
   }, [documentViewer.documentoActivo?.attemptId, documentViewer.documentoActivo?.fileUrl, stopViewerLoading]);
 
-  useEffect(() => {
+  const documentContext = useMemo(() => {
     const doc = documentViewer.documentoActivo;
-    if (!doc) return;
-      setDocumentContext({
+    if (!doc) return null;
+
+    return {
       documentId: doc.documentId,
       nombreGabinete: doc.nombreGabinete,
+      fileUrl: doc.fileUrl,
+      attemptId: doc.attemptId,
+      documentKey: doc.documentKey,
       isPdf: doc.isPdf,
       viewerKind: doc.viewerKind,
       isElectronicallySigned: doc.isElectronicallySigned,
       firmaCheckStatus: doc.firmaCheckStatus,
-    });
-  }, [documentViewer.documentoActivo]);
+    };
+  }, [
+    documentViewer.documentoActivo?.attemptId,
+    documentViewer.documentoActivo?.documentId,
+    documentViewer.documentoActivo?.documentKey,
+    documentViewer.documentoActivo?.fileUrl,
+    documentViewer.documentoActivo?.firmaCheckStatus,
+    documentViewer.documentoActivo?.isElectronicallySigned,
+    documentViewer.documentoActivo?.isPdf,
+    documentViewer.documentoActivo?.nombreGabinete,
+    documentViewer.documentoActivo?.viewerKind,
+  ]);
 
-  /*
   useEffect(() => {
     // Modo managed del visor: cargar con contexto consolidado + permisos/policy.
-    const doc = documentViewer.documentoActivo;
-    if (!doc) return;
-    if (!doc.isPdf) return;
-    if (!activeFileUrl) return;
+    if (!documentContext) return;
+    if (!documentContext.isPdf) return;
+    if (!documentContext.fileUrl) return;
 
     // Guardrail: evitar múltiples `load()` por el mismo documento/fuente.
     // Bajo re-renders (firma/rowId) el effect puede dispararse varias veces y abrir
     // múltiples documentos en el DocumentManager, alcanzando el límite (10).
-    const loadKey = `${doc.documentId}:${activeFileUrl}:${doc.attemptId ?? ""}:${doc.documentKey ?? ""}`;
+    const loadKey = [
+      documentContext.documentId,
+      documentContext.fileUrl,
+      documentContext.documentKey ?? "",
+      documentContext.isElectronicallySigned ?? "",
+    ].join(":");
     if (lastVisorLoadKeyRef.current === loadKey) return;
     lastVisorLoadKeyRef.current = loadKey;
 
     const ctx = documentosTable.getWorkbenchContext?.();
     const radicado = ctx?.radicado ?? "";
     const idTareaWorkflow = typeof idTareaWf === "number" ? idTareaWf : 0;
-    const attemptId = doc.attemptId;
+    const attemptId = documentContext.attemptId;
     const attemptKey = typeof attemptId === "number" ? String(attemptId) : null;
 
     void visorRef.current
       ?.load({
-      url: activeFileUrl,
-      attemptId: doc.attemptId,
-      documentKey: doc.documentKey,
-      isElectronicallySigned: Boolean(doc.isElectronicallySigned),
-      idImagen: doc.documentId,
-      nombreGabinete: doc.nombreGabinete,
+      url: documentContext.fileUrl,
+      attemptId: documentContext.attemptId,
+      documentKey: documentContext.documentKey,
+      isElectronicallySigned: Boolean(documentContext.isElectronicallySigned),
+      idImagen: documentContext.documentId,
+      nombreGabinete: documentContext.nombreGabinete,
       idTareaWorkflow,
       radicado,
       nombre_modulo: "gestioncorrespondencia",
-      metadata: {
-        activeRowId,
-      },
     })
       .then((result) => {
         if (!attemptKey) return;
@@ -299,8 +324,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
         if (!attemptKey) return;
         stopViewerLoading(attemptKey);
       });
-  }, [activeFileUrl, activeRowId, documentViewer.documentoActivo, documentosTable, idTareaWf, stopViewerLoading]);
-  */
+  }, [documentContext, documentosTable.getWorkbenchContext, idTareaWf, stopViewerLoading]);
 
   useEffect(() => {
     const doc = documentViewer.documentoActivo;
@@ -323,6 +347,13 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     lastNotifiedErrorRef.current = viewerError;
     toastIdRef.current = toast.error(viewerError, { autoClose: false, closeOnClick: false });
   }, [viewerError]);
+
+  useEffect(
+    () => () => {
+      if (documentHintTimeoutRef.current) window.clearTimeout(documentHintTimeoutRef.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!toastIdRef.current) return;
@@ -463,6 +494,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             ref={visorRef}
             fileUrl={activeFileUrl}
             loading={showViewerLoading}
+            onEmptyDocumentHintRequest={triggerDocumentListHint}
           />
         ) : documentViewer.documentoActivo?.viewerKind === "image" && activeFileUrl ? (
           <img
@@ -477,6 +509,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             ref={visorRef}
             fileUrl={activeFileUrl}
             loading={showViewerLoading}
+            onEmptyDocumentHintRequest={triggerDocumentListHint}
           />
         )}
       </div>
@@ -504,7 +537,11 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
               className={styles.collapseButton}
             />
           </header>
-          <div className={styles.listSurface} aria-label="Listado de documentos">
+          <div
+            className={styles.listSurface}
+            aria-label="Listado de documentos"
+            data-document-hint-active={documentHintActive}
+          >
           <AppTreeTable
               load={documentosTable.load}
               loadChildren={documentosTable.loadChildren}

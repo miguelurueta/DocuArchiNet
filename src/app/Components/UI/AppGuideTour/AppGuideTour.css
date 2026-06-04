@@ -1,0 +1,29 @@
+.driver-popover.app-guide-tour-popover {
+  border: 2px solid rgba(37, 99, 235, 0.72);
+  border-radius: 14px;
+  box-shadow:
+    0 18px 40px rgba(15, 23, 42, 0.22),
+    0 0 0 1px rgba(255, 255, 255, 0.84) inset;
+}
+
+.driver-popover.app-guide-tour-popover .driver-popover-title {
+  color: #0f172a;
+}
+
+.driver-popover.app-guide-tour-popover .driver-popover-description {
+  color: #334155;
+}
+
+.driver-popover.app-guide-tour-popover .driver-popover-close-btn {
+  border-radius: 999px;
+}
+
+.driver-popover.app-guide-tour-popover .driver-popover-prev-btn,
+.driver-popover.app-guide-tour-popover .driver-popover-next-btn {
+  border-radius: 8px;
+  border: 1px solid rgba(37, 99, 235, 0.32);
+}
+
+.driver-active [data-guide-tour-id="pdf-toolbar"]:has(> .driver-active-element) {
+  overflow: visible !important;
+}

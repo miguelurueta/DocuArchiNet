@@ -11,7 +11,6 @@ import type { LocalImage } from "../infrastructure/indexeddb/localImage.types";
 import { normalizeEditorHtml } from "./normalizeEditorHtml";
 import {
   serializeVisualPageHtml,
-  wrapHtmlInVisualPages,
 } from "./pageDocument";
 import {
   insertPageBreakBeforeBlock,
@@ -540,7 +539,10 @@ function moveOverflowBlocksToNextPage(editor: Editor, move: PageOverflowMove) {
       pageType.create(currentPage.attrs, movedContent, currentPage.marks),
     );
   }
-  transaction.mapping.setMirror(deleteStepIndex, insertStepIndex);
+  const mappingWithMirror = transaction.mapping as typeof transaction.mapping & {
+    setMirror?: (from: number, to: number) => void;
+  };
+  mappingWithMirror.setMirror?.(deleteStepIndex, insertStepIndex);
 
   if (shouldMoveSelection) {
     const nextSelectionFrom = clampSelection(

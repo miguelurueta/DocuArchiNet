@@ -552,7 +552,6 @@ function AppEditorToolbarComponent({
 
     const syncToolbarState = () => {
       const selection = editor.state?.selection;
-      const hasSelectedImage = selection instanceof NodeSelection && selection.node.type.name === "image";
       if (
         selection &&
         typeof selection.from === "number" &&
@@ -631,9 +630,6 @@ function AppEditorToolbarComponent({
       }
 
       const maxPosition = editor.state?.doc?.content?.size;
-      const hasSelectedImage =
-        editor.state?.selection instanceof NodeSelection &&
-        editor.state.selection.node.type.name === "image";
       const currentSelection =
         editor.state?.selection &&
         typeof editor.state.selection.from === "number" &&

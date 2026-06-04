@@ -48,6 +48,71 @@ const RESPONSIVE_PRESENTATION = {
   enabled: true,
   cardsBelow: 768,
 } as const;
+const STATUS_COLUMN_ID = "__gestion_estado_semaforo";
+const STATUS_FIELD_CANDIDATES = [
+  "ESTADO",
+  "Estado",
+  "estado",
+  "ESTADO_TRAMITE",
+  "EstadoTramite",
+  "estadoTramite",
+  "NOMBRE_ESTADO",
+  "NombreEstado",
+  "nombreEstado",
+  "STATUS",
+  "Status",
+  "status",
+] as const;
+
+const resolveStatusValue = (row: AppTableRow | null | undefined): string => {
+  if (!row) return "";
+
+  for (const field of STATUS_FIELD_CANDIDATES) {
+    const value = row[field];
+    if (typeof value === "string" && value.trim()) return value.trim();
+    if (typeof value === "number") return String(value);
+  }
+
+  return "";
+};
+
+type StatusTone = "success" | "warning" | "info" | "review" | "archived" | "danger" | "neutral";
+
+const normalizeStatusKey = (value: string): string =>
+  value
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase();
+
+const STATUS_TONE_BY_VALUE: Record<string, StatusTone> = {
+  "por tramitar": "warning",
+  "en tramite": "info",
+  tramitado: "success",
+  "solicitud aprobada": "success",
+  "solicitud por aprobacion": "review",
+  "tramitado archivado": "archived",
+};
+
+const resolveStatusTone = (value: string): StatusTone => {
+  const normalized = normalizeStatusKey(value);
+
+  if (!normalized) return "neutral";
+
+  return STATUS_TONE_BY_VALUE[normalized] ?? "neutral";
+};
+
+function GestionEstadoSemaforoCell<T extends AppTableRow>({ data }: { data?: T }) {
+  const statusValue = resolveStatusValue(data);
+  const tone = resolveStatusTone(statusValue);
+  const label = statusValue ? `Estado: ${statusValue}` : "Estado sin definir";
+
+  return (
+    <span className={styles.statusSemaphore} aria-label={label} title={label}>
+      <span className={styles.statusSemaphoreDot} data-tone={tone} />
+    </span>
+  );
+}
 
 export default function GestionCorrespondencia<T extends AppTableRow = AppTableRow>({
   table,
@@ -78,6 +143,27 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
   );
   const getCurrentPageRows = useCallback(() => table.rows, [table.rows]);
   const getSelectedRows = useCallback(() => selectedRows, [selectedRows]);
+  const displayColumns = useMemo<ColDef<T>[]>(
+    () => [
+      {
+        colId: STATUS_COLUMN_ID,
+        headerName: "",
+        width: 38,
+        minWidth: 38,
+        maxWidth: 44,
+        sortable: false,
+        filter: false,
+        resizable: false,
+        suppressMovable: true,
+        lockPosition: "left",
+        cellClass: styles.statusSemaphoreCell,
+        headerClass: styles.statusSemaphoreHeader,
+        cellRenderer: GestionEstadoSemaforoCell<T>,
+      },
+      ...(table.columns as ColDef<T>[]),
+    ],
+    [table.columns],
+  );
 
   const applySearch = useCallback((search: string) => {
     const normalizedSearch = search.trim();
@@ -194,7 +280,7 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
 
             <AppButton
               className={styles.toolbarControl}
-              variant="ghost"
+              variant="primary"
               size="sm"
               leftIcon={<UndoOutlined />}
               loading={table.loading && table.hasLoadedOnce}
@@ -227,8 +313,10 @@ export default function GestionCorrespondencia<T extends AppTableRow = AppTableR
             <div className={styles.tableWrapper}>
               <AppTable
                 rows={table.rows}
-                columns={table.columns as ColDef<T>[]}
+                columns={displayColumns}
                 rowSelection="single"
+                rowSelectionCheckboxes={false}
+                rowSelectionHeaderCheckbox={false}
                 rowClickAffordance
                 rowClickTooltip="Gestionar trámite"
                 total={table.total}

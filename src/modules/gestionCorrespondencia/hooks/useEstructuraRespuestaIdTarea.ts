@@ -3,7 +3,10 @@ import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { mapEstructuraRespuesta } from "../adapters/mapEstructuraRespuesta";
 import { getSolicitaEstructuraRespuestaIdTarea } from "../services/solicitaEstructuraRespuestaIdTarea.service";
-import type { GestionRespuestaEstructuraRespuesta } from "../types/gestionRespuestaEstructura.types";
+import type {
+  GestionRespuestaEstructuraRespuesta,
+  SolicitaEstructuraRespuestaBackendItem,
+} from "../types/gestionRespuestaEstructura.types";
 
 export type UseEstructuraRespuestaIdTareaResult = {
   estrucTuraRespuesta: GestionRespuestaEstructuraRespuesta | null;
@@ -38,6 +41,11 @@ const normalizeError = (error: unknown): Error | null => {
   return error instanceof Error ? error : new Error(String(error));
 };
 
+const isSolicitaEstructuraRespuestaBackendItem = (
+  value: unknown,
+): value is SolicitaEstructuraRespuestaBackendItem =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
 export const useEstructuraRespuestaIdTarea = (
   idTareaWf?: number,
 ): UseEstructuraRespuestaIdTareaResult => {
@@ -53,14 +61,17 @@ export const useEstructuraRespuestaIdTarea = (
   const rawSuccess = apiResponse?.success ?? apiResponse?.Success;
   const hasSuccess = isTruthySuccess(rawSuccess);
   const rawData = apiResponse?.data ?? apiResponse?.Data;
-  const payload = Array.isArray(rawData)
+  const payload: unknown[] = Array.isArray(rawData)
     ? rawData
     : rawData && typeof rawData === "object"
       ? [rawData]
       : [];
   const isEmpty = hasSuccess && payload.length === 0;
+  const firstPayloadItem = payload[0];
   const estrucTuraRespuesta =
-    hasSuccess && payload.length > 0 ? mapEstructuraRespuesta(payload[0] as any) : null;
+    hasSuccess && isSolicitaEstructuraRespuestaBackendItem(firstPayloadItem)
+      ? mapEstructuraRespuesta(firstPayloadItem)
+      : null;
 
   const resolved = query.isFetched;
 
@@ -71,6 +82,7 @@ export const useEstructuraRespuestaIdTarea = (
   const [isEmptyLatched, setIsEmptyLatched] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- preserves the existing per-task empty-state latch reset.
     setIsEmptyLatched(false);
   }, [effectiveId]);
 
@@ -78,6 +90,7 @@ export const useEstructuraRespuestaIdTarea = (
     // Regla de negocio: "Sin resultados" es definitivo. Si en algún momento la API
     // responde vacío con success=true, se bloquea de forma permanente para este id.
     if (!resolved) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- preserves the existing definitive empty-state latch behavior.
     if (isEmpty) setIsEmptyLatched(true);
   }, [isEmpty, resolved]);
 

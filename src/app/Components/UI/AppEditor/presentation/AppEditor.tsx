@@ -202,10 +202,6 @@ export function AppEditor({
     containerRef: paginationContainerRef,
     zoomLevel: effectiveZoomLevel,
   });
-  const pageIndices = useMemo(
-    () => Array.from({ length: totalPages }, (_, index) => index + 1),
-    [totalPages],
-  );
   const { currentPage, currentPageSource } = usePageContext({
     enabled: isVisualPagination,
     totalPages,

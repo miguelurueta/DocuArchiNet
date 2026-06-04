@@ -30,6 +30,7 @@ export function createBasicPluginRegistration() {
         {
           id: "signatureStamp",
           interaction: {
+            exclusive: false,
             isDraggable: false,
             isResizable: false,
           },
@@ -37,6 +38,7 @@ export function createBasicPluginRegistration() {
         {
           id: "signatureInk",
           interaction: {
+            exclusive: false,
             isDraggable: false,
             isResizable: false,
           },

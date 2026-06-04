@@ -10,6 +10,7 @@ export interface AppVisorEmbedPdfProps {
   loading?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  onEmptyDocumentHintRequest?: () => void;
 }
 
 export type { AppVisorEmbedPdfRef, AppVisorLoadInput, AppVisorLoadResult, ViewerEffectivePermissions };

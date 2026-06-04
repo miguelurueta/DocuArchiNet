@@ -1,5 +1,8 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { GestionRespuestaDocumentosProvider } from "../context/GestionRespuestaDocumentosContext";
+import { useGestionRespuestaDocumentos } from "../hooks/useGestionRespuestaDocumentos";
 import { useGestionRespuestaDocumentosTable } from "../hooks/useGestionRespuestaDocumentosTable";
 import * as listaDocumentosService from "../services/listaDocumentosRadicados.service";
 import * as gabineteService from "../services/solicitaGabineteRadicadoWorkflow.service";
@@ -66,6 +69,12 @@ const buildQueryResponse = (input: {
     data: data as unknown as import("../types/listaDocumentosRadicados.types").ListaDocumentosRadicadosQueryData,
   };
 };
+
+const buildProviderWrapper =
+  (props: { idTareaWf?: number; radicado?: string; idRespuestaRadicado?: string | number }) =>
+  ({ children }: { children: ReactNode }) => (
+    <GestionRespuestaDocumentosProvider {...props}>{children}</GestionRespuestaDocumentosProvider>
+  );
 
 describe("useGestionRespuestaDocumentosTable [SCRUMCORE-224]", () => {
   beforeEach(() => {
@@ -217,16 +226,21 @@ describe("useGestionRespuestaDocumentosTable [SCRUMCORE-224]", () => {
   });
 
   it("no consulta query cuando el radicado es vacio", async () => {
-    const gabineteSinRadicado: SolicitaGabineteRadicadoWorkflowResponse = {
-      success: true,
-      message: "OK",
-      data: { NombreGabinete: "WF_DOCS", Radicado: "   ", EstadoExistenciaRadicado: "YES" },
-    };
-    vi.mocked(gabineteService.getSolicitaGabinetePorTareaWorkflow).mockResolvedValueOnce(gabineteSinRadicado);
+    const { result } = renderHook(
+      () => ({
+        table: useGestionRespuestaDocumentosTable(10),
+        context: useGestionRespuestaDocumentos(),
+      }),
+      {
+      wrapper: buildProviderWrapper({ idTareaWf: 10, radicado: "   " }),
+      },
+    );
 
-    const { result } = renderHook(() => useGestionRespuestaDocumentosTable(10));
+    await waitFor(() => {
+      expect(result.current.context.gabineteLoading).toBe(false);
+    });
 
-    const response = await act(async () => result.current.load());
+    const response = await act(async () => result.current.table.load());
 
     expect(vi.mocked(listaDocumentosService.queryListaDocumentosRadicados)).not.toHaveBeenCalled();
     expect(response.ok).toBe(false);
@@ -241,9 +255,21 @@ describe("useGestionRespuestaDocumentosTable [SCRUMCORE-224]", () => {
     };
     vi.mocked(gabineteService.getSolicitaGabinetePorTareaWorkflow).mockResolvedValueOnce(gabineteNoExiste);
 
-    const { result } = renderHook(() => useGestionRespuestaDocumentosTable(10));
+    const { result } = renderHook(
+      () => ({
+        table: useGestionRespuestaDocumentosTable(10),
+        context: useGestionRespuestaDocumentos(),
+      }),
+      {
+      wrapper: buildProviderWrapper({ idTareaWf: 10, radicado: "2025-0001" }),
+      },
+    );
 
-    const response = await act(async () => result.current.load());
+    await waitFor(() => {
+      expect(result.current.context.gabineteLoading).toBe(false);
+    });
+
+    const response = await act(async () => result.current.table.load());
 
     expect(vi.mocked(listaDocumentosService.queryListaDocumentosRadicados)).not.toHaveBeenCalled();
     expect(response.ok).toBe(false);
@@ -255,10 +281,22 @@ describe("useGestionRespuestaDocumentosTable [SCRUMCORE-224]", () => {
       buildQueryResponse({ ids: ["r1", "r2"], total: 40 }),
     );
 
-    const { result } = renderHook(() => useGestionRespuestaDocumentosTable(10));
+    const { result } = renderHook(
+      () => ({
+        table: useGestionRespuestaDocumentosTable(10),
+        context: useGestionRespuestaDocumentos(),
+      }),
+      {
+      wrapper: buildProviderWrapper({ idTareaWf: 10, radicado: "2025-0001" }),
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.context.nombreGabinete).toBe("WF_DOCS");
+    });
 
     await act(async () => {
-      await result.current.load();
+      await result.current.table.load();
     });
 
     expect(vi.mocked(listaDocumentosService.queryListaDocumentosRadicados)).toHaveBeenCalledTimes(1);
@@ -299,22 +337,42 @@ describe("useGestionRespuestaDocumentosTable [SCRUMCORE-224]", () => {
       .mockImplementationOnce(async () => slow.promise)
       .mockResolvedValueOnce(buildQueryResponse({ ids: ["b1"], total: 1 }));
 
-    const { result, rerender } = renderHook(
-      ({ id }) => useGestionRespuestaDocumentosTable(id),
-      { initialProps: { id: 1 } },
+    let providerProps = { idTareaWf: 1, radicado: "2025-0001" };
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <GestionRespuestaDocumentosProvider {...providerProps}>
+        {children}
+      </GestionRespuestaDocumentosProvider>
     );
 
+    const { result, rerender } = renderHook(
+      ({ id }) => ({
+        table: useGestionRespuestaDocumentosTable(id),
+        context: useGestionRespuestaDocumentos(),
+      }),
+      { initialProps: { id: 1 }, wrapper },
+    );
+
+    await waitFor(() => {
+      expect(result.current.context.nombreGabinete).toBe("WF_DOCS");
+    });
+
     // start load for A (slow) without awaiting (simulates in-flight request)
-    const loadAPromise = result.current.load();
+    const loadAPromise = result.current.table.load();
 
     // switch to B and load (fast)
+    providerProps = { idTareaWf: 2, radicado: "2025-0002" };
     rerender({ id: 2 });
+    await waitFor(() => {
+      expect(result.current.context.nombreGabinete).toBe("WF_DOCS");
+      expect(gabineteService.getSolicitaGabinetePorTareaWorkflow).toHaveBeenCalledTimes(2);
+    });
+
     await act(async () => {
-      await result.current.load();
+      await result.current.table.load();
     });
 
     await waitFor(() => {
-      expect(result.current.totalDocumentsCount).toBe(1);
+      expect(result.current.table.totalDocumentsCount).toBe(1);
     });
 
     // Resolve A late (should not overwrite)
@@ -324,7 +382,7 @@ describe("useGestionRespuestaDocumentosTable [SCRUMCORE-224]", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.totalDocumentsCount).toBe(1);
+      expect(result.current.table.totalDocumentsCount).toBe(1);
     });
   });
 });
