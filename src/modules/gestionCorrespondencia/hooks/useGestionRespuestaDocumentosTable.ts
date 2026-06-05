@@ -130,6 +130,7 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
     lastSuccessfulRowsRef.current = [];
     gabineteRef.current = {};
     tableIdRef.current = DEFAULT_TABLE_ID;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Limpieza deliberada al cambiar de tarea para evitar estado visual stale.
     setSelectedRowIds([]);
     setTableColumns(undefined);
     setColumns(undefined);

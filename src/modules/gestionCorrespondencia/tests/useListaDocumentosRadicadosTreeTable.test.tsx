@@ -85,7 +85,7 @@ describe("[SPEC:SCRUMCORE-221] useListaDocumentosRadicadosTreeTable", () => {
 
     const { result } = renderHook(
       () => ({
-        table: useListaDocumentosRadicadosTreeTable(10),
+        table: useListaDocumentosRadicadosTreeTable(),
         context: useGestionRespuestaDocumentos(),
       }),
       {
@@ -133,7 +133,7 @@ describe("[SPEC:SCRUMCORE-221] useListaDocumentosRadicadosTreeTable", () => {
 
     const { result } = renderHook(
       () => ({
-        table: useListaDocumentosRadicadosTreeTable(10),
+        table: useListaDocumentosRadicadosTreeTable(),
         context: useGestionRespuestaDocumentos(),
       }),
       {
@@ -165,7 +165,7 @@ describe("[SPEC:SCRUMCORE-221] useListaDocumentosRadicadosTreeTable", () => {
 
     const { result } = renderHook(
       () => ({
-        table: useListaDocumentosRadicadosTreeTable(10),
+        table: useListaDocumentosRadicadosTreeTable(),
         context: useGestionRespuestaDocumentos(),
       }),
       {
@@ -196,7 +196,7 @@ describe("[SPEC:SCRUMCORE-221] useListaDocumentosRadicadosTreeTable", () => {
 
     const { result } = renderHook(
       () => ({
-        table: useListaDocumentosRadicadosTreeTable(10),
+        table: useListaDocumentosRadicadosTreeTable(),
         context: useGestionRespuestaDocumentos(),
       }),
       {

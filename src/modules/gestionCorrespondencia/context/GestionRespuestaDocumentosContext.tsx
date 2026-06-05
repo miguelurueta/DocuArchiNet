@@ -35,6 +35,7 @@ type GabineteState = {
   error?: string;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const GestionRespuestaDocumentosContext =
   createContext<GestionRespuestaDocumentosState | null>(null);
 
@@ -174,7 +175,11 @@ export function GestionRespuestaDocumentosProvider({
   const reloadGabinete = useCallback(() => loadGabinete(true), [loadGabinete]);
 
   useEffect(() => {
-    void loadGabinete(false);
+    const syncGabinete = async () => {
+      await loadGabinete(false);
+    };
+
+    syncGabinete();
 
     return () => {
       abortRef.current?.abort();

@@ -1,5 +1,4 @@
 import { useContext, useMemo } from "react";
-import type { AppUploadFile } from "../../../app/Components/UI/AppUpload/AppUpload";
 import {
   GestionRespuestaDocumentosContext,
   type GestionRespuestaDocumentosState,
@@ -9,7 +8,7 @@ type GestionRespuestaDocumentosHookState = GestionRespuestaDocumentosState & {
   available: boolean;
 };
 
-const noopSetFiles = (_files: AppUploadFile[]) => undefined;
+const noopSetFiles: GestionRespuestaDocumentosState["setFiles"] = () => undefined;
 const noopReloadGabinete = async () => undefined;
 
 export const useGestionRespuestaDocumentos = () => {
