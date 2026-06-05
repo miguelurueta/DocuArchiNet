@@ -23,11 +23,9 @@ type MockTableApi = {
 };
 
 let mockTableApi: MockTableApi;
-let lastHookId: number | undefined;
 
 vi.mock("../hooks/useGestionRespuestaDocumentosTable", () => ({
-  useGestionRespuestaDocumentosTable: (idTareaWf?: number) => {
-    lastHookId = idTareaWf;
+  useGestionRespuestaDocumentosTable: () => {
     return mockTableApi;
   },
 }));
@@ -111,7 +109,6 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     appTreeTableSpy.mockClear();
     visualizarDocumentoSpy.mockClear();
     toastErrorSpy.mockClear();
-    lastHookId = undefined;
     mockDocumentoActivo = null;
     mockTableApi = {
       load: vi.fn(async () => ({ ok: true, rows: [] })),

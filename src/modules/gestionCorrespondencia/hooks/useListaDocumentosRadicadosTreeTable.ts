@@ -86,16 +86,12 @@ export type ListaDocumentosRadicadosTreeTable = {
   onSelectRow: (rowId: string) => Promise<void>;
 };
 
-export const useListaDocumentosRadicadosTreeTable = (
-  idTareaWf?: number,
-): ListaDocumentosRadicadosTreeTable => {
-  void idTareaWf;
+export const useListaDocumentosRadicadosTreeTable = (): ListaDocumentosRadicadosTreeTable => {
   const latestRowRef = useRef<Map<string, ListaDocumentosRadicadosRowDto>>(new Map());
   const {
     nombreGabinete: gabineteNombreContextual,
     gabineteLoading,
     gabineteError,
-    available: gabineteDisponible,
   } = useGestionRespuestaDocumentos();
 
   const load = useCallback(async (): Promise<AppTreeTableLoadResult> => {
@@ -126,7 +122,7 @@ export const useListaDocumentosRadicadosTreeTable = (
     } catch {
       return { ok: false, message: "No fue posible cargar el listado." };
     }
-  }, [gabineteDisponible, gabineteError, gabineteLoading, gabineteNombreContextual]);
+  }, [gabineteError, gabineteLoading, gabineteNombreContextual]);
 
   const loadChildren = useCallback(async (row: AppTreeTableRow): Promise<AppTreeTableLoadChildrenResult> => {
     if (gabineteLoading) {
@@ -164,7 +160,7 @@ export const useListaDocumentosRadicadosTreeTable = (
     } catch {
       return { ok: false, message: "No fue posible cargar el listado." };
     }
-  }, [gabineteDisponible, gabineteError, gabineteLoading, gabineteNombreContextual]);
+  }, [gabineteError, gabineteLoading, gabineteNombreContextual]);
 
   const onSelectRow = useCallback(async (rowId: string) => {
     const selected = latestRowRef.current.get(rowId);
@@ -203,7 +199,7 @@ export const useListaDocumentosRadicadosTreeTable = (
     if (actionResponse.success && resolveRequest) {
       await resolveDocumentoVisualizacion(resolveRequest);
     }
-  }, [gabineteDisponible, gabineteError, gabineteLoading, gabineteNombreContextual]);
+  }, [gabineteError, gabineteLoading, gabineteNombreContextual]);
 
   const columns = useMemo(() => {
     // Contracto: si no hay config en response, el orden se infiere de la primera fila.
