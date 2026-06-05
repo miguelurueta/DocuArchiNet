@@ -29,3 +29,4 @@ El sistema SHALL mantener las reglas del ticket y preservar el contrato de query
 - **WHEN** `gabineteError` está activo o falta `nombreGabinete`
 - **THEN** la acción `ver_documento` retorna un error funcional controlado
 - **AND** no rompe el flujo base del visor ni la navegación de `AppVisorEmbedPdf`
+
