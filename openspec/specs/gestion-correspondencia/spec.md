@@ -210,6 +210,29 @@ The Gestion Correspondencia structure-by-task flow SHALL support typed normaliza
 - **WHEN** `useEstructuraRespuestaIdTarea` returns structure data
 - **THEN** consumers can access `idRespuestaRadicado` on the normalized frontend model
 - **AND** consumers do not need to inspect backend casing variants
+
+### Requirement: Remount completo del detalle por ruta de tarea
+El sistema SHALL resolver la ruta de detalle con una clave deterministica derivada de `parsedId` para que el subarbol completo se reconstruya por tarea.
+
+#### Scenario: Navegacion entre tareas distintas
+- **WHEN** el usuario entra a `/dashboard/gestion-correspondencia/respuesta/:idA` y luego `/dashboard/gestion-correspondencia/respuesta/:idB`
+- **THEN** el componente que contiene `GestionRespuesta` SHALL usar una `key` basada en `parsedId` que fuerce remount completo.
+- **AND** no SHALL reutilizar estado del detalle anterior.
+
+### Requirement: Estado transversal limpio entre remounts
+Al remount de detalle, los providers y estado contextual de `GestionRespuesta` asociados a una tarea anterior SHALL iniciar en estado neutro para la siguiente tarea.
+
+#### Scenario: Providers dentro del subarbol remonteado
+- **WHEN** la clave de detalle cambia por `parsedId`
+- **THEN** `GestionRespuestaDocumentosProvider`, tabs y componentes dependientes SHALL reconstruirse desde estado inicial.
+- **AND** `files`, `activeRowId`, `activeFileUrl` y estado del editor no SHALL persistir entre tareas.
+
+### Requirement: Anti-stale y limpieza en unmount de detalle
+El sistema SHALL cancelar o ignorar operaciones asincronas pendientes al desmontar `GestionRespuesta` para evitar que contaminen el nuevo detalle.
+
+#### Scenario: Requests pendientes al cambiar de tarea
+- **WHEN** un request del detalle anterior esta en vuelo durante un cambio rapido a otra tarea
+- **THEN** el nuevo detalle SHALL permanecer coherente y consistente, descartando estados actualizados por peticiones obsoletas.
 ## Requirements
 ### Requirement: Gestion Correspondencia toolbar search
 The system SHALL render `AppInputSearch` inside `AppToolbar.actionContent` in `GestionCorrespondencia` and keep the table wrapper search disabled to avoid duplicate search controls.
