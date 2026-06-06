@@ -63,8 +63,8 @@
 
 - [x] 6.1 Validar OpenSpec.
 - [x] 6.2 Commit y push de implementacion.
-- [ ] 6.3 Crear PR.
-- [ ] 6.4 Registrar PR en Jira.
+- [x] 6.3 Crear PR.
+- [x] 6.4 Registrar PR en Jira.
 - [ ] 6.5 Archivar change despues del merge y evidencia final.
 
 ## 7. Registro de ejecucion realizada
@@ -83,4 +83,4 @@
 - [x] 7.12 Ejecucion de lint focalizado: passed.
 - [x] 7.13 Ejecucion de OpenSpec strict validate: passed.
 - [ ] 7.14 Pendiente QA manual con backend real y `window.__DV_DEBUG__ = true`.
-- [ ] 7.15 Pendiente cierre Git/Jira: commit, push, PR, registro Jira y archive post-merge.
+- [ ] 7.15 Pendiente cierre Git/Jira post-merge: merge, archive, cierre Jira y evidencia final.
