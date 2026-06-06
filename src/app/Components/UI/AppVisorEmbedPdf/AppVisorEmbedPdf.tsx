@@ -302,6 +302,12 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
         setManagedPermissionStatus("resolved");
         setManagedPermissionsRaw(perms.Permissions ?? {});
         const mapped = mapPermisosVisorPdfToEffectivePermissions(perms.Permissions ?? {});
+        dvLog("[DV][visor][permissions]", {
+          codigoImpl,
+          response: perms,
+          raw: perms.Permissions ?? {},
+          effective: mapped,
+        });
         setManagedPermissionsEffective(
           applySignedOverride({
             effective: mapped,
