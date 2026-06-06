@@ -41,18 +41,25 @@ export default function GestionCorrespondenciaRoute({
 
   // Invalid ids should not keep a sticky detail panel; errors should show a blocked state.
   const shouldAutoClose = hasDetail && !hasValidId;
+  const detailPanelKey =
+    Number.isFinite(parsedId) && parsedId > 0
+      ? `gestion-respuesta-${parsedId}`
+      : "gestion-respuesta-invalid";
 
   useEffect(() => {
     if (!shouldAutoClose) return;
     navigate("/dashboard/gestion-correspondencia", { replace: true });
   }, [navigate, shouldAutoClose]);
 
+  const hasStructure = estrucTuraRespuesta !== null && estrucTuraRespuesta !== undefined;
+  const hasError = error !== null && error !== undefined;
+  const shouldBlockDetail = isEmpty || isEmptyLatched || (hasError && !hasStructure);
   const detailState: DetailState = !hasDetail
     ? "ready"
-    : loading || !resolved
-      ? "loading"
-      : (isEmpty || isEmptyLatched)
-        ? "blocked-empty"
+    : shouldBlockDetail
+      ? "blocked-empty"
+      : loading || !resolved
+        ? "loading"
         : "ready";
 
   const isReady = detailState === "ready";
@@ -70,7 +77,7 @@ export default function GestionCorrespondenciaRoute({
       : null;
 
   const blockedMessage = hasValidId
-    ? Boolean(error)
+    ? hasError
       ? `No fue posible cargar la estructura para la tarea (IdTareaWf: ${parsedId}). ${String(
           error?.message ?? "",
         )}`.trim()
@@ -101,6 +108,7 @@ export default function GestionCorrespondenciaRoute({
 
       {hasDetail ? (
         <aside
+          key={detailPanelKey}
           className={styles.detailRegion}
           aria-label="Panel superpuesto de gestion de correspondencia"
           data-testid="gestion-correspondencia-detail-region"
