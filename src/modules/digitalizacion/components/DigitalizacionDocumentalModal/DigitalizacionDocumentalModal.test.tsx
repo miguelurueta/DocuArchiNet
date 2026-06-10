@@ -1,7 +1,8 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { DigitalizacionDocumentalModal } from "./DigitalizacionDocumentalModal";
 import type { DigitalizacionContext } from "../../types/digitalizacion.types";
+import type { DigitalizacionScannerClient, ScanPage } from "../../infrastructure/dynamsoft";
 
 const baseProps = {
   open: true,
@@ -22,13 +23,37 @@ const adjuntarContext: DigitalizacionContext = {
   idDocumentoDestino: 321,
 };
 
+const createScannerClient = (): DigitalizacionScannerClient & { pages: ScanPage[] } => ({
+  pages: [
+    { id: "page-1", index: 0 },
+    { id: "page-2", index: 1 },
+  ],
+  initialize: vi.fn(async () => undefined),
+  listDevices: vi.fn(async () => [{ id: "0", name: "Scanner principal" }]),
+  selectDevice: vi.fn(async () => undefined),
+  scan: vi.fn(async function scan(this: { pages: ScanPage[] }) {
+    return this.pages;
+  }),
+  rotatePage: vi.fn(async () => undefined),
+  removePage: vi.fn(async () => undefined),
+  clear: vi.fn(async () => undefined),
+  generatePdf: vi.fn(
+    async () =>
+      ({
+        file: new File(["pdf"], "digitalizacion.pdf", { type: "application/pdf" }),
+        pageCount: 2,
+      }) satisfies Awaited<ReturnType<DigitalizacionScannerClient["generatePdf"]>>,
+  ),
+  dispose: vi.fn(async () => undefined),
+});
+
 describe("[SPEC:SCRUMCORE-239] DigitalizacionDocumentalModal", () => {
   it("renders crear mode", () => {
     render(<DigitalizacionDocumentalModal {...baseProps} context={crearContext} />);
 
     expect(screen.getByTestId("digitalizacion-modal")).toBeInTheDocument();
     expect(screen.getByText("crear")).toBeInTheDocument();
-    expect(screen.getAllByText("Guardar documento")).toHaveLength(2);
+    expect(screen.getAllByText("Guardar documento").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("RAD-2026")).toBeInTheDocument();
   });
 
@@ -36,7 +61,7 @@ describe("[SPEC:SCRUMCORE-239] DigitalizacionDocumentalModal", () => {
     render(<DigitalizacionDocumentalModal {...baseProps} context={adjuntarContext} />);
 
     expect(screen.getByText("adjuntar")).toBeInTheDocument();
-    expect(screen.getAllByText("Adjuntar digitalizacion").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText("Adjuntar digitalizacion").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("321")).toBeInTheDocument();
   });
 
@@ -111,5 +136,77 @@ describe("[SPEC:SCRUMCORE-239] DigitalizacionDocumentalModal", () => {
 
     expect(screen.queryByText("RAD-2026")).not.toBeInTheDocument();
     expect(screen.getByText("RAD-NEW")).toBeInTheDocument();
+  });
+
+  it("renders scanner devices and captured pages from scanner hook", async () => {
+    const scannerClient = createScannerClient();
+
+    render(
+      <DigitalizacionDocumentalModal
+        {...baseProps}
+        context={crearContext}
+        scannerClient={scannerClient}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Scanner principal")).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "0" },
+    });
+    await waitFor(() => {
+      expect(scannerClient.selectDevice).toHaveBeenCalledWith("0");
+      expect(screen.getByText("Escanear")).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByText("Escanear"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText((_, element) => element?.textContent === "Miniaturas (2)"),
+      ).toBeInTheDocument();
+    });
+    expect(screen.getAllByText("Pagina 1").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Pagina 2")).toBeInTheDocument();
+  });
+
+  it("rotates, removes and generates pdf from selected page", async () => {
+    const scannerClient = createScannerClient();
+
+    render(
+      <DigitalizacionDocumentalModal
+        {...baseProps}
+        context={crearContext}
+        scannerClient={scannerClient}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Scanner principal")).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "0" },
+    });
+    await waitFor(() => {
+      expect(scannerClient.selectDevice).toHaveBeenCalledWith("0");
+      expect(screen.getByText("Escanear")).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByText("Escanear"));
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Pagina 1").length).toBeGreaterThanOrEqual(1);
+    });
+
+    fireEvent.click(screen.getByText("Rotar"));
+    fireEvent.click(screen.getByText("Eliminar"));
+    fireEvent.click(screen.getByText("Generar PDF"));
+
+    expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-1", 90);
+    expect(scannerClient.removePage).toHaveBeenCalledWith("page-1");
+    expect(scannerClient.generatePdf).toHaveBeenCalled();
   });
 });

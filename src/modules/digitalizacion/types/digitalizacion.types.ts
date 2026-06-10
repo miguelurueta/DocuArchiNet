@@ -1,3 +1,5 @@
+import type { DigitalizacionScannerClient } from "../infrastructure/dynamsoft";
+
 export type DigitalizacionModo = "crear" | "adjuntar";
 
 export type DigitalizacionContext = {
@@ -59,6 +61,7 @@ export type DigitalizacionFunctionalError = {
 export type DigitalizacionDocumentalProps = {
   open: boolean;
   context: DigitalizacionContext | null;
+  scannerClient?: DigitalizacionScannerClient;
   onClose: () => void;
   onCompleted: (result: DigitalizacionResult) => void;
   onError?: (error: DigitalizacionFunctionalError) => void;

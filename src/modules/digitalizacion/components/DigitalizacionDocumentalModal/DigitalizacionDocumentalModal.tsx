@@ -1,11 +1,14 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
 import { AppModal } from "../../../../app/Components/UI/AppModal";
 import { useDigitalizacionDocumentalState } from "../../hooks/useDigitalizacionDocumentalState";
+import { useDigitalizacionScanner } from "../../hooks/useDigitalizacionScanner";
+import { DynamsoftScannerError } from "../../infrastructure/dynamsoft";
 import type {
   DigitalizacionDocumentalProps,
   DigitalizacionFunctionalError,
 } from "../../types/digitalizacion.types";
+import type { DigitalizacionScannerClient, ScanPage } from "../../infrastructure/dynamsoft";
 import styles from "./DigitalizacionDocumentalModal.module.css";
 
 const buildTitle = (modo?: string) =>
@@ -13,13 +16,63 @@ const buildTitle = (modo?: string) =>
 
 const readableMode = (modo?: string) => (modo === "adjuntar" ? "adjuntar" : "crear");
 
+const unavailableScannerClient: DigitalizacionScannerClient = {
+  initialize: async () => undefined,
+  listDevices: async () => [],
+  selectDevice: async () => undefined,
+  scan: async () => {
+    throw new DynamsoftScannerError({
+      code: "SCANNER_NOT_SELECTED",
+      message: "Seleccione un scanner antes de escanear.",
+    });
+  },
+  rotatePage: async () => undefined,
+  removePage: async () => undefined,
+  clear: async () => undefined,
+  generatePdf: async () => {
+    throw new DynamsoftScannerError({
+      code: "PDF_EMPTY",
+      message: "No hay paginas para generar PDF.",
+    });
+  },
+  dispose: async () => undefined,
+};
+
+const getVisualStateLabel = ({
+  contextInvalid,
+  scannerStatus,
+  deviceCount,
+  pageCount,
+  pdfReady,
+}: {
+  contextInvalid: boolean;
+  scannerStatus: string;
+  deviceCount: number;
+  pageCount: number;
+  pdfReady: boolean;
+}) => {
+  if (contextInvalid) return "contextInvalid";
+  if (scannerStatus === "initializing") return "initializingScanner";
+  if (scannerStatus === "error") return "error";
+  if (scannerStatus === "scanning") return "scanning";
+  if (scannerStatus === "generatingPdf") return "generatingPdf";
+  if (deviceCount === 0) return "noScanner";
+  if (pdfReady) return "success";
+  if (pageCount > 0) return "pagesCaptured";
+  return "readyEmpty";
+};
+
+const getPageLabel = (page: ScanPage) => `Pagina ${page.index + 1}`;
+
 export function DigitalizacionDocumentalModal({
   open,
   context,
+  scannerClient = unavailableScannerClient,
   onClose,
   onCompleted,
   onError,
 }: DigitalizacionDocumentalProps) {
+  const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const handleInvalidContext = useCallback(
     (error: DigitalizacionFunctionalError) => {
       onError?.(error);
@@ -32,25 +85,90 @@ export function DigitalizacionDocumentalModal({
     context,
     onInvalidContext: handleInvalidContext,
   });
+  const scanner = useDigitalizacionScanner({ client: scannerClient });
+  const {
+    initialize,
+    dispose,
+    clear: clearScanner,
+    scan,
+    rotatePage,
+    removePage,
+    generatePdf,
+    selectDevice,
+  } = scanner;
 
   const activeContext = state.context ?? context;
   const title = activeContext?.titulo ?? buildTitle(activeContext?.modo);
   const primaryLabel =
     activeContext?.modo === "adjuntar" ? "Adjuntar digitalizacion" : "Guardar documento";
-  const submitDisabledReason = state.validationError
-    ? state.validationError.message
-    : "Pendiente captura PDF";
+  const hasPages = scanner.pages.length > 0;
+  const canGeneratePdf = Boolean(!state.validationError && hasPages && !scanner.loading);
+  const canConfirm = Boolean(canSubmit || scanner.pdf);
+  const visualState = getVisualStateLabel({
+    contextInvalid: Boolean(state.validationError),
+    scannerStatus: scanner.status,
+    deviceCount: scanner.devices.length,
+    pageCount: scanner.pages.length,
+    pdfReady: Boolean(scanner.pdf),
+  });
+  const submitDisabledReason = state.validationError?.message ?? scanner.error?.message ?? (
+    scanner.pdf ? "PDF listo" : "Pendiente captura PDF"
+  );
+
+  useEffect(() => {
+    if (open) {
+      void initialize();
+    }
+  }, [open, initialize]);
 
   const handleCancel = useCallback(() => {
     clear();
+    void dispose();
+    setSelectedPageId(null);
     onCompleted({ accion: "cancelado" });
     onClose();
-  }, [clear, onClose, onCompleted]);
+  }, [clear, dispose, onClose, onCompleted]);
 
   const handleClose = useCallback(() => {
     clear();
+    void dispose();
+    setSelectedPageId(null);
     onClose();
-  }, [clear, onClose]);
+  }, [clear, dispose, onClose]);
+
+  const handleClear = useCallback(() => {
+    clearPages();
+    setSelectedPageId(null);
+    void clearScanner();
+  }, [clearPages, clearScanner]);
+
+  const handleScan = useCallback(() => {
+    if (!scanner.selectedDeviceId) {
+      return;
+    }
+
+    void scan({ deviceId: scanner.selectedDeviceId });
+  }, [scan, scanner.selectedDeviceId]);
+
+  const handleRotateSelected = useCallback(() => {
+    const pageId = selectedPageId ?? scanner.pages[0]?.id;
+    if (!pageId) return;
+    void rotatePage(pageId, 90);
+  }, [rotatePage, scanner.pages, selectedPageId]);
+
+  const handleRemoveSelected = useCallback(() => {
+    const pageId = selectedPageId ?? scanner.pages[0]?.id;
+    if (!pageId) return;
+    void removePage(pageId);
+  }, [removePage, scanner.pages, selectedPageId]);
+
+  const handleGeneratePdf = useCallback(() => {
+    const fileName =
+      activeContext?.radicado || activeContext?.idDocumentoDestino
+        ? `digitalizacion-${activeContext?.radicado ?? activeContext?.idDocumentoDestino}`
+        : "digitalizacion-documental";
+    void generatePdf(fileName);
+  }, [activeContext, generatePdf]);
 
   const summaryItems = useMemo(
     () => [
@@ -67,6 +185,8 @@ export function DigitalizacionDocumentalModal({
     ],
     [activeContext],
   );
+  const selectedPage =
+    scanner.pages.find((page) => page.id === selectedPageId) ?? scanner.pages[0] ?? null;
 
   return (
     <AppModal
@@ -80,7 +200,7 @@ export function DigitalizacionDocumentalModal({
       }}
       primaryAction={{
         label: primaryLabel,
-        disabled: !canSubmit,
+        disabled: !canConfirm,
       }}
     >
       <section
@@ -91,7 +211,9 @@ export function DigitalizacionDocumentalModal({
         <header className={styles.header}>
           <div className={styles.titleLine}>
             <span className={styles.modeBadge}>{readableMode(activeContext?.modo)}</span>
-            <span className={styles.footerNote}>{submitDisabledReason}</span>
+            <span className={styles.stateBadge} data-state={visualState}>
+              {visualState}
+            </span>
           </div>
           <div className={styles.summary}>
             {summaryItems.map(([label, value]) => (
@@ -108,34 +230,100 @@ export function DigitalizacionDocumentalModal({
             {state.validationError.message}
           </div>
         ) : null}
+        {scanner.error ? (
+          <div className={styles.error} role="alert">
+            {scanner.error.message}
+          </div>
+        ) : null}
 
         <div className={styles.toolbar}>
-          <div className={styles.scannerSelect} aria-disabled="true">
-            Scanner no inicializado
-          </div>
-          <AppButton variant="secondary" disabled>
+          <label className={styles.scannerSelect}>
+            <span>Scanner</span>
+            <select
+              value={scanner.selectedDeviceId ?? ""}
+              onChange={(event) => {
+                void selectDevice(event.target.value);
+              }}
+              disabled={scanner.loading || scanner.devices.length === 0}
+              aria-label="Seleccionar scanner"
+            >
+              <option value="">Sin seleccionar</option>
+              {scanner.devices.map((device) => (
+                <option key={device.id} value={device.id}>
+                  {device.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <AppButton
+            variant="secondary"
+            onClick={handleScan}
+            disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
+          >
             Escanear
           </AppButton>
-          <AppButton variant="ghost" onClick={clearPages}>
+          <AppButton variant="secondary" onClick={initialize} disabled={scanner.loading}>
+            Reintentar
+          </AppButton>
+          <AppButton variant="ghost" onClick={handleClear} disabled={scanner.loading}>
             Limpiar
           </AppButton>
-          <AppButton disabled={!canSubmit}>{primaryLabel}</AppButton>
+          <AppButton variant="ghost" onClick={handleRotateSelected} disabled={!selectedPage}>
+            Rotar
+          </AppButton>
+          <AppButton variant="ghost" onClick={handleRemoveSelected} disabled={!selectedPage}>
+            Eliminar
+          </AppButton>
+          <AppButton onClick={handleGeneratePdf} disabled={!canGeneratePdf}>
+            Generar PDF
+          </AppButton>
         </div>
 
         <main className={styles.main}>
           <section className={styles.panel} aria-label="Miniaturas">
-            <div className={styles.panelHeader}>Miniaturas</div>
-            <div className={styles.panelBody}>
-              <span className={styles.placeholderTitle}>Sin paginas</span>
-              <span>0 paginas capturadas</span>
-            </div>
+            <div className={styles.panelHeader}>Miniaturas ({scanner.pages.length})</div>
+            {scanner.pages.length > 0 ? (
+              <div className={styles.thumbnailList}>
+                {scanner.pages.map((page) => (
+                  <button
+                    className={styles.thumbnailButton}
+                    data-selected={page.id === selectedPageId}
+                    key={page.id}
+                    type="button"
+                    onClick={() => setSelectedPageId(page.id)}
+                  >
+                    {page.thumbnailUrl ? (
+                      <img src={page.thumbnailUrl} alt={getPageLabel(page)} />
+                    ) : (
+                      <span>{page.index + 1}</span>
+                    )}
+                    <small>{getPageLabel(page)}</small>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.panelBody}>
+                <span className={styles.placeholderTitle}>Sin paginas</span>
+                <span>0 paginas capturadas</span>
+              </div>
+            )}
           </section>
 
           <section className={styles.panel} aria-label="Preview digitalizacion">
             <div className={styles.panelHeader}>Preview PDF</div>
             <div className={`${styles.panelBody} ${styles.preview}`}>
-              <span className={styles.placeholderTitle}>PDF pendiente</span>
-              <span>La generacion se habilitara en la fase de scanner.</span>
+              {selectedPage ? (
+                <>
+                  <span className={styles.previewPage}>{selectedPage.index + 1}</span>
+                  <span className={styles.placeholderTitle}>{getPageLabel(selectedPage)}</span>
+                  <span>{scanner.pdf ? scanner.pdf.file.name : "PDF pendiente"}</span>
+                </>
+              ) : (
+                <>
+                  <span className={styles.placeholderTitle}>PDF pendiente</span>
+                  <span>Capture paginas para habilitar la generacion.</span>
+                </>
+              )}
             </div>
           </section>
 
@@ -145,10 +333,19 @@ export function DigitalizacionDocumentalModal({
               <span className={styles.placeholderTitle}>
                 {state.metadata.required ? "Metadata requerida" : "Metadata opcional"}
               </span>
-              <span>TRD sin resolver</span>
+              <span>{state.metadata.trd ? "TRD resuelto" : "TRD sin resolver"}</span>
+              <span>
+                {activeContext?.modo === "adjuntar" && activeContext.idDocumentoDestino
+                  ? `Destino ${activeContext.idDocumentoDestino}`
+                  : "Tipologia pendiente"}
+              </span>
             </div>
           </section>
         </main>
+        <footer className={styles.workbenchFooter}>
+          <span>{submitDisabledReason}</span>
+          <span>{scanner.loading ? "Operacion en curso" : "Listo para operar"}</span>
+        </footer>
       </section>
     </AppModal>
   );

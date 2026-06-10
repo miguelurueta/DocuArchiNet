@@ -26,6 +26,31 @@
   text-transform: uppercase;
 }
 
+.stateBadge {
+  background: #f2f7f2;
+  border: 1px solid #cfe6d1;
+  border-radius: 999px;
+  color: #2f6846;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0.18rem 0.55rem;
+}
+
+.stateBadge[data-state="error"],
+.stateBadge[data-state="contextInvalid"] {
+  background: #fff1f0;
+  border-color: #ffccc7;
+  color: #a8071a;
+}
+
+.stateBadge[data-state="scanning"],
+.stateBadge[data-state="generatingPdf"],
+.stateBadge[data-state="initializingScanner"] {
+  background: #fff7e6;
+  border-color: #ffd591;
+  color: #ad6800;
+}
+
 .summary {
   display: grid;
   gap: 0.45rem;
@@ -75,13 +100,31 @@
 }
 
 .scannerSelect {
+  align-items: center;
   background: #f3f6fa;
   border: 1px solid #dbe3ee;
   border-radius: 8px;
   color: #53657a;
+  display: inline-flex;
+  gap: 0.45rem;
   min-height: 2.25rem;
   min-width: 13rem;
-  padding: 0.45rem 0.65rem;
+  padding: 0.28rem 0.45rem 0.28rem 0.65rem;
+}
+
+.scannerSelect span {
+  color: #40566e;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.scannerSelect select {
+  background: #ffffff;
+  border: 1px solid #d6dfeb;
+  border-radius: 6px;
+  color: #253b53;
+  min-height: 1.7rem;
+  min-width: 9rem;
 }
 
 .main {
@@ -119,6 +162,58 @@
   text-align: center;
 }
 
+.thumbnailList {
+  align-content: start;
+  display: grid;
+  gap: 0.5rem;
+  max-height: 22rem;
+  overflow: auto;
+  padding: 0.65rem;
+}
+
+.thumbnailButton {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #dce5f0;
+  border-radius: 8px;
+  color: #263b52;
+  cursor: pointer;
+  display: grid;
+  gap: 0.35rem;
+  min-height: 5rem;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.thumbnailButton[data-selected="true"] {
+  border-color: #3d73d8;
+  box-shadow: 0 0 0 2px rgba(61, 115, 216, 0.14);
+}
+
+.thumbnailButton img {
+  border-radius: 4px;
+  max-height: 4rem;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.thumbnailButton span {
+  align-items: center;
+  background: #eef4ff;
+  border-radius: 6px;
+  color: #1f4fa3;
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 2.6rem;
+}
+
+.thumbnailButton small {
+  color: #5f7187;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 .preview {
   background:
     linear-gradient(90deg, rgba(33, 78, 125, 0.04) 1px, transparent 1px),
@@ -126,9 +221,34 @@
   background-size: 18px 18px;
 }
 
+.previewPage {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d8e2ef;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(37, 59, 83, 0.12);
+  color: #1f4fa3;
+  display: inline-flex;
+  font-size: 3rem;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 8rem;
+  min-width: 6rem;
+}
+
 .placeholderTitle {
   color: #263b52;
   font-weight: 700;
+}
+
+.workbenchFooter {
+  align-items: center;
+  border-top: 1px solid #e3e8f1;
+  color: #65758a;
+  display: flex;
+  font-size: 0.8rem;
+  justify-content: space-between;
+  padding-top: 0.7rem;
 }
 
 .footerNote {
@@ -151,5 +271,16 @@
   .scannerSelect {
     min-width: 0;
     width: 100%;
+  }
+
+  .scannerSelect select {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .workbenchFooter {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
   }
 }
