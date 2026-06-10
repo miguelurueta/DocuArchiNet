@@ -7,6 +7,7 @@ type CreateAppEditorConfigOptions = {
   editable: boolean;
   paginatedDocument?: boolean;
   onUpdate: NonNullable<UseEditorOptions["onUpdate"]>;
+  shouldPreventScrollToSelection?: () => boolean;
 };
 
 export function createAppEditorConfig({
@@ -15,6 +16,7 @@ export function createAppEditorConfig({
   editable,
   paginatedDocument = false,
   onUpdate,
+  shouldPreventScrollToSelection,
 }: CreateAppEditorConfigOptions): UseEditorOptions {
   return {
     extensions: buildAppEditorExtensions(placeholder, { paginatedDocument }),
@@ -24,6 +26,14 @@ export function createAppEditorConfig({
       attributes: {
         class: "app-editor-prosemirror",
         spellcheck: "true",
+        style: "overflow-anchor: none; overscroll-behavior: none;",
+      },
+      handleScrollToSelection: () => {
+        if (typeof shouldPreventScrollToSelection === "function" && shouldPreventScrollToSelection()) {
+          return true;
+        }
+
+        return false;
       },
     },
     onUpdate,
