@@ -1,0 +1,1 @@
+export { DigitalizacionDocumentalModal } from "./DigitalizacionDocumentalModal";
