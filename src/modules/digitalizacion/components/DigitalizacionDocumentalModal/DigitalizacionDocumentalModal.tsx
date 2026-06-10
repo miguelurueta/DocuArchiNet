@@ -2,11 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
 import { AppModal } from "../../../../app/Components/UI/AppModal";
 import { useDigitalizacionDocumentalState } from "../../hooks/useDigitalizacionDocumentalState";
+import { useDigitalizacionOperationOrchestrator } from "../../hooks/useDigitalizacionOperationOrchestrator";
 import { useDigitalizacionScanner } from "../../hooks/useDigitalizacionScanner";
 import { DynamsoftScannerError } from "../../infrastructure/dynamsoft";
 import type {
   DigitalizacionDocumentalProps,
   DigitalizacionFunctionalError,
+  DigitalizacionResult,
 } from "../../types/digitalizacion.types";
 import type { DigitalizacionScannerClient, ScanPage } from "../../infrastructure/dynamsoft";
 import styles from "./DigitalizacionDocumentalModal.module.css";
@@ -68,6 +70,7 @@ export function DigitalizacionDocumentalModal({
   open,
   context,
   scannerClient = unavailableScannerClient,
+  apiClient,
   onClose,
   onCompleted,
   onError,
@@ -97,23 +100,47 @@ export function DigitalizacionDocumentalModal({
     selectDevice,
   } = scanner;
 
+  const handleOperationCompleted = useCallback(
+    (result: DigitalizacionResult) => {
+      clear();
+      void dispose();
+      setSelectedPageId(null);
+      onCompleted(result);
+      onClose();
+    },
+    [clear, dispose, onClose, onCompleted],
+  );
+
+  const operation = useDigitalizacionOperationOrchestrator({
+    apiClient,
+    onCompleted: handleOperationCompleted,
+    onError,
+  });
+
   const activeContext = state.context ?? context;
   const title = activeContext?.titulo ?? buildTitle(activeContext?.modo);
   const primaryLabel =
     activeContext?.modo === "adjuntar" ? "Adjuntar digitalizacion" : "Guardar documento";
   const hasPages = scanner.pages.length > 0;
   const canGeneratePdf = Boolean(!state.validationError && hasPages && !scanner.loading);
-  const canConfirm = Boolean(canSubmit || scanner.pdf);
+  const metadataReady = Boolean(!state.metadata.required || state.metadata.trd);
+  const canConfirm = Boolean(canSubmit && scanner.pdf && metadataReady && !operation.loading);
   const visualState = getVisualStateLabel({
     contextInvalid: Boolean(state.validationError),
-    scannerStatus: scanner.status,
+    scannerStatus: operation.loading ? operation.status : scanner.status,
     deviceCount: scanner.devices.length,
     pageCount: scanner.pages.length,
     pdfReady: Boolean(scanner.pdf),
   });
-  const submitDisabledReason = state.validationError?.message ?? scanner.error?.message ?? (
-    scanner.pdf ? "PDF listo" : "Pendiente captura PDF"
-  );
+  const submitDisabledReason =
+    state.validationError?.message ??
+    scanner.error?.message ??
+    operation.error?.message ??
+    (operation.loading
+      ? `Operacion ${operation.status}`
+      : scanner.pdf
+        ? "PDF listo"
+        : "Pendiente captura PDF");
 
   useEffect(() => {
     if (open) {
@@ -122,19 +149,21 @@ export function DigitalizacionDocumentalModal({
   }, [open, initialize]);
 
   const handleCancel = useCallback(() => {
+    operation.cancel();
     clear();
     void dispose();
     setSelectedPageId(null);
     onCompleted({ accion: "cancelado" });
     onClose();
-  }, [clear, dispose, onClose, onCompleted]);
+  }, [clear, dispose, onClose, onCompleted, operation]);
 
   const handleClose = useCallback(() => {
+    operation.cancel();
     clear();
     void dispose();
     setSelectedPageId(null);
     onClose();
-  }, [clear, dispose, onClose]);
+  }, [clear, dispose, onClose, operation]);
 
   const handleClear = useCallback(() => {
     clearPages();
@@ -170,6 +199,19 @@ export function DigitalizacionDocumentalModal({
     void generatePdf(fileName);
   }, [activeContext, generatePdf]);
 
+  const handleSubmit = useCallback(() => {
+    if (!activeContext || !scanner.pdf) return;
+    void operation
+      .submit({
+        context: activeContext,
+        pdf: scanner.pdf.file,
+        pageCount: scanner.pdf.pageCount,
+        nombreDocumento: scanner.pdf.file.name,
+        trd: state.metadata.trd,
+      })
+      .catch(() => undefined);
+  }, [activeContext, operation, scanner.pdf, state.metadata.trd]);
+
   const summaryItems = useMemo(
     () => [
       ["Gabinete", activeContext?.nombreGabinete || "Sin gabinete"],
@@ -201,6 +243,8 @@ export function DigitalizacionDocumentalModal({
       primaryAction={{
         label: primaryLabel,
         disabled: !canConfirm,
+        loading: operation.loading,
+        onClick: handleSubmit,
       }}
     >
       <section
@@ -233,6 +277,11 @@ export function DigitalizacionDocumentalModal({
         {scanner.error ? (
           <div className={styles.error} role="alert">
             {scanner.error.message}
+          </div>
+        ) : null}
+        {operation.error ? (
+          <div className={styles.error} role="alert">
+            {operation.error.message}
           </div>
         ) : null}
 
@@ -344,7 +393,7 @@ export function DigitalizacionDocumentalModal({
         </main>
         <footer className={styles.workbenchFooter}>
           <span>{submitDisabledReason}</span>
-          <span>{scanner.loading ? "Operacion en curso" : "Listo para operar"}</span>
+          <span>{scanner.loading || operation.loading ? "Operacion en curso" : "Listo para operar"}</span>
         </footer>
       </section>
     </AppModal>

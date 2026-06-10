@@ -7,6 +7,15 @@ export { useDigitalizacionMetadataResolve } from "./hooks/useDigitalizacionMetad
 export { useCrearDocumentoDigitalizado } from "./hooks/useCrearDocumentoDigitalizado";
 export { useAdjuntarDigitalizacion } from "./hooks/useAdjuntarDigitalizacion";
 export { useUploadTemporalPdf } from "./hooks/useUploadTemporalPdf";
+export { useDigitalizacionOperationOrchestrator } from "./hooks/useDigitalizacionOperationOrchestrator";
+export type {
+  DigitalizacionOperationOrchestratorState,
+  DigitalizacionOperationSubmitInput,
+  DigitalizacionOrchestratorStatus,
+} from "./hooks/useDigitalizacionOperationOrchestrator";
+export {
+  digitalizacionApiClient,
+} from "./services/digitalizacionApi";
 export {
   buildDigitalizacionContextSignature,
   validateDigitalizacionContext,
@@ -54,6 +63,7 @@ export {
 } from "./services/digitalizacionUploadTemporal.api";
 export type {
   DigitalizacionContext,
+  DigitalizacionDocumentalError,
   DigitalizacionDocumentalProps,
   DigitalizacionFunctionalError,
   DigitalizacionFunctionalErrorCode,

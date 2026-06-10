@@ -1,4 +1,5 @@
 import type { DigitalizacionScannerClient } from "../infrastructure/dynamsoft";
+import type { DigitalizacionApiClient, DigitalizacionApiError } from "./digitalizacionApi.types";
 
 export type DigitalizacionModo = "crear" | "adjuntar";
 
@@ -50,7 +51,12 @@ export type DigitalizacionFunctionalErrorCode =
   | "INVALID_MODE"
   | "NOMBRE_GABINETE_REQUIRED"
   | "ID_DOCUMENTO_DESTINO_REQUIRED"
-  | "OPERATION_NOT_READY";
+  | "OPERATION_NOT_READY"
+  | "PDF_REQUIRED"
+  | "PAGES_REQUIRED"
+  | "METADATA_REQUIRED"
+  | "SUBMIT_ALREADY_IN_PROGRESS"
+  | "ADJUNTAR_NOT_ALLOWED";
 
 export type DigitalizacionFunctionalError = {
   code: DigitalizacionFunctionalErrorCode;
@@ -58,13 +64,16 @@ export type DigitalizacionFunctionalError = {
   field?: keyof DigitalizacionContext;
 };
 
+export type DigitalizacionDocumentalError = DigitalizacionFunctionalError | DigitalizacionApiError;
+
 export type DigitalizacionDocumentalProps = {
   open: boolean;
   context: DigitalizacionContext | null;
   scannerClient?: DigitalizacionScannerClient;
+  apiClient?: DigitalizacionApiClient;
   onClose: () => void;
   onCompleted: (result: DigitalizacionResult) => void;
-  onError?: (error: DigitalizacionFunctionalError) => void;
+  onError?: (error: DigitalizacionDocumentalError) => void;
 };
 
 export type DigitalizacionScannerState = {
