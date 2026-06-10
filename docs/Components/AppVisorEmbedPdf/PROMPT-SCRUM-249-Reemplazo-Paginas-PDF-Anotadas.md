@@ -31,6 +31,50 @@ Responsabilidades:
 - Servicio HTTP dedicado: inicializa upload temporal, sube chunks, completa, cancela y llama `paginas-anotadas`.
 - `AppPdfToolbar`: presentacional. Recibe callbacks, flags y progreso; no conoce HTTP, workflow ni EmbedPDF.
 
+API imperativa esperada del visor:
+
+```ts
+type AppVisorAnnotatedPdfPage = {
+  pageNumber: number;
+  fileName: string;
+  blob: Blob;
+  sizeBytes: number;
+  hashSha256?: string;
+  sourcePageWidth?: number;
+  sourcePageHeight?: number;
+  sourcePageRotation?: number;
+  sourcePageFingerprintSha256?: string;
+};
+
+type AppVisorAnnotatedPdfPagesExportResult = {
+  hasAnnotations: boolean;
+  annotatedPages: number[];
+  pages: AppVisorAnnotatedPdfPage[];
+};
+
+type AppVisorEmbedPdfRef = {
+  load(input: AppVisorLoadInput): Promise<AppVisorLoadResult>;
+  reset(): void;
+  cancelCurrentLoad(): void;
+  exportAnnotatedPdfPages(
+    options?: { signal?: AbortSignal }
+  ): Promise<AppVisorAnnotatedPdfPagesExportResult>;
+};
+```
+
+Props/callbacks presentacionales esperados en toolbar:
+
+```ts
+type AppPdfToolbarAnnotatedPagesProps = {
+  onSaveAnnotatedPages?: () => void;
+  isSaveAnnotatedPagesDisabled?: boolean;
+  isSavingAnnotatedPages?: boolean;
+  saveAnnotatedPagesProgress?: number;
+};
+```
+
+Los nombres finales pueden adaptarse al estilo real del repo, pero el contrato conceptual debe mantenerse: callback desde consumidor, flags desde consumidor y cero conocimiento de HTTP/workflow/EmbedPDF en la toolbar.
+
 Estado actual que debe preservarse:
 
 - El visor ya usa `AnnotationLayer`, `useAnnotation(documentId)`, `useAnnotationCapability()`, `useExport(documentId)`, `annotationCap.provides.commit()`, `exportApi.provides.saveAsCopy()`, `annotation.state.pages`, API imperativa `load/reset/cancelCurrentLoad`, permisos efectivos y debug con `window.__DV_DEBUG__`.
@@ -190,6 +234,11 @@ Response OK:
   "errors": []
 }
 ```
+
+Uso frontend:
+
+- Usar `status` cuando `complete` no entregue evidencia suficiente o cuando se requiera confirmar estado final antes de reemplazo.
+- Antes de llamar `paginas-anotadas`, el frontend debe tener evidencia de que cada temporal esta `COMPLETED`, ya sea por response de `complete` o por `status`.
 
 ### 4.4 Complete upload temporal
 
@@ -366,6 +415,12 @@ Reglas de concurrencia:
 - Si cambia el documento activo durante la operacion, abortar y limpiar temporales creados best-effort.
 - Si falla upload o reemplazo, conservar el documento visible actual y mostrar error funcional.
 
+Observabilidad:
+
+- Usar `window.__DV_DEBUG__` solo para logs no sensibles.
+- Permitido loguear: attemptId, documentId, nombreGabinete, paginas, tamanos, progreso, duracion y `RequestId`.
+- Prohibido loguear: bytes del PDF, `OriginalPdfPassword`, JWT, URLs con token, rutas fisicas sensibles, payload completo con datos sensibles.
+
 Extraccion PDF:
 
 - No usar `pdfjs-dist` para rasterizar.
@@ -470,7 +525,7 @@ Pruebas obligatorias:
 Comandos sugeridos:
 
 ```powershell
-npm run typecheck
+npm.cmd run build
 npx.cmd vitest run src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.test.tsx
 npx.cmd vitest run src/app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.service.test.ts
 npx.cmd vitest run src/app/Components/UI/AppVisorEmbedPdf/utils/pdfPageAnnotations.test.ts
@@ -611,6 +666,11 @@ async function completeUploadTemporal(
   params: { rutaTemporalId: string; archivoTemporalId: string },
   options?: { signal?: AbortSignal }
 ): Promise<void>;
+
+async function statusUploadTemporal(
+  params: { rutaTemporalId: string; archivoTemporalId: string },
+  options?: { signal?: AbortSignal }
+): Promise<StorageUploadStatusResponseDto>;
 
 async function cancelUploadTemporal(
   params: { rutaTemporalId: string; archivoTemporalId: string },
