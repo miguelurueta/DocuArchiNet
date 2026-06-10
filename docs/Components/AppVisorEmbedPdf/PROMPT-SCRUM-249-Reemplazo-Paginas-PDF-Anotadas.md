@@ -1,634 +1,531 @@
-# PROMPT ARQUITECTONICO ENTERPRISE - SCRUM-249
+# SCRUM-249 Integracion Frontend Reemplazo Paginas PDF Anotadas
 
-## Integracion React para Reemplazo de Paginas PDF Anotadas desde AppVisorEmbedPdf
+## 1. Objetivo Frontend
 
-**Version:** Enterprise Final alineada al proyecto actual DocuArchiCore.react  
-**Fecha base:** 2026-06-06  
-**Repositorio objetivo:** DocuArchiCore.react  
-**Scope:** Frontend React + TypeScript  
-**Componente frontera EmbedPDF:** `src/app/Components/UI/AppVisorEmbedPdf`  
-**Componente consumidor principal:** `src/modules/gestionCorrespondencia/components/documentosWorkbench/DocumentosWorkbench.tsx`  
-**Endpoint parcial objetivo:** `POST /api/gestor-documental/documentos/reemplazopdf/paginas-anotadas`
+Permitir que el frontend detecte paginas anotadas en `AppVisorEmbedPdf`, genere uno o varios PDFs anotados de una sola pagina, los suba por chunks y luego ejecute el reemplazo fisico de paginas especificas del PDF almacenado en gabinete.
 
-## 1. Rol esperado
+Este flujo no reemplaza el documento completo enviado por el frontend. El backend abre el PDF original, reemplaza solo las paginas indicadas y genera un PDF final usando iText/iText7.
 
-Actua como Arquitecto de Software Senior Frontend React + TypeScript especialista en React, TypeScript estricto, Vite, Vitest, EmbedPDF/Pdfium Engine, `@embedpdf/plugin-annotation`, `@embedpdf/plugin-export`, `@embedpdf/plugin-print`, encapsulacion enterprise de visores PDF, servicios API con `clienteApi` y Axios centralizado, upload temporal por chunks, manejo de archivos grandes, `Blob`, `ArrayBuffer`, `Uint8Array`, `slice()`, cancelacion con `AbortController`, patron latest-wins, integracion con backend ASP.NET Core, contratos HTTP tipo `AppResponses<T>`, pruebas unitarias e integracion FE, observabilidad controlada con `window.__DV_DEBUG__` y documentacion tecnica enterprise.
+Repositorio objetivo: `DocuArchiCore.react`
 
-## 2. Contexto real del proyecto actual
+Scope: Frontend React + TypeScript.
 
-Este prompt aplica al repositorio React actual `DocuArchiCore.react`.
+Componentes frontera:
 
-Usar rutas relativas al workspace. No depender de rutas locales absolutas salvo para documentacion generada.
-
-Ruta principal del visor:
-
-`src/app/Components/UI/AppVisorEmbedPdf`
-
-Archivos actuales relevantes:
-
-- `src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.tsx`
-- `src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.types.ts`
-- `src/app/Components/UI/AppVisorEmbedPdf/types/AppVisorEmbedPdfProps.ts`
-- `src/app/Components/UI/AppVisorEmbedPdf/presentation/AppPdfToolbar.tsx`
-- `src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.permissions.ts`
-- `src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.service.ts`
-
-El visor actual ya contiene:
-
-- `AnnotationLayer`.
-- `useAnnotation(documentId)`.
-- `useAnnotationCapability()`.
-- `useExport(documentId)`.
-- `annotationCap.provides.commit()`.
-- `exportApi.provides.saveAsCopy()`.
-- `annotation.state.pages`.
-- toolbar presentacional `AppPdfToolbar`.
-- API imperativa actual `load/reset/cancelCurrentLoad`.
-- permisos efectivos `ViewerEffectivePermissions`.
-- flujo de firma/anotaciones como `STAMP`/`INK`.
-- `waitPdfTask` y `waitPdfTaskVoid`.
-- debug local con `window.__DV_DEBUG__`.
-- politica fail-closed para permisos del visor.
-
-Ruta del consumidor principal:
-
-`src/modules/gestionCorrespondencia/components/documentosWorkbench/DocumentosWorkbench.tsx`
-
-El Workbench actual ya contiene:
-
-- `visorRef`.
-- `documentViewer.documentoActivo`.
-- `activeFileUrl`.
-- `activeRowId`.
-- `idTareaWf`.
-- `documentosTable.getWorkbenchContext?.()`.
-- flujo `visualizarDocumento`.
-- control de loading/toast/error.
-- `viewerKind` para PDF/imagen.
-- `isElectronicallySigned` en contexto activo.
-- `visorRef.current?.cancelCurrentLoad()`.
-- flujo managed `visorRef.current?.load({...})` activo con `nombre_modulo: "gestioncorrespondencia"`.
-
-Importante:
-
-El prompt original mencionaba una brecha donde `load()` estaba comentado. En el proyecto actual esa brecha ya fue parcialmente resuelta: `DocumentosWorkbench` si llama `visorRef.current?.load(...)` para PDFs. Por tanto, cualquier implementacion futura debe preservar este modo gestionado y no volver a una integracion exclusivamente por `fileUrl` directo.
-
-El proyecto ya tiene dependencias EmbedPDF, Axios, Vitest, Testing Library, `pdfjs-dist` y `react-pdf`.
-
-El proyecto no tiene actualmente `pdf-lib` en `package.json`.
-
-Decision obligatoria:
-
-Para extraer PDFs de una sola pagina desde el PDF anotado completo, se requiere una libreria frontend segura que permita cargar PDF, copiar paginas y guardar un nuevo PDF. Si no existe una dependencia ya aprobada en el proyecto, evaluar agregar `pdf-lib` mediante decision tecnica explicita.
-
-No implementar extraccion por pagina si no existe mecanismo real sin rasterizacion.
-
-## 3. Fuente de verdad del contrato FE
-
-Este prompt es autocontenido para frontend.
-
-No importar codigo, DTOs ni tipos desde backend.
-
-Referencias backend opcionales para auditoria:
-
-- API: `https://github.com/miguelurueta/DocuArchi.Api.git`
-- DTOs: `https://github.com/miguelurueta/MiApp.DTOs.git`
-- Services: `https://github.com/miguelurueta/MiApp.Services.git`
-- Repository: `https://github.com/miguelurueta/MiApp.Repository.git`
-- Documentacion/core: `https://github.com/miguelurueta/DocuArchiCore.git`
-
-Reglas:
-
-- No clonar ni leer estos repos como requisito normal de implementacion FE.
-- Usarlos solo para auditoria de contrato, revision tecnica o resolucion de dudas.
-- Si Swagger/OpenAPI publicado contradice este prompt, escalar discrepancia antes de implementar.
-- Si backend confirma contrato distinto, actualizar primero `design/spec/tasks` antes de tocar codigo.
-
-## 4. Endpoint objetivo y endpoints existentes
-
-Endpoint objetivo parcial:
-
-```http
-POST /api/gestor-documental/documentos/reemplazopdf/paginas-anotadas
-Authorization: Bearer {jwt}
-Content-Type: application/json
-```
-
-Upload temporal existente:
-
-```http
-POST /api/gestor-documental/documentos/reemplazopdf/upload-temporal/init
-PUT /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/chunk/{chunkIndex}
-GET /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/status
-POST /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/complete
-DELETE /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}
-```
+- Visor PDF: `src/app/Components/UI/AppVisorEmbedPdf`
+- Consumidor principal: `src/modules/gestionCorrespondencia/components/documentosWorkbench/DocumentosWorkbench.tsx`
+- Toolbar: `src/app/Components/UI/AppVisorEmbedPdf/presentation/AppPdfToolbar.tsx`
 
 Cliente HTTP obligatorio:
 
-Usar el cliente centralizado del proyecto: `clienteApi`.
+- Usar `clienteApi` y los patrones existentes del proyecto.
+- No usar `fetch` ni `axios` directo en codigo productivo nuevo salvo que una restriccion tecnica documentada del upload binario lo exija.
+- Propagar `AbortSignal`.
+- Desempaquetar `AppResponses<T>`.
+- Normalizar errores de dominio con `Field`, `Message`, `RequestId` cuando aplique.
 
-No usar `axios` directo en nuevos servicios salvo que el patron actual del proyecto lo exija de forma demostrable.
+Responsabilidades:
 
-Regla enterprise preferida:
+- `AppVisorEmbedPdf`: unica frontera con EmbedPDF. Detecta paginas anotadas, ejecuta `commit()`, exporta copia anotada y produce blobs PDF de una sola pagina. No llama APIs.
+- `DocumentosWorkbench`: orquesta negocio documental. Valida documento activo, PDF, permisos, firma electronica, contexto workflow, progreso, cancelacion y refresco.
+- Servicio HTTP dedicado: inicializa upload temporal, sube chunks, completa, cancela y llama `paginas-anotadas`.
+- `AppPdfToolbar`: presentacional. Recibe callbacks, flags y progreso; no conoce HTTP, workflow ni EmbedPDF.
 
-- HTTP nuevo en service dedicado.
-- `clienteApi` como frontera HTTP.
-- `AbortSignal` propagado.
-- envelope backend desempaquetado y validado.
-- errores de dominio normalizados.
+Estado actual que debe preservarse:
 
-## 5. Correccion funcional critica
+- El visor ya usa `AnnotationLayer`, `useAnnotation(documentId)`, `useAnnotationCapability()`, `useExport(documentId)`, `annotationCap.provides.commit()`, `exportApi.provides.saveAsCopy()`, `annotation.state.pages`, API imperativa `load/reset/cancelCurrentLoad`, permisos efectivos y debug con `window.__DV_DEBUG__`.
+- `DocumentosWorkbench` ya usa carga gestionada con `visorRef.current?.load(...)` para PDFs. No volver a una integracion basada solo en `fileUrl`.
+- No romper exportacion, impresion, firma, visualizacion de imagenes ni carga gestionada actual.
 
-La implementacion FE no debe enviar imagenes.
+Modo de implementacion obligatorio:
 
-La implementacion FE no debe rasterizar paginas a PNG/JPEG.
+1. Implementar primero contrato HTTP y tests del servicio.
+2. Implementar despues exportacion de PDFs anotados de una sola pagina.
+3. Integrar luego `DocumentosWorkbench` y toolbar.
+4. Cerrar con hardening, QA y documentacion.
 
-La implementacion FE debe enviar paginas PDF anotadas, donde cada archivo temporal es un PDF de una sola pagina.
+Si una fase depende de una decision tecnica no resuelta, bloquear esa fase y documentar la razon. No sustituir con imagenes, canvas, Base64, rasterizacion ni PDF completo.
 
-Definicion exacta:
+## 2. Seguridad
 
-1. Detectar paginas con anotaciones en el visor.
-2. Materializar anotaciones con `annotationCap.provides.commit()`.
-3. Exportar PDF anotado completo con `exportApi.provides.saveAsCopy()`.
-4. Extraer un PDF de una sola pagina por cada pagina anotada.
-5. Subir cada PDF de una sola pagina al upload temporal existente.
-6. Enviar al endpoint `/paginas-anotadas` la lista `{ PageNumber, RutaTemporalId, ArchivoTemporalId, ContentType: "application/pdf", HashSha256Esperado }`.
-7. El backend reemplaza paginas PDF completas, no imagenes internas.
+- Header obligatorio en todas las APIs: `Authorization: Bearer {jwt}`.
+- Claims minimos en JWT:
+  - `defaulalias`
+  - `usuarioid`
+- Si el PDF original requiere contrasena, el frontend puede enviar `OriginalPdfPassword` solo en el request final de reemplazo.
+- No guardar `OriginalPdfPassword` en `localStorage`, `sessionStorage`, IndexedDB, logs del navegador, telemetria ni estado global persistente.
+- Mantener `OriginalPdfPassword` solo en memoria volatil mientras el documento este abierto.
+- Limpiar `OriginalPdfPassword` en `reset`, cambio de documento, cancelacion, cierre de visor o desmontaje.
+- No mostrar rutas fisicas de gabinete a usuarios finales si la politica del producto no lo permite.
+- No loguear blobs completos, passwords, JWT ni respuestas con datos sensibles.
 
-Correccion de contrato SCRUM-249:
+## 3. APIs del modulo Reemplazo Paginas PDF Anotadas
 
-- El upload temporal actual crea un `RutaTemporalId` por cada `init`.
-- Para reemplazo multipagina, cada item de `Paginas` debe enviar su propio `RutaTemporalId`.
-- `RutaTemporalId` raiz existe solo como fallback compatible para clientes de una sola ruta.
-- No forzar una ruta temporal comun en frontend.
-- El backend retorna y espera `AppResponses<T>`.
-- El servicio FE debe desempaquetar `data` y propagar `errors`.
-- El endpoint acepta `OriginalPdfPassword` opcional para PDF original protegido.
-- El FE solo puede conservar `OriginalPdfPassword` en memoria.
-- El endpoint acepta validacion anti-desfase opcional con `SourceDocumentHashSha256`, `SourceDocumentVersion`, `SourcePageWidth`, `SourcePageHeight`, `SourcePageRotation` y `SourcePageFingerprintSha256`.
-- El backend abre el PDF original, reemplaza solo las paginas indicadas y genera el PDF final con iText/iText7.
-- El PDF anotado de una pagina puede tener tamano u orientacion diferente al original.
-- El backend conserva tamano/orientacion de la pagina original y ajusta el contenido anotado dentro de esa caja.
-- `SourcePageWidth`, `SourcePageHeight`, `SourcePageRotation` y `SourcePageFingerprintSha256` son metadata de validacion anti-desfase, no instrucciones para definir el tamano final de la pagina.
+- `POST /api/gestor-documental/documentos/reemplazopdf/upload-temporal/init`
+- `PUT /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/chunk/{chunkIndex}`
+- `GET /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/status`
+- `POST /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/complete`
+- `DELETE /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}`
+- `POST /api/gestor-documental/documentos/reemplazopdf/paginas-anotadas`
 
-Prohibido:
-
-- enviar `image/png`.
-- enviar `image/jpeg`.
-- usar canvas como contrato de integracion.
-- usar `pdfjs-dist` para rasterizar.
-- enviar el PDF completo si el endpoint parcial esta disponible.
-- exponer `@embedpdf/*` fuera del visor.
-- importar DTOs backend.
-- persistir contrasenas PDF.
-- loguear contrasenas PDF.
-
-## 6. Objetivo
-
-Implementar en este repositorio React un flujo end-to-end para detectar paginas PDF con anotaciones, exportar paginas PDF anotadas de una sola pagina, subir esas paginas por chunks usando el upload temporal existente, llamar a la nueva API de reemplazo de paginas PDF anotadas, manejar progreso, errores, cancelacion y latest-wins, refrescar el documento visible tras reemplazo exitoso, bloquear reemplazo si el documento esta firmado electronicamente, no romper exportacion actual, impresion actual, firma actual ni visualizacion de imagenes, y dejar pruebas/documentacion enterprise completas.
-
-## 7. Decision arquitectonica principal
-
-`AppVisorEmbedPdf` debe encapsular toda la logica relacionada con EmbedPDF:
-
-- conocer `documentId` interno del engine.
-- conocer `annotation.state.pages`.
-- ejecutar `commit()`.
-- ejecutar `saveAsCopy()`.
-- exportar paginas PDF anotadas.
-- no subir archivos a backend.
-- no llamar endpoints de reemplazo.
-- no conocer reglas de negocio de workflow.
-- no exponer tipos `@embedpdf/*` hacia consumidores.
-
-`DocumentosWorkbench` debe orquestar negocio:
-
-- tomar contexto documental.
-- validar documento activo.
-- validar si es PDF.
-- validar firma electronica.
-- llamar metodo imperativo del visor.
-- llamar servicio de upload temporal.
-- llamar API `/paginas-anotadas`.
-- mostrar UX/progreso.
-- reabrir/refrescar documento.
-- preservar seleccion activa si falla.
-
-El servicio API debe encapsular HTTP:
-
-- init upload.
-- chunk upload.
-- complete.
-- cancel best-effort.
-- replace pages.
-- desempaquetado `AppResponses<T>`.
-- normalizacion PascalCase/camelCase si aplica.
-- errores de dominio.
-
-`AppPdfToolbar` debe seguir siendo presentacional:
-
-- recibe callbacks.
-- recibe flags.
-- recibe progreso si aplica.
-- no conoce HTTP.
-- no conoce EmbedPDF.
-- no conoce `clienteApi`.
-- no conoce workflow.
-
-## 8. Archivos esperados
-
-Modificar:
-
-- `src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.tsx`
-- `src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.types.ts`
-- `src/app/Components/UI/AppVisorEmbedPdf/types/AppVisorEmbedPdfProps.ts`
-- `src/app/Components/UI/AppVisorEmbedPdf/presentation/AppPdfToolbar.tsx`
-- `src/modules/gestionCorrespondencia/components/documentosWorkbench/DocumentosWorkbench.tsx`
-- tests existentes de `AppVisorEmbedPdf`
-- tests existentes de `DocumentosWorkbench`
-
-Crear:
-
-- `src/app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.service.ts`
-- `src/app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.types.ts`
-- `src/app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.service.test.ts`
-
-Crear opcionalmente:
-
-- `src/app/Components/UI/AppVisorEmbedPdf/utils/pdfPageAnnotations.ts`
-- `src/app/Components/UI/AppVisorEmbedPdf/utils/pdfPageAnnotations.test.ts`
-- `src/app/Components/UI/AppVisorEmbedPdf/utils/pdfSinglePageExtraction.ts`
-- `src/app/Components/UI/AppVisorEmbedPdf/utils/pdfSinglePageExtraction.test.ts`
-- `src/app/Components/UI/AppVisorEmbedPdf/utils/hashSha256.ts`
-- `src/app/Components/UI/AppVisorEmbedPdf/utils/hashSha256.test.ts`
-
-No crear servicios HTTP dentro de `gestionCorrespondencia` salvo dependencia fuerte y justificada de workflow.
-
-Preferir servicio neutral dentro del visor para reutilizacion por otros modulos.
-
-## 9. API imperativa del visor
-
-Actualizar:
-
-`src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.types.ts`
-
-Tipos nuevos:
+Todos los responses usan envelope:
 
 ```ts
-export type AppVisorAnnotatedPdfPage = {
-  pageNumber: number;
-  fileName: string;
-  blob: Blob;
-  sizeBytes: number;
-  hashSha256?: string;
-};
-
-export type AppVisorAnnotatedPdfPagesExportResult = {
-  hasAnnotations: boolean;
-  annotatedPages: number[];
-  pages: AppVisorAnnotatedPdfPage[];
-  totalSizeBytes: number;
+type AppResponses<T> = {
+  success: boolean;
+  message: string;
+  data: T | null;
+  meta?: { Status?: string };
+  errors?: Array<{
+    Type?: string;
+    Field?: string;
+    Message?: string;
+  }>;
 };
 ```
 
-Extender ref:
+Reglas de envelope:
 
-```ts
-export type AppVisorEmbedPdfRef = {
-  load(input: AppVisorLoadInput): Promise<AppVisorLoadResult>;
-  reset(): void;
-  cancelCurrentLoad(): void;
-  exportAnnotatedPdfPages(): Promise<AppVisorAnnotatedPdfPagesExportResult>;
-};
-```
+- Si HTTP no es 2xx, lanzar error de dominio.
+- Si `success !== true`, lanzar error de dominio.
+- Si `data` viene `null` en endpoint que requiere datos, tratarlo como error contractual.
+- Preservar `Field` para casos como `originalPdfPassword`.
 
-Reglas:
+## 4. Contratos por API
 
-- `annotatedPages` usa numeracion humana base 1.
-- `annotation.state.pages` usa pageIndex base 0.
-- Si no hay anotaciones, retornar `hasAnnotations: false`, `annotatedPages: []`, `pages: []`.
-- No descargar archivos.
-- No subir a backend.
-- No exponer `documentId`.
-- No exponer tipos de EmbedPDF.
-- No modificar print/export/firma existentes.
-- No hacer side effects de negocio.
+### 4.1 Init upload temporal
 
-## 10. Deteccion de paginas anotadas
+`POST /api/gestor-documental/documentos/reemplazopdf/upload-temporal/init`
 
-Usar exclusivamente `annotation.state.pages`.
+Request por cada PDF anotado de una sola pagina:
 
-Funcion pura recomendada:
-
-```ts
-export function getAnnotatedPageNumbers(pagesState: Record<string, unknown>): number[] {
-  return Array.from(
-    new Set(
-      Object.entries(pagesState ?? {})
-        .filter(([, ids]) => Array.isArray(ids) && ids.length > 0)
-        .map(([pageIndex]) => Number(pageIndex) + 1)
-        .filter((value) => Number.isFinite(value) && value > 0),
-    ),
-  ).sort((a, b) => a - b);
+```json
+{
+  "NombreOriginal": "DIG00015416-PAGINA-2-ANOTADA.PDF",
+  "TamanoBytes": 251004,
+  "Extension": ".PDF",
+  "HashSha256Esperado": "opcionalesha256",
+  "NumeroChunks": 1
 }
 ```
 
-No usar DOM, canvas, thumbnails, seleccion de texto, inferencias visuales ni screenshots.
+Response OK:
 
-## 11. Exportacion de paginas PDF anotadas
-
-Objetivo:
-
-Obtener un PDF de una sola pagina por cada pagina anotada.
-
-Flujo obligatorio dentro del visor:
-
-1. Validar documento activo.
-2. Validar que `annotationCap.provides?.commit` existe.
-3. Validar que `exportApi.provides?.saveAsCopy` existe.
-4. Calcular `annotatedPages` desde `annotation.state.pages`.
-5. Si no hay anotaciones, retornar resultado vacio.
-6. Ejecutar commit:
-
-```ts
-await waitPdfTaskVoid(annotationCap.provides.commit());
-```
-
-7. Obtener PDF anotado completo:
-
-```ts
-const buffer = await waitPdfTask<ArrayBuffer | Uint8Array<ArrayBufferLike>>(
-  exportApi.provides.saveAsCopy(),
-);
-```
-
-Importante:
-
-En el proyecto actual `saveAsCopy()` se usa sin parametro. No usar `saveAsCopy(documentId)` salvo que una version futura del adapter lo requiera y se valide en codigo.
-
-8. Convertir bytes a `BlobPart` usando util existente o equivalente seguro:
-
-```ts
-function toPdfBlobPart(buffer: ArrayBuffer | Uint8Array<ArrayBufferLike>): BlobPart {
-  if (buffer instanceof ArrayBuffer) return buffer;
-
-  const source = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-  const copy = new Uint8Array(source.byteLength);
-  copy.set(source);
-  return copy.buffer;
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "RutaTemporalId": "usr_141_18be1f9f81524358bdf6a78e7f25f2dc",
+    "ArchivoTemporalId": "af_0d22cb08fb6b4f16b3916f6759089f49.pdf",
+    "ChunkSizeBytes": 1048576,
+    "Estado": "IN_PROGRESS"
+  },
+  "errors": []
 }
 ```
 
-9. A partir del PDF anotado completo, extraer un PDF de una sola pagina por cada `pageNumber`.
+Reglas frontend:
 
-Decision de extraccion:
+- Llamar `init` una vez por cada PDF anotado de una sola pagina.
+- Normalizar extension a `.PDF`.
+- Guardar `RutaTemporalId` + `ArchivoTemporalId` por pagina.
+- Usar `DELETE` solo cuando el usuario abandona el flujo antes del reemplazo final.
+- Si `paginas-anotadas` responde exitosamente, no llamar `DELETE`: el backend ya consumio y elimino los temporales usados.
+- El upload temporal genera un `RutaTemporalId` nuevo por cada `init`. Por eso, para reemplazar varias paginas en una sola llamada, cada item de `Paginas` debe enviar el `RutaTemporalId` que recibio al subir su PDF anotado.
 
-Primero inspeccionar dependencias existentes.
+### 4.2 Upload chunk
 
-Si no existe libreria frontend segura para manipular PDF por paginas, evaluar agregar `pdf-lib`.
+`PUT /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/chunk/{chunkIndex}`
 
-Decision obligatoria antes de implementar:
+Headers de contrato:
 
-- Si se aprueba `pdf-lib`, documentar licencia, peso e impacto bundle.
-- Si no se aprueba `pdf-lib`, bloquear esta parte y escalar alternativa tecnica.
-- No implementar extraccion por imagen.
+- `Content-Type: application/octet-stream`
+- `Content-Length: {bytesChunk}`
+- `X-Total-Chunks: {totalChunks}`
+
+Body:
+
+- Binario puro del chunk del PDF anotado.
+- No JSON.
+- No Base64.
+- No `FormData`, salvo cambio explicito del contrato backend.
+
+Response OK:
+
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "chunkIndex": 0
+  },
+  "errors": []
+}
+```
+
+Nota frontend obligatoria:
+
+- `Content-Length` es un header restringido en browsers. React, fetch y Axios no deben setearlo manualmente.
+- En browser, enviar `Blob`, `File` o `ArrayBuffer` como body crudo para que el runtime calcule `Content-Length`.
+- En tests unitarios no exigir que el codigo setee manualmente `Content-Length`; validar `Content-Type`, `X-Total-Chunks`, URL, `chunkIndex` y body binario.
+- Si QA real demuestra que backend no recibe `Content-Length` desde navegador, escalar contrato backend/frontend. No resolver con hacks desde React.
+
+### 4.3 Status upload temporal
+
+`GET /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/status`
+
+Response OK:
+
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "Estado": "IN_PROGRESS",
+    "ChunksRecibidos": 1,
+    "ChunksPendientes": 0,
+    "TamanoRecibidoBytes": 251004
+  },
+  "errors": []
+}
+```
+
+### 4.4 Complete upload temporal
+
+`POST /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/complete`
+
+Response OK:
+
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "Estado": "COMPLETED"
+  },
+  "errors": []
+}
+```
+
+Antes de llamar `paginas-anotadas`, cada temporal debe estar `COMPLETED`.
+
+### 4.5 Cancel upload temporal
+
+`DELETE /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}`
+
+Response OK:
+
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "Estado": "CANCELLED"
+  },
+  "errors": []
+}
+```
+
+La cancelacion debe ser best-effort. Si un temporal ya fue consumido o no existe, no bloquear la limpieza local del flujo.
+
+### 4.6 Reemplazo final de paginas PDF anotadas
+
+`POST /api/gestor-documental/documentos/reemplazopdf/paginas-anotadas`
+
+Request:
+
+```json
+{
+  "NombreGabinete": "contabil",
+  "IdDocumento": 15416,
+  "RutaTemporalId": "usr_141_18be1f9f81524358bdf6a78e7f25f2dc",
+  "OriginalPdfPassword": "solo-si-el-pdf-original-esta-protegido",
+  "Paginas": [
+    {
+      "PageNumber": 2,
+      "RutaTemporalId": "usr_141_page2",
+      "ArchivoTemporalId": "af_0d22cb08fb6b4f16b3916f6759089f49.pdf",
+      "ContentType": "application/pdf",
+      "HashSha256Esperado": "opcionalesha256"
+    },
+    {
+      "PageNumber": 5,
+      "RutaTemporalId": "usr_141_page5",
+      "ArchivoTemporalId": "af_91bbcb08fb6b4f16b3916f6759089a1.pdf",
+      "ContentType": "application/pdf",
+      "HashSha256Esperado": "opcionalesha256"
+    }
+  ],
+  "Motivo": "Actualizacion de grafo PDF en paginas anotadas",
+  "DescOp": "AGREGA GRAFO PDF",
+  "ModuloRegistro": "DOCUARCHI",
+  "Radicado": "2600466700019",
+  "IdTareaWorkflow": 12873,
+  "IdRutaWorkflow": 45,
+  "TipologiaDocumental": "FACTURA"
+}
+```
+
+`OriginalPdfPassword` es opcional. Debe enviarse unicamente cuando el usuario ya ingreso la contrasena para visualizar/anotar un PDF original protegido. El backend la usa para abrir el PDF original con iText durante esta operacion y no la persiste.
+
+Si se envia `OriginalPdfPassword` y es valida, el PDF final queda nuevamente protegido con esa clave. El frontend no debe asumir que se conservan permisos internos exactos del cifrado original; la garantia funcional es que el documento final requiere password.
+
+El PDF anotado de una pagina puede tener un tamano u orientacion diferente al original. La API conserva el tamano/orientacion de la pagina original y ajusta el contenido anotado dentro de esa caja, por lo que el frontend no necesita calcular el `page size` final.
+
+`RutaTemporalId` raiz existe solo como fallback compatible. En clientes nuevos y reemplazo multipagina, enviar siempre `RutaTemporalId` dentro de cada item de `Paginas`.
+
+Response OK:
+
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": {
+    "IdDocumento": 15416,
+    "NombreGabinete": "contabil",
+    "PaginasReemplazadas": [2, 5],
+    "RutaArchivoFinal": "D:/imagenes/discos/CONTABIL7/00093/DIG00015416.PDF",
+    "RutaRespaldo": "D:/temp/storage-temp/replacement-versions/contabil/15416/20260603101530123/f5db29fb18b94b27878db78f6743aa52/DIG00015416.PDF",
+    "TamanoAnteriorBytes": 248112,
+    "TamanoNuevoBytes": 251004,
+    "HashAnteriorSha256": "...",
+    "HashNuevoSha256": "...",
+    "RequestId": "f5db29fb18b94b27878db78f6743aa52"
+  },
+  "meta": {
+    "Status": "success"
+  },
+  "errors": []
+}
+```
+
+### 4.7 Validacion anti-desfase
+
+Existe riesgo de desfase si el usuario anota una pagina renderizada por el frontend y, antes del reemplazo final, el PDF fisico del backend cambia.
+
+El endpoint acepta metadata opcional de la version renderizada:
+
+- `SourceDocumentHashSha256`
+- `SourceDocumentVersion`
+- `SourcePageWidth`
+- `SourcePageHeight`
+- `SourcePageRotation`
+- `SourcePageFingerprintSha256`
+
+Reglas frontend:
+
+- Enviar metadata anti-desfase solo si existe fuente real y confiable.
+- No inventar hash, version, geometria ni fingerprint.
+- Si el backend o flujo de descarga no exponen esta metadata, no enviar esos campos y documentar pendiente.
+- Si backend rechaza por desfase, pedir al usuario recargar el documento y repetir la anotacion sobre la version actual.
+- No enviar capturas o imagenes base para comparacion pixel a pixel como validacion principal.
+
+Ejemplo de item de pagina con metadata anti-desfase:
+
+```json
+{
+  "PageNumber": 2,
+  "RutaTemporalId": "usr_141_page2",
+  "ArchivoTemporalId": "af_0d22cb08fb6b4f16b3916f6759089f49.pdf",
+  "ContentType": "application/pdf",
+  "HashSha256Esperado": "hash-del-temporal-anotado",
+  "SourcePageWidth": 612,
+  "SourcePageHeight": 792,
+  "SourcePageRotation": 0,
+  "SourcePageFingerprintSha256": "opcional-huella-de-la-pagina-original-renderizada"
+}
+```
+
+## 5. Paso a paso de consumo frontend
+
+1. Identificar documento de gabinete, contexto workflow y paginas anotadas que se van a reemplazar.
+2. Bloquear si no hay documento activo, si no es PDF, si faltan permisos, si el documento esta firmado electronicamente o si no hay paginas anotadas.
+3. Conservar en memoria hash/version/metadata de pagina solo cuando exista fuente confiable para validacion anti-desfase.
+4. Ejecutar `annotationCap.provides.commit()` para materializar anotaciones.
+5. Exportar PDF anotado completo con `exportApi.provides.saveAsCopy()`.
+6. Extraer un PDF anotado independiente de una sola pagina por cada pagina modificada.
+7. Verificar que cada PDF generado tiene `type = "application/pdf"`, `size > 0` y exactamente una pagina.
+8. Para cada PDF anotado, calcular `TamanoBytes`, `NumeroChunks` y opcionalmente `HashSha256Esperado`.
+9. Para cada PDF anotado, llamar `init` y guardar `RutaTemporalId` + `ArchivoTemporalId`.
+10. Dividir cada PDF en chunks con `blob.slice(start, end)` usando `ChunkSizeBytes` devuelto por backend.
+11. Enviar cada chunk con `PUT .../chunk/{chunkIndex}`, body binario puro y `X-Total-Chunks`.
+12. Al terminar chunks de cada archivo, llamar `complete`.
+13. Validar que cada temporal quede en `COMPLETED`.
+14. Si el visor requirio contrasena para abrir el PDF original, mantenerla solo en memoria y enviarla como `OriginalPdfPassword` en el request final.
+15. Llamar `POST /reemplazopdf/paginas-anotadas` enviando la lista `Paginas`, cada una con su propio `RutaTemporalId` y metadata anti-desfase cuando aplique.
+16. Mostrar al usuario un resultado funcional: paginas reemplazadas y `RequestId`.
+17. Refrescar el documento visible con el patron existente de `DocumentosWorkbench`.
+18. Si el usuario cancela antes del reemplazo final, invocar `DELETE` para cada temporal creado.
+19. Si el reemplazo final fue exitoso, no invocar `DELETE`.
+
+Reglas de concurrencia:
+
+- Usar `AbortController` por operacion.
+- Aplicar patron latest-wins: incrementar secuencia antes de iniciar y verificarla despues de cada `await` critico.
+- Si cambia el documento activo durante la operacion, abortar y limpiar temporales creados best-effort.
+- Si falla upload o reemplazo, conservar el documento visible actual y mostrar error funcional.
+
+Extraccion PDF:
+
 - No usar `pdfjs-dist` para rasterizar.
-- No usar canvas.
+- No usar canvas como contrato.
+- Si se requiere `pdf-lib`, documentar licencia, peso, impacto bundle y preferir import dinamico.
+- Si no existe mecanismo real para extraer PDFs de una pagina sin rasterizacion, bloquear implementacion y escalar decision tecnica.
 
-Requisito tecnico de la libreria:
+## 6. Campos de auditoria `logdocuarchi`
 
-- cargar PDF desde `ArrayBuffer` o `Uint8Array`.
-- copiar una pagina concreta a un documento nuevo.
-- guardar PDF resultante como bytes.
-- no rasterizar.
+Campos recomendados cuando aplica flujo/radicacion:
 
-Pseudocodigo con libreria tipo `pdf-lib`:
+- `DescOp`
+- `ModuloRegistro`
+- `Radicado`
+- `IdTareaWorkflow`
+- `IdRutaWorkflow`
+- `TipologiaDocumental`
+- `Motivo`
+
+Defaults backend si no se envian:
+
+- `DescOp`: `AGREGA GRAFO PDF`
+- `ModuloRegistro`: `DOCUARCHI`
+- `IdTareaWorkflow`: `0`
+- `IdRutaWorkflow`: `0`
+- `TipologiaDocumental`: se toma de `TIPODOCUMENTO` del gabinete cuando aplica
+
+El backend registra ademas en `logdocuarchi.CAMPOS`:
+
+- paginas reemplazadas
+- ids temporales
+- ruta preparada
+- ruta de respaldo
+- hashes
+- tamanos
+- modo `REEMPLAZO_PAGINAS_PDF_ANOTADAS`
+- total de paginas del PDF original
+- `RequestId`
+- `passwordOriginalSuministrado`: booleano. Nunca se registra el valor de `OriginalPdfPassword`.
+- `pdfFinalReencriptado`: booleano. Nunca se registra el valor de `OriginalPdfPassword`.
+
+## 7. Errores esperados
+
+- `400 Validation`: falta `defaulalias`, usuario invalido, request incompleto, paginas duplicadas, pagina menor o igual a cero.
+- `400 Validation`: archivo temporal no existe, estado no `COMPLETED`, extension no PDF, hash SHA-256 no coincide.
+- `400 Validation`: PDF temporal no contiene exactamente una pagina.
+- `400 Validation`: pagina fuera del rango del PDF original.
+- `400 Validation`: documento de gabinete no existe o esta firmado.
+- `400 Validation`: PDF original protegido sin `OriginalPdfPassword` o con contrasena invalida. El error llega en `Field = originalPdfPassword`.
+- `400 Validation`: anti-desfase cuando el hash o metadata de pagina enviada por frontend no coincide con el PDF fisico actual.
+- `500 Error`: fallo no controlado en preparacion PDF, reemplazo fisico o auditoria.
+
+Manejo frontend:
+
+- Mostrar mensajes funcionales, no trazas tecnicas.
+- Preservar `Field` para enfocar accion correctiva.
+- Guardar `RequestId` cuando venga en respuesta de exito o error.
+- No ocultar el documento visible ante fallo.
+- Ante `originalPdfPassword`, pedir contrasena de nuevo o abortar sin persistirla.
+- Ante anti-desfase, pedir recargar documento antes de reintentar.
+
+## 8. Checklist de depuracion frontend
+
+- JWT vigente con claims `defaulalias` y `usuarioid`.
+- `clienteApi` agrega `Authorization` correctamente.
+- Cada `ArchivoTemporalId` pertenece al `RutaTemporalId` enviado en el item de `Paginas`.
+- Chunks enviados con `application/octet-stream` y `X-Total-Chunks`.
+- Body de chunk enviado como binario puro.
+- No se intenta setear manualmente `Content-Length` desde browser.
+- `complete` ejecutado para cada PDF anotado antes del `POST /paginas-anotadas`.
+- Cada PDF anotado contiene exactamente una pagina.
+- `PageNumber` usa numeracion 1-based, no 0-based.
+- No enviar paginas duplicadas.
+- No enviar imagenes como reemplazo: el temporal debe ser PDF.
+- No enviar el PDF completo al endpoint parcial.
+- No guardar `OriginalPdfPassword`.
+- Si la validacion anti-desfase esta activa, reenviar metadata real recibida/calculada al renderizar.
+- Ante rechazo anti-desfase, recargar documento antes de reintentar.
+- Guardar `RequestId` de error o exito para soporte.
+
+Criterios de aceptacion:
+
+- El frontend no envia imagenes, canvas, Base64, PNG ni JPEG.
+- Cada temporal representa un PDF anotado de exactamente una pagina.
+- Cada pagina enviada incluye su propio `RutaTemporalId`.
+- El flujo bloquea documentos firmados electronicamente.
+- El flujo usa `clienteApi`, `AbortSignal` y `AppResponses<T>`.
+- El flujo soporta cancelacion y latest-wins.
+- `OriginalPdfPassword` solo vive en memoria y solo viaja en request final cuando aplica.
+- Si hay metadata anti-desfase real, se envia; si no, no se inventa.
+- El reemplazo exitoso refresca el documento visible.
+- No se rompen exportacion, impresion, firma, visualizacion de imagenes ni carga gestionada actual.
+- Hay pruebas unitarias e integracion enfocadas en contrato, chunks, single-page PDF, errores y orquestacion.
+
+Pruebas obligatorias:
+
+- Servicio: `init`, chunk binario, `complete`, `cancel`, `paginas-anotadas`, envelope y errores.
+- Utilidades: paginas anotadas, numeracion 1-based, SHA-256, extraccion single-page PDF.
+- Workbench: validaciones, exito, error, cancelacion, latest-wins, refresh y documento firmado.
+- Regresion: exportacion, impresion, firma, imagenes y carga gestionada.
+
+Comandos sugeridos:
+
+```powershell
+npm run typecheck
+npx.cmd vitest run src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.test.tsx
+npx.cmd vitest run src/app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.service.test.ts
+npx.cmd vitest run src/app/Components/UI/AppVisorEmbedPdf/utils/pdfPageAnnotations.test.ts
+npx.cmd vitest run src/app/Components/UI/AppVisorEmbedPdf/utils/pdfSinglePageExtraction.test.ts
+npx.cmd vitest run src/app/Components/UI/AppVisorEmbedPdf/utils/hashSha256.test.ts
+npx.cmd vitest run src/modules/gestionCorrespondencia/components/documentosWorkbench/DocumentosWorkbench.test.tsx
+```
+
+## 9. Ejemplo real de integracion frontend
+
+Regla para esta seccion:
+
+- Los bloques de codigo de `9.x` son pseudocodigo contractual para explicar secuencia, payloads y responsabilidades.
+- No copiar estos ejemplos literalmente al codigo productivo.
+- La implementacion real debe usar nombres, rutas, tipos, helpers, interceptores y patrones existentes del repositorio.
+- Toda llamada HTTP productiva debe pasar por `clienteApi` o por un wrapper del proyecto que preserve autenticacion, interceptores, cancelacion y manejo centralizado de errores.
+- Si algun ejemplo contradice codigo real existente del proyecto, prevalece el codigo real y se debe adaptar el servicio manteniendo el contrato API.
+
+### 9.1 Escenario real multipagina
+
+El usuario abre el documento `IdDocumento = 15416` del gabinete `contabil`, anota las paginas 2 y 5 en el visor PDF y el frontend genera dos PDFs independientes:
+
+| Pagina original | Archivo generado por frontend | Regla |
+|---|---|---|
+| 2 | `DIG00015416-page-2-annotated.pdf` | Debe contener exactamente una pagina. |
+| 5 | `DIG00015416-page-5-annotated.pdf` | Debe contener exactamente una pagina. |
+
+El frontend sube cada archivo por upload temporal y luego llama `paginas-anotadas` en una sola transaccion logica.
+
+### 9.2 Tipos sugeridos TypeScript
 
 ```ts
-const source = await PDFDocument.load(pdfBytes);
-for (const pageNumber of annotatedPages) {
-  const pageIndex = pageNumber - 1;
-  if (pageIndex < 0 || pageIndex >= source.getPageCount()) {
-    throw new Error(`Pagina anotada fuera de rango: ${pageNumber}.`);
-  }
-
-  const single = await PDFDocument.create();
-  const [copied] = await single.copyPages(source, [pageIndex]);
-  single.addPage(copied);
-  const singleBytes = await single.save();
-  const blob = new Blob([singleBytes], { type: "application/pdf" });
-}
-```
-
-Validaciones:
-
-- `pageNumber - 1` debe estar dentro del rango del PDF exportado.
-- cada blob generado debe tener `type = "application/pdf"`.
-- cada blob generado debe tener `size > 0`.
-- cada archivo debe tener una pagina por construccion.
-- si falla una pagina, fallar toda la operacion con error controlado.
-
-Nombre sugerido:
-
-```ts
-`annotated-page-${documentId}-${pageNumber}.pdf`
-```
-
-No descargar archivos.
-
-## 12. Hash SHA-256 en frontend
-
-Calcular hash por cada PDF de pagina usando WebCrypto:
-
-```ts
-export async function sha256Hex(blob: Blob): Promise<string | undefined> {
-  if (typeof crypto === "undefined" || !crypto.subtle) {
-    return undefined;
-  }
-
-  const buffer = await blob.arrayBuffer();
-  const digest = await crypto.subtle.digest("SHA-256", buffer);
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-```
-
-Reglas:
-
-- Si `crypto.subtle` no esta disponible, permitir envio sin hash si backend lo trata como opcional.
-- No bloquear navegadores por falta de WebCrypto.
-- Registrar debug controlado si falta WebCrypto.
-- No convertir a base64.
-- No guardar hash en localStorage.
-- No guardar hash en sessionStorage.
-
-## 13. Validacion anti-desfase y PDF protegido
-
-Tipos FE opcionales:
-
-```ts
-export type AppVisorSourceDocumentSnapshot = {
-  sourceDocumentHashSha256?: string;
-  sourceDocumentVersion?: string;
-  pages?: SourcePageSnapshot[];
-};
-
-export type SourcePageSnapshot = {
-  pageNumber: number;
-  sourcePageWidth?: number;
-  sourcePageHeight?: number;
-  sourcePageRotation?: number;
-  sourcePageFingerprintSha256?: string;
-};
-```
-
-Regla de implementacion:
-
-Estos campos son opcionales y solo deben enviarse si el frontend tiene fuente real y confiable.
-
-No inventar `SourceDocumentHashSha256`, `SourceDocumentVersion`, `SourcePageWidth`, `SourcePageHeight`, `SourcePageRotation` ni `SourcePageFingerprintSha256`.
-
-Si el FE puede calcular `sourceDocumentHashSha256` del PDF original renderizado, enviarlo.
-
-Si el visor expone geometria de pagina, conservar por pagina `sourcePageWidth`, `sourcePageHeight` y `sourcePageRotation`.
-
-Si se calcula fingerprint de pagina, usar SHA-256 sobre una cadena estable equivalente a:
-
-```text
-width|height|rotation
-```
-
-La normalizacion debe coincidir con backend. Si no esta confirmada, no enviar fingerprint.
-
-Si backend responde validacion por `sourceDocumentHashSha256`, `sourcePageWidth`, `sourcePageHeight`, `sourcePageRotation` o `sourcePageFingerprintSha256`, mostrar:
-
-```text
-El documento cambio desde que fue abierto. Recarga el PDF antes de guardar las anotaciones.
-```
-
-No ocultar documento visible. No resetear seleccion.
-
-`OriginalPdfPassword` aplica solo al PDF original almacenado, no a los temporales anotados.
-
-Reglas:
-
-- Enviarlo solo si el usuario ya lo ingreso para abrir/anotar el PDF.
-- Mantenerlo solo en memoria durante la sesion de visualizacion.
-- No persistirlo en storage.
-- No loguearlo.
-- No enviarlo a telemetria.
-- No incluirlo en debug logs.
-- Si backend responde error en `originalPdfPassword`, solicitar de nuevo la contrasena o abortar guardado sin limpiar documento visible.
-
-## 14. Servicio HTTP - tipos
-
-Crear:
-
-`src/app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.types.ts`
-
-```ts
-export type UploadTemporalInitRequest = {
+type StorageUploadInitRequest = {
   NombreOriginal: string;
   TamanoBytes: number;
-  Extension: ".pdf" | ".PDF";
-  HashSha256Esperado?: string;
+  Extension: ".PDF";
+  HashSha256Esperado?: string | null;
   NumeroChunks: number;
 };
 
-export type UploadTemporalInitResponse = {
+type StorageUploadInitResponseDto = {
   RutaTemporalId: string;
   ArchivoTemporalId: string;
   ChunkSizeBytes: number;
-  Estado: string;
+  Estado: "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
 };
 
-export type UploadTemporalChunkResponse = {
-  chunkIndex: number;
-};
-
-export type UploadTemporalStatusResponse = {
-  Estado: "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | string;
+type StorageUploadStatusResponseDto = {
+  Estado: "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
   ChunksRecibidos: number;
   ChunksPendientes: number;
   TamanoRecibidoBytes: number;
 };
 
-export type UploadTemporalCompleteResponse = {
-  Estado: "COMPLETED" | string;
-};
-
-export type UploadTemporalCancelResponse = {
-  Estado: "CANCELLED" | string;
-};
-
-export type UploadPageResult = {
-  pageNumber: number;
-  rutaTemporalId: string;
-  archivoTemporalId: string;
-  hashSha256?: string;
-  sizeBytes: number;
-};
-
-export type AppResponses<T> = {
-  success: boolean;
-  message: string;
-  data: T | null;
-  meta?: {
-    Status?: string;
-    status?: string;
-    Total?: number;
-    total?: number;
-  };
-  errors?: Array<{
-    Type?: string;
-    type?: string;
-    Field?: string;
-    field?: string;
-    Message?: string;
-    message?: string;
-  }>;
-};
-
-export type SourcePageSnapshot = {
-  pageNumber: number;
-  sourcePageWidth?: number;
-  sourcePageHeight?: number;
-  sourcePageRotation?: number;
-  sourcePageFingerprintSha256?: string;
-};
-
-export type ReemplazarPaginaPdfAnotadaTemporalDto = {
-  PageNumber: number;
-  RutaTemporalId: string;
-  ArchivoTemporalId: string;
-  ContentType?: "application/pdf";
-  HashSha256Esperado?: string | null;
-  SourcePageWidth?: number;
-  SourcePageHeight?: number;
-  SourcePageRotation?: number;
-  SourcePageFingerprintSha256?: string;
-};
-
-export type ReemplazarPaginasPdfAnotadasRequest = {
-  NombreGabinete: string;
-  IdDocumento: number;
-  RutaTemporalId?: string;
-  OriginalPdfPassword?: string;
-  SourceDocumentHashSha256?: string;
-  SourceDocumentVersion?: string;
-  Paginas: ReemplazarPaginaPdfAnotadaTemporalDto[];
-  Motivo?: string;
-  DescOp?: "AGREGA GRAFO PDF" | "AGREGAR GRAFO MANUSCRITO";
-  ModuloRegistro?: "DOCUARCHI" | "PRODUCCION" | "WORKFLOW" | string;
-  Radicado?: string;
-  IdTareaWorkflow?: number;
-  IdRutaWorkflow?: number;
-  TipologiaDocumental?: string;
-};
-
-export type ReemplazarPaginasPdfAnotadasResponse = {
+type ReemplazarPaginasPdfAnotadasResponse = {
   IdDocumento: number;
   NombreGabinete: string;
   PaginasReemplazadas: number[];
@@ -640,1068 +537,204 @@ export type ReemplazarPaginasPdfAnotadasResponse = {
   HashNuevoSha256: string;
   RequestId: string;
 };
-```
 
-Reglas:
-
-- Consumir siempre wrapper `AppResponses<T>`.
-- Si `success !== true`, lanzar error de dominio usando `message` y primer `errors[]`.
-- Si `data` es `null` en respuesta exitosa de endpoint que requiere datos, tratarlo como error contractual.
-- Crear adaptadores tolerantes que lean PascalCase y camelCase si backend o mocks varian.
-- Para reemplazo multipagina, `ReemplazarPaginaPdfAnotadaTemporalDto.RutaTemporalId` es obligatorio en cada item.
-- `ReemplazarPaginasPdfAnotadasRequest.RutaTemporalId` puede enviarse como fallback con el primer `RutaTemporalId`.
-- El campo raiz `RutaTemporalId` no debe sustituir el `RutaTemporalId` por pagina.
-
-## 15. Servicio HTTP - envelope y errores
-
-Crear utilidades internas del service:
-
-```ts
-function getErrorText(error?: {
-  Type?: string;
-  type?: string;
-  Field?: string;
-  field?: string;
-  Message?: string;
-  message?: string;
-}): string | null {
-  const field = error?.Field ?? error?.field;
-  const message = error?.Message ?? error?.message;
-  if (field && message) return `${field}: ${message}`;
-  if (message) return message;
-  return null;
-}
-
-function unwrapAppResponse<T>(envelope: AppResponses<T>, fallbackMessage: string): T {
-  const firstError = Array.isArray(envelope?.errors) ? getErrorText(envelope.errors[0]) : null;
-  if (!envelope?.success) {
-    throw new Error(firstError || envelope?.message || fallbackMessage);
-  }
-  if (envelope.data == null) {
-    throw new Error(`${fallbackMessage}: respuesta sin data.`);
-  }
-  return envelope.data;
-}
-```
-
-Reglas:
-
-- No ocultar `errors[]`.
-- No perder `Field`/`field` porque se requiere para `originalPdfPassword` y anti-desfase.
-- Mantener `AbortSignal` en todas las operaciones.
-- Si Axios cancela, propagar cancelacion como cancelacion.
-- No convertir errores de cancelacion en toast visible.
-
-## 16. Servicio HTTP - upload temporal por pagina
-
-Crear:
-
-`src/app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.service.ts`
-
-Funcion:
-
-```ts
-export async function uploadAnnotatedPdfPageTemporal(params: {
-  pageNumber: number;
-  blob: Blob;
-  fileName: string;
-  hashSha256?: string;
-  signal?: AbortSignal;
-  onProgress?: (progress: {
-    pageNumber: number;
-    uploadedBytes: number;
-    totalBytes: number;
-    chunkIndex: number;
-    totalChunks: number;
-    percent: number;
-  }) => void;
-}): Promise<UploadPageResult>;
-```
-
-Flujo:
-
-1. Validar `blob.type === "application/pdf"`.
-2. Validar `blob.size > 0`.
-3. Calcular `NumeroChunks` con chunk preliminar backend default documentado: 1 MB (`1048576`).
-4. Mantener el chunk preliminar configurable para cambios futuros del backend.
-4. Llamar init:
-
-```http
-POST /api/gestor-documental/documentos/reemplazopdf/upload-temporal/init
-```
-
-Body:
-
-```json
-{
-  "NombreOriginal": "annotated-page-doc-2.pdf",
-  "TamanoBytes": 12345,
-  "Extension": ".PDF",
-  "HashSha256Esperado": "...",
-  "NumeroChunks": 1
-}
-```
-
-5. Leer `ChunkSizeBytes` real retornado por backend.
-6. Recalcular `totalChunks` con `ChunkSizeBytes`.
-7. Si total recalculado difiere del `NumeroChunks` enviado en init, abortar con error claro antes de subir chunks.
-
-Motivo:
-
-`StorageUploadPolicy` valida que `X-Total-Chunks` coincida con `NumeroChunks` persistido durante `init`. Si backend retorna otro chunk size y cambia el total, subir chunks produciria inconsistencia.
-
-8. Subir chunks:
-
-```http
-PUT /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/chunk/{chunkIndex}
-```
-
-Headers:
-
-```ts
-{
-  "Content-Type": "application/octet-stream",
-  "X-Total-Chunks": String(totalChunks),
-}
-```
-
-Body:
-
-```ts
-blob.slice(start, end)
-```
-
-Notas:
-
-- Backend exige `Content-Length`.
-- En navegador no fijar manualmente `Content-Length`; XHR/fetch lo calcula desde `Blob`.
-- En pruebas fuera de navegador, mocks deben simular body tipo Blob.
-
-9. Completar:
-
-```http
-POST /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/complete
-```
-
-10. Validar que `complete` retorna `Estado: "COMPLETED"`.
-11. Consultar status cuando se requiera confirmacion explicita:
-
-```http
-GET /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/status
-```
-
-Response esperado:
-
-```json
-{
-  "success": true,
-  "message": "OK",
-  "data": {
-    "Estado": "COMPLETED",
-    "ChunksRecibidos": 1,
-    "ChunksPendientes": 0,
-    "TamanoRecibidoBytes": 251004
-  },
-  "errors": []
-}
-```
-
-12. Antes de llamar `/paginas-anotadas`, cada temporal debe estar `COMPLETED` por respuesta de complete o status.
-13. Retornar:
-
-```ts
-{
-  pageNumber,
-  rutaTemporalId,
-  archivoTemporalId,
-  hashSha256,
-  sizeBytes: blob.size,
-}
-```
-
-Regla clave:
-
-Cada init puede retornar un `RutaTemporalId` distinto. Conservar el par `{ rutaTemporalId, archivoTemporalId }` por pagina.
-
-No exigir ruta comun.
-
-Extension:
-
-- El contrato backend documenta `.PDF`.
-- El FE puede aceptar `.pdf` internamente, pero debe normalizar a `.PDF` si el backend lo requiere.
-- Las pruebas deben cubrir `.PDF` como contrato oficial.
-
-## 17. Servicio HTTP - subida de todas las paginas
-
-Funcion:
-
-```ts
-export async function uploadAnnotatedPdfPagesTemporal(params: {
-  pages: Array<{
-    pageNumber: number;
-    blob: Blob;
-    fileName: string;
-    hashSha256?: string;
+type ReemplazarPaginasPdfAnotadasRequest = {
+  NombreGabinete: string;
+  IdDocumento: number;
+  RutaTemporalId?: string;
+  OriginalPdfPassword?: string;
+  SourceDocumentHashSha256?: string;
+  SourceDocumentVersion?: string;
+  Paginas: Array<{
+    PageNumber: number;
+    RutaTemporalId: string;
+    ArchivoTemporalId: string;
+    ContentType: "application/pdf";
+    HashSha256Esperado?: string | null;
+    SourcePageWidth?: number;
+    SourcePageHeight?: number;
+    SourcePageRotation?: number;
+    SourcePageFingerprintSha256?: string;
   }>;
-  signal?: AbortSignal;
-  onProgress?: (progress: {
-    uploadedPages: number;
-    totalPages: number;
-    currentPageNumber: number;
-    uploadedBytes: number;
-    totalBytes: number;
-    percent: number;
-  }) => void;
-}): Promise<{
-  rutaTemporalId?: string;
-  pages: UploadPageResult[];
-}>;
+  Motivo?: string;
+  DescOp?: string;
+  ModuloRegistro?: "DOCUARCHI" | "PRODUCCION" | "WORKFLOW";
+  Radicado?: string;
+  IdTareaWorkflow?: number;
+  IdRutaWorkflow?: number;
+  TipologiaDocumental?: string;
+};
 ```
 
-Reglas:
+### 9.3 Cliente HTTP base
 
-- Subir secuencialmente para reducir presion de red/memoria.
-- Si se paraleliza en el futuro, maximo configurable y documentado.
-- No validar que todas las paginas retornan mismo `rutaTemporalId`.
-- Retornar `rutaTemporalId` raiz opcional con el primer `rutaTemporalId` solo como fallback compatible.
-- Validar que cada pagina tiene su propio `rutaTemporalId` y `archivoTemporalId`.
-- Si falla una pagina despues de init, cancelar todos los temporales creados best-effort.
-- No ocultar el error original.
-- Si aborta la operacion, cancelar temporales creados best-effort.
-
-## 18. Servicio HTTP - cancelacion temporal
-
-Funcion:
+El codigo productivo debe usar `clienteApi`. Este pseudocodigo solo define la forma esperada de desempaquetar `AppResponses<T>` y no debe copiarse literalmente:
 
 ```ts
-export async function cancelUploadTemporal(params: {
-  rutaTemporalId: string;
-  archivoTemporalId: string;
-  signal?: AbortSignal;
-}): Promise<void>;
+async function unwrapAppResponse<T>(
+  promise: Promise<{ data: AppResponses<T> }>
+): Promise<T> {
+  const response = await promise;
+  const body = response.data;
+
+  if (!body.success || body.data == null) {
+    const firstError = body.errors?.[0];
+    throw new Error(
+      `${body.message}: ${firstError?.Field ?? ""} ${firstError?.Message ?? ""}`.trim()
+    );
+  }
+
+  return body.data;
+}
 ```
 
-Endpoint:
-
-```http
-DELETE /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}
-```
-
-Uso:
-
-- best-effort si falla chunk.
-- best-effort si falla complete.
-- best-effort si el usuario abandona el flujo antes del reemplazo final.
-- best-effort al abortar operacion.
-- best-effort si falla `paginas-anotadas` antes de un reemplazo exitoso.
-
-No mostrar error de cancelacion al usuario si ya existe error principal.
-
-Regla contractual:
-
-- Si `paginas-anotadas` responde exitosamente, no invocar `DELETE`.
-- Cuando el reemplazo final es exitoso, el backend ya consumio y elimino los temporales usados por el request.
-- `DELETE` aplica para cancelacion, abort, abandono del usuario o error antes de un replace exitoso.
-
-## 19. Servicio HTTP - reemplazo paginas PDF anotadas
-
-Funcion:
+Servicio esperado:
 
 ```ts
-export async function replaceAnnotatedPdfPages(params: {
-  nombreGabinete: string;
-  idDocumento: number;
-  rutaTemporalId?: string;
-  originalPdfPassword?: string;
-  sourceDocumentHashSha256?: string;
-  sourceDocumentVersion?: string;
-  paginas: Array<{
-    pageNumber: number;
+async function initUploadTemporalPdfAnotado(
+  request: StorageUploadInitRequest,
+  options?: { signal?: AbortSignal }
+): Promise<StorageUploadInitResponseDto>;
+
+async function uploadTemporalChunk(
+  params: {
     rutaTemporalId: string;
     archivoTemporalId: string;
-    hashSha256?: string;
-    sourcePageWidth?: number;
-    sourcePageHeight?: number;
-    sourcePageRotation?: number;
-    sourcePageFingerprintSha256?: string;
-  }>;
-  motivo?: string;
-  descOp?: "AGREGA GRAFO PDF" | "AGREGAR GRAFO MANUSCRITO";
-  moduloRegistro?: string;
-  radicado?: string;
-  idTareaWorkflow?: number;
-  idRutaWorkflow?: number;
-  tipologiaDocumental?: string;
-  signal?: AbortSignal;
-}): Promise<ReemplazarPaginasPdfAnotadasResponse>;
+    chunkIndex: number;
+    totalChunks: number;
+    chunk: Blob;
+  },
+  options?: { signal?: AbortSignal }
+): Promise<void>;
+
+async function completeUploadTemporal(
+  params: { rutaTemporalId: string; archivoTemporalId: string },
+  options?: { signal?: AbortSignal }
+): Promise<void>;
+
+async function cancelUploadTemporal(
+  params: { rutaTemporalId: string; archivoTemporalId: string },
+  options?: { signal?: AbortSignal }
+): Promise<void>;
+
+async function reemplazarPaginasPdfAnotadas(
+  request: ReemplazarPaginasPdfAnotadasRequest,
+  options?: { signal?: AbortSignal }
+): Promise<ReemplazarPaginasPdfAnotadasResponse>;
 ```
 
-Endpoint:
-
-```http
-POST /api/gestor-documental/documentos/reemplazopdf/paginas-anotadas
-```
-
-Body:
+### 9.4 Upload de un PDF anotado de una pagina
 
 ```ts
+async function uploadAnnotatedSinglePagePdf(file: Blob, pageNumber: number) {
+  const hashSha256 = await calcularSha256(file);
+  const init = await initUploadTemporalPdfAnotado({
+    NombreOriginal: `DIG00015416-PAGINA-${pageNumber}-ANOTADA.PDF`,
+    TamanoBytes: file.size,
+    Extension: ".PDF",
+    HashSha256Esperado: hashSha256,
+    NumeroChunks: 1
+  });
+
+  await uploadTemporalChunk({
+    rutaTemporalId: init.RutaTemporalId,
+    archivoTemporalId: init.ArchivoTemporalId,
+    chunkIndex: 0,
+    totalChunks: 1,
+    chunk: file
+  });
+
+  await completeUploadTemporal({
+    rutaTemporalId: init.RutaTemporalId,
+    archivoTemporalId: init.ArchivoTemporalId
+  });
+
+  return { upload: init, hashSha256 };
+}
+```
+
+Para archivos grandes, dividir `file.slice(start, end)` y enviar `chunkIndex` incremental con `X-Total-Chunks`.
+
+### 9.5 Reemplazo final de dos paginas
+
+```ts
+async function replaceAnnotatedPagesExample(page2Pdf: Blob, page5Pdf: Blob) {
+  const page2Upload = await uploadAnnotatedSinglePagePdf(page2Pdf, 2);
+  const page5Upload = await uploadAnnotatedSinglePagePdf(page5Pdf, 5);
+
+  const result = await reemplazarPaginasPdfAnotadas({
+    NombreGabinete: "contabil",
+    IdDocumento: 15416,
+    RutaTemporalId: page2Upload.upload.RutaTemporalId,
+    OriginalPdfPassword: undefined,
+    Paginas: [
+      {
+        PageNumber: 2,
+        RutaTemporalId: page2Upload.upload.RutaTemporalId,
+        ArchivoTemporalId: page2Upload.upload.ArchivoTemporalId,
+        ContentType: "application/pdf",
+        HashSha256Esperado: page2Upload.hashSha256
+      },
+      {
+        PageNumber: 5,
+        RutaTemporalId: page5Upload.upload.RutaTemporalId,
+        ArchivoTemporalId: page5Upload.upload.ArchivoTemporalId,
+        ContentType: "application/pdf",
+        HashSha256Esperado: page5Upload.hashSha256
+      }
+    ],
+    Motivo: "Actualizacion de grafo PDF desde visor",
+    DescOp: "AGREGA GRAFO PDF",
+    ModuloRegistro: "DOCUARCHI",
+    Radicado: "2600466700019",
+    IdTareaWorkflow: 12873,
+    IdRutaWorkflow: 45,
+    TipologiaDocumental: "FACTURA"
+  });
+
+  return {
+    paginas: result.PaginasReemplazadas,
+    requestId: result.RequestId,
+    rutaFinal: result.RutaArchivoFinal
+  };
+}
+```
+
+### 9.6 Respuesta esperada para mostrar en UI
+
+```json
 {
-  NombreGabinete: nombreGabinete,
-  IdDocumento: idDocumento,
-  RutaTemporalId: rutaTemporalId ?? paginas[0]?.rutaTemporalId,
-  OriginalPdfPassword: originalPdfPassword,
-  SourceDocumentHashSha256: sourceDocumentHashSha256,
-  SourceDocumentVersion: sourceDocumentVersion,
-  Paginas: paginas.map((p) => ({
-    PageNumber: p.pageNumber,
-    RutaTemporalId: p.rutaTemporalId,
-    ArchivoTemporalId: p.archivoTemporalId,
-    ContentType: "application/pdf",
-    HashSha256Esperado: p.hashSha256,
-    SourcePageWidth: p.sourcePageWidth,
-    SourcePageHeight: p.sourcePageHeight,
-    SourcePageRotation: p.sourcePageRotation,
-    SourcePageFingerprintSha256: p.sourcePageFingerprintSha256,
-  })),
-  Motivo: motivo,
-  DescOp: descOp ?? "AGREGA GRAFO PDF",
-  ModuloRegistro: moduloRegistro,
-  Radicado: radicado,
-  IdTareaWorkflow: idTareaWorkflow,
-  IdRutaWorkflow: idRutaWorkflow,
-  TipologiaDocumental: tipologiaDocumental,
+  "paginas": [2, 5],
+  "requestId": "f5db29fb18b94b27878db78f6743aa52",
+  "rutaFinal": "D:/imagenes/discos/CONTABIL7/00093/DIG00015416.PDF"
 }
 ```
 
-Reglas:
+Recomendacion UI:
 
-- No enviar strings vacios.
-- No enviar `IdTareaWorkflow` negativo.
-- No enviar `IdRutaWorkflow` negativo.
-- `DescOp` por defecto: `AGREGA GRAFO PDF`.
-- `ModuloRegistro` debe venir del contexto consumidor.
-- Para `DocumentosWorkbench` ejecutado desde flujo/tarea, enviar `WORKFLOW`.
-- Usar `WORKFLOW` solo cuando el documento proviene efectivamente de flujo/tarea.
-- Si no hay contexto workflow, omitir `ModuloRegistro` o usar `DOCUARCHI` segun politica funcional.
-- Para otros modulos, enviar valor valido del origen funcional: `DOCUARCHI`, `PRODUCCION`, `WORKFLOW` u otro normalizado por backend.
-- Si consumidor no puede resolverlo, omitirlo y dejar backend aplicar default.
-- No inventar `GESTION_CORRESPONDENCIA` como modulo de auditoria.
-- Enviar `RutaTemporalId` por pagina.
-- El `RutaTemporalId` raiz es fallback compatible.
-- Enviar `OriginalPdfPassword` solo si existe en memoria por apertura real del PDF protegido.
-- No guardar ni loguear `OriginalPdfPassword`.
-- Si se dispone de hash/version/geometria/fingerprint real, enviarlo.
-- Propagar errores backend `AppResponses`.
-- Si `errors[0].Field`/`field` es `originalPdfPassword`, mostrar flujo de contrasena invalida/requerida.
+- Mostrar mensaje funcional: `Paginas 2 y 5 actualizadas correctamente`.
+- Guardar `RequestId` en el historial visible para soporte.
+- No mostrar rutas fisicas a usuarios finales si la politica de seguridad del producto no lo permite.
 
-## 20. Integracion en AppVisorEmbedPdf
+### 9.7 Compatibilidad
 
-Extender props en:
+Para clientes antiguos o pruebas de una sola pagina, el backend acepta `RutaTemporalId` a nivel raiz como fallback. Para clientes nuevos y reemplazo multipagina, enviar siempre `RutaTemporalId` dentro de cada item de `Paginas`.
 
-`src/app/Components/UI/AppVisorEmbedPdf/types/AppVisorEmbedPdfProps.ts`
+### 9.8 QA manual esperado
 
-Props nuevas recomendadas:
+- Abrir PDF normal, anotar una pagina, guardar y verificar reemplazo.
+- Abrir PDF normal, anotar dos o mas paginas, guardar y verificar reemplazo en una sola operacion logica.
+- Cancelar durante upload y verificar limpieza best-effort de temporales.
+- Cambiar de documento durante upload y verificar latest-wins.
+- Intentar guardar documento firmado electronicamente y verificar bloqueo.
+- Probar PDF protegido con password valida.
+- Probar PDF protegido sin password o con password invalida y verificar error en `originalPdfPassword`.
+- Simular rechazo anti-desfase y verificar que UI pide recargar.
+- Confirmar que no se muestran rutas fisicas a usuarios finales cuando politica lo prohibe.
+- Confirmar que exportacion, impresion, firma, visualizacion de imagenes y carga gestionada siguen funcionando.
 
-```ts
-export interface AppVisorEmbedPdfProps {
-  fileUrl?: string;
-  loading?: boolean;
-  className?: string;
-  style?: React.CSSProperties;
-  onEmptyDocumentHintRequest?: () => void;
+### 9.9 Instruccion final
 
-  onRequestSaveAnnotatedPages?: () => void;
-  isSaveAnnotatedPagesDisabled?: boolean;
-  isSavingAnnotatedPages?: boolean;
-  saveAnnotatedPagesProgress?: number | null;
-  onPermissionsResolved?: (permissions: ViewerEffectivePermissions) => void;
-}
-```
+Implementar solo con APIs y datos reales del proyecto. No inventar contexto documental, metadata anti-desfase, passwords ni endpoints.
 
-`AppVisorEmbedPdf` ya calcula `managedPermissionsEffective`.
-
-Reglas:
-
-- El visor debe poder bloquear visualmente la accion si no tiene permisos.
-- El Workbench puede recibir permisos efectivos via `onPermissionsResolved` si necesita decidir estado de negocio.
-- No duplicar mapping de permisos en `DocumentosWorkbench`.
-- No consultar permisos desde `AppPdfToolbar`.
-
-Dentro de `useImperativeHandle`, agregar `exportAnnotatedPdfPages`.
-
-Reglas del metodo:
-
-- Usar `annotation.state.pages`.
-- Usar `annotationCap.provides.commit()`.
-- Usar `exportApi.provides.saveAsCopy()` sin parametro.
-- Extraer paginas con dependencia aprobada.
-- Calcular hash por pagina si `crypto.subtle` existe.
-- Retornar estructura neutral sin tipos EmbedPDF.
-
-## 21. Integracion en AppPdfToolbar
-
-Agregar accion presentacional:
-
-```ts
-onSaveAnnotatedPages?: () => void;
-isSaveAnnotatedPagesDisabled?: boolean;
-isSavingAnnotatedPages?: boolean;
-saveAnnotatedPagesProgress?: number | null;
-```
-
-Reglas:
-
-- Mostrar boton `Guardar anotaciones` o icono equivalente.
-- No llamar HTTP.
-- No acceder a `visorRef`.
-- No importar services.
-- No importar `@embedpdf/*`.
-- Deshabilitar cuando `isSaveAnnotatedPagesDisabled` sea true.
-- Mostrar estado/progreso si `isSavingAnnotatedPages` es true.
-
-## 22. Integracion en DocumentosWorkbench
-
-Agregar accion de negocio:
-
-```ts
-const handleSaveAnnotatedPages = useCallback(async () => {
-  // export -> upload -> replace -> refresh
-}, [...]);
-```
-
-Agregar estado:
-
-```ts
-const replaceSeqRef = useRef(0);
-const replaceAbortRef = useRef<AbortController | null>(null);
-const [isSavingAnnotatedPages, setIsSavingAnnotatedPages] = useState(false);
-const [annotatedPagesProgress, setAnnotatedPagesProgress] = useState<number | null>(null);
-const [viewerEffectivePermissions, setViewerEffectivePermissions] = useState<ViewerEffectivePermissions | null>(null);
-```
-
-Validaciones previas:
-
-- existe `documentViewer.documentoActivo`.
-- `viewerKind === "pdf"`.
-- `isPdf === true`.
-- `fileUrl` existe.
-- `documentId > 0`.
-- `nombreGabinete` no vacio.
-- `visorRef.current?.exportAnnotatedPdfPages` existe.
-- si `isElectronicallySigned === true`, bloquear.
-
-Mensaje para firmado:
-
-```text
-No se permite reemplazar paginas de un documento firmado digitalmente.
-```
-
-El boton `Guardar anotaciones` debe deshabilitarse si:
-
-- `!viewerEffectivePermissions?.allowAnnotationEdit`, o
-- `!viewerEffectivePermissions?.allowExport`, o
-- documento firmado electronicamente, o
-- no hay documento activo, o
-- no es PDF, o
-- operacion en curso.
-
-Si en una iteracion inicial no se puede exponer `viewerEffectivePermissions` al Workbench, documentar brecha y no habilitar el boton sin control. La preferencia enterprise es exponer permisos calculados desde el visor mediante callback.
-
-Flujo obligatorio:
-
-1. Abortar operacion anterior.
-2. Incrementar secuencia latest-wins.
-3. Crear `AbortController`.
-4. Marcar estado `isSavingAnnotatedPages`.
-5. Exportar paginas con `visorRef.current.exportAnnotatedPdfPages()`.
-6. Si no hay anotaciones, mostrar `No hay anotaciones para guardar.` y no llamar backend.
-7. Subir paginas con `uploadAnnotatedPdfPagesTemporal`.
-8. Llamar `replaceAnnotatedPdfPages`.
-9. Mostrar success `Paginas anotadas guardadas correctamente.`.
-10. Mostrar mensaje funcional con paginas reemplazadas cuando backend retorne `PaginasReemplazadas`.
-11. Conservar `RequestId` para soporte.
-12. No mostrar rutas fisicas a usuarios finales si la politica de seguridad del producto lo restringe.
-13. Refrescar documento con `documentViewer.visualizarDocumento`.
-14. Mantener `activeRowId`.
-15. Limpiar estado.
-
-Ejemplo de replace:
-
-```ts
-await replaceAnnotatedPdfPages({
-  nombreGabinete: doc.nombreGabinete,
-  idDocumento: doc.documentId,
-  rutaTemporalId: upload.rutaTemporalId,
-  originalPdfPassword: documentViewer.originalPdfPassword,
-  sourceDocumentHashSha256: documentViewer.sourceDocumentHashSha256,
-  sourceDocumentVersion: documentViewer.sourceDocumentVersion,
-  paginas: upload.pages.map((p) => ({
-    pageNumber: p.pageNumber,
-    rutaTemporalId: p.rutaTemporalId,
-    archivoTemporalId: p.archivoTemporalId,
-    hashSha256: p.hashSha256,
-    ...sourcePageSnapshotByPageNumber[p.pageNumber],
-  })),
-  motivo: "Anotaciones agregadas desde visor PDF",
-  descOp: "AGREGA GRAFO PDF",
-  moduloRegistro: resolveModuloRegistroFromWorkbenchContext() ?? "WORKFLOW",
-  radicado,
-  idTareaWorkflow,
-  idRutaWorkflow,
-  tipologiaDocumental,
-  signal: abortController.signal,
-});
-```
-
-Importante:
-
-`documentViewer.originalPdfPassword`, `sourceDocumentHashSha256`, `sourceDocumentVersion` y `sourcePageSnapshotByPageNumber` solo deben usarse si existen realmente en el proyecto. Si no existen, no inventarlos y documentar pendiente.
-
-Latest-wins despues de cada `await`:
-
-```ts
-if (seq !== replaceSeqRef.current) return;
-if (abortController.signal.aborted) return;
-```
-
-Al desmontar:
-
-- abortar operacion en curso.
-- cancelar temporales creados best-effort si hay tracking.
-
-Si error es cancelacion:
-
-- no mostrar toast error.
-- no detener documento activo.
-
-## 23. UX y mensajes
-
-Estados visibles:
-
-- preparando paginas.
-- subiendo paginas.
-- reemplazando documento.
-- completado.
-- error.
-
-Mensajes:
-
-- Sin anotaciones: `No hay anotaciones para guardar.`
-- Firmado electronico: `No se permite reemplazar paginas de un documento firmado digitalmente.`
-- Preparando: `Preparando paginas anotadas...`
-- Subiendo: `Subiendo paginas anotadas...`
-- Reemplazando: `Reemplazando paginas del documento...`
-- Success: `Paginas anotadas guardadas correctamente.`
-- Success con paginas: `Paginas {lista} actualizadas correctamente.`
-- Error generico: `No fue posible guardar las paginas anotadas.`
-- Anti-desfase: `El documento cambio desde que fue abierto. Recarga el PDF antes de guardar las anotaciones.`
-
-Reglas:
-
-- No ocultar documento visible si falla.
-- No resetear seleccion si falla.
-- No limpiar documento activo si falla.
-- No mostrar error si fue cancelacion.
-- Mostrar errores backend utiles cuando sean seguros.
-- Guardar o exponer `RequestId` para soporte si backend lo retorna.
-- No mostrar `RutaArchivoFinal` ni `RutaRespaldo` a usuarios finales si la politica de seguridad restringe rutas fisicas.
-
-## 24. Manejo de documentos pesados
-
-Obligatorio:
-
-- usar `Blob`.
-- usar `slice()`.
-- no base64.
-- subir secuencialmente paginas.
-- liberar referencias al terminar.
-- no crear copias innecesarias del PDF completo.
-- mostrar progreso.
-- permitir cancelacion.
-
-Riesgo:
-
-Para extraer paginas PDF, primero se usa `saveAsCopy()` y eso genera un PDF anotado completo en memoria.
-
-Mitigacion:
-
-- Documentar que EmbedPDF no expone hoy exportacion directa por pagina en este proyecto.
-- Evitar rasterizacion.
-- Evitar base64.
-- Subir solo paginas extraidas al backend.
-
-Si la memoria se vuelve problema:
-
-- abrir ticket tecnico para soporte de exportacion por rango/pagina desde engine o backend.
-
-## 25. Observabilidad FE
-
-Usar patron local:
-
-```ts
-window.__DV_DEBUG__
-```
-
-Logs debug permitidos:
-
-- `[DV][annotated-pages] start`
-- `[DV][annotated-pages] pages detected`
-- `[DV][annotated-pages] commit ok`
-- `[DV][annotated-pages] full annotated pdf exported`
-- `[DV][annotated-pages] single page pdf created`
-- `[DV][replace-pages] upload start`
-- `[DV][replace-pages] upload page ok`
-- `[DV][replace-pages] replace start`
-- `[DV][replace-pages] replace ok`
-- `[DV][replace-pages] refresh start`
-- `[DV][replace-pages] failed`
-- `[DV][replace-pages] cancelled`
-
-Campos permitidos:
-
-- `attemptId`.
-- `documentId`.
-- `nombreGabinete`.
-- `annotatedPages`.
-- `pageNumber`.
-- `blobSize`.
-- `hashSha256`.
-- `rutaTemporalId` solo si no contiene datos sensibles.
-- `archivoTemporalId`.
-- `percent`.
-- `durationMs`.
-
-Prohibido loguear:
-
-- bytes del PDF.
-- URLs temporales con token.
-- Authorization.
-- contenido del documento.
-- rutas fisicas.
-- `OriginalPdfPassword`.
-- payload completo si contiene datos sensibles.
-
-## 26. Validaciones FE
-
-Antes de exportar:
-
-- documento activo existe.
-- PDF activo existe.
-- no firmado electronicamente.
-- ref del visor listo.
-- permisos permiten anotacion y export.
-
-Despues de exportar:
-
-- `pages.length > 0` si `hasAnnotations === true`.
-- cada `pageNumber > 0`.
-- sin duplicados.
-- cada blob `type === "application/pdf"`.
-- cada blob `size > 0`.
-
-Antes de replace:
-
-- todos los uploads completados.
-- cada pagina subida tiene `rutaTemporalId`.
-- cada pagina subida tiene `archivoTemporalId`.
-- cada temporal esta `COMPLETED` antes del replace final.
-- no exigir que todas compartan `rutaTemporalId`.
-- `nombreGabinete` no vacio.
-- `idDocumento > 0`.
-- si se envia `OriginalPdfPassword`, proviene solo de memoria.
-- si se envia metadata anti-desfase, corresponde a la version renderizada actual.
-
-## 27. Pruebas obligatorias
-
-Unitarias `AppVisorEmbedPdf`:
-
-- `exportAnnotatedPdfPages` retorna vacio sin anotaciones.
-- convierte pageIndex base 0 a pageNumber base 1.
-- deduplica y ordena paginas.
-- ejecuta `commit()` antes de `saveAsCopy()`.
-- usa `saveAsCopy()` sin parametro en el proyecto actual.
-- llama extraccion de pagina por cada pagina anotada.
-- retorna blobs `application/pdf`.
-- no descarga archivos.
-- falla controlado si `annotationCap.provides` no existe.
-- falla controlado si `exportApi.provides` no existe.
-- no expone tipos EmbedPDF en el resultado.
-
-Unitarias utilidades:
-
-- `getAnnotatedPageNumbers` con estado vacio.
-- `getAnnotatedPageNumbers` con paginas duplicadas/no numericas.
-- `sha256Hex` produce hash esperado para blob conocido.
-- `sha256Hex` retorna `undefined` si `crypto.subtle` no existe.
-- extractor de paginas valida rango.
-- extractor de paginas genera `application/pdf`.
-
-Unitarias servicio upload:
-
-- init usa endpoint correcto.
-- init envia extension `.pdf`.
-- init envia extension `.PDF` segun contrato oficial o normaliza correctamente desde `.pdf`.
-- init envia `NumeroChunks` calculado.
-- init calcula `NumeroChunks` con default documentado `1048576` bytes salvo configuracion backend distinta.
-- chunk usa `application/octet-stream`.
-- chunk envia `X-Total-Chunks`.
-- complete se llama despues del ultimo chunk.
-- complete valida `Estado: "COMPLETED"`.
-- status puede validar `Estado: "COMPLETED"` antes del replace final.
-- progress se calcula correctamente.
-- cancel se llama best-effort ante error.
-- abort cancela sin ocultar error original.
-- no usa base64.
-- no exige `RutaTemporalId` comun.
-- multipagina acepta rutas temporales diferentes.
-- no invoca `DELETE` despues de success de `/paginas-anotadas`.
-
-Unitarias servicio replace:
-
-- POST usa `/paginas-anotadas`.
-- body contiene `NombreGabinete`, `IdDocumento`, `RutaTemporalId`, `Paginas`.
-- cada item de `Paginas` contiene su propio `RutaTemporalId`.
-- cada item de `Paginas` contiene `ArchivoTemporalId`.
-- `Paginas.ContentType` es `application/pdf`.
-- `DescOp` default es `AGREGA GRAFO PDF`.
-- `ModuloRegistro` se resuelve desde contexto consumidor.
-- `DocumentosWorkbench` en contexto workflow envia `WORKFLOW`.
-- otro consumidor puede enviar otro modulo valido sin cambiar visor.
-- no envia IDs workflow negativos.
-- envia `OriginalPdfPassword` solo cuando existe en memoria.
-- no persiste ni loguea `OriginalPdfPassword`.
-- envia metadata anti-desfase cuando esta disponible.
-- trata `SourcePageWidth`, `SourcePageHeight`, `SourcePageRotation` y `SourcePageFingerprintSha256` como validacion anti-desfase, no como definicion de tamano final.
-- maneja error `originalPdfPassword`.
-- maneja error anti-desfase solicitando recarga.
-- adapta respuesta PascalCase/camelCase si aplica.
-- desempaqueta `AppResponses<T>`.
-- lanza error si `success !== true`.
-- lanza error contractual si `data` requerido viene null.
-
-Unitarias `DocumentosWorkbench`:
-
-- boton deshabilitado sin documento activo.
-- boton deshabilitado si no es PDF.
-- boton deshabilitado sin permisos.
-- bloquea firmado electronicamente.
-- sin anotaciones muestra toast y no llama backend.
-- con anotaciones ejecuta export -> upload -> replace -> refresh.
-- error de upload conserva documento visible.
-- error de replace conserva documento visible.
-- cancelacion no muestra error.
-- success reabre documento.
-- mantiene `activeRowId`.
-- no rompe `viewerKind=image`.
-
-Integracion FE:
-
-- flujo completo con dos paginas anotadas.
-- PDF pesado simulado con varios chunks.
-- falla init.
-- falla chunk intermedio.
-- falla complete.
-- falla replace final.
-- reemplazo multipagina con `RutaTemporalId` diferente por pagina.
-- PDF original protegido con contrasena valida e invalida, solo si existe flujo real.
-- rechazo anti-desfase por hash o geometria, solo si existe metadata real.
-- retry posterior funciona.
-
-Calidad / restricciones verificables:
-
-- no imports `@embedpdf/*` en `DocumentosWorkbench`.
-- no `axios` directo fuera del service nuevo.
-- no base64.
-- no `pdfjs-dist` para este flujo.
-- no canvas/rasterizacion.
-- no rutas fisicas.
-- no password PDF en storage/logs/telemetria.
-- no se rompe `viewerKind=image`.
-- no se rompe print/export actual.
-
-Regresion:
-
-- export/download actual sigue funcionando.
-- print sigue funcionando.
-- firma sigue funcionando.
-- eliminar firma sigue funcionando.
-- bloqueo/desbloqueo de firma sigue funcionando.
-- carga de documentos sigue latest-wins.
-- `cancelCurrentLoad` sigue operativo.
-- permisos SCRUMCORE-236 siguen aplicando.
-
-## 28. Documentacion obligatoria
-
-Ruta:
-
-`docs/Architecture/implementacion-de-AppVisorPdf/`
-
-Crear o actualizar:
-
-- `SCRUM-249-FE-Reemplazo-Paginas-PDF-Anotadas-Metadata.md`
-- `SCRUM-249-FE-Reemplazo-Paginas-PDF-Anotadas-Arquitectura.md`
-- `SCRUM-249-FE-Reemplazo-Paginas-PDF-Anotadas-Contrato-API.md`
-- `SCRUM-249-FE-Reemplazo-Paginas-PDF-Anotadas-Implementacion.md`
-- `SCRUM-249-FE-Reemplazo-Paginas-PDF-Anotadas-Pruebas.md`
-- `SCRUM-249-FE-Reemplazo-Paginas-PDF-Anotadas-Observabilidad.md`
-- `SCRUM-249-FE-Reemplazo-Paginas-PDF-Anotadas-Seguridad.md`
-- `SCRUM-249-FE-Reemplazo-Paginas-PDF-Anotadas-Runbook.md`
-- `PROMPT-SCRUM-249-FE-Reemplazo-Paginas-PDF-Anotadas.md`
-
-Debe incluir:
-
-- flujo export paginas PDF.
-- por que no se envian imagenes.
-- contrato `/paginas-anotadas`.
-- upload temporal por pagina.
-- cancelacion.
-- latest-wins.
-- permisos.
-- integracion managed `load()` actual.
-- decision sobre `pdf-lib` o alternativa.
-- pruebas.
-- riesgos.
-- rollback.
-- QA manual.
-
-## 29. Criterios de aceptacion
-
-- El visor detecta paginas anotadas.
-- El visor exporta PDFs de una sola pagina para cada pagina anotada.
-- No se generan imagenes.
-- No se usa rasterizacion.
-- No se envia PDF completo al endpoint parcial.
-- Cada pagina se sube como `application/pdf`.
-- Se usa upload temporal existente.
-- Cada upload temporal se completa y queda `COMPLETED` antes del reemplazo final.
-- Se llama `/paginas-anotadas` con `RutaTemporalId` por pagina y lista de paginas.
-- El `RutaTemporalId` raiz se usa solo como fallback compatible.
-- Se maneja `OriginalPdfPassword` solo en memoria cuando el PDF original protegido lo requiere y existe fuente real.
-- Se envia validacion anti-desfase cuando el FE tiene hash/version/geometria/fingerprint real.
-- No se usa metadata anti-desfase para definir tamano final; el backend conserva caja/orientacion original con iText/iText7.
-- Se bloquea documento firmado electronicamente.
-- Se maneja progreso.
-- Se maneja cancelacion.
-- Se maneja latest-wins.
-- Si no hay anotaciones, no se llama backend.
-- Si falla, el documento visible se conserva.
-- En success se refresca el documento.
-- No se filtra EmbedPDF a `DocumentosWorkbench`.
-- No hay HTTP en toolbar.
-- No hay base64.
-- No hay canvas.
-- No se rompe `viewerKind=image`.
-- No se rompe print/export/firma.
-- Pruebas completas.
-- Documentacion completa.
-
-## 30. Restricciones
-
-No enviar imagenes.
-
-No reemplazar imagenes internas del PDF.
-
-No rasterizar.
-
-No usar canvas como contrato.
-
-No usar `pdfjs-dist` para este flujo.
-
-No base64.
-
-No rutas fisicas desde frontend.
-
-No llamadas API desde `AppPdfToolbar`.
-
-No imports `@embedpdf/*` fuera del visor.
-
-No romper reemplazo total existente.
-
-No romper export actual.
-
-No romper print.
-
-No romper firma.
-
-No romper visualizacion de imagenes.
-
-No ignorar documento firmado electronicamente.
-
-No forzar `RutaTemporalId` comun.
-
-No invocar `DELETE` despues de success de `/paginas-anotadas`.
-
-No persistir `OriginalPdfPassword`.
-
-No loguear `OriginalPdfPassword`.
-
-No usar capturas ni canvas como validacion anti-desfase.
-
-No inventar metadatos anti-desfase.
-
-No usar `saveAsCopy(documentId)` en el proyecto actual salvo validacion tecnica nueva.
-
-## 31. Riesgos y mitigaciones
-
-Riesgo: ruta temporal comun artificial.
-
-Mitigacion: usar contrato real SCRUM-249. Cada `init` crea ruta temporal por archivo y cada item de `Paginas` envia su propio `RutaTemporalId`. Campo raiz solo fallback compatible.
-
-Riesgo: PDF original cambia entre visualizacion y guardado.
-
-Mitigacion: enviar `SourceDocumentHashSha256` y metadata/fingerprint por pagina solo cuando esten disponibles. Ante rechazo backend, recargar PDF antes de reintentar.
-
-Riesgo: PDF original protegido por contrasena.
-
-Mitigacion: mantener `OriginalPdfPassword` solo en memoria y enviarlo unicamente cuando el visor lo requirio. Si backend rechaza `originalPdfPassword`, pedir contrasena de nuevo o abortar sin modificar documento visible.
-
-Riesgo: EmbedPDF solo exporta PDF completo.
-
-Mitigacion: exportar completo una vez, extraer paginas PDF sin rasterizar y subir solo paginas. Documentar limitacion y abrir ticket si se requiere exportacion por rango/pagina.
-
-Riesgo: dependencia frontend para manipular PDF no existe.
-
-Mitigacion: evaluar `pdf-lib`. Documentar licencia, peso e impacto. Sin aprobacion, bloquear implementacion de extraccion y no sustituir por imagenes.
-
-Riesgo: documento firmado electronicamente.
-
-Mitigacion: bloquear en FE y mantener validacion backend como fuente final.
-
-Riesgo: operacion larga.
-
-Mitigacion: progreso, cancelacion, latest-wins, subida secuencial y no ocultar documento visible.
-
-Riesgo: permisos no propagados al Workbench.
-
-Mitigacion: exponer permisos efectivos desde visor con `onPermissionsResolved` o mantener accion deshabilitada hasta resolver permisos. No duplicar reglas en Workbench.
-
-## 32. Recomendacion de implementacion por fases
-
-Aunque el objetivo final es end-to-end, para reducir riesgo enterprise se recomienda dividir en fases o sub-SCRUMs.
-
-Fase 1 - API imperativa y deteccion:
-
-- Agregar tipos `AppVisorAnnotatedPdfPage`.
-- Agregar `exportAnnotatedPdfPages` al ref.
-- Implementar `getAnnotatedPageNumbers`.
-- Probar deteccion, dedupe, orden y resultado vacio.
-
-Fase 2 - Export y extraccion PDF:
-
-- Ejecutar `commit()`.
-- Ejecutar `saveAsCopy()`.
-- Aprobar/agregar `pdf-lib` o alternativa.
-- Extraer PDF de una pagina por anotacion.
-- Calcular hash SHA-256.
-- Probar blobs `application/pdf`.
-
-Fase 3 - Servicios HTTP:
-
-- Crear tipos y service.
-- Implementar upload chunked por pagina.
-- Implementar status upload temporal cuando se requiera confirmar `COMPLETED`.
-- Implementar cancel best-effort.
-- Implementar replace `/paginas-anotadas`.
-- Probar `AppResponses<T>`, rutas por pagina y errores.
-
-Fase 4 - Integracion Workbench/Toolbar:
-
-- Agregar boton presentacional.
-- Orquestar export -> upload -> replace -> refresh.
-- Integrar permisos.
-- Integrar latest-wins/cancelacion.
-- Probar UI y errores.
-
-Fase 5 - Hardening:
-
-- Password PDF si hay fuente real.
-- Anti-desfase si hay metadata real.
-- Observabilidad.
-- QA manual.
-- Documentacion final.
-
-## 33. Comandos de validacion sugeridos
-
-Ajustar rutas segun archivos finales:
-
-```powershell
-npx.cmd vitest run src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.test.tsx
-npx.cmd vitest run src/app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.service.test.ts
-npx.cmd vitest run src/app/Components/UI/AppVisorEmbedPdf/utils/pdfPageAnnotations.test.ts
-npx.cmd vitest run src/app/Components/UI/AppVisorEmbedPdf/utils/pdfSinglePageExtraction.test.ts
-npx.cmd vitest run src/modules/gestionCorrespondencia/components/documentosWorkbench/DocumentosWorkbench.test.tsx
-npx.cmd eslint src/app/Components/UI/AppVisorEmbedPdf src/modules/gestionCorrespondencia/components/documentosWorkbench/DocumentosWorkbench.tsx
-```
-
-Si se agrega dependencia nueva:
-
-```powershell
-npm.cmd install pdf-lib
-npm.cmd run build
-```
-
-Agregar dependencia requiere aprobacion tecnica/licencia y debe quedar documentado.
-
-## 34. QA manual esperado
-
-1. Activar debug:
-
-```js
-window.__DV_DEBUG__ = true
-```
-
-2. Abrir documento PDF desde Gestion Correspondencia.
-3. Confirmar que el visor carga por modo managed `load()`.
-4. Crear anotaciones en una pagina.
-5. Guardar anotaciones.
-6. Confirmar deteccion de pagina anotada.
-7. Confirmar commit.
-8. Confirmar export de PDF anotado completo.
-9. Confirmar extraccion de PDF de una pagina.
-10. Confirmar upload como `application/pdf`.
-11. Confirmar `complete` con `Estado: "COMPLETED"` o status `COMPLETED`.
-12. Confirmar llamada a `/paginas-anotadas`.
-13. Confirmar `Paginas[0].RutaTemporalId`.
-14. Confirmar `Paginas[0].ArchivoTemporalId`.
-15. Confirmar `Paginas[0].ContentType === "application/pdf"`.
-16. Confirmar `RequestId`.
-17. Confirmar paginas reemplazadas en UI o evidencia de soporte.
-18. Confirmar success y refresh.
-19. Confirmar que no se invoca `DELETE` despues de success de `/paginas-anotadas`.
-20. Repetir con dos paginas anotadas y validar rutas temporales distintas si backend las retorna.
-21. Probar sin anotaciones.
-22. Probar documento firmado electronicamente.
-23. Probar fallo de upload.
-24. Probar fallo de replace.
-25. Confirmar que imagenes siguen visualizando sin romper.
-26. Confirmar print/export/firma existentes.
-
-## 35. Instruccion final
-
-Implementar en React el flujo enterprise para guardar anotaciones reemplazando unicamente paginas PDF completas, alineado con la API backend `/paginas-anotadas`.
-
-La solucion debe:
-
-- usar `AppVisorEmbedPdf` como unica frontera con EmbedPDF.
-- usar `DocumentosWorkbench` como orquestador de negocio.
-- usar `AppPdfToolbar` solo como presentacional.
-- usar `clienteApi` en services.
-- exportar paginas PDF anotadas, no imagenes.
-- subir PDFs de una pagina por upload temporal chunked.
-- llamar al endpoint parcial con contrato exacto.
-- enviar `RutaTemporalId` por cada pagina, no una ruta comun artificial.
-- usar `RutaTemporalId` raiz solo como fallback compatible.
-- manejar `OriginalPdfPassword` solo si existe fuente real y solo en memoria.
-- manejar validacion anti-desfase solo si existe metadata real.
-- bloquear documentos firmados electronicamente.
-- manejar progreso.
-- manejar cancelacion.
-- manejar latest-wins.
-- manejar errores.
-- refrescar documento en success.
-- mantener pruebas completas.
-- mantener documentacion completa.
-
-No dejar brechas de integracion con la API.
-
-No implementar atajos con imagenes, canvas, base64 o rasterizacion.
+La solucion debe priorizar contrato correcto, seguridad de password, PDFs reales de una sola pagina, limpieza de temporales, cancelacion, latest-wins y regresion cero sobre el visor actual.
