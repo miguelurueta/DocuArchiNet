@@ -115,7 +115,7 @@ export default function DashboardLayout() {
           style={{
             flex: 1,
             width: "100%",
-            padding: "4px 12px 12px",
+            padding: "10px 12px 8px",
             overflowY: "auto",
             overflowX: "hidden",
             background: "#f5f6fa",

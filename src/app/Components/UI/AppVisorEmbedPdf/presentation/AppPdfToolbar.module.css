@@ -1,0 +1,77 @@
+.button {
+  height: 26px;
+  min-width: 30px;
+  padding: 0 8px;
+  border-radius: 7px;
+  border: 1px solid rgba(100, 116, 139, 0.45);
+  background: rgba(255, 255, 255, 0.8);
+  color: #0f172a;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.button:hover {
+  background: rgba(226, 232, 240, 0.9);
+}
+
+.zoomLevel {
+  min-width: 48px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(148, 163, 184, 0.75);
+  margin: 0 2px;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.guideButton {
+  position: relative;
+}
+
+.guideButtonDot {
+  position: absolute;
+  top: -4px;
+  right: -5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 0 0 2px #ffffff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.lockUnlocked {
+  color: #2563eb;
+}
+
+.lockLocked {
+  color: #dc2626;
+}
+
+.spacer {
+  flex: 1 1 auto;
+  min-width: 8px;
+}

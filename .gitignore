@@ -7,9 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Local-only demo PDFs (too large for GitHub)
+public/demo/DIG00005004 (2).pdf
+
 node_modules
 dist
 dist-ssr
+test-results/
+playwright-report/
 *.local
 
 # Editor directories and files
@@ -33,3 +38,6 @@ env
 
 # Local tooling cache
 .npm-cache/
+
+# Codex local artifacts
+.codex/memories/

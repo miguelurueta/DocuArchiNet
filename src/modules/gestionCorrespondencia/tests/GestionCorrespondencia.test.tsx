@@ -8,6 +8,7 @@ import * as workflowInboxAutocompleteHook from "../hooks/useWorkflowInboxAutocom
 vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
   default: ({
     rows,
+    columns,
     paginationMode,
     layoutMode,
     rowSelection,
@@ -24,6 +25,7 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
       Asunto?: string;
       [key: string]: unknown;
     }>;
+    columns?: Array<{ colId?: string; field?: string; headerName?: string }>;
     paginationMode?: string;
     layoutMode?: string;
     rowSelection?: string;
@@ -59,6 +61,8 @@ vi.mock("../../../app/Components/UI/AppTable/AppTable", () => ({
       data-grid-class-name={gridClassName ?? ""}
       data-responsive-enabled={responsivePresentation?.enabled ? "true" : "false"}
       data-cards-below={responsivePresentation?.cardsBelow}
+      data-first-column-id={columns?.[0]?.colId ?? columns?.[0]?.field ?? ""}
+      data-second-column-field={columns?.[1]?.field ?? ""}
     >
       Mocked AppTable
       <button
@@ -197,6 +201,11 @@ describe("GestionCorrespondencia [SPEC:APPTABLE-EXPORT-18] [SPEC:APPTABLE-EXPORT
       "Gestionar trámite",
     );
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-grid-class-name", "");
+    expect(screen.getByTestId("mock-app-table")).toHaveAttribute(
+      "data-first-column-id",
+      "__gestion_estado_semaforo",
+    );
+    expect(screen.getByTestId("mock-app-table")).toHaveAttribute("data-second-column-field", "RADICADO");
     expect(screen.getByTestId("mock-app-table")).toHaveAttribute(
       "data-responsive-enabled",
       "true",

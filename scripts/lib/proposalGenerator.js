@@ -35,6 +35,42 @@ const toTitleCase = (value) =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join("");
 
+const normalizeLineEndings = (value) => String(value ?? "").replace(/\r\n/g, "\n");
+
+const collapseBlankLines = (value) =>
+  normalizeLineEndings(value)
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
+const toMarkdownQuote = (value) =>
+  collapseBlankLines(value)
+    .split("\n")
+    .map((line) => `> ${line}`)
+    .join("\n");
+
+const renderMetadataSection = (metadata) => {
+  const metadataLines = [];
+  if (metadata?.issueType) metadataLines.push(`- Tipo: ${metadata.issueType}`);
+  if (metadata?.priority) metadataLines.push(`- Prioridad: ${metadata.priority}`);
+  if (Array.isArray(metadata?.components) && metadata.components.length > 0) {
+    metadataLines.push(`- Componentes: ${metadata.components.join(", ")}`);
+  }
+  if (Array.isArray(metadata?.labels) && metadata.labels.length > 0) {
+    metadataLines.push(`- Labels: ${metadata.labels.join(", ")}`);
+  }
+  if (Array.isArray(metadata?.subtasks) && metadata.subtasks.length > 0) {
+    metadataLines.push(
+      ...metadata.subtasks.map((item) => `- Subtask ${item.key}: ${item.summary || "(sin resumen)"}`),
+    );
+  }
+  if (Array.isArray(metadata?.comments) && metadata.comments.length > 0) {
+    metadataLines.push(
+      ...metadata.comments.map((item) => `- Comment ${item.id}: ${item.body || "(sin contenido)"}`),
+    );
+  }
+  return metadataLines;
+};
+
 export const inferProposalIntent = ({ summary, description }) => {
   const safeSummary = summary?.trim() || "";
   const summarySlug = slugifyForOpenSpec(safeSummary);
@@ -87,14 +123,101 @@ export const inferProposalIntent = ({ summary, description }) => {
   };
 };
 
-export const buildProposalContent = ({ issueKey, summary, description }) => {
+const buildInitialDesignContent = ({ issueKey, summary, description }) => {
+  const cleanDescription = collapseBlankLines(description);
+  const detailsSection = cleanDescription
+    ? ["## Jira Details", "", toMarkdownQuote(cleanDescription), ""].join("\n")
+    : "";
+
+  return [
+    "## Context",
+    "",
+    `${issueKey}: ${summary}`,
+    "",
+    detailsSection,
+    "## Goals / Non-Goals",
+    "",
+    "**Goals**",
+    "- Refinar alcance tecnico usando el contexto completo de Jira.",
+    "- Definir decisiones arquitectonicas, riesgos y plan de migracion.",
+    "",
+    "**Non-Goals**",
+    "- Cambios fuera del alcance descrito por el ticket.",
+    "",
+    "## Decisions",
+    "",
+    "1. TBD",
+    "",
+    "## Risks / Trade-offs",
+    "",
+    "- TBD",
+    "",
+    "## Migration Plan",
+    "",
+    "1. TBD",
+    "",
+    "## Open Questions",
+    "",
+    "- TBD",
+    "",
+  ].join("\n");
+};
+
+const buildInitialSpecContent = ({ issueKey, summary, description }) => {
+  const cleanDescription = collapseBlankLines(description);
+
+  return [
+    "## ADDED Requirements",
+    "",
+    `### Requirement: ${summary}`,
+    `El sistema SHALL implementar el alcance definido para ${issueKey}.`,
+    "",
+    "#### Scenario: Flujo principal",
+    "- **WHEN** se ejecuta el caso de uso principal del ticket",
+    "- **THEN** el comportamiento coincide con las reglas funcionales esperadas",
+    "",
+    "#### Scenario: No-regresion",
+    "- **WHEN** se valida el modulo afectado",
+    "- **THEN** no se rompen flujos existentes",
+    "",
+    cleanDescription
+      ? ["### Requirement: Detalle funcional Jira", "El sistema SHALL considerar las reglas detalladas del ticket.", "", "#### Scenario: Reglas del ticket", ...cleanDescription.split("\n").map((line) => `- ${line}`), ""].join("\n")
+      : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+};
+
+const buildInitialTasksContent = () => [
+  "## 1. Refinement",
+  "",
+  "- [ ] 1.1 Consolidar alcance final desde Jira + contexto de codigo.",
+  "- [ ] 1.2 Ajustar design/spec con decisiones y riesgos definitivos.",
+  "",
+  "## 2. Implementacion",
+  "",
+  "- [ ] 2.1 Implementar cambios funcionales del ticket.",
+  "- [ ] 2.2 Mantener compatibilidad y evitar regresiones.",
+  "",
+  "## 3. Pruebas",
+  "",
+  "- [ ] 3.1 Agregar/ajustar pruebas unitarias e integracion.",
+  "- [ ] 3.2 Ejecutar suite afectada y registrar evidencia.",
+  "",
+  "## 4. Cierre",
+  "",
+  "- [ ] 4.1 Validar OpenSpec.",
+  "- [ ] 4.2 Documentar diff final y decisiones de arquitectura.",
+  "",
+].join("\n");
+
+export const buildProposalContent = ({ issueKey, summary, description, metadata }) => {
   const safeSummary = summary?.trim() || `Propuesta basada en ${issueKey}`;
   const safeDescription = description?.trim() || "";
   const intent = inferProposalIntent({ summary: safeSummary, description: safeDescription });
-  const descriptionLead = safeDescription.split("\n")[0]?.trim();
-
-  const why = descriptionLead
-    ? `${intent.whyDescription}. ${descriptionLead}`
+  const cleanDescription = collapseBlankLines(safeDescription);
+  const why = cleanDescription
+    ? `${intent.whyDescription}. Ver detalle funcional completo del ticket en la seccion Jira Details.`
     : intent.whyDescription;
 
   const whatChanges = toBullet([
@@ -111,6 +234,7 @@ export const buildProposalContent = ({ issueKey, summary, description }) => {
   ].join("\n");
 
   const impact = toBullet(intent.impact);
+  const metadataLines = renderMetadataSection(metadata);
 
   return [
     "## Why",
@@ -121,6 +245,11 @@ export const buildProposalContent = ({ issueKey, summary, description }) => {
     "",
     whatChanges,
     "",
+    "## Jira Details",
+    "",
+    cleanDescription ? toMarkdownQuote(cleanDescription) : "> (Sin descripcion detallada en Jira)",
+    ...(metadataLines.length > 0 ? ["", "## Jira Metadata", "", ...metadataLines] : []),
+    "",
     "## Capabilities",
     "",
     capabilities,
@@ -130,6 +259,82 @@ export const buildProposalContent = ({ issueKey, summary, description }) => {
     impact,
     "",
   ].join("\n");
+};
+
+const buildCapabilityName = ({ issueKey, changeName, fallbackCapability }) => {
+  const issueSlug = slugifyForOpenSpec(issueKey);
+  const normalizedChange = slugifyForOpenSpec(changeName);
+  const suffix = normalizedChange.startsWith(`${issueSlug}-`)
+    ? normalizedChange.slice(issueSlug.length + 1)
+    : normalizedChange;
+
+  const chosen = suffix || slugifyForOpenSpec(fallbackCapability) || issueSlug;
+  return chosen || "ticket-change";
+};
+
+const buildJiraContextContent = ({ issueKey, summary, description, metadata }) => {
+  const cleanDescription = collapseBlankLines(description);
+  const metadataLines = renderMetadataSection(metadata);
+
+  return [
+    `# Jira Context - ${issueKey}`,
+    "",
+    `## Summary`,
+    "",
+    summary || "(sin resumen)",
+    "",
+    "## Description",
+    "",
+    cleanDescription ? toMarkdownQuote(cleanDescription) : "> (Sin descripcion detallada en Jira)",
+    ...(metadataLines.length > 0 ? ["", "## Metadata", "", ...metadataLines] : []),
+    "",
+  ].join("\n");
+};
+
+export const writeRefinementArtifacts = async ({
+  issueKey,
+  changeName,
+  summary,
+  description,
+  metadata,
+  baseDir,
+}) => {
+  const resolvedChangeName = slugifyForOpenSpec(changeName || issueKey);
+  if (!resolvedChangeName) {
+    throw new Error("No se pudo construir un nombre de carpeta OpenSpec valido.");
+  }
+
+  const intent = inferProposalIntent({ summary, description });
+  const capability = buildCapabilityName({
+    issueKey,
+    changeName: resolvedChangeName,
+    fallbackCapability: intent.capability,
+  });
+
+  const changeDir = path.join(baseDir, "openspec", "changes", resolvedChangeName);
+  const specsDir = path.join(changeDir, "specs", capability);
+
+  await mkdir(specsDir, { recursive: true });
+
+  const designPath = path.join(changeDir, "design.md");
+  const tasksPath = path.join(changeDir, "tasks.md");
+  const specPath = path.join(specsDir, "spec.md");
+  const jiraContextPath = path.join(specsDir, "jira-context.md");
+
+  await writeFile(
+    designPath,
+    buildInitialDesignContent({ issueKey, summary, description }),
+    "utf8",
+  );
+  await writeFile(specPath, buildInitialSpecContent({ issueKey, summary, description }), "utf8");
+  await writeFile(tasksPath, buildInitialTasksContent(), "utf8");
+  await writeFile(
+    jiraContextPath,
+    buildJiraContextContent({ issueKey, summary, description, metadata }),
+    "utf8",
+  );
+
+  return { designPath, specPath, tasksPath, jiraContextPath, capability };
 };
 
 export const writeProposalFile = async ({

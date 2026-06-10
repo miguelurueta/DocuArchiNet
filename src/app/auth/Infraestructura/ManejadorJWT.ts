@@ -1,15 +1,18 @@
 import type RespuestaAutenticacion from "../../../modules/login/models/RespuestaAutenticacionDTO";
 import type { NavigateFunction } from "react-router-dom";
 import type Claim from "../Dto/Claim";
+import {
+  buildClaimsFromPermissions,
+  extractEffectivePermissions,
+  extractPermissionsFromToken,
+  parseStoredPermissions,
+} from "./authClaimsAdapter";
 
 const llaveToken = "token";
 const llaveExpiracion = "token-expiracion";
 
 // 🔑 Key legacy (antes guardabas permisos como CSV). Mantener para compatibilidad.
 const llavePermisos = "permisos";
-
-// Nombre estándar del claim de permisos
-const CLAIM_NAME = "perm";
 
 // =======================================================
 // Storage helpers (producción: sin logs sensibles)
@@ -21,10 +24,14 @@ export function existeTokenRegistrado(): boolean {
 
 export function guardarTokenLocalStorage(autenticacion: RespuestaAutenticacion) {
   localStorage.setItem(llaveToken, autenticacion.token);
-  localStorage.setItem(llaveExpiracion, autenticacion.expiracion.toString());
+  const expiracionNormalizada =
+    autenticacion.expiracion instanceof Date
+      ? autenticacion.expiracion.toISOString()
+      : String(autenticacion.expiracion);
+  localStorage.setItem(llaveExpiracion, expiracionNormalizada);
 
-  // ✅ Guardar permisos como JSON (mejor que CSV) pero soportar lectura legacy
-  const permisos = autenticacion?.usuario?.permisos ?? [];
+  // ✅ Prioriza claims del contrato nuevo y usa permisos legacy solo como fallback.
+  const permisos = extractEffectivePermissions(autenticacion);
   localStorage.setItem(llavePermisos, JSON.stringify(permisos));
 }
 
@@ -76,35 +83,14 @@ export function obtenerClaims(): Claim[] {
   }
 
   const raw = localStorage.getItem(llavePermisos);
-  if (!raw) {
-    logout();
-    return [];
+  if (raw) {
+    return buildClaimsFromPermissions(parseStoredPermissions(raw));
   }
 
-  const permisos = parsePermisos(raw);
-  return permisos.map((permiso) => ({
-    nombre: CLAIM_NAME,
-    valor: permiso,
-  }));
-}
-
-// Soporta JSON moderno o CSV legacy
-function parsePermisos(raw: string): string[] {
-  // 1) JSON array
-  try {
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) {
-      return parsed.map((x) => String(x)).filter(Boolean);
-    }
-  } catch {
-    // ignore
-  }
-
-  // 2) Legacy CSV
-  return raw
-    .split(",")
-    .map((p) => p.trim())
-    .filter((p) => p.length > 0);
+  // Fallback deterministico por token cuando no existe snapshot en storage.
+  const permisosToken = extractPermissionsFromToken(obtenerToken());
+  if (permisosToken.length === 0) return [];
+  return buildClaimsFromPermissions(permisosToken);
 }
 
 export function finalizarSesionYRedirigir(navigate?: NavigateFunction) {

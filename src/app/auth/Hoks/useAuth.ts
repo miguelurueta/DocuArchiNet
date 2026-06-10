@@ -1,6 +1,8 @@
 import { useContext, useMemo } from "react";
 import AutenticacionContext from "../Estado/AutenticacionContext";
 import type Claim from "../Dto/Claim";
+import { hasPermissionClaim } from "../Infraestructura/authClaimsAdapter";
+import { sesionValida } from "../Infraestructura/ManejadorJWT";
 
 export interface UseAuthResult {
   claims: Claim[];
@@ -12,14 +14,10 @@ export interface UseAuthResult {
 export function useAuth(): UseAuthResult {
   const { claims, refrescarClaims } = useContext(AutenticacionContext);
 
-  const estaLogueado = useMemo(() => {
-    return claims.length > 0;
-  }, [claims]);
+  const estaLogueado = useMemo(() => sesionValida(), [claims]);
 
   const tienePermiso = (permiso: string): boolean => {
-    return claims.some(
-      (c) => c.nombre === "perm" && c.valor === permiso
-    );
+    return hasPermissionClaim(claims, permiso);
   };
 
   return {

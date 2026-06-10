@@ -108,7 +108,7 @@ export function AppTableQueryWrapper({
               items={pageSizeItems}
               trigger={
                 <AppButton
-                  variant="ghost"
+                  variant="primary"
                   size="sm"
                   className={styles.pageSizeTrigger}
                   aria-label="Cantidad de registros por página"

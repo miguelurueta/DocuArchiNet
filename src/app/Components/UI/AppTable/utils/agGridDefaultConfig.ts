@@ -27,9 +27,17 @@ export const AG_GRID_OVERLAYS = {
 export const createRowSelectionConfig = <T extends AppTableRow>(
   selection: AppTableRowSelection = "multiple",
   suppressRowClickSelection = false,
+  options?: {
+    checkboxes?: boolean;
+    headerCheckbox?: boolean;
+  },
 ): RowSelectionOptions<T> => ({
   mode: selection === "single" ? "singleRow" : "multiRow",
   enableClickSelection: suppressRowClickSelection ? false : true,
+  ...(typeof options?.checkboxes === "boolean" ? { checkboxes: options.checkboxes } : {}),
+  ...(typeof options?.headerCheckbox === "boolean"
+    ? { headerCheckbox: options.headerCheckbox }
+    : {}),
 });
 
 export const createAgGridDefaultConfig = <T extends AppTableRow>(): AppTableDefaultConfig<T> => ({

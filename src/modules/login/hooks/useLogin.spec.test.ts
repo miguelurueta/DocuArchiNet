@@ -101,6 +101,37 @@ describe("useLogin", () => {
     expect(mocks.unblock).toHaveBeenCalled();
   });
 
+  test("[SPEC:ACTUALIZACION-CLAIM-003] Login SUCCESS acepta contrato con claims sin permisos", async () => {
+    mocks.seLoginUsuario.mockResolvedValueOnce({
+      data: {
+        token: "jwt-token",
+        expiracion: "2026-01-01T00:00:00.000Z",
+        claims: [{ nombre: "perm", valor: "tramites.gestionar" }],
+        usuario: {
+          usuarioId: 1,
+          login: "jdoe",
+          nombre: "John Doe",
+          activo: true,
+        },
+      },
+    });
+
+    const { result } = renderHook(() => useLogin());
+
+    await act(async () => {
+      await result.current.login({
+        User: "jdoe",
+        Password: "secret",
+        IdModulo: 1,
+        IdEmpresa: 1,
+      });
+    });
+
+    expect(mocks.iniciarSesion).toHaveBeenCalledTimes(1);
+    expect(mocks.refrescarClaims).toHaveBeenCalledTimes(1);
+    expect(mocks.navigate).toHaveBeenCalledWith("/dashboard");
+  });
+
   test("[SPEC:AUTH-002] Login SECOND_FACTOR navega a verificación OTP", async () => {
     mocks.seLoginUsuario.mockResolvedValueOnce({
       message: "SECOND_FACTOR_REQUIRED",

@@ -18,10 +18,12 @@ import RadicacionRoutePage from "../../modules/radicacion/pages/RadicacionRouteP
 import GestionCorrespondenciaLayout from "../../modules/gestionCorrespondencia/layout/GestionCorrespondenciaLayout";
 import GestionCorrespondenciaRoute from "../../modules/gestionCorrespondencia/routes/GestionCorrespondenciaRoute";
 import GestionRespuesta from "../../modules/gestionCorrespondencia/pages/GestionRespuesta";
+import PlaywrightEmbedPdfPage from "../pages/PlaywrightEmbedPdfPage";
 
 export const loginRoutes: RouteObject[] = [
   { path: "/", element: <LoginPage /> },
   { path: "/LoginPage", element: <LoginPage /> },
+  { path: "/__playwright/embedpdf", element: <PlaywrightEmbedPdfPage /> },
   { path: "/verificar-otp", element: <OTPVerifyPage /> },
   { path: "/recovery-password/forgot-password", element: <RecuperarPasswordPage /> },
   { path: "/RecoveryPassword/forgot-password/verify", element: <OTPVerifyRecoveryPaswPage /> },

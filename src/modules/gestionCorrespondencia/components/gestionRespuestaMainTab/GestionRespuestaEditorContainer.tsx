@@ -11,7 +11,7 @@ export function GestionRespuestaEditorContainer({
   return (
     <section
       className={styles.editorContainer}
-      aria-label="Editor principal de respuesta"
+      aria-label="Editor de respuesta"
       data-editor-shell="neutral"
     >
       {children}

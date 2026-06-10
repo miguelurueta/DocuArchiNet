@@ -15,9 +15,14 @@ export const getSolicitaEstructuraRespuestaIdTarea = async (
   );
 
   if (import.meta.env.MODE !== "production") {
-    const anyData = data as any;
-    const success = anyData?.success ?? anyData?.Success;
-    const payload = anyData?.data ?? anyData?.Data;
+    const responseData = data as {
+      success?: unknown;
+      Success?: unknown;
+      data?: unknown;
+      Data?: unknown;
+    };
+    const success = responseData.success ?? responseData.Success;
+    const payload = responseData.data ?? responseData.Data;
     const size = Array.isArray(payload) ? payload.length : payload ? 1 : 0;
 
     console.groupCollapsed(

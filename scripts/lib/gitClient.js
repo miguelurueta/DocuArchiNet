@@ -162,7 +162,8 @@ export const setupProposalBranchAndCommit = async ({
   await runGit({ args: ["checkout", "-B", branchName], cwd: baseDir });
 
   const proposalRelativePath = toGitPath(path.relative(baseDir, proposalPath));
-  await runGit({ args: ["add", proposalRelativePath], cwd: baseDir });
+  const proposalDir = path.dirname(proposalRelativePath);
+  await runGit({ args: ["add", proposalDir], cwd: baseDir });
 
   const staged = await runGit({
     args: ["diff", "--cached", "--name-only"],
@@ -201,6 +202,7 @@ export const setupProposalBranchAndCommit = async ({
     committed,
     pushed,
     proposalRelativePath,
+    proposalRelativeDir: proposalDir,
   };
 };
 

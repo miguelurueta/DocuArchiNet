@@ -1,15 +1,15 @@
 import axios from "axios";
 import { finalizarSesionYRedirigir, obtenerToken, tokenExpirado } from "../app/auth/Infraestructura/ManejadorJWT";
 
-
 const clienteApi = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
+
 clienteApi.interceptors.request.use((config) => {
-  
   const token = obtenerToken();
   //console.log("TOKEN USADO POR AXIOS:", token);
   if (token) {
@@ -22,10 +22,17 @@ clienteApi.interceptors.request.use((config) => {
   }
   return config;
 });
+
 // 🔑 INTERCEPTOR DE RESPUESTA
 clienteApi.interceptors.response.use(
-  response => response,
-  error => {
+  (response) => response,
+  (error) => {
+    // Cancelaciones por concurrencia (AbortController / requests stale) no son errores funcionales.
+    // Evitar ensuciar la consola y confundir diagnósticos.
+    if (error?.code === "ERR_CANCELED") {
+      return Promise.reject(error);
+    }
+
     if (import.meta.env.MODE !== "production") {
       // 🧨 ERROR COMPLETO DE AXIOS
       console.group("❌ AXIOS ERROR");
@@ -47,10 +54,11 @@ clienteApi.interceptors.response.use(
 
       console.groupEnd();
     }
-  
+
     // 🔁 IMPORTANTE: seguir propagando el error
     return Promise.reject(error);
-  }
+  },
 );
 
 export default clienteApi;
+

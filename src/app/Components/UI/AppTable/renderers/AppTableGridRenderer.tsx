@@ -18,15 +18,21 @@ const resolveRowId = <T extends AppTableRow>(
   getRowId?: (row: T) => string,
 ): string => {
   if (getRowId) {
-    return getRowId(row);
+    const candidate = getRowId(row);
+    if (typeof candidate === "string" && candidate.trim().length > 0) {
+      return candidate;
+    }
   }
 
   const candidate = row.id;
   if (typeof candidate === "string" || typeof candidate === "number") {
-    return String(candidate);
+    const normalized = String(candidate);
+    if (normalized.trim().length > 0) {
+      return normalized;
+    }
   }
 
-  return JSON.stringify(row);
+  return JSON.stringify(row) || "row-fallback";
 };
 
 const joinClasses = (...values: Array<string | false | null | undefined>) =>
@@ -143,6 +149,8 @@ export function AppTableGridRenderer<T extends AppTableRow>({
   quickFilterText,
   clientPaginationPageSize,
   rowSelection = "multiple",
+  rowSelectionCheckboxes,
+  rowSelectionHeaderCheckbox,
   suppressRowClickSelection = false,
   suppressCellFocus,
   rowClickAffordance = false,
@@ -159,6 +167,7 @@ export function AppTableGridRenderer<T extends AppTableRow>({
   resolvedLayoutMode,
 }: AppTableGridRendererProps<T>) {
   const gridRef = useRef<AgGridReact<T>>(null);
+  const normalizingSingleSelectionRef = useRef(false);
   const tooltipShowTimerRef = useRef<number | null>(null);
   const gridContainerRef = useRef<HTMLDivElement | null>(null);
   const activeTooltipCellRef = useRef<HTMLElement | null>(null);
@@ -168,6 +177,8 @@ export function AppTableGridRenderer<T extends AppTableRow>({
   const isTooltipEnabled = isRowClickTooltipEnabled(rowClickAffordance, rowClickTooltip);
   const gridOptions = useAgGridBaseConfig<T>({
     rowSelection,
+    rowSelectionCheckboxes,
+    rowSelectionHeaderCheckbox,
     domLayout,
     layoutMode: resolvedLayoutMode,
     paginationMode,
@@ -182,6 +193,9 @@ export function AppTableGridRenderer<T extends AppTableRow>({
       onRowSelected?.(event.data ?? null);
     },
     onRowClicked: (event) => {
+      if (rowSelection === "single" && event.node) {
+        event.node.setSelected(true, true);
+      }
       if (event.data) {
         onRowClicked?.(event.data);
       }
@@ -214,6 +228,27 @@ export function AppTableGridRenderer<T extends AppTableRow>({
       });
     },
     onSelectionChanged: (event) => {
+      if (rowSelection === "single") {
+        if (normalizingSingleSelectionRef.current) {
+          return;
+        }
+
+        const selectedNodes = event.api.getSelectedNodes();
+        if (selectedNodes.length > 1) {
+          const lastSelected = selectedNodes[selectedNodes.length - 1];
+          if (lastSelected) {
+            normalizingSingleSelectionRef.current = true;
+            try {
+              event.api.deselectAll();
+              lastSelected.setSelected(true);
+            } finally {
+              normalizingSingleSelectionRef.current = false;
+            }
+          }
+          return;
+        }
+      }
+
       const selectedRows = event.api.getSelectedRows();
       onSelectionChanged?.(selectedRows);
     },

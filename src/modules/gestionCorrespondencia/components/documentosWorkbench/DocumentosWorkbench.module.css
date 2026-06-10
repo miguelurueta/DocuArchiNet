@@ -1,6 +1,10 @@
 .workbench {
   display: grid;
+  grid-template-rows: auto 1fr;
   gap: 1rem;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
 }
 
 .toolbar {
@@ -24,8 +28,8 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 340px);
   gap: 1rem;
-  min-height: 360px;
-  height: clamp(360px, 70vh, 760px);
+  height: 100%;
+  min-height: 0;
   position: relative;
   align-items: stretch;
   overflow: hidden;
@@ -43,104 +47,75 @@
   gap: 0;
 }
 
-.mainArea {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 1rem;
-  background: #ffffff;
-  min-height: 0;
-  position: relative;
-  z-index: 0;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  contain: paint;
-}
-
-.mainHeader {
-  display: grid;
-  gap: 0.25rem;
-}
-
-.mainTitle {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.mainCopy {
-  margin: 0;
-  color: #5b6b7c;
-  font-size: 0.9rem;
-}
-
-.mainSurface {
+.viewer {
+  flex: 1 1 auto;
+  min-width: 0;
   min-height: 0;
   height: 100%;
-  overflow: auto;
+  width: 100%;
+  overflow: hidden;
   border-radius: 12px;
-  border: 1px dashed #cbd5f5;
-  padding: 1rem;
-  background: #fdfefe;
-  display: grid;
-  place-items: center;
+  position: relative;
+  background: #ffffff;
 }
 
-.mainHint {
-  margin: 0;
-  color: #6b7f92;
-  text-align: center;
-  max-width: 320px;
+.viewerLoadingOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(248, 250, 252, 0.96) 0%,
+    rgba(241, 245, 249, 0.92) 55%,
+    rgba(255, 255, 255, 0.9) 100%
+  );
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px rgba(148, 163, 184, 0.22),
+    0 18px 40px rgba(15, 23, 42, 0.10);
+}
+
+.viewerLoadingHint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.72);
+  letter-spacing: 0.2px;
+  user-select: none;
 }
 
 .collapseRail {
   min-width: 0;
+  height: 100%;
+  min-height: 0;
+  align-self: stretch;
+}
+
+.collapseRail :global(aside > div:first-child) {
+  display: none;
+}
+
+.collapseRail :global(aside) {
+  display: flex;
+  flex-direction: column;
+}
+
+.collapseRail :global(aside > div:last-child) {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .panelContent {
   display: grid;
   gap: 0.75rem;
   min-height: 0;
-}
-
-.documentList {
-  display: grid;
-  gap: 0.6rem;
-}
-
-.documentCard {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.6rem;
-  padding: 0.6rem 0.75rem;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-}
-
-.documentIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: rgba(37, 99, 235, 0.12);
-  color: #1d4ed8;
-}
-
-.documentTitle {
-  margin: 0;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.documentMeta {
-  margin: 0;
-  font-size: 0.8rem;
-  color: #6b7f92;
 }
 
 .preview {
@@ -178,9 +153,181 @@
   border-radius: 10px;
   border: 1px dashed #cbd5f5;
   background: #f8fafc;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
   padding: 0.75rem;
+}
+
+.listSurface {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding-bottom: 0;
+  margin-top: -2px;
+}
+
+.listPanel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.listHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.25rem 0.25rem;
+}
+
+.listTitle {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #1f2937;
+}
+
+.collapseButton {
+  margin-left: auto;
+}
+
+.listSurface :global(button:focus-visible),
+.listSurface :global([role="button"]:focus-visible),
+.listSurface :global([tabindex]:focus-visible) {
+  outline: 2px solid rgba(59, 130, 246, 0.9);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* In this table, checkbox selection is only for bulk operations.
+   Do not use AG Grid's row-selected paint as the visual "active document" state. */
+.listSurface :global(.ag-theme-quartz) {
+  --ag-selected-row-background-color: transparent;
+  --ag-range-selection-background-color: transparent;
+}
+
+/* SCRUMCORE-229: CSS-only visual refresh (scoped to Workbench) */
+.listSurface :global(.ag-theme-quartz) {
+  --docu-wb-text-strong: #0b1220;
+  --docu-wb-border-weak: rgba(148, 163, 184, 0.22);
+  --docu-wb-border-weaker: rgba(148, 163, 184, 0.12);
+  --docu-wb-row-hover: rgba(15, 23, 42, 0.045);
+  --docu-wb-row-selected: rgba(15, 23, 42, 0.035);
+  --docu-wb-focus-ring: rgba(59, 130, 246, 0.9);
+  --docu-wb-action-hover: rgba(15, 23, 42, 0.05);
+  --docu-wb-action-active: rgba(15, 23, 42, 0.08);
+
+  --ag-border-color: rgba(148, 163, 184, 0.28);
+  --ag-row-border-color: var(--docu-wb-border-weak);
+  --ag-odd-row-background-color: #ffffff;
+  --ag-background-color: #ffffff;
+  --ag-header-background-color: #ffffff;
+  --ag-header-foreground-color: #111827;
+  --ag-header-height: 44px;
+  --ag-row-height: 42px;
+  --ag-font-size: 12.5px;
+
+  /* Subtle hover (no heavy borders). */
+  --ag-row-hover-color: var(--docu-wb-row-hover);
+
+  /* Remove vertical grid lines / column separators (keep row separators via custom border-bottom). */
+  --ag-borders: none;
+  --ag-borders-secondary: none;
+  --ag-header-column-separator-display: none;
+}
+
+/* Header: clean and lightweight */
+.listSurface :global(.ag-theme-quartz .ag-header) {
+  border-bottom: 1px solid var(--docu-wb-border-weak);
+}
+
+.listSurface :global(.ag-theme-quartz .ag-header-cell) {
+  border-right: 0;
+  border-left: 0;
+  box-shadow: none;
+}
+
+.listSurface :global(.ag-theme-quartz .ag-header-cell::after),
+.listSurface :global(.ag-theme-quartz .ag-cell::after) {
+  display: none;
+}
+
+.listSurface :global(.ag-theme-quartz .ag-header-cell-label) {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.listSurface :global(.ag-theme-quartz .ag-header-cell-text) {
+  color: var(--docu-wb-text-strong);
+  font-size: 13px;
+}
+
+/* Rows: clean separators, no boxed look */
+.listSurface :global(.ag-theme-quartz .ag-row) {
+  border-bottom: 1px solid var(--docu-wb-border-weaker);
+}
+
+.listSurface :global(.ag-theme-quartz .ag-cell) {
+  border-right: 0;
+  border-left: 0;
+  box-shadow: none;
+}
+
+.listSurface[data-document-hint-active="true"] :global(.ag-theme-quartz .ag-row[row-index="0"] .ag-cell) {
+  animation: documentHintPulse 0.8s ease-in-out 2;
+}
+
+@keyframes documentHintPulse {
+  0%,
+  100% {
+    background-color: transparent;
+    color: inherit;
+  }
+
+  45% {
+    background-color: rgba(15, 23, 42, 0.09);
+    color: inherit;
+  }
+}
+
+/* Selected row: respect aria-selected without relying on AG Grid selected paint */
+.listSurface :global(.ag-theme-quartz .ag-row[aria-selected="true"] .ag-cell) {
+  background-color: var(--docu-wb-row-selected);
+}
+
+/* Keyboard focus: keep ring clean and consistent inside the table */
+.listSurface :global(.ag-theme-quartz .ag-cell-focus),
+.listSurface :global(.ag-theme-quartz .ag-cell:focus-within) {
+  outline: 2px solid var(--docu-wb-focus-ring);
+  outline-offset: -1px;
+  border-radius: 6px;
+}
+
+/* Action cell: reduce visual noise of the ellipsis button (CSS-only) */
+.listSurface :global(.ag-theme-quartz .app-table-action-cell) {
+  gap: 0.25rem;
+}
+
+.listSurface :global(.ag-theme-quartz .app-table-action-cell .ant-btn) {
+  border-color: transparent;
+  background: transparent;
+}
+
+.listSurface :global(.ag-theme-quartz .app-table-action-cell .ant-btn:hover) {
+  background: var(--docu-wb-action-hover);
+}
+
+.listSurface :global(.ag-theme-quartz .app-table-action-cell .ant-btn:active) {
+  background: var(--docu-wb-action-active);
 }
 
 .previewPlaceholder {
@@ -192,6 +339,197 @@
 .previewHint {
   color: #6b7f92;
   font-size: 0.8rem;
+}
+
+.mainEditor {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+
+  /* Override AppEditor CSS variables so it reads as a viewer. */
+  --editor-border: transparent;
+  --editor-surface-shadow: none;
+  --editor-toolbar-bg: transparent;
+  --editor-toolbar-border: transparent;
+  --editor-surface-bg: transparent;
+}
+
+.pdfSurface {
+  /* Make it feel like a viewer canvas, not a form field. */
+  background: transparent !important;
+}
+
+.pdfViewer {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.pdfObject {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.pdfFallback {
+  margin: 0;
+  padding: 1rem;
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+.pdfToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.pdfToolbarGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pdfButton {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.8rem;
+  line-height: 1.1;
+}
+
+.pdfButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pdfMeta {
+  font-size: 0.8rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+.pdfLink {
+  font-size: 0.8rem;
+  color: #1d4ed8;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0.25rem 0.35rem;
+  border-radius: 8px;
+}
+
+.pdfLink:hover {
+  text-decoration: underline;
+}
+
+.pdfCanvas {
+  min-height: 0;
+  overflow: auto;
+  background:
+    radial-gradient(circle at top, rgba(148, 163, 184, 0.22), transparent 65%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+  padding: 1rem;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+}
+
+.pdfLoading {
+  width: 100%;
+  max-width: 520px;
+  margin-top: 1.25rem;
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+  color: #334155;
+  background: rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+  text-align: center;
+}
+
+.pdfError {
+  width: 100%;
+  max-width: 560px;
+  margin-top: 1.25rem;
+  padding: 1rem 1.05rem;
+  border-radius: 14px;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  background: rgba(254, 242, 242, 0.7);
+  color: #0f172a;
+}
+
+.pdfErrorTitle {
+  margin: 0;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.pdfErrorCopy {
+  margin: 0.35rem 0 0;
+  color: #334155;
+  line-height: 1.45;
+}
+
+.pdfErrorActions {
+  margin-top: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pdfErrorHint {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  color: rgba(51, 65, 85, 0.75);
+  word-break: break-word;
+}
+
+.pdfCanvas :global(.react-pdf__Page) {
+  background: transparent;
+  margin: 0.75rem 0;
+}
+
+.pdfCanvas :global(.react-pdf__Page__canvas) {
+  border-radius: 10px;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
+}
+
+.pdfEmpty {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  border-radius: 10px;
+  border: 1px dashed #cbd5e1;
+  background: rgba(255, 255, 255, 0.75);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 1.25rem;
+}
+
+.pdfEmptyTitle {
+  margin: 0;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.pdfEmptyCopy {
+  margin: 0.25rem 0 0;
+  color: #475569;
+  max-width: 44ch;
 }
 
 @media (max-width: 1024px) {

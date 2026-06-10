@@ -6,6 +6,7 @@ import {
   buildChangeNameFromJiraSummary,
   buildProposalContent,
   inferProposalIntent,
+  writeRefinementArtifacts,
   writeProposalFile,
 } from "./proposalGenerator.js";
 
@@ -15,13 +16,37 @@ describe("proposalGenerator", () => {
       issueKey: "ABC-123",
       summary: "Resumen",
       description: "Detalle del ticket",
+      metadata: {
+        issueType: "Story",
+        priority: "High",
+        labels: ["frontend"],
+        components: ["gestion"],
+        subtasks: [{ key: "ABC-124", summary: "Sub tarea demo" }],
+        comments: [{ id: "1001", body: "Comentario demo" }],
+      },
     });
 
     expect(content).toContain("## Why");
     expect(content).toContain("## What Changes");
+    expect(content).toContain("## Jira Details");
     expect(content).toContain("## Capabilities");
     expect(content).toContain("## Impact");
     expect(content).toContain("ABC-123");
+    expect(content).toContain("## Jira Metadata");
+    expect(content).toContain("Subtask ABC-124");
+    expect(content).toContain("Comment 1001");
+  });
+
+  it("keeps multiline jira description in proposal details", () => {
+    const content = buildProposalContent({
+      issueKey: "ABC-124",
+      summary: "Resumen",
+      description: "Linea uno\nLinea dos\nLinea tres",
+    });
+
+    expect(content).toContain("> Linea uno");
+    expect(content).toContain("> Linea dos");
+    expect(content).toContain("> Linea tres");
   });
 
   it("infers app-toolbar capability for component creation tickets", () => {
@@ -74,6 +99,45 @@ describe("proposalGenerator", () => {
       );
       const saved = await readFile(filePath, "utf8");
       expect(saved).toBe(content);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("writes initial design/spec/tasks artifacts from jira context", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "proposal-artifacts-"));
+
+    try {
+      const result = await writeRefinementArtifacts({
+        issueKey: "SCRUM-8",
+        changeName: "scrum-8-auto-complete-asunto",
+        summary: "Auto complete asunto",
+        description: "Detalle completo\nCon lineas",
+        metadata: {
+          issueType: "Story",
+          priority: "High",
+          labels: ["frontend"],
+          components: ["gestion"],
+          subtasks: [{ key: "SCRUM-9", summary: "Subtask demo" }],
+          comments: [{ id: "2001", body: "Comentario de prueba" }],
+        },
+        baseDir: tempDir,
+      });
+
+      const design = await readFile(result.designPath, "utf8");
+      const spec = await readFile(result.specPath, "utf8");
+      const tasks = await readFile(result.tasksPath, "utf8");
+      const jiraContext = await readFile(result.jiraContextPath, "utf8");
+
+      expect(design).toContain("## Context");
+      expect(design).toContain("SCRUM-8: Auto complete asunto");
+      expect(spec).toContain("## ADDED Requirements");
+      expect(tasks).toContain("## 1. Refinement");
+      expect(jiraContext).toContain("# Jira Context - SCRUM-8");
+      expect(jiraContext).toContain("> Detalle completo");
+      expect(jiraContext).toContain("## Metadata");
+      expect(jiraContext).toContain("Subtask SCRUM-9");
+      expect(jiraContext).toContain("Comment 2001");
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

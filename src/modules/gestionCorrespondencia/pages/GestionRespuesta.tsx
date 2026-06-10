@@ -3,15 +3,22 @@ import { useParams } from "react-router-dom";
 import type { AppTabItem } from "../../../app/Components/UI/AppTabs";
 import { AppTabs } from "../../../app/Components/UI/AppTabs";
 import { DocumentosWorkbench } from "../components/documentosWorkbench";
+import { GestionRespuestaDocumentosProvider } from "../context/GestionRespuestaDocumentosContext";
 import { GestionRespuestaMainTabContent } from "../components/gestionRespuestaMainTab/GestionRespuestaMainTabContent";
 import styles from "../style/GestionRespuesta.module.css";
 
 type GestionRespuestaProps = {
   idTareaWf?: number;
+  radicado?: string;
+  idRespuestaRadicado?: string | number;
   detailState?: "loading" | "ready" | "blocked-empty" | "blocked-error" | "blocked-invalid-id";
 };
 
-export default function GestionRespuesta({ idTareaWf: idTareaWfFromRoute }: GestionRespuestaProps = {}) {
+export default function GestionRespuesta({
+  idTareaWf: idTareaWfFromRoute,
+  radicado,
+  idRespuestaRadicado,
+}: GestionRespuestaProps = {}) {
   const params = useParams();
   const rawId = params.id;
   const fallbackId = typeof rawId === "string" ? Number.parseInt(rawId, 10) : Number.NaN;
@@ -31,13 +38,19 @@ export default function GestionRespuesta({ idTareaWf: idTareaWfFromRoute }: Gest
       key: "documentos",
       label: "Documentos",
       icon: <FileTextOutlined />,
-      children: <DocumentosWorkbench />,
+      children: <DocumentosWorkbench idTareaWf={Number.isFinite(idTareaWf) ? idTareaWf : undefined} />,
     },
   ];
 
   return (
     <div className={styles.tabsShell}>
-      <AppTabs items={items} fullWidth className={styles.tabs} />
+      <GestionRespuestaDocumentosProvider
+        idTareaWf={Number.isFinite(idTareaWf) ? idTareaWf : undefined}
+        radicado={radicado}
+        idRespuestaRadicado={idRespuestaRadicado}
+      >
+        <AppTabs items={items} fullWidth className={styles.tabs} />
+      </GestionRespuestaDocumentosProvider>
     </div>
   );
 }

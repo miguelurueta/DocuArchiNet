@@ -1,0 +1,485 @@
+.root {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  border: 1px solid rgba(203, 213, 225, 0.78);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+
+.toolbarShell {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: linear-gradient(
+    180deg,
+    rgba(248, 250, 252, 0.92) 0%,
+    rgba(248, 250, 252, 0.72) 100%
+  );
+  border-bottom: 1px solid rgba(148, 163, 184, 0.55);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+}
+
+.toolbarSkeleton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding-right: 6px;
+}
+
+.toolbarSkeletonBlock,
+.toolbarSkeletonBlockWide {
+  position: relative;
+  height: 28px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    rgba(226, 232, 240, 0.74) 0%,
+    rgba(203, 213, 225, 0.6) 100%
+  );
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.toolbarSkeletonBlock {
+  width: 34px;
+}
+
+.toolbarSkeletonBlockWide {
+  width: 84px;
+}
+
+.toolbarSkeletonBlock::after,
+.toolbarSkeletonBlockWide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.8) 45%,
+    transparent 90%
+  );
+  animation: toolbarShimmer 1.15s ease-in-out infinite;
+}
+
+@keyframes toolbarShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.main {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  position: relative;
+}
+
+.fullLoadingOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 999;
+  border-radius: 10px;
+  background: transparent;
+  display: block;
+}
+
+.fullLoadingOverlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    900px 520px at 35% 0%,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 250, 252, 0.97) 40%,
+    rgba(241, 245, 249, 0.96) 70%,
+    rgba(255, 255, 255, 0.95) 100%
+  );
+  box-shadow: none;
+  backdrop-filter: blur(8px);
+}
+
+.fullLoadingSkeleton {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+}
+
+.fullLoadingSkeletonUniform {
+  height: 100%;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: auto auto auto 1fr auto;
+  grid-auto-rows: min-content;
+  align-content: start;
+  gap: 10px;
+  width: 100%;
+}
+
+.fullLoadingSkeletonImageWrap {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  border-radius: 12px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.fullLoadingSkeletonParagraph {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.fullLoadingSkeletonParagraph :global(.ant-skeleton) {
+  width: 100%;
+}
+
+.overlayScope {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.paginationOverlay {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.14);
+  backdrop-filter: blur(8px);
+}
+
+.paginationSkeleton {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.paginationSkeletonButton,
+.paginationSkeletonIndicator {
+  position: relative;
+  border-radius: 999px;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    rgba(226, 232, 240, 0.74) 0%,
+    rgba(203, 213, 225, 0.6) 100%
+  );
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.paginationSkeletonButton {
+  width: 30px;
+  height: 28px;
+}
+
+.paginationSkeletonIndicator {
+  width: 60px;
+  height: 22px;
+}
+
+.paginationSkeletonButton::after,
+.paginationSkeletonIndicator::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.8) 45%,
+    transparent 90%
+  );
+  animation: toolbarShimmer 1.15s ease-in-out infinite;
+}
+
+.paginationButton {
+  height: 28px;
+  min-width: 30px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(100, 116, 139, 0.35);
+  background: rgba(248, 250, 252, 0.9);
+  color: #0f172a;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paginationButton:hover {
+  background: rgba(226, 232, 240, 0.9);
+}
+
+.paginationIndicator {
+  min-width: 56px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f172a;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+.paginationInput {
+  width: 56px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(100, 116, 139, 0.35);
+  background: rgba(248, 250, 252, 0.9);
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+}
+
+.paginationInput:focus {
+  border-color: rgba(37, 99, 235, 0.65);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+}
+
+.thumbnails {
+  width: 220px;
+  border-right: 1px solid rgba(148, 163, 184, 0.55);
+  background: rgba(248, 250, 252, 0.95);
+}
+
+.thumbnailsPane {
+  height: 100%;
+  padding: 10px;
+}
+
+.thumbRow {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  border-radius: 10px;
+  cursor: pointer;
+  outline: none;
+}
+
+.thumbRow:hover {
+  background: rgba(226, 232, 240, 0.7);
+}
+
+.thumbRowActive {
+  background: rgba(59, 130, 246, 0.12);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.25) inset;
+}
+
+.thumbRow:focus-visible {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35);
+}
+
+.thumbImg {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  background: white;
+}
+
+.thumbLabel {
+  font-size: 11px;
+  color: #334155;
+  user-select: none;
+}
+
+.viewport {
+  width: 100%;
+  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  overflow-anchor: none;
+  position: relative;
+  background:
+    radial-gradient(circle at top, rgba(148, 163, 184, 0.24), transparent 60%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+}
+
+.viewport * {
+  overflow-anchor: none;
+}
+
+.pageLayer {
+  position: relative;
+  overflow: visible;
+}
+
+/* UX: evitar “drag” del bitmap renderizado (icono rojo de bloque) cuando el usuario intenta seleccionar texto.
+   La interacción debe ocurrir sobre SelectionLayer/InteractionManager, no sobre el <img>. */
+.pageLayer img {
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+.selectionCopyButton {
+  appearance: none;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  background: rgba(255, 255, 255, 0.96);
+  color: #0f172a;
+  font-size: 12px;
+  line-height: 1;
+  padding: 8px 10px;
+  border-radius: 10px;
+  box-shadow:
+    0 10px 22px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(15, 23, 42, 0.04) inset;
+}
+
+.selectionCopyButton:hover {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.22);
+}
+
+.scrollTopFab {
+  position: absolute;
+  right: 20px;
+  bottom: 24px;
+  z-index: 50;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.96);
+  color: #64748b;
+  cursor: pointer;
+  box-shadow:
+    0 10px 22px rgba(15, 23, 42, 0.16),
+    0 0 0 1px rgba(15, 23, 42, 0.03) inset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.scrollTopFab:hover {
+  color: #475569;
+  background: rgba(255, 255, 255, 1);
+}
+
+.scrollTopFabHidden {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.scrollTopFab:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.center {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #334155;
+  font-size: 14px;
+}
+
+.muted {
+  color: #64748b;
+}
+
+.emptyDocumentState {
+  width: min(360px, calc(100% - 32px));
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  padding: 24px 22px;
+  text-align: center;
+}
+
+.emptyDocumentIcon {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.emptyDocumentIcon:hover {
+  background: rgba(37, 99, 235, 0.12);
+}
+
+.emptyDocumentIcon:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.72);
+  outline-offset: 3px;
+}
+
+.emptyDocumentIconBadge {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 19px;
+  height: 19px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #2563eb;
+  font-size: 18px;
+  box-shadow: 0 0 0 2px #ffffff;
+  transform: rotate(45deg);
+}
+
+.emptyDocumentTitle {
+  margin-top: 4px;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.emptyDocumentDescription {
+  max-width: 300px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.45;
+}

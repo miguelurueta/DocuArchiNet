@@ -84,6 +84,49 @@ const buildDateValueFormatter =
 
 const buildActionValueGetter = () => "";
 
+const WORKBENCH_TWO_COLUMN_TABLE_IDS = new Set(["InboxListaDocumentosRadicado"]);
+
+const LEGACY_FLAT_DOCUMENTS_COLUMNS = new Set([
+  "PAG",
+  "ESTADO_FIRMA_DIGITAL",
+  "DBT",
+]);
+
+const normalizeColumnKey = (value: string | undefined): string =>
+  value?.trim().toUpperCase() ?? "";
+
+const isWorkbenchTwoColumnContext = (tableId?: string): boolean =>
+  !!tableId && WORKBENCH_TWO_COLUMN_TABLE_IDS.has(tableId);
+
+const isSelectableWorkbenchColumn = (column: AppGridColumn, primaryKey?: string): boolean => {
+  if (column.visible === false) return false;
+  if (column.isActionColumn) return false;
+  const key = normalizeColumnKey(column.field);
+  if (!key) return false;
+  if (primaryKey && key === normalizeColumnKey(primaryKey)) return false;
+  if (LEGACY_FLAT_DOCUMENTS_COLUMNS.has(key)) return false;
+  return true;
+};
+
+const pickWorkbenchTwoColumns = (
+  inputColumns: ReadonlyArray<AppGridColumn>,
+): { primary?: AppGridColumn; secondary?: AppGridColumn } => {
+  const visibleColumns = inputColumns.filter((column) => column.visible !== false);
+
+  const primary =
+    visibleColumns.find((column) => normalizeColumnKey(column.field) === "TIPODOCUMENTO") ??
+    visibleColumns.find((column) => !column.isActionColumn) ??
+    visibleColumns[0];
+
+  const actionColumn = visibleColumns.find((column) => column.isActionColumn);
+
+  const secondary =
+    actionColumn ??
+    visibleColumns.find((column) => isSelectableWorkbenchColumn(column, primary?.field));
+
+  return { primary, secondary };
+};
+
 export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTableRow>(
   columns: ReadonlyArray<AppGridColumn> | null | undefined,
   options: AppTableColumnAdapterOptions = {},
@@ -92,7 +135,19 @@ export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTa
     return [];
   }
 
-  return columns.map((column) => {
+  const scopedColumns = isWorkbenchTwoColumnContext(options.tableId)
+    ? (() => {
+        const { primary, secondary } = pickWorkbenchTwoColumns(columns);
+        const result = [primary, secondary].filter(
+          (column): column is AppGridColumn => !!column,
+        );
+        return result.length > 0 ? result : [...columns];
+      })()
+    : [...columns];
+
+  const shouldApplyWorkbenchSizing = isWorkbenchTwoColumnContext(options.tableId);
+
+  return scopedColumns.map((column, index) => {
     const colDef: ColDef<T> = {
       field: column.field as ColDef<T>["field"],
       headerName: column.headerName,
@@ -105,6 +160,14 @@ export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTa
       cellStyle: resolveCellStyle<T>(column),
       colId: column.field,
     };
+
+    if (shouldApplyWorkbenchSizing) {
+      colDef.flex = index === 0 ? 2 : 1;
+      // Workbench list panel puede tener anchos muy pequeños (ej: 280px). Este preset prioriza
+      // mantener visibles "Documento" + columna secundaria (acciones) sin forzar scroll horizontal.
+      colDef.minWidth = index === 0 ? 60 : 80;
+      colDef.width = undefined;
+    }
 
     if (column.isActionColumn) {
       colDef.sortable = false;

@@ -1,0 +1,298 @@
+import { memo } from "react";
+import {
+  DownloadOutlined,
+  DeleteOutlined,
+  FileSyncOutlined,
+  FormOutlined,
+  LockOutlined,
+  UnlockOutlined,
+  MenuOutlined,
+  PrinterOutlined,
+  QuestionCircleOutlined,
+  RotateLeftOutlined,
+  RotateRightOutlined,
+  ZoomInOutlined,
+  ZoomOutOutlined,
+} from "@ant-design/icons";
+
+import styles from "./AppPdfToolbar.module.css";
+
+export interface AppPdfToolbarProps {
+  zoomLevel: number;
+
+  onZoomIn(): void;
+  onZoomOut(): void;
+  onResetZoom(): void;
+
+  onToggleThumbnails(): void;
+  isThumbnailOpen: boolean;
+
+  isZoomDisabled?: boolean;
+
+  onRotateLeft(): void;
+  onRotateRight(): void;
+
+  onToggleSignatureModal(): void;
+  isSignatureModalOpen: boolean;
+  isSignatureDisabled?: boolean;
+
+  onDeleteSelectedSignature(): void;
+  canDeleteSelectedSignature: boolean;
+  isDeleteSelectedSignatureDisabled?: boolean;
+
+  onSaveSignedPdf(): void;
+  isSignatureLocked: boolean;
+  isSaveSignedPdfDisabled?: boolean;
+  isSavingSignedPdf?: boolean;
+  isSignatureLockToggleDisabled?: boolean;
+
+  onPrint(): void;
+  onExport(): void;
+  isPrintDisabled?: boolean;
+  isExportDisabled?: boolean;
+
+  onStartGuideTour?: () => void;
+  isGuideTourAvailable?: boolean;
+}
+
+function formatZoom(zoomLevel: number) {
+  const percent = Math.round(zoomLevel * 100);
+  return `${percent}%`;
+}
+
+export const AppPdfToolbar = memo(function AppPdfToolbar({
+  zoomLevel,
+  onZoomIn,
+  onZoomOut,
+  onResetZoom,
+  onToggleThumbnails,
+  isThumbnailOpen,
+  isZoomDisabled = false,
+  onRotateLeft,
+  onRotateRight,
+  onToggleSignatureModal,
+  isSignatureModalOpen,
+  isSignatureDisabled = false,
+  onDeleteSelectedSignature,
+  canDeleteSelectedSignature,
+  isDeleteSelectedSignatureDisabled = false,
+  onSaveSignedPdf,
+  isSignatureLocked,
+  isSaveSignedPdfDisabled = false,
+  isSavingSignedPdf = false,
+  isSignatureLockToggleDisabled = false,
+  onPrint,
+  onExport,
+  isPrintDisabled = false,
+  isExportDisabled = false,
+  onStartGuideTour,
+  isGuideTourAvailable = false,
+}: AppPdfToolbarProps) {
+  const zoomDisabledTitle = isZoomDisabled
+    ? "Zoom deshabilitado cuando hay rotación (estabilidad)"
+    : undefined;
+
+  const showGuideTourButton = Boolean(onStartGuideTour) && isGuideTourAvailable;
+
+  return (
+    <>
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onToggleThumbnails}
+        data-guide-tour-id="pdf-thumbnails-toggle"
+        aria-label="Abrir thumbnails"
+        aria-pressed={isThumbnailOpen}
+        title={isThumbnailOpen ? "Cerrar thumbnails" : "Abrir thumbnails"}
+      >
+        <span className={styles.icon} aria-hidden="true">
+          <MenuOutlined />
+        </span>
+      </button>
+
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onZoomOut}
+        data-guide-tour-id="pdf-zoom-out"
+        aria-label="Zoom out"
+        disabled={isZoomDisabled}
+        title={zoomDisabledTitle ?? "Zoom -"}
+      >
+        <span className={styles.icon} aria-hidden="true">
+          <ZoomOutOutlined />
+        </span>
+      </button>
+      <div className={styles.zoomLevel} data-guide-tour-id="pdf-zoom-level" aria-label="Zoom actual">
+        {formatZoom(zoomLevel)}
+      </div>
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onZoomIn}
+        data-guide-tour-id="pdf-zoom-in"
+        aria-label="Zoom in"
+        disabled={isZoomDisabled}
+        title={zoomDisabledTitle ?? "Zoom +"}
+      >
+        <span className={styles.icon} aria-hidden="true">
+          <ZoomInOutlined />
+        </span>
+      </button>
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onResetZoom}
+        data-guide-tour-id="pdf-reset-zoom"
+        aria-label="Reset zoom"
+        disabled={isZoomDisabled}
+        title={zoomDisabledTitle ?? "Reset zoom (100%)"}
+      >
+        <span className={styles.icon} aria-hidden="true">
+          <FileSyncOutlined />
+        </span>
+      </button>
+
+      <span className={styles.divider} aria-hidden="true" />
+
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onRotateLeft}
+        data-guide-tour-id="pdf-rotate-left"
+        aria-label="Rotar izquierda"
+        title="Rotar izquierda (90°)"
+      >
+        <span className={styles.icon} aria-hidden="true">
+          <RotateLeftOutlined />
+        </span>
+      </button>
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onRotateRight}
+        data-guide-tour-id="pdf-rotate-right"
+        aria-label="Rotar derecha"
+        title="Rotar derecha (90°)"
+      >
+        <span className={styles.icon} aria-hidden="true">
+          <RotateRightOutlined />
+        </span>
+      </button>
+
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onToggleSignatureModal}
+        data-guide-tour-id="pdf-signature"
+        aria-label="Signature"
+        aria-pressed={isSignatureModalOpen}
+        title={
+          isSignatureDisabled
+            ? "Firmas deshabilitadas por política"
+            : isSignatureModalOpen
+              ? "Cerrar firmas"
+              : "Abrir firmas"
+        }
+        disabled={isSignatureDisabled}
+      >
+        <span className={styles.icon} aria-hidden="true">
+          <FormOutlined />
+        </span>
+      </button>
+
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onSaveSignedPdf}
+        data-guide-tour-id="pdf-lock-signature"
+        aria-label={isSignatureLocked ? "Desbloquear firma" : "Bloquear firma"}
+        title={
+          isSavingSignedPdf
+            ? "Validando\u2026"
+            : isSignatureLocked
+              ? "Seleccionar para desbloquear"
+              : isSignatureLockToggleDisabled
+                ? "Bloquear firma deshabilitado por política"
+                : isSaveSignedPdfDisabled
+                ? "Bloquear firma (requiere al menos 1 firma)"
+                : "Bloquear firma"
+        }
+        disabled={isSaveSignedPdfDisabled || isSavingSignedPdf || isSignatureLockToggleDisabled}
+      >
+        <span
+          className={`${styles.icon} ${isSignatureLocked ? styles.lockLocked : styles.lockUnlocked}`}
+          aria-hidden="true"
+        >
+          {isSignatureLocked ? <LockOutlined /> : <UnlockOutlined />}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onDeleteSelectedSignature}
+        data-guide-tour-id="pdf-delete-signature"
+        aria-label="Eliminar firma seleccionada"
+        title={
+          isDeleteSelectedSignatureDisabled
+            ? "Eliminar firma deshabilitado por política"
+            : canDeleteSelectedSignature
+            ? "Eliminar firma seleccionada"
+            : "Selecciona una firma para eliminarla"
+        }
+        disabled={!canDeleteSelectedSignature || isDeleteSelectedSignatureDisabled}
+      >
+        <span className={styles.icon} aria-hidden="true">
+          <DeleteOutlined />
+        </span>
+      </button>
+
+      <span className={styles.spacer} aria-hidden="true" />
+
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onPrint}
+        data-guide-tour-id="pdf-print"
+        aria-label="Print"
+        title={isPrintDisabled ? "Impresión deshabilitada por política" : "Print"}
+        disabled={isPrintDisabled}
+      >
+        <span className={styles.icon} aria-hidden="true">
+          <PrinterOutlined />
+        </span>
+      </button>
+      <button
+        type="button"
+        className={styles.button}
+        onClick={onExport}
+        data-guide-tour-id="pdf-export"
+        aria-label="Export"
+        title={isExportDisabled ? "Exportación deshabilitada por política" : "Export"}
+        disabled={isExportDisabled}
+      >
+        <span className={styles.icon} aria-hidden="true">
+          <DownloadOutlined />
+        </span>
+      </button>
+      {showGuideTourButton ? (
+        <button
+          type="button"
+          className={`${styles.button} ${styles.guideButton}`}
+          onClick={onStartGuideTour}
+          data-guide-tour-id="pdf-help"
+          aria-label="Guia interactiva"
+          title="Ayuda - Guia interactiva"
+        >
+          <span className={styles.icon} aria-hidden="true">
+            <QuestionCircleOutlined />
+          </span>
+          <span className={styles.guideButtonDot} aria-hidden="true">
+            1
+          </span>
+        </button>
+      ) : null}
+    </>
+  );
+});

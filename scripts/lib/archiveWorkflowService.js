@@ -8,6 +8,8 @@ import { createOrGetPullRequest } from "./githubClient.js";
 
 const execFile = promisify(execFileCb);
 
+const runGit = async ({ baseDir, args }) => execFile("git", args, { cwd: baseDir });
+
 const runOpenSpecArchive = async ({ baseDir, changeName, skipSpecs = false }) => {
   const args = ["archive", "-y"];
   if (skipSpecs) {
@@ -99,8 +101,41 @@ const archiveChangeWithFallback = async ({ baseDir, changeName }) => {
   }
 };
 
+const commitArchiveMovesIfNeeded = async ({
+  baseDir,
+  issueKey,
+  remoteName = "origin",
+}) => {
+  await runGit({ baseDir, args: ["add", "-A", "openspec/changes"] });
+  const staged = await runGit({
+    baseDir,
+    args: ["diff", "--cached", "--name-only"],
+  });
+  const hasStagedChanges = String(staged.stdout ?? "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean).length > 0;
+
+  if (!hasStagedChanges) {
+    return { committed: false, pushed: false };
+  }
+
+  await runGit({
+    baseDir,
+    args: [
+      "commit",
+      "-m",
+      `chore(${String(issueKey).toUpperCase()}): archive openspec change`,
+    ],
+  });
+
+  await runGit({ baseDir, args: ["push", remoteName, "HEAD"] });
+  return { committed: true, pushed: true };
+};
+
 export const archiveWithPullRequest = async ({
   issueKey,
+  alsoIssueKeys = [],
   baseDir,
   jira,
   github,
@@ -116,6 +151,24 @@ export const archiveWithPullRequest = async ({
     baseDir,
     changeName,
   });
+
+  const alsoArchivedDirectoryPaths = [];
+  for (const extraIssueKey of alsoIssueKeys) {
+    const extraChangeName = await resolveChangeNameFromIssueKey({
+      baseDir,
+      issueKey: extraIssueKey,
+    }).catch(() => null);
+    if (!extraChangeName) continue;
+    const moved = await moveChangeToArchiveDir({
+      baseDir,
+      changeName: extraChangeName,
+    });
+    if (moved) {
+      alsoArchivedDirectoryPaths.push({ issueKey: extraIssueKey, path: moved });
+    }
+  }
+
+  const gitArchiveCommit = await commitArchiveMovesIfNeeded({ baseDir, issueKey });
 
   const issue = await fetchJiraIssue({
     issueKey,
@@ -154,5 +207,7 @@ export const archiveWithPullRequest = async ({
     pullRequestCreated: prResult.created,
     archivedWithSkipSpecs: archiveResult.archivedWithSkipSpecs,
     archivedDirectoryPath,
+    alsoArchivedDirectoryPaths,
+    gitArchiveCommit,
   };
 };
