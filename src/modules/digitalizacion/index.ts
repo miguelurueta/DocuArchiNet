@@ -1,4 +1,8 @@
 export { DigitalizacionDocumentalModal } from "./components/DigitalizacionDocumentalModal";
+export {
+  buildDigitalizacionTitle,
+  DigitalizacionDocumentalWorkspace,
+} from "./components/DigitalizacionDocumentalWorkspace";
 export { useDigitalizacionDocumentalState } from "./hooks/useDigitalizacionDocumentalState";
 export { useDigitalizacionScanner } from "./hooks/useDigitalizacionScanner";
 export { useDigitalizacionConfiguracion } from "./hooks/useDigitalizacionConfiguracion";
@@ -65,6 +69,7 @@ export type {
   DigitalizacionContext,
   DigitalizacionDocumentalError,
   DigitalizacionDocumentalProps,
+  DigitalizacionDocumentalWorkspaceProps,
   DigitalizacionFunctionalError,
   DigitalizacionFunctionalErrorCode,
   DigitalizacionGeneratedPdf,
