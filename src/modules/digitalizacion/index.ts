@@ -27,6 +27,7 @@ export {
 export { DynamsoftTwainClient } from "./infrastructure/dynamsoft";
 export type {
   DigitalizacionScannerClient,
+  DynamsoftRuntimeOptions,
   DynamsoftScannerErrorCode,
   PdfGenerationResult,
   ScanColorMode,

@@ -1,19 +1,27 @@
 ## 1. Refinement
 
-- [ ] 1.1 Consolidar alcance final desde Jira + contexto de codigo.
-- [ ] 1.2 Ajustar design/spec con decisiones y riesgos definitivos.
+- [x] 1.1 Consolidar alcance final desde Jira + contexto de codigo.
+- [x] 1.2 Ajustar design/spec con decisiones y riesgos definitivos.
 
 ## 2. Implementacion
 
-- [ ] 2.1 Implementar cambios funcionales del ticket.
-- [ ] 2.2 Mantener compatibilidad y evitar regresiones.
+- [x] 2.1 Implementar `AppDigitalizador` como fachada corporativa sobre `DigitalizacionDocumentalWorkspace`.
+- [x] 2.2 Mantener compatibilidad y evitar regresiones en modal, workspace, hooks, servicios y adapter Dynamsoft.
+- [x] 2.3 Crear sandbox visual que monte `<AppDigitalizador />`.
 
 ## 3. Pruebas
 
-- [ ] 3.1 Agregar/ajustar pruebas unitarias e integracion.
-- [ ] 3.2 Ejecutar suite afectada y registrar evidencia.
+- [x] 3.1 Agregar pruebas de integracion focales para `AppDigitalizador`.
+- [x] 3.2 Ejecutar suite afectada y registrar evidencia.
 
 ## 4. Cierre
 
-- [ ] 4.1 Validar OpenSpec.
-- [ ] 4.2 Documentar diff final y decisiones de arquitectura.
+- [x] 4.1 Validar OpenSpec localmente segun artefactos disponibles.
+- [x] 4.2 Documentar diff final, API publica y decisiones de arquitectura.
+
+## Evidence
+
+- `npx eslint src/app/Components/UI/AppDigitalizador src/app/pages/AppDigitalizadorSandboxPage.tsx src/modules/digitalizacion --ext .ts,.tsx`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npx vitest run src/modules/digitalizacion`: PASS, 9 files, 50 tests.
+- `npx vitest run src/app/Components/UI/AppDigitalizador`: PASS, 1 file, 3 tests.

@@ -1,245 +1,84 @@
 ## Context
 
-SCRUMCORE-246: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL- CREACIONAPP
+`DigitalizacionDocumentalWorkspace` es el componente inline funcional del modulo `src/modules/digitalizacion`. Usa `useDigitalizacionScanner`, `useDigitalizacionDocumentalState` y `useDigitalizacionOperationOrchestrator`, y conserva scanner, miniaturas, preview, metadata, generacion PDF y operaciones API.
 
-## Jira Details
+SCRUMCORE-246 agrega una fachada corporativa para que modulos como CapDocument, Correspondencia, Workflow, Ventanilla, Archivo Central, PQRS, Contratos y Produccion Documental no consuman directamente esa infraestructura.
 
-> FASE CORPORATIVA
-> CREACIÓN DE APPDIGITALIZADOR OFICIAL DE DOCUARCHI
-> CONTEXTO
-> Ya fueron ejecutados:
-> SCRUMCORE-239
-> 
-> SCRUMCORE-240
-> 
-> SCRUMCORE-241
-> 
-> SCRUMCORE-242
-> 
-> Ya existe:
-> src/modules/digitalizacion
-> Ya existe:
-> DigitalizacionDocumentalWorkspace
-> Ya existe:
-> DigitalizacionDocumentalModal
-> Ya existe:
-> DynamsoftTwainClient
-> Ya existe:
-> DigitalizacionScannerClient
-> Ya existe:
-> useDigitalizacionScanner
-> Ya existe:
-> useDigitalizacionDocumentalState
-> Ya existe:
-> useDigitalizacionOperationOrchestrator
-> La auditoría legacy ya fue realizada.
-> NO rehacer la implementación.
-> NO rehacer SCRUMCORE-239 al 242.
-> NO duplicar lógica.
-> OBJETIVO
-> Crear el componente corporativo oficial reutilizable de digitalización para DocuArchi.
-> Ruta obligatoria:
-> src/app/Components/UI/AppDigitalizador
-> Este componente debe convertirse en la entrada pública única para cualquier módulo que necesite digitalización.
-> Ejemplos futuros:
-> <AppDigitalizador />
-> en:
-> Radicación
-> 
-> Correspondencia
-> 
-> Ventanilla
-> 
-> Workflow
-> 
-> Archivo Central
-> 
-> PQRS
-> 
-> Contratos
-> 
-> Producción Documental
-> 
-> REGLA PRINCIPAL
-> AppDigitalizador NO reemplaza:
-> DigitalizacionDocumentalWorkspace
-> AppDigitalizador debe construirse ENCIMA de:
-> DigitalizacionDocumentalWorkspace
-> Arquitectura obligatoria:
-> AppDigitalizador
->         │
->         ▼
-> DigitalizacionDocumentalWorkspace
->         │
->         ▼
-> Hooks Digitalización
->         │
->         ▼
-> DynamsoftTwainClient
->         │
->         ▼
-> Dynamsoft
-> RESPONSABILIDAD DE APPDIGITALIZADOR
-> Debe encapsular:
-> creación scannerClient;
-> 
-> configuración Dynamsoft;
-> 
-> licencia;
-> 
-> apiClient;
-> 
-> defaults corporativos;
-> 
-> manejo de errores comunes;
-> 
-> configuración por módulo;
-> 
-> callbacks simplificados;
-> 
-> estados comunes.
-> 
-> El consumidor NO debe conocer:
-> Dynamsoft;
-> 
-> scannerClient;
-> 
-> adapters;
-> 
-> orchestrator;
-> 
-> infraestructura interna.
-> 
-> API ESPERADA
-> Diseñar una API simple.
-> Ejemplo:
-> <AppDigitalizador
->   context={context}
->   onCompleted={handleCompleted}
-> />
-> Evitar exigir configuración repetitiva.
-> ESTRUCTURA OBJETIVO
-> src/app/Components/UI/AppDigitalizador/
-> ├─ AppDigitalizador.tsx
-> ├─ AppDigitalizador.types.ts
-> ├─ AppDigitalizador.module.css
-> ├─ AppDigitalizadorProvider.tsx
-> ├─ index.ts
-> ├─ hooks/
-> └─ tests/
-> Ajustar si la arquitectura actual del proyecto requiere otra organización, pero mantener el concepto de componente corporativo reutilizable.
-> SANDBOX OBLIGATORIO
-> Crear una pantalla de pruebas.
-> Objetivo:
-> Validar:
-> licencia real;
-> 
-> scanner físico;
-> 
-> escaneo;
-> 
-> PDF;
-> 
-> metadata;
-> 
-> upload;
-> 
-> callbacks;
-> 
-> integración completa.
-> 
-> Debe utilizar:
-> <AppDigitalizador />
-> No montar directamente:
-> <DigitalizacionDocumentalWorkspace />
-> La sandbox debe validar la experiencia corporativa final.
-> COMPATIBILIDAD OBLIGATORIA
-> Debe seguir funcionando:
-> DigitalizacionDocumentalModal
-> Debe seguir funcionando:
-> DigitalizacionDocumentalWorkspace
-> No romper:
-> hooks;
-> 
-> servicios;
-> 
-> adapters;
-> 
-> DynamsoftTwainClient;
-> 
-> contratos.
-> 
-> BRECHAS AUDITADAS
-> Tomar como referencia:
-> SCRUMCORE-239-legacy-traceability.md
-> No ocultar funcionalidades pendientes.
-> Documentar claramente:
-> qué quedó implementado;
-> 
-> qué quedó pendiente frontend;
-> 
-> qué quedó pendiente backend.
-> 
-> VALIDACIONES
-> Ejecutar y documentar:
-> npx vitest run src/modules/digitalizacion
-> npx tsc --noEmit
-> npx eslint src/modules/digitalizacion
-> y las pruebas necesarias para AppDigitalizador.
-> ENTREGABLES
-> Entregar:
-> Arquitectura actual.
-> 
-> Arquitectura final.
-> 
-> Árbol completo de archivos.
-> 
-> Archivos creados.
-> 
-> Archivos modificados.
-> 
-> API pública de AppDigitalizador.
-> 
-> Sandbox creada.
-> 
-> Compatibilidad con Modal.
-> 
-> Compatibilidad con Workspace.
-> 
-> Riesgos.
-> 
-> Pendientes frontend.
-> 
-> Pendientes backend.
-> 
-> Ejemplo real de uso en módulos consumidores.
-> 
-> RESULTADO FINAL ESPERADO
-> Al finalizar debe existir un único componente corporativo reutilizable:
-> <AppDigitalizador />
-> capaz de ser montado en cualquier módulo del sistema sin exponer detalles internos de Dynamsoft ni de la infraestructura de digitalización.
+## Current Architecture
 
-## Goals / Non-Goals
+```txt
+Modulo consumidor
+  -> DigitalizacionDocumentalWorkspace
+     -> hooks digitalizacion
+     -> DigitalizacionScannerClient
+     -> DynamsoftTwainClient
+     -> Dynamsoft
+```
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+## Final Architecture
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+```txt
+Modulo consumidor
+  -> AppDigitalizador
+     -> AppDigitalizadorProvider/defaults
+     -> DigitalizacionDocumentalWorkspace
+        -> hooks digitalizacion
+        -> DigitalizacionScannerClient
+        -> DynamsoftTwainClient
+        -> Dynamsoft
+```
 
 ## Decisions
 
-1. TBD
+1. `AppDigitalizador` es inline y no usa `AppModal`.
+2. `DigitalizacionDocumentalModal` sigue existiendo para flujos que requieran overlay.
+3. La API publica minima es:
 
-## Risks / Trade-offs
+```tsx
+<AppDigitalizador
+  context={context}
+  onCompleted={handleCompleted}
+/>
+```
 
-- TBD
+4. `scannerClient`, `apiClient`, `dynamsoft` y `licenciaDynamsoft` quedan como overrides avanzados para pruebas, sandbox o configuracion corporativa.
+5. El provider permite definir defaults compartidos sin repetir configuracion en cada modulo.
+6. La licencia real puede llegar por prop, por provider o por variable `VITE_DYNAMSOFT_LICENSE_KEY` en la sandbox.
 
-## Migration Plan
+## File Tree
 
-1. TBD
+```txt
+src/app/Components/UI/AppDigitalizador/
+├─ AppDigitalizador.context.ts
+├─ AppDigitalizador.module.css
+├─ AppDigitalizador.tsx
+├─ AppDigitalizador.types.ts
+├─ AppDigitalizadorProvider.tsx
+├─ hooks/
+│  └─ useAppDigitalizadorScannerClient.ts
+├─ index.ts
+└─ tests/
+   └─ AppDigitalizador.test.tsx
+```
 
-## Open Questions
+## Sandbox
 
-- TBD
+Ruta:
+
+```txt
+/__sandbox/app-digitalizador
+```
+
+Archivo:
+
+```txt
+src/app/pages/AppDigitalizadorSandboxPage.tsx
+```
+
+La sandbox monta exclusivamente `<AppDigitalizador />`.
+
+## Risks / Pendientes
+
+- Pruebas con scanner fisico requieren licencia Dynamsoft real y runtime instalado.
+- Las operaciones de metadata, upload, crear documento y adjuntar documento dependen de disponibilidad backend.
+- Los bloqueos backend auditados en SCRUMCORE-239 siguen siendo fuente de verdad para pendientes funcionales no frontend.
