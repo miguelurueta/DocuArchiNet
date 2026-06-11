@@ -1,7 +1,6 @@
 .shell {
   display: grid;
   gap: 0.9rem;
-  min-height: 0;
 }
 
 .header {
@@ -14,20 +13,6 @@
   display: flex;
   gap: 0.65rem;
   justify-content: space-between;
-}
-
-.titleGroup {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  min-width: 0;
-}
-
-.title {
-  color: #243b53;
-  font-size: 0.98rem;
-  font-weight: 800;
 }
 
 .modeBadge {
@@ -266,13 +251,9 @@
   padding-top: 0.7rem;
 }
 
-.actions {
-  align-items: center;
-  border-top: 1px solid #e3e8f1;
-  display: flex;
-  gap: 0.65rem;
-  justify-content: flex-end;
-  padding-top: 0.8rem;
+.footerNote {
+  color: #65758a;
+  font-size: 0.8rem;
 }
 
 @media (max-width: 760px) {
@@ -282,9 +263,7 @@
   }
 
   .titleLine,
-  .toolbar,
-  .workbenchFooter,
-  .actions {
+  .toolbar {
     align-items: stretch;
     flex-direction: column;
   }
@@ -297,5 +276,11 @@
   .scannerSelect select {
     flex: 1;
     min-width: 0;
+  }
+
+  .workbenchFooter {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
   }
 }

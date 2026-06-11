@@ -22,4 +22,3 @@ export * from "./OperationBlockerContext";
 export * from "./AppLoadingState";
 export * from "./AppTreeTable";
 export * from "./AppDocumentViewerOrchestrator";
-export * from "./AppDigitalizador";
