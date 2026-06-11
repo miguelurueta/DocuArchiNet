@@ -76,6 +76,16 @@ export type DigitalizacionDocumentalProps = {
   onError?: (error: DigitalizacionDocumentalError) => void;
 };
 
+export type DigitalizacionDocumentalWorkspaceProps = {
+  active?: boolean;
+  context: DigitalizacionContext | null;
+  scannerClient?: DigitalizacionScannerClient;
+  apiClient?: DigitalizacionApiClient;
+  onCancel?: () => void;
+  onCompleted: (result: DigitalizacionResult) => void;
+  onError?: (error: DigitalizacionDocumentalError) => void;
+};
+
 export type DigitalizacionScannerState = {
   selectedScannerId: string | null;
   runtimeAvailable: boolean;

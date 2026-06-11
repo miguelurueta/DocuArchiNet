@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { DigitalizacionDocumentalModal } from "./DigitalizacionDocumentalModal";
+import { DigitalizacionDocumentalWorkspace } from "../DigitalizacionDocumentalWorkspace";
 import type { DigitalizacionContext } from "../../types/digitalizacion.types";
 import type { DigitalizacionScannerClient, ScanPage } from "../../infrastructure/dynamsoft";
 
@@ -51,7 +52,8 @@ describe("[SPEC:SCRUMCORE-239] DigitalizacionDocumentalModal", () => {
   it("renders crear mode", () => {
     render(<DigitalizacionDocumentalModal {...baseProps} context={crearContext} />);
 
-    expect(screen.getByTestId("digitalizacion-modal")).toBeInTheDocument();
+    expect(screen.getByTestId("digitalizacion-workspace")).toBeInTheDocument();
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByText("crear")).toBeInTheDocument();
     expect(screen.getAllByText("Guardar documento").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("RAD-2026")).toBeInTheDocument();
@@ -63,6 +65,19 @@ describe("[SPEC:SCRUMCORE-239] DigitalizacionDocumentalModal", () => {
     expect(screen.getByText("adjuntar")).toBeInTheDocument();
     expect(screen.getAllByText("Adjuntar digitalizacion").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("321")).toBeInTheDocument();
+  });
+
+  it("renders workspace inline without modal dialog", () => {
+    render(
+      <DigitalizacionDocumentalWorkspace
+        context={crearContext}
+        onCompleted={baseProps.onCompleted}
+      />,
+    );
+
+    expect(screen.getByTestId("digitalizacion-workspace")).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByText("crear")).toBeInTheDocument();
   });
 
   it("shows controlled error for null context", () => {
