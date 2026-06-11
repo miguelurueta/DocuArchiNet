@@ -11,6 +11,10 @@ export interface AppVisorEmbedPdfProps {
   className?: string;
   style?: React.CSSProperties;
   onEmptyDocumentHintRequest?: () => void;
+  onSaveAnnotatedPages?: () => void;
+  isSaveAnnotatedPagesDisabled?: boolean;
+  isSavingAnnotatedPages?: boolean;
+  saveAnnotatedPagesProgress?: number;
 }
 
 export type { AppVisorEmbedPdfRef, AppVisorLoadInput, AppVisorLoadResult, ViewerEffectivePermissions };

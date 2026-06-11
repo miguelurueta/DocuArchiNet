@@ -86,6 +86,14 @@ Regla operativa:
 Export:
 - Se usa `exportApi.provides.saveAsCopy(documentId)` para obtener el PDF **materializado** por el engine y descargarlo.
 
+## Reemplazo de paginas anotadas (SCRUMCORE-238)
+
+- El visor expone `exportAnnotatedPdfPages()` por ref. El metodo detecta paginas desde `annotation.state.pages`, convierte indices base 0 a `PageNumber` base 1, ejecuta `commit()`, exporta con `saveAsCopy()` y devuelve blobs PDF independientes de una sola pagina.
+- La extraccion single-page usa `pdf-lib` por import dinamico para evitar rasterizacion, canvas, imagenes, Base64 o envio del PDF completo. `pdf-lib` esta publicado bajo licencia MIT; el coste de bundle queda diferido al flujo de guardar paginas anotadas.
+- El upload de chunks envia body binario puro con `Content-Type: application/octet-stream` y `X-Total-Chunks`. No se setea `Content-Length` desde browser porque es un header restringido.
+- Si el reemplazo final falla o la operacion se cancela antes de `paginas-anotadas`, `DocumentosWorkbench` intenta limpiar temporales con `DELETE` en modo best-effort. Si `paginas-anotadas` responde OK, no se llama `DELETE`.
+- La metadata anti-desfase solo debe enviarse cuando exista una fuente real del backend/visor. Actualmente el flujo no inventa hash/version/geometria de pagina.
+
 ## Firma (SCRUMCORE-210)
 
 ### Modal (UI)

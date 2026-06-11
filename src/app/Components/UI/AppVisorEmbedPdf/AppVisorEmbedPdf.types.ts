@@ -44,8 +44,36 @@ export type AppVisorLoadResult = {
   errors: string[];
 };
 
+export type AppVisorAnnotatedPdfPage = {
+  pageNumber: number;
+  fileName: string;
+  blob: Blob;
+  sizeBytes: number;
+  hashSha256?: string;
+  sourcePageWidth?: number;
+  sourcePageHeight?: number;
+  sourcePageRotation?: number;
+  sourcePageFingerprintSha256?: string;
+};
+
+export type AppVisorExportAnnotatedPdfPagesOptions = {
+  calculateHashSha256?: boolean;
+  signal?: AbortSignal;
+};
+
+export type AppVisorExportAnnotatedPdfPagesResult = {
+  hasAnnotations: boolean;
+  annotatedPages: number[];
+  pageNumbers: number[];
+  pages: AppVisorAnnotatedPdfPage[];
+};
+
 export type AppVisorEmbedPdfRef = {
   load(input: AppVisorLoadInput): Promise<AppVisorLoadResult>;
   reset(): void;
   cancelCurrentLoad(): void;
+  getOriginalPdfPassword(): string | undefined;
+  exportAnnotatedPdfPages(
+    options?: AppVisorExportAnnotatedPdfPagesOptions,
+  ): Promise<AppVisorExportAnnotatedPdfPagesResult>;
 };
