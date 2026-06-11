@@ -10,7 +10,7 @@
 - Mantener `DigitalizacionDocumentalModal` como wrapper compatible con `AppModal`.
 - Exportar el workspace inline desde `src/modules/digitalizacion`.
 - Documentar trazabilidad legacy de scanner, upload temporal, metadata, crear documento y adjuntar digitalizacion.
-- Registrar brechas que dependen de backend o de archivos legacy no accesibles.
+- Registrar brechas que dependen de backend aunque los archivos legacy obligatorios ya fueron encontrados.
 - Agregar prueba que confirma que el workspace se renderiza inline sin `role="dialog"`.
 
 ## Legacy Inputs
@@ -21,11 +21,13 @@ Archivos disponibles usados como fuente:
 - `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner\online_demo_operation.js`
 - `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner\WebFormEscan.js`
 - `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner\WebFormEscan.aspx`
-- `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner\WebFormEscan.aspx.vb.txt`
+- `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner\WebFormEscan.aspx.designer.vb`
+- `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner\WebFormEscan.aspx.vb`
 - `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner\Webform_save_digital_image.aspx`
-- `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner\Webform_save_digital_image.aspx.vb.txt`
+- `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner\Webform_save_digital_image.aspx.designer.vb`
+- `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner\Webform_save_digital_image.aspx.vb`
 
-Rutas `D:\imagenesda\...` no estuvieron accesibles en esta sesion; se documentan como bloqueo de confirmacion contra el legacy original.
+Validacion: todos los archivos legacy obligatorios del ticket estan disponibles en `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner`.
 
 ## Impact
 

@@ -41,11 +41,11 @@ El sistema SHALL documentar equivalencias entre archivos legacy y la arquitectur
 - **THEN** existe `docs/Architecture/DigitalizacionDocumental/SCRUMCORE-239-legacy-traceability.md`
 - **AND** el documento incluye responsabilidades legacy, regla funcional, nueva ubicacion React/API, estado y evidencia.
 
-#### Scenario: Bloqueos documentados
+#### Scenario: Archivos legacy disponibles
 
-- **WHEN** un archivo legacy requerido no esta accesible
-- **THEN** la trazabilidad indica ruta, motivo e impacto
-- **AND** no marca como completadas las reglas que dependan exclusivamente de ese archivo.
+- **WHEN** se valida la fuente legacy para `SCRUMCORE-239`
+- **THEN** la trazabilidad confirma que los archivos obligatorios existen en `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner`
+- **AND** incluye los archivos `.aspx`, `.designer.vb`, `.vb` y `.js` usados como evidencia.
 
 ## MODIFIED Requirements
 

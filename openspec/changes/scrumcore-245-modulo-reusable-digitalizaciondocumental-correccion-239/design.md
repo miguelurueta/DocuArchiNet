@@ -93,7 +93,7 @@ import { DigitalizacionDocumentalModal } from "src/modules/digitalizacion";
 
 - `DigitalizacionDocumentalWorkspace` conserva las capacidades actuales: scanner, miniaturas, preview, metadata, PDF y orquestacion API. No agrega crop, deskew ni descarte automatico de paginas en blanco; esas funciones quedan trazadas como pendientes si negocio las confirma.
 - Las APIs backend de validacion final y merge PDF siguen siendo fuente de verdad; el frontend no puede completar reglas de firmado/bloqueado/radicado sin backend.
-- Las rutas `D:\imagenesda\...` no estuvieron disponibles. Se usaron copias locales del legacy para la trazabilidad inicial.
+- Todos los archivos legacy obligatorios fueron encontrados en `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner`; la trazabilidad se basa en ese set completo.
 
 ## Validation Plan
 

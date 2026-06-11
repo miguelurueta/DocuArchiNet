@@ -23,4 +23,5 @@
 - `npx eslint src/modules/digitalizacion --ext .ts,.tsx`: PASS.
 - `npx vitest run src/modules/digitalizacion`: PASS, 50 tests.
 - `npm run spec:validate`: PASS.
+- Revalidacion legacy: todos los archivos obligatorios existen en `C:\Users\SEBASTIAN FORERO\Documents\Archivos de Scaner`, incluyendo `.aspx`, `.designer.vb`, `.vb` y `.js`.
 - `npm run build`: FAIL por errores preexistentes fuera de `src/modules/digitalizacion` en `src/app/Components/UI/AppEditor/presentation/AppEditorToolbar.tsx`, donde se pasa `dropdownProps` a `AppDropdownProps`.
