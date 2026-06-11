@@ -400,6 +400,64 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     );
   });
 
+  it("[SPEC:SCRUMCORE-238] limita chunks frontend a 512KB para paginas anotadas grandes", async () => {
+    const largePdf = new Blob([new Uint8Array(1_639_741)], { type: "application/pdf" });
+    exportAnnotatedPdfPagesSpy.mockResolvedValueOnce({
+      hasAnnotations: true,
+      annotatedPages: [1],
+      pageNumbers: [1],
+      pages: [
+        {
+          pageNumber: 1,
+          fileName: "document-10-page-1-annotated.pdf",
+          blob: largePdf,
+          sizeBytes: largePdf.size,
+          hashSha256: "hash-page-1",
+        },
+      ],
+    });
+    mockDocumentoActivo = {
+      documentId: 10,
+      nombreGabinete: "G",
+      fileUrl: "/tmp/doc.pdf",
+      contentType: "application/pdf",
+      viewerKind: "pdf",
+      isPdf: true,
+      isElectronicallySigned: false,
+      firmaCheckStatus: "resolved",
+      resolveStatus: "resolved",
+      errors: [],
+      documentKey: "G:10",
+      attemptId: 1,
+    };
+
+    render(<DocumentosWorkbench idTareaWf={123} />);
+    fireEvent.click(screen.getByRole("button", { name: "Guardar paginas anotadas" }));
+
+    await waitFor(() => {
+      expect(uploadTemporalChunkSpy).toHaveBeenCalledTimes(4);
+    });
+
+    expect(initUploadTemporalPdfAnotadoSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        NombreOriginal: "document-10-page-1-annotated.pdf",
+        TamanoBytes: 1_639_741,
+        NumeroChunks: 4,
+      }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+    expect(uploadTemporalChunkSpy).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ chunkIndex: 0, totalChunks: 4, chunk: expect.objectContaining({ size: 524_288 }) }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+    expect(uploadTemporalChunkSpy).toHaveBeenNthCalledWith(
+      4,
+      expect.objectContaining({ chunkIndex: 3, totalChunks: 4, chunk: expect.objectContaining({ size: 66_877 }) }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+  });
+
   it("[SPEC:SCRUMCORE-238] envia OriginalPdfPassword solo en reemplazo final cuando existe en memoria", async () => {
     getOriginalPdfPasswordSpy.mockReturnValue("secret");
     mockDocumentoActivo = {

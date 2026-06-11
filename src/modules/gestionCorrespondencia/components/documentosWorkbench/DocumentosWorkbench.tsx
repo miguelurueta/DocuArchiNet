@@ -22,6 +22,7 @@ import styles from "./DocumentosWorkbench.module.css";
 
 const MOBILE_QUERY = "(max-width: 768px)";
 const DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES = 1_048_576;
+const MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES = 512 * 1024;
 
 const useMediaQuery = (query: string) => {
   const getMatches = () =>
@@ -371,7 +372,11 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
 
   const uploadAnnotatedPagePdf = useCallback(
     async (params: { pageNumber: number; fileName: string; blob: Blob; hashSha256?: string }, signal: AbortSignal) => {
-      const numeroChunks = Math.max(1, Math.ceil(params.blob.size / DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES));
+      const plannedChunkSize = Math.min(
+        DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES,
+        MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES,
+      );
+      const numeroChunks = Math.max(1, Math.ceil(params.blob.size / plannedChunkSize));
       const init = await initUploadTemporalPdfAnotado(
         {
           NombreOriginal: params.fileName,
@@ -383,7 +388,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
         { signal },
       );
 
-      const chunkSize = init.ChunkSizeBytes || DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES;
+      const backendChunkSize = init.ChunkSizeBytes || DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES;
+      const chunkSize = Math.min(backendChunkSize, MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES);
       const totalChunks = Math.max(1, Math.ceil(params.blob.size / chunkSize));
       for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex += 1) {
         const start = chunkIndex * chunkSize;
@@ -395,6 +401,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
           pdfPageSizeBytes: params.blob.size,
           pdfPageSizeKB: Number((params.blob.size / 1024).toFixed(2)),
           pdfPageSizeMB: Number((params.blob.size / 1024 / 1024).toFixed(2)),
+          backendChunkSizeBytes: backendChunkSize,
+          frontendChunkLimitBytes: MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES,
           chunkSizeBytes: chunk.size,
           chunkSizeKB: Number((chunk.size / 1024).toFixed(2)),
           chunkSizeMB: Number((chunk.size / 1024 / 1024).toFixed(2)),
