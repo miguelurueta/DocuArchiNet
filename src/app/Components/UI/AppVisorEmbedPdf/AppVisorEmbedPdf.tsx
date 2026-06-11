@@ -1927,9 +1927,14 @@ function EmbedPdfLoadedDocumentView(props: {
         onStartPlacement={onStartSignaturePlacement}
         isPlacementReady={isSignaturePlacementReady && Boolean(signatureCap.provides)}
       />
-      {isSavingSignedPdf ? (
-        <div className={styles.signatureSavingOverlay} role="status" aria-label="Bloqueando firma" aria-busy="true">
-          <Spin size="large" tip="Bloqueando firma" />
+      {isSavingSignedPdf || isSavingAnnotatedPages ? (
+        <div
+          className={styles.operationSavingOverlay}
+          role="status"
+          aria-label={isSavingAnnotatedPages ? "Guardando paginas anotadas" : "Bloqueando firma"}
+          aria-busy="true"
+        >
+          <Spin size="large" tip={isSavingAnnotatedPages ? "Guardando paginas anotadas" : "Bloqueando firma"} />
         </div>
       ) : null}
       <div

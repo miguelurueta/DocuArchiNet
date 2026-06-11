@@ -649,14 +649,14 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     replacementAbortRef.current = abortController;
     replacementSeqRef.current += 1;
     const seq = replacementSeqRef.current;
+    setIsReplacingAnnotatedPages(true);
+    setReplacementProgress(0);
 
     void (async () => {
       const createdTemporals: Array<{ rutaTemporalId: string; archivoTemporalId: string }> = [];
       let replacementSucceeded = false;
       let replacementStage = "start";
 
-      setIsReplacingAnnotatedPages(true);
-      setReplacementProgress(0);
       try {
         replacementStage = "exportAnnotatedPdfPages";
         dvLog("[DV][reemplazo-paginas][start]", {
