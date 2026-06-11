@@ -22,7 +22,7 @@ import styles from "./DocumentosWorkbench.module.css";
 
 const MOBILE_QUERY = "(max-width: 768px)";
 const DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES = 1_048_576;
-const MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES = 512 * 1024;
+const MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES = 768 * 1024;
 
 const useMediaQuery = (query: string) => {
   const getMatches = () =>

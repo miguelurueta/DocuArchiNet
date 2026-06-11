@@ -400,7 +400,7 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     );
   });
 
-  it("[SPEC:SCRUMCORE-238] limita chunks frontend a 512KB para paginas anotadas grandes", async () => {
+  it("[SPEC:SCRUMCORE-238] limita chunks frontend a 768KB para paginas anotadas grandes", async () => {
     const largePdf = new Blob([new Uint8Array(1_639_741)], { type: "application/pdf" });
     exportAnnotatedPdfPagesSpy.mockResolvedValueOnce({
       hasAnnotations: true,
@@ -435,25 +435,25 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     fireEvent.click(screen.getByRole("button", { name: "Guardar paginas anotadas" }));
 
     await waitFor(() => {
-      expect(uploadTemporalChunkSpy).toHaveBeenCalledTimes(4);
+      expect(uploadTemporalChunkSpy).toHaveBeenCalledTimes(3);
     });
 
     expect(initUploadTemporalPdfAnotadoSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         NombreOriginal: "document-10-page-1-annotated.pdf",
         TamanoBytes: 1_639_741,
-        NumeroChunks: 4,
+        NumeroChunks: 3,
       }),
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
     expect(uploadTemporalChunkSpy).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ chunkIndex: 0, totalChunks: 4, chunk: expect.objectContaining({ size: 524_288 }) }),
+      expect.objectContaining({ chunkIndex: 0, totalChunks: 3, chunk: expect.objectContaining({ size: 786_432 }) }),
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
     expect(uploadTemporalChunkSpy).toHaveBeenNthCalledWith(
-      4,
-      expect.objectContaining({ chunkIndex: 3, totalChunks: 4, chunk: expect.objectContaining({ size: 66_877 }) }),
+      3,
+      expect.objectContaining({ chunkIndex: 2, totalChunks: 3, chunk: expect.objectContaining({ size: 66_877 }) }),
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
   });

@@ -162,6 +162,16 @@
   flex-direction: column;
 }
 
+.signatureSavingOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  background: rgba(248, 250, 252, 0.72);
+  backdrop-filter: blur(2px);
+}
+
 .paginationOverlay {
   position: absolute;
   left: 50%;

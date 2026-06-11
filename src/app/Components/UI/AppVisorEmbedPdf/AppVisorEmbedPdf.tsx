@@ -6,7 +6,7 @@ import { useScroll } from "@embedpdf/plugin-scroll/react";
 import { Rotate, useRotate } from "@embedpdf/plugin-rotate/react";
 import { useViewportCapability } from "@embedpdf/plugin-viewport/react";
 import { LeftOutlined, RightOutlined, UpOutlined } from "@ant-design/icons";
-import { Skeleton } from "antd";
+import { Skeleton, Spin } from "antd";
 import { usePrint } from "@embedpdf/plugin-print/react";
 import { useExport } from "@embedpdf/plugin-export/react";
 import { PdfErrorCode } from "@embedpdf/models";
@@ -1927,6 +1927,11 @@ function EmbedPdfLoadedDocumentView(props: {
         onStartPlacement={onStartSignaturePlacement}
         isPlacementReady={isSignaturePlacementReady && Boolean(signatureCap.provides)}
       />
+      {isSavingSignedPdf ? (
+        <div className={styles.signatureSavingOverlay} role="status" aria-label="Bloqueando firma" aria-busy="true">
+          <Spin size="large" tip="Bloqueando firma" />
+        </div>
+      ) : null}
       <div
         className={styles.main}
         data-signature-active-placement={activePlacement ? "true" : "false"}
