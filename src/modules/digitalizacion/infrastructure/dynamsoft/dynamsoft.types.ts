@@ -40,6 +40,7 @@ export interface DigitalizacionScannerClient {
 
 export type DynamsoftRuntimeOptions = {
   scriptSrc?: string;
+  resourcesPath?: string;
   licenseKey?: string;
   containerId?: string;
   documentRef?: Document;
@@ -48,6 +49,7 @@ export type DynamsoftRuntimeOptions = {
 
 export type DynamsoftWebTwainFactory = {
   ProductKey?: string;
+  ResourcesPath?: string;
   Containers?: Array<{
     WebTwainId: string;
     ContainerId: string;

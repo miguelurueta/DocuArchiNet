@@ -1,141 +1,74 @@
 ## Context
 
-SCRUMCORE-247: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL- ACTUALIZACION-SDK
+El adapter `DynamsoftTwainClient` usa el modelo clasico `Dynamsoft.DWT` y las siguientes APIs:
 
-## Jira Details
+```txt
+runtime.ProductKey
+runtime.ResourcesPath
+runtime.Containers
+runtime.Load()
+runtime.GetWebTwain()
+runtime.Unload()
+SourceCount
+GetSourceNameItems()
+SelectSourceByIndex()
+OpenSource()
+AcquireImage()
+CloseSource()
+Rotate()
+RemoveImage()
+RemoveAllImages()
+ConvertToBlob("application/pdf")
+```
 
-> SCRUMCORE-247
-> Alineación SDK Dynamsoft 19.3.2
-> Contexto
-> La sandbox AppDigitalizador ya funciona.
-> Se validó:
-> licencia;
-> 
-> carga JS;
-> 
-> carga CSS;
-> 
-> runtime;
-> 
-> servicio local.
-> 
-> Error detectado:
-> "Please update your document scanning service"
-> Diagnóstico confirmado:
-> Frontend:dwt@18.5.0
-> Servicio instalado:1.9.3.1028
-> TWAIN Module:19.3.2.0306
-> Existe desalineación de versiones.
-> Objetivo
-> Actualizar la integración frontend para utilizar la misma familia instalada en Windows:
-> dwt@19.3.2
-> No modificar lógica funcional.
-> No reescribir adapter.
-> No cambiar arquitectura AppDigitalizador.
-> Analizar y ajustar
-> package.json
-> 
-> dynamsoft.constants.ts
-> 
-> loadDynamsoftScripts.ts
-> 
-> DynamsoftTwainClient.ts
-> 
-> tests asociados
-> 
-> Validaciones obligatorias
-> Verificar que continúan funcionando:
-> runtime.ProductKey
-> 
-> runtime.ResourcesPath
-> 
-> runtime.Load()
-> 
-> runtime.GetWebTwain()
-> 
-> SourceCount
-> 
-> GetSourceNameItems()
-> 
-> SelectSourceByIndex()
-> 
-> OpenSource()
-> 
-> AcquireImage()
-> 
-> CloseSource()
-> 
-> Rotate()
-> 
-> RemoveImage()
-> 
-> RemoveAllImages()
-> 
-> ConvertToBlob("application/pdf")
-> 
-> CSS
-> Validar rutas reales para 19.3.2:
-> dynamsoft.webtwain.css
-> 
-> dynamsoft.webtwain.viewer.css
-> 
-> Actualizar ResourcesPath si es necesario.
-> Entregables
-> Archivos modificados.
-> 
-> Cambios realizados.
-> 
-> Riesgos encontrados.
-> 
-> Resultado de pruebas.
-> 
-> Confirmar compatibilidad con AppDigitalizador.
-> 
-> Confirmar compatibilidad con DigitalizacionDocumentalWorkspace.
-> 
-> Confirmar compatibilidad con DigitalizacionDocumentalModal.
-> 
-> Pruebas finales
-> Abrir:
-> /__sandbox/app-digitalizador
-> Validar:
-> desaparición del mensaje "Please update your document scanning service";
-> 
-> listado de scanners;
-> 
-> selección de scanner;
-> 
-> escaneo real;
-> 
-> miniaturas;
-> 
-> preview;
-> 
-> generación PDF.
-> 
-> No implementar funcionalidades nuevas.Solo alinear SDK y servicio a la versión 19.3.2.
+Se inspecciono el paquete real `dwt@19.3.2` en jsDelivr. El paquete conserva los recursos requeridos:
 
-## Goals / Non-Goals
-
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
-
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+```txt
+https://cdn.jsdelivr.net/npm/dwt@19.3.2/dist/dynamsoft.webtwain.min.js
+https://cdn.jsdelivr.net/npm/dwt@19.3.2/dist/src/dynamsoft.webtwain.css
+https://cdn.jsdelivr.net/npm/dwt@19.3.2/dist/src/dynamsoft.webtwain.viewer.css
+https://cdn.jsdelivr.net/npm/dwt@19.3.2/dist/dist/DynamicWebTWAINServiceSetup.msi
+```
 
 ## Decisions
 
-1. TBD
+1. Usar `dwt@19.3.2` desde CDN para alinear con el servicio local `1.9.3.1028`.
+2. Mantener `ResourcesPath` apuntando al directorio `dist` del paquete CDN.
+3. Mantener inyeccion explicita de los dos CSS para evitar el error `-2804`.
+4. No modificar `package.json`; no existe dependencia `dwt` instalada localmente.
+5. Mantener el adapter callback-style actual porque las APIs usadas siguen presentes en `dwt@19.3.2`.
 
-## Risks / Trade-offs
+## Final Constants
 
-- TBD
+```txt
+DYNAMSOFT_SDK_VERSION = 19.3.2
+DYNAMSOFT_EXPECTED_SERVICE_VERSION = 1.9.3.1028
+DYNAMSOFT_EXPECTED_TWAIN_MODULE_VERSION = 19.3.2
+DYNAMSOFT_DEFAULT_RESOURCES_PATH = https://cdn.jsdelivr.net/npm/dwt@19.3.2/dist
+DYNAMSOFT_DEFAULT_SCRIPT_SRC = https://cdn.jsdelivr.net/npm/dwt@19.3.2/dist/dynamsoft.webtwain.min.js
+DYNAMSOFT_SERVICE_INSTALLER_URL = https://cdn.jsdelivr.net/npm/dwt@19.3.2/dist/dist/DynamicWebTWAINServiceSetup.msi
+```
 
-## Migration Plan
+## Risks
 
-1. TBD
+- La licencia Dynamsoft debe cubrir la familia 19.x.
+- La validacion completa requiere scanner fisico y servicio Windows activo.
+- El mensaje de actualizacion debe desaparecer solo cuando navegador, SDK y servicio local queden alineados en runtime real.
 
-## Open Questions
+## Manual Validation
 
-- TBD
+Abrir:
+
+```txt
+/__sandbox/app-digitalizador
+```
+
+Validar:
+
+- no aparece `Please update your document scanning service`;
+- lista scanners;
+- selecciona scanner;
+- escanea;
+- muestra miniaturas;
+- muestra preview;
+- genera PDF.

@@ -1,123 +1,29 @@
 ## ADDED Requirements
-### Requirement: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL- ACTUALIZACION-SDK
-El sistema SHALL implementar el alcance definido para SCRUMCORE-247.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- SCRUMCORE-247
-- Alineación SDK Dynamsoft 19.3.2
-- Contexto
-- La sandbox AppDigitalizador ya funciona.
-- Se validó:
-- licencia;
-- 
-- carga JS;
-- 
-- carga CSS;
-- 
-- runtime;
-- 
-- servicio local.
-- 
-- Error detectado:
-- "Please update your document scanning service"
-- Diagnóstico confirmado:
-- Frontend:dwt@18.5.0
-- Servicio instalado:1.9.3.1028
-- TWAIN Module:19.3.2.0306
-- Existe desalineación de versiones.
-- Objetivo
-- Actualizar la integración frontend para utilizar la misma familia instalada en Windows:
-- dwt@19.3.2
-- No modificar lógica funcional.
-- No reescribir adapter.
-- No cambiar arquitectura AppDigitalizador.
-- Analizar y ajustar
-- package.json
-- 
-- dynamsoft.constants.ts
-- 
-- loadDynamsoftScripts.ts
-- 
-- DynamsoftTwainClient.ts
-- 
-- tests asociados
-- 
-- Validaciones obligatorias
-- Verificar que continúan funcionando:
-- runtime.ProductKey
-- 
-- runtime.ResourcesPath
-- 
-- runtime.Load()
-- 
-- runtime.GetWebTwain()
-- 
-- SourceCount
-- 
-- GetSourceNameItems()
-- 
-- SelectSourceByIndex()
-- 
-- OpenSource()
-- 
-- AcquireImage()
-- 
-- CloseSource()
-- 
-- Rotate()
-- 
-- RemoveImage()
-- 
-- RemoveAllImages()
-- 
-- ConvertToBlob("application/pdf")
-- 
-- CSS
-- Validar rutas reales para 19.3.2:
-- dynamsoft.webtwain.css
-- 
-- dynamsoft.webtwain.viewer.css
-- 
-- Actualizar ResourcesPath si es necesario.
-- Entregables
-- Archivos modificados.
-- 
-- Cambios realizados.
-- 
-- Riesgos encontrados.
-- 
-- Resultado de pruebas.
-- 
-- Confirmar compatibilidad con AppDigitalizador.
-- 
-- Confirmar compatibilidad con DigitalizacionDocumentalWorkspace.
-- 
-- Confirmar compatibilidad con DigitalizacionDocumentalModal.
-- 
-- Pruebas finales
-- Abrir:
-- /__sandbox/app-digitalizador
-- Validar:
-- desaparición del mensaje "Please update your document scanning service";
-- 
-- listado de scanners;
-- 
-- selección de scanner;
-- 
-- escaneo real;
-- 
-- miniaturas;
-- 
-- preview;
-- 
-- generación PDF.
-- 
-- No implementar funcionalidades nuevas.Solo alinear SDK y servicio a la versión 19.3.2.
+### Requirement: SDK Dynamsoft alineado a servicio instalado
+El sistema SHALL cargar `dwt@19.3.2` para alinear el frontend con el servicio local `1.9.3.1028` y modulo TWAIN `19.3.2`.
+
+#### Scenario: Carga de SDK
+- **WHEN** se inicializa `DynamsoftTwainClient`
+- **THEN** el loader usa `https://cdn.jsdelivr.net/npm/dwt@19.3.2/dist/dynamsoft.webtwain.min.js`.
+
+### Requirement: CSS requerido por DWT 19.3.2
+El sistema SHALL inyectar los CSS requeridos por DWT 19.3.2 antes de completar la carga del runtime.
+
+#### Scenario: Carga de estilos
+- **WHEN** se carga Dynamsoft Web TWAIN
+- **THEN** se inyectan `src/dynamsoft.webtwain.css` y `src/dynamsoft.webtwain.viewer.css` desde el mismo `ResourcesPath`.
+
+### Requirement: Adapter compatible
+`DynamsoftTwainClient` SHALL conservar el contrato actual y las APIs usadas del modelo `Dynamsoft.DWT`.
+
+#### Scenario: Operaciones existentes
+- **WHEN** el workspace usa scanner, rotacion, eliminacion y PDF
+- **THEN** el adapter sigue usando `SourceCount`, `GetSourceNameItems`, `SelectSourceByIndex`, `AcquireImage`, `Rotate`, `RemoveImage`, `RemoveAllImages` y `ConvertToBlob("application/pdf")`.
+
+### Requirement: Compatibilidad UI
+La actualizacion de SDK SHALL mantener compatibles `AppDigitalizador`, `DigitalizacionDocumentalWorkspace` y `DigitalizacionDocumentalModal`.
+
+#### Scenario: Regresion automatizada
+- **WHEN** se ejecutan las pruebas de digitalizacion y AppDigitalizador
+- **THEN** las suites pasan sin cambiar contratos publicos.

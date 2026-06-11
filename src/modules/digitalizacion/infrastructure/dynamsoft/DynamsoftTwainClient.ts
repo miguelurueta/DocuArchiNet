@@ -1,6 +1,7 @@
 import {
   DYNAMSOFT_ALLOWED_COLOR_MODES,
   DYNAMSOFT_CONTAINER_ID,
+  DYNAMSOFT_DEFAULT_RESOURCES_PATH,
   DYNAMSOFT_DEFAULT_RESOLUTION_DPI,
   DYNAMSOFT_MAX_RESOLUTION_DPI,
   DYNAMSOFT_MIN_RESOLUTION_DPI,
@@ -90,6 +91,19 @@ const assertPdfResult = (file: File, pageCount: number) => {
   }
 };
 
+const isDynamsoftCssLoadError = (error: unknown) => {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const record = error as { code?: unknown; message?: unknown };
+  return (
+    record.code === -2804 ||
+    (typeof record.message === "string" &&
+      record.message.includes("Loading the WebTwain css files failed"))
+  );
+};
+
 export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   private readonly options: Required<Omit<DynamsoftRuntimeOptions, "licenseKey">> & {
     licenseKey?: string;
@@ -105,6 +119,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   constructor(options: DynamsoftRuntimeOptions = {}) {
     this.options = {
       scriptSrc: options.scriptSrc ?? "",
+      resourcesPath: options.resourcesPath ?? DYNAMSOFT_DEFAULT_RESOURCES_PATH,
       licenseKey: options.licenseKey,
       containerId: options.containerId ?? DYNAMSOFT_CONTAINER_ID,
       documentRef: options.documentRef ?? document,
@@ -117,6 +132,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     const operationGeneration = this.generation;
     await loadDynamsoftScripts({
       scriptSrc: this.options.scriptSrc || undefined,
+      resourcesPath: this.options.resourcesPath,
       documentRef: this.options.documentRef,
     });
     this.ensureNotStale(operationGeneration);
@@ -138,6 +154,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     }
 
     runtime.ProductKey = this.options.licenseKey;
+    runtime.ResourcesPath = this.options.resourcesPath.replace(/\/+$/, "");
     runtime.Containers = [
       {
         WebTwainId: WEB_TWAIN_ID,
@@ -146,7 +163,19 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         Height: "0px",
       },
     ];
-    runtime.Load();
+    try {
+      runtime.Load();
+    } catch (error) {
+      if (isDynamsoftCssLoadError(error)) {
+        throw new DynamsoftScannerError({
+          code: "DYNAMSOFT_CSS_LOAD_FAILED",
+          message:
+            "No fue posible cargar los estilos CSS de Dynamsoft Web TWAIN.",
+        });
+      }
+
+      throw error;
+    }
 
     const dwt = runtime.GetWebTwain(WEB_TWAIN_ID);
     if (!dwt) {

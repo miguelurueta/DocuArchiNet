@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DynamsoftTwainClient } from "../infrastructure/dynamsoft";
-import { DYNAMSOFT_SCRIPT_ID } from "../infrastructure/dynamsoft";
+import {
+  DYNAMSOFT_CSS_ID_PREFIX,
+  DYNAMSOFT_DEFAULT_RESOURCES_PATH,
+  DYNAMSOFT_SCRIPT_ID,
+  DynamsoftTwainClient,
+} from "../infrastructure/dynamsoft";
 import { resetDynamsoftScriptLoaderForTests } from "../infrastructure/dynamsoft/loadDynamsoftScripts";
 import type {
   DynamsoftWebTwainFactory,
@@ -13,6 +17,16 @@ const addLoadedScript = () => {
   script.id = DYNAMSOFT_SCRIPT_ID;
   script.setAttribute("data-loaded", "true");
   document.head.appendChild(script);
+};
+
+const addLoadedCss = () => {
+  [0, 1].forEach((index) => {
+    const link = document.createElement("link");
+    link.id = `${DYNAMSOFT_CSS_ID_PREFIX}-${index}`;
+    link.rel = "stylesheet";
+    link.setAttribute("data-loaded", "true");
+    document.head.appendChild(link);
+  });
 };
 
 const createDwt = (): DynamsoftWebTwainObject => {
@@ -62,6 +76,7 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
     resetDynamsoftScriptLoaderForTests();
     document.head.innerHTML = "";
     addLoadedScript();
+    addLoadedCss();
   });
 
   it("initializes and lists devices", async () => {
@@ -76,6 +91,20 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
       { id: "1", name: "Scanner 2" },
     ]);
     expect(runtime.Load).toHaveBeenCalled();
+    expect(runtime.ResourcesPath).toBe(DYNAMSOFT_DEFAULT_RESOURCES_PATH);
+  });
+
+  it("maps DWT css load failure to a functional error", async () => {
+    const runtime = createRuntime(createDwt());
+    vi.mocked(runtime.Load).mockImplementation(() => {
+      throw { code: -2804, message: "Loading the WebTwain css files failed." };
+    });
+    const client = createClient(runtime);
+
+    await expect(client.initialize()).rejects.toMatchObject({
+      code: "DYNAMSOFT_CSS_LOAD_FAILED",
+      message: "No fue posible cargar los estilos CSS de Dynamsoft Web TWAIN.",
+    });
   });
 
   it("fails when runtime is unavailable", async () => {
