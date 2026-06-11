@@ -388,13 +388,28 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex += 1) {
         const start = chunkIndex * chunkSize;
         const end = Math.min(params.blob.size, start + chunkSize);
+        const chunk = params.blob.slice(start, end);
+        dvLog("[DV][reemplazo-paginas][chunk]", {
+          pageNumber: params.pageNumber,
+          fileName: params.fileName,
+          pdfPageSizeBytes: params.blob.size,
+          pdfPageSizeKB: Number((params.blob.size / 1024).toFixed(2)),
+          pdfPageSizeMB: Number((params.blob.size / 1024 / 1024).toFixed(2)),
+          chunkSizeBytes: chunk.size,
+          chunkSizeKB: Number((chunk.size / 1024).toFixed(2)),
+          chunkSizeMB: Number((chunk.size / 1024 / 1024).toFixed(2)),
+          chunkIndex,
+          totalChunks,
+          rangeStart: start,
+          rangeEnd: end,
+        });
         await uploadTemporalChunk(
           {
             rutaTemporalId: init.RutaTemporalId,
             archivoTemporalId: init.ArchivoTemporalId,
             chunkIndex,
             totalChunks,
-            chunk: params.blob.slice(start, end),
+            chunk,
           },
           { signal },
         );
