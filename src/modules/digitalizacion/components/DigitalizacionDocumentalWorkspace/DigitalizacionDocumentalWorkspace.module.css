@@ -174,7 +174,8 @@
 .thumbnailList {
   align-content: start;
   display: grid;
-  gap: 0.5rem;
+  gap: 0.7rem;
+  justify-items: center;
   max-height: 22rem;
   overflow: auto;
   padding: 0.65rem;
@@ -188,10 +189,12 @@
   color: #263b52;
   cursor: pointer;
   display: grid;
-  gap: 0.35rem;
-  min-height: 5rem;
-  padding: 0.5rem;
+  gap: 0.45rem;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  padding: 0.55rem;
   text-align: center;
+  width: min(7.25rem, 100%);
 }
 
 .thumbnailButton[data-selected="true"] {
@@ -200,10 +203,17 @@
 }
 
 .thumbnailButton img {
+  aspect-ratio: 8.5 / 11;
+  background: #ffffff;
+  border: 1px solid #e0e7f0;
   border-radius: 4px;
-  max-height: 4rem;
-  max-width: 100%;
+  box-shadow: 0 6px 16px rgba(37, 59, 83, 0.12);
+  height: auto;
+  max-height: 8.7rem;
+  max-width: 6.7rem;
   object-fit: contain;
+  padding: 0.15rem;
+  width: 100%;
 }
 
 .thumbnailButton span {
@@ -214,7 +224,8 @@
   display: inline-flex;
   font-weight: 800;
   justify-content: center;
-  min-height: 2.6rem;
+  min-height: 6.8rem;
+  width: 5.25rem;
 }
 
 .thumbnailButton small {
@@ -243,6 +254,16 @@
   justify-content: center;
   min-height: 8rem;
   min-width: 6rem;
+}
+
+.previewImage {
+  background: #ffffff;
+  border: 1px solid #d8e2ef;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(37, 59, 83, 0.12);
+  max-height: 18rem;
+  max-width: 100%;
+  object-fit: contain;
 }
 
 .placeholderTitle {

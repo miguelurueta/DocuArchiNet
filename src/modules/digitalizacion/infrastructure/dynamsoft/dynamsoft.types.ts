@@ -10,6 +10,11 @@ export type ScanPage = {
   id: string;
   index: number;
   thumbnailUrl?: string;
+  imageUrl?: string;
+  width?: number;
+  height?: number;
+  orientation?: "portrait" | "landscape" | "square" | "unknown";
+  rotationDegrees?: number;
 };
 
 export type ScanColorMode = (typeof DYNAMSOFT_ALLOWED_COLOR_MODES)[number];
@@ -70,6 +75,9 @@ export type DynamsoftWebTwainObject = {
   SelectDeviceAsync?(device: DynamsoftDevice): Promise<boolean>;
   SelectSourceByIndex(index: number): boolean;
   GetSourceNameItems(index: number): string;
+  GetImageURL?(index: number, width?: number, height?: number, isPart?: boolean, quality?: number): string | false;
+  GetImageWidth?(index: number): number;
+  GetImageHeight?(index: number): number;
   OpenSource(): void;
   CloseSource?(): void;
   AcquireImage(
