@@ -235,6 +235,66 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
     expect(dwt.SelectSourceByIndex).toHaveBeenCalledWith(1);
   });
 
+  it("selects cached SourceCount scanner through legacy source index when SourceCount changes later", async () => {
+    const dwt = createDwt();
+    dwt.SelectDeviceAsync = vi.fn(async () => true);
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    await client.listDevices();
+    dwt.SourceCount = 0;
+    await client.selectDevice("1");
+
+    expect(dwt.SelectDeviceAsync).not.toHaveBeenCalled();
+    expect(dwt.SelectSourceByIndex).toHaveBeenCalledWith(1);
+  });
+
+  it("uses DWT 19 device API when available instead of legacy source index", async () => {
+    const dwt = createDwt();
+    dwt.SourceCount = 0;
+    dwt.GetDevicesAsync = vi.fn(async () => [
+      { name: "paperstream", displayName: "PaperStream IP fi-7160 #2" },
+      { name: "wiatwain", displayName: "WIATWAIN-fi-7160 #2" },
+    ]);
+    dwt.SelectDeviceAsync = vi.fn(async () => true);
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    const devices = await client.listDevices();
+    await client.selectDevice("1");
+
+    expect(devices).toEqual([
+      { id: "0", name: "PaperStream IP fi-7160 #2", index: 0 },
+      { id: "1", name: "WIATWAIN-fi-7160 #2", index: 1 },
+    ]);
+    expect(dwt.SelectDeviceAsync).toHaveBeenCalledWith({
+      name: "wiatwain",
+      displayName: "WIATWAIN-fi-7160 #2",
+    });
+    expect(dwt.SelectSourceByIndex).not.toHaveBeenCalled();
+  });
+
+  it("prefers SourceCount discovery and legacy selection over DWT 19 discovery", async () => {
+    const dwt = createDwt();
+    dwt.GetDevicesAsync = vi.fn(async () => {
+      throw new Error("GetDevicesAsync timeout");
+    });
+    dwt.SelectDeviceAsync = vi.fn(async () => true);
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    const devices = await client.listDevices();
+    await client.selectDevice("1");
+
+    expect(devices).toEqual([
+      { id: "0", name: "Scanner 1", index: 0 },
+      { id: "1", name: "Scanner 2", index: 1 },
+    ]);
+    expect(dwt.GetDevicesAsync).not.toHaveBeenCalled();
+    expect(dwt.SelectDeviceAsync).not.toHaveBeenCalled();
+    expect(dwt.SelectSourceByIndex).toHaveBeenCalledWith(1);
+  });
+
   it("blocks scan without selected scanner", async () => {
     const client = createClient(createRuntime(createDwt()));
 
