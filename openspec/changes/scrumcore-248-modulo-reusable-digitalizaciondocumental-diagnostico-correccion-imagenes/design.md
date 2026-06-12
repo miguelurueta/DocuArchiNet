@@ -133,16 +133,54 @@ SCRUMCORE-248: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL- DIAGNOSTICO-CORRECCION-
 
 ## Decisions
 
-1. TBD
+1. La imagen visual de cada pagina se deriva desde el buffer de Dynamsoft mediante `GetImageURL(index, width, height)`.
+2. `ScanPage` mantiene referencias visuales explicitas: `thumbnailUrl` para miniaturas y `imageUrl` para preview.
+3. La captura, seleccion de scanner, rotacion, eliminacion y generacion PDF se mantienen en los flujos existentes; solo se completa la metadata visual de pagina.
+4. Los placeholders siguen existiendo solo como fallback cuando no hay paginas o cuando Dynamsoft no entrega URL visual.
 
 ## Risks / Trade-offs
 
-- TBD
+- `GetImageURL` retorna URLs servidas por el runtime local de Dynamsoft; dependen de que la instancia WebTwain siga viva durante la visualizacion.
+- Las URLs se regeneran despues de rotar o eliminar paginas para evitar referencias desfasadas por indice.
+- Los logs son temporales para diagnostico en scanner real y deben retirarse cuando el flujo quede estable.
 
 ## Migration Plan
 
-1. TBD
+1. Diagnosticar creacion de paginas despues de `AcquireImage`.
+2. Extender contrato `ScanPage` con `imageUrl`.
+3. Generar `thumbnailUrl` e `imageUrl` desde `DynamsoftTwainClient`.
+4. Renderizar miniatura y preview con imagen real cuando exista.
+5. Agregar logs temporales `PAGE_CAPTURED`, `PAGE_OBJECT`, `PAGE_STATE`, `PAGE_IMAGE_DATA`, `PAGE_THUMBNAIL_RENDER`, `PAGE_PREVIEW_RENDER`.
+6. Validar con TypeScript y pruebas focales.
 
 ## Open Questions
 
-- TBD
+- Confirmar en scanner fisico que las URLs `dwt://...`/runtime generadas por `GetImageURL` renderizan correctamente en el navegador de la sandbox.
+
+## Diagnostico tecnico
+
+Flujo encontrado antes de la correccion:
+
+```txt
+AcquireImage()
+-> HowManyImagesInBuffer aumenta
+-> DynamsoftTwainClient.scan() crea ScanPage con id/index
+-> useDigitalizacionScanner almacena pages
+-> DigitalizacionDocumentalWorkspace renderiza thumbnailUrl si existe
+-> thumbnailUrl nunca existia
+-> preview usaba solo numero de pagina
+```
+
+Escenario confirmado: D) la imagen existia en el buffer de Dynamsoft, pero el componente recibia paginas sin referencia visual y por eso usaba placeholders.
+
+Flujo corregido:
+
+```txt
+AcquireImage()
+-> HowManyImagesInBuffer aumenta
+-> buildPageFromBuffer(index)
+-> GetImageURL(index, 160, 220) => thumbnailUrl
+-> GetImageURL(index, -1, -1) => imageUrl
+-> ScanPage { id, index, thumbnailUrl, imageUrl }
+-> Workspace renderiza img en miniatura y preview
+```

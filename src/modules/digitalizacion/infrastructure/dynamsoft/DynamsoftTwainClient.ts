@@ -169,6 +169,45 @@ const getDwtLifecycleSnapshot = (dwt: DynamsoftWebTwainObject | null) => ({
   imageCount: dwt?.HowManyImagesInBuffer,
 });
 
+const normalizeImageUrl = (url: string | false | undefined) =>
+  typeof url === "string" && url.trim().length > 0 ? url : undefined;
+
+const readImageDimension = (
+  getter: ((index: number) => number) | undefined,
+  index: number,
+) => {
+  if (!getter) {
+    return undefined;
+  }
+
+  try {
+    const value = getter(index);
+    return Number.isFinite(value) && value > 0 ? value : undefined;
+  } catch (error) {
+    console.warn("PAGE_DIMENSIONS_ERROR", {
+      index,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return undefined;
+  }
+};
+
+const getPageOrientation = (width?: number, height?: number) => {
+  if (!width || !height) {
+    return "unknown" as const;
+  }
+
+  if (width > height) {
+    return "landscape" as const;
+  }
+
+  if (height > width) {
+    return "portrait" as const;
+  }
+
+  return "square" as const;
+};
+
 export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   private readonly instanceId = `DynamsoftTwainClient-${++dynamsoftClientSequence}`;
 
@@ -185,6 +224,8 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   private devices: ScannerDevice[] = [];
   private dwtDevices = new Map<string, DynamsoftDevice>();
   private modernDeviceIds = new Set<string>();
+  private pageRotationById = new Map<string, number>();
+  private originalPageDimensionsById = new Map<string, { width?: number; height?: number }>();
   private destroyWatchdogId: number | null = null;
   private lastDestroySnapshot: unknown = undefined;
 
@@ -576,20 +617,44 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
     try {
       const previousCount = dwt.HowManyImagesInBuffer ?? 0;
+      const acquireOptions = {
+        IfShowUI: false,
+        PixelType: colorModeToPixelType[options.colorMode ?? "color"],
+        Resolution: options.resolutionDpi ?? DYNAMSOFT_DEFAULT_RESOLUTION_DPI,
+        IfFeederEnabled: true,
+        IfDuplexEnabled: options.duplex ?? false,
+        IfDisableSourceAfterAcquire: true,
+      };
+      console.log("SCAN_CONFIGURATION", acquireOptions);
+      console.log("DUPLEX_CONFIGURATION", {
+        requestedDuplex: options.duplex ?? false,
+        IfDuplexEnabled: acquireOptions.IfDuplexEnabled,
+        IfFeederEnabled: acquireOptions.IfFeederEnabled,
+        AutoFeed: readDiagnosticValue(dwt, ["AutoFeed", "IfAutoFeed", "IfAutoFeedEnabled"]),
+        Duplex: readDiagnosticValue(dwt, ["Duplex", "IfDuplexEnabled"]),
+        PixelType: acquireOptions.PixelType,
+      });
+      console.log("SCANNER_CAPABILITIES", {
+        selectedDeviceId: this.selectedDeviceId,
+        sourceCount: dwt.SourceCount,
+        selectedSourceName:
+          this.devices.find((device) => device.id === this.selectedDeviceId)?.name ?? "",
+        IfFeederEnabled: readDiagnosticValue(dwt, ["IfFeederEnabled"]),
+        IfDuplexEnabled: readDiagnosticValue(dwt, ["IfDuplexEnabled"]),
+        Duplex: readDiagnosticValue(dwt, ["Duplex"]),
+        AutoFeed: readDiagnosticValue(dwt, ["AutoFeed", "IfAutoFeed", "IfAutoFeedEnabled"]),
+        PixelType: readDiagnosticValue(dwt, ["PixelType"]),
+        hasGetImageWidth: typeof dwt.GetImageWidth === "function",
+        hasGetImageHeight: typeof dwt.GetImageHeight === "function",
+        hasGetDevicesAsync: typeof dwt.GetDevicesAsync === "function",
+      });
       await new Promise<void>((resolve, reject) => {
         this.logDwtLifecycle("BEFORE_OpenSource", dwt);
         dwt.OpenSource();
         this.logDwtLifecycle("AFTER_OpenSource", dwt);
         this.logDwtLifecycle("BEFORE_AcquireImage", dwt);
         dwt.AcquireImage(
-          {
-            IfShowUI: false,
-            PixelType: colorModeToPixelType[options.colorMode ?? "color"],
-            Resolution: options.resolutionDpi ?? DYNAMSOFT_DEFAULT_RESOLUTION_DPI,
-            IfFeederEnabled: true,
-            IfDuplexEnabled: options.duplex ?? false,
-            IfDisableSourceAfterAcquire: true,
-          },
+          acquireOptions,
           () => {
             this.logDwtLifecycle("AFTER_AcquireImage_SUCCESS", dwt);
             resolve();
@@ -608,10 +673,8 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       this.ensureNotStale(operationGeneration);
 
       const nextCount = dwt.HowManyImagesInBuffer ?? previousCount;
-      this.pages = Array.from({ length: Math.max(nextCount, 0) }, (_item, index) => ({
-        id: `scan-page-${index + 1}`,
-        index,
-      }));
+      this.pages = this.buildPagesFromBuffer(dwt, nextCount);
+      console.log("PAGE_STATE", this.pages);
 
       return [...this.pages];
     } finally {
@@ -628,6 +691,16 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     this.logDwtLifecycle("BEFORE_Rotate", dwt);
     dwt.Rotate(pageIndex, degrees, true);
     this.logDwtLifecycle("AFTER_Rotate", dwt);
+    const currentRotation = this.pageRotationById.get(pageId) ?? 0;
+    const nextRotation = (currentRotation + degrees) % 360;
+    this.pageRotationById.set(pageId, nextRotation);
+    console.log("ROTATION_STATE", {
+      rotation: nextRotation,
+    });
+    this.pages = this.pages.map((page) =>
+      page.id === pageId ? this.buildPageFromBuffer(dwt, page.index) : page,
+    );
+    console.log("PAGE_STATE", this.pages);
   }
 
   async removePage(pageId: string) {
@@ -638,7 +711,14 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     this.logDwtLifecycle("AFTER_RemoveImage", dwt);
     this.pages = this.pages
       .filter((page) => page.id !== pageId)
-      .map((page, index) => ({ ...page, index }));
+      .map((_page, index) => this.buildPageFromBuffer(dwt, index));
+    this.pageRotationById = new Map(
+      this.pages.map((page) => [page.id, page.rotationDegrees ?? 0]),
+    );
+    this.originalPageDimensionsById = new Map(
+      this.pages.map((page) => [page.id, { width: page.width, height: page.height }]),
+    );
+    console.log("PAGE_STATE", this.pages);
   }
 
   async clear() {
@@ -647,6 +727,9 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     dwt?.RemoveAllImages();
     this.logDwtLifecycle("AFTER_RemoveAllImages", dwt);
     this.pages = [];
+    this.pageRotationById.clear();
+    this.originalPageDimensionsById.clear();
+    console.log("PAGE_STATE", this.pages);
   }
 
   async generatePdf(fileName: string) {
@@ -761,6 +844,65 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       console.error("OPEN_SOURCE_MANAGER_ERROR", error);
       throw error;
     }
+  }
+
+  private buildPagesFromBuffer(dwt: DynamsoftWebTwainObject, count: number) {
+    return Array.from({ length: Math.max(count, 0) }, (_item, index) =>
+      this.buildPageFromBuffer(dwt, index),
+    );
+  }
+
+  private buildPageFromBuffer(dwt: DynamsoftWebTwainObject, index: number): ScanPage {
+    const thumbnailUrl = normalizeImageUrl(dwt.GetImageURL?.(index, 160, 220));
+    const imageUrl = normalizeImageUrl(dwt.GetImageURL?.(index, -1, -1));
+    const width = readImageDimension(dwt.GetImageWidth?.bind(dwt), index);
+    const height = readImageDimension(dwt.GetImageHeight?.bind(dwt), index);
+    const orientation = getPageOrientation(width, height);
+    const pageId = `scan-page-${index + 1}`;
+    const originalDimensions = this.originalPageDimensionsById.get(pageId) ?? {
+      width,
+      height,
+    };
+    this.originalPageDimensionsById.set(pageId, originalDimensions);
+    const rotationDegrees = this.pageRotationById.get(pageId) ?? 0;
+    const page: ScanPage = {
+      id: pageId,
+      index,
+      ...(thumbnailUrl ? { thumbnailUrl } : {}),
+      ...(imageUrl ? { imageUrl } : {}),
+      ...(width ? { width } : {}),
+      ...(height ? { height } : {}),
+      orientation,
+      rotationDegrees,
+    };
+
+    console.log("PAGE_DIMENSIONS", {
+      width,
+      height,
+      orientation,
+    });
+    console.log("PAGE_ORIENTATION", {
+      index,
+      pageId,
+      originalOrientation: getPageOrientation(originalDimensions.width, originalDimensions.height),
+      currentOrientation: orientation,
+      rotationDegrees,
+    });
+    console.log("ROTATION_STATE", {
+      rotation: rotationDegrees,
+    });
+    console.log("PAGE_IMAGE_DATA", {
+      index,
+      hasGetImageURL: typeof dwt.GetImageURL === "function",
+      hasGetImageWidth: typeof dwt.GetImageWidth === "function",
+      hasGetImageHeight: typeof dwt.GetImageHeight === "function",
+      thumbnailUrl,
+      imageUrl,
+    });
+    console.log("PAGE_OBJECT", page);
+    console.log("PAGE_CAPTURED", page);
+
+    return page;
   }
 
   private async waitForWebTwain(runtime: DynamsoftWebTwainFactory) {

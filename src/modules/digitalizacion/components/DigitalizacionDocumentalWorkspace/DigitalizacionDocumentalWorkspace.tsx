@@ -196,6 +196,15 @@ export function DigitalizacionDocumentalWorkspace({
   const selectedPage =
     scanner.pages.find((page) => page.id === selectedPageId) ?? scanner.pages[0] ?? null;
 
+  console.log("PAGE_STATE", scanner.pages);
+  if (selectedPage) {
+    console.log("PAGE_PREVIEW_RENDER", {
+      page: selectedPage,
+      hasImageUrl: Boolean(selectedPage.imageUrl),
+      hasThumbnailUrl: Boolean(selectedPage.thumbnailUrl),
+    });
+  }
+
   if (!active) {
     return null;
   }
@@ -300,22 +309,40 @@ export function DigitalizacionDocumentalWorkspace({
           <div className={styles.panelHeader}>Miniaturas ({scanner.pages.length})</div>
           {scanner.pages.length > 0 ? (
             <div className={styles.thumbnailList}>
-              {scanner.pages.map((page) => (
-                <button
-                  className={styles.thumbnailButton}
-                  data-selected={page.id === selectedPageId}
-                  key={page.id}
-                  type="button"
-                  onClick={() => setSelectedPageId(page.id)}
-                >
-                  {page.thumbnailUrl ? (
-                    <img src={page.thumbnailUrl} alt={getPageLabel(page)} />
-                  ) : (
-                    <span>{page.index + 1}</span>
-                  )}
-                  <small>{getPageLabel(page)}</small>
-                </button>
-              ))}
+              {scanner.pages.map((page) => {
+                console.log("PAGE_THUMBNAIL_RENDER", {
+                  page,
+                  hasThumbnailUrl: Boolean(page.thumbnailUrl),
+                  hasImageUrl: Boolean(page.imageUrl),
+                });
+
+                return (
+                  <button
+                    className={styles.thumbnailButton}
+                    data-selected={page.id === selectedPageId}
+                    key={page.id}
+                    type="button"
+                    onClick={() => setSelectedPageId(page.id)}
+                  >
+                    {page.thumbnailUrl ? (
+                      <img
+                        src={page.thumbnailUrl}
+                        alt={getPageLabel(page)}
+                        onLoad={(event) => {
+                          const image = event.currentTarget;
+                          console.log("THUMBNAIL_DIMENSIONS", {
+                            width: image.naturalWidth,
+                            height: image.naturalHeight,
+                          });
+                        }}
+                      />
+                    ) : (
+                      <span>{page.index + 1}</span>
+                    )}
+                    <small>{getPageLabel(page)}</small>
+                  </button>
+                );
+              })}
             </div>
           ) : (
             <div className={styles.panelBody}>
@@ -330,7 +357,22 @@ export function DigitalizacionDocumentalWorkspace({
           <div className={`${styles.panelBody} ${styles.preview}`}>
             {selectedPage ? (
               <>
-                <span className={styles.previewPage}>{selectedPage.index + 1}</span>
+                {selectedPage.imageUrl ? (
+                  <img
+                    className={styles.previewImage}
+                    src={selectedPage.imageUrl}
+                    alt={getPageLabel(selectedPage)}
+                    onLoad={(event) => {
+                      const image = event.currentTarget;
+                      console.log("PREVIEW_DIMENSIONS", {
+                        width: image.naturalWidth,
+                        height: image.naturalHeight,
+                      });
+                    }}
+                  />
+                ) : (
+                  <span className={styles.previewPage}>{selectedPage.index + 1}</span>
+                )}
                 <span className={styles.placeholderTitle}>{getPageLabel(selectedPage)}</span>
                 <span>{scanner.pdf ? scanner.pdf.file.name : "PDF pendiente"}</span>
               </>

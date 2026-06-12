@@ -7,6 +7,32 @@ El sistema SHALL implementar el alcance definido para SCRUMCORE-248.
 #### Scenario: No-regresion
 - **WHEN** se valida el modulo afectado
 - **THEN** no se rompen flujos existentes
+
+### Requirement: Visualizacion de paginas escaneadas
+El sistema SHALL construir cada pagina escaneada con referencias visuales renderizables para miniatura y preview.
+
+#### Scenario: Pagina capturada con imagen visual
+- **WHEN** `AcquireImage()` finaliza correctamente y `HowManyImagesInBuffer` reporta paginas
+- **THEN** cada `ScanPage` incluye `id`, `index`, `thumbnailUrl` e `imageUrl` cuando Dynamsoft entrega URL visual mediante `GetImageURL`
+
+#### Scenario: Miniatura con imagen real
+- **WHEN** una pagina tiene `thumbnailUrl`
+- **THEN** el panel de miniaturas renderiza una imagen real de la pagina
+- **AND** el placeholder numerico solo se usa si la pagina no tiene `thumbnailUrl`
+
+#### Scenario: Preview con imagen real
+- **WHEN** una pagina seleccionada tiene `imageUrl`
+- **THEN** el panel preview renderiza la imagen real de la pagina seleccionada
+- **AND** el placeholder numerico solo se usa si la pagina seleccionada no tiene `imageUrl`
+
+#### Scenario: Sin cambios de captura o PDF
+- **WHEN** se corrige la visualizacion de imagenes
+- **THEN** no se modifica la seleccion de scanner, captura, toolbar, rotacion, eliminacion ni generacion PDF
+
+#### Scenario: Diagnostico temporal
+- **WHEN** se capturan o renderizan paginas escaneadas
+- **THEN** existen logs temporales `PAGE_CAPTURED`, `PAGE_OBJECT`, `PAGE_STATE`, `PAGE_IMAGE_DATA`, `PAGE_THUMBNAIL_RENDER` y `PAGE_PREVIEW_RENDER`
+
 ### Requirement: Detalle funcional Jira
 El sistema SHALL considerar las reglas detalladas del ticket.
 

@@ -147,3 +147,13 @@ MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL- DIAGNOSTICO-CORRECCION-IMAGENES. Ver d
 
 - Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
 - Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+
+## Resultado implementado
+
+- Se identifico que `DynamsoftTwainClient.scan()` construia `ScanPage` solo con `id` e `index`.
+- `DigitalizacionDocumentalWorkspace` ya intentaba renderizar `thumbnailUrl`, pero esa propiedad nunca era generada.
+- El preview principal no usaba ninguna referencia visual de pagina y mostraba el numero como placeholder.
+- Se agregaron `thumbnailUrl` e `imageUrl` al contrato `ScanPage`.
+- Se generan URLs visuales con `GetImageURL(index, 160, 220)` y `GetImageURL(index, -1, -1)`.
+- Se renderizan imagenes reales en miniaturas y preview cuando existen.
+- Se mantienen placeholders solo como fallback.
