@@ -245,6 +245,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
   const loadAbortRef = useRef<AbortController | null>(null);
   const lastLoadIdentityRef = useRef<{ attemptId?: number; documentKey?: string } | null>(null);
   const lastOpenResultRef = useRef<{ url: string; ok: boolean } | null>(null);
+  const inFlightLoadRef = useRef<{ key: string; promise: Promise<AppVisorLoadResult> } | null>(null);
   const managedSnapshotRef = useRef<{
     permissionsRaw: Record<string, boolean>;
     permissionsEffective: ViewerEffectivePermissions;
@@ -294,6 +295,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     dvLog("[DV][visor]", "cancelCurrentLoad()");
     loadAbortRef.current?.abort();
     loadAbortRef.current = null;
+    inFlightLoadRef.current = null;
     exportAnnotatedPdfPagesRef.current = null;
     markAnnotatedPagesPersistedRef.current = null;
     originalPdfPasswordRef.current = null;
@@ -328,7 +330,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     originalPdfPasswordRef.current = null;
   }, [cancelCurrentLoad]);
 
-  const load = useCallback(async (input: AppVisorLoadInput): Promise<AppVisorLoadResult> => {
+  const runLoad = useCallback(async (input: AppVisorLoadInput): Promise<AppVisorLoadResult> => {
     loadSeqRef.current += 1;
     const seq = loadSeqRef.current;
     dvLog("[DV][visor]", "load() start", { seq, attemptId: input.attemptId, documentKey: input.documentKey });
@@ -436,6 +438,32 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
       pendingLoadResolverRef.current = { seq, resolve };
     });
   }, []);
+
+  const load = useCallback((input: AppVisorLoadInput): Promise<AppVisorLoadResult> => {
+    const loadKey = [
+      input.attemptId ?? "",
+      input.documentKey ?? "",
+      input.url,
+      input.isElectronicallySigned ?? "",
+    ].join("|");
+    const inFlightLoad = inFlightLoadRef.current;
+    if (inFlightLoad?.key === loadKey) {
+      dvLog("[DV][visor]", "load() duplicate in-flight reused", {
+        attemptId: input.attemptId,
+        documentKey: input.documentKey,
+      });
+      return inFlightLoad.promise;
+    }
+
+    const promise = runLoad(input);
+    inFlightLoadRef.current = { key: loadKey, promise };
+    void promise.finally(() => {
+      if (inFlightLoadRef.current?.key === loadKey) {
+        inFlightLoadRef.current = null;
+      }
+    });
+    return promise;
+  }, [runLoad]);
 
   useImperativeHandle(
     ref,
