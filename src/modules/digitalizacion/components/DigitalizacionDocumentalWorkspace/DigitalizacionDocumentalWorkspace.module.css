@@ -1,6 +1,15 @@
 .shell {
   display: grid;
   gap: 0.9rem;
+  position: relative;
+}
+
+.dynamsoftContainer {
+  block-size: 0;
+  inline-size: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
 }
 
 .header {

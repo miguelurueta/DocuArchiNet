@@ -8,7 +8,7 @@ import type {
   DigitalizacionFunctionalError,
   DigitalizacionResult,
 } from "../../types/digitalizacion.types";
-import type { ScanPage } from "../../infrastructure/dynamsoft";
+import { DYNAMSOFT_CONTAINER_ID, type ScanPage } from "../../infrastructure/dynamsoft";
 import { unavailableScannerClient } from "./digitalizacionWorkspace.helpers";
 import styles from "./DigitalizacionDocumentalWorkspace.module.css";
 
@@ -76,6 +76,7 @@ export function DigitalizacionDocumentalWorkspace({
 
   const handleOperationCompleted = useCallback(
     (result: DigitalizacionResult) => {
+      console.log("DIGITALIZACION_WORKSPACE_OPERATION_COMPLETED_DISPOSE");
       clear();
       void dispose();
       setSelectedPageId(null);
@@ -121,6 +122,7 @@ export function DigitalizacionDocumentalWorkspace({
   }, [active, initialize]);
 
   const handleCancel = useCallback(() => {
+    console.log("DIGITALIZACION_WORKSPACE_CANCEL_DISPOSE");
     operation.cancel();
     clear();
     void dispose();
@@ -204,6 +206,11 @@ export function DigitalizacionDocumentalWorkspace({
       aria-label="Digitalizacion documental"
       data-testid="digitalizacion-workspace"
     >
+      <div
+        id={DYNAMSOFT_CONTAINER_ID}
+        className={styles.dynamsoftContainer}
+        aria-hidden="true"
+      />
       <header className={styles.header}>
         <div className={styles.titleLine}>
           <span className={styles.modeBadge}>{readableMode(activeContext?.modo)}</span>
@@ -243,7 +250,15 @@ export function DigitalizacionDocumentalWorkspace({
           <select
             value={scanner.selectedDeviceId ?? ""}
             onChange={(event) => {
-              void selectDevice(event.target.value);
+              const deviceId = event.target.value;
+              const selectedDevice = scanner.devices.find((device) => device.id === deviceId);
+              console.log("SELECT_CHANGE", deviceId);
+              console.debug("[DigitalizacionWorkspace]", "selectDevice.change", {
+                scannerName: selectedDevice?.name ?? "",
+                scannerIndex: selectedDevice?.index ?? Number(deviceId),
+              });
+              console.log("BEFORE_SELECT_DEVICE", deviceId);
+              void selectDevice(deviceId);
             }}
             disabled={scanner.loading || scanner.devices.length === 0}
             aria-label="Seleccionar scanner"

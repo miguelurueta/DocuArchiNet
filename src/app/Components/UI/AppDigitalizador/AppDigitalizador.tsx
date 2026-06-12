@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
   DigitalizacionDocumentalWorkspace,
   digitalizacionApiClient,
 } from "../../../../modules/digitalizacion";
+import { debugDynamsoftLicense } from "../../../../modules/digitalizacion/infrastructure/dynamsoft/dynamsoftLicenseDebug";
 import { useAppDigitalizadorProvider } from "./AppDigitalizador.context";
 import type { AppDigitalizadorProps } from "./AppDigitalizador.types";
 import { useAppDigitalizadorScannerClient } from "./hooks/useAppDigitalizadorScannerClient";
@@ -32,6 +33,10 @@ export function AppDigitalizador({
     dynamsoft,
     licenciaDynamsoft,
   });
+  console.log(
+    "APP_DIGITALIZADOR_SCANNER_CLIENT_REFERENCE",
+    resolvedScannerClient,
+  );
   const moduleName = getModuleName({ modulo, context });
   const resolvedContext = useMemo(
     () =>
@@ -51,6 +56,15 @@ export function AppDigitalizador({
       !provider.dynamsoft?.licenseKey?.trim(),
   );
   const rootClassName = [styles.root, className].filter(Boolean).join(" ");
+
+  useEffect(() => {
+    debugDynamsoftLicense("AppDigitalizador.licenciaDynamsoft", licenciaDynamsoft);
+    debugDynamsoftLicense("AppDigitalizador.dynamsoft.licenseKey", dynamsoft?.licenseKey);
+    debugDynamsoftLicense(
+      "AppDigitalizador.provider.dynamsoft.licenseKey",
+      provider.dynamsoft?.licenseKey,
+    );
+  }, [dynamsoft?.licenseKey, licenciaDynamsoft, provider.dynamsoft?.licenseKey]);
 
   return (
     <section

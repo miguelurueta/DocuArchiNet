@@ -3,6 +3,7 @@ import type { DYNAMSOFT_ALLOWED_COLOR_MODES } from "./dynamsoft.constants";
 export type ScannerDevice = {
   id: string;
   name: string;
+  index: number;
 };
 
 export type ScanPage = {
@@ -56,7 +57,7 @@ export type DynamsoftWebTwainFactory = {
     Width?: string;
     Height?: string;
   }>;
-  Load(): void;
+  Load(): void | Promise<void>;
   Unload?(): void;
   GetWebTwain(id: string): DynamsoftWebTwainObject | null;
 };
@@ -64,6 +65,9 @@ export type DynamsoftWebTwainFactory = {
 export type DynamsoftWebTwainObject = {
   SourceCount?: number;
   HowManyImagesInBuffer?: number;
+  OpenSourceManager?(): boolean;
+  GetDevicesAsync?(deviceType?: number, refresh?: boolean): Promise<DynamsoftDevice[]>;
+  SelectDeviceAsync?(device: DynamsoftDevice): Promise<boolean>;
   SelectSourceByIndex(index: number): boolean;
   GetSourceNameItems(index: number): string;
   OpenSource(): void;
@@ -82,6 +86,17 @@ export type DynamsoftWebTwainObject = {
     onSuccess: (blob: Blob) => void,
     onFailure: (code: number, message: string) => void,
   ): void;
+};
+
+export type DynamsoftDevice = {
+  name: string;
+  displayName?: string;
+  deviceType?: number;
+  serviceInfo?: {
+    server?: string;
+    attrs?: unknown;
+  };
+  deviceInfo?: unknown;
 };
 
 export type DynamsoftAcquireOptions = {
