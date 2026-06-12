@@ -550,6 +550,11 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
 
   const openViewerFromRow = useCallback(
     (rowId: string) => {
+      if (isReplacingAnnotatedPages) {
+        dvLog("[DV][reemplazo-paginas][navigation-blocked]", { rowId });
+        return;
+      }
+
       viewSeqRef.current += 1;
       const seq = viewSeqRef.current;
       attemptIdRef.current += 1;
@@ -617,7 +622,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
         }
       })();
     },
-    [documentViewer, documentosTable, idTareaWf, startViewerLoading, stopViewerLoading],
+    [documentViewer, documentosTable, idTareaWf, isReplacingAnnotatedPages, startViewerLoading, stopViewerLoading],
   );
 
   const onSaveAnnotatedPages = useCallback(() => {
@@ -858,6 +863,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       data-collapsed={layoutCollapsed}
       data-variant={variant}
       data-testid="documentos-workbench"
+      data-operation-locked={isReplacingAnnotatedPages}
     >
       <div className={styles.viewer}>
         {documentViewer.documentoActivo?.viewerKind === "pdf" ? (
@@ -893,33 +899,47 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
         )}
       </div>
 
-      <AppCollapseRail
-        title="Documentos"
-        collapsed={collapsed}
-        onToggle={() => setCollapsed((prev) => !prev)}
-        placement="right"
-        variant={variant}
-        panelId={panelId}
-        railLabel="Documentos"
-        railIcon={<BookOutlined />}
-        className={styles.collapseRail}
+      <div
+        className={styles.documentsRailGuard}
+        data-locked={isReplacingAnnotatedPages}
+        aria-busy={isReplacingAnnotatedPages}
+        aria-disabled={isReplacingAnnotatedPages}
       >
-        <div className={styles.listPanel}>
+        <AppCollapseRail
+          title="Documentos"
+          collapsed={collapsed}
+          onToggle={() => {
+            if (isReplacingAnnotatedPages) return;
+            setCollapsed((prev) => !prev);
+          }}
+          placement="right"
+          variant={variant}
+          panelId={panelId}
+          railLabel="Documentos"
+          railIcon={<BookOutlined />}
+          className={styles.collapseRail}
+        >
+        <div className={styles.listPanel} data-locked={isReplacingAnnotatedPages}>
           <header className={styles.listHeader}>
             <h3 className={styles.listTitle}>{documentsCounter}</h3>
             <AppButton
               variant="ghost"
               size="sm"
-              onClick={() => setCollapsed((prev) => !prev)}
+              onClick={() => {
+                if (isReplacingAnnotatedPages) return;
+                setCollapsed((prev) => !prev);
+              }}
               aria-label={layoutCollapsed ? "Mostrar documentos" : "Ocultar documentos"}
               icon={toggleIcon}
               className={styles.collapseButton}
+              disabled={isReplacingAnnotatedPages}
             />
           </header>
           <div
             className={styles.listSurface}
             aria-label="Listado de documentos"
             data-document-hint-active={documentHintActive}
+            data-locked={isReplacingAnnotatedPages}
           >
           <AppTreeTable
               load={documentosTable.load}
@@ -933,10 +953,14 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
               rowSelectionCheckboxes
               rowSelectionHeaderCheckbox
               suppressRowClickSelection={false}
-              onSelectionChanged={documentosTable.onSelectionChanged}
+              onSelectionChanged={(rowIds) => {
+                if (isReplacingAnnotatedPages) return;
+                documentosTable.onSelectionChanged(rowIds);
+              }}
               activeRowId={activeRowId}
               onSelectRow={openViewerFromRow}
               onActionTriggered={(params) => {
+                if (isReplacingAnnotatedPages) return;
                 if (params.actionId === "ver_documento") {
                   openViewerFromRow(params.rowId);
                   return;
@@ -946,9 +970,13 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
               }}
               emptyMessage="Sin documentos adjuntos."
             />
+            {isReplacingAnnotatedPages ? (
+              <div className={styles.listInteractionBlocker} role="presentation" aria-hidden="true" />
+            ) : null}
           </div>
         </div>
-      </AppCollapseRail>
+        </AppCollapseRail>
+      </div>
     </section>
   );
 }
