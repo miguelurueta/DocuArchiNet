@@ -344,7 +344,7 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     );
   });
 
-  it("[SPEC:SCRUMCORE-238] guarda paginas anotadas y refresca documento activo", async () => {
+  it("[SPEC:SCRUMCORE-238] guarda paginas anotadas sin recargar documento activo", async () => {
     mockDocumentoActivo = {
       documentId: 10,
       nombreGabinete: "G",
@@ -395,9 +395,7 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
     expect(cancelUploadTemporalSpy).not.toHaveBeenCalled();
-    expect(visualizarDocumentoSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ documentId: 10, nombreGabinete: "G", documentKey: "G:10" }),
-    );
+    expect(visualizarDocumentoSpy).not.toHaveBeenCalled();
   });
 
   it("[SPEC:SCRUMCORE-238] limita chunks frontend a 768KB para paginas anotadas grandes", async () => {

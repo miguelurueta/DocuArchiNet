@@ -762,18 +762,6 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
 
         const pages = response.PaginasReemplazadas.join(", ");
         toast.success(`Paginas ${pages} actualizadas correctamente. RequestId: ${response.RequestId}`);
-
-        attemptIdRef.current += 1;
-        const refreshAttemptId = attemptIdRef.current;
-        lastVisorLoadKeyRef.current = null;
-        startViewerLoading(String(refreshAttemptId));
-        void documentViewer.visualizarDocumento({
-          documentId: active.documentId,
-          nombreGabinete: active.nombreGabinete,
-          attemptId: refreshAttemptId,
-          documentKey: active.documentKey ?? `${active.nombreGabinete}:${active.documentId}`,
-          context: typeof idTareaWf === "number" ? { idTareaWorkflow: idTareaWf, radicado: ctx?.radicado } : undefined,
-        });
       } catch (err) {
         if (!replacementSucceeded) {
           await cancelTemporalsBestEffort(createdTemporals);

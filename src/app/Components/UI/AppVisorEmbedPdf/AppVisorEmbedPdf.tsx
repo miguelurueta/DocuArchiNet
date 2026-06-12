@@ -493,7 +493,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
             exportAnnotatedPdfPagesRef.current = handler;
           }}
           onOriginalPdfPasswordChange={(password) => {
-            originalPdfPasswordRef.current = password?.trim() ? password : null;
+            originalPdfPasswordRef.current = typeof password === "string" && password.length > 0 ? password : null;
           }}
         />
       </EmbedPDF>
@@ -618,6 +618,7 @@ function EmbedPdfDocumentHost(props: {
     { url: string; password: string | null; attempt: number } | null
   >(null);
   const lastAttemptHadPasswordRef = useRef(false);
+  const validatedPdfPasswordRef = useRef<string | null>(null);
 
   useEffect(() => {
     latestManagedSeqRef.current = managedSeq;
@@ -632,6 +633,7 @@ function EmbedPdfDocumentHost(props: {
     setIsSubmittingPassword(false);
     lastOpenedRef.current = null;
     lastAttemptHadPasswordRef.current = false;
+    validatedPdfPasswordRef.current = null;
     autoFitIntentRef.current = null;
     autoFitAppliedRef.current = false;
     onOriginalPdfPasswordChange(null);
@@ -653,12 +655,19 @@ function EmbedPdfDocumentHost(props: {
     if (!provides) return;
     if (!fileUrl) return;
     const last = lastOpenedRef.current;
+    const effectivePassword = password ?? validatedPdfPasswordRef.current;
     // Importante: permitir reintento aunque el usuario envíe la misma contraseña (mismo string).
     // Por eso incluimos `passwordAttempt` como parte de la identidad del intento.
-    if (last && last.url === fileUrl && last.password === password && last.attempt === passwordAttempt) return;
-    lastOpenedRef.current = { url: fileUrl, password, attempt: passwordAttempt };
-    lastAttemptHadPasswordRef.current = Boolean(password);
-    setIsSubmittingPassword(Boolean(password));
+    if (last && last.url === fileUrl && last.password === effectivePassword && last.attempt === passwordAttempt) return;
+    lastOpenedRef.current = { url: fileUrl, password: effectivePassword, attempt: passwordAttempt };
+    lastAttemptHadPasswordRef.current = Boolean(effectivePassword);
+    setIsSubmittingPassword(Boolean(effectivePassword));
+    dvLog("[DV][password][open-attempt]", {
+      documentKey,
+      managedSeq,
+      hasPassword: Boolean(effectivePassword),
+      hasValidatedPassword: Boolean(validatedPdfPasswordRef.current),
+    });
 
     // Enterprise hardening: el DocumentManager tiene un máximo de documentos abiertos (por defecto 10).
     // Para evitar `Maximum number of documents (10) reached`, aplicamos política "single-active document":
@@ -679,7 +688,7 @@ function EmbedPdfDocumentHost(props: {
       url: fileUrl,
       name: "document.pdf",
       autoActivate: true,
-      ...(password ? { password } : null),
+      ...(effectivePassword ? { password: effectivePassword } : null),
     });
 
     // El DocumentManager devuelve un Task que resuelve con { documentId, task }.
@@ -702,7 +711,10 @@ function EmbedPdfDocumentHost(props: {
             setIsSubmittingPassword(false);
             setPasswordPromptOpen(false);
             setInvalidPassword(false);
-            dvLog("[DV][visor]", "engine ready (task ok)", { managedSeq });
+            dvLog("[DV][visor]", "engine ready (task ok)", {
+              managedSeq,
+              hasValidatedPassword: Boolean(validatedPdfPasswordRef.current),
+            });
             autoFitIntentRef.current = { documentId: response.documentId, seq: managedSeq };
             autoFitAppliedRef.current = false;
             onManagedOpenResult({ seq: managedSeq, ok: true, errors: [] });
@@ -732,7 +744,7 @@ function EmbedPdfDocumentHost(props: {
     return () => {
       cancelled = true;
     };
-  }, [fileUrl, provides, password, passwordAttempt]);
+  }, [documentKey, fileUrl, managedSeq, provides, password, passwordAttempt]);
 
   useEffect(() => {
     if (!provides) return;
@@ -743,6 +755,22 @@ function EmbedPdfDocumentHost(props: {
       // stale guard: solo el intento vigente puede abrir prompt.
       if (managedSeq !== latestManagedSeqRef.current) return;
 
+      dvLog("[DV][password][prompt-open:onDocumentError]", {
+        documentKey,
+        managedSeq,
+        documentId: evt.documentId,
+        hasValidatedPassword: Boolean(validatedPdfPasswordRef.current),
+        lastAttemptHadPassword: lastAttemptHadPasswordRef.current,
+      });
+      if (validatedPdfPasswordRef.current && lastAttemptHadPasswordRef.current) {
+        dvLog("[DV][password][prompt-suppressed:validated]", {
+          documentKey,
+          managedSeq,
+          documentId: evt.documentId,
+        });
+        return;
+      }
+
       setIsSubmittingPassword(false);
       setPasswordPromptOpen(true);
       setInvalidPassword(lastAttemptHadPasswordRef.current);
@@ -751,7 +779,7 @@ function EmbedPdfDocumentHost(props: {
     return () => {
       off?.();
     };
-  }, [managedSeq, onManagedOpenResult, provides]);
+  }, [documentKey, managedSeq, onManagedOpenResult, provides]);
   const onSubmitPassword = useCallback((next: string) => {
     setPasswordPromptOpen(true);
     setInvalidPassword(false);
@@ -768,13 +796,21 @@ function EmbedPdfDocumentHost(props: {
       (response) => {
         response.task.wait(
           () => {
+            validatedPdfPasswordRef.current = next;
             onOriginalPdfPasswordChange(next);
+            dvLog("[DV][password][retry:ok]", {
+              documentKey,
+              managedSeq,
+              documentId: response.documentId,
+              hasValidatedPassword: true,
+            });
             setIsSubmittingPassword(false);
             setPasswordPromptOpen(false);
             setInvalidPassword(false);
             onManagedOpenResult({ seq: managedSeq, ok: true, errors: [] });
           },
           () => {
+            validatedPdfPasswordRef.current = null;
             onOriginalPdfPasswordChange(null);
             setIsSubmittingPassword(false);
             setPasswordPromptOpen(true);
@@ -784,6 +820,7 @@ function EmbedPdfDocumentHost(props: {
         );
       },
       () => {
+        validatedPdfPasswordRef.current = null;
         onOriginalPdfPasswordChange(null);
         setIsSubmittingPassword(false);
         setPasswordPromptOpen(true);
@@ -791,15 +828,26 @@ function EmbedPdfDocumentHost(props: {
         onManagedOpenResult({ seq: managedSeq, ok: false, errors: ["OPEN_FAILED"] });
       },
     );
-  }, [managedSeq, onManagedOpenResult, onOriginalPdfPasswordChange, provides]);
+  }, [documentKey, managedSeq, onManagedOpenResult, onOriginalPdfPasswordChange, provides]);
 
   const onPasswordError = useCallback(() => {
+    if (validatedPdfPasswordRef.current && lastAttemptHadPasswordRef.current) {
+      dvLog("[DV][password][prompt-suppressed:validated-state-error]", {
+        documentKey,
+        managedSeq,
+        hasValidatedPassword: true,
+      });
+      setIsSubmittingPassword(false);
+      setPasswordPromptOpen(false);
+      setInvalidPassword(false);
+      return;
+    }
     // Si el documento vuelve a fallar luego de enviar password, dejar de "validar"
     // y mostrar estado inválido para permitir reintento.
     setIsSubmittingPassword(false);
     setPasswordPromptOpen(true);
     setInvalidPassword(lastAttemptHadPasswordRef.current);
-  }, []);
+  }, [documentKey, managedSeq]);
 
   if (!activeDocumentId) {
     return (
@@ -1913,7 +1961,11 @@ function EmbedPdfLoadedDocumentView(props: {
             isPrintDisabled={!permissionsEffective.allowPrint}
             isExportDisabled={!permissionsEffective.allowExport}
             onSaveAnnotatedPages={onSaveAnnotatedPages}
-            isSaveAnnotatedPagesDisabled={isSaveAnnotatedPagesDisabled || !permissionsEffective.allowAnnotationEdit}
+            isSaveAnnotatedPagesDisabled={
+              isSaveAnnotatedPagesDisabled ||
+              !permissionsEffective.allowAnnotationEdit ||
+              !hasAnySignaturePlaced
+            }
             isSavingAnnotatedPages={isSavingAnnotatedPages}
             saveAnnotatedPagesProgress={saveAnnotatedPagesProgress}
             onStartGuideTour={onStartGuideTour}

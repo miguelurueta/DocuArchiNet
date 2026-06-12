@@ -78,4 +78,5 @@ describe("AppPdfToolbar guardar paginas anotadas", () => {
     expect(button).toHaveAttribute("aria-valuenow", "42");
     expect(button).toHaveAttribute("title", expect.stringContaining("42%"));
   });
+
 });
