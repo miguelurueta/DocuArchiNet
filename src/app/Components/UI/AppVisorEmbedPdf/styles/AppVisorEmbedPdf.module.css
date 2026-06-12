@@ -362,6 +362,21 @@
   pointer-events: none;
 }
 
+.persistedSignatureLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.persistedSignatureImage {
+  position: absolute;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
 .selectionCopyButton {
   appearance: none;
   border: 1px solid rgba(15, 23, 42, 0.16);

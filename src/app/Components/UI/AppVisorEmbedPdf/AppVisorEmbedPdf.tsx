@@ -143,6 +143,17 @@ function blobPartFromBytes(bytes: Uint8Array<ArrayBufferLike>): BlobPart {
   return copy.buffer;
 }
 
+type PersistedSignatureVisual = {
+  id: string;
+  pageIndex: number;
+  imageUrl: string;
+  imageBlob: Blob;
+  rect: {
+    origin: { x: number; y: number };
+    size: { width: number; height: number };
+  };
+};
+
 function waitPdfTask<T>(task: { wait(onOk: (value: T) => void, onErr: (err: unknown) => void): void }) {
   return new Promise<T>((resolve, reject) => {
     try {
@@ -233,6 +244,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
   const exportAnnotatedPdfPagesRef = useRef<
     ((options?: AppVisorExportAnnotatedPdfPagesOptions) => Promise<AppVisorExportAnnotatedPdfPagesResult>) | null
   >(null);
+  const markAnnotatedPagesPersistedRef = useRef<(() => Promise<void>) | null>(null);
   const originalPdfPasswordRef = useRef<string | null>(null);
 
   const effectiveFileUrl = managedUrl?.trim()
@@ -257,6 +269,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     loadAbortRef.current?.abort();
     loadAbortRef.current = null;
     exportAnnotatedPdfPagesRef.current = null;
+    markAnnotatedPagesPersistedRef.current = null;
     originalPdfPasswordRef.current = null;
 
     const pending = pendingLoadResolverRef.current;
@@ -285,6 +298,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     setManagedSigned(false);
     setManagedErrors([]);
     exportAnnotatedPdfPagesRef.current = null;
+    markAnnotatedPagesPersistedRef.current = null;
     originalPdfPasswordRef.current = null;
   }, [cancelCurrentLoad]);
 
@@ -404,6 +418,9 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
       reset,
       cancelCurrentLoad,
       getOriginalPdfPassword: () => originalPdfPasswordRef.current ?? undefined,
+      markAnnotatedPagesPersisted: async () => {
+        await markAnnotatedPagesPersistedRef.current?.();
+      },
       exportAnnotatedPdfPages: async (options) => {
         if (!exportAnnotatedPdfPagesRef.current) {
           throw new Error("El visor PDF no esta listo para exportar paginas anotadas.");
@@ -491,6 +508,9 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
           }}
           onExportAnnotatedPdfPagesReady={(handler) => {
             exportAnnotatedPdfPagesRef.current = handler;
+          }}
+          onMarkAnnotatedPagesPersistedReady={(handler) => {
+            markAnnotatedPagesPersistedRef.current = handler;
           }}
           onOriginalPdfPasswordChange={(password) => {
             originalPdfPasswordRef.current = typeof password === "string" && password.length > 0 ? password : null;
@@ -582,6 +602,7 @@ function EmbedPdfDocumentHost(props: {
   onExportAnnotatedPdfPagesReady(
     handler: ((options?: AppVisorExportAnnotatedPdfPagesOptions) => Promise<AppVisorExportAnnotatedPdfPagesResult>) | null,
   ): void;
+  onMarkAnnotatedPagesPersistedReady(handler: (() => Promise<void>) | null): void;
   onOriginalPdfPasswordChange(password: string | null): void;
 }) {
   const {
@@ -597,6 +618,7 @@ function EmbedPdfDocumentHost(props: {
     saveAnnotatedPagesProgress,
     onManagedOpenResult,
     onExportAnnotatedPdfPagesReady,
+    onMarkAnnotatedPagesPersistedReady,
     onOriginalPdfPasswordChange,
   } = props;
   const { provides } = useDocumentManagerCapability();
@@ -639,9 +661,10 @@ function EmbedPdfDocumentHost(props: {
     onOriginalPdfPasswordChange(null);
     return () => {
       onExportAnnotatedPdfPagesReady(null);
+      onMarkAnnotatedPagesPersistedReady(null);
       onOriginalPdfPasswordChange(null);
     };
-  }, [fileUrl, onExportAnnotatedPdfPagesReady, onOriginalPdfPasswordChange]);
+  }, [fileUrl, onExportAnnotatedPdfPagesReady, onMarkAnnotatedPagesPersistedReady, onOriginalPdfPasswordChange]);
 
   useEffect(() => {
     if (!activeDocumentId) return;
@@ -891,6 +914,7 @@ function EmbedPdfDocumentHost(props: {
           onSubmitPassword={onSubmitPassword}
           onPasswordError={onPasswordError}
           onExportAnnotatedPdfPagesReady={onExportAnnotatedPdfPagesReady}
+          onMarkAnnotatedPagesPersistedReady={onMarkAnnotatedPagesPersistedReady}
         />
       )}
     </DocumentContent>
@@ -921,6 +945,7 @@ function EmbedPdfDocumentStateView({
   onSubmitPassword,
   onPasswordError,
   onExportAnnotatedPdfPagesReady,
+  onMarkAnnotatedPagesPersistedReady,
 }: {
   engine: import("@embedpdf/engines/pdfium").PdfEngine<Blob>;
   documentId: string;
@@ -947,6 +972,7 @@ function EmbedPdfDocumentStateView({
   onExportAnnotatedPdfPagesReady(
     handler: ((options?: AppVisorExportAnnotatedPdfPagesOptions) => Promise<AppVisorExportAnnotatedPdfPagesResult>) | null,
   ): void;
+  onMarkAnnotatedPagesPersistedReady(handler: (() => Promise<void>) | null): void;
 }) {
   useEffect(() => {
     if (!isError) return;
@@ -971,6 +997,7 @@ function EmbedPdfDocumentStateView({
           documentKey={documentKey}
           rotationByDocumentKeyRef={rotationByDocumentKeyRef}
           onExportAnnotatedPdfPagesReady={onExportAnnotatedPdfPagesReady}
+          onMarkAnnotatedPagesPersistedReady={onMarkAnnotatedPagesPersistedReady}
         />
         {passwordPromptOpen ? (
           <AppPdfPasswordPrompt
@@ -1017,6 +1044,7 @@ function EmbedPdfLoadedDocumentView(props: {
   onExportAnnotatedPdfPagesReady(
     handler: ((options?: AppVisorExportAnnotatedPdfPagesOptions) => Promise<AppVisorExportAnnotatedPdfPagesResult>) | null,
   ): void;
+  onMarkAnnotatedPagesPersistedReady(handler: (() => Promise<void>) | null): void;
 }) {
   const {
     engine,
@@ -1033,6 +1061,7 @@ function EmbedPdfLoadedDocumentView(props: {
     documentKey,
     rotationByDocumentKeyRef,
     onExportAnnotatedPdfPagesReady,
+    onMarkAnnotatedPagesPersistedReady,
   } = props;
   const activeDocumentState = useDocumentState(documentId);
   const zoom = useZoom(documentId);
@@ -1113,6 +1142,21 @@ function EmbedPdfLoadedDocumentView(props: {
   const selection = useSelectionCapability();
   const [isSignatureLocked, setIsSignatureLocked] = useState(false);
   const [isSavingSignedPdf, setIsSavingSignedPdf] = useState(false);
+  const [persistedSignatureVisuals, setPersistedSignatureVisuals] = useState<PersistedSignatureVisual[]>([]);
+  const persistedSignatureVisualsRef = useRef<PersistedSignatureVisual[]>([]);
+
+  useEffect(() => {
+    persistedSignatureVisualsRef.current = persistedSignatureVisuals;
+  }, [persistedSignatureVisuals]);
+
+  useEffect(() => {
+    return () => {
+      for (const visual of persistedSignatureVisualsRef.current) {
+        URL.revokeObjectURL(visual.imageUrl);
+      }
+      persistedSignatureVisualsRef.current = [];
+    };
+  }, []);
 
   const downloadBuffer = useCallback((buffer: ArrayBuffer | Uint8Array<ArrayBufferLike>, filename: string) => {
     const blob = new Blob([toPdfBlobPart(buffer)], { type: "application/pdf" });
@@ -1684,6 +1728,9 @@ function EmbedPdfLoadedDocumentView(props: {
 
       const sourcePageIndex = pageNumber - 1;
       const pagesByIndex = (annotation.state.pages ?? {}) as Record<string, string[]>;
+      const persistedVisualsForPage = persistedSignatureVisualsRef.current.filter(
+        (visual) => visual.pageIndex === sourcePageIndex,
+      );
       const annotationIds = pagesByIndex[String(sourcePageIndex)] ?? [];
       const signatureAnnotations = Array.isArray(annotationIds)
         ? annotationIds
@@ -1700,7 +1747,7 @@ function EmbedPdfLoadedDocumentView(props: {
             )
         : [];
 
-      if (signatureAnnotations.length === 0) {
+      if (signatureAnnotations.length === 0 && persistedVisualsForPage.length === 0) {
         return sourcePdf;
       }
 
@@ -1718,6 +1765,24 @@ function EmbedPdfLoadedDocumentView(props: {
       const sourceBytes = await sourcePdf.arrayBuffer();
       const pdfDocument = await PDFDocument.load(sourceBytes);
       const page = pdfDocument.getPage(0);
+
+      for (const visual of persistedVisualsForPage) {
+        signal?.throwIfAborted();
+        if (!page) continue;
+
+        const imageBytes = await visual.imageBlob.arrayBuffer();
+        const image = await pdfDocument.embedPng(imageBytes);
+        const x = visual.rect.origin.x;
+        const y = page.getHeight() - visual.rect.origin.y - visual.rect.size.height;
+
+        page.drawImage(image, {
+          x,
+          y,
+          width: visual.rect.size.width,
+          height: visual.rect.size.height,
+          rotate: undefined,
+        });
+      }
 
       for (const item of renderedSignatures) {
         signal?.throwIfAborted();
@@ -1743,6 +1808,11 @@ function EmbedPdfLoadedDocumentView(props: {
       dvLog("[DV][firma][replace-export:burned-signatures-single-page]", {
         documentId,
         pageNumber,
+        persistedSignatures: persistedVisualsForPage.map((visual) => ({
+          pageIndex: visual.pageIndex,
+          rect: visual.rect,
+          renderedSizeBytes: visual.imageBlob.size,
+        })),
         signatures: renderedSignatures.map((item) => ({
           sourcePageIndex: item.sourcePageIndex,
           targetPageIndex: 0,
@@ -1853,10 +1923,147 @@ function EmbedPdfLoadedDocumentView(props: {
     ],
   );
 
+  const materializeCurrentSignaturesAsVisuals = useCallback(async () => {
+    const scope = annotation.provides;
+    if (!scope) return 0;
+
+    const pagesByIndex = (annotation.state.pages ?? {}) as Record<string, string[]>;
+    const signatures = Object.entries(pagesByIndex).flatMap(([pageIndexKey, ids]) => {
+      const pageIndex = Number(pageIndexKey);
+      if (!Number.isFinite(pageIndex) || !Array.isArray(ids)) return [];
+
+      return ids
+        .map((uid) => {
+          const tracked = typeof uid === "string" ? scope.getAnnotationById?.(uid) : null;
+          const object = tracked?.object as any;
+          const rect = object?.unrotatedRect ?? object?.rect;
+          return tracked && object?.subject === "Signature" && rect
+            ? {
+                pageIndex,
+                uid,
+                objectId: object.id,
+                annotation: object,
+                rect: rect as PersistedSignatureVisual["rect"],
+              }
+            : null;
+        })
+        .filter(
+          (
+            item,
+          ): item is {
+            pageIndex: number;
+            uid: string;
+            objectId: string;
+            annotation: any;
+            rect: PersistedSignatureVisual["rect"];
+          } => Boolean(item),
+        );
+    });
+
+    if (signatures.length === 0) return 0;
+
+    const nextVisuals: PersistedSignatureVisual[] = [];
+    let deletedEditableSignatures = 0;
+
+    for (const item of signatures) {
+      try {
+        const imageBlob = await waitPdfTask<Blob>(
+          scope.renderAnnotation({ pageIndex: item.pageIndex, annotation: item.annotation }),
+        );
+        nextVisuals.push({
+          id: `${item.pageIndex}:${item.uid}:${Date.now()}`,
+          pageIndex: item.pageIndex,
+          imageUrl: URL.createObjectURL(imageBlob),
+          imageBlob,
+          rect: item.rect,
+        });
+      } catch {
+        continue;
+      }
+
+      let deleted = false;
+      try {
+        annotationCap.provides?.deleteAnnotation?.(item.pageIndex, item.objectId);
+        deleted = true;
+      } catch {
+        // best-effort
+      }
+      try {
+        scope.deleteAnnotation?.(item.pageIndex, item.objectId);
+        deleted = true;
+      } catch {
+        // best-effort
+      }
+      try {
+        annotationCap.provides?.deleteAnnotation?.(item.pageIndex, item.uid);
+        deleted = true;
+      } catch {
+        // best-effort
+      }
+      try {
+        scope.deleteAnnotation?.(item.pageIndex, item.uid);
+        deleted = true;
+      } catch {
+        // best-effort
+      }
+      if (deleted) deletedEditableSignatures += 1;
+    }
+
+    if (nextVisuals.length > 0) {
+      setPersistedSignatureVisuals((current) => [...current, ...nextVisuals]);
+    }
+
+    return deletedEditableSignatures;
+  }, [annotation.provides, annotation.state.pages, annotationCap.provides]);
+
+  const markAnnotatedPagesPersisted = useCallback(async () => {
+    dvLog("[DV][firma][persisted:start]", {
+      documentId,
+      signatureEntries: summarizeSignatureEntries(signatureEntries.entries ?? []),
+      annotationPages: summarizeAnnotationPages(annotation.state.pages ?? {}, annotation.provides?.getAnnotationById),
+      persistedSignatures: persistedSignatureVisualsRef.current.length,
+    });
+
+    const deletedEditableSignatures = await materializeCurrentSignaturesAsVisuals();
+    if (deletedEditableSignatures > 0 && annotationCap.provides?.commit) {
+      try {
+        await waitPdfTaskVoid(annotationCap.provides.commit());
+      } catch {
+        // La API ya persistio el PDF; no reabrimos el documento por un fallo local de commit.
+      }
+    }
+
+    setIsSignatureLocked(false);
+    setIsSignatureModalOpen(false);
+    try {
+      annotationCap.provides?.setLocked?.({ type: LockModeType.None, categories: [] } as any, documentId);
+    } catch {
+      // best-effort
+    }
+
+    dvLog("[DV][firma][persisted:done]", {
+      documentId,
+      deletedEditableSignatures,
+      persistedSignatures: persistedSignatureVisualsRef.current.length + deletedEditableSignatures,
+    });
+  }, [
+    annotation.provides,
+    annotation.state.pages,
+    annotationCap.provides,
+    documentId,
+    materializeCurrentSignaturesAsVisuals,
+    signatureEntries.entries,
+  ]);
+
   useEffect(() => {
     onExportAnnotatedPdfPagesReady(exportAnnotatedPdfPages);
     return () => onExportAnnotatedPdfPagesReady(null);
   }, [exportAnnotatedPdfPages, onExportAnnotatedPdfPagesReady]);
+
+  useEffect(() => {
+    onMarkAnnotatedPagesPersistedReady(markAnnotatedPagesPersisted);
+    return () => onMarkAnnotatedPagesPersistedReady(null);
+  }, [markAnnotatedPagesPersisted, onMarkAnnotatedPagesPersistedReady]);
 
   const onStartSignaturePlacement = useCallback(
     (signature: SignatureFieldDefinition) => {
@@ -2104,6 +2311,28 @@ function EmbedPdfLoadedDocumentView(props: {
               const baseWidth = Math.ceil(width);
               const baseHeight = Math.ceil(height);
               const slotLooksRotated = slotWidth !== baseWidth || slotHeight !== baseHeight;
+              const pagePersistedSignatureVisuals = persistedSignatureVisuals.filter(
+                (visual) => visual.pageIndex === pageIndex,
+              );
+              const persistedSignatureLayer =
+                pagePersistedSignatureVisuals.length > 0 ? (
+                  <div className={styles.persistedSignatureLayer} aria-hidden="true">
+                    {pagePersistedSignatureVisuals.map((visual) => (
+                      <img
+                        key={visual.id}
+                        className={styles.persistedSignatureImage}
+                        src={visual.imageUrl}
+                        alt=""
+                        style={{
+                          left: visual.rect.origin.x * zoomLevel,
+                          top: visual.rect.origin.y * zoomLevel,
+                          width: visual.rect.size.width * zoomLevel,
+                          height: visual.rect.size.height * zoomLevel,
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : null;
 
               return (
               <div
@@ -2146,6 +2375,7 @@ function EmbedPdfLoadedDocumentView(props: {
                       scale={zoomLevel}
                       rotation={1 as any}
                     />
+                    {persistedSignatureLayer}
                   </PagePointerProvider>
                     </div>
                   </Rotate>
@@ -2168,6 +2398,7 @@ function EmbedPdfLoadedDocumentView(props: {
                       scale={zoomLevel}
                       rotation={rotationRaw as any}
                     />
+                    {persistedSignatureLayer}
                   </PagePointerProvider>
                 ) : (
                   <Rotate
@@ -2222,6 +2453,7 @@ function EmbedPdfLoadedDocumentView(props: {
                           scale={zoomLevel}
                           rotation={rotationRaw as any}
                         />
+                        {persistedSignatureLayer}
                       </PagePointerProvider>
                     </div>
                   </Rotate>

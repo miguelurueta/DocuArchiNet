@@ -6,6 +6,7 @@ const appTreeTableSpy = vi.fn();
 const visualizarDocumentoSpy = vi.fn();
 const exportAnnotatedPdfPagesSpy = vi.fn();
 const getOriginalPdfPasswordSpy = vi.fn();
+const markAnnotatedPagesPersistedSpy = vi.fn();
 const initUploadTemporalPdfAnotadoSpy = vi.fn();
 const uploadTemporalChunkSpy = vi.fn();
 const completeUploadTemporalSpy = vi.fn();
@@ -78,6 +79,7 @@ vi.mock("../../../app/Components/UI/AppVisorEmbedPdf", async () => {
           reset: vi.fn(),
           cancelCurrentLoad: vi.fn(),
           getOriginalPdfPassword: getOriginalPdfPasswordSpy,
+          markAnnotatedPagesPersisted: markAnnotatedPagesPersistedSpy,
           exportAnnotatedPdfPages: exportAnnotatedPdfPagesSpy,
         }));
 
@@ -176,6 +178,7 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     visualizarDocumentoSpy.mockClear();
     exportAnnotatedPdfPagesSpy.mockReset();
     getOriginalPdfPasswordSpy.mockReset();
+    markAnnotatedPagesPersistedSpy.mockReset();
     initUploadTemporalPdfAnotadoSpy.mockReset();
     uploadTemporalChunkSpy.mockReset();
     completeUploadTemporalSpy.mockReset();
@@ -394,6 +397,7 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
       expect.objectContaining({ chunkIndex: 0, totalChunks: 1, chunk: expect.any(Blob) }),
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
+    expect(markAnnotatedPagesPersistedSpy).toHaveBeenCalledTimes(1);
     expect(cancelUploadTemporalSpy).not.toHaveBeenCalled();
     expect(visualizarDocumentoSpy).not.toHaveBeenCalled();
   });

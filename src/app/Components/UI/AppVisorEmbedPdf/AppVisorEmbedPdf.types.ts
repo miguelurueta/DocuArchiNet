@@ -73,6 +73,7 @@ export type AppVisorEmbedPdfRef = {
   reset(): void;
   cancelCurrentLoad(): void;
   getOriginalPdfPassword(): string | undefined;
+  markAnnotatedPagesPersisted(): Promise<void>;
   exportAnnotatedPdfPages(
     options?: AppVisorExportAnnotatedPdfPagesOptions,
   ): Promise<AppVisorExportAnnotatedPdfPagesResult>;

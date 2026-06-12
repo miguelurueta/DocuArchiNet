@@ -760,8 +760,13 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
 
         if (seq !== replacementSeqRef.current) return;
 
-        const pages = response.PaginasReemplazadas.join(", ");
-        toast.success(`Paginas ${pages} actualizadas correctamente. RequestId: ${response.RequestId}`);
+        try {
+          await visorRef.current?.markAnnotatedPagesPersisted();
+        } catch (persistError) {
+          dvLog("[DV][firma][persisted:failed]", summarizeReplacementError(persistError));
+        }
+
+        toast.success("Documento firmado correctamente.");
       } catch (err) {
         if (!replacementSucceeded) {
           await cancelTemporalsBestEffort(createdTemporals);
