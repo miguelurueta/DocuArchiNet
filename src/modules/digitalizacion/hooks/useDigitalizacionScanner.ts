@@ -45,6 +45,11 @@ export const useDigitalizacionScanner = ({
   const mountedRef = useRef(true);
   const generationRef = useRef(0);
   const [state, setState] = useState<DigitalizacionScannerHookState>(initialState);
+  const stateRef = useRef<DigitalizacionScannerHookState>(initialState);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   const updateIfCurrent = useCallback(
     (
@@ -82,14 +87,27 @@ export const useDigitalizacionScanner = ({
     }));
 
     try {
+      console.log("STATE_BEFORE", stateRef.current);
       await client.initialize();
       const devices = await client.listDevices();
+      devices.forEach((device) => {
+        console.debug("[DigitalizacionScanner]", "initialize.devices", {
+          scannerName: device.name,
+          scannerIndex: device.index,
+        });
+      });
       updateIfCurrent(generation, (current) => ({
         ...current,
         status: "ready",
         devices,
         error: null,
       }));
+      console.log("STATE_AFTER", {
+        ...stateRef.current,
+        status: "ready",
+        devices,
+        error: null,
+      });
     } catch (error) {
       handleError(generation, error, "No fue posible inicializar el scanner.");
     }
@@ -98,13 +116,25 @@ export const useDigitalizacionScanner = ({
   const selectDevice = useCallback(
     async (deviceId: string) => {
       const generation = generationRef.current;
+      console.log("HOOK_SELECT_DEVICE", deviceId);
+      const selectedDevice = stateRef.current.devices.find((device) => device.id === deviceId);
+      console.debug("[DigitalizacionScanner]", "selectDevice.request", {
+        scannerName: selectedDevice?.name ?? "",
+        scannerIndex: selectedDevice?.index ?? Number(deviceId),
+      });
       try {
+        console.log("STATE_BEFORE", stateRef.current);
         await client.selectDevice(deviceId);
         updateIfCurrent(generation, (current) => ({
           ...current,
           selectedDeviceId: deviceId,
           error: null,
         }));
+        console.log("STATE_AFTER", {
+          ...stateRef.current,
+          selectedDeviceId: deviceId,
+          error: null,
+        });
       } catch (error) {
         handleError(generation, error, "No fue posible seleccionar el scanner.");
       }
@@ -210,6 +240,7 @@ export const useDigitalizacionScanner = ({
   );
 
   const dispose = useCallback(async () => {
+    console.log("USE_DIGITALIZACION_SCANNER_DISPOSE_CALL");
     generationRef.current += 1;
     await client.dispose();
     if (mountedRef.current) {
@@ -218,9 +249,16 @@ export const useDigitalizacionScanner = ({
   }, [client]);
 
   useEffect(() => {
+    console.log("USE_DIGITALIZACION_SCANNER_EFFECT_MOUNT", {
+      client,
+    });
     mountedRef.current = true;
 
     return () => {
+      console.log("USE_DIGITALIZACION_SCANNER_EFFECT_CLEANUP", {
+        client,
+        stack: new Error("USE_DIGITALIZACION_SCANNER_EFFECT_CLEANUP_STACK").stack,
+      });
       mountedRef.current = false;
       generationRef.current += 1;
       void client.dispose();

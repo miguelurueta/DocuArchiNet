@@ -17,7 +17,9 @@ const context: DigitalizacionContext = {
 
 const createScannerClient = (): DigitalizacionScannerClient => ({
   initialize: vi.fn().mockResolvedValue(undefined),
-  listDevices: vi.fn().mockResolvedValue([{ id: "scanner-1", name: "Scanner prueba" }]),
+  listDevices: vi.fn().mockResolvedValue([
+    { id: "scanner-1", name: "Scanner prueba", index: 0 },
+  ]),
   selectDevice: vi.fn().mockResolvedValue(undefined),
   scan: vi.fn(() => Promise.resolve<ScanPage[]>([{ id: "page-1", index: 0 }])),
   rotatePage: vi.fn().mockResolvedValue(undefined),
@@ -83,5 +85,33 @@ describe("AppDigitalizador", () => {
       licenseKey: "license-from-provider",
     });
     await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+  });
+
+  it("mantiene singleton el scannerClient durante la vida de AppDigitalizador", async () => {
+    const createScannerClientFromProvider = vi.fn(() => createScannerClient());
+    const { rerender } = render(
+      <AppDigitalizadorProvider
+        dynamsoft={{ licenseKey: "license-from-provider" }}
+        createScannerClient={createScannerClientFromProvider}
+      >
+        <AppDigitalizador context={context} onCompleted={vi.fn()} />
+      </AppDigitalizadorProvider>,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    rerender(
+      <AppDigitalizadorProvider
+        dynamsoft={{ licenseKey: "license-from-provider" }}
+        createScannerClient={createScannerClientFromProvider}
+      >
+        <AppDigitalizador
+          context={{ ...context, radicado: "RAD-2" }}
+          onCompleted={vi.fn()}
+        />
+      </AppDigitalizadorProvider>,
+    );
+
+    expect(createScannerClientFromProvider).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DynamsoftTwainClient } from "../infrastructure/dynamsoft";
-import { DYNAMSOFT_SCRIPT_ID } from "../infrastructure/dynamsoft";
+import {
+  DYNAMSOFT_CSS_ID_PREFIX,
+  DYNAMSOFT_DEFAULT_RESOURCES_PATH,
+  DYNAMSOFT_SCRIPT_ID,
+  DynamsoftTwainClient,
+} from "../infrastructure/dynamsoft";
 import { resetDynamsoftScriptLoaderForTests } from "../infrastructure/dynamsoft/loadDynamsoftScripts";
 import type {
   DynamsoftWebTwainFactory,
@@ -13,6 +17,16 @@ const addLoadedScript = () => {
   script.id = DYNAMSOFT_SCRIPT_ID;
   script.setAttribute("data-loaded", "true");
   document.head.appendChild(script);
+};
+
+const addLoadedCss = () => {
+  [0, 1].forEach((index) => {
+    const link = document.createElement("link");
+    link.id = `${DYNAMSOFT_CSS_ID_PREFIX}-${index}`;
+    link.rel = "stylesheet";
+    link.setAttribute("data-loaded", "true");
+    document.head.appendChild(link);
+  });
 };
 
 const createDwt = (): DynamsoftWebTwainObject => {
@@ -62,6 +76,7 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
     resetDynamsoftScriptLoaderForTests();
     document.head.innerHTML = "";
     addLoadedScript();
+    addLoadedCss();
   });
 
   it("initializes and lists devices", async () => {
@@ -72,10 +87,24 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
     await client.initialize();
 
     await expect(client.listDevices()).resolves.toEqual([
-      { id: "0", name: "Scanner 1" },
-      { id: "1", name: "Scanner 2" },
+      { id: "0", name: "Scanner 1", index: 0 },
+      { id: "1", name: "Scanner 2", index: 1 },
     ]);
     expect(runtime.Load).toHaveBeenCalled();
+    expect(runtime.ResourcesPath).toBe(DYNAMSOFT_DEFAULT_RESOURCES_PATH);
+  });
+
+  it("maps DWT css load failure to a functional error", async () => {
+    const runtime = createRuntime(createDwt());
+    vi.mocked(runtime.Load).mockImplementation(() => {
+      throw { code: -2804, message: "Loading the WebTwain css files failed." };
+    });
+    const client = createClient(runtime);
+
+    await expect(client.initialize()).rejects.toMatchObject({
+      code: "DYNAMSOFT_CSS_LOAD_FAILED",
+      message: "No fue posible cargar los estilos CSS de Dynamsoft Web TWAIN.",
+    });
   });
 
   it("fails when runtime is unavailable", async () => {
@@ -114,6 +143,66 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
     expect(pdf.pageCount).toBe(2);
     expect(pdf.file.name).toBe("digitalizacion.pdf");
     expect(pdf.file.type).toBe("application/pdf");
+  });
+
+  it("selects cached SourceCount scanner through legacy source index when SourceCount changes later", async () => {
+    const dwt = createDwt();
+    dwt.SelectDeviceAsync = vi.fn(async () => true);
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    await client.listDevices();
+    dwt.SourceCount = 0;
+    await client.selectDevice("1");
+
+    expect(dwt.SelectDeviceAsync).not.toHaveBeenCalled();
+    expect(dwt.SelectSourceByIndex).toHaveBeenCalledWith(1);
+  });
+
+  it("uses DWT 19 device API when available instead of legacy source index", async () => {
+    const dwt = createDwt();
+    dwt.SourceCount = 0;
+    dwt.GetDevicesAsync = vi.fn(async () => [
+      { name: "paperstream", displayName: "PaperStream IP fi-7160 #2" },
+      { name: "wiatwain", displayName: "WIATWAIN-fi-7160 #2" },
+    ]);
+    dwt.SelectDeviceAsync = vi.fn(async () => true);
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    const devices = await client.listDevices();
+    await client.selectDevice("1");
+
+    expect(devices).toEqual([
+      { id: "0", name: "PaperStream IP fi-7160 #2", index: 0 },
+      { id: "1", name: "WIATWAIN-fi-7160 #2", index: 1 },
+    ]);
+    expect(dwt.SelectDeviceAsync).toHaveBeenCalledWith({
+      name: "wiatwain",
+      displayName: "WIATWAIN-fi-7160 #2",
+    });
+    expect(dwt.SelectSourceByIndex).not.toHaveBeenCalled();
+  });
+
+  it("prefers SourceCount discovery and legacy selection over DWT 19 discovery", async () => {
+    const dwt = createDwt();
+    dwt.GetDevicesAsync = vi.fn(async () => {
+      throw new Error("GetDevicesAsync timeout");
+    });
+    dwt.SelectDeviceAsync = vi.fn(async () => true);
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    const devices = await client.listDevices();
+    await client.selectDevice("1");
+
+    expect(devices).toEqual([
+      { id: "0", name: "Scanner 1", index: 0 },
+      { id: "1", name: "Scanner 2", index: 1 },
+    ]);
+    expect(dwt.GetDevicesAsync).not.toHaveBeenCalled();
+    expect(dwt.SelectDeviceAsync).not.toHaveBeenCalled();
+    expect(dwt.SelectSourceByIndex).toHaveBeenCalledWith(1);
   });
 
   it("blocks scan without selected scanner", async () => {

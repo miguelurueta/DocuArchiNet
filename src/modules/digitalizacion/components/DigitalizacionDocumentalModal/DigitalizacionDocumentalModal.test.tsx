@@ -3,7 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 import { DigitalizacionDocumentalModal } from "./DigitalizacionDocumentalModal";
 import { DigitalizacionDocumentalWorkspace } from "../DigitalizacionDocumentalWorkspace";
 import type { DigitalizacionContext } from "../../types/digitalizacion.types";
-import type { DigitalizacionScannerClient, ScanPage } from "../../infrastructure/dynamsoft";
+import {
+  DYNAMSOFT_CONTAINER_ID,
+  type DigitalizacionScannerClient,
+  type ScanPage,
+} from "../../infrastructure/dynamsoft";
 
 const baseProps = {
   open: true,
@@ -30,7 +34,7 @@ const createScannerClient = (): DigitalizacionScannerClient & { pages: ScanPage[
     { id: "page-2", index: 1 },
   ],
   initialize: vi.fn(async () => undefined),
-  listDevices: vi.fn(async () => [{ id: "0", name: "Scanner principal" }]),
+  listDevices: vi.fn(async () => [{ id: "0", name: "Scanner principal", index: 0 }]),
   selectDevice: vi.fn(async () => undefined),
   scan: vi.fn(async function scan(this: { pages: ScanPage[] }) {
     return this.pages;
@@ -78,6 +82,26 @@ describe("[SPEC:SCRUMCORE-239] DigitalizacionDocumentalModal", () => {
     expect(screen.getByTestId("digitalizacion-workspace")).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.getByText("crear")).toBeInTheDocument();
+  });
+
+  it("renders Dynamsoft container before scanner initialization", async () => {
+    const scannerClient = createScannerClient();
+    vi.mocked(scannerClient.initialize).mockImplementation(async () => {
+      expect(document.getElementById(DYNAMSOFT_CONTAINER_ID)).toBeInTheDocument();
+    });
+
+    render(
+      <DigitalizacionDocumentalWorkspace
+        context={crearContext}
+        scannerClient={scannerClient}
+        onCompleted={baseProps.onCompleted}
+      />,
+    );
+
+    expect(document.getElementById(DYNAMSOFT_CONTAINER_ID)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(scannerClient.initialize).toHaveBeenCalled();
+    });
   });
 
   it("shows controlled error for null context", () => {

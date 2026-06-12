@@ -27,7 +27,7 @@ const createClient = (): DigitalizacionScannerClient & {
   const pdfFile = new File(["pdf"], "scan.pdf", { type: "application/pdf" });
 
   return {
-    devices: [{ id: "0", name: "Scanner 1" }],
+    devices: [{ id: "0", name: "Scanner 1", index: 0 }],
     pages: [{ id: "page-1", index: 0 }],
     pdf: { file: pdfFile, pageCount: 1 },
     initialize: vi.fn(async () => undefined),
