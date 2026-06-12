@@ -501,6 +501,22 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     [],
   );
   const permissionsForRender = isManagedMode ? managedPermissionsEffective : legacyOpenPermissions;
+  const handleExportAnnotatedPdfPagesReady = useCallback(
+    (handler: ((options?: AppVisorExportAnnotatedPdfPagesOptions) => Promise<AppVisorExportAnnotatedPdfPagesResult>) | null) => {
+      exportAnnotatedPdfPagesRef.current = handler;
+    },
+    [],
+  );
+  const handleMarkAnnotatedPagesPersistedReady = useCallback((handler: (() => Promise<void>) | null) => {
+    markAnnotatedPagesPersistedRef.current = handler;
+  }, []);
+  const handleOriginalPdfPasswordChange = useCallback((password: string | null) => {
+    originalPdfPasswordRef.current = typeof password === "string" && password.length > 0 ? password : null;
+    dvLog("[DV][password][memory]", {
+      documentKey: lastLoadIdentityRef.current?.documentKey,
+      hasPassword: Boolean(originalPdfPasswordRef.current),
+    });
+  }, []);
 
   if (engineState.status === "loading") {
     return (
@@ -560,15 +576,9 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
             });
             lastOpenResultRef.current = { url: effectiveFileUrl, ok: payload.ok };
           }}
-          onExportAnnotatedPdfPagesReady={(handler) => {
-            exportAnnotatedPdfPagesRef.current = handler;
-          }}
-          onMarkAnnotatedPagesPersistedReady={(handler) => {
-            markAnnotatedPagesPersistedRef.current = handler;
-          }}
-          onOriginalPdfPasswordChange={(password) => {
-            originalPdfPasswordRef.current = typeof password === "string" && password.length > 0 ? password : null;
-          }}
+          onExportAnnotatedPdfPagesReady={handleExportAnnotatedPdfPagesReady}
+          onMarkAnnotatedPagesPersistedReady={handleMarkAnnotatedPagesPersistedReady}
+          onOriginalPdfPasswordChange={handleOriginalPdfPasswordChange}
         />
       </EmbedPDF>
     </div>

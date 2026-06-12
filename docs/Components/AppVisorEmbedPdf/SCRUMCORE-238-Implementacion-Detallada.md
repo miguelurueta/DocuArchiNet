@@ -277,3 +277,184 @@ Este cambio corrige el caso observado de doble carga identica en curso. Si en el
 7. Si el navegador alcanza limites de memoria por el tamano del PDF.
 
 Mientras no exista `encrypted: true`, no se debe concluir que el documento realmente requiere password.
+
+## 12. Ajuste complementario: password validada se perdia durante firma
+
+### 12.1 Sintoma
+
+Despues de corregir la carrera de carga en PDFs grandes, se detecto otro caso en PDFs realmente protegidos con contrasena:
+
+1. El visor abria el documento protegido.
+2. El usuario ingresaba la contrasena.
+3. PDFium/EmbedPDF validaba correctamente la contrasena:
+
+```txt
+[DV][password][retry:ok]
+{ documentKey: 'CORRESPO:9926', managedSeq: 1, documentId: 'doc-...', hasValidatedPassword: true }
+```
+
+4. El usuario pegaba firma.
+5. Al ejecutar guardar paginas anotadas, durante `replace-export` reaparecia el prompt de contrasena.
+6. El request final salia sin password:
+
+```txt
+[DV][reemplazo-paginas][final-request]
+{ OriginalPdfPassword: false }
+```
+
+7. Backend respondia `400 Validation` porque el PDF original si estaba protegido y el request final no llevaba `OriginalPdfPassword`.
+
+### 12.2 Evidencia tecnica
+
+Logs relevantes:
+
+```txt
+[DV][password][retry:ok]
+{ documentKey: 'CORRESPO:9926', managedSeq: 1, documentId: 'doc-...', hasValidatedPassword: true }
+
+[DV][firma][replace-export:start]
+{ documentId: 'doc-...', pageNumbers: [1], hasAnySignaturePlaced: true }
+
+[DV][password][prompt-open:onDocumentError]
+{ documentKey: 'CORRESPO:9926', managedSeq: 1, documentId: 'doc-...', hasValidatedPassword: false, lastAttemptHadPassword: false }
+
+[DV][password][encryption-inspection]
+{ documentKey: 'CORRESPO:9926', encrypted: true, contentType: 'application/pdf' }
+
+[DV][reemplazo-paginas][final-request]
+{ OriginalPdfPassword: false }
+```
+
+Lectura:
+
+- El PDF si estaba cifrado (`encrypted: true`).
+- La contrasena si habia sido validada antes (`retry:ok`, `hasValidatedPassword: true`).
+- Antes del request final, la memoria local del visor ya habia perdido la password (`hasValidatedPassword: false`).
+- Por eso `DocumentosWorkbench` recibia `undefined` desde `visorRef.current?.getOriginalPdfPassword()` y enviaba `OriginalPdfPassword: false`.
+
+### 12.3 Causa raiz
+
+La causa no era backend ni contrasena invalida.
+
+La causa estaba en el ciclo de vida de `EmbedPdfDocumentHost`: el effect que limpia password al cambiar documento dependia de callbacks recibidos desde el componente padre:
+
+```ts
+useEffect(() => {
+  setPassword(null);
+  validatedPdfPasswordRef.current = null;
+  onOriginalPdfPasswordChange(null);
+  return () => {
+    onOriginalPdfPasswordChange(null);
+  };
+}, [fileUrl, onExportAnnotatedPdfPagesReady, onMarkAnnotatedPagesPersistedReady, onOriginalPdfPasswordChange]);
+```
+
+En el padre, esos callbacks se estaban pasando inline:
+
+```tsx
+onExportAnnotatedPdfPagesReady={(handler) => {
+  exportAnnotatedPdfPagesRef.current = handler;
+}}
+onMarkAnnotatedPagesPersistedReady={(handler) => {
+  markAnnotatedPagesPersistedRef.current = handler;
+}}
+onOriginalPdfPasswordChange={(password) => {
+  originalPdfPasswordRef.current = ...
+}}
+```
+
+Durante la firma/export/upload hay re-renders normales. En cada render, esas funciones inline cambian de identidad. Como el effect del host las tenia como dependencias, React ejecutaba cleanup y luego re-ejecutaba el effect aunque `fileUrl` no hubiera cambiado. Ese cleanup limpiaba:
+
+- `validatedPdfPasswordRef.current`
+- `originalPdfPasswordRef.current`
+- estado visual del prompt/password
+
+Por eso la password validada se perdia durante una operacion legitima sobre el mismo documento.
+
+### 12.4 Solucion aplicada
+
+Se estabilizaron los callbacks del padre con `useCallback`, de forma que el effect del host solo limpie password cuando realmente cambia el documento/fuente (`fileUrl`) o se desmonta el host.
+
+Callbacks agregados en `AppVisorEmbedPdf`:
+
+```ts
+const handleExportAnnotatedPdfPagesReady = useCallback((handler) => {
+  exportAnnotatedPdfPagesRef.current = handler;
+}, []);
+
+const handleMarkAnnotatedPagesPersistedReady = useCallback((handler) => {
+  markAnnotatedPagesPersistedRef.current = handler;
+}, []);
+
+const handleOriginalPdfPasswordChange = useCallback((password: string | null) => {
+  originalPdfPasswordRef.current = typeof password === "string" && password.length > 0 ? password : null;
+  dvLog("[DV][password][memory]", {
+    documentKey: lastLoadIdentityRef.current?.documentKey,
+    hasPassword: Boolean(originalPdfPasswordRef.current),
+  });
+}, []);
+```
+
+Y se reemplazaron los callbacks inline por referencias estables:
+
+```tsx
+onExportAnnotatedPdfPagesReady={handleExportAnnotatedPdfPagesReady}
+onMarkAnnotatedPagesPersistedReady={handleMarkAnnotatedPagesPersistedReady}
+onOriginalPdfPasswordChange={handleOriginalPdfPasswordChange}
+```
+
+### 12.5 Garantias preservadas
+
+El ajuste preserva:
+
+- la password no se guarda en `localStorage`, `sessionStorage`, IndexedDB, logs, telemetria ni estado persistente;
+- la password sigue viviendo solo en memoria volatil;
+- la password se limpia al cambiar `fileUrl`, desmontar host, resetear visor o cancelar carga;
+- el request final solo incluye `OriginalPdfPassword` si el usuario ya valido una password real;
+- no se expone el valor de la password en logs;
+- la firma, exportacion de paginas anotadas y upload por chunks no cambian de contrato;
+- PDFs sin contrasena siguen enviando `OriginalPdfPassword: false`.
+
+### 12.6 Log de validacion
+
+Se agrego un log seguro:
+
+```txt
+[DV][password][memory]
+{ documentKey: 'CORRESPO:9926', hasPassword: true }
+```
+
+Este log no imprime la contrasena. Solo permite confirmar si el visor conserva o limpia la password en memoria.
+
+Flujo esperado en PDF protegido:
+
+```txt
+[DV][password][retry:ok] hasValidatedPassword: true
+[DV][password][memory] hasPassword: true
+[DV][firma][replace-export:start]
+[DV][reemplazo-paginas][final-request] OriginalPdfPassword: true
+```
+
+No debe aparecer `OriginalPdfPassword: false` despues de una password validada para el mismo documento.
+
+### 12.7 Pruebas ejecutadas despues del ajuste
+
+Comandos ejecutados:
+
+```powershell
+npx.cmd tsc --noEmit --pretty false
+npx.cmd vitest run src/app/Components/UI/AppVisorEmbedPdf/AppVisorEmbedPdf.test.tsx --reporter verbose
+npm.cmd run build
+```
+
+Resultados:
+
+- TypeScript: OK.
+- Vitest visor: OK, 22 tests pasaron.
+- Build productivo: OK.
+
+Validacion manual reportada:
+
+- El PDF con contrasena ya no pierde la password durante la firma.
+- El request final vuelve a enviar `OriginalPdfPassword: true`.
+- El flujo de firma queda funcional.
