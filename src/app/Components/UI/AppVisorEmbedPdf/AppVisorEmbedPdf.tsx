@@ -174,7 +174,12 @@ function waitPdfTaskVoid(task: { wait(onOk: (value: unknown) => void, onErr: (er
   });
 }
 
-async function pdfUrlLooksEncrypted(url: string): Promise<boolean | undefined> {
+async function inspectPdfUrlForEncryption(url: string): Promise<{
+  encrypted: boolean | undefined;
+  blobSize?: number;
+  contentType?: string;
+  error?: string;
+}> {
   try {
     const response = await fetch(url);
     const blob = await response.blob();
@@ -182,9 +187,16 @@ async function pdfUrlLooksEncrypted(url: string): Promise<boolean | undefined> {
     const head = blob.slice(0, Math.min(scanSize, blob.size));
     const tail = blob.slice(Math.max(0, blob.size - scanSize), blob.size);
     const [headText, tailText] = await Promise.all([head.text(), tail.text()]);
-    return /\/Encrypt\b/.test(headText) || /\/Encrypt\b/.test(tailText);
-  } catch {
-    return undefined;
+    return {
+      encrypted: /\/Encrypt\b/.test(headText) || /\/Encrypt\b/.test(tailText),
+      blobSize: blob.size,
+      contentType: blob.type || response.headers.get("content-type") || undefined,
+    };
+  } catch (err) {
+    return {
+      encrypted: undefined,
+      error: err instanceof Error ? err.message : String(err),
+    };
   }
 }
 
@@ -810,10 +822,21 @@ function EmbedPdfDocumentHost(props: {
 
       void (async () => {
         const inspectedSeq = managedSeq;
-        const encrypted = await pdfUrlLooksEncrypted(fileUrl);
+        const inspection = await inspectPdfUrlForEncryption(fileUrl);
         if (inspectedSeq !== latestManagedSeqRef.current) return;
 
-        if (encrypted === false && !lastAttemptHadPasswordRef.current) {
+        dvLog("[DV][password][encryption-inspection]", {
+          documentKey,
+          managedSeq,
+          documentId: evt.documentId,
+          fileUrl,
+          encrypted: inspection.encrypted,
+          blobSize: inspection.blobSize,
+          contentType: inspection.contentType,
+          error: inspection.error,
+        });
+
+        if (inspection.encrypted === false && !lastAttemptHadPasswordRef.current) {
           dvLog("[DV][password][prompt-suppressed:not-encrypted]", {
             documentKey,
             managedSeq,
@@ -1047,17 +1070,44 @@ function EmbedPdfDocumentStateView({
     return (
       <div className={styles.overlayScope}>
         <ErrorState />
+        {passwordPromptOpen ? (
+          <AppPdfPasswordPrompt
+            isInvalidPassword={lastAttemptHadPassword}
+            isLoading={isSubmittingPassword}
+            onSubmit={onSubmitPassword}
+          />
+        ) : null}
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className={styles.overlayScope}>
+        <DocumentLoadingState />
+        {passwordPromptOpen ? (
+          <AppPdfPasswordPrompt
+            isInvalidPassword={lastAttemptHadPassword}
+            isLoading={isSubmittingPassword}
+            onSubmit={onSubmitPassword}
+          />
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.overlayScope}>
+      <DocumentLoadingState />
+      {passwordPromptOpen ? (
         <AppPdfPasswordPrompt
           isInvalidPassword={lastAttemptHadPassword}
           isLoading={isSubmittingPassword}
           onSubmit={onSubmitPassword}
         />
-      </div>
-    );
-  }
-
-  if (isLoading) return <DocumentLoadingState />;
-  return <DocumentLoadingState />;
+      ) : null}
+    </div>
+  );
 }
 
 function EmbedPdfLoadedDocumentView(props: {

@@ -580,14 +580,15 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     expect(scrollToNextPageMock).toHaveBeenCalledTimes(1);
   });
 
-  it("[SPEC:SCRUMCORE-209] muestra password prompt cuando el documento requiere contraseÃƒÆ’Ã‚Â±a", () => {
+  it("[SPEC:SCRUMCORE-209] no muestra password prompt solo por estado error", async () => {
     useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
     documentContentRenderState = { isLoaded: false, isError: true, isLoading: false };
 
-    render(<AppVisorEmbedPdf fileUrl="/demo/protected.pdf" />);
+    render(<AppVisorEmbedPdf fileUrl="/demo/broken-large.pdf" />);
 
-    expect(screen.getByRole("dialog", { name: /documento protegido/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/contraseña del documento/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: /documento protegido/i })).not.toBeInTheDocument();
+    });
   });
 
   it("[SPEC:SCRUMCORE-233] no muestra password prompt en OPEN_FAILED (evita falso 'Documento protegido')", async () => {
@@ -619,9 +620,11 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
   it("[SPEC:SCRUMCORE-238] no abre prompt si PDFium reporta Password pero el PDF no esta cifrado", async () => {
     useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
     documentContentRenderState = { isLoaded: false, isError: false, isLoading: true };
-    const pdfUrl = URL.createObjectURL(new Blob(["%PDF-1.7\n1 0 obj\n<<>>\nendobj\n%%EOF"], { type: "application/pdf" }));
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(new Blob(["%PDF-1.7\n1 0 obj\n<<>>\nendobj\n%%EOF"], { type: "application/pdf" })),
+    );
 
-    render(<AppVisorEmbedPdf fileUrl={pdfUrl} />);
+    render(<AppVisorEmbedPdf fileUrl="/demo/not-protected.pdf" />);
 
     onDocumentErrorMock({
       documentId: "doc-1",
@@ -632,7 +635,8 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
       expect(screen.queryByRole("dialog", { name: /documento protegido/i })).not.toBeInTheDocument();
     });
 
-    URL.revokeObjectURL(pdfUrl);
+    expect(fetchSpy).toHaveBeenCalledWith("/demo/not-protected.pdf");
+    fetchSpy.mockRestore();
   });
 
   it("[SPEC:SCRUMCORE-208] no crashea cuando scroll.provides es null", async () => {
@@ -883,19 +887,15 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     ]);
   });
 
-  it("[SPEC:SCRUMCORE-238] conserva OriginalPdfPassword solo tras password valida", async () => {
+  it("[SPEC:SCRUMCORE-238] no conserva OriginalPdfPassword sin password validada", async () => {
     useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
     documentContentRenderState = { isLoaded: false, isError: true, isLoading: false };
     const ref = createRef<AppVisorEmbedPdfRef>();
 
-    render(<AppVisorEmbedPdf ref={ref} fileUrl="/demo/protected.pdf" />);
-
-    const user = userEvent.setup();
-    await user.type(screen.getByLabelText(/contraseña del documento/i), "secret");
-    await user.click(screen.getByRole("button", { name: /continuar/i }));
+    render(<AppVisorEmbedPdf ref={ref} fileUrl="/demo/broken-large.pdf" />);
 
     await waitFor(() => {
-      expect(ref.current?.getOriginalPdfPassword()).toBe("secret");
+      expect(ref.current?.getOriginalPdfPassword()).toBeUndefined();
     });
   });
 
