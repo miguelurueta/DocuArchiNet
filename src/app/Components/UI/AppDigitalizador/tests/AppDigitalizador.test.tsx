@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { AppDigitalizador } from "../AppDigitalizador";
 import { AppDigitalizadorProvider } from "../AppDigitalizadorProvider";
@@ -113,5 +113,46 @@ describe("AppDigitalizador", () => {
     );
 
     expect(createScannerClientFromProvider).toHaveBeenCalledTimes(1);
+  });
+
+  it("envia configuracion DocuArchi al escanear", async () => {
+    const scannerClient = createScannerClient();
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() =>
+      expect(scannerClient.selectDevice).toHaveBeenCalledWith("scanner-1"),
+    );
+    fireEvent.click(screen.getByLabelText("Duplex activado"));
+    fireEvent.change(screen.getByLabelText("Color"), {
+      target: { value: "grayscale" },
+    });
+    fireEvent.change(screen.getByLabelText("Resolucion"), {
+      target: { value: "300" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+
+    await waitFor(() =>
+      expect(scannerClient.scan).toHaveBeenCalledWith({
+        deviceId: "scanner-1",
+        colorMode: "grayscale",
+        duplex: true,
+        feederEnabled: true,
+        resolutionDpi: 300,
+        showScannerUi: false,
+      }),
+    );
   });
 });

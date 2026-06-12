@@ -24,6 +24,8 @@ export type ScanOptions = {
   resolutionDpi?: number;
   colorMode?: ScanColorMode;
   duplex?: boolean;
+  feederEnabled?: boolean;
+  showScannerUi?: boolean;
   removeBlankPages?: boolean;
 };
 

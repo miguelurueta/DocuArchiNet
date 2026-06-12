@@ -12,6 +12,16 @@ import { DYNAMSOFT_CONTAINER_ID, type ScanPage } from "../../infrastructure/dyna
 import { unavailableScannerClient } from "./digitalizacionWorkspace.helpers";
 import styles from "./DigitalizacionDocumentalWorkspace.module.css";
 
+type CaptureMode = "docuarchi" | "driver";
+
+const colorOptions = [
+  { label: "Color", value: "color" },
+  { label: "Gris", value: "grayscale" },
+  { label: "B/N", value: "blackWhite" },
+] as const;
+
+const resolutionOptions = [200, 300, 400, 600] as const;
+
 const readableMode = (modo?: string) => (modo === "adjuntar" ? "adjuntar" : "crear");
 
 const getVisualStateLabel = ({
@@ -50,6 +60,11 @@ export function DigitalizacionDocumentalWorkspace({
   onError,
 }: DigitalizacionDocumentalWorkspaceProps) {
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
+  const [captureMode, setCaptureMode] = useState<CaptureMode>("docuarchi");
+  const [adfEnabled, setAdfEnabled] = useState(true);
+  const [duplexEnabled, setDuplexEnabled] = useState(false);
+  const [colorMode, setColorMode] = useState<(typeof colorOptions)[number]["value"]>("color");
+  const [resolutionDpi, setResolutionDpi] = useState<(typeof resolutionOptions)[number]>(200);
   const handleInvalidContext = useCallback(
     (error: DigitalizacionFunctionalError) => {
       onError?.(error);
@@ -142,13 +157,28 @@ export function DigitalizacionDocumentalWorkspace({
       return;
     }
 
-    void scan({ deviceId: scanner.selectedDeviceId });
-  }, [scan, scanner.selectedDeviceId]);
+    void scan({
+      deviceId: scanner.selectedDeviceId,
+      colorMode,
+      duplex: captureMode === "docuarchi" ? duplexEnabled : false,
+      feederEnabled: captureMode === "docuarchi" ? adfEnabled : true,
+      resolutionDpi,
+      showScannerUi: captureMode === "driver",
+    });
+  }, [
+    adfEnabled,
+    captureMode,
+    colorMode,
+    duplexEnabled,
+    resolutionDpi,
+    scan,
+    scanner.selectedDeviceId,
+  ]);
 
-  const handleRotateSelected = useCallback(() => {
+  const handleRotateSelected = useCallback((degrees: 90 | 270 = 90) => {
     const pageId = selectedPageId ?? scanner.pages[0]?.id;
     if (!pageId) return;
-    void rotatePage(pageId, 90);
+    void rotatePage(pageId, degrees);
   }, [rotatePage, scanner.pages, selectedPageId]);
 
   const handleRemoveSelected = useCallback(() => {
@@ -254,32 +284,6 @@ export function DigitalizacionDocumentalWorkspace({
       ) : null}
 
       <div className={styles.toolbar}>
-        <label className={styles.scannerSelect}>
-          <span>Scanner</span>
-          <select
-            value={scanner.selectedDeviceId ?? ""}
-            onChange={(event) => {
-              const deviceId = event.target.value;
-              const selectedDevice = scanner.devices.find((device) => device.id === deviceId);
-              console.log("SELECT_CHANGE", deviceId);
-              console.debug("[DigitalizacionWorkspace]", "selectDevice.change", {
-                scannerName: selectedDevice?.name ?? "",
-                scannerIndex: selectedDevice?.index ?? Number(deviceId),
-              });
-              console.log("BEFORE_SELECT_DEVICE", deviceId);
-              void selectDevice(deviceId);
-            }}
-            disabled={scanner.loading || scanner.devices.length === 0}
-            aria-label="Seleccionar scanner"
-          >
-            <option value="">Sin seleccionar</option>
-            {scanner.devices.map((device) => (
-              <option key={device.id} value={device.id}>
-                {device.name}
-              </option>
-            ))}
-          </select>
-        </label>
         <AppButton
           variant="secondary"
           onClick={handleScan}
@@ -287,17 +291,22 @@ export function DigitalizacionDocumentalWorkspace({
         >
           Escanear
         </AppButton>
-        <AppButton variant="secondary" onClick={initialize} disabled={scanner.loading}>
-          Reintentar
+        {scanner.status === "error" || scanner.devices.length === 0 ? (
+          <AppButton variant="secondary" onClick={initialize} disabled={scanner.loading}>
+            Reintentar
+          </AppButton>
+        ) : null}
+        <AppButton variant="ghost" onClick={() => handleRotateSelected(270)} disabled={!selectedPage}>
+          Rotar izq
         </AppButton>
-        <AppButton variant="ghost" onClick={handleClear} disabled={scanner.loading}>
-          Limpiar
-        </AppButton>
-        <AppButton variant="ghost" onClick={handleRotateSelected} disabled={!selectedPage}>
-          Rotar
+        <AppButton variant="ghost" onClick={() => handleRotateSelected(90)} disabled={!selectedPage}>
+          Rotar der
         </AppButton>
         <AppButton variant="ghost" onClick={handleRemoveSelected} disabled={!selectedPage}>
           Eliminar
+        </AppButton>
+        <AppButton variant="ghost" onClick={handleClear} disabled={scanner.loading}>
+          Limpiar
         </AppButton>
         <AppButton onClick={handleGeneratePdf} disabled={!canGeneratePdf}>
           Generar PDF
@@ -385,18 +394,126 @@ export function DigitalizacionDocumentalWorkspace({
           </div>
         </section>
 
-        <section className={styles.panel} aria-label="Metadata documental">
-          <div className={styles.panelHeader}>Metadata</div>
-          <div className={styles.panelBody}>
-            <span className={styles.placeholderTitle}>
-              {state.metadata.required ? "Metadata requerida" : "Metadata opcional"}
-            </span>
-            <span>{state.metadata.trd ? "TRD resuelto" : "TRD sin resolver"}</span>
-            <span>
-              {activeContext?.modo === "adjuntar" && activeContext.idDocumentoDestino
-                ? `Destino ${activeContext.idDocumentoDestino}`
-                : "Tipologia pendiente"}
-            </span>
+        <section className={styles.panel} aria-label="Configuracion de escaneo">
+          <div className={styles.panelHeader}>Configuracion de Escaneo</div>
+          <div className={styles.settingsPanel}>
+            <label className={styles.settingField}>
+              <span>Scanner</span>
+              <select
+                value={scanner.selectedDeviceId ?? ""}
+                onChange={(event) => {
+                  const deviceId = event.target.value;
+                  const selectedDevice = scanner.devices.find((device) => device.id === deviceId);
+                  console.log("SELECT_CHANGE", deviceId);
+                  console.debug("[DigitalizacionWorkspace]", "selectDevice.change", {
+                    scannerName: selectedDevice?.name ?? "",
+                    scannerIndex: selectedDevice?.index ?? Number(deviceId),
+                  });
+                  console.log("BEFORE_SELECT_DEVICE", deviceId);
+                  void selectDevice(deviceId);
+                }}
+                disabled={scanner.loading || scanner.devices.length === 0}
+                aria-label="Seleccionar scanner"
+              >
+                <option value="">Sin seleccionar</option>
+                {scanner.devices.map((device) => (
+                  <option key={device.id} value={device.id}>
+                    {device.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <fieldset className={styles.settingGroup}>
+              <legend>Modo de captura</legend>
+              <label>
+                <input
+                  type="radio"
+                  name="captureMode"
+                  checked={captureMode === "docuarchi"}
+                  onChange={() => setCaptureMode("docuarchi")}
+                />
+                <span>DocuArchi</span>
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="captureMode"
+                  checked={captureMode === "driver"}
+                  onChange={() => setCaptureMode("driver")}
+                />
+                <span>Driver del scanner</span>
+              </label>
+            </fieldset>
+
+            {captureMode === "docuarchi" ? (
+              <div className={styles.settingsStack}>
+                <label className={styles.checkField}>
+                  <input
+                    type="checkbox"
+                    checked={adfEnabled}
+                    onChange={(event) => setAdfEnabled(event.target.checked)}
+                  />
+                  <span>ADF activado</span>
+                </label>
+                <label className={styles.checkField}>
+                  <input
+                    type="checkbox"
+                    checked={duplexEnabled}
+                    onChange={(event) => setDuplexEnabled(event.target.checked)}
+                  />
+                  <span>Duplex activado</span>
+                </label>
+                <label className={styles.settingField}>
+                  <span>Color</span>
+                  <select
+                    value={colorMode}
+                    onChange={(event) =>
+                      setColorMode(event.target.value as typeof colorMode)
+                    }
+                  >
+                    {colorOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className={styles.settingField}>
+                  <span>Resolucion</span>
+                  <select
+                    value={resolutionDpi}
+                    onChange={(event) =>
+                      setResolutionDpi(Number(event.target.value) as typeof resolutionDpi)
+                    }
+                  >
+                    {resolutionOptions.map((dpi) => (
+                      <option key={dpi} value={dpi}>
+                        {dpi} dpi
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            ) : (
+              <div className={styles.driverMode}>
+                <span>Utilizar configuracion PaperStream</span>
+                <AppButton
+                  variant="secondary"
+                  onClick={handleScan}
+                  disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
+                >
+                  Configurar scanner
+                </AppButton>
+              </div>
+            )}
+
+            <div className={styles.settingsSummary} aria-label="Resumen configuracion">
+              <span>ADF {captureMode === "driver" ? "driver" : adfEnabled ? "si" : "no"}</span>
+              <span>Duplex {captureMode === "driver" ? "driver" : duplexEnabled ? "si" : "no"}</span>
+              <span>{captureMode === "driver" ? "PaperStream" : colorOptions.find((option) => option.value === colorMode)?.label}</span>
+              <span>{captureMode === "driver" ? "UI driver" : `${resolutionDpi} dpi`}</span>
+            </div>
           </div>
         </section>
       </main>

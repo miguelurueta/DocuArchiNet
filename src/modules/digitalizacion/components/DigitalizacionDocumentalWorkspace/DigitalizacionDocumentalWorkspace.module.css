@@ -104,42 +104,14 @@
   border-block: 1px solid #e3e8f1;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem;
-  padding-block: 0.75rem;
-}
-
-.scannerSelect {
-  align-items: center;
-  background: #f3f6fa;
-  border: 1px solid #dbe3ee;
-  border-radius: 8px;
-  color: #53657a;
-  display: inline-flex;
   gap: 0.45rem;
-  min-height: 2.25rem;
-  min-width: 13rem;
-  padding: 0.28rem 0.45rem 0.28rem 0.65rem;
-}
-
-.scannerSelect span {
-  color: #40566e;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.scannerSelect select {
-  background: #ffffff;
-  border: 1px solid #d6dfeb;
-  border-radius: 6px;
-  color: #253b53;
-  min-height: 1.7rem;
-  min-width: 9rem;
+  padding-block: 0.75rem;
 }
 
 .main {
   display: grid;
   gap: 0.75rem;
-  grid-template-columns: minmax(8rem, 0.72fr) minmax(14rem, 1.7fr) minmax(10rem, 0.92fr);
+  grid-template-columns: minmax(8rem, 0.62fr) minmax(18rem, 2.25fr) minmax(10rem, 0.82fr);
   min-height: 17rem;
 }
 
@@ -261,9 +233,102 @@
   border: 1px solid #d8e2ef;
   border-radius: 8px;
   box-shadow: 0 12px 30px rgba(37, 59, 83, 0.12);
-  max-height: 18rem;
+  max-height: 24rem;
   max-width: 100%;
   object-fit: contain;
+}
+
+.settingsPanel {
+  align-content: start;
+  color: #40566e;
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+
+.settingField {
+  color: #40566e;
+  display: grid;
+  font-size: 0.78rem;
+  font-weight: 700;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.settingField select {
+  background: #ffffff;
+  border: 1px solid #d6dfeb;
+  border-radius: 6px;
+  color: #253b53;
+  min-height: 2rem;
+  min-width: 0;
+  padding-inline: 0.45rem;
+  width: 100%;
+}
+
+.settingGroup {
+  border: 1px solid #e1e7f0;
+  border-radius: 8px;
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.55rem 0.65rem 0.65rem;
+}
+
+.settingGroup legend {
+  color: #243b53;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding-inline: 0.2rem;
+}
+
+.settingGroup label,
+.checkField {
+  align-items: center;
+  color: #40566e;
+  display: flex;
+  font-size: 0.82rem;
+  font-weight: 700;
+  gap: 0.45rem;
+}
+
+.settingGroup input,
+.checkField input {
+  accent-color: #2f67d8;
+  flex: 0 0 auto;
+}
+
+.settingsStack {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.driverMode {
+  background: #f7f9fc;
+  border: 1px solid #e3e8f1;
+  border-radius: 8px;
+  color: #40566e;
+  display: grid;
+  font-size: 0.82rem;
+  font-weight: 700;
+  gap: 0.55rem;
+  padding: 0.65rem;
+}
+
+.settingsSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.settingsSummary span {
+  background: #eef4ff;
+  border: 1px solid #d6e4ff;
+  border-radius: 999px;
+  color: #1f4fa3;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.16rem 0.45rem;
 }
 
 .placeholderTitle {
@@ -296,16 +361,6 @@
   .toolbar {
     align-items: stretch;
     flex-direction: column;
-  }
-
-  .scannerSelect {
-    min-width: 0;
-    width: 100%;
-  }
-
-  .scannerSelect select {
-    flex: 1;
-    min-width: 0;
   }
 
   .workbenchFooter {

@@ -618,10 +618,10 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     try {
       const previousCount = dwt.HowManyImagesInBuffer ?? 0;
       const acquireOptions = {
-        IfShowUI: false,
+        IfShowUI: options.showScannerUi ?? false,
         PixelType: colorModeToPixelType[options.colorMode ?? "color"],
         Resolution: options.resolutionDpi ?? DYNAMSOFT_DEFAULT_RESOLUTION_DPI,
-        IfFeederEnabled: true,
+        IfFeederEnabled: options.feederEnabled ?? true,
         IfDuplexEnabled: options.duplex ?? false,
         IfDisableSourceAfterAcquire: true,
       };
