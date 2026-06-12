@@ -3,6 +3,7 @@ import { createRef } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { PdfErrorCode } from "@embedpdf/models";
 
 import { AppVisorEmbedPdf } from "./AppVisorEmbedPdf";
 import type { AppVisorEmbedPdfRef } from "./AppVisorEmbedPdf.types";
@@ -613,6 +614,25 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     });
 
     __setActiveDocumentId("doc-1");
+  });
+
+  it("[SPEC:SCRUMCORE-238] no abre prompt si PDFium reporta Password pero el PDF no esta cifrado", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    documentContentRenderState = { isLoaded: false, isError: false, isLoading: true };
+    const pdfUrl = URL.createObjectURL(new Blob(["%PDF-1.7\n1 0 obj\n<<>>\nendobj\n%%EOF"], { type: "application/pdf" }));
+
+    render(<AppVisorEmbedPdf fileUrl={pdfUrl} />);
+
+    onDocumentErrorMock({
+      documentId: "doc-1",
+      reason: { code: PdfErrorCode.Password },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: /documento protegido/i })).not.toBeInTheDocument();
+    });
+
+    URL.revokeObjectURL(pdfUrl);
   });
 
   it("[SPEC:SCRUMCORE-208] no crashea cuando scroll.provides es null", async () => {

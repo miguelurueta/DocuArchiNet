@@ -174,6 +174,20 @@ function waitPdfTaskVoid(task: { wait(onOk: (value: unknown) => void, onErr: (er
   });
 }
 
+async function pdfUrlLooksEncrypted(url: string): Promise<boolean | undefined> {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const scanSize = 1024 * 1024;
+    const head = blob.slice(0, Math.min(scanSize, blob.size));
+    const tail = blob.slice(Math.max(0, blob.size - scanSize), blob.size);
+    const [headText, tailText] = await Promise.all([head.text(), tail.text()]);
+    return /\/Encrypt\b/.test(headText) || /\/Encrypt\b/.test(tailText);
+  } catch {
+    return undefined;
+  }
+}
+
 function toPdfBlobPart(buffer: ArrayBuffer | Uint8Array<ArrayBufferLike>): BlobPart {
   if (buffer instanceof ArrayBuffer) return buffer;
 
@@ -794,15 +808,34 @@ function EmbedPdfDocumentHost(props: {
         return;
       }
 
-      setIsSubmittingPassword(false);
-      setPasswordPromptOpen(true);
-      setInvalidPassword(lastAttemptHadPasswordRef.current);
-      onManagedOpenResult({ seq: managedSeq, ok: false, errors: ["PASSWORD_REQUIRED"] });
+      void (async () => {
+        const inspectedSeq = managedSeq;
+        const encrypted = await pdfUrlLooksEncrypted(fileUrl);
+        if (inspectedSeq !== latestManagedSeqRef.current) return;
+
+        if (encrypted === false && !lastAttemptHadPasswordRef.current) {
+          dvLog("[DV][password][prompt-suppressed:not-encrypted]", {
+            documentKey,
+            managedSeq,
+            documentId: evt.documentId,
+          });
+          setIsSubmittingPassword(false);
+          setPasswordPromptOpen(false);
+          setInvalidPassword(false);
+          onManagedOpenResult({ seq: managedSeq, ok: false, errors: ["OPEN_FAILED"] });
+          return;
+        }
+
+        setIsSubmittingPassword(false);
+        setPasswordPromptOpen(true);
+        setInvalidPassword(lastAttemptHadPasswordRef.current);
+        onManagedOpenResult({ seq: managedSeq, ok: false, errors: ["PASSWORD_REQUIRED"] });
+      })();
     });
     return () => {
       off?.();
     };
-  }, [documentKey, managedSeq, onManagedOpenResult, provides]);
+  }, [documentKey, fileUrl, managedSeq, onManagedOpenResult, provides]);
   const onSubmitPassword = useCallback((next: string) => {
     setPasswordPromptOpen(true);
     setInvalidPassword(false);
