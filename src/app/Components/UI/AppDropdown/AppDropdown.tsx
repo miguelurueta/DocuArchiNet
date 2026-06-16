@@ -1,5 +1,5 @@
 import { Dropdown, Grid } from "antd";
-import type { MenuProps } from "antd";
+import type { DropdownProps, MenuProps } from "antd";
 import {
   cloneElement,
   isValidElement,
@@ -52,6 +52,10 @@ export type AppDropdownProps = {
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   placement?: AppDropdownPlacement;
+  dropdownProps?: Omit<
+    DropdownProps,
+    "children" | "menu" | "onOpenChange" | "open" | "placement" | "trigger"
+  >;
   ariaLabel?: string;
   className?: string;
 };
@@ -208,6 +212,7 @@ export function AppDropdown({
   defaultOpen = false,
   onOpenChange,
   placement = "bottomLeft",
+  dropdownProps,
   ariaLabel,
   className,
 }: AppDropdownProps) {
@@ -260,6 +265,7 @@ export function AppDropdown({
 
   return (
     <Dropdown
+      {...dropdownProps}
       menu={{ items: menuItems, id: menuId }}
       trigger={["click"]}
       open={currentOpen}
