@@ -7,64 +7,64 @@
 - [x] 1.3 Normalizar placeholders del ticket a `SCRUMCORE-251`.
 - [x] 1.4 Revisar punto real de composicion de tabs en `GestionRespuesta.tsx`.
 - [x] 1.5 Refinar `design.md`, `spec.md` y `tasks.md` antes de publish.
-- [ ] 1.6 Leer y confirmar impacto en `DocumentosWorkbench.tsx`, `GestionRespuestaMainTabContent.tsx`, `GestionRespuesta.module.css` y `DocumentosWorkbench.module.css` antes de implementar.
-- [ ] 1.7 Confirmar si `AppTabs` mantiene montados ambos tabs o solo el tab activo.
-- [ ] 1.8 Confirmar que no se requiere tocar `GestionRespuestaDocumentosContext`, `useGestionRespuestaDocumentos`, `useGestionRespuestaDocumentosTable` ni `AppTabs`; si se toca alguno, documentar la razon.
+- [x] 1.6 Leer y confirmar impacto en `DocumentosWorkbench.tsx`, `GestionRespuestaMainTabContent.tsx`, `GestionRespuesta.module.css` y `DocumentosWorkbench.module.css` antes de implementar.
+- [x] 1.7 Confirmar si `AppTabs` mantiene montados ambos tabs o solo el tab activo.
+- [x] 1.8 Confirmar que no se requiere tocar `GestionRespuestaDocumentosContext`, `useGestionRespuestaDocumentos`, `useGestionRespuestaDocumentosTable` ni `AppTabs`; si se toca alguno, documentar la razon.
 
 ## 2. Dependencia y arquitectura
 
-- [ ] 2.1 Verificar si `react-resizable-panels` existe en `package.json`.
-- [ ] 2.2 Instalar `react-resizable-panels` solo si no existe.
-- [ ] 2.3 Crear `src/modules/gestionCorrespondencia/components/workbenchParallelTabs/GestionWorkbenchParallelTabs.tsx`.
-- [ ] 2.4 Crear `GestionWorkbenchParallelTabs.module.css`.
-- [ ] 2.5 Crear `index.ts` para exportar el nuevo componente.
-- [ ] 2.6 Mantener el componente como layout presentacional sin services ni hooks de negocio.
-- [ ] 2.7 Importar `PanelGroup`, `Panel` y `PanelResizeHandle` exclusivamente desde `react-resizable-panels`.
-- [ ] 2.8 No implementar drag/resize manual con pointer events, timers ni hacks de layout.
-- [ ] 2.9 No introducir `any` en tipos nuevos o modificados.
+- [x] 2.1 Verificar si `react-resizable-panels` existe en `package.json`.
+- [x] 2.2 Instalar `react-resizable-panels` solo si no existe.
+- [x] 2.3 Crear `src/modules/gestionCorrespondencia/components/workbenchParallelTabs/GestionWorkbenchParallelTabs.tsx`.
+- [x] 2.4 Crear `GestionWorkbenchParallelTabs.module.css`.
+- [x] 2.5 Crear `index.ts` para exportar el nuevo componente.
+- [x] 2.6 Mantener el componente como layout presentacional sin services ni hooks de negocio.
+- [x] 2.7 Importar `PanelGroup`, `Panel` y `PanelResizeHandle` exclusivamente desde `react-resizable-panels`.
+- [x] 2.8 No implementar drag/resize manual con pointer events, timers ni hacks de layout.
+- [x] 2.9 No introducir `any` en tipos nuevos o modificados.
 
 ## 3. Integracion funcional
 
-- [ ] 3.1 Agregar estado local `GestionWorkbenchLayoutMode = "tabs" | "parallel"` en `GestionRespuesta.tsx`.
-- [ ] 3.2 Agregar boton opt-in `Vista paralela` / `Vista normal`.
-- [ ] 3.3 Exponer estado del boton con `aria-pressed`.
-- [ ] 3.4 Mantener `GestionRespuestaDocumentosProvider` como wrapper comun del modo normal y paralelo.
-- [ ] 3.5 Renderizar `AppTabs` sin cambios en modo normal.
-- [ ] 3.6 Renderizar `Gestion` y `Documentos` en `GestionWorkbenchParallelTabs` en modo paralelo.
-- [ ] 3.7 Confirmar que no se crea una segunda instancia de `DocumentosWorkbench`.
-- [ ] 3.8 Confirmar que el contexto de adjuntos/documentos no se pierde al alternar modo.
-- [ ] 3.9 Usar iconografia existente para columnas/layout; no dibujar SVG manual.
-- [ ] 3.10 No persistir `layoutMode` en `localStorage`, `sessionStorage` ni storage equivalente.
-- [ ] 3.11 No cambiar contratos backend, endpoints, services, permisos, requests ni validaciones de negocio.
-- [ ] 3.12 No afectar firma, visor PDF, AppEditor, reemplazo de paginas anotadas ni flujo de documentos.
+- [x] 3.1 Agregar estado local `GestionWorkbenchLayoutMode = "tabs" | "parallel"` en `GestionRespuesta.tsx`.
+- [x] 3.2 Agregar boton opt-in `Vista paralela` / `Vista normal`.
+- [x] 3.3 Exponer estado del boton con `aria-pressed`.
+- [x] 3.4 Mantener `GestionRespuestaDocumentosProvider` como wrapper comun del modo normal y paralelo.
+- [x] 3.5 Renderizar `AppTabs` sin cambios en modo normal.
+- [x] 3.6 Renderizar `Gestion` y `Documentos` en `GestionWorkbenchParallelTabs` en modo paralelo.
+- [x] 3.7 Confirmar que no se crea una segunda instancia de `DocumentosWorkbench`.
+- [x] 3.8 Confirmar que el contexto de adjuntos/documentos no se pierde al alternar modo.
+- [x] 3.9 Usar iconografia existente para columnas/layout; no dibujar SVG manual.
+- [x] 3.10 No persistir `layoutMode` en `localStorage`, `sessionStorage` ni storage equivalente.
+- [x] 3.11 No cambiar contratos backend, endpoints, services, permisos, requests ni validaciones de negocio.
+- [x] 3.12 No afectar firma, visor PDF, AppEditor, reemplazo de paginas anotadas ni flujo de documentos.
 
 ## 4. UX, CSS y responsive
 
-- [ ] 4.1 Definir paneles horizontales en desktop/tablet ancho.
-- [ ] 4.2 Definir tamanos iniciales 50/50 y minimos seguros.
-- [ ] 4.3 Agregar divisor visual con hover/focus.
-- [ ] 4.4 Aplicar `min-height: 0`, `height: 100%` y overflow controlado en contenedores necesarios.
-- [ ] 4.5 Mantener fallback a tabs normales en ancho reducido si la vista paralela degrada la UX.
-- [ ] 4.6 Evitar tarjetas decorativas, gradientes u ornamentos fuera del lenguaje enterprise.
-- [ ] 4.7 Agregar labels accesibles `aria-label="Gestion"` y `aria-label="Documentos"` en los paneles.
-- [ ] 4.8 Garantizar que el resize handle no bloquee scroll interno ni overlays del visor/documentos.
-- [ ] 4.9 Garantizar foco visible en boton y divisor cuando aplique.
-- [ ] 4.10 Documentar explicitamente la decision responsive final.
+- [x] 4.1 Definir paneles horizontales en desktop/tablet ancho.
+- [x] 4.2 Definir tamanos iniciales 50/50 y minimos seguros.
+- [x] 4.3 Agregar divisor visual con hover/focus.
+- [x] 4.4 Aplicar `min-height: 0`, `height: 100%` y overflow controlado en contenedores necesarios.
+- [x] 4.5 Mantener fallback a tabs normales en ancho reducido si la vista paralela degrada la UX.
+- [x] 4.6 Evitar tarjetas decorativas, gradientes u ornamentos fuera del lenguaje enterprise.
+- [x] 4.7 Agregar labels accesibles `aria-label="Gestion"` y `aria-label="Documentos"` en los paneles.
+- [x] 4.8 Garantizar que el resize handle no bloquee scroll interno ni overlays del visor/documentos.
+- [x] 4.9 Garantizar foco visible en boton y divisor cuando aplique.
+- [x] 4.10 Documentar explicitamente la decision responsive final.
 
 ## 5. Pruebas
 
-- [ ] 5.1 Agregar test del nuevo `GestionWorkbenchParallelTabs`.
-- [ ] 5.2 Agregar/ajustar test de `GestionRespuesta` para validar modo normal por defecto.
-- [ ] 5.3 Validar que el boton activa modo paralelo.
-- [ ] 5.4 Validar que el boton vuelve a modo normal.
-- [ ] 5.5 Validar que `Gestion` y `Documentos` aparecen simultaneamente en modo paralelo.
-- [ ] 5.6 Validar `aria-pressed`.
-- [ ] 5.7 Validar que no se duplican callbacks criticos por el toggle.
+- [x] 5.1 Agregar test del nuevo `GestionWorkbenchParallelTabs`.
+- [x] 5.2 Agregar/ajustar test de `GestionRespuesta` para validar modo normal por defecto.
+- [x] 5.3 Validar que el boton activa modo paralelo.
+- [x] 5.4 Validar que el boton vuelve a modo normal.
+- [x] 5.5 Validar que `Gestion` y `Documentos` aparecen simultaneamente en modo paralelo.
+- [x] 5.6 Validar `aria-pressed`.
+- [x] 5.7 Validar que no se duplican callbacks criticos por el toggle.
 - [ ] 5.8 Validar que no desaparece el documento seleccionado al alternar modo.
 - [ ] 5.9 Validar que no hay doble carga evidente ni errores de consola al alternar modo.
-- [ ] 5.10 Ejecutar tests afectados de Gestion Correspondencia.
+- [x] 5.10 Ejecutar tests afectados de Gestion Correspondencia.
 - [ ] 5.11 Ejecutar `npm.cmd run build`.
-- [ ] 5.12 Ejecutar `npx.cmd openspec validate scrumcore-251-tabs-workbench-gestion-correspondencia --strict`.
+- [x] 5.12 Ejecutar `npx.cmd openspec validate scrumcore-251-tabs-workbench-gestion-correspondencia --strict`.
 
 ## 6. QA manual obligatorio
 
@@ -83,12 +83,12 @@
 
 ## 7. Documentacion enterprise
 
-- [ ] 7.1 Crear `docs/Architecture/GestionCorrrespondecia/Tabs-React-Resizable-Panels/SCRUMCORE-251-Arquitectura.md`.
-- [ ] 7.2 Crear `SCRUMCORE-251-Implementacion-Detallada.md`.
-- [ ] 7.3 Crear `SCRUMCORE-251-Pruebas.md`.
-- [ ] 7.4 Crear `SCRUMCORE-251-Metadata.md`.
-- [ ] 7.5 Documentar decision responsive, riesgos y pruebas ejecutadas.
-- [ ] 7.6 Documentar archivos modificados, decisiones tomadas, riesgos residuales e instrucciones de uso para usuario final.
+- [x] 7.1 Crear `docs/Architecture/GestionCorrrespondecia/Tabs-React-Resizable-Panels/SCRUMCORE-251-Arquitectura.md`.
+- [x] 7.2 Crear `SCRUMCORE-251-Implementacion-Detallada.md`.
+- [x] 7.3 Crear `SCRUMCORE-251-Pruebas.md`.
+- [x] 7.4 Crear `SCRUMCORE-251-Metadata.md`.
+- [x] 7.5 Documentar decision responsive, riesgos y pruebas ejecutadas.
+- [x] 7.6 Documentar archivos modificados, decisiones tomadas, riesgos residuales e instrucciones de uso para usuario final.
 
 ## 8. Publish / cierre tecnico
 
