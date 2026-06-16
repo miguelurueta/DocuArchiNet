@@ -11,7 +11,7 @@ TABS-WORKBENCH-GESTION-CORRESPONDENCIA. Ver detalle funcional completo del ticke
 
 ## Jira Details
 
-> # PROMPT ARQUITECTONICO - SCRUMCORE-[ID] - Tabs paralelos en Workbench con react-resizable-panels
+> # PROMPT ARQUITECTONICO - SCRUMCORE-251 - Tabs paralelos en Workbench con react-resizable-panels
 > 
 > ## Rol esperado
 > 
@@ -31,13 +31,12 @@ TABS-WORKBENCH-GESTION-CORRESPONDENCIA. Ver detalle funcional completo del ticke
 > 
 > ## SCRUM ID
 > 
-> - Ticket: `SCRUMCORE-[ID]`
+> - Ticket: `SCRUMCORE-251`
 > - Nombre sugerido: `Tabs paralelos Gestion/Documentos en Workbench con react-resizable-panels`
 > - Tipo: Mejora UX / productividad enterprise
 > - Alcance: Frontend
 > - Backend: No modificado
 > 
-> > Reemplazar `[ID]` por el identificador real antes de crear artefactos finales.
 > 
 > ## Contexto funcional
 > 
@@ -360,7 +359,7 @@ TABS-WORKBENCH-GESTION-CORRESPONDENCIA. Ver detalle funcional completo del ticke
 > 
 > Archivos esperados:
 > 
-> 1. `SCRUMCORE-[ID]-Arquitectura.md`
+> 1. `SCRUMCORE-251-Arquitectura.md`
 >    - objetivo;
 >    - problema;
 >    - solucion;
@@ -371,7 +370,7 @@ TABS-WORKBENCH-GESTION-CORRESPONDENCIA. Ver detalle funcional completo del ticke
 >    - riesgos;
 >    - decisiones responsive.
 > 
-> 2. `SCRUMCORE-[ID]-Implementacion-Detallada.md`
+> 2. `SCRUMCORE-251-Implementacion-Detallada.md`
 >    - archivos creados;
 >    - archivos modificados;
 >    - componentes;
@@ -381,7 +380,7 @@ TABS-WORKBENCH-GESTION-CORRESPONDENCIA. Ver detalle funcional completo del ticke
 >    - comportamiento de toggle;
 >    - compatibilidad con tabs existentes.
 > 
-> 3. `SCRUMCORE-[ID]-Pruebas.md`
+> 3. `SCRUMCORE-251-Pruebas.md`
 >    - pruebas unitarias;
 >    - pruebas de integracion UI;
 >    - build;
@@ -389,7 +388,7 @@ TABS-WORKBENCH-GESTION-CORRESPONDENCIA. Ver detalle funcional completo del ticke
 >    - evidencias;
 >    - no regresion.
 > 
-> 4. `SCRUMCORE-[ID]-Metadata.md`
+> 4. `SCRUMCORE-251-Metadata.md`
 >    - ticket;
 >    - rama;
 >    - commits;
