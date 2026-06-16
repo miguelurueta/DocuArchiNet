@@ -76,16 +76,16 @@
 
 ## 9. QA manual
 
-- [ ] 9.1 Abrir PDF normal, anotar una pagina, guardar y verificar reemplazo.
+- [x] 9.1 Abrir PDF normal, anotar una pagina, guardar y verificar reemplazo.
 - [ ] 9.2 Abrir PDF normal, anotar varias paginas y verificar reemplazo en una sola operacion logica.
 - [ ] 9.3 Cancelar durante upload y verificar limpieza best-effort.
-- [ ] 9.4 Cambiar de documento durante upload y verificar latest-wins.
-- [ ] 9.5 Intentar guardar documento firmado electronicamente y verificar bloqueo.
-- [ ] 9.6 Probar PDF protegido con password valida si el flujo existe.
+- [x] 9.4 Cambiar de documento durante upload/carga y verificar latest-wins.
+- [x] 9.5 Intentar guardar documento firmado electronicamente y verificar bloqueo.
+- [x] 9.6 Probar PDF protegido con password valida si el flujo existe.
 - [ ] 9.7 Probar password invalida y error `originalPdfPassword` si el flujo existe.
 - [ ] 9.8 Simular rechazo anti-desfase si hay metadata real disponible.
 - [ ] 9.9 Confirmar que no se muestran rutas fisicas a usuarios finales cuando aplique.
-- [ ] 9.10 Confirmar no-regresion: exportacion, impresion, firma, imagenes y carga gestionada.
+- [x] 9.10 Confirmar no-regresion principal: firma, imagenes y carga gestionada. Exportacion/impresion quedan sin evidencia manual especifica en este cierre parcial.
 
 ## 10. Publish / cierre
 

@@ -5,7 +5,8 @@
 - **Fecha**: 2026-06-12 (America/Bogota)
 - **Autor**: Equipo Frontend (cambio realizado con Codex CLI)
 - **Rama**: `feature/SCRUMCORE-238`
-- **Commit actual validado**: `c340d6d` (`c340d6df6dd47fdbf2ef4b6789ba21984c70c4f9`)
+- **Commit funcional validado**: `c340d6d` (`c340d6df6dd47fdbf2ef4b6789ba21984c70c4f9`)
+- **Ultimo commit documental previo**: `212eeb9` (`212eeb9f7855c336174b8dfddbbd252e9fb18949`)
 - **Tipo**: Bugfix / hardening de concurrencia, lifecycle y seguridad de password en memoria
 - **Backend**: NO modificado
 - **Endpoints**: NO modificados
@@ -82,6 +83,83 @@ Log seguro agregado:
 [DV][password][memory] { hasPassword: true|false }
 ```
 
+### 3. Upload de paginas anotadas grandes
+
+Caso:
+
+- PDF grande o pagina anotada generada con tamano mayor al tolerado por el canal/proxy/backend.
+- El upload podia fallar por `ERR_CONNECTION_RESET` o `Network Error` al enviar un chunk grande.
+
+Diagnostico:
+
+- El PDF anotado de una sola pagina podia pesar mas de 1 MB.
+- El backend podia devolver `ChunkSizeBytes` de 1 MB.
+- La infraestructura real se comportaba mejor con chunks mas pequenos.
+
+Solucion:
+
+- Se limito el tamano efectivo del chunk frontend a `768 KB`.
+- Se mantiene el contrato binario puro.
+- Se sigue respetando un chunk menor si backend lo retorna.
+
+Log:
+
+```txt
+[DV][reemplazo-paginas][chunk]
+```
+
+### 4. Bloqueo de navegacion durante reemplazo
+
+Caso:
+
+- Mientras se guardaba la firma/reemplazo, el usuario podia seleccionar otro documento.
+- Esto podia interferir con temporales, cancelaciones, carga de visor y estado visible.
+
+Solucion:
+
+- Se bloquea la navegacion del listado y del rail durante `isReplacingAnnotatedPages`.
+- Se registra intento bloqueado con:
+
+```txt
+[DV][reemplazo-paginas][navigation-blocked]
+```
+
+Componentes cubiertos:
+
+- `AppTreeTable`
+- `AppCollapseRail`
+- seleccion de documentos del workbench
+
+### 5. Firma persistida sin reload post-exito
+
+Caso:
+
+- Recargar el PDF despues de firmar un documento grande o protegido podia reabrir el engine, consumir mucha memoria o disparar prompt de password.
+
+Solucion:
+
+- Despues del reemplazo exitoso no se fuerza reload inmediato.
+- El visor marca la firma como persistida visualmente.
+- Las firmas ya guardadas dejan de ser editables/removibles.
+- El usuario puede agregar nuevas firmas posteriormente.
+
+Logs:
+
+```txt
+[DV][firma][persisted:start]
+[DV][firma][persisted:done]
+```
+
+### 6. Mensaje de exito simplificado
+
+El mensaje visible al usuario queda como:
+
+```txt
+Documento firmado correctamente.
+```
+
+No se muestra `RequestId` en el toast principal para evitar ruido visual. La referencia tecnica queda disponible para soporte si se requiere revisar logs/respuestas.
+
 ## Seguridad
 
 - `OriginalPdfPassword` sigue viviendo solo en memoria volatil.
@@ -141,6 +219,7 @@ Resultado:
 - Si PDFium reporta `PdfErrorCode.Password` y `encrypted: true`, el documento realmente puede estar protegido o el PDF generado puede estar cifrado.
 - Si el backend devuelve un PDF corrupto/incompleto despues del reemplazo, el visor puede fallar por `OPEN_FAILED`; ese caso debe diagnosticarse con `blobSize`, `contentType`, `encrypted` y logs del backend.
 - PDFs extremadamente grandes pueden seguir alcanzando limites de memoria del navegador o del engine; este ticket evita duplicar aperturas y reducir presion, pero no elimina limites fisicos del runtime.
+- PDFs con metadata/rotacion efectiva siguen presentando un pendiente visual: la pagina puede verse correctamente autoajustada por PDFium/EmbedPDF, pero la firma colocada con el plugin oficial puede aparecer rotada. Este pendiente no tiene parche frontend activo.
 
 ## Actualizacion 2026-06-16 - Diagnostico backend PDF con metadata de rotacion
 
@@ -182,3 +261,36 @@ Conclusion actual:
 
 - El problema de perdida de metadata/orientacion despues de consumir la API no queda clasificado como error de upload frontend.
 - El frontend mantiene pendiente una decision tecnica separada para la colocacion visual de firma en paginas con metadata rotada, pero no se deja ningun parche experimental activo.
+
+## Actualizacion 2026-06-16 - Consolidado de alcance funcional
+
+Estado funcional documentado:
+
+- El visor mantiene carga gestionada desde `DocumentosWorkbench`; no se regreso a una integracion simple basada solo en `fileUrl`.
+- La operacion de firma/reemplazo usa `AppVisorEmbedPdf` como frontera con EmbedPDF/PDFium.
+- `DocumentosWorkbench` orquesta validaciones, upload temporal, request final, progreso, bloqueo de navegacion y limpieza best-effort.
+- El servicio HTTP dedicado usa `clienteApi`, `AbortSignal` y envelope `AppResponses<T>`.
+- El upload envia chunks binarios puros, sin Base64 y sin `FormData`.
+- El frontend no intenta setear manualmente `Content-Length`.
+- Cada PDF anotado temporal corresponde a una sola pagina.
+- El request final envia cada pagina con su propio `RutaTemporalId` y `ArchivoTemporalId`.
+- `OriginalPdfPassword` vive solo en memoria volatil y solo viaja en el request final cuando existe password validada.
+- El guardado bloquea documentos firmados electronicamente.
+- El guardado muestra loader/progreso desde el inicio de la operacion.
+- El listado y el rail se bloquean durante el reemplazo para evitar navegacion concurrente.
+- Despues del exito, el visor marca las firmas como persistidas sin recargar inmediatamente el PDF pesado.
+- El mensaje visible de exito es simple: `Documento firmado correctamente.`
+
+Pruebas y validaciones asociadas:
+
+- Tests unitarios del servicio de reemplazo: init, chunk, complete, cancel, final request, envelope y errores.
+- Tests de `DocumentosWorkbench`: chunks, password final, documento firmado, reemplazo exitoso y persistencia posterior.
+- Tests de `AppVisorEmbedPdf`: password en memoria, prompts falsos y comportamiento de visor.
+- Build productivo ejecutado en validaciones previas: `npm.cmd run build`.
+
+Pendiente tecnico explicito:
+
+- La firma rotada en PDFs con metadata de autoajuste sigue abierta.
+- El caso tambien se observa con PDFs que EmbedPDF/PDFium ya presenta correctamente, pero cuyo plugin de firma calcula la colocacion en una geometria diferente a la visual.
+- No se debe considerar resuelto hasta tener una solucion aislada que no afecte PDFs normales ni el centrado actual del visor.
+- Las alternativas experimentales probadas fueron revertidas.

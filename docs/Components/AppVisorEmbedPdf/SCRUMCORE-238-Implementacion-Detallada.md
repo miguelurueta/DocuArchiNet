@@ -458,3 +458,368 @@ Validacion manual reportada:
 - El PDF con contrasena ya no pierde la password durante la firma.
 - El request final vuelve a enviar `OriginalPdfPassword: true`.
 - El flujo de firma queda funcional.
+
+## 13. Consolidado enterprise de implementacion vigente
+
+Esta seccion documenta el estado funcional completo alcanzado durante SCRUMCORE-238 hasta el cierre parcial del 2026-06-16. Incluye los ajustes que ya funcionan, los contratos preservados y el pendiente tecnico que no debe confundirse con el flujo exitoso de reemplazo.
+
+### 13.1 Flujo funcional vigente de guardado de firma/anotacion
+
+El flujo operativo actual es:
+
+1. `DocumentosWorkbench` mantiene la carga gestionada del visor mediante `visorRef.current?.load(...)`.
+2. `AppVisorEmbedPdf` abre el PDF con EmbedPDF/PDFium y conserva la frontera tecnica con el engine.
+3. El usuario agrega una firma desde el modal del visor.
+4. El visor materializa la firma como anotacion del documento.
+5. El boton de guardado de paginas anotadas queda habilitado solo cuando existe una firma/anotacion pendiente de guardar.
+6. Al presionar guardar, `DocumentosWorkbench` inicia la operacion de reemplazo de paginas.
+7. El visor ejecuta `annotationCap.provides.commit()` antes de exportar para asegurar que la anotacion este materializada.
+8. El visor exporta la copia anotada y extrae PDFs independientes de una sola pagina.
+9. `DocumentosWorkbench` sube cada PDF anotado por upload temporal.
+10. El frontend llama el endpoint final `paginas-anotadas`.
+11. Si backend responde OK, el visor marca localmente la firma como persistida.
+12. La firma deja de ser editable/removible en la UI.
+13. No se fuerza recarga del PDF pesado despues del exito.
+14. El usuario puede continuar trabajando sobre el documento visible y agregar nuevas firmas en operaciones posteriores.
+
+Punto importante: despues del exito, la firma se trata visualmente como persistida para evitar que el usuario la mueva o borre mientras el PDF fisico ya fue reemplazado por backend.
+
+### 13.2 Servicio HTTP de reemplazo de paginas anotadas
+
+El servicio dedicado se mantiene en:
+
+- `src/app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.service.ts`
+- `src/app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.types.ts`
+
+Responsabilidades:
+
+- Inicializar upload temporal.
+- Subir chunks binarios.
+- Completar temporal.
+- Cancelar temporal best-effort.
+- Ejecutar reemplazo final de paginas anotadas.
+- Desempaquetar `AppResponses<T>`.
+- Lanzar errores de dominio cuando `success !== true`, HTTP no es 2xx o `data` es `null` en endpoints que requieren datos.
+- Preservar `Field`, `Message`, `RequestId` y metadata de error cuando aplica.
+- Usar `clienteApi` y no `fetch`/`axios` directo en codigo productivo nuevo.
+- Propagar `AbortSignal`.
+
+Endpoints consumidos:
+
+```txt
+POST /api/gestor-documental/documentos/reemplazopdf/upload-temporal/init
+PUT  /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/chunk/{chunkIndex}
+GET  /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/status
+POST /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}/complete
+DELETE /api/gestor-documental/documentos/reemplazopdf/upload-temporal/{rutaTemporalId}/{archivoTemporalId}
+POST /api/gestor-documental/documentos/reemplazopdf/paginas-anotadas
+```
+
+El request final incluye `OriginalPdfPassword` solo cuando existe una password validada en memoria para el PDF original protegido.
+
+### 13.3 Upload por chunks y limite frontend
+
+Para reducir fallos de red/infraestructura con PDFs anotados generados a partir de documentos grandes, `DocumentosWorkbench` limita el tamano efectivo de chunk frontend:
+
+```ts
+const DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES = 1_048_576;
+const MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES = 768 * 1024;
+```
+
+La regla vigente:
+
+```ts
+const backendChunkSize = init.ChunkSizeBytes || DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES;
+const chunkSize = Math.min(backendChunkSize, MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES);
+```
+
+Esto significa:
+
+- Si backend devuelve 1 MB, el frontend envia chunks de maximo 768 KB.
+- Si backend devuelve un tamano menor, se respeta el menor.
+- El frontend sigue enviando body binario puro.
+- No se usa Base64.
+- No se usa `FormData`.
+- No se intenta setear manualmente `Content-Length` desde browser.
+- Se envia `Content-Type: application/octet-stream`.
+- Se envia `X-Total-Chunks`.
+
+Log de diagnostico:
+
+```txt
+[DV][reemplazo-paginas][chunk]
+```
+
+Campos importantes:
+
+- `pageNumber`
+- `fileName`
+- `pdfPageSizeBytes`
+- `frontendChunkLimitBytes`
+- `chunkSizeBytes`
+- `chunkIndex`
+- `totalChunks`
+- `rangeStart`
+- `rangeEnd`
+
+Este log permitio comprobar casos donde un PDF anotado de una sola pagina pesaba aproximadamente 1.56 MB y se enviaba correctamente dividido.
+
+### 13.4 Loader inmediato durante guardado
+
+Se ajusto la UX para que el estado de carga aparezca apenas el usuario presiona guardar paginas anotadas/firma. El objetivo fue evitar ventanas donde el usuario pudiera pensar que no ocurria nada mientras se estaba ejecutando:
+
+- commit de anotaciones;
+- exportacion;
+- extraccion de pagina;
+- calculo de hash;
+- init temporal;
+- upload de chunks;
+- complete temporal;
+- request final de reemplazo.
+
+El loader se propaga desde `DocumentosWorkbench` hacia `AppVisorEmbedPdf` mediante:
+
+- `isSavingAnnotatedPages`
+- `saveAnnotatedPagesProgress`
+
+La toolbar recibe el progreso y bloquea acciones mientras el guardado esta en curso.
+
+Nota tecnica: Ant Design puede advertir que `Spin.tip` solo aplica en patrones `nested` o `fullscreen`; esto no cambia el flujo funcional, pero queda como mejora visual futura si se quiere eliminar el warning.
+
+### 13.5 Bloqueo de navegacion durante reemplazo
+
+Mientras `isReplacingAnnotatedPages` esta activo, el workbench bloquea la seleccion de otros documentos para evitar romper la operacion en curso.
+
+Componentes afectados:
+
+- `AppTreeTable`
+- `AppCollapseRail`
+- listado de documentos del workbench
+
+Comportamiento:
+
+- Si el usuario intenta navegar durante el reemplazo, la accion se bloquea.
+- Se conserva el documento visible actual.
+- No se dispara una nueva carga de documento.
+- No se aborta accidentalmente el upload/reemplazo.
+
+Log:
+
+```txt
+[DV][reemplazo-paginas][navigation-blocked]
+```
+
+Este bloqueo es importante porque el flujo crea temporales en backend; cambiar de documento a mitad del proceso podria dejar operaciones inconsistentes o temporales pendientes de limpieza.
+
+### 13.6 Persistencia visual de firma sin reload post-exito
+
+Antes, despues del reemplazo exitoso, una recarga inmediata del PDF podia provocar dos problemas:
+
+- en PDFs grandes, volver a descargar/abrir cientos de MB sin necesidad;
+- en PDFs protegidos, reabrir podia disparar nuevamente el prompt de password.
+
+La solucion vigente:
+
+- El backend sigue siendo la fuente de verdad del PDF fisico final.
+- El frontend no fuerza reload inmediato despues del exito.
+- El visor materializa una capa visual de firmas persistidas.
+- Elimina/bloquea las firmas editables que ya fueron guardadas.
+- Permite agregar nuevas firmas despues, sin recargar el PDF completo.
+
+Logs:
+
+```txt
+[DV][firma][persisted:start]
+[DV][firma][persisted:done]
+```
+
+Campos relevantes:
+
+- `signatureEntries`
+- `annotationPages`
+- `persistedSignatures`
+- `deletedEditableSignatures`
+
+Garantia funcional:
+
+- una firma ya guardada no debe poder moverse ni borrarse como anotacion editable;
+- el usuario puede iniciar una nueva firma en una operacion posterior;
+- el documento visible no se oculta ante fallos;
+- si falla la persistencia visual local, no se considera fallo del reemplazo backend, pero se loguea como best-effort.
+
+### 13.7 Mensajeria de exito
+
+El mensaje de exito al usuario se simplifico a:
+
+```txt
+Documento firmado correctamente.
+```
+
+Se elimino del toast visible la referencia tecnica de soporte tipo `RequestId`, para una experiencia mas limpia. El `RequestId` sigue siendo informacion util para diagnostico y soporte cuando venga en logs o respuestas, pero no se muestra como parte del mensaje principal al usuario final.
+
+### 13.8 Password de PDF protegido
+
+La password del PDF original protegido se maneja asi:
+
+- vive solo en memoria volatil;
+- se informa al workbench mediante callback estable;
+- se expone al flujo de reemplazo mediante `visorRef.current?.getOriginalPdfPassword()`;
+- se envia solo en el request final de `paginas-anotadas`;
+- no se envia en init/chunks/complete;
+- no se guarda en `localStorage`;
+- no se guarda en `sessionStorage`;
+- no se guarda en IndexedDB;
+- no se imprime en consola;
+- no se incluye en telemetria.
+
+El log permitido es booleano:
+
+```txt
+[DV][password][memory] { hasPassword: true|false }
+```
+
+Validacion esperada en PDF protegido:
+
+```txt
+[DV][password][retry:ok] hasValidatedPassword: true
+[DV][password][memory] hasPassword: true
+[DV][reemplazo-paginas][final-request] OriginalPdfPassword: true
+```
+
+Validacion esperada en PDF no protegido:
+
+```txt
+[DV][password][open-attempt] hasPassword: false
+[DV][reemplazo-paginas][final-request] OriginalPdfPassword: false
+```
+
+### 13.9 Deduplicacion de cargas del visor
+
+Se mantiene `inFlightLoadRef` para evitar abrir dos veces el mismo PDF en el engine cuando la primera carga todavia esta en curso.
+
+Identidad funcional:
+
+```ts
+attemptId + documentKey + url + isElectronicallySigned
+```
+
+Si llega una carga identica en curso:
+
+```txt
+[DV][visor] load() duplicate in-flight reused
+```
+
+Efecto:
+
+- reduce presion de memoria;
+- evita `closeDocument before open` innecesario;
+- evita falsos prompts de password en PDFs grandes no protegidos;
+- conserva `latest-wins` para documentos distintos.
+
+### 13.10 Diagnostico de cifrado
+
+Cuando el engine falla al abrir un PDF y podria confundirse con password, el visor inspecciona el blob de forma best-effort para detectar si contiene `/Encrypt`.
+
+Log:
+
+```txt
+[DV][password][encryption-inspection]
+```
+
+Campos:
+
+- `documentKey`
+- `managedSeq`
+- `documentId`
+- `fileUrl`
+- `encrypted`
+- `blobSize`
+- `contentType`
+- `error`
+
+Regla de interpretacion:
+
+- `encrypted: true`: el PDF realmente parece cifrado o fue generado cifrado.
+- `encrypted: false`: no debe abrirse prompt de password solo por un `OPEN_FAILED` generico.
+- `error`: revisar si el `blob:` fue revocado o si hubo fallo de lectura local.
+
+### 13.11 Estado pendiente: firma rotada en PDFs con metadata de autoajuste
+
+Existe un pendiente tecnico importante y reproducible:
+
+- Algunos PDFs digitalizados vienen con metadata/rotacion efectiva.
+- PDFium/EmbedPDF los presenta correctamente centrados y derechos.
+- En esos PDFs, la geometria interna puede ser portrait, pero el slot visual renderizado es landscape.
+- Ejemplo observado:
+  - `width: 612`
+  - `height: 792`
+  - `rotatedWidth: 792`
+  - `rotatedHeight: 612`
+  - `slotLooksRotated: true`
+  - `rotationRaw: 0`
+  - `rotationSteps: 0`
+- Al colocar una firma con el plugin oficial de firma, la firma puede aparecer rotada aunque la pagina se vea derecha.
+
+Interpretacion tecnica:
+
+- El problema no es el upload por chunks.
+- El problema no es el request final de `paginas-anotadas`.
+- El problema no es la password.
+- El problema esta en la diferencia entre:
+  - la orientacion visual aplicada por PDFium/EmbedPDF para presentar la pagina;
+  - la geometria/rotacion que usa el plugin de firma para calcular preview, colocacion y anotacion.
+
+Se probaron y revirtieron alternativas que no resolvieron el caso:
+
+- cambiar `rotation` de `PagePointerProvider`/`AnnotationLayer` en la rama `slotLooksRotated`;
+- esperar artificialmente a que `rotationSteps` llegara a `1`;
+- normalizar la anotacion despues de creada;
+- desactivar `insertUpright` en herramientas de firma;
+- pre-rotar el asset de firma;
+- separar capas de render/anotacion en overlays distintos;
+- usar renderers custom parciales;
+- usar flags `noRotate` en defaults de herramientas.
+
+Motivo de reversion:
+
+- algunas alternativas desajustaban la pagina que antes se veia bien;
+- otras no cambiaban la rotacion de la firma;
+- el renderer custom parcial produjo error runtime `r.matches is not a function`;
+- `noRotate` no corrigio la colocacion visual porque la rotacion ocurre en el flujo de preview/placement del plugin antes del render final de la anotacion.
+
+Decision vigente:
+
+- No queda ningun parche experimental activo para este caso.
+- No se debe volver a modificar la geometria global del visor sin aislar el caso.
+- La solucion enterprise recomendada para frontend, si se decide abordar, es un flujo especial de colocacion controlada por la app solo para paginas `slotLooksRotated === true && rotationSteps === 0`.
+- Ese flujo deberia usar un overlay propio para ubicar la firma en coordenadas visuales y luego crear/importar la anotacion normalizada, sin alterar PDFs normales.
+
+Adicionalmente, backend debe revisar la preservacion de metadata al reemplazar paginas:
+
+- En documentos con metadata de rotacion, despues de reemplazar por API se ha observado que el PDF final puede perder la orientacion efectiva original.
+- Backend/iText debe preservar `/Rotate`, `MediaBox`, `CropBox` y orientacion efectiva de la pagina original.
+- Este pendiente backend es independiente del problema de preview/placement de firma en frontend, aunque ambos se manifiestan en documentos con metadata de rotacion.
+
+### 13.12 Estado actual de funcionamiento
+
+Funciona actualmente:
+
+- carga gestionada del visor;
+- firma normal en PDFs sin metadata rotada;
+- guardado de paginas anotadas;
+- upload temporal por chunks;
+- limite frontend de chunks a 768 KB;
+- progreso/loader durante guardado;
+- bloqueo de lista de documentos y rail durante reemplazo;
+- PDFs protegidos con password validada;
+- envio de `OriginalPdfPassword` solo en request final;
+- deduplicacion de cargas identicas;
+- supresion de prompt falso en PDFs grandes no protegidos;
+- persistencia visual de firma sin reload post-exito;
+- mensaje de exito simple;
+- logs de diagnostico con `window.__DV_DEBUG__`.
+
+Pendiente actual:
+
+- firma visualmente rotada al colocarla en PDFs que EmbedPDF/PDFium autoajusta por metadata/rotacion efectiva;
+- preservacion backend de metadata/orientacion al reemplazar paginas de esos PDFs.
