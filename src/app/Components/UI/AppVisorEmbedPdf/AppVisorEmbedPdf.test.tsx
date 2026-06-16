@@ -1,15 +1,36 @@
 ﻿import type React from "react";
+import { createRef } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { PdfErrorCode } from "@embedpdf/models";
 
 import { AppVisorEmbedPdf } from "./AppVisorEmbedPdf";
+import type { AppVisorEmbedPdfRef } from "./AppVisorEmbedPdf.types";
 import { AppVisorEmbedPdf as AppVisorEmbedPdfFromIndex } from "./index";
 
 const appGuideTourMock = vi.hoisted(() => ({
   start: vi.fn(),
   stop: vi.fn(),
   refresh: vi.fn(),
+}));
+
+const pdfReplacementUtilsMock = vi.hoisted(() => ({
+  extractSinglePagePdfs: vi.fn(async (_sourcePdf: Blob, pageNumbers: number[]) =>
+    pageNumbers.map((pageNumber) => ({
+      pageNumber,
+      blob: new Blob([`page-${pageNumber}`], { type: "application/pdf" }),
+    })),
+  ),
+  calculateBlobSha256: vi.fn(async (blob: Blob) => `hash-${blob.size}`),
+}));
+
+vi.mock("./utils/pdfSinglePageExtraction", () => ({
+  extractSinglePagePdfs: pdfReplacementUtilsMock.extractSinglePagePdfs,
+}));
+
+vi.mock("./utils/hashSha256", () => ({
+  calculateBlobSha256: pdfReplacementUtilsMock.calculateBlobSha256,
 }));
 
 type MockPersonalSignatureStatus = "idle" | "loading" | "ready" | "error" | "empty";
@@ -56,9 +77,17 @@ vi.mock("../../../../../api/Clienteaxios", () => ({
 
 const engineStateLoading = { status: "loading" as const };
 const engineStateError = { status: "error" as const, error: new Error("boom") };
+const extractPagesMock = vi.fn((_: unknown, pageIndexes: number[]) => ({
+  wait: (resolved: (value: ArrayBuffer) => void) => {
+    const text = `page-${pageIndexes.join("-")}`;
+    resolved(new TextEncoder().encode(text).buffer);
+  },
+}));
 const engineStateReady = {
   status: "ready" as const,
-  engine: {} as unknown,
+  engine: {
+    extractPages: extractPagesMock,
+  } as unknown,
 };
 
 const useEmbedPdfEngineMock = vi.fn();
@@ -109,6 +138,16 @@ beforeEach(() => {
   workflowPersonalSignatureMock.state.blobUrl = null;
   workflowPersonalSignatureMock.state.imageData = null;
   workflowPersonalSignatureMock.state.errorMessage = null;
+  annotationPagesState = {};
+  annotationCommitMock.mockClear();
+  extractPagesMock.mockClear();
+  saveAsCopyMock.mockClear();
+  pdfReplacementUtilsMock.extractSinglePagePdfs.mockClear();
+  pdfReplacementUtilsMock.calculateBlobSha256.mockClear();
+  exportProvides = {
+    download: downloadMock,
+    saveAsCopy: saveAsCopyMock,
+  };
 });
 
 afterEach(() => {
@@ -233,19 +272,24 @@ vi.mock("@embedpdf/plugin-selection/react", () => ({
   useSelectionCapability: () => ({ provides: null }),
 }));
 
+const annotationCommitMock = vi.fn(() => ({
+  wait: (resolved: (value: boolean) => void) => resolved(true),
+}));
+let annotationPagesState: Record<string, string[]> = {};
+
 vi.mock("@embedpdf/plugin-annotation/react", () => ({
   AnnotationLayer: ({ documentId, pageIndex }: { documentId: string; pageIndex: number }) => (
     <div data-testid="annotation-layer" data-document-id={documentId} data-page-index={pageIndex} />
   ),
   useAnnotation: () => ({
-    state: { selectedUids: [] },
+    state: { selectedUids: [], pages: annotationPagesState },
     provides: {
       deleteAnnotation: vi.fn(),
     },
   }),
   useAnnotationCapability: () => ({
     provides: {
-      commit: vi.fn(),
+      commit: annotationCommitMock,
     },
   }),
 }));
@@ -310,8 +354,12 @@ vi.mock("@embedpdf/plugin-print/react", () => ({
 }));
 
 const downloadMock = vi.fn();
-let exportProvides: { download: typeof downloadMock } | null = {
+const saveAsCopyMock = vi.fn(() => ({
+  wait: (resolved: (value: ArrayBuffer) => void) => resolved(new ArrayBuffer(8)),
+}));
+let exportProvides: { download?: typeof downloadMock; saveAsCopy?: typeof saveAsCopyMock } | null = {
   download: downloadMock,
+  saveAsCopy: saveAsCopyMock,
 };
 vi.mock("@embedpdf/plugin-export/react", () => ({
   __setExportProvides: (next: typeof exportProvides) => {
@@ -347,6 +395,22 @@ vi.mock("./engine/embedPdfAdapter", () => ({
     activeDocumentIdState = next;
   },
   useActiveDocument: () => ({ activeDocumentId: activeDocumentIdState }),
+  useDocumentState: (documentId: string | null) =>
+    documentId
+      ? {
+          document: {
+            id: documentId,
+            pageCount: 5,
+            pages: [
+              { index: 0, size: { width: 612, height: 792 }, rotation: 0 },
+              { index: 1, size: { width: 612, height: 792 }, rotation: 0 },
+              { index: 2, size: { width: 612, height: 792 }, rotation: 0 },
+              { index: 3, size: { width: 612, height: 792 }, rotation: 0 },
+              { index: 4, size: { width: 612, height: 792 }, rotation: 0 },
+            ],
+          },
+        }
+      : null,
   useDocumentManagerCapability: () => ({
     provides: {
       openDocumentUrl: openDocumentUrlMock,
@@ -516,14 +580,15 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     expect(scrollToNextPageMock).toHaveBeenCalledTimes(1);
   });
 
-  it("[SPEC:SCRUMCORE-209] muestra password prompt cuando el documento requiere contraseÃƒÆ’Ã‚Â±a", () => {
+  it("[SPEC:SCRUMCORE-209] no muestra password prompt solo por estado error", async () => {
     useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
     documentContentRenderState = { isLoaded: false, isError: true, isLoading: false };
 
-    render(<AppVisorEmbedPdf fileUrl="/demo/protected.pdf" />);
+    render(<AppVisorEmbedPdf fileUrl="/demo/broken-large.pdf" />);
 
-    expect(screen.getByRole("dialog", { name: /documento protegido/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/contraseña del documento/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: /documento protegido/i })).not.toBeInTheDocument();
+    });
   });
 
   it("[SPEC:SCRUMCORE-233] no muestra password prompt en OPEN_FAILED (evita falso 'Documento protegido')", async () => {
@@ -550,6 +615,28 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     });
 
     __setActiveDocumentId("doc-1");
+  });
+
+  it("[SPEC:SCRUMCORE-238] no abre prompt si PDFium reporta Password pero el PDF no esta cifrado", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    documentContentRenderState = { isLoaded: false, isError: false, isLoading: true };
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(new Blob(["%PDF-1.7\n1 0 obj\n<<>>\nendobj\n%%EOF"], { type: "application/pdf" })),
+    );
+
+    render(<AppVisorEmbedPdf fileUrl="/demo/not-protected.pdf" />);
+
+    onDocumentErrorMock({
+      documentId: "doc-1",
+      reason: { code: PdfErrorCode.Password },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: /documento protegido/i })).not.toBeInTheDocument();
+    });
+
+    expect(fetchSpy).toHaveBeenCalledWith("/demo/not-protected.pdf");
+    fetchSpy.mockRestore();
   });
 
   it("[SPEC:SCRUMCORE-208] no crashea cuando scroll.provides es null", async () => {
@@ -741,6 +828,75 @@ describe("AppVisorEmbedPdf [SPEC:SCRUMCORE-201]", () => {
     await user.type(input, "10{enter}");
 
     expect(scrollToPageMock).toHaveBeenCalledWith({ pageNumber: 10, behavior: "smooth", alignY: 0 });
+  });
+
+  it("[SPEC:SCRUMCORE-238] exportAnnotatedPdfPages retorna vacio sin anotaciones", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    const ref = createRef<AppVisorEmbedPdfRef>();
+
+    render(<AppVisorEmbedPdf ref={ref} fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    await waitFor(() => expect(ref.current).not.toBeNull());
+
+    await expect(ref.current!.exportAnnotatedPdfPages()).resolves.toEqual({
+      hasAnnotations: false,
+      annotatedPages: [],
+      pageNumbers: [],
+      pages: [],
+    });
+    expect(annotationCommitMock).not.toHaveBeenCalled();
+    expect(saveAsCopyMock).not.toHaveBeenCalled();
+  });
+
+  it("[SPEC:SCRUMCORE-238] exportAnnotatedPdfPages hace commit y exporta PDFs por pagina anotada", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    annotationPagesState = {
+      "1": ["ann-page-2"],
+      "4": ["ann-page-5"],
+      "3": [],
+    };
+    const ref = createRef<AppVisorEmbedPdfRef>();
+
+    render(<AppVisorEmbedPdf ref={ref} fileUrl="/demo/Radicado_2026_0413.pdf" />);
+
+    await waitFor(() => expect(ref.current).not.toBeNull());
+    const result = await ref.current!.exportAnnotatedPdfPages({ calculateHashSha256: true });
+
+    expect(annotationCommitMock).toHaveBeenCalledTimes(1);
+    expect(saveAsCopyMock).not.toHaveBeenCalled();
+    expect(pdfReplacementUtilsMock.extractSinglePagePdfs).not.toHaveBeenCalled();
+    expect(extractPagesMock).toHaveBeenCalledTimes(2);
+    expect(extractPagesMock).toHaveBeenNthCalledWith(1, expect.any(Object), [1]);
+    expect(extractPagesMock).toHaveBeenNthCalledWith(2, expect.any(Object), [4]);
+    expect(result.pageNumbers).toEqual([2, 5]);
+    expect(result.hasAnnotations).toBe(true);
+    expect(result.annotatedPages).toEqual([2, 5]);
+    expect(result.pages).toEqual([
+      expect.objectContaining({
+        pageNumber: 2,
+        fileName: "document-doc-1-page-2-annotated.pdf",
+        sizeBytes: 6,
+        hashSha256: "hash-6",
+      }),
+      expect.objectContaining({
+        pageNumber: 5,
+        fileName: "document-doc-1-page-5-annotated.pdf",
+        sizeBytes: 6,
+        hashSha256: "hash-6",
+      }),
+    ]);
+  });
+
+  it("[SPEC:SCRUMCORE-238] no conserva OriginalPdfPassword sin password validada", async () => {
+    useEmbedPdfEngineMock.mockReturnValue(engineStateReady);
+    documentContentRenderState = { isLoaded: false, isError: true, isLoading: false };
+    const ref = createRef<AppVisorEmbedPdfRef>();
+
+    render(<AppVisorEmbedPdf ref={ref} fileUrl="/demo/broken-large.pdf" />);
+
+    await waitFor(() => {
+      expect(ref.current?.getOriginalPdfPassword()).toBeUndefined();
+    });
   });
 
   it("permite consumo desde index sin exponer detalles del engine", () => {

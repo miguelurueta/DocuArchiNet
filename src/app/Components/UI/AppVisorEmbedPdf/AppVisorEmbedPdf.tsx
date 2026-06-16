@@ -6,7 +6,7 @@ import { useScroll } from "@embedpdf/plugin-scroll/react";
 import { Rotate, useRotate } from "@embedpdf/plugin-rotate/react";
 import { useViewportCapability } from "@embedpdf/plugin-viewport/react";
 import { LeftOutlined, RightOutlined, UpOutlined } from "@ant-design/icons";
-import { Skeleton } from "antd";
+import { Skeleton, Spin } from "antd";
 import { usePrint } from "@embedpdf/plugin-print/react";
 import { useExport } from "@embedpdf/plugin-export/react";
 import { PdfErrorCode } from "@embedpdf/models";
@@ -34,6 +34,7 @@ import {
   RenderLayer,
   Scroller,
   useActiveDocument,
+  useDocumentState,
   useDocumentManagerCapability,
   Viewport,
 } from "./engine/embedPdfAdapter";
@@ -54,6 +55,8 @@ import type { AppGuideTourEvent, AppGuideTourRef } from "../AppGuideTour";
 import styles from "./styles/AppVisorEmbedPdf.module.css";
 import type { AppVisorEmbedPdfProps } from "./types/AppVisorEmbedPdfProps";
 import type {
+  AppVisorExportAnnotatedPdfPagesOptions,
+  AppVisorExportAnnotatedPdfPagesResult,
   AppVisorEmbedPdfRef,
   AppVisorLoadInput,
   AppVisorLoadResult,
@@ -72,6 +75,8 @@ import {
   APP_VISOR_EMBED_PDF_GUIDE_STEPS,
   APP_VISOR_EMBED_PDF_GUIDE_TOUR_ID,
 } from "./AppVisorEmbedPdf.guideTour";
+import { calculateBlobSha256 } from "./utils/hashSha256";
+import { getAnnotatedPageNumbers } from "./utils/pdfPageAnnotations";
 
 function cx(...parts: Array<string | undefined>) {
   return parts.filter(Boolean).join(" ");
@@ -86,6 +91,68 @@ function dvLog(...args: unknown[]) {
   // eslint-disable-next-line no-console
   console.log(...args);
 }
+
+function summarizeAnnotationPages(
+  pages: Record<string, unknown>,
+  getAnnotationById?: (uid: string) => unknown,
+) {
+  return Object.fromEntries(
+    Object.entries(pages).map(([pageIndex, ids]) => [
+      pageIndex,
+      Array.isArray(ids)
+        ? ids.map((uid) => {
+            const annotation = typeof uid === "string" ? (getAnnotationById?.(uid) as any) : undefined;
+            return {
+              uid,
+              objectId: annotation?.object?.id,
+              type: annotation?.object?.type,
+              subject: annotation?.object?.subject,
+              pageIndex: annotation?.object?.pageIndex,
+              rect: annotation?.object?.rect,
+              unrotatedRect: annotation?.object?.unrotatedRect,
+              rotation: annotation?.object?.rotation,
+            };
+          })
+        : ids,
+    ]),
+  );
+}
+
+function summarizeSignatureEntries(entries: unknown[]) {
+  return entries.map((entry: any) => ({
+    id: entry?.id,
+    type: entry?.type,
+    pageIndex: entry?.pageIndex,
+    pageNumber: entry?.pageNumber,
+    signatureType: entry?.signature?.type,
+    signatureKeys: entry?.signature ? Object.keys(entry.signature) : [],
+  }));
+}
+
+function getByteLength(value: unknown): number | undefined {
+  if (!value) return undefined;
+  if (value instanceof ArrayBuffer) return value.byteLength;
+  if (ArrayBuffer.isView(value)) return value.byteLength;
+  if (value instanceof Blob) return value.size;
+  return undefined;
+}
+
+function blobPartFromBytes(bytes: Uint8Array<ArrayBufferLike>): BlobPart {
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  return copy.buffer;
+}
+
+type PersistedSignatureVisual = {
+  id: string;
+  pageIndex: number;
+  imageUrl: string;
+  imageBlob: Blob;
+  rect: {
+    origin: { x: number; y: number };
+    size: { width: number; height: number };
+  };
+};
 
 function waitPdfTask<T>(task: { wait(onOk: (value: T) => void, onErr: (err: unknown) => void): void }) {
   return new Promise<T>((resolve, reject) => {
@@ -107,6 +174,32 @@ function waitPdfTaskVoid(task: { wait(onOk: (value: unknown) => void, onErr: (er
   });
 }
 
+async function inspectPdfUrlForEncryption(url: string): Promise<{
+  encrypted: boolean | undefined;
+  blobSize?: number;
+  contentType?: string;
+  error?: string;
+}> {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const scanSize = 1024 * 1024;
+    const head = blob.slice(0, Math.min(scanSize, blob.size));
+    const tail = blob.slice(Math.max(0, blob.size - scanSize), blob.size);
+    const [headText, tailText] = await Promise.all([head.text(), tail.text()]);
+    return {
+      encrypted: /\/Encrypt\b/.test(headText) || /\/Encrypt\b/.test(tailText),
+      blobSize: blob.size,
+      contentType: blob.type || response.headers.get("content-type") || undefined,
+    };
+  } catch (err) {
+    return {
+      encrypted: undefined,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
 function toPdfBlobPart(buffer: ArrayBuffer | Uint8Array<ArrayBufferLike>): BlobPart {
   if (buffer instanceof ArrayBuffer) return buffer;
 
@@ -116,30 +209,6 @@ function toPdfBlobPart(buffer: ArrayBuffer | Uint8Array<ArrayBufferLike>): BlobP
   return copy.buffer;
 }
 
-async function saveBlobToIndexedDb(params: { documentId: string; name: string; blob: Blob }) {
-  const { documentId, name, blob } = params;
-  const db = await new Promise<IDBDatabase>((resolve, reject) => {
-    const request = indexedDB.open("docuarchi-appvisor", 1);
-    request.onupgradeneeded = () => {
-      const database = request.result;
-      if (!database.objectStoreNames.contains("signed_pdfs")) {
-        database.createObjectStore("signed_pdfs", { keyPath: "documentId" });
-      }
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error("IndexedDB open failed"));
-  });
-
-  await new Promise<void>((resolve, reject) => {
-    const tx = db.transaction("signed_pdfs", "readwrite");
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error ?? new Error("IndexedDB transaction failed"));
-    tx.objectStore("signed_pdfs").put({ documentId, name, blob, savedAt: new Date().toISOString() });
-  });
-
-  db.close();
-}
-
 /**
  * AppVisorEmbedPdf (01-FE)
  *
@@ -147,7 +216,17 @@ async function saveBlobToIndexedDb(params: { documentId: string; name: string; b
  * Se prohÃ­be filtrar detalles del engine hacia mÃ³dulos consumidores.
  */
 export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdfProps>(function AppVisorEmbedPdf(
-  { fileUrl, loading = false, className, style, onEmptyDocumentHintRequest }: AppVisorEmbedPdfProps,
+  {
+    fileUrl,
+    loading = false,
+    className,
+    style,
+    onEmptyDocumentHintRequest,
+    onSaveAnnotatedPages,
+    isSaveAnnotatedPagesDisabled = false,
+    isSavingAnnotatedPages = false,
+    saveAnnotatedPagesProgress,
+  }: AppVisorEmbedPdfProps,
   ref,
 ) {
   const demoUrl = useDemoPdfUrl();
@@ -166,6 +245,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
   const loadAbortRef = useRef<AbortController | null>(null);
   const lastLoadIdentityRef = useRef<{ attemptId?: number; documentKey?: string } | null>(null);
   const lastOpenResultRef = useRef<{ url: string; ok: boolean } | null>(null);
+  const inFlightLoadRef = useRef<{ key: string; promise: Promise<AppVisorLoadResult> } | null>(null);
   const managedSnapshotRef = useRef<{
     permissionsRaw: Record<string, boolean>;
     permissionsEffective: ViewerEffectivePermissions;
@@ -188,6 +268,11 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
       }
     | null
   >(null);
+  const exportAnnotatedPdfPagesRef = useRef<
+    ((options?: AppVisorExportAnnotatedPdfPagesOptions) => Promise<AppVisorExportAnnotatedPdfPagesResult>) | null
+  >(null);
+  const markAnnotatedPagesPersistedRef = useRef<(() => Promise<void>) | null>(null);
+  const originalPdfPasswordRef = useRef<string | null>(null);
 
   const effectiveFileUrl = managedUrl?.trim()
     ? managedUrl.trim()
@@ -210,6 +295,10 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     dvLog("[DV][visor]", "cancelCurrentLoad()");
     loadAbortRef.current?.abort();
     loadAbortRef.current = null;
+    inFlightLoadRef.current = null;
+    exportAnnotatedPdfPagesRef.current = null;
+    markAnnotatedPagesPersistedRef.current = null;
+    originalPdfPasswordRef.current = null;
 
     const pending = pendingLoadResolverRef.current;
     if (!pending) return;
@@ -236,9 +325,12 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     setManagedPermissionStatus("not_required");
     setManagedSigned(false);
     setManagedErrors([]);
+    exportAnnotatedPdfPagesRef.current = null;
+    markAnnotatedPagesPersistedRef.current = null;
+    originalPdfPasswordRef.current = null;
   }, [cancelCurrentLoad]);
 
-  const load = useCallback(async (input: AppVisorLoadInput): Promise<AppVisorLoadResult> => {
+  const runLoad = useCallback(async (input: AppVisorLoadInput): Promise<AppVisorLoadResult> => {
     loadSeqRef.current += 1;
     const seq = loadSeqRef.current;
     dvLog("[DV][visor]", "load() start", { seq, attemptId: input.attemptId, documentKey: input.documentKey });
@@ -302,6 +394,12 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
         setManagedPermissionStatus("resolved");
         setManagedPermissionsRaw(perms.Permissions ?? {});
         const mapped = mapPermisosVisorPdfToEffectivePermissions(perms.Permissions ?? {});
+        dvLog("[DV][visor][permissions]", {
+          codigoImpl,
+          response: perms,
+          raw: perms.Permissions ?? {},
+          effective: mapped,
+        });
         setManagedPermissionsEffective(
           applySignedOverride({
             effective: mapped,
@@ -341,12 +439,49 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     });
   }, []);
 
+  const load = useCallback((input: AppVisorLoadInput): Promise<AppVisorLoadResult> => {
+    const loadKey = [
+      input.attemptId ?? "",
+      input.documentKey ?? "",
+      input.url,
+      input.isElectronicallySigned ?? "",
+    ].join("|");
+    const inFlightLoad = inFlightLoadRef.current;
+    if (inFlightLoad?.key === loadKey) {
+      dvLog("[DV][visor]", "load() duplicate in-flight reused", {
+        attemptId: input.attemptId,
+        documentKey: input.documentKey,
+      });
+      return inFlightLoad.promise;
+    }
+
+    const promise = runLoad(input);
+    inFlightLoadRef.current = { key: loadKey, promise };
+    void promise.finally(() => {
+      if (inFlightLoadRef.current?.key === loadKey) {
+        inFlightLoadRef.current = null;
+      }
+    });
+    return promise;
+  }, [runLoad]);
+
   useImperativeHandle(
     ref,
     () => ({
       load,
       reset,
       cancelCurrentLoad,
+      getOriginalPdfPassword: () => originalPdfPasswordRef.current ?? undefined,
+      markAnnotatedPagesPersisted: async () => {
+        await markAnnotatedPagesPersistedRef.current?.();
+      },
+      exportAnnotatedPdfPages: async (options) => {
+        if (!exportAnnotatedPdfPagesRef.current) {
+          throw new Error("El visor PDF no esta listo para exportar paginas anotadas.");
+        }
+
+        return exportAnnotatedPdfPagesRef.current(options);
+      },
     }),
     [cancelCurrentLoad, load, reset],
   );
@@ -366,6 +501,22 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
     [],
   );
   const permissionsForRender = isManagedMode ? managedPermissionsEffective : legacyOpenPermissions;
+  const handleExportAnnotatedPdfPagesReady = useCallback(
+    (handler: ((options?: AppVisorExportAnnotatedPdfPagesOptions) => Promise<AppVisorExportAnnotatedPdfPagesResult>) | null) => {
+      exportAnnotatedPdfPagesRef.current = handler;
+    },
+    [],
+  );
+  const handleMarkAnnotatedPagesPersistedReady = useCallback((handler: (() => Promise<void>) | null) => {
+    markAnnotatedPagesPersistedRef.current = handler;
+  }, []);
+  const handleOriginalPdfPasswordChange = useCallback((password: string | null) => {
+    originalPdfPasswordRef.current = typeof password === "string" && password.length > 0 ? password : null;
+    dvLog("[DV][password][memory]", {
+      documentKey: lastLoadIdentityRef.current?.documentKey,
+      hasPassword: Boolean(originalPdfPasswordRef.current),
+    });
+  }, []);
 
   if (engineState.status === "loading") {
     return (
@@ -397,11 +548,16 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
       {loading ? <FullLoadingOverlay /> : null}
       <EmbedPDF engine={engineState.engine} plugins={pluginRegistration}>
         <EmbedPdfDocumentHost
+          engine={engineState.engine}
           fileUrl={effectiveFileUrl}
           managedSeq={loadSeqRef.current}
           documentKey={lastLoadIdentityRef.current?.documentKey}
           loading={loading}
           permissionsEffective={permissionsForRender}
+          onSaveAnnotatedPages={onSaveAnnotatedPages}
+          isSaveAnnotatedPagesDisabled={isSaveAnnotatedPagesDisabled}
+          isSavingAnnotatedPages={isSavingAnnotatedPages}
+          saveAnnotatedPagesProgress={saveAnnotatedPagesProgress}
           onManagedOpenResult={(payload) => {
             const pending = pendingLoadResolverRef.current;
             if (!pending) return;
@@ -420,6 +576,9 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
             });
             lastOpenResultRef.current = { url: effectiveFileUrl, ok: payload.ok };
           }}
+          onExportAnnotatedPdfPagesReady={handleExportAnnotatedPdfPagesReady}
+          onMarkAnnotatedPagesPersistedReady={handleMarkAnnotatedPagesPersistedReady}
+          onOriginalPdfPasswordChange={handleOriginalPdfPasswordChange}
         />
       </EmbedPDF>
     </div>
@@ -493,14 +652,39 @@ function resolve(params: {
 }
 
 function EmbedPdfDocumentHost(props: {
+  engine: import("@embedpdf/engines/pdfium").PdfEngine<Blob>;
   fileUrl: string;
   managedSeq: number;
   documentKey?: string;
   loading?: boolean;
   permissionsEffective: ViewerEffectivePermissions;
+  onSaveAnnotatedPages?: () => void;
+  isSaveAnnotatedPagesDisabled?: boolean;
+  isSavingAnnotatedPages?: boolean;
+  saveAnnotatedPagesProgress?: number;
   onManagedOpenResult(payload: { seq: number; ok: boolean; errors: string[] }): void;
+  onExportAnnotatedPdfPagesReady(
+    handler: ((options?: AppVisorExportAnnotatedPdfPagesOptions) => Promise<AppVisorExportAnnotatedPdfPagesResult>) | null,
+  ): void;
+  onMarkAnnotatedPagesPersistedReady(handler: (() => Promise<void>) | null): void;
+  onOriginalPdfPasswordChange(password: string | null): void;
 }) {
-  const { fileUrl, managedSeq, documentKey, loading = false, permissionsEffective, onManagedOpenResult } = props;
+  const {
+    engine,
+    fileUrl,
+    managedSeq,
+    documentKey,
+    loading = false,
+    permissionsEffective,
+    onSaveAnnotatedPages,
+    isSaveAnnotatedPagesDisabled = false,
+    isSavingAnnotatedPages = false,
+    saveAnnotatedPagesProgress,
+    onManagedOpenResult,
+    onExportAnnotatedPdfPagesReady,
+    onMarkAnnotatedPagesPersistedReady,
+    onOriginalPdfPasswordChange,
+  } = props;
   const { provides } = useDocumentManagerCapability();
   const { activeDocumentId } = useActiveDocument();
   const fitMode: FitMode = "width";
@@ -520,6 +704,7 @@ function EmbedPdfDocumentHost(props: {
     { url: string; password: string | null; attempt: number } | null
   >(null);
   const lastAttemptHadPasswordRef = useRef(false);
+  const validatedPdfPasswordRef = useRef<string | null>(null);
 
   useEffect(() => {
     latestManagedSeqRef.current = managedSeq;
@@ -534,9 +719,16 @@ function EmbedPdfDocumentHost(props: {
     setIsSubmittingPassword(false);
     lastOpenedRef.current = null;
     lastAttemptHadPasswordRef.current = false;
+    validatedPdfPasswordRef.current = null;
     autoFitIntentRef.current = null;
     autoFitAppliedRef.current = false;
-  }, [fileUrl]);
+    onOriginalPdfPasswordChange(null);
+    return () => {
+      onExportAnnotatedPdfPagesReady(null);
+      onMarkAnnotatedPagesPersistedReady(null);
+      onOriginalPdfPasswordChange(null);
+    };
+  }, [fileUrl, onExportAnnotatedPdfPagesReady, onMarkAnnotatedPagesPersistedReady, onOriginalPdfPasswordChange]);
 
   useEffect(() => {
     if (!activeDocumentId) return;
@@ -550,12 +742,19 @@ function EmbedPdfDocumentHost(props: {
     if (!provides) return;
     if (!fileUrl) return;
     const last = lastOpenedRef.current;
+    const effectivePassword = password ?? validatedPdfPasswordRef.current;
     // Importante: permitir reintento aunque el usuario envíe la misma contraseña (mismo string).
     // Por eso incluimos `passwordAttempt` como parte de la identidad del intento.
-    if (last && last.url === fileUrl && last.password === password && last.attempt === passwordAttempt) return;
-    lastOpenedRef.current = { url: fileUrl, password, attempt: passwordAttempt };
-    lastAttemptHadPasswordRef.current = Boolean(password);
-    setIsSubmittingPassword(Boolean(password));
+    if (last && last.url === fileUrl && last.password === effectivePassword && last.attempt === passwordAttempt) return;
+    lastOpenedRef.current = { url: fileUrl, password: effectivePassword, attempt: passwordAttempt };
+    lastAttemptHadPasswordRef.current = Boolean(effectivePassword);
+    setIsSubmittingPassword(Boolean(effectivePassword));
+    dvLog("[DV][password][open-attempt]", {
+      documentKey,
+      managedSeq,
+      hasPassword: Boolean(effectivePassword),
+      hasValidatedPassword: Boolean(validatedPdfPasswordRef.current),
+    });
 
     // Enterprise hardening: el DocumentManager tiene un máximo de documentos abiertos (por defecto 10).
     // Para evitar `Maximum number of documents (10) reached`, aplicamos política "single-active document":
@@ -576,7 +775,7 @@ function EmbedPdfDocumentHost(props: {
       url: fileUrl,
       name: "document.pdf",
       autoActivate: true,
-      ...(password ? { password } : null),
+      ...(effectivePassword ? { password: effectivePassword } : null),
     });
 
     // El DocumentManager devuelve un Task que resuelve con { documentId, task }.
@@ -599,7 +798,10 @@ function EmbedPdfDocumentHost(props: {
             setIsSubmittingPassword(false);
             setPasswordPromptOpen(false);
             setInvalidPassword(false);
-            dvLog("[DV][visor]", "engine ready (task ok)", { managedSeq });
+            dvLog("[DV][visor]", "engine ready (task ok)", {
+              managedSeq,
+              hasValidatedPassword: Boolean(validatedPdfPasswordRef.current),
+            });
             autoFitIntentRef.current = { documentId: response.documentId, seq: managedSeq };
             autoFitAppliedRef.current = false;
             onManagedOpenResult({ seq: managedSeq, ok: true, errors: [] });
@@ -629,7 +831,7 @@ function EmbedPdfDocumentHost(props: {
     return () => {
       cancelled = true;
     };
-  }, [fileUrl, provides, password, passwordAttempt]);
+  }, [documentKey, fileUrl, managedSeq, provides, password, passwordAttempt]);
 
   useEffect(() => {
     if (!provides) return;
@@ -640,15 +842,61 @@ function EmbedPdfDocumentHost(props: {
       // stale guard: solo el intento vigente puede abrir prompt.
       if (managedSeq !== latestManagedSeqRef.current) return;
 
-      setIsSubmittingPassword(false);
-      setPasswordPromptOpen(true);
-      setInvalidPassword(lastAttemptHadPasswordRef.current);
-      onManagedOpenResult({ seq: managedSeq, ok: false, errors: ["PASSWORD_REQUIRED"] });
+      dvLog("[DV][password][prompt-open:onDocumentError]", {
+        documentKey,
+        managedSeq,
+        documentId: evt.documentId,
+        hasValidatedPassword: Boolean(validatedPdfPasswordRef.current),
+        lastAttemptHadPassword: lastAttemptHadPasswordRef.current,
+      });
+      if (validatedPdfPasswordRef.current && lastAttemptHadPasswordRef.current) {
+        dvLog("[DV][password][prompt-suppressed:validated]", {
+          documentKey,
+          managedSeq,
+          documentId: evt.documentId,
+        });
+        return;
+      }
+
+      void (async () => {
+        const inspectedSeq = managedSeq;
+        const inspection = await inspectPdfUrlForEncryption(fileUrl);
+        if (inspectedSeq !== latestManagedSeqRef.current) return;
+
+        dvLog("[DV][password][encryption-inspection]", {
+          documentKey,
+          managedSeq,
+          documentId: evt.documentId,
+          fileUrl,
+          encrypted: inspection.encrypted,
+          blobSize: inspection.blobSize,
+          contentType: inspection.contentType,
+          error: inspection.error,
+        });
+
+        if (inspection.encrypted === false && !lastAttemptHadPasswordRef.current) {
+          dvLog("[DV][password][prompt-suppressed:not-encrypted]", {
+            documentKey,
+            managedSeq,
+            documentId: evt.documentId,
+          });
+          setIsSubmittingPassword(false);
+          setPasswordPromptOpen(false);
+          setInvalidPassword(false);
+          onManagedOpenResult({ seq: managedSeq, ok: false, errors: ["OPEN_FAILED"] });
+          return;
+        }
+
+        setIsSubmittingPassword(false);
+        setPasswordPromptOpen(true);
+        setInvalidPassword(lastAttemptHadPasswordRef.current);
+        onManagedOpenResult({ seq: managedSeq, ok: false, errors: ["PASSWORD_REQUIRED"] });
+      })();
     });
     return () => {
       off?.();
     };
-  }, [managedSeq, onManagedOpenResult, provides]);
+  }, [documentKey, fileUrl, managedSeq, onManagedOpenResult, provides]);
   const onSubmitPassword = useCallback((next: string) => {
     setPasswordPromptOpen(true);
     setInvalidPassword(false);
@@ -665,12 +913,22 @@ function EmbedPdfDocumentHost(props: {
       (response) => {
         response.task.wait(
           () => {
+            validatedPdfPasswordRef.current = next;
+            onOriginalPdfPasswordChange(next);
+            dvLog("[DV][password][retry:ok]", {
+              documentKey,
+              managedSeq,
+              documentId: response.documentId,
+              hasValidatedPassword: true,
+            });
             setIsSubmittingPassword(false);
             setPasswordPromptOpen(false);
             setInvalidPassword(false);
             onManagedOpenResult({ seq: managedSeq, ok: true, errors: [] });
           },
           () => {
+            validatedPdfPasswordRef.current = null;
+            onOriginalPdfPasswordChange(null);
             setIsSubmittingPassword(false);
             setPasswordPromptOpen(true);
             setInvalidPassword(true);
@@ -679,21 +937,34 @@ function EmbedPdfDocumentHost(props: {
         );
       },
       () => {
+        validatedPdfPasswordRef.current = null;
+        onOriginalPdfPasswordChange(null);
         setIsSubmittingPassword(false);
         setPasswordPromptOpen(true);
         setInvalidPassword(true);
         onManagedOpenResult({ seq: managedSeq, ok: false, errors: ["OPEN_FAILED"] });
       },
     );
-  }, [managedSeq, onManagedOpenResult, provides]);
+  }, [documentKey, managedSeq, onManagedOpenResult, onOriginalPdfPasswordChange, provides]);
 
   const onPasswordError = useCallback(() => {
+    if (validatedPdfPasswordRef.current && lastAttemptHadPasswordRef.current) {
+      dvLog("[DV][password][prompt-suppressed:validated-state-error]", {
+        documentKey,
+        managedSeq,
+        hasValidatedPassword: true,
+      });
+      setIsSubmittingPassword(false);
+      setPasswordPromptOpen(false);
+      setInvalidPassword(false);
+      return;
+    }
     // Si el documento vuelve a fallar luego de enviar password, dejar de "validar"
     // y mostrar estado inválido para permitir reintento.
     setIsSubmittingPassword(false);
     setPasswordPromptOpen(true);
     setInvalidPassword(lastAttemptHadPasswordRef.current);
-  }, []);
+  }, [documentKey, managedSeq]);
 
   if (!activeDocumentId) {
     return (
@@ -714,12 +985,17 @@ function EmbedPdfDocumentHost(props: {
     <DocumentContent documentId={activeDocumentId}>
       {({ isLoaded, isError, isLoading }) => (
         <EmbedPdfDocumentStateView
+          engine={engine}
           documentId={activeDocumentId}
           isLoaded={isLoaded}
           isError={isError}
           isLoading={isLoading}
           loading={loading}
           permissionsEffective={permissionsEffective}
+          onSaveAnnotatedPages={onSaveAnnotatedPages}
+          isSaveAnnotatedPagesDisabled={isSaveAnnotatedPagesDisabled}
+          isSavingAnnotatedPages={isSavingAnnotatedPages}
+          saveAnnotatedPagesProgress={saveAnnotatedPagesProgress}
           fitMode={fitMode}
           autoFitIntentRef={autoFitIntentRef}
           autoFitAppliedRef={autoFitAppliedRef}
@@ -731,6 +1007,8 @@ function EmbedPdfDocumentHost(props: {
           lastAttemptHadPassword={lastAttemptHadPasswordRef.current}
           onSubmitPassword={onSubmitPassword}
           onPasswordError={onPasswordError}
+          onExportAnnotatedPdfPagesReady={onExportAnnotatedPdfPagesReady}
+          onMarkAnnotatedPagesPersistedReady={onMarkAnnotatedPagesPersistedReady}
         />
       )}
     </DocumentContent>
@@ -738,12 +1016,17 @@ function EmbedPdfDocumentHost(props: {
 }
 
 function EmbedPdfDocumentStateView({
+  engine,
   documentId,
   isLoaded,
   isError,
   isLoading,
   loading = false,
   permissionsEffective,
+  onSaveAnnotatedPages,
+  isSaveAnnotatedPagesDisabled,
+  isSavingAnnotatedPages,
+  saveAnnotatedPagesProgress,
   fitMode,
   autoFitIntentRef,
   autoFitAppliedRef,
@@ -755,13 +1038,20 @@ function EmbedPdfDocumentStateView({
   lastAttemptHadPassword,
   onSubmitPassword,
   onPasswordError,
+  onExportAnnotatedPdfPagesReady,
+  onMarkAnnotatedPagesPersistedReady,
 }: {
+  engine: import("@embedpdf/engines/pdfium").PdfEngine<Blob>;
   documentId: string;
   isLoaded: boolean;
   isError: boolean;
   isLoading: boolean;
   loading?: boolean;
   permissionsEffective: ViewerEffectivePermissions;
+  onSaveAnnotatedPages?: () => void;
+  isSaveAnnotatedPagesDisabled: boolean;
+  isSavingAnnotatedPages: boolean;
+  saveAnnotatedPagesProgress?: number;
   fitMode: FitMode;
   autoFitIntentRef: MutableRefObject<{ documentId: string; seq: number } | null>;
   autoFitAppliedRef: MutableRefObject<boolean>;
@@ -773,6 +1063,10 @@ function EmbedPdfDocumentStateView({
   lastAttemptHadPassword: boolean;
   onSubmitPassword(password: string): void;
   onPasswordError(): void;
+  onExportAnnotatedPdfPagesReady(
+    handler: ((options?: AppVisorExportAnnotatedPdfPagesOptions) => Promise<AppVisorExportAnnotatedPdfPagesResult>) | null,
+  ): void;
+  onMarkAnnotatedPagesPersistedReady(handler: (() => Promise<void>) | null): void;
 }) {
   useEffect(() => {
     if (!isError) return;
@@ -783,14 +1077,21 @@ function EmbedPdfDocumentStateView({
     return (
       <div className={styles.overlayScope}>
         <EmbedPdfLoadedDocumentView
+          engine={engine}
           documentId={documentId}
           permissionsEffective={permissionsEffective}
+          onSaveAnnotatedPages={onSaveAnnotatedPages}
+          isSaveAnnotatedPagesDisabled={isSaveAnnotatedPagesDisabled}
+          isSavingAnnotatedPages={isSavingAnnotatedPages}
+          saveAnnotatedPagesProgress={saveAnnotatedPagesProgress}
           loading={loading}
           fitMode={fitMode}
           autoFitIntentRef={autoFitIntentRef}
           autoFitAppliedRef={autoFitAppliedRef}
           documentKey={documentKey}
           rotationByDocumentKeyRef={rotationByDocumentKeyRef}
+          onExportAnnotatedPdfPagesReady={onExportAnnotatedPdfPagesReady}
+          onMarkAnnotatedPagesPersistedReady={onMarkAnnotatedPagesPersistedReady}
         />
         {passwordPromptOpen ? (
           <AppPdfPasswordPrompt
@@ -807,30 +1108,83 @@ function EmbedPdfDocumentStateView({
     return (
       <div className={styles.overlayScope}>
         <ErrorState />
+        {passwordPromptOpen ? (
+          <AppPdfPasswordPrompt
+            isInvalidPassword={lastAttemptHadPassword}
+            isLoading={isSubmittingPassword}
+            onSubmit={onSubmitPassword}
+          />
+        ) : null}
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className={styles.overlayScope}>
+        <DocumentLoadingState />
+        {passwordPromptOpen ? (
+          <AppPdfPasswordPrompt
+            isInvalidPassword={lastAttemptHadPassword}
+            isLoading={isSubmittingPassword}
+            onSubmit={onSubmitPassword}
+          />
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.overlayScope}>
+      <DocumentLoadingState />
+      {passwordPromptOpen ? (
         <AppPdfPasswordPrompt
           isInvalidPassword={lastAttemptHadPassword}
           isLoading={isSubmittingPassword}
           onSubmit={onSubmitPassword}
         />
-      </div>
-    );
-  }
-
-  if (isLoading) return <DocumentLoadingState />;
-  return <DocumentLoadingState />;
+      ) : null}
+    </div>
+  );
 }
 
 function EmbedPdfLoadedDocumentView(props: {
+  engine: import("@embedpdf/engines/pdfium").PdfEngine<Blob>;
   documentId: string;
   permissionsEffective: ViewerEffectivePermissions;
+  onSaveAnnotatedPages?: () => void;
+  isSaveAnnotatedPagesDisabled: boolean;
+  isSavingAnnotatedPages: boolean;
+  saveAnnotatedPagesProgress?: number;
   loading?: boolean;
   fitMode: FitMode;
   autoFitIntentRef: MutableRefObject<{ documentId: string; seq: number } | null>;
   autoFitAppliedRef: MutableRefObject<boolean>;
   documentKey?: string;
   rotationByDocumentKeyRef: MutableRefObject<Map<string, number>>;
+  onExportAnnotatedPdfPagesReady(
+    handler: ((options?: AppVisorExportAnnotatedPdfPagesOptions) => Promise<AppVisorExportAnnotatedPdfPagesResult>) | null,
+  ): void;
+  onMarkAnnotatedPagesPersistedReady(handler: (() => Promise<void>) | null): void;
 }) {
-  const { documentId, permissionsEffective, loading = false, fitMode, autoFitIntentRef, autoFitAppliedRef, documentKey, rotationByDocumentKeyRef } = props;
+  const {
+    engine,
+    documentId,
+    permissionsEffective,
+    onSaveAnnotatedPages,
+    isSaveAnnotatedPagesDisabled,
+    isSavingAnnotatedPages,
+    saveAnnotatedPagesProgress,
+    loading = false,
+    fitMode,
+    autoFitIntentRef,
+    autoFitAppliedRef,
+    documentKey,
+    rotationByDocumentKeyRef,
+    onExportAnnotatedPdfPagesReady,
+    onMarkAnnotatedPagesPersistedReady,
+  } = props;
+  const activeDocumentState = useDocumentState(documentId);
   const zoom = useZoom(documentId);
   const zoomLevel = typeof zoom.state.currentZoomLevel === "number" ? zoom.state.currentZoomLevel : 1;
   const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
@@ -909,6 +1263,21 @@ function EmbedPdfLoadedDocumentView(props: {
   const selection = useSelectionCapability();
   const [isSignatureLocked, setIsSignatureLocked] = useState(false);
   const [isSavingSignedPdf, setIsSavingSignedPdf] = useState(false);
+  const [persistedSignatureVisuals, setPersistedSignatureVisuals] = useState<PersistedSignatureVisual[]>([]);
+  const persistedSignatureVisualsRef = useRef<PersistedSignatureVisual[]>([]);
+
+  useEffect(() => {
+    persistedSignatureVisualsRef.current = persistedSignatureVisuals;
+  }, [persistedSignatureVisuals]);
+
+  useEffect(() => {
+    return () => {
+      for (const visual of persistedSignatureVisualsRef.current) {
+        URL.revokeObjectURL(visual.imageUrl);
+      }
+      persistedSignatureVisualsRef.current = [];
+    };
+  }, []);
 
   const downloadBuffer = useCallback((buffer: ArrayBuffer | Uint8Array<ArrayBufferLike>, filename: string) => {
     const blob = new Blob([toPdfBlobPart(buffer)], { type: "application/pdf" });
@@ -1140,18 +1509,26 @@ function EmbedPdfLoadedDocumentView(props: {
       return;
     }
     if (!hasAnySignaturePlaced) return;
-    if (!exportApi.provides) return;
 
     setIsSavingSignedPdf(true);
     try {
+      dvLog("[DV][firma][save-signed:start]", {
+        documentId,
+        hasAnySignaturePlaced,
+        signatureEntries: summarizeSignatureEntries(signatureEntries.entries ?? []),
+        annotationPages: summarizeAnnotationPages(annotation.state.pages ?? {}, annotation.provides?.getAnnotationById),
+      });
+
       // Asegurar que la firma quede aplicada en el documento antes de exportar.
       if (annotationCap.provides?.commit) {
         await waitPdfTaskVoid(annotationCap.provides.commit());
       }
 
-      const buffer = await waitPdfTask<ArrayBuffer | Uint8Array<ArrayBufferLike>>(exportApi.provides.saveAsCopy());
-      const blob = new Blob([toPdfBlobPart(buffer)], { type: "application/pdf" });
-      await saveBlobToIndexedDb({ documentId, name: `signed-${documentId}.pdf`, blob });
+      dvLog("[DV][firma][save-signed:after-commit]", {
+        documentId,
+        signatureEntries: summarizeSignatureEntries(signatureEntries.entries ?? []),
+        annotationPages: summarizeAnnotationPages(annotation.state.pages ?? {}, annotation.provides?.getAnnotationById),
+      });
 
       // Intento de lock por categorÃ­a (si el engine categoriza firmas).
       // El guardrail real se asegura por UI (deshabilitar eliminar/agregar firma luego de guardar).
@@ -1169,7 +1546,16 @@ function EmbedPdfLoadedDocumentView(props: {
     } finally {
       setIsSavingSignedPdf(false);
     }
-  }, [annotationCap.provides, documentId, exportApi.provides, hasAnySignaturePlaced, isSignatureLocked, unlockSignatures]);
+  }, [
+    annotation.provides,
+    annotation.state.pages,
+    annotationCap.provides,
+    documentId,
+    hasAnySignaturePlaced,
+    isSignatureLocked,
+    signatureEntries.entries,
+    unlockSignatures,
+  ]);
 
 
   const getViewportCenter = useCallback(() => {
@@ -1375,14 +1761,445 @@ function EmbedPdfLoadedDocumentView(props: {
     downloadBuffer(buffer, `document-${documentId}.pdf`);
   }, [annotationCap.provides, documentId, downloadBuffer, exportApi.provides]);
 
+  const logSignatureExportDiagnostics = useCallback(
+    async (stage: string, pageNumbers: number[]) => {
+      if (!dvDebugEnabled()) return;
+      const scope = annotation.provides;
+      if (!scope) return;
+
+      const signatureAnnotations = Object.entries(annotation.state.pages ?? {}).flatMap(([pageIndexKey, ids]) => {
+        const pageIndex = Number(pageIndexKey);
+        if (!Array.isArray(ids)) return [];
+        return ids
+          .map((uid) => {
+            const tracked = typeof uid === "string" ? scope.getAnnotationById?.(uid) : null;
+            return tracked ? { pageIndex, uid, tracked } : null;
+          })
+          .filter((item): item is { pageIndex: number; uid: string; tracked: any } => {
+            if (!item) return false;
+            return item.tracked.object?.subject === "Signature";
+          });
+      });
+
+      const transferSummaries = [];
+      for (const pageNumber of pageNumbers) {
+        const pageIndex = pageNumber - 1;
+        try {
+          const exportedItems = await waitPdfTask<any[]>(scope.exportAnnotations({ pageIndex }));
+          transferSummaries.push({
+            pageIndex,
+            items: exportedItems.map((item) => ({
+              id: item?.annotation?.id,
+              type: item?.annotation?.type,
+              subject: item?.annotation?.subject,
+              pageIndex: item?.annotation?.pageIndex,
+              rect: item?.annotation?.rect,
+              unrotatedRect: item?.annotation?.unrotatedRect,
+              rotation: item?.annotation?.rotation,
+              ctxKeys: item?.ctx ? Object.keys(item.ctx) : [],
+              ctxDataBytes: getByteLength(item?.ctx?.data ?? item?.ctx?.imageData ?? item?.ctx?.appearance),
+              mimeType: item?.ctx?.mimeType,
+            })),
+          });
+        } catch (err) {
+          transferSummaries.push({ pageIndex, error: err instanceof Error ? err.message : String(err) });
+        }
+      }
+
+      const renderSummaries = [];
+      for (const item of signatureAnnotations) {
+        try {
+          const rendered = await waitPdfTask<Blob>(
+            scope.renderAnnotation({ pageIndex: item.pageIndex, annotation: item.tracked.object }),
+          );
+          renderSummaries.push({
+            pageIndex: item.pageIndex,
+            uid: item.uid,
+            objectId: item.tracked.object?.id,
+            type: item.tracked.object?.type,
+            subject: item.tracked.object?.subject,
+            rect: item.tracked.object?.rect,
+            unrotatedRect: item.tracked.object?.unrotatedRect,
+            rotation: item.tracked.object?.rotation,
+            renderedSizeBytes: rendered.size,
+            renderedType: rendered.type,
+          });
+        } catch (err) {
+          renderSummaries.push({
+            pageIndex: item.pageIndex,
+            uid: item.uid,
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+      }
+
+      dvLog(`[DV][firma][${stage}:transfer-diagnostics]`, {
+        documentId,
+        transferSummaries,
+        renderSummaries,
+      });
+    },
+    [annotation.provides, annotation.state.pages, documentId],
+  );
+
+  const burnSignatureAppearancesIntoSinglePagePdf = useCallback(
+    async (sourcePdf: Blob, pageNumber: number, signal?: AbortSignal): Promise<Blob> => {
+      const scope = annotation.provides;
+      if (!scope) return sourcePdf;
+
+      const sourcePageIndex = pageNumber - 1;
+      const pagesByIndex = (annotation.state.pages ?? {}) as Record<string, string[]>;
+      const persistedVisualsForPage = persistedSignatureVisualsRef.current.filter(
+        (visual) => visual.pageIndex === sourcePageIndex,
+      );
+      const annotationIds = pagesByIndex[String(sourcePageIndex)] ?? [];
+      const signatureAnnotations = Array.isArray(annotationIds)
+        ? annotationIds
+            .map((uid) => {
+              const tracked = typeof uid === "string" ? scope.getAnnotationById?.(uid) : null;
+              const object = tracked?.object as any;
+              return tracked && object?.subject === "Signature" && object?.rect
+                ? { sourcePageIndex, uid, annotation: object }
+                : null;
+            })
+            .filter(
+              (item): item is { sourcePageIndex: number; uid: string; annotation: any } =>
+                Boolean(item),
+            )
+        : [];
+
+      if (signatureAnnotations.length === 0 && persistedVisualsForPage.length === 0) {
+        return sourcePdf;
+      }
+
+      const renderedSignatures = [];
+      for (const item of signatureAnnotations) {
+        signal?.throwIfAborted();
+        const rendered = await waitPdfTask<Blob>(
+          scope.renderAnnotation({ pageIndex: item.sourcePageIndex, annotation: item.annotation }),
+        );
+        renderedSignatures.push({ ...item, rendered });
+      }
+
+      signal?.throwIfAborted();
+      const { PDFDocument } = await import("pdf-lib");
+      const sourceBytes = await sourcePdf.arrayBuffer();
+      const pdfDocument = await PDFDocument.load(sourceBytes);
+      const page = pdfDocument.getPage(0);
+
+      for (const visual of persistedVisualsForPage) {
+        signal?.throwIfAborted();
+        if (!page) continue;
+
+        const imageBytes = await visual.imageBlob.arrayBuffer();
+        const image = await pdfDocument.embedPng(imageBytes);
+        const x = visual.rect.origin.x;
+        const y = page.getHeight() - visual.rect.origin.y - visual.rect.size.height;
+
+        page.drawImage(image, {
+          x,
+          y,
+          width: visual.rect.size.width,
+          height: visual.rect.size.height,
+          rotate: undefined,
+        });
+      }
+
+      for (const item of renderedSignatures) {
+        signal?.throwIfAborted();
+        if (!page) continue;
+
+        const imageBytes = await item.rendered.arrayBuffer();
+        const image = await pdfDocument.embedPng(imageBytes);
+        const rect = item.annotation.unrotatedRect ?? item.annotation.rect;
+        const x = rect.origin.x;
+        const y = page.getHeight() - rect.origin.y - rect.size.height;
+
+        page.drawImage(image, {
+          x,
+          y,
+          width: rect.size.width,
+          height: rect.size.height,
+          rotate: undefined,
+        });
+      }
+
+      const bytes = await pdfDocument.save();
+      const pdfWithBurnedSignatures = new Blob([blobPartFromBytes(bytes)], { type: "application/pdf" });
+      dvLog("[DV][firma][replace-export:burned-signatures-single-page]", {
+        documentId,
+        pageNumber,
+        persistedSignatures: persistedVisualsForPage.map((visual) => ({
+          pageIndex: visual.pageIndex,
+          rect: visual.rect,
+          renderedSizeBytes: visual.imageBlob.size,
+        })),
+        signatures: renderedSignatures.map((item) => ({
+          sourcePageIndex: item.sourcePageIndex,
+          targetPageIndex: 0,
+          uid: item.uid,
+          rect: item.annotation.rect,
+          unrotatedRect: item.annotation.unrotatedRect,
+          rotation: item.annotation.rotation,
+          renderedSizeBytes: item.rendered.size,
+        })),
+        sourcePdfSizeBytes: sourcePdf.size,
+        resultPdfSizeBytes: pdfWithBurnedSignatures.size,
+      });
+
+      return pdfWithBurnedSignatures;
+    },
+    [annotation.provides, annotation.state.pages, documentId],
+  );
+
+  const exportAnnotatedPdfPages = useCallback(
+    async (
+      options: AppVisorExportAnnotatedPdfPagesOptions = {},
+    ): Promise<AppVisorExportAnnotatedPdfPagesResult> => {
+      options.signal?.throwIfAborted();
+      if (!permissionsEffective.allowAnnotationEdit) {
+        throw new Error("No tiene permisos para guardar paginas anotadas.");
+      }
+      const activeDocument = activeDocumentState?.document;
+      if (!activeDocument) {
+        throw new Error("El visor PDF no tiene un documento cargado para extraer paginas anotadas.");
+      }
+
+      const pageNumbers = getAnnotatedPageNumbers(annotation.state.pages ?? {});
+      dvLog("[DV][firma][replace-export:start]", {
+        documentId,
+        pageNumbers,
+        hasAnySignaturePlaced,
+        signatureEntries: summarizeSignatureEntries(signatureEntries.entries ?? []),
+        annotationPages: summarizeAnnotationPages(annotation.state.pages ?? {}, annotation.provides?.getAnnotationById),
+      });
+      if (pageNumbers.length === 0) {
+        return { hasAnnotations: false, annotatedPages: [], pageNumbers: [], pages: [] };
+      }
+
+      await logSignatureExportDiagnostics("replace-export:before-commit", pageNumbers);
+
+      if (annotationCap.provides?.commit) {
+        await waitPdfTaskVoid(annotationCap.provides.commit());
+      }
+      options.signal?.throwIfAborted();
+
+      await logSignatureExportDiagnostics("replace-export:after-commit", pageNumbers);
+
+      dvLog("[DV][firma][replace-export:after-commit]", {
+        documentId,
+        pageNumbers,
+        hasAnySignaturePlaced,
+        signatureEntries: summarizeSignatureEntries(signatureEntries.entries ?? []),
+        annotationPages: summarizeAnnotationPages(annotation.state.pages ?? {}, annotation.provides?.getAnnotationById),
+      });
+
+      const pages = [];
+      for (const pageNumber of pageNumbers) {
+        options.signal?.throwIfAborted();
+        const pageIndex = pageNumber - 1;
+        const pageBuffer = await waitPdfTask<ArrayBuffer>(engine.extractPages(activeDocument, [pageIndex]));
+        options.signal?.throwIfAborted();
+        const singlePagePdf = new Blob([pageBuffer], { type: "application/pdf" });
+        dvLog("[DV][firma][replace-export:after-extract-page]", {
+          documentId,
+          pageNumber,
+          sourcePageIndex: pageIndex,
+          singlePagePdfSizeBytes: singlePagePdf.size,
+        });
+        const blob = await burnSignatureAppearancesIntoSinglePagePdf(singlePagePdf, pageNumber, options.signal);
+        options.signal?.throwIfAborted();
+        const hashSha256 = options.calculateHashSha256 ? await calculateBlobSha256(blob) : undefined;
+        pages.push({
+          pageNumber,
+          fileName: `document-${documentId}-page-${pageNumber}-annotated.pdf`,
+          blob,
+          sizeBytes: blob.size,
+          hashSha256,
+        });
+      }
+
+      dvLog("[DV][visor][reemplazo-paginas]", {
+        documentId,
+        pageNumbers,
+        totalPages: pages.length,
+        hashesCalculated: Boolean(options.calculateHashSha256),
+        pageSizesBytes: pages.map((page) => ({ pageNumber: page.pageNumber, sizeBytes: page.sizeBytes })),
+      });
+
+      return { hasAnnotations: true, annotatedPages: pageNumbers, pageNumbers, pages };
+    },
+    [
+      annotation.state.pages,
+      annotation.provides,
+      annotationCap.provides,
+      activeDocumentState?.document,
+      documentId,
+      engine,
+      burnSignatureAppearancesIntoSinglePagePdf,
+      hasAnySignaturePlaced,
+      logSignatureExportDiagnostics,
+      permissionsEffective.allowAnnotationEdit,
+      signatureEntries.entries,
+    ],
+  );
+
+  const materializeCurrentSignaturesAsVisuals = useCallback(async () => {
+    const scope = annotation.provides;
+    if (!scope) return 0;
+
+    const pagesByIndex = (annotation.state.pages ?? {}) as Record<string, string[]>;
+    const signatures = Object.entries(pagesByIndex).flatMap(([pageIndexKey, ids]) => {
+      const pageIndex = Number(pageIndexKey);
+      if (!Number.isFinite(pageIndex) || !Array.isArray(ids)) return [];
+
+      return ids
+        .map((uid) => {
+          const tracked = typeof uid === "string" ? scope.getAnnotationById?.(uid) : null;
+          const object = tracked?.object as any;
+          const rect = object?.unrotatedRect ?? object?.rect;
+          return tracked && object?.subject === "Signature" && rect
+            ? {
+                pageIndex,
+                uid,
+                objectId: object.id,
+                annotation: object,
+                rect: rect as PersistedSignatureVisual["rect"],
+              }
+            : null;
+        })
+        .filter(
+          (
+            item,
+          ): item is {
+            pageIndex: number;
+            uid: string;
+            objectId: string;
+            annotation: any;
+            rect: PersistedSignatureVisual["rect"];
+          } => Boolean(item),
+        );
+    });
+
+    if (signatures.length === 0) return 0;
+
+    const nextVisuals: PersistedSignatureVisual[] = [];
+    let deletedEditableSignatures = 0;
+
+    for (const item of signatures) {
+      try {
+        const imageBlob = await waitPdfTask<Blob>(
+          scope.renderAnnotation({ pageIndex: item.pageIndex, annotation: item.annotation }),
+        );
+        nextVisuals.push({
+          id: `${item.pageIndex}:${item.uid}:${Date.now()}`,
+          pageIndex: item.pageIndex,
+          imageUrl: URL.createObjectURL(imageBlob),
+          imageBlob,
+          rect: item.rect,
+        });
+      } catch {
+        continue;
+      }
+
+      let deleted = false;
+      try {
+        annotationCap.provides?.deleteAnnotation?.(item.pageIndex, item.objectId);
+        deleted = true;
+      } catch {
+        // best-effort
+      }
+      try {
+        scope.deleteAnnotation?.(item.pageIndex, item.objectId);
+        deleted = true;
+      } catch {
+        // best-effort
+      }
+      try {
+        annotationCap.provides?.deleteAnnotation?.(item.pageIndex, item.uid);
+        deleted = true;
+      } catch {
+        // best-effort
+      }
+      try {
+        scope.deleteAnnotation?.(item.pageIndex, item.uid);
+        deleted = true;
+      } catch {
+        // best-effort
+      }
+      if (deleted) deletedEditableSignatures += 1;
+    }
+
+    if (nextVisuals.length > 0) {
+      setPersistedSignatureVisuals((current) => [...current, ...nextVisuals]);
+    }
+
+    return deletedEditableSignatures;
+  }, [annotation.provides, annotation.state.pages, annotationCap.provides]);
+
+  const markAnnotatedPagesPersisted = useCallback(async () => {
+    dvLog("[DV][firma][persisted:start]", {
+      documentId,
+      signatureEntries: summarizeSignatureEntries(signatureEntries.entries ?? []),
+      annotationPages: summarizeAnnotationPages(annotation.state.pages ?? {}, annotation.provides?.getAnnotationById),
+      persistedSignatures: persistedSignatureVisualsRef.current.length,
+    });
+
+    const deletedEditableSignatures = await materializeCurrentSignaturesAsVisuals();
+    if (deletedEditableSignatures > 0 && annotationCap.provides?.commit) {
+      try {
+        await waitPdfTaskVoid(annotationCap.provides.commit());
+      } catch {
+        // La API ya persistio el PDF; no reabrimos el documento por un fallo local de commit.
+      }
+    }
+
+    setIsSignatureLocked(false);
+    setIsSignatureModalOpen(false);
+    try {
+      annotationCap.provides?.setLocked?.({ type: LockModeType.None, categories: [] } as any, documentId);
+    } catch {
+      // best-effort
+    }
+
+    dvLog("[DV][firma][persisted:done]", {
+      documentId,
+      deletedEditableSignatures,
+      persistedSignatures: persistedSignatureVisualsRef.current.length + deletedEditableSignatures,
+    });
+  }, [
+    annotation.provides,
+    annotation.state.pages,
+    annotationCap.provides,
+    documentId,
+    materializeCurrentSignaturesAsVisuals,
+    signatureEntries.entries,
+  ]);
+
+  useEffect(() => {
+    onExportAnnotatedPdfPagesReady(exportAnnotatedPdfPages);
+    return () => onExportAnnotatedPdfPagesReady(null);
+  }, [exportAnnotatedPdfPages, onExportAnnotatedPdfPagesReady]);
+
+  useEffect(() => {
+    onMarkAnnotatedPagesPersistedReady(markAnnotatedPagesPersisted);
+    return () => onMarkAnnotatedPagesPersistedReady(null);
+  }, [markAnnotatedPagesPersisted, onMarkAnnotatedPagesPersistedReady]);
+
   const onStartSignaturePlacement = useCallback(
     (signature: SignatureFieldDefinition) => {
       if (!signatureCap.provides) return;
       const entryId = signatureCap.provides.addEntry({ signature });
       signatureCap.provides.forDocument(documentId).activateSignaturePlacement(entryId);
+      dvLog("[DV][firma][placement-started]", {
+        documentId,
+        entryId,
+        signatureEntries: summarizeSignatureEntries(signatureEntries.entries ?? []),
+        annotationPages: summarizeAnnotationPages(annotation.state.pages ?? {}, annotation.provides?.getAnnotationById),
+      });
       setIsSignatureModalOpen(false);
     },
-    [documentId, signatureCap.provides],
+    [annotation.provides, annotation.state.pages, documentId, signatureCap.provides, signatureEntries.entries],
   );
 
   useEffect(() => {
@@ -1471,6 +2288,14 @@ function EmbedPdfLoadedDocumentView(props: {
             onExport={onExport}
             isPrintDisabled={!permissionsEffective.allowPrint}
             isExportDisabled={!permissionsEffective.allowExport}
+            onSaveAnnotatedPages={onSaveAnnotatedPages}
+            isSaveAnnotatedPagesDisabled={
+              isSaveAnnotatedPagesDisabled ||
+              !permissionsEffective.allowAnnotationEdit ||
+              !hasAnySignaturePlaced
+            }
+            isSavingAnnotatedPages={isSavingAnnotatedPages}
+            saveAnnotatedPagesProgress={saveAnnotatedPagesProgress}
             onStartGuideTour={onStartGuideTour}
             isGuideTourAvailable
           />
@@ -1482,6 +2307,16 @@ function EmbedPdfLoadedDocumentView(props: {
         onStartPlacement={onStartSignaturePlacement}
         isPlacementReady={isSignaturePlacementReady && Boolean(signatureCap.provides)}
       />
+      {isSavingSignedPdf || isSavingAnnotatedPages ? (
+        <div
+          className={styles.operationSavingOverlay}
+          role="status"
+          aria-label={isSavingAnnotatedPages ? "Guardando paginas anotadas" : "Bloqueando firma"}
+          aria-busy="true"
+        >
+          <Spin size="large" tip={isSavingAnnotatedPages ? "Guardando paginas anotadas" : "Bloqueando firma"} />
+        </div>
+      ) : null}
       <div
         className={styles.main}
         data-signature-active-placement={activePlacement ? "true" : "false"}
@@ -1597,6 +2432,28 @@ function EmbedPdfLoadedDocumentView(props: {
               const baseWidth = Math.ceil(width);
               const baseHeight = Math.ceil(height);
               const slotLooksRotated = slotWidth !== baseWidth || slotHeight !== baseHeight;
+              const pagePersistedSignatureVisuals = persistedSignatureVisuals.filter(
+                (visual) => visual.pageIndex === pageIndex,
+              );
+              const persistedSignatureLayer =
+                pagePersistedSignatureVisuals.length > 0 ? (
+                  <div className={styles.persistedSignatureLayer} aria-hidden="true">
+                    {pagePersistedSignatureVisuals.map((visual) => (
+                      <img
+                        key={visual.id}
+                        className={styles.persistedSignatureImage}
+                        src={visual.imageUrl}
+                        alt=""
+                        style={{
+                          left: visual.rect.origin.x * zoomLevel,
+                          top: visual.rect.origin.y * zoomLevel,
+                          width: visual.rect.size.width * zoomLevel,
+                          height: visual.rect.size.height * zoomLevel,
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : null;
 
               return (
               <div
@@ -1639,6 +2496,7 @@ function EmbedPdfLoadedDocumentView(props: {
                       scale={zoomLevel}
                       rotation={1 as any}
                     />
+                    {persistedSignatureLayer}
                   </PagePointerProvider>
                     </div>
                   </Rotate>
@@ -1661,6 +2519,7 @@ function EmbedPdfLoadedDocumentView(props: {
                       scale={zoomLevel}
                       rotation={rotationRaw as any}
                     />
+                    {persistedSignatureLayer}
                   </PagePointerProvider>
                 ) : (
                   <Rotate
@@ -1715,6 +2574,7 @@ function EmbedPdfLoadedDocumentView(props: {
                           scale={zoomLevel}
                           rotation={rotationRaw as any}
                         />
+                        {persistedSignatureLayer}
                       </PagePointerProvider>
                     </div>
                   </Rotate>

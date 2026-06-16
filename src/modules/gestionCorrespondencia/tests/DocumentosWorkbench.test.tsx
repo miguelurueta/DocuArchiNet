@@ -4,6 +4,15 @@ import { DocumentosWorkbench } from "../components/documentosWorkbench/Documento
 
 const appTreeTableSpy = vi.fn();
 const visualizarDocumentoSpy = vi.fn();
+const exportAnnotatedPdfPagesSpy = vi.fn();
+const getOriginalPdfPasswordSpy = vi.fn();
+const markAnnotatedPagesPersistedSpy = vi.fn();
+const initUploadTemporalPdfAnotadoSpy = vi.fn();
+const uploadTemporalChunkSpy = vi.fn();
+const completeUploadTemporalSpy = vi.fn();
+const statusUploadTemporalSpy = vi.fn();
+const reemplazarPaginasPdfAnotadasSpy = vi.fn();
+const cancelUploadTemporalSpy = vi.fn();
 let mockDocumentoActivo: unknown = null;
 
 type MockTableApi = {
@@ -20,6 +29,7 @@ type MockTableApi = {
   getColumns: () => undefined;
   totalDocumentsCount: number;
   selectedDocumentsCount: number;
+  getWorkbenchContext: () => { nombreGabinete?: string; radicado?: string };
 };
 
 let mockTableApi: MockTableApi;
@@ -41,19 +51,76 @@ vi.mock("../../../app/Components/UI/AppDocumentViewerOrchestrator", () => ({
   }),
 }));
 
-vi.mock("../../../app/Components/UI/AppVisorEmbedPdf", () => ({
-  AppVisorEmbedPdf: (props: { fileUrl?: string; onEmptyDocumentHintRequest?: () => void }) => (
-    <div
-      role="status"
-      aria-label="Zona de documento"
-      data-testid="app-visor-embedpdf-mock"
-      data-file-url={props.fileUrl ?? ""}
-    >
-      <button type="button" onClick={props.onEmptyDocumentHintRequest}>
-        Resaltar listado de documentos
-      </button>
-    </div>
-  ),
+vi.mock("../../../app/Components/UI/AppVisorEmbedPdf", async () => {
+  const ReactRuntime = await import("react");
+
+  return {
+    AppVisorEmbedPdf: ReactRuntime.forwardRef(
+      (
+        props: {
+          fileUrl?: string;
+          onEmptyDocumentHintRequest?: () => void;
+          onSaveAnnotatedPages?: () => void;
+          isSaveAnnotatedPagesDisabled?: boolean;
+          saveAnnotatedPagesProgress?: number;
+        },
+        ref,
+      ) => {
+        ReactRuntime.useImperativeHandle(ref, () => ({
+          load: vi.fn(async () => ({
+            ok: true,
+            fileUrl: props.fileUrl ?? null,
+            permissionsRaw: {},
+            permissionsEffective: {},
+            isElectronicallySigned: false,
+            permissionStatus: "not_required",
+            errors: [],
+          })),
+          reset: vi.fn(),
+          cancelCurrentLoad: vi.fn(),
+          getOriginalPdfPassword: getOriginalPdfPasswordSpy,
+          markAnnotatedPagesPersisted: markAnnotatedPagesPersistedSpy,
+          exportAnnotatedPdfPages: exportAnnotatedPdfPagesSpy,
+        }));
+
+        return (
+          <div
+            role="status"
+            aria-label="Zona de documento"
+            data-testid="app-visor-embedpdf-mock"
+            data-file-url={props.fileUrl ?? ""}
+          >
+            <button type="button" onClick={props.onEmptyDocumentHintRequest}>
+              Resaltar listado de documentos
+            </button>
+            <button
+              type="button"
+              disabled={props.isSaveAnnotatedPagesDisabled}
+              onClick={props.onSaveAnnotatedPages}
+              data-progress={props.saveAnnotatedPagesProgress ?? ""}
+            >
+              Guardar paginas anotadas
+            </button>
+          </div>
+        );
+      },
+    ),
+  };
+});
+
+vi.mock("../../../app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.service", () => ({
+  initUploadTemporalPdfAnotado: (...args: unknown[]) => initUploadTemporalPdfAnotadoSpy(...args),
+  uploadTemporalChunk: (...args: unknown[]) => uploadTemporalChunkSpy(...args),
+  completeUploadTemporal: (...args: unknown[]) => completeUploadTemporalSpy(...args),
+  statusUploadTemporal: (...args: unknown[]) => statusUploadTemporalSpy(...args),
+  reemplazarPaginasPdfAnotadas: (...args: unknown[]) => reemplazarPaginasPdfAnotadasSpy(...args),
+  cancelUploadTemporal: (...args: unknown[]) => cancelUploadTemporalSpy(...args),
+}));
+
+vi.mock("../../../app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.types", () => ({
+  ReemplazoPaginasPdfAnotadasError: class ReemplazoPaginasPdfAnotadasError extends Error {
+    field?: string;
+  },
 }));
 
 const toastErrorSpy = vi.fn();
@@ -61,6 +128,7 @@ const toastErrorSpy = vi.fn();
 vi.mock("react-toastify", () => ({
   toast: {
     warning: vi.fn(),
+    success: vi.fn(),
     error: (message: unknown, opts?: unknown) => toastErrorSpy(message, opts),
   },
 }));
@@ -108,8 +176,58 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
   beforeEach(() => {
     appTreeTableSpy.mockClear();
     visualizarDocumentoSpy.mockClear();
+    exportAnnotatedPdfPagesSpy.mockReset();
+    getOriginalPdfPasswordSpy.mockReset();
+    markAnnotatedPagesPersistedSpy.mockReset();
+    initUploadTemporalPdfAnotadoSpy.mockReset();
+    uploadTemporalChunkSpy.mockReset();
+    completeUploadTemporalSpy.mockReset();
+    statusUploadTemporalSpy.mockReset();
+    reemplazarPaginasPdfAnotadasSpy.mockReset();
+    cancelUploadTemporalSpy.mockReset();
     toastErrorSpy.mockClear();
     mockDocumentoActivo = null;
+    getOriginalPdfPasswordSpy.mockReturnValue(undefined);
+    exportAnnotatedPdfPagesSpy.mockResolvedValue({
+      hasAnnotations: true,
+      annotatedPages: [2],
+      pageNumbers: [2],
+      pages: [
+        {
+          pageNumber: 2,
+          fileName: "document-10-page-2-annotated.pdf",
+          blob: new Blob(["pdf"], { type: "application/pdf" }),
+          sizeBytes: 3,
+          hashSha256: "hash-page-2",
+        },
+      ],
+    });
+    initUploadTemporalPdfAnotadoSpy.mockResolvedValue({
+      RutaTemporalId: "usr_page_2",
+      ArchivoTemporalId: "af_page_2.pdf",
+      ChunkSizeBytes: 1048576,
+      Estado: "IN_PROGRESS",
+    });
+    uploadTemporalChunkSpy.mockResolvedValue({ chunkIndex: 0 });
+    completeUploadTemporalSpy.mockResolvedValue({ Estado: "COMPLETED" });
+    statusUploadTemporalSpy.mockResolvedValue({
+      Estado: "COMPLETED",
+      ChunksRecibidos: 1,
+      ChunksPendientes: 0,
+      TamanoRecibidoBytes: 3,
+    });
+    reemplazarPaginasPdfAnotadasSpy.mockResolvedValue({
+      IdDocumento: 10,
+      NombreGabinete: "G",
+      PaginasReemplazadas: [2],
+      RutaArchivoFinal: "D:/x.pdf",
+      RutaRespaldo: "D:/backup.pdf",
+      TamanoAnteriorBytes: 1,
+      TamanoNuevoBytes: 2,
+      HashAnteriorSha256: "old",
+      HashNuevoSha256: "new",
+      RequestId: "req-1",
+    });
     mockTableApi = {
       load: vi.fn(async () => ({ ok: true, rows: [] })),
       loadChildren: vi.fn(async () => ({ ok: true, rows: [] })),
@@ -124,6 +242,7 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
       onSelectionChanged: vi.fn(),
       getTableColumns: () => undefined,
       getColumns: () => undefined,
+      getWorkbenchContext: () => ({ nombreGabinete: "G", radicado: "RAD-1" }),
       totalDocumentsCount: 25,
       selectedDocumentsCount: 0,
     };
@@ -226,5 +345,237 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
       "No existe carpeta física del documento",
       expect.objectContaining({ autoClose: false }),
     );
+  });
+
+  it("[SPEC:SCRUMCORE-238] guarda paginas anotadas sin recargar documento activo", async () => {
+    mockDocumentoActivo = {
+      documentId: 10,
+      nombreGabinete: "G",
+      fileUrl: "/tmp/doc.pdf",
+      contentType: "application/pdf",
+      viewerKind: "pdf",
+      isPdf: true,
+      isElectronicallySigned: false,
+      firmaCheckStatus: "resolved",
+      resolveStatus: "resolved",
+      errors: [],
+      documentKey: "G:10",
+      attemptId: 1,
+    };
+
+    render(<DocumentosWorkbench idTareaWf={123} />);
+    expect(screen.getByTestId("app-visor-embedpdf-mock")).toHaveAttribute(
+      "data-file-url",
+      "/tmp/doc.pdf?_dvAttempt=1",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Guardar paginas anotadas" }));
+
+    await waitFor(() => {
+      expect(reemplazarPaginasPdfAnotadasSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          NombreGabinete: "G",
+          IdDocumento: 10,
+          RutaTemporalId: "usr_page_2",
+          Radicado: "RAD-1",
+          IdTareaWorkflow: 123,
+          Paginas: [
+            expect.objectContaining({
+              PageNumber: 2,
+              RutaTemporalId: "usr_page_2",
+              ArchivoTemporalId: "af_page_2.pdf",
+              ContentType: "application/pdf",
+              HashSha256Esperado: "hash-page-2",
+            }),
+          ],
+        }),
+        expect.objectContaining({ signal: expect.any(AbortSignal) }),
+      );
+    });
+
+    expect(uploadTemporalChunkSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ chunkIndex: 0, totalChunks: 1, chunk: expect.any(Blob) }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+    expect(markAnnotatedPagesPersistedSpy).toHaveBeenCalledTimes(1);
+    expect(cancelUploadTemporalSpy).not.toHaveBeenCalled();
+    expect(visualizarDocumentoSpy).not.toHaveBeenCalled();
+  });
+
+  it("[SPEC:SCRUMCORE-238] limita chunks frontend a 768KB para paginas anotadas grandes", async () => {
+    const largePdf = new Blob([new Uint8Array(1_639_741)], { type: "application/pdf" });
+    exportAnnotatedPdfPagesSpy.mockResolvedValueOnce({
+      hasAnnotations: true,
+      annotatedPages: [1],
+      pageNumbers: [1],
+      pages: [
+        {
+          pageNumber: 1,
+          fileName: "document-10-page-1-annotated.pdf",
+          blob: largePdf,
+          sizeBytes: largePdf.size,
+          hashSha256: "hash-page-1",
+        },
+      ],
+    });
+    mockDocumentoActivo = {
+      documentId: 10,
+      nombreGabinete: "G",
+      fileUrl: "/tmp/doc.pdf",
+      contentType: "application/pdf",
+      viewerKind: "pdf",
+      isPdf: true,
+      isElectronicallySigned: false,
+      firmaCheckStatus: "resolved",
+      resolveStatus: "resolved",
+      errors: [],
+      documentKey: "G:10",
+      attemptId: 1,
+    };
+
+    render(<DocumentosWorkbench idTareaWf={123} />);
+    fireEvent.click(screen.getByRole("button", { name: "Guardar paginas anotadas" }));
+
+    await waitFor(() => {
+      expect(uploadTemporalChunkSpy).toHaveBeenCalledTimes(3);
+    });
+
+    expect(initUploadTemporalPdfAnotadoSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        NombreOriginal: "document-10-page-1-annotated.pdf",
+        TamanoBytes: 1_639_741,
+        NumeroChunks: 3,
+      }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+    expect(uploadTemporalChunkSpy).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ chunkIndex: 0, totalChunks: 3, chunk: expect.objectContaining({ size: 786_432 }) }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+    expect(uploadTemporalChunkSpy).toHaveBeenNthCalledWith(
+      3,
+      expect.objectContaining({ chunkIndex: 2, totalChunks: 3, chunk: expect.objectContaining({ size: 66_877 }) }),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+  });
+
+  it("[SPEC:SCRUMCORE-238] envia OriginalPdfPassword solo en reemplazo final cuando existe en memoria", async () => {
+    getOriginalPdfPasswordSpy.mockReturnValue("secret");
+    mockDocumentoActivo = {
+      documentId: 10,
+      nombreGabinete: "G",
+      fileUrl: "/tmp/doc.pdf",
+      contentType: "application/pdf",
+      viewerKind: "pdf",
+      isPdf: true,
+      isElectronicallySigned: false,
+      firmaCheckStatus: "resolved",
+      resolveStatus: "resolved",
+      errors: [],
+      documentKey: "G:10",
+      attemptId: 1,
+    };
+
+    render(<DocumentosWorkbench idTareaWf={123} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Guardar paginas anotadas" }));
+
+    await waitFor(() => {
+      expect(reemplazarPaginasPdfAnotadasSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ OriginalPdfPassword: "secret" }),
+        expect.anything(),
+      );
+    });
+    expect(initUploadTemporalPdfAnotadoSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({ OriginalPdfPassword: expect.anything() }),
+      expect.anything(),
+    );
+  });
+
+  it("[SPEC:SCRUMCORE-238] bloquea documento firmado sin exportar ni llamar APIs", async () => {
+    mockDocumentoActivo = {
+      documentId: 10,
+      nombreGabinete: "G",
+      fileUrl: "/tmp/doc.pdf",
+      contentType: "application/pdf",
+      viewerKind: "pdf",
+      isPdf: true,
+      isElectronicallySigned: true,
+      firmaCheckStatus: "resolved",
+      resolveStatus: "resolved",
+      errors: [],
+      documentKey: "G:10",
+      attemptId: 1,
+    };
+
+    render(<DocumentosWorkbench idTareaWf={123} />);
+
+    expect(screen.getByRole("button", { name: "Guardar paginas anotadas" })).toBeDisabled();
+    expect(exportAnnotatedPdfPagesSpy).not.toHaveBeenCalled();
+    expect(reemplazarPaginasPdfAnotadasSpy).not.toHaveBeenCalled();
+  });
+
+  it("[SPEC:SCRUMCORE-238] no llama APIs si no hay anotaciones", async () => {
+    exportAnnotatedPdfPagesSpy.mockResolvedValueOnce({
+      hasAnnotations: false,
+      annotatedPages: [],
+      pageNumbers: [],
+      pages: [],
+    });
+    mockDocumentoActivo = {
+      documentId: 10,
+      nombreGabinete: "G",
+      fileUrl: "/tmp/doc.pdf",
+      contentType: "application/pdf",
+      viewerKind: "pdf",
+      isPdf: true,
+      isElectronicallySigned: false,
+      firmaCheckStatus: "resolved",
+      resolveStatus: "resolved",
+      errors: [],
+      documentKey: "G:10",
+      attemptId: 1,
+    };
+
+    render(<DocumentosWorkbench idTareaWf={123} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Guardar paginas anotadas" }));
+
+    await waitFor(() => {
+      expect(toastErrorSpy).toHaveBeenCalledWith("No hay paginas anotadas para reemplazar.", undefined);
+    });
+    expect(initUploadTemporalPdfAnotadoSpy).not.toHaveBeenCalled();
+    expect(reemplazarPaginasPdfAnotadasSpy).not.toHaveBeenCalled();
+  });
+
+  it("[SPEC:SCRUMCORE-238] limpia temporal best-effort si falla reemplazo final", async () => {
+    reemplazarPaginasPdfAnotadasSpy.mockRejectedValueOnce(new Error("fallo final"));
+    mockDocumentoActivo = {
+      documentId: 10,
+      nombreGabinete: "G",
+      fileUrl: "/tmp/doc.pdf",
+      contentType: "application/pdf",
+      viewerKind: "pdf",
+      isPdf: true,
+      isElectronicallySigned: false,
+      firmaCheckStatus: "resolved",
+      resolveStatus: "resolved",
+      errors: [],
+      documentKey: "G:10",
+      attemptId: 1,
+    };
+
+    render(<DocumentosWorkbench idTareaWf={123} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Guardar paginas anotadas" }));
+
+    await waitFor(() => {
+      expect(cancelUploadTemporalSpy).toHaveBeenCalledWith({
+        rutaTemporalId: "usr_page_2",
+        archivoTemporalId: "af_page_2.pdf",
+      });
+    });
+    expect(toastErrorSpy).toHaveBeenCalledWith("fallo final", undefined);
   });
 });

@@ -1,5 +1,6 @@
+import { useEffect, useState } from "react";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import * as estructuraRespuestaHook from "../hooks/useEstructuraRespuestaIdTarea";
 import * as gabineteService from "../services/solicitaGabineteRadicadoWorkflow.service";
@@ -14,6 +15,23 @@ vi.mock("../pages/GestionCorrespondenciaRoutePage", () => ({
 
 vi.mock("../hooks/useEstructuraRespuestaIdTarea", () => ({
   useEstructuraRespuestaIdTarea: vi.fn(),
+}));
+
+vi.mock("../pages/GestionRespuesta", () => ({
+  default: ({ idTareaWf }: { idTareaWf?: number }) => (
+    <div>
+      <h1>Gestion</h1>
+      <h2>Documentos</h2>
+      <button type="button" role="tab">
+        Documentos
+      </button>
+      <div>Contenido principal</div>
+      <div role="status" aria-label="Zona de documento">
+        Zona de documento
+      </div>
+      <div>Respuesta {idTareaWf}</div>
+    </div>
+  ),
 }));
 
 vi.mock("../services/solicitaGabineteRadicadoWorkflow.service", async () => {
@@ -42,6 +60,115 @@ const setHookState = (state: Partial<UseEstructuraRespuestaIdTareaResult>) => {
     ...state,
   });
 };
+
+const remountEvents: Array<string> = [];
+
+function DetalleRemountProbe({ idTareaWf }: { idTareaWf?: number }) {
+  useEffect(() => {
+    remountEvents.push(`mount:${idTareaWf ?? "undefined"}`);
+    return () => {
+      remountEvents.push(`unmount:${idTareaWf ?? "undefined"}`);
+    };
+  }, [idTareaWf]);
+
+  return (
+    <div data-testid="remount-detail-probe">Detalle {idTareaWf ?? "sin-id"}</div>
+  );
+}
+
+function StatefulRemountProbe({ idTareaWf }: { idTareaWf?: number }) {
+  const [editorValue, setEditorValue] = useState(`editor:${idTareaWf ?? "sin-id"}:inicio`);
+
+  return (
+    <div>
+      <div data-testid="stateful-detail-id">Tarea {idTareaWf ?? "sin-id"}</div>
+      <div data-testid="stateful-detail-value">{editorValue}</div>
+      <button
+        type="button"
+        onClick={() => {
+          setEditorValue(`editor:${idTareaWf ?? "sin-id"}:modificado`);
+        }}
+      >
+        Modificar estado local
+      </button>
+    </div>
+  );
+}
+
+function RemountProbeHarness({
+  firstTarget = 925,
+  secondTarget,
+}: {
+  firstTarget?: number;
+  secondTarget?: number;
+}) {
+  const navigate = useNavigate();
+  const goFirst = `/dashboard/gestion-correspondencia/respuesta/${firstTarget}`;
+  const goSecond = secondTarget
+    ? `/dashboard/gestion-correspondencia/respuesta/${secondTarget}`
+    : null;
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => navigate(goFirst)}
+      >
+        Ir a tarea {firstTarget}
+      </button>
+      {goSecond ? (
+        <button
+          type="button"
+          onClick={() => navigate(goSecond!)}
+        >
+          Ir a tarea {secondTarget}
+        </button>
+      ) : null}
+      <Routes>
+        <Route path="/dashboard/gestion-correspondencia" element={<GestionCorrespondenciaLayout />}>
+          <Route index element={<GestionCorrespondenciaRoute />} />
+          <Route
+            path="respuesta/:id"
+            element={<GestionCorrespondenciaRoute detailContent={<DetalleRemountProbe />} />}
+          />
+        </Route>
+      </Routes>
+    </>
+  );
+}
+
+function renderRemountProbe(initialEntry = "/dashboard/gestion-correspondencia/respuesta/924") {
+  remountEvents.length = 0;
+  return render(
+    <MemoryRouter initialEntries={[initialEntry]}>
+      <RemountProbeHarness />
+    </MemoryRouter>,
+  );
+}
+
+function StatefulRemountHarness() {
+  const navigate = useNavigate();
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => navigate("/dashboard/gestion-correspondencia/respuesta/925")}
+      >
+        Ir a tarea 925
+      </button>
+      <Routes>
+        <Route path="/dashboard/gestion-correspondencia" element={<GestionCorrespondenciaLayout />}>
+          <Route index element={<GestionCorrespondenciaRoute />} />
+          <Route
+            path="respuesta/:id"
+            element={<GestionCorrespondenciaRoute detailContent={<StatefulRemountProbe />} />}
+          />
+        </Route>
+      </Routes>
+    </>
+  );
+}
 
 function renderGestionCorrespondencia(initialEntry: string) {
   return render(
@@ -73,6 +200,76 @@ beforeEach(() => {
 });
 
 describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
+  test("remonta subárbol de detalle cuando cambia id de tarea", async () => {
+    setHookState({});
+
+    renderRemountProbe();
+
+    expect(screen.getByText(/Detalle 924/i)).toBeInTheDocument();
+    expect(remountEvents).toContain("mount:924");
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Ir a tarea 925/i }));
+    });
+
+    expect(await screen.findByText(/Detalle 925/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Detalle 924/i)).not.toBeInTheDocument();
+    expect(remountEvents).toContain("unmount:924");
+    expect(remountEvents).toContain("mount:925");
+  });
+
+  test("restablece estado local de detalle al cambiar id de tarea", async () => {
+    setHookState({});
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard/gestion-correspondencia/respuesta/924"]}>
+        <StatefulRemountHarness />
+      </MemoryRouter>,
+    );
+
+    const status = screen.getByTestId("stateful-detail-value");
+    expect(status).toHaveTextContent("editor:924:inicio");
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Modificar estado local/i }));
+    });
+
+    expect(status).toHaveTextContent("editor:924:modificado");
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Ir a tarea 925/i }));
+    });
+
+    expect(await screen.findByTestId("stateful-detail-id")).toHaveTextContent("Tarea 925");
+    expect(screen.getByTestId("stateful-detail-id")).not.toHaveTextContent("Tarea 924");
+    expect(screen.getByTestId("stateful-detail-value")).toHaveTextContent("editor:925:inicio");
+  });
+
+  test("maneja navegaciÃ³n rÃ¡pida entre tareas consecutivas sin preservar estado anterior", async () => {
+    setHookState({});
+
+    render(
+      <MemoryRouter initialEntries={["/dashboard/gestion-correspondencia/respuesta/924"]}>
+        <RemountProbeHarness firstTarget={925} secondTarget={926} />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText(/Detalle 924/i)).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Ir a tarea 925/i }));
+      fireEvent.click(screen.getByRole("button", { name: /Ir a tarea 926/i }));
+    });
+
+    expect(await screen.findByText(/Detalle 926/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Detalle 924/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Detalle 925/i)).not.toBeInTheDocument();
+    expect(remountEvents).toContain("unmount:924");
+    expect(remountEvents).toContain("mount:925");
+    expect(remountEvents).toContain("unmount:925");
+    expect(remountEvents).toContain("mount:926");
+  });
+
   test("renderiza layout y pagina principal en la ruta base", () => {
     renderGestionCorrespondencia("/dashboard/gestion-correspondencia");
 
@@ -91,8 +288,8 @@ describe("[SPEC:SCRUMCORE-14] GestionCorrespondencia routing", () => {
     expect(screen.getByText("2025-0001")).toBeInTheDocument();
     expect(screen.getByText("Contasoft Company")).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(screen.getByText("Gestion")).toBeInTheDocument();
-    expect(screen.getByText("Documentos")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Gestion" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Documentos" })).toBeInTheDocument();
     expect(screen.queryByText(/^Guardar$/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Volver a la bandeja/i)).not.toBeInTheDocument();
 
@@ -175,6 +372,7 @@ describe("[SPEC:SCRUMCORE-143] Bloqueo por estructura gestion respuesta", () => 
     setHookState({
       estrucTuraRespuesta: null,
       error: new Error("HTTP 500"),
+      resolved: false,
     });
 
     renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
@@ -214,7 +412,7 @@ describe("[SPEC:SCRUMCORE-143] Bloqueo por estructura gestion respuesta", () => 
 
     expect(screen.queryByTestId("gestion-correspondencia-loading-state")).not.toBeInTheDocument();
     expect(screen.queryByTestId("gestion-correspondencia-blocked-state")).not.toBeInTheDocument();
-    expect(screen.getByText("Gestion")).toBeInTheDocument();
-    expect(screen.getByText("Documentos")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Gestion" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Documentos" })).toBeInTheDocument();
   });
 });

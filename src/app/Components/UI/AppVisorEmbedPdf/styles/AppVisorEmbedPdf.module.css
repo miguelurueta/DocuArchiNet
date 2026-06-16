@@ -162,6 +162,16 @@
   flex-direction: column;
 }
 
+.operationSavingOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  background: rgba(248, 250, 252, 0.72);
+  backdrop-filter: blur(2px);
+}
+
 .paginationOverlay {
   position: absolute;
   left: 50%;
@@ -350,6 +360,21 @@
   -webkit-user-drag: none;
   user-select: none;
   pointer-events: none;
+}
+
+.persistedSignatureLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.persistedSignatureImage {
+  position: absolute;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
 }
 
 .selectionCopyButton {

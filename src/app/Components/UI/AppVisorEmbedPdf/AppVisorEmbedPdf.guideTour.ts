@@ -67,10 +67,10 @@ export const APP_VISOR_EMBED_PDF_GUIDE_STEPS: AppGuideTourStep[] = [
     side: "bottom",
   },
   {
-    id: "pdf-lock-signature",
-    element: '[data-guide-tour-id="pdf-lock-signature"]',
-    title: "Bloquear firma",
-    description: "Bloquea o desbloquea las firmas colocadas, segun el estado actual.",
+    id: "pdf-save-annotated-pages",
+    element: '[data-guide-tour-id="pdf-save-annotated-pages"]',
+    title: "Guardar anotaciones",
+    description: "Guarda las paginas anotadas del documento cuando existan cambios por enviar.",
     side: "bottom",
   },
   {

@@ -54,3 +54,29 @@ describe("AppPdfToolbar guide tour", () => {
     expect(onStartGuideTour).toHaveBeenCalledTimes(2);
   });
 });
+
+describe("AppPdfToolbar guardar paginas anotadas", () => {
+  it("solo muestra accion cuando recibe callback y respeta disabled/loading", async () => {
+    renderToolbar();
+
+    expect(screen.queryByRole("button", { name: /guardar paginas anotadas/i })).not.toBeInTheDocument();
+
+    const onSaveAnnotatedPages = vi.fn();
+    renderToolbar({ onSaveAnnotatedPages });
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /guardar paginas anotadas/i }));
+
+    expect(onSaveAnnotatedPages).toHaveBeenCalledTimes(1);
+  });
+
+  it("deshabilita accion mientras guarda", () => {
+    renderToolbar({ onSaveAnnotatedPages: vi.fn(), isSavingAnnotatedPages: true, saveAnnotatedPagesProgress: 0.42 });
+
+    const button = screen.getByRole("button", { name: /guardar paginas anotadas/i });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute("aria-valuenow", "42");
+    expect(button).toHaveAttribute("title", expect.stringContaining("42%"));
+  });
+
+});

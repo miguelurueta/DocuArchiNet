@@ -8,10 +8,21 @@ import { AppTreeTable } from "../../../../app/Components/UI/AppTreeTable";
 import { AppVisorEmbedPdf } from "../../../../app/Components/UI/AppVisorEmbedPdf";
 import type { AppVisorEmbedPdfRef } from "../../../../app/Components/UI/AppVisorEmbedPdf";
 import { useDocumentViewerOrchestrator } from "../../../../app/Components/UI/AppDocumentViewerOrchestrator";
+import {
+  cancelUploadTemporal,
+  completeUploadTemporal,
+  initUploadTemporalPdfAnotado,
+  reemplazarPaginasPdfAnotadas,
+  statusUploadTemporal,
+  uploadTemporalChunk,
+} from "../../../../app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.service";
+import { ReemplazoPaginasPdfAnotadasError } from "../../../../app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.types";
 import { useGestionRespuestaDocumentosTable } from "../../hooks/useGestionRespuestaDocumentosTable";
 import styles from "./DocumentosWorkbench.module.css";
 
 const MOBILE_QUERY = "(max-width: 768px)";
+const DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES = 1_048_576;
+const MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES = 768 * 1024;
 
 const useMediaQuery = (query: string) => {
   const getMatches = () =>
@@ -89,11 +100,76 @@ function extractBackendCause(err: unknown): { message: string; http?: number } |
   return http ? { message: `Request failed (HTTP ${http}).`, http } : null;
 }
 
+function getReplacementErrorMessage(err: unknown): string {
+  if (err instanceof ReemplazoPaginasPdfAnotadasError) {
+    const suffix = err.requestId ? ` RequestId: ${err.requestId}` : "";
+    if (err.field === "originalPdfPassword") {
+      return `El PDF original requiere una contrasena valida para reemplazar paginas.${suffix}`;
+    }
+    return `${err.message || "No fue posible reemplazar las paginas anotadas."}${suffix}`;
+  }
+
+  const backendCause = extractBackendCause(err);
+  if (backendCause) {
+    return backendCause.http ? `${backendCause.message} (HTTP ${backendCause.http}).` : backendCause.message;
+  }
+
+  if (err instanceof Error && err.message.trim()) return err.message.trim();
+  return "No fue posible reemplazar las paginas anotadas.";
+}
+
+function summarizeReplacementError(err: unknown) {
+  if (err instanceof ReemplazoPaginasPdfAnotadasError) {
+    return {
+      name: err.name,
+      message: err.message,
+      field: err.field,
+      type: err.type,
+      requestId: err.requestId,
+      details: err.details,
+    };
+  }
+
+  if (axios.isAxiosError(err)) {
+    return {
+      name: err.name,
+      message: err.message,
+      code: err.code,
+      status: err.response?.status,
+      statusText: err.response?.statusText,
+      data: err.response?.data,
+      url: err.config?.url,
+      method: err.config?.method,
+    };
+  }
+
+  if (err instanceof Error) {
+    return {
+      name: err.name,
+      message: err.message,
+      stack: err.stack,
+    };
+  }
+
+  return {
+    type: typeof err,
+    value: err,
+  };
+}
+
+function withViewerReloadToken(url: string, attemptId?: number): string {
+  if (!attemptId || url.startsWith("blob:") || url.startsWith("data:")) return url;
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}_dvAttempt=${encodeURIComponent(String(attemptId))}`;
+}
+
 export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const panelId = useId();
   const rootRef = useRef<HTMLElement | null>(null);
   const viewSeqRef = useRef(0);
   const openTimeoutRef = useRef<number | null>(null);
+  const replacementAbortRef = useRef<AbortController | null>(null);
+  const replacementSeqRef = useRef(0);
   const viewerLoadingDelayRef = useRef<number | null>(null);
   const viewerLoadingKeyRef = useRef<string | null>(null);
   const viewerLoadingShownAtRef = useRef<number | null>(null);
@@ -113,6 +189,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const [viewerError, setViewerError] = useState<string | null>(null);
   const [showViewerLoading, setShowViewerLoading] = useState(false);
   const [documentHintActive, setDocumentHintActive] = useState(false);
+  const [isReplacingAnnotatedPages, setIsReplacingAnnotatedPages] = useState(false);
+  const [replacementProgress, setReplacementProgress] = useState<number | undefined>(undefined);
   const documentViewer = useDocumentViewerOrchestrator();
 
   const startViewerLoading = useCallback((key: string) => {
@@ -246,8 +324,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   useEffect(() => {
     const fileUrl = documentViewer.documentoActivo?.fileUrl ?? null;
     if (!fileUrl) return;
-    setActiveFileUrl(fileUrl);
     const attemptId = documentViewer.documentoActivo?.attemptId;
+    setActiveFileUrl(withViewerReloadToken(fileUrl, attemptId));
     if (typeof attemptId === "number") stopViewerLoading(String(attemptId));
   }, [documentViewer.documentoActivo?.attemptId, documentViewer.documentoActivo?.fileUrl, stopViewerLoading]);
 
@@ -258,7 +336,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     return {
       documentId: doc.documentId,
       nombreGabinete: doc.nombreGabinete,
-      fileUrl: doc.fileUrl,
+      fileUrl: doc.fileUrl ? withViewerReloadToken(doc.fileUrl, doc.attemptId) : doc.fileUrl,
       attemptId: doc.attemptId,
       documentKey: doc.documentKey,
       isPdf: doc.isPdf,
@@ -277,6 +355,95 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     documentViewer.documentoActivo?.nombreGabinete,
     documentViewer.documentoActivo?.viewerKind,
   ]);
+
+  const cancelTemporalsBestEffort = useCallback(
+    async (temporals: Array<{ rutaTemporalId: string; archivoTemporalId: string }>) => {
+      await Promise.allSettled(
+        temporals.map((temporal) =>
+          cancelUploadTemporal({
+            rutaTemporalId: temporal.rutaTemporalId,
+            archivoTemporalId: temporal.archivoTemporalId,
+          }),
+        ),
+      );
+    },
+    [],
+  );
+
+  const uploadAnnotatedPagePdf = useCallback(
+    async (params: { pageNumber: number; fileName: string; blob: Blob; hashSha256?: string }, signal: AbortSignal) => {
+      const plannedChunkSize = Math.min(
+        DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES,
+        MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES,
+      );
+      const numeroChunks = Math.max(1, Math.ceil(params.blob.size / plannedChunkSize));
+      const init = await initUploadTemporalPdfAnotado(
+        {
+          NombreOriginal: params.fileName,
+          TamanoBytes: params.blob.size,
+          Extension: ".PDF",
+          HashSha256Esperado: params.hashSha256 ?? null,
+          NumeroChunks: numeroChunks,
+        },
+        { signal },
+      );
+
+      const backendChunkSize = init.ChunkSizeBytes || DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES;
+      const chunkSize = Math.min(backendChunkSize, MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES);
+      const totalChunks = Math.max(1, Math.ceil(params.blob.size / chunkSize));
+      for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex += 1) {
+        const start = chunkIndex * chunkSize;
+        const end = Math.min(params.blob.size, start + chunkSize);
+        const chunk = params.blob.slice(start, end);
+        dvLog("[DV][reemplazo-paginas][chunk]", {
+          pageNumber: params.pageNumber,
+          fileName: params.fileName,
+          pdfPageSizeBytes: params.blob.size,
+          pdfPageSizeKB: Number((params.blob.size / 1024).toFixed(2)),
+          pdfPageSizeMB: Number((params.blob.size / 1024 / 1024).toFixed(2)),
+          backendChunkSizeBytes: backendChunkSize,
+          frontendChunkLimitBytes: MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES,
+          chunkSizeBytes: chunk.size,
+          chunkSizeKB: Number((chunk.size / 1024).toFixed(2)),
+          chunkSizeMB: Number((chunk.size / 1024 / 1024).toFixed(2)),
+          chunkIndex,
+          totalChunks,
+          rangeStart: start,
+          rangeEnd: end,
+        });
+        await uploadTemporalChunk(
+          {
+            rutaTemporalId: init.RutaTemporalId,
+            archivoTemporalId: init.ArchivoTemporalId,
+            chunkIndex,
+            totalChunks,
+            chunk,
+          },
+          { signal },
+        );
+      }
+
+      await completeUploadTemporal(
+        { rutaTemporalId: init.RutaTemporalId, archivoTemporalId: init.ArchivoTemporalId },
+        { signal },
+      );
+      const status = await statusUploadTemporal(
+        { rutaTemporalId: init.RutaTemporalId, archivoTemporalId: init.ArchivoTemporalId },
+        { signal },
+      );
+      if (status.Estado !== "COMPLETED") {
+        throw new Error(`El temporal de la pagina ${params.pageNumber} no quedo COMPLETED.`);
+      }
+
+      return {
+        pageNumber: params.pageNumber,
+        rutaTemporalId: init.RutaTemporalId,
+        archivoTemporalId: init.ArchivoTemporalId,
+        hashSha256: params.hashSha256,
+      };
+    },
+    [],
+  );
 
   useEffect(() => {
     // Modo managed del visor: cargar con contexto consolidado + permisos/policy.
@@ -383,6 +550,11 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
 
   const openViewerFromRow = useCallback(
     (rowId: string) => {
+      if (isReplacingAnnotatedPages) {
+        dvLog("[DV][reemplazo-paginas][navigation-blocked]", { rowId });
+        return;
+      }
+
       viewSeqRef.current += 1;
       const seq = viewSeqRef.current;
       attemptIdRef.current += 1;
@@ -450,7 +622,204 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
         }
       })();
     },
-    [documentViewer, documentosTable, idTareaWf, startViewerLoading, stopViewerLoading],
+    [documentViewer, documentosTable, idTareaWf, isReplacingAnnotatedPages, startViewerLoading, stopViewerLoading],
+  );
+
+  const onSaveAnnotatedPages = useCallback(() => {
+    const ctx = documentosTable.getWorkbenchContext?.();
+    const active = documentContext;
+    if (!active) {
+      toast.error("Selecciona un documento PDF antes de guardar paginas anotadas.");
+      return;
+    }
+    if (!active.isPdf || active.viewerKind !== "pdf") {
+      toast.error("El reemplazo de paginas anotadas solo aplica para documentos PDF.");
+      return;
+    }
+    if (active.isElectronicallySigned) {
+      toast.error("No se pueden reemplazar paginas de un documento firmado electronicamente.");
+      return;
+    }
+    if (!active.nombreGabinete || !active.documentId) {
+      toast.error("No fue posible identificar el documento de gabinete activo.");
+      return;
+    }
+    if (!visorRef.current) {
+      toast.error("El visor PDF no esta listo.");
+      return;
+    }
+
+    replacementAbortRef.current?.abort();
+    const abortController = new AbortController();
+    replacementAbortRef.current = abortController;
+    replacementSeqRef.current += 1;
+    const seq = replacementSeqRef.current;
+    setIsReplacingAnnotatedPages(true);
+    setReplacementProgress(0);
+
+    void (async () => {
+      const createdTemporals: Array<{ rutaTemporalId: string; archivoTemporalId: string }> = [];
+      let replacementSucceeded = false;
+      let replacementStage = "start";
+
+      try {
+        replacementStage = "exportAnnotatedPdfPages";
+        dvLog("[DV][reemplazo-paginas][start]", {
+          documentId: active.documentId,
+          nombreGabinete: active.nombreGabinete,
+          documentKey: active.documentKey,
+          isPdf: active.isPdf,
+          viewerKind: active.viewerKind,
+        });
+        const exported = await visorRef.current!.exportAnnotatedPdfPages({
+          calculateHashSha256: true,
+          signal: abortController.signal,
+        });
+        dvLog("[DV][reemplazo-paginas][exported]", {
+          hasAnnotations: exported.hasAnnotations,
+          pageNumbers: exported.pageNumbers,
+          pages: exported.pages.map((page) => ({
+            pageNumber: page.pageNumber,
+            fileName: page.fileName,
+            sizeBytes: page.sizeBytes,
+            hashSha256: page.hashSha256,
+          })),
+        });
+        if (seq !== replacementSeqRef.current) return;
+        if (exported.pages.length === 0) {
+          toast.error("No hay paginas anotadas para reemplazar.");
+          return;
+        }
+        setReplacementProgress(0.15);
+
+        const uploads = [];
+        for (const [pageIndex, page] of exported.pages.entries()) {
+          replacementStage = `uploadAnnotatedPagePdf:${page.pageNumber}`;
+          dvLog("[DV][reemplazo-paginas][upload:start]", {
+            pageNumber: page.pageNumber,
+            fileName: page.fileName,
+            sizeBytes: page.sizeBytes,
+            hashSha256: page.hashSha256,
+          });
+          const upload = await uploadAnnotatedPagePdf(
+            {
+              pageNumber: page.pageNumber,
+              fileName: page.fileName,
+              blob: page.blob,
+              hashSha256: page.hashSha256,
+            },
+            abortController.signal,
+          );
+          createdTemporals.push({
+            rutaTemporalId: upload.rutaTemporalId,
+            archivoTemporalId: upload.archivoTemporalId,
+          });
+          uploads.push(upload);
+          dvLog("[DV][reemplazo-paginas][upload:done]", upload);
+          setReplacementProgress(0.15 + ((pageIndex + 1) / exported.pages.length) * 0.65);
+        }
+
+        if (seq !== replacementSeqRef.current) return;
+
+        const originalPdfPassword = visorRef.current?.getOriginalPdfPassword();
+        replacementStage = "reemplazarPaginasPdfAnotadas";
+        dvLog("[DV][reemplazo-paginas][final-request]", {
+          NombreGabinete: active.nombreGabinete,
+          IdDocumento: active.documentId,
+          RutaTemporalId: uploads[0]?.rutaTemporalId,
+          OriginalPdfPassword: Boolean(originalPdfPassword),
+          Paginas: uploads.map((upload) => ({
+            PageNumber: upload.pageNumber,
+            RutaTemporalId: upload.rutaTemporalId,
+            ArchivoTemporalId: upload.archivoTemporalId,
+            ContentType: "application/pdf",
+            HashSha256Esperado: upload.hashSha256 ?? null,
+          })),
+          Radicado: ctx?.radicado,
+          IdTareaWorkflow: typeof idTareaWf === "number" ? idTareaWf : 0,
+        });
+        const response = await reemplazarPaginasPdfAnotadas(
+          {
+            NombreGabinete: active.nombreGabinete,
+            IdDocumento: active.documentId,
+            RutaTemporalId: uploads[0]?.rutaTemporalId,
+            ...(originalPdfPassword ? { OriginalPdfPassword: originalPdfPassword } : {}),
+            Paginas: uploads.map((upload) => ({
+              PageNumber: upload.pageNumber,
+              RutaTemporalId: upload.rutaTemporalId,
+              ArchivoTemporalId: upload.archivoTemporalId,
+              ContentType: "application/pdf",
+              HashSha256Esperado: upload.hashSha256 ?? null,
+            })),
+            Motivo: "Actualizacion de grafo PDF desde visor",
+            DescOp: "AGREGA GRAFO PDF",
+            ModuloRegistro: "DOCUARCHI",
+            Radicado: ctx?.radicado,
+            IdTareaWorkflow: typeof idTareaWf === "number" ? idTareaWf : 0,
+          },
+          { signal: abortController.signal },
+        );
+        replacementSucceeded = true;
+        setReplacementProgress(1);
+        dvLog("[DV][reemplazo-paginas][final-response]", response);
+
+        if (seq !== replacementSeqRef.current) return;
+
+        try {
+          await visorRef.current?.markAnnotatedPagesPersisted();
+        } catch (persistError) {
+          dvLog("[DV][firma][persisted:failed]", summarizeReplacementError(persistError));
+        }
+
+        toast.success("Documento firmado correctamente.");
+      } catch (err) {
+        if (!replacementSucceeded) {
+          await cancelTemporalsBestEffort(createdTemporals);
+        }
+        if (isCancelledError(err)) return;
+        dvLog("[DV][reemplazo-paginas][failed]", {
+          stage: replacementStage,
+          createdTemporals,
+          error: summarizeReplacementError(err),
+        });
+        toast.error(getReplacementErrorMessage(err));
+      } finally {
+        if (replacementAbortRef.current === abortController) {
+          replacementAbortRef.current = null;
+        }
+        if (seq === replacementSeqRef.current) {
+          setIsReplacingAnnotatedPages(false);
+          setReplacementProgress(undefined);
+        }
+      }
+    })();
+  }, [
+    cancelTemporalsBestEffort,
+    documentContext,
+    documentViewer,
+    documentosTable,
+    idTareaWf,
+    startViewerLoading,
+    uploadAnnotatedPagePdf,
+  ]);
+
+  const activeDocumentOperationKey = `${documentContext?.documentKey ?? ""}:${documentContext?.documentId ?? ""}`;
+
+  useEffect(() => {
+    replacementSeqRef.current += 1;
+    replacementAbortRef.current?.abort();
+    replacementAbortRef.current = null;
+    setIsReplacingAnnotatedPages(false);
+    setReplacementProgress(undefined);
+  }, [activeDocumentOperationKey]);
+
+  useEffect(
+    () => () => {
+      replacementSeqRef.current += 1;
+      replacementAbortRef.current?.abort();
+      replacementAbortRef.current = null;
+    },
+    [],
   );
 
   useEffect(() => {
@@ -477,6 +846,13 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     return () => observer.disconnect();
   }, [variant]);
 
+  const isSaveAnnotatedPagesDisabled =
+    isReplacingAnnotatedPages ||
+    !documentContext ||
+    documentContext.viewerKind !== "pdf" ||
+    !documentContext.isPdf ||
+    Boolean(documentContext.isElectronicallySigned);
+
   return (
     <section
       ref={(node) => {
@@ -487,6 +863,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       data-collapsed={layoutCollapsed}
       data-variant={variant}
       data-testid="documentos-workbench"
+      data-operation-locked={isReplacingAnnotatedPages}
     >
       <div className={styles.viewer}>
         {documentViewer.documentoActivo?.viewerKind === "pdf" ? (
@@ -495,6 +872,10 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             fileUrl={activeFileUrl}
             loading={showViewerLoading}
             onEmptyDocumentHintRequest={triggerDocumentListHint}
+            onSaveAnnotatedPages={onSaveAnnotatedPages}
+            isSaveAnnotatedPagesDisabled={isSaveAnnotatedPagesDisabled}
+            isSavingAnnotatedPages={isReplacingAnnotatedPages}
+            saveAnnotatedPagesProgress={replacementProgress}
           />
         ) : documentViewer.documentoActivo?.viewerKind === "image" && activeFileUrl ? (
           <img
@@ -510,37 +891,55 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             fileUrl={activeFileUrl}
             loading={showViewerLoading}
             onEmptyDocumentHintRequest={triggerDocumentListHint}
+            onSaveAnnotatedPages={onSaveAnnotatedPages}
+            isSaveAnnotatedPagesDisabled={isSaveAnnotatedPagesDisabled}
+            isSavingAnnotatedPages={isReplacingAnnotatedPages}
+            saveAnnotatedPagesProgress={replacementProgress}
           />
         )}
       </div>
 
-      <AppCollapseRail
-        title="Documentos"
-        collapsed={collapsed}
-        onToggle={() => setCollapsed((prev) => !prev)}
-        placement="right"
-        variant={variant}
-        panelId={panelId}
-        railLabel="Documentos"
-        railIcon={<BookOutlined />}
-        className={styles.collapseRail}
+      <div
+        className={styles.documentsRailGuard}
+        data-locked={isReplacingAnnotatedPages}
+        aria-busy={isReplacingAnnotatedPages}
+        aria-disabled={isReplacingAnnotatedPages}
       >
-        <div className={styles.listPanel}>
+        <AppCollapseRail
+          title="Documentos"
+          collapsed={collapsed}
+          onToggle={() => {
+            if (isReplacingAnnotatedPages) return;
+            setCollapsed((prev) => !prev);
+          }}
+          placement="right"
+          variant={variant}
+          panelId={panelId}
+          railLabel="Documentos"
+          railIcon={<BookOutlined />}
+          className={styles.collapseRail}
+        >
+        <div className={styles.listPanel} data-locked={isReplacingAnnotatedPages}>
           <header className={styles.listHeader}>
             <h3 className={styles.listTitle}>{documentsCounter}</h3>
             <AppButton
               variant="ghost"
               size="sm"
-              onClick={() => setCollapsed((prev) => !prev)}
+              onClick={() => {
+                if (isReplacingAnnotatedPages) return;
+                setCollapsed((prev) => !prev);
+              }}
               aria-label={layoutCollapsed ? "Mostrar documentos" : "Ocultar documentos"}
               icon={toggleIcon}
               className={styles.collapseButton}
+              disabled={isReplacingAnnotatedPages}
             />
           </header>
           <div
             className={styles.listSurface}
             aria-label="Listado de documentos"
             data-document-hint-active={documentHintActive}
+            data-locked={isReplacingAnnotatedPages}
           >
           <AppTreeTable
               load={documentosTable.load}
@@ -554,10 +953,14 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
               rowSelectionCheckboxes
               rowSelectionHeaderCheckbox
               suppressRowClickSelection={false}
-              onSelectionChanged={documentosTable.onSelectionChanged}
+              onSelectionChanged={(rowIds) => {
+                if (isReplacingAnnotatedPages) return;
+                documentosTable.onSelectionChanged(rowIds);
+              }}
               activeRowId={activeRowId}
               onSelectRow={openViewerFromRow}
               onActionTriggered={(params) => {
+                if (isReplacingAnnotatedPages) return;
                 if (params.actionId === "ver_documento") {
                   openViewerFromRow(params.rowId);
                   return;
@@ -567,9 +970,13 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
               }}
               emptyMessage="Sin documentos adjuntos."
             />
+            {isReplacingAnnotatedPages ? (
+              <div className={styles.listInteractionBlocker} role="presentation" aria-hidden="true" />
+            ) : null}
           </div>
         </div>
-      </AppCollapseRail>
+        </AppCollapseRail>
+      </div>
     </section>
   );
 }

@@ -5,6 +5,7 @@ import {
   FileSyncOutlined,
   FormOutlined,
   LockOutlined,
+  SaveOutlined,
   UnlockOutlined,
   MenuOutlined,
   PrinterOutlined,
@@ -51,6 +52,11 @@ export interface AppPdfToolbarProps {
   isPrintDisabled?: boolean;
   isExportDisabled?: boolean;
 
+  onSaveAnnotatedPages?: () => void;
+  isSaveAnnotatedPagesDisabled?: boolean;
+  isSavingAnnotatedPages?: boolean;
+  saveAnnotatedPagesProgress?: number;
+
   onStartGuideTour?: () => void;
   isGuideTourAvailable?: boolean;
 }
@@ -85,6 +91,10 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
   onExport,
   isPrintDisabled = false,
   isExportDisabled = false,
+  onSaveAnnotatedPages,
+  isSaveAnnotatedPagesDisabled = false,
+  isSavingAnnotatedPages = false,
+  saveAnnotatedPagesProgress,
   onStartGuideTour,
   isGuideTourAvailable = false,
 }: AppPdfToolbarProps) {
@@ -93,6 +103,12 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
     : undefined;
 
   const showGuideTourButton = Boolean(onStartGuideTour) && isGuideTourAvailable;
+  const normalizedSaveProgress =
+    typeof saveAnnotatedPagesProgress === "number" && Number.isFinite(saveAnnotatedPagesProgress)
+      ? Math.min(100, Math.max(0, Math.round(saveAnnotatedPagesProgress * 100)))
+      : null;
+  const isSaveAnnotatedPagesReady = Boolean(onSaveAnnotatedPages) && !isSaveAnnotatedPagesDisabled && !isSavingAnnotatedPages;
+  const isSaveAnnotatedPagesBlocked = Boolean(onSaveAnnotatedPages) && isSaveAnnotatedPagesDisabled && !isSavingAnnotatedPages;
 
   return (
     <>
@@ -206,6 +222,8 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         className={styles.button}
         onClick={onSaveSignedPdf}
         data-guide-tour-id="pdf-lock-signature"
+        hidden
+        aria-hidden="true"
         aria-label={isSignatureLocked ? "Desbloquear firma" : "Bloquear firma"}
         title={
           isSavingSignedPdf
@@ -227,6 +245,31 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
           {isSignatureLocked ? <LockOutlined /> : <UnlockOutlined />}
         </span>
       </button>
+
+      {onSaveAnnotatedPages ? (
+        <button
+          type="button"
+          className={`${styles.button} ${isSaveAnnotatedPagesReady ? styles.saveAnnotatedReady : ""} ${
+            isSaveAnnotatedPagesBlocked ? styles.saveAnnotatedBlocked : ""
+          }`}
+          onClick={onSaveAnnotatedPages}
+          data-guide-tour-id="pdf-save-annotated-pages"
+          aria-label="Guardar paginas anotadas"
+          title={
+            isSavingAnnotatedPages
+              ? `Guardando paginas anotadas${normalizedSaveProgress != null ? ` (${normalizedSaveProgress}%)` : ""}`
+              : isSaveAnnotatedPagesDisabled
+                ? "Guardar paginas anotadas deshabilitado"
+                : "Guardar paginas anotadas"
+          }
+          disabled={isSaveAnnotatedPagesDisabled || isSavingAnnotatedPages}
+          aria-valuenow={normalizedSaveProgress ?? undefined}
+        >
+          <span className={styles.icon} aria-hidden="true">
+            <SaveOutlined />
+          </span>
+        </button>
+      ) : null}
 
       <button
         type="button"

@@ -1,6 +1,6 @@
 export { createPluginRegistration } from "@embedpdf/core";
 
-export { EmbedPDF } from "@embedpdf/core/react";
+export { EmbedPDF, useDocumentState } from "@embedpdf/core/react";
 
 export { DocumentContent } from "@embedpdf/plugin-document-manager/react";
 export {
