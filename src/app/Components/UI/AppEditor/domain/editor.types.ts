@@ -73,5 +73,12 @@ export type UseAppEditorOptions = Pick<
 export type UseAppEditorResult = {
   editor: Editor | null;
   isEditable: boolean;
-  insertLocalImage: (file: File, width?: string) => Promise<void>;
+  insertLocalImage: (
+    file: File,
+    width?: string,
+    insertionSelection?: {
+      from: number;
+      to: number;
+    },
+  ) => Promise<void>;
 };

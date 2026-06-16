@@ -120,6 +120,7 @@
 }
 
 .frame {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -151,18 +152,21 @@
 
 .toolbar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.28rem;
   position: sticky;
   top: 0;
   z-index: 5;
   flex-shrink: 0;
-  padding: 0.625rem 0.75rem;
+  padding: 0.42rem 0.48rem;
   border-bottom: 1px solid var(--editor-toolbar-border);
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--editor-toolbar-bg) 96%, #fff 4%) 0%, var(--editor-toolbar-bg) 100%);
+    linear-gradient(180deg, color-mix(in srgb, var(--editor-toolbar-bg) 92%, #fff 8%) 0%, var(--editor-toolbar-bg) 100%);
   pointer-events: none;
+  overflow-x: visible;
+  overflow-y: hidden;
+  scrollbar-width: none;
 }
 
 .toolbar > * {
@@ -171,31 +175,71 @@
 
 .toolbarSection {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.24rem;
   min-width: 0;
+  flex: 0 0 auto;
 }
 
 .toolbarSectionEnd {
   margin-left: auto;
   justify-content: flex-end;
+  padding-left: 0.22rem;
 }
 
 .toolbarButtonGroup {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.08rem;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
+  flex: 0 0 auto;
+}
+
+.toolbarButtonGroup + .toolbarButtonGroup::before,
+.toolbarSection[data-group="actions"]::before,
+.toolbarSectionEnd::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 1px;
+  height: 18px;
+  margin: 0 0.24rem;
+  background: color-mix(in srgb, var(--editor-toolbar-border) 78%, transparent);
+  border-radius: 999px;
+}
+
+.toolbarSection[data-group="actions"]::before {
+  margin-left: 0.08rem;
 }
 
 .toolbarButtonGroup :global(.ant-btn) {
-  min-height: 2.2rem;
-  padding-inline: 0.65rem;
+  min-width: 1.65rem;
+  min-height: 1.68rem;
+  padding-inline: 0.34rem;
+  border-radius: 0.48rem;
+  color: var(--editor-muted);
+  background: transparent;
+}
+
+.toolbar :global(.ant-btn) {
+  will-change: background-color, border-color, color, box-shadow;
+  transition:
+    background-color 35ms linear,
+    border-color 35ms linear,
+    color 35ms linear,
+    box-shadow 35ms linear;
+}
+
+.toolbar :global(.ant-btn:hover),
+.toolbar :global(.ant-btn:focus-visible) {
+  border-color: color-mix(in srgb, var(--editor-focus) 52%, var(--editor-border)) !important;
+  color: var(--editor-focus) !important;
+  transform: none !important;
 }
 
 .toolbarButtonGroup :global(.ant-btn:focus-visible) {
@@ -246,33 +290,69 @@
   border: 0;
 }
 
+.documentSearchBar {
+  display: grid;
+  grid-template-columns: minmax(12rem, 20rem) auto auto;
+  align-items: center;
+  gap: 0.48rem;
+  padding: 0.42rem 0.56rem;
+  border-bottom: 1px solid var(--editor-toolbar-border);
+  background: color-mix(in srgb, var(--editor-toolbar-bg) 82%, var(--editor-bg));
+  z-index: 4;
+}
+
+.documentSearchInput {
+  min-width: 0;
+}
+
+.documentSearchCount {
+  min-width: 7.5rem;
+  color: color-mix(in srgb, var(--editor-muted) 88%, var(--editor-text));
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.documentSearchActions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.14rem;
+}
+
+::highlight(app-editor-search-match) {
+  background: rgba(250, 204, 21, 0.38);
+  color: inherit;
+}
+
+::highlight(app-editor-search-active) {
+  background: rgba(245, 158, 11, 0.72);
+  color: inherit;
+}
+
 .headingDropdown {
   flex: 0 0 auto;
 }
 
 .headingButton {
-  min-width: 4.25rem;
-  min-height: 2.2rem;
-  padding-inline: 0.55rem;
+  min-width: 3.45rem;
+  min-height: 1.68rem;
+  padding-inline: 0.38rem;
   justify-content: center;
+  border-radius: 0.5rem;
+  color: var(--editor-text);
+  background: color-mix(in srgb, var(--editor-toolbar-chip) 62%, transparent);
 }
 
 .alignButton {
   min-width: 0;
-  min-height: 2.2rem;
-  padding-inline: 0.35rem;
+  min-height: 1.68rem;
+  padding-inline: 0.28rem;
   justify-content: space-between;
-}
-
-.compactGroupButton {
-  min-width: 0;
-  min-height: 2.2rem;
-  padding-inline: 0.5rem;
-  justify-content: center;
-}
-
-.compactButtonLabel {
-  display: inline-block;
+  border-radius: 0.48rem;
+  color: var(--editor-muted);
+  background: transparent;
 }
 
 .toolbarCompactLabel {
@@ -282,7 +362,327 @@
 }
 
 .alignButton :global(.content) {
-  gap: 0.25rem;
+  gap: 0.18rem;
+}
+
+.documentWorkspace {
+  display: grid;
+  grid-template-columns: clamp(180px, 17vw, 220px) minmax(0, 1fr);
+  flex: 1 1 auto;
+  min-height: var(--app-editor-min-height);
+  min-width: 0;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+.documentWorkspace[data-navigation-collapsed="true"] {
+  grid-template-columns: 2.75rem minmax(0, 1fr);
+}
+
+.navigationRail {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: visible;
+}
+
+.navigationRail :global(aside) {
+  border: 0;
+  border-right: 1px solid color-mix(in srgb, var(--editor-toolbar-border) 84%, transparent);
+  border-radius: 0;
+  padding: 0;
+  gap: 0;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--editor-bg) 82%, #f8fafc) 0%, #f8fafc 100%);
+}
+
+.navigationRail :global(aside[data-collapsed="true"]) {
+  width: 0;
+}
+
+.navigationRail :global(aside > div:first-child) {
+  min-height: 2.75rem;
+  padding: 0.62rem 0.72rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--editor-toolbar-border) 74%, transparent);
+}
+
+.navigationRail :global(h5) {
+  color: color-mix(in srgb, var(--editor-muted) 86%, var(--editor-text));
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.navigationRail :global(aside > div:last-child) {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.navigationPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-height: 0;
+  min-width: 0;
+  padding: 0.85rem 0.72rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.navigationSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 0;
+}
+
+.navigationSectionTitle {
+  margin: 0;
+  color: color-mix(in srgb, var(--editor-muted) 86%, var(--editor-text));
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pageThumbnailList,
+.outlineList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 0.1rem;
+}
+
+.pageThumbnail,
+.pageThumbnailActive {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.38rem;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  background: transparent;
+  color: var(--editor-muted);
+  padding: 0.52rem 0.42rem;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
+}
+
+.pageThumbnail:hover,
+.pageThumbnail:focus-visible,
+.pageThumbnailActive {
+  border-color: color-mix(in srgb, var(--editor-focus) 22%, var(--editor-toolbar-border));
+  background: color-mix(in srgb, var(--editor-focus) 8%, var(--editor-bg));
+  color: var(--editor-text);
+}
+
+.pageThumbnailSheet {
+  width: 4.7rem;
+  height: 6.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+  justify-content: flex-start;
+  padding: 0.58rem 0.48rem;
+  border: 1px solid color-mix(in srgb, var(--editor-border) 78%, transparent);
+  border-radius: 0.36rem;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 4px 12px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.pageThumbnailMark {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 2px;
+  height: 2px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--editor-muted) 24%, transparent);
+}
+
+.pageThumbnailMark[data-width="medium"] {
+  width: 82%;
+}
+
+.pageThumbnailMark[data-width="short"] {
+  width: 68%;
+}
+
+.pageThumbnailMark[data-kind="heading"] {
+  height: 5px;
+  background: color-mix(in srgb, var(--editor-text) 62%, transparent);
+}
+
+.pageThumbnailMark[data-kind="list"] {
+  width: 78%;
+  margin-left: 0.52rem;
+  background: color-mix(in srgb, var(--editor-muted) 34%, transparent);
+}
+
+.pageThumbnailMark[data-kind="list"]::before {
+  content: "";
+  position: absolute;
+  left: -0.34rem;
+  top: 50%;
+  width: 0.13rem;
+  height: 0.13rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--editor-muted) 54%, transparent);
+  transform: translateY(-50%);
+}
+
+.pageThumbnailMark[data-kind="image"] {
+  height: 1.15rem;
+  border-radius: 0.16rem;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--editor-focus) 26%, #ffffff) 0%,
+      color-mix(in srgb, var(--editor-muted-surface) 76%, #ffffff) 100%
+    );
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--editor-focus) 16%, transparent);
+}
+
+.pageThumbnailMark[data-kind="table"] {
+  height: 1rem;
+  border: 1px solid color-mix(in srgb, var(--editor-muted) 24%, transparent);
+  border-radius: 0.12rem;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0 calc(33% - 1px),
+      color-mix(in srgb, var(--editor-muted) 22%, transparent) calc(33% - 1px) 33%,
+      transparent 33% calc(66% - 1px),
+      color-mix(in srgb, var(--editor-muted) 22%, transparent) calc(66% - 1px) 66%,
+      transparent 66%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 0 calc(50% - 1px),
+      color-mix(in srgb, var(--editor-muted) 22%, transparent) calc(50% - 1px) 50%,
+      transparent 50%
+    ),
+    color-mix(in srgb, var(--editor-muted-surface) 70%, #ffffff);
+}
+
+.pageThumbnailLabel {
+  min-width: 0;
+  overflow: hidden;
+  color: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pageThumbnailTitle {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--editor-text);
+  font-size: 0.7rem;
+  font-weight: 650;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.outlineTreeRow {
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.outlineTreeRow[data-level="2"] {
+  padding-left: 0.72rem;
+}
+
+.outlineTreeRow[data-level="3"] {
+  padding-left: 1.18rem;
+}
+
+.outlineToggle {
+  width: 1rem;
+  height: 1rem;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--editor-muted) 88%, var(--editor-text));
+  font-size: 0.62rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.outlineToggle[aria-hidden="true"] {
+  cursor: default;
+}
+
+.outlineItem,
+.outlineItemActive {
+  width: 100%;
+  min-height: 1.85rem;
+  border: 1px solid transparent;
+  border-radius: 0.58rem;
+  background: transparent;
+  color: var(--editor-muted);
+  padding: 0.34rem 0.42rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
+}
+
+.outlineItem[data-level="2"],
+.outlineItemActive[data-level="2"] {
+  font-size: 0.75rem;
+}
+
+.outlineItem[data-level="3"],
+.outlineItemActive[data-level="3"] {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.outlineItem:hover,
+.outlineItem:focus-visible,
+.outlineItemActive {
+  border-color: color-mix(in srgb, var(--editor-focus) 20%, transparent);
+  background: color-mix(in srgb, var(--editor-focus) 8%, var(--editor-bg));
+  color: var(--editor-text);
+}
+
+.navigationEmpty {
+  margin: 0;
+  color: color-mix(in srgb, var(--editor-muted) 78%, transparent);
+  font-size: 0.76rem;
+  line-height: 1.35;
 }
 
 .editorWrapper {
@@ -293,50 +693,80 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background:
-    radial-gradient(circle at top, color-mix(in srgb, var(--editor-muted-surface) 48%, transparent) 0%, transparent 46%),
-    linear-gradient(180deg, color-mix(in srgb, var(--editor-muted-surface) 70%, var(--editor-bg)) 0%, color-mix(in srgb, var(--editor-bg) 88%, var(--editor-muted-surface)) 100%);
+  background: #ffffff;
 }
 
-
-.toolbarMeta {
+.pageIndicator {
+  position: absolute;
+  left: 50%;
+  right: auto;
+  bottom: 0.95rem;
+  transform: translateX(-50%);
+  z-index: 20;
+  width: auto;
+  min-width: 13.5rem;
+  min-height: 2.25rem;
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.zoomControls {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-}
-
-.pageCounterBadge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2rem;
-  padding: 0.35rem 0.7rem;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.45rem;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--editor-border) 72%, white);
-  background: color-mix(in srgb, var(--editor-bg) 90%, rgba(255, 255, 255, 0.85));
-  color: var(--editor-muted);
   font-size: 0.8rem;
   font-weight: 700;
+  color: var(--editor-text);
+  background: color-mix(in srgb, var(--editor-bg) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--editor-border) 70%, transparent);
+  backdrop-filter: blur(2px);
+  pointer-events: auto;
+  user-select: none;
+  white-space: nowrap;
+  text-align: center;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.16);
+  opacity: 1;
+  visibility: visible;
+}
+
+.pageIndicatorText {
+  color: var(--editor-text);
   line-height: 1;
+}
+
+.pageStatsIndicator {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.95rem;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0.25rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--editor-border) 64%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--editor-bg) 82%, transparent);
+  backdrop-filter: blur(2px);
+  color: color-mix(in srgb, var(--editor-muted) 88%, var(--editor-text));
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.12);
+  pointer-events: none;
+  user-select: none;
   white-space: nowrap;
 }
 
-.zoomButton {
-  min-width: 2rem;
-  min-height: 2rem;
-  border: 1px solid color-mix(in srgb, var(--editor-border) 76%, white);
+.pageNavButton {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--editor-border) 70%, transparent);
   border-radius: 999px;
   background: color-mix(in srgb, var(--editor-bg) 92%, white);
   color: var(--editor-text);
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
   line-height: 1;
   cursor: pointer;
   transition:
@@ -346,9 +776,123 @@
     transform 160ms ease;
 }
 
+.pageNavButton:hover:not(:disabled),
+.pageNavButton:focus-visible:not(:disabled) {
+  border-color: color-mix(in srgb, var(--editor-focus) 52%, var(--editor-border));
+  color: var(--editor-focus);
+  transform: translateY(-1px);
+}
+
+.pageNavButton:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.pageInput {
+  width: 3.3rem;
+  height: 1.75rem;
+  border: 1px solid color-mix(in srgb, var(--editor-border) 76%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--editor-bg) 96%, white);
+  color: var(--editor-text);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-align: center;
+  outline: none;
+}
+
+.pageInput:focus-visible {
+  border-color: color-mix(in srgb, var(--editor-focus) 58%, var(--editor-border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--editor-focus) 16%, transparent);
+}
+
+.pageInput::-webkit-outer-spin-button,
+.pageInput::-webkit-inner-spin-button {
+  margin: 0;
+}
+
+
+.toolbarMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  padding: 0.08rem;
+  border: 1px solid color-mix(in srgb, var(--editor-toolbar-chip-border) 72%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--editor-bg) 82%, transparent);
+}
+
+.zoomControls {
+  display: flex;
+  align-items: center;
+  gap: 0.16rem;
+}
+
+.modeSwitch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.08rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--editor-toolbar-chip) 72%, transparent);
+  padding: 0.08rem;
+}
+
+.modeSwitchButton {
+  min-height: 1.32rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--editor-muted);
+  padding: 0 0.36rem;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.modeSwitchButton:hover,
+.modeSwitchButton:focus-visible {
+  color: var(--editor-focus);
+}
+
+.modeSwitchButtonActive,
+.modeSwitchButtonActive:hover,
+.modeSwitchButtonActive:focus-visible {
+  border-color: color-mix(in srgb, var(--editor-focus) 28%, var(--editor-border));
+  background: color-mix(in srgb, var(--editor-focus) 12%, var(--editor-bg));
+  color: var(--editor-focus);
+}
+
+.zoomButton {
+  min-width: 1.36rem;
+  min-height: 1.36rem;
+  border: 1px solid color-mix(in srgb, var(--editor-border) 72%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--editor-muted);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+    transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
 .zoomButton:hover:not(:disabled),
 .zoomButton:focus-visible:not(:disabled) {
-  border-color: color-mix(in srgb, var(--editor-focus) 44%, var(--editor-border));
+  border-color: color-mix(in srgb, var(--editor-focus) 52%, var(--editor-border));
+  background: transparent;
   color: var(--editor-focus);
 }
 
@@ -358,16 +902,135 @@
 }
 
 .zoomValue {
-  min-width: 3.75rem;
-  padding: 0.35rem 0.65rem;
+  min-width: 2.12rem;
+  padding: 0.16rem 0.22rem;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--editor-border) 72%, white);
-  background: color-mix(in srgb, var(--editor-bg) 90%, rgba(255, 255, 255, 0.85));
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--editor-muted);
-  font-size: 0.82rem;
+  font-size: 10px;
   font-weight: 700;
   line-height: 1;
   text-align: center;
+}
+
+.presentationOverlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483645 !important;
+  background: rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(3px) saturate(0.94);
+  -webkit-backdrop-filter: blur(3px) saturate(0.94);
+  isolation: isolate;
+  pointer-events: auto;
+}
+
+.previewStageSlot {
+  min-width: 0;
+  min-height: var(--app-editor-min-height);
+  display: flex;
+}
+
+.previewStageLocalSlot {
+  display: contents;
+}
+
+.previewStageSlotPresentation {
+  position: fixed !important;
+  inset: clamp(4rem, 7vh, 6rem) clamp(1rem, 4vw, 2.5rem) clamp(2rem, 5vh, 4rem) !important;
+  z-index: 2147483646 !important;
+  width: auto;
+  max-width: none;
+  max-height: none;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  pointer-events: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.previewStageSlotPresentation::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.previewStageSlotPresentation .previewViewport {
+  width: min(100%, calc(var(--app-editor-zoomed-sheet-width) + clamp(2rem, 7vw, 5rem)));
+  max-width: 100%;
+  min-height: 0;
+  height: 100%;
+  flex: 0 1 auto;
+  border-radius: 0;
+  background: transparent;
+  padding: clamp(1rem, 3vh, 2rem) clamp(0.75rem, 3vw, 2rem);
+}
+
+.previewStageSlotPresentation .previewSheet {
+  transform: scale(var(--app-editor-zoom, 1)) scale(1.18);
+}
+
+.previewStageSlotPresentation .previewPage {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 1.5rem;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.88) inset,
+    0 2px 5px rgba(15, 23, 42, 0.05),
+    0 18px 44px rgba(15, 23, 42, 0.13),
+    0 44px 96px rgba(15, 23, 42, 0.12);
+}
+
+.previewNavigationSlot {
+  display: contents;
+}
+
+.presentationPageIndicator {
+  position: fixed !important;
+  bottom: 1rem;
+  z-index: 2147483647 !important;
+  background: rgba(248, 250, 252, 0.92);
+  border-color: rgba(226, 232, 240, 0.78);
+}
+
+.presentationExitButton {
+  position: fixed !important;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2147483647 !important;
+  min-height: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0f172a;
+  padding: 10px 18px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-weight: 600;
+  line-height: 1;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.presentationExitButton:hover,
+.presentationExitButton:focus-visible {
+  border-color: rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+  transform: translateY(-2px);
+  outline: none;
 }
 
 .canvas {
@@ -375,18 +1038,26 @@
   min-height: 0;
   min-width: 0;
   flex: 1 1 auto;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transform: translateZ(0);
+  scroll-behavior: auto;
+  contain: layout paint;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  will-change: scroll-position;
   padding: 2rem 1.75rem;
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  background: #f3f4f6;
 }
 
 .zoomStage {
   position: relative;
-  width: var(--app-editor-zoomed-sheet-width);
-  min-width: var(--app-editor-zoomed-sheet-width);
+  width: min(var(--app-editor-zoomed-sheet-width), 100%);
+  min-width: 0;
   min-height: var(--app-editor-zoomed-sheet-height);
   display: flex;
   justify-content: center;
@@ -396,47 +1067,49 @@
 .sheet {
   position: relative;
   width: var(--app-editor-page-width);
+  max-width: 100%;
   min-height: var(--app-editor-sheet-height);
+  overflow: hidden;
   display: flex;
   justify-content: center;
-  overflow: visible;
-  background: transparent;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  background: #ffffff;
+  border-radius: 0.75rem;
   transform: scale(var(--app-editor-zoom, 1));
   transform-origin: top center;
 }
 
-.pageStack {
+.pageIndicatorLayer {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--app-editor-page-gap);
+  z-index: 0;
   pointer-events: none;
+  user-select: none;
 }
 
-.pageShell {
-  position: relative;
-  flex: 0 0 var(--app-editor-page-height);
-  min-height: var(--app-editor-page-height);
-  background:
-    linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
-  border: 1px solid color-mix(in srgb, var(--editor-border) 88%, white);
-  border-radius: 0.85rem;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.78) inset,
-    0 20px 52px rgba(15, 23, 42, 0.16),
-    0 0 0 12px color-mix(in srgb, var(--editor-bg) 36%, transparent);
-}
-
-.pageShell::before {
-  content: none;
+.pageIndicatorPill {
   position: absolute;
-  inset:
-    var(--app-editor-page-margin-top)
-    var(--app-editor-page-margin-right)
-    var(--app-editor-page-margin-bottom)
-    var(--app-editor-page-margin-left);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 0;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 0.45rem;
+  background: rgba(255, 255, 255, 0.92);
+  color: rgba(75, 85, 99, 0.9);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
   pointer-events: none;
+  user-select: none;
 }
 
 .contentFlow {
@@ -444,21 +1117,15 @@
   z-index: 1;
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
-  min-height: max(
-    calc(
-      var(--app-editor-total-pages) * var(--app-editor-page-height) +
-        (var(--app-editor-total-pages) - 1) * var(--app-editor-page-gap) -
-        var(--app-editor-page-margin-top) -
-        var(--app-editor-page-margin-bottom)
-    ),
-    var(--app-editor-min-height)
-  );
+  overflow-x: hidden;
+  overflow-y: hidden;
+  min-height: max(var(--app-editor-sheet-height), var(--app-editor-min-height));
   padding:
     var(--app-editor-page-margin-top)
     var(--app-editor-page-margin-right)
     var(--app-editor-page-margin-bottom)
     var(--app-editor-page-margin-left);
+  box-sizing: border-box;
 }
 
 .surfaceError {
@@ -469,7 +1136,7 @@
   min-height: var(--app-editor-min-height);
   flex: 1 1 auto;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   background:
     radial-gradient(circle at top left, color-mix(in srgb, var(--editor-muted-surface) 60%, transparent) 0%, transparent 32%),
@@ -478,6 +1145,7 @@
 
 .editorContentPaged {
   width: var(--app-editor-page-width);
+  max-width: 100%;
   box-sizing: border-box;
   min-height: var(--app-editor-sheet-height);
   overflow: visible;
@@ -490,101 +1158,298 @@
 .editorContent :global(.ProseMirror) {
   height: 100%;
   min-height: var(--app-editor-min-height);
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  user-select: text;
   padding: 1rem;
   outline: none;
   overflow-y: auto;
   overflow-x: hidden;
+  padding-right: 1rem;
   scrollbar-width: thin;
   scrollbar-color: var(--editor-scrollbar-thumb) var(--editor-scrollbar-track);
   color: var(--editor-text);
   font-size: 1rem;
   line-height: 1.6;
+  overflow-wrap: anywhere;
   word-break: break-word;
+  white-space: pre-wrap;
   transition:
     background-color 160ms ease,
     box-shadow 160ms ease,
-    color 160ms ease;
+  color 160ms ease;
 }
 
 .editorContentPaged :global(.ProseMirror) {
-  width: var(--app-editor-page-width);
+  overflow-x: visible;
+  overflow-y: visible;
+  scrollbar-width: none;
+}
+
+.editorContent :global(.ProseMirror *) {
+  max-width: 100%;
+  min-width: 0;
   box-sizing: border-box;
-  min-height: var(--app-editor-sheet-height);
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--app-editor-page-gap);
-  padding: 0;
-  overflow: visible;
-  background: transparent;
   overflow-wrap: anywhere;
   word-break: break-word;
+  white-space: inherit;
+}
+
+.editorContent :global(.ProseMirror *[style]) {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.editorContent :global(.ProseMirror table) {
+  max-width: 100%;
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.editorContent :global(.ProseMirror table) :global(*),
+.editorContent :global(.ProseMirror figure) {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+
+.editorContent :global(.ProseMirror img) {
+  max-width: 100%;
+  height: auto;
+}
+
+.editorContentPaged :global(.ProseMirror) {
+  position: relative;
+  width: var(--app-editor-page-width);
+  box-sizing: border-box;
+  min-height: var(--app-editor-visual-content-height);
+  height: var(--app-editor-visual-content-height);
+  max-width: min(100%, var(--app-editor-page-width));
+  width: min(100%, var(--app-editor-page-width));
+  display: block;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: visible;
+  background: transparent;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  min-width: 0;
+  word-break: break-word;
   hyphens: auto;
+  overscroll-behavior: none;
 }
 
 .editorContentPaged :global(.ProseMirror > *) {
-  flex: 0 0 auto;
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
   margin: 0 !important;
+  overflow: visible;
 }
 
-.editorContentPaged :global(.ProseMirror > [data-app-editor-page="true"]) {
-  width: 100%;
-  min-height: var(--app-editor-page-height);
+.editorContentPaged
+  :global(.ProseMirror .app-editor-image-node) {
+  margin: 0;
+}
+
+.previewViewport {
+  position: relative;
+  min-height: var(--app-editor-min-height);
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--editor-muted-surface) 48%, transparent) 0%, transparent 46%),
+    linear-gradient(180deg, color-mix(in srgb, var(--editor-muted-surface) 70%, var(--editor-bg)) 0%, color-mix(in srgb, var(--editor-bg) 88%, var(--editor-muted-surface)) 100%);
+  padding: 2rem 1.75rem;
+  box-sizing: border-box;
+}
+
+.previewMeasure {
+  position: absolute;
+  left: -100000px;
+  top: 0;
+  width: var(--app-editor-page-content-width);
+  visibility: hidden;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.previewMeasureBlock,
+.previewPageContent {
+  color: var(--editor-text);
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: normal;
+}
+
+.previewMeasureBlock {
+  width: var(--app-editor-page-content-width);
+}
+
+.previewSheet {
+  width: var(--app-editor-page-width);
+  min-width: var(--app-editor-page-width);
+  min-height: var(--app-editor-sheet-height);
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  gap: var(--app-editor-page-gap);
+  margin: 0 auto;
+  transform: scale(var(--app-editor-zoom, 1));
+  transform-origin: top center;
+}
+
+.previewZoomStage {
+  width: var(--app-editor-zoomed-sheet-width);
+  min-width: var(--app-editor-zoomed-sheet-width);
+  min-height: var(--app-editor-zoomed-sheet-height);
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.previewPage {
+  position: relative;
+  width: var(--app-editor-page-width);
+  min-width: var(--app-editor-page-width);
+  min-height: var(--app-editor-page-height);
   box-sizing: border-box;
   padding:
     var(--app-editor-page-margin-top)
     var(--app-editor-page-margin-right)
     var(--app-editor-page-margin-bottom)
     var(--app-editor-page-margin-left);
-  border: 1px solid color-mix(in srgb, var(--editor-border) 88%, white);
-  border-radius: 0.85rem;
-  background:
-    linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+  border: 1px solid color-mix(in srgb, var(--editor-border) 72%, white);
+  border-radius: 0.75rem;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.78) inset,
     0 20px 52px rgba(15, 23, 42, 0.16),
     0 0 0 12px color-mix(in srgb, var(--editor-bg) 36%, transparent);
+  overflow: hidden;
 }
 
-.editorContentPaged :global(.ProseMirror > [data-app-editor-page="true"] > *) {
-  flex: 0 0 auto;
+.previewPageContent {
+  width: var(--app-editor-page-content-width);
+  min-width: var(--app-editor-page-content-width);
+  min-height: var(--app-editor-page-content-height);
+  box-sizing: border-box;
 }
 
-.editorContentPaged
-  :global(
-    .ProseMirror > [data-app-editor-page="true"] > :not([data-page-break="true"]) + :not([data-page-break="true"])
-  ) {
-  margin-top: 0.75rem !important;
+.previewPageContent :global(*),
+.previewMeasureBlock :global(*) {
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-.editorContentPaged
-  :global(.ProseMirror > [data-app-editor-page="true"] > h1 + :not([data-page-break="true"])),
-.editorContentPaged
-  :global(.ProseMirror > [data-app-editor-page="true"] > h2 + :not([data-page-break="true"])),
-.editorContentPaged
-  :global(.ProseMirror > [data-app-editor-page="true"] > h3 + :not([data-page-break="true"])) {
-  margin-top: 0.85rem !important;
+.previewPageContent :global(h1),
+.previewPageContent :global(h2),
+.previewPageContent :global(h3),
+.previewMeasureBlock :global(h1),
+.previewMeasureBlock :global(h2),
+.previewMeasureBlock :global(h3) {
+  margin: 1.25rem 0 0.75rem;
 }
 
-.editorContentPaged
-  :global(.ProseMirror > [data-app-editor-page="true"] > :not([data-page-break="true"]) + h1),
-.editorContentPaged
-  :global(.ProseMirror > [data-app-editor-page="true"] > :not([data-page-break="true"]) + h2),
-.editorContentPaged
-  :global(.ProseMirror > [data-app-editor-page="true"] > :not([data-page-break="true"]) + h3) {
-  margin-top: 1.1rem !important;
+.previewPageContent :global(p),
+.previewPageContent :global(ul),
+.previewPageContent :global(ol),
+.previewMeasureBlock :global(p),
+.previewMeasureBlock :global(ul),
+.previewMeasureBlock :global(ol) {
+  margin: 0 0 0.75rem;
 }
 
-.editorContentPaged
-  :global(.ProseMirror > [data-app-editor-page="true"] > [data-page-break="true"] + *) {
-  margin-top: 0 !important;
+.previewPageContent :global(p),
+.previewMeasureBlock :global(p) {
+  min-height: 1.6em;
 }
 
-.editorContentPaged :global(.ProseMirror .app-editor-image-node) {
-  margin: 0;
+.previewPageContent :global(h1),
+.previewPageContent :global(h2),
+.previewPageContent :global(h3),
+.previewPageContent :global(p),
+.previewPageContent :global(ul),
+.previewPageContent :global(ol),
+.previewMeasureBlock :global(h1),
+.previewMeasureBlock :global(h2),
+.previewMeasureBlock :global(h3),
+.previewMeasureBlock :global(p),
+.previewMeasureBlock :global(ul),
+.previewMeasureBlock :global(ol) {
+  width: 100%;
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: normal;
+}
+
+.previewPageContent :global(a),
+.previewMeasureBlock :global(a) {
+  display: inline;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  color: #1d4ed8;
+  font: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.12em;
+  white-space: inherit;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.previewPageContent :global(table),
+.previewMeasureBlock :global(table) {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.previewPageContent :global(img),
+.previewMeasureBlock :global(img) {
+  max-width: 100%;
+  height: auto;
+}
+
+.previewPageContent :global(.app-editor-preview-oversized) {
+  max-height: var(--app-editor-page-content-height);
+  max-width: 100%;
+}
+
+.previewPageContent :global(.app-editor-preview-oversized-image) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.previewPageContent :global(.app-editor-preview-oversized-image img) {
+  max-height: var(--app-editor-page-content-height);
+  width: auto;
+  object-fit: contain;
+}
+
+.previewPageContent :global(.app-editor-preview-oversized-table) {
+  overflow: auto;
+  border: 1px dashed color-mix(in srgb, var(--editor-border) 82%, transparent);
 }
 
 .editorContent :global(.ProseMirror::-webkit-scrollbar) {
@@ -631,10 +1496,26 @@
   font-size: 1.25rem;
 }
 
+.editorContent :global(.ProseMirror h1),
+.editorContent :global(.ProseMirror h2),
+.editorContent :global(.ProseMirror h3) {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+
 .editorContent :global(.ProseMirror p),
 .editorContent :global(.ProseMirror ul),
 .editorContent :global(.ProseMirror ol) {
   margin: 0 0 0.75rem;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .editorContent :global(.ProseMirror ul),
@@ -642,20 +1523,107 @@
   padding-left: 1.5rem;
 }
 
+.editorContent :global(.ProseMirror ul[data-type="taskList"]) {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.editorContent :global(.ProseMirror ul[data-type="taskList"] ul[data-type="taskList"]) {
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+  padding-left: 1.4rem;
+}
+
+.editorContent :global(.ProseMirror li[data-type="taskItem"]) {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  list-style: none;
+}
+
+.editorContent :global(.ProseMirror li[data-type="taskItem"] > label) {
+  flex: 0 0 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  min-width: 1rem;
+  margin-top: 0.18em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.editorContent :global(.ProseMirror li[data-type="taskItem"] > div) {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.editorContent :global(.ProseMirror li[data-type="taskItem"] > div > p) {
+  margin: 0;
+}
+
+.editorContent :global(.ProseMirror li[data-type="taskItem"] input[type="checkbox"]) {
+  width: 0.95rem;
+  height: 0.95rem;
+  margin: 0;
+  accent-color: var(--editor-focus);
+  cursor: pointer;
+}
+
 .editorContent :global(.ProseMirror a) {
+  display: inline;
   color: var(--editor-focus);
   text-decoration: underline;
   text-decoration-thickness: 0.08em;
   text-underline-offset: 0.16em;
+  max-width: 100%;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  vertical-align: baseline;
+  text-decoration-skip-ink: none;
+}
+
+.editorContent :global(.ProseMirror p),
+.editorContent :global(.ProseMirror ul),
+.editorContent :global(.ProseMirror ol),
+.editorContent :global(.ProseMirror li) {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.editorContent :global(.ProseMirror pre),
+.editorContent :global(.ProseMirror code) {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-wrap !important;
 }
 
 .editorContent :global(.ProseMirror .app-editor-image-node) {
   display: block;
   width: 100%;
   max-width: 100%;
-  margin: 1rem 0;
-  cursor: pointer;
-  user-select: none;
+  margin: 0;
+    user-select: none;
   border-radius: 0;
   padding: 0;
   transition: none;
@@ -681,9 +1649,9 @@
   border-radius: 0.75rem;
   margin: 0;
   transition:
-    box-shadow 160ms ease,
-    outline-color 160ms ease,
-    transform 160ms ease;
+    box-shadow 120ms ease,
+    outline-color 120ms ease,
+    transform 120ms ease;
   user-select: none;
 }
 
@@ -702,18 +1670,16 @@
   margin-right: 0;
 }
 
-.editorContent :global(.ProseMirror .app-editor-image-node:hover > img) {
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--editor-focus) 18%, transparent);
-}
-
 .editorContent
   :global(.ProseMirror .app-editor-image-node[data-selected="true"]),
 .editorContent
   :global(.ProseMirror .app-editor-image-node[data-app-editor-image-active="true"]),
 .editorContent
   :global(.ProseMirror .app-editor-image-node.ProseMirror-selectednode) {
+  outline: none !important;
   background: transparent;
   box-shadow: none;
+  border: none;
 }
 
 .editorContent
@@ -728,53 +1694,9 @@
   :global(.ProseMirror .app-editor-image-node > img[data-app-editor-image-persistent="true"]),
 .editorContent
   :global(.ProseMirror .app-editor-image-node.ProseMirror-selectednode > img) {
-  outline: 3px solid color-mix(in srgb, var(--editor-focus) 70%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--editor-focus) 85%, transparent);
   outline-offset: 2px;
-  box-shadow:
-    0 0 0 6px color-mix(in srgb, var(--editor-focus) 14%, transparent),
-    0 14px 28px color-mix(in srgb, var(--editor-focus) 12%, transparent);
-}
-
-.editorContent
-  :global(.ProseMirror .app-editor-image-node[data-selected="true"]:hover > img),
-.editorContent
-  :global(.ProseMirror .app-editor-image-node[data-app-editor-image-active="true"]:hover > img),
-.editorContent
-  :global(.ProseMirror .app-editor-image-node[data-app-editor-image-persistent="true"]:hover > img),
-.editorContent
-  :global(.ProseMirror .app-editor-image-node > img[data-app-editor-image-active="true"]:hover),
-.editorContent
-  :global(.ProseMirror .app-editor-image-node > img[data-app-editor-image-persistent="true"]:hover),
-.editorContent
-  :global(.ProseMirror .app-editor-image-node.ProseMirror-selectednode:hover > img) {
-  box-shadow:
-    0 0 0 6px color-mix(in srgb, var(--editor-focus) 14%, transparent),
-    0 14px 28px color-mix(in srgb, var(--editor-focus) 12%, transparent);
-}
-
-.editorContent :global(.ProseMirror [data-page-break="true"]) {
-  position: relative;
-  display: block;
-  height: 0;
-  margin: 0;
-  border: 0;
-  cursor: pointer;
-}
-
-.editorContentPaged :global(.ProseMirror [data-page-break="true"]) {
-  min-height: 0;
-}
-
-.editorContent :global(.ProseMirror [data-page-break="true"]::before) {
-  content: none;
-}
-
-.editorContent :global(.ProseMirror [data-page-break="true"]::after) {
-  content: none;
-}
-
-.editorContent :global(.ProseMirror [data-page-break="true"].ProseMirror-selectednode) {
-  outline: none;
+  box-shadow: none;
 }
 
 .editorContent :global(.ProseMirror-focused) {
@@ -837,17 +1759,17 @@
   }
 
   .toolbar {
-    gap: 0.45rem;
-    padding: 0.55rem;
+    gap: 0.22rem;
+    padding: 0.36rem 0.4rem;
   }
 
   .toolbar[data-toolbar-mode="compact"] {
-    gap: 0.35rem;
-    padding: 0.45rem 0.5rem;
+    gap: 0.18rem;
+    padding: 0.34rem 0.38rem;
   }
 
   .toolbar[data-toolbar-mode="compact"] .toolbarSection {
-    gap: 0.35rem;
+    gap: 0.18rem;
   }
 
   .toolbar[data-toolbar-mode="compact"] .toolbarSection[data-group="actions"] {
@@ -855,36 +1777,54 @@
   }
 
   .toolbar[data-toolbar-mode="compact"] .toolbarSectionEnd {
-    width: 100%;
     margin-left: 0;
     justify-content: flex-end;
+    padding-left: 0.12rem;
   }
 
   .toolbarMeta {
-    width: 100%;
     justify-content: flex-end;
+  }
+
+  .documentSearchBar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .documentSearchCount {
+    min-width: 0;
+    font-size: 0.7rem;
+  }
+
+  .documentSearchActions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+
+  .documentWorkspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .navigationRail,
+  .navigationPanel {
+    display: none;
   }
 
   .toolbar[data-toolbar-mode="compact"] .toolbarButtonGroup {
     width: auto;
     flex-wrap: nowrap;
-    gap: 0.2rem;
+    gap: 0.06rem;
   }
 
   .toolbar[data-toolbar-mode="compact"] .toolbarButtonGroup :global(.ant-btn) {
-    min-height: 2rem;
-    padding-inline: 0.45rem;
+    min-width: 1.55rem;
+    min-height: 1.6rem;
+    padding-inline: 0.28rem;
   }
 
   .toolbar[data-toolbar-mode="compact"] .headingButton,
-  .toolbar[data-toolbar-mode="compact"] .alignButton,
-  .toolbar[data-toolbar-mode="compact"] .compactGroupButton {
-    min-height: 2rem;
-    padding-inline: 0.4rem;
-  }
-
-  .toolbar[data-toolbar-mode="compact"] .compactButtonLabel {
-    display: none;
+  .toolbar[data-toolbar-mode="compact"] .alignButton {
+    min-height: 1.6rem;
+    padding-inline: 0.28rem;
   }
 
   .editorContent :global(.ProseMirror) {
@@ -902,36 +1842,80 @@
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .toolbar {
-    gap: 0.5rem;
-    padding: 0.625rem 0.7rem;
+    gap: 0.22rem;
+    padding: 0.38rem 0.44rem;
   }
 
   .toolbarButtonGroup {
-    gap: 0.3rem;
+    gap: 0.06rem;
   }
 
   .toolbar[data-toolbar-mode="compact"] {
-    gap: 0.45rem;
-    padding: 0.55rem 0.65rem;
+    gap: 0.2rem;
+    padding: 0.36rem 0.42rem;
   }
 
   .toolbar[data-toolbar-mode="compact"] .toolbarSection {
-    gap: 0.4rem;
+    gap: 0.18rem;
   }
 
   .toolbar[data-toolbar-mode="compact"] .toolbarButtonGroup {
-    gap: 0.25rem;
+    gap: 0.06rem;
   }
 
   .toolbar[data-toolbar-mode="compact"] .toolbarButtonGroup :global(.ant-btn) {
-    min-height: 2.05rem;
-    padding-inline: 0.5rem;
+    min-width: 1.58rem;
+    min-height: 1.62rem;
+    padding-inline: 0.3rem;
   }
 
   .toolbar[data-toolbar-mode="compact"] .headingButton,
-  .toolbar[data-toolbar-mode="compact"] .alignButton,
-  .toolbar[data-toolbar-mode="compact"] .compactGroupButton {
-    min-height: 2.05rem;
-    padding-inline: 0.45rem;
+  .toolbar[data-toolbar-mode="compact"] .alignButton {
+    min-height: 1.62rem;
+    padding-inline: 0.3rem;
   }
+}
+
+.editorContent :global(.ProseMirror *),
+.editorContent :global(.ProseMirror[contenteditable="true"] *),
+.editorContent :global(.ProseMirror [style]) {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+}
+
+.editorContent :global(.ProseMirror [style*="width"]):not(img),
+.editorContent :global(.ProseMirror [style*="min-width"]):not(img),
+.editorContent :global(.ProseMirror [style*="max-width"]):not(img) {
+  width: auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.editorContent :global(.ProseMirror [style*="white-space"]) {
+  white-space: pre-wrap !important;
+}
+
+.editorContent :global(.ProseMirror table),
+.editorContent :global(.ProseMirror table *),
+.editorContent :global(.ProseMirror td),
+.editorContent :global(.ProseMirror th) {
+  max-width: 100% !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: fixed !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+}
+
+.sheet,
+.contentFlow,
+.editorContent,
+.editorContent :global(.ProseMirror),
+.editorContentPaged :global(.ProseMirror) {
+  overflow-x: hidden !important;
 }
