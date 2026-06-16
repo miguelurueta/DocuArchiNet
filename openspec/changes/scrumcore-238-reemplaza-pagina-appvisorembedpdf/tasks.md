@@ -90,6 +90,6 @@
 ## 10. Publish / cierre
 
 - [x] 10.1 Revisar diff final de design/spec/tasks e implementacion.
-- [ ] 10.2 Crear commit y push de artefactos refinados o implementacion segun el estado del flujo.
+- [x] 10.2 Crear commit y push de artefactos refinados o implementacion segun el estado del flujo.
 - [ ] 10.3 Abrir/actualizar PR mediante el flujo `opsxj:archive` cuando corresponda.
 - [ ] 10.4 Actualizar Jira con enlace/evidencia cuando corresponda.
