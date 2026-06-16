@@ -91,5 +91,5 @@
 
 - [x] 10.1 Revisar diff final de design/spec/tasks e implementacion.
 - [x] 10.2 Crear commit y push de artefactos refinados o implementacion segun el estado del flujo.
-- [x] 10.3 Abrir/actualizar PR mediante el flujo `opsxj:archive` cuando corresponda.
-- [ ] 10.4 Actualizar Jira con enlace/evidencia cuando corresponda.
+- [x] 10.3 Abrir/actualizar PR mediante el flujo `opsxj:archive` cuando corresponda. PR base `#288` fusionado; PR posterior de sincronizacion AppEditor `#289` abierto.
+- [ ] 10.4 Actualizar Jira con enlace/evidencia cuando corresponda. Pendiente por no disponer de conector Jira directo en esta sesion.

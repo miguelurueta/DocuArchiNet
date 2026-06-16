@@ -7,6 +7,9 @@
 - **Rama**: `feature/SCRUMCORE-238`
 - **Commit funcional validado**: `c340d6d` (`c340d6df6dd47fdbf2ef4b6789ba21984c70c4f9`)
 - **Ultimo commit documental previo**: `212eeb9` (`212eeb9f7855c336174b8dfddbbd252e9fb18949`)
+- **Ultimo commit publicado**: `11088d4` (`11088d4ad302d0f33c033ba629da1ba3e6f084eb`)
+- **PR funcional base**: `#288` - fusionado en `main`
+- **PR de sincronizacion AppEditor**: `#289` - `https://github.com/miguelurueta/DocuArchiCore.react/pull/289`
 - **Tipo**: Bugfix / hardening de concurrencia, lifecycle y seguridad de password en memoria
 - **Backend**: NO modificado
 - **Endpoints**: NO modificados
@@ -294,3 +297,75 @@ Pendiente tecnico explicito:
 - El caso tambien se observa con PDFs que EmbedPDF/PDFium ya presenta correctamente, pero cuyo plugin de firma calcula la colocacion en una geometria diferente a la visual.
 - No se debe considerar resuelto hasta tener una solucion aislada que no afecte PDFs normales ni el centrado actual del visor.
 - Las alternativas experimentales probadas fueron revertidas.
+
+## Actualizacion 2026-06-16 - Sincronizacion AppEditor desde main
+
+Motivo:
+
+- La rama `feature/SCRUMCORE-238` ya tenia fusionado el PR funcional base `#288` en `main`.
+- Posteriormente se requirio traer a esta rama la version actual de `AppEditor` disponible en `origin/main`.
+- El objetivo fue mantener los cambios de `AppVisorEmbedPdf`, firma, reemplazo de paginas anotadas y documentacion SCRUM, pero incorporar la actualizacion de `AppEditor`.
+
+Operacion realizada:
+
+- Se ejecuto `git fetch` para traer referencias remotas sin modificar archivos locales.
+- Se confirmo que `origin/main` contenia cambios de `AppEditor` ausentes en `feature/SCRUMCORE-238`.
+- Se aplico de forma selectiva solo la carpeta:
+
+```txt
+src/app/Components/UI/AppEditor/
+```
+
+- No se hizo `merge origin/main` completo para evitar traer cambios ajenos al alcance.
+- Se verifico que los cambios locales resultantes estuvieran restringidos a:
+
+```txt
+src/app/Components/UI/AppEditor/
+src/app/Components/UI/AppDropdown/AppDropdown.tsx
+```
+
+Ajuste adicional requerido:
+
+- El `AppEditorToolbar` actualizado usa la prop `dropdownProps` sobre `AppDropdown`.
+- La rama actual no tenia esa prop tipada en el componente comun.
+- Se agrego compatibilidad minima en:
+
+```txt
+src/app/Components/UI/AppDropdown/AppDropdown.tsx
+```
+
+- `AppDropdown` ahora acepta `dropdownProps` y los reenvia al componente `Dropdown` de Ant Design.
+- Se preserva que `AppDropdown` controle internamente:
+  - `children`
+  - `menu`
+  - `trigger`
+  - `open`
+  - `onOpenChange`
+  - `placement`
+- Esto evita romper consumidores existentes y permite que `AppEditorToolbar` compile con la version actualizada.
+
+Commit publicado:
+
+```txt
+11088d4 sync AppEditor updates from main
+```
+
+PR abierto:
+
+```txt
+#289 Sync AppEditor updates into SCRUMCORE-238
+https://github.com/miguelurueta/DocuArchiCore.react/pull/289
+```
+
+Validacion ejecutada:
+
+```powershell
+npm.cmd run build
+```
+
+Resultado:
+
+- Build productivo: OK.
+- Advertencia Vite por chunks grandes: presente, no bloqueante.
+- No se modificaron archivos de `AppVisorEmbedPdf` en esta sincronizacion.
+- No se altero el flujo de firma/reemplazo ya validado.
