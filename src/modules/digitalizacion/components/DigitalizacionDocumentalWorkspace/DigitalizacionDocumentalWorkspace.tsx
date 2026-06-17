@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type DragEvent } from "react";
+import {
+  ClearOutlined,
+  DeleteOutlined,
+  FileTextOutlined,
+  RotateLeftOutlined,
+  RotateRightOutlined,
+  ScanOutlined,
+} from "@ant-design/icons";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
 import { useDigitalizacionDocumentalState } from "../../hooks/useDigitalizacionDocumentalState";
 import { useDigitalizacionOperationOrchestrator } from "../../hooks/useDigitalizacionOperationOrchestrator";
@@ -63,8 +71,11 @@ export function DigitalizacionDocumentalWorkspace({
   const [captureMode, setCaptureMode] = useState<CaptureMode>("docuarchi");
   const [adfEnabled, setAdfEnabled] = useState(true);
   const [duplexEnabled, setDuplexEnabled] = useState(false);
+  const [removeBlankPages, setRemoveBlankPages] = useState(false);
   const [colorMode, setColorMode] = useState<(typeof colorOptions)[number]["value"]>("color");
   const [resolutionDpi, setResolutionDpi] = useState<(typeof resolutionOptions)[number]>(200);
+  const [draggedPageId, setDraggedPageId] = useState<string | null>(null);
+  const [dragOverPageId, setDragOverPageId] = useState<string | null>(null);
   const handleInvalidContext = useCallback(
     (error: DigitalizacionFunctionalError) => {
       onError?.(error);
@@ -85,6 +96,7 @@ export function DigitalizacionDocumentalWorkspace({
     scan,
     rotatePage,
     removePage,
+    reorderPages,
     generatePdf,
     selectDevice,
   } = scanner;
@@ -164,12 +176,14 @@ export function DigitalizacionDocumentalWorkspace({
       feederEnabled: captureMode === "docuarchi" ? adfEnabled : true,
       resolutionDpi,
       showScannerUi: captureMode === "driver",
+      removeBlankPages,
     });
   }, [
     adfEnabled,
     captureMode,
     colorMode,
     duplexEnabled,
+    removeBlankPages,
     resolutionDpi,
     scan,
     scanner.selectedDeviceId,
@@ -186,6 +200,61 @@ export function DigitalizacionDocumentalWorkspace({
     if (!pageId) return;
     void removePage(pageId);
   }, [removePage, scanner.pages, selectedPageId]);
+
+  const handleThumbnailDragStart = useCallback(
+    (event: DragEvent<HTMLButtonElement>, pageId: string) => {
+      setDraggedPageId(pageId);
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", pageId);
+    },
+    [],
+  );
+
+  const handleThumbnailDragOver = useCallback(
+    (event: DragEvent<HTMLButtonElement>, pageId: string) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "move";
+      if (pageId !== draggedPageId) {
+        setDragOverPageId(pageId);
+      }
+    },
+    [draggedPageId],
+  );
+
+  const handleThumbnailDrop = useCallback(
+    (event: DragEvent<HTMLButtonElement>, targetPageId: string) => {
+      event.preventDefault();
+      const sourcePageId = event.dataTransfer.getData("text/plain") || draggedPageId;
+      setDraggedPageId(null);
+      setDragOverPageId(null);
+
+      if (!sourcePageId || sourcePageId === targetPageId) {
+        return;
+      }
+
+      const sourceIndex = scanner.pages.findIndex((page) => page.id === sourcePageId);
+      const targetIndex = scanner.pages.findIndex((page) => page.id === targetPageId);
+      if (sourceIndex === -1 || targetIndex === -1) {
+        return;
+      }
+
+      const nextPages = [...scanner.pages];
+      const [movedPage] = nextPages.splice(sourceIndex, 1);
+      if (!movedPage) {
+        return;
+      }
+
+      const insertIndex = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+      nextPages.splice(insertIndex, 0, movedPage);
+      void reorderPages(nextPages.map((page) => page.id));
+    },
+    [draggedPageId, reorderPages, scanner.pages],
+  );
+
+  const handleThumbnailDragEnd = useCallback(() => {
+    setDraggedPageId(null);
+    setDragOverPageId(null);
+  }, []);
 
   const handleGeneratePdf = useCallback(() => {
     const fileName =
@@ -283,34 +352,68 @@ export function DigitalizacionDocumentalWorkspace({
         </div>
       ) : null}
 
-      <div className={styles.toolbar}>
-        <AppButton
-          variant="secondary"
-          onClick={handleScan}
-          disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
-        >
-          Escanear
-        </AppButton>
-        {scanner.status === "error" || scanner.devices.length === 0 ? (
-          <AppButton variant="secondary" onClick={initialize} disabled={scanner.loading}>
-            Reintentar
-          </AppButton>
-        ) : null}
-        <AppButton variant="ghost" onClick={() => handleRotateSelected(270)} disabled={!selectedPage}>
-          Rotar izq
-        </AppButton>
-        <AppButton variant="ghost" onClick={() => handleRotateSelected(90)} disabled={!selectedPage}>
-          Rotar der
-        </AppButton>
-        <AppButton variant="ghost" onClick={handleRemoveSelected} disabled={!selectedPage}>
-          Eliminar
-        </AppButton>
-        <AppButton variant="ghost" onClick={handleClear} disabled={scanner.loading}>
-          Limpiar
-        </AppButton>
-        <AppButton onClick={handleGeneratePdf} disabled={!canGeneratePdf}>
-          Generar PDF
-        </AppButton>
+      <div className={styles.toolbar} role="toolbar" aria-label="Herramientas de digitalizacion">
+        <div className={styles.toolbarGroup} data-priority="primary" role="group" aria-label="Captura">
+          <AppButton
+            variant="secondary"
+            size="sm"
+            icon={<ScanOutlined />}
+            aria-label="Escanear"
+            tooltip="Escanear"
+            onClick={handleScan}
+            disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
+          />
+        </div>
+
+        <div className={styles.toolbarGroup} role="group" aria-label="Edicion">
+          <AppButton
+            variant="ghost"
+            size="sm"
+            icon={<RotateLeftOutlined />}
+            aria-label="Rotar izquierda"
+            tooltip="Rotar izquierda"
+            onClick={() => handleRotateSelected(270)}
+            disabled={!selectedPage}
+          />
+          <AppButton
+            variant="ghost"
+            size="sm"
+            icon={<RotateRightOutlined />}
+            aria-label="Rotar derecha"
+            tooltip="Rotar derecha"
+            onClick={() => handleRotateSelected(90)}
+            disabled={!selectedPage}
+          />
+          <AppButton
+            variant="danger"
+            size="sm"
+            icon={<DeleteOutlined />}
+            aria-label="Eliminar página"
+            tooltip="Eliminar página"
+            onClick={handleRemoveSelected}
+            disabled={!selectedPage}
+          />
+          <AppButton
+            variant="ghost"
+            size="sm"
+            icon={<ClearOutlined />}
+            aria-label="Limpiar lote"
+            tooltip="Limpiar lote"
+            onClick={handleClear}
+            disabled={scanner.loading || !hasPages}
+          />
+        </div>
+
+        <div className={styles.toolbarGroup} data-priority="output" role="group" aria-label="Salida">
+          <AppButton
+            size="sm"
+            icon={<FileTextOutlined />}
+            aria-label="Generar PDF"
+            tooltip="Generar PDF"
+            onClick={handleGeneratePdf}
+            disabled={!canGeneratePdf}
+          />
+        </div>
       </div>
 
       <main className={styles.main}>
@@ -318,7 +421,7 @@ export function DigitalizacionDocumentalWorkspace({
           <div className={styles.panelHeader}>Miniaturas ({scanner.pages.length})</div>
           {scanner.pages.length > 0 ? (
             <div className={styles.thumbnailList}>
-              {scanner.pages.map((page) => {
+              {scanner.pages.map((page, pageOrderIndex) => {
                 console.log("PAGE_THUMBNAIL_RENDER", {
                   page,
                   hasThumbnailUrl: Boolean(page.thumbnailUrl),
@@ -329,14 +432,26 @@ export function DigitalizacionDocumentalWorkspace({
                   <button
                     className={styles.thumbnailButton}
                     data-selected={page.id === selectedPageId}
+                    data-dragging={page.id === draggedPageId}
+                    data-drop-target={page.id === dragOverPageId}
                     key={page.id}
                     type="button"
+                    draggable
                     onClick={() => setSelectedPageId(page.id)}
+                    onDragStart={(event) => handleThumbnailDragStart(event, page.id)}
+                    onDragOver={(event) => handleThumbnailDragOver(event, page.id)}
+                    onDragLeave={() => {
+                      if (dragOverPageId === page.id) {
+                        setDragOverPageId(null);
+                      }
+                    }}
+                    onDrop={(event) => handleThumbnailDrop(event, page.id)}
+                    onDragEnd={handleThumbnailDragEnd}
                   >
                     {page.thumbnailUrl ? (
                       <img
                         src={page.thumbnailUrl}
-                        alt={getPageLabel(page)}
+                        alt={`Pagina ${pageOrderIndex + 1}`}
                         onLoad={(event) => {
                           const image = event.currentTarget;
                           console.log("THUMBNAIL_DIMENSIONS", {
@@ -346,9 +461,9 @@ export function DigitalizacionDocumentalWorkspace({
                         }}
                       />
                     ) : (
-                      <span>{page.index + 1}</span>
+                      <span>{pageOrderIndex + 1}</span>
                     )}
-                    <small>{getPageLabel(page)}</small>
+                    <small>Pagina {pageOrderIndex + 1}</small>
                   </button>
                 );
               })}
@@ -464,6 +579,14 @@ export function DigitalizacionDocumentalWorkspace({
                   />
                   <span>Duplex activado</span>
                 </label>
+                <label className={styles.checkField}>
+                  <input
+                    type="checkbox"
+                    checked={removeBlankPages}
+                    onChange={(event) => setRemoveBlankPages(event.target.checked)}
+                  />
+                  <span>Eliminar paginas en blanco</span>
+                </label>
                 <label className={styles.settingField}>
                   <span>Color</span>
                   <select
@@ -511,6 +634,7 @@ export function DigitalizacionDocumentalWorkspace({
             <div className={styles.settingsSummary} aria-label="Resumen configuracion">
               <span>ADF {captureMode === "driver" ? "driver" : adfEnabled ? "si" : "no"}</span>
               <span>Duplex {captureMode === "driver" ? "driver" : duplexEnabled ? "si" : "no"}</span>
+              <span>Blancas {removeBlankPages ? "si" : "no"}</span>
               <span>{captureMode === "driver" ? "PaperStream" : colorOptions.find((option) => option.value === colorMode)?.label}</span>
               <span>{captureMode === "driver" ? "UI driver" : `${resolutionDpi} dpi`}</span>
             </div>

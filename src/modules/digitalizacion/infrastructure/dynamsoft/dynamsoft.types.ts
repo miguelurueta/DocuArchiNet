@@ -41,6 +41,7 @@ export interface DigitalizacionScannerClient {
   scan(options: ScanOptions): Promise<ScanPage[]>;
   rotatePage(pageId: string, degrees: 90 | 180 | 270): Promise<void>;
   removePage(pageId: string): Promise<void>;
+  reorderPages(pageIds: string[]): Promise<ScanPage[]>;
   clear(): Promise<void>;
   generatePdf(fileName: string): Promise<PdfGenerationResult>;
   dispose(): Promise<void>;

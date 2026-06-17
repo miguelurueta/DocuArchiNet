@@ -26,6 +26,11 @@ const WEB_TWAIN_ID = "digitalizacion-documental-dwt";
 const DYNAMSOFT_OPERATION_TIMEOUT_MS = 15000;
 const DYNAMSOFT_WEBTWAIN_READY_TIMEOUT_MS = 5000;
 const DYNAMSOFT_WEBTWAIN_READY_POLL_INTERVAL_MS = 200;
+const BLANK_PAGE_ANALYSIS_WIDTH = 96;
+const BLANK_PAGE_ANALYSIS_HEIGHT = 128;
+const BLANK_PAGE_WHITE_THRESHOLD = 245;
+const BLANK_PAGE_CONTENT_RATIO_THRESHOLD = 0.003;
+const BLANK_PAGE_DARK_RATIO_THRESHOLD = 0.0005;
 let dynamsoftClientSequence = 0;
 
 const colorModeToPixelType: Record<ScanColorMode, number> = {
@@ -207,6 +212,8 @@ const getPageOrientation = (width?: number, height?: number) => {
 
   return "square" as const;
 };
+
+const normalizePageIdSet = (pageIds: string[]) => new Set(pageIds);
 
 export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   private readonly instanceId = `DynamsoftTwainClient-${++dynamsoftClientSequence}`;
@@ -674,6 +681,9 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
       const nextCount = dwt.HowManyImagesInBuffer ?? previousCount;
       this.pages = this.buildPagesFromBuffer(dwt, nextCount);
+      if (options.removeBlankPages) {
+        await this.removeDetectedBlankPages(dwt);
+      }
       console.log("PAGE_STATE", this.pages);
 
       return [...this.pages];
@@ -709,16 +719,32 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     this.logDwtLifecycle("BEFORE_RemoveImage", dwt);
     dwt.RemoveImage(pageIndex);
     this.logDwtLifecycle("AFTER_RemoveImage", dwt);
-    this.pages = this.pages
-      .filter((page) => page.id !== pageId)
-      .map((_page, index) => this.buildPageFromBuffer(dwt, index));
-    this.pageRotationById = new Map(
-      this.pages.map((page) => [page.id, page.rotationDegrees ?? 0]),
-    );
-    this.originalPageDimensionsById = new Map(
-      this.pages.map((page) => [page.id, { width: page.width, height: page.height }]),
-    );
+    this.pages = this.rebuildPagesAfterBufferRemoval(dwt, this.pages, [pageIndex], new Set([pageId]));
     console.log("PAGE_STATE", this.pages);
+  }
+
+  async reorderPages(pageIds: string[]) {
+    const knownPageIds = new Set(this.pages.map((page) => page.id));
+    const requestedPageIds = normalizePageIdSet(pageIds);
+    const hasSameLength = pageIds.length === this.pages.length;
+    const hasKnownPages = pageIds.every((pageId) => knownPageIds.has(pageId));
+    const hasAllPages = this.pages.every((page) => requestedPageIds.has(page.id));
+
+    if (!hasSameLength || !hasKnownPages || !hasAllPages) {
+      throw new DynamsoftScannerError({
+        code: "INVALID_PAGE_ORDER",
+        message: "El orden de paginas no coincide con el lote capturado.",
+      });
+    }
+
+    const byId = new Map(this.pages.map((page) => [page.id, page]));
+    this.pages = pageIds.map((pageId) => byId.get(pageId)).filter((page): page is ScanPage => Boolean(page));
+    console.log("PAGE_REORDERED", this.pages.map((page) => ({
+      id: page.id,
+      bufferIndex: page.index,
+    })));
+    console.log("PAGE_STATE", this.pages);
+    return [...this.pages];
   }
 
   async clear() {
@@ -735,7 +761,8 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   async generatePdf(fileName: string) {
     this.assertNoActiveOperation();
     const dwt = this.requireDwt();
-    const pageCount = dwt.HowManyImagesInBuffer ?? this.pages.length;
+    const pageIndices = this.getPdfPageIndices(dwt);
+    const pageCount = pageIndices.length;
 
     if (pageCount <= 0) {
       throw new DynamsoftScannerError({
@@ -751,7 +778,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       const blob = await new Promise<Blob>((resolve, reject) => {
         this.logDwtLifecycle("BEFORE_ConvertToBlob", dwt);
         dwt.ConvertToBlob(
-          Array.from({ length: pageCount }, (_item, index) => index),
+          pageIndices,
           "application/pdf",
           (nextBlob) => {
             this.logDwtLifecycle("AFTER_ConvertToBlob_SUCCESS", dwt);
@@ -903,6 +930,185 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     console.log("PAGE_CAPTURED", page);
 
     return page;
+  }
+
+  private async removeDetectedBlankPages(dwt: DynamsoftWebTwainObject) {
+    const blankAnalyses = await Promise.all(
+      this.pages.map((page) => this.analyzeBlankPageCandidate(page)),
+    );
+    const blankPages = blankAnalyses.filter((analysis) => analysis.isBlank);
+
+    console.log("BLANK_PAGE_REMOVAL_RESULT", {
+      method: "canvas-thumbnail-analysis",
+      sensitivity: {
+        whiteThreshold: BLANK_PAGE_WHITE_THRESHOLD,
+        contentRatioThreshold: BLANK_PAGE_CONTENT_RATIO_THRESHOLD,
+        darkRatioThreshold: BLANK_PAGE_DARK_RATIO_THRESHOLD,
+      },
+      analyzed: blankAnalyses.length,
+      removed: blankPages.length,
+      pages: blankAnalyses.map((analysis) => ({
+        pageId: analysis.page.id,
+        index: analysis.page.index,
+        isBlank: analysis.isBlank,
+        contentRatio: analysis.contentRatio,
+        darkRatio: analysis.darkRatio,
+        reason: analysis.reason,
+      })),
+    });
+
+    if (blankPages.length === 0) {
+      return;
+    }
+
+    const blankPageIds = new Set(blankPages.map((analysis) => analysis.page.id));
+    const blankIndexes = blankPages
+      .map((analysis) => analysis.page.index)
+      .sort((left, right) => right - left);
+
+    blankIndexes.forEach((index) => {
+      this.logDwtLifecycle("BEFORE_RemoveBlankImage", dwt);
+      dwt.RemoveImage(index);
+      this.logDwtLifecycle("AFTER_RemoveBlankImage", dwt);
+    });
+
+    this.pages = this.rebuildPagesAfterBufferRemoval(dwt, this.pages, blankIndexes, blankPageIds);
+  }
+
+  private async analyzeBlankPageCandidate(page: ScanPage) {
+    const imageUrl = page.thumbnailUrl ?? page.imageUrl;
+    if (!imageUrl) {
+      return {
+        page,
+        isBlank: false,
+        contentRatio: 1,
+        darkRatio: 1,
+        reason: "image-url-unavailable",
+      };
+    }
+
+    try {
+      const image = await this.loadAnalysisImage(imageUrl);
+      const canvas = this.options.documentRef.createElement("canvas");
+      canvas.width = BLANK_PAGE_ANALYSIS_WIDTH;
+      canvas.height = BLANK_PAGE_ANALYSIS_HEIGHT;
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      if (!context) {
+        return {
+          page,
+          isBlank: false,
+          contentRatio: 1,
+          darkRatio: 1,
+          reason: "canvas-context-unavailable",
+        };
+      }
+
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+      let contentPixels = 0;
+      let darkPixels = 0;
+      const totalPixels = pixels.length / 4;
+
+      for (let offset = 0; offset < pixels.length; offset += 4) {
+        const red = pixels[offset] ?? 255;
+        const green = pixels[offset + 1] ?? 255;
+        const blue = pixels[offset + 2] ?? 255;
+        const alpha = pixels[offset + 3] ?? 255;
+        if (alpha < 12) {
+          continue;
+        }
+
+        const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+        if (
+          red < BLANK_PAGE_WHITE_THRESHOLD ||
+          green < BLANK_PAGE_WHITE_THRESHOLD ||
+          blue < BLANK_PAGE_WHITE_THRESHOLD
+        ) {
+          contentPixels += 1;
+        }
+        if (luminance < 180) {
+          darkPixels += 1;
+        }
+      }
+
+      const contentRatio = contentPixels / totalPixels;
+      const darkRatio = darkPixels / totalPixels;
+      const isBlank =
+        contentRatio <= BLANK_PAGE_CONTENT_RATIO_THRESHOLD &&
+        darkRatio <= BLANK_PAGE_DARK_RATIO_THRESHOLD;
+
+      return {
+        page,
+        isBlank,
+        contentRatio,
+        darkRatio,
+        reason: isBlank ? "below-content-threshold" : "content-detected",
+      };
+    } catch (error) {
+      console.warn("BLANK_PAGE_ANALYSIS_ERROR", {
+        pageId: page.id,
+        index: page.index,
+        message: error instanceof Error ? error.message : String(error),
+      });
+      return {
+        page,
+        isBlank: false,
+        contentRatio: 1,
+        darkRatio: 1,
+        reason: "analysis-failed",
+      };
+    }
+  }
+
+  private loadAnalysisImage(src: string) {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+      const ImageConstructor = this.options.windowRef.Image;
+      const image = new ImageConstructor();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error("No fue posible analizar la imagen escaneada."));
+      image.src = src;
+    });
+  }
+
+  private rebuildPagesAfterBufferRemoval(
+    dwt: DynamsoftWebTwainObject,
+    previousPages: ScanPage[],
+    removedIndexes: number[],
+    removedPageIds: Set<string>,
+  ) {
+    const sortedRemovedIndexes = [...removedIndexes].sort((left, right) => left - right);
+    const nextPages = previousPages
+      .filter((page) => !removedPageIds.has(page.id))
+      .map((page) => {
+        const removedBefore = sortedRemovedIndexes.filter((index) => index < page.index).length;
+        const nextIndex = page.index - removedBefore;
+        const nextPage = this.buildPageFromBuffer(dwt, nextIndex);
+        return {
+          ...nextPage,
+          id: page.id,
+          rotationDegrees: this.pageRotationById.get(page.id) ?? page.rotationDegrees ?? 0,
+        };
+      });
+
+    this.pageRotationById = new Map(
+      nextPages.map((page) => [page.id, page.rotationDegrees ?? 0]),
+    );
+    this.originalPageDimensionsById = new Map(
+      nextPages.map((page) => [page.id, { width: page.width, height: page.height }]),
+    );
+
+    return nextPages;
+  }
+
+  private getPdfPageIndices(dwt: DynamsoftWebTwainObject) {
+    const bufferPageCount = dwt.HowManyImagesInBuffer ?? this.pages.length;
+    if (this.pages.length === bufferPageCount && this.pages.length > 0) {
+      return this.pages.map((page) => page.index);
+    }
+
+    return Array.from({ length: bufferPageCount }, (_item, index) => index);
   }
 
   private async waitForWebTwain(runtime: DynamsoftWebTwainFactory) {

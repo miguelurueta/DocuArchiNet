@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { AppDigitalizador } from "../AppDigitalizador";
 import { AppDigitalizadorProvider } from "../AppDigitalizadorProvider";
@@ -24,6 +24,9 @@ const createScannerClient = (): DigitalizacionScannerClient => ({
   scan: vi.fn(() => Promise.resolve<ScanPage[]>([{ id: "page-1", index: 0 }])),
   rotatePage: vi.fn().mockResolvedValue(undefined),
   removePage: vi.fn().mockResolvedValue(undefined),
+  reorderPages: vi.fn(async (pageIds: string[]) =>
+    pageIds.map((pageId, index) => ({ id: pageId, index })),
+  ),
   clear: vi.fn().mockResolvedValue(undefined),
   generatePdf: vi.fn(() =>
     Promise.resolve<PdfGenerationResult>({
@@ -50,6 +53,12 @@ describe("AppDigitalizador", () => {
     expect(screen.getByTestId("digitalizacion-workspace")).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).toBeNull();
     await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+    const toolbar = screen.getByRole("toolbar", { name: "Herramientas de digitalizacion" });
+    expect(toolbar).toBeInTheDocument();
+    expect(within(toolbar).getByRole("button", { name: "Escanear" })).toBeInTheDocument();
+    expect(within(toolbar).getByRole("button", { name: "Generar PDF" })).toBeInTheDocument();
+    expect(within(toolbar).queryByText("Escanear")).toBeNull();
+    expect(within(toolbar).queryByText("Generar PDF")).toBeNull();
   });
 
   it("inyecta sourceModule desde modulo cuando el contexto no lo trae", async () => {
@@ -135,6 +144,7 @@ describe("AppDigitalizador", () => {
       expect(scannerClient.selectDevice).toHaveBeenCalledWith("scanner-1"),
     );
     fireEvent.click(screen.getByLabelText("Duplex activado"));
+    fireEvent.click(screen.getByLabelText("Eliminar paginas en blanco"));
     fireEvent.change(screen.getByLabelText("Color"), {
       target: { value: "grayscale" },
     });
@@ -152,6 +162,7 @@ describe("AppDigitalizador", () => {
         feederEnabled: true,
         resolutionDpi: 300,
         showScannerUi: false,
+        removeBlankPages: true,
       }),
     );
   });

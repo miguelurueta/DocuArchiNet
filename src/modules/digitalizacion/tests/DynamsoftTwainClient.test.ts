@@ -331,6 +331,25 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
     expect(dwt.RemoveAllImages).toHaveBeenCalled();
   });
 
+  it("generates PDF using reordered page indices", async () => {
+    const dwt = createDwt();
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    await client.selectDevice("0");
+    const pages = await client.scan({ deviceId: "0" });
+    const reorderedPages = await client.reorderPages([pages[1].id, pages[0].id]);
+    await client.generatePdf("reordered.pdf");
+
+    expect(reorderedPages.map((page) => page.id)).toEqual([pages[1].id, pages[0].id]);
+    expect(dwt.ConvertToBlob).toHaveBeenCalledWith(
+      [1, 0],
+      "application/pdf",
+      expect.any(Function),
+      expect.any(Function),
+    );
+  });
+
   it("fails PDF generation with no pages", async () => {
     const client = createClient(createRuntime(createDwt()));
 

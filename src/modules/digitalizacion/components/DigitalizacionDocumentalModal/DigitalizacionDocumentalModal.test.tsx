@@ -41,6 +41,12 @@ const createScannerClient = (): DigitalizacionScannerClient & { pages: ScanPage[
   }),
   rotatePage: vi.fn(async () => undefined),
   removePage: vi.fn(async () => undefined),
+  reorderPages: vi.fn(async function reorderPages(this: { pages: ScanPage[] }, pageIds: string[]) {
+    this.pages = pageIds
+      .map((pageId) => this.pages.find((page) => page.id === pageId))
+      .filter((page): page is ScanPage => Boolean(page));
+    return this.pages;
+  }),
   clear: vi.fn(async () => undefined),
   generatePdf: vi.fn(
     async () =>
@@ -197,10 +203,10 @@ describe("[SPEC:SCRUMCORE-239] DigitalizacionDocumentalModal", () => {
     });
     await waitFor(() => {
       expect(scannerClient.selectDevice).toHaveBeenCalledWith("0");
-      expect(screen.getByText("Escanear")).not.toBeDisabled();
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
     });
 
-    fireEvent.click(screen.getByText("Escanear"));
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
 
     await waitFor(() => {
       expect(
@@ -231,18 +237,18 @@ describe("[SPEC:SCRUMCORE-239] DigitalizacionDocumentalModal", () => {
     });
     await waitFor(() => {
       expect(scannerClient.selectDevice).toHaveBeenCalledWith("0");
-      expect(screen.getByText("Escanear")).not.toBeDisabled();
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
     });
 
-    fireEvent.click(screen.getByText("Escanear"));
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
 
     await waitFor(() => {
       expect(screen.getAllByText("Pagina 1").length).toBeGreaterThanOrEqual(1);
     });
 
-    fireEvent.click(screen.getByText("Rotar"));
-    fireEvent.click(screen.getByText("Eliminar"));
-    fireEvent.click(screen.getByText("Generar PDF"));
+    fireEvent.click(screen.getByRole("button", { name: "Rotar derecha" }));
+    fireEvent.click(screen.getByRole("button", { name: "Eliminar página" }));
+    fireEvent.click(screen.getByRole("button", { name: "Generar PDF" }));
 
     expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-1", 90);
     expect(scannerClient.removePage).toHaveBeenCalledWith("page-1");

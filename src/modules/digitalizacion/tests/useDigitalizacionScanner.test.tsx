@@ -28,7 +28,10 @@ const createClient = (): DigitalizacionScannerClient & {
 
   return {
     devices: [{ id: "0", name: "Scanner 1", index: 0 }],
-    pages: [{ id: "page-1", index: 0 }],
+    pages: [
+      { id: "page-1", index: 0 },
+      { id: "page-2", index: 1 },
+    ],
     pdf: { file: pdfFile, pageCount: 1 },
     initialize: vi.fn(async () => undefined),
     listDevices: vi.fn(async function listDevices(this: { devices: ScannerDevice[] }) {
@@ -41,6 +44,12 @@ const createClient = (): DigitalizacionScannerClient & {
     }),
     rotatePage: vi.fn(async () => undefined),
     removePage: vi.fn(async () => undefined),
+    reorderPages: vi.fn(async function reorderPages(this: { pages: ScanPage[] }, pageIds: string[]) {
+      this.pages = pageIds
+        .map((pageId) => this.pages.find((page) => page.id === pageId))
+        .filter((page): page is ScanPage => Boolean(page));
+      return this.pages;
+    }),
     clear: vi.fn(async () => undefined),
     generatePdf: vi.fn(async function generatePdf(this: { pdf: PdfGenerationResult }) {
       return this.pdf;
@@ -109,6 +118,21 @@ describe("[SPEC:SCRUMCORE-240] useDigitalizacionScanner", () => {
     expect(client.removePage).toHaveBeenCalledWith("page-1");
     expect(client.clear).toHaveBeenCalled();
     expect(result.current.pages).toEqual([]);
+  });
+
+  it("reorders pages through adapter and clears generated pdf", async () => {
+    const client = createClient();
+    const { result } = renderHook(() => useDigitalizacionScanner({ client }));
+
+    await act(async () => {
+      await result.current.scan({ deviceId: "0" });
+      await result.current.generatePdf("scan.pdf");
+      await result.current.reorderPages(["page-2", "page-1"]);
+    });
+
+    expect(client.reorderPages).toHaveBeenCalledWith(["page-2", "page-1"]);
+    expect(result.current.pages.map((page) => page.id)).toEqual(["page-2", "page-1"]);
+    expect(result.current.pdf).toBeNull();
   });
 
   it("ignores stale initialize result after dispose", async () => {

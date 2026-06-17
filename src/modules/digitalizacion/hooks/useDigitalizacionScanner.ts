@@ -185,6 +185,24 @@ export const useDigitalizacionScanner = ({
     [client, handleError, updateIfCurrent],
   );
 
+  const reorderPages = useCallback(
+    async (pageIds: string[]) => {
+      const generation = generationRef.current;
+      try {
+        const pages = await client.reorderPages(pageIds);
+        updateIfCurrent(generation, (current) => ({
+          ...current,
+          pages,
+          pdf: null,
+          error: null,
+        }));
+      } catch (error) {
+        handleError(generation, error, "No fue posible reordenar las paginas.");
+      }
+    },
+    [client, handleError, updateIfCurrent],
+  );
+
   const rotatePage = useCallback(
     async (pageId: string, degrees: 90 | 180 | 270) => {
       const generation = generationRef.current;
@@ -280,6 +298,7 @@ export const useDigitalizacionScanner = ({
     selectDevice,
     scan,
     removePage,
+    reorderPages,
     rotatePage,
     clear,
     generatePdf,

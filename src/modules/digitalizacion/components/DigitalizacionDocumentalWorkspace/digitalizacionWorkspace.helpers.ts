@@ -16,6 +16,7 @@ export const unavailableScannerClient: DigitalizacionScannerClient = {
   },
   rotatePage: async () => undefined,
   removePage: async () => undefined,
+  reorderPages: async () => [],
   clear: async () => undefined,
   generatePdf: async () => {
     throw new DynamsoftScannerError({
