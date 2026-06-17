@@ -189,6 +189,39 @@
 }
 
 @media (max-width: 520px) {
+  .detailRegion {
+    border-radius: 16px;
+  }
+
+  .detailHeader {
+    gap: 8px;
+    padding: 6px 12px;
+  }
+
+  .detailHeaderCopy {
+    gap: 2px;
+  }
+
+  .detailTitle {
+    font-size: 1rem;
+  }
+
+  .detailDescription {
+    font-size: 0.8125rem;
+    line-height: 1.35;
+  }
+
+  .detailBody {
+    min-height: calc(100dvh - 56px);
+    padding: 10px 12px 14px;
+  }
+
+  .detailBody > * {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+  }
+
   .loadingState {
     min-height: 120px;
     padding: 0.75rem;

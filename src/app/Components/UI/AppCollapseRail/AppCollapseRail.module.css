@@ -201,7 +201,7 @@
 .overlayRoot {
   position: fixed;
   inset: 0;
-  z-index: 29;
+  z-index: 140;
   pointer-events: auto;
 }
 
@@ -234,7 +234,7 @@
   isolation: isolate;
   visibility: visible;
   opacity: 1;
-  z-index: 30;
+  z-index: 141;
 }
 
 .panel[data-variant="overlay"][data-placement="right"] {

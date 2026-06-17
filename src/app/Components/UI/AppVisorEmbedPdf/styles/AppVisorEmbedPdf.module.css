@@ -16,6 +16,7 @@
   position: sticky;
   top: 0;
   z-index: 2;
+  container-type: inline-size;
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -347,6 +348,37 @@
 
 .viewport * {
   overflow-anchor: none;
+}
+
+@media (max-width: 768px) {
+  .root {
+    min-height: 500px;
+  }
+
+  .toolbarShell {
+    gap: 4px;
+    padding: 6px 8px;
+  }
+
+  .paginationOverlay {
+    bottom: 14px;
+    z-index: 90;
+  }
+
+  .scrollTopFab {
+    right: max(8px, calc(50% - 218px));
+    bottom: 8px;
+    z-index: 91;
+    width: 40px;
+    height: 40px;
+  }
+
+  .viewport {
+    overflow: auto;
+    overflow-x: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 .pageLayer {

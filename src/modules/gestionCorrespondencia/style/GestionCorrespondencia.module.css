@@ -318,8 +318,8 @@
   .shell {
     display: grid;
     grid-template-rows: auto minmax(0, 1fr);
-    height: calc(100dvh - 112px);
-    max-height: calc(100dvh - 112px);
+    height: calc(100dvh - 56px);
+    max-height: calc(100dvh - 56px);
     gap: 2px;
     overflow: hidden;
   }
@@ -371,8 +371,8 @@
 
 @media (max-width: 900px) and (max-height: 900px) {
   .shell {
-    height: calc(100dvh - 120px);
-    max-height: calc(100dvh - 120px);
+    height: calc(100dvh - 64px);
+    max-height: calc(100dvh - 64px);
     gap: 2px;
   }
 

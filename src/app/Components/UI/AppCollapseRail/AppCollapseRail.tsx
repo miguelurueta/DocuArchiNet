@@ -18,6 +18,7 @@ export type AppCollapseRailProps = {
   variant?: AppCollapseRailVariant;
   railLabel?: string;
   railIcon?: ReactNode;
+  railButtonLabel?: string;
   headerActions?: ReactNode;
   className?: string;
 };
@@ -35,6 +36,7 @@ export function AppCollapseRail({
   variant = "inline",
   railLabel,
   railIcon,
+  railButtonLabel,
   headerActions,
   className,
 }: AppCollapseRailProps) {
@@ -129,7 +131,8 @@ export function AppCollapseRail({
             size="sm"
             className={styles.railButton}
             onClick={onToggle}
-            aria-label={`Mostrar ${title}`}
+            aria-label={railButtonLabel ?? `Mostrar ${title}`}
+            title={railButtonLabel ?? `Mostrar ${title}`}
             icon={railIcon ?? (!isOverlay ? expandIcon : undefined)}
           >
             {isOverlay ? (

@@ -180,7 +180,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const toastIdRef = useRef<ToastId | null>(null);
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const [isTablet] = useState(resolveIsTablet);
-  const [collapsed, setCollapsed] = useState(isTablet);
+  const [collapsed, setCollapsed] = useState(isMobile || isTablet);
   const documentosTable = useGestionRespuestaDocumentosTable(idTareaWf);
   const visorRef = useRef<AppVisorEmbedPdfRef | null>(null);
   const lastVisorLoadKeyRef = useRef<string | null>(null);
@@ -303,6 +303,12 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   }, [documentosTable.selectedDocumentsCount, documentosTable.totalDocumentsCount]);
 
   const toggleIcon = layoutCollapsed ? <LeftOutlined /> : <RightOutlined />;
+
+  useEffect(() => {
+    if (variant === "overlay") {
+      setCollapsed(true);
+    }
+  }, [variant]);
 
   const triggerDocumentListHint = useCallback(() => {
     setCollapsed(false);
@@ -915,7 +921,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
           placement="right"
           variant={variant}
           panelId={panelId}
-          railLabel="Documentos"
+          railLabel="Abrir lista de documentos"
+          railButtonLabel="Abrir lista de documentos"
           railIcon={<BookOutlined />}
           className={styles.collapseRail}
         >

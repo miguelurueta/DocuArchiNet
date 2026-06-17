@@ -41,14 +41,14 @@
 
 .resizeHandle {
   position: relative;
-  flex: 0 0 32px;
-  width: 8px;
-  min-width: 8px;
+  flex: 0 0 10px;
+  width: 10px;
+  min-width: 10px;
   display: grid;
   place-items: center;
-  background: #e2e8f0;
+  background: #e5eaf0;
   border: 0;
-  border-radius: 2px;
+  border-radius: 4px;
   cursor: col-resize;
   outline: none;
 }
@@ -69,9 +69,9 @@
 
 .resizeGrip {
   z-index: 1;
-  width: 4px;
-  height: 34px;
-  border-radius: 14px;
+  width: 3px;
+  height: 28px;
+  border-radius: 999px;
   background: #6f8297;
 }
 

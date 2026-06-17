@@ -1,8 +1,36 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { AppPdfToolbar, type AppPdfToolbarProps } from "./AppPdfToolbar";
+
+vi.mock("../../AppDropdown", () => ({
+  AppDropdown: ({
+    trigger,
+    items,
+  }: {
+    trigger: ReactNode;
+    items: Array<{ key: string; label?: ReactNode; disabled?: boolean; onSelect?: () => void }>;
+  }) => (
+    <div>
+      {trigger}
+      <div role="menu" aria-label="Mas acciones PDF">
+        {items.map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            role="menuitem"
+            disabled={item.disabled}
+            onClick={item.onSelect}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  ),
+}));
 
 function renderToolbar(overrides: Partial<AppPdfToolbarProps> = {}) {
   const props: AppPdfToolbarProps = {
@@ -52,6 +80,19 @@ describe("AppPdfToolbar guide tour", () => {
     await user.keyboard("{Enter}");
 
     expect(onStartGuideTour).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("AppPdfToolbar responsive overflow", () => {
+  it("expone acciones secundarias en menu de mas acciones", () => {
+    renderToolbar({ onStartGuideTour: vi.fn(), isGuideTourAvailable: true });
+
+    expect(screen.getByRole("button", { name: /mas acciones pdf/i })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /rotar izquierda/i })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /rotar derecha/i })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /imprimir/i })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /exportar/i })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /guia interactiva/i })).toBeInTheDocument();
   });
 });
 

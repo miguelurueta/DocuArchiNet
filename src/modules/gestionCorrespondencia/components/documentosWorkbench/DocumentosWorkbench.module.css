@@ -575,10 +575,62 @@
 
 @media (max-width: 768px) {
   .workbenchBody {
-    height: clamp(320px, 75vh, 680px);
+    height: 100%;
+  }
+
+  .listPanel {
+    height: auto;
+    min-height: 0;
+    max-height: 58vh;
+  }
+
+  .listSurface {
+    height: auto;
+    min-height: 168px;
+    max-height: 52vh;
+    overflow: auto;
   }
 
   .mainArea {
     border-radius: 16px;
+  }
+
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"]) {
+    position: fixed;
+    right: auto;
+    left: max(10px, calc(50% - 158px));
+    bottom: 36px;
+    width: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    justify-items: center;
+    z-index: 91;
+  }
+
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button) {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    padding: 0;
+    border-radius: 999px;
+    border-color: rgba(148, 163, 184, 0.22);
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
+    justify-content: center;
+  }
+
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button .anticon) {
+    display: inline-flex;
+    font-size: 16px;
+  }
+
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button span[class*="railLabel"]) {
+    font-size: 0;
+    gap: 0;
+  }
+
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button span[class*="railLabelIcon"]) {
+    font-size: 16px;
   }
 }
