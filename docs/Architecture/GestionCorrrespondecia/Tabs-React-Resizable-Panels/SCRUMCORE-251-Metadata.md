@@ -38,6 +38,9 @@
 - `f77db8a fix(SCRUMCORE-251): polish mobile documents overlay`
 - `d02fc0c fix(SCRUMCORE-251): refine tablet responsive workbench`
 - `d77d3f5 fix(SCRUMCORE-251): tune mobile document panel height`
+- `70ad45b fix(SCRUMCORE-251): refine document overlay breakpoints`
+- `6f4111c fix(SCRUMCORE-251): support nest hub document overlay`
+- Pendiente en este bloque: ajuste responsive AppEditor/AppToolbar mobile.
 
 ## Evidencia tecnica
 
@@ -48,6 +51,11 @@
 - Desktop pequeno conserva rail inline normal y reduce el alto del panel de documentos para evitar scroll innecesario.
 - `AppCollapseRail` conserva overlay lateral en tablets; se retiro el bottom-sheet tablet para alinear con desktop.
 - Boton flotante de lista de documentos mantiene foreground visual en hover/active/focus.
+- AppEditor mobile:
+  - Toolbar compacta deja visible zoom/trailing controls y mueve acciones de editor a overflow.
+  - Controles flotantes inferiores separan paginador y contador para evitar solapamiento.
+- AppToolbar contextless mobile:
+  - Padding, gaps y tamano de botones reducidos para ganar espacio en acciones internas de Gestion.
 - Tests agregados:
   - `GestionWorkbenchParallelTabs.test.tsx`
   - `GestionRespuesta.test.tsx`

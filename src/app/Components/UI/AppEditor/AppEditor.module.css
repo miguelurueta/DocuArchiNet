@@ -201,6 +201,56 @@
   flex: 0 0 auto;
 }
 
+.toolbarDesktopActions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.08rem;
+}
+
+.toolbarPrimaryActions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.toolbarOverflowActions {
+  display: none;
+  flex: 0 0 auto;
+}
+
+.toolbarLinkActions,
+.toolbarImageActions,
+.toolbarExternalActions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.toolbarOverflowPanel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.28rem;
+  max-width: min(21rem, calc(100vw - 2rem));
+  padding: 0.1rem;
+}
+
+.toolbarOverflowPanelRow {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.toolbarOverflowButton {
+  min-width: 1.65rem;
+  min-height: 1.68rem;
+  padding-inline: 0.34rem;
+  border-radius: 0.48rem;
+  color: var(--editor-muted);
+  background: transparent;
+}
+
 .toolbarButtonGroup + .toolbarButtonGroup::before,
 .toolbarSection[data-group="actions"]::before,
 .toolbarSectionEnd::before {
@@ -1772,8 +1822,30 @@
     gap: 0.18rem;
   }
 
+  .toolbar[data-toolbar-mode="compact"] .toolbarSection[data-group="heading"] {
+    display: none;
+  }
+
   .toolbar[data-toolbar-mode="compact"] .toolbarSection[data-group="actions"] {
     flex: 1 1 auto;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarDesktopActions {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarPrimaryActions {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarLinkActions,
+  .toolbar[data-toolbar-mode="compact"] .toolbarImageActions,
+  .toolbar[data-toolbar-mode="compact"] .toolbarExternalActions {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarOverflowActions {
+    display: inline-flex;
   }
 
   .toolbar[data-toolbar-mode="compact"] .toolbarSectionEnd {
@@ -1800,6 +1872,20 @@
     justify-content: flex-end;
   }
 
+  .pageIndicator {
+    bottom: 0.7rem;
+    min-width: 0;
+    max-width: calc(100% - 1.5rem);
+  }
+
+  .pageStatsIndicator {
+    right: auto;
+    left: 50%;
+    bottom: 3.25rem;
+    max-width: calc(100% - 1.5rem);
+    transform: translateX(-50%);
+  }
+
   .documentWorkspace {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1822,7 +1908,8 @@
   }
 
   .toolbar[data-toolbar-mode="compact"] .headingButton,
-  .toolbar[data-toolbar-mode="compact"] .alignButton {
+  .toolbar[data-toolbar-mode="compact"] .alignButton,
+  .toolbar[data-toolbar-mode="compact"] .toolbarOverflowButton {
     min-height: 1.6rem;
     padding-inline: 0.28rem;
   }
@@ -1859,6 +1946,28 @@
     gap: 0.18rem;
   }
 
+  .toolbar[data-toolbar-mode="compact"] .toolbarSection[data-group="heading"] {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarDesktopActions {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarPrimaryActions {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarLinkActions,
+  .toolbar[data-toolbar-mode="compact"] .toolbarImageActions,
+  .toolbar[data-toolbar-mode="compact"] .toolbarExternalActions {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarOverflowActions {
+    display: inline-flex;
+  }
+
   .toolbar[data-toolbar-mode="compact"] .toolbarButtonGroup {
     gap: 0.06rem;
   }
@@ -1870,7 +1979,8 @@
   }
 
   .toolbar[data-toolbar-mode="compact"] .headingButton,
-  .toolbar[data-toolbar-mode="compact"] .alignButton {
+  .toolbar[data-toolbar-mode="compact"] .alignButton,
+  .toolbar[data-toolbar-mode="compact"] .toolbarOverflowButton {
     min-height: 1.62rem;
     padding-inline: 0.3rem;
   }

@@ -196,4 +196,34 @@
   .actions {
     justify-content: flex-start;
   }
+
+  .compact.contextless {
+    gap: 0.35rem;
+    padding: 0.4rem 0.45rem;
+    border-radius: 0.75rem;
+  }
+
+  .compact.contextless .actions {
+    width: auto;
+    gap: 0.32rem;
+  }
+
+  .compact.contextless .actionGroup,
+  .compact.contextless .secondaryActionGroup {
+    gap: 0.32rem;
+  }
+
+  .compact.contextless .actionGroup :global(.ant-btn),
+  .compact.contextless .secondaryActionGroup :global(.ant-btn),
+  .compact.contextless .primaryAction :global(.ant-btn) {
+    min-height: 1.72rem;
+    padding-inline: 0.48rem;
+    font-size: 0.72rem;
+  }
+
+  .compact.contextless .actionGroup :global(.ant-btn-icon),
+  .compact.contextless .secondaryActionGroup :global(.ant-btn-icon),
+  .compact.contextless .primaryAction :global(.ant-btn-icon) {
+    font-size: 0.82rem;
+  }
 }
