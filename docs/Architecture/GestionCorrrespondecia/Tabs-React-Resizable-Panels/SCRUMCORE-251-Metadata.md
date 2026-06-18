@@ -20,7 +20,7 @@
 ## Estado
 
 - Implementacion frontend inicial realizada.
-- Ajustes responsive iterativos aplicados para mobile, tablets, iPad mini/Air/Pro, Surface Pro 7 y desktop pequeno.
+- Ajustes responsive iterativos aplicados para mobile, tablets, iPad mini/Air/Pro, Surface Pro 7, Nest Hub landscape y desktop pequeno.
 - Tests enfocados OK.
 - TypeScript OK con `npx.cmd tsc --noEmit --pretty false`.
 - Build general bloqueado por deuda preexistente fuera del alcance.
@@ -44,7 +44,7 @@
 - Dependencia agregada: `react-resizable-panels`.
 - Componente nuevo: `GestionWorkbenchParallelTabs`.
 - Integracion: `GestionRespuesta.tsx`.
-- `DocumentosWorkbench` usa overlay en mobile/tablets altas y excepcion controlada para iPad mini landscape `1024x768`.
+- `DocumentosWorkbench` usa overlay en mobile/tablets altas y excepciones controladas para iPad mini landscape `1024x768` y Nest Hub landscape `1024x600`.
 - Desktop pequeno conserva rail inline normal y reduce el alto del panel de documentos para evitar scroll innecesario.
 - `AppCollapseRail` conserva overlay lateral en tablets; se retiro el bottom-sheet tablet para alinear con desktop.
 - Boton flotante de lista de documentos mantiene foreground visual en hover/active/focus.
@@ -54,7 +54,7 @@
 
 ## Riesgos residuales
 
-- Validar manualmente matrix responsive final: iPhone SE, iPhone XR/12 Pro, Galaxy S8+, iPad mini portrait/landscape, iPad Air/Pro, Surface Pro 7 y desktop pequeno.
+- Validar manualmente matrix responsive final: iPhone SE, iPhone XR/12 Pro, Galaxy S8+, iPad mini portrait/landscape, iPad Air/Pro, Surface Pro 7, Nest Hub landscape y desktop pequeno.
 - Validar que `DocumentosWorkbench` recalcula correctamente dentro de panel redimensionable.
 - Validar que no hay doble carga evidente al alternar modo.
 - Resolver o aislar deuda de build en `DynamsoftTwainClient.ts` si se requiere build completo verde.

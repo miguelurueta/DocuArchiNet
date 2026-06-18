@@ -24,6 +24,8 @@ const MOBILE_QUERY = "(max-width: 768px)";
 const TABLET_QUERY = "(min-width: 769px) and (max-width: 1366px) and (min-height: 900px)";
 const IPAD_MINI_LANDSCAPE_QUERY =
   "(min-width: 1000px) and (max-width: 1040px) and (min-height: 740px) and (max-height: 800px)";
+const NEST_HUB_LANDSCAPE_QUERY =
+  "(min-width: 1000px) and (max-width: 1040px) and (min-height: 580px) and (max-height: 620px)";
 const DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES = 1_048_576;
 const MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES = 768 * 1024;
 
@@ -174,7 +176,10 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const isMobile = useMediaQuery(MOBILE_QUERY);
   const isTablet = useMediaQuery(TABLET_QUERY);
   const isIpadMiniLandscape = useMediaQuery(IPAD_MINI_LANDSCAPE_QUERY);
-  const [collapsed, setCollapsed] = useState(isMobile || isTablet || isIpadMiniLandscape);
+  const isNestHubLandscape = useMediaQuery(NEST_HUB_LANDSCAPE_QUERY);
+  const [collapsed, setCollapsed] = useState(
+    isMobile || isTablet || isIpadMiniLandscape || isNestHubLandscape,
+  );
   const documentosTable = useGestionRespuestaDocumentosTable(idTareaWf);
   const visorRef = useRef<AppVisorEmbedPdfRef | null>(null);
   const lastVisorLoadKeyRef = useRef<string | null>(null);
@@ -284,8 +289,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   */
 
   const variant = useMemo(
-    () => (isMobile || isTablet || isIpadMiniLandscape ? "overlay" : "inline"),
-    [isIpadMiniLandscape, isMobile, isTablet],
+    () => (isMobile || isTablet || isIpadMiniLandscape || isNestHubLandscape ? "overlay" : "inline"),
+    [isIpadMiniLandscape, isMobile, isNestHubLandscape, isTablet],
   );
   const layoutCollapsed = variant === "overlay" ? true : collapsed;
   const documentsCounter = useMemo(() => {
