@@ -116,7 +116,7 @@ export type DynamsoftWebTwainObject = {
     onSuccess: () => void,
     onFailure: (code: number, message: string) => void,
   ): void;
-  RemoveImage(index: number): void;
+  RemoveImage(index: number): void | boolean;
   RemoveAllImages(): void;
   Rotate(index: number, degrees: number, keepSize: boolean): boolean;
   ConvertToBlob(

@@ -59,6 +59,21 @@ const logDevelopmentMetric = (
   });
 };
 
+const logScannerPagesFinalState = (stage: string, pages: ScanPage[]) => {
+  console.info("BLANK_PAGE_FINAL_STATE", {
+    stage,
+    collection: "scanner.pages",
+    pageCount: pages.length,
+    pages: pages.map((page) => ({
+      pageId: page.id,
+      pageIndex: page.index,
+      pageNumber: page.index + 1,
+      thumbnailUrl: page.thumbnailUrl,
+      imageUrl: page.imageUrl,
+    })),
+  });
+};
+
 export const useDigitalizacionScanner = ({
   client,
 }: {
@@ -155,6 +170,9 @@ export const useDigitalizacionScanner = ({
           pdf: null,
           error: null,
         }));
+        if (options.removeBlankPages) {
+          logScannerPagesFinalState("reactStateAfterScan", pages);
+        }
       } catch (error) {
         handleError(generation, error, "No fue posible completar el escaneo.");
       }

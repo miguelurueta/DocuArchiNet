@@ -211,9 +211,7 @@ describe("[SPEC:SCRUMCORE-239] DigitalizacionDocumentalModal", () => {
     fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText((_, element) => element?.textContent === "Miniaturas (2)"),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Miniaturas (2)" })).toBeInTheDocument();
     });
     expect(screen.getAllByText("Pagina 1").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Pagina 2")).toBeInTheDocument();

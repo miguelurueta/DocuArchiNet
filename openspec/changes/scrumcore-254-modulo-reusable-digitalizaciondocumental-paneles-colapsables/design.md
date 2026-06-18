@@ -80,24 +80,38 @@ SCRUMCORE-254: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL- PANELES-COLAPSABLES
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Permitir ocultar/mostrar Miniaturas y Configuracion de escaneo desde el toolbar.
+- Expandir el Preview PDF cuando uno o ambos paneles laterales estan ocultos.
+- Persistir `showThumbnails` y `showConfiguration` en `localStorage`.
+- Mantener montados los paneles laterales para preservar seleccion, drag and drop, scroll y valores de configuracion.
 
 **Non-Goals**
 - Cambios fuera del alcance descrito por el ticket.
+- Cambios en Dynamsoft, backend, generacion PDF, upload o metadata.
+- Reemplazar el layout del workspace por otro componente.
 
 ## Decisions
 
-1. TBD
+1. El estado de paneles vive en `DigitalizacionDocumentalWorkspace` como `panelPreferences`.
+2. La persistencia usa la clave `docuarchi:digitalizacion:panel-preferences` con los campos `showThumbnails` y `showConfiguration`.
+3. El layout se resuelve por CSS Grid usando atributos `data-thumbnails-collapsed` y `data-configuration-collapsed` en `<main>`.
+4. Los paneles laterales usan el componente reusable `AppCollapseRail` en modo `inline`; el workspace controla el estado y el rail provee header, toggle, restore rail, `aria-controls` y `aria-expanded`.
+5. El grid del workspace solo controla la liberacion de ancho: las columnas laterales pasan a `0` cuando el `AppCollapseRail` correspondiente esta colapsado.
 
 ## Risks / Trade-offs
 
-- TBD
+- Mantener el DOM montado conserva scroll/estado, pero exige usar el contrato accesible de `AppCollapseRail` para evitar `aria-hidden` manual sobre contenido con foco.
+- `localStorage` puede estar bloqueado o corrupto; se encapsula lectura/escritura en `try/catch` y se vuelve a ambos paneles visibles.
+- En mobile, los paneles colapsados deben ocupar `block-size: 0` porque el grid pasa a una columna.
 
 ## Migration Plan
 
-1. TBD
+1. Agregar auditoria en `docs/Architecture/DigitalizacionDocumental/SCRUMCORE-265-collapsible-panels.md`.
+2. Agregar estado persistido en `DigitalizacionDocumentalWorkspace`.
+3. Envolver Miniaturas y Configuracion con `AppCollapseRail` y ajustar CSS Grid para columnas colapsadas y preview expandido.
+4. Cubrir toggles y persistencia en `AppDigitalizador.test.tsx`.
+5. Ejecutar suite focal, typecheck, lint y `spec:validate`.
 
 ## Open Questions
 
-- TBD
+- La calibracion visual final debe validarse con scanner fisico y lotes grandes para confirmar scroll real de miniaturas.
