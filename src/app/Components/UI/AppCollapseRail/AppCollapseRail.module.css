@@ -25,6 +25,10 @@
   pointer-events: none;
 }
 
+.panel[data-header-hidden="true"] {
+  grid-template-rows: minmax(0, 1fr);
+}
+
 .panel[data-placement="right"][data-variant="inline"][data-collapsed="true"] {
   transform: translateX(12px);
 }

@@ -367,7 +367,7 @@
 
   .scrollTopFab {
     right: max(8px, calc(50% - 218px));
-    bottom: 8px;
+    bottom: 4px;
     z-index: 91;
     width: 40px;
     height: 40px;

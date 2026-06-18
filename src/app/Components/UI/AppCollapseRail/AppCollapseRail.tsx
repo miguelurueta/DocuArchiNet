@@ -20,6 +20,7 @@ export type AppCollapseRailProps = {
   railIcon?: ReactNode;
   railButtonLabel?: string;
   headerActions?: ReactNode;
+  hideHeader?: boolean;
   className?: string;
 };
 
@@ -38,6 +39,7 @@ export function AppCollapseRail({
   railIcon,
   railButtonLabel,
   headerActions,
+  hideHeader = false,
   className,
 }: AppCollapseRailProps) {
   const internalId = useId();
@@ -55,24 +57,27 @@ export function AppCollapseRail({
       data-collapsed={collapsed}
       data-placement={placement}
       data-variant={variant}
+      data-header-hidden={hideHeader}
       aria-label={title}
     >
-      <div className={styles.header}>
-        <h5 className={styles.title}>{title}</h5>
-        <div className={styles.headerActions}>
-          {headerActions}
-          <AppButton
-            variant="ghost"
-            size="sm"
-            onClick={onToggle}
-            aria-controls={resolvedId}
-            aria-expanded={!collapsed}
-            aria-label={collapsed ? `Mostrar ${title}` : `Ocultar ${title}`}
-            icon={toggleIcon}
-            className={styles.toggle}
-          />
+      {!hideHeader ? (
+        <div className={styles.header}>
+          <h5 className={styles.title}>{title}</h5>
+          <div className={styles.headerActions}>
+            {headerActions}
+            <AppButton
+              variant="ghost"
+              size="sm"
+              onClick={onToggle}
+              aria-controls={resolvedId}
+              aria-expanded={!collapsed}
+              aria-label={collapsed ? `Mostrar ${title}` : `Ocultar ${title}`}
+              icon={toggleIcon}
+              className={styles.toggle}
+            />
+          </div>
         </div>
-      </div>
+      ) : null}
       <div id={resolvedId} className={styles.surface}>
         {children}
       </div>

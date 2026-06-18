@@ -610,6 +610,9 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             documentKey: `${result.documentResolveRequest.NombreGabinete}:${result.documentResolveRequest.IdDocumento}`,
             context: typeof idTareaWf === "number" ? { idTareaWorkflow: idTareaWf } : undefined,
           });
+          if (isMobile && variant === "overlay") {
+            setCollapsed(true);
+          }
         } catch (err) {
           if (seq !== viewSeqRef.current) return;
           if (isCancelledError(err)) return;
@@ -628,7 +631,16 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
         }
       })();
     },
-    [documentViewer, documentosTable, idTareaWf, isReplacingAnnotatedPages, startViewerLoading, stopViewerLoading],
+    [
+      documentViewer,
+      documentosTable,
+      idTareaWf,
+      isMobile,
+      isReplacingAnnotatedPages,
+      startViewerLoading,
+      stopViewerLoading,
+      variant,
+    ],
   );
 
   const onSaveAnnotatedPages = useCallback(() => {
@@ -924,6 +936,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
           railLabel="Abrir lista de documentos"
           railButtonLabel="Abrir lista de documentos"
           railIcon={<BookOutlined />}
+          hideHeader
           className={styles.collapseRail}
         >
         <div className={styles.listPanel} data-locked={isReplacingAnnotatedPages}>
