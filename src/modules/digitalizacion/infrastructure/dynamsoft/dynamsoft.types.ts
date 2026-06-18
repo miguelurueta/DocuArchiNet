@@ -150,6 +150,7 @@ export type DynamsoftAcquireOptions = {
 export type DynamsoftImageType = "application/pdf";
 
 export type DynamsoftWindow = Window & {
+  Image?: typeof Image;
   Dynamsoft?: {
     DWT?: DynamsoftWebTwainFactory;
   };

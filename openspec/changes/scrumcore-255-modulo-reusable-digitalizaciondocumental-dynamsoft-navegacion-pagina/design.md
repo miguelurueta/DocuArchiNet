@@ -41,16 +41,22 @@ SCRUMCORE-255: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL- DYNAMSOFT-NAVEGACION-PA
 
 ## Decisions
 
-1. TBD
+1. La navegacion rapida se implementa en `DigitalizacionDocumentalWorkspace`, porque ahi viven la toolbar, la seleccion de pagina y la lista de miniaturas.
+2. El control usa un input numerico con boton `Ir`; `Ctrl+G` solo enfoca el input para no disparar navegacion accidental.
+3. El scroll automatico usa refs por `page.id` en un `Map`, evitando recorrer el DOM completo.
+4. El highlight temporal usa estado local (`highlightedPageId`) y `data-highlighted`, sin mutar la coleccion `scanner.pages`.
 
 ## Risks / Trade-offs
 
-- TBD
+- Si las miniaturas estan colapsadas, la pagina se selecciona y el preview cambia, pero no se fuerza expandir el panel para respetar la preferencia del usuario.
+- El timeout de highlight es visual y no participa en persistencia ni en datos del scanner.
 
 ## Migration Plan
 
-1. TBD
+1. Agregar control de navegacion y shortcut en el workspace.
+2. Mantener refs por miniatura y estilos para highlight temporal.
+3. Cubrir el flujo con pruebas RTL y documentar la arquitectura.
 
 ## Open Questions
 
-- TBD
+- Ninguna pendiente para la implementacion inicial.

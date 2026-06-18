@@ -19,6 +19,7 @@ import {
   RotateLeftOutlined,
   RotateRightOutlined,
   ScanOutlined,
+  SearchOutlined,
   SettingOutlined,
   ZoomInOutlined,
   ZoomOutOutlined,
@@ -44,6 +45,7 @@ const MIN_PREVIEW_ZOOM = 50;
 const MAX_PREVIEW_ZOOM = 200;
 const PREVIEW_ZOOM_STEP = 25;
 const PANEL_PREFERENCES_STORAGE_KEY = "docuarchi:digitalizacion:panel-preferences";
+const PAGE_HIGHLIGHT_DURATION_MS = 1400;
 
 type PanelPreferences = {
   showThumbnails: boolean;
@@ -154,10 +156,14 @@ export function DigitalizacionDocumentalWorkspace({
   const [previewZoom, setPreviewZoom] = useState(100);
   const [previewFitMode, setPreviewFitMode] = useState<PreviewFitMode>("fitPage");
   const [previewExpanded, setPreviewExpanded] = useState(false);
+  const [pageJumpValue, setPageJumpValue] = useState("");
+  const [highlightedPageId, setHighlightedPageId] = useState<string | null>(null);
   const [panelPreferences, setPanelPreferences] = useState<PanelPreferences>(
     readPanelPreferences,
   );
   const previewPanelRef = useRef<HTMLElement | null>(null);
+  const pageJumpInputRef = useRef<HTMLInputElement | null>(null);
+  const thumbnailButtonRefs = useRef(new Map<string, HTMLButtonElement>());
   const handleInvalidContext = useCallback(
     (error: DigitalizacionFunctionalError) => {
       onError?.(error);
@@ -351,6 +357,21 @@ export function DigitalizacionDocumentalWorkspace({
     setDragOverPageId(null);
   }, []);
 
+  const handleGoToPage = useCallback(() => {
+    const requestedPage = Number.parseInt(pageJumpValue, 10);
+    if (!Number.isInteger(requestedPage)) {
+      return;
+    }
+
+    const targetPage = scanner.pages[requestedPage - 1];
+    if (!targetPage) {
+      return;
+    }
+
+    setSelectedPageId(targetPage.id);
+    setHighlightedPageId(targetPage.id);
+  }, [pageJumpValue, scanner.pages]);
+
   const handleGeneratePdf = useCallback(() => {
     const fileName =
       activeContext?.radicado || activeContext?.idDocumentoDestino
@@ -433,6 +454,44 @@ export function DigitalizacionDocumentalWorkspace({
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return undefined;
+    }
+
+    const handleGoToShortcut = (event: KeyboardEvent) => {
+      if (!event.ctrlKey || event.altKey || event.shiftKey || event.key.toLowerCase() !== "g") {
+        return;
+      }
+
+      event.preventDefault();
+      pageJumpInputRef.current?.focus();
+      pageJumpInputRef.current?.select();
+    };
+
+    document.addEventListener("keydown", handleGoToShortcut);
+    return () => {
+      document.removeEventListener("keydown", handleGoToShortcut);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!highlightedPageId) {
+      return undefined;
+    }
+
+    const thumbnailButton = thumbnailButtonRefs.current.get(highlightedPageId);
+    thumbnailButton?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+
+    const timeoutId = window.setTimeout(() => {
+      setHighlightedPageId((current) => (current === highlightedPageId ? null : current));
+    }, PAGE_HIGHLIGHT_DURATION_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [highlightedPageId]);
 
   const handleSubmit = useCallback(() => {
     if (!activeContext || !scanner.pdf) return;
@@ -583,7 +642,15 @@ export function DigitalizacionDocumentalWorkspace({
                     data-selected={page.id === selectedPageId}
                     data-dragging={page.id === draggedPageId}
                     data-drop-target={page.id === dragOverPageId}
+                    data-highlighted={page.id === highlightedPageId}
                     key={page.id}
+                    ref={(element) => {
+                      if (element) {
+                        thumbnailButtonRefs.current.set(page.id, element);
+                        return;
+                      }
+                      thumbnailButtonRefs.current.delete(page.id);
+                    }}
                     type="button"
                     draggable={!thumbnailsCollapsed}
                     tabIndex={thumbnailsCollapsed ? -1 : 0}
@@ -624,8 +691,34 @@ export function DigitalizacionDocumentalWorkspace({
           ref={previewPanelRef}
         >
           <div className={`${styles.panelHeader} ${styles.previewHeader}`}>
-            <span>Preview PDF</span>
             <div className={styles.previewControls} role="toolbar" aria-label="Visualizacion preview">
+              <label className={styles.pageJumpField}>
+                <span>Pagina</span>
+                <input
+                  ref={pageJumpInputRef}
+                  type="number"
+                  min={1}
+                  max={Math.max(scanner.pages.length, 1)}
+                  value={pageJumpValue}
+                  onChange={(event) => setPageJumpValue(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      handleGoToPage();
+                    }
+                  }}
+                  disabled={!hasPages}
+                  aria-label="Pagina destino"
+                />
+              </label>
+              <AppButton
+                variant="ghost"
+                size="sm"
+                icon={<SearchOutlined />}
+                aria-label="Ir a pagina"
+                tooltip="Ir a pagina"
+                onClick={handleGoToPage}
+                disabled={!hasPages}
+              />
               <AppButton
                 variant="ghost"
                 size="sm"
