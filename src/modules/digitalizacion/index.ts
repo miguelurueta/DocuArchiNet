@@ -26,6 +26,9 @@ export {
 } from "./services/digitalizacionContract";
 export { DynamsoftTwainClient } from "./infrastructure/dynamsoft";
 export type {
+  AutomaticImageProcessingOptions,
+  AutomaticImageProcessingResult,
+  AutomaticImageProcessingStatus,
   DigitalizacionScannerClient,
   DynamsoftRuntimeOptions,
   DynamsoftScannerErrorCode,

@@ -37,6 +37,28 @@ const initialState: DigitalizacionScannerHookState = {
   error: null,
 };
 
+const getMetricStart = () => performance.now();
+
+const logDevelopmentMetric = (
+  label:
+    | "SCAN_SELECTION_TIME"
+    | "ROTATE_TIME"
+    | "DELETE_TIME"
+    | "REORDER_TIME"
+    | "PDF_GENERATION_TIME",
+  startedAt: number,
+  metadata?: Record<string, unknown>,
+) => {
+  if (!import.meta.env.DEV) {
+    return;
+  }
+
+  console.info(label, {
+    durationMs: Math.round(performance.now() - startedAt),
+    ...metadata,
+  });
+};
+
 export const useDigitalizacionScanner = ({
   client,
 }: {
@@ -45,11 +67,6 @@ export const useDigitalizacionScanner = ({
   const mountedRef = useRef(true);
   const generationRef = useRef(0);
   const [state, setState] = useState<DigitalizacionScannerHookState>(initialState);
-  const stateRef = useRef<DigitalizacionScannerHookState>(initialState);
-
-  useEffect(() => {
-    stateRef.current = state;
-  }, [state]);
 
   const updateIfCurrent = useCallback(
     (
@@ -87,27 +104,14 @@ export const useDigitalizacionScanner = ({
     }));
 
     try {
-      console.log("STATE_BEFORE", stateRef.current);
       await client.initialize();
       const devices = await client.listDevices();
-      devices.forEach((device) => {
-        console.debug("[DigitalizacionScanner]", "initialize.devices", {
-          scannerName: device.name,
-          scannerIndex: device.index,
-        });
-      });
       updateIfCurrent(generation, (current) => ({
         ...current,
         status: "ready",
         devices,
         error: null,
       }));
-      console.log("STATE_AFTER", {
-        ...stateRef.current,
-        status: "ready",
-        devices,
-        error: null,
-      });
     } catch (error) {
       handleError(generation, error, "No fue posible inicializar el scanner.");
     }
@@ -116,26 +120,17 @@ export const useDigitalizacionScanner = ({
   const selectDevice = useCallback(
     async (deviceId: string) => {
       const generation = generationRef.current;
-      console.log("HOOK_SELECT_DEVICE", deviceId);
-      const selectedDevice = stateRef.current.devices.find((device) => device.id === deviceId);
-      console.debug("[DigitalizacionScanner]", "selectDevice.request", {
-        scannerName: selectedDevice?.name ?? "",
-        scannerIndex: selectedDevice?.index ?? Number(deviceId),
-      });
+      const startedAt = getMetricStart();
       try {
-        console.log("STATE_BEFORE", stateRef.current);
         await client.selectDevice(deviceId);
         updateIfCurrent(generation, (current) => ({
           ...current,
           selectedDeviceId: deviceId,
           error: null,
         }));
-        console.log("STATE_AFTER", {
-          ...stateRef.current,
-          selectedDeviceId: deviceId,
-          error: null,
-        });
+        logDevelopmentMetric("SCAN_SELECTION_TIME", startedAt, { status: "success" });
       } catch (error) {
+        logDevelopmentMetric("SCAN_SELECTION_TIME", startedAt, { status: "error" });
         handleError(generation, error, "No fue posible seleccionar el scanner.");
       }
     },
@@ -170,6 +165,7 @@ export const useDigitalizacionScanner = ({
   const removePage = useCallback(
     async (pageId: string) => {
       const generation = generationRef.current;
+      const startedAt = getMetricStart();
       try {
         await client.removePage(pageId);
         updateIfCurrent(generation, (current) => ({
@@ -178,7 +174,9 @@ export const useDigitalizacionScanner = ({
           pdf: null,
           error: null,
         }));
+        logDevelopmentMetric("DELETE_TIME", startedAt, { status: "success" });
       } catch (error) {
+        logDevelopmentMetric("DELETE_TIME", startedAt, { status: "error" });
         handleError(generation, error, "No fue posible remover la pagina.");
       }
     },
@@ -188,6 +186,7 @@ export const useDigitalizacionScanner = ({
   const reorderPages = useCallback(
     async (pageIds: string[]) => {
       const generation = generationRef.current;
+      const startedAt = getMetricStart();
       try {
         const pages = await client.reorderPages(pageIds);
         updateIfCurrent(generation, (current) => ({
@@ -196,7 +195,12 @@ export const useDigitalizacionScanner = ({
           pdf: null,
           error: null,
         }));
+        logDevelopmentMetric("REORDER_TIME", startedAt, {
+          status: "success",
+          pageCount: pageIds.length,
+        });
       } catch (error) {
+        logDevelopmentMetric("REORDER_TIME", startedAt, { status: "error" });
         handleError(generation, error, "No fue posible reordenar las paginas.");
       }
     },
@@ -206,10 +210,21 @@ export const useDigitalizacionScanner = ({
   const rotatePage = useCallback(
     async (pageId: string, degrees: 90 | 180 | 270) => {
       const generation = generationRef.current;
+      const startedAt = getMetricStart();
       try {
-        await client.rotatePage(pageId, degrees);
-        updateIfCurrent(generation, (current) => ({ ...current, error: null }));
+        const pages = await client.rotatePage(pageId, degrees);
+        updateIfCurrent(generation, (current) => ({
+          ...current,
+          pages,
+          pdf: null,
+          error: null,
+        }));
+        logDevelopmentMetric("ROTATE_TIME", startedAt, {
+          status: "success",
+          degrees,
+        });
       } catch (error) {
+        logDevelopmentMetric("ROTATE_TIME", startedAt, { status: "error", degrees });
         handleError(generation, error, "No fue posible rotar la pagina.");
       }
     },
@@ -234,6 +249,7 @@ export const useDigitalizacionScanner = ({
   const generatePdf = useCallback(
     async (fileName: string) => {
       const generation = generationRef.current;
+      const startedAt = getMetricStart();
       updateIfCurrent(generation, (current) => ({
         ...current,
         status: "generatingPdf",
@@ -248,8 +264,13 @@ export const useDigitalizacionScanner = ({
           pdf,
           error: null,
         }));
+        logDevelopmentMetric("PDF_GENERATION_TIME", startedAt, {
+          status: "success",
+          pageCount: pdf.pageCount,
+        });
         return pdf;
       } catch (error) {
+        logDevelopmentMetric("PDF_GENERATION_TIME", startedAt, { status: "error" });
         handleError(generation, error, "No fue posible generar el PDF.");
         return null;
       }
@@ -258,7 +279,6 @@ export const useDigitalizacionScanner = ({
   );
 
   const dispose = useCallback(async () => {
-    console.log("USE_DIGITALIZACION_SCANNER_DISPOSE_CALL");
     generationRef.current += 1;
     await client.dispose();
     if (mountedRef.current) {
@@ -267,16 +287,9 @@ export const useDigitalizacionScanner = ({
   }, [client]);
 
   useEffect(() => {
-    console.log("USE_DIGITALIZACION_SCANNER_EFFECT_MOUNT", {
-      client,
-    });
     mountedRef.current = true;
 
     return () => {
-      console.log("USE_DIGITALIZACION_SCANNER_EFFECT_CLEANUP", {
-        client,
-        stack: new Error("USE_DIGITALIZACION_SCANNER_EFFECT_CLEANUP_STACK").stack,
-      });
       mountedRef.current = false;
       generationRef.current += 1;
       void client.dispose();

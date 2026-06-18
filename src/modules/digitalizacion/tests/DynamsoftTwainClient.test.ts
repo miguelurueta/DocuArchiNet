@@ -175,6 +175,59 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
     expect(dwt.GetImageHeight).toHaveBeenCalledWith(0);
   });
 
+  it("keeps scan successful when automatic processing APIs are unavailable", async () => {
+    const dwt = createDwt();
+    const client = createClient(createRuntime(dwt));
+    const infoSpy = vi.spyOn(console, "info").mockImplementation(() => undefined);
+
+    await client.initialize();
+    await client.selectDevice("0");
+    const pages = await client.scan({
+      deviceId: "0",
+      automaticProcessing: {
+        deskew: true,
+        autoCrop: true,
+        autoRotate: true,
+      },
+    });
+
+    expect(pages).toHaveLength(2);
+    expect(infoSpy).toHaveBeenCalledWith(
+      "DESKEW_TIME",
+      expect.objectContaining({ status: "unsupported" }),
+    );
+    expect(infoSpy).toHaveBeenCalledWith(
+      "AUTOCROP_TIME",
+      expect.objectContaining({ status: "unsupported" }),
+    );
+    expect(infoSpy).toHaveBeenCalledWith(
+      "AUTOROTATE_TIME",
+      expect.objectContaining({ status: "unsupported" }),
+    );
+
+    infoSpy.mockRestore();
+  });
+
+  it("uses native automatic processing methods when the DWT runtime exposes them", async () => {
+    const dwt = createDwt();
+    dwt.Deskew = vi.fn(() => true);
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    await client.selectDevice("0");
+    await client.scan({
+      deviceId: "0",
+      automaticProcessing: {
+        deskew: true,
+      },
+    });
+
+    expect(dwt.Deskew).toHaveBeenCalledWith(0);
+    expect(dwt.Deskew).toHaveBeenCalledWith(1);
+    expect(dwt.GetImageURL).toHaveBeenCalledWith(0, 160, 220);
+    expect(dwt.GetImageURL).toHaveBeenCalledWith(1, 160, 220);
+  });
+
   it("selects cached SourceCount scanner through legacy source index when SourceCount changes later", async () => {
     const dwt = createDwt();
     dwt.SelectDeviceAsync = vi.fn(async () => true);
