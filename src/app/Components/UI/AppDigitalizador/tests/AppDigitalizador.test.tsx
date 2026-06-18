@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppDigitalizador } from "../AppDigitalizador";
 import { AppDigitalizadorProvider } from "../AppDigitalizadorProvider";
 import type {
@@ -13,6 +13,28 @@ const context: DigitalizacionContext = {
   modo: "crear",
   nombreGabinete: "DOCUARCHI_TEST",
   radicado: "RAD-1",
+};
+
+const panelPreferencesStorageKey = "docuarchi:digitalizacion:panel-preferences";
+
+const installLocalStorageMock = () => {
+  const storage = new Map<string, string>();
+
+  Object.defineProperty(window, "localStorage", {
+    configurable: true,
+    value: {
+      getItem: vi.fn((key: string) => storage.get(key) ?? null),
+      setItem: vi.fn((key: string, value: string) => {
+        storage.set(key, value);
+      }),
+      removeItem: vi.fn((key: string) => {
+        storage.delete(key);
+      }),
+      clear: vi.fn(() => {
+        storage.clear();
+      }),
+    },
+  });
 };
 
 const createScannerClient = (): DigitalizacionScannerClient => ({
@@ -38,6 +60,10 @@ const createScannerClient = (): DigitalizacionScannerClient => ({
 });
 
 describe("AppDigitalizador", () => {
+  beforeEach(() => {
+    installLocalStorageMock();
+  });
+
   it("renderiza inline el workspace sin AppModal", async () => {
     const scannerClient = createScannerClient();
 
@@ -173,5 +199,69 @@ describe("AppDigitalizador", () => {
         },
       }),
     );
+  });
+
+  it("[SPEC:SCRUMCORE-254] contrae paneles laterales y expande el preview sin desmontar el workspace", async () => {
+    const scannerClient = createScannerClient();
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    const workspace = screen.getByTestId("digitalizacion-workspace");
+    const main = workspace.querySelector("main");
+
+    expect(main).toHaveAttribute("data-thumbnails-collapsed", "false");
+    expect(main).toHaveAttribute("data-configuration-collapsed", "false");
+
+    fireEvent.click(screen.getByRole("button", { name: /Ocultar Miniaturas/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Ocultar Configuracion de Escaneo" }));
+
+    expect(main).toHaveAttribute("data-thumbnails-collapsed", "true");
+    expect(main).toHaveAttribute("data-configuration-collapsed", "true");
+    expect(screen.getByRole("region", { name: "Preview digitalizacion" })).toBeInTheDocument();
+    expect(document.getElementById("digitalizacion-thumbnails-panel")).toBeInTheDocument();
+    expect(document.getElementById("digitalizacion-configuration-panel")).toBeInTheDocument();
+    expect(JSON.parse(window.localStorage.getItem(panelPreferencesStorageKey) ?? "{}")).toEqual({
+      showThumbnails: false,
+      showConfiguration: false,
+    });
+    expect(scannerClient.initialize).toHaveBeenCalledTimes(1);
+    expect(scannerClient.scan).not.toHaveBeenCalled();
+    expect(scannerClient.clear).not.toHaveBeenCalled();
+    expect(scannerClient.dispose).not.toHaveBeenCalled();
+  });
+
+  it("[SPEC:SCRUMCORE-254] restaura paneles colapsados desde localStorage", async () => {
+    window.localStorage.setItem(
+      panelPreferencesStorageKey,
+      JSON.stringify({ showThumbnails: false, showConfiguration: true }),
+    );
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={createScannerClient()}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    const workspace = screen.getByTestId("digitalizacion-workspace");
+    const main = workspace.querySelector("main");
+
+    expect(main).toHaveAttribute("data-thumbnails-collapsed", "true");
+    expect(main).toHaveAttribute("data-configuration-collapsed", "false");
+    expect(screen.getAllByRole("button", { name: /Mostrar Miniaturas/ }).length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole("button", { name: "Ocultar Configuracion de Escaneo" }),
+    ).toBeInTheDocument();
   });
 });

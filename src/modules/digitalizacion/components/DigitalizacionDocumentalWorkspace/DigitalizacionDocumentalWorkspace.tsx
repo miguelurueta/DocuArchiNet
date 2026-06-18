@@ -15,12 +15,15 @@ import {
   FileTextOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
+  ProfileOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
   ScanOutlined,
+  SettingOutlined,
   ZoomInOutlined,
   ZoomOutOutlined,
 } from "@ant-design/icons";
+import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
 import { useDigitalizacionDocumentalState } from "../../hooks/useDigitalizacionDocumentalState";
 import { useDigitalizacionOperationOrchestrator } from "../../hooks/useDigitalizacionOperationOrchestrator";
@@ -40,6 +43,56 @@ type PreviewFitMode = "custom" | "fitWidth" | "fitPage";
 const MIN_PREVIEW_ZOOM = 50;
 const MAX_PREVIEW_ZOOM = 200;
 const PREVIEW_ZOOM_STEP = 25;
+const PANEL_PREFERENCES_STORAGE_KEY = "docuarchi:digitalizacion:panel-preferences";
+
+type PanelPreferences = {
+  showThumbnails: boolean;
+  showConfiguration: boolean;
+};
+
+const defaultPanelPreferences: PanelPreferences = {
+  showThumbnails: true,
+  showConfiguration: true,
+};
+
+const readPanelPreferences = (): PanelPreferences => {
+  if (typeof window === "undefined") {
+    return defaultPanelPreferences;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(PANEL_PREFERENCES_STORAGE_KEY);
+    if (!raw) {
+      return defaultPanelPreferences;
+    }
+
+    const parsed = JSON.parse(raw) as Partial<PanelPreferences>;
+    return {
+      showThumbnails:
+        typeof parsed.showThumbnails === "boolean"
+          ? parsed.showThumbnails
+          : defaultPanelPreferences.showThumbnails,
+      showConfiguration:
+        typeof parsed.showConfiguration === "boolean"
+          ? parsed.showConfiguration
+          : defaultPanelPreferences.showConfiguration,
+    };
+  } catch {
+    return defaultPanelPreferences;
+  }
+};
+
+const writePanelPreferences = (preferences: PanelPreferences) => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(PANEL_PREFERENCES_STORAGE_KEY, JSON.stringify(preferences));
+  } catch {
+    // Storage can be blocked or full; panel toggles still work in memory.
+  }
+};
 
 const colorOptions = [
   { label: "Color", value: "color" },
@@ -101,6 +154,9 @@ export function DigitalizacionDocumentalWorkspace({
   const [previewZoom, setPreviewZoom] = useState(100);
   const [previewFitMode, setPreviewFitMode] = useState<PreviewFitMode>("fitPage");
   const [previewExpanded, setPreviewExpanded] = useState(false);
+  const [panelPreferences, setPanelPreferences] = useState<PanelPreferences>(
+    readPanelPreferences,
+  );
   const previewPanelRef = useRef<HTMLElement | null>(null);
   const handleInvalidContext = useCallback(
     (error: DigitalizacionFunctionalError) => {
@@ -172,6 +228,10 @@ export function DigitalizacionDocumentalWorkspace({
       void initialize();
     }
   }, [active, initialize]);
+
+  useEffect(() => {
+    writePanelPreferences(panelPreferences);
+  }, [panelPreferences]);
 
   const handleCancel = useCallback(() => {
     operation.cancel();
@@ -345,6 +405,20 @@ export function DigitalizacionDocumentalWorkspace({
     });
   }, []);
 
+  const handleToggleThumbnails = useCallback(() => {
+    setPanelPreferences((current) => ({
+      ...current,
+      showThumbnails: !current.showThumbnails,
+    }));
+  }, []);
+
+  const handleToggleConfiguration = useCallback(() => {
+    setPanelPreferences((current) => ({
+      ...current,
+      showConfiguration: !current.showConfiguration,
+    }));
+  }, []);
+
   useEffect(() => {
     if (typeof document === "undefined") {
       return undefined;
@@ -390,6 +464,8 @@ export function DigitalizacionDocumentalWorkspace({
   );
   const selectedPage =
     scanner.pages.find((page) => page.id === selectedPageId) ?? scanner.pages[0] ?? null;
+  const thumbnailsCollapsed = !panelPreferences.showThumbnails;
+  const configurationCollapsed = !panelPreferences.showConfiguration;
   const previewPanelClassName = [
     styles.panel,
     styles.previewPanel,
@@ -483,9 +559,22 @@ export function DigitalizacionDocumentalWorkspace({
         </div>
       </div>
 
-      <main className={styles.main}>
-        <section className={styles.panel} aria-label="Miniaturas">
-          <div className={styles.panelHeader}>Miniaturas ({scanner.pages.length})</div>
+      <main
+        className={styles.main}
+        data-thumbnails-collapsed={thumbnailsCollapsed}
+        data-configuration-collapsed={configurationCollapsed}
+      >
+        <AppCollapseRail
+          title={`Miniaturas (${scanner.pages.length})`}
+          collapsed={thumbnailsCollapsed}
+          onToggle={handleToggleThumbnails}
+          placement="left"
+          variant="inline"
+          railLabel="Miniaturas"
+          railIcon={<ProfileOutlined />}
+          panelId="digitalizacion-thumbnails-panel"
+          className={styles.collapseRail}
+        >
           {scanner.pages.length > 0 ? (
             <div className={styles.thumbnailList}>
               {scanner.pages.map((page, pageOrderIndex) => (
@@ -496,7 +585,8 @@ export function DigitalizacionDocumentalWorkspace({
                     data-drop-target={page.id === dragOverPageId}
                     key={page.id}
                     type="button"
-                    draggable
+                    draggable={!thumbnailsCollapsed}
+                    tabIndex={thumbnailsCollapsed ? -1 : 0}
                     onClick={() => setSelectedPageId(page.id)}
                     onDragStart={(event) => handleThumbnailDragStart(event, page.id)}
                     onDragOver={(event) => handleThumbnailDragOver(event, page.id)}
@@ -526,7 +616,7 @@ export function DigitalizacionDocumentalWorkspace({
               <span>0 paginas capturadas</span>
             </div>
           )}
-        </section>
+        </AppCollapseRail>
 
         <section
           className={previewPanelClassName}
@@ -650,8 +740,17 @@ export function DigitalizacionDocumentalWorkspace({
           </div>
         </section>
 
-        <section className={styles.panel} aria-label="Configuracion de escaneo">
-          <div className={styles.panelHeader}>Configuracion de Escaneo</div>
+        <AppCollapseRail
+          title="Configuracion de Escaneo"
+          collapsed={configurationCollapsed}
+          onToggle={handleToggleConfiguration}
+          placement="right"
+          variant="inline"
+          railLabel="Configuracion"
+          railIcon={<SettingOutlined />}
+          panelId="digitalizacion-configuration-panel"
+          className={styles.collapseRail}
+        >
           <div className={styles.settingsPanel}>
             <label className={styles.settingField}>
               <span>Scanner</span>
@@ -803,7 +902,7 @@ export function DigitalizacionDocumentalWorkspace({
               <span>{captureMode === "driver" ? "UI driver" : `${resolutionDpi} dpi`}</span>
             </div>
           </div>
-        </section>
+        </AppCollapseRail>
       </main>
 
       <footer className={styles.workbenchFooter}>
