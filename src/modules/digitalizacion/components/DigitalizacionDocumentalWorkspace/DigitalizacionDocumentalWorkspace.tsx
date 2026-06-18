@@ -1,11 +1,25 @@
-import { useCallback, useEffect, useMemo, useState, type DragEvent } from "react";
 import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type DragEvent,
+} from "react";
+import {
+  BorderOutlined,
   ClearOutlined,
+  ColumnWidthOutlined,
   DeleteOutlined,
   FileTextOutlined,
+  FullscreenExitOutlined,
+  FullscreenOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
   ScanOutlined,
+  ZoomInOutlined,
+  ZoomOutOutlined,
 } from "@ant-design/icons";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
 import { useDigitalizacionDocumentalState } from "../../hooks/useDigitalizacionDocumentalState";
@@ -21,6 +35,11 @@ import { unavailableScannerClient } from "./digitalizacionWorkspace.helpers";
 import styles from "./DigitalizacionDocumentalWorkspace.module.css";
 
 type CaptureMode = "docuarchi" | "driver";
+type PreviewFitMode = "custom" | "fitWidth" | "fitPage";
+
+const MIN_PREVIEW_ZOOM = 50;
+const MAX_PREVIEW_ZOOM = 200;
+const PREVIEW_ZOOM_STEP = 25;
 
 const colorOptions = [
   { label: "Color", value: "color" },
@@ -72,10 +91,17 @@ export function DigitalizacionDocumentalWorkspace({
   const [adfEnabled, setAdfEnabled] = useState(true);
   const [duplexEnabled, setDuplexEnabled] = useState(false);
   const [removeBlankPages, setRemoveBlankPages] = useState(false);
+  const [deskewEnabled, setDeskewEnabled] = useState(false);
+  const [autoCropEnabled, setAutoCropEnabled] = useState(false);
+  const [autoRotateEnabled, setAutoRotateEnabled] = useState(false);
   const [colorMode, setColorMode] = useState<(typeof colorOptions)[number]["value"]>("color");
   const [resolutionDpi, setResolutionDpi] = useState<(typeof resolutionOptions)[number]>(200);
   const [draggedPageId, setDraggedPageId] = useState<string | null>(null);
   const [dragOverPageId, setDragOverPageId] = useState<string | null>(null);
+  const [previewZoom, setPreviewZoom] = useState(100);
+  const [previewFitMode, setPreviewFitMode] = useState<PreviewFitMode>("fitPage");
+  const [previewExpanded, setPreviewExpanded] = useState(false);
+  const previewPanelRef = useRef<HTMLElement | null>(null);
   const handleInvalidContext = useCallback(
     (error: DigitalizacionFunctionalError) => {
       onError?.(error);
@@ -103,7 +129,6 @@ export function DigitalizacionDocumentalWorkspace({
 
   const handleOperationCompleted = useCallback(
     (result: DigitalizacionResult) => {
-      console.log("DIGITALIZACION_WORKSPACE_OPERATION_COMPLETED_DISPOSE");
       clear();
       void dispose();
       setSelectedPageId(null);
@@ -149,7 +174,6 @@ export function DigitalizacionDocumentalWorkspace({
   }, [active, initialize]);
 
   const handleCancel = useCallback(() => {
-    console.log("DIGITALIZACION_WORKSPACE_CANCEL_DISPOSE");
     operation.cancel();
     clear();
     void dispose();
@@ -177,11 +201,22 @@ export function DigitalizacionDocumentalWorkspace({
       resolutionDpi,
       showScannerUi: captureMode === "driver",
       removeBlankPages,
+      automaticProcessing:
+        captureMode === "docuarchi"
+          ? {
+              deskew: deskewEnabled,
+              autoCrop: autoCropEnabled,
+              autoRotate: autoRotateEnabled,
+            }
+          : undefined,
     });
   }, [
     adfEnabled,
+    autoCropEnabled,
+    autoRotateEnabled,
     captureMode,
     colorMode,
+    deskewEnabled,
     duplexEnabled,
     removeBlankPages,
     resolutionDpi,
@@ -264,6 +299,67 @@ export function DigitalizacionDocumentalWorkspace({
     void generatePdf(fileName);
   }, [activeContext, generatePdf]);
 
+  const handleZoomOut = useCallback(() => {
+    setPreviewFitMode("custom");
+    setPreviewZoom((current) => Math.max(MIN_PREVIEW_ZOOM, current - PREVIEW_ZOOM_STEP));
+  }, []);
+
+  const handleZoomIn = useCallback(() => {
+    setPreviewFitMode("custom");
+    setPreviewZoom((current) => Math.min(MAX_PREVIEW_ZOOM, current + PREVIEW_ZOOM_STEP));
+  }, []);
+
+  const handleFitWidth = useCallback(() => {
+    setPreviewFitMode("fitWidth");
+    setPreviewZoom(100);
+  }, []);
+
+  const handleFitPage = useCallback(() => {
+    setPreviewFitMode("fitPage");
+    setPreviewZoom(100);
+  }, []);
+
+  const handleTogglePreviewExpanded = useCallback(() => {
+    const panel = previewPanelRef.current;
+    const ownerDocument = panel?.ownerDocument;
+
+    if (
+      !panel ||
+      !ownerDocument ||
+      typeof panel.requestFullscreen !== "function" ||
+      typeof ownerDocument.exitFullscreen !== "function"
+    ) {
+      setPreviewExpanded((current) => !current);
+      return;
+    }
+
+    if (ownerDocument.fullscreenElement === panel) {
+      void ownerDocument.exitFullscreen().catch(() => {
+        setPreviewExpanded(false);
+      });
+      return;
+    }
+
+    void panel.requestFullscreen().catch(() => {
+      setPreviewExpanded((current) => !current);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return undefined;
+    }
+
+    const handleFullscreenChange = () => {
+      setPreviewExpanded(document.fullscreenElement === previewPanelRef.current);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
   const handleSubmit = useCallback(() => {
     if (!activeContext || !scanner.pdf) return;
     void operation
@@ -294,15 +390,25 @@ export function DigitalizacionDocumentalWorkspace({
   );
   const selectedPage =
     scanner.pages.find((page) => page.id === selectedPageId) ?? scanner.pages[0] ?? null;
-
-  console.log("PAGE_STATE", scanner.pages);
-  if (selectedPage) {
-    console.log("PAGE_PREVIEW_RENDER", {
-      page: selectedPage,
-      hasImageUrl: Boolean(selectedPage.imageUrl),
-      hasThumbnailUrl: Boolean(selectedPage.thumbnailUrl),
-    });
-  }
+  const previewPanelClassName = [
+    styles.panel,
+    styles.previewPanel,
+    previewExpanded ? styles.previewPanelExpanded : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const previewViewportClassName = [
+    styles.previewViewport,
+    previewFitMode === "custom" ? styles.previewViewportCustom : "",
+    previewFitMode === "fitWidth" ? styles.previewViewportFitWidth : "",
+    previewFitMode === "fitPage" ? styles.previewViewportFitPage : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const previewImageStyle =
+    previewFitMode === "custom"
+      ? ({ "--preview-zoom": `${previewZoom}%` } as CSSProperties)
+      : undefined;
 
   if (!active) {
     return null;
@@ -365,45 +471,6 @@ export function DigitalizacionDocumentalWorkspace({
           />
         </div>
 
-        <div className={styles.toolbarGroup} role="group" aria-label="Edicion">
-          <AppButton
-            variant="ghost"
-            size="sm"
-            icon={<RotateLeftOutlined />}
-            aria-label="Rotar izquierda"
-            tooltip="Rotar izquierda"
-            onClick={() => handleRotateSelected(270)}
-            disabled={!selectedPage}
-          />
-          <AppButton
-            variant="ghost"
-            size="sm"
-            icon={<RotateRightOutlined />}
-            aria-label="Rotar derecha"
-            tooltip="Rotar derecha"
-            onClick={() => handleRotateSelected(90)}
-            disabled={!selectedPage}
-          />
-          <AppButton
-            variant="danger"
-            size="sm"
-            icon={<DeleteOutlined />}
-            aria-label="Eliminar página"
-            tooltip="Eliminar página"
-            onClick={handleRemoveSelected}
-            disabled={!selectedPage}
-          />
-          <AppButton
-            variant="ghost"
-            size="sm"
-            icon={<ClearOutlined />}
-            aria-label="Limpiar lote"
-            tooltip="Limpiar lote"
-            onClick={handleClear}
-            disabled={scanner.loading || !hasPages}
-          />
-        </div>
-
         <div className={styles.toolbarGroup} data-priority="output" role="group" aria-label="Salida">
           <AppButton
             size="sm"
@@ -421,14 +488,7 @@ export function DigitalizacionDocumentalWorkspace({
           <div className={styles.panelHeader}>Miniaturas ({scanner.pages.length})</div>
           {scanner.pages.length > 0 ? (
             <div className={styles.thumbnailList}>
-              {scanner.pages.map((page, pageOrderIndex) => {
-                console.log("PAGE_THUMBNAIL_RENDER", {
-                  page,
-                  hasThumbnailUrl: Boolean(page.thumbnailUrl),
-                  hasImageUrl: Boolean(page.imageUrl),
-                });
-
-                return (
+              {scanner.pages.map((page, pageOrderIndex) => (
                   <button
                     className={styles.thumbnailButton}
                     data-selected={page.id === selectedPageId}
@@ -452,21 +512,13 @@ export function DigitalizacionDocumentalWorkspace({
                       <img
                         src={page.thumbnailUrl}
                         alt={`Pagina ${pageOrderIndex + 1}`}
-                        onLoad={(event) => {
-                          const image = event.currentTarget;
-                          console.log("THUMBNAIL_DIMENSIONS", {
-                            width: image.naturalWidth,
-                            height: image.naturalHeight,
-                          });
-                        }}
                       />
                     ) : (
                       <span>{pageOrderIndex + 1}</span>
                     )}
                     <small>Pagina {pageOrderIndex + 1}</small>
                   </button>
-                );
-              })}
+                ))}
             </div>
           ) : (
             <div className={styles.panelBody}>
@@ -476,35 +528,124 @@ export function DigitalizacionDocumentalWorkspace({
           )}
         </section>
 
-        <section className={styles.panel} aria-label="Preview digitalizacion">
-          <div className={styles.panelHeader}>Preview PDF</div>
+        <section
+          className={previewPanelClassName}
+          aria-label="Preview digitalizacion"
+          ref={previewPanelRef}
+        >
+          <div className={`${styles.panelHeader} ${styles.previewHeader}`}>
+            <span>Preview PDF</span>
+            <div className={styles.previewControls} role="toolbar" aria-label="Visualizacion preview">
+              <AppButton
+                variant="ghost"
+                size="sm"
+                icon={<RotateLeftOutlined />}
+                aria-label="Rotar izquierda"
+                tooltip="Rotar izquierda"
+                onClick={() => handleRotateSelected(270)}
+                disabled={!selectedPage}
+              />
+              <AppButton
+                variant="ghost"
+                size="sm"
+                icon={<RotateRightOutlined />}
+                aria-label="Rotar derecha"
+                tooltip="Rotar derecha"
+                onClick={() => handleRotateSelected(90)}
+                disabled={!selectedPage}
+              />
+              <AppButton
+                variant="danger"
+                size="sm"
+                icon={<DeleteOutlined />}
+                aria-label="Eliminar página"
+                tooltip="Eliminar página"
+                onClick={handleRemoveSelected}
+                disabled={!selectedPage}
+              />
+              <AppButton
+                variant="ghost"
+                size="sm"
+                icon={<ClearOutlined />}
+                aria-label="Limpiar lote"
+                tooltip="Limpiar lote"
+                onClick={handleClear}
+                disabled={scanner.loading || !hasPages}
+              />
+              <AppButton
+                variant="ghost"
+                size="sm"
+                icon={<ZoomOutOutlined />}
+                aria-label="Reducir zoom"
+                tooltip="Zoom -"
+                onClick={handleZoomOut}
+                disabled={!selectedPage || previewZoom <= MIN_PREVIEW_ZOOM}
+              />
+              <AppButton
+                variant="ghost"
+                size="sm"
+                icon={<ZoomInOutlined />}
+                aria-label="Aumentar zoom"
+                tooltip="Zoom +"
+                onClick={handleZoomIn}
+                disabled={!selectedPage || previewZoom >= MAX_PREVIEW_ZOOM}
+              />
+              <AppButton
+                variant="ghost"
+                size="sm"
+                icon={<ColumnWidthOutlined />}
+                aria-label="Ajustar ancho"
+                tooltip="Ajustar ancho"
+                onClick={handleFitWidth}
+                disabled={!selectedPage}
+              />
+              <AppButton
+                variant="ghost"
+                size="sm"
+                icon={<BorderOutlined />}
+                aria-label="Ajustar pagina"
+                tooltip="Ajustar pagina"
+                onClick={handleFitPage}
+                disabled={!selectedPage}
+              />
+              <AppButton
+                variant="ghost"
+                size="sm"
+                icon={previewExpanded ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+                aria-label={previewExpanded ? "Restaurar preview" : "Expandir preview"}
+                aria-pressed={previewExpanded}
+                tooltip={previewExpanded ? "Restaurar preview" : "Pantalla completa"}
+                onClick={handleTogglePreviewExpanded}
+              />
+            </div>
+          </div>
           <div className={`${styles.panelBody} ${styles.preview}`}>
             {selectedPage ? (
               <>
-                {selectedPage.imageUrl ? (
-                  <img
-                    className={styles.previewImage}
-                    src={selectedPage.imageUrl}
-                    alt={getPageLabel(selectedPage)}
-                    onLoad={(event) => {
-                      const image = event.currentTarget;
-                      console.log("PREVIEW_DIMENSIONS", {
-                        width: image.naturalWidth,
-                        height: image.naturalHeight,
-                      });
-                    }}
-                  />
-                ) : (
-                  <span className={styles.previewPage}>{selectedPage.index + 1}</span>
-                )}
-                <span className={styles.placeholderTitle}>{getPageLabel(selectedPage)}</span>
-                <span>{scanner.pdf ? scanner.pdf.file.name : "PDF pendiente"}</span>
+                <div className={previewViewportClassName}>
+                  {selectedPage.imageUrl ? (
+                    <img
+                      className={styles.previewImage}
+                      src={selectedPage.imageUrl}
+                      alt={getPageLabel(selectedPage)}
+                      style={previewImageStyle}
+                    />
+                  ) : (
+                    <span className={styles.previewPage}>{selectedPage.index + 1}</span>
+                  )}
+                </div>
+                <div className={styles.previewMeta}>
+                  <span className={styles.placeholderTitle}>{getPageLabel(selectedPage)}</span>
+                  <span>{scanner.pdf ? scanner.pdf.file.name : "PDF pendiente"}</span>
+                </div>
               </>
             ) : (
-              <>
-                <span className={styles.placeholderTitle}>PDF pendiente</span>
-                <span>Capture paginas para habilitar la generacion.</span>
-              </>
+              <div className={previewViewportClassName}>
+                <div className={styles.previewMeta}>
+                  <span className={styles.placeholderTitle}>PDF pendiente</span>
+                  <span>Capture paginas para habilitar la generacion.</span>
+                </div>
+              </div>
             )}
           </div>
         </section>
@@ -518,13 +659,6 @@ export function DigitalizacionDocumentalWorkspace({
                 value={scanner.selectedDeviceId ?? ""}
                 onChange={(event) => {
                   const deviceId = event.target.value;
-                  const selectedDevice = scanner.devices.find((device) => device.id === deviceId);
-                  console.log("SELECT_CHANGE", deviceId);
-                  console.debug("[DigitalizacionWorkspace]", "selectDevice.change", {
-                    scannerName: selectedDevice?.name ?? "",
-                    scannerIndex: selectedDevice?.index ?? Number(deviceId),
-                  });
-                  console.log("BEFORE_SELECT_DEVICE", deviceId);
                   void selectDevice(deviceId);
                 }}
                 disabled={scanner.loading || scanner.devices.length === 0}
@@ -587,6 +721,33 @@ export function DigitalizacionDocumentalWorkspace({
                   />
                   <span>Eliminar paginas en blanco</span>
                 </label>
+                <fieldset className={styles.settingGroup}>
+                  <legend>Procesamiento automatico</legend>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={deskewEnabled}
+                      onChange={(event) => setDeskewEnabled(event.target.checked)}
+                    />
+                    <span>Deskew</span>
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={autoCropEnabled}
+                      onChange={(event) => setAutoCropEnabled(event.target.checked)}
+                    />
+                    <span>Auto Crop</span>
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={autoRotateEnabled}
+                      onChange={(event) => setAutoRotateEnabled(event.target.checked)}
+                    />
+                    <span>Auto Rotate</span>
+                  </label>
+                </fieldset>
                 <label className={styles.settingField}>
                   <span>Color</span>
                   <select
@@ -635,6 +796,9 @@ export function DigitalizacionDocumentalWorkspace({
               <span>ADF {captureMode === "driver" ? "driver" : adfEnabled ? "si" : "no"}</span>
               <span>Duplex {captureMode === "driver" ? "driver" : duplexEnabled ? "si" : "no"}</span>
               <span>Blancas {removeBlankPages ? "si" : "no"}</span>
+              <span>Deskew {deskewEnabled ? "si" : "no"}</span>
+              <span>Crop {autoCropEnabled ? "si" : "no"}</span>
+              <span>AutoRot {autoRotateEnabled ? "si" : "no"}</span>
               <span>{captureMode === "driver" ? "PaperStream" : colorOptions.find((option) => option.value === colorMode)?.label}</span>
               <span>{captureMode === "driver" ? "UI driver" : `${resolutionDpi} dpi`}</span>
             </div>

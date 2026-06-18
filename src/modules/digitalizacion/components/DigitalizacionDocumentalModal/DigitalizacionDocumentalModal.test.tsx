@@ -39,7 +39,9 @@ const createScannerClient = (): DigitalizacionScannerClient & { pages: ScanPage[
   scan: vi.fn(async function scan(this: { pages: ScanPage[] }) {
     return this.pages;
   }),
-  rotatePage: vi.fn(async () => undefined),
+  rotatePage: vi.fn(async function rotatePage(this: { pages: ScanPage[] }) {
+    return this.pages;
+  }),
   removePage: vi.fn(async () => undefined),
   reorderPages: vi.fn(async function reorderPages(this: { pages: ScanPage[] }, pageIds: string[]) {
     this.pages = pageIds

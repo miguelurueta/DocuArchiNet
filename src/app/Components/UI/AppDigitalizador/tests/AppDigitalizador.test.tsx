@@ -22,7 +22,7 @@ const createScannerClient = (): DigitalizacionScannerClient => ({
   ]),
   selectDevice: vi.fn().mockResolvedValue(undefined),
   scan: vi.fn(() => Promise.resolve<ScanPage[]>([{ id: "page-1", index: 0 }])),
-  rotatePage: vi.fn().mockResolvedValue(undefined),
+  rotatePage: vi.fn(() => Promise.resolve<ScanPage[]>([{ id: "page-1", index: 0 }])),
   removePage: vi.fn().mockResolvedValue(undefined),
   reorderPages: vi.fn(async (pageIds: string[]) =>
     pageIds.map((pageId, index) => ({ id: pageId, index })),
@@ -145,6 +145,9 @@ describe("AppDigitalizador", () => {
     );
     fireEvent.click(screen.getByLabelText("Duplex activado"));
     fireEvent.click(screen.getByLabelText("Eliminar paginas en blanco"));
+    fireEvent.click(screen.getByLabelText("Deskew"));
+    fireEvent.click(screen.getByLabelText("Auto Crop"));
+    fireEvent.click(screen.getByLabelText("Auto Rotate"));
     fireEvent.change(screen.getByLabelText("Color"), {
       target: { value: "grayscale" },
     });
@@ -163,6 +166,11 @@ describe("AppDigitalizador", () => {
         resolutionDpi: 300,
         showScannerUi: false,
         removeBlankPages: true,
+        automaticProcessing: {
+          deskew: true,
+          autoCrop: true,
+          autoRotate: true,
+        },
       }),
     );
   });

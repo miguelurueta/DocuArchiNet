@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AppDigitalizador } from "../Components/UI/AppDigitalizador";
 import type {
   DigitalizacionContext,
   DigitalizacionDocumentalError,
   DigitalizacionResult,
 } from "../../modules/digitalizacion";
-import { debugDynamsoftLicense } from "../../modules/digitalizacion/infrastructure/dynamsoft/dynamsoftLicenseDebug";
 import styles from "./AppDigitalizadorSandboxPage.module.css";
 
 const initialContext: DigitalizacionContext = {
@@ -39,13 +38,6 @@ export default function AppDigitalizadorSandboxPage() {
   const handleError = useCallback((nextError: DigitalizacionDocumentalError) => {
     setError(nextError);
   }, []);
-
-  useEffect(() => {
-    debugDynamsoftLicense(
-      ".env -> import.meta.env.VITE_DYNAMSOFT_LICENSE_KEY",
-      dynamsoftLicenseFromEnv,
-    );
-  }, [dynamsoftLicenseFromEnv]);
 
   return (
     <main className={styles.page}>

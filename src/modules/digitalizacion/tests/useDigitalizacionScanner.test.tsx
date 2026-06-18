@@ -42,7 +42,9 @@ const createClient = (): DigitalizacionScannerClient & {
       expect(options.deviceId).toBeTypeOf("string");
       return this.pages;
     }),
-    rotatePage: vi.fn(async () => undefined),
+    rotatePage: vi.fn(async function rotatePage(this: { pages: ScanPage[] }) {
+      return this.pages;
+    }),
     removePage: vi.fn(async () => undefined),
     reorderPages: vi.fn(async function reorderPages(this: { pages: ScanPage[] }, pageIds: string[]) {
       this.pages = pageIds
@@ -132,6 +134,26 @@ describe("[SPEC:SCRUMCORE-240] useDigitalizacionScanner", () => {
 
     expect(client.reorderPages).toHaveBeenCalledWith(["page-2", "page-1"]);
     expect(result.current.pages.map((page) => page.id)).toEqual(["page-2", "page-1"]);
+    expect(result.current.pdf).toBeNull();
+  });
+
+  it("refreshes pages and invalidates pdf after rotation", async () => {
+    const client = createClient();
+    const rotatedPages = [
+      { id: "page-1", index: 0, rotationDegrees: 90 },
+      { id: "page-2", index: 1 },
+    ];
+    vi.mocked(client.rotatePage).mockResolvedValueOnce(rotatedPages);
+    const { result } = renderHook(() => useDigitalizacionScanner({ client }));
+
+    await act(async () => {
+      await result.current.scan({ deviceId: "0" });
+      await result.current.generatePdf("scan.pdf");
+      await result.current.rotatePage("page-1", 90);
+    });
+
+    expect(client.rotatePage).toHaveBeenCalledWith("page-1", 90);
+    expect(result.current.pages).toEqual(rotatedPages);
     expect(result.current.pdf).toBeNull();
   });
 

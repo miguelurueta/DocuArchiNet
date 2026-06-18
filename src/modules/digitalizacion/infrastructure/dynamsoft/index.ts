@@ -19,6 +19,9 @@ export { DynamsoftScannerError, toDynamsoftScannerError } from "./dynamsoft.erro
 export type { DynamsoftScannerErrorCode } from "./dynamsoft.errors";
 export { loadDynamsoftScripts } from "./loadDynamsoftScripts";
 export type {
+  AutomaticImageProcessingOptions,
+  AutomaticImageProcessingResult,
+  AutomaticImageProcessingStatus,
   DigitalizacionScannerClient,
   DynamsoftAcquireOptions,
   DynamsoftImageType,

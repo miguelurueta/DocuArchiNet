@@ -7,9 +7,10 @@ import {
   DYNAMSOFT_MIN_RESOLUTION_DPI,
 } from "./dynamsoft.constants";
 import { DynamsoftScannerError } from "./dynamsoft.errors";
-import { debugDynamsoftLicense } from "./dynamsoftLicenseDebug";
 import { loadDynamsoftScripts } from "./loadDynamsoftScripts";
 import type {
+  AutomaticImageProcessingOptions,
+  AutomaticImageProcessingResult,
   DigitalizacionScannerClient,
   DynamsoftRuntimeOptions,
   DynamsoftDevice,
@@ -31,7 +32,6 @@ const BLANK_PAGE_ANALYSIS_HEIGHT = 128;
 const BLANK_PAGE_WHITE_THRESHOLD = 245;
 const BLANK_PAGE_CONTENT_RATIO_THRESHOLD = 0.003;
 const BLANK_PAGE_DARK_RATIO_THRESHOLD = 0.0005;
-let dynamsoftClientSequence = 0;
 
 const colorModeToPixelType: Record<ScanColorMode, number> = {
   blackWhite: 0,
@@ -130,16 +130,6 @@ const withDynamsoftTimeout = async <T,>(operation: Promise<T>, operationName: st
     }),
   ]);
 
-const debugScannerSelection = (
-  stage: string,
-  scanner: { scannerName?: string; scannerIndex?: number },
-) => {
-  console.debug("[DynamsoftScanner]", stage, {
-    scannerName: scanner.scannerName ?? "",
-    scannerIndex: scanner.scannerIndex ?? -1,
-  });
-};
-
 const readDiagnosticValue = (target: unknown, keys: string[]) => {
   if (!target || typeof target !== "object") {
     return undefined;
@@ -148,31 +138,6 @@ const readDiagnosticValue = (target: unknown, keys: string[]) => {
   const record = target as Record<string, unknown>;
   return keys.map((key) => record[key]).find((value) => value !== undefined);
 };
-
-const callDiagnosticMethod = (target: unknown, keys: string[], args: unknown[] = []) => {
-  if (!target || typeof target !== "object") {
-    return undefined;
-  }
-
-  const record = target as Record<string, unknown>;
-  const method = keys.map((key) => record[key]).find((value) => typeof value === "function");
-  if (typeof method !== "function") {
-    return undefined;
-  }
-
-  try {
-    return method.apply(target, args);
-  } catch (error) {
-    return error instanceof Error ? error.message : String(error);
-  }
-};
-
-const getDwtLifecycleSnapshot = (dwt: DynamsoftWebTwainObject | null) => ({
-  destroy: readDiagnosticValue(dwt, ["_destroy"]),
-  ready: readDiagnosticValue(dwt, ["_bReady"]),
-  sourceCount: dwt?.SourceCount,
-  imageCount: dwt?.HowManyImagesInBuffer,
-});
 
 const normalizeImageUrl = (url: string | false | undefined) =>
   typeof url === "string" && url.trim().length > 0 ? url : undefined;
@@ -215,9 +180,46 @@ const getPageOrientation = (width?: number, height?: number) => {
 
 const normalizePageIdSet = (pageIds: string[]) => new Set(pageIds);
 
-export class DynamsoftTwainClient implements DigitalizacionScannerClient {
-  private readonly instanceId = `DynamsoftTwainClient-${++dynamsoftClientSequence}`;
+const logDevelopmentMetric = (
+  label: string,
+  startedAt: number,
+  metadata?: Record<string, unknown>,
+) => {
+  if (!import.meta.env.DEV) {
+    return;
+  }
 
+  console.info(label, {
+    durationMs: Math.round(performance.now() - startedAt),
+    ...metadata,
+  });
+};
+
+type ProcessingFeature = keyof AutomaticImageProcessingOptions;
+
+const automaticProcessingFeatures: Array<{
+  key: ProcessingFeature;
+  timeLog: "DESKEW_TIME" | "AUTOCROP_TIME" | "AUTOROTATE_TIME";
+  methods: string[];
+}> = [
+  {
+    key: "deskew",
+    timeLog: "DESKEW_TIME",
+    methods: ["Deskew", "deskew", "DeskewImage", "AutoDeskew"],
+  },
+  {
+    key: "autoCrop",
+    timeLog: "AUTOCROP_TIME",
+    methods: ["AutoCrop", "autoCrop", "AutoCropImage"],
+  },
+  {
+    key: "autoRotate",
+    timeLog: "AUTOROTATE_TIME",
+    methods: ["AutoRotate", "autoRotate", "AutoRotateImage"],
+  },
+];
+
+export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   private readonly options: Required<Omit<DynamsoftRuntimeOptions, "licenseKey">> & {
     licenseKey?: string;
   };
@@ -233,8 +235,6 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   private modernDeviceIds = new Set<string>();
   private pageRotationById = new Map<string, number>();
   private originalPageDimensionsById = new Map<string, { width?: number; height?: number }>();
-  private destroyWatchdogId: number | null = null;
-  private lastDestroySnapshot: unknown = undefined;
 
   constructor(options: DynamsoftRuntimeOptions = {}) {
     this.options = {
@@ -245,15 +245,6 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       documentRef: options.documentRef ?? document,
       windowRef: options.windowRef ?? window,
     };
-    debugDynamsoftLicense(
-      "DynamsoftTwainClient.constructor.options.licenseKey",
-      this.options.licenseKey,
-    );
-    console.log("DYNAMSOFT_CLIENT_CREATED", {
-      instanceId: this.instanceId,
-      containerId: this.options.containerId,
-      resourcesPath: this.options.resourcesPath,
-    });
   }
 
   async initialize() {
@@ -282,31 +273,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       });
     }
 
-    const containerExists = Boolean(
-      this.options.documentRef.getElementById(this.options.containerId),
-    );
-    console.log("DYNAMSOFT_CONTAINER_STATUS", {
-      containerId: this.options.containerId,
-      exists: containerExists,
-    });
-    console.log("DYNAMSOFT_RUNTIME_DIAGNOSTICS_BEFORE_LOAD", {
-      version: readDiagnosticValue(runtime, ["version", "Version", "ProductVersion"]),
-      serviceVersion: readDiagnosticValue(runtime, [
-        "serviceVersion",
-        "ServiceVersion",
-        "ServiceInstallerVersion",
-      ]),
-      twainModuleVersion: readDiagnosticValue(runtime, [
-        "twainModuleVersion",
-        "TwainModuleVersion",
-      ]),
-    });
-
     runtime.ProductKey = this.options.licenseKey;
-    debugDynamsoftLicense(
-      "DynamsoftTwainClient.runtime.ProductKey before runtime.Load",
-      runtime.ProductKey,
-    );
     runtime.ResourcesPath = this.options.resourcesPath.replace(/\/+$/, "");
     runtime.Containers = [
       {
@@ -317,9 +284,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       },
     ];
     try {
-      console.log("DWT_BEFORE_LOAD", this.dwt);
       await Promise.resolve(runtime.Load());
-      console.log("DWT_AFTER_LOAD", this.dwt);
     } catch (error) {
       if (isDynamsoftCssLoadError(error)) {
         throw new DynamsoftScannerError({
@@ -333,10 +298,6 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     }
 
     const dwt = await this.waitForWebTwain(runtime);
-    console.log("GET_WEBTWAIN_RESULT", dwt);
-    console.log("GET_WEBTWAIN_DESTROY", readDiagnosticValue(dwt, ["_destroy"]));
-    console.log("GET_WEBTWAIN_READY", readDiagnosticValue(dwt, ["_bReady"]));
-    console.log("DWT_OBJECT_EXIST", callDiagnosticMethod(runtime, ["ObjectExist"], [WEB_TWAIN_ID]));
     if (!dwt) {
       throw new DynamsoftScannerError({
         code: "DYNAMSOFT_RUNTIME_UNAVAILABLE",
@@ -345,22 +306,6 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     }
 
     this.dwt = dwt;
-    console.log("INITIALIZE_DWT_INSTANCE", dwt);
-    this.startDestroyWatchdog();
-    console.log("DYNAMSOFT_DWT_DIAGNOSTICS_AFTER_INITIALIZE", {
-      instanceId: this.instanceId,
-      version: readDiagnosticValue(dwt, ["version", "Version", "ProductVersion"]),
-      serviceVersion:
-        readDiagnosticValue(dwt, ["serviceVersion", "ServiceVersion"]) ??
-        callDiagnosticMethod(dwt, ["GetServiceVersion", "getServiceVersion"]),
-      twainModuleVersion: readDiagnosticValue(dwt, [
-        "twainModuleVersion",
-        "TwainModuleVersion",
-      ]),
-      destroy: readDiagnosticValue(dwt, ["_destroy"]),
-      ready: readDiagnosticValue(dwt, ["_bReady"]),
-      sourceCount: dwt.SourceCount,
-    });
   }
 
   async listDevices() {
@@ -372,38 +317,13 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
     if (dwt.GetDevicesAsync) {
       try {
-        console.log("GET_DEVICES_ASYNC_START", {
-          deviceType: undefined,
-          refresh: true,
-        });
-        this.logDwtLifecycle("BEFORE_GetDevicesAsync", dwt);
         const sourceDevices = await withDynamsoftTimeout(
           dwt.GetDevicesAsync(undefined, true),
           "GetDevicesAsync",
         );
-        console.log("GET_DEVICES_ASYNC_RAW_RESULT", sourceDevices);
-        if (Array.isArray(sourceDevices)) {
-          sourceDevices.forEach((device, index) => {
-            console.log("GET_DEVICES_ASYNC_DEVICE", {
-              index,
-              device,
-              keys: Object.keys(device ?? {}),
-              constructor: device?.constructor?.name,
-              prototype: Object.getPrototypeOf(device ?? {}),
-            });
-          });
-        }
-        this.logDwtLifecycle("AFTER_GetDevicesAsync", dwt);
-        console.log("GET_DEVICES_ASYNC_SUCCESS", {
-          count: sourceDevices.length,
-        });
         if (sourceDevices.length > 0) {
           const devices = sourceDevices.map((device, index) => {
             const name = device.displayName || device.name;
-            debugScannerSelection("listDevices.discovered", {
-              scannerName: name,
-              scannerIndex: index,
-            });
             return {
               id: String(index),
               name,
@@ -416,12 +336,6 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
             devices.map((device) => [device.id, sourceDevices[device.index]]),
           );
           this.modernDeviceIds = new Set(devices.map((device) => device.id));
-          devices.forEach((device) => {
-            console.log("DWT_DEVICE_CACHE_SET", {
-              deviceId: device.id,
-              cachedObject: this.dwtDevices.get(device.id),
-            });
-          });
           return devices;
         }
       } catch (error) {
@@ -433,25 +347,12 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   }
 
   private listDevicesFromSourceManager(dwt: DynamsoftWebTwainObject) {
-    console.log("SOURCE_MANAGER_DISCOVERY_START");
-    this.logDwtLifecycle("BEFORE_OpenSourceManager", dwt);
-    const opened = this.openSourceManager(dwt);
-    this.logDwtLifecycle("AFTER_OpenSourceManager", dwt);
+    this.openSourceManager(dwt);
     const count = dwt.SourceCount ?? 0;
-    console.log("SOURCE_MANAGER_RESULT", {
-      opened,
-      sourceCount: count,
-    });
     const devices: ScannerDevice[] = [];
 
     for (let index = 0; index < count; index += 1) {
-      this.logDwtLifecycle("BEFORE_GetSourceNameItems", dwt);
       const name = dwt.GetSourceNameItems(index);
-      this.logDwtLifecycle("AFTER_GetSourceNameItems", dwt);
-      debugScannerSelection("listDevices.discovered", {
-        scannerName: name,
-        scannerIndex: index,
-      });
       devices.push({
         id: String(index),
         name,
@@ -459,13 +360,6 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       });
     }
 
-    console.log(
-      "TWAIN_SOURCES_AVAILABLE",
-      devices.map((device) => ({
-        scannerName: device.name,
-        scannerIndex: device.index,
-      })),
-    );
     this.devices = devices;
     this.modernDeviceIds.clear();
     this.dwtDevices = new Map(
@@ -477,34 +371,16 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         },
       ]),
     );
-    devices.forEach((device) => {
-      console.log("DWT_DEVICE_CACHE_SET", {
-        deviceId: device.id,
-        cachedObject: this.dwtDevices.get(device.id),
-      });
-    });
     return devices;
   }
 
   async selectDevice(deviceId: string) {
-    console.log("CLIENT_SELECT_DEVICE", deviceId);
     assertValidDeviceId(deviceId);
     const dwt = this.requireDwt();
     const cachedDevice = this.devices.find((device) => device.id === deviceId);
     const dwtDevice = this.dwtDevices.get(deviceId);
     const deviceIndex = cachedDevice?.index ?? Number(deviceId);
     const sourceCount = dwt.SourceCount ?? 0;
-    console.log("SCANNER_CACHE", this.devices);
-    console.log("SOURCE_COUNT", dwt.SourceCount);
-    console.log("DEVICE_OBJECT", dwtDevice ?? null);
-    console.log("DWT_DEVICE_CACHE_GET", {
-      deviceId,
-      dwtDevice,
-    });
-    debugScannerSelection("selectDevice.request", {
-      scannerName: cachedDevice?.name,
-      scannerIndex: deviceIndex,
-    });
 
     if (
       !Number.isInteger(deviceIndex) ||
@@ -518,36 +394,11 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     }
 
     if (dwtDevice && dwt.SelectDeviceAsync && this.modernDeviceIds.has(deviceId)) {
-      console.log("SELECTION_MODE", {
-        mode: "modern",
-        deviceId,
-        deviceIndex,
-      });
-      console.log("USING_MODERN_SELECTION");
-      console.log("SOURCE_NAME", cachedDevice?.name ?? dwtDevice.displayName ?? dwtDevice.name);
       try {
-        console.log("SELECT_DEVICE_START");
-        console.log("CURRENT_DWT_INSTANCE", dwt);
-        console.log("SELECT_DWT_INSTANCE", dwt);
-        console.log("SELECT_DEVICE_INSTANCE_CHECK", {
-          dwtExists: Boolean(dwt),
-          sameReference: dwt === this.dwt,
-          instanceId: this.instanceId,
-        });
-        console.log("SELECT_DEVICE_ASYNC_EXISTS", typeof dwt.SelectDeviceAsync);
-        console.log("DWT_DEVICE_OBJECT", dwtDevice);
-        console.log("DWT_DEVICE_JSON", JSON.stringify(dwtDevice, null, 2));
-        console.log("DWT_DEVICE_KEYS", Object.keys(dwtDevice ?? {}));
-        console.log("DWT_DEVICE_PROTOTYPE", Object.getPrototypeOf(dwtDevice ?? {}));
-        console.log("DWT_DEVICE_CONSTRUCTOR", dwtDevice?.constructor?.name);
-        this.logDwtLifecycle("BEFORE_SelectDeviceAsync", dwt);
         const selectDeviceResult = await withDynamsoftTimeout(
           dwt.SelectDeviceAsync(dwtDevice),
           "SelectDeviceAsync",
         );
-        this.logDwtLifecycle("AFTER_SelectDeviceAsync", dwt);
-        console.log("SELECT_DEVICE_SUCCESS");
-        console.log("SELECT_SOURCE_RESULT", selectDeviceResult);
         if (!selectDeviceResult) {
           throw new DynamsoftScannerError({
             code: "SCANNER_NOT_FOUND",
@@ -557,40 +408,17 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       } catch (error) {
         console.error("SELECT_SOURCE_ERROR", error);
         throw error;
-      } finally {
-        console.log("SELECT_DEVICE_FINALLY");
       }
 
       this.selectedDeviceId = deviceId;
-      console.log("SELECTED_DEVICE_ID", this.selectedDeviceId);
-      console.log("SELECT_DEVICE_END");
       return;
     }
 
-    console.log("SELECTION_MODE", {
-      mode: "legacy",
-      deviceId,
-      deviceIndex,
-    });
-    console.log("USING_LEGACY_SELECTION");
-    this.logDwtLifecycle("BEFORE_legacy_OpenSourceManager", dwt);
     this.openSourceManager(dwt);
-    this.logDwtLifecycle("AFTER_legacy_OpenSourceManager", dwt);
-    this.logDwtLifecycle("BEFORE_legacy_GetSourceNameItems", dwt);
-    const sourceName = dwt.GetSourceNameItems(deviceIndex);
-    this.logDwtLifecycle("AFTER_legacy_GetSourceNameItems", dwt);
-    console.log("SOURCE_NAME", sourceName);
-    debugScannerSelection("selectDevice.SelectSourceByIndex", {
-      scannerName: cachedDevice?.name ?? sourceName,
-      scannerIndex: deviceIndex,
-    });
+    dwt.GetSourceNameItems(deviceIndex);
     let selectSourceResult = false;
     try {
-      console.log("SELECT_SOURCE_INDEX", deviceIndex);
-      this.logDwtLifecycle("BEFORE_SelectSourceByIndex", dwt);
       selectSourceResult = dwt.SelectSourceByIndex(deviceIndex);
-      this.logDwtLifecycle("AFTER_SelectSourceByIndex", dwt);
-      console.log("SELECT_SOURCE_RESULT", selectSourceResult);
     } catch (error) {
       console.error("SELECT_SOURCE_ERROR", error);
       throw error;
@@ -604,7 +432,6 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     }
 
     this.selectedDeviceId = deviceId;
-    console.log("SELECTED_DEVICE_ID", this.selectedDeviceId);
   }
 
   async scan(options: ScanOptions) {
@@ -632,42 +459,14 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         IfDuplexEnabled: options.duplex ?? false,
         IfDisableSourceAfterAcquire: true,
       };
-      console.log("SCAN_CONFIGURATION", acquireOptions);
-      console.log("DUPLEX_CONFIGURATION", {
-        requestedDuplex: options.duplex ?? false,
-        IfDuplexEnabled: acquireOptions.IfDuplexEnabled,
-        IfFeederEnabled: acquireOptions.IfFeederEnabled,
-        AutoFeed: readDiagnosticValue(dwt, ["AutoFeed", "IfAutoFeed", "IfAutoFeedEnabled"]),
-        Duplex: readDiagnosticValue(dwt, ["Duplex", "IfDuplexEnabled"]),
-        PixelType: acquireOptions.PixelType,
-      });
-      console.log("SCANNER_CAPABILITIES", {
-        selectedDeviceId: this.selectedDeviceId,
-        sourceCount: dwt.SourceCount,
-        selectedSourceName:
-          this.devices.find((device) => device.id === this.selectedDeviceId)?.name ?? "",
-        IfFeederEnabled: readDiagnosticValue(dwt, ["IfFeederEnabled"]),
-        IfDuplexEnabled: readDiagnosticValue(dwt, ["IfDuplexEnabled"]),
-        Duplex: readDiagnosticValue(dwt, ["Duplex"]),
-        AutoFeed: readDiagnosticValue(dwt, ["AutoFeed", "IfAutoFeed", "IfAutoFeedEnabled"]),
-        PixelType: readDiagnosticValue(dwt, ["PixelType"]),
-        hasGetImageWidth: typeof dwt.GetImageWidth === "function",
-        hasGetImageHeight: typeof dwt.GetImageHeight === "function",
-        hasGetDevicesAsync: typeof dwt.GetDevicesAsync === "function",
-      });
       await new Promise<void>((resolve, reject) => {
-        this.logDwtLifecycle("BEFORE_OpenSource", dwt);
         dwt.OpenSource();
-        this.logDwtLifecycle("AFTER_OpenSource", dwt);
-        this.logDwtLifecycle("BEFORE_AcquireImage", dwt);
         dwt.AcquireImage(
           acquireOptions,
           () => {
-            this.logDwtLifecycle("AFTER_AcquireImage_SUCCESS", dwt);
             resolve();
           },
           (_code, message) => {
-            this.logDwtLifecycle("AFTER_AcquireImage_FAILURE", dwt);
             reject(
               new DynamsoftScannerError({
                 code: "SCAN_FAILED",
@@ -684,13 +483,11 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       if (options.removeBlankPages) {
         await this.removeDetectedBlankPages(dwt);
       }
-      console.log("PAGE_STATE", this.pages);
+      await this.applyAutomaticProcessing(dwt, options.automaticProcessing);
 
       return [...this.pages];
     } finally {
-      this.logDwtLifecycle("BEFORE_CloseSource", dwt);
       dwt.CloseSource?.();
-      this.logDwtLifecycle("AFTER_CloseSource", dwt);
       this.activeOperation = null;
     }
   }
@@ -698,29 +495,21 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   async rotatePage(pageId: string, degrees: 90 | 180 | 270) {
     const dwt = this.requireDwt();
     const pageIndex = this.getPageIndex(pageId);
-    this.logDwtLifecycle("BEFORE_Rotate", dwt);
     dwt.Rotate(pageIndex, degrees, true);
-    this.logDwtLifecycle("AFTER_Rotate", dwt);
     const currentRotation = this.pageRotationById.get(pageId) ?? 0;
     const nextRotation = (currentRotation + degrees) % 360;
     this.pageRotationById.set(pageId, nextRotation);
-    console.log("ROTATION_STATE", {
-      rotation: nextRotation,
-    });
     this.pages = this.pages.map((page) =>
       page.id === pageId ? this.buildPageFromBuffer(dwt, page.index) : page,
     );
-    console.log("PAGE_STATE", this.pages);
+    return [...this.pages];
   }
 
   async removePage(pageId: string) {
     const dwt = this.requireDwt();
     const pageIndex = this.getPageIndex(pageId);
-    this.logDwtLifecycle("BEFORE_RemoveImage", dwt);
     dwt.RemoveImage(pageIndex);
-    this.logDwtLifecycle("AFTER_RemoveImage", dwt);
     this.pages = this.rebuildPagesAfterBufferRemoval(dwt, this.pages, [pageIndex], new Set([pageId]));
-    console.log("PAGE_STATE", this.pages);
   }
 
   async reorderPages(pageIds: string[]) {
@@ -739,23 +528,15 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
     const byId = new Map(this.pages.map((page) => [page.id, page]));
     this.pages = pageIds.map((pageId) => byId.get(pageId)).filter((page): page is ScanPage => Boolean(page));
-    console.log("PAGE_REORDERED", this.pages.map((page) => ({
-      id: page.id,
-      bufferIndex: page.index,
-    })));
-    console.log("PAGE_STATE", this.pages);
     return [...this.pages];
   }
 
   async clear() {
     const dwt = this.dwt;
-    this.logDwtLifecycle("BEFORE_RemoveAllImages", dwt);
     dwt?.RemoveAllImages();
-    this.logDwtLifecycle("AFTER_RemoveAllImages", dwt);
     this.pages = [];
     this.pageRotationById.clear();
     this.originalPageDimensionsById.clear();
-    console.log("PAGE_STATE", this.pages);
   }
 
   async generatePdf(fileName: string) {
@@ -776,16 +557,13 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
     try {
       const blob = await new Promise<Blob>((resolve, reject) => {
-        this.logDwtLifecycle("BEFORE_ConvertToBlob", dwt);
         dwt.ConvertToBlob(
           pageIndices,
           "application/pdf",
           (nextBlob) => {
-            this.logDwtLifecycle("AFTER_ConvertToBlob_SUCCESS", dwt);
             resolve(nextBlob);
           },
           (_code, message) => {
-            this.logDwtLifecycle("AFTER_ConvertToBlob_FAILURE", dwt);
             reject(
               new DynamsoftScannerError({
                 code: "PDF_GENERATION_FAILED",
@@ -811,12 +589,6 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   }
 
   async dispose() {
-    console.log("DYNAMSOFT_CLIENT_DISPOSE_START", {
-      instanceId: this.instanceId,
-      dwtExists: Boolean(this.dwt),
-      disposed: this.disposed,
-      stack: new Error("DYNAMSOFT_CLIENT_DISPOSE_STACK").stack,
-    });
     this.generation += 1;
     this.disposed = true;
     this.activeOperation = null;
@@ -825,27 +597,12 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     this.devices = [];
     this.dwtDevices.clear();
     this.modernDeviceIds.clear();
-    console.log("DISPOSE_DWT_INSTANCE", this.dwt);
-    this.stopDestroyWatchdog();
-    this.logDwtLifecycle("BEFORE_dispose_CloseSource", this.dwt);
     this.dwt?.CloseSource?.();
-    this.logDwtLifecycle("AFTER_dispose_CloseSource", this.dwt);
     this.dwt = null;
-    console.log("BEFORE_DWT_UNLOAD", {
-      instanceId: this.instanceId,
-    });
     (this.options.windowRef as DynamsoftWindow).Dynamsoft?.DWT?.Unload?.();
-    console.log("AFTER_DWT_UNLOAD", {
-      instanceId: this.instanceId,
-    });
-    console.log("DYNAMSOFT_CLIENT_DISPOSE_END", {
-      instanceId: this.instanceId,
-    });
   }
 
   private requireDwt() {
-    console.log("REQUIRE_DWT", this.dwt);
-    this.logDwtLifecycle("REQUIRE_DWT_STATE", this.dwt);
     if (this.disposed || !this.dwt) {
       throw new DynamsoftScannerError({
         code: "DYNAMSOFT_RUNTIME_UNAVAILABLE",
@@ -862,10 +619,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     }
 
     try {
-      this.logDwtLifecycle("BEFORE_OpenSourceManager_call", dwt);
       const opened = dwt.OpenSourceManager();
-      this.logDwtLifecycle("AFTER_OpenSourceManager_call", dwt);
-      console.log("OPEN_SOURCE_MANAGER_RESULT", opened);
       return opened;
     } catch (error) {
       console.error("OPEN_SOURCE_MANAGER_ERROR", error);
@@ -903,33 +657,113 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       rotationDegrees,
     };
 
-    console.log("PAGE_DIMENSIONS", {
-      width,
-      height,
-      orientation,
-    });
-    console.log("PAGE_ORIENTATION", {
-      index,
-      pageId,
-      originalOrientation: getPageOrientation(originalDimensions.width, originalDimensions.height),
-      currentOrientation: orientation,
-      rotationDegrees,
-    });
-    console.log("ROTATION_STATE", {
-      rotation: rotationDegrees,
-    });
-    console.log("PAGE_IMAGE_DATA", {
-      index,
-      hasGetImageURL: typeof dwt.GetImageURL === "function",
-      hasGetImageWidth: typeof dwt.GetImageWidth === "function",
-      hasGetImageHeight: typeof dwt.GetImageHeight === "function",
-      thumbnailUrl,
-      imageUrl,
-    });
-    console.log("PAGE_OBJECT", page);
-    console.log("PAGE_CAPTURED", page);
-
     return page;
+  }
+
+  private async applyAutomaticProcessing(
+    dwt: DynamsoftWebTwainObject,
+    processing?: AutomaticImageProcessingOptions,
+  ) {
+    if (!processing) {
+      return {};
+    }
+
+    const enabledFeatures = automaticProcessingFeatures.filter(
+      (feature) => processing[feature.key],
+    );
+    if (enabledFeatures.length === 0 || this.pages.length === 0) {
+      return {};
+    }
+
+    const result: AutomaticImageProcessingResult = {};
+    for (const feature of enabledFeatures) {
+      result[feature.key] = await this.applyAutomaticProcessingFeature(dwt, feature);
+    }
+
+    return result;
+  }
+
+  private async applyAutomaticProcessingFeature(
+    dwt: DynamsoftWebTwainObject,
+    feature: (typeof automaticProcessingFeatures)[number],
+  ): Promise<NonNullable<AutomaticImageProcessingResult[ProcessingFeature]>> {
+    const startedAt = performance.now();
+    const method = this.findDwtProcessingMethod(dwt, feature.methods);
+    const pageIds = this.pages.map((page) => page.id);
+
+    if (!method) {
+      const message = "native-api-unavailable";
+      logDevelopmentMetric(feature.timeLog, startedAt, {
+        pageCount: this.pages.length,
+        status: "unsupported",
+        message,
+      });
+      return {
+        status: "unsupported",
+        durationMs: Math.round(performance.now() - startedAt),
+        message,
+      };
+    }
+
+    try {
+      for (const page of this.pages) {
+        const output = method.call(dwt, page.index);
+        if (output instanceof Promise) {
+          await output;
+        }
+      }
+
+      this.refreshPagesById(dwt, pageIds);
+      const durationMs = Math.round(performance.now() - startedAt);
+      logDevelopmentMetric(feature.timeLog, startedAt, {
+        pageCount: pageIds.length,
+        status: "applied",
+        methodName: method.name || "anonymous",
+      });
+      return {
+        status: "applied",
+        durationMs,
+      };
+    } catch (error) {
+      const durationMs = Math.round(performance.now() - startedAt);
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(feature.timeLog, {
+        durationMs,
+        pageCount: pageIds.length,
+        status: "failed",
+        message,
+      });
+      return {
+        status: "failed",
+        durationMs,
+        message,
+      };
+    }
+  }
+
+  private findDwtProcessingMethod(dwt: DynamsoftWebTwainObject, candidates: string[]) {
+    const record = dwt as Record<string, unknown>;
+    const method = candidates
+      .map((candidate) => record[candidate])
+      .find((candidate): candidate is (index: number) => unknown => typeof candidate === "function");
+
+    return method;
+  }
+
+  private refreshPagesById(dwt: DynamsoftWebTwainObject, pageIds: string[]) {
+    const ids = new Set(pageIds);
+    this.pages = this.pages.map((page) => {
+      if (!ids.has(page.id)) {
+        return page;
+      }
+
+      const refreshedPage = this.buildPageFromBuffer(dwt, page.index);
+      return {
+        ...refreshedPage,
+        id: page.id,
+        rotationDegrees: this.pageRotationById.get(page.id) ?? page.rotationDegrees ?? 0,
+      };
+    });
   }
 
   private async removeDetectedBlankPages(dwt: DynamsoftWebTwainObject) {
@@ -937,25 +771,6 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       this.pages.map((page) => this.analyzeBlankPageCandidate(page)),
     );
     const blankPages = blankAnalyses.filter((analysis) => analysis.isBlank);
-
-    console.log("BLANK_PAGE_REMOVAL_RESULT", {
-      method: "canvas-thumbnail-analysis",
-      sensitivity: {
-        whiteThreshold: BLANK_PAGE_WHITE_THRESHOLD,
-        contentRatioThreshold: BLANK_PAGE_CONTENT_RATIO_THRESHOLD,
-        darkRatioThreshold: BLANK_PAGE_DARK_RATIO_THRESHOLD,
-      },
-      analyzed: blankAnalyses.length,
-      removed: blankPages.length,
-      pages: blankAnalyses.map((analysis) => ({
-        pageId: analysis.page.id,
-        index: analysis.page.index,
-        isBlank: analysis.isBlank,
-        contentRatio: analysis.contentRatio,
-        darkRatio: analysis.darkRatio,
-        reason: analysis.reason,
-      })),
-    });
 
     if (blankPages.length === 0) {
       return;
@@ -967,9 +782,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       .sort((left, right) => right - left);
 
     blankIndexes.forEach((index) => {
-      this.logDwtLifecycle("BEFORE_RemoveBlankImage", dwt);
       dwt.RemoveImage(index);
-      this.logDwtLifecycle("AFTER_RemoveBlankImage", dwt);
     });
 
     this.pages = this.rebuildPagesAfterBufferRemoval(dwt, this.pages, blankIndexes, blankPageIds);
@@ -1117,12 +930,6 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
     while (Date.now() - startedAt <= DYNAMSOFT_WEBTWAIN_READY_TIMEOUT_MS) {
       lastDwt = runtime.GetWebTwain(WEB_TWAIN_ID);
-      console.log("GET_WEBTWAIN_POLL", {
-        elapsedMs: Date.now() - startedAt,
-        exists: Boolean(lastDwt),
-        destroy: readDiagnosticValue(lastDwt, ["_destroy"]),
-        ready: readDiagnosticValue(lastDwt, ["_bReady"]),
-      });
 
       if (
         lastDwt &&
@@ -1136,52 +943,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         window.setTimeout(resolve, DYNAMSOFT_WEBTWAIN_READY_POLL_INTERVAL_MS);
       });
     }
-
-    console.log("GET_WEBTWAIN_TIMEOUT", {
-      timeoutMs: DYNAMSOFT_WEBTWAIN_READY_TIMEOUT_MS,
-      lastDwt,
-      destroy: readDiagnosticValue(lastDwt, ["_destroy"]),
-      ready: readDiagnosticValue(lastDwt, ["_bReady"]),
-    });
     return null;
-  }
-
-  private logDwtLifecycle(label: string, dwt: DynamsoftWebTwainObject | null) {
-    const snapshot = getDwtLifecycleSnapshot(dwt);
-    console.log("DWT_LIFECYCLE", {
-      label,
-      instanceId: this.instanceId,
-      ...snapshot,
-    });
-  }
-
-  private startDestroyWatchdog() {
-    this.stopDestroyWatchdog();
-    this.lastDestroySnapshot = readDiagnosticValue(this.dwt, ["_destroy"]);
-    this.destroyWatchdogId = window.setInterval(() => {
-      const snapshot = getDwtLifecycleSnapshot(this.dwt);
-      if (snapshot.destroy !== this.lastDestroySnapshot) {
-        console.warn("DWT_DESTROY_CHANGED", {
-          instanceId: this.instanceId,
-          previousDestroy: this.lastDestroySnapshot,
-          ...snapshot,
-          stack: new Error("DWT_DESTROY_CHANGED_STACK").stack,
-        });
-        this.lastDestroySnapshot = snapshot.destroy;
-      }
-
-      console.log("DWT_DESTROY_WATCHDOG", {
-        instanceId: this.instanceId,
-        ...snapshot,
-      });
-    }, 1000);
-  }
-
-  private stopDestroyWatchdog() {
-    if (this.destroyWatchdogId !== null) {
-      window.clearInterval(this.destroyWatchdogId);
-      this.destroyWatchdogId = null;
-    }
   }
 
   private assertNoActiveOperation() {

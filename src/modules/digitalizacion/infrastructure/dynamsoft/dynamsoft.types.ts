@@ -19,6 +19,28 @@ export type ScanPage = {
 
 export type ScanColorMode = (typeof DYNAMSOFT_ALLOWED_COLOR_MODES)[number];
 
+export type AutomaticImageProcessingOptions = {
+  deskew?: boolean;
+  autoCrop?: boolean;
+  autoRotate?: boolean;
+};
+
+export type AutomaticImageProcessingStatus =
+  | "applied"
+  | "unsupported"
+  | "failed";
+
+export type AutomaticImageProcessingResult = Partial<
+  Record<
+    keyof AutomaticImageProcessingOptions,
+    {
+      status: AutomaticImageProcessingStatus;
+      durationMs: number;
+      message?: string;
+    }
+  >
+>;
+
 export type ScanOptions = {
   deviceId: string;
   resolutionDpi?: number;
@@ -27,6 +49,7 @@ export type ScanOptions = {
   feederEnabled?: boolean;
   showScannerUi?: boolean;
   removeBlankPages?: boolean;
+  automaticProcessing?: AutomaticImageProcessingOptions;
 };
 
 export type PdfGenerationResult = {
@@ -39,7 +62,7 @@ export interface DigitalizacionScannerClient {
   listDevices(): Promise<ScannerDevice[]>;
   selectDevice(deviceId: string): Promise<void>;
   scan(options: ScanOptions): Promise<ScanPage[]>;
-  rotatePage(pageId: string, degrees: 90 | 180 | 270): Promise<void>;
+  rotatePage(pageId: string, degrees: 90 | 180 | 270): Promise<ScanPage[]>;
   removePage(pageId: string): Promise<void>;
   reorderPages(pageIds: string[]): Promise<ScanPage[]>;
   clear(): Promise<void>;
@@ -81,6 +104,11 @@ export type DynamsoftWebTwainObject = {
   GetImageURL?(index: number, width?: number, height?: number, isPart?: boolean, quality?: number): string | false;
   GetImageWidth?(index: number): number;
   GetImageHeight?(index: number): number;
+  Crop?(index: number, left: number, top: number, right: number, bottom: number): boolean;
+  Deskew?(index: number): boolean;
+  RotateRight?(index: number): boolean;
+  RotateLeft?(index: number): boolean;
+  [key: string]: unknown;
   OpenSource(): void;
   CloseSource?(): void;
   AcquireImage(

@@ -1,7 +1,9 @@
 .page {
+  block-size: 100vh;
   display: grid;
   grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
-  min-block-size: 100vh;
+  min-block-size: 0;
+  overflow: hidden;
   background: #f5f8fb;
 }
 
@@ -11,6 +13,8 @@
   gap: 18px;
   border-right: 1px solid #d9e4ef;
   background: #ffffff;
+  min-block-size: 0;
+  overflow: auto;
   padding: 24px;
 }
 
@@ -69,7 +73,12 @@
 }
 
 .digitalizadorPanel {
+  block-size: 100%;
+  box-sizing: border-box;
+  display: grid;
+  min-block-size: 0;
   min-inline-size: 0;
+  overflow: hidden;
   padding: 20px;
 }
 
