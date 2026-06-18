@@ -14,6 +14,7 @@ import type {
   DigitalizacionScannerClient,
   DynamsoftRuntimeOptions,
   DynamsoftDevice,
+  DynamsoftWebTwainFactory,
   DynamsoftWebTwainObject,
   DynamsoftWindow,
   PdfGenerationResult,
@@ -1172,7 +1173,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
   private loadAnalysisImage(src: string) {
     return new Promise<HTMLImageElement>((resolve, reject) => {
-      const ImageConstructor = this.options.windowRef.Image;
+      const ImageConstructor = (this.options.windowRef as DynamsoftWindow).Image ?? Image;
       const image = new ImageConstructor();
       image.onload = () => resolve(image);
       image.onerror = () => reject(new Error("No fue posible analizar la imagen escaneada."));

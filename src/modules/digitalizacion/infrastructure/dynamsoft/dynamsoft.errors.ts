@@ -12,6 +12,7 @@ export type DynamsoftScannerErrorCode =
   | "PDF_GENERATION_FAILED"
   | "INVALID_SCAN_OPTIONS"
   | "INVALID_DEVICE_ID"
+  | "INVALID_PAGE_ORDER"
   | "STALE_OPERATION_IGNORED";
 
 export class DynamsoftScannerError extends Error {

@@ -37,14 +37,16 @@ const installLocalStorageMock = () => {
   });
 };
 
-const createScannerClient = (): DigitalizacionScannerClient => ({
+const createScannerClient = (
+  pages: ScanPage[] = [{ id: "page-1", index: 0 }],
+): DigitalizacionScannerClient => ({
   initialize: vi.fn().mockResolvedValue(undefined),
   listDevices: vi.fn().mockResolvedValue([
     { id: "scanner-1", name: "Scanner prueba", index: 0 },
   ]),
   selectDevice: vi.fn().mockResolvedValue(undefined),
-  scan: vi.fn(() => Promise.resolve<ScanPage[]>([{ id: "page-1", index: 0 }])),
-  rotatePage: vi.fn(() => Promise.resolve<ScanPage[]>([{ id: "page-1", index: 0 }])),
+  scan: vi.fn(() => Promise.resolve<ScanPage[]>(pages)),
+  rotatePage: vi.fn(() => Promise.resolve<ScanPage[]>(pages)),
   removePage: vi.fn().mockResolvedValue(undefined),
   reorderPages: vi.fn(async (pageIds: string[]) =>
     pageIds.map((pageId, index) => ({ id: pageId, index })),
@@ -62,6 +64,10 @@ const createScannerClient = (): DigitalizacionScannerClient => ({
 describe("AppDigitalizador", () => {
   beforeEach(() => {
     installLocalStorageMock();
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+      configurable: true,
+      value: vi.fn(),
+    });
   });
 
   it("renderiza inline el workspace sin AppModal", async () => {
@@ -263,5 +269,92 @@ describe("AppDigitalizador", () => {
     expect(
       screen.getByRole("button", { name: "Ocultar Configuracion de Escaneo" }),
     ).toBeInTheDocument();
+  });
+
+  it("[SPEC:SCRUMCORE-255] navega a una pagina especifica con seleccion, scroll y highlight", async () => {
+    const scannerClient = createScannerClient([
+      { id: "page-1", index: 0 },
+      { id: "page-2", index: 1 },
+      { id: "page-3", index: 2 },
+      { id: "page-4", index: 3 },
+      { id: "page-5", index: 4 },
+    ]);
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() =>
+      expect(scannerClient.selectDevice).toHaveBeenCalledWith("scanner-1"),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (5)" })).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText("Pagina destino"), {
+      target: { value: "5" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Ir a pagina" }));
+
+    const pageFiveButtons = screen.getAllByRole("button").filter((button) =>
+      button.textContent?.includes("Pagina 5"),
+    );
+    const pageFiveThumbnail = pageFiveButtons.find((button) =>
+      button.className.includes("thumbnailButton"),
+    );
+
+    if (!pageFiveThumbnail) {
+      throw new Error("No se encontro la miniatura de Pagina 5.");
+    }
+
+    expect(pageFiveThumbnail).toHaveAttribute("data-selected", "true");
+    expect(pageFiveThumbnail).toHaveAttribute("data-highlighted", "true");
+    expect(HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({
+      block: "nearest",
+      inline: "nearest",
+    });
+    expect(screen.getAllByText("Pagina 5").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("[SPEC:SCRUMCORE-255] enfoca el control de pagina con Ctrl+G", async () => {
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={createScannerClient([
+          { id: "page-1", index: 0 },
+          { id: "page-2", index: 1 },
+        ])}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (2)" })).toBeInTheDocument();
+    });
+
+    fireEvent.keyDown(document, { key: "g", ctrlKey: true });
+
+    expect(screen.getByLabelText("Pagina destino")).toHaveFocus();
   });
 });
