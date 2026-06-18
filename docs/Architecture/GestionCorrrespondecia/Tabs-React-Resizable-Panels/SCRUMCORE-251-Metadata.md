@@ -40,7 +40,8 @@
 - `d77d3f5 fix(SCRUMCORE-251): tune mobile document panel height`
 - `70ad45b fix(SCRUMCORE-251): refine document overlay breakpoints`
 - `6f4111c fix(SCRUMCORE-251): support nest hub document overlay`
-- Pendiente en este bloque: ajuste responsive AppEditor/AppToolbar mobile.
+- `9d78901 fix(SCRUMCORE-251): compact mobile editor actions`
+- Pendiente en este bloque: ajuste mobile AppUpload y flotantes compactos AppEditor.
 
 ## Evidencia tecnica
 
@@ -54,8 +55,12 @@
 - AppEditor mobile:
   - Toolbar compacta deja visible zoom/trailing controls y mueve acciones de editor a overflow.
   - Controles flotantes inferiores separan paginador y contador para evitar solapamiento.
+  - Paginador y contador flotantes se compactan y reposicionan para ocupar menos area en mobile.
 - AppToolbar contextless mobile:
   - Padding, gaps y tamano de botones reducidos para ganar espacio en acciones internas de Gestion.
+- AppUpload mobile:
+  - Dropzone, cards, gaps, metadata y acciones visuales se compactan en mobile.
+  - El bloque de adjuntos elimina copy auxiliar para reducir alto vertical.
 - Tests agregados:
   - `GestionWorkbenchParallelTabs.test.tsx`
   - `GestionRespuesta.test.tsx`

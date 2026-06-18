@@ -228,12 +228,50 @@
 }
 
 @media (max-width: 720px) {
+  .root {
+    gap: 6px;
+  }
+
   .grid {
     --appupload-columns: 2;
   }
 
+  .list {
+    gap: 6px;
+  }
+
+  .dragLabel {
+    padding: 8px;
+    font-size: 0.74rem;
+    line-height: 1.15;
+  }
+
+  .uploader {
+    border-radius: 8px;
+  }
+
+  .uploader :global(.ant-upload-drag) {
+    min-height: 38px;
+  }
+
+  .uploader :global(.ant-upload-drag .ant-upload-btn) {
+    padding: 0 !important;
+  }
+
   .card {
-    padding: 6px;
+    padding: 4px;
+    gap: 4px;
+    border-radius: 8px;
+    aspect-ratio: 1 / 0.82;
+  }
+
+  .preview {
+    border-radius: 7px;
+  }
+
+  .cardMeta {
+    font-size: 10px;
+    line-height: 1.1;
   }
 
   .sizeSM {
@@ -245,15 +283,37 @@
   }
 
   .sizeSM .dragLabel {
-    font-size: 0.74rem;
-    padding: 2px;
+    font-size: 0.68rem;
+    padding: 1px;
   }
 
   .sizeSM .uploader :global(.ant-upload-drag) {
-    min-height: 44px;
+    min-height: 30px;
+  }
+
+  .sizeSM .card {
+    padding: 3px;
+    gap: 3px;
+    border-radius: 7px;
+    aspect-ratio: 1 / 0.72;
   }
 
   .actions {
+    top: 4px;
+    right: 4px;
+    gap: 4px;
     opacity: 1;
+  }
+
+  .actionButton,
+  .removeButton {
+    width: 24px;
+    height: 24px;
+  }
+
+  .sizeSM .actionButton,
+  .sizeSM .removeButton {
+    width: 20px;
+    height: 20px;
   }
 }
