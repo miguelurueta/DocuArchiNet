@@ -581,9 +581,10 @@
     padding: 0;
     border: 0;
     background: transparent;
+    opacity: 1;
     box-shadow: none;
     justify-items: center;
-    z-index: 91;
+    z-index: 180;
   }
 
   .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button) {
@@ -593,8 +594,29 @@
     padding: 0;
     border-radius: 14px 0 0 14px;
     border-color: rgba(148, 163, 184, 0.22);
+    background: #ffffff;
     box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
+    opacity: 1;
     justify-content: center;
+    position: relative;
+    z-index: 181;
+  }
+
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"]:hover),
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"]:active),
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"]:focus-within) {
+    z-index: 180;
+    opacity: 1;
+  }
+
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button:hover),
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button:active),
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button:focus-visible) {
+    background: #ffffff !important;
+    border-color: rgba(100, 116, 139, 0.36) !important;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+    opacity: 1;
+    z-index: 181;
   }
 
   .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button .anticon) {
