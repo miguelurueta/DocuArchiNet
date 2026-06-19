@@ -10,11 +10,14 @@ import {
 import {
   BorderOutlined,
   ClearOutlined,
+  CloseOutlined,
   ColumnWidthOutlined,
   DeleteOutlined,
+  DownOutlined,
   FileTextOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
+  AppstoreOutlined,
   ProfileOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
@@ -26,6 +29,7 @@ import {
 } from "@ant-design/icons";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
+import { AppDropdown } from "../../../../app/Components/UI/AppDropdown";
 import { useDigitalizacionDocumentalState } from "../../hooks/useDigitalizacionDocumentalState";
 import { useDigitalizacionOperationOrchestrator } from "../../hooks/useDigitalizacionOperationOrchestrator";
 import { useDigitalizacionScanner } from "../../hooks/useDigitalizacionScanner";
@@ -40,13 +44,38 @@ import styles from "./DigitalizacionDocumentalWorkspace.module.css";
 
 type CaptureMode = "docuarchi" | "driver";
 type PreviewFitMode = "custom" | "fitWidth" | "fitPage";
+type ThumbnailViewMode = "grid1" | "grid2" | "grid3" | "grid4" | "grid5" | "grid6";
+type PageOrganizerDensity =
+  | "densityAuto"
+  | "density2"
+  | "density3"
+  | "density4"
+  | "density5"
+  | "density6";
 
 const MIN_PREVIEW_ZOOM = 50;
 const MAX_PREVIEW_ZOOM = 200;
 const PREVIEW_ZOOM_STEP = 25;
 const PANEL_PREFERENCES_STORAGE_KEY = "docuarchi:digitalizacion:panel-preferences";
 const PAGE_HIGHLIGHT_DURATION_MS = 1400;
+const THUMBNAIL_VIRTUALIZATION_THRESHOLD = 100;
+const PAGE_ORGANIZER_VIRTUALIZATION_THRESHOLD = 100;
+const pageOrganizerDensityModes: Array<{ label: string; value: PageOrganizerDensity }> = [
+  { label: "2x2", value: "density2" },
+  { label: "3x3", value: "density3" },
+  { label: "4x4", value: "density4" },
+  { label: "5x5", value: "density5" },
+  { label: "6x6", value: "density6" },
+  { label: "Auto", value: "densityAuto" },
+];
 
+const pageOrganizerDensityColumns: Record<Exclude<PageOrganizerDensity, "densityAuto">, number> = {
+  density2: 2,
+  density3: 3,
+  density4: 4,
+  density5: 5,
+  density6: 6,
+};
 type PanelPreferences = {
   showThumbnails: boolean;
   showConfiguration: boolean;
@@ -132,6 +161,65 @@ const getVisualStateLabel = ({
 
 const getPageLabel = (page: ScanPage) => `Pagina ${page.index + 1}`;
 
+const getPageOrientation = (page: ScanPage) => {
+  if (page.orientation && page.orientation !== "unknown") {
+    return page.orientation;
+  }
+
+  if (page.width && page.height) {
+    if (page.width > page.height) {
+      return "landscape";
+    }
+
+    if (page.height > page.width) {
+      return "portrait";
+    }
+
+    return "square";
+  }
+
+  return "portrait";
+};
+
+const getPageAspectRatioStyle = (page: ScanPage): CSSProperties | undefined => {
+  if (!page.width || !page.height) {
+    return undefined;
+  }
+
+  return {
+    "--page-aspect-ratio": `${page.width} / ${page.height}`,
+  } as CSSProperties;
+};
+
+const clampNumber = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
+
+const resolvePageOrganizerColumns = ({
+  density,
+  pageCount,
+  width,
+  height,
+}: {
+  density: PageOrganizerDensity;
+  pageCount: number;
+  width: number;
+  height: number;
+}) => {
+  if (density !== "densityAuto") {
+    return pageOrganizerDensityColumns[density];
+  }
+
+  if (pageCount <= 0) {
+    return 2;
+  }
+
+  const viewportRatio = width > 0 && height > 0 ? width / height : 1;
+  const visiblePageCount = Math.min(pageCount, pageOrganizerDensityColumns.density6 ** 2);
+  const idealColumns = Math.ceil(Math.sqrt(visiblePageCount * viewportRatio));
+
+  return clampNumber(idealColumns, 2, pageOrganizerDensityColumns.density6);
+};
+
 export function DigitalizacionDocumentalWorkspace({
   active = true,
   context,
@@ -156,13 +244,25 @@ export function DigitalizacionDocumentalWorkspace({
   const [previewZoom, setPreviewZoom] = useState(100);
   const [previewFitMode, setPreviewFitMode] = useState<PreviewFitMode>("fitPage");
   const [previewExpanded, setPreviewExpanded] = useState(false);
+  const [showPageOrganizer, setShowPageOrganizer] = useState(false);
   const [pageJumpValue, setPageJumpValue] = useState("");
   const [highlightedPageId, setHighlightedPageId] = useState<string | null>(null);
+  const thumbnailViewMode: ThumbnailViewMode = "grid1";
+  const [pageOrganizerDensity, setPageOrganizerDensity] =
+    useState<PageOrganizerDensity>("density2");
+  const [pageOrganizerViewport, setPageOrganizerViewport] = useState({
+    width: 0,
+    height: 0,
+  });
+  const [selectedOrganizerPageIds, setSelectedOrganizerPageIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [panelPreferences, setPanelPreferences] = useState<PanelPreferences>(
     readPanelPreferences,
   );
   const previewPanelRef = useRef<HTMLElement | null>(null);
   const pageJumpInputRef = useRef<HTMLInputElement | null>(null);
+  const pageOrganizerGridRef = useRef<HTMLDivElement | null>(null);
   const thumbnailButtonRefs = useRef(new Map<string, HTMLButtonElement>());
   const handleInvalidContext = useCallback(
     (error: DigitalizacionFunctionalError) => {
@@ -357,6 +457,44 @@ export function DigitalizacionDocumentalWorkspace({
     setDragOverPageId(null);
   }, []);
 
+  const handleToggleOrganizerPage = useCallback((pageId: string, checked: boolean) => {
+    setSelectedOrganizerPageIds((current) => {
+      const next = new Set(current);
+      if (checked) {
+        next.add(pageId);
+      } else {
+        next.delete(pageId);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleOrganizerPageClick = useCallback((pageId: string) => {
+    setSelectedPageId(pageId);
+    setHighlightedPageId(pageId);
+  }, []);
+
+  const handleRotateOrganizerSelection = useCallback((degrees: 90 | 270) => {
+    const pageIds = scanner.pages
+      .map((page) => page.id)
+      .filter((pageId) => selectedOrganizerPageIds.has(pageId));
+
+    pageIds.forEach((pageId) => {
+      void rotatePage(pageId, degrees);
+    });
+  }, [rotatePage, scanner.pages, selectedOrganizerPageIds]);
+
+  const handleRemoveOrganizerSelection = useCallback(() => {
+    const pageIds = scanner.pages
+      .map((page) => page.id)
+      .filter((pageId) => selectedOrganizerPageIds.has(pageId));
+
+    pageIds.forEach((pageId) => {
+      void removePage(pageId);
+    });
+    setSelectedOrganizerPageIds(new Set());
+  }, [removePage, scanner.pages, selectedOrganizerPageIds]);
+
   const handleGoToPage = useCallback(() => {
     const requestedPage = Number.parseInt(pageJumpValue, 10);
     if (!Number.isInteger(requestedPage)) {
@@ -439,6 +577,55 @@ export function DigitalizacionDocumentalWorkspace({
       showConfiguration: !current.showConfiguration,
     }));
   }, []);
+
+  const handleClosePageOrganizer = useCallback(() => {
+    setShowPageOrganizer(false);
+  }, []);
+
+  useEffect(() => {
+    if (!showPageOrganizer || typeof window === "undefined") {
+      return undefined;
+    }
+
+    const grid = pageOrganizerGridRef.current;
+    if (!grid) {
+      return undefined;
+    }
+
+    const updateViewport = () => {
+      const { width, height } = grid.getBoundingClientRect();
+      setPageOrganizerViewport((current) =>
+        current.width === width && current.height === height
+          ? current
+          : { width, height },
+      );
+    };
+
+    const frameId = window.requestAnimationFrame(updateViewport);
+    const observer =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver((entries) => {
+            const entry = entries[0];
+            const size = entry?.contentRect;
+            if (!size) {
+              return;
+            }
+
+            setPageOrganizerViewport((current) =>
+              current.width === size.width && current.height === size.height
+                ? current
+                : { width: size.width, height: size.height },
+            );
+          });
+
+    observer?.observe(grid);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      observer?.disconnect();
+    };
+  }, [showPageOrganizer]);
 
   useEffect(() => {
     if (typeof document === "undefined") {
@@ -525,6 +712,39 @@ export function DigitalizacionDocumentalWorkspace({
     scanner.pages.find((page) => page.id === selectedPageId) ?? scanner.pages[0] ?? null;
   const thumbnailsCollapsed = !panelPreferences.showThumbnails;
   const configurationCollapsed = !panelPreferences.showConfiguration;
+  const thumbnailsVirtualized = scanner.pages.length > THUMBNAIL_VIRTUALIZATION_THRESHOLD;
+  const organizerVirtualized = scanner.pages.length > PAGE_ORGANIZER_VIRTUALIZATION_THRESHOLD;
+  const pageOrganizerColumns = resolvePageOrganizerColumns({
+    density: pageOrganizerDensity,
+    pageCount: scanner.pages.length,
+    width: pageOrganizerViewport.width,
+    height: pageOrganizerViewport.height,
+  });
+  const pageOrganizerVisibleRows = clampNumber(
+    Math.ceil(
+      Math.min(
+        Math.max(scanner.pages.length, 1),
+        pageOrganizerColumns * pageOrganizerColumns,
+      ) / pageOrganizerColumns,
+    ),
+    1,
+    pageOrganizerColumns,
+  );
+  const pageOrganizerGridStyle = {
+    "--page-organizer-columns": pageOrganizerColumns,
+    "--page-organizer-visible-rows": pageOrganizerVisibleRows,
+  } as CSSProperties;
+  const pageOrganizerDensityItems = pageOrganizerDensityModes.map((mode) => ({
+    key: mode.value,
+    label: mode.label,
+    onSelect: () => {
+      setPageOrganizerDensity(mode.value);
+      setShowPageOrganizer(true);
+    },
+  }));
+  const hasOrganizerSelection = scanner.pages.some((page) =>
+    selectedOrganizerPageIds.has(page.id),
+  );
   const previewPanelClassName = [
     styles.panel,
     styles.previewPanel,
@@ -606,6 +826,7 @@ export function DigitalizacionDocumentalWorkspace({
           />
         </div>
 
+
         <div className={styles.toolbarGroup} data-priority="output" role="group" aria-label="Salida">
           <AppButton
             size="sm"
@@ -635,7 +856,11 @@ export function DigitalizacionDocumentalWorkspace({
           className={styles.collapseRail}
         >
           {scanner.pages.length > 0 ? (
-            <div className={styles.thumbnailList}>
+            <div
+              className={styles.thumbnailList}
+              data-view-mode={thumbnailViewMode}
+              data-virtualized={thumbnailsVirtualized}
+            >
               {scanner.pages.map((page, pageOrderIndex) => (
                   <button
                     className={styles.thumbnailButton}
@@ -692,6 +917,26 @@ export function DigitalizacionDocumentalWorkspace({
         >
           <div className={`${styles.panelHeader} ${styles.previewHeader}`}>
             <div className={styles.previewControls} role="toolbar" aria-label="Visualizacion preview">
+              <AppDropdown
+                ariaLabel="Organizar paginas"
+                placement="bottomLeft"
+                items={pageOrganizerDensityItems}
+                disabled={!hasPages}
+                trigger={
+                  <AppButton
+                    className={styles.organizerMenuButton}
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={<AppstoreOutlined />}
+                    rightIcon={<DownOutlined />}
+                    aria-label="Organizar paginas"
+                    tooltip="Organizar paginas"
+                    disabled={!hasPages}
+                  >
+                    <span className={styles.organizerMenuText}>Organizar paginas</span>
+                  </AppButton>
+                }
+              />
               <label className={styles.pageJumpField}>
                 <span>Pagina</span>
                 <input
@@ -831,6 +1076,119 @@ export function DigitalizacionDocumentalWorkspace({
               </div>
             )}
           </div>
+          {showPageOrganizer ? (
+            <div
+              className={styles.pageOrganizerOverlay}
+              role="region"
+              aria-label="Organizador de paginas"
+            >
+              <div className={styles.pageOrganizerHeader}>
+                <span>Organizar paginas</span>
+                <div
+                  className={styles.pageOrganizerActions}
+                  role="toolbar"
+                  aria-label="Acciones organizador"
+                >
+                  <AppButton
+                    variant="ghost"
+                    size="sm"
+                    icon={<RotateLeftOutlined />}
+                    aria-label="Rotar izquierda seleccionadas"
+                    tooltip="Rotar izquierda"
+                    onClick={() => handleRotateOrganizerSelection(270)}
+                    disabled={!hasOrganizerSelection}
+                  />
+                  <AppButton
+                    variant="ghost"
+                    size="sm"
+                    icon={<RotateRightOutlined />}
+                    aria-label="Rotar derecha seleccionadas"
+                    tooltip="Rotar derecha"
+                    onClick={() => handleRotateOrganizerSelection(90)}
+                    disabled={!hasOrganizerSelection}
+                  />
+                  <AppButton
+                    variant="danger"
+                    size="sm"
+                    icon={<DeleteOutlined />}
+                    aria-label="Eliminar paginas seleccionadas"
+                    tooltip="Eliminar paginas"
+                    onClick={handleRemoveOrganizerSelection}
+                    disabled={!hasOrganizerSelection}
+                  />
+                  <AppButton
+                    variant="ghost"
+                    size="sm"
+                    icon={<CloseOutlined />}
+                    aria-label="Cerrar organizacion"
+                    tooltip="Volver al visor"
+                    onClick={handleClosePageOrganizer}
+                  />
+                </div>
+              </div>
+              <div
+                className={styles.pageOrganizerGrid}
+                ref={pageOrganizerGridRef}
+                data-density={pageOrganizerDensity}
+                data-columns={pageOrganizerColumns}
+                data-virtualized={organizerVirtualized}
+                style={pageOrganizerGridStyle}
+              >
+                {scanner.pages.map((page, pageOrderIndex) => {
+                  const pageOrientation = getPageOrientation(page);
+                  const pageAspectRatioStyle = getPageAspectRatioStyle(page);
+
+                  return (
+                    <button
+                      className={styles.pageOrganizerItem}
+                      data-selected={page.id === selectedPageId}
+                      data-checked={selectedOrganizerPageIds.has(page.id)}
+                      data-dragging={page.id === draggedPageId}
+                      data-drop-target={page.id === dragOverPageId}
+                      data-orientation={pageOrientation}
+                      key={page.id}
+                      type="button"
+                      draggable
+                      style={pageAspectRatioStyle}
+                      onClick={() => handleOrganizerPageClick(page.id)}
+                      onDragStart={(event) => handleThumbnailDragStart(event, page.id)}
+                      onDragOver={(event) => handleThumbnailDragOver(event, page.id)}
+                      onDragLeave={() => {
+                        if (dragOverPageId === page.id) {
+                          setDragOverPageId(null);
+                        }
+                      }}
+                      onDrop={(event) => handleThumbnailDrop(event, page.id)}
+                      onDragEnd={handleThumbnailDragEnd}
+                    >
+                      <label
+                        className={styles.pageOrganizerCheck}
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedOrganizerPageIds.has(page.id)}
+                          onChange={(event) =>
+                            handleToggleOrganizerPage(page.id, event.target.checked)
+                          }
+                          aria-label={`Seleccionar pagina ${pageOrderIndex + 1}`}
+                        />
+                      </label>
+                      {page.thumbnailUrl ? (
+                        <img
+                          src={page.thumbnailUrl}
+                          alt={`Pagina ${pageOrderIndex + 1}`}
+                        />
+                      ) : (
+                        <span>{pageOrderIndex + 1}</span>
+                      )}
+                      <small>Pagina {pageOrderIndex + 1}</small>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
         </section>
 
         <AppCollapseRail

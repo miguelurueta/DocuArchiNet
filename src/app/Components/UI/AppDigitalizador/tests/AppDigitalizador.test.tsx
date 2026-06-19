@@ -357,4 +357,309 @@ describe("AppDigitalizador", () => {
 
     expect(screen.getByLabelText("Pagina destino")).toHaveFocus();
   });
+
+  it("[SPEC:SCRUMCORE-256] mantiene reordenamiento en la superficie de miniaturas", async () => {
+    const scannerClient = createScannerClient([
+      { id: "page-1", index: 0 },
+      { id: "page-2", index: 1 },
+      { id: "page-3", index: 2 },
+      { id: "page-4", index: 3 },
+    ]);
+    const dataTransfer = {
+      effectAllowed: "",
+      dropEffect: "",
+      data: new Map<string, string>(),
+      setData(type: string, value: string) {
+        this.data.set(type, value);
+      },
+      getData(type: string) {
+        return this.data.get(type) ?? "";
+      },
+    };
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (4)" })).toBeInTheDocument();
+    });
+
+    const workspace = screen.getByTestId("digitalizacion-workspace");
+    const thumbnailList = workspace.querySelector("[data-view-mode]");
+    expect(thumbnailList).toHaveAttribute("data-view-mode", "grid1");
+
+    const pageOneThumbnail = screen
+      .getAllByRole("button")
+      .find((button) => button.textContent?.includes("Pagina 1"));
+    const pageThreeThumbnail = screen
+      .getAllByRole("button")
+      .find((button) => button.textContent?.includes("Pagina 3"));
+
+    if (!pageOneThumbnail || !pageThreeThumbnail) {
+      throw new Error("No se encontraron miniaturas para reordenamiento.");
+    }
+
+    fireEvent.dragStart(pageOneThumbnail, { dataTransfer });
+    fireEvent.dragOver(pageThreeThumbnail, { dataTransfer });
+    fireEvent.drop(pageThreeThumbnail, { dataTransfer });
+
+    expect(scannerClient.reorderPages).toHaveBeenCalledWith([
+      "page-2",
+      "page-1",
+      "page-3",
+      "page-4",
+    ]);
+  }, 10000);
+
+  it("[SPEC:SCRUMCORE-256] abre y cierra organizador como overlay sin desmontar preview", async () => {
+    const scannerClient = createScannerClient([
+      { id: "page-1", index: 0, width: 1700, height: 2200 },
+      { id: "page-2", index: 1, width: 2200, height: 1700 },
+      { id: "page-3", index: 2, width: 856, height: 540 },
+      { id: "page-4", index: 3, width: 420, height: 1200 },
+    ]);
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (4)" })).toBeInTheDocument();
+    });
+
+    const preview = screen.getByRole("region", { name: "Preview digitalizacion" });
+    const mainToolbar = screen.getByRole("toolbar", {
+      name: "Herramientas de digitalizacion",
+    });
+    const previewToolbar = screen.getByRole("toolbar", {
+      name: "Visualizacion preview",
+    });
+
+    expect(preview).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(within(mainToolbar).queryByRole("button", { name: "Organizar paginas" })).toBeNull();
+    const organizerControl = within(previewToolbar).getByRole("button", {
+      name: "Organizar paginas",
+    });
+    expect(organizerControl).toBeInTheDocument();
+
+    fireEvent.click(organizerControl);
+    fireEvent.click(await screen.findByText("2x2"));
+
+    const organizer = screen.getByRole("region", { name: "Organizador de paginas" });
+    const organizerGrid = organizer.querySelector("[data-density]");
+    const organizerCards = Array.from(
+      organizer.querySelectorAll("[data-orientation]"),
+    ) as HTMLElement[];
+    expect(organizer).toBeInTheDocument();
+    expect(organizerGrid).toHaveAttribute("data-density", "density2");
+    expect(organizerGrid).toHaveAttribute("data-columns", "2");
+    expect(organizerCards).toHaveLength(4);
+    expect(organizerCards[0]).toHaveAttribute("data-orientation", "portrait");
+    expect(organizerCards[0].style.getPropertyValue("--page-aspect-ratio")).toBe("1700 / 2200");
+    expect(organizerCards[1]).toHaveAttribute("data-orientation", "landscape");
+    expect(organizerCards[1].style.getPropertyValue("--page-aspect-ratio")).toBe("2200 / 1700");
+    expect(organizerCards[2]).toHaveAttribute("data-orientation", "landscape");
+    expect(organizerCards[2].style.getPropertyValue("--page-aspect-ratio")).toBe("856 / 540");
+    expect(organizerCards[3]).toHaveAttribute("data-orientation", "portrait");
+    expect(organizerCards[3].style.getPropertyValue("--page-aspect-ratio")).toBe("420 / 1200");
+    expect(preview).toContainElement(organizer);
+    expect(screen.getByRole("heading", { name: "Miniaturas (4)" })).toBeInTheDocument();
+    expect(within(preview).getByText("PDF pendiente")).toBeInTheDocument();
+    expect(scannerClient.initialize).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(organizerControl);
+    fireEvent.click(await screen.findByText("3x3"));
+    expect(organizerGrid).toHaveAttribute("data-density", "density3");
+    expect(organizerGrid).toHaveAttribute("data-columns", "3");
+
+    fireEvent.click(organizerControl);
+    fireEvent.click(await screen.findByText("4x4"));
+    expect(organizerGrid).toHaveAttribute("data-density", "density4");
+    expect(organizerGrid).toHaveAttribute("data-columns", "4");
+
+    fireEvent.click(organizerControl);
+    fireEvent.click(await screen.findByText("5x5"));
+    expect(organizerGrid).toHaveAttribute("data-density", "density5");
+    expect(organizerGrid).toHaveAttribute("data-columns", "5");
+
+    fireEvent.click(organizerControl);
+    fireEvent.click(await screen.findByText("6x6"));
+    expect(organizerGrid).toHaveAttribute("data-density", "density6");
+    expect(organizerGrid).toHaveAttribute("data-columns", "6");
+
+    fireEvent.click(organizerControl);
+    fireEvent.click(await screen.findByText("Auto"));
+
+    expect(organizerGrid).toHaveAttribute("data-density", "densityAuto");
+    expect(organizerGrid).toHaveAttribute("data-columns", "2");
+
+    fireEvent.click(within(organizer).getByRole("button", { name: "Cerrar organizacion" }));
+
+    expect(screen.queryByRole("region", { name: "Organizador de paginas" })).toBeNull();
+    expect(screen.getByRole("region", { name: "Preview digitalizacion" })).toBeInTheDocument();
+    expect(scannerClient.initialize).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(organizerControl);
+    fireEvent.click(await screen.findByText("Auto"));
+    const reopenedOrganizer = screen.getByRole("region", { name: "Organizador de paginas" });
+    expect(reopenedOrganizer.querySelector("[data-density]")).toHaveAttribute(
+      "data-density",
+      "densityAuto",
+    );
+  }, 10000);
+
+  it("[SPEC:SCRUMCORE-256] organiza paginas con seleccion multiple y drag and drop", async () => {
+    const scannerClient = createScannerClient([
+      { id: "page-1", index: 0 },
+      { id: "page-2", index: 1 },
+      { id: "page-3", index: 2 },
+    ]);
+    const dataTransfer = {
+      effectAllowed: "",
+      dropEffect: "",
+      data: new Map<string, string>(),
+      setData(type: string, value: string) {
+        this.data.set(type, value);
+      },
+      getData(type: string) {
+        return this.data.get(type) ?? "";
+      },
+    };
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (3)" })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Organizar paginas" }));
+    fireEvent.click(await screen.findByText("2x2"));
+    const organizer = screen.getByRole("region", { name: "Organizador de paginas" });
+    fireEvent.click(within(organizer).getByLabelText("Seleccionar pagina 2"));
+    fireEvent.click(within(organizer).getByLabelText("Seleccionar pagina 3"));
+
+    fireEvent.click(
+      within(organizer).getByRole("button", { name: "Rotar derecha seleccionadas" }),
+    );
+
+    expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-2", 90);
+    expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-3", 90);
+
+    const organizerButtons = within(organizer).getAllByRole("button");
+    const pageOne = organizerButtons.find((button) => button.textContent?.includes("Pagina 1"));
+    const pageThree = organizerButtons.find((button) => button.textContent?.includes("Pagina 3"));
+
+    if (!pageOne || !pageThree) {
+      throw new Error("No se encontraron paginas del organizador para reordenamiento.");
+    }
+
+    fireEvent.dragStart(pageOne, { dataTransfer });
+    fireEvent.dragOver(pageThree, { dataTransfer });
+    fireEvent.drop(pageThree, { dataTransfer });
+
+    expect(scannerClient.reorderPages).toHaveBeenCalledWith([
+      "page-2",
+      "page-1",
+      "page-3",
+    ]);
+
+    fireEvent.click(
+      within(organizer).getByRole("button", { name: "Eliminar paginas seleccionadas" }),
+    );
+
+    expect(scannerClient.removePage).toHaveBeenCalledWith("page-2");
+    expect(scannerClient.removePage).toHaveBeenCalledWith("page-3");
+  }, 10000);
+
+  it("[SPEC:SCRUMCORE-256] marca virtualizacion CSS cuando supera 100 paginas", async () => {
+    const pages = Array.from({ length: 101 }, (_item, index) => ({
+      id: `page-${index + 1}`,
+      index,
+    }));
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={createScannerClient(pages)}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (101)" })).toBeInTheDocument();
+    });
+
+    const workspace = screen.getByTestId("digitalizacion-workspace");
+    expect(workspace.querySelector("[data-view-mode]")).toHaveAttribute(
+      "data-virtualized",
+      "true",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Organizar paginas" }));
+    fireEvent.click(await screen.findByText("2x2"));
+    const organizer = screen.getByRole("region", { name: "Organizador de paginas" });
+    expect(organizer.querySelector("[data-virtualized]")).toHaveAttribute(
+      "data-virtualized",
+      "true",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Organizar paginas" }));
+    fireEvent.click(await screen.findByText("Auto"));
+    expect(organizer.querySelector("[data-density]")).toHaveAttribute(
+      "data-density",
+      "densityAuto",
+    );
+    expect(organizer.querySelector("[data-density]")).toHaveAttribute("data-columns", "6");
+  }, 10000);
 });
