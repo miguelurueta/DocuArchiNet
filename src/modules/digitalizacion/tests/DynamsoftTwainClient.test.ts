@@ -63,6 +63,7 @@ const createDwt = (
       state.imageCount = 0;
     }),
     Rotate: vi.fn(() => true),
+    Crop: vi.fn(() => true),
     ConvertToBlob: vi.fn((_indices, _type, onSuccess) => {
       onSuccess(new Blob(["pdf"], { type: "application/pdf" }));
     }),
@@ -339,6 +340,45 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
     expect(dwt.Deskew).toHaveBeenCalledWith(1);
     expect(dwt.GetImageURL).toHaveBeenCalledWith(0, 160, 220);
     expect(dwt.GetImageURL).toHaveBeenCalledWith(1, 160, 220);
+  });
+
+  it("[SPEC:SCRUMCORE-257] crops one page using real page coordinates", async () => {
+    const dwt = createDwt();
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    await client.selectDevice("0");
+    const pages = await client.scan({ deviceId: "0" });
+    const croppedPages = await client.cropPage(pages[0].id, {
+      x: 120.4,
+      y: 240.6,
+      width: 500.2,
+      height: 700.1,
+    });
+
+    expect(dwt.Crop).toHaveBeenCalledWith(0, 120, 240, 621, 941);
+    expect(croppedPages).toHaveLength(2);
+    expect(croppedPages[0].id).toBe(pages[0].id);
+    expect(dwt.RemoveImage).not.toHaveBeenCalled();
+    expect(dwt.ConvertToBlob).not.toHaveBeenCalled();
+  });
+
+  it("[SPEC:SCRUMCORE-257] crops the original buffer page after reorder", async () => {
+    const dwt = createDwt();
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    await client.selectDevice("0");
+    const pages = await client.scan({ deviceId: "0" });
+    await client.reorderPages([pages[1].id, pages[0].id]);
+    await client.cropPage(pages[1].id, {
+      x: 10,
+      y: 20,
+      width: 30,
+      height: 40,
+    });
+
+    expect(dwt.Crop).toHaveBeenCalledWith(1, 10, 20, 40, 60);
   });
 
   it("analyzes the original image for blank-page removal and keeps valid low-contrast pages", async () => {

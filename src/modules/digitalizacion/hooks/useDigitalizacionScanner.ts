@@ -6,6 +6,7 @@ import {
 import type {
   DigitalizacionScannerClient,
   PdfGenerationResult,
+  PageCropSelection,
   ScanOptions,
   ScanPage,
   ScannerDevice,
@@ -42,6 +43,7 @@ const getMetricStart = () => performance.now();
 const logDevelopmentMetric = (
   label:
     | "SCAN_SELECTION_TIME"
+    | "CROP_TIME"
     | "ROTATE_TIME"
     | "DELETE_TIME"
     | "REORDER_TIME"
@@ -249,6 +251,27 @@ export const useDigitalizacionScanner = ({
     [client, handleError, updateIfCurrent],
   );
 
+  const cropPage = useCallback(
+    async (pageId: string, selection: PageCropSelection) => {
+      const generation = generationRef.current;
+      const startedAt = getMetricStart();
+      try {
+        const pages = await client.cropPage(pageId, selection);
+        updateIfCurrent(generation, (current) => ({
+          ...current,
+          pages,
+          pdf: null,
+          error: null,
+        }));
+        logDevelopmentMetric("CROP_TIME", startedAt, { status: "success" });
+      } catch (error) {
+        logDevelopmentMetric("CROP_TIME", startedAt, { status: "error" });
+        handleError(generation, error, "No fue posible recortar la pagina.");
+      }
+    },
+    [client, handleError, updateIfCurrent],
+  );
+
   const clear = useCallback(async () => {
     const generation = generationRef.current;
     try {
@@ -331,6 +354,7 @@ export const useDigitalizacionScanner = ({
     removePage,
     reorderPages,
     rotatePage,
+    cropPage,
     clear,
     generatePdf,
     dispose,

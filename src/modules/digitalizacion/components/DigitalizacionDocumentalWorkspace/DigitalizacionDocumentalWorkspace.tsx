@@ -6,6 +6,7 @@ import {
   useState,
   type CSSProperties,
   type DragEvent,
+  type PointerEvent,
 } from "react";
 import {
   BorderOutlined,
@@ -23,7 +24,9 @@ import {
   RotateRightOutlined,
   ScanOutlined,
   SearchOutlined,
+  SelectOutlined,
   SettingOutlined,
+  ScissorOutlined,
   ZoomInOutlined,
   ZoomOutOutlined,
 } from "@ant-design/icons";
@@ -38,7 +41,11 @@ import type {
   DigitalizacionFunctionalError,
   DigitalizacionResult,
 } from "../../types/digitalizacion.types";
-import { DYNAMSOFT_CONTAINER_ID, type ScanPage } from "../../infrastructure/dynamsoft";
+import {
+  DYNAMSOFT_CONTAINER_ID,
+  type PageCropSelection,
+  type ScanPage,
+} from "../../infrastructure/dynamsoft";
 import { unavailableScannerClient } from "./digitalizacionWorkspace.helpers";
 import styles from "./DigitalizacionDocumentalWorkspace.module.css";
 
@@ -52,6 +59,15 @@ type PageOrganizerDensity =
   | "density4"
   | "density5"
   | "density6";
+type CropDraft = {
+  pageId: string;
+  start: { x: number; y: number };
+  current: { x: number; y: number };
+};
+type CropSelectionState = {
+  pageId: string;
+  selection: PageCropSelection;
+};
 
 const MIN_PREVIEW_ZOOM = 50;
 const MAX_PREVIEW_ZOOM = 200;
@@ -194,6 +210,30 @@ const getPageAspectRatioStyle = (page: ScanPage): CSSProperties | undefined => {
 const clampNumber = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
+const normalizeCropSelection = (draft: CropDraft): PageCropSelection => {
+  const x = Math.min(draft.start.x, draft.current.x);
+  const y = Math.min(draft.start.y, draft.current.y);
+  const width = Math.abs(draft.current.x - draft.start.x);
+  const height = Math.abs(draft.current.y - draft.start.y);
+
+  return { x, y, width, height };
+};
+
+const getCropSelectionStyle = (
+  selection: PageCropSelection,
+  page: ScanPage,
+): CSSProperties => {
+  const width = page.width || selection.x + selection.width;
+  const height = page.height || selection.y + selection.height;
+
+  return {
+    insetBlockStart: `${(selection.y / height) * 100}%`,
+    insetInlineStart: `${(selection.x / width) * 100}%`,
+    blockSize: `${(selection.height / height) * 100}%`,
+    inlineSize: `${(selection.width / width) * 100}%`,
+  };
+};
+
 const resolvePageOrganizerColumns = ({
   density,
   pageCount,
@@ -245,6 +285,9 @@ export function DigitalizacionDocumentalWorkspace({
   const [previewFitMode, setPreviewFitMode] = useState<PreviewFitMode>("fitPage");
   const [previewExpanded, setPreviewExpanded] = useState(false);
   const [showPageOrganizer, setShowPageOrganizer] = useState(false);
+  const [areaSelectionEnabled, setAreaSelectionEnabled] = useState(false);
+  const [cropDraft, setCropDraft] = useState<CropDraft | null>(null);
+  const [cropSelection, setCropSelection] = useState<CropSelectionState | null>(null);
   const [pageJumpValue, setPageJumpValue] = useState("");
   const [highlightedPageId, setHighlightedPageId] = useState<string | null>(null);
   const thumbnailViewMode: ThumbnailViewMode = "grid1";
@@ -261,6 +304,7 @@ export function DigitalizacionDocumentalWorkspace({
     readPanelPreferences,
   );
   const previewPanelRef = useRef<HTMLElement | null>(null);
+  const previewImageRef = useRef<HTMLImageElement | null>(null);
   const pageJumpInputRef = useRef<HTMLInputElement | null>(null);
   const pageOrganizerGridRef = useRef<HTMLDivElement | null>(null);
   const thumbnailButtonRefs = useRef(new Map<string, HTMLButtonElement>());
@@ -283,6 +327,7 @@ export function DigitalizacionDocumentalWorkspace({
     clear: clearScanner,
     scan,
     rotatePage,
+    cropPage,
     removePage,
     reorderPages,
     generatePdf,
@@ -328,6 +373,8 @@ export function DigitalizacionDocumentalWorkspace({
       : scanner.pdf
         ? "PDF listo"
         : "Pendiente captura PDF");
+  const selectedPage =
+    scanner.pages.find((page) => page.id === selectedPageId) ?? scanner.pages[0] ?? null;
 
   useEffect(() => {
     if (active) {
@@ -582,6 +629,127 @@ export function DigitalizacionDocumentalWorkspace({
     setShowPageOrganizer(false);
   }, []);
 
+  const getCropPointFromEvent = useCallback(
+    (event: PointerEvent<HTMLElement>, page: ScanPage) => {
+      const image = previewImageRef.current;
+      if (!image) {
+        return null;
+      }
+
+      const rect = image.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) {
+        return null;
+      }
+
+      const pageWidth = page.width || rect.width;
+      const pageHeight = page.height || rect.height;
+      const x = clampNumber(
+        ((event.clientX - rect.left) / rect.width) * pageWidth,
+        0,
+        pageWidth,
+      );
+      const y = clampNumber(
+        ((event.clientY - rect.top) / rect.height) * pageHeight,
+        0,
+        pageHeight,
+      );
+
+      return { x, y };
+    },
+    [],
+  );
+
+  const handleAreaSelectionPointerDown = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      if (!areaSelectionEnabled || !selectedPage || showPageOrganizer) {
+        return;
+      }
+
+      const point = getCropPointFromEvent(event, selectedPage);
+      if (!point) {
+        return;
+      }
+
+      event.preventDefault();
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+      setCropSelection(null);
+      setCropDraft({
+        pageId: selectedPage.id,
+        start: point,
+        current: point,
+      });
+    },
+    [areaSelectionEnabled, getCropPointFromEvent, selectedPage, showPageOrganizer],
+  );
+
+  const handleAreaSelectionPointerMove = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      if (!cropDraft || !selectedPage || cropDraft.pageId !== selectedPage.id) {
+        return;
+      }
+
+      const point = getCropPointFromEvent(event, selectedPage);
+      if (!point) {
+        return;
+      }
+
+      event.preventDefault();
+      setCropDraft((current) =>
+        current && current.pageId === selectedPage.id ? { ...current, current: point } : current,
+      );
+    },
+    [cropDraft, getCropPointFromEvent, selectedPage],
+  );
+
+  const handleAreaSelectionPointerUp = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      if (!cropDraft || !selectedPage || cropDraft.pageId !== selectedPage.id) {
+        return;
+      }
+
+      event.currentTarget.releasePointerCapture?.(event.pointerId);
+      const point = getCropPointFromEvent(event, selectedPage);
+      const selection = normalizeCropSelection({
+        ...cropDraft,
+        current: point ?? cropDraft.current,
+      });
+      setCropDraft(null);
+      if (selection.width < 2 || selection.height < 2) {
+        setCropSelection(null);
+        return;
+      }
+
+      setCropSelection({ pageId: selectedPage.id, selection });
+    },
+    [cropDraft, getCropPointFromEvent, selectedPage],
+  );
+
+  const handleResetCropSelection = useCallback(() => {
+    setCropDraft(null);
+    setCropSelection(null);
+  }, []);
+
+  const handleCancelCropSelection = useCallback(() => {
+    setAreaSelectionEnabled(false);
+    setCropDraft(null);
+    setCropSelection(null);
+  }, []);
+
+  const handleApplyCropSelection = useCallback(() => {
+    if (!selectedPage || !cropSelection) {
+      return;
+    }
+
+    if (cropSelection.pageId !== selectedPage.id) {
+      return;
+    }
+
+    void cropPage(selectedPage.id, cropSelection.selection).then(() => {
+      setCropDraft(null);
+      setCropSelection(null);
+    });
+  }, [cropPage, cropSelection, selectedPage]);
+
   useEffect(() => {
     if (!showPageOrganizer || typeof window === "undefined") {
       return undefined;
@@ -708,8 +876,14 @@ export function DigitalizacionDocumentalWorkspace({
     ],
     [activeContext],
   );
-  const selectedPage =
-    scanner.pages.find((page) => page.id === selectedPageId) ?? scanner.pages[0] ?? null;
+  const selectedCropSelection =
+    selectedPage && cropSelection?.pageId === selectedPage.id ? cropSelection.selection : null;
+  const activeCropSelection =
+    selectedPage && cropDraft?.pageId === selectedPage.id
+      ? normalizeCropSelection(cropDraft)
+      : selectedCropSelection
+        ? selectedCropSelection
+        : null;
   const thumbnailsCollapsed = !panelPreferences.showThumbnails;
   const configurationCollapsed = !panelPreferences.showConfiguration;
   const thumbnailsVirtualized = scanner.pages.length > THUMBNAIL_VIRTUALIZATION_THRESHOLD;
@@ -739,6 +913,9 @@ export function DigitalizacionDocumentalWorkspace({
     label: mode.label,
     onSelect: () => {
       setPageOrganizerDensity(mode.value);
+      setAreaSelectionEnabled(false);
+      setCropDraft(null);
+      setCropSelection(null);
       setShowPageOrganizer(true);
     },
   }));
@@ -764,6 +941,12 @@ export function DigitalizacionDocumentalWorkspace({
     previewFitMode === "custom"
       ? ({ "--preview-zoom": `${previewZoom}%` } as CSSProperties)
       : undefined;
+  const previewSurfaceClassName = [
+    styles.previewPageSurface,
+    areaSelectionEnabled ? styles.previewPageSurfaceSelecting : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   if (!active) {
     return null;
@@ -937,6 +1120,20 @@ export function DigitalizacionDocumentalWorkspace({
                   </AppButton>
                 }
               />
+              <AppButton
+                variant={areaSelectionEnabled ? "secondary" : "ghost"}
+                size="sm"
+                icon={<SelectOutlined />}
+                aria-label="Seleccionar area"
+                aria-pressed={areaSelectionEnabled}
+                tooltip="Seleccionar area"
+                onClick={() => {
+                  setAreaSelectionEnabled((current) => !current);
+                  setCropDraft(null);
+                  setCropSelection(null);
+                }}
+                disabled={!selectedPage || showPageOrganizer}
+              />
               <label className={styles.pageJumpField}>
                 <span>Pagina</span>
                 <input
@@ -1052,12 +1249,65 @@ export function DigitalizacionDocumentalWorkspace({
               <>
                 <div className={previewViewportClassName}>
                   {selectedPage.imageUrl ? (
-                    <img
-                      className={styles.previewImage}
-                      src={selectedPage.imageUrl}
-                      alt={getPageLabel(selectedPage)}
+                    <div
+                      className={previewSurfaceClassName}
                       style={previewImageStyle}
-                    />
+                      onPointerDown={handleAreaSelectionPointerDown}
+                      onPointerMove={handleAreaSelectionPointerMove}
+                      onPointerUp={handleAreaSelectionPointerUp}
+                      onPointerCancel={handleAreaSelectionPointerUp}
+                    >
+                      <img
+                        ref={previewImageRef}
+                        className={styles.previewImage}
+                        src={selectedPage.imageUrl}
+                        alt={getPageLabel(selectedPage)}
+                        draggable={false}
+                      />
+                      {activeCropSelection ? (
+                        <div
+                          className={styles.cropSelectionRect}
+                          aria-label="Area seleccionada"
+                          style={getCropSelectionStyle(activeCropSelection, selectedPage)}
+                        />
+                      ) : null}
+                      {selectedCropSelection ? (
+                        <div
+                          className={styles.cropActions}
+                          role="toolbar"
+                          aria-label="Acciones de seleccion"
+                          onClick={(event) => event.stopPropagation()}
+                          onPointerDown={(event) => event.stopPropagation()}
+                          onPointerMove={(event) => event.stopPropagation()}
+                          onPointerUp={(event) => event.stopPropagation()}
+                        >
+                          <AppButton
+                            variant="secondary"
+                            size="sm"
+                            icon={<ScissorOutlined />}
+                            aria-label="Recortar seleccion"
+                            tooltip="Recortar"
+                            onClick={handleApplyCropSelection}
+                          />
+                          <AppButton
+                            variant="ghost"
+                            size="sm"
+                            icon={<ClearOutlined />}
+                            aria-label="Reiniciar seleccion"
+                            tooltip="Reiniciar seleccion"
+                            onClick={handleResetCropSelection}
+                          />
+                          <AppButton
+                            variant="ghost"
+                            size="sm"
+                            icon={<CloseOutlined />}
+                            aria-label="Cancelar seleccion"
+                            tooltip="Cancelar"
+                            onClick={handleCancelCropSelection}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
                   ) : (
                     <span className={styles.previewPage}>{selectedPage.index + 1}</span>
                   )}
