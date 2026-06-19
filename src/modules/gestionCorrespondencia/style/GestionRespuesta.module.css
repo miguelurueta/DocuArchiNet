@@ -23,10 +23,401 @@
 }
 
 .layoutBody {
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.workbenchAssistantLayer {
+  position: fixed;
+  right: clamp(1rem, 2.4vw, 2rem);
+  bottom: clamp(1rem, 2.4vw, 1.75rem);
+  z-index: 340;
+  display: grid;
+  justify-items: end;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.assistantFab {
+  position: relative;
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.38rem;
+  min-width: 72px;
+  height: 38px;
+  padding: 0 0.72rem;
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
+  box-shadow:
+    0 10px 24px rgba(22, 119, 255, 0.22),
+    0 2px 8px rgba(8, 51, 120, 0.16);
+  cursor: pointer;
+  overflow: visible;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+  animation:
+    assistantFabIn 220ms ease-out,
+    assistantFabAttention 4200ms ease-in-out 900ms infinite;
+}
+
+.assistantFab::before {
+  position: absolute;
+  inset: -6px;
+  z-index: -1;
+  content: "";
+  border-radius: inherit;
+  border: 1px solid rgba(22, 119, 255, 0.26);
+  opacity: 0;
+  animation: assistantFabRing 4200ms ease-out 900ms infinite;
+}
+
+.assistantFab:hover,
+.assistantFab:focus-visible {
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #2f86ff 0%, #0b63f6 100%);
+  box-shadow:
+    0 13px 28px rgba(22, 119, 255, 0.28),
+    0 4px 12px rgba(8, 51, 120, 0.18);
+  outline: none;
+}
+
+.assistantFab[data-open="true"] {
+  min-width: 38px;
+  padding: 0;
+  animation: assistantFabSelected 220ms ease-out;
+}
+
+.assistantFab[data-open="true"]::before {
+  animation: none;
+}
+
+.assistantFab[data-open="true"] .assistantFabLabel {
+  display: none;
+}
+
+.assistantPanel {
+  pointer-events: auto;
+  width: clamp(276px, 28vw, 342px);
+  max-height: min(530px, 70dvh);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  color: #203040;
+  border: 1px solid rgba(42, 105, 190, 0.16);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow:
+    0 20px 46px rgba(18, 38, 72, 0.18),
+    0 8px 20px rgba(18, 38, 72, 0.1);
+  transform-origin: calc(100% - 1.25rem) calc(100% + 2.35rem);
+  animation: assistantPanelOpenFromFab 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.assistantPanel[data-closing="true"] {
+  pointer-events: none;
+  animation: assistantPanelCloseToFab 170ms cubic-bezier(0.4, 0, 0.9, 0.35) forwards;
+}
+
+.assistantHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 46px;
+  padding: 0 0.75rem 0 1rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%);
+}
+
+.assistantTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.assistantCloseButton {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.assistantCloseButton:hover,
+.assistantCloseButton:focus-visible {
+  background: rgba(255, 255, 255, 0.24);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.assistantMessages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 180px;
+  padding: 0.85rem;
+  overflow-y: auto;
+  background: #f5f8fc;
+}
+
+.assistantMessage {
+  max-width: 84%;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(21, 39, 65, 0.06);
+  animation: assistantMessageIn 180ms ease-out;
+}
+
+.assistantMessage[data-role="assistant"] {
+  align-self: flex-start;
+  color: #24364a;
+  border-bottom-left-radius: 5px;
+  background: #ffffff;
+}
+
+.assistantMessage[data-role="user"] {
+  align-self: flex-end;
+  color: #ffffff;
+  border-bottom-right-radius: 5px;
+  background: #1677ff;
+}
+
+.assistantComposer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem;
+  border-top: 1px solid #e2eaf4;
+  background: #ffffff;
+}
+
+.assistantInputShell {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: block;
+}
+
+.assistantInput {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  padding: 0 2.15rem 0 0.75rem;
+  color: #26384a;
+  font-size: 0.86rem;
+  line-height: 1.25;
+  border: 1px solid #cfdbea;
+  border-radius: 999px;
+  background: #ffffff;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.assistantClearButton {
+  position: absolute;
+  top: 50%;
+  right: 0.38rem;
+  width: 1.55rem;
+  height: 1.55rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #66788c;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    opacity 160ms ease;
+}
+
+.assistantClearButton:hover,
+.assistantClearButton:focus-visible {
+  color: #26384a;
+  background: #eef3f8;
+  outline: none;
+}
+
+.assistantInput:placeholder-shown + .assistantClearButton {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.assistantInput:focus {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.14);
+}
+
+.assistantSendButton {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  border: 0;
+  border-radius: 999px;
+  background: #1677ff;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    transform 160ms ease,
+    opacity 160ms ease;
+}
+
+.assistantSendButton:hover:not(:disabled),
+.assistantSendButton:focus-visible:not(:disabled) {
+  transform: translateY(-1px);
+  background: #0958d9;
+  outline: none;
+}
+
+.assistantSendButton:active:not(:disabled) {
+  animation: assistantSendPulse 180ms ease-out;
+}
+
+.assistantSendButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@keyframes assistantFabIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes assistantFabRing {
+  0% {
+    opacity: 0.22;
+    transform: scale(0.94);
+  }
+
+  42% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes assistantFabAttention {
+  0%,
+  78%,
+  100% {
+    filter: brightness(1);
+  }
+
+  86% {
+    filter: brightness(1.08);
+  }
+}
+
+@keyframes assistantPanelOpenFromFab {
+  from {
+    opacity: 0;
+    clip-path: inset(92% 0 0 92% round 999px);
+    transform: translate(0.32rem, 0.82rem) scale(0.18);
+  }
+
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0 round 14px);
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes assistantPanelCloseToFab {
+  from {
+    opacity: 1;
+    clip-path: inset(0 0 0 0 round 14px);
+    transform: translate(0, 0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    clip-path: inset(92% 0 0 92% round 999px);
+    transform: translate(0.32rem, 0.82rem) scale(0.18);
+  }
+}
+
+@keyframes assistantFabSelected {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+
+  55% {
+    transform: translateY(-1px) scale(1.04);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes assistantMessageIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes assistantSendPulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.92);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .tabs :global(.ant-tabs-nav) {
@@ -230,6 +621,30 @@
 }
 
 @media (max-width: 768px) {
+  .workbenchAssistantLayer {
+    right: 0.875rem;
+    bottom: 0.875rem;
+    gap: 0.625rem;
+  }
+
+  .assistantPanel {
+    width: min(330px, calc(100vw - 1.75rem));
+    max-height: min(480px, 64dvh);
+    border-radius: 16px;
+  }
+
+  .assistantMessages {
+    min-height: 150px;
+    padding: 0.75rem;
+  }
+
+  .assistantFab {
+    min-width: 68px;
+    height: 38px;
+    padding: 0 0.68rem;
+    font-size: 0.8rem;
+  }
+
   .tabs :global(.ant-tabs-extra-content) {
     padding-inline-start: 0.375rem;
   }

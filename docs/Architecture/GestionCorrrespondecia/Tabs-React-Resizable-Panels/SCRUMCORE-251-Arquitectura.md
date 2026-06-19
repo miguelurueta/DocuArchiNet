@@ -18,6 +18,9 @@ flowchart TD
   E --> G[AppToolbar]
   E --> H[AppEditor]
   E --> I[AppUpload]
+  C --> L[Asistente IA flotante]
+  L --> M[Panel chat local]
+  H --> N[Indicador palabras/caracteres]
   F --> J[AppVisorEmbedPdf]
   F --> K[AppCollapseRail / lista documentos]
 ```
@@ -91,6 +94,56 @@ Justificacion:
 - El usuario necesita ver `Radicado`, `Remitente` y `Tramite` en mobile sin perder contexto.
 - En pantallas estrechas se prioriza alineacion a la derecha y wrapping antes que truncamiento irreversible.
 
+### ADR-251-05: Asistente IA flotante como capa UI local del Workbench
+
+Se agrego una capa flotante persistente dentro de `GestionRespuesta` para exponer un boton de IA y un panel tipo chat sobre los tabs `Gestion` y `Documentos`.
+
+Decision:
+
+- Implementar el asistente como UI local del workbench, sin extension de navegador, dependencia externa ni backend.
+- Montarlo dentro de `GestionRespuesta` para que comparta el mismo ciclo visual de los tabs y de la vista paralela.
+- Usar `position: fixed` para garantizar persistencia al navegar entre tabs y al hacer scroll interno.
+- Mantener `pointer-events: none` en la capa y `pointer-events: auto` en el boton/panel para no bloquear el editor ni el visor.
+- Usar iconografia existente de Ant Design (`RobotOutlined`, `CloseOutlined`, `SendOutlined`) sin SVG manual.
+- Mantener el chat como shell conversacional local: renderiza mensajes de usuario y una respuesta placeholder. No invoca servicios ni IA real.
+
+Justificacion:
+
+- El usuario pidio un boton flotante azul, persistente, visible en ambos tabs, con apertura tipo chat.
+- No era necesaria una extension para resolver la capa visual. La integracion con IA real queda como evolucion posterior mediante endpoint/API conversacional.
+- La solucion evita acoplar `AppEditor`, `DocumentosWorkbench` o `AppTabs` a responsabilidades de asistencia conversacional.
+
+Detalles de interaccion:
+
+- El boton muestra `IA` con icono de robot cuando el chat esta cerrado.
+- Al abrir el chat, el boton conserva el espacio flotante y muestra `CloseOutlined` como accion de cierre.
+- La animacion del panel usa expansion desde el origen inferior derecho, simulando que el panel sale del FAB.
+- El cierre conserva el panel montado brevemente mediante estado `isAssistantClosing` para animar el retorno hacia el boton antes de desmontar.
+- El boton mantiene una senal de atencion sobria con halo discreto y brillo muy leve, sin rebotes exagerados.
+- El panel usa una anchura compacta enterprise: `clamp(276px, 28vw, 342px)` y mobile `min(330px, calc(100vw - 1.75rem))`.
+
+Detalles de foco y teclado:
+
+- El input del chat es un `input` normal de una linea, no `textarea`, por requerimiento final del usuario.
+- El input no es controlado por React; usa `useRef<HTMLInputElement | null>` para evitar re-render del workbench en cada caracter.
+- El envio se dispara con `Enter` desde `onKeyDownCapture` del panel cuando el target es el input.
+- Los eventos de teclado, keyup y pointer se detienen en captura dentro del panel para que `AppEditor` no recupere foco ni intercepte atajos.
+- Al enviar, se lee `assistantInputRef.current.value`, se agrega el mensaje, se limpia el input y se devuelve el foco al mismo control.
+- El boton interno de limpiar (`CloseOutlined`) borra el valor sin convertir el input en controlado.
+
+Impacto sobre AppEditor:
+
+- Se movio el indicador flotante de palabras/caracteres de `AppEditor` desde `right: 1rem` a `right: 8rem`.
+- Motivo: evitar solapamiento visual con el FAB de IA en la zona inferior derecha.
+- No se cambia la logica de conteo, calculo de paginas, seleccion, toolbar ni contenido editable de `AppEditor`.
+
+Restricciones de alcance:
+
+- No se agrego backend.
+- No se agrego streaming, historial persistente, autenticacion, contexto documental ni consumo de modelos IA.
+- No se modificaron contratos de `GestionRespuestaDocumentosProvider`, `DocumentosWorkbench`, `AppUpload`, `AppTabs` ni `AppEditor`.
+- El mensaje automatico actual es placeholder local y debe reemplazarse por integracion real en un ticket posterior.
+
 ## Breakpoints documentados
 
 ### Mobile general
@@ -146,6 +199,8 @@ Justificacion:
 5. En el tab Documentos, el contenedor principal y el visor PDF comparten una altura coherente por dispositivo.
 6. En mobile, el rail de documentos permanece disponible como overlay/rail lateral.
 7. La metadata del detalle permanece accesible con tooltip nativo.
+8. El boton flotante `IA` permanece visible en la esquina inferior derecha del workbench.
+9. Al hacer click en `IA`, el chat se expande desde el boton, permite escribir un mensaje, enviarlo con Enter o con el boton enviar, limpiar el texto con una X interna y cerrar el panel con el FAB o el header.
 
 ## Restricciones respetadas
 
@@ -155,6 +210,7 @@ Justificacion:
 - No se agregan dependencias nuevas en este bloque.
 - No se toca la seleccion, firma, exportacion, permisos ni reemplazo de paginas del visor PDF.
 - No se cambia la estructura de servicios de documentos.
+- El asistente IA queda implementado como UI shell local y no como servicio conversacional productivo.
 
 ## Riesgos y mitigaciones
 
@@ -166,3 +222,9 @@ Justificacion:
   - Mitigacion: QA debe validar matriz final en dispositivos/emuladores.
 - Riesgo: cards de upload demasiado compactas en nombres largos.
   - Mitigacion: `title` en nombre, truncamiento controlado y accion de eliminar visible.
+- Riesgo: el input del chat puede competir con listeners del AppEditor.
+  - Mitigacion: input no controlado por ref y aislamiento de eventos en captura dentro del panel.
+- Riesgo: el panel de IA puede solaparse con overlays existentes.
+  - Mitigacion: se compacta anchura, se mantiene z-index acotado al workbench y se mueve el indicador de caracteres del AppEditor.
+- Riesgo: expectativa de IA real.
+  - Mitigacion: la documentacion explicita que es shell local y requiere integracion posterior con API conversacional.

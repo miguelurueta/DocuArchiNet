@@ -91,11 +91,40 @@
 - [x] 7.6 Documentar archivos modificados, decisiones tomadas, riesgos residuales e instrucciones de uso para usuario final.
 - [x] 7.7 Actualizar documentacion enterprise con compactacion de Gestion, AppToolbar density, AppUpload compacto, metadata mobile, DocumentosWorkbench y AppVisorEmbedPdf responsive por dispositivo.
 - [x] 7.8 Actualizar metadata del ticket con evidencia TypeScript, archivos tocados, riesgos residuales y estado de commit.
+- [x] 7.9 Documentar asistente IA flotante, decisiones de arquitectura, implementacion, eventos, foco, animaciones, limitaciones y QA manual.
+- [x] 7.10 Actualizar spec OpenSpec con requisitos del asistente IA y no solapamiento con indicadores del AppEditor.
+- [x] 7.11 Actualizar metadata con archivos tocados por IA, evidencia TypeScript, alcance sin backend y riesgos residuales.
 
-## 8. Publish / cierre tecnico
+## 8. Asistente IA flotante del workbench
 
-- [x] 8.1 Revisar diff final.
-- [x] 8.2 Commit de implementacion.
-- [ ] 8.3 Push de `feature/SCRUMCORE-251`.
-- [ ] 8.4 Crear PR.
-- [ ] 8.5 Actualizar metadata con PR/commits/evidencias.
+- [x] 8.1 Agregar boton flotante azul persistente en `GestionRespuesta`.
+- [x] 8.2 Garantizar que el boton sea visible en tabs `Gestion` y `Documentos`.
+- [x] 8.3 Cambiar label del boton a `IA`.
+- [x] 8.4 Usar `RobotOutlined` para estado cerrado.
+- [x] 8.5 Usar `CloseOutlined` para estado abierto.
+- [x] 8.6 Corregir ocultamiento del label para no ocultar el span interno del icono Ant Design.
+- [x] 8.7 Implementar panel tipo chat local sin backend ni extension.
+- [x] 8.8 Agregar header, log de mensajes, composer, input, limpiar y enviar.
+- [x] 8.9 Agregar respuesta placeholder local para preparar integracion futura.
+- [x] 8.10 Animar apertura del chat desde el boton flotante.
+- [x] 8.11 Animar cierre del chat hacia el boton flotante antes de desmontar.
+- [x] 8.12 Ajustar animacion a estilo enterprise sobrio.
+- [x] 8.13 Reducir ancho del panel de chat en desktop y mobile.
+- [x] 8.14 Cambiar textarea inicial por input normal de una linea.
+- [x] 8.15 Cambiar input controlado por input no controlado via `useRef`.
+- [x] 8.16 Corregir perdida de foco despues del primer caracter escrito.
+- [x] 8.17 Enviar mensaje con Enter cuando el foco esta en el input.
+- [x] 8.18 Mantener foco en el input despues de enviar.
+- [x] 8.19 Agregar X interna para limpiar texto del input.
+- [x] 8.20 Mantener foco despues de limpiar texto.
+- [x] 8.21 Aislar eventos de teclado/pointer del panel para evitar captura por AppEditor.
+- [x] 8.22 Mover `pageStatsIndicator` del AppEditor hacia la izquierda para no chocar con el FAB IA.
+- [x] 8.23 Validar TypeScript despues de los cambios del asistente IA.
+
+## 9. Publish / cierre tecnico
+
+- [x] 9.1 Revisar diff final.
+- [x] 9.2 Commit de implementacion.
+- [ ] 9.3 Push de `feature/SCRUMCORE-251`.
+- [ ] 9.4 Crear PR.
+- [ ] 9.5 Actualizar metadata con PR/commits/evidencias.

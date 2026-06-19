@@ -11,14 +11,18 @@
 - Backend: no modificado
 - Fecha base de ticket: 2026-06-16
 - Actualizacion responsive documentada: 2026-06-19
+- Actualizacion asistente IA documentada: 2026-06-19
 - Autor operativo: Codex, guiado por usuario
 
 ## Estado actual
 
 - Implementacion de vista paralela del workbench realizada previamente en la rama.
 - Ajustes responsive actuales aplicados sobre tabs, toolbar, editor, upload, visor PDF, DocumentosWorkbench y header de detalle.
+- Asistente IA flotante local implementado sobre el workbench en tabs `Gestion` y `Documentos`.
+- Indicador de palabras/caracteres del AppEditor reubicado para evitar solapamiento con el FAB IA.
 - TypeScript verificado con `npx.cmd tsc --noEmit --pretty false`.
-- Commit de este bloque: el commit que contiene esta metadata y los cambios UI descritos en este documento.
+- Commit responsive previo: `0cc874d fix(SCRUMCORE-251): polish responsive workbench UI`.
+- Commit asistente IA: commit actual con mensaje `feat(SCRUMCORE-251): add workbench AI assistant`.
 - Push/PR: no ejecutados en este bloque.
 
 ## Commits previos relevantes
@@ -35,6 +39,8 @@
 - `70ad45b fix(SCRUMCORE-251): refine document overlay breakpoints`
 - `6f4111c fix(SCRUMCORE-251): support nest hub document overlay`
 - `9d78901 fix(SCRUMCORE-251): compact mobile editor actions`
+- `0cc874d fix(SCRUMCORE-251): polish responsive workbench UI`
+- `feat(SCRUMCORE-251): add workbench AI assistant` (commit actual; hash verificable con `git log`)
 
 ## Archivos de codigo modificados en este bloque
 
@@ -51,6 +57,9 @@
 - `src/modules/gestionCorrespondencia/components/gestionRespuestaMainTab/GestionRespuestaMainTabContent.module.css`
 - `src/modules/gestionCorrespondencia/routes/GestionCorrespondenciaRoute.tsx`
 - `src/modules/gestionCorrespondencia/style/GestionCorrespondenciaRoute.module.css`
+- `src/modules/gestionCorrespondencia/pages/GestionRespuesta.tsx`
+- `src/modules/gestionCorrespondencia/style/GestionRespuesta.module.css`
+- `src/app/Components/UI/AppEditor/AppEditor.module.css`
 
 ## Documentacion enterprise actualizada
 
@@ -99,6 +108,35 @@
    - El panel de Documentos tiene reglas responsive scoped mediante `:has([data-testid="documentos-workbench"])`.
    - El override de iPad Mini se ubico al final para evitar que el bloque mobile general lo pise.
 
+7. Asistente IA flotante
+   - Se agrego una capa flotante persistente dentro de `GestionRespuesta`.
+   - El boton FAB se ubica abajo a la derecha y queda visible en ambos tabs.
+   - El boton muestra `IA` con `RobotOutlined` cuando esta cerrado.
+   - El boton muestra `CloseOutlined` cuando el chat esta abierto.
+   - El label `IA` usa `assistantFabLabel` para poder ocultarlo sin ocultar el span interno del icono de Ant Design.
+   - El panel se abre como chat compacto enterprise.
+   - La animacion de apertura simula expansion desde el boton.
+   - La animacion de cierre simula retorno hacia el boton antes de desmontar.
+   - Se agrego `isAssistantClosing` para permitir animacion de salida.
+   - Se agrego `assistantMessages` como historial local en memoria.
+   - Se agrego respuesta placeholder local para preparar futura integracion conversacional.
+   - No se invoca backend ni servicio IA real.
+
+8. Input del asistente
+   - El input final es `input type="text"` normal, no `textarea`.
+   - Se usa `assistantInputRef` como input no controlado para evitar re-render por caracter.
+   - Se corrigio perdida de foco despues del primer caracter.
+   - `Enter` envia el mensaje desde `handleAssistantKeyDownCapture`.
+   - El panel detiene propagacion de teclado/pointer para que el AppEditor no intercepte foco.
+   - Se agrego X interna para limpiar texto.
+   - La X interna limpia el valor y conserva foco.
+   - El boton enviar usa `SendOutlined`.
+
+9. AppEditor overlay
+   - `pageStatsIndicator` se movio de `right: 1rem` a `right: 8rem`.
+   - Motivo: evitar solapamiento con el FAB de IA.
+   - No cambia conteo de palabras/caracteres ni paginacion visual.
+
 ## Evidencia tecnica
 
 - TypeScript:
@@ -110,6 +148,16 @@
 - Diff check:
   - Comando: `git diff --check`
   - Resultado: sin errores de whitespace; Git aviso conversion LF/CRLF por configuracion local.
+- Validacion asistente IA:
+  - Comando: `npx.cmd tsc --noEmit --pretty false`
+  - Resultado: OK despues de agregar `RobotOutlined`, chat local, input no controlado, X interna, animaciones y reubicacion de `pageStatsIndicator`.
+- OpenSpec:
+  - Comando: `npx.cmd openspec validate scrumcore-251-tabs-workbench-gestion-correspondencia --strict`
+  - Resultado: OK, cambio valido.
+  - Nota: la CLI reporto `PostHogFetchNetworkError` por red restringida al enviar telemetria, sin afectar la validacion.
+- Whitespace:
+  - Comando: `git diff --check`
+  - Resultado: OK, sin errores de whitespace; avisos LF/CRLF por configuracion local.
 - Tests agregados/modificados:
   - `AppUpload.test.tsx`: caso de archivo visible con estrategia `auto`.
   - `AppToolbar.test.tsx`: assertion para que desktop no se marque como compacto.
@@ -120,3 +168,5 @@
 - Las reglas `:has()` requieren soporte moderno del navegador; el proyecto ya usa navegadores modernos y el selector queda scoped a UI interna.
 - El uso de breakpoints por dispositivo es intencional por requerimiento visual, pero debe revisarse si se incorpora una estrategia fluida posterior.
 - No se ejecuto build completo en este bloque; la evidencia primaria es TypeScript.
+- No se agregaron pruebas automatizadas especificas del asistente IA en este bloque; queda cubierto por TypeScript y requiere QA visual/manual.
+- El asistente IA es shell visual local; requiere ticket posterior para integracion real con API conversacional, seguridad, auditoria, persistencia y contexto de tramite.

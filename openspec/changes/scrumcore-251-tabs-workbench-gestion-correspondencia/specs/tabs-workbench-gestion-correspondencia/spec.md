@@ -96,3 +96,58 @@ El sistema SHALL documentar la implementacion de SCRUMCORE-251 en la ruta enterp
 - **THEN** existen documentos en `docs/Architecture/GestionCorrrespondecia/Tabs-React-Resizable-Panels/`
 - **AND** incluyen arquitectura, implementacion detallada, pruebas y metadata
 - **AND** registran riesgos residuales, pruebas ejecutadas, commits y PR
+
+### Requirement: Asistente IA flotante del workbench
+El sistema SHALL exponer un boton flotante de IA persistente en el workbench de Gestion Correspondencia sin requerir extension de navegador.
+
+#### Scenario: Boton visible en ambos tabs
+- **GIVEN** el usuario visualiza `GestionRespuesta`
+- **WHEN** esta en el tab `Gestion` o en el tab `Documentos`
+- **THEN** el sistema muestra un boton flotante azul abajo a la derecha
+- **AND** el boton muestra icono de robot y texto `IA` cuando el chat esta cerrado
+- **AND** el boton no bloquea la navegacion del workbench ni los controles del tab activo
+
+#### Scenario: Apertura y cierre del chat
+- **GIVEN** el boton flotante de IA esta visible
+- **WHEN** el usuario hace click en el boton
+- **THEN** el sistema abre un panel tipo chat
+- **AND** la apertura se anima desde el boton flotante
+- **AND** el boton muestra una X visible mientras el chat esta abierto
+- **WHEN** el usuario cierra el chat desde el boton flotante o desde el header
+- **THEN** el panel se anima de regreso hacia el boton antes de desmontarse
+
+#### Scenario: Escritura y envio de mensaje
+- **GIVEN** el chat de IA esta abierto
+- **WHEN** el usuario escribe en el input del chat
+- **THEN** el input permite escribir caracteres consecutivos sin perder foco
+- **AND** el AppEditor no intercepta las teclas del input
+- **WHEN** el usuario presiona Enter
+- **THEN** el sistema envia el mensaje
+- **AND** limpia el input
+- **AND** conserva el foco en el input
+
+#### Scenario: Limpieza del input
+- **GIVEN** el chat de IA esta abierto
+- **AND** el input contiene texto
+- **WHEN** el usuario hace click en la X interna del input
+- **THEN** el sistema limpia el texto
+- **AND** mantiene el foco en el input
+- **AND** no cierra el chat
+
+#### Scenario: Alcance local sin backend
+- **GIVEN** el chat de IA esta abierto
+- **WHEN** el usuario envia un mensaje
+- **THEN** el sistema agrega el mensaje al log local
+- **AND** agrega una respuesta placeholder local
+- **AND** no invoca endpoints, servicios backend, modelos IA, streaming ni persistencia
+
+### Requirement: No solapamiento con indicadores del AppEditor
+El sistema SHALL evitar que el boton de IA interrumpa visualmente el indicador flotante de palabras/caracteres del AppEditor.
+
+#### Scenario: Indicador desplazado
+- **GIVEN** el AppEditor muestra el indicador de palabras/caracteres
+- **AND** el boton flotante de IA esta visible
+- **WHEN** ambos elementos comparten la zona inferior del workbench
+- **THEN** el indicador de palabras/caracteres se ubica mas hacia la izquierda
+- **AND** el boton IA permanece abajo a la derecha
+- **AND** no se modifica la logica de conteo de palabras, conteo de caracteres ni paginacion visual

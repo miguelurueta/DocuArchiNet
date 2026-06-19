@@ -784,7 +784,7 @@
 
 .pageStatsIndicator {
   position: absolute;
-  right: 1rem;
+  right: 8rem;
   bottom: 0.95rem;
   z-index: 20;
   display: inline-flex;

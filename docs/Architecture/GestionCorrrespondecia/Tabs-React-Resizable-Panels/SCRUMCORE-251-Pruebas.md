@@ -104,6 +104,122 @@ Resultado:
 - OK.
 - Sin errores TypeScript atribuibles al bloque actual.
 
+## Validacion del bloque Asistente IA flotante
+
+Comando ejecutado despues de incorporar y ajustar el asistente:
+
+```powershell
+npx.cmd tsc --noEmit --pretty false
+```
+
+Resultado:
+
+- OK.
+- Sin errores TypeScript en:
+  - `src/modules/gestionCorrespondencia/pages/GestionRespuesta.tsx`
+  - `src/modules/gestionCorrespondencia/style/GestionRespuesta.module.css`
+  - `src/app/Components/UI/AppEditor/AppEditor.module.css`
+
+Validaciones tecnicas cubiertas por TypeScript:
+
+- `useRef<HTMLInputElement | null>` compatible con el input final.
+- `KeyboardEvent<HTMLElement>` importado como type-only.
+- `handleAssistantKeyDownCapture` tipado y usado por el panel.
+- Uso valido de iconos Ant Design:
+  - `RobotOutlined`
+  - `CloseOutlined`
+  - `SendOutlined`
+- Props ARIA y eventos React validos en:
+  - `section`
+  - `input`
+  - `button`
+  - `form`
+
+### OpenSpec strict
+
+Comando ejecutado:
+
+```powershell
+npx.cmd openspec validate scrumcore-251-tabs-workbench-gestion-correspondencia --strict
+```
+
+Resultado funcional:
+
+- OK.
+- Salida principal: `Change 'scrumcore-251-tabs-workbench-gestion-correspondencia' is valid`.
+
+Nota operativa:
+
+- La CLI intento hacer flush de telemetria PostHog y reporto `PostHogFetchNetworkError` por red restringida/EACCES.
+- Ese error corresponde a telemetria externa, no a la validacion del cambio.
+- El comando finalizo con exit code 0 y el cambio OpenSpec quedo valido.
+
+### Whitespace
+
+Comando ejecutado despues de documentar el asistente:
+
+```powershell
+git diff --check
+```
+
+Resultado:
+
+- OK.
+- Sin errores de whitespace.
+- Git reporto avisos LF/CRLF por configuracion local en archivos del workspace.
+
+## QA manual esperada del Asistente IA
+
+1. Boton flotante
+   - Debe verse abajo a la derecha del workbench.
+   - Debe estar visible en tab `Gestion`.
+   - Debe estar visible en tab `Documentos`.
+   - Debe mostrar icono de robot y texto `IA` cuando esta cerrado.
+   - Debe mostrar una `X` visible cuando el chat esta abierto.
+   - No debe tapar el indicador de palabras/caracteres del AppEditor.
+
+2. Apertura/cierre
+   - Click en `IA` abre el panel.
+   - El panel debe animarse como si saliera del boton.
+   - Click en la X del FAB debe cerrar el panel.
+   - Click en la X del header debe cerrar el panel.
+   - El cierre debe animarse hacia el boton antes de desmontar.
+   - La animacion debe sentirse enterprise: sobria, sin rebote exagerado.
+
+3. Input normal
+   - El campo debe ser un input de una linea.
+   - Debe permitir escribir varios caracteres seguidos sin perder foco.
+   - El AppEditor no debe capturar el foco mientras se escribe.
+   - `Enter` debe enviar el mensaje.
+   - Mensajes vacios no deben enviarse.
+   - Despues de enviar, el input debe limpiarse.
+   - Despues de enviar, el foco debe permanecer en el input.
+
+4. Boton limpiar
+   - Al escribir texto debe aparecer la X interna del input.
+   - Click en la X interna debe limpiar el texto.
+   - Click en la X interna debe conservar foco en el input.
+   - La X interna no debe cerrar el chat.
+
+5. Mensajes
+   - El mensaje del usuario debe agregarse al log.
+   - La respuesta placeholder debe agregarse despues del mensaje del usuario.
+   - Los mensajes deben tener animacion de entrada discreta.
+   - `role="log"` y `aria-live="polite"` deben permanecer en el contenedor.
+
+6. Responsive
+   - El chat debe verse compacto en desktop.
+   - El chat debe verse menos ancho que la primera version.
+   - En mobile no debe exceder el viewport.
+   - El input y botones deben permanecer accionables.
+
+7. No regresiones esperadas
+   - La navegacion entre tabs debe continuar funcionando.
+   - La vista paralela debe continuar funcionando.
+   - El editor debe seguir editable.
+   - El indicador de caracteres debe seguir visible, ahora desplazado a la izquierda.
+   - DocumentosWorkbench y AppVisorEmbedPdf no deben cambiar comportamiento.
+
 ## Nota sobre ejecucion combinada
 
 Se intento ejecutar AppUpload y AppToolbar en un unico comando Vitest. Esa ejecucion combinada llego a reportar AppToolbar OK, pero expiro por timeout del runner antes de cerrar todo el proceso. Se repitieron ambos archivos por separado desde el workspace real y ambos pasaron.
@@ -170,6 +286,8 @@ La validacion visual debe cubrir:
 - Confirmar que el boton de volver sigue accionable.
 - Confirmar que no se altera la navegacion entre tabs.
 - Confirmar que Documentos sigue permitiendo abrir lista lateral.
+- Confirmar que el boton IA no bloquea acciones de editor, adjuntos ni documentos.
+- Confirmar que el chat no invoca backend ni genera errores de red.
 
 ## Build
 
@@ -181,3 +299,5 @@ No se ejecuto build completo en este bloque final. La validacion principal fue T
 - Revisar que el selector `:has()` aplique en los navegadores soportados por el producto.
 - Confirmar que los breakpoints no se solapan en dispositivos no listados.
 - Confirmar que los nombres largos de adjuntos siguen siendo comprensibles mediante `title`.
+- Confirmar visualmente que el nuevo z-index del asistente no cubre modales o popovers criticos.
+- Confirmar que el input del asistente no pierde foco en navegadores reales con el AppEditor montado.
