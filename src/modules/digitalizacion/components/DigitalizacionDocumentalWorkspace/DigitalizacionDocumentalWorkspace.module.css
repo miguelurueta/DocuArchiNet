@@ -257,6 +257,7 @@
   block-size: 100%;
   display: grid;
   gap: 0.7rem;
+  grid-template-columns: 1fr;
   justify-items: center;
   max-block-size: none;
   max-height: none;
@@ -264,6 +265,37 @@
   overflow-x: hidden;
   overflow-y: auto;
   padding: 0.65rem;
+}
+
+.thumbnailList[data-view-mode="grid1"] {
+  grid-template-columns: 1fr;
+}
+
+.thumbnailList[data-view-mode="grid2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.thumbnailList[data-view-mode="grid3"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.thumbnailList[data-view-mode="grid4"] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.thumbnailList[data-view-mode="grid5"] {
+  gap: 0.55rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.thumbnailList[data-view-mode="grid6"] {
+  gap: 0.45rem;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.thumbnailList[data-virtualized="true"] .thumbnailButton {
+  contain-intrinsic-size: 8rem 6rem;
+  content-visibility: auto;
 }
 
 .thumbnailButton {
@@ -280,6 +312,15 @@
   padding: 0.55rem;
   text-align: center;
   width: min(7.25rem, 100%);
+}
+
+.thumbnailList[data-view-mode="grid3"] .thumbnailButton,
+.thumbnailList[data-view-mode="grid4"] .thumbnailButton,
+.thumbnailList[data-view-mode="grid5"] .thumbnailButton,
+.thumbnailList[data-view-mode="grid6"] .thumbnailButton {
+  gap: 0.3rem;
+  padding: 0.4rem;
+  width: 100%;
 }
 
 .thumbnailButton[draggable="true"] {
@@ -336,6 +377,20 @@
   width: 100%;
 }
 
+.thumbnailList[data-view-mode="grid4"] .thumbnailButton img {
+  max-height: 6.2rem;
+}
+
+.thumbnailList[data-view-mode="grid5"] .thumbnailButton img {
+  max-height: 5.4rem;
+  max-width: 4.6rem;
+}
+
+.thumbnailList[data-view-mode="grid6"] .thumbnailButton img {
+  max-height: 4.8rem;
+  max-width: 4rem;
+}
+
 .thumbnailButton span {
   align-items: center;
   background: #eef4ff;
@@ -348,10 +403,29 @@
   width: 5.25rem;
 }
 
+.thumbnailList[data-view-mode="grid4"] .thumbnailButton span {
+  min-height: 4.8rem;
+  width: 3.7rem;
+}
+
+.thumbnailList[data-view-mode="grid5"] .thumbnailButton span {
+  min-height: 4.2rem;
+  width: 3.3rem;
+}
+
+.thumbnailList[data-view-mode="grid6"] .thumbnailButton span {
+  min-height: 3.8rem;
+  width: 3rem;
+}
+
 .thumbnailButton small {
   color: #5f7187;
   font-size: 0.72rem;
   font-weight: 700;
+}
+
+.thumbnailList[data-view-mode="grid6"] .thumbnailButton small {
+  font-size: 0.66rem;
 }
 
 .preview {
@@ -366,6 +440,7 @@
 
 .previewPanel {
   min-height: 0;
+  position: relative;
 }
 
 .previewPanelExpanded {
@@ -410,6 +485,20 @@
 
 .previewControls .pageJumpField {
   margin-right: 0.2rem;
+}
+
+.organizerMenuButton {
+  min-inline-size: 3.4rem;
+}
+
+.organizerMenuText {
+  block-size: 1px;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
 }
 
 .previewViewport {
@@ -486,6 +575,223 @@
   inline-size: var(--preview-zoom, 100%);
   max-block-size: none;
   max-inline-size: none;
+}
+
+.pageOrganizerOverlay {
+  background: #f8fafc;
+  border: 1px solid #d6dfeb;
+  border-radius: 8px;
+  box-shadow: 0 18px 48px rgba(23, 43, 77, 0.2);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  inset: 0.5rem;
+  min-height: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: 20;
+}
+
+.pageOrganizerHeader {
+  align-items: center;
+  background: #ffffff;
+  border-bottom: 1px solid #e3e8f1;
+  color: #253b53;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+}
+
+.pageOrganizerHeader > span {
+  font-size: 0.9rem;
+  font-weight: 800;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pageOrganizerActions {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+.pageOrganizerGrid {
+  align-content: start;
+  align-items: start;
+  --organizer-card-padding: 1.25rem;
+  --organizer-gap: 2rem;
+  block-size: 100%;
+  display: grid;
+  gap: var(--organizer-gap);
+  grid-auto-rows: minmax(min-content, 1fr);
+  grid-template-columns: repeat(var(--page-organizer-columns, 2), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--page-organizer-visible-rows, 2), minmax(min-content, 1fr));
+  min-height: 0;
+  overflow: auto;
+  padding: calc(var(--organizer-gap) * 0.75);
+}
+
+.pageOrganizerGrid[data-density="densityAuto"] {
+  --organizer-card-padding: 0.75rem;
+  --organizer-gap: 1rem;
+}
+
+.pageOrganizerGrid[data-density="density3"] {
+  --organizer-card-padding: 0.9rem;
+  --organizer-gap: 1.25rem;
+}
+
+.pageOrganizerGrid[data-density="density4"] {
+  --organizer-card-padding: 0.75rem;
+  --organizer-gap: 1rem;
+}
+
+.pageOrganizerGrid[data-density="density5"] {
+  --organizer-card-padding: 0.65rem;
+  --organizer-gap: 0.85rem;
+}
+
+.pageOrganizerGrid[data-density="density6"] {
+  --organizer-card-padding: 0.55rem;
+  --organizer-gap: 0.7rem;
+}
+
+.pageOrganizerGrid[data-virtualized="true"] .pageOrganizerItem {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 16rem;
+}
+
+.pageOrganizerItem {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #dce5f0;
+  border-radius: 8px;
+  color: #263b52;
+  cursor: grab;
+  display: grid;
+  gap: 0.4rem;
+  grid-template-rows: auto auto;
+  justify-items: center;
+  block-size: 100%;
+  min-block-size: 0;
+  min-width: 0;
+  overflow: visible;
+  padding: var(--organizer-card-padding);
+  position: relative;
+  text-align: center;
+}
+
+.pageOrganizerItem[data-orientation="landscape"] {
+  min-block-size: 0;
+}
+
+.pageOrganizerItem[data-orientation="square"] {
+  min-block-size: 0;
+}
+
+.pageOrganizerItem:active {
+  cursor: grabbing;
+}
+
+.pageOrganizerItem[data-selected="true"] {
+  border-color: #3d73d8;
+  box-shadow: 0 0 0 2px rgba(61, 115, 216, 0.14);
+}
+
+.pageOrganizerItem[data-checked="true"] {
+  background: #eef4ff;
+  border-color: #2f67d8;
+}
+
+.pageOrganizerItem[data-dragging="true"] {
+  opacity: 0.55;
+}
+
+.pageOrganizerItem[data-drop-target="true"] {
+  border-color: #1d7a52;
+  box-shadow:
+    0 -3px 0 #1d7a52,
+    0 0 0 2px rgba(29, 122, 82, 0.16);
+}
+
+.pageOrganizerItem img {
+  aspect-ratio: var(--page-aspect-ratio, 8.5 / 11);
+  background: #ffffff;
+  border: 1px solid #d8e2ef;
+  border-radius: 4px;
+  box-shadow: 0 8px 18px rgba(37, 59, 83, 0.12);
+  block-size: auto;
+  display: block;
+  inline-size: 100%;
+  max-block-size: none;
+  max-inline-size: 100%;
+  object-fit: contain;
+  padding: 0.15rem;
+}
+
+.pageOrganizerItem[data-orientation="landscape"] img {
+  inline-size: 100%;
+}
+
+.pageOrganizerItem[data-orientation="square"] img {
+  inline-size: 100%;
+}
+
+.pageOrganizerItem > span {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d8e2ef;
+  border-radius: 6px;
+  color: #1f4fa3;
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+  aspect-ratio: var(--page-aspect-ratio, 8.5 / 11);
+  min-height: 0;
+  width: 100%;
+}
+
+.pageOrganizerItem[data-orientation="landscape"] > span {
+  min-height: 0;
+  width: 100%;
+}
+
+.pageOrganizerItem[data-orientation="square"] > span {
+  min-height: 0;
+  width: 100%;
+}
+
+.pageOrganizerItem small {
+  color: #5f7187;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.pageOrganizerCheck {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d6dfeb;
+  border-radius: 999px;
+  display: inline-flex;
+  inset-block-start: 0.45rem;
+  inset-inline-start: 0.45rem;
+  justify-content: center;
+  padding: 0.18rem;
+  position: absolute;
+  z-index: 1;
+}
+
+.pageOrganizerCheck input {
+  accent-color: #2f67d8;
+  block-size: 1rem;
+  inline-size: 1rem;
+  margin: 0;
 }
 
 .settingsPanel {
@@ -638,6 +944,23 @@
 
   .pageJumpField input {
     inline-size: 7rem;
+  }
+
+  .pageOrganizerOverlay {
+    inset: 0.35rem;
+  }
+
+  .pageOrganizerHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pageOrganizerActions {
+    justify-content: flex-start;
+  }
+
+  .pageOrganizerGrid {
+    padding: 0.55rem;
   }
 
   .toolbarGroup:not(:first-child) {
