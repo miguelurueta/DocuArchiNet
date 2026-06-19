@@ -1100,67 +1100,7 @@ export function DigitalizacionDocumentalWorkspace({
         >
           <div className={`${styles.panelHeader} ${styles.previewHeader}`}>
             <div className={styles.previewControls} role="toolbar" aria-label="Visualizacion preview">
-              <AppDropdown
-                ariaLabel="Organizar paginas"
-                placement="bottomLeft"
-                items={pageOrganizerDensityItems}
-                disabled={!hasPages}
-                trigger={
-                  <AppButton
-                    className={styles.organizerMenuButton}
-                    variant="ghost"
-                    size="sm"
-                    leftIcon={<AppstoreOutlined />}
-                    rightIcon={<DownOutlined />}
-                    aria-label="Organizar paginas"
-                    tooltip="Organizar paginas"
-                    disabled={!hasPages}
-                  >
-                    <span className={styles.organizerMenuText}>Organizar paginas</span>
-                  </AppButton>
-                }
-              />
-              <AppButton
-                variant={areaSelectionEnabled ? "secondary" : "ghost"}
-                size="sm"
-                icon={<SelectOutlined />}
-                aria-label="Seleccionar area"
-                aria-pressed={areaSelectionEnabled}
-                tooltip="Seleccionar area"
-                onClick={() => {
-                  setAreaSelectionEnabled((current) => !current);
-                  setCropDraft(null);
-                  setCropSelection(null);
-                }}
-                disabled={!selectedPage || showPageOrganizer}
-              />
-              <label className={styles.pageJumpField}>
-                <span>Pagina</span>
-                <input
-                  ref={pageJumpInputRef}
-                  type="number"
-                  min={1}
-                  max={Math.max(scanner.pages.length, 1)}
-                  value={pageJumpValue}
-                  onChange={(event) => setPageJumpValue(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      handleGoToPage();
-                    }
-                  }}
-                  disabled={!hasPages}
-                  aria-label="Pagina destino"
-                />
-              </label>
-              <AppButton
-                variant="ghost"
-                size="sm"
-                icon={<SearchOutlined />}
-                aria-label="Ir a pagina"
-                tooltip="Ir a pagina"
-                onClick={handleGoToPage}
-                disabled={!hasPages}
-              />
+              <div className={styles.previewControlGroup} role="group" aria-label="Edicion">
               <AppButton
                 variant="ghost"
                 size="sm"
@@ -1180,11 +1120,25 @@ export function DigitalizacionDocumentalWorkspace({
                 disabled={!selectedPage}
               />
               <AppButton
+                variant={areaSelectionEnabled ? "secondary" : "ghost"}
+                size="sm"
+                icon={<SelectOutlined />}
+                aria-label="Seleccionar area"
+                aria-pressed={areaSelectionEnabled}
+                tooltip="Seleccionar area"
+                onClick={() => {
+                  setAreaSelectionEnabled((current) => !current);
+                  setCropDraft(null);
+                  setCropSelection(null);
+                }}
+                disabled={!selectedPage || showPageOrganizer}
+              />
+              <AppButton
                 variant="danger"
                 size="sm"
                 icon={<DeleteOutlined />}
-                aria-label="Eliminar página"
-                tooltip="Eliminar página"
+                aria-label="Eliminar pagina"
+                tooltip="Eliminar pagina"
                 onClick={handleRemoveSelected}
                 disabled={!selectedPage}
               />
@@ -1192,17 +1146,19 @@ export function DigitalizacionDocumentalWorkspace({
                 variant="ghost"
                 size="sm"
                 icon={<ClearOutlined />}
-                aria-label="Limpiar lote"
-                tooltip="Limpiar lote"
+                aria-label="Limpiar documento"
+                tooltip="Limpiar documento"
                 onClick={handleClear}
                 disabled={scanner.loading || !hasPages}
               />
+              </div>
+              <div className={styles.previewControlGroup} role="group" aria-label="Visualizacion">
               <AppButton
                 variant="ghost"
                 size="sm"
                 icon={<ZoomOutOutlined />}
                 aria-label="Reducir zoom"
-                tooltip="Zoom -"
+                tooltip="Reducir zoom"
                 onClick={handleZoomOut}
                 disabled={!selectedPage || previewZoom <= MIN_PREVIEW_ZOOM}
               />
@@ -1211,7 +1167,7 @@ export function DigitalizacionDocumentalWorkspace({
                 size="sm"
                 icon={<ZoomInOutlined />}
                 aria-label="Aumentar zoom"
-                tooltip="Zoom +"
+                tooltip="Aumentar zoom"
                 onClick={handleZoomIn}
                 disabled={!selectedPage || previewZoom >= MAX_PREVIEW_ZOOM}
               />
@@ -1242,6 +1198,56 @@ export function DigitalizacionDocumentalWorkspace({
                 tooltip={previewExpanded ? "Restaurar preview" : "Pantalla completa"}
                 onClick={handleTogglePreviewExpanded}
               />
+              </div>
+              <div className={styles.previewControlGroup} role="group" aria-label="Organizacion">
+              <AppDropdown
+                ariaLabel="Organizar paginas"
+                placement="bottomLeft"
+                items={pageOrganizerDensityItems}
+                disabled={!hasPages}
+                trigger={
+                  <AppButton
+                    className={styles.organizerMenuButton}
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={<AppstoreOutlined />}
+                    rightIcon={<DownOutlined />}
+                    aria-label="Organizar paginas"
+                    tooltip="Organizar paginas"
+                    disabled={!hasPages}
+                  />
+                }
+              />
+              </div>
+              <div className={styles.previewControlGroup} role="group" aria-label="Navegacion">
+              <label className={styles.pageJumpField}>
+                <span>Pagina</span>
+                <input
+                  ref={pageJumpInputRef}
+                  type="number"
+                  min={1}
+                  max={Math.max(scanner.pages.length, 1)}
+                  value={pageJumpValue}
+                  onChange={(event) => setPageJumpValue(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      handleGoToPage();
+                    }
+                  }}
+                  disabled={!hasPages}
+                  aria-label="Pagina destino"
+                />
+              </label>
+              <AppButton
+                variant="ghost"
+                size="sm"
+                icon={<SearchOutlined />}
+                aria-label="Buscar pagina"
+                tooltip="Buscar pagina"
+                onClick={handleGoToPage}
+                disabled={!hasPages}
+              />
+              </div>
             </div>
           </div>
           <div className={`${styles.panelBody} ${styles.preview}`}>

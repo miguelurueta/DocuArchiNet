@@ -483,12 +483,26 @@
   justify-content: flex-start;
 }
 
-.previewControls .pageJumpField {
+.previewControlGroup {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.previewControlGroup:not(:first-child) {
+  border-left: 1px solid #dbe3ee;
+  margin-left: 0.15rem;
+  padding-left: 0.4rem;
+}
+
+.previewControlGroup .pageJumpField {
   margin-right: 0.2rem;
 }
 
 .organizerMenuButton {
-  min-inline-size: 3.4rem;
+  min-inline-size: 3rem;
 }
 
 .organizerMenuText {
@@ -1009,6 +1023,18 @@
 
   .pageOrganizerActions {
     justify-content: flex-start;
+  }
+
+  .previewControlGroup {
+    flex-wrap: wrap;
+  }
+
+  .previewControlGroup:not(:first-child) {
+    border-left: 0;
+    border-top: 1px solid #dbe3ee;
+    margin-left: 0;
+    padding-left: 0;
+    padding-top: 0.35rem;
   }
 
   .pageOrganizerGrid {

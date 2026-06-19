@@ -307,7 +307,7 @@ describe("AppDigitalizador", () => {
     fireEvent.change(screen.getByLabelText("Pagina destino"), {
       target: { value: "5" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Ir a pagina" }));
+    fireEvent.click(screen.getByRole("button", { name: "Buscar pagina" }));
 
     const pageFiveButtons = screen.getAllByRole("button").filter((button) =>
       button.textContent?.includes("Pagina 5"),
@@ -470,6 +470,18 @@ describe("AppDigitalizador", () => {
       name: "Organizar paginas",
     });
     expect(organizerControl).toBeInTheDocument();
+    expect(within(previewToolbar).getByRole("group", { name: "Organizacion" })).toBeInTheDocument();
+    expect(within(previewToolbar).getByRole("group", { name: "Navegacion" })).toBeInTheDocument();
+    expect(within(previewToolbar).getByRole("group", { name: "Edicion" })).toBeInTheDocument();
+    expect(within(previewToolbar).getByRole("group", { name: "Visualizacion" })).toBeInTheDocument();
+    expect(within(previewToolbar).getByRole("button", { name: "Buscar pagina" })).toBeInTheDocument();
+    expect(within(previewToolbar).getByRole("button", { name: "Limpiar documento" })).toBeInTheDocument();
+    expect(within(previewToolbar).queryByText("Organizar paginas")).toBeNull();
+    expect(
+      within(previewToolbar)
+        .getAllByRole("group")
+        .map((group) => group.getAttribute("aria-label")),
+    ).toEqual(["Edicion", "Visualizacion", "Organizacion", "Navegacion"]);
 
     fireEvent.click(organizerControl);
     fireEvent.click(await screen.findByText("2x2"));
