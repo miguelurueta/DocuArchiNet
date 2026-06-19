@@ -20,6 +20,7 @@
 - Ajustes responsive actuales aplicados sobre tabs, toolbar, editor, upload, visor PDF, DocumentosWorkbench y header de detalle.
 - Asistente IA flotante local implementado sobre el workbench en tabs `Gestion` y `Documentos`.
 - Indicador de palabras/caracteres del AppEditor reubicado para evitar solapamiento con el FAB IA.
+- Grip de redimensionamiento de vista paralela ajustado a patron enterprise de puntos verticales con tooltip y feedback sutil.
 - TypeScript verificado con `npx.cmd tsc --noEmit --pretty false`.
 - Commit responsive previo: `0cc874d fix(SCRUMCORE-251): polish responsive workbench UI`.
 - Commit asistente IA: commit actual con mensaje `feat(SCRUMCORE-251): add workbench AI assistant`.
@@ -60,6 +61,8 @@
 - `src/modules/gestionCorrespondencia/pages/GestionRespuesta.tsx`
 - `src/modules/gestionCorrespondencia/style/GestionRespuesta.module.css`
 - `src/app/Components/UI/AppEditor/AppEditor.module.css`
+- `src/modules/gestionCorrespondencia/components/workbenchParallelTabs/GestionWorkbenchParallelTabs.tsx`
+- `src/modules/gestionCorrespondencia/components/workbenchParallelTabs/GestionWorkbenchParallelTabs.module.css`
 
 ## Documentacion enterprise actualizada
 
@@ -137,6 +140,15 @@
    - Motivo: evitar solapamiento con el FAB de IA.
    - No cambia conteo de palabras/caracteres ni paginacion visual.
 
+10. Resize handle de vista paralela
+   - `PanelResizeHandle` conserva `aria-label="Redimensionar paneles"`.
+   - Se agrega `title="Arrastra para redimensionar"`.
+   - El contenedor del handle queda transparente.
+   - El `span` interno queda visible como grip de puntos verticales.
+   - Hover/focus/active aplican feedback azul sutil.
+   - Se conserva cursor `col-resize` y area interactiva de 10px.
+   - No se cambia la libreria ni el comportamiento de resize.
+
 ## Evidencia tecnica
 
 - TypeScript:
@@ -158,6 +170,13 @@
 - Whitespace:
   - Comando: `git diff --check`
   - Resultado: OK, sin errores de whitespace; avisos LF/CRLF por configuracion local.
+- Resize handle:
+  - Comando: `npx.cmd vitest run src/modules/gestionCorrespondencia/components/workbenchParallelTabs/GestionWorkbenchParallelTabs.test.tsx`
+  - Resultado: OK, 1 test OK.
+  - Comando: `npx.cmd tsc --noEmit --pretty false`
+  - Resultado: OK.
+  - Comando: `npx.cmd openspec validate scrumcore-251-tabs-workbench-gestion-correspondencia --strict`
+  - Resultado: OK, cambio valido; se repite aviso de telemetria PostHog por red restringida sin afectar validacion.
 - Tests agregados/modificados:
   - `AppUpload.test.tsx`: caso de archivo visible con estrategia `auto`.
   - `AppToolbar.test.tsx`: assertion para que desktop no se marque como compacto.

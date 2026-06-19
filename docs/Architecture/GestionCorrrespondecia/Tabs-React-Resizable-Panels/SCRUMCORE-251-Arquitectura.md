@@ -228,3 +228,33 @@ Restricciones de alcance:
   - Mitigacion: se compacta anchura, se mantiene z-index acotado al workbench y se mueve el indicador de caracteres del AppEditor.
 - Riesgo: expectativa de IA real.
   - Mitigacion: la documentacion explicita que es shell local y requiere integracion posterior con API conversacional.
+
+### ADR-251-06: Grip visual discreto para redimensionamiento paralelo
+
+Se ajusto el divisor de `GestionWorkbenchParallelTabs` para que el contenedor del `PanelResizeHandle` sea visualmente transparente y el affordance de arrastre viva en el `span` interno.
+
+Decision:
+
+- Mantener `PanelResizeHandle` de `react-resizable-panels` como unico mecanismo de resize.
+- No implementar drag manual ni eventos pointer custom.
+- Conservar el area interactiva de 10px para no degradar usabilidad.
+- Hacer el contenedor transparente para reducir ruido visual entre paneles.
+- Renderizar el `span` interno como grip de puntos verticales mediante CSS (`radial-gradient`).
+- Agregar `title="Arrastra para redimensionar"` como tooltip nativo.
+- Mostrar feedback sutil en hover/focus/active:
+  - halo azul muy tenue sobre el area del handle.
+  - puntos del grip pasan de gris a azul.
+  - focus ring interno de baja intensidad.
+
+Justificacion:
+
+- El usuario pidio que el handle general fuera invisible, pero que el `span` interno siguiera visible.
+- Luego solicito un indicador mas claro de que el divisor se puede arrastrar.
+- El grip de puntos verticales es un patron reconocible de redimensionamiento/drag sin introducir iconografia nueva ni decoracion pesada.
+
+Impacto:
+
+- No cambia la estructura de paneles.
+- No cambia tamanos iniciales ni minimos.
+- No cambia el comportamiento accesible del separator.
+- No afecta tests existentes: el separador sigue teniendo `aria-label="Redimensionar paneles"`.

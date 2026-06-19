@@ -36,7 +36,11 @@ export function GestionWorkbenchParallelTabs({
             <div className={styles.panelContent}>{gestion}</div>
           </div>
         </Panel>
-        <PanelResizeHandle className={styles.resizeHandle} aria-label="Redimensionar paneles">
+        <PanelResizeHandle
+          className={styles.resizeHandle}
+          aria-label="Redimensionar paneles"
+          title="Arrastra para redimensionar"
+        >
           <span className={styles.resizeGrip} aria-hidden="true" />
         </PanelResizeHandle>
         <Panel

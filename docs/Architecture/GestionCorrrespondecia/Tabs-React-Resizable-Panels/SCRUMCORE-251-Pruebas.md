@@ -168,6 +168,38 @@ Resultado:
 - Sin errores de whitespace.
 - Git reporto avisos LF/CRLF por configuracion local en archivos del workspace.
 
+## Validacion del grip de redimensionamiento
+
+Comandos ejecutados despues de ajustar el handle visual:
+
+```powershell
+npx.cmd tsc --noEmit --pretty false
+npx.cmd vitest run src/modules/gestionCorrespondencia/components/workbenchParallelTabs/GestionWorkbenchParallelTabs.test.tsx
+```
+
+Resultado:
+
+- TypeScript OK.
+- Test de `GestionWorkbenchParallelTabs` OK.
+- 1 archivo de test ejecutado.
+- 1 test OK.
+
+Cobertura del test existente:
+
+- El layout paralelo renderiza ambos paneles.
+- El separador conserva `aria-label="Redimensionar paneles"`.
+- El ajuste visual no elimina el handle accesible.
+
+QA manual esperada:
+
+- El contenedor del separador no debe verse como barra gris.
+- El grip interno debe verse como puntos verticales.
+- Al pasar mouse por el separador debe aparecer feedback azul sutil.
+- Al enfocar por teclado debe existir feedback visual discreto.
+- El tooltip nativo debe mostrar `Arrastra para redimensionar`.
+- El cursor debe mantenerse como `col-resize`.
+- El usuario debe poder seguir redimensionando los paneles.
+
 ## QA manual esperada del Asistente IA
 
 1. Boton flotante

@@ -49,7 +49,17 @@ El sistema SHALL usar `react-resizable-panels` para el layout paralelo.
 - **THEN** se usa `PanelGroup` con direccion horizontal
 - **AND** se renderizan dos `Panel`
 - **AND** se renderiza un `PanelResizeHandle` visible y operable
+- **AND** el handle expone un grip interno de puntos verticales
+- **AND** el handle incluye tooltip nativo para explicar que se puede arrastrar
 - **AND** cada panel tiene tamanos iniciales y minimos definidos
+
+#### Scenario: Feedback visual del handle
+- **GIVEN** el modo paralelo esta activo
+- **WHEN** el usuario pasa el mouse, enfoca o activa el separador
+- **THEN** el contenedor del handle mantiene apariencia limpia y transparente
+- **AND** el grip interno cambia a un estado azul sutil
+- **AND** el sistema mantiene cursor de redimensionamiento
+- **AND** no se bloquea el resize provisto por `react-resizable-panels`
 
 ### Requirement: Provider compartido y no duplicacion de negocio
 El sistema SHALL mantener un unico `GestionRespuestaDocumentosProvider` alrededor del modo normal y paralelo.

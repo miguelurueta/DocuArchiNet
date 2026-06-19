@@ -121,10 +121,24 @@
 - [x] 8.22 Mover `pageStatsIndicator` del AppEditor hacia la izquierda para no chocar con el FAB IA.
 - [x] 8.23 Validar TypeScript despues de los cambios del asistente IA.
 
-## 9. Publish / cierre tecnico
+## 9. Grip de redimensionamiento enterprise
 
-- [x] 9.1 Revisar diff final.
-- [x] 9.2 Commit de implementacion.
-- [ ] 9.3 Push de `feature/SCRUMCORE-251`.
-- [ ] 9.4 Crear PR.
-- [ ] 9.5 Actualizar metadata con PR/commits/evidencias.
+- [x] 9.1 Hacer transparente el contenedor base de `PanelResizeHandle`.
+- [x] 9.2 Mantener area interactiva de 10px para resize.
+- [x] 9.3 Mantener `aria-label="Redimensionar paneles"`.
+- [x] 9.4 Agregar tooltip nativo `Arrastra para redimensionar`.
+- [x] 9.5 Conservar visible el `span` interno del grip.
+- [x] 9.6 Reemplazar barra solida por patron de puntos verticales via CSS.
+- [x] 9.7 Agregar hover/focus/active azul sutil.
+- [x] 9.8 Mantener cursor `col-resize`.
+- [x] 9.9 Validar TypeScript.
+- [x] 9.10 Ejecutar test de `GestionWorkbenchParallelTabs`.
+- [x] 9.11 Documentar arquitectura, implementacion, pruebas, metadata y spec OpenSpec del grip.
+
+## 10. Publish / cierre tecnico
+
+- [x] 10.1 Revisar diff final.
+- [x] 10.2 Commit de implementacion.
+- [ ] 10.3 Push de `feature/SCRUMCORE-251`.
+- [ ] 10.4 Crear PR.
+- [ ] 10.5 Actualizar metadata con PR/commits/evidencias.

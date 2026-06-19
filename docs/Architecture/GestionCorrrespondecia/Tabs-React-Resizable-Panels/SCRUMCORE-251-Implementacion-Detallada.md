@@ -709,3 +709,125 @@ No incluye:
 - Llamada a backend.
 - Auditoria conversacional.
 - Autorizacion o permisos especificos.
+
+## 14. GestionWorkbenchParallelTabs - grip de resize enterprise
+
+### Archivos
+
+- `src/modules/gestionCorrespondencia/components/workbenchParallelTabs/GestionWorkbenchParallelTabs.tsx`
+- `src/modules/gestionCorrespondencia/components/workbenchParallelTabs/GestionWorkbenchParallelTabs.module.css`
+
+### Objetivo
+
+Hacer que el divisor entre paneles de la vista paralela sea menos invasivo visualmente, pero que siga comunicando claramente que se puede arrastrar para redimensionar.
+
+### Cambio TSX
+
+Se agrego tooltip nativo al `PanelResizeHandle`:
+
+```tsx
+<PanelResizeHandle
+  className={styles.resizeHandle}
+  aria-label="Redimensionar paneles"
+  title="Arrastra para redimensionar"
+>
+  <span className={styles.resizeGrip} aria-hidden="true" />
+</PanelResizeHandle>
+```
+
+Motivo:
+
+- El `aria-label` conserva accesibilidad.
+- El `title` da una ayuda directa al usuario mouse/desktop.
+- El `span` interno sigue marcado como decorativo (`aria-hidden`) porque el nombre accesible vive en el handle.
+
+### Cambio CSS
+
+El contenedor `.resizeHandle` se mantiene como area interactiva:
+
+- `flex: 0 0 10px`
+- `width: 10px`
+- `min-width: 10px`
+- `cursor: col-resize`
+
+Pero su fondo base queda transparente:
+
+```css
+background: transparent;
+```
+
+Se agrego pseudo-elemento de feedback:
+
+```css
+.resizeHandle::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  border-radius: 6px;
+  background: rgba(47, 111, 237, 0);
+  transition: background 160ms ease, opacity 160ms ease;
+}
+```
+
+En hover/focus/active:
+
+```css
+.resizeHandle:hover::before,
+.resizeHandle:focus-visible::before,
+.resizeHandle[data-resize-handle-active]::before {
+  background: rgba(47, 111, 237, 0.08);
+}
+```
+
+El focus visible queda sutil:
+
+```css
+box-shadow: inset 0 0 0 1px rgba(47, 111, 237, 0.2);
+```
+
+### Grip interno
+
+El `span` `.resizeGrip` se reemplazo visualmente por puntos verticales:
+
+```css
+.resizeGrip {
+  width: 4px;
+  height: 28px;
+  color: #6f8297;
+  background:
+    radial-gradient(circle, currentColor 1.5px, transparent 1.7px) center 2px / 4px 8px repeat-y;
+}
+```
+
+En hover/focus/active:
+
+```css
+color: #2f6fed;
+opacity: 1;
+```
+
+Motivo:
+
+- Los puntos verticales son mas claros que una barra solida para indicar arrastre.
+- No agregan dependencias.
+- No usan SVG manual.
+- Mantienen estetica enterprise y baja ornamentacion.
+
+### Correcciones aplicadas
+
+1. Se hizo invisible todo el handle.
+2. El usuario pidio conservar visible el `span` interno.
+3. Se restauro visibilidad del `span`.
+4. El usuario pidio una senal mas clara de que se podia correr.
+5. Se implemento grip de puntos verticales, hover/focus azul sutil y tooltip nativo.
+
+### Alcance
+
+No se modifico:
+
+- `PanelGroup`.
+- `Panel`.
+- `minSize`.
+- `defaultSize`.
+- comportamiento de resize.
+- tests de render accesible.
