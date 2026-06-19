@@ -127,7 +127,11 @@ export default function GestionCorrespondenciaRoute({
 
               <div className={styles.detailMeta} aria-label="Metadata de la respuesta">
                 {metadata.map((item) => (
-                  <span className={styles.detailMetaItem} key={item.label}>
+                  <span
+                    className={styles.detailMetaItem}
+                    key={item.label}
+                    title={`${item.label}: ${item.value}`}
+                  >
                     <strong>{item.label}:</strong>
                     <span title={item.value}>{item.value}</span>
                   </span>

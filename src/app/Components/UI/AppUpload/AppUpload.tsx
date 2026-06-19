@@ -43,6 +43,7 @@ export type AppUploadFile = {
 export type AppUploadProps = {
   value?: AppUploadFile[];
   defaultValue?: AppUploadFile[];
+  className?: string;
   layout?: "grid" | "list";
   accept?: string;
   maxSize?: number;
@@ -212,6 +213,7 @@ const AppUploadItem = memo(function AppUploadItem({
     <div
       className={joinClasses(styles.card, layout === "list" && styles.cardList)}
       data-status={file.status}
+      role="listitem"
       tabIndex={0}
       onKeyDown={(event) => {
         if (event.key === "Enter") {
@@ -294,6 +296,7 @@ export const AppUpload = forwardRef<AppUploadHandle, AppUploadProps>(
     {
       value,
       defaultValue,
+      className,
       layout = "grid",
       accept,
       maxSize,
@@ -323,9 +326,14 @@ export const AppUpload = forwardRef<AppUploadHandle, AppUploadProps>(
     const acceptList = useMemo(() => normalizeAccept(accept), [accept]);
     const [internalFiles, setInternalFiles] = useState<AppUploadFile[]>(defaultValue ?? []);
     const files = value ?? internalFiles;
+    const filesRef = useRef<AppUploadFile[]>(files);
     const isControlled = value !== undefined;
     const [dragState, setDragState] = useState<"valid" | "invalid" | null>(null);
     const createdThumbUrlsRef = useRef(new Map<string, string>());
+
+    useEffect(() => {
+      filesRef.current = files;
+    }, [files]);
 
     useEffect(() => {
       const liveIds = new Set(files.map((file) => file.uid));
@@ -384,6 +392,7 @@ export const AppUpload = forwardRef<AppUploadHandle, AppUploadProps>(
 
     const emitChange = useCallback(
       (nextFiles: AppUploadFile[]) => {
+        filesRef.current = nextFiles;
         if (!isControlled) {
           setInternalFiles(nextFiles);
         }
@@ -394,21 +403,24 @@ export const AppUpload = forwardRef<AppUploadHandle, AppUploadProps>(
 
     const updateFile = useCallback(
       (uid: string, updater: (file: AppUploadFile) => AppUploadFile) => {
+        const currentFiles = filesRef.current;
         emitChange(
-          files.map((file) => (file.uid === uid ? updater(file) : file)),
+          currentFiles.map((file) => (file.uid === uid ? updater(file) : file)),
         );
       },
-      [emitChange, files],
+      [emitChange],
     );
 
     const updateStatus = useCallback(
       (file: AppUploadFile, nextStatus: UploadStatus, patch?: Partial<AppUploadFile>) => {
-        if (!canTransition(file.status, nextStatus)) return;
-        updateFile(file.uid, (current) => ({
-          ...current,
-          ...patch,
-          status: nextStatus,
-        }));
+        updateFile(file.uid, (current) => {
+          if (!canTransition(current.status, nextStatus)) return current;
+          return {
+            ...current,
+            ...patch,
+            status: nextStatus,
+          };
+        });
       },
       [updateFile],
     );
@@ -577,7 +589,11 @@ export const AppUpload = forwardRef<AppUploadHandle, AppUploadProps>(
 
     return (
       <div
-        className={joinClasses(styles.root, styles[`size${size.toUpperCase()}`])}
+        className={joinClasses(
+          styles.root,
+          styles[`size${size.toUpperCase()}`],
+          className,
+        )}
         onDragEnter={() => setDragState("valid")}
         onDragLeave={() => setDragState(null)}
         onDragOver={(event) => {

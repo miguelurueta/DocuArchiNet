@@ -174,13 +174,13 @@
 
   .detailHeaderStart {
     align-items: flex-start;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
 
   .detailMeta {
-    width: 100%;
-    margin-left: 0;
-    justify-content: flex-start;
+    width: auto;
+    margin-left: auto;
+    justify-content: flex-end;
   }
 
   .detailReturnAction {
@@ -224,6 +224,26 @@
 
   .detailHeaderCopy {
     gap: 2px;
+  }
+
+  .detailMeta {
+    gap: 0.25rem 0.45rem;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .detailMetaItem {
+    gap: 0.25rem;
+    font-size: 0.72rem;
+    flex-wrap: wrap;
+  }
+
+  .detailMetaItem > span {
+    max-width: 100%;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    text-align: right;
   }
 
   .detailTitle {

@@ -125,6 +125,25 @@ describe("AppUpload [SPEC:APP-UPLOAD-001]", () => {
     expect(handleSuccess).toHaveBeenCalled();
   });
 
+  it("mantiene visible el archivo cargado con estrategia auto", async () => {
+    const handleChange = vi.fn();
+    const { container } = render(
+      <AppUpload strategy="auto" onChange={handleChange} />,
+    );
+
+    const input = container.querySelector("input[type=\"file\"]") as HTMLInputElement;
+    const file = createFile("soporte.pdf", "application/pdf", 5);
+
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [file] } });
+    });
+
+    expect(screen.getByTitle("soporte.pdf")).toBeInTheDocument();
+    expect(handleChange).toHaveBeenLastCalledWith([
+      expect.objectContaining({ name: "soporte.pdf", status: "done" }),
+    ]);
+  });
+
   it("permite retry y abort via ref", async () => {
     const handleChange = vi.fn();
     const handleError = vi.fn();

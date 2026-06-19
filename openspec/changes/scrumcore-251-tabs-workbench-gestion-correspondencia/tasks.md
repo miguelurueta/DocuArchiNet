@@ -89,11 +89,13 @@
 - [x] 7.4 Crear `SCRUMCORE-251-Metadata.md`.
 - [x] 7.5 Documentar decision responsive, riesgos y pruebas ejecutadas.
 - [x] 7.6 Documentar archivos modificados, decisiones tomadas, riesgos residuales e instrucciones de uso para usuario final.
+- [x] 7.7 Actualizar documentacion enterprise con compactacion de Gestion, AppToolbar density, AppUpload compacto, metadata mobile, DocumentosWorkbench y AppVisorEmbedPdf responsive por dispositivo.
+- [x] 7.8 Actualizar metadata del ticket con evidencia TypeScript, archivos tocados, riesgos residuales y estado de commit.
 
 ## 8. Publish / cierre tecnico
 
-- [ ] 8.1 Revisar diff final.
-- [ ] 8.2 Commit de implementacion.
+- [x] 8.1 Revisar diff final.
+- [x] 8.2 Commit de implementacion.
 - [ ] 8.3 Push de `feature/SCRUMCORE-251`.
 - [ ] 8.4 Crear PR.
 - [ ] 8.5 Actualizar metadata con PR/commits/evidencias.

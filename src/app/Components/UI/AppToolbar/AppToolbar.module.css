@@ -28,6 +28,11 @@
   flex-direction: column;
 }
 
+.compact .context,
+.compact .actions {
+  flex: 0 1 auto;
+}
+
 .contextless {
   justify-content: flex-start;
 }
@@ -150,6 +155,7 @@
 
 .compact .actions {
   justify-content: flex-start;
+  width: 100%;
 }
 
 .compact .actionGroup,
@@ -165,27 +171,6 @@
 
 .contextless .actions {
   flex: 0 1 auto;
-}
-
-@media (max-width: 1100px) {
-  .toolbar {
-    flex-direction: column;
-  }
-
-  .context,
-  .actions {
-    flex: 0 1 auto;
-  }
-
-  .actions {
-    justify-content: flex-start;
-    width: 100%;
-  }
-
-  .actionGroup,
-  .secondaryActionGroup {
-    justify-content: flex-start;
-  }
 }
 
 @media (max-width: 768px) {
@@ -226,4 +211,37 @@
   .compact.contextless .primaryAction :global(.ant-btn-icon) {
     font-size: 0.82rem;
   }
+}
+
+.compactDensity {
+  align-items: center;
+  gap: 0.18rem;
+  padding: 0 0.24rem;
+  border-radius: 8px;
+  min-height: 0;
+}
+
+.compactDensity .actions,
+.compactDensity .actionGroup,
+.compactDensity .secondaryActionGroup {
+  align-items: center;
+  gap: 0.2rem;
+  min-height: 0;
+}
+
+.compactDensity .actionGroup :global(.ant-btn),
+.compactDensity .secondaryActionGroup :global(.ant-btn),
+.compactDensity .primaryAction :global(.ant-btn) {
+  min-height: 1.45rem;
+  height: 1.45rem;
+  padding-inline: 0.48rem;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.compactDensity .actionGroup :global(.ant-btn-icon),
+.compactDensity .secondaryActionGroup :global(.ant-btn-icon),
+.compactDensity .primaryAction :global(.ant-btn-icon) {
+  font-size: 0.82rem;
+  line-height: 1;
 }
