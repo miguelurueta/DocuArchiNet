@@ -1,128 +1,48 @@
 ## Context
 
-SCRUMCORE-258: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL-REORGANIZAR-TOOLBAR
-
-## Jira Details
-
-> REORGANIZACIÓN DEL TOOLBAR DE DIGITALIZACIÓN
-> CONTEXTO
-> Actualmente el toolbar contiene múltiples acciones relacionadas con:
-> Navegación
-> 
-> Edición
-> 
-> Visualización
-> 
-> Organización
-> 
-> Con la incorporación de nuevas funcionalidades (Selección de Área, Organizador de Páginas, Zoom, etc.) se requiere una reorganización para mejorar la experiencia de usuario.
-> OBJETIVO
-> Agrupar acciones por contexto funcional.
-> Reducir carga visual.
-> Mejorar descubrimiento de funcionalidades.
-> Mantener compatibilidad con funcionalidades actuales.
-> ==================================================ORDEN PROPUESTO
-> GRUPO 1ORGANIZACIÓN
-> ⊞ Organizar páginas
-> Tooltip:Organizar páginas
-> GRUPO 2NAVEGACIÓN
-> 🔍 Página
-> Control existente:
-> [ Página ] [ 🔍 ]
-> Permite:
-> Ir a página específica.
-> GRUPO 3EDICIÓN
-> ↶ Rotar izquierda
-> ↷ Rotar derecha
-> ✂ Seleccionar área
-> 🗑 Eliminar
-> 🧹 Limpiar
-> GRUPO 4VISUALIZACIÓN
-> 🔍− Zoom negativo
-> 🔍＋ Zoom positivo
-> ↔ Ajustar ancho
-> □ Ajustar página
-> ⛶ Pantalla completa
-> ==================================================LAYOUT VISUAL
-> ┌───────────────────────────────────────────────┐│ ⊞ | Página [___] 🔍 | ↶ ↷ ✂ 🗑 🧹 | - + ↔ □ ⛶ │└───────────────────────────────────────────────┘
-> ==================================================REGLAS UX
-> Usar únicamente:
-> AppButton
-> con:
-> icono
-> 
-> tooltip
-> 
-> No mostrar texto permanente.
-> Mostrar texto únicamente en tooltip.
-> ==================================================TOOLTIPS
-> ⊞ Organizar páginas
-> ↶ Rotar izquierda
-> ↷ Rotar derecha
-> ✂ Seleccionar área
-> 🗑 Eliminar página
-> 🧹 Limpiar documento
-> 🔍− Reducir zoom
-> 🔍＋ Aumentar zoom
-> ↔ Ajustar ancho
-> □ Ajustar página
-> ⛶ Pantalla completa
-> 🔍 Buscar página
-> ==================================================SEPARADORES
-> Agregar separadores visuales entre grupos.
-> Organización
-> |
-> Navegación
-> |
-> Edición
-> |
-> Visualización
-> ==================================================ESTADOS
-> Deshabilitar acciones cuando:
-> No exista página seleccionada.
-> Ejemplo:
-> RotarEliminarSeleccionar área
-> ==================================================DOCUMENTACIÓN
-> Crear:
-> docs/Architecture/DigitalizacionDocumental/SCRUMCORE-274-toolbar-reorganization.md
-> Documentar:
-> Toolbar actual
-> 
-> Toolbar propuesto
-> 
-> Grupos funcionales
-> 
-> Justificación UX
-> 
-> Mockup final
-> 
-> ==================================================VALIDACIONES
-> npx tsc --noEmit
-> eslint
-> vitest
-> IMPLEMENTAR
+SCRUMCORE-258 reorganiza el toolbar del Preview PDF del modulo reutilizable de Digitalizacion Documental.
 
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+
+- Agrupar acciones por contexto funcional.
+- Reducir carga visual del toolbar.
+- Mantener todos los comandos existentes.
+- Usar botones con icono y tooltip, sin texto permanente dentro de botones.
+- Documentar toolbar actual, propuesta y justificacion UX.
 
 **Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+
+- No cambiar scanner, preview, miniaturas ni organizador.
+- No modificar la logica funcional de rotar, eliminar, limpiar, zoom, seleccionar area o buscar pagina.
+- No crear un toolbar nuevo fuera del Preview PDF.
 
 ## Decisions
 
-1. TBD
+1. El toolbar conserva `role="toolbar"` y agrega cuatro grupos con `role="group"`: Organizacion, Navegacion, Edicion y Visualizacion.
+2. El grupo Organizacion contiene solo `Organizar paginas`.
+3. El grupo Navegacion conserva el control `Pagina` y cambia el boton a `Buscar pagina`.
+4. El grupo Edicion contiene rotacion, seleccion de area, eliminar pagina y limpiar documento.
+5. El grupo Visualizacion contiene zoom, fit width, fit page y pantalla completa.
+6. Los separadores son CSS, no componentes nuevos, para mantener el cambio acotado.
 
 ## Risks / Trade-offs
 
-- TBD
+- Algunos tests previos buscaban el boton `Ir a pagina`; se actualizan al nuevo nombre `Buscar pagina`.
+- El label visible `Pagina` se mantiene porque pertenece al input existente, no a un boton.
+- `npm run lint` completo puede seguir fallando por deuda preexistente fuera del alcance; se valida lint focalizado.
 
 ## Migration Plan
 
-1. TBD
+1. Reorganizar JSX del toolbar en grupos funcionales.
+2. Ajustar tooltips y aria-labels.
+3. Agregar CSS de separadores responsive.
+4. Actualizar tests del digitalizador.
+5. Crear documentacion en `docs/Architecture/DigitalizacionDocumental/SCRUMCORE-274-toolbar-reorganization.md`.
 
-## Open Questions
+## Validation
 
-- TBD
+- `npx tsc --noEmit`
+- `npx eslint src/modules/digitalizacion/components/DigitalizacionDocumentalWorkspace/DigitalizacionDocumentalWorkspace.tsx src/app/Components/UI/AppDigitalizador/tests/AppDigitalizador.test.tsx`
+- `npm test -- --run src/app/Components/UI/AppDigitalizador/tests/AppDigitalizador.test.tsx`

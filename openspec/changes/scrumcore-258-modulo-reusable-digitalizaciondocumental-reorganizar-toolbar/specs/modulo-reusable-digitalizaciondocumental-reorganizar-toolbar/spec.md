@@ -1,110 +1,47 @@
 ## ADDED Requirements
-### Requirement: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL-REORGANIZAR-TOOLBAR
-El sistema SHALL implementar el alcance definido para SCRUMCORE-258.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- REORGANIZACIÓN DEL TOOLBAR DE DIGITALIZACIÓN
-- CONTEXTO
-- Actualmente el toolbar contiene múltiples acciones relacionadas con:
-- Navegación
-- 
-- Edición
-- 
-- Visualización
-- 
-- Organización
-- 
-- Con la incorporación de nuevas funcionalidades (Selección de Área, Organizador de Páginas, Zoom, etc.) se requiere una reorganización para mejorar la experiencia de usuario.
-- OBJETIVO
-- Agrupar acciones por contexto funcional.
-- Reducir carga visual.
-- Mejorar descubrimiento de funcionalidades.
-- Mantener compatibilidad con funcionalidades actuales.
-- ==================================================ORDEN PROPUESTO
-- GRUPO 1ORGANIZACIÓN
-- ⊞ Organizar páginas
-- Tooltip:Organizar páginas
-- GRUPO 2NAVEGACIÓN
-- 🔍 Página
-- Control existente:
-- [ Página ] [ 🔍 ]
-- Permite:
-- Ir a página específica.
-- GRUPO 3EDICIÓN
-- ↶ Rotar izquierda
-- ↷ Rotar derecha
-- ✂ Seleccionar área
-- 🗑 Eliminar
-- 🧹 Limpiar
-- GRUPO 4VISUALIZACIÓN
-- 🔍− Zoom negativo
-- 🔍＋ Zoom positivo
-- ↔ Ajustar ancho
-- □ Ajustar página
-- ⛶ Pantalla completa
-- ==================================================LAYOUT VISUAL
-- ┌───────────────────────────────────────────────┐│ ⊞ | Página [___] 🔍 | ↶ ↷ ✂ 🗑 🧹 | - + ↔ □ ⛶ │└───────────────────────────────────────────────┘
-- ==================================================REGLAS UX
-- Usar únicamente:
-- AppButton
-- con:
-- icono
-- 
-- tooltip
-- 
-- No mostrar texto permanente.
-- Mostrar texto únicamente en tooltip.
-- ==================================================TOOLTIPS
-- ⊞ Organizar páginas
-- ↶ Rotar izquierda
-- ↷ Rotar derecha
-- ✂ Seleccionar área
-- 🗑 Eliminar página
-- 🧹 Limpiar documento
-- 🔍− Reducir zoom
-- 🔍＋ Aumentar zoom
-- ↔ Ajustar ancho
-- □ Ajustar página
-- ⛶ Pantalla completa
-- 🔍 Buscar página
-- ==================================================SEPARADORES
-- Agregar separadores visuales entre grupos.
-- Organización
-- |
-- Navegación
-- |
-- Edición
-- |
-- Visualización
-- ==================================================ESTADOS
-- Deshabilitar acciones cuando:
-- No exista página seleccionada.
-- Ejemplo:
-- RotarEliminarSeleccionar área
-- ==================================================DOCUMENTACIÓN
-- Crear:
-- docs/Architecture/DigitalizacionDocumental/SCRUMCORE-274-toolbar-reorganization.md
-- Documentar:
-- Toolbar actual
-- 
-- Toolbar propuesto
-- 
-- Grupos funcionales
-- 
-- Justificación UX
-- 
-- Mockup final
-- 
-- ==================================================VALIDACIONES
-- npx tsc --noEmit
-- eslint
-- vitest
-- IMPLEMENTAR
+### Requirement: Toolbar Agrupado Por Contexto
+El sistema SHALL organizar el toolbar del Preview PDF en grupos funcionales.
+
+#### Scenario: Grupos visibles semanticamente
+- **WHEN** el usuario visualiza el Preview PDF
+- **THEN** el toolbar contiene los grupos `Edicion`, `Visualizacion`, `Organizacion` y `Navegacion`
+- **AND** los grupos aparecen en ese orden
+
+### Requirement: Acciones Por Grupo
+El sistema SHALL mantener las acciones existentes dentro del grupo correcto.
+
+#### Scenario: Organizacion
+- **WHEN** existen paginas
+- **THEN** el grupo `Organizacion` contiene `Organizar paginas`
+
+#### Scenario: Navegacion
+- **WHEN** existen paginas
+- **THEN** el grupo `Navegacion` contiene el campo `Pagina` y el boton `Buscar pagina`
+
+#### Scenario: Edicion
+- **WHEN** existe pagina seleccionada
+- **THEN** el grupo `Edicion` contiene `Rotar izquierda`, `Rotar derecha`, `Seleccionar area`, `Eliminar pagina` y `Limpiar documento`
+
+#### Scenario: Visualizacion
+- **WHEN** existe pagina seleccionada
+- **THEN** el grupo `Visualizacion` contiene `Reducir zoom`, `Aumentar zoom`, `Ajustar ancho`, `Ajustar pagina` y `Pantalla completa`
+
+### Requirement: Botones Icono Y Tooltip
+El sistema SHALL evitar texto permanente dentro de botones del toolbar.
+
+#### Scenario: Botones sin texto permanente
+- **WHEN** se renderiza el toolbar
+- **THEN** los comandos se presentan como `AppButton` con icono y tooltip
+- **AND** el texto descriptivo queda en `aria-label`/tooltip
+
+### Requirement: Estados Existentes
+El sistema SHALL mantener las reglas de habilitado/deshabilitado existentes.
+
+#### Scenario: Sin pagina seleccionada
+- **WHEN** no existe pagina seleccionada
+- **THEN** rotar, seleccionar area, eliminar, zoom y fit se mantienen deshabilitados
+
+#### Scenario: No regresion funcional
+- **WHEN** el usuario usa organizar paginas, buscar pagina, rotar, seleccionar area, eliminar, limpiar, zoom, fit o pantalla completa
+- **THEN** el comportamiento funcional se mantiene respecto a la implementacion previa
