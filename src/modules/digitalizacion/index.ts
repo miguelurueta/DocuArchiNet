@@ -32,6 +32,7 @@ export type {
   DigitalizacionScannerClient,
   DynamsoftRuntimeOptions,
   DynamsoftScannerErrorCode,
+  PageCropSelection,
   PdfGenerationResult,
   ScanColorMode,
   ScanOptions,

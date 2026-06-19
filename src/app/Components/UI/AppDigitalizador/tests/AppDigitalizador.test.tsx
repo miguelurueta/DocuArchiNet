@@ -47,6 +47,7 @@ const createScannerClient = (
   selectDevice: vi.fn().mockResolvedValue(undefined),
   scan: vi.fn(() => Promise.resolve<ScanPage[]>(pages)),
   rotatePage: vi.fn(() => Promise.resolve<ScanPage[]>(pages)),
+  cropPage: vi.fn(() => Promise.resolve<ScanPage[]>(pages)),
   removePage: vi.fn().mockResolvedValue(undefined),
   reorderPages: vi.fn(async (pageIds: string[]) =>
     pageIds.map((pageId, index) => ({ id: pageId, index })),
@@ -661,5 +662,86 @@ describe("AppDigitalizador", () => {
       "densityAuto",
     );
     expect(organizer.querySelector("[data-density]")).toHaveAttribute("data-columns", "6");
+  }, 10000);
+
+  it("[SPEC:SCRUMCORE-257] selecciona un area visual y recorta solo la pagina activa", async () => {
+    const scannerClient = createScannerClient([
+      {
+        id: "page-1",
+        index: 0,
+        imageUrl: "scan://page-1",
+        thumbnailUrl: "scan://thumb-1",
+        width: 1000,
+        height: 2000,
+      },
+      {
+        id: "page-2",
+        index: 1,
+        imageUrl: "scan://page-2",
+        thumbnailUrl: "scan://thumb-2",
+        width: 2000,
+        height: 1000,
+      },
+    ]);
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    const preview = screen.getByRole("region", { name: "Preview digitalizacion" });
+    await waitFor(() => {
+      expect(within(preview).getByAltText("Pagina 1")).toBeInTheDocument();
+    });
+    const previewImage = within(preview).getByAltText("Pagina 1");
+    Object.defineProperty(previewImage, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({
+        left: 10,
+        top: 20,
+        width: 500,
+        height: 1000,
+        right: 510,
+        bottom: 1020,
+        x: 10,
+        y: 20,
+        toJSON: () => undefined,
+      }),
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Seleccionar area" }));
+    const surface = previewImage.parentElement;
+    if (!surface) {
+      throw new Error("No se encontro la superficie de seleccion.");
+    }
+
+    fireEvent.pointerDown(surface, { clientX: 110, clientY: 220, pointerId: 1 });
+    fireEvent.pointerMove(surface, { clientX: 310, clientY: 620, pointerId: 1 });
+    fireEvent.pointerUp(surface, { clientX: 310, clientY: 620, pointerId: 1 });
+
+    expect(screen.getByLabelText("Area seleccionada")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Recortar seleccion" }));
+
+    await waitFor(() =>
+      expect(scannerClient.cropPage).toHaveBeenCalledWith("page-1", {
+        x: 200,
+        y: 400,
+        width: 400,
+        height: 800,
+      }),
+    );
   }, 10000);
 });

@@ -18,6 +18,7 @@ import type {
   DynamsoftWebTwainObject,
   DynamsoftWindow,
   PdfGenerationResult,
+  PageCropSelection,
   ScanColorMode,
   ScanOptions,
   ScanPage,
@@ -144,6 +145,16 @@ const assertValidScanOptions = (options: ScanOptions) => {
     throw new DynamsoftScannerError({
       code: "INVALID_SCAN_OPTIONS",
       message: "duplex no es valido.",
+    });
+  }
+};
+
+const assertValidCropSelection = (selection: PageCropSelection) => {
+  const values = [selection.x, selection.y, selection.width, selection.height];
+  if (values.some((value) => !Number.isFinite(value)) || selection.width <= 0 || selection.height <= 0) {
+    throw new DynamsoftScannerError({
+      code: "INVALID_SCAN_OPTIONS",
+      message: "El area de recorte no es valida.",
     });
   }
 };
@@ -585,6 +596,41 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     this.pageRotationById.set(pageId, nextRotation);
     this.pages = this.pages.map((page) =>
       page.id === pageId ? this.buildPageFromBuffer(dwt, page.index) : page,
+    );
+    return [...this.pages];
+  }
+
+  async cropPage(pageId: string, selection: PageCropSelection) {
+    assertValidCropSelection(selection);
+    const dwt = this.requireDwt();
+    if (!dwt.Crop) {
+      throw new DynamsoftScannerError({
+        code: "DYNAMSOFT_RUNTIME_UNAVAILABLE",
+        message: "El recorte manual no esta disponible en este runtime de Dynamsoft.",
+      });
+    }
+
+    const pageIndex = this.getPageIndex(pageId);
+    const left = Math.max(0, Math.floor(selection.x));
+    const top = Math.max(0, Math.floor(selection.y));
+    const right = Math.ceil(selection.x + selection.width);
+    const bottom = Math.ceil(selection.y + selection.height);
+    const cropResult = dwt.Crop(pageIndex, left, top, right, bottom);
+    if (cropResult === false) {
+      throw new DynamsoftScannerError({
+        code: "INVALID_SCAN_OPTIONS",
+        message: "No fue posible aplicar el recorte manual.",
+      });
+    }
+
+    this.pages = this.pages.map((page) =>
+      page.id === pageId
+        ? {
+            ...this.buildPageFromBuffer(dwt, page.index),
+            id: page.id,
+            rotationDegrees: this.pageRotationById.get(page.id) ?? page.rotationDegrees ?? 0,
+          }
+        : page,
     );
     return [...this.pages];
   }
@@ -1261,14 +1307,14 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   }
 
   private getPageIndex(pageId: string) {
-    const pageIndex = this.pages.findIndex((page) => page.id === pageId);
-    if (pageIndex === -1) {
+    const page = this.pages.find((currentPage) => currentPage.id === pageId);
+    if (!page) {
       throw new DynamsoftScannerError({
         code: "PDF_EMPTY",
         message: "Pagina no encontrada.",
       });
     }
 
-    return pageIndex;
+    return page.index;
   }
 }

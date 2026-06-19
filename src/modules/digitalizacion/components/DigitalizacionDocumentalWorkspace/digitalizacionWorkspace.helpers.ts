@@ -15,6 +15,7 @@ export const unavailableScannerClient: DigitalizacionScannerClient = {
     });
   },
   rotatePage: async () => [],
+  cropPage: async () => [],
   removePage: async () => undefined,
   reorderPages: async () => [],
   clear: async () => undefined,

@@ -17,6 +17,13 @@ export type ScanPage = {
   rotationDegrees?: number;
 };
 
+export type PageCropSelection = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 export type ScanColorMode = (typeof DYNAMSOFT_ALLOWED_COLOR_MODES)[number];
 
 export type AutomaticImageProcessingOptions = {
@@ -63,6 +70,7 @@ export interface DigitalizacionScannerClient {
   selectDevice(deviceId: string): Promise<void>;
   scan(options: ScanOptions): Promise<ScanPage[]>;
   rotatePage(pageId: string, degrees: 90 | 180 | 270): Promise<ScanPage[]>;
+  cropPage(pageId: string, selection: PageCropSelection): Promise<ScanPage[]>;
   removePage(pageId: string): Promise<void>;
   reorderPages(pageIds: string[]): Promise<ScanPage[]>;
   clear(): Promise<void>;

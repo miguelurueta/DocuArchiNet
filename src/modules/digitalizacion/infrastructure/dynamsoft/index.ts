@@ -30,6 +30,7 @@ export type {
   DynamsoftWebTwainObject,
   DynamsoftWindow,
   PdfGenerationResult,
+  PageCropSelection,
   ScanColorMode,
   ScanOptions,
   ScanPage,
