@@ -77,19 +77,19 @@
 ## 9. QA manual
 
 - [x] 9.1 Abrir PDF normal, anotar una pagina, guardar y verificar reemplazo.
-- [ ] 9.2 Abrir PDF normal, anotar varias paginas y verificar reemplazo en una sola operacion logica.
-- [ ] 9.3 Cancelar durante upload y verificar limpieza best-effort.
+- [x] 9.2 Abrir PDF normal, anotar varias paginas y verificar reemplazo en una sola operacion logica.
+- [x] 9.3 Cancelar durante upload y verificar limpieza best-effort.
 - [x] 9.4 Cambiar de documento durante upload/carga y verificar latest-wins.
 - [x] 9.5 Intentar guardar documento firmado electronicamente y verificar bloqueo.
 - [x] 9.6 Probar PDF protegido con password valida si el flujo existe.
-- [ ] 9.7 Probar password invalida y error `originalPdfPassword` si el flujo existe.
-- [ ] 9.8 Simular rechazo anti-desfase si hay metadata real disponible.
-- [ ] 9.9 Confirmar que no se muestran rutas fisicas a usuarios finales cuando aplique.
+- [x] 9.7 Probar password invalida y error `originalPdfPassword` si el flujo existe.
+- [x] 9.8 Simular rechazo anti-desfase si hay metadata real disponible.
+- [x] 9.9 Confirmar que no se muestran rutas fisicas a usuarios finales cuando aplique.
 - [x] 9.10 Confirmar no-regresion principal: firma, imagenes y carga gestionada. Exportacion/impresion quedan sin evidencia manual especifica en este cierre parcial.
 
 ## 10. Publish / cierre
 
 - [x] 10.1 Revisar diff final de design/spec/tasks e implementacion.
 - [x] 10.2 Crear commit y push de artefactos refinados o implementacion segun el estado del flujo.
-- [x] 10.3 Abrir/actualizar PR mediante el flujo `opsxj:archive` cuando corresponda.
-- [ ] 10.4 Actualizar Jira con enlace/evidencia cuando corresponda.
+- [x] 10.3 Abrir/actualizar PR mediante el flujo `opsxj:archive` cuando corresponda. PR base `#288` fusionado; PR posterior de sincronizacion AppEditor `#289` abierto.
+- [x] 10.4 Actualizar Jira con enlace/evidencia cuando corresponda. `SCRUMCORE-238` movido a `Finalizada` con comentario de cierre.
