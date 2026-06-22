@@ -114,24 +114,36 @@ SCRUMCORE-259: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL- MODERNIZACION-ESCANEO
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Modernizar la experiencia visual controlada por DocuArchi durante escaneo y procesamiento.
+- Centralizar los estados de scanner, procesamiento, preview y PDF en un unico overlay.
+- Documentar la limitacion del dialogo nativo PaperStream y la auditoria de eventos disponible en el contrato local.
 
 **Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+- Personalizar el dialogo nativo PaperStream IP renderizado por el driver.
+- Cambiar la configuracion fisica del scanner o el contrato backend de digitalizacion.
 
 ## Decisions
 
-1. TBD
+1. Se agrega `ScanProgressSnapshot` como contrato de progreso del scanner.
+2. `useDigitalizacionScanner` conserva estados gruesos (`scanning`, `generatingPdf`) y expone `progress` para detalle visual.
+3. `DynamsoftTwainClient` reporta progreso solo en fases controladas por DocuArchi: adquisicion indeterminada, construccion de paginas, blank-page removal, Deskew, Auto Crop, Auto Rotate, generacion PDF y preparacion final.
+4. El overlay vive sobre el panel Preview PDF para evitar loaders duplicados en toolbar, miniaturas o footer.
+5. La presentacion final del overlay es minimalista: loader Contasoft, un unico texto visible (`Escaneando documentos`, `Procesando documentos` o `Generando PDF`) y boton de cancelacion cuando aplica.
+6. No se exponen barras, porcentajes, paginas actuales/totales ni detalles tecnicos internos en la UI.
 
 ## Risks / Trade-offs
 
-- TBD
+- Durante `AcquireImage()` no hay pagina actual/total confiable en el contrato TypeScript local; el overlay muestra avance indeterminado.
+- El boton de cancelacion del overlay cancela el flujo DocuArchi; la cancelacion del driver sigue dependiendo de PaperStream cuando el dialogo nativo esta activo.
+- Los eventos futuros de Dynamsoft deben conectarse al mismo contrato de progreso para no duplicar UI.
 
 ## Migration Plan
 
-1. TBD
+1. Extender tipos de scanner con progreso opcional.
+2. Emitir progreso desde hook y cliente Dynamsoft sin romper clientes existentes.
+3. Renderizar overlay unico en `DigitalizacionDocumentalWorkspace`.
+4. Cubrir el contrato con pruebas unitarias focales y documentar la auditoria.
 
 ## Open Questions
 
-- TBD
+- Confirmar en QA con hardware PaperStream real si el driver expone eventos runtime adicionales fuera del contrato local.

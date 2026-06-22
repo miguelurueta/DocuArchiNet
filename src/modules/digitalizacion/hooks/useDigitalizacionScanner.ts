@@ -9,6 +9,7 @@ import type {
   PageCropSelection,
   ScanOptions,
   ScanPage,
+  ScanProgressSnapshot,
   ScannerDevice,
 } from "../infrastructure/dynamsoft";
 
@@ -26,6 +27,7 @@ export type DigitalizacionScannerHookState = {
   selectedDeviceId: string | null;
   pages: ScanPage[];
   pdf: PdfGenerationResult | null;
+  progress: ScanProgressSnapshot | null;
   error: DynamsoftScannerError | null;
 };
 
@@ -35,6 +37,7 @@ const initialState: DigitalizacionScannerHookState = {
   selectedDeviceId: null,
   pages: [],
   pdf: null,
+  progress: null,
   error: null,
 };
 
@@ -105,6 +108,7 @@ export const useDigitalizacionScanner = ({
       updateIfCurrent(generation, (current) => ({
         ...current,
         status: "error",
+        progress: null,
         error: scannerError,
       }));
       return scannerError;
@@ -117,6 +121,12 @@ export const useDigitalizacionScanner = ({
     updateIfCurrent(generation, (current) => ({
       ...current,
       status: "initializing",
+      progress: {
+        stage: "preparingDocument",
+        label: "Preparando scanner",
+        detail: "Cargando recursos de captura.",
+        cancellable: false,
+      },
       error: null,
     }));
 
@@ -127,6 +137,7 @@ export const useDigitalizacionScanner = ({
         ...current,
         status: "ready",
         devices,
+        progress: null,
         error: null,
       }));
     } catch (error) {
@@ -143,6 +154,7 @@ export const useDigitalizacionScanner = ({
         updateIfCurrent(generation, (current) => ({
           ...current,
           selectedDeviceId: deviceId,
+          progress: null,
           error: null,
         }));
         logDevelopmentMetric("SCAN_SELECTION_TIME", startedAt, { status: "success" });
@@ -160,16 +172,32 @@ export const useDigitalizacionScanner = ({
       updateIfCurrent(generation, (current) => ({
         ...current,
         status: "scanning",
+        progress: {
+          stage: "acquiring",
+          label: "Escaneando documentos",
+          detail: "Esperando paginas desde el driver.",
+          cancellable: true,
+        },
         error: null,
       }));
 
       try {
-        const pages = await client.scan(options);
+        const pages = await client.scan({
+          ...options,
+          onProgress: (progress) => {
+            updateIfCurrent(generation, (current) => ({
+              ...current,
+              progress,
+            }));
+            options.onProgress?.(progress);
+          },
+        });
         updateIfCurrent(generation, (current) => ({
           ...current,
           status: "ready",
           pages,
           pdf: null,
+          progress: null,
           error: null,
         }));
         if (options.removeBlankPages) {
@@ -192,6 +220,7 @@ export const useDigitalizacionScanner = ({
           ...current,
           pages: current.pages.filter((page) => page.id !== pageId),
           pdf: null,
+          progress: null,
           error: null,
         }));
         logDevelopmentMetric("DELETE_TIME", startedAt, { status: "success" });
@@ -213,6 +242,7 @@ export const useDigitalizacionScanner = ({
           ...current,
           pages,
           pdf: null,
+          progress: null,
           error: null,
         }));
         logDevelopmentMetric("REORDER_TIME", startedAt, {
@@ -237,6 +267,7 @@ export const useDigitalizacionScanner = ({
           ...current,
           pages,
           pdf: null,
+          progress: null,
           error: null,
         }));
         logDevelopmentMetric("ROTATE_TIME", startedAt, {
@@ -261,6 +292,7 @@ export const useDigitalizacionScanner = ({
           ...current,
           pages,
           pdf: null,
+          progress: null,
           error: null,
         }));
         logDevelopmentMetric("CROP_TIME", startedAt, { status: "success" });
@@ -280,6 +312,7 @@ export const useDigitalizacionScanner = ({
         ...current,
         pages: [],
         pdf: null,
+        progress: null,
         error: null,
       }));
     } catch (error) {
@@ -294,6 +327,14 @@ export const useDigitalizacionScanner = ({
       updateIfCurrent(generation, (current) => ({
         ...current,
         status: "generatingPdf",
+        progress: {
+          stage: "generatingPdf",
+          label: "Generando PDF",
+          detail: "Construyendo el documento final.",
+          totalPages: current.pages.length,
+          progress: 85,
+          cancellable: false,
+        },
         error: null,
       }));
 
@@ -303,6 +344,7 @@ export const useDigitalizacionScanner = ({
           ...current,
           status: "ready",
           pdf,
+          progress: null,
           error: null,
         }));
         logDevelopmentMetric("PDF_GENERATION_TIME", startedAt, {

@@ -42,6 +42,9 @@ const createScannerClient = (): DigitalizacionScannerClient & { pages: ScanPage[
   rotatePage: vi.fn(async function rotatePage(this: { pages: ScanPage[] }) {
     return this.pages;
   }),
+  cropPage: vi.fn(async function cropPage(this: { pages: ScanPage[] }) {
+    return this.pages;
+  }),
   removePage: vi.fn(async () => undefined),
   reorderPages: vi.fn(async function reorderPages(this: { pages: ScanPage[] }, pageIds: string[]) {
     this.pages = pageIds
@@ -247,7 +250,7 @@ describe("[SPEC:SCRUMCORE-239] DigitalizacionDocumentalModal", () => {
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Rotar derecha" }));
-    fireEvent.click(screen.getByRole("button", { name: "Eliminar página" }));
+    fireEvent.click(screen.getByRole("button", { name: "Eliminar pagina" }));
     fireEvent.click(screen.getByRole("button", { name: "Generar PDF" }));
 
     expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-1", 90);

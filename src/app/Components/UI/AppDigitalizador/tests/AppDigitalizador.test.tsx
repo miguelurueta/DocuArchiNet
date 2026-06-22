@@ -37,6 +37,15 @@ const installLocalStorageMock = () => {
   });
 };
 
+const createDeferred = <T,>() => {
+  let resolveValue: (value: T) => void = () => undefined;
+  const promise = new Promise<T>((resolve) => {
+    resolveValue = resolve;
+  });
+
+  return { promise, resolve: resolveValue };
+};
+
 const createScannerClient = (
   pages: ScanPage[] = [{ id: "page-1", index: 0 }],
 ): DigitalizacionScannerClient => ({
@@ -191,7 +200,7 @@ describe("AppDigitalizador", () => {
     fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
 
     await waitFor(() =>
-      expect(scannerClient.scan).toHaveBeenCalledWith({
+      expect(scannerClient.scan).toHaveBeenCalledWith(expect.objectContaining({
         deviceId: "scanner-1",
         colorMode: "grayscale",
         duplex: true,
@@ -204,8 +213,64 @@ describe("AppDigitalizador", () => {
           autoCrop: true,
           autoRotate: true,
         },
-      }),
+      })),
     );
+  });
+
+  it("[SPEC:SCRUMCORE-259] usa overlay corporativo como unica fuente de progreso durante escaneo", async () => {
+    const deferred = createDeferred<ScanPage[]>();
+    const scannerClient = createScannerClient();
+    vi.mocked(scannerClient.scan).mockImplementationOnce((options) => {
+      options.onProgress?.({
+        stage: "processingImages",
+        label: "Procesando imagenes",
+        detail: "2 paginas recibidas desde Web TWAIN.",
+        currentPage: 2,
+        totalPages: 2,
+      });
+      return deferred.promise;
+    });
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    fireEvent.change(await screen.findByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+
+    const preview = screen.getByRole("region", { name: "Preview digitalizacion" });
+    await waitFor(() => {
+      const progressStatus = within(preview).getByRole("status", {
+        name: "Procesando documentos",
+      });
+      expect(progressStatus).toBeInTheDocument();
+      expect(within(progressStatus).getByText("Procesando documentos")).toBeInTheDocument();
+      expect(within(progressStatus).queryByText("Procesando imagenes")).not.toBeInTheDocument();
+      expect(
+        within(progressStatus).queryByText(/Web TWAIN|Dynamsoft|SDK|runtime|driver/i),
+      ).not.toBeInTheDocument();
+      expect(within(progressStatus).queryByRole("progressbar")).not.toBeInTheDocument();
+      expect(progressStatus.querySelector("svg")).toBeInTheDocument();
+      expect(progressStatus.querySelector("img")).not.toBeInTheDocument();
+      expect(progressStatus.querySelector("canvas")).not.toBeInTheDocument();
+      expect(preview).toHaveAttribute("data-progress-active", "true");
+      expect(preview.querySelector(".ant-spin")).toBeNull();
+    });
+
+    deferred.resolve([{ id: "page-1", index: 0 }]);
+    await waitFor(() => {
+      expect(preview).toHaveAttribute("data-progress-active", "false");
+    });
   });
 
   it("[SPEC:SCRUMCORE-254] contrae paneles laterales y expande el preview sin desmontar el workspace", async () => {

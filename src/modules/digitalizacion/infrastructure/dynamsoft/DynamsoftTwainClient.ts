@@ -22,6 +22,7 @@ import type {
   ScanColorMode,
   ScanOptions,
   ScanPage,
+  ScanProgressListener,
   ScannerDevice,
 } from "./dynamsoft.types";
 
@@ -276,21 +277,29 @@ type ProcessingFeature = keyof AutomaticImageProcessingOptions;
 
 const automaticProcessingFeatures: Array<{
   key: ProcessingFeature;
+  progressStage: "applyingDeskew" | "applyingAutoCrop" | "applyingAutoRotate";
+  progressLabel: string;
   timeLog: "DESKEW_TIME" | "AUTOCROP_TIME" | "AUTOROTATE_TIME";
   methods: string[];
 }> = [
   {
     key: "deskew",
+    progressStage: "applyingDeskew",
+    progressLabel: "Aplicando Deskew",
     timeLog: "DESKEW_TIME",
     methods: ["Deskew", "deskew", "DeskewImage", "AutoDeskew"],
   },
   {
     key: "autoCrop",
+    progressStage: "applyingAutoCrop",
+    progressLabel: "Aplicando Auto Crop",
     timeLog: "AUTOCROP_TIME",
     methods: ["AutoCrop", "autoCrop", "AutoCropImage"],
   },
   {
     key: "autoRotate",
+    progressStage: "applyingAutoRotate",
+    progressLabel: "Aplicando Auto Rotate",
     timeLog: "AUTOROTATE_TIME",
     methods: ["AutoRotate", "autoRotate", "AutoRotateImage"],
   },
@@ -528,6 +537,14 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
     try {
       const previousCount = dwt.HowManyImagesInBuffer ?? 0;
+      this.reportScanProgress(options.onProgress, {
+        stage: "acquiring",
+        label: "Escaneando documentos",
+        detail: options.showScannerUi
+          ? "El avance nativo depende del dialogo PaperStream."
+          : "Esperando paginas desde Dynamsoft Web TWAIN.",
+        cancellable: true,
+      });
       const acquireOptions = {
         IfShowUI: options.showScannerUi ?? false,
         PixelType: colorModeToPixelType[options.colorMode ?? "color"],
@@ -556,6 +573,15 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       this.ensureNotStale(operationGeneration);
 
       const nextCount = dwt.HowManyImagesInBuffer ?? previousCount;
+      this.reportScanProgress(options.onProgress, {
+        stage: "processingImages",
+        label: "Procesando imagenes",
+        detail: `${Math.max(nextCount - previousCount, 0)} paginas recibidas.`,
+        currentPage: Math.max(nextCount - previousCount, 0),
+        totalPages: Math.max(nextCount - previousCount, 0) || undefined,
+        progress: 35,
+        cancellable: false,
+      });
       this.pages = this.buildPagesFromBuffer(dwt, nextCount);
       if (options.removeBlankPages) {
         logBlankPageDiagnostic("BLANK_PAGE_FINAL_STATE", {
@@ -567,9 +593,27 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       }
       let blankRemovalResult: BlankPageRemovalResult | null = null;
       if (options.removeBlankPages) {
+        this.reportScanProgress(options.onProgress, {
+          stage: "removingBlankPages",
+          label: "Eliminando paginas en blanco",
+          detail: `${this.pages.length} paginas por analizar.`,
+          currentPage: 0,
+          totalPages: this.pages.length,
+          progress: 45,
+          cancellable: false,
+        });
         blankRemovalResult = await this.removeDetectedBlankPages(dwt);
       }
-      await this.applyAutomaticProcessing(dwt, options.automaticProcessing);
+      await this.applyAutomaticProcessing(dwt, options.automaticProcessing, options.onProgress);
+      this.reportScanProgress(options.onProgress, {
+        stage: "preparingDocument",
+        label: "Preparando documento",
+        detail: `${this.pages.length} paginas listas para preview.`,
+        currentPage: this.pages.length,
+        totalPages: this.pages.length,
+        progress: 95,
+        cancellable: false,
+      });
       if (options.removeBlankPages) {
         this.logBlankPageReinsertions("afterAutomaticProcessing", blankRemovalResult);
         logBlankPageDiagnostic("BLANK_PAGE_FINAL_STATE", {
@@ -793,6 +837,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   private async applyAutomaticProcessing(
     dwt: DynamsoftWebTwainObject,
     processing?: AutomaticImageProcessingOptions,
+    onProgress?: ScanProgressListener,
   ) {
     if (!processing) {
       return {};
@@ -807,6 +852,20 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
     const result: AutomaticImageProcessingResult = {};
     for (const feature of enabledFeatures) {
+      this.reportScanProgress(onProgress, {
+        stage: feature.progressStage,
+        label: feature.progressLabel,
+        detail: `${this.pages.length} paginas en procesamiento.`,
+        currentPage: 0,
+        totalPages: this.pages.length,
+        progress:
+          feature.key === "deskew"
+            ? 55
+            : feature.key === "autoCrop"
+              ? 65
+              : 75,
+        cancellable: false,
+      });
       result[feature.key] = await this.applyAutomaticProcessingFeature(dwt, feature);
     }
 
@@ -878,6 +937,13 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       .find((candidate): candidate is (index: number) => unknown => typeof candidate === "function");
 
     return method;
+  }
+
+  private reportScanProgress(
+    onProgress: ScanProgressListener | undefined,
+    progress: Parameters<ScanProgressListener>[0],
+  ) {
+    onProgress?.(progress);
   }
 
   private refreshPagesById(dwt: DynamsoftWebTwainObject, pageIds: string[]) {

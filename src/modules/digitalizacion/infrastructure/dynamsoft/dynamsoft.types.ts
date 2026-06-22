@@ -48,6 +48,28 @@ export type AutomaticImageProcessingResult = Partial<
   >
 >;
 
+export type ScanProgressStage =
+  | "acquiring"
+  | "processingImages"
+  | "removingBlankPages"
+  | "applyingDeskew"
+  | "applyingAutoCrop"
+  | "applyingAutoRotate"
+  | "generatingPdf"
+  | "preparingDocument";
+
+export type ScanProgressSnapshot = {
+  stage: ScanProgressStage;
+  label: string;
+  detail?: string;
+  currentPage?: number;
+  totalPages?: number;
+  progress?: number;
+  cancellable?: boolean;
+};
+
+export type ScanProgressListener = (progress: ScanProgressSnapshot) => void;
+
 export type ScanOptions = {
   deviceId: string;
   resolutionDpi?: number;
@@ -57,6 +79,7 @@ export type ScanOptions = {
   showScannerUi?: boolean;
   removeBlankPages?: boolean;
   automaticProcessing?: AutomaticImageProcessingOptions;
+  onProgress?: ScanProgressListener;
 };
 
 export type PdfGenerationResult = {

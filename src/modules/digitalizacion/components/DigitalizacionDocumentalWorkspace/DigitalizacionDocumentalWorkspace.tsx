@@ -32,6 +32,7 @@ import {
 } from "@ant-design/icons";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
+import { AppContasoftLoader } from "../../../../app/Components/UI/AppContasoftLoader/AppContasoftLoader";
 import { AppDropdown } from "../../../../app/Components/UI/AppDropdown";
 import { useDigitalizacionDocumentalState } from "../../hooks/useDigitalizacionDocumentalState";
 import { useDigitalizacionOperationOrchestrator } from "../../hooks/useDigitalizacionOperationOrchestrator";
@@ -45,6 +46,7 @@ import {
   DYNAMSOFT_CONTAINER_ID,
   type PageCropSelection,
   type ScanPage,
+  type ScanProgressSnapshot,
 } from "../../infrastructure/dynamsoft";
 import { unavailableScannerClient } from "./digitalizacionWorkspace.helpers";
 import styles from "./DigitalizacionDocumentalWorkspace.module.css";
@@ -205,6 +207,62 @@ const getPageAspectRatioStyle = (page: ScanPage): CSSProperties | undefined => {
   return {
     "--page-aspect-ratio": `${page.width} / ${page.height}`,
   } as CSSProperties;
+};
+
+const getOverlayProgressLabel = (progress: ScanProgressSnapshot | null) => {
+  if (!progress) {
+    return "Escaneando documentos";
+  }
+
+  if (progress.stage === "generatingPdf") {
+    return "Generando PDF";
+  }
+
+  if (progress.stage === "acquiring" || progress.stage === "preparingDocument") {
+    return "Escaneando documentos";
+  }
+
+  return "Procesando documentos";
+};
+
+const getFooterProgressLabel = (progress: ScanProgressSnapshot | null) =>
+  progress ? getOverlayProgressLabel(progress) : null;
+
+const getScannerLoadingProgress = ({
+  loading,
+  status,
+  pageCount,
+}: {
+  loading: boolean;
+  status: string;
+  pageCount: number;
+}): ScanProgressSnapshot | null => {
+  if (!loading) {
+    return null;
+  }
+
+  if (status === "generatingPdf") {
+    return {
+      stage: "generatingPdf",
+      label: "Generando PDF",
+      totalPages: pageCount,
+      cancellable: false,
+    };
+  }
+
+  if (status === "scanning") {
+    return {
+      stage: "acquiring",
+      label: "Escaneando documentos",
+      cancellable: true,
+    };
+  }
+
+  return {
+    stage: "preparingDocument",
+    label: "Escaneando documentos",
+    cancellable: false,
+  };
 };
 
 const clampNumber = (value: number, min: number, max: number) =>
@@ -947,6 +1005,15 @@ export function DigitalizacionDocumentalWorkspace({
   ]
     .filter(Boolean)
     .join(" ");
+  const activeProgress =
+    scanner.progress ??
+    getScannerLoadingProgress({
+      loading: scanner.loading,
+      status: scanner.status,
+      pageCount: scanner.pages.length,
+    });
+  const activeProgressLabel = getOverlayProgressLabel(activeProgress);
+  const footerProgressLabel = getFooterProgressLabel(activeProgress);
 
   if (!active) {
     return null;
@@ -1093,11 +1160,12 @@ export function DigitalizacionDocumentalWorkspace({
           )}
         </AppCollapseRail>
 
-        <section
-          className={previewPanelClassName}
-          aria-label="Preview digitalizacion"
-          ref={previewPanelRef}
-        >
+      <section
+        className={previewPanelClassName}
+        aria-label="Preview digitalizacion"
+        data-progress-active={activeProgress ? "true" : "false"}
+        ref={previewPanelRef}
+      >
           <div className={`${styles.panelHeader} ${styles.previewHeader}`}>
             <div className={styles.previewControls} role="toolbar" aria-label="Visualizacion preview">
               <div className={styles.previewControlGroup} role="group" aria-label="Edicion">
@@ -1332,6 +1400,33 @@ export function DigitalizacionDocumentalWorkspace({
               </div>
             )}
           </div>
+          {activeProgress ? (
+            <div
+              className={styles.scanProgressOverlay}
+              role="status"
+              aria-live="polite"
+              aria-label={activeProgressLabel}
+            >
+              <div className={styles.scanProgressPanel}>
+                <div className={styles.scanProgressIcon} aria-hidden="true">
+                  <AppContasoftLoader size={72} label="Progreso Contasoft" />
+                </div>
+                <div className={styles.scanProgressContent}>
+                  <span className={styles.scanProgressTitle}>{activeProgressLabel}</span>
+                </div>
+                {activeProgress.cancellable ? (
+                  <AppButton
+                    variant="ghost"
+                    size="sm"
+                    icon={<CloseOutlined />}
+                    aria-label="Cancelar operacion"
+                    tooltip="Cancelar operacion"
+                    onClick={handleCancel}
+                  />
+                ) : null}
+              </div>
+            </div>
+          ) : null}
           {showPageOrganizer ? (
             <div
               className={styles.pageOrganizerOverlay}
@@ -1615,7 +1710,10 @@ export function DigitalizacionDocumentalWorkspace({
       <footer className={styles.workbenchFooter}>
         <span>{submitDisabledReason}</span>
         <div className={styles.footerActions}>
-          <span>{scanner.loading || operation.loading ? "Operacion en curso" : "Listo para operar"}</span>
+          <span>
+            {footerProgressLabel ??
+              (operation.loading ? `Operacion ${operation.status}` : "Listo para operar")}
+          </span>
           <AppButton variant="ghost" onClick={handleCancel} disabled={operation.loading}>
             Cancelar
           </AppButton>

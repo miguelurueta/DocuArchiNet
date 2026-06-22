@@ -1,12 +1,36 @@
 ## ADDED Requirements
-### Requirement: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL- MODERNIZACION-ESCANEO
-El sistema SHALL implementar el alcance definido para SCRUMCORE-259.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
+### Requirement: Overlay Unificado De Progreso De Escaneo
+El sistema SHALL mostrar un unico overlay corporativo para los estados de escaneo y procesamiento controlados por DocuArchi.
+
+#### Scenario: Progreso durante adquisicion
+- **WHEN** el usuario inicia un escaneo desde `DigitalizacionDocumentalWorkspace`
+- **THEN** el preview muestra el estado `Escaneando documentos`
+- **AND** el overlay no muestra barra de progreso, porcentaje, pagina actual ni mensajes tecnicos internos
+
+#### Scenario: Progreso durante procesamiento controlado
+- **WHEN** DocuArchi procesa paginas despues de la adquisicion
+- **THEN** el overlay muestra `Procesando documentos` durante Deskew, Auto Crop, Auto Rotate, eliminacion de paginas en blanco, construccion de paginas y preparacion final
+- **AND** el overlay muestra `Generando PDF` durante la generacion del PDF
+- **AND** el footer reutiliza el mismo estado simplificado
+
+#### Scenario: Limpieza de progreso
+- **WHEN** el escaneo o la generacion PDF termina correctamente o falla
+- **THEN** el overlay desaparece y el workspace vuelve al estado visual correspondiente
+
+#### Scenario: Sin loaders duplicados
+- **WHEN** `scanner.progress` existe o `scanner.loading` es verdadero
+- **AND** el overlay corporativo esta visible en `Preview digitalizacion`
+- **THEN** no se renderiza un spinner o loader historico adicional dentro del preview
+- **AND** el overlay corporativo es la fuente unica de progreso visible
+
+### Requirement: Auditoria De Limitaciones PaperStream
+El sistema SHALL documentar que el dialogo nativo PaperStream IP no es personalizable desde React.
+
+#### Scenario: Documentacion tecnica
+- **WHEN** se revisa la documentacion de DigitalizacionDocumental
+- **THEN** existe `docs/Architecture/DigitalizacionDocumental/SCRUMCORE-275-scan-progress-modernization.md`
+- **AND** el documento describe limitaciones del driver, eventos disponibles, estados soportados, diseno propuesto y riesgos.
+
 ### Requirement: Detalle funcional Jira
 El sistema SHALL considerar las reglas detalladas del ticket.
 
