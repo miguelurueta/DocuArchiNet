@@ -159,7 +159,7 @@
 
 - [x] 10.1 Revisar diff final.
 - [x] 10.2 Commit de implementacion.
-- [ ] 10.3 Push de `feature/SCRUMCORE-251`.
-- [ ] 10.4 Crear PR.
-- [ ] 10.5 Actualizar metadata con PR/commits/evidencias.
+- [x] 10.3 Push de `feature/SCRUMCORE-251`.
+- [x] 10.4 Crear PR.
+- [x] 10.5 Actualizar metadata con PR/commits/evidencias.
 - [x] 10.6 Documentar actualizacion 2026-06-20 de asistente IA, sugerencias, mobile y AppEditor overlays.

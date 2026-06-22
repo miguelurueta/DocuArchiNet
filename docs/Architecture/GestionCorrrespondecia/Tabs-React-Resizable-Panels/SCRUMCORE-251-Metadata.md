@@ -30,7 +30,8 @@
 - QA manual obligatorio confirmado por usuario y marcado como completado en `tasks.md`.
 - Commit responsive previo: `0cc874d fix(SCRUMCORE-251): polish responsive workbench UI`.
 - Commit asistente IA: commit actual con mensaje `feat(SCRUMCORE-251): add workbench AI assistant`.
-- Push/PR: no ejecutados en este bloque.
+- Push: ejecutado sobre `feature/SCRUMCORE-251`.
+- PR: `#294` draft, `https://github.com/miguelurueta/DocuArchiCore.react/pull/294`.
 
 ## Commits previos relevantes
 
@@ -48,6 +49,7 @@
 - `9d78901 fix(SCRUMCORE-251): compact mobile editor actions`
 - `0cc874d fix(SCRUMCORE-251): polish responsive workbench UI`
 - `feat(SCRUMCORE-251): add workbench AI assistant` (commit actual; hash verificable con `git log`)
+- `12a751a docs(SCRUMCORE-251): close workbench validation`
 
 ## Archivos de codigo modificados en este bloque
 
@@ -216,6 +218,10 @@
   - Resultado: fallido por `TS2552` en `src/modules/digitalizacion/infrastructure/dynamsoft/DynamsoftTwainClient.ts:908`, simbolo `DynamsoftWebTwainFactory` no definido.
   - Decision: no se corrige `DynamsoftTwainClient.ts` dentro de SCRUMCORE-251 para no afectar Digitalizacion ni componentes fuera del alcance solicitado.
   - QA manual: usuario confirma ejecucion completa de los pasos 6.1 a 6.12; checklist actualizado como completado.
+  - Commit de cierre de validacion: `12a751a docs(SCRUMCORE-251): close workbench validation`.
+  - Push: `feature/SCRUMCORE-251` actualizado en `origin`.
+  - Pull request: `#294`, draft, base `main`, head `feature/SCRUMCORE-251`.
+  - URL: `https://github.com/miguelurueta/DocuArchiCore.react/pull/294`.
 - Tests agregados/modificados:
   - `AppUpload.test.tsx`: caso de archivo visible con estrategia `auto`.
   - `AppToolbar.test.tsx`: assertion para que desktop no se marque como compacto.
