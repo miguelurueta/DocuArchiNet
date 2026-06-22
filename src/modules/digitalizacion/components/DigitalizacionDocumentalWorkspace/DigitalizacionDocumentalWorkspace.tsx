@@ -6,10 +6,12 @@ import {
   useState,
   type CSSProperties,
   type DragEvent,
+  type MouseEvent,
   type PointerEvent,
 } from "react";
 import {
   BorderOutlined,
+  CheckSquareOutlined,
   ClearOutlined,
   CloseOutlined,
   ColumnWidthOutlined,
@@ -70,6 +72,7 @@ type CropSelectionState = {
   pageId: string;
   selection: PageCropSelection;
 };
+type SelectedPageIds = Set<string>;
 
 const MIN_PREVIEW_ZOOM = 50;
 const MAX_PREVIEW_ZOOM = 200;
@@ -355,9 +358,7 @@ export function DigitalizacionDocumentalWorkspace({
     width: 0,
     height: 0,
   });
-  const [selectedOrganizerPageIds, setSelectedOrganizerPageIds] = useState<Set<string>>(
-    () => new Set(),
-  );
+  const [selectedPageIdsState, setSelectedPageIds] = useState<SelectedPageIds>(() => new Set());
   const [panelPreferences, setPanelPreferences] = useState<PanelPreferences>(
     readPanelPreferences,
   );
@@ -397,6 +398,7 @@ export function DigitalizacionDocumentalWorkspace({
       clear();
       void dispose();
       setSelectedPageId(null);
+      setSelectedPageIds(new Set());
       onCompleted(result);
     },
     [clear, dispose, onCompleted],
@@ -433,6 +435,17 @@ export function DigitalizacionDocumentalWorkspace({
         : "Pendiente captura PDF");
   const selectedPage =
     scanner.pages.find((page) => page.id === selectedPageId) ?? scanner.pages[0] ?? null;
+  const availablePageIds = useMemo(
+    () => new Set(scanner.pages.map((page) => page.id)),
+    [scanner.pages],
+  );
+  const selectedPageIds = useMemo(
+    () =>
+      new Set(
+        Array.from(selectedPageIdsState).filter((pageId) => availablePageIds.has(pageId)),
+      ),
+    [availablePageIds, selectedPageIdsState],
+  );
 
   useEffect(() => {
     if (active) {
@@ -449,6 +462,7 @@ export function DigitalizacionDocumentalWorkspace({
     clear();
     void dispose();
     setSelectedPageId(null);
+    setSelectedPageIds(new Set());
     onCompleted({ accion: "cancelado" });
     onCancel?.();
   }, [clear, dispose, onCancel, onCompleted, operation]);
@@ -456,6 +470,7 @@ export function DigitalizacionDocumentalWorkspace({
   const handleClear = useCallback(() => {
     clearPages();
     setSelectedPageId(null);
+    setSelectedPageIds(new Set());
     void clearScanner();
   }, [clearPages, clearScanner]);
 
@@ -496,16 +511,56 @@ export function DigitalizacionDocumentalWorkspace({
   ]);
 
   const handleRotateSelected = useCallback((degrees: 90 | 270 = 90) => {
+    if (selectedPageIds.size > 0) {
+      const pageIds = scanner.pages
+        .map((page) => page.id)
+        .filter((pageId) => selectedPageIds.has(pageId));
+
+      pageIds.forEach((pageId) => {
+        void rotatePage(pageId, degrees);
+      });
+      return;
+    }
+
     const pageId = selectedPageId ?? scanner.pages[0]?.id;
     if (!pageId) return;
     void rotatePage(pageId, degrees);
-  }, [rotatePage, scanner.pages, selectedPageId]);
+  }, [rotatePage, scanner.pages, selectedPageId, selectedPageIds]);
 
   const handleRemoveSelected = useCallback(() => {
+    if (selectedPageIds.size > 0) {
+      const pageIds = scanner.pages
+        .map((page) => page.id)
+        .filter((pageId) => selectedPageIds.has(pageId));
+
+      if (pageIds.length === 0) {
+        return;
+      }
+
+      const confirmed =
+        typeof window === "undefined" ||
+        typeof window.confirm !== "function" ||
+        window.confirm(
+          `Eliminar ${pageIds.length} ${
+            pageIds.length === 1 ? "pagina seleccionada" : "paginas seleccionadas"
+          }?`,
+        ) !== false;
+
+      if (!confirmed) {
+        return;
+      }
+
+      pageIds.forEach((pageId) => {
+        void removePage(pageId);
+      });
+      setSelectedPageIds(new Set());
+      return;
+    }
+
     const pageId = selectedPageId ?? scanner.pages[0]?.id;
     if (!pageId) return;
     void removePage(pageId);
-  }, [removePage, scanner.pages, selectedPageId]);
+  }, [removePage, scanner.pages, selectedPageId, selectedPageIds]);
 
   const handleThumbnailDragStart = useCallback(
     (event: DragEvent<HTMLButtonElement>, pageId: string) => {
@@ -562,8 +617,8 @@ export function DigitalizacionDocumentalWorkspace({
     setDragOverPageId(null);
   }, []);
 
-  const handleToggleOrganizerPage = useCallback((pageId: string, checked: boolean) => {
-    setSelectedOrganizerPageIds((current) => {
+  const handleTogglePageSelection = useCallback((pageId: string, checked: boolean) => {
+    setSelectedPageIds((current) => {
       const next = new Set(current);
       if (checked) {
         next.add(pageId);
@@ -574,6 +629,28 @@ export function DigitalizacionDocumentalWorkspace({
     });
   }, []);
 
+  const handleTogglePageSelectionById = useCallback((pageId: string) => {
+    setSelectedPageIds((current) => {
+      const next = new Set(current);
+      if (next.has(pageId)) {
+        next.delete(pageId);
+      } else {
+        next.add(pageId);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleThumbnailClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>, pageId: string) => {
+      setSelectedPageId(pageId);
+      if (event.ctrlKey || event.metaKey) {
+        handleTogglePageSelectionById(pageId);
+      }
+    },
+    [handleTogglePageSelectionById],
+  );
+
   const handleOrganizerPageClick = useCallback((pageId: string) => {
     setSelectedPageId(pageId);
     setHighlightedPageId(pageId);
@@ -582,23 +659,48 @@ export function DigitalizacionDocumentalWorkspace({
   const handleRotateOrganizerSelection = useCallback((degrees: 90 | 270) => {
     const pageIds = scanner.pages
       .map((page) => page.id)
-      .filter((pageId) => selectedOrganizerPageIds.has(pageId));
+      .filter((pageId) => selectedPageIds.has(pageId));
 
     pageIds.forEach((pageId) => {
       void rotatePage(pageId, degrees);
     });
-  }, [rotatePage, scanner.pages, selectedOrganizerPageIds]);
+  }, [rotatePage, scanner.pages, selectedPageIds]);
 
   const handleRemoveOrganizerSelection = useCallback(() => {
     const pageIds = scanner.pages
       .map((page) => page.id)
-      .filter((pageId) => selectedOrganizerPageIds.has(pageId));
+      .filter((pageId) => selectedPageIds.has(pageId));
+
+    if (pageIds.length === 0) {
+      return;
+    }
+
+    const confirmed =
+      typeof window === "undefined" ||
+      typeof window.confirm !== "function" ||
+      window.confirm(
+        `Eliminar ${pageIds.length} ${
+          pageIds.length === 1 ? "pagina seleccionada" : "paginas seleccionadas"
+        }?`,
+      ) !== false;
+
+    if (!confirmed) {
+      return;
+    }
 
     pageIds.forEach((pageId) => {
       void removePage(pageId);
     });
-    setSelectedOrganizerPageIds(new Set());
-  }, [removePage, scanner.pages, selectedOrganizerPageIds]);
+    setSelectedPageIds(new Set());
+  }, [removePage, scanner.pages, selectedPageIds]);
+
+  const handleSelectAllPages = useCallback(() => {
+    setSelectedPageIds(new Set(scanner.pages.map((page) => page.id)));
+  }, [scanner.pages]);
+
+  const handleClearPageSelection = useCallback(() => {
+    setSelectedPageIds(new Set());
+  }, []);
 
   const handleGoToPage = useCallback(() => {
     const requestedPage = Number.parseInt(pageJumpValue, 10);
@@ -946,6 +1048,12 @@ export function DigitalizacionDocumentalWorkspace({
   const configurationCollapsed = !panelPreferences.showConfiguration;
   const thumbnailsVirtualized = scanner.pages.length > THUMBNAIL_VIRTUALIZATION_THRESHOLD;
   const organizerVirtualized = scanner.pages.length > PAGE_ORGANIZER_VIRTUALIZATION_THRESHOLD;
+  const selectedPageCount = selectedPageIds.size;
+  const hasPageSelection = selectedPageCount > 0;
+  const allPagesSelected = scanner.pages.length > 0 && selectedPageCount === scanner.pages.length;
+  const selectedPagesLabel = `${selectedPageCount} ${
+    selectedPageCount === 1 ? "pagina seleccionada" : "paginas seleccionadas"
+  }`;
   const pageOrganizerColumns = resolvePageOrganizerColumns({
     density: pageOrganizerDensity,
     pageCount: scanner.pages.length,
@@ -977,9 +1085,7 @@ export function DigitalizacionDocumentalWorkspace({
       setShowPageOrganizer(true);
     },
   }));
-  const hasOrganizerSelection = scanner.pages.some((page) =>
-    selectedOrganizerPageIds.has(page.id),
-  );
+  const hasOrganizerSelection = scanner.pages.some((page) => selectedPageIds.has(page.id));
   const previewPanelClassName = [
     styles.panel,
     styles.previewPanel,
@@ -1106,15 +1212,31 @@ export function DigitalizacionDocumentalWorkspace({
           className={styles.collapseRail}
         >
           {scanner.pages.length > 0 ? (
-            <div
-              className={styles.thumbnailList}
-              data-view-mode={thumbnailViewMode}
-              data-virtualized={thumbnailsVirtualized}
-            >
-              {scanner.pages.map((page, pageOrderIndex) => (
+            <div className={styles.thumbnailPanelContent}>
+              <div className={styles.thumbnailSelectionBar}>
+                <span aria-live="polite">{selectedPagesLabel}</span>
+                <div className={styles.thumbnailSelectionActions}>
+                  <AppButton
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={<CheckSquareOutlined />}
+                    aria-label={allPagesSelected ? "Deseleccionar todo" : "Seleccionar todo"}
+                    onClick={allPagesSelected ? handleClearPageSelection : handleSelectAllPages}
+                  >
+                    {allPagesSelected ? "Deseleccionar todo" : "Seleccionar todo"}
+                  </AppButton>
+                </div>
+              </div>
+              <div
+                className={styles.thumbnailList}
+                data-view-mode={thumbnailViewMode}
+                data-virtualized={thumbnailsVirtualized}
+              >
+                {scanner.pages.map((page, pageOrderIndex) => (
                   <button
                     className={styles.thumbnailButton}
                     data-selected={page.id === selectedPageId}
+                    data-checked={selectedPageIds.has(page.id)}
                     data-dragging={page.id === draggedPageId}
                     data-drop-target={page.id === dragOverPageId}
                     data-highlighted={page.id === highlightedPageId}
@@ -1129,7 +1251,7 @@ export function DigitalizacionDocumentalWorkspace({
                     type="button"
                     draggable={!thumbnailsCollapsed}
                     tabIndex={thumbnailsCollapsed ? -1 : 0}
-                    onClick={() => setSelectedPageId(page.id)}
+                    onClick={(event) => handleThumbnailClick(event, page.id)}
                     onDragStart={(event) => handleThumbnailDragStart(event, page.id)}
                     onDragOver={(event) => handleThumbnailDragOver(event, page.id)}
                     onDragLeave={() => {
@@ -1140,6 +1262,19 @@ export function DigitalizacionDocumentalWorkspace({
                     onDrop={(event) => handleThumbnailDrop(event, page.id)}
                     onDragEnd={handleThumbnailDragEnd}
                   >
+                    <label
+                      className={styles.thumbnailCheck}
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedPageIds.has(page.id)}
+                        onChange={(event) =>
+                          handleTogglePageSelection(page.id, event.target.checked)
+                        }
+                        aria-label={`Seleccionar pagina ${pageOrderIndex + 1}`}
+                      />
+                    </label>
                     {page.thumbnailUrl ? (
                       <img
                         src={page.thumbnailUrl}
@@ -1151,6 +1286,7 @@ export function DigitalizacionDocumentalWorkspace({
                     <small>Pagina {pageOrderIndex + 1}</small>
                   </button>
                 ))}
+              </div>
             </div>
           ) : (
             <div className={styles.panelBody}>
@@ -1288,6 +1424,11 @@ export function DigitalizacionDocumentalWorkspace({
               />
               </div>
               <div className={styles.previewControlGroup} role="group" aria-label="Navegacion">
+              {hasPageSelection ? (
+                <span className={styles.selectedPagesBadge} aria-live="polite">
+                  {selectedPageCount} seleccionadas
+                </span>
+              ) : null}
               <label className={styles.pageJumpField}>
                 <span>Pagina</span>
                 <input
@@ -1493,7 +1634,7 @@ export function DigitalizacionDocumentalWorkspace({
                     <button
                       className={styles.pageOrganizerItem}
                       data-selected={page.id === selectedPageId}
-                      data-checked={selectedOrganizerPageIds.has(page.id)}
+                      data-checked={selectedPageIds.has(page.id)}
                       data-dragging={page.id === draggedPageId}
                       data-drop-target={page.id === dragOverPageId}
                       data-orientation={pageOrientation}
@@ -1518,9 +1659,9 @@ export function DigitalizacionDocumentalWorkspace({
                       >
                         <input
                           type="checkbox"
-                          checked={selectedOrganizerPageIds.has(page.id)}
+                          checked={selectedPageIds.has(page.id)}
                           onChange={(event) =>
-                            handleToggleOrganizerPage(page.id, event.target.checked)
+                            handleTogglePageSelection(page.id, event.target.checked)
                           }
                           aria-label={`Seleccionar pagina ${pageOrderIndex + 1}`}
                         />
