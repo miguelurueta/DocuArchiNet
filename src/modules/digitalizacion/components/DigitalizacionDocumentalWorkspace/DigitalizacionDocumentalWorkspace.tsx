@@ -15,6 +15,7 @@ import {
   ClearOutlined,
   CloseOutlined,
   ColumnWidthOutlined,
+  CopyOutlined,
   DeleteOutlined,
   DownOutlined,
   FileTextOutlined,
@@ -25,7 +26,6 @@ import {
   RotateLeftOutlined,
   RotateRightOutlined,
   ScanOutlined,
-  SearchOutlined,
   SelectOutlined,
   SettingOutlined,
   ScissorOutlined,
@@ -51,6 +51,7 @@ import {
   type ScanProgressSnapshot,
 } from "../../infrastructure/dynamsoft";
 import { unavailableScannerClient } from "./digitalizacionWorkspace.helpers";
+import { PageNavigatorFloating } from "./PageNavigatorFloating";
 import styles from "./DigitalizacionDocumentalWorkspace.module.css";
 
 type CaptureMode = "docuarchi" | "driver";
@@ -349,7 +350,6 @@ export function DigitalizacionDocumentalWorkspace({
   const [areaSelectionEnabled, setAreaSelectionEnabled] = useState(false);
   const [cropDraft, setCropDraft] = useState<CropDraft | null>(null);
   const [cropSelection, setCropSelection] = useState<CropSelectionState | null>(null);
-  const [pageJumpValue, setPageJumpValue] = useState("");
   const [highlightedPageId, setHighlightedPageId] = useState<string | null>(null);
   const thumbnailViewMode: ThumbnailViewMode = "grid1";
   const [pageOrganizerDensity, setPageOrganizerDensity] =
@@ -364,7 +364,6 @@ export function DigitalizacionDocumentalWorkspace({
   );
   const previewPanelRef = useRef<HTMLElement | null>(null);
   const previewImageRef = useRef<HTMLImageElement | null>(null);
-  const pageJumpInputRef = useRef<HTMLInputElement | null>(null);
   const pageOrganizerGridRef = useRef<HTMLDivElement | null>(null);
   const thumbnailButtonRefs = useRef(new Map<string, HTMLButtonElement>());
   const handleInvalidContext = useCallback(
@@ -385,6 +384,7 @@ export function DigitalizacionDocumentalWorkspace({
     dispose,
     clear: clearScanner,
     scan,
+    duplicatePage,
     rotatePage,
     cropPage,
     removePage,
@@ -435,6 +435,10 @@ export function DigitalizacionDocumentalWorkspace({
         : "Pendiente captura PDF");
   const selectedPage =
     scanner.pages.find((page) => page.id === selectedPageId) ?? scanner.pages[0] ?? null;
+  const selectedPageVisualIndex = selectedPage
+    ? scanner.pages.findIndex((page) => page.id === selectedPage.id)
+    : -1;
+  const currentPageNumber = selectedPageVisualIndex >= 0 ? selectedPageVisualIndex + 1 : 0;
   const availablePageIds = useMemo(
     () => new Set(scanner.pages.map((page) => page.id)),
     [scanner.pages],
@@ -561,6 +565,26 @@ export function DigitalizacionDocumentalWorkspace({
     if (!pageId) return;
     void removePage(pageId);
   }, [removePage, scanner.pages, selectedPageId, selectedPageIds]);
+
+  const handleDuplicateSelected = useCallback(() => {
+    const sourcePage = selectedPage;
+    if (!sourcePage) {
+      return;
+    }
+
+    const sourceVisualIndex = scanner.pages.findIndex((page) => page.id === sourcePage.id);
+    void duplicatePage(sourcePage.id).then((pages) => {
+      if (!pages) {
+        return;
+      }
+
+      const duplicatedPage = pages[sourceVisualIndex + 1] ?? pages[sourceVisualIndex] ?? null;
+      if (duplicatedPage) {
+        setSelectedPageId(duplicatedPage.id);
+        setHighlightedPageId(duplicatedPage.id);
+      }
+    });
+  }, [duplicatePage, scanner.pages, selectedPage]);
 
   const handleThumbnailDragStart = useCallback(
     (event: DragEvent<HTMLButtonElement>, pageId: string) => {
@@ -702,20 +726,44 @@ export function DigitalizacionDocumentalWorkspace({
     setSelectedPageIds(new Set());
   }, []);
 
-  const handleGoToPage = useCallback(() => {
-    const requestedPage = Number.parseInt(pageJumpValue, 10);
-    if (!Number.isInteger(requestedPage)) {
+  const handleGoToPage = useCallback((requestedPage: number) => {
+    if (!Number.isInteger(requestedPage) || scanner.pages.length === 0) {
       return;
     }
 
-    const targetPage = scanner.pages[requestedPage - 1];
+    const targetIndex = clampNumber(requestedPage, 1, scanner.pages.length) - 1;
+    const targetPage = scanner.pages[targetIndex];
     if (!targetPage) {
       return;
     }
 
     setSelectedPageId(targetPage.id);
     setHighlightedPageId(targetPage.id);
-  }, [pageJumpValue, scanner.pages]);
+  }, [scanner.pages]);
+
+  const handleGoToFirstPage = useCallback(() => {
+    handleGoToPage(1);
+  }, [handleGoToPage]);
+
+  const handleGoToLastPage = useCallback(() => {
+    handleGoToPage(scanner.pages.length);
+  }, [handleGoToPage, scanner.pages.length]);
+
+  const handleGoToPreviousPage = useCallback(() => {
+    if (currentPageNumber <= 1) {
+      return;
+    }
+
+    handleGoToPage(currentPageNumber - 1);
+  }, [currentPageNumber, handleGoToPage]);
+
+  const handleGoToNextPage = useCallback(() => {
+    if (currentPageNumber >= scanner.pages.length) {
+      return;
+    }
+
+    handleGoToPage(currentPageNumber + 1);
+  }, [currentPageNumber, handleGoToPage, scanner.pages.length]);
 
   const handleGeneratePdf = useCallback(() => {
     const fileName =
@@ -967,27 +1015,6 @@ export function DigitalizacionDocumentalWorkspace({
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (typeof document === "undefined") {
-      return undefined;
-    }
-
-    const handleGoToShortcut = (event: KeyboardEvent) => {
-      if (!event.ctrlKey || event.altKey || event.shiftKey || event.key.toLowerCase() !== "g") {
-        return;
-      }
-
-      event.preventDefault();
-      pageJumpInputRef.current?.focus();
-      pageJumpInputRef.current?.select();
-    };
-
-    document.addEventListener("keydown", handleGoToShortcut);
-    return () => {
-      document.removeEventListener("keydown", handleGoToShortcut);
     };
   }, []);
 
@@ -1324,6 +1351,15 @@ export function DigitalizacionDocumentalWorkspace({
                 disabled={!selectedPage}
               />
               <AppButton
+                variant="ghost"
+                size="sm"
+                icon={<CopyOutlined />}
+                aria-label="Duplicar pagina"
+                tooltip="Duplicar pagina"
+                onClick={handleDuplicateSelected}
+                disabled={!selectedPage || scanner.loading}
+              />
+              <AppButton
                 variant={areaSelectionEnabled ? "secondary" : "ghost"}
                 size="sm"
                 icon={<SelectOutlined />}
@@ -1429,33 +1465,6 @@ export function DigitalizacionDocumentalWorkspace({
                   {selectedPageCount} seleccionadas
                 </span>
               ) : null}
-              <label className={styles.pageJumpField}>
-                <span>Pagina</span>
-                <input
-                  ref={pageJumpInputRef}
-                  type="number"
-                  min={1}
-                  max={Math.max(scanner.pages.length, 1)}
-                  value={pageJumpValue}
-                  onChange={(event) => setPageJumpValue(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      handleGoToPage();
-                    }
-                  }}
-                  disabled={!hasPages}
-                  aria-label="Pagina destino"
-                />
-              </label>
-              <AppButton
-                variant="ghost"
-                size="sm"
-                icon={<SearchOutlined />}
-                aria-label="Buscar pagina"
-                tooltip="Buscar pagina"
-                onClick={handleGoToPage}
-                disabled={!hasPages}
-              />
               </div>
             </div>
           </div>
@@ -1541,6 +1550,15 @@ export function DigitalizacionDocumentalWorkspace({
               </div>
             )}
           </div>
+          <PageNavigatorFloating
+            currentPage={currentPageNumber}
+            totalPages={scanner.pages.length}
+            onFirstPage={handleGoToFirstPage}
+            onPreviousPage={handleGoToPreviousPage}
+            onNextPage={handleGoToNextPage}
+            onLastPage={handleGoToLastPage}
+            onGoToPage={handleGoToPage}
+          />
           {activeProgress ? (
             <div
               className={styles.scanProgressOverlay}

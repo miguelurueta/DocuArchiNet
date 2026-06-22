@@ -705,6 +705,63 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     return [...this.pages];
   }
 
+  async duplicatePage(pageId: string) {
+    const dwt = this.requireDwt();
+    const sourceVisualIndex = this.pages.findIndex((page) => page.id === pageId);
+    const sourcePage = this.pages[sourceVisualIndex];
+
+    if (!sourcePage) {
+      throw new DynamsoftScannerError({
+        code: "PDF_EMPTY",
+        message: "Pagina no encontrada.",
+      });
+    }
+
+    if (!dwt.CopyToClipboard || !dwt.LoadDibFromClipboard) {
+      throw new DynamsoftScannerError({
+        code: "DYNAMSOFT_RUNTIME_UNAVAILABLE",
+        message: "La duplicacion de paginas no esta disponible en este runtime de Dynamsoft.",
+      });
+    }
+
+    const previousCount = dwt.HowManyImagesInBuffer ?? this.pages.length;
+    const copied = dwt.CopyToClipboard(sourcePage.index);
+    if (copied === false) {
+      throw new DynamsoftScannerError({
+        code: "INVALID_SCAN_OPTIONS",
+        message: "No fue posible copiar la pagina seleccionada.",
+      });
+    }
+
+    const loaded = dwt.LoadDibFromClipboard();
+    const nextCount = dwt.HowManyImagesInBuffer ?? previousCount + 1;
+    if (loaded === false || nextCount <= previousCount) {
+      throw new DynamsoftScannerError({
+        code: "INVALID_SCAN_OPTIONS",
+        message: "No fue posible insertar la pagina duplicada.",
+      });
+    }
+
+    const duplicateIndex = nextCount - 1;
+    const duplicatePage = {
+      ...this.buildPageFromBuffer(dwt, duplicateIndex),
+      rotationDegrees: this.pageRotationById.get(sourcePage.id) ?? sourcePage.rotationDegrees ?? 0,
+    };
+
+    this.pageRotationById.set(duplicatePage.id, duplicatePage.rotationDegrees ?? 0);
+    this.originalPageDimensionsById.set(duplicatePage.id, {
+      width: sourcePage.width,
+      height: sourcePage.height,
+    });
+    this.pages = [
+      ...this.pages.slice(0, sourceVisualIndex + 1),
+      duplicatePage,
+      ...this.pages.slice(sourceVisualIndex + 1),
+    ];
+
+    return [...this.pages];
+  }
+
   async clear() {
     const dwt = this.dwt;
     dwt?.RemoveAllImages();
