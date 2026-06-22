@@ -1,126 +1,39 @@
 ## Why
 
-MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL- OCR-ZONA. Ver detalle funcional completo del ticket en la seccion Jira Details.
+SCRUMCORE-260 solicita OCR por zona para extraer texto desde una region seleccionada dentro de una pagina digitalizada. La seleccion de area ya existe por SCRUMCORE-269 y debe reutilizarse.
+
+El ticket tambien establece una restriccion explicita: no implementar OCR funcional hasta auditar licencia, disponibilidad de APIs, idiomas y rendimiento. Por eso este cambio formaliza auditoria y diseno tecnico.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-260.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se documenta el estado actual de Dynamsoft Web TWAIN 19.3.2 frente a OCR.
+- Se confirma que el contrato local no expone API OCR tipada ni dependencias OCR.
+- Se define una arquitectura futura basada en `DigitalizacionOcrClient`.
+- Se establece que `OCR Zona` debe reutilizar `PageCropSelection` y el `pageId` activo.
+- Se documentan flujo UX futuro, drawer de resultado, acciones y riesgos.
+- No se agrega boton, drawer, dependencia OCR ni ejecucion OCR real en esta fase.
 
 ## Jira Details
 
-> OCR POR ZONA (EXTRACCIÓN DE TEXTO DESDE ÁREA SELECCIONADA)
+> OCR POR ZONA (EXTRACCION DE TEXTO DESDE AREA SELECCIONADA)
 > CONTEXTO
-> El módulo de digitalización permitirá seleccionar una región específica dentro de una página mediante la funcionalidad de Selección de Área.
-> Se requiere aprovechar dicha selección para ejecutar OCR únicamente sobre la región seleccionada.
+> El modulo de digitalizacion permitira seleccionar una region especifica dentro de una pagina mediante la funcionalidad de Seleccion de Area.
+> Se requiere aprovechar dicha seleccion para ejecutar OCR unicamente sobre la region seleccionada.
 > OBJETIVO
-> Permitir que el usuario seleccione una zona específica de una página y extraiga únicamente el texto contenido en dicha región.
-> ==================================================
+> Permitir que el usuario seleccione una zona especifica de una pagina y extraiga unicamente el texto contenido en dicha region.
 > DEPENDENCIA
-> Requiere:
-> SCRUMCORE-269Selección de Área + Recorte Manual
-> La selección existente debe reutilizarse.
-> NO crear un segundo mecanismo de selección.
-> ==================================================
+> Requiere SCRUMCORE-269 Seleccion de Area + Recorte Manual.
+> La seleccion existente debe reutilizarse.
+> NO crear un segundo mecanismo de seleccion.
 > TOOLBAR
-> Agregar:
-> [ OCR Zona ]
-> Tooltip:
-> "Extraer texto de la selección"
-> ==================================================
-> FLUJO
-> Usuario selecciona una región.
-> ↓
-> Se habilita botón:
-> OCR Zona
-> ↓
-> Ejecutar OCR únicamente sobre el área seleccionada.
-> ↓
-> Mostrar resultado.
-> ==================================================
+> Agregar futuramente OCR Zona con tooltip Extraer texto de la seleccion.
 > RESULTADO
-> Mostrar modal lateral o drawer:
-> Texto extraído
-> Ejemplo:
-> 1122334455
-> Acciones:
-> [ Copiar ]
-> [ Insertar en metadato ]
-> [ Cerrar ]
-> ==================================================
-> CASOS DE USO
-> Cédulas
-> Extraer número de documento.
-> Facturas
-> Extraer:
-> Número factura
-> 
-> Valor
-> 
-> Fecha
-> 
-> Contratos
-> Extraer:
-> Radicado
-> 
-> Número contrato
-> 
-> Formularios
-> Extraer campos específicos.
-> ==================================================
-> EXPERIENCIA DE USUARIO
-> Si no existe selección:
-> Deshabilitar botón OCR Zona.
-> Mostrar tooltip:
-> "Seleccione un área primero"
-> ==================================================
-> PREPARACIÓN FUTURA
-> Diseñar para soportar posteriormente:
-> OCR múltiple.
-> 
-> OCR por varias regiones.
-> 
-> Extracción automática de metadatos.
-> 
-> IA documental.
-> 
-> ==================================================
-> NO IMPLEMENTAR AÚN
-> Antes de desarrollar:
-> Auditar:
-> Licencia actual de Dynamsoft.
-> 
-> Disponibilidad de OCR en licencia actual.
-> 
-> APIs OCR disponibles.
-> 
-> Idiomas soportados.
-> 
-> Rendimiento esperado.
-> 
-> ==================================================
-> DOCUMENTACIÓN
-> Crear:
-> docs/Architecture/DigitalizacionDocumental/SCRUMCORE-277-ocr-zona.md
-> Incluir:
-> Arquitectura.
-> 
-> Flujo.
-> 
-> Dependencias.
-> 
-> Riesgos.
-> 
-> Casos de uso.
-> 
-> ==================================================
-> VALIDAR
-> npx tsc --noEmit
-> eslint
-> vitest
-> SOLO AUDITORÍA Y DISEÑO TÉCNICO.NO IMPLEMENTAR HASTA CONFIRMAR CAPACIDADES OCR DE LA LICENCIA ACTUAL.
+> Mostrar modal lateral o drawer con Texto extraido, Copiar, Insertar en metadato y Cerrar.
+> NO IMPLEMENTAR AUN
+> Antes de desarrollar: auditar licencia actual de Dynamsoft, disponibilidad OCR, APIs disponibles, idiomas soportados y rendimiento esperado.
+> DOCUMENTACION
+> Crear docs/Architecture/DigitalizacionDocumental/SCRUMCORE-277-ocr-zona.md.
+> SOLO AUDITORIA Y DISENO TECNICO.
 
 ## Jira Metadata
 
@@ -131,12 +44,13 @@ MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL- OCR-ZONA. Ver detalle funcional comple
 ## Capabilities
 
 ### New Capabilities
-- `modulo-reusable-digitalizaciondocumental-ocr-zona`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `modulo-reusable-digitalizaciondocumental-ocr-zona`: auditoria y diseno tecnico para OCR por zona.
 
 ### Modified Capabilities
-- 
+- `modulo-reusable-digitalizaciondocumental-modernizacion-escaneo`: reutiliza la seleccion visual existente solo como dependencia documentada, sin cambio funcional.
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+- Nuevo documento: `docs/Architecture/DigitalizacionDocumental/SCRUMCORE-277-ocr-zona.md`.
+- OpenSpec refinado para bloquear implementacion funcional hasta confirmar capacidades OCR.
+- Sin impacto runtime en scanner, toolbar, preview, PaperStream, Dynamsoft ni generacion PDF.
