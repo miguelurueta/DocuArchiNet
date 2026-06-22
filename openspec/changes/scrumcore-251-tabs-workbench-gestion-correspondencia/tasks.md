@@ -60,26 +60,27 @@
 - [x] 5.5 Validar que `Gestion` y `Documentos` aparecen simultaneamente en modo paralelo.
 - [x] 5.6 Validar `aria-pressed`.
 - [x] 5.7 Validar que no se duplican callbacks criticos por el toggle.
-- [ ] 5.8 Validar que no desaparece el documento seleccionado al alternar modo.
-- [ ] 5.9 Validar que no hay doble carga evidente ni errores de consola al alternar modo.
+- [x] 5.8 Validar que no desaparece el documento seleccionado al alternar modo.
+- [x] 5.9 Validar que no hay doble carga evidente ni errores de consola al alternar modo.
 - [x] 5.10 Ejecutar tests afectados de Gestion Correspondencia.
-- [ ] 5.11 Ejecutar `npm.cmd run build`.
+- [x] 5.11 Ejecutar `npm.cmd run build`.
+  - Resultado: ejecutado y bloqueado por error TypeScript externo a SCRUMCORE-251 en `src/modules/digitalizacion/infrastructure/dynamsoft/DynamsoftTwainClient.ts:908` (`DynamsoftWebTwainFactory` no definido). No se modifica Digitalizacion para no afectar componentes fuera del alcance.
 - [x] 5.12 Ejecutar `npx.cmd openspec validate scrumcore-251-tabs-workbench-gestion-correspondencia --strict`.
 
 ## 6. QA manual obligatorio
 
-- [ ] 6.1 Abrir Gestion Correspondencia.
-- [ ] 6.2 Entrar a un tramite con tabs `Gestion` y `Documentos`.
-- [ ] 6.3 Verificar modo normal actual.
-- [ ] 6.4 Activar `Vista paralela`.
-- [ ] 6.5 Confirmar que `Gestion` y `Documentos` se ven simultaneamente.
-- [ ] 6.6 Redimensionar los paneles.
-- [ ] 6.7 Seleccionar un documento en `Documentos`.
-- [ ] 6.8 Volver a `Vista normal`.
-- [ ] 6.9 Confirmar que no se perdio seleccion/contexto.
-- [ ] 6.10 Reabrir `Vista paralela`.
-- [ ] 6.11 Confirmar que no hay doble carga evidente ni errores de consola.
-- [ ] 6.12 Probar en ancho reducido.
+- [x] 6.1 Abrir Gestion Correspondencia.
+- [x] 6.2 Entrar a un tramite con tabs `Gestion` y `Documentos`.
+- [x] 6.3 Verificar modo normal actual.
+- [x] 6.4 Activar `Vista paralela`.
+- [x] 6.5 Confirmar que `Gestion` y `Documentos` se ven simultaneamente.
+- [x] 6.6 Redimensionar los paneles.
+- [x] 6.7 Seleccionar un documento en `Documentos`.
+- [x] 6.8 Volver a `Vista normal`.
+- [x] 6.9 Confirmar que no se perdio seleccion/contexto.
+- [x] 6.10 Reabrir `Vista paralela`.
+- [x] 6.11 Confirmar que no hay doble carga evidente ni errores de consola.
+- [x] 6.12 Probar en ancho reducido.
 
 ## 7. Documentacion enterprise
 
@@ -120,6 +121,24 @@
 - [x] 8.21 Aislar eventos de teclado/pointer del panel para evitar captura por AppEditor.
 - [x] 8.22 Mover `pageStatsIndicator` del AppEditor hacia la izquierda para no chocar con el FAB IA.
 - [x] 8.23 Validar TypeScript despues de los cambios del asistente IA.
+- [x] 8.24 Agregar callout superior del asistente con texto corto orientado a cliente.
+- [x] 8.25 Quitar badge interno `IA` del callout para evitar duplicidad visual.
+- [x] 8.26 Sincronizar hover/focus/active entre FAB IA y callout.
+- [x] 8.27 Agregar animacion periodica enterprise de atencion para FAB y callout.
+- [x] 8.28 Agregar sugerencias demo de respuesta debajo del historial del chat.
+- [x] 8.29 Permitir que las sugerencias carguen texto en el input sin enviar automaticamente.
+- [x] 8.30 Ajustar panel de chat para desktop/mobile con ancho mas compacto.
+- [x] 8.31 Corregir cierre mobile con blur del input, limpieza de timeout y safe-area.
+- [x] 8.32 Mantener visible el FAB despues de cerrar el chat en mobile.
+
+## 8.1 AppEditor overlays asociados al asistente
+
+- [x] 8.1.1 Apilar `pageStatsIndicator` encima de `pageIndicator`.
+- [x] 8.1.2 Centrar `pageStatsIndicator` con `left: 50%` y `transform: translateX(-50%)`.
+- [x] 8.1.3 Bajar levemente ambos flotantes del AppEditor en el estilo base.
+- [x] 8.1.4 Hacer menos alto el flotante de palabras/caracteres.
+- [x] 8.1.5 No modificar el media query mobile existente del AppEditor.
+- [x] 8.1.6 Validar TypeScript despues de los ajustes de overlays.
 
 ## 9. Grip de redimensionamiento enterprise
 
@@ -134,6 +153,7 @@
 - [x] 9.9 Validar TypeScript.
 - [x] 9.10 Ejecutar test de `GestionWorkbenchParallelTabs`.
 - [x] 9.11 Documentar arquitectura, implementacion, pruebas, metadata y spec OpenSpec del grip.
+- [x] 9.12 Ajustar el grip interno para visualizarse como bolitas pequenas.
 
 ## 10. Publish / cierre tecnico
 
@@ -142,3 +162,4 @@
 - [ ] 10.3 Push de `feature/SCRUMCORE-251`.
 - [ ] 10.4 Crear PR.
 - [ ] 10.5 Actualizar metadata con PR/commits/evidencias.
+- [x] 10.6 Documentar actualizacion 2026-06-20 de asistente IA, sugerencias, mobile y AppEditor overlays.

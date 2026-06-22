@@ -12,6 +12,8 @@
 - Fecha base de ticket: 2026-06-16
 - Actualizacion responsive documentada: 2026-06-19
 - Actualizacion asistente IA documentada: 2026-06-19
+- Actualizacion asistente IA, callout, sugerencias, mobile y overlays AppEditor: 2026-06-20
+- Actualizacion de validacion de tareas automatizables: 2026-06-22
 - Autor operativo: Codex, guiado por usuario
 
 ## Estado actual
@@ -19,9 +21,13 @@
 - Implementacion de vista paralela del workbench realizada previamente en la rama.
 - Ajustes responsive actuales aplicados sobre tabs, toolbar, editor, upload, visor PDF, DocumentosWorkbench y header de detalle.
 - Asistente IA flotante local implementado sobre el workbench en tabs `Gestion` y `Documentos`.
-- Indicador de palabras/caracteres del AppEditor reubicado para evitar solapamiento con el FAB IA.
+- Asistente IA actualizado con callout superior, hover sincronizado, animacion periodica enterprise, sugerencias demo, cierre mobile robusto y safe-area.
+- Indicador de palabras/caracteres del AppEditor apilado sobre el indicador de pagina y compactado en altura.
 - Grip de redimensionamiento de vista paralela ajustado a patron enterprise de puntos verticales con tooltip y feedback sutil.
 - TypeScript verificado con `npx.cmd tsc --noEmit --pretty false`.
+- Tests focalizados de `GestionWorkbenchParallelTabs` y `GestionRespuesta` verificados con 6 tests OK.
+- `npm.cmd run build` ejecutado; bloqueado por error TypeScript externo al Scrum en Digitalizacion/Dynamsoft.
+- QA manual obligatorio confirmado por usuario y marcado como completado en `tasks.md`.
 - Commit responsive previo: `0cc874d fix(SCRUMCORE-251): polish responsive workbench UI`.
 - Commit asistente IA: commit actual con mensaje `feat(SCRUMCORE-251): add workbench AI assistant`.
 - Push/PR: no ejecutados en este bloque.
@@ -120,7 +126,17 @@
    - El panel se abre como chat compacto enterprise.
    - La animacion de apertura simula expansion desde el boton.
    - La animacion de cierre simula retorno hacia el boton antes de desmontar.
+   - El callout superior muestra `¿Te ayudo con la respuesta?` solo cuando el chat esta cerrado.
+   - El callout no contiene badge interno `IA`; la identidad IA queda en el FAB.
+   - El hover/focus/active del callout y del FAB se sincronizan con `:has()`.
+   - El FAB y el callout tienen animacion periodica de atencion con elevacion y halo sobrio.
+   - La animacion se pausa durante interaccion del usuario.
+   - El panel se hizo mas angosto: `clamp(258px, 24vw, 306px)`.
+   - En mobile se ajusto a `min(300px, calc(100vw - 1.25rem))`.
+   - En mobile muy pequeno se ajusto a `min(288px, calc(100vw - 0.75rem))`.
+   - Se agrego safe-area inferior para evitar que el FAB quede oculto.
    - Se agrego `isAssistantClosing` para permitir animacion de salida.
+   - Se agrego `assistantCloseTimeoutRef` para evitar timeouts obsoletos.
    - Se agrego `assistantMessages` como historial local en memoria.
    - Se agrego respuesta placeholder local para preparar futura integracion conversacional.
    - No se invoca backend ni servicio IA real.
@@ -134,11 +150,17 @@
    - Se agrego X interna para limpiar texto.
    - La X interna limpia el valor y conserva foco.
    - El boton enviar usa `SendOutlined`.
+   - Al cerrar el chat se hace `blur()` del input para evitar desplazamientos por teclado virtual en mobile.
+   - Se agregaron sugerencias demo que cargan texto en el input sin enviarlo automaticamente.
 
 9. AppEditor overlay
-   - `pageStatsIndicator` se movio de `right: 1rem` a `right: 8rem`.
-   - Motivo: evitar solapamiento con el FAB de IA.
+   - `pageStatsIndicator` se reubico al centro con `left: 50%`, `right: auto` y `transform: translateX(-50%)`.
+   - `pageStatsIndicator` queda encima de `pageIndicator`.
+   - `pageIndicator` se bajo levemente en el estilo base.
+   - `pageStatsIndicator` se compacto reduciendo `min-height` y `padding`.
+   - Motivo: evitar solapamiento con el FAB de IA y mantener juntos los indicadores del editor.
    - No cambia conteo de palabras/caracteres ni paginacion visual.
+   - No se altero el media query mobile existente del AppEditor.
 
 10. Resize handle de vista paralela
    - `PanelResizeHandle` conserva `aria-label="Redimensionar paneles"`.
@@ -162,7 +184,7 @@
   - Resultado: sin errores de whitespace; Git aviso conversion LF/CRLF por configuracion local.
 - Validacion asistente IA:
   - Comando: `npx.cmd tsc --noEmit --pretty false`
-  - Resultado: OK despues de agregar `RobotOutlined`, chat local, input no controlado, X interna, animaciones y reubicacion de `pageStatsIndicator`.
+  - Resultado: OK despues de agregar `RobotOutlined`, chat local, input no controlado, X interna, sugerencias demo, hover sincronizado, animaciones, cierre mobile robusto y reubicacion/apilado de `pageStatsIndicator`.
 - OpenSpec:
   - Comando: `npx.cmd openspec validate scrumcore-251-tabs-workbench-gestion-correspondencia --strict`
   - Resultado: OK, cambio valido.
@@ -177,6 +199,23 @@
   - Resultado: OK.
   - Comando: `npx.cmd openspec validate scrumcore-251-tabs-workbench-gestion-correspondencia --strict`
   - Resultado: OK, cambio valido; se repite aviso de telemetria PostHog por red restringida sin afectar validacion.
+- Actualizacion 2026-06-20:
+  - Comando repetido durante ajustes UI: `npx.cmd tsc --noEmit --pretty false`
+  - Resultado: OK.
+  - Alcance validado: callout del asistente, sugerencias, animaciones de atencion, cierre mobile, safe-area y flotantes del AppEditor.
+- Actualizacion 2026-06-22:
+  - Comando: `npx.cmd vitest run src/modules/gestionCorrespondencia/components/workbenchParallelTabs/GestionWorkbenchParallelTabs.test.tsx src/modules/gestionCorrespondencia/pages/GestionRespuesta.test.tsx`
+  - Resultado: OK, 2 archivos, 6 tests.
+  - Ajuste de test: `GestionRespuesta.test.tsx` incluye mocks para iconos del asistente IA (`RobotOutlined`, `CloseOutlined`, `SendOutlined`) para alinear la suite con el componente actual.
+  - Cobertura agregada: documento seleccionado simulado se conserva al alternar modo y no se duplica la instancia visible de `DocumentosWorkbench`.
+  - Comando: `npx.cmd tsc --noEmit --pretty false`
+  - Resultado: OK.
+  - Comando: `git diff --check`
+  - Resultado: OK; solo avisos LF/CRLF por configuracion local.
+  - Comando: `npm.cmd run build`
+  - Resultado: fallido por `TS2552` en `src/modules/digitalizacion/infrastructure/dynamsoft/DynamsoftTwainClient.ts:908`, simbolo `DynamsoftWebTwainFactory` no definido.
+  - Decision: no se corrige `DynamsoftTwainClient.ts` dentro de SCRUMCORE-251 para no afectar Digitalizacion ni componentes fuera del alcance solicitado.
+  - QA manual: usuario confirma ejecucion completa de los pasos 6.1 a 6.12; checklist actualizado como completado.
 - Tests agregados/modificados:
   - `AppUpload.test.tsx`: caso de archivo visible con estrategia `auto`.
   - `AppToolbar.test.tsx`: assertion para que desktop no se marque como compacto.
@@ -186,6 +225,6 @@
 - La matriz responsive depende de alto/ancho CSS reportado por DevTools; QA debe validar en dispositivos o emuladores equivalentes.
 - Las reglas `:has()` requieren soporte moderno del navegador; el proyecto ya usa navegadores modernos y el selector queda scoped a UI interna.
 - El uso de breakpoints por dispositivo es intencional por requerimiento visual, pero debe revisarse si se incorpora una estrategia fluida posterior.
-- No se ejecuto build completo en este bloque; la evidencia primaria es TypeScript.
+- El build completo fue ejecutado y queda bloqueado por deuda/error externo en Digitalizacion/Dynamsoft, no por archivos de SCRUMCORE-251.
 - No se agregaron pruebas automatizadas especificas del asistente IA en este bloque; queda cubierto por TypeScript y requiere QA visual/manual.
 - El asistente IA es shell visual local; requiere ticket posterior para integracion real con API conversacional, seguridad, auditoria, persistencia y contexto de tramite.

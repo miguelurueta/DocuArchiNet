@@ -831,3 +831,360 @@ No se modifico:
 - `defaultSize`.
 - comportamiento de resize.
 - tests de render accesible.
+
+## 15. Actualizacion 2026-06-20 - asistente IA, callout, sugerencias y overlays del AppEditor
+
+### Archivos actualizados
+
+- `src/modules/gestionCorrespondencia/pages/GestionRespuesta.tsx`
+- `src/modules/gestionCorrespondencia/style/GestionRespuesta.module.css`
+- `src/app/Components/UI/AppEditor/AppEditor.module.css`
+- `src/modules/gestionCorrespondencia/components/workbenchParallelTabs/GestionWorkbenchParallelTabs.module.css`
+
+### Capa flotante del asistente
+
+Se mantiene `workbenchAssistantLayer` como capa fija del workbench, visible sobre los tabs `Gestion` y `Documentos`.
+
+Cambios acumulados:
+
+- El contenedor paso de layout lateral a layout vertical:
+  - `display: flex`
+  - `flex-direction: column`
+  - `align-items: flex-end`
+- Con el chat abierto, el panel queda arriba y el boton flotante queda debajo.
+- Con el chat cerrado, el boton `IA` queda abajo a la derecha y el callout queda encima del boton.
+- Se agrego soporte de safe area:
+
+```css
+bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(1rem, 2.4vw, 1.75rem));
+```
+
+En mobile:
+
+```css
+bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
+```
+
+Motivo:
+
+- Evitar que el FAB desaparezca visualmente en dispositivos con barra inferior o teclado virtual.
+- Mantener el boton visible despues de cerrar el chat en mobile.
+
+### Cierre robusto del chat en mobile
+
+Se agrego:
+
+```ts
+const assistantCloseTimeoutRef = useRef<number | null>(null);
+```
+
+Se agrego cleanup de timeout en `useEffect`:
+
+```ts
+useEffect(
+  () => () => {
+    if (assistantCloseTimeoutRef.current !== null) {
+      window.clearTimeout(assistantCloseTimeoutRef.current);
+    }
+  },
+  [],
+);
+```
+
+Cambios en `openAssistant`:
+
+- Limpia timeout pendiente si existe.
+- Reinicia `isAssistantClosing`.
+- Abre el chat.
+
+Cambios en `closeAssistant`:
+
+- Ejecuta `assistantInputRef.current?.blur()`.
+- Limpia timeout previo si existe.
+- Activa `isAssistantClosing`.
+- Programa desmontaje seguro del panel.
+- Reinicia `assistantCloseTimeoutRef.current` a `null`.
+
+Motivo:
+
+- En mobile, el teclado virtual podia mantener foco en el input despues de cerrar el chat y desplazar/ocultar el boton flotante.
+- El timeout persistente podia dejar estados intermedios si el usuario tocaba abrir/cerrar rapido.
+
+### Callout del boton IA
+
+El callout se renderiza solo cuando el chat esta cerrado:
+
+```tsx
+{!isAssistantOpen ? (
+  <button
+    type="button"
+    className={styles.assistantHint}
+    onClick={openAssistant}
+    aria-label="Abrir asistente para generar la respuesta"
+  >
+    ¿Te ayudo con la respuesta?
+  </button>
+) : null}
+```
+
+Evolucion aplicada:
+
+1. Se probo texto largo: `Te ayudo a generar la respuesta`.
+2. Se ajusto a texto corto y amable para cliente: `¿Te ayudo con la respuesta?`.
+3. Se ubico por encima del FAB.
+4. Se retiro el badge interno `IA` del callout porque generaba ruido visual.
+5. Se mantuvo la flecha inferior del callout apuntando al boton.
+6. Se hizo el callout mas compacto:
+   - `max-width: 10.25rem`
+   - `min-height: 34px`
+   - `padding: 0.38rem 0.68rem`
+   - `font-size: 0.73rem`
+   - `border-radius: 12px`
+
+### Hover y foco sincronizados
+
+Se agregaron selectores con `:has()` para sincronizar el estado visual entre el boton `IA` y el callout:
+
+- Hover/focus/active sobre el FAB resalta el callout.
+- Hover/focus/active sobre el callout resalta el FAB.
+- El estado sincronizado aplica:
+  - color azul activo.
+  - borde azul sutil.
+  - shadow elevada.
+  - background claro.
+  - transform vertical leve.
+
+Motivo:
+
+- El usuario pidio que al tocar el boton se percibiera el hover en ambos elementos y viceversa.
+- La relacion visual deja claro que el callout y el FAB pertenecen a la misma accion.
+
+### Animacion periodica de atencion
+
+Se mantiene `assistantFabAttention`, pero se transformo de un brillo leve a una animacion enterprise mas visible:
+
+- El FAB sube suavemente.
+- Se incrementa ligeramente el scale.
+- Aparece un halo azul controlado.
+- Vuelve a su posicion inicial.
+- No hay vibracion lateral ni rebote exagerado.
+
+Se agrego `assistantHintAttention` para el callout:
+
+- El callout sube suavemente.
+- Aumenta shadow y halo.
+- Regresa a posicion normal.
+
+Los estados hover/focus pausan la animacion:
+
+```css
+animation-play-state: paused;
+```
+
+Motivo:
+
+- Hacer que el usuario note que existe la accion de IA sin romper la estetica enterprise.
+- Evitar movimiento mientras el usuario esta interactuando.
+
+### Chat mas angosto y responsive
+
+El panel cambio a:
+
+```css
+width: clamp(258px, 24vw, 306px);
+max-height: min(530px, 70dvh);
+grid-template-rows: auto minmax(0, 1fr) auto auto;
+```
+
+Mobile:
+
+```css
+width: min(300px, calc(100vw - 1.25rem));
+max-height: min(500px, calc(100dvh - 6.25rem));
+```
+
+Mobile muy pequeno (`max-width: 360px`):
+
+```css
+width: min(288px, calc(100vw - 0.75rem));
+max-height: min(470px, calc(100dvh - 5.75rem));
+```
+
+Tambien se redujeron:
+
+- altura del header.
+- padding de mensajes.
+- tamano de mensajes.
+- padding del composer.
+- altura del input.
+- alto/ancho del boton enviar.
+
+Motivo:
+
+- El usuario reporto que en mobile el chat debia verse bien sin salirse del viewport.
+- Se dejo el panel mas angosto y con densidad controlada.
+
+### Sugerencias demo para respuesta
+
+Se agrego constante local:
+
+```ts
+const ASSISTANT_RESPONSE_SUGGESTIONS = [
+  "Redacta una respuesta formal para este tramite.",
+  "Resume el contexto antes de responder.",
+  "Propone una respuesta breve y clara.",
+];
+```
+
+Se agrego funcion:
+
+```ts
+const applyAssistantSuggestion = (suggestion: string) => {
+  if (!assistantInputRef.current) return;
+  assistantInputRef.current.value = suggestion;
+  assistantInputRef.current.focus();
+};
+```
+
+Se agrego bloque visual:
+
+- `assistantSuggestions`
+- `assistantSuggestionsTitle`
+- `assistantSuggestionList`
+- `assistantSuggestion`
+
+Comportamiento:
+
+- Las sugerencias aparecen debajo del historial de mensajes y antes del input.
+- Cada sugerencia es un boton tipo chip.
+- Al hacer click, carga texto demo en el input.
+- El usuario puede editar la sugerencia antes de enviar.
+- No envia automaticamente.
+- No llama backend.
+
+Motivo:
+
+- Mostrar una demo clara de posibles prompts de respuesta.
+- Preparar el espacio visual para integracion futura con plantillas o sugerencias reales.
+
+### Input y eventos preservados
+
+Se conserva:
+
+- `input type="text"`.
+- input no controlado por `assistantInputRef`.
+- envio con Enter.
+- boton interno para limpiar texto.
+- aislamiento de eventos con:
+  - `onKeyDownCapture`
+  - `onKeyUpCapture`
+  - `onPointerDownCapture`
+
+Se mantiene:
+
+- el input permite escribir varios caracteres seguidos.
+- el AppEditor no captura el foco mientras se escribe en el chat.
+- despues de enviar se limpia y se conserva foco.
+- al limpiar con X interna se conserva foco.
+
+### AppEditor - flotantes de pagina y palabras/caracteres
+
+Archivo:
+
+- `src/app/Components/UI/AppEditor/AppEditor.module.css`
+
+Se modifico `pageStatsIndicator` para apilarlo encima de `pageIndicator`:
+
+```css
+.pageStatsIndicator {
+  left: 50%;
+  right: auto;
+  bottom: 3.02rem;
+  transform: translateX(-50%);
+}
+```
+
+Se bajo el paginador:
+
+```css
+.pageIndicator {
+  bottom: 0.42rem;
+}
+```
+
+Se compacto el flotante de palabras/caracteres:
+
+```css
+min-height: 1.95rem;
+padding: 0.18rem 0.62rem;
+```
+
+Comportamiento resultante:
+
+- El flotante de palabras/caracteres queda encima del flotante de pagina.
+- Ambos quedan centrados.
+- Se evita interferencia con el FAB de IA.
+- En mobile no se altero el media query existente del AppEditor; los ajustes solicitados aplican al estilo base.
+
+No se modifico:
+
+- conteo de palabras.
+- conteo de caracteres.
+- calculo de pagina actual.
+- logica de paginacion.
+- toolbar del editor.
+
+### Grip de redimensionamiento
+
+Archivo:
+
+- `src/modules/gestionCorrespondencia/components/workbenchParallelTabs/GestionWorkbenchParallelTabs.module.css`
+
+Se conserva:
+
+- contenedor transparente.
+- area interactiva de 10px.
+- `cursor: col-resize`.
+- feedback hover/focus/active.
+- grip interno visible.
+
+Se ajusto el patron visual del `span` para verse como bolitas pequenas mediante `radial-gradient` vertical.
+
+Motivo:
+
+- El usuario pidio que el span visible se viera como bolitas pequenas.
+- Se conserva el affordance de resize sin introducir iconos ni SVG manual.
+
+### Alcance no modificado en esta actualizacion
+
+No se modifico:
+
+- backend.
+- endpoints.
+- services.
+- hooks de negocio.
+- permisos.
+- firma.
+- persistencia de conversaciones.
+- integracion real con IA.
+- contratos de `DocumentosWorkbench`.
+- contratos de `AppEditor`.
+- logica de `AppUpload`.
+- logica de `AppVisorEmbedPdf`.
+
+## 16. Estado tecnico final despues de la actualizacion 2026-06-20
+
+La UI queda con:
+
+- Boton flotante `IA` persistente.
+- Callout superior corto: `¿Te ayudo con la respuesta?`.
+- Hover/focus sincronizado entre callout y FAB.
+- Animacion periodica visible pero sobria.
+- Chat angosto y responsive.
+- Sugerencias demo de texto para respuesta.
+- Input normal con Enter, limpiar y foco estable.
+- Cierre robusto en mobile con blur y limpieza de timeout.
+- FAB protegido con safe-area.
+- Indicadores del AppEditor apilados: palabras/caracteres arriba, pagina abajo.
+- Flotante de palabras/caracteres menos alto.
+- Grip de resize con bolitas pequenas.

@@ -258,3 +258,102 @@ Impacto:
 - No cambia tamanos iniciales ni minimos.
 - No cambia el comportamiento accesible del separator.
 - No afecta tests existentes: el separador sigue teniendo `aria-label="Redimensionar paneles"`.
+
+### ADR-251-07: Callout de IA y panel conversacional compacto
+
+Se consolido el asistente IA como una microinteraccion de workbench, no como una funcionalidad productiva de IA.
+
+Decision:
+
+- Mantener el FAB `IA` abajo a la derecha.
+- Mostrar un callout superior solo cuando el chat esta cerrado.
+- Usar texto corto para cliente: `¿Te ayudo con la respuesta?`.
+- No incluir badge `IA` dentro del callout para evitar duplicidad visual con el FAB.
+- Alinear el callout con el FAB y usar una flecha inferior para reforzar la relacion.
+- Sincronizar hover/focus/active entre callout y FAB mediante `:has()`.
+- Usar animacion periodica de atencion en ambos elementos:
+  - elevacion suave.
+  - halo azul controlado.
+  - sin vibracion ni rebote ludico.
+- Pausar animaciones cuando el usuario interactua con el FAB o el callout.
+
+Justificacion:
+
+- El usuario necesitaba que el boton llamara la atencion sin romper una estetica enterprise.
+- El callout reduce ambiguedad sobre el proposito del boton.
+- La sincronizacion visual evita que el callout parezca una accion independiente.
+
+Impacto:
+
+- No agrega dependencias.
+- No cambia navegacion de tabs.
+- No cambia negocio.
+- No introduce IA real.
+
+### ADR-251-08: Chat demo con sugerencias locales
+
+Se agrego un bloque de sugerencias dentro del panel de IA.
+
+Decision:
+
+- Renderizar sugerencias despues del log de mensajes y antes del composer.
+- Implementarlas como botones tipo chip.
+- Al hacer click, cargar el texto en el input normal.
+- No enviar automaticamente la sugerencia.
+- No invocar backend.
+
+Sugerencias iniciales:
+
+- `Redacta una respuesta formal para este tramite.`
+- `Resume el contexto antes de responder.`
+- `Propone una respuesta breve y clara.`
+
+Justificacion:
+
+- Permite demostrar el uso esperado del asistente sin conectar un servicio conversacional.
+- Mantiene control del usuario: puede editar el texto antes de enviar.
+- Prepara un punto de integracion futuro para plantillas, prompts sugeridos o recomendaciones reales.
+
+### ADR-251-09: Cierre mobile robusto del asistente
+
+Se detecto que en mobile, despues de abrir y cerrar el chat, el FAB podia dejar de verse por interaccion entre foco del input, teclado virtual y layout fixed.
+
+Decision:
+
+- Guardar el timeout de cierre en `assistantCloseTimeoutRef`.
+- Limpiar timeout pendiente al abrir, cerrar y desmontar.
+- Ejecutar `assistantInputRef.current?.blur()` al cerrar.
+- Aplicar `env(safe-area-inset-bottom, 0px)` al anclaje inferior.
+- Definir estado mobile explicito para `.assistantFab[data-open="true"]`.
+
+Justificacion:
+
+- Evita estados intermedios por taps rapidos.
+- Reduce interferencia del teclado virtual sobre elementos fixed.
+- Respeta dispositivos con safe area o barra inferior.
+
+### ADR-251-10: Apilado de flotantes internos del AppEditor
+
+Se reubico el indicador flotante de palabras/caracteres para quedar encima del indicador de pagina.
+
+Decision:
+
+- `pageIndicator` se mantiene como flotante inferior centrado.
+- `pageStatsIndicator` pasa a `left: 50%`, `right: auto`, `transform: translateX(-50%)`.
+- `pageStatsIndicator` queda por encima de `pageIndicator`.
+- Se compacto su altura con menor `min-height` y `padding`.
+- Se bajo ligeramente el conjunto en el estilo base.
+- No se modifico el media query mobile existente.
+
+Justificacion:
+
+- El FAB de IA usa la esquina inferior derecha.
+- El contador de palabras/caracteres interrumpia visualmente esa zona.
+- Apilar ambos indicadores al centro mantiene relacion semantica entre pagina y estadisticas.
+
+Impacto:
+
+- No cambia calculos del AppEditor.
+- No cambia eventos ni seleccion.
+- No cambia metricas de palabras/caracteres.
+- No cambia logica responsive mobile ya existente.

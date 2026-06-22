@@ -20,6 +20,11 @@ import styles from "../style/GestionRespuesta.module.css";
 type GestionWorkbenchLayoutMode = "tabs" | "parallel";
 
 const PARALLEL_LAYOUT_QUERY = "(min-width: 901px)";
+const ASSISTANT_RESPONSE_SUGGESTIONS = [
+  "Redacta una respuesta formal para este tramite.",
+  "Resume el contexto antes de responder.",
+  "Propone una respuesta breve y clara.",
+];
 
 function useCanUseParallelLayout() {
   const [canUseParallelLayout, setCanUseParallelLayout] = useState(() =>
@@ -59,6 +64,7 @@ export default function GestionRespuesta({
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [isAssistantClosing, setIsAssistantClosing] = useState(false);
   const assistantInputRef = useRef<HTMLInputElement | null>(null);
+  const assistantCloseTimeoutRef = useRef<number | null>(null);
   const [assistantMessages, setAssistantMessages] = useState<
     Array<{ id: string; role: "assistant" | "user"; text: string }>
   >([
@@ -82,6 +88,15 @@ export default function GestionRespuesta({
       setLayoutMode("tabs");
     }
   }, [canUseParallelLayout, layoutMode]);
+
+  useEffect(
+    () => () => {
+      if (assistantCloseTimeoutRef.current !== null) {
+        window.clearTimeout(assistantCloseTimeoutRef.current);
+      }
+    },
+    [],
+  );
 
   const sendAssistantMessage = () => {
     const trimmedDraft = assistantInputRef.current?.value.trim() ?? "";
@@ -107,15 +122,24 @@ export default function GestionRespuesta({
   };
 
   const openAssistant = () => {
+    if (assistantCloseTimeoutRef.current !== null) {
+      window.clearTimeout(assistantCloseTimeoutRef.current);
+      assistantCloseTimeoutRef.current = null;
+    }
     setIsAssistantClosing(false);
     setIsAssistantOpen(true);
   };
 
   const closeAssistant = () => {
+    assistantInputRef.current?.blur();
+    if (assistantCloseTimeoutRef.current !== null) {
+      window.clearTimeout(assistantCloseTimeoutRef.current);
+    }
     setIsAssistantClosing(true);
-    window.setTimeout(() => {
+    assistantCloseTimeoutRef.current = window.setTimeout(() => {
       setIsAssistantOpen(false);
       setIsAssistantClosing(false);
+      assistantCloseTimeoutRef.current = null;
     }, 190);
   };
 
@@ -135,6 +159,12 @@ export default function GestionRespuesta({
     }
 
     event.stopPropagation();
+  };
+
+  const applyAssistantSuggestion = (suggestion: string) => {
+    if (!assistantInputRef.current) return;
+    assistantInputRef.current.value = suggestion;
+    assistantInputRef.current.focus();
   };
 
   const gestionContent = <GestionRespuestaMainTabContent idTareaWf={resolvedIdTareaWf} />;
@@ -246,6 +276,21 @@ export default function GestionRespuesta({
                     </div>
                   ))}
                 </div>
+                <div className={styles.assistantSuggestions} aria-label="Sugerencias de respuesta">
+                  <span className={styles.assistantSuggestionsTitle}>Sugerencias</span>
+                  <div className={styles.assistantSuggestionList}>
+                    {ASSISTANT_RESPONSE_SUGGESTIONS.map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        type="button"
+                        className={styles.assistantSuggestion}
+                        onClick={() => applyAssistantSuggestion(suggestion)}
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <form
                   className={styles.assistantComposer}
                   onSubmit={(event) => {
@@ -299,6 +344,16 @@ export default function GestionRespuesta({
               {isAssistantOpen ? <CloseOutlined /> : <RobotOutlined />}
               <span className={styles.assistantFabLabel}>IA</span>
             </button>
+            {!isAssistantOpen ? (
+              <button
+                type="button"
+                className={styles.assistantHint}
+                onClick={openAssistant}
+                aria-label="Abrir asistente para generar la respuesta"
+              >
+                ¿Te ayudo con la respuesta?
+              </button>
+            ) : null}
           </div>
         </div>
       </GestionRespuestaDocumentosProvider>

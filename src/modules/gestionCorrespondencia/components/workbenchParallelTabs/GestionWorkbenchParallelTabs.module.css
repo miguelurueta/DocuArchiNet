@@ -82,12 +82,12 @@
 
 .resizeGrip {
   z-index: 1;
-  width: 4px;
-  height: 28px;
+  width: 5px;
+  height: 23px;
   color: #6f8297;
   border-radius: 999px;
   background:
-    radial-gradient(circle, currentColor 1.5px, transparent 1.7px) center 2px / 4px 8px repeat-y;
+    radial-gradient(circle, currentColor 1.25px, transparent 1.45px) center 2px / 5px 7px repeat-y;
   opacity: 0.82;
   transition:
     color 160ms ease,

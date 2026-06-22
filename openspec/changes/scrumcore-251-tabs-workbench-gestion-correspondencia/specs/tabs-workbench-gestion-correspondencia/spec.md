@@ -115,6 +115,8 @@ El sistema SHALL exponer un boton flotante de IA persistente en el workbench de 
 - **WHEN** esta en el tab `Gestion` o en el tab `Documentos`
 - **THEN** el sistema muestra un boton flotante azul abajo a la derecha
 - **AND** el boton muestra icono de robot y texto `IA` cuando el chat esta cerrado
+- **AND** el sistema muestra un callout superior asociado al boton cuando el chat esta cerrado
+- **AND** el callout usa texto corto orientado a cliente
 - **AND** el boton no bloquea la navegacion del workbench ni los controles del tab activo
 
 #### Scenario: Apertura y cierre del chat
@@ -125,6 +127,18 @@ El sistema SHALL exponer un boton flotante de IA persistente en el workbench de 
 - **AND** el boton muestra una X visible mientras el chat esta abierto
 - **WHEN** el usuario cierra el chat desde el boton flotante o desde el header
 - **THEN** el panel se anima de regreso hacia el boton antes de desmontarse
+- **AND** en mobile el boton flotante permanece visible despues del cierre
+- **AND** el cierre limpia estados temporales y no deja el input reteniendo foco visual por teclado virtual
+
+#### Scenario: Callout y atencion visual enterprise
+- **GIVEN** el chat de IA esta cerrado
+- **WHEN** el usuario observa el boton flotante
+- **THEN** el boton y el callout ejecutan una animacion periodica sobria
+- **AND** la animacion usa elevacion y halo controlado
+- **AND** no usa vibracion ni rebote exagerado
+- **WHEN** el usuario pasa el mouse, enfoca o activa el boton o el callout
+- **THEN** ambos elementos comparten estado visual de hover/focus
+- **AND** la animacion periodica se pausa durante la interaccion
 
 #### Scenario: Escritura y envio de mensaje
 - **GIVEN** el chat de IA esta abierto
@@ -144,6 +158,16 @@ El sistema SHALL exponer un boton flotante de IA persistente en el workbench de 
 - **AND** mantiene el foco en el input
 - **AND** no cierra el chat
 
+#### Scenario: Sugerencias demo de respuesta
+- **GIVEN** el chat de IA esta abierto
+- **WHEN** el usuario visualiza el panel
+- **THEN** el sistema muestra sugerencias demo debajo del historial de mensajes
+- **AND** cada sugerencia se presenta como accion compacta
+- **WHEN** el usuario selecciona una sugerencia
+- **THEN** el sistema carga el texto de la sugerencia en el input
+- **AND** no envia automaticamente el mensaje
+- **AND** mantiene el foco en el input para edicion
+
 #### Scenario: Alcance local sin backend
 - **GIVEN** el chat de IA esta abierto
 - **WHEN** el usuario envia un mensaje
@@ -154,10 +178,18 @@ El sistema SHALL exponer un boton flotante de IA persistente en el workbench de 
 ### Requirement: No solapamiento con indicadores del AppEditor
 El sistema SHALL evitar que el boton de IA interrumpa visualmente el indicador flotante de palabras/caracteres del AppEditor.
 
-#### Scenario: Indicador desplazado
+#### Scenario: Indicadores apilados
 - **GIVEN** el AppEditor muestra el indicador de palabras/caracteres
 - **AND** el boton flotante de IA esta visible
 - **WHEN** ambos elementos comparten la zona inferior del workbench
-- **THEN** el indicador de palabras/caracteres se ubica mas hacia la izquierda
-- **AND** el boton IA permanece abajo a la derecha
+- **THEN** el indicador de palabras/caracteres se ubica centrado encima del indicador de pagina
+- **AND** el indicador de pagina permanece centrado debajo
+- **AND** el boton IA permanece abajo a la derecha sin solaparse con esos indicadores
 - **AND** no se modifica la logica de conteo de palabras, conteo de caracteres ni paginacion visual
+
+#### Scenario: Indicador de palabras mas compacto
+- **GIVEN** el AppEditor muestra el indicador de palabras/caracteres
+- **WHEN** el usuario observa los flotantes inferiores
+- **THEN** el indicador de palabras/caracteres tiene menor altura visual
+- **AND** conserva legibilidad y conteo
+- **AND** no altera los controles del indicador de pagina

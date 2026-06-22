@@ -33,6 +33,7 @@ La mejora debe ser una capa de composicion visual. No debe cambiar endpoints, ho
 - No persistir preferencias en storage.
 - No introducir rutas nuevas.
 - No implementar resizing manual.
+- No implementar IA real, streaming, persistencia conversacional ni auditoria del chat dentro de este cambio.
 
 ## Architecture
 
@@ -150,6 +151,61 @@ Decision inicial: fallback a tabs normales en ancho reducido, para evitar degrad
 - Montar `Gestion` y `Documentos` simultaneamente puede iniciar carga de documentos aunque el usuario venga del tab Gestion. Se debe observar que no haya requests duplicados, solo la carga normal de una unica instancia.
 - El visor PDF puede necesitar recalculo de dimensiones al pasar de tabs a panel. El cambio no debe introducir timers; debe resolverse con layout estable y constraints.
 - En mobile, dos columnas reducen usabilidad; por eso el fallback debe ser conservador.
+
+## Addendum 2026-06-20 - Asistente IA y overlays
+
+### Assistant Shell
+
+El asistente IA se mantiene como shell local de UI dentro de `GestionRespuesta.tsx`.
+
+Decisiones:
+
+- Boton flotante persistente con label `IA` e icono `RobotOutlined`.
+- Callout superior con texto `¿Te ayudo con la respuesta?` cuando el chat esta cerrado.
+- Panel tipo chat compacto con log local, sugerencias demo, input normal, limpiar y enviar.
+- Sin backend ni servicio IA real.
+- Input no controlado mediante `useRef` para evitar perdida de foco y re-render por caracter.
+- Envio por Enter desde captura de teclado del panel.
+- Cierre con animacion antes de desmontar.
+- Cierre mobile con `blur()` del input, timeout controlado y safe-area inferior.
+
+### Assistant Attention Pattern
+
+El patron de atencion visual usa animacion periodica sobria:
+
+- elevacion leve.
+- halo azul controlado.
+- pausa en hover/focus.
+- hover/focus sincronizado entre FAB y callout mediante `:has()`.
+
+Se evita:
+
+- vibracion.
+- rebote fuerte.
+- decoracion excesiva.
+- textos largos persistentes.
+
+### Suggestions
+
+Las sugerencias demo son botones de texto debajo del historial de mensajes.
+
+Regla de comportamiento:
+
+- Seleccionar sugerencia carga texto en el input.
+- No envia automaticamente.
+- El usuario conserva control editorial.
+
+### AppEditor overlays
+
+El indicador de palabras/caracteres se apila encima del indicador de pagina.
+
+Justificacion:
+
+- Evitar solapamiento con el FAB de IA.
+- Mantener juntos los indicadores relacionados del editor.
+- No modificar logica de conteo ni paginacion.
+
+El media query mobile existente del AppEditor se conserva.
 
 ## Migration Plan
 

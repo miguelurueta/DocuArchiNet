@@ -3,9 +3,17 @@ import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import GestionRespuesta from "./GestionRespuesta";
 
+const { documentosWorkbenchRenderSpy } = vi.hoisted(() => ({
+  documentosWorkbenchRenderSpy: vi.fn(),
+}));
+
 vi.mock("@ant-design/icons", () => ({
+  CloseOutlined: () => <span aria-hidden="true" />,
+  ColumnWidthOutlined: () => <span aria-hidden="true" />,
   FileTextOutlined: () => <span aria-hidden="true" />,
   InfoCircleOutlined: () => <span aria-hidden="true" />,
+  RobotOutlined: () => <span aria-hidden="true" />,
+  SendOutlined: () => <span aria-hidden="true" />,
 }));
 
 vi.mock("antd", () => ({
@@ -75,7 +83,15 @@ vi.mock("../components/gestionRespuestaMainTab/GestionRespuestaMainTabContent", 
 }));
 
 vi.mock("../components/documentosWorkbench", () => ({
-  DocumentosWorkbench: () => <div>Mock Documentos</div>,
+  DocumentosWorkbench: () => {
+    documentosWorkbenchRenderSpy();
+    return (
+      <div>
+        <span>Mock Documentos</span>
+        <span>Documento seleccionado: contrato.pdf</span>
+      </div>
+    );
+  },
 }));
 
 const mockMatchMedia = (matches: boolean) => {
@@ -93,6 +109,10 @@ const mockMatchMedia = (matches: boolean) => {
 };
 
 describe("[SCRUMCORE-251] GestionRespuesta parallel tabs", () => {
+  beforeEach(() => {
+    documentosWorkbenchRenderSpy.mockClear();
+  });
+
   it("renderiza tabs normales por defecto y expone boton opt-in", () => {
     mockMatchMedia(true);
 
@@ -140,6 +160,37 @@ describe("[SCRUMCORE-251] GestionRespuesta parallel tabs", () => {
     );
     expect(screen.getByRole("tab", { name: /Gestion/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /Documentos/i })).toBeInTheDocument();
+  });
+
+  it("mantiene visible el documento seleccionado al alternar modo", () => {
+    mockMatchMedia(true);
+
+    render(<GestionRespuesta />);
+
+    fireEvent.click(screen.getByRole("switch", { name: /Vista paralela/i }));
+    expect(screen.getByText("Documento seleccionado: contrato.pdf")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("switch", { name: /Vista paralela/i }));
+    fireEvent.click(screen.getByRole("switch", { name: /Vista paralela/i }));
+
+    expect(screen.getByLabelText("Documentos")).toHaveTextContent(
+      "Documento seleccionado: contrato.pdf",
+    );
+  });
+
+  it("no duplica la instancia visible de Documentos al alternar modo", () => {
+    mockMatchMedia(true);
+
+    render(<GestionRespuesta />);
+
+    fireEvent.click(screen.getByRole("switch", { name: /Vista paralela/i }));
+    expect(screen.getAllByText("Mock Documentos")).toHaveLength(1);
+
+    fireEvent.click(screen.getByRole("switch", { name: /Vista paralela/i }));
+    fireEvent.click(screen.getByRole("switch", { name: /Vista paralela/i }));
+
+    expect(screen.getAllByText("Mock Documentos")).toHaveLength(1);
+    expect(documentosWorkbenchRenderSpy).toHaveBeenCalledTimes(2);
   });
 
   it("mantiene deshabilitada la vista paralela en ancho reducido", () => {

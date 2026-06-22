@@ -750,7 +750,7 @@
   position: absolute;
   left: 50%;
   right: auto;
-  bottom: 0.95rem;
+  bottom: 0.42rem;
   transform: translateX(-50%);
   z-index: 20;
   width: auto;
@@ -784,13 +784,14 @@
 
 .pageStatsIndicator {
   position: absolute;
-  right: 8rem;
-  bottom: 0.95rem;
+  left: 50%;
+  right: auto;
+  bottom: 3.02rem;
   z-index: 20;
   display: inline-flex;
   align-items: center;
-  min-height: 2.25rem;
-  padding: 0.25rem 0.7rem;
+  min-height: 1.95rem;
+  padding: 0.18rem 0.62rem;
   border: 1px solid color-mix(in srgb, var(--editor-border) 64%, transparent);
   border-radius: 999px;
   background: color-mix(in srgb, var(--editor-bg) 82%, transparent);
@@ -801,6 +802,7 @@
   line-height: 1;
   box-shadow: 0 10px 26px rgba(15, 23, 42, 0.12);
   pointer-events: none;
+  transform: translateX(-50%);
   user-select: none;
   white-space: nowrap;
 }
