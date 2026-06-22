@@ -49,7 +49,7 @@ describe("AppToolbar [SPEC:APP-TOOLBAR-001]", () => {
   it("renderiza regiones opcionales y acciones secundarias visibles en desktop", () => {
     mockMatchMedia(false);
 
-    render(
+    const { container } = render(
       <MemoryRouter>
         <AppToolbar
           title="Titulo"
@@ -68,6 +68,7 @@ describe("AppToolbar [SPEC:APP-TOOLBAR-001]", () => {
     expect(screen.getByRole("button", { name: "Exportar" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Compartir" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /more actions/i })).not.toBeInTheDocument();
+    expect(container.querySelector("section")?.className).not.toContain("compact");
   });
 
   it("colapsa acciones secundarias en overflow cuando el viewport es compacto", async () => {

@@ -1,7 +1,7 @@
 .mainTab {
   display: grid;
-  gap: 1.5rem;
-  padding-bottom: 1rem;
+  gap: 0.85rem;
+  padding-bottom: 0.65rem;
 }
 
 .infoHeader {
@@ -34,7 +34,7 @@
 
 .workbench {
   display: grid;
-  gap: 1rem;
+  gap: 0.58rem;
 }
 
 .workflowSteps {
@@ -53,18 +53,49 @@
 }
 
 .toolbar {
+  width: 100%;
+  max-width: 100%;
+  height: 1.9rem;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  padding: 0 0.2rem !important;
   background: #f8fafc;
+  min-height: 0;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.toolbar > div {
+  align-items: center;
+  min-height: 0;
+  height: 100%;
+}
+
+.toolbar :global(.ant-btn) {
+  min-height: 1.48rem !important;
+  height: 1.48rem !important;
+  padding-block: 0 !important;
+  padding-inline: 0.38rem !important;
+  font-size: 0.68rem !important;
+  line-height: 1 !important;
+}
+
+.toolbar :global(.ant-btn-icon),
+.toolbar :global(.anticon) {
+  font-size: 0.78rem !important;
+  line-height: 1 !important;
+}
+
+.toolbar :global(.ant-btn span) {
+  line-height: 1 !important;
 }
 
 .workbenchBody {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
-  gap: 1rem;
-  min-height: 460px;
-  height: clamp(460px, 74vh, 860px);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  min-height: 420px;
+  height: clamp(420px, 64vh, 760px);
   transition: grid-template-columns 0.2s ease;
   position: relative;
   align-items: stretch;
@@ -74,21 +105,43 @@
 
 @media (min-width: 769px) and (max-height: 950px) {
   .workbenchBody {
-    min-height: 620px;
-    height: clamp(620px, 84vh, 980px);
+    min-height: 500px;
+    height: clamp(500px, 70vh, 720px);
   }
 }
 
-.workbenchBody[data-panel-collapsed="true"] {
-  grid-template-columns: minmax(0, 1fr) 0;
-  gap: 0;
+@media (min-width: 1025px) and (max-width: 1366px) and (max-height: 950px) {
+  .workbenchBody {
+    min-height: 440px;
+    height: clamp(440px, 62vh, 640px);
+  }
 }
 
-.workbenchBody[data-variant="overlay"] {
-  grid-template-columns: minmax(0, 1fr) 0;
-  gap: 0;
-  overflow: visible;
-  isolation: isolate;
+@media (min-width: 769px) and (max-width: 1366px) {
+  .mainTab {
+    gap: 0.3rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .workbench {
+    gap: 0.05rem;
+  }
+
+  .workbenchBody {
+    min-height: 580px;
+    height: clamp(580px, 82vh, 900px);
+  }
+
+  .attachments {
+    gap: 0.22rem;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1366px) {
+  .workbenchBody {
+    min-height: 640px;
+    height: clamp(640px, 84vh, 940px);
+  }
 }
 
 .editorContainer {
@@ -134,138 +187,6 @@
   flex-direction: column;
 }
 
-.toolsPanel {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1rem;
-  background: #f9fafb;
-  min-width: 0;
-  min-height: 0;
-  opacity: 1;
-  transition: opacity 0.2s ease, transform 0.2s ease, padding 0.2s ease;
-}
-
-.toolsPanel[data-collapsed="true"] {
-  opacity: 0;
-  transform: translateX(12px);
-  padding: 0;
-  pointer-events: none;
-}
-
-.toolsRail {
-  display: grid;
-  align-items: center;
-  justify-items: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  border-radius: 999px;
-  box-shadow: none;
-}
-
-.toolsRail[data-collapsed="true"] {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.toolsPanelHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.toolsPanelTitle {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-.toolsToggle {
-  border-radius: 999px;
-}
-
-.toolsToggle:focus-visible {
-  outline: 2px solid #2563eb;
-  outline-offset: 2px;
-}
-
-.toolsRestore {
-  border-radius: 999px;
-  border: 1px solid #cfd8e3;
-  background: #ffffff;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-  padding: 0;
-  min-width: 0.9rem;
-  width: 0.9rem;
-  height: 0.9rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  color: #1f2937;
-}
-
-.toolsRestoreLabel {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #1f2937;
-  display: none;
-}
-
-.toolsRestore :global(.ant-btn) {
-  min-width: 0.9rem;
-  width: 0.9rem;
-  height: 0.9rem;
-  padding: 0;
-  border-radius: 999px;
-  line-height: 1;
-}
-
-.toolsRestore :global(.anticon) {
-  font-size: 0.5rem;
-  transform: translateX(0.5px);
-}
-
-.toolsRestore:focus-visible {
-  outline: 2px solid #1d4ed8;
-  outline-offset: 2px;
-}
-
-.toolsPanelSurface {
-  min-height: 0;
-  height: 100%;
-  overflow: auto;
-  border-radius: 10px;
-  border: 1px dashed #cbd5f5;
-  padding: 0.75rem;
-  background: #ffffff;
-}
-
-.toolsList {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.toolsItem {
-  display: grid;
-  gap: 0.2rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-}
-
 .attachments {
   display: grid;
   gap: 0.75rem;
@@ -282,110 +203,70 @@
   margin: 0;
 }
 
-@media (max-width: 1024px) {
-  .workbenchBody {
-    grid-template-columns: minmax(0, 1fr) 0;
-  }
+.compactAttachmentsUpload {
+  width: 100%;
+}
+
+.compactAttachmentsUpload :global([role="list"]) {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.compactAttachmentsUpload :global([role="listitem"]) {
+  flex: 0 1 13.5rem;
+  max-width: 100%;
+  min-height: 1.75rem;
+}
+
+.attachmentRemoveButton {
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #b42318;
+  background: #fff;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.14);
+}
+
+.attachmentRemoveButton:focus-visible {
+  outline: 2px solid #4c6ef5;
+  outline-offset: 2px;
 }
 
 @media (max-width: 1024px) {
   .workbenchBody {
-    min-height: 360px;
-    height: clamp(360px, 68vh, 640px);
+    min-height: 580px;
+    height: clamp(580px, 82vh, 900px);
+  }
+}
+
+@media (max-width: 720px) {
+  .mainTab {
+    gap: 0.55rem;
+    padding-bottom: 0.45rem;
   }
 
-  .toolsPanel {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100vw;
-    max-height: 70vh;
-    height: auto;
-    border-radius: 20px 20px 0 0;
-    border-bottom: 0;
-    box-shadow: 0 -18px 36px rgba(15, 23, 42, 0.22);
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-    z-index: 30;
-    visibility: visible;
-    transition: transform 0.22s ease, visibility 0s linear 0s;
+  .workbench {
+    gap: 0.35rem;
   }
 
-  .toolsPanel::before {
-    content: "";
-    width: 44px;
-    height: 4px;
-    border-radius: 999px;
-    background: #cbd5f5;
-    justify-self: center;
+  .attachmentRemoveButton {
+    width: 1.15rem;
+    height: 1.15rem;
   }
+}
 
-  .toolsPanelHeader {
-    padding-top: 0.25rem;
-  }
-
-  .toolsPanelTitle {
-    font-size: 0.95rem;
-  }
-
-  .toolsPanel[data-collapsed="true"] {
-    transform: translate3d(0, 120%, 0);
-    opacity: 1;
-    padding: 1rem;
-    visibility: hidden;
-    transition: transform 0.22s ease, visibility 0s linear 0.22s;
-    pointer-events: none;
-  }
-
-  .toolsRail {
-    right: 2px;
-    top: auto;
-    bottom: 16px;
-    transform: none;
-    opacity: 1;
-    pointer-events: auto;
-    padding: 0;
-    border-radius: 999px;
-    background: transparent;
-    box-shadow: none;
-    border: 0;
-  }
-
-  .toolsRail[data-collapsed="true"] {
-    opacity: 1;
-  }
-
-  .toolsRestore {
-    background: #ffffff;
-    border: 1px solid #cfd8e3;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-    padding: 0;
-    gap: 0;
-    min-width: 1rem;
-    width: 1rem;
-    height: 1rem;
-  }
-
-  .toolsRestore :global(.ant-btn) {
-    width: 1rem;
-    height: 1rem;
-    border-radius: 999px;
-    line-height: 1;
-  }
-
-  .toolsRestore :global(.anticon) {
-    font-size: 9px;
-  }
-
-  .toolsRestoreLabel {
-    display: none;
-  }
-
-  .toolsPanelSurface {
-    background: #ffffff;
-    border-style: solid;
-    border-color: #e2e8f0;
+@media (max-width: 520px) {
+  .workbenchBody {
+    min-height: 430px;
+    height: clamp(430px, 66dvh, 560px);
   }
 }

@@ -47,6 +47,7 @@ export type AppToolbarProps = {
   maxVisibleSecondaryActions?: number;
   overflowLabel?: string;
   sticky?: boolean;
+  density?: "default" | "compact";
 };
 
 const joinClasses = (...values: Array<string | false | null | undefined>) =>
@@ -139,6 +140,7 @@ export function AppToolbar({
   maxVisibleSecondaryActions = 2,
   overflowLabel = "More actions",
   sticky = false,
+  density = "default",
 }: AppToolbarProps) {
   const titleId = useId();
   const isCompact = useMediaQuery(MEDIA_QUERY_MAP[collapseBreakpoint]);
@@ -162,6 +164,7 @@ export function AppToolbar({
       className={joinClasses(
         styles.toolbar,
         isCompact && styles.compact,
+        density === "compact" && styles.compactDensity,
         !hasContext && styles.contextless,
         sticky && styles.sticky,
         className,

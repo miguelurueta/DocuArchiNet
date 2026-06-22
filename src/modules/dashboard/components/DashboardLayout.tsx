@@ -18,7 +18,7 @@ export type DashboardOutletContext = {
 
 const { Content } = Layout;
 const { useBreakpoint } = Grid;
-const MOBILE_DRAWER_BELOW = 900;
+const MOBILE_DRAWER_BELOW = 1100;
 
 const resolveIsNarrowViewport = () => {
   if (typeof window === "undefined") {

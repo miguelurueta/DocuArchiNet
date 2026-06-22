@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Input, Popover } from "antd";
-import { DownOutlined } from "@ant-design/icons";
+import { DownOutlined, MoreOutlined } from "@ant-design/icons";
 import type { ChangeEvent, MouseEvent, ReactNode } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
@@ -1871,6 +1871,99 @@ function AppEditorToolbarComponent({
       {group.map((button) => renderActionButton(button))}
     </div>
   ), [renderActionButton]);
+  const toolbarOverflowContent = useMemo(() => (
+    <div className={styles.toolbarOverflowPanel} role="group" aria-label="Mas acciones del editor">
+      <div className={styles.toolbarOverflowPanelRow}>
+        <AppDropdown
+          open={isHeadingDropdownOpen}
+          onOpenChange={handleHeadingDropdownOpenChange}
+          dropdownProps={{
+            forceRender: true,
+            destroyOnHidden: false,
+            mouseEnterDelay: 0,
+            mouseLeaveDelay: 0,
+            transitionName: "",
+          }}
+          trigger={
+            <AppButton
+              variant="ghost"
+              size="sm"
+              leftIcon={<FontAwesomeIcon icon={currentHeading.icon} />}
+              rightIcon={<FontAwesomeIcon icon={faChevronDown} />}
+              className={styles.headingButton}
+              aria-label={`Nivel de encabezado actual: ${currentHeading.label}`}
+            >
+              {currentHeading.shortLabel}
+            </AppButton>
+          }
+          items={headingItems}
+          disabled={isBlocked}
+          className={styles.headingDropdown}
+          ariaLabel="Nivel de encabezado"
+          placement="bottomLeft"
+        />
+      </div>
+      {renderButtonGroup(groupedButtons.formatting, "Formato de texto")}
+      {renderButtonGroup(groupedButtons.structure, "Listas")}
+      <div className={styles.toolbarButtonGroup} role="group" aria-label="Alineacion">
+        <AppDropdown
+          open={isAlignDropdownOpen}
+          onOpenChange={handleAlignDropdownOpenChange}
+          dropdownProps={{
+            forceRender: true,
+            destroyOnHidden: false,
+            mouseEnterDelay: 0,
+            mouseLeaveDelay: 0,
+            transitionName: "",
+          }}
+          trigger={
+            <AppButton
+              variant="ghost"
+              size="sm"
+              leftIcon={<FontAwesomeIcon icon={currentTextAlign.icon} />}
+              rightIcon={<DownOutlined />}
+              className={styles.alignButton}
+              aria-label={`Alineacion actual: ${currentTextAlign.label}`}
+            >
+              <span className={styles.toolbarCompactLabel}> </span>
+            </AppButton>
+          }
+          items={alignItems}
+          disabled={isBlocked}
+          ariaLabel="Alineacion de texto"
+          placement="bottomLeft"
+        />
+      </div>
+      {renderButtonGroup(groupedButtons.history, "Historial de cambios")}
+      {renderButtonGroup(groupedButtons.link, "Enlaces")}
+      {renderButtonGroup(groupedButtons.image, "Imagenes")}
+      {toolbarActions ? (
+        <div className={styles.toolbarButtonGroup} role="group" aria-label="Acciones del editor">
+          {toolbarActions}
+        </div>
+      ) : null}
+    </div>
+  ), [
+    alignItems,
+    currentHeading.icon,
+    currentHeading.label,
+    currentHeading.shortLabel,
+    currentTextAlign.icon,
+    currentTextAlign.label,
+    groupedButtons.formatting,
+    groupedButtons.history,
+    groupedButtons.image,
+    groupedButtons.link,
+    groupedButtons.structure,
+    handleAlignDropdownOpenChange,
+    handleHeadingDropdownOpenChange,
+    headingItems,
+    isAlignDropdownOpen,
+    isBlocked,
+    isHeadingDropdownOpen,
+    renderButtonGroup,
+    toolbarActions,
+  ]);
 
   return (
     <div
@@ -1912,48 +2005,75 @@ function AppEditorToolbarComponent({
       </div>
 
       <div className={styles.toolbarSection} data-group="actions">
+        <div className={styles.toolbarPrimaryActions}>
+          {/* eslint-disable-next-line react-hooks/refs -- button configs only pass event handlers; refs are read inside those handlers. */}
+          {renderButtonGroup(groupedButtons.formatting, "Formato de texto")}
+        </div>
+        <div className={styles.toolbarDesktopActions}>
+          {/* eslint-disable-next-line react-hooks/refs -- button configs only pass event handlers; refs are read inside those handlers. */}
+          {renderButtonGroup(groupedButtons.structure, "Listas")}
+          <div className={styles.toolbarButtonGroup} role="group" aria-label="Alineacion">
+            <AppDropdown
+              open={isAlignDropdownOpen}
+              onOpenChange={handleAlignDropdownOpenChange}
+              dropdownProps={{
+                forceRender: true,
+                destroyOnHidden: false,
+                mouseEnterDelay: 0,
+                mouseLeaveDelay: 0,
+                transitionName: "",
+              }}
+              trigger={
+                <AppButton
+                  variant="ghost"
+                  size="sm"
+                  leftIcon={<FontAwesomeIcon icon={currentTextAlign.icon} />}
+                  rightIcon={<DownOutlined />}
+                  className={styles.alignButton}
+                  aria-label={`Alineacion actual: ${currentTextAlign.label}`}
+                >
+                  <span className={styles.toolbarCompactLabel}> </span>
+                </AppButton>
+              }
+              items={alignItems}
+              disabled={isBlocked}
+              ariaLabel="Alineacion de texto"
+              placement="bottomLeft"
+            />
+          </div>
+          {/* eslint-disable-next-line react-hooks/refs -- button configs only pass event handlers; refs are read inside those handlers. */}
+          {renderButtonGroup(groupedButtons.history, "Historial de cambios")}
+        </div>
+        <Popover
+          content={toolbarOverflowContent}
+          trigger="click"
+          placement="bottomLeft"
+        >
+          <span className={styles.toolbarOverflowActions}>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              icon={<MoreOutlined />}
+              className={styles.toolbarOverflowButton}
+              aria-label="Mas acciones del editor"
+              tooltip="Mas acciones"
+              disabled={isBlocked}
+            />
+          </span>
+        </Popover>
         {/* eslint-disable-next-line react-hooks/refs -- button configs only pass event handlers; refs are read inside those handlers. */}
-        {renderButtonGroup(groupedButtons.formatting, "Formato de texto")}
-        {/* eslint-disable-next-line react-hooks/refs -- button configs only pass event handlers; refs are read inside those handlers. */}
-        {renderButtonGroup(groupedButtons.structure, "Listas")}
-        <div className={styles.toolbarButtonGroup} role="group" aria-label="Alineacion">
-        <AppDropdown
-            open={isAlignDropdownOpen}
-            onOpenChange={handleAlignDropdownOpenChange}
-            dropdownProps={{
-              forceRender: true,
-              destroyOnHidden: false,
-              mouseEnterDelay: 0,
-              mouseLeaveDelay: 0,
-              transitionName: "",
-            }}
-            trigger={
-              <AppButton
-                variant="ghost"
-                size="sm"
-                leftIcon={<FontAwesomeIcon icon={currentTextAlign.icon} />}
-                rightIcon={<DownOutlined />}
-                className={styles.alignButton}
-                aria-label={`Alineacion actual: ${currentTextAlign.label}`}
-              >
-                <span className={styles.toolbarCompactLabel}> </span>
-              </AppButton>
-            }
-            items={alignItems}
-            disabled={isBlocked}
-            ariaLabel="Alineacion de texto"
-            placement="bottomLeft"
-          />
+        <div className={styles.toolbarLinkActions}>
+          {renderButtonGroup(groupedButtons.link, "Enlaces")}
         </div>
         {/* eslint-disable-next-line react-hooks/refs -- button configs only pass event handlers; refs are read inside those handlers. */}
-        {renderButtonGroup(groupedButtons.history, "Historial de cambios")}
-        {/* eslint-disable-next-line react-hooks/refs -- button configs only pass event handlers; refs are read inside those handlers. */}
-        {renderButtonGroup(groupedButtons.link, "Enlaces")}
-        {/* eslint-disable-next-line react-hooks/refs -- button configs only pass event handlers; refs are read inside those handlers. */}
-        {renderButtonGroup(groupedButtons.image, "Imagenes")}
+        <div className={styles.toolbarImageActions}>
+          {renderButtonGroup(groupedButtons.image, "Imagenes")}
+        </div>
         {toolbarActions ? (
-          <div className={styles.toolbarButtonGroup} role="group" aria-label="Acciones del editor">
-            {toolbarActions}
+          <div className={styles.toolbarExternalActions}>
+            <div className={styles.toolbarButtonGroup} role="group" aria-label="Acciones del editor">
+              {toolbarActions}
+            </div>
           </div>
         ) : null}
       </div>

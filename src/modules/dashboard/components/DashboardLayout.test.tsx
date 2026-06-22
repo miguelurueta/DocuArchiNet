@@ -79,7 +79,7 @@ describe("DashboardLayout responsive navigation", () => {
     expect(screen.getByLabelText("Colapsar menú")).toBeInTheDocument();
   });
 
-  test("inicia con sidebar colapsado en tablet", () => {
+  test("usa drawer en iPad Pro portrait para evitar reflow del contenido", async () => {
     breakpointState = { md: true, xl: false };
     setViewportWidth(1024);
 
@@ -95,7 +95,10 @@ describe("DashboardLayout responsive navigation", () => {
 
     expect(screen.getByAltText("DocuArchi")).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Expandir menú")).toBeInTheDocument();
+    const trigger = screen.getByLabelText("Abrir menú");
+    fireEvent.click(trigger);
+
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
   });
 
   test("usa drawer en anchos estrechos aunque md siga activo", async () => {

@@ -100,3 +100,29 @@
   flex: 1 1 auto;
   min-width: 8px;
 }
+
+.overflowActions {
+  display: none;
+}
+
+@container (max-width: 560px) {
+  .collapsibleAction,
+  .resetOverflowAction {
+    display: none;
+  }
+
+  .overflowActions {
+    display: inline-flex;
+  }
+}
+
+@container (max-width: 430px) {
+  .button {
+    min-width: 28px;
+    padding: 0 6px;
+  }
+
+  .zoomLevel {
+    min-width: 42px;
+  }
+}
