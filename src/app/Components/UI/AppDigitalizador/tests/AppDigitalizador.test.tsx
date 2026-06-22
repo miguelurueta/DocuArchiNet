@@ -48,15 +48,33 @@ const createDeferred = <T,>() => {
 
 const createScannerClient = (
   pages: ScanPage[] = [{ id: "page-1", index: 0 }],
-): DigitalizacionScannerClient => ({
+): DigitalizacionScannerClient => {
+  const clientPages = [...pages];
+
+  return {
   initialize: vi.fn().mockResolvedValue(undefined),
   listDevices: vi.fn().mockResolvedValue([
     { id: "scanner-1", name: "Scanner prueba", index: 0 },
   ]),
   selectDevice: vi.fn().mockResolvedValue(undefined),
-  scan: vi.fn(() => Promise.resolve<ScanPage[]>(pages)),
-  rotatePage: vi.fn(() => Promise.resolve<ScanPage[]>(pages)),
-  cropPage: vi.fn(() => Promise.resolve<ScanPage[]>(pages)),
+  scan: vi.fn(() => Promise.resolve<ScanPage[]>(clientPages)),
+  duplicatePage: vi.fn(async (pageId: string) => {
+    const pageIndex = clientPages.findIndex((page) => page.id === pageId);
+    const sourcePage = clientPages[pageIndex];
+    if (!sourcePage) {
+      return clientPages;
+    }
+
+    const duplicatedPage = {
+      ...sourcePage,
+      id: `${sourcePage.id}-copy`,
+      index: clientPages.length,
+    };
+    clientPages.splice(pageIndex + 1, 0, duplicatedPage);
+    return clientPages;
+  }),
+  rotatePage: vi.fn(() => Promise.resolve<ScanPage[]>(clientPages)),
+  cropPage: vi.fn(() => Promise.resolve<ScanPage[]>(clientPages)),
   removePage: vi.fn().mockResolvedValue(undefined),
   reorderPages: vi.fn(async (pageIds: string[]) =>
     pageIds.map((pageId, index) => ({ id: pageId, index })),
@@ -69,7 +87,8 @@ const createScannerClient = (
     }),
   ),
   dispose: vi.fn().mockResolvedValue(undefined),
-});
+  };
+};
 
 describe("AppDigitalizador", () => {
   beforeEach(() => {
@@ -373,10 +392,11 @@ describe("AppDigitalizador", () => {
       expect(screen.getByRole("heading", { name: "Miniaturas (5)" })).toBeInTheDocument();
     });
 
+    fireEvent.click(screen.getByRole("button", { name: "Editar pagina actual" }));
     fireEvent.change(screen.getByLabelText("Pagina destino"), {
       target: { value: "5" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Buscar pagina" }));
+    fireEvent.keyDown(screen.getByLabelText("Pagina destino"), { key: "Enter" });
 
     const pageFiveButtons = screen.getAllByRole("button").filter((button) =>
       button.textContent?.includes("Pagina 5"),
@@ -398,7 +418,7 @@ describe("AppDigitalizador", () => {
     expect(screen.getAllByText("Pagina 5").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("[SPEC:SCRUMCORE-255] enfoca el control de pagina con Ctrl+G", async () => {
+  it("[SPEC:SCRUMCORE-262] navega con atajos de teclado en el control flotante", async () => {
     render(
       <AppDigitalizador
         context={context}
@@ -423,9 +443,53 @@ describe("AppDigitalizador", () => {
       expect(screen.getByRole("heading", { name: "Miniaturas (2)" })).toBeInTheDocument();
     });
 
-    fireEvent.keyDown(document, { key: "g", ctrlKey: true });
+    expect(screen.getByLabelText("Navegacion de paginas")).toHaveTextContent("Pagina 1 de 2");
+    expect(screen.getByRole("button", { name: "Editar pagina actual" })).toHaveTextContent("1");
 
-    expect(screen.getByLabelText("Pagina destino")).toHaveFocus();
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    expect(screen.getByRole("button", { name: "Editar pagina actual" })).toHaveTextContent("2");
+
+    fireEvent.keyDown(document, { key: "Home" });
+    expect(screen.getByRole("button", { name: "Editar pagina actual" })).toHaveTextContent("1");
+  });
+
+  it("[SPEC:SCRUMCORE-262] duplica la pagina activa desde la toolbar unica", async () => {
+    const scannerClient = createScannerClient([
+      { id: "page-1", index: 0 },
+      { id: "page-2", index: 1 },
+      { id: "page-3", index: 2 },
+    ]);
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (3)" })).toBeInTheDocument();
+    });
+
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    fireEvent.click(screen.getByRole("button", { name: "Duplicar pagina" }));
+
+    await waitFor(() => {
+      expect(scannerClient.duplicatePage).toHaveBeenCalledWith("page-2");
+      expect(screen.getByRole("heading", { name: "Miniaturas (4)" })).toBeInTheDocument();
+    });
+    expect(screen.getByRole("button", { name: "Editar pagina actual" })).toHaveTextContent("3");
+    expect(screen.getByLabelText("Navegacion de paginas")).toHaveTextContent("Pagina 3 de 4");
   });
 
   it("[SPEC:SCRUMCORE-256] mantiene reordenamiento en la superficie de miniaturas", async () => {
@@ -543,7 +607,9 @@ describe("AppDigitalizador", () => {
     expect(within(previewToolbar).getByRole("group", { name: "Navegacion" })).toBeInTheDocument();
     expect(within(previewToolbar).getByRole("group", { name: "Edicion" })).toBeInTheDocument();
     expect(within(previewToolbar).getByRole("group", { name: "Visualizacion" })).toBeInTheDocument();
-    expect(within(previewToolbar).getByRole("button", { name: "Buscar pagina" })).toBeInTheDocument();
+    expect(within(previewToolbar).queryByRole("button", { name: "Buscar pagina" })).toBeNull();
+    expect(within(previewToolbar).getByRole("button", { name: "Duplicar pagina" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Editar pagina actual" })).toBeInTheDocument();
     expect(within(previewToolbar).getByRole("button", { name: "Limpiar documento" })).toBeInTheDocument();
     expect(within(previewToolbar).queryByText("Organizar paginas")).toBeNull();
     expect(

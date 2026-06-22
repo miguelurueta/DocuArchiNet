@@ -34,6 +34,7 @@ const createDwt = (
   options: { removeImageUpdatesBuffer?: boolean } = {},
 ): DynamsoftWebTwainObject => {
   const state = { imageCount: 0 };
+  const clipboardState = { copiedIndex: -1 };
   const removeImageUpdatesBuffer = options.removeImageUpdatesBuffer ?? true;
 
   return {
@@ -64,6 +65,18 @@ const createDwt = (
     }),
     Rotate: vi.fn(() => true),
     Crop: vi.fn(() => true),
+    CopyToClipboard: vi.fn((index: number) => {
+      clipboardState.copiedIndex = index;
+      return true;
+    }),
+    LoadDibFromClipboard: vi.fn(() => {
+      if (clipboardState.copiedIndex < 0) {
+        return false;
+      }
+
+      state.imageCount += 1;
+      return true;
+    }),
     ConvertToBlob: vi.fn((_indices, _type, onSuccess) => {
       onSuccess(new Blob(["pdf"], { type: "application/pdf" }));
     }),
@@ -681,6 +694,23 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
     expect(dwt.Rotate).toHaveBeenCalledWith(0, 90, true);
     expect(dwt.RemoveImage).toHaveBeenCalledWith(0);
     expect(dwt.RemoveAllImages).toHaveBeenCalled();
+  });
+
+  it("duplicates selected page through DWT clipboard without changing visual order of other pages", async () => {
+    const dwt = createDwt(3);
+    const client = createClient(createRuntime(dwt));
+    await client.initialize();
+    await client.selectDevice("0");
+    const pages = await client.scan({ deviceId: "0" });
+
+    const nextPages = await client.duplicatePage(pages[1].id);
+
+    expect(dwt.CopyToClipboard).toHaveBeenCalledWith(1);
+    expect(dwt.LoadDibFromClipboard).toHaveBeenCalled();
+    expect(dwt.HowManyImagesInBuffer).toBe(4);
+    expect(nextPages).toHaveLength(4);
+    expect(nextPages.map((page) => page.index)).toEqual([0, 1, 3, 2]);
+    expect(nextPages[2]?.rotationDegrees).toBe(pages[1]?.rotationDegrees ?? 0);
   });
 
   it("generates PDF using reordered page indices", async () => {

@@ -92,6 +92,7 @@ export interface DigitalizacionScannerClient {
   listDevices(): Promise<ScannerDevice[]>;
   selectDevice(deviceId: string): Promise<void>;
   scan(options: ScanOptions): Promise<ScanPage[]>;
+  duplicatePage(pageId: string): Promise<ScanPage[]>;
   rotatePage(pageId: string, degrees: 90 | 180 | 270): Promise<ScanPage[]>;
   cropPage(pageId: string, selection: PageCropSelection): Promise<ScanPage[]>;
   removePage(pageId: string): Promise<void>;
@@ -136,6 +137,8 @@ export type DynamsoftWebTwainObject = {
   GetImageWidth?(index: number): number;
   GetImageHeight?(index: number): number;
   Crop?(index: number, left: number, top: number, right: number, bottom: number): boolean;
+  CopyToClipboard?(index: number): boolean;
+  LoadDibFromClipboard?(): boolean;
   Deskew?(index: number): boolean;
   RotateRight?(index: number): boolean;
   RotateLeft?(index: number): boolean;

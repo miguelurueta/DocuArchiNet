@@ -257,6 +257,30 @@ export const useDigitalizacionScanner = ({
     [client, handleError, updateIfCurrent],
   );
 
+  const duplicatePage = useCallback(
+    async (pageId: string) => {
+      const generation = generationRef.current;
+      const startedAt = getMetricStart();
+      try {
+        const pages = await client.duplicatePage(pageId);
+        updateIfCurrent(generation, (current) => ({
+          ...current,
+          pages,
+          pdf: null,
+          progress: null,
+          error: null,
+        }));
+        logDevelopmentMetric("DUPLICATE_TIME", startedAt, { status: "success" });
+        return pages;
+      } catch (error) {
+        logDevelopmentMetric("DUPLICATE_TIME", startedAt, { status: "error" });
+        handleError(generation, error, "No fue posible duplicar la pagina.");
+        return null;
+      }
+    },
+    [client, handleError, updateIfCurrent],
+  );
+
   const rotatePage = useCallback(
     async (pageId: string, degrees: 90 | 180 | 270) => {
       const generation = generationRef.current;
@@ -395,6 +419,7 @@ export const useDigitalizacionScanner = ({
     scan,
     removePage,
     reorderPages,
+    duplicatePage,
     rotatePage,
     cropPage,
     clear,

@@ -42,6 +42,18 @@ const createClient = (): DigitalizacionScannerClient & {
       expect(options.deviceId).toBeTypeOf("string");
       return this.pages;
     }),
+    duplicatePage: vi.fn(async function duplicatePage(this: { pages: ScanPage[] }, pageId: string) {
+      const sourceIndex = this.pages.findIndex((page) => page.id === pageId);
+      const sourcePage = this.pages[sourceIndex];
+      if (sourcePage) {
+        this.pages.splice(sourceIndex + 1, 0, {
+          ...sourcePage,
+          id: `${sourcePage.id}-copy`,
+          index: this.pages.length,
+        });
+      }
+      return this.pages;
+    }),
     rotatePage: vi.fn(async function rotatePage(this: { pages: ScanPage[] }) {
       return this.pages;
     }),
@@ -190,6 +202,27 @@ describe("[SPEC:SCRUMCORE-240] useDigitalizacionScanner", () => {
 
     expect(client.rotatePage).toHaveBeenCalledWith("page-1", 90);
     expect(result.current.pages).toEqual(rotatedPages);
+    expect(result.current.pdf).toBeNull();
+  });
+
+  it("duplicates pages through adapter and invalidates pdf", async () => {
+    const client = createClient();
+    const duplicatedPages = [
+      { id: "page-1", index: 0 },
+      { id: "page-1-copy", index: 2 },
+      { id: "page-2", index: 1 },
+    ];
+    vi.mocked(client.duplicatePage).mockResolvedValueOnce(duplicatedPages);
+    const { result } = renderHook(() => useDigitalizacionScanner({ client }));
+
+    await act(async () => {
+      await result.current.scan({ deviceId: "0" });
+      await result.current.generatePdf("scan.pdf");
+      await result.current.duplicatePage("page-1");
+    });
+
+    expect(client.duplicatePage).toHaveBeenCalledWith("page-1");
+    expect(result.current.pages).toEqual(duplicatedPages);
     expect(result.current.pdf).toBeNull();
   });
 

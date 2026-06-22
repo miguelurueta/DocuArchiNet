@@ -14,6 +14,7 @@ export const unavailableScannerClient: DigitalizacionScannerClient = {
       message: "Seleccione un scanner antes de escanear.",
     });
   },
+  duplicatePage: async () => [],
   rotatePage: async () => [],
   cropPage: async () => [],
   removePage: async () => undefined,

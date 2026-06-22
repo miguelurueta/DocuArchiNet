@@ -39,6 +39,18 @@ const createScannerClient = (): DigitalizacionScannerClient & { pages: ScanPage[
   scan: vi.fn(async function scan(this: { pages: ScanPage[] }) {
     return this.pages;
   }),
+  duplicatePage: vi.fn(async function duplicatePage(this: { pages: ScanPage[] }, pageId: string) {
+    const sourceIndex = this.pages.findIndex((page) => page.id === pageId);
+    const sourcePage = this.pages[sourceIndex];
+    if (sourcePage) {
+      this.pages.splice(sourceIndex + 1, 0, {
+        ...sourcePage,
+        id: `${sourcePage.id}-copy`,
+        index: this.pages.length,
+      });
+    }
+    return this.pages;
+  }),
   rotatePage: vi.fn(async function rotatePage(this: { pages: ScanPage[] }) {
     return this.pages;
   }),
