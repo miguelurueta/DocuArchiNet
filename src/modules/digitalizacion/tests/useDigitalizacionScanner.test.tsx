@@ -45,6 +45,9 @@ const createClient = (): DigitalizacionScannerClient & {
     rotatePage: vi.fn(async function rotatePage(this: { pages: ScanPage[] }) {
       return this.pages;
     }),
+    cropPage: vi.fn(async function cropPage(this: { pages: ScanPage[] }) {
+      return this.pages;
+    }),
     removePage: vi.fn(async () => undefined),
     reorderPages: vi.fn(async function reorderPages(this: { pages: ScanPage[] }, pageIds: string[]) {
       this.pages = pageIds
@@ -87,6 +90,39 @@ describe("[SPEC:SCRUMCORE-240] useDigitalizacionScanner", () => {
     expect(result.current.selectedDeviceId).toBe("0");
     expect(result.current.pages).toEqual(client.pages);
     expect(result.current.pdf).toEqual(client.pdf);
+  });
+
+  it("exposes scanner progress while scan is pending and clears it on success", async () => {
+    const client = createClient();
+    const deferred = createDeferred<ScanPage[]>();
+    vi.mocked(client.scan).mockImplementationOnce(async (options) => {
+      options.onProgress?.({
+        stage: "processingImages",
+        label: "Procesando imagenes",
+        currentPage: 1,
+        totalPages: 2,
+      });
+      return deferred.promise;
+    });
+    const { result } = renderHook(() => useDigitalizacionScanner({ client }));
+
+    void act(() => {
+      void result.current.scan({ deviceId: "0" });
+    });
+
+    await waitFor(() => {
+      expect(result.current.progress?.label).toBe("Procesando imagenes");
+      expect(result.current.progress?.currentPage).toBe(1);
+    });
+
+    await act(async () => {
+      deferred.resolve(client.pages);
+    });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe("ready");
+      expect(result.current.progress).toBeNull();
+    });
   });
 
   it("exposes functional errors", async () => {
