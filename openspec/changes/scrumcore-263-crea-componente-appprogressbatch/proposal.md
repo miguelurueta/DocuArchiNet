@@ -1,13 +1,23 @@
 ## Why
 
-CREA-COMPONENTE-APPPROGRESSBATCH. Ver detalle funcional completo del ticket en la seccion Jira Details.
+No existe un componente shared moderno para orquestar procesos batch secuenciales genericos con progreso, cancelacion segura, errores controlados y resumen tipado. El legacy `JSProgresBar.js` cubre parte del comportamiento, pero esta acoplado a jQuery, Bootstrap manual, funciones globales, `name_service`, estado global y codigos string ambiguos.
+
+SCRUMCORE-263 crea `AppProgressBatch` como reemplazo conceptual reusable, sin migrar dependencias legacy ni introducir conocimiento de dominio.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue SCRUMCORE-263.
-- Se formaliza la propuesta OpenSpec para implementar AppAppprogressbatch a partir del ticket Jira.
-- Se define la capability `app-appprogressbatch` como parte de la capa UI reutilizable.
-- Se conserva el contexto funcional del ticket como base para los siguientes artefactos OpenSpec.
+- Crear `src/app/Components/UI/AppProgressBatch/` con componente, tipos, estilos, tests, README y barrel local.
+- Exportar el componente desde `src/app/Components/UI/index.ts`.
+- Exponer contrato generico por props con `processItem(item, context)`.
+- Ejecutar items secuencialmente, uno a la vez, con `AbortController` por corrida.
+- Modelar lifecycle explicito: `idle`, `running`, `paused`, `cancelling`, `completed`, `error`.
+- Soportar resultados tipados: `success`, `warning`, `skipped`, `controlled-error`, `fatal-error`.
+- Mostrar progreso global, progreso del item actual, item actual, fase, mensajes y resumen final.
+- Manejar lista vacia sin llamar `processItem`.
+- Bloquear cierre silencioso y doble ejecucion durante procesos activos.
+- Ignorar resultados stale mediante `runId`.
+- Usar `AppModal` y `AppButton`; usar `Progress`/`Alert` de Ant Design solo para bloques visuales sin wrapper local existente.
+- Documentar uso, limites, ejemplos y relacion futura con consumidores como `AppUploadDocumental`.
 
 ## Jira Details
 
@@ -941,13 +951,14 @@ CREA-COMPONENTE-APPPROGRESSBATCH. Ver detalle funcional completo del ticket en l
 ## Capabilities
 
 ### New Capabilities
-- `app-appprogressbatch`: Componente reusable AppAppprogressbatch para la capa UI compartida del proyecto.
+- `app-progress-batch`: Componente reusable `AppProgressBatch` para orquestar procesos batch secuenciales genericos en la capa UI compartida.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nuevo componente compartido en `src/app/Components/UI/AppAppprogressbatch/`.
-- Posible integracion inicial en un modulo consumidor real del proyecto.
+- Nuevo componente compartido en `src/app/Components/UI/AppProgressBatch/`.
+- Nuevo export en `src/app/Components/UI/index.ts`.
 - Nuevas pruebas de comportamiento para el contrato reusable del componente.
+- No se modifica backend, endpoints, `AppUpload`, almacenamiento documental ni modulos consumidores.
