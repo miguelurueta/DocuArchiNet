@@ -117,6 +117,20 @@
 - [ ] 10.7 Documentar relacion futura con `AppUploadDocumental` sin integrarlo en este ticket.
 - [ ] 10.8 Mantener alineacion con `docs/Architecture/AppProgressBatch/AppProgressBatch-Requisitos.md`.
 - [ ] 10.9 Mantener alineacion con `docs/Architecture/AppProgressBatch/Legacy-Gap-Analysis.md`.
+- [ ] 10.10 Crear `docs/Architecture/AppProgressBatch/SCRUMCORE-263-Arquitectura.md`.
+- [ ] 10.11 En arquitectura enterprise, documentar objetivo, contexto legacy, alcance/no alcance y dependencias permitidas.
+- [ ] 10.12 En arquitectura enterprise, documentar separacion UI state, execution state y consumer state.
+- [ ] 10.13 En arquitectura enterprise, documentar lifecycle, run isolation, cancelacion, stale results, seguridad y restricciones.
+- [ ] 10.14 Crear `docs/Architecture/AppProgressBatch/SCRUMCORE-263-Implementacion-Detallada.md`.
+- [ ] 10.15 En implementacion detallada, documentar estructura de archivos, API publica, tipos, defaults y exports.
+- [ ] 10.16 En implementacion detallada, documentar flujo de ejecucion, politica de resultados, errores, lista vacia, autoStart, mutex y guard runtime.
+- [ ] 10.17 En implementacion detallada, documentar uso de `AppModal`, `AppButton`, `Progress`, `Alert`, estados visuales y ejemplos de uso.
+- [ ] 10.18 Crear `docs/Architecture/AppProgressBatch/SCRUMCORE-263-Pruebas.md`.
+- [ ] 10.19 En pruebas enterprise, documentar matriz de casos unitarios/integracion, comandos ejecutados, resultados y evidencia.
+- [ ] 10.20 En pruebas enterprise, documentar pruebas manuales recomendadas, build/lint si aplica y riesgos no cubiertos.
+- [ ] 10.21 Crear `docs/Architecture/AppProgressBatch/SCRUMCORE-263-Metadata.md`.
+- [ ] 10.22 En metadata enterprise, documentar Jira, rama, commits, PR futuro, archivos creados/modificados, estado de tareas y decisiones.
+- [ ] 10.23 En metadata enterprise, documentar riesgos residuales y confirmaciones de no backend, no endpoints, no dominio, no `any`, cancelacion con `AbortController` y stale results ignorados.
 
 ## 11. Pruebas unitarias e integracion
 

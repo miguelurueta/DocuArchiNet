@@ -220,11 +220,27 @@ La UI SHALL mantener composicion enterprise estable, accesible y responsive dent
 - **AND** el modal no cambia bruscamente de alto entre fases
 
 ### Requirement: Documentation and Validation
-La entrega SHALL documentar el componente, evidencias y limites de alcance.
+La entrega SHALL documentar el componente, evidencias, limites de alcance y documentacion enterprise del ticket.
 
 #### Scenario: README documents usage
 - **WHEN** se revisa `src/app/Components/UI/AppProgressBatch/README.md`
 - **THEN** incluye objetivo, props, tipos, ejemplo basico, ejemplo con error controlado, ejemplo con cancelacion, limites de dominio y relacion futura con `AppUploadDocumental`
+
+#### Scenario: Enterprise architecture documentation exists
+- **WHEN** se revisa `docs/Architecture/AppProgressBatch/SCRUMCORE-263-Arquitectura.md`
+- **THEN** documenta objetivo, contexto legacy, alcance/no alcance, dependencias permitidas, separacion de estados, lifecycle, cancelacion, stale results, seguridad, restricciones y decisiones arquitectonicas
+
+#### Scenario: Enterprise implementation documentation exists
+- **WHEN** se revisa `docs/Architecture/AppProgressBatch/SCRUMCORE-263-Implementacion-Detallada.md`
+- **THEN** documenta estructura de archivos, API publica, tipos, defaults, flujo de ejecucion, politica de resultados, lista vacia, autoStart, mutex, guard runtime, uso de `AppModal`/`AppButton`, estados visuales y ejemplos de uso
+
+#### Scenario: Enterprise testing documentation exists
+- **WHEN** se revisa `docs/Architecture/AppProgressBatch/SCRUMCORE-263-Pruebas.md`
+- **THEN** contiene matriz de pruebas unitarias e integracion, comandos ejecutados, resultados, evidencia de validacion, pruebas manuales recomendadas y riesgos no cubiertos
+
+#### Scenario: Enterprise metadata documentation exists
+- **WHEN** se revisa `docs/Architecture/AppProgressBatch/SCRUMCORE-263-Metadata.md`
+- **THEN** contiene Jira, rama, commits, PR futuro, archivos creados/modificados, estado de tareas, decisiones, riesgos residuales y confirmaciones de no backend, no endpoints, no dominio, no `any`, cancelacion con `AbortController` y stale results ignorados
 
 #### Scenario: Verification evidence is recorded
 - **WHEN** se cierre el ticket

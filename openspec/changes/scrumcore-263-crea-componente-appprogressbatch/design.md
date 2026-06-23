@@ -101,6 +101,8 @@ El componente vive en `src/app/Components/UI/AppProgressBatch/` y debe alinearse
     - Crear `README.md` en la carpeta del componente.
     - Mantener alineados los documentos de arquitectura existentes.
     - Registrar evidencias de tests, build/lint si se ejecutan y riesgos residuales.
+    - Crear documentacion enterprise del ticket en `docs/Architecture/AppProgressBatch/`.
+    - La documentacion enterprise debe explicar arquitectura, API publica, lifecycle, politica de resultados, cancelacion, uso esperado, ejemplos, pruebas, riesgos, metadata Jira/Git y limites de alcance.
 
 ## Component Shape
 
@@ -159,8 +161,27 @@ export * from "./AppProgressBatch";
 5. Implementar UI con `AppModal`, `AppButton`, `Progress`, `Alert` y estilos CSS module.
 6. Exportar desde barrel local y shared.
 7. Crear README con ejemplos basico, error controlado y cancelacion.
-8. Agregar tests unitarios e integracion del contrato.
-9. Ejecutar validaciones y documentar evidencia.
+8. Crear documentacion enterprise `SCRUMCORE-263-Arquitectura.md`, `SCRUMCORE-263-Implementacion-Detallada.md`, `SCRUMCORE-263-Pruebas.md` y `SCRUMCORE-263-Metadata.md`.
+9. Agregar tests unitarios e integracion del contrato.
+10. Ejecutar validaciones y documentar evidencia.
+
+## Enterprise Documentation Plan
+
+Crear los siguientes archivos:
+
+```txt
+docs/Architecture/AppProgressBatch/SCRUMCORE-263-Arquitectura.md
+docs/Architecture/AppProgressBatch/SCRUMCORE-263-Implementacion-Detallada.md
+docs/Architecture/AppProgressBatch/SCRUMCORE-263-Pruebas.md
+docs/Architecture/AppProgressBatch/SCRUMCORE-263-Metadata.md
+```
+
+Contenido minimo esperado:
+
+- **Arquitectura**: objetivo, contexto legacy, alcance/no alcance, dependencias permitidas, diagrama conceptual, separacion UI/execution/consumer state, lifecycle, run isolation, cancelacion, seguridad y restricciones.
+- **Implementacion detallada**: estructura de archivos, API publica, tipos, defaults, flujo de ejecucion, politica de resultados, manejo de errores, lista vacia, autoStart, mutex, stale results, uso de `AppModal`/`AppButton`, UI states y ejemplos de uso.
+- **Pruebas**: matriz de casos unitarios/integracion, comandos ejecutados, resultados, evidencia de TypeScript/OpenSpec/diff-check/build/lint si aplica, riesgos no cubiertos y pruebas manuales recomendadas.
+- **Metadata**: Jira, branch, commits, PR futuro, archivos creados/modificados, estado de tareas, decisiones, riesgos residuales, confirmaciones de no backend/no endpoints/no dominio/no `any`.
 
 ## Open Questions
 
