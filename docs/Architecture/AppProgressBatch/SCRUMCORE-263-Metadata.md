@@ -15,8 +15,11 @@
   - `2f86069 feat(SCRUMCORE-263): proposal inicial OpenSpec`
   - `0750498 docs(SCRUMCORE-263): refine AppProgressBatch OpenSpec`
   - `a130fa7 docs(SCRUMCORE-263): require enterprise documentation`
-- Commit de implementacion: pendiente al momento de redactar esta evidencia.
-- PR: pendiente.
+- Commit de implementacion:
+  - `0242cd2 feat(SCRUMCORE-263): implement AppProgressBatch`
+- Push:
+  - `feature/SCRUMCORE-263` actualizado en remoto.
+- PR: pendiente si el flujo requiere abrirlo despues de revision.
 
 ## Archivos creados
 
