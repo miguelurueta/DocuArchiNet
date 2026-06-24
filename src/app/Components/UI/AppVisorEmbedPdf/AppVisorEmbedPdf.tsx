@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+﻿import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import { useZoom } from "@embedpdf/plugin-zoom/react";
 import { ThumbnailsPane, ThumbImg } from "@embedpdf/plugin-thumbnail/react";
@@ -212,8 +212,8 @@ function toPdfBlobPart(buffer: ArrayBuffer | Uint8Array<ArrayBufferLike>): BlobP
 /**
  * AppVisorEmbedPdf (01-FE)
  *
- * NOTA: Este componente encapsula EmbedPDF/Pdfium y expone una API mÃ­nima.
- * Se prohÃ­be filtrar detalles del engine hacia mÃ³dulos consumidores.
+ * NOTA: Este componente encapsula EmbedPDF/Pdfium y expone una API mÃƒÂ­nima.
+ * Se prohÃƒÂ­be filtrar detalles del engine hacia mÃƒÂ³dulos consumidores.
  */
 export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdfProps>(function AppVisorEmbedPdf(
   {
@@ -346,7 +346,7 @@ export const AppVisorEmbedPdf = forwardRef<AppVisorEmbedPdfRef, AppVisorEmbedPdf
 
     const last = lastOpenResultRef.current;
     if (last && last.url === input.url) {
-      // Si el documento ya está abierto con la misma URL, este load() solo actualiza política/permisos.
+      // Si el documento ya estÃ¡ abierto con la misma URL, este load() solo actualiza polÃ­tica/permisos.
       // No bloquea esperando un open redundante del engine.
       return {
         ok: last.ok,
@@ -743,7 +743,7 @@ function EmbedPdfDocumentHost(props: {
     if (!fileUrl) return;
     const last = lastOpenedRef.current;
     const effectivePassword = password ?? validatedPdfPasswordRef.current;
-    // Importante: permitir reintento aunque el usuario envíe la misma contraseña (mismo string).
+    // Importante: permitir reintento aunque el usuario envÃ­e la misma contraseÃ±a (mismo string).
     // Por eso incluimos `passwordAttempt` como parte de la identidad del intento.
     if (last && last.url === fileUrl && last.password === effectivePassword && last.attempt === passwordAttempt) return;
     lastOpenedRef.current = { url: fileUrl, password: effectivePassword, attempt: passwordAttempt };
@@ -756,8 +756,8 @@ function EmbedPdfDocumentHost(props: {
       hasValidatedPassword: Boolean(validatedPdfPasswordRef.current),
     });
 
-    // Enterprise hardening: el DocumentManager tiene un máximo de documentos abiertos (por defecto 10).
-    // Para evitar `Maximum number of documents (10) reached`, aplicamos política "single-active document":
+    // Enterprise hardening: el DocumentManager tiene un mÃ¡ximo de documentos abiertos (por defecto 10).
+    // Para evitar `Maximum number of documents (10) reached`, aplicamos polÃ­tica "single-active document":
     // cerramos el documento previamente abierto antes de abrir uno nuevo.
     const previouslyOpenedId = openedDocumentIdRef.current;
     if (previouslyOpenedId && provides.isDocumentOpen(previouslyOpenedId)) {
@@ -779,7 +779,7 @@ function EmbedPdfDocumentHost(props: {
     });
 
     // El DocumentManager devuelve un Task que resuelve con { documentId, task }.
-    // Importante: el "éxito/fracaso real" de abrir el PDF ocurre en `response.task`
+    // Importante: el "Ã©xito/fracaso real" de abrir el PDF ocurre en `response.task`
     // (carga del documento), no en el task externo (que puede resolver al despachar la carga).
     let cancelled = false;
     openTask.wait(
@@ -790,7 +790,7 @@ function EmbedPdfDocumentHost(props: {
         openedDocumentIdRef.current = response.documentId;
         dvLog("[DV][visor]", "openDocumentUrl dispatched", { managedSeq, documentId: response.documentId });
 
-        // Esperar el task interno de carga del PDF para cerrar el estado "Validando…"
+        // Esperar el task interno de carga del PDF para cerrar el estado "Validandoâ€¦"
         // incluso si el documento no llega a activarse (activeDocumentId sigue null).
         response.task.wait(
           () => {
@@ -810,7 +810,7 @@ function EmbedPdfDocumentHost(props: {
             if (cancelled) return;
             if (managedSeq !== latestManagedSeqRef.current) return;
             setIsSubmittingPassword(false);
-            // OPEN_FAILED no implica contraseña; evitar prompt falso bajo cancelación/stale.
+            // OPEN_FAILED no implica contraseÃ±a; evitar prompt falso bajo cancelaciÃ³n/stale.
             setPasswordPromptOpen(false);
             dvLog("[DV][visor]", "engine open failed (task err)", { managedSeq });
             onManagedOpenResult({ seq: managedSeq, ok: false, errors: ["OPEN_FAILED"] });
@@ -821,7 +821,7 @@ function EmbedPdfDocumentHost(props: {
         if (cancelled) return;
         if (managedSeq !== latestManagedSeqRef.current) return;
         setIsSubmittingPassword(false);
-        // OPEN_FAILED no implica contraseña; evitar prompt falso bajo cancelación/stale.
+        // OPEN_FAILED no implica contraseÃ±a; evitar prompt falso bajo cancelaciÃ³n/stale.
         setPasswordPromptOpen(false);
         dvLog("[DV][visor]", "openDocumentUrl failed (outer task)", { managedSeq, err });
         onManagedOpenResult({ seq: managedSeq, ok: false, errors: ["OPEN_FAILED"] });
@@ -907,7 +907,7 @@ function EmbedPdfDocumentHost(props: {
     const openedId = openedDocumentIdRef.current;
     if (!openedId) return;
 
-    // Reintento oficial del DocumentManager (sin reabrir URL / sin lógica custom)
+    // Reintento oficial del DocumentManager (sin reabrir URL / sin lÃ³gica custom)
     const retryTask = provides.retryDocument(openedId, { password: next });
     retryTask.wait(
       (response) => {
@@ -960,7 +960,7 @@ function EmbedPdfDocumentHost(props: {
       return;
     }
     // Si el documento vuelve a fallar luego de enviar password, dejar de "validar"
-    // y mostrar estado inválido para permitir reintento.
+    // y mostrar estado invÃ¡lido para permitir reintento.
     setIsSubmittingPassword(false);
     setPasswordPromptOpen(true);
     setInvalidPassword(lastAttemptHadPasswordRef.current);
@@ -1187,6 +1187,23 @@ function EmbedPdfLoadedDocumentView(props: {
   const activeDocumentState = useDocumentState(documentId);
   const zoom = useZoom(documentId);
   const zoomLevel = typeof zoom.state.currentZoomLevel === "number" ? zoom.state.currentZoomLevel : 1;
+  const currentZoomLevelRef = useRef(zoomLevel);
+  const zoomActionSeqRef = useRef(0);
+  useEffect(() => {
+    currentZoomLevelRef.current = zoomLevel;
+  }, [zoomLevel]);
+  const getCurrentZoomLevel = useCallback(() => {
+    return typeof currentZoomLevelRef.current === "number" ? currentZoomLevelRef.current : 1;
+  }, []);
+  const logToolbarZoom = useCallback(() => {
+    const shownPercent = Math.round(zoomLevel * 100);
+    dvLog("[DV][zoom-trace][toolbar]", {
+      documentId,
+      fitMode,
+      currentZoomLevel: zoomLevel,
+      shownPercent: `${shownPercent}%`,
+    });
+  }, [documentId, fitMode, zoomLevel]);
   const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   const guideTourRef = useRef<AppGuideTourRef | null>(null);
@@ -1271,6 +1288,10 @@ function EmbedPdfLoadedDocumentView(props: {
   }, [persistedSignatureVisuals]);
 
   useEffect(() => {
+    logToolbarZoom();
+  }, [logToolbarZoom]);
+
+  useEffect(() => {
     return () => {
       for (const visual of persistedSignatureVisualsRef.current) {
         URL.revokeObjectURL(visual.imageUrl);
@@ -1291,18 +1312,18 @@ function EmbedPdfLoadedDocumentView(props: {
     setTimeout(() => URL.revokeObjectURL(url), 0);
   }, []);
 
-  // DEV-only debug hook para diagnosticar selección/borrado de firmas sin adivinar.
+  // DEV-only debug hook para diagnosticar selecciÃ³n/borrado de firmas sin adivinar.
   // Se elimina cuando resolvamos el flujo.
-  // (cleanup) Se removiÃ³ el debug hook `__APPVISOR_DEBUG__`.
+  // (cleanup) Se removiÃƒÂ³ el debug hook `__APPVISOR_DEBUG__`.
 
   useEffect(() => {
     if (!selection.provides) return;
-    // Activar selección de texto en PDFs.
+    // Activar selecciÃ³n de texto en PDFs.
     selection.provides.enableForMode(
       "default",
       {
         enableSelection: true,
-        // Selección tipo navegador: sin "marquee" overlay al arrastrar.
+        // SelecciÃ³n tipo navegador: sin "marquee" overlay al arrastrar.
         enableMarquee: false,
         showSelectionRects: true,
         showMarqueeRects: false,
@@ -1347,7 +1368,7 @@ function EmbedPdfLoadedDocumentView(props: {
     [documentId, selection.provides],
   );
 
-  // Copiar selección (tipo demo): intercepta Ctrl/Cmd+C cuando existe selección del plugin
+  // Copiar selecciÃ³n (tipo demo): intercepta Ctrl/Cmd+C cuando existe selecciÃ³n del plugin
   // y delega a `copyToClipboard()` para evitar depender del native selection del DOM.
   const hasSelectionRef = useRef(false);
   useEffect(() => {
@@ -1388,7 +1409,7 @@ function EmbedPdfLoadedDocumentView(props: {
     const selected = scope.getAnnotationById?.(selectedUid);
     if (!selected) return null;
 
-    // Heurística: las firmas se crean como STAMP o INK (según Signature plugin).
+    // HeurÃ­stica: las firmas se crean como STAMP o INK (segÃºn Signature plugin).
     const type = (selected.object as any)?.type;
     const subject = (selected.object as any)?.subject;
     const isSignature =
@@ -1450,8 +1471,8 @@ function EmbedPdfLoadedDocumentView(props: {
     const cap = annotationCap.provides;
     if (!scope || !cap) return;
 
-    // Importante: NO usar `purgeAnnotation` aquÃ­. `purgeAnnotation` solo afecta UI/state y puede
-    // impedir que el commit elimine la anotaciÃ³n del PDF real (lo que rompe export/print).
+    // Importante: NO usar `purgeAnnotation` aquÃƒÂ­. `purgeAnnotation` solo afecta UI/state y puede
+    // impedir que el commit elimine la anotaciÃƒÂ³n del PDF real (lo que rompe export/print).
     try {
       // Persistir el delete en el PDF real: en este plugin, `deleteAnnotation` opera por ID de objeto.
       cap.deleteAnnotation?.(selected.pageIndex, selected.objectId);
@@ -1530,10 +1551,10 @@ function EmbedPdfLoadedDocumentView(props: {
         annotationPages: summarizeAnnotationPages(annotation.state.pages ?? {}, annotation.provides?.getAnnotationById),
       });
 
-      // Intento de lock por categorÃ­a (si el engine categoriza firmas).
+      // Intento de lock por categorÃƒÂ­a (si el engine categoriza firmas).
       // El guardrail real se asegura por UI (deshabilitar eliminar/agregar firma luego de guardar).
       try {
-        // Nota: las firmas subidas como PNG suelen materializarse como STAMP/INK sin categorÃ­a "signature"
+        // Nota: las firmas subidas como PNG suelen materializarse como STAMP/INK sin categorÃƒÂ­a "signature"
         // consistente. Para garantizar que no se puedan remover/editar tras "Guardar", bloqueamos el
         // layer de anotaciones completo a nivel de documento.
         annotationCap.provides?.setLocked?.({ type: LockModeType.All, categories: [] } as any, documentId);
@@ -1571,8 +1592,8 @@ function EmbedPdfLoadedDocumentView(props: {
       const normalized = ((nextSteps % 4) + 4) % 4;
       rotationByDocumentKeyRef.current.set(documentKey, normalized);
       try {
-        // Persistimos el DELTA de UI (rotación del plugin) por documento.
-        // No representa la rotación base del PDF (/Rotate). No debe “pisar” la base.
+        // Persistimos el DELTA de UI (rotaciÃ³n del plugin) por documento.
+        // No representa la rotaciÃ³n base del PDF (/Rotate). No debe â€œpisarâ€ la base.
         localStorage.setItem(`appvisor:embedpdf:rotation_delta:${documentKey}`, String(normalized));
       } catch {
         // no-op (quota/blocked storage)
@@ -1596,8 +1617,8 @@ function EmbedPdfLoadedDocumentView(props: {
     }
   }, [documentKey, rotationByDocumentKeyRef]);
 
-  // Aplica el DELTA persistido solo después de que el documento está Loaded (base /Rotate ya aplicada por engine).
-  // Guardrail: si el delta es 0, no forzar setRotation(0) (evita “pisar” visualmente en implementaciones donde el
+  // Aplica el DELTA persistido solo despuÃ©s de que el documento estÃ¡ Loaded (base /Rotate ya aplicada por engine).
+  // Guardrail: si el delta es 0, no forzar setRotation(0) (evita â€œpisarâ€ visualmente en implementaciones donde el
   // plugin no modela delta puro).
   const appliedPersistedDeltaRef = useRef<{ documentId: string; documentKey?: string } | null>(null);
   useEffect(() => {
@@ -1615,7 +1636,7 @@ function EmbedPdfLoadedDocumentView(props: {
 
     // Apply-once por documento cargado. En caso de error, best-effort.
     try {
-      // Espera un tick para evitar competir con activación interna del engine.
+      // Espera un tick para evitar competir con activaciÃ³n interna del engine.
       const id = window.setTimeout(() => {
         try {
           rotate.provides?.setRotation(persistedDelta);
@@ -1650,17 +1671,61 @@ function EmbedPdfLoadedDocumentView(props: {
     dvLog("[DV][visor]", "autoFit applied", { documentId, fitMode, appliedZoom: result.appliedZoom });
   }, [documentId, fitMode, viewport.provides, zoom.provides, zoomLevel, autoFitAppliedRef, autoFitIntentRef]);
 
-  const onZoomIn = useCallback(() => {
+    const onZoomIn = useCallback(() => {
     if (isZoomDisabled) return;
-    // Usar API oficial con "center" explÃ­cito para evitar que el viewport se re-anclÃ©
-    // al top/left al cambiar el scale (se mantiene centrado).
+    const actionId = ++zoomActionSeqRef.current;
+    const before = getCurrentZoomLevel();
+    dvLog("[DV][zoom-trace]", {
+      documentId,
+      phase: "before",
+      action: "zoom-in",
+      actionId,
+      fitMode,
+      currentZoomLevel: before,
+      shownPercent: `${Math.round(before * 100)}%`,
+    });
     zoom.provides?.requestZoomBy(0.1, getViewportCenter());
-  }, [zoom.provides, isZoomDisabled, getViewportCenter]);
+    window.setTimeout(() => {
+      const after = getCurrentZoomLevel();
+      dvLog("[DV][zoom-trace]", {
+        documentId,
+        phase: "after",
+        action: "zoom-in",
+        actionId,
+        fitMode,
+        currentZoomLevel: after,
+        shownPercent: `${Math.round(after * 100)}%`,
+      });
+    }, 120);
+  }, [zoom.provides, isZoomDisabled, getViewportCenter, documentId, fitMode, getCurrentZoomLevel]);
 
-  const onZoomOut = useCallback(() => {
+    const onZoomOut = useCallback(() => {
     if (isZoomDisabled) return;
+    const actionId = ++zoomActionSeqRef.current;
+    const before = getCurrentZoomLevel();
+    dvLog("[DV][zoom-trace]", {
+      documentId,
+      phase: "before",
+      action: "zoom-out",
+      actionId,
+      fitMode,
+      currentZoomLevel: before,
+      shownPercent: `${Math.round(before * 100)}%`,
+    });
     zoom.provides?.requestZoomBy(-0.1, getViewportCenter());
-  }, [zoom.provides, isZoomDisabled, getViewportCenter]);
+    window.setTimeout(() => {
+      const after = getCurrentZoomLevel();
+      dvLog("[DV][zoom-trace]", {
+        documentId,
+        phase: "after",
+        action: "zoom-out",
+        actionId,
+        fitMode,
+        currentZoomLevel: after,
+        shownPercent: `${Math.round(after * 100)}%`,
+      });
+    }, 120);
+  }, [zoom.provides, isZoomDisabled, getViewportCenter, documentId, fitMode, getCurrentZoomLevel]);
   const onResetZoom = useCallback(() => {
     if (isZoomDisabled) return;
     zoom.provides?.requestZoom(1, getViewportCenter());
@@ -1723,7 +1788,7 @@ function EmbedPdfLoadedDocumentView(props: {
   }, [onRotateRight, persistRotationSteps, rotationSteps]);
 
   const onToggleSignatureModal = useCallback(() => {
-    // UX: si estaba bloqueado y el usuario intenta adjuntar otra firma, desbloquear automÃ¡ticamente.
+    // UX: si estaba bloqueado y el usuario intenta adjuntar otra firma, desbloquear automÃƒÂ¡ticamente.
     if (isSignatureLocked) unlockSignatures();
     setIsSignatureModalOpen((v) => !v);
   }, [isSignatureLocked, unlockSignatures]);
@@ -1738,7 +1803,7 @@ function EmbedPdfLoadedDocumentView(props: {
   }, [annotationCap.provides, print.provides]);
 
   const onExport = useCallback(async () => {
-    // Opción 4 (sin parpadeo): exportar buffer ya "materializado" y descargarlo nosotros.
+    // OpciÃ³n 4 (sin parpadeo): exportar buffer ya "materializado" y descargarlo nosotros.
     // Esto evita que el plugin `download()` use un snapshot anterior.
     try {
       if (annotationCap.provides?.commit) await waitPdfTaskVoid(annotationCap.provides.commit());
@@ -2211,7 +2276,7 @@ function EmbedPdfLoadedDocumentView(props: {
     const sync = () => {
       rafRef.current = null;
       const m = scope.getMetrics();
-      // Comportamiento tipo WhatsApp: aparece solo cuando realmente estÃ¡s "abajo".
+      // Comportamiento tipo WhatsApp: aparece solo cuando realmente estÃƒÂ¡s "abajo".
       setShowScrollTop(m.scrollTop > Math.max(120, m.clientHeight * 0.5));
     };
 
@@ -2251,7 +2316,7 @@ function EmbedPdfLoadedDocumentView(props: {
         steps={APP_VISOR_EMBED_PDF_GUIDE_STEPS}
         onEvent={onGuideTourEvent}
       />
-      {/** overlay se monta en AppVisorEmbedPdf (raíz) para cubrir también primer click */}
+      {/** overlay se monta en AppVisorEmbedPdf (raÃ­z) para cubrir tambiÃ©n primer click */}
       <div className={styles.toolbarShell} role="toolbar" aria-label="Toolbar PDF" data-guide-tour-id="pdf-toolbar">
         {loading ? (
           <div className={styles.toolbarSkeleton} aria-label="Cargando toolbar" role="status" aria-busy="true">
@@ -2325,11 +2390,11 @@ function EmbedPdfLoadedDocumentView(props: {
         <div
           className={styles.paginationOverlay}
           role="group"
-          aria-label="PaginaciÃ³n"
+          aria-label="PaginaciÃƒÂ³n"
           data-guide-tour-id="pdf-pagination"
         >
           {loading ? (
-            <div className={styles.paginationSkeleton} aria-label="Cargando paginación" role="status" aria-busy="true">
+            <div className={styles.paginationSkeleton} aria-label="Cargando paginaciÃ³n" role="status" aria-busy="true">
               <span className={styles.paginationSkeletonButton} />
               <span className={styles.paginationSkeletonIndicator} />
               <span className={styles.paginationSkeletonButton} />
@@ -2339,8 +2404,8 @@ function EmbedPdfLoadedDocumentView(props: {
             type="button"
             className={styles.paginationButton}
             onClick={onPreviousPage}
-            aria-label="PÃ¡gina anterior"
-            title="PÃ¡gina anterior"
+            aria-label="PÃƒÂ¡gina anterior"
+            title="PÃƒÂ¡gina anterior"
           >
             <LeftOutlined aria-hidden="true" />
           </button>
@@ -2348,7 +2413,7 @@ function EmbedPdfLoadedDocumentView(props: {
             <input
               ref={paginationInputRef}
               className={styles.paginationInput}
-              aria-label={`Ir a pÃƒÂ¡gina (1-${totalPages || 1})`}
+              aria-label={`Ir a pÃƒÆ’Ã‚Â¡gina (1-${totalPages || 1})`}
               inputMode="numeric"
               value={paginationDraft}
               onChange={(event) => setPaginationDraft(event.target.value)}
@@ -2370,8 +2435,8 @@ function EmbedPdfLoadedDocumentView(props: {
             onKeyDown={(event) => {
               if (event.key === "Enter" || event.key === " ") onStartPaginationEdit();
             }}
-            aria-label={`PÃ¡gina ${currentPage} de ${totalPages}`}
-            title={`PÃ¡gina ${currentPage} de ${totalPages}`}
+            aria-label={`PÃƒÂ¡gina ${currentPage} de ${totalPages}`}
+            title={`PÃƒÂ¡gina ${currentPage} de ${totalPages}`}
           >
             {currentPage}/{totalPages}
           </div>
@@ -2380,8 +2445,8 @@ function EmbedPdfLoadedDocumentView(props: {
             type="button"
             className={styles.paginationButton}
             onClick={onNextPage}
-            aria-label="PÃ¡gina siguiente"
-            title="PÃ¡gina siguiente"
+            aria-label="PÃƒÂ¡gina siguiente"
+            title="PÃƒÂ¡gina siguiente"
           >
             <RightOutlined aria-hidden="true" />
           </button>
@@ -2406,7 +2471,7 @@ function EmbedPdfLoadedDocumentView(props: {
                   style={{ top: meta.top, height: meta.wrapperHeight }}
                   role="button"
                   tabIndex={0}
-                  aria-label={`Ir a pÃ¡gina ${meta.pageIndex + 1}`}
+                  aria-label={`Ir a pÃƒÂ¡gina ${meta.pageIndex + 1}`}
                   onClick={() => onSelectThumbnail(meta.pageIndex)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") onSelectThumbnail(meta.pageIndex);
@@ -2458,8 +2523,8 @@ function EmbedPdfLoadedDocumentView(props: {
               return (
               <div
                 className={styles.pageLayer}
-                // `width/height` aquÃ­ representan el "slot" calculado por el Scroll plugin
-                // para la pÃ¡gina actual (ya considera rotaciÃ³n/escala).
+                // `width/height` aquÃƒÂ­ representan el "slot" calculado por el Scroll plugin
+                // para la pÃƒÂ¡gina actual (ya considera rotaciÃƒÂ³n/escala).
                 style={{
                   width: slotWidth,
                   height: slotHeight,
@@ -2537,8 +2602,8 @@ function EmbedPdfLoadedDocumentView(props: {
                             height: Math.ceil(height),
                           }
                         : {
-                            // Para 180 (y 0 en teoría, aunque este branch no corre en 0),
-                            // el slot no cambia de orientación pero puede haber clipping por rounding subpixel.
+                            // Para 180 (y 0 en teorÃ­a, aunque este branch no corre en 0),
+                            // el slot no cambia de orientaciÃ³n pero puede haber clipping por rounding subpixel.
                             width: Math.ceil(width) + 2,
                             height: Math.ceil(height) + 2,
                           }
@@ -2547,8 +2612,8 @@ function EmbedPdfLoadedDocumentView(props: {
                     {/* 
                       Rotate aplica una transform matrix sobre un contenedor ABSOLUTE.
                       Para evitar "stretch" / clipping en 90/270, el contenido debe
-                      mantener su tamaÃ±o base (sin rotaciÃ³n): (height x width).
-                      El slot del scroller (width x height) ya es el tamaÃ±o rotado.
+                      mantener su tamaÃƒÂ±o base (sin rotaciÃƒÂ³n): (height x width).
+                      El slot del scroller (width x height) ya es el tamaÃƒÂ±o rotado.
                     */}
                     <div
                       style={{
@@ -2588,3 +2653,6 @@ function EmbedPdfLoadedDocumentView(props: {
     </>
   );
 }
+
+
+
