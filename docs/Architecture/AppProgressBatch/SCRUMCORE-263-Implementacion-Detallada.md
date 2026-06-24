@@ -131,3 +131,15 @@ Lista vacia no crea `AbortController`, no llama `processItem` y emite:
   }}
 />
 ```
+
+## Preview de items en cola
+
+Antes de iniciar, `AppProgressBatch` muestra un preview generico de los items en cola.
+
+El preview:
+
+- usa `getItemLabel` si el consumidor lo provee;
+- usa labels genericos `Elemento N` si no existe `getItemLabel`;
+- muestra hasta seis items visibles;
+- resume elementos adicionales con un contador `+N elementos adicionales`;
+- no conoce dominio documental, upload ni metadatos de negocio.

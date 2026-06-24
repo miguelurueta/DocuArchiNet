@@ -98,6 +98,19 @@ describe("AppProgressBatch [SCRUMCORE-263]", () => {
     expect(screen.getByText("Iniciar")).toBeInTheDocument();
   });
 
+  it("muestra preview de items en cola antes de iniciar", () => {
+    renderBatch({
+      items: ["a", "b", "c", "d", "e", "f", "g"],
+      getItemLabel: (item) => `Documento ${item}`,
+    });
+
+    expect(screen.getByLabelText("Items en cola")).toBeInTheDocument();
+    expect(screen.getByText("Documento a")).toBeInTheDocument();
+    expect(screen.getByText("Documento f")).toBeInTheDocument();
+    expect(screen.queryByText("Documento g")).not.toBeInTheDocument();
+    expect(screen.getByText("+1 elementos adicionales")).toBeInTheDocument();
+  });
+
   it("ejecuta items en orden y completa resumen exitoso", async () => {
     const order: string[] = [];
     const onComplete = vi.fn();

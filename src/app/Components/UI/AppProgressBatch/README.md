@@ -28,7 +28,7 @@ src/app/Components/UI/AppProgressBatch/
 - `confirmOnCancel`: exige confirmacion al cancelar o cerrar durante ejecucion.
 - `emptyMessage`: mensaje para lista vacia.
 - `closeOnComplete`: cierra al completar exitosamente.
-- `getItemLabel`: resuelve label inicial del item actual.
+- `getItemLabel`: resuelve label inicial del item actual y los labels del preview de items en cola.
 - `onComplete`: recibe resumen final.
 - `onCancel`: recibe resumen parcial cancelado.
 - `onError`: recibe errores fatales o resultados invalidos.
@@ -120,6 +120,10 @@ La cancelacion llama `AbortController.abort()` y entrega la senal al consumidor.
 ## Relacion con AppUploadDocumental
 
 Este ticket no integra `AppProgressBatch` con `AppUploadDocumental`. La relacion esperada es futura: `AppUploadDocumental` u otro consumidor podria inyectar su propio `processItem` para operaciones de carga, validacion o reemplazo documental, manteniendo toda la logica de negocio fuera del componente shared.
+
+## Preview de items en cola
+
+Antes de iniciar, el modal muestra una vista previa compacta de los items en cola usando `getItemLabel`. Esa lista es generica del componente shared y no conoce metadatos documentales, upload ni servicios de negocio.
 
 ## Limites
 

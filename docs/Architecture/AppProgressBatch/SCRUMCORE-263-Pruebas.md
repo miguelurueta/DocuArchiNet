@@ -10,6 +10,7 @@
 | `emptyMessage` | `AppProgressBatch.test.tsx` |
 | `autoStart=true` una vez | `AppProgressBatch.test.tsx` |
 | `autoStart=false` manual | `AppProgressBatch.test.tsx` |
+| Preview de items en cola antes de iniciar | `AppProgressBatch.test.tsx` |
 | Orden secuencial | `AppProgressBatch.test.tsx` |
 | `success` | `AppProgressBatch.test.tsx` |
 | `warning` | `AppProgressBatch.test.tsx` |
@@ -39,7 +40,7 @@ git diff --check
 
 | Comando | Resultado |
 | --- | --- |
-| `npx.cmd vitest run src/app/Components/UI/AppProgressBatch/AppProgressBatch.test.tsx` | OK. 18 tests passed. JSDOM reporto avisos no bloqueantes de `getComputedStyle` con pseudo-elementos usados por Ant Design. |
+| `npx.cmd vitest run src/app/Components/UI/AppProgressBatch/AppProgressBatch.test.tsx` | OK. 19 tests passed. JSDOM reporto avisos no bloqueantes de `getComputedStyle` con pseudo-elementos usados por Ant Design. |
 | `npx.cmd tsc --noEmit --pretty false` | OK. Sin errores. |
 | `npx.cmd openspec validate scrumcore-263-crea-componente-appprogressbatch --strict` | OK. Change valida. El flush de PostHog fallo por red bloqueada, sin afectar validacion. |
 | `git diff --check` | OK. Sin errores de whitespace. Git aviso normalizacion LF/CRLF en `src/app/Components/UI/index.ts`. |

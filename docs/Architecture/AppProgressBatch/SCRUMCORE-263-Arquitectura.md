@@ -27,7 +27,7 @@ Incluye:
 - Tests unitarios/integracion.
 - README local y documentacion enterprise.
 
-No incluye:
+No incluye en la entrega shared original:
 
 - Upload documental.
 - Storage documental.

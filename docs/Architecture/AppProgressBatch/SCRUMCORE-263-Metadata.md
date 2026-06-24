@@ -47,6 +47,7 @@
 - Los resultados invalidos se tratan como error fatal.
 - El resumen cancelado queda visible si el modal permanece abierto.
 - `closeOnComplete` solo aplica a finalizacion exitosa, no a errores ni cancelaciones.
+- El preview de items en cola es generico y usa `getItemLabel`; no conoce documentos ni upload.
 
 ## Confirmaciones de alcance
 
@@ -75,10 +76,14 @@ openspec/changes/scrumcore-263-crea-componente-appprogressbatch/tasks.md
 
 ## Evidencia de validacion
 
-- Tests especificos: `npx.cmd vitest run src/app/Components/UI/AppProgressBatch/AppProgressBatch.test.tsx` OK, 18 tests passed.
+- Tests especificos: `npx.cmd vitest run src/app/Components/UI/AppProgressBatch/AppProgressBatch.test.tsx` OK, 19 tests passed.
 - TypeScript: `npx.cmd tsc --noEmit --pretty false` OK.
 - OpenSpec: `npx.cmd openspec validate scrumcore-263-crea-componente-appprogressbatch --strict` OK.
 - Diff check: `git diff --check` OK.
 - Lint acotado: `npx.cmd eslint src/app/Components/UI/AppProgressBatch src/app/Components/UI/index.ts` OK.
 - Lint global: ejecutado, falla por deuda previa fuera del alcance.
 - Build global: ejecutado, falla por errores previos en `src/modules/digitalizacion`.
+- Preview generico posterior: `AppProgressBatch` renderiza items en cola antes de iniciar.
+- Typecheck posterior: `npx.cmd tsc --noEmit --pretty false` OK.
+- Lint acotado posterior: `npx.cmd eslint src/app/Components/UI/AppProgressBatch/AppProgressBatch.tsx src/app/Components/UI/AppProgressBatch/AppProgressBatch.test.tsx` OK.
+- Reversion de integracion Gestion: se retiro `AppProgressBatch` de `GestionRespuestaMainTabContent`; verificacion posterior `npx.cmd vitest run src/app/Components/UI/AppProgressBatch/AppProgressBatch.test.tsx src/modules/gestionCorrespondencia/components/gestionRespuestaMainTab/GestionRespuestaMainTabContent.test.tsx src/modules/gestionCorrespondencia/tests/GestionRespuestaMainTabContent.test.tsx --reporter verbose` OK, 3 archivos y 24 tests.

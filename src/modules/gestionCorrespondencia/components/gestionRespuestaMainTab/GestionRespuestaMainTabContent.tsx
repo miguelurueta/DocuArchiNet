@@ -22,6 +22,7 @@ type GestionRespuestaMainTabContentProps = {
 export function GestionRespuestaMainTabContent(
   _props: GestionRespuestaMainTabContentProps = {},
 ) {
+  void _props;
   const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] =
     useState(false);
   const { files, setFiles } = useGestionRespuestaDocumentos();

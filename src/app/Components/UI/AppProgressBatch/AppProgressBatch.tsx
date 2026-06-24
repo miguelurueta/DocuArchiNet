@@ -141,6 +141,15 @@ export function AppProgressBatch<TItem>({
 
   const modalTitle = title ?? processName ?? DEFAULT_TITLE;
   const hasItems = items.length > 0;
+  const queuedItemLabels = useMemo(
+    () =>
+      items.map((item, index) =>
+        getItemLabel ? getItemLabel(item, index) : defaultItemLabel(index),
+      ),
+    [getItemLabel, items],
+  );
+  const visibleQueuedItemLabels = queuedItemLabels.slice(0, 6);
+  const hiddenQueuedItems = Math.max(0, queuedItemLabels.length - visibleQueuedItemLabels.length);
 
   const setGuardedState = useCallback(
     (
@@ -768,6 +777,30 @@ export function AppProgressBatch<TItem>({
             {state.currentPhase}
           </p>
         </div>
+
+        {state.lifecycle === "idle" && hasItems ? (
+          <div className={styles.queuePreview} aria-label="Items en cola">
+            <div className={styles.queueHeader}>
+              <span className={styles.eyebrow}>Items en cola</span>
+              <span className={styles.queueCount}>{items.length}</span>
+            </div>
+            <ul className={styles.queueList}>
+              {visibleQueuedItemLabels.map((label, index) => (
+                <li className={styles.queueItem} key={`${label}-${index}`}>
+                  <span className={styles.queueIndex}>{index + 1}</span>
+                  <span className={styles.queueLabel} title={label}>
+                    {label}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {hiddenQueuedItems > 0 ? (
+              <span className={styles.queueMore}>
+                +{hiddenQueuedItems} elementos adicionales
+              </span>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className={styles.progressStack}>
           <div className={styles.progressBlock} aria-label="Progreso global">
