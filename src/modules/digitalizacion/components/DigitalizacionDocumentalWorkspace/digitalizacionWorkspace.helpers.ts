@@ -16,6 +16,7 @@ export const unavailableScannerClient: DigitalizacionScannerClient = {
   },
   duplicatePage: async () => [],
   rotatePage: async () => [],
+  deskewPage: async () => [],
   cropPage: async () => [],
   removePage: async () => undefined,
   reorderPages: async () => [],

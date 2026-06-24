@@ -355,6 +355,23 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
     expect(dwt.GetImageURL).toHaveBeenCalledWith(1, 160, 220);
   });
 
+  it("[SPEC:SCRUMCORE-266] applies manual deskew to one captured page", async () => {
+    const dwt = createDwt();
+    dwt.Deskew = vi.fn(() => true);
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    await client.selectDevice("0");
+    const pages = await client.scan({ deviceId: "0" });
+    const deskewedPages = await client.deskewPage(pages[1].id);
+
+    expect(dwt.Deskew).toHaveBeenCalledTimes(1);
+    expect(dwt.Deskew).toHaveBeenCalledWith(1);
+    expect(deskewedPages).toHaveLength(2);
+    expect(deskewedPages[0].id).toBe(pages[0].id);
+    expect(deskewedPages[1].id).toBe(pages[1].id);
+  });
+
   it("[SPEC:SCRUMCORE-257] crops one page using real page coordinates", async () => {
     const dwt = createDwt();
     const client = createClient(createRuntime(dwt));
