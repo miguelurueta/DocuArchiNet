@@ -1161,6 +1161,11 @@ export function DigitalizacionDocumentalWorkspace({
     "--page-organizer-visible-rows": pageOrganizerVisibleRows,
   } as CSSProperties;
   const hasCaptureTarget = Boolean(selectedPage);
+  const primaryCaptureLabel = hasPages ? "Nuevo documento" : "Escanear";
+  const primaryCaptureTooltip = hasPages
+    ? "Descartar documento actual e iniciar uno nuevo"
+    : "Iniciar captura documental";
+  const handlePrimaryCapture = hasPages ? handleNewCapture : handleScan;
   const insertCaptureItems = [
     {
       key: "insert-before",
@@ -1277,19 +1282,10 @@ export function DigitalizacionDocumentalWorkspace({
           <AppButton
             variant="secondary"
             size="sm"
-            icon={<ScanOutlined />}
-            aria-label="Escanear"
-            tooltip="Escanear"
-            onClick={handleScan}
-            disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
-          />
-          <AppButton
-            variant="ghost"
-            size="sm"
-            icon={<FileAddOutlined />}
-            aria-label="Nuevo"
-            tooltip="Iniciar un nuevo documento"
-            onClick={handleNewCapture}
+            icon={hasPages ? <FileAddOutlined /> : <ScanOutlined />}
+            aria-label={primaryCaptureLabel}
+            tooltip={primaryCaptureTooltip}
+            onClick={handlePrimaryCapture}
             disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
           />
           <AppButton

@@ -121,6 +121,8 @@ describe("AppDigitalizador", () => {
     const toolbar = screen.getByRole("toolbar", { name: "Herramientas de digitalizacion" });
     expect(toolbar).toBeInTheDocument();
     expect(within(toolbar).getByRole("button", { name: "Escanear" })).toBeInTheDocument();
+    expect(within(toolbar).queryByRole("button", { name: "Nuevo" })).toBeNull();
+    expect(within(toolbar).queryByRole("button", { name: "Nuevo documento" })).toBeNull();
     expect(within(toolbar).getByRole("button", { name: "Generar PDF" })).toBeInTheDocument();
     expect(within(toolbar).queryByText("Escanear")).toBeNull();
     expect(within(toolbar).queryByText("Generar PDF")).toBeNull();
@@ -239,6 +241,61 @@ describe("AppDigitalizador", () => {
       })),
     );
   });
+
+  it("[SPEC:SCRUMCORE-265] usa un boton contextual para escanear o iniciar nuevo documento", async () => {
+    const confirmSpy = vi.mocked(window.confirm).mockReturnValue(true);
+    const scannerClient = createScannerClient([
+      { id: "page-1", index: 0 },
+      { id: "page-2", index: 1 },
+    ]);
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+
+    const toolbar = screen.getByRole("toolbar", { name: "Herramientas de digitalizacion" });
+    expect(within(toolbar).getByRole("button", { name: "Escanear" })).toBeInTheDocument();
+    expect(within(toolbar).queryByRole("button", { name: "Nuevo" })).toBeNull();
+
+    fireEvent.click(within(toolbar).getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (2)" })).toBeInTheDocument();
+    });
+
+    expect(within(toolbar).queryByRole("button", { name: "Escanear" })).toBeNull();
+    expect(within(toolbar).queryByRole("button", { name: "Nuevo" })).toBeNull();
+    const newDocumentButton = within(toolbar).getByRole("button", {
+      name: "Nuevo documento",
+    });
+    expect(newDocumentButton).toBeInTheDocument();
+
+    fireEvent.click(newDocumentButton);
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      "Se encontraron paginas en el documento actual. Desea descartarlas e iniciar una nueva captura?",
+    );
+    await waitFor(() => {
+      expect(scannerClient.clear).toHaveBeenCalled();
+      expect(scannerClient.scan).toHaveBeenCalledWith(
+        expect.objectContaining({
+          captureOperation: { type: "NEW" },
+        }),
+      );
+    });
+  }, 20000);
 
   it("[SPEC:SCRUMCORE-259] usa overlay corporativo como unica fuente de progreso durante escaneo", async () => {
     const deferred = createDeferred<ScanPage[]>();
