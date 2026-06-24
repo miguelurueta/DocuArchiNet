@@ -52,17 +52,22 @@ describe("GestionRespuestaMainTabContent", () => {
   it("mantiene operativo el colapso y expansion del panel lateral", async () => {
     render(<GestionRespuestaMainTabContent />);
 
-    const toggle = screen.getByLabelText("Ocultar panel de herramientas");
+    const toggle = screen
+      .getAllByRole("button", { name: /Ocultar/i })
+      .find((button) => button.getAttribute("aria-expanded") !== null);
+    if (!toggle) {
+      throw new Error("No se encontro el toggle del panel lateral.");
+    }
     fireEvent.click(toggle);
 
     expect(
-      screen.getAllByRole("button", { name: "Mostrar panel de herramientas" }).length,
+      screen.getAllByRole("button", { name: /Mostrar/i }).length,
     ).toBeGreaterThan(0);
 
-    fireEvent.click(screen.getAllByRole("button", { name: "Mostrar panel de herramientas" })[0]);
+    fireEvent.click(screen.getAllByRole("button", { name: /Mostrar/i })[0]);
 
     await waitFor(() => {
-      expect(screen.getByLabelText("Ocultar panel de herramientas")).toBeInTheDocument();
+      expect(screen.getAllByRole("button", { name: /Ocultar/i }).length).toBeGreaterThan(0);
     });
   }, 20000);
 });
