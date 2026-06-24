@@ -1,241 +1,112 @@
-import {
-  Layout,
-  Button,
-  Card,
-  List,
-  Checkbox,
-  Divider,
-  Dropdown,
-} from "antd";
-import {
-  PrinterFilled,
-  SaveFilled,
-  InfoCircleFilled,
-  // SendFilled,
-  ScanOutlined,
-  LeftCircleFilled,
-  RightCircleFilled,
-  ZoomInOutlined,
-  ZoomOutOutlined,
-  DownCircleFilled,
-  FileTextFilled,
-  EditFilled,
-  FolderOpenFilled,
-  SwapOutlined,
-  DeleteFilled,
-  ReloadOutlined,
-  StopFilled,
-  DragOutlined,
-  ExpandOutlined,
-  StepBackwardFilled,
-  StepForwardFilled,
-  SearchOutlined,
-  LinkOutlined,
-  FileExcelFilled,
-} from "@ant-design/icons";
-
+import { FileTextOutlined, PrinterOutlined, SaveOutlined, ScanOutlined } from "@ant-design/icons";
+import { useCallback, useState } from "react";
+import { AppButton } from "../../../app/Components/UI/AppButton";
+import { AppCollapseRail } from "../../../app/Components/UI/AppCollapseRail";
+import { AppDigitalizador } from "../../../app/Components/UI/AppDigitalizador";
+import { AppTreeTable } from "../../../app/Components/UI/AppTreeTable";
+import type {
+  DigitalizacionContext,
+  DigitalizacionDocumentalError,
+  DigitalizacionResult,
+} from "../../../modules/digitalizacion";
+import type { AppTreeTableRow } from "../../../app/Components/UI/AppTreeTable";
 import styles from "../style/capdocument.module.css";
 
-const { Content, Sider } = Layout;
+const CAPTURA_ARBOL_FILAS: AppTreeTableRow[] = [
+  { id: "documentos-recientes", label: "Documentos recientes" },
+  { id: "radicados", label: "Radicados" },
+  { id: "plantillas", label: "Plantillas" },
+];
+
+const CAPTURA_RADICACION_CONTEXT: DigitalizacionContext = {
+  modo: "crear",
+  nombreGabinete: "Radicacion",
+  sourceModule: "Radicacion",
+};
 
 const CapDocument = () => {
+  const [treeCollapsed, setTreeCollapsed] = useState(false);
+  const [activeTreeRowId, setActiveTreeRowId] = useState<string | undefined>(
+    CAPTURA_ARBOL_FILAS[0]?.id,
+  );
 
-  const documentMenuItems = [
-    {
-      key: "1",
-      icon: <FileTextFilled />,
-      label: "Cambiar Tipología",
-    },
-    {
-      key: "2",
-      icon: <EditFilled />,
-      label: "Firma Digital",
-    },
-    {
-      key: "3",
-      icon: <FolderOpenFilled />,
-      label: "Versiones del Documento",
-    },
-    {
-      key: "4",
-      icon: <SwapOutlined />,
-      label: "Reemplazar Documento",
-    },
-    {
-      type: "divider" as const,
-    },
-    {
-      key: "5",
-      icon: <DeleteFilled />,
-      label: <span style={{ color: "red" }}>Eliminar</span>,
-    },
-  ];
+  const handleCompleted = useCallback((result: DigitalizacionResult) => {
+    void result;
+  }, []);
 
-  const printMenu = [
-    { key: "1", label: "Imprimir documento actual" },
-    { key: "2", label: "Imprimir todas las páginas" },
-  ];
+  const handleError = useCallback((_error: DigitalizacionDocumentalError) => {
+    void _error;
+  }, []);
 
-  const saveMenu = [
-    { key: "1", label: "Guardar como PDF" },
-    { key: "2", label: "Descargar original" },
-  ];
+  const handleTreeToggle = useCallback(() => {
+    setTreeCollapsed((current) => !current);
+  }, []);
 
-  const zoomMenu = [
-    { key: "1", label: "50%" },
-    { key: "2", label: "75%" },
-    { key: "3", label: "100%" },
-    { key: "4", label: "150%" },
-    { key: "5", label: "200%" },
-  ];
-
-  const linkMenu = [
-    { key: "1", label: "Copiar enlace" },
-    { key: "2", label: "Abrir en nueva pestaña" },
-  ];
+  const handleTreeRowSelect = useCallback((rowId: string) => {
+    setActiveTreeRowId(rowId);
+  }, []);
 
   return (
     <div className={styles.container}>
-      <div className={styles.topToolbar}>
-        <Button className={styles.btnAcept} icon={<PrinterFilled />}>Imprimir Rótulo</Button>
-        <Button className={styles.btnAcept} icon={<SaveFilled />}>Guardar Rótulo</Button>
-        <Button className={styles.btnAcept} icon={<InfoCircleFilled />}>Detalle Radicado</Button>
-        {/* <Button className={styles.btnAcept} icon={<SendFilled />}>Enviar a Flujo</Button>cbcbuc z */}
-        <Button className={styles.btnAcept} icon={<ScanOutlined />}>Scanner</Button>
+      <div className={styles.radicacionToolbar} role="toolbar" aria-label="Acciones de radicación">
+        <AppButton icon={<PrinterOutlined />} onClick={() => void 0}>
+          Imprimir Rótulo
+        </AppButton>
+        <AppButton icon={<SaveOutlined />} onClick={() => void 0}>
+          Guardar Rótulo
+        </AppButton>
+        <AppButton icon={<FileTextOutlined />} onClick={() => void 0}>
+          Detalle Radicado
+        </AppButton>
+        <AppButton icon={<ScanOutlined />} onClick={() => void 0}>
+          Scanner
+        </AppButton>
       </div>
 
-      <div className={styles.viewerToolbar}>
-
-        <Dropdown menu={{ items: printMenu }} trigger={["click"]}>
-          <Button>
-            <PrinterFilled />
-            <DownCircleFilled style={{ fontSize: 10, marginLeft: 4 }} />
-          </Button>
-        </Dropdown>
-
-        <Dropdown menu={{ items: saveMenu }} trigger={["click"]}>
-          <Button>
-            <SaveFilled />
-            <DownCircleFilled style={{ fontSize: 10, marginLeft: 4 }} />
-          </Button>
-        </Dropdown>
-
-        <Button icon={<ReloadOutlined />} />
-        <Button icon={<StopFilled />} />
-        <Button icon={<DragOutlined />} />
-        <Button icon={<ExpandOutlined />} />
-
-        <Button icon={<StepBackwardFilled />} />
-        <Button icon={<LeftCircleFilled />} />
-        <Button icon={<RightCircleFilled />} />
-        <Button icon={<StepForwardFilled />} />
-
-        <Button icon={<ZoomInOutlined />} />
-        <Button icon={<ZoomOutOutlined />} />
-
-        <Button icon={<FileExcelFilled />} />
-        <Button icon={<SearchOutlined />} />
-
-        <Dropdown menu={{ items: zoomMenu }} trigger={["click"]}>
-          <Button>
-            -1
-            <DownCircleFilled style={{ fontSize: 10, marginLeft: 4 }} />
-          </Button>
-        </Dropdown>
-
-        <Dropdown menu={{ items: linkMenu }} trigger={["click"]}>
-          <Button>
-            <LinkOutlined />
-            <DownCircleFilled style={{ fontSize: 10, marginLeft: 4 }} />
-          </Button>
-        </Dropdown>
-
-      </div>
-
-      <Layout className={styles.mainLayout}>
-        <Sider width={280} className={styles.leftPanel}>
-          <h3 className={styles.sectionTitle}>Panel digitalización</h3>
-          <p className={styles.subtitle}>
-            Aquí se mostrará la información detallada del registro seleccionado.
-          </p>
-
-          <Card className={styles.innerCard}>
-            <h4>Detalles Adicionales</h4>
-            <p>Correo: juanperez@example.com</p>
-            <p>Último acceso: 28/10/2025</p>
-            <p>Rol: Administrador</p>
-          </Card>
-        </Sider>
-
-        <Content className={styles.centerPanel}>
-          <h2 className={styles.sectionTitle}>Aquí va el Contenido</h2>
-          <p className={styles.subtitle}>
-            Aquí se mostrará la información detallada.
-          </p>
-
-          <Card className={styles.innerCard}>
-            <h4>Información General</h4>
-            <p><b>Nombre:</b> Juan Pérez</p>
-            <p><b>Estado:</b> Activo</p>
-            <p><b>Descripción:</b> Usuario activo del sistema.</p>
-          </Card>
-
-          <Card className={styles.innerCard}>
-            <h4>Detalles Adicionales</h4>
-            <p>Correo: juanperez@example.com</p>
-            <p>Último acceso: 28/10/2025</p>
-            <p>Rol: Administrador</p>
-          </Card>
-        </Content>
-
-        <Sider width={300} className={styles.rightPanel}>
-          <div className={styles.docHeader}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Checkbox />
-              <span>Documentos: 4</span>
-            </div>
-
-            <div style={{ display: "flex", gap: 6 }}>
-              <Button type="text" size="small" icon={<InfoCircleFilled />} />
-              <Button type="text" size="small" icon={<DeleteFilled />} />
-              <Button type="text" size="small" icon={<EditFilled />} />
-            </div>
+      <div className={styles.workspaceHost}>
+        <AppCollapseRail
+          title="Documentos"
+          collapsed={treeCollapsed}
+          onToggle={handleTreeToggle}
+          variant="overlay"
+          placement="left"
+          railLabel="Documentos"
+          railIcon={<FileTextOutlined />}
+          className={styles.documentTree}
+          panelId="radicacion-tree-panel"
+          hideHeader={false}
+        >
+          <div className={styles.treeSurface}>
+            <AppTreeTable
+              rows={CAPTURA_ARBOL_FILAS}
+              activeRowId={activeTreeRowId}
+              onSelectRow={handleTreeRowSelect}
+              rowClickTooltip="Abrir"
+              rowSelection="single"
+              onSelectionChanged={(selectedRows) => {
+                if (selectedRows[0]) {
+                  setActiveTreeRowId(selectedRows[0]);
+                }
+              }}
+            />
           </div>
+        </AppCollapseRail>
 
-          <Divider />
-
-          <List
-            dataSource={["Factura.pdf", "Factura.pdf"]}
-            renderItem={(item) => (
-              <List.Item className={styles.docItem}>
-                <div className={styles.docRow}>
-                  <Checkbox>{item}</Checkbox>
-
-                  <div className={styles.docActions}>
-                    <Button
-                      shape="circle"
-                      size="small"
-                      icon={<FileTextFilled />}
-                    />
-
-                    <Dropdown
-                      menu={{ items: documentMenuItems }}
-                      trigger={["click"]}
-                      placement="bottomRight"
-                    >
-                      <Button
-                        shape="circle"
-                        size="small"
-                        icon={<DownCircleFilled />}
-                      />
-                    </Dropdown>
-                  </div>
-                </div>
-              </List.Item>
-            )}
+        <section className={styles.digitalizadorShell}>
+          <AppDigitalizador
+            context={CAPTURA_RADICACION_CONTEXT}
+            modulo="Radicacion"
+            licenciaDynamsoft={import.meta.env.VITE_DYNAMSOFT_LICENSE_KEY}
+            onCompleted={handleCompleted}
+            onError={handleError}
+            active
+            showHeader={false}
+            showWorkspaceSummary={false}
+            showWorkspaceState={false}
+            showLegacyFooter={false}
           />
-        </Sider>
-      </Layout>
+        </section>
+      </div>
     </div>
   );
 };
