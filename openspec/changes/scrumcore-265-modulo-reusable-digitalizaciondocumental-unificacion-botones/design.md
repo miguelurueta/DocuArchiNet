@@ -157,16 +157,22 @@ SCRUMCORE-265: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL-UNIFICACION-BOTONES
 
 ## Decisions
 
-1. TBD
+1. El cambio se implementa en `DigitalizacionDocumentalWorkspace`, porque ese componente alimenta tanto `DigitalizacionDocumentalModal` como `AppDigitalizador`.
+2. Se conserva la funcion existente `handleNewCapture` para el estado con paginas, evitando crear una confirmacion nueva o duplicar logica de limpieza.
+3. El boton principal de captura calcula etiqueta, icono, tooltip y handler desde `hasPages`; cuando no hay paginas ejecuta `handleScan`, y cuando hay paginas ejecuta `handleNewCapture`.
+4. Las acciones `Reemplazar`, `Insertar` y `Agregar` no cambian de contrato ni posicion relativa salvo que desaparece el boton separado `Nuevo`.
 
 ## Risks / Trade-offs
 
-- TBD
+- El cambio altera nombres accesibles del boton despues de capturar paginas; las pruebas deben seleccionar `Nuevo documento` para validar el estado con contenido.
+- La confirmacion sigue usando `window.confirm`, igual que la implementacion existente. No se introduce un modal custom para no ampliar alcance.
 
 ## Migration Plan
 
-1. TBD
+1. Sustituir los botones independientes `Escanear` y `Nuevo` por un boton contextual unico.
+2. Ajustar pruebas del digitalizador para validar ambos estados del boton.
+3. Actualizar documentacion de captura con la seccion del boton inteligente.
 
 ## Open Questions
 
-- TBD
+- Ninguna para esta iteracion.

@@ -32,15 +32,23 @@ El contrato vive en `src/modules/digitalizacion/infrastructure/dynamsoft/dynamso
 
 ## UX
 
-Las acciones de captura aparecen inmediatamente despues de `Escanear`:
+Las acciones de captura aparecen en la toolbar principal:
 
-1. Escanear
-2. Nuevo
-3. Reemplazar
-4. Insertar
-5. Agregar
+1. Escanear / Nuevo documento
+2. Reemplazar
+3. Insertar
+4. Agregar
 
-`Nuevo` y `Agregar` estan disponibles cuando hay scanner seleccionado. `Reemplazar` e `Insertar` requieren pagina activa. `Nuevo` pide confirmacion si ya existen paginas y limpia paginas, miniaturas, seleccion multiple, crop temporal, pagina activa y PDF generado antes de iniciar la nueva captura.
+`Reemplazar` e `Insertar` requieren pagina activa. `Agregar` esta disponible cuando hay scanner seleccionado.
+
+## Boton Inteligente Escanear / Nuevo Documento
+
+SCRUMCORE-265 unifica `Escanear` y `Nuevo` en un unico boton contextual para reducir ruido visual en la toolbar.
+
+- Con documento vacio (`pages.length === 0`), el boton muestra `Escanear`, usa tooltip `Iniciar captura documental` e inicia la captura sin confirmacion.
+- Con documento en construccion (`pages.length > 0`), el mismo boton cambia a `Nuevo documento`, usa tooltip `Descartar documento actual e iniciar uno nuevo` y reutiliza la confirmacion existente de la operacion `NEW`.
+- Si el usuario cancela la confirmacion, se conserva el estado actual: paginas, miniaturas, seleccion, preview, PDF generado y navegacion.
+- Si el usuario continua, se limpia el documento actual, se resetean seleccion/crop/navegacion/PDF temporal y se inicia una captura `NEW`.
 
 ## Compatibilidad
 
@@ -66,4 +74,3 @@ Cobertura agregada:
 
 - `DynamsoftTwainClient.test.ts`: append, replace, insert before/after y orden de indices PDF.
 - `DigitalizacionDocumentalModal.test.tsx`: exposicion de toolbar y envio de `captureOperation`.
-

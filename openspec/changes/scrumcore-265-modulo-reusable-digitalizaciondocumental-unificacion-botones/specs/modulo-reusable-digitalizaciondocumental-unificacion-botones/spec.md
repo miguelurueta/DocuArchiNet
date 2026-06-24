@@ -1,154 +1,26 @@
 ## ADDED Requirements
-### Requirement: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL-UNIFICACION-BOTONES
-El sistema SHALL implementar el alcance definido para SCRUMCORE-265.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- UNIFICACIÓN DE BOTONES ESCANEAR Y NUEVO DOCUMENTO
-- CONTEXTO
-- Actualmente existen dos acciones independientes:
-- ✓ Escanear
-- ✓ Nuevo
-- Sin embargo ambas pertenecen al mismo flujo de captura documental y generan redundancia visual en la toolbar.
-- Se requiere simplificar la experiencia de usuario utilizando un único botón inteligente cuyo comportamiento cambie según el estado actual del documento.
-- ==================================================
-- OBJETIVO
-- Eliminar la coexistencia de:
-- Escanear
-- Nuevo
-- y reemplazarlos por una única acción contextual.
-- ==================================================
-- COMPORTAMIENTO
-- ESTADO 1
-- DOCUMENTO VACÍO
-- ==================================================
-- CONDICIÓN
-- pages.length === 0
-- ==================================================
-- MOSTRAR
-- 🖨 Escanear
-- ==================================================
-- TOOLTIP
-- "Iniciar captura documental"
-- ==================================================
-- COMPORTAMIENTO
-- Click
-- ↓
-- Iniciar captura inmediatamente.
-- ↓
-- NO solicitar confirmación.
-- ==================================================
-- ESTADO 2
-- DOCUMENTO CON CONTENIDO
-- ==================================================
-- CONDICIÓN
-- pages.length > 0
-- ==================================================
-- REEMPLAZAR EL MISMO BOTÓN
-- Mostrar:
-- 📄 Nuevo Documento
-- o
-- ↻ Nuevo
-- (según lineamientos visuales actuales)
-- ==================================================
-- TOOLTIP
-- "Descartar documento actual e iniciar uno nuevo"
-- ==================================================
-- COMPORTAMIENTO
-- Click
-- ↓
-- Mostrar confirmación obligatoria.
-- ==================================================
-- UTILIZAR LA CONFIRMACIÓN EXISTENTE
-- NO crear un nuevo modal.
-- NO crear una nueva implementación.
-- Reutilizar exactamente la alerta ya desarrollada para la operación NEW.
-- ==================================================
-- MENSAJE
-- Se encontraron páginas en el documento actual.
-- ¿Desea descartarlas e iniciar una nueva captura?
-- ==================================================
-- BOTONES
-- Cancelar
-- Continuar
-- ==================================================
-- SI EL USUARIO CANCELA
-- NO realizar cambios.
-- Mantener:
-- ✓ Páginas
-- ✓ Miniaturas
-- ✓ Selección
-- ✓ Preview
-- ✓ PDF generado
-- ✓ Estado actual
-- ==================================================
-- SI EL USUARIO CONTINÚA
-- Ejecutar exactamente la operación:
-- NEW
-- ya implementada en SCRUMCORE-292.
-- ==================================================
-- LIMPIAR
-- ✓ Páginas
-- ✓ Miniaturas
-- ✓ Selecciones
-- ✓ Crop temporal
-- ✓ PDF temporal
-- ✓ Estado de navegación
-- ✓ Estado de captura
-- ==================================================
-- RESULTADO
-- Documento vacío.
-- ↓
-- Iniciar nueva captura.
-- ==================================================
-- TOOLBAR
-- ANTES
-- [ Escanear ]
-- [ Nuevo ]
-- [ Reemplazar ]
-- [ Insertar ]
-- [ Agregar ]
-- ==================================================
-- DESPUÉS
-- [ Escanear / Nuevo Documento ]
-- [ Reemplazar ]
-- [ Insertar ]
-- [ Agregar ]
-- ==================================================
-- BENEFICIOS
-- ✓ Menos ruido visual.
-- ✓ Menos botones.
-- ✓ Flujo más intuitivo.
-- ✓ Mejor aprovechamiento del espacio.
-- ✓ Experiencia similar a aplicaciones profesionales de digitalización.
-- ==================================================
-- COMPATIBILIDAD
-- Validar con:
-- ✓ Escáner
-- ✓ Carga de imágenes
-- ✓ Carga de PDF
-- ✓ Reemplazar
-- ✓ Insertar
-- ✓ Agregar
-- ✓ Navegación flotante
-- ✓ Selección múltiple
-- ✓ Pantalla completa
-- ==================================================
-- DOCUMENTACIÓN
-- Actualizar:
-- docs/Architecture/DigitalizacionDocumental/SCRUMCORE-292-capture-management.md
-- Agregar sección:
-- "Botón Inteligente Escanear / Nuevo Documento"
-- ==================================================
-- VALIDAR
-- npx tsc --noEmit
-- eslint
-- vitest
-- IMPLEMENTAR
+### Requirement: Boton contextual de captura
+El sistema SHALL reemplazar los botones independientes `Escanear` y `Nuevo` por una unica accion contextual en la toolbar principal del digitalizador documental.
+
+#### Scenario: Documento vacio inicia captura directa
+- **GIVEN** el documento no contiene paginas capturadas
+- **WHEN** el usuario ve la toolbar principal
+- **THEN** se muestra un boton accesible como `Escanear`
+- **AND** no se muestra un boton separado `Nuevo`
+- **WHEN** el usuario pulsa `Escanear`
+- **THEN** se inicia captura sin pedir confirmacion
+
+#### Scenario: Documento con paginas inicia nuevo documento con confirmacion
+- **GIVEN** el documento contiene una o mas paginas capturadas
+- **WHEN** el usuario ve la toolbar principal
+- **THEN** el mismo boton contextual se muestra como `Nuevo documento`
+- **AND** no coexisten los botones `Escanear` y `Nuevo`
+- **WHEN** el usuario pulsa `Nuevo documento`
+- **THEN** se reutiliza la confirmacion existente de la operacion `NEW`
+- **AND** al continuar se ejecuta `captureOperation.type = "NEW"`
+
+#### Scenario: Compatibilidad de acciones restantes
+- **GIVEN** el documento contiene paginas capturadas
+- **WHEN** el usuario usa `Reemplazar`, `Insertar` o `Agregar`
+- **THEN** esas operaciones mantienen su comportamiento existente y su contrato `captureOperation`
