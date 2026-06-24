@@ -52,6 +52,7 @@
   padding: 14px;
   display: grid;
   gap: 12px;
+  min-width: 0;
 }
 
 .tabs {
@@ -80,6 +81,10 @@
   border-radius: 12px;
   background: rgba(17, 24, 39, 0.02);
   padding: 10px;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .actions {
@@ -165,6 +170,8 @@
   display: grid;
   gap: 10px;
   padding: 10px;
+  max-width: 100%;
+  min-width: 0;
   border: 1px solid rgba(17, 24, 39, 0.12);
   border-radius: 12px;
   background: #ffffff;
@@ -186,6 +193,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  min-width: 0;
 }
 
 .previewFileName {
@@ -195,4 +203,42 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 520px) {
+  .overlay {
+    padding: 10px;
+  }
+
+  .panel {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .body {
+    padding: 10px;
+  }
+
+  .tabs {
+    gap: 6px;
+    overflow-x: auto;
+  }
+
+  .tab {
+    flex: 0 0 auto;
+    padding: 7px 9px;
+  }
+
+  .padShell {
+    padding: 8px;
+  }
+
+  .previewCard {
+    padding: 8px;
+  }
+
+  .previewImg {
+    height: 132px;
+  }
 }

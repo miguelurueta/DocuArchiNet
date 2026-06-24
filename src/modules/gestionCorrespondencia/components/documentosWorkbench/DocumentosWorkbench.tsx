@@ -21,6 +21,11 @@ import { useGestionRespuestaDocumentosTable } from "../../hooks/useGestionRespue
 import styles from "./DocumentosWorkbench.module.css";
 
 const MOBILE_QUERY = "(max-width: 768px)";
+const TABLET_QUERY = "(min-width: 769px) and (max-width: 1366px) and (min-height: 900px)";
+const IPAD_MINI_LANDSCAPE_QUERY =
+  "(min-width: 1000px) and (max-width: 1040px) and (min-height: 740px) and (max-height: 800px)";
+const NEST_HUB_LANDSCAPE_QUERY =
+  "(min-width: 1000px) and (max-width: 1040px) and (min-height: 580px) and (max-height: 620px)";
 const DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES = 1_048_576;
 const MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES = 768 * 1024;
 
@@ -44,16 +49,6 @@ const useMediaQuery = (query: string) => {
 
   return matches;
 };
-
-function resolveIsTablet() {
-  if (typeof window === "undefined") return false;
-
-  const width = window.innerWidth;
-  const isTouchDevice =
-    typeof navigator !== "undefined" && (navigator.maxTouchPoints ?? 0) > 0;
-
-  return isTouchDevice && width > 768 && width <= 1366;
-}
 
 type DocumentosWorkbenchProps = {
   idTareaWf?: number;
@@ -179,8 +174,12 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const lastNotifiedErrorRef = useRef<string | null>(null);
   const toastIdRef = useRef<ToastId | null>(null);
   const isMobile = useMediaQuery(MOBILE_QUERY);
-  const [isTablet] = useState(resolveIsTablet);
-  const [collapsed, setCollapsed] = useState(isTablet);
+  const isTablet = useMediaQuery(TABLET_QUERY);
+  const isIpadMiniLandscape = useMediaQuery(IPAD_MINI_LANDSCAPE_QUERY);
+  const isNestHubLandscape = useMediaQuery(NEST_HUB_LANDSCAPE_QUERY);
+  const [collapsed, setCollapsed] = useState(
+    isMobile || isTablet || isIpadMiniLandscape || isNestHubLandscape,
+  );
   const documentosTable = useGestionRespuestaDocumentosTable(idTareaWf);
   const visorRef = useRef<AppVisorEmbedPdfRef | null>(null);
   const lastVisorLoadKeyRef = useRef<string | null>(null);
@@ -290,8 +289,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   */
 
   const variant = useMemo(
-    () => (isMobile || isTablet ? "overlay" : "inline"),
-    [isMobile, isTablet],
+    () => (isMobile || isTablet || isIpadMiniLandscape || isNestHubLandscape ? "overlay" : "inline"),
+    [isIpadMiniLandscape, isMobile, isNestHubLandscape, isTablet],
   );
   const layoutCollapsed = variant === "overlay" ? true : collapsed;
   const documentsCounter = useMemo(() => {
@@ -303,6 +302,12 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   }, [documentosTable.selectedDocumentsCount, documentosTable.totalDocumentsCount]);
 
   const toggleIcon = layoutCollapsed ? <LeftOutlined /> : <RightOutlined />;
+
+  useEffect(() => {
+    if (variant === "overlay") {
+      setCollapsed(true);
+    }
+  }, [variant]);
 
   const triggerDocumentListHint = useCallback(() => {
     setCollapsed(false);
@@ -604,6 +609,9 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             documentKey: `${result.documentResolveRequest.NombreGabinete}:${result.documentResolveRequest.IdDocumento}`,
             context: typeof idTareaWf === "number" ? { idTareaWorkflow: idTareaWf } : undefined,
           });
+          if (variant === "overlay") {
+            setCollapsed(true);
+          }
         } catch (err) {
           if (seq !== viewSeqRef.current) return;
           if (isCancelledError(err)) return;
@@ -622,7 +630,16 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
         }
       })();
     },
-    [documentViewer, documentosTable, idTareaWf, isReplacingAnnotatedPages, startViewerLoading, stopViewerLoading],
+    [
+      documentViewer,
+      documentosTable,
+      idTareaWf,
+      isMobile,
+      isReplacingAnnotatedPages,
+      startViewerLoading,
+      stopViewerLoading,
+      variant,
+    ],
   );
 
   const onSaveAnnotatedPages = useCallback(() => {
@@ -915,8 +932,10 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
           placement="right"
           variant={variant}
           panelId={panelId}
-          railLabel="Documentos"
+          railLabel="Abrir lista de documentos"
+          railButtonLabel="Abrir lista de documentos"
           railIcon={<BookOutlined />}
+          hideHeader
           className={styles.collapseRail}
         >
         <div className={styles.listPanel} data-locked={isReplacingAnnotatedPages}>

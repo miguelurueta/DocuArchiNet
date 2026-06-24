@@ -201,6 +201,56 @@
   flex: 0 0 auto;
 }
 
+.toolbarDesktopActions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.08rem;
+}
+
+.toolbarPrimaryActions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.toolbarOverflowActions {
+  display: none;
+  flex: 0 0 auto;
+}
+
+.toolbarLinkActions,
+.toolbarImageActions,
+.toolbarExternalActions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.toolbarOverflowPanel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.28rem;
+  max-width: min(21rem, calc(100vw - 2rem));
+  padding: 0.1rem;
+}
+
+.toolbarOverflowPanelRow {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.toolbarOverflowButton {
+  min-width: 1.65rem;
+  min-height: 1.68rem;
+  padding-inline: 0.34rem;
+  border-radius: 0.48rem;
+  color: var(--editor-muted);
+  background: transparent;
+}
+
 .toolbarButtonGroup + .toolbarButtonGroup::before,
 .toolbarSection[data-group="actions"]::before,
 .toolbarSectionEnd::before {
@@ -700,7 +750,7 @@
   position: absolute;
   left: 50%;
   right: auto;
-  bottom: 0.95rem;
+  bottom: 0.42rem;
   transform: translateX(-50%);
   z-index: 20;
   width: auto;
@@ -734,13 +784,14 @@
 
 .pageStatsIndicator {
   position: absolute;
-  right: 1rem;
-  bottom: 0.95rem;
+  left: 50%;
+  right: auto;
+  bottom: 3.02rem;
   z-index: 20;
   display: inline-flex;
   align-items: center;
-  min-height: 2.25rem;
-  padding: 0.25rem 0.7rem;
+  min-height: 1.95rem;
+  padding: 0.18rem 0.62rem;
   border: 1px solid color-mix(in srgb, var(--editor-border) 64%, transparent);
   border-radius: 999px;
   background: color-mix(in srgb, var(--editor-bg) 82%, transparent);
@@ -751,6 +802,7 @@
   line-height: 1;
   box-shadow: 0 10px 26px rgba(15, 23, 42, 0.12);
   pointer-events: none;
+  transform: translateX(-50%);
   user-select: none;
   white-space: nowrap;
 }
@@ -1772,8 +1824,30 @@
     gap: 0.18rem;
   }
 
+  .toolbar[data-toolbar-mode="compact"] .toolbarSection[data-group="heading"] {
+    display: none;
+  }
+
   .toolbar[data-toolbar-mode="compact"] .toolbarSection[data-group="actions"] {
     flex: 1 1 auto;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarDesktopActions {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarPrimaryActions {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarLinkActions,
+  .toolbar[data-toolbar-mode="compact"] .toolbarImageActions,
+  .toolbar[data-toolbar-mode="compact"] .toolbarExternalActions {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarOverflowActions {
+    display: inline-flex;
   }
 
   .toolbar[data-toolbar-mode="compact"] .toolbarSectionEnd {
@@ -1800,6 +1874,33 @@
     justify-content: flex-end;
   }
 
+  .pageIndicator {
+    bottom: 0.48rem;
+    min-width: 0;
+    min-height: 1.72rem;
+    gap: 0.22rem;
+    padding: 0.12rem 0.28rem;
+    max-width: calc(100% - 1.5rem);
+    font-size: 0.66rem;
+  }
+
+  .pageStatsIndicator {
+    right: auto;
+    left: 50%;
+    bottom: 2.92rem;
+    min-height: 1.58rem;
+    padding: 0.12rem 0.42rem;
+    max-width: calc(100% - 1.5rem);
+    transform: translateX(-50%);
+    font-size: 0.62rem;
+  }
+
+  .pageNavButton {
+    width: 1.22rem;
+    height: 1.22rem;
+    font-size: 0.68rem;
+  }
+
   .documentWorkspace {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1822,7 +1923,8 @@
   }
 
   .toolbar[data-toolbar-mode="compact"] .headingButton,
-  .toolbar[data-toolbar-mode="compact"] .alignButton {
+  .toolbar[data-toolbar-mode="compact"] .alignButton,
+  .toolbar[data-toolbar-mode="compact"] .toolbarOverflowButton {
     min-height: 1.6rem;
     padding-inline: 0.28rem;
   }
@@ -1859,6 +1961,28 @@
     gap: 0.18rem;
   }
 
+  .toolbar[data-toolbar-mode="compact"] .toolbarSection[data-group="heading"] {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarDesktopActions {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarPrimaryActions {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarLinkActions,
+  .toolbar[data-toolbar-mode="compact"] .toolbarImageActions,
+  .toolbar[data-toolbar-mode="compact"] .toolbarExternalActions {
+    display: none;
+  }
+
+  .toolbar[data-toolbar-mode="compact"] .toolbarOverflowActions {
+    display: inline-flex;
+  }
+
   .toolbar[data-toolbar-mode="compact"] .toolbarButtonGroup {
     gap: 0.06rem;
   }
@@ -1870,7 +1994,8 @@
   }
 
   .toolbar[data-toolbar-mode="compact"] .headingButton,
-  .toolbar[data-toolbar-mode="compact"] .alignButton {
+  .toolbar[data-toolbar-mode="compact"] .alignButton,
+  .toolbar[data-toolbar-mode="compact"] .toolbarOverflowButton {
     min-height: 1.62rem;
     padding-inline: 0.3rem;
   }

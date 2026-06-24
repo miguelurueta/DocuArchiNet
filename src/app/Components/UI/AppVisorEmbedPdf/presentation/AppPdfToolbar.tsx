@@ -8,6 +8,7 @@ import {
   SaveOutlined,
   UnlockOutlined,
   MenuOutlined,
+  MoreOutlined,
   PrinterOutlined,
   QuestionCircleOutlined,
   RotateLeftOutlined,
@@ -16,6 +17,7 @@ import {
   ZoomOutOutlined,
 } from "@ant-design/icons";
 
+import { AppDropdown, type AppDropdownItem } from "../../AppDropdown";
 import styles from "./AppPdfToolbar.module.css";
 
 export interface AppPdfToolbarProps {
@@ -109,6 +111,51 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
       : null;
   const isSaveAnnotatedPagesReady = Boolean(onSaveAnnotatedPages) && !isSaveAnnotatedPagesDisabled && !isSavingAnnotatedPages;
   const isSaveAnnotatedPagesBlocked = Boolean(onSaveAnnotatedPages) && isSaveAnnotatedPagesDisabled && !isSavingAnnotatedPages;
+  const overflowItems: AppDropdownItem[] = [
+    {
+      key: "rotate-left",
+      label: "Rotar izquierda",
+      icon: <RotateLeftOutlined />,
+      onSelect: onRotateLeft,
+    },
+    {
+      key: "rotate-right",
+      label: "Rotar derecha",
+      icon: <RotateRightOutlined />,
+      onSelect: onRotateRight,
+    },
+    {
+      key: "reset-zoom",
+      label: "Reset zoom",
+      icon: <FileSyncOutlined />,
+      disabled: isZoomDisabled,
+      onSelect: onResetZoom,
+    },
+    {
+      key: "print",
+      label: "Imprimir",
+      icon: <PrinterOutlined />,
+      disabled: isPrintDisabled,
+      onSelect: onPrint,
+    },
+    {
+      key: "export",
+      label: "Exportar",
+      icon: <DownloadOutlined />,
+      disabled: isExportDisabled,
+      onSelect: onExport,
+    },
+    ...(showGuideTourButton
+      ? [
+          {
+            key: "guide",
+            label: "Guia interactiva",
+            icon: <QuestionCircleOutlined />,
+            onSelect: onStartGuideTour,
+          },
+        ]
+      : []),
+  ];
 
   return (
     <>
@@ -157,7 +204,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
       </button>
       <button
         type="button"
-        className={styles.button}
+        className={`${styles.button} ${styles.resetOverflowAction}`}
         onClick={onResetZoom}
         data-guide-tour-id="pdf-reset-zoom"
         aria-label="Reset zoom"
@@ -169,11 +216,11 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
         </span>
       </button>
 
-      <span className={styles.divider} aria-hidden="true" />
+      <span className={`${styles.divider} ${styles.collapsibleAction}`} aria-hidden="true" />
 
       <button
         type="button"
-        className={styles.button}
+        className={`${styles.button} ${styles.collapsibleAction}`}
         onClick={onRotateLeft}
         data-guide-tour-id="pdf-rotate-left"
         aria-label="Rotar izquierda"
@@ -185,7 +232,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
       </button>
       <button
         type="button"
-        className={styles.button}
+        className={`${styles.button} ${styles.collapsibleAction}`}
         onClick={onRotateRight}
         data-guide-tour-id="pdf-rotate-right"
         aria-label="Rotar derecha"
@@ -293,9 +340,28 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
 
       <span className={styles.spacer} aria-hidden="true" />
 
+      <AppDropdown
+        className={styles.overflowActions}
+        ariaLabel="Mas acciones PDF"
+        placement="bottomRight"
+        items={overflowItems}
+        trigger={
+          <button
+            type="button"
+            className={styles.button}
+            aria-label="Mas acciones PDF"
+            title="Mas acciones"
+          >
+            <span className={styles.icon} aria-hidden="true">
+              <MoreOutlined />
+            </span>
+          </button>
+        }
+      />
+
       <button
         type="button"
-        className={styles.button}
+        className={`${styles.button} ${styles.collapsibleAction}`}
         onClick={onPrint}
         data-guide-tour-id="pdf-print"
         aria-label="Print"
@@ -308,7 +374,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
       </button>
       <button
         type="button"
-        className={styles.button}
+        className={`${styles.button} ${styles.collapsibleAction}`}
         onClick={onExport}
         data-guide-tour-id="pdf-export"
         aria-label="Export"
@@ -322,7 +388,7 @@ export const AppPdfToolbar = memo(function AppPdfToolbar({
       {showGuideTourButton ? (
         <button
           type="button"
-          className={`${styles.button} ${styles.guideButton}`}
+          className={`${styles.button} ${styles.guideButton} ${styles.collapsibleAction}`}
           onClick={onStartGuideTour}
           data-guide-tour-id="pdf-help"
           aria-label="Guia interactiva"

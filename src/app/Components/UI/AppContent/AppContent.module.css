@@ -63,6 +63,26 @@
   padding: var(--app-content-padding-block) var(--app-content-padding-inline);
 }
 
+@media (min-width: 769px) and (max-width: 1100px) {
+  .root {
+    flex: 1 1 auto;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    gap: 0.75rem;
+    overflow: hidden;
+  }
+
+  .body {
+    flex: 1 1 auto;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0.75rem;
+  }
+}
+
 @media (max-width: 768px) {
   .root {
     flex: 1 1 auto;

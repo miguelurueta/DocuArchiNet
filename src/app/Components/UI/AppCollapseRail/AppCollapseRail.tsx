@@ -18,7 +18,9 @@ export type AppCollapseRailProps = {
   variant?: AppCollapseRailVariant;
   railLabel?: string;
   railIcon?: ReactNode;
+  railButtonLabel?: string;
   headerActions?: ReactNode;
+  hideHeader?: boolean;
   className?: string;
 };
 
@@ -35,7 +37,9 @@ export function AppCollapseRail({
   variant = "inline",
   railLabel,
   railIcon,
+  railButtonLabel,
   headerActions,
+  hideHeader = false,
   className,
 }: AppCollapseRailProps) {
   const internalId = useId();
@@ -53,24 +57,27 @@ export function AppCollapseRail({
       data-collapsed={collapsed}
       data-placement={placement}
       data-variant={variant}
+      data-header-hidden={hideHeader}
       aria-label={title}
     >
-      <div className={styles.header}>
-        <h5 className={styles.title}>{title}</h5>
-        <div className={styles.headerActions}>
-          {headerActions}
-          <AppButton
-            variant="ghost"
-            size="sm"
-            onClick={onToggle}
-            aria-controls={resolvedId}
-            aria-expanded={!collapsed}
-            aria-label={collapsed ? `Mostrar ${title}` : `Ocultar ${title}`}
-            icon={toggleIcon}
-            className={styles.toggle}
-          />
+      {!hideHeader ? (
+        <div className={styles.header}>
+          <h5 className={styles.title}>{title}</h5>
+          <div className={styles.headerActions}>
+            {headerActions}
+            <AppButton
+              variant="ghost"
+              size="sm"
+              onClick={onToggle}
+              aria-controls={resolvedId}
+              aria-expanded={!collapsed}
+              aria-label={collapsed ? `Mostrar ${title}` : `Ocultar ${title}`}
+              icon={toggleIcon}
+              className={styles.toggle}
+            />
+          </div>
         </div>
-      </div>
+      ) : null}
       <div id={resolvedId} className={styles.surface}>
         {children}
       </div>
@@ -129,7 +136,8 @@ export function AppCollapseRail({
             size="sm"
             className={styles.railButton}
             onClick={onToggle}
-            aria-label={`Mostrar ${title}`}
+            aria-label={railButtonLabel ?? `Mostrar ${title}`}
+            title={railButtonLabel ?? `Mostrar ${title}`}
             icon={railIcon ?? (!isOverlay ? expandIcon : undefined)}
           >
             {isOverlay ? (

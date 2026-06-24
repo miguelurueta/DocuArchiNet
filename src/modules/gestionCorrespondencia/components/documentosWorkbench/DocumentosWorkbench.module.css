@@ -27,7 +27,7 @@
 .workbenchBody {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 340px);
-  gap: 1rem;
+  gap: 0.375rem;
   height: 100%;
   min-height: 0;
   position: relative;
@@ -112,10 +112,6 @@
 
 .documentsRailGuard[data-locked="true"] .collapseRail {
   opacity: 0.72;
-}
-
-.collapseRail :global(aside > div:first-child) {
-  display: none;
 }
 
 .collapseRail :global(aside) {
@@ -567,18 +563,195 @@
   max-width: 44ch;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .workbenchBody {
     grid-template-columns: minmax(0, 1fr) 0;
   }
 }
 
+@media (max-width: 1366px) {
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"]) {
+    position: fixed;
+    right: -8px;
+    left: auto;
+    top: 58%;
+    bottom: auto;
+    transform: translateY(-50%);
+    width: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    opacity: 1;
+    box-shadow: none;
+    justify-items: center;
+    z-index: 180;
+  }
+
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button) {
+    width: 38px;
+    height: 40px;
+    min-width: 38px;
+    padding: 0;
+    border-radius: 14px 0 0 14px;
+    border-color: rgba(148, 163, 184, 0.22);
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
+    opacity: 1;
+    justify-content: center;
+    position: relative;
+    z-index: 181;
+  }
+
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"]:hover),
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"]:active),
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"]:focus-within) {
+    z-index: 180;
+    opacity: 1;
+  }
+
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button:hover),
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button:active),
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button:focus-visible) {
+    background: #ffffff !important;
+    border-color: rgba(100, 116, 139, 0.36) !important;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+    opacity: 1;
+    z-index: 181;
+  }
+
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button .anticon) {
+    display: inline-flex;
+    font-size: 16px;
+  }
+
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button span[class*="railLabel"]) {
+    font-size: 0;
+    gap: 0;
+  }
+
+  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button span[class*="railLabelIcon"]) {
+    font-size: 16px;
+  }
+}
+
 @media (max-width: 768px) {
   .workbenchBody {
-    height: clamp(320px, 75vh, 680px);
+    height: clamp(540px, 72dvh, 680px);
+    min-height: 540px;
+    max-height: none;
+  }
+
+  .viewer,
+  .documentsRailGuard,
+  .collapseRail {
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .listPanel {
+    height: auto;
+    min-height: 0;
+    max-height: 58vh;
+  }
+
+  .listSurface {
+    height: auto;
+    min-height: 168px;
+    max-height: 52vh;
+    overflow: auto;
   }
 
   .mainArea {
     border-radius: 16px;
+  }
+}
+
+@media (max-width: 430px) {
+  .workbenchBody {
+    height: clamp(460px, 68dvh, 620px);
+    min-height: clamp(460px, 68dvh, 620px);
+  }
+}
+
+@media (max-width: 430px) and (max-height: 740px) {
+  .workbenchBody {
+    height: clamp(410px, 65dvh, 490px);
+    min-height: clamp(410px, 65dvh, 490px);
+  }
+
+  .viewer {
+    align-self: start;
+    height: clamp(410px, 65dvh, 490px);
+    min-height: clamp(410px, 65dvh, 490px);
+    max-height: 490px;
+  }
+}
+
+@media (min-width: 350px) and (max-width: 380px) and (min-height: 720px) and (max-height: 760px) {
+  .workbenchBody {
+    height: clamp(425px, 68dvh, 515px);
+    min-height: clamp(425px, 68dvh, 515px);
+  }
+
+  .viewer {
+    height: clamp(425px, 68dvh, 515px);
+    min-height: clamp(425px, 68dvh, 515px);
+    max-height: 515px;
+  }
+}
+
+@media (max-width: 430px) and (min-height: 741px) {
+  .workbenchBody {
+    height: clamp(575px, 73dvh, 650px);
+    min-height: clamp(575px, 73dvh, 650px);
+  }
+
+  .viewer {
+    align-self: start;
+    height: clamp(575px, 73dvh, 650px);
+    min-height: clamp(575px, 73dvh, 650px);
+    max-height: 650px;
+  }
+}
+
+@media (max-width: 430px) and (min-height: 880px) {
+  .workbenchBody {
+    height: clamp(660px, 76dvh, 720px);
+    min-height: clamp(660px, 76dvh, 720px);
+  }
+
+  .viewer {
+    align-self: start;
+    height: clamp(660px, 76dvh, 720px);
+    min-height: clamp(660px, 76dvh, 720px);
+    max-height: 720px;
+  }
+}
+
+@media (min-width: 400px) and (max-width: 430px) and (min-height: 840px) and (max-height: 920px) {
+  .workbenchBody {
+    height: clamp(645px, 74dvh, 695px);
+    min-height: clamp(645px, 74dvh, 695px);
+  }
+
+  .viewer {
+    align-self: start;
+    height: clamp(645px, 74dvh, 695px);
+    min-height: clamp(645px, 74dvh, 695px);
+    max-height: 695px;
+  }
+}
+
+@media (min-width: 744px) and (max-width: 834px) and (min-height: 1000px) and (max-height: 1150px) {
+  .workbenchBody {
+    height: calc(100vh - 215px);
+    min-height: calc(100vh - 215px);
+  }
+
+  .viewer {
+    height: calc(100vh - 215px);
+    min-height: calc(100vh - 215px);
+    max-height: none;
   }
 }
