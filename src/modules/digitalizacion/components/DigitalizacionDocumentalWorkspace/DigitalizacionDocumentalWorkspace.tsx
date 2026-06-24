@@ -374,6 +374,8 @@ export function DigitalizacionDocumentalWorkspace({
     readPanelPreferences,
   );
   const previewPanelRef = useRef<HTMLElement | null>(null);
+  const previewViewportRef = useRef<HTMLDivElement | null>(null);
+  const previewPageSurfaceRef = useRef<HTMLDivElement | null>(null);
   const previewImageRef = useRef<HTMLImageElement | null>(null);
   const pageOrganizerGridRef = useRef<HTMLDivElement | null>(null);
   const thumbnailButtonRefs = useRef(new Map<string, HTMLButtonElement>());
@@ -869,24 +871,59 @@ export function DigitalizacionDocumentalWorkspace({
     void generatePdf(fileName);
   }, [activeContext, generatePdf]);
 
+  const getEquivalentZoomFromActiveLayout = useCallback(() => {
+    const page = selectedPage;
+    const surface = previewPageSurfaceRef.current;
+    if (!page?.width || !surface) {
+      return null;
+    }
+
+    const rect = surface.getBoundingClientRect();
+    if (rect.width <= 0 || page.width <= 0) {
+      return null;
+    }
+
+    return clampNumber((rect.width / page.width) * 100, MIN_PREVIEW_ZOOM, MAX_PREVIEW_ZOOM);
+  }, [selectedPage]);
+
+  const getActiveDisplayZoom = useCallback(() => {
+    if (!selectedPage) {
+      return previewZoom;
+    }
+
+    if (previewFitMode === "custom") {
+      return previewZoom;
+    }
+
+    return getEquivalentZoomFromActiveLayout() ?? previewZoom;
+  }, [getEquivalentZoomFromActiveLayout, previewFitMode, previewZoom, selectedPage]);
+
   const handleZoomOut = useCallback(() => {
+    if (!selectedPage) return;
+
+    const baseZoom =
+      previewFitMode === "custom" ? previewZoom : getEquivalentZoomFromActiveLayout() ?? previewZoom;
+    const next = Math.max(MIN_PREVIEW_ZOOM, baseZoom - PREVIEW_ZOOM_STEP);
     setPreviewFitMode("custom");
-    setPreviewZoom((current) => Math.max(MIN_PREVIEW_ZOOM, current - PREVIEW_ZOOM_STEP));
-  }, []);
+    setPreviewZoom(next);
+  }, [getEquivalentZoomFromActiveLayout, previewFitMode, previewZoom, selectedPage]);
 
   const handleZoomIn = useCallback(() => {
+    if (!selectedPage) return;
+
+    const baseZoom =
+      previewFitMode === "custom" ? previewZoom : getEquivalentZoomFromActiveLayout() ?? previewZoom;
+    const next = Math.min(MAX_PREVIEW_ZOOM, baseZoom + PREVIEW_ZOOM_STEP);
     setPreviewFitMode("custom");
-    setPreviewZoom((current) => Math.min(MAX_PREVIEW_ZOOM, current + PREVIEW_ZOOM_STEP));
-  }, []);
+    setPreviewZoom(next);
+  }, [getEquivalentZoomFromActiveLayout, previewFitMode, previewZoom, selectedPage]);
 
   const handleFitWidth = useCallback(() => {
     setPreviewFitMode("fitWidth");
-    setPreviewZoom(100);
   }, []);
 
   const handleFitPage = useCallback(() => {
     setPreviewFitMode("fitPage");
-    setPreviewZoom(100);
   }, []);
 
   const handleTogglePreviewExpanded = useCallback(() => {
@@ -1579,8 +1616,11 @@ export function DigitalizacionDocumentalWorkspace({
                 aria-label="Reducir zoom"
                 tooltip="Reducir zoom"
                 onClick={handleZoomOut}
-                disabled={!selectedPage || previewZoom <= MIN_PREVIEW_ZOOM}
+                disabled={!selectedPage || getActiveDisplayZoom() <= MIN_PREVIEW_ZOOM}
               />
+              <span className={styles.previewZoomBadge} aria-live="polite">
+                {Math.round(getActiveDisplayZoom())}%
+              </span>
               <AppButton
                 variant="ghost"
                 size="sm"
@@ -1588,7 +1628,7 @@ export function DigitalizacionDocumentalWorkspace({
                 aria-label="Aumentar zoom"
                 tooltip="Aumentar zoom"
                 onClick={handleZoomIn}
-                disabled={!selectedPage || previewZoom >= MAX_PREVIEW_ZOOM}
+                disabled={!selectedPage || getActiveDisplayZoom() >= MAX_PREVIEW_ZOOM}
               />
               <AppButton
                 variant="ghost"
@@ -1650,10 +1690,11 @@ export function DigitalizacionDocumentalWorkspace({
           <div className={`${styles.panelBody} ${styles.preview}`}>
             {selectedPage ? (
               <>
-                <div className={previewViewportClassName}>
+                <div className={previewViewportClassName} ref={previewViewportRef}>
                   {selectedPage.imageUrl ? (
                     <div
                       className={previewSurfaceClassName}
+                      ref={previewPageSurfaceRef}
                       style={previewImageStyle}
                       onPointerDown={handleAreaSelectionPointerDown}
                       onPointerMove={handleAreaSelectionPointerMove}

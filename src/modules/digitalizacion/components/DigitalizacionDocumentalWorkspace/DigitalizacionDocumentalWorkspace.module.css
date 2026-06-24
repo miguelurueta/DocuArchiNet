@@ -599,6 +599,25 @@
   white-space: nowrap;
 }
 
+.previewZoomBadge {
+  background: #eef4ff;
+  border: 1px solid #c8d8f5;
+  border-radius: 999px;
+  color: #1f4fa3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.25rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1;
+  max-inline-size: 12rem;
+  overflow: hidden;
+  padding: 0.32rem 0.55rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .pageNavigatorFloating {
   align-items: center;
   backdrop-filter: blur(16px);
@@ -795,6 +814,7 @@
 .previewViewportCustom .previewPageSurface {
   inline-size: var(--preview-zoom, 100%);
   max-inline-size: none;
+  flex: 0 0 auto;
 }
 
 .previewViewportFitWidth .previewImage {
