@@ -1108,22 +1108,6 @@
   padding: 0.65rem;
 }
 
-.settingsSummary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-.settingsSummary span {
-  background: #eef4ff;
-  border: 1px solid #d6e4ff;
-  border-radius: 999px;
-  color: #1f4fa3;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.16rem 0.45rem;
-}
-
 .placeholderTitle {
   color: #263b52;
   font-weight: 700;
