@@ -1985,16 +1985,6 @@ export function DigitalizacionDocumentalWorkspace({
               </div>
             )}
 
-            <div className={styles.settingsSummary} aria-label="Resumen configuracion">
-              <span>ADF {captureMode === "driver" ? "driver" : adfEnabled ? "si" : "no"}</span>
-              <span>Duplex {captureMode === "driver" ? "driver" : duplexEnabled ? "si" : "no"}</span>
-              <span>Blancas {removeBlankPages ? "si" : "no"}</span>
-              <span>Deskew {deskewEnabled ? "si" : "no"}</span>
-              <span>Crop {autoCropEnabled ? "si" : "no"}</span>
-              <span>AutoRot {autoRotateEnabled ? "si" : "no"}</span>
-              <span>{captureMode === "driver" ? "PaperStream" : colorOptions.find((option) => option.value === colorMode)?.label}</span>
-              <span>{captureMode === "driver" ? "UI driver" : `${resolutionDpi} dpi`}</span>
-            </div>
           </div>
         </AppCollapseRail>
       </main>
