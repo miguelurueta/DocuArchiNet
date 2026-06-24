@@ -52,7 +52,7 @@ const createDwt = (
     OpenSource: vi.fn(),
     CloseSource: vi.fn(),
     AcquireImage: vi.fn((_options, onSuccess) => {
-      state.imageCount = acquiredImageCount;
+      state.imageCount += acquiredImageCount;
       onSuccess();
     }),
     RemoveImage: vi.fn(() => {
@@ -726,6 +726,91 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
     expect(reorderedPages.map((page) => page.id)).toEqual([pages[1].id, pages[0].id]);
     expect(dwt.ConvertToBlob).toHaveBeenCalledWith(
       [1, 0],
+      "application/pdf",
+      expect.any(Function),
+      expect.any(Function),
+    );
+  });
+
+  it("[SPEC:SCRUMCORE-264] appends newly captured pages to the current document", async () => {
+    const dwt = createDwt(2);
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    await client.selectDevice("0");
+    const initialPages = await client.scan({ deviceId: "0" });
+    const nextPages = await client.scan({
+      deviceId: "0",
+      captureOperation: { type: "APPEND" },
+    });
+    await client.generatePdf("append.pdf");
+
+    expect(initialPages.map((page) => page.id)).toEqual(["scan-page-1", "scan-page-2"]);
+    expect(nextPages.map((page) => page.id)).toEqual([
+      "scan-page-1",
+      "scan-page-2",
+      "scan-page-3",
+      "scan-page-4",
+    ]);
+    expect(dwt.ConvertToBlob).toHaveBeenCalledWith(
+      [0, 1, 2, 3],
+      "application/pdf",
+      expect.any(Function),
+      expect.any(Function),
+    );
+  });
+
+  it("[SPEC:SCRUMCORE-264] replaces the selected page with newly captured pages", async () => {
+    const dwt = createDwt(2);
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    await client.selectDevice("0");
+    const initialPages = await client.scan({ deviceId: "0" });
+    const nextPages = await client.scan({
+      deviceId: "0",
+      captureOperation: { type: "REPLACE", targetPageId: initialPages[0].id },
+    });
+    await client.generatePdf("replace.pdf");
+
+    expect(nextPages.map((page) => page.id)).toEqual([
+      "scan-page-3",
+      "scan-page-4",
+      "scan-page-2",
+    ]);
+    expect(dwt.ConvertToBlob).toHaveBeenCalledWith(
+      [2, 3, 1],
+      "application/pdf",
+      expect.any(Function),
+      expect.any(Function),
+    );
+  });
+
+  it("[SPEC:SCRUMCORE-264] inserts newly captured pages before or after the active page", async () => {
+    const dwt = createDwt(1);
+    const client = createClient(createRuntime(dwt));
+
+    await client.initialize();
+    await client.selectDevice("0");
+    const firstPage = (await client.scan({ deviceId: "0" }))[0]!;
+    const afterPages = await client.scan({
+      deviceId: "0",
+      captureOperation: { type: "INSERT_AFTER", targetPageId: firstPage.id },
+    });
+    const beforePages = await client.scan({
+      deviceId: "0",
+      captureOperation: { type: "INSERT_BEFORE", targetPageId: firstPage.id },
+    });
+    await client.generatePdf("insert.pdf");
+
+    expect(afterPages.map((page) => page.id)).toEqual(["scan-page-1", "scan-page-2"]);
+    expect(beforePages.map((page) => page.id)).toEqual([
+      "scan-page-3",
+      "scan-page-1",
+      "scan-page-2",
+    ]);
+    expect(dwt.ConvertToBlob).toHaveBeenCalledWith(
+      [2, 0, 1],
       "application/pdf",
       expect.any(Function),
       expect.any(Function),

@@ -70,6 +70,18 @@ export type ScanProgressSnapshot = {
 
 export type ScanProgressListener = (progress: ScanProgressSnapshot) => void;
 
+export type CaptureOperationType =
+  | "NEW"
+  | "REPLACE"
+  | "INSERT_BEFORE"
+  | "INSERT_AFTER"
+  | "APPEND";
+
+export type CaptureOperation = {
+  type: CaptureOperationType;
+  targetPageId?: string;
+};
+
 export type ScanOptions = {
   deviceId: string;
   resolutionDpi?: number;
@@ -79,6 +91,7 @@ export type ScanOptions = {
   showScannerUi?: boolean;
   removeBlankPages?: boolean;
   automaticProcessing?: AutomaticImageProcessingOptions;
+  captureOperation?: CaptureOperation;
   onProgress?: ScanProgressListener;
 };
 
