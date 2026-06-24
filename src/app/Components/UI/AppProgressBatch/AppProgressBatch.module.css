@@ -1,0 +1,163 @@
+.shell {
+  display: flex;
+  min-height: 420px;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.processName {
+  margin: -4px 0 0;
+  color: #516070;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.statusPanel {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #dce4ee;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.statusHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.statusText {
+  min-width: 0;
+}
+
+.eyebrow {
+  display: block;
+  color: #5d6b7a;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.currentLabel {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  color: #182433;
+  font-size: 0.96rem;
+  font-weight: 700;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.counter {
+  flex: 0 0 auto;
+  color: #3b4a5a;
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.phase {
+  min-height: 20px;
+  margin: 0;
+  color: #4b5a69;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.progressStack {
+  display: grid;
+  gap: 12px;
+}
+
+.progressBlock {
+  display: grid;
+  gap: 6px;
+}
+
+.progressLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #354657;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.messageArea {
+  min-height: 64px;
+}
+
+.messageArea:empty {
+  display: block;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.summaryItem {
+  padding: 10px;
+  border: 1px solid #dce4ee;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.summaryValue {
+  display: block;
+  color: #172437;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.summaryLabel {
+  display: block;
+  margin-top: 3px;
+  color: #5a6878;
+  font-size: 0.74rem;
+  line-height: 1.25;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .shell {
+    min-height: 380px;
+  }
+
+  .statusHeader {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .counter {
+    white-space: normal;
+  }
+
+  .summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .footer {
+    justify-content: stretch;
+  }
+
+  .footer button {
+    flex: 1 1 auto;
+  }
+}
