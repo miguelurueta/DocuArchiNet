@@ -22,6 +22,8 @@ export type {
   AutomaticImageProcessingOptions,
   AutomaticImageProcessingResult,
   AutomaticImageProcessingStatus,
+  CaptureOperation,
+  CaptureOperationType,
   DigitalizacionScannerClient,
   DynamsoftAcquireOptions,
   DynamsoftImageType,
@@ -34,5 +36,6 @@ export type {
   ScanColorMode,
   ScanOptions,
   ScanPage,
+  ScanProgressSnapshot,
   ScannerDevice,
 } from "./dynamsoft.types";

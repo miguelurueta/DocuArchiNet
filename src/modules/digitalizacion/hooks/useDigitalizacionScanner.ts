@@ -47,6 +47,7 @@ const logDevelopmentMetric = (
   label:
     | "SCAN_SELECTION_TIME"
     | "CROP_TIME"
+    | "DUPLICATE_TIME"
     | "ROTATE_TIME"
     | "DELETE_TIME"
     | "REORDER_TIME"
