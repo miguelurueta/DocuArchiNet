@@ -36,6 +36,7 @@ import {
   SwapOutlined,
   ZoomInOutlined,
   ZoomOutOutlined,
+  CompressOutlined,
 } from "@ant-design/icons";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
@@ -228,6 +229,10 @@ const getOverlayProgressLabel = (progress: ScanProgressSnapshot | null) => {
     return "Generando PDF";
   }
 
+  if (progress.stage === "applyingDeskew") {
+    return "Corrigiendo inclinacion";
+  }
+
   if (progress.stage === "acquiring" || progress.stage === "preparingDocument") {
     return "Escaneando documentos";
   }
@@ -397,6 +402,7 @@ export function DigitalizacionDocumentalWorkspace({
     reorderPages,
     generatePdf,
     selectDevice,
+    deskewPage,
   } = scanner;
 
   const handleOperationCompleted = useCallback(
@@ -590,6 +596,25 @@ export function DigitalizacionDocumentalWorkspace({
     void rotatePage(pageId, degrees);
   }, [rotatePage, scanner.pages, selectedPageId, selectedPageIds]);
 
+  const handleDeskewSelected = useCallback(() => {
+    if (selectedPageIds.size > 0) {
+      const pageIds = scanner.pages
+        .map((page) => page.id)
+        .filter((pageId) => selectedPageIds.has(pageId));
+
+      void (async () => {
+        for (const pageId of pageIds) {
+          await deskewPage(pageId);
+        }
+      })();
+      return;
+    }
+
+    const pageId = selectedPageId ?? scanner.pages[0]?.id;
+    if (!pageId) return;
+    void deskewPage(pageId);
+  }, [deskewPage, scanner.pages, selectedPageId, selectedPageIds]);
+
   const handleRemoveSelected = useCallback(() => {
     if (selectedPageIds.size > 0) {
       const pageIds = scanner.pages
@@ -748,6 +773,18 @@ export function DigitalizacionDocumentalWorkspace({
       void rotatePage(pageId, degrees);
     });
   }, [rotatePage, scanner.pages, selectedPageIds]);
+
+  const handleDeskewOrganizerSelection = useCallback(() => {
+    const pageIds = scanner.pages
+      .map((page) => page.id)
+      .filter((pageId) => selectedPageIds.has(pageId));
+
+    void (async () => {
+      for (const pageId of pageIds) {
+        await deskewPage(pageId);
+      }
+    })();
+  }, [deskewPage, scanner.pages, selectedPageIds]);
 
   const handleRemoveOrganizerSelection = useCallback(() => {
     const pageIds = scanner.pages
@@ -1486,6 +1523,15 @@ export function DigitalizacionDocumentalWorkspace({
               <AppButton
                 variant="ghost"
                 size="sm"
+                icon={<CompressOutlined />}
+                aria-label="Deskew"
+                tooltip="Corregir inclinacion de la pagina"
+                onClick={handleDeskewSelected}
+                disabled={!selectedPage || scanner.loading}
+              />
+              <AppButton
+                variant="ghost"
+                size="sm"
                 icon={<CopyOutlined />}
                 aria-label="Duplicar pagina"
                 tooltip="Duplicar pagina"
@@ -1749,6 +1795,15 @@ export function DigitalizacionDocumentalWorkspace({
                     tooltip="Rotar derecha"
                     onClick={() => handleRotateOrganizerSelection(90)}
                     disabled={!hasOrganizerSelection}
+                  />
+                  <AppButton
+                    variant="ghost"
+                    size="sm"
+                    icon={<ColumnWidthOutlined />}
+                    aria-label="Deskew paginas seleccionadas"
+                    tooltip="Corregir inclinacion de paginas"
+                    onClick={handleDeskewOrganizerSelection}
+                    disabled={!hasOrganizerSelection || scanner.loading}
                   />
                   <AppButton
                     variant="danger"

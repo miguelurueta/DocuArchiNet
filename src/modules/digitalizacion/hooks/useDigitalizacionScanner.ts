@@ -18,6 +18,7 @@ export type DigitalizacionScannerStatus =
   | "initializing"
   | "ready"
   | "scanning"
+  | "processingPage"
   | "generatingPdf"
   | "error";
 
@@ -47,6 +48,7 @@ const logDevelopmentMetric = (
   label:
     | "SCAN_SELECTION_TIME"
     | "CROP_TIME"
+    | "DESKEW_TIME"
     | "DUPLICATE_TIME"
     | "ROTATE_TIME"
     | "DELETE_TIME"
@@ -307,6 +309,41 @@ export const useDigitalizacionScanner = ({
     [client, handleError, updateIfCurrent],
   );
 
+  const deskewPage = useCallback(
+    async (pageId: string) => {
+      const generation = generationRef.current;
+      const startedAt = getMetricStart();
+      updateIfCurrent(generation, (current) => ({
+        ...current,
+        status: "processingPage",
+        progress: {
+          stage: "applyingDeskew",
+          label: "Corrigiendo inclinacion",
+          detail: "Procesando pagina capturada.",
+          cancellable: false,
+        },
+        error: null,
+      }));
+
+      try {
+        const pages = await client.deskewPage(pageId);
+        updateIfCurrent(generation, (current) => ({
+          ...current,
+          status: "ready",
+          pages,
+          pdf: null,
+          progress: null,
+          error: null,
+        }));
+        logDevelopmentMetric("DESKEW_TIME", startedAt, { status: "success" });
+      } catch (error) {
+        logDevelopmentMetric("DESKEW_TIME", startedAt, { status: "error" });
+        handleError(generation, error, "No fue posible corregir la inclinacion.");
+      }
+    },
+    [client, handleError, updateIfCurrent],
+  );
+
   const cropPage = useCallback(
     async (pageId: string, selection: PageCropSelection) => {
       const generation = generationRef.current;
@@ -408,6 +445,7 @@ export const useDigitalizacionScanner = ({
     () =>
       state.status === "initializing" ||
       state.status === "scanning" ||
+      state.status === "processingPage" ||
       state.status === "generatingPdf",
     [state.status],
   );
@@ -422,6 +460,7 @@ export const useDigitalizacionScanner = ({
     reorderPages,
     duplicatePage,
     rotatePage,
+    deskewPage,
     cropPage,
     clear,
     generatePdf,

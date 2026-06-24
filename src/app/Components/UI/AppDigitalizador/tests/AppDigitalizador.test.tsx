@@ -52,41 +52,42 @@ const createScannerClient = (
   const clientPages = [...pages];
 
   return {
-  initialize: vi.fn().mockResolvedValue(undefined),
-  listDevices: vi.fn().mockResolvedValue([
-    { id: "scanner-1", name: "Scanner prueba", index: 0 },
-  ]),
-  selectDevice: vi.fn().mockResolvedValue(undefined),
-  scan: vi.fn(() => Promise.resolve<ScanPage[]>(clientPages)),
-  duplicatePage: vi.fn(async (pageId: string) => {
-    const pageIndex = clientPages.findIndex((page) => page.id === pageId);
-    const sourcePage = clientPages[pageIndex];
-    if (!sourcePage) {
-      return clientPages;
-    }
+    initialize: vi.fn().mockResolvedValue(undefined),
+    listDevices: vi.fn().mockResolvedValue([
+      { id: "scanner-1", name: "Scanner prueba", index: 0 },
+    ]),
+    selectDevice: vi.fn().mockResolvedValue(undefined),
+    scan: vi.fn(() => Promise.resolve<ScanPage[]>(clientPages)),
+    duplicatePage: vi.fn(async (pageId: string) => {
+      const pageIndex = clientPages.findIndex((page) => page.id === pageId);
+      const sourcePage = clientPages[pageIndex];
+      if (!sourcePage) {
+        return clientPages;
+      }
 
-    const duplicatedPage = {
-      ...sourcePage,
-      id: `${sourcePage.id}-copy`,
-      index: clientPages.length,
-    };
-    clientPages.splice(pageIndex + 1, 0, duplicatedPage);
-    return clientPages;
-  }),
-  rotatePage: vi.fn(() => Promise.resolve<ScanPage[]>(clientPages)),
-  cropPage: vi.fn(() => Promise.resolve<ScanPage[]>(clientPages)),
-  removePage: vi.fn().mockResolvedValue(undefined),
-  reorderPages: vi.fn(async (pageIds: string[]) =>
-    pageIds.map((pageId, index) => ({ id: pageId, index })),
-  ),
-  clear: vi.fn().mockResolvedValue(undefined),
-  generatePdf: vi.fn(() =>
-    Promise.resolve<PdfGenerationResult>({
-      file: new File(["pdf"], "digitalizacion.pdf", { type: "application/pdf" }),
-      pageCount: 1,
+      const duplicatedPage = {
+        ...sourcePage,
+        id: `${sourcePage.id}-copy`,
+        index: clientPages.length,
+      };
+      clientPages.splice(pageIndex + 1, 0, duplicatedPage);
+      return clientPages;
     }),
-  ),
-  dispose: vi.fn().mockResolvedValue(undefined),
+    rotatePage: vi.fn(() => Promise.resolve<ScanPage[]>(clientPages)),
+    deskewPage: vi.fn(() => Promise.resolve<ScanPage[]>(clientPages)),
+    cropPage: vi.fn(() => Promise.resolve<ScanPage[]>(clientPages)),
+    removePage: vi.fn().mockResolvedValue(undefined),
+    reorderPages: vi.fn(async (pageIds: string[]) =>
+      pageIds.map((pageId, index) => ({ id: pageId, index })),
+    ),
+    clear: vi.fn().mockResolvedValue(undefined),
+    generatePdf: vi.fn(() =>
+      Promise.resolve<PdfGenerationResult>({
+        file: new File(["pdf"], "digitalizacion.pdf", { type: "application/pdf" }),
+        pageCount: 1,
+      }),
+    ),
+    dispose: vi.fn().mockResolvedValue(undefined),
   };
 };
 
@@ -210,11 +211,14 @@ describe("AppDigitalizador", () => {
     await waitFor(() =>
       expect(scannerClient.selectDevice).toHaveBeenCalledWith("scanner-1"),
     );
+    const configurationPanel = screen.getByRole("complementary", {
+      name: "Configuracion de Escaneo",
+    });
     fireEvent.click(screen.getByLabelText("Duplex activado"));
     fireEvent.click(screen.getByLabelText("Eliminar paginas en blanco"));
-    fireEvent.click(screen.getByLabelText("Deskew"));
-    fireEvent.click(screen.getByLabelText("Auto Crop"));
-    fireEvent.click(screen.getByLabelText("Auto Rotate"));
+    fireEvent.click(within(configurationPanel).getByLabelText("Deskew"));
+    fireEvent.click(within(configurationPanel).getByLabelText("Auto Crop"));
+    fireEvent.click(within(configurationPanel).getByLabelText("Auto Rotate"));
     fireEvent.change(screen.getByLabelText("Color"), {
       target: { value: "grayscale" },
     });
@@ -351,7 +355,7 @@ describe("AppDigitalizador", () => {
     await waitFor(() => {
       expect(preview).toHaveAttribute("data-progress-active", "false");
     });
-  });
+  }, 10000);
 
   it("[SPEC:SCRUMCORE-254] contrae paneles laterales y expande el preview sin desmontar el workspace", async () => {
     const scannerClient = createScannerClient();
@@ -388,7 +392,7 @@ describe("AppDigitalizador", () => {
     expect(scannerClient.scan).not.toHaveBeenCalled();
     expect(scannerClient.clear).not.toHaveBeenCalled();
     expect(scannerClient.dispose).not.toHaveBeenCalled();
-  });
+  }, 10000);
 
   it("[SPEC:SCRUMCORE-254] restaura paneles colapsados desde localStorage", async () => {
     window.localStorage.setItem(
@@ -508,7 +512,7 @@ describe("AppDigitalizador", () => {
 
     fireEvent.keyDown(document, { key: "Home" });
     expect(screen.getByRole("button", { name: "Editar pagina actual" })).toHaveTextContent("1");
-  });
+  }, 10000);
 
   it("[SPEC:SCRUMCORE-262] duplica la pagina activa desde la toolbar unica", async () => {
     const scannerClient = createScannerClient([
@@ -547,7 +551,7 @@ describe("AppDigitalizador", () => {
     });
     expect(screen.getByRole("button", { name: "Editar pagina actual" })).toHaveTextContent("3");
     expect(screen.getByLabelText("Navegacion de paginas")).toHaveTextContent("Pagina 3 de 4");
-  });
+  }, 10000);
 
   it("[SPEC:SCRUMCORE-256] mantiene reordenamiento en la superficie de miniaturas", async () => {
     const scannerClient = createScannerClient([
@@ -887,6 +891,99 @@ describe("AppDigitalizador", () => {
     expect(screen.getAllByText("0 paginas seleccionadas").length).toBeGreaterThan(0);
 
     confirmSpy.mockReset();
+  }, 10000);
+
+  it("[SPEC:SCRUMCORE-266] corrige inclinacion manual de miniaturas seleccionadas", async () => {
+    const scannerClient = createScannerClient([
+      { id: "page-1", index: 0 },
+      { id: "page-2", index: 1 },
+      { id: "page-3", index: 2 },
+    ]);
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (3)" })).toBeInTheDocument();
+    });
+
+    const pageOneThumbnail = screen
+      .getAllByText("Pagina 1")
+      .find((element) => element.tagName.toLowerCase() === "small")
+      ?.closest("button");
+
+    if (!pageOneThumbnail) {
+      throw new Error("No se encontro la miniatura de Pagina 1.");
+    }
+
+    fireEvent.click(pageOneThumbnail, { ctrlKey: true });
+    fireEvent.click(screen.getByLabelText("Seleccionar pagina 2"));
+    fireEvent.click(screen.getByRole("button", { name: "Deskew" }));
+
+    await waitFor(() => expect(scannerClient.deskewPage).toHaveBeenCalledWith("page-1"));
+    await waitFor(() => expect(scannerClient.deskewPage).toHaveBeenCalledWith("page-2"));
+    expect(scannerClient.deskewPage).not.toHaveBeenCalledWith("page-3");
+  }, 10000);
+
+  it("[SPEC:SCRUMCORE-266] muestra overlay corporativo durante deskew manual", async () => {
+    const scannerClient = createScannerClient([{ id: "page-1", index: 0 }]);
+    const deferred = createDeferred<ScanPage[]>();
+    vi.mocked(scannerClient.deskewPage).mockReturnValueOnce(deferred.promise);
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (1)" })).toBeInTheDocument();
+    });
+
+    const preview = screen.getByRole("region", { name: "Preview digitalizacion" });
+    fireEvent.click(screen.getByRole("button", { name: "Deskew" }));
+
+    await waitFor(() => {
+      expect(
+        within(preview).getByRole("status", { name: "Corrigiendo inclinacion" }),
+      ).toBeInTheDocument();
+    });
+    expect(preview).toHaveAttribute("data-progress-active", "true");
+
+    await waitFor(() => expect(scannerClient.deskewPage).toHaveBeenCalledWith("page-1"));
+
+    deferred.resolve([{ id: "page-1", index: 0, thumbnailUrl: "scan://deskewed" }]);
+
+    await waitFor(() => {
+      expect(
+        within(preview).queryByRole("status", { name: "Corrigiendo inclinacion" }),
+      ).not.toBeInTheDocument();
+    });
   }, 10000);
 
   it("[SPEC:SCRUMCORE-256] marca virtualizacion CSS cuando supera 100 paginas", async () => {

@@ -107,6 +107,7 @@ export interface DigitalizacionScannerClient {
   scan(options: ScanOptions): Promise<ScanPage[]>;
   duplicatePage(pageId: string): Promise<ScanPage[]>;
   rotatePage(pageId: string, degrees: 90 | 180 | 270): Promise<ScanPage[]>;
+  deskewPage(pageId: string): Promise<ScanPage[]>;
   cropPage(pageId: string, selection: PageCropSelection): Promise<ScanPage[]>;
   removePage(pageId: string): Promise<void>;
   reorderPages(pageIds: string[]): Promise<ScanPage[]>;

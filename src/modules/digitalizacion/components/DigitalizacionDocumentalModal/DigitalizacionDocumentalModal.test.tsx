@@ -54,6 +54,9 @@ const createScannerClient = (): DigitalizacionScannerClient & { pages: ScanPage[
   rotatePage: vi.fn(async function rotatePage(this: { pages: ScanPage[] }) {
     return this.pages;
   }),
+  deskewPage: vi.fn(async function deskewPage(this: { pages: ScanPage[] }) {
+    return this.pages;
+  }),
   cropPage: vi.fn(async function cropPage(this: { pages: ScanPage[] }) {
     return this.pages;
   }),

@@ -1,111 +1,52 @@
 ## ADDED Requirements
-### Requirement: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL-DESKEW-MANUAL
-El sistema SHALL implementar el alcance definido para SCRUMCORE-266.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+### Requirement: Manual Deskew Action
+El modulo reusable de digitalizacion documental SHALL allow users to run Deskew manually after a page has already been captured.
 
-#### Scenario: Reglas del ticket
-- DESKEW MANUAL POSTERIOR AL ESCANEO
-- CONTEXTO
-- Actualmente existe la opción:
-- Deskew
-- dentro de la configuración de captura.
-- Esta funcionalidad se ejecuta únicamente durante el proceso de escaneo.
-- Sin embargo, pueden existir páginas que:
-- No fueron corregidas correctamente.
-- 
-- Fueron importadas desde imágenes.
-- 
-- Fueron agregadas posteriormente.
-- 
-- Presentan inclinación residual.
-- 
-- Se requiere una herramienta manual para corregir inclinación después de capturada la página.
-- ==================================================
-- OBJETIVO
-- Permitir ejecutar Deskew manual sobre páginas ya existentes.
-- ==================================================
-- TOOLBAR
-- Agregar botón:
-- Deskew
-- Ubicación:
-- Junto a:
-- Rotar izquierda
-- Rotar derecha
-- ==================================================
-- TOOLTIP
-- "Corregir inclinación de la página"
-- ==================================================
-- COMPORTAMIENTO
-- Página activa
-- ↓
-- Deskew
-- ↓
-- Procesar página
-- ↓
-- Actualizar resultado
-- ==================================================
-- SELECCIÓN SIMPLE
-- Si existe una única página activa:
-- Aplicar Deskew únicamente a dicha página.
-- ==================================================
-- SELECCIÓN MÚLTIPLE
-- Si existen varias páginas seleccionadas:
-- Aplicar Deskew a todas las páginas seleccionadas.
-- ==================================================
-- ACTUALIZAR
-- Después de procesar:
-- ✓ Preview
-- ✓ Miniatura
-- ✓ Organizador
-- ✓ Navegación
-- ==================================================
-- COMPATIBILIDAD
-- Debe funcionar con:
-- ✓ Escaneos nuevos
-- ✓ Imágenes importadas
-- ✓ PDF importados
-- ✓ Páginas duplicadas
-- ✓ Páginas insertadas
-- ✓ Páginas reemplazadas
-- ==================================================
-- INDICADOR VISUAL
-- Mientras se ejecuta:
-- Mostrar overlay corporativo.
-- Mensaje:
-- Corrigiendo inclinación...
-- ==================================================
-- ERRORES
-- Si la página ya está correctamente alineada:
-- No generar error.
-- Mantener página actual.
-- ==================================================
-- ARQUITECTURA
-- Reutilizar la misma lógica Deskew utilizada actualmente durante la captura.
-- NO implementar una segunda versión.
-- NO duplicar algoritmos.
-- ==================================================
-- DOCUMENTACIÓN
-- Crear:
-- docs/Architecture/DigitalizacionDocumental/SCRUMCORE-293-manual-deskew.md
-- Documentar:
-- Flujo.
-- 
-- Compatibilidad.
-- 
-- Reutilización del motor existente.
-- 
-- Casos de uso.
-- 
-- ==================================================
-- VALIDAR
-- npx tsc --noEmit
-- eslint
-- vitest
-- IMPLEMENTAR
+#### Scenario: Deskew active page
+- **GIVEN** the workspace has at least one captured page
+- **AND** no multi-page thumbnail selection is active
+- **WHEN** the user clicks the Deskew action beside rotate left and rotate right
+- **THEN** the system applies Deskew only to the active page
+- **AND** refreshes the preview, thumbnail list, organizer state, and page navigation from the updated scanner pages
+
+#### Scenario: Deskew selected pages
+- **GIVEN** the workspace has multiple selected pages
+- **WHEN** the user clicks the Deskew action from the preview toolbar or organizer toolbar
+- **THEN** the system applies Deskew to every selected page in visual order
+- **AND** does not process unselected pages
+
+#### Scenario: Deskew processing feedback
+- **GIVEN** a manual Deskew operation is running
+- **WHEN** the page is being corrected
+- **THEN** the workspace shows the corporate overlay with the message "Corrigiendo inclinacion"
+- **AND** keeps scanner controls disabled until the operation finishes
+
+#### Scenario: Already aligned page
+- **GIVEN** the selected page does not require correction
+- **WHEN** Deskew completes without modifying the image
+- **THEN** the system keeps the current page
+- **AND** does not show a functional error
+
+### Requirement: Existing Deskew Engine Reuse
+The manual Deskew action SHALL reuse the same Deskew integration used by automatic image processing during capture.
+
+#### Scenario: Native Deskew method is available
+- **GIVEN** the Dynamsoft runtime exposes a Deskew-compatible native method
+- **WHEN** manual Deskew runs on a captured page
+- **THEN** the scanner client invokes the same Deskew feature registry used by automatic processing
+- **AND** rebuilds the affected page metadata from the scanner buffer
+
+#### Scenario: Native Deskew method is unavailable
+- **GIVEN** the Dynamsoft runtime does not expose a Deskew-compatible native method
+- **WHEN** manual Deskew is requested
+- **THEN** the scanner client treats the operation as unsupported
+- **AND** returns the current pages without throwing a functional error
+
+### Requirement: Manual Deskew Compatibility
+Manual Deskew SHALL operate on pages present in the scanner page collection regardless of how they were added.
+
+#### Scenario: Supported page sources
+- **GIVEN** pages were added by new scan, imported image/PDF flow, duplication, insertion, replacement, or append capture
+- **WHEN** the page exists in the scanner page collection
+- **THEN** manual Deskew can be requested for that page id through the scanner client contract
+- **AND** generated PDF state is invalidated so the next PDF reflects the corrected pages

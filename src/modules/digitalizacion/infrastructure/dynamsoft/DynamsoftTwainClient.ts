@@ -650,6 +650,40 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     return [...this.pages];
   }
 
+  async deskewPage(pageId: string) {
+    const dwt = this.requireDwt();
+    const page = this.pages.find((currentPage) => currentPage.id === pageId);
+    if (!page) {
+      throw new DynamsoftScannerError({
+        code: "PDF_EMPTY",
+        message: "Pagina no encontrada.",
+      });
+    }
+
+    const deskewFeature = automaticProcessingFeatures.find(
+      (feature) => feature.key === "deskew",
+    );
+    if (!deskewFeature) {
+      throw new DynamsoftScannerError({
+        code: "DYNAMSOFT_RUNTIME_UNAVAILABLE",
+        message: "Deskew manual no esta disponible.",
+      });
+    }
+
+    const previousPages = this.pages;
+    this.pages = [page];
+    try {
+      await this.applyAutomaticProcessingFeature(dwt, deskewFeature);
+    } finally {
+      const processedPage = this.pages.find((currentPage) => currentPage.id === pageId) ?? page;
+      this.pages = previousPages.map((currentPage) =>
+        currentPage.id === pageId ? processedPage : currentPage,
+      );
+    }
+
+    return [...this.pages];
+  }
+
   async cropPage(pageId: string, selection: PageCropSelection) {
     assertValidCropSelection(selection);
     const dwt = this.requireDwt();

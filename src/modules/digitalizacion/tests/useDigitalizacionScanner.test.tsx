@@ -57,6 +57,9 @@ const createClient = (): DigitalizacionScannerClient & {
     rotatePage: vi.fn(async function rotatePage(this: { pages: ScanPage[] }) {
       return this.pages;
     }),
+    deskewPage: vi.fn(async function deskewPage(this: { pages: ScanPage[] }) {
+      return this.pages;
+    }),
     cropPage: vi.fn(async function cropPage(this: { pages: ScanPage[] }) {
       return this.pages;
     }),
@@ -203,6 +206,57 @@ describe("[SPEC:SCRUMCORE-240] useDigitalizacionScanner", () => {
     expect(client.rotatePage).toHaveBeenCalledWith("page-1", 90);
     expect(result.current.pages).toEqual(rotatedPages);
     expect(result.current.pdf).toBeNull();
+  });
+
+  it("[SPEC:SCRUMCORE-266] refreshes pages and invalidates pdf after manual deskew", async () => {
+    const client = createClient();
+    const deskewedPages = [
+      { id: "page-1", index: 0, thumbnailUrl: "scan://deskewed-thumb-1" },
+      { id: "page-2", index: 1 },
+    ];
+    vi.mocked(client.deskewPage).mockResolvedValueOnce(deskewedPages);
+    const { result } = renderHook(() => useDigitalizacionScanner({ client }));
+
+    await act(async () => {
+      await result.current.scan({ deviceId: "0" });
+      await result.current.generatePdf("scan.pdf");
+      await result.current.deskewPage("page-1");
+    });
+
+    expect(client.deskewPage).toHaveBeenCalledWith("page-1");
+    expect(result.current.pages).toEqual(deskewedPages);
+    expect(result.current.pdf).toBeNull();
+    expect(result.current.status).toBe("ready");
+  });
+
+  it("[SPEC:SCRUMCORE-266] exposes deskew progress while manual correction is pending", async () => {
+    const client = createClient();
+    const deferred = createDeferred<ScanPage[]>();
+    vi.mocked(client.deskewPage).mockReturnValueOnce(deferred.promise);
+    const { result } = renderHook(() => useDigitalizacionScanner({ client }));
+
+    await act(async () => {
+      await result.current.scan({ deviceId: "0" });
+    });
+
+    void act(() => {
+      void result.current.deskewPage("page-1");
+    });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe("processingPage");
+      expect(result.current.progress?.stage).toBe("applyingDeskew");
+      expect(result.current.progress?.label).toBe("Corrigiendo inclinacion");
+    });
+
+    await act(async () => {
+      deferred.resolve(client.pages);
+    });
+
+    await waitFor(() => {
+      expect(result.current.status).toBe("ready");
+      expect(result.current.progress).toBeNull();
+    });
   });
 
   it("duplicates pages through adapter and invalidates pdf", async () => {

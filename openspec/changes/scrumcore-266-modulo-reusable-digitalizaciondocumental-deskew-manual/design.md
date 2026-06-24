@@ -106,24 +106,38 @@ SCRUMCORE-266: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL-DESKEW-MANUAL
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Exponer Deskew manual en el toolbar de pagina y en el organizador.
+- Aplicar Deskew a la pagina activa o a la seleccion multiple, segun el estado actual.
+- Reutilizar la misma integracion de Deskew usada durante el procesamiento automatico.
+- Refrescar preview, miniaturas, organizador, navegacion e invalidar el PDF generado.
+- Mostrar overlay corporativo durante la correccion.
 
 **Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+- Implementar un algoritmo propio de deskew en frontend.
+- Cambiar la configuracion de Deskew automatico durante captura.
+- Modificar contratos backend de guardado o adjunto.
 
 ## Decisions
 
-1. TBD
+1. Se agrega `deskewPage(pageId)` al contrato `DigitalizacionScannerClient` para mantener la accion reusable desde workspace, modal y `AppDigitalizador`.
+2. `DynamsoftTwainClient.deskewPage` reutiliza la entrada `deskew` de `automaticProcessingFeatures`; no duplica nombres de metodos ni algoritmos.
+3. Cuando el runtime no expone una API nativa compatible, el cliente mantiene las paginas actuales y registra el resultado como `unsupported`, igual que el procesamiento automatico.
+4. El hook `useDigitalizacionScanner` usa el estado `processingPage` y el stage `applyingDeskew` para activar el overlay "Corrigiendo inclinacion".
+5. Las operaciones masivas de Deskew se ejecutan secuencialmente en orden visual para evitar que respuestas concurrentes sobrescriban el estado de paginas.
 
 ## Risks / Trade-offs
 
-- TBD
+- El resultado final depende de las capacidades nativas expuestas por Dynamsoft Web TWAIN en la estacion del usuario.
+- En runtimes sin Deskew nativo, la accion no modifica la imagen; se mantiene como no destructiva para cumplir el requisito de no fallar cuando no hay correccion aplicable.
+- El procesamiento multiple reutiliza llamadas por pagina para conservar el contrato existente de pagina estable; esto prioriza consistencia sobre paralelismo.
 
 ## Migration Plan
 
-1. TBD
+1. Extender contrato, hook y cliente Dynamsoft con `deskewPage`.
+2. Agregar accion UI junto a rotacion y en el toolbar del organizador.
+3. Actualizar mocks y pruebas de hook, cliente y `AppDigitalizador`.
+4. Documentar arquitectura en `docs/Architecture/DigitalizacionDocumental/SCRUMCORE-293-manual-deskew.md`.
 
 ## Open Questions
 
-- TBD
+- Ninguna abierta para implementacion frontend.
