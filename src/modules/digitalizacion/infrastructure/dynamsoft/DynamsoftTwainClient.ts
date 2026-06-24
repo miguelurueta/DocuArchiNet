@@ -533,6 +533,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
     const dwt = this.requireDwt();
     const operationGeneration = this.generation;
+    const previousPages = [...this.pages];
     this.activeOperation = "scan";
 
     try {
@@ -605,6 +606,11 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         blankRemovalResult = await this.removeDetectedBlankPages(dwt);
       }
       await this.applyAutomaticProcessing(dwt, options.automaticProcessing, options.onProgress);
+      this.pages = this.resolveCaptureOperationPages({
+        operation: options.captureOperation,
+        previousPages,
+        scannedPages: this.pages,
+      });
       this.reportScanProgress(options.onProgress, {
         stage: "preparingDocument",
         label: "Preparando documento",
@@ -1017,6 +1023,59 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         rotationDegrees: this.pageRotationById.get(page.id) ?? page.rotationDegrees ?? 0,
       };
     });
+  }
+
+  private resolveCaptureOperationPages({
+    operation,
+    previousPages,
+    scannedPages,
+  }: {
+    operation: ScanOptions["captureOperation"];
+    previousPages: ScanPage[];
+    scannedPages: ScanPage[];
+  }) {
+    const operationType = operation?.type ?? "NEW";
+    if (operationType === "NEW" || previousPages.length === 0) {
+      return scannedPages;
+    }
+
+    const previousPageIds = new Set(previousPages.map((page) => page.id));
+    const capturedPages = scannedPages.filter((page) => !previousPageIds.has(page.id));
+    if (capturedPages.length === 0) {
+      return previousPages;
+    }
+
+    if (operationType === "APPEND") {
+      return [...previousPages, ...capturedPages];
+    }
+
+    const targetPageId = operation?.targetPageId;
+    const targetIndex = previousPages.findIndex((page) => page.id === targetPageId);
+    if (targetIndex < 0) {
+      return [...previousPages, ...capturedPages];
+    }
+
+    if (operationType === "REPLACE") {
+      return [
+        ...previousPages.slice(0, targetIndex),
+        ...capturedPages,
+        ...previousPages.slice(targetIndex + 1),
+      ];
+    }
+
+    if (operationType === "INSERT_BEFORE") {
+      return [
+        ...previousPages.slice(0, targetIndex),
+        ...capturedPages,
+        ...previousPages.slice(targetIndex),
+      ];
+    }
+
+    return [
+      ...previousPages.slice(0, targetIndex + 1),
+      ...capturedPages,
+      ...previousPages.slice(targetIndex + 1),
+    ];
   }
 
   private async removeDetectedBlankPages(

@@ -7,6 +7,41 @@ El sistema SHALL implementar el alcance definido para SCRUMCORE-264.
 #### Scenario: No-regresion
 - **WHEN** se valida el modulo afectado
 - **THEN** no se rompen flujos existentes
+### Requirement: Toolbar de captura avanzada
+El sistema SHALL exponer las operaciones `Nuevo`, `Reemplazar`, `Insertar` y `Agregar` inmediatamente despues de `Escanear` en el toolbar de captura documental.
+
+#### Scenario: Orden de acciones de captura
+- **WHEN** el workspace de digitalizacion renderiza el toolbar
+- **THEN** las acciones de captura aparecen en el orden `Escanear`, `Nuevo`, `Reemplazar`, `Insertar`, `Agregar`
+
+#### Scenario: Estados habilitados
+- **WHEN** no existe pagina activa
+- **THEN** `Reemplazar` e `Insertar` permanecen deshabilitados
+- **AND** `Nuevo` y `Agregar` permanecen disponibles si hay scanner seleccionado y no hay operacion activa
+
+### Requirement: Operaciones de composicion documental
+El sistema SHALL resolver las paginas recien capturadas segun el modelo `CaptureOperation`.
+
+#### Scenario: Nuevo documento
+- **WHEN** el usuario ejecuta `Nuevo` con paginas existentes y confirma
+- **THEN** se limpian paginas, miniaturas, selecciones, crop temporal, navegacion activa y PDF temporal
+- **AND** la siguiente captura inicia un documento nuevo
+
+#### Scenario: Reemplazar pagina activa
+- **WHEN** el usuario ejecuta `Reemplazar`
+- **THEN** las paginas recien capturadas sustituyen la pagina activa
+- **AND** el orden previo antes y despues de la pagina reemplazada se conserva
+
+#### Scenario: Insertar paginas
+- **WHEN** el usuario elige `Insertar antes` o `Insertar despues`
+- **THEN** las paginas recien capturadas se ubican antes o despues de la pagina activa respectivamente
+- **AND** preview, miniaturas, organizador y navegacion usan el nuevo orden
+
+#### Scenario: Agregar paginas
+- **WHEN** el usuario ejecuta `Agregar`
+- **THEN** las paginas recien capturadas se ubican al final del documento
+- **AND** el PDF generado respeta ese orden
+
 ### Requirement: Detalle funcional Jira
 El sistema SHALL considerar las reglas detalladas del ticket.
 

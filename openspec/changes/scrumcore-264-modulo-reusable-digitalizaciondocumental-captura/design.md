@@ -303,16 +303,25 @@ SCRUMCORE-264: MODULO-REUSABLE-DIGITALIZACIONDOCUMENTAL-CAPTURA
 
 ## Decisions
 
-1. TBD
+1. `CaptureOperation` queda en el contrato reusable del scanner (`ScanOptions.captureOperation`) para que la toolbar no duplique logica de adquisicion.
+2. `DigitalizacionDocumentalWorkspace` mantiene una unica funcion de captura y las acciones `Nuevo`, `Reemplazar`, `Insertar` y `Agregar` solo definen la intencion operacional.
+3. `DynamsoftTwainClient.scan()` conserva el flujo nativo de adquisicion y resuelve despues el orden visual/PDF comparando paginas previas con paginas recien adquiridas.
+4. `generatePdf()` sigue usando los indices de `this.pages`; por eso no es necesario mover fisicamente imagenes dentro del buffer Dynamsoft para insertar/reemplazar.
 
 ## Risks / Trade-offs
 
-- TBD
+- `removeBlankPages` sigue ejecutandose dentro del flujo existente de scanner. Debe validarse con scanner real cuando se combine con documentos previamente capturados.
+- `REPLACE` sustituye la pagina activa por todas las paginas recien capturadas, permitiendo reemplazos 1:N si el driver entrega mas de una pagina.
+- La toolbar queda con mas acciones primarias; se conserva iconografia compacta y dropdown para `Insertar` para mantener densidad operativa.
 
 ## Migration Plan
 
-1. TBD
+1. Extender contrato `ScanOptions` con `CaptureOperation`.
+2. Resolver orden de paginas en el adaptador Dynamsoft despues de adquirir.
+3. Agregar acciones al toolbar inmediatamente despues de `Escanear`.
+4. Cubrir operaciones con pruebas de adaptador y workspace.
+5. Documentar arquitectura en `docs/Architecture/DigitalizacionDocumental/SCRUMCORE-292-capture-management.md`.
 
 ## Open Questions
 
-- TBD
+- Validar con scanner real si el procesamiento de paginas en blanco debe limitarse solo a paginas recien adquiridas en flujos de append/insert/replace.

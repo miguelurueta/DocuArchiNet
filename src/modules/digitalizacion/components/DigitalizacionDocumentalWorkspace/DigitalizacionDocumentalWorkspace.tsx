@@ -18,10 +18,14 @@ import {
   CopyOutlined,
   DeleteOutlined,
   DownOutlined,
+  FileAddOutlined,
   FileTextOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
   AppstoreOutlined,
+  InsertRowAboveOutlined,
+  InsertRowBelowOutlined,
+  PlusOutlined,
   ProfileOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
@@ -29,6 +33,7 @@ import {
   SelectOutlined,
   SettingOutlined,
   ScissorOutlined,
+  SwapOutlined,
   ZoomInOutlined,
   ZoomOutOutlined,
 } from "@ant-design/icons";
@@ -46,6 +51,7 @@ import type {
 } from "../../types/digitalizacion.types";
 import {
   DYNAMSOFT_CONTAINER_ID,
+  type CaptureOperation,
   type PageCropSelection,
   type ScanPage,
   type ScanProgressSnapshot,
@@ -478,7 +484,7 @@ export function DigitalizacionDocumentalWorkspace({
     void clearScanner();
   }, [clearPages, clearScanner]);
 
-  const handleScan = useCallback(() => {
+  const executeCapture = useCallback((captureOperation?: CaptureOperation) => {
     if (!scanner.selectedDeviceId) {
       return;
     }
@@ -499,6 +505,7 @@ export function DigitalizacionDocumentalWorkspace({
               autoRotate: autoRotateEnabled,
             }
           : undefined,
+      captureOperation,
     });
   }, [
     adfEnabled,
@@ -513,6 +520,58 @@ export function DigitalizacionDocumentalWorkspace({
     scan,
     scanner.selectedDeviceId,
   ]);
+
+  const handleScan = useCallback(() => {
+    executeCapture();
+  }, [executeCapture]);
+
+  const handleNewCapture = useCallback(() => {
+    if (!hasPages) {
+      executeCapture({ type: "NEW" });
+      return;
+    }
+
+    const confirmed =
+      typeof window === "undefined" ||
+      typeof window.confirm !== "function" ||
+      window.confirm(
+        "Se encontraron paginas en el documento actual. Desea descartarlas e iniciar una nueva captura?",
+      ) !== false;
+
+    if (!confirmed) {
+      return;
+    }
+
+    clearPages();
+    setSelectedPageId(null);
+    setSelectedPageIds(new Set());
+    void clearScanner().then(() => {
+      executeCapture({ type: "NEW" });
+    });
+  }, [clearPages, clearScanner, executeCapture, hasPages]);
+
+  const handleReplaceCapture = useCallback(() => {
+    if (!selectedPage) {
+      return;
+    }
+
+    executeCapture({ type: "REPLACE", targetPageId: selectedPage.id });
+  }, [executeCapture, selectedPage]);
+
+  const handleInsertCapture = useCallback(
+    (type: Extract<CaptureOperation["type"], "INSERT_BEFORE" | "INSERT_AFTER">) => {
+      if (!selectedPage) {
+        return;
+      }
+
+      executeCapture({ type, targetPageId: selectedPage.id });
+    },
+    [executeCapture, selectedPage],
+  );
+
+  const handleAppendCapture = useCallback(() => {
+    executeCapture({ type: "APPEND" });
+  }, [executeCapture]);
 
   const handleRotateSelected = useCallback((degrees: 90 | 270 = 90) => {
     if (selectedPageIds.size > 0) {
@@ -1101,6 +1160,23 @@ export function DigitalizacionDocumentalWorkspace({
     "--page-organizer-columns": pageOrganizerColumns,
     "--page-organizer-visible-rows": pageOrganizerVisibleRows,
   } as CSSProperties;
+  const hasCaptureTarget = Boolean(selectedPage);
+  const insertCaptureItems = [
+    {
+      key: "insert-before",
+      label: "Insertar antes",
+      leftIcon: <InsertRowAboveOutlined />,
+      disabled: !hasCaptureTarget,
+      onSelect: () => handleInsertCapture("INSERT_BEFORE"),
+    },
+    {
+      key: "insert-after",
+      label: "Insertar despues",
+      leftIcon: <InsertRowBelowOutlined />,
+      disabled: !hasCaptureTarget,
+      onSelect: () => handleInsertCapture("INSERT_AFTER"),
+    },
+  ];
   const pageOrganizerDensityItems = pageOrganizerDensityModes.map((mode) => ({
     key: mode.value,
     label: mode.label,
@@ -1205,6 +1281,67 @@ export function DigitalizacionDocumentalWorkspace({
             aria-label="Escanear"
             tooltip="Escanear"
             onClick={handleScan}
+            disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
+          />
+          <AppButton
+            variant="ghost"
+            size="sm"
+            icon={<FileAddOutlined />}
+            aria-label="Nuevo"
+            tooltip="Iniciar un nuevo documento"
+            onClick={handleNewCapture}
+            disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
+          />
+          <AppButton
+            variant="ghost"
+            size="sm"
+            icon={<SwapOutlined />}
+            aria-label="Reemplazar"
+            tooltip="Reemplazar la pagina actual"
+            onClick={handleReplaceCapture}
+            disabled={
+              !scanner.selectedDeviceId ||
+              scanner.loading ||
+              Boolean(state.validationError) ||
+              !hasCaptureTarget
+            }
+          />
+          <AppDropdown
+            ariaLabel="Insertar paginas"
+            placement="bottomLeft"
+            items={insertCaptureItems}
+            disabled={
+              !scanner.selectedDeviceId ||
+              scanner.loading ||
+              Boolean(state.validationError) ||
+              !hasCaptureTarget
+            }
+            trigger={
+              <AppButton
+                variant="ghost"
+                size="sm"
+                leftIcon={<PlusOutlined />}
+                rightIcon={<DownOutlined />}
+                aria-label="Insertar"
+                tooltip="Insertar paginas antes o despues de la actual"
+                disabled={
+                  !scanner.selectedDeviceId ||
+                  scanner.loading ||
+                  Boolean(state.validationError) ||
+                  !hasCaptureTarget
+                }
+              >
+                Insertar
+              </AppButton>
+            }
+          />
+          <AppButton
+            variant="ghost"
+            size="sm"
+            icon={<InsertRowBelowOutlined />}
+            aria-label="Agregar"
+            tooltip="Agregar paginas al final del documento"
+            onClick={handleAppendCapture}
             disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
           />
         </div>

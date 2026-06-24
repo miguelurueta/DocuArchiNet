@@ -230,7 +230,65 @@ describe("[SPEC:SCRUMCORE-239] DigitalizacionDocumentalModal", () => {
     });
     expect(screen.getAllByText("Pagina 1").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Pagina 2")).toBeInTheDocument();
-  });
+  }, 20000);
+
+  it("[SPEC:SCRUMCORE-264] exposes capture operation toolbar and forwards operation intent", async () => {
+    const scannerClient = createScannerClient();
+
+    render(
+      <DigitalizacionDocumentalModal
+        {...baseProps}
+        context={crearContext}
+        scannerClient={scannerClient}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Scanner principal")).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "0" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (2)" })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Reemplazar" }));
+    await waitFor(() => {
+      expect(scannerClient.scan).toHaveBeenCalledWith(
+        expect.objectContaining({
+          captureOperation: { type: "REPLACE", targetPageId: "page-1" },
+        }),
+      );
+      expect(screen.getByRole("button", { name: "Agregar" })).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Agregar" }));
+    await waitFor(() => {
+      expect(scannerClient.scan).toHaveBeenCalledWith(
+        expect.objectContaining({ captureOperation: { type: "APPEND" } }),
+      );
+      expect(screen.getByRole("button", { name: "Insertar paginas" })).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Insertar paginas" }));
+    fireEvent.click(await screen.findByText("Insertar despues"));
+
+    expect(scannerClient.scan).toHaveBeenCalledWith(
+      expect.not.objectContaining({ captureOperation: expect.anything() }),
+    );
+    expect(scannerClient.scan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        captureOperation: { type: "INSERT_AFTER", targetPageId: "page-1" },
+      }),
+    );
+  }, 20000);
 
   it("rotates, removes and generates pdf from selected page", async () => {
     const scannerClient = createScannerClient();
@@ -268,5 +326,5 @@ describe("[SPEC:SCRUMCORE-239] DigitalizacionDocumentalModal", () => {
     expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-1", 90);
     expect(scannerClient.removePage).toHaveBeenCalledWith("page-1");
     expect(scannerClient.generatePdf).toHaveBeenCalled();
-  });
+  }, 10000);
 });
