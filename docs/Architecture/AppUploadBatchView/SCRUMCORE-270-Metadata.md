@@ -5,6 +5,9 @@
 - Jira: SCRUMCORE-270
 - Cambio OpenSpec: `scrumcore-270-crea-componente-appuploadbatchview`
 - Rama: `feature/SCRUMCORE-270`
+- Commit de implementacion: `e95120e`
+- Hash completo: `e95120e9f54fe70c0bc02c31033cdebf24d977e7`
+- Mensaje de commit: `feat(ui): add AppUploadBatchView`
 
 ## Archivos creados
 
@@ -35,7 +38,7 @@
 
 ## Estado
 
-Implementacion completada localmente. Queda pendiente preparar commit/push/PR cuando el usuario lo solicite.
+Implementacion completada localmente y commit de implementacion creado. Queda pendiente push/PR cuando el usuario lo solicite.
 
 ## Validaciones
 

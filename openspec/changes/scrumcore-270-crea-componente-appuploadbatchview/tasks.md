@@ -49,4 +49,4 @@
 - [x] 5.2 Ejecutar TypeScript/lint enfocado si aplica.
 - [x] 5.3 Registrar evidencia de comandos y resultados.
 - [x] 5.4 Confirmar no modificacion de `AppUpload`, backend ni endpoints.
-- [ ] 5.5 Preparar commit/push/PR cuando la implementacion este completa.
+- [x] 5.5 Preparar commit local de implementacion cuando la implementacion este completa.
