@@ -24,3 +24,4 @@ export * from "./AppTreeTable";
 export * from "./AppDocumentViewerOrchestrator";
 export * from "./AppDigitalizador";
 export * from "./AppProgressBatch";
+export * from "./AppUploadBatchView";

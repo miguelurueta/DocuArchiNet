@@ -196,7 +196,7 @@ export default function Login() {
           {/* ===========================
               Password
           =========================== */}
-          <div className={styles["input-contenedor"]}>
+          <div className={`${styles["input-contenedor"]} ${styles.passwordField}`}>
             <i className="fa-solid fa-lock"></i>
             <input
               type={showPassword ? "text" : "password"}
@@ -217,6 +217,7 @@ export default function Login() {
             <label className={styles.switch}>
               <input
                 type="checkbox"
+                checked={showPassword}
                 onChange={() => setShowPassword((v) => !v)}
               />
               <span className={styles.slider}></span>
@@ -229,6 +230,11 @@ export default function Login() {
           <div className={styles.aaa}>
             <button
               type="submit"
+              className={
+                idModulo !== 0 && usuario.trim() && password
+                  ? styles.loginReady
+                  : styles.loginLocked
+              }
               disabled={isLoadingEmpresa || isLoadingModulos || isLoading}
             >
               Iniciar Sesión

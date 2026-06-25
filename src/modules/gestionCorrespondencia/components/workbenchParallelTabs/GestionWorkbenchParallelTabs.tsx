@@ -40,9 +40,7 @@ export function GestionWorkbenchParallelTabs({
           className={styles.resizeHandle}
           aria-label="Redimensionar paneles"
           title="Arrastra para redimensionar"
-        >
-          <span className={styles.resizeGrip} aria-hidden="true" />
-        </PanelResizeHandle>
+        />
         <Panel
           id="documentos"
           defaultSize={50}
