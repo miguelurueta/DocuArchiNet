@@ -1,467 +1,189 @@
 ## Context
 
-SCRUMCORE-270: CREA-COMPONENTE-APPUPLOADBATCHVIEW
+`SCRUMCORE-270` implementa `AppUploadBatchView` como una vista base reusable para experiencias de carga de archivos. El componente debe ubicarse en la capa shared UI y ser agnostico al dominio. El consumidor conserva el estado canonico de archivos, metadata, validaciones y resultados; la vista renderiza ese estado y emite eventos.
 
-## Jira Details
+Referencias obligatorias:
 
-> # PROMPT ARQUITECTONICO - AppUploadBatchView
-> 
-> ## Rol esperado
-> 
-> Arquitecto frontend senior
-> 
-> React 19, TypeScript estricto, componentes UI enterprise, diseno de vistas reutilizables, accesibilidad, UX de carga de archivos, composicion por slots, integracion con design system.
-> 
-> ## Objetivo
-> 
-> Implementar `AppUploadBatchView` como una vista base reutilizable para experiencias de carga de archivos donde:
-> 
-> - la vista muestre una cola de archivos;
-> - la vista permita seleccionar un archivo activo;
-> - la vista muestre preview del archivo activo;
-> - la vista exponga acciones globales y por archivo;
-> - la vista muestre estados y errores por archivo;
-> - la vista permita inyectar metadata especializada por archivo;
-> - la vista no conozca ningun dominio concreto;
-> - la vista pueda ser usada por `AppUploadDocumental` y por futuras cargas de imagenes, anexos, evidencias, reemplazo PDF o importaciones.
-> 
-> Esta vista reemplaza la estructura visual util del HTML legacy de `FileUploadHandler.js`, pero sin copiar su tabla manual, IDs dinamicos, estilos inline, Bootstrap, jQuery ni Font Awesome embebido.
-> 
-> ## IMPORTANTE
-> 
-> Este ticket NO debe:
-> 
-> - implementar almacenamiento documental;
-> - llamar endpoints;
-> - cargar tipologias;
-> - validar TRD;
-> - conocer `nombreGabinete`, expediente, workflow o radicado;
-> - implementar upload por chunks;
-> - duplicar la seleccion base de `AppUpload`;
-> - crear una tabla HTML manual acoplada a IDs;
-> - usar jQuery;
-> - usar Bootstrap manual;
-> - usar estilos inline;
-> - usar callbacks por string;
-> - introducir `any` nuevo;
-> - modificar backend;
-> - cambiar el componente `AppUpload`.
-> 
-> Este ticket SI debe:
-> 
-> - crear una vista reusable y tipada;
-> - componer el componente existente `AppUpload`;
-> - mostrar lista compacta de archivos;
-> - mostrar preview del archivo seleccionado;
-> - soportar acciones por archivo;
-> - soportar acciones globales;
-> - exponer slots/render props para metadata por archivo;
-> - exponer slots/render props para preview custom;
-> - reflejar estados `queued`, `validating`, `uploading`, `storing`, `done`, `error`, `cancelled`;
-> - mostrar contador y resumen;
-> - cumplir accesibilidad basica;
-> - tener pruebas de comportamiento visual y composicion.
-> 
-> ## Dependencias
-> 
-> - React 19.
-> - TypeScript estricto.
-> - `AppUpload` existente.
-> - `AppButton` existente.
-> - `AppInputSelect` solo si se requiere en ejemplos, no dentro de la base.
-> - `AppLoadingState` si aplica.
-> - Ant Design solo cuando no exista wrapper shared equivalente.
-> - Iconos `lucide-react` si el proyecto ya lo usa o si esta instalado; si no, usar iconos del sistema UI existente.
-> 
-> ## Contexto legacy relevante
-> 
-> La interfaz legacy observada contiene:
-> 
-> - modal con titulo `Adjunta documento`;
-> - boton global `Eliminar`;
-> - boton global `Guardar`;
-> - input multiple con `accept=".PDF,.TIF"`;
-> - preview con `iframe` para PDF seleccionado;
-> - boton para cerrar preview;
-> - tabla con filas por archivo;
-> - columnas de nombre, tamano, acciones, tipologia y fecha;
-> - acciones por fila: eliminar, ver, guardar;
-> - fila activa resaltada;
-> - contador `N Archivo(s) Cargado(s)`.
-> 
-> La nueva vista debe conservar la ergonomia funcional, pero con una composicion moderna:
-> 
-> ```txt
-> Header compacto
-> Toolbar de acciones globales
-> Zona de seleccion AppUpload
-> Lista de archivos con metadata inyectable
-> Panel de preview
-> Footer con conteo, resumen y acciones
-> ```
-> 
-> ## Estado actual
-> 
-> No existe una vista reusable que permita:
-> 
-> - usar `AppUpload` como selector;
-> - representar una cola de archivos con acciones;
-> - inyectar campos de metadata por fila;
-> - mantener preview y fila activa;
-> - ser especializada por dominios distintos.
-> 
-> Sin esta vista, `AppUploadDocumental` tenderia a mezclar negocio documental con layout y seria dificil reutilizar el patron en otras cargas.
-> 
-> ## Ubicacion esperada
-> 
-> Componente:
-> 
-> ```txt
-> src/app/Components/UI/AppUploadBatchView/AppUploadBatchView.tsx
-> ```
-> 
-> Tipos:
-> 
-> ```txt
-> src/app/Components/UI/AppUploadBatchView/AppUploadBatchView.types.ts
-> ```
-> 
-> Estilos:
-> 
-> ```txt
-> src/app/Components/UI/AppUploadBatchView/AppUploadBatchView.module.css
-> ```
-> 
-> Tests:
-> 
-> ```txt
-> src/app/Components/UI/AppUploadBatchView/AppUploadBatchView.test.tsx
-> ```
-> 
-> Export:
-> 
-> ```txt
-> src/app/Components/UI/AppUploadBatchView/index.ts
-> ```
-> 
-> Barrel shared obligatorio:
-> 
-> ```txt
-> src/app/Components/UI/index.ts
-> ```
-> 
-> Documentacion:
-> 
-> ```txt
-> src/app/Components/UI/AppUploadBatchView/README.md
-> ```
-> 
-> ## Estructura de archivos obligatoria
-> 
-> Crear exactamente:
-> 
-> ```txt
-> src/app/Components/UI/AppUploadBatchView/
-> ├─ AppUploadBatchView.tsx
-> ├─ AppUploadBatchView.types.ts
-> ├─ AppUploadBatchView.module.css
-> ├─ AppUploadBatchView.test.tsx
-> ├─ README.md
-> └─ index.ts
-> ```
-> 
-> Actualizar:
-> 
-> ```txt
-> src/app/Components/UI/index.ts
-> ```
-> 
-> ## Referencias de arquitectura obligatorias
-> 
-> Leer y respetar:
-> 
-> ```txt
-> docs/Architecture/AppUploadDocumental/AppUploadDocumental-Requisitos.md
-> docs/Architecture/AppUploadDocumental/Legacy-Gap-Analysis.md
-> docs/Architecture/AppUploadDocumental/Matriz-Migracion-Legacy-AppUploadDocumental-AppProgressBatch.md
-> docs/Architecture/AppUploadDocumental/diagrams/
-> docs/Architecture/AppUploadDocumental/legacy/README.md
-> ```
-> 
-> Tambien revisar:
-> 
-> ```txt
-> src/app/Components/UI/AppUpload/AppUpload.tsx
-> src/app/Components/UI/AppButton/AppButton.tsx
-> src/app/Components/UI/AppModal/AppModal.tsx
-> src/app/Components/UI/AppInputSelect/AppInputSelect.tsx
-> src/app/Components/UI/index.ts
-> ```
-> 
-> ## Contrato TypeScript obligatorio
-> 
-> Definir contratos genericos sin dominio:
-> 
-> ```ts
-> export type AppUploadBatchFileState =
->   | "queued"
->   | "validating"
->   | "ready"
->   | "uploading"
->   | "completing"
->   | "storing"
->   | "done"
->   | "warning"
->   | "error"
->   | "cancelled"
->   | "removed";
-> 
-> export type AppUploadBatchFileItem<TMetadata = unknown> = {
->   uid: string;
->   file: File;
->   name: string;
->   size: number;
->   extension: string;
->   state: AppUploadBatchFileState;
->   progress?: number;
->   phaseLabel?: string;
->   error?: string;
->   warning?: string;
->   metadata?: TMetadata;
->   previewUrl?: string;
->   selected?: boolean;
->   disabled?: boolean;
-> };
-> 
-> export type AppUploadBatchSummary = {
->   total: number;
->   queued: number;
->   ready: number;
->   uploading: number;
->   done: number;
->   warning: number;
->   error: number;
->   cancelled: number;
-> };
-> 
-> export type AppUploadBatchViewProps<TMetadata = unknown> = {
->   title?: string;
->   description?: string;
->   files: ReadonlyArray<AppUploadBatchFileItem<TMetadata>>;
->   selectedUid?: string;
->   accept?: string;
->   maxSize?: number;
->   multiple?: boolean;
->   drag?: boolean;
->   disabled?: boolean;
->   loading?: boolean;
->   canSaveAll?: boolean;
->   canClearAll?: boolean;
->   canAddFiles?: boolean;
->   canPreview?: boolean;
->   canSaveOne?: boolean;
->   emptyMessage?: string;
->   summary?: AppUploadBatchSummary;
->   onFilesSelected?: (files: File[]) => void;
->   onSelectFile?: (uid: string) => void;
->   onPreviewFile?: (uid: string) => void;
->   onRemoveFile?: (uid: string) => void;
->   onSaveFile?: (uid: string) => void;
->   onSaveAll?: () => void;
->   onClearAll?: () => void;
->   onClosePreview?: () => void;
->   renderMetadata?: (args: {
->     item: AppUploadBatchFileItem<TMetadata>;
->     disabled: boolean;
->   }) => React.ReactNode;
->   renderPreview?: (args: {
->     item: AppUploadBatchFileItem<TMetadata>;
->     previewUrl?: string;
->     onClose: () => void;
->   }) => React.ReactNode;
->   renderFileName?: (item: AppUploadBatchFileItem<TMetadata>) => React.ReactNode;
->   renderFooterExtra?: (summary: AppUploadBatchSummary) => React.ReactNode;
-> };
-> ```
-> 
-> No usar `any`. Si un metadata generico no se conoce, usar `unknown`.
-> 
-> ## Regla de separacion obligatoria
-> 
-> `AppUploadBatchView` no debe validar reglas de negocio. Solo debe:
-> 
-> - renderizar;
-> - emitir eventos;
-> - representar estados;
-> - respetar props de habilitacion;
-> - permitir extension visual por slots.
-> 
-> La validacion real vive en el componente especializado o en servicios/utilidades externas.
-> 
-> ## Layout visual obligatorio
-> 
-> La vista debe comportarse como un workbench compacto:
-> 
-> ```txt
-> ┌─────────────────────────────────────────────────────────────┐
-> │ Header: titulo + contador/resumen                           │
-> ├─────────────────────────────────────────────────────────────┤
-> │ Toolbar: agregar | guardar todo | limpiar todo              │
-> ├───────────────────────────────┬─────────────────────────────┤
-> │ Lista de archivos             │ Preview archivo activo       │
-> │ nombre, tamano, estado        │ PDF/image/fallback           │
-> │ acciones, metadata slot       │                             │
-> ├───────────────────────────────┴─────────────────────────────┤
-> │ Footer: resumen, errores agregados, acciones secundarias     │
-> └─────────────────────────────────────────────────────────────┘
-> ```
-> 
-> Reglas:
-> 
-> - en desktop, lista y preview pueden ir en dos columnas;
-> - en mobile, preview debe apilarse debajo o encima de la lista;
-> - no usar cards anidadas;
-> - no usar secciones flotantes decorativas;
-> - mantener dimensiones estables para acciones e iconos;
-> - evitar que nombres largos rompan el layout;
-> - truncar nombre visualmente, pero conservar `title`/tooltip con nombre completo;
-> - mostrar tamano formateado;
-> - mostrar estado por badge o texto compacto;
-> - mostrar errores inline por archivo;
-> - mostrar fila activa.
-> 
-> ## Reglas de preview
-> 
-> Preview default:
-> 
-> - PDF: usar `iframe` o `object` con URL local segura;
-> - imagen: usar `img`;
-> - otros formatos: mostrar fallback con nombre, extension y tamano;
-> - revocar object URLs cuando ya no se usen;
-> - no persistir URLs temporales;
-> - no enviar archivos al backend solo para previsualizar;
-> - permitir `renderPreview` custom.
-> 
-> ## Acciones obligatorias
-> 
-> Acciones globales:
-> 
-> - agregar archivos;
-> - guardar todos;
-> - limpiar todos.
-> 
-> Acciones por archivo:
-> 
-> - seleccionar/ver;
-> - eliminar;
-> - guardar individual cuando `canSaveOne=true`.
-> 
-> Reglas:
-> 
-> - guardar individual no debe tener mas peso visual que guardar todo;
-> - botones por fila deben ser iconograficos con tooltip o `aria-label`;
-> - si el archivo esta `uploading`, `storing` o `done`, deshabilitar acciones destructivas segun politica del consumidor;
-> - si hay error, mantener visible la accion que el consumidor habilite para retry.
-> 
-> ## Accesibilidad obligatoria
-> 
-> - `aria-label` en botones iconograficos;
-> - foco visible;
-> - navegacion de lista por teclado cuando sea razonable;
-> - `aria-live="polite"` para cambios de resumen;
-> - errores asociados al archivo;
-> - contraste suficiente;
-> - no depender solo de color para estados.
-> 
-> ## Reglas de estado
-> 
-> La vista recibe el estado desde props. No debe ser source-of-truth de:
-> 
-> - lista canonica de archivos;
-> - metadata por archivo;
-> - progreso real;
-> - validaciones;
-> - resultados de backend.
-> 
-> Puede tener estado UI local minimo:
-> 
-> - preview URL derivada;
-> - mediciones/responsividad si son necesarias;
-> - foco o hover.
-> 
-> ## Pruebas unitarias obligatorias
-> 
-> - renderiza lista vacia;
-> - renderiza contador y resumen;
-> - renderiza archivos con nombre y tamano;
-> - marca archivo activo;
-> - llama `onFilesSelected` al seleccionar archivos;
-> - llama `onSelectFile`;
-> - llama `onPreviewFile`;
-> - llama `onRemoveFile`;
-> - llama `onSaveFile` solo si esta habilitado;
-> - llama `onSaveAll`;
-> - llama `onClearAll`;
-> - renderiza `renderMetadata`;
-> - renderiza `renderPreview`;
-> - muestra error por archivo;
-> - muestra estado de uploading/done/error/cancelled;
-> - no rompe con nombres largos.
-> 
-> ## Pruebas de integracion obligatorias
-> 
-> - integracion con `AppUpload`;
-> - lista + preview sincronizados por `selectedUid`;
-> - renderMetadata mantiene cambios externos del consumidor;
-> - acciones se deshabilitan durante `loading`;
-> - object URL se revoca al cambiar archivo o desmontar.
-> 
-> ## Criterios de aceptacion
-> 
-> - La vista permite representar la interfaz legacy modernizada sin negocio documental.
-> - La vista puede usarse con `AppUploadDocumental`.
-> - La vista puede usarse con otro dominio inyectando metadata distinta.
-> - No hay uso de `any`.
-> - No hay jQuery, Bootstrap manual ni HTML por strings.
-> - El layout es responsive y estable.
-> - Los tests cubren eventos principales, preview y slots.
-> 
-> ## Entrega esperada
-> 
-> - Diff de archivos shared creados.
-> - Captura o descripcion de estados visuales probados.
-> - Evidencia de tests ejecutados.
-> - Confirmacion explicita:
->   - `AppUpload` no fue reemplazado;
->   - backend no fue modificado;
->   - la vista no conoce almacenamiento documental;
->   - la vista queda lista para especializaciones.
-> 
-> ## Instruccion final
-> 
-> Implementar `AppUploadBatchView` como una vista enterprise reusable para cargas por lote, componiendo `AppUpload`, exponiendo slots de metadata y preview, soportando acciones globales y por archivo, estados visuales, errores, contador, accesibilidad y layout responsive, sin acoplarse a ningun dominio ni migrar dependencias legacy.
+- `docs/Architecture/AppUploadDocumental/AppUploadDocumental-Requisitos.md`
+- `docs/Architecture/AppUploadDocumental/Legacy-Gap-Analysis.md`
+- `docs/Architecture/AppUploadDocumental/Matriz-Migracion-Legacy-AppUploadDocumental-AppProgressBatch.md`
+- `docs/Architecture/AppUploadDocumental/PROMPT-IMPLEMENTACION-AppUploadBatchView.md`
+- `src/app/Components/UI/AppUpload/AppUpload.tsx`
+- `src/app/Components/UI/AppButton/AppButton.tsx`
+- `src/app/Components/UI/index.ts`
 
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+
+- Crear una vista shared reusable y tipada para cargas por lote.
+- Componer `AppUpload` para seleccion de archivos.
+- Mostrar cola compacta, fila activa, estados, errores, warning, progreso y resumen.
+- Mostrar preview activo con soporte default y slot custom.
+- Exponer slots de metadata por archivo y footer extra.
+- Exponer acciones globales y por archivo mediante callbacks.
+- Cumplir accesibilidad basica y layout responsive enterprise.
+- Probar eventos principales, slots y sincronizacion lista/preview.
 
 **Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+
+- No implementar almacenamiento documental.
+- No llamar endpoints ni `clienteApi`.
+- No cargar tipologias ni validar TRD.
+- No conocer `nombreGabinete`, expediente, workflow, radicado ni campos documentales.
+- No implementar upload por chunks.
+- No modificar `AppUpload`.
+- No integrar aun `AppUploadDocumental`.
+- No migrar jQuery, Bootstrap, WebForms, HTML por strings ni callbacks globales legacy.
 
 ## Decisions
 
-1. TBD
+1. **Componente controlado por props.** `files`, `selectedUid`, `summary`, estados y metadata pertenecen al consumidor. `AppUploadBatchView` solo mantiene estado UI derivado, principalmente object URLs de preview cuando sean necesarios.
+
+2. **`AppUpload` se usa solo como selector.** La lista operacional propia del batch se renderiza en `AppUploadBatchView` para permitir metadata por fila, acciones y preview activo. `AppUpload` no se reemplaza ni se cambia.
+
+3. **Metadata por slot.** `renderMetadata` recibe `{ item, disabled }` y puede renderizar selects, fechas o cualquier UI de consumidor. La vista no interpreta esos datos.
+
+4. **Preview desacoplado.** La vista provee preview default para PDF/imagenes/fallback. `renderPreview` puede reemplazarlo para visores especializados. Los object URLs se revocan al cambiar el archivo activo o desmontar.
+
+5. **Acciones declarativas.** `canSaveAll`, `canClearAll`, `canAddFiles`, `canPreview`, `canSaveOne` y `disabled/loading` gobiernan la disponibilidad visual. La vista no decide reglas de negocio.
+
+6. **Estados visuales sin semantica de negocio.** Los estados admitidos son genericos: `queued`, `validating`, `ready`, `uploading`, `completing`, `storing`, `done`, `warning`, `error`, `cancelled`, `removed`.
+
+7. **Diseño operativo.** La UI debe ser densa y legible: header/resumen, toolbar, selector, lista + preview, footer. No usar hero, cards anidadas ni decoracion de marketing.
+
+8. **Sin `any`.** El metadata generico usa `unknown` por defecto y genericos tipados por consumidor.
+
+## Component Contract
+
+Archivos esperados:
+
+```txt
+src/app/Components/UI/AppUploadBatchView/
+├─ AppUploadBatchView.tsx
+├─ AppUploadBatchView.types.ts
+├─ AppUploadBatchView.module.css
+├─ AppUploadBatchView.test.tsx
+├─ README.md
+└─ index.ts
+```
+
+Barrel:
+
+```txt
+src/app/Components/UI/index.ts
+```
+
+Tipos publicos minimos:
+
+```ts
+export type AppUploadBatchFileState =
+  | "queued"
+  | "validating"
+  | "ready"
+  | "uploading"
+  | "completing"
+  | "storing"
+  | "done"
+  | "warning"
+  | "error"
+  | "cancelled"
+  | "removed";
+
+export type AppUploadBatchFileItem<TMetadata = unknown> = {
+  uid: string;
+  file: File;
+  name: string;
+  size: number;
+  extension: string;
+  state: AppUploadBatchFileState;
+  progress?: number;
+  phaseLabel?: string;
+  error?: string;
+  warning?: string;
+  metadata?: TMetadata;
+  previewUrl?: string;
+  selected?: boolean;
+  disabled?: boolean;
+};
+
+export type AppUploadBatchSummary = {
+  total: number;
+  queued: number;
+  ready: number;
+  uploading: number;
+  done: number;
+  warning: number;
+  error: number;
+  cancelled: number;
+};
+```
+
+## Layout
+
+Desktop:
+
+```txt
+Header: titulo, descripcion, resumen compacto
+Toolbar: agregar, guardar todos, limpiar todos
+Selector: AppUpload
+Body: lista de archivos | preview activo
+Footer: resumen, errores agregados, slot extra
+```
+
+Mobile:
+
+```txt
+Header
+Toolbar
+Selector
+Preview activo
+Lista de archivos
+Footer
+```
+
+Reglas visuales:
+
+- No usar cards anidadas.
+- No usar secciones flotantes decorativas.
+- Mantener dimensiones estables para botones e iconos.
+- Truncar nombres largos con `title`.
+- Mostrar tamaño formateado.
+- Mostrar estados con texto o badge accesible.
+- Mostrar errores/warnings inline por archivo.
+- La fila activa debe ser visible y no depender solo de color.
+
+## Accessibility
+
+- Botones iconograficos con `aria-label`.
+- Resumen con `aria-live="polite"`.
+- Lista con roles apropiados (`list`/`listitem` o botones por fila).
+- Errores visibles y asociados al archivo.
+- Foco visible y navegacion por teclado razonable.
+- Preview con `title`/`aria-label` descriptivo.
 
 ## Risks / Trade-offs
 
-- TBD
+- **Duplicidad visual con lista interna de `AppUpload`:** se mitiga usando `AppUpload` como selector compacto y lista operacional propia.
+- **Object URLs filtrados:** se mitiga con cleanup en cambio de preview y unmount, cubierto por tests.
+- **Demasiada responsabilidad visual:** se evita manteniendo negocio fuera y usando slots para metadata/preview.
+- **Acciones destructivas durante carga:** la vista expone `disabled/loading/item.disabled`; el consumidor define la politica.
+- **Nombres largos y metadata compleja:** se requiere layout con grid/flex estable y truncamiento controlado.
 
 ## Migration Plan
 
-1. TBD
+1. Crear carpeta `AppUploadBatchView` con tipos publicos.
+2. Implementar shell visual con header, toolbar, selector `AppUpload`, lista, preview y footer.
+3. Implementar renderizado de estados, progreso, error/warning, fila activa y resumen.
+4. Implementar callbacks de acciones globales y por archivo.
+5. Implementar slots `renderMetadata`, `renderPreview`, `renderFileName`, `renderFooterExtra`.
+6. Implementar preview default PDF/imagen/fallback con cleanup de object URLs.
+7. Agregar README con objetivo, props, ejemplos y limites.
+8. Exportar desde barrel local y shared.
+9. Agregar tests unitarios/integracion.
+10. Validar OpenSpec, tests enfocados, TypeScript y lint si aplica.
 
 ## Open Questions
 
-- TBD
+- Si `AppUpload` no expone un modo selector sin lista suficiente, se debe minimizar su lista usando props existentes (`layout`, `size`, `renderItem`) sin modificar su contrato.
+- La decision de ubicar preview arriba o abajo en mobile puede ajustarse durante implementacion si las capturas muestran mejor ergonomia.
