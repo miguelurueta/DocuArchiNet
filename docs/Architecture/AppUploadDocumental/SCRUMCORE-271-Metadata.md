@@ -51,5 +51,5 @@ state: all_done
 ## Commit
 
 ```txt
-ee9f1f9 feat(SCRUMCORE-271): implement AppUploadDocumental
+c0fd13b feat(SCRUMCORE-271): implement AppUploadDocumental
 ```
