@@ -220,3 +220,8 @@ The system SHALL include enterprise documentation and focused verification.
 #### Scenario: Tests cover critical behavior
 - **WHEN** focused tests run
 - **THEN** they cover config/type loading, validation modes, per-file metadata, typology suggestion/manual override, date validation, individual store, batch store, mapper variants, callbacks, cancellation, retry, and stale-result protection.
+
+#### Scenario: Browser workflow is verified
+- **WHEN** publish readiness is evaluated
+- **THEN** browser, manual, or Playwright evidence covers selecting five files, previewing PDF, changing typology and date per file, removing one file, clearing all files, storing one file, storing all files, invalid extension, invalid size, and retry after simulated error
+- **OR** the unavailable browser environment is documented as an explicit verification debt.

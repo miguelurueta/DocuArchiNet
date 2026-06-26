@@ -6,6 +6,7 @@
 - [x] 1.4 Reescribir design con decisiones, arquitectura, riesgos y plan implementable.
 - [x] 1.5 Reescribir spec como requisitos verificables.
 - [x] 1.6 Validar OpenSpec estricto antes de implementar.
+- [ ] 1.7 Verificar disponibilidad de DTOs/backend externos indicados en el prompt y documentar evidencia o bloqueo si no son accesibles.
 
 ## 2. Scaffold
 
@@ -47,6 +48,7 @@
 - [ ] 5.5 Implementar/ubicar validacion de fecha `yyyy-MM-dd`, fecha real y no futura.
 - [ ] 5.6 Implementar helpers para construir metadata/payload final por archivo si aplica.
 - [ ] 5.7 Agregar tests de sugerencia, fecha y payload.
+- [ ] 5.8 Reutilizar `storageFile.utils` existente de SCRUMCORE-272 para extension/chunks cuando aplique, sin duplicar logica.
 
 ## 6. State Hook
 
@@ -79,6 +81,7 @@
 - [ ] 8.6 Mostrar guardar todos y eliminar todos.
 - [ ] 8.7 Garantizar layout responsive sin tabla DOM manual, hero, gradientes ni cards decorativas.
 - [ ] 8.8 Agregar `aria-label`/nombres accesibles en acciones.
+- [ ] 8.9 Usar `AppButton` o wrapper existente equivalente para acciones globales y por fila.
 
 ## 9. Storage Actions
 
@@ -103,6 +106,8 @@
 - [ ] 10.5 Verificar que no se usa `FormData` legacy para upload.
 - [ ] 10.6 Verificar que no se usa `fetch` directo ni `clienteApi` en componente/hooks.
 - [ ] 10.7 Verificar que no se loguean tokens, bytes ni payload sensible.
+- [ ] 10.8 Confirmar que backend no fue modificado y que endpoints de almacenamiento existentes no fueron cambiados.
+- [ ] 10.9 Verificar que extensiones, tamano maximo y tipologias no quedan hardcodeados como fuente final.
 
 ## 11. Tests
 
@@ -124,6 +129,9 @@
 - [ ] 11.16 Tests de retry.
 - [ ] 11.17 Tests de respuesta stale ignorada.
 - [ ] 11.18 Tests de ausencia de legacy/prohibidos en codigo productivo.
+- [ ] 11.19 Verificacion navegador/manual o Playwright: seleccionar 5 archivos, contador correcto y preview PDF.
+- [ ] 11.20 Verificacion navegador/manual o Playwright: cambiar tipologia/fecha por archivo, eliminar uno y limpiar todos.
+- [ ] 11.21 Verificacion navegador/manual o Playwright: guardar individual, guardar todos, invalido por extension/tamano y retry tras error simulado.
 
 ## 12. Documentation
 
@@ -146,3 +154,4 @@
 - [ ] 13.4 Ejecutar busqueda de prohibidos (`any`, `.ashx`, `XMLHttpRequest`, `FormData`, jQuery, direct `clienteApi` en UI).
 - [ ] 13.5 Revisar `git diff --stat`.
 - [ ] 13.6 Commit de refinamiento OpenSpec antes de implementacion/publish.
+- [ ] 13.7 Registrar evidencia de pruebas navegador/manuales o documentar deuda explicita si el entorno no permite ejecutarlas.
