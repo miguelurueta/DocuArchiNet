@@ -1,8 +1,8 @@
 import {
+  ArrowLeftOutlined,
   FileTextOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
   PrinterOutlined,
+  RightOutlined,
   SaveOutlined,
   ScanOutlined,
 } from "@ant-design/icons";
@@ -54,26 +54,18 @@ const CapDocument = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.radicacionToolbar} role="toolbar" aria-label="Acciones de radicacion">
+      <div className={styles.radicacionToolbar} role="toolbar" aria-label="Acciones de radicación">
         <AppButton icon={<PrinterOutlined />} onClick={() => void 0}>
-          Imprimir Rotulo
+          Imprimir Rótulo
         </AppButton>
         <AppButton icon={<SaveOutlined />} onClick={() => void 0}>
-          Guardar Rotulo
+          Guardar Rótulo
         </AppButton>
         <AppButton icon={<FileTextOutlined />} onClick={() => void 0}>
           Detalle Radicado
         </AppButton>
         <AppButton icon={<ScanOutlined />} onClick={() => void 0}>
           Scanner
-        </AppButton>
-        <AppButton
-          icon={treeVisible ? <MenuFoldOutlined /> : <MenuUnfoldOutlined />}
-          variant="secondary"
-          onClick={handleTreeToggle}
-          aria-label={treeVisible ? "Ocultar panel de documentos" : "Abrir panel de documentos"}
-        >
-          {treeVisible ? "Cerrar documentos" : "Documentos"}
         </AppButton>
       </div>
 
@@ -82,18 +74,33 @@ const CapDocument = () => {
           className={`${styles.treePanel} ${treeVisible ? styles.treePanelVisible : styles.treePanelHidden}`}
           aria-label="Panel de documentos"
         >
-          <AppTreeTable
-            rows={CAPTURA_ARBOL_FILAS}
-            activeRowId={activeTreeRowId}
-            onSelectRow={handleTreeRowSelect}
-            rowClickTooltip="Abrir"
-            rowSelection="single"
-            onSelectionChanged={(selectedRows) => {
-              if (selectedRows[0]) {
-                setActiveTreeRowId(selectedRows[0]);
-              }
-            }}
-          />
+          <div className={styles.treePanelHeader}>
+            <span>Documentos</span>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              className={styles.treePanelCloseButton}
+              icon={<ArrowLeftOutlined />}
+              onClick={handleTreeToggle}
+              aria-label="Ocultar panel de documentos"
+            >
+              Cerrar
+            </AppButton>
+          </div>
+          <div className={styles.treeSurface}>
+            <AppTreeTable
+              rows={CAPTURA_ARBOL_FILAS}
+              activeRowId={activeTreeRowId}
+              onSelectRow={handleTreeRowSelect}
+              rowClickTooltip="Abrir"
+              rowSelection="single"
+              onSelectionChanged={(selectedRows) => {
+                if (selectedRows[0]) {
+                  setActiveTreeRowId(selectedRows[0]);
+                }
+              }}
+            />
+          </div>
         </section>
 
         <section className={styles.digitalizadorShell}>
@@ -110,6 +117,19 @@ const CapDocument = () => {
             showLegacyFooter={false}
           />
         </section>
+
+        <AppButton
+          className={`${styles.treeOpenControl} ${
+            treeVisible ? styles.treeOpenControlHidden : styles.treeOpenControlVisible
+          }`}
+          variant="ghost"
+          size="sm"
+          icon={<RightOutlined />}
+          aria-label="Abrir panel de documentos"
+          onClick={handleTreeToggle}
+        >
+          Documentos
+        </AppButton>
       </div>
     </div>
   );
