@@ -15,12 +15,17 @@ import {
 import {
   DigitalizacionDocumentalWorkspace,
 } from "../../digitalizacion";
+import { useAppDigitalizadorScannerClient } from "../../../app/Components/UI/AppDigitalizador/hooks/useAppDigitalizadorScannerClient";
 
 import styles from "../style/capdocument.module.css";
 
 const { Sider } = Layout;
 
 const CapDocument = () => {
+  const dynamsoftLicenseFromEnv = import.meta.env.VITE_DYNAMSOFT_LICENSE_KEY;
+  const scannerClient = useAppDigitalizadorScannerClient({
+    licenciaDynamsoft: dynamsoftLicenseFromEnv,
+  });
   const documentMenuItems = [
     {
       key: "1",
@@ -83,6 +88,7 @@ const CapDocument = () => {
       <Layout className={styles.mainLayout}>
         <div className={styles.centerPanel}>
           <DigitalizacionDocumentalWorkspace
+            scannerClient={scannerClient}
             context={digitalizadorContext}
             onCompleted={handleDigitalizadorCompleted}
             onError={handleDigitalizadorError}
