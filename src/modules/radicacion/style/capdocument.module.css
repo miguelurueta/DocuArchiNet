@@ -16,7 +16,8 @@
 }
 
 .workspaceHost {
-  display: block;
+  display: grid;
+  grid-template-columns: 1fr;
   flex: 1 1 auto;
   min-height: 0;
   min-width: 0;
@@ -30,23 +31,89 @@
   inset-inline-start: 0;
   inline-size: min(420px, 92vw);
   max-inline-size: 100%;
-  block-size: 100%;
-  z-index: 20;
-  transition: transform 0.22s ease;
   background: #ffffff;
+  border-right: 1px solid #e2e8f0;
   box-shadow: 18px 0 36px rgba(15, 23, 42, 0.18);
-  visibility: hidden;
-  pointer-events: none;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  transition:
+    transform 0.22s ease,
+    visibility 0s linear 0.22s;
 }
 
 .treePanelVisible {
+  transform: translateX(0);
   visibility: visible;
   pointer-events: auto;
-  transform: translateX(0);
 }
 
 .treePanelHidden {
-  transform: translateX(-100%);
+  transform: translateX(-105%);
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    transform 0.22s ease,
+    visibility 0s linear 0.22s;
+}
+
+.treePanelHeader {
+  align-items: center;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #e3e8f0;
+  display: inline-flex;
+  font-size: 0.9rem;
+  font-weight: 700;
+  gap: 0.5rem;
+  justify-content: space-between;
+  min-height: 2.5rem;
+  padding: 0.45rem 0.55rem;
+}
+
+.treePanelHeader > span {
+  color: #1f2937;
+}
+
+.treePanelHeader :global(.ant-btn) {
+  min-width: auto;
+}
+
+.treePanelCloseButton {
+  width: auto;
+}
+
+.treeSurface {
+  background: #ffffff;
+  border-radius: 8px;
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+  block-size: 100%;
+  overflow: hidden;
+}
+
+.treeOpenControl {
+  left: 0;
+  position: absolute;
+  top: 50%;
+  transform: translate(-100%, -50%);
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
+  z-index: 21;
+}
+
+.treeOpenControlVisible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(0, -50%);
+}
+
+.treeOpenControlHidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-100%, -50%);
 }
 
 .digitalizadorShell {
