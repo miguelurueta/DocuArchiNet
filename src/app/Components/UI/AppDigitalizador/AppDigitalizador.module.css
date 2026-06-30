@@ -57,3 +57,10 @@
   min-block-size: 0;
   flex: 1;
 }
+
+.embeddedWorkspaceRoot {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
+  block-size: 100%;
+}
