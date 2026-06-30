@@ -927,6 +927,9 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   ): ScanPage {
     const thumbnailUrl = normalizeImageUrl(dwt.GetImageURL?.(index, 160, 220));
     const imageUrl = normalizeImageUrl(dwt.GetImageURL?.(index, -1, -1));
+    const fallbackImageUrl = normalizeImageUrl(dwt.GetImageURL?.(index));
+    const finalThumbnailUrl = thumbnailUrl ?? fallbackImageUrl;
+    const finalImageUrl = imageUrl ?? fallbackImageUrl;
     const width = readImageDimension(dwt.GetImageWidth?.bind(dwt), index);
     const height = readImageDimension(dwt.GetImageHeight?.bind(dwt), index);
     const orientation = getPageOrientation(width, height);
@@ -940,8 +943,8 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     const page: ScanPage = {
       id: stablePageId,
       index,
-      ...(thumbnailUrl ? { thumbnailUrl } : {}),
-      ...(imageUrl ? { imageUrl } : {}),
+      ...(finalThumbnailUrl ? { thumbnailUrl: finalThumbnailUrl } : {}),
+      ...(finalImageUrl ? { imageUrl: finalImageUrl } : {}),
       ...(width ? { width } : {}),
       ...(height ? { height } : {}),
       orientation,
