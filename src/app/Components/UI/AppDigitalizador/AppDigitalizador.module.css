@@ -1,13 +1,9 @@
 .root {
   display: flex;
   flex-direction: column;
-  block-size: 100%;
-  min-block-size: 0;
+  min-block-size: 100%;
   inline-size: 100%;
   gap: 12px;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
 }
 
 .header {
@@ -58,9 +54,6 @@
 }
 
 .workspaceFrame {
-  block-size: 100%;
   min-block-size: 0;
   flex: 1;
-  min-width: 0;
-  overflow: hidden;
 }

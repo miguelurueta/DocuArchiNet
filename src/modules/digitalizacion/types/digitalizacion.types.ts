@@ -84,9 +84,6 @@ export type DigitalizacionDocumentalWorkspaceProps = {
   onCancel?: () => void;
   onCompleted: (result: DigitalizacionResult) => void;
   onError?: (error: DigitalizacionDocumentalError) => void;
-  showLegacyFooter?: boolean;
-  showSummary?: boolean;
-  showStateBadge?: boolean;
 };
 
 export type DigitalizacionScannerState = {
