@@ -426,6 +426,10 @@ export function DigitalizacionDocumentalWorkspace({
       ),
     [availablePageIds, selectedPageIdsState],
   );
+  const selectedPageIdsInOrder = useMemo(
+    () => scanner.pages.map((page) => page.id).filter((pageId) => selectedPageIds.has(pageId)),
+    [scanner.pages, selectedPageIds],
+  );
 
   useEffect(() => {
     if (active) {
@@ -545,9 +549,7 @@ export function DigitalizacionDocumentalWorkspace({
 
   const handleRotateSelected = useCallback((degrees: 90 | 270 = 90) => {
     if (selectedPageIds.size > 0) {
-      const pageIds = scanner.pages
-        .map((page) => page.id)
-        .filter((pageId) => selectedPageIds.has(pageId));
+      const pageIds = selectedPageIdsInOrder;
 
       pageIds.forEach((pageId) => {
         void rotatePage(pageId, degrees);
@@ -558,13 +560,11 @@ export function DigitalizacionDocumentalWorkspace({
     const pageId = selectedPageId ?? scanner.pages[0]?.id;
     if (!pageId) return;
     void rotatePage(pageId, degrees);
-  }, [rotatePage, scanner.pages, selectedPageId, selectedPageIds]);
+  }, [rotatePage, scanner.pages, selectedPageId, selectedPageIds, selectedPageIdsInOrder]);
 
   const handleDeskewSelected = useCallback(() => {
     if (selectedPageIds.size > 0) {
-      const pageIds = scanner.pages
-        .map((page) => page.id)
-        .filter((pageId) => selectedPageIds.has(pageId));
+      const pageIds = selectedPageIdsInOrder;
 
       void (async () => {
         for (const pageId of pageIds) {
@@ -577,13 +577,11 @@ export function DigitalizacionDocumentalWorkspace({
     const pageId = selectedPageId ?? scanner.pages[0]?.id;
     if (!pageId) return;
     void deskewPage(pageId);
-  }, [deskewPage, scanner.pages, selectedPageId, selectedPageIds]);
+  }, [deskewPage, scanner.pages, selectedPageId, selectedPageIds, selectedPageIdsInOrder]);
 
   const handleRemoveSelected = useCallback(() => {
     if (selectedPageIds.size > 0) {
-      const pageIds = scanner.pages
-        .map((page) => page.id)
-        .filter((pageId) => selectedPageIds.has(pageId));
+      const pageIds = selectedPageIdsInOrder;
 
       if (pageIds.length === 0) {
         return;
@@ -602,9 +600,11 @@ export function DigitalizacionDocumentalWorkspace({
         return;
       }
 
-      pageIds.forEach((pageId) => {
-        void removePage(pageId);
-      });
+      void (async () => {
+        for (const pageId of pageIds) {
+          await removePage(pageId);
+        }
+      })();
       setSelectedPageIds(new Set());
       return;
     }
@@ -612,7 +612,7 @@ export function DigitalizacionDocumentalWorkspace({
     const pageId = selectedPageId ?? scanner.pages[0]?.id;
     if (!pageId) return;
     void removePage(pageId);
-  }, [removePage, scanner.pages, selectedPageId, selectedPageIds]);
+  }, [removePage, scanner.pages, selectedPageId, selectedPageIds, selectedPageIdsInOrder]);
 
   const handleDuplicateSelected = useCallback(() => {
     const sourcePage = selectedPage;
@@ -729,31 +729,25 @@ export function DigitalizacionDocumentalWorkspace({
   }, []);
 
   const handleRotateOrganizerSelection = useCallback((degrees: 90 | 270) => {
-    const pageIds = scanner.pages
-      .map((page) => page.id)
-      .filter((pageId) => selectedPageIds.has(pageId));
+    const pageIds = selectedPageIdsInOrder;
 
     pageIds.forEach((pageId) => {
       void rotatePage(pageId, degrees);
     });
-  }, [rotatePage, scanner.pages, selectedPageIds]);
+  }, [rotatePage, selectedPageIdsInOrder]);
 
   const handleDeskewOrganizerSelection = useCallback(() => {
-    const pageIds = scanner.pages
-      .map((page) => page.id)
-      .filter((pageId) => selectedPageIds.has(pageId));
+    const pageIds = selectedPageIdsInOrder;
 
     void (async () => {
       for (const pageId of pageIds) {
         await deskewPage(pageId);
       }
     })();
-  }, [deskewPage, scanner.pages, selectedPageIds]);
+  }, [deskewPage, selectedPageIdsInOrder]);
 
   const handleRemoveOrganizerSelection = useCallback(() => {
-    const pageIds = scanner.pages
-      .map((page) => page.id)
-      .filter((pageId) => selectedPageIds.has(pageId));
+    const pageIds = selectedPageIdsInOrder;
 
     if (pageIds.length === 0) {
       return;
@@ -772,11 +766,13 @@ export function DigitalizacionDocumentalWorkspace({
       return;
     }
 
-    pageIds.forEach((pageId) => {
-      void removePage(pageId);
-    });
+    void (async () => {
+      for (const pageId of pageIds) {
+        await removePage(pageId);
+      }
+    })();
     setSelectedPageIds(new Set());
-  }, [removePage, scanner.pages, selectedPageIds]);
+  }, [removePage, selectedPageIdsInOrder]);
 
   const handleSelectAllPages = useCallback(() => {
     setSelectedPageIds(new Set(scanner.pages.map((page) => page.id)));
@@ -1187,33 +1183,40 @@ export function DigitalizacionDocumentalWorkspace({
     ? "Descartar documento actual e iniciar uno nuevo"
     : "Iniciar captura documental";
   const handlePrimaryCapture = hasPages ? handleNewCapture : handleScan;
-  const insertCaptureItems = [
-    {
-      key: "insert-before",
-      label: "Insertar antes",
-      leftIcon: <InsertRowAboveOutlined />,
-      disabled: !hasCaptureTarget,
-      onSelect: () => handleInsertCapture("INSERT_BEFORE"),
-    },
-    {
-      key: "insert-after",
-      label: "Insertar despues",
-      leftIcon: <InsertRowBelowOutlined />,
-      disabled: !hasCaptureTarget,
-      onSelect: () => handleInsertCapture("INSERT_AFTER"),
-    },
-  ];
-  const pageOrganizerDensityItems = pageOrganizerDensityModes.map((mode) => ({
-    key: mode.value,
-    label: mode.label,
-    onSelect: () => {
-      setPageOrganizerDensity(mode.value);
-      setAreaSelectionEnabled(false);
-      setCropDraft(null);
-      setCropSelection(null);
-      setShowPageOrganizer(true);
-    },
-  }));
+  const insertCaptureItems = useMemo(
+    () => [
+      {
+        key: "insert-before",
+        label: "Insertar antes",
+        leftIcon: <InsertRowAboveOutlined />,
+        disabled: !hasCaptureTarget,
+        onSelect: () => handleInsertCapture("INSERT_BEFORE"),
+      },
+      {
+        key: "insert-after",
+        label: "Insertar despues",
+        leftIcon: <InsertRowBelowOutlined />,
+        disabled: !hasCaptureTarget,
+        onSelect: () => handleInsertCapture("INSERT_AFTER"),
+      },
+    ],
+    [handleInsertCapture, hasCaptureTarget],
+  );
+  const pageOrganizerDensityItems = useMemo(
+    () =>
+      pageOrganizerDensityModes.map((mode) => ({
+        key: mode.value,
+        label: mode.label,
+        onSelect: () => {
+          setPageOrganizerDensity(mode.value);
+          setAreaSelectionEnabled(false);
+          setCropDraft(null);
+          setCropSelection(null);
+          setShowPageOrganizer(true);
+        },
+      })),
+    [],
+  );
   const hasOrganizerSelection = scanner.pages.some((page) => selectedPageIds.has(page.id));
   const previewPanelClassName = [
     styles.panel,

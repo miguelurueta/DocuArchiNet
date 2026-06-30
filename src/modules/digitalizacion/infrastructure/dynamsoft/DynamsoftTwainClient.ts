@@ -492,7 +492,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
           });
         }
       } catch (error) {
-        console.error("SELECT_SOURCE_ERROR", error);
+        console.error(error);
         throw error;
       }
 
@@ -506,7 +506,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     try {
       selectSourceResult = dwt.SelectSourceByIndex(deviceIndex);
     } catch (error) {
-      console.error("SELECT_SOURCE_ERROR", error);
+      console.error(error);
       throw error;
     }
 
@@ -583,7 +583,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         progress: 35,
         cancellable: false,
       });
-      this.pages = this.buildPagesFromBuffer(dwt, nextCount);
+      this.pages = this.buildPagesFromBuffer(dwt, nextCount, previousPages);
       if (options.removeBlankPages) {
         logBlankPageDiagnostic("BLANK_PAGE_FINAL_STATE", {
           stage: "buildPagesFromBuffer",
@@ -606,10 +606,22 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         blankRemovalResult = await this.removeDetectedBlankPages(dwt);
       }
       await this.applyAutomaticProcessing(dwt, options.automaticProcessing, options.onProgress);
+      const scannedPages = this.pages;
+      const shouldFilterPreviousPagesForOperation =
+        options.captureOperation &&
+        options.captureOperation.type !== "NEW" &&
+        options.removeBlankPages;
+      const previousPagesForOperation = shouldFilterPreviousPagesForOperation
+        ? (() => {
+            const scannedPageIds = new Set(scannedPages.map((scannedPage) => scannedPage.id));
+            return previousPages.filter((page) => scannedPageIds.has(page.id));
+          })()
+        : previousPages;
+
       this.pages = this.resolveCaptureOperationPages({
         operation: options.captureOperation,
-        previousPages,
-        scannedPages: this.pages,
+        previousPages: previousPagesForOperation,
+        scannedPages,
       });
       this.reportScanProgress(options.onProgress, {
         stage: "preparingDocument",
@@ -898,27 +910,35 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     }
   }
 
-  private buildPagesFromBuffer(dwt: DynamsoftWebTwainObject, count: number) {
+  private buildPagesFromBuffer(
+    dwt: DynamsoftWebTwainObject,
+    count: number,
+    previousPages: ScanPage[] = this.pages,
+  ) {
     return Array.from({ length: Math.max(count, 0) }, (_item, index) =>
-      this.buildPageFromBuffer(dwt, index),
+      this.buildPageFromBuffer(dwt, index, previousPages[index]?.id),
     );
   }
 
-  private buildPageFromBuffer(dwt: DynamsoftWebTwainObject, index: number): ScanPage {
+  private buildPageFromBuffer(
+    dwt: DynamsoftWebTwainObject,
+    index: number,
+    pageId?: string,
+  ): ScanPage {
     const thumbnailUrl = normalizeImageUrl(dwt.GetImageURL?.(index, 160, 220));
     const imageUrl = normalizeImageUrl(dwt.GetImageURL?.(index, -1, -1));
     const width = readImageDimension(dwt.GetImageWidth?.bind(dwt), index);
     const height = readImageDimension(dwt.GetImageHeight?.bind(dwt), index);
     const orientation = getPageOrientation(width, height);
-    const pageId = `scan-page-${index + 1}`;
-    const originalDimensions = this.originalPageDimensionsById.get(pageId) ?? {
+    const stablePageId = pageId ?? `scan-page-${index + 1}`;
+    const originalDimensions = this.originalPageDimensionsById.get(stablePageId) ?? {
       width,
       height,
     };
-    this.originalPageDimensionsById.set(pageId, originalDimensions);
-    const rotationDegrees = this.pageRotationById.get(pageId) ?? 0;
+    this.originalPageDimensionsById.set(stablePageId, originalDimensions);
+    const rotationDegrees = this.pageRotationById.get(stablePageId) ?? 0;
     const page: ScanPage = {
-      id: pageId,
+      id: stablePageId,
       index,
       ...(thumbnailUrl ? { thumbnailUrl } : {}),
       ...(imageUrl ? { imageUrl } : {}),
