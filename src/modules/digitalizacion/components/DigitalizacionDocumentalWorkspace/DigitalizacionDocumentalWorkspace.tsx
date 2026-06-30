@@ -9,6 +9,7 @@ import {
   type MouseEvent,
   type PointerEvent,
 } from "react";
+import { createPortal } from "react-dom";
 import {
   BorderOutlined,
   CheckSquareOutlined,
@@ -162,32 +163,6 @@ const colorOptions = [
 
 const resolutionOptions = [200, 300, 400, 600] as const;
 
-const readableMode = (modo?: string) => (modo === "adjuntar" ? "adjuntar" : "crear");
-
-const getVisualStateLabel = ({
-  contextInvalid,
-  scannerStatus,
-  deviceCount,
-  pageCount,
-  pdfReady,
-}: {
-  contextInvalid: boolean;
-  scannerStatus: string;
-  deviceCount: number;
-  pageCount: number;
-  pdfReady: boolean;
-}) => {
-  if (contextInvalid) return "contextInvalid";
-  if (scannerStatus === "initializing") return "initializingScanner";
-  if (scannerStatus === "error") return "error";
-  if (scannerStatus === "scanning") return "scanning";
-  if (scannerStatus === "generatingPdf") return "generatingPdf";
-  if (deviceCount === 0) return "noScanner";
-  if (pdfReady) return "success";
-  if (pageCount > 0) return "pagesCaptured";
-  return "readyEmpty";
-};
-
 const getPageLabel = (page: ScanPage) => `Pagina ${page.index + 1}`;
 
 const getPageOrientation = (page: ScanPage) => {
@@ -239,9 +214,6 @@ const getOverlayProgressLabel = (progress: ScanProgressSnapshot | null) => {
 
   return "Procesando documentos";
 };
-
-const getFooterProgressLabel = (progress: ScanProgressSnapshot | null) =>
-  progress ? getOverlayProgressLabel(progress) : null;
 
 const getScannerLoadingProgress = ({
   loading,
@@ -341,6 +313,7 @@ export function DigitalizacionDocumentalWorkspace({
   onCancel,
   onCompleted,
   onError,
+  toolbarHost,
 }: DigitalizacionDocumentalWorkspaceProps) {
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [captureMode, setCaptureMode] = useState<CaptureMode>("docuarchi");
@@ -377,6 +350,11 @@ export function DigitalizacionDocumentalWorkspace({
   const previewViewportRef = useRef<HTMLDivElement | null>(null);
   const previewPageSurfaceRef = useRef<HTMLDivElement | null>(null);
   const previewImageRef = useRef<HTMLImageElement | null>(null);
+  const [toolbarHostReady, setToolbarHostReady] = useState(false);
+
+  useEffect(() => {
+    setToolbarHostReady(Boolean(toolbarHost?.current));
+  }, [toolbarHost]);
   const pageOrganizerGridRef = useRef<HTMLDivElement | null>(null);
   const thumbnailButtonRefs = useRef(new Map<string, HTMLButtonElement>());
   const handleInvalidContext = useCallback(
@@ -431,22 +409,6 @@ export function DigitalizacionDocumentalWorkspace({
   const canGeneratePdf = Boolean(!state.validationError && hasPages && !scanner.loading);
   const metadataReady = Boolean(!state.metadata.required || state.metadata.trd);
   const canConfirm = Boolean(canSubmit && scanner.pdf && metadataReady && !operation.loading);
-  const visualState = getVisualStateLabel({
-    contextInvalid: Boolean(state.validationError),
-    scannerStatus: operation.loading ? operation.status : scanner.status,
-    deviceCount: scanner.devices.length,
-    pageCount: scanner.pages.length,
-    pdfReady: Boolean(scanner.pdf),
-  });
-  const submitDisabledReason =
-    state.validationError?.message ??
-    scanner.error?.message ??
-    operation.error?.message ??
-    (operation.loading
-      ? `Operacion ${operation.status}`
-      : scanner.pdf
-        ? "PDF listo"
-        : "Pendiente captura PDF");
   const selectedPage =
     scanner.pages.find((page) => page.id === selectedPageId) ?? scanner.pages[0] ?? null;
   const selectedPageVisualIndex = selectedPage
@@ -1181,21 +1143,6 @@ export function DigitalizacionDocumentalWorkspace({
       .catch(() => undefined);
   }, [activeContext, operation, scanner.pdf, state.metadata.trd]);
 
-  const summaryItems = useMemo(
-    () => [
-      ["Gabinete", activeContext?.nombreGabinete || "Sin gabinete"],
-      ["Radicado", activeContext?.radicado || "No informado"],
-      [
-        "Documento destino",
-        activeContext?.idDocumentoDestino
-          ? String(activeContext.idDocumentoDestino)
-          : activeContext?.modo === "adjuntar"
-            ? "Requerido"
-            : "Nuevo documento",
-      ],
-    ],
-    [activeContext],
-  );
   const selectedCropSelection =
     selectedPage && cropSelection?.pageId === selectedPage.id ? cropSelection.selection : null;
   const activeCropSelection =
@@ -1301,7 +1248,84 @@ export function DigitalizacionDocumentalWorkspace({
       pageCount: scanner.pages.length,
     });
   const activeProgressLabel = getOverlayProgressLabel(activeProgress);
-  const footerProgressLabel = getFooterProgressLabel(activeProgress);
+  const toolbarElement = (
+    <div className={styles.toolbar} role="toolbar" aria-label="Herramientas de digitalizacion">
+      <div className={styles.toolbarGroup} data-priority="primary" role="group" aria-label="Captura">
+        <AppButton
+          variant="secondary"
+          size="sm"
+          icon={hasPages ? <FileAddOutlined /> : <ScanOutlined />}
+          aria-label={primaryCaptureLabel}
+          tooltip={primaryCaptureTooltip}
+          onClick={handlePrimaryCapture}
+          disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
+        />
+        <AppButton
+          variant="ghost"
+          size="sm"
+          icon={<SwapOutlined />}
+          aria-label="Reemplazar"
+          tooltip="Reemplazar la pagina actual"
+          onClick={handleReplaceCapture}
+          disabled={
+            !scanner.selectedDeviceId ||
+            scanner.loading ||
+            Boolean(state.validationError) ||
+            !hasCaptureTarget
+          }
+        />
+        <AppDropdown
+          ariaLabel="Insertar paginas"
+          placement="bottomLeft"
+          items={insertCaptureItems}
+          disabled={
+            !scanner.selectedDeviceId ||
+            scanner.loading ||
+            Boolean(state.validationError) ||
+            !hasCaptureTarget
+          }
+          trigger={
+            <AppButton
+              variant="ghost"
+              size="sm"
+              leftIcon={<PlusOutlined />}
+              rightIcon={<DownOutlined />}
+              aria-label="Insertar"
+              tooltip="Insertar paginas antes o despues de la actual"
+              disabled={
+                !scanner.selectedDeviceId ||
+                scanner.loading ||
+                Boolean(state.validationError) ||
+                !hasCaptureTarget
+              }
+            >
+              Insertar
+            </AppButton>
+          }
+        />
+        <AppButton
+          variant="ghost"
+          size="sm"
+          icon={<InsertRowBelowOutlined />}
+          aria-label="Agregar"
+          tooltip="Agregar paginas al final del documento"
+          onClick={handleAppendCapture}
+          disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
+        />
+      </div>
+
+      <div className={styles.toolbarGroup} data-priority="output" role="group" aria-label="Salida">
+        <AppButton
+          size="sm"
+          icon={<FileTextOutlined />}
+          aria-label="Generar PDF"
+          tooltip="Generar PDF"
+          onClick={handleGeneratePdf}
+          disabled={!canGeneratePdf}
+        />
+      </div>
+    </div>
+  );
 
   if (!active) {
     return null;
@@ -1318,22 +1342,7 @@ export function DigitalizacionDocumentalWorkspace({
         className={styles.dynamsoftContainer}
         aria-hidden="true"
       />
-      <header className={styles.header}>
-        <div className={styles.titleLine}>
-          <span className={styles.modeBadge}>{readableMode(activeContext?.modo)}</span>
-          <span className={styles.stateBadge} data-state={visualState}>
-            {visualState}
-          </span>
-        </div>
-        <div className={styles.summary}>
-          {summaryItems.map(([label, value]) => (
-            <div className={styles.summaryItem} key={label}>
-              <span className={styles.summaryLabel}>{label}</span>
-              <span className={styles.summaryValue}>{value}</span>
-            </div>
-          ))}
-        </div>
-      </header>
+      <header className={styles.header} />
 
       {state.validationError ? (
         <div className={styles.error} role="alert">
@@ -1351,83 +1360,9 @@ export function DigitalizacionDocumentalWorkspace({
         </div>
       ) : null}
 
-      <div className={styles.toolbar} role="toolbar" aria-label="Herramientas de digitalizacion">
-        <div className={styles.toolbarGroup} data-priority="primary" role="group" aria-label="Captura">
-          <AppButton
-            variant="secondary"
-            size="sm"
-            icon={hasPages ? <FileAddOutlined /> : <ScanOutlined />}
-            aria-label={primaryCaptureLabel}
-            tooltip={primaryCaptureTooltip}
-            onClick={handlePrimaryCapture}
-            disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
-          />
-          <AppButton
-            variant="ghost"
-            size="sm"
-            icon={<SwapOutlined />}
-            aria-label="Reemplazar"
-            tooltip="Reemplazar la pagina actual"
-            onClick={handleReplaceCapture}
-            disabled={
-              !scanner.selectedDeviceId ||
-              scanner.loading ||
-              Boolean(state.validationError) ||
-              !hasCaptureTarget
-            }
-          />
-          <AppDropdown
-            ariaLabel="Insertar paginas"
-            placement="bottomLeft"
-            items={insertCaptureItems}
-            disabled={
-              !scanner.selectedDeviceId ||
-              scanner.loading ||
-              Boolean(state.validationError) ||
-              !hasCaptureTarget
-            }
-            trigger={
-              <AppButton
-                variant="ghost"
-                size="sm"
-                leftIcon={<PlusOutlined />}
-                rightIcon={<DownOutlined />}
-                aria-label="Insertar"
-                tooltip="Insertar paginas antes o despues de la actual"
-                disabled={
-                  !scanner.selectedDeviceId ||
-                  scanner.loading ||
-                  Boolean(state.validationError) ||
-                  !hasCaptureTarget
-                }
-              >
-                Insertar
-              </AppButton>
-            }
-          />
-          <AppButton
-            variant="ghost"
-            size="sm"
-            icon={<InsertRowBelowOutlined />}
-            aria-label="Agregar"
-            tooltip="Agregar paginas al final del documento"
-            onClick={handleAppendCapture}
-            disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
-          />
-        </div>
-
-
-        <div className={styles.toolbarGroup} data-priority="output" role="group" aria-label="Salida">
-          <AppButton
-            size="sm"
-            icon={<FileTextOutlined />}
-            aria-label="Generar PDF"
-            tooltip="Generar PDF"
-            onClick={handleGeneratePdf}
-            disabled={!canGeneratePdf}
-          />
-        </div>
-      </div>
+      {toolbarHostReady && toolbarHost?.current
+        ? createPortal(toolbarElement, toolbarHost.current)
+        : toolbarElement}
 
       <main
         className={styles.main}
@@ -2085,21 +2020,6 @@ export function DigitalizacionDocumentalWorkspace({
         </AppCollapseRail>
       </main>
 
-      <footer className={styles.workbenchFooter}>
-        <span>{submitDisabledReason}</span>
-        <div className={styles.footerActions}>
-          <span>
-            {footerProgressLabel ??
-              (operation.loading ? `Operacion ${operation.status}` : "Listo para operar")}
-          </span>
-          <AppButton variant="ghost" onClick={handleCancel} disabled={operation.loading}>
-            Cancelar
-          </AppButton>
-          <AppButton onClick={handleSubmit} disabled={!canConfirm} loading={operation.loading}>
-            {primaryLabel}
-          </AppButton>
-        </div>
-      </footer>
     </section>
   );
 }

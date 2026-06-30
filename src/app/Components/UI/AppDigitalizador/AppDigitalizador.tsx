@@ -1,8 +1,10 @@
 import { useMemo } from "react";
-import { digitalizacionApiClient } from "../../../../modules/digitalizacion";
+import {
+  DigitalizacionDocumentalWorkspace,
+  digitalizacionApiClient,
+} from "../../../../modules/digitalizacion";
 import { useAppDigitalizadorProvider } from "./AppDigitalizador.context";
 import type { AppDigitalizadorProps } from "./AppDigitalizador.types";
-import { AppDigitalizadorWorkspace } from "./AppDigitalizadorWorkspace";
 import { useAppDigitalizadorScannerClient } from "./hooks/useAppDigitalizadorScannerClient";
 import styles from "./AppDigitalizador.module.css";
 
@@ -14,7 +16,6 @@ const getModuleName = (props: Pick<AppDigitalizadorProps, "modulo" | "context">)
 export function AppDigitalizador({
   context,
   onCompleted,
-  mode = "page",
   active = true,
   modulo,
   apiClient,
@@ -50,20 +51,6 @@ export function AppDigitalizador({
       !provider.dynamsoft?.licenseKey?.trim(),
   );
   const rootClassName = [styles.root, className].filter(Boolean).join(" ");
-  if (mode === "embedded") {
-    return (
-      <AppDigitalizadorWorkspace
-        active={active}
-        context={resolvedContext}
-        scannerClient={resolvedScannerClient}
-        apiClient={resolvedApiClient}
-        onCancel={onCancel}
-        onCompleted={onCompleted}
-        onError={onError}
-        className={className}
-      />
-    );
-  }
 
   return (
     <section

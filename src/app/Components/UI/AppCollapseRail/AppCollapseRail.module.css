@@ -118,6 +118,9 @@
 .rail[data-collapsed="true"] {
   opacity: 1;
   pointer-events: auto;
+  width: 44px;
+  height: 44px;
+  padding: 2px;
 }
 
 .rail[data-collapsed="false"] {
@@ -136,13 +139,14 @@
   border: 1px solid rgba(148, 163, 184, 0.25);
   background: #ffffff;
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
-  padding: 0;
-  width: 24px;
-  height: 24px;
+  padding: 4px;
+  min-width: 40px;
+  min-height: 40px;
+  width: 40px;
+  height: 40px;
   aspect-ratio: 1 / 1;
   box-sizing: border-box;
   line-height: 1;
-  min-width: 0;
   color: #1f2937;
 }
 
@@ -157,19 +161,23 @@
 
 @media (min-width: 769px) {
   .rail[data-collapsed="true"] {
-    width: 34px;
-    height: 34px;
+    width: 44px;
+    height: 44px;
     padding: 0;
   }
 
   .railButton {
-    width: 26px;
-    height: 26px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
   }
 
   :global(.ant-btn).railButton {
-    width: 26px;
-    height: 26px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
   }
 
   .railButton :global(.anticon) {

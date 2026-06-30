@@ -1,5 +1,4 @@
 export { AppDigitalizador } from "./AppDigitalizador";
-export { AppDigitalizadorWorkspace } from "./AppDigitalizadorWorkspace";
 export { AppDigitalizadorProvider } from "./AppDigitalizadorProvider";
 export { useAppDigitalizadorProvider } from "./AppDigitalizador.context";
 export type {

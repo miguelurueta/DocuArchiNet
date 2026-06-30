@@ -37,7 +37,6 @@ export type AppDigitalizadorProviderProps = AppDigitalizadorProviderValue & {
 export type AppDigitalizadorProps = {
   context: DigitalizacionContext | null;
   onCompleted: (result: DigitalizacionResult) => void;
-  mode?: "page" | "embedded";
   active?: boolean;
   modulo?: AppDigitalizadorModulo;
   apiClient?: DigitalizacionApiClient;
@@ -48,5 +47,3 @@ export type AppDigitalizadorProps = {
   onCancel?: () => void;
   onError?: (error: DigitalizacionDocumentalError) => void;
 };
-
-export type AppDigitalizadorMode = AppDigitalizadorProps["mode"];
