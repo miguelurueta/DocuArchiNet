@@ -1284,18 +1284,55 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     }
 
     try {
+      const loadCandidates = [
+        {
+          src: page.imageUrl,
+          source: "original" as const,
+        },
+        {
+          src: page.thumbnailUrl,
+          source: "thumbnail" as const,
+        },
+      ].filter((candidate): candidate is { src: string; source: "original" | "thumbnail" } =>
+        Boolean(candidate.src),
+      );
+
+      let image: HTMLImageElement | null = null;
+      let analyzedImageSource: "original" | "thumbnail" = imageSource;
+      for (const candidate of loadCandidates) {
+        try {
+          image = await this.loadAnalysisImage(candidate.src);
+          analyzedImageSource = candidate.source;
+          break;
+        } catch {
+          continue;
+        }
+      }
+
+      if (!image) {
+        return {
+          page,
+          isBlank: false,
+          contentRatio: 1,
+          darkPixels: Number.POSITIVE_INFINITY,
+          clusteredDarkPixels: Number.POSITIVE_INFINITY,
+          darkRatio: 1,
+          reason: "analysis-failed",
+          imageSource,
+        };
+      }
+
       logBlankPageDiagnostic("BLANK_PAGE_ANALYSIS_START", {
         pageId: page.id,
         index: page.index,
         pageNumber: page.index + 1,
-        imageSource,
+        imageSource: analyzedImageSource,
         analysisWidth: BLANK_PAGE_ANALYSIS_WIDTH,
         analysisHeight: BLANK_PAGE_ANALYSIS_HEIGHT,
         whiteThreshold: BLANK_PAGE_WHITE_THRESHOLD,
         contentThreshold: BLANK_PAGE_CONTENT_RATIO_THRESHOLD,
         darkPixelThreshold: BLANK_PAGE_DARK_PIXEL_THRESHOLD,
       });
-      const image = await this.loadAnalysisImage(imageUrl);
       const canvas = this.options.documentRef.createElement("canvas");
       canvas.width = BLANK_PAGE_ANALYSIS_WIDTH;
       canvas.height = BLANK_PAGE_ANALYSIS_HEIGHT;
@@ -1309,7 +1346,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
           clusteredDarkPixels: Number.POSITIVE_INFINITY,
           darkRatio: 1,
           reason: "canvas-context-unavailable",
-          imageSource,
+          imageSource: analyzedImageSource,
         };
       }
 
@@ -1387,7 +1424,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         darkPixels,
         clusteredDarkPixels,
         darkRatio: Number(darkRatio.toFixed(6)),
-        imageSource,
+        imageSource: analyzedImageSource,
       });
 
       return {
@@ -1398,7 +1435,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         clusteredDarkPixels,
         darkRatio,
         reason,
-        imageSource,
+        imageSource: analyzedImageSource,
       };
     } catch (error) {
       console.warn("BLANK_PAGE_ANALYSIS_ERROR", {
