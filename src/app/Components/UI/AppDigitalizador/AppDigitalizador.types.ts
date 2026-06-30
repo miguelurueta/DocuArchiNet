@@ -46,4 +46,8 @@ export type AppDigitalizadorProps = {
   className?: string;
   onCancel?: () => void;
   onError?: (error: DigitalizacionDocumentalError) => void;
+  showLegacyFooter?: boolean;
+  showHeader?: boolean;
+  showWorkspaceSummary?: boolean;
+  showWorkspaceState?: boolean;
 };

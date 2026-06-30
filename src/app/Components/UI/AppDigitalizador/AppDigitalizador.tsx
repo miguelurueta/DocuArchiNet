@@ -25,6 +25,10 @@ export function AppDigitalizador({
   className,
   onCancel,
   onError,
+  showLegacyFooter = true,
+  showHeader = true,
+  showWorkspaceSummary = true,
+  showWorkspaceState = true,
 }: AppDigitalizadorProps) {
   const provider = useAppDigitalizadorProvider();
   const resolvedScannerClient = useAppDigitalizadorScannerClient({
@@ -59,13 +63,15 @@ export function AppDigitalizador({
       data-module={moduleName}
       data-testid="app-digitalizador"
     >
-      <header className={styles.header}>
-        <div className={styles.titleGroup}>
-          <span className={styles.title}>Digitalizador documental</span>
-          <span className={styles.subtitle}>Entrada corporativa de digitalizacion</span>
-        </div>
-        <span className={styles.moduleBadge}>{moduleName}</span>
-      </header>
+      {showHeader ? (
+        <header className={styles.header}>
+          <div className={styles.titleGroup}>
+            <span className={styles.title}>Digitalizador documental</span>
+            <span className={styles.subtitle}>Entrada corporativa de digitalizacion</span>
+          </div>
+          <span className={styles.moduleBadge}>{moduleName}</span>
+        </header>
+      ) : null}
 
       {missingLicense ? (
         <div className={styles.warning} role="status">
@@ -82,6 +88,9 @@ export function AppDigitalizador({
           onCancel={onCancel}
           onCompleted={onCompleted}
           onError={onError}
+          showLegacyFooter={showLegacyFooter}
+          showSummary={showWorkspaceSummary}
+          showStateBadge={showWorkspaceState}
         />
       </div>
     </section>

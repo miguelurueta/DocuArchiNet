@@ -1,9 +1,10 @@
 .shell {
   block-size: 100%;
+  min-block-size: 0;
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-  max-block-size: calc(100vh - 2rem);
+  max-block-size: none;
   min-height: 0;
   overflow: hidden;
   position: relative;
@@ -93,6 +94,34 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.workbenchFooter {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e1e7f0;
+  border-radius: 8px;
+  color: #243b53;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  min-block-size: 2.4rem;
+  padding: 0.5rem 0.65rem;
+}
+
+.footerNote {
+  color: #40566e;
+  font-size: 0.82rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.footerActions {
+  display: inline-flex;
+  gap: 0.35rem;
+  min-width: 0;
 }
 
 .error {
@@ -1133,21 +1162,6 @@
   font-weight: 700;
 }
 
-.workbenchFooter {
-  align-items: center;
-  border-top: 1px solid #e3e8f1;
-  color: #65758a;
-  display: flex;
-  font-size: 0.8rem;
-  justify-content: space-between;
-  padding-top: 0.7rem;
-}
-
-.footerNote {
-  color: #65758a;
-  font-size: 0.8rem;
-}
-
 @media (max-width: 760px) {
   .summary,
   .main {
@@ -1236,9 +1250,4 @@
     margin-left: 0;
   }
 
-  .workbenchFooter {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.35rem;
-  }
 }

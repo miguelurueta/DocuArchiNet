@@ -341,6 +341,9 @@ export function DigitalizacionDocumentalWorkspace({
   onCancel,
   onCompleted,
   onError,
+  showLegacyFooter = true,
+  showSummary = true,
+  showStateBadge = true,
 }: DigitalizacionDocumentalWorkspaceProps) {
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [captureMode, setCaptureMode] = useState<CaptureMode>("docuarchi");
@@ -871,6 +874,19 @@ export function DigitalizacionDocumentalWorkspace({
     void generatePdf(fileName);
   }, [activeContext, generatePdf]);
 
+  const handleSubmit = useCallback(() => {
+    if (!canSubmit || !scanner.pdf || !metadataReady || !activeContext) {
+      return;
+    }
+
+    void operation.submit({
+      context: activeContext,
+      pdf: scanner.pdf.file,
+      pageCount: scanner.pages.length,
+      trd: state.metadata.trd,
+    });
+  }, [activeContext, canSubmit, metadataReady, operation, scanner.pdf, scanner.pages.length, state.metadata.trd]);
+
   const getEquivalentZoomFromActiveLayout = useCallback(() => {
     const page = selectedPage;
     const surface = previewPageSurfaceRef.current;
@@ -1168,19 +1184,6 @@ export function DigitalizacionDocumentalWorkspace({
     };
   }, [highlightedPageId]);
 
-  const handleSubmit = useCallback(() => {
-    if (!activeContext || !scanner.pdf) return;
-    void operation
-      .submit({
-        context: activeContext,
-        pdf: scanner.pdf.file,
-        pageCount: scanner.pdf.pageCount,
-        nombreDocumento: scanner.pdf.file.name,
-        trd: state.metadata.trd,
-      })
-      .catch(() => undefined);
-  }, [activeContext, operation, scanner.pdf, state.metadata.trd]);
-
   const summaryItems = useMemo(
     () => [
       ["Gabinete", activeContext?.nombreGabinete || "Sin gabinete"],
@@ -1321,18 +1324,22 @@ export function DigitalizacionDocumentalWorkspace({
       <header className={styles.header}>
         <div className={styles.titleLine}>
           <span className={styles.modeBadge}>{readableMode(activeContext?.modo)}</span>
-          <span className={styles.stateBadge} data-state={visualState}>
-            {visualState}
-          </span>
+          {showStateBadge ? (
+            <span className={styles.stateBadge} data-state={visualState}>
+              {visualState}
+            </span>
+          ) : null}
         </div>
-        <div className={styles.summary}>
-          {summaryItems.map(([label, value]) => (
-            <div className={styles.summaryItem} key={label}>
-              <span className={styles.summaryLabel}>{label}</span>
-              <span className={styles.summaryValue}>{value}</span>
-            </div>
-          ))}
-        </div>
+        {showSummary ? (
+          <div className={styles.summary}>
+            {summaryItems.map(([label, value]) => (
+              <div className={styles.summaryItem} key={label}>
+                <span className={styles.summaryLabel}>{label}</span>
+                <span className={styles.summaryValue}>{value}</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </header>
 
       {state.validationError ? (
@@ -2084,22 +2091,30 @@ export function DigitalizacionDocumentalWorkspace({
           </div>
         </AppCollapseRail>
       </main>
+      {showLegacyFooter ? (
+        <footer className={styles.workbenchFooter} role="status" aria-live="polite">
+          <div className={styles.footerNote}>{footerProgressLabel ?? submitDisabledReason}</div>
+          <div className={styles.footerActions}>
+            <AppButton
+              variant="ghost"
+              size="sm"
+              onClick={handleCancel}
+              disabled={operation.loading}
+            >
+              Cancelar
+            </AppButton>
+            <AppButton
+              variant="primary"
+              size="sm"
+              onClick={handleSubmit}
+              disabled={!canConfirm}
+            >
+              {primaryLabel}
+            </AppButton>
+          </div>
+        </footer>
+      ) : null}
 
-      <footer className={styles.workbenchFooter}>
-        <span>{submitDisabledReason}</span>
-        <div className={styles.footerActions}>
-          <span>
-            {footerProgressLabel ??
-              (operation.loading ? `Operacion ${operation.status}` : "Listo para operar")}
-          </span>
-          <AppButton variant="ghost" onClick={handleCancel} disabled={operation.loading}>
-            Cancelar
-          </AppButton>
-          <AppButton onClick={handleSubmit} disabled={!canConfirm} loading={operation.loading}>
-            {primaryLabel}
-          </AppButton>
-        </div>
-      </footer>
     </section>
   );
 }
