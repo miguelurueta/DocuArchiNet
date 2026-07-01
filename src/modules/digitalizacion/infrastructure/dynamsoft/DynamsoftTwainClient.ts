@@ -705,6 +705,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
       return [...this.pages];
     } finally {
+      console.info("scan(): entered finally");
       this.restoreDynamsoftBlankPageDetection(dwt, blankPageRuntimeConfig);
       dwt.CloseSource?.();
       this.activeOperation = null;
@@ -769,29 +770,60 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     dwt: DynamsoftWebTwainObject,
     blankPageRuntimeConfig: DynamsoftBlankPageConfig | null,
   ) {
+    console.info("restoreDynamsoftBlankPageDetection(): entered");
     if (!blankPageRuntimeConfig || !blankPageRuntimeConfig.hasAnyConfig) {
+      console.info("restoreDynamsoftBlankPageDetection(): skipped no config");
       return;
     }
 
     const dwtObject = dwt as Record<string, unknown>;
 
     if (blankPageRuntimeConfig.ifAutoDiscardBlankpagesKey) {
-      dwtObject[blankPageRuntimeConfig.ifAutoDiscardBlankpagesKey] =
-        blankPageRuntimeConfig.ifAutoDiscardBlankpages;
+      const property = blankPageRuntimeConfig.ifAutoDiscardBlankpagesKey;
+      const previousValue = dwtObject[property];
+      const nextValue = blankPageRuntimeConfig.ifAutoDiscardBlankpages;
+      console.info("restore", property, "previous", previousValue, "attempt", nextValue);
+      try {
+        dwtObject[property] = nextValue;
+        console.info("restore", property, "OK");
+      } catch (error) {
+        console.error(error);
+        console.error(error instanceof Error ? error.stack : "NO_STACK");
+      }
     }
 
     if (
       "BlankImageThreshold" in dwtObject &&
       blankPageRuntimeConfig.blankImageThreshold !== undefined
     ) {
-      dwtObject.BlankImageThreshold = blankPageRuntimeConfig.blankImageThreshold;
+      const property = "BlankImageThreshold";
+      const previousValue = dwtObject.BlankImageThreshold;
+      const nextValue = blankPageRuntimeConfig.blankImageThreshold;
+      console.info("restore", property, "previous", previousValue, "attempt", nextValue);
+      try {
+        dwtObject.BlankImageThreshold = nextValue;
+        console.info("restore", property, "OK");
+      } catch (error) {
+        console.error(error);
+        console.error(error instanceof Error ? error.stack : "NO_STACK");
+      }
     }
 
     if (
       "BlankImageMaxStdDev" in dwtObject &&
       blankPageRuntimeConfig.blankImageMaxStdDev !== undefined
     ) {
-      dwtObject.BlankImageMaxStdDev = blankPageRuntimeConfig.blankImageMaxStdDev;
+      const property = "BlankImageMaxStdDev";
+      const previousValue = dwtObject.BlankImageMaxStdDev;
+      const nextValue = blankPageRuntimeConfig.blankImageMaxStdDev;
+      console.info("restore", property, "previous", previousValue, "attempt", nextValue);
+      try {
+        dwtObject.BlankImageMaxStdDev = nextValue;
+        console.info("restore", property, "OK");
+      } catch (error) {
+        console.error(error);
+        console.error(error instanceof Error ? error.stack : "NO_STACK");
+      }
     }
   }
 
@@ -1467,21 +1499,36 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       };
     }
 
-    const blankPageIds = new Set(blankPages.map((analysis) => analysis.id));
-    const removedIndexes: number[] = [];
-    const survivedIndexes: number[] = [];
-    const orderedBlankIndexes = [...blankIndexes].sort((left, right) => right - left);
+    const blankPageAnalyses = await Promise.all(
+      blankPages.map((page) => this.analyzeBlankPageCandidate(page)),
+    );
+    const confirmedBlankPages = blankPageAnalyses.filter((analysis) => analysis.isBlank);
+    const confirmedBlankIndexes = confirmedBlankPages
+      .map((analysis) => analysis.page.index)
+      .sort((left, right) => right - left);
 
-    blankPages.forEach((page) => {
-      logBlankPageDiagnostic("BLANK_PAGE_DETECTED", {
+    const blankPageIds = new Set(confirmedBlankPages.map((analysis) => analysis.page.id));
+    const removedIndexes: number[] = [];
+
+    blankPageAnalyses.forEach((analysis) => {
+      const label = analysis.isBlank ? "BLANK_PAGE_DETECTED" : "BLANK_PAGE_SURVIVED";
+      logBlankPageDiagnostic(label, {
         stage: "removeDetectedBlankPagesWithDynamsoft",
-        pageId: page.id,
-        pageIndex: page.index,
-        pageNumber: page.index + 1,
+        pageId: analysis.page.id,
+        pageIndex: analysis.page.index,
+        pageNumber: analysis.page.index + 1,
+        reason: analysis.reason,
+        contentPercentage: Number((analysis.contentRatio * 100).toFixed(4)),
+        darkPixels: analysis.darkPixels,
+        clusteredDarkPixels: analysis.clusteredDarkPixels,
+        whiteThreshold: BLANK_PAGE_WHITE_THRESHOLD,
+        contentThreshold: BLANK_PAGE_CONTENT_RATIO_THRESHOLD,
+        darkPixelThreshold: BLANK_PAGE_DARK_PIXEL_THRESHOLD,
+        imageSource: analysis.imageSource,
       });
     });
 
-    orderedBlankIndexes.forEach((index) => {
+    confirmedBlankIndexes.forEach((index) => {
       const beforeCount = dwt.HowManyImagesInBuffer;
       const removeResult = dwt.RemoveImage(index);
       const afterCount = dwt.HowManyImagesInBuffer;
@@ -1493,26 +1540,54 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
       if (removedFromBuffer) {
         removedIndexes.push(index);
-        return;
       }
+    });
 
-      survivedIndexes.push(index);
+    const removedIndexSet = new Set(removedIndexes);
+    const survivedIndexes = blankIndexes.filter((index) => !removedIndexSet.has(index));
+    const confirmedBlankPagesForResult = confirmedBlankPages.map((analysis) => analysis.page);
+
+    confirmedBlankPagesForResult.forEach((page) => {
+      const removedFromBuffer = removedIndexes.includes(page.index);
+      const analysis = blankPageAnalyses.find((candidate) => candidate.page.id === page.id);
+      const label = removedFromBuffer ? "BLANK_PAGE_REMOVED" : "BLANK_PAGE_SURVIVED";
+      logBlankPageDiagnostic(label, {
+        stage: "removeImage",
+        pageId: page.id,
+        pageIndex: page.index,
+        pageNumber: page.index + 1,
+        reason: analysis?.reason ?? "analysis-failed",
+        removedFromBuffer,
+        contentPercentage: analysis ? Number((analysis.contentRatio * 100).toFixed(4)) : undefined,
+        darkPixels: analysis?.darkPixels,
+        clusteredDarkPixels: analysis?.clusteredDarkPixels,
+        imageSource: analysis?.imageSource ?? "unavailable",
+      });
     });
 
     this.pages = this.rebuildPagesAfterBufferRemoval(dwt, this.pages, removedIndexes, blankPageIds);
+    this.logBlankPageReinsertions("afterBlankRemoval", {
+      analyses: blankPageAnalyses,
+      detected: confirmedBlankPagesForResult,
+      removedPageIds: blankPageIds,
+      requestedIndexes: blankIndexes,
+      removedIndexes,
+      survivedIndexes,
+    });
+    logBlankPageDiagnostic("BLANK_PAGE_FINAL_STATE", {
+      stage: "afterBlankRemoval",
+      pageCount: this.pages.length,
+      bufferCount: dwt.HowManyImagesInBuffer ?? null,
+      detectedPageIds: confirmedBlankPagesForResult.map((page) => page.id),
+      requestedIndexes: blankIndexes,
+      removedIndexes,
+      survivedIndexes,
+      pages: this.summarizePagesForDiagnostics(this.pages),
+    });
 
     return {
-      analyses: blankPages.map((page) => ({
-        page,
-        isBlank: true,
-        contentRatio: 0,
-        darkPixels: 0,
-        clusteredDarkPixels: 0,
-        darkRatio: 0,
-        reason: "isblank-image-express",
-        imageSource: "thumbnail",
-      })),
-      detected: blankPages,
+      analyses: blankPageAnalyses,
+      detected: confirmedBlankPagesForResult,
       removedPageIds: blankPageIds,
       requestedIndexes: blankIndexes,
       removedIndexes,
@@ -1810,6 +1885,17 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
     const currentPageIds = new Set(this.pages.map((page) => page.id));
     removalResult.detected.forEach((analysis) => {
+      if (!analysis || !analysis.page) {
+        logBlankPageDiagnostic("BLANK_PAGE_REINSERTION_SKIP", {
+          stage,
+          reason: "missing-analysis-page",
+          requestedIndexes: removalResult.requestedIndexes,
+          removedIndexes: removalResult.removedIndexes,
+          survivedIndexes: removalResult.survivedIndexes,
+        });
+        return;
+      }
+
       if (!currentPageIds.has(analysis.page.id)) {
         return;
       }
