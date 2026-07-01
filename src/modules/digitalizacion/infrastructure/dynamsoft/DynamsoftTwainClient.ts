@@ -1751,7 +1751,17 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     }
 
     const blankPageAnalyses = useAsyncBlankDetection
-      ? blankPages.map((page) => {
+      ? blankPages.map((page) => ({
+          page,
+          isBlank: true,
+          contentRatio: 0,
+          darkPixels: 0,
+          clusteredDarkPixels: 0,
+          darkRatio: 0,
+          reason: "isBlankImageAsync",
+          imageSource: "unavailable",
+        }))
+      : blankPages.map((page) => {
           const imageSource = page.imageUrl
             ? "original"
             : page.thumbnailUrl
@@ -1764,11 +1774,10 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
             darkPixels: 0,
             clusteredDarkPixels: 0,
             darkRatio: 0,
-            reason: "isBlankImageAsync",
+            reason: "isBlankImageExpress",
             imageSource,
           };
-        })
-      : await Promise.all(blankPages.map((page) => this.analyzeBlankPageCandidate(page)));
+        });
     const confirmedBlankPages = blankPageAnalyses.filter((analysis) => analysis.isBlank);
     const confirmedBlankIndexes = confirmedBlankPages
       .map((analysis) => analysis.page.index)
