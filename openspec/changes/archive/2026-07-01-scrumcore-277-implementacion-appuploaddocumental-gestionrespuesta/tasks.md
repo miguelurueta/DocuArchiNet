@@ -47,8 +47,8 @@
 
 ## 7. Documentation And Close
 
-- [x] 7.1 Crear `docs/Architecture/AppUploadDocumental/SCRUMCORE-277-Integracion-GestionRespuesta-Anexos.md`.
+- [x] 7.1 Crear `docs/Architecture/AppUploadDocumental/Integracion-AppUploadDocumental/SCRUMCORE-277-Integracion-GestionRespuesta-Anexos.md`.
 - [x] 7.2 Documentar flujo end-to-end, matriz campo FE/BE, PascalCase/camelCase, tipologia por archivo, refresh del Workbench, modal, cola de archivos, visor PDF bajo demanda, errores UX y ajustes visuales enterprise.
 - [x] 7.3 Confirmar explicitamente: backend no modificado, endpoints no modificados, sin `.ashx`, sin XHR, sin jQuery, sin FormData legacy y sin `any` nuevo.
 - [x] 7.4 Ejecutar `openspec validate scrumcore-277-implementacion-appuploaddocumental-gestionrespuesta --strict`.
-- [ ] 7.5 Preparar commit/push/PR cuando la implementacion y verificacion esten completas.
+- [x] 7.5 Preparar commit/push/PR cuando la implementacion y verificacion esten completas.

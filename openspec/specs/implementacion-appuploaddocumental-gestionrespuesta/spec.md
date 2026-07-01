@@ -1,4 +1,8 @@
-## ADDED Requirements
+## Purpose
+
+Define the Gestion Respuesta integration for `AppUploadDocumental`, including the workflow anexo storage contract, StorageEngineV2 lifecycle, per-file tipology metadata, cross-tab refresh, enterprise constraints, documentation, and test expectations.
+
+## Requirements
 
 ### Requirement: GestionRespuesta shall render the documental upload adapter in the Gestion tab
 The system SHALL replace the current simple attachment upload surface in the Gestion tab with a GestionRespuesta-specific adapter that composes `AppUploadDocumental`.
@@ -121,7 +125,7 @@ The system SHALL document and test the GestionRespuesta upload integration.
 
 #### Scenario: Enterprise documentation exists
 - **WHEN** the change is ready for review
-- **THEN** `docs/Architecture/AppUploadDocumental/SCRUMCORE-277-Integracion-GestionRespuesta-Anexos.md` exists
+- **THEN** `docs/Architecture/AppUploadDocumental/Integracion-AppUploadDocumental/SCRUMCORE-277-Integracion-GestionRespuesta-Anexos.md` exists
 - **AND** it documents objective, official contract source, end-to-end flow, FE/BE field matrix, PascalCase/camelCase mapping, tipology per file, Workbench refresh, error policy, and executed tests
 
 #### Scenario: Affected behavior is tested
