@@ -346,6 +346,50 @@ const automaticProcessingFeatures: Array<{
   },
 ];
 
+type ScanPipelinePerfRecord = {
+  scanId: string;
+  scanStartedAt: number;
+  stages: {
+    acquireImageMs?: number;
+    buildPagesFromBufferMs?: number;
+    blankDetectionMs?: number;
+    deskewMs?: number;
+    autoCropMs?: number;
+    autoRotateMs?: number;
+    reactFirstRenderMs?: number;
+  };
+};
+
+type ScanPipelinePerfWindow = Window & {
+  __docuarchiScanPipelinePerf?: ScanPipelinePerfRecord;
+};
+
+const readScanPipelinePerfRecord = () =>
+  typeof window === "undefined"
+    ? null
+    : ((window as ScanPipelinePerfWindow).__docuarchiScanPipelinePerf ?? null);
+
+const initScanPipelinePerfRecord = () => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const scanId = `scan-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  const record: ScanPipelinePerfRecord = {
+    scanId,
+    scanStartedAt: performance.now(),
+    stages: {},
+  };
+
+  (window as ScanPipelinePerfWindow).__docuarchiScanPipelinePerf = record;
+  console.info("[SCAN PERF] scan started", {
+    scanId,
+    startedAt: record.scanStartedAt,
+  });
+
+  return record;
+};
+
 export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   private readonly options: Required<Omit<DynamsoftRuntimeOptions, "licenseKey">> & {
     licenseKey?: string;
@@ -577,8 +621,10 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     const previousPages = [...this.pages];
     this.activeOperation = "scan";
     let blankPageRuntimeConfig = this.configureDynamsoftBlankPageDetection(dwt);
+    const pipelinePerf = initScanPipelinePerfRecord();
 
     try {
+      const acquireImageStart = performance.now();
       const previousCount = dwt.HowManyImagesInBuffer ?? 0;
       this.reportScanProgress(options.onProgress, {
         stage: "acquiring",
@@ -624,8 +670,19 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
           },
         );
       });
+      const acquireImageDuration = performance.now() - acquireImageStart;
+      if (pipelinePerf) {
+        pipelinePerf.stages.acquireImageMs = acquireImageDuration;
+      }
+      if (pipelinePerf) {
+        console.info("[SCAN PERF] AcquireImage", {
+          scanId: pipelinePerf.scanId,
+          durationMs: Math.round(acquireImageDuration),
+        });
+      }
       this.ensureNotStale(operationGeneration);
 
+      const buildPagesFromBufferStart = performance.now();
       const nextCount = dwt.HowManyImagesInBuffer ?? previousCount;
       this.reportScanProgress(options.onProgress, {
         stage: "processingImages",
@@ -636,7 +693,20 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         progress: 35,
         cancellable: false,
       });
-      this.pages = this.buildPagesFromBuffer(dwt, nextCount, previousPages);
+      const shouldReusePages = options.captureOperation?.type === "APPEND";
+      this.pages = this.buildPagesFromBuffer(dwt, nextCount, previousPages, {
+        reusePreviousPages: shouldReusePages,
+      });
+      const buildPagesFromBufferDuration = performance.now() - buildPagesFromBufferStart;
+      if (pipelinePerf) {
+        pipelinePerf.stages.buildPagesFromBufferMs = buildPagesFromBufferDuration;
+      }
+      if (pipelinePerf) {
+        console.info("[SCAN PERF] buildPagesFromBuffer", {
+          scanId: pipelinePerf.scanId,
+          durationMs: Math.round(buildPagesFromBufferDuration),
+        });
+      }
       if (options.removeBlankPages) {
         logBlankPageDiagnostic("BLANK_PAGE_FINAL_STATE", {
           stage: "buildPagesFromBuffer",
@@ -646,7 +716,9 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         });
       }
       let blankRemovalResult: BlankPageRemovalResult | null = null;
+      let blankDetectionDuration = 0;
       if (options.removeBlankPages) {
+        const blankDetectionStart = performance.now();
         this.reportScanProgress(options.onProgress, {
           stage: "removingBlankPages",
           label: "Eliminando paginas en blanco",
@@ -665,6 +737,25 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         } else {
           blankRemovalResult = await this.removeDetectedBlankPages(dwt);
         }
+        blankDetectionDuration = performance.now() - blankDetectionStart;
+        if (pipelinePerf) {
+          console.info("[SCAN PERF] Blank Detection", {
+            scanId: pipelinePerf.scanId,
+            durationMs: Math.round(blankDetectionDuration),
+          });
+        }
+      } else {
+        blankDetectionDuration = 0;
+        if (pipelinePerf) {
+          console.info("[SCAN PERF] Blank Detection", {
+            scanId: pipelinePerf.scanId,
+            durationMs: 0,
+            status: "disabled",
+          });
+        }
+      }
+      if (pipelinePerf) {
+        pipelinePerf.stages.blankDetectionMs = blankDetectionDuration;
       }
       await this.applyAutomaticProcessing(dwt, options.automaticProcessing, options.onProgress);
       const scannedPages = this.pages;
@@ -702,7 +793,6 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
           pages: this.summarizePagesForDiagnostics(this.pages),
         });
       }
-
       return [...this.pages];
     } finally {
       console.info("scan(): entered finally");
@@ -1092,7 +1182,32 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     dwt: DynamsoftWebTwainObject,
     count: number,
     previousPages: ScanPage[] = this.pages,
+    options: {
+      reusePreviousPages?: boolean;
+    } = {},
   ) {
+    if (options.reusePreviousPages) {
+      const stablePages = previousPages.slice(0, Math.min(previousPages.length, count)).map(
+        (page, index) => ({
+          ...page,
+          index,
+        }),
+      );
+
+      if (count <= previousPages.length) {
+        return stablePages;
+      }
+
+      return [
+        ...stablePages,
+        ...Array.from(
+          { length: Math.max(count - previousPages.length, 0) },
+          (_item, localIndex) =>
+            this.buildPageFromBuffer(dwt, previousPages.length + localIndex),
+        ),
+      ];
+    }
+
     return Array.from({ length: Math.max(count, 0) }, (_item, index) =>
       this.buildPageFromBuffer(dwt, index, previousPages[index]?.id),
     );
@@ -1150,6 +1265,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
     const result: AutomaticImageProcessingResult = {};
     for (const feature of enabledFeatures) {
+      const featureStart = performance.now();
       this.reportScanProgress(onProgress, {
         stage: feature.progressStage,
         label: feature.progressLabel,
@@ -1165,6 +1281,27 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         cancellable: false,
       });
       result[feature.key] = await this.applyAutomaticProcessingFeature(dwt, feature);
+      const featureDuration = performance.now() - featureStart;
+      const sharedPerf = readScanPipelinePerfRecord();
+      if (sharedPerf) {
+        if (feature.key === "deskew") {
+          sharedPerf.stages.deskewMs = featureDuration;
+        } else if (feature.key === "autoCrop") {
+          sharedPerf.stages.autoCropMs = featureDuration;
+        } else if (feature.key === "autoRotate") {
+          sharedPerf.stages.autoRotateMs = featureDuration;
+        }
+      }
+      const stageLabel =
+        feature.key === "deskew"
+          ? "Deskew"
+          : feature.key === "autoCrop"
+            ? "AutoCrop"
+            : "AutoRotate";
+      console.info(`[SCAN PERF] ${stageLabel}`, {
+        scanId: readScanPipelinePerfRecord()?.scanId,
+        durationMs: Math.round(featureDuration),
+      });
     }
 
     return result;
