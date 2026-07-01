@@ -1,18 +1,24 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GestionRespuestaUploadDocumental } from "../components/gestionRespuestaMainTab/GestionRespuestaUploadDocumental";
 
-const refreshDocumentosSpy = vi.fn();
-const appUploadDocumentalSpy = vi.fn();
-
-vi.mock("../hooks/useGestionRespuestaDocumentos", () => ({
-  useGestionRespuestaDocumentos: () => ({
+const { appUploadDocumentalSpy, refreshDocumentosSpy, useDocumentosState } = vi.hoisted(() => ({
+  appUploadDocumentalSpy: vi.fn(),
+  refreshDocumentosSpy: vi.fn(),
+  useDocumentosState: {
     idTareaWf: 933,
+    idRutaWf: 9,
     radicado: "2600466700021",
     idRespuestaRadicado: 672,
     nombreGabinete: "CORRESPO",
     gabineteLoading: false,
-    gabineteError: undefined,
+    gabineteError: undefined as string | undefined,
+  },
+}));
+
+vi.mock("../hooks/useGestionRespuestaDocumentos", () => ({
+  useGestionRespuestaDocumentos: () => ({
+    ...useDocumentosState,
     refreshDocumentos: refreshDocumentosSpy,
   }),
 }));
@@ -58,6 +64,18 @@ vi.mock("../../almacenamientoDocumental/components/AppUploadDocumental", () => (
 }));
 
 describe("[SCRUMCORE-277] GestionRespuestaUploadDocumental", () => {
+  beforeEach(() => {
+    appUploadDocumentalSpy.mockClear();
+    refreshDocumentosSpy.mockClear();
+    useDocumentosState.idTareaWf = 933;
+    useDocumentosState.idRutaWf = 9;
+    useDocumentosState.radicado = "2600466700021";
+    useDocumentosState.idRespuestaRadicado = 672;
+    useDocumentosState.nombreGabinete = "CORRESPO";
+    useDocumentosState.gabineteLoading = false;
+    useDocumentosState.gabineteError = undefined;
+  });
+
   it("renderiza AppUploadDocumental con contexto, mapper y opciones enterprise", () => {
     render(<GestionRespuestaUploadDocumental />);
 
@@ -74,6 +92,7 @@ describe("[SCRUMCORE-277] GestionRespuestaUploadDocumental", () => {
         context: expect.objectContaining({
           nombreGabinete: "CORRESPO",
           idTareaWorkflow: 933,
+          idRutaWorkflow: 9,
           idRespuesta: 672,
           nameModulo: "2600466700021",
         }),
@@ -87,5 +106,14 @@ describe("[SCRUMCORE-277] GestionRespuestaUploadDocumental", () => {
     screen.getByRole("button", { name: "Simular stored" }).click();
 
     expect(refreshDocumentosSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("bloquea la carga documental cuando no existe idRutaWf para tipologias workflow", () => {
+    useDocumentosState.idRutaWf = undefined;
+
+    render(<GestionRespuestaUploadDocumental />);
+
+    expect(screen.getByText("No hay ruta workflow disponible para cargar tipologias documentales.")).toBeInTheDocument();
+    expect(appUploadDocumentalSpy).not.toHaveBeenCalled();
   });
 });

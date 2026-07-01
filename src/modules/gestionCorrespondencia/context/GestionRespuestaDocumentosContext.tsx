@@ -12,6 +12,7 @@ import { getSolicitaGabinetePorTareaWorkflow } from "../services/solicitaGabinet
 
 export type GestionRespuestaDocumentosState = {
   idTareaWf?: number;
+  idRutaWf?: number;
   radicado?: string;
   idRespuestaRadicado?: string | number;
   nombreGabinete?: string;
@@ -26,6 +27,7 @@ export type GestionRespuestaDocumentosState = {
 
 type GestionRespuestaDocumentosProviderProps = {
   idTareaWf?: number;
+  idRutaWf?: number;
   radicado?: string;
   idRespuestaRadicado?: string | number;
   children: ReactNode;
@@ -79,6 +81,7 @@ const isAbortError = (error: unknown): boolean =>
 
 export function GestionRespuestaDocumentosProvider({
   idTareaWf,
+  idRutaWf,
   radicado,
   idRespuestaRadicado,
   children,
@@ -195,6 +198,7 @@ export function GestionRespuestaDocumentosProvider({
   const value = useMemo<GestionRespuestaDocumentosState>(
     () => ({
       idTareaWf,
+      idRutaWf,
       radicado: normalizeOptionalString(radicado),
       idRespuestaRadicado,
       nombreGabinete: gabineteState.nombreGabinete,
@@ -212,6 +216,7 @@ export function GestionRespuestaDocumentosProvider({
       gabineteState.loading,
       gabineteState.nombreGabinete,
       idRespuestaRadicado,
+      idRutaWf,
       idTareaWf,
       documentosRefreshKey,
       radicado,

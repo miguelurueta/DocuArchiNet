@@ -31,6 +31,7 @@ export function GestionRespuestaUploadDocumental({
 }: GestionRespuestaUploadDocumentalProps = {}) {
   const {
     idTareaWf,
+    idRutaWf,
     radicado,
     idRespuestaRadicado,
     nombreGabinete,
@@ -44,10 +45,11 @@ export function GestionRespuestaUploadDocumental({
     () => ({
       nombreGabinete: nombreGabinete ?? "",
       idTareaWorkflow: idTareaWf,
+      idRutaWorkflow: idRutaWf,
       idRespuesta: normalizeIdRespuesta(idRespuestaRadicado),
       nameModulo: radicado,
     }),
-    [idRespuestaRadicado, idTareaWf, nombreGabinete, radicado],
+    [idRespuestaRadicado, idRutaWf, idTareaWf, nombreGabinete, radicado],
   );
 
   const handleStored = useCallback(
@@ -77,6 +79,10 @@ export function GestionRespuestaUploadDocumental({
 
   if (!uploadContext.idRespuesta) {
     return <Alert type="warning" showIcon title="No hay respuesta de radicado disponible para asociar anexos." />;
+  }
+
+  if (!uploadContext.idRutaWorkflow) {
+    return <Alert type="warning" showIcon title="No hay ruta workflow disponible para cargar tipologias documentales." />;
   }
 
   return (

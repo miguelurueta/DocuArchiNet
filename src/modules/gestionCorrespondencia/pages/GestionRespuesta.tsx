@@ -48,6 +48,7 @@ function useCanUseParallelLayout() {
 
 type GestionRespuestaProps = {
   idTareaWf?: number;
+  idRutaWf?: number;
   radicado?: string;
   idRespuestaRadicado?: string | number;
   detailState?: "loading" | "ready" | "blocked-empty" | "blocked-error" | "blocked-invalid-id";
@@ -55,6 +56,7 @@ type GestionRespuestaProps = {
 
 export default function GestionRespuesta({
   idTareaWf: idTareaWfFromRoute,
+  idRutaWf: idRutaWfFromRoute,
   radicado,
   idRespuestaRadicado,
 }: GestionRespuestaProps = {}) {
@@ -81,6 +83,12 @@ export default function GestionRespuesta({
       ? idTareaWfFromRoute
       : fallbackId;
   const resolvedIdTareaWf = Number.isFinite(idTareaWf) ? idTareaWf : undefined;
+  const resolvedIdRutaWf =
+    typeof idRutaWfFromRoute === "number" &&
+    Number.isFinite(idRutaWfFromRoute) &&
+    idRutaWfFromRoute > 0
+      ? idRutaWfFromRoute
+      : undefined;
   const isParallel = layoutMode === "parallel" && canUseParallelLayout;
 
   useEffect(() => {
@@ -209,6 +217,7 @@ export default function GestionRespuesta({
     <div className={styles.tabsShell}>
       <GestionRespuestaDocumentosProvider
         idTareaWf={resolvedIdTareaWf}
+        idRutaWf={resolvedIdRutaWf}
         radicado={radicado}
         idRespuestaRadicado={idRespuestaRadicado}
       >

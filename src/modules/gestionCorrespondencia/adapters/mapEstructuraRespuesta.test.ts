@@ -43,6 +43,12 @@ describe("[SPEC:SCRUMCORE-219] mapEstructuraRespuesta", () => {
     expect(result).not.toHaveProperty("idRespuestaRadicado");
   });
 
+  it("normaliza idRutaWf desde variantes del backend", () => {
+    expect(mapEstructuraRespuesta({ idRutaWf: "9" }).idRutaWf).toBe(9);
+    expect(mapEstructuraRespuesta({ IdRutaWorkflow: 10 }).idRutaWf).toBe(10);
+    expect(mapEstructuraRespuesta({ ID_RUTA_WF: "11" }).idRutaWf).toBe(11);
+  });
+
   it("aplica precedencia deterministica cuando existen multiples variantes", () => {
     expect(
       mapEstructuraRespuesta({
@@ -60,11 +66,13 @@ describe("[SPEC:SCRUMCORE-219] mapEstructuraRespuesta", () => {
         radicado: "2025-0001",
         destinatario: "Contasoft Company",
         tramiteDocumento: "Respuesta a derecho de peticion",
+        IdRutaWf: "12",
       }),
     ).toEqual({
       Radicado: "2025-0001",
       Destinatario: "Contasoft Company",
       TramiteDocumento: "Respuesta a derecho de peticion",
+      idRutaWf: 12,
     });
   });
 });

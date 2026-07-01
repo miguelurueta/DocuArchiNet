@@ -4,6 +4,10 @@ import type {
   UploadDocumentalContext,
   UploadDocumentalProcessKey,
 } from "../../almacenamientoDocumental/components/AppUploadDocumental/AppUploadDocumental.types";
+import {
+  getTipologiasDocumentalesWorkflow,
+  TipologiasDocumentalesWorkflowError,
+} from "./tipologiasDocumentalesWorkflow.service";
 
 const DEFAULT_MAX_SIZE_BYTES = 25 * 1024 * 1024;
 const DEFAULT_ALLOWED_EXTENSIONS = [".pdf", ".png", ".jpg", ".jpeg", ".tif", ".tiff"];
@@ -21,15 +25,6 @@ export async function loadGestionRespuestaUploadConfig(): Promise<UploadDocument
   };
 }
 
-export async function loadGestionRespuestaTiposDocumentales(): Promise<TipoDocumentalOption[]> {
-  return [
-    {
-      idTipoDocumento: 43,
-      nombreTipoDocumento: "Comprobante De Egreso",
-    },
-  ];
-}
-
 export type GestionRespuestaUploadConfigInput = {
   proceso: UploadDocumentalProcessKey;
   context: UploadDocumentalContext;
@@ -39,3 +34,26 @@ export type GestionRespuestaTiposDocumentalesInput = {
   proceso: UploadDocumentalProcessKey;
   context: UploadDocumentalContext;
 };
+
+export async function loadGestionRespuestaTiposDocumentales({
+  context,
+}: GestionRespuestaTiposDocumentalesInput): Promise<TipoDocumentalOption[]> {
+  const idTareaWf = requirePositiveNumber(context.idTareaWorkflow, "idTareaWf");
+  const idRutaWf = requirePositiveNumber(context.idRutaWorkflow, "idRutaWf");
+  const options = await getTipologiasDocumentalesWorkflow({ idTareaWf, idRutaWf });
+
+  return options.map((option) => ({
+    idTipoDocumento: option.idTipoDocumento,
+    nombreTipoDocumento: option.nombreTipoDocumento,
+  }));
+}
+
+function requirePositiveNumber(value: number | undefined, fieldName: string): number {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+    throw new TipologiasDocumentalesWorkflowError(
+      `${fieldName} es requerido para cargar las tipologias documentales del workflow.`,
+    );
+  }
+
+  return value;
+}

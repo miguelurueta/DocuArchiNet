@@ -19,6 +19,7 @@ export const useGestionRespuestaDocumentos = () => {
     if (!ctx) {
       return {
         idTareaWf: undefined,
+        idRutaWf: undefined,
         radicado: undefined,
         idRespuestaRadicado: undefined,
         nombreGabinete: undefined,

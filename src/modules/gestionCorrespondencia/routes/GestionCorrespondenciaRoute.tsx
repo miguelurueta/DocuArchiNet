@@ -16,6 +16,7 @@ interface GestionCorrespondenciaRouteProps {
 type DetailState = "loading" | "ready" | "blocked-empty";
 type DetailContentContextProps = {
   idTareaWf?: number;
+  idRutaWf?: number;
   detailState?: DetailState;
   radicado?: string;
   idRespuestaRadicado?: string | number;
@@ -69,6 +70,7 @@ export default function GestionCorrespondenciaRoute({
           detailContent as ReactElement<DetailContentContextProps>,
           {
             idTareaWf: parsedId,
+            idRutaWf: estrucTuraRespuesta?.idRutaWf,
             detailState,
             radicado: estrucTuraRespuesta?.Radicado,
             idRespuestaRadicado: estrucTuraRespuesta?.idRespuestaRadicado,
