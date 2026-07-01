@@ -2183,7 +2183,7 @@ export function DigitalizacionDocumentalWorkspace({
                 <span>Utilizar configuracion PaperStream</span>
                 <AppButton
                   variant="secondary"
-                  onClick={handleScan}
+                  onClick={handlePrimaryCapture}
                   disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
                 >
                   Configurar scanner
