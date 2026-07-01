@@ -213,6 +213,24 @@ describe("AppUploadBatchView [SCRUMCORE-270]", () => {
     expect(within(preview).getByText(/TXT/)).toBeInTheDocument();
   });
 
+  it("permite cerrar la vista previa aunque no exista archivo seleccionado", () => {
+    const { rerender, props } = renderView({
+      files: [createItem("a", { file: createFile("a.pdf", "application/pdf") })],
+      selectedUid: "a",
+    });
+
+    fireEvent.click(screen.getByLabelText("Ver a.pdf"));
+
+    rerender(<AppUploadBatchView {...props} files={[]} selectedUid={undefined} />);
+
+    const closePreviewButton = screen.getByLabelText("Cerrar vista previa");
+    expect(closePreviewButton).toBeEnabled();
+
+    fireEvent.click(closePreviewButton);
+
+    expect(props.onClosePreview).toHaveBeenCalledTimes(1);
+  });
+
   it("revoca object URL al cambiar archivo y desmontar", () => {
     const { rerender, unmount, props } = renderView({
       files: [createItem("a", { file: createFile("a.pdf", "application/pdf") })],

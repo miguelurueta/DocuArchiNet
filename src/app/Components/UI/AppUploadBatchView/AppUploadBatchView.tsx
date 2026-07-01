@@ -440,27 +440,27 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
             data-preview-state={previewVisibility}
             aria-label="Vista previa del archivo activo"
           >
-          <div className={styles.panelHeader}>
-            <Tooltip title={selectedItem?.name}>
-              <span className={styles.previewTitle}>
-                {selectedItem ? selectedItem.name : "Vista previa"}
-              </span>
-            </Tooltip>
-            <AppButton
-              variant="ghost"
-              size="sm"
-              icon={<CloseOutlined />}
-              tooltip="Cerrar vista previa"
-              aria-label="Cerrar vista previa"
-              disabled={!selectedItem || isBlocked}
-              onClick={handleClosePreview}
-            />
-          </div>
-          <div className={styles.previewSurface}>
-            {selectedItem && renderPreview
-              ? renderPreview({ item: selectedItem, previewUrl, onClose: handleClosePreview })
-              : renderDefaultPreview()}
-          </div>
+            <div className={styles.panelHeader}>
+              <Tooltip title={selectedItem?.name}>
+                <span className={styles.previewTitle}>
+                  {selectedItem ? selectedItem.name : "Vista previa"}
+                </span>
+              </Tooltip>
+              <AppButton
+                variant="ghost"
+                size="sm"
+                icon={<CloseOutlined />}
+                tooltip="Cerrar vista previa"
+                aria-label="Cerrar vista previa"
+                disabled={isBlocked}
+                onClick={handleClosePreview}
+              />
+            </div>
+            <div className={styles.previewSurface}>
+              {selectedItem && renderPreview
+                ? renderPreview({ item: selectedItem, previewUrl, onClose: handleClosePreview })
+                : renderDefaultPreview()}
+            </div>
           </aside>
         ) : null}
       </div>
