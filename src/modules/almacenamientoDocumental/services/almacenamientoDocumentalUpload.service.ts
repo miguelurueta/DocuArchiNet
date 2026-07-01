@@ -3,6 +3,8 @@ import type {
   AlmacenarDocumentoRequest,
   AlmacenarDocumentoResponse,
   AlmacenamientoDocumentalUploadErrorCode,
+  BackendAlmacenarDocumentoRequest,
+  BackendStorageUploadInitRequest,
   DocumentoEntrada,
   StorageUploadCancelResponse,
   StorageUploadCompleteResponse,
@@ -67,11 +69,19 @@ export async function initTemporaryUpload(
   request: StorageUploadInitRequest,
   signal?: AbortSignal,
 ): Promise<StorageUploadInitResponse> {
+  return initTemporaryUploadWithPayload(request, request, signal);
+}
+
+async function initTemporaryUploadWithPayload(
+  request: StorageUploadInitRequest,
+  payload: StorageUploadInitRequest | BackendStorageUploadInitRequest,
+  signal?: AbortSignal,
+): Promise<StorageUploadInitResponse> {
   try {
     ensureNotAborted(signal);
     validateInitRequest(request);
 
-    const response = await clienteApi.post(ALMACENAMIENTO_DOCUMENTAL_ENDPOINTS.init, request, withSignal(signal));
+    const response = await clienteApi.post(ALMACENAMIENTO_DOCUMENTAL_ENDPOINTS.init, payload, withSignal(signal));
     return unwrapStorageResponse(response.data, validateStorageUploadInitResponse, {
       code: "storage_init_error",
       phase: "initializing",
@@ -197,16 +207,18 @@ export async function uploadAndStoreOneDocument(input: UploadOneDocumentInput): 
 
     const initialChunkSizeBytes = input.initialChunkSizeBytes ?? DEFAULT_STORAGE_CHUNK_SIZE_BYTES;
     const initialTotalChunks = calculateTotalChunks(input.file.size, initialChunkSizeBytes);
+    const initRequest: StorageUploadInitRequest = {
+      nombreOriginal: input.file.name,
+      tamanoBytes: input.file.size,
+      extension: normalizeFileExtension(input.file.name),
+      hashSha256Esperado: null,
+      numeroChunks: initialTotalChunks,
+    };
     emitProgress(input, { phase: "initializing", percent: 0, totalBytes: input.file.size });
 
-    temporal = await initTemporaryUpload(
-      {
-        nombreOriginal: input.file.name,
-        tamanoBytes: input.file.size,
-        extension: normalizeFileExtension(input.file.name),
-        hashSha256Esperado: null,
-        numeroChunks: initialTotalChunks,
-      },
+    temporal = await initTemporaryUploadWithPayload(
+      initRequest,
+      input.backendPayloadCase === "pascal" ? toBackendStorageUploadInitRequest(initRequest) : initRequest,
       input.signal,
     );
 
@@ -238,6 +250,15 @@ export async function uploadAndStoreOneDocument(input: UploadOneDocumentInput): 
 
     ensureNotAborted(input.signal);
     emitProgress(input, { phase: "completing", percent: 0, totalBytes: input.file.size });
+    if (input.validateStatusBeforeComplete) {
+      const status = await getTemporaryUploadStatus({
+        rutaTemporalId: temporal.rutaTemporalId,
+        archivoTemporalId: temporal.archivoTemporalId,
+        signal: input.signal,
+      });
+      validateReadyToComplete(status, input.file.size);
+    }
+
     await completeTemporaryUpload({
       rutaTemporalId: temporal.rutaTemporalId,
       archivoTemporalId: temporal.archivoTemporalId,
@@ -247,7 +268,10 @@ export async function uploadAndStoreOneDocument(input: UploadOneDocumentInput): 
 
     ensureNotAborted(input.signal);
     emitProgress(input, { phase: "storing", percent: 0, totalBytes: input.file.size });
-    const storeResult = await almacenarDocumentoInternal(buildStoreRequest(input, temporal), input.signal);
+    const storeRequest = buildStoreRequest(input, temporal);
+    const storePayload =
+      input.backendPayloadCase === "pascal" ? toBackendAlmacenarDocumentoRequest(storeRequest) : storeRequest;
+    const storeResult = await almacenarDocumentoInternal(storeRequest, input.signal, storePayload);
     emitProgress(input, { phase: "storing", percent: 100, totalBytes: input.file.size });
 
     return {
@@ -286,12 +310,13 @@ export async function uploadAndStoreOneDocument(input: UploadOneDocumentInput): 
 async function almacenarDocumentoInternal(
   request: AlmacenarDocumentoRequest,
   signal?: AbortSignal,
+  payload: AlmacenarDocumentoRequest | BackendAlmacenarDocumentoRequest = request,
 ): Promise<{ response: AlmacenarDocumentoResponse; rawBackendResult?: unknown }> {
   try {
     ensureNotAborted(signal);
     validateStoreRequest(request);
 
-    const response = await clienteApi.post(ALMACENAMIENTO_DOCUMENTAL_ENDPOINTS.almacenar, request, withSignal(signal));
+    const response = await clienteApi.post(ALMACENAMIENTO_DOCUMENTAL_ENDPOINTS.almacenar, payload, withSignal(signal));
     const result = unwrapStorageResponse(response.data, validateAlmacenarDocumentoResponse, {
       code: "storage_store_error",
       phase: "storing",
@@ -322,6 +347,7 @@ export function unwrapStorageResponse<T>(
 
   const success = readBoolean(payload, "success", "Success");
   const data = readUnknown(payload, "data", "Data");
+  const meta = readUnknown(payload, "meta", "Meta");
   const requestId = readRequestId(payload);
   const hasEnvelope = success !== undefined || data !== undefined;
 
@@ -348,7 +374,7 @@ export function unwrapStorageResponse<T>(
   }
 
   return {
-    data: validateData(data),
+    data: validateData(mergeEnvelopeMetaForValidation(data, meta)),
     rawBackendResult: data,
     requestId,
   };
@@ -367,26 +393,51 @@ function validateStorageUploadInitResponse(data: unknown): StorageUploadInitResp
 function validateStorageUploadStatusResponse(data: unknown): StorageUploadStatusResponse {
   const record = requireRecord(data, "StorageUploadStatusResponse");
   return {
-    rutaTemporalId: requireNonEmptyStringField(record, "rutaTemporalId", "RutaTemporalId"),
-    archivoTemporalId: requireNonEmptyStringField(record, "archivoTemporalId", "ArchivoTemporalId"),
+    rutaTemporalId: getStringField(record, "rutaTemporalId", "RutaTemporalId") ?? "",
+    archivoTemporalId: getStringField(record, "archivoTemporalId", "ArchivoTemporalId") ?? "",
     estado: requireNonEmptyStringField(record, "estado", "Estado"),
-    chunksRecibidos: getNullableNumber(record, "chunksRecibidos", "ChunksRecibidos"),
+    chunksRecibidos: getNullableNumberArrayOrNumber(record, "chunksRecibidos", "ChunksRecibidos"),
+    chunksPendientes: getNullableNumberArrayOrNumber(record, "chunksPendientes", "ChunksPendientes"),
     totalChunks: getNullableNumber(record, "totalChunks", "TotalChunks"),
+    tamanoRecibidoBytes: getNullableNumber(record, "tamanoRecibidoBytes", "TamanoRecibidoBytes"),
     completado: getNullableBoolean(record, "completado", "Completado"),
   };
 }
 
 function validateAlmacenarDocumentoResponse(data: unknown): AlmacenarDocumentoResponse {
   const record = requireRecord(data, "AlmacenarDocumentoResponse");
+  const documentRecord = isRecord(record.Documento) ? record.Documento : isRecord(record.documento) ? record.documento : record;
+  const metaRecord = isRecord(record.meta) ? record.meta : isRecord(record.Meta) ? record.Meta : undefined;
+  const anexoRecord = isRecord(record.AnexoRespuesta)
+    ? record.AnexoRespuesta
+    : isRecord(record.anexoRespuesta)
+      ? record.anexoRespuesta
+      : undefined;
+
+  if (anexoRecord) {
+    const created = getBooleanField(anexoRecord, "created", "Created");
+    if (created !== true) {
+      throw new AlmacenamientoDocumentalUploadError({
+        code: "storage_contract_error",
+        message: "AnexoRespuesta.Created must be true",
+        details: record,
+      });
+    }
+  }
+
   return {
-    idAlmacen: requirePositiveNumberField(record, "idAlmacen", "IdAlmacen"),
+    idAlmacen: requirePositiveNumberField(documentRecord, "idAlmacen", "IdAlmacen"),
     idRegistroProduccionDocumental: requirePositiveNumberField(
-      record,
+      documentRecord,
       "idRegistroProduccionDocumental",
       "IdRegistroProduccionDocumental",
     ),
-    nombreArchivoFinal: requireNonEmptyStringField(record, "nombreArchivoFinal", "NombreArchivoFinal"),
-    requestId: requireNonEmptyStringField(record, "requestId", "RequestId"),
+    nombreArchivoFinal: requireNonEmptyStringField(documentRecord, "nombreArchivoFinal", "NombreArchivoFinal"),
+    requestId:
+      getStringField(documentRecord, "requestId", "RequestId") ??
+      getStringField(record, "requestId", "RequestId") ??
+      (metaRecord ? getStringField(metaRecord, "requestId", "RequestId") : undefined) ??
+      requireNonEmptyStringField(documentRecord, "requestId", "RequestId"),
   };
 }
 
@@ -426,6 +477,85 @@ function buildStoreRequest(input: UploadOneDocumentInput, temporal: StorageUploa
     rutaTemporalId: temporal.rutaTemporalId,
     documentos: [documentoEntrada],
   };
+}
+
+export function toBackendStorageUploadInitRequest(request: StorageUploadInitRequest): BackendStorageUploadInitRequest {
+  return {
+    NombreOriginal: request.nombreOriginal,
+    TamanoBytes: request.tamanoBytes,
+    Extension: request.extension,
+    HashSha256Esperado: request.hashSha256Esperado ?? null,
+    NumeroChunks: request.numeroChunks,
+  };
+}
+
+export function toBackendAlmacenarDocumentoRequest(
+  request: AlmacenarDocumentoRequest,
+): BackendAlmacenarDocumentoRequest {
+  const payload: BackendAlmacenarDocumentoRequest = {
+    NombreGabinete: request.nombreGabinete,
+    RutaTemporalId: request.rutaTemporalId,
+    NombreDocumento: request.nombreDocumento,
+    RequestId: request.requestId,
+    Documentos: request.documentos.map((documento) => ({
+      IdDocumento: documento.idDocumento ?? null,
+      ArchivoTemporalId: documento.archivoTemporalId,
+      NombreOriginal: documento.nombreOriginal,
+      Extension: documento.extension,
+      NumeroPaginas: documento.numeroPaginas ?? undefined,
+    })).map(removeUndefinedFields),
+    CamposIndexacion: request.camposIndexacion?.length
+      ? request.camposIndexacion.map((campo) => ({
+        NombreCampo: campo.nombreCampo,
+        Valor: campo.valor ?? null,
+        EsObligatorio: campo.esObligatorio ?? null,
+        }))
+      : undefined,
+    Inventario: request.inventario,
+    Trd: request.trd
+      ? {
+          IdTipoDocumento: request.trd.idTipoDocumento ?? null,
+          NombreTipoDocumento: request.trd.nombreTipoDocumento ?? null,
+        }
+      : undefined,
+    Expediente: request.expediente
+      ? {
+          IdExpediente: request.expediente.idExpediente ?? null,
+          IdTipoExpediente: request.expediente.idTipoExpediente ?? null,
+        }
+      : undefined,
+    Workflow: request.workflow
+      ? {
+          IdTareaWorkflow: request.workflow.idTareaWorkflow ?? null,
+          IdRutaWorkflow: request.workflow.idRutaWorkflow ?? null,
+        }
+      : undefined,
+    CabinetIndexSeed: request.cabinetIndexSeed
+      ? {
+          SourceModule: request.cabinetIndexSeed.sourceModule,
+          ProviderKey: request.cabinetIndexSeed.providerKey,
+          Version: request.cabinetIndexSeed.version,
+          Payload: {
+            ModoResolucion: request.cabinetIndexSeed.payload.modoResolucion,
+            ProveedorExterno: request.cabinetIndexSeed.payload.proveedorExterno ?? null,
+            RadicadoExterno: request.cabinetIndexSeed.payload.radicadoExterno ?? null,
+            MatriculaSII: request.cabinetIndexSeed.payload.matriculaSII ?? null,
+          },
+        }
+      : undefined,
+    AnexoRespuesta: request.anexoRespuesta
+      ? {
+          IdRespuestaRadicado: request.anexoRespuesta.idRespuestaRadicado,
+          NombreArchivo: request.anexoRespuesta.nombreArchivo,
+          TipoAdjunto: request.anexoRespuesta.tipoAdjunto,
+          Observacion: request.anexoRespuesta.observacion ?? null,
+        }
+      : undefined,
+    FullText: request.fullText ?? undefined,
+    NumeroPaginasDeclaradas: request.numeroPaginasDeclaradas ?? undefined,
+  };
+
+  return removeUndefinedFields(payload) as BackendAlmacenarDocumentoRequest;
 }
 
 function emitProgress(
@@ -477,9 +607,60 @@ function toStorageError(
   return new AlmacenamientoDocumentalUploadError({
     code: fallbackCode,
     phase,
-    message: error instanceof Error ? error.message : "Storage upload request failed",
+    message: readHttpErrorMessage(error) ?? (error instanceof Error ? error.message : "Storage upload request failed"),
+    details: readHttpErrorDetails(error),
     cause: error,
   });
+}
+
+function readHttpErrorMessage(error: unknown): string | undefined {
+  const details = readHttpErrorDetails(error);
+  if (!isRecord(details)) {
+    return undefined;
+  }
+
+  const userMessage = readFirstValidationMessage(details);
+  if (userMessage) {
+    return userMessage;
+  }
+
+  const title = getStringField(details, "title", "Title");
+  const message = getStringField(details, "message", "Message");
+  return message ?? title;
+}
+
+function readHttpErrorDetails(error: unknown): unknown {
+  if (!isRecord(error)) {
+    return undefined;
+  }
+
+  const response = error.response;
+  if (!isRecord(response)) {
+    return undefined;
+  }
+
+  return response.data;
+}
+
+function readFirstValidationMessage(details: Record<string, unknown>): string | undefined {
+  const errors = readUnknown(details, "errors", "Errors");
+  if (!isRecord(errors)) {
+    return undefined;
+  }
+
+  for (const [field, value] of Object.entries(errors)) {
+    if (Array.isArray(value)) {
+      const first = value.find((item): item is string => typeof item === "string" && item.trim().length > 0);
+      if (first) {
+        return `${field}: ${first}`;
+      }
+    }
+    if (typeof value === "string" && value.trim().length > 0) {
+      return `${field}: ${value.trim()}`;
+    }
+  }
+
+  return undefined;
 }
 
 function isAbortError(error: unknown): boolean {
@@ -573,6 +754,42 @@ function validateStoreRequest(request: AlmacenarDocumentoRequest): void {
   }
 }
 
+function validateReadyToComplete(status: StorageUploadStatusResponse, fileSizeBytes: number): void {
+  if (hasPendingChunks(status.chunksPendientes)) {
+    throw new AlmacenamientoDocumentalUploadError({
+      code: "storage_status_error",
+      phase: "status",
+      message: "Temporary upload has pending chunks",
+      details: status,
+    });
+  }
+
+  if (
+    typeof status.tamanoRecibidoBytes === "number" &&
+    Number.isFinite(status.tamanoRecibidoBytes) &&
+    status.tamanoRecibidoBytes !== fileSizeBytes
+  ) {
+    throw new AlmacenamientoDocumentalUploadError({
+      code: "storage_status_error",
+      phase: "status",
+      message: "Temporary upload received size does not match file size",
+      details: status,
+    });
+  }
+}
+
+function hasPendingChunks(value: StorageUploadStatusResponse["chunksPendientes"]): boolean {
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+
+  if (typeof value === "number") {
+    return value > 0;
+  }
+
+  return false;
+}
+
 function contractError(
   context: {
     code: AlmacenamientoDocumentalUploadErrorCode;
@@ -638,6 +855,26 @@ function getNullableNumber(record: Record<string, unknown>, ...keys: string[]): 
   return getNumberField(record, ...keys);
 }
 
+function getNullableNumberArrayOrNumber(
+  record: Record<string, unknown>,
+  ...keys: string[]
+): number[] | number | null | undefined {
+  for (const key of keys) {
+    const value = record[key];
+    if (value === null) {
+      return null;
+    }
+    if (Array.isArray(value)) {
+      return value.filter((item): item is number => typeof item === "number" && Number.isFinite(item));
+    }
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+  }
+
+  return undefined;
+}
+
 function getNullableBoolean(record: Record<string, unknown>, ...keys: string[]): boolean | null | undefined {
   for (const key of keys) {
     if (record[key] === null) {
@@ -694,4 +931,20 @@ function readRequestId(record: Record<string, unknown>): string | undefined {
   }
 
   return undefined;
+}
+
+function mergeEnvelopeMetaForValidation(data: unknown, meta: unknown): unknown {
+  if (!isRecord(data) || meta === undefined) {
+    return data;
+  }
+
+  return {
+    ...data,
+    meta,
+    Meta: meta,
+  };
+}
+
+function removeUndefinedFields<T extends Record<string, unknown>>(value: T): T {
+  return Object.fromEntries(Object.entries(value).filter(([, fieldValue]) => fieldValue !== undefined)) as T;
 }

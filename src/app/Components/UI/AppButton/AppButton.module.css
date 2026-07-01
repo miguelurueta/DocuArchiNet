@@ -1,13 +1,13 @@
 .button {
-  --app-button-primary: #0f5bd8;
-  --app-button-primary-hover: #1f6df0;
-  --app-button-primary-active: #0c4bad;
+  --app-button-primary: #2563eb;
+  --app-button-primary-hover: #1d4ed8;
+  --app-button-primary-active: #1e40af;
   --app-button-neutral: #f4f6fb;
   --app-button-neutral-border: #c6cfdd;
   --app-button-neutral-text: #16324f;
   --app-button-success: #1d7a52;
   --app-button-warning: #b7791f;
-  --app-button-danger: #b83232;
+  --app-button-danger: #dc2626;
   --app-button-ghost-hover: rgba(15, 91, 216, 0.08);
   --app-button-shadow: 0 10px 24px rgba(15, 52, 96, 0.14);
   align-items: center;
@@ -96,14 +96,14 @@
 }
 
 .variantPrimary {
-  background: linear-gradient(135deg, var(--app-button-primary), #2977f5);
+  background: linear-gradient(90deg, var(--app-button-primary) 0%, var(--app-button-primary-hover) 100%);
   border-color: var(--app-button-primary);
   color: #fff;
 }
 
 .variantPrimary:hover,
 .variantPrimary:focus-visible {
-  background: linear-gradient(135deg, var(--app-button-primary-hover), #3885ff) !important;
+  background: linear-gradient(90deg, #2f6ff0 0%, var(--app-button-primary-hover) 100%) !important;
   border-color: var(--app-button-primary-hover) !important;
   color: #fff !important;
 }
@@ -139,9 +139,22 @@
 }
 
 .variantDanger {
-  background: linear-gradient(135deg, var(--app-button-danger), #db4b4b);
+  background: linear-gradient(135deg, var(--app-button-danger), #ef4444);
   border-color: var(--app-button-danger);
   color: #fff;
+}
+
+.variantDanger:hover,
+.variantDanger:focus-visible {
+  background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
+  border-color: #b91c1c !important;
+  color: #fff !important;
+}
+
+.variantDanger:active {
+  background: #991b1b !important;
+  border-color: #991b1b !important;
+  color: #fff !important;
 }
 
 .variantGhost {
@@ -165,4 +178,19 @@
   color: var(--app-button-primary);
   text-decoration: underline;
   text-underline-offset: 0.18em;
+}
+
+.button:disabled,
+.button:disabled:hover,
+.button:disabled:focus-visible,
+.button[aria-disabled="true"],
+.button[aria-disabled="true"]:hover,
+.button[aria-disabled="true"]:focus-visible {
+  background: #eef2f7 !important;
+  border-color: #d5dde8 !important;
+  box-shadow: none !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed;
+  opacity: 1;
+  transform: none !important;
 }

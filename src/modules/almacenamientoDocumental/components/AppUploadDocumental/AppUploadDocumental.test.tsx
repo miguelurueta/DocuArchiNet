@@ -142,7 +142,7 @@ describe("[SPEC:SCRUMCORE-271] AppUploadDocumental", () => {
     fireEvent.click(screen.getByText("add-invalid"));
 
     expect(await screen.findByText("mal.exe")).toBeInTheDocument();
-    expect(screen.getAllByText(/Extension no permitida/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/la extension \.exe no esta permitida/)).toBeInTheDocument();
   });
 
   it("guarda un archivo individual con metadata, callbacks tipados y mapper", async () => {

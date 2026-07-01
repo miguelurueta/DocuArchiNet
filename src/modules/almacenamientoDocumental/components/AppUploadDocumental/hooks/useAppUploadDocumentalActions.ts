@@ -5,6 +5,7 @@ import type {
   AppProgressBatchSummary,
 } from "../../../../../app/Components/UI/AppProgressBatch";
 import type {
+  AlmacenamientoDocumentalUploadErrorCode,
   AlmacenarDocumentoRequest,
   UploadStorageProgress,
 } from "../../../types/almacenamientoDocumental.types";
@@ -27,6 +28,8 @@ export type UseAppUploadDocumentalActionsInput = Pick<
   | "context"
   | "proceso"
   | "modoDocumento"
+  | "buildStoreRequest"
+  | "storageOptions"
   | "onStored"
   | "onInterfaceRegistration"
   | "onBatchComplete"
@@ -57,6 +60,8 @@ export function useAppUploadDocumentalActions({
   context,
   proceso,
   modoDocumento,
+  buildStoreRequest: buildStoreRequestOverride,
+  storageOptions,
   operationId,
   validateFileForStore,
   markFile,
@@ -105,10 +110,10 @@ export function useAppUploadDocumentalActions({
       if (validationError) {
         markFile(item.uid, {
           state: "error",
-          error: validationError,
+          error: undefined,
           metadata: { error: validationError },
         });
-        throw new Error(validationError);
+        throw new UploadDocumentalValidationError(validationError);
       }
 
       const runOperationId = operationId;
@@ -121,8 +126,10 @@ export function useAppUploadDocumentalActions({
         fileUid: item.uid,
         file: item.file,
         initialChunkSizeBytes: config?.preferredChunkSizeBytes,
+        backendPayloadCase: storageOptions?.backendPayloadCase,
+        validateStatusBeforeComplete: storageOptions?.validateStatusBeforeComplete,
         signal,
-        request: buildStoreRequest({
+        request: (buildStoreRequestOverride ?? buildStoreRequest)({
           context,
           metadata,
           fileName: item.name,
@@ -169,12 +176,15 @@ export function useAppUploadDocumentalActions({
     [
       config?.preferredChunkSizeBytes,
       context,
+      buildStoreRequestOverride,
       markFile,
       modoDocumento,
       onInterfaceRegistration,
       onStored,
       operationId,
       proceso,
+      storageOptions?.backendPayloadCase,
+      storageOptions?.validateStatusBeforeComplete,
       validateFileForStore,
     ],
   );
@@ -191,8 +201,12 @@ export function useAppUploadDocumentalActions({
       try {
         await storeFile(item, controller.signal);
       } catch (error) {
-        const message = error instanceof Error ? error.message : "No fue posible guardar el archivo.";
-        markFile(uid, { state: controller.signal.aborted ? "cancelled" : "error", error: message });
+        const message = getFunctionalSaveErrorMessage(error, controller.signal.aborted);
+        markFile(uid, {
+          state: controller.signal.aborted ? "cancelled" : "error",
+          error: isUploadDocumentalValidationError(error) ? undefined : message,
+          metadata: { error: message },
+        });
         onError?.(error);
       } finally {
         activeControllersRef.current.delete(controller);
@@ -219,8 +233,12 @@ export function useAppUploadDocumentalActions({
         return { status: "success" };
       } catch (error) {
         const aborted = batchContext.signal.aborted;
-        const message = error instanceof Error ? error.message : "No fue posible guardar el archivo.";
-        markFile(item.uid, { state: aborted ? "cancelled" : "error", error: message });
+        const message = getFunctionalSaveErrorMessage(error, aborted);
+        markFile(item.uid, {
+          state: aborted ? "cancelled" : "error",
+          error: isUploadDocumentalValidationError(error) ? undefined : message,
+          metadata: { error: message },
+        });
         onError?.(error);
         return { status: aborted ? "skipped" : "controlled-error", message, canContinue: true };
       }
@@ -349,4 +367,65 @@ function getPhaseLabel(progress: UploadStorageProgress): string {
   };
 
   return labels[progress.phase];
+}
+
+function getFunctionalSaveErrorMessage(error: unknown, aborted: boolean): string {
+  if (aborted || readStorageErrorCode(error) === "storage_aborted") {
+    return "Carga cancelada. El archivo no fue almacenado.";
+  }
+
+  const code = readStorageErrorCode(error);
+  if (code) {
+    const messages: Record<AlmacenamientoDocumentalUploadErrorCode, string> = {
+      storage_aborted: "Carga cancelada. El archivo no fue almacenado.",
+      storage_contract_error:
+        "No se puede confirmar el guardado porque la respuesta del servidor no tiene el formato esperado.",
+      storage_init_error: "No fue posible iniciar la carga temporal del archivo. Intenta nuevamente.",
+      storage_chunk_error: "No fue posible subir el archivo completo. Intenta guardar nuevamente.",
+      storage_status_error: "No fue posible validar los chunks cargados. Intenta guardar nuevamente.",
+      storage_complete_error: "No fue posible completar la carga temporal del archivo. Intenta nuevamente.",
+      storage_cancel_error: "No fue posible cancelar la carga temporal en el servidor.",
+      storage_store_error:
+        "El archivo se cargo, pero no fue posible registrar el documento. Revisa los datos e intenta nuevamente.",
+    };
+
+    return messages[code];
+  }
+
+  if (error instanceof Error && error.message.trim()) {
+    return error.message;
+  }
+
+  return "No fue posible guardar el archivo. Intenta nuevamente.";
+}
+
+function readStorageErrorCode(error: unknown): AlmacenamientoDocumentalUploadErrorCode | undefined {
+  if (!error || typeof error !== "object") {
+    return undefined;
+  }
+
+  const code = (error as { code?: unknown }).code;
+  const validCodes: AlmacenamientoDocumentalUploadErrorCode[] = [
+    "storage_contract_error",
+    "storage_init_error",
+    "storage_chunk_error",
+    "storage_status_error",
+    "storage_complete_error",
+    "storage_cancel_error",
+    "storage_store_error",
+    "storage_aborted",
+  ];
+
+  return validCodes.find((value) => value === code);
+}
+
+class UploadDocumentalValidationError extends Error {
+  public constructor(message: string) {
+    super(message);
+    this.name = "UploadDocumentalValidationError";
+  }
+}
+
+function isUploadDocumentalValidationError(error: unknown): error is UploadDocumentalValidationError {
+  return error instanceof Error && error.name === "UploadDocumentalValidationError";
 }

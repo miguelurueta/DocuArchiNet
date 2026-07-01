@@ -31,12 +31,29 @@ export function AppUploadDocumental(props: AppUploadDocumentalProps) {
   } = props;
 
   const state = useAppUploadDocumentalState(props);
+  const {
+    files,
+    selectedUid,
+    config,
+    tiposDocumentales,
+    loading,
+    loaderError,
+    selectionDisabled,
+    summary,
+    handleFilesSelected,
+    setSelectedUid,
+    updateMetadata,
+    removeFile,
+    clearFiles,
+  } = state;
   const actions = useAppUploadDocumentalActions({
-    files: state.files,
-    config: state.config,
+    files,
+    config,
     context: props.context,
     proceso: props.proceso,
     modoDocumento: props.modoDocumento,
+    buildStoreRequest: props.buildStoreRequest,
+    storageOptions: props.storageOptions,
     operationId: state.operationId,
     validateFileForStore: state.validateFileForStore,
     markFile: state.markFile,
@@ -48,22 +65,22 @@ export function AppUploadDocumental(props: AppUploadDocumentalProps) {
 
   const tipoOptions = useMemo<AppInputSelectOption<number>[]>(
     () =>
-      state.tiposDocumentales.map((tipo) => ({
+      tiposDocumentales.map((tipo) => ({
         label: tipo.nombreTipoDocumento,
         value: tipo.idTipoDocumento,
       })),
-    [state.tiposDocumentales],
+    [tiposDocumentales],
   );
 
-  const requiresTypology = Boolean(tipologiaObligatoria ?? state.config?.requiereTipologia);
-  const shouldRenderDate = Boolean(requiereFechaCarga ?? state.config?.requiereFechaCarga);
-  const isDateRequired = Boolean(fechaCargaObligatoria ?? state.config?.fechaCargaObligatoria ?? shouldRenderDate);
+  const requiresTypology = Boolean(tipologiaObligatoria ?? config?.requiereTipologia);
+  const shouldRenderDate = Boolean(requiereFechaCarga ?? config?.requiereFechaCarga);
+  const isDateRequired = Boolean(fechaCargaObligatoria ?? config?.fechaCargaObligatoria ?? shouldRenderDate);
 
   const handleTypologyChange = useCallback(
     (uid: string, value: number | number[] | undefined) => {
       const selectedValue = Array.isArray(value) ? value[0] : value;
-      const selected = state.tiposDocumentales.find((tipo) => tipo.idTipoDocumento === selectedValue);
-      state.updateMetadata(
+      const selected = tiposDocumentales.find((tipo) => tipo.idTipoDocumento === selectedValue);
+      updateMetadata(
         uid,
         {
           idTipoDocumento: selected?.idTipoDocumento,
@@ -73,11 +90,17 @@ export function AppUploadDocumental(props: AppUploadDocumentalProps) {
         true,
       );
     },
-    [state],
+    [tiposDocumentales, updateMetadata],
   );
 
   const renderMetadata = useCallback(
-    ({ item, disabled }: { item: AppUploadBatchFileItem<UploadDocumentalFileMetadata>; disabled: boolean }) => {
+    ({
+      item,
+      disabled,
+    }: {
+      item: AppUploadBatchFileItem<UploadDocumentalFileMetadata>;
+      disabled: boolean;
+    }) => {
       const metadata = item.metadata ?? {};
 
       return (
@@ -88,7 +111,7 @@ export function AppUploadDocumental(props: AppUploadDocumentalProps) {
               options={tipoOptions}
               size="sm"
               placeholder="Tipologia"
-              disabled={disabled || state.tiposDocumentales.length === 0}
+              disabled={disabled || tiposDocumentales.length === 0}
               allowClear
               searchable
               label="Tipologia"
@@ -112,13 +135,12 @@ export function AppUploadDocumental(props: AppUploadDocumentalProps) {
               error={Boolean(metadata.error && isDateRequired && !metadata.fechaCarga)}
               aria-label={`Fecha documental de ${item.name}`}
               onChange={(event) =>
-                state.updateMetadata(item.uid, { fechaCarga: event.currentTarget.value || undefined })
+                updateMetadata(item.uid, { fechaCarga: event.currentTarget.value || undefined })
               }
             />
           ) : null}
 
           {metadata.warning ? <p className={styles.warningText}>{metadata.warning}</p> : null}
-          {metadata.error ? <p className={styles.errorText}>{metadata.error}</p> : null}
         </div>
       );
     },
@@ -128,8 +150,9 @@ export function AppUploadDocumental(props: AppUploadDocumentalProps) {
       isDateRequired,
       requiresTypology,
       shouldRenderDate,
-      state,
+      tiposDocumentales.length,
       tipoOptions,
+      updateMetadata,
     ],
   );
 
@@ -139,39 +162,39 @@ export function AppUploadDocumental(props: AppUploadDocumentalProps) {
 
   return (
     <div className={styles.root} data-embedded={embedded ? "true" : "false"}>
-      {state.loaderError ? (
-        <Alert className={styles.alert} type="error" showIcon title={state.loaderError} />
+      {loaderError ? (
+        <Alert className={styles.alert} type="error" showIcon title={loaderError} />
       ) : null}
 
       <AppUploadBatchView<UploadDocumentalFileMetadata>
         title={title}
         description="Carga documental por archivo con tipologia y registro individual."
-        files={state.files}
-        selectedUid={state.selectedUid}
-        accept={state.config?.accept}
-        maxSize={state.config?.maxSizeBytes}
-        multiple={state.config?.multiple ?? true}
+        files={files}
+        selectedUid={selectedUid}
+        accept={config?.accept}
+        maxSize={config?.maxSizeBytes}
+        multiple={config?.multiple ?? true}
         drag
-        disabled={state.selectionDisabled}
-        loading={state.loading}
-        canAddFiles={!state.selectionDisabled}
+        disabled={selectionDisabled}
+        loading={loading}
+        canAddFiles={!selectionDisabled}
         canSaveAll={actions.canSaveAll}
         canSaveOne={allowSingleFileStore}
-        canClearAll={state.files.length > 0}
-        summary={state.summary}
+        canClearAll={files.length > 0}
+        summary={summary}
         emptyMessage="No hay documentos en la cola."
-        onFilesSelected={state.handleFilesSelected}
-        onSelectFile={state.setSelectedUid}
-        onPreviewFile={state.setSelectedUid}
-        onRemoveFile={state.removeFile}
-        onClearAll={state.clearFiles}
+        onFilesSelected={handleFilesSelected}
+        onSelectFile={setSelectedUid}
+        onPreviewFile={setSelectedUid}
+        onRemoveFile={removeFile}
+        onClearAll={clearFiles}
         onSaveFile={(uid) => void actions.saveOne(uid)}
         onSaveAll={actions.saveAll}
-        onClosePreview={() => state.setSelectedUid(undefined)}
+        onClosePreview={() => setSelectedUid(undefined)}
         renderMetadata={renderMetadata}
         renderFooterExtra={(summary) => (
           <div className={styles.footerCounters}>
-            <span>Pendientes: {summary.ready + summary.queued}</span>
+            <span>Archivos: {summary.ready + summary.queued}</span>
             <span>Errores: {summary.error}</span>
             <span>Almacenados: {summary.done}</span>
           </div>

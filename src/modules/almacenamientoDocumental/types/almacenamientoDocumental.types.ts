@@ -19,6 +19,14 @@ export type StorageUploadInitRequest = {
   numeroChunks: number;
 };
 
+export type BackendStorageUploadInitRequest = {
+  NombreOriginal: string;
+  TamanoBytes: number;
+  Extension: string;
+  HashSha256Esperado?: string | null;
+  NumeroChunks: number;
+};
+
 export type StorageUploadInitResponse = {
   rutaTemporalId: string;
   archivoTemporalId: string;
@@ -30,8 +38,10 @@ export type StorageUploadStatusResponse = {
   rutaTemporalId: string;
   archivoTemporalId: string;
   estado: string;
-  chunksRecibidos?: number | null;
+  chunksRecibidos?: number[] | number | null;
+  chunksPendientes?: number[] | number | null;
   totalChunks?: number | null;
+  tamanoRecibidoBytes?: number | null;
   completado?: boolean | null;
 };
 
@@ -50,11 +60,19 @@ export type StorageUploadCancelResponse = {
 };
 
 export type DocumentoEntrada = {
-  idDocumento?: number | null;
+  idDocumento?: number | string | null;
   archivoTemporalId: string;
   nombreOriginal: string;
   extension: string;
   numeroPaginas?: number | null;
+};
+
+export type BackendDocumentoEntrada = {
+  IdDocumento?: number | string | null;
+  ArchivoTemporalId: string;
+  NombreOriginal: string;
+  Extension: string;
+  NumeroPaginas?: number | null;
 };
 
 export type CampoIndexacionStorage = {
@@ -63,9 +81,20 @@ export type CampoIndexacionStorage = {
   esObligatorio?: boolean | null;
 };
 
+export type BackendCampoIndexacionStorage = {
+  NombreCampo: string;
+  Valor?: string | null;
+  EsObligatorio?: boolean | null;
+};
+
 export type TrdStorage = {
   idTipoDocumento?: number | null;
   nombreTipoDocumento?: string | null;
+};
+
+export type BackendTrdStorage = {
+  IdTipoDocumento?: number | null;
+  NombreTipoDocumento?: string | null;
 };
 
 export type ExpedienteStorage = {
@@ -73,9 +102,57 @@ export type ExpedienteStorage = {
   idTipoExpediente?: number | null;
 };
 
+export type BackendExpedienteStorage = {
+  IdExpediente?: number | null;
+  IdTipoExpediente?: number | null;
+};
+
 export type WorkflowStorage = {
   idTareaWorkflow?: number | null;
   idRutaWorkflow?: number | null;
+};
+
+export type BackendWorkflowStorage = {
+  IdTareaWorkflow?: number | null;
+  IdRutaWorkflow?: number | null;
+};
+
+export type AnexoRespuestaStorage = {
+  idRespuestaRadicado: number;
+  nombreArchivo: string;
+  tipoAdjunto: "respuesta" | string;
+  observacion?: string | null;
+};
+
+export type BackendAnexoRespuestaStorage = {
+  IdRespuestaRadicado: number;
+  NombreArchivo: string;
+  TipoAdjunto: "respuesta" | string;
+  Observacion?: string | null;
+};
+
+export type CabinetIndexSeedStorage = {
+  sourceModule: "RADICACION" | string;
+  providerKey: "RADICACION" | string;
+  version: string;
+  payload: {
+    modoResolucion: "RespuestaRadicado" | string;
+    proveedorExterno?: string | null;
+    radicadoExterno?: string | null;
+    matriculaSII?: string | null;
+  };
+};
+
+export type BackendCabinetIndexSeedStorage = {
+  SourceModule: "RADICACION" | string;
+  ProviderKey: "RADICACION" | string;
+  Version: string;
+  Payload: {
+    ModoResolucion: "RespuestaRadicado" | string;
+    ProveedorExterno?: string | null;
+    RadicadoExterno?: string | null;
+    MatriculaSII?: string | null;
+  };
 };
 
 export type AlmacenarDocumentoRequest = {
@@ -89,8 +166,27 @@ export type AlmacenarDocumentoRequest = {
   trd?: TrdStorage | null;
   expediente?: ExpedienteStorage | null;
   workflow?: WorkflowStorage | null;
+  cabinetIndexSeed?: CabinetIndexSeedStorage | null;
+  anexoRespuesta?: AnexoRespuestaStorage | null;
   fullText?: string | null;
   numeroPaginasDeclaradas?: number | null;
+};
+
+export type BackendAlmacenarDocumentoRequest = {
+  NombreGabinete: string;
+  RutaTemporalId: string;
+  NombreDocumento: string;
+  RequestId: string;
+  Documentos: BackendDocumentoEntrada[];
+  CamposIndexacion?: BackendCampoIndexacionStorage[] | null;
+  Inventario?: unknown;
+  Trd?: BackendTrdStorage | null;
+  Expediente?: BackendExpedienteStorage | null;
+  Workflow?: BackendWorkflowStorage | null;
+  CabinetIndexSeed?: BackendCabinetIndexSeedStorage | null;
+  AnexoRespuesta?: BackendAnexoRespuestaStorage | null;
+  FullText?: string | null;
+  NumeroPaginasDeclaradas?: number | null;
 };
 
 export type AlmacenarDocumentoResponse = {
@@ -98,6 +194,32 @@ export type AlmacenarDocumentoResponse = {
   idRegistroProduccionDocumental: number;
   nombreArchivoFinal: string;
   requestId: string;
+};
+
+export type WorkflowAnexoStorageResult = {
+  documento: {
+    idAlmacen: number;
+    idRegistroProduccionDocumental: number;
+    nombreArchivoFinal: string;
+  };
+  anexoRespuesta: {
+    idAnexoRespuesta?: number | null;
+    idRespuestaRadicado: number;
+    idAlmacen: number;
+    nombreGabinete: string;
+    nombreArchivo: string;
+    created: boolean;
+  };
+  indice?: {
+    providerKey?: string | null;
+    resolved?: boolean | null;
+    sourceTrace?: string | null;
+  } | null;
+  workflow?: {
+    logInserted?: boolean | null;
+    idTareaWorkflow?: number | null;
+    idRutaWorkflow?: number | null;
+  } | null;
 };
 
 export type UploadStoragePhase = "initializing" | "uploading" | "completing" | "storing";
@@ -118,6 +240,8 @@ export type UploadOneDocumentInput = {
   request: Omit<AlmacenarDocumentoRequest, "rutaTemporalId" | "documentos"> & {
     documento?: Partial<DocumentoEntrada>;
   };
+  backendPayloadCase?: "camel" | "pascal";
+  validateStatusBeforeComplete?: boolean;
   initialChunkSizeBytes?: number;
   signal?: AbortSignal;
   onProgress?: (progress: UploadStorageProgress) => void;

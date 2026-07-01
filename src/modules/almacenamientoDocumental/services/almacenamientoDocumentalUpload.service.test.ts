@@ -242,6 +242,116 @@ describe("[SPEC:SCRUMCORE-272] almacenamientoDocumentalUpload service", () => {
     ]);
   });
 
+  it("can send PascalCase payloads and validates status before complete", async () => {
+    mockedPost.mockResolvedValueOnce(initEnvelope(3));
+    mockedPut.mockResolvedValue({ data: { success: true, data: {} } });
+    mockedGet.mockResolvedValueOnce({
+      data: {
+        success: true,
+        data: {
+          Estado: "Uploading",
+          ChunksRecibidos: [0, 1],
+          ChunksPendientes: [],
+          TamanoRecibidoBytes: 6,
+        },
+      },
+    });
+    mockedPost.mockResolvedValueOnce({ data: { success: true, data: { Estado: "Completed" } } });
+    mockedPost.mockResolvedValueOnce({
+      data: {
+        success: true,
+        data: {
+          Documento: {
+            IdAlmacen: 10,
+            IdRegistroProduccionDocumental: 20,
+            NombreArchivoFinal: "DIG000010.pdf",
+          },
+          AnexoRespuesta: {
+            IdRespuestaRadicado: 672,
+            IdAlmacen: 10,
+            NombreGabinete: "CORRESPO",
+            NombreArchivo: "scan.pdf",
+            Created: true,
+          },
+        },
+        meta: { RequestId: "req-1" },
+      },
+    });
+
+    await expect(
+      uploadAndStoreOneDocument({
+        ...uploadInput(),
+        backendPayloadCase: "pascal",
+        validateStatusBeforeComplete: true,
+      }),
+    ).resolves.toMatchObject({
+      response: {
+        idAlmacen: 10,
+        idRegistroProduccionDocumental: 20,
+        nombreArchivoFinal: "DIG000010.pdf",
+        requestId: "req-1",
+      },
+    });
+
+    expect(mockedPost).toHaveBeenNthCalledWith(
+      1,
+      ALMACENAMIENTO_DOCUMENTAL_ENDPOINTS.init,
+      expect.objectContaining({
+        NombreOriginal: "scan.pdf",
+        TamanoBytes: 6,
+        Extension: ".pdf",
+        NumeroChunks: 3,
+      }),
+      undefined,
+    );
+    expect(mockedGet).toHaveBeenCalledWith(
+      ALMACENAMIENTO_DOCUMENTAL_ENDPOINTS.status("ruta-1", "archivo-1"),
+      undefined,
+    );
+    expect(mockedPost).toHaveBeenNthCalledWith(
+      3,
+      ALMACENAMIENTO_DOCUMENTAL_ENDPOINTS.almacenar,
+      expect.objectContaining({
+        NombreGabinete: "Gestion",
+        RutaTemporalId: "ruta-1",
+        RequestId: "req-1",
+        Documentos: [
+          expect.objectContaining({
+            ArchivoTemporalId: "archivo-1",
+            NombreOriginal: "scan.pdf",
+            Extension: ".pdf",
+          }),
+        ],
+      }),
+      undefined,
+    );
+  });
+
+  it("does not complete or store when status has pending chunks", async () => {
+    mockedPost.mockResolvedValueOnce(initEnvelope(3));
+    mockedPut.mockResolvedValue({ data: { success: true, data: {} } });
+    mockedGet.mockResolvedValueOnce({
+      data: {
+        success: true,
+        data: {
+          Estado: "Uploading",
+          ChunksRecibidos: [0],
+          ChunksPendientes: [1],
+          TamanoRecibidoBytes: 3,
+        },
+      },
+    });
+
+    await expect(
+      uploadAndStoreOneDocument({
+        ...uploadInput(),
+        validateStatusBeforeComplete: true,
+      }),
+    ).rejects.toMatchObject({ code: "storage_status_error" });
+
+    expect(mockedPost).toHaveBeenCalledTimes(1);
+  });
+
   it("recalculates total chunks when backend returns a different chunkSizeBytes", async () => {
     mockedPost.mockResolvedValueOnce(initEnvelope(4));
     mockedPut.mockResolvedValue({ data: { success: true, data: {} } });

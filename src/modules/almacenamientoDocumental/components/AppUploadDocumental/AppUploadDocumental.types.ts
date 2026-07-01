@@ -166,6 +166,15 @@ export type AppUploadDocumentalProps = {
     proceso: UploadDocumentalProcessKey;
     context: UploadDocumentalContext;
   }) => Promise<TipoDocumentalOption[]>;
+  buildStoreRequest?: (
+    input: BuildAlmacenarDocumentoRequestInput,
+  ) => Omit<import("../../types/almacenamientoDocumental.types").AlmacenarDocumentoRequest, "rutaTemporalId" | "documentos"> & {
+    documento?: Partial<import("../../types/almacenamientoDocumental.types").DocumentoEntrada>;
+  };
+  storageOptions?: {
+    backendPayloadCase?: "camel" | "pascal";
+    validateStatusBeforeComplete?: boolean;
+  };
   onStored?: (result: AlmacenarDocumentoStoredResult) => void;
   onInterfaceRegistration?: (events: UploadDocumentalInterfaceRegistration[]) => void;
   onBatchComplete?: (summary: UploadDocumentalBatchSummary) => void;

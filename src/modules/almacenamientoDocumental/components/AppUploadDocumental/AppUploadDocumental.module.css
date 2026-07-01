@@ -1,6 +1,17 @@
 .root {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
   width: 100%;
+  min-height: 0;
   min-width: 0;
+}
+
+.root > :global(section) {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .alert {
@@ -9,16 +20,67 @@
 
 .metadataGrid {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(150px, 180px);
-  gap: 10px;
-  align-items: start;
+  grid-template-columns: minmax(230px, 1fr) minmax(130px, 160px);
+  gap: 4px;
+  align-items: end;
+  width: 100%;
+}
+
+.metadataGrid :global([class*="_field_"]) {
+  gap: 2px;
+}
+
+.metadataGrid :global(label) {
+  color: #475569;
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.metadataGrid :global([class*="_field_"]:has(.ant-select-status-error) label) {
+  color: #b42318;
+}
+
+.metadataGrid :global(.ant-select-selector) {
+  min-height: 28px !important;
+  border-color: #cbd8e6 !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: inset 0 1px 1px rgba(15, 23, 42, 0.03) !important;
+}
+
+.metadataGrid :global(.ant-select-focused .ant-select-selector),
+.metadataGrid :global(.ant-select-selector:focus),
+.metadataGrid :global(.ant-select-selector:focus-within) {
+  border-color: #2563eb !important;
+  box-shadow:
+    0 0 0 2px rgba(37, 99, 235, 0.14),
+    inset 0 1px 1px rgba(15, 23, 42, 0.03) !important;
+}
+
+.metadataGrid :global(.ant-select-selection-placeholder),
+.metadataGrid :global(.ant-select-selection-item) {
+  color: #334155;
+  font-size: 0.74rem;
+}
+
+.metadataGrid :global(.ant-select-status-error .ant-select-selector) {
+  border-color: #ef4444 !important;
+  background: #fffafa !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.12) !important;
+}
+
+.metadataGrid :global(.ant-select-status-error .ant-select-selection-placeholder),
+.metadataGrid :global(.ant-select-status-error .ant-select-selection-item),
+.metadataGrid :global(.ant-select-status-error .ant-select-arrow) {
+  color: #b42318 !important;
 }
 
 .warningText,
 .errorText {
   grid-column: 1 / -1;
   margin: 0;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.35;
 }
 
