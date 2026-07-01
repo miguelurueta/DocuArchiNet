@@ -16,6 +16,7 @@ import type {
   DynamsoftDevice,
   DynamsoftWebTwainFactory,
   DynamsoftWebTwainObject,
+  DynamsoftImageType,
   DynamsoftWindow,
   PdfGenerationResult,
   PageCropSelection,
@@ -1109,23 +1110,111 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     this.activeOperation = "generatePdf";
 
     try {
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        dwt.ConvertToBlob(
-          pageIndices,
-          "application/pdf",
-          (nextBlob) => {
-            resolve(nextBlob);
-          },
-          (_code, message) => {
-            reject(
-              new DynamsoftScannerError({
-                code: "PDF_GENERATION_FAILED",
-                message: message || "No fue posible generar el PDF.",
-              }),
-            );
-          },
-        );
-      });
+      const convertToBlob = async (
+        targetPageIndices: number[],
+        type: DynamsoftImageType,
+      ): Promise<Blob> =>
+        new Promise<Blob>((resolve, reject) => {
+          dwt.ConvertToBlob(
+            targetPageIndices,
+            type,
+            (nextBlob) => {
+              resolve(nextBlob);
+            },
+            (_code, message) => {
+              reject(
+                new DynamsoftScannerError({
+                  code: "PDF_GENERATION_FAILED",
+                  message: message || "No fue posible generar el PDF.",
+                }),
+              );
+            },
+          );
+        });
+
+      const runtimePdfType = (dwt as unknown as {
+        EnumDWT_ImageType?: { IT_PDF?: DynamsoftImageType };
+      }).EnumDWT_ImageType?.IT_PDF;
+      const globalPdfType = (
+        this.options.windowRef.Dynamsoft?.DWT as unknown as {
+          EnumDWT_ImageType?: { IT_PDF?: DynamsoftImageType };
+        }
+      )?.EnumDWT_ImageType?.IT_PDF;
+      const pdfImageTypes: DynamsoftImageType[] = [
+        runtimePdfType,
+        globalPdfType,
+        "application/pdf",
+      ].filter((value): value is DynamsoftImageType => value !== undefined);
+
+      const pdfImageTypesSet = Array.from(new Set(pdfImageTypes));
+      let lastError: unknown = null;
+      let blob: Blob | null = null;
+
+      for (const imageType of pdfImageTypesSet) {
+        try {
+          blob = await convertToBlob(pageIndices, imageType);
+          break;
+        } catch (error) {
+          lastError = error;
+          if (typeof console !== "undefined") {
+            console.error("[generatePdf][attemptError]", imageType, error);
+          }
+          if (!(error instanceof DynamsoftScannerError)) {
+            throw error;
+          }
+          if (!error.message.toLowerCase().includes("image type is not supported")) {
+            throw error;
+          }
+          continue;
+        }
+      }
+
+      if (!blob) {
+        try {
+          const pageBlobs = await Promise.all(
+            pageIndices.map(async (pageIndex) => {
+              try {
+                return await convertToBlob([pageIndex], "image/png" as DynamsoftImageType);
+              } catch {
+                return await convertToBlob([pageIndex], "image/jpeg" as DynamsoftImageType);
+              }
+            }),
+          );
+          const { PDFDocument } = await import("pdf-lib");
+          const pdfDoc = await PDFDocument.create();
+
+          for (const pageBlob of pageBlobs) {
+            const imageBytes = new Uint8Array(await pageBlob.arrayBuffer());
+            let embeddedPage;
+            try {
+              embeddedPage = await pdfDoc.embedPng(imageBytes);
+            } catch {
+              embeddedPage = await pdfDoc.embedJpg(imageBytes);
+            }
+            const page = pdfDoc.addPage([embeddedPage.width, embeddedPage.height]);
+            page.drawImage(embeddedPage, {
+              x: 0,
+              y: 0,
+              width: embeddedPage.width,
+              height: embeddedPage.height,
+            });
+          }
+
+          const pdfBytes = await pdfDoc.save();
+          blob = new Blob([pdfBytes], { type: "application/pdf" });
+          lastError = null;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      if (!blob) {
+        throw lastError ?? new DynamsoftScannerError({
+          code: "PDF_GENERATION_FAILED",
+          message: "No fue posible generar el PDF.",
+        });
+      }
+
       this.ensureNotStale(operationGeneration);
 
       const normalizedFileName = fileName.toLowerCase().endsWith(".pdf")

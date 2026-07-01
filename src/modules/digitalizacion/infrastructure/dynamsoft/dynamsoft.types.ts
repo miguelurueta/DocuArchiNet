@@ -203,7 +203,7 @@ export type DynamsoftAcquireOptions = {
   IfDisableSourceAfterAcquire: boolean;
 };
 
-export type DynamsoftImageType = "application/pdf";
+export type DynamsoftImageType = "application/pdf" | number;
 
 export type DynamsoftWindow = Window & {
   Image?: typeof Image;
