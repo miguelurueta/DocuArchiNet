@@ -557,6 +557,56 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
     }
   });
 
+  it("uses IsBlankImageAsync when available and avoids canvas-based candidate analysis", async () => {
+    const dwt = createDwt(4);
+    const createElementSpy = vi.spyOn(document, "createElement");
+    dwt.IsBlankImageAsync = vi.fn(async (index: number) => index % 2 === 0);
+
+    const client = createClient(createRuntime(dwt));
+    const infoSpy = vi.spyOn(console, "info").mockImplementation(() => undefined);
+
+    try {
+      await client.initialize();
+      await client.selectDevice("0");
+      const pages = await client.scan({ deviceId: "0", removeBlankPages: true });
+
+      expect(dwt.IsBlankImageAsync).toHaveBeenCalledWith(
+        0,
+        { minBlockHeight: 20, maxBlockHeight: 30 },
+      );
+      expect(dwt.IsBlankImageAsync).toHaveBeenCalledWith(
+        1,
+        { minBlockHeight: 20, maxBlockHeight: 30 },
+      );
+      expect(dwt.IsBlankImageAsync).toHaveBeenCalledWith(
+        2,
+        { minBlockHeight: 20, maxBlockHeight: 30 },
+      );
+      expect(dwt.IsBlankImageAsync).toHaveBeenCalledWith(
+        3,
+        { minBlockHeight: 20, maxBlockHeight: 30 },
+      );
+      expect(dwt.RemoveImage).toHaveBeenCalledTimes(2);
+      expect(dwt.RemoveImage).toHaveBeenNthCalledWith(1, 2);
+      expect(dwt.RemoveImage).toHaveBeenNthCalledWith(2, 0);
+      expect(pages.map((page) => page.id)).toEqual(["scan-page-2", "scan-page-4"]);
+      expect(infoSpy).not.toHaveBeenCalledWith(
+        "BLANK_PAGE_ANALYSIS_START",
+        expect.any(Object),
+      );
+      expect(infoSpy).toHaveBeenCalledWith(
+        "BLANK_PAGE_DETECTED",
+        expect.objectContaining({
+          reason: "isBlankImageAsync",
+          pageId: "scan-page-1",
+        }),
+      );
+    } finally {
+      infoSpy.mockRestore();
+      createElementSpy.mockRestore();
+    }
+  });
+
   it("selects cached SourceCount scanner through legacy source index when SourceCount changes later", async () => {
     const dwt = createDwt();
     dwt.SelectDeviceAsync = vi.fn(async () => true);

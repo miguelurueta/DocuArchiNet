@@ -234,6 +234,24 @@ const getOverlayProgressLabel = (progress: ScanProgressSnapshot | null) => {
   return "Procesando documentos";
 };
 
+const downloadPdf = (pdfFile: File) => {
+  if (typeof document === "undefined" || typeof URL?.createObjectURL !== "function") {
+    return;
+  }
+
+  const downloadUrl = URL.createObjectURL(pdfFile);
+  const anchor = document.createElement("a");
+
+  anchor.href = downloadUrl;
+  anchor.download = pdfFile.name;
+  anchor.rel = "noopener";
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(downloadUrl);
+};
+
 const getScannerLoadingProgress = ({
   loading,
   status,
@@ -914,7 +932,16 @@ export function DigitalizacionDocumentalWorkspace({
       activeContext?.radicado || activeContext?.idDocumentoDestino
         ? `digitalizacion-${activeContext?.radicado ?? activeContext?.idDocumentoDestino}`
         : "digitalizacion-documental";
-    void generatePdf(fileName);
+
+    void (async () => {
+      const pdf = await generatePdf(fileName);
+
+      if (!pdf) {
+        return;
+      }
+
+      downloadPdf(pdf.file);
+    })();
   }, [activeContext, generatePdf]);
 
   const getEquivalentZoomFromActiveLayout = useCallback(() => {

@@ -16,6 +16,7 @@ import type {
   DynamsoftDevice,
   DynamsoftWebTwainFactory,
   DynamsoftWebTwainObject,
+  DynamsoftImageType,
   DynamsoftWindow,
   PdfGenerationResult,
   PageCropSelection,
@@ -46,6 +47,8 @@ const BLANK_PAGE_WHITE_PERCENTILE = 0.95;
 const BLANK_PAGE_DYNAMIC_WHITE_THRESHOLD_FLOOR = 225;
 const BLANK_PAGE_DYNAMSOFT_BLANK_IMAGE_THRESHOLD = 220;
 const BLANK_PAGE_DYNAMSOFT_BLANK_IMAGE_MAX_STDDEV = 28;
+const BLANK_PAGE_ASYNC_MIN_BLOCK_HEIGHT = 20;
+const BLANK_PAGE_ASYNC_MAX_BLOCK_HEIGHT = 30;
 
 type BlankPageAnalysis = {
   page: ScanPage;
@@ -1107,23 +1110,111 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     this.activeOperation = "generatePdf";
 
     try {
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        dwt.ConvertToBlob(
-          pageIndices,
-          "application/pdf",
-          (nextBlob) => {
-            resolve(nextBlob);
-          },
-          (_code, message) => {
-            reject(
-              new DynamsoftScannerError({
-                code: "PDF_GENERATION_FAILED",
-                message: message || "No fue posible generar el PDF.",
-              }),
-            );
-          },
-        );
-      });
+      const convertToBlob = async (
+        targetPageIndices: number[],
+        type: DynamsoftImageType,
+      ): Promise<Blob> =>
+        new Promise<Blob>((resolve, reject) => {
+          dwt.ConvertToBlob(
+            targetPageIndices,
+            type,
+            (nextBlob) => {
+              resolve(nextBlob);
+            },
+            (_code, message) => {
+              reject(
+                new DynamsoftScannerError({
+                  code: "PDF_GENERATION_FAILED",
+                  message: message || "No fue posible generar el PDF.",
+                }),
+              );
+            },
+          );
+        });
+
+      const runtimePdfType = (dwt as unknown as {
+        EnumDWT_ImageType?: { IT_PDF?: DynamsoftImageType };
+      }).EnumDWT_ImageType?.IT_PDF;
+      const globalPdfType = (
+        this.options.windowRef.Dynamsoft?.DWT as unknown as {
+          EnumDWT_ImageType?: { IT_PDF?: DynamsoftImageType };
+        }
+      )?.EnumDWT_ImageType?.IT_PDF;
+      const pdfImageTypes: DynamsoftImageType[] = [
+        runtimePdfType,
+        globalPdfType,
+        "application/pdf",
+      ].filter((value): value is DynamsoftImageType => value !== undefined);
+
+      const pdfImageTypesSet = Array.from(new Set(pdfImageTypes));
+      let lastError: unknown = null;
+      let blob: Blob | null = null;
+
+      for (const imageType of pdfImageTypesSet) {
+        try {
+          blob = await convertToBlob(pageIndices, imageType);
+          break;
+        } catch (error) {
+          lastError = error;
+          if (typeof console !== "undefined") {
+            console.error("[generatePdf][attemptError]", imageType, error);
+          }
+          if (!(error instanceof DynamsoftScannerError)) {
+            throw error;
+          }
+          if (!error.message.toLowerCase().includes("image type is not supported")) {
+            throw error;
+          }
+          continue;
+        }
+      }
+
+      if (!blob) {
+        try {
+          const pageBlobs = await Promise.all(
+            pageIndices.map(async (pageIndex) => {
+              try {
+                return await convertToBlob([pageIndex], "image/png" as DynamsoftImageType);
+              } catch {
+                return await convertToBlob([pageIndex], "image/jpeg" as DynamsoftImageType);
+              }
+            }),
+          );
+          const { PDFDocument } = await import("pdf-lib");
+          const pdfDoc = await PDFDocument.create();
+
+          for (const pageBlob of pageBlobs) {
+            const imageBytes = new Uint8Array(await pageBlob.arrayBuffer());
+            let embeddedPage;
+            try {
+              embeddedPage = await pdfDoc.embedPng(imageBytes);
+            } catch {
+              embeddedPage = await pdfDoc.embedJpg(imageBytes);
+            }
+            const page = pdfDoc.addPage([embeddedPage.width, embeddedPage.height]);
+            page.drawImage(embeddedPage, {
+              x: 0,
+              y: 0,
+              width: embeddedPage.width,
+              height: embeddedPage.height,
+            });
+          }
+
+          const pdfBytes = await pdfDoc.save();
+          blob = new Blob([pdfBytes], { type: "application/pdf" });
+          lastError = null;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      if (!blob) {
+        throw lastError ?? new DynamsoftScannerError({
+          code: "PDF_GENERATION_FAILED",
+          message: "No fue posible generar el PDF.",
+        });
+      }
+
       this.ensureNotStale(operationGeneration);
 
       const normalizedFileName = fileName.toLowerCase().endsWith(".pdf")
@@ -1587,9 +1678,11 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     pageRange: { startIndex: number; endIndex: number },
   ): Promise<BlankPageRemovalResult | null> {
     const dwtObject = dwt as Record<string, unknown>;
+    const isBlankImageAsync = dwtObject.IsBlankImageAsync;
     const isBlankImageExpress = dwtObject.IsBlankImageExpress;
+    const useAsyncBlankDetection = typeof isBlankImageAsync === "function";
 
-    if (typeof isBlankImageExpress !== "function") {
+    if (!useAsyncBlankDetection && typeof isBlankImageExpress !== "function") {
       return null;
     }
 
@@ -1612,14 +1705,35 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     const checkedIndexes = candidateIndexes.filter(
       (index) => index >= 0 && index < this.pages.length,
     );
-    const blankIndexes = checkedIndexes.filter((index) => {
-      try {
-        const isBlank = isBlankImageExpress.call(dwt, index);
-        return Boolean(isBlank);
-      } catch {
-        return false;
-      }
-    });
+    const blankIndexes = (
+      await Promise.all(
+        checkedIndexes.map(async (index) => {
+          try {
+            if (useAsyncBlankDetection) {
+              const isBlank = await (
+                isBlankImageAsync as (
+                  index: number,
+                  options?: {
+                    minBlockHeight?: number;
+                    maxBlockHeight?: number;
+                  },
+                ) => Promise<boolean>
+              ).call(dwt, index, {
+                minBlockHeight: BLANK_PAGE_ASYNC_MIN_BLOCK_HEIGHT,
+                maxBlockHeight: BLANK_PAGE_ASYNC_MAX_BLOCK_HEIGHT,
+              });
+              return isBlank ? index : null;
+            }
+
+            const isBlank = (isBlankImageExpress as (index: number) => boolean).call(dwt, index);
+            return isBlank ? index : null;
+          } catch {
+            return null;
+          }
+        }),
+      )
+    )
+      .filter((index): index is number => index !== null && index !== undefined);
 
     const blankPages = blankIndexes
       .map((index) => this.pages[index])
@@ -1636,9 +1750,25 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       };
     }
 
-    const blankPageAnalyses = await Promise.all(
-      blankPages.map((page) => this.analyzeBlankPageCandidate(page)),
-    );
+    const blankPageAnalyses = useAsyncBlankDetection
+      ? blankPages.map((page) => {
+          const imageSource = page.imageUrl
+            ? "original"
+            : page.thumbnailUrl
+              ? "thumbnail"
+              : "unavailable";
+          return {
+            page,
+            isBlank: true,
+            contentRatio: 0,
+            darkPixels: 0,
+            clusteredDarkPixels: 0,
+            darkRatio: 0,
+            reason: "isBlankImageAsync",
+            imageSource,
+          };
+        })
+      : await Promise.all(blankPages.map((page) => this.analyzeBlankPageCandidate(page)));
     const confirmedBlankPages = blankPageAnalyses.filter((analysis) => analysis.isBlank);
     const confirmedBlankIndexes = confirmedBlankPages
       .map((analysis) => analysis.page.index)
