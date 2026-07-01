@@ -83,6 +83,24 @@ type CropSelectionState = {
 };
 type SelectedPageIds = Set<string>;
 
+type ScanPipelinePerfRecord = {
+  scanId: string;
+  scanStartedAt: number;
+  stages: {
+    acquireImageMs?: number;
+    buildPagesFromBufferMs?: number;
+    blankDetectionMs?: number;
+    deskewMs?: number;
+    autoCropMs?: number;
+    autoRotateMs?: number;
+    reactFirstRenderMs?: number;
+  };
+};
+
+type ScanPipelinePerfWindow = Window & {
+  __docuarchiScanPipelinePerf?: ScanPipelinePerfRecord;
+};
+
 const MIN_PREVIEW_ZOOM = 50;
 const MAX_PREVIEW_ZOOM = 200;
 const PREVIEW_ZOOM_STEP = 25;
@@ -354,6 +372,8 @@ export function DigitalizacionDocumentalWorkspace({
   const previewImageRef = useRef<HTMLImageElement | null>(null);
   const progressiveRenderTimeoutRef = useRef<number | null>(null);
   const [toolbarHostReady, setToolbarHostReady] = useState(false);
+  const scanFirstRenderLoggedRef = useRef(false);
+  const activeScanRef = useRef(false);
 
   useEffect(() => {
     setToolbarHostReady(Boolean(toolbarHost?.current));
@@ -387,6 +407,69 @@ export function DigitalizacionDocumentalWorkspace({
     selectDevice,
     deskewPage,
   } = scanner;
+
+  useEffect(() => {
+    if (scanner.status === "scanning") {
+      activeScanRef.current = true;
+      scanFirstRenderLoggedRef.current = false;
+    }
+  }, [scanner.status]);
+
+  useEffect(() => {
+    if (!activeScanRef.current || scanFirstRenderLoggedRef.current) {
+      return;
+    }
+
+    if (scanner.status !== "ready" || scanner.pages.length <= 0 || typeof window === "undefined") {
+      return;
+    }
+
+    const perfRecord = (window as ScanPipelinePerfWindow).__docuarchiScanPipelinePerf;
+    if (!perfRecord || typeof perfRecord.scanStartedAt !== "number") {
+      return;
+    }
+
+    const reactFirstRenderMs = performance.now() - perfRecord.scanStartedAt;
+    perfRecord.stages.reactFirstRenderMs = reactFirstRenderMs;
+    const ranking = [
+      {
+        stage: "AcquireImage",
+        durationMs: Math.round(perfRecord.stages.acquireImageMs ?? 0),
+      },
+      {
+        stage: "Blank Detection",
+        durationMs: Math.round(perfRecord.stages.blankDetectionMs ?? 0),
+      },
+      {
+        stage: "Deskew",
+        durationMs: Math.round(perfRecord.stages.deskewMs ?? 0),
+      },
+      {
+        stage: "AutoCrop",
+        durationMs: Math.round(perfRecord.stages.autoCropMs ?? 0),
+      },
+      {
+        stage: "AutoRotate",
+        durationMs: Math.round(perfRecord.stages.autoRotateMs ?? 0),
+      },
+      {
+        stage: "buildPagesFromBuffer",
+        durationMs: Math.round(perfRecord.stages.buildPagesFromBufferMs ?? 0),
+      },
+      {
+        stage: "ReactFirstRender",
+        durationMs: Math.round(reactFirstRenderMs),
+      },
+    ].sort((left, right) => right.durationMs - left.durationMs);
+
+    console.info("[SCAN PERF] ReactFirstRender", {
+      scanId: perfRecord.scanId,
+      durationMs: Math.round(reactFirstRenderMs),
+    });
+    console.info("[SCAN PERF] Scan pipeline ranking", ranking);
+    console.table(ranking);
+    scanFirstRenderLoggedRef.current = true;
+  }, [scanner.status, scanner.pages.length]);
 
   const handleOperationCompleted = useCallback(
     (result: DigitalizacionResult) => {
