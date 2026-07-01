@@ -636,7 +636,10 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         progress: 35,
         cancellable: false,
       });
-      this.pages = this.buildPagesFromBuffer(dwt, nextCount, previousPages);
+      const shouldReusePages = options.captureOperation?.type === "APPEND";
+      this.pages = this.buildPagesFromBuffer(dwt, nextCount, previousPages, {
+        reusePreviousPages: shouldReusePages,
+      });
       if (options.removeBlankPages) {
         logBlankPageDiagnostic("BLANK_PAGE_FINAL_STATE", {
           stage: "buildPagesFromBuffer",
@@ -1092,7 +1095,32 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     dwt: DynamsoftWebTwainObject,
     count: number,
     previousPages: ScanPage[] = this.pages,
+    options: {
+      reusePreviousPages?: boolean;
+    } = {},
   ) {
+    if (options.reusePreviousPages) {
+      const stablePages = previousPages.slice(0, Math.min(previousPages.length, count)).map(
+        (page, index) => ({
+          ...page,
+          index,
+        }),
+      );
+
+      if (count <= previousPages.length) {
+        return stablePages;
+      }
+
+      return [
+        ...stablePages,
+        ...Array.from(
+          { length: Math.max(count - previousPages.length, 0) },
+          (_item, localIndex) =>
+            this.buildPageFromBuffer(dwt, previousPages.length + localIndex),
+        ),
+      ];
+    }
+
     return Array.from({ length: Math.max(count, 0) }, (_item, index) =>
       this.buildPageFromBuffer(dwt, index, previousPages[index]?.id),
     );

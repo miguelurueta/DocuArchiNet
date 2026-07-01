@@ -90,6 +90,7 @@ const PANEL_PREFERENCES_STORAGE_KEY = "docuarchi:digitalizacion:panel-preference
 const PAGE_HIGHLIGHT_DURATION_MS = 1400;
 const THUMBNAIL_VIRTUALIZATION_THRESHOLD = 100;
 const PAGE_ORGANIZER_VIRTUALIZATION_THRESHOLD = 100;
+const THUMBNAIL_RENDER_BATCH_SIZE = 24;
 const pageOrganizerDensityModes: Array<{ label: string; value: PageOrganizerDensity }> = [
   { label: "2x2", value: "density2" },
   { label: "3x3", value: "density3" },
@@ -335,6 +336,7 @@ export function DigitalizacionDocumentalWorkspace({
   const [cropDraft, setCropDraft] = useState<CropDraft | null>(null);
   const [cropSelection, setCropSelection] = useState<CropSelectionState | null>(null);
   const [highlightedPageId, setHighlightedPageId] = useState<string | null>(null);
+  const [renderedPageCount, setRenderedPageCount] = useState(0);
   const thumbnailViewMode: ThumbnailViewMode = "grid1";
   const [pageOrganizerDensity, setPageOrganizerDensity] =
     useState<PageOrganizerDensity>("density2");
@@ -350,6 +352,7 @@ export function DigitalizacionDocumentalWorkspace({
   const previewViewportRef = useRef<HTMLDivElement | null>(null);
   const previewPageSurfaceRef = useRef<HTMLDivElement | null>(null);
   const previewImageRef = useRef<HTMLImageElement | null>(null);
+  const progressiveRenderTimeoutRef = useRef<number | null>(null);
   const [toolbarHostReady, setToolbarHostReady] = useState(false);
 
   useEffect(() => {
@@ -1128,6 +1131,57 @@ export function DigitalizacionDocumentalWorkspace({
     };
   }, [highlightedPageId]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      setRenderedPageCount(scanner.pages.length);
+      return;
+    }
+
+    if (scanner.pages.length <= renderedPageCount) {
+      setRenderedPageCount(scanner.pages.length);
+      return;
+    }
+
+    if (progressiveRenderTimeoutRef.current) {
+      window.clearTimeout(progressiveRenderTimeoutRef.current);
+      progressiveRenderTimeoutRef.current = null;
+    }
+
+    const nextPageCount = Math.min(
+      renderedPageCount + THUMBNAIL_RENDER_BATCH_SIZE,
+      scanner.pages.length,
+    );
+    if (nextPageCount <= renderedPageCount) {
+      return;
+    }
+
+    progressiveRenderTimeoutRef.current = window.setTimeout(() => {
+      setRenderedPageCount(nextPageCount);
+      progressiveRenderTimeoutRef.current = null;
+    }, 0);
+
+    return () => {
+      if (progressiveRenderTimeoutRef.current) {
+        window.clearTimeout(progressiveRenderTimeoutRef.current);
+        progressiveRenderTimeoutRef.current = null;
+      }
+    };
+  }, [renderedPageCount, scanner.pages.length]);
+
+  useEffect(() => {
+    return () => {
+      if (progressiveRenderTimeoutRef.current) {
+        window.clearTimeout(progressiveRenderTimeoutRef.current);
+        progressiveRenderTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  const renderedPages = useMemo(
+    () => scanner.pages.slice(0, renderedPageCount),
+    [scanner.pages, renderedPageCount],
+  );
+
   const handleSubmit = useCallback(() => {
     if (!activeContext || !scanner.pdf) return;
     void operation
@@ -1406,7 +1460,7 @@ export function DigitalizacionDocumentalWorkspace({
                 data-view-mode={thumbnailViewMode}
                 data-virtualized={thumbnailsVirtualized}
               >
-                {scanner.pages.map((page, pageOrderIndex) => (
+                {renderedPages.map((page, pageOrderIndex) => (
                   <button
                     className={styles.thumbnailButton}
                     data-selected={page.id === selectedPageId}
@@ -1451,6 +1505,8 @@ export function DigitalizacionDocumentalWorkspace({
                     </label>
                     {page.thumbnailUrl ? (
                       <img
+                        loading="lazy"
+                        decoding="async"
                         src={page.thumbnailUrl}
                         alt={`Pagina ${pageOrderIndex + 1}`}
                       />
@@ -1645,6 +1701,8 @@ export function DigitalizacionDocumentalWorkspace({
                         ref={previewImageRef}
                         className={styles.previewImage}
                         src={selectedPage.imageUrl}
+                        loading="lazy"
+                        decoding="async"
                         alt={getPageLabel(selectedPage)}
                         draggable={false}
                       />
@@ -1813,7 +1871,7 @@ export function DigitalizacionDocumentalWorkspace({
                 data-virtualized={organizerVirtualized}
                 style={pageOrganizerGridStyle}
               >
-                {scanner.pages.map((page, pageOrderIndex) => {
+                {renderedPages.map((page, pageOrderIndex) => {
                   const pageOrientation = getPageOrientation(page);
                   const pageAspectRatioStyle = getPageAspectRatioStyle(page);
 
@@ -1855,6 +1913,8 @@ export function DigitalizacionDocumentalWorkspace({
                       </label>
                       {page.thumbnailUrl ? (
                         <img
+                          loading="lazy"
+                          decoding="async"
                           src={page.thumbnailUrl}
                           alt={`Pagina ${pageOrderIndex + 1}`}
                         />
