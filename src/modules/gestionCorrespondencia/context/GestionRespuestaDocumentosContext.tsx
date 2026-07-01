@@ -18,6 +18,8 @@ export type GestionRespuestaDocumentosState = {
   gabineteLoading: boolean;
   gabineteError?: string;
   reloadGabinete: () => Promise<void>;
+  documentosRefreshKey: number;
+  refreshDocumentos: () => void;
   files: AppUploadFile[];
   setFiles: (files: AppUploadFile[]) => void;
 };
@@ -82,6 +84,7 @@ export function GestionRespuestaDocumentosProvider({
   children,
 }: GestionRespuestaDocumentosProviderProps) {
   const [files, setFiles] = useState<AppUploadFile[]>([]);
+  const [documentosRefreshKey, setDocumentosRefreshKey] = useState(0);
   const [gabineteState, setGabineteState] = useState<GabineteState>({
     nombreGabinete: undefined,
     loading: false,
@@ -173,6 +176,9 @@ export function GestionRespuestaDocumentosProvider({
   }, []);
 
   const reloadGabinete = useCallback(() => loadGabinete(true), [loadGabinete]);
+  const refreshDocumentos = useCallback(() => {
+    setDocumentosRefreshKey((current) => current + 1);
+  }, []);
 
   useEffect(() => {
     const syncGabinete = async () => {
@@ -195,6 +201,8 @@ export function GestionRespuestaDocumentosProvider({
       gabineteLoading: gabineteState.loading,
       gabineteError: gabineteState.error,
       reloadGabinete,
+      documentosRefreshKey,
+      refreshDocumentos,
       files,
       setFiles,
     }),
@@ -205,7 +213,9 @@ export function GestionRespuestaDocumentosProvider({
       gabineteState.nombreGabinete,
       idRespuestaRadicado,
       idTareaWf,
+      documentosRefreshKey,
       radicado,
+      refreshDocumentos,
       reloadGabinete,
     ],
   );

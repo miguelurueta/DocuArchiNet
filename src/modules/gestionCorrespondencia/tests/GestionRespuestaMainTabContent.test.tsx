@@ -9,8 +9,16 @@ describe("[SCRUMCORE-89] GestionRespuesta main tab workbench", () => {
     expect(screen.getByText(/Solicitud de Aprobacion/i)).toBeInTheDocument();
     expect(screen.queryByText(/^Guardar$/i)).not.toBeInTheDocument();
     expect(screen.getByText(/^Enviar$/i)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /^Adjuntos$/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Arrastra archivos/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Abrir carga de documentos adjuntos/i })).toBeInTheDocument();
+    expect(screen.queryByText(/No hay gabinete documental disponible/i)).not.toBeInTheDocument();
+  }, 15000);
+
+  test("abre el modal de carga documental desde el disparador de adjuntos", async () => {
+    render(<GestionRespuestaMainTabContent />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Abrir carga de documentos adjuntos/i }));
+
+    expect(await screen.findByText(/No hay gabinete documental disponible/i)).toBeInTheDocument();
   }, 15000);
 
   test("permite colapsar y expandir el panel derecho", () => {

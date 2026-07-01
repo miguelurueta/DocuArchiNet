@@ -626,7 +626,14 @@ export const AppUpload = forwardRef<AppUploadHandle, AppUploadProps>(
               dragState === "invalid" && styles.dragInvalid,
             )}
           >
-            {drag ? <div className={styles.dragLabel}>Arrastra archivos</div> : uploadButton}
+            {drag ? (
+              <div className={styles.dragLabel}>
+                <UploadOutlined className={styles.dragIcon} aria-hidden="true" />
+                <span>Agregar archivos</span>
+              </div>
+            ) : (
+              uploadButton
+            )}
           </UploadComponent>
         ) : null}
 

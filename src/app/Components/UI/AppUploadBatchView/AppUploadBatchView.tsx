@@ -7,7 +7,7 @@ import {
   SaveOutlined,
 } from "@ant-design/icons";
 import { Progress, Tooltip } from "antd";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppButton } from "../AppButton";
 import { AppUpload } from "../AppUpload";
 import type { AppUploadFile } from "../AppUpload";
@@ -21,9 +21,11 @@ import type {
 
 const DEFAULT_TITLE = "Carga de archivos";
 const DEFAULT_EMPTY_MESSAGE = "No hay archivos en la cola.";
+const PREVIEW_EXIT_ANIMATION_MS = 180;
 
 const ACTIVE_STATES: AppUploadBatchFileState[] = ["uploading", "completing", "storing"];
 const IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg"];
+type PreviewVisibilityState = "closed" | "open" | "closing";
 
 const STATUS_LABELS: Record<AppUploadBatchFileState, string> = {
   queued: "En cola",
@@ -124,16 +126,22 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
   renderFileName,
   renderFooterExtra,
 }: AppUploadBatchViewProps<TMetadata>) => {
+  const [previewVisibility, setPreviewVisibility] = useState<PreviewVisibilityState>("closed");
+  const [removingUids, setRemovingUids] = useState<ReadonlySet<string>>(() => new Set());
+  const removeTimersRef = useRef(new Map<string, number>());
+  const previewCloseTimerRef = useRef<number | undefined>(undefined);
   const resolvedSummary = useMemo(() => summary ?? buildSummary(files), [files, summary]);
+  const isPreviewMounted = previewVisibility !== "closed";
   const selectedItem = useMemo(() => {
     const explicit = selectedUid ? files.find((item) => item.uid === selectedUid) : undefined;
     return explicit ?? files.find((item) => item.selected) ?? files[0];
   }, [files, selectedUid]);
 
   const generatedPreviewUrl = useMemo(() => {
+    if (!isPreviewMounted) return undefined;
     if (!selectedItem || selectedItem.previewUrl) return undefined;
     return URL.createObjectURL(selectedItem.file);
-  }, [selectedItem]);
+  }, [isPreviewMounted, selectedItem]);
 
   useEffect(
     () => () => {
@@ -142,6 +150,17 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
       }
     },
     [generatedPreviewUrl],
+  );
+
+  useEffect(
+    () => () => {
+      removeTimersRef.current.forEach((timerId) => window.clearTimeout(timerId));
+      removeTimersRef.current.clear();
+      if (previewCloseTimerRef.current) {
+        window.clearTimeout(previewCloseTimerRef.current);
+      }
+    },
+    [],
   );
 
   const previewUrl = selectedItem?.previewUrl ?? generatedPreviewUrl;
@@ -168,8 +187,56 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
   );
 
   const handleClosePreview = useCallback(() => {
+    if (previewCloseTimerRef.current) {
+      window.clearTimeout(previewCloseTimerRef.current);
+    }
+    setPreviewVisibility("closing");
+    previewCloseTimerRef.current = window.setTimeout(() => {
+      previewCloseTimerRef.current = undefined;
+      setPreviewVisibility("closed");
+    }, PREVIEW_EXIT_ANIMATION_MS);
     onClosePreview?.();
   }, [onClosePreview]);
+
+  const handleOpenPreview = useCallback(
+    (uid: string) => {
+      if (previewCloseTimerRef.current) {
+        window.clearTimeout(previewCloseTimerRef.current);
+        previewCloseTimerRef.current = undefined;
+      }
+      onSelectFile?.(uid);
+      onPreviewFile?.(uid);
+      setPreviewVisibility("open");
+    },
+    [onPreviewFile, onSelectFile],
+  );
+
+  const handleRemoveFile = useCallback(
+    (uid: string) => {
+      if (removeTimersRef.current.has(uid)) {
+        return;
+      }
+
+      setRemovingUids((current) => {
+        const next = new Set(current);
+        next.add(uid);
+        return next;
+      });
+
+      const timerId = window.setTimeout(() => {
+        removeTimersRef.current.delete(uid);
+        setRemovingUids((current) => {
+          const next = new Set(current);
+          next.delete(uid);
+          return next;
+        });
+        onRemoveFile?.(uid);
+      }, 220);
+
+      removeTimersRef.current.set(uid, timerId);
+    },
+    [onRemoveFile],
+  );
 
   const renderDefaultPreview = () => {
     if (!selectedItem) {
@@ -207,7 +274,7 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
   };
 
   return (
-    <section className={styles.root} aria-label={title}>
+    <section className={styles.root} aria-label={title} data-preview-open={isPreviewMounted ? "true" : "false"}>
       <header className={styles.header}>
         <div className={styles.heading}>
           <h2 className={styles.title}>{title}</h2>
@@ -241,7 +308,7 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
 
         <div className={styles.globalActions}>
           <AppButton
-            variant="secondary"
+            variant="primary"
             size="sm"
             leftIcon={<SaveOutlined />}
             disabled={isBlocked || !canSaveAll || files.length === 0}
@@ -250,13 +317,13 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
             Guardar todo
           </AppButton>
           <AppButton
-            variant="ghost"
+            variant="danger"
             size="sm"
             leftIcon={<ClearOutlined />}
             disabled={isBlocked || !canClearAll || files.length === 0}
             onClick={onClearAll}
           >
-            Limpiar
+            Limpiar todo
           </AppButton>
         </div>
       </div>
@@ -265,7 +332,7 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
         <div className={styles.fileListPanel}>
           <div className={styles.panelHeader}>
             <span>Cola de archivos</span>
-            <span>{resolvedSummary.ready + resolvedSummary.queued} pendiente(s)</span>
+            <span>{resolvedSummary.total} archivo(s)</span>
           </div>
 
           {files.length === 0 ? (
@@ -275,16 +342,18 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
               {files.map((item) => {
                 const selected = selectedItem?.uid === item.uid;
                 const itemDisabled = isBlocked || Boolean(item.disabled);
+                const isRemoving = removingUids.has(item.uid);
                 const itemProgress = clampPercent(item.progress);
-                const canUsePreview = canPreview && !itemDisabled;
-                const canUseRemove = !itemDisabled && item.state !== "done";
-                const canUseSaveOne = canSaveOne && !itemDisabled;
+                const canUsePreview = canPreview && !itemDisabled && !isRemoving;
+                const canUseRemove = !itemDisabled && !isRemoving && item.state !== "done";
+                const canUseSaveOne = canSaveOne && !itemDisabled && !isRemoving;
 
                 return (
                   <article
                     key={item.uid}
                     className={joinClasses(styles.fileRow, selected && styles.fileRowActive)}
                     data-state={item.state}
+                    data-removing={isRemoving ? "true" : "false"}
                     role="listitem"
                   >
                     <button
@@ -310,6 +379,7 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
 
                     {ACTIVE_STATES.includes(item.state) ? (
                       <Progress
+                        className={styles.fileProgress}
                         aria-label={`Progreso de ${item.name}`}
                         percent={itemProgress}
                         size="small"
@@ -328,20 +398,17 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
 
                     <div className={styles.rowActions}>
                       <AppButton
-                        variant="ghost"
+                        variant="secondary"
                         size="sm"
                         icon={<EyeOutlined />}
                         tooltip="Ver archivo"
                         aria-label={`Ver ${item.name}`}
                         disabled={!canUsePreview}
-                        onClick={() => {
-                          onSelectFile?.(item.uid);
-                          onPreviewFile?.(item.uid);
-                        }}
+                        onClick={() => handleOpenPreview(item.uid)}
                       />
                       {canSaveOne ? (
                         <AppButton
-                          variant="secondary"
+                          variant="primary"
                           size="sm"
                           icon={<SaveOutlined />}
                           tooltip="Guardar archivo"
@@ -351,13 +418,13 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
                         />
                       ) : null}
                       <AppButton
-                        variant="ghost"
+                        variant="danger"
                         size="sm"
                         icon={<DeleteOutlined />}
                         tooltip="Eliminar archivo"
                         aria-label={`Eliminar ${item.name}`}
                         disabled={!canUseRemove}
-                        onClick={() => onRemoveFile?.(item.uid)}
+                        onClick={() => handleRemoveFile(item.uid)}
                       />
                     </div>
                   </article>
@@ -367,7 +434,12 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
           )}
         </div>
 
-        <aside className={styles.previewPanel} aria-label="Vista previa del archivo activo">
+        {canPreview && isPreviewMounted ? (
+          <aside
+            className={styles.previewPanel}
+            data-preview-state={previewVisibility}
+            aria-label="Vista previa del archivo activo"
+          >
           <div className={styles.panelHeader}>
             <Tooltip title={selectedItem?.name}>
               <span className={styles.previewTitle}>
@@ -389,7 +461,8 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
               ? renderPreview({ item: selectedItem, previewUrl, onClose: handleClosePreview })
               : renderDefaultPreview()}
           </div>
-        </aside>
+          </aside>
+        ) : null}
       </div>
 
       <footer className={styles.footer}>

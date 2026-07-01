@@ -65,16 +65,22 @@ describe("[SPEC:SCRUMCORE-271] useAppUploadDocumentalState", () => {
     });
 
     const uid = result.current.files[0].uid;
-    expect(result.current.validateFileForStore(uid)).toBe("Selecciona la tipologia documental.");
+    expect(result.current.validateFileForStore(uid)).toBe(
+      "No se puede guardar: selecciona la tipologia documental del archivo.",
+    );
 
     act(() => {
       result.current.updateMetadata(uid, { idTipoDocumento: 1, nombreTipoDocumento: "Contrato" }, true);
     });
-    expect(result.current.validateFileForStore(uid)).toBe("Ingresa la fecha documental.");
+    expect(result.current.validateFileForStore(uid)).toBe(
+      "No se puede guardar: ingresa la fecha documental del archivo.",
+    );
 
     act(() => {
       result.current.updateMetadata(uid, { fechaCarga: "2099-01-01" });
     });
-    expect(result.current.validateFileForStore(uid)).toBe("La fecha documental no es valida.");
+    expect(result.current.validateFileForStore(uid)).toBe(
+      "No se puede guardar: la fecha documental debe ser real, no futura y usar formato AAAA-MM-DD.",
+    );
   });
 });

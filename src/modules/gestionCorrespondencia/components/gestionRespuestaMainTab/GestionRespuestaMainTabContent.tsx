@@ -1,4 +1,4 @@
-import { CarryOutFilled, DeleteOutlined, MailFilled } from "@ant-design/icons";
+import { CarryOutFilled, MailFilled } from "@ant-design/icons";
 import { useCallback, useState } from "react";
 import {
   AppEditor,
@@ -6,13 +6,10 @@ import {
   useAppEditorSaveState,
 } from "../../../../app/Components/UI/AppEditor";
 import { AppToolbar } from "../../../../app/Components/UI/AppToolbar";
-import {
-  AppUpload,
-  type AppUploadFile,
-} from "../../../../app/Components/UI/AppUpload/AppUpload";
 import { useGestionRespuestaDocumentos } from "../../hooks/useGestionRespuestaDocumentos";
 import styles from "./GestionRespuestaMainTabContent.module.css";
 import { GestionRespuestaEditorContainer } from "./GestionRespuestaEditorContainer";
+import { GestionRespuestaUploadDocumentalModal } from "./GestionRespuestaUploadDocumentalModal";
 import { GestionDocumentoModal } from "./modalGestionDocumento";
 
 type GestionRespuestaMainTabContentProps = {
@@ -25,26 +22,20 @@ export function GestionRespuestaMainTabContent(
   void _props;
   const [isGestionDocumentoModalOpen, setIsGestionDocumentoModalOpen] =
     useState(false);
-  const { files, setFiles } = useGestionRespuestaDocumentos();
+  const { nombreGabinete, idRespuestaRadicado } = useGestionRespuestaDocumentos();
   const [editorValue, setEditorValue] = useState<string>("");
   const [savedEditorValue, setSavedEditorValue] = useState<string>("");
   const { saveStatus } = useAppEditorSaveState({
     currentValue: editorValue,
     savedValue: savedEditorValue,
   });
-  const canAdvanceToSend = files.length > 0;
+  const canAdvanceToSend = Boolean(nombreGabinete && idRespuestaRadicado);
   const goToSendStep = useCallback(() => {
     if (!canAdvanceToSend) {
       return;
     }
     setIsGestionDocumentoModalOpen(true);
   }, [canAdvanceToSend]);
-  const removeAttachment = useCallback(
-    (fileToRemove: AppUploadFile) => {
-      setFiles(files.filter((file) => file.uid !== fileToRemove.uid));
-    },
-    [files, setFiles],
-  );
 
   return (
     <section
@@ -102,29 +93,7 @@ export function GestionRespuestaMainTabContent(
       </div>
 
       <div className={styles.attachments}>
-        <div className={styles.attachmentsHeader}>
-          <h3 className={styles.attachmentsTitle}>Adjuntos</h3>
-        </div>
-        <AppUpload
-          className={styles.compactAttachmentsUpload}
-          value={files}
-          onChange={setFiles}
-          drag
-          layout="list"
-          previewOnClick={false}
-          renderActions={(file) => (
-            <button
-              type="button"
-              className={styles.attachmentRemoveButton}
-              onClick={() => removeAttachment(file)}
-              aria-label={`Eliminar ${file.name}`}
-            >
-              <DeleteOutlined />
-            </button>
-          )}
-          size="sm"
-          strategy="auto"
-        />
+        <GestionRespuestaUploadDocumentalModal />
       </div>
 
       <GestionDocumentoModal

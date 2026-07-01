@@ -159,4 +159,55 @@ describe("[SPEC:SCRUMCORE-271] useAppUploadDocumentalActions", () => {
     expect(processResult).toMatchObject({ status: "skipped" });
     expect(markFile).toHaveBeenCalledWith("a", expect.objectContaining({ state: "cancelled" }));
   });
+
+  it("muestra mensaje funcional cuando falla el registro final", async () => {
+    const markFile = vi.fn();
+    const item = createItem("a");
+    mockedUploadAndStoreOneDocument.mockRejectedValue({
+      code: "storage_store_error",
+      message: "request field is required",
+    });
+
+    const { result } = renderHook(() =>
+      useAppUploadDocumentalActions({
+        files: [item],
+        config: {
+          accept: ".pdf",
+          allowedExtensions: [".pdf"],
+          maxSizeBytes: 1000,
+          multiple: true,
+          requiereTipologia: true,
+          requiereFechaCarga: false,
+        },
+        context: { nombreGabinete: "Gestion" },
+        proceso: "radicacion",
+        operationId: 1,
+        validateFileForStore: vi.fn().mockReturnValue(null),
+        markFile,
+      }),
+    );
+
+    let processResult: Awaited<ReturnType<typeof result.current.processBatchItem>> | undefined;
+    await act(async () => {
+      processResult = await result.current.processBatchItem(item, createContext());
+    });
+
+    expect(processResult).toMatchObject({
+      status: "controlled-error",
+      message:
+        "El archivo se cargo, pero no fue posible registrar el documento. Revisa los datos e intenta nuevamente.",
+    });
+    expect(markFile).toHaveBeenCalledWith(
+      "a",
+      expect.objectContaining({
+        state: "error",
+        error:
+          "El archivo se cargo, pero no fue posible registrar el documento. Revisa los datos e intenta nuevamente.",
+        metadata: {
+          error:
+            "El archivo se cargo, pero no fue posible registrar el documento. Revisa los datos e intenta nuevamente.",
+        },
+      }),
+    );
+  });
 });

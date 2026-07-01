@@ -10,6 +10,7 @@ type GestionRespuestaDocumentosHookState = GestionRespuestaDocumentosState & {
 
 const noopSetFiles: GestionRespuestaDocumentosState["setFiles"] = () => undefined;
 const noopReloadGabinete = async () => undefined;
+const noopRefreshDocumentos = () => undefined;
 
 export const useGestionRespuestaDocumentos = () => {
   const ctx = useContext(GestionRespuestaDocumentosContext);
@@ -24,6 +25,8 @@ export const useGestionRespuestaDocumentos = () => {
         gabineteLoading: false,
         gabineteError: undefined,
         reloadGabinete: noopReloadGabinete,
+        documentosRefreshKey: 0,
+        refreshDocumentos: noopRefreshDocumentos,
         files: [],
         setFiles: noopSetFiles,
         available: false,

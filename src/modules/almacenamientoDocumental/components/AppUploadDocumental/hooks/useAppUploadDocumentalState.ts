@@ -15,7 +15,8 @@ import { normalizeTipoDocumentalOptions } from "../../../services/tipoDocumental
 import { normalizeFileExtension } from "../../../utils/storageFile.utils";
 import {
   applyTipoDocumentalSuggestion,
-  suggestTipoDocumental,
+  prepareTipoDocumentalOptions,
+  suggestTipoDocumentalFromPrepared,
 } from "../../../utils/tipoDocumentalSuggestion.utils";
 
 export type UploadDocumentalFileItem = AppUploadBatchFileItem<UploadDocumentalFileMetadata>;
@@ -133,6 +134,10 @@ export function useAppUploadDocumentalState({
   const requiresTypology = Boolean(tipologiaObligatoria ?? config?.requiereTipologia);
   const requiresDate = Boolean(requiereFechaCarga ?? config?.requiereFechaCarga);
   const requiresDateValue = Boolean(fechaCargaObligatoria ?? config?.fechaCargaObligatoria ?? requiresDate);
+  const preparedTipoDocumentalOptions = useMemo(
+    () => prepareTipoDocumentalOptions(tiposDocumentales),
+    [tiposDocumentales],
+  );
 
   const selectionDisabled = loading || Boolean(loaderError) || !config || !context.nombreGabinete.trim();
 
@@ -162,15 +167,15 @@ export function useAppUploadDocumentalState({
 
       const extension = normalizeFileExtension(file.name);
       if (!extension || !config.allowedExtensions.includes(extension)) {
-        return `Extension no permitida: ${extension || "sin extension"}.`;
+        return `No se puede guardar: la extension ${extension || "sin extension"} no esta permitida.`;
       }
 
       if (file.size <= 0) {
-        return "El archivo esta vacio.";
+        return "No se puede guardar: el archivo esta vacio.";
       }
 
       if (file.size > config.maxSizeBytes) {
-        return "El archivo supera el tamano maximo permitido.";
+        return "No se puede guardar: el archivo supera el tamano maximo permitido.";
       }
 
       return null;
@@ -201,7 +206,10 @@ export function useAppUploadDocumentalState({
           const suggestedMetadata = autoSuggestTipologia
             ? applyTipoDocumentalSuggestion(
                 baseMetadata,
-                suggestTipoDocumental({ fileName: file.name, options: tiposDocumentales }),
+                suggestTipoDocumentalFromPrepared({
+                  fileName: file.name,
+                  preparedOptions: preparedTipoDocumentalOptions,
+                }),
               )
             : baseMetadata;
 
@@ -220,7 +228,13 @@ export function useAppUploadDocumentalState({
         return next;
       });
     },
-    [autoSuggestTipologia, config, effectiveValidationMode, tiposDocumentales, validateSelectedFile],
+    [
+      autoSuggestTipologia,
+      config,
+      effectiveValidationMode,
+      preparedTipoDocumentalOptions,
+      validateSelectedFile,
+    ],
   );
 
   const updateMetadata = useCallback(
@@ -269,16 +283,16 @@ export function useAppUploadDocumentalState({
       }
 
       if (requiresTypology && !item.metadata?.idTipoDocumento) {
-        return "Selecciona la tipologia documental.";
+        return "No se puede guardar: selecciona la tipologia documental del archivo.";
       }
 
       const date = item.metadata?.fechaCarga;
       if (requiresDateValue && !date) {
-        return "Ingresa la fecha documental.";
+        return "No se puede guardar: ingresa la fecha documental del archivo.";
       }
 
       if (date && !isValidDate(date)) {
-        return "La fecha documental no es valida.";
+        return "No se puede guardar: la fecha documental debe ser real, no futura y usar formato AAAA-MM-DD.";
       }
 
       return null;
