@@ -607,6 +607,53 @@ describe("[SPEC:SCRUMCORE-240] DynamsoftTwainClient", () => {
     }
   });
 
+  it("uses IsBlankImageExpress when async API is not available and avoids canvas-based candidate analysis", async () => {
+    const dwt = createDwt(4);
+    dwt.IsBlankImageExpress = vi.fn((index: number) => index % 2 === 0);
+    const createElementSpy = vi.spyOn(document, "createElement");
+    const loadedSources: string[] = [];
+    const client = new DynamsoftTwainClient({
+      licenseKey: "license",
+      windowRef: createAnalysisWindow(createRuntime(dwt), loadedSources),
+      documentRef: document,
+    });
+    const infoSpy = vi.spyOn(console, "info").mockImplementation(() => undefined);
+
+    try {
+      await client.initialize();
+      await client.selectDevice("0");
+      const pages = await client.scan({ deviceId: "0", removeBlankPages: true });
+
+      expect(dwt.IsBlankImageExpress).toHaveBeenCalledWith(0);
+      expect(dwt.IsBlankImageExpress).toHaveBeenCalledWith(1);
+      expect(dwt.IsBlankImageExpress).toHaveBeenCalledWith(2);
+      expect(dwt.IsBlankImageExpress).toHaveBeenCalledWith(3);
+      expect(dwt.RemoveImage).toHaveBeenCalledTimes(2);
+      expect(dwt.RemoveImage).toHaveBeenNthCalledWith(1, 2);
+      expect(dwt.RemoveImage).toHaveBeenNthCalledWith(2, 0);
+      expect(pages.map((page) => page.id)).toEqual(["scan-page-2", "scan-page-4"]);
+      const canvasCalls = createElementSpy.mock.calls.filter(
+        ([name]) => String(name).toLowerCase() === "canvas",
+      ).length;
+      expect(canvasCalls).toBe(0);
+      expect(infoSpy).not.toHaveBeenCalledWith(
+        "BLANK_PAGE_ANALYSIS_START",
+        expect.any(Object),
+      );
+      expect(infoSpy).toHaveBeenCalledWith(
+        "BLANK_PAGE_DETECTED",
+        expect.objectContaining({
+          reason: "isBlankImageExpress",
+          pageId: "scan-page-1",
+        }),
+      );
+      expect(loadedSources).toHaveLength(0);
+    } finally {
+      infoSpy.mockRestore();
+      createElementSpy.mockRestore();
+    }
+  });
+
   it("selects cached SourceCount scanner through legacy source index when SourceCount changes later", async () => {
     const dwt = createDwt();
     dwt.SelectDeviceAsync = vi.fn(async () => true);
