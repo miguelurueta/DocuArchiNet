@@ -480,6 +480,8 @@ export function DigitalizacionDocumentalWorkspace({
             }
           : undefined,
       captureOperation,
+    }).then(() => {
+      console.log("[SCAN CONSUMER] scan resolved in executeCapture");
     });
   }, [
     adfEnabled,

@@ -170,6 +170,7 @@ export const useDigitalizacionScanner = ({
       }));
 
       try {
+        console.log("[1] before await client.scan");
         const pages = await client.scan({
           ...options,
           onProgress: (progress) => {
@@ -180,6 +181,8 @@ export const useDigitalizacionScanner = ({
             options.onProgress?.(progress);
           },
         });
+        console.log("[2] after client.scan", pages);
+        console.log("[3] before updateIfCurrent");
         updateIfCurrent(generation, (current) => ({
           ...current,
           status: "ready",
@@ -188,7 +191,11 @@ export const useDigitalizacionScanner = ({
           progress: null,
           error: null,
         }));
+        console.log("[4] after updateIfCurrent");
+        console.log("[5] before return");
       } catch (error) {
+        console.error("[SCAN CATCH]", error);
+        console.error(error instanceof Error ? error.stack : error);
         handleError(generation, error, "No fue posible completar el escaneo.");
       }
     },
