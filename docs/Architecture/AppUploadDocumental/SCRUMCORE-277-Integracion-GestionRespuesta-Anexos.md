@@ -10,10 +10,10 @@ Este documento acompana el cambio OpenSpec:
 openspec/changes/scrumcore-277-implementacion-appuploaddocumental-gestionrespuesta
 ```
 
-Commit de entrega:
+Commit de implementacion:
 
 ```text
-a1d277a feat(SCRUMCORE-277): integrar AppUploadDocumental en Gestion Respuesta
+14a4900 feat(SCRUMCORE-277): integrar AppUploadDocumental en Gestion Respuesta
 ```
 
 La implementacion integra la carga documental moderna en el tab Gestion de Gestion Respuesta, usando `AppUploadDocumental` como experiencia especializada y `StorageEngineV2` como flujo tecnico de almacenamiento.
