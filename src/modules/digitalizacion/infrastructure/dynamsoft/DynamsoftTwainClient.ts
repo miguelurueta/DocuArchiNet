@@ -46,6 +46,8 @@ const BLANK_PAGE_WHITE_PERCENTILE = 0.95;
 const BLANK_PAGE_DYNAMIC_WHITE_THRESHOLD_FLOOR = 225;
 const BLANK_PAGE_DYNAMSOFT_BLANK_IMAGE_THRESHOLD = 220;
 const BLANK_PAGE_DYNAMSOFT_BLANK_IMAGE_MAX_STDDEV = 28;
+const BLANK_PAGE_ASYNC_MIN_BLOCK_HEIGHT = 20;
+const BLANK_PAGE_ASYNC_MAX_BLOCK_HEIGHT = 30;
 
 type BlankPageAnalysis = {
   page: ScanPage;
@@ -1587,9 +1589,11 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     pageRange: { startIndex: number; endIndex: number },
   ): Promise<BlankPageRemovalResult | null> {
     const dwtObject = dwt as Record<string, unknown>;
+    const isBlankImageAsync = dwtObject.IsBlankImageAsync;
     const isBlankImageExpress = dwtObject.IsBlankImageExpress;
+    const useAsyncBlankDetection = typeof isBlankImageAsync === "function";
 
-    if (typeof isBlankImageExpress !== "function") {
+    if (!useAsyncBlankDetection && typeof isBlankImageExpress !== "function") {
       return null;
     }
 
@@ -1612,14 +1616,35 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     const checkedIndexes = candidateIndexes.filter(
       (index) => index >= 0 && index < this.pages.length,
     );
-    const blankIndexes = checkedIndexes.filter((index) => {
-      try {
-        const isBlank = isBlankImageExpress.call(dwt, index);
-        return Boolean(isBlank);
-      } catch {
-        return false;
-      }
-    });
+    const blankIndexes = (
+      await Promise.all(
+        checkedIndexes.map(async (index) => {
+          try {
+            if (useAsyncBlankDetection) {
+              const isBlank = await (
+                isBlankImageAsync as (
+                  index: number,
+                  options?: {
+                    minBlockHeight?: number;
+                    maxBlockHeight?: number;
+                  },
+                ) => Promise<boolean>
+              ).call(dwt, index, {
+                minBlockHeight: BLANK_PAGE_ASYNC_MIN_BLOCK_HEIGHT,
+                maxBlockHeight: BLANK_PAGE_ASYNC_MAX_BLOCK_HEIGHT,
+              });
+              return isBlank ? index : null;
+            }
+
+            const isBlank = (isBlankImageExpress as (index: number) => boolean).call(dwt, index);
+            return isBlank ? index : null;
+          } catch {
+            return null;
+          }
+        }),
+      )
+    )
+      .filter((index): index is number => index !== null && index !== undefined);
 
     const blankPages = blankIndexes
       .map((index) => this.pages[index])
@@ -1636,9 +1661,25 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       };
     }
 
-    const blankPageAnalyses = await Promise.all(
-      blankPages.map((page) => this.analyzeBlankPageCandidate(page)),
-    );
+    const blankPageAnalyses = useAsyncBlankDetection
+      ? blankPages.map((page) => {
+          const imageSource = page.imageUrl
+            ? "original"
+            : page.thumbnailUrl
+              ? "thumbnail"
+              : "unavailable";
+          return {
+            page,
+            isBlank: true,
+            contentRatio: 0,
+            darkPixels: 0,
+            clusteredDarkPixels: 0,
+            darkRatio: 0,
+            reason: "isBlankImageAsync",
+            imageSource,
+          };
+        })
+      : await Promise.all(blankPages.map((page) => this.analyzeBlankPageCandidate(page)));
     const confirmedBlankPages = blankPageAnalyses.filter((analysis) => analysis.isBlank);
     const confirmedBlankIndexes = confirmedBlankPages
       .map((analysis) => analysis.page.index)

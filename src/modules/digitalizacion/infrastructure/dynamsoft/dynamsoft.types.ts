@@ -156,6 +156,14 @@ export type DynamsoftWebTwainObject = {
   Deskew?(index: number): boolean;
   RotateRight?(index: number): boolean;
   RotateLeft?(index: number): boolean;
+  IsBlankImageExpress?(index: number): boolean;
+  IsBlankImageAsync?(
+    index: number,
+    options?: {
+      minBlockHeight?: number;
+      maxBlockHeight?: number;
+    },
+  ): Promise<boolean>;
   [key: string]: unknown;
   OpenSource(): void;
   CloseSource?(): void;
