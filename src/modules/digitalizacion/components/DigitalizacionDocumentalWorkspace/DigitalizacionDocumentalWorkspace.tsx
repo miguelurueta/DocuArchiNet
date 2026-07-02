@@ -10,6 +10,12 @@ import {
   type PointerEvent,
 } from "react";
 import { createPortal } from "react-dom";
+import { Icon } from "@iconify/react";
+import { icons as materialSymbolsIcons } from "@iconify-json/material-symbols";
+import { icons as biIcons } from "@iconify-json/bi";
+import { icons as hugeiconsIcons } from "@iconify-json/hugeicons";
+import { icons as riIcons } from "@iconify-json/ri";
+import { icons as tablerIcons } from "@iconify-json/tabler";
 import {
   BorderOutlined,
   CheckSquareOutlined,
@@ -19,22 +25,17 @@ import {
   CopyOutlined,
   DeleteOutlined,
   DownOutlined,
-  FileAddOutlined,
-  FileTextOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
   AppstoreOutlined,
   InsertRowAboveOutlined,
   InsertRowBelowOutlined,
-  PlusOutlined,
   ProfileOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
-  ScanOutlined,
   SelectOutlined,
   SettingOutlined,
   ScissorOutlined,
-  SwapOutlined,
   ZoomInOutlined,
   ZoomOutOutlined,
   CompressOutlined,
@@ -61,6 +62,13 @@ import {
 import { unavailableScannerClient } from "./digitalizacionWorkspace.helpers";
 import { PageNavigatorFloating } from "./PageNavigatorFloating";
 import styles from "./DigitalizacionDocumentalWorkspace.module.css";
+
+const adfScannerIcon = "lets-icons:scan";
+const addNotesIcon = materialSymbolsIcons["add-notes-outline-rounded"];
+const replaceIcon = tablerIcons["replace-filled"];
+const insertIcon = hugeiconsIcons["row-insert"];
+const generatePdfIcon = biIcons["filetype-pdf"];
+const saveIcon = riIcons["save-3-line"];
 
 type CaptureMode = "docuarchi" | "driver";
 type PreviewFitMode = "custom" | "fitWidth" | "fitPage";
@@ -721,6 +729,21 @@ export function DigitalizacionDocumentalWorkspace({
   }, [removePage, scanner.pages, selectedPageId, selectedPageIds, selectedPageIdsInOrder]);
 
   const handleDuplicateSelected = useCallback(() => {
+    if (selectedPageIds.size > 0) {
+      const pageIds = selectedPageIdsInOrder;
+
+      if (pageIds.length === 0) {
+        return;
+      }
+
+      void (async () => {
+        for (const pageId of pageIds) {
+          await duplicatePage(pageId);
+        }
+      })();
+      return;
+    }
+
     const sourcePage = selectedPage;
     if (!sourcePage) {
       return;
@@ -738,7 +761,13 @@ export function DigitalizacionDocumentalWorkspace({
         setHighlightedPageId(duplicatedPage.id);
       }
     });
-  }, [duplicatePage, scanner.pages, selectedPage]);
+  }, [
+    duplicatePage,
+    scanner.pages,
+    selectedPage,
+    selectedPageIds,
+    selectedPageIdsInOrder,
+  ]);
 
   const handleThumbnailDragStart = useCallback(
     (event: DragEvent<HTMLButtonElement>, pageId: string) => {
@@ -1423,16 +1452,29 @@ export function DigitalizacionDocumentalWorkspace({
         <AppButton
           variant="secondary"
           size="sm"
-          icon={hasPages ? <FileAddOutlined /> : <ScanOutlined />}
+          leftIcon={<Icon icon={adfScannerIcon ?? "material-symbols:adf-scanner-outline"} />}
           aria-label={primaryCaptureLabel}
           tooltip={primaryCaptureTooltip}
           onClick={handlePrimaryCapture}
           disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
-        />
+        >
+          Escanear
+        </AppButton>
         <AppButton
           variant="ghost"
           size="sm"
-          icon={<SwapOutlined />}
+          leftIcon={<Icon icon={addNotesIcon ?? "material-symbols:add-notes-outline-rounded"} />}
+          aria-label="Agregar"
+          tooltip="Agregar paginas al final del documento"
+          onClick={handleAppendCapture}
+          disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
+        >
+          Agregar
+        </AppButton>
+        <AppButton
+          variant="ghost"
+          size="sm"
+          leftIcon={<Icon icon={replaceIcon ?? "tabler:replace-filled"} />}
           aria-label="Reemplazar"
           tooltip="Reemplazar la pagina actual"
           onClick={handleReplaceCapture}
@@ -1442,7 +1484,9 @@ export function DigitalizacionDocumentalWorkspace({
             Boolean(state.validationError) ||
             !hasCaptureTarget
           }
-        />
+        >
+          Reemplazar
+        </AppButton>
         <AppDropdown
           ariaLabel="Insertar paginas"
           placement="bottomLeft"
@@ -1457,7 +1501,7 @@ export function DigitalizacionDocumentalWorkspace({
             <AppButton
               variant="ghost"
               size="sm"
-              leftIcon={<PlusOutlined />}
+              leftIcon={<Icon icon={insertIcon ?? "hugeicons:row-insert"} />}
               rightIcon={<DownOutlined />}
               aria-label="Insertar"
               tooltip="Insertar paginas antes o despues de la actual"
@@ -1472,26 +1516,31 @@ export function DigitalizacionDocumentalWorkspace({
             </AppButton>
           }
         />
-        <AppButton
-          variant="ghost"
-          size="sm"
-          icon={<InsertRowBelowOutlined />}
-          aria-label="Agregar"
-          tooltip="Agregar paginas al final del documento"
-          onClick={handleAppendCapture}
-          disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
-        />
       </div>
 
       <div className={styles.toolbarGroup} data-priority="output" role="group" aria-label="Salida">
         <AppButton
+          variant="ghost"
           size="sm"
-          icon={<FileTextOutlined />}
+          leftIcon={<Icon icon={generatePdfIcon ?? "bi:filetype-pdf"} />}
           aria-label="Generar PDF"
           tooltip="Generar PDF"
           onClick={handleGeneratePdf}
           disabled={!canGeneratePdf}
-        />
+        >
+          Generar PDF
+        </AppButton>
+        <span className={styles.toolbarSpacer} aria-hidden="true" />
+        <AppButton
+          variant="primary"
+          size="sm"
+          leftIcon={<Icon icon={saveIcon ?? "ri:save-3-line"} />}
+          aria-label="Guardar"
+          className={styles.toolbarSaveButton}
+          disabled={!canGeneratePdf}
+        >
+          Guardar
+        </AppButton>
       </div>
     </div>
   );
@@ -1645,24 +1694,26 @@ export function DigitalizacionDocumentalWorkspace({
           <div className={`${styles.panelHeader} ${styles.previewHeader}`}>
             <div className={styles.previewControls} role="toolbar" aria-label="Visualizacion preview">
               <div className={styles.previewControlGroup} role="group" aria-label="Edicion">
-              <AppButton
-                variant="ghost"
-                size="sm"
-                icon={<RotateLeftOutlined />}
-                aria-label="Rotar izquierda"
-                tooltip="Rotar izquierda"
-                onClick={() => handleRotateSelected(270)}
-                disabled={!selectedPage}
-              />
-              <AppButton
-                variant="ghost"
-                size="sm"
-                icon={<RotateRightOutlined />}
-                aria-label="Rotar derecha"
-                tooltip="Rotar derecha"
-                onClick={() => handleRotateSelected(90)}
-                disabled={!selectedPage}
-              />
+                <AppButton
+                  variant="ghost"
+                  size="sm"
+                  icon={<RotateLeftOutlined />}
+                  aria-label="Rotar izquierda"
+                  tooltip="Rotar izquierda"
+                  className={styles.toolbarRotateButton}
+                  onClick={() => handleRotateSelected(270)}
+                  disabled={!selectedPage}
+                />
+                <AppButton
+                  variant="ghost"
+                  size="sm"
+                  icon={<RotateRightOutlined />}
+                  aria-label="Rotar derecha"
+                  tooltip="Rotar derecha"
+                  className={styles.toolbarRotateButton}
+                  onClick={() => handleRotateSelected(90)}
+                  disabled={!selectedPage}
+                />
               <AppButton
                 variant="ghost"
                 size="sm"
