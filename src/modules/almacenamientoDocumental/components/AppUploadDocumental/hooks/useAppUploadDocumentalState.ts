@@ -61,7 +61,6 @@ export function useAppUploadDocumentalState({
   modoDocumento,
   loadConfig,
   loadTiposDocumentales,
-  tipologiaObligatoria,
   autoSuggestTipologia = true,
   requiereFechaCarga,
   fechaCargaObligatoria,
@@ -131,7 +130,6 @@ export function useAppUploadDocumentalState({
   }, [context, contextKey, loadConfig, loadTiposDocumentales, modoDocumento, onError, proceso]);
 
   const effectiveValidationMode = validationMode ?? config?.validationMode ?? "reject";
-  const requiresTypology = Boolean(tipologiaObligatoria ?? config?.requiereTipologia);
   const requiresDate = Boolean(requiereFechaCarga ?? config?.requiereFechaCarga);
   const requiresDateValue = Boolean(fechaCargaObligatoria ?? config?.fechaCargaObligatoria ?? requiresDate);
   const preparedTipoDocumentalOptions = useMemo(
@@ -282,10 +280,6 @@ export function useAppUploadDocumentalState({
         return fileError;
       }
 
-      if (requiresTypology && !item.metadata?.idTipoDocumento) {
-        return "No se puede guardar: selecciona la tipologia documental del archivo.";
-      }
-
       const date = item.metadata?.fechaCarga;
       if (requiresDateValue && !date) {
         return "No se puede guardar: ingresa la fecha documental del archivo.";
@@ -297,7 +291,7 @@ export function useAppUploadDocumentalState({
 
       return null;
     },
-    [files, requiresDateValue, requiresTypology, validateSelectedFile],
+    [files, requiresDateValue, validateSelectedFile],
   );
 
   const markFile = useCallback<UseAppUploadDocumentalStateResult["markFile"]>((uid, patch) => {

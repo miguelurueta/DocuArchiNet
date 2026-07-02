@@ -159,15 +159,6 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
         radicado = contextRadicado;
       }
 
-      if (import.meta.env?.DEV) {
-        console.debug("[DocumentosWorkbench] load documentos", {
-          idTareaWf,
-          nombreGabinete,
-          radicado,
-          viewMode: "flatDocuments",
-        });
-      }
-
       const resolvedRadicado = radicado?.trim();
       if (hasValidTask) {
         if (!resolvedRadicado) {
@@ -314,20 +305,21 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
   const performAction = useCallback(
     async (input: { actionId: string; rowId: string }): Promise<unknown> => {
       const { nodeType, idDocumento, documentId, gabinete } = buildActionContextFromRow(input.rowId);
+
       if (!gabinete) return null;
       const tableId = tableIdRef.current || DEFAULT_TABLE_ID;
 
-      const actionResponse = await actionListaDocumentosRadicados(
-        buildListaDocumentosRadicadosActionRequest({
-          context: { tableId, viewMode: "flatDocuments" },
-          actionId: input.actionId,
-          rowId: input.rowId,
-          nodeType,
-          idDocumento,
-          documentId,
-          nombreGabinete: gabinete,
-        }),
-      );
+      const actionRequest = buildListaDocumentosRadicadosActionRequest({
+        context: { tableId, viewMode: "flatDocuments" },
+        actionId: input.actionId,
+        rowId: input.rowId,
+        nodeType,
+        idDocumento,
+        documentId,
+        nombreGabinete: gabinete,
+      });
+
+      const actionResponse = await actionListaDocumentosRadicados(actionRequest);
 
       if (input.actionId === "agregar_item" || input.actionId === "eliminar_item") {
         setCountState((prev) => ({ ...prev, runtimePreferred: true }));

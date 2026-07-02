@@ -185,6 +185,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const { documentosRefreshKey } = useGestionRespuestaDocumentos();
   const visorRef = useRef<AppVisorEmbedPdfRef | null>(null);
   const lastVisorLoadKeyRef = useRef<string | null>(null);
+  const [actionRefreshKey, setActionRefreshKey] = useState(0);
   const [activeFileUrl, setActiveFileUrl] = useState<string | undefined>(undefined);
   const [activeRowId, setActiveRowId] = useState<string | undefined>(undefined);
   const [viewerError, setViewerError] = useState<string | null>(null);
@@ -193,11 +194,6 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const [isReplacingAnnotatedPages, setIsReplacingAnnotatedPages] = useState(false);
   const [replacementProgress, setReplacementProgress] = useState<number | undefined>(undefined);
   const documentViewer = useDocumentViewerOrchestrator();
-
-  useEffect(() => {
-    if (documentosRefreshKey <= 0) return;
-    void documentosTable.load();
-  }, [documentosRefreshKey, documentosTable.load]);
 
   const startViewerLoading = useCallback((key: string) => {
     viewerLoadingKeyRef.current = key;
@@ -968,6 +964,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             data-locked={isReplacingAnnotatedPages}
           >
           <AppTreeTable
+              key={`documentos-${documentosRefreshKey}-${actionRefreshKey}`}
               load={documentosTable.load}
               loadChildren={documentosTable.loadChildren}
               tableColumns={documentosTable.getTableColumns()}
@@ -992,7 +989,14 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
                   return;
                 }
 
-                void documentosTable.onActionTriggered({ actionId: params.actionId, rowId: params.rowId });
+                void (async () => {
+                  await documentosTable.onActionTriggered({ actionId: params.actionId, rowId: params.rowId });
+                  if (params.actionId === "eliminar_item" && activeRowId === params.rowId) {
+                    setActiveRowId(undefined);
+                    setActiveFileUrl(undefined);
+                  }
+                  setActionRefreshKey((prev) => prev + 1);
+                })();
               }}
               emptyMessage="Sin documentos adjuntos."
             />

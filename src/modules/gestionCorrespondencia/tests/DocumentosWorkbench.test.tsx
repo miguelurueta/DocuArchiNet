@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { useEffect } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DocumentosWorkbench } from "../components/documentosWorkbench/DocumentosWorkbench";
 
@@ -14,6 +15,7 @@ const statusUploadTemporalSpy = vi.fn();
 const reemplazarPaginasPdfAnotadasSpy = vi.fn();
 const cancelUploadTemporalSpy = vi.fn();
 let mockDocumentoActivo: unknown = null;
+let mockDocumentosRefreshKey = 0;
 
 type MockTableApi = {
   load: () => Promise<unknown>;
@@ -38,6 +40,12 @@ vi.mock("../hooks/useGestionRespuestaDocumentosTable", () => ({
   useGestionRespuestaDocumentosTable: () => {
     return mockTableApi;
   },
+}));
+
+vi.mock("../hooks/useGestionRespuestaDocumentos", () => ({
+  useGestionRespuestaDocumentos: () => ({
+    documentosRefreshKey: mockDocumentosRefreshKey,
+  }),
 }));
 
 vi.mock("../../../app/Components/UI/AppDocumentViewerOrchestrator", () => ({
@@ -135,12 +143,19 @@ vi.mock("react-toastify", () => ({
 
 vi.mock("../../../app/Components/UI/AppTreeTable", () => ({
   AppTreeTable: (props: {
+    load?: () => Promise<unknown>;
     onSelectRow?: (rowId: string) => void;
     onActionTriggered?: (params: { actionId: string; rowId: string }) => void;
     onSelectionChanged?: (rowIds: string[]) => void;
     tableLayoutMode?: string;
     tableColumns?: Array<{ headerName?: string; field?: string }>;
   }) => {
+    useEffect(() => {
+      void props.load?.();
+      // Solo al montar: el test valida remount por key, no rerender normal.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     appTreeTableSpy(props);
     return (
       <div data-testid="app-tree-table-mock">
@@ -149,6 +164,9 @@ vi.mock("../../../app/Components/UI/AppTreeTable", () => ({
         </button>
         <button type="button" onClick={() => props.onActionTriggered?.({ actionId: "ver_documento", rowId: "r1" })}>
           Action ver_documento
+        </button>
+        <button type="button" onClick={() => props.onActionTriggered?.({ actionId: "eliminar_item", rowId: "r1" })}>
+          Action eliminar_item
         </button>
         <button type="button" onClick={() => props.onSelectionChanged?.(["r1", "r2"])}>
           Select rows
@@ -187,6 +205,7 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     cancelUploadTemporalSpy.mockReset();
     toastErrorSpy.mockClear();
     mockDocumentoActivo = null;
+    mockDocumentosRefreshKey = 0;
     getOriginalPdfPasswordSpy.mockReturnValue(undefined);
     exportAnnotatedPdfPagesSpy.mockResolvedValue({
       hasAnnotations: true,
@@ -265,6 +284,38 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     expect(screen.getAllByRole("button", { name: /Ocultar documentos/i }).length).toBeGreaterThan(0);
     expect(screen.getByTestId("app-tree-table-mock")).toBeInTheDocument();
     expect(appTreeTableSpy).toHaveBeenCalledWith(expect.objectContaining({ tableLayoutMode: "fill" }));
+  });
+
+  it("remonta el AppTreeTable cuando cambia documentosRefreshKey para refrescar el listado", async () => {
+    const view = render(<DocumentosWorkbench idTareaWf={933} />);
+
+    await waitFor(() => {
+      expect(mockTableApi.load).toHaveBeenCalledTimes(1);
+    });
+
+    mockDocumentosRefreshKey = 1;
+    view.rerender(<DocumentosWorkbench idTareaWf={933} />);
+
+    await waitFor(() => {
+      expect(mockTableApi.load).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it("remonta el AppTreeTable despues de una accion de documento para reflejar eliminaciones", async () => {
+    render(<DocumentosWorkbench idTareaWf={933} />);
+
+    await waitFor(() => {
+      expect(mockTableApi.load).toHaveBeenCalledTimes(1);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Action eliminar_item" }));
+
+    await waitFor(() => {
+      expect(mockTableApi.onActionTriggered).toHaveBeenCalledWith({ actionId: "eliminar_item", rowId: "r1" });
+    });
+    await waitFor(() => {
+      expect(mockTableApi.load).toHaveBeenCalledTimes(2);
+    });
   });
 
   it("resalta temporalmente el listado cuando el visor vacio solicita ayuda de seleccion", async () => {

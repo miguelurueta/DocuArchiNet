@@ -113,7 +113,6 @@ export function AppUploadDocumental(props: AppUploadDocumentalProps) {
               placeholder="Tipologia"
               disabled={disabled || tiposDocumentales.length === 0}
               allowClear
-              searchable
               label="Tipologia"
               error={Boolean(metadata.error && !metadata.idTipoDocumento)}
               helperText={

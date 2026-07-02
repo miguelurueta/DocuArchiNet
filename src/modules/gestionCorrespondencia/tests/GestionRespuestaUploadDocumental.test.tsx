@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GestionRespuestaUploadDocumental } from "../components/gestionRespuestaMainTab/GestionRespuestaUploadDocumental";
 
-const { appUploadDocumentalSpy, refreshDocumentosSpy, useDocumentosState } = vi.hoisted(() => ({
+const { appUploadDocumentalSpy, refreshDocumentosSpy, useDocumentosState, useEmpresaActualState } = vi.hoisted(() => ({
   appUploadDocumentalSpy: vi.fn(),
   refreshDocumentosSpy: vi.fn(),
   useDocumentosState: {
@@ -14,6 +14,11 @@ const { appUploadDocumentalSpy, refreshDocumentosSpy, useDocumentosState } = vi.
     gabineteLoading: false,
     gabineteError: undefined as string | undefined,
   },
+  useEmpresaActualState: {
+    empresa: { IdEmpresa: 2 },
+    isLoading: false,
+    isError: false,
+  },
 }));
 
 vi.mock("../hooks/useGestionRespuestaDocumentos", () => ({
@@ -21,6 +26,14 @@ vi.mock("../hooks/useGestionRespuestaDocumentos", () => ({
     ...useDocumentosState,
     refreshDocumentos: refreshDocumentosSpy,
   }),
+}));
+
+vi.mock("../../login/hooks/useEmpresaActual", () => ({
+  useEmpresaActual: () => useEmpresaActualState,
+}));
+
+vi.mock("../../../app/auth/Infraestructura/ManejadorJWT", () => ({
+  obtenerUsuarioIdAutenticado: () => 136,
 }));
 
 vi.mock("../../almacenamientoDocumental/components/AppUploadDocumental", () => ({
@@ -74,6 +87,9 @@ describe("[SCRUMCORE-277] GestionRespuestaUploadDocumental", () => {
     useDocumentosState.nombreGabinete = "CORRESPO";
     useDocumentosState.gabineteLoading = false;
     useDocumentosState.gabineteError = undefined;
+    useEmpresaActualState.empresa = { IdEmpresa: 2 };
+    useEmpresaActualState.isLoading = false;
+    useEmpresaActualState.isError = false;
   });
 
   it("renderiza AppUploadDocumental con contexto, mapper y opciones enterprise", () => {
@@ -95,17 +111,22 @@ describe("[SCRUMCORE-277] GestionRespuestaUploadDocumental", () => {
           idRutaWorkflow: 9,
           idRespuesta: 672,
           nameModulo: "2600466700021",
+          idUsuarioGestion: 136,
+          idEmpresa: 2,
+          fechaElaboracion: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
         }),
       }),
     );
   });
 
   it("refresca documentos cuando el backend confirma AnexoRespuesta.Created", () => {
-    render(<GestionRespuestaUploadDocumental />);
+    const onClose = vi.fn();
+    render(<GestionRespuestaUploadDocumental onClose={onClose} />);
 
     screen.getByRole("button", { name: "Simular stored" }).click();
 
     expect(refreshDocumentosSpy).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it("bloquea la carga documental cuando no existe idRutaWf para tipologias workflow", () => {

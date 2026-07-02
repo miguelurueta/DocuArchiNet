@@ -139,6 +139,44 @@ describe("[SPEC:APPTREETABLE-217] documentosWorkbenchResponseAdapter", () => {
     expect(rendererParams?.menuActions?.length).toBeGreaterThan(0);
   });
 
+  it("fuerza acciones dynamic UI a client_event para que el Workbench ejecute su endpoint propio", () => {
+    const data: ListaDocumentosRadicadosQueryData = {
+      Rows: [
+        {
+          RowId: "r-action",
+          Values: { TIPODOCUMENTO: "DOC 2001" },
+          Meta: { NodeType: "documento", HasChildren: false },
+        },
+      ],
+      Columns: ["TIPODOCUMENTO"],
+      Config: {
+        ...dynamicTable,
+        MenuActions: [
+          {
+            ActionId: "eliminar_item",
+            Label: "Eliminar",
+            Behavior: "api_call",
+            Presentation: "menu_item",
+          },
+        ],
+      },
+    } as unknown as ListaDocumentosRadicadosQueryData;
+
+    const model = adaptListaDocumentosRadicadosToWorkbenchModel(data, { viewMode: "flatDocuments" });
+    const actionColumn = model.tableColumns?.find((column) => column.field === "ACCIONES");
+    const rendererParams = actionColumn?.cellRendererParams as
+      | {
+          actions?: Array<{ behavior?: string }>;
+          menuActions?: Array<{ actionId?: string; behavior?: string }>;
+        }
+      | undefined;
+
+    expect(rendererParams?.actions?.every((action) => action.behavior === "client_event")).toBe(true);
+    expect(rendererParams?.menuActions?.find((action) => action.actionId === "eliminar_item")?.behavior).toBe(
+      "client_event",
+    );
+  });
+
   it("[SPEC:APPTREETABLE-225-001] en Workbench limita Dynamic UI a 2 columnas y aplica sizing preset", () => {
     const dynamicTableWithLegacy = {
       ...dynamicTable,

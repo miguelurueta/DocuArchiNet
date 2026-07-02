@@ -76,7 +76,7 @@ describe("AppUploadBatchView [SCRUMCORE-270]", () => {
     expect(screen.getAllByText("0 archivo(s)").length).toBeGreaterThan(0);
   });
 
-  it("renderiza archivos con nombre, tamano, estado y fila activa", () => {
+  it("renderiza archivos con nombre, tamano, estado y fila activa cuando el preview esta abierto", () => {
     renderView({
       files: [
         createItem("a", { size: 2048, state: "uploading", progress: 45, phaseLabel: "Enviando" }),
@@ -89,14 +89,19 @@ describe("AppUploadBatchView [SCRUMCORE-270]", () => {
     expect(screen.getAllByText(/7 B/).length).toBeGreaterThan(0);
     expect(screen.getByText("Cargando")).toBeInTheDocument();
     expect(screen.getByText("Enviando")).toBeInTheDocument();
+    const inactiveFileButton = screen
+      .getAllByRole("button", { name: /factura-final.pdf/i })
+      .find((button) => button.getAttribute("aria-pressed") === "false");
+
+    expect(inactiveFileButton).toHaveAttribute("aria-pressed", "false");
+
+    fireEvent.click(screen.getByLabelText("Ver factura-final.pdf"));
+
     const activeFileButton = screen
       .getAllByRole("button", { name: /factura-final.pdf/i })
       .find((button) => button.getAttribute("aria-pressed") === "true");
 
-    expect(activeFileButton).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    expect(activeFileButton).toHaveAttribute("aria-pressed", "true");
   });
 
   it("ejecuta callbacks de acciones globales y por archivo", async () => {

@@ -341,6 +341,7 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
             <div className={styles.fileList} role="list">
               {files.map((item) => {
                 const selected = selectedItem?.uid === item.uid;
+                const previewSelected = selected && isPreviewMounted;
                 const itemDisabled = isBlocked || Boolean(item.disabled);
                 const isRemoving = removingUids.has(item.uid);
                 const itemProgress = clampPercent(item.progress);
@@ -351,7 +352,7 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
                 return (
                   <article
                     key={item.uid}
-                    className={joinClasses(styles.fileRow, selected && styles.fileRowActive)}
+                    className={joinClasses(styles.fileRow, previewSelected && styles.fileRowActive)}
                     data-state={item.state}
                     data-removing={isRemoving ? "true" : "false"}
                     role="listitem"
@@ -361,7 +362,7 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
                       className={styles.fileMain}
                       onClick={() => onSelectFile?.(item.uid)}
                       disabled={itemDisabled}
-                      aria-pressed={selected}
+                      aria-pressed={previewSelected}
                     >
                       <span className={styles.fileName} title={item.name}>
                         {renderFileName ? renderFileName(item) : item.name}

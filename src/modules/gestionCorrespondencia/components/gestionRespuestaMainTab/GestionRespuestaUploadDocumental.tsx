@@ -9,6 +9,8 @@ import {
   buildGestionRespuestaAlmacenarDocumentoRequest,
   isWorkflowAnexoCreated,
 } from "../../adapters/gestionRespuestaUploadDocumental.mapper";
+import { obtenerUsuarioIdAutenticado } from "../../../../app/auth/Infraestructura/ManejadorJWT";
+import { useEmpresaActual } from "../../../login/hooks/useEmpresaActual";
 import {
   loadGestionRespuestaTiposDocumentales,
   loadGestionRespuestaUploadConfig,
@@ -39,7 +41,14 @@ export function GestionRespuestaUploadDocumental({
     gabineteError,
     refreshDocumentos,
   } = useGestionRespuestaDocumentos();
+  const {
+    empresa,
+    isLoading: empresaLoading,
+    isError: empresaError,
+  } = useEmpresaActual();
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const idUsuarioGestion = obtenerUsuarioIdAutenticado();
+  const idEmpresa = normalizePositiveNumber(empresa?.IdEmpresa);
 
   const uploadContext = useMemo<UploadDocumentalContext>(
     () => ({
@@ -48,17 +57,23 @@ export function GestionRespuestaUploadDocumental({
       idRutaWorkflow: idRutaWf,
       idRespuesta: normalizeIdRespuesta(idRespuestaRadicado),
       nameModulo: radicado,
+      idUsuarioGestion,
+      idEmpresa,
+      fechaElaboracion: getCurrentDateOnly(),
     }),
-    [idRespuestaRadicado, idRutaWf, idTareaWf, nombreGabinete, radicado],
+    [idEmpresa, idRespuestaRadicado, idRutaWf, idTareaWf, idUsuarioGestion, nombreGabinete, radicado],
   );
 
   const handleStored = useCallback(
     (result: AlmacenarDocumentoStoredResult) => {
-      if (isWorkflowAnexoCreated(result.rawBackendResult)) {
+      const anexoCreated = isWorkflowAnexoCreated(result.rawBackendResult);
+
+      if (anexoCreated) {
         refreshDocumentos();
+        onClose?.();
       }
     },
-    [refreshDocumentos],
+    [onClose, refreshDocumentos],
   );
 
   const handleError = useCallback((error: unknown) => {
@@ -69,8 +84,20 @@ export function GestionRespuestaUploadDocumental({
     return <Alert type="info" showIcon title="Cargando contexto documental..." />;
   }
 
+  if (empresaLoading) {
+    return <Alert type="info" showIcon title="Cargando empresa para inventario documental..." />;
+  }
+
   if (gabineteError) {
     return <Alert type="error" showIcon title={gabineteError} />;
+  }
+
+  if (empresaError || !idEmpresa) {
+    return <Alert type="error" showIcon title="No fue posible resolver la empresa para el inventario documental." />;
+  }
+
+  if (!idUsuarioGestion) {
+    return <Alert type="error" showIcon title="No fue posible resolver el usuario para el inventario documental." />;
   }
 
   if (!nombreGabinete) {
@@ -91,7 +118,7 @@ export function GestionRespuestaUploadDocumental({
         <Alert
           type="error"
           closable
-          message={uploadError}
+          title={uploadError}
           onClose={() => setUploadError(null)}
           className={styles.documentalUploadAlert}
         />
@@ -125,4 +152,13 @@ export function GestionRespuestaUploadDocumental({
 function normalizeIdRespuesta(value: string | number | undefined): number | undefined {
   const normalized = typeof value === "string" ? Number(value) : value;
   return typeof normalized === "number" && Number.isFinite(normalized) && normalized > 0 ? normalized : undefined;
+}
+
+function normalizePositiveNumber(value: unknown): number | undefined {
+  const normalized = typeof value === "string" ? Number(value) : value;
+  return typeof normalized === "number" && Number.isFinite(normalized) && normalized > 0 ? normalized : undefined;
+}
+
+function getCurrentDateOnly(): string {
+  return new Date().toISOString().slice(0, 10);
 }

@@ -207,3 +207,25 @@ Resultado: no finalizo por errores preexistentes fuera del alcance de SCRUMCORE-
 - `AppUploadBatchView` sigue generico.
 - `AppInputSelect` sigue siendo el dropdown de tipologia dentro de `AppUploadDocumental`.
 - El flujo de almacenamiento documental por chunks queda intacto.
+
+## Actualizacion complementaria 2026-07-02
+
+Durante la validacion funcional del flujo completo se documento tambien la integracion enterprise de `AppUploadDocumental` con Gestion Respuesta, incluyendo:
+
+- almacenamiento final por archivo;
+- request `Inventario`, `Trd`, `Workflow`, `CabinetIndexSeed` y `AnexoRespuesta`;
+- validacion backend real de `StorageTrd requerido`;
+- diagnostico temporal de request/response para falta de tipologia, retirado del runtime antes del cierre;
+- cierre automatico del modal cuando `AnexoRespuesta.Created=true`;
+- refresh/remount del `DocumentosWorkbench`;
+- eliminacion desde `AppTreeTable` usando el endpoint propio del Workbench;
+- limites actuales para archivos pesados y pendiente de `configuracion-upload`.
+
+Documentacion complementaria:
+
+```txt
+docs/Architecture/AppUploadDocumental/Integracion-AppUploadDocumental/SCRUMCORE-284-Metadata.md
+docs/Architecture/AppUploadDocumental/Integracion-AppUploadDocumental/SCRUMCORE-284-Implementacion-Detallada.md
+docs/Architecture/AppUploadDocumental/Integracion-AppUploadDocumental/SCRUMCORE-284-Flujo-APIs-UX.md
+docs/Architecture/AppUploadDocumental/Integracion-AppUploadDocumental/SCRUMCORE-284-Pruebas.md
+```

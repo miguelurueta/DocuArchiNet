@@ -66,4 +66,4 @@
 - [x] 8.3 Confirm no new endpoint invented.
 - [x] 8.4 Confirm no `IdTipoTramite` frontend resolution.
 - [x] 8.5 Confirm no `any` introduced.
-- [ ] 8.6 Prepare commit/push/PR after implementation and verification.
+- [x] 8.6 Prepare commit/push/PR after implementation and verification.

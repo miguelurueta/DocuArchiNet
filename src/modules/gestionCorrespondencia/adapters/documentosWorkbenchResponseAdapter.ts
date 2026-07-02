@@ -2,7 +2,10 @@ import type { ColDef } from "ag-grid-community";
 import type { AppTreeTableRow } from "../../../app/Components/UI/AppTreeTable";
 import { mapDynamicUiTableToAppDataTableAgGrid } from "../../../app/Components/UI/AppTable/adapters/dynamicUiToAgGridColumns";
 import { mapAppGridColumnsToAppTableColumns } from "../../../app/Components/UI/AppTable/adapters/appGridToAppTableColumns";
-import type { DynamicUiTableDto } from "../../../app/Components/UI/AppTable/types/dynamicUiTable.types";
+import type {
+  AppGridCellAction,
+  DynamicUiTableDto,
+} from "../../../app/Components/UI/AppTable/types/dynamicUiTable.types";
 import type { ListaDocumentosRadicadosQueryData, ListaDocumentosRadicadosRowDto } from "../types/listaDocumentosRadicados.types";
 
 export type DocumentosWorkbenchViewMode = "hierarchical" | "flatDocuments";
@@ -139,6 +142,24 @@ const pickColumnsKeys = (data: ListaDocumentosRadicadosQueryData): string[] | un
   return undefined;
 };
 
+const forceWorkbenchClientEvent = (action: AppGridCellAction): AppGridCellAction => ({
+  ...action,
+  behavior: "client_event",
+  children: action.children?.map(forceWorkbenchClientEvent),
+});
+
+const forceWorkbenchActionColumnsClientEvent = (
+  columns: ReturnType<typeof mapDynamicUiTableToAppDataTableAgGrid>["columns"],
+): ReturnType<typeof mapDynamicUiTableToAppDataTableAgGrid>["columns"] =>
+  columns.map((column) =>
+    column.isActionColumn
+      ? {
+          ...column,
+          actions: column.actions?.map(forceWorkbenchClientEvent),
+        }
+      : column,
+  );
+
 export const adaptListaDocumentosRadicadosToWorkbenchModel = (
   data: ListaDocumentosRadicadosQueryData,
   options?: { viewMode?: DocumentosWorkbenchViewMode },
@@ -159,10 +180,12 @@ export const adaptListaDocumentosRadicadosToWorkbenchModel = (
   }
 
   const appGridTable = mapDynamicUiTableToAppDataTableAgGrid(dynamicUiTable);
-  const tableColumns = mapAppGridColumnsToAppTableColumns(appGridTable.columns, {
+  const workbenchColumns = forceWorkbenchActionColumnsClientEvent(appGridTable.columns);
+  const workbenchMenuActions = appGridTable.menuActions.map(forceWorkbenchClientEvent);
+  const tableColumns = mapAppGridColumnsToAppTableColumns(workbenchColumns, {
     tableId: appGridTable.tableId,
     userClaims: appGridTable.userClaims,
-    menuActions: appGridTable.menuActions,
+    menuActions: workbenchMenuActions,
     onClientEvent: ({ actionId, row, columnKey }) => {
       // AppTable emite client_event via onActionTriggered; este callback queda
       // configurado pero el manejo final se realiza en DocumentosWorkbench via
