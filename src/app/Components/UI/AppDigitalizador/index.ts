@@ -7,4 +7,5 @@ export type {
   AppDigitalizadorProviderProps,
   AppDigitalizadorProviderValue,
   AppDigitalizadorScannerFactory,
+  AppDigitalizadorMode,
 } from "./AppDigitalizador.types";

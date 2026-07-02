@@ -9,6 +9,13 @@ import {
   type MouseEvent,
   type PointerEvent,
 } from "react";
+import { createPortal } from "react-dom";
+import { Icon } from "@iconify/react";
+import { icons as materialSymbolsIcons } from "@iconify-json/material-symbols";
+import { icons as biIcons } from "@iconify-json/bi";
+import { icons as hugeiconsIcons } from "@iconify-json/hugeicons";
+import { icons as riIcons } from "@iconify-json/ri";
+import { icons as tablerIcons } from "@iconify-json/tabler";
 import {
   BorderOutlined,
   CheckSquareOutlined,
@@ -18,22 +25,17 @@ import {
   CopyOutlined,
   DeleteOutlined,
   DownOutlined,
-  FileAddOutlined,
-  FileTextOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
   AppstoreOutlined,
   InsertRowAboveOutlined,
   InsertRowBelowOutlined,
-  PlusOutlined,
   ProfileOutlined,
   RotateLeftOutlined,
   RotateRightOutlined,
-  ScanOutlined,
   SelectOutlined,
   SettingOutlined,
   ScissorOutlined,
-  SwapOutlined,
   ZoomInOutlined,
   ZoomOutOutlined,
   CompressOutlined,
@@ -61,6 +63,13 @@ import { unavailableScannerClient } from "./digitalizacionWorkspace.helpers";
 import { PageNavigatorFloating } from "./PageNavigatorFloating";
 import styles from "./DigitalizacionDocumentalWorkspace.module.css";
 
+const adfScannerIcon = "lets-icons:scan";
+const addNotesIcon = materialSymbolsIcons["add-notes-outline-rounded"];
+const replaceIcon = tablerIcons["replace-filled"];
+const insertIcon = hugeiconsIcons["row-insert"];
+const generatePdfIcon = biIcons["filetype-pdf"];
+const saveIcon = riIcons["save-3-line"];
+
 type CaptureMode = "docuarchi" | "driver";
 type PreviewFitMode = "custom" | "fitWidth" | "fitPage";
 type ThumbnailViewMode = "grid1" | "grid2" | "grid3" | "grid4" | "grid5" | "grid6";
@@ -82,6 +91,24 @@ type CropSelectionState = {
 };
 type SelectedPageIds = Set<string>;
 
+type ScanPipelinePerfRecord = {
+  scanId: string;
+  scanStartedAt: number;
+  stages: {
+    acquireImageMs?: number;
+    buildPagesFromBufferMs?: number;
+    blankDetectionMs?: number;
+    deskewMs?: number;
+    autoCropMs?: number;
+    autoRotateMs?: number;
+    reactFirstRenderMs?: number;
+  };
+};
+
+type ScanPipelinePerfWindow = Window & {
+  __docuarchiScanPipelinePerf?: ScanPipelinePerfRecord;
+};
+
 const MIN_PREVIEW_ZOOM = 50;
 const MAX_PREVIEW_ZOOM = 200;
 const PREVIEW_ZOOM_STEP = 25;
@@ -89,6 +116,7 @@ const PANEL_PREFERENCES_STORAGE_KEY = "docuarchi:digitalizacion:panel-preference
 const PAGE_HIGHLIGHT_DURATION_MS = 1400;
 const THUMBNAIL_VIRTUALIZATION_THRESHOLD = 100;
 const PAGE_ORGANIZER_VIRTUALIZATION_THRESHOLD = 100;
+const THUMBNAIL_RENDER_BATCH_SIZE = 24;
 const pageOrganizerDensityModes: Array<{ label: string; value: PageOrganizerDensity }> = [
   { label: "2x2", value: "density2" },
   { label: "3x3", value: "density3" },
@@ -162,32 +190,6 @@ const colorOptions = [
 
 const resolutionOptions = [200, 300, 400, 600] as const;
 
-const readableMode = (modo?: string) => (modo === "adjuntar" ? "adjuntar" : "crear");
-
-const getVisualStateLabel = ({
-  contextInvalid,
-  scannerStatus,
-  deviceCount,
-  pageCount,
-  pdfReady,
-}: {
-  contextInvalid: boolean;
-  scannerStatus: string;
-  deviceCount: number;
-  pageCount: number;
-  pdfReady: boolean;
-}) => {
-  if (contextInvalid) return "contextInvalid";
-  if (scannerStatus === "initializing") return "initializingScanner";
-  if (scannerStatus === "error") return "error";
-  if (scannerStatus === "scanning") return "scanning";
-  if (scannerStatus === "generatingPdf") return "generatingPdf";
-  if (deviceCount === 0) return "noScanner";
-  if (pdfReady) return "success";
-  if (pageCount > 0) return "pagesCaptured";
-  return "readyEmpty";
-};
-
 const getPageLabel = (page: ScanPage) => `Pagina ${page.index + 1}`;
 
 const getPageOrientation = (page: ScanPage) => {
@@ -240,8 +242,23 @@ const getOverlayProgressLabel = (progress: ScanProgressSnapshot | null) => {
   return "Procesando documentos";
 };
 
-const getFooterProgressLabel = (progress: ScanProgressSnapshot | null) =>
-  progress ? getOverlayProgressLabel(progress) : null;
+const downloadPdf = (pdfFile: File) => {
+  if (typeof document === "undefined" || typeof URL?.createObjectURL !== "function") {
+    return;
+  }
+
+  const downloadUrl = URL.createObjectURL(pdfFile);
+  const anchor = document.createElement("a");
+
+  anchor.href = downloadUrl;
+  anchor.download = pdfFile.name;
+  anchor.rel = "noopener";
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(downloadUrl);
+};
 
 const getScannerLoadingProgress = ({
   loading,
@@ -341,6 +358,7 @@ export function DigitalizacionDocumentalWorkspace({
   onCancel,
   onCompleted,
   onError,
+  toolbarHost,
 }: DigitalizacionDocumentalWorkspaceProps) {
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [captureMode, setCaptureMode] = useState<CaptureMode>("docuarchi");
@@ -362,6 +380,7 @@ export function DigitalizacionDocumentalWorkspace({
   const [cropDraft, setCropDraft] = useState<CropDraft | null>(null);
   const [cropSelection, setCropSelection] = useState<CropSelectionState | null>(null);
   const [highlightedPageId, setHighlightedPageId] = useState<string | null>(null);
+  const [renderedPageCount, setRenderedPageCount] = useState(0);
   const thumbnailViewMode: ThumbnailViewMode = "grid1";
   const [pageOrganizerDensity, setPageOrganizerDensity] =
     useState<PageOrganizerDensity>("density2");
@@ -377,6 +396,14 @@ export function DigitalizacionDocumentalWorkspace({
   const previewViewportRef = useRef<HTMLDivElement | null>(null);
   const previewPageSurfaceRef = useRef<HTMLDivElement | null>(null);
   const previewImageRef = useRef<HTMLImageElement | null>(null);
+  const progressiveRenderTimeoutRef = useRef<number | null>(null);
+  const [toolbarHostReady, setToolbarHostReady] = useState(false);
+  const scanFirstRenderLoggedRef = useRef(false);
+  const activeScanRef = useRef(false);
+
+  useEffect(() => {
+    setToolbarHostReady(Boolean(toolbarHost?.current));
+  }, [toolbarHost]);
   const pageOrganizerGridRef = useRef<HTMLDivElement | null>(null);
   const thumbnailButtonRefs = useRef(new Map<string, HTMLButtonElement>());
   const handleInvalidContext = useCallback(
@@ -407,6 +434,69 @@ export function DigitalizacionDocumentalWorkspace({
     deskewPage,
   } = scanner;
 
+  useEffect(() => {
+    if (scanner.status === "scanning") {
+      activeScanRef.current = true;
+      scanFirstRenderLoggedRef.current = false;
+    }
+  }, [scanner.status]);
+
+  useEffect(() => {
+    if (!activeScanRef.current || scanFirstRenderLoggedRef.current) {
+      return;
+    }
+
+    if (scanner.status !== "ready" || scanner.pages.length <= 0 || typeof window === "undefined") {
+      return;
+    }
+
+    const perfRecord = (window as ScanPipelinePerfWindow).__docuarchiScanPipelinePerf;
+    if (!perfRecord || typeof perfRecord.scanStartedAt !== "number") {
+      return;
+    }
+
+    const reactFirstRenderMs = performance.now() - perfRecord.scanStartedAt;
+    perfRecord.stages.reactFirstRenderMs = reactFirstRenderMs;
+    const ranking = [
+      {
+        stage: "AcquireImage",
+        durationMs: Math.round(perfRecord.stages.acquireImageMs ?? 0),
+      },
+      {
+        stage: "Blank Detection",
+        durationMs: Math.round(perfRecord.stages.blankDetectionMs ?? 0),
+      },
+      {
+        stage: "Deskew",
+        durationMs: Math.round(perfRecord.stages.deskewMs ?? 0),
+      },
+      {
+        stage: "AutoCrop",
+        durationMs: Math.round(perfRecord.stages.autoCropMs ?? 0),
+      },
+      {
+        stage: "AutoRotate",
+        durationMs: Math.round(perfRecord.stages.autoRotateMs ?? 0),
+      },
+      {
+        stage: "buildPagesFromBuffer",
+        durationMs: Math.round(perfRecord.stages.buildPagesFromBufferMs ?? 0),
+      },
+      {
+        stage: "ReactFirstRender",
+        durationMs: Math.round(reactFirstRenderMs),
+      },
+    ].sort((left, right) => right.durationMs - left.durationMs);
+
+    console.info("[SCAN PERF] ReactFirstRender", {
+      scanId: perfRecord.scanId,
+      durationMs: Math.round(reactFirstRenderMs),
+    });
+    console.info("[SCAN PERF] Scan pipeline ranking", ranking);
+    console.table(ranking);
+    scanFirstRenderLoggedRef.current = true;
+  }, [scanner.status, scanner.pages.length]);
+
   const handleOperationCompleted = useCallback(
     (result: DigitalizacionResult) => {
       clear();
@@ -431,22 +521,6 @@ export function DigitalizacionDocumentalWorkspace({
   const canGeneratePdf = Boolean(!state.validationError && hasPages && !scanner.loading);
   const metadataReady = Boolean(!state.metadata.required || state.metadata.trd);
   const canConfirm = Boolean(canSubmit && scanner.pdf && metadataReady && !operation.loading);
-  const visualState = getVisualStateLabel({
-    contextInvalid: Boolean(state.validationError),
-    scannerStatus: operation.loading ? operation.status : scanner.status,
-    deviceCount: scanner.devices.length,
-    pageCount: scanner.pages.length,
-    pdfReady: Boolean(scanner.pdf),
-  });
-  const submitDisabledReason =
-    state.validationError?.message ??
-    scanner.error?.message ??
-    operation.error?.message ??
-    (operation.loading
-      ? `Operacion ${operation.status}`
-      : scanner.pdf
-        ? "PDF listo"
-        : "Pendiente captura PDF");
   const selectedPage =
     scanner.pages.find((page) => page.id === selectedPageId) ?? scanner.pages[0] ?? null;
   const selectedPageVisualIndex = selectedPage
@@ -463,6 +537,10 @@ export function DigitalizacionDocumentalWorkspace({
         Array.from(selectedPageIdsState).filter((pageId) => availablePageIds.has(pageId)),
       ),
     [availablePageIds, selectedPageIdsState],
+  );
+  const selectedPageIdsInOrder = useMemo(
+    () => scanner.pages.map((page) => page.id).filter((pageId) => selectedPageIds.has(pageId)),
+    [scanner.pages, selectedPageIds],
   );
 
   useEffect(() => {
@@ -514,6 +592,8 @@ export function DigitalizacionDocumentalWorkspace({
             }
           : undefined,
       captureOperation,
+    }).then(() => {
+      console.log("[SCAN CONSUMER] scan resolved in executeCapture");
     });
   }, [
     adfEnabled,
@@ -583,9 +663,7 @@ export function DigitalizacionDocumentalWorkspace({
 
   const handleRotateSelected = useCallback((degrees: 90 | 270 = 90) => {
     if (selectedPageIds.size > 0) {
-      const pageIds = scanner.pages
-        .map((page) => page.id)
-        .filter((pageId) => selectedPageIds.has(pageId));
+      const pageIds = selectedPageIdsInOrder;
 
       pageIds.forEach((pageId) => {
         void rotatePage(pageId, degrees);
@@ -596,13 +674,11 @@ export function DigitalizacionDocumentalWorkspace({
     const pageId = selectedPageId ?? scanner.pages[0]?.id;
     if (!pageId) return;
     void rotatePage(pageId, degrees);
-  }, [rotatePage, scanner.pages, selectedPageId, selectedPageIds]);
+  }, [rotatePage, scanner.pages, selectedPageId, selectedPageIds, selectedPageIdsInOrder]);
 
   const handleDeskewSelected = useCallback(() => {
     if (selectedPageIds.size > 0) {
-      const pageIds = scanner.pages
-        .map((page) => page.id)
-        .filter((pageId) => selectedPageIds.has(pageId));
+      const pageIds = selectedPageIdsInOrder;
 
       void (async () => {
         for (const pageId of pageIds) {
@@ -615,13 +691,11 @@ export function DigitalizacionDocumentalWorkspace({
     const pageId = selectedPageId ?? scanner.pages[0]?.id;
     if (!pageId) return;
     void deskewPage(pageId);
-  }, [deskewPage, scanner.pages, selectedPageId, selectedPageIds]);
+  }, [deskewPage, scanner.pages, selectedPageId, selectedPageIds, selectedPageIdsInOrder]);
 
   const handleRemoveSelected = useCallback(() => {
     if (selectedPageIds.size > 0) {
-      const pageIds = scanner.pages
-        .map((page) => page.id)
-        .filter((pageId) => selectedPageIds.has(pageId));
+      const pageIds = selectedPageIdsInOrder;
 
       if (pageIds.length === 0) {
         return;
@@ -640,9 +714,11 @@ export function DigitalizacionDocumentalWorkspace({
         return;
       }
 
-      pageIds.forEach((pageId) => {
-        void removePage(pageId);
-      });
+      void (async () => {
+        for (const pageId of pageIds) {
+          await removePage(pageId);
+        }
+      })();
       setSelectedPageIds(new Set());
       return;
     }
@@ -650,9 +726,24 @@ export function DigitalizacionDocumentalWorkspace({
     const pageId = selectedPageId ?? scanner.pages[0]?.id;
     if (!pageId) return;
     void removePage(pageId);
-  }, [removePage, scanner.pages, selectedPageId, selectedPageIds]);
+  }, [removePage, scanner.pages, selectedPageId, selectedPageIds, selectedPageIdsInOrder]);
 
   const handleDuplicateSelected = useCallback(() => {
+    if (selectedPageIds.size > 0) {
+      const pageIds = selectedPageIdsInOrder;
+
+      if (pageIds.length === 0) {
+        return;
+      }
+
+      void (async () => {
+        for (const pageId of pageIds) {
+          await duplicatePage(pageId);
+        }
+      })();
+      return;
+    }
+
     const sourcePage = selectedPage;
     if (!sourcePage) {
       return;
@@ -670,7 +761,13 @@ export function DigitalizacionDocumentalWorkspace({
         setHighlightedPageId(duplicatedPage.id);
       }
     });
-  }, [duplicatePage, scanner.pages, selectedPage]);
+  }, [
+    duplicatePage,
+    scanner.pages,
+    selectedPage,
+    selectedPageIds,
+    selectedPageIdsInOrder,
+  ]);
 
   const handleThumbnailDragStart = useCallback(
     (event: DragEvent<HTMLButtonElement>, pageId: string) => {
@@ -767,31 +864,25 @@ export function DigitalizacionDocumentalWorkspace({
   }, []);
 
   const handleRotateOrganizerSelection = useCallback((degrees: 90 | 270) => {
-    const pageIds = scanner.pages
-      .map((page) => page.id)
-      .filter((pageId) => selectedPageIds.has(pageId));
+    const pageIds = selectedPageIdsInOrder;
 
     pageIds.forEach((pageId) => {
       void rotatePage(pageId, degrees);
     });
-  }, [rotatePage, scanner.pages, selectedPageIds]);
+  }, [rotatePage, selectedPageIdsInOrder]);
 
   const handleDeskewOrganizerSelection = useCallback(() => {
-    const pageIds = scanner.pages
-      .map((page) => page.id)
-      .filter((pageId) => selectedPageIds.has(pageId));
+    const pageIds = selectedPageIdsInOrder;
 
     void (async () => {
       for (const pageId of pageIds) {
         await deskewPage(pageId);
       }
     })();
-  }, [deskewPage, scanner.pages, selectedPageIds]);
+  }, [deskewPage, selectedPageIdsInOrder]);
 
   const handleRemoveOrganizerSelection = useCallback(() => {
-    const pageIds = scanner.pages
-      .map((page) => page.id)
-      .filter((pageId) => selectedPageIds.has(pageId));
+    const pageIds = selectedPageIdsInOrder;
 
     if (pageIds.length === 0) {
       return;
@@ -810,11 +901,13 @@ export function DigitalizacionDocumentalWorkspace({
       return;
     }
 
-    pageIds.forEach((pageId) => {
-      void removePage(pageId);
-    });
+    void (async () => {
+      for (const pageId of pageIds) {
+        await removePage(pageId);
+      }
+    })();
     setSelectedPageIds(new Set());
-  }, [removePage, scanner.pages, selectedPageIds]);
+  }, [removePage, selectedPageIdsInOrder]);
 
   const handleSelectAllPages = useCallback(() => {
     setSelectedPageIds(new Set(scanner.pages.map((page) => page.id)));
@@ -868,7 +961,16 @@ export function DigitalizacionDocumentalWorkspace({
       activeContext?.radicado || activeContext?.idDocumentoDestino
         ? `digitalizacion-${activeContext?.radicado ?? activeContext?.idDocumentoDestino}`
         : "digitalizacion-documental";
-    void generatePdf(fileName);
+
+    void (async () => {
+      const pdf = await generatePdf(fileName);
+
+      if (!pdf) {
+        return;
+      }
+
+      downloadPdf(pdf.file);
+    })();
   }, [activeContext, generatePdf]);
 
   const getEquivalentZoomFromActiveLayout = useCallback(() => {
@@ -1168,6 +1270,57 @@ export function DigitalizacionDocumentalWorkspace({
     };
   }, [highlightedPageId]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      setRenderedPageCount(scanner.pages.length);
+      return;
+    }
+
+    if (scanner.pages.length <= renderedPageCount) {
+      setRenderedPageCount(scanner.pages.length);
+      return;
+    }
+
+    if (progressiveRenderTimeoutRef.current) {
+      window.clearTimeout(progressiveRenderTimeoutRef.current);
+      progressiveRenderTimeoutRef.current = null;
+    }
+
+    const nextPageCount = Math.min(
+      renderedPageCount + THUMBNAIL_RENDER_BATCH_SIZE,
+      scanner.pages.length,
+    );
+    if (nextPageCount <= renderedPageCount) {
+      return;
+    }
+
+    progressiveRenderTimeoutRef.current = window.setTimeout(() => {
+      setRenderedPageCount(nextPageCount);
+      progressiveRenderTimeoutRef.current = null;
+    }, 0);
+
+    return () => {
+      if (progressiveRenderTimeoutRef.current) {
+        window.clearTimeout(progressiveRenderTimeoutRef.current);
+        progressiveRenderTimeoutRef.current = null;
+      }
+    };
+  }, [renderedPageCount, scanner.pages.length]);
+
+  useEffect(() => {
+    return () => {
+      if (progressiveRenderTimeoutRef.current) {
+        window.clearTimeout(progressiveRenderTimeoutRef.current);
+        progressiveRenderTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  const renderedPages = useMemo(
+    () => scanner.pages.slice(0, renderedPageCount),
+    [scanner.pages, renderedPageCount],
+  );
+
   const handleSubmit = useCallback(() => {
     if (!activeContext || !scanner.pdf) return;
     void operation
@@ -1181,21 +1334,6 @@ export function DigitalizacionDocumentalWorkspace({
       .catch(() => undefined);
   }, [activeContext, operation, scanner.pdf, state.metadata.trd]);
 
-  const summaryItems = useMemo(
-    () => [
-      ["Gabinete", activeContext?.nombreGabinete || "Sin gabinete"],
-      ["Radicado", activeContext?.radicado || "No informado"],
-      [
-        "Documento destino",
-        activeContext?.idDocumentoDestino
-          ? String(activeContext.idDocumentoDestino)
-          : activeContext?.modo === "adjuntar"
-            ? "Requerido"
-            : "Nuevo documento",
-      ],
-    ],
-    [activeContext],
-  );
   const selectedCropSelection =
     selectedPage && cropSelection?.pageId === selectedPage.id ? cropSelection.selection : null;
   const activeCropSelection =
@@ -1240,33 +1378,40 @@ export function DigitalizacionDocumentalWorkspace({
     ? "Descartar documento actual e iniciar uno nuevo"
     : "Iniciar captura documental";
   const handlePrimaryCapture = hasPages ? handleNewCapture : handleScan;
-  const insertCaptureItems = [
-    {
-      key: "insert-before",
-      label: "Insertar antes",
-      leftIcon: <InsertRowAboveOutlined />,
-      disabled: !hasCaptureTarget,
-      onSelect: () => handleInsertCapture("INSERT_BEFORE"),
-    },
-    {
-      key: "insert-after",
-      label: "Insertar despues",
-      leftIcon: <InsertRowBelowOutlined />,
-      disabled: !hasCaptureTarget,
-      onSelect: () => handleInsertCapture("INSERT_AFTER"),
-    },
-  ];
-  const pageOrganizerDensityItems = pageOrganizerDensityModes.map((mode) => ({
-    key: mode.value,
-    label: mode.label,
-    onSelect: () => {
-      setPageOrganizerDensity(mode.value);
-      setAreaSelectionEnabled(false);
-      setCropDraft(null);
-      setCropSelection(null);
-      setShowPageOrganizer(true);
-    },
-  }));
+  const insertCaptureItems = useMemo(
+    () => [
+      {
+        key: "insert-before",
+        label: "Insertar antes",
+        leftIcon: <InsertRowAboveOutlined />,
+        disabled: !hasCaptureTarget,
+        onSelect: () => handleInsertCapture("INSERT_BEFORE"),
+      },
+      {
+        key: "insert-after",
+        label: "Insertar despues",
+        leftIcon: <InsertRowBelowOutlined />,
+        disabled: !hasCaptureTarget,
+        onSelect: () => handleInsertCapture("INSERT_AFTER"),
+      },
+    ],
+    [handleInsertCapture, hasCaptureTarget],
+  );
+  const pageOrganizerDensityItems = useMemo(
+    () =>
+      pageOrganizerDensityModes.map((mode) => ({
+        key: mode.value,
+        label: mode.label,
+        onSelect: () => {
+          setPageOrganizerDensity(mode.value);
+          setAreaSelectionEnabled(false);
+          setCropDraft(null);
+          setCropSelection(null);
+          setShowPageOrganizer(true);
+        },
+      })),
+    [],
+  );
   const hasOrganizerSelection = scanner.pages.some((page) => selectedPageIds.has(page.id));
   const previewPanelClassName = [
     styles.panel,
@@ -1301,7 +1446,104 @@ export function DigitalizacionDocumentalWorkspace({
       pageCount: scanner.pages.length,
     });
   const activeProgressLabel = getOverlayProgressLabel(activeProgress);
-  const footerProgressLabel = getFooterProgressLabel(activeProgress);
+  const toolbarElement = (
+    <div className={styles.toolbar} role="toolbar" aria-label="Herramientas de digitalizacion">
+      <div className={styles.toolbarGroup} data-priority="primary" role="group" aria-label="Captura">
+        <AppButton
+          variant="secondary"
+          size="sm"
+          leftIcon={<Icon icon={adfScannerIcon ?? "material-symbols:adf-scanner-outline"} />}
+          aria-label={primaryCaptureLabel}
+          tooltip={primaryCaptureTooltip}
+          onClick={handlePrimaryCapture}
+          disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
+        >
+          Escanear
+        </AppButton>
+        <AppButton
+          variant="ghost"
+          size="sm"
+          leftIcon={<Icon icon={addNotesIcon ?? "material-symbols:add-notes-outline-rounded"} />}
+          aria-label="Agregar"
+          tooltip="Agregar paginas al final del documento"
+          onClick={handleAppendCapture}
+          disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
+        >
+          Agregar
+        </AppButton>
+        <AppButton
+          variant="ghost"
+          size="sm"
+          leftIcon={<Icon icon={replaceIcon ?? "tabler:replace-filled"} />}
+          aria-label="Reemplazar"
+          tooltip="Reemplazar la pagina actual"
+          onClick={handleReplaceCapture}
+          disabled={
+            !scanner.selectedDeviceId ||
+            scanner.loading ||
+            Boolean(state.validationError) ||
+            !hasCaptureTarget
+          }
+        >
+          Reemplazar
+        </AppButton>
+        <AppDropdown
+          ariaLabel="Insertar paginas"
+          placement="bottomLeft"
+          items={insertCaptureItems}
+          disabled={
+            !scanner.selectedDeviceId ||
+            scanner.loading ||
+            Boolean(state.validationError) ||
+            !hasCaptureTarget
+          }
+          trigger={
+            <AppButton
+              variant="ghost"
+              size="sm"
+              leftIcon={<Icon icon={insertIcon ?? "hugeicons:row-insert"} />}
+              rightIcon={<DownOutlined />}
+              aria-label="Insertar"
+              tooltip="Insertar paginas antes o despues de la actual"
+              disabled={
+                !scanner.selectedDeviceId ||
+                scanner.loading ||
+                Boolean(state.validationError) ||
+                !hasCaptureTarget
+              }
+            >
+              Insertar
+            </AppButton>
+          }
+        />
+      </div>
+
+      <div className={styles.toolbarGroup} data-priority="output" role="group" aria-label="Salida">
+        <AppButton
+          variant="ghost"
+          size="sm"
+          leftIcon={<Icon icon={generatePdfIcon ?? "bi:filetype-pdf"} />}
+          aria-label="Generar PDF"
+          tooltip="Generar PDF"
+          onClick={handleGeneratePdf}
+          disabled={!canGeneratePdf}
+        >
+          Generar PDF
+        </AppButton>
+        <span className={styles.toolbarSpacer} aria-hidden="true" />
+        <AppButton
+          variant="primary"
+          size="sm"
+          leftIcon={<Icon icon={saveIcon ?? "ri:save-3-line"} />}
+          aria-label="Guardar"
+          className={styles.toolbarSaveButton}
+          disabled={!canGeneratePdf}
+        >
+          Guardar
+        </AppButton>
+      </div>
+    </div>
+  );
 
   if (!active) {
     return null;
@@ -1318,22 +1560,7 @@ export function DigitalizacionDocumentalWorkspace({
         className={styles.dynamsoftContainer}
         aria-hidden="true"
       />
-      <header className={styles.header}>
-        <div className={styles.titleLine}>
-          <span className={styles.modeBadge}>{readableMode(activeContext?.modo)}</span>
-          <span className={styles.stateBadge} data-state={visualState}>
-            {visualState}
-          </span>
-        </div>
-        <div className={styles.summary}>
-          {summaryItems.map(([label, value]) => (
-            <div className={styles.summaryItem} key={label}>
-              <span className={styles.summaryLabel}>{label}</span>
-              <span className={styles.summaryValue}>{value}</span>
-            </div>
-          ))}
-        </div>
-      </header>
+      <header className={styles.header} />
 
       {state.validationError ? (
         <div className={styles.error} role="alert">
@@ -1351,83 +1578,9 @@ export function DigitalizacionDocumentalWorkspace({
         </div>
       ) : null}
 
-      <div className={styles.toolbar} role="toolbar" aria-label="Herramientas de digitalizacion">
-        <div className={styles.toolbarGroup} data-priority="primary" role="group" aria-label="Captura">
-          <AppButton
-            variant="secondary"
-            size="sm"
-            icon={hasPages ? <FileAddOutlined /> : <ScanOutlined />}
-            aria-label={primaryCaptureLabel}
-            tooltip={primaryCaptureTooltip}
-            onClick={handlePrimaryCapture}
-            disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
-          />
-          <AppButton
-            variant="ghost"
-            size="sm"
-            icon={<SwapOutlined />}
-            aria-label="Reemplazar"
-            tooltip="Reemplazar la pagina actual"
-            onClick={handleReplaceCapture}
-            disabled={
-              !scanner.selectedDeviceId ||
-              scanner.loading ||
-              Boolean(state.validationError) ||
-              !hasCaptureTarget
-            }
-          />
-          <AppDropdown
-            ariaLabel="Insertar paginas"
-            placement="bottomLeft"
-            items={insertCaptureItems}
-            disabled={
-              !scanner.selectedDeviceId ||
-              scanner.loading ||
-              Boolean(state.validationError) ||
-              !hasCaptureTarget
-            }
-            trigger={
-              <AppButton
-                variant="ghost"
-                size="sm"
-                leftIcon={<PlusOutlined />}
-                rightIcon={<DownOutlined />}
-                aria-label="Insertar"
-                tooltip="Insertar paginas antes o despues de la actual"
-                disabled={
-                  !scanner.selectedDeviceId ||
-                  scanner.loading ||
-                  Boolean(state.validationError) ||
-                  !hasCaptureTarget
-                }
-              >
-                Insertar
-              </AppButton>
-            }
-          />
-          <AppButton
-            variant="ghost"
-            size="sm"
-            icon={<InsertRowBelowOutlined />}
-            aria-label="Agregar"
-            tooltip="Agregar paginas al final del documento"
-            onClick={handleAppendCapture}
-            disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
-          />
-        </div>
-
-
-        <div className={styles.toolbarGroup} data-priority="output" role="group" aria-label="Salida">
-          <AppButton
-            size="sm"
-            icon={<FileTextOutlined />}
-            aria-label="Generar PDF"
-            tooltip="Generar PDF"
-            onClick={handleGeneratePdf}
-            disabled={!canGeneratePdf}
-          />
-        </div>
-      </div>
+      {toolbarHostReady && toolbarHost?.current
+        ? createPortal(toolbarElement, toolbarHost.current)
+        : toolbarElement}
 
       <main
         className={styles.main}
@@ -1466,7 +1619,7 @@ export function DigitalizacionDocumentalWorkspace({
                 data-view-mode={thumbnailViewMode}
                 data-virtualized={thumbnailsVirtualized}
               >
-                {scanner.pages.map((page, pageOrderIndex) => (
+                {renderedPages.map((page, pageOrderIndex) => (
                   <button
                     className={styles.thumbnailButton}
                     data-selected={page.id === selectedPageId}
@@ -1511,6 +1664,8 @@ export function DigitalizacionDocumentalWorkspace({
                     </label>
                     {page.thumbnailUrl ? (
                       <img
+                        loading="lazy"
+                        decoding="async"
                         src={page.thumbnailUrl}
                         alt={`Pagina ${pageOrderIndex + 1}`}
                       />
@@ -1539,24 +1694,26 @@ export function DigitalizacionDocumentalWorkspace({
           <div className={`${styles.panelHeader} ${styles.previewHeader}`}>
             <div className={styles.previewControls} role="toolbar" aria-label="Visualizacion preview">
               <div className={styles.previewControlGroup} role="group" aria-label="Edicion">
-              <AppButton
-                variant="ghost"
-                size="sm"
-                icon={<RotateLeftOutlined />}
-                aria-label="Rotar izquierda"
-                tooltip="Rotar izquierda"
-                onClick={() => handleRotateSelected(270)}
-                disabled={!selectedPage}
-              />
-              <AppButton
-                variant="ghost"
-                size="sm"
-                icon={<RotateRightOutlined />}
-                aria-label="Rotar derecha"
-                tooltip="Rotar derecha"
-                onClick={() => handleRotateSelected(90)}
-                disabled={!selectedPage}
-              />
+                <AppButton
+                  variant="ghost"
+                  size="sm"
+                  icon={<RotateLeftOutlined />}
+                  aria-label="Rotar izquierda"
+                  tooltip="Rotar izquierda"
+                  className={styles.toolbarRotateButton}
+                  onClick={() => handleRotateSelected(270)}
+                  disabled={!selectedPage}
+                />
+                <AppButton
+                  variant="ghost"
+                  size="sm"
+                  icon={<RotateRightOutlined />}
+                  aria-label="Rotar derecha"
+                  tooltip="Rotar derecha"
+                  className={styles.toolbarRotateButton}
+                  onClick={() => handleRotateSelected(90)}
+                  disabled={!selectedPage}
+                />
               <AppButton
                 variant="ghost"
                 size="sm"
@@ -1705,6 +1862,8 @@ export function DigitalizacionDocumentalWorkspace({
                         ref={previewImageRef}
                         className={styles.previewImage}
                         src={selectedPage.imageUrl}
+                        loading="lazy"
+                        decoding="async"
                         alt={getPageLabel(selectedPage)}
                         draggable={false}
                       />
@@ -1873,7 +2032,7 @@ export function DigitalizacionDocumentalWorkspace({
                 data-virtualized={organizerVirtualized}
                 style={pageOrganizerGridStyle}
               >
-                {scanner.pages.map((page, pageOrderIndex) => {
+                {renderedPages.map((page, pageOrderIndex) => {
                   const pageOrientation = getPageOrientation(page);
                   const pageAspectRatioStyle = getPageAspectRatioStyle(page);
 
@@ -1915,6 +2074,8 @@ export function DigitalizacionDocumentalWorkspace({
                       </label>
                       {page.thumbnailUrl ? (
                         <img
+                          loading="lazy"
+                          decoding="async"
                           src={page.thumbnailUrl}
                           alt={`Pagina ${pageOrderIndex + 1}`}
                         />
@@ -2073,7 +2234,7 @@ export function DigitalizacionDocumentalWorkspace({
                 <span>Utilizar configuracion PaperStream</span>
                 <AppButton
                   variant="secondary"
-                  onClick={handleScan}
+                  onClick={handlePrimaryCapture}
                   disabled={!scanner.selectedDeviceId || scanner.loading || Boolean(state.validationError)}
                 >
                   Configurar scanner
@@ -2085,21 +2246,6 @@ export function DigitalizacionDocumentalWorkspace({
         </AppCollapseRail>
       </main>
 
-      <footer className={styles.workbenchFooter}>
-        <span>{submitDisabledReason}</span>
-        <div className={styles.footerActions}>
-          <span>
-            {footerProgressLabel ??
-              (operation.loading ? `Operacion ${operation.status}` : "Listo para operar")}
-          </span>
-          <AppButton variant="ghost" onClick={handleCancel} disabled={operation.loading}>
-            Cancelar
-          </AppButton>
-          <AppButton onClick={handleSubmit} disabled={!canConfirm} loading={operation.loading}>
-            {primaryLabel}
-          </AppButton>
-        </div>
-      </footer>
     </section>
   );
 }

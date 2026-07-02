@@ -3,7 +3,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-  max-block-size: calc(100vh - 2rem);
   min-height: 0;
   overflow: hidden;
   position: relative;
@@ -22,78 +21,6 @@
   gap: 0.55rem;
 }
 
-.titleLine {
-  align-items: center;
-  display: flex;
-  gap: 0.65rem;
-  justify-content: space-between;
-}
-
-.modeBadge {
-  background: #e8f1ff;
-  border: 1px solid #bfd4ff;
-  border-radius: 999px;
-  color: #174ea6;
-  font-size: 0.76rem;
-  font-weight: 700;
-  padding: 0.18rem 0.55rem;
-  text-transform: uppercase;
-}
-
-.stateBadge {
-  background: #f2f7f2;
-  border: 1px solid #cfe6d1;
-  border-radius: 999px;
-  color: #2f6846;
-  font-size: 0.76rem;
-  font-weight: 700;
-  padding: 0.18rem 0.55rem;
-}
-
-.stateBadge[data-state="error"],
-.stateBadge[data-state="contextInvalid"] {
-  background: #fff1f0;
-  border-color: #ffccc7;
-  color: #a8071a;
-}
-
-.stateBadge[data-state="scanning"],
-.stateBadge[data-state="generatingPdf"],
-.stateBadge[data-state="initializingScanner"] {
-  background: #fff7e6;
-  border-color: #ffd591;
-  color: #ad6800;
-}
-
-.summary {
-  display: grid;
-  gap: 0.45rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.summaryItem {
-  background: #f7f9fc;
-  border: 1px solid #e3e8f1;
-  border-radius: 8px;
-  min-width: 0;
-  padding: 0.5rem 0.6rem;
-}
-
-.summaryLabel {
-  color: #66788f;
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.summaryValue {
-  color: #1d3348;
-  display: block;
-  font-size: 0.88rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 .error {
   background: #fff1f0;
@@ -134,6 +61,99 @@
 
 .toolbarGroup[data-priority="output"] {
   margin-left: auto;
+  align-items: center;
+  display: flex;
+  flex: 1 1 auto;
+  justify-content: flex-start;
+  border-left: none;
+  padding-left: 0;
+}
+
+.toolbarSpacer {
+  flex: 1 1 auto;
+}
+
+.toolbarSaveButton :global(.ant-btn-icon) {
+  font-size: 1.12em;
+}
+
+.toolbarSaveButton {
+  line-height: 1;
+}
+
+.toolbarSaveButton :global(.ant-btn-icon) :global(svg),
+.toolbarSaveButton :global(.ant-btn-icon) :global(.iconify) {
+  width: 1.12em;
+  height: 1.12em;
+  max-width: 1.12em;
+  max-height: 1.12em;
+}
+
+.toolbarSaveButton :global(.ant-btn-icon) + * {
+  margin-inline-start: 0.18rem !important;
+  align-items: center;
+  display: inline-flex;
+  line-height: 1;
+}
+
+.previewControls :global(.ant-btn[disabled]),
+.previewControls :global(.ant-btn[aria-disabled="true"]) {
+  pointer-events: none;
+  filter: grayscale(1) saturate(0);
+  opacity: 0.82;
+  transform: none !important;
+  transition: none !important;
+  box-shadow: none !important;
+}
+
+.previewControls :global(.ant-btn[disabled]:hover),
+.previewControls :global(.ant-btn[disabled]:focus-visible),
+.previewControls :global(.ant-btn[aria-disabled="true"]:hover),
+.previewControls :global(.ant-btn[aria-disabled="true"]:focus-visible) {
+  background: inherit !important;
+  border-color: inherit !important;
+  color: inherit !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.toolbarRotateButton:global(.ant-btn[disabled]),
+.toolbarRotateButton:global(.ant-btn[aria-disabled="true"]) {
+  pointer-events: none;
+}
+
+.toolbarRotateButton:global(.ant-btn[disabled]:hover),
+.toolbarRotateButton:global(.ant-btn[disabled]:focus-visible),
+.toolbarRotateButton:global(.ant-btn[aria-disabled="true"]:hover),
+.toolbarRotateButton:global(.ant-btn[aria-disabled="true"]:focus-visible) {
+  background: inherit !important;
+  border-color: inherit !important;
+  color: inherit !important;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: grayscale(1) saturate(0);
+}
+
+.toolbar :global(.ant-btn[disabled]),
+.toolbar :global(.ant-btn[aria-disabled="true"]) {
+  color: #9ca3af !important;
+  cursor: not-allowed;
+  filter: grayscale(1) saturate(0);
+  opacity: 0.82;
+  pointer-events: none;
+  transform: none !important;
+  transition: none !important;
+  box-shadow: none !important;
+}
+
+.toolbar :global(.ant-btn[disabled]:hover),
+.toolbar :global(.ant-btn[disabled]:focus-visible),
+.toolbar :global(.ant-btn[aria-disabled="true"]:hover),
+.toolbar :global(.ant-btn[aria-disabled="true"]:focus-visible) {
+  color: #9ca3af !important;
+  cursor: not-allowed;
+  transform: none !important;
+  transition: none !important;
 }
 
 .main {
@@ -142,7 +162,7 @@
   display: grid;
   flex: 1 1 auto;
   gap: 0.75rem;
-  grid-template-columns: minmax(8rem, 0.62fr) minmax(18rem, 2.25fr) minmax(10rem, 0.82fr);
+  grid-template-columns: minmax(8rem, 0.62fr) minmax(18rem, 1.95fr) minmax(8.5rem, 14rem);
   grid-template-rows: minmax(0, 1fr);
   min-block-size: 0;
   min-height: 0;
@@ -152,11 +172,11 @@
 }
 
 .main[data-thumbnails-collapsed="true"] {
-  grid-template-columns: 0 minmax(18rem, 1fr) minmax(10rem, 0.82fr);
+  grid-template-columns: 0 minmax(18rem, 1fr) minmax(8.5rem, 14rem);
 }
 
 .main[data-configuration-collapsed="true"] {
-  grid-template-columns: minmax(8rem, 0.62fr) minmax(18rem, 1fr) 0;
+  grid-template-columns: minmax(8rem, 0.62fr) minmax(18rem, 1.95fr) 0;
 }
 
 .main[data-thumbnails-collapsed="true"][data-configuration-collapsed="true"] {
@@ -1133,23 +1153,7 @@
   font-weight: 700;
 }
 
-.workbenchFooter {
-  align-items: center;
-  border-top: 1px solid #e3e8f1;
-  color: #65758a;
-  display: flex;
-  font-size: 0.8rem;
-  justify-content: space-between;
-  padding-top: 0.7rem;
-}
-
-.footerNote {
-  color: #65758a;
-  font-size: 0.8rem;
-}
-
 @media (max-width: 760px) {
-  .summary,
   .main {
     grid-template-columns: 1fr;
   }
@@ -1164,7 +1168,6 @@
     block-size: 0;
   }
 
-  .titleLine,
   .toolbar {
     align-items: stretch;
     flex-direction: column;

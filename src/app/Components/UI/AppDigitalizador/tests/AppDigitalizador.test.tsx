@@ -301,6 +301,52 @@ describe("AppDigitalizador", () => {
     });
   }, 20000);
 
+  it("[SPEC:SCRUMCORE-265] pide confirmacion al configurar scanner si hay paginas existentes", async () => {
+    const confirmSpy = vi.mocked(window.confirm).mockReturnValue(true);
+    const scannerClient = createScannerClient([
+      { id: "page-1", index: 0 },
+      { id: "page-2", index: 1 },
+    ]);
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+
+    const configurationPanel = screen.getByRole("complementary", {
+      name: "Configuracion de Escaneo",
+    });
+    fireEvent.click(within(configurationPanel).getByLabelText("Driver del scanner"));
+    fireEvent.click(screen.getByRole("button", { name: "Configurar scanner" }));
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      "Se encontraron paginas en el documento actual. Desea descartarlas e iniciar una nueva captura?",
+    );
+
+    await waitFor(() => {
+      expect(scannerClient.clear).toHaveBeenCalled();
+      expect(scannerClient.scan).toHaveBeenCalledWith(
+        expect.objectContaining({
+          captureOperation: { type: "NEW" },
+          showScannerUi: true,
+          deviceId: "scanner-1",
+        }),
+      );
+    });
+  });
+
   it("[SPEC:SCRUMCORE-259] usa overlay corporativo como unica fuente de progreso durante escaneo", async () => {
     const deferred = createDeferred<ScanPage[]>();
     const scannerClient = createScannerClient();

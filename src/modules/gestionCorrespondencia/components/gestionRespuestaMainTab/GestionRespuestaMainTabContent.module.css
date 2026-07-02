@@ -192,6 +192,151 @@
   gap: 0.75rem;
 }
 
+.documentalUploadAdapter {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.45rem;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.documentalUploadAlert {
+  flex: 0 0 auto;
+  align-items: center;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fff7f7;
+  padding: 0.34rem 0.55rem;
+  color: #991b1b;
+  font-size: 0.76rem;
+  line-height: 1.25;
+}
+
+.documentalUploadAlert :global(.ant-alert-section) {
+  min-width: 0;
+}
+
+.documentalUploadAlert :global(.ant-alert-message) {
+  color: #991b1b;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.documentalUploadAlert :global(.ant-alert-close-icon) {
+  margin-inline-start: 0.5rem;
+  color: #b42318;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.documentalUploadAlert :global(.ant-alert-close-icon:hover) {
+  color: #7f1d1d;
+}
+
+.uploadModalTrigger {
+  display: flex;
+  width: 100%;
+  min-height: 4.25rem;
+  align-items: center;
+  gap: 0.85rem;
+  border: 1px dashed #8bb8ec;
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(248, 251, 255, 0.98), rgba(241, 247, 254, 0.96)),
+    #f8fbff;
+  color: #164f8f;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(29, 111, 216, 0.08);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.uploadModalTrigger:hover {
+  border-color: #1d6fd8;
+  box-shadow: 0 12px 26px rgba(29, 111, 216, 0.14);
+  transform: translateY(-1px);
+}
+
+.uploadModalTrigger:focus-visible {
+  outline: 3px solid rgba(29, 111, 216, 0.28);
+  outline-offset: 2px;
+}
+
+.uploadModalIcon {
+  display: inline-flex;
+  width: 2.45rem;
+  height: 2.45rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #1d6fd8;
+  color: #ffffff;
+  font-size: 1.25rem;
+  box-shadow: 0 8px 18px rgba(29, 111, 216, 0.2);
+}
+
+.uploadModalCopy {
+  display: grid;
+  min-width: 0;
+  gap: 0.18rem;
+}
+
+.uploadModalCopy strong {
+  color: #123f73;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.uploadModalCopy span {
+  color: #4d6680;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.uploadDocumentalModal :global(.ant-modal-content) {
+  border-radius: 14px !important;
+}
+
+.uploadDocumentalModal :global(.ant-modal-header) {
+  padding: 0.8rem 1rem 0.65rem !important;
+}
+
+.uploadDocumentalModal :global(.ant-modal-body) {
+  padding: 0.75rem 0.9rem !important;
+}
+
+.uploadDocumentalModalBody {
+  display: flex;
+  height: min(82vh, 760px);
+  max-height: min(82vh, 760px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 0.15rem;
+}
+
+@media (min-width: 769px) and (max-height: 820px) {
+  .uploadDocumentalModal :global(.ant-modal-body) {
+    padding: 0.55rem 0.75rem !important;
+  }
+
+  .uploadDocumentalModalBody {
+    height: calc(100vh - 7.25rem);
+    max-height: calc(100vh - 7.25rem);
+  }
+
+  .uploadDocumentalModalBody :global(section[data-preview-open="true"]) {
+    min-height: 820px;
+  }
+}
+
 .attachmentsHeader {
   display: flex;
   align-items: center;

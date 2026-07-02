@@ -67,21 +67,6 @@ const logDevelopmentMetric = (
   });
 };
 
-const logScannerPagesFinalState = (stage: string, pages: ScanPage[]) => {
-  console.info("BLANK_PAGE_FINAL_STATE", {
-    stage,
-    collection: "scanner.pages",
-    pageCount: pages.length,
-    pages: pages.map((page) => ({
-      pageId: page.id,
-      pageIndex: page.index,
-      pageNumber: page.index + 1,
-      thumbnailUrl: page.thumbnailUrl,
-      imageUrl: page.imageUrl,
-    })),
-  });
-};
-
 export const useDigitalizacionScanner = ({
   client,
 }: {
@@ -89,6 +74,8 @@ export const useDigitalizacionScanner = ({
 }) => {
   const mountedRef = useRef(true);
   const generationRef = useRef(0);
+  const progressFrameRef = useRef<number | null>(null);
+  const pendingProgressRef = useRef<ScanProgressSnapshot | null>(null);
   const [state, setState] = useState<DigitalizacionScannerHookState>(initialState);
 
   const updateIfCurrent = useCallback(
@@ -103,6 +90,53 @@ export const useDigitalizacionScanner = ({
       setState(updater);
     },
     [],
+  );
+
+  const flushPendingProgress = useCallback(
+    (generation: number) => {
+      const pending = pendingProgressRef.current;
+      if (!pending) {
+        return;
+      }
+
+      pendingProgressRef.current = null;
+      if (mountedRef.current && generation === generationRef.current) {
+        updateIfCurrent(generation, (current) => ({
+          ...current,
+          progress: pending,
+        }));
+      }
+    },
+    [updateIfCurrent],
+  );
+
+  const resetPendingProgress = useCallback(() => {
+    if (progressFrameRef.current !== null) {
+      window.cancelAnimationFrame(progressFrameRef.current);
+      progressFrameRef.current = null;
+    }
+    pendingProgressRef.current = null;
+  }, []);
+
+  const emitProgress = useCallback(
+    (
+      generation: number,
+      progress: ScanProgressSnapshot,
+      externalProgress: (snapshot: ScanProgressSnapshot) => void,
+    ) => {
+      pendingProgressRef.current = progress;
+      if (progressFrameRef.current !== null) {
+        externalProgress(progress);
+        return;
+      }
+
+      progressFrameRef.current = window.requestAnimationFrame(() => {
+        progressFrameRef.current = null;
+        flushPendingProgress(generation);
+      });
+      externalProgress(progress);
+    },
+    [flushPendingProgress],
   );
 
   const handleError = useCallback(
@@ -148,6 +182,16 @@ export const useDigitalizacionScanner = ({
     }
   }, [client, handleError, updateIfCurrent]);
 
+  useEffect(() => {
+    return () => {
+      if (progressFrameRef.current !== null) {
+        window.cancelAnimationFrame(progressFrameRef.current);
+        progressFrameRef.current = null;
+      }
+      pendingProgressRef.current = null;
+    };
+  }, []);
+
   const selectDevice = useCallback(
     async (deviceId: string) => {
       const generation = generationRef.current;
@@ -188,13 +232,14 @@ export const useDigitalizacionScanner = ({
         const pages = await client.scan({
           ...options,
           onProgress: (progress) => {
-            updateIfCurrent(generation, (current) => ({
-              ...current,
+            emitProgress(
+              generation,
               progress,
-            }));
-            options.onProgress?.(progress);
+              options.onProgress ?? (() => undefined),
+            );
           },
         });
+        resetPendingProgress();
         updateIfCurrent(generation, (current) => ({
           ...current,
           status: "ready",
@@ -203,14 +248,11 @@ export const useDigitalizacionScanner = ({
           progress: null,
           error: null,
         }));
-        if (options.removeBlankPages) {
-          logScannerPagesFinalState("reactStateAfterScan", pages);
-        }
       } catch (error) {
         handleError(generation, error, "No fue posible completar el escaneo.");
       }
     },
-    [client, handleError, updateIfCurrent],
+    [client, emitProgress, handleError, resetPendingProgress, updateIfCurrent],
   );
 
   const removePage = useCallback(

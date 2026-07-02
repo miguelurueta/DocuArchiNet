@@ -1,0 +1,157 @@
+## 1. Refinement
+
+- [x] 1.1 Leer Jira context y referencias obligatorias de AppUploadDocumental.
+- [x] 1.2 Revisar APIs reales de `AppUpload`, `AppUploadBatchView`, `AppProgressBatch` y storage client SCRUMCORE-272.
+- [x] 1.3 Corregir proposal: capability `crea-componente-appuploaddocumental`, ubicacion real y dependencia con SCRUMCORE-272.
+- [x] 1.4 Reescribir design con decisiones, arquitectura, riesgos y plan implementable.
+- [x] 1.5 Reescribir spec como requisitos verificables.
+- [x] 1.6 Validar OpenSpec estricto antes de implementar.
+- [x] 1.7 Verificar disponibilidad de DTOs/backend externos indicados en el prompt y documentar evidencia o bloqueo si no son accesibles.
+
+## 2. Scaffold
+
+- [x] 2.1 Crear `src/modules/almacenamientoDocumental/components/AppUploadDocumental/`.
+- [x] 2.2 Crear `AppUploadDocumental.tsx`, `AppUploadDocumental.types.ts`, `AppUploadDocumental.module.css`, `README.md` e `index.ts`.
+- [x] 2.3 Crear hooks `useAppUploadDocumentalState.ts` y `useAppUploadDocumentalActions.ts`.
+- [x] 2.4 Crear/actualizar tests focales del componente y hooks.
+- [x] 2.5 Verificar que no se crean componentes fuera del modulo esperado.
+
+## 3. Contracts
+
+- [x] 3.1 Definir `UploadDocumentalProcessKey`.
+- [x] 3.2 Definir `UploadDocumentalContext`.
+- [x] 3.3 Definir `UploadDocumentalConfig`.
+- [x] 3.4 Definir `TipoDocumentalOption`.
+- [x] 3.5 Definir `UploadDocumentalFileMetadata`.
+- [x] 3.6 Definir `UploadDocumentalInterfaceRegistration`.
+- [x] 3.7 Definir `AlmacenarDocumentoStoredResult`.
+- [x] 3.8 Definir `UploadDocumentalBatchSummary`.
+- [x] 3.9 Definir `AppUploadDocumentalProps` con `loadConfig` y `loadTiposDocumentales` obligatorios.
+- [x] 3.10 Garantizar cero `any` nuevo; usar `unknown` para shapes no modelados.
+
+## 4. Services and Mappers
+
+- [x] 4.1 Crear `uploadDocumentalInterfaceRegistration.mapper.ts`.
+- [x] 4.2 Implementar `buildUploadDocumentalInterfaceRegistration`.
+- [x] 4.3 Mapear variantes conocidas: production, related, workflow, migration, counters, traffic-light, dropdown, version, table import.
+- [x] 4.4 Implementar fallback `{ kind: "raw" }` solo cuando haya dato util.
+- [x] 4.5 Agregar tests aislados del mapper.
+- [x] 4.6 Crear contratos/adaptadores `uploadConfig.service.ts` y `tipoDocumental.service.ts` solo si no inventan endpoints.
+- [x] 4.7 Verificar que `clienteApi` no se importe desde componente/hooks.
+
+## 5. Utils
+
+- [x] 5.1 Crear `tipoDocumentalSuggestion.utils.ts`.
+- [x] 5.2 Implementar normalizacion/tokenizacion de nombres.
+- [x] 5.3 Implementar score y umbral configurable.
+- [x] 5.4 Garantizar que la sugerencia no sobreescribe seleccion manual.
+- [x] 5.5 Implementar/ubicar validacion de fecha `yyyy-MM-dd`, fecha real y no futura.
+- [x] 5.6 Implementar helpers para construir metadata/payload final por archivo si aplica.
+- [x] 5.7 Agregar tests de sugerencia, fecha y payload.
+- [x] 5.8 Reutilizar `storageFile.utils` existente de SCRUMCORE-272 para extension/chunks cuando aplique, sin duplicar logica.
+
+## 6. State Hook
+
+- [x] 6.1 Cargar config al montar/cambiar `proceso`, `context.nombreGabinete` o `modoDocumento`.
+- [x] 6.2 Cargar tipologias al montar/cambiar `proceso` o `context`.
+- [x] 6.3 Deshabilitar seleccion si config falla o falta `nombreGabinete`.
+- [x] 6.4 Mantener cola por `uid` con metadata independiente.
+- [x] 6.5 Soportar seleccion activa y preview.
+- [x] 6.6 Soportar eliminar archivo y limpiar todos.
+- [x] 6.7 Revocar object URLs al remover/limpiar/desmontar.
+- [x] 6.8 Aplicar politica anti-stale con `operationId` o token equivalente.
+
+## 7. Validation Behavior
+
+- [x] 7.1 Aplicar `accept`, extensiones y `maxSizeBytes` desde config.
+- [x] 7.2 Soportar `validationMode="reject"`.
+- [x] 7.3 Soportar `validationMode="queue-with-error"`.
+- [x] 7.4 Validar tipologia obligatoria.
+- [x] 7.5 Validar fecha requerida e invalida.
+- [x] 7.6 Bloquear guardar por archivo cuando metadata del archivo es invalida.
+- [x] 7.7 Mostrar errores accionables por fila.
+
+## 8. Component UI
+
+- [x] 8.1 Renderizar `AppUploadBatchView` con titulo, resumen, toolbar, lista, metadata, preview y footer.
+- [x] 8.2 Usar `renderMetadata` para tipologia y fecha.
+- [x] 8.3 Usar `AppInputSelect`/wrapper existente para tipologia.
+- [x] 8.4 Usar `AppInput`/wrapper existente para fecha si aplica.
+- [x] 8.5 Mostrar acciones por fila: ver, eliminar, guardar individual cuando aplique.
+- [x] 8.6 Mostrar guardar todos y eliminar todos.
+- [x] 8.7 Garantizar layout responsive sin tabla DOM manual, hero, gradientes ni cards decorativas.
+- [x] 8.8 Agregar `aria-label`/nombres accesibles en acciones.
+- [x] 8.9 Usar `AppButton` o wrapper existente equivalente para acciones globales y por fila.
+
+## 9. Storage Actions
+
+- [x] 9.1 Implementar guardar individual con `uploadAndStoreOneDocument`.
+- [x] 9.2 Implementar guardar todos con `AppProgressBatch`.
+- [x] 9.3 Procesar archivos secuencialmente.
+- [x] 9.4 Construir request final por archivo con `trd`, `expediente`, `workflow`, `camposIndexacion` y `documento`.
+- [x] 9.5 Mapear progreso storage a estados/fases visuales.
+- [x] 9.6 Emitir `onStored` con metadata y response normalizada.
+- [x] 9.7 Emitir `onInterfaceRegistration` cuando mapper genere eventos.
+- [x] 9.8 Emitir `onBatchComplete` con resumen.
+- [x] 9.9 Emitir `onError` con errores controlados.
+- [x] 9.10 Soportar cancelacion con `AbortController`.
+- [x] 9.11 Soportar retry desde estado error/cancelled.
+
+## 10. Legacy Exclusion and Security
+
+- [x] 10.1 Verificar que no se usa jQuery.
+- [x] 10.2 Verificar que no se usa Bootstrap manual/WebForms.
+- [x] 10.3 Verificar que no se usa `.ashx`.
+- [x] 10.4 Verificar que no se usa `XMLHttpRequest`.
+- [x] 10.5 Verificar que no se usa `FormData` legacy para upload.
+- [x] 10.6 Verificar que no se usa `fetch` directo ni `clienteApi` en componente/hooks.
+- [x] 10.7 Verificar que no se loguean tokens, bytes ni payload sensible.
+- [x] 10.8 Confirmar que backend no fue modificado y que endpoints de almacenamiento existentes no fueron cambiados.
+- [x] 10.9 Verificar que extensiones, tamano maximo y tipologias no quedan hardcodeados como fuente final.
+
+## 11. Tests
+
+- [x] 11.1 Tests de carga de config y tipologias.
+- [x] 11.2 Tests de fallo de config y seleccion deshabilitada.
+- [x] 11.3 Tests de `accept`, extension y max size desde config.
+- [x] 11.4 Tests de seleccion multiple.
+- [x] 11.5 Tests de `reject` y `queue-with-error`.
+- [x] 11.6 Tests de metadata independiente por archivo.
+- [x] 11.7 Tests de sugerencia de tipologia y override manual.
+- [x] 11.8 Tests de tipologia obligatoria.
+- [x] 11.9 Tests de fecha requerida/futura/invalida.
+- [x] 11.10 Tests de eliminar archivo, limpiar todos, seleccionar preview.
+- [x] 11.11 Tests de guardar individual procesa un solo archivo.
+- [x] 11.12 Tests de guardar todos procesa secuencialmente.
+- [x] 11.13 Tests de multiples archivos generan multiples POST finales.
+- [x] 11.14 Tests de `onStored`, `onInterfaceRegistration`, `onBatchComplete`, `onError`.
+- [x] 11.15 Tests de cancelacion durante chunks.
+- [x] 11.16 Tests de retry.
+- [x] 11.17 Tests de respuesta stale ignorada.
+- [x] 11.18 Tests de ausencia de legacy/prohibidos en codigo productivo.
+- [x] 11.19 Verificacion navegador/manual o Playwright: seleccionar 5 archivos, contador correcto y preview PDF. Deuda documentada por ausencia de harness consumidor.
+- [x] 11.20 Verificacion navegador/manual o Playwright: cambiar tipologia/fecha por archivo, eliminar uno y limpiar todos. Deuda documentada por ausencia de harness consumidor.
+- [x] 11.21 Verificacion navegador/manual o Playwright: guardar individual, guardar todos, invalido por extension/tamano y retry tras error simulado. Deuda documentada por ausencia de harness consumidor.
+
+## 12. Documentation
+
+- [x] 12.1 Crear README enterprise del componente.
+- [x] 12.2 Documentar props y contratos.
+- [x] 12.3 Documentar ejemplo embebido.
+- [x] 12.4 Documentar ejemplo modal/controlado.
+- [x] 12.5 Documentar loaders requeridos.
+- [x] 12.6 Documentar flujo `init -> chunks -> complete -> almacenar`.
+- [x] 12.7 Documentar matriz FE/BE campo a campo.
+- [x] 12.8 Documentar politica de tipologia por archivo y fecha.
+- [x] 12.9 Documentar contrato de retorno para registro de interfaz.
+- [x] 12.10 Documentar errores, cancelacion, retry y limites conocidos.
+
+## 13. Verification and Publish Readiness
+
+- [x] 13.1 Ejecutar `npx.cmd openspec validate scrumcore-271-crea-componente-appuploaddocumental --strict`.
+- [x] 13.2 Ejecutar suite focal SCRUMCORE-271.
+- [x] 13.3 Ejecutar lint/TypeScript focal o documentar deuda no relacionada.
+- [x] 13.4 Ejecutar busqueda de prohibidos (`any`, `.ashx`, `XMLHttpRequest`, `FormData`, jQuery, direct `clienteApi` en UI).
+- [x] 13.5 Revisar `git diff --stat`.
+- [x] 13.6 Commit de refinamiento OpenSpec antes de implementacion/publish.
+- [x] 13.7 Registrar evidencia de pruebas navegador/manuales o documentar deuda explicita si el entorno no permite ejecutarlas.

@@ -1,5 +1,6 @@
 import type { DigitalizacionScannerClient } from "../infrastructure/dynamsoft";
 import type { DigitalizacionApiClient, DigitalizacionApiError } from "./digitalizacionApi.types";
+import type { RefObject } from "react";
 
 export type DigitalizacionModo = "crear" | "adjuntar";
 
@@ -84,6 +85,7 @@ export type DigitalizacionDocumentalWorkspaceProps = {
   onCancel?: () => void;
   onCompleted: (result: DigitalizacionResult) => void;
   onError?: (error: DigitalizacionDocumentalError) => void;
+  toolbarHost?: RefObject<HTMLElement> | null;
 };
 
 export type DigitalizacionScannerState = {

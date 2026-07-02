@@ -17,6 +17,7 @@ import {
   uploadTemporalChunk,
 } from "../../../../app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.service";
 import { ReemplazoPaginasPdfAnotadasError } from "../../../../app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.types";
+import { useGestionRespuestaDocumentos } from "../../hooks/useGestionRespuestaDocumentos";
 import { useGestionRespuestaDocumentosTable } from "../../hooks/useGestionRespuestaDocumentosTable";
 import styles from "./DocumentosWorkbench.module.css";
 
@@ -181,6 +182,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     isMobile || isTablet || isIpadMiniLandscape || isNestHubLandscape,
   );
   const documentosTable = useGestionRespuestaDocumentosTable(idTareaWf);
+  const { documentosRefreshKey } = useGestionRespuestaDocumentos();
   const visorRef = useRef<AppVisorEmbedPdfRef | null>(null);
   const lastVisorLoadKeyRef = useRef<string | null>(null);
   const [activeFileUrl, setActiveFileUrl] = useState<string | undefined>(undefined);
@@ -191,6 +193,11 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const [isReplacingAnnotatedPages, setIsReplacingAnnotatedPages] = useState(false);
   const [replacementProgress, setReplacementProgress] = useState<number | undefined>(undefined);
   const documentViewer = useDocumentViewerOrchestrator();
+
+  useEffect(() => {
+    if (documentosRefreshKey <= 0) return;
+    void documentosTable.load();
+  }, [documentosRefreshKey, documentosTable.load]);
 
   const startViewerLoading = useCallback((key: string) => {
     viewerLoadingKeyRef.current = key;

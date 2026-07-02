@@ -16,6 +16,7 @@ import type {
   DynamsoftDevice,
   DynamsoftWebTwainFactory,
   DynamsoftWebTwainObject,
+  DynamsoftImageType,
   DynamsoftWindow,
   PdfGenerationResult,
   PageCropSelection,
@@ -35,6 +36,19 @@ const BLANK_PAGE_ANALYSIS_HEIGHT = 512;
 const BLANK_PAGE_WHITE_THRESHOLD = 245;
 const BLANK_PAGE_CONTENT_RATIO_THRESHOLD = 0.003;
 const BLANK_PAGE_DARK_PIXEL_THRESHOLD = 12;
+const BLANK_PAGE_BORDER_FRACTION_TO_IGNORE = 0.06;
+const BLANK_PAGE_DARK_RATIO_THRESHOLD = 0.002;
+const BLANK_PAGE_LOW_CONTRAST_LUMINANCE_THRESHOLD = 230;
+const BLANK_PAGE_LOW_CONTRAST_VARIANCE_THRESHOLD = 30;
+const BLANK_PAGE_LOW_CONTRAST_CONTENT_RATIO_MULTIPLIER = 1.2;
+const BLANK_PAGE_EDGE_DEVIATION_THRESHOLD = 28;
+const BLANK_PAGE_EDGE_RATIO_THRESHOLD = 0.002;
+const BLANK_PAGE_WHITE_PERCENTILE = 0.95;
+const BLANK_PAGE_DYNAMIC_WHITE_THRESHOLD_FLOOR = 225;
+const BLANK_PAGE_DYNAMSOFT_BLANK_IMAGE_THRESHOLD = 220;
+const BLANK_PAGE_DYNAMSOFT_BLANK_IMAGE_MAX_STDDEV = 28;
+const BLANK_PAGE_ASYNC_MIN_BLOCK_HEIGHT = 20;
+const BLANK_PAGE_ASYNC_MAX_BLOCK_HEIGHT = 30;
 
 type BlankPageAnalysis = {
   page: ScanPage;
@@ -54,6 +68,14 @@ type BlankPageRemovalResult = {
   requestedIndexes: number[];
   removedIndexes: number[];
   survivedIndexes: number[];
+};
+
+type DynamsoftBlankPageConfig = {
+  ifAutoDiscardBlankpagesKey?: string;
+  ifAutoDiscardBlankpages: unknown;
+  blankImageThreshold?: number;
+  blankImageMaxStdDev?: number;
+  hasAnyConfig: boolean;
 };
 
 const logBlankPageDiagnostic = (label: string, payload: Record<string, unknown>) => {
@@ -99,6 +121,28 @@ const countClusteredDarkPixels = (darkMask: boolean[], width: number, height: nu
   }
 
   return clusteredDarkPixels;
+};
+
+const getLuminancePercentile = (
+  histogram: Int32Array,
+  totalCount: number,
+  percentile: number,
+) => {
+  if (totalCount <= 0) {
+    return 0;
+  }
+
+  const targetCount = Math.ceil(totalCount * percentile);
+  let cumulativeCount = 0;
+
+  for (let index = 0; index < histogram.length; index += 1) {
+    cumulativeCount += histogram[index];
+    if (cumulativeCount >= targetCount) {
+      return index;
+    }
+  }
+
+  return histogram.length - 1;
 };
 
 const colorModeToPixelType: Record<ScanColorMode, number> = {
@@ -305,6 +349,50 @@ const automaticProcessingFeatures: Array<{
   },
 ];
 
+type ScanPipelinePerfRecord = {
+  scanId: string;
+  scanStartedAt: number;
+  stages: {
+    acquireImageMs?: number;
+    buildPagesFromBufferMs?: number;
+    blankDetectionMs?: number;
+    deskewMs?: number;
+    autoCropMs?: number;
+    autoRotateMs?: number;
+    reactFirstRenderMs?: number;
+  };
+};
+
+type ScanPipelinePerfWindow = Window & {
+  __docuarchiScanPipelinePerf?: ScanPipelinePerfRecord;
+};
+
+const readScanPipelinePerfRecord = () =>
+  typeof window === "undefined"
+    ? null
+    : ((window as ScanPipelinePerfWindow).__docuarchiScanPipelinePerf ?? null);
+
+const initScanPipelinePerfRecord = () => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const scanId = `scan-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  const record: ScanPipelinePerfRecord = {
+    scanId,
+    scanStartedAt: performance.now(),
+    stages: {},
+  };
+
+  (window as ScanPipelinePerfWindow).__docuarchiScanPipelinePerf = record;
+  console.info("[SCAN PERF] scan started", {
+    scanId,
+    startedAt: record.scanStartedAt,
+  });
+
+  return record;
+};
+
 export class DynamsoftTwainClient implements DigitalizacionScannerClient {
   private readonly options: Required<Omit<DynamsoftRuntimeOptions, "licenseKey">> & {
     licenseKey?: string;
@@ -492,7 +580,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
           });
         }
       } catch (error) {
-        console.error("SELECT_SOURCE_ERROR", error);
+        console.error(error);
         throw error;
       }
 
@@ -506,7 +594,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     try {
       selectSourceResult = dwt.SelectSourceByIndex(deviceIndex);
     } catch (error) {
-      console.error("SELECT_SOURCE_ERROR", error);
+      console.error(error);
       throw error;
     }
 
@@ -535,8 +623,11 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     const operationGeneration = this.generation;
     const previousPages = [...this.pages];
     this.activeOperation = "scan";
+    let blankPageRuntimeConfig = this.configureDynamsoftBlankPageDetection(dwt);
+    const pipelinePerf = initScanPipelinePerfRecord();
 
     try {
+      const acquireImageStart = performance.now();
       const previousCount = dwt.HowManyImagesInBuffer ?? 0;
       this.reportScanProgress(options.onProgress, {
         stage: "acquiring",
@@ -546,16 +637,27 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
           : "Esperando paginas desde Dynamsoft Web TWAIN.",
         cancellable: true,
       });
-      const acquireOptions = {
+      const acquireOptions: Record<string, unknown> & {
+        IfShowUI: boolean;
+        PixelType: number;
+        Resolution: number;
+        IfFeederEnabled: boolean;
+        IfDuplexEnabled: boolean;
+        IfDisableSourceAfterAcquire: boolean;
+      } = {
         IfShowUI: options.showScannerUi ?? false,
         PixelType: colorModeToPixelType[options.colorMode ?? "color"],
         Resolution: options.resolutionDpi ?? DYNAMSOFT_DEFAULT_RESOLUTION_DPI,
         IfFeederEnabled: options.feederEnabled ?? true,
         IfDuplexEnabled: options.duplex ?? false,
         IfDisableSourceAfterAcquire: true,
+        IfAutoDiscardBlankpages: options.removeBlankPages ?? false,
       };
       await new Promise<void>((resolve, reject) => {
         dwt.OpenSource();
+        blankPageRuntimeConfig =
+          this.configureDynamsoftBlankPageDetection(dwt) ?? blankPageRuntimeConfig;
+        this.applyDynamsoftBlankPageDetection(dwt, options, blankPageRuntimeConfig);
         dwt.AcquireImage(
           acquireOptions,
           () => {
@@ -571,8 +673,19 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
           },
         );
       });
+      const acquireImageDuration = performance.now() - acquireImageStart;
+      if (pipelinePerf) {
+        pipelinePerf.stages.acquireImageMs = acquireImageDuration;
+      }
+      if (pipelinePerf) {
+        console.info("[SCAN PERF] AcquireImage", {
+          scanId: pipelinePerf.scanId,
+          durationMs: Math.round(acquireImageDuration),
+        });
+      }
       this.ensureNotStale(operationGeneration);
 
+      const buildPagesFromBufferStart = performance.now();
       const nextCount = dwt.HowManyImagesInBuffer ?? previousCount;
       this.reportScanProgress(options.onProgress, {
         stage: "processingImages",
@@ -583,7 +696,20 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         progress: 35,
         cancellable: false,
       });
-      this.pages = this.buildPagesFromBuffer(dwt, nextCount);
+      const shouldReusePages = options.captureOperation?.type === "APPEND";
+      this.pages = this.buildPagesFromBuffer(dwt, nextCount, previousPages, {
+        reusePreviousPages: shouldReusePages,
+      });
+      const buildPagesFromBufferDuration = performance.now() - buildPagesFromBufferStart;
+      if (pipelinePerf) {
+        pipelinePerf.stages.buildPagesFromBufferMs = buildPagesFromBufferDuration;
+      }
+      if (pipelinePerf) {
+        console.info("[SCAN PERF] buildPagesFromBuffer", {
+          scanId: pipelinePerf.scanId,
+          durationMs: Math.round(buildPagesFromBufferDuration),
+        });
+      }
       if (options.removeBlankPages) {
         logBlankPageDiagnostic("BLANK_PAGE_FINAL_STATE", {
           stage: "buildPagesFromBuffer",
@@ -593,7 +719,9 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         });
       }
       let blankRemovalResult: BlankPageRemovalResult | null = null;
+      let blankDetectionDuration = 0;
       if (options.removeBlankPages) {
+        const blankDetectionStart = performance.now();
         this.reportScanProgress(options.onProgress, {
           stage: "removingBlankPages",
           label: "Eliminando paginas en blanco",
@@ -603,13 +731,52 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
           progress: 45,
           cancellable: false,
         });
-        blankRemovalResult = await this.removeDetectedBlankPages(dwt);
+        const nativeBlankRemovalResult = await this.removeDetectedBlankPagesWithDynamsoft(dwt, {
+          startIndex: previousCount,
+          endIndex: nextCount,
+        });
+        if (nativeBlankRemovalResult) {
+          blankRemovalResult = nativeBlankRemovalResult;
+        } else {
+          blankRemovalResult = await this.removeDetectedBlankPages(dwt);
+        }
+        blankDetectionDuration = performance.now() - blankDetectionStart;
+        if (pipelinePerf) {
+          console.info("[SCAN PERF] Blank Detection", {
+            scanId: pipelinePerf.scanId,
+            durationMs: Math.round(blankDetectionDuration),
+          });
+        }
+      } else {
+        blankDetectionDuration = 0;
+        if (pipelinePerf) {
+          console.info("[SCAN PERF] Blank Detection", {
+            scanId: pipelinePerf.scanId,
+            durationMs: 0,
+            status: "disabled",
+          });
+        }
+      }
+      if (pipelinePerf) {
+        pipelinePerf.stages.blankDetectionMs = blankDetectionDuration;
       }
       await this.applyAutomaticProcessing(dwt, options.automaticProcessing, options.onProgress);
+      const scannedPages = this.pages;
+      const shouldFilterPreviousPagesForOperation =
+        options.captureOperation &&
+        options.captureOperation.type !== "NEW" &&
+        options.removeBlankPages;
+      const previousPagesForOperation = shouldFilterPreviousPagesForOperation
+        ? (() => {
+            const scannedPageIds = new Set(scannedPages.map((scannedPage) => scannedPage.id));
+            return previousPages.filter((page) => scannedPageIds.has(page.id));
+          })()
+        : previousPages;
+
       this.pages = this.resolveCaptureOperationPages({
         operation: options.captureOperation,
-        previousPages,
-        scannedPages: this.pages,
+        previousPages: previousPagesForOperation,
+        scannedPages,
       });
       this.reportScanProgress(options.onProgress, {
         stage: "preparingDocument",
@@ -629,11 +796,127 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
           pages: this.summarizePagesForDiagnostics(this.pages),
         });
       }
-
       return [...this.pages];
     } finally {
+      console.info("scan(): entered finally");
+      this.restoreDynamsoftBlankPageDetection(dwt, blankPageRuntimeConfig);
       dwt.CloseSource?.();
       this.activeOperation = null;
+    }
+  }
+
+  private configureDynamsoftBlankPageDetection(dwt: DynamsoftWebTwainObject) {
+    const dwtObject = dwt as Record<string, unknown>;
+    const ifAutoDiscardBlankpages = "IfAutoDiscardBlankpages";
+    const config: DynamsoftBlankPageConfig = {
+      ifAutoDiscardBlankpagesKey: ifAutoDiscardBlankpages,
+      ifAutoDiscardBlankpages: dwtObject[ifAutoDiscardBlankpages],
+      blankImageThreshold:
+        typeof dwtObject.BlankImageThreshold === "number"
+          ? (dwtObject.BlankImageThreshold as number)
+          : undefined,
+      blankImageMaxStdDev:
+        typeof dwtObject.BlankImageMaxStdDev === "number"
+          ? (dwtObject.BlankImageMaxStdDev as number)
+          : undefined,
+      hasAnyConfig: false,
+    };
+
+    if (ifAutoDiscardBlankpages in dwtObject) {
+      config.hasAnyConfig = true;
+    }
+    if ("BlankImageThreshold" in dwtObject) {
+      config.hasAnyConfig = true;
+    }
+    if ("BlankImageMaxStdDev" in dwtObject) {
+      config.hasAnyConfig = true;
+    }
+
+    return config.hasAnyConfig ? config : null;
+  }
+
+  private applyDynamsoftBlankPageDetection(
+    dwt: DynamsoftWebTwainObject,
+    options: ScanOptions,
+    blankPageRuntimeConfig: DynamsoftBlankPageConfig | null,
+  ) {
+    if (!options.removeBlankPages || !blankPageRuntimeConfig) {
+      return;
+    }
+
+    const dwtObject = dwt as Record<string, unknown>;
+
+    if (blankPageRuntimeConfig.ifAutoDiscardBlankpagesKey) {
+      dwtObject[blankPageRuntimeConfig.ifAutoDiscardBlankpagesKey] = true;
+    }
+
+    if ("BlankImageThreshold" in dwtObject) {
+      dwtObject.BlankImageThreshold = BLANK_PAGE_DYNAMSOFT_BLANK_IMAGE_THRESHOLD;
+    }
+
+    if ("BlankImageMaxStdDev" in dwtObject) {
+      dwtObject.BlankImageMaxStdDev = BLANK_PAGE_DYNAMSOFT_BLANK_IMAGE_MAX_STDDEV;
+    }
+  }
+
+  private restoreDynamsoftBlankPageDetection(
+    dwt: DynamsoftWebTwainObject,
+    blankPageRuntimeConfig: DynamsoftBlankPageConfig | null,
+  ) {
+    console.info("restoreDynamsoftBlankPageDetection(): entered");
+    if (!blankPageRuntimeConfig || !blankPageRuntimeConfig.hasAnyConfig) {
+      console.info("restoreDynamsoftBlankPageDetection(): skipped no config");
+      return;
+    }
+
+    const dwtObject = dwt as Record<string, unknown>;
+
+    if (blankPageRuntimeConfig.ifAutoDiscardBlankpagesKey) {
+      const property = blankPageRuntimeConfig.ifAutoDiscardBlankpagesKey;
+      const previousValue = dwtObject[property];
+      const nextValue = blankPageRuntimeConfig.ifAutoDiscardBlankpages;
+      console.info("restore", property, "previous", previousValue, "attempt", nextValue);
+      try {
+        dwtObject[property] = nextValue;
+        console.info("restore", property, "OK");
+      } catch (error) {
+        console.error(error);
+        console.error(error instanceof Error ? error.stack : "NO_STACK");
+      }
+    }
+
+    if (
+      "BlankImageThreshold" in dwtObject &&
+      blankPageRuntimeConfig.blankImageThreshold !== undefined
+    ) {
+      const property = "BlankImageThreshold";
+      const previousValue = dwtObject.BlankImageThreshold;
+      const nextValue = blankPageRuntimeConfig.blankImageThreshold;
+      console.info("restore", property, "previous", previousValue, "attempt", nextValue);
+      try {
+        dwtObject.BlankImageThreshold = nextValue;
+        console.info("restore", property, "OK");
+      } catch (error) {
+        console.error(error);
+        console.error(error instanceof Error ? error.stack : "NO_STACK");
+      }
+    }
+
+    if (
+      "BlankImageMaxStdDev" in dwtObject &&
+      blankPageRuntimeConfig.blankImageMaxStdDev !== undefined
+    ) {
+      const property = "BlankImageMaxStdDev";
+      const previousValue = dwtObject.BlankImageMaxStdDev;
+      const nextValue = blankPageRuntimeConfig.blankImageMaxStdDev;
+      console.info("restore", property, "previous", previousValue, "attempt", nextValue);
+      try {
+        dwtObject.BlankImageMaxStdDev = nextValue;
+        console.info("restore", property, "OK");
+      } catch (error) {
+        console.error(error);
+        console.error(error instanceof Error ? error.stack : "NO_STACK");
+      }
     }
   }
 
@@ -827,23 +1110,111 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     this.activeOperation = "generatePdf";
 
     try {
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        dwt.ConvertToBlob(
-          pageIndices,
-          "application/pdf",
-          (nextBlob) => {
-            resolve(nextBlob);
-          },
-          (_code, message) => {
-            reject(
-              new DynamsoftScannerError({
-                code: "PDF_GENERATION_FAILED",
-                message: message || "No fue posible generar el PDF.",
-              }),
-            );
-          },
-        );
-      });
+      const convertToBlob = async (
+        targetPageIndices: number[],
+        type: DynamsoftImageType,
+      ): Promise<Blob> =>
+        new Promise<Blob>((resolve, reject) => {
+          dwt.ConvertToBlob(
+            targetPageIndices,
+            type,
+            (nextBlob) => {
+              resolve(nextBlob);
+            },
+            (_code, message) => {
+              reject(
+                new DynamsoftScannerError({
+                  code: "PDF_GENERATION_FAILED",
+                  message: message || "No fue posible generar el PDF.",
+                }),
+              );
+            },
+          );
+        });
+
+      const runtimePdfType = (dwt as unknown as {
+        EnumDWT_ImageType?: { IT_PDF?: DynamsoftImageType };
+      }).EnumDWT_ImageType?.IT_PDF;
+      const globalPdfType = (
+        this.options.windowRef.Dynamsoft?.DWT as unknown as {
+          EnumDWT_ImageType?: { IT_PDF?: DynamsoftImageType };
+        }
+      )?.EnumDWT_ImageType?.IT_PDF;
+      const pdfImageTypes: DynamsoftImageType[] = [
+        runtimePdfType,
+        globalPdfType,
+        "application/pdf",
+      ].filter((value): value is DynamsoftImageType => value !== undefined);
+
+      const pdfImageTypesSet = Array.from(new Set(pdfImageTypes));
+      let lastError: unknown = null;
+      let blob: Blob | null = null;
+
+      for (const imageType of pdfImageTypesSet) {
+        try {
+          blob = await convertToBlob(pageIndices, imageType);
+          break;
+        } catch (error) {
+          lastError = error;
+          if (typeof console !== "undefined") {
+            console.error("[generatePdf][attemptError]", imageType, error);
+          }
+          if (!(error instanceof DynamsoftScannerError)) {
+            throw error;
+          }
+          if (!error.message.toLowerCase().includes("image type is not supported")) {
+            throw error;
+          }
+          continue;
+        }
+      }
+
+      if (!blob) {
+        try {
+          const pageBlobs = await Promise.all(
+            pageIndices.map(async (pageIndex) => {
+              try {
+                return await convertToBlob([pageIndex], "image/png" as DynamsoftImageType);
+              } catch {
+                return await convertToBlob([pageIndex], "image/jpeg" as DynamsoftImageType);
+              }
+            }),
+          );
+          const { PDFDocument } = await import("pdf-lib");
+          const pdfDoc = await PDFDocument.create();
+
+          for (const pageBlob of pageBlobs) {
+            const imageBytes = new Uint8Array(await pageBlob.arrayBuffer());
+            let embeddedPage;
+            try {
+              embeddedPage = await pdfDoc.embedPng(imageBytes);
+            } catch {
+              embeddedPage = await pdfDoc.embedJpg(imageBytes);
+            }
+            const page = pdfDoc.addPage([embeddedPage.width, embeddedPage.height]);
+            page.drawImage(embeddedPage, {
+              x: 0,
+              y: 0,
+              width: embeddedPage.width,
+              height: embeddedPage.height,
+            });
+          }
+
+          const pdfBytes = await pdfDoc.save();
+          blob = new Blob([pdfBytes], { type: "application/pdf" });
+          lastError = null;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      if (!blob) {
+        throw lastError ?? new DynamsoftScannerError({
+          code: "PDF_GENERATION_FAILED",
+          message: "No fue posible generar el PDF.",
+        });
+      }
+
       this.ensureNotStale(operationGeneration);
 
       const normalizedFileName = fileName.toLowerCase().endsWith(".pdf")
@@ -898,30 +1269,66 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     }
   }
 
-  private buildPagesFromBuffer(dwt: DynamsoftWebTwainObject, count: number) {
+  private buildPagesFromBuffer(
+    dwt: DynamsoftWebTwainObject,
+    count: number,
+    previousPages: ScanPage[] = this.pages,
+    options: {
+      reusePreviousPages?: boolean;
+    } = {},
+  ) {
+    if (options.reusePreviousPages) {
+      const stablePages = previousPages.slice(0, Math.min(previousPages.length, count)).map(
+        (page, index) => ({
+          ...page,
+          index,
+        }),
+      );
+
+      if (count <= previousPages.length) {
+        return stablePages;
+      }
+
+      return [
+        ...stablePages,
+        ...Array.from(
+          { length: Math.max(count - previousPages.length, 0) },
+          (_item, localIndex) =>
+            this.buildPageFromBuffer(dwt, previousPages.length + localIndex),
+        ),
+      ];
+    }
+
     return Array.from({ length: Math.max(count, 0) }, (_item, index) =>
-      this.buildPageFromBuffer(dwt, index),
+      this.buildPageFromBuffer(dwt, index, previousPages[index]?.id),
     );
   }
 
-  private buildPageFromBuffer(dwt: DynamsoftWebTwainObject, index: number): ScanPage {
+  private buildPageFromBuffer(
+    dwt: DynamsoftWebTwainObject,
+    index: number,
+    pageId?: string,
+  ): ScanPage {
     const thumbnailUrl = normalizeImageUrl(dwt.GetImageURL?.(index, 160, 220));
     const imageUrl = normalizeImageUrl(dwt.GetImageURL?.(index, -1, -1));
+    const fallbackImageUrl = normalizeImageUrl(dwt.GetImageURL?.(index));
+    const finalThumbnailUrl = thumbnailUrl ?? fallbackImageUrl;
+    const finalImageUrl = imageUrl ?? fallbackImageUrl;
     const width = readImageDimension(dwt.GetImageWidth?.bind(dwt), index);
     const height = readImageDimension(dwt.GetImageHeight?.bind(dwt), index);
     const orientation = getPageOrientation(width, height);
-    const pageId = `scan-page-${index + 1}`;
-    const originalDimensions = this.originalPageDimensionsById.get(pageId) ?? {
+    const stablePageId = pageId ?? `scan-page-${index + 1}`;
+    const originalDimensions = this.originalPageDimensionsById.get(stablePageId) ?? {
       width,
       height,
     };
-    this.originalPageDimensionsById.set(pageId, originalDimensions);
-    const rotationDegrees = this.pageRotationById.get(pageId) ?? 0;
+    this.originalPageDimensionsById.set(stablePageId, originalDimensions);
+    const rotationDegrees = this.pageRotationById.get(stablePageId) ?? 0;
     const page: ScanPage = {
-      id: pageId,
+      id: stablePageId,
       index,
-      ...(thumbnailUrl ? { thumbnailUrl } : {}),
-      ...(imageUrl ? { imageUrl } : {}),
+      ...(finalThumbnailUrl ? { thumbnailUrl: finalThumbnailUrl } : {}),
+      ...(finalImageUrl ? { imageUrl: finalImageUrl } : {}),
       ...(width ? { width } : {}),
       ...(height ? { height } : {}),
       orientation,
@@ -949,6 +1356,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
     const result: AutomaticImageProcessingResult = {};
     for (const feature of enabledFeatures) {
+      const featureStart = performance.now();
       this.reportScanProgress(onProgress, {
         stage: feature.progressStage,
         label: feature.progressLabel,
@@ -964,6 +1372,27 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         cancellable: false,
       });
       result[feature.key] = await this.applyAutomaticProcessingFeature(dwt, feature);
+      const featureDuration = performance.now() - featureStart;
+      const sharedPerf = readScanPipelinePerfRecord();
+      if (sharedPerf) {
+        if (feature.key === "deskew") {
+          sharedPerf.stages.deskewMs = featureDuration;
+        } else if (feature.key === "autoCrop") {
+          sharedPerf.stages.autoCropMs = featureDuration;
+        } else if (feature.key === "autoRotate") {
+          sharedPerf.stages.autoRotateMs = featureDuration;
+        }
+      }
+      const stageLabel =
+        feature.key === "deskew"
+          ? "Deskew"
+          : feature.key === "autoCrop"
+            ? "AutoCrop"
+            : "AutoRotate";
+      console.info(`[SCAN PERF] ${stageLabel}`, {
+        scanId: readScanPipelinePerfRecord()?.scanId,
+        durationMs: Math.round(featureDuration),
+      });
     }
 
     return result;
@@ -1244,6 +1673,204 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     };
   }
 
+  private async removeDetectedBlankPagesWithDynamsoft(
+    dwt: DynamsoftWebTwainObject,
+    pageRange: { startIndex: number; endIndex: number },
+  ): Promise<BlankPageRemovalResult | null> {
+    const dwtObject = dwt as Record<string, unknown>;
+    const isBlankImageAsync = dwtObject.IsBlankImageAsync;
+    const isBlankImageExpress = dwtObject.IsBlankImageExpress;
+    const useAsyncBlankDetection = typeof isBlankImageAsync === "function";
+
+    if (!useAsyncBlankDetection && typeof isBlankImageExpress !== "function") {
+      return null;
+    }
+
+    const { startIndex, endIndex } = pageRange;
+    if (startIndex < 0 || endIndex <= startIndex) {
+      return {
+        analyses: [],
+        detected: [],
+        removedPageIds: new Set(),
+        requestedIndexes: [],
+        removedIndexes: [],
+        survivedIndexes: [],
+      };
+    }
+
+    const candidateIndexes = Array.from(
+      { length: Math.max(endIndex - startIndex, 0) },
+      (_item, offset) => startIndex + offset,
+    );
+    const checkedIndexes = candidateIndexes.filter(
+      (index) => index >= 0 && index < this.pages.length,
+    );
+    const blankIndexes = (
+      await Promise.all(
+        checkedIndexes.map(async (index) => {
+          try {
+            if (useAsyncBlankDetection) {
+              const isBlank = await (
+                isBlankImageAsync as (
+                  index: number,
+                  options?: {
+                    minBlockHeight?: number;
+                    maxBlockHeight?: number;
+                  },
+                ) => Promise<boolean>
+              ).call(dwt, index, {
+                minBlockHeight: BLANK_PAGE_ASYNC_MIN_BLOCK_HEIGHT,
+                maxBlockHeight: BLANK_PAGE_ASYNC_MAX_BLOCK_HEIGHT,
+              });
+              return isBlank ? index : null;
+            }
+
+            const isBlank = (isBlankImageExpress as (index: number) => boolean).call(dwt, index);
+            return isBlank ? index : null;
+          } catch {
+            return null;
+          }
+        }),
+      )
+    )
+      .filter((index): index is number => index !== null && index !== undefined);
+
+    const blankPages = blankIndexes
+      .map((index) => this.pages[index])
+      .filter((page): page is ScanPage => Boolean(page));
+
+    if (blankPages.length === 0) {
+      return {
+        analyses: [],
+        detected: [],
+        removedPageIds: new Set(),
+        requestedIndexes: blankIndexes,
+        removedIndexes: [],
+        survivedIndexes: [],
+      };
+    }
+
+    const blankPageAnalyses = useAsyncBlankDetection
+      ? blankPages.map((page) => ({
+          page,
+          isBlank: true,
+          contentRatio: 0,
+          darkPixels: 0,
+          clusteredDarkPixels: 0,
+          darkRatio: 0,
+          reason: "isBlankImageAsync",
+          imageSource: "unavailable",
+        }))
+      : blankPages.map((page) => {
+          const imageSource = page.imageUrl
+            ? "original"
+            : page.thumbnailUrl
+              ? "thumbnail"
+              : "unavailable";
+          return {
+            page,
+            isBlank: true,
+            contentRatio: 0,
+            darkPixels: 0,
+            clusteredDarkPixels: 0,
+            darkRatio: 0,
+            reason: "isBlankImageExpress",
+            imageSource,
+          };
+        });
+    const confirmedBlankPages = blankPageAnalyses.filter((analysis) => analysis.isBlank);
+    const confirmedBlankIndexes = confirmedBlankPages
+      .map((analysis) => analysis.page.index)
+      .sort((left, right) => right - left);
+
+    const blankPageIds = new Set(confirmedBlankPages.map((analysis) => analysis.page.id));
+    const removedIndexes: number[] = [];
+
+    blankPageAnalyses.forEach((analysis) => {
+      const label = analysis.isBlank ? "BLANK_PAGE_DETECTED" : "BLANK_PAGE_SURVIVED";
+      logBlankPageDiagnostic(label, {
+        stage: "removeDetectedBlankPagesWithDynamsoft",
+        pageId: analysis.page.id,
+        pageIndex: analysis.page.index,
+        pageNumber: analysis.page.index + 1,
+        reason: analysis.reason,
+        contentPercentage: Number((analysis.contentRatio * 100).toFixed(4)),
+        darkPixels: analysis.darkPixels,
+        clusteredDarkPixels: analysis.clusteredDarkPixels,
+        whiteThreshold: BLANK_PAGE_WHITE_THRESHOLD,
+        contentThreshold: BLANK_PAGE_CONTENT_RATIO_THRESHOLD,
+        darkPixelThreshold: BLANK_PAGE_DARK_PIXEL_THRESHOLD,
+        imageSource: analysis.imageSource,
+      });
+    });
+
+    confirmedBlankIndexes.forEach((index) => {
+      const beforeCount = dwt.HowManyImagesInBuffer;
+      const removeResult = dwt.RemoveImage(index);
+      const afterCount = dwt.HowManyImagesInBuffer;
+      const removedFromBuffer =
+        beforeCount === undefined ||
+        afterCount === undefined ||
+        afterCount < beforeCount ||
+        removeResult === true;
+
+      if (removedFromBuffer) {
+        removedIndexes.push(index);
+      }
+    });
+
+    const removedIndexSet = new Set(removedIndexes);
+    const survivedIndexes = blankIndexes.filter((index) => !removedIndexSet.has(index));
+    const confirmedBlankPagesForResult = confirmedBlankPages.map((analysis) => analysis.page);
+
+    confirmedBlankPagesForResult.forEach((page) => {
+      const removedFromBuffer = removedIndexes.includes(page.index);
+      const analysis = blankPageAnalyses.find((candidate) => candidate.page.id === page.id);
+      const label = removedFromBuffer ? "BLANK_PAGE_REMOVED" : "BLANK_PAGE_SURVIVED";
+      logBlankPageDiagnostic(label, {
+        stage: "removeImage",
+        pageId: page.id,
+        pageIndex: page.index,
+        pageNumber: page.index + 1,
+        reason: analysis?.reason ?? "analysis-failed",
+        removedFromBuffer,
+        contentPercentage: analysis ? Number((analysis.contentRatio * 100).toFixed(4)) : undefined,
+        darkPixels: analysis?.darkPixels,
+        clusteredDarkPixels: analysis?.clusteredDarkPixels,
+        imageSource: analysis?.imageSource ?? "unavailable",
+      });
+    });
+
+    this.pages = this.rebuildPagesAfterBufferRemoval(dwt, this.pages, removedIndexes, blankPageIds);
+    this.logBlankPageReinsertions("afterBlankRemoval", {
+      analyses: blankPageAnalyses,
+      detected: confirmedBlankPagesForResult,
+      removedPageIds: blankPageIds,
+      requestedIndexes: blankIndexes,
+      removedIndexes,
+      survivedIndexes,
+    });
+    logBlankPageDiagnostic("BLANK_PAGE_FINAL_STATE", {
+      stage: "afterBlankRemoval",
+      pageCount: this.pages.length,
+      bufferCount: dwt.HowManyImagesInBuffer ?? null,
+      detectedPageIds: confirmedBlankPagesForResult.map((page) => page.id),
+      requestedIndexes: blankIndexes,
+      removedIndexes,
+      survivedIndexes,
+      pages: this.summarizePagesForDiagnostics(this.pages),
+    });
+
+    return {
+      analyses: blankPageAnalyses,
+      detected: confirmedBlankPagesForResult,
+      removedPageIds: blankPageIds,
+      requestedIndexes: blankIndexes,
+      removedIndexes,
+      survivedIndexes,
+    };
+  }
+
   private async analyzeBlankPageCandidate(page: ScanPage): Promise<BlankPageAnalysis> {
     const imageUrl = page.imageUrl ?? page.thumbnailUrl;
     const imageSource = page.imageUrl ? "original" : page.thumbnailUrl ? "thumbnail" : "unavailable";
@@ -1261,18 +1888,55 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     }
 
     try {
+      const loadCandidates = [
+        {
+          src: page.imageUrl,
+          source: "original" as const,
+        },
+        {
+          src: page.thumbnailUrl,
+          source: "thumbnail" as const,
+        },
+      ].filter((candidate): candidate is { src: string; source: "original" | "thumbnail" } =>
+        Boolean(candidate.src),
+      );
+
+      let image: HTMLImageElement | null = null;
+      let analyzedImageSource: "original" | "thumbnail" = imageSource;
+      for (const candidate of loadCandidates) {
+        try {
+          image = await this.loadAnalysisImage(candidate.src);
+          analyzedImageSource = candidate.source;
+          break;
+        } catch {
+          continue;
+        }
+      }
+
+      if (!image) {
+        return {
+          page,
+          isBlank: false,
+          contentRatio: 1,
+          darkPixels: Number.POSITIVE_INFINITY,
+          clusteredDarkPixels: Number.POSITIVE_INFINITY,
+          darkRatio: 1,
+          reason: "analysis-failed",
+          imageSource,
+        };
+      }
+
       logBlankPageDiagnostic("BLANK_PAGE_ANALYSIS_START", {
         pageId: page.id,
         index: page.index,
         pageNumber: page.index + 1,
-        imageSource,
+        imageSource: analyzedImageSource,
         analysisWidth: BLANK_PAGE_ANALYSIS_WIDTH,
         analysisHeight: BLANK_PAGE_ANALYSIS_HEIGHT,
         whiteThreshold: BLANK_PAGE_WHITE_THRESHOLD,
         contentThreshold: BLANK_PAGE_CONTENT_RATIO_THRESHOLD,
         darkPixelThreshold: BLANK_PAGE_DARK_PIXEL_THRESHOLD,
       });
-      const image = await this.loadAnalysisImage(imageUrl);
       const canvas = this.options.documentRef.createElement("canvas");
       canvas.width = BLANK_PAGE_ANALYSIS_WIDTH;
       canvas.height = BLANK_PAGE_ANALYSIS_HEIGHT;
@@ -1286,7 +1950,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
           clusteredDarkPixels: Number.POSITIVE_INFINITY,
           darkRatio: 1,
           reason: "canvas-context-unavailable",
-          imageSource,
+          imageSource: analyzedImageSource,
         };
       }
 
@@ -1295,11 +1959,26 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
       const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
       let contentPixels = 0;
+      let interiorContentPixels = 0;
       let darkPixels = 0;
       const totalPixels = pixels.length / 4;
+      const luminanceHistogram = new Int32Array(256);
+      const opaquePixels = new Uint8Array(totalPixels);
+      const totalHorizontalTransitions = Math.max(1, BLANK_PAGE_ANALYSIS_WIDTH * (BLANK_PAGE_ANALYSIS_HEIGHT - 1));
+      const totalVerticalTransitions = Math.max(1, (BLANK_PAGE_ANALYSIS_WIDTH - 1) * BLANK_PAGE_ANALYSIS_HEIGHT);
+      let luminanceSum = 0;
+      let luminanceSqSum = 0;
+      let edgeTransitions = 0;
+      const interiorXMargin = Math.floor(BLANK_PAGE_ANALYSIS_WIDTH * BLANK_PAGE_BORDER_FRACTION_TO_IGNORE);
+      const interiorYMargin = Math.floor(BLANK_PAGE_ANALYSIS_HEIGHT * BLANK_PAGE_BORDER_FRACTION_TO_IGNORE);
+      const interiorWidth = Math.max(1, BLANK_PAGE_ANALYSIS_WIDTH - interiorXMargin * 2);
+      const interiorHeight = Math.max(1, BLANK_PAGE_ANALYSIS_HEIGHT - interiorYMargin * 2);
+      const interiorTotalPixels = interiorWidth * interiorHeight;
       const darkMask = Array.from({ length: totalPixels }, () => false);
+      const luminanceValues = new Float32Array(totalPixels);
 
       for (let offset = 0; offset < pixels.length; offset += 4) {
+        const pixelIndex = offset / 4;
         const red = pixels[offset] ?? 255;
         const green = pixels[offset + 1] ?? 255;
         const blue = pixels[offset + 2] ?? 255;
@@ -1308,28 +1987,102 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
           continue;
         }
 
+        opaquePixels[pixelIndex] = 1;
+
         const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
-        if (
-          red < BLANK_PAGE_WHITE_THRESHOLD ||
-          green < BLANK_PAGE_WHITE_THRESHOLD ||
-          blue < BLANK_PAGE_WHITE_THRESHOLD
-        ) {
-          contentPixels += 1;
-        }
         if (luminance < 180) {
           darkPixels += 1;
           darkMask[offset / 4] = true;
         }
+        luminanceSum += luminance;
+        luminanceSqSum += luminance * luminance;
+        luminanceValues[pixelIndex] = luminance;
+        const roundedLuminance = Math.max(0, Math.min(255, Math.round(luminance)));
+        luminanceHistogram[roundedLuminance] += 1;
+      }
+
+      const adaptiveWhiteThreshold = Math.max(
+        BLANK_PAGE_DYNAMIC_WHITE_THRESHOLD_FLOOR,
+        Math.min(
+          BLANK_PAGE_WHITE_THRESHOLD,
+          getLuminancePercentile(
+            luminanceHistogram,
+            totalPixels,
+            BLANK_PAGE_WHITE_PERCENTILE,
+          ),
+        ),
+      );
+      for (let pixelIndex = 0; pixelIndex < totalPixels; pixelIndex += 1) {
+        if (!opaquePixels[pixelIndex]) {
+          continue;
+        }
+
+        const pixelX = pixelIndex % BLANK_PAGE_ANALYSIS_WIDTH;
+        const pixelY = Math.floor(pixelIndex / BLANK_PAGE_ANALYSIS_WIDTH);
+        const red = pixels[pixelIndex * 4] ?? 255;
+        const green = pixels[pixelIndex * 4 + 1] ?? 255;
+        const blue = pixels[pixelIndex * 4 + 2] ?? 255;
+
+        if (red < adaptiveWhiteThreshold || green < adaptiveWhiteThreshold || blue < adaptiveWhiteThreshold) {
+          contentPixels += 1;
+          if (
+            pixelX >= interiorXMargin &&
+            pixelX < BLANK_PAGE_ANALYSIS_WIDTH - interiorXMargin &&
+            pixelY >= interiorYMargin &&
+            pixelY < BLANK_PAGE_ANALYSIS_HEIGHT - interiorYMargin
+          ) {
+            interiorContentPixels += 1;
+          }
+        }
+      }
+      contentPixels = Math.min(contentPixels, totalPixels);
+
+      for (let y = 0; y < BLANK_PAGE_ANALYSIS_HEIGHT; y += 1) {
+        const rowOffset = y * BLANK_PAGE_ANALYSIS_WIDTH;
+        for (let x = 0; x < BLANK_PAGE_ANALYSIS_WIDTH - 1; x += 1) {
+          const left = luminanceValues[rowOffset + x] ?? 0;
+          const right = luminanceValues[rowOffset + x + 1] ?? 0;
+          if (Math.abs(left - right) > BLANK_PAGE_EDGE_DEVIATION_THRESHOLD) {
+            edgeTransitions += 1;
+          }
+        }
+      }
+
+      for (let y = 0; y < BLANK_PAGE_ANALYSIS_HEIGHT - 1; y += 1) {
+        const rowOffset = y * BLANK_PAGE_ANALYSIS_WIDTH;
+        const nextRowOffset = (y + 1) * BLANK_PAGE_ANALYSIS_WIDTH;
+        for (let x = 0; x < BLANK_PAGE_ANALYSIS_WIDTH; x += 1) {
+          const top = luminanceValues[rowOffset + x] ?? 0;
+          const bottom = luminanceValues[nextRowOffset + x] ?? 0;
+          if (Math.abs(top - bottom) > BLANK_PAGE_EDGE_DEVIATION_THRESHOLD) {
+            edgeTransitions += 1;
+          }
+        }
       }
 
       const contentRatio = contentPixels / totalPixels;
+      const interiorContentRatio = interiorContentPixels / interiorTotalPixels;
       const darkRatio = darkPixels / totalPixels;
       const clusteredDarkPixels = countClusteredDarkPixels(darkMask, canvas.width, canvas.height);
-      const contentDetected = contentRatio > BLANK_PAGE_CONTENT_RATIO_THRESHOLD;
-      const darkContentDetected = clusteredDarkPixels > BLANK_PAGE_DARK_PIXEL_THRESHOLD;
+      const edgeTransitionRatio =
+        edgeTransitions / (totalHorizontalTransitions + totalVerticalTransitions);
+      const averageLuminance = luminanceSum / totalPixels;
+      const luminanceVariance = luminanceSqSum / totalPixels - averageLuminance * averageLuminance;
+      const isLowContrastWhitePage =
+        averageLuminance >= BLANK_PAGE_LOW_CONTRAST_LUMINANCE_THRESHOLD &&
+        luminanceVariance <= BLANK_PAGE_LOW_CONTRAST_VARIANCE_THRESHOLD &&
+        interiorContentRatio <=
+          BLANK_PAGE_CONTENT_RATIO_THRESHOLD * BLANK_PAGE_LOW_CONTRAST_CONTENT_RATIO_MULTIPLIER;
+      const contentDetected =
+        contentRatio > BLANK_PAGE_CONTENT_RATIO_THRESHOLD &&
+        interiorContentRatio > BLANK_PAGE_CONTENT_RATIO_THRESHOLD;
+      const darkContentDetected =
+        darkRatio > BLANK_PAGE_DARK_RATIO_THRESHOLD &&
+        clusteredDarkPixels > BLANK_PAGE_DARK_PIXEL_THRESHOLD;
+      const contentDetectedByEdges = edgeTransitionRatio > BLANK_PAGE_EDGE_RATIO_THRESHOLD;
       const isBlank =
-        !contentDetected &&
-        !darkContentDetected;
+        (!contentDetected && !darkContentDetected && !contentDetectedByEdges) ||
+        isLowContrastWhitePage;
       const contentPercentage = Number((contentRatio * 100).toFixed(4));
       const reason = isBlank
         ? "below-content-threshold"
@@ -1353,6 +2106,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         clusteredDarkPixels,
         darkRatio: Number(darkRatio.toFixed(6)),
         darkPixelThreshold: BLANK_PAGE_DARK_PIXEL_THRESHOLD,
+        adaptiveWhiteThreshold,
       });
       logBlankPageDiagnostic("BLANK_PAGE_ANALYSIS_RESULT", {
         pageId: page.id,
@@ -1364,7 +2118,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         darkPixels,
         clusteredDarkPixels,
         darkRatio: Number(darkRatio.toFixed(6)),
-        imageSource,
+        imageSource: analyzedImageSource,
       });
 
       return {
@@ -1375,7 +2129,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         clusteredDarkPixels,
         darkRatio,
         reason,
-        imageSource,
+        imageSource: analyzedImageSource,
       };
     } catch (error) {
       console.warn("BLANK_PAGE_ANALYSIS_ERROR", {
@@ -1407,6 +2161,17 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
     const currentPageIds = new Set(this.pages.map((page) => page.id));
     removalResult.detected.forEach((analysis) => {
+      if (!analysis || !analysis.page) {
+        logBlankPageDiagnostic("BLANK_PAGE_REINSERTION_SKIP", {
+          stage,
+          reason: "missing-analysis-page",
+          requestedIndexes: removalResult.requestedIndexes,
+          removedIndexes: removalResult.removedIndexes,
+          survivedIndexes: removalResult.survivedIndexes,
+        });
+        return;
+      }
+
       if (!currentPageIds.has(analysis.page.id)) {
         return;
       }

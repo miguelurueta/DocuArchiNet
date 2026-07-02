@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppUploadBatchView } from "./AppUploadBatchView";
 import { AppUploadBatchView as ExportedAppUploadBatchView } from "./index";
@@ -99,11 +99,11 @@ describe("AppUploadBatchView [SCRUMCORE-270]", () => {
     );
   });
 
-  it("ejecuta callbacks de acciones globales y por archivo", () => {
+  it("ejecuta callbacks de acciones globales y por archivo", async () => {
     const { props } = renderView({ canSaveOne: true });
 
     fireEvent.click(screen.getByText("Guardar todo"));
-    fireEvent.click(screen.getByText("Limpiar"));
+    fireEvent.click(screen.getByText("Limpiar todo"));
     fireEvent.click(screen.getByLabelText("Ver a.pdf"));
     fireEvent.click(screen.getByLabelText("Guardar a.pdf"));
     fireEvent.click(screen.getByLabelText("Eliminar a.pdf"));
@@ -113,7 +113,7 @@ describe("AppUploadBatchView [SCRUMCORE-270]", () => {
     expect(props.onSelectFile).toHaveBeenCalledWith("a");
     expect(props.onPreviewFile).toHaveBeenCalledWith("a");
     expect(props.onSaveFile).toHaveBeenCalledWith("a");
-    expect(props.onRemoveFile).toHaveBeenCalledWith("a");
+    await waitFor(() => expect(props.onRemoveFile).toHaveBeenCalledWith("a"));
   });
 
   it("compone AppUpload como selector de archivos", () => {
@@ -131,7 +131,7 @@ describe("AppUploadBatchView [SCRUMCORE-270]", () => {
     });
 
     expect(screen.getByText("Guardar todo").closest("button")).toBeDisabled();
-    expect(screen.getByText("Limpiar").closest("button")).toBeDisabled();
+    expect(screen.getByText("Limpiar todo").closest("button")).toBeDisabled();
     expect(screen.getByLabelText("Ver a.pdf")).toBeDisabled();
     expect(screen.getByLabelText("Guardar a.pdf")).toBeDisabled();
     expect(screen.getByLabelText("Eliminar a.pdf")).toBeDisabled();
@@ -148,6 +148,7 @@ describe("AppUploadBatchView [SCRUMCORE-270]", () => {
 
     expect(screen.getByText("Nombre custom a.pdf")).toBeInTheDocument();
     expect(screen.getByText("Tipo Contrato")).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("Ver a.pdf"));
     expect(screen.getByText("Preview custom a.pdf")).toBeInTheDocument();
     expect(screen.getByText("Extra 1")).toBeInTheDocument();
   });
@@ -172,6 +173,7 @@ describe("AppUploadBatchView [SCRUMCORE-270]", () => {
       selectedUid: "pdf",
     });
 
+    fireEvent.click(screen.getByLabelText("Ver doc.pdf"));
     expect(screen.getByTitle("Vista previa de doc.pdf")).toBeInTheDocument();
 
     rerender(
@@ -188,6 +190,7 @@ describe("AppUploadBatchView [SCRUMCORE-270]", () => {
       />,
     );
 
+    fireEvent.click(screen.getByLabelText("Ver foto.png"));
     expect(screen.getByAltText("foto.png")).toBeInTheDocument();
 
     rerender(
@@ -204,6 +207,7 @@ describe("AppUploadBatchView [SCRUMCORE-270]", () => {
       />,
     );
 
+    fireEvent.click(screen.getByLabelText("Ver notas.txt"));
     const preview = screen.getByLabelText("Vista previa del archivo activo");
     expect(within(preview).getAllByText("notas.txt").length).toBeGreaterThan(0);
     expect(within(preview).getByText(/TXT/)).toBeInTheDocument();
@@ -215,6 +219,7 @@ describe("AppUploadBatchView [SCRUMCORE-270]", () => {
       selectedUid: "a",
     });
 
+    fireEvent.click(screen.getByLabelText("Ver a.pdf"));
     rerender(
       <AppUploadBatchView
         {...props}
