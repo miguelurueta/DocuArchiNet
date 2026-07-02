@@ -61,6 +61,99 @@
 
 .toolbarGroup[data-priority="output"] {
   margin-left: auto;
+  align-items: center;
+  display: flex;
+  flex: 1 1 auto;
+  justify-content: flex-start;
+  border-left: none;
+  padding-left: 0;
+}
+
+.toolbarSpacer {
+  flex: 1 1 auto;
+}
+
+.toolbarSaveButton :global(.ant-btn-icon) {
+  font-size: 1.12em;
+}
+
+.toolbarSaveButton {
+  line-height: 1;
+}
+
+.toolbarSaveButton :global(.ant-btn-icon) :global(svg),
+.toolbarSaveButton :global(.ant-btn-icon) :global(.iconify) {
+  width: 1.12em;
+  height: 1.12em;
+  max-width: 1.12em;
+  max-height: 1.12em;
+}
+
+.toolbarSaveButton :global(.ant-btn-icon) + * {
+  margin-inline-start: 0.18rem !important;
+  align-items: center;
+  display: inline-flex;
+  line-height: 1;
+}
+
+.previewControls :global(.ant-btn[disabled]),
+.previewControls :global(.ant-btn[aria-disabled="true"]) {
+  pointer-events: none;
+  filter: grayscale(1) saturate(0);
+  opacity: 0.82;
+  transform: none !important;
+  transition: none !important;
+  box-shadow: none !important;
+}
+
+.previewControls :global(.ant-btn[disabled]:hover),
+.previewControls :global(.ant-btn[disabled]:focus-visible),
+.previewControls :global(.ant-btn[aria-disabled="true"]:hover),
+.previewControls :global(.ant-btn[aria-disabled="true"]:focus-visible) {
+  background: inherit !important;
+  border-color: inherit !important;
+  color: inherit !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.toolbarRotateButton:global(.ant-btn[disabled]),
+.toolbarRotateButton:global(.ant-btn[aria-disabled="true"]) {
+  pointer-events: none;
+}
+
+.toolbarRotateButton:global(.ant-btn[disabled]:hover),
+.toolbarRotateButton:global(.ant-btn[disabled]:focus-visible),
+.toolbarRotateButton:global(.ant-btn[aria-disabled="true"]:hover),
+.toolbarRotateButton:global(.ant-btn[aria-disabled="true"]:focus-visible) {
+  background: inherit !important;
+  border-color: inherit !important;
+  color: inherit !important;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: grayscale(1) saturate(0);
+}
+
+.toolbar :global(.ant-btn[disabled]),
+.toolbar :global(.ant-btn[aria-disabled="true"]) {
+  color: #9ca3af !important;
+  cursor: not-allowed;
+  filter: grayscale(1) saturate(0);
+  opacity: 0.82;
+  pointer-events: none;
+  transform: none !important;
+  transition: none !important;
+  box-shadow: none !important;
+}
+
+.toolbar :global(.ant-btn[disabled]:hover),
+.toolbar :global(.ant-btn[disabled]:focus-visible),
+.toolbar :global(.ant-btn[aria-disabled="true"]:hover),
+.toolbar :global(.ant-btn[aria-disabled="true"]:focus-visible) {
+  color: #9ca3af !important;
+  cursor: not-allowed;
+  transform: none !important;
+  transition: none !important;
 }
 
 .main {

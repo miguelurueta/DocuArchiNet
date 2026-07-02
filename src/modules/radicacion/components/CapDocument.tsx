@@ -4,7 +4,6 @@ import {
   PrinterFilled,
   SaveFilled,
   InfoCircleFilled,
-  ScanOutlined,
   FileTextFilled,
   EditFilled,
   FolderOpenFilled,
@@ -78,9 +77,6 @@ const CapDocument = () => {
         </Button>
         <Button className={styles.btnAcept} icon={<InfoCircleFilled />}>
           Detalle Radicado
-        </Button>
-        <Button className={styles.btnAcept} icon={<ScanOutlined />}>
-          Scanner
         </Button>
       </div>
       <div ref={toolbarHostRef} className={styles.toolbarHost} />
