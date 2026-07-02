@@ -18,7 +18,7 @@ vi.mock("../hooks/useEstructuraRespuestaIdTarea", () => ({
 }));
 
 vi.mock("../pages/GestionRespuesta", () => ({
-  default: ({ idTareaWf }: { idTareaWf?: number }) => (
+  default: ({ idTareaWf, idRutaWf }: { idTareaWf?: number; idRutaWf?: number }) => (
     <div>
       <h1>Gestion</h1>
       <h2>Documentos</h2>
@@ -30,6 +30,7 @@ vi.mock("../pages/GestionRespuesta", () => ({
         Zona de documento
       </div>
       <div>Respuesta {idTareaWf}</div>
+      <div>Ruta {idRutaWf ?? "sin-ruta"}</div>
     </div>
   ),
 }));
@@ -389,6 +390,22 @@ describe("[SPEC:SCRUMCORE-143] Bloqueo por estructura gestion respuesta", () => 
       expect(screen.queryByTestId("gestion-correspondencia-detail-region")).not.toBeInTheDocument();
     });
     expect(screen.getByText(/Mocked GestionCorrespondenciaRoutePage/i)).toBeInTheDocument();
+  });
+
+  test("propaga idRutaWf desde estructura hacia GestionRespuesta", () => {
+    setHookState({
+      estrucTuraRespuesta: {
+        Radicado: "2025-0001",
+        Destinatario: "Contasoft Company",
+        TramiteDocumento: "Respuesta a derecho de peticion",
+        idRutaWf: 9,
+      },
+    });
+
+    renderGestionCorrespondencia("/dashboard/gestion-correspondencia/respuesta/924");
+
+    expect(screen.getByText("Respuesta 924")).toBeInTheDocument();
+    expect(screen.getByText("Ruta 9")).toBeInTheDocument();
   });
 
   test("permite retornar a bandeja desde estado bloqueado", () => {

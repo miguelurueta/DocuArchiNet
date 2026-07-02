@@ -3,8 +3,9 @@ import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import GestionRespuesta from "./GestionRespuesta";
 
-const { documentosWorkbenchRenderSpy } = vi.hoisted(() => ({
+const { documentosWorkbenchRenderSpy, providerRenderSpy } = vi.hoisted(() => ({
   documentosWorkbenchRenderSpy: vi.fn(),
+  providerRenderSpy: vi.fn(),
 }));
 
 vi.mock("@ant-design/icons", () => ({
@@ -73,9 +74,19 @@ vi.mock("../../../app/Components/UI/AppTabs", () => ({
 }));
 
 vi.mock("../context/GestionRespuestaDocumentosContext", () => ({
-  GestionRespuestaDocumentosProvider: ({ children }: { children: ReactNode }) => (
-    <div>{children}</div>
-  ),
+  GestionRespuestaDocumentosProvider: ({
+    children,
+    ...props
+  }: {
+    children: ReactNode;
+    idTareaWf?: number;
+    idRutaWf?: number;
+    radicado?: string;
+    idRespuestaRadicado?: string | number;
+  }) => {
+    providerRenderSpy(props);
+    return <div>{children}</div>;
+  },
 }));
 
 vi.mock("../components/gestionRespuestaMainTab/GestionRespuestaMainTabContent", () => ({
@@ -111,6 +122,7 @@ const mockMatchMedia = (matches: boolean) => {
 describe("[SCRUMCORE-251] GestionRespuesta parallel tabs", () => {
   beforeEach(() => {
     documentosWorkbenchRenderSpy.mockClear();
+    providerRenderSpy.mockClear();
   });
 
   it("renderiza tabs normales por defecto y expone boton opt-in", () => {
@@ -127,6 +139,19 @@ describe("[SCRUMCORE-251] GestionRespuesta parallel tabs", () => {
     );
     expect(screen.getByRole("tab", { name: /Gestion/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /Documentos/i })).toBeInTheDocument();
+  });
+
+  it("propaga idRutaWf al provider documental", () => {
+    mockMatchMedia(true);
+
+    render(<GestionRespuesta idTareaWf={933} idRutaWf={9} />);
+
+    expect(providerRenderSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        idTareaWf: 933,
+        idRutaWf: 9,
+      }),
+    );
   });
 
   it("activa y desactiva la vista paralela sin perder Gestion ni Documentos", () => {

@@ -50,7 +50,7 @@ describe("[SPEC:SCRUMCORE-271] useAppUploadDocumentalState", () => {
     });
   });
 
-  it("valida tipologia y fecha obligatoria por archivo", async () => {
+  it("delega mensaje de tipologia al backend y valida fecha obligatoria por archivo", async () => {
     const stableProps = props({
       tipologiaObligatoria: true,
       requiereFechaCarga: true,
@@ -66,7 +66,7 @@ describe("[SPEC:SCRUMCORE-271] useAppUploadDocumentalState", () => {
 
     const uid = result.current.files[0].uid;
     expect(result.current.validateFileForStore(uid)).toBe(
-      "No se puede guardar: selecciona la tipologia documental del archivo.",
+      "No se puede guardar: ingresa la fecha documental del archivo.",
     );
 
     act(() => {

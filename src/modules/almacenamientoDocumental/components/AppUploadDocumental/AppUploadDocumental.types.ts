@@ -20,6 +20,9 @@ export type UploadDocumentalContext = {
   numeroDocumentoRelacionado?: number;
   idImagen?: number;
   nameModulo?: string;
+  idUsuarioGestion?: number;
+  idEmpresa?: number;
+  fechaElaboracion?: string;
   camposIndexacion?: Array<{
     nombreCampo: string;
     valor?: string;

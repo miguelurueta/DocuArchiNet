@@ -28,14 +28,24 @@ export function buildGestionRespuestaAlmacenarDocumentoRequest(
   const nombreGabinete = requireNonEmpty(input.context.nombreGabinete, "nombreGabinete");
   const idRespuestaRadicado = normalizePositiveNumber(input.context.idRespuesta, "idRespuestaRadicado");
   const fileName = normalizeSafeFileName(input.fileName);
-  const tipologia = requireTipologia(input.metadata);
+  const tipologia = buildTipologiaOrNull(input.metadata);
   const numeroPaginas = normalizeOptionalPositiveNumber(input.metadata.numeroPaginas);
+  const radicado = requireNonEmpty(input.context.nameModulo, "radicado");
+  const idUsuarioGestion = normalizePositiveNumber(input.context.idUsuarioGestion, "idUsuarioGestion");
+  const idEmpresa = normalizePositiveNumber(input.context.idEmpresa, "idEmpresa");
+  const fechaElaboracion = requireDateOnly(input.context.fechaElaboracion, "fechaElaboracion");
 
   return {
     nombreGabinete,
     nombreDocumento: buildNombreDocumento(input.context, fileName),
     requestId: requireNonEmpty(input.requestId, "requestId"),
     camposIndexacion: buildCamposIndexacion(input),
+    inventario: {
+      IdUsuarioGestion: idUsuarioGestion,
+      IdEmpresa: idEmpresa,
+      Radicado: radicado,
+      FechaElaboracion: fechaElaboracion,
+    },
     trd: tipologia,
     expediente:
       input.context.idExpediente || input.context.idTipoExpediente
@@ -159,7 +169,11 @@ function buildDocumentoEntradaId(requestId: string): string {
   return `wf-anexo-${normalized || Date.now()}`;
 }
 
-function requireTipologia(metadata: UploadDocumentalFileMetadata): NonNullable<AlmacenarDocumentoRequest["trd"]> {
+function buildTipologiaOrNull(metadata: UploadDocumentalFileMetadata): AlmacenarDocumentoRequest["trd"] {
+  if (!metadata.idTipoDocumento && !metadata.nombreTipoDocumento) {
+    return null;
+  }
+
   const idTipoDocumento = normalizePositiveNumber(metadata.idTipoDocumento, "idTipoDocumento");
   const nombreTipoDocumento = requireNonEmpty(metadata.nombreTipoDocumento, "nombreTipoDocumento");
 
@@ -201,6 +215,20 @@ function requireNonEmpty(value: unknown, fieldName: string): string {
   }
 
   return value.trim();
+}
+
+function requireDateOnly(value: unknown, fieldName: string): string {
+  const normalized = requireNonEmpty(value, fieldName);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
+    throw new GestionRespuestaUploadDocumentalMapperError(`${fieldName} must use yyyy-MM-dd format`);
+  }
+
+  const date = new Date(`${normalized}T00:00:00.000Z`);
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== normalized) {
+    throw new GestionRespuestaUploadDocumentalMapperError(`${fieldName} must be a valid date`);
+  }
+
+  return normalized;
 }
 
 function requireRecord(value: unknown, fieldName: string): Record<string, unknown> {

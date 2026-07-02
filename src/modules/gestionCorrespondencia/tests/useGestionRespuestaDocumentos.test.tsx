@@ -31,7 +31,12 @@ const buildGabineteResponse = (
 });
 
 const buildWrapper =
-  (props: { idTareaWf?: number; radicado?: string; idRespuestaRadicado?: string | number }) =>
+  (props: {
+    idTareaWf?: number;
+    idRutaWf?: number;
+    radicado?: string;
+    idRespuestaRadicado?: string | number;
+  }) =>
   ({ children }: { children: ReactNode }) => (
     <GestionRespuestaDocumentosProvider {...props}>{children}</GestionRespuestaDocumentosProvider>
   );
@@ -59,6 +64,7 @@ describe("[SPEC:SCRUMCORE-220] useGestionRespuestaDocumentos", () => {
     const { result } = renderHook(() => useGestionRespuestaDocumentos(), {
       wrapper: buildWrapper({
         idTareaWf: 924,
+        idRutaWf: 9,
         radicado: " 2025-0001 ",
         idRespuestaRadicado: "RESP-1",
       }),
@@ -66,6 +72,7 @@ describe("[SPEC:SCRUMCORE-220] useGestionRespuestaDocumentos", () => {
 
     expect(result.current.available).toBe(true);
     expect(result.current.idTareaWf).toBe(924);
+    expect(result.current.idRutaWf).toBe(9);
     expect(result.current.radicado).toBe("2025-0001");
     expect(result.current.idRespuestaRadicado).toBe("RESP-1");
 

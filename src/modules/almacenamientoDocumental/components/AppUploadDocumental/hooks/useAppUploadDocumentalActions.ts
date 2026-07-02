@@ -201,6 +201,15 @@ export function useAppUploadDocumentalActions({
       try {
         await storeFile(item, controller.signal);
       } catch (error) {
+        if (shouldSuppressTypologyBackendMessage(error, item)) {
+          markFile(uid, {
+            state: "error",
+            error: undefined,
+            metadata: { error: "missing_typology" },
+          });
+          return;
+        }
+
         const message = getFunctionalSaveErrorMessage(error, controller.signal.aborted);
         markFile(uid, {
           state: controller.signal.aborted ? "cancelled" : "error",
@@ -233,6 +242,15 @@ export function useAppUploadDocumentalActions({
         return { status: "success" };
       } catch (error) {
         const aborted = batchContext.signal.aborted;
+        if (shouldSuppressTypologyBackendMessage(error, item)) {
+          markFile(item.uid, {
+            state: "error",
+            error: undefined,
+            metadata: { error: "missing_typology" },
+          });
+          return { status: "controlled-error", canContinue: true };
+        }
+
         const message = getFunctionalSaveErrorMessage(error, aborted);
         markFile(item.uid, {
           state: aborted ? "cancelled" : "error",
@@ -376,6 +394,10 @@ function getFunctionalSaveErrorMessage(error: unknown, aborted: boolean): string
 
   const code = readStorageErrorCode(error);
   if (code) {
+    if (code === "storage_store_error" && error instanceof Error && error.message.trim()) {
+      return error.message;
+    }
+
     const messages: Record<AlmacenamientoDocumentalUploadErrorCode, string> = {
       storage_aborted: "Carga cancelada. El archivo no fue almacenado.",
       storage_contract_error:
@@ -417,6 +439,48 @@ function readStorageErrorCode(error: unknown): AlmacenamientoDocumentalUploadErr
   ];
 
   return validCodes.find((value) => value === code);
+}
+
+function shouldSuppressTypologyBackendMessage(error: unknown, item: UploadDocumentalFileItem): boolean {
+  if (item.metadata?.idTipoDocumento) {
+    return false;
+  }
+
+  if (readStorageErrorCode(error) !== "storage_store_error") {
+    return false;
+  }
+
+  const searchable = normalizeForErrorSearch([
+    error instanceof Error ? error.message : undefined,
+    readErrorDetails(error),
+  ]);
+
+  return (
+    searchable.includes("tipologia") ||
+    searchable.includes("tipologias") ||
+    searchable.includes("tipo documental") ||
+    searchable.includes("tipo documento") ||
+    searchable.includes("trd")
+  );
+}
+
+function readErrorDetails(error: unknown): unknown {
+  if (!error || typeof error !== "object") {
+    return undefined;
+  }
+
+  return (error as { details?: unknown }).details;
+}
+
+function normalizeForErrorSearch(value: unknown): string {
+  try {
+    return JSON.stringify(value ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  } catch {
+    return "";
+  }
 }
 
 class UploadDocumentalValidationError extends Error {

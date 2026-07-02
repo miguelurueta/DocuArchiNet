@@ -13,6 +13,9 @@ const baseInput = {
     idTareaWorkflow: 933,
     idRutaWorkflow: 9,
     nameModulo: "2600466700021",
+    idUsuarioGestion: 136,
+    idEmpresa: 2,
+    fechaElaboracion: "2026-07-02",
   },
   metadata: {
     idTipoDocumento: 43,
@@ -31,6 +34,12 @@ describe("[SCRUMCORE-277] gestionRespuestaUploadDocumental.mapper", () => {
       nombreGabinete: "CORRESPO",
       nombreDocumento: "Anexo workflow respuesta 2600466700021",
       requestId: "workflow-anexo-2600466700021-001",
+      inventario: {
+        IdUsuarioGestion: 136,
+        IdEmpresa: 2,
+        Radicado: "2600466700021",
+        FechaElaboracion: "2026-07-02",
+      },
       trd: {
         idTipoDocumento: 43,
         nombreTipoDocumento: "Comprobante De Egreso",
