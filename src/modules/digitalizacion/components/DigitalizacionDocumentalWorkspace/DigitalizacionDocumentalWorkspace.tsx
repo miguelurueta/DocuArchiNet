@@ -1272,12 +1272,16 @@ export function DigitalizacionDocumentalWorkspace({
 
   useEffect(() => {
     if (typeof window === "undefined") {
-      setRenderedPageCount(scanner.pages.length);
+      setRenderedPageCount((current) =>
+        current === scanner.pages.length ? current : scanner.pages.length,
+      );
       return;
     }
 
     if (scanner.pages.length <= renderedPageCount) {
-      setRenderedPageCount(scanner.pages.length);
+      setRenderedPageCount((current) =>
+        current === scanner.pages.length ? current : scanner.pages.length,
+      );
       return;
     }
 

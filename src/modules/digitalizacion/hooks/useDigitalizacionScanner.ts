@@ -76,6 +76,7 @@ export const useDigitalizacionScanner = ({
   const generationRef = useRef(0);
   const progressFrameRef = useRef<number | null>(null);
   const pendingProgressRef = useRef<ScanProgressSnapshot | null>(null);
+  const activeDeskewPageRef = useRef<string | null>(null);
   const [state, setState] = useState<DigitalizacionScannerHookState>(initialState);
 
   const updateIfCurrent = useCallback(
@@ -353,6 +354,11 @@ export const useDigitalizacionScanner = ({
 
   const deskewPage = useCallback(
     async (pageId: string) => {
+      if (activeDeskewPageRef.current === pageId) {
+        return null;
+      }
+
+      activeDeskewPageRef.current = pageId;
       const generation = generationRef.current;
       const startedAt = getMetricStart();
       updateIfCurrent(generation, (current) => ({
@@ -381,6 +387,11 @@ export const useDigitalizacionScanner = ({
       } catch (error) {
         logDevelopmentMetric("DESKEW_TIME", startedAt, { status: "error" });
         handleError(generation, error, "No fue posible corregir la inclinacion.");
+        return null;
+      } finally {
+        if (activeDeskewPageRef.current === pageId) {
+          activeDeskewPageRef.current = null;
+        }
       }
     },
     [client, handleError, updateIfCurrent],
