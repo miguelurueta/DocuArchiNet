@@ -76,7 +76,7 @@ export const useDigitalizacionScanner = ({
   const generationRef = useRef(0);
   const progressFrameRef = useRef<number | null>(null);
   const pendingProgressRef = useRef<ScanProgressSnapshot | null>(null);
-  const activeDeskewPageRef = useRef<string | null>(null);
+  const deskewBatchActiveRef = useRef(false);
   const [state, setState] = useState<DigitalizacionScannerHookState>(initialState);
 
   const updateIfCurrent = useCallback(
@@ -352,13 +352,14 @@ export const useDigitalizacionScanner = ({
     [client, handleError, updateIfCurrent],
   );
 
-  const deskewPage = useCallback(
-    async (pageId: string) => {
-      if (activeDeskewPageRef.current === pageId) {
+  const deskewPages = useCallback(
+    async (pageIds: string[]) => {
+      const uniquePageIds = Array.from(new Set(pageIds)).filter(Boolean);
+      if (uniquePageIds.length === 0 || deskewBatchActiveRef.current) {
         return null;
       }
 
-      activeDeskewPageRef.current = pageId;
+      deskewBatchActiveRef.current = true;
       const generation = generationRef.current;
       const startedAt = getMetricStart();
       updateIfCurrent(generation, (current) => ({
@@ -367,34 +368,50 @@ export const useDigitalizacionScanner = ({
         progress: {
           stage: "applyingDeskew",
           label: "Corrigiendo inclinacion",
-          detail: "Procesando pagina capturada.",
+          detail:
+            uniquePageIds.length === 1
+              ? "Procesando pagina capturada."
+              : `Procesando ${uniquePageIds.length} paginas capturadas.`,
           cancellable: false,
         },
         error: null,
       }));
 
       try {
-        const pages = await client.deskewPage(pageId);
+        let pages: ScanPage[] | null = null;
+        for (const pageId of uniquePageIds) {
+          pages = await client.deskewPage(pageId);
+        }
         updateIfCurrent(generation, (current) => ({
           ...current,
           status: "ready",
-          pages,
+          pages: pages ?? current.pages,
           pdf: null,
           progress: null,
           error: null,
         }));
-        logDevelopmentMetric("DESKEW_TIME", startedAt, { status: "success" });
+        logDevelopmentMetric("DESKEW_TIME", startedAt, {
+          status: "success",
+          pageCount: uniquePageIds.length,
+        });
+        return pages;
       } catch (error) {
-        logDevelopmentMetric("DESKEW_TIME", startedAt, { status: "error" });
+        logDevelopmentMetric("DESKEW_TIME", startedAt, {
+          status: "error",
+          pageCount: uniquePageIds.length,
+        });
         handleError(generation, error, "No fue posible corregir la inclinacion.");
         return null;
       } finally {
-        if (activeDeskewPageRef.current === pageId) {
-          activeDeskewPageRef.current = null;
-        }
+        deskewBatchActiveRef.current = false;
       }
     },
     [client, handleError, updateIfCurrent],
+  );
+
+  const deskewPage = useCallback(
+    async (pageId: string) => deskewPages([pageId]),
+    [deskewPages],
   );
 
   const cropPage = useCallback(
@@ -514,6 +531,7 @@ export const useDigitalizacionScanner = ({
     duplicatePage,
     rotatePage,
     deskewPage,
+    deskewPages,
     cropPage,
     clear,
     generatePdf,

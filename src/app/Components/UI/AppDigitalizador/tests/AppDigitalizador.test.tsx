@@ -985,6 +985,46 @@ describe("AppDigitalizador", () => {
     expect(scannerClient.deskewPage).not.toHaveBeenCalledWith("page-3");
   }, 10000);
 
+  it("[SPEC:SCRUMCORE-266] corrige inclinacion manual de un lote grande sin reentradas", async () => {
+    const pages = Array.from({ length: 30 }, (_item, index) => ({
+      id: `page-${index + 1}`,
+      index,
+    }));
+    const scannerClient = createScannerClient(pages);
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (30)" })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Seleccionar todo" }));
+    await waitFor(() => {
+      expect(screen.getAllByText("30 paginas seleccionadas").length).toBeGreaterThan(0);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Deskew" }));
+
+    await waitFor(() => expect(scannerClient.deskewPage).toHaveBeenCalledTimes(30));
+    expect(scannerClient.deskewPage).toHaveBeenNthCalledWith(1, "page-1");
+    expect(scannerClient.deskewPage).toHaveBeenNthCalledWith(30, "page-30");
+  }, 15000);
+
   it("[SPEC:SCRUMCORE-266] muestra overlay corporativo durante deskew manual", async () => {
     const scannerClient = createScannerClient([{ id: "page-1", index: 0 }]);
     const deferred = createDeferred<ScanPage[]>();

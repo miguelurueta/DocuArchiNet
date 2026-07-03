@@ -432,6 +432,7 @@ export function DigitalizacionDocumentalWorkspace({
     generatePdf,
     selectDevice,
     deskewPage,
+    deskewPages,
   } = scanner;
 
   useEffect(() => {
@@ -680,18 +681,21 @@ export function DigitalizacionDocumentalWorkspace({
     if (selectedPageIds.size > 0) {
       const pageIds = selectedPageIdsInOrder;
 
-      void (async () => {
-        for (const pageId of pageIds) {
-          await deskewPage(pageId);
-        }
-      })();
+      void deskewPages(pageIds);
       return;
     }
 
     const pageId = selectedPageId ?? scanner.pages[0]?.id;
     if (!pageId) return;
     void deskewPage(pageId);
-  }, [deskewPage, scanner.pages, selectedPageId, selectedPageIds, selectedPageIdsInOrder]);
+  }, [
+    deskewPage,
+    deskewPages,
+    scanner.pages,
+    selectedPageId,
+    selectedPageIds,
+    selectedPageIdsInOrder,
+  ]);
 
   const handleRemoveSelected = useCallback(() => {
     if (selectedPageIds.size > 0) {
@@ -874,12 +878,8 @@ export function DigitalizacionDocumentalWorkspace({
   const handleDeskewOrganizerSelection = useCallback(() => {
     const pageIds = selectedPageIdsInOrder;
 
-    void (async () => {
-      for (const pageId of pageIds) {
-        await deskewPage(pageId);
-      }
-    })();
-  }, [deskewPage, selectedPageIdsInOrder]);
+    void deskewPages(pageIds);
+  }, [deskewPages, selectedPageIdsInOrder]);
 
   const handleRemoveOrganizerSelection = useCallback(() => {
     const pageIds = selectedPageIdsInOrder;
