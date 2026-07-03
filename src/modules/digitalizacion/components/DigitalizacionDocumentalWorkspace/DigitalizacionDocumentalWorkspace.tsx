@@ -1665,7 +1665,7 @@ export function DigitalizacionDocumentalWorkspace({
         title={pageBatchTitle}
         processName={pageBatchProcessName}
         autoStart
-        closeOnComplete
+        closeOnComplete={false}
         confirmOnCancel={false}
         getItemLabel={getPageBatchItemLabel}
       />
