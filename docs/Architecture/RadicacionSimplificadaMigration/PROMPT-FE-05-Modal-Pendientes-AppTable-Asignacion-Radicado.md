@@ -1,90 +1,51 @@
-# PROMPT ARQUITECTONICO - Radicacion Simplificada
-# Fase FE-05 - Modal de pendientes con AppTable y asignacion de radicado
+# PROMPT ARQUITECTÓNICO - Radicación Simplificada
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## ROL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# FE-05 - Flujo Transaccional de Pendientes mediante AppTable
 
-Actua como Arquitecto Frontend senior especialista en:
+---
 
-- React 19 y TypeScript estricto;
-- migracion quirurgica de componentes legacy hacia componentes compartidos;
-- integracion de `AppTable` sobre AG Grid;
-- consumo de APIs REST con contratos tipados;
-- DynamicUiTable y acciones por fila;
-- flujos transaccionales de radicacion documental;
-- navegacion contextual post-registro;
-- pruebas unitarias y de integracion frontend.
+# Contexto Arquitectónico
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## OBJETIVO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Esta fase debe implementarse respetando las decisiones adoptadas previamente:
 
-Implementar el componente de lista de tareas/radicados pendientes dentro del modal existente de radicacion, reemplazando la tabla local/mock por `src/app/Components/UI/AppTable`.
+- TD-FE-01 → Single Source of Truth para carga de datos.
+- TD-FE-02 → RadicacionDocumentalContext único.
+- FE-06 → Startup Guard responsable del bootstrap.
+- TD-FE-04 → Navegación centralizada y eliminación de UI de prototipo.
 
-Desde la tabla debe ser posible activar la asignacion/toma del radicado pendiente mediante la accion de fila:
+No crear arquitecturas paralelas.
 
-```txt
-asignacion-tarea
+No duplicar estado documental.
+
+---
+
+# Objetivo
+
+Migrar el modal de pendientes hacia la infraestructura estándar del proyecto utilizando `AppTable`, implementando el flujo transaccional de asignación de un radicado pendiente.
+
+El objetivo no es reemplazar una tabla, sino integrar completamente el flujo:
+
+```text
+Listado → Selección → Asignación → Actualización del Context → Navegación
 ```
 
-La accion no debe activar documentos por si sola. Debe llamar la API de toma/asignacion y solo despues de una respuesta exitosa con `estadoActual = 0` debe habilitar el contexto documental y navegar al panel `Documentos`.
+---
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## CONTEXTO OBLIGATORIO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Objetivo Arquitectónico
 
-Documentos de arquitectura:
+El modal deja de contener lógica de negocio.
 
-```txt
-docs/Architecture/RadicacionSimplificadaMigration/Analisis-Migracion-Legacy-RadicadorSimplificado.md
-docs/Architecture/RadicacionSimplificadaMigration/PROMPT-FE-02-Navegacion-Contextual-Post-Radicacion.md
-docs/Architecture/RadicacionSimplificadaMigration/PROMPT-FE-03-Panel-Documental-Post-Radicacion.md
-docs/Architecture/RadicacionSimplificadaMigration/PROMPT-FE-04-Pendientes-Radicacion-Gestion-Documental.md
-docs/Architecture/RadicacionSimplificadaMigration/PROMPT-BE-API-01-Listado-Radicados-Pendientes.md
-docs/Architecture/RadicacionSimplificadaMigration/PROMPT-BE-API-03-Contador-Pendientes-Radicacion.md
-docs/Architecture/RadicacionSimplificadaMigration/PROMPT-BE-API-05-Tomar-Radicado-Pendiente.md
-```
+Su única responsabilidad será representar el flujo operativo.
 
-Componentes y patrones existentes:
+Toda la lógica de asignación debe vivir en hooks y servicios especializados.
 
-```txt
-src/modules/radicacion/components/Modalpendiente.tsx
-src/modules/radicacion/hooks/RadicacionTabs.tsx
-src/modules/radicacion/components/RadicacionForm.tsx
+---
 
-src/app/Components/UI/AppTable/AppTable.tsx
-src/app/Components/UI/AppTable/AppTable.types.ts
-src/app/Components/UI/AppTable/AppTableQueryWrapper.tsx
-src/app/Components/UI/AppTable/hooks/useDynamicUiTableQuery.ts
-src/app/Components/UI/AppTable/hooks/useAppTableQueryState.ts
-src/app/Components/UI/AppTable/adapters/appGridToAppTableColumns.ts
-src/app/Components/UI/AppTable/adapters/appGridToAppTableRows.ts
-src/app/Components/UI/AppTable/services/dynamicUiTable.service.ts
-
-src/modules/gestionCorrespondencia/hooks/useGestionCorrespondenciaTable.ts
-src/modules/gestionCorrespondencia/pages/GestionCorrespondencia.tsx
-src/modules/gestionCorrespondencia/adapters/gestionCorrespondenciaTableRequestMapper.ts
-```
-
-Regla de referencia:
-
-```txt
-GestionCorrespondencia ya demuestra el patron:
-useAppTableQueryState
-  -> useDynamicUiTableQuery
-  -> mapAppGridRowsToAppTableRows
-  -> mapAppGridColumnsToAppTableColumns
-  -> <AppTable onActionTriggered={...} />
-```
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## ESTADO ACTUAL DEL FRONTEND
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Problema Actual
 
 Archivo actual:
 
-```txt
+```text
 src/modules/radicacion/components/Modalpendiente.tsx
 ```
 
@@ -93,46 +54,160 @@ Problemas actuales:
 - usa `antd/Table`;
 - contiene datos mock hardcodeados;
 - define columnas locales no ligadas al backend;
-- el boton de opciones no ejecuta accion real;
+- el botón de opciones no ejecuta acción real;
 - no consume listado moderno de pendientes;
 - no valida estado activo `0`;
-- no llama API de toma/asignacion;
+- no llama API de toma/asignación;
 - no refresca contador/lista;
-- no integra el resultado con el contexto post-radicacion;
-- no navega al panel documental tras asignacion exitosa.
+- no integra el resultado con el contexto documental;
+- no navega al panel documental tras asignación exitosa.
 
-El modal si esta conectado visualmente:
+El modal está conectado visualmente desde:
 
-```txt
+```text
 src/modules/radicacion/hooks/RadicacionTabs.tsx
   tabBarExtraContent={{ right: <ModalPendiente /> }}
 ```
 
-Por tanto, la migracion debe conservar el punto de entrada visual y reemplazar la implementacion interna.
+Por tanto, la migración debe conservar el punto de entrada visual y reemplazar la implementación interna.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## DEPENDENCIAS BACKEND
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
+
+# Flujo Arquitectónico
+
+```text
+Usuario
+
+↓
+
+Modal Pendientes
+
+↓
+
+AppTable
+
+↓
+
+onActionTriggered()
+
+↓
+
+useTomarRadicadoPendiente()
+
+↓
+
+radicacionPendientes.service
+
+↓
+
+Backend
+
+↓
+
+RadicacionDocumentalContext
+
+↓
+
+Router / rutas centralizadas
+
+↓
+
+Documentos
+```
+
+---
+
+# Regla Funcional
+
+Documentos solamente puede habilitarse cuando backend confirme:
+
+```text
+estadoActual == 0
+```
+
+No antes.
+
+No por navegación.
+
+No por selección de fila.
+
+No por abrir el modal.
+
+No por consultar el listado.
+
+Si backend devuelve un estado distinto de `0`, no se actualiza el contexto como activo y no se navega a Documentos.
+
+---
+
+# Componentes
+
+Mantener compatibilidad de importación:
+
+```text
+Modalpendiente.tsx
+```
+
+Internamente podrá delegar en:
+
+```text
+RadicacionPendientesModal.tsx
+```
+
+---
+
+# Componentes Esperados
+
+```text
+types/
+    radicacionPendientes.types.ts
+
+services/
+    radicacionPendientes.service.ts
+
+adapters/
+    radicacionPendientesTableRequestMapper.ts
+
+hooks/
+    useRadicacionPendientesTable.ts
+
+hooks/
+    useRadicacionPendientesContador.ts
+
+hooks/
+    useTomarRadicadoPendiente.ts
+
+components/
+    RadicacionPendientesModal.tsx
+```
+
+No crear una arquitectura paralela.
+
+Si el repo ya tiene una convención distinta en `src/modules/radicacion`, respetarla.
+
+---
+
+# Contratos Backend de Referencia
 
 APIs requeridas:
 
-```txt
+```text
 GET  /api/tramite/tramites/apListaRadicadosPendientes
 POST /api/tramite/tramites/apListaRadicadosPendientes
 GET  /api/radicacion/pendientes/contador
 POST /api/radicacion/pendientes/{idEstadoRadicado}/tomar
 ```
 
-Decision de consumo:
+Decisión de consumo:
 
-```txt
-Usar POST /api/tramite/tramites/apListaRadicadosPendientes si BE-API-01 implementa paginacion/busqueda server para AppTable.
-Usar GET /api/tramite/tramites/apListaRadicadosPendientes solo como compatibilidad temporal si el POST aun no existe.
+```text
+Usar POST /api/tramite/tramites/apListaRadicadosPendientes si BE-API-01 implementa paginación/búsqueda server para AppTable.
+
+Usar GET /api/tramite/tramites/apListaRadicadosPendientes solo como compatibilidad temporal si el POST aún no existe.
 ```
 
 El listado debe entregar, directa o indirectamente en la fila DynamicUiTable:
 
-```txt
+```text
 id_estado_radicado
 consecutivo_radicado
 remitente
@@ -141,9 +216,9 @@ fecha_registro
 id_tarea_workflow
 ```
 
-La accion de fila debe estar disponible como:
+La acción de fila debe estar disponible como:
 
-```txt
+```text
 actionId = "asignacion-tarea"
 ```
 
@@ -180,193 +255,233 @@ type TomarRadicadoPendienteResponseDto = {
 };
 ```
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## REGLA FUNCIONAL CRITICA
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+No modificar contratos backend desde esta fase.
 
-```txt
-Documentos permanece inactivo para consulta y para navegacion simple.
-Solo se activa cuando el usuario toma/re-radica un pendiente y backend confirma estadoActual = 0.
+---
+
+# Responsabilidades
+
+## Modal
+
+Responsable únicamente de:
+
+- abrir;
+- cerrar;
+- representar estados;
+- mostrar AppTable.
+
+No ejecuta reglas de negocio.
+
+---
+
+## AppTable
+
+Responsable únicamente de:
+
+- render;
+- acciones;
+- paginación;
+- selección.
+
+No conoce Radicación.
+
+No conoce Pendientes.
+
+No conoce Documentos.
+
+---
+
+## useTomarRadicadoPendiente
+
+Responsable de:
+
+- ejecutar la operación de negocio;
+- validar respuesta;
+- actualizar Context;
+- refrescar listado;
+- refrescar contador;
+- resolver navegación.
+
+Debe convertirse en el caso de uso oficial de "Tomar Pendiente".
+
+---
+
+## Service
+
+Responsable exclusivamente del acceso HTTP.
+
+No contiene lógica de negocio.
+
+No se acopla al Modal.
+
+---
+
+## Context
+
+Responsable únicamente de almacenar el estado documental.
+
+Nunca consulta backend.
+
+---
+
+# Integración con AppTable
+
+Debe reutilizar completamente la infraestructura existente.
+
+Aplicar el patrón utilizado por Gestión Correspondencia.
+
+```text
+useAppTableQueryState
+
+↓
+
+useDynamicUiTableQuery
+
+↓
+
+Adapters
+
+↓
+
+<AppTable />
 ```
 
-Implicaciones:
+No duplicar lógica existente.
 
-- abrir el modal no activa documentos;
-- consultar la lista no activa documentos;
-- hacer click sobre una fila no activa documentos;
-- solo `POST /tomar` exitoso activa documentos;
-- si backend bloquea por tarea activa existente, el modal queda abierto y muestra el error;
-- si backend devuelve un estado distinto de `0`, no navegar a `Documentos`.
+El hook de tabla debe:
 
-Mensaje funcional de bloqueo esperado:
-
-```txt
-Tarea asignada para gestion y asignacion, debe terminar la tarea actual o subirla a estado pendiente para continuar con la asignacion.
-```
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## ARQUITECTURA OBJETIVO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Mantener compatibilidad de importacion del componente actual.
-
-Opcion recomendada:
-
-```txt
-src/modules/radicacion/components/Modalpendiente.tsx
-  exporta el componente existente, pero delega en implementacion nueva
-```
-
-Crear piezas tipadas:
-
-```txt
-src/modules/radicacion/types/radicacionPendientes.types.ts
-src/modules/radicacion/services/radicacionPendientes.service.ts
-src/modules/radicacion/adapters/radicacionPendientesTableRequestMapper.ts
-src/modules/radicacion/hooks/useRadicacionPendientesTable.ts
-src/modules/radicacion/hooks/useRadicacionPendientesContador.ts
-src/modules/radicacion/hooks/useTomarRadicadoPendiente.ts
-src/modules/radicacion/components/RadicacionPendientesModal.tsx
-```
-
-Si el repo ya tiene una convencion distinta en `src/modules/radicacion`, respetarla. No crear una segunda arquitectura paralela.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## CONTRATO DEL HOOK DE TABLA
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-El hook debe seguir el patron de `useGestionCorrespondenciaTable`.
-
-Firma sugerida:
-
-```ts
-type RadicacionPendientesTableResult<T extends AppTableRow = AppTableRow> = {
-  rows: T[];
-  columns: ColDef<T>[];
-  total: number;
-  page: number;
-  pageSize: number;
-  queryState: AppTableQueryState;
-  onQueryChange: (patch: Partial<AppTableQueryState>) => void;
-  loading: boolean;
-  error: Error | null;
-  isEmpty: boolean;
-  hasLoadedOnce: boolean;
-  refetch: () => void;
-};
-```
-
-Requisitos:
-
+- cargar al abrir el modal o bajo `enabled/open`;
+- evitar traer toda la lista al montar `RadicacionTabs`;
 - usar `useAppTableQueryState`;
 - usar `useDynamicUiTableQuery` si el endpoint responde como DynamicUiTable;
-- mapear columnas con `mapAppGridColumnsToAppTableColumns`;
-- mapear filas con `mapAppGridRowsToAppTableRows`;
-- no declarar columnas manuales si backend ya entrega configuracion DynamicUiTable;
-- soportar paginacion server;
-- cargar al abrir el modal o bajo `enabled/open`, evitando traer toda la lista al montar `RadicacionTabs`;
-- refrescar despues de una toma exitosa.
+- mapear columnas con los adapters existentes de AppTable;
+- mapear filas con los adapters existentes de AppTable;
+- no declarar columnas manuales si backend ya entrega configuración DynamicUiTable;
+- soportar paginación server;
+- refrescar después de una toma exitosa.
 
 Identificador sugerido de tabla:
 
-```txt
+```text
 radicacionPendientes
 ```
 
 Si backend ya define otro `tableId`, usar el real.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## IMPLEMENTACION DEL MODAL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-El modal debe:
+# Acción de Tabla
 
-- conservar el boton visible `Pendientes`;
-- mostrar contador si `GET /api/radicacion/pendientes/contador` esta disponible;
-- abrir con una lista paginada server;
-- renderizar `AppTable`, no `antd/Table`;
-- usar `AppTableQueryWrapper` si se requiere paginacion/filtros;
-- permitir busqueda si el endpoint DynamicUiTable la soporta;
-- manejar loading, error, vacio y refrescar;
-- mantener ancho adecuado para tabla operativa;
-- cerrar solo por cancelacion del usuario o asignacion exitosa.
+La tabla únicamente emitirá:
 
-Uso esperado de `AppTable`:
-
-```tsx
-<AppTable
-  rows={table.rows}
-  columns={table.columns}
-  total={table.total}
-  loading={table.loading && table.hasLoadedOnce}
-  paginationMode="server"
-  layoutMode="fill"
-  responsivePresentation={{ enabled: true, cardsBelow: 768 }}
-  rowSelection="single"
-  rowSelectionCheckboxes={false}
-  rowSelectionHeaderCheckbox={false}
-  onActionTriggered={handleTableAction}
-/>
+```text
+actionId = "asignacion-tarea"
 ```
 
-No usar:
+La interpretación pertenece al módulo de Radicación.
 
-```txt
-antd/Table
-datos mock
-columnas hardcodeadas si backend entrega DynamicUiTable
-acciones inline sin contrato tipado
-any
-```
+No agregar lógica de negocio a AppTable.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## ACCION DE ASIGNACION DESDE LA TABLA
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-La accion se recibe por:
+La acción se recibe por:
 
 ```ts
 onActionTriggered(params: AppTableActionTriggered<AppTableRow>)
 ```
 
-Flujo:
+El flujo debe:
 
-```txt
-1. normalizar actionId
-2. aceptar solo "asignacion-tarea"
-3. extraer id_estado_radicado
-4. extraer id_tarea_workflow
-5. extraer consecutivo_radicado para trazabilidad
-6. bloquear doble click mientras mutation esta en curso
-7. ejecutar POST /api/radicacion/pendientes/{idEstadoRadicado}/tomar
-8. validar respuesta estadoActual = 0
-9. actualizar contexto post-radicacion
-10. cerrar modal
-11. refrescar contador/lista
-12. navegar a Documentos
-```
+1. normalizar `actionId`;
+2. aceptar solo `"asignacion-tarea"`;
+3. extraer `id_estado_radicado`;
+4. extraer `id_tarea_workflow`;
+5. extraer `consecutivo_radicado` para trazabilidad;
+6. bloquear doble click mientras la mutation está en curso;
+7. ejecutar `POST /api/radicacion/pendientes/{idEstadoRadicado}/tomar`;
+8. validar `response.estadoActual === 0`;
+9. actualizar `RadicacionDocumentalContext`;
+10. refrescar contador/lista;
+11. cerrar modal;
+12. navegar a Documentos usando rutas centralizadas.
 
 Resolver campos de fila de forma tolerante por nombres, sin usar `any`:
 
-```txt
+```text
 id_estado_radicado | idEstadoRadicado | IdEstadoRadicado
-id_tarea_workflow  | idTareaWorkflow  | IdTareaWorkflow
+id_tarea_workflow | idTareaWorkflow | IdTareaWorkflow
 consecutivo_radicado | consecutivoRadicado | ConsecutivoRadicado | RADICADO
 ```
 
 Si falta `id_estado_radicado`, mostrar error funcional y no llamar API.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## NAVEGACION POST-ASIGNACION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-Despues de `tomar` exitoso:
+# Flujo Transaccional
 
-```txt
-/dashboard/radicacion/registro/{idEstadoRadicado}/documentos
+```text
+Usuario
+
+↓
+
+Selecciona acción
+
+↓
+
+useTomarRadicadoPendiente
+
+↓
+
+POST tomar
+
+↓
+
+¿estadoActual == 0?
+
+SI
+
+↓
+
+Actualizar Context
+
+↓
+
+Refrescar contador
+
+↓
+
+Refrescar listado
+
+↓
+
+Cerrar modal
+
+↓
+
+Navegar a Documentos
+
+NO
+
+↓
+
+Mostrar error
+
+↓
+
+Mantener modal abierto
 ```
 
-El estado/contexto de radicacion debe recibir:
+---
+
+# Actualización del Contexto
+
+El Context debe recibir exactamente la misma estructura utilizada por FE-06.
+
+No crear un modelo paralelo.
+
+No transformar nuevamente el contrato.
+
+Debe reutilizar el DTO de contexto documental.
+
+Después de `tomar` exitoso, el contexto debe recibir:
 
 ```ts
 {
@@ -383,130 +498,184 @@ El estado/contexto de radicacion debe recibir:
 }
 ```
 
-Este objeto debe ser compatible con el contexto restaurado por `GET /api/radicacion/pendientes/estado-activo`. FE-05 no debe crear un contexto paralelo al usado por FE-06.
+Este objeto debe ser compatible con el contexto restaurado por:
 
-Si el shell contextual de FE-02/FE-03 ya tiene provider/hook propio, integrarse ahi. No crear un segundo store global.
-
-Si todavia no existe provider de contexto post-radicacion, dejar el punto de integracion tipado y probado, pero no activar `Documentos` por estado local aislado del modal.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## SERVICIO FRONTEND
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Crear service con responsabilidades atomicas:
-
-```ts
-getRadicacionPendientesTable(...)
-getRadicacionPendientesContador(...)
-tomarRadicadoPendiente(idEstadoRadicado, payload)
+```text
+GET /api/radicacion/pendientes/estado-activo
 ```
 
-Reglas:
+FE-05 no debe crear un contexto paralelo al usado por FE-06.
 
-- usar el cliente HTTP existente del repo;
-- respetar contratos `AppResponse` si el repo los usa;
-- normalizar errores en una capa, no en el componente;
-- no acoplar el service a `Modal`;
-- no usar rutas ASMX ni endpoints legacy.
+---
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## ESTADOS UI
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Navegación Post-Asignación
 
-El modal debe representar:
+Después de `tomar` exitoso, navegar a Documentos usando las rutas centralizadas o helpers definidos por TD-FE-04.
+
+Ruta objetivo:
+
+```text
+/dashboard/radicacion/registro/{idEstadoRadicado}/documentos
+```
+
+No hardcodear rutas en el Modal.
+
+Si las rutas definitivas aún no existen, usar el adapter/helper disponible y dejar el punto de integración tipado.
+
+No activar `Documentos` por estado local aislado del modal.
+
+---
+
+# Estados UI
+
+Representar:
 
 - cerrado;
-- abierto cargando primera pagina;
-- abierto con datos;
-- abierto sin pendientes;
-- abierto con error recuperable;
-- asignando una fila;
-- asignacion exitosa con cierre y navegacion;
-- asignacion bloqueada por tarea activa existente.
+- abierto;
+- cargando;
+- vacío;
+- error;
+- asignando;
+- asignación exitosa;
+- asignación bloqueada.
 
-Mientras una asignacion esta en curso:
+Evitar dobles clics.
 
-- deshabilitar la accion de toma o bloquear reentradas;
+Evitar múltiples mutations simultáneas.
+
+Mientras una asignación está en curso:
+
+- deshabilitar la acción de toma o bloquear reentradas;
 - conservar la fila visible;
 - no cerrar el modal hasta tener respuesta.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## PRUEBAS REQUERIDAS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Si backend bloquea por tarea activa existente:
 
-Crear pruebas enfocadas:
+- mostrar el mensaje backend;
+- mantener modal abierto;
+- conservar el contexto actual;
+- no navegar.
 
-```txt
-src/modules/radicacion/components/RadicacionPendientesModal.spec.test.tsx
-src/modules/radicacion/hooks/useRadicacionPendientesTable.spec.test.ts
-src/modules/radicacion/hooks/useTomarRadicadoPendiente.spec.test.ts
-src/modules/radicacion/services/radicacionPendientes.service.test.ts
+Mensaje funcional de bloqueo esperado:
+
+```text
+Tarea asignada para gestión y asignación, debe terminar la tarea actual o subirla a estado pendiente para continuar con la asignación.
 ```
 
-Casos minimos:
+---
 
-- renderiza boton `Pendientes`;
-- no carga tabla antes de abrir el modal si se implementa lazy load;
-- al abrir, consume listado de pendientes;
-- renderiza `AppTable` con filas/columnas mapeadas;
-- ejecuta `tomar` cuando `onActionTriggered.actionId = "asignacion-tarea"`;
-- no ejecuta `tomar` para otra accion;
-- extrae `id_estado_radicado` y `id_tarea_workflow` desde la fila;
-- muestra error si falta `id_estado_radicado`;
-- no navega si API falla;
-- no navega si respuesta no confirma `estadoActual = 0`;
-- cierra modal y navega a `/dashboard/radicacion/registro/{idEstadoRadicado}/documentos` si la toma es exitosa;
-- refresca contador/lista despues de exito;
-- respeta el bloqueo cuando backend informa que ya existe tarea activa.
+# Restricciones
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## CRITERIOS DE ACEPTACION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+No utilizar:
 
-- `Modalpendiente.tsx` ya no contiene datos mock.
-- El modal usa `AppTable` desde `src/app/Components/UI/AppTable`.
-- El listado viene de `POST /api/tramite/tramites/apListaRadicadosPendientes` si existe paginacion server; `GET` queda como compatibilidad temporal.
-- El badge/contador viene de `GET /api/radicacion/pendientes/contador` si esta disponible.
-- La accion `asignacion-tarea` llama `POST /api/radicacion/pendientes/{idEstadoRadicado}/tomar`.
-- La accion transporta `id_estado_radicado`, `id_tarea_workflow` y `consecutivo_radicado`.
-- `Documentos` solo se activa con respuesta exitosa `estadoActual = 0`.
+- antd/Table;
+- datos mock;
+- columnas hardcodeadas si backend entrega DynamicUiTable;
+- lógica de negocio dentro del Modal;
+- lógica de negocio dentro de AppTable;
+- stores paralelos;
+- rutas hardcodeadas en el Modal;
+- ASMX;
+- jQuery;
+- variables globales;
+- datos legacy hardcodeados.
+
+---
+
+# Principios Arquitectónicos
+
+Aplicar:
+
+- Single Source of Truth.
+- Composition over Inheritance.
+- Smart Hooks / Dumb Components.
+- Command Query Separation.
+- Clean Architecture.
+- Open/Closed.
+- Backward Compatibility.
+
+---
+
+# Testing
+
+## Unitarios
+
+Validar:
+
+- hook de tabla;
+- hook de contador;
+- hook de toma;
+- service;
+- extracción tolerante de campos de fila.
+
+---
+
+## Integración
+
+Validar:
+
+- Modal → AppTable;
+- AppTable → Hook;
+- Hook → Service;
+- Hook → Context;
+- Context → Router;
+- lazy load al abrir modal;
+- bloqueo por tarea activa.
+
+---
+
+## Regresión
+
+Validar:
+
+- navegación;
+- contador;
+- tabla;
+- build;
+- lint;
+- TypeScript;
+- ausencia de mocks en `Modalpendiente.tsx`;
+- ausencia de `antd/Table` para esta lista.
+
+---
+
+# Criterios de Aceptación
+
+- Modalpendiente ya no contiene datos mock.
+- AppTable reemplaza completamente la tabla local.
+- Toda la lógica de asignación vive en `useTomarRadicadoPendiente`.
+- La lista carga al abrir el modal o bajo `enabled/open`, no al montar `RadicacionTabs`.
+- El Context se actualiza únicamente después de una respuesta exitosa.
+- Documentos sólo se habilita cuando `estadoActual = 0`.
 - Si ya existe una tarea activa, se muestra el mensaje backend y no se navega.
-- El modal cierra y refresca estado solo despues de asignacion exitosa.
+- El modal cierra y refresca estado solo después de asignación exitosa.
+- No existen estados duplicados.
+- No existen stores paralelos.
+- No se rompe la infraestructura existente de AppTable.
 - No se introduce `antd/Table` para esta lista.
-- No se introduce ASMX, jQuery, variables globales ni datos legacy hardcodeados.
-- Hay pruebas que cubren tabla, accion, error, bloqueo y navegacion.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## FUERA DE ALCANCE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-No implementar en este corte:
+# Entregables
 
-- carga real de documentos;
-- digitalizacion;
-- visor PDF;
-- cambio de tipologia documental;
-- envio a pendiente desde el formulario;
-- endpoint backend nuevo;
-- reemplazo completo del shell de radicacion;
-- redisenio visual completo de `RadicacionTabs`.
+1. Lista de archivos modificados.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## NOTA DE MIGRACION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. Resumen técnico:
 
-Este prompt es el puente entre las APIs atomicas backend de pendientes y la experiencia operativa frontend.
+- migración a AppTable;
+- flujo transaccional;
+- integración con Context;
+- integración con FE-06;
+- integración con rutas centralizadas de TD-FE-04.
 
-Debe ejecutarse despues de:
+3. Resultado de pruebas.
 
-```txt
-BE-API-01 listado
-BE-API-03 contador
-BE-API-05 tomar pendiente
-```
+4. Riesgos residuales.
 
-Puede ejecutarse antes de `enviar a pendiente` si la asignacion desde listado ya esta disponible. Sin embargo, el flujo completo de subir/bajar pendientes solo queda cerrado cuando tambien exista:
+5. Próximas fases habilitadas.
 
-```txt
-BE-API-04 enviar pendiente
-```
+---
+
+# Instrucción Final
+
+Implementar el flujo transaccional de asignación de radicados pendientes utilizando la infraestructura estándar de `AppTable`, encapsulando la lógica de negocio en hooks especializados, reutilizando el `RadicacionDocumentalContext` como única fuente de verdad y garantizando que la habilitación del panel **Documentos** ocurra exclusivamente después de una confirmación exitosa del backend, sin introducir duplicidad de estado, breaking changes ni regresiones.
