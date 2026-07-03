@@ -85,7 +85,7 @@ export type DigitalizacionDocumentalWorkspaceProps = {
   onCancel?: () => void;
   onCompleted: (result: DigitalizacionResult) => void;
   onError?: (error: DigitalizacionDocumentalError) => void;
-  toolbarHost?: RefObject<HTMLElement> | null;
+  toolbarHost?: RefObject<HTMLElement | null> | null;
 };
 
 export type DigitalizacionScannerState = {

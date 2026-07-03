@@ -1596,7 +1596,7 @@ export function DigitalizacionDocumentalWorkspace({
           railLabel="Miniaturas"
           railIcon={<ProfileOutlined />}
           panelId="digitalizacion-thumbnails-panel"
-          className={styles.collapseRail}
+          className={`${styles.collapseRail} ${styles.thumbnailsCollapseRail}`}
         >
           {scanner.pages.length > 0 ? (
             <div className={styles.thumbnailPanelContent}>

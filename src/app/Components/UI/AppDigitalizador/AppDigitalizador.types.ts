@@ -20,6 +20,8 @@ export type AppDigitalizadorModulo =
   | "ProduccionDocumental"
   | string;
 
+export type AppDigitalizadorMode = DigitalizacionContext["modo"];
+
 export type AppDigitalizadorScannerFactory = (
   options: DynamsoftRuntimeOptions,
 ) => DigitalizacionScannerClient;
