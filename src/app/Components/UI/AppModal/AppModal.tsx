@@ -1,6 +1,6 @@
 import { Modal } from "antd";
 import type { ComponentProps, ReactNode } from "react";
-import { AppButton } from "../AppButton";
+import { AppButton, type AppButtonVariant } from "../AppButton";
 import styles from "./AppModal.module.css";
 
 type AntModalProps = ComponentProps<typeof Modal>;
@@ -8,6 +8,7 @@ type AntModalProps = ComponentProps<typeof Modal>;
 export type AppModalAction = {
   label: ReactNode;
   onClick?: () => void;
+  variant?: AppButtonVariant;
   loading?: boolean;
   disabled?: boolean;
 };
@@ -43,7 +44,7 @@ const buildFooter = ({
     <div className={styles.footer}>
       {secondaryAction ? (
         <AppButton
-          variant="secondary"
+          variant={secondaryAction.variant ?? "secondary"}
           onClick={secondaryAction.onClick}
           disabled={secondaryAction.disabled}
           loading={secondaryAction.loading}
@@ -54,6 +55,7 @@ const buildFooter = ({
 
       {primaryAction ? (
         <AppButton
+          variant={primaryAction.variant}
           onClick={primaryAction.onClick}
           disabled={primaryAction.disabled}
           loading={primaryAction.loading}

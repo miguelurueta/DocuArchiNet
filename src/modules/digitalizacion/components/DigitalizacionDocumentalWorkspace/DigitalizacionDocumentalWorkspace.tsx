@@ -39,6 +39,7 @@ import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
 import { AppContasoftLoader } from "../../../../app/Components/UI/AppContasoftLoader/AppContasoftLoader";
 import { AppDropdown } from "../../../../app/Components/UI/AppDropdown";
+import { AppModal } from "../../../../app/Components/UI/AppModal";
 import {
   AppProgressBatch,
   type AppProgressBatchItemContext,
@@ -97,6 +98,11 @@ type PageBatchConfig = {
   operation: PageBatchOperation;
   pageIds: string[];
 };
+type DigitalizacionDialog =
+  | { type: "newCapture" }
+  | { type: "removePages"; pageIds: string[] }
+  | { type: "duplicateLimit" }
+  | null;
 
 const getPageBatchTitle = (operation: PageBatchOperation) =>
   operation === "rotateLeft"
@@ -420,6 +426,8 @@ export function DigitalizacionDocumentalWorkspace({
     operation: "deskew",
     pageIds: [],
   });
+  const [digitalizacionDialog, setDigitalizacionDialog] =
+    useState<DigitalizacionDialog>(null);
   const previewPanelRef = useRef<HTMLElement | null>(null);
   const previewViewportRef = useRef<HTMLDivElement | null>(null);
   const previewPageSurfaceRef = useRef<HTMLDivElement | null>(null);
@@ -641,30 +649,23 @@ export function DigitalizacionDocumentalWorkspace({
     executeCapture();
   }, [executeCapture]);
 
-  const handleNewCapture = useCallback(() => {
-    if (!hasPages) {
-      executeCapture({ type: "NEW" });
-      return;
-    }
-
-    const confirmed =
-      typeof window === "undefined" ||
-      typeof window.confirm !== "function" ||
-      window.confirm(
-        "Se encontraron paginas en el documento actual. Desea descartarlas e iniciar una nueva captura?",
-      ) !== false;
-
-    if (!confirmed) {
-      return;
-    }
-
+  const executeNewCapture = useCallback(() => {
     clearPages();
     setSelectedPageId(null);
     setSelectedPageIds(new Set());
     void clearScanner().then(() => {
       executeCapture({ type: "NEW" });
     });
-  }, [clearPages, clearScanner, executeCapture, hasPages]);
+  }, [clearPages, clearScanner, executeCapture]);
+
+  const handleNewCapture = useCallback(() => {
+    if (!hasPages) {
+      executeCapture({ type: "NEW" });
+      return;
+    }
+
+    setDigitalizacionDialog({ type: "newCapture" });
+  }, [executeCapture, hasPages]);
 
   const handleReplaceCapture = useCallback(() => {
     if (!selectedPage) {
@@ -730,6 +731,14 @@ export function DigitalizacionDocumentalWorkspace({
     startPageBatch,
   ]);
 
+  const requestRemovePages = useCallback((pageIds: string[]) => {
+    if (pageIds.length === 0) {
+      return;
+    }
+
+    setDigitalizacionDialog({ type: "removePages", pageIds });
+  }, []);
+
   const handleRemoveSelected = useCallback(() => {
     if (selectedPageIds.size > 0) {
       const pageIds = selectedPageIdsInOrder;
@@ -738,37 +747,26 @@ export function DigitalizacionDocumentalWorkspace({
         return;
       }
 
-      const confirmed =
-        typeof window === "undefined" ||
-        typeof window.confirm !== "function" ||
-        window.confirm(
-          `Eliminar ${pageIds.length} ${
-            pageIds.length === 1 ? "pagina seleccionada" : "paginas seleccionadas"
-          }?`,
-        ) !== false;
-
-      if (!confirmed) {
-        return;
-      }
-
-      void (async () => {
-        for (const pageId of pageIds) {
-          await removePage(pageId);
-        }
-      })();
-      setSelectedPageIds(new Set());
+      requestRemovePages(pageIds);
       return;
     }
 
     const pageId = selectedPageId ?? scanner.pages[0]?.id;
     if (!pageId) return;
     void removePage(pageId);
-  }, [removePage, scanner.pages, selectedPageId, selectedPageIds, selectedPageIdsInOrder]);
+  }, [
+    removePage,
+    requestRemovePages,
+    scanner.pages,
+    selectedPageId,
+    selectedPageIds,
+    selectedPageIdsInOrder,
+  ]);
 
   const handleDuplicateSelected = useCallback(() => {
     if (selectedPageIds.size > 0) {
       if (selectedPageIdsInOrder.length > MAX_DUPLICATE_BATCH_PAGES) {
-        window.alert("No se pueden duplicar mas de 50 hojas a la vez.");
+        setDigitalizacionDialog({ type: "duplicateLimit" });
         return;
       }
 
@@ -898,26 +896,8 @@ export function DigitalizacionDocumentalWorkspace({
       return;
     }
 
-    const confirmed =
-      typeof window === "undefined" ||
-      typeof window.confirm !== "function" ||
-      window.confirm(
-        `Eliminar ${pageIds.length} ${
-          pageIds.length === 1 ? "pagina seleccionada" : "paginas seleccionadas"
-        }?`,
-      ) !== false;
-
-    if (!confirmed) {
-      return;
-    }
-
-    void (async () => {
-      for (const pageId of pageIds) {
-        await removePage(pageId);
-      }
-    })();
-    setSelectedPageIds(new Set());
-  }, [removePage, selectedPageIdsInOrder]);
+    requestRemovePages(pageIds);
+  }, [requestRemovePages, selectedPageIdsInOrder]);
 
   const handleSelectAllPages = useCallback(() => {
     setSelectedPageIds(new Set(scanner.pages.map((page) => page.id)));
@@ -1451,6 +1431,59 @@ export function DigitalizacionDocumentalWorkspace({
       scanner.pages,
     ],
   );
+  const closeDigitalizacionDialog = useCallback(() => {
+    setDigitalizacionDialog(null);
+  }, []);
+  const confirmDigitalizacionDialog = useCallback(() => {
+    const currentDialog = digitalizacionDialog;
+    setDigitalizacionDialog(null);
+
+    if (!currentDialog) {
+      return;
+    }
+
+    if (currentDialog.type === "newCapture") {
+      executeNewCapture();
+      return;
+    }
+
+    if (currentDialog.type === "removePages") {
+      void (async () => {
+        for (const pageId of currentDialog.pageIds) {
+          await removePage(pageId);
+        }
+      })();
+      setSelectedPageIds(new Set());
+    }
+  }, [digitalizacionDialog, executeNewCapture, removePage]);
+  const digitalizacionDialogPageCount =
+    digitalizacionDialog?.type === "removePages" ? digitalizacionDialog.pageIds.length : 0;
+  const digitalizacionDialogTitle =
+    digitalizacionDialog?.type === "newCapture"
+      ? "Iniciar nueva captura"
+      : digitalizacionDialog?.type === "removePages"
+        ? "Eliminar paginas"
+        : digitalizacionDialog?.type === "duplicateLimit"
+          ? "Limite de duplicado"
+          : "";
+  const digitalizacionDialogBody =
+    digitalizacionDialog?.type === "newCapture"
+      ? "Se encontraron paginas en el documento actual. Desea descartarlas e iniciar una nueva captura?"
+      : digitalizacionDialog?.type === "removePages"
+        ? `Eliminar ${digitalizacionDialogPageCount} ${
+            digitalizacionDialogPageCount === 1
+              ? "pagina seleccionada"
+              : "paginas seleccionadas"
+          }?`
+        : digitalizacionDialog?.type === "duplicateLimit"
+          ? "No se pueden duplicar mas de 50 hojas a la vez."
+          : "";
+  const digitalizacionDialogPrimaryLabel =
+    digitalizacionDialog?.type === "newCapture"
+      ? "Descartar e iniciar"
+      : digitalizacionDialog?.type === "removePages"
+        ? "Eliminar"
+        : "Aceptar";
   const hasCaptureTarget = Boolean(selectedPage);
   const primaryCaptureLabel = hasPages ? "Nuevo documento" : "Escanear";
   const primaryCaptureTooltip = hasPages
@@ -1675,6 +1708,28 @@ export function DigitalizacionDocumentalWorkspace({
         confirmOnCancel={false}
         getItemLabel={getPageBatchItemLabel}
       />
+
+      <AppModal
+        open={Boolean(digitalizacionDialog)}
+        title={digitalizacionDialogTitle}
+        onClose={closeDigitalizacionDialog}
+        centered
+        primaryAction={{
+          label: digitalizacionDialogPrimaryLabel,
+          onClick: confirmDigitalizacionDialog,
+          variant: digitalizacionDialog?.type === "removePages" ? "danger" : "primary",
+        }}
+        secondaryAction={
+          digitalizacionDialog?.type === "duplicateLimit"
+            ? undefined
+            : {
+                label: "Cancelar",
+                onClick: closeDigitalizacionDialog,
+              }
+        }
+      >
+        {digitalizacionDialogBody}
+      </AppModal>
 
       <main
         className={styles.main}

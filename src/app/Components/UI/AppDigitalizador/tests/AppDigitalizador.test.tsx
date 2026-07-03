@@ -98,14 +98,6 @@ describe("AppDigitalizador", () => {
       configurable: true,
       value: vi.fn(),
     });
-    Object.defineProperty(window, "confirm", {
-      configurable: true,
-      value: vi.fn(() => true),
-    });
-    Object.defineProperty(window, "alert", {
-      configurable: true,
-      value: vi.fn(),
-    });
   });
 
   it("renderiza inline el workspace sin AppModal", async () => {
@@ -249,7 +241,6 @@ describe("AppDigitalizador", () => {
   });
 
   it("[SPEC:SCRUMCORE-265] usa un boton contextual para escanear o iniciar nuevo documento", async () => {
-    const confirmSpy = vi.mocked(window.confirm).mockReturnValue(true);
     const scannerClient = createScannerClient([
       { id: "page-1", index: 0 },
       { id: "page-2", index: 1 },
@@ -290,9 +281,16 @@ describe("AppDigitalizador", () => {
 
     fireEvent.click(newDocumentButton);
 
-    expect(confirmSpy).toHaveBeenCalledWith(
-      "Se encontraron paginas en el documento actual. Desea descartarlas e iniciar una nueva captura?",
-    );
+    expect(
+      await screen.findByRole("dialog", { name: "Iniciar nueva captura" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Se encontraron paginas en el documento actual. Desea descartarlas e iniciar una nueva captura?",
+      ),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Descartar e iniciar" }));
+
     await waitFor(() => {
       expect(scannerClient.clear).toHaveBeenCalled();
       expect(scannerClient.scan).toHaveBeenCalledWith(
@@ -304,7 +302,6 @@ describe("AppDigitalizador", () => {
   }, 20000);
 
   it("[SPEC:SCRUMCORE-265] pide confirmacion al configurar scanner si hay paginas existentes", async () => {
-    const confirmSpy = vi.mocked(window.confirm).mockReturnValue(true);
     const scannerClient = createScannerClient([
       { id: "page-1", index: 0 },
       { id: "page-2", index: 1 },
@@ -337,11 +334,15 @@ describe("AppDigitalizador", () => {
     fireEvent.click(within(configurationPanel).getByLabelText("Driver del scanner"));
     fireEvent.click(screen.getByRole("button", { name: "Configurar scanner" }));
 
-    await waitFor(() => {
-      expect(confirmSpy).toHaveBeenCalledWith(
+    expect(
+      await screen.findByRole("dialog", { name: "Iniciar nueva captura" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
         "Se encontraron paginas en el documento actual. Desea descartarlas e iniciar una nueva captura?",
-      );
-    });
+      ),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Descartar e iniciar" }));
 
     await waitFor(() => {
       expect(scannerClient.clear).toHaveBeenCalled();
@@ -625,7 +626,6 @@ describe("AppDigitalizador", () => {
       index,
     }));
     const scannerClient = createScannerClient(pages);
-    const alertSpy = vi.mocked(window.alert);
 
     render(
       <AppDigitalizador
@@ -654,9 +654,14 @@ describe("AppDigitalizador", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Duplicar pagina" }));
 
-    expect(alertSpy).toHaveBeenCalledWith("No se pueden duplicar mas de 50 hojas a la vez.");
+    expect(await screen.findByRole("dialog", { name: "Limite de duplicado" })).toBeInTheDocument();
+    expect(screen.getByText("No se pueden duplicar mas de 50 hojas a la vez.")).toBeInTheDocument();
     expect(scannerClient.duplicatePage).not.toHaveBeenCalled();
     expect(screen.queryByRole("dialog", { name: "Duplicando paginas" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Aceptar" }));
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "Limite de duplicado" })).not.toBeInTheDocument();
+    });
   }, 20000);
 
   it("[SPEC:SCRUMCORE-256] mantiene reordenamiento en la superficie de miniaturas", async () => {
@@ -897,14 +902,25 @@ describe("AppDigitalizador", () => {
     fireEvent.click(within(organizer).getByLabelText("Seleccionar pagina 3"));
 
     fireEvent.click(
+      within(organizer).getByRole("button", { name: "Eliminar paginas seleccionadas" }),
+    );
+    expect(await screen.findByRole("dialog", { name: "Eliminar paginas" })).toBeInTheDocument();
+    expect(screen.getByText("Eliminar 2 paginas seleccionadas?")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "Eliminar paginas" })).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(
       within(organizer).getByRole("button", { name: "Rotar derecha seleccionadas" }),
     );
 
-    expect(
-      await screen.findByRole("dialog", { name: "Rotando paginas a la derecha" }),
-    ).toBeInTheDocument();
     await waitFor(() => expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-2", 90));
     await waitFor(() => expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-3", 90));
+    const closeProgressButton = screen.queryByRole("button", { name: "Cerrar" });
+    if (closeProgressButton) {
+      fireEvent.click(closeProgressButton);
+    }
 
     const organizerButtons = within(organizer).getAllByRole("button");
     const pageOne = organizerButtons.find((button) => button.textContent?.includes("Pagina 1"));
@@ -924,16 +940,10 @@ describe("AppDigitalizador", () => {
       "page-3",
     ]);
 
-    fireEvent.click(
-      within(organizer).getByRole("button", { name: "Eliminar paginas seleccionadas" }),
-    );
-
-    await waitFor(() => expect(scannerClient.removePage).toHaveBeenCalledWith("page-2"));
-    await waitFor(() => expect(scannerClient.removePage).toHaveBeenCalledWith("page-3"));
+    expect(scannerClient.removePage).not.toHaveBeenCalled();
   }, 20000);
 
   it("[SPEC:SCRUMCORE-261] selecciona multiples miniaturas y ejecuta acciones masivas", async () => {
-    const confirmSpy = vi.mocked(window.confirm).mockReturnValue(true);
     const scannerClient = createScannerClient([
       { id: "page-1", index: 0 },
       { id: "page-2", index: 1 },
@@ -983,26 +993,71 @@ describe("AppDigitalizador", () => {
       screen.queryByRole("button", { name: "Eliminar paginas seleccionadas" }),
     ).not.toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole("button", { name: "Eliminar pagina" }));
+    expect(await screen.findByRole("dialog", { name: "Eliminar paginas" })).toBeInTheDocument();
+    expect(screen.getByText("Eliminar 2 paginas seleccionadas?")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog", { name: "Eliminar paginas" })).not.toBeInTheDocument();
+    });
+
     fireEvent.click(screen.getByRole("button", { name: "Rotar derecha" }));
 
     await waitFor(() => expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-1", 90));
     await waitFor(() => expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-2", 90));
-
-    fireEvent.click(screen.getByRole("button", { name: "Eliminar pagina" }));
-
-    expect(confirmSpy).toHaveBeenCalledWith("Eliminar 2 paginas seleccionadas?");
-    await waitFor(() => expect(scannerClient.removePage).toHaveBeenCalledWith("page-1"));
-    await waitFor(() => expect(scannerClient.removePage).toHaveBeenCalledWith("page-2"));
-
+    fireEvent.click(
+      screen.getByRole("button", { name: "Cerrar" }),
+    );
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "Miniaturas (1)" })).toBeInTheDocument();
+      expect(
+        screen.queryByRole("dialog", { name: "Rotando paginas a la derecha" }),
+      ).not.toBeInTheDocument();
     });
+
     fireEvent.click(screen.getByRole("button", { name: "Seleccionar todo" }));
-    expect(screen.getAllByText("1 pagina seleccionada").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("3 paginas seleccionadas").length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: "Deseleccionar todo" }));
     expect(screen.getAllByText("0 paginas seleccionadas").length).toBeGreaterThan(0);
+  }, 20000);
 
-    confirmSpy.mockReset();
+  it("elimina paginas seleccionadas confirmando con AppModal", async () => {
+    const scannerClient = createScannerClient([
+      { id: "page-1", index: 0 },
+      { id: "page-2", index: 1 },
+      { id: "page-3", index: 2 },
+    ]);
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (3)" })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByLabelText("Seleccionar pagina 1"));
+    fireEvent.click(screen.getByLabelText("Seleccionar pagina 2"));
+    fireEvent.click(screen.getByRole("button", { name: "Eliminar pagina" }));
+
+    expect(await screen.findByRole("dialog", { name: "Eliminar paginas" })).toBeInTheDocument();
+    expect(screen.getByText("Eliminar 2 paginas seleccionadas?")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Eliminar" }));
+
+    await waitFor(() => expect(scannerClient.removePage).toHaveBeenCalledWith("page-1"));
+    await waitFor(() => expect(scannerClient.removePage).toHaveBeenCalledWith("page-2"));
   }, 20000);
 
   it("[SPEC:SCRUMCORE-266] corrige inclinacion manual de miniaturas seleccionadas", async () => {
