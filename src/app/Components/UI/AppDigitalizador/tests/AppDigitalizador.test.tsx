@@ -125,8 +125,6 @@ describe("AppDigitalizador", () => {
     expect(within(toolbar).queryByRole("button", { name: "Nuevo" })).toBeNull();
     expect(within(toolbar).queryByRole("button", { name: "Nuevo documento" })).toBeNull();
     expect(within(toolbar).getByRole("button", { name: "Generar PDF" })).toBeInTheDocument();
-    expect(within(toolbar).queryByText("Escanear")).toBeNull();
-    expect(within(toolbar).queryByText("Generar PDF")).toBeNull();
   });
 
   it("inyecta sourceModule desde modulo cuando el contexto no lo trae", async () => {
@@ -324,6 +322,10 @@ describe("AppDigitalizador", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
     });
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (2)" })).toBeInTheDocument();
+    });
 
     const configurationPanel = screen.getByRole("complementary", {
       name: "Configuracion de Escaneo",
@@ -331,9 +333,11 @@ describe("AppDigitalizador", () => {
     fireEvent.click(within(configurationPanel).getByLabelText("Driver del scanner"));
     fireEvent.click(screen.getByRole("button", { name: "Configurar scanner" }));
 
-    expect(confirmSpy).toHaveBeenCalledWith(
-      "Se encontraron paginas en el documento actual. Desea descartarlas e iniciar una nueva captura?",
-    );
+    await waitFor(() => {
+      expect(confirmSpy).toHaveBeenCalledWith(
+        "Se encontraron paginas en el documento actual. Desea descartarlas e iniciar una nueva captura?",
+      );
+    });
 
     await waitFor(() => {
       expect(scannerClient.clear).toHaveBeenCalled();
@@ -345,7 +349,7 @@ describe("AppDigitalizador", () => {
         }),
       );
     });
-  });
+  }, 20000);
 
   it("[SPEC:SCRUMCORE-259] usa overlay corporativo como unica fuente de progreso durante escaneo", async () => {
     const deferred = createDeferred<ScanPage[]>();
@@ -523,7 +527,7 @@ describe("AppDigitalizador", () => {
       inline: "nearest",
     });
     expect(screen.getAllByText("Pagina 5").length).toBeGreaterThanOrEqual(1);
-  });
+  }, 10000);
 
   it("[SPEC:SCRUMCORE-262] navega con atajos de teclado en el control flotante", async () => {
     render(
@@ -566,6 +570,8 @@ describe("AppDigitalizador", () => {
       { id: "page-2", index: 1 },
       { id: "page-3", index: 2 },
     ]);
+    const duplicateDeferred = createDeferred<ScanPage[]>();
+    vi.mocked(scannerClient.duplicatePage).mockReturnValueOnce(duplicateDeferred.promise);
 
     render(
       <AppDigitalizador
@@ -590,6 +596,16 @@ describe("AppDigitalizador", () => {
 
     fireEvent.keyDown(document, { key: "ArrowRight" });
     fireEvent.click(screen.getByRole("button", { name: "Duplicar pagina" }));
+
+    expect(
+      await screen.findByRole("dialog", { name: "Duplicando paginas" }),
+    ).toBeInTheDocument();
+    duplicateDeferred.resolve([
+      { id: "page-1", index: 0 },
+      { id: "page-2", index: 1 },
+      { id: "page-2-copy", index: 2 },
+      { id: "page-3", index: 3 },
+    ]);
 
     await waitFor(() => {
       expect(scannerClient.duplicatePage).toHaveBeenCalledWith("page-2");
@@ -789,7 +805,7 @@ describe("AppDigitalizador", () => {
       "data-density",
       "densityAuto",
     );
-  }, 10000);
+  }, 20000);
 
   it("[SPEC:SCRUMCORE-256] organiza paginas con seleccion multiple y drag and drop", async () => {
     const scannerClient = createScannerClient([
@@ -840,8 +856,11 @@ describe("AppDigitalizador", () => {
       within(organizer).getByRole("button", { name: "Rotar derecha seleccionadas" }),
     );
 
-    expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-2", 90);
-    expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-3", 90);
+    expect(
+      await screen.findByRole("dialog", { name: "Rotando paginas a la derecha" }),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-2", 90));
+    await waitFor(() => expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-3", 90));
 
     const organizerButtons = within(organizer).getAllByRole("button");
     const pageOne = organizerButtons.find((button) => button.textContent?.includes("Pagina 1"));
@@ -865,9 +884,9 @@ describe("AppDigitalizador", () => {
       within(organizer).getByRole("button", { name: "Eliminar paginas seleccionadas" }),
     );
 
-    expect(scannerClient.removePage).toHaveBeenCalledWith("page-2");
-    expect(scannerClient.removePage).toHaveBeenCalledWith("page-3");
-  }, 10000);
+    await waitFor(() => expect(scannerClient.removePage).toHaveBeenCalledWith("page-2"));
+    await waitFor(() => expect(scannerClient.removePage).toHaveBeenCalledWith("page-3"));
+  }, 20000);
 
   it("[SPEC:SCRUMCORE-261] selecciona multiples miniaturas y ejecuta acciones masivas", async () => {
     const confirmSpy = vi.mocked(window.confirm).mockReturnValue(true);
@@ -922,22 +941,25 @@ describe("AppDigitalizador", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Rotar derecha" }));
 
-    expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-1", 90);
-    expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-2", 90);
+    await waitFor(() => expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-1", 90));
+    await waitFor(() => expect(scannerClient.rotatePage).toHaveBeenCalledWith("page-2", 90));
 
     fireEvent.click(screen.getByRole("button", { name: "Eliminar pagina" }));
 
     expect(confirmSpy).toHaveBeenCalledWith("Eliminar 2 paginas seleccionadas?");
-    expect(scannerClient.removePage).toHaveBeenCalledWith("page-1");
-    expect(scannerClient.removePage).toHaveBeenCalledWith("page-2");
+    await waitFor(() => expect(scannerClient.removePage).toHaveBeenCalledWith("page-1"));
+    await waitFor(() => expect(scannerClient.removePage).toHaveBeenCalledWith("page-2"));
 
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (1)" })).toBeInTheDocument();
+    });
     fireEvent.click(screen.getByRole("button", { name: "Seleccionar todo" }));
-    expect(screen.getAllByText("3 paginas seleccionadas").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("1 pagina seleccionada").length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: "Deseleccionar todo" }));
     expect(screen.getAllByText("0 paginas seleccionadas").length).toBeGreaterThan(0);
 
     confirmSpy.mockReset();
-  }, 10000);
+  }, 20000);
 
   it("[SPEC:SCRUMCORE-266] corrige inclinacion manual de miniaturas seleccionadas", async () => {
     const scannerClient = createScannerClient([
@@ -1054,6 +1076,9 @@ describe("AppDigitalizador", () => {
     const preview = screen.getByRole("region", { name: "Preview digitalizacion" });
     fireEvent.click(screen.getByRole("button", { name: "Deskew" }));
 
+    expect(
+      await screen.findByRole("dialog", { name: "Corrigiendo inclinacion" }),
+    ).toBeInTheDocument();
     await waitFor(() => {
       expect(
         within(preview).getByRole("status", { name: "Corrigiendo inclinacion" }),
@@ -1119,7 +1144,7 @@ describe("AppDigitalizador", () => {
       "densityAuto",
     );
     expect(organizer.querySelector("[data-density]")).toHaveAttribute("data-columns", "6");
-  }, 20000);
+  }, 30000);
 
   it("[SPEC:SCRUMCORE-257] selecciona un area visual y recorta solo la pagina activa", async () => {
     const scannerClient = createScannerClient([

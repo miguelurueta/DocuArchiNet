@@ -181,7 +181,7 @@ export const adaptListaDocumentosRadicadosToWorkbenchModel = (
 
   const appGridTable = mapDynamicUiTableToAppDataTableAgGrid(dynamicUiTable);
   const workbenchColumns = forceWorkbenchActionColumnsClientEvent(appGridTable.columns);
-  const workbenchMenuActions = appGridTable.menuActions.map(forceWorkbenchClientEvent);
+  const workbenchMenuActions = (appGridTable.menuActions ?? []).map(forceWorkbenchClientEvent);
   const tableColumns = mapAppGridColumnsToAppTableColumns(workbenchColumns, {
     tableId: appGridTable.tableId,
     userClaims: appGridTable.userClaims,

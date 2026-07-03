@@ -1136,7 +1136,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
         EnumDWT_ImageType?: { IT_PDF?: DynamsoftImageType };
       }).EnumDWT_ImageType?.IT_PDF;
       const globalPdfType = (
-        this.options.windowRef.Dynamsoft?.DWT as unknown as {
+        (this.options.windowRef as DynamsoftWindow).Dynamsoft?.DWT as unknown as {
           EnumDWT_ImageType?: { IT_PDF?: DynamsoftImageType };
         }
       )?.EnumDWT_ImageType?.IT_PDF;
@@ -1201,7 +1201,9 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
           }
 
           const pdfBytes = await pdfDoc.save();
-          blob = new Blob([pdfBytes], { type: "application/pdf" });
+          const pdfBuffer = new ArrayBuffer(pdfBytes.byteLength);
+          new Uint8Array(pdfBuffer).set(pdfBytes);
+          blob = new Blob([pdfBuffer], { type: "application/pdf" });
           lastError = null;
         } catch (error) {
           lastError = error;
@@ -1750,7 +1752,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       };
     }
 
-    const blankPageAnalyses = useAsyncBlankDetection
+    const blankPageAnalyses: BlankPageAnalysis[] = useAsyncBlankDetection
       ? blankPages.map((page) => ({
           page,
           isBlank: true,
@@ -1762,7 +1764,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
           imageSource: "unavailable",
         }))
       : blankPages.map((page) => {
-          const imageSource = page.imageUrl
+          const imageSource: BlankPageAnalysis["imageSource"] = page.imageUrl
             ? "original"
             : page.thumbnailUrl
               ? "thumbnail"
@@ -1844,7 +1846,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
     this.pages = this.rebuildPagesAfterBufferRemoval(dwt, this.pages, removedIndexes, blankPageIds);
     this.logBlankPageReinsertions("afterBlankRemoval", {
       analyses: blankPageAnalyses,
-      detected: confirmedBlankPagesForResult,
+      detected: confirmedBlankPages,
       removedPageIds: blankPageIds,
       requestedIndexes: blankIndexes,
       removedIndexes,
@@ -1863,7 +1865,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
 
     return {
       analyses: blankPageAnalyses,
-      detected: confirmedBlankPagesForResult,
+      detected: confirmedBlankPages,
       removedPageIds: blankPageIds,
       requestedIndexes: blankIndexes,
       removedIndexes,
@@ -1902,7 +1904,7 @@ export class DynamsoftTwainClient implements DigitalizacionScannerClient {
       );
 
       let image: HTMLImageElement | null = null;
-      let analyzedImageSource: "original" | "thumbnail" = imageSource;
+      let analyzedImageSource: BlankPageAnalysis["imageSource"] = imageSource;
       for (const candidate of loadCandidates) {
         try {
           image = await this.loadAnalysisImage(candidate.src);

@@ -248,7 +248,11 @@ export function useAppUploadDocumentalActions({
             error: undefined,
             metadata: { error: "missing_typology" },
           });
-          return { status: "controlled-error", canContinue: true };
+          return {
+            status: "controlled-error",
+            message: "El documento requiere una tipologia valida antes de guardar.",
+            canContinue: true,
+          };
         }
 
         const message = getFunctionalSaveErrorMessage(error, aborted);

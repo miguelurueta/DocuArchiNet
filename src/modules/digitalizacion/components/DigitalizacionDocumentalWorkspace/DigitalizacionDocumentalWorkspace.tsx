@@ -11,11 +11,6 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@iconify/react";
-import { icons as materialSymbolsIcons } from "@iconify-json/material-symbols";
-import { icons as biIcons } from "@iconify-json/bi";
-import { icons as hugeiconsIcons } from "@iconify-json/hugeicons";
-import { icons as riIcons } from "@iconify-json/ri";
-import { icons as tablerIcons } from "@iconify-json/tabler";
 import {
   BorderOutlined,
   CheckSquareOutlined,
@@ -44,6 +39,11 @@ import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
 import { AppContasoftLoader } from "../../../../app/Components/UI/AppContasoftLoader/AppContasoftLoader";
 import { AppDropdown } from "../../../../app/Components/UI/AppDropdown";
+import {
+  AppProgressBatch,
+  type AppProgressBatchItemContext,
+  type AppProgressBatchItemResult,
+} from "../../../../app/Components/UI/AppProgressBatch";
 import { useDigitalizacionDocumentalState } from "../../hooks/useDigitalizacionDocumentalState";
 import { useDigitalizacionOperationOrchestrator } from "../../hooks/useDigitalizacionOperationOrchestrator";
 import { useDigitalizacionScanner } from "../../hooks/useDigitalizacionScanner";
@@ -64,11 +64,11 @@ import { PageNavigatorFloating } from "./PageNavigatorFloating";
 import styles from "./DigitalizacionDocumentalWorkspace.module.css";
 
 const adfScannerIcon = "lets-icons:scan";
-const addNotesIcon = materialSymbolsIcons["add-notes-outline-rounded"];
-const replaceIcon = tablerIcons["replace-filled"];
-const insertIcon = hugeiconsIcons["row-insert"];
-const generatePdfIcon = biIcons["filetype-pdf"];
-const saveIcon = riIcons["save-3-line"];
+const addNotesIcon = "material-symbols:add-notes-outline-rounded";
+const replaceIcon = "tabler:replace-filled";
+const insertIcon = "hugeicons:row-insert";
+const generatePdfIcon = "bi:filetype-pdf";
+const saveIcon = "ri:save-3-line";
 
 type CaptureMode = "docuarchi" | "driver";
 type PreviewFitMode = "custom" | "fitWidth" | "fitPage";
@@ -90,6 +90,28 @@ type CropSelectionState = {
   selection: PageCropSelection;
 };
 type SelectedPageIds = Set<string>;
+type PageBatchOperation = "rotateLeft" | "rotateRight" | "duplicate" | "deskew";
+type PageBatchConfig = {
+  open: boolean;
+  operation: PageBatchOperation;
+  pageIds: string[];
+};
+
+const getPageBatchTitle = (operation: PageBatchOperation) =>
+  operation === "rotateLeft"
+    ? "Rotando paginas a la izquierda"
+    : operation === "rotateRight"
+      ? "Rotando paginas a la derecha"
+      : operation === "duplicate"
+        ? "Duplicando paginas"
+        : "Corrigiendo inclinacion";
+
+const getPageBatchProcessName = (operation: PageBatchOperation) =>
+  operation === "rotateLeft" || operation === "rotateRight"
+    ? "Rotacion de paginas"
+    : operation === "duplicate"
+      ? "Duplicacion de paginas"
+      : "Deskew manual";
 
 type ScanPipelinePerfRecord = {
   scanId: string;
@@ -392,6 +414,11 @@ export function DigitalizacionDocumentalWorkspace({
   const [panelPreferences, setPanelPreferences] = useState<PanelPreferences>(
     readPanelPreferences,
   );
+  const [pageBatch, setPageBatch] = useState<PageBatchConfig>({
+    open: false,
+    operation: "deskew",
+    pageIds: [],
+  });
   const previewPanelRef = useRef<HTMLElement | null>(null);
   const previewViewportRef = useRef<HTMLDivElement | null>(null);
   const previewPageSurfaceRef = useRef<HTMLDivElement | null>(null);
@@ -431,7 +458,6 @@ export function DigitalizacionDocumentalWorkspace({
     reorderPages,
     generatePdf,
     selectDevice,
-    deskewPage,
     deskewPages,
   } = scanner;
 
@@ -662,39 +688,45 @@ export function DigitalizacionDocumentalWorkspace({
     executeCapture({ type: "APPEND" });
   }, [executeCapture]);
 
+  const startPageBatch = useCallback((operation: PageBatchOperation, pageIds: string[]) => {
+    const uniquePageIds = Array.from(new Set(pageIds)).filter(Boolean);
+    if (uniquePageIds.length === 0) {
+      return;
+    }
+
+    setPageBatch({
+      open: true,
+      operation,
+      pageIds: uniquePageIds,
+    });
+  }, []);
+
   const handleRotateSelected = useCallback((degrees: 90 | 270 = 90) => {
     if (selectedPageIds.size > 0) {
-      const pageIds = selectedPageIdsInOrder;
-
-      pageIds.forEach((pageId) => {
-        void rotatePage(pageId, degrees);
-      });
+      startPageBatch(degrees === 270 ? "rotateLeft" : "rotateRight", selectedPageIdsInOrder);
       return;
     }
 
     const pageId = selectedPageId ?? scanner.pages[0]?.id;
     if (!pageId) return;
-    void rotatePage(pageId, degrees);
-  }, [rotatePage, scanner.pages, selectedPageId, selectedPageIds, selectedPageIdsInOrder]);
+    startPageBatch(degrees === 270 ? "rotateLeft" : "rotateRight", [pageId]);
+  }, [scanner.pages, selectedPageId, selectedPageIds, selectedPageIdsInOrder, startPageBatch]);
 
   const handleDeskewSelected = useCallback(() => {
     if (selectedPageIds.size > 0) {
-      const pageIds = selectedPageIdsInOrder;
-
-      void deskewPages(pageIds);
+      startPageBatch("deskew", selectedPageIdsInOrder);
       return;
     }
 
     const pageId = selectedPageId ?? scanner.pages[0]?.id;
     if (!pageId) return;
-    void deskewPage(pageId);
+    startPageBatch("deskew", [pageId]);
   }, [
-    deskewPage,
-    deskewPages,
     scanner.pages,
     selectedPageId,
     selectedPageIds,
     selectedPageIdsInOrder,
+    startPageBatch,
   ]);
 
   const handleRemoveSelected = useCallback(() => {
@@ -734,17 +766,7 @@ export function DigitalizacionDocumentalWorkspace({
 
   const handleDuplicateSelected = useCallback(() => {
     if (selectedPageIds.size > 0) {
-      const pageIds = selectedPageIdsInOrder;
-
-      if (pageIds.length === 0) {
-        return;
-      }
-
-      void (async () => {
-        for (const pageId of pageIds) {
-          await duplicatePage(pageId);
-        }
-      })();
+      startPageBatch("duplicate", selectedPageIdsInOrder);
       return;
     }
 
@@ -753,24 +775,12 @@ export function DigitalizacionDocumentalWorkspace({
       return;
     }
 
-    const sourceVisualIndex = scanner.pages.findIndex((page) => page.id === sourcePage.id);
-    void duplicatePage(sourcePage.id).then((pages) => {
-      if (!pages) {
-        return;
-      }
-
-      const duplicatedPage = pages[sourceVisualIndex + 1] ?? pages[sourceVisualIndex] ?? null;
-      if (duplicatedPage) {
-        setSelectedPageId(duplicatedPage.id);
-        setHighlightedPageId(duplicatedPage.id);
-      }
-    });
+    startPageBatch("duplicate", [sourcePage.id]);
   }, [
-    duplicatePage,
-    scanner.pages,
     selectedPage,
     selectedPageIds,
     selectedPageIdsInOrder,
+    startPageBatch,
   ]);
 
   const handleThumbnailDragStart = useCallback(
@@ -868,18 +878,12 @@ export function DigitalizacionDocumentalWorkspace({
   }, []);
 
   const handleRotateOrganizerSelection = useCallback((degrees: 90 | 270) => {
-    const pageIds = selectedPageIdsInOrder;
-
-    pageIds.forEach((pageId) => {
-      void rotatePage(pageId, degrees);
-    });
-  }, [rotatePage, selectedPageIdsInOrder]);
+    startPageBatch(degrees === 270 ? "rotateLeft" : "rotateRight", selectedPageIdsInOrder);
+  }, [selectedPageIdsInOrder, startPageBatch]);
 
   const handleDeskewOrganizerSelection = useCallback(() => {
-    const pageIds = selectedPageIdsInOrder;
-
-    void deskewPages(pageIds);
-  }, [deskewPages, selectedPageIdsInOrder]);
+    startPageBatch("deskew", selectedPageIdsInOrder);
+  }, [selectedPageIdsInOrder, startPageBatch]);
 
   const handleRemoveOrganizerSelection = useCallback(() => {
     const pageIds = selectedPageIdsInOrder;
@@ -1376,6 +1380,71 @@ export function DigitalizacionDocumentalWorkspace({
     "--page-organizer-columns": pageOrganizerColumns,
     "--page-organizer-visible-rows": pageOrganizerVisibleRows,
   } as CSSProperties;
+  const pageBatchTitle = getPageBatchTitle(pageBatch.operation);
+  const pageBatchProcessName = getPageBatchProcessName(pageBatch.operation);
+  const pageBatchItems = useMemo(() => (pageBatch.open ? [pageBatch] : []), [pageBatch]);
+  const getPageBatchItemLabel = useCallback((batch: PageBatchConfig) => {
+    const pageCount = batch.pageIds.length;
+    return `${pageCount} ${pageCount === 1 ? "pagina" : "paginas"}`;
+  }, []);
+  const handlePageBatchOpenChange = useCallback((open: boolean) => {
+    setPageBatch((current) => ({
+      ...current,
+      open,
+    }));
+  }, []);
+  const processPageBatch = useCallback(
+    async (
+      batch: PageBatchConfig,
+      context: AppProgressBatchItemContext,
+    ): Promise<AppProgressBatchItemResult> => {
+      const total = batch.pageIds.length;
+      context.setPhase(getPageBatchProcessName(batch.operation));
+
+      if (batch.operation === "deskew") {
+        context.setCurrentLabel(getPageBatchItemLabel(batch));
+        context.setItemProgress(10);
+        await deskewPages(batch.pageIds);
+        context.setItemProgress(100);
+        return { status: "success" };
+      }
+
+      for (const [index, pageId] of batch.pageIds.entries()) {
+        if (context.signal.aborted) {
+          return { status: "skipped", message: "Operacion cancelada." };
+        }
+
+        context.setCurrentLabel(`Pagina ${index + 1} de ${total}`);
+
+        if (batch.operation === "rotateLeft") {
+          await rotatePage(pageId, 270);
+        } else if (batch.operation === "rotateRight") {
+          await rotatePage(pageId, 90);
+        } else {
+          const sourceVisualIndex = scanner.pages.findIndex((page) => page.id === pageId);
+          const pages = await duplicatePage(pageId);
+          if (total === 1 && pages) {
+            const duplicatedPage = pages[sourceVisualIndex + 1] ?? pages[sourceVisualIndex] ?? null;
+            if (duplicatedPage) {
+              setSelectedPageId(duplicatedPage.id);
+              setHighlightedPageId(duplicatedPage.id);
+            }
+          }
+        }
+
+        context.setItemProgress(((index + 1) / total) * 100);
+      }
+
+      return { status: "success" };
+    },
+    [
+      deskewPages,
+      duplicatePage,
+      getPageBatchItemLabel,
+      rotatePage,
+      scanner.pages,
+    ],
+  );
   const hasCaptureTarget = Boolean(selectedPage);
   const primaryCaptureLabel = hasPages ? "Nuevo documento" : "Escanear";
   const primaryCaptureTooltip = hasPages
@@ -1539,11 +1608,13 @@ export function DigitalizacionDocumentalWorkspace({
           variant="primary"
           size="sm"
           leftIcon={<Icon icon={saveIcon ?? "ri:save-3-line"} />}
-          aria-label="Guardar"
+          aria-label={primaryLabel}
           className={styles.toolbarSaveButton}
-          disabled={!canGeneratePdf}
+          onClick={handleSubmit}
+          loading={operation.loading}
+          disabled={!canConfirm}
         >
-          Guardar
+          {primaryLabel}
         </AppButton>
       </div>
     </div>
@@ -1585,6 +1656,19 @@ export function DigitalizacionDocumentalWorkspace({
       {toolbarHostReady && toolbarHost?.current
         ? createPortal(toolbarElement, toolbarHost.current)
         : toolbarElement}
+
+      <AppProgressBatch
+        open={pageBatch.open}
+        items={pageBatchItems}
+        onOpenChange={handlePageBatchOpenChange}
+        processItem={processPageBatch}
+        title={pageBatchTitle}
+        processName={pageBatchProcessName}
+        autoStart
+        closeOnComplete
+        confirmOnCancel={false}
+        getItemLabel={getPageBatchItemLabel}
+      />
 
       <main
         className={styles.main}
