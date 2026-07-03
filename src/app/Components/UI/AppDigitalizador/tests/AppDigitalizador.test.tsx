@@ -102,6 +102,10 @@ describe("AppDigitalizador", () => {
       configurable: true,
       value: vi.fn(() => true),
     });
+    Object.defineProperty(window, "alert", {
+      configurable: true,
+      value: vi.fn(),
+    });
   });
 
   it("renderiza inline el workspace sin AppModal", async () => {
@@ -614,6 +618,46 @@ describe("AppDigitalizador", () => {
     expect(screen.getByRole("button", { name: "Editar pagina actual" })).toHaveTextContent("3");
     expect(screen.getByLabelText("Navegacion de paginas")).toHaveTextContent("Pagina 3 de 4");
   }, 10000);
+
+  it("bloquea duplicado masivo de mas de 50 hojas", async () => {
+    const pages = Array.from({ length: 51 }, (_item, index) => ({
+      id: `page-${index + 1}`,
+      index,
+    }));
+    const scannerClient = createScannerClient(pages);
+    const alertSpy = vi.mocked(window.alert);
+
+    render(
+      <AppDigitalizador
+        context={context}
+        scannerClient={scannerClient}
+        onCompleted={vi.fn()}
+      />,
+    );
+
+    await waitFor(() => expect(screen.getByText("Scanner prueba")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Seleccionar scanner"), {
+      target: { value: "scanner-1" },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Escanear" })).not.toBeDisabled();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Escanear" }));
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Miniaturas (51)" })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Seleccionar todo" }));
+    await waitFor(() => {
+      expect(screen.getAllByText("51 paginas seleccionadas").length).toBeGreaterThan(0);
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Duplicar pagina" }));
+
+    expect(alertSpy).toHaveBeenCalledWith("No se pueden duplicar mas de 50 hojas a la vez.");
+    expect(scannerClient.duplicatePage).not.toHaveBeenCalled();
+    expect(screen.queryByRole("dialog", { name: "Duplicando paginas" })).not.toBeInTheDocument();
+  }, 20000);
 
   it("[SPEC:SCRUMCORE-256] mantiene reordenamiento en la superficie de miniaturas", async () => {
     const scannerClient = createScannerClient([

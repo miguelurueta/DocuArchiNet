@@ -753,6 +753,7 @@ export function AppProgressBatch<TItem>({
       title={modalTitle}
       onClose={handleModalClose}
       maskClosable={false}
+      centered
       closeOnEscape
       hideFooter
     >

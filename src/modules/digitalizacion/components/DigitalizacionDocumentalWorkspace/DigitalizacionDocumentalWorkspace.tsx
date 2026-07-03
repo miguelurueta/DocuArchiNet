@@ -69,6 +69,7 @@ const replaceIcon = "tabler:replace-filled";
 const insertIcon = "hugeicons:row-insert";
 const generatePdfIcon = "bi:filetype-pdf";
 const saveIcon = "ri:save-3-line";
+const MAX_DUPLICATE_BATCH_PAGES = 50;
 
 type CaptureMode = "docuarchi" | "driver";
 type PreviewFitMode = "custom" | "fitWidth" | "fitPage";
@@ -766,6 +767,11 @@ export function DigitalizacionDocumentalWorkspace({
 
   const handleDuplicateSelected = useCallback(() => {
     if (selectedPageIds.size > 0) {
+      if (selectedPageIdsInOrder.length > MAX_DUPLICATE_BATCH_PAGES) {
+        window.alert("No se pueden duplicar mas de 50 hojas a la vez.");
+        return;
+      }
+
       startPageBatch("duplicate", selectedPageIdsInOrder);
       return;
     }
