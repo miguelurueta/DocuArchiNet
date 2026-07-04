@@ -137,7 +137,13 @@ export type UploadDocumentalBatchSummary = {
   failed: number;
   skipped: number;
   cancelled: number;
+  remainingFiles: number;
   results: AlmacenarDocumentoStoredResult[];
+};
+
+export type UploadDocumentalStoredContext = {
+  source: "single" | "batch";
+  remainingFiles: number;
 };
 
 export type AppUploadDocumentalModoDocumento =
@@ -158,6 +164,7 @@ export type AppUploadDocumentalProps = {
   requiereFechaCarga?: boolean;
   fechaCargaObligatoria?: boolean;
   allowSingleFileStore?: boolean;
+  saveAllMode?: "progress-modal" | "inline";
   validationMode?: "reject" | "queue-with-error";
   modoDocumento?: AppUploadDocumentalModoDocumento;
   loadConfig: (input: {
@@ -177,8 +184,9 @@ export type AppUploadDocumentalProps = {
   storageOptions?: {
     backendPayloadCase?: "camel" | "pascal";
     validateStatusBeforeComplete?: boolean;
+    maxChunkSizeBytes?: number;
   };
-  onStored?: (result: AlmacenarDocumentoStoredResult) => void;
+  onStored?: (result: AlmacenarDocumentoStoredResult, context: UploadDocumentalStoredContext) => void;
   onInterfaceRegistration?: (events: UploadDocumentalInterfaceRegistration[]) => void;
   onBatchComplete?: (summary: UploadDocumentalBatchSummary) => void;
   onError?: (error: unknown) => void;

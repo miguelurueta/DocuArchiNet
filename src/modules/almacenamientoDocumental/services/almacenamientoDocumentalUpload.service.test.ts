@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import clienteApi from "../../../api/Clienteaxios";
 import { AlmacenamientoDocumentalUploadError } from "../types/almacenamientoDocumental.types";
 import {
@@ -72,6 +72,11 @@ function uploadInput(file = new File(["abcdef"], "scan.pdf", { type: "applicatio
 describe("[SPEC:SCRUMCORE-272] almacenamientoDocumentalUpload service", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("calls init with the expected payload and validates the response", async () => {
@@ -140,6 +145,44 @@ describe("[SPEC:SCRUMCORE-272] almacenamientoDocumentalUpload service", () => {
     );
     expect(mockedPut.mock.calls[0][1]).toBeInstanceOf(Blob);
     expect(mockedPut.mock.calls[0][1]).not.toBeInstanceOf(FormData);
+  });
+
+  it("reintenta un chunk cuando ocurre un error transitorio de red sin respuesta", async () => {
+    vi.useFakeTimers();
+    const chunk = new Blob(["abc"], { type: "application/pdf" });
+    const networkError = Object.assign(new Error("Network Error"), { code: "ERR_NETWORK" });
+    mockedPut.mockRejectedValueOnce(networkError).mockResolvedValueOnce({ data: { success: true, data: {} } });
+
+    const uploadPromise = uploadTemporaryChunk({
+      rutaTemporalId: "ruta-1",
+      archivoTemporalId: "archivo-1",
+      chunkIndex: 3,
+      totalChunks: 10,
+      chunk,
+    });
+
+    await vi.advanceTimersByTimeAsync(300);
+    await uploadPromise;
+
+    expect(mockedPut).toHaveBeenCalledTimes(2);
+    expect(mockedPut).toHaveBeenNthCalledWith(2, expect.stringContaining("/chunk/3"), chunk, expect.any(Object));
+  });
+
+  it("no reintenta un chunk cuando el request fue abortado por el usuario", async () => {
+    const chunk = new Blob(["abc"], { type: "application/pdf" });
+    mockedPut.mockRejectedValueOnce(new DOMException("aborted", "AbortError"));
+
+    await expect(
+      uploadTemporaryChunk({
+        rutaTemporalId: "ruta-1",
+        archivoTemporalId: "archivo-1",
+        chunkIndex: 3,
+        totalChunks: 10,
+        chunk,
+      }),
+    ).rejects.toMatchObject({ code: "storage_aborted" });
+
+    expect(mockedPut).toHaveBeenCalledTimes(1);
   });
 
   it("calls status, complete, cancel and store endpoints", async () => {
@@ -373,6 +416,29 @@ describe("[SPEC:SCRUMCORE-272] almacenamientoDocumentalUpload service", () => {
       expect.any(Blob),
       expect.objectContaining({
         headers: expect.objectContaining({ "X-Total-Chunks": 2 }),
+      }),
+    );
+  });
+
+  it("caps backend chunk size when maxChunkSizeBytes is provided", async () => {
+    mockedPost.mockResolvedValueOnce(initEnvelope(4));
+    mockedPut.mockResolvedValue({ data: { success: true, data: {} } });
+    mockedPost.mockResolvedValueOnce({ data: { success: true, data: {} } });
+    mockedPost.mockResolvedValueOnce(storeEnvelope());
+
+    await uploadAndStoreOneDocument({
+      ...uploadInput(new File(["abcdefg"], "scan.pdf")),
+      maxChunkSizeBytes: 2,
+    });
+
+    expect(mockedPut).toHaveBeenCalledTimes(4);
+    expect(mockedPut.mock.calls.map(([, chunk]) => (chunk instanceof Blob ? chunk.size : 0))).toEqual([2, 2, 2, 1]);
+    expect(mockedPut).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("/chunk/0"),
+      expect.any(Blob),
+      expect.objectContaining({
+        headers: expect.objectContaining({ "X-Total-Chunks": 4 }),
       }),
     );
   });

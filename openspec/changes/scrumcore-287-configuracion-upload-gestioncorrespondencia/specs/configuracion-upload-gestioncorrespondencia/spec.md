@@ -1,435 +1,120 @@
 ## ADDED Requirements
-### Requirement: CONFIGURACION-UPLOAD-GESTIONCORRESPONDENCIA
-El sistema SHALL implementar el alcance definido para SCRUMCORE-287.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- PROMPT ARQUITECTONICO - Configuracion upload para adjuntos en Gestion Correspondencia
-- Rol esperado
--   Arquitecto frontend senior.
--   React 19, TypeScript estricto, Clean Architecture, componentes enterprise, integracion API documental, configuracion de carga de archivos, accesibilidad, testing y  migracion quirurgica sin romper flujos existentes.
-- Objetivo
--   Adaptar el flujo de adjuntos de src/modules/gestionCorrespondencia para que cargue desde backend la configuracion de tipos de archivo permitidos y tamano maximo, y  aplique esa configuracion al componente existente de carga.
--   Este ticket NO incluye tipologias documentales.
--   La solucion debe:
-- consumir GET /api/gestor-documental/configuracion-upload?nameProceso=CORRESPO;
-- 
-- obtener extensiones permitidas desde ExtensionUpload;
-- 
-- obtener tamano maximo desde LengUpload;
-- 
-- aplicar esa configuracion al componente de carga existente;
-- 
-- reutilizar AppUploadBatchView si el flujo ya esta migrado a cola por lote, o AppUpload si el flujo actual sigue siendo simple;
-- 
-- no hardcodear extensiones ni tamano en UI;
-- 
-- manejar loading, error, empty y retry;
-- 
-- no modificar backend.
-- 
-- Fuera De Alcance
--   No implementar:
-- tipologias documentales;
-- 
-- lista de chequeo;
-- 
-- metadata por archivo;
-- 
-- renderMetadata;
-- 
-- cambios en API de tipologias;
-- 
-- almacenamiento documental;
-- 
-- upload por chunks;
-- 
-- cambios backend.
-- 
-- Contrato Backend
--   Endpoint:
-- GET /api/gestor-documental/configuracion-upload?nameProceso=CORRESPO
-- 
-- Tabla conocida:
-- 
-- ID_CONFIG_UPLOAD_GESTION | EXTENSION_UPLOAD                | LENG_UPLOAD | NAME_PROCESO | ESTADO_PROCESO
-- 3                        | .PDF,.DOC,.DOCX,.ZIP,.XLS,.XLSX | 600000000   | CORRESPO     | 1
-- 
-- Respuesta esperada:
-- 
-- {
--   success: boolean;
--   message: string;
--   data: Array<{
--     IdConfigUploadGestion?: number;
--     ExtensionUpload?: string;
--     LengUpload?: number;
--     NameProceso?: string;
--     EstadoProceso?: number;
--   }>;
--   meta?: unknown;
--   errors?: unknown[];
-- }
-- 
-- Por compatibilidad, normalizar tambien camelCase:
-- 
-- {
--   idConfigUploadGestion?: number;
--   extensionUpload?: string;
--   lengUpload?: number;
--   nameProceso?: string;
--   estadoProceso?: number;
-- }
-- 
-- ## Mapeo Funcional
-- 
-- Usar la fila activa:
-- 
-- EstadoProceso === 1
-- 
-- Si hay varias filas activas, usar la primera.
-- Si no hay fila activa pero hay filas, usar la primera y registrar estado funcional controlado si aplica.
-- Si no hay filas, bloquear seleccion de archivos.
-- 
-- Mapeo:
-- 
-- ExtensionUpload -> accept
-- LengUpload       -> maxSize
-- 
-- Ejemplo:
-- 
-- .PDF,.DOC,.DOCX,.ZIP,.XLS,.XLSX
-- 
-- debe convertirse en:
-- 
-- .pdf,.doc,.docx,.zip,.xls,.xlsx
-- 
-- Resultado esperado:
-- 
-- {
--   nameProceso: "CORRESPO",
--   accept: ".pdf,.doc,.docx,.zip,.xls,.xlsx",
--   allowedExtensions: [".pdf", ".doc", ".docx", ".zip", ".xls", ".xlsx"],
--   maxSizeBytes: 600000000
-- }
-- 
-- ## Componentes Existentes
-- 
-- Reutilizar el componente de carga existente.
-- 
-- Si la pantalla usa AppUpload:
-- 
-- <AppUpload
--   accept={config.accept}
--   maxSize={config.maxSizeBytes}
-- />
-- 
-- Si la pantalla usa o migra a AppUploadBatchView:
-- 
-- <AppUploadBatchView
--   accept={config.accept}
--   maxSize={config.maxSizeBytes}
-- />
-- 
-- No modificar estos componentes si no es necesario. Ambos ya soportan accept y maxSize.
-- 
-- ## Ubicacion Esperada
-- 
-- Servicio:
-- 
-- src/modules/gestionCorrespondencia/services/configuracionUploadCorrespondencia.service.ts
-- 
-- Hook:
-- 
-- src/modules/gestionCorrespondencia/hooks/useConfiguracionUploadCorrespondencia.ts
-- 
-- Tipos:
-- 
-- src/modules/gestionCorrespondencia/types/configuracionUploadCorrespondencia.types.ts
-- 
-- Integracion UI:
-- 
-- src/modules/gestionCorrespondencia/components/gestionRespuestaMainTab/GestionRespuestaMainTabContent.tsx
-- 
-- Tests:
-- 
-- src/modules/gestionCorrespondencia/tests/configuracionUploadCorrespondencia.service.test.ts
-- src/modules/gestionCorrespondencia/tests/useConfiguracionUploadCorrespondencia.test.tsx
-- src/modules/gestionCorrespondencia/tests/GestionRespuestaMainTabContent.test.tsx
-- 
-- ## Tipos TypeScript Obligatorios
-- 
-- export type ConfiguracionUploadCorrespondenciaBackendItem = {
--   IdConfigUploadGestion?: number;
--   ExtensionUpload?: string;
--   LengUpload?: number;
--   NameProceso?: string;
--   EstadoProceso?: number;
-- 
--   idConfigUploadGestion?: number;
--   extensionUpload?: string;
--   lengUpload?: number;
--   nameProceso?: string;
--   estadoProceso?: number;
-- };
-- 
-- export type ConfiguracionUploadCorrespondenciaResponse = {
--   success: boolean;
--   message: string;
--   data: ConfiguracionUploadCorrespondenciaBackendItem[];
--   meta?: unknown;
--   errors?: unknown[];
-- };
-- 
-- export type ConfiguracionUploadCorrespondencia = {
--   nameProceso: "CORRESPO";
--   accept: string;
--   allowedExtensions: string[];
--   maxSizeBytes: number;
-- };
-- 
-- No usar any.
-- 
-- ## Servicio Obligatorio
-- 
-- Crear:
-- 
-- getConfiguracionUploadCorrespondencia(
--   options?: { signal?: AbortSignal }
-- ): Promise<ConfiguracionUploadCorrespondencia>
-- 
-- Debe:
-- 
-- - usar clienteApi;
-- - llamar /api/gestor-documental/configuracion-upload;
-- - enviar nameProceso=CORRESPO;
-- - validar success;
-- - normalizar PascalCase y camelCase;
-- - seleccionar fila activa;
-- - normalizar extensiones;
-- - validar que maxSizeBytes > 0;
-- - retornar error funcional si no hay configuracion usable;
-- - soportar AbortSignal.
-- 
-- ## Normalizador De Extensiones
-- 
-- Crear funcion pura y testeable:
-- 
-- normalizeUploadExtensions(raw: string): string[]
-- 
-- Reglas:
-- 
-- - separar por coma;
-- - aplicar trim;
-- - convertir a lowercase;
-- - agregar . si falta;
-- - descartar vacios;
-- - remover duplicados;
-- - conservar orden original.
-- 
-- Ejemplo:
-- 
-- normalizeUploadExtensions(".PDF,.DOC,.DOCX,.ZIP,.XLS,.XLSX")
-- 
-- retorna:
-- 
-- [".pdf", ".doc", ".docx", ".zip", ".xls", ".xlsx"]
-- 
-- Construir accept con:
-- 
-- allowedExtensions.join(",")
-- 
-- ## Hook Obligatorio
-- 
-- Crear:
-- 
-- useConfiguracionUploadCorrespondencia({ enabled = true })
-- 
-- Debe exponer:
-- 
-- {
--   config?: ConfiguracionUploadCorrespondencia;
--   loading: boolean;
--   error?: string;
--   reload: () => Promise<void>;
-- }
-- 
-- Reglas:
-- 
-- - cargar al montar;
-- - no cargar si enabled=false;
-- - usar AbortController;
-- - ignorar respuestas stale;
-- - permitir retry;
-- - no duplicar requests por render.
-- 
-- ## Integracion UI
-- 
-- En GestionRespuestaMainTabContent:
-- 
-- 1. Invocar el hook.
-- 2. Mientras carga:
--     - deshabilitar carga de archivos;
--     - mostrar estado compacto o helper text.
-- 
-- 3. Si hay error:
--     - deshabilitar carga;
--     - mostrar mensaje;
--     - ofrecer retry.
-- 
-- 4. Si hay config:
--     - pasar accept={config.accept};
--     - pasar maxSize={config.maxSizeBytes}.
-- 
-- Ejemplo con AppUpload:
-- 
-- const uploadConfig = useConfiguracionUploadCorrespondencia();
-- 
-- <AppUpload
--   value={files}
--   onChange={setFiles}
--   accept={uploadConfig.config?.accept}
--   maxSize={uploadConfig.config?.maxSizeBytes}
--   disabled={uploadConfig.loading || Boolean(uploadConfig.error)}
--   drag
--   layout="list"
--   previewOnClick={false}
--   size="sm"
--   strategy="auto"
-- />
-- 
-- Ejemplo con AppUploadBatchView:
-- 
-- <AppUploadBatchView
--   files={files}
--   accept={uploadConfig.config?.accept}
--   maxSize={uploadConfig.config?.maxSizeBytes}
--   disabled={uploadConfig.loading || Boolean(uploadConfig.error)}
--   loading={uploadConfig.loading}
-- />
-- 
-- ## Estados UI
-- 
-- ### Loading
-- 
-- Texto sugerido:
-- 
-- Cargando configuracion de adjuntos...
-- 
-- ### Error
-- 
-- Texto sugerido:
-- 
-- No fue posible cargar la configuracion de adjuntos.
-- 
-- Debe existir accion de retry.
-- 
-- ### Empty
-- 
-- Si backend responde success=true con data=[]:
-- 
-- No hay configuracion de adjuntos para CORRESPO.
-- 
-- Bloquear seleccion de archivos.
-- 
-- ## Restricciones Obligatorias
-- 
-- NO hacer:
-- 
-- - no mezclar con tipologias documentales;
-- - no crear dropdowns;
-- - no crear metadata por archivo;
-- - no modificar backend;
-- - no hardcodear extensiones en el componente;
-- - no hardcodear tamano maximo en el componente;
-- - no usar any;
-- - no consumir clienteApi directamente desde componentes;
-- - no usar jQuery, Bootstrap manual ni HTML por strings.
-- 
-- SI hacer:
-- 
-- - usar nameProceso=CORRESPO;
-- - usar ExtensionUpload como fuente de accept;
-- - usar LengUpload como fuente de maxSize;
-- - crear servicio tipado;
-- - crear hook tipado;
-- - manejar loading/error/empty/retry;
-- - cubrir pruebas.
-- 
-- ## Pruebas Obligatorias
-- 
-- Servicio:
-- 
-- - llama endpoint con nameProceso=CORRESPO;
-- - normaliza PascalCase;
-- - normaliza camelCase;
-- - normaliza extensiones con espacios;
-- - agrega punto si falta;
-- - elimina duplicados;
-- - retorna accept correcto;
-- - retorna maxSizeBytes correcto;
-- - falla si success=false;
-- - falla si data=[];
-- - falla si LengUpload <= 0;
-- - soporta AbortSignal.
-- 
-- Hook:
-- 
-- - carga al montar;
-- - no carga si enabled=false;
-- - expone loading;
-- - expone error;
-- - expone config;
-- - reload reintenta;
-- - ignora respuesta stale;
-- - aborta al desmontar.
-- 
-- UI:
-- 
-- - pasa accept al componente de carga;
-- - pasa maxSize al componente de carga;
-- - deshabilita carga mientras loading;
-- - deshabilita carga si error;
-- - muestra retry;
-- - no rompe flujo existente de agregar/eliminar archivos.
-- 
-- ## Criterios De Aceptacion
-- 
-- - Gestion Correspondencia obtiene configuracion upload desde backend.
-- - Usa nameProceso=CORRESPO.
-- - Aplica extensiones permitidas desde ExtensionUpload.
-- - Aplica tamano maximo desde LengUpload.
-- - No hay valores hardcodeados de extensiones/tamano en UI.
-- - No se implementa tipologia documental en este ticket.
-- - No hay cambios backend.
-- - No hay any nuevo.
-- - Tests focales pasan.
-- 
-- ## Documentacion Esperada
-- 
-- Crear o actualizar:
-- 
-- docs/Architecture/GestionCorrrespondecia/17-FE-ConfiguracionUpload-Adjuntos-Correspo.md
-- 
-- Debe incluir:
-- 
-- - endpoint consumido;
-- - nameProceso=CORRESPO;
-- - contrato de respuesta;
-- - mapeo ExtensionUpload -> accept;
-- - mapeo LengUpload -> maxSize;
-- - manejo de loading/error/empty;
-- - pruebas ejecutadas.
-- 
-- ## Instruccion Final
-- 
-- Implementar la configuracion upload de adjuntos en Gestion Correspondencia consumiendo GET /api/gestor-documental/configuracion-upload?nameProceso=CORRESPO,
-- normalizando ExtensionUpload y LengUpload, aplicando accept y maxSize al componente de carga existente, con servicio, hook, estados UI y pruebas, sin mezclar esta
-- tarea con tipologias documentales.
+### Requirement: Gestion Correspondencia shall load upload configuration for CORRESPO from backend
+Gestion Correspondencia SHALL obtain the allowed file extensions and maximum upload size for Gestion Respuesta attachments from `/api/gestor-documental/configuracion-upload` using `nameProceso=CORRESPO`.
+
+#### Scenario: Request upload configuration with CORRESPO process
+- **GIVEN** Gestion Respuesta initializes the documental upload loader
+- **WHEN** the upload configuration is requested
+- **THEN** the frontend SHALL call `/api/gestor-documental/configuracion-upload`
+- **AND** the request SHALL include `nameProceso=CORRESPO`
+- **AND** the request SHALL be made through `clienteApi` from a service layer, not directly from a React component
+
+#### Scenario: Apply backend extensions and size as final upload rules
+- **GIVEN** the backend returns an active CORRESPO configuration row
+- **WHEN** the row contains `ExtensionUpload` and `LengUpload`
+- **THEN** `ExtensionUpload` SHALL be converted into `accept` and `allowedExtensions`
+- **AND** `LengUpload` SHALL be converted into `maxSizeBytes`
+- **AND** those values SHALL be passed to the existing documental upload flow
+
+#### Scenario: Fail closed when configuration is not usable
+- **GIVEN** the backend response has `success=false`, `data=[]`, no usable extensions, or `LengUpload <= 0`
+- **WHEN** Gestion Respuesta tries to enable file selection
+- **THEN** the upload flow SHALL remain disabled
+- **AND** the user SHALL see a controlled functional error state with retry capability
+
+### Requirement: Upload configuration service shall normalize backend response variants
+The upload configuration service SHALL normalize backend payloads in PascalCase and camelCase without introducing `any`.
+
+#### Scenario: Normalize PascalCase response
+- **GIVEN** the backend row contains `ExtensionUpload`, `LengUpload`, `NameProceso`, and `EstadoProceso`
+- **WHEN** the service maps the row
+- **THEN** the returned config SHALL use `accept`, `allowedExtensions`, `maxSizeBytes`, and `nameProceso`
+
+#### Scenario: Normalize camelCase response
+- **GIVEN** the backend row contains `extensionUpload`, `lengUpload`, `nameProceso`, and `estadoProceso`
+- **WHEN** the service maps the row
+- **THEN** the returned config SHALL be equivalent to the PascalCase mapping
+
+#### Scenario: Select the active row
+- **GIVEN** the backend returns multiple rows
+- **WHEN** at least one row has `EstadoProceso === 1` or `estadoProceso === 1`
+- **THEN** the service SHALL use the first active row
+
+#### Scenario: Fall back to first row when no active row exists
+- **GIVEN** the backend returns rows but none are active
+- **WHEN** the service maps the response
+- **THEN** the service MAY use the first row
+- **AND** it SHALL still validate extensions and maximum size before returning config
+
+#### Scenario: Normalize extension list
+- **GIVEN** `ExtensionUpload` is `.PDF, DOC, .docx, ,PDF`
+- **WHEN** extensions are normalized
+- **THEN** the result SHALL be `[ ".pdf", ".doc", ".docx" ]`
+- **AND** `accept` SHALL be `.pdf,.doc,.docx`
+
+### Requirement: Gestion Respuesta documental upload shall preserve existing workflow behavior
+The SCRUMCORE-287 change SHALL only replace the final source of upload file rules and SHALL preserve the existing Gestion Respuesta documental upload workflow.
+
+#### Scenario: Preserve AppUploadDocumental integration
+- **GIVEN** Gestion Respuesta opens the upload documental modal
+- **WHEN** `loadGestionRespuestaUploadConfig` resolves
+- **THEN** `AppUploadDocumental` SHALL continue receiving its config through the existing `loadConfig` contract
+- **AND** `AppUploadBatchView` SHALL continue receiving `accept` and `maxSizeBytes` through `AppUploadDocumental`
+
+#### Scenario: Preserve documental process flags
+- **GIVEN** the backend returns a valid CORRESPO upload configuration
+- **WHEN** the Gestion Respuesta loader builds `UploadDocumentalConfig`
+- **THEN** `multiple`, `requiereTipologia`, `requiereFechaCarga`, `fechaCargaObligatoria`, and `validationMode` SHALL keep the Gestion Respuesta behavior already implemented before SCRUMCORE-287
+
+#### Scenario: Keep typologies out of scope
+- **GIVEN** SCRUMCORE-284 already handles workflow typologies
+- **WHEN** SCRUMCORE-287 is implemented
+- **THEN** it SHALL NOT add typology requests, dropdowns, metadata by file, or `renderMetadata` behavior
+
+#### Scenario: Keep storage out of scope
+- **GIVEN** the upload by chunks and final storage flow already exists
+- **WHEN** SCRUMCORE-287 is implemented
+- **THEN** it SHALL NOT change `init -> chunks -> status -> complete -> almacenamiento`
+- **AND** it SHALL NOT modify backend endpoints or storage payloads
+
+### Requirement: Hook shall expose reusable upload configuration state
+A typed hook SHALL expose reusable Gestion Correspondencia state for loading, empty, error, and retry when a surface needs direct upload configuration control.
+
+#### Scenario: Load configuration on mount
+- **GIVEN** `useConfiguracionUploadCorrespondencia` is enabled
+- **WHEN** the hook mounts
+- **THEN** it SHALL request the upload configuration once
+- **AND** expose `loading`, `config`, `error`, `empty`, and `reload`
+
+#### Scenario: Do not load when disabled
+- **GIVEN** `enabled=false`
+- **WHEN** the hook mounts
+- **THEN** it SHALL NOT call the configuration service
+
+#### Scenario: Ignore stale responses
+- **GIVEN** a configuration request is in flight
+- **WHEN** the hook reloads or unmounts
+- **THEN** stale responses SHALL NOT overwrite the latest hook state
+- **AND** the request SHOULD use `AbortController` when available
+
+### Requirement: Tests and documentation shall cover the CORRESPO upload configuration contract
+The change SHALL include focused tests and enterprise documentation for the upload configuration integration.
+
+#### Scenario: Service tests cover normalization and validation
+- **WHEN** service tests run
+- **THEN** they SHALL cover request params, PascalCase mapping, camelCase mapping, extension normalization, active row selection, invalid response handling, and `AbortSignal`
+
+#### Scenario: Hook tests cover state transitions
+- **WHEN** hook tests run
+- **THEN** they SHALL cover loading, success, empty, error, disabled mode, retry, abort, and stale response handling
+
+#### Scenario: Integration tests cover existing upload loader behavior
+- **WHEN** Gestion Respuesta upload tests run
+- **THEN** they SHALL verify the backend-derived `accept` and `maxSizeBytes` reach the existing upload flow
+- **AND** they SHALL verify file add/remove behavior remains intact
+
+#### Scenario: Architecture documentation is updated
+- **WHEN** implementation is complete
+- **THEN** documentation SHALL be created under `docs/Architecture/GestionCorrrespondecia/Integracion-AppUploadDocumental/`
+- **AND** it SHALL include SCRUMCORE-287 metadata, endpoint consumed, contract mapping, UI states, testing evidence, restrictions, and known limits

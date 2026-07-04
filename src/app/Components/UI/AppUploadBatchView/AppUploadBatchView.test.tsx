@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppUploadBatchView } from "./AppUploadBatchView";
 import { AppUploadBatchView as ExportedAppUploadBatchView } from "./index";
@@ -126,6 +126,26 @@ describe("AppUploadBatchView [SCRUMCORE-270]", () => {
 
     expect(container.querySelector('input[type="file"]')).not.toBeNull();
     expect(screen.getByText("Cargar archivos")).toBeInTheDocument();
+  });
+
+  it("muestra modal compacto cuando el archivo supera el tamano maximo", async () => {
+    const { container } = renderView({ files: [], maxSize: 1 });
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = createFile("pesado.pdf");
+
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [file] } });
+    });
+
+    expect(screen.getByText("Archivo demasiado grande")).toBeInTheDocument();
+    expect(screen.getByText(/pesado.pdf/)).toBeInTheDocument();
+    expect(screen.getByText(/supera el tamano maximo permitido/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Entendido"));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Archivo demasiado grande")).not.toBeInTheDocument();
+    });
   });
 
   it("respeta disabled, loading, can* e item.disabled", () => {

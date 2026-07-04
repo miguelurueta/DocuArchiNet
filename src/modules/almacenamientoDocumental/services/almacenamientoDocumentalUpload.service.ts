@@ -20,6 +20,7 @@ import { AlmacenamientoDocumentalUploadError } from "../types/almacenamientoDocu
 import {
   DEFAULT_STORAGE_CHUNK_SIZE_BYTES,
   DEFAULT_STORAGE_CONTENT_TYPE,
+  assertPositiveFiniteNumber,
   calculateTotalChunks,
   clampPercent,
   getBooleanField,
@@ -32,6 +33,11 @@ import {
 
 const STORAGE_BASE_ENDPOINT = "/api/gestor-documental/almacenamiento";
 const TEMPORARY_UPLOAD_ENDPOINT = `${STORAGE_BASE_ENDPOINT}/upload-temporal`;
+const DEBUG_STORAGE_UPLOAD =
+  typeof import.meta !== "undefined" &&
+  Boolean(import.meta.env?.DEV) &&
+  import.meta.env?.MODE !== "test";
+const STORAGE_CHUNK_TRANSIENT_RETRY_DELAYS_MS = [300, 900] as const;
 
 type HttpConfig = {
   signal?: AbortSignal;
@@ -80,14 +86,32 @@ async function initTemporaryUploadWithPayload(
   try {
     ensureNotAborted(signal);
     validateInitRequest(request);
+    debugStorageUpload("init request", {
+      nombreOriginal: request.nombreOriginal,
+      tamanoBytes: request.tamanoBytes,
+      tamanoMb: bytesToMb(request.tamanoBytes),
+      extension: request.extension,
+      numeroChunks: request.numeroChunks,
+    });
 
     const response = await clienteApi.post(ALMACENAMIENTO_DOCUMENTAL_ENDPOINTS.init, payload, withSignal(signal));
-    return unwrapStorageResponse(response.data, validateStorageUploadInitResponse, {
+    const result = unwrapStorageResponse(response.data, validateStorageUploadInitResponse, {
       code: "storage_init_error",
       phase: "initializing",
       operation: "initTemporaryUpload",
     }).data;
+
+    debugStorageUpload("init response", {
+      rutaTemporalId: result.rutaTemporalId,
+      archivoTemporalId: result.archivoTemporalId,
+      chunkSizeBytes: result.chunkSizeBytes,
+      chunkSizeMb: bytesToMb(result.chunkSizeBytes),
+      estado: result.estado,
+    });
+
+    return result;
   } catch (error) {
+    debugStorageUpload("init error", readStorageDebugError(error));
     throw toStorageError(error, "storage_init_error", "initializing");
   }
 }
@@ -100,30 +124,70 @@ export async function uploadTemporaryChunk(input: {
   chunk: Blob;
   signal?: AbortSignal;
 }): Promise<void> {
-  try {
-    ensureNotAborted(input.signal);
-    validateTemporaryIds(input.rutaTemporalId, input.archivoTemporalId);
-    validateChunkInput(input.chunkIndex, input.totalChunks, input.chunk);
+  ensureNotAborted(input.signal);
+  validateTemporaryIds(input.rutaTemporalId, input.archivoTemporalId);
+  validateChunkInput(input.chunkIndex, input.totalChunks, input.chunk);
 
-    const response = await clienteApi.put(
-      ALMACENAMIENTO_DOCUMENTAL_ENDPOINTS.chunk(
-        input.rutaTemporalId,
-        input.archivoTemporalId,
-        input.chunkIndex,
-      ),
-      input.chunk,
-      {
-        signal: input.signal,
-        headers: {
-          "Content-Type": DEFAULT_STORAGE_CONTENT_TYPE,
-          "X-Total-Chunks": input.totalChunks,
+  for (let attempt = 0; attempt <= STORAGE_CHUNK_TRANSIENT_RETRY_DELAYS_MS.length; attempt += 1) {
+    try {
+      ensureNotAborted(input.signal);
+      debugStorageUpload("chunk request", {
+        rutaTemporalId: input.rutaTemporalId,
+        archivoTemporalId: input.archivoTemporalId,
+        chunkIndex: input.chunkIndex,
+        totalChunks: input.totalChunks,
+        chunkSizeBytes: input.chunk.size,
+        chunkSizeMb: bytesToMb(input.chunk.size),
+        attempt: attempt + 1,
+      });
+
+      const response = await clienteApi.put(
+        ALMACENAMIENTO_DOCUMENTAL_ENDPOINTS.chunk(
+          input.rutaTemporalId,
+          input.archivoTemporalId,
+          input.chunkIndex,
+        ),
+        input.chunk,
+        {
+          signal: input.signal,
+          headers: {
+            "Content-Type": DEFAULT_STORAGE_CONTENT_TYPE,
+            "X-Total-Chunks": input.totalChunks,
+          },
         },
-      },
-    );
+      );
 
-    validateEmptyOrSuccessfulResponse(response.data, "storage_chunk_error", "uploading");
-  } catch (error) {
-    throw toStorageError(error, "storage_chunk_error", "uploading");
+      validateEmptyOrSuccessfulResponse(response.data, "storage_chunk_error", "uploading");
+      debugStorageUpload("chunk response", {
+        rutaTemporalId: input.rutaTemporalId,
+        archivoTemporalId: input.archivoTemporalId,
+        chunkIndex: input.chunkIndex,
+        status: "ok",
+        attempt: attempt + 1,
+      });
+      return;
+    } catch (error) {
+      const retryDelayMs = STORAGE_CHUNK_TRANSIENT_RETRY_DELAYS_MS[attempt];
+      const canRetry = retryDelayMs !== undefined && isTransientChunkUploadError(error, input.signal);
+
+      debugStorageUpload(canRetry ? "chunk retry" : "chunk error", {
+        ...readStorageDebugError(error),
+        rutaTemporalId: input.rutaTemporalId,
+        archivoTemporalId: input.archivoTemporalId,
+        chunkIndex: input.chunkIndex,
+        totalChunks: input.totalChunks,
+        chunkSizeBytes: input.chunk instanceof Blob ? input.chunk.size : undefined,
+        chunkSizeMb: input.chunk instanceof Blob ? bytesToMb(input.chunk.size) : undefined,
+        attempt: attempt + 1,
+        retryDelayMs: canRetry ? retryDelayMs : undefined,
+      });
+
+      if (!canRetry) {
+        throw toStorageError(error, "storage_chunk_error", "uploading");
+      }
+
+      await waitForRetry(retryDelayMs, input.signal);
+    }
   }
 }
 
@@ -141,12 +205,27 @@ export async function getTemporaryUploadStatus(input: {
       withSignal(input.signal),
     );
 
-    return unwrapStorageResponse(response.data, validateStorageUploadStatusResponse, {
+    const result = unwrapStorageResponse(response.data, validateStorageUploadStatusResponse, {
       code: "storage_status_error",
       phase: "status",
       operation: "getTemporaryUploadStatus",
     }).data;
+
+    debugStorageUpload("status response", {
+      rutaTemporalId: result.rutaTemporalId,
+      archivoTemporalId: result.archivoTemporalId,
+      estado: result.estado,
+      totalChunks: result.totalChunks,
+      tamanoRecibidoBytes: result.tamanoRecibidoBytes,
+      tamanoRecibidoMb:
+        typeof result.tamanoRecibidoBytes === "number" ? bytesToMb(result.tamanoRecibidoBytes) : undefined,
+      chunksPendientes: result.chunksPendientes,
+      completado: result.completado,
+    });
+
+    return result;
   } catch (error) {
+    debugStorageUpload("status error", readStorageDebugError(error));
     throw toStorageError(error, "storage_status_error", "status");
   }
 }
@@ -167,7 +246,13 @@ export async function completeTemporaryUpload(input: {
     );
 
     validateEmptyOrSuccessfulResponse(response.data, "storage_complete_error", "completing");
+    debugStorageUpload("complete response", {
+      rutaTemporalId: input.rutaTemporalId,
+      archivoTemporalId: input.archivoTemporalId,
+      status: "ok",
+    });
   } catch (error) {
+    debugStorageUpload("complete error", readStorageDebugError(error));
     throw toStorageError(error, "storage_complete_error", "completing");
   }
 }
@@ -207,6 +292,16 @@ export async function uploadAndStoreOneDocument(input: UploadOneDocumentInput): 
 
     const initialChunkSizeBytes = input.initialChunkSizeBytes ?? DEFAULT_STORAGE_CHUNK_SIZE_BYTES;
     const initialTotalChunks = calculateTotalChunks(input.file.size, initialChunkSizeBytes);
+    debugStorageUpload("uploadAndStore start", {
+      fileUid: input.fileUid,
+      fileName: input.file.name,
+      fileSizeBytes: input.file.size,
+      fileSizeMb: bytesToMb(input.file.size),
+      initialChunkSizeBytes,
+      initialChunkSizeMb: bytesToMb(initialChunkSizeBytes),
+      initialTotalChunks,
+      validateStatusBeforeComplete: Boolean(input.validateStatusBeforeComplete),
+    });
     const initRequest: StorageUploadInitRequest = {
       nombreOriginal: input.file.name,
       tamanoBytes: input.file.size,
@@ -223,12 +318,26 @@ export async function uploadAndStoreOneDocument(input: UploadOneDocumentInput): 
     );
 
     const backendChunkSizeBytes = temporal.chunkSizeBytes;
-    const totalChunks = calculateTotalChunks(input.file.size, backendChunkSizeBytes);
+    const effectiveChunkSizeBytes = resolveEffectiveChunkSizeBytes(backendChunkSizeBytes, input.maxChunkSizeBytes);
+    const totalChunks = calculateTotalChunks(input.file.size, effectiveChunkSizeBytes);
+    debugStorageUpload("uploadAndStore chunk plan", {
+      fileUid: input.fileUid,
+      fileName: input.file.name,
+      fileSizeBytes: input.file.size,
+      fileSizeMb: bytesToMb(input.file.size),
+      backendChunkSizeBytes,
+      backendChunkSizeMb: bytesToMb(backendChunkSizeBytes),
+      maxChunkSizeBytes: input.maxChunkSizeBytes,
+      maxChunkSizeMb: input.maxChunkSizeBytes ? bytesToMb(input.maxChunkSizeBytes) : undefined,
+      effectiveChunkSizeBytes,
+      effectiveChunkSizeMb: bytesToMb(effectiveChunkSizeBytes),
+      totalChunks,
+    });
 
     for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex += 1) {
       ensureNotAborted(input.signal);
 
-      const chunk = sliceFileChunk(input.file, chunkIndex, backendChunkSizeBytes);
+      const chunk = sliceFileChunk(input.file, chunkIndex, effectiveChunkSizeBytes);
       await uploadTemporaryChunk({
         rutaTemporalId: temporal.rutaTemporalId,
         archivoTemporalId: temporal.archivoTemporalId,
@@ -242,7 +351,7 @@ export async function uploadAndStoreOneDocument(input: UploadOneDocumentInput): 
         phase: "uploading",
         chunkIndex,
         totalChunks,
-        loadedBytes: Math.min((chunkIndex + 1) * backendChunkSizeBytes, input.file.size),
+        loadedBytes: Math.min((chunkIndex + 1) * effectiveChunkSizeBytes, input.file.size),
         totalBytes: input.file.size,
         percent: ((chunkIndex + 1) / totalChunks) * 100,
       });
@@ -271,8 +380,25 @@ export async function uploadAndStoreOneDocument(input: UploadOneDocumentInput): 
     const storeRequest = buildStoreRequest(input, temporal);
     const storePayload =
       input.backendPayloadCase === "pascal" ? toBackendAlmacenarDocumentoRequest(storeRequest) : storeRequest;
+    debugStorageUpload("store request", {
+      requestId: storeRequest.requestId,
+      nombreGabinete: storeRequest.nombreGabinete,
+      rutaTemporalId: storeRequest.rutaTemporalId,
+      documentos: storeRequest.documentos.map((documento) => ({
+        archivoTemporalId: documento.archivoTemporalId,
+        nombreOriginal: documento.nombreOriginal,
+        extension: documento.extension,
+      })),
+    });
     const storeResult = await almacenarDocumentoInternal(storeRequest, input.signal, storePayload);
     emitProgress(input, { phase: "storing", percent: 100, totalBytes: input.file.size });
+    debugStorageUpload("uploadAndStore success", {
+      fileUid: input.fileUid,
+      fileName: input.file.name,
+      idAlmacen: storeResult.response.idAlmacen,
+      idRegistroProduccionDocumental: storeResult.response.idRegistroProduccionDocumental,
+      requestId: storeResult.response.requestId,
+    });
 
     return {
       temporal,
@@ -280,6 +406,7 @@ export async function uploadAndStoreOneDocument(input: UploadOneDocumentInput): 
       rawBackendResult: storeResult.rawBackendResult,
     };
   } catch (error) {
+    debugStorageUpload("uploadAndStore error", readStorageDebugError(error));
     const storageError = toStorageError(error, "storage_store_error", "storing");
 
     if (temporal && storageError.code === "storage_aborted") {
@@ -322,14 +449,29 @@ async function almacenarDocumentoInternal(
       phase: "storing",
       operation: "almacenarDocumento",
     });
+    debugStorageUpload("store response", {
+      idAlmacen: result.data.idAlmacen,
+      idRegistroProduccionDocumental: result.data.idRegistroProduccionDocumental,
+      nombreArchivoFinal: result.data.nombreArchivoFinal,
+      requestId: result.data.requestId,
+    });
 
     return {
       response: result.data,
       rawBackendResult: result.rawBackendResult,
     };
   } catch (error) {
+    debugStorageUpload("store error", readStorageDebugError(error));
     throw toStorageError(error, "storage_store_error", "storing");
   }
+}
+
+function resolveEffectiveChunkSizeBytes(backendChunkSizeBytes: number, maxChunkSizeBytes?: number): number {
+  if (maxChunkSizeBytes === undefined) {
+    return backendChunkSizeBytes;
+  }
+
+  return Math.min(backendChunkSizeBytes, assertPositiveFiniteNumber(maxChunkSizeBytes, "maxChunkSizeBytes"));
 }
 
 export function unwrapStorageResponse<T>(
@@ -726,6 +868,10 @@ function validateUploadOneDocumentInput(input: UploadOneDocumentInput): void {
     throw new TypeError("file must be a File");
   }
 
+  if (input.maxChunkSizeBytes !== undefined) {
+    assertPositiveFiniteNumber(input.maxChunkSizeBytes, "maxChunkSizeBytes");
+  }
+
   validateStoreRequest({
     ...input.request,
     rutaTemporalId: "pending",
@@ -947,4 +1093,107 @@ function mergeEnvelopeMetaForValidation(data: unknown, meta: unknown): unknown {
 
 function removeUndefinedFields<T extends Record<string, unknown>>(value: T): T {
   return Object.fromEntries(Object.entries(value).filter(([, fieldValue]) => fieldValue !== undefined)) as T;
+}
+
+function debugStorageUpload(message: string, payload?: Record<string, unknown>): void {
+  if (!DEBUG_STORAGE_UPLOAD) {
+    return;
+  }
+
+  console.info(`[almacenamientoDocumentalUpload][debug] ${message}`, payload ?? {});
+}
+
+function bytesToMb(value: number): number {
+  return Number((value / 1024 / 1024).toFixed(2));
+}
+
+function readStorageDebugError(error: unknown): Record<string, unknown> {
+  if (!isRecord(error)) {
+    return {
+      error,
+    };
+  }
+
+  const response = isRecord(error.response) ? error.response : undefined;
+  const data = response ? response.data : undefined;
+
+  return {
+    name: error.name,
+    code: error.code,
+    message: error.message,
+    status: response?.status,
+    statusText: response?.statusText,
+    data,
+  };
+}
+
+function isTransientChunkUploadError(error: unknown, signal?: AbortSignal): boolean {
+  if (signal?.aborted || isAbortLikeError(error)) {
+    return false;
+  }
+
+  if (!isRecord(error)) {
+    return false;
+  }
+
+  if (isRecord(error.response)) {
+    return false;
+  }
+
+  const code = typeof error.code === "string" ? error.code : undefined;
+  const message = typeof error.message === "string" ? error.message.toLowerCase() : "";
+
+  return (
+    code === "ERR_NETWORK" ||
+    code === "ECONNABORTED" ||
+    code === "ETIMEDOUT" ||
+    message.includes("network error") ||
+    message.includes("timeout")
+  );
+}
+
+function isAbortLikeError(error: unknown): boolean {
+  return Boolean(
+    error &&
+      typeof error === "object" &&
+      ((error as { name?: unknown }).name === "AbortError" || (error as { code?: unknown }).code === "ERR_CANCELED"),
+  );
+}
+
+function waitForRetry(delayMs: number, signal?: AbortSignal): Promise<void> {
+  if (delayMs <= 0) {
+    ensureNotAborted(signal);
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(
+        new AlmacenamientoDocumentalUploadError({
+          code: "storage_aborted",
+          message: "Storage upload was aborted",
+          phase: "uploading",
+        }),
+      );
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      signal?.removeEventListener("abort", handleAbort);
+      resolve();
+    }, delayMs);
+
+    const handleAbort = () => {
+      window.clearTimeout(timeoutId);
+      reject(
+        new AlmacenamientoDocumentalUploadError({
+          code: "storage_aborted",
+          message: "Storage upload was aborted",
+          phase: "uploading",
+        }),
+      );
+    };
+
+    signal?.addEventListener("abort", handleAbort, { once: true });
+  });
 }

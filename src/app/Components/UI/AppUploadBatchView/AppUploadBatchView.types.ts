@@ -57,6 +57,7 @@ export type AppUploadBatchViewProps<TMetadata = unknown> = {
   canAddFiles?: boolean;
   canPreview?: boolean;
   canSaveOne?: boolean;
+  processingAll?: boolean;
   emptyMessage?: string;
   summary?: AppUploadBatchSummary;
   onFilesSelected?: (files: File[]) => void;
@@ -65,6 +66,8 @@ export type AppUploadBatchViewProps<TMetadata = unknown> = {
   onRemoveFile?: (uid: string) => void;
   onSaveFile?: (uid: string) => void;
   onSaveAll?: () => void;
+  onCancelAll?: () => void;
+  onCancelFile?: (uid: string) => void;
   onClearAll?: () => void;
   onClosePreview?: () => void;
   renderMetadata?: (args: {
