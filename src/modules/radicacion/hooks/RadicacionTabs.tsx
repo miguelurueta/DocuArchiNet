@@ -11,12 +11,10 @@ import styles from "../style/tabs.module.css";
 import CapDocument from "../components/CapDocument";
 import RadicacionForm from "../components/RadicacionForm";
 import ModalPendiente from "../components/Modalpendiente";
+import { RadicacionDocumentosGuard } from "../components/RadicacionDocumentosGuard";
+import { useRadicacionDocumentalContext } from "./useRadicacionDocumentalContext";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 import type { PlantillaRadicadoDTO } from "../models/PlantillaRadicadoDTO";
-
-const onChange = (key: string) => {
-  console.log(key);
-};
 
 interface TabsDocuProps {
   plantilla: PlantillaRadicadoDTO;
@@ -27,6 +25,9 @@ const TabsDocu: React.FC<TabsDocuProps> = ({
   plantilla,
   camposPlantilla,
 }) => {
+  const { tieneTramiteDocumentalActivoEstado0 } =
+    useRadicacionDocumentalContext();
+
   const items = [
     {
       key: "1",
@@ -61,7 +62,12 @@ const TabsDocu: React.FC<TabsDocuProps> = ({
           Captura de Documentos
         </Space>
       ),
-      children: <CapDocument />,
+      disabled: !tieneTramiteDocumentalActivoEstado0,
+      children: (
+        <RadicacionDocumentosGuard>
+          <CapDocument />
+        </RadicacionDocumentosGuard>
+      ),
     },
     {
       key: "4",
@@ -79,7 +85,6 @@ const TabsDocu: React.FC<TabsDocuProps> = ({
     <div>
       <Tabs
         type="card"
-        onChange={onChange}
         items={items}
         className={styles.customTabs}
         tabBarExtraContent={{

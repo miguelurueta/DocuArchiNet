@@ -3,6 +3,8 @@ import { RadicacionPage } from "./RadicacionPage";
 import { EMPTY_PLANTILLA_RADICADO } from "../services/radicacionDefaults";
 import { useCamposPlantilla } from "../hooks/useCamposPlantilla";
 import { mapCamposPlantillaToPlantillaRadicado } from "../services/mapCamposPlantillaToPlantillaRadicado";
+import { RadicacionDocumentalProvider } from "../context/RadicacionDocumentalContext";
+import { RadicacionStartupGuard } from "../components/RadicacionStartupGuard";
 
 export default function RadicacionRoutePage() {
   const { data, isLoading, error } = useCamposPlantilla();
@@ -25,5 +27,11 @@ export default function RadicacionRoutePage() {
     data.length > 0
       ? mapCamposPlantillaToPlantillaRadicado(data)
       : EMPTY_PLANTILLA_RADICADO;
-  return <RadicacionPage plantilla={plantilla} camposPlantilla={data} />;
+  return (
+    <RadicacionDocumentalProvider>
+      <RadicacionStartupGuard>
+        <RadicacionPage plantilla={plantilla} camposPlantilla={data} />
+      </RadicacionStartupGuard>
+    </RadicacionDocumentalProvider>
+  );
 }
