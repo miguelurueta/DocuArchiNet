@@ -15,6 +15,7 @@ import WorkflowAsignacion from "../../modules/Workflow/pages/WorkflowAsignacion"
 import WorkflowEnlace from "../../modules/Workflow/pages/WorkflowEnlace";
 import WorkflowRoute from "../../modules/Workflow/routes/WorkflowRoute";
 import RadicacionRoutePage from "../../modules/radicacion/pages/RadicacionRoutePage";
+import { RADICACION_ROUTE_SEGMENTS } from "../../modules/radicacion/routes/radicacionRoutes";
 import GestionCorrespondenciaLayout from "../../modules/gestionCorrespondencia/layout/GestionCorrespondenciaLayout";
 import GestionCorrespondenciaRoute from "../../modules/gestionCorrespondencia/routes/GestionCorrespondenciaRoute";
 import GestionRespuesta from "../../modules/gestionCorrespondencia/pages/GestionRespuesta";
@@ -69,7 +70,7 @@ export const loginRoutes: RouteObject[] = [
             ],
           },
           {
-            path: "radicacion",
+            path: RADICACION_ROUTE_SEGMENTS.root,
             element: <RadicacionRoutePage />,
           },
           {

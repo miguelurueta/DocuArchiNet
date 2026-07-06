@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Tabs, Space } from "antd";
+import { Space, Tabs } from "antd";
 import {
   FileAddFilled,
   FileTextFilled,
-  SettingFilled,
   OpenAIFilled,
+  SettingFilled,
 } from "@ant-design/icons";
 
 import styles from "../style/tabs.module.css";
@@ -15,6 +15,11 @@ import { RadicacionDocumentosGuard } from "../components/RadicacionDocumentosGua
 import { useRadicacionDocumentalContext } from "./useRadicacionDocumentalContext";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 import type { PlantillaRadicadoDTO } from "../models/PlantillaRadicadoDTO";
+import {
+  RADICACION_TAB_KEYS,
+  type RadicacionTabKey,
+  resolveRadicacionTabFromDestino,
+} from "../routes/radicacionRoutes";
 
 interface TabsDocuProps {
   plantilla: PlantillaRadicadoDTO;
@@ -27,29 +32,37 @@ const TabsDocu: React.FC<TabsDocuProps> = ({
 }) => {
   const { destinoPostRegistro, tieneTramiteDocumentalActivoEstado0 } =
     useRadicacionDocumentalContext();
-  const resolvedInitialTab =
-    destinoPostRegistro === "documentos" && tieneTramiteDocumentalActivoEstado0
-      ? "3"
-      : "2";
+  const resolvedInitialTab = resolveRadicacionTabFromDestino({
+    destinoPostRegistro,
+    documentosDisponibles: tieneTramiteDocumentalActivoEstado0,
+  });
   const [activeKey, setActiveKey] = useState(resolvedInitialTab);
 
   useEffect(() => {
     setActiveKey(resolvedInitialTab);
   }, [resolvedInitialTab]);
 
+  const handleTabChange = (nextKey: string) => {
+    if (
+      Object.values(RADICACION_TAB_KEYS).includes(nextKey as RadicacionTabKey)
+    ) {
+      setActiveKey(nextKey as RadicacionTabKey);
+    }
+  };
+
   const items = [
     {
-      key: "1",
+      key: RADICACION_TAB_KEYS.ia,
       label: (
         <Space>
           <OpenAIFilled />
           IA
         </Space>
       ),
-      children: "Contenido de IA",
+      children: "Asistencia IA no disponible en esta fase.",
     },
     {
-      key: "2",
+      key: RADICACION_TAB_KEYS.radicacion,
       label: (
         <Space>
           <FileAddFilled />
@@ -64,7 +77,7 @@ const TabsDocu: React.FC<TabsDocuProps> = ({
       ),
     },
     {
-      key: "3",
+      key: RADICACION_TAB_KEYS.documentos,
       label: (
         <Space>
           <FileTextFilled />
@@ -79,14 +92,14 @@ const TabsDocu: React.FC<TabsDocuProps> = ({
       ),
     },
     {
-      key: "4",
+      key: RADICACION_TAB_KEYS.gestionRadicados,
       label: (
         <Space>
           <SettingFilled />
           Gestión de Radicados
         </Space>
       ),
-      children: <div>Contenido de Configuración</div>,
+      children: <div>Gestión de radicados no disponible en esta fase.</div>,
     },
   ];
 
@@ -95,7 +108,7 @@ const TabsDocu: React.FC<TabsDocuProps> = ({
       <Tabs
         type="card"
         activeKey={activeKey}
-        onChange={setActiveKey}
+        onChange={handleTabChange}
         items={items}
         className={styles.customTabs}
         tabBarExtraContent={{
@@ -105,6 +118,5 @@ const TabsDocu: React.FC<TabsDocuProps> = ({
     </div>
   );
 };
+
 export default TabsDocu;
-
-
