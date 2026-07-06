@@ -69,4 +69,42 @@ describe("[SPEC:CREA-ACTION-LAYER-AG-GRID] dynamicUiActionGuard", () => {
       reasons: ["Rules not safely evaluated in frontend: expression"],
     });
   });
+
+  it("oculta eliminar_item cuando la fila marca CanDelete=false y respeta filas legacy", () => {
+    const deleteBlocked = evaluateDynamicUiActionAvailability(
+      {
+        ...baseAction,
+        actionId: "eliminar_item",
+      },
+      {
+        row: {
+          id: "r1",
+          data: {},
+          meta: { CanDelete: false },
+        },
+      },
+    );
+
+    expect(deleteBlocked).toEqual({
+      isVisible: false,
+      isEnabled: false,
+      reasons: ["Delete action disabled by row metadata CanDelete=false"],
+    });
+
+    const legacyRow = evaluateDynamicUiActionAvailability(
+      {
+        ...baseAction,
+        actionId: "eliminar_item",
+      },
+      {
+        row: {
+          id: "r2",
+          data: {},
+        },
+      },
+    );
+
+    expect(legacyRow.isVisible).toBe(true);
+    expect(legacyRow.isEnabled).toBe(true);
+  });
 });

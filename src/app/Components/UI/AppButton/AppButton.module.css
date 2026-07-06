@@ -31,7 +31,7 @@
 }
 
 .button:focus-visible {
-  outline: 3px solid rgba(15, 91, 216, 0.28);
+  outline: 3px solid rgba(148, 163, 184, 0.42);
   outline-offset: 2px;
 }
 
@@ -144,9 +144,9 @@
 
 .variantSecondary:hover,
 .variantSecondary:focus-visible {
-  background: #e9eef7 !important;
-  border-color: #aebcd4 !important;
-  color: #102842 !important;
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
 }
 
 .variantSuccess {

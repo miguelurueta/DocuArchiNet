@@ -85,6 +85,11 @@ export type AppTableActionCellRendererParams = ICellRendererParams<AppTableRow> 
   menuActions?: AppGridCellAction[];
   tableId?: string;
   userClaims?: string[];
+  suppressMouseEventHandling?: (params: {
+    node: ICellRendererParams<AppTableRow>["node"];
+    column?: ICellRendererParams<AppTableRow>["column"];
+    event: MouseEvent;
+  }) => boolean;
   onClientEvent?: (input: {
     actionId: string;
     row: AppTableRow;

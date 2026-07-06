@@ -183,6 +183,7 @@ export const mapAppGridColumnsToAppTableColumns = <T extends AppTableRow = AppTa
         tableId: options.tableId,
         userClaims: [...(options.userClaims ?? [])],
         onClientEvent: options.onClientEvent,
+        suppressMouseEventHandling: () => true,
       };
     }
 

@@ -320,20 +320,20 @@ export default function AppTableActionCellRenderer(
               disabled={!availability.isEnabled}
               items={dropdownItems}
               trigger={
-                <AppIconActionButton
-                  size="sm"
-                  icon={<MoreOutlined />}
-                  variant={resolveButtonVariant(action.tone)}
-                  aria-label={action.label || action.actionId}
-                  tooltip={action.label || action.actionId}
-                  disabled={!availability.isEnabled}
-                  data-action-id={action.actionId}
-                  data-action-behavior={behavior.rawValue}
-                />
-              }
-            />
-          );
-        }
+              <AppIconActionButton
+                size="sm"
+                icon={<MoreOutlined />}
+                variant={resolveButtonVariant(action.tone)}
+                aria-label={action.label || action.actionId}
+                tooltip={action.label || action.actionId}
+                disabled={!availability.isEnabled}
+                data-action-id={action.actionId}
+                data-action-behavior={behavior.rawValue}
+              />
+            }
+          />
+        );
+      }
 
         return (
           <AppIconActionButton
