@@ -2,6 +2,14 @@
 
 # TD-FE-01 - Unificar fuente de plantilla y eliminar doble carga
 
+## Ticket Asociado
+
+```text
+SCRUMCORE-290
+```
+
+Este prompt queda asociado a `SCRUMCORE-290` para trazabilidad, rollback y auditoría del ajuste.
+
 ## Contexto Arquitectónico
 
 Este trabajo debe realizarse respetando el **Contexto Arquitectónico Maestro del proyecto**, por lo tanto:

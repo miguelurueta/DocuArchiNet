@@ -1,0 +1,1109 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Radicacion Simplificada - Frontend Implementado</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --panel-soft: #f8fafc;
+      --line: #d9e2ec;
+      --line-strong: #b7c7d8;
+      --text: #1d2733;
+      --muted: #5c6f82;
+      --brand: #155e75;
+      --brand-strong: #0f4a5c;
+      --ok: #147d64;
+      --warn: #b7791f;
+      --danger: #b83232;
+      --info: #2f6690;
+      --shadow: 0 16px 40px rgba(31, 41, 55, 0.12);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+    }
+
+    .sidebar {
+      background: #22313f;
+      color: #eef5f9;
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .brand {
+      display: grid;
+      gap: 4px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .brand strong {
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .brand span,
+    .nav-item span {
+      color: #c8d7e3;
+      font-size: 13px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav-item {
+      border: 0;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: default;
+      display: grid;
+      gap: 2px;
+    }
+
+    .nav-item.active {
+      background: #31465a;
+      box-shadow: inset 3px 0 0 #4fc3c7;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-width: 0;
+    }
+
+    .topbar {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .breadcrumbs {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #d9e8ee;
+      color: var(--brand);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+
+    .content {
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .module-header {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      box-shadow: 0 4px 18px rgba(31, 41, 55, 0.05);
+    }
+
+    .module-header h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+
+    .module-header p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      font-size: 18px;
+    }
+
+    .tabs {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .tab-list {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel-soft);
+      overflow-x: auto;
+    }
+
+    .tab-button {
+      min-width: 170px;
+      border: 0;
+      border-right: 1px solid var(--line);
+      padding: 14px 16px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      text-align: left;
+      display: grid;
+      gap: 3px;
+    }
+
+    .tab-button strong {
+      color: inherit;
+      font-size: 14px;
+    }
+
+    .tab-button small {
+      color: inherit;
+      font-size: 12px;
+    }
+
+    .tab-button.active {
+      background: #ffffff;
+      color: var(--brand);
+      box-shadow: inset 0 -3px 0 var(--brand);
+    }
+
+    .tab-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .tab-panel {
+      display: none;
+      padding: 18px;
+      min-height: 420px;
+    }
+
+    .tab-panel.active {
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--text);
+      padding: 10px 14px;
+      min-height: 40px;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: white;
+    }
+
+    .btn.primary:hover {
+      background: var(--brand-strong);
+    }
+
+    .btn.warning {
+      border-color: #c6903d;
+      color: #7c4a03;
+      background: #fffaf0;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge.ok {
+      background: #dff5ec;
+      color: var(--ok);
+    }
+
+    .badge.warn {
+      background: #fff3cd;
+      color: var(--warn);
+    }
+
+    .badge.info {
+      background: #e1f0fb;
+      color: var(--info);
+    }
+
+    .badge.off {
+      background: #e9eef3;
+      color: var(--muted);
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.75fr);
+      gap: 18px;
+    }
+
+    .section {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .section h2,
+    .section h3 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .section p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      padding: 10px 11px;
+      min-height: 40px;
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    .field textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 12px;
+      font-weight: 800;
+      background: var(--brand);
+    }
+
+    .timeline-item strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .timeline-item span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: auto;
+      background: white;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 780px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 12px;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 14px;
+    }
+
+    th {
+      background: #eef4f7;
+      color: #304355;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .docs-layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .doc-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .doc-item {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px;
+      display: grid;
+      gap: 3px;
+      background: #ffffff;
+    }
+
+    .doc-item.active {
+      border-color: var(--brand);
+      background: #f0fbfc;
+    }
+
+    .viewer {
+      min-height: 330px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(21, 94, 117, 0.08) 0 1px, transparent 1px 100%),
+        linear-gradient(0deg, rgba(21, 94, 117, 0.08) 0 1px, transparent 1px 100%),
+        #ffffff;
+      background-size: 26px 26px;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .viewer-inner {
+      width: min(360px, 90%);
+      min-height: 230px;
+      background: white;
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 26px rgba(31, 41, 55, 0.12);
+      padding: 22px;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      text-align: left;
+    }
+
+    .viewer-line {
+      height: 8px;
+      border-radius: 999px;
+      background: #dbe5ee;
+    }
+
+    .viewer-line.short {
+      width: 62%;
+    }
+
+    .empty-state {
+      border: 1px dashed var(--line-strong);
+      border-radius: 8px;
+      padding: 22px;
+      background: #fbfcfd;
+      display: grid;
+      gap: 10px;
+      justify-items: start;
+    }
+
+    .note {
+      border-left: 4px solid var(--brand);
+      background: #f0fbfc;
+      padding: 12px;
+      color: #23424d;
+      line-height: 1.45;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 31, 43, 0.46);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 20;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(1080px, 100%);
+      max-height: 88vh;
+      overflow: auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 22px 70px rgba(0, 0, 0, 0.22);
+      border: 1px solid var(--line);
+    }
+
+    .modal-header {
+      position: sticky;
+      top: 0;
+      background: white;
+      border-bottom: 1px solid var(--line);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 1;
+    }
+
+    .modal-body {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: #21313f;
+      color: white;
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      display: none;
+      max-width: min(420px, calc(100vw - 40px));
+      z-index: 30;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    @media (max-width: 1040px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .status-strip,
+      .grid-two,
+      .docs-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .topbar,
+      .module-header,
+      .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .content {
+        padding: 14px;
+      }
+
+      .module-header {
+        grid-template-columns: 1fr;
+      }
+
+      .status-strip,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tab-button {
+        min-width: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegacion principal">
+      <div class="brand">
+        <strong>DocuArchiCore</strong>
+        <span>Gestion documental</span>
+      </div>
+      <nav class="nav">
+        <button class="nav-item"><strong>Dashboard</strong><span>Resumen operativo</span></button>
+        <button class="nav-item active"><strong>Radicacion</strong><span>Entrante simplificada</span></button>
+        <button class="nav-item"><strong>Gestion</strong><span>Correspondencia</span></button>
+        <button class="nav-item"><strong>Configuracion</strong><span>Plantillas y flujos</span></button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="breadcrumbs">Dashboard / Radicacion / Registro</div>
+          <strong>Modulo de radicacion simplificada</strong>
+        </div>
+        <div class="user-area">
+          <span>Usuario radicador</span>
+          <div class="avatar" aria-hidden="true">UR</div>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="module-header">
+          <div>
+            <h1>Radicacion entrante</h1>
+            <p>Flujo migrado con contexto documental unico, validacion de tramite activo, pendientes institucionales y guard para documentos.</p>
+          </div>
+          <div class="button-row">
+            <button class="btn" type="button" data-open-pending>Ver pendientes</button>
+            <button class="btn primary" type="button" data-switch-tab="registro">Nueva radicacion</button>
+          </div>
+        </div>
+
+        <div class="status-strip" aria-label="Estado del modulo">
+          <div class="metric">
+            <span>Contexto documental</span>
+            <strong id="metric-contexto">Activo estado 0</strong>
+          </div>
+          <div class="metric">
+            <span>Radicado actual</span>
+            <strong id="metric-radicado">ENT-2026-004238</strong>
+          </div>
+          <div class="metric">
+            <span>Pendientes</span>
+            <strong>8 por gestionar</strong>
+          </div>
+          <div class="metric">
+            <span>Plantilla</span>
+            <strong>Fuente unica</strong>
+          </div>
+        </div>
+
+        <section class="tabs" aria-label="Radicacion simplificada">
+          <div class="tab-list" role="tablist">
+            <button class="tab-button" type="button" role="tab" data-tab="registro">
+              <strong>Registro</strong>
+              <small>Captura entrante</small>
+            </button>
+            <button class="tab-button" type="button" role="tab" data-tab="pendientes">
+              <strong>Pendientes</strong>
+              <small>AppTable</small>
+            </button>
+            <button class="tab-button active" type="button" role="tab" data-tab="documentos" id="tab-documentos">
+              <strong>Documentos</strong>
+              <small id="tab-docs-state">Guard habilitado</small>
+            </button>
+          </div>
+
+          <div class="tab-panel" id="panel-registro" role="tabpanel">
+            <div class="toolbar">
+              <div>
+                <span class="badge info">/dashboard/radicacion/registro</span>
+                <span class="badge ok" id="registro-context-badge">Contexto preservado</span>
+              </div>
+              <div class="button-row">
+                <button class="btn" type="button" id="clear-form">Limpiar</button>
+                <button class="btn warning" type="button" id="send-pending">Enviar a pendientes</button>
+                <button class="btn primary" type="button" id="submit-radicacion">Radicar</button>
+              </div>
+            </div>
+
+            <div class="grid-two">
+              <form class="section" id="radicacion-form">
+                <h2>Formulario de radicacion</h2>
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="tipo">Tipo documental</label>
+                    <select id="tipo">
+                      <option>Peticion</option>
+                      <option>Comunicacion oficial</option>
+                      <option>Solicitud interna</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="tramite">Tramite</label>
+                    <select id="tramite">
+                      <option>Gestion documental</option>
+                      <option>Correspondencia general</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="remitente">Remitente</label>
+                    <input id="remitente" value="Constructora Norte SAS" />
+                  </div>
+                  <div class="field">
+                    <label for="destinatario">Destinatario</label>
+                    <input id="destinatario" value="Oficina de archivo central" />
+                  </div>
+                  <div class="field full">
+                    <label for="asunto">Asunto</label>
+                    <textarea id="asunto">Entrega de soportes para expediente contractual.</textarea>
+                  </div>
+                </div>
+              </form>
+
+              <aside class="section">
+                <h3>Reglas aplicadas</h3>
+                <div class="timeline">
+                  <div class="timeline-item">
+                    <div class="dot">1</div>
+                    <div><strong>Plantilla unica</strong><span>La pagina resuelve la plantilla y el formulario la consume sin segunda carga.</span></div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="dot">2</div>
+                    <div><strong>Limpieza separada</strong><span>Limpiar restablece captura, no borra el contexto documental activo.</span></div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="dot">3</div>
+                    <div><strong>Pendiente controlado</strong><span>Enviar a pendientes solo aparece cuando existe estado 0.</span></div>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="panel-pendientes" role="tabpanel">
+            <div class="toolbar">
+              <div>
+                <span class="badge info">DynamicUiTableDto</span>
+                <span class="badge warn" id="pending-lock">Toma bloqueada por activo actual</span>
+              </div>
+              <div class="button-row">
+                <button class="btn" type="button" data-open-pending>Abrir modal de pendientes</button>
+              </div>
+            </div>
+            <div class="section">
+              <h2>Lista institucional de pendientes</h2>
+              <p>La tabla consume el contrato de pendientes y resuelve la accion dinamica <strong>asignacion-tarea</strong>.</p>
+              <div class="table-wrap">
+                <table aria-label="Pendientes radicacion">
+                  <thead>
+                    <tr>
+                      <th>Radicado</th>
+                      <th>Tramite</th>
+                      <th>Remitente</th>
+                      <th>Estado</th>
+                      <th>Accion</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>ENT-2026-004112</td>
+                      <td>Gestion documental</td>
+                      <td>Alcaldia Local</td>
+                      <td><span class="badge warn">Pendiente estado 1</span></td>
+                      <td><button class="btn" type="button" data-take-pending>Asignar tarea</button></td>
+                    </tr>
+                    <tr>
+                      <td>ENT-2026-004089</td>
+                      <td>Correspondencia oficial</td>
+                      <td>Consorcio Via Norte</td>
+                      <td><span class="badge warn">Pendiente estado 1</span></td>
+                      <td><button class="btn" type="button" data-take-pending>Asignar tarea</button></td>
+                    </tr>
+                    <tr>
+                      <td>ENT-2026-004061</td>
+                      <td>Gestion documental</td>
+                      <td>Secretaria General</td>
+                      <td><span class="badge warn">Pendiente estado 1</span></td>
+                      <td><button class="btn" type="button" data-take-pending>Asignar tarea</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel active" id="panel-documentos" role="tabpanel">
+            <div class="toolbar">
+              <div>
+                <span class="badge ok" id="docs-guard-badge">Documentos habilitado por estado 0</span>
+                <span class="badge info" id="docs-route-badge">/registro/98421/documentos</span>
+              </div>
+              <div class="button-row">
+                <button class="btn warning" type="button" id="send-pending-docs">Enviar a pendientes</button>
+                <button class="btn" type="button" data-switch-tab="registro">Volver al registro</button>
+              </div>
+            </div>
+
+            <div id="docs-enabled" class="docs-layout">
+              <aside class="section">
+                <h2>Expediente activo</h2>
+                <p id="docs-summary">ENT-2026-004238 - Gestion documental</p>
+                <div class="doc-list">
+                  <div class="doc-item active">
+                    <strong>Solicitud principal.pdf</strong>
+                    <span class="badge ok">Cargado</span>
+                  </div>
+                  <div class="doc-item">
+                    <strong>Anexos tecnicos.zip</strong>
+                    <span class="badge info">En validacion</span>
+                  </div>
+                  <div class="doc-item">
+                    <strong>Soporte identidad.pdf</strong>
+                    <span class="badge off">Pendiente</span>
+                  </div>
+                </div>
+              </aside>
+              <section class="section">
+                <h2>Panel documental</h2>
+                <div class="viewer" aria-label="Visor documental">
+                  <div class="viewer-inner">
+                    <strong>Solicitud principal.pdf</strong>
+                    <div class="viewer-line"></div>
+                    <div class="viewer-line"></div>
+                    <div class="viewer-line short"></div>
+                    <div class="viewer-line"></div>
+                    <div class="viewer-line short"></div>
+                    <p>CapDocument solo se monta despues de validar contexto activo.</p>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <div id="docs-disabled" class="empty-state" hidden>
+              <span class="badge off">Documentos inactivo</span>
+              <h2>No hay tramite documental activo</h2>
+              <p>El guard bloquea CapDocument porque no existe estado 0 con idEstadoRadicado valido.</p>
+              <button class="btn primary" type="button" data-switch-tab="registro">Ir a registro</button>
+            </div>
+          </div>
+        </section>
+
+        <div class="note">
+          Regla principal implementada: el contexto documental es la unica fuente frontend para decidir si Documentos esta activo.
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="pending-modal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-label="Pendientes de radicacion">
+      <header class="modal-header">
+        <div>
+          <strong>Pendientes por gestion documental</strong>
+          <div class="breadcrumbs">AppTable / accion asignacion-tarea</div>
+        </div>
+        <button class="btn" type="button" id="close-modal">Cerrar</button>
+      </header>
+      <div class="modal-body">
+        <div class="note">Si ya existe un tramite activo estado 0, tomar otro pendiente queda bloqueado por frontend y backend.</div>
+        <div class="table-wrap">
+          <table aria-label="Modal pendientes">
+            <thead>
+              <tr>
+                <th>id_estado_radicado</th>
+                <th>Consecutivo</th>
+                <th>Tramite</th>
+                <th>Remitente</th>
+                <th>Fecha</th>
+                <th>Accion</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>98114</td>
+                <td>ENT-2026-004112</td>
+                <td>Gestion documental</td>
+                <td>Alcaldia Local</td>
+                <td>2026-07-03</td>
+                <td><button class="btn" type="button" data-take-pending>Asignar tarea</button></td>
+              </tr>
+              <tr>
+                <td>98102</td>
+                <td>ENT-2026-004089</td>
+                <td>Correspondencia oficial</td>
+                <td>Consorcio Via Norte</td>
+                <td>2026-07-02</td>
+                <td><button class="btn" type="button" data-take-pending>Asignar tarea</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const state = {
+      activeTab: "documentos",
+      contextoActivo: true,
+      estado: 0,
+      idEstadoRadicado: 98421,
+      consecutivo: "ENT-2026-004238",
+      tramite: "Gestion documental"
+    };
+
+    const panels = {
+      registro: document.getElementById("panel-registro"),
+      pendientes: document.getElementById("panel-pendientes"),
+      documentos: document.getElementById("panel-documentos")
+    };
+
+    const tabButtons = Array.from(document.querySelectorAll("[data-tab]"));
+    const docsTab = document.getElementById("tab-documentos");
+    const modal = document.getElementById("pending-modal");
+    const toast = document.getElementById("toast");
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 3200);
+    }
+
+    function canRenderDocs() {
+      return state.contextoActivo && state.estado === 0 && Boolean(state.idEstadoRadicado);
+    }
+
+    function switchTab(tab) {
+      if (tab === "documentos" && !canRenderDocs()) {
+        showToast("Documentos bloqueado: no hay tramite activo estado 0.");
+        tab = "registro";
+      }
+
+      state.activeTab = tab;
+      tabButtons.forEach((button) => button.classList.toggle("active", button.dataset.tab === tab));
+      Object.entries(panels).forEach(([key, panel]) => panel.classList.toggle("active", key === tab));
+    }
+
+    function renderState() {
+      const docsEnabled = canRenderDocs();
+      docsTab.disabled = !docsEnabled;
+      document.getElementById("tab-docs-state").textContent = docsEnabled ? "Guard habilitado" : "Guard bloqueado";
+      document.getElementById("metric-contexto").textContent = docsEnabled ? "Activo estado 0" : "Sin contexto activo";
+      document.getElementById("metric-radicado").textContent = state.consecutivo || "Sin radicado activo";
+      document.getElementById("registro-context-badge").textContent = docsEnabled ? "Contexto preservado" : "Sin contexto";
+      document.getElementById("send-pending").disabled = !docsEnabled;
+      document.getElementById("send-pending-docs").disabled = !docsEnabled;
+      document.getElementById("pending-lock").textContent = docsEnabled ? "Toma bloqueada por activo actual" : "Toma disponible";
+      document.getElementById("docs-enabled").hidden = !docsEnabled;
+      document.getElementById("docs-disabled").hidden = docsEnabled;
+      document.getElementById("docs-guard-badge").textContent = docsEnabled
+        ? "Documentos habilitado por estado 0"
+        : "Documentos bloqueado por guard";
+      document.getElementById("docs-route-badge").textContent = docsEnabled
+        ? `/registro/${state.idEstadoRadicado}/documentos`
+        : "/dashboard/radicacion/registro";
+      document.getElementById("docs-summary").textContent = docsEnabled
+        ? `${state.consecutivo} - ${state.tramite}`
+        : "Sin expediente activo";
+
+      if (state.activeTab === "documentos" && !docsEnabled) {
+        switchTab("registro");
+      }
+    }
+
+    function enviarPendiente() {
+      if (!canRenderDocs()) {
+        showToast("No existe tramite activo para enviar a pendientes.");
+        return;
+      }
+
+      state.contextoActivo = false;
+      state.estado = 1;
+      state.idEstadoRadicado = null;
+      state.consecutivo = null;
+      renderState();
+      switchTab("registro");
+      showToast("Tramite enviado a pendientes. Contexto documental limpiado.");
+    }
+
+    function tomarPendiente() {
+      if (canRenderDocs()) {
+        showToast("No puedes tomar otro pendiente mientras existe activo estado 0.");
+        return;
+      }
+
+      state.contextoActivo = true;
+      state.estado = 0;
+      state.idEstadoRadicado = 98114;
+      state.consecutivo = "ENT-2026-004112";
+      state.tramite = "Gestion documental";
+      modal.classList.remove("open");
+      renderState();
+      switchTab("documentos");
+      showToast("Pendiente tomado. Contexto documental activo restaurado.");
+    }
+
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", () => switchTab(button.dataset.tab));
+    });
+
+    document.querySelectorAll("[data-switch-tab]").forEach((button) => {
+      button.addEventListener("click", () => switchTab(button.dataset.switchTab));
+    });
+
+    document.querySelectorAll("[data-open-pending]").forEach((button) => {
+      button.addEventListener("click", () => {
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+      });
+    });
+
+    document.getElementById("close-modal").addEventListener("click", () => {
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+    });
+
+    document.querySelectorAll("[data-take-pending]").forEach((button) => {
+      button.addEventListener("click", tomarPendiente);
+    });
+
+    document.getElementById("send-pending").addEventListener("click", enviarPendiente);
+    document.getElementById("send-pending-docs").addEventListener("click", enviarPendiente);
+
+    document.getElementById("clear-form").addEventListener("click", () => {
+      document.getElementById("radicacion-form").reset();
+      renderState();
+      showToast("Formulario limpio. El contexto documental no fue modificado.");
+    });
+
+    document.getElementById("submit-radicacion").addEventListener("click", () => {
+      state.contextoActivo = true;
+      state.estado = 0;
+      state.idEstadoRadicado = 99042;
+      state.consecutivo = "ENT-2026-004319";
+      state.tramite = "Gestion documental";
+      renderState();
+      switchTab("documentos");
+      showToast("Radicacion exitosa. Documentos habilitado por estado 0.");
+    });
+
+    renderState();
+  </script>
+</body>
+</html>

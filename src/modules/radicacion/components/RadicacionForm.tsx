@@ -31,7 +31,6 @@ import {
 } from "@ant-design/icons";
 
 import styles from "../style/FormRadicacion.module.css";
-import { useCamposPlantilla } from "../hooks/useCamposPlantilla";
 import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
 import { useFlujosRelacionadosTramite } from "../hooks/useFlujosRelacionadosTramite";
 import {
@@ -46,6 +45,7 @@ import {
   CamposPlantillaAutoCompleteRenderer,
 } from "./CamposPlantillaAutoCompleteRenderer";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
+import type { PlantillaRadicadoDTO } from "../models/PlantillaRadicadoDTO";
 
 export const C_DE_RELACION_ESTADO_RETRICCION_DTO_DEFAULT =
   C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT;
@@ -671,11 +671,19 @@ const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
    COMPONENTE PRINCIPAL
 ========================================================= */
 
-const FormRadicacion: React.FC = () => {
-  const [form] = Form.useForm();
+interface FormRadicacionProps {
+  plantilla: PlantillaRadicadoDTO;
+  camposPlantilla: ReadonlyArray<CampoPlantillaDTO>;
+}
 
-  const { data: camposPlantilla, isLoading: isLoadingCamposPlantilla } =
-    useCamposPlantilla();
+const FormRadicacion: React.FC<FormRadicacionProps> = ({
+  plantilla,
+  camposPlantilla,
+}) => {
+  const [form] = Form.useForm();
+  void plantilla;
+
+  const isLoadingCamposPlantilla = false;
 
   const usuarios: Usuario[] = [
   ];
@@ -703,7 +711,7 @@ const FormRadicacion: React.FC = () => {
     }
   };
 
-  const camposPlantillaSafe = camposPlantilla ?? [];
+  const camposPlantillaSafe = camposPlantilla;
   const normalizeCampoName = (value: string | null | undefined) =>
     String(value ?? "").trim().toUpperCase();
 
