@@ -19,6 +19,7 @@ export type AppCollapseRailProps = {
   railLabel?: string;
   railIcon?: ReactNode;
   railButtonLabel?: string;
+  railButtonVariant?: "primary" | "secondary" | "success" | "warning" | "danger" | "ghost" | "link";
   headerActions?: ReactNode;
   hideHeader?: boolean;
   className?: string;
@@ -38,6 +39,7 @@ export function AppCollapseRail({
   railLabel,
   railIcon,
   railButtonLabel,
+  railButtonVariant = "ghost",
   headerActions,
   hideHeader = false,
   className,
@@ -132,7 +134,7 @@ export function AppCollapseRail({
       <div className={styles.rail} data-collapsed={collapsed} data-placement={placement}>
         {collapsed ? (
           <AppButton
-            variant="ghost"
+            variant={railButtonVariant}
             size="sm"
             className={styles.railButton}
             onClick={onToggle}

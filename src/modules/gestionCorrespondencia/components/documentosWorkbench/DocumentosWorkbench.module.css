@@ -19,9 +19,9 @@
   font-weight: 600;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
-  background: rgba(59, 130, 246, 0.12);
-  color: #1d4ed8;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: rgba(148, 163, 184, 0.16);
+  color: #334155;
+  border: 1px solid rgba(148, 163, 184, 0.28);
 }
 
 .workbenchBody {
@@ -233,7 +233,7 @@
 .listSurface :global(button:focus-visible),
 .listSurface :global([role="button"]:focus-visible),
 .listSurface :global([tabindex]:focus-visible) {
-  outline: 2px solid rgba(59, 130, 246, 0.9);
+  outline: 2px solid rgba(148, 163, 184, 0.9);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -241,8 +241,8 @@
 /* In this table, checkbox selection is only for bulk operations.
    Do not use AG Grid's row-selected paint as the visual "active document" state. */
 .listSurface :global(.ag-theme-quartz) {
-  --ag-selected-row-background-color: transparent;
-  --ag-range-selection-background-color: transparent;
+  --ag-selected-row-background-color: rgba(148, 163, 184, 0.14);
+  --ag-range-selection-background-color: rgba(148, 163, 184, 0.09);
 }
 
 /* SCRUMCORE-229: CSS-only visual refresh (scoped to Workbench) */
@@ -251,8 +251,8 @@
   --docu-wb-border-weak: rgba(148, 163, 184, 0.22);
   --docu-wb-border-weaker: rgba(148, 163, 184, 0.12);
   --docu-wb-row-hover: rgba(15, 23, 42, 0.045);
-  --docu-wb-row-selected: rgba(15, 23, 42, 0.035);
-  --docu-wb-focus-ring: rgba(59, 130, 246, 0.9);
+  --docu-wb-row-selected: rgba(148, 163, 184, 0.16);
+  --docu-wb-focus-ring: rgba(148, 163, 184, 0.9);
   --docu-wb-action-hover: rgba(15, 23, 42, 0.05);
   --docu-wb-action-active: rgba(15, 23, 42, 0.08);
 
@@ -340,7 +340,21 @@
 .listSurface :global(.ag-theme-quartz .ag-cell:focus-within) {
   outline: 2px solid var(--docu-wb-focus-ring);
   outline-offset: -1px;
-  border-radius: 6px;
+  border-radius: 0;
+}
+
+.listSurface :global(.ag-theme-quartz .ag-cell.doc-workbench-active-cell) {
+  border-radius: 0;
+}
+
+.listSurface :global(.ag-theme-quartz .app-table-action-cell),
+.listSurface :global(.ag-theme-quartz .app-table-action-cell.ag-cell-focus),
+.listSurface :global(.ag-theme-quartz .app-table-action-cell.ag-cell-focus-within),
+.listSurface :global(.ag-theme-quartz .app-table-action-cell.doc-workbench-active-cell) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
 }
 
 /* Action cell: reduce visual noise of the ellipsis button (CSS-only) */
@@ -455,7 +469,7 @@
 
 .pdfLink {
   font-size: 0.8rem;
-  color: #1d4ed8;
+  color: #334155;
   font-weight: 700;
   text-decoration: none;
   padding: 0.25rem 0.35rem;
@@ -593,8 +607,6 @@
     min-width: 38px;
     padding: 0;
     border-radius: 14px 0 0 14px;
-    border-color: rgba(148, 163, 184, 0.22);
-    background: #ffffff;
     box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
     opacity: 1;
     justify-content: center;
@@ -612,8 +624,6 @@
   .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button:hover),
   .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button:active),
   .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button:focus-visible) {
-    background: #ffffff !important;
-    border-color: rgba(100, 116, 139, 0.36) !important;
     box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
     opacity: 1;
     z-index: 181;

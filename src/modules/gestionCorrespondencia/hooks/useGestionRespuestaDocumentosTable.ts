@@ -5,6 +5,7 @@ import type {
   AppTreeTableRow,
 } from "../../../app/Components/UI/AppTreeTable";
 import { actionListaDocumentosRadicados, queryListaDocumentosRadicados } from "../services/listaDocumentosRadicados.service";
+import { eliminarDocumentoStorageEngine } from "../services/eliminarDocumentoStorageEngine.service";
 import { buildListaDocumentosRadicadosActionRequest } from "../adapters/documentosWorkbenchActionMapper";
 import {
   adaptListaDocumentosRadicadosToWorkbenchModel,
@@ -93,6 +94,15 @@ export type GestionRespuestaDocumentoActivo = {
   documentId?: number;
   nombreGabinete?: string;
   rowId: string;
+};
+
+export type GestionRespuestaDeleteActionResult = {
+  success: boolean;
+  message: string;
+  severity: "success" | "warning" | "error";
+  requestId?: string;
+  httpStatus?: number;
+  rawResponse?: unknown;
 };
 
 export type GestionRespuestaWorkbenchContext = {
@@ -322,21 +332,53 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       const documentId =
         readNumber(values, "DocumentId", "DOCUMENTID") ??
         readNumber(meta, "DocumentId", "documentId");
+      const idAlmacen =
+        readNumber(values, "IdAlmacen", "ID_ALMACEN") ??
+        readNumber(meta, "IdAlmacen", "idAlmacen") ??
+        documentId ??
+        idDocumento;
       const gabinete =
         readString(meta, "NombreGabinete", "nombreGabinete", "NOMBRE_GABINETE") ??
         readString(values, "NOMBRE_GABINETE", "NombreGabinete", "NOMBREGABINETE");
 
-      return { nodeType, idDocumento, documentId, gabinete };
+      return { nodeType, idDocumento, documentId, idAlmacen, gabinete };
     },
     [],
   );
 
   const performAction = useCallback(
     async (input: { actionId: string; rowId: string }): Promise<unknown> => {
-      const { nodeType, idDocumento, documentId, gabinete } = buildActionContextFromRow(input.rowId);
+      const { nodeType, idDocumento, documentId, idAlmacen, gabinete } = buildActionContextFromRow(input.rowId);
+      const tableId = tableIdRef.current || DEFAULT_TABLE_ID;
+
+      if (input.actionId === "eliminar_item") {
+        if (!gabinete || !idAlmacen || idAlmacen <= 0) {
+          return {
+            success: false,
+            message: "No fue posible identificar el documento para eliminar.",
+            severity: "error" as const,
+          } satisfies GestionRespuestaDeleteActionResult;
+        }
+
+        const deleteResult = await eliminarDocumentoStorageEngine({
+          idAlmacen,
+          nombreGabinete: gabinete,
+          sourceModule: "WORKFLOW",
+        });
+
+        if (deleteResult.success) {
+          latestRowRef.current.delete(input.rowId);
+          setCountState((prev) => ({
+            ...prev,
+            rowsCount: Math.max(0, prev.rowsCount - 1),
+            runtimePreferred: true,
+          }));
+        }
+
+        return deleteResult;
+      }
 
       if (!gabinete) return null;
-      const tableId = tableIdRef.current || DEFAULT_TABLE_ID;
 
       const actionRequest = buildListaDocumentosRadicadosActionRequest({
         context: { tableId, viewMode: "flatDocuments" },

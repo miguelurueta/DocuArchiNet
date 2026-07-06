@@ -159,6 +159,29 @@ function withViewerReloadToken(url: string, attemptId?: number): string {
   return `${url}${separator}_dvAttempt=${encodeURIComponent(String(attemptId))}`;
 }
 
+function formatDeleteNotificationMessage(result: {
+  success: boolean;
+  severity?: "success" | "warning" | "error";
+  message?: string;
+}): string {
+  const rawMessage = result.message?.trim() || "";
+  const normalizedMessage = rawMessage.toLowerCase();
+
+  if (!result.success && result.severity === "warning") {
+    if (
+      normalizedMessage.includes("delete feature is disabled") ||
+      normalizedMessage.includes("delete_storage_engine") ||
+      normalizedMessage.includes("delete deshabilitado")
+    ) {
+      return "No es posible eliminar este documento en este momento.";
+    }
+
+    return rawMessage || "No es posible eliminar este documento en este momento.";
+  }
+
+  return rawMessage || (result.success ? "Documento eliminado correctamente." : "No fue posible eliminar el documento.");
+}
+
 export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const panelId = useId();
   const rootRef = useRef<HTMLElement | null>(null);
@@ -185,7 +208,6 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const { documentosRefreshKey } = useGestionRespuestaDocumentos();
   const visorRef = useRef<AppVisorEmbedPdfRef | null>(null);
   const lastVisorLoadKeyRef = useRef<string | null>(null);
-  const [actionRefreshKey, setActionRefreshKey] = useState(0);
   const [activeFileUrl, setActiveFileUrl] = useState<string | undefined>(undefined);
   const [activeRowId, setActiveRowId] = useState<string | undefined>(undefined);
   const [viewerError, setViewerError] = useState<string | null>(null);
@@ -938,6 +960,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
           railLabel="Abrir lista de documentos"
           railButtonLabel="Abrir lista de documentos"
           railIcon={<BookOutlined />}
+          railButtonVariant="secondary"
           hideHeader
           className={styles.collapseRail}
         >
@@ -945,7 +968,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
           <header className={styles.listHeader}>
             <h3 className={styles.listTitle}>{documentsCounter}</h3>
             <AppButton
-              variant="ghost"
+              variant="primary"
               size="sm"
               onClick={() => {
                 if (isReplacingAnnotatedPages) return;
@@ -964,7 +987,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             data-locked={isReplacingAnnotatedPages}
           >
           <AppTreeTable
-              key={`documentos-${documentosRefreshKey}-${actionRefreshKey}`}
+              key={`documentos-${documentosRefreshKey}`}
               load={documentosTable.load}
               loadChildren={documentosTable.loadChildren}
               tableColumns={documentosTable.getTableColumns()}
@@ -990,12 +1013,43 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
                 }
 
                 void (async () => {
-                  await documentosTable.onActionTriggered({ actionId: params.actionId, rowId: params.rowId });
-                  if (params.actionId === "eliminar_item" && activeRowId === params.rowId) {
-                    setActiveRowId(undefined);
-                    setActiveFileUrl(undefined);
+                  const result = await documentosTable.onActionTriggered({
+                    actionId: params.actionId,
+                    rowId: params.rowId,
+                  });
+
+                  if (params.actionId === "eliminar_item") {
+                    if (result && typeof result === "object" && "success" in result) {
+                      const deleteResult = result as {
+                        success: boolean;
+                        severity?: "success" | "warning" | "error";
+                        message?: string;
+                      };
+                      if (!deleteResult.success) {
+                        toast.warning(formatDeleteNotificationMessage(deleteResult), {
+                          position: "top-right",
+                          autoClose: 6000,
+                          closeOnClick: true,
+                        });
+                        return;
+                      }
+
+                      toast.success(formatDeleteNotificationMessage(deleteResult), {
+                        position: "top-right",
+                        autoClose: 4000,
+                        closeOnClick: true,
+                      });
+
+                      if (activeRowId === params.rowId) {
+                        documentViewer.reset();
+                        setActiveRowId(undefined);
+                        setActiveFileUrl(undefined);
+                        setViewerError(null);
+                        lastNotifiedErrorRef.current = null;
+                      }
+                      return;
+                    }
                   }
-                  setActionRefreshKey((prev) => prev + 1);
                 })();
               }}
               emptyMessage="Sin documentos adjuntos."

@@ -193,6 +193,10 @@ export function AppTableGridRenderer<T extends AppTableRow>({
       onRowSelected?.(event.data ?? null);
     },
     onRowClicked: (event) => {
+      if (event.isEventHandlingSuppressed) {
+        return;
+      }
+
       if (rowSelection === "single" && event.node) {
         event.node.setSelected(true, true);
       }
@@ -201,6 +205,10 @@ export function AppTableGridRenderer<T extends AppTableRow>({
       }
     },
     onCellClicked: (event) => {
+      if (event.isEventHandlingSuppressed) {
+        return;
+      }
+
       if (!event.data) return;
       onCellClicked?.({
         row: event.data,

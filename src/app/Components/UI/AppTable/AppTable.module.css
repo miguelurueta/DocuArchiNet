@@ -105,6 +105,7 @@
   border-color: transparent !important;
   box-shadow: none !important;
   outline: none !important;
+  border-radius: 0 !important;
 }
 
 .grid :global(.ag-cell).navigableCell button,
@@ -137,6 +138,14 @@
 .grid :global(.app-table-action-cell) {
   justify-content: center;
   line-height: normal;
+}
+
+.grid :global(.app-table-action-cell.ag-cell-focus),
+.grid :global(.app-table-action-cell.ag-cell-focus-within) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
 }
 
 .grid :global(.app-table-action-cell .ag-cell-wrapper),

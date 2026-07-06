@@ -144,6 +144,7 @@ describe("AppTreeTable", () => {
     expect(screen.getByText("1")).toBeInTheDocument();
     expect(screen.getByText("Factura")).toBeInTheDocument();
   });
+
 });
 
 describe("[SPEC:APPTREETABLE-216] AppTreeTable wrapper sobre AppTable", () => {

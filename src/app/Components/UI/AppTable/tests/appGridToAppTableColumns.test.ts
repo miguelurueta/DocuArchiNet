@@ -99,6 +99,7 @@ describe("[SPEC:IMPLEMENTACION-LISTA-GESTION-CORRESPONDENCIA] appGridToAppTableC
       tableId: "workflowInboxgestion",
       userClaims: ["tramites.gestionar"],
       onClientEvent,
+      suppressMouseEventHandling: expect.any(Function),
     });
   });
 

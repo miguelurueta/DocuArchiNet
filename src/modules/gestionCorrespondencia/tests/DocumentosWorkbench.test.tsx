@@ -5,6 +5,7 @@ import { DocumentosWorkbench } from "../components/documentosWorkbench/Documento
 
 const appTreeTableSpy = vi.fn();
 const visualizarDocumentoSpy = vi.fn();
+const documentViewerResetSpy = vi.fn();
 const exportAnnotatedPdfPagesSpy = vi.fn();
 const getOriginalPdfPasswordSpy = vi.fn();
 const markAnnotatedPagesPersistedSpy = vi.fn();
@@ -25,7 +26,11 @@ type MockTableApi = {
   ) => Promise<{ documentResolveRequest: { IdDocumento: number; NombreGabinete: string }; rowId: string } | null>;
   onActionTriggered: (
     params: { actionId: string; rowId: string },
-  ) => Promise<{ documentResolveRequest: { IdDocumento: number; NombreGabinete: string }; rowId: string } | null>;
+  ) => Promise<
+    | { documentResolveRequest: { IdDocumento: number; NombreGabinete: string }; rowId: string }
+    | { success: boolean; severity?: "success" | "warning" | "error"; message?: string; requestId?: string }
+    | null
+  >;
   onSelectionChanged: (rowIds: string[]) => void;
   getTableColumns: () => undefined | Array<{ headerName?: string; field?: string }>;
   getColumns: () => undefined;
@@ -54,7 +59,7 @@ vi.mock("../../../app/Components/UI/AppDocumentViewerOrchestrator", () => ({
     documentoActivo: mockDocumentoActivo,
     loading: false,
     error: null,
-    reset: () => {},
+    reset: () => documentViewerResetSpy(),
     cancelCurrentRequest: () => {},
   }),
 }));
@@ -132,11 +137,13 @@ vi.mock("../../../app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPd
 }));
 
 const toastErrorSpy = vi.fn();
+const toastWarningSpy = vi.fn();
+const toastSuccessSpy = vi.fn();
 
 vi.mock("react-toastify", () => ({
   toast: {
-    warning: vi.fn(),
-    success: vi.fn(),
+    warning: (message: unknown, opts?: unknown) => toastWarningSpy(message, opts),
+    success: (message: unknown, opts?: unknown) => toastSuccessSpy(message, opts),
     error: (message: unknown, opts?: unknown) => toastErrorSpy(message, opts),
   },
 }));
@@ -194,6 +201,7 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
   beforeEach(() => {
     appTreeTableSpy.mockClear();
     visualizarDocumentoSpy.mockClear();
+    documentViewerResetSpy.mockClear();
     exportAnnotatedPdfPagesSpy.mockReset();
     getOriginalPdfPasswordSpy.mockReset();
     markAnnotatedPagesPersistedSpy.mockReset();
@@ -204,6 +212,8 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     reemplazarPaginasPdfAnotadasSpy.mockReset();
     cancelUploadTemporalSpy.mockReset();
     toastErrorSpy.mockClear();
+    toastWarningSpy.mockClear();
+    toastSuccessSpy.mockClear();
     mockDocumentoActivo = null;
     mockDocumentosRefreshKey = 0;
     getOriginalPdfPasswordSpy.mockReturnValue(undefined);
@@ -254,10 +264,19 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
         documentResolveRequest: { IdDocumento: 10, NombreGabinete: "G" },
         rowId: "r1",
       })),
-      onActionTriggered: vi.fn(async () => ({
-        documentResolveRequest: { IdDocumento: 11, NombreGabinete: "G" },
-        rowId: "r1",
-      })),
+      onActionTriggered: vi.fn(async ({ actionId }: { actionId: string; rowId: string }) =>
+        actionId === "eliminar_item"
+          ? {
+              success: true,
+              message: "Documento eliminado correctamente.",
+              severity: "success",
+              requestId: "req-delete",
+            }
+          : {
+              documentResolveRequest: { IdDocumento: 11, NombreGabinete: "G" },
+              rowId: "r1",
+            },
+      ),
       onSelectionChanged: vi.fn(),
       getTableColumns: () => undefined,
       getColumns: () => undefined,
@@ -301,7 +320,7 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     });
   });
 
-  it("remonta el AppTreeTable despues de una accion de documento para reflejar eliminaciones", async () => {
+  it("no remonta el AppTreeTable despues de una accion de documento", async () => {
     render(<DocumentosWorkbench idTareaWf={933} />);
 
     await waitFor(() => {
@@ -313,9 +332,64 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     await waitFor(() => {
       expect(mockTableApi.onActionTriggered).toHaveBeenCalledWith({ actionId: "eliminar_item", rowId: "r1" });
     });
+    expect(mockTableApi.load).toHaveBeenCalledTimes(1);
+  });
+
+  it("limpia el visor y el row activo cuando se elimina la fila abierta", async () => {
+    render(<DocumentosWorkbench idTareaWf={933} />);
+
     await waitFor(() => {
-      expect(mockTableApi.load).toHaveBeenCalledTimes(2);
+      expect(mockTableApi.load).toHaveBeenCalledTimes(1);
     });
+
+    fireEvent.click(screen.getByRole("button", { name: "Select r1" }));
+
+    await waitFor(() => {
+      expect(visualizarDocumentoSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ documentId: 10, nombreGabinete: "G" }),
+      );
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Action eliminar_item" }));
+
+    await waitFor(() => {
+      expect(documentViewerResetSpy).toHaveBeenCalledTimes(1);
+      expect(mockTableApi.onActionTriggered).toHaveBeenCalledWith({ actionId: "eliminar_item", rowId: "r1" });
+    });
+
+    await waitFor(() => {
+      expect(appTreeTableSpy).toHaveBeenCalledWith(expect.objectContaining({ activeRowId: undefined }));
+    });
+  });
+
+  it("muestra warning amigable cuando el backend deshabilita el delete", async () => {
+    mockTableApi.onActionTriggered = vi.fn(async () => ({
+      success: false,
+      severity: "warning",
+      message: "Delete feature is disabled: DELETE_STORAGE_ENGINE is disabled for this environment.",
+      requestId: "req-delete",
+    }));
+
+    render(<DocumentosWorkbench idTareaWf={933} />);
+
+    await waitFor(() => {
+      expect(mockTableApi.load).toHaveBeenCalledTimes(1);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Action eliminar_item" }));
+
+    await waitFor(() => {
+      expect(toastWarningSpy).toHaveBeenCalledWith(
+        "No es posible eliminar este documento en este momento.",
+        expect.objectContaining({
+          position: "top-right",
+          autoClose: 6000,
+          closeOnClick: true,
+        }),
+      );
+    });
+    expect(toastErrorSpy).not.toHaveBeenCalled();
+    expect(toastSuccessSpy).not.toHaveBeenCalled();
   });
 
   it("resalta temporalmente el listado cuando el visor vacio solicita ayuda de seleccion", async () => {

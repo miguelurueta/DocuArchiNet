@@ -87,12 +87,19 @@ const evaluateSafeRules = (
   };
 };
 
+const isDeleteAction = (action: DynamicUiExecutableAction): boolean => {
+  const actionId = "actionId" in action ? action.actionId : action.ActionId;
+
+  return typeof actionId === "string" && actionId.trim().toLowerCase() === "eliminar_item";
+};
+
 export const evaluateDynamicUiActionAvailability = (
   action: DynamicUiExecutableAction,
   context: DynamicUiActionContext,
 ): DynamicUiActionAvailabilityResult => {
   const reasons: string[] = [];
   const userClaims = new Set(context.userClaims ?? []);
+  const rowCanDelete = context.row?.meta?.CanDelete;
 
   const requiredAny = getRequiredClaimsAny(action);
   if (requiredAny.length > 0 && !requiredAny.some((claim) => userClaims.has(claim))) {
@@ -118,7 +125,12 @@ export const evaluateDynamicUiActionAvailability = (
   const allClaimsSatisfied = missingAll.length === 0;
   const claimKeySatisfied = !claimKey || userClaims.has(claimKey);
 
-  const visible = claimsSatisfied && allClaimsSatisfied && claimKeySatisfied && ruleResult.isVisible;
+  const deleteAllowed = !isDeleteAction(action) || rowCanDelete !== false;
+  if (!deleteAllowed) {
+    reasons.push("Delete action disabled by row metadata CanDelete=false");
+  }
+
+  const visible = claimsSatisfied && allClaimsSatisfied && claimKeySatisfied && ruleResult.isVisible && deleteAllowed;
   const enabled = visible && ruleResult.isEnabled;
 
   return {
