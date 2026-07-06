@@ -10,9 +10,14 @@ export const RADICACION_DOCUMENTAL_INITIAL_STATE: RadicacionDocumentalState = {
   consecutivoRadicado: null,
   idTareaWorkflow: null,
   estadoActual: null,
+  tramite: null,
+  remitente: null,
+  plantillaId: null,
+  tipoPlantillaId: null,
   requiereGestionDocumental: false,
   tieneTramiteDocumentalActivoEstado0: false,
   destinoPostRegistro: "resumen",
+  contextoDocumental: null,
 };
 
 export const isRadicacionDocumentalActivaEstado0 = (

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Tabs, Space } from "antd";
 import {
   FileAddFilled,
@@ -25,8 +25,17 @@ const TabsDocu: React.FC<TabsDocuProps> = ({
   plantilla,
   camposPlantilla,
 }) => {
-  const { tieneTramiteDocumentalActivoEstado0 } =
+  const { destinoPostRegistro, tieneTramiteDocumentalActivoEstado0 } =
     useRadicacionDocumentalContext();
+  const resolvedInitialTab =
+    destinoPostRegistro === "documentos" && tieneTramiteDocumentalActivoEstado0
+      ? "3"
+      : "2";
+  const [activeKey, setActiveKey] = useState(resolvedInitialTab);
+
+  useEffect(() => {
+    setActiveKey(resolvedInitialTab);
+  }, [resolvedInitialTab]);
 
   const items = [
     {
@@ -85,6 +94,8 @@ const TabsDocu: React.FC<TabsDocuProps> = ({
     <div>
       <Tabs
         type="card"
+        activeKey={activeKey}
+        onChange={setActiveKey}
         items={items}
         className={styles.customTabs}
         tabBarExtraContent={{

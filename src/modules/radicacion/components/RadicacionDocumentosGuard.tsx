@@ -28,7 +28,7 @@ export function RadicacionDocumentosGuard({
     return (
       fallback ?? (
         <Alert severity="info">
-          La captura de documentos estÃ¡ disponible solo para trÃ¡mites
+          La captura de documentos está disponible solo para trámites
           documentales activos.
         </Alert>
       )
