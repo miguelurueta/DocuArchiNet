@@ -11,6 +11,12 @@
 - Endpoints modificados: no
 - Componentes shared reemplazados: no
 
+## Documentos Relacionados
+
+- `SCRUMCORE-287-Metadata.md`: metadata tecnica, alcance, contratos y archivos tocados.
+- `SCRUMCORE-287-Diagrama-Secuencia.md`: diagramas de secuencia Mermaid para configuracion, guardado, lote y cancelacion.
+- `SCRUMCORE-287-Flujo-API-Estados.md`: detalle de APIs consumidas, estados de archivo, cierre de modal, cancelacion y retry.
+
 ## Objetivo
 
 Reforzar el flujo de adjuntos documentales ya integrado con `AppUploadDocumental` para que las reglas finales de seleccion de archivos salgan de backend y no de constantes locales.
