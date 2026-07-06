@@ -3,7 +3,9 @@ import { useCallback, useMemo, useState } from "react";
 import { AppUploadDocumental } from "../../../almacenamientoDocumental/components/AppUploadDocumental";
 import type {
   AlmacenarDocumentoStoredResult,
+  UploadDocumentalBatchSummary,
   UploadDocumentalContext,
+  UploadDocumentalStoredContext,
 } from "../../../almacenamientoDocumental/components/AppUploadDocumental";
 import {
   buildGestionRespuestaAlmacenarDocumentoRequest,
@@ -19,6 +21,11 @@ import { useGestionRespuestaDocumentos } from "../../hooks/useGestionRespuestaDo
 import styles from "./GestionRespuestaMainTabContent.module.css";
 
 const PROCESO_GESTION_RESPUESTA_ANEXO = "gestion-respuesta-anexo";
+const GESTION_RESPUESTA_MAX_CHUNK_SIZE_BYTES = 4 * 1024 * 1024;
+const DEBUG_GESTION_RESPUESTA_UPLOAD_DOCUMENTAL =
+  typeof import.meta !== "undefined" &&
+  Boolean(import.meta.env?.DEV) &&
+  import.meta.env?.MODE !== "test";
 
 export type GestionRespuestaUploadDocumentalProps = {
   embedded?: boolean;
@@ -64,19 +71,70 @@ export function GestionRespuestaUploadDocumental({
     [idEmpresa, idRespuestaRadicado, idRutaWf, idTareaWf, idUsuarioGestion, nombreGabinete, radicado],
   );
 
-  const handleStored = useCallback(
-    (result: AlmacenarDocumentoStoredResult) => {
-      const anexoCreated = isWorkflowAnexoCreated(result.rawBackendResult);
+  const refreshDocumentosAfterStore = useCallback(() => {
+    debugGestionRespuestaUploadDocumental("refresh after store", {
+      reason: "stored-document-confirmed",
+    });
+    refreshDocumentos();
+  }, [refreshDocumentos]);
 
-      if (anexoCreated) {
-        refreshDocumentos();
+  const handleStored = useCallback(
+    (result: AlmacenarDocumentoStoredResult, storedContext: UploadDocumentalStoredContext) => {
+      const anexoCreated = isWorkflowAnexoCreated(result.rawBackendResult);
+      debugGestionRespuestaUploadDocumental("stored", {
+        source: storedContext.source,
+        fileUid: result.fileUid,
+        fileName: result.fileName,
+        idAlmacen: result.idAlmacen,
+        idRegistroProduccionDocumental: result.idRegistroProduccionDocumental,
+        requestId: result.requestId,
+        anexoCreated,
+        remainingFiles: storedContext.remainingFiles,
+      });
+
+      if (anexoCreated && storedContext.source === "single") {
+        refreshDocumentosAfterStore();
+        if (storedContext.remainingFiles === 0) {
+          onClose?.();
+        }
+      }
+    },
+    [onClose, refreshDocumentosAfterStore],
+  );
+
+  const handleBatchComplete = useCallback(
+    (summary: UploadDocumentalBatchSummary) => {
+      debugGestionRespuestaUploadDocumental("batch complete", {
+        total: summary.total,
+        stored: summary.stored,
+        failed: summary.failed,
+        skipped: summary.skipped,
+        cancelled: summary.cancelled,
+        remainingFiles: summary.remainingFiles,
+      });
+      if (summary.stored > 0) {
+        refreshDocumentosAfterStore();
+      }
+
+      if (
+        summary.stored > 0 &&
+        summary.failed === 0 &&
+        summary.skipped === 0 &&
+        summary.cancelled === 0 &&
+        summary.remainingFiles === 0
+      ) {
         onClose?.();
       }
     },
-    [onClose, refreshDocumentos],
+    [onClose, refreshDocumentosAfterStore],
   );
 
   const handleError = useCallback((error: unknown) => {
+    if (isTipologiaRequiredError(error)) {
+      setUploadError(null);
+      return;
+    }
+
     setUploadError(error instanceof Error ? error.message : "No fue posible almacenar el anexo.");
   }, []);
 
@@ -132,6 +190,7 @@ export function GestionRespuestaUploadDocumental({
         open={open}
         onClose={onClose}
         allowSingleFileStore
+        saveAllMode="inline"
         validationMode="queue-with-error"
         tipologiaObligatoria
         autoSuggestTipologia
@@ -141,8 +200,10 @@ export function GestionRespuestaUploadDocumental({
         storageOptions={{
           backendPayloadCase: "pascal",
           validateStatusBeforeComplete: true,
+          maxChunkSizeBytes: GESTION_RESPUESTA_MAX_CHUNK_SIZE_BYTES,
         }}
         onStored={handleStored}
+        onBatchComplete={handleBatchComplete}
         onError={handleError}
       />
     </div>
@@ -161,4 +222,26 @@ function normalizePositiveNumber(value: unknown): number | undefined {
 
 function getCurrentDateOnly(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function debugGestionRespuestaUploadDocumental(message: string, payload?: Record<string, unknown>): void {
+  if (!DEBUG_GESTION_RESPUESTA_UPLOAD_DOCUMENTAL) {
+    return;
+  }
+
+  console.info(`[GestionRespuestaUploadDocumental][debug] ${message}`, payload ?? {});
+}
+
+function isTipologiaRequiredError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : typeof error === "string" ? error : "";
+  const normalized = message
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  return (
+    normalized.includes("selecciona la tipologia") ||
+    normalized.includes("tipologia documental") ||
+    normalized.includes("tipo documental")
+  );
 }

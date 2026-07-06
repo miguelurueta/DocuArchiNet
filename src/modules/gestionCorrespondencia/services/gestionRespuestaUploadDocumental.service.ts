@@ -8,15 +8,15 @@ import {
   getTipologiasDocumentalesWorkflow,
   TipologiasDocumentalesWorkflowError,
 } from "./tipologiasDocumentalesWorkflow.service";
-
-const DEFAULT_MAX_SIZE_BYTES = 25 * 1024 * 1024;
-const DEFAULT_ALLOWED_EXTENSIONS = [".pdf", ".png", ".jpg", ".jpeg", ".tif", ".tiff"];
+import { getConfiguracionUploadCorrespondencia } from "./configuracionUploadCorrespondencia.service";
 
 export async function loadGestionRespuestaUploadConfig(): Promise<UploadDocumentalConfig> {
+  const uploadConfig = await getConfiguracionUploadCorrespondencia();
+
   return {
-    accept: DEFAULT_ALLOWED_EXTENSIONS.join(","),
-    allowedExtensions: DEFAULT_ALLOWED_EXTENSIONS,
-    maxSizeBytes: DEFAULT_MAX_SIZE_BYTES,
+    accept: uploadConfig.accept,
+    allowedExtensions: uploadConfig.allowedExtensions,
+    maxSizeBytes: uploadConfig.maxSizeBytes,
     multiple: true,
     requiereTipologia: true,
     requiereFechaCarga: false,

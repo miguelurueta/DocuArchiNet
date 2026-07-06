@@ -5,10 +5,12 @@ import {
   EyeOutlined,
   FileOutlined,
   SaveOutlined,
+  StopOutlined,
 } from "@ant-design/icons";
 import { Progress, Tooltip } from "antd";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppButton } from "../AppButton";
+import { AppModal } from "../AppModal";
 import { AppUpload } from "../AppUpload";
 import type { AppUploadFile } from "../AppUpload";
 import styles from "./AppUploadBatchView.module.css";
@@ -55,6 +57,19 @@ const formatBytes = (size: number) => {
   const index = Math.min(Math.floor(Math.log(size) / Math.log(1024)), units.length - 1);
   const value = size / 1024 ** index;
   return `${value >= 10 || index === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[index]}`;
+};
+
+const getUploadSelectionErrorMessage = (file: AppUploadFile, error: unknown, maxSize?: number) => {
+  const rawMessage = error instanceof Error ? error.message : String(error ?? "");
+  const normalizedMessage = rawMessage.toLowerCase();
+  const isSizeError = normalizedMessage.includes("tamanio") || normalizedMessage.includes("tamaño");
+
+  if (isSizeError) {
+    const limitText = maxSize ? ` El limite permitido es ${formatBytes(maxSize)}.` : "";
+    return `El archivo "${file.name}" pesa ${formatBytes(file.size)} y supera el tamano maximo permitido.${limitText}`;
+  }
+
+  return rawMessage || `No fue posible agregar el archivo "${file.name}".`;
 };
 
 const getNormalizedExtension = (item: AppUploadBatchFileItem) => {
@@ -111,6 +126,7 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
   canAddFiles = true,
   canPreview = true,
   canSaveOne = false,
+  processingAll = false,
   emptyMessage = DEFAULT_EMPTY_MESSAGE,
   summary,
   onFilesSelected,
@@ -119,6 +135,8 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
   onRemoveFile,
   onSaveFile,
   onSaveAll,
+  onCancelAll,
+  onCancelFile,
   onClearAll,
   onClosePreview,
   renderMetadata,
@@ -128,6 +146,7 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
 }: AppUploadBatchViewProps<TMetadata>) => {
   const [previewVisibility, setPreviewVisibility] = useState<PreviewVisibilityState>("closed");
   const [removingUids, setRemovingUids] = useState<ReadonlySet<string>>(() => new Set());
+  const [uploadSelectionError, setUploadSelectionError] = useState<string | null>(null);
   const removeTimersRef = useRef(new Map<string, number>());
   const previewCloseTimerRef = useRef<number | undefined>(undefined);
   const resolvedSummary = useMemo(() => summary ?? buildSummary(files), [files, summary]);
@@ -165,6 +184,7 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
 
   const previewUrl = selectedItem?.previewUrl ?? generatedPreviewUrl;
   const isBlocked = disabled || loading;
+  const isCommandBlocked = isBlocked || processingAll;
 
   const handleFilesChange = useCallback(
     (uploadFiles: AppUploadFile[]) => {
@@ -184,6 +204,13 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
       return false;
     },
     [onFilesSelected],
+  );
+
+  const handleUploadSelectionError = useCallback(
+    (file: AppUploadFile, error: unknown) => {
+      setUploadSelectionError(getUploadSelectionErrorMessage(file, error, maxSize));
+    },
+    [maxSize],
   );
 
   const handleClosePreview = useCallback(() => {
@@ -296,12 +323,13 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
               accept={accept}
               maxSize={maxSize}
               maxCount={multiple ? undefined : 1}
-              disabled={isBlocked}
+              disabled={isCommandBlocked}
               size="sm"
               drag={drag}
               strategy="manual"
               beforeUpload={handleBeforeUpload}
               onChange={handleFilesChange}
+              onError={handleUploadSelectionError}
             />
           </div>
         ) : null}
@@ -311,16 +339,27 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
             variant="primary"
             size="sm"
             leftIcon={<SaveOutlined />}
-            disabled={isBlocked || !canSaveAll || files.length === 0}
+            loading={processingAll}
+            disabled={isCommandBlocked || !canSaveAll || files.length === 0}
             onClick={onSaveAll}
           >
             Guardar todo
           </AppButton>
+          {processingAll ? (
+            <AppButton
+              variant="danger"
+              size="sm"
+              leftIcon={<StopOutlined />}
+              onClick={onCancelAll}
+            >
+              Cancelar carga
+            </AppButton>
+          ) : null}
           <AppButton
             variant="danger"
             size="sm"
             leftIcon={<ClearOutlined />}
-            disabled={isBlocked || !canClearAll || files.length === 0}
+            disabled={isCommandBlocked || !canClearAll || files.length === 0}
             onClick={onClearAll}
           >
             Limpiar todo
@@ -342,12 +381,21 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
               {files.map((item) => {
                 const selected = selectedItem?.uid === item.uid;
                 const previewSelected = selected && isPreviewMounted;
+                const itemIsActive = ACTIVE_STATES.includes(item.state);
                 const itemDisabled = isBlocked || Boolean(item.disabled);
                 const isRemoving = removingUids.has(item.uid);
                 const itemProgress = clampPercent(item.progress);
                 const canUsePreview = canPreview && !itemDisabled && !isRemoving;
-                const canUseRemove = !itemDisabled && !isRemoving && item.state !== "done";
-                const canUseSaveOne = canSaveOne && !itemDisabled && !isRemoving;
+                const canUseRemove = !itemDisabled && !processingAll && !isRemoving && item.state !== "done";
+                const canUseSaveOne =
+                  canSaveOne &&
+                  !itemDisabled &&
+                  !processingAll &&
+                  !isRemoving &&
+                  !itemIsActive &&
+                  item.state !== "done" &&
+                  item.state !== "removed";
+                const canCancelItem = itemIsActive && !isBlocked && !isRemoving && Boolean(onCancelFile);
 
                 return (
                   <article
@@ -378,7 +426,7 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
                       ) : null}
                     </button>
 
-                    {ACTIVE_STATES.includes(item.state) ? (
+                    {itemIsActive ? (
                       <Progress
                         className={styles.fileProgress}
                         aria-label={`Progreso de ${item.name}`}
@@ -418,15 +466,26 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
                           onClick={() => onSaveFile?.(item.uid)}
                         />
                       ) : null}
-                      <AppButton
-                        variant="danger"
-                        size="sm"
-                        icon={<DeleteOutlined />}
-                        tooltip="Eliminar archivo"
-                        aria-label={`Eliminar ${item.name}`}
-                        disabled={!canUseRemove}
-                        onClick={() => handleRemoveFile(item.uid)}
-                      />
+                      {canCancelItem ? (
+                        <AppButton
+                          variant="danger"
+                          size="sm"
+                          icon={<StopOutlined />}
+                          tooltip="Cancelar archivo"
+                          aria-label={`Cancelar ${item.name}`}
+                          onClick={() => onCancelFile?.(item.uid)}
+                        />
+                      ) : (
+                        <AppButton
+                          variant="danger"
+                          size="sm"
+                          icon={<DeleteOutlined />}
+                          tooltip="Eliminar archivo"
+                          aria-label={`Eliminar ${item.name}`}
+                          disabled={!canUseRemove}
+                          onClick={() => handleRemoveFile(item.uid)}
+                        />
+                      )}
                     </div>
                   </article>
                 );
@@ -480,6 +539,20 @@ export const AppUploadBatchView = <TMetadata = unknown,>({
           <div className={styles.footerExtra}>{renderFooterExtra(resolvedSummary)}</div>
         ) : null}
       </footer>
+
+      <AppModal
+        open={Boolean(uploadSelectionError)}
+        title="Archivo demasiado grande"
+        width={420}
+        destroyOnHidden
+        onClose={() => setUploadSelectionError(null)}
+        primaryAction={{
+          label: "Entendido",
+          onClick: () => setUploadSelectionError(null),
+        }}
+      >
+        {uploadSelectionError}
+      </AppModal>
     </section>
   );
 };

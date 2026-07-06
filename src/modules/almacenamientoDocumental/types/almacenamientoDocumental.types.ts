@@ -243,6 +243,7 @@ export type UploadOneDocumentInput = {
   backendPayloadCase?: "camel" | "pascal";
   validateStatusBeforeComplete?: boolean;
   initialChunkSizeBytes?: number;
+  maxChunkSizeBytes?: number;
   signal?: AbortSignal;
   onProgress?: (progress: UploadStorageProgress) => void;
 };

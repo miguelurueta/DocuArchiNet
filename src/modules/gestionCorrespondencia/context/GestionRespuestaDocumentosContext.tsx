@@ -79,6 +79,11 @@ const isAbortError = (error: unknown): boolean =>
   (error instanceof DOMException && error.name === "AbortError") ||
   (isRecord(error) && error.code === "ERR_CANCELED");
 
+const DEBUG_GESTION_RESPUESTA_DOCUMENTOS =
+  typeof import.meta !== "undefined" &&
+  Boolean(import.meta.env?.DEV) &&
+  import.meta.env?.MODE !== "test";
+
 export function GestionRespuestaDocumentosProvider({
   idTareaWf,
   idRutaWf,
@@ -180,7 +185,14 @@ export function GestionRespuestaDocumentosProvider({
 
   const reloadGabinete = useCallback(() => loadGabinete(true), [loadGabinete]);
   const refreshDocumentos = useCallback(() => {
-    setDocumentosRefreshKey((current) => current + 1);
+    setDocumentosRefreshKey((current) => {
+      const next = current + 1;
+      debugGestionRespuestaDocumentos("refreshDocumentos", {
+        previousRefreshKey: current,
+        nextRefreshKey: next,
+      });
+      return next;
+    });
   }, []);
 
   useEffect(() => {
@@ -230,4 +242,12 @@ export function GestionRespuestaDocumentosProvider({
       {children}
     </GestionRespuestaDocumentosContext.Provider>
   );
+}
+
+function debugGestionRespuestaDocumentos(message: string, payload?: Record<string, unknown>): void {
+  if (!DEBUG_GESTION_RESPUESTA_DOCUMENTOS) {
+    return;
+  }
+
+  console.info(`[GestionRespuestaDocumentos][debug] ${message}`, payload ?? {});
 }

@@ -42,7 +42,15 @@ vi.mock("../../almacenamientoDocumental/components/AppUploadDocumental", () => (
     context: unknown;
     storageOptions?: unknown;
     buildStoreRequest?: unknown;
-    onStored?: (result: { rawBackendResult?: unknown }) => void;
+    onStored?: (result: { rawBackendResult?: unknown }, context: { source: "single" | "batch"; remainingFiles: number }) => void;
+    onBatchComplete?: (summary: {
+      stored: number;
+      failed: number;
+      skipped: number;
+      cancelled: number;
+      remainingFiles: number;
+    }) => void;
+    onError?: (error: unknown) => void;
   }) => {
     appUploadDocumentalSpy(props);
     return (
@@ -51,30 +59,68 @@ vi.mock("../../almacenamientoDocumental/components/AppUploadDocumental", () => (
         <button
           type="button"
           onClick={() =>
-            props.onStored?.({
-              rawBackendResult: {
-                Documento: {
-                  IdAlmacen: 9967,
-                  IdRegistroProduccionDocumental: 23040,
-                  NombreArchivoFinal: "DIG00009967.pdf",
-                },
-                AnexoRespuesta: {
-                  IdRespuestaRadicado: 672,
-                  IdAlmacen: 9967,
-                  NombreGabinete: "CORRESPO",
-                  NombreArchivo: "soporte-respuesta.pdf",
-                  Created: true,
-                },
-              },
-            })
+            props.onStored?.(buildStoredResult(), { source: "single", remainingFiles: 0 })
           }
         >
           Simular stored
+        </button>
+        <button type="button" onClick={() => props.onStored?.(buildStoredResult(), { source: "single", remainingFiles: 1 })}>
+          Simular stored con pendientes
+        </button>
+        <button type="button" onClick={() => props.onStored?.(buildStoredResult(), { source: "batch", remainingFiles: 1 })}>
+          Simular batch stored
+        </button>
+        <button
+          type="button"
+          onClick={() => props.onBatchComplete?.({ stored: 1, failed: 0, skipped: 0, cancelled: 0, remainingFiles: 0 })}
+        >
+          Simular batch complete
+        </button>
+        <button
+          type="button"
+          onClick={() => props.onBatchComplete?.({ stored: 1, failed: 1, skipped: 0, cancelled: 0, remainingFiles: 1 })}
+        >
+          Simular batch parcial
+        </button>
+        <button
+          type="button"
+          onClick={() => props.onBatchComplete?.({ stored: 1, failed: 0, skipped: 0, cancelled: 0, remainingFiles: 1 })}
+        >
+          Simular batch con archivo restante
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            props.onError?.(
+              new Error("No se puede guardar: selecciona la tipologia documental del archivo."),
+            )
+          }
+        >
+          Simular error tipologia
         </button>
       </div>
     );
   },
 }));
+
+function buildStoredResult() {
+  return {
+    rawBackendResult: {
+      Documento: {
+        IdAlmacen: 9967,
+        IdRegistroProduccionDocumental: 23040,
+        NombreArchivoFinal: "DIG00009967.pdf",
+      },
+      AnexoRespuesta: {
+        IdRespuestaRadicado: 672,
+        IdAlmacen: 9967,
+        NombreGabinete: "CORRESPO",
+        NombreArchivo: "soporte-respuesta.pdf",
+        Created: true,
+      },
+    },
+  };
+}
 
 describe("[SCRUMCORE-277] GestionRespuestaUploadDocumental", () => {
   beforeEach(() => {
@@ -100,10 +146,13 @@ describe("[SCRUMCORE-277] GestionRespuestaUploadDocumental", () => {
       expect.objectContaining({
         title: "Adjuntos",
         tipologiaObligatoria: true,
+        saveAllMode: "inline",
+        loadConfig: expect.any(Function),
         buildStoreRequest: expect.any(Function),
         storageOptions: {
           backendPayloadCase: "pascal",
           validateStatusBeforeComplete: true,
+          maxChunkSizeBytes: 4 * 1024 * 1024,
         },
         context: expect.objectContaining({
           nombreGabinete: "CORRESPO",
@@ -129,6 +178,51 @@ describe("[SCRUMCORE-277] GestionRespuestaUploadDocumental", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it("no cierra el modal al guardar un archivo individual si quedan archivos pendientes", () => {
+    const onClose = vi.fn();
+    render(<GestionRespuestaUploadDocumental onClose={onClose} />);
+
+    screen.getByRole("button", { name: "Simular stored con pendientes" }).click();
+
+    expect(refreshDocumentosSpy).toHaveBeenCalledTimes(1);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("no cierra el modal por item almacenado dentro de un lote; cierra al completar el lote", () => {
+    const onClose = vi.fn();
+    render(<GestionRespuestaUploadDocumental onClose={onClose} />);
+
+    screen.getByRole("button", { name: "Simular batch stored" }).click();
+
+    expect(refreshDocumentosSpy).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+
+    screen.getByRole("button", { name: "Simular batch complete" }).click();
+
+    expect(refreshDocumentosSpy).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("refresca pero mantiene abierto el modal cuando el lote termina con archivos pendientes", () => {
+    const onClose = vi.fn();
+    render(<GestionRespuestaUploadDocumental onClose={onClose} />);
+
+    screen.getByRole("button", { name: "Simular batch parcial" }).click();
+
+    expect(refreshDocumentosSpy).toHaveBeenCalledTimes(1);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("no cierra el modal cuando el lote guarda un archivo pero queda otro en cola", () => {
+    const onClose = vi.fn();
+    render(<GestionRespuestaUploadDocumental onClose={onClose} />);
+
+    screen.getByRole("button", { name: "Simular batch con archivo restante" }).click();
+
+    expect(refreshDocumentosSpy).toHaveBeenCalledTimes(1);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it("bloquea la carga documental cuando no existe idRutaWf para tipologias workflow", () => {
     useDocumentosState.idRutaWf = undefined;
 
@@ -136,5 +230,15 @@ describe("[SCRUMCORE-277] GestionRespuestaUploadDocumental", () => {
 
     expect(screen.getByText("No hay ruta workflow disponible para cargar tipologias documentales.")).toBeInTheDocument();
     expect(appUploadDocumentalSpy).not.toHaveBeenCalled();
+  });
+
+  it("no muestra alerta superior para errores locales de tipologia requerida", () => {
+    render(<GestionRespuestaUploadDocumental />);
+
+    screen.getByRole("button", { name: "Simular error tipologia" }).click();
+
+    expect(
+      screen.queryByText("No se puede guardar: selecciona la tipologia documental del archivo."),
+    ).not.toBeInTheDocument();
   });
 });

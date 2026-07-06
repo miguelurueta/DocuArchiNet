@@ -54,9 +54,11 @@ export function AppUploadDocumental(props: AppUploadDocumentalProps) {
     modoDocumento: props.modoDocumento,
     buildStoreRequest: props.buildStoreRequest,
     storageOptions: props.storageOptions,
+    saveAllMode: props.saveAllMode,
     operationId: state.operationId,
     validateFileForStore: state.validateFileForStore,
     markFile: state.markFile,
+    setFiles: state.setFiles,
     onStored: props.onStored,
     onInterfaceRegistration: props.onInterfaceRegistration,
     onBatchComplete: props.onBatchComplete,
@@ -176,6 +178,7 @@ export function AppUploadDocumental(props: AppUploadDocumentalProps) {
         drag
         disabled={selectionDisabled}
         loading={loading}
+        processingAll={actions.isSavingAll}
         canAddFiles={!selectionDisabled}
         canSaveAll={actions.canSaveAll}
         canSaveOne={allowSingleFileStore}
@@ -188,7 +191,9 @@ export function AppUploadDocumental(props: AppUploadDocumentalProps) {
         onRemoveFile={removeFile}
         onClearAll={clearFiles}
         onSaveFile={(uid) => void actions.saveOne(uid)}
-        onSaveAll={actions.saveAll}
+        onSaveAll={() => void actions.saveAll()}
+        onCancelAll={actions.cancelAll}
+        onCancelFile={actions.cancelFile}
         onClosePreview={() => setSelectedUid(undefined)}
         renderMetadata={renderMetadata}
         renderFooterExtra={(summary) => (

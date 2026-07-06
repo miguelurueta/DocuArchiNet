@@ -57,6 +57,11 @@ const inferColumnsFromRows = (rows: AppTreeTableRow[]): string[] | undefined => 
   return keys.length > 0 ? keys : undefined;
 };
 
+const DEBUG_GESTION_RESPUESTA_DOCUMENTOS_TABLE =
+  typeof import.meta !== "undefined" &&
+  Boolean(import.meta.env?.DEV) &&
+  import.meta.env?.MODE !== "test";
+
 const readTotalCandidate = (value: unknown): number | undefined => {
   if (!value || typeof value !== "object") return undefined;
   const source = value as Record<string, unknown>;
@@ -140,6 +145,14 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
   const load = useCallback(async (): Promise<AppTreeTableLoadResult> => {
     const seq = ++loadSeqRef.current;
     try {
+      debugGestionRespuestaDocumentosTable("load start", {
+        seq,
+        idTareaWf,
+        contextNombreGabinete,
+        contextRadicado,
+        gabineteLoading,
+        hasGabineteError: Boolean(gabineteError),
+      });
       let nombreGabinete: string | undefined;
       let radicado: string | undefined;
       let estadoExistenciaRadicado: string | undefined;
@@ -188,6 +201,12 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
           radicado: hasValidTask ? resolvedRadicado : undefined,
         }),
       );
+      debugGestionRespuestaDocumentosTable("load response", {
+        seq,
+        success: response.success,
+        rows: response.data?.Rows?.length ?? 0,
+        message: response.message,
+      });
       if (seq !== loadSeqRef.current) {
         // La carga quedó obsoleta por cambio de tarea: no limpiar el UI ni mostrar error.
         return { ok: true, rows: lastSuccessfulRowsRef.current };
@@ -217,8 +236,18 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       setTableColumns(model.tableColumns);
       setColumns(resolvedColumns);
       lastSuccessfulRowsRef.current = model.rows;
+      debugGestionRespuestaDocumentosTable("load success", {
+        seq,
+        rows: model.rows.length,
+        backendTotal,
+        tableId: tableIdRef.current,
+      });
       return { ok: true, rows: model.rows };
-    } catch {
+    } catch (error) {
+      debugGestionRespuestaDocumentosTable("load error", {
+        seq,
+        error: error instanceof Error ? error.message : String(error),
+      });
       return { ok: false, message: "No fue posible cargar el listado." };
     }
   }, [contextNombreGabinete, contextRadicado, gabineteError, gabineteLoading, idTareaWf]);
@@ -412,3 +441,11 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
     ],
   );
 };
+
+function debugGestionRespuestaDocumentosTable(message: string, payload?: Record<string, unknown>): void {
+  if (!DEBUG_GESTION_RESPUESTA_DOCUMENTOS_TABLE) {
+    return;
+  }
+
+  console.info(`[useGestionRespuestaDocumentosTable][debug] ${message}`, payload ?? {});
+}

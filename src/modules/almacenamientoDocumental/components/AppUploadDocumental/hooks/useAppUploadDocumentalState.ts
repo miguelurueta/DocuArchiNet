@@ -55,6 +55,11 @@ const EMPTY_SUMMARY: AppUploadBatchSummary = {
   cancelled: 0,
 };
 
+const DEBUG_UPLOAD_DOCUMENTAL =
+  typeof import.meta !== "undefined" &&
+  Boolean(import.meta.env?.DEV) &&
+  import.meta.env?.MODE !== "test";
+
 export function useAppUploadDocumentalState({
   proceso,
   context,
@@ -64,6 +69,7 @@ export function useAppUploadDocumentalState({
   autoSuggestTipologia = true,
   requiereFechaCarga,
   fechaCargaObligatoria,
+  tipologiaObligatoria,
   validationMode,
   onError,
 }: AppUploadDocumentalProps): UseAppUploadDocumentalStateResult {
@@ -130,6 +136,7 @@ export function useAppUploadDocumentalState({
   }, [context, contextKey, loadConfig, loadTiposDocumentales, modoDocumento, onError, proceso]);
 
   const effectiveValidationMode = validationMode ?? config?.validationMode ?? "reject";
+  const requiresTypology = Boolean(tipologiaObligatoria ?? config?.requiereTipologia);
   const requiresDate = Boolean(requiereFechaCarga ?? config?.requiereFechaCarga);
   const requiresDateValue = Boolean(fechaCargaObligatoria ?? config?.fechaCargaObligatoria ?? requiresDate);
   const preparedTipoDocumentalOptions = useMemo(
@@ -173,6 +180,14 @@ export function useAppUploadDocumentalState({
       }
 
       if (file.size > config.maxSizeBytes) {
+        debugUploadDocumental("store validation blocked by maxSize", {
+          fileName: file.name,
+          fileSizeBytes: file.size,
+          fileSizeMb: bytesToMb(file.size),
+          maxSizeBytes: config.maxSizeBytes,
+          maxSizeMb: bytesToMb(config.maxSizeBytes),
+          allowedExtensions: config.allowedExtensions,
+        });
         return "No se puede guardar: el archivo supera el tamano maximo permitido.";
       }
 
@@ -280,6 +295,10 @@ export function useAppUploadDocumentalState({
         return fileError;
       }
 
+      if (requiresTypology && !item.metadata?.idTipoDocumento) {
+        return "No se puede guardar: selecciona la tipologia documental del archivo.";
+      }
+
       const date = item.metadata?.fechaCarga;
       if (requiresDateValue && !date) {
         return "No se puede guardar: ingresa la fecha documental del archivo.";
@@ -291,7 +310,7 @@ export function useAppUploadDocumentalState({
 
       return null;
     },
-    [files, requiresDateValue, validateSelectedFile],
+    [files, requiresDateValue, requiresTypology, validateSelectedFile],
   );
 
   const markFile = useCallback<UseAppUploadDocumentalStateResult["markFile"]>((uid, patch) => {
@@ -347,4 +366,16 @@ function isValidDate(value: string): boolean {
     date.getUTCDate() === day &&
     year <= new Date().getFullYear()
   );
+}
+
+function debugUploadDocumental(message: string, payload: Record<string, unknown>): void {
+  if (!DEBUG_UPLOAD_DOCUMENTAL) {
+    return;
+  }
+
+  console.info(`[AppUploadDocumental][debug] ${message}`, payload);
+}
+
+function bytesToMb(value: number): number {
+  return Number((value / 1024 / 1024).toFixed(2));
 }

@@ -50,7 +50,7 @@ describe("[SPEC:SCRUMCORE-271] useAppUploadDocumentalState", () => {
     });
   });
 
-  it("delega mensaje de tipologia al backend y valida fecha obligatoria por archivo", async () => {
+  it("valida tipologia y fecha obligatoria por archivo antes de almacenar", async () => {
     const stableProps = props({
       tipologiaObligatoria: true,
       requiereFechaCarga: true,
@@ -66,7 +66,7 @@ describe("[SPEC:SCRUMCORE-271] useAppUploadDocumentalState", () => {
 
     const uid = result.current.files[0].uid;
     expect(result.current.validateFileForStore(uid)).toBe(
-      "No se puede guardar: ingresa la fecha documental del archivo.",
+      "No se puede guardar: selecciona la tipologia documental del archivo.",
     );
 
     act(() => {
@@ -82,5 +82,10 @@ describe("[SPEC:SCRUMCORE-271] useAppUploadDocumentalState", () => {
     expect(result.current.validateFileForStore(uid)).toBe(
       "No se puede guardar: la fecha documental debe ser real, no futura y usar formato AAAA-MM-DD.",
     );
+
+    act(() => {
+      result.current.updateMetadata(uid, { fechaCarga: "2026-01-10" });
+    });
+    expect(result.current.validateFileForStore(uid)).toBeNull();
   });
 });
