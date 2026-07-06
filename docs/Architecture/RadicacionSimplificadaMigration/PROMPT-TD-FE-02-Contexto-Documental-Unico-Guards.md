@@ -4,6 +4,16 @@
 
 ---
 
+# Ticket Asociado
+
+```text
+SCRUMCORE-291
+```
+
+Este prompt queda asociado a `SCRUMCORE-291` para trazabilidad, rollback y auditorÃ­a del ajuste.
+
+---
+
 # Contexto Arquitectónico
 
 Este trabajo debe respetar el Contexto Arquitectónico Maestro del proyecto.
