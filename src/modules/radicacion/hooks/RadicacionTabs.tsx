@@ -11,12 +11,22 @@ import styles from "../style/tabs.module.css";
 import CapDocument from "../components/CapDocument";
 import RadicacionForm from "../components/RadicacionForm";
 import ModalPendiente from "../components/Modalpendiente";
+import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
+import type { PlantillaRadicadoDTO } from "../models/PlantillaRadicadoDTO";
 
 const onChange = (key: string) => {
   console.log(key);
 };
 
-const TabsDocu: React.FC = () => {
+interface TabsDocuProps {
+  plantilla: PlantillaRadicadoDTO;
+  camposPlantilla: ReadonlyArray<CampoPlantillaDTO>;
+}
+
+const TabsDocu: React.FC<TabsDocuProps> = ({
+  plantilla,
+  camposPlantilla,
+}) => {
   const items = [
     {
       key: "1",
@@ -36,7 +46,12 @@ const TabsDocu: React.FC = () => {
           Radicación
         </Space>
       ),
-      children: <RadicacionForm/>,
+      children: (
+        <RadicacionForm
+          plantilla={plantilla}
+          camposPlantilla={camposPlantilla}
+        />
+      ),
     },
     {
       key: "3",

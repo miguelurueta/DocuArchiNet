@@ -25,5 +25,5 @@ export default function RadicacionRoutePage() {
     data.length > 0
       ? mapCamposPlantillaToPlantillaRadicado(data)
       : EMPTY_PLANTILLA_RADICADO;
-  return <RadicacionPage plantilla={plantilla} />;
+  return <RadicacionPage plantilla={plantilla} camposPlantilla={data} />;
 }

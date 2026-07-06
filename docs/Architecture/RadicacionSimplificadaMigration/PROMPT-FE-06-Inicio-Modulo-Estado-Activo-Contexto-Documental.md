@@ -1,73 +1,106 @@
-# PROMPT ARQUITECTONICO - Radicacion Simplificada
-# Fase FE-06 - Inicio del modulo con estado activo y contexto documental
+# PROMPT ARQUITECTÓNICO - Radicación Simplificada
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## ROL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# FE-06 - Bootstrap Inteligente del Módulo y Restauración del Estado Documental
 
-Actua como Arquitecto Frontend senior especialista en:
+---
 
-- React 19 y TypeScript estricto;
-- React Router;
-- restauracion de contexto al iniciar modulo;
-- flujos documentales por estado;
-- integracion REST tipada;
-- guards de navegacion;
-- UX operativa para continuidad de tramite.
+# Contexto Arquitectónico
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## OBJETIVO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Esta fase debe implementarse respetando las decisiones arquitectónicas previamente adoptadas:
 
-Implementar el inicio inteligente de `src/modules/radicacion`.
+### TD-FE-01
 
-Al entrar al modulo, el frontend debe consultar si el usuario tiene un tramite documental activo en `estado = 0`.
+La carga de información pertenece al Composition Root del módulo.
 
-API backend:
+Los componentes de presentación no realizan consultas de inicialización.
 
-```txt
+---
+
+### TD-FE-02
+
+Existe un único `RadicacionDocumentalContext`.
+
+Todo el estado documental debe obtenerse exclusivamente desde este Context.
+
+No pueden existir stores paralelos.
+
+---
+
+## Objetivo
+
+Implementar el proceso de bootstrap del módulo de Radicación.
+
+Cuando el usuario ingrese al módulo, el sistema debe determinar si existe un trámite documental activo (`estado = 0`), restaurar automáticamente el contexto documental y resolver la navegación inicial.
+
+La restauración debe ocurrir antes del render funcional del módulo.
+
+---
+
+# Problema Actual
+
+Actualmente el módulo inicia sin conocer el estado documental activo.
+
+Como consecuencia:
+
+- Documentos no sabe si debe habilitarse.
+- El usuario pierde continuidad del trámite.
+- Cada flujo debería reconstruir su propio estado.
+- No existe un bootstrap centralizado.
+
+---
+
+# Regla Arquitectónica
+
+La inicialización del módulo pertenece exclusivamente al Startup Guard.
+
+Las páginas nunca deben:
+
+- consultar el estado activo;
+- restaurar contexto;
+- decidir la navegación inicial.
+
+---
+
+# Composition Root Esperado
+
+```text
+RadicacionRoutePage
+        │
+        ▼
+RadicacionDocumentalProvider
+        │
+        ▼
+RadicacionStartupGuard
+        │
+        ├── verifica estado activo
+        ├── restaura contexto documental
+        ├── resuelve navegación
+        ├── maneja loading
+        ├── maneja error
+        │
+        ▼
+RadicacionPage
+```
+
+El Provider debe envolver al Startup Guard para que el bootstrap pueda escribir en el `RadicacionDocumentalContext`.
+
+Todo el bootstrap ocurre antes del render funcional del módulo.
+
+---
+
+# Contrato Backend
+
+API:
+
+```text
 GET /api/radicacion/pendientes/estado-activo
 ```
 
-Si existe activo, el modulo debe restaurar el contexto y entrar directamente al panel `Documentos`.
+Mantener el contrato DTO ya definido.
 
-Si no existe activo, el modulo inicia normal y mantiene `Documentos` inactivo hasta que se radique/tome un tramite que quede en `estado = 0`.
+No modificar el contrato backend.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## CONTEXTO OBLIGATORIO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Documentos:
-
-```txt
-docs/Architecture/RadicacionSimplificadaMigration/PROMPT-FE-02-Navegacion-Contextual-Post-Radicacion.md
-docs/Architecture/RadicacionSimplificadaMigration/PROMPT-FE-03-Panel-Documental-Post-Radicacion.md
-docs/Architecture/RadicacionSimplificadaMigration/PROMPT-FE-05-Modal-Pendientes-AppTable-Asignacion-Radicado.md
-docs/Architecture/RadicacionSimplificadaMigration/PROMPT-BE-API-02-Estado-Activo-Radicacion.md
-```
-
-Frontend actual relacionado:
-
-```txt
-src/modules/radicacion/pages/RadicacionPage.tsx
-src/modules/radicacion/hooks/RadicacionTabs.tsx
-src/modules/radicacion/components/RadicacionForm.tsx
-src/modules/radicacion/components/CapDocument.tsx
-```
-
-Patron visual/contextual de referencia:
-
-```txt
-src/modules/gestionCorrespondencia/pages/GestionCorrespondencia.tsx
-src/modules/gestionCorrespondencia/routes/GestionCorrespondenciaRoute.tsx
-src/modules/gestionCorrespondencia/layout/GestionCorrespondenciaLayout.tsx
-```
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## CONTRATO BACKEND
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Response esperado:
+Contrato esperado de referencia:
 
 ```ts
 type RadicacionPendienteEstadoActivoDto = {
@@ -94,169 +127,303 @@ type RadicacionPendienteEstadoActivoDto = {
 };
 ```
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## REGLA FUNCIONAL CENTRAL
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-```txt
-Documentos solo se activa con estado = 0.
-```
+# Componentes
 
-Implicaciones:
+Crear o extender únicamente:
 
-- si `tieneActivoEstado0 = true`, restaurar contexto y navegar a `Documentos`;
-- si `tieneActivoEstado0 = false`, iniciar normal y no activar `Documentos`;
-- si la API falla, no activar `Documentos` por fallback optimista;
-- no permitir tomar otro pendiente si existe activo `estado = 0`;
-- no depender solo de `consecutivoRadicado` o gabinete para activar documentos.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## ARQUITECTURA FRONTEND OBJETIVO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Crear o extender piezas:
-
-```txt
+```text
 src/modules/radicacion/types/radicacionContextoDocumental.types.ts
+
 src/modules/radicacion/services/radicacionPendientes.service.ts
+
 src/modules/radicacion/hooks/useRadicacionEstadoActivo.ts
+
 src/modules/radicacion/context/RadicacionDocumentalContext.tsx
+
 src/modules/radicacion/components/RadicacionStartupGuard.tsx
 ```
 
-Si ya existe contexto post-radicacion creado en FE-02/FE-03, integrarse ahi. No crear store paralelo.
+No crear Context adicionales.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## FLUJO DE INICIO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Si TD-FE-02 ya creó `src/modules/radicacion/types/radicacionDocumental.types.ts`, reutilizarlo o consolidar el tipo documental en una única ubicación. No duplicar tipos incompatibles.
 
-Al montar la ruta base del modulo:
+---
 
-```txt
-1. Mostrar estado de carga discreto del modulo.
-2. Llamar GET /api/radicacion/pendientes/estado-activo.
-3. Si tieneActivoEstado0=true:
-   - guardar contexto documental;
-   - marcar tieneTramiteDocumentalActivoEstado0=true;
-   - bloquear toma de otro pendiente;
-   - navegar a /dashboard/radicacion/registro/{idEstadoRadicado}/documentos.
-4. Si tieneActivoEstado0=false:
-   - limpiar contexto activo;
-   - mantener Documentos inactivo;
-   - permitir formulario normal y modal de pendientes.
-5. Si error:
-   - mostrar error recuperable;
-   - no activar Documentos;
-   - permitir reintentar.
+# Responsabilidades
+
+## Startup Guard
+
+Responsable de:
+
+- bootstrap del módulo;
+- consultar estado activo;
+- restaurar contexto;
+- limpiar contexto;
+- navegación inicial;
+- loading inicial;
+- recuperación ante errores.
+
+No contiene UI funcional.
+
+---
+
+## Hook
+
+Responsable únicamente de encapsular la consulta REST.
+
+No conoce navegación.
+
+No conoce UI.
+
+---
+
+## Service
+
+Responsable del acceso HTTP.
+
+No contiene lógica de negocio.
+
+---
+
+## Context
+
+Responsable de almacenar el estado documental.
+
+No consulta backend.
+
+---
+
+## RadicacionPage
+
+Debe asumir que el módulo ya fue inicializado.
+
+No conoce bootstrap.
+
+---
+
+# Flujo Esperado
+
+```text
+Usuario entra al módulo
+
+↓
+
+RadicacionDocumentalProvider
+
+↓
+
+Startup Guard
+
+↓
+
+GET estado-activo
+
+↓
+
+¿Existe estado = 0 y requiereGestionDocumental = true?
+
+    SI
+        ↓
+    actualizar Context
+
+        ↓
+    navegar automáticamente
+
+        ↓
+    Documentos
+
+NO
+
+↓
+
+limpiar Context
+
+↓
+
+Resumen
+
+↓
+
+Formulario disponible
 ```
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## GUARD DE DOCUMENTOS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-La ruta/tab `Documentos` debe validar:
+# Regla Funcional
 
-```txt
-tieneTramiteDocumentalActivoEstado0 === true
-estadoActual === 0
+Documentos solamente puede habilitarse cuando:
+
+```text
+estadoActual == 0
+
+AND
+
+requiereGestionDocumental == true
+
+AND
+
+tieneTramiteDocumentalActivoEstado0 == true
+
+AND
+
 idEstadoRadicado > 0
 ```
 
-Si no cumple:
+Ningún otro dato puede habilitar el flujo documental.
 
-- no renderizar `CapDocument`;
-- no cargar gabinete;
-- redirigir a `Resumen` o pantalla base;
-- mostrar estado funcional de no disponible si aplica.
+Esta regla debe mantenerse alineada con TD-FE-02.
 
-No permitir consulta documental por:
+---
 
-```txt
-consecutivoRadicado solamente
-idTareaWorkflow solamente
-idGabinete solamente
-```
+# Guard Documental
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## INTERACCION CON MODAL DE PENDIENTES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+El acceso a Documentos debe depender exclusivamente del Context.
 
-Si hay activo `estado = 0`:
+No validar utilizando:
 
-- el modal puede mostrar contador si se desea;
-- la accion de tomar pendiente debe quedar bloqueada;
-- si backend retorna bloqueo, mostrar mensaje y conservar contexto actual.
+- consecutivo;
+- gabinete;
+- workflow;
+- idRadicado.
 
-Si no hay activo:
+---
 
-- el modal puede listar pendientes `estado = 1`;
-- al tomar pendiente exitosamente, FE-05 actualiza el mismo contexto;
-- despues de tomar, navegar a `Documentos`.
+# Estados del Bootstrap
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## ESTADOS UI
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+El Startup Guard debe manejar:
 
-El modulo debe manejar:
-
-- verificando estado activo;
+- inicializando;
+- verificando estado;
+- restaurando;
 - activo encontrado;
 - sin activo;
-- error al verificar;
-- reintentando;
-- navegando a documentos;
-- documentos bloqueado por falta de estado `0`.
+- error;
+- reintentando.
 
-Evitar parpadeo de formulario limpio si inmediatamente se va a redirigir a `Documentos`.
+Evitar render parcial del formulario cuando exista una navegación inmediata.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## PRUEBAS REQUERIDAS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-Crear/actualizar:
+# Navegación y Separación con TD-FE-04
 
-```txt
-src/modules/radicacion/hooks/useRadicacionEstadoActivo.spec.test.ts
-src/modules/radicacion/components/RadicacionStartupGuard.spec.test.tsx
-src/modules/radicacion/context/RadicacionDocumentalContext.spec.test.tsx
-src/modules/radicacion/hooks/RadicacionTabs.spec.test.tsx
+FE-06 debe resolver la navegación inicial usando el mecanismo disponible en el módulo en el momento de implementación.
+
+Si aún no existen rutas hijas definitivas o tabs semánticas, no deben rediseñarse como parte de esta fase.
+
+La creación, normalización o limpieza de rutas como:
+
+```text
+/dashboard/radicacion/registro/:idEstadoRadicado
+/dashboard/radicacion/registro/:idEstadoRadicado/documentos
 ```
 
-Casos:
+y la redefinición de keys semánticas de tabs pertenecen a TD-FE-04.
 
-- llama `estado-activo` al iniciar modulo;
-- con activo `estado = 0`, guarda contexto;
-- con activo `estado = 0`, navega a `/dashboard/radicacion/registro/{idEstadoRadicado}/documentos`;
-- con activo `estado = 0`, habilita `Documentos`;
-- con activo `estado = 0`, bloquea tomar otro pendiente;
-- sin activo, no navega;
-- sin activo, mantiene `Documentos` inactivo;
-- error de API no activa `Documentos`;
-- tab/ruta `Documentos` rechaza acceso sin estado `0`;
-- no se dispara carga de gabinete sin contexto activo.
+FE-06 debe dejar el bootstrap preparado para consumir esas rutas cuando existan, sin bloquear la restauración del contexto documental.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## CRITERIOS DE ACEPTACION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-- El modulo consulta `GET /api/radicacion/pendientes/estado-activo` al iniciar.
-- Si existe activo `estado = 0`, se restaura contexto.
-- Si existe activo `estado = 0`, se entra directo a `Documentos`.
-- Si no existe activo, el modulo inicia normal.
-- `Documentos` permanece inactivo sin `estado = 0`.
-- No se permite tomar otro pendiente cuando ya hay activo.
-- No se crean stores paralelos si ya existe contexto post-radicacion.
-- Hay pruebas de inicio, guard y navegacion.
+# Integraciones Futuras
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-## FUERA DE ALCANCE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Este bootstrap será consumido por:
 
-No implementar aqui:
+- FE-05
+- FE-07
+- FE-08
+- cualquier otra funcionalidad que dependa del estado documental.
 
-- listado AppTable de pendientes;
-- tomar pendiente desde tabla;
-- enviar a pendiente;
-- upload documental;
-- digitalizacion;
-- visor.
+---
+
+# Restricciones
+
+No implementar:
+
+- listado de pendientes;
+- tomar pendiente;
+- enviar pendiente;
+- digitalización;
+- upload;
+- visor;
+- rediseño visual de tabs;
+- rutas hijas definitivas.
+
+---
+
+# Principios Arquitectónicos
+
+Aplicar:
+
+- Single Source of Truth.
+- Composition Root.
+- Smart Bootstrap.
+- Smart Guard.
+- Separation of Concerns.
+- Clean Architecture.
+- Open/Closed.
+- Backward Compatibility.
+
+---
+
+# Testing
+
+## Unitarios
+
+- hook;
+- context;
+- startup guard.
+
+## Integración
+
+- startup → context;
+- startup → navegación;
+- startup → tabs.
+
+## Regresión
+
+- build;
+- lint;
+- TypeScript;
+- navegación;
+- consola limpia.
+
+---
+
+# Criterios de Aceptación
+
+- El módulo consulta estado-activo al iniciar.
+- La restauración ocurre antes del render funcional.
+- El Provider envuelve al Startup Guard.
+- El Context queda sincronizado.
+- Documentos únicamente se habilita mediante el Context.
+- Documentos no se habilita si `requiereGestionDocumental !== true`.
+- No existen stores paralelos.
+- No existen consultas duplicadas.
+- No existen regresiones.
+
+---
+
+# Entregables
+
+1. Archivos modificados.
+
+2. Resumen técnico:
+
+- bootstrap;
+- startup guard;
+- restauración;
+- navegación;
+- integración con TD-FE-02.
+
+3. Resultado de pruebas.
+
+4. Riesgos residuales.
+
+5. Próximas fases que consumirán este bootstrap.
+
+---
+
+# Instrucción Final
+
+Implementar un proceso de bootstrap inteligente para el módulo de Radicación mediante un Startup Guard que centralice la inicialización, restaure automáticamente el estado documental activo utilizando el `RadicacionDocumentalContext`, resuelva la navegación inicial antes del render funcional y deje preparada la infraestructura para las siguientes fases sin introducir duplicidad de estado, consultas innecesarias ni breaking changes.

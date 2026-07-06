@@ -6,6 +6,7 @@ import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPl
 import { useFlujosRelacionadosTramite } from "../hooks/useFlujosRelacionadosTramite";
 import { useEstructuraRelacionTipoRestriccion } from "../hooks/useEstructuraRelacionTipoRestriccion";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
+import { EMPTY_PLANTILLA_RADICADO } from "../services/radicacionDefaults";
 
 vi.mock("../hooks/useCamposPlantilla", () => ({
   useCamposPlantilla: vi.fn(),
@@ -31,6 +32,17 @@ const mockedUseFlujosRelacionadosTramite = vi.mocked(
 const mockedUseEstructuraRelacionTipoRestriccion = vi.mocked(
   useEstructuraRelacionTipoRestriccion,
 );
+
+const renderRadicacionForm = () => {
+  const camposPlantilla = mockedUseCamposPlantilla().data;
+
+  return render(
+    <RadicacionForm
+      plantilla={EMPTY_PLANTILLA_RADICADO}
+      camposPlantilla={camposPlantilla}
+    />,
+  );
+};
 
 describe("RadicacionForm", () => {
   beforeEach(() => {
@@ -74,6 +86,19 @@ describe("RadicacionForm", () => {
     vi.useRealTimers();
   });
 
+  it("[SPEC:RAD-000] consume la plantilla por props sin ejecutar useCamposPlantilla", () => {
+    mockedUseCamposPlantilla.mockClear();
+
+    render(
+      <RadicacionForm
+        plantilla={EMPTY_PLANTILLA_RADICADO}
+        camposPlantilla={[]}
+      />,
+    );
+
+    expect(mockedUseCamposPlantilla).not.toHaveBeenCalled();
+  });
+
   it("[SPEC:RAD-001] muestra opciones dinámicas de trámite desde plantilla", () => {
     mockedUseCamposPlantilla.mockReturnValue({
       data: [
@@ -99,7 +124,7 @@ describe("RadicacionForm", () => {
       refetch: vi.fn(),
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     const select = screen.getByTestId("ra_tipo_tramite_select");
     fireEvent.mouseDown(select);
@@ -123,7 +148,7 @@ describe("RadicacionForm", () => {
   });
 
   it("[SPEC:RAD-002] no muestra opciones si plantilla no trae opciones", () => {
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     const select = screen.getByTestId("ra_tipo_tramite_select");
     fireEvent.mouseDown(select);
@@ -153,7 +178,7 @@ describe("RadicacionForm", () => {
       refetch: vi.fn(),
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     const select = screen.getByTestId("ra_tipo_radicado_select");
     fireEvent.mouseDown(select);
@@ -167,7 +192,7 @@ describe("RadicacionForm", () => {
   });
 
   it("[SPEC:MR-001] elimina el campo estatico de medio de recepcion", () => {
-    const { container } = render(<RadicacionForm />);
+    const { container } = renderRadicacionForm();
 
     expect(
       container.querySelector('[data-ident="pl-radicacion-spe-Medio-recep"]'),
@@ -195,7 +220,7 @@ describe("RadicacionForm", () => {
       refetch: vi.fn(),
     });
 
-    const { container } = render(<RadicacionForm />);
+    const { container } = renderRadicacionForm();
 
     expect(
       container.querySelector('[data-ident="pl-radicacion-spe-Medio-recep"]'),
@@ -223,7 +248,7 @@ describe("RadicacionForm", () => {
       refetch: vi.fn(),
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     expect(screen.getByText("Fecha Límite Respuesta")).toHaveAttribute(
       "title",
@@ -249,7 +274,7 @@ describe("RadicacionForm", () => {
       refetch: vi.fn(),
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     const datePicker = screen.getByTestId("ra_fecha_limite_picker");
     expect(datePicker).toHaveAttribute(
@@ -278,7 +303,7 @@ describe("RadicacionForm", () => {
       refetch: vi.fn(),
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     expect(screen.getByText("Fecha Límite Respuesta")).toHaveAttribute(
       "title",
@@ -319,7 +344,7 @@ describe("RadicacionForm", () => {
       error: null,
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     const [input] = screen.getAllByLabelText("Anexos Cor");
     fireEvent.change(input, { target: { value: "55" } });
@@ -365,7 +390,7 @@ describe("RadicacionForm", () => {
       error: new Error("boom"),
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     expect(
       screen.getAllByText(
@@ -404,7 +429,7 @@ describe("RadicacionForm", () => {
       error: null,
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     const input = screen.getByLabelText("Asunto");
     fireEvent.change(input, { target: { value: "Asunto de prueba" } });
@@ -450,7 +475,7 @@ describe("RadicacionForm", () => {
       error: new Error("boom"),
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     expect(
       screen.getByText("No fue posible cargar las opciones. Intenta nuevamente."),
@@ -478,7 +503,7 @@ describe("RadicacionForm", () => {
       refetch: vi.fn(),
     });
 
-    const { container } = render(<RadicacionForm />);
+    const { container } = renderRadicacionForm();
 
     const destinatarioLabel = screen
       .getByText("Destino Corporativo")
@@ -532,7 +557,7 @@ describe("RadicacionForm", () => {
       error: null,
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
     fireEvent.mouseDown(tramiteSelect);
@@ -586,7 +611,7 @@ describe("RadicacionForm", () => {
       error: null,
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     const input = screen.getByLabelText("Destinatario");
     fireEvent.change(input, { target: { value: "cam" } });
@@ -645,7 +670,7 @@ describe("RadicacionForm", () => {
       error: null,
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
     fireEvent.mouseDown(tramiteSelect);
@@ -697,7 +722,7 @@ describe("RadicacionForm", () => {
       error: null,
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
     fireEvent.mouseDown(tramiteSelect);
@@ -756,7 +781,7 @@ describe("RadicacionForm", () => {
       };
     });
 
-    const { container } = render(<RadicacionForm />);
+    const { container } = renderRadicacionForm();
     const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
     fireEvent.mouseDown(tramiteSelect);
     fireEvent.click(screen.getByText("CITACION"));
@@ -826,7 +851,7 @@ describe("RadicacionForm", () => {
       };
     });
 
-    const { container } = render(<RadicacionForm />);
+    const { container } = renderRadicacionForm();
 
     const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
     fireEvent.mouseDown(tramiteSelect);
@@ -879,7 +904,7 @@ describe("RadicacionForm", () => {
       error: null,
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
     const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
     fireEvent.mouseDown(tramiteSelect);
     fireEvent.click(screen.getByText("CITACION"));
@@ -920,7 +945,7 @@ describe("RadicacionForm", () => {
       error: new Error("boom"),
     });
 
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     expect(
       screen.getAllByText(
@@ -930,7 +955,7 @@ describe("RadicacionForm", () => {
   });
 
   it("[SPEC:RBK-005] no falla al re-renderizar secciones de remitente y destinatario al limpiar", () => {
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     const limpiarButton = screen.getByRole("button", { name: /limpiar/i });
     expect(() => {
@@ -971,7 +996,7 @@ describe("RadicacionForm", () => {
       error: null,
     });
 
-    const { container } = render(<RadicacionForm />);
+    const { container } = renderRadicacionForm();
     expect(
       container.querySelector('[data-ident="pl-radicacion-spe-REMITENTE_COR"]'),
     ).toBeTruthy();
@@ -1022,7 +1047,7 @@ describe("RadicacionForm", () => {
       error: null,
     });
 
-    const { container } = render(<RadicacionForm />);
+    const { container } = renderRadicacionForm();
 
     const remitenteLabel = screen.getByText("Remitente Dinamico").closest("label");
     expect(remitenteLabel).toBeTruthy();
@@ -1070,7 +1095,7 @@ describe("RadicacionForm", () => {
       shouldFetch: String(idTipo ?? "") === "23",
     }));
 
-    const { container } = render(<RadicacionForm />);
+    const { container } = renderRadicacionForm();
     const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
     fireEvent.mouseDown(tramiteSelect);
     fireEvent.click(screen.getByText("CITACION"));
@@ -1109,7 +1134,7 @@ describe("RadicacionForm", () => {
       refetch: vi.fn(),
     });
 
-    const { container } = render(<RadicacionForm />);
+    const { container } = renderRadicacionForm();
     expect(mockedUseFlujosRelacionadosTramite).toHaveBeenLastCalledWith(null, true);
     expect(mockedUseEstructuraRelacionTipoRestriccion).toHaveBeenLastCalledWith(
       null,
@@ -1123,7 +1148,7 @@ describe("RadicacionForm", () => {
   });
 
   it("[SPEC:TRS-004] no habilita consulta de restriccion en primer render sin seleccion de tramite", () => {
-    render(<RadicacionForm />);
+    renderRadicacionForm();
 
     expect(mockedUseEstructuraRelacionTipoRestriccion).toHaveBeenLastCalledWith(
       null,
@@ -1147,7 +1172,7 @@ describe("RadicacionForm", () => {
       shouldFetch: false,
     });
 
-    const { container } = render(<RadicacionForm />);
+    const { container } = renderRadicacionForm();
     const destinatarioSelect = container.querySelector(
       '.ant-select[data-ident="pl-radicacion-spe-Destinatario_Cor"]',
     );

@@ -1,4 +1,5 @@
 import TabsDocu from "../hooks/RadicacionTabs";
+import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 import type { PlantillaRadicadoDTO } from "../models/PlantillaRadicadoDTO";
 import type { RadicacionPayloadDTO } from "../services/radicacionPayloadSerializer";
 //import { useRadicacionDynamicForm } from "../hooks/useRadicacionDynamicForm";
@@ -6,17 +7,21 @@ import type { RadicacionPayloadDTO } from "../services/radicacionPayloadSerializ
 
 interface RadicacionPageProps {
   plantilla: PlantillaRadicadoDTO;
+  camposPlantilla: CampoPlantillaDTO[];
   onSubmit?: (payload: RadicacionPayloadDTO) => void;
 }
-export function RadicacionPage({ plantilla, onSubmit }: RadicacionPageProps) {
+export function RadicacionPage({
+  plantilla,
+  camposPlantilla,
+  onSubmit,
+}: RadicacionPageProps) {
   //const { fields, values, onInputChange, serialize } =
     //useRadicacionDynamicForm(plantilla);
-  void plantilla;
   void onSubmit;
     
   return (
     <>
-      <TabsDocu/>
+      <TabsDocu plantilla={plantilla} camposPlantilla={camposPlantilla} />
     </>
   );
 }
