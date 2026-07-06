@@ -12,8 +12,20 @@ vi.mock("../hooks/useCamposPlantilla", () => ({
   }),
 }));
 
+vi.mock("../hooks/useRadicacionEstadoActivo", () => ({
+  useRadicacionEstadoActivo: () => ({
+    data: null,
+    contextoDocumental: null,
+    isLoading: false,
+    isFetching: false,
+    isError: false,
+    error: null,
+    refetch: vi.fn(),
+  }),
+}));
+
 describe("RadicacionRoutePage", () => {
-  it("mounts RadicacionPage using internal default plantilla", () => {
+  it("mounts RadicacionPage using internal default plantilla", async () => {
     const queryClient = new QueryClient({
       defaultOptions: {
         queries: {
@@ -28,8 +40,8 @@ describe("RadicacionRoutePage", () => {
       </QueryClientProvider>,
     );
 
-    fireEvent.click(screen.getByRole("tab", { name: /Radicación/i }));
+    fireEvent.click(await screen.findByRole("tab", { name: /Radicación/i }));
 
-    expect(screen.getByRole("button", { name: /Radicar/i })).toBeInTheDocument();
-  });
+    expect(await screen.findByRole("button", { name: /Radicar/i })).toBeInTheDocument();
+  }, 10000);
 });

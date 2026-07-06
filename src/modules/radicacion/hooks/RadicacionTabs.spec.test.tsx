@@ -53,4 +53,13 @@ describe("RadicacionTabs", () => {
     fireEvent.click(documentosTab);
     expect(screen.getByText("Workbench documental")).toBeInTheDocument();
   });
+
+  it("[SPEC:BOOT-008] abre Documentos cuando el bootstrap restaura destino documentos", () => {
+    renderTabs({
+      ...activeDocumentalState,
+      destinoPostRegistro: "documentos",
+    });
+
+    expect(screen.getByText("Workbench documental")).toBeInTheDocument();
+  });
 });
