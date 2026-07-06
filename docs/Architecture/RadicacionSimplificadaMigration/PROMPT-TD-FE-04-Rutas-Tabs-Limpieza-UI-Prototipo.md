@@ -4,6 +4,16 @@
 
 ---
 
+# Ticket Asociado
+
+```text
+SCRUMCORE-293
+```
+
+Este prompt queda asociado a `SCRUMCORE-293` para trazabilidad, rollback y auditoría del ajuste.
+
+---
+
 # Contexto Arquitectónico
 
 Esta deuda técnica debe implementarse respetando las decisiones previamente adoptadas:

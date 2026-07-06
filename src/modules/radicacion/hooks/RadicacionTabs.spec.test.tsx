@@ -4,6 +4,7 @@ import TabsDocu from "./RadicacionTabs";
 import { RadicacionDocumentalProvider } from "../context/RadicacionDocumentalContext";
 import { EMPTY_PLANTILLA_RADICADO } from "../services/radicacionDefaults";
 import type { RadicacionDocumentalState } from "../types/radicacionDocumental.types";
+import { RADICACION_TAB_KEYS } from "../routes/radicacionRoutes";
 
 vi.mock("../components/RadicacionForm", () => ({
   default: () => <div>Formulario radicacion</div>,
@@ -61,5 +62,20 @@ describe("RadicacionTabs", () => {
     });
 
     expect(screen.getByText("Workbench documental")).toBeInTheDocument();
+  });
+
+  it("[SPEC:NAV-007] usa keys semanticas para navegacion de tabs", () => {
+    renderTabs();
+
+    expect(Object.values(RADICACION_TAB_KEYS)).toEqual([
+      "ia",
+      "radicacion",
+      "documentos",
+      "gestion-radicados",
+    ]);
+    expect(screen.getByRole("tab", { name: /Radicación/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /Gestión de Radicados/i }),
+    ).toBeInTheDocument();
   });
 });
