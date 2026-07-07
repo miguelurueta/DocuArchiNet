@@ -1,10 +1,12 @@
 import { Alert, Button, Empty, Modal, Space, Spin, Typography, message } from "antd";
+import { useState } from "react";
 import AppTable from "../../../app/Components/UI/AppTable/AppTable";
 import { AppTableQueryWrapper } from "../../../app/Components/UI/AppTable/AppTableQueryWrapper";
 import { useRadicacionDocumentalContext } from "../hooks/useRadicacionDocumentalContext";
 import { useRadicacionPendientesContador } from "../hooks/useRadicacionPendientesContador";
 import { useRadicacionPendientesTable } from "../hooks/useRadicacionPendientesTable";
 import { useTomarRadicadoPendiente } from "../hooks/useTomarRadicadoPendiente";
+import { EnviarPendienteConfirmModal } from "./EnviarPendienteConfirmModal";
 
 interface RadicacionPendientesModalProps {
   open: boolean;
@@ -17,14 +19,19 @@ export function RadicacionPendientesModal({
 }: RadicacionPendientesModalProps) {
   const { tieneTramiteDocumentalActivoEstado0 } =
     useRadicacionDocumentalContext();
+  const [hasActiveConflict, setHasActiveConflict] = useState(false);
   const table = useRadicacionPendientesTable(open);
   const contador = useRadicacionPendientesContador(open);
   const tomarPendiente = useTomarRadicadoPendiente({
     onSuccess: () => {
+      setHasActiveConflict(false);
       message.success("Radicado pendiente asignado.");
       onClose();
     },
     onError: (errorMessage) => {
+      if (errorMessage.includes("RADICACION_TOMAR_PENDIENTE_ACTIVE_EXISTS")) {
+        setHasActiveConflict(true);
+      }
       message.error(errorMessage);
     },
   });
@@ -44,12 +51,17 @@ export function RadicacionPendientesModal({
       width={980}
     >
       <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-        {tieneTramiteDocumentalActivoEstado0 ? (
+        {tieneTramiteDocumentalActivoEstado0 || hasActiveConflict ? (
           <Alert
             type="warning"
             showIcon
             message="Ya hay un radicado activo"
-            description="Finaliza o envia a pendiente el radicado activo antes de tomar otro."
+            description={
+              tieneTramiteDocumentalActivoEstado0
+                ? "Finaliza o envia a pendiente el radicado activo antes de tomar otro."
+                : "El backend reporto una tarea activa. Espera la sincronizacion del estado activo y vuelve a intentar."
+            }
+            action={<EnviarPendienteConfirmModal />}
           />
         ) : null}
 

@@ -11,6 +11,7 @@ import styles from "../style/tabs.module.css";
 import CapDocument from "../components/CapDocument";
 import RadicacionForm from "../components/RadicacionForm";
 import ModalPendiente from "../components/Modalpendiente";
+import { EnviarPendienteConfirmModal } from "../components/EnviarPendienteConfirmModal";
 import { RadicacionDocumentosGuard } from "../components/RadicacionDocumentosGuard";
 import { useRadicacionDocumentalContext } from "./useRadicacionDocumentalContext";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
@@ -112,7 +113,12 @@ const TabsDocu: React.FC<TabsDocuProps> = ({
         items={items}
         className={styles.customTabs}
         tabBarExtraContent={{
-          right: <ModalPendiente />,
+          right: (
+            <Space>
+              <EnviarPendienteConfirmModal />
+              <ModalPendiente />
+            </Space>
+          ),
         }}
       />
     </div>

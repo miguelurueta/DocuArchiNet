@@ -10,6 +10,7 @@ import {
   RADICACION_PENDIENTES_LISTADO_ENDPOINT,
   fetchRadicacionEstadoActivo,
   mapEstadoActivoToDocumentalState,
+  enviarRadicacionPendiente,
   tomarRadicacionPendiente,
 } from "./radicacionPendientes.service";
 import type { RadicacionPendienteEstadoActivoDto } from "../types/radicacionDocumental.types";
@@ -89,6 +90,41 @@ describe("radicacionPendientes.service", () => {
     ).toBeNull();
   });
 
+  it("[SPEC:BOOT-004] restaura contexto si backend informa activo con flag documental", () => {
+    const state = mapEstadoActivoToDocumentalState({
+      idEstadoRadicado: 91,
+      estadoActual: 0,
+      tieneTramiteDocumentalActivoEstado0: true,
+    });
+
+    expect(state).toMatchObject({
+      idEstadoRadicado: 91,
+      estadoActual: 0,
+      requiereGestionDocumental: true,
+      tieneTramiteDocumentalActivoEstado0: true,
+      destinoPostRegistro: "documentos",
+    });
+  });
+
+  it("[SPEC:BOOT-005] restaura contexto con contrato PascalCase o snake_case", () => {
+    const state = mapEstadoActivoToDocumentalState({
+      IdEstadoRadicado: "92",
+      EstadoActual: "0",
+      TieneTramiteDocumentalActivoEstado0: "true",
+      RequiereGestionDocumental: 1,
+      ConsecutivoRadicado: "RAD-92",
+    } as unknown as RadicacionPendienteEstadoActivoDto);
+
+    expect(state).toMatchObject({
+      idEstadoRadicado: 92,
+      estadoActual: 0,
+      consecutivoRadicado: "RAD-92",
+      requiereGestionDocumental: true,
+      tieneTramiteDocumentalActivoEstado0: true,
+      destinoPostRegistro: "documentos",
+    });
+  });
+
   it("[SPEC:PEND-001] consulta listado de pendientes en el endpoint existente", async () => {
     const request = {
       SearchType: 1,
@@ -161,6 +197,33 @@ describe("radicacionPendientes.service", () => {
   it("[SPEC:PEND-004] construye endpoint de enviar a pendiente", () => {
     expect(buildRadicacionEnviarPendienteEndpoint(10)).toBe(
       "/api/radicacion/pendientes/10/enviar-pendiente",
+    );
+  });
+
+  it("[SPEC:PEND-007] envia tramite activo a pendiente", async () => {
+    mockedPost.mockResolvedValueOnce({
+      data: {
+        success: true,
+        message: "OK",
+        data: {
+          idEstadoRadicado: 10,
+          estadoAnterior: 0,
+          estadoActual: 1,
+          tieneTramiteDocumentalActivoEstado0: false,
+          destinoPostRegistro: "resumen",
+          mensaje: "Tramite enviado a pendiente.",
+        },
+      },
+    });
+
+    await expect(enviarRadicacionPendiente(10)).resolves.toMatchObject({
+      idEstadoRadicado: 10,
+      estadoActual: 1,
+      tieneTramiteDocumentalActivoEstado0: false,
+    });
+    expect(mockedPost).toHaveBeenCalledWith(
+      buildRadicacionEnviarPendienteEndpoint(10),
+      {},
     );
   });
 

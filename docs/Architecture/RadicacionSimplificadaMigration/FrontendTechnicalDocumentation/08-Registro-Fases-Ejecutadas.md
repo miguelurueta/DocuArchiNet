@@ -15,6 +15,7 @@ Este documento no reemplaza los prompts arquitectonicos. Resume el estado implem
 | FE-06 | SCRUMCORE-292 | `PROMPT-FE-06-Inicio-Modulo-Estado-Activo-Contexto-Documental.md` | Ejecutado | El modulo consulta `estado-activo`, restaura o limpia contexto y controla el bootstrap. |
 | TD-FE-04 | SCRUMCORE-293 | `PROMPT-TD-FE-04-Rutas-Tabs-Limpieza-UI-Prototipo.md` | Ejecutado y mergeado | Rutas/helpers centralizados, tabs semanticas y limpieza de UI mock. |
 | FE-05 | SCRUMCORE-298 | `PROMPT-FE-05-Modal-Pendientes-AppTable-Asignacion-Radicado.md` | Ejecutado | Modal de pendientes usa `AppTable`, toma pendiente, actualiza contexto y navega a Documentos. |
+| FE-07 | SCRUMCORE-299 | `PROMPT-FE-07-Enviar-Tramite-Activo-A-Pendiente.md` | Ejecutado | Devuelve tramite activo a pendiente con confirmacion, limpia contexto solo tras exito y refresca pendientes. |
 
 ## TD-FE-01 - Fuente Unica De Plantilla
 
@@ -92,6 +93,36 @@ RadicacionRoutePage
 - Las paginas no deben restaurar ni limpiar contexto.
 - El bootstrap pertenece al `RadicacionStartupGuard`.
 
+## FE-07 - Enviar Tramite Activo A Pendiente
+
+### Alcance Implementado
+
+- `EnviarPendienteConfirmModal` muestra la accion solo cuando existe tramite documental activo.
+- `useEnviarRadicadoPendiente` concentra la mutacion y la regla transaccional.
+- `RadicacionForm` deja de mostrar la accion global `Enviar a Pendientes`.
+- El service consume `POST /api/radicacion/pendientes/{idEstadoRadicado}/enviar-pendiente`.
+- El contexto documental se limpia unicamente cuando backend confirma `estadoActual = 1`.
+- Se invalidan estado activo, contador y tabla de pendientes.
+- La navegacion vuelve a `RADICACION_ROUTES.root`.
+
+### Resultado Arquitectonico
+
+```text
+RadicacionTabs
+  -> EnviarPendienteConfirmModal
+  -> useEnviarRadicadoPendiente()
+  -> enviarRadicacionPendiente()
+  -> clearContextoDocumental()
+  -> RADICACION_ROUTES.root
+```
+
+### Restricciones Vigentes
+
+- No limpiar `RadicacionDocumentalContext` antes de respuesta exitosa.
+- No ejecutar esta mutacion desde componentes de formulario.
+- No navegar ni desactivar Documentos si backend no confirma `estadoActual = 1`.
+- No crear modelos o stores paralelos para pendientes.
+
 ## TD-FE-04 - Rutas, Tabs Y Limpieza De Prototipo
 
 ### Alcance Implementado
@@ -168,11 +199,11 @@ FE-01 no debe implementar FE-02, FE-03, FE-04, FE-05, FE-06 ni FE-07.
 ### Ya Ejecutado Contra APIs Modernas De Pendientes
 
 - `PROMPT-FE-05-Modal-Pendientes-AppTable-Asignacion-Radicado.md`
+- `PROMPT-FE-07-Enviar-Tramite-Activo-A-Pendiente.md`
 
 ### No Cerrar Contra Datos Reales Sin Backend De Pendientes
 
 - `PROMPT-FE-04-Pendientes-Radicacion-Gestion-Documental.md`
-- `PROMPT-FE-07-Enviar-Tramite-Activo-A-Pendiente.md`
 
 ## Notas De Continuidad
 

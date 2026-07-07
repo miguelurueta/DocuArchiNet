@@ -18,6 +18,12 @@ vi.mock("../components/Modalpendiente", () => ({
   default: () => <button type="button">Pendientes</button>,
 }));
 
+vi.mock("../components/EnviarPendienteConfirmModal", () => ({
+  EnviarPendienteConfirmModal: () => (
+    <button type="button">Enviar a pendiente</button>
+  ),
+}));
+
 const activeDocumentalState: RadicacionDocumentalState = {
   idEstadoRadicado: 123,
   estadoActual: 0,

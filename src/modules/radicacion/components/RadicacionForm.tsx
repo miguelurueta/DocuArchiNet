@@ -26,7 +26,6 @@ import {
   SearchOutlined,
   DeleteFilled,
   FileFilled,
-  RocketFilled,
   OpenAIFilled,
 } from "@ant-design/icons";
 
@@ -1293,13 +1292,6 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
             }}
           >
             Limpiar
-          </Button>
-
-          <Button
-            icon={<RocketFilled />}
-            className={styles.btnPending}
-          >
-            Enviar a Pendientes
           </Button>
 
           <Button
