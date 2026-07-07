@@ -34,6 +34,20 @@ export type TomarRadicadoPendienteResponseDto = {
   } | null;
 };
 
+export type EnviarRadicadoPendienteRequestDto = {
+  motivo?: string;
+};
+
+export type EnviarRadicadoPendienteResponseDto = {
+  idEstadoRadicado?: number | null;
+  consecutivoRadicado?: string | null;
+  estadoAnterior?: 0 | number | null;
+  estadoActual?: 1 | number | null;
+  tieneTramiteDocumentalActivoEstado0?: boolean;
+  destinoPostRegistro?: RadicacionDestinoPostRegistro;
+  mensaje?: string | null;
+};
+
 export type RadicacionPendienteActionPayload = {
   idEstadoRadicado: number;
   idTareaWorkflow: number | null;

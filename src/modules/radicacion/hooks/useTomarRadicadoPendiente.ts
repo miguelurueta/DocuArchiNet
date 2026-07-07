@@ -5,7 +5,11 @@ import { useRadicacionDocumentalContext } from "./useRadicacionDocumentalContext
 import { RADICACION_ESTADO_ACTIVO_QUERY_KEY } from "./useRadicacionEstadoActivo";
 import { RADICACION_PENDIENTES_CONTADOR_QUERY_KEY } from "./useRadicacionPendientesContador";
 import { RADICACION_ROUTES } from "../routes/radicacionRoutes";
-import { tomarRadicacionPendiente } from "../services/radicacionPendientes.service";
+import {
+  fetchRadicacionEstadoActivo,
+  mapEstadoActivoToDocumentalState,
+  tomarRadicacionPendiente,
+} from "../services/radicacionPendientes.service";
 import type { RadicacionDocumentalState } from "../types/radicacionDocumental.types";
 import {
   extractRadicacionPendienteActionPayload,
@@ -118,8 +122,27 @@ export function useTomarRadicadoPendiente({
       onSuccess?.();
       navigate(RADICACION_ROUTES.documentos(idEstadoRadicado));
     },
-    onError: (error) => {
-      onError?.(buildBackendMessage(error));
+    onError: async (error) => {
+      const message = buildBackendMessage(error);
+
+      if (message.includes("RADICACION_TOMAR_PENDIENTE_ACTIVE_EXISTS")) {
+        try {
+          const estadoActivo = await fetchRadicacionEstadoActivo();
+          const contextoActivo =
+            mapEstadoActivoToDocumentalState(estadoActivo);
+
+          if (contextoActivo) {
+            setContextoDocumental(contextoActivo);
+            await queryClient.invalidateQueries({
+              queryKey: RADICACION_ESTADO_ACTIVO_QUERY_KEY,
+            });
+          }
+        } catch {
+          // Se conserva el mensaje funcional original si no se puede sincronizar.
+        }
+      }
+
+      onError?.(message);
     },
   });
 

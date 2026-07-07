@@ -39,7 +39,7 @@ export interface RadicacionDocumentalContextValue
 }
 
 export interface RadicacionPendienteEstadoActivoDto {
-  tieneActivoEstado0: boolean;
+  tieneActivoEstado0?: boolean;
   idEstadoRadicado?: number | null;
   idRadicado?: number | null;
   consecutivoRadicado?: string | null;
@@ -49,8 +49,8 @@ export interface RadicacionPendienteEstadoActivoDto {
   remitente?: string | null;
   plantillaId?: number | null;
   tipoPlantillaId?: number | null;
-  requiereGestionDocumental: boolean;
-  tieneTramiteDocumentalActivoEstado0: boolean;
-  destinoPostRegistro: RadicacionDestinoPostRegistro;
+  requiereGestionDocumental?: boolean;
+  tieneTramiteDocumentalActivoEstado0?: boolean;
+  destinoPostRegistro?: RadicacionDestinoPostRegistro;
   contextoDocumental?: RadicacionContextoDocumentalDetalle | null;
 }
