@@ -127,6 +127,7 @@ function normalizeResponse(
   }
 
   const success = readBoolean(payload, "success", "Success");
+  const isHttpFailure = typeof options.httpStatus === "number" && options.httpStatus >= 400;
   const requestId =
     readString(payload, "requestId", "RequestId") ??
     readString(readRecord(payload, "meta", "Meta"), "requestId", "RequestId") ??
@@ -140,7 +141,7 @@ function normalizeResponse(
     (success === true ? options.defaultSuccessMessage : DEFAULT_ERROR_MESSAGE);
 
   const severity =
-    success === true
+    success === true && !isHttpFailure
       ? "success"
       : mapSeverity(
           readString(readRecord(payload, "meta", "Meta"), "status", "Status"),
@@ -149,7 +150,7 @@ function normalizeResponse(
         );
 
   return {
-    success: success !== false,
+    success: isHttpFailure ? false : success !== false,
     message,
     severity,
     requestId,

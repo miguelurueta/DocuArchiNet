@@ -63,6 +63,7 @@ const buildQueryResponse = (input: {
   ids: string[];
   total?: number;
   totalRecords?: number;
+  paginationTotal?: number;
 }) => {
   const data: Record<string, unknown> = {
     Rows: buildRows(input.ids),
@@ -73,6 +74,13 @@ const buildQueryResponse = (input: {
   }
   if (typeof input.totalRecords === "number") {
     data.TotalRecords = input.totalRecords;
+  }
+  if (typeof input.paginationTotal === "number") {
+    data.pagination = {
+      page: 1,
+      pageSize: 25,
+      total: input.paginationTotal,
+    };
   }
 
   return {
@@ -145,6 +153,22 @@ describe("useGestionRespuestaDocumentosTable [SCRUMCORE-224]", () => {
 
     await waitFor(() => {
       expect(result.current.totalDocumentsCount).toBe(27);
+    });
+  });
+
+  it("usa data.pagination.total cuando meta total no existe", async () => {
+    vi.mocked(listaDocumentosService.queryListaDocumentosRadicados).mockResolvedValueOnce(
+      buildQueryResponse({ ids: ["r1", "r2"], paginationTotal: 19 }),
+    );
+
+    const { result } = renderHook(() => useGestionRespuestaDocumentosTable());
+
+    await act(async () => {
+      await result.current.load();
+    });
+
+    await waitFor(() => {
+      expect(result.current.totalDocumentsCount).toBe(19);
     });
   });
 
@@ -230,6 +254,10 @@ describe("useGestionRespuestaDocumentosTable [SCRUMCORE-224]", () => {
       expect(result.current.totalDocumentsCount).toBe(3);
     });
 
+    const refreshReq = vi.mocked(listaDocumentosService.queryListaDocumentosRadicados).mock
+      .calls[1]?.[0] as ListaDocumentosRadicadosQueryRequest | undefined;
+    expect(refreshReq?.EnablePagination).toBe(false);
+
     act(() => {
       result.current.onSelectionChanged(["r1", "r2", "r3"]);
     });
@@ -249,6 +277,13 @@ describe("useGestionRespuestaDocumentosTable [SCRUMCORE-224]", () => {
     vi.mocked(listaDocumentosService.queryListaDocumentosRadicados).mockResolvedValueOnce(
       buildQueryResponse({ ids: ["r1"], total: 1 }),
     );
+    vi.mocked(deleteDocumentoService.eliminarDocumentoStorageEngine).mockResolvedValueOnce({
+      success: false,
+      message: "No es posible eliminar este anexo en este momento.",
+      severity: "warning",
+      requestId: "req-delete",
+      httpStatus: 400,
+    });
 
     const { result } = renderHook(() => useGestionRespuestaDocumentosTable());
 
@@ -256,14 +291,19 @@ describe("useGestionRespuestaDocumentosTable [SCRUMCORE-224]", () => {
       await result.current.load();
     });
 
-    await act(async () => {
-      await result.current.onActionTriggered({ actionId: "eliminar_item", rowId: "r1" });
-    });
+    const response = await act(async () => result.current.onActionTriggered({ actionId: "eliminar_item", rowId: "r1" }));
 
     expect(vi.mocked(deleteDocumentoService.eliminarDocumentoStorageEngine)).toHaveBeenCalledWith({
       idAlmacen: 1,
       nombreGabinete: "WF_DOCS",
       sourceModule: "WORKFLOW",
+    });
+    expect(response).toEqual({
+      success: false,
+      message: "No es posible eliminar este anexo en este momento.",
+      severity: "warning",
+      requestId: "req-delete",
+      httpStatus: 400,
     });
   });
 
@@ -346,6 +386,8 @@ describe("useGestionRespuestaDocumentosTable [SCRUMCORE-224]", () => {
       .calls[0]?.[0] as ListaDocumentosRadicadosQueryRequest;
     expect(req?.CampoRadicado).toBe("ENLASE");
     expect(req?.Radicado).toBe("2025-0001");
+    expect(req?.DocumentRelationScope).toBe("documentsOnly");
+    expect(req?.EnablePagination).toBe(true);
   });
 
   it.skip("ignora respuestas stale cuando cambia idTareaWf (anti-stale)", async () => {

@@ -1,191 +1,70 @@
+# Design
+
 ## Context
 
-SCRUMCORE-295: LISTA-DOCUMENTOS-APPTRETABLE
+SCRUMCORE-295 formalizes the frontend contract for the document list rendered in `DocumentosWorkbench` / `AppTreeTable`. The current module already owns the query flow, row mapping, and refresh lifecycle, so the change should stay inside `gestionCorrespondencia` instead of pushing business rules into `AppTable`.
 
-## Jira Details
+## Goals
 
-> Prompt Arquitectónico Frontend - Lista de Documentos Radicados / AppTreeTable
-> Objetivo
->   Permitir que el frontend del listado de documentos radicados refresque y presente documentos relacionados sin perder filas  por paginación y sin mezclar anexos de respuesta cuando la pantalla requiere solo documentos principales.
->   El contrato debe permitir:
-> DocumentRelationScope: controlar si el listado excluye anexos de respuesta, los incluye o devuelve solo anexos.
-> 
-> EnablePagination: pedir el conjunto completo cuando el flujo necesita refrescar después de almacenar un documento oanexo.
-> 
-> meta.total y data.pagination.total: reflejar el total real del filtro, no solo las filas visibles en una página.
-> 
-> Alcance UI
-> Árbol/lista principal del radicado: mostrar documentos base sin anexos de respuesta.
-> 
-> Refresco posterior a almacenar documento/anexo: garantizar que el nuevo registro aparezca aunque quede fuera de laprimera página.
-> 
-> Vista de todos los relacionados: mostrar documentos y anexos en una sola tabla.
-> 
-> Vista exclusiva de anexos: mostrar solo filas relacionadas en ra_anexos_respuesta.
-> 
-> Búsqueda por radicado desde módulo externo: resolver por NombreGabinete, CampoRadicado y Radicado.
-> 
->   No se crea una pantalla nueva. El frontend existente debe ajustar el payload del endpoint según el caso funcional.
-> Endpoint Consumido
-> Método: POST
-> 
-> Ruta: /api/GestorDocumental/Documentos/ListaDocumentosRadicados/query
-> 
-> Controller: DocuArchi.Api/Controllers/GestorDocumental/Documentos/ListaDocumentosRadicados/ ListaDocumentosRadicadoController.cs
-> 
-> DTO request: MiApp.DTOs/DTOs/GestorDocumental/Documentos/ListaDocumentosRadicados/ListaDocumentosRadicadosDtos.cs
-> 
-> Service: MiApp.Services/Service/GestorDocumental/Documentos/ListaDocumentosRadicados/ListaDocumentosRadicadoService.cs
-> 
-> Repository: MiApp.Repository/Repositorio/GestorDocumental/Documentos/ListaDocumentosRadicados/ IListaDocumentosRadicadosRepository.cs
-> 
-> Envelope: AppResponses<object>
-> 
-> Autenticación: Bearer token
-> 
-> Claims requeridos: defaulalias, usuarioid
-> 
-> Reglas Funcionales
-> El frontend debe enviar DocumentRelationScope explícitamente cuando el caso requiera anexos o filtrado específico.
-> 
-> EnablePagination=false debe usarse cuando se requiere refresco completo sin limitar por página.
-> 
-> La UI debe usar meta.total como fuente preferida y data.pagination.total como fallback.
-> 
-> Ante validación, no debe existir fallback silencioso a documentsOnly.
-> 
-> La UI no debe inferir anexos por nombre o extensión.
-> 
-> Al cambiar página, deben preservarse NombreGabinete, CampoRadicado, Radicado, DocumentRelationScope, filtros yordenamiento.
-> 
-> Valores de DocumentRelationScope
-> documentsOnly: excluye anexos de respuesta.
-> 
-> includeResponseAttachments: incluye documentos y anexos.
-> 
-> responseAttachmentsOnly: devuelve solo anexos de respuesta.
-> 
-> Flujo de Consumo
-> Carga inicial: documentsOnly, EnablePagination=true, Page=1, PageSize=25.
-> 
-> Árbol completo: documentsOnly, EnablePagination=false.
-> 
-> Refresco tras guardar: includeResponseAttachments, EnablePagination=false.
-> 
-> Vista solo anexos: responseAttachmentsOnly, EnablePagination=true.
-> 
-> Cambio de página: mantener scope y filtros.
-> 
-> Validación backend: mostrar error funcional sin fallback automático.
-> 
-> Request Base
-> {
->   "ViewMode": "flatDocuments",
->   "DocumentRelationScope": "includeResponseAttachments",
->   "EnablePagination": false,
->   "CampoRadicado": "ENLASE",
->   "Radicado": "2200466700018",
->   "NombreGabinete": "CORRESPO",
->   "Page": 1,
->   "PageSize": 25
-> }
-> 
-> ## Response Esperada
-> 
-> {
->   "success": true,
->   "message": "OK",
->   "data": {
->     "tableId": "InboxListaDocumentosRadicado",
->     "columns": [],
->     "rows": [],
->     "pagination": {
->       "page": 1,
->       "pageSize": 25,
->       "total": 7
->     }
->   },
->   "meta": {
->     "status": "success",
->     "total": 7,
->     "page": 1,
->     "pageSize": 25
->   },
->   "errors": []
-> }
-> 
-> ## Response de Validación
-> 
-> {
->   "success": false,
->   "message": "Validacion",
->   "data": null,
->   "meta": {
->     "status": "validation"
->   },
->   "errors": [
->     {
->       "field": "DocumentRelationScope",
->       "message": "DocumentRelationScope invalido"
->     }
->   ]
-> }
-> 
-> ## Estados UI
-> 
-> - idle: listo para consultar.
-> - loading: request en curso, bloquear recarga doble.
-> - success: filas cargadas con total.
-> - empty: consulta válida sin resultados.
-> - validation: error de validación funcional.
-> - unauthorized: sesión expirada.
-> - forbidden: sin permisos.
-> - error: fallo técnico o de red.
-> 
-> ## Mapeo UI
-> 
-> - Tabla/listado: data.rows
-> - Columnas: data.columns
-> - Paginador: data.pagination.page, pageSize, total
-> - Contador total: meta.total, fallback data.pagination.total
-> - Mensajes inline: errors[].field y errors[].message
-> - Mensaje global: message, meta.status, HTTP status
-> 
-> ## Restricciones
-> 
-> - No calcular total, Limit, Offset ni lógica de anexos en frontend.
-> - No loguear tokens, claims completos, SQL, contenido documental ni paths físicos.
-> - No persistir payload completo con radicado salvo política aprobada.
-> - El cambio debe ser compatible con consumidores actuales si omiten DocumentRelationScope.
-> 
-> ## Criterios de Aceptación
-> - El refresco completo funciona sin perder registros por paginación.
-> - El contador usa el total real del backend.
-> - Cambiar scope reinicia Page=1.
-> - No existe fallback silencioso ante validación.
-> - La UI mantiene comportamiento estable y trazable.
+- Make attachment scope explicit in the request contract.
+- Preserve the existing tree/list behavior for current consumers.
+- Keep pagination deterministic when the UI needs a full refresh.
+- Use backend totals as the source of truth for counters and paging.
+- Surface validation errors instead of masking them with a silent fallback.
 
-## Goals / Non-Goals
+## Non-Goals
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
-
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+- Do not redesign `AppTable` as a generic paging engine.
+- Do not change unrelated consumer modules.
+- Do not infer attachment membership from file name, extension, or label text.
+- Do not introduce a new screen or new navigation surface.
 
 ## Decisions
 
-1. TBD
+1. Keep the change localized to `src/modules/gestionCorrespondencia`.
+   - The request mapper, hook, service, and response adapter already form the natural seam.
+   - `AppTable` and `AppTreeTable` remain reusable primitives unless a regression forces a shared fix.
+
+2. Extend the query contract with explicit scope and pagination controls.
+   - `DocumentRelationScope` becomes the way to request `documentsOnly`, `includeResponseAttachments`, or `responseAttachmentsOnly`.
+   - `EnablePagination=true` is the default for the main list and tree load.
+   - `EnablePagination=false` is reserved for explicit full refresh flows that must not lose rows outside the first page.
+   - When a scope is not supplied, the default behavior remains `documentsOnly`.
+
+3. Keep totals backend-driven.
+   - Prefer `meta.total`.
+   - Fall back to `data.pagination.total` when `meta.total` is unavailable.
+   - Never derive totals from the visible page length.
+
+4. Preserve the existing workbench layout and action contract.
+   - `DocumentosWorkbench` keeps orchestrating the table and the viewer.
+   - The action path must remain compatible with the current row-action model.
+   - No extra coupling is added to `AppTreeTable`.
+
+5. Make validation explicit.
+   - Invalid scope or paging values should surface as functional validation errors.
+   - The UI should not retry automatically with a different scope.
+   - If `responseAttachmentsOnly` is exposed in this ticket, it follows the same validation path and defaults as the other scopes.
+
+## Technical Approach
+
+- `gestionRespuestaDocumentosRequestMapper` will become the single place that injects the default scope and pagination policy into root/children queries.
+- `useGestionRespuestaDocumentosTable` will call the paginated load path for the initial workbench render and the explicit full-refresh path only after a mutation requires it.
+- `listaDocumentosRadicados.service.ts` remains transport only.
+- `documentosWorkbenchResponseAdapter.ts` will continue translating backend rows into `AppTreeTableRow` and table metadata, but should preserve any response pagination and total information exposed by the backend.
+- `useGestionRespuestaDocumentosTable.ts` will coordinate loading, refresh, state reset on task change, and error propagation.
+- `DocumentosWorkbench.tsx` will keep the presentation behavior stable and only consume the refined model.
 
 ## Risks / Trade-offs
 
-- TBD
+- Full refreshes with `EnablePagination=false` can return larger payloads. That is acceptable only for the flows that require it.
+- If the backend omits `meta.total`, the UI must rely on `data.pagination.total`; if both are missing, the UI falls back to the visible row count.
+- Keeping the default scope as `documentsOnly` protects compatibility, but it also means new consumers must opt in explicitly to attachment visibility.
 
 ## Migration Plan
 
-1. TBD
-
-## Open Questions
-
-- TBD
+1. Update the request mapper to send the new controls.
+2. Update the hook and adapter to preserve backend totals and validation states.
+3. Add tests for scope defaults, page resets, total mapping, and validation handling.
+4. Refresh technical documentation under `docs/Architecture/GestionCorrrespondecia/Integracion-ListaDocumentos-AppTreeTable/`.
+5. Publish the change once the spec and tasks are consistent with the implementation plan.

@@ -173,10 +173,10 @@ function formatDeleteNotificationMessage(result: {
       normalizedMessage.includes("delete_storage_engine") ||
       normalizedMessage.includes("delete deshabilitado")
     ) {
-      return "No es posible eliminar este documento en este momento.";
+      return "La funcionalidad de eliminacion no esta disponible actualmente";
     }
 
-    return rawMessage || "No es posible eliminar este documento en este momento.";
+    return rawMessage || "La funcionalidad de eliminacion no esta disponible actualmente";
   }
 
   return rawMessage || (result.success ? "Documento eliminado correctamente." : "No fue posible eliminar el documento.");
@@ -986,7 +986,7 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             data-document-hint-active={documentHintActive}
             data-locked={isReplacingAnnotatedPages}
           >
-          <AppTreeTable
+            <AppTreeTable
               key={`documentos-${documentosRefreshKey}`}
               load={documentosTable.load}
               loadChildren={documentosTable.loadChildren}

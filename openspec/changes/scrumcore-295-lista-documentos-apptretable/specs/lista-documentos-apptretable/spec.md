@@ -1,173 +1,121 @@
 ## ADDED Requirements
-### Requirement: LISTA-DOCUMENTOS-APPTRETABLE
-El sistema SHALL implementar el alcance definido para SCRUMCORE-295.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- Prompt Arquitectónico Frontend - Lista de Documentos Radicados / AppTreeTable
-- Objetivo
--   Permitir que el frontend del listado de documentos radicados refresque y presente documentos relacionados sin perder filas  por paginación y sin mezclar anexos de respuesta cuando la pantalla requiere solo documentos principales.
--   El contrato debe permitir:
-- DocumentRelationScope: controlar si el listado excluye anexos de respuesta, los incluye o devuelve solo anexos.
-- 
-- EnablePagination: pedir el conjunto completo cuando el flujo necesita refrescar después de almacenar un documento oanexo.
-- 
-- meta.total y data.pagination.total: reflejar el total real del filtro, no solo las filas visibles en una página.
-- 
-- Alcance UI
-- Árbol/lista principal del radicado: mostrar documentos base sin anexos de respuesta.
-- 
-- Refresco posterior a almacenar documento/anexo: garantizar que el nuevo registro aparezca aunque quede fuera de laprimera página.
-- 
-- Vista de todos los relacionados: mostrar documentos y anexos en una sola tabla.
-- 
-- Vista exclusiva de anexos: mostrar solo filas relacionadas en ra_anexos_respuesta.
-- 
-- Búsqueda por radicado desde módulo externo: resolver por NombreGabinete, CampoRadicado y Radicado.
-- 
--   No se crea una pantalla nueva. El frontend existente debe ajustar el payload del endpoint según el caso funcional.
-- Endpoint Consumido
-- Método: POST
-- 
-- Ruta: /api/GestorDocumental/Documentos/ListaDocumentosRadicados/query
-- 
-- Controller: DocuArchi.Api/Controllers/GestorDocumental/Documentos/ListaDocumentosRadicados/ ListaDocumentosRadicadoController.cs
-- 
-- DTO request: MiApp.DTOs/DTOs/GestorDocumental/Documentos/ListaDocumentosRadicados/ListaDocumentosRadicadosDtos.cs
-- 
-- Service: MiApp.Services/Service/GestorDocumental/Documentos/ListaDocumentosRadicados/ListaDocumentosRadicadoService.cs
-- 
-- Repository: MiApp.Repository/Repositorio/GestorDocumental/Documentos/ListaDocumentosRadicados/ IListaDocumentosRadicadosRepository.cs
-- 
-- Envelope: AppResponses<object>
-- 
-- Autenticación: Bearer token
-- 
-- Claims requeridos: defaulalias, usuarioid
-- 
-- Reglas Funcionales
-- El frontend debe enviar DocumentRelationScope explícitamente cuando el caso requiera anexos o filtrado específico.
-- 
-- EnablePagination=false debe usarse cuando se requiere refresco completo sin limitar por página.
-- 
-- La UI debe usar meta.total como fuente preferida y data.pagination.total como fallback.
-- 
-- Ante validación, no debe existir fallback silencioso a documentsOnly.
-- 
-- La UI no debe inferir anexos por nombre o extensión.
-- 
-- Al cambiar página, deben preservarse NombreGabinete, CampoRadicado, Radicado, DocumentRelationScope, filtros yordenamiento.
-- 
-- Valores de DocumentRelationScope
-- documentsOnly: excluye anexos de respuesta.
-- 
-- includeResponseAttachments: incluye documentos y anexos.
-- 
-- responseAttachmentsOnly: devuelve solo anexos de respuesta.
-- 
-- Flujo de Consumo
-- Carga inicial: documentsOnly, EnablePagination=true, Page=1, PageSize=25.
-- 
-- Árbol completo: documentsOnly, EnablePagination=false.
-- 
-- Refresco tras guardar: includeResponseAttachments, EnablePagination=false.
-- 
-- Vista solo anexos: responseAttachmentsOnly, EnablePagination=true.
-- 
-- Cambio de página: mantener scope y filtros.
-- 
-- Validación backend: mostrar error funcional sin fallback automático.
-- 
-- Request Base
-- {
--   "ViewMode": "flatDocuments",
--   "DocumentRelationScope": "includeResponseAttachments",
--   "EnablePagination": false,
--   "CampoRadicado": "ENLASE",
--   "Radicado": "2200466700018",
--   "NombreGabinete": "CORRESPO",
--   "Page": 1,
--   "PageSize": 25
-- }
-- 
-- ## Response Esperada
-- 
-- {
--   "success": true,
--   "message": "OK",
--   "data": {
--     "tableId": "InboxListaDocumentosRadicado",
--     "columns": [],
--     "rows": [],
--     "pagination": {
--       "page": 1,
--       "pageSize": 25,
--       "total": 7
--     }
--   },
--   "meta": {
--     "status": "success",
--     "total": 7,
--     "page": 1,
--     "pageSize": 25
--   },
--   "errors": []
-- }
-- 
-- ## Response de Validación
-- 
-- {
--   "success": false,
--   "message": "Validacion",
--   "data": null,
--   "meta": {
--     "status": "validation"
--   },
--   "errors": [
--     {
--       "field": "DocumentRelationScope",
--       "message": "DocumentRelationScope invalido"
--     }
--   ]
-- }
-- 
-- ## Estados UI
-- 
-- - idle: listo para consultar.
-- - loading: request en curso, bloquear recarga doble.
-- - success: filas cargadas con total.
-- - empty: consulta válida sin resultados.
-- - validation: error de validación funcional.
-- - unauthorized: sesión expirada.
-- - forbidden: sin permisos.
-- - error: fallo técnico o de red.
-- 
-- ## Mapeo UI
-- 
-- - Tabla/listado: data.rows
-- - Columnas: data.columns
-- - Paginador: data.pagination.page, pageSize, total
-- - Contador total: meta.total, fallback data.pagination.total
-- - Mensajes inline: errors[].field y errors[].message
-- - Mensaje global: message, meta.status, HTTP status
-- 
-- ## Restricciones
-- 
-- - No calcular total, Limit, Offset ni lógica de anexos en frontend.
-- - No loguear tokens, claims completos, SQL, contenido documental ni paths físicos.
-- - No persistir payload completo con radicado salvo política aprobada.
-- - El cambio debe ser compatible con consumidores actuales si omiten DocumentRelationScope.
-- 
-- ## Criterios de Aceptación
-- - El refresco completo funciona sin perder registros por paginación.
-- - El contador usa el total real del backend.
-- - Cambiar scope reinicia Page=1.
-- - No existe fallback silencioso ante validación.
-- - La UI mantiene comportamiento estable y trazable.
+### Requirement: Query contract supports document scope and explicit pagination
+The system SHALL allow the frontend consumer of `POST /api/GestorDocumental/Documentos/ListaDocumentosRadicados/query` to send a document-scope control and pagination control without changing the endpoint route.
+
+The request SHALL support:
+
+- `DocumentRelationScope`
+- `EnablePagination`
+- `Page`
+- `PageSize`
+- the existing business keys `NombreGabinete`, `CampoRadicado`, and `Radicado`
+
+The frontend SHALL keep the default behavior compatible with current consumers when `DocumentRelationScope` is omitted.
+
+#### Scenario: Main list uses the default document scope
+- **WHEN** `DocumentosWorkbench` loads the main document list
+- **THEN** the request uses `documentsOnly` as the default scope
+- **AND** the UI renders only base documents for the radicado
+
+#### Scenario: Full refresh uses pagination disabled
+- **WHEN** the user refreshes a flow that must not lose rows outside the first page
+- **THEN** the request sends `EnablePagination=false`
+- **AND** the response is consumed as a complete dataset for the current scope
+
+#### Scenario: Related-documents view includes attachments
+- **WHEN** the user requests the full related-documents view
+- **THEN** the request sends `DocumentRelationScope=includeResponseAttachments`
+- **AND** the UI can render documents and response attachments in the same list
+
+#### Scenario: Attachments-only view isolates attachment rows
+- **WHEN** the consumer requests only response attachments
+- **THEN** the request sends `DocumentRelationScope=responseAttachmentsOnly`
+- **AND** the UI renders only rows related through `ra_anexos_respuesta`
+
+### Requirement: Totals and paging remain backend-driven
+The system SHALL use backend totals as the source of truth for the table counter and page model.
+
+The frontend SHALL prefer `meta.total` and SHALL fall back to `data.pagination.total` if the meta total is not available.
+
+The frontend SHALL NOT derive total rows from the visible page length when the backend provides a total value.
+
+#### Scenario: Backend returns a total for a paginated response
+- **WHEN** the backend returns `meta.total`
+- **THEN** the UI uses that value for the counter and paging state
+
+#### Scenario: Backend omits meta total
+- **WHEN** `meta.total` is missing
+- **THEN** the UI uses `data.pagination.total`
+- **AND** does not infer the total from `rows.length` unless no backend total is available
+
+#### Scenario: Refresh after storing must not hide a new row
+- **WHEN** the flow refreshes after storing a document or attachment
+- **THEN** the UI keeps the returned full dataset for the chosen scope
+- **AND** the row can appear even if it was not in the first page previously
+
+### Requirement: Scope changes preserve the active query context
+The system SHALL preserve the active query context when the user changes page.
+
+The frontend SHALL keep:
+
+- `NombreGabinete`
+- `CampoRadicado`
+- `Radicado`
+- `DocumentRelationScope`
+- filters
+- ordering
+- `PageSize`
+
+The frontend SHALL reset `Page` to `1` when the scope or search context changes.
+
+#### Scenario: User changes page
+- **WHEN** the user requests the next page
+- **THEN** the request keeps the same scope and filters
+- **AND** only `Page` changes
+
+#### Scenario: User changes scope
+- **WHEN** the user changes `DocumentRelationScope`
+- **THEN** the UI resets `Page` to `1`
+- **AND** the new request is built from the current filter context
+
+### Requirement: Validation errors are surfaced without silent fallback
+The system SHALL surface backend validation failures as functional errors.
+
+The frontend SHALL NOT silently retry the request with `documentsOnly` or any other fallback scope when the backend returns validation errors.
+
+The UI SHALL show field-level errors when the backend provides them and SHALL keep the current user context intact.
+
+#### Scenario: Invalid scope is rejected
+- **WHEN** the backend returns a validation error for `DocumentRelationScope`
+- **THEN** the UI shows the validation message
+- **AND** the UI does not retry with a different scope
+
+#### Scenario: Invalid paging values are rejected
+- **WHEN** the backend rejects `Page` or `PageSize`
+- **THEN** the UI shows the error
+- **AND** the user can correct the current filter state
+
+### Requirement: Delete restrictions are communicated as toast warnings only
+The system SHALL present delete feature restrictions in the workbench as a transient warning toast.
+
+The frontend SHALL NOT render a persistent inline banner, alert, or fallback panel for delete restrictions when the backend responds with a warning-style failure.
+
+The message shown to the user SHALL be the functional backend message normalized by the UI copy layer.
+
+#### Scenario: Delete is disabled by backend feature flag
+- **WHEN** the user triggers `eliminar_item` and the backend responds with a warning-style 400
+- **THEN** the UI shows a warning toast
+- **AND** the toast message communicates that the delete functionality is not currently available
+- **AND** no inline delete notice remains on the screen
+
+### Requirement: Existing consumers remain backward compatible
+The system SHALL preserve the current behavior for consumers that do not send the new scope control.
+
+#### Scenario: Legacy consumer omits scope
+- **WHEN** an existing consumer does not send `DocumentRelationScope`
+- **THEN** the backend and frontend continue using the default document-only behavior
+
+#### Scenario: Other table consumers remain unaffected
+- **WHEN** other modules consume `AppTable` or `AppTreeTable`
+- **THEN** the change in this ticket does not alter their default query or rendering behavior

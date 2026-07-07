@@ -6,6 +6,7 @@ import {
   resolveDocumentoVisualizacion,
 } from "../services/listaDocumentosRadicados.service";
 import type {
+  DocumentRelationScope,
   ListaDocumentosRadicadosQueryRequest,
   ListaDocumentosRadicadosRowDto,
 } from "../types/listaDocumentosRadicados.types";
@@ -36,6 +37,8 @@ const readNumber = (record: unknown, ...keys: string[]): number | undefined => {
 
 const buildInitialQuery = (options?: {
   nombreGabinete?: string;
+  documentRelationScope?: DocumentRelationScope;
+  enablePagination?: boolean | null;
 }): ListaDocumentosRadicadosQueryRequest => {
   const base: ListaDocumentosRadicadosQueryRequest = {
     ViewMode: "flatDocuments",
@@ -45,11 +48,12 @@ const buildInitialQuery = (options?: {
     Search: "",
     StructuredFilters: [],
     IncludeConfig: true,
-    EnablePagination: false,
+    EnablePagination: options?.enablePagination ?? true,
     EnableColumnFilters: false,
     ParentRowId: null,
     ParentNodeType: null,
     Level: 1,
+    DocumentRelationScope: options?.documentRelationScope ?? "documentsOnly",
 
     TableId: TABLE_ID,
     CampoRadicado: "",
@@ -109,7 +113,11 @@ export const useListaDocumentosRadicadosTreeTable = (): ListaDocumentosRadicados
       }
 
       const response = await queryListaDocumentosRadicados(
-        buildInitialQuery({ nombreGabinete: gabineteNombreContextual }),
+        buildInitialQuery({
+          nombreGabinete: gabineteNombreContextual,
+          documentRelationScope: "documentsOnly",
+          enablePagination: true,
+        }),
       );
       if (!response.success || !response.data) {
         const message =
@@ -139,7 +147,11 @@ export const useListaDocumentosRadicadosTreeTable = (): ListaDocumentosRadicados
 
     const parentNodeType = String(row.meta?.NodeType ?? row.meta?.nodeType ?? "");
     const request: ListaDocumentosRadicadosQueryRequest = {
-      ...buildInitialQuery({ nombreGabinete: gabineteNombreContextual }),
+      ...buildInitialQuery({
+        nombreGabinete: gabineteNombreContextual,
+        documentRelationScope: "documentsOnly",
+        enablePagination: true,
+      }),
       ViewMode: "hierarchical",
       ParentRowId: row.id,
       ParentNodeType: parentNodeType || null,

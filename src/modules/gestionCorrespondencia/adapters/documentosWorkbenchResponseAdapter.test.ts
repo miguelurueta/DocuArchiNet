@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   adaptListaDocumentosRadicadosToWorkbenchModel,
   resolveDocumentWorkbenchRowId,
+  resolveListaDocumentosRadicadosTotal,
 } from "./documentosWorkbenchResponseAdapter";
 import type { ListaDocumentosRadicadosQueryData } from "../types/listaDocumentosRadicados.types";
 
@@ -237,5 +238,40 @@ describe("[SPEC:APPTREETABLE-217] documentosWorkbenchResponseAdapter", () => {
 
     const model = adaptListaDocumentosRadicadosToWorkbenchModel(data, { viewMode: "flatDocuments" });
     expect(model.rows[0].id).toBe("15416");
+  });
+
+  it("preserva pagination y total cuando el backend lo entrega", () => {
+    const data: ListaDocumentosRadicadosQueryData = {
+      Rows: [
+        {
+          RowId: "r1",
+          Values: { TIPODOCUMENTO: "DOC 1" },
+          Meta: { NodeType: "documento", HasChildren: false },
+        },
+      ],
+      Columns: ["TIPODOCUMENTO"],
+      Config: null,
+      pagination: {
+        page: 3,
+        pageSize: 25,
+        total: 77,
+      },
+    };
+
+    const model = adaptListaDocumentosRadicadosToWorkbenchModel(data, { viewMode: "flatDocuments" });
+    expect(model.pagination).toEqual({ page: 3, pageSize: 25, total: 77 });
+    expect(model.total).toBe(77);
+    expect(resolveListaDocumentosRadicadosTotal(data)).toBe(77);
+  });
+
+  it("resuelve total desde Pagination si viene en mayuscula", () => {
+    const data = {
+      Rows: [],
+      Columns: null,
+      Config: null,
+      Pagination: { page: 1, pageSize: 25, total: 12 },
+    } as unknown as ListaDocumentosRadicadosQueryData;
+
+    expect(resolveListaDocumentosRadicadosTotal(data)).toBe(12);
   });
 });

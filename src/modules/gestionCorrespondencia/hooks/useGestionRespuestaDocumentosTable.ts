@@ -10,6 +10,7 @@ import { buildListaDocumentosRadicadosActionRequest } from "../adapters/document
 import {
   adaptListaDocumentosRadicadosToWorkbenchModel,
   resolveDocumentWorkbenchRowId,
+  resolveListaDocumentosRadicadosTotal,
 } from "../adapters/documentosWorkbenchResponseAdapter";
 import {
   buildListaDocumentosRadicadosChildrenQuery,
@@ -63,31 +64,20 @@ const DEBUG_GESTION_RESPUESTA_DOCUMENTOS_TABLE =
   Boolean(import.meta.env?.DEV) &&
   import.meta.env?.MODE !== "test";
 
-const readTotalCandidate = (value: unknown): number | undefined => {
-  if (!value || typeof value !== "object") return undefined;
-  const source = value as Record<string, unknown>;
-  const candidates = [
-    source.Total,
-    source.total,
-    source.TotalRecords,
-    source.totalRecords,
-  ];
-
-  for (const candidate of candidates) {
-    if (typeof candidate === "number" && Number.isFinite(candidate) && candidate >= 0) {
-      return candidate;
-    }
-  }
-
-  return undefined;
-};
-
 const resolveBackendTotal = (
   response: ApiResponse<ListaDocumentosRadicadosQueryData>,
-): number | undefined =>
-  readTotalCandidate(response.data) ??
-  readTotalCandidate(response.meta) ??
-  readTotalCandidate(response);
+  modelTotal?: number,
+): number | undefined => {
+  if (typeof response.meta?.total === "number" && Number.isFinite(response.meta.total) && response.meta.total >= 0) {
+    return response.meta.total;
+  }
+
+  if (typeof modelTotal === "number" && Number.isFinite(modelTotal) && modelTotal >= 0) {
+    return modelTotal;
+  }
+
+  return resolveListaDocumentosRadicadosTotal(response.data ?? { Rows: [] });
+};
 
 export type GestionRespuestaDocumentoActivo = {
   documentResolveRequest: { IdDocumento: number; NombreGabinete: string };
@@ -152,7 +142,7 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
     setCountState({ rowsCount: 0, backendTotal: undefined, runtimePreferred: false });
   }, [idTareaWf]);
 
-  const load = useCallback(async (): Promise<AppTreeTableLoadResult> => {
+  const loadDocuments = useCallback(async (options?: { enablePagination?: boolean | null }): Promise<AppTreeTableLoadResult> => {
     const seq = ++loadSeqRef.current;
     try {
       debugGestionRespuestaDocumentosTable("load start", {
@@ -209,6 +199,8 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
           idTareaWf,
           nombreGabinete,
           radicado: hasValidTask ? resolvedRadicado : undefined,
+          documentRelationScope: "documentsOnly",
+          enablePagination: options?.enablePagination ?? true,
         }),
       );
       debugGestionRespuestaDocumentosTable("load response", {
@@ -231,7 +223,7 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       latestRowRef.current = new Map(
         (response.data.Rows ?? []).map((row, index) => [resolveDocumentWorkbenchRowId(row, index), row]),
       );
-      const backendTotal = resolveBackendTotal(response);
+      const backendTotal = resolveBackendTotal(response, model.total);
       if (seq !== loadSeqRef.current) {
         // Evitar mostrar error si cambió la tarea durante la actualización de estado.
         return { ok: true, rows: lastSuccessfulRowsRef.current };
@@ -275,6 +267,8 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
             parentRowId: row.id,
             parentNodeType: parentNodeType || null,
             level: Number(row.meta?.Level ?? 2),
+            documentRelationScope: "documentsOnly",
+            enablePagination: true,
           }),
         );
         if (!response.success || !response.data) {
@@ -398,12 +392,12 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
 
       if (actionResponse.data?.RequiresReloadNode) {
         // Mejor esfuerzo: refrescar la lista raíz sin romper UX.
-        await load();
+        await loadDocuments({ enablePagination: false });
       }
 
       return actionResponse;
     },
-    [buildActionContextFromRow, load],
+    [buildActionContextFromRow, loadDocuments],
   );
 
   const performVerDocumento = useCallback(
@@ -423,8 +417,7 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       if (params.actionId === "ver_documento") {
         return performVerDocumento(params.rowId);
       }
-      await performAction(params);
-      return null;
+      return performAction(params);
     },
     [performAction, performVerDocumento],
   );
@@ -455,6 +448,7 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
     (): GestionRespuestaWorkbenchContext => ({ ...gabineteRef.current }),
     [],
   );
+  const load = useCallback(() => loadDocuments({ enablePagination: true }), [loadDocuments]);
 
   return useMemo(
     () => ({
@@ -474,6 +468,7 @@ export const useGestionRespuestaDocumentosTable = (idTareaWf?: number) => {
       getTableColumns,
       getWorkbenchContext,
       load,
+      loadDocuments,
       loadChildren,
       onActionTriggered,
       onSelectRow,

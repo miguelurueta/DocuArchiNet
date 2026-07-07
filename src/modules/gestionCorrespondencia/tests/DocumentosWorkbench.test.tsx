@@ -380,7 +380,7 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
 
     await waitFor(() => {
       expect(toastWarningSpy).toHaveBeenCalledWith(
-        "No es posible eliminar este documento en este momento.",
+        "La funcionalidad de eliminacion no esta disponible actualmente",
         expect.objectContaining({
           position: "top-right",
           autoClose: 6000,

@@ -1,4 +1,7 @@
-import type { ListaDocumentosRadicadosQueryRequest } from "../types/listaDocumentosRadicados.types";
+import type {
+  DocumentRelationScope,
+  ListaDocumentosRadicadosQueryRequest,
+} from "../types/listaDocumentosRadicados.types";
 
 const TABLE_ID = "InboxListaDocumentosRadicado";
 const DEFAULT_APLICA_TRD = 0;
@@ -6,11 +9,14 @@ const DEFAULT_COLUMN_MODE = 2;
 const DEFAULT_SEARCH_TYPE = 1;
 const DEFAULT_SORT_FIELD = "ID";
 const DEFAULT_CAMPO_RADICADO = "ENLASE";
+const DEFAULT_DOCUMENT_RELATION_SCOPE: DocumentRelationScope = "documentsOnly";
 
 export type GestionRespuestaDocumentosQueryContext = {
   idTareaWf?: number;
   nombreGabinete?: string;
   radicado?: string;
+  documentRelationScope?: DocumentRelationScope;
+  enablePagination?: boolean | null;
 };
 
 export const buildListaDocumentosRadicadosRootQuery = (
@@ -30,11 +36,12 @@ export const buildListaDocumentosRadicadosRootQuery = (
     SortField: DEFAULT_SORT_FIELD,
     StructuredFilters: [],
     IncludeConfig: true,
-    EnablePagination: false,
+    EnablePagination: context.enablePagination ?? true,
     EnableColumnFilters: false,
     ParentRowId: null,
     ParentNodeType: null,
     Level: 1,
+    DocumentRelationScope: context.documentRelationScope ?? DEFAULT_DOCUMENT_RELATION_SCOPE,
 
     TableId: TABLE_ID,
     EstadoTramite: "",
@@ -51,6 +58,8 @@ export const buildListaDocumentosRadicadosChildrenQuery = (input: {
   parentRowId: string;
   parentNodeType?: string | null;
   level: number;
+  documentRelationScope?: DocumentRelationScope;
+  enablePagination?: boolean | null;
 }): ListaDocumentosRadicadosQueryRequest => {
   const nombreGabinete = input.nombreGabinete?.trim();
   const radicado = input.radicado?.trim();
@@ -63,11 +72,12 @@ export const buildListaDocumentosRadicadosChildrenQuery = (input: {
     Search: "",
     StructuredFilters: [],
     IncludeConfig: false,
-    EnablePagination: false,
+    EnablePagination: input.enablePagination ?? true,
     EnableColumnFilters: false,
     ParentRowId: input.parentRowId,
     ParentNodeType: input.parentNodeType ?? null,
     Level: input.level,
+    DocumentRelationScope: input.documentRelationScope ?? DEFAULT_DOCUMENT_RELATION_SCOPE,
 
     TableId: TABLE_ID,
     CampoRadicado: DEFAULT_CAMPO_RADICADO,
