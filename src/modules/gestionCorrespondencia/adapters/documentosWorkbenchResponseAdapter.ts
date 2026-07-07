@@ -145,9 +145,10 @@ const readPaginationCandidate = (
   const candidate = data.pagination ?? data.Pagination;
   if (!candidate || typeof candidate !== "object") return undefined;
 
-  const page = readTotalCandidate({ total: candidate.page });
-  const pageSize = readTotalCandidate({ total: candidate.pageSize });
-  const total = readTotalCandidate({ total: candidate.total });
+  const source = candidate as Record<string, unknown>;
+  const page = readTotalCandidate({ total: source.page ?? source.Page });
+  const pageSize = readTotalCandidate({ total: source.pageSize ?? source.PageSize });
+  const total = readTotalCandidate({ total: source.total ?? source.Total });
 
   if (page === undefined && pageSize === undefined && total === undefined) {
     return undefined;

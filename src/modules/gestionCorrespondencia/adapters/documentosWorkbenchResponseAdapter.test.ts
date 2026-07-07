@@ -269,9 +269,11 @@ describe("[SPEC:APPTREETABLE-217] documentosWorkbenchResponseAdapter", () => {
       Rows: [],
       Columns: null,
       Config: null,
-      Pagination: { page: 1, pageSize: 25, total: 12 },
+      Pagination: { Page: 2, PageSize: 10, Total: 12 },
     } as unknown as ListaDocumentosRadicadosQueryData;
 
+    const model = adaptListaDocumentosRadicadosToWorkbenchModel(data, { viewMode: "flatDocuments" });
+    expect(model.pagination).toEqual({ page: 2, pageSize: 10, total: 12 });
     expect(resolveListaDocumentosRadicadosTotal(data)).toBe(12);
   });
 });

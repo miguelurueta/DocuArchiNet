@@ -37,3 +37,27 @@
 - [x] 6.1 Create or update the technical package under `docs/Architecture/GestionCorrrespondecia/Integracion-ListaDocumentos-AppTreeTable/`.
 - [x] 6.2 Document the request contract, UI scope rules, totals behavior, validation behavior, and compatibility notes.
 - [x] 6.3 Review the final diff for consistency between Jira, OpenSpec, code, and documentation before publish.
+
+## 7. Interactive Pagination Hardening - Superseded By Full-List UX
+
+- [x] 7.1 Extend the document-list request mapper so `Page` and `PageSize` are supplied by the domain query state instead of being fixed constants.
+- [x] 7.2 Expose server-side pagination state from `useGestionRespuestaDocumentosTable` without adding business rules to `AppTable` or `AppTreeTable`.
+- [x] 7.3 Wrap the workbench tree with the existing `AppTableQueryWrapper` so page navigation reuses shared UI controls.
+- [x] 7.4 Keep `AppTreeTable` as a reusable renderer over `AppTable`; do not add document scope, radicado, gabinete, total, offset, or attachment rules to the component.
+- [x] 7.5 Add focused regression tests for request `Page/PageSize`, page changes, scope reset, and workbench pagination delegation.
+
+Note: this phase was implemented and then intentionally evolved after functional validation. The final SCRUMCORE-295 UX lists the complete document set and hides interactive pagination in `DocumentosWorkbench`.
+
+## 8. Final Full-List Search UX Alignment
+
+- [x] 8.1 Configure `useGestionRespuestaDocumentosTable` so the workbench document list sends `EnablePagination=false` for root, child, refresh, and mutation reload flows.
+- [x] 8.2 Keep `Page=1` when pagination is disabled and preserve `PageSize` only for DTO compatibility.
+- [x] 8.3 Add `showPagination?: boolean` to `AppTableQueryWrapper` with default `true` so existing consumers remain unaffected.
+- [x] 8.4 Render `DocumentosWorkbench` with `showPagination={false}` and no wrapper refresh button.
+- [x] 8.5 Compact the document-list search input with CSS scoped to `DocumentosWorkbench`.
+- [x] 8.6 Implement deterministic local search over `RowId`, `Values`, and `Meta` when the complete dataset is loaded.
+- [x] 8.7 Avoid backend `Search` in the full-list workbench flow so the API cannot hide rows before local filtering.
+- [x] 8.8 Use filtered row count as total when local search is active.
+- [x] 8.9 Add focused regression tests for hidden pagination, `showPagination`, complete-list requests, and local search.
+- [x] 8.10 Update OpenSpec and enterprise documentation with SCRUM ID, final decisions, diagrams, validation commands, and known build blocker.
+- [x] 8.11 Split the enterprise documentation package into index, architecture, API contract, full-list search, UI/components, validation, and diagrams documents.

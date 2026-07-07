@@ -1,9 +1,17 @@
 import { BookOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { toast, type Id as ToastId } from "react-toastify";
 import axios from "axios";
 import { AppButton } from "../../../../app/Components/UI/AppButton";
 import { AppCollapseRail } from "../../../../app/Components/UI/AppCollapseRail";
+import { AppTableQueryWrapper } from "../../../../app/Components/UI/AppTable/AppTableQueryWrapper";
 import { AppTreeTable } from "../../../../app/Components/UI/AppTreeTable";
 import { AppVisorEmbedPdf } from "../../../../app/Components/UI/AppVisorEmbedPdf";
 import type { AppVisorEmbedPdfRef } from "../../../../app/Components/UI/AppVisorEmbedPdf";
@@ -22,7 +30,8 @@ import { useGestionRespuestaDocumentosTable } from "../../hooks/useGestionRespue
 import styles from "./DocumentosWorkbench.module.css";
 
 const MOBILE_QUERY = "(max-width: 768px)";
-const TABLET_QUERY = "(min-width: 769px) and (max-width: 1366px) and (min-height: 900px)";
+const TABLET_QUERY =
+  "(min-width: 769px) and (max-width: 1366px) and (min-height: 900px)";
 const IPAD_MINI_LANDSCAPE_QUERY =
   "(min-width: 1000px) and (max-width: 1040px) and (min-height: 740px) and (max-height: 800px)";
 const NEST_HUB_LANDSCAPE_QUERY =
@@ -74,12 +83,17 @@ function isCancelledError(err: unknown): boolean {
   return false;
 }
 
-function extractBackendCause(err: unknown): { message: string; http?: number } | null {
+function extractBackendCause(
+  err: unknown,
+): { message: string; http?: number } | null {
   if (!axios.isAxiosError(err)) return null;
-  const http = typeof err.response?.status === "number" ? err.response.status : undefined;
+  const http =
+    typeof err.response?.status === "number" ? err.response.status : undefined;
   const data = err.response?.data as ApiEnvelope | undefined;
 
-  const errors = Array.isArray(data?.errors) ? (data?.errors as unknown[]) : null;
+  const errors = Array.isArray(data?.errors)
+    ? (data?.errors as unknown[])
+    : null;
   const first = errors?.[0] as ApiErrorItem | undefined;
   if (typeof first?.Message === "string" && first.Message.trim()) {
     return { message: first.Message.trim(), http };
@@ -107,7 +121,9 @@ function getReplacementErrorMessage(err: unknown): string {
 
   const backendCause = extractBackendCause(err);
   if (backendCause) {
-    return backendCause.http ? `${backendCause.message} (HTTP ${backendCause.http}).` : backendCause.message;
+    return backendCause.http
+      ? `${backendCause.message} (HTTP ${backendCause.http}).`
+      : backendCause.message;
   }
 
   if (err instanceof Error && err.message.trim()) return err.message.trim();
@@ -154,7 +170,8 @@ function summarizeReplacementError(err: unknown) {
 }
 
 function withViewerReloadToken(url: string, attemptId?: number): string {
-  if (!attemptId || url.startsWith("blob:") || url.startsWith("data:")) return url;
+  if (!attemptId || url.startsWith("blob:") || url.startsWith("data:"))
+    return url;
   const separator = url.includes("?") ? "&" : "?";
   return `${url}${separator}_dvAttempt=${encodeURIComponent(String(attemptId))}`;
 }
@@ -176,10 +193,18 @@ function formatDeleteNotificationMessage(result: {
       return "La funcionalidad de eliminacion no esta disponible actualmente";
     }
 
-    return rawMessage || "La funcionalidad de eliminacion no esta disponible actualmente";
+    return (
+      rawMessage ||
+      "La funcionalidad de eliminacion no esta disponible actualmente"
+    );
   }
 
-  return rawMessage || (result.success ? "Documento eliminado correctamente." : "No fue posible eliminar el documento.");
+  return (
+    rawMessage ||
+    (result.success
+      ? "Documento eliminado correctamente."
+      : "No fue posible eliminar el documento.")
+  );
 }
 
 export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
@@ -208,13 +233,18 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const { documentosRefreshKey } = useGestionRespuestaDocumentos();
   const visorRef = useRef<AppVisorEmbedPdfRef | null>(null);
   const lastVisorLoadKeyRef = useRef<string | null>(null);
-  const [activeFileUrl, setActiveFileUrl] = useState<string | undefined>(undefined);
+  const [activeFileUrl, setActiveFileUrl] = useState<string | undefined>(
+    undefined,
+  );
   const [activeRowId, setActiveRowId] = useState<string | undefined>(undefined);
   const [viewerError, setViewerError] = useState<string | null>(null);
   const [showViewerLoading, setShowViewerLoading] = useState(false);
   const [documentHintActive, setDocumentHintActive] = useState(false);
-  const [isReplacingAnnotatedPages, setIsReplacingAnnotatedPages] = useState(false);
-  const [replacementProgress, setReplacementProgress] = useState<number | undefined>(undefined);
+  const [isReplacingAnnotatedPages, setIsReplacingAnnotatedPages] =
+    useState(false);
+  const [replacementProgress, setReplacementProgress] = useState<
+    number | undefined
+  >(undefined);
   const documentViewer = useDocumentViewerOrchestrator();
 
   const startViewerLoading = useCallback((key: string) => {
@@ -224,13 +254,18 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     // setShowViewerLoadingHint(true);
     setShowViewerLoading(false);
     dvLog("[DV][loading] startViewerLoading", { key, at: Date.now() });
-    if (viewerLoadingDelayRef.current) window.clearTimeout(viewerLoadingDelayRef.current);
-    if (viewerLoadingMinHideRef.current) window.clearTimeout(viewerLoadingMinHideRef.current);
+    if (viewerLoadingDelayRef.current)
+      window.clearTimeout(viewerLoadingDelayRef.current);
+    if (viewerLoadingMinHideRef.current)
+      window.clearTimeout(viewerLoadingMinHideRef.current);
     viewerLoadingMinHideRef.current = null;
     viewerLoadingDelayRef.current = window.setTimeout(() => {
       if (viewerLoadingKeyRef.current !== key) return;
       viewerLoadingShownAtRef.current = Date.now();
-      dvLog("[DV][loading] skeleton ON (after delay)", { key, at: viewerLoadingShownAtRef.current });
+      dvLog("[DV][loading] skeleton ON (after delay)", {
+        key,
+        at: viewerLoadingShownAtRef.current,
+      });
       setShowViewerLoading(true);
       // setShowViewerLoadingHint(false);
       // (hint removido)
@@ -239,9 +274,14 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
 
   const stopViewerLoading = useCallback((key: string) => {
     if (viewerLoadingKeyRef.current !== key) return;
-    if (viewerLoadingDelayRef.current) window.clearTimeout(viewerLoadingDelayRef.current);
+    if (viewerLoadingDelayRef.current)
+      window.clearTimeout(viewerLoadingDelayRef.current);
     viewerLoadingDelayRef.current = null;
-    dvLog("[DV][loading] stopViewerLoading", { key, at: Date.now(), skeletonShownAt: viewerLoadingShownAtRef.current });
+    dvLog("[DV][loading] stopViewerLoading", {
+      key,
+      at: Date.now(),
+      skeletonShownAt: viewerLoadingShownAtRef.current,
+    });
 
     const hintShownAt = null;
     const skeletonShownAt = viewerLoadingShownAtRef.current;
@@ -253,7 +293,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       const elapsedHint = Date.now() - hintShownAt;
       const remainingHint = Math.max(0, minHintVisibleMs - elapsedHint);
       if (remainingHint > 0) {
-        if (viewerLoadingMinHideRef.current) window.clearTimeout(viewerLoadingMinHideRef.current);
+        if (viewerLoadingMinHideRef.current)
+          window.clearTimeout(viewerLoadingMinHideRef.current);
         viewerLoadingMinHideRef.current = window.setTimeout(() => {
           if (viewerLoadingKeyRef.current !== key) return;
           viewerLoadingKeyRef.current = null;
@@ -287,7 +328,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       return;
     }
 
-    if (viewerLoadingMinHideRef.current) window.clearTimeout(viewerLoadingMinHideRef.current);
+    if (viewerLoadingMinHideRef.current)
+      window.clearTimeout(viewerLoadingMinHideRef.current);
     viewerLoadingMinHideRef.current = window.setTimeout(() => {
       // Si entre tanto se inició otro attempt, no ocultar el overlay nuevo.
       if (viewerLoadingKeyRef.current !== key) return;
@@ -314,7 +356,10 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   */
 
   const variant = useMemo(
-    () => (isMobile || isTablet || isIpadMiniLandscape || isNestHubLandscape ? "overlay" : "inline"),
+    () =>
+      isMobile || isTablet || isIpadMiniLandscape || isNestHubLandscape
+        ? "overlay"
+        : "inline",
     [isIpadMiniLandscape, isMobile, isNestHubLandscape, isTablet],
   );
   const layoutCollapsed = variant === "overlay" ? true : collapsed;
@@ -324,7 +369,10 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     return selected > 0
       ? `Documentos (${total}) · Seleccionados (${selected})`
       : `Documentos (${total})`;
-  }, [documentosTable.selectedDocumentsCount, documentosTable.totalDocumentsCount]);
+  }, [
+    documentosTable.selectedDocumentsCount,
+    documentosTable.totalDocumentsCount,
+  ]);
 
   const toggleIcon = layoutCollapsed ? <LeftOutlined /> : <RightOutlined />;
 
@@ -337,11 +385,13 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   const triggerDocumentListHint = useCallback(() => {
     setCollapsed(false);
     setDocumentHintActive(false);
-    if (documentHintTimeoutRef.current) window.clearTimeout(documentHintTimeoutRef.current);
+    if (documentHintTimeoutRef.current)
+      window.clearTimeout(documentHintTimeoutRef.current);
 
     const scheduleFrame =
       window.requestAnimationFrame ??
-      ((callback: FrameRequestCallback) => window.setTimeout(() => callback(performance.now()), 0));
+      ((callback: FrameRequestCallback) =>
+        window.setTimeout(() => callback(performance.now()), 0));
     scheduleFrame(() => {
       setDocumentHintActive(true);
       documentHintTimeoutRef.current = window.setTimeout(() => {
@@ -357,7 +407,11 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     const attemptId = documentViewer.documentoActivo?.attemptId;
     setActiveFileUrl(withViewerReloadToken(fileUrl, attemptId));
     if (typeof attemptId === "number") stopViewerLoading(String(attemptId));
-  }, [documentViewer.documentoActivo?.attemptId, documentViewer.documentoActivo?.fileUrl, stopViewerLoading]);
+  }, [
+    documentViewer.documentoActivo?.attemptId,
+    documentViewer.documentoActivo?.fileUrl,
+    stopViewerLoading,
+  ]);
 
   const documentContext = useMemo(() => {
     const doc = documentViewer.documentoActivo;
@@ -366,7 +420,9 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     return {
       documentId: doc.documentId,
       nombreGabinete: doc.nombreGabinete,
-      fileUrl: doc.fileUrl ? withViewerReloadToken(doc.fileUrl, doc.attemptId) : doc.fileUrl,
+      fileUrl: doc.fileUrl
+        ? withViewerReloadToken(doc.fileUrl, doc.attemptId)
+        : doc.fileUrl,
       attemptId: doc.attemptId,
       documentKey: doc.documentKey,
       isPdf: doc.isPdf,
@@ -387,7 +443,9 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   ]);
 
   const cancelTemporalsBestEffort = useCallback(
-    async (temporals: Array<{ rutaTemporalId: string; archivoTemporalId: string }>) => {
+    async (
+      temporals: Array<{ rutaTemporalId: string; archivoTemporalId: string }>,
+    ) => {
       await Promise.allSettled(
         temporals.map((temporal) =>
           cancelUploadTemporal({
@@ -401,12 +459,23 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
   );
 
   const uploadAnnotatedPagePdf = useCallback(
-    async (params: { pageNumber: number; fileName: string; blob: Blob; hashSha256?: string }, signal: AbortSignal) => {
+    async (
+      params: {
+        pageNumber: number;
+        fileName: string;
+        blob: Blob;
+        hashSha256?: string;
+      },
+      signal: AbortSignal,
+    ) => {
       const plannedChunkSize = Math.min(
         DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES,
         MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES,
       );
-      const numeroChunks = Math.max(1, Math.ceil(params.blob.size / plannedChunkSize));
+      const numeroChunks = Math.max(
+        1,
+        Math.ceil(params.blob.size / plannedChunkSize),
+      );
       const init = await initUploadTemporalPdfAnotado(
         {
           NombreOriginal: params.fileName,
@@ -418,8 +487,12 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
         { signal },
       );
 
-      const backendChunkSize = init.ChunkSizeBytes || DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES;
-      const chunkSize = Math.min(backendChunkSize, MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES);
+      const backendChunkSize =
+        init.ChunkSizeBytes || DEFAULT_REEMPLAZO_CHUNK_SIZE_BYTES;
+      const chunkSize = Math.min(
+        backendChunkSize,
+        MAX_REEMPLAZO_FRONTEND_CHUNK_SIZE_BYTES,
+      );
       const totalChunks = Math.max(1, Math.ceil(params.blob.size / chunkSize));
       for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex += 1) {
         const start = chunkIndex * chunkSize;
@@ -454,15 +527,23 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       }
 
       await completeUploadTemporal(
-        { rutaTemporalId: init.RutaTemporalId, archivoTemporalId: init.ArchivoTemporalId },
+        {
+          rutaTemporalId: init.RutaTemporalId,
+          archivoTemporalId: init.ArchivoTemporalId,
+        },
         { signal },
       );
       const status = await statusUploadTemporal(
-        { rutaTemporalId: init.RutaTemporalId, archivoTemporalId: init.ArchivoTemporalId },
+        {
+          rutaTemporalId: init.RutaTemporalId,
+          archivoTemporalId: init.ArchivoTemporalId,
+        },
         { signal },
       );
       if (status.Estado !== "COMPLETED") {
-        throw new Error(`El temporal de la pagina ${params.pageNumber} no quedo COMPLETED.`);
+        throw new Error(
+          `El temporal de la pagina ${params.pageNumber} no quedo COMPLETED.`,
+        );
       }
 
       return {
@@ -501,19 +582,23 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
 
     void visorRef.current
       ?.load({
-      url: documentContext.fileUrl,
-      attemptId: documentContext.attemptId,
-      documentKey: documentContext.documentKey,
-      isElectronicallySigned: Boolean(documentContext.isElectronicallySigned),
-      idImagen: documentContext.documentId,
-      nombreGabinete: documentContext.nombreGabinete,
-      idTareaWorkflow,
-      radicado,
-      nombre_modulo: "gestioncorrespondencia",
-    })
+        url: documentContext.fileUrl,
+        attemptId: documentContext.attemptId,
+        documentKey: documentContext.documentKey,
+        isElectronicallySigned: Boolean(documentContext.isElectronicallySigned),
+        idImagen: documentContext.documentId,
+        nombreGabinete: documentContext.nombreGabinete,
+        idTareaWorkflow,
+        radicado,
+        nombre_modulo: "gestioncorrespondencia",
+      })
       .then((result) => {
         if (!attemptKey) return;
-        if (result.loadStatus === "loaded" || result.loadStatus === "failed" || result.loadStatus === "cancelled") {
+        if (
+          result.loadStatus === "loaded" ||
+          result.loadStatus === "failed" ||
+          result.loadStatus === "cancelled"
+        ) {
           stopViewerLoading(attemptKey);
         }
       })
@@ -521,7 +606,12 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
         if (!attemptKey) return;
         stopViewerLoading(attemptKey);
       });
-  }, [documentContext, documentosTable.getWorkbenchContext, idTareaWf, stopViewerLoading]);
+  }, [
+    documentContext,
+    documentosTable.getWorkbenchContext,
+    idTareaWf,
+    stopViewerLoading,
+  ]);
 
   useEffect(() => {
     const doc = documentViewer.documentoActivo;
@@ -542,12 +632,16 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     if (viewerError === lastNotifiedErrorRef.current) return;
 
     lastNotifiedErrorRef.current = viewerError;
-    toastIdRef.current = toast.error(viewerError, { autoClose: false, closeOnClick: false });
+    toastIdRef.current = toast.error(viewerError, {
+      autoClose: false,
+      closeOnClick: false,
+    });
   }, [viewerError]);
 
   useEffect(
     () => () => {
-      if (documentHintTimeoutRef.current) window.clearTimeout(documentHintTimeoutRef.current);
+      if (documentHintTimeoutRef.current)
+        window.clearTimeout(documentHintTimeoutRef.current);
     },
     [],
   );
@@ -607,7 +701,10 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
       void (async () => {
         try {
           // Cancelación encadenada (click cancelable): evitar backlog de requests/loads.
-          dvLog(attemptKey, "click -> cancel chain (visor.cancelCurrentLoad + orchestrator.cancelCurrentRequest)");
+          dvLog(
+            attemptKey,
+            "click -> cancel chain (visor.cancelCurrentLoad + orchestrator.cancelCurrentRequest)",
+          );
           visorRef.current?.cancelCurrentLoad();
           documentViewer.cancelCurrentRequest();
 
@@ -617,7 +714,9 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
           if (!result?.documentResolveRequest) {
             dvLog(attemptKey, "ver_documento missing DocumentResolveRequest");
             stopViewerLoading(String(attemptId));
-            setViewerError("ver_documento: No se recibió DocumentResolveRequest.");
+            setViewerError(
+              "ver_documento: No se recibió DocumentResolveRequest.",
+            );
             return;
           }
           dvLog(attemptKey, "ver_documento ok", {
@@ -632,7 +731,10 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             attemptId,
             // Clave estable por documento (sin attemptId) para features por-documento en runtime (p.ej. rotación).
             documentKey: `${result.documentResolveRequest.NombreGabinete}:${result.documentResolveRequest.IdDocumento}`,
-            context: typeof idTareaWf === "number" ? { idTareaWorkflow: idTareaWf } : undefined,
+            context:
+              typeof idTareaWf === "number"
+                ? { idTareaWorkflow: idTareaWf }
+                : undefined,
           });
           if (variant === "overlay") {
             setCollapsed(true);
@@ -643,14 +745,19 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
           dvLog(attemptKey, "ver_documento failed", err);
           const cause = extractBackendCause(err);
           if (cause?.http) {
-            setViewerError(`ver_documento: ${cause.message} (HTTP ${cause.http}).`);
+            setViewerError(
+              `ver_documento: ${cause.message} (HTTP ${cause.http}).`,
+            );
             stopViewerLoading(String(attemptId));
             return;
           }
-          setViewerError(`ver_documento: ${cause?.message ?? "No fue posible ejecutar la acción."}`);
+          setViewerError(
+            `ver_documento: ${cause?.message ?? "No fue posible ejecutar la acción."}`,
+          );
           stopViewerLoading(String(attemptId));
         } finally {
-          if (openTimeoutRef.current) window.clearTimeout(openTimeoutRef.current);
+          if (openTimeoutRef.current)
+            window.clearTimeout(openTimeoutRef.current);
           openTimeoutRef.current = null;
         }
       })();
@@ -671,19 +778,27 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     const ctx = documentosTable.getWorkbenchContext?.();
     const active = documentContext;
     if (!active) {
-      toast.error("Selecciona un documento PDF antes de guardar paginas anotadas.");
+      toast.error(
+        "Selecciona un documento PDF antes de guardar paginas anotadas.",
+      );
       return;
     }
     if (!active.isPdf || active.viewerKind !== "pdf") {
-      toast.error("El reemplazo de paginas anotadas solo aplica para documentos PDF.");
+      toast.error(
+        "El reemplazo de paginas anotadas solo aplica para documentos PDF.",
+      );
       return;
     }
     if (active.isElectronicallySigned) {
-      toast.error("No se pueden reemplazar paginas de un documento firmado electronicamente.");
+      toast.error(
+        "No se pueden reemplazar paginas de un documento firmado electronicamente.",
+      );
       return;
     }
     if (!active.nombreGabinete || !active.documentId) {
-      toast.error("No fue posible identificar el documento de gabinete activo.");
+      toast.error(
+        "No fue posible identificar el documento de gabinete activo.",
+      );
       return;
     }
     if (!visorRef.current) {
@@ -700,7 +815,10 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     setReplacementProgress(0);
 
     void (async () => {
-      const createdTemporals: Array<{ rutaTemporalId: string; archivoTemporalId: string }> = [];
+      const createdTemporals: Array<{
+        rutaTemporalId: string;
+        archivoTemporalId: string;
+      }> = [];
       let replacementSucceeded = false;
       let replacementStage = "start";
 
@@ -758,7 +876,9 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
           });
           uploads.push(upload);
           dvLog("[DV][reemplazo-paginas][upload:done]", upload);
-          setReplacementProgress(0.15 + ((pageIndex + 1) / exported.pages.length) * 0.65);
+          setReplacementProgress(
+            0.15 + ((pageIndex + 1) / exported.pages.length) * 0.65,
+          );
         }
 
         if (seq !== replacementSeqRef.current) return;
@@ -785,7 +905,9 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             NombreGabinete: active.nombreGabinete,
             IdDocumento: active.documentId,
             RutaTemporalId: uploads[0]?.rutaTemporalId,
-            ...(originalPdfPassword ? { OriginalPdfPassword: originalPdfPassword } : {}),
+            ...(originalPdfPassword
+              ? { OriginalPdfPassword: originalPdfPassword }
+              : {}),
             Paginas: uploads.map((upload) => ({
               PageNumber: upload.pageNumber,
               RutaTemporalId: upload.rutaTemporalId,
@@ -810,7 +932,10 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
         try {
           await visorRef.current?.markAnnotatedPagesPersisted();
         } catch (persistError) {
-          dvLog("[DV][firma][persisted:failed]", summarizeReplacementError(persistError));
+          dvLog(
+            "[DV][firma][persisted:failed]",
+            summarizeReplacementError(persistError),
+          );
         }
 
         toast.success("Documento firmado correctamente.");
@@ -872,7 +997,8 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
     const tabPane = root.closest(".ant-tabs-tabpane") as HTMLElement | null;
     if (!tabPane) return;
 
-    const isHidden = () => tabPane.classList.contains("ant-tabs-tabpane-hidden");
+    const isHidden = () =>
+      tabPane.classList.contains("ant-tabs-tabpane-hidden");
 
     const observer = new MutationObserver(() => {
       if (isHidden()) {
@@ -919,11 +1045,17 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
             isSavingAnnotatedPages={isReplacingAnnotatedPages}
             saveAnnotatedPagesProgress={replacementProgress}
           />
-        ) : documentViewer.documentoActivo?.viewerKind === "image" && activeFileUrl ? (
+        ) : documentViewer.documentoActivo?.viewerKind === "image" &&
+          activeFileUrl ? (
           <img
             src={activeFileUrl}
             alt="Documento"
-            style={{ width: "100%", height: "100%", objectFit: "contain", background: "#fff" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              background: "#fff",
+            }}
             onLoad={() => setShowViewerLoading(false)}
             onError={() => setShowViewerLoading(false)}
           />
@@ -964,101 +1096,131 @@ export function DocumentosWorkbench({ idTareaWf }: DocumentosWorkbenchProps) {
           hideHeader
           className={styles.collapseRail}
         >
-        <div className={styles.listPanel} data-locked={isReplacingAnnotatedPages}>
-          <header className={styles.listHeader}>
-            <h3 className={styles.listTitle}>{documentsCounter}</h3>
-            <AppButton
-              variant="primary"
-              size="sm"
-              onClick={() => {
-                if (isReplacingAnnotatedPages) return;
-                setCollapsed((prev) => !prev);
-              }}
-              aria-label={layoutCollapsed ? "Mostrar documentos" : "Ocultar documentos"}
-              icon={toggleIcon}
-              className={styles.collapseButton}
-              disabled={isReplacingAnnotatedPages}
-            />
-          </header>
           <div
-            className={styles.listSurface}
-            aria-label="Listado de documentos"
-            data-document-hint-active={documentHintActive}
+            className={styles.listPanel}
             data-locked={isReplacingAnnotatedPages}
           >
-            <AppTreeTable
-              key={`documentos-${documentosRefreshKey}`}
-              load={documentosTable.load}
-              loadChildren={documentosTable.loadChildren}
-              tableColumns={documentosTable.getTableColumns()}
-              columns={documentosTable.getColumns()}
-              tableLayoutMode="fill"
-              rowClickAffordance
-              rowClickTooltip="Visualizar documento"
-              rowSelection="multiple"
-              rowSelectionCheckboxes
-              rowSelectionHeaderCheckbox
-              suppressRowClickSelection={false}
-              onSelectionChanged={(rowIds) => {
-                if (isReplacingAnnotatedPages) return;
-                documentosTable.onSelectionChanged(rowIds);
-              }}
-              activeRowId={activeRowId}
-              onSelectRow={openViewerFromRow}
-              onActionTriggered={(params) => {
-                if (isReplacingAnnotatedPages) return;
-                if (params.actionId === "ver_documento") {
-                  openViewerFromRow(params.rowId);
-                  return;
+            <header className={styles.listHeader}>
+              <h3 className={styles.listTitle}>{documentsCounter}</h3>
+              <AppButton
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  if (isReplacingAnnotatedPages) return;
+                  setCollapsed((prev) => !prev);
+                }}
+                aria-label={
+                  layoutCollapsed ? "Mostrar documentos" : "Ocultar documentos"
                 }
-
-                void (async () => {
-                  const result = await documentosTable.onActionTriggered({
-                    actionId: params.actionId,
-                    rowId: params.rowId,
-                  });
-
-                  if (params.actionId === "eliminar_item") {
-                    if (result && typeof result === "object" && "success" in result) {
-                      const deleteResult = result as {
-                        success: boolean;
-                        severity?: "success" | "warning" | "error";
-                        message?: string;
-                      };
-                      if (!deleteResult.success) {
-                        toast.warning(formatDeleteNotificationMessage(deleteResult), {
-                          position: "top-right",
-                          autoClose: 6000,
-                          closeOnClick: true,
-                        });
-                        return;
-                      }
-
-                      toast.success(formatDeleteNotificationMessage(deleteResult), {
-                        position: "top-right",
-                        autoClose: 4000,
-                        closeOnClick: true,
-                      });
-
-                      if (activeRowId === params.rowId) {
-                        documentViewer.reset();
-                        setActiveRowId(undefined);
-                        setActiveFileUrl(undefined);
-                        setViewerError(null);
-                        lastNotifiedErrorRef.current = null;
-                      }
+                icon={toggleIcon}
+                className={styles.collapseButton}
+                disabled={isReplacingAnnotatedPages}
+              />
+            </header>
+            <div
+              className={styles.listSurface}
+              aria-label="Listado de documentos"
+              data-document-hint-active={documentHintActive}
+              data-locked={isReplacingAnnotatedPages}
+            >
+              <AppTableQueryWrapper
+                queryState={documentosTable.queryState}
+                onQueryChange={documentosTable.onQueryChange}
+                total={documentosTable.totalDocumentsCount}
+                loading={documentosTable.loading || isReplacingAnnotatedPages}
+                showSearch
+                showPagination={false}
+                searchPlaceholder="Buscar documento"
+                className={styles.listQueryWrapper}
+              >
+                <AppTreeTable
+                  key={`documentos-${documentosRefreshKey}`}
+                  load={documentosTable.load}
+                  loadChildren={documentosTable.loadChildren}
+                  tableColumns={documentosTable.getTableColumns()}
+                  columns={documentosTable.getColumns()}
+                  tableLayoutMode="fill"
+                  rowClickAffordance
+                  rowClickTooltip="Visualizar documento"
+                  rowSelection="multiple"
+                  rowSelectionCheckboxes
+                  rowSelectionHeaderCheckbox
+                  suppressRowClickSelection={false}
+                  onSelectionChanged={(rowIds) => {
+                    if (isReplacingAnnotatedPages) return;
+                    documentosTable.onSelectionChanged(rowIds);
+                  }}
+                  activeRowId={activeRowId}
+                  onSelectRow={openViewerFromRow}
+                  onActionTriggered={(params) => {
+                    if (isReplacingAnnotatedPages) return;
+                    if (params.actionId === "ver_documento") {
+                      openViewerFromRow(params.rowId);
                       return;
                     }
-                  }
-                })();
-              }}
-              emptyMessage="Sin documentos adjuntos."
-            />
-            {isReplacingAnnotatedPages ? (
-              <div className={styles.listInteractionBlocker} role="presentation" aria-hidden="true" />
-            ) : null}
+
+                    void (async () => {
+                      const result = await documentosTable.onActionTriggered({
+                        actionId: params.actionId,
+                        rowId: params.rowId,
+                      });
+
+                      if (params.actionId === "eliminar_item") {
+                        if (
+                          result &&
+                          typeof result === "object" &&
+                          "success" in result
+                        ) {
+                          const deleteResult = result as {
+                            success: boolean;
+                            severity?: "success" | "warning" | "error";
+                            message?: string;
+                          };
+                          if (!deleteResult.success) {
+                            toast.warning(
+                              formatDeleteNotificationMessage(deleteResult),
+                              {
+                                position: "top-right",
+                                autoClose: 6000,
+                                closeOnClick: true,
+                              },
+                            );
+                            return;
+                          }
+
+                          toast.success(
+                            formatDeleteNotificationMessage(deleteResult),
+                            {
+                              position: "top-right",
+                              autoClose: 4000,
+                              closeOnClick: true,
+                            },
+                          );
+
+                          if (activeRowId === params.rowId) {
+                            documentViewer.reset();
+                            setActiveRowId(undefined);
+                            setActiveFileUrl(undefined);
+                            setViewerError(null);
+                            lastNotifiedErrorRef.current = null;
+                          }
+                          return;
+                        }
+                      }
+                    })();
+                  }}
+                  emptyMessage="Sin documentos adjuntos."
+                />
+              </AppTableQueryWrapper>
+              {isReplacingAnnotatedPages ? (
+                <div
+                  className={styles.listInteractionBlocker}
+                  role="presentation"
+                  aria-hidden="true"
+                />
+              ) : null}
+            </div>
           </div>
-        </div>
         </AppCollapseRail>
       </div>
     </section>

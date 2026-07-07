@@ -51,10 +51,18 @@ describe("[SPEC:APPTREETABLE-217] gestionRespuestaDocumentosRequestMapper", () =
       radicado: "2025-0001",
       documentRelationScope: "includeResponseAttachments",
       enablePagination: true,
+      page: 3,
+      pageSize: 50,
+      search: "  contrato  ",
+      searchType: 2,
     });
 
     expect(request.DocumentRelationScope).toBe("includeResponseAttachments");
     expect(request.EnablePagination).toBe(true);
+    expect(request.Page).toBe(3);
+    expect(request.PageSize).toBe(50);
+    expect(request.Search).toBe("contrato");
+    expect(request.SearchType).toBe(2);
   });
 
   it("permite scope y paginacion explicitos en el query children", () => {
@@ -65,10 +73,14 @@ describe("[SPEC:APPTREETABLE-217] gestionRespuestaDocumentosRequestMapper", () =
       level: 2,
       documentRelationScope: "responseAttachmentsOnly",
       enablePagination: true,
+      page: 2,
+      pageSize: 10,
     });
 
     expect(request.DocumentRelationScope).toBe("responseAttachmentsOnly");
     expect(request.EnablePagination).toBe(true);
+    expect(request.Page).toBe(2);
+    expect(request.PageSize).toBe(10);
   });
 });
 

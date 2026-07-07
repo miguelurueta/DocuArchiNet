@@ -22,7 +22,9 @@ type ExportRow = AppTableRow & {
   name: string;
 };
 
-const exportColumns: ColDef<ExportRow>[] = [{ field: "name", headerName: "Nombre" }];
+const exportColumns: ColDef<ExportRow>[] = [
+  { field: "name", headerName: "Nombre" },
+];
 const exportReportMeta: AppTableExportReportMeta = {
   reportName: "Bandeja",
   generatedBy: "DocuArchiCore",
@@ -50,25 +52,36 @@ describe("AppTableQueryWrapper [SPEC:APPTABLE-EXPORT-18] [SPEC:refinar-apptableq
 
     expect(screen.getByTestId("app-table-query-wrapper")).toBeInTheDocument();
     expect(screen.getByText("Tabla mock")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Acción extra" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Acción extra" }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("app-table-pagination-actions")).toContainElement(
       screen.getByRole("button", { name: "Exportar tabla" }),
     );
-    expect(screen.getByTestId("app-table-query-range")).toHaveTextContent("26-50 de 87");
+    expect(screen.getByTestId("app-table-query-range")).toHaveTextContent(
+      "26-50 de 87",
+    );
   });
 
   it("emite patches simples al cambiar la búsqueda y navegar páginas", () => {
     const onQueryChange = vi.fn();
 
     render(
-      <AppTableQueryWrapper queryState={createQueryState()} onQueryChange={onQueryChange} total={87}>
+      <AppTableQueryWrapper
+        queryState={createQueryState()}
+        onQueryChange={onQueryChange}
+        total={87}
+      >
         <div>Tabla mock</div>
       </AppTableQueryWrapper>,
     );
 
-    fireEvent.change(screen.getByRole("combobox", { name: "Buscar en la tabla" }), {
-      target: { value: "radicado" },
-    });
+    fireEvent.change(
+      screen.getByRole("combobox", { name: "Buscar en la tabla" }),
+      {
+        target: { value: "radicado" },
+      },
+    );
     fireEvent.click(screen.getByRole("button", { name: "Página anterior" }));
     fireEvent.click(screen.getByRole("button", { name: "Página siguiente" }));
 
@@ -115,11 +128,13 @@ describe("AppTableQueryWrapper [SPEC:APPTABLE-EXPORT-18] [SPEC:refinar-apptableq
     expect(onRefresh).toHaveBeenCalledTimes(1);
     expect(onQueryChange).not.toHaveBeenCalled();
 
-    expect(screen.getByRole("button", { name: "Cantidad de registros por página" })).toHaveTextContent(
-      "25 por página",
-    );
+    expect(
+      screen.getByRole("button", { name: "Cantidad de registros por página" }),
+    ).toHaveTextContent("25 por página");
 
-    fireEvent.click(screen.getByRole("button", { name: "Cantidad de registros por página" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Cantidad de registros por página" }),
+    );
     fireEvent.click(await screen.findByText("50 por página"));
 
     expect(onQueryChange).toHaveBeenCalledWith({ pageSize: 50 });
@@ -137,8 +152,45 @@ describe("AppTableQueryWrapper [SPEC:APPTABLE-EXPORT-18] [SPEC:refinar-apptableq
       </AppTableQueryWrapper>,
     );
 
-    expect(screen.queryByRole("combobox", { name: "Buscar en la tabla" })).not.toBeInTheDocument();
-    expect(screen.getByTestId("app-table-query-range")).toHaveTextContent("26-50 de 87");
+    expect(
+      screen.queryByRole("combobox", { name: "Buscar en la tabla" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("app-table-query-range")).toHaveTextContent(
+      "26-50 de 87",
+    );
+  });
+
+  it("permite ocultar la paginacion sin remover buscador ni contenido", () => {
+    render(
+      <AppTableQueryWrapper
+        queryState={createQueryState()}
+        onQueryChange={vi.fn()}
+        total={87}
+        paginationActions={<button type="button">Exportar tabla</button>}
+        showPagination={false}
+      >
+        <div>Tabla mock</div>
+      </AppTableQueryWrapper>,
+    );
+
+    expect(screen.getByText("Tabla mock")).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "Buscar en la tabla" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("app-table-query-range"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {
+        name: "Cantidad de registros por pÃ¡gina",
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "PÃ¡gina anterior" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("app-table-pagination-actions"),
+    ).not.toBeInTheDocument();
   });
 
   it("integra AppTableExport dentro de la banda de controles sin ocultar la tabla", async () => {
@@ -150,7 +202,9 @@ describe("AppTableQueryWrapper [SPEC:APPTABLE-EXPORT-18] [SPEC:refinar-apptableq
       createObjectURL: createObjectUrlSpy,
       revokeObjectURL: revokeObjectUrlSpy,
     });
-    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(anchorClickSpy);
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(
+      anchorClickSpy,
+    );
 
     render(
       <AppTableQueryWrapper

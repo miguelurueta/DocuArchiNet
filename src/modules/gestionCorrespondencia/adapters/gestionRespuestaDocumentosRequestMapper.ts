@@ -17,6 +17,10 @@ export type GestionRespuestaDocumentosQueryContext = {
   radicado?: string;
   documentRelationScope?: DocumentRelationScope;
   enablePagination?: boolean | null;
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  searchType?: number;
 };
 
 export const buildListaDocumentosRadicadosRootQuery = (
@@ -27,12 +31,12 @@ export const buildListaDocumentosRadicadosRootQuery = (
 
   return {
     ViewMode: "flatDocuments",
-    Page: 1,
-    PageSize: 25,
+    Page: context.page ?? 1,
+    PageSize: context.pageSize ?? 25,
     SortDir: "ASC",
     ColumnMode: DEFAULT_COLUMN_MODE,
-    SearchType: DEFAULT_SEARCH_TYPE,
-    Search: "",
+    SearchType: context.searchType ?? DEFAULT_SEARCH_TYPE,
+    Search: context.search?.trim() ?? "",
     SortField: DEFAULT_SORT_FIELD,
     StructuredFilters: [],
     IncludeConfig: true,
@@ -60,16 +64,21 @@ export const buildListaDocumentosRadicadosChildrenQuery = (input: {
   level: number;
   documentRelationScope?: DocumentRelationScope;
   enablePagination?: boolean | null;
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  searchType?: number;
 }): ListaDocumentosRadicadosQueryRequest => {
   const nombreGabinete = input.nombreGabinete?.trim();
   const radicado = input.radicado?.trim();
 
   return {
     ViewMode: "hierarchical",
-    Page: 1,
-    PageSize: 25,
+    Page: input.page ?? 1,
+    PageSize: input.pageSize ?? 25,
     SortDir: "ASC",
-    Search: "",
+    Search: input.search?.trim() ?? "",
+    SearchType: input.searchType ?? DEFAULT_SEARCH_TYPE,
     StructuredFilters: [],
     IncludeConfig: false,
     EnablePagination: input.enablePagination ?? true,

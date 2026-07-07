@@ -1,7 +1,13 @@
-## ADDED Requirements
+# lista-documentos-apptretable Specification
 
-### Requirement: Query contract supports document scope and explicit pagination
-The system SHALL allow the frontend consumer of `POST /api/GestorDocumental/Documentos/ListaDocumentosRadicados/query` to send a document-scope control and pagination control without changing the endpoint route.
+## Purpose
+
+Define the frontend contract and UI behavior for the document list rendered by `DocumentosWorkbench` through `AppTreeTable`, including document relation scope, full-list loading, local search, totals, validation behavior, delete warning handling, and backward compatibility for shared table primitives.
+
+## Requirements
+
+### Requirement: Query contract supports document scope and explicit full-list loading
+The system SHALL allow the frontend consumer of `POST /api/GestorDocumental/Documentos/ListaDocumentosRadicados/query` to send a document-scope control and explicit pagination control without changing the endpoint route.
 
 The request SHALL support:
 
@@ -16,12 +22,14 @@ The frontend SHALL keep the default behavior compatible with current consumers w
 #### Scenario: Main list uses the default document scope
 - **WHEN** `DocumentosWorkbench` loads the main document list
 - **THEN** the request uses `documentsOnly` as the default scope
+- **AND** the request sends `EnablePagination=false`
 - **AND** the UI renders only base documents for the radicado
 
-#### Scenario: Full refresh uses pagination disabled
-- **WHEN** the user refreshes a flow that must not lose rows outside the first page
+#### Scenario: Main list loads the complete row set
+- **WHEN** the workbench document list loads or refreshes
 - **THEN** the request sends `EnablePagination=false`
 - **AND** the response is consumed as a complete dataset for the current scope
+- **AND** pagination controls are not shown in the document-list surface
 
 #### Scenario: Related-documents view includes attachments
 - **WHEN** the user requests the full related-documents view
@@ -33,29 +41,59 @@ The frontend SHALL keep the default behavior compatible with current consumers w
 - **THEN** the request sends `DocumentRelationScope=responseAttachmentsOnly`
 - **AND** the UI renders only rows related through `ra_anexos_respuesta`
 
-### Requirement: Totals and paging remain backend-driven
-The system SHALL use backend totals as the source of truth for the table counter and page model.
+### Requirement: Totals remain backend-aware and search-aware
+The system SHALL use backend totals as the source of truth when no local search is active.
 
-The frontend SHALL prefer `meta.total` and SHALL fall back to `data.pagination.total` if the meta total is not available.
+The frontend SHALL prefer `meta.total` or `meta.Total` and SHALL fall back to `data.pagination.total` or `data.Pagination.Total` if the meta total is not available.
 
-The frontend SHALL NOT derive total rows from the visible page length when the backend provides a total value.
+The frontend SHALL use the filtered row count when local search is active because the visible dataset has been narrowed by the UI.
 
 #### Scenario: Backend returns a total for a paginated response
 - **WHEN** the backend returns `meta.total`
-- **THEN** the UI uses that value for the counter and paging state
+- **THEN** the UI uses that value for the counter when no local search is active
 
 #### Scenario: Backend omits meta total
 - **WHEN** `meta.total` is missing
 - **THEN** the UI uses `data.pagination.total`
 - **AND** does not infer the total from `rows.length` unless no backend total is available
 
-#### Scenario: Refresh after storing must not hide a new row
-- **WHEN** the flow refreshes after storing a document or attachment
-- **THEN** the UI keeps the returned full dataset for the chosen scope
-- **AND** the row can appear even if it was not in the first page previously
+#### Scenario: Local search changes visible total
+- **WHEN** the user enters a search term in the workbench document list
+- **THEN** the UI filters the complete row set locally
+- **AND** the counter reflects the filtered rows
 
-### Requirement: Scope changes preserve the active query context
-The system SHALL preserve the active query context when the user changes page.
+#### Scenario: Refresh must not hide a row outside a page
+- **WHEN** the flow refreshes the document list
+- **THEN** the UI keeps the returned full dataset for the chosen scope
+- **AND** no row is hidden because of frontend pagination
+
+### Requirement: Workbench search filters locally over complete rows
+The system SHALL implement document-list search in the workbench over the complete set of rows returned by the backend when `EnablePagination=false`.
+
+The frontend SHALL NOT depend on backend `Search` semantics for the full-list document workbench flow.
+
+The local search SHALL include `RowId`, `Values`, and `Meta`.
+
+The local search SHALL compare text case-insensitively and accent-insensitively.
+
+#### Scenario: User searches visible document metadata
+- **WHEN** the backend returns all rows for `documentsOnly`
+- **AND** the user types a search term
+- **THEN** the UI filters rows locally using `RowId`, `Values`, and `Meta`
+- **AND** only matching rows remain visible
+
+#### Scenario: Backend search would hide expected rows
+- **WHEN** `EnablePagination=false`
+- **THEN** the request sends backend `Search` as an empty string
+- **AND** the UI applies the active search term after receiving the full row set
+
+#### Scenario: User clears search
+- **WHEN** the search input is cleared
+- **THEN** the UI reloads or renders the complete unfiltered row set
+- **AND** the counter returns to the backend total when available
+
+### Requirement: Query context reset remains deterministic
+The system SHALL preserve the active document query context while keeping `Page=1` for the full-list workbench flow.
 
 The frontend SHALL keep:
 
@@ -65,19 +103,24 @@ The frontend SHALL keep:
 - `DocumentRelationScope`
 - filters
 - ordering
-- `PageSize`
+- `PageSize` for DTO compatibility
 
 The frontend SHALL reset `Page` to `1` when the scope or search context changes.
 
-#### Scenario: User changes page
-- **WHEN** the user requests the next page
-- **THEN** the request keeps the same scope and filters
-- **AND** only `Page` changes
+#### Scenario: Workbench list hides page navigation
+- **WHEN** `DocumentosWorkbench` renders the document list
+- **THEN** `AppTableQueryWrapper` is rendered with pagination hidden
+- **AND** the UI does not expose next page, previous page, or page-size controls
 
 #### Scenario: User changes scope
 - **WHEN** the user changes `DocumentRelationScope`
 - **THEN** the UI resets `Page` to `1`
 - **AND** the new request is built from the current filter context
+
+#### Scenario: User changes search
+- **WHEN** the user changes the document-list search term
+- **THEN** the UI resets `Page` to `1`
+- **AND** the next full-list load applies the search locally
 
 ### Requirement: Validation errors are surfaced without silent fallback
 The system SHALL surface backend validation failures as functional errors.
@@ -119,3 +162,8 @@ The system SHALL preserve the current behavior for consumers that do not send th
 #### Scenario: Other table consumers remain unaffected
 - **WHEN** other modules consume `AppTable` or `AppTreeTable`
 - **THEN** the change in this ticket does not alter their default query or rendering behavior
+
+#### Scenario: Shared query wrapper keeps pagination by default
+- **WHEN** another consumer renders `AppTableQueryWrapper` without `showPagination={false}`
+- **THEN** pagination controls remain visible
+- **AND** the consumer behavior remains unchanged

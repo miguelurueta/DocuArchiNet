@@ -1,73 +1,48 @@
 # SCRUMCORE-295 - Integracion Lista Documentos AppTreeTable
 
-## Objetivo
+## Indice Enterprise
 
-Documentar la integracion enterprise del listado de documentos radicados en `DocumentosWorkbench` y `AppTreeTable`, alineada al contrato del backend para scope, paginacion y totales.
+Este paquete documenta la implementacion frontend de `SCRUMCORE-295` para el listado de documentos radicados en `DocumentosWorkbench` con `AppTreeTable`.
 
-## Alcance
+La solucion final lista todos los documentos principales del radicado sin paginacion interactiva, usa `DocumentRelationScope=documentsOnly`, solicita el dataset completo con `EnablePagination=false` y aplica busqueda local deterministica sobre las filas recibidas.
 
-- El listado base del workbench carga con `DocumentRelationScope=documentsOnly`.
-- La carga inicial y la expansion normal de arbol usan `EnablePagination=true`.
-- La recarga completa posterior a una mutacion usa `EnablePagination=false` de forma explicita.
-- El frontend consume `meta.total` y `data.pagination.total` como fuente de verdad.
-- El mensaje de restriccion de delete se expone solo como toast temporal.
+## Documentos Del Paquete
 
-## Contrato De Request
+| Documento | Proposito |
+|---|---|
+| [01-arquitectura.md](01-arquitectura.md) | Alcance, objetivos, no objetivos, decisiones y responsabilidades por archivo. |
+| [02-contrato-api.md](02-contrato-api.md) | Endpoint, request, response, headers, claims, totales y compatibilidad del contrato. |
+| [03-busqueda-lista-completa.md](03-busqueda-lista-completa.md) | Carga completa, busqueda local, normalizacion, contador filtrado y razones de diseno. |
+| [04-ui-componentes.md](04-ui-componentes.md) | Integracion `DocumentosWorkbench`, `AppTableQueryWrapper`, `AppTreeTable`, CSS y estados UI. |
+| [05-pruebas-validacion.md](05-pruebas-validacion.md) | Tests, lint, build blocker conocido, criterios de aceptacion y evidencia tecnica. |
+| [06-diagramas.md](06-diagramas.md) | Diagramas Mermaid de componentes, carga inicial, busqueda y decision de total. |
 
-Campos relevantes:
+## Decision Final Implementada
 
-- `DocumentRelationScope`
-- `EnablePagination`
-- `Page`
-- `PageSize`
-- `NombreGabinete`
-- `CampoRadicado`
-- `Radicado`
+| Area | Decision |
+|---|---|
+| Scope base | `DocumentRelationScope=documentsOnly`. |
+| Paginacion | `EnablePagination=false` en el listado documental del workbench. |
+| Page | `Page=1` cuando la paginacion esta deshabilitada. |
+| PageSize | Se conserva por compatibilidad DTO; no limita filas en este flujo. |
+| Search backend | `Search=""` en modo full-list para evitar recortes incorrectos antes del filtro local. |
+| Search UI | Filtro local sobre `RowId`, `Values` y `Meta`. |
+| UI paginacion | Oculta con `AppTableQueryWrapper showPagination={false}`. |
+| Compatibilidad wrapper | `showPagination` tiene default `true`. |
+| Renderer | `AppTreeTable` sigue sin reglas de negocio documentales. |
 
-Reglas:
+## Rutas De Artefactos OpenSpec
 
-- `DocumentRelationScope` omitido equivale a `documentsOnly`.
-- `EnablePagination=true` es el comportamiento por defecto para la lista principal.
-- `EnablePagination=false` se reserva para refresh completo cuando el flujo necesita conservar el universo completo de filas.
-- El backend valida scope y paginacion; el frontend no recalcula totales ni decide el universo.
+- `openspec/changes/scrumcore-295-lista-documentos-apptretable/proposal.md`
+- `openspec/changes/scrumcore-295-lista-documentos-apptretable/design.md`
+- `openspec/changes/scrumcore-295-lista-documentos-apptretable/specs/lista-documentos-apptretable/spec.md`
+- `openspec/changes/scrumcore-295-lista-documentos-apptretable/specs/lista-documentos-apptretable/jira-context.md`
+- `openspec/changes/scrumcore-295-lista-documentos-apptretable/tasks.md`
 
-## Flujo UI
+## Estado De Validacion
 
-1. Carga inicial.
-   - `EnablePagination=true`
-   - `Page=1`
-   - `PageSize=25`
-
-2. Refresh despues de mutacion.
-   - `EnablePagination=false`
-   - Se usa cuando el flujo requiere volver a consultar el conjunto completo.
-
-3. Cambio de pagina.
-   - Se conserva el contexto.
-   - Solo cambia `Page`.
-
-## Totales Y Paginacion
-
-- Prioridad: `meta.total`.
-- Fallback: `data.pagination.total`.
-- Ultimo fallback: `rows.length` solo si el backend no informa total.
-
-## Validacion Y Error Handling
-
-- Errores de validacion no deben reintentar con otro scope.
-- El delete deshabilitado por backend se comunica con `toast.warning`.
-- No se mantiene alerta inline persistente para esta restriccion.
-
-## Compatibilidad
-
-- El cambio no altera `AppTable` ni `AppTreeTable` como primitives globales.
-- El alcance queda localizado en `gestionCorrespondencia`.
-- Consumidores legacy que no envian scope continúan en `documentsOnly`.
-
-## Evidencia Tecnica
-
-- Request mapper: `src/modules/gestionCorrespondencia/adapters/gestionRespuestaDocumentosRequestMapper.ts`
-- Workbench hook: `src/modules/gestionCorrespondencia/hooks/useGestionRespuestaDocumentosTable.ts`
-- Tree hook: `src/modules/gestionCorrespondencia/hooks/useListaDocumentosRadicadosTreeTable.ts`
-- Response adapter: `src/modules/gestionCorrespondencia/adapters/documentosWorkbenchResponseAdapter.ts`
-
+- OpenSpec: `37/37` tareas completas.
+- Vitest enfocado: `55 passed`, `1 skipped`.
+- ESLint enfocado: OK.
+- `git diff --check`: OK.
+- `npm run build`: bloqueado por deuda preexistente fuera de `SCRUMCORE-295` en `GestionRespuestaUploadDocumental.tsx`.

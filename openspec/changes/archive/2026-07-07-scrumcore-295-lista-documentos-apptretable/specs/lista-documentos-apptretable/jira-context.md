@@ -172,3 +172,19 @@ LISTA-DOCUMENTOS-APPTRETABLE
 - Tipo: Tarea
 - Prioridad: Medium
 - Labels: APPTREETABLE, IMPLEMENTACION, LISTADO
+
+## Implementation Addendum
+
+La implementacion frontend final mantiene el contrato del prompt arquitectonico, pero ajusta la experiencia del `DocumentosWorkbench` a una lista completa sin paginacion visible:
+
+- `DocumentosWorkbench` envia `DocumentRelationScope=documentsOnly`.
+- `DocumentosWorkbench` envia `EnablePagination=false` para recibir el universo completo del listado base.
+- `Page=1` se conserva por compatibilidad del DTO cuando la paginacion esta deshabilitada.
+- `PageSize` se conserva por compatibilidad, pero no debe limitar filas en este flujo.
+- `AppTableQueryWrapper` se usa para la barra de busqueda, pero se renderiza con `showPagination={false}`.
+- `AppTableQueryWrapper.showPagination` tiene default `true`; otros consumidores no cambian.
+- La busqueda del workbench es local sobre `RowId`, `Values` y `Meta` porque la pantalla ya dispone del dataset completo.
+- En modo full-list, el request backend envia `Search=""` para evitar que una semantica backend distinta o parcial oculte filas antes del filtro local.
+- Cuando hay busqueda activa, el contador usa el total filtrado.
+- Cuando no hay busqueda, se prioriza `meta.total` / `meta.Total` y luego `data.pagination.total` / `data.Pagination.Total`.
+- `AppTreeTable` permanece como renderer reusable y no conoce scope, radicado, gabinete, anexos, offset ni limit.
