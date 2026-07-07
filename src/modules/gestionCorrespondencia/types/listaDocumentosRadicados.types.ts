@@ -1,5 +1,10 @@
 export type ListaDocumentosRadicadosViewMode = "hierarchical" | "flatDocuments";
 
+export type DocumentRelationScope =
+  | "documentsOnly"
+  | "includeResponseAttachments"
+  | "responseAttachmentsOnly";
+
 export type ApiErrorDto = {
   errorCode?: string;
   errorMessage?: string;
@@ -37,6 +42,7 @@ export type ListaDocumentosRadicadosQueryRequest = {
   ParentRowId?: string | null;
   ParentNodeType?: string | null;
   Level?: number;
+  DocumentRelationScope?: DocumentRelationScope;
 
   // Extensiones adicionales usadas por el backend (fuera del contrato mínimo SCRUM-205).
   TableId?: string;
@@ -62,12 +68,20 @@ export type ListaDocumentosRadicadosRowDto = {
   Meta?: ListaDocumentosRadicadosRowMeta;
 };
 
+export type ListaDocumentosRadicadosPagination = {
+  page?: number;
+  pageSize?: number;
+  total?: number;
+};
+
 export type ListaDocumentosRadicadosQueryData = {
   Rows: ListaDocumentosRadicadosRowDto[];
   // Nota: el contrato menciona IncludeConfig, pero no define shape en el ejemplo.
   // Se mantiene como unknown para compatibilidad futura.
   Config?: unknown;
   Columns?: unknown;
+  pagination?: ListaDocumentosRadicadosPagination | null;
+  Pagination?: ListaDocumentosRadicadosPagination | null;
 };
 
 export type ListaDocumentosRadicadosActionRequest = {

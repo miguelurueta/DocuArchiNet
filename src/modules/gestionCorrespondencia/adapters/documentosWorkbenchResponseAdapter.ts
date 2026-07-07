@@ -6,7 +6,11 @@ import type {
   AppGridCellAction,
   DynamicUiTableDto,
 } from "../../../app/Components/UI/AppTable/types/dynamicUiTable.types";
-import type { ListaDocumentosRadicadosQueryData, ListaDocumentosRadicadosRowDto } from "../types/listaDocumentosRadicados.types";
+import type {
+  ListaDocumentosRadicadosPagination,
+  ListaDocumentosRadicadosQueryData,
+  ListaDocumentosRadicadosRowDto,
+} from "../types/listaDocumentosRadicados.types";
 
 export type DocumentosWorkbenchViewMode = "hierarchical" | "flatDocuments";
 
@@ -112,6 +116,60 @@ export type DocumentosWorkbenchTableModel = {
   columns?: string[];
   tableColumns?: ColDef<Record<string, unknown>>[];
   tableId?: string;
+  pagination?: ListaDocumentosRadicadosPagination;
+  total?: number;
+};
+
+const readTotalCandidate = (value: unknown): number | undefined => {
+  if (!value || typeof value !== "object") return undefined;
+  const source = value as Record<string, unknown>;
+  const candidates = [
+    source.Total,
+    source.total,
+    source.TotalRecords,
+    source.totalRecords,
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === "number" && Number.isFinite(candidate) && candidate >= 0) {
+      return candidate;
+    }
+  }
+
+  return undefined;
+};
+
+const readPaginationCandidate = (
+  data: ListaDocumentosRadicadosQueryData,
+): ListaDocumentosRadicadosPagination | undefined => {
+  const candidate = data.pagination ?? data.Pagination;
+  if (!candidate || typeof candidate !== "object") return undefined;
+
+  const source = candidate as Record<string, unknown>;
+  const page = readTotalCandidate({ total: source.page ?? source.Page });
+  const pageSize = readTotalCandidate({ total: source.pageSize ?? source.PageSize });
+  const total = readTotalCandidate({ total: source.total ?? source.Total });
+
+  if (page === undefined && pageSize === undefined && total === undefined) {
+    return undefined;
+  }
+
+  return {
+    ...(page !== undefined ? { page } : {}),
+    ...(pageSize !== undefined ? { pageSize } : {}),
+    ...(total !== undefined ? { total } : {}),
+  };
+};
+
+export const resolveListaDocumentosRadicadosTotal = (
+  data: ListaDocumentosRadicadosQueryData,
+): number | undefined => {
+  const paginationTotal = readPaginationCandidate(data)?.total;
+  if (typeof paginationTotal === "number") {
+    return paginationTotal;
+  }
+
+  return readTotalCandidate(data as unknown as Record<string, unknown>);
 };
 
 const pickColumnsKeys = (data: ListaDocumentosRadicadosQueryData): string[] | undefined => {
@@ -166,6 +224,8 @@ export const adaptListaDocumentosRadicadosToWorkbenchModel = (
 ): DocumentosWorkbenchTableModel => {
   const rows = (data.Rows ?? []).map((row, index) => toTreeRow(row, index));
   let columns = pickColumnsKeys(data);
+  const pagination = readPaginationCandidate(data);
+  const total = resolveListaDocumentosRadicadosTotal(data);
 
   if (options?.viewMode === "flatDocuments") {
     // SCRUM-209: vista simplificada (label principal + acciones). Evita depender
@@ -176,7 +236,7 @@ export const adaptListaDocumentosRadicadosToWorkbenchModel = (
 
   const dynamicUiTable = pickDynamicUiTable(data);
   if (!dynamicUiTable) {
-    return { rows, columns };
+    return { rows, columns, pagination, total };
   }
 
   const appGridTable = mapDynamicUiTableToAppDataTableAgGrid(dynamicUiTable);
@@ -201,5 +261,7 @@ export const adaptListaDocumentosRadicadosToWorkbenchModel = (
     columns,
     tableColumns: tableColumns as ColDef<Record<string, unknown>>[],
     tableId: appGridTable.tableId,
+    pagination,
+    total,
   };
 };

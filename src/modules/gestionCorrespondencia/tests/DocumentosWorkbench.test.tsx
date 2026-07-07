@@ -20,19 +20,47 @@ let mockDocumentosRefreshKey = 0;
 
 type MockTableApi = {
   load: () => Promise<unknown>;
+  refresh: () => Promise<unknown>;
   loadChildren: () => Promise<unknown>;
   onSelectRow: (
     rowId: string,
-  ) => Promise<{ documentResolveRequest: { IdDocumento: number; NombreGabinete: string }; rowId: string } | null>;
-  onActionTriggered: (
-    params: { actionId: string; rowId: string },
-  ) => Promise<
-    | { documentResolveRequest: { IdDocumento: number; NombreGabinete: string }; rowId: string }
-    | { success: boolean; severity?: "success" | "warning" | "error"; message?: string; requestId?: string }
+  ) => Promise<{
+    documentResolveRequest: { IdDocumento: number; NombreGabinete: string };
+    rowId: string;
+  } | null>;
+  onActionTriggered: (params: {
+    actionId: string;
+    rowId: string;
+  }) => Promise<
+    | {
+        documentResolveRequest: { IdDocumento: number; NombreGabinete: string };
+        rowId: string;
+      }
+    | {
+        success: boolean;
+        severity?: "success" | "warning" | "error";
+        message?: string;
+        requestId?: string;
+      }
     | null
   >;
   onSelectionChanged: (rowIds: string[]) => void;
-  getTableColumns: () => undefined | Array<{ headerName?: string; field?: string }>;
+  onQueryChange: (patch: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    structuredFilters?: unknown[];
+  }) => void;
+  queryState: {
+    page: number;
+    pageSize: number;
+    search: string;
+    structuredFilters: unknown[];
+  };
+  loading: boolean;
+  getTableColumns: () =>
+    | undefined
+    | Array<{ headerName?: string; field?: string }>;
   getColumns: () => undefined;
   totalDocumentsCount: number;
   selectedDocumentsCount: number;
@@ -121,20 +149,32 @@ vi.mock("../../../app/Components/UI/AppVisorEmbedPdf", async () => {
   };
 });
 
-vi.mock("../../../app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.service", () => ({
-  initUploadTemporalPdfAnotado: (...args: unknown[]) => initUploadTemporalPdfAnotadoSpy(...args),
-  uploadTemporalChunk: (...args: unknown[]) => uploadTemporalChunkSpy(...args),
-  completeUploadTemporal: (...args: unknown[]) => completeUploadTemporalSpy(...args),
-  statusUploadTemporal: (...args: unknown[]) => statusUploadTemporalSpy(...args),
-  reemplazarPaginasPdfAnotadas: (...args: unknown[]) => reemplazarPaginasPdfAnotadasSpy(...args),
-  cancelUploadTemporal: (...args: unknown[]) => cancelUploadTemporalSpy(...args),
-}));
+vi.mock(
+  "../../../app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.service",
+  () => ({
+    initUploadTemporalPdfAnotado: (...args: unknown[]) =>
+      initUploadTemporalPdfAnotadoSpy(...args),
+    uploadTemporalChunk: (...args: unknown[]) =>
+      uploadTemporalChunkSpy(...args),
+    completeUploadTemporal: (...args: unknown[]) =>
+      completeUploadTemporalSpy(...args),
+    statusUploadTemporal: (...args: unknown[]) =>
+      statusUploadTemporalSpy(...args),
+    reemplazarPaginasPdfAnotadas: (...args: unknown[]) =>
+      reemplazarPaginasPdfAnotadasSpy(...args),
+    cancelUploadTemporal: (...args: unknown[]) =>
+      cancelUploadTemporalSpy(...args),
+  }),
+);
 
-vi.mock("../../../app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.types", () => ({
-  ReemplazoPaginasPdfAnotadasError: class ReemplazoPaginasPdfAnotadasError extends Error {
-    field?: string;
-  },
-}));
+vi.mock(
+  "../../../app/Components/UI/AppVisorEmbedPdf/services/reemplazoPaginasPdfAnotadas.types",
+  () => ({
+    ReemplazoPaginasPdfAnotadasError: class ReemplazoPaginasPdfAnotadasError extends Error {
+      field?: string;
+    },
+  }),
+);
 
 const toastErrorSpy = vi.fn();
 const toastWarningSpy = vi.fn();
@@ -142,8 +182,10 @@ const toastSuccessSpy = vi.fn();
 
 vi.mock("react-toastify", () => ({
   toast: {
-    warning: (message: unknown, opts?: unknown) => toastWarningSpy(message, opts),
-    success: (message: unknown, opts?: unknown) => toastSuccessSpy(message, opts),
+    warning: (message: unknown, opts?: unknown) =>
+      toastWarningSpy(message, opts),
+    success: (message: unknown, opts?: unknown) =>
+      toastSuccessSpy(message, opts),
     error: (message: unknown, opts?: unknown) => toastErrorSpy(message, opts),
   },
 }));
@@ -169,13 +211,32 @@ vi.mock("../../../app/Components/UI/AppTreeTable", () => ({
         <button type="button" onClick={() => props.onSelectRow?.("r1")}>
           Select r1
         </button>
-        <button type="button" onClick={() => props.onActionTriggered?.({ actionId: "ver_documento", rowId: "r1" })}>
+        <button
+          type="button"
+          onClick={() =>
+            props.onActionTriggered?.({
+              actionId: "ver_documento",
+              rowId: "r1",
+            })
+          }
+        >
           Action ver_documento
         </button>
-        <button type="button" onClick={() => props.onActionTriggered?.({ actionId: "eliminar_item", rowId: "r1" })}>
+        <button
+          type="button"
+          onClick={() =>
+            props.onActionTriggered?.({
+              actionId: "eliminar_item",
+              rowId: "r1",
+            })
+          }
+        >
           Action eliminar_item
         </button>
-        <button type="button" onClick={() => props.onSelectionChanged?.(["r1", "r2"])}>
+        <button
+          type="button"
+          onClick={() => props.onSelectionChanged?.(["r1", "r2"])}
+        >
           Select rows
         </button>
       </div>
@@ -259,25 +320,38 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     });
     mockTableApi = {
       load: vi.fn(async () => ({ ok: true, rows: [] })),
+      refresh: vi.fn(async () => ({ ok: true, rows: [] })),
       loadChildren: vi.fn(async () => ({ ok: true, rows: [] })),
       onSelectRow: vi.fn(async () => ({
         documentResolveRequest: { IdDocumento: 10, NombreGabinete: "G" },
         rowId: "r1",
       })),
-      onActionTriggered: vi.fn(async ({ actionId }: { actionId: string; rowId: string }) =>
-        actionId === "eliminar_item"
-          ? {
-              success: true,
-              message: "Documento eliminado correctamente.",
-              severity: "success",
-              requestId: "req-delete",
-            }
-          : {
-              documentResolveRequest: { IdDocumento: 11, NombreGabinete: "G" },
-              rowId: "r1",
-            },
+      onActionTriggered: vi.fn(
+        async ({ actionId }: { actionId: string; rowId: string }) =>
+          actionId === "eliminar_item"
+            ? {
+                success: true,
+                message: "Documento eliminado correctamente.",
+                severity: "success",
+                requestId: "req-delete",
+              }
+            : {
+                documentResolveRequest: {
+                  IdDocumento: 11,
+                  NombreGabinete: "G",
+                },
+                rowId: "r1",
+              },
       ),
       onSelectionChanged: vi.fn(),
+      onQueryChange: vi.fn(),
+      queryState: {
+        page: 1,
+        pageSize: 25,
+        search: "",
+        structuredFilters: [],
+      },
+      loading: false,
       getTableColumns: () => undefined,
       getColumns: () => undefined,
       getWorkbenchContext: () => ({ nombreGabinete: "G", radicado: "RAD-1" }),
@@ -290,19 +364,74 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
       [MOBILE_QUERY]: false,
     }) as unknown as typeof window.matchMedia;
 
-    Object.defineProperty(window, "innerWidth", { value: 1440, configurable: true });
-    Object.defineProperty(navigator, "maxTouchPoints", { value: 0, configurable: true });
+    Object.defineProperty(window, "innerWidth", {
+      value: 1440,
+      configurable: true,
+    });
+    Object.defineProperty(navigator, "maxTouchPoints", {
+      value: 0,
+      configurable: true,
+    });
   });
 
   it("[SPEC:SCRUMCORE-202] renderiza estructura base con visor embebido", () => {
     render(<DocumentosWorkbench />);
 
     expect(screen.getByTestId("documentos-workbench")).toBeInTheDocument();
-    expect(screen.getByRole("status", { name: "Zona de documento" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("status", { name: "Zona de documento" }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("app-visor-embedpdf-mock")).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /Ocultar documentos/i }).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByRole("button", { name: /Ocultar documentos/i }).length,
+    ).toBeGreaterThan(0);
     expect(screen.getByTestId("app-tree-table-mock")).toBeInTheDocument();
-    expect(appTreeTableSpy).toHaveBeenCalledWith(expect.objectContaining({ tableLayoutMode: "fill" }));
+    expect(screen.getByTestId("app-table-query-wrapper")).toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "Buscar en la tabla" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /P.gina siguiente/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {
+        name: /Cantidad de registros por p.gina/i,
+      }),
+    ).not.toBeInTheDocument();
+    expect(appTreeTableSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ tableLayoutMode: "fill" }),
+    );
+  });
+
+  it("delega busqueda documental al hook del listado", () => {
+    render(<DocumentosWorkbench />);
+
+    fireEvent.change(
+      screen.getByRole("combobox", { name: "Buscar en la tabla" }),
+      {
+        target: { value: "contrato" },
+      },
+    );
+
+    expect(mockTableApi.onQueryChange).toHaveBeenCalledWith({
+      search: "contrato",
+    });
+  });
+
+  it("no muestra paginacion interactiva en el listado documental", () => {
+    mockTableApi.totalDocumentsCount = 60;
+
+    render(<DocumentosWorkbench />);
+
+    expect(
+      screen.queryByRole("button", { name: /P.gina siguiente/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /P.gina anterior/i }),
+    ).not.toBeInTheDocument();
+    expect(appTreeTableSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ tableLayoutMode: "fill" }),
+    );
   });
 
   it("remonta el AppTreeTable cuando cambia documentosRefreshKey para refrescar el listado", async () => {
@@ -327,10 +456,15 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
       expect(mockTableApi.load).toHaveBeenCalledTimes(1);
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Action eliminar_item" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Action eliminar_item" }),
+    );
 
     await waitFor(() => {
-      expect(mockTableApi.onActionTriggered).toHaveBeenCalledWith({ actionId: "eliminar_item", rowId: "r1" });
+      expect(mockTableApi.onActionTriggered).toHaveBeenCalledWith({
+        actionId: "eliminar_item",
+        rowId: "r1",
+      });
     });
     expect(mockTableApi.load).toHaveBeenCalledTimes(1);
   });
@@ -350,15 +484,22 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
       );
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Action eliminar_item" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Action eliminar_item" }),
+    );
 
     await waitFor(() => {
       expect(documentViewerResetSpy).toHaveBeenCalledTimes(1);
-      expect(mockTableApi.onActionTriggered).toHaveBeenCalledWith({ actionId: "eliminar_item", rowId: "r1" });
+      expect(mockTableApi.onActionTriggered).toHaveBeenCalledWith({
+        actionId: "eliminar_item",
+        rowId: "r1",
+      });
     });
 
     await waitFor(() => {
-      expect(appTreeTableSpy).toHaveBeenCalledWith(expect.objectContaining({ activeRowId: undefined }));
+      expect(appTreeTableSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ activeRowId: undefined }),
+      );
     });
   });
 
@@ -366,7 +507,8 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     mockTableApi.onActionTriggered = vi.fn(async () => ({
       success: false,
       severity: "warning",
-      message: "Delete feature is disabled: DELETE_STORAGE_ENGINE is disabled for this environment.",
+      message:
+        "Delete feature is disabled: DELETE_STORAGE_ENGINE is disabled for this environment.",
       requestId: "req-delete",
     }));
 
@@ -376,11 +518,13 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
       expect(mockTableApi.load).toHaveBeenCalledTimes(1);
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Action eliminar_item" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Action eliminar_item" }),
+    );
 
     await waitFor(() => {
       expect(toastWarningSpy).toHaveBeenCalledWith(
-        "No es posible eliminar este documento en este momento.",
+        "La funcionalidad de eliminacion no esta disponible actualmente",
         expect.objectContaining({
           position: "top-right",
           autoClose: 6000,
@@ -395,10 +539,15 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
   it("resalta temporalmente el listado cuando el visor vacio solicita ayuda de seleccion", async () => {
     render(<DocumentosWorkbench />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Resaltar listado de documentos" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Resaltar listado de documentos" }),
+    );
 
     await waitFor(() => {
-      expect(screen.getByLabelText("Listado de documentos")).toHaveAttribute("data-document-hint-active", "true");
+      expect(screen.getByLabelText("Listado de documentos")).toHaveAttribute(
+        "data-document-hint-active",
+        "true",
+      );
     });
   });
 
@@ -427,13 +576,17 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     });
 
     // El rowId activo no debe actualizarse en fallas de action.
-    expect(appTreeTableSpy).toHaveBeenCalledWith(expect.objectContaining({ activeRowId: undefined }));
+    expect(appTreeTableSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ activeRowId: undefined }),
+    );
   });
 
   it("[SPEC:SCRUMCORE-227] menu_action ver_documento converge al mismo flujo y llama visualizarDocumento", async () => {
     render(<DocumentosWorkbench />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Action ver_documento" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Action ver_documento" }),
+    );
 
     expect(mockTableApi.onSelectRow).toHaveBeenCalledWith("r1");
     await waitFor(() => {
@@ -494,7 +647,9 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
       "/tmp/doc.pdf?_dvAttempt=1",
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Guardar paginas anotadas" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Guardar paginas anotadas" }),
+    );
 
     await waitFor(() => {
       expect(reemplazarPaginasPdfAnotadasSpy).toHaveBeenCalledWith(
@@ -519,7 +674,11 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     });
 
     expect(uploadTemporalChunkSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ chunkIndex: 0, totalChunks: 1, chunk: expect.any(Blob) }),
+      expect.objectContaining({
+        chunkIndex: 0,
+        totalChunks: 1,
+        chunk: expect.any(Blob),
+      }),
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
     expect(markAnnotatedPagesPersistedSpy).toHaveBeenCalledTimes(1);
@@ -528,7 +687,9 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
   });
 
   it("[SPEC:SCRUMCORE-238] limita chunks frontend a 768KB para paginas anotadas grandes", async () => {
-    const largePdf = new Blob([new Uint8Array(1_639_741)], { type: "application/pdf" });
+    const largePdf = new Blob([new Uint8Array(1_639_741)], {
+      type: "application/pdf",
+    });
     exportAnnotatedPdfPagesSpy.mockResolvedValueOnce({
       hasAnnotations: true,
       annotatedPages: [1],
@@ -559,7 +720,9 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     };
 
     render(<DocumentosWorkbench idTareaWf={123} />);
-    fireEvent.click(screen.getByRole("button", { name: "Guardar paginas anotadas" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Guardar paginas anotadas" }),
+    );
 
     await waitFor(() => {
       expect(uploadTemporalChunkSpy).toHaveBeenCalledTimes(3);
@@ -575,12 +738,20 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
     );
     expect(uploadTemporalChunkSpy).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ chunkIndex: 0, totalChunks: 3, chunk: expect.objectContaining({ size: 786_432 }) }),
+      expect.objectContaining({
+        chunkIndex: 0,
+        totalChunks: 3,
+        chunk: expect.objectContaining({ size: 786_432 }),
+      }),
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
     expect(uploadTemporalChunkSpy).toHaveBeenNthCalledWith(
       3,
-      expect.objectContaining({ chunkIndex: 2, totalChunks: 3, chunk: expect.objectContaining({ size: 66_877 }) }),
+      expect.objectContaining({
+        chunkIndex: 2,
+        totalChunks: 3,
+        chunk: expect.objectContaining({ size: 66_877 }),
+      }),
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
   });
@@ -604,7 +775,9 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
 
     render(<DocumentosWorkbench idTareaWf={123} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Guardar paginas anotadas" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Guardar paginas anotadas" }),
+    );
 
     await waitFor(() => {
       expect(reemplazarPaginasPdfAnotadasSpy).toHaveBeenCalledWith(
@@ -636,7 +809,9 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
 
     render(<DocumentosWorkbench idTareaWf={123} />);
 
-    expect(screen.getByRole("button", { name: "Guardar paginas anotadas" })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Guardar paginas anotadas" }),
+    ).toBeDisabled();
     expect(exportAnnotatedPdfPagesSpy).not.toHaveBeenCalled();
     expect(reemplazarPaginasPdfAnotadasSpy).not.toHaveBeenCalled();
   });
@@ -665,17 +840,24 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
 
     render(<DocumentosWorkbench idTareaWf={123} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Guardar paginas anotadas" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Guardar paginas anotadas" }),
+    );
 
     await waitFor(() => {
-      expect(toastErrorSpy).toHaveBeenCalledWith("No hay paginas anotadas para reemplazar.", undefined);
+      expect(toastErrorSpy).toHaveBeenCalledWith(
+        "No hay paginas anotadas para reemplazar.",
+        undefined,
+      );
     });
     expect(initUploadTemporalPdfAnotadoSpy).not.toHaveBeenCalled();
     expect(reemplazarPaginasPdfAnotadasSpy).not.toHaveBeenCalled();
   });
 
   it("[SPEC:SCRUMCORE-238] limpia temporal best-effort si falla reemplazo final", async () => {
-    reemplazarPaginasPdfAnotadasSpy.mockRejectedValueOnce(new Error("fallo final"));
+    reemplazarPaginasPdfAnotadasSpy.mockRejectedValueOnce(
+      new Error("fallo final"),
+    );
     mockDocumentoActivo = {
       documentId: 10,
       nombreGabinete: "G",
@@ -693,7 +875,9 @@ describe("[SPEC:APPTREETABLE-217] DocumentosWorkbench", () => {
 
     render(<DocumentosWorkbench idTareaWf={123} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Guardar paginas anotadas" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Guardar paginas anotadas" }),
+    );
 
     await waitFor(() => {
       expect(cancelUploadTemporalSpy).toHaveBeenCalledWith({

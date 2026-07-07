@@ -118,6 +118,62 @@ describe("[SPEC:SCRUMCORE-294] eliminarDocumentoStorageEngine service", () => {
     });
   });
 
+  it("convierte HTTP 400 en warning con el mensaje funcional del backend", async () => {
+    mockedDelete.mockRejectedValueOnce(
+      axiosError(400, {
+        message: "Delete feature is disabled: DELETE_STORAGE_ENGINE",
+        errors: [
+          {
+            UserMessage: "No es posible eliminar este documento.",
+          },
+        ],
+      }),
+    );
+
+    const result = await eliminarDocumentoStorageEngine({
+      idAlmacen: 94,
+      nombreGabinete: "WF_DOCS",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      message: "No es posible eliminar este documento.",
+      severity: "warning",
+      requestId: "req-generated",
+      httpStatus: 400,
+      rawResponse: {
+        message: "Delete feature is disabled: DELETE_STORAGE_ENGINE",
+        errors: [
+          {
+            UserMessage: "No es posible eliminar este documento.",
+          },
+        ],
+      },
+    });
+  });
+
+  it("marca como fallo HTTP cuando el backend responde 400 sin success explicito", async () => {
+    mockedDelete.mockRejectedValueOnce(
+      axiosError(400, {
+        message: "Delete feature is disabled: DELETE_STORAGE_ENGINE",
+        errors: [
+          {
+            Message: "No es posible eliminar este anexo.",
+          },
+        ],
+      }),
+    );
+
+    const result = await eliminarDocumentoStorageEngine({
+      idAlmacen: 95,
+      nombreGabinete: "WF_DOCS",
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.severity).toBe("warning");
+    expect(result.message).toBe("No es posible eliminar este anexo.");
+  });
+
   it("devuelve error tipado cuando el backend responde vacio con HTTP 403", async () => {
     mockedDelete.mockRejectedValueOnce(axiosError(403, undefined));
 

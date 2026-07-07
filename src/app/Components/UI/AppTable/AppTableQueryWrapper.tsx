@@ -24,6 +24,7 @@ export type AppTableQueryWrapperProps = {
   pageSizeOptions?: number[];
   searchPlaceholder?: string;
   showSearch?: boolean;
+  showPagination?: boolean;
 };
 
 const getVisibleRange = (page: number, pageSize: number, total: number) => {
@@ -52,9 +53,12 @@ export function AppTableQueryWrapper({
   pageSizeOptions = [...DEFAULT_PAGE_SIZE_OPTIONS],
   searchPlaceholder = "Buscar en la tabla",
   showSearch = true,
+  showPagination = true,
 }: AppTableQueryWrapperProps) {
   const totalPages =
-    total > 0 ? Math.max(1, Math.ceil(total / Math.max(queryState.pageSize, 1))) : 1;
+    total > 0
+      ? Math.max(1, Math.ceil(total / Math.max(queryState.pageSize, 1)))
+      : 1;
   const canGoPrevious = queryState.page > 1;
   const canGoNext = queryState.page < totalPages;
   const pageSizeLabel = `${queryState.pageSize} por página`;
@@ -67,7 +71,10 @@ export function AppTableQueryWrapper({
   }));
 
   return (
-    <section className={joinClasses(styles.root, className)} data-testid="app-table-query-wrapper">
+    <section
+      className={joinClasses(styles.root, className)}
+      data-testid="app-table-query-wrapper"
+    >
       <div className={styles.header}>
         <div className={styles.searchGroup}>
           {showSearch ? (
@@ -92,71 +99,78 @@ export function AppTableQueryWrapper({
           ) : null}
         </div>
 
-        {headerActions ? <div className={styles.headerActions}>{headerActions}</div> : null}
-      </div>
-
-      <div className={styles.controlsBand}>
-        <div className={styles.paginationInfo}>
-          <span className={styles.range} data-testid="app-table-query-range">
-            {getVisibleRange(queryState.page, queryState.pageSize, total)}
-          </span>
-
-          <div className={styles.paginationActions}>
-            <AppDropdown
-              ariaLabel="Cantidad de registros por página"
-              className={styles.pageSizeControl}
-              items={pageSizeItems}
-              trigger={
-                <AppButton
-                  variant="primary"
-                  size="sm"
-                  className={styles.pageSizeTrigger}
-                  aria-label="Cantidad de registros por página"
-                >
-                  {pageSizeLabel}
-                </AppButton>
-              }
-            />
-
-            <div className={styles.navButtons}>
-              <AppButton
-                icon={<LeftOutlined />}
-                aria-label="Página anterior"
-                tooltip="Página anterior"
-                variant="ghost"
-                size="md"
-                className={styles.navButton}
-                disabled={!canGoPrevious || loading}
-                onClick={() => {
-                  if (canGoPrevious) {
-                    onQueryChange({ page: queryState.page - 1 });
-                  }
-                }}
-              />
-              <AppButton
-                icon={<RightOutlined />}
-                aria-label="Página siguiente"
-                tooltip="Página siguiente"
-                variant="ghost"
-                size="md"
-                className={styles.navButton}
-                disabled={!canGoNext || loading}
-                onClick={() => {
-                  if (canGoNext) {
-                    onQueryChange({ page: queryState.page + 1 });
-                  }
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {paginationActions ? (
-          <div className={styles.paginationSideActions} data-testid="app-table-pagination-actions">
-            {paginationActions}
-          </div>
+        {headerActions ? (
+          <div className={styles.headerActions}>{headerActions}</div>
         ) : null}
       </div>
+
+      {showPagination ? (
+        <div className={styles.controlsBand}>
+          <div className={styles.paginationInfo}>
+            <span className={styles.range} data-testid="app-table-query-range">
+              {getVisibleRange(queryState.page, queryState.pageSize, total)}
+            </span>
+
+            <div className={styles.paginationActions}>
+              <AppDropdown
+                ariaLabel="Cantidad de registros por página"
+                className={styles.pageSizeControl}
+                items={pageSizeItems}
+                trigger={
+                  <AppButton
+                    variant="primary"
+                    size="sm"
+                    className={styles.pageSizeTrigger}
+                    aria-label="Cantidad de registros por página"
+                  >
+                    {pageSizeLabel}
+                  </AppButton>
+                }
+              />
+
+              <div className={styles.navButtons}>
+                <AppButton
+                  icon={<LeftOutlined />}
+                  aria-label="Página anterior"
+                  tooltip="Página anterior"
+                  variant="ghost"
+                  size="md"
+                  className={styles.navButton}
+                  disabled={!canGoPrevious || loading}
+                  onClick={() => {
+                    if (canGoPrevious) {
+                      onQueryChange({ page: queryState.page - 1 });
+                    }
+                  }}
+                />
+                <AppButton
+                  icon={<RightOutlined />}
+                  aria-label="Página siguiente"
+                  tooltip="Página siguiente"
+                  variant="ghost"
+                  size="md"
+                  className={styles.navButton}
+                  disabled={!canGoNext || loading}
+                  onClick={() => {
+                    if (canGoNext) {
+                      onQueryChange({ page: queryState.page + 1 });
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {paginationActions ? (
+            <div
+              className={styles.paginationSideActions}
+              data-testid="app-table-pagination-actions"
+            >
+              {paginationActions}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className={styles.tableContainer}>{children}</div>
     </section>

@@ -242,7 +242,7 @@
   min-height: 4.25rem;
   align-items: center;
   gap: 0.85rem;
-  border: 1px dashed #8bb8ec;
+  border: 1px dashed #2563eb;
   border-radius: 10px;
   background:
     linear-gradient(180deg, rgba(248, 251, 255, 0.98), rgba(241, 247, 254, 0.96)),
@@ -255,17 +255,21 @@
   transition:
     border-color 0.18s ease,
     box-shadow 0.18s ease,
-    transform 0.18s ease;
+    transform 0.16s ease,
+    filter 0.16s ease;
 }
 
 .uploadModalTrigger:hover {
-  border-color: #1d6fd8;
-  box-shadow: 0 12px 26px rgba(29, 111, 216, 0.14);
+  border-color: #1d4ed8;
+  box-shadow:
+    0 16px 30px rgba(37, 99, 235, 0.26),
+    0 6px 14px rgba(30, 64, 175, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
   transform: translateY(-1px);
 }
 
 .uploadModalTrigger:focus-visible {
-  outline: 3px solid rgba(29, 111, 216, 0.28);
+  outline: 3px solid rgba(37, 99, 235, 0.28);
   outline-offset: 2px;
 }
 
@@ -277,10 +281,13 @@
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  background: #1d6fd8;
+  background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%);
   color: #ffffff;
   font-size: 1.25rem;
-  box-shadow: 0 8px 18px rgba(29, 111, 216, 0.2);
+  box-shadow:
+    0 12px 24px rgba(37, 99, 235, 0.22),
+    0 4px 10px rgba(30, 64, 175, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
 .uploadModalCopy {

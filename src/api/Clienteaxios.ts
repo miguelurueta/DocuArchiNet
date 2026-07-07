@@ -34,22 +34,26 @@ clienteApi.interceptors.response.use(
     }
 
     if (import.meta.env.MODE !== "production") {
-      // 🧨 ERROR COMPLETO DE AXIOS
-      console.group("❌ AXIOS ERROR");
+      const status = error?.response?.status;
+      const isWarningStatus = status === 400 || status === 401 || status === 409;
+      const groupFn = isWarningStatus ? console.groupCollapsed : console.group;
+      const logFn = isWarningStatus ? console.warn : console.error;
+      const groupLabel = isWarningStatus ? "⚠️ AXIOS WARNING" : "❌ AXIOS ERROR";
 
-      console.error("➡️ Mensaje:", error.message);
-      console.error("➡️ Código:", error.code);
-      console.error("➡️ Config:", error.config);
+      groupFn(groupLabel);
+      logFn("➡️ Mensaje:", error.message);
+      logFn("➡️ Código:", error.code);
+      logFn("➡️ Config:", error.config);
 
       if (error.response) {
-        console.error("➡️ Status:", error.response.status);
-        console.error("➡️ Status Text:", error.response.statusText);
-        console.error("➡️ Data:", error.response.data);
-        console.error("➡️ Headers:", error.response.headers);
+        logFn("➡️ Status:", error.response.status);
+        logFn("➡️ Status Text:", error.response.statusText);
+        logFn("➡️ Data:", error.response.data);
+        logFn("➡️ Headers:", error.response.headers);
       } else if (error.request) {
-        console.error("➡️ Request (sin respuesta):", error.request);
+        logFn("➡️ Request (sin respuesta):", error.request);
       } else {
-        console.error("➡️ Error desconocido:", error);
+        logFn("➡️ Error desconocido:", error);
       }
 
       console.groupEnd();

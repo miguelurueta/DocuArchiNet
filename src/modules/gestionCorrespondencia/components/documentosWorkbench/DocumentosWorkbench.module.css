@@ -75,7 +75,7 @@
   border-radius: inherit;
   box-shadow:
     inset 0 0 0 1px rgba(148, 163, 184, 0.22),
-    0 18px 40px rgba(15, 23, 42, 0.10);
+    0 18px 40px rgba(15, 23, 42, 0.1);
 }
 
 .viewerLoadingHint {
@@ -238,6 +238,48 @@
   border-radius: 6px;
 }
 
+.listSurface :global([data-testid="app-table-query-wrapper"]) {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.listQueryWrapper {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  padding: 0.35rem;
+  gap: 0.35rem;
+  border-radius: 8px;
+}
+
+.listQueryWrapper > :first-child {
+  grid-row: 1;
+  min-height: 0;
+}
+
+.listQueryWrapper > :last-child {
+  grid-row: 2;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.listQueryWrapper > :first-child > :first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+  gap: 0;
+}
+
+.listQueryWrapper :global(.ant-input-affix-wrapper) {
+  min-height: 2rem;
+  padding-block: 0.15rem;
+  border-radius: 8px;
+}
+
+.listQueryWrapper :global(.ant-input) {
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
 /* In this table, checkbox selection is only for bulk operations.
    Do not use AG Grid's row-selected paint as the visual "active document" state. */
 .listSurface :global(.ag-theme-quartz) {
@@ -313,7 +355,8 @@
   box-shadow: none;
 }
 
-.listSurface[data-document-hint-active="true"] :global(.ag-theme-quartz .ag-row[row-index="0"] .ag-cell) {
+.listSurface[data-document-hint-active="true"]
+  :global(.ag-theme-quartz .ag-row[row-index="0"] .ag-cell) {
   animation: documentHintPulse 0.8s ease-in-out 2;
 }
 
@@ -349,8 +392,10 @@
 
 .listSurface :global(.ag-theme-quartz .app-table-action-cell),
 .listSurface :global(.ag-theme-quartz .app-table-action-cell.ag-cell-focus),
-.listSurface :global(.ag-theme-quartz .app-table-action-cell.ag-cell-focus-within),
-.listSurface :global(.ag-theme-quartz .app-table-action-cell.doc-workbench-active-cell) {
+.listSurface
+  :global(.ag-theme-quartz .app-table-action-cell.ag-cell-focus-within),
+.listSurface
+  :global(.ag-theme-quartz .app-table-action-cell.doc-workbench-active-cell) {
   border-color: transparent !important;
   box-shadow: none !important;
   outline: none !important;
@@ -584,7 +629,8 @@
 }
 
 @media (max-width: 1366px) {
-  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"]) {
+  .collapseRail[data-variant="overlay"]
+    > :global(div[data-collapsed="true"][data-placement="right"]) {
     position: fixed;
     right: -8px;
     left: auto;
@@ -601,7 +647,8 @@
     z-index: 180;
   }
 
-  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button) {
+  .collapseRail[data-variant="overlay"]
+    > :global(div[data-collapsed="true"][data-placement="right"] button) {
     width: 38px;
     height: 40px;
     min-width: 38px;
@@ -614,32 +661,53 @@
     z-index: 181;
   }
 
-  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"]:hover),
-  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"]:active),
-  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"]:focus-within) {
+  .collapseRail[data-variant="overlay"]
+    > :global(div[data-collapsed="true"][data-placement="right"]:hover),
+  .collapseRail[data-variant="overlay"]
+    > :global(div[data-collapsed="true"][data-placement="right"]:active),
+  .collapseRail[data-variant="overlay"]
+    > :global(div[data-collapsed="true"][data-placement="right"]:focus-within) {
     z-index: 180;
     opacity: 1;
   }
 
-  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button:hover),
-  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button:active),
-  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button:focus-visible) {
+  .collapseRail[data-variant="overlay"]
+    > :global(div[data-collapsed="true"][data-placement="right"] button:hover),
+  .collapseRail[data-variant="overlay"]
+    > :global(div[data-collapsed="true"][data-placement="right"] button:active),
+  .collapseRail[data-variant="overlay"]
+    > :global(
+      div[data-collapsed="true"][data-placement="right"] button:focus-visible
+    ) {
     box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
     opacity: 1;
     z-index: 181;
   }
 
-  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button .anticon) {
+  .collapseRail[data-variant="overlay"]
+    > :global(
+      div[data-collapsed="true"][data-placement="right"] button .anticon
+    ) {
     display: inline-flex;
     font-size: 16px;
   }
 
-  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button span[class*="railLabel"]) {
+  .collapseRail[data-variant="overlay"]
+    > :global(
+      div[data-collapsed="true"][data-placement="right"]
+        button
+        span[class*="railLabel"]
+    ) {
     font-size: 0;
     gap: 0;
   }
 
-  .collapseRail[data-variant="overlay"] > :global(div[data-collapsed="true"][data-placement="right"] button span[class*="railLabelIcon"]) {
+  .collapseRail[data-variant="overlay"]
+    > :global(
+      div[data-collapsed="true"][data-placement="right"]
+        button
+        span[class*="railLabelIcon"]
+    ) {
     font-size: 16px;
   }
 }
