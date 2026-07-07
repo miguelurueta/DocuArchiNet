@@ -24,6 +24,12 @@ export interface RadicacionDocumentalState {
   tieneTramiteDocumentalActivoEstado0: boolean;
   destinoPostRegistro?: RadicacionDestinoPostRegistro;
   contextoDocumental?: RadicacionContextoDocumentalDetalle | null;
+  metadataOperativa?: {
+    tramite?: string | null;
+    remitente?: string | null;
+    plantillaId?: number | null;
+    workflowFueCreado?: boolean;
+  } | null;
 }
 
 export interface RadicacionDocumentalContextValue

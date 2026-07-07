@@ -38,6 +38,7 @@ env
 
 # Local tooling cache
 .npm-cache/
+.runtime/
 
 # Codex local artifacts
 .codex/memories/

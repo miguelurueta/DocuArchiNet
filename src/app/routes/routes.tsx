@@ -74,6 +74,10 @@ export const loginRoutes: RouteObject[] = [
             element: <RadicacionRoutePage />,
           },
           {
+            path: `${RADICACION_ROUTE_SEGMENTS.root}/${RADICACION_ROUTE_SEGMENTS.registro}/:idEstadoRadicado/${RADICACION_ROUTE_SEGMENTS.documentos}`,
+            element: <RadicacionRoutePage />,
+          },
+          {
             path: "gestion-correspondencia",
             element: <GestionCorrespondenciaLayout />,
             children: [

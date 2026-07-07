@@ -23,6 +23,7 @@ Esta carpeta no reemplaza los prompts de implementacion. Los organiza como espec
 | 5 | `05-Diagramas-Secuencia-Frontend.md` | Secuencias principales: inicio, tomar pendiente, enviar a pendiente, limpiar formulario. |
 | 6 | `06-Casos-Uso-Frontend.md` | Casos de uso frontend con actores, precondiciones, flujos y criterios. |
 | 7 | `07-Trazabilidad-Prompts-Implementacion.md` | Mapa entre documentos, prompts FE/BE/TD y orden recomendado. |
+| 8 | `08-Registro-Fases-Ejecutadas.md` | Evidencia de fases ya ejecutadas, validaciones y restricciones vigentes. |
 
 ## Fuentes De Contexto
 

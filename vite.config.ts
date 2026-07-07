@@ -5,10 +5,16 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/DocuArchiApi": {
-        target: "http://localhost",
+      "/api": {
+        target: "http://127.0.0.1:5055",
         changeOrigin: true,
         secure: false,
+      },
+      "/DocuArchiApi": {
+        target: "http://127.0.0.1:5055",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/DocuArchiApi/, ""),
       },
     },
   },

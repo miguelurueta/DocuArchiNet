@@ -1,19 +1,29 @@
 import { describe, expect, it, vi } from "vitest";
 import clienteApi from "../../../api/Clienteaxios";
 import {
+  buildRadicacionEnviarPendienteEndpoint,
+  buildRadicacionTomarPendienteEndpoint,
+  fetchRadicacionPendientesContador,
+  fetchRadicacionPendientesTable,
   RADICACION_ESTADO_ACTIVO_ENDPOINT,
+  RADICACION_PENDIENTES_CONTADOR_ENDPOINT,
+  RADICACION_PENDIENTES_LISTADO_ENDPOINT,
   fetchRadicacionEstadoActivo,
   mapEstadoActivoToDocumentalState,
+  tomarRadicacionPendiente,
 } from "./radicacionPendientes.service";
 import type { RadicacionPendienteEstadoActivoDto } from "../types/radicacionDocumental.types";
+import { extractRadicacionPendienteActionPayload } from "../types/radicacionPendientes.types";
 
 vi.mock("../../../api/Clienteaxios", () => ({
   default: {
     get: vi.fn(),
+    post: vi.fn(),
   },
 }));
 
 const mockedGet = vi.mocked(clienteApi.get);
+const mockedPost = vi.mocked(clienteApi.post);
 
 describe("radicacionPendientes.service", () => {
   it("[SPEC:BOOT-001] consulta el endpoint estado-activo sin alterar el contrato backend", async () => {
@@ -75,6 +85,103 @@ describe("radicacionPendientes.service", () => {
         requiereGestionDocumental: false,
         tieneTramiteDocumentalActivoEstado0: false,
         destinoPostRegistro: "resumen",
+      }),
+    ).toBeNull();
+  });
+
+  it("[SPEC:PEND-001] consulta listado de pendientes en el endpoint existente", async () => {
+    const request = {
+      SearchType: 1,
+      Search: "",
+      SortField: "id_estado_radicado",
+      SortDir: "DESC" as const,
+      Page: 1,
+      PageSize: 10,
+      IncludeConfig: true,
+    };
+    mockedPost.mockResolvedValueOnce({
+      data: {
+        success: true,
+        data: {
+          TableId: "lista-radicados-pendientes",
+          Rows: [],
+          Columns: [],
+        },
+      },
+    });
+
+    await expect(fetchRadicacionPendientesTable(request)).resolves.toMatchObject({
+      success: true,
+    });
+    expect(mockedPost).toHaveBeenCalledWith(
+      RADICACION_PENDIENTES_LISTADO_ENDPOINT,
+      request,
+    );
+  });
+
+  it("[SPEC:PEND-002] consulta contador de pendientes", async () => {
+    mockedGet.mockResolvedValueOnce({
+      data: {
+        success: true,
+        message: "OK",
+        data: { totalPendientes: 3 },
+      },
+    });
+
+    await expect(fetchRadicacionPendientesContador()).resolves.toEqual({
+      totalPendientes: 3,
+    });
+    expect(mockedGet).toHaveBeenCalledWith(RADICACION_PENDIENTES_CONTADOR_ENDPOINT);
+  });
+
+  it("[SPEC:PEND-003] toma pendiente por id_estado_radicado", async () => {
+    const dto: RadicacionPendienteEstadoActivoDto = {
+      tieneActivoEstado0: true,
+      idEstadoRadicado: 10,
+      estadoActual: 0,
+      requiereGestionDocumental: true,
+      tieneTramiteDocumentalActivoEstado0: true,
+      destinoPostRegistro: "documentos",
+    };
+    mockedPost.mockResolvedValueOnce({
+      data: {
+        success: true,
+        message: "OK",
+        data: dto,
+      },
+    });
+
+    await expect(tomarRadicacionPendiente(10)).resolves.toEqual(dto);
+    expect(mockedPost).toHaveBeenCalledWith(
+      buildRadicacionTomarPendienteEndpoint(10),
+      {},
+    );
+  });
+
+  it("[SPEC:PEND-004] construye endpoint de enviar a pendiente", () => {
+    expect(buildRadicacionEnviarPendienteEndpoint(10)).toBe(
+      "/api/radicacion/pendientes/10/enviar-pendiente",
+    );
+  });
+
+  it("[SPEC:PEND-005] extrae campos de accion con nombres tolerantes", () => {
+    expect(
+      extractRadicacionPendienteActionPayload({
+        IdEstadoRadicado: "15",
+        IdTareaWorkflow: 25,
+        RADICADO: "RAD-15",
+      }),
+    ).toEqual({
+      idEstadoRadicado: 15,
+      idTareaWorkflow: 25,
+      consecutivoRadicado: "RAD-15",
+    });
+  });
+
+  it("[SPEC:PEND-006] bloquea accion sin id_estado_radicado", () => {
+    expect(
+      extractRadicacionPendienteActionPayload({
+        id_tarea_workflow: 25,
       }),
     ).toBeNull();
   });
