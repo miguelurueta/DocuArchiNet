@@ -14,6 +14,7 @@ Documentar de forma enterprise la creación de `AppHorizontalScroller`, un primi
 | [04-uso-e-integracion.md](./04-uso-e-integracion.md) | Ejemplos de uso, imports, composición con dominio y relación futura con SCRUM-162. |
 | [05-pruebas-validacion.md](./05-pruebas-validacion.md) | Estrategia de pruebas, comandos, evidencias, build y auditorías. |
 | [06-riesgos-checklist.md](./06-riesgos-checklist.md) | Riesgos, mitigaciones, restricciones y checklist de aceptación. |
+| [SCRUMCORE-297-Metadata.md](./SCRUMCORE-297-Metadata.md) | Metadata Jira/Git, archivos impactados, decisiones, evidencias y riesgos residuales. |
 
 ## Resumen Ejecutivo
 
