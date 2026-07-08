@@ -19,8 +19,8 @@
 - [ ] 2.10 Implementar densidades `compact` y `comfortable`, y gaps `xs`, `sm`, `md`, `lg`.
 - [ ] 2.11 Implementar scroll snap opcional con `scroll-snap-type: x proximity`, align `start`/`center` y sin usar `mandatory`.
 - [ ] 2.12 Implementar `edgeFade` con capa/pseudo-elemento no bloqueante y `pointer-events: none`.
-- [ ] 2.13 Crear `index.ts` del componente y actualizar barrel superior solo si el patron local lo requiere.
-- [ ] 2.14 Verificar que el componente no importe `axios`, no llame `fetch`, no use servicios HTTP, no importe modulos de negocio y no dependa de `AppTable` ni `AppTreeTable`.
+- [ ] 2.13 Revisar patron de export de componentes vecinos (`AppButton`, `AppContent`, `AppInputSearch`) y replicarlo sin inventar estructura nueva.
+- [ ] 2.14 Crear `index.ts` del componente y actualizar barrel superior solo si el patron local lo requiere.
 
 ## 3. Pruebas
 
@@ -39,6 +39,7 @@
 - [ ] 3.13 Probar que no se agrega `tabIndex` al viewport y no se interceptan eventos de teclado.
 - [ ] 3.14 Probar o verificar por fuente que no hay imports/calls de `axios`, `fetch`, servicios HTTP, modulos de negocio, `AppTable` ni `AppTreeTable`.
 - [ ] 3.15 Ejecutar suite focalizada del componente.
+- [ ] 3.16 Validar visualmente el scroller en anchos mobile, tablet y desktop usando un ejemplo local, fixture de prueba o evidencia documentada.
 
 ## 4. Documentacion
 
@@ -60,3 +61,4 @@
 - [ ] 5.3 Ejecutar `git diff --check`.
 - [ ] 5.4 Revisar que no haya cambios en `AppTable`, `AppTreeTable`, `GestionCorrespondencia`, servicios HTTP ni modulos de negocio.
 - [ ] 5.5 Confirmar que no se agregaron dependencias nuevas.
+- [ ] 5.6 Auditar que el componente no importe `axios`, no llame `fetch`, no use servicios HTTP, no importe modulos de negocio y no dependa de `AppTable` ni `AppTreeTable`.
