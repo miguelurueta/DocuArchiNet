@@ -17,6 +17,7 @@ Estos documentos son bitacora tecnica. No reemplazan los prompts originales ni l
 | FE-05 - Modal de pendientes con AppTable | `FE-05-Modal-Pendientes-AppTable-Asignacion-Radicado.md` |
 | FE-07 - Enviar tramite activo a pendiente | `FE-07-Enviar-Tramite-Activo-A-Pendiente.md` |
 | TD-FE-05 - Limpiar formulario de radicacion entrante | `TD-FE-05-Limpiar-Formulario-Radicacion-Entrante.md` |
+| TD-FE-03 - Refactor RadicacionForm por secciones y hooks | `TD-FE-03-Refactor-RadicacionForm-Secciones-Hooks.md` |
 
 ## Regla Global
 

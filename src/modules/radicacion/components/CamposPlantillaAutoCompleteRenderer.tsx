@@ -4,6 +4,10 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 import type { FocusEventHandler } from "react";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
+import {
+  mapCampoDrowlistOptions,
+  resolveCampoIdScript,
+} from "../utils/radicacionOptionMappers";
 import styles from "../style/FormRadicacion.module.css";
 
 /**
@@ -15,18 +19,6 @@ import styles from "../style/FormRadicacion.module.css";
 
 type CampoPlantillaEx = CampoPlantillaDTO & {
   data_group?: string | null;
-};
-
-const resolveCampoIdScript = (campo: CampoPlantillaEx): number | undefined => {
-  const nestedId = campo.TomPParameterTomSelelect?.id_escript;
-  if (typeof nestedId === "number" && Number.isFinite(nestedId)) {
-    return nestedId;
-  }
-  const anyCampo = campo as unknown as { id_escript?: number | null };
-  if (typeof anyCampo.id_escript === "number" && Number.isFinite(anyCampo.id_escript)) {
-    return anyCampo.id_escript;
-  }
-  return undefined;
 };
 
 interface CamposPlantillaAutoCompleteRendererProps {
@@ -275,22 +267,7 @@ function SelectField({
   const resolvedValue = value ?? undefined;
   const resolvedDefaultValue = value === undefined ? defaultValue : undefined;
   const selectClassName = [styles.dynamicSelect, className].filter(Boolean).join(" ");
-  const options = campo.ilist_row_drowlist ?? [];
-  const parsedOptions = options.map((option, index) => {
-    const anyOption = option as unknown as {
-      idValue?: string | number | null;
-      Value?: string | null;
-      id_value?: string | number | null;
-      value_campo?: string | null;
-    };
-    const optionValue = anyOption.idValue ?? anyOption.id_value ?? String(index);
-    const optionLabel =
-      anyOption.Value ?? anyOption.value_campo ?? String(optionValue ?? "");
-    return {
-      value: optionValue ?? "",
-      label: optionLabel,
-    };
-  });
+  const parsedOptions = mapCampoDrowlistOptions(campo.ilist_row_drowlist);
 
   return (
     <Form.Item

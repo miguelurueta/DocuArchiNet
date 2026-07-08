@@ -17,6 +17,7 @@ Este documento no reemplaza los prompts arquitectonicos. Resume el estado implem
 | FE-05 | SCRUMCORE-298 | `PROMPT-FE-05-Modal-Pendientes-AppTable-Asignacion-Radicado.md` | Ejecutado | Modal de pendientes usa `AppTable`, toma pendiente, actualiza contexto y navega a Documentos. |
 | FE-07 | SCRUMCORE-299 | `PROMPT-FE-07-Enviar-Tramite-Activo-A-Pendiente.md` | Ejecutado | Devuelve tramite activo a pendiente con confirmacion, limpia contexto solo tras exito y refresca pendientes. |
 | TD-FE-05 | SCRUMCORE-300 | `PROMPT-TD-FE-05-Limpiar-Formulario-Radicacion-Entrante.md` | Ejecutado | Centraliza la semantica de limpiar captura sin tocar contexto documental, rutas ni backend. |
+| TD-FE-03 | SCRUMCORE-302 | `PROMPT-TD-FE-03-Refactor-RadicacionForm-Secciones-Hooks.md` | Ejecutado incremental | Extrae footer, hook de tramite/flujo y mappers centralizados sin cambiar comportamiento funcional. |
 
 ## TD-FE-01 - Fuente Unica De Plantilla
 
@@ -165,6 +166,71 @@ Resultado documentado:
 2 test files passed
 33 tests passed
 ```
+
+## TD-FE-03 - Refactor RadicacionForm Por Secciones Y Hooks
+
+### Alcance Implementado
+
+- `SCRUMCORE-302` queda asociado a `PROMPT-TD-FE-03-Refactor-RadicacionForm-Secciones-Hooks.md`.
+- El refactor debe ejecutarse de forma incremental, sin cambiar comportamiento funcional.
+- `RadicacionForm` evoluciona hacia un componente orquestador.
+- El footer queda extraido como componente presentacional que recibe callbacks por props.
+- La seleccion de tramite/flujo queda movida a `useRadicacionTramiteSelection`.
+- La tolerancia a variantes backend queda centralizada en `utils/radicacionOptionMappers.ts`.
+- `resolveCampoIdScript` y `normalizeCampoName` quedan fuera del JSX principal.
+- `CamposPlantillaAutoCompleteRenderer` consume el mapper central para opciones dinamicas `SELECCION`.
+- `RadicacionForm` deja de importar directamente `useFlujosRelacionadosTramite`.
+
+### Resultado Arquitectonico Implementado
+
+```text
+RadicacionForm
+  -> useRadicacionTramiteSelection()
+  -> RadicacionFormFooter
+  -> utils/radicacionOptionMappers
+```
+
+### Validaciones Ejecutadas
+
+```bash
+npm test -- --run --testTimeout 10000 src/modules/radicacion/components/CamposPlantillaAutoCompleteRenderer.spec.test.tsx src/modules/radicacion/components/RadicacionForm.spec.test.tsx src/modules/radicacion/components/RadicacionFormFooter.spec.test.tsx src/modules/radicacion/hooks/useRadicacionTramiteSelection.spec.test.tsx src/modules/radicacion/utils/radicacionOptionMappers.spec.test.ts
+```
+
+Resultado:
+
+```text
+5 test files passed
+46 tests passed
+```
+
+Validacion adicional:
+
+```bash
+npm test -- --run src/modules/radicacion/components/RadicacionForm.spec.test.tsx
+```
+
+Resultado:
+
+```text
+1 test file passed
+32 tests passed
+```
+
+### Riesgos Residuales
+
+- Remitente, destinatario, metadata y tramite section siguen pendientes para un siguiente corte incremental.
+- `RadicacionForm.tsx` conserva deuda previa de lint por `any` y `set-state-in-effect`.
+- `CamposPlantillaAutoCompleteRenderer.tsx` conserva deuda previa de lint por `set-state-in-effect`.
+- `npx tsc -b` sigue fallando por deuda externa en `GestionRespuestaUploadDocumental.tsx`.
+
+### Restricciones Vigentes
+
+- No reintroducir `useCamposPlantilla` dentro de `RadicacionForm`.
+- No mover mutaciones al footer.
+- No tocar `RadicacionDocumentalContext`.
+- No modificar rutas.
+- No llamar backend desde secciones presentacionales.
+- No cambiar el comportamiento visual salvo ajustes necesarios por extraccion.
 
 ## TD-FE-04 - Rutas, Tabs Y Limpieza De Prototipo
 
