@@ -24,15 +24,12 @@ import {
   CloseOutlined,
   CalendarOutlined,
   SearchOutlined,
-  DeleteFilled,
-  FileFilled,
-  OpenAIFilled,
 } from "@ant-design/icons";
 
 import styles from "../style/FormRadicacion.module.css";
 import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
-import { useFlujosRelacionadosTramite } from "../hooks/useFlujosRelacionadosTramite";
 import { useRadicacionFormReset } from "../hooks/useRadicacionFormReset";
+import { useRadicacionTramiteSelection } from "../hooks/useRadicacionTramiteSelection";
 import {
   useEstructuraRelacionTipoRestriccion,
 } from "../hooks/useEstructuraRelacionTipoRestriccion";
@@ -44,8 +41,14 @@ import {
   CampoPlantillaAutoCompleteField,
   CamposPlantillaAutoCompleteRenderer,
 } from "./CamposPlantillaAutoCompleteRenderer";
+import RadicacionFormFooter from "./RadicacionFormFooter";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 import type { PlantillaRadicadoDTO } from "../models/PlantillaRadicadoDTO";
+import {
+  mapTipoRadicadoOptions,
+  normalizeCampoName,
+  resolveCampoIdScript,
+} from "../utils/radicacionOptionMappers";
 
 export const C_DE_RELACION_ESTADO_RETRICCION_DTO_DEFAULT =
   C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT;
@@ -272,18 +275,6 @@ const SelectDestinatario: React.FC<SelectUsuariosProps> = (props) => {
       allowDelete={false}
     />
   );
-};
-
-const resolveCampoIdScript = (campo: CampoPlantillaDTO): number | undefined => {
-  const nestedId = campo.TomPParameterTomSelelect?.id_escript;
-  if (typeof nestedId === "number" && Number.isFinite(nestedId)) {
-    return nestedId;
-  }
-  const anyCampo = campo as unknown as { id_escript?: number | null };
-  if (typeof anyCampo.id_escript === "number" && Number.isFinite(anyCampo.id_escript)) {
-    return anyCampo.id_escript;
-  }
-  return undefined;
 };
 
 interface SelectRemitenteTokenProps {
@@ -696,20 +687,8 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
   const [modalVisible, setModalVisible] = useState(false);
   const [usuarioSeleccionado, setUsuarioSeleccionado] =
     useState<Usuario | null>(null);
-  const [selectedTramiteId, setSelectedTramiteId] = useState<string | null>(null);
-  const [hasUserChangedTramite, setHasUserChangedTramite] = useState(false);
 
   const [resetKey, setResetKey] = useState(0);
-  const { data: relacionEstadoRestriccionDestinatario } =
-    useEstructuraRelacionTipoRestriccion(selectedTramiteId, hasUserChangedTramite);
-  const { handleClearRadicacionForm } = useRadicacionFormReset<Usuario>({
-    form,
-    setSelectedTramiteId,
-    setHasUserChangedTramite,
-    setResetKey,
-    setModalVisible,
-    setUsuarioSeleccionado,
-  });
 
   const abrirInformacion = (id: number) => {
     const user = usuarios.find((u) => u.id === id);
@@ -720,8 +699,6 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
   };
 
   const camposPlantillaSafe = camposPlantilla;
-  const normalizeCampoName = (value: string | null | undefined) =>
-    String(value ?? "").trim().toUpperCase();
 
   const campoTramite = useMemo(
     () =>
@@ -731,23 +708,27 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
     [camposPlantillaSafe],
   );
 
-  const tramiteOptions = useMemo(() => {
-    const opciones = campoTramite?.ilist_row_drowlist ?? [];
+  const {
+    selectedTramiteId,
+    setSelectedTramiteId,
+    hasUserChangedTramite,
+    setHasUserChangedTramite,
+    tramiteOptions,
+    flujoOptions,
+    isLoadingFlujosRelacionados,
+    handleTramiteChange,
+  } = useRadicacionTramiteSelection({ form, campoTramite });
 
-    return opciones
-      .map((opcion) => {
-        const anyOption = opcion as unknown as {
-          id_value?: string | number;
-          value_campo?: string;
-          idValue?: string | number;
-          Value?: string;
-        };
-        const value = anyOption.id_value ?? anyOption.idValue ?? "";
-        const label = anyOption.value_campo ?? anyOption.Value ?? "";
-        return { value, label };
-      })
-      .filter((opcion) => opcion.value !== "" || opcion.label !== "");
-  }, [campoTramite]);
+  const { data: relacionEstadoRestriccionDestinatario } =
+    useEstructuraRelacionTipoRestriccion(selectedTramiteId, hasUserChangedTramite);
+  const { handleClearRadicacionForm } = useRadicacionFormReset<Usuario>({
+    form,
+    setSelectedTramiteId,
+    setHasUserChangedTramite,
+    setResetKey,
+    setModalVisible,
+    setUsuarioSeleccionado,
+  });
 
   const campoTipoRadicado = useMemo(
     () =>
@@ -814,24 +795,10 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
     [camposPlantillaSafe],
   );
 
-  const tipoRadicadoOptions = useMemo(() => {
-    const opciones = campoTipoRadicado?.ilist_row_drowlist ?? [];
-    const mapped = opciones.map((opcion) => {
-      const anyOption = opcion as unknown as {
-        id_value?: string | number | null;
-        value_campo?: string | null;
-        idValue?: string | number | null;
-        Value?: string | null;
-      };
-      const value = anyOption.idValue ?? anyOption.id_value ?? "";
-      const label = anyOption.Value ?? anyOption.value_campo ?? "";
-      return { value, label };
-    });
-
-    return [{ value: "", label: "Seleccionar" }, ...mapped].filter(
-      (opcion) => opcion.value !== "" || opcion.label !== "",
-    );
-  }, [campoTipoRadicado]);
+  const tipoRadicadoOptions = useMemo(
+    () => mapTipoRadicadoOptions(campoTipoRadicado?.ilist_row_drowlist),
+    [campoTipoRadicado],
+  );
 
   const tipoRadicadoLabel = campoTipoRadicado?.aleas_campo ?? "Tipo de Radicado";
   const tipoRadicadoTitle = campoTipoRadicado?.title_control ?? "";
@@ -886,23 +853,6 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
       ) : null}
     </span>
   );
-
-  const {
-    data: flujosRelacionados,
-    error: flujosRelacionadosError,
-    isLoading: isLoadingFlujosRelacionados,
-  } = useFlujosRelacionadosTramite(selectedTramiteId, true);
-
-  const flujoOptions = useMemo(
-    () => (selectedTramiteId ? flujosRelacionados : []),
-    [flujosRelacionados, selectedTramiteId],
-  );
-
-  useEffect(() => {
-    if (!selectedTramiteId || flujosRelacionadosError || flujoOptions.length === 0) {
-      form.setFieldValue("flujo", undefined);
-    }
-  }, [flujoOptions.length, flujosRelacionadosError, form, selectedTramiteId]);
 
   const tramiteLabel = campoTramite?.aleas_campo ?? "Trámite";
   const tramiteTitle = campoTramite?.title_control ?? "";
@@ -1131,11 +1081,7 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
                     data-testid="ra_tipo_tramite_select"
                     disabled={campoTramite?.disable_campo === 1}
                     aria-describedby={tramiteTooltipId}
-                    onChange={(value) => {
-                      setHasUserChangedTramite(true);
-                      const normalized = String(value ?? "").trim();
-                      setSelectedTramiteId(normalized.length > 0 ? normalized : null);
-                    }}
+                    onChange={handleTramiteChange}
                   />
                 </Form.Item>
               </Col>
@@ -1287,35 +1233,10 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
         )}
       </Modal>
 
-      {/* ================= FOOTER ================= */}
-      <div className={styles.footer}>
-        {/* IZQUIERDA */}
-        <Button
-          icon={<OpenAIFilled />}
-          className={styles.btnRad}
-        >
-          Documentos IA
-        </Button>
-
-        {/* DERECHA */}
-        <div className={styles.rightGroup}>
-          <Button
-            icon={<DeleteFilled />}
-            className={styles.btnClear}
-            onClick={handleClearRadicacionForm}
-          >
-            Limpiar
-          </Button>
-
-          <Button
-            icon={<FileFilled />}
-            className={styles.btnRad}
-            onClick={() => form.submit()}
-          >
-            Radicar
-          </Button>
-        </div>
-      </div>
+      <RadicacionFormFooter
+        onClear={handleClearRadicacionForm}
+        onSubmit={() => form.submit()}
+      />
     </div>
   );
 };
