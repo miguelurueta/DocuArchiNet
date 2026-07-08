@@ -1,5 +1,3 @@
-## ADDED Requirements
-
 ### Requirement: Reusable AppHorizontalScroller primitive
 
 The system SHALL provide an `AppHorizontalScroller` UI component for rendering arbitrary children in a horizontally scrollable responsive rail without coupling to domain logic or data loading.
@@ -152,5 +150,5 @@ The system SHALL document `AppHorizontalScroller` as a reusable UI primitive.
 #### Scenario: Documentation created
 
 - **WHEN** the change is complete
-- **THEN** documentation exists at `docs/Architecture/AppHorizontalScroller/SCRUMCORE-297-AppHorizontalScroller.md`
+- **THEN** documentation exists at `docs/Architecture/AppHorizontalScroller/SCRUMCORE-297-AppHorizontalScroller/00-indice.md`
 - **AND** it covers objective, scope, non-goals, API, accessibility, responsive behavior, CSS rules, technical decisions, risks, tests and future SCRUM-162 usage boundaries
