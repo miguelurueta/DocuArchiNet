@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 import RadicacionForm from "./RadicacionForm";
 import { useCamposPlantilla } from "../hooks/useCamposPlantilla";
 import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
@@ -962,6 +962,106 @@ describe("RadicacionForm", () => {
       fireEvent.click(limpiarButton);
       fireEvent.click(limpiarButton);
     }).not.toThrow();
+  });
+
+  it("[SPEC:TD-FE-05] Limpiar reinicia tramite y restricciones dependientes", () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "Descripcion_Documento",
+          aleas_campo: "TrÃ¡mite",
+          ilist_row_drowlist: [{ idValue: 23, Value: "CITACION" }],
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "RE_flujo_trabajo",
+          aleas_campo: "Flujo TrÃ¡mite",
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    renderRadicacionForm();
+
+    const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
+    fireEvent.mouseDown(tramiteSelect);
+    fireEvent.click(screen.getByText("CITACION"));
+
+    expect(mockedUseEstructuraRelacionTipoRestriccion).toHaveBeenLastCalledWith(
+      "23",
+      true,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /limpiar/i }));
+
+    expect(mockedUseEstructuraRelacionTipoRestriccion).toHaveBeenLastCalledWith(
+      null,
+      false,
+    );
+  });
+
+  it("[SPEC:TD-FE-05] Limpiar reinicia TipoRadicado", async () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "TipoRadicado",
+          aleas_campo: "Tipo Radicado",
+          ilist_row_drowlist: [{ idValue: "1", Value: "Entrada" }],
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    renderRadicacionForm();
+
+    const tipoRadicadoSelect = screen.getByTestId("ra_tipo_radicado_select");
+    fireEvent.mouseDown(tipoRadicadoSelect);
+    fireEvent.click(screen.getByText("Entrada"));
+    expect(tipoRadicadoSelect.textContent).toContain("Entrada");
+
+    fireEvent.click(screen.getByRole("button", { name: /limpiar/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("ra_tipo_radicado_select").textContent,
+      ).not.toContain("Entrada");
+    });
+  });
+
+  it("[SPEC:TD-FE-05] Documentos IA no reutiliza el reset del boton Limpiar", () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "Descripcion_Documento",
+          aleas_campo: "TrÃ¡mite",
+          ilist_row_drowlist: [{ idValue: 23, Value: "CITACION" }],
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    renderRadicacionForm();
+
+    const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
+    fireEvent.mouseDown(tramiteSelect);
+    fireEvent.click(screen.getByText("CITACION"));
+
+    expect(mockedUseEstructuraRelacionTipoRestriccion).toHaveBeenLastCalledWith(
+      "23",
+      true,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /documentos ia/i }));
+
+    expect(mockedUseEstructuraRelacionTipoRestriccion).toHaveBeenLastCalledWith(
+      "23",
+      true,
+    );
   });
 
   it("[SPEC:RMT-003] usa metadata de REMITENTE_COR y consulta autocompletado de tercero", async () => {

@@ -1,10 +1,99 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { RADICACION_ROUTES } from "../routes/radicacionRoutes";
-import { enviarRadicacionPendiente } from "../services/radicacionPendientes.service";
+import {
+  buildRadicacionEnviarPendienteEndpoint,
+  enviarRadicacionPendiente,
+} from "../services/radicacionPendientes.service";
 import { useRadicacionDocumentalContext } from "./useRadicacionDocumentalContext";
 import { RADICACION_ESTADO_ACTIVO_QUERY_KEY } from "./useRadicacionEstadoActivo";
 import { RADICACION_PENDIENTES_CONTADOR_QUERY_KEY } from "./useRadicacionPendientesContador";
+
+type BackendErrorPayload = {
+  message?: string;
+  Message?: string;
+  code?: string;
+  Code?: string;
+  requestId?: string;
+  RequestId?: string;
+  correlationId?: string;
+  CorrelationId?: string;
+  errors?: Array<{
+    message?: string;
+    Message?: string;
+    code?: string;
+    Code?: string;
+    requestId?: string;
+    RequestId?: string;
+  }>;
+  Errors?: Array<{
+    message?: string;
+    Message?: string;
+    code?: string;
+    Code?: string;
+    requestId?: string;
+    RequestId?: string;
+  }>;
+};
+
+const getAxiosErrorDetails = (error: unknown) => {
+  if (
+    typeof error !== "object" ||
+    error === null ||
+    !("response" in error) ||
+    typeof error.response !== "object" ||
+    error.response === null
+  ) {
+    return null;
+  }
+
+  const response = error.response as {
+    status?: number;
+    statusText?: string;
+    data?: BackendErrorPayload;
+    headers?: Record<string, unknown>;
+  };
+  const config =
+    "config" in error && typeof error.config === "object" && error.config !== null
+      ? (error.config as { url?: string; method?: string; baseURL?: string })
+      : null;
+  const data = response.data;
+  const firstError = data?.errors?.[0] ?? data?.Errors?.[0];
+
+  return {
+    status: response.status,
+    statusText: response.statusText,
+    method: config?.method,
+    baseURL: config?.baseURL,
+    url: config?.url,
+    code:
+      data?.code ??
+      data?.Code ??
+      firstError?.code ??
+      firstError?.Code ??
+      ("code" in error ? String(error.code ?? "") : undefined),
+    requestId:
+      data?.requestId ??
+      data?.RequestId ??
+      data?.correlationId ??
+      data?.CorrelationId ??
+      firstError?.requestId ??
+      firstError?.RequestId,
+    responseData: data,
+    responseHeaders: response.headers,
+  };
+};
+
+const logEnviarPendiente = (
+  phase: "confirm" | "request" | "success" | "error" | "blocked",
+  details: Record<string, unknown>,
+) => {
+  const logFn = phase === "error" || phase === "blocked" ? console.warn : console.info;
+  logFn(`[Radicacion][EnviarPendiente][${phase}]`, {
+    timestamp: new Date().toISOString(),
+    ...details,
+  });
+};
 
 const buildBackendMessage = (error: unknown): string | null => {
   if (
@@ -15,17 +104,14 @@ const buildBackendMessage = (error: unknown): string | null => {
     error.response !== null &&
     "data" in error.response
   ) {
-    const data = error.response.data as {
-      message?: string;
-      Message?: string;
-      errors?: Array<{ message?: string }>;
-      Errors?: Array<{ message?: string }>;
-    };
+    const data = error.response.data as BackendErrorPayload;
     return (
       data.message ??
       data.Message ??
-      data.errors?.find((item) => item.message)?.message ??
-      data.Errors?.find((item) => item.message)?.message ??
+      data.errors?.find((item) => item.message ?? item.Message)?.message ??
+      data.errors?.find((item) => item.message ?? item.Message)?.Message ??
+      data.Errors?.find((item) => item.message ?? item.Message)?.message ??
+      data.Errors?.find((item) => item.message ?? item.Message)?.Message ??
       null
     );
   }
@@ -62,12 +148,32 @@ export function useEnviarRadicadoPendiente({
   const mutation = useMutation({
     mutationFn: () => {
       if (!puedeEnviarAPendiente || !idEstadoRadicado) {
+        logEnviarPendiente("blocked", {
+          reason: "invalid-active-documental-context",
+          idEstadoRadicado,
+          estadoActual,
+          requiereGestionDocumental,
+          tieneTramiteDocumentalActivoEstado0,
+        });
         throw new Error("No existe un tramite documental activo para enviar a pendiente.");
       }
+
+      logEnviarPendiente("request", {
+        idEstadoRadicado,
+        endpoint: buildRadicacionEnviarPendienteEndpoint(idEstadoRadicado),
+        estadoActual,
+        requiereGestionDocumental,
+        tieneTramiteDocumentalActivoEstado0,
+      });
 
       return enviarRadicacionPendiente(idEstadoRadicado);
     },
     onSuccess: async (response) => {
+      logEnviarPendiente("success", {
+        idEstadoRadicado,
+        response,
+      });
+
       if (
         !response ||
         response.estadoActual !== 1 ||
@@ -93,6 +199,16 @@ export function useEnviarRadicadoPendiente({
     },
     onError: (error) => {
       const backendMessage = buildBackendMessage(error);
+      logEnviarPendiente("error", {
+        idEstadoRadicado,
+        endpoint:
+          typeof idEstadoRadicado === "number"
+            ? buildRadicacionEnviarPendienteEndpoint(idEstadoRadicado)
+            : undefined,
+        backendMessage,
+        axios: getAxiosErrorDetails(error),
+        rawError: error,
+      });
       onError?.(
         backendMessage ??
           (error instanceof Error
@@ -108,10 +224,24 @@ export function useEnviarRadicadoPendiente({
     }
 
     if (!puedeEnviarAPendiente) {
+      logEnviarPendiente("blocked", {
+        reason: "confirm-click-without-permission",
+        idEstadoRadicado,
+        estadoActual,
+        requiereGestionDocumental,
+        tieneTramiteDocumentalActivoEstado0,
+      });
       onError?.("No existe un tramite documental activo para enviar a pendiente.");
       return;
     }
 
+    logEnviarPendiente("confirm", {
+      idEstadoRadicado,
+      estadoActual,
+      requiereGestionDocumental,
+      tieneTramiteDocumentalActivoEstado0,
+      endpoint: buildRadicacionEnviarPendienteEndpoint(idEstadoRadicado),
+    });
     mutation.mutate();
   };
 

@@ -16,6 +16,7 @@ Este documento no reemplaza los prompts arquitectonicos. Resume el estado implem
 | TD-FE-04 | SCRUMCORE-293 | `PROMPT-TD-FE-04-Rutas-Tabs-Limpieza-UI-Prototipo.md` | Ejecutado y mergeado | Rutas/helpers centralizados, tabs semanticas y limpieza de UI mock. |
 | FE-05 | SCRUMCORE-298 | `PROMPT-FE-05-Modal-Pendientes-AppTable-Asignacion-Radicado.md` | Ejecutado | Modal de pendientes usa `AppTable`, toma pendiente, actualiza contexto y navega a Documentos. |
 | FE-07 | SCRUMCORE-299 | `PROMPT-FE-07-Enviar-Tramite-Activo-A-Pendiente.md` | Ejecutado | Devuelve tramite activo a pendiente con confirmacion, limpia contexto solo tras exito y refresca pendientes. |
+| TD-FE-05 | SCRUMCORE-300 | `PROMPT-TD-FE-05-Limpiar-Formulario-Radicacion-Entrante.md` | Ejecutado | Centraliza la semantica de limpiar captura sin tocar contexto documental, rutas ni backend. |
 
 ## TD-FE-01 - Fuente Unica De Plantilla
 
@@ -122,6 +123,48 @@ RadicacionTabs
 - No ejecutar esta mutacion desde componentes de formulario.
 - No navegar ni desactivar Documentos si backend no confirma `estadoActual = 1`.
 - No crear modelos o stores paralelos para pendientes.
+
+## TD-FE-05 - Limpiar Formulario De Radicacion Entrante
+
+### Alcance Implementado
+
+- `SCRUMCORE-300` queda asociado a `PROMPT-TD-FE-05-Limpiar-Formulario-Radicacion-Entrante.md`.
+- El reset de captura queda centralizado en `useRadicacionFormReset`.
+- `RadicacionForm` consume `handleClearRadicacionForm` para el boton `Limpiar`.
+- El reset restaura `selectedTramiteId`, `hasUserChangedTramite`, `resetKey`, `modalVisible`, `usuarioSeleccionado` y remonta autocompletes/hijos con estado interno.
+- `Documentos IA` ya no reutiliza el reset de captura.
+
+### Resultado Arquitectonico
+
+```text
+RadicacionForm
+  -> useRadicacionFormReset()
+  -> handleClearRadicacionForm()
+  -> form.resetFields()
+  -> reset estado local y componentes hijos
+```
+
+### Restricciones Vigentes
+
+- No limpiar `RadicacionDocumentalContext`.
+- No cambiar `estadoActual`, `idEstadoRadicado` ni `idTareaWorkflow`.
+- No navegar.
+- No llamar backend.
+- No invalidar consultas de pendientes.
+- No confundir limpiar formulario con enviar a pendiente o abandonar tramite.
+
+### Validaciones Ejecutadas
+
+```bash
+npm test -- --run src/modules/radicacion/hooks/useRadicacionFormReset.spec.test.tsx src/modules/radicacion/components/RadicacionForm.spec.test.tsx
+```
+
+Resultado documentado:
+
+```text
+2 test files passed
+33 tests passed
+```
 
 ## TD-FE-04 - Rutas, Tabs Y Limpieza De Prototipo
 

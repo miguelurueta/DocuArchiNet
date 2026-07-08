@@ -32,6 +32,7 @@ import {
 import styles from "../style/FormRadicacion.module.css";
 import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
 import { useFlujosRelacionadosTramite } from "../hooks/useFlujosRelacionadosTramite";
+import { useRadicacionFormReset } from "../hooks/useRadicacionFormReset";
 import {
   useEstructuraRelacionTipoRestriccion,
 } from "../hooks/useEstructuraRelacionTipoRestriccion";
@@ -701,6 +702,14 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
   const [resetKey, setResetKey] = useState(0);
   const { data: relacionEstadoRestriccionDestinatario } =
     useEstructuraRelacionTipoRestriccion(selectedTramiteId, hasUserChangedTramite);
+  const { handleClearRadicacionForm } = useRadicacionFormReset<Usuario>({
+    form,
+    setSelectedTramiteId,
+    setHasUserChangedTramite,
+    setResetKey,
+    setModalVisible,
+    setUsuarioSeleccionado,
+  });
 
   const abrirInformacion = (id: number) => {
     const user = usuarios.find((u) => u.id === id);
@@ -1061,7 +1070,9 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
             <Row gutter={16}>
               <Col xs={24} md={8}>
                 <Form.Item
+                  key={`tipo-radicado-${resetKey}`}
                   label={tipoRadicadoLabelNode}
+                  name="tipoRadicado"
                   data-ident="pl-radicacion-spe-TipoRadicado"
                   rules={[{ required: true, message: "Seleccione una opción" }]}
                 >
@@ -1077,7 +1088,10 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
 
               <Col xs={24} md={8}>
                 {campoAnexos ? (
-                  <CampoPlantillaAutoCompleteField campo={campoAnexos} />
+                  <CampoPlantillaAutoCompleteField
+                    key={`anexos-${resetKey}`}
+                    campo={campoAnexos}
+                  />
                 ) : (
                   <Form.Item label="Anexos Radicado" name="anexos">
                     <Input
@@ -1156,7 +1170,10 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
             </Row>
 
             {campoAsunto ? (
-              <CampoPlantillaAutoCompleteField campo={campoAsunto} />
+              <CampoPlantillaAutoCompleteField
+                key={`asunto-${resetKey}`}
+                campo={campoAsunto}
+              />
             ) : (
               <Form.Item
                 label="Asunto"
@@ -1183,6 +1200,7 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
           >
             {campoRemitenteCor ? (
               <SelectRemitenteToken
+                key={`remitente-token-${resetKey}`}
                 campo={campoRemitenteCor}
                 onOpenInfo={({ id, nombre }) => {
                   setUsuarioSeleccionado({ id, nombre });
@@ -1215,6 +1233,7 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
           >
             {campoDestinatarioCor ? (
               <SelectDestinatarioToken
+                key={`destinatario-token-${resetKey}`}
                 campo={campoDestinatarioCor}
                 selectDisabledByRestriction={destinatarioDisabledByRestriccion}
                 relacionEstadoRestriccionDestinatario={relacionEstadoRestriccionDestinatario}
@@ -1246,6 +1265,7 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
 
           {camposEspecializados.length > 0 ? (
             <CamposPlantillaAutoCompleteRenderer
+              key={`campos-especializados-${resetKey}`}
               camposPlantilla={camposEspecializados}
             />
           ) : null}
@@ -1273,10 +1293,6 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
         <Button
           icon={<OpenAIFilled />}
           className={styles.btnRad}
-          onClick={() => {
-            form.resetFields();
-            setResetKey(prev => prev + 1);
-          }}
         >
           Documentos IA
         </Button>
@@ -1286,10 +1302,7 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
           <Button
             icon={<DeleteFilled />}
             className={styles.btnClear}
-            onClick={() => {
-              form.resetFields();
-              setResetKey(prev => prev + 1);
-            }}
+            onClick={handleClearRadicacionForm}
           >
             Limpiar
           </Button>
