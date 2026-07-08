@@ -34,6 +34,10 @@ const toCssDimension = (value: number | string | undefined): string | undefined 
   }
 
   const normalized = value?.trim();
+  if (!normalized || normalized.startsWith("-")) {
+    return undefined;
+  }
+
   return normalized ? normalized : undefined;
 };
 

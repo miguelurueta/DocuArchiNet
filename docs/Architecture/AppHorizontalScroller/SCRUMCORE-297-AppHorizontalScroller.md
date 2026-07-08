@@ -174,6 +174,7 @@ export function ExampleRail() {
 - Render y accesibilidad: `children`, `role`, `aria-label`, `testId`.
 - Variantes: densidades y gaps.
 - Dimensiones: numeros a px, strings no vacios y valores invalidos ignorados.
+- Dimensiones invalidas: strings vacios, strings negativos, cero, negativos numericos, `NaN` e infinitos ignorados.
 - Composicion: no mutar ni clonar hijos.
 - Scroll snap: `none`, `start`, `center`.
 - Edge fade: clase visual y regla no bloqueante en CSS.
@@ -182,11 +183,11 @@ export function ExampleRail() {
 
 ## Evidencia De Validacion
 
-- Tests focalizados: `npm.cmd run test -- src/app/Components/UI/AppHorizontalScroller/AppHorizontalScroller.test.tsx`.
+- Tests focalizados: `npm.cmd run test -- src/app/Components/UI/AppHorizontalScroller/AppHorizontalScroller.test.tsx` (`14 passed`).
 - Lint focalizado: `node_modules\.bin\eslint.cmd src/app/Components/UI/AppHorizontalScroller/AppHorizontalScroller.tsx src/app/Components/UI/AppHorizontalScroller/AppHorizontalScroller.test.tsx`.
 - Auditoria de acoplamiento: busqueda sin resultados para `axios`, `fetch(`, servicios, hooks de dominio, `AppTable`, `AppTreeTable` y `GestionCorrespondencia` dentro de `src/app/Components/UI/AppHorizontalScroller`.
 - CSS auditado: `scroll-snap-type: x proximity` y `pointer-events: none` para edge fade.
-- Validacion responsive minima: el contrato visual se verifico contra CSS del componente (`max-width: 100%`, `min-width: 0`, `overflow-x: auto`, `-webkit-overflow-scrolling: touch`, fila flex sin wrap y anchos por custom properties). No se genero screenshot porque este ticket no integra un consumidor de pantalla.
+- Validacion responsive minima: el contrato visual se verifico contra CSS del componente (`max-width: 100%`, `min-width: 0`, `overflow-x: auto`, `overflow-y: hidden`, `-webkit-overflow-scrolling: touch`, fila flex sin wrap, `width: max-content` y anchos por custom properties). No se genero screenshot porque este ticket no integra un consumidor de pantalla.
 
 ## Build
 

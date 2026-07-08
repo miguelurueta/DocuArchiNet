@@ -181,6 +181,18 @@ describe("AppHorizontalScroller [SPEC:app-horizontal-scroller]", () => {
     );
     expect(content().style.getPropertyValue("--app-horizontal-scroller-item-min-width")).toBe("");
     expect(content().style.getPropertyValue("--app-horizontal-scroller-item-max-width")).toBe("");
+
+    rerender(
+      <AppHorizontalScroller
+        ariaLabel="Listado horizontal"
+        itemMinWidth="-1px"
+        itemMaxWidth="-10rem"
+      >
+        <span>Contenido</span>
+      </AppHorizontalScroller>,
+    );
+    expect(content().style.getPropertyValue("--app-horizontal-scroller-item-min-width")).toBe("");
+    expect(content().style.getPropertyValue("--app-horizontal-scroller-item-max-width")).toBe("");
   });
 
   it("no muta ni clona los hijos para inyectar props", () => {
@@ -256,5 +268,20 @@ describe("AppHorizontalScroller [SPEC:app-horizontal-scroller]", () => {
     expect(screen.getByRole("region", { name: "Listado horizontal" })).not.toHaveAttribute(
       "tabindex",
     );
+  });
+
+  it("mantiene clases base necesarias para responsive y scroll contenido", () => {
+    const { container } = render(
+      <AppHorizontalScroller ariaLabel="Listado horizontal">
+        <span>Elemento 1</span>
+        <span>Elemento 2</span>
+      </AppHorizontalScroller>,
+    );
+
+    expect(container.firstElementChild).toHaveClass(styles.root);
+    expect(screen.getByRole("region", { name: "Listado horizontal" })).toHaveClass(
+      styles.viewport,
+    );
+    expect(container.querySelector(`.${styles.content}`)).toHaveClass(styles.content);
   });
 });
