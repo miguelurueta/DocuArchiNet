@@ -7,12 +7,14 @@ type RadicacionFormFooterProps = {
   onDocumentosIa?: () => void;
   onClear: () => void;
   onSubmit: () => void;
+  submitLoading?: boolean;
 };
 
 const RadicacionFormFooter: React.FC<RadicacionFormFooterProps> = ({
   onDocumentosIa,
   onClear,
   onSubmit,
+  submitLoading = false,
 }) => (
   <div className={styles.footer}>
     <Button icon={<OpenAIFilled />} className={styles.btnRad} onClick={onDocumentosIa}>
@@ -24,7 +26,12 @@ const RadicacionFormFooter: React.FC<RadicacionFormFooterProps> = ({
         Limpiar
       </Button>
 
-      <Button icon={<FileFilled />} className={styles.btnRad} onClick={onSubmit}>
+      <Button
+        icon={<FileFilled />}
+        className={styles.btnRad}
+        loading={submitLoading}
+        onClick={onSubmit}
+      >
         Radicar
       </Button>
     </div>

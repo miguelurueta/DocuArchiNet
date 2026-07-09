@@ -16,6 +16,7 @@ Este documento no reemplaza los prompts arquitectonicos. Resume el estado implem
 | TD-FE-04 | SCRUMCORE-293 | `PROMPT-TD-FE-04-Rutas-Tabs-Limpieza-UI-Prototipo.md` | Ejecutado y mergeado | Rutas/helpers centralizados, tabs semanticas y limpieza de UI mock. |
 | FE-05 | SCRUMCORE-298 | `PROMPT-FE-05-Modal-Pendientes-AppTable-Asignacion-Radicado.md` | Ejecutado | Modal de pendientes usa `AppTable`, toma pendiente, actualiza contexto y navega a Documentos. |
 | FE-07 | SCRUMCORE-299 | `PROMPT-FE-07-Enviar-Tramite-Activo-A-Pendiente.md` | Ejecutado | Devuelve tramite activo a pendiente con confirmacion, limpia contexto solo tras exito y refresca pendientes. |
+| FE-01 | SCRUMCORE-303 | `PROMPT-FE-01-Conectar-Registro-Radicacion-Entrante.md` | Ejecutado | Conecta Radicar con `POST /api/radicacion/registrar-entrante`, adapter, service, hook y estado post-registro. |
 | TD-FE-05 | SCRUMCORE-300 | `PROMPT-TD-FE-05-Limpiar-Formulario-Radicacion-Entrante.md` | Ejecutado | Centraliza la semantica de limpiar captura sin tocar contexto documental, rutas ni backend. |
 | TD-FE-03 | SCRUMCORE-302 | `PROMPT-TD-FE-03-Refactor-RadicacionForm-Secciones-Hooks.md` | Ejecutado incremental | Extrae footer, hook de tramite/flujo y mappers centralizados sin cambiar comportamiento funcional. |
 
@@ -231,6 +232,80 @@ Resultado:
 - No modificar rutas.
 - No llamar backend desde secciones presentacionales.
 - No cambiar el comportamiento visual salvo ajustes necesarios por extraccion.
+
+## FE-01 - Conectar Registro De Radicacion Entrante
+
+### Alcance Implementado
+
+- `SCRUMCORE-303` queda asociado a `PROMPT-FE-01-Conectar-Registro-Radicacion-Entrante.md`.
+- Se crea contrato frontend para request, response, envelope `AppResponses` y estado post-registro.
+- Se crea `radicacionRegistro.service.ts` para consumir `POST /api/radicacion/registrar-entrante`.
+- Se crea `radicacionRegistroRequest.mapper.ts` para construir `RegistrarRadicacionEntranteRequestDto` desde Ant Design Form y metadata de plantilla.
+- Se crea `useRegistrarRadicacion` para manejar `submitting`, `success`, `error`, errores funcionales y estado post-registro.
+- `RadicacionForm` conecta `Form.onFinish` al mapper y al hook de registro.
+- `CamposPlantillaAutoCompleteRenderer` registra campos dinamicos con `name` para que entren al DTO.
+- `RadicacionFormFooter` expone loading de submit para el boton `Radicar`.
+- `RadicacionForm` mantiene `Número Folios` como campo fijo requerido en `Medio de Recepción del Trámite`; si la plantilla lo trae con valor, se precarga y bloquea; si no lo trae, se diligencia manualmente.
+- `radicacionRegistroRequest.mapper.ts` deriva `Tipo_radicado_plantilla` desde `tipoRadicado` cuando backend lo exige dentro de `Campos`.
+- `radicacionRegistroRequest.mapper.ts` usa la opcion seleccionada de `TipoRadicado` para llenar tanto `TipoRadicado` como `TipoPlantillaRadicado`; ambos IDs salen de `selected.idValue`.
+- El payload frontend no incluye `ModuloRegistro`; backend lo resuelve internamente por `tipoModuloRadicacion=1`.
+- `Número Folios` no debe duplicarse en `Datos Especializados` cuando se renderiza como campo fijo.
+- Las reglas de validacion de campos dinamicos se centralizan en `utils/radicacionCampoValidation.ts` para traducir metadata backend (`obligatorio_campo`, `max_leng_campo`, `tipo_campo`, `disable_campo`) a reglas Ant Design.
+
+### Resultado Arquitectonico
+
+```text
+RadicacionForm
+  -> Form.onFinish
+  -> buildRegistrarRadicacionEntranteRequest()
+  -> useRegistrarRadicacion()
+  -> registrarRadicacionEntrante()
+  -> Backend moderno
+  -> RadicacionPostRegistroState
+```
+
+### Validaciones Ejecutadas
+
+```bash
+npm test -- --run --testTimeout 10000 src/modules/radicacion/adapters/radicacionRegistroRequest.mapper.test.ts src/modules/radicacion/services/radicacionRegistro.service.test.ts src/modules/radicacion/hooks/useRegistrarRadicacion.spec.test.tsx src/modules/radicacion/components/RadicacionForm.spec.test.tsx src/modules/radicacion/components/CamposPlantillaAutoCompleteRenderer.spec.test.tsx
+```
+
+Resultado:
+
+```text
+5 test files passed
+55 tests passed
+```
+
+### Riesgos Residuales
+
+- La navegacion contextual post-registro y el workbench documental quedan fuera de alcance para fases posteriores.
+- `/api/PlantillaRadicado/listaPlantilla` entrega lista de campos; `mapCamposPlantillaToPlantillaRadicado` puede construir `IdPlantillaRadicado = 0` si la respuesta no trae metadata completa de plantilla, pero ese valor no debe alimentar `TipoPlantillaRadicado.IdTipoPlantillaRdicado` en el registro.
+- `TipoPlantillaRadicado.IdTipoPlantillaRdicado = 0` indica que `TipoRadicado` no resolvio una opcion seleccionada con `idValue > 0` o que el mapper dejo de usar la opcion seleccionada.
+- `RAD_TXN_Q07` con `ModuloRegistro invalido para radicacion: RADICACION SIMPLIFICADA` queda del lado backend/Q07 si el request frontend ya usa `tipoModuloRadicacion=1` sin `ModuloRegistro`.
+- Si aparecen errores de longitud en campos diligenciados, validar que el campo use `buildCampoPlantillaRules`; los selects y campos numericos no deben aplicar longitud textual.
+- `npx tsc -b` sigue fallando por deuda externa en `GestionRespuestaUploadDocumental.tsx`.
+- `RadicacionForm.tsx` conserva deuda previa de lint por `any` y `set-state-in-effect`.
+- `CamposPlantillaAutoCompleteRenderer.tsx` conserva deuda previa de lint por `set-state-in-effect`.
+
+### Restricciones Vigentes Adicionales
+
+- No eliminar el campo fijo `numeroFolios` aunque la plantilla no lo traiga; backend puede exigirlo.
+- No volver a renderizar `Numero_Folios` en `Datos Especializados` si ya existe el campo fijo.
+- No crear otro desplegable visible para `Tipo_radicado_plantilla`; debe derivarse de `tipoRadicado`.
+- No usar `plantilla.IdPlantillaRadicado` para `TipoPlantillaRadicado.IdTipoPlantillaRdicado`; debe salir del `idValue` seleccionado en `TipoRadicado`.
+- Mantener `tipoModuloRadicacion=1` para este flujo.
+- No enviar `ModuloRegistro` ni `moduloRegistro` por query ni en payload frontend.
+- Si Q07 rechaza `RADICACION SIMPLIFICADA`, backend debe normalizar ese alias antes o dentro de `RegistroLogRespuestalBuilder.Build`.
+- No duplicar reglas de validacion por campo en JSX; extender `radicacionCampoValidation.ts` cuando backend agregue nuevas restricciones.
+- No aplicar `max_leng_campo` al label visible de selects ni como longitud textual para campos numericos.
+
+### Restricciones Vigentes
+
+- No consumir ASMX legacy.
+- No calcular consecutivo en frontend.
+- No llamar `clienteApi` desde componentes.
+- No activar Documentos sin senial explicita del backend.
 
 ## TD-FE-04 - Rutas, Tabs Y Limpieza De Prototipo
 

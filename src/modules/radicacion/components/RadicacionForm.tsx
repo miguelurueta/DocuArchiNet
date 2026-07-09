@@ -12,8 +12,10 @@ import {
   Col,
   DatePicker,
   Input,
+  InputNumber,
   Row,
   Tooltip,
+  message,
 } from "antd";
 
 import {
@@ -49,9 +51,41 @@ import {
   normalizeCampoName,
   resolveCampoIdScript,
 } from "../utils/radicacionOptionMappers";
+import { buildRegistrarRadicacionEntranteRequest } from "../adapters/radicacionRegistroRequest.mapper";
+import { useRegistrarRadicacion } from "../hooks/useRegistrarRadicacion";
+import type { RadicacionRegistroFormValues } from "../types/radicacionRegistro.types";
 
 export const C_DE_RELACION_ESTADO_RETRICCION_DTO_DEFAULT =
   C_DE_RELACION_ESTADO_RETRICCION_DESTINATARIO_DEFAULT;
+
+const normalizeComparableCampoName = (value: string | null | undefined): string =>
+  String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toUpperCase();
+
+const isNumeroFoliosCampo = (campo: CampoPlantillaDTO): boolean => {
+  const normalizedName = normalizeComparableCampoName(campo.name_campo);
+  const normalizedAlias = normalizeComparableCampoName(campo.aleas_campo);
+  return (
+    normalizedName.includes("NUMEROFOLIO") ||
+    normalizedName.includes("NUMFOLIO") ||
+    normalizedAlias.includes("NUMEROFOLIO") ||
+    normalizedAlias.includes("NUMFOLIO")
+  );
+};
+
+const toPositiveNumberOrUndefined = (value: unknown): number | undefined => {
+  if (typeof value === "number" && Number.isFinite(value) && value > 0) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim().length > 0) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+  }
+  return undefined;
+};
 
 /* =========================================================
    MODELOS
@@ -286,6 +320,7 @@ const SelectRemitenteToken: React.FC<SelectRemitenteTokenProps> = ({
   campo,
   onOpenInfo,
 }) => {
+  const form = Form.useFormInstance();
   const [value, setValue] = useState<Array<{ value: string; label: React.ReactNode }>>([]);
   const [openSelect, setOpenSelect] = useState(false);
   const [tagMenuOpen, setTagMenuOpen] = useState(false);
@@ -320,6 +355,7 @@ const SelectRemitenteToken: React.FC<SelectRemitenteTokenProps> = ({
   const handleChange = (values: Array<{ value: string; label: React.ReactNode }>) => {
     const ultimo = values.slice(-1);
     setValue(ultimo);
+    form.setFieldValue("remitente", ultimo);
     setOpenSelect(false);
     setSearchText("");
   };
@@ -457,6 +493,7 @@ const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
   relacionEstadoRestriccionDestinatario,
   selectedTramiteId,
 }) => {
+  const form = Form.useFormInstance();
   const [value, setValue] = useState<Array<{ value: string; label: React.ReactNode }>>([]);
   const [openSelect, setOpenSelect] = useState(false);
   const [tagMenuOpen, setTagMenuOpen] = useState(false);
@@ -497,10 +534,11 @@ const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
 
   useEffect(() => {
     setValue([]);
+    form.setFieldValue("destinatario", undefined);
     setSearchText("");
     setClickAutocompleteActive(false);
     setOpenSelect(false);
-  }, [selectedTramiteId]);
+  }, [form, selectedTramiteId]);
 
   const options = data.map((item, index) => ({
     value: item.idValue ?? `${item.texValue}-${index}`,
@@ -518,6 +556,7 @@ const SelectDestinatarioToken: React.FC<SelectDestinatarioTokenProps> = ({
   const handleChange = (values: Array<{ value: string; label: React.ReactNode }>) => {
     const ultimo = values.slice(-1);
     setValue(ultimo);
+    form.setFieldValue("destinatario", ultimo);
     setOpenSelect(false);
     setClickAutocompleteActive(false);
     setSearchText("");
@@ -672,7 +711,6 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
   camposPlantilla,
 }) => {
   const [form] = Form.useForm();
-  void plantilla;
 
   const isLoadingCamposPlantilla = false;
 
@@ -729,6 +767,34 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
     setModalVisible,
     setUsuarioSeleccionado,
   });
+  const { registrar, isSubmitting, postRegistro } = useRegistrarRadicacion({
+    onSuccess: (state) => {
+      message.success(
+        state.consecutivoRadicado
+          ? `Radicado ${state.consecutivoRadicado} registrado.`
+          : "Radicacion registrada correctamente.",
+      );
+    },
+    onError: (errorMessage) => {
+      message.error(errorMessage);
+    },
+  });
+
+  const handleRadicar = async (values: RadicacionRegistroFormValues) => {
+    const request = buildRegistrarRadicacionEntranteRequest({
+      values,
+      camposPlantilla: camposPlantillaSafe,
+      plantilla,
+      flujoOptions,
+    });
+    console.info("[Radicacion][Registrar][request]", request);
+    console.info("[Radicacion][Registrar][request-json]", JSON.stringify(request));
+    try {
+      await registrar(request);
+    } catch {
+      // El hook centraliza el mensaje de error y el log tecnico del backend.
+    }
+  };
 
   const campoTipoRadicado = useMemo(
     () =>
@@ -739,6 +805,10 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
   const campoAnexos = useMemo(
     () =>
       camposPlantillaSafe.find((campo) => campo.name_campo === "ANEXOS_COR"),
+    [camposPlantillaSafe],
+  );
+  const campoNumeroFolios = useMemo(
+    () => camposPlantillaSafe.find(isNumeroFoliosCampo),
     [camposPlantillaSafe],
   );
   const campoAsunto = useMemo(
@@ -772,10 +842,20 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
   const camposEspecializados = useMemo(
     () =>
       camposPlantillaSafe.filter(
-        (campo) =>
-          !["REMITENTE_COR", "DESTINATARIO_COR"].includes(
-            normalizeCampoName(campo.name_campo),
-          ),
+        (campo) => {
+          const normalizedName = normalizeCampoName(campo.name_campo);
+          if (isNumeroFoliosCampo(campo)) return false;
+          return ![
+            "TIPORADICADO",
+            "DESCRIPCION_DOCUMENTO",
+            "RE_FLUJO_TRABAJO",
+            "FECHALIMITERESPUESTA",
+            "ASUNTO",
+            "ANEXOS_COR",
+            "REMITENTE_COR",
+            "DESTINATARIO_COR",
+          ].includes(normalizedName);
+        },
       ),
     [camposPlantillaSafe],
   );
@@ -819,6 +899,38 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
             aria-label={`Mostrar ayuda para ${tipoRadicadoLabel}`}
             aria-describedby={tipoRadicadoTooltipId}
             data-tooltip-id={tipoRadicadoTooltipId}
+          >
+            <InfoCircleOutlined />
+          </span>
+        </Tooltip>
+      ) : null}
+    </span>
+  );
+
+  const numeroFoliosInitialValue = toPositiveNumberOrUndefined(
+    campoNumeroFolios?.value_campo,
+  );
+  const numeroFoliosLocked = numeroFoliosInitialValue !== undefined;
+  const numeroFoliosLabel = campoNumeroFolios?.aleas_campo ?? "Número Folios";
+  const numeroFoliosTitle =
+    campoNumeroFolios?.title ?? campoNumeroFolios?.title_control ?? "";
+  const numeroFoliosTooltip = campoNumeroFolios?.tooltipAyuda ?? "";
+  const numeroFoliosTooltipId = numeroFoliosTooltip
+    ? "pl-radicacion-spe-tooltip-numeroFolios"
+    : undefined;
+
+  const numeroFoliosLabelNode = (
+    <span title={numeroFoliosTitle}>
+      {numeroFoliosLabel}
+      {numeroFoliosTooltip ? (
+        <Tooltip title={numeroFoliosTooltip}>
+          <span
+            className={styles["tooltip-ayuda"]}
+            role="button"
+            tabIndex={0}
+            aria-label={`Mostrar ayuda para ${numeroFoliosLabel}`}
+            aria-describedby={numeroFoliosTooltipId}
+            data-tooltip-id={numeroFoliosTooltipId}
           >
             <InfoCircleOutlined />
           </span>
@@ -951,7 +1063,7 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
     <div className={styles.container}>
       <div className={styles.content}>
 
-        <Form layout="vertical" form={form}>
+        <Form layout="vertical" form={form} onFinish={handleRadicar}>
           {/* ================= OPCIONES ================= */}
           <Card
             className={styles.modernCard}
@@ -1050,6 +1162,30 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
                     />
                   </Form.Item>
                 )}
+              </Col>
+
+              <Col xs={24} md={8}>
+                <Form.Item
+                  key={`numero-folios-${resetKey}`}
+                  label={numeroFoliosLabelNode}
+                  name="numeroFolios"
+                  initialValue={numeroFoliosInitialValue}
+                  data-ident="pl-radicacion-spe-numeroFolios"
+                  rules={[
+                    { required: true, message: "Ingrese número de folios" },
+                  ]}
+                >
+                  <InputNumber
+                    min={1}
+                    precision={0}
+                    style={{ width: "100%" }}
+                    placeholder="Número de folios"
+                    disabled={numeroFoliosLocked}
+                    data-ident="pl-radicacion-spe-numeroFolios"
+                    aria-describedby={numeroFoliosTooltipId}
+                    data-testid="ra_numero_folios_input"
+                  />
+                </Form.Item>
               </Col>
             </Row>
           </Card>
@@ -1216,6 +1352,15 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
             />
           ) : null}
         </Form>
+        {postRegistro ? (
+          <div
+            role="status"
+            data-testid="radicacion-post-registro-status"
+            className={styles.postRegistroStatus}
+          >
+            Radicado registrado: {postRegistro.consecutivoRadicado}
+          </div>
+        ) : null}
       </div>
 
 
@@ -1236,6 +1381,7 @@ const FormRadicacion: React.FC<FormRadicacionProps> = ({
       <RadicacionFormFooter
         onClear={handleClearRadicacionForm}
         onSubmit={() => form.submit()}
+        submitLoading={isSubmitting}
       />
     </div>
   );

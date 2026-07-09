@@ -1,4 +1,6 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { Form } from "antd";
+import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { CamposPlantillaAutoCompleteRenderer } from "./CamposPlantillaAutoCompleteRenderer";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
@@ -10,6 +12,9 @@ vi.mock("../hooks/useAutocompleteCamposPlantilla", () => ({
 }));
 
 const mockedUseAutocomplete = vi.mocked(useAutocompleteCamposPlantilla);
+
+const renderWithForm = (ui: ReactElement) =>
+  render(<Form>{ui}</Form>);
 
 const baseCampo: CampoPlantillaDTO = {
   Tupcae_label: "",
@@ -76,7 +81,7 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
       },
     ];
 
-    const { container } = render(
+    const { container } = renderWithForm(
       <CamposPlantillaAutoCompleteRenderer camposPlantilla={campos} />,
     );
 
@@ -108,7 +113,7 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
       error: new Error("boom") as never,
     });
 
-    render(
+    renderWithForm(
       <CamposPlantillaAutoCompleteRenderer
         camposPlantilla={[
           { ...baseCampo, name_campo: "codigocliente", aleas_campo: "Código Cliente" },
@@ -129,7 +134,7 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
       error: null,
     });
 
-    render(
+    renderWithForm(
       <CamposPlantillaAutoCompleteRenderer
         camposPlantilla={[
           {
@@ -180,7 +185,7 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
 
     const handleChange = vi.fn();
 
-    render(
+    renderWithForm(
       <CamposPlantillaAutoCompleteRenderer
         camposPlantilla={[
           { ...baseCampo, name_campo: "asunto", aleas_campo: "Asunto" },
@@ -213,7 +218,7 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
 
     const handleChange = vi.fn();
 
-    render(
+    renderWithForm(
       <CamposPlantillaAutoCompleteRenderer
         camposPlantilla={[
           {
@@ -255,7 +260,7 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
       error: null,
     });
 
-    const { container } = render(
+    const { container } = renderWithForm(
       <CamposPlantillaAutoCompleteRenderer
         camposPlantilla={[
           { ...baseCampo, name_campo: "placa", aleas_campo: "Campo Placa" },
@@ -268,5 +273,147 @@ describe("CamposPlantillaAutoCompleteRenderer", () => {
     );
     expect(autoCompleteRoot).toBeTruthy();
     expect(autoCompleteRoot).toHaveClass(styles.dynamicAutocomplete);
+  });
+
+  it("[SPEC:FE-01] valida longitud maxima de campos dinamicos antes de enviar", async () => {
+    mockedUseAutocomplete.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    });
+
+    const onFinish = vi.fn();
+
+    render(
+      <Form onFinish={onFinish}>
+        <CamposPlantillaAutoCompleteRenderer
+          camposPlantilla={[
+            {
+              ...baseCampo,
+              name_campo: "Solicitante",
+              aleas_campo: "Solicitante",
+              max_leng_campo: 5,
+            },
+          ]}
+        />
+        <button type="submit">Enviar</button>
+      </Form>,
+    );
+
+    fireEvent.change(screen.getByLabelText("Solicitante"), {
+      target: { value: "Texto largo" },
+    });
+    fireEvent.click(screen.getByText("Enviar"));
+
+    expect(
+      await screen.findByText("Solicitante supera la longitud maxima permitida."),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(onFinish).not.toHaveBeenCalled();
+    });
+  });
+
+  it("[SPEC:FE-01] usa idValue corto al seleccionar opciones autocomplete", async () => {
+    mockedUseAutocomplete.mockReturnValue({
+      data: [{ idValue: "42", texValue: "Solicitante con nombre muy largo" }],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    });
+
+    const handleChange = vi.fn();
+
+    renderWithForm(
+      <CamposPlantillaAutoCompleteRenderer
+        camposPlantilla={[
+          {
+            ...baseCampo,
+            name_campo: "Solicitante",
+            aleas_campo: "Solicitante",
+          },
+        ]}
+        onChange={handleChange}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("Solicitante"), {
+      target: { value: "Sol" },
+    });
+    fireEvent.click(await screen.findByText("Solicitante con nombre muy largo"));
+
+    expect(handleChange).toHaveBeenCalledWith(
+      "42",
+      expect.objectContaining({ name_campo: "Solicitante" }),
+    );
+  });
+
+  it("[SPEC:FE-01] no aplica longitud maxima a campos desplegables", async () => {
+    mockedUseAutocomplete.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    });
+
+    const onFinish = vi.fn();
+
+    render(
+      <Form onFinish={onFinish}>
+        <CamposPlantillaAutoCompleteRenderer
+          camposPlantilla={[
+            {
+              ...baseCampo,
+              name_campo: "MEDIORECEPCION",
+              aleas_campo: "Tipo de Recepcion",
+              ComportamientoCampo: "SELECCION",
+              obligatorio_campo: 1,
+              max_leng_campo: 2,
+              ilist_row_drowlist: [
+                { id_value: "123456", value_campo: "Ventanilla principal" },
+              ],
+            },
+          ]}
+        />
+        <button type="submit">Enviar</button>
+      </Form>,
+    );
+
+    fireEvent.click(screen.getByText("Enviar"));
+
+    await waitFor(() => {
+      expect(onFinish).not.toHaveBeenCalled();
+    });
+    expect(
+      screen.queryByText("Tipo De Recepcion supera la longitud maxima permitida."),
+    ).not.toBeInTheDocument();
+  });
+
+  it("[SPEC:FE-01] renderiza campos simples especializados como Numero Folios", () => {
+    mockedUseAutocomplete.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    });
+
+    renderWithForm(
+      <CamposPlantillaAutoCompleteRenderer
+        camposPlantilla={[
+          {
+            ...baseCampo,
+            name_campo: "Numero_Folios",
+            aleas_campo: "Número Folios",
+            ComportamientoCampo: null,
+            tipo_campo: "NUMERO",
+            obligatorio_campo: 1,
+          },
+        ]}
+      />,
+    );
+
+    const input = screen.getByLabelText("Número Folios");
+    expect(input).toBeInTheDocument();
+    expect(input).toHaveAttribute("type", "number");
   });
 });

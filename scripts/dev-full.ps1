@@ -11,6 +11,11 @@ Write-Host "Starting DocuArchi API on $apiUrl ..."
 $apiJob = Start-Job -Name "DocuArchiApiDev" -ArgumentList $root -ScriptBlock {
   param($workingDirectory)
   Set-Location $workingDirectory
+
+  $env:ASPNETCORE_ENVIRONMENT = "Development"
+  $env:ASPNETCORE_URLS = "http://127.0.0.1:5055"
+  $env:Logging__EventLog__LogLevel__Default = "None"
+
   dotnet .\DocuArchi.Api.dll
 }
 
@@ -34,6 +39,7 @@ try {
   }
 
   if (-not $ready) {
+    Receive-Job $apiJob -Keep
     throw "DocuArchi API did not respond on $healthUrl"
   }
 

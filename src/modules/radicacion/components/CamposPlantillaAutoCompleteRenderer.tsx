@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { AutoComplete, Card, Col, Form, Row, Select, Space, Tooltip } from "antd";
+import { AutoComplete, Card, Col, Form, Input, Row, Select, Space, Tooltip } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import type { FocusEventHandler } from "react";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
@@ -8,6 +8,7 @@ import {
   mapCampoDrowlistOptions,
   resolveCampoIdScript,
 } from "../utils/radicacionOptionMappers";
+import { buildCampoPlantillaRules } from "../utils/radicacionCampoValidation";
 import styles from "../style/FormRadicacion.module.css";
 
 /**
@@ -81,7 +82,7 @@ function getErrorMessage(error: unknown) {
 
 function mapOptions(items: ReadonlyArray<{ idValue: string | null; texValue: string }>) {
   return items.map((item, index) => ({
-    value: item.texValue ?? "",
+    value: item.idValue ?? item.texValue ?? "",
     label: item.texValue ?? `Opción ${index + 1}`,
   }));
 }
@@ -98,6 +99,16 @@ function normalizeDynamicFieldValue(value: unknown) {
 
 function joinClassNames(...values: Array<string | undefined>) {
   return values.filter(Boolean).join(" ");
+}
+
+function getSimpleInputType(campo: CampoPlantillaEx) {
+  const tipo = String(campo.tipo_campo ?? campo.tipo_control ?? "").toLowerCase();
+  if (tipo.includes("fecha") || tipo.includes("date")) return "date";
+  if (tipo.includes("numero") || tipo.includes("number") || tipo.includes("num")) {
+    return "number";
+  }
+  if (campo.control_tip_correo === 1 || tipo.includes("mail")) return "email";
+  return "text";
 }
 
 export function CampoPlantillaAutoCompleteField({
@@ -122,7 +133,10 @@ export function CampoPlantillaAutoCompleteField({
   const [inputValue, setInputValue] = useState(
     normalizeDynamicFieldValue(value ?? defaultValue),
   );
-  const debouncedValue = useDebouncedValue(inputValue, 300);
+  const normalizedControlledValue =
+    value !== undefined ? normalizeDynamicFieldValue(value) : undefined;
+  const resolvedValue = normalizedControlledValue ?? inputValue;
+  const debouncedValue = useDebouncedValue(resolvedValue, 300);
 
   const nameCampo = campo.name_campo;
   const dataIdent = `pl-radicacion-spe-${nameCampo}`;
@@ -149,16 +163,6 @@ export function CampoPlantillaAutoCompleteField({
 
   const options = useMemo(() => mapOptions(data), [data]);
   const errorMessage = getErrorMessage(error);
-  const normalizedControlledValue =
-    value !== undefined ? normalizeDynamicFieldValue(value) : undefined;
-  const resolvedValue = normalizedControlledValue ?? inputValue;
-
-  useEffect(() => {
-    if (normalizedControlledValue !== undefined) {
-      setInputValue(normalizedControlledValue);
-    }
-  }, [normalizedControlledValue]);
-
   const tooltipId = tooltipText
     ? `pl-radicacion-spe-tooltip-${nameCampo}`
     : undefined;
@@ -185,8 +189,10 @@ export function CampoPlantillaAutoCompleteField({
 
   return (
     <Form.Item
+      name={nameCampo}
       label={labelNode}
       required={campo.obligatorio_campo === 1}
+      rules={buildCampoPlantillaRules(campo, { label: labelText, mode: "text" })}
       validateStatus={errorMessage ? "error" : undefined}
       help={errorMessage || undefined}
       data-ident={dataIdent}
@@ -271,8 +277,13 @@ function SelectField({
 
   return (
     <Form.Item
+      name={nameCampo}
       label={labelNode}
       required={campo.obligatorio_campo === 1}
+      rules={buildCampoPlantillaRules(campo, {
+        label: labelText,
+        mode: "selection",
+      })}
       data-ident={dataIdent}
       data-api-method={campo.apiMethod ?? undefined}
     >
@@ -300,6 +311,88 @@ function SelectField({
   );
 }
 
+function SimpleField({
+  campo,
+  value,
+  defaultValue,
+  className,
+  onChange,
+  onBlur,
+  onFocus,
+  translate,
+}: {
+  campo: CampoPlantillaEx;
+  value?: string;
+  defaultValue?: string;
+  className?: string;
+  onChange?: (value: string, field: CampoPlantillaEx) => void;
+  onBlur?: FocusEventHandler<HTMLInputElement | HTMLSelectElement>;
+  onFocus?: FocusEventHandler<HTMLInputElement | HTMLSelectElement>;
+  translate?: (value: string, field: CampoPlantillaEx) => string;
+}) {
+  const nameCampo = campo.name_campo;
+  const dataIdent = `pl-radicacion-spe-${nameCampo}`;
+  const labelText = getLabelText(campo, translate);
+  const tooltipText = getTooltipText(campo, translate);
+  const titleText = getTitleText(campo, translate);
+  const inputType = getSimpleInputType(campo);
+  const validationMode = inputType === "number" ? "number" : "text";
+
+  const tooltipId = tooltipText
+    ? `pl-radicacion-spe-tooltip-${nameCampo}`
+    : undefined;
+
+  const labelNode = (
+    <span title={titleText} className={styles.labelCapitalize}>
+      {labelText}
+      {tooltipText ? (
+        <Tooltip title={tooltipText}>
+          <span
+            className={`${styles["tooltip-ayuda"]} tooltip-ayuda`.trim()}
+            role="button"
+            tabIndex={0}
+            aria-label={`Mostrar ayuda para ${labelText}`}
+            aria-describedby={tooltipId}
+            data-tooltip-id={tooltipId}
+          >
+            <InfoCircleOutlined />
+          </span>
+        </Tooltip>
+      ) : null}
+    </span>
+  );
+
+  return (
+    <Form.Item
+      name={nameCampo}
+      label={labelNode}
+      required={campo.obligatorio_campo === 1}
+      rules={buildCampoPlantillaRules(campo, {
+        label: labelText,
+        mode: validationMode,
+      })}
+      data-ident={dataIdent}
+    >
+      <Input
+        className={className}
+        type={inputType}
+        value={value}
+        defaultValue={value === undefined ? defaultValue : undefined}
+        placeholder={campo.placeholder ?? undefined}
+        disabled={campo.disable_campo === 1}
+        data-ident={dataIdent}
+        aria-label={labelText}
+        aria-describedby={tooltipId}
+        onChange={(event) => {
+          onChange?.(normalizeDynamicFieldValue(event.target.value), campo);
+        }}
+        onBlur={onBlur}
+        onFocus={onFocus}
+      />
+    </Form.Item>
+  );
+}
+
 export function CamposPlantillaAutoCompleteRenderer({
   camposPlantilla,
   className,
@@ -314,9 +407,7 @@ export function CamposPlantillaAutoCompleteRenderer({
   const camposFiltrados = camposPlantilla.filter(
     (campo) =>
       campo.campo_tip === 1 &&
-      campo.name_campo !== "ASUNTO" &&
-      (campo.ComportamientoCampo === "AUTOCOMPLETE" ||
-        campo.ComportamientoCampo === "SELECCION"),
+      campo.name_campo !== "ASUNTO",
   );
 
   if (camposFiltrados.length === 0) {
@@ -354,6 +445,22 @@ export function CamposPlantillaAutoCompleteRenderer({
             return (
               <Col key={key} xs={24} md={8} data-group={dataGroup}>
                 <SelectField
+                  campo={campo}
+                  value={value?.[campo.name_campo]}
+                  defaultValue={defaultValue?.[campo.name_campo]}
+                  className={fieldClassName?.(campo)}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  onFocus={onFocus}
+                  translate={translate}
+                />
+              </Col>
+            );
+          }
+          if (campo.ComportamientoCampo !== "AUTOCOMPLETE") {
+            return (
+              <Col key={key} xs={24} md={8} data-group={dataGroup}>
+                <SimpleField
                   campo={campo}
                   value={value?.[campo.name_campo]}
                   defaultValue={defaultValue?.[campo.name_campo]}

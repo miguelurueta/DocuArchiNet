@@ -5,6 +5,7 @@ import { useCamposPlantilla } from "../hooks/useCamposPlantilla";
 import { useAutocompleteCamposPlantilla } from "../hooks/useAutocompleteCamposPlantilla";
 import { useFlujosRelacionadosTramite } from "../hooks/useFlujosRelacionadosTramite";
 import { useEstructuraRelacionTipoRestriccion } from "../hooks/useEstructuraRelacionTipoRestriccion";
+import { useRegistrarRadicacion } from "../hooks/useRegistrarRadicacion";
 import type { CampoPlantillaDTO } from "../models/CampoPlantillaDTO";
 import { EMPTY_PLANTILLA_RADICADO } from "../services/radicacionDefaults";
 
@@ -21,6 +22,9 @@ vi.mock("../hooks/useFlujosRelacionadosTramite", () => ({
 vi.mock("../hooks/useEstructuraRelacionTipoRestriccion", () => ({
   useEstructuraRelacionTipoRestriccion: vi.fn(),
 }));
+vi.mock("../hooks/useRegistrarRadicacion", () => ({
+  useRegistrarRadicacion: vi.fn(),
+}));
 
 const mockedUseCamposPlantilla = vi.mocked(useCamposPlantilla);
 const mockedUseAutocompleteCamposPlantilla = vi.mocked(
@@ -32,6 +36,8 @@ const mockedUseFlujosRelacionadosTramite = vi.mocked(
 const mockedUseEstructuraRelacionTipoRestriccion = vi.mocked(
   useEstructuraRelacionTipoRestriccion,
 );
+const mockedUseRegistrarRadicacion = vi.mocked(useRegistrarRadicacion);
+const registrarRadicacionMock = vi.fn();
 
 const renderRadicacionForm = () => {
   const camposPlantilla = mockedUseCamposPlantilla().data;
@@ -79,6 +85,16 @@ describe("RadicacionForm", () => {
       isFetching: false,
       error: null,
       shouldFetch: false,
+    });
+    registrarRadicacionMock.mockReset();
+    registrarRadicacionMock.mockResolvedValue(null);
+    mockedUseRegistrarRadicacion.mockReturnValue({
+      registrar: registrarRadicacionMock,
+      postRegistro: null,
+      isSubmitting: false,
+      isSuccess: false,
+      isError: false,
+      error: null,
     });
   });
 
@@ -191,6 +207,168 @@ describe("RadicacionForm", () => {
     ).toBeInTheDocument();
   });
 
+  it("[SPEC:FE-01] Radicar valida formulario, construye request y delega registro", async () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "TipoRadicado",
+          aleas_campo: "Tipo Radicado",
+          ilist_row_drowlist: [{ idValue: "1", Value: "Entrada" }],
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "Descripcion_Documento",
+          aleas_campo: "Tramite",
+          ilist_row_drowlist: [{ idValue: "23", Value: "CITACION" }],
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "ASUNTO",
+          aleas_campo: "Asunto",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          obligatorio_campo: 0,
+          disable_campo: 0,
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "REMITENTE_COR",
+          aleas_campo: "Remitente",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          obligatorio_campo: 0,
+          disable_campo: 0,
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "DESTINATARIO_COR",
+          aleas_campo: "Destinatario",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          obligatorio_campo: 0,
+          disable_campo: 0,
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    renderRadicacionForm();
+
+    const tipoRadicadoSelect = screen.getByTestId("ra_tipo_radicado_select");
+    fireEvent.mouseDown(tipoRadicadoSelect);
+    fireEvent.click(screen.getByText("Entrada"));
+
+    const tramiteSelect = screen.getByTestId("ra_tipo_tramite_select");
+    fireEvent.mouseDown(tramiteSelect);
+    fireEvent.click(screen.getByText("CITACION"));
+
+    const asuntoInput = screen.getByLabelText("Asunto");
+    fireEvent.change(asuntoInput, { target: { value: "Solicitud FE-01" } });
+    fireEvent.change(screen.getByLabelText("Número Folios"), {
+      target: { value: "7" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /radicar/i }));
+
+    await waitFor(() => {
+      expect(registrarRadicacionMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tipoModuloRadicacion: 1,
+          ASUNTO: "Solicitud FE-01",
+          TipoRadicado: {
+            TipoRadicacion: "Entrada",
+            IdTipoRadicado: 1,
+          },
+          Tipo_tramite: {
+            Descripcion: "CITACION",
+            tipo_doc_entrante: 23,
+          },
+          numeroFolios: 7,
+        }),
+      );
+    });
+  });
+
+  it("[SPEC:FE-01] Radicar envia id_Remit_Dest_Int del destinatario seleccionado", async () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "TipoRadicado",
+          aleas_campo: "Tipo Radicado",
+          ilist_row_drowlist: [{ idValue: "1", Value: "Entrada" }],
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "Descripcion_Documento",
+          aleas_campo: "Tramite",
+          ilist_row_drowlist: [{ idValue: "23", Value: "CITACION" }],
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "ASUNTO",
+          aleas_campo: "Asunto",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          obligatorio_campo: 0,
+          disable_campo: 0,
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "REMITENTE_COR",
+          aleas_campo: "Remitente",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          obligatorio_campo: 0,
+          disable_campo: 0,
+        } as unknown as CampoPlantillaDTO,
+        {
+          name_campo: "DESTINATARIO_COR",
+          aleas_campo: "Destinatario",
+          campo_tip: 1,
+          ComportamientoCampo: "AUTOCOMPLETE",
+          tbl_control: "terceros",
+          obligatorio_campo: 1,
+          disable_campo: 0,
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+    mockedUseAutocompleteCamposPlantilla.mockReturnValue({
+      data: [{ idValue: "44", texValue: "Maria Ruiz" }],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    });
+
+    renderRadicacionForm();
+
+    fireEvent.mouseDown(screen.getByTestId("ra_tipo_radicado_select"));
+    fireEvent.click(screen.getByText("Entrada"));
+    fireEvent.mouseDown(screen.getByTestId("ra_tipo_tramite_select"));
+    fireEvent.click(screen.getByText("CITACION"));
+    fireEvent.change(screen.getByLabelText("Asunto"), {
+      target: { value: "Solicitud con destinatario" },
+    });
+    fireEvent.change(screen.getByLabelText("Número Folios"), {
+      target: { value: "4" },
+    });
+
+    const destinatarioInput = screen.getByLabelText("Destinatario");
+    fireEvent.change(destinatarioInput, { target: { value: "mar" } });
+    await screen.findAllByText("Maria Ruiz");
+    const mariaOptions = screen.getAllByText("Maria Ruiz");
+    fireEvent.click(mariaOptions[mariaOptions.length - 1]);
+    fireEvent.click(screen.getByRole("button", { name: /radicar/i }));
+
+    await waitFor(() => {
+      expect(registrarRadicacionMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          Destinatario: {
+            Destinatario: "Maria Ruiz",
+            id_Remit_Dest_Int: 44,
+          },
+        }),
+      );
+    });
+  });
+
   it("[SPEC:MR-001] elimina el campo estatico de medio de recepcion", () => {
     const { container } = renderRadicacionForm();
 
@@ -231,6 +409,41 @@ describe("RadicacionForm", () => {
     expect(
       container.querySelector('[data-ident="pl-radicacion-spe-MEDIORECEPCION"]'),
     ).toBeTruthy();
+  });
+
+  it("[SPEC:FE-01] renderiza numero folios fijo en medio de recepcion", () => {
+    renderRadicacionForm();
+
+    const numeroFoliosInput = screen.getByLabelText("Número Folios");
+    expect(numeroFoliosInput).toBeInTheDocument();
+    expect(numeroFoliosInput).not.toBeDisabled();
+  });
+
+  it("[SPEC:FE-01] bloquea numero folios cuando llega valor leido de plantilla", () => {
+    mockedUseCamposPlantilla.mockReturnValue({
+      data: [
+        {
+          name_campo: "Numero_Folios",
+          aleas_campo: "Número Folios",
+          value_campo: "12",
+          campo_tip: 1,
+          obligatorio_campo: 1,
+          disable_campo: 0,
+        } as unknown as CampoPlantillaDTO,
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    const { container } = renderRadicacionForm();
+
+    const numeroFoliosInput = screen.getByLabelText("Número Folios");
+    expect(numeroFoliosInput).toHaveValue("12");
+    expect(numeroFoliosInput).toBeDisabled();
+    expect(
+      container.querySelector('[data-ident="pl-radicacion-spe-Numero_Folios"]'),
+    ).toBeNull();
   });
 
   it("[SPEC:RAD-006] renderiza title y tooltip para FECHALIMITERESPUESTA desde plantilla", () => {

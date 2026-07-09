@@ -161,6 +161,57 @@ type RegistrarRadicacionEntranteRequestDto = {
 };
 ```
 
+Regla complementaria para `numeroFolios`:
+
+- El formulario debe renderizar `Número Folios` como campo fijo en la sección `Medio de Recepción del Trámite`.
+- El campo debe ser requerido, numérico, entero y con mínimo `1`.
+- Si la plantilla/carga de campos trae un campo equivalente (`Numero_Folios`, `Número Folios`, `NUMERO_FOLIOS`, `NumFolios` o variantes normalizables) con `value_campo`, el formulario debe precargarlo y bloquearlo para no sobrescribir el valor leído.
+- Si la plantilla trae el campo equivalente sin valor, el formulario debe permitir diligenciarlo manualmente.
+- Si la plantilla no trae el campo, el formulario debe mostrarlo igualmente porque backend puede exigir `numeroFolios`.
+- Cuando el campo se renderiza fijo, no debe duplicarse en `Datos Especializados`.
+- El mapper debe enviar el valor en `numeroFolios` y, si backend/plantilla lo requiere en `Campos`, debe reflejarlo como campo dinámico equivalente.
+
+Regla complementaria para `Tipo_radicado_plantilla`:
+
+- El select visible `TipoRadicado` (`Interna`, `Externa`, `No definido` o equivalentes) alimenta el bloque principal `TipoRadicado`.
+- La misma opcion seleccionada en `TipoRadicado` debe alimentar `TipoPlantillaRadicado`: `TipoPlantillaRadicado.TipoPlantillaRadicado = selected.Value` e `IdTipoPlantillaRdicado = selected.idValue`.
+- No enviar `TipoPlantillaRadicado.IdTipoPlantillaRdicado` en `0`; si `selected.idValue` no es mayor que `0`, el request no debe considerarse valido.
+- Si backend valida el campo dinámico `Tipo_radicado_plantilla`, el mapper debe derivarlo desde el valor seleccionado en `tipoRadicado`.
+- No usar `plantilla.IdPlantillaRadicado` como fuente de `TipoPlantillaRadicado.IdTipoPlantillaRdicado` en este flujo.
+- Si `/api/PlantillaRadicado/listaPlantilla` no trae `Tipo_radicado_plantilla`, el frontend puede derivarlo para cumplir el contrato de registro, sin crear un segundo control visual.
+
+Regla complementaria para `ModuloRegistro` y Q07:
+
+- El frontend debe mantener la llamada `POST /api/radicacion/registrar-entrante?tipoModuloRadicacion=1`.
+- No enviar `ModuloRegistro` ni `moduloRegistro` por query string.
+- No agregar `ModuloRegistro` al payload de `RegistrarRadicacionEntranteRequestDto`; backend resuelve el modulo internamente para este endpoint.
+- Si aparece el error transaccional `RAD_TXN_Q07` con `ModuloRegistro invalido para radicacion: RADICACION SIMPLIFICADA` usando `tipoModuloRadicacion=1`, el request frontend ya esta alineado y el ajuste queda en backend.
+- Backend debe normalizar aliases defensivamente antes o dentro de `RegistroLogRespuestalBuilder.Build`:
+
+```txt
+RADICACION SIMPLIFICADA => RADICACION
+RADICACIÓN SIMPLIFICADA => RADICACION
+RADICACION => RADICACION
+```
+
+- Solo cambiar `tipoModuloRadicacion=1` si backend confirma formalmente otro valor para este flujo.
+
+Regla complementaria para sincronizacion de validaciones frontend/backend:
+
+- El backend es la fuente de verdad de validaciones de campos de plantilla.
+- El frontend debe construir reglas de Ant Design Form desde la metadata recibida en `GET /api/PlantillaRadicado/listaPlantilla`.
+- Para cada campo, usar como minimo:
+  - `obligatorio_campo` para `required`;
+  - `max_leng_campo` para longitud maxima cuando el valor enviado sea texto libre;
+  - `tipo_campo` o `tipo_control` para diferenciar texto, numero, fecha y correo;
+  - `disable_campo` para bloqueo visual;
+  - `aleas_campo` o `name_campo` para mensajes visibles.
+- No aplicar `max_leng_campo` al label visible de campos `SELECCION`; esos controles envian `idValue`.
+- No aplicar `max_leng_campo` como longitud textual a campos numericos; validar formato/rango numerico segun corresponda.
+- En campos `AUTOCOMPLETE`, si backend retorna `idValue`, el frontend debe enviar ese `idValue` y usar `texValue` solo como texto visible.
+- Centralizar estas reglas en un helper reutilizable; no duplicar reglas sueltas dentro de cada componente.
+- Si backend agrega `min_leng_campo`, `regex_campo`, `mensaje_validacion` u otra metadata equivalente, extender el helper central antes de tocar los renderers.
+
 Response esperado:
 
 ```ts
