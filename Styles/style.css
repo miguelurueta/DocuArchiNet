@@ -1,0 +1,370 @@
+body 
+{
+	background : #b8b9bc;
+/*background : #C0D9D9 url(/imagewf/fondo.jpg) repeat;*/
+/*font : 8pt Verdana, Geneva, Arial, Helvetica, sans-serif;*/
+/*color : #666666;*/
+text-align: center;
+    height: 590px;
+    margin-left: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+input::placeholder {
+    font-weight:lighter;
+    opacity: 0.3;
+   
+}
+.rotulo-general-servicio-virtual {
+    border-left: 1px solid #000;
+    float: left;
+    font-size: 30px;
+    margin: 0 0 0 10px;
+    padding: 10px 20px;
+    color: #a9aaaa;
+}
+.rotulo-general-servicio-virtual_title {
+    border-left: 1px solid #000;
+    float: left;
+    font-size: 30px;
+    margin: 0 0 0 10px;
+    padding: 10px 20px;
+    color: #a9aaaa;
+}
+.rotulo-general_title {
+    border-top: 1px solid #d5d4d4;
+    border-bottom: 1px solid #d5d4d4;
+    border-right: 1px solid #d5d4d4;
+    display: block;
+    border-left: 5px solid #033864;
+    padding: 25px 15px;
+    margin-bottom: 2rem;
+}
+.rotulo-general_title_gestor {
+    border-top: 1px solid #d5d4d4;
+    border-bottom: 1px solid #d5d4d4;
+    border-right: 1px solid #d5d4d4;
+    display: block;
+    border-left: 5px solid #033864;
+    padding: 15px 15px;
+   
+}
+.tab-content_general_servicio_virtual {
+
+}
+input.form-controls, textarea.form-controls, select.form-controls {
+    background: #f8f9fa;
+    border-radius: 0;
+    height: 44px;
+    line-height: 2rem;
+    font-size: 1em;
+    outline: none;
+    -webkit-box-shadow: inherit;
+    box-shadow: inherit;
+}
+
+    input.form-controls:focus, textarea.form-controls:focus, select.form-controls:focus {
+        border-color: inherit;
+        outline: none;
+        -webkit-box-shadow: inherit;
+        box-shadow: inherit;
+    }
+
+select.form-controls {
+    width: 115% !important;
+    float: none !important;
+    text-align: left !important;
+    border: none;
+}
+
+
+input.form-control-drow, textarea.form-control-drow, select.form-control-drow {
+    background: #f8f9fa;
+    /*border-radius: 0;*/
+    height: 44px;
+    line-height: 2rem;
+    font-size: 1em;
+    /*outline: none;*/
+    -webkit-box-shadow: inherit;
+    box-shadow: inherit;
+}
+
+    input.form-control-drow:focus, textarea.form-control-drow:focus, select.form-control-drow:focus {
+        border-color: inherit;
+        /*outline: none;*/
+        -webkit-box-shadow: inherit;
+        box-shadow: inherit;
+    }
+
+select.form-control-drow {
+    width: 100% !important;
+    float: none !important;
+    text-align: left !important;
+    /*border: none;*/
+}
+
+
+.control-label {
+    padding-bottom: 0 !important;
+    /*padding-top: 1em;*/
+}
+
+
+button, input[type="submit"] {
+    background: #333;
+    border: 1px solid #808080;
+    cursor: pointer;
+}
+#contenedor{
+text-align: left;
+background-color : #ffffff;
+margin: auto;
+}
+#cabecera{
+    height : 60px;
+    position : static;
+    margin: 0px;
+    padding: 0px;
+    background: #053061;
+    width: 100%;
+    color:White;
+    text-align:left;
+	top: 0px;
+	left: 1px;
+     background: linear-gradient(0deg, #053061, #11519b); 
+}
+/*contiene el link que permite entrar a la pagina de logueo*/
+#login 
+{
+ float:right;
+ border:0;
+ top: 40px;
+ border:2px solid;
+ margin : 10px 10px 10px 10px;
+ }
+
+/*contiene el link que guarda el logo de la aplicacion*/
+#image 
+{
+ float:left;
+ border:0;
+ top: 10px;
+ }
+ 
+/*contiene el div del espacio central*/
+#siego
+{
+ margin-left: 70px;
+ padding: 4 4 4 4px;
+ width: 80px;
+ }
+ 
+#navegador{
+/*background : #F5F4C3 url(images/fondonav.gif);*/
+background :#545454;
+padding : 3px 10px 5px 10px;
+border-top : 1px solid #cccccc;
+border-bottom : 1px solid #cccccc;
+/*height:10%;*/
+}
+#sol 
+{
+	text-align:right;
+}
+#h1{
+    font-weight: 100;
+    margin: 0px;
+    padding: 0px 0px 0px 20px;
+    color:White;
+    border: none;
+    line-height: 2em;
+    font-size: 2em;
+    float:left;
+} 
+
+#cuerporigth
+{
+	height:479px;
+width:454px;
+/*margin: 0 0 0 170px;*/
+margin-left: 0px;
+/*padding: 12px 0px 10px 0px;*/
+background-color : #ffffff;
+float:right;
+	top: 5px;
+	left: -4px;
+}
+
+# Centerinicio
+{
+	height:480px;
+width:82%;
+/*margin: 0 0 0 170px;*/
+margin-left: 0px;
+/*padding: 12px 0px 10px 0px;*/
+background-color : #ffffff;
+float:right;
+/*height:60%;*/
+}
+
+#cuerpoleft
+{
+ height:480px;
+ width : 24%;
+ background-color: #EBF2FE;
+border-bottom : 1px solid #cccccc;
+border-left : 1px solid #cccccc;
+float:left;
+/*height:60%;*/
+}
+
+# cuerpoindice
+{
+background-color: #EBF2FE;
+border-bottom : 1px solid #cccccc;
+border-left : 1px solid #cccccc;
+}	
+
+#Piepagina
+{
+	/*height:10%;*/
+	clear:both;
+	background: #053061;
+	color:White;
+    text-align:right;
+   
+
+}
+
+.FondoAplicacion
+    {
+        background-color: white;
+        filter: alpha(opacity=70);
+        opacity: 0.7;
+    }
+
+.DWTBody
+{
+    margin: 0 auto;
+	background-color: #FFF;
+	border: 0;
+	/*height:700px;*/
+	/*clear:both;*/
+	padding: 20px;
+}
+.DWTContainer 
+{
+    margin:0px; float:left; padding:0px; width:600px;
+}
+
+.ScanWrapper 
+{
+    margin:0px; float:right; padding:0px; width:320px; }
+.divTableStyle
+{
+	border: solid 6px #dedede;
+	padding: 5px 5px;
+}
+
+.divTableStyle ul {
+	margin-left: 10px;
+}
+/* Popup container - can be anything you want */
+.popup {
+    position:fixed;
+    display: inline-block;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* The actual popup */
+.popup .popuptext {
+    visibility: hidden;
+    width: 160px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 8px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -80px;
+}
+
+/* Popup arrow */
+.popup .popuptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+/* Toggle this class - hide and show the popup */
+.popup .show {
+    visibility: visible;
+    -webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
+}
+
+/* Add animation (fade in the popup) */
+@-webkit-keyframes fadeIn {
+    from {opacity: 0;} 
+    to {opacity: 1;}
+}
+
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity:1 ;}
+}
+.modal .show {
+    visibility: visible;
+    -webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s;
+}
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    /*padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 25px;
+    border: 1px solid #888;
+    width: 85%;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}

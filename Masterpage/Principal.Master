@@ -1,0 +1,86 @@
+﻿<%@ Master Language="VB" AutoEventWireup="false" CodeBehind="Principal.master.vb" Inherits="GestionDocumental_Docuarchi.net.Principal" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Gestor Documental Docuarchi.net</title>
+     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600,700,800" rel="stylesheet">
+	<link href="../menu_scoope/assets/css/font-awesome.min.css" rel="stylesheet"> 
+    <link href="../menu_scoope/assets/css/linearicons.css" rel="stylesheet">
+	<link href="../menu_scoope/assets/css/simple-line-icons.css" rel="stylesheet">
+	<link href="../menu_scoope/assets/css/ionicons.css" rel="stylesheet">
+	<link href="../menu_scoope/assets/css/flag-icon.min.css" rel="stylesheet">
+	<link href="../menu_scoope/assets/css/fakeLoader.css" rel="stylesheet">
+	<link href="../menu_scoope/assets/css/bootstrap.min.css" rel="stylesheet">  
+     <link href="../Styles/bootra-person.css" rel="stylesheet" />  
+	<script src="../menu_scoope/assets/js/jquery.1.11.3.min.js"></script>
+	<script src="../menu_scoope/assets/js/bootstrap.min.js"></script>	
+    <link href="../Styles/Aplicaction.css" rel="stylesheet" /> 
+    <script src="../js/ui/jquery-ui-1.8.22.custom.js" type="text/javascript"></script>
+   <script src="../js/ui/jquery.ui.core.js" type="text/javascript"></script>
+    <link href="../ccs/themes/base/jquery.ui.all.css" rel="stylesheet" type="text/css" />
+    <script  src="../Awesome/js/all.js"></script>
+    <link href="../Awesome/css/fontawesome.css" rel="stylesheet"/>
+    <link href="../Awesome/css/brands.css" rel="stylesheet"/>
+    <link href="../Awesome/css/solid.css" rel="stylesheet"/>
+    <script  src="../Awesome/js/brands.js"></script>
+    <script  src="../Awesome/js/solid.js"></script>
+     <script  src="../Awesome/js/fontawesome.js"></script>  
+    <script accesskey="javascript" type="text/javascript">
+        function descarga() {
+          
+            window.open('../ayuda/ayuda_general.pdf', '_blank', "", "true");
+        }
+        function sesion_cli() {
+            var bo = document.getElementById("ContentPlacenter_ImageButtonSesion");
+            if (bo == null) {
+                alert("Desde esta pagina auxiliar no puede cerrar sesión")
+            } else {
+                bo.click();
+            }
+           
+        };
+    </script>
+    <asp:ContentPlaceHolder ID="head" runat="server" >      
+    </asp:ContentPlaceHolder>
+</head>
+<body  style="overflow:hidden">
+    <div id="fakeLoader"></div>
+    <div id="scoop" class="scoop">
+        <div class="scoop-overlay-box"></div>
+        <div class="scoop-container" >
+            <header class="scoop-header" id="id_scoop_header">
+                <div class="scoop-wrapper">
+                    <div class="scoop-left-header">
+                        <div class="scoop-logo">
+                            <span class="logo-text" style="left:10px">DocuArchi SGDEA <span class="hide-in-smallsize light"></span></span>
+                        </div>  
+                    </div>
+                    <div class="scoop-right-header">
+                        <div class="sidebar_toggle" style="display:none"><a href="javascript:void(0)"><i class="icon-menu"></i></a></div>
+                        <div class="scoop-rr-header">
+                           <i class="fal fa-browser fa-1x"> </i> <span id="option_paren_span" class="logo-text" > </span>   
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="scoop-main-container" >
+                <asp:ContentPlaceHolder ID="ContentPlacenter" runat="server" >
+                </asp:ContentPlaceHolder>
+            </div>
+        </div>
+    </div>
+    <script src="../menu_scoope/assets/js/lib/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="../menu_scoope/assets/js/lib/jquery.mousewheel.min.js"></script>
+    <script src="../menu_scoope/assets/js/lib/fakeLoader.js"></script>
+    <link href="../menu_scoope/assets/css/jquery.mCustomScrollbar.css" rel="stylesheet">
+    <script src="../menu_scoope/assets/js/lib/sparkline.min.js"></script>
+    <script src="../menu_scoope/assets/js/scoop.min.js"></script>
+    <link href="../menu_scoope/assets/css/scoop-vertical.css" rel="stylesheet">
+    <script src="../menu_scoope/assets/js/vertical-demo.js"></script>
+</body>
+</html>

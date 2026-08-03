@@ -1,0 +1,152 @@
+/*Estilos Generales*/
+*{
+    font-family: 'poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    background-image: url(Images\fondo.png) no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+
+.contenedor{
+    position: relative;
+    width: 400px;
+    box-shadow: 0 3px 20px 0px rgba(0, 0, 0, 0.685);
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contenedor h2{
+    font-size: 3.6rem;
+    text-align: center;
+}
+
+.input-contenedor {
+    position: relative;
+    margin: 30px 0;
+    border-bottom: 2px solid black;
+    font-size: 130%;
+}
+
+.input-contenedor label {
+        position: absolute;
+        left: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        transition: all 0.2s ease;
+        pointer-events: none;
+        color: #444;
+        font-weight: 600;
+}
+    /* efecto flotante */
+    .input-contenedor input:focus ~ label,
+    .input-contenedor input:not(:placeholder-shown) ~ label {
+        top: -6px;
+    }
+
+
+    /*.input-contenedor input{
+    width: 80%;
+    max-width: 500px;
+    outline: none;
+    border: none;
+    padding: 0.8em;
+    font: inherit;
+    border-radius: .6em;
+    left: 10%;
+    background-color: transparent;
+    color: black;
+}*/
+    .input-contenedor input {
+        width: 80%;
+        max-width: 500px;
+        outline: none;
+        border: none;
+        padding: 0.5em 0.8em; /* ajustado vertical y horizontal */
+        font-family: inherit; /* mantiene la misma familia de la página */
+        font-size: 0.9rem; /* tamaño más pequeño */
+        line-height: 1.4; /* mantiene las descendentes visibles */
+        border-radius: 0.4em;
+        margin-top: 0.3em;
+        background-color: transparent;
+        color: black;
+        box-sizing: border-box;
+    }
+
+
+
+.input-contenedor i{
+    position: absolute;
+    color: black;
+    font-size: 1.6rem;
+    top: 14px;
+    right: 8px;
+}
+
+.olvidar{
+    margin: -15px 0 15px;
+    font-size: .9em;
+    color: black;
+    display: flex;
+    justify-content: left;
+}
+
+.olvidar label input{
+    margin: 3px;
+}
+
+.olvidar label {
+    color: black;
+    text-align: right;
+    text-decoration: none;
+    transition: .9s;
+    font-size: .9em;
+}
+
+.olvidar label a:hover{
+    text-decoration: underline;
+}
+
+.aaa button {
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 15px;
+    background-color: #346CC3;
+    font-size: 20px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    border: 2px solid rgba(0, 0, 0, 0.685);
+    transition: .3s ease;
+    margin-top: 20px;
+    color: white;
+}
+
+button:hover {
+    border: 2px solid white;
+    box-shadow: 0 0 5px black;
+    color: white;
+    background-color: black;
+}
+
+.www p a{
+    display: flex;
+    color: black;
+    font-size: .8rem;
+    top: 19px;
+
+    justify-content: right;
+    text-decoration-line: none;
+}

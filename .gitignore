@@ -1,0 +1,37 @@
+# Visual Studio
+.vs/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+
+# Archivos temporales del proyecto
+Temp_Image/
+temp/
+tmp/
+
+# Archivos de usuario de Visual Studio
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+
+# Resultados de compilación
+TestResults/
+Generated_Code/
+
+# Paquetes restaurables
+packages/
+*.nupkg
+
+# Sistema operativo
+Thumbs.db
+Desktop.ini
+
+# Archivos temporales
+*.tmp
+*.temp
+pdfjs/pdf_anotate_view/ojo.pdf

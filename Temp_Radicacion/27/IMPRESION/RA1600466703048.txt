@@ -1,0 +1,6 @@
+NOMBRE_EMPRESA=VILLAVIVIENDA
+Consecutivo_Rad=1600466703048
+Fecha_Radicado=30/12/2016 02:54:55 a. m.
+Numero_Folios=0
+Destinatario_Cor=Carolina Cruz Villareal
+Remitente_Cor=ANA ROCIO CELIS REY
