@@ -1,0 +1,13 @@
+<!DOCTYPE html PUBLIC"-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type"content="text/html charset=utf-8"/><title>Untitled Document</title></head><body><table WIDTH=730 CELLSPACING=0 CELLPADDING=10 border=8 BORDERCOLOR="#333366" bgcolor="#FFFFFF"><tr> <b><th>&nbsp;</th><th>id_series</th><th>id_subseries</th><th>id_tipos_doc_subseries</th><th>nombre_serie</th><th>Nombre_Subserie</th><th>Descripcion_Documento</th><th>Tiempo_Ret_Arch_Central</th><th>Tiempo_Ret_Arch_Gestion</th><th>Tiempo_Ret_Archivo_Historico</th><th>Eliminacion</th><th>Microfilm</th><th>Seleccion</th><th>observaciones</th></b> </tr><tr><td>
+                                     
+                                    </td><td>1</td><td>1</td><td>2</td><td>ACTAS</td><td>Actas Comite De Archivo</td><td>Acta de comite de archivo</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>.</td></tr><tr><td>
+                                     
+                                    </td><td>1</td><td>1</td><td>1</td><td>ACTAS</td><td>Actas Comite De Archivo</td><td>Aistencia</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>.</td></tr><tr><td>
+                                     
+                                    </td><td>1</td><td>1</td><td>3</td><td>ACTAS</td><td>Actas Comite De Archivo</td><td>Final de acta</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>.</td></tr><tr><td>
+                                     
+                                    </td><td>1</td><td>1</td><td>&nbsp;</td><td>ACTAS</td><td>Actas Comite De Archivo</td><td>&nbsp;</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>.</td></tr><tr><td>
+                                     
+                                    </td><td>2</td><td>2</td><td>4</td><td>COMPRABANTES</td><td>Comprobantes De Egreso</td><td>Egresos</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>LOS COMPROBANTES SE RETIENEN SOLO DIES A&#209;OS Y LUEGO SE DIGITALIZAN</td></tr><tr><td>
+                                     
+                                    </td><td>2</td><td>2</td><td>&nbsp;</td><td>COMPRABANTES</td><td>Comprobantes De Egreso</td><td>&nbsp;</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>LOS COMPROBANTES SE RETIENEN SOLO DIES A&#209;OS Y LUEGO SE DIGITALIZAN</td></tr></body></html>

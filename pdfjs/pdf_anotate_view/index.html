@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<title>PDF Annotation And Drawing Markup Plugin Example</title>
+	<script src="../../js/java_general/general_code_java.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="./styles.css">
+	<link href="../../Styles/Aplicaction.css" rel="stylesheet" />
+	<link rel="stylesheet" href="./pdfannotate.css">
+	<link href="pdftoolbar.css" rel="stylesheet" />
+	<link href="pdfjs-viewer.css" rel="stylesheet" />
+	<link href="../../Awesome/css/fontawesome.css" rel="stylesheet" />
+	<link href="../../Awesome/css/brands.css" rel="stylesheet" />
+	<link href="../../Awesome/css/solid.css" rel="stylesheet" />
+	<script src="../../Awesome/js/all.js" type="text/javascript"></script>
+	<script src="../../Awesome/js/brands.js" type="text/javascript"></script>
+	<script src="../../Awesome/js/solid.js" type="text/javascript"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+	<style>
+		body {
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+		}
+
+		.pdfviewer {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.pdfviewer-container {
+			margin: 0;
+			padding: 0;
+			display: flex;
+			overflow: hidden;
+			flex: 1;
+			height: 100%;
+		}
+
+		.thumbnails {
+			width: 150px !important;
+			border: 1px solid #aaa;
+			border-right: 3px solid #999;
+			background: #ccc;
+		}
+
+			.thumbnails .pdfpage.selected {
+				border: 2px solid #777;
+				border-radius: 2px;
+			}
+
+		.maindoc {
+			flex: 1;
+		}
+
+		.hide {
+			display: none;
+		}
+
+		input[type="file"] {
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<div class="pdfviewer">
+		<div class="toolbar pdftoolbar_" id="tool_pdf">
+			<div class="tool">
+				<input type="text" class="form-control" style="text-align:center" value="" id="pdf_page_find" max="0" disabled="disabled">
+			</div>
+			<div class="tool">
+				<p>/</p>
+			</div>
+			<div class="tool">
+				<input type="text" class="form-control " style="text-align:center" value="" id="num_page_total" disabled="disabled">
+			</div>
+			<div class="tool">
+				<button class="tool-button"><i class="fal fa-minus" title="Alejar" id="pdf_btn_zon_minus"></i></button>
+			</div>
+			<div class="tool">
+				<button class="tool-button"><i class="fal fa-plus" title="Acercar" id="pdf_btn_zon_plus"></i></button>
+			</div>
+			<div class="tool">
+				<button class="tool-button"><i class="fad fa-edit" title="Anotación firma en tableta digital" id="pdf_btn_tbl_digital"></i></button>
+			</div>
+			<div class="tool">
+				<button class="tool-button"><i class="fad fa-signature" title="Anotación firma personal" id="pdf_btn_tbl_sing"></i> </button>
+			</div>
+			<div class="tool">
+				<button class="tool-button"><i class="fad fa-undo" title="redo" id="pdf_btn_tbl_desk_undo"></i> </button>
+			</div>
+			<div class="tool">
+				<button class="tool-button"><i class="fad fa-redo" title="redo" id="pdf_btn_tbl_desk_redo"></i> </button>
+			</div>
+
+			<div class="tool">
+				<button class="tool-button"><i class="fal fa-arrow-down" title="Descarga" id="pdf_btn_down_load"></i> </button>
+			</div>
+			<div class="tool">
+				<button class="tool-button"><i class="fal fa-print" title="Imprimir" id="pdf_btn_printer_page"></i> </button>
+			</div>
+			<div class="dropdown  tool" >
+				<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+					
+				</button>
+				<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+					<li id="pdf_a_paramneter_grafo"><a id="" class="dropdown-item" href="#">Parametros del grafo</a></li>					
+				</ul>
+			</div>	
+		</div>
+		<div class="pdfviewer-container" id="container-general">
+
+			<div class="thumbnails pdfjs-viewer d-none">
+			</div>
+			<div id="pdf-container_" class="maindoc pdfjs-viewer">
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Configuración stamp de grafo</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-6">
+							<span>Activa fondo transparente al grafo</span>
+						</div>
+						<div class="col-6">
+							<input id="checkbox_itext_stamp" type="checkbox" />
+						</div>
+					</div>
+					
+				    <div class="row">
+						<div class="col-6">
+							 <span>Porcentaje de transparencia del grafo</span>
+						</div>
+						<div class="col-6">
+							<select id="select_itext_stamp">
+	                           <option></option>
+
+                            </select>						
+						   </div>
+				     </div>	
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<button id="Pdf_btn_update_insert" type="button" class="btn btn-primary">Aceptar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true" style="display:none">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="dataModalLabel">PDF annotation data</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<pre class="prettyprint lang-json linenums">
+				</pre>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+	<script src="../../js/ui/jquery-ui-1.8.22.custom.js" type="text/javascript"></script>
+	<script src="../../js/jquery-ui-1.12.1.custom/jquery-ui.min.js" type="text/javascript"></script>
+	<link href="../../js/jquery-ui-1.12.1.custom/jquery-ui.min.css" rel="stylesheet" />
+	<link href="../../ccs/themes/base/jquery.ui.all.css" rel="stylesheet" type="text/css" />
+	<script src="../../js/sizeimagejquery.js" type="text/javascript"></script>
+	<script src="../../js/jquery.contextMenu.js" type="text/javascript"></script>
+	<link href="../../js/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+	<link href="w3.css" rel="stylesheet" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js" integrity="sha512-ml/QKfG3+Yes6TwOzQb7aCNtJF4PUyha6R3w8pSTo/VJSywl7ZreYvvtUso7fKevpsI+pYVVwnu82YO0q3V6eg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js" integrity="sha512-H2G2FRj4ediSCLuq5Ua9fNy66QfE39rDnY/6CEsrSxAJtMXuJu16nsrvb1xrL1/TLSNPuOzWxRVweHUcAP/9RA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.sandbox.min.js" integrity="sha512-knmde9HH5/sHNZ0igwsOetw7WV6Dialjq0U0RhOYo+vJrcu/p7Ek10d2uvo+s0N1JBanSC2z9iJxvxlnu50dag==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.entry.min.js" integrity="sha512-NJEHr6hlBM4MkVxJu+7FBk+pn7r+KD8rh+50DPglV/8T8I9ETqHJH0bO7NRPHaPszzYTxBWQztDfL6iJV6CQTw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.3.0/fabric.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.2.0/jspdf.umd.min.js"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js"></script>
+	<script src="./pdf_viewer_anotate.js"></script>
+	<!--<script src="./pdfannotate.js"></script>-->
+	<script src="./script.js"></script>
+	<script src="../wacom/signature_sdk.js"></script>
+	<script src="../wacom/wacom.js"></script>
+	<script src="../wacom/stuCaptDialog.js"></script>
+	<script src="../wacom/BigInt.js"></script>
+	<script src="../wacom/sigCaptDialog.js"></script>
+	<script src="../wacom/signature_sdk.js"></script>
+	<script src="../wacom/wgssStuSdk.js"></script>
+	<script src="../wacom/demoButtons_encryption.js"></script>
+	<link href="../wacom/demoButtons.css" rel="stylesheet" />
+	<script src="../wacom/q.js"></script>
+	<script src="../wacom/wgssStuSdk.js"></script>
+	<script src="../wacom/sjcl.js"></script>
+	<script src="../../printer_js/print.min.js"></script>
+	<link href="../../printer_js/print.min.css" rel="stylesheet" />
+	<script src="../../printer_js/dataURItoBlob.js"></script>
+	<link href="../../Styles/bootra-person.css" rel="stylesheet" />
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-36251023-1']);
+		_gaq.push(['_setDomainName', 'jqueryscript.net']);
+		_gaq.push(['_trackPageview']);
+		(function () {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+
+	</script>
+
+</body>
+</html>

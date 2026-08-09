@@ -1,0 +1,25 @@
+{
+  "name": "gestiondocumental-legacy-opsxj",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "opsxj:new": "node scripts/opsxj.js opsxj:new",
+    "opsxj:prompt-review": "node scripts/opsxj.js opsxj:prompt-review",
+    "opsxj:status": "node scripts/opsxj.js opsxj:status",
+    "opsxj:orchestrate:status": "node scripts/opsxj.js opsxj:orchestrate:status",
+    "opsxj:archive": "node scripts/opsxj.js opsxj:archive",
+    "opsxj:close": "node scripts/opsxj.js opsxj:close",
+    "jira:test": "node scripts/jira-test-connection.js",
+    "jira:fetch": "node scripts/fetch-jira.js",
+    "jira:transition": "node scripts/jira-transition.js",
+    "opsxj:doctor": "node scripts/opsxj-doctor.js",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

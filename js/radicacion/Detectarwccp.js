@@ -1,0 +1,7 @@
+﻿
+    $.fn.inicio = function () {
+        
+       
+    }
+
+
