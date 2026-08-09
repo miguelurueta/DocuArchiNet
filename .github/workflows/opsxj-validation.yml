@@ -1,0 +1,40 @@
+name: OPSXJ validation
+
+on:
+  pull_request:
+    paths:
+      - "Desarrollo/old/oldanterior/GestionDocumental-Docuarchi.net/tools/opsxj/**"
+      - "Desarrollo/old/oldanterior/GestionDocumental-Docuarchi.net/openspec/**"
+      - ".github/workflows/opsxj-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: OpenSpec and opsxj tests
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: Desarrollo/old/oldanterior/GestionDocumental-Docuarchi.net
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: Desarrollo/old/oldanterior/GestionDocumental-Docuarchi.net/tools/opsxj/package-lock.json
+
+      - name: Install opsxj dependencies
+        run: npm.cmd --prefix tools/opsxj ci
+
+      - name: Run opsxj tests
+        run: npm.cmd --prefix tools/opsxj test
+
+      - name: Validate OpenSpec changes
+        run: npx --yes @fission-ai/openspec@latest validate --all --strict
