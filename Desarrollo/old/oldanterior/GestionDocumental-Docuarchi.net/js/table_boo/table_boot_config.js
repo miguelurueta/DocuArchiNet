@@ -112,6 +112,40 @@ const resize_table_boot = (name_table, class_delete, class_add) => {
         document.getElementById(name_table).classList.add(class_add);
     }
 }
+
+/*
+ * Compatibilidad con los llamados históricos de Workflow.
+ * Algunos modales calculan una altura específica y la entregan directamente
+ * a la tabla Bootstrap. La función original no quedó incluida en el bundle
+ * común, por lo que el modal terminaba con un ReferenceError.
+ */
+function table_reize_heigth(name_table, height_table, class_delete, class_add) {
+    try {
+        const table = document.getElementById(name_table);
+        const height = Number(height_table);
+
+        if (!table || !Number.isFinite(height) || height < 0) {
+            return "NO";
+        }
+
+        if (class_delete) {
+            table.classList.remove(class_delete);
+        }
+
+        if (class_add) {
+            table.classList.add(class_add);
+        }
+
+        const $table = $(table);
+        if (typeof $table.bootstrapTable === "function" && $table.data("bootstrap.table")) {
+            $table.bootstrapTable("resetView", { height: Math.round(height) });
+        }
+
+        return "YES";
+    } catch (error) {
+        return error.message;
+    }
+}
 //actualiza tabla   - table: nombre de la tabla  -field_name : nombre del campo actualizar -identi: identificador  - value: valor a actualizar
 const updateCelByUniqueId = (table, field_name, identi, value) => {
     let $table = $('#' + table);

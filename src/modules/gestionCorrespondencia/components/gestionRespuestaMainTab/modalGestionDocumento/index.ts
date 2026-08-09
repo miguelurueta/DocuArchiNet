@@ -1,1 +1,0 @@
-export { GestionDocumentoModal } from "./GestionDocumentoModal";

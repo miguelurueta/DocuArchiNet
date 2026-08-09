@@ -4,6 +4,7 @@ Imports System.IO
 Imports Neodynamic.WebControls.ImageDraw
 Imports System.Windows.Forms
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement
+Imports System.Diagnostics
 
 Public Class Webworkflow
     Inherits RefreshArticle.BasePage
@@ -22,16 +23,48 @@ Public Class Webworkflow
     Dim Popupenlace As Object
     Dim bolindice As Boolean = False
 
+    Private Function MilisegundosDesdeInicioRequest() As Long
+        Return CLng((DateTime.Now - HttpContext.Current.Timestamp).TotalMilliseconds)
+    End Function
+
+    Private Sub Webworkflow_PreInit(sender As Object, e As EventArgs) Handles Me.PreInit
+        System.Diagnostics.Debug.WriteLine("WF_LIFECYCLE|Webworkflow.PreInit|" & MilisegundosDesdeInicioRequest() & " ms desde inicio request")
+    End Sub
+
+    Private Sub Webworkflow_Unload(sender As Object, e As EventArgs) Handles Me.Unload
+        System.Diagnostics.Debug.WriteLine("WF_LIFECYCLE|Webworkflow.Unload|" & MilisegundosDesdeInicioRequest() & " ms desde inicio request")
+    End Sub
+
     <WebMethod()>
     Public Shared Function Inicializa() As String
         Inicializa = "YES"
     End Function
     Private Sub Webworkflow_Init(sender As Object, e As EventArgs) Handles Me.Init
+        System.Diagnostics.Debug.WriteLine("WF_LIFECYCLE|Webworkflow.Init entrada|" & MilisegundosDesdeInicioRequest() & " ms desde inicio request")
         ImageDraw.LicenseOwner = "Miguel Angel Urueta Miranda-Developer License"
         ImageDraw.LicenseKey = "28Q48MH26VEUUW84A4FH9YV8Q33LJ7PC6WF84EZF3AMC93SVP2FQ"
+        System.Diagnostics.Debug.WriteLine("WF_LIFECYCLE|Webworkflow.Init salida|" & MilisegundosDesdeInicioRequest() & " ms desde inicio request")
     End Sub
     Public mEval As New ClassEdtiScript
+
+    Private Sub RegistraTiempoLoadWorkflow(ByVal nombreFuncion As String,
+                                           ByVal cronometro As Stopwatch,
+                                           Optional ByVal resultado As String = "")
+        Dim detalleResultado As String = cronometro.ElapsedMilliseconds & " ms"
+        If resultado <> "" Then
+            detalleResultado &= " - Resultado=" & resultado.Replace("|", "/").Replace("¬", "/")
+        End If
+        Dim mensaje As String = nombreFuncion & "|" & detalleResultado
+        System.Diagnostics.Debug.WriteLine("WF_LOAD|" & mensaje)
+        HttpContext.Current.Trace.Warn("WF_LOAD", mensaje)
+        HttpContext.Current.Session.Item("DETALLE_SESION") =
+            Convert.ToString(HttpContext.Current.Session.Item("DETALLE_SESION")) &
+            "WF_LOAD " & mensaje & "¬"
+    End Sub
+
     Protected Overrides Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        System.Diagnostics.Debug.WriteLine("WF_LIFECYCLE|Webworkflow.Page_Load entrada|" & MilisegundosDesdeInicioRequest() & " ms desde inicio request")
+        Dim cronometroTotal As Stopwatch = Stopwatch.StartNew()
         Try
             Dim cs As ClientScriptManager = Page.ClientScript
             Dim scr As [String] = "$(document).ready(function () {$().clired_user();});"
@@ -59,8 +92,11 @@ Public Class Webworkflow
                 'Retorna id ruta
                 '----------------------------------------------------
                 Dim Ref_clas_rutas As New Class_worflow_rutas
+                Dim cronometroFuncion As Stopwatch = Stopwatch.StartNew()
                 Result = Ref_clas_rutas.Retorna_nombre_ruta_por_id_ruta(Session.Item("Id_Ruta_Workflow").ToString,
                                                                         Session.Item("WF_RUTAWORKFLOW"))
+                cronometroFuncion.Stop()
+                RegistraTiempoLoadWorkflow("Retorna_nombre_ruta_por_id_ruta", cronometroFuncion, Result)
                 If Result <> "YES" Then
                     HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION") & "Error consultado ruta|" & Result & "||"
                     Me.LabelEspera.Text = Result
@@ -79,8 +115,11 @@ Public Class Webworkflow
                 Dim Refclas_ As New Classselecciotarea
                 Result = ""
                 Dim TipoActividad As String = ""
+                cronometroFuncion.Restart()
                 Result = Refclas_.Determina_Tipo_Actividad_Usuario(id_actividad,
                                                                    TipoActividad)
+                cronometroFuncion.Stop()
+                RegistraTiempoLoadWorkflow("Determina_Tipo_Actividad_Usuario", cronometroFuncion, Result)
                 If Result <> "YES" Then
                     HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION") & "DETERMINA TIPO ACTIVIDAD | " & Result & "||"
 
@@ -114,6 +153,7 @@ Public Class Webworkflow
                 Session.Item("SortExpression_compartido_WF") = "etw.fecha_inicio"
                 Session.Item("SortDirection_compartido_WF") = "DESC"
                 If HttpContext.Current.Session.Item("SELECIONA_ACTIVIDAD_AREA_WORKFLOW") <> 0 Then
+                    cronometroFuncion.Restart()
                     Result = Ref.Inicializar_la_lista_de_tareas_workflow(Me.Page,
                                                                          OBE,
                                                                          Me.GridView2,
@@ -124,6 +164,8 @@ Public Class Webworkflow
                                                                          Session.Item("SortDirection_compartido_WF"),
                                                                          0,
                                                                          Session.Item("WF_FILTRA_USUARIO_GRUPO_HI_WF"))
+                    cronometroFuncion.Stop()
+                    RegistraTiempoLoadWorkflow("Inicializar_la_lista_de_tareas_workflow", cronometroFuncion, Result)
                     If Result <> "YES" Then
                         HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION") & "Actividades de Grupo|" & Result & "||"
                         Me.LabelEspera.Text = Result
@@ -141,7 +183,10 @@ Public Class Webworkflow
                 '**************************************
                 'Verifica tarea seleccionada
                 '**************************************
+                cronometroFuncion.Restart()
                 Result = RefClasele.Verifica_Tarea_Seleccionada_Uusario_Inicio(Me.Page)
+                cronometroFuncion.Stop()
+                RegistraTiempoLoadWorkflow("Verifica_Tarea_Seleccionada_Uusario_Inicio", cronometroFuncion, Result)
                 If Result <> "YES" Then
                     HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION") & "Parametro de Actualizacion|" & Result & "||"
                     'RefClasele.Agrega_treview_error_seleccion(Me.TreeViewseleccion,
@@ -151,7 +196,10 @@ Public Class Webworkflow
                 'Captura el intervalo de alarma de workflow
                 '--------------------------------------------
                 Dim RefclasUsuario As New ClassWorkflowUsuario
+                cronometroFuncion.Restart()
                 Result = RefclasUsuario.Intervalo_Alarma_Usuario()
+                cronometroFuncion.Stop()
+                RegistraTiempoLoadWorkflow("Intervalo_Alarma_Usuario", cronometroFuncion, Result)
                 If Result <> "YES" Then
                     HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION") & "Error buscando paramnetro de alarma|" & Result & "||"
                 End If
@@ -167,14 +215,17 @@ Public Class Webworkflow
                 Session.Item("RA_URL_WEB_SERVICE") & "||"
                 HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION") & "ESTADO WEB SERVICE GD ESTADO |" & Session.Item("GA_ACTIVA_WEB_SERVICE") & " " &
                  Session.Item("GA_URL_WEB_SERVICE") & "||"
-                Dim Class_estados_tarea_workflow As New Class_estados_tarea_workflow
-                Result = Class_estados_tarea_workflow.SolicitaNumeroActividadesSelecionadasUsuario(id_actividad,
-                                                                                                   HttpContext.Current.Session("Id_Usuario_Workflow"),
-                                                                                                   Actividad_Seleccion)
-                If Result <> "YES" Then
-                    HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION") & "NUMERO TAREAS SELECCIONADAS | " & Result & "||"
-                End If
+                'Dim Class_estados_tarea_workflow As New Class_estados_tarea_workflow
+                'Result = Class_estados_tarea_workflow.SolicitaNumeroActividadesSelecionadasUsuario(id_actividad,
+                '                                                                                   HttpContext.Current.Session("Id_Usuario_Workflow"),
+                '                                                                                   Actividad_Seleccion)
+                'If Result <> "YES" Then
+                '    HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION") & "NUMERO TAREAS SELECCIONADAS | " & Result & "||"
+                'End If
+                cronometroFuncion.Restart()
                 Result = Refclas.Inicializa_firma_usuario_workflow()
+                cronometroFuncion.Stop()
+                RegistraTiempoLoadWorkflow("Inicializa_firma_usuario_workflow", cronometroFuncion, Result)
                 If Result <> "YES" Then
                     HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION") & "RUTA FIRMA ERROR| " & HttpContext.Current.Session("WF_RUTA_FIRMA_FINAL") & "||"
                 Else
@@ -184,7 +235,10 @@ Public Class Webworkflow
                 HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION").ToString.Replace("||", "¬")
                 Hiddenintercambio2.Value = HttpContext.Current.Session("WF_RUTA_FIRMA_FINAL")
                 Dim refclas2 As New ClassNeodynamic
-                refclas2.Firma_transparente()
+                cronometroFuncion.Restart()
+                Dim resultadoFirmaTransparente As String = refclas2.Firma_transparente()
+                cronometroFuncion.Stop()
+                RegistraTiempoLoadWorkflow("Firma_transparente", cronometroFuncion, resultadoFirmaTransparente)
             Else
                 Dim Matri_Temp() As String
                 Erase Matri_Temp
@@ -201,6 +255,14 @@ Public Class Webworkflow
             End If
             Hidden_id_tarea_selecionada.Value = HttpContext.Current.Session.Item("ID_TAREA_SELECCIONDA")
         Catch ex As Exception
+            System.Diagnostics.Debug.WriteLine("WF_LOAD|EXCEPCION|" & ex.ToString())
+            HttpContext.Current.Trace.Warn("WF_LOAD", "EXCEPCION|" & ex.ToString())
+            HttpContext.Current.Session.Item("DETALLE_SESION") =
+                Convert.ToString(HttpContext.Current.Session.Item("DETALLE_SESION")) &
+                "WF_LOAD EXCEPCION|" & ex.Message.Replace("|", "/").Replace("¬", "/") & "¬"
+        Finally
+            cronometroTotal.Stop()
+            RegistraTiempoLoadWorkflow("TOTAL_PAGE_LOAD", cronometroTotal)
         End Try
 
     End Sub

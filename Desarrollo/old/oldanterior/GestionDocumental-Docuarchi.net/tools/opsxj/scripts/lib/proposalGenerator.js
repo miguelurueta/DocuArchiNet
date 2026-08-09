@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { writeLegacyGovernanceArtifacts } from "./legacyGovernanceService.js";
 
 const toBullet = (items) => items.map((item) => `- ${item}`).join("\n");
 const MAX_CHANGE_NAME_LENGTH = 96;
@@ -350,6 +351,7 @@ export const writeRefinementArtifacts = async ({
   summary,
   description,
   metadata,
+  impact = "cross_cutting",
   baseDir,
 }) => {
   const resolvedChangeName = slugifyForOpenSpec(changeName || issueKey);
@@ -387,7 +389,22 @@ export const writeRefinementArtifacts = async ({
     "utf8",
   );
 
-  return { designPath, specPath, tasksPath, jiraContextPath, capability };
+  const governanceArtifacts = await writeLegacyGovernanceArtifacts({
+    baseDir,
+    issueKey,
+    changeName: resolvedChangeName,
+    summary,
+    impact,
+  });
+
+  return {
+    designPath,
+    specPath,
+    tasksPath,
+    jiraContextPath,
+    capability,
+    governanceArtifacts,
+  };
 };
 
 export const writeProposalFile = async ({

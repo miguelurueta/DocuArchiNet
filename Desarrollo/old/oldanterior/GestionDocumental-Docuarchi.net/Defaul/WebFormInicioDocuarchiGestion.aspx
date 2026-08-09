@@ -13,20 +13,23 @@
 	<link href="../menu_scoope/assets/css/flag-icon.min.css" rel="stylesheet"/>
 	<link href="../menu_scoope/assets/css/fakeLoader.css" rel="stylesheet"/>	
     <link href="../menu_scoope/assets/css/scoop-vertical.css" rel="stylesheet"/>
+    <link href="../Styles/menu-vertical-responsivo.css?v=20260807-menu11" rel="stylesheet" />
     <script src="../js/ui/jquery-3.4.1.min.js"></script>  
   <script src="../js/ui/jquery-ui-1.8.22.custom.js" type="text/javascript"></script>
   <script src="../js/ui/jquery.ui.core.js" type="text/javascript"></script>
     <link href="../menu_scoope/assets/css/jquery.mCustomScrollbar.css" rel="stylesheet"/>
 	<script src="../menu_scoope/assets/js/jquery.1.11.3.min.js"></script>
+	<script src="../js/workflow/session-workflow.js?v=20260808-sessionfix6" type="text/javascript"></script>
 	<script src="../menu_scoope/assets/js/lib/fakeLoader.js"></script>
      <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <script src="../bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
     <link href="../Styles/bootra-person.css" rel="stylesheet" />
     <script src="../menu_scoope/assets/js/scoop.min.js"></script>
+    <script src="../js/inicio/menu-vertical-responsivo.js?v=20260807-menu2"></script>
 	<script src="../menu_scoope/assets/js/lib/sparkline.min.js"></script>
 	<script src="../menu_scoope/assets/js/lib/jquery.mCustomScrollbar.concat.min.js"></script> 
 	<script src="../menu_scoope/assets/js/lib/jquery.mousewheel.min.js"></script>    
-    <script src="../js/inicio/WebFormInicioDocuarchiGestion.js"></script>  
+<script src="../js/inicio/WebFormInicioDocuarchiGestion.js?v=20260807-sessiondisplay2"></script>
     <script src="../js/sesion/js_sesion_gestor.js"></script>
     <link href="../Styles/bootra-person.css" rel="stylesheet" />  
     <link href="../Awesome/css/fontawesome.css" rel="stylesheet" />
@@ -39,6 +42,97 @@
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
+    <style type="text/css">
+/* DA_MENU_VISUAL_UNIFICADO_V1: capa visual; no altera IDs, permisos ni navegación Scoop. */
+#scoop .scoop-navbar { background:#173f6b !important; box-shadow:2px 0 10px rgba(13,42,72,.10); }
+#scoop #nav_menu { background:#173f6b; }
+#scoop .scoop-header .scoop-left-header { display:block !important; width:235px !important; background:#173f6b !important; }
+#scoop .da-menu-brand { display:flex !important; align-items:center; min-height:58px; padding:0 18px; background:#173f6b !important; text-align:left; }
+#scoop .da-menu-brand .logo-text { display:block; width:100%; margin:0; font:12px/1.3 "Segoe UI",sans-serif; text-align:left; }
+#scoop .da-menu-brand .logo-text strong, #scoop .da-menu-brand .logo-text small { display:block; }
+#scoop .da-menu-brand .logo-text strong { color:#fff; font-size:14px; font-weight:650; }
+#scoop .da-menu-brand .logo-text small { margin-top:1px; color:#afc0d9; font-size:12px; }
+#scoop #nav_menu { padding:12px 10px 24px; }
+#scoop #nav_menu .scoop-item[item-border="true"] > li > a,
+#scoop #nav_menu .scoop-item[subitem-border="true"] .scoop-submenu li > a { border-bottom:0 !important; }
+#scoop #nav_menu .scoop-left-item > li { margin:3px 0; }
+#scoop #nav_menu .scoop-left-item > li > a { display:grid !important; grid-template-columns:24px minmax(0,1fr) auto 14px; grid-template-areas:"icon text badge caret"; column-gap:9px; align-items:center; min-height:43px; padding:0 11px !important; border-radius:8px; }
+#scoop #nav_menu .scoop-left-item > li > a { color:#afc0d9 !important; }
+#scoop #nav_menu .scoop-left-item > li > a:hover { background:rgba(255,255,255,.065) !important; color:#fff !important; }
+#scoop #nav_menu .scoop-left-item > li.scoop-trigger > a,
+#scoop #nav_menu .scoop-left-item > li.active > a { background:#1c65c7 !important; color:#fff !important; box-shadow:0 8px 20px rgba(0,0,0,.20) !important; }
+#scoop #nav_menu .scoop-left-item > li > a > .scoop-micon { grid-area:icon; display:flex !important; align-items:center; justify-content:center; width:24px; min-width:24px; margin:0 !important; padding:0 !important; }
+#scoop #nav_menu .scoop-left-item > li > a > .scoop-mtext { grid-area:text; position:static !important; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#scoop #nav_menu .scoop-left-item > li > a > .scoop-badge { grid-area:badge; position:static !important; margin:0 !important; justify-self:end; }
+#scoop #nav_menu li.scoop-hasmenu > a:after { display:block !important; position:static !important; float:none !important; grid-area:caret; justify-self:end; width:14px; margin:0 !important; padding:0 !important; }
+#scoop #nav_menu .scoop-mcaret { display:none !important; }
+#scoop #nav_menu .scoop-submenu { margin:3px 0 7px 9px !important; padding:3px 0 3px 8px !important; border-left:1px solid rgba(145,167,199,.28); background:transparent !important; }
+#scoop #nav_menu .scoop-submenu li > a { display:grid !important; grid-template-columns:20px minmax(0,1fr) auto 14px; grid-template-areas:"icon text badge caret"; column-gap:8px; align-items:center; min-height:36px; padding:8px 9px !important; border-radius:7px; }
+#scoop #nav_menu .scoop-submenu li > a { color:#b7c9df !important; }
+#scoop #nav_menu .scoop-submenu li > a:hover,
+#scoop #nav_menu .scoop-submenu li.active > a { background:rgba(255,255,255,.065) !important; color:#fff !important; }
+#scoop #nav_menu .scoop-submenu li > a > .scoop-micon { grid-area:icon; display:flex !important; align-items:center; justify-content:center; width:20px; min-width:20px; margin:0 !important; padding:0 !important; }
+#scoop #nav_menu .scoop-submenu li > a > .scoop-mtext { grid-area:text; position:static !important; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#scoop #nav_menu .scoop-submenu li > a > .scoop-badge { grid-area:badge; position:static !important; margin:0 !important; justify-self:end; }
+#scoop #nav_menu .scoop-submenu li > a .scoop-mtext:before { content:none !important; display:none !important; }
+#scoop #nav_menu .scoop-badge { min-width:21px; padding:3px 6px; border-radius:999px; font-size:10px; line-height:1.1; }
+
+/* DA_HOME_CARDS_VISUAL_UNIFICADO_V1: presentación de tarjetas; no cambia add_card_inicio ni eventos. */
+#card_general_ini_text { box-sizing:border-box; padding:22px 24px 32px; background:#f6f9fd !important; }
+#card_general_ini_text > .col-12 { margin:0 !important; padding:0 !important; }
+#card_general_ini_text .row_ { margin:0 0 28px; }
+#card_general_ini_text .row_ > .row > .col-12 { display:flex; align-items:center; min-height:42px; padding:0 4px; border-bottom:1px solid #dce6f1; }
+#card_general_ini_text .coll_sap_active { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; margin:0 10px 0 0 !important; color:#2467b2 !important; border-radius:7px; background:#e7f0fb; }
+#card_general_ini_text .coll_sap_active .fa-caret-down { font-size:16px !important; }
+#card_general_ini_text .row_ .h6, #card_general_ini_text .logo-text { margin:0 !important; color:#26384d; font-size:14px; font-weight:700; }
+#card_general_ini_text h7[id$="_count"], #content_card_count { margin-left:8px !important; color:#2467b2; font-size:12px; font-weight:700; }
+#card_general_ini_text hr { display:none; }
+#card_general_ini_text .collapse > .col-12 { padding:0 !important; }
+#card_general_ini_text .card-columns { display:flex !important; flex-flow:row wrap !important; align-items:flex-start !important; align-content:flex-start !important; gap:14px !important; width:100% !important; margin:16px 0 0 !important; column-count:unset !important; column-gap:0 !important; }
+#card_general_ini_text .card-columns .card { position:relative !important; flex:0 0 270px !important; width:270px !important; height:112px !important; min-width:270px !important; min-height:112px !important; max-width:270px !important; max-height:112px !important; margin:0 !important; overflow:hidden; border:1px solid #dce6f1 !important; border-radius:12px !important; background:#fff; box-shadow:0 2px 7px rgba(27,61,99,.06) !important; transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
+#card_general_ini_text .card-columns .card:hover { transform:translateY(-2px); border-color:#9bbce0 !important; box-shadow:0 10px 22px rgba(27,61,99,.13) !important; }
+#card_general_ini_text .card-columns .card-body { height:110px !important; min-height:110px !important; max-height:110px !important; padding:16px !important; overflow:hidden !important; }
+#card_general_ini_text .card-columns .media { display:flex !important; flex-flow:row nowrap !important; align-items:center !important; height:78px !important; min-height:78px !important; }
+#card_general_ini_text .card-columns .align-self-center { display:flex !important; flex:0 0 48px; align-items:center; justify-content:center; width:48px; height:48px; margin-right:13px; background:#fff !important; }
+#card_general_ini_text .card-columns .align-self-center i { margin:0 !important; font-size:20px !important; }
+#card_general_ini_text .card-columns .media-body { min-width:0; text-align:left !important; }
+#card_general_ini_text .card-columns h6 { margin:0 0 5px; overflow:hidden; color:#1e293b; font-size:14px; font-weight:700; line-height:1.25; text-overflow:ellipsis; white-space:nowrap; }
+#card_general_ini_text .card-columns .media-body > span:not(.ml-2) { display:-webkit-box; overflow:hidden; color:#66768a; font-size:12px; line-height:1.35; text-overflow:ellipsis; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+#card_general_ini_text .card-columns .media-body > span.ml-2 { display:block; margin:5px 0 0 !important; overflow:hidden; font-size:10px; font-weight:700; letter-spacing:.55px; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; }
+@media (max-width:576px) { #card_general_ini_text { padding:16px; } #card_general_ini_text .card-columns .card { flex:1 1 100% !important; width:100% !important; min-width:0 !important; max-width:none !important; } }
+    </style>
+    <link href="../Styles/inicio-menu-iis.css?v=20260807-home-menu3" rel="stylesheet" />
+    <script type="text/javascript">
+    /* DA_MENU_ORDEN_BADGE_V14: conserva el orden visual de badges inyectados dinámicamente. */
+    (function () {
+        function daNormalizarOrdenBadgesMenu() {
+            var menu = document.getElementById('nav_menu');
+            if (!menu) { return; }
+            var enlaces = menu.querySelectorAll('a');
+            for (var i = 0; i < enlaces.length; i++) {
+                var enlace = enlaces[i];
+                var texto = enlace.querySelector(':scope > .scoop-mtext');
+                var badge = enlace.querySelector(':scope > .scoop-badge');
+                if (texto && badge && texto.nextElementSibling !== badge) {
+                    texto.insertAdjacentElement('afterend', badge);
+                }
+            }
+        }
+        function daIniciarOrdenBadgesMenu() {
+            var menu = document.getElementById('nav_menu');
+            if (!menu) { return; }
+            daNormalizarOrdenBadgesMenu();
+            if (window.MutationObserver) {
+                new MutationObserver(daNormalizarOrdenBadgesMenu).observe(menu, { childList:true, subtree:true });
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', daIniciarOrdenBadgesMenu);
+        } else {
+            daIniciarOrdenBadgesMenu();
+        }
+    }());
+    </script>
     <title>DocuArchi SGEDA </title>
 </head>
 <body onload="display_unload()" class="overflow_none_scoop" >
@@ -89,11 +183,10 @@
             <div class="scoop-container">
                 <header class="scoop-header" id="header_coop" style="opacity:0">
                     <div class="scoop-wrapper">
-                        <div class="scoop-left-header d-none" id="hader_logo" >
-                           <div class="scoop-logo">
-                                <span class="logo-icon"><i class="ion-stats-bars"></i></span>
-                                <span class="logo-text">DocuArchi SGDEA<span class="hide-in-smallsize light" ></span></span>
-                            </div>   
+                        <div class="scoop-left-header" id="hader_logo" >
+                           <div class="scoop-logo da-menu-brand">
+                                <span class="logo-text"><strong>DocuArchi</strong><small>Gestión documental</small></span>
+                            </div>
                         </div>
                         <div class="scoop-right-header">
                             <div class="sidebar_toggle"><a href="javascript:void(0)"><i class="icon-menu"></i></a></div>
@@ -124,11 +217,8 @@
                                     </li>
                                 </ul>
                             </div>
-                            <div class="scoop-rr-header" id="id_scoop_item_rr" style="height:40px">                 
+                            <div class="scoop-rr-header" id="id_scoop_item_rr">                 
                                 <ul>
-                                    <li class="icons" title="" >
-                                       <span id="id_user_loguin" class="h6 font-weight-light"> </span>
-                                    </li>
                                     <li class="icons" id="CI-AP-001_00050" title="Inicio" onclick="even_diplay_ini();">
                                         <a href="javascript:void(0)">
                                             <i  class="fal fa-arrow-left fa-2x" aria-hidden="true"></i>
@@ -136,12 +226,18 @@
                                     </li>     
                                     <li class="icons" title="Descargar componente de impresión versión 3" >
                                          <a href="http://www.neodynamic.com/downloads/wcpp/" target="_blank">
-                                            <i  class="fal fa-cloud-download fa-2x" aria-hidden="true"></i>
+                                            <i  class="fal fa-download fa-2x" aria-hidden="true"></i>
                                         </a>
                                     </li>
-                                    <li class="icons" id="boton_sesion_end_active"  title="Cerrar sesión">
-                                        <a href="javascript:void(0)"  >
-                                            <i style="color:darkred" class="fal fa-power-off fa-2x" aria-hidden="true" title="Cerrar sesión"></i>
+                                    <li class="icons" id="id_user_loguin">
+                                        <span id="user_usuario_loguin" class="d-none">Usuario</span>
+                                        <a href="javascript:void(0)">
+                                            <i  class="fal fa-user fa-2x" aria-hidden="true"></i>
+                                        </a>
+                                    </li>
+                                    <li class="icons" onclick="sesion_cli();" title="Cerrar sesión">
+                                        <a href="javascript:void(0)">
+                                            <i class="fal fa-sign-out fa-2x" aria-hidden="true" title="Cerrar sesión"></i>
                                         </a>
                                     </li>
                                 </ul>
@@ -784,7 +880,7 @@
                                   <i id="i_lert_sesion_time_out" class="fad fa-portal-exit fa-3x"></i>
                               </div>
                               <div class="col-10">
-                                  <span class="h6 font-weight-light" id="title_lert_sesion_time_out"> Su sesión a caducado por inactividad, lo vamos a direccionar a la página principal.</span>       
+                                  <span class="h6 font-weight-light" id="title_lert_sesion_time_out">Su sesión ha caducado o fue cerrada. Será dirigido a la página principal.</span>       
                               </div>    
                           </div>      
                     </div>
@@ -831,20 +927,6 @@
     </form>
     <script accesskey="javascript" type="text/javascript">
         $("#fakeLoader").fakeLoader();
-        function MantenSesion() {
-            try {
-                var CONTROLADOR = "../workflow/refresh_session.ashx";
-                var head = document.getElementsByTagName('body').item(0);
-                script = document.createElement('script');
-                script.src = CONTROLADOR;
-                script.setAttribute('type', 'text/javascript');
-                script.defer = true;
-                head.appendChild(script);
-            }
-            catch (err) {
-                alert(err.message + " Funcion MantenSesion");
-            }
-        }
     </script>
 </body>
 </html>

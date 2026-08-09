@@ -1,4 +1,4 @@
-﻿<%@ Page Language="vb" AutoEventWireup="false" EnableEventValidation="false"  CodeBehind="Webworkflow.aspx.vb" Inherits="GestionDocumental_Docuarchi.net.Webworkflow" %>
+﻿<%@ Page Language="vb" AutoEventWireup="false" EnableEventValidation="false" CodeBehind="Webworkflow.aspx.vb" Inherits="GestionDocumental_Docuarchi.net.Webworkflow" %>
 <%@ Register assembly="AjaxControlToolkit" namespace="AjaxControlToolkit" tagprefix="asp" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -16,7 +16,7 @@
     <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <script src="../bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
     <link href="../Styles/bootra-person.css" rel="stylesheet" />  
-    <script src="../js/table_boo/table_boot_config.js" type="text/javascript"></script>
+    <script src="../js/table_boo/table_boot_config.js?v=20260807-table-resize1" type="text/javascript"></script>
     <script src="../js/java_general/BootstrapTable.js" type="text/javascript"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/bootstrap-table.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.29.0/tableExport.min.js" type="text/javascript"></script>
@@ -25,6 +25,13 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/extensions/export/bootstrap-table-export.min.js" type="text/javascript"></script>
     <link href="../Styles/styleMenu.css" rel="stylesheet" type="text/css" /> 
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
+    <link href="../Styles/gridview-moderno.css?v=20260807-phase2-6" rel="stylesheet" />
+    <link href="../Styles/workflow-tareas-modernas.css?v=20260807-grid38" rel="stylesheet" />
+    <link href="../Styles/workflow-documentos-relacionados-modernos.css?v=20260808-docrel21" rel="stylesheet" />
+    <link href="../Styles/workflow-documentos-relacionados-titulo.css?v=20260808-title6" rel="stylesheet" />
+    <script src="../js/workflow/workflow-paginacion-visual.js?v=20260807-pager6" type="text/javascript"></script>
+    <script src="../js/workflow/documentos-relacionados-visual.js?v=20260808-docrel4" type="text/javascript"></script>
+    <script src="../js/workflow/documentos-relacionados-titulo-visual.js?v=20260808-title2" type="text/javascript"></script>
     <script src="../js/validate_campos.js" type="text/javascript"></script>
     <script src="../js/java_general/general_config.js" type="text/javascript"></script>
     <link href="../js/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
@@ -37,7 +44,7 @@
     <script src="../js/java_general/GredviewControl.js" type="text/javascript"></script>
     <script src="../js/java_general/general_code_java.js" type="text/javascript"></script>
     <script src="../generic_control/FileUploadHandler.js" type="text/javascript"></script>
-    <script src="../js/java_general/ASMXClient.js" type="text/javascript"></script>
+    <script src="../js/java_general/ASMXClient.js?v=20260807-asmxclient1" type="text/javascript"></script>
     <script src="../js/java_general/JSProgresBar.js" type="text/javascript"></script>
     <link href="../generic_control/UploadFile.css" rel="stylesheet" />
     <link href="../Awesome/css/fontawesome.css" rel="stylesheet" />
@@ -60,10 +67,9 @@
     <title>Workflow Documental</title>
 </head>    
      <script src="../js/java_general/row_multiple_gred.js" type="text/javascript"></script>
-     <script src="../js/java_general/JSProgresBar.js" type="text/javascript"></script>
      <script src="../js/java_general/JSExpediente.js" type="text/javascript"></script>
      <script src="../js/java_general/gestion_meta_dato.js" type="text/javascript"></script>
-     <script src="../js/workflow/Webworkflow.js" type="text/javascript"></script>
+     <script src="../js/workflow/Webworkflow.js?v=20260807-modal50" type="text/javascript"></script>
      <script src="../js/sesion/js_sesion_gestor.js" type="text/javascript"></script>
      <script src="../js/versiondocumento/gestion_version_documento.js" type="text/javascript"></script>
      <script src="../js/java_general/JS_firma_digital.js" type="text/javascript"></script>
@@ -831,7 +837,7 @@
                       <asp:UpdatePanel ID="UpdatePanel1" runat="server"
                           UpdateMode="Conditional">
                           <ContentTemplate>
-                              <asp:GridView ID="GridView2" class="table font-weight-light ml-1" PagerSettings-Position="Top" AllowSorting="true" AllowPaging="true" PageSize="7" runat="server" Style="width: 99.5%; font-family: Segoe UI; font-size: 14px" EnableViewState="true"
+                              <asp:GridView ID="GridView2" class="table font-weight-light ml-1 gridview-moderno" PagerSettings-Position="Top" AllowSorting="true" AllowPaging="true" PageSize="7" runat="server" Style="width: 99.5%; font-family: Segoe UI; font-size: 14px" EnableViewState="true"
                                   AutoGenerateSelectButton="False" GridLines="None">
                                   <RowStyle />
                                   <SelectedRowStyle BackColor="LightSkyBlue" Font-Bold="True" ForeColor="Red" />
@@ -861,7 +867,7 @@
               <div id="content_selecion_tarea" style="width:100%; display:none"> 
                   <div id="error_div_selecion_tarea_wf" style="position: relative; width: 100%"></div>
                   <div id="content_seleccion_documentos" style="width: 25%; position: relative; left: auto; float: left; height: 100%;" class="modal_content_no_back_rigth modal_content_no_back_inferior">
-                      <div id="div_label" class="row p-0 m-0  pt-2 pb-2 modal_content_no_back_inferior">
+                      <div id="div_label" class="row p-0 m-0 pt-2 pb-2 modal_content_no_back_inferior documentos-relacionados-titulo">
                           <div class="col-1 pt-2 pl-l3" >
                               <input classs="btn   btn-light btn-sm border-0 bg-transparent" type="checkbox" onclick="table_gred_on_click_check(this,'GridView_list_documento_relacion_wf','chek_selecion_list_wf');" />
                           </div>
@@ -3423,7 +3429,7 @@
                 </div>
             </asp:Panel>
             <!--lista_actividades_worflow_ruta-->
-           <asp:Panel ID="Panel_lista_actividades_worflow_ruta" runat="server" Style="display:none;  width: 80%; height:100%" CssClass="modal_content_general">
+           <asp:Panel ID="Panel_lista_actividades_worflow_ruta" runat="server" Style="display:none;  width: 50%; height:50%" CssClass="modal_content_general">
                 <asp:ModalPopupExtender ID="ModalPopupExtender_edition_lista_actividades_worflow_ruta"  runat="server"   
                     TargetControlID="ButtonSalir_lista_actividades_worflow_ruta" BackgroundCssClass="FondoAplicacion"
                     CancelControlID="Button_cerrar_lista_actividades_worflow_ruta" PopupControlID="Panel_lista_actividades_worflow_ruta" ></asp:ModalPopupExtender>
@@ -3447,7 +3453,7 @@
                                 <input id="HiddenEstado" type="hidden" value="1" runat="server"/>
                                 <div id="div_gred" style="  overflow: auto">
                                     <asp:GridView ID="GridView_envia_flujo" runat="server" Style="width:100%" EnableViewState="true"
-                                        AutoGenerateSelectButton="False" CssClass="filtrar table font-weight-light" GridLines="None" >
+                                        AutoGenerateSelectButton="False" CssClass="filtrar table font-weight-light gridview-moderno" GridLines="None" >
                                         <SelectedRowStyle BackColor="LightSkyBlue"  />
                                         <HeaderStyle CssClass="GridviewScrollHeader_line_boot" />
                                         <Columns>

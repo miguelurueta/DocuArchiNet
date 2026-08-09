@@ -32,6 +32,24 @@ var INTERVAL_REMPLADATOS_COMPARTIDOS;
 var INTERVAL_REMPLAZA_LISTA_TRAMITES;
 var INTERVAL_REMPLAZA_DATOS_LISTA_TAREAS;
 var INTERVAL_SESION_ITEM_MANTENT;
+var INTERVALO_ACTUALIZACION_CONTADORES = 30000;
+
+function detener_polling_contadores_inicio() {
+    clearInterval(INTERVAL_REMPLAZA_PENDIETES_APROBACION);
+    clearInterval(INTERVAL_REMPLADATOS_COMPARTIDOS);
+    clearInterval(INTERVAL_REMPLAZA_LISTA_TRAMITES);
+    clearInterval(INTERVAL_REMPLAZA_DATOS_LISTA_TAREAS);
+    clearInterval(INTERVAL_SESION_ITEM_MANTENT_SSION_GESTOR);
+    clearInterval(INTERVAL_LOG_SESION);
+    INTERVAL_REMPLAZA_PENDIETES_APROBACION = null;
+    INTERVAL_REMPLADATOS_COMPARTIDOS = null;
+    INTERVAL_REMPLAZA_LISTA_TRAMITES = null;
+    INTERVAL_REMPLAZA_DATOS_LISTA_TAREAS = null;
+    INTERVAL_SESION_ITEM_MANTENT_SSION_GESTOR = null;
+    INTERVAL_LOG_SESION = null;
+}
+
+window.addEventListener("pagehide", detener_polling_contadores_inicio);
 function event_onclick_colapse_card(e) {
     var element = e.currentTarget;
     if (element.classList.contains("collapsed")) {
@@ -113,18 +131,19 @@ const hide_modal_sesion_end = async () => {
  * 
 ------------------------------------------------*/
 function display_unload() {
+    detener_polling_contadores_inicio();
     auto_zise_popup_inicio_docuarchi_inicio();
     INTERVAL_SESION_ITEM_MANTENT_SSION_GESTOR = setInterval('Service_REST_validate_sesion_gestor();', '6030');
     //INTERVAL_SESION_ITEM_MANTENT=setInterval('web_service_sesion_mantener("refresh_session.ashx");', '6030');
     INTERVAL_LOG_SESION = setInterval('set_actualiza_log_sesion_usuario_gestion_documental();', '31200');
     web_service_solicitudes_usuario("Handler_lista_numero_solicitudes_dbase.ashx");
-    INTERVAL_REMPLAZA_PENDIETES_APROBACION = setInterval('remplaza_datos_respuestas_pendientes_por_aprobacion("Respuestas pendientes por mi aprobación","Handler_lista_numero_solicitudes.ashx");', '1200');
+    INTERVAL_REMPLAZA_PENDIETES_APROBACION = setInterval(function () { remplaza_datos_respuestas_pendientes_por_aprobacion("Respuestas pendientes por mi aprobación", "Handler_lista_numero_solicitudes_dbase.ashx"); }, INTERVALO_ACTUALIZACION_CONTADORES);
     web_service_solicitudes_documentos("Handler_Lista_compartidos_por_revision_db.ashx");
-    INTERVAL_REMPLADATOS_COMPARTIDOS=setInterval('remplaza_datos_doucumentos_compartidos("","Handler_Lista_compartidos_para_otros_usuarios.ashx");', '1400');
+    INTERVAL_REMPLADATOS_COMPARTIDOS = setInterval(function () { remplaza_datos_doucumentos_compartidos("", "Handler_Lista_compartidos_por_revision_db.ashx"); }, INTERVALO_ACTUALIZACION_CONTADORES);
     web_service_lista_tramites_asignados("Handler_lista_tramites_wf_asignados_db.ashx");
-    INTERVAL_REMPLAZA_LISTA_TRAMITES=setInterval('remplaza_datos_lista_tramites_asignados("","Handler_lista_tramites_wf_asignados.ashx");', '1500');
+    INTERVAL_REMPLAZA_LISTA_TRAMITES = setInterval(function () { remplaza_datos_lista_tramites_asignados("", "Handler_lista_tramites_wf_asignados_db.ashx"); }, INTERVALO_ACTUALIZACION_CONTADORES);
     web_service_lista_tareas_asignadas_workflow("Handler_lista_tareas_asignadas_workflow_db.ashx");
-    INTERVAL_REMPLAZA_DATOS_LISTA_TAREAS = setInterval('remplaza_datos_lista_tareas_asignadas_workflow("","Handler_lista_tareas_asignadas_workflow.ashx");', '1600');
+    INTERVAL_REMPLAZA_DATOS_LISTA_TAREAS = setInterval(function () { remplaza_datos_lista_tareas_asignadas_workflow("", "Handler_lista_tareas_asignadas_workflow_db.ashx"); }, INTERVALO_ACTUALIZACION_CONTADORES);
     document.getElementById("main_container").style.opacity = 1;
     document.getElementById("header_coop").style.opacity = 1;
     document.getElementById("hader_logo").classList.remove("d-none");
@@ -148,6 +167,17 @@ function event_click(e) {
     catch (err) {
         alert(err.message + " Funcion event_click");
     }
+}
+
+function sesion_cli() {
+    var botonSesion = document.getElementById("ImageButtonSesion");
+    if (botonSesion == null) {
+        alert("Desde esta pagina auxiliar no puede cerrar sesión");
+        return;
+    }
+
+    botonSesion.click();
+    window.location.assign("../gestor.aspx");
 }
 
 var ITEMS_DATOS_TOKENIZE_2 = new Array();
@@ -259,6 +289,7 @@ function web_service_lista_tareas_asignadas_workflow(dat) {
             data: jsonData,
             success: function (data) {
                 VALOR_TAREAS_ASIGNADAS = data;
+                pintar_numero_tareas_asignadas_workflow(data);
             },
             error: function (errorText) {   
                 clearInterval(INTERVAL_REMPLAZA_DATOS_LISTA_TAREAS);
@@ -267,6 +298,31 @@ function web_service_lista_tareas_asignadas_workflow(dat) {
     }
     catch (err) {
         //alert(err.message + " Funcion web_service_lista_tareas_asignadas_workflow");
+    }
+}
+
+function pintar_numero_tareas_asignadas_workflow(numero_tareas) {
+    try {
+        if (!document.getElementById("id_task_workflow_")) {
+            return;
+        }
+
+        var hayTareas = Number(numero_tareas) > 0;
+        var visualizacion = hayTareas ? "block" : "none";
+
+        document.getElementById("id_task_workflow").style.display = visualizacion;
+        document.getElementById("id_task_workflow").textContent = numero_tareas;
+        document.getElementById("id_task_workflow_").style.display = visualizacion;
+        document.getElementById("id_task_workflow_").textContent = numero_tareas;
+        document.getElementById("id_task_workflow__").style.display = visualizacion;
+        document.getElementById("id_task_workflow__").textContent = numero_tareas;
+
+        if (document.getElementById("WF-CL-01_card_content")) {
+            document.getElementById("WF-CL-01_card_content").textContent = numero_tareas;
+        }
+    }
+    catch (err) {
+        //La actualización visual no debe interrumpir el siguiente ciclo de consulta.
     }
 }
 
@@ -301,7 +357,7 @@ function remplaza_datos_respuestas_pendientes_por_aprobacion(clave_busqueda, url
 function remplaza_datos_lista_tramites_asignados(clave_busqueda, url_service) {
     try {
         if (document.getElementById("id_task_asignado_")) {
-            web_service_lista_tramites_asignados("Handler_lista_tramites_wf_asignados.ashx");
+            web_service_lista_tramites_asignados(url_service);
             if (VALOR_TRAMITES_ASIGNADOS == 0) {
                 document.getElementById("id_task_asignado").style.display = "none";
                 document.getElementById("id_task_asignado").textContent = VALOR_TRAMITES_ASIGNADOS;
@@ -329,7 +385,7 @@ function remplaza_datos_lista_tramites_asignados(clave_busqueda, url_service) {
 function remplaza_datos_doucumentos_compartidos(clave_busqueda, url_service) {
     try {    
         if (document.getElementById("id_docu_aprobacion_")) {
-            web_service_solicitudes_documentos("Handler_Lista_compartidos_por_revision.ashx");
+            web_service_solicitudes_documentos(url_service);
             if (VALOR_DOCUMENTOS_SERVICE == 0) {
                 document.getElementById("id_docu_aprobacion").style.display = "none";
                 document.getElementById("id_docu_aprobacion").textContent = VALOR_DOCUMENTOS_SERVICE;
@@ -357,25 +413,7 @@ function remplaza_datos_doucumentos_compartidos(clave_busqueda, url_service) {
 function remplaza_datos_lista_tareas_asignadas_workflow(clave_busqueda, url_service) {
     try {
         if (document.getElementById("id_task_workflow_")) {
-            web_service_lista_tareas_asignadas_workflow("Handler_lista_tareas_asignadas_workflow.ashx");
-            if (VALOR_TAREAS_ASIGNADAS == 0) {
-                document.getElementById("id_task_workflow").style.display = "none";
-                document.getElementById("id_task_workflow").textContent = VALOR_TAREAS_ASIGNADAS;
-                document.getElementById("id_task_workflow_").style.display = "none";
-                document.getElementById("id_task_workflow_").textContent = VALOR_TAREAS_ASIGNADAS;
-                document.getElementById("id_task_workflow__").style.display = "none";
-                document.getElementById("id_task_workflow__").textContent = VALOR_TAREAS_ASIGNADAS;
-            } else {
-                document.getElementById("id_task_workflow").style.display = "block";
-                document.getElementById("id_task_workflow").textContent = VALOR_TAREAS_ASIGNADAS;
-                document.getElementById("id_task_workflow_").style.display = "block";
-                document.getElementById("id_task_workflow_").textContent = VALOR_TAREAS_ASIGNADAS;
-                document.getElementById("id_task_workflow__").style.display = "block";
-                document.getElementById("id_task_workflow__").textContent = VALOR_TAREAS_ASIGNADAS;
-            }
-            if (document.getElementById("WF-CL-01_card_content")) {
-                document.getElementById("WF-CL-01_card_content").textContent = VALOR_TAREAS_ASIGNADAS;
-            }
+            web_service_lista_tareas_asignadas_workflow(url_service);
         }
 
     }
@@ -490,10 +528,11 @@ function web_service_sesion() {
             processData: false,
             contentType: "application/json; charset=utf-8",
             success: function (data) {
-                document.getElementById("id_user_loguin").innerHTML = data.d;         
+                // Conserva la estructura visual del control: título/módulo y login.
+                document.getElementById("id_user_loguin").title = data.d;
             },
             error: function (errorText) {
-                document.getElementById("id_user_loguin").innerHTML = data.d;
+                document.getElementById("id_user_loguin").title = "";
             }
         });
 
@@ -513,11 +552,12 @@ function web_service_sesion_lguin() {
             processData: false,
             contentType: "application/json; charset=utf-8",
             success: function (data) {
-                document.getElementById("id_user_loguin").innerHTML = data.d;
+                // No reemplazar el <li>: el CSS presenta este span como el login.
+                document.getElementById("user_usuario_loguin").textContent = data.d;
                
             },
             error: function (errorText) {
-                document.getElementById("id_user_loguin").innerHTML = data.d;
+                document.getElementById("user_usuario_loguin").textContent = "";
                 
 
             }
@@ -1272,6 +1312,7 @@ function hide_div() {
 }
 function event_menu_prinicipal(element, event) {
     try {
+        detener_polling_contadores_inicio();
         for (i = 0; i < ITEMS_DATOS_TOKENIZE_2.length; i++) {
             if (ITEMS_DATOS_TOKENIZE_2[i].value_node == element.id || ITEMS_DATOS_TOKENIZE_2[i].value_card == element.id) {
                 if (ITEMS_DATOS_TOKENIZE_2[i].url_node === "") {
@@ -1398,6 +1439,7 @@ function even_diplay_ini() {
     document.getElementById("content_iframe_ds").style.display = "none";
     document.getElementById("id_selecion_opcion_trea").style.display = "none";
     document.getElementById("card_general_ini_text").style.display = "flex";
+    display_unload();
 }
 function auto_zise_popup_inicio_docuarchi_inicio() {
     try {

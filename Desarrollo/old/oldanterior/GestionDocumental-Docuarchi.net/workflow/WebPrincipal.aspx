@@ -64,20 +64,6 @@ margin-top:-4px;background:transparent url(../imagewf/panehc.gif) 50% -10px;
 
         <script accesskey="javascript" type="text/javascript">
             var ModalProgress = '<%= ModalProgress.ClientID %>';
-            function MantenSesion() {
-                try {
-                    var CONTROLADOR = "refresh_session.ashx";
-                    var head = document.getElementsByTagName('head').item(0);
-                    script = document.createElement('script');
-                    script.src = CONTROLADOR;
-                    script.setAttribute('type', 'text/javascript');
-                    script.defer = true;
-                    head.appendChild(script);
-                }
-                catch (err) {
-                    alert(err.message + " Funcion MantenSesion");
-                }
-             }
             function Manten_service() {
                 try {
                        if (document.getElementById("ContentPlacenter_Hidden_url_service").value !== "") {
@@ -94,7 +80,6 @@ margin-top:-4px;background:transparent url(../imagewf/panehc.gif) 50% -10px;
             }
             var sesion ='<%=Session.Timeout %>';
             var obje;
-            setInterval('MantenSesion()', '<%= (0.9 * (Session.Timeout * 60000)) %>');  
             //setInterval('Manten_service()', '60000');
             //Remplaza el valor en la interface de treview sin crear la alarma
             setInterval('remplaza_datos_solicitudes_usuario("Respuestas pendientes por mi aprobación","Handler_lista_numero_solicitudes.ashx","","ContentPlacenter_Hidden_resultado_web_service");', '1200');

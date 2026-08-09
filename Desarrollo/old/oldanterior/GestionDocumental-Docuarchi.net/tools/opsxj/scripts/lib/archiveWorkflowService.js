@@ -5,6 +5,7 @@ import { execFile as execFileCb } from "node:child_process";
 import { slugifyForOpenSpec } from "./proposalGenerator.js";
 import { addJiraComment, fetchJiraIssue } from "./jiraClient.js";
 import { createOrGetPullRequest } from "./githubClient.js";
+import { validateLegacyGovernance } from "./legacyGovernanceService.js";
 
 const execFile = promisify(execFileCb);
 
@@ -140,9 +141,27 @@ export const archiveWithPullRequest = async ({
   jira,
   github,
   branchName,
+  env = process.env,
+  validateGovernanceFn = validateLegacyGovernance,
   fetchImpl = fetch,
 }) => {
   const changeName = await resolveChangeNameFromIssueKey({ baseDir, issueKey });
+  const shaResult = await runGit({ baseDir, args: ["rev-parse", "HEAD"] });
+  const governance = await validateGovernanceFn({
+    baseDir,
+    changeName,
+    env,
+    currentSha: String(shaResult.stdout ?? "").trim(),
+  });
+  if (governance.status !== "PASS") {
+    const failed = governance.checks
+      .filter((check) => check.status === "FAIL")
+      .map((check) => check.name)
+      .join(", ");
+    throw new Error(
+      `El gobierno de ${changeName} no permite archivar. Pendiente: ${failed || governance.message}`,
+    );
+  }
   const archiveResult = await archiveChangeWithFallback({
     baseDir,
     changeName,
@@ -209,5 +228,6 @@ export const archiveWithPullRequest = async ({
     archivedDirectoryPath,
     alsoArchivedDirectoryPaths,
     gitArchiveCommit,
+    governance,
   };
 };

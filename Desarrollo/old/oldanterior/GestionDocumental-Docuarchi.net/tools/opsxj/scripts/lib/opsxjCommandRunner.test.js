@@ -440,6 +440,35 @@ describe("opsxjCommandRunner", () => {
     expect(stderr.read()).toBe("");
   });
 
+  it("runs the neutral technical-review alias while preserving prompt-review compatibility", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const promptReviewFn = vi.fn().mockResolvedValue({
+      status: "pass",
+      promptPath: "D:/repo/Doc/Tecnica/PROMPT.md",
+      reportPath: "D:/repo/.opsxj/reports/technical-review-report.json",
+      summary: { blockers: 0, major: 0, minor: 0, info: 0 },
+      findings: [],
+      exitCode: 0,
+    });
+
+    const exitCode = await runOpsxjCommand({
+      argv: ["opsxj:technical-review", "Doc/Tecnica/PROMPT.md"],
+      stdout,
+      stderr,
+      baseDir: "D:/repo",
+      promptReviewFn,
+    });
+
+    expect(exitCode).toBe(0);
+    expect(promptReviewFn).toHaveBeenCalledWith({
+      baseDir: "D:/repo",
+      promptInput: "Doc/Tecnica/PROMPT.md",
+    });
+    expect(stdout.read()).toContain("PASS prompt-review");
+    expect(stderr.read()).toBe("");
+  });
+
   it("runs opsxj:status and prints local OpenSpec status", async () => {
     const stdout = buildBufferWriter();
     const stderr = buildBufferWriter();

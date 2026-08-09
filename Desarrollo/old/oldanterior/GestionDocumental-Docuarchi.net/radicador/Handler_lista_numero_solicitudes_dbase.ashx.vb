@@ -6,7 +6,7 @@ Imports System.ComponentModel.Design.Serialization
 Imports System.Web.Script.Serialization
 
 Public Class Handler_lista_numero_solicitudes_dbase
-    Implements System.Web.IHttpHandler, IRequiresSessionState
+    Implements System.Web.IHttpHandler, System.Web.SessionState.IReadOnlySessionState
 
     Sub ProcessRequest(ByVal context As HttpContext) Implements IHttpHandler.ProcessRequest
 
@@ -16,9 +16,10 @@ Public Class Handler_lista_numero_solicitudes_dbase
         chk_editor_class = Deserialize(Of chk_editor)(strJson)
         Dim ref_clas As New ClassRaSolicitudesAprobacion
         Dim result As String = ""
+        Dim numeroSolicitudes As Integer = 0
         result = ref_clas.Retorna_numero_de_solicitudes_aprobacion_de_un_usuario(HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION"), _
-                                                                                 HttpContext.Current.Session.Item("GA_NUMERO_SOLICITUDES_PENDIENTES_APROBAR_USUARIO"))
-        context.Response.Write(HttpContext.Current.Session.Item("GA_NUMERO_SOLICITUDES_PENDIENTES_APROBAR_USUARIO"))
+                                                                                 numeroSolicitudes)
+        context.Response.Write(numeroSolicitudes)
 
     End Sub
     Public Function Deserialize(Of T)(context As String) As t

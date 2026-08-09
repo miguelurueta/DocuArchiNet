@@ -14,6 +14,7 @@ export const createProposalFromJira = async ({
   baseDir,
   commandName,
   folderStrategy = "issueKey",
+  impact,
   fetchImpl = fetch,
 }) => {
   const issue = await fetchJiraIssue({
@@ -44,6 +45,7 @@ export const createProposalFromJira = async ({
     summary: issue.summary,
     description: issue.description,
     metadata: issue.metadata,
+    impact,
     baseDir,
   });
 

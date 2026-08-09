@@ -1,5 +1,7 @@
 import path from "node:path";
+import { execFile as execFileCb } from "node:child_process";
 import { createInterface } from "node:readline/promises";
+import { promisify } from "node:util";
 import { createProposalFromJira } from "./jiraProposalService.js";
 import { transitionJiraIssue } from "./jiraClient.js";
 import {
@@ -11,15 +13,25 @@ import {
 import { archiveWithPullRequest } from "./archiveWorkflowService.js";
 import { closeIssueFromMergedPr } from "./closeWorkflowService.js";
 import {
-  applyPromptReviewCorrection,
-  reviewFrontendPrompt,
-} from "./frontendPromptReviewService.js";
+  applyTechnicalReviewCorrection,
+  reviewTechnicalPrompt,
+} from "./technicalPromptReviewService.js";
 import { getOpsxjStatus } from "./opsxjStatusService.js";
+import {
+  normalizeImpact,
+  validateLegacyGovernance,
+  writeValidationEvidence,
+} from "./legacyGovernanceService.js";
+
+const execFile = promisify(execFileCb);
 
 const usage = [
   "Uso:",
   "  node tools/opsxj/scripts/opsxj.js opsxj:new <ISSUE-KEY>",
+  "  node tools/opsxj/scripts/opsxj.js opsxj:validate <ISSUE-KEY|change-name> [--json]",
+  "  node tools/opsxj/scripts/opsxj.js opsxj:validation:evidence <ISSUE-KEY> --type <unit|manual_qa|e2e|build|documentation> --reference <detalle>",
   "  node tools/opsxj/scripts/opsxj.js opsxj:prompt-review <PROMPT.md|ISSUE-KEY>",
+  "  node tools/opsxj/scripts/opsxj.js opsxj:technical-review <PROMPT.md|ISSUE-KEY>",
   "  node tools/opsxj/scripts/opsxj.js opsxj:status <ISSUE-KEY|change-name>",
   "  node tools/opsxj/scripts/opsxj.js opsxj:archive <ISSUE-KEY>",
   "  node tools/opsxj/scripts/opsxj.js opsxj:close <ISSUE-KEY>",
@@ -66,6 +78,11 @@ const buildNewContext = ({
     stdout.write(`[opsxj:new] Tasks creado: ${tasksRelative}\n`);
     if (jiraContextRelative) {
       stdout.write(`[opsxj:new] Jira context creado: ${jiraContextRelative}\n`);
+    }
+    if (refinementArtifacts.governanceArtifacts) {
+      stdout.write(
+        `[opsxj:new] Gobierno creado: ${path.relative(baseDir, refinementArtifacts.governanceArtifacts.manifestPath)}\n`,
+      );
     }
   }
   if (!env.JIRA_BASE_URL || !env.JIRA_EMAIL || !env.JIRA_API_TOKEN) {
@@ -152,6 +169,10 @@ const runNew = async ({
   assertGitCleanFn,
   transitionJiraIssueFn,
 }) => {
+  const impactIndex = args.findIndex((value) => value === "--impact");
+  const impact = normalizeImpact(
+    impactIndex >= 0 ? args[impactIndex + 1] : env.OPSXJ_IMPACT || "cross_cutting",
+  );
   const issueKey = issueKeyFromArg ?? args[0] ?? env.JIRA_ISSUE_KEY ?? "";
   if (!issueKey) {
     throw new Error(`Falta issueKey para opsxj:new.\n${usage}`);
@@ -168,6 +189,7 @@ const runNew = async ({
     baseDir,
     commandName: "opsxj.js opsxj:new",
     folderStrategy: "summary",
+    impact,
   });
 
   buildNewContext({
@@ -185,7 +207,7 @@ const runNew = async ({
     baseDir,
     issueKey,
     proposalPath: result.proposalPath,
-    autoPush: parseBoolean(env.GIT_AUTO_PUSH, true),
+    autoPush: parseBoolean(env.GIT_AUTO_PUSH, false),
   });
   printGitSummary({ stdout, gitResult });
   await moveJiraToInProgress({
@@ -244,6 +266,7 @@ const runArchive = async ({
       repoName: env.GITHUB_REPO_NAME,
       baseBranch: env.GITHUB_BASE_BRANCH || "main",
     },
+    env,
   });
 
   const prUrl = result.pullRequest?.html_url ?? "(sin URL)";
@@ -413,8 +436,8 @@ const runPromptReview = async ({
     [issueKeyFromArg, ...args].filter((arg) => arg !== undefined && arg !== null),
   );
   const promptInput = parsed.promptInput;
-  const review = promptReviewFn ?? reviewFrontendPrompt;
-  const correct = promptCorrectionFn ?? applyPromptReviewCorrection;
+  const review = promptReviewFn ?? reviewTechnicalPrompt;
+  const correct = promptCorrectionFn ?? applyTechnicalReviewCorrection;
   let result = await review({ baseDir, promptInput });
   printPromptReviewResult({ stdout, result });
 
@@ -571,6 +594,70 @@ const runStatus = async ({
   return { exitCode: 0 };
 };
 
+const parseKeyValueArgs = (rawArgs) => {
+  const positional = [];
+  const options = {};
+  for (let index = 0; index < rawArgs.length; index += 1) {
+    const value = String(rawArgs[index]);
+    if (value.startsWith("--")) {
+      options[value.slice(2)] = rawArgs[index + 1] ?? "";
+      index += 1;
+    } else {
+      positional.push(value);
+    }
+  }
+  return { positional, options };
+};
+
+const currentGitSha = async (baseDir) => {
+  const result = await execFile("git", ["rev-parse", "HEAD"], { cwd: baseDir });
+  return String(result.stdout).trim();
+};
+
+const resolveActiveChangeName = async ({ baseDir, input }) => {
+  const status = await getOpsxjStatus({ baseDir, input, env: {} });
+  if (!status.changeName || status.lifecycle !== "active") {
+    throw new Error("opsxj:validate requiere un cambio OpenSpec activo.");
+  }
+  return status.changeName;
+};
+
+const runValidate = async ({ args, issueKeyFromArg, baseDir, env, stdout, validateFn, shaFn }) => {
+  const parsed = parseKeyValueArgs([issueKeyFromArg, ...args].filter(Boolean));
+  const input = parsed.positional[0];
+  if (!input) throw new Error(`Falta SCRUM key o change-name para opsxj:validate.\n${usage}`);
+  const changeName = await resolveActiveChangeName({ baseDir, input });
+  const result = await validateFn({
+    baseDir,
+    changeName,
+    env,
+    currentSha: await shaFn(baseDir),
+  });
+  if (Object.hasOwn(parsed.options, "json")) {
+    stdout.write(`${JSON.stringify({ changeName, ...result }, null, 2)}\n`);
+  } else {
+    stdout.write(`OPSXJ Validation: ${changeName}\nStatus: ${result.status}\n${result.message}\n`);
+    for (const check of result.checks) stdout.write(`[${check.status}] ${check.name}\n`);
+  }
+  return { exitCode: result.status === "PASS" ? 0 : 1 };
+};
+
+const runValidationEvidence = async ({ args, issueKeyFromArg, baseDir, stdout, evidenceFn, shaFn }) => {
+  const parsed = parseKeyValueArgs([issueKeyFromArg, ...args].filter(Boolean));
+  const issueKey = parsed.positional[0];
+  if (!issueKey) throw new Error(`Falta issueKey para opsxj:validation:evidence.\n${usage}`);
+  const result = await evidenceFn({
+    baseDir,
+    issueKey,
+    type: parsed.options.type,
+    status: parsed.options.status || "pass",
+    reference: parsed.options.reference,
+    sha: await shaFn(baseDir),
+  });
+  stdout.write(`[opsxj:validation:evidence] Evidencia ${result.item.type} registrada en ${path.relative(baseDir, result.filePath)}\n`);
+  return { exitCode: 0 };
+};
+
 const runClose = async ({
   args,
   env,
@@ -616,10 +703,16 @@ const commandRegistry = new Map([
   ["new", runNew],
   ["opsxj:prompt-review", runPromptReview],
   ["prompt-review", runPromptReview],
+  ["opsxj:technical-review", runPromptReview],
+  ["technical-review", runPromptReview],
   ["opsxj:status", runStatus],
   ["status", runStatus],
   ["opsxj:orchestrate:status", runStatus],
   ["orchestrate:status", runStatus],
+  ["opsxj:validate", runValidate],
+  ["validate", runValidate],
+  ["opsxj:validation:evidence", runValidationEvidence],
+  ["validation:evidence", runValidationEvidence],
   ["opsxj:archive", runArchive],
   ["archive", runArchive],
   ["opsxj:close", runClose],
@@ -638,9 +731,12 @@ export const runOpsxjCommand = async ({
   setupProposalFn = setupProposalBranchAndCommit,
   archiveFn = archiveWithPullRequest,
   closeFn = closeIssueFromMergedPr,
-  promptReviewFn = reviewFrontendPrompt,
-  promptCorrectionFn = applyPromptReviewCorrection,
+  promptReviewFn = reviewTechnicalPrompt,
+  promptCorrectionFn = applyTechnicalReviewCorrection,
   statusFn = getOpsxjStatus,
+  validateFn = validateLegacyGovernance,
+  evidenceFn = writeValidationEvidence,
+  shaFn = currentGitSha,
   assertGitCleanFn,
   assertGitCleanAndSyncedFn,
   transitionJiraIssueFn = transitionJiraIssue,
@@ -669,6 +765,9 @@ export const runOpsxjCommand = async ({
       promptReviewFn,
       promptCorrectionFn,
       statusFn,
+      validateFn,
+      evidenceFn,
+      shaFn,
       baseDir,
       assertGitCleanFn,
       assertGitCleanAndSyncedFn,

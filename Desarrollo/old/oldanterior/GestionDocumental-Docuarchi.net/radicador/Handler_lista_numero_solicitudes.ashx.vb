@@ -6,7 +6,7 @@ Imports System.ComponentModel.Design.Serialization
 Imports System.Web.Script.Serialization
 
 Public Class Handler_lista_numero_solicitudes
-    Implements System.Web.IHttpHandler, IRequiresSessionState
+    Implements System.Web.IHttpHandler, System.Web.SessionState.IReadOnlySessionState
 
     Sub ProcessRequest(ByVal context As HttpContext) Implements IHttpHandler.ProcessRequest
         context.Response.ContentType = "text/plain"

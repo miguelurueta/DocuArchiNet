@@ -44,6 +44,41 @@
 	<link rel="stylesheet" type="text/css" href="colorlib/css/util.css"/>
 	<link rel="stylesheet" type="text/css" href="colorlib/css/main.css"/>
 <!--===============================================================================================-->
+    <style type="text/css">
+/* DA_LOGIN_MODERNO_V2 */
+:root { --da-azul:#2467b2; --da-azul-oscuro:#184f90; --da-texto:#1e293b; --da-gris:#64748b; --da-borde:#d7e0ec; }
+html, body { min-height:100%; background:#eef4fb !important; }
+body .limiter { min-height:100vh; }
+.da-login-stage { box-sizing:border-box; min-height:100vh; display:grid; place-items:center; padding:32px 16px; background:radial-gradient(circle at 15% 10%,#d8ebff 0,transparent 34%),linear-gradient(135deg,#edf5ff 0%,#f7faff 52%,#e8f1fc 100%); }
+.da-login-card { box-sizing:border-box; width:min(100%,420px) !important; min-height:0 !important; padding:0 !important; border:1px solid #dce7f3; border-radius:18px; overflow:hidden; background:#fff; box-shadow:0 24px 60px rgba(32,75,125,.16); }
+.da-login-form { width:100% !important; min-height:0 !important; padding:0 !important; background:transparent !important; }
+.da-login-brand { display:flex !important; align-items:center; justify-content:center; height:124px !important; padding:28px 32px 20px !important; border:0 !important; background:#fff !important; }
+.da-login-brand img { max-width:245px; max-height:72px; width:auto; height:auto !important; object-fit:contain; }
+.da-login-public { margin:0 32px !important; padding:13px 0 17px !important; text-align:center !important; border-top:1px solid #edf1f6; color:var(--da-gris); font-size:12px; line-height:1.45; }
+.da-login-public .txt1 { display:block; margin-bottom:3px; color:#8090a4; }
+.da-login-public .txt2 { color:var(--da-azul) !important; font-weight:600; text-decoration:none; }
+#ContentPlacenter_Panel_sesion_privado_login { padding:0 32px !important; }
+.da-login-row { display:block !important; margin:0 0 17px !important; }
+.da-login-row > .col-12 { display:block !important; max-width:none !important; padding:0 !important; }
+.da-login-module, .da-login-input { width:100% !important; height:48px !important; border:1px solid var(--da-borde) !important; border-radius:9px !important; background:#fff !important; color:var(--da-texto) !important; box-shadow:none !important; font-family:inherit !important; font-size:14px !important; }
+.da-login-module { padding:0 13px !important; }
+.da-login-field { position:relative; }
+.da-login-field .da-login-input { padding:17px 42px 5px 13px !important; }
+.da-login-field label { position:absolute; z-index:2; top:7px; left:13px; margin:0; color:var(--da-gris); font-size:11px; font-weight:600; pointer-events:none; }
+.da-login-field .da-login-icon { position:absolute; z-index:3; top:17px; right:14px; color:#7e91a7; font-size:15px; }
+.da-login-field:focus-within .da-login-input, .da-login-module:focus { border-color:var(--da-azul) !important; box-shadow:0 0 0 3px rgba(36,103,178,.12) !important; outline:0; }
+.da-login-password .input-group { display:block; }
+.da-login-password .input-group-append { position:absolute; z-index:4; right:35px; top:7px; }
+.da-login-password #show_password { width:33px; height:33px; padding:0; border:0; background:transparent !important; color:#7e91a7 !important; box-shadow:none !important; }
+.da-login-actions { display:flex !important; margin:0 !important; padding:0 !important; border:0 !important; }
+.da-login-submit { width:100%; height:48px; display:flex !important; align-items:center; justify-content:center; border:0 !important; border-radius:9px !important; background:var(--da-azul) !important; color:#fff !important; font-size:13px; font-weight:700; letter-spacing:.35px; text-decoration:none !important; box-shadow:0 8px 16px rgba(36,103,178,.22); }
+.da-login-submit:hover, .da-login-submit:focus { background:var(--da-azul-oscuro) !important; color:#fff !important; }
+.da-login-recovery { margin:28px -32px 0 !important; padding:19px 32px 25px !important; text-align:center; background:#f8fbff !important; border-top:1px solid #edf1f6; border-radius:0 !important; box-shadow:none !important; }
+.da-login-recovery .flex-col-c { padding:0 !important; }
+.da-login-recovery .txt1 { display:block; padding:0 0 7px !important; color:var(--da-gris); font-size:12px; }
+.da-login-recovery .txt3, .da-login-recovery .txt3 a { color:var(--da-azul) !important; font-size:13px; font-weight:600; text-decoration:none; }
+@media (max-width:480px) { .da-login-stage { padding:16px; } .da-login-card { border-radius:14px; } #ContentPlacenter_Panel_sesion_privado_login { padding:0 22px !important; } .da-login-public { margin:0 22px !important; } .da-login-recovery { margin-left:-22px !important; margin-right:-22px !important; padding-left:22px !important; padding-right:22px !important; } }
+    </style>
     <script language="javascript" type="text/javascript">     
         if (document.documentMode) {
             if (document.documentMode <= 7) {
@@ -106,9 +141,9 @@
         
     <div id="fakeLoader"></div>
     <div class="limiter">
-        <div class="container-login100">
-        <div id="div_center" class="wrap-login100" > 
-            <div class="login100-form validate-form p-l-55 p-r-55 p-t-178">
+        <div class="da-login-stage">
+        <div id="div_center" class="da-login-card" > 
+            <div class="da-login-form">
             <asp:Panel ID="Panel1" runat="server"
                 ViewStateMode="Enabled" Style="align-content: center; width: 99%">
                 <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional">
@@ -116,12 +151,12 @@
                         <input id="Hiddenseleccion" type="hidden" value="" runat="server"/>
                         <input id="Hiddenempresagestion" type="hidden" value="" runat="server"/>
                         <input id="Hidden_resul_ses_public" type="hidden" value="" runat="server"/>       
-                        <div class="login100-form-title modal_content_no_back_inferior_" style="background-color:white" >
+                        <div class="da-login-brand" style="background-color:white" >
                                <asp:Image ID="Imagesecion" runat="server" Height="70px"
                                 ImageUrl="~/imagera/logo_trd.png" Style="height: 70px" />
                             
                         </div>
-                        <div class="text-right p-t-13 p-b-23">
+                        <div class="da-login-public">
                             <span class="txt1">(PQRSD)
                             </span>
                             <a href="#" onclick="sesion_cli();" class="txt2"> Registre su petición, queja o reclamo
@@ -129,39 +164,47 @@
                         </div>                      
                         <asp:Button ID="Button_sesion_empresa" runat="server" Text="Aceptar" Style="display: none" />
                         <asp:Button ID="Button_sesion_publico" runat="server" CssClass="boton" Enabled="false" Text="Aceptar" Style="display: none" />
-                        <asp:Panel ID="Panel_sesion_privado_login" runat="server" CssClass="login100-form validate-form p-l-5 p-r-5 p-t-7">
-                            <div class="row mt-2">
+                        <asp:Panel ID="Panel_sesion_privado_login" runat="server" CssClass="da-login-form">
+                            <div class="da-login-row">
                                 <div class="col-12">
-                                    <asp:DropDownList ID="DropDownListmodulos" runat="server" Style="width: 100%" CssClass="custom-select">
+                                    <asp:DropDownList ID="DropDownListmodulos" runat="server" Style="width: 100%" CssClass="custom-select da-login-module">
                                     </asp:DropDownList>
                                 </div>
                             </div>
-                            <div class="row mt-4" data-validate="Please enter username">
+                            <div class="da-login-row" data-validate="Please enter username">
                                 <div class="col-12">
-                                    <asp:TextBox ID="TextBoxuser" runat="server" placeholder="Nombre de usuario" CssClass="form-control"></asp:TextBox>
-                                </div>
-                            </div>
-                            <div class="row mt-4">
-                                <div class="col-12">
-                                    <div class="input-group">
-                                        <asp:TextBox ID="TextBoxpasw" runat="server" placeholder="Contraseña" TextMode="Password" CssClass="form-control "></asp:TextBox>
-                                        <div class="input-group-append">
-                                            <button id="show_password" class="btn  btn-success" type="button" onclick="mostrarPassword()"><span class="fa fa-eye-slash icon"></span></button>
-                                        </div>
-
+                                    <div class="da-login-field">
+                                        <i class="fas fa-user da-login-icon" aria-hidden="true"></i>
+                                        <asp:TextBox ID="TextBoxuser" runat="server" placeholder=" " CssClass="form-control da-login-input"></asp:TextBox>
+                                        <label for="ContentPlacenter_TextBoxuser">Usuario</label>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row mt-4">
-                                <div class="col-12 modal-footer justify-content-center">
-                                    <a class="btn  btn-success  font-weight-light" style="height: auto; min-width: 100%; font-size: 15px; padding: 14px" title="Ingresar a opción privada" href="#" onclick="activa_boton_client_server('ContentPlacenter_Buttonaceptar')"> INICIAR SESIÓN </a>
+                            <div class="da-login-row">
+                                <div class="col-12">
+                                    <div class="da-login-field da-login-password">
+                                        <div class="input-group">
+                                            <i class="fas fa-lock da-login-icon" aria-hidden="true"></i>
+                                            <asp:TextBox ID="TextBoxpasw" runat="server" placeholder=" " TextMode="Password" CssClass="form-control da-login-input"></asp:TextBox>
+                                            <label for="ContentPlacenter_TextBoxpasw">Contraseña</label>
+                                            <div class="input-group-append">
+                                                <button id="show_password" class="btn btn-success" type="button" onclick="mostrarPassword()" aria-label="Mostrar u ocultar contraseña"><span class="fa fa-eye-slash icon"></span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="da-login-row">
+                                <div class="da-login-action-spacer" aria-hidden="true" style="display:block !important; height:26px !important; min-height:26px !important; margin:0 !important; padding:0 !important; clear:both !important;"></div>
+                                <div class="col-12 modal-footer justify-content-center da-login-actions">
+                                    <a class="btn btn-success font-weight-light da-login-submit" title="Ingresar a opción privada" href="#" onclick="activa_boton_client_server('ContentPlacenter_Buttonaceptar')">INICIAR SESIÓN</a>
                                     <a class="btn btn-light  font-weight-light" style="height: auto; min-width: 140px; font-size: 14px; display: none" title="Actualizar conexión" href="#" onclick="activa_boton_client_server('ContentPlacenter_Buttonaceptar0')"><i class="fas fa-sync-alt fa-1x"></i>Actualizar </a>
                                     <asp:Button ID="Buttonaceptar" runat="server" Text="" ToolTip="" CssClass="boton" Style="display: none" />
                                 </div>
                             </div>
-                            <div>
+                            <div class="da-login-recovery">
                                 <div class="flex-col-c p-t-17 p-b-40">
-                                    <span class="txt1 p-b-9">Olvido su contraseña?
+                                    <span class="txt1 p-b-9">¿Olvidó su contraseña?
                                     </span>
                                     <div class="txt3">
                                         <asp:LinkButton ID="LinkButton_recupera_pw" runat="server" CssClass="txt3"> <i class="fas fa-key"></i> Recuperar</asp:LinkButton>
