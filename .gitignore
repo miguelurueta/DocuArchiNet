@@ -34,3 +34,6 @@ Desktop.ini
 # Archivos temporales
 *.tmp
 *.temp
+
+# Artefacto PDF local de inspeccion; no forma parte del codigo fuente.
+/pdfjs/pdf_anotate_view/ojo.pdf
