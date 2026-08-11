@@ -7979,6 +7979,7 @@
     <Content Include="js\workflow\WebFormRecuperarTarea.js" />
     <Content Include="js\workflow\WebFormVisorExterno.js" />
     <Content Include="js\workflow\Webworkflow.js" />
+    <Content Include="js\workflow\centro-trabajo-visual.js" />
     <Content Include="logogestor.png" />
     <Content Include="mensajesajax\InnerPage.aspx" />
     <Content Include="mensajesajax\WebFormmensaje.aspx" />
@@ -8148,6 +8149,7 @@
     <Content Include="Scripts\MindFusion.Diagramming.js" />
     <Content Include="Scripts\PageMenu.js" />
     <Content Include="Styles\Aplicaction.css" />
+    <Content Include="Styles\workflow-centro-trabajo-moderno.css" />
     <Content Include="Styles\Menu3.css" />
     <Content Include="Styles\menu_lib.css" />
     <Content Include="Styles\prettyPhoto.css" />

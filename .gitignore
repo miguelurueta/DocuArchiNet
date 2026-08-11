@@ -23,6 +23,9 @@ tmp/
 TestResults/
 Generated_Code/
 
+# Evidencia local asociada al SHA; se regenera en cada validación.
+/.opsxj/evidence/
+
 # Paquetes restaurables
 packages/
 *.nupkg

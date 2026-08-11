@@ -25,13 +25,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/extensions/export/bootstrap-table-export.min.js" type="text/javascript"></script>
     <link href="../Styles/styleMenu.css" rel="stylesheet" type="text/css" /> 
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
-    <link href="../Styles/gridview-moderno.css?v=20260807-phase2-6" rel="stylesheet" />
-    <link href="../Styles/workflow-tareas-modernas.css?v=20260807-grid38" rel="stylesheet" />
-    <link href="../Styles/workflow-documentos-relacionados-modernos.css?v=20260808-docrel21" rel="stylesheet" />
-    <link href="../Styles/workflow-documentos-relacionados-titulo.css?v=20260808-title6" rel="stylesheet" />
-    <script src="../js/workflow/workflow-paginacion-visual.js?v=20260807-pager6" type="text/javascript"></script>
-    <script src="../js/workflow/documentos-relacionados-visual.js?v=20260808-docrel4" type="text/javascript"></script>
-    <script src="../js/workflow/documentos-relacionados-titulo-visual.js?v=20260808-title2" type="text/javascript"></script>
     <script src="../js/validate_campos.js" type="text/javascript"></script>
     <script src="../js/java_general/general_config.js" type="text/javascript"></script>
     <link href="../js/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
@@ -75,6 +68,10 @@
      <script src="../js/java_general/JS_firma_digital.js" type="text/javascript"></script>
      <script src="../js/java_general/general_control_java.js" type="text/javascript"></script>
      <script src="../js/java_general/ubicacion_code_java.js" type="text/javascript"></script>  
+     <% If WorkflowCentroTrabajoModernActive Then %>
+     <link href="../Styles/workflow-centro-trabajo-moderno.css?v=20260810-doc2" rel="stylesheet" type="text/css" />
+     <script src="../js/workflow/centro-trabajo-visual.js?v=20260810-doc2" type="text/javascript"></script>
+     <% End If %>
  <body  style="margin: 0;
     background-color : #ffffff" >
       <form id="form1" style="height:100%" runat="server">
@@ -544,7 +541,7 @@
                }
 
            </script>
-          <div id="div_content_general_wf" style="width:auto; height:100%">
+          <div id="div_content_general_wf"<%= WorkflowCentroTrabajoModernCssAttribute %> style="width:auto; height:100%">
               <div id="div_error_content_wf" style="position: relative; width: 100%"></div>
               <asp:UpdatePanel ID="UpdatePanel_menu_cab" runat="server" UpdateMode="Conditional">
                   <ContentTemplate>
