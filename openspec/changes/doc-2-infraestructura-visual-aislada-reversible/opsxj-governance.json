@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "issueKey": "DOC-2",
+  "changeName": "doc-2-infraestructura-visual-aislada-reversible",
+  "impact": "cross_cutting",
+  "requiredEvidence": [
+    "unit",
+    "manual_qa"
+  ],
+  "documentation": [
+    "Doc/Tecnica/Opsxj/doc-2-infraestructura-visual-aislada-reversible/01-ResumenTecnico.md",
+    "Doc/Tecnica/Opsxj/doc-2-infraestructura-visual-aislada-reversible/02-ImpactoUI.md",
+    "Doc/Tecnica/Opsxj/doc-2-infraestructura-visual-aislada-reversible/03-ServiciosYReglas.md",
+    "Doc/Tecnica/Opsxj/doc-2-infraestructura-visual-aislada-reversible/04-ContratosIntegracion.md",
+    "Doc/Tecnica/Opsxj/doc-2-infraestructura-visual-aislada-reversible/05-PruebasEvidencia.md"
+  ]
+}
