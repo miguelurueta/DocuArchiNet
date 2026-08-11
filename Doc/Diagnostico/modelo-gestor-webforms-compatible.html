@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modelo compatible con gestor.aspx</title>
+  <style>
+    :root { --primary:#2563eb; --primary-dark:#1d4ed8; --ink:#0f172a; --muted:#64748b; --border:#d8e2f0; }
+    * { box-sizing:border-box; }
+    body { min-height:100vh; margin:0; display:grid; place-items:center; padding:24px; background:radial-gradient(circle at 12% 12%,#dbeafe 0,transparent 32%),radial-gradient(circle at 88% 82%,#e0f2fe 0,transparent 35%),#f8fafc; color:var(--ink); font:16px "Segoe UI",Arial,sans-serif; }
+    .login-shell { width:min(100%,400px); padding:36px 30px 28px; border:1px solid rgba(203,213,225,.8); border-radius:24px; background:rgba(255,255,255,.95); box-shadow:0 30px 80px rgba(15,23,42,.16),0 14px 34px rgba(37,99,235,.1); }
+    .identity { display:grid; justify-items:center; gap:8px; margin-bottom:30px; }
+    .identity img { width:min(215px,75%); height:72px; object-fit:contain; }
+    .identity small { color:var(--muted); }
+    .form-field { position:relative; margin-bottom:15px; }
+    .form-field select, .form-field input { width:100%; height:54px; border:1px solid var(--border); border-radius:12px; outline:0; background:#fff; color:var(--ink); font:16px "Segoe UI",Arial,sans-serif; transition:border-color .18s,box-shadow .18s; }
+    .form-field select { padding:0 14px; }
+    .form-field input { padding:20px 48px 5px; }
+    .form-field input:focus, .form-field select:focus { border-color:var(--primary); box-shadow:0 0 0 4px rgba(37,99,235,.12); }
+    .form-field label { position:absolute; top:8px; left:48px; color:var(--primary); font-size:11px; font-weight:600; pointer-events:none; }
+    .icon { position:absolute; top:17px; left:16px; color:var(--primary); font-size:18px; pointer-events:none; }
+    #show_password { position:absolute; top:10px; right:10px; width:34px; height:34px; border:0; border-radius:9px; color:var(--muted); background:transparent; cursor:pointer; font-size:17px; }
+    #show_password:hover { color:var(--primary); background:#eff6ff; }
+    .submit { position:relative; width:100%; min-height:54px; margin-top:3px; border:0; border-radius:12px; color:#fff; background:linear-gradient(90deg,var(--primary),var(--primary-dark)); box-shadow:0 12px 24px rgba(37,99,235,.22); cursor:pointer; font:600 16px "Segoe UI",Arial,sans-serif; transition:transform .16s,box-shadow .16s; }
+    .submit:hover { transform:translateY(-1px); box-shadow:0 16px 28px rgba(37,99,235,.28); }
+    .submit:disabled { cursor:not-allowed; background:#cbd5e1; box-shadow:none; }
+    .recovery { display:block; margin-top:19px; color:var(--muted); text-align:center; font-size:13px; text-decoration:none; }
+    .recovery:hover { color:var(--primary); }
+    .validation { min-height:18px; margin:-4px 0 8px; color:#dc2626; font-size:12px; }
+    details { width:min(100%,680px); margin-top:24px; color:#334155; font-size:13px; }
+    summary { cursor:pointer; }
+    pre { padding:14px; overflow:auto; border-radius:10px; background:#0f172a; color:#e2e8f0; white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="login-shell" aria-label="Modelo de gestor.aspx">
+      <header class="identity">
+        <img src="../../imagera/logo_trd.png" alt="DocuArchi">
+        <small>Gestión documental segura</small>
+      </header>
+      <!-- Equivalente visual de los controles ASP.NET existentes. -->
+      <form id="form1">
+        <div class="form-field">
+          <select id="ContentPlacenter_DropDownListmodulos" aria-label="Módulo">
+            <option value="">Seleccione el módulo</option>
+            <option>Gestión documental</option>
+            <option>Workflow</option>
+            <option>Radicación</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <span class="icon" aria-hidden="true">♙</span>
+          <input id="ContentPlacenter_TextBoxuser" type="text" autocomplete="username" placeholder=" ">
+          <label for="ContentPlacenter_TextBoxuser">Usuario</label>
+        </div>
+        <div class="form-field">
+          <span class="icon" aria-hidden="true">⌑</span>
+          <input id="ContentPlacenter_TextBoxpasw" type="password" autocomplete="current-password" placeholder=" ">
+          <label for="ContentPlacenter_TextBoxpasw">Contraseña</label>
+          <button id="show_password" type="button" aria-label="Mostrar contraseña">◉</button>
+        </div>
+        <div id="validation" class="validation" role="status"></div>
+        <button id="ContentPlacenter_Buttonaceptar" class="submit" type="submit">Iniciar sesión</button>
+        <a id="ContentPlacenter_LinkButton_recupera_pw" class="recovery" href="#" onclick="return false;">¿Olvidaste la contraseña?</a>
+      </form>
+    </section>
+    <details>
+      <summary>Equivalencia al ASPX real</summary>
+      <pre>&lt;asp:DropDownList ID="DropDownListmodulos" runat="server" /&gt;
+&lt;asp:TextBox ID="TextBoxuser" runat="server" /&gt;
+&lt;asp:TextBox ID="TextBoxpasw" runat="server" TextMode="Password" /&gt;
+&lt;button id="show_password" type="button" onclick="mostrarPassword()"&gt;...&lt;/button&gt;
+&lt;asp:Button ID="Buttonaceptar" runat="server" /&gt;
+&lt;asp:LinkButton ID="LinkButton_recupera_pw" runat="server" /&gt;</pre>
+    </details>
+  </main>
+  <script>
+    (function () {
+      var form = document.getElementById('form1');
+      var password = document.getElementById('ContentPlacenter_TextBoxpasw');
+      var toggle = document.getElementById('show_password');
+      toggle.onclick = function () {
+        var visible = password.type === 'text';
+        password.type = visible ? 'password' : 'text';
+        toggle.textContent = visible ? '◉' : '◌';
+      };
+      form.onsubmit = function (event) {
+        event.preventDefault();
+        var valid = document.getElementById('ContentPlacenter_DropDownListmodulos').value && document.getElementById('ContentPlacenter_TextBoxuser').value.trim() && password.value;
+        document.getElementById('validation').textContent = valid ? 'Modelo válido. En gestor.aspx se ejecutaría el postback real.' : 'Seleccione módulo, usuario y contraseña.';
+      };
+    }());
+  </script>
+</body>
+</html>

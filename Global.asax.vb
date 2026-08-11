@@ -8,6 +8,56 @@ Imports System.Web.Optimization
 Public Class Global_asax
     Inherits System.Web.HttpApplication
 
+    Private Const ClaveIdSolicitudDiagnostico As String = "WF_REQUEST_ID"
+    Private Const ClaveSesionDiagnostico As String = "WF_SESSION_ID"
+
+    Private Function EsSolicitudDinamica() As Boolean
+        Dim contexto As HttpContext = HttpContext.Current
+        If contexto Is Nothing OrElse contexto.Request Is Nothing Then Return False
+        Dim ruta As String = contexto.Request.Path
+        Return ruta.EndsWith(".aspx", StringComparison.OrdinalIgnoreCase) OrElse
+               ruta.EndsWith(".ashx", StringComparison.OrdinalIgnoreCase) OrElse
+               ruta.EndsWith(".asmx", StringComparison.OrdinalIgnoreCase)
+    End Function
+
+    Private Sub RegistraSolicitudSesion(ByVal etapa As String)
+        If Not EsSolicitudDinamica() Then Exit Sub
+        Dim contexto As HttpContext = HttpContext.Current
+        If contexto.Items(ClaveIdSolicitudDiagnostico) Is Nothing Then
+            contexto.Items(ClaveIdSolicitudDiagnostico) = Guid.NewGuid().ToString("N").Substring(0, 8)
+        End If
+        Dim idSolicitud As String = contexto.Items(ClaveIdSolicitudDiagnostico).ToString()
+        Dim idSesion As String = Convert.ToString(contexto.Items(ClaveSesionDiagnostico))
+        Try
+            If contexto.Session IsNot Nothing Then
+                idSesion = contexto.Session.SessionID
+                contexto.Items(ClaveSesionDiagnostico) = idSesion
+            End If
+        Catch ex As HttpException
+            'La sesión todavía no está disponible en las primeras etapas del pipeline.
+        End Try
+        Dim transcurrido As Long = CLng((DateTime.Now - contexto.Timestamp).TotalMilliseconds)
+        System.Diagnostics.Debug.WriteLine("WF_SESSION|" & etapa &
+                                           "|Req=" & idSolicitud &
+                                           "|Session=" & idSesion &
+                                           "|" & contexto.Request.HttpMethod &
+                                           "|" & contexto.Request.Path &
+                                           "|" & transcurrido & " ms")
+    End Sub
+
+    Private Function EsSolicitudWebWorkflow() As Boolean
+        Dim contexto As HttpContext = HttpContext.Current
+        Return contexto IsNot Nothing AndAlso
+               contexto.Request IsNot Nothing AndAlso
+               contexto.Request.AppRelativeCurrentExecutionFilePath.EndsWith("/workflow/Webworkflow.aspx", StringComparison.OrdinalIgnoreCase)
+    End Function
+
+    Private Sub RegistraEtapaPipeline(ByVal etapa As String)
+        If Not EsSolicitudWebWorkflow() Then Exit Sub
+        Dim transcurrido As Long = CLng((DateTime.Now - HttpContext.Current.Timestamp).TotalMilliseconds)
+        System.Diagnostics.Debug.WriteLine("WF_PIPELINE|" & etapa & "|" & transcurrido & " ms desde inicio request")
+    End Sub
+
     Sub Application_Start(ByVal sender As Object, ByVal e As EventArgs)
         Dim k
         Try
@@ -855,11 +905,44 @@ Public Class Global_asax
 
     Sub Application_BeginRequest(ByVal sender As Object, ByVal e As EventArgs)
         ' Se desencadena al comienzo de cada solicitud
+        RegistraSolicitudSesion("START")
+        RegistraEtapaPipeline("BeginRequest")
         System.Threading.Thread.CurrentThread.CurrentCulture = New System.Globalization.CultureInfo("es-MX")
     End Sub
 
     Sub Application_AuthenticateRequest(ByVal sender As Object, ByVal e As EventArgs)
         ' Se desencadena al intentar autenticar el uso
+        RegistraEtapaPipeline("AuthenticateRequest")
+    End Sub
+
+    Sub Application_AuthorizeRequest(ByVal sender As Object, ByVal e As EventArgs)
+        RegistraEtapaPipeline("AuthorizeRequest")
+    End Sub
+
+    Sub Application_AcquireRequestState(ByVal sender As Object, ByVal e As EventArgs)
+        RegistraEtapaPipeline("AcquireRequestState")
+    End Sub
+
+    Sub Application_PostAcquireRequestState(ByVal sender As Object, ByVal e As EventArgs)
+        RegistraSolicitudSesion("ACQUIRED")
+        RegistraEtapaPipeline("PostAcquireRequestState")
+    End Sub
+
+    Sub Application_ReleaseRequestState(ByVal sender As Object, ByVal e As EventArgs)
+        RegistraSolicitudSesion("RELEASING")
+    End Sub
+
+    Sub Application_PreRequestHandlerExecute(ByVal sender As Object, ByVal e As EventArgs)
+        RegistraEtapaPipeline("PreRequestHandlerExecute")
+    End Sub
+
+    Sub Application_PostRequestHandlerExecute(ByVal sender As Object, ByVal e As EventArgs)
+        RegistraEtapaPipeline("PostRequestHandlerExecute")
+    End Sub
+
+    Sub Application_EndRequest(ByVal sender As Object, ByVal e As EventArgs)
+        RegistraEtapaPipeline("EndRequest")
+        RegistraSolicitudSesion("END")
     End Sub
 
     Sub Application_Error(ByVal sender As Object, ByVal e As EventArgs)
@@ -877,8 +960,5 @@ Public Class Global_asax
 
     Sub Application_End(ByVal sender As Object, ByVal e As EventArgs)
         ' Se desencadena cuando finaliza la aplicación
-    End Sub
-    Protected Sub Application_PostAuthenticateRequest(ByVal sender As Object, ByVal e As EventArgs)
-        HttpContext.Current.SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior.Required)
     End Sub
 End Class

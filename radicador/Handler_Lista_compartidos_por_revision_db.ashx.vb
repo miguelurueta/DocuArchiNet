@@ -6,7 +6,7 @@ Imports System.ComponentModel.Design.Serialization
 Imports System.Web.Script.Serialization
 
 Public Class Handler_Lista_compartidos_por_revision_db
-    Implements System.Web.IHttpHandler, IRequiresSessionState
+    Implements System.Web.IHttpHandler, System.Web.SessionState.IReadOnlySessionState
 
     Sub ProcessRequest(ByVal context As HttpContext) Implements IHttpHandler.ProcessRequest
 
@@ -19,7 +19,6 @@ Public Class Handler_Lista_compartidos_por_revision_db
         Dim numero_documento As Integer = 0
         result = ref_clas.Retorna_numero_de_documentos_compartidos_de_un_usuario(HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION"), _
                                                                                  numero_documento)
-        HttpContext.Current.Session.Item("GA_STRU_DOCUMENTO_PENDIENTE_REVISION") = numero_documento
         context.Response.Write(numero_documento)
 
     End Sub

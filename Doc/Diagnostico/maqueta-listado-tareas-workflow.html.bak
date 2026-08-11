@@ -1,0 +1,63 @@
+Exit code: 0
+Wall time: 0.6 seconds
+Output:
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Maqueta · Lista de tareas workflow</title>
+  <style>
+    :root { --ink:#172033; --muted:#64748b; --line:#e7eaf0; --surface:#fff; --page:#f4f6fb; --primary:#4057a8; --primary-dark:#304583; --focus:#dce5ff; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--page); color:var(--ink); font:14px/1.45 "Segoe UI",Arial,sans-serif; }
+    .app { max-width:1440px; margin:0 auto; padding:28px; }
+    .crumb { color:var(--muted); font-size:12px; margin-bottom:12px; }
+    .card { background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:0 12px 28px rgba(23,32,51,.06); overflow:hidden; }
+    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:20px 22px 16px; border-bottom:1px solid var(--line); }
+    h1 { margin:0; font-size:20px; letter-spacing:-.2px; } .summary { color:var(--muted); margin:3px 0 0; }
+    .controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    button, select, input { font:inherit; } button { cursor:pointer; border-radius:8px; min-height:36px; padding:0 12px; border:1px solid #d5daea; background:#fff; color:#35425e; }
+    button:hover { background:#f7f8fd; } .primary { background:var(--primary); color:#fff; border-color:var(--primary); } .primary:hover { background:var(--primary-dark); }
+    .filters { display:flex; gap:10px; padding:14px 22px; background:#fbfcff; border-bottom:1px solid var(--line); }
+    select, input { height:38px; border:1px solid #d7ddea; background:#fff; border-radius:8px; padding:0 11px; color:#34405a; } input { flex:1; min-width:230px; }
+    .table-wrap { overflow:auto; } table { width:100%; border-collapse:collapse; min-width:950px; }
+    thead th { position:sticky; top:0; z-index:1; background:#eef1fb; color:#35477f; text-align:left; font-size:11px; letter-spacing:.055em; text-transform:uppercase; padding:13px 18px; border-bottom:1px solid #dce2f1; }
+    tbody td { padding:15px 18px; border-bottom:1px solid var(--line); vertical-align:middle; } tbody tr { transition:.15s; } tbody tr:hover { background:#f8f9fe; } tbody tr.selected { background:#f1f4ff; box-shadow:inset 3px 0 0 var(--primary); }
+    .task { font-weight:600; color:#26334c; } .sub { color:var(--muted); font-size:12px; margin-top:2px; }.date { white-space:nowrap; }.owner { display:flex; gap:9px; align-items:center; }.avatar { width:29px; height:29px; display:grid; place-items:center; border-radius:50%; font-size:11px; font-weight:700; color:#485ba0; background:#e8edff; }
+    .badge { display:inline-flex; gap:6px; align-items:center; border-radius:999px; padding:4px 9px; font-size:12px; font-weight:600; }.badge::before { content:""; width:6px; height:6px; border-radius:50%; background:currentColor; }.high { background:#fff0f0; color:#c23f48; }.medium { background:#fff8e5; color:#a66c00; }.low { background:#eef8f1; color:#2f855a; }.status { color:#365ba7; background:#edf2ff; }
+    .actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; }.take { color:#fff; background:var(--primary); border-color:var(--primary); min-width:98px; }.more { font-size:19px; padding:0 11px; }.footer { display:flex; align-items:center; justify-content:space-between; padding:14px 22px; color:var(--muted); }.pages { display:flex; gap:5px; }.pages button { min-width:34px; padding:0 8px; }.pages .active { color:#fff; background:var(--primary); border-color:var(--primary); }
+    @media (max-width:720px) { .app { padding:14px; }.toolbar { align-items:flex-start; flex-direction:column; }.filters { flex-wrap:wrap; }.filters select { flex:1; }.footer { flex-direction:column; gap:12px; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="crumb">Workflow documental / Bandeja de tareas</div>
+    <section class="card" aria-label="Listado de tareas de grupo">
+      <header class="toolbar">
+        <div><h1>Tareas de grupo <span style="color:#4057a8">· 24</span></h1><p class="summary">Actualizado hace un momento · Seleccione una tarea para gestionarla</p></div>
+        <div class="controls"><button title="Actualizar tareas">↻ Actualizar</button><button class="primary">+ Nueva búsqueda</button></div>
+      </header>
+      <div class="filters">
+        <select aria-label="Filtrar por estado"><option>Todos los estados</option><option>En espera</option><option>En proceso</option></select>
+        <select aria-label="Filtrar por prioridad"><option>Todas las prioridades</option><option>Alta</option><option>Media</option><option>Baja</option></select>
+        <input type="search" placeholder="Buscar por radicado, asunto o responsable" aria-label="Buscar tareas">
+        <button>⌕ Buscar</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tarea / radicado</th><th>Actividad</th><th>Responsable</th><th>Inicio</th><th>Prioridad</th><th>Estado</th><th style="text-align:right">Acciones</th></tr></thead>
+          <tbody>
+            <tr class="selected"><td><div class="task">RAD-2026-004582</div><div class="sub">Revisión de solicitud de licencia</div></td><td>Validar documentos</td><td><div class="owner"><span class="avatar">LM</span>Grupo jurídico</div></td><td class="date">Hoy, 08:42</td><td><span class="badge high">Alta</span></td><td><span class="badge status">En espera</span></td><td><div class="actions"><button class="take">Tomar tarea</button><button class="more" aria-label="Más acciones">⋮</button></div></td></tr>
+            <tr><td><div class="task">RAD-2026-004571</div><div class="sub">Respuesta a petición ciudadana</div></td><td>Asignar responsable</td><td><div class="owner"><span class="avatar">AC</span>Atención al ciudadano</div></td><td class="date">Hoy, 08:16</td><td><span class="badge medium">Media</span></td><td><span class="badge status">En espera</span></td><td><div class="actions"><button class="take">Tomar tarea</button><button class="more" aria-label="Más acciones">⋮</button></div></td></tr>
+            <tr><td><div class="task">RAD-2026-004565</div><div class="sub">Actualización de información contractual</div></td><td>Revisar radicado</td><td><div class="owner"><span class="avatar">CP</span>Contratación</div></td><td class="date">Ayer, 16:34</td><td><span class="badge high">Alta</span></td><td><span class="badge status">En espera</span></td><td><div class="actions"><button class="take">Tomar tarea</button><button class="more" aria-label="Más acciones">⋮</button></div></td></tr>
+            <tr><td><div class="task">RAD-2026-004549</div><div class="sub">Informe de seguimiento interno</div></td><td>Validar documentos</td><td><div class="owner"><span class="avatar">TH</span>Talento humano</div></td><td class="date">Ayer, 14:05</td><td><span class="badge low">Baja</span></td><td><span class="badge status">En espera</span></td><td><div class="actions"><button class="take">Tomar tarea</button><button class="more" aria-label="Más acciones">⋮</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <footer class="footer"><span>Mostrando 1–7 de 24 tareas</span><div class="pages"><button>‹</button><button class="active">1</button><button>2</button><button>3</button><button>4</button><button>›</button></div></footer>
+    </section>
+  </main>
+</body>
+</html>
+
+

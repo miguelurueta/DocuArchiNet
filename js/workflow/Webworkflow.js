@@ -7583,7 +7583,8 @@ function ConfirmMensajeGeneral_dos(mensaje, name_hiden) {
             //corrige el posicionamiento horizontal del modalpopuextender, la propiedad width del panel debe estar en auto
             //var widtth_procent_left_rigth = (with_frame - document.getElementById("Panel_agregar_expediente_carpeta").clientHeight) / 2;
             //$('#Panel_agregar_expediente_carpeta').css("left", (Math.round(widtth_procent_left_rigth)) + "px");
-            var heig_porcent = espacio_iframe - ((espacio_iframe * 2) / 100);  // Indica el porcentaje de espacio vertical del elemento
+            // Modal de envío de tarea: conserva una altura equivalente al 50% de la ventana disponible.
+            var heig_porcent = Math.round(espacio_iframe * 0.5);
             $('#Panel_lista_actividades_worflow_ruta').css("height", (heig_porcent) + "px"); //Asigna altura al panel contenedor del modal
             $('#modal_content_lista_actividades_worflow_ruta').css("height", (heig_porcent - 3) + "px"); // Asigna altura del contenedor bootstraf
             //Asgina el valor del contenido central del modal  contenedor bootstraf  menos la suma del footer y la cabecera

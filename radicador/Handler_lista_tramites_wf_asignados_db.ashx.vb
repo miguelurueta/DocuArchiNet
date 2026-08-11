@@ -6,7 +6,7 @@ Imports System.ComponentModel.Design.Serialization
 Imports System.Web.Script.Serialization
 
 Public Class Handler_lista_tramites_wf_asignados_db
-    Implements System.Web.IHttpHandler, IRequiresSessionState
+    Implements System.Web.IHttpHandler, System.Web.SessionState.IReadOnlySessionState
     Sub ProcessRequest(ByVal context As HttpContext) Implements IHttpHandler.ProcessRequest
 
         context.Response.ContentType = "text/plain"
@@ -21,8 +21,8 @@ Public Class Handler_lista_tramites_wf_asignados_db
                                                 HttpContext.Current.Session.Item("Id_Grupo_Workflow"), _
                                                 HttpContext.Current.Session.Item("WF_ID_ACTIVIDAD"), _
                                                 HttpContext.Current.Session.Item("WF_RUTAWORKFLOW"), _
-                                                HttpContext.Current.Session.Item("WF_NUMERO_TRAMITE_ASIGNADO"))
-        context.Response.Write(HttpContext.Current.Session.Item("WF_NUMERO_TRAMITE_ASIGNADO"))
+                                                numero_documento)
+        context.Response.Write(numero_documento)
     End Sub
     Public Function Deserialize(Of T)(context As String) As t
         Dim jsonData As String = context

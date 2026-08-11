@@ -1,72 +1,47 @@
 ## ADDED Requirements
-### Requirement: CONTRATO-REGRESION-WORKFLOW
-El sistema SHALL implementar el alcance definido para DOC-1.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Politica Frontend AppResponses
-El sistema SHALL sembrar reglas de consumo seguro de `AppResponses<T>` en los artefactos iniciales cuando un ticket cree o modifique consumidores de API.
 
-#### Scenario: No filtrado de mensajes tecnicos
-- **WHEN** un endpoint `AppResponses<T>` retorna `errors[0].UserMessage` y un `response.message` con `code`, `requestId`, SQL, rutas, stack trace, tokens o detalle interno
-- **THEN** la UI muestra el mensaje funcional resuelto por `getUserVisibleAppResponseMessage` y no muestra el detalle tecnico.
+### Requirement: contrato de regresión de Workflow
 
-#### Scenario: Diagnostico tecnico controlado
-- **WHEN** soporte activa `errorsDebugOn()` o `window.__APP_RESPONSE_DEBUG__ = true` desde la consola
-- **THEN** el diagnostico completo puede registrarse solo con `logAppResponseErrorDiagnostic` y sin persistir ni transmitir payloads tecnicos.
+El cambio SHALL documentar la línea base del centro de trabajo Workflow sin modificar el comportamiento funcional del módulo.
 
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+#### Scenario: inventario estático verificable
 
-#### Scenario: Reglas del ticket
-- # JIRA-01 — Línea base y contrato de regresión Workflow
-- 
-- ## Prompt para Jira
-- 
-- **Rol:** Actúa como arquitecto de software senior especializado en ASP.NET WebForms, `UpdatePanel`, regresión funcional y documentación de sistemas legacy.
-- 
-- Analiza y documenta la interfaz WebForms que implementa el centro de trabajo Workflow antes de cualquier cambio visual. El resultado debe permitir demostrar que la modernización no altera negocio, permisos, postbacks ni selección documental.
-- 
-- ### Alcance
-- 
-- - Consumir el inventario y la decisión de corte aprobados en JIRA-00; fijar expresamente qué recursos y versiones componen la línea base funcional.
-- - Identificar los `.aspx`, `.ascx`, JavaScript y CSS que emiten o controlan `div_content_general_wf`, `UpdatePanel_menu_cab`, `contenido_imagen`, `contenido_indice`, la lista de tareas y documentos relacionados.
-- - Inventariar ID, selector, evento, fuente de permisos, tipo de postback y dependencia de cada acción: Opciones, Detalle, Servicios, Documentos, Notas, Autorizar, Devolver, Pendiente, Enviar, Cerrar, adjuntar, firmar, visor e índice.
-- - Identificar los campos ocultos y valores de DOM que participan en tarea/documento activo. Para cada flujo, distinguir campo canónico, campo derivado, formato del valor, valor vacío y mecanismo que lo actualiza; no asumir que un único hidden input representa todos los contextos.
-- - Mapear los `UpdatePanel` que pueden reemplazar menú, selección, documentos, visor e índice y los contenedores existentes que JIRA-04 puede usar como zonas Grid sin reubicar nodos.
-- - Registrar capturas en 1366, 1024, 768 y 375 px para: sin tarea, tarea seleccionada, documento seleccionado, menú abierto y postback parcial.
-- 
-- ### Restricciones no negociables
-- 
-- - No modificar HTML, JavaScript ni CSS funcionales.
-- - No cambiar `onclick`, nombres ASP.NET, IDs, `UpdatePanel`, hidden inputs, permisos, rutas del visor ni servicios.
-- 
-- ### Entregables técnicos
-- 
-- 1. `01-ContratoControles.md`: tabla de controles, IDs, eventos y riesgos.
-- 2. `02-ContratoEstadoSeleccion.md`: contrato por flujo de tarea y documento, con fuente canónica, campos derivados, limpieza e invariantes visuales.
-- 3. `03-FlujoSeleccionWebForms.md`: secuencia tarea → documento → visor/índice → postback, incluidos los paneles que se vuelven a renderizar.
-- 4. `04-MapaContenedoresLayout.md`: selectores permitidos, jerarquía y restricciones para Grid/Flex.
-- 5. `05-MatrizRegresionBase.md`: casos, datos necesarios, navegador, cuenta de prueba y resultado esperado.
-- 6. Carpeta de evidencias visuales con nomenclatura estable, fecha, versión de recursos y entorno.
-- 
-- ### Criterios de aceptación
-- 
-- - Todos los controles críticos tienen propietario técnico y evento identificado.
-- - Cada flujo identifica una fuente canónica de tarea/documento y sus campos derivados, sin crear una nueva fuente de verdad en el adaptador visual.
-- - La matriz separa selección activa de documento y selección masiva por checkbox.
-- - El mapa de layout identifica los contenedores que pueden participar en Grid/Flex y los `UpdatePanel` que no pueden moverse ni colapsarse.
-- - La matriz permite repetir los flujos críticos sin inferencias manuales.
-- 
-- ### Pruebas requeridas
-- 
-- - Repetir tres actualizaciones parciales consecutivas tras elegir tarea/documento.
-- - Verificar con un usuario sin permiso y uno con permiso de transición.
-- - Ejecutar los casos con: sin tarea, tarea sin documento, documento de título largo, lista extensa, selección masiva y permisos restringidos.
-- 
-- ### Reversión
-- 
-- No aplica: ticket exclusivamente documental.
+- **WHEN** se revisan los artefactos de DOC-1
+- **THEN** se identifican controles, selectores, eventos, propietarios técnicos y riesgos a partir de la página, su code-behind y JavaScript asociados.
+
+#### Scenario: sin alteración funcional
+
+- **WHEN** se aplica DOC-1
+- **THEN** no se modifican IDs WebForms, eventos, `UpdatePanel`, hidden inputs, permisos, rutas de visor ni servicios existentes.
+
+### Requirement: contrato de selección
+
+El cambio SHALL distinguir la tarea candidata, la tarea consolidada y los dos contextos de selección documental.
+
+#### Scenario: selección de tarea
+
+- **WHEN** el usuario selecciona una tarea
+- **THEN** el contrato diferencia el valor candidato en cliente de la sesión canónica posterior al postback y de sus campos espejo.
+
+#### Scenario: selección documental
+
+- **WHEN** el usuario abre un documento o marca documentos para una acción masiva
+- **THEN** el contrato separa descriptor/identificador del documento activo de la selección por checkbox.
+
+### Requirement: límites de actualización parcial y layout
+
+El cambio SHALL mapear los contenedores de layout y los límites `UpdatePanel` que los cambios visuales futuros no pueden reubicar ni colapsar.
+
+#### Scenario: postback parcial
+
+- **WHEN** menú, selección, visor o índice se actualizan parcialmente
+- **THEN** la matriz identifica el panel reemplazado, el disparador y la comprobación de regresión correspondiente.
+
+### Requirement: evidencia reproducible
+
+El cambio SHALL definir perfiles, datos, casos y nomenclatura de evidencia para repetir la validación visual y funcional.
+
+#### Scenario: captura de regresión
+
+- **WHEN** exista un ambiente autorizado con corte JIRA-00, cuentas y datos de prueba
+- **THEN** las capturas pueden registrarse en 1366, 1024, 768 y 375 px con versión, fecha y resultado trazables.

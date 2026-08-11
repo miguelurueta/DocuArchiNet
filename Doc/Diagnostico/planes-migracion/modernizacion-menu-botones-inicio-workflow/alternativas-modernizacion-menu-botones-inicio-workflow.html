@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alternativas UI — Menú y botones Workflow</title>
+<style>
+  :root { --ink:#17233d; --muted:#63708a; --primary:#35477f; --blue:#0062cc; --line:#dce2f1; --pale:#eef1fb; --canvas:#f6f8fc; --nav:#173f6b; --nav-soft:#245a9a; --warning:#db8b15; --white:#fff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--canvas); color:var(--ink); font:14px/1.45 "Segoe UI",Arial,sans-serif; }
+  button { font:inherit; cursor:pointer; }
+  .page { max-width:1440px; margin:auto; padding:34px 28px 64px; }
+  .intro { display:grid; grid-template-columns:minmax(0,1fr) 250px; gap:30px; align-items:end; margin-bottom:28px; }
+  h1 { margin:0 0 8px; color:var(--primary); font-size:28px; letter-spacing:-.45px; }
+  h2 { margin:0; font-size:17px; color:var(--primary); }
+  p { margin:8px 0 0; color:var(--muted); }
+  .stamp { border:1px solid var(--line); background:#fff; padding:14px 16px; border-radius:8px; color:var(--muted); font-size:12px; }
+  .stamp strong { display:block; color:var(--primary); font-size:13px; }
+  .diagnosis { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:0 0 26px; }
+  .finding { background:#fff; border:1px solid var(--line); border-top:3px solid var(--primary); padding:15px; min-height:122px; }
+  .finding b { color:var(--primary); display:block; margin-bottom:5px; }
+  .finding span { color:var(--muted); font-size:13px; }
+  .switcher { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 16px; }
+  .switcher button { border:1px solid #cbd4e8; border-radius:6px; padding:9px 13px; color:var(--primary); background:#fff; font-weight:600; }
+  .switcher button.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .option { display:none; background:#fff; border:1px solid var(--line); box-shadow:0 12px 28px rgba(42,57,91,.08); }
+  .option.active { display:block; }
+  .option-head { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:17px 20px; border-bottom:1px solid var(--line); background:#fbfcff; }
+  .option-head p { margin:3px 0 0; font-size:13px; }
+  .tag { white-space:nowrap; border-radius:999px; padding:5px 9px; background:#e7f0ff; color:var(--blue); font-weight:700; font-size:11px; }
+  .tag.recommended { background:#e2f4eb; color:#187044; }
+  .workspace { min-height:475px; display:grid; grid-template-columns:230px minmax(0,1fr); background:#fff; }
+  .side { background:var(--nav); color:#c8d6e9; padding:16px 10px; }
+  .brand { padding:2px 10px 17px; border-bottom:1px solid rgba(255,255,255,.16); margin-bottom:12px; color:#fff; font-weight:700; }
+  .brand small { display:block; color:#acc0da; font-weight:400; margin-top:2px; }
+  .section-label { padding:10px 11px 6px; font-size:10px; letter-spacing:.8px; color:#9fb6d4; text-transform:uppercase; }
+  .nav-item { display:flex; align-items:center; gap:10px; min-height:38px; border:0; width:100%; margin:2px 0; padding:0 11px; text-align:left; background:transparent; color:inherit; border-radius:5px; }
+  .nav-item:hover,.nav-item.selected { color:#fff; background:rgba(255,255,255,.095); }
+  .nav-item.selected { background:var(--nav-soft); box-shadow:inset 3px 0 0 #fff; }
+  .dot { width:15px; height:15px; display:grid; place-items:center; font-size:12px; }
+  .count { margin-left:auto; padding:2px 6px; border-radius:999px; background:#f6b73c; color:#3b2b00; font-size:11px; font-weight:700; }
+  .subitem { padding-left:36px; font-size:13px; }
+  .main { min-width:0; }
+  .topbar { min-height:58px; padding:0 19px; display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--line); }
+  .crumb { color:var(--primary); font-weight:650; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .icon-button,.ghost-button { border:0; background:transparent; color:var(--primary); min-width:34px; height:34px; border-radius:5px; }
+  .icon-button:hover,.ghost-button:hover { background:var(--pale); }
+  .profile { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:13px; }
+  .avatar { width:28px; height:28px; border-radius:50%; display:grid; place-items:center; background:#e7ebf7; color:var(--primary); font-weight:700; }
+  .content { padding:25px; background:var(--canvas); min-height:417px; }
+  .content-header { display:flex; align-items:flex-start; justify-content:space-between; gap:15px; margin-bottom:19px; }
+  .content-header h3 { margin:0; font-size:21px; color:var(--primary); }
+  .content-header p { margin:3px 0 0; font-size:13px; }
+  .button-row { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+  .btn { min-height:34px; border:1px solid #c4cee3; border-radius:5px; padding:0 11px; background:#fff; color:var(--primary); font-size:13px; font-weight:600; }
+  .btn:hover { background:var(--pale); }
+  .btn.primary { border-color:var(--blue); background:var(--blue); color:#fff; }
+  .btn.primary:hover { background:#004eaa; }
+  .btn.danger { border-color:#d66e72; color:#a32d35; }
+  .cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:13px; }
+  .card { background:#fff; border:1px solid var(--line); padding:16px; min-height:130px; }
+  .card b { display:block; color:var(--primary); font-size:14px; }
+  .metric { margin-top:18px; color:var(--blue); font-size:28px; font-weight:700; }
+  .metric small { color:var(--muted); font-size:12px; font-weight:400; }
+  .note { padding:14px 16px; border-left:3px solid var(--blue); background:#f2f7ff; color:#40506c; font-size:13px; }
+  .rail .workspace { grid-template-columns:70px minmax(0,1fr); }
+  .rail .side { padding:16px 9px; }
+  .rail .brand { text-align:center; padding:2px 0 17px; font-size:18px; }
+  .rail .brand small,.rail .section-label,.rail .nav-item span:not(.dot):not(.count),.rail .subitem { display:none; }
+  .rail .nav-item { justify-content:center; padding:0; border-radius:7px; }
+  .rail .nav-item.selected { box-shadow:inset 0 -3px 0 #fff; }
+  .rail .count { position:absolute; margin:0 0 22px 22px; }
+  .commandbar { display:flex; align-items:center; gap:9px; padding:12px 16px; border:1px solid var(--line); background:#fff; margin-bottom:16px; }
+  .commandbar .search { flex:1; border:1px solid #cbd4e8; border-radius:5px; padding:8px 10px; color:#78849c; min-width:120px; }
+  .more { position:relative; }
+  .menu { display:none; position:absolute; z-index:2; right:0; top:39px; min-width:205px; padding:6px; border:1px solid var(--line); background:#fff; box-shadow:0 12px 24px rgba(27,45,80,.16); }
+  .menu.open { display:block; }
+  .menu button { width:100%; min-height:33px; border:0; background:#fff; color:var(--ink); text-align:left; padding:0 9px; }
+  .menu button:hover { background:var(--pale); color:var(--primary); }
+  .menu hr { border:0; border-top:1px solid var(--line); margin:5px 0; }
+  .principles { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; padding:20px; border-top:1px solid var(--line); background:#fbfcff; }
+  .principles b { color:var(--primary); }
+  .principles p { font-size:12px; }
+  @media (max-width:800px) { .page { padding:20px 13px 40px; } .intro,.diagnosis { grid-template-columns:1fr; } .workspace,.rail .workspace { grid-template-columns:1fr; } .side { display:none; } .cards { grid-template-columns:1fr; } .content { padding:17px; } .content-header { display:block; } .button-row { justify-content:flex-start; margin-top:14px; } .option-head { align-items:flex-start; flex-direction:column; } .principles { grid-template-columns:1fr; } .profile span { display:none; } }
+</style>
+</head>
+<body>
+<main class="page">
+  <section class="intro">
+    <div>
+      <h1>Menú y botones de Workflow: alternativas de modernización</h1>
+      <p>Prototipo de decisión visual para <code>WebFormInicioDocuarchiGestion.aspx</code>. Mantiene la navegación vertical, los conteos y las acciones existentes; cambia su jerarquía, agrupación y respuesta visual.</p>
+    </div>
+    <aside class="stamp"><strong>Diagnóstico de interfaz</strong>Fuente: estructura local de la página y sus capas CSS/JS. El servicio HTTPS local no respondió durante la revisión, por lo que esta pieza no presume validación visual en ejecución.</aside>
+  </section>
+
+  <section class="diagnosis" aria-label="Hallazgos">
+    <article class="finding"><b>1. Navegación extensa</b><span>Workflow agrupa operación, consulta, reportes y administración en una misma lista. La lectura requiere distinguir intención antes de elegir.</span></article>
+    <article class="finding"><b>2. Acciones compiten</b><span>Inicio, descarga, usuario y cierre de sesión son íconos similares. Las acciones frecuentes y críticas no tienen jerarquía semántica.</span></article>
+    <article class="finding"><b>3. Conteos dispersos</b><span>Los badges son valiosos, pero aparecen tanto en cabecera como en menú. Deben señalar una sola puerta de entrada por tarea.</span></article>
+    <article class="finding"><b>4. Base reutilizable</b><span>Los IDs, <em>onclick</em>, permisos y Scoop ya resuelven comportamiento. La modernización debe ser una capa visual progresiva.</span></article>
+  </section>
+
+  <nav class="switcher" aria-label="Alternativas de diseño">
+    <button class="active" data-option="a">A · Evolución mínima</button>
+    <button data-option="b">B · Riel enfocado</button>
+    <button data-option="c">C · Centro de trabajo recomendado</button>
+  </nav>
+
+  <section class="option active" id="a">
+    <header class="option-head"><div><h2>A · Evolución mínima</h2><p>Menor riesgo: conserva el menú desplegable actual y ordena cabecera, estados y botones.</p></div><span class="tag">Cambio visual incremental</span></header>
+    <div class="workspace">
+      <aside class="side"><div class="brand">DocuArchi<small>Gestión documental</small></div><div class="section-label">Módulos</div><button class="nav-item selected"><span class="dot">⌘</span><span>Workflow</span><span class="count">12</span></button><button class="nav-item subitem">Flujos y tareas <span class="count">12</span></button><button class="nav-item subitem">Consulta de flujos</button><button class="nav-item subitem">Reportes</button><button class="nav-item subitem">Administración</button><div class="section-label">Otros</div><button class="nav-item"><span class="dot">▣</span><span>Contenedor</span></button><button class="nav-item"><span class="dot">◫</span><span>Expedientes</span></button></aside>
+      <div class="main"><header class="topbar"><button class="icon-button" title="Contraer menú">☰</button><span class="crumb">Workflow / Flujos y tareas</span><button class="icon-button" title="Descargar componente">⇩</button><div class="profile"><span>María González</span><span class="avatar">MG</span></div><button class="icon-button" title="Cerrar sesión">⇥</button></header><div class="content"><div class="content-header"><div><h3>Flujos y tareas</h3><p>Priorice la tarea antes de abrir la operación.</p></div><div class="button-row"><button class="btn">Filtrar</button><button class="btn">Exportar</button><button class="btn primary">+ Nueva tarea</button></div></div><div class="cards"><article class="card"><b>Por atender</b><div class="metric">12 <small>tareas</small></div></article><article class="card"><b>Vencen hoy</b><div class="metric">3 <small>tareas</small></div></article><article class="card"><b>Completadas</b><div class="metric">28 <small>esta semana</small></div></article></div></div></div>
+    </div>
+  </section>
+
+  <section class="option rail" id="b">
+    <header class="option-head"><div><h2>B · Riel enfocado</h2><p>Da prioridad al espacio de trabajo. Los nombres aparecen al expandir el riel o mediante tooltip.</p></div><span class="tag">Para usuarios expertos</span></header>
+    <div class="workspace"><aside class="side"><div class="brand">DA<small>DocuArchi</small></div><button class="nav-item selected" title="Workflow"><span class="dot">⌘</span><span>Workflow</span><span class="count">12</span></button><button class="nav-item" title="Consulta"><span class="dot">⌕</span><span>Consulta</span></button><button class="nav-item" title="Reportes"><span class="dot">▤</span><span>Reportes</span></button><button class="nav-item" title="Administración"><span class="dot">⚙</span><span>Administración</span></button></aside><div class="main"><header class="topbar"><button class="icon-button">☰</button><span class="crumb">Workflow / Bandeja personal</span><button class="ghost-button">Ayuda</button><div class="profile"><span>María González</span><span class="avatar">MG</span></div></header><div class="content"><div class="content-header"><div><h3>Bandeja de trabajo</h3><p>Vista centrada en el trabajo pendiente, con navegación secundaria contextual.</p></div><div class="button-row"><button class="btn">Vista</button><button class="btn primary">Crear flujo</button></div></div><div class="note">La sección activa se expresa una sola vez: en el riel. El badge queda reservado para tareas accionables.</div><div class="cards" style="margin-top:16px"><article class="card"><b>Asignadas a mí</b><div class="metric">12 <small>activas</small></div></article><article class="card"><b>En revisión</b><div class="metric">4 <small>pendientes</small></div></article><article class="card"><b>Delegadas</b><div class="metric">6 <small>activas</small></div></article></div></div></div></div>
+  </section>
+
+  <section class="option" id="c">
+    <header class="option-head"><div><h2>C · Centro de trabajo</h2><p>Recomendado. Combina el menú existente con una barra de comandos que hace explícitas las acciones frecuentes.</p></div><span class="tag recommended">Recomendación</span></header>
+    <div class="workspace"><aside class="side"><div class="brand">DocuArchi<small>Gestión documental</small></div><div class="section-label">Trabajo</div><button class="nav-item selected"><span class="dot">⌘</span><span>Mis tareas</span><span class="count">12</span></button><button class="nav-item"><span class="dot">◷</span><span>Seguimiento</span></button><button class="nav-item"><span class="dot">⌕</span><span>Consultar</span></button><div class="section-label">Configuración</div><button class="nav-item"><span class="dot">↗</span><span>Rutas</span></button><button class="nav-item"><span class="dot">⚙</span><span>Flujos</span></button><button class="nav-item"><span class="dot">▤</span><span>Reportes</span></button></aside><div class="main"><header class="topbar"><button class="icon-button">☰</button><span class="crumb">Workflow / Mis tareas</span><button class="icon-button" title="Notificaciones">●</button><div class="profile"><span>María González</span><span class="avatar">MG</span></div></header><div class="content"><div class="content-header"><div><h3>Mis tareas</h3><p>12 pendientes · 3 vencen hoy</p></div></div><div class="commandbar"><div class="search">⌕ &nbsp; Buscar por asunto, radicado o responsable</div><button class="btn">Filtrar</button><button class="btn primary">+ Crear flujo</button><div class="more"><button class="btn" data-menu="more-menu">Más acciones ▾</button><div class="menu" id="more-menu"><button>Delegar seleccionadas</button><button>Exportar bandeja</button><hr><button>Administrar rutas</button><button>Administrar flujos</button></div></div></div><div class="cards"><article class="card"><b>Prioridad alta</b><div class="metric" style="color:#c75050">3 <small>tareas</small></div></article><article class="card"><b>Vence hoy</b><div class="metric" style="color:var(--warning)">3 <small>tareas</small></div></article><article class="card"><b>Sin leer</b><div class="metric">7 <small>novedades</small></div></article></div></div></div></div>
+    <div class="principles"><div><b>Acciones por frecuencia</b><p>“Crear flujo” es primaria. Filtrar y buscar quedan disponibles sin competir; administración vive en “Más acciones”.</p></div><div><b>Estados comprensibles</b><p>El badge amarillo solo marca trabajo pendiente; los iconos de cabecera no duplican sus conteos.</p></div><div><b>Implementación segura</b><p>Se preservan los elementos existentes y se añaden clases, tooltips, texto accesible y orden visual con CSS/JS.</p></div></div>
+  </section>
+</main>
+<script>
+  (function () {
+    var buttons = document.querySelectorAll('[data-option]');
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener('click', function () {
+        var target = this.getAttribute('data-option');
+        for (var j = 0; j < buttons.length; j++) { buttons[j].classList.toggle('active', buttons[j] === this); }
+        var options = document.querySelectorAll('.option');
+        for (var k = 0; k < options.length; k++) { options[k].classList.toggle('active', options[k].id === target); }
+      });
+    }
+    var menuButtons = document.querySelectorAll('[data-menu]');
+    for (var m = 0; m < menuButtons.length; m++) {
+      menuButtons[m].addEventListener('click', function (event) { event.stopPropagation(); document.getElementById(this.getAttribute('data-menu')).classList.toggle('open'); });
+    }
+    document.addEventListener('click', function () { var menus = document.querySelectorAll('.menu'); for (var n = 0; n < menus.length; n++) { menus[n].classList.remove('open'); } });
+  }());
+</script>
+</body>
+</html>
