@@ -25,6 +25,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/extensions/export/bootstrap-table-export.min.js" type="text/javascript"></script>
     <link href="../Styles/styleMenu.css" rel="stylesheet" type="text/css" /> 
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
+    <%-- Línea base visual aprobada antes de DOC-2: permanece activa para todos los usuarios. --%>
+    <link href="../Styles/gridview-moderno.css?v=20260807-phase2-6" rel="stylesheet" />
+    <link href="../Styles/workflow-tareas-modernas.css?v=20260807-grid38" rel="stylesheet" />
+    <link href="../Styles/workflow-documentos-relacionados-modernos.css?v=20260808-docrel21" rel="stylesheet" />
+    <link href="../Styles/workflow-documentos-relacionados-titulo.css?v=20260808-title6" rel="stylesheet" />
+    <script src="../js/workflow/workflow-paginacion-visual.js?v=20260807-pager6" type="text/javascript"></script>
+    <script src="../js/workflow/documentos-relacionados-visual.js?v=20260808-docrel4" type="text/javascript"></script>
+    <script src="../js/workflow/documentos-relacionados-titulo-visual.js?v=20260808-title2" type="text/javascript"></script>
     <script src="../js/validate_campos.js" type="text/javascript"></script>
     <script src="../js/java_general/general_config.js" type="text/javascript"></script>
     <link href="../js/jquery.contextMenu.css" rel="stylesheet" type="text/css" />

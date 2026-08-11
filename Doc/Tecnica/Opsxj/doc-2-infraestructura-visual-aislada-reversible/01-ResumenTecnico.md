@@ -17,6 +17,6 @@ DOC-2 introduce una capa visual de Centro de Trabajo Workflow que es opt-in, ais
 
 ## Compatibilidad y reversión
 
-No se renombra ni sustituye un control, `UpdatePanel`, hidden input, evento JavaScript o postback. La autorización continúa exclusivamente en servidor. Con flag apagado o sin piloto, no se entrega clase ni recursos modernos.
+No se renombra ni sustituye un control, `UpdatePanel`, hidden input, evento JavaScript o postback. La autorización continúa exclusivamente en servidor. Con flag apagado o sin piloto, no se entrega clase ni recursos DOC-2; la lista moderna de documentos y la reubicación manual de iconos siguen siendo la línea base visible.
 
 El rollback total es `WorkflowCentroTrabajoModernEnabled=false`; el parcial elimina una subcapa de `WorkflowCentroTrabajoModernLayers`. No modifica datos, eventos ni lógica de negocio.

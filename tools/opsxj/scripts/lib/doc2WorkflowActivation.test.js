@@ -24,7 +24,7 @@ describe("DOC-2 workflow visual activation", () => {
     expect(page).toContain('<%= WorkflowCentroTrabajoModernCssAttribute %>');
   });
 
-  it("cuts over global visual assets and loads DOC-2 after Webworkflow.js", async () => {
+  it("preserves the approved visual baseline and loads DOC-2 after Webworkflow.js", async () => {
     const page = await readAppFile("workflow/Webworkflow.aspx");
     const removedResources = [
       "gridview-moderno.css",
@@ -36,7 +36,7 @@ describe("DOC-2 workflow visual activation", () => {
       "documentos-relacionados-titulo-visual.js",
     ];
 
-    removedResources.forEach((resource) => expect(page).not.toContain(resource));
+    removedResources.forEach((resource) => expect(page).toContain(resource));
     expect(page.indexOf("Styles/workflow-centro-trabajo-moderno.css")).toBeGreaterThan(page.indexOf("js/workflow/Webworkflow.js"));
     expect(page.indexOf("js/workflow/centro-trabajo-visual.js")).toBeGreaterThan(page.indexOf("Styles/workflow-centro-trabajo-moderno.css"));
   });

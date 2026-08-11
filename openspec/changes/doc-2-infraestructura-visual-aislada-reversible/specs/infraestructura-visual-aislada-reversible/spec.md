@@ -25,9 +25,9 @@ El sistema SHALL emitir `ctw-layer-layout`, `ctw-layer-actions`, `ctw-layer-docu
 ### Requirement: Recursos aislados y ordenados
 El sistema SHALL cargar `workflow-centro-trabajo-moderno.css` y `centro-trabajo-visual.js` después de `Webworkflow.js` y de los recursos legacy relevantes, con versión de caché explícita.
 
-#### Scenario: Corte de capas globales previas
+#### Scenario: Preservación de la línea base visual previa
 - **WHEN** se entrega `Webworkflow.aspx`
-- **THEN** los CSS y adaptadores visuales globales inventariados no forman parte de su ruta de carga y sus archivos permanecen publicados para auditoría y reversión de despliegue.
+- **THEN** los recursos manuales aprobados antes de DOC-2 conservan su ruta de carga y la capa DOC-2 se entrega después de ellos solo para un piloto autorizado.
 
 ### Requirement: Adaptador sin efecto funcional
 El sistema SHALL limitar el adaptador DOC-2 a añadir clases de presentación dentro del contenedor moderno, incluso tras una actualización parcial de ASP.NET AJAX.
