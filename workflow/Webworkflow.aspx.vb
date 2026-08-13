@@ -47,6 +47,141 @@ Public Class Webworkflow
         End Get
     End Property
 
+    Public ReadOnly Property WorkflowCentroTrabajoSelectedDocumentAvailable As Boolean
+        Get
+            Dim selectedDocument As String = WorkflowCentroTrabajoSelectedDocumentRaw()
+            Return Not String.IsNullOrWhiteSpace(selectedDocument) AndAlso selectedDocument <> "-1"
+        End Get
+    End Property
+
+    Public ReadOnly Property WorkflowCentroTrabajoSelectedDocumentTitle As String
+        Get
+            Dim values() As String = WorkflowCentroTrabajoSelectedDocumentRaw().Split("|"c)
+            Dim title As String = If(values.Length > 4, values(4), String.Empty)
+
+            Return EncodeWorkflowCentroTrabajoContextText(title, "Documento seleccionado")
+        End Get
+    End Property
+
+    Public ReadOnly Property WorkflowCentroTrabajoSelectedDocumentFormat As String
+        Get
+            Dim selectionTag As String = String.Empty
+            Dim values() As String
+            Dim extension As String
+
+            If HttpContext.Current IsNot Nothing AndAlso HttpContext.Current.Session IsNot Nothing Then
+                selectionTag = Convert.ToString(HttpContext.Current.Session.Item("WF_TAGSELECCION"))
+            End If
+
+            values = selectionTag.Split("|"c)
+            extension = If(values.Length > 3, values(3), String.Empty).Trim().TrimStart("."c)
+            If Not String.IsNullOrWhiteSpace(extension) Then
+                Return System.Web.HttpUtility.HtmlEncode(extension.ToUpperInvariant())
+            End If
+
+            Return If(WorkflowCentroTrabajoSelectedDocumentAvailable, "Documento", "")
+        End Get
+    End Property
+
+    Public ReadOnly Property WorkflowCentroTrabajoSelectedDocumentMetadataAvailable As Boolean
+        Get
+            Return WorkflowCentroTrabajoSelectedDocumentAvailable AndAlso
+                   Panel_tolbar_pdf IsNot Nothing AndAlso
+                   Panel_tolbar_pdf.Visible
+        End Get
+    End Property
+
+    Public ReadOnly Property WorkflowCentroTrabajoSelectedDocumentId As String
+        Get
+            Dim selectedDocumentId As String = String.Empty
+            Dim values() As String
+
+            If hiden_seleccion_documento_id_wf IsNot Nothing Then
+                selectedDocumentId = Convert.ToString(hiden_seleccion_documento_id_wf.Value).Trim()
+            End If
+
+            If String.IsNullOrWhiteSpace(selectedDocumentId) Then
+                values = WorkflowCentroTrabajoSelectedDocumentRaw().Split("|"c)
+                selectedDocumentId = If(values.Length > 1, values(1), String.Empty)
+            End If
+
+            Return System.Web.HttpUtility.HtmlAttributeEncode(selectedDocumentId)
+        End Get
+    End Property
+
+    Public ReadOnly Property WorkflowCentroTrabajoSelectedDocumentReference As String
+        Get
+            Return System.Web.HttpUtility.HtmlAttributeEncode(WorkflowCentroTrabajoSelectedDocumentRaw())
+        End Get
+    End Property
+
+    Public Function WorkflowCentroTrabajoSelectedDocumentActionExists(ByVal actionName As String) As Boolean
+        Return WorkflowCentroTrabajoSelectedDocumentAction(actionName) IsNot Nothing
+    End Function
+
+    Public Function WorkflowCentroTrabajoSelectedDocumentActionAttribute(ByVal actionName As String, ByVal attributeName As String) As String
+        Dim action As Global.System.Web.UI.HtmlControls.HtmlGenericControl = WorkflowCentroTrabajoSelectedDocumentAction(actionName)
+        If action Is Nothing OrElse String.IsNullOrWhiteSpace(attributeName) Then
+            Return String.Empty
+        End If
+
+        Return System.Web.HttpUtility.HtmlAttributeEncode(Convert.ToString(action.Attributes(attributeName)))
+    End Function
+
+    Private Function WorkflowCentroTrabajoSelectedDocumentRaw() As String
+        If hiden_seleccion_documento_wf Is Nothing Then
+            Return String.Empty
+        End If
+
+        Return Convert.ToString(hiden_seleccion_documento_wf.Value).Trim()
+    End Function
+
+    Private Function WorkflowCentroTrabajoSelectedDocumentAction(ByVal actionName As String) As Global.System.Web.UI.HtmlControls.HtmlGenericControl
+        Dim selectedDocumentId As String = String.Empty
+        Dim row As System.Web.UI.WebControls.GridViewRow
+
+        If String.IsNullOrWhiteSpace(actionName) OrElse Not WorkflowCentroTrabajoSelectedDocumentAvailable OrElse GridView_list_documento_relacion_wf Is Nothing Then
+            Return Nothing
+        End If
+
+        If hiden_seleccion_documento_id_wf IsNot Nothing Then
+            selectedDocumentId = Convert.ToString(hiden_seleccion_documento_id_wf.Value).Trim()
+        End If
+
+        For Each row In GridView_list_documento_relacion_wf.Rows
+            If String.Equals(Convert.ToString(row.Attributes("id_wf")), selectedDocumentId, StringComparison.Ordinal) Then
+                Return FindWorkflowCentroTrabajoAction(row, actionName)
+            End If
+        Next
+
+        Return Nothing
+    End Function
+
+    Private Shared Function FindWorkflowCentroTrabajoAction(ByVal parent As Global.System.Web.UI.Control, ByVal actionName As String) As Global.System.Web.UI.HtmlControls.HtmlGenericControl
+        Dim child As Global.System.Web.UI.Control
+        Dim htmlControl As Global.System.Web.UI.HtmlControls.HtmlGenericControl
+        Dim nestedAction As Global.System.Web.UI.HtmlControls.HtmlGenericControl
+
+        For Each child In parent.Controls
+            htmlControl = TryCast(child, Global.System.Web.UI.HtmlControls.HtmlGenericControl)
+            If htmlControl IsNot Nothing AndAlso String.Equals(Convert.ToString(htmlControl.Attributes("tip_event")), actionName, StringComparison.Ordinal) Then
+                Return htmlControl
+            End If
+
+            nestedAction = FindWorkflowCentroTrabajoAction(child, actionName)
+            If nestedAction IsNot Nothing Then
+                Return nestedAction
+            End If
+        Next
+
+        Return Nothing
+    End Function
+
+    Private Shared Function EncodeWorkflowCentroTrabajoContextText(ByVal value As String, ByVal fallback As String) As String
+        Dim text As String = If(String.IsNullOrWhiteSpace(value), fallback, value.Trim().TrimStart("-"c).Trim())
+        Return System.Web.HttpUtility.HtmlEncode(text)
+    End Function
+
     Private Shared Function ReadConfigurationValue(ByVal key As String, ByVal fallback As String) As String
         Dim configuredValue As String = ConfigurationManager.AppSettings(key)
         If String.IsNullOrWhiteSpace(configuredValue) Then
@@ -124,6 +259,12 @@ Public Class Webworkflow
         Return False
     End Function
 
+    Private Sub ConfigureWorkflowCentroTrabajoViewport()
+        If workflowCentroTrabajoModernViewport IsNot Nothing Then
+            workflowCentroTrabajoModernViewport.Visible = WorkflowCentroTrabajoModernActive
+        End If
+    End Sub
+
     Private Function MilisegundosDesdeInicioRequest() As Long
         Return CLng((DateTime.Now - HttpContext.Current.Timestamp).TotalMilliseconds)
     End Function
@@ -165,6 +306,7 @@ Public Class Webworkflow
 
     Protected Overrides Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
         System.Diagnostics.Debug.WriteLine("WF_LIFECYCLE|Webworkflow.Page_Load entrada|" & MilisegundosDesdeInicioRequest() & " ms desde inicio request")
+        ConfigureWorkflowCentroTrabajoViewport()
         Dim cronometroTotal As Stopwatch = Stopwatch.StartNew()
         Try
             Dim cs As ClientScriptManager = Page.ClientScript
@@ -1496,6 +1638,10 @@ Public Class Webworkflow
             If Result <> "YES" Then
                 Mens.Showscripman(Result, Me.UpdatePanel_seleccion_treview)
                 Exit Sub
+            End If
+
+            If WorkflowCentroTrabajoModernActive Then
+                Me.UpdatePanel_panel_toll.Update()
             End If
         Catch ex As Exception
             Mens.Showscripman(ex.Message, Me.UpdatePanel_seleccion_treview)

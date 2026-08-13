@@ -5707,7 +5707,8 @@ Public Class ClassDaGabinete
                                                             ByRef hideselecion As HtmlInputHidden,
                                                             ByRef updat As UpdatePanel,
                                                             ByRef update_label As UpdatePanel,
-                                                            ByRef numero_documentos As Integer) As String
+                                                            ByRef numero_documentos As Integer,
+                                                            Optional ByVal modernDocumentCountFormat As Boolean = False) As String
         '---------------------------------------------------------------------------
         'Funcion : Lista los documentos relacionados a una tarea workflow cuando la
         '          tarea esta asignada
@@ -5751,7 +5752,7 @@ Public Class ClassDaGabinete
                 Exit Function
             End If
             If Datset.Tables(0).Rows.Count = 0 Then
-                labetitle.Text = "Documentos " & 0
+                labetitle.Text = If(modernDocumentCountFormat, "Documentos (0)", "Documentos 0")
                 numero_documentos = 0
                 Datset.Tables(0).Rows.Add(Datset.Tables(0).NewRow)
                 scripma.DataSource = Datset
@@ -5763,7 +5764,9 @@ Public Class ClassDaGabinete
                 Lista_documentos_relacionados_a_tarea_workflow = "YES"
                 Exit Function
             Else
-                labetitle.Text = "Documentos " & Datset.Tables(0).Rows.Count
+                labetitle.Text = If(modernDocumentCountFormat,
+                                    "Documentos (" & Datset.Tables(0).Rows.Count & ")",
+                                    "Documentos " & Datset.Tables(0).Rows.Count)
                 numero_documentos = Datset.Tables(0).Rows.Count
                 scripma.DataSource = Datset
                 hideselecion.Value = "-1"

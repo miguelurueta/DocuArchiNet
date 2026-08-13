@@ -84,18 +84,28 @@
 }
 
 .gridview-documentos-relacionados .GridviewRow > td:first-child > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 !important;
+  line-height: 0;
+}
+
+.gridview-documentos-relacionados .ctw-document-row-selector {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
+    margin: 0;
     padding: 0 !important;
-    line-height: 0;
+    line-height: 1;
 }
 
 .gridview-documentos-relacionados .chek_selecion_list_wf {
     width: 13px;
     height: 13px;
-    margin: 0 0 0 13px !important;
+    margin: 0 !important;
     accent-color: #0062cc;
     cursor: pointer;
     transition: transform .12s ease, filter .12s ease;
@@ -131,6 +141,11 @@
     margin-right: 0 !important;
     padding-left: 4px !important;
     padding-right: 2px !important;
+}
+
+.gridview-documentos-relacionados .GridviewRow [tip_event="vis_doc_selecion_wf"],
+.gridview-documentos-relacionados .GridviewRow [tip_event="vis_doc_selecion_wf"] * {
+    cursor: pointer;
 }
 
 .gridview-documentos-relacionados .GridviewRow > td:last-child > .row > .w-100.col-10.row {

@@ -4,6 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
+    <meta id="workflowCentroTrabajoModernShellViewport" runat="server" name="viewport" content="width=device-width, initial-scale=1" visible="false" />
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600,700,800" rel="stylesheet"/>
     <link href="../menu_scoope/assets/css/font-awesome.min.css" rel="stylesheet" />	
@@ -13,7 +14,7 @@
 	<link href="../menu_scoope/assets/css/flag-icon.min.css" rel="stylesheet"/>
 	<link href="../menu_scoope/assets/css/fakeLoader.css" rel="stylesheet"/>	
     <link href="../menu_scoope/assets/css/scoop-vertical.css" rel="stylesheet"/>
-    <link href="../Styles/menu-vertical-responsivo.css?v=20260807-menu11" rel="stylesheet" />
+    <link href="../Styles/menu-vertical-responsivo.css?v=20260811-loader1" rel="stylesheet" />
     <script src="../js/ui/jquery-3.4.1.min.js"></script>  
   <script src="../js/ui/jquery-ui-1.8.22.custom.js" type="text/javascript"></script>
   <script src="../js/ui/jquery.ui.core.js" type="text/javascript"></script>
@@ -25,7 +26,7 @@
     <script src="../bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
     <link href="../Styles/bootra-person.css" rel="stylesheet" />
     <script src="../menu_scoope/assets/js/scoop.min.js"></script>
-    <script src="../js/inicio/menu-vertical-responsivo.js?v=20260807-menu2"></script>
+    <script src="../js/inicio/menu-vertical-responsivo.js?v=20260813-workbench-shell47"></script>
 	<script src="../menu_scoope/assets/js/lib/sparkline.min.js"></script>
 	<script src="../menu_scoope/assets/js/lib/jquery.mCustomScrollbar.concat.min.js"></script> 
 	<script src="../menu_scoope/assets/js/lib/jquery.mousewheel.min.js"></script>    
@@ -757,6 +758,20 @@
                                     <iframe class="embed-responsive-item_" runat="server" style="width: 100%; overflow: no-display" id="ContentPlacenter_ifrm_ds_"
                                         frameborder="0" scrolling="no"></iframe>
                                 </div>
+                                <div class="da_loading" id="container_loading_iframe" style="display: none">
+                                    <div class="da-iframe-loader__visual" aria-hidden="true">
+                                        <span class="da-iframe-loader__ring da-iframe-loader__ring--outer"></span>
+                                        <span class="da-iframe-loader__ring da-iframe-loader__ring--inner"></span>
+                                        <span class="da-iframe-loader__core">DA</span>
+                                        <span class="da-iframe-loader__dot da-iframe-loader__dot--one"></span>
+                                        <span class="da-iframe-loader__dot da-iframe-loader__dot--two"></span>
+                                        <span class="da-iframe-loader__dot da-iframe-loader__dot--three"></span>
+                                    </div>
+                                    <div class="da_loading_center" role="status" aria-live="polite">
+                                        <strong>Preparando su espacio de trabajo</strong>
+                                        <span>Estamos organizando todo para usted</span>
+                                    </div>
+                                </div>
                             </div>
                             <div id="card_general_ini_text" class="row_" style="overflow:auto; background-color:white">
                                 <div class="col-12 m-1 p-2">
@@ -862,10 +877,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="da_loading" id="container_loading_iframe" style="display: none">
-            <div class="da_loading_center">Cargando</div>
-            <div class="da_loader"></div>
         </div>
          <!--Popup redirect -->
          <div class="modal fade modal_opacity" id="modal_alert_sesion_time_out" role="dialog" >

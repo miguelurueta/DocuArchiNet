@@ -1,5 +1,5 @@
 /* Adaptador de presentación para GridView_list_documento_relacion_wf.
-   No inserta, borra, mueve ni intercepta filas o acciones de documentos. */
+   Reutiliza la apertura legacy de documentos; no inserta, borra ni mueve filas. */
 (function (window, document) {
     "use strict";
 
@@ -57,6 +57,53 @@
     function textoDocumento(row) {
         var title = row.querySelector(".GridviewSpanOverFlow");
         return title ? title.textContent.replace(/^\s+|\s+$/g, "") : "documento";
+    }
+
+    function buscarCelda(element, row) {
+        while (element && element !== row) {
+            if (element.tagName === "TD") {
+                return element;
+            }
+            element = element.parentNode;
+        }
+        return null;
+    }
+
+    function esZonaProtegidaDeFila(row, target) {
+        var element = target;
+        var cell = buscarCelda(target, row);
+
+        if (cell && row.cells && row.cells.length > 0 && cell === row.cells[0]) {
+            return true;
+        }
+
+        while (element && element !== row) {
+            if (element.tagName === "A" || element.tagName === "INPUT" || element.tagName === "BUTTON" ||
+                element.tagName === "SELECT" || element.tagName === "TEXTAREA") {
+                return true;
+            }
+            if (element.classList && (element.classList.contains("dropdown") ||
+                element.classList.contains("dropdown-menu") || element.classList.contains("dropdown-item"))) {
+                return true;
+            }
+            element = element.parentNode;
+        }
+
+        return false;
+    }
+
+    function activarDocumentoDesdeFila(event, row) {
+        var launcher = row.querySelector('[tip_event="vis_doc_selecion_wf"]');
+
+        if (!launcher || launcher.contains(event.target)) {
+            return !!launcher;
+        }
+        if (typeof window.prevent !== "function") {
+            return false;
+        }
+
+        window.prevent(event, launcher);
+        return true;
     }
 
     function aplicarPresentacion() {
@@ -128,20 +175,24 @@
             return;
         }
 
-        /* Las acciones, menú y checkboxes conservan su propio comportamiento. */
-        while (target && target !== row) {
-            if (target.tagName === "A" || target.tagName === "INPUT" || target.tagName === "BUTTON") {
-                return;
-            }
-            target = target.parentNode;
+        /* La selección y el menú conservan su comportamiento propio. */
+        if (esZonaProtegidaDeFila(row, target)) {
+            return;
         }
 
-        /* El manejador legado actualiza los hidden de selección durante el
-           mismo clic. Se lee después para no mostrar una fila distinta. */
+        /* El clic directo en icono o título ya llega al onclick legacy. Los
+           demás espacios de la fila se enrutan al mismo activador, sin crear
+           una segunda ruta ni simular un clic de control WebForms. */
+        if (!activarDocumentoDesdeFila(event, row)) {
+            return;
+        }
+
+        /* El manejador legacy actualiza los hidden durante esta activación.
+           Se leen después para que el estado visual refleje esa selección. */
         window.setTimeout(function () {
-            sincronizarFilaSeleccionada(table, row);
+            sincronizarFilaSeleccionada(table);
         }, 0);
-    }, true);
+    });
 
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", function () {

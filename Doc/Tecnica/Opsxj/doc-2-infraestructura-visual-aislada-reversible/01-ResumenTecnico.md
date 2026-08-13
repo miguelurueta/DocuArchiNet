@@ -6,12 +6,12 @@
 
 ## Objetivo y resultado
 
-DOC-2 introduce una capa visual de Centro de Trabajo Workflow que es opt-in, aislada y reversible. `workflow/Webworkflow.aspx` decide en servidor si un piloto recibe clase raíz y recursos DOC-2; no cambia la lógica WebForms.
+DOC-2 introduce una capa visual de Centro de Trabajo Workflow que es opt-in, aislada y reversible. `workflow/Webworkflow.aspx` decide en servidor si un piloto recibe clase raíz y recursos DOC-2; el host `Defaul/WebFormInicioDocuarchiGestion.aspx` aplica la misma decisión solo para emitir el viewport del navegador principal. No cambia la lógica WebForms.
 
 ## Superficie afectada
 
-- Página: `workflow/Webworkflow.aspx`.
-- Decisión: `workflow/Webworkflow.aspx.vb`, `ConfigurationManager.AppSettings` y `GA_LOGINUSUARIOGESTION` de sesión.
+- Páginas: `Defaul/WebFormInicioDocuarchiGestion.aspx` (host) y `workflow/Webworkflow.aspx` (Workbench).
+- Decisión: sus code-behind, `ConfigurationManager.AppSettings` y `GA_LOGINUSUARIOGESTION` de sesión.
 - Recursos nuevos: `Styles/workflow-centro-trabajo-moderno.css` y `js/workflow/centro-trabajo-visual.js`.
 - Proyecto: ambos recursos están declarados como `Content` en `GestionDocumental-Docuarchi.net.vbproj`.
 

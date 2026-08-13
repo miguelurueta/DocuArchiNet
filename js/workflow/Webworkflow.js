@@ -1604,7 +1604,6 @@ function event_element_menu(evento, tip_event) {
 }
 function inicializa_estado_pendiente() {
     try {
-        var h = document.getElementById("span_pendiente_selec_tarea");
         if (document.getElementById("Hidden_00020_4001").value == 1) {
             document.getElementById("span_pendiente_selec_tarea").innerText = "Enviar a pendientes";
             document.getElementById("span_pendiente_selec_tarea").title = "Enviar la tarea seleccionada a pendiente";
@@ -1636,6 +1635,14 @@ function show_windows_pendiente(evalua_show) {
         alert("Funcion show_windows_pendiente " + ex.mensaje);
     }
 }
+function actualiza_titulo_lista_actividades_workflow(titulo) {
+    var modalTitle = document.getElementById("ctw-workflow-route-modal-title");
+
+    if (modalTitle && titulo) {
+        modalTitle.textContent = titulo;
+    }
+}
+
 function inicializa_tipo_adjunto_documento(event, element, value_sel) {
     try {
         //Evento activa ventana migra gabinete
@@ -1649,16 +1656,29 @@ function inicializa_tipo_adjunto_documento(event, element, value_sel) {
         }
         //Evento activa devolver al usuario anterior
         if (value_sel == "D-TWU-ANT") {
-            var title_promp = "Desea devolver la tarea ?";
-            var x;
+            var title_promp = "La tarea se devolverá al usuario anterior y saldrá de su bandeja. ¿Desea continuar?";
             var r = confirm(title_promp);
             if (r == true) {              
                 document.getElementById("Button_tool_devolver_a_usuario").click();
-            } 
+            } else {
+                if (event && event.preventDefault) {
+                    event.preventDefault();
+                }
+                return false;
+            }
         }
         //Evento activa devolver a actividades anteriores
         if (value_sel == "D-TASK-ANT") {
-            document.getElementById("Button_tool_devolver_a_actividades_anterior").click();
+            var confirmaActividadAnterior = confirm("Se abrirá la lista de actividades anteriores para elegir el destino de la devolución. ¿Desea continuar?");
+            if (confirmaActividadAnterior == true) {
+                actualiza_titulo_lista_actividades_workflow("Devolver tarea");
+                document.getElementById("Button_tool_devolver_a_actividades_anterior").click();
+            } else {
+                if (event && event.preventDefault) {
+                    event.preventDefault();
+                }
+                return false;
+            }
         }
         
         //Activa la ventana de enviar a pediente tarea 

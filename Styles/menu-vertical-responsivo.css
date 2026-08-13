@@ -3,6 +3,189 @@
   --da-menu-ancho: 290px;
 }
 
+/* La aplicación se distribuye como una sola página: cabecera fija, navegación
+   lateral debajo de ella y contenido (incluido el iframe) en el espacio útil. */
+#scoop.da-menu-responsivo,
+#scoop.da-menu-responsivo .scoop-container {
+  height: 100%;
+  min-height: 0;
+}
+
+#scoop.da-menu-responsivo .scoop-header {
+  position: fixed !important;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 50px;
+  z-index: 2000;
+  isolation: isolate;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header {
+  position: relative;
+  z-index: 1;
+}
+
+#scoop.da-menu-responsivo .scoop-main-container {
+  position: fixed;
+  top: 50px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  z-index: 1;
+  overflow: hidden;
+}
+
+#scoop.da-menu-responsivo .scoop-main-container > .scoop-wrapper,
+#scoop.da-menu-responsivo #coop_content,
+#scoop.da-menu-responsivo #content_iframe_ds,
+#scoop.da-menu-responsivo #content_iframe_ds > div {
+  height: 100%;
+  min-height: 0;
+}
+
+#scoop.da-menu-responsivo .scoop-navbar[scoop-navbar-position="fixed"] {
+  top: 50px;
+  bottom: 0;
+  height: auto !important;
+  z-index: 1900;
+}
+
+#scoop.da-menu-responsivo #coop_content,
+#scoop.da-menu-responsivo #content_iframe_ds {
+  overflow: hidden !important;
+}
+
+#scoop.da-menu-responsivo #ContentPlacenter_ifrm_ds_ {
+  display: block;
+  height: 100% !important;
+  max-height: 100%;
+}
+
+/* El cargador pertenece al área de contenido para no cubrir el menú lateral. */
+#scoop.da-menu-responsivo #content_iframe_ds {
+  position: relative;
+}
+
+#scoop.da-menu-responsivo #content_iframe_ds > #container_loading_iframe.da_loading {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  width: auto;
+  height: auto;
+  flex-direction: column;
+  gap: 12px;
+  color: #243c63;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(220, 235, 255, .92), rgba(255, 255, 255, .92) 46%, rgba(246, 249, 253, .96) 100%);
+}
+
+#scoop.da-menu-responsivo #container_loading_iframe .da_loading_center {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+#scoop.da-menu-responsivo #container_loading_iframe .da_loading_center strong {
+  color: #254a7b;
+  font: 700 15px/1.3 "Segoe UI", "Open Sans", sans-serif;
+}
+
+#scoop.da-menu-responsivo #container_loading_iframe .da_loading_center span {
+  color: #64748b;
+  font: 500 12px/1.4 "Segoe UI", "Open Sans", sans-serif;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__visual {
+  position: relative;
+  width: 108px;
+  height: 108px;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__ring {
+  position: absolute;
+  display: block;
+  border: 3px solid transparent;
+  border-radius: 50%;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__ring--outer {
+  inset: 0;
+  border-top-color: #1769d1;
+  border-right-color: #76a9ed;
+  box-shadow: 0 8px 22px rgba(27, 92, 176, .18);
+  animation: da-iframe-loader-spin 1.05s linear infinite;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__ring--inner {
+  inset: 14px;
+  border-bottom-color: #43a579;
+  border-left-color: #9bd3bb;
+  animation: da-iframe-loader-spin 1.45s linear infinite reverse;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 15px;
+  color: #fff;
+  background: linear-gradient(135deg, #175cae, #2d8ddd);
+  box-shadow: 0 9px 18px rgba(26, 92, 177, .28);
+  font: 700 14px/1 "Segoe UI", sans-serif;
+  letter-spacing: .5px;
+  transform: translate(-50%, -50%);
+  animation: da-iframe-loader-pulse 1.7s ease-in-out infinite;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__dot {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #43a579;
+  box-shadow: 0 0 0 4px rgba(67, 165, 121, .12);
+  animation: da-iframe-loader-dot 1.35s ease-in-out infinite;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__dot--one { top: 7px; left: 20px; }
+#scoop.da-menu-responsivo .da-iframe-loader__dot--two { right: 5px; bottom: 25px; animation-delay: .18s; }
+#scoop.da-menu-responsivo .da-iframe-loader__dot--three { bottom: 11px; left: 27px; animation-delay: .36s; }
+
+@keyframes da-iframe-loader-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes da-iframe-loader-pulse {
+  50% { transform: translate(-50%, -50%) scale(1.08); }
+}
+
+@keyframes da-iframe-loader-dot {
+  50% { opacity: .35; transform: scale(.68); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #scoop.da-menu-responsivo .da-iframe-loader__ring,
+  #scoop.da-menu-responsivo .da-iframe-loader__core,
+  #scoop.da-menu-responsivo .da-iframe-loader__dot {
+    animation: none;
+  }
+}
+
 #scoop.da-menu-responsivo .scoop-navbar {
   width: var(--da-menu-ancho) !important;
   transition: margin-left .22s ease, visibility .22s ease;

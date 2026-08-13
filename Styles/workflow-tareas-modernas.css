@@ -364,41 +364,47 @@ button[onclick*="preven_event_search_new_task"]:focus {
 #modal_content_lista_actividades_worflow_ruta #divcabecer2_lista_actividades_worflow_ruta {
   display: flex;
   align-items: center;
-  min-height: 50px;
-  padding: 0 18px;
-  background: #eef1fb;
+  min-height: 52px;
+  padding: 12px 16px;
+  background: #fff;
   border-bottom: 1px solid #dce2f1;
-  color: #35477f;
+  color: #24364f;
 }
 
 #modal_content_lista_actividades_worflow_ruta #divcabecer2_lista_actividades_worflow_ruta .modal-title {
   margin: 0;
-  color: #35477f;
+  color: #24364f;
   font-family: "Segoe UI", Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 650;
 }
 
 #modal_content_lista_actividades_worflow_ruta #divcabecer2_lista_actividades_worflow_ruta .close {
   margin-left: auto;
+  margin-right: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   padding: 0;
-  border-radius: 6px;
-  color: #536681;
-  font-size: 22px;
-  font-weight: 400;
+  border: 1px solid #f8f9fa;
+  border-radius: .2rem;
+  background: #f8f9fa;
+  color: #212529;
+  font-size: 1.5rem;
+  font-weight: 700;
   line-height: 1;
+  text-shadow: none;
   opacity: 1;
 }
 
 #modal_content_lista_actividades_worflow_ruta #divcabecer2_lista_actividades_worflow_ruta .close:hover,
 #modal_content_lista_actividades_worflow_ruta #divcabecer2_lista_actividades_worflow_ruta .close:focus {
-  background: #edf2fb;
-  color: #304eac;
+  border-color: #dae0e5;
+  background: #e2e6ea;
+  color: #212529;
+  opacity: 1;
   outline: 0;
 }
 
@@ -408,17 +414,58 @@ button[onclick*="preven_event_search_new_task"]:focus {
 }
 
 #modal_content_lista_actividades_worflow_ruta #contenido_titulo_data_grid_dos_title {
-  margin: 0 !important;
-  padding: 13px 14px !important;
-  border-bottom-color: #e7eaf0 !important;
+  display: none;
 }
 
-#modal_content_lista_actividades_worflow_ruta #contenido_titulo_data_grid_dos_title .h6 {
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion {
+  display: block;
+  margin: 0 !important;
+  padding: 10px 15px !important;
+  border-top: 1px solid #dbe3f0 !important;
+  border-bottom: 0 !important;
+  background: #fff !important;
+  color: #66758c;
+  font-size: 12px;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion b {
+  color: #263d6a;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion .ctw-workflow-modal-context__column {
+  display: flex;
+  min-width: 0;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion .ctw-workflow-modal-context__column--flow {
+  justify-content: flex-end;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion .ctw-workflow-modal-context__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion .ctw-workflow-modal-context__item--flow {
+  flex: 0 1 68%;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion .h6 {
   margin: 0;
-  color: #35425a;
+  color: #66758c;
   font-family: "Segoe UI", Arial, sans-serif;
-  font-size: 13px;
-  font-weight: 600 !important;
+  font-size: 12px;
+  font-weight: 400 !important;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion .ctw-workflow-modal-context__item--flow .h6 {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 #modal_content_lista_actividades_worflow_ruta #div_gred {
@@ -438,12 +485,4 @@ button[onclick*="preven_event_search_new_task"]:focus {
 
 #modal_content_lista_actividades_worflow_ruta #GridView_envia_flujo.gridview-moderno tr:not(.GridviewScrollHeader_line_boot) > td {
   padding: 10px 14px;
-}
-
-#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion {
-  min-height: 12px;
-  margin: 0;
-  padding: 8px 14px;
-  background: #fafbfd;
-  border-top: 1px solid #e7eaf0;
 }

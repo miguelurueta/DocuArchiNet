@@ -23,6 +23,14 @@ Partial Public Class WebFormInicioDocuarchiGestion
     Protected WithEvents form1 As Global.System.Web.UI.HtmlControls.HtmlForm
 
     '''<summary>
+    '''Control workflowCentroTrabajoModernShellViewport.
+    '''</summary>
+    '''<remarks>
+    '''Meta viewport condicional para el contenedor superior del piloto DOC-2.
+    '''</remarks>
+    Protected WithEvents workflowCentroTrabajoModernShellViewport As Global.System.Web.UI.HtmlControls.HtmlMeta
+
+    '''<summary>
     '''Control ScriptManager1.
     '''</summary>
     '''<remarks>

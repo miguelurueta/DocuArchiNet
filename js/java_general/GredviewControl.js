@@ -130,8 +130,8 @@ function insert_row_documento_relacionado(date_campo, selecion, activa_registro_
         let element_td = element_row.insertCell(0);
         let htmlCheck;
         if (selecion == "wf") {
-            htmlCheck = ['<div class="pl-0 pt-2">',
-                '<input type="checkbox" class="ml-0 chek_selecion_list_wf" chek_id="' + split[1] + '">',
+            htmlCheck = ['<div class="ctw-document-row-selector">',
+                '<input type="checkbox" class="chek_selecion_list_wf" chek_id="' + split[1] + '" aria-label="Seleccionar documento">',
                 '</div>'
             ].join('')
         } else {

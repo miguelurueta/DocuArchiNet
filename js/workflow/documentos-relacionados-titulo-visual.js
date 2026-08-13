@@ -17,6 +17,13 @@
         accion.setAttribute("aria-label", texto);
     }
 
+    function conservaAccionesRapidasDelPiloto() {
+        var root = document.getElementById("div_content_general_wf");
+        return !!(root && root.classList &&
+            root.classList.contains("workflow-centro-trabajo-moderno") &&
+            root.classList.contains("ctw-layer-documents"));
+    }
+
     function moverAccionesSecundarias() {
         var titulo = document.getElementById("div_label");
         var menu;
@@ -28,6 +35,12 @@
         var index;
 
         if (!titulo) {
+            return;
+        }
+
+        /* En DOC-2 las acciones existentes forman parte de la cabecera contextual.
+           No se mueven, no se cambian IDs y no se toca su comportamiento. */
+        if (conservaAccionesRapidasDelPiloto()) {
             return;
         }
 

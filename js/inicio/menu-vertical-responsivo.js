@@ -2,13 +2,32 @@
 (function () {
     "use strict";
     var puntoCierre = 992;
+    var puntoCierreCentroTrabajo = 1199;
+    var idViewportCentroTrabajo = "workflowCentroTrabajoModernShellViewport";
+    var idIframeContenido = "ContentPlacenter_ifrm_ds_";
+    var rutaCentroTrabajo = /(?:^|\/)workflow\/Webworkflow\.aspx(?:[?#]|$)/i;
 
     function obtenerMenu() {
         return document.getElementById("scoop");
     }
 
+    /* El Workbench se carga dentro del iframe del shell. En la banda intermedia
+       el menú abierto le resta 290 px y hace que el iframe active su breakpoint
+       táctil antes de tiempo. El meta solo se emite para el piloto autorizado;
+       por ello el ajuste no afecta baseline ni otros módulos del mismo shell. */
+    function esCentroTrabajoPilotoActivo() {
+        var iframe = document.getElementById(idIframeContenido);
+        var origen = iframe ? (iframe.getAttribute("src") || "") : "";
+
+        return document.getElementById(idViewportCentroTrabajo) !== null && rutaCentroTrabajo.test(origen);
+    }
+
+    function puntoCierreActual() {
+        return esCentroTrabajoPilotoActivo() ? puntoCierreCentroTrabajo : puntoCierre;
+    }
+
     function vistaReducida() {
-        return window.matchMedia("(max-width: " + puntoCierre + "px)").matches;
+        return window.matchMedia("(max-width: " + puntoCierreActual() + "px)").matches;
     }
 
     function establecerEstado(menu, cerrado) {
@@ -70,10 +89,17 @@
         alternarMenu(evento);
     }
 
+    function sincronizarIframeContenido() {
+        var iframe = document.getElementById(idIframeContenido);
+        if (!iframe) return;
+        iframe.addEventListener("load", sincronizarVista);
+    }
+
     function iniciar() {
         var menu = obtenerMenu();
         if (!menu) return;
         sincronizarVista();
+        sincronizarIframeContenido();
 
         window.daAlternarMenuVertical = alternarMenu;
         document.addEventListener("click", manejarClickMenu, true);
