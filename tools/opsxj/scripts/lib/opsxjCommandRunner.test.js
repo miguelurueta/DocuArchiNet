@@ -137,6 +137,99 @@ describe("opsxjCommandRunner", () => {
     expect(stderr.read()).toBe("");
   });
 
+  it("keeps opsxj:orchestrate:new equivalent and propagates both profiles", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const createProposalFn = vi.fn().mockResolvedValue({
+      issue: { issueKey: "SCRUM-8", summary: "Modernizar", metadata: { statusCategory: "indeterminate" } },
+      changeName: "scrum-8-modernizar",
+      proposalPath: "D:/repo/openspec/changes/scrum-8-modernizar/proposal.md",
+    });
+    const setupProposalFn = vi.fn().mockResolvedValue({
+      branchName: "feature/SCRUM-8",
+      committed: false,
+      pushed: false,
+      proposalRelativePath: "openspec/changes/scrum-8-modernizar/proposal.md",
+    });
+    const assertGitCleanFn = vi.fn().mockResolvedValue(undefined);
+
+    const exitCode = await runOpsxjCommand({
+      argv: [
+        "opsxj:orchestrate:new",
+        "SCRUM-8",
+        "--impact",
+        "webforms_ui",
+        "--profile",
+        "enterprise-legacy-modernization",
+        "--tech-profile",
+        "legacy-webforms-vb",
+      ],
+      env: {},
+      stdout,
+      stderr,
+      baseDir: "D:/repo",
+      createProposalFn,
+      setupProposalFn,
+      assertGitCleanFn,
+    });
+
+    expect(exitCode).toBe(0);
+    expect(createProposalFn).toHaveBeenCalledWith(expect.objectContaining({
+      issueKey: "SCRUM-8",
+      impact: "webforms_ui",
+      architectureProfile: "enterprise-legacy-modernization",
+      technologyProfile: "legacy-webforms-vb",
+    }));
+    expect(stdout.read()).toContain("Perfil de arquitectura: enterprise-legacy-modernization");
+    expect(stdout.read()).toContain("Perfil tecnologico: legacy-webforms-vb");
+    expect(stderr.read()).toBe("");
+  });
+
+  it("rejects an invalid profile before touching Git, Jira or branches", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const assertGitCleanFn = vi.fn();
+    const createProposalFn = vi.fn();
+    const setupProposalFn = vi.fn();
+
+    const exitCode = await runOpsxjCommand({
+      argv: ["opsxj:orchestrate:new", "SCRUM-8", "--profile", "unknown-profile"],
+      stdout,
+      stderr,
+      baseDir: "D:/repo",
+      assertGitCleanFn,
+      createProposalFn,
+      setupProposalFn,
+    });
+
+    expect(exitCode).toBe(1);
+    expect(assertGitCleanFn).not.toHaveBeenCalled();
+    expect(createProposalFn).not.toHaveBeenCalled();
+    expect(setupProposalFn).not.toHaveBeenCalled();
+    expect(stderr.read()).toContain("Perfil de arquitectura no soportado");
+  });
+
+  it("rejects an invalid technology profile before touching Git or Jira", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const assertGitCleanFn = vi.fn();
+    const createProposalFn = vi.fn();
+
+    const exitCode = await runOpsxjCommand({
+      argv: ["opsxj:orchestrate:new", "SCRUM-8", "--tech-profile", "unknown-stack"],
+      stdout,
+      stderr,
+      baseDir: "D:/repo",
+      assertGitCleanFn,
+      createProposalFn,
+    });
+
+    expect(exitCode).toBe(1);
+    expect(assertGitCleanFn).not.toHaveBeenCalled();
+    expect(createProposalFn).not.toHaveBeenCalled();
+    expect(stderr.read()).toContain("Perfil tecnologico no soportado");
+  });
+
   it("blocks opsxj:new when jira lookup fails and does not continue to git", async () => {
     const stdout = buildBufferWriter();
     const stderr = buildBufferWriter();

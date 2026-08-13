@@ -1,5 +1,6 @@
 import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { resolveTechnologyProfile } from "./opsxjProfileCatalog.js";
 
 const SUPPORTED_EXTENSIONS = new Set([".md", ".txt"]);
 const REPORT_RELATIVE_PATH = path.join(".opsxj", "reports", "prompt-review-report.json");
@@ -285,6 +286,40 @@ const hasCodeLocationGuidance = (text, normalized) => {
   ]);
 
   return (hasReusableRoute || hasModuleRoute) && explainsContextRule;
+};
+
+const hasLegacyCodeLocationGuidance = (text) =>
+  hasAny(text, [
+    /(?:workflow|Defaul|Docuarchi|App_Code|Styles|js)[\\/][^\s`]+/i,
+    /\.aspx(?:\.vb|\.designer\.vb)?\b/i,
+    /(?:code-behind|Web Forms|VB\.NET|UpdatePanel|GridView)\b/i,
+  ]);
+
+const hasToolingCodeLocationGuidance = (text) =>
+  hasAny(text, [
+    /tools[\\/]opsxj[\\/]scripts[\\/]/i,
+    /scripts[\\/]lib[\\/]/i,
+    /package\.json\b/i,
+  ]);
+
+const hasCodeLocationForProfile = ({ text, normalized, technologyProfile }) => {
+  if (technologyProfile === "legacy-webforms-vb") return hasLegacyCodeLocationGuidance(text);
+  if (technologyProfile === "tooling-node") return hasToolingCodeLocationGuidance(text);
+  if (technologyProfile === "frontend-react-ts") return hasCodeLocationGuidance(text, normalized);
+  return hasAny(text, [/\b(?:ruta|archivo|carpeta|modulo|m[oó]dulo)\b/i]);
+};
+
+const codeLocationExpectedForProfile = (technologyProfile) => {
+  if (technologyProfile === "legacy-webforms-vb") {
+    return "Indicar las paginas .aspx, code-behind .vb, controles, scripts o estilos legacy afectados y conservar sus fronteras.";
+  }
+  if (technologyProfile === "tooling-node") {
+    return "Indicar los modulos bajo tools/.../scripts, sus pruebas y package.json cuando corresponda.";
+  }
+  if (technologyProfile === "frontend-react-ts") {
+    return "Distinguir app reusable/componente compartido y modulo funcional con rutas src/app/Components/... o src/modules/<modulo>/{components,hooks,services,adapters,types}/....";
+  }
+  return "Indicar las rutas o modulos concretos que se pueden modificar.";
 };
 
 const requiresE2EEvidence = (normalized) =>
@@ -587,7 +622,7 @@ const addSectionFindings = ({ findings, text }) => {
   }
 };
 
-const addStructuralFindings = ({ findings, text }) => {
+const addStructuralFindings = ({ findings, text, technologyProfile }) => {
   const normalized = normalizeText(text);
   const isPromptReviewToolingPrompt = hasAny(normalized, [
     /opsxj:prompt-review/,
@@ -631,7 +666,7 @@ const addStructuralFindings = ({ findings, text }) => {
     );
   }
 
-  if (hasDocumentationSection(normalized)) {
+  if (hasDocumentationSection(normalized) && technologyProfile === "frontend-react-ts") {
     if (!hasDocsPath(text)) {
       findings.push(
         newPromptReviewFinding({
@@ -718,7 +753,7 @@ const addStructuralFindings = ({ findings, text }) => {
   if (
     mentionsCodeWork &&
     !isPromptReviewToolingPrompt &&
-    !hasCodeLocationGuidance(text, normalized)
+    !hasCodeLocationForProfile({ text, normalized, technologyProfile })
   ) {
     findings.push(
       newPromptReviewFinding({
@@ -727,12 +762,16 @@ const addStructuralFindings = ({ findings, text }) => {
         message:
           "El prompt pide trabajo de codigo pero no define regla de ubicacion segun contexto del repo.",
         expected:
-          "Distinguir app reusable/componente compartido y modulo funcional con rutas src/app/Components/... o src/modules/<modulo>/{components,hooks,services,adapters,types}/...",
+          codeLocationExpectedForProfile(technologyProfile),
       }),
     );
   }
 
-  if (mentionsCodeWork && !isPromptReviewToolingPrompt) {
+  if (
+    mentionsCodeWork &&
+    !isPromptReviewToolingPrompt &&
+    technologyProfile === "frontend-react-ts"
+  ) {
     for (const rule of getMissingFrontendQualityRules(normalized)) {
       findings.push(
         newPromptReviewFinding({
@@ -853,11 +892,25 @@ const addStructuralFindings = ({ findings, text }) => {
   }
 
   if (!isPromptReviewToolingPrompt) {
-    for (const requirement of [
-      { pattern: /\b(build|npm\s+run\s+build|tsc)\b/, code: "BUILD_EVIDENCE_RECOMMENDED", expected: "build/tsc segun impacto." },
-      { pattern: /\b(unit|unitarias?|test|vitest|testing library|focal)\b/, code: "UNIT_TEST_EVIDENCE_REQUIRED", expected: "unit/focal test segun impacto." },
-      { pattern: /\b(comando|comandos|evidencia|resultado)\b/, code: "COMMAND_EVIDENCE_REQUIRED", expected: "comandos ejecutados y resultado." },
-    ]) {
+    const evidenceRequirements =
+      technologyProfile === "legacy-webforms-vb"
+        ? [
+            { pattern: /\b(msbuild|dotnet|compil|build)\b/, code: "BUILD_EVIDENCE_RECOMMENDED", expected: "compilacion MSBuild/dotnet segun impacto." },
+            { pattern: /\b(manual|qa|unit|unitarias?|test)\b/, code: "UNIT_TEST_EVIDENCE_REQUIRED", expected: "prueba unitaria o QA manual reproducible segun impacto." },
+            { pattern: /\b(comando|comandos|evidencia|resultado)\b/, code: "COMMAND_EVIDENCE_REQUIRED", expected: "comandos o pasos ejecutados y resultado." },
+          ]
+        : technologyProfile === "tooling-node"
+          ? [
+              { pattern: /\b(npm(?:\.cmd)?\s+run|node\s+|build|test)\b/, code: "BUILD_EVIDENCE_RECOMMENDED", expected: "comando Node/npm segun impacto." },
+              { pattern: /\b(unit|unitarias?|test|vitest)\b/, code: "UNIT_TEST_EVIDENCE_REQUIRED", expected: "prueba automatizada focal segun impacto." },
+              { pattern: /\b(comando|comandos|evidencia|resultado)\b/, code: "COMMAND_EVIDENCE_REQUIRED", expected: "comandos ejecutados y resultado." },
+            ]
+          : [
+              { pattern: /\b(build|npm\s+run\s+build|tsc)\b/, code: "BUILD_EVIDENCE_RECOMMENDED", expected: "build/tsc segun impacto." },
+              { pattern: /\b(unit|unitarias?|test|vitest|testing library|focal)\b/, code: "UNIT_TEST_EVIDENCE_REQUIRED", expected: "unit/focal test segun impacto." },
+              { pattern: /\b(comando|comandos|evidencia|resultado)\b/, code: "COMMAND_EVIDENCE_REQUIRED", expected: "comandos ejecutados y resultado." },
+            ];
+    for (const requirement of evidenceRequirements) {
       if (requirement.pattern.test(normalized)) continue;
       findings.push(
         newPromptReviewFinding({
@@ -882,13 +935,15 @@ const addStructuralFindings = ({ findings, text }) => {
         message:
           "El prompt describe un flujo que requiere validacion E2E o justificacion formal.",
         expected:
-          "Exigir E2E real con Playwright/end-to-end, o justificar explicitamente por que no aplica y dejar evidencia manual.",
+          technologyProfile === "legacy-webforms-vb"
+            ? "Exigir recorrido manual reproducible con evidencia o E2E disponible; si no aplica, justificarlo formalmente."
+            : "Exigir E2E real con Playwright/end-to-end, o justificar explicitamente por que no aplica y dejar evidencia manual.",
       }),
     );
   }
 };
 
-const addFrontendFindings = ({ findings, text }) => {
+const addFrontendFindings = ({ findings, text, technologyProfile }) => {
   const normalized = normalizeText(text);
   const isPromptReviewToolingPrompt = hasAny(normalized, [
     /opsxj:prompt-review/,
@@ -896,7 +951,7 @@ const addFrontendFindings = ({ findings, text }) => {
     /validar\s+prompts?\s+enterprise/,
   ]);
 
-  if (isPromptReviewToolingPrompt) {
+  if (isPromptReviewToolingPrompt || technologyProfile !== "frontend-react-ts") {
     return;
   }
 
@@ -1036,12 +1091,16 @@ const addFrontendFindings = ({ findings, text }) => {
   }
 };
 
-export const testFrontendPromptReview = ({ promptText }) => {
+export const testFrontendPromptReview = ({ promptText, technologyProfile }) => {
   const findings = [];
   const text = String(promptText ?? "");
+  const resolvedTechnologyProfile = resolveTechnologyProfile({
+    technologyProfile,
+    promptText: text,
+  });
   addSectionFindings({ findings, text });
-  addStructuralFindings({ findings, text });
-  addFrontendFindings({ findings, text });
+  addStructuralFindings({ findings, text, technologyProfile: resolvedTechnologyProfile });
+  addFrontendFindings({ findings, text, technologyProfile: resolvedTechnologyProfile });
 
   if (findings.length === 0) {
     findings.push(
@@ -1325,13 +1384,14 @@ const summarizeFindings = (findings) => ({
   info: findings.filter((item) => item.severity === "INFO").length,
 });
 
-const writePromptReviewReport = async ({ baseDir, promptPath, findings, error = null }) => {
+const writePromptReviewReport = async ({ baseDir, promptPath, findings, technologyProfile, error = null }) => {
   const summary = summarizeFindings(findings);
   const status = error ? "error" : summary.blockers > 0 ? "fail" : "pass";
   const report = {
     status,
     promptPath,
     reviewedAtUtc: new Date().toISOString(),
+    technologyProfile,
     summary,
     findings,
     ...(error ? { error } : {}),
@@ -1342,15 +1402,23 @@ const writePromptReviewReport = async ({ baseDir, promptPath, findings, error = 
   return { report, reportPath };
 };
 
-export const reviewFrontendPrompt = async ({ baseDir, promptInput }) => {
+export const reviewFrontendPrompt = async ({ baseDir, promptInput, technologyProfile }) => {
   try {
     const promptPath = await resolvePromptReviewInput({ baseDir, promptInput });
     const promptText = await readPromptReviewText({ promptPath });
-    const findings = testFrontendPromptReview({ promptText });
+    const resolvedTechnologyProfile = resolveTechnologyProfile({
+      technologyProfile,
+      promptText,
+    });
+    const findings = testFrontendPromptReview({
+      promptText,
+      technologyProfile: resolvedTechnologyProfile,
+    });
     const { report, reportPath } = await writePromptReviewReport({
       baseDir,
       promptPath,
       findings,
+      technologyProfile: resolvedTechnologyProfile,
     });
     return {
       ...report,

@@ -148,4 +148,50 @@ describe("proposalGenerator", () => {
       await rm(tempDir, { recursive: true, force: true });
     }
   });
+
+  it("seeds enterprise legacy policy and technology profile into generated artifacts", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "proposal-profile-"));
+    try {
+      const changeName = "scrum-95-modernizar-capacidad";
+      const proposal = buildProposalContent({
+        issueKey: "SCRUM-95",
+        summary: "Modernizar capacidad",
+        description: "Migracion gradual.",
+        architectureProfile: "enterprise-legacy-modernization",
+        technologyProfile: "legacy-webforms-vb",
+      });
+      await writeProposalFile({ issueKey: "SCRUM-95", changeName, content: proposal, baseDir: tempDir });
+      const artifacts = await writeRefinementArtifacts({
+        issueKey: "SCRUM-95",
+        changeName,
+        summary: "Modernizar capacidad",
+        description: "Migracion gradual.",
+        impact: "webforms_ui",
+        architectureProfile: "enterprise-legacy-modernization",
+        technologyProfile: "legacy-webforms-vb",
+        baseDir: tempDir,
+      });
+      const [design, spec, tasks] = await Promise.all([
+        readFile(artifacts.designPath, "utf8"),
+        readFile(artifacts.specPath, "utf8"),
+        readFile(artifacts.tasksPath, "utf8"),
+      ]);
+      expect(proposal).toContain("## Politica de modernizacion enterprise legacy");
+      expect(proposal).toContain("Perfil de revision: legacy-webforms-vb");
+      expect(design).toContain("## Arquitectura de modernizacion enterprise legacy");
+      expect(spec).toContain("### Requirement: Frontera de capacidad legacy");
+      expect(tasks).toContain("## Gobierno de modernizacion enterprise legacy");
+      expect(artifacts.governanceArtifacts.manifest.architectureProfile).toMatchObject({
+        name: "enterprise-legacy-modernization",
+        version: 1,
+      });
+      expect(artifacts.governanceArtifacts.manifest.technologyProfile).toMatchObject({
+        name: "legacy-webforms-vb",
+        version: 1,
+      });
+      expect(artifacts.governanceArtifacts.manifest.documentationContract).toHaveLength(4);
+    } finally {
+      await rm(tempDir, { recursive: true, force: true });
+    }
+  });
 });

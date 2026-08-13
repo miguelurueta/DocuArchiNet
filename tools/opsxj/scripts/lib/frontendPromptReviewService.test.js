@@ -89,6 +89,78 @@ describe("frontendPromptReviewService", () => {
     );
   });
 
+  it("does not apply React or TypeScript rules to an explicit Web Forms/VB profile", () => {
+    const promptText = [
+        "## Rol esperado",
+        "Arquitecto ASP.NET Web Forms y VB.NET.",
+        "## Contexto",
+        "Modificar workflow/Webworkflow.aspx, workflow/Webworkflow.aspx.vb y js/workflow/Webworkflow.js.",
+        "## Objetivo",
+        "Modernizar la confirmacion de una tarea sin romper el postback existente.",
+        "## Restricciones criticas",
+        "- No llamar Session ni Terminar_Tarea_Workflow desde JavaScript.",
+        "- No sustituir el flujo legacy hasta completar piloto y rollback.",
+        "## Criterios de aceptacion",
+        "El code-behind conserva autorizacion, validacion servidor y transicion actual.",
+        "## Pruebas obligatorias",
+        "Ejecutar compilacion MSBuild y QA manual reproducible; registrar comandos, resultado y evidencia.",
+        "## Entregable final",
+        "Cambios Web Forms, evidencia manual y documentacion tecnica actualizada.",
+      ].join("\n");
+    const findings = testFrontendPromptReview({
+      technologyProfile: "legacy-webforms-vb",
+      promptText,
+    });
+    const forbiddenCodes = new Set([
+      "STRICT_TYPESCRIPT_REQUIRED",
+      "REACT_PROJECT_CONVENTIONS_REQUIRED",
+      "REACT_STATE_OWNERSHIP_REQUIRED",
+      "REACT_LIST_KEYS_REQUIRED",
+      "RENDER_PERFORMANCE_REQUIRED",
+      "FRONTEND_ROUTE_REQUIRED",
+    ]);
+    expect(findings.some((finding) => forbiddenCodes.has(finding.code))).toBe(false);
+    const autoDetected = testFrontendPromptReview({ promptText });
+    expect(autoDetected.some((finding) => forbiddenCodes.has(finding.code))).toBe(false);
+  });
+
+  it("does not apply React or TypeScript rules to Node tooling and honors explicit precedence", () => {
+    const findings = testFrontendPromptReview({
+      technologyProfile: "tooling-node",
+      promptText: [
+        "## Rol esperado",
+        "Ingeniero de tooling Node.js.",
+        "## Contexto",
+        "Modificar tools/opsxj/scripts/lib/opsxjCommandRunner.js y sus pruebas Vitest.",
+        "## Objetivo",
+        "Crear un comando local para validar perfiles de arquitectura.",
+        "## Restricciones criticas",
+        "No consultar Jira ni modificar archivos fuera de tools/opsxj.",
+        "## Criterios de aceptacion",
+        "El comando devuelve exit code determinista.",
+        "## Pruebas obligatorias",
+        "Ejecutar npm.cmd test y registrar comandos y resultado.",
+        "## Entregable final",
+        "Runner, pruebas y documentacion actualizada.",
+      ].join("\n"),
+    });
+    expect(findings.map((finding) => finding.code)).not.toEqual(expect.arrayContaining([
+      "STRICT_TYPESCRIPT_REQUIRED",
+      "REACT_STATE_OWNERSHIP_REQUIRED",
+      "REACT_LIST_KEYS_REQUIRED",
+      "RENDER_PERFORMANCE_REQUIRED",
+    ]));
+
+    const explicitLegacy = testFrontendPromptReview({
+      technologyProfile: "legacy-webforms-vb",
+      promptText: `${validPrompt}\nActualizar Webworkflow.aspx.vb.`,
+    });
+    expect(explicitLegacy.map((finding) => finding.code)).not.toEqual(expect.arrayContaining([
+      "STRICT_TYPESCRIPT_REQUIRED",
+      "REACT_STATE_OWNERSHIP_REQUIRED",
+    ]));
+  });
+
   it("builds correction guidance for structural prompt findings", () => {
     const correction = buildPromptReviewCorrection({
       findings: [

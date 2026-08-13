@@ -22,20 +22,26 @@ import {
   validateLegacyGovernance,
   writeValidationEvidence,
 } from "./legacyGovernanceService.js";
+import {
+  normalizeArchitectureProfile,
+  normalizeTechnologyProfile,
+} from "./opsxjProfileCatalog.js";
 
 const execFile = promisify(execFileCb);
 
 const usage = [
   "Uso:",
-  "  node tools/opsxj/scripts/opsxj.js opsxj:new <ISSUE-KEY>",
+  "  node tools/opsxj/scripts/opsxj.js opsxj:new <ISSUE-KEY> [--impact <impact>] [--profile <architecture-profile>] [--tech-profile <technology-profile>]",
+  "  node tools/opsxj/scripts/opsxj.js opsxj:orchestrate:new <ISSUE-KEY> [--impact <impact>] [--profile <architecture-profile>] [--tech-profile <technology-profile>]",
   "  node tools/opsxj/scripts/opsxj.js opsxj:validate <ISSUE-KEY|change-name> [--json]",
   "  node tools/opsxj/scripts/opsxj.js opsxj:validation:evidence <ISSUE-KEY> --type <unit|manual_qa|e2e|build|documentation> --reference <detalle>",
   "  node tools/opsxj/scripts/opsxj.js opsxj:prompt-review <PROMPT.md|ISSUE-KEY>",
-  "  node tools/opsxj/scripts/opsxj.js opsxj:technical-review <PROMPT.md|ISSUE-KEY>",
+  "  node tools/opsxj/scripts/opsxj.js opsxj:technical-review <PROMPT.md|ISSUE-KEY> [--tech-profile <technology-profile>]",
   "  node tools/opsxj/scripts/opsxj.js opsxj:status <ISSUE-KEY|change-name>",
   "  node tools/opsxj/scripts/opsxj.js opsxj:archive <ISSUE-KEY>",
   "  node tools/opsxj/scripts/opsxj.js opsxj:close <ISSUE-KEY>",
-  "  npm run opsxj:new -- <ISSUE-KEY>",
+  "  npm run opsxj:new -- <ISSUE-KEY> [--impact <impact>] [--profile <architecture-profile>] [--tech-profile <technology-profile>]",
+  "  npm run opsxj:orchestrate:new -- <ISSUE-KEY> [--impact <impact>] [--profile <architecture-profile>] [--tech-profile <technology-profile>]",
   "  npm run opsxj:prompt-review -- <PROMPT.md|ISSUE-KEY>",
   "  npm run opsxj:status -- <ISSUE-KEY|change-name>",
   "  npm run opsxj:archive -- <ISSUE-KEY>",
@@ -58,6 +64,8 @@ const buildNewContext = ({
   proposalPath,
   refinementArtifacts,
   baseDir,
+  architectureProfile,
+  technologyProfile,
 }) => {
   const relativeProposalPath = path.relative(baseDir, proposalPath);
   const changeDir = path.join("openspec", "changes", changeName);
@@ -66,6 +74,12 @@ const buildNewContext = ({
   stdout.write(`[opsxj:new] Resumen Jira: ${issue.summary || "(sin resumen)"}\n`);
   stdout.write(`[opsxj:new] Carpeta OpenSpec: ${changeDir}\n`);
   stdout.write(`[opsxj:new] Proposal creado: ${relativeProposalPath}\n`);
+  if (architectureProfile) {
+    stdout.write(`[opsxj:new] Perfil de arquitectura: ${architectureProfile}\n`);
+  }
+  if (technologyProfile) {
+    stdout.write(`[opsxj:new] Perfil tecnologico: ${technologyProfile}\n`);
+  }
   if (refinementArtifacts) {
     const designRelative = path.relative(baseDir, refinementArtifacts.designPath);
     const specRelative = path.relative(baseDir, refinementArtifacts.specPath);
@@ -158,6 +172,29 @@ const printCodexAgentHint = ({ stdout, command }) => {
   }
 };
 
+const parseNewArgs = (rawArgs) => {
+  const positional = [];
+  const options = {};
+  const optionNames = new Set(["--impact", "--profile", "--tech-profile"]);
+  for (let index = 0; index < rawArgs.length; index += 1) {
+    const value = String(rawArgs[index]);
+    if (optionNames.has(value)) {
+      const optionValue = rawArgs[index + 1];
+      if (!optionValue || String(optionValue).startsWith("--")) {
+        throw new Error(`Falta valor para ${value}.`);
+      }
+      options[value.slice(2)] = String(optionValue);
+      index += 1;
+      continue;
+    }
+    if (value.startsWith("--")) {
+      throw new Error(`Opcion no soportada para opsxj:new: ${value}.`);
+    }
+    positional.push(value);
+  }
+  return { issueKey: positional[0] ?? "", options };
+};
+
 const runNew = async ({
   args,
   env,
@@ -169,11 +206,17 @@ const runNew = async ({
   assertGitCleanFn,
   transitionJiraIssueFn,
 }) => {
-  const impactIndex = args.findIndex((value) => value === "--impact");
-  const impact = normalizeImpact(
-    impactIndex >= 0 ? args[impactIndex + 1] : env.OPSXJ_IMPACT || "cross_cutting",
+  const parsed = parseNewArgs(
+    [issueKeyFromArg, ...args].filter((value) => value !== undefined && value !== null),
   );
-  const issueKey = issueKeyFromArg ?? args[0] ?? env.JIRA_ISSUE_KEY ?? "";
+  const impact = normalizeImpact(parsed.options.impact ?? env.OPSXJ_IMPACT ?? "cross_cutting");
+  const architectureProfile = normalizeArchitectureProfile(
+    parsed.options.profile ?? env.OPSXJ_ARCHITECTURE_PROFILE,
+  );
+  const technologyProfile = normalizeTechnologyProfile(
+    parsed.options["tech-profile"] ?? env.OPSXJ_TECH_PROFILE,
+  );
+  const issueKey = parsed.issueKey || env.JIRA_ISSUE_KEY || "";
   if (!issueKey) {
     throw new Error(`Falta issueKey para opsxj:new.\n${usage}`);
   }
@@ -190,6 +233,8 @@ const runNew = async ({
     commandName: "opsxj.js opsxj:new",
     folderStrategy: "summary",
     impact,
+    architectureProfile,
+    technologyProfile,
   });
 
   buildNewContext({
@@ -201,6 +246,8 @@ const runNew = async ({
     proposalPath: result.proposalPath,
     refinementArtifacts: result.refinementArtifacts,
     baseDir,
+    architectureProfile,
+    technologyProfile,
   });
 
   const gitResult = await setupProposalFn({
@@ -380,9 +427,20 @@ const getDisplayCheckDescription = (check) => {
 const parsePromptReviewArgs = (rawArgs) => {
   const flags = new Set();
   const positional = [];
-  for (const arg of rawArgs) {
-    if (String(arg).startsWith("-")) {
-      flags.add(String(arg));
+  let technologyProfile = null;
+  for (let index = 0; index < rawArgs.length; index += 1) {
+    const arg = String(rawArgs[index]);
+    if (arg === "--tech-profile") {
+      const value = rawArgs[index + 1];
+      if (!value || String(value).startsWith("--")) {
+        throw new Error("Falta valor para --tech-profile.");
+      }
+      technologyProfile = normalizeTechnologyProfile(value);
+      index += 1;
+      continue;
+    }
+    if (arg.startsWith("-")) {
+      flags.add(arg);
       continue;
     }
     positional.push(arg);
@@ -395,6 +453,7 @@ const parsePromptReviewArgs = (rawArgs) => {
       flags.has("--no-fix") ||
       flags.has("-NonInteractive") ||
       flags.has("--non-interactive"),
+    technologyProfile,
   };
 };
 
@@ -438,7 +497,11 @@ const runPromptReview = async ({
   const promptInput = parsed.promptInput;
   const review = promptReviewFn ?? reviewTechnicalPrompt;
   const correct = promptCorrectionFn ?? applyTechnicalReviewCorrection;
-  let result = await review({ baseDir, promptInput });
+  const reviewInput = (input) =>
+    parsed.technologyProfile
+      ? { baseDir, promptInput: input, technologyProfile: parsed.technologyProfile }
+      : { baseDir, promptInput: input };
+  let result = await review(reviewInput(promptInput));
   printPromptReviewResult({ stdout, result });
 
   const shouldAsk =
@@ -468,7 +531,7 @@ const runPromptReview = async ({
         `\n[opsxj:prompt-review] Correcciones aplicadas al prompt (pasada ${pass}).\n`,
       );
       stdout.write("[opsxj:prompt-review] Reejecutando validacion.\n\n");
-      result = await review({ baseDir, promptInput: result.promptPath });
+      result = await review(reviewInput(result.promptPath));
       printPromptReviewResult({ stdout, result });
     }
   }
@@ -701,6 +764,8 @@ const runClose = async ({
 const commandRegistry = new Map([
   ["opsxj:new", runNew],
   ["new", runNew],
+  ["opsxj:orchestrate:new", runNew],
+  ["orchestrate:new", runNew],
   ["opsxj:prompt-review", runPromptReview],
   ["prompt-review", runPromptReview],
   ["opsxj:technical-review", runPromptReview],
