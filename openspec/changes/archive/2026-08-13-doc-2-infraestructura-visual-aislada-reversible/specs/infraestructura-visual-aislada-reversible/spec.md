@@ -1,3 +1,7 @@
+## Purpose
+
+Define un Centro de Trabajo Workflow visual, reversible y activado por servidor para pilotos, sin alterar operaciones WebForms ni la línea base fuera del piloto.
+
 ## ADDED Requirements
 
 ### Requirement: Activación servidor y piloto cerrado
