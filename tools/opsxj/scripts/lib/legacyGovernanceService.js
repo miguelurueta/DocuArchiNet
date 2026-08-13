@@ -1,5 +1,11 @@
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import {
+  getArchitectureProfile,
+  getTechnologyProfile,
+  normalizeArchitectureProfile,
+  normalizeTechnologyProfile,
+} from "./opsxjProfileCatalog.js";
 
 export const LEGACY_IMPACT_CATALOG = Object.freeze({
   docs_only: {
@@ -39,6 +45,22 @@ export const LEGACY_IMPACT_CATALOG = Object.freeze({
   },
 });
 
+const DOCUMENTATION_SECTION_CATALOG = Object.freeze({
+  "01-ResumenTecnico.md": ["## Objetivo", "## Alcance y compatibilidad"],
+  "02-ImpactoUI.md": ["## Superficies UI", "## Validacion visual"],
+  "03-FlujoWebForms.md": ["## Flujo", "## Riesgos"],
+  "03-ServiciosYReglas.md": ["## Servicios y reglas"],
+  "04-ContratosIntegracion.md": ["## Contratos e integraciones"],
+  "05-PruebasEvidencia.md": ["## Evidencia requerida", "## QA/E2E WebForms"],
+});
+
+const CLOSURE_RESTRICTIONS = Object.freeze([
+  { name: "tbd", pattern: /\bTBD\b/i },
+  { name: "template_comment", pattern: /<!--|-->/ },
+  { name: "open_checklist", pattern: /^\s*-\s+\[\s\]/m },
+  { name: "template_instruction", pattern: /\b(?:describir|documentar|registrar|completar)\s+(?:el|la|los|las|aqui|aquí|pendiente|<)/i },
+]);
+
 const exists = async (targetPath) => access(targetPath).then(() => true).catch(() => false);
 const normalizeIssueKey = (value) => String(value ?? "").trim().toUpperCase();
 
@@ -72,8 +94,35 @@ export const buildTechnicalDocumentation = ({ issueKey, changeName, summary, imp
   return Object.fromEntries(catalog.documents.map((name) => [name, templates[name]]));
 };
 
-export const writeLegacyGovernanceArtifacts = async ({ baseDir, issueKey, changeName, summary, impact = "cross_cutting" }) => {
+const buildDocumentationContract = ({ documentationPaths, issueKey, changeName, impact }) =>
+  documentationPaths.map((relativePath) => {
+    const fileName = path.basename(relativePath);
+    return {
+      path: relativePath,
+      requiredSections: DOCUMENTATION_SECTION_CATALOG[fileName] ?? [],
+      minimumContentLength: 180,
+      identity: {
+        issueKey: normalizeIssueKey(issueKey),
+        changeName,
+        impact,
+      },
+      closureRestrictions: CLOSURE_RESTRICTIONS.map((item) => item.name),
+    };
+  });
+
+export const writeLegacyGovernanceArtifacts = async ({
+  baseDir,
+  issueKey,
+  changeName,
+  summary,
+  impact = "cross_cutting",
+  architectureProfile,
+  technologyProfile,
+  profileArtifactPaths,
+}) => {
   const resolvedImpact = normalizeImpact(impact);
+  const resolvedArchitectureProfile = normalizeArchitectureProfile(architectureProfile);
+  const resolvedTechnologyProfile = normalizeTechnologyProfile(technologyProfile);
   const catalog = LEGACY_IMPACT_CATALOG[resolvedImpact];
   const relativeDocumentationDir = path.join("Doc", "Tecnica", "Opsxj", changeName);
   const documentationDir = path.join(baseDir, relativeDocumentationDir);
@@ -87,12 +136,33 @@ export const writeLegacyGovernanceArtifacts = async ({ baseDir, issueKey, change
   }
 
   const manifest = {
-    version: 1,
+    version: 2,
     issueKey: normalizeIssueKey(issueKey),
     changeName,
     impact: resolvedImpact,
     requiredEvidence: catalog.evidence,
     documentation: documentationPaths.map((filePath) => path.relative(baseDir, filePath).replace(/\\/g, "/")),
+    documentationContract: buildDocumentationContract({
+      documentationPaths: documentationPaths.map((filePath) => path.relative(baseDir, filePath).replace(/\\/g, "/")),
+      issueKey,
+      changeName,
+      impact: resolvedImpact,
+    }),
+    ...(resolvedTechnologyProfile
+      ? {
+          technologyProfile: {
+            ...getTechnologyProfile(resolvedTechnologyProfile),
+          },
+        }
+      : {}),
+    ...(resolvedArchitectureProfile
+      ? {
+          architectureProfile: {
+            ...getArchitectureProfile(resolvedArchitectureProfile),
+            artifactPaths: profileArtifactPaths ?? {},
+          },
+        }
+      : {}),
   };
   const manifestPath = path.join(baseDir, "openspec", "changes", changeName, "opsxj-governance.json");
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
@@ -110,6 +180,102 @@ const countPendingTasks = async (tasksPath) => {
   return (content.match(/^\s*-\s+\[\s\]/gm) ?? []).length;
 };
 
+const getDocumentationChecks = async ({ baseDir, contract }) => {
+  const checks = [];
+  const relativePath = contract.path;
+  const absolutePath = path.join(baseDir, relativePath);
+  const present = await exists(absolutePath);
+  checks.push({ name: `document:${relativePath}:exists`, status: present ? "PASS" : "FAIL" });
+  if (!present) return checks;
+
+  const content = await readFile(absolutePath, "utf8");
+  const substantive = content.trim().length >= contract.minimumContentLength;
+  checks.push({
+    name: `document:${relativePath}:content`,
+    status: substantive ? "PASS" : "FAIL",
+    details: { minimumContentLength: contract.minimumContentLength, actualContentLength: content.trim().length },
+  });
+
+  for (const section of contract.requiredSections ?? []) {
+    checks.push({
+      name: `document:${relativePath}:section:${section}`,
+      status: content.includes(section) ? "PASS" : "FAIL",
+    });
+  }
+
+  const identityMarkers = [
+    `- Ticket: ${contract.identity.issueKey}`,
+    `- Cambio OpenSpec: ${contract.identity.changeName}`,
+    `- Clasificacion: ${contract.identity.impact}`,
+  ];
+  for (const marker of identityMarkers) {
+    checks.push({
+      name: `document:${relativePath}:identity:${marker}`,
+      status: content.includes(marker) ? "PASS" : "FAIL",
+    });
+  }
+
+  for (const restrictionName of contract.closureRestrictions ?? []) {
+    const restriction = CLOSURE_RESTRICTIONS.find((item) => item.name === restrictionName);
+    if (!restriction) continue;
+    checks.push({
+      name: `document:${relativePath}:closure:${restrictionName}`,
+      status: restriction.pattern.test(content) ? "FAIL" : "PASS",
+    });
+  }
+  return checks;
+};
+
+const getArchitectureProfileChecks = async ({ baseDir, manifest }) => {
+  const profile = manifest.architectureProfile;
+  if (!profile) return [];
+
+  const checks = [];
+  let catalogProfile = null;
+  try {
+    catalogProfile = getArchitectureProfile(profile.name);
+  } catch {
+    catalogProfile = null;
+  }
+  const isKnown = Boolean(catalogProfile) && catalogProfile.version === profile.version;
+  checks.push({
+    name: "architecture_profile:catalog",
+    status: isKnown ? "PASS" : "FAIL",
+    details: { name: profile.name, version: profile.version },
+  });
+  if (!isKnown) return checks;
+
+  for (const [artifact, marker] of Object.entries(profile.artifactMarkers ?? {})) {
+    const relativePath = profile.artifactPaths?.[artifact];
+    if (!relativePath) {
+      checks.push({ name: `architecture_profile:${artifact}:path`, status: "FAIL" });
+      continue;
+    }
+    const absolutePath = path.join(baseDir, relativePath);
+    const present = await exists(absolutePath);
+    checks.push({ name: `architecture_profile:${artifact}:exists`, status: present ? "PASS" : "FAIL" });
+    if (!present) continue;
+    const content = await readFile(absolutePath, "utf8");
+    checks.push({
+      name: `architecture_profile:${artifact}:marker`,
+      status: content.includes(marker) ? "PASS" : "FAIL",
+      details: { marker },
+    });
+  }
+
+  const tasksPath = profile.artifactPaths?.tasks;
+  if (tasksPath && (await exists(path.join(baseDir, tasksPath)))) {
+    const tasksContent = await readFile(path.join(baseDir, tasksPath), "utf8");
+    for (const marker of profile.requiredTaskMarkers ?? []) {
+      checks.push({
+        name: `architecture_profile:task:${marker}`,
+        status: tasksContent.includes(marker) ? "PASS" : "FAIL",
+      });
+    }
+  }
+  return checks;
+};
+
 export const validateLegacyGovernance = async ({ baseDir, changeName, env = process.env, currentSha = null }) => {
   const loaded = await readLegacyGovernanceManifest({ baseDir, changeName });
   if (!loaded) {
@@ -117,9 +283,16 @@ export const validateLegacyGovernance = async ({ baseDir, changeName, env = proc
   }
   const { manifest } = loaded;
   const checks = [];
-  for (const relativePath of manifest.documentation) {
-    checks.push({ name: `document:${relativePath}`, status: (await exists(path.join(baseDir, relativePath))) ? "PASS" : "FAIL" });
+  if (Array.isArray(manifest.documentationContract)) {
+    for (const contract of manifest.documentationContract) {
+      checks.push(...(await getDocumentationChecks({ baseDir, contract })));
+    }
+  } else {
+    for (const relativePath of manifest.documentation ?? []) {
+      checks.push({ name: `document:${relativePath}`, status: (await exists(path.join(baseDir, relativePath))) ? "PASS" : "FAIL" });
+    }
   }
+  checks.push(...(await getArchitectureProfileChecks({ baseDir, manifest })));
   const pendingTasks = await countPendingTasks(path.join(baseDir, "openspec", "changes", changeName, "tasks.md"));
   checks.push({ name: "openspec_tasks", status: pendingTasks === 0 ? "PASS" : "FAIL", details: { pendingTasks } });
   checks.push({ name: "openspec_review", status: env.OPSXJ_OPENSPEC_REVIEW_CONFIRMED ? "PASS" : "FAIL" });

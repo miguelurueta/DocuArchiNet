@@ -1,6 +1,12 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { writeLegacyGovernanceArtifacts } from "./legacyGovernanceService.js";
+import {
+  getArchitectureProfile,
+  getTechnologyProfile,
+  normalizeArchitectureProfile,
+  normalizeTechnologyProfile,
+} from "./opsxjProfileCatalog.js";
 
 const toBullet = (items) => items.map((item) => `- ${item}`).join("\n");
 const MAX_CHANGE_NAME_LENGTH = 96;
@@ -91,6 +97,84 @@ const buildAppResponsePolicySpec = () => [
   "",
 ].join("\n");
 
+const buildTechnologyProfileSection = (technologyProfile) => {
+  if (!technologyProfile) return "";
+  const profile = getTechnologyProfile(technologyProfile);
+  return [
+    "## Perfil tecnologico",
+    "",
+    `- Perfil de revision: ${profile.name} (v${profile.version}).`,
+    `- Alcance: ${profile.description}`,
+    "- Este perfil orienta la revision tecnica; no reemplaza los requisitos funcionales ni arquitectonicos del ticket.",
+    "",
+  ].join("\n");
+};
+
+const buildEnterpriseLegacyProposalPolicy = () => [
+  "## Politica de modernizacion enterprise legacy",
+  "",
+  "- Separar Presentation, Application, Domain e Infrastructure; Presentation no contiene reglas de negocio.",
+  "- Usar DTOs y modelos tipados en fronteras; validar las reglas de seguridad y negocio en servidor.",
+  "- Reutilizar infraestructura de datos comun, pero mantener repositorios especificos por dominio con consultas parametrizadas.",
+  "- No crear un `GenericRepository` que mezcle dominios o contratos de negocio.",
+  "- Definir un Gateway/Adapter tipado por capacidad como unico acceso nuevo al comportamiento legacy.",
+  "- Presentation y Application no invocan directamente clases legacy, Session, controles UI, SQL legacy ni cambios de estado.",
+  "- Aplicar convivencia gradual, bandera de funcionalidad, piloto, rollback y pruebas de equivalencia antes de sustituir el flujo anterior.",
+  "",
+].join("\n");
+
+const buildEnterpriseLegacyDesignPolicy = () => [
+  "## Arquitectura de modernizacion enterprise legacy",
+  "",
+  "1. Presentation recibe eventos y renderiza resultados; delega el caso de uso a Application sin reglas de negocio.",
+  "2. Application orquesta casos de uso mediante DTOs y contratos tipados; Domain concentra reglas e invariantes.",
+  "3. Infrastructure comparte conexiones, transacciones, telemetria y acceso parametrizado; cada dominio mantiene su repositorio propio.",
+  "4. Cada capacidad legacy expone un Gateway/Adapter tipado. El adapter encapsula conversiones, permisos y trazabilidad sin un dispatcher dinamico ni un adaptador universal.",
+  "5. Ningun codigo nuevo de Presentation/Application lee Session, controles Web Forms, SQL legacy o cambia estado directamente; usa el contrato de la capacidad.",
+  "6. La entrega mantiene el camino anterior hasta validar equivalencia mediante piloto, feature flag y rollback documentado.",
+  "",
+].join("\n");
+
+const buildEnterpriseLegacySpecPolicy = () => [
+  "### Requirement: Frontera de capacidad legacy",
+  "El sistema SHALL encapsular toda capacidad legacy modernizada mediante un Gateway/Adapter tipado por dominio y SHALL mantener separadas Presentation, Application, Domain e Infrastructure.",
+  "",
+  "#### Scenario: Invocacion desde codigo nuevo",
+  "- **WHEN** Presentation o Application requieren ejecutar una capacidad legacy",
+  "- **THEN** usan el contrato tipado del Gateway/Adapter y no invocan directamente clases legacy, Session, controles de interfaz, SQL legacy ni cambios de estado",
+  "",
+  "#### Scenario: Convivencia gradual",
+  "- **WHEN** se habilita la implementacion modernizada",
+  "- **THEN** existe validacion de servidor, pruebas de equivalencia, piloto, feature flag y rollback antes de retirar el camino anterior",
+  "",
+].join("\n");
+
+const buildEnterpriseLegacyTasks = () => [
+  "## Gobierno de modernizacion enterprise legacy",
+  "",
+  "- [ ] Definir el Gateway/Adapter tipado por capacidad y sus DTOs/modelos; no crear un adaptador universal.",
+  "- [ ] Mantener Presentation/Application sin acceso directo a clases legacy, Session, controles UI, SQL legacy ni cambios de estado.",
+  "- [ ] Usar Infrastructure comun reutilizable y repositorio por dominio con consultas parametrizadas; no crear GenericRepository interdominio.",
+  "- [ ] Implementar validacion de servidor y manejo de errores compatible con el flujo actual.",
+  "- [ ] Ejecutar pruebas de equivalencia contra el camino legacy y registrar sus resultados.",
+  "- [ ] Definir piloto y rollback antes de habilitar la capacidad mediante feature flag o mecanismo equivalente.",
+  "",
+].join("\n");
+
+const profilePolicy = ({ architectureProfile, technologyProfile, artifact }) => {
+  const normalizedArchitectureProfile = normalizeArchitectureProfile(architectureProfile);
+  const normalizedTechnologyProfile = normalizeTechnologyProfile(technologyProfile);
+  const technology = buildTechnologyProfileSection(normalizedTechnologyProfile);
+  if (normalizedArchitectureProfile !== "enterprise-legacy-modernization") return technology;
+  const enterprise = {
+    proposal: buildEnterpriseLegacyProposalPolicy,
+    design: buildEnterpriseLegacyDesignPolicy,
+    spec: buildEnterpriseLegacySpecPolicy,
+    tasks: buildEnterpriseLegacyTasks,
+  }[artifact]();
+  return [technology, enterprise].filter(Boolean).join("\n");
+};
+
 const toMarkdownQuote = (value) =>
   collapseBlankLines(value)
     .split("\n")
@@ -172,7 +256,7 @@ export const inferProposalIntent = ({ summary, description }) => {
   };
 };
 
-const buildInitialDesignContent = ({ issueKey, summary, description }) => {
+const buildInitialDesignContent = ({ issueKey, summary, description, architectureProfile, technologyProfile }) => {
   const cleanDescription = collapseBlankLines(description);
   const detailsSection = cleanDescription
     ? ["## Jira Details", "", toMarkdownQuote(cleanDescription), ""].join("\n")
@@ -198,6 +282,7 @@ const buildInitialDesignContent = ({ issueKey, summary, description }) => {
     "1. Aplicar politica central de AppResponses<T> para evitar parsers locales y filtrado de mensajes tecnicos en UI.",
     "",
     buildAppResponsePolicyDesign(),
+    profilePolicy({ architectureProfile, technologyProfile, artifact: "design" }),
     "## Risks / Trade-offs",
     "",
     "- Tickets existentes pueden tener parsers locales; la migracion debe ser gradual y enfocada en nuevos consumidores o cambios tocados por cada ticket.",
@@ -215,7 +300,7 @@ const buildInitialDesignContent = ({ issueKey, summary, description }) => {
   ].join("\n");
 };
 
-const buildInitialSpecContent = ({ issueKey, summary, description }) => {
+const buildInitialSpecContent = ({ issueKey, summary, description, architectureProfile, technologyProfile }) => {
   const cleanDescription = collapseBlankLines(description);
 
   return [
@@ -233,6 +318,7 @@ const buildInitialSpecContent = ({ issueKey, summary, description }) => {
     "- **THEN** no se rompen flujos existentes",
     "",
     buildAppResponsePolicySpec(),
+    profilePolicy({ architectureProfile, technologyProfile, artifact: "spec" }),
     cleanDescription
       ? ["### Requirement: Detalle funcional Jira", "El sistema SHALL considerar las reglas detalladas del ticket.", "", "#### Scenario: Reglas del ticket", ...cleanDescription.split("\n").map((line) => `- ${line}`), ""].join("\n")
       : "",
@@ -241,7 +327,7 @@ const buildInitialSpecContent = ({ issueKey, summary, description }) => {
     .join("\n");
 };
 
-const buildInitialTasksContent = () => [
+const buildInitialTasksContent = ({ architectureProfile, technologyProfile } = {}) => [
   "## 1. Refinement",
   "",
   "- [ ] 1.1 Consolidar alcance final desde Jira + contexto de codigo.",
@@ -253,6 +339,7 @@ const buildInitialTasksContent = () => [
   "- [ ] 2.2 Mantener compatibilidad y evitar regresiones.",
   "",
   buildAppResponsePolicyTasks(),
+  profilePolicy({ architectureProfile, technologyProfile, artifact: "tasks" }),
   "## 3. Pruebas",
   "",
   "- [ ] 3.1 Agregar/ajustar pruebas unitarias e integracion.",
@@ -265,7 +352,7 @@ const buildInitialTasksContent = () => [
   "",
 ].join("\n");
 
-export const buildProposalContent = ({ issueKey, summary, description, metadata }) => {
+export const buildProposalContent = ({ issueKey, summary, description, metadata, architectureProfile, technologyProfile }) => {
   const safeSummary = summary?.trim() || `Propuesta basada en ${issueKey}`;
   const safeDescription = description?.trim() || "";
   const intent = inferProposalIntent({ summary: safeSummary, description: safeDescription });
@@ -312,6 +399,7 @@ export const buildProposalContent = ({ issueKey, summary, description, metadata 
     "",
     impact,
     "",
+    profilePolicy({ architectureProfile, technologyProfile, artifact: "proposal" }),
   ].join("\n");
 };
 
@@ -352,6 +440,8 @@ export const writeRefinementArtifacts = async ({
   description,
   metadata,
   impact = "cross_cutting",
+  architectureProfile,
+  technologyProfile,
   baseDir,
 }) => {
   const resolvedChangeName = slugifyForOpenSpec(changeName || issueKey);
@@ -378,11 +468,11 @@ export const writeRefinementArtifacts = async ({
 
   await writeFile(
     designPath,
-    buildInitialDesignContent({ issueKey, summary, description }),
+    buildInitialDesignContent({ issueKey, summary, description, architectureProfile, technologyProfile }),
     "utf8",
   );
-  await writeFile(specPath, buildInitialSpecContent({ issueKey, summary, description }), "utf8");
-  await writeFile(tasksPath, buildInitialTasksContent(), "utf8");
+  await writeFile(specPath, buildInitialSpecContent({ issueKey, summary, description, architectureProfile, technologyProfile }), "utf8");
+  await writeFile(tasksPath, buildInitialTasksContent({ architectureProfile, technologyProfile }), "utf8");
   await writeFile(
     jiraContextPath,
     buildJiraContextContent({ issueKey, summary, description, metadata }),
@@ -395,6 +485,14 @@ export const writeRefinementArtifacts = async ({
     changeName: resolvedChangeName,
     summary,
     impact,
+    architectureProfile,
+    technologyProfile,
+    profileArtifactPaths: {
+      proposal: path.join("openspec", "changes", resolvedChangeName, "proposal.md").replace(/\\/g, "/"),
+      design: path.relative(baseDir, designPath).replace(/\\/g, "/"),
+      spec: path.relative(baseDir, specPath).replace(/\\/g, "/"),
+      tasks: path.relative(baseDir, tasksPath).replace(/\\/g, "/"),
+    },
   });
 
   return {
