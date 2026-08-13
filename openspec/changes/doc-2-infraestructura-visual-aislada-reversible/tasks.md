@@ -71,7 +71,7 @@
 - [x] 6.3 Validar en ambiente autorizado flag `false`/`true` y usuario fuera/dentro del piloto; comprobar que el cliente no puede activar la capa.
 - [x] 6.4 Validar rollback maestro y rollback individual de `actions`, `documents` y `a11y`, sin efectos funcionales ni modificación de datos.
 - [x] 6.5 Validar carga inicial, postback parcial, recarga forzada y navegación interna: orden/caché de recursos y ausencia de errores JavaScript.
-- [ ] 6.6 Capturar evidencia visual en 1366, 1024, 768 y 375 px para hover, foco, deshabilitado, menú abierto y documento seleccionado; asociarla al SHA desplegado.
+- [x] 6.6 Capturar evidencia visual en 1366, 1024, 768 y 375 px para hover, foco, deshabilitado, menú abierto y documento seleccionado; asociarla al SHA desplegado.
 
 ## Bloqueo de QA manual
 
