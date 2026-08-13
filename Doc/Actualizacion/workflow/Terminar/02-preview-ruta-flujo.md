@@ -33,17 +33,18 @@ PreviewEnviarTarea(idTarea As Long) As PrevisualizacionTransicionDto
 
 Reglas:
 1. Validar sesión y usuario workflow autenticado.
-2. Validar que la tarea exista, esté activa y sea accesible al usuario/grupo actual.
-3. Resolver radicado, actividad actual, grupo y ruta.
-4. Resolver si corresponde a flujo documental activo o a ruta.
-5. Si es flujo, listar solo conectores permitidos desde nodo, actividad y usuario/grupo de origen reales.
-6. Si es ruta, listar solo actividades permitidas para grupo, ruta y actividad actuales.
-7. Nunca inferir permisos con IDs recibidos del navegador.
-8. Devolver tipoTransicion, contexto, destinos, destinatario/grupo, requisitos, notificación y token de versión/concurrencia.
-9. Si no hay destinos o existe inconsistencia, devolver bloqueo funcional legible.
-10. No ejecutar PRETERMINARACTIVIAD, no cambiar estado y no enviar correo.
-11. No modificar Webworkflow.aspx ni retirar la implementación anterior.
-12. No invocar Terminar_Tarea_Workflow ni Cambia_Estado: este endpoint es estrictamente de lectura.
+2. Evaluar `IWorkflowModernFeatureGate` antes de resolver datos. Si el resultado no es `activo`, devolver bloqueo funcional `WORKFLOW_MODERN_INACTIVE`, sin destinos, sin invocar flujo legacy y sin hacer fallback automático.
+3. Validar que la tarea exista, esté activa y sea accesible al usuario/grupo actual.
+4. Resolver radicado, actividad actual, grupo y ruta.
+5. Resolver si corresponde a flujo documental activo o a ruta.
+6. Si es flujo, listar solo conectores permitidos desde nodo, actividad y usuario/grupo de origen reales.
+7. Si es ruta, listar solo actividades permitidas para grupo, ruta y actividad actuales.
+8. Nunca inferir permisos con IDs recibidos del navegador.
+9. Devolver tipoTransicion, contexto, destinos, destinatario/grupo, requisitos, notificación y token de versión/concurrencia.
+10. Si no hay destinos o existe inconsistencia, devolver bloqueo funcional legible.
+11. No ejecutar PRETERMINARACTIVIAD, no cambiar estado y no enviar correo.
+12. No modificar Webworkflow.aspx ni retirar la implementación anterior.
+13. No invocar Terminar_Tarea_Workflow ni Cambia_Estado: este endpoint es estrictamente de lectura.
 
 Pruebas obligatorias:
 - Tarea por flujo con uno y varios conectores.
@@ -85,6 +86,7 @@ Documentación técnica:
 Criterios de aceptación:
 - `PreviewEnviarTarea(idTarea)` devuelve exclusivamente una `PrevisualizacionTransicionDto` serializable y no devuelve HTML, `DataSet`, SQL ni detalle interno.
 - El servidor valida sesión, usuario workflow, existencia, estado y autorización de la tarea antes de resolver destinos.
+- El servidor valida `IWorkflowModernFeatureGate` para el usuario/grupo/configuración autorizados; una llamada ASMX directa fuera del piloto devuelve `WORKFLOW_MODERN_INACTIVE` y no expone destinos.
 - La respuesta distingue flujo de ruta, lista únicamente destinos autorizados y devuelve bloqueo funcional legible cuando no hay destino válido.
 - El endpoint no produce efectos secundarios: no cambia estado, no ejecuta eventos dinámicos, no firma, no envía correo y no invoca el motor de terminación.
 - Se preserva el comportamiento legacy y no se rompe la interfaz, transición ni ruta de envío vigente.

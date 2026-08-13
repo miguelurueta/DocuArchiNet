@@ -54,9 +54,10 @@ Implementa únicamente la base paralela:
    - Application/DTOs
    - Application/Services
    - Application/Validators
-   - Infrastructure/Repositories
-   - Infrastructure/Shared/Data
-   - Infrastructure/LegacyAdapters
+- Infrastructure/Repositories
+- Infrastructure/Shared/Data
+- Infrastructure/Configuration
+- Infrastructure/LegacyAdapters
 3. Crear DTOs serializables:
    - PrevisualizacionTransicionDto
    - DestinoTransicionDto
@@ -70,10 +71,15 @@ Implementa únicamente la base paralela:
 7. Crear EjecutorTransicionTarea y WorkflowLegacyExecutorAdapter. En fases posteriores debe reutilizar Terminar_Tarea_Workflow.
 8. Crear IModuleConnectionFactory y su implementación inicial; exponer únicamente conexiones autorizadas del módulo, nunca credenciales a DTO o JavaScript.
 9. Crear los contratos de repositorio específicos: ITareaWorkflowRepository, ITransicionFlujoRepository, ITransicionRutaRepository, IConfiguracionConectorRepository e IAuditoriaTransicionRepository.
-10. No crear endpoints ni modificar la interfaz existente.
-11. Los DTO no deben devolver HTML, credenciales, SQL ni detalles internos de base de datos.
-12. Documentar responsabilidad y límites de cada clase.
-13. Agregar pruebas unitarias donde la arquitectura actual lo permita.
+10. Crear el contrato base de habilitación, sin crear endpoints ni modificar la interfaz: `IWorkflowModernFeatureGate`, `HabilitacionWorkflowModernDto` y `EvaluadorHabilitacionWorkflowModern`.
+    - Debe evaluar servidor-side `WorkflowCentroTrabajoModernActive` por usuario, grupo o configuración y devolver `activo`, `inactivo` o `excluido` con código funcional no sensible.
+    - La implementación de configuración vive en `Infrastructure/Configuration`; recibe el `ContextoModuloWorkflow` validado y no consulta `Session` desde repositorios.
+    - Debe aplicar fail-closed: si falta configuración, existe inconsistencia o no hay habilitación explícita, el resultado es `inactivo`.
+    - Este contrato se reutiliza en Prompt 02 (preview), Prompt 03 (ejecución), Prompt 04 (bootstrap visual) y Prompt 06 (gobierno de piloto). Prompt 06 configura y opera el piloto; no crea una segunda bandera.
+11. No crear endpoints ni modificar la interfaz existente.
+12. Los DTO no deben devolver HTML, credenciales, SQL ni detalles internos de base de datos.
+13. Documentar responsabilidad y límites de cada clase.
+14. Agregar pruebas unitarias donde la arquitectura actual lo permita.
 
 Pruebas obligatorias:
 - Ejecutar la compilación de la solución o proyecto afectado con MSBuild/.NET Framework y registrar comando, resultado y limitaciones reales.
@@ -113,6 +119,7 @@ Criterios de aceptación:
 - Solo WorkflowLegacyExecutorAdapter puede depender del motor workflow legado.
 - Los repositorios no consumen Session, no devuelven DataSet y usan consultas parametrizadas.
 - Shared/Data puede reutilizarse desde otro módulo sin depender de clases Workflow.
+- `IWorkflowModernFeatureGate` falla cerrado y es la única fuente nueva de evaluación de `WorkflowCentroTrabajoModernActive` para los flujos modernos.
 - La lógica de negocio no se traslada a JavaScript.
 - Se preserva el comportamiento legacy, sin regresiones en la interfaz ni en la transición de tareas existente.
 - Entregar archivos creados, dependencias, contratos DTO, documentación técnica y pruebas ejecutadas.

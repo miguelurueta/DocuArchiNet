@@ -25,11 +25,13 @@ Alcance:
 - Crear js/workflow/workflow-transition-ui.js.
 - Crear Styles/workflow-transition-modern.css.
 - No retirar GridView_envia_flujo ni el modal anterior.
-- Activar la nueva interfaz solo con la bandera WorkflowCentroTrabajoModernActive.
+- Activar la nueva interfaz solo mediante un atributo bootstrap emitido por el servidor, por ejemplo `data-workflow-modern-active`, derivado exclusivamente de `IWorkflowModernFeatureGate`. JavaScript no calcula, altera ni persiste la bandera.
 - JavaScript pertenece a Presentation: no replica validaciones de negocio ni resuelve ruta, flujo, permisos o conectores.
 
 Contrato técnico:
 - Entrada a `PreviewEnviarTarea`: `idTarea` procede del contexto visual actual, pero el servidor revalida sesión, autorización y estado; el cliente no envía usuario, grupo, ruta, actividad ni permiso.
+- La lista se inicializa solo si `data-workflow-modern-active=true`; si es `false` o falta, no enlaza el botón moderno, no llama ASMX y conserva el comportamiento legacy visible.
+- El bootstrap visual no es control de seguridad: `PreviewEnviarTarea` y `EjecutarEnvioTarea` validan de nuevo `IWorkflowModernFeatureGate` en servidor.
 - Respuesta esperada: `PrevisualizacionTransicionDto` con `IdTarea`, `TipoTransicion`, `Radicado`, `Tramite`, `ActividadActual`, `Destinos`, `Requisitos`, `TokenVersion`, `MensajeFuncional` y `CodigoBloqueo`.
 - Cada destino se interpreta desde `DestinoTransicionDto`: `IdConector`, `Actividad`, `DestinatarioOGrupo`, `Notificacion`, `Requisitos`, `Orden` y tipo de destino; no se infieren campos ausentes ni se construyen permisos en el navegador.
 - Estados Presentation: `cargando`, `sin-destinos`, `error-controlado`, `lista-disponible` y `destino-seleccionado`; cada estado debe tener mensaje visible, foco coherente y ruta de recuperación.
@@ -81,6 +83,7 @@ Criterios de aceptación:
 - La lista representa correctamente flujo o ruta, muestra información visible de cada destino y no permite ejecutar la transición en esta fase.
 - Los cinco estados Presentation son perceptibles, recuperables y no dejan foco perdido; Escape, foco atrapado, teclado, ARIA y contraste están verificados.
 - La selección invoca únicamente el contrato documentado de confirmación con `idTarea`, `idConector` y `tokenVersion`.
+- La lista consume el adaptador de confirmación definido en Prompt 05; antes de completar ese prompt solo puede entregar el contrato de selección y no crear una segunda confirmación.
 - La compilación, pruebas focales y QA manual quedan registrados con resultados verificables.
 
 Entregable final:
