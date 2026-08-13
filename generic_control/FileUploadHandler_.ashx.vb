@@ -51,7 +51,7 @@ Public Class JsonFiles
     End Sub
 End Class
 Public Class FileUploadHandler_
-    Implements System.Web.IHttpHandler
+    Implements System.Web.IHttpHandler, System.Web.SessionState.IRequiresSessionState
     Sub ProcessRequest(ByVal context As HttpContext) Implements IHttpHandler.ProcessRequest
         Dim resultList = New List(Of UploadFilesResult)()
         Dim jFilesJson As String = ""

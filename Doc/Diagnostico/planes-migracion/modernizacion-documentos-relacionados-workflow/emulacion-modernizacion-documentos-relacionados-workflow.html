@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Emulación — documentos relacionados Workflow</title>
+  <style>
+    :root { --ink:#17213b; --muted:#667085; --line:#e6eaf2; --head:#eef1fb; --blue:#0062cc; --hover:#f5f8ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#f6f8fc; color:var(--ink); font:14px/1.4 "Segoe UI",Arial,sans-serif; }
+    main { max-width:880px; margin:40px auto; padding:0 20px; }
+    h1 { margin:0 0 6px; font-size:22px; } p { margin:0 0 24px; color:var(--muted); }
+    .panel { overflow:visible; background:#fff; border:1px solid #dfe5f0; border-radius:12px; box-shadow:0 8px 22px rgba(26,42,80,.06); }
+    table { width:100%; border-collapse:separate; border-spacing:0; }
+    thead th { padding:12px 14px; background:var(--head); border-bottom:1px solid #dce2f1; color:#35477f; font-size:11px; font-weight:700; letter-spacing:.055em; text-align:left; }
+    thead th:first-child { width:44px; border-radius:12px 0 0 0; text-align:center; } thead th:last-child { border-radius:0 12px 0 0; }
+    tbody td { height:56px; padding:7px 14px; border-bottom:1px solid var(--line); } tbody tr:last-child td { border-bottom:0; } tbody tr:hover { background:var(--hover); }
+    .select { width:44px; padding:0; text-align:center; } input { width:16px; height:16px; accent-color:var(--blue); }
+    .documento { display:flex; align-items:center; min-width:0; gap:12px; cursor:pointer; } .pdf { color:var(--blue); flex:0 0 22px; font-size:22px; text-align:center; }
+    .nombre { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#1e293b; font-weight:500; }
+    .acciones { position:relative; width:48px; padding:0 8px 0 0; text-align:right; }
+    button { border:0; background:transparent; color:#465a91; cursor:pointer; font:inherit; } .menu-toggle { width:36px; height:36px; border-radius:8px; font-size:22px; line-height:1; } .menu-toggle:hover,.menu-toggle:focus-visible { background:#e9efff; outline:2px solid transparent; box-shadow:0 0 0 2px #8aa9ee; }
+    .menu { display:none; position:absolute; z-index:5; top:43px; right:8px; min-width:220px; padding:6px; background:#fff; border:1px solid #dce2f1; border-radius:10px; box-shadow:0 12px 24px rgba(26,42,80,.16); text-align:left; } .menu.abierto { display:block; }
+    .menu button { display:block; width:100%; padding:9px 10px; border-radius:6px; color:#283655; text-align:left; } .menu button:hover,.menu button:focus-visible { background:#eef3ff; outline:0; } .menu b { display:inline-block; width:24px; color:var(--blue); }
+    .estado { min-height:24px; margin-top:14px; color:#365298; font-size:13px; }
+    @media (max-width:560px) { main { margin:20px auto; padding:0 10px; } .panel { border-radius:8px; } .nombre { max-width:220px; } thead th,tbody td { padding-left:10px; padding-right:10px; } .menu { right:2px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Documentos relacionados</h1>
+    <p>Emulación visual: una sola tabla, selección independiente, apertura del documento y menú de acciones.</p>
+    <section class="panel" aria-label="Lista de documentos relacionados">
+      <table id="GridView_list_documento_relacion_wf" class="gridview-documentos-relacionados">
+        <thead><tr><th scope="col" aria-label="Selección"></th><th scope="col">DOCUMENTO</th><th aria-hidden="true"></th></tr></thead>
+        <tbody>
+          <tr data-documento="Recibo de caja"><td class="select"><input type="checkbox" aria-label="Seleccionar Recibo de caja"></td><td><div class="documento" tabindex="0"><span class="pdf" aria-hidden="true">▣</span><span class="nombre" title="Recibo de caja">Recibo de caja</span></div></td><td class="acciones"></td></tr>
+          <tr data-documento="Certificado de la Registraduría - Evidencias SIPREF"><td class="select"><input type="checkbox" aria-label="Seleccionar Certificado de la Registraduría"></td><td><div class="documento" tabindex="0"><span class="pdf" aria-hidden="true">▣</span><span class="nombre" title="Certificado de la Registraduría - Evidencias SIPREF">Certificado de la Registraduría - Evidencias SIPREF</span></div></td><td class="acciones"></td></tr>
+          <tr data-documento="Formulario RUES de inscripción, matrícula y/o renovación"><td class="select"><input type="checkbox" aria-label="Seleccionar Formulario RUES"></td><td><div class="documento" tabindex="0"><span class="pdf" aria-hidden="true">▣</span><span class="nombre" title="Formulario RUES de inscripción, matrícula y/o renovación">Formulario RUES de inscripción, matrícula y/o renovación</span></div></td><td class="acciones"></td></tr>
+          <tr data-documento="Constancia de inscripción"><td class="select"><input type="checkbox" aria-label="Seleccionar Constancia de inscripción"></td><td><div class="documento" tabindex="0"><span class="pdf" aria-hidden="true">▣</span><span class="nombre" title="Constancia de inscripción">Constancia de inscripción</span></div></td><td class="acciones"></td></tr>
+        </tbody>
+      </table>
+    </section>
+    <div class="estado" id="estado" aria-live="polite"></div>
+  </main>
+  <script>
+    const acciones = ['Ver documento', 'Eliminar documento', 'Cambiar tipología', 'Firma digital', 'Versiones del documento', 'Reemplazar documento'];
+    document.querySelectorAll('tr[data-documento]').forEach((fila) => {
+      const nombre = fila.dataset.documento;
+      const celda = fila.querySelector('.acciones');
+      celda.innerHTML = `<button class="menu-toggle" type="button" aria-expanded="false" aria-label="Más acciones para: ${nombre}" title="Más acciones">⋮</button><div class="menu" role="menu"></div>`;
+      const boton = celda.querySelector('.menu-toggle'); const menu = celda.querySelector('.menu');
+      acciones.forEach((accion, indice) => { const item = document.createElement('button'); item.type='button'; item.role='menuitem'; item.innerHTML=`<b aria-hidden="true">${['▣','⌫','✎','✒','▤','⧉'][indice]}</b>${accion}`; item.addEventListener('click', () => { document.querySelector('#estado').textContent = `${accion}: ${nombre} (solo emulación)`; menu.classList.remove('abierto'); boton.setAttribute('aria-expanded','false'); }); menu.appendChild(item); });
+      boton.addEventListener('click', (event) => { event.stopPropagation(); document.querySelectorAll('.menu.abierto').forEach((otro) => { if (otro !== menu) { otro.classList.remove('abierto'); otro.previousElementSibling.setAttribute('aria-expanded','false'); } }); const abierto=menu.classList.toggle('abierto'); boton.setAttribute('aria-expanded', String(abierto)); });
+      fila.querySelector('.documento').addEventListener('click', () => { document.querySelector('#estado').textContent = `Ver documento: ${nombre} (solo emulación)`; });
+    });
+    document.addEventListener('click', () => document.querySelectorAll('.menu.abierto').forEach((menu) => { menu.classList.remove('abierto'); menu.previousElementSibling.setAttribute('aria-expanded','false'); }));
+  </script>
+</body>
+</html>

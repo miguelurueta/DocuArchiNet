@@ -1,0 +1,267 @@
+﻿/*
+   Capa visual reutilizable para tablas de documentos relacionados.
+   Se activa de forma explícita con la clase gridview-documentos-relacionados.
+*/
+.gridview-documentos-relacionados {
+    width: 100% !important;
+    table-layout: auto;
+    border-collapse: separate !important;
+    border-spacing: 0;
+    color: #1e293b;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.gridview-documentos-relacionados .GridviewScrollHeader_line_boot_none th {
+    padding: 11px 12px;
+    background: #eef1fb !important;
+    border-bottom: 1px solid #dce2f1;
+    color: #35477f;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .055em;
+    text-align: left;
+}
+
+.gridview-documentos-relacionados .GridviewScrollHeader_line_boot_none th:first-child,
+.gridview-documentos-relacionados .GridviewRow > td:first-child {
+    width: 1% !important;
+    min-width: 0;
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.gridview-documentos-relacionados .GridviewScrollHeader_line_boot_none th:first-child {
+    background: #eef1fb !important;
+    color: #35477f !important;
+}
+
+.gridview-documentos-relacionados .GridviewRow > td {
+    height: 54px;
+    padding: 6px 10px;
+    border-bottom: 0;
+    vertical-align: middle;
+}
+
+.gridview-documentos-relacionados .GridviewRow > td:last-child {
+    width: auto;
+    min-width: 0;
+}
+
+.gridview-documentos-relacionados .GridviewRow:hover > td {
+    background: #f5f8ff !important;
+    border-bottom-color: transparent;
+    border-radius: 0 !important;
+}
+
+.gridview-documentos-relacionados .GridviewRow:hover > td:first-child {
+    background: #f5f8ff !important;
+    box-shadow: none;
+}
+
+.gridview-documentos-relacionados .GridviewRow.gridview-documento-seleccionado {
+    background: transparent !important;
+    color: #35477f !important;
+}
+
+.gridview-documentos-relacionados .GridviewRow.gridview-documento-seleccionado > td {
+    background: #edf3ff !important;
+    border-radius: 0 !important;
+    border-bottom-color: transparent;
+    color: #35477f !important;
+}
+
+.gridview-documentos-relacionados .GridviewRow.gridview-documento-seleccionado > td:first-child {
+    background: #edf3ff !important;
+    border-left: 3px solid #0062cc;
+    box-shadow: none;
+}
+
+.gridview-documentos-relacionados .GridviewRow.gridview-documento-seleccionado .GridviewSpanOverFlow {
+    color: #35477f !important;
+}
+
+.gridview-documentos-relacionados .GridviewRow > td:first-child > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 !important;
+  line-height: 0;
+}
+
+.gridview-documentos-relacionados .ctw-document-row-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    margin: 0;
+    padding: 0 !important;
+    line-height: 1;
+}
+
+.gridview-documentos-relacionados .chek_selecion_list_wf {
+    width: 13px;
+    height: 13px;
+    margin: 0 !important;
+    accent-color: #0062cc;
+    cursor: pointer;
+    transition: transform .12s ease, filter .12s ease;
+}
+
+.gridview-documentos-relacionados .chek_selecion_list_wf:hover {
+    filter: drop-shadow(0 1px 1px rgba(0, 98, 204, .28));
+    transform: scale(1.14);
+}
+
+.gridview-documentos-relacionados .chek_selecion_list_wf:focus {
+    outline: 2px solid #8aa9ee;
+    outline-offset: 2px;
+}
+
+/* El HTML heredado usa w-100 col-10 junto a col-2. Esta regla elimina el
+   desborde exclusivamente dentro de la celda de documentos relacionados. */
+.gridview-documentos-relacionados .GridviewRow > td:last-child > .row {
+    display: flex !important;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: 100% !important;
+    margin: 0 !important;
+    padding-left: 2px !important;
+}
+
+.gridview-documentos-relacionados .GridviewRow > td:last-child > .row > .w-100.col-10 {
+    display: flex;
+    flex: 1 1 0;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0;
+    margin-right: 0 !important;
+    padding-left: 4px !important;
+    padding-right: 2px !important;
+}
+
+.gridview-documentos-relacionados .GridviewRow [tip_event="vis_doc_selecion_wf"],
+.gridview-documentos-relacionados .GridviewRow [tip_event="vis_doc_selecion_wf"] * {
+    cursor: pointer;
+}
+
+.gridview-documentos-relacionados .GridviewRow > td:last-child > .row > .w-100.col-10.row {
+    flex-wrap: nowrap;
+    align-items: center;
+    margin: 0 !important;
+}
+
+.gridview-documentos-relacionados .GridviewRow > td:last-child > .row > .w-100.col-10 > .col-2 {
+    flex: 0 0 30px;
+    max-width: 30px;
+    padding: 0 !important;
+    text-align: center;
+}
+
+.gridview-documentos-relacionados .GridviewRow > td:last-child > .row > .w-100.col-10 > .col-2 svg,
+.gridview-documentos-relacionados .GridviewRow > td:last-child > .row > .w-100.col-10 > .col-2 i {
+    color: #0062cc !important;
+    font-size: 20px;
+}
+
+.gridview-documentos-relacionados .GridviewRow > td:last-child > .row > .w-100.col-10 > .col-10 {
+    flex: 1 1 0;
+    width: 0 !important;
+    max-width: none;
+    min-width: 0;
+    padding: 0 4px !important;
+}
+
+.gridview-documentos-relacionados .GridviewSpanOverFlow {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    color: #1e293b !important;
+    font-weight: 500;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.gridview-documentos-relacionados .GridviewRow > td:last-child > .row > .nav-item.dropdown {
+    flex: 0 0 42px;
+    width: 42px;
+    max-width: 42px;
+    padding: 0 !important;
+    text-align: right;
+}
+
+.gridview-documentos-relacionados a[data-toggle="dropdown"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin: 0 !important;
+    border-radius: 8px;
+    color: #465a91;
+    text-decoration: none;
+}
+
+.gridview-documentos-relacionados a[data-toggle="dropdown"]::before {
+    content: "\22EE";
+    font-size: 21px;
+    line-height: 1;
+}
+
+.gridview-documentos-relacionados a[data-toggle="dropdown"]::after {
+    display: none;
+}
+
+.gridview-documentos-relacionados a[data-toggle="dropdown"]:hover,
+.gridview-documentos-relacionados a[data-toggle="dropdown"]:focus {
+    background: #e9efff;
+    box-shadow: 0 0 0 2px #8aa9ee;
+    outline: 0;
+}
+
+.gridview-documentos-relacionados .dropdown-menu {
+    z-index: 1060;
+    min-width: 216px;
+    padding: 6px;
+    border: 1px solid #dce2f1;
+    border-radius: 9px;
+    box-shadow: 0 12px 24px rgba(26, 42, 80, .16);
+}
+
+.gridview-documentos-relacionados .dropdown-item {
+    padding: 8px 10px !important;
+    border-radius: 6px;
+    color: #283655;
+    white-space: nowrap;
+}
+
+.gridview-documentos-relacionados .dropdown-item:hover,
+.gridview-documentos-relacionados .dropdown-item:focus {
+    background: #eef3ff;
+    color: #1d356e;
+    outline: 0;
+}
+
+.gridview-documentos-relacionados .dropdown-item svg,
+.gridview-documentos-relacionados .dropdown-item i {
+    width: 20px;
+    margin-right: 5px;
+    color: #0062cc !important;
+}
+
+@media (max-width: 575.98px) {
+    .gridview-documentos-relacionados .GridviewRow > td {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    .gridview-documentos-relacionados .GridviewRow > td:last-child > .row > .w-100.col-10 {
+        padding-left: 0 !important;
+    }
+}
+

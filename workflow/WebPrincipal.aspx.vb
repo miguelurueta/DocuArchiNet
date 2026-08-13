@@ -1,7 +1,17 @@
 ﻿
 Public Class WorkflowPrincipal
     Inherits RefreshArticle.BasePage
+
+    Private Function MilisegundosDesdeInicioRequest() As Long
+        Return CLng((DateTime.Now - HttpContext.Current.Timestamp).TotalMilliseconds)
+    End Function
+
+    Private Sub WebPrincipal_Unload(sender As Object, e As EventArgs) Handles Me.Unload
+        System.Diagnostics.Debug.WriteLine("WF_PARENT|WebPrincipal.Unload|" & MilisegundosDesdeInicioRequest() & " ms desde inicio request")
+    End Sub
+
     Protected Overrides Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        System.Diagnostics.Debug.WriteLine("WF_PARENT|WebPrincipal.Page_Load entrada|" & MilisegundosDesdeInicioRequest() & " ms desde inicio request")
         Try
             If Me.IsPostBack = False Then
                 If HttpContext.Current.Session.Item("ACTIVA_WEB_SERVICE") = 1 Then
@@ -123,11 +133,14 @@ Public Class WorkflowPrincipal
     Protected Sub TreeView1_SelectedNodeChanged(sender As Object, e As EventArgs) Handles TreeView1.SelectedNodeChanged
         Dim Ref As New ClassGestorSesion
         Dim reclas As New Classscrripjava
+        Dim cronometroSeleccion As System.Diagnostics.Stopwatch = System.Diagnostics.Stopwatch.StartNew()
+        System.Diagnostics.Debug.WriteLine("WF_PARENT|TreeView1_SelectedNodeChanged entrada|" & MilisegundosDesdeInicioRequest() & " ms desde inicio request")
         Try
             Me.TreeView1.SelectedNode.Expand()
             Dim Result As String = ""
             If HttpContext.Current.Session.Item("TIPOMODULO") <> "PUBLICO" Then
                 Result = Ref.selecciona_treview_aplicacion_web_gestion(Me.Page, Me.UpdatePanel1, Me.LabelEstado, "")
+                System.Diagnostics.Debug.WriteLine("WF_PARENT|selecciona_treview_aplicacion_web_gestion|" & cronometroSeleccion.ElapsedMilliseconds & " ms|Resultado=" & Result)
                 If Result <> "YES" Then
                     reclas.Showscripman(Result, Me.update_tre_principal)
                 End If
@@ -140,7 +153,11 @@ Public Class WorkflowPrincipal
             End If
             Session.Item("WF_URL_SELECCION") = Me.Hidden_selecion_url.Value
         Catch ex As Exception
+            System.Diagnostics.Debug.WriteLine("WF_PARENT|EXCEPCION|" & ex.ToString())
             reclas.Showscripman(ex.Message, Me.update_tre_principal)
+        Finally
+            cronometroSeleccion.Stop()
+            System.Diagnostics.Debug.WriteLine("WF_PARENT|TreeView1_SelectedNodeChanged total|" & cronometroSeleccion.ElapsedMilliseconds & " ms")
         End Try
     End Sub
 

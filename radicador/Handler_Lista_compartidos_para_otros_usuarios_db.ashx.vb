@@ -6,7 +6,7 @@ Imports System.ComponentModel.Design.Serialization
 Imports System.Web.Script.Serialization
 
 Public Class Handler_Lista_compartidos_para_otros_usuarios_db
-    Implements System.Web.IHttpHandler, IRequiresSessionState
+    Implements System.Web.IHttpHandler, System.Web.SessionState.IReadOnlySessionState
 
     Sub ProcessRequest(ByVal context As HttpContext) Implements IHttpHandler.ProcessRequest
 
@@ -18,7 +18,6 @@ Public Class Handler_Lista_compartidos_para_otros_usuarios_db
         Dim result As String = ""
         Dim numero_documento As Integer = 0
         result = ref_clas.Retorna_numero_de_documentos_compartidos_de_un_usuario_para_otros_usuarios(HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION"), numero_documento)
-        HttpContext.Current.Session.Item("GA_STRU_DOCUMENTO_NUMERO_COMPARTIDO") = numero_documento
         context.Response.Write(numero_documento)
 
     End Sub

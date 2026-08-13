@@ -6,7 +6,7 @@ Imports System.ComponentModel.Design.Serialization
 Imports System.Web.Script.Serialization
 
 Public Class Handler_Lista_compartidos_por_revision
-    Implements System.Web.IHttpHandler, IRequiresSessionState
+    Implements System.Web.IHttpHandler, System.Web.SessionState.IReadOnlySessionState
 
     Sub ProcessRequest(ByVal context As HttpContext) Implements IHttpHandler.ProcessRequest
 

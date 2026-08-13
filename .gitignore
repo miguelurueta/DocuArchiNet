@@ -23,6 +23,9 @@ tmp/
 TestResults/
 Generated_Code/
 
+# Evidencia local asociada al SHA; se regenera en cada validación.
+/.opsxj/evidence/
+
 # Paquetes restaurables
 packages/
 *.nupkg
@@ -34,4 +37,6 @@ Desktop.ini
 # Archivos temporales
 *.tmp
 *.temp
-pdfjs/pdf_anotate_view/ojo.pdf
+
+# Artefacto PDF local de inspeccion; no forma parte del codigo fuente.
+/pdfjs/pdf_anotate_view/ojo.pdf

@@ -1,0 +1,384 @@
+/* Control visual local del menú vertical; no modifica el plugin Scoop. */
+#scoop.da-menu-responsivo {
+  --da-menu-ancho: 290px;
+}
+
+/* La aplicación se distribuye como una sola página: cabecera fija, navegación
+   lateral debajo de ella y contenido (incluido el iframe) en el espacio útil. */
+#scoop.da-menu-responsivo,
+#scoop.da-menu-responsivo .scoop-container {
+  height: 100%;
+  min-height: 0;
+}
+
+#scoop.da-menu-responsivo .scoop-header {
+  position: fixed !important;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 50px;
+  z-index: 2000;
+  isolation: isolate;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header {
+  position: relative;
+  z-index: 1;
+}
+
+#scoop.da-menu-responsivo .scoop-main-container {
+  position: fixed;
+  top: 50px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  z-index: 1;
+  overflow: hidden;
+}
+
+#scoop.da-menu-responsivo .scoop-main-container > .scoop-wrapper,
+#scoop.da-menu-responsivo #coop_content,
+#scoop.da-menu-responsivo #content_iframe_ds,
+#scoop.da-menu-responsivo #content_iframe_ds > div {
+  height: 100%;
+  min-height: 0;
+}
+
+#scoop.da-menu-responsivo .scoop-navbar[scoop-navbar-position="fixed"] {
+  top: 50px;
+  bottom: 0;
+  height: auto !important;
+  z-index: 1900;
+}
+
+#scoop.da-menu-responsivo #coop_content,
+#scoop.da-menu-responsivo #content_iframe_ds {
+  overflow: hidden !important;
+}
+
+#scoop.da-menu-responsivo #ContentPlacenter_ifrm_ds_ {
+  display: block;
+  height: 100% !important;
+  max-height: 100%;
+}
+
+/* El cargador pertenece al área de contenido para no cubrir el menú lateral. */
+#scoop.da-menu-responsivo #content_iframe_ds {
+  position: relative;
+}
+
+#scoop.da-menu-responsivo #content_iframe_ds > #container_loading_iframe.da_loading {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  width: auto;
+  height: auto;
+  flex-direction: column;
+  gap: 12px;
+  color: #243c63;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(220, 235, 255, .92), rgba(255, 255, 255, .92) 46%, rgba(246, 249, 253, .96) 100%);
+}
+
+#scoop.da-menu-responsivo #container_loading_iframe .da_loading_center {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+#scoop.da-menu-responsivo #container_loading_iframe .da_loading_center strong {
+  color: #254a7b;
+  font: 700 15px/1.3 "Segoe UI", "Open Sans", sans-serif;
+}
+
+#scoop.da-menu-responsivo #container_loading_iframe .da_loading_center span {
+  color: #64748b;
+  font: 500 12px/1.4 "Segoe UI", "Open Sans", sans-serif;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__visual {
+  position: relative;
+  width: 108px;
+  height: 108px;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__ring {
+  position: absolute;
+  display: block;
+  border: 3px solid transparent;
+  border-radius: 50%;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__ring--outer {
+  inset: 0;
+  border-top-color: #1769d1;
+  border-right-color: #76a9ed;
+  box-shadow: 0 8px 22px rgba(27, 92, 176, .18);
+  animation: da-iframe-loader-spin 1.05s linear infinite;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__ring--inner {
+  inset: 14px;
+  border-bottom-color: #43a579;
+  border-left-color: #9bd3bb;
+  animation: da-iframe-loader-spin 1.45s linear infinite reverse;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 15px;
+  color: #fff;
+  background: linear-gradient(135deg, #175cae, #2d8ddd);
+  box-shadow: 0 9px 18px rgba(26, 92, 177, .28);
+  font: 700 14px/1 "Segoe UI", sans-serif;
+  letter-spacing: .5px;
+  transform: translate(-50%, -50%);
+  animation: da-iframe-loader-pulse 1.7s ease-in-out infinite;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__dot {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #43a579;
+  box-shadow: 0 0 0 4px rgba(67, 165, 121, .12);
+  animation: da-iframe-loader-dot 1.35s ease-in-out infinite;
+}
+
+#scoop.da-menu-responsivo .da-iframe-loader__dot--one { top: 7px; left: 20px; }
+#scoop.da-menu-responsivo .da-iframe-loader__dot--two { right: 5px; bottom: 25px; animation-delay: .18s; }
+#scoop.da-menu-responsivo .da-iframe-loader__dot--three { bottom: 11px; left: 27px; animation-delay: .36s; }
+
+@keyframes da-iframe-loader-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes da-iframe-loader-pulse {
+  50% { transform: translate(-50%, -50%) scale(1.08); }
+}
+
+@keyframes da-iframe-loader-dot {
+  50% { opacity: .35; transform: scale(.68); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #scoop.da-menu-responsivo .da-iframe-loader__ring,
+  #scoop.da-menu-responsivo .da-iframe-loader__core,
+  #scoop.da-menu-responsivo .da-iframe-loader__dot {
+    animation: none;
+  }
+}
+
+#scoop.da-menu-responsivo .scoop-navbar {
+  width: var(--da-menu-ancho) !important;
+  transition: margin-left .22s ease, visibility .22s ease;
+}
+
+/* El icono heredado estaba desplazado y reducía el área efectiva de clic. */
+#scoop.da-menu-responsivo .sidebar_toggle {
+  position: relative;
+  z-index: 1101;
+  width: 44px;
+  height: 44px;
+}
+
+#scoop.da-menu-responsivo .sidebar_toggle a {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 44px !important;
+  height: 44px !important;
+  min-height: 44px;
+  margin: 0 !important;
+  padding: 0;
+  top: 0 !important;
+  float: none !important;
+  cursor: pointer;
+}
+
+#scoop.da-menu-responsivo .sidebar_toggle a i {
+  position: static !important;
+  top: auto !important;
+  pointer-events: none;
+}
+
+/* Botón y controles del header comparten una única fila alineada. */
+#scoop.da-menu-responsivo .scoop-right-header {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap;
+  min-height: 50px;
+  line-height: normal !important;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header > .sidebar_toggle,
+#scoop.da-menu-responsivo .scoop-right-header > .scoop-rl-header,
+#scoop.da-menu-responsivo .scoop-right-header > .scoop-rr-header {
+  display: flex !important;
+  align-items: center !important;
+  float: none !important;
+  height: 47px !important;
+  transform: none !important;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header > .scoop-rr-header {
+  margin-left: auto;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rl-header ul,
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rr-header ul {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  height: 47px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header .icons:not(.d-none) {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  float: none !important;
+  height: 44px;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header .icons.d-none {
+  display: none !important;
+}
+
+/* Acciones persistentes: compactas, legibles y consistentes con el header. */
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rr-header ul {
+  gap: 3px;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rr-header .icons {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rr-header .icons > a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  color: #36516f;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rr-header .icons > a:hover,
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rr-header .icons > a:focus {
+  color: #2467b2;
+  background: #eef3ff;
+  text-decoration: none;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rr-header .icons > a > svg,
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rr-header .icons > a > i {
+  font-size: 18px !important;
+  width: 18px;
+  height: 18px;
+}
+
+/* El usuario se presenta como texto persistente, en lugar de un icono aislado. */
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rr-header #id_user_loguin {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 200px;
+  height: 40px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rr-header #id_user_loguin::before {
+  content: attr(title);
+  display: block;
+  max-width: 186px;
+  overflow: hidden;
+  color: #35477f;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rr-header #user_usuario_loguin {
+  display: block !important;
+  max-width: 186px;
+  overflow: hidden;
+  color: #71819a;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rr-header #user_usuario_loguin::before {
+  content: "Login: ";
+  color: #5d6e88;
+  font-weight: 700;
+}
+
+#scoop.da-menu-responsivo .scoop-right-header .scoop-rr-header #id_user_loguin > a {
+  display: none !important;
+}
+
+/* Los grupos de tarjetas se distinguen por espacio, no por líneas divisorias. */
+#card_general_ini_text .row_ > .row > .col-12 {
+  border-bottom: 0 !important;
+}
+
+#scoop.da-menu-responsivo.da-menu-cerrado .scoop-navbar {
+  margin-left: calc(-1 * var(--da-menu-ancho)) !important;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#scoop.da-menu-responsivo.da-menu-cerrado .scoop-header .scoop-left-header {
+  width: 0 !important;
+  overflow: hidden;
+}
+
+#scoop.da-menu-responsivo.da-menu-cerrado .scoop-header .scoop-right-header,
+#scoop.da-menu-responsivo.da-menu-cerrado .scoop-content {
+  margin-left: 0 !important;
+}
+
+@media (max-width: 992px) {
+  #scoop.da-menu-responsivo {
+    --da-menu-ancho: 235px;
+  }
+
+  #scoop.da-menu-responsivo:not(.da-menu-cerrado) .scoop-navbar {
+    box-shadow: 3px 0 18px rgba(13, 42, 72, .24);
+  }
+}

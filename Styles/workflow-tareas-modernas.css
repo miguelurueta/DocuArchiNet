@@ -1,0 +1,488 @@
+/* Capa visual no invasiva para #GridView2. No modifica el GridView ni sus eventos. */
+:root {
+  --wf-ink: #333333;
+  --wf-muted: #6c757d;
+  --wf-line: #e9ecef;
+  --wf-head: #6d7fcc;
+  --wf-head-dark: #596ab1;
+  --wf-hover: #f5f6fb;
+}
+
+#Panelactividad {
+  background: #fff;
+  border: 1px solid var(--wf-line);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(35, 50, 74, .06);
+  scrollbar-color: #b9c4e5 #f7f8fc;
+}
+
+#GridView2 {
+  margin: 0 !important;
+  color: var(--wf-ink);
+  border-collapse: separate !important;
+  border-spacing: 0;
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 14px !important;
+}
+
+#GridView2 .GridviewScrollHeader_line_boot th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 13px 18px;
+  background: #eef1fb;
+  color: #35477f !important;
+  border: 0;
+  border-bottom: 1px solid #dce2f1;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .055em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+#GridView2 .GridviewScrollHeader_line_boot th a {
+  color: #35477f !important;
+  background: transparent !important;
+  text-decoration: none;
+}
+
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td {
+  max-width: 250px;
+  padding: 11px 14px;
+  background: #fff;
+  border: 0;
+  border-bottom: 1px solid var(--wf-line);
+  color: #3f3f3f;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background-color .15s ease;
+}
+
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot):hover > td {
+  background: var(--wf-hover);
+}
+
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot):nth-child(even) > td {
+  background: #fbfcff;
+}
+
+/* La primera columna conserva visibles las acciones durante el desplazamiento horizontal. */
+#GridView2 .GridviewScrollHeader_line_boot th:first-child,
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  min-width: 128px;
+  box-shadow: 2px 0 0 rgba(228, 233, 242, .95);
+}
+
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td:first-child {
+  background: #fff;
+  overflow: visible;
+}
+
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot):hover > td:first-child { background: var(--wf-hover); }
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot):nth-child(even) > td:first-child { background: #fbfcff; }
+
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td:nth-child(2) {
+  color: #4d5fa9;
+  font-weight: 650 !important;
+}
+
+/* Estado: conserva el valor devuelto por backend y lo presenta como indicador. */
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td:nth-child(11) {
+  color: #5165ad;
+  font-weight: 600 !important;
+}
+#GridView2 td:first-child > div { gap: 6px; }
+#GridView2 td:first-child .btn {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 0 !important;
+  padding: 0;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+#GridView2 td:first-child .btn:hover { filter: brightness(.91); transform: translateY(-1px); }
+#GridView2 td:first-child .btn:focus { outline: 3px solid #bfd0ff; outline-offset: 2px; }
+
+/* Compatibilidad visual del paginador nativo de Workflow. */
+#GridView2 .pagination-ys > td > table {
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  table-layout: fixed;
+}
+#GridView2 .pagination-ys > td > table > tbody > tr > td {
+  display: table-cell !important;
+  width: 38px !important;
+  min-width: 38px;
+  max-width: 38px;
+  padding: 0 !important;
+  text-align: center !important;
+  vertical-align: middle;
+}
+#GridView2 .pagination-ys > td > table > tbody > tr > td > a,
+#GridView2 .pagination-ys > td > table > tbody > tr > td > span {
+  display: block;
+  box-sizing: border-box;
+  width: 38px !important;
+  min-width: 38px;
+  max-width: 38px;
+  float: none !important;
+  margin: 0 !important;
+  padding: 6px 0 !important;
+  text-align: center !important;
+}
+
+/* Filas del GridView: reglas explícitas sobre TR y TD, sin modificar su contenido. */
+#GridView2 > tbody > tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) {
+  background: #fff !important;
+  transition: background-color .15s ease, box-shadow .15s ease;
+}
+#GridView2 > tbody > tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot):nth-of-type(even) {
+  background: #f8f9fe !important;
+}
+#GridView2 > tbody > tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td {
+  background: inherit !important;
+  border-bottom: 1px solid #e7eaf0 !important;
+}
+#GridView2 > tbody > tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot):hover {
+  background: #f1f4ff !important;
+  box-shadow: inset 3px 0 0 #4057a8;
+}
+#GridView2 > tbody > tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot):hover > td {
+  background: inherit !important;
+}
+
+/* Jerarquía visual por dato. Se basa solo en las posiciones ya emitidas por GridView2. */
+#GridView2 .GridviewScrollHeader_line_boot th {
+  background: #eef1fb !important;
+  color: #35477f !important;
+  border-bottom-color: #dce2f1 !important;
+  box-shadow: inset 0 -1px 0 rgba(220, 226, 241, .9);
+}
+
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td {
+  border-bottom-color: #e8ecf4 !important;
+}
+
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td:nth-child(2) { color: #304eac !important; }
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td:nth-child(3) { color: #3d4a64 !important; font-weight: 600 !important; }
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td:nth-child(5) { color: #505d72 !important; }
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td:nth-child(6) { color: #35425a !important; }
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td:nth-child(7) { color: #a75a25 !important; font-weight: 600 !important; }
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td:nth-child(8),
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td:nth-child(13),
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td:nth-child(14) { color: #7a8596 !important; font-size: 13px; }
+#GridView2 tr:not(.pagination-ys):not(.GridviewScrollHeader_line_boot) > td:nth-child(10) { color: #4057a8 !important; font-weight: 600 !important; }
+
+/* La capa local conserva la señal de revisión configurada en .gridview-moderno. */
+#GridView2.gridview-moderno tr.font-weight-bold > td {
+  font-weight: var(--gv-peso-no-revisada) !important;
+}
+
+#GridView2.gridview-moderno tr.font-weight-light > td {
+  font-weight: var(--gv-peso-revisada) !important;
+}
+
+#GridView2 td:first-child .btn {
+  border-radius: 50% !important;
+  width: 34px;
+  height: 34px;
+}
+
+/* Buscador de tareas: conserva eventos y autocompletado, mejora legibilidad. */
+#auto_complex {
+  height: 36px;
+  min-height: 36px;
+  border-color: #d5ddea;
+  color: #26384d;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+  box-shadow: none !important;
+}
+
+#auto_complex::placeholder {
+  color: #8090a6;
+}
+
+#auto_complex:focus {
+  border-color: #8da4df;
+  box-shadow: 0 0 0 3px rgba(64, 87, 168, .14) !important;
+}
+
+#td-boton,
+#auto_complex + .input-group-append .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-color: #d5ddea;
+  box-shadow: none;
+}
+
+#td-boton {
+  border-radius: 8px 0 0 8px !important;
+  background: #f7f9fd;
+  color: #536681;
+}
+
+#td-boton:hover,
+#td-boton:focus {
+  background: #edf2fb;
+  color: #304eac;
+}
+
+#auto_complex + .input-group-append .btn {
+  border-color: #4057a8;
+  border-radius: 0 8px 8px 0 !important;
+  background: #4057a8;
+  color: #fff;
+}
+
+#auto_complex + .input-group-append .btn:hover,
+#auto_complex + .input-group-append .btn:focus {
+  border-color: #304583;
+  background: #304583;
+  color: #fff;
+}
+
+/* Filtros de bandeja: contador, selector y acciones compactas. */
+#UpdatePanelnumeroespera {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  padding-left: 20px;
+}
+
+#LabelEspera {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  margin-left: 0 !important;
+  color: #304eac !important;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+#LabelEspera::before {
+  content: "Total registros:";
+  margin-right: 7px;
+  color: #71819a;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+#UpdatePanelseleccionfiltro {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 12px;
+}
+
+#DropDownListseleccionfiltro {
+  height: 36px;
+  min-width: 178px;
+  margin-left: 0 !important;
+  padding: 0 34px 0 11px;
+  border: 1px solid #d5ddea;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #35425a;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+#DropDownListseleccionfiltro:focus {
+  border-color: #8da4df;
+  box-shadow: 0 0 0 3px rgba(64, 87, 168, .14);
+  outline: 0;
+}
+
+button[onclick*="preven_event_search_new_task"],
+#bnt_search_avance {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-left: 4px;
+  padding: 0;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+button[onclick*="preven_event_search_new_task"] {
+  border-color: #4057a8;
+  background: #4057a8;
+  color: #fff;
+}
+
+button[onclick*="preven_event_search_new_task"]:hover,
+button[onclick*="preven_event_search_new_task"]:focus {
+  border-color: #304583;
+  background: #304583;
+  color: #fff;
+}
+
+#bnt_search_avance {
+  border-color: #d5ddea;
+  background: #f7f9fd;
+  color: #536681;
+}
+
+#bnt_search_avance:hover,
+#bnt_search_avance:focus {
+  border-color: #b6c7e8;
+  background: #edf2fb;
+  color: #304eac;
+}
+
+/* Modal Enviar tarea: capa visual exclusiva; respeta sus tamaños calculados por JavaScript. */
+#modal_content_lista_actividades_worflow_ruta {
+  overflow: hidden;
+  border: 1px solid #dce6f1;
+  border-radius: 12px;
+  box-shadow: 0 18px 42px rgba(30, 53, 83, .18);
+}
+
+#modal_content_lista_actividades_worflow_ruta #divcabecer2_lista_actividades_worflow_ruta {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid #dce2f1;
+  color: #24364f;
+}
+
+#modal_content_lista_actividades_worflow_ruta #divcabecer2_lista_actividades_worflow_ruta .modal-title {
+  margin: 0;
+  color: #24364f;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 650;
+}
+
+#modal_content_lista_actividades_worflow_ruta #divcabecer2_lista_actividades_worflow_ruta .close {
+  margin-left: auto;
+  margin-right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #f8f9fa;
+  border-radius: .2rem;
+  background: #f8f9fa;
+  color: #212529;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: none;
+  opacity: 1;
+}
+
+#modal_content_lista_actividades_worflow_ruta #divcabecer2_lista_actividades_worflow_ruta .close:hover,
+#modal_content_lista_actividades_worflow_ruta #divcabecer2_lista_actividades_worflow_ruta .close:focus {
+  border-color: #dae0e5;
+  background: #e2e6ea;
+  color: #212529;
+  opacity: 1;
+  outline: 0;
+}
+
+#modal_content_lista_actividades_worflow_ruta #divcabecer2_lista_actividades_worflow_ruta .close:focus-visible {
+  outline: 2px solid rgba(64, 87, 168, .28);
+  outline-offset: 2px;
+}
+
+#modal_content_lista_actividades_worflow_ruta #contenido_titulo_data_grid_dos_title {
+  display: none;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion {
+  display: block;
+  margin: 0 !important;
+  padding: 10px 15px !important;
+  border-top: 1px solid #dbe3f0 !important;
+  border-bottom: 0 !important;
+  background: #fff !important;
+  color: #66758c;
+  font-size: 12px;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion b {
+  color: #263d6a;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion .ctw-workflow-modal-context__column {
+  display: flex;
+  min-width: 0;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion .ctw-workflow-modal-context__column--flow {
+  justify-content: flex-end;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion .ctw-workflow-modal-context__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion .ctw-workflow-modal-context__item--flow {
+  flex: 0 1 68%;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion .h6 {
+  margin: 0;
+  color: #66758c;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400 !important;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_contenido_procesa_lista_actividades_worflow_ruta_botones_desicion .ctw-workflow-modal-context__item--flow .h6 {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#modal_content_lista_actividades_worflow_ruta #div_gred {
+  padding: 0;
+  scrollbar-color: #b9c4e5 #f7f8fc;
+}
+
+#modal_content_lista_actividades_worflow_ruta #GridView_envia_flujo.gridview-moderno {
+  margin: 0;
+  width: 100% !important;
+  font-size: 13px;
+}
+
+#modal_content_lista_actividades_worflow_ruta #GridView_envia_flujo.gridview-moderno .GridviewScrollHeader_line_boot th {
+  padding: 11px 14px;
+}
+
+#modal_content_lista_actividades_worflow_ruta #GridView_envia_flujo.gridview-moderno tr:not(.GridviewScrollHeader_line_boot) > td {
+  padding: 10px 14px;
+}

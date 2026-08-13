@@ -1757,38 +1757,49 @@ DIV.body
 
 /*PAGINACION GREDVIEW*/
 .pagination-ys {
-    /*display: inline-block;*/
     padding-left: 0;
     margin: 20px 0;
-    border-radius: 4px;
 }
  
+.pagination-ys table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed;
+}
+
+/* Mantiene las celdas del paginador GridView dentro de su fila tras un postback. */
 .pagination-ys table > tbody > tr > td {
-    display: inline;
+    display: table-cell;
+    width: 38px;
+    min-width: 38px;
+    max-width: 38px;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    vertical-align: middle;
 }
  
 .pagination-ys table > tbody > tr > td > a,
 .pagination-ys table > tbody > tr > td > span {
- /*position: relative;*/   
-    float: left;
-    padding: 8px 12px;
-    line-height: 1.42857143;
     text-decoration: none;
+    display: flex;
+    box-sizing: border-box;
+    width: 38px;
+    height: 34px;
+    margin: 0;
+    padding: 0;
+    float: none;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.42857143;
     color: #dd4814;
     background-color: #ffffff;
     border: 1px solid #dddddd;
-    margin-left: -1px;
 }
- 
+
 .pagination-ys table > tbody > tr > td > span {
-   /*position: relative; #aea79f  #eeeeee*/ 
-    float: left;
-    padding: 8px 12px;
-    line-height: 1.42857143;
-    text-decoration: none;    
-    margin-left: -1px;
-    z-index: 2;
-    color: white;
+    color: #fff;
     background-color: #c6c1bb;
     border-color: #dddddd;
     cursor: default;
@@ -1797,23 +1808,22 @@ DIV.body
 .pagination-ys table > tbody > tr > td:first-child > a,
 .pagination-ys table > tbody > tr > td:first-child > span {
     margin-left: 0;
-    border-bottom-left-radius: 4px;
-    border-top-left-radius: 4px;
-}
- 
-.pagination-ys table > tbody > tr > td:last-child > a,
-.pagination-ys table > tbody > tr > td:last-child > span {
-    border-bottom-right-radius: 4px;
-    border-top-right-radius: 4px;
 }
  
 .pagination-ys table > tbody > tr > td > a:hover,
-.pagination-ys table > tbody > tr > td > span:hover,
-.pagination-ys table > tbody > tr > td > a:focus,
-.pagination-ys table > tbody > tr > td > span:focus {
+.pagination-ys table > tbody > tr > td > a:focus {
     color: #97310e;
     background-color: #79746f;
     border-color: #dddddd;
+}
+
+.pagination-ys table > tbody > tr > td > a:focus {
+    outline: 0;
+}
+
+/* Enlaces de página: color de lectura consistente sin afectar la página activa. */
+.pagination-ys table > tbody > tr > td > a {
+    color: #304eac !important;
 }
 /*syle redondo*/
 .gridview_une{
