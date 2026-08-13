@@ -50,6 +50,15 @@ El `opsxj` actual es un tooling Node local que orquesta Jira, GitHub y OpenSpec.
 4. Añadir CI de lectura para ejecutar pruebas del tooling y validación OpenSpec, sin credenciales de escritura.
 5. Ejecutar un ticket de ensayo real hasta `opsxj:validate`; documentar la evidencia manual o automatizada disponible en el entorno legacy.
 
+## Ticket de ensayo real — 2026-08-13
+
+- Ticket usado: `DOC-2` (`doc-2-infraestructura-visual-aislada-reversible`), un cambio WebForms transversal con manifiesto, paquete técnico y pruebas manuales reales ya archivadas.
+- Para reproducir la compuerta que debe ocurrir antes del archivo, el cambio se reactivó temporalmente en el commit local `ec4aa0e18d8ab4831d4d5e071b4e33e8e75b0e1d`; no hubo cambios funcionales, de Jira, GitHub ni despliegue.
+- `npm.cmd --prefix tools/opsxj test` terminó con 12 archivos y 94 pruebas correctas. Se registraron las evidencias `unit` y `manual_qa` por `opsxj:validation:evidence`, ambas asociadas a ese SHA.
+- Con la revisión OpenSpec confirmada, `opsxj:validate DOC-2 --json` devolvió `PASS`: seis documentos requeridos, cero tareas pendientes, revisión confirmada y evidencia vigente para ambos tipos exigidos.
+- WebForms no dispone de una suite E2E automatizada en este repositorio. La evidencia disponible es QA manual reproducible contra IIS local, documentada en `Doc/Tecnica/Opsxj/doc-2-infraestructura-visual-aislada-reversible/05-PruebasEvidencia.md`: recorridos de 1366, 1024, 768 y 375 px, hover, foco, estado deshabilitado, menú abierto y documento seleccionado. Esta limitación se declara explícitamente; no se simula un reporte E2E.
+- Tras la validación, DOC-2 vuelve a archivarse. La evidencia conservada corresponde al SHA exacto del ensayo, aunque el commit posterior solo restituye su ubicación de archivo y registra este resultado.
+
 ## Open Questions
 
 - El ticket de ensayo real y su alcance requieren selección explícita del equipo antes de efectuar cambios remotos o de proyecto.

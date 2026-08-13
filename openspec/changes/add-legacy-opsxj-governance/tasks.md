@@ -23,4 +23,4 @@
 
 - [x] 4.1 Añadir CI de solo lectura para validar OpenSpec y las pruebas del tooling, sin acciones Jira/GitHub.
 - [x] 4.2 Ejecutar la suite del tooling y la validación estricta del cambio OpenSpec.
-- [ ] 4.3 Ejecutar un ticket de ensayo real hasta `opsxj:validate` y documentar la evidencia QA/E2E disponible para WebForms.
+- [x] 4.3 Ejecutar un ticket de ensayo real hasta `opsxj:validate` y documentar la evidencia QA/E2E disponible para WebForms.
