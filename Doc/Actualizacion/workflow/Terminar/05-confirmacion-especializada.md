@@ -6,7 +6,7 @@ Especialista UI/UX y desarrollador senior de ASP.NET Web Forms .NET Framework 4.
 
 Contexto:
 - Repositorio: `D:\imagenesda\GestorDocumental\Desarrollo\old\oldanterior\GestionDocumental-Docuarchi.net`.
-- La lista moderna entrega un destino seleccionado desde `PreviewEnviarTarea`; la ejecución paralela se realiza por `EjecutarEnvioTarea`.
+- La lista moderna entrega un destino seleccionado desde `PreviewEnviarTarea`; la ejecución paralela se realiza exclusivamente por `webservice/WebServiceWorkflowModern.asmx` mediante `EjecutarEnvioTarea`.
 - La interfaz legacy de `workflow/Webworkflow.aspx`, sus modales, controles ocultos y el flujo de autorización vigente deben mantenerse funcionales.
 - Esta fase implementa Presentation en JavaScript/CSS e integra contratos existentes; no modifica el núcleo `Terminar_Tarea_Workflow`, `Cambia_Estado` ni reglas de autorización.
 
@@ -28,7 +28,8 @@ Destino seleccionado desde la lista moderna.
 
 Contrato técnico:
 - Entrada del componente: `idTarea`, `idConector`, `tokenVersion`, radicado/trámite, actividad origen, resumen visible de `DestinoTransicionDto`, requisitos y advertencias provenientes exclusivamente del preview del servidor.
-- Solicitud de ejecución: `EjecutarEnvioTarea(idTarea, idConector, tokenVersion)`; el cliente no agrega ni infiere usuario, grupo, ruta, actividad, permisos o requisitos.
+- Solicitud de ejecución: el adaptador Workflow llama async/await a `WebServiceWorkflowModern.EjecutarEnvioTarea(idTarea, idConector, tokenVersion)`; el ASMX delega a `ServicioTransicionTarea` en Application. El cliente no agrega ni infiere usuario, grupo, ruta, actividad, permisos o requisitos.
+- El endpoint revalida `IWorkflowModernFeatureGate`; si el piloto no está activo devuelve `WORKFLOW_MODERN_INACTIVE` como bloqueo funcional, sin transición ni fallback automático.
 - Respuesta: `ResultadoTransicionDto` con `Exito`, `EstadoFinal`, `MensajeFuncional`, `CodigoBloqueo`, `Advertencias`, `ActividadDestino`, `Destino`, `TokenVersion`, `ReferenciaAuditoria` y `EsReintentable`.
 - Estados Presentation: `confirmando`, `enviando`, `exito`, `bloqueo-funcional` y `error-tecnico-controlado`; cada uno define mensaje visible, foco, acciones habilitadas y recuperación.
 - Correlación: ignorar respuestas obsoletas, cancelar o inutilizar solicitudes anteriores cuando se cierre el modal y permitir el resultado visual solo si coincide con la tarea, conector y `tokenVersion` actualmente confirmados.
@@ -60,7 +61,7 @@ Comportamiento:
 
 No implementar autorizaciones ni validaciones críticas solo en cliente.
 
-La confirmación es Presentation: debe utilizar los DTO del servicio y solicitar la ejecución a Application. No puede llamar controles ocultos, Terminar_Tarea_Workflow, Cambia_Estado ni repositorios.
+La confirmación es Presentation: utiliza DTOs del servicio y el adaptador Workflow invoca el ASMX; el ASMX es quien solicita la ejecución a Application. No puede llamar controles ocultos, Terminar_Tarea_Workflow, Cambia_Estado ni repositorios.
 
 Pruebas obligatorias:
 - Ejecutar compilación del proyecto o solución afectada con MSBuild/.NET Framework y registrar comando, resultado y limitaciones reales.

@@ -24,6 +24,10 @@ Restricciones críticas:
 Endpoint:
 EjecutarEnvioTarea(idTarea As Long, idConector As Integer, tokenVersion As String) As ResultadoTransicionDto
 
+Ubicación obligatoria del endpoint:
+- Agregar `EjecutarEnvioTarea` al mismo ASMX paralelo creado en Prompt 02: `webservice/WebServiceWorkflowModern.asmx` y `webservice/WebServiceWorkflowModern.asmx.vb`.
+- No crear un segundo ASMX moderno, una página adicional ni otro punto de entrada para preview o ejecución.
+
 Contrato técnico:
 - Entrada: `idTarea` identifica la tarea existente; `idConector` representa el destino solicitado; `tokenVersion` representa la versión mostrada en el preview. Ninguno sustituye la autorización ni el contexto resuelto en servidor.
 - Respuesta `ResultadoTransicionDto`: `Exito`, `EstadoFinal`, `MensajeFuncional`, `CodigoBloqueo`, `Advertencias`, `ActividadDestino`, `Destino`, `TokenVersion`, `ReferenciaAuditoria` y `EsReintentable`.
@@ -42,15 +46,16 @@ Estructura obligatoria:
 - No introducir una segunda transacción para el cambio de estado ni duplicar reglas del núcleo legado.
 
 Antes de llamar Terminar_Tarea_Workflow, el servidor debe revalidar:
-1. Sesión y permisos.
-2. Pertenencia de la tarea al usuario/grupo actual.
-3. Que la tarea siga activa y coincida con tokenVersion.
-4. Que idConector corresponda a la ruta o flujo actual de la tarea.
-5. Para flujo: flujo, nodo origen, actividad origen y usuario/grupo origen.
-6. Para ruta: grupo, ruta y actividad origen.
-7. Respuesta o confirmación requerida.
-8. Solicitudes de aprobación pendientes.
-9. Requisitos de firma, expediente, copia documental y balanceo.
+1. `IWorkflowModernFeatureGate`: si no está activo para el usuario/grupo/configuración, devolver `WORKFLOW_MODERN_INACTIVE` sin invocar el motor legacy ni hacer fallback automático.
+2. Sesión y permisos.
+3. Pertenencia de la tarea al usuario/grupo actual.
+4. Que la tarea siga activa y coincida con tokenVersion.
+5. Que idConector corresponda a la ruta o flujo actual de la tarea.
+6. Para flujo: flujo, nodo origen, actividad origen y usuario/grupo origen.
+7. Para ruta: grupo, ruta y actividad origen.
+8. Respuesta o confirmación requerida.
+9. Solicitudes de aprobación pendientes.
+10. Requisitos de firma, expediente, copia documental y balanceo.
 
 Ejecución:
 - Reutilizar ClassWorkflow.Terminar_Tarea_Workflow y ClassWorkflow.Cambia_Estado.
@@ -100,6 +105,7 @@ Documentación técnica:
 
 Criterios de aceptación:
 - `EjecutarEnvioTarea` revalida en servidor sesión, permisos, pertenencia, estado, token de versión, conector y requisitos de negocio antes de invocar el motor legacy.
+- `EjecutarEnvioTarea` vive en `WebServiceWorkflowModern` y rechaza llamadas directas fuera del piloto mediante `IWorkflowModernFeatureGate`, sin ejecutar transición ni fallback automático.
 - Solo `WorkflowLegacyExecutorAdapter` invoca `Terminar_Tarea_Workflow` y `Cambia_Estado`; no existe una segunda transacción ni duplicación de reglas.
 - Los eventos `PRETERMINARACTIVIAD` y `TERMINARACTIVIDAD`, correo y trazabilidad se conservan en servidor con el comportamiento legacy aplicable.
 - La operación evita doble envío y entrega resultado idempotente o bloqueo funcional controlado ante concurrencia.

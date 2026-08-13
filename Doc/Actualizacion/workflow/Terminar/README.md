@@ -64,6 +64,17 @@ Infrastructure/Repositories/Workflow
 5. `05-confirmacion-especializada.md`
 6. `06-piloto-pruebas-rollout.md`
 
+## Acoplamiento obligatorio entre prompts
+
+La secuencia no permite crear implementaciones paralelas de los mismos límites:
+
+- El Prompt 01 crea la base, incluido `IWorkflowModernFeatureGate` como única fuente nueva de `WorkflowCentroTrabajoModernActive`, con comportamiento fail-closed.
+- El Prompt 02 crea `webservice/WebServiceWorkflowModern.asmx` y expone solo `PreviewEnviarTarea`; valida la habilitación en servidor antes de resolver destinos.
+- El Prompt 03 agrega `EjecutarEnvioTarea` al mismo ASMX y vuelve a validar la habilitación antes de invocar el adapter legacy.
+- El Prompt 04 consume solo el bootstrap visual emitido por servidor; no calcula la bandera y no llama preview si está inactiva.
+- El Prompt 05 usa `ConfirmationDialog` genérico mediante el adaptador Workflow; JavaScript llama al ASMX y el ASMX delega a Application.
+- El Prompt 06 configura el piloto, mide y desactiva la bandera base; no crea una segunda configuración ni permite llamadas ASMX modernas fuera del alcance habilitado.
+
 ## Convención documental obligatoria
 
 Cada prompt es un paquete documental independiente. No se agregan archivos técnicos junto al prompt ni se usan nombres libres.

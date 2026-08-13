@@ -8,7 +8,7 @@ Contexto:
 - Repositorio: `D:\imagenesda\GestorDocumental\Desarrollo\old\oldanterior\GestionDocumental-Docuarchi.net`.
 - La modernización incluye la fundación paralela, preview de destinos, ejecución segura, lista moderna y confirmación especializada descritas en los prompts 01 a 05.
 - El flujo legacy de `workflow/Webworkflow.aspx`, `ClassWorkflow.Terminar_Tarea_Workflow`, `ClassWorkflow.Cambia_Estado`, autorización, firma, expediente, eventos dinámicos, correo y trazabilidad sigue siendo el respaldo operativo.
-- La bandera `WorkflowCentroTrabajoModernActive` habilita Presentation moderna de forma reversible; no sustituye la autorización ni las validaciones de servidor.
+- El contrato base de `WorkflowCentroTrabajoModernActive` se crea en Prompt 01. La bandera habilita Presentation moderna de forma reversible y los ASMX modernos la revalidan en servidor; no sustituye la autorización ni las validaciones de negocio.
 
 Objetivo:
 Conservar el flujo anterior como respaldo mientras se valida la versión moderna mediante un piloto controlado, métricas trazables, criterios objetivos de salida y rollback inmediato sin migración de datos.
@@ -24,8 +24,8 @@ Restricciones críticas:
 Validar además la separación arquitectónica: Presentation no contiene SQL ni reglas de negocio; Application no usa controles Web Forms; Domain no depende de infraestructura; y únicamente el adaptador legado invoca el núcleo actual de terminación.
 
 Implementar:
-1. Bandera WorkflowCentroTrabajoModernActive.
-2. Activación por usuario piloto, grupo o configuración, con precedencia y comportamiento documentados para activación, exclusión y desactivación.
+1. Configurar y operar la bandera base `WorkflowCentroTrabajoModernActive` creada en Prompt 01; no crear una segunda implementación ni una segunda fuente de configuración.
+2. Activación por usuario piloto, grupo o configuración, con precedencia y comportamiento documentados para activación, exclusión y desactivación, consumidos por Presentation y revalidados por ambos ASMX modernos.
 3. Telemetría/auditoría con contrato mínimo: identificador de correlación, usuario anonimizado o identificador autorizado, tarea, ruta/flujo, conector, destino, versión moderna/legacy, duración, éxito/bloqueo/error, código funcional y referencia de auditoría.
 4. Rollback inmediato a la interfaz antigua sin migración de datos, con procedimiento de desactivación, verificación posterior y responsable de ejecución.
 5. Pruebas automatizadas, pruebas focales y matriz manual reproducible.
@@ -34,8 +34,8 @@ Implementar:
 Contrato de activación y rollback:
 - Entrada de configuración: `WorkflowCentroTrabajoModernActive`, alcance de usuario/grupo/configuración, fecha de inicio, responsable y motivo de activación.
 - Resultado de evaluación: `activo`, `inactivo`, `excluido` o `fallback-legacy`, con causa visible solo para soporte autorizado y sin filtrar datos sensibles al usuario final.
-- El cliente consulta únicamente el estado de bandera permitido; el servidor conserva la decisión de permisos, preview y ejecución.
-- Rollback: desactivar la bandera para el alcance afectado, detener nuevas aperturas modernas, conservar las transiciones ya confirmadas por el servidor, abrir la interfaz legacy para los nuevos intentos y registrar la correlación, motivo, hora y responsable.
+- El cliente consulta únicamente el bootstrap de bandera permitido; el servidor conserva la decisión de permisos, preview y ejecución y bloquea llamadas modernas directas fuera del piloto con `WORKFLOW_MODERN_INACTIVE`.
+- Rollback: desactivar la bandera para el alcance afectado, detener nuevas aperturas modernas, conservar las transiciones ya confirmadas por el servidor, abrir la interfaz legacy para los nuevos intentos y devolver bloqueo funcional a llamadas ASMX modernas posteriores; registrar correlación, motivo, hora y responsable.
 - No intentar revertir una transición ya confirmada mediante SQL, JavaScript o una nueva llamada a `Cambia_Estado`; cualquier reversión de negocio usa exclusivamente el procedimiento legacy autorizado.
 
 Matriz mínima:
@@ -83,7 +83,7 @@ Documentación técnica:
 - El prompt fuente `06-piloto-pruebas-rollout.md` permanece en `Doc/Actualizacion/workflow/Terminar/`; no crear documentación de implementación junto a él, en la raíz del repositorio ni en rutas alternativas sin justificarlo expresamente en el entregable.
 
 Criterios de aceptación:
-- La bandera permite activar, excluir y desactivar de forma auditable por el alcance autorizado, sin alterar decisiones de permisos ni reglas del servidor.
+- La bandera creada en Prompt 01 permite activar, excluir y desactivar de forma auditable por el alcance autorizado; Presentation la consume como bootstrap y ambos ASMX modernos la revalidan sin alterar decisiones de permisos ni reglas del servidor.
 - El rollback a la interfaz legacy es ejecutable por configuración, no requiere migración de datos y deja registro verificable de responsable, motivo, hora y correlación.
 - La telemetría permite comparar la experiencia moderna y legacy sin filtrar información sensible; registra éxito, bloqueo, error, duración, concurrencia y divergencias.
 - La matriz mínima y las resoluciones requeridas tienen resultado documentado, evidencia y trazabilidad; los escenarios críticos no presentan transición duplicada ni pérdida de contexto.
