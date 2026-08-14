@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "issueKey": "DOC-9",
   "changeName": "doc-9-contrato-terminar-tarea-workflow",
   "impact": "cross_cutting",
@@ -8,18 +8,20 @@
     "manual_qa"
   ],
   "documentation": [
-    "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/01-ResumenTecnico.md",
-    "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/02-ImpactoUI.md",
-    "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/03-ServiciosYReglas.md",
-    "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/04-ContratosIntegracion.md",
-    "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/05-PruebasEvidencia.md"
+    "Doc/Actualizacion/workflow/Terminar/01-fundacion-contratos/00-indice.md",
+    "Doc/Actualizacion/workflow/Terminar/01-fundacion-contratos/01-arquitectura.md",
+    "Doc/Actualizacion/workflow/Terminar/01-fundacion-contratos/02-contrato.md",
+    "Doc/Actualizacion/workflow/Terminar/01-fundacion-contratos/03-flujo-y-seguridad.md",
+    "Doc/Actualizacion/workflow/Terminar/01-fundacion-contratos/04-pruebas-y-evidencia.md"
   ],
   "documentationContract": [
     {
-      "path": "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/01-ResumenTecnico.md",
+      "path": "Doc/Actualizacion/workflow/Terminar/01-fundacion-contratos/00-indice.md",
       "requiredSections": [
-        "## Objetivo",
-        "## Alcance y compatibilidad"
+        "## Resumen de cambios",
+        "## Paquete documental",
+        "## Archivos relacionados",
+        "## Comportamiento preservado"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -35,10 +37,12 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/02-ImpactoUI.md",
+      "path": "Doc/Actualizacion/workflow/Terminar/01-fundacion-contratos/01-arquitectura.md",
       "requiredSections": [
-        "## Superficies UI",
-        "## Validacion visual"
+        "## Decisión",
+        "## Separación de responsabilidades",
+        "## Reutilización y límites",
+        "## Alternativas descartadas"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -54,9 +58,12 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/03-ServiciosYReglas.md",
+      "path": "Doc/Actualizacion/workflow/Terminar/01-fundacion-contratos/02-contrato.md",
       "requiredSections": [
-        "## Servicios y reglas"
+        "## DTOs de salida futura",
+        "## Interfaces de Domain",
+        "## Habilitación",
+        "## Adaptador legacy"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -72,9 +79,12 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/04-ContratosIntegracion.md",
+      "path": "Doc/Actualizacion/workflow/Terminar/01-fundacion-contratos/03-flujo-y-seguridad.md",
       "requiredSections": [
-        "## Contratos e integraciones"
+        "## Secuencia de DOC-9",
+        "## Límites obligatorios",
+        "## Riesgos y mitigaciones",
+        "## Compatibilidad, piloto y rollback"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -90,10 +100,11 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/05-PruebasEvidencia.md",
+      "path": "Doc/Actualizacion/workflow/Terminar/01-fundacion-contratos/04-pruebas-y-evidencia.md",
       "requiredSections": [
         "## Evidencia requerida",
-        "## QA/E2E WebForms"
+        "## QA/E2E WebForms",
+        "## Limitaciones reales"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -108,5 +119,18 @@
         "template_instruction"
       ]
     }
-  ]
+  ],
+  "documentationConvention": {
+    "canonicalRoot": "Doc/Actualizacion/workflow/Terminar/01-fundacion-contratos/",
+    "sourcePrompt": "Doc/Actualizacion/workflow/Terminar/01-fundacion-contratos.md",
+    "rule": "La documentacion de implementacion existe solo en canonicalRoot; no se generan duplicados tecnicos en rutas alternativas."
+  },
+  "refinement": {
+    "version": 1,
+    "required": true,
+    "path": "openspec/changes/doc-9-contrato-terminar-tarea-workflow/refinement.md",
+    "state": "approved",
+    "taskOriginFormat": "Origen: D-XX, RQ-XX",
+    "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  }
 }

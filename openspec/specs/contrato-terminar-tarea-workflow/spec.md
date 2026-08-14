@@ -1,5 +1,10 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
-## ADDED Requirements
+# contrato-terminar-tarea-workflow Specification
+
+## Purpose
+
+Define la fundación paralela y segura para modernizar la terminación de tareas de Workflow sin alterar el recorrido Web Forms vigente durante esta fase.
+
+## Requirements
 
 ### Requirement: RQ-01 Fundación paralela sin efectos
 
@@ -7,12 +12,12 @@ Para D-01, el sistema SHALL incorporar contratos paralelos por tipo técnico, m�
 
 #### Scenario: Flujo legacy preservado
 
-- **WHEN** se compila la solucion con los archivos de DOC-9
-- **THEN** el flujo WebForms existente permanece como unico camino que puede terminar una tarea.
+- **WHEN** se compila la solución con los archivos de DOC-9
+- **THEN** el flujo WebForms existente permanece como único camino que puede terminar una tarea.
 
 ### Requirement: RQ-02 Límites tipados entre capas
 
-Para D-02, Domain y Application SHALL estar libres de dependencias de Page, Session, GridView, UpdatePanel y ModalPopupExtender; las fronteras nuevas SHALL usar modelos, interfaces y DTOs explicitamente tipados. Los modelos y puertos de Domain del caso de uso terminar SHALL residir en `Modelo/Workflow/Terminar/`; los DTOs en `DTOs/Workflow/Terminar/` y los servicios, proveedores y validadores de Application en `Services/Workflow/Terminar/`, todas rutas desde la raíz del repositorio.
+Para D-02, Domain y Application SHALL estar libres de dependencias de Page, Session, GridView, UpdatePanel y ModalPopupExtender; las fronteras nuevas SHALL usar modelos, interfaces y DTOs explícitamente tipados. Los modelos y puertos de Domain del caso de uso terminar SHALL residir en `Modelo/Workflow/Terminar/`; los DTOs en `DTOs/Workflow/Terminar/` y los servicios, proveedores y validadores de Application en `Services/Workflow/Terminar/`, todas rutas desde la raíz del repositorio.
 
 #### Scenario: Inspección de clases nuevas
 
@@ -21,7 +26,7 @@ Para D-02, Domain y Application SHALL estar libres de dependencias de Page, Sess
 
 ### Requirement: RQ-03 Frontera legacy sin ejecución en DOC-9
 
-Para D-03, `WorkflowLegacyExecutorAdapter` SHALL ser la unica frontera nueva reservada para el motor legacy y SHALL devolver `WORKFLOW_MODERN_EXECUTION_PENDING` durante esta fase.
+Para D-03, `WorkflowLegacyExecutorAdapter` SHALL ser la única frontera nueva reservada para el motor legacy y SHALL devolver `WORKFLOW_MODERN_EXECUTION_PENDING` durante esta fase.
 
 #### Scenario: Composición accidental
 
@@ -30,11 +35,11 @@ Para D-03, `WorkflowLegacyExecutorAdapter` SHALL ser la unica frontera nueva res
 
 ### Requirement: RQ-04 Habilitación moderna fail-closed
 
-Para D-04, `IWorkflowModernFeatureGate` SHALL evaluar una configuracion de servidor y un `ContextoModuloWorkflow` validado; la ausencia, invalidez o falta de autorizacion SHALL devolver estado `inactivo`.
+Para D-04, `IWorkflowModernFeatureGate` SHALL evaluar una configuración de servidor y un `ContextoModuloWorkflow` validado; la ausencia, invalidez o falta de autorización SHALL devolver estado `inactivo`.
 
 #### Scenario: Configuración ausente o perfil excluido
 
-- **WHEN** `WorkflowCentroTrabajoModernActive` no existe, es invalido, el contexto no coincide o existe una exclusion
+- **WHEN** `WorkflowCentroTrabajoModernActive` no existe, es inválido, el contexto no coincide o existe una exclusión
 - **THEN** `ConfiguracionWorkflowModernFeatureGate` devuelve `WORKFLOW_MODERN_INACTIVE` o `WORKFLOW_MODERN_EXCLUDED` sin habilitar por defecto.
 
 ### Requirement: RQ-05 Datos reutilizables y persistencia acotada
@@ -53,4 +58,4 @@ Para D-06, la entrega SHALL registrar los comandos automatizados ejecutados y SH
 #### Scenario: Cierre técnico
 
 - **WHEN** se solicita validar DOC-9
-- **THEN** la compilacion y la verificacion focal tienen evidencia verificable y la ausencia de QA manual bloquea el cierre sin declararla realizada.
+- **THEN** la compilación y la verificación focal tienen evidencia verificable y la ausencia de QA manual bloquea el cierre sin declararla realizada.

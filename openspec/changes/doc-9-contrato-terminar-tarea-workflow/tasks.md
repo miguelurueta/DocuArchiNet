@@ -1,36 +1,26 @@
-## 1. Refinement
+<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
+## 1. Refinamiento y arquitectura
 
-- [ ] 1.1 Consolidar alcance final desde Jira + contexto de codigo.
-- [ ] 1.2 Ajustar design/spec con decisiones y riesgos definitivos.
+- [x] 1.1 Consolidar alcance, exclusiones y frontera legacy de la fundacion. Origen: D-01, RQ-01
+- [x] 1.2 Definir contratos de capas, DTOs y limites sin dependencias WebForms. Origen: D-02, RQ-02
+- [x] 1.3 Definir la habilitacion fail-closed y la infraestructura reutilizable. Origen: D-04, RQ-04
+- [x] 1.4 Definir `Domain/Shared` e `Infrastructure/Shared/Data` reutilizables y los puertos exclusivos de Workflow. Origen: D-05, RQ-05
 
-## 2. Implementacion
+## 2. Implementación de la fundación
 
-- [ ] 2.1 Implementar cambios funcionales del ticket.
-- [ ] 2.2 Mantener compatibilidad y evitar regresiones.
+- [x] 2.1 Organizar modelos e interfaces de Domain por `Modelo/Workflow/Terminar/`, DTOs por `DTOs/Workflow/Terminar/` y servicios, proveedores y validadores de Application por `Services/Workflow/Terminar/`. Origen: D-02, RQ-02
+- [x] 2.2 Implementar `Infrastructure/Workflow/Terminar/WorkflowLegacyExecutorAdapter` inerte y sin llamadas al motor legacy. Origen: D-03, RQ-03
+- [x] 2.3 Implementar `Infrastructure/Workflow/Terminar/ConfiguracionWorkflowModernFeatureGate` con comportamiento fail-closed. Origen: D-04, RQ-04
+- [x] 2.4 Incorporar `ContextoModulo` y contratos e implementaciones iniciales en `Infrastructure/Shared/Data` sin repositorio generico ni acoplamiento Workflow. Origen: D-05, RQ-05
+- [x] 2.5 Registrar `Infrastructure/Repositories/Workflow/` como contrato futuro sin SQL de negocio. Origen: D-05, RQ-05
 
-## Politica Frontend AppResponses<T>
+## 3. Evidencia
 
-Cuando el ticket cree o modifique servicios, hooks, componentes o flujos que consuman APIs con `AppResponses<T>`:
+- [x] 3.1 Agregar `tools/validation/Verify-Doc9Foundation.ps1` para gate, adapter y limites de capas. Origen: D-06, RQ-06
+- [x] 3.2 Ejecutar compilacion MSBuild y la verificacion focal; registrar evidencia unit OPSXJ. Origen: D-06, RQ-06
+- [x] 3.3 Ejecutar QA manual del flujo WebForms vigente y registrar ambiente, pasos y resultado. Origen: D-01, RQ-06
 
-- [ ] Crear o reutilizar `src/shared/api/appResponseError.ts` antes de agregar nuevos parsers locales de `AppResponses<T>`.
-- [ ] Usar `getUserVisibleAppResponseMessage` para mensajes visibles de UI.
-- [ ] Priorizar `UserMessage/userMessage` antes de `Message/message/errorMessage`.
-- [ ] Usar `response.message` solo si el helper confirma que no contiene detalle tecnico.
-- [ ] No mostrar `requestId`, `code=`, SQL, rutas, stack trace, tokens ni mensajes internos en UI.
-- [ ] Agregar prueba donde `UserMessage` gane sobre un `response.message` tecnico con `code` y `requestId`.
-- [ ] Registrar diagnostico tecnico completo solo con `logAppResponseErrorDiagnostic` y solo bajo `window.__APP_RESPONSE_DEBUG__ = true`.
-- [ ] Exponer `errorsDebugOn()` / `errorsDebugOff()` como alias de consola para activar y apagar `window.__APP_RESPONSE_DEBUG__`.
-- [ ] No crear `console.error`, `console.warn` o `console.info` locales que impriman payloads completos de `AppResponses<T>` fuera del helper.
+## 4. Documentación y cierre
 
-Bloqueo estricto gradual: si `src/shared/api/appResponseError.ts` aun no existe, sembrar como primer paso obligatorio crearlo o reutilizarlo; despues de existir, los nuevos consumidores deben delegar la resolucion de errores al helper.
-
-
-## 3. Pruebas
-
-- [ ] 3.1 Agregar/ajustar pruebas unitarias e integracion.
-- [ ] 3.2 Ejecutar suite afectada y registrar evidencia.
-
-## 4. Cierre
-
-- [ ] 4.1 Validar OpenSpec.
-- [ ] 4.2 Documentar diff final y decisiones de arquitectura.
+- [x] 4.1 Documentar arquitectura, contratos, seguridad, flujo y evidencia en el paquete tecnico DOC-9. Origen: D-02, RQ-02
+- [x] 4.2 Validar OpenSpec estricto y mantener la trazabilidad decision → requisito → tarea. Origen: D-06, RQ-06
