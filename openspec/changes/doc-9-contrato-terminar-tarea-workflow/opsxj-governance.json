@@ -1,0 +1,112 @@
+{
+  "version": 2,
+  "issueKey": "DOC-9",
+  "changeName": "doc-9-contrato-terminar-tarea-workflow",
+  "impact": "cross_cutting",
+  "requiredEvidence": [
+    "unit",
+    "manual_qa"
+  ],
+  "documentation": [
+    "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/01-ResumenTecnico.md",
+    "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/02-ImpactoUI.md",
+    "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/03-ServiciosYReglas.md",
+    "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/04-ContratosIntegracion.md",
+    "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/05-PruebasEvidencia.md"
+  ],
+  "documentationContract": [
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/01-ResumenTecnico.md",
+      "requiredSections": [
+        "## Objetivo",
+        "## Alcance y compatibilidad"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-9",
+        "changeName": "doc-9-contrato-terminar-tarea-workflow",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/02-ImpactoUI.md",
+      "requiredSections": [
+        "## Superficies UI",
+        "## Validacion visual"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-9",
+        "changeName": "doc-9-contrato-terminar-tarea-workflow",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/03-ServiciosYReglas.md",
+      "requiredSections": [
+        "## Servicios y reglas"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-9",
+        "changeName": "doc-9-contrato-terminar-tarea-workflow",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/04-ContratosIntegracion.md",
+      "requiredSections": [
+        "## Contratos e integraciones"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-9",
+        "changeName": "doc-9-contrato-terminar-tarea-workflow",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-9-contrato-terminar-tarea-workflow/05-PruebasEvidencia.md",
+      "requiredSections": [
+        "## Evidencia requerida",
+        "## QA/E2E WebForms"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-9",
+        "changeName": "doc-9-contrato-terminar-tarea-workflow",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    }
+  ]
+}
