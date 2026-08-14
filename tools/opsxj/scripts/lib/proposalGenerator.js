@@ -7,6 +7,7 @@ import {
   normalizeArchitectureProfile,
   normalizeTechnologyProfile,
 } from "./opsxjProfileCatalog.js";
+import { writeInitialRefinementArtifact } from "./refinementService.js";
 
 const toBullet = (items) => items.map((item) => `- ${item}`).join("\n");
 const MAX_CHANGE_NAME_LENGTH = 96;
@@ -96,6 +97,9 @@ const buildAppResponsePolicySpec = () => [
   "- **THEN** el diagnostico completo puede registrarse solo con `logAppResponseErrorDiagnostic` y sin persistir ni transmitir payloads tecnicos.",
   "",
 ].join("\n");
+
+const shouldApplyAppResponsePolicy = (technologyProfile) =>
+  normalizeTechnologyProfile(technologyProfile) === "frontend-react-ts";
 
 const buildTechnologyProfileSection = (technologyProfile) => {
   if (!technologyProfile) return "";
@@ -279,19 +283,22 @@ const buildInitialDesignContent = ({ issueKey, summary, description, architectur
     "",
     "## Decisions",
     "",
-    "1. Aplicar politica central de AppResponses<T> para evitar parsers locales y filtrado de mensajes tecnicos en UI.",
-    "",
-    buildAppResponsePolicyDesign(),
+    ...(shouldApplyAppResponsePolicy(technologyProfile)
+      ? [
+          "1. Aplicar politica central de AppResponses<T> para evitar parsers locales y filtrado de mensajes tecnicos en UI.",
+          "",
+          buildAppResponsePolicyDesign(),
+        ]
+      : ["1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.", ""]),
     profilePolicy({ architectureProfile, technologyProfile, artifact: "design" }),
     "## Risks / Trade-offs",
     "",
-    "- Tickets existentes pueden tener parsers locales; la migracion debe ser gradual y enfocada en nuevos consumidores o cambios tocados por cada ticket.",
+    "- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.",
     "",
     "## Migration Plan",
     "",
-    "1. Sembrar reglas AppResponses<T> en nuevos artefactos `opsxj:new`.",
-    "2. Usar `src/shared/api/appResponseError.ts` cuando el ticket consuma APIs con envelope AppResponses<T>.",
-    "3. Evitar bloqueo estricto hasta que el helper exista en la rama objetivo.",
+    "1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.",
+    "2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.",
     "",
     "## Open Questions",
     "",
@@ -317,7 +324,7 @@ const buildInitialSpecContent = ({ issueKey, summary, description, architectureP
     "- **WHEN** se valida el modulo afectado",
     "- **THEN** no se rompen flujos existentes",
     "",
-    buildAppResponsePolicySpec(),
+    ...(shouldApplyAppResponsePolicy(technologyProfile) ? [buildAppResponsePolicySpec()] : []),
     profilePolicy({ architectureProfile, technologyProfile, artifact: "spec" }),
     cleanDescription
       ? ["### Requirement: Detalle funcional Jira", "El sistema SHALL considerar las reglas detalladas del ticket.", "", "#### Scenario: Reglas del ticket", ...cleanDescription.split("\n").map((line) => `- ${line}`), ""].join("\n")
@@ -338,7 +345,7 @@ const buildInitialTasksContent = ({ architectureProfile, technologyProfile } = {
   "- [ ] 2.1 Implementar cambios funcionales del ticket.",
   "- [ ] 2.2 Mantener compatibilidad y evitar regresiones.",
   "",
-  buildAppResponsePolicyTasks(),
+  ...(shouldApplyAppResponsePolicy(technologyProfile) ? [buildAppResponsePolicyTasks()] : []),
   profilePolicy({ architectureProfile, technologyProfile, artifact: "tasks" }),
   "## 3. Pruebas",
   "",
@@ -465,6 +472,13 @@ export const writeRefinementArtifacts = async ({
   const tasksPath = path.join(changeDir, "tasks.md");
   const specPath = path.join(specsDir, "spec.md");
   const jiraContextPath = path.join(specsDir, "jira-context.md");
+  const refinementPath = await writeInitialRefinementArtifact({
+    baseDir,
+    issueKey,
+    changeName: resolvedChangeName,
+    summary,
+    technologyProfile,
+  });
 
   await writeFile(
     designPath,
@@ -493,6 +507,7 @@ export const writeRefinementArtifacts = async ({
       spec: path.relative(baseDir, specPath).replace(/\\/g, "/"),
       tasks: path.relative(baseDir, tasksPath).replace(/\\/g, "/"),
     },
+    refinementPath: path.relative(baseDir, refinementPath).replace(/\\/g, "/"),
   });
 
   return {
@@ -500,6 +515,7 @@ export const writeRefinementArtifacts = async ({
     specPath,
     tasksPath,
     jiraContextPath,
+    refinementPath,
     capability,
     governanceArtifacts,
   };

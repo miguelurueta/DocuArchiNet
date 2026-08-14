@@ -12,6 +12,42 @@ const buildBufferWriter = () => {
 };
 
 describe("opsxjCommandRunner", () => {
+  it("runs opsxj:refine against an active change and forwards --sync", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const statusFn = vi.fn().mockResolvedValue({
+      changeName: "scrum-8-modernizar",
+      lifecycle: "active",
+    });
+    const refineFn = vi.fn().mockResolvedValue({
+      status: "PASS",
+      message: "Refinement aprobado y trazable con design, spec y tasks.",
+      refinementPath: "openspec/changes/scrum-8-modernizar/refinement.md",
+      synced: true,
+      checks: [{ name: "refinement:approved", status: "PASS" }],
+    });
+
+    const exitCode = await runOpsxjCommand({
+      argv: ["opsxj:refine", "SCRUM-8", "--sync"],
+      stdout,
+      stderr,
+      baseDir: "D:/repo",
+      statusFn,
+      refineFn,
+    });
+
+    expect(exitCode).toBe(0);
+    expect(refineFn).toHaveBeenCalledWith({
+      baseDir: "D:/repo",
+      changeName: "scrum-8-modernizar",
+      bootstrap: false,
+      sync: true,
+    });
+    expect(stdout.read()).toContain("OPSXJ Refinement: scrum-8-modernizar");
+    expect(stdout.read()).toContain("Traceability headers synchronized");
+    expect(stderr.read()).toBe("");
+  });
+
   it("runs opsxj:new and prints confirmation messages", async () => {
     const stdout = buildBufferWriter();
     const stderr = buildBufferWriter();

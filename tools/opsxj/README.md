@@ -12,6 +12,8 @@ npm.cmd --prefix tools/opsxj run jira:test
 npm.cmd --prefix tools/opsxj run opsxj:status -- add-legacy-dev-script
 npm.cmd --prefix tools/opsxj run opsxj:new -- SCRUM-123 --impact webforms_ui
 npm.cmd --prefix tools/opsxj run opsxj:orchestrate:new -- SCRUM-123 --impact webforms_ui --profile enterprise-legacy-modernization --tech-profile legacy-webforms-vb
+npm.cmd --prefix tools/opsxj run opsxj:refine -- SCRUM-123 --sync
+npm.cmd --prefix tools/opsxj run opsxj:orchestrate:refine -- SCRUM-123 --sync
 npm.cmd --prefix tools/opsxj run opsxj:validation:evidence -- SCRUM-123 --type manual_qa --reference "QA local: pasos y resultado"
 npm.cmd --prefix tools/opsxj run opsxj:validate -- SCRUM-123
 ```
@@ -34,11 +36,41 @@ El perfil tecnológico es independiente y evita que la revisión aplique reglas
 de un framework ajeno: `legacy-webforms-vb`, `tooling-node`,
 `frontend-react-ts` o `generic`.
 
+## Compuerta de refinement
+
+Todo cambio nuevo creado con `opsxj:new` incluye
+`openspec/changes/<change-name>/refinement.md` y un manifiesto de gobierno
+v3. El artefacto empieza en estado `draft`: no se considera aprobado por
+haber sido generado.
+
+Antes de iniciar o cerrar tareas, complete decisiones `D-XX`, requisitos
+`RQ-XX`, evidencia de codigo y compatibilidad; cambie el marcador a
+`state=approved` y ejecute:
+
+```powershell
+npm.cmd --prefix tools/opsxj run opsxj:refine -- SCRUM-123 --sync
+```
+
+`--sync` agrega o actualiza únicamente encabezados de trazabilidad en
+`design.md`, `spec.md` y `tasks.md`; nunca reescribe sus decisiones ni marca
+tareas como terminadas. La validacion bloquea si una decision no aparece en
+los tres artefactos, si una tarea no declara `Origen: D-XX, RQ-XX`, si quedan
+marcadores pendientes o si se inyectan reglas de frontend en un perfil que no
+sea `frontend-react-ts`.
+
+`opsxj:orchestrate:refine` es un alias equivalente para conservar la
+nomenclatura del flujo orquestado.
+
+Los cambios existentes con manifiesto v2 no se alteran. Para migrar uno de
+forma explícita y dejarlo en borrador controlado, use
+`opsxj:refine -- <ISSUE-KEY> --bootstrap`; el resultado bloqueará el cierre
+hasta que se complete el refinamiento real.
+
 `opsxj:validation:evidence` registra evidencia local por ticket y SHA. Use
 `opsxj:validate` antes de `opsxj:archive`; los cambios nuevos se bloquean si
-faltan tareas, revisión, documentos o evidencia exigida. Los cambios OpenSpec
-históricos sin manifiesto conservan compatibilidad y no reciben requisitos
-retroactivos.
+falta refinement aprobado y trazable, tareas, revisión, documentos o evidencia
+exigida. Los cambios OpenSpec históricos sin manifiesto conservan compatibilidad
+y no reciben requisitos retroactivos.
 
 `opsxj:technical-review` es el nombre neutral de la revisión técnica. El
 comando `opsxj:prompt-review` permanece como alias compatible.
