@@ -1,0 +1,67 @@
+{
+  "fechaUtc": "2026-08-14T22:38:40.316Z",
+  "endpoint": "http://localhost/GestionDocumental-Docuarchi.net/webservice/WebServiceWorkflowModern.asmx/PreviewEnviarTarea",
+  "idTarea": 922,
+  "rolAutenticado": "piloto",
+  "parametros": {
+    "concurrencias": [
+      20,
+      30
+    ],
+    "solicitudesPorSesion": 1,
+    "paralelismoLogin": 5,
+    "maximoPorcentajeFallos": 0,
+    "maximoP95Ms": null
+  },
+  "resultados": [
+    {
+      "concurrencia": 20,
+      "solicitudesPorSesion": 1,
+      "paralelismoLogin": 5,
+      "sesionesAutenticadas": 10,
+      "sesionesFallidas": 10,
+      "solicitudes": 10,
+      "exitosas": 10,
+      "fallidas": 0,
+      "porcentajeFallos": 0,
+      "latenciaMs": {
+        "p50": 93.17,
+        "p95": 99.03,
+        "p99": 99.03,
+        "minimo": 91.85,
+        "maximo": 99.03
+      },
+      "estadoSinMutacion": true,
+      "auditoriaSinMutacion": true,
+      "erroresSesion": {
+        "LOGIN_TIMEOUT": 10
+      },
+      "errores": {},
+      "aprobada": false
+    },
+    {
+      "concurrencia": 30,
+      "solicitudesPorSesion": 1,
+      "paralelismoLogin": 5,
+      "sesionesAutenticadas": 30,
+      "sesionesFallidas": 0,
+      "solicitudes": 30,
+      "exitosas": 30,
+      "fallidas": 0,
+      "porcentajeFallos": 0,
+      "latenciaMs": {
+        "p50": 51.2,
+        "p95": 68.71,
+        "p99": 68.92,
+        "minimo": 37.17,
+        "maximo": 68.92
+      },
+      "estadoSinMutacion": true,
+      "auditoriaSinMutacion": true,
+      "erroresSesion": {},
+      "errores": {},
+      "aprobada": true
+    }
+  ],
+  "aprobada": false
+}

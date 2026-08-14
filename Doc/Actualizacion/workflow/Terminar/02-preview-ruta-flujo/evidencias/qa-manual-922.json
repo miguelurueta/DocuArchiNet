@@ -1,0 +1,24 @@
+{
+  "fecha": "2026-08-14",
+  "ambiente": "http://localhost/GestionDocumental-Docuarchi.net/",
+  "modulo": "GESTOR",
+  "actor": "piloto autorizado",
+  "tarea": 922,
+  "solicitud": "POST WebServiceWorkflowModern.asmx/PreviewEnviarTarea con idTarea=922 desde una sesión Gestión autenticada",
+  "httpStatus": 200,
+  "tipoDecision": "RUTA",
+  "destinos": [
+    { "id": 18, "idActividadDestino": 125, "nombre": "CONTADOR", "grupo": "CONTADOR", "orden": 1 },
+    { "id": 7, "idActividadDestino": 130, "nombre": "SUPERVISOR", "grupo": "SUPERVISOR", "orden": 2 }
+  ],
+  "requisitos": [],
+  "requiereNotificacion": false,
+  "error": null,
+  "gateAlCierre": {
+    "activo": false,
+    "usuarios": "",
+    "grupos": ""
+  },
+  "sinMutacion": "La misma tarea fue comprobada antes/después mediante E2E automatizada de solo lectura; ver qa-preview-922.json.",
+  "origen": "QA manual en navegador; capturas entregadas por QA."
+}

@@ -8377,6 +8377,7 @@
     <Content Include="webservice\WebServiceDocuarchi.asmx" />
     <Content Include="webservice\WebServiceRadicacion.asmx" />
     <Content Include="webservice\WebServiceWorkflow.asmx" />
+    <Content Include="webservice\WebServiceWorkflowModern.asmx" />
     <Content Include="workflow\act.js" />
     <Content Include="workflow\imageneswf\1471559663_Error.png" />
     <Content Include="workflow\imageneswf\1471560355_free-33.png" />
@@ -9653,6 +9654,10 @@
     <Compile Include="webservice\WebServiceWorkflow.asmx.vb">
       <DependentUpon>WebServiceWorkflow.asmx</DependentUpon>
     </Compile>
+    <Compile Include="webservice\WebServiceWorkflowModern.asmx.vb">
+      <DependentUpon>WebServiceWorkflowModern.asmx</DependentUpon>
+    </Compile>
+    <Compile Include="webservice\WorkflowPreviewSessionContextGate.vb" />
     <Compile Include="webservice\WebService_Config_Digitalizacion.asmx.vb">
       <DependentUpon>WebService_Config_Digitalizacion.asmx</DependentUpon>
       <SubType>Component</SubType>
@@ -9705,6 +9710,8 @@
     <Compile Include="Infrastructure\Shared\Data\ModuleDataContracts.vb" />
     <Compile Include="Infrastructure\Shared\Data\ModuleConnectionFactory.vb" />
     <Compile Include="Infrastructure\Shared\Data\AdoNetDataInfrastructure.vb" />
+    <Compile Include="Infrastructure\Shared\Data\WorkflowModuleConnectionFactory.vb" />
+    <Compile Include="Infrastructure\Repositories\Workflow\MySqlWorkflowPreviewRepositories.vb" />
     <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyExecutorAdapter.vb" />
     <Compile Include="Infrastructure\Workflow\Terminar\ConfiguracionWorkflowModernFeatureGate.vb" />
     <Compile Include="workflow\ClassAlmacenamiento.vb" />

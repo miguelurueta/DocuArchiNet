@@ -1,0 +1,60 @@
+{
+  "fechaUtc": "2026-08-14T22:03:23.268Z",
+  "endpoint": "http://localhost/GestionDocumental-Docuarchi.net/webservice/WebServiceWorkflowModern.asmx/PreviewEnviarTarea",
+  "idTarea": 922,
+  "rolAutenticado": "piloto",
+  "parametros": {
+    "concurrencias": [
+      20,
+      30
+    ],
+    "solicitudesPorSesion": 1,
+    "maximoPorcentajeFallos": 0,
+    "maximoP95Ms": null
+  },
+  "resultados": [
+    {
+      "concurrencia": 20,
+      "solicitudesPorSesion": 1,
+      "sesionesAutenticadas": 20,
+      "sesionesFallidas": 0,
+      "solicitudes": 20,
+      "exitosas": 20,
+      "fallidas": 0,
+      "porcentajeFallos": 0,
+      "latenciaMs": {
+        "p50": 108.47,
+        "p95": 119.54,
+        "p99": 119.78,
+        "minimo": 100.6,
+        "maximo": 119.78
+      },
+      "estadoSinMutacion": true,
+      "auditoriaSinMutacion": true,
+      "errores": {},
+      "aprobada": true
+    },
+    {
+      "concurrencia": 30,
+      "solicitudesPorSesion": 1,
+      "sesionesAutenticadas": 27,
+      "sesionesFallidas": 3,
+      "solicitudes": 27,
+      "exitosas": 27,
+      "fallidas": 0,
+      "porcentajeFallos": 0,
+      "latenciaMs": {
+        "p50": 1730.23,
+        "p95": 1745.1,
+        "p99": 1745.25,
+        "minimo": 1711.25,
+        "maximo": 1745.25
+      },
+      "estadoSinMutacion": true,
+      "auditoriaSinMutacion": true,
+      "errores": {},
+      "aprobada": false
+    }
+  ],
+  "aprobada": false
+}

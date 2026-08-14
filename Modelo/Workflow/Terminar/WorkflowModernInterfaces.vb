@@ -6,11 +6,11 @@ Public Interface ITareaWorkflowRepository
 End Interface
 
 Public Interface ITransicionFlujoRepository
-    Function ObtenerDestinos(ByVal contexto As ContextoModuloWorkflow, ByVal tarea As TareaWorkflow) As IList(Of DestinoTransicion)
+    Function ObtenerDestinos(ByVal contexto As ContextoModuloWorkflow, ByVal tarea As TareaWorkflow) As ResultadoDestinosTransicion
 End Interface
 
 Public Interface ITransicionRutaRepository
-    Function ObtenerDestinos(ByVal contexto As ContextoModuloWorkflow, ByVal tarea As TareaWorkflow) As IList(Of DestinoTransicion)
+    Function ObtenerDestinos(ByVal contexto As ContextoModuloWorkflow, ByVal tarea As TareaWorkflow) As ResultadoDestinosTransicion
 End Interface
 
 Public Interface IConfiguracionConectorRepository

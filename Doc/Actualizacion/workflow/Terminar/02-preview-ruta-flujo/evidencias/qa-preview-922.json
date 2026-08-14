@@ -1,0 +1,22 @@
+{
+  "fechaUtc": "2026-08-14T21:49:57.639Z",
+  "endpoint": "http://localhost/GestionDocumental-Docuarchi.net/webservice/WebServiceWorkflowModern.asmx/PreviewEnviarTarea",
+  "idTarea": 922,
+  "autorizado": {
+    "destinos": 2,
+    "tipoDecision": "RUTA",
+    "bloqueo": null
+  },
+  "noAutorizado": {
+    "destinos": 0,
+    "bloqueo": "WORKFLOW_MODERN_INACTIVE"
+  },
+  "estadoSinMutacion": true,
+  "auditoriaSinMutacion": true,
+  "huellas": {
+    "estadoAntes": "0c709037f853e186e37805ece9a62a69d6b960d774eef8ddbc5cffec7616a527",
+    "estadoDespues": "0c709037f853e186e37805ece9a62a69d6b960d774eef8ddbc5cffec7616a527",
+    "auditoriaAntes": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "auditoriaDespues": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  }
+}
