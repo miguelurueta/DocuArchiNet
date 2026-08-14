@@ -7,6 +7,7 @@ import {
   normalizeTechnologyProfile,
 } from "./opsxjProfileCatalog.js";
 import { auditRefinement } from "./refinementService.js";
+import { readRunChecklist, resolveRunChecklistStage } from "./runChecklistService.js";
 
 export const LEGACY_IMPACT_CATALOG = Object.freeze({
   docs_only: {
@@ -318,7 +319,42 @@ export const validateLegacyGovernance = async ({ baseDir, changeName, env = proc
   }
   const pendingTasks = await countPendingTasks(path.join(baseDir, "openspec", "changes", changeName, "tasks.md"));
   checks.push({ name: "openspec_tasks", status: pendingTasks === 0 ? "PASS" : "FAIL", details: { pendingTasks } });
-  checks.push({ name: "openspec_review", status: env.OPSXJ_OPENSPEC_REVIEW_CONFIRMED ? "PASS" : "FAIL" });
+  if (env.OPSXJ_OPENSPEC_REVIEW_CONFIRMED) {
+    checks.push({
+      name: "openspec_review",
+      status: "PASS",
+      details: {
+        state: "CONFIRMED",
+        source: "environment",
+        actor: env.OPSXJ_OPENSPEC_REVIEWED_BY || undefined,
+      },
+    });
+  } else {
+    const runChecklist = await readRunChecklist({ baseDir, issueKey: manifest.issueKey });
+    const review = resolveRunChecklistStage({
+      readResult: runChecklist,
+      stage: "review",
+      currentSha,
+    });
+    const status = review.state === "COMPLETE" ? "PASS" : "FAIL";
+    const detail = review.state === "STALE"
+      ? "La revision OpenSpec persistida corresponde a otro SHA; confirme nuevamente la revision actual."
+      : review.state === "BLOCKED"
+        ? "La ultima revision OpenSpec para el SHA actual fue rechazada."
+        : "Falta una revision OpenSpec persistida para el SHA actual.";
+    checks.push({
+      name: "openspec_review",
+      status,
+      message: detail,
+      details: {
+        state: review.state,
+        recordedAtUtc: review.recordedAtUtc,
+        sha: review.sha,
+        reference: review.reference,
+        detail: review.detail,
+      },
+    });
+  }
 
   const evidencePath = path.join(baseDir, ".opsxj", "evidence", `${manifest.issueKey}.json`);
   const evidence = (await exists(evidencePath)) ? JSON.parse(await readFile(evidencePath, "utf8")) : null;

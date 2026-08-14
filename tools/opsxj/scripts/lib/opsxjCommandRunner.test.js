@@ -12,6 +12,58 @@ const buildBufferWriter = () => {
 };
 
 describe("opsxjCommandRunner", () => {
+  it("persists a compatible review confirmation before validation and records the result", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const runChecklistFn = vi.fn().mockResolvedValue(undefined);
+    const validateFn = vi.fn().mockResolvedValue({ status: "PASS", message: "Gobierno validado.", checks: [] });
+    const statusFn = vi.fn().mockResolvedValue({ issueKey: "SCRUM-7", changeName: "scrum-7-validar", lifecycle: "active" });
+
+    const exitCode = await runOpsxjCommand({
+      argv: ["opsxj:validate", "SCRUM-7"],
+      env: { OPSXJ_OPENSPEC_REVIEW_CONFIRMED: "1", OPSXJ_OPENSPEC_REVIEWED_BY: "Arquitectura" },
+      stdout,
+      stderr,
+      baseDir: "D:/repo",
+      statusFn,
+      validateFn,
+      runChecklistFn,
+      shaFn: vi.fn().mockResolvedValue("sha-7"),
+    });
+
+    expect(exitCode).toBe(0);
+    expect(validateFn).toHaveBeenCalledWith(expect.objectContaining({ changeName: "scrum-7-validar", currentSha: "sha-7" }));
+    expect(runChecklistFn).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      issueKey: "SCRUM-7", stage: "review", status: "pass", sha: "sha-7", actor: "Arquitectura",
+    }));
+    expect(runChecklistFn).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      issueKey: "SCRUM-7", stage: "validate", status: "pass", sha: "sha-7",
+    }));
+    expect(stderr.read()).toBe("");
+  });
+
+  it("records a failed refinement without changing its failure exit code", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const runChecklistFn = vi.fn().mockResolvedValue(undefined);
+    const exitCode = await runOpsxjCommand({
+      argv: ["opsxj:refine", "SCRUM-7"],
+      stdout,
+      stderr,
+      baseDir: "D:/repo",
+      statusFn: vi.fn().mockResolvedValue({ issueKey: "SCRUM-7", changeName: "scrum-7-refine", lifecycle: "active" }),
+      refineFn: vi.fn().mockResolvedValue({ status: "FAIL", message: "Falta trazabilidad.", checks: [] }),
+      runChecklistFn,
+      shaFn: vi.fn().mockResolvedValue("sha-7"),
+    });
+
+    expect(exitCode).toBe(1);
+    expect(runChecklistFn).toHaveBeenCalledWith(expect.objectContaining({
+      issueKey: "SCRUM-7", stage: "refine", status: "fail", sha: "sha-7", detail: "Falta trazabilidad.",
+    }));
+    expect(stderr.read()).toBe("");
+  });
+
   it("runs opsxj:refine against an active change and forwards --sync", async () => {
     const stdout = buildBufferWriter();
     const stderr = buildBufferWriter();
@@ -99,6 +151,8 @@ describe("opsxjCommandRunner", () => {
       setupProposalFn,
       assertGitCleanFn,
       transitionJiraIssueFn,
+      runChecklistFn: vi.fn().mockResolvedValue(undefined),
+      shaFn: vi.fn().mockResolvedValue("abc"),
     });
 
     expect(exitCode).toBe(0);
@@ -165,6 +219,8 @@ describe("opsxjCommandRunner", () => {
       setupProposalFn,
       assertGitCleanFn,
       transitionJiraIssueFn,
+      runChecklistFn: vi.fn().mockResolvedValue(undefined),
+      shaFn: vi.fn().mockResolvedValue("abc"),
     });
 
     expect(exitCode).toBe(0);
@@ -207,6 +263,8 @@ describe("opsxjCommandRunner", () => {
       createProposalFn,
       setupProposalFn,
       assertGitCleanFn,
+      runChecklistFn: vi.fn().mockResolvedValue(undefined),
+      shaFn: vi.fn().mockResolvedValue("abc"),
     });
 
     expect(exitCode).toBe(0);
@@ -286,6 +344,8 @@ describe("opsxjCommandRunner", () => {
       createProposalFn,
       setupProposalFn,
       assertGitCleanFn,
+      runChecklistFn: vi.fn().mockResolvedValue(undefined),
+      shaFn: vi.fn().mockResolvedValue("abc"),
     });
 
     expect(exitCode).toBe(1);
@@ -316,6 +376,8 @@ describe("opsxjCommandRunner", () => {
       createProposalFn,
       setupProposalFn,
       assertGitCleanFn,
+      runChecklistFn: vi.fn().mockResolvedValue(undefined),
+      shaFn: vi.fn().mockResolvedValue("abc"),
     });
 
     expect(exitCode).toBe(1);
@@ -743,6 +805,7 @@ describe("opsxjCommandRunner", () => {
       pullRequest: { html_url: "https://github.com/acme/repo/pull/10" },
     });
     const assertGitCleanAndSyncedFn = vi.fn().mockResolvedValue(undefined);
+    const runChecklistFn = vi.fn().mockResolvedValue(undefined);
 
     const exitCode = await runOpsxjCommand({
       argv: ["opsxj:archive", "SCRUM-10"],
@@ -758,10 +821,15 @@ describe("opsxjCommandRunner", () => {
       baseDir: "D:/repo",
       archiveFn,
       assertGitCleanAndSyncedFn,
+      runChecklistFn,
+      shaFn: vi.fn().mockResolvedValue("abc"),
     });
 
     expect(exitCode).toBe(0);
     expect(stdout.read()).toContain("PR creado");
+    expect(runChecklistFn).toHaveBeenCalledWith(expect.objectContaining({
+      issueKey: "SCRUM-10", stage: "archive", status: "pass", sha: "abc",
+    }));
     expect(stderr.read()).toBe("");
   });
 
@@ -772,6 +840,7 @@ describe("opsxjCommandRunner", () => {
       pullRequest: { html_url: "https://github.com/acme/repo/pull/24" },
       transition: { to: { name: "Finalizado" } },
     });
+    const runChecklistFn = vi.fn().mockResolvedValue(undefined);
 
     const exitCode = await runOpsxjCommand({
       argv: ["opsxj:close", "SCRUM-12"],
@@ -785,6 +854,8 @@ describe("opsxjCommandRunner", () => {
       stdout,
       stderr,
       closeFn,
+      runChecklistFn,
+      shaFn: vi.fn().mockResolvedValue("abc"),
     });
 
     expect(exitCode).toBe(0);
@@ -796,6 +867,86 @@ describe("opsxjCommandRunner", () => {
     );
     expect(stdout.read()).toContain("PR mergeado validado");
     expect(stdout.read()).toContain("Jira actualizado a: Finalizado");
+    expect(runChecklistFn).toHaveBeenCalledWith(expect.objectContaining({
+      issueKey: "SCRUM-12", stage: "close", status: "pass", sha: "abc",
+    }));
     expect(stderr.read()).toBe("");
+  });
+
+  it("records an archive failure without printing the archive success summary", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const archiveFn = vi.fn().mockRejectedValue(new Error("Fallo remoto despues de archivar parcialmente."));
+    const runChecklistFn = vi.fn().mockResolvedValue(undefined);
+
+    const exitCode = await runOpsxjCommand({
+      argv: ["opsxj:archive", "SCRUM-13"],
+      env: {},
+      stdout,
+      stderr,
+      baseDir: "D:/repo",
+      archiveFn,
+      assertGitCleanAndSyncedFn: vi.fn().mockResolvedValue(undefined),
+      runChecklistFn,
+      shaFn: vi.fn().mockResolvedValue("sha-13"),
+    });
+
+    expect(exitCode).toBe(1);
+    expect(runChecklistFn).toHaveBeenCalledWith(expect.objectContaining({
+      issueKey: "SCRUM-13", stage: "archive", status: "fail", detail: "Fallo remoto despues de archivar parcialmente.",
+    }));
+    expect(stdout.read()).not.toContain("Cambio archivado");
+    expect(stderr.read()).toContain("Fallo remoto despues de archivar parcialmente.");
+  });
+
+  it("fails archive before success output when the run record cannot be persisted", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const archiveFn = vi.fn().mockResolvedValue({
+      changeName: "scrum-14-demo",
+      pullRequestCreated: true,
+      pullRequest: { html_url: "https://github.com/acme/repo/pull/14" },
+    });
+
+    const exitCode = await runOpsxjCommand({
+      argv: ["opsxj:archive", "SCRUM-14"],
+      env: {},
+      stdout,
+      stderr,
+      baseDir: "D:/repo",
+      archiveFn,
+      assertGitCleanAndSyncedFn: vi.fn().mockResolvedValue(undefined),
+      runChecklistFn: vi.fn().mockRejectedValue(new Error("No se pudo escribir el registro.")),
+      shaFn: vi.fn().mockResolvedValue("sha-14"),
+    });
+
+    expect(exitCode).toBe(1);
+    expect(stdout.read()).not.toContain("Cambio archivado");
+    expect(stderr.read()).toContain("No se pudo escribir el registro.");
+  });
+
+  it("records a close failure and preserves the existing remote failure message", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const closeFn = vi.fn().mockRejectedValue(new Error("Jira no acepto el cierre despues del merge."));
+    const runChecklistFn = vi.fn().mockResolvedValue(undefined);
+
+    const exitCode = await runOpsxjCommand({
+      argv: ["opsxj:close", "SCRUM-15"],
+      env: {},
+      stdout,
+      stderr,
+      baseDir: "D:/repo",
+      closeFn,
+      runChecklistFn,
+      shaFn: vi.fn().mockResolvedValue("sha-15"),
+    });
+
+    expect(exitCode).toBe(1);
+    expect(runChecklistFn).toHaveBeenCalledWith(expect.objectContaining({
+      issueKey: "SCRUM-15", stage: "close", status: "fail", detail: "Jira no acepto el cierre despues del merge.",
+    }));
+    expect(stdout.read()).not.toContain("Jira actualizado a:");
+    expect(stderr.read()).toContain("Jira no acepto el cierre despues del merge.");
   });
 });

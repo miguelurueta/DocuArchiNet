@@ -22,6 +22,7 @@ import {
   validateLegacyGovernance,
   writeValidationEvidence,
 } from "./legacyGovernanceService.js";
+import { appendRunChecklistEvent, normalizeRunChecklistIssueKey } from "./runChecklistService.js";
 import {
   normalizeArchitectureProfile,
   normalizeTechnologyProfile,
@@ -135,6 +136,48 @@ const printGitSummary = ({ stdout, gitResult }) => {
   }
 };
 
+const normalizeChecklistIssueKey = (issueKey) => {
+  try {
+    return normalizeRunChecklistIssueKey(issueKey);
+  } catch {
+    return null;
+  }
+};
+
+const toChecklistDetail = (value) => {
+  const detail = String(value instanceof Error ? value.message : value ?? "").trim();
+  return detail
+    .replace(/\b(?:api[_-]?key|access[_-]?token|refresh[_-]?token|token|password|passwd|secret|authorization|bearer)\b\s*(?:=|:)\s*[^\s,;]+/gi, "[redacted]")
+    .slice(0, 2000);
+};
+
+const recordRunChecklistEvent = async ({
+  runChecklistFn,
+  baseDir,
+  issueKey,
+  stage,
+  status,
+  shaFn,
+  actor,
+  source,
+  reference,
+  detail,
+}) => {
+  const normalizedIssueKey = normalizeChecklistIssueKey(issueKey);
+  if (!normalizedIssueKey) return null;
+  return runChecklistFn({
+    baseDir,
+    issueKey: normalizedIssueKey,
+    stage,
+    status,
+    sha: await shaFn(baseDir),
+    actor,
+    source,
+    reference,
+    detail: toChecklistDetail(detail) || undefined,
+  });
+};
+
 const moveJiraToInProgress = async ({
   env,
   issue,
@@ -218,6 +261,8 @@ const runNew = async ({
   setupProposalFn,
   assertGitCleanFn,
   transitionJiraIssueFn,
+  runChecklistFn,
+  shaFn,
 }) => {
   const parsed = parseNewArgs(
     [issueKeyFromArg, ...args].filter((value) => value !== undefined && value !== null),
@@ -234,50 +279,74 @@ const runNew = async ({
     throw new Error(`Falta issueKey para opsxj:new.\n${usage}`);
   }
 
-  const verifyGit = assertGitCleanFn ?? assertGitClean;
-  await verifyGit({ baseDir, commandLabel: "opsxj:new" });
+  try {
+    const verifyGit = assertGitCleanFn ?? assertGitClean;
+    await verifyGit({ baseDir, commandLabel: "opsxj:new" });
 
-  const result = await createProposalFn({
-    issueKey,
-    baseUrl: env.JIRA_BASE_URL,
-    email: env.JIRA_EMAIL,
-    apiToken: env.JIRA_API_TOKEN,
-    baseDir,
-    commandName: "opsxj.js opsxj:new",
-    folderStrategy: "summary",
-    impact,
-    architectureProfile,
-    technologyProfile,
-  });
+    const result = await createProposalFn({
+      issueKey,
+      baseUrl: env.JIRA_BASE_URL,
+      email: env.JIRA_EMAIL,
+      apiToken: env.JIRA_API_TOKEN,
+      baseDir,
+      commandName: "opsxj.js opsxj:new",
+      folderStrategy: "summary",
+      impact,
+      architectureProfile,
+      technologyProfile,
+    });
 
-  buildNewContext({
-    env,
-    stdout,
-    issueKey,
-    issue: result.issue,
-    changeName: result.changeName,
-    proposalPath: result.proposalPath,
-    refinementArtifacts: result.refinementArtifacts,
-    baseDir,
-    architectureProfile,
-    technologyProfile,
-  });
+    buildNewContext({
+      env,
+      stdout,
+      issueKey,
+      issue: result.issue,
+      changeName: result.changeName,
+      proposalPath: result.proposalPath,
+      refinementArtifacts: result.refinementArtifacts,
+      baseDir,
+      architectureProfile,
+      technologyProfile,
+    });
 
-  const gitResult = await setupProposalFn({
-    baseDir,
-    issueKey,
-    proposalPath: result.proposalPath,
-    autoPush: parseBoolean(env.GIT_AUTO_PUSH, false),
-  });
-  printGitSummary({ stdout, gitResult });
-  await moveJiraToInProgress({
-    env,
-    issue: result.issue,
-    issueKey,
-    stdout,
-    transitionJiraIssueFn,
-  });
-  printCodexAgentHint({ stdout, command: "new" });
+    const gitResult = await setupProposalFn({
+      baseDir,
+      issueKey,
+      proposalPath: result.proposalPath,
+      autoPush: parseBoolean(env.GIT_AUTO_PUSH, false),
+    });
+    printGitSummary({ stdout, gitResult });
+    await moveJiraToInProgress({
+      env,
+      issue: result.issue,
+      issueKey,
+      stdout,
+      transitionJiraIssueFn,
+    });
+    await recordRunChecklistEvent({
+      runChecklistFn,
+      baseDir,
+      issueKey,
+      stage: "new",
+      status: "pass",
+      shaFn,
+      source: "opsxj:new",
+      reference: result.changeName,
+    });
+    printCodexAgentHint({ stdout, command: "new" });
+  } catch (error) {
+    await recordRunChecklistEvent({
+      runChecklistFn,
+      baseDir,
+      issueKey,
+      stage: "new",
+      status: "fail",
+      shaFn,
+      source: "opsxj:new",
+      detail: error,
+    });
+    throw error;
+  }
 };
 
 const runArchive = async ({
@@ -288,6 +357,8 @@ const runArchive = async ({
   baseDir,
   archiveFn,
   assertGitCleanAndSyncedFn,
+  runChecklistFn,
+  shaFn,
 }) => {
   const issueKey = issueKeyFromArg ?? args[0] ?? env.JIRA_ISSUE_KEY ?? "";
   if (!issueKey) {
@@ -306,49 +377,73 @@ const runArchive = async ({
 
   const alsoIssueKeys = parseAlsoKeys(args);
 
-  const branchName = buildFeatureBranchName(issueKey);
-  const verifyGit = assertGitCleanAndSyncedFn ?? assertGitCleanAndSynced;
-  await verifyGit({ baseDir, expectedBranchName: branchName });
-  const result = await archiveFn({
-    issueKey,
-    alsoIssueKeys,
-    baseDir,
-    branchName,
-    jira: {
-      baseUrl: env.JIRA_BASE_URL,
-      email: env.JIRA_EMAIL,
-      apiToken: env.JIRA_API_TOKEN,
-    },
-    github: {
-      token: env.GITHUB_TOKEN,
-      repo: env.GITHUB_REPO,
-      owner: env.GITHUB_OWNER,
-      repoName: env.GITHUB_REPO_NAME,
-      baseBranch: env.GITHUB_BASE_BRANCH || "main",
-    },
-    env,
-  });
+  try {
+    const branchName = buildFeatureBranchName(issueKey);
+    const verifyGit = assertGitCleanAndSyncedFn ?? assertGitCleanAndSynced;
+    await verifyGit({ baseDir, expectedBranchName: branchName });
+    const result = await archiveFn({
+      issueKey,
+      alsoIssueKeys,
+      baseDir,
+      branchName,
+      jira: {
+        baseUrl: env.JIRA_BASE_URL,
+        email: env.JIRA_EMAIL,
+        apiToken: env.JIRA_API_TOKEN,
+      },
+      github: {
+        token: env.GITHUB_TOKEN,
+        repo: env.GITHUB_REPO,
+        owner: env.GITHUB_OWNER,
+        repoName: env.GITHUB_REPO_NAME,
+        baseBranch: env.GITHUB_BASE_BRANCH || "main",
+      },
+      env,
+    });
+    const prUrl = result.pullRequest?.html_url ?? "(sin URL)";
+    await recordRunChecklistEvent({
+      runChecklistFn,
+      baseDir,
+      issueKey,
+      stage: "archive",
+      status: "pass",
+      shaFn,
+      source: "opsxj:archive",
+      reference: result.pullRequest?.html_url ?? result.changeName,
+    });
 
-  const prUrl = result.pullRequest?.html_url ?? "(sin URL)";
-  stdout.write(`[opsxj:archive] Ticket: ${String(issueKey).toUpperCase()}\n`);
-  stdout.write(`[opsxj:archive] Cambio archivado: ${result.changeName}\n`);
-  stdout.write(
-    `[opsxj:archive] PR ${result.pullRequestCreated ? "creado" : "reutilizado"}: ${prUrl}\n`,
-  );
-  stdout.write(
-    "[opsxj:archive] Jira comentado con enlace al PR. El cierre final se sincroniza cuando el PR se mergea/rechaza.\n",
-  );
-  if (result.archivedWithSkipSpecs) {
+    stdout.write(`[opsxj:archive] Ticket: ${String(issueKey).toUpperCase()}\n`);
+    stdout.write(`[opsxj:archive] Cambio archivado: ${result.changeName}\n`);
     stdout.write(
-      "[opsxj:archive] Aviso: archive ejecuto fallback con --skip-specs.\n",
+      `[opsxj:archive] PR ${result.pullRequestCreated ? "creado" : "reutilizado"}: ${prUrl}\n`,
     );
-  }
-  if (alsoIssueKeys.length > 0) {
     stdout.write(
-      `[opsxj:archive] Cambios adicionales movidos a archive: ${alsoIssueKeys.join(", ")}\n`,
+      "[opsxj:archive] Jira comentado con enlace al PR. El cierre final se sincroniza cuando el PR se mergea/rechaza.\n",
     );
+    if (result.archivedWithSkipSpecs) {
+      stdout.write(
+        "[opsxj:archive] Aviso: archive ejecuto fallback con --skip-specs.\n",
+      );
+    }
+    if (alsoIssueKeys.length > 0) {
+      stdout.write(
+        `[opsxj:archive] Cambios adicionales movidos a archive: ${alsoIssueKeys.join(", ")}\n`,
+      );
+    }
+    printCodexAgentHint({ stdout, command: "archive" });
+  } catch (error) {
+    await recordRunChecklistEvent({
+      runChecklistFn,
+      baseDir,
+      issueKey,
+      stage: "archive",
+      status: "fail",
+      shaFn,
+      source: "opsxj:archive",
+      detail: error,
+    });
+    throw error;
   }
-  printCodexAgentHint({ stdout, command: "archive" });
 };
 
 const printPromptReviewResult = ({ stdout, result }) => {
@@ -635,6 +730,14 @@ const printOpsxjStatusText = ({ stdout, result }) => {
   stdout.write(`Lifecycle: ${result.lifecycle}\n`);
   stdout.write(`Status: ${result.status}\n`);
   stdout.write(`Next action: ${result.nextAction}\n`);
+  if (Array.isArray(result.checklist)) {
+    stdout.write("\nChecklist:\n");
+    for (const item of result.checklist) {
+      stdout.write(`[${item.state}] ${item.id} - ${item.label}\n`);
+      if (item.detail) stdout.write(`  Detalle: ${item.detail}\n`);
+      if (item.nextAction) stdout.write(`  Siguiente accion: ${item.nextAction}\n`);
+    }
+  }
   stdout.write("\nObserved states:\n");
   for (const check of result.checks) {
     stdout.write(`[${getDisplayCheckState(check)}] ${check.name}\n`);
@@ -700,7 +803,7 @@ const resolveActiveChangeName = async ({
   if (!status.changeName || status.lifecycle !== "active") {
     throw new Error(`${commandName} requiere un cambio OpenSpec activo.`);
   }
-  return status.changeName;
+  return status;
 };
 
 const parseRefineArgs = (rawArgs) => {
@@ -726,21 +829,48 @@ const parseRefineArgs = (rawArgs) => {
   return { input: positional[0] ?? "", options };
 };
 
-const runRefine = async ({ args, issueKeyFromArg, baseDir, stdout, refineFn, statusFn }) => {
+const runRefine = async ({ args, issueKeyFromArg, baseDir, stdout, refineFn, statusFn, runChecklistFn, shaFn }) => {
   const parsed = parseRefineArgs([issueKeyFromArg, ...args].filter(Boolean));
   if (!parsed.input) throw new Error(`Falta SCRUM key o change-name para opsxj:refine.\n${usage}`);
-  const changeName = await resolveActiveChangeName({
+  const resolved = await resolveActiveChangeName({
     baseDir,
     input: parsed.input,
     commandName: "opsxj:refine",
     statusFn,
   });
-  const result = await refineFn({
-    baseDir,
-    changeName,
-    bootstrap: parsed.options.bootstrap,
-    sync: parsed.options.sync,
-  });
+  const changeName = resolved.changeName;
+  let result;
+  try {
+    result = await refineFn({
+      baseDir,
+      changeName,
+      bootstrap: parsed.options.bootstrap,
+      sync: parsed.options.sync,
+    });
+    await recordRunChecklistEvent({
+      runChecklistFn,
+      baseDir,
+      issueKey: resolved.issueKey,
+      stage: "refine",
+      status: result.status === "PASS" ? "pass" : "fail",
+      shaFn,
+      source: "opsxj:refine",
+      reference: result.refinementPath,
+      detail: result.status === "PASS" ? undefined : result.message,
+    });
+  } catch (error) {
+    await recordRunChecklistEvent({
+      runChecklistFn,
+      baseDir,
+      issueKey: resolved.issueKey,
+      stage: "refine",
+      status: "fail",
+      shaFn,
+      source: "opsxj:refine",
+      detail: error,
+    });
+    throw error;
+  }
   if (parsed.options.json) {
     stdout.write(`${JSON.stringify({ changeName, ...result }, null, 2)}\n`);
   } else {
@@ -753,22 +883,62 @@ const runRefine = async ({ args, issueKeyFromArg, baseDir, stdout, refineFn, sta
   return { exitCode: result.status === "PASS" ? 0 : 1 };
 };
 
-const runValidate = async ({ args, issueKeyFromArg, baseDir, env, stdout, validateFn, shaFn, statusFn }) => {
+const runValidate = async ({ args, issueKeyFromArg, baseDir, env, stdout, validateFn, shaFn, statusFn, runChecklistFn }) => {
   const parsed = parseKeyValueArgs([issueKeyFromArg, ...args].filter(Boolean));
   const input = parsed.positional[0];
   if (!input) throw new Error(`Falta SCRUM key o change-name para opsxj:validate.\n${usage}`);
-  const changeName = await resolveActiveChangeName({
+  const resolved = await resolveActiveChangeName({
     baseDir,
     input,
     commandName: "opsxj:validate",
     statusFn,
   });
-  const result = await validateFn({
-    baseDir,
-    changeName,
-    env,
-    currentSha: await shaFn(baseDir),
-  });
+  const changeName = resolved.changeName;
+  const currentSha = await shaFn(baseDir);
+  if (env.OPSXJ_OPENSPEC_REVIEW_CONFIRMED) {
+    await recordRunChecklistEvent({
+      runChecklistFn,
+      baseDir,
+      issueKey: resolved.issueKey,
+      stage: "review",
+      status: "pass",
+      shaFn: async () => currentSha,
+      actor: env.OPSXJ_OPENSPEC_REVIEWED_BY,
+      source: "opsxj:validate",
+      reference: "OPSXJ_OPENSPEC_REVIEW_CONFIRMED",
+    });
+  }
+  let result;
+  try {
+    result = await validateFn({
+      baseDir,
+      changeName,
+      env,
+      currentSha,
+    });
+    await recordRunChecklistEvent({
+      runChecklistFn,
+      baseDir,
+      issueKey: resolved.issueKey,
+      stage: "validate",
+      status: result.status === "PASS" ? "pass" : "fail",
+      shaFn: async () => currentSha,
+      source: "opsxj:validate",
+      detail: result.status === "PASS" ? undefined : result.message,
+    });
+  } catch (error) {
+    await recordRunChecklistEvent({
+      runChecklistFn,
+      baseDir,
+      issueKey: resolved.issueKey,
+      stage: "validate",
+      status: "fail",
+      shaFn: async () => currentSha,
+      source: "opsxj:validate",
+      detail: error,
+    });
+    throw error;
+  }
   if (Object.hasOwn(parsed.options, "json")) {
     stdout.write(`${JSON.stringify({ changeName, ...result }, null, 2)}\n`);
   } else {
@@ -800,38 +970,65 @@ const runClose = async ({
   stdout,
   issueKeyFromArg,
   closeFn,
+  baseDir,
+  runChecklistFn,
+  shaFn,
 }) => {
   const issueKey = issueKeyFromArg ?? args[0] ?? env.JIRA_ISSUE_KEY ?? "";
   if (!issueKey) {
     throw new Error(`Falta issueKey para opsxj:close.\n${usage}`);
   }
 
-  const branchName = buildFeatureBranchName(issueKey);
-  const result = await closeFn({
-    issueKey,
-    branchName,
-    jira: {
-      baseUrl: env.JIRA_BASE_URL,
-      email: env.JIRA_EMAIL,
-      apiToken: env.JIRA_API_TOKEN,
-    },
-    github: {
-      token: env.GITHUB_TOKEN,
-      repo: env.GITHUB_REPO,
-      owner: env.GITHUB_OWNER,
-      repoName: env.GITHUB_REPO_NAME,
-      baseBranch: env.GITHUB_BASE_BRANCH || "main",
-    },
-  });
+  try {
+    const branchName = buildFeatureBranchName(issueKey);
+    const result = await closeFn({
+      issueKey,
+      branchName,
+      jira: {
+        baseUrl: env.JIRA_BASE_URL,
+        email: env.JIRA_EMAIL,
+        apiToken: env.JIRA_API_TOKEN,
+      },
+      github: {
+        token: env.GITHUB_TOKEN,
+        repo: env.GITHUB_REPO,
+        owner: env.GITHUB_OWNER,
+        repoName: env.GITHUB_REPO_NAME,
+        baseBranch: env.GITHUB_BASE_BRANCH || "main",
+      },
+    });
+    await recordRunChecklistEvent({
+      runChecklistFn,
+      baseDir,
+      issueKey,
+      stage: "close",
+      status: "pass",
+      shaFn,
+      source: "opsxj:close",
+      reference: result.pullRequest?.html_url,
+    });
 
-  stdout.write(`[opsxj:close] Ticket: ${String(issueKey).toUpperCase()}\n`);
-  stdout.write(
-    `[opsxj:close] PR mergeado validado: ${result.pullRequest?.html_url ?? "(sin URL)"}\n`,
-  );
-  stdout.write(
-    `[opsxj:close] Jira actualizado a: ${result.transition?.to?.name ?? "Done"}\n`,
-  );
-  printCodexAgentHint({ stdout, command: "close" });
+    stdout.write(`[opsxj:close] Ticket: ${String(issueKey).toUpperCase()}\n`);
+    stdout.write(
+      `[opsxj:close] PR mergeado validado: ${result.pullRequest?.html_url ?? "(sin URL)"}\n`,
+    );
+    stdout.write(
+      `[opsxj:close] Jira actualizado a: ${result.transition?.to?.name ?? "Done"}\n`,
+    );
+    printCodexAgentHint({ stdout, command: "close" });
+  } catch (error) {
+    await recordRunChecklistEvent({
+      runChecklistFn,
+      baseDir,
+      issueKey,
+      stage: "close",
+      status: "fail",
+      shaFn,
+      source: "opsxj:close",
+      detail: error,
+    });
+    throw error;
+  }
 };
 
 const commandRegistry = new Map([
@@ -879,6 +1076,7 @@ export const runOpsxjCommand = async ({
   validateFn = validateLegacyGovernance,
   refineFn = auditRefinement,
   evidenceFn = writeValidationEvidence,
+  runChecklistFn = appendRunChecklistEvent,
   shaFn = currentGitSha,
   assertGitCleanFn,
   assertGitCleanAndSyncedFn,
@@ -911,6 +1109,7 @@ export const runOpsxjCommand = async ({
       validateFn,
       refineFn,
       evidenceFn,
+      runChecklistFn,
       shaFn,
       baseDir,
       assertGitCleanFn,

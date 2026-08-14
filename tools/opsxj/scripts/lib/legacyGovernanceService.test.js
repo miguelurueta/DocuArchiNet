@@ -9,6 +9,7 @@ import {
   writeLegacyGovernanceArtifacts,
   writeValidationEvidence,
 } from "./legacyGovernanceService.js";
+import { appendRunChecklistEvent } from "./runChecklistService.js";
 
 const completeDocumentation = async ({ baseDir, manifest }) => {
   for (const contract of manifest.documentationContract) {
@@ -97,6 +98,39 @@ describe("legacyGovernanceService", () => {
     try {
       const result = await validateLegacyGovernance({ baseDir, changeName: "historical", currentSha: "abc" });
       expect(result).toMatchObject({ applicable: false, status: "PASS" });
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it("accepts a persisted review only for the current SHA and reports it as stale after a change", async () => {
+    const baseDir = await mkdtemp(path.join(os.tmpdir(), "opsxj-durable-review-"));
+    const changeName = "scrum-94-durable-review";
+    try {
+      await mkdir(path.join(baseDir, "openspec", "changes", changeName), { recursive: true });
+      await writeFile(path.join(baseDir, "openspec", "changes", changeName, "tasks.md"), "- [x] terminado\n", "utf8");
+      const generated = await writeLegacyGovernanceArtifacts({ baseDir, issueKey: "SCRUM-94", changeName, summary: "Revision durable", impact: "backend_vb" });
+      await completeDocumentation({ baseDir, manifest: generated.manifest });
+      await writeValidationEvidence({ baseDir, issueKey: "SCRUM-94", type: "unit", status: "pass", reference: "npm test", sha: "abc" });
+      await appendRunChecklistEvent({
+        baseDir,
+        issueKey: "SCRUM-94",
+        stage: "review",
+        status: "pass",
+        sha: "abc",
+        source: "opsxj:validate",
+      });
+
+      const durable = await validateLegacyGovernance({ baseDir, changeName, env: {}, currentSha: "abc" });
+      expect(durable.status).toBe("PASS");
+      expect(durable.checks).toEqual(expect.arrayContaining([
+        expect.objectContaining({ name: "openspec_review", status: "PASS", details: expect.objectContaining({ state: "COMPLETE" }) }),
+      ]));
+
+      const stale = await validateLegacyGovernance({ baseDir, changeName, env: {}, currentSha: "def" });
+      expect(stale.checks).toEqual(expect.arrayContaining([
+        expect.objectContaining({ name: "openspec_review", status: "FAIL", details: expect.objectContaining({ state: "STALE" }) }),
+      ]));
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
