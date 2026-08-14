@@ -4,6 +4,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { getPullRequestStatusByBranch } from "./githubClient.js";
 import { fetchJiraIssue } from "./jiraClient.js";
+import { readRunChecklist, resolveRunChecklistStage } from "./runChecklistService.js";
 
 const execFile = promisify(execFileCb);
 
@@ -14,6 +15,16 @@ const REQUIRED_ARTIFACTS = [
 ];
 
 const ISSUE_KEY_PATTERN = /^[A-Za-z]+-\d+$/;
+const CHECKLIST_STAGE_ORDER = Object.freeze(["new", "refine", "review", "validate", "archive", "pull_request", "close"]);
+const CHECKLIST_LABELS = Object.freeze({
+  new: "Inicio",
+  refine: "Refinement",
+  review: "Revision OpenSpec",
+  validate: "Validacion",
+  archive: "Archivo",
+  pull_request: "PR fusionado",
+  close: "Cierre Jira",
+});
 
 const normalizeSlash = (value) => String(value).replace(/\\/g, "/");
 
@@ -211,6 +222,129 @@ const getGitWorkspaceCheck = async ({ baseDir }) => {
   }
 };
 
+const getCurrentGitSha = async ({ baseDir }) => {
+  try {
+    const result = await execFile("git", ["rev-parse", "HEAD"], { cwd: baseDir });
+    return String(result.stdout ?? "").trim() || null;
+  } catch {
+    return null;
+  }
+};
+
+const toChecklistItem = ({ id, state, recordedAtUtc = null, sha = null, reference = null, detail = null, nextAction = null }) => ({
+  id,
+  label: CHECKLIST_LABELS[id],
+  state,
+  recordedAtUtc,
+  sha,
+  reference,
+  detail,
+  nextAction,
+});
+
+const checklistNextAction = (id, state) => {
+  if (state === "COMPLETE" || state === "NOT_APPLICABLE") return null;
+  if (id === "new") return "Ejecutar opsxj:new para iniciar el cambio.";
+  if (id === "refine") return "Completar y verificar refinement con opsxj:refine.";
+  if (id === "review") return state === "STALE"
+    ? "Confirmar nuevamente la revision OpenSpec para el SHA actual."
+    : "Confirmar la revision OpenSpec para el SHA actual y ejecutar opsxj:validate.";
+  if (id === "validate") return "Ejecutar opsxj:validate para el SHA actual.";
+  if (id === "archive") return "Completar las compuertas y ejecutar opsxj:archive.";
+  if (id === "pull_request") return "Crear o mergear el pull request asociado.";
+  if (id === "close") return "Ejecutar opsxj:close despues del merge del PR.";
+  return null;
+};
+
+const getSafeRunChecklist = async ({ baseDir, issueKey }) => {
+  if (!issueKey) return { state: "absent", run: null };
+  try {
+    return await readRunChecklist({ baseDir, issueKey });
+  } catch (error) {
+    return { state: "invalid", run: null, error: error instanceof Error ? error.message : String(error) };
+  }
+};
+
+const getRecordedChecklistItem = ({ id, runChecklist, currentSha, lifecycle }) => {
+  const resolved = resolveRunChecklistStage({
+    readResult: runChecklist,
+    stage: id,
+    currentSha,
+  });
+  const state = resolved.state === "UNAVAILABLE" && runChecklist.state === "absent" && lifecycle === "active"
+    ? "PENDING"
+    : resolved.state;
+  return toChecklistItem({
+    id,
+    state,
+    recordedAtUtc: resolved.recordedAtUtc,
+    sha: resolved.sha,
+    reference: resolved.reference,
+    detail: resolved.detail,
+    nextAction: checklistNextAction(id, state),
+  });
+};
+
+const buildChecklist = ({ resolved, runChecklist, currentSha, env, checks }) => {
+  const newEvent = resolveRunChecklistStage({ readResult: runChecklist, stage: "new", shaSensitive: false });
+  const newItem = toChecklistItem({
+    id: "new",
+    state: resolved.lifecycle === "not_started" ? "PENDING" : "COMPLETE",
+    recordedAtUtc: newEvent.recordedAtUtc,
+    sha: newEvent.sha,
+    reference: newEvent.reference ?? resolved.changeName,
+    detail: resolved.lifecycle === "not_started" ? "No se encontro un cambio OpenSpec." : "Cambio OpenSpec localizado.",
+    nextAction: checklistNextAction("new", resolved.lifecycle === "not_started" ? "PENDING" : "COMPLETE"),
+  });
+  if (resolved.lifecycle === "not_started") {
+    return CHECKLIST_STAGE_ORDER.map((id) => id === "new"
+      ? newItem
+      : toChecklistItem({ id, state: "NOT_APPLICABLE", detail: "El ciclo aun no ha iniciado." }));
+  }
+
+  const refineItem = getRecordedChecklistItem({ id: "refine", runChecklist, currentSha, lifecycle: resolved.lifecycle });
+  const reviewItem = env.OPSXJ_OPENSPEC_REVIEW_CONFIRMED
+    ? toChecklistItem({
+      id: "review",
+      state: "COMPLETE",
+      sha: currentSha,
+      reference: "OPSXJ_OPENSPEC_REVIEW_CONFIRMED",
+      detail: "Confirmacion temporal observada; persistira al ejecutar opsxj:validate.",
+      nextAction: "Ejecutar opsxj:validate para persistir la revision.",
+    })
+    : getRecordedChecklistItem({ id: "review", runChecklist, currentSha, lifecycle: resolved.lifecycle });
+  const validateItem = getRecordedChecklistItem({ id: "validate", runChecklist, currentSha, lifecycle: resolved.lifecycle });
+  const archiveEvent = getRecordedChecklistItem({ id: "archive", runChecklist, currentSha, lifecycle: resolved.lifecycle });
+  const archiveItem = resolved.lifecycle === "archived"
+    ? toChecklistItem({
+      ...archiveEvent,
+      id: "archive",
+      state: "COMPLETE",
+      detail: "Cambio OpenSpec archivado.",
+      nextAction: null,
+    })
+    : archiveEvent;
+  const pullRequest = checks.find((check) => check.name === "pull_request");
+  const jira = checks.find((check) => check.name === "jira_status");
+  const pullRequestItem = resolved.lifecycle !== "archived"
+    ? toChecklistItem({ id: "pull_request", state: "NOT_APPLICABLE", detail: "Se habilita despues de archivar el cambio." })
+    : pullRequest?.details?.merged
+      ? toChecklistItem({ id: "pull_request", state: "COMPLETE", reference: pullRequest.details.url, detail: "Pull request fusionado." })
+      : pullRequest?.details?.state === "open"
+        ? toChecklistItem({ id: "pull_request", state: "PENDING", reference: pullRequest.details.url, detail: "Pull request abierto.", nextAction: checklistNextAction("pull_request", "PENDING") })
+        : pullRequest?.message?.startsWith("No pull request")
+          ? toChecklistItem({ id: "pull_request", state: "BLOCKED", detail: "No se encontro pull request para la rama esperada.", nextAction: checklistNextAction("pull_request", "BLOCKED") })
+          : toChecklistItem({ id: "pull_request", state: "UNAVAILABLE", detail: pullRequest?.message ?? "No fue posible consultar GitHub.", nextAction: checklistNextAction("pull_request", "UNAVAILABLE") });
+  const closeItem = resolved.lifecycle !== "archived" || pullRequestItem.state !== "COMPLETE"
+    ? toChecklistItem({ id: "close", state: "NOT_APPLICABLE", detail: "Requiere cambio archivado y PR fusionado." })
+    : jira?.details?.statusCategory === "done"
+      ? toChecklistItem({ id: "close", state: "COMPLETE", reference: jira.details.status, detail: "Jira finalizado." })
+      : jira?.details?.statusCategory
+        ? toChecklistItem({ id: "close", state: "PENDING", detail: "Jira aun no esta finalizado.", nextAction: checklistNextAction("close", "PENDING") })
+        : toChecklistItem({ id: "close", state: "UNAVAILABLE", detail: jira?.message ?? "No fue posible consultar Jira.", nextAction: checklistNextAction("close", "UNAVAILABLE") });
+  return [newItem, refineItem, reviewItem, validateItem, archiveItem, pullRequestItem, closeItem];
+};
+
 const getPullRequestCheck = async ({ issueKey, env, fetchImpl }) => {
   if (!issueKey) {
     return {
@@ -405,24 +539,34 @@ const withObservableCheckStates = (checks) =>
     };
   });
 
-const buildNotStartedStatus = async ({ baseDir, input, issueKey }) => ({
-  issueKey,
-  changeName: null,
-  lifecycle: "not_started",
-  archivePath: null,
-  status: "NOT_STARTED",
-  nextAction: "Ejecutar opsxj:new para iniciar el cambio.",
-  checks: withObservableCheckStates([
+const buildNotStartedStatus = async ({ baseDir, input, issueKey }) => {
+  const checks = withObservableCheckStates([
     {
       name: "openspec_change",
       status: "FAIL",
       message: `No active or archived OpenSpec change was found for ${input}.`,
     },
     await getGitWorkspaceCheck({ baseDir }),
-  ]),
-});
+  ]);
+  return {
+    issueKey,
+    changeName: null,
+    lifecycle: "not_started",
+    archivePath: null,
+    status: "NOT_STARTED",
+    nextAction: "Ejecutar opsxj:new para iniciar el cambio.",
+    checks,
+    checklist: buildChecklist({
+      resolved: { issueKey, changeName: null, lifecycle: "not_started" },
+      runChecklist: { state: "absent", run: null },
+      currentSha: null,
+      env: {},
+      checks,
+    }),
+  };
+};
 
-const buildStatusFromChange = async ({ baseDir, resolved, env, fetchImpl }) => {
+const buildStatusFromChange = async ({ baseDir, resolved, env, fetchImpl, currentSha }) => {
   const checks = [
     {
       name: "openspec_change",
@@ -488,7 +632,27 @@ const buildStatusFromChange = async ({ baseDir, resolved, env, fetchImpl }) => {
   }
   checks.push(await getGitWorkspaceCheck({ baseDir }));
 
-  const hasFailures = checks.some((check) => check.status === "FAIL");
+  const runChecklist = await getSafeRunChecklist({ baseDir, issueKey: resolved.issueKey });
+  const checklist = buildChecklist({
+    resolved,
+    runChecklist,
+    currentSha,
+    env,
+    checks,
+  });
+  const reviewItem = checklist.find((item) => item.id === "review");
+  const reviewCheck = checks.find((check) => check.name === "openspec_review");
+  if (reviewCheck && reviewItem) {
+    reviewCheck.status = reviewItem.state === "COMPLETE" ? "PASS" : "WARN";
+    reviewCheck.message = reviewItem.detail ?? reviewCheck.message;
+    reviewCheck.details = {
+      state: reviewItem.state,
+      recordedAtUtc: reviewItem.recordedAtUtc,
+      sha: reviewItem.sha,
+      reference: reviewItem.reference,
+    };
+  }
+
   const hasWarnings = checks.some(
     (check) => check.status === "WARN" && check.name !== "git_workspace",
   );
@@ -509,7 +673,7 @@ const buildStatusFromChange = async ({ baseDir, resolved, env, fetchImpl }) => {
   const pullRequestMerged = pullRequestCheck?.state === "MERGED";
   const jiraDone = jiraStatusCheck?.state === "DONE";
 
-  const nextAction =
+  const observedNextAction =
     status === "ARCHIVED"
       ? pullRequestCheck?.state === "UNKNOWN" || jiraStatusCheck?.state === "UNKNOWN"
         ? "Revisar estado remoto de PR/Jira y continuar con merge o close segun corresponda."
@@ -527,6 +691,8 @@ const buildStatusFromChange = async ({ baseDir, resolved, env, fetchImpl }) => {
           : status === "WARN"
             ? "Revisar advertencias no bloqueantes."
             : "Cambio listo para la siguiente fase del flujo o para archive.";
+  const blockingChecklistItem = checklist.find((item) => ["STALE", "BLOCKED"].includes(item.state));
+  const nextAction = blockingChecklistItem?.nextAction ?? observedNextAction;
 
   return {
     issueKey: resolved.issueKey,
@@ -536,6 +702,7 @@ const buildStatusFromChange = async ({ baseDir, resolved, env, fetchImpl }) => {
     status,
     nextAction,
     checks: observedChecks,
+    checklist,
   };
 };
 
@@ -544,6 +711,7 @@ export const getOpsxjStatus = async ({
   input,
   env = process.env,
   fetchImpl = fetch,
+  currentSha = null,
 }) => {
   const resolved = await resolveChange({ baseDir, input });
   if (resolved.lifecycle === "not_started") {
@@ -554,5 +722,11 @@ export const getOpsxjStatus = async ({
     });
   }
 
-  return buildStatusFromChange({ baseDir, resolved, env, fetchImpl });
+  return buildStatusFromChange({
+    baseDir,
+    resolved,
+    env,
+    fetchImpl,
+    currentSha: currentSha ?? (await getCurrentGitSha({ baseDir })),
+  });
 };

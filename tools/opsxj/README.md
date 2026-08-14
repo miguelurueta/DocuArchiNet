@@ -72,6 +72,38 @@ falta refinement aprobado y trazable, tareas, revisión, documentos o evidencia
 exigida. Los cambios OpenSpec históricos sin manifiesto conservan compatibilidad
 y no reciben requisitos retroactivos.
 
+## Checklist persistente de ejecución
+
+Cada ejecución relevante conserva una bitácora local en
+`.opsxj/runs/<ISSUE-KEY>.json`. El archivo es versionado, append-only e
+ignorado por Git: es una ayuda operativa local, no un artefacto que deba entrar
+en el PR ni una fuente de verdad remota.
+
+Cada evento contiene únicamente `stage`, `status`, `sha`, `recordedAtUtc` y,
+si aplica, `actor`, `source`, `reference` o `detail`. Las etapas permitidas
+son `new`, `refine`, `review`, `validate`, `archive` y `close`; los resultados
+son `pass` o `fail`. No incluya tokens, contraseñas, cabeceras de autorización
+ni contenido de `.env` en referencias o detalles: el servicio los rechaza.
+
+`review` y `validate` son sensibles al SHA. Una revisión aprobada para un SHA
+anterior aparece como `STALE` y no habilita el archivo. Para compatibilidad,
+`OPSXJ_OPENSPEC_REVIEW_CONFIRMED` y `OPSXJ_OPENSPEC_REVIEWED_BY` siguen siendo
+válidos en `opsxj:validate`; esa ejecución persiste primero la revisión y luego
+la validación. `opsxj:status` no escribe el archivo: muestra la variable como
+observación temporal y consulta Git, OpenSpec, GitHub y Jira en vivo.
+
+Use `opsxj:status <ISSUE-KEY> --json` para consumir el checklist ordenado
+`new`, `refine`, `review`, `validate`, `archive`, `pull_request` y `close`.
+La respuesta mantiene `checks`, `status` y `nextAction` existentes y agrega
+`checklist`, con estado, fecha, SHA, referencia y siguiente acción por etapa.
+
+Si el archivo local se elimina, se corrompe o pertenece a un ticket histórico,
+el estado continúa siendo consultable y muestra `UNAVAILABLE` solo donde no hay
+evidencia inferible. No copie un registro entre tickets ni lo edite durante una
+ejecución. Para recuperarlo, corrija o retire manualmente el archivo inválido y
+ejecute de nuevo la etapa correspondiente; las operaciones mutantes fallan
+antes de anunciar éxito si no pueden persistir su evento.
+
 `opsxj:technical-review` es el nombre neutral de la revisión técnica. El
 comando `opsxj:prompt-review` permanece como alias compatible.
 Puede recibir `--tech-profile <perfil>`; sin esa opción detecta señales

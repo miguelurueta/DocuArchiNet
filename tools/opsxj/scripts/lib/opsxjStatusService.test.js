@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { getOpsxjStatus } from "./opsxjStatusService.js";
+import { appendRunChecklistEvent } from "./runChecklistService.js";
 
 const createTempRepo = async () => {
   const tempDir = await mkdtemp(path.join(os.tmpdir(), "opsxj-status-"));
@@ -334,6 +335,114 @@ describe("opsxjStatusService", () => {
       await getOpsxjStatus({ baseDir, input: "SCRUMCORE-346", env: {} });
 
       await expect(readFile(tasksPath, "utf8")).resolves.toBe(before);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it("reports a persisted review as stale when the current SHA changes", async () => {
+    const baseDir = await createTempRepo();
+    try {
+      await writeChange({
+        baseDir,
+        changeName: "scrumcore-347-checklist",
+        files: completeFiles,
+      });
+      await appendRunChecklistEvent({
+        baseDir,
+        issueKey: "SCRUMCORE-347",
+        stage: "review",
+        status: "pass",
+        sha: "old-sha",
+        source: "opsxj:validate",
+      });
+
+      const result = await getOpsxjStatus({
+        baseDir,
+        input: "SCRUMCORE-347",
+        env: {},
+        currentSha: "new-sha",
+      });
+
+      expect(result.checklist).toEqual(expect.arrayContaining([
+        expect.objectContaining({ id: "review", state: "STALE", sha: "old-sha" }),
+      ]));
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it("shows completed applicable checklist stages for an archived merged and closed ticket", async () => {
+    const baseDir = await createTempRepo();
+    try {
+      await writeChange({
+        baseDir,
+        changeName: "scrumcore-348-checklist",
+        archivedName: "2026-07-30-scrumcore-348-checklist",
+        files: completeFiles,
+      });
+      for (const stage of ["new", "refine", "review", "validate", "archive"]) {
+        await appendRunChecklistEvent({
+          baseDir,
+          issueKey: "SCRUMCORE-348",
+          stage,
+          status: "pass",
+          sha: "sha-348",
+          source: "opsxj:test",
+        });
+      }
+      const fetchImpl = async (url) => {
+        const target = String(url);
+        if (target.includes("/pulls?state=open")) return Response.json([]);
+        if (target.includes("/pulls?state=closed")) {
+          return Response.json([{ state: "closed", merged_at: "2026-07-31T01:00:00Z", html_url: "https://github.com/acme/repo/pull/348" }]);
+        }
+        if (target.includes("/rest/api/3/issue/")) {
+          return Response.json({ fields: { summary: "CHECKLIST", status: { name: "Listo", statusCategory: { key: "done" } } } });
+        }
+        return Response.json([]);
+      };
+
+      const result = await getOpsxjStatus({
+        baseDir,
+        input: "SCRUMCORE-348",
+        currentSha: "sha-348",
+        env: {
+          GITHUB_TOKEN: "ghs_token",
+          GITHUB_REPO: "acme/repo",
+          JIRA_BASE_URL: "https://example.atlassian.net",
+          JIRA_EMAIL: "user@example.com",
+          JIRA_API_TOKEN: "token",
+        },
+        fetchImpl,
+      });
+
+      expect(result.checklist.map((item) => item.state)).toEqual([
+        "COMPLETE", "COMPLETE", "COMPLETE", "COMPLETE", "COMPLETE", "COMPLETE", "COMPLETE",
+      ]);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it("keeps historical archived changes queryable when no run record exists", async () => {
+    const baseDir = await createTempRepo();
+    try {
+      await writeChange({
+        baseDir,
+        changeName: "scrumcore-349-historical",
+        archivedName: "2026-07-30-scrumcore-349-historical",
+        files: completeFiles,
+      });
+
+      const result = await getOpsxjStatus({ baseDir, input: "SCRUMCORE-349", env: {}, currentSha: "sha-349" });
+
+      expect(result.status).toBe("ARCHIVED");
+      expect(result.checklist).toEqual(expect.arrayContaining([
+        expect.objectContaining({ id: "archive", state: "COMPLETE" }),
+        expect.objectContaining({ id: "review", state: "UNAVAILABLE" }),
+        expect.objectContaining({ id: "validate", state: "UNAVAILABLE" }),
+      ]));
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
