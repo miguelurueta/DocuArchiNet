@@ -1,0 +1,12 @@
+flowchart TD
+    P[Presentation futura: ASMX / JavaScript] --> A[Application: ServicioTransicionTarea]
+    A --> V[ValidadorTransicionTarea]
+    A --> DTO[DTOs Workflow / Terminar]
+    A --> D[Domain: modelos e interfaces Workflow]
+    A --> G[IWorkflowModernFeatureGate]
+    D --> R[Infrastructure / Repositories / Workflow futuro]
+    R --> S[Infrastructure / Shared / Data]
+    G --> C[ConfiguracionWorkflowModernFeatureGate]
+    A --> E[EjecutorTransicionTarea]
+    E --> L[WorkflowLegacyExecutorAdapter]
+    L -. DOC-9 bloquea .-> W[ClassWorkflow: Terminar_Tarea_Workflow / Cambia_Estado]

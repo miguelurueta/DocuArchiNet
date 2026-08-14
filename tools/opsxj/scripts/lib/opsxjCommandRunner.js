@@ -26,6 +26,7 @@ import {
   normalizeArchitectureProfile,
   normalizeTechnologyProfile,
 } from "./opsxjProfileCatalog.js";
+import { auditRefinement } from "./refinementService.js";
 
 const execFile = promisify(execFileCb);
 
@@ -33,6 +34,8 @@ const usage = [
   "Uso:",
   "  node tools/opsxj/scripts/opsxj.js opsxj:new <ISSUE-KEY> [--impact <impact>] [--profile <architecture-profile>] [--tech-profile <technology-profile>]",
   "  node tools/opsxj/scripts/opsxj.js opsxj:orchestrate:new <ISSUE-KEY> [--impact <impact>] [--profile <architecture-profile>] [--tech-profile <technology-profile>]",
+  "  node tools/opsxj/scripts/opsxj.js opsxj:refine <ISSUE-KEY|change-name> [--bootstrap] [--sync] [--json]",
+  "  node tools/opsxj/scripts/opsxj.js opsxj:orchestrate:refine <ISSUE-KEY|change-name> [--bootstrap] [--sync] [--json]",
   "  node tools/opsxj/scripts/opsxj.js opsxj:validate <ISSUE-KEY|change-name> [--json]",
   "  node tools/opsxj/scripts/opsxj.js opsxj:validation:evidence <ISSUE-KEY> --type <unit|manual_qa|e2e|build|documentation> --reference <detalle>",
   "  node tools/opsxj/scripts/opsxj.js opsxj:prompt-review <PROMPT.md|ISSUE-KEY>",
@@ -42,6 +45,8 @@ const usage = [
   "  node tools/opsxj/scripts/opsxj.js opsxj:close <ISSUE-KEY>",
   "  npm run opsxj:new -- <ISSUE-KEY> [--impact <impact>] [--profile <architecture-profile>] [--tech-profile <technology-profile>]",
   "  npm run opsxj:orchestrate:new -- <ISSUE-KEY> [--impact <impact>] [--profile <architecture-profile>] [--tech-profile <technology-profile>]",
+  "  npm run opsxj:refine -- <ISSUE-KEY|change-name> [--bootstrap] [--sync] [--json]",
+  "  npm run opsxj:orchestrate:refine -- <ISSUE-KEY|change-name> [--bootstrap] [--sync] [--json]",
   "  npm run opsxj:prompt-review -- <PROMPT.md|ISSUE-KEY>",
   "  npm run opsxj:status -- <ISSUE-KEY|change-name>",
   "  npm run opsxj:archive -- <ISSUE-KEY>",
@@ -90,6 +95,14 @@ const buildNewContext = ({
     stdout.write(`[opsxj:new] Design creado: ${designRelative}\n`);
     stdout.write(`[opsxj:new] Spec creado: ${specRelative}\n`);
     stdout.write(`[opsxj:new] Tasks creado: ${tasksRelative}\n`);
+    if (refinementArtifacts.refinementPath) {
+      stdout.write(
+        `[opsxj:new] Refinement obligatorio: ${path.relative(baseDir, refinementArtifacts.refinementPath)}\n`,
+      );
+      stdout.write(
+        `[opsxj:new] Siguiente paso: npm.cmd --prefix tools/opsxj run opsxj:refine -- ${issueKey}\n`,
+      );
+    }
     if (jiraContextRelative) {
       stdout.write(`[opsxj:new] Jira context creado: ${jiraContextRelative}\n`);
     }
@@ -677,19 +690,79 @@ const currentGitSha = async (baseDir) => {
   return String(result.stdout).trim();
 };
 
-const resolveActiveChangeName = async ({ baseDir, input }) => {
-  const status = await getOpsxjStatus({ baseDir, input, env: {} });
+const resolveActiveChangeName = async ({
+  baseDir,
+  input,
+  commandName = "opsxj:validate",
+  statusFn = getOpsxjStatus,
+}) => {
+  const status = await statusFn({ baseDir, input, env: {} });
   if (!status.changeName || status.lifecycle !== "active") {
-    throw new Error("opsxj:validate requiere un cambio OpenSpec activo.");
+    throw new Error(`${commandName} requiere un cambio OpenSpec activo.`);
   }
   return status.changeName;
 };
 
-const runValidate = async ({ args, issueKeyFromArg, baseDir, env, stdout, validateFn, shaFn }) => {
+const parseRefineArgs = (rawArgs) => {
+  const positional = [];
+  const options = { bootstrap: false, sync: false, json: false };
+  for (const rawArg of rawArgs) {
+    const arg = String(rawArg);
+    if (arg === "--sync") {
+      options.sync = true;
+      continue;
+    }
+    if (arg === "--bootstrap") {
+      options.bootstrap = true;
+      continue;
+    }
+    if (arg === "--json") {
+      options.json = true;
+      continue;
+    }
+    if (arg.startsWith("--")) throw new Error(`Opcion no soportada para opsxj:refine: ${arg}.`);
+    positional.push(arg);
+  }
+  return { input: positional[0] ?? "", options };
+};
+
+const runRefine = async ({ args, issueKeyFromArg, baseDir, stdout, refineFn, statusFn }) => {
+  const parsed = parseRefineArgs([issueKeyFromArg, ...args].filter(Boolean));
+  if (!parsed.input) throw new Error(`Falta SCRUM key o change-name para opsxj:refine.\n${usage}`);
+  const changeName = await resolveActiveChangeName({
+    baseDir,
+    input: parsed.input,
+    commandName: "opsxj:refine",
+    statusFn,
+  });
+  const result = await refineFn({
+    baseDir,
+    changeName,
+    bootstrap: parsed.options.bootstrap,
+    sync: parsed.options.sync,
+  });
+  if (parsed.options.json) {
+    stdout.write(`${JSON.stringify({ changeName, ...result }, null, 2)}\n`);
+  } else {
+    stdout.write(`OPSXJ Refinement: ${changeName}\nStatus: ${result.status}\n${result.message}\n`);
+    if (result.refinementPath) stdout.write(`Artifact: ${result.refinementPath}\n`);
+    if (result.bootstrapped) stdout.write("Legacy governance migrated to refinement v1 in draft state.\n");
+    if (result.synced) stdout.write("Traceability headers synchronized without replacing design/spec/tasks.\n");
+    for (const check of result.checks) stdout.write(`[${check.status}] ${check.name}\n`);
+  }
+  return { exitCode: result.status === "PASS" ? 0 : 1 };
+};
+
+const runValidate = async ({ args, issueKeyFromArg, baseDir, env, stdout, validateFn, shaFn, statusFn }) => {
   const parsed = parseKeyValueArgs([issueKeyFromArg, ...args].filter(Boolean));
   const input = parsed.positional[0];
   if (!input) throw new Error(`Falta SCRUM key o change-name para opsxj:validate.\n${usage}`);
-  const changeName = await resolveActiveChangeName({ baseDir, input });
+  const changeName = await resolveActiveChangeName({
+    baseDir,
+    input,
+    commandName: "opsxj:validate",
+    statusFn,
+  });
   const result = await validateFn({
     baseDir,
     changeName,
@@ -774,6 +847,10 @@ const commandRegistry = new Map([
   ["status", runStatus],
   ["opsxj:orchestrate:status", runStatus],
   ["orchestrate:status", runStatus],
+  ["opsxj:refine", runRefine],
+  ["refine", runRefine],
+  ["opsxj:orchestrate:refine", runRefine],
+  ["orchestrate:refine", runRefine],
   ["opsxj:validate", runValidate],
   ["validate", runValidate],
   ["opsxj:validation:evidence", runValidationEvidence],
@@ -800,6 +877,7 @@ export const runOpsxjCommand = async ({
   promptCorrectionFn = applyTechnicalReviewCorrection,
   statusFn = getOpsxjStatus,
   validateFn = validateLegacyGovernance,
+  refineFn = auditRefinement,
   evidenceFn = writeValidationEvidence,
   shaFn = currentGitSha,
   assertGitCleanFn,
@@ -831,6 +909,7 @@ export const runOpsxjCommand = async ({
       promptCorrectionFn,
       statusFn,
       validateFn,
+      refineFn,
       evidenceFn,
       shaFn,
       baseDir,

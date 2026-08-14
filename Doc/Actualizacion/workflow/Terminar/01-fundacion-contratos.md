@@ -47,17 +47,15 @@ Contexto legado:
 - Eventos dinámicos obligatorios: PRETERMINARACTIVIAD y TERMINARACTIVIDAD.
 
 Implementa únicamente la base paralela:
-1. Crear carpeta workflow/modern/ respetando namespace y convenciones VB existentes.
+1. Crear la estructura desde la raíz, respetando namespace y convenciones VB existentes.
 2. Crear esta estructura mínima:
-   - Domain/Models
-   - Domain/Interfaces
-   - Application/DTOs
-   - Application/Services
-   - Application/Validators
-- Infrastructure/Repositories
-- Infrastructure/Shared/Data
-- Infrastructure/Configuration
-- Infrastructure/LegacyAdapters
+   - `Modelo/Workflow/Terminar` para modelos e interfaces de Domain.
+   - `DTOs/Workflow/Terminar` para DTOs.
+   - `Services/Workflow/Terminar` para servicios, proveedores y validadores Application.
+   - `Domain/Shared` para contratos comunes de dominio.
+   - `Infrastructure/Repositories/Workflow` para implementaciones futuras de repositorios Workflow.
+   - `Infrastructure/Shared/Data` para datos transversales.
+   - `Infrastructure/Workflow/Terminar` para configuración y adaptador legacy propios del caso de uso.
 3. Crear DTOs serializables:
    - PrevisualizacionTransicionDto
    - DestinoTransicionDto
@@ -73,7 +71,7 @@ Implementa únicamente la base paralela:
 9. Crear los contratos de repositorio específicos: ITareaWorkflowRepository, ITransicionFlujoRepository, ITransicionRutaRepository, IConfiguracionConectorRepository e IAuditoriaTransicionRepository.
 10. Crear el contrato base de habilitación, sin crear endpoints ni modificar la interfaz: `IWorkflowModernFeatureGate`, `HabilitacionWorkflowModernDto` y `EvaluadorHabilitacionWorkflowModern`.
     - Debe evaluar servidor-side `WorkflowCentroTrabajoModernActive` por usuario, grupo o configuración y devolver `activo`, `inactivo` o `excluido` con código funcional no sensible.
-    - La implementación de configuración vive en `Infrastructure/Configuration`; recibe el `ContextoModuloWorkflow` validado y no consulta `Session` desde repositorios.
+     - La implementación de configuración vive en `Infrastructure/Workflow/Terminar`; recibe el `ContextoModuloWorkflow` validado y no consulta `Session` desde repositorios.
     - Debe aplicar fail-closed: si falta configuración, existe inconsistencia o no hay habilitación explícita, el resultado es `inactivo`.
     - Este contrato se reutiliza en Prompt 02 (preview), Prompt 03 (ejecución), Prompt 04 (bootstrap visual) y Prompt 06 (gobierno de piloto). Prompt 06 configura y opera el piloto; no crea una segunda bandera.
 11. No crear endpoints ni modificar la interfaz existente.

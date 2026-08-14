@@ -9696,6 +9696,17 @@
       <DependentUpon>WebFormproduc.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="DTOs\Workflow\Terminar\TransicionWorkflowDtos.vb" />
+    <Compile Include="Services\Workflow\Terminar\ServicioTransicionTarea.vb" />
+    <Compile Include="Services\Workflow\Terminar\ValidadorTransicionTarea.vb" />
+    <Compile Include="Modelo\Workflow\Terminar\WorkflowModernModels.vb" />
+    <Compile Include="Modelo\Workflow\Terminar\WorkflowModernInterfaces.vb" />
+    <Compile Include="Domain\Shared\ContextoModulo.vb" />
+    <Compile Include="Infrastructure\Shared\Data\ModuleDataContracts.vb" />
+    <Compile Include="Infrastructure\Shared\Data\ModuleConnectionFactory.vb" />
+    <Compile Include="Infrastructure\Shared\Data\AdoNetDataInfrastructure.vb" />
+    <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyExecutorAdapter.vb" />
+    <Compile Include="Infrastructure\Workflow\Terminar\ConfiguracionWorkflowModernFeatureGate.vb" />
     <Compile Include="workflow\ClassAlmacenamiento.vb" />
     <Compile Include="workflow\ClassAñadirDocumento.vb" />
     <Compile Include="workflow\ClassEdtiScript.vb" />

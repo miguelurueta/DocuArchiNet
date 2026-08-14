@@ -104,7 +104,7 @@ describe("proposalGenerator", () => {
     }
   });
 
-  it("writes initial design/spec/tasks artifacts from jira context", async () => {
+  it("writes initial design/spec/tasks and draft refinement from Jira context", async () => {
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "proposal-artifacts-"));
 
     try {
@@ -128,22 +128,26 @@ describe("proposalGenerator", () => {
       const spec = await readFile(result.specPath, "utf8");
       const tasks = await readFile(result.tasksPath, "utf8");
       const jiraContext = await readFile(result.jiraContextPath, "utf8");
+      const refinement = await readFile(result.refinementPath, "utf8");
 
       expect(design).toContain("## Context");
       expect(design).toContain("SCRUM-8: Auto complete asunto");
-      expect(design).toContain("No se deben duplicar parsers locales");
+      expect(design).not.toContain("No se deben duplicar parsers locales");
       expect(spec).toContain("## ADDED Requirements");
-      expect(spec).toContain("No filtrado de mensajes tecnicos");
+      expect(spec).not.toContain("No filtrado de mensajes tecnicos");
       expect(tasks).toContain("## 1. Refinement");
-      expect(tasks).toContain("Crear o reutilizar `src/shared/api/appResponseError.ts`");
-      expect(tasks).toContain("logAppResponseErrorDiagnostic");
-      expect(tasks).toContain("`window.__APP_RESPONSE_DEBUG__ = true`");
-      expect(tasks).toContain("`errorsDebugOn()` / `errorsDebugOff()`");
+      expect(tasks).not.toContain("Crear o reutilizar `src/shared/api/appResponseError.ts`");
       expect(jiraContext).toContain("# Jira Context - SCRUM-8");
       expect(jiraContext).toContain("> Detalle completo");
       expect(jiraContext).toContain("## Metadata");
       expect(jiraContext).toContain("Subtask SCRUM-9");
       expect(jiraContext).toContain("Comment 2001");
+      expect(refinement).toContain("state=draft");
+      expect(refinement).toContain("Origen: D-XX, RQ-XX");
+      expect(result.governanceArtifacts.manifest).toMatchObject({
+        version: 3,
+        refinement: { required: true },
+      });
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }
@@ -190,6 +194,10 @@ describe("proposalGenerator", () => {
         version: 1,
       });
       expect(artifacts.governanceArtifacts.manifest.documentationContract).toHaveLength(4);
+      expect(artifacts.governanceArtifacts.manifest).toMatchObject({
+        version: 3,
+        refinement: { required: true },
+      });
     } finally {
       await rm(tempDir, { recursive: true, force: true });
     }

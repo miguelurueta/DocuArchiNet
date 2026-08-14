@@ -8,7 +8,7 @@ Contexto:
 - Repositorio: `D:\imagenesda\GestorDocumental\Desarrollo\old\oldanterior\GestionDocumental-Docuarchi.net`.
 - Interfaz y code-behind legacy: `workflow/Webworkflow.aspx` y `workflow/Webworkflow.aspx.vb`.
 - Núcleo que se debe preservar: `ClassWorkflow.Terminar_Tarea_Workflow`, `ClassWorkflow.Cambia_Estado`, `PRETERMINARACTIVIAD` y `TERMINARACTIVIDAD`.
-- La fundación y los contratos paralelos ya definidos viven bajo `workflow/modern/`; este prompt conecta la ejecución mediante el límite tipado existente.
+- La fundación y los contratos paralelos ya definidos viven en `Modelo/Workflow/Terminar/`, `DTOs/Workflow/Terminar/`, `Services/Workflow/Terminar/` e `Infrastructure/`; este prompt conecta la ejecución mediante esos límites tipados.
 
 Objetivo:
 Implementar el endpoint paralelo de ejecución de transición para la versión moderna, reutilizando el núcleo legacy sin duplicarlo y sin alterar el flujo vigente hasta completar piloto y rollback.
@@ -42,7 +42,7 @@ Estructura obligatoria:
 - ServicioTransicionTarea usa interfaces Domain, validadores y EjecutorTransicionTarea.
 - Los repositorios de ruta, flujo y tarea viven en Infrastructure/Repositories.
 - Los repositorios usan `IModuleConnectionFactory` e infraestructura `Shared/Data`; no acceden directamente a Session ni exponen credenciales.
-- WorkflowLegacyExecutorAdapter, dentro de Infrastructure/LegacyAdapters, es el único punto que puede invocar Terminar_Tarea_Workflow y Cambia_Estado.
+- WorkflowLegacyExecutorAdapter, en `Infrastructure/Workflow/Terminar/`, es el único punto que puede invocar Terminar_Tarea_Workflow y Cambia_Estado.
 - No introducir una segunda transacción para el cambio de estado ni duplicar reglas del núcleo legado.
 
 Antes de llamar Terminar_Tarea_Workflow, el servidor debe revalidar:

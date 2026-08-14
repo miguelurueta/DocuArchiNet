@@ -75,6 +75,13 @@ describe("legacyGovernanceService", () => {
       const initial = await validateLegacyGovernance({ baseDir, changeName, env: { OPSXJ_OPENSPEC_REVIEW_CONFIRMED: "1" }, currentSha: "abc" });
       expect(initial.status).toBe("FAIL");
       await completeDocumentation({ baseDir, manifest: generated.manifest });
+      const firstDocument = generated.manifest.documentationContract[0].path;
+      const firstDocumentPath = path.join(baseDir, firstDocument);
+      await writeFile(
+        firstDocumentPath,
+        `${await readFile(firstDocumentPath, "utf8")}\n\n| Acción | Resultado |\n| --- | --- |\n| Auditoría | Registrar el resultado sin exponerlo al navegador. |\n`,
+        "utf8",
+      );
       await writeValidationEvidence({ baseDir, issueKey: "SCRUM-91", type: "unit", status: "pass", reference: "npm test", sha: "abc" });
       const valid = await validateLegacyGovernance({ baseDir, changeName, env: { OPSXJ_OPENSPEC_REVIEW_CONFIRMED: "1" }, currentSha: "abc" });
       expect(valid.status).toBe("PASS");

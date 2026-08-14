@@ -6,6 +6,7 @@ import {
   normalizeArchitectureProfile,
   normalizeTechnologyProfile,
 } from "./opsxjProfileCatalog.js";
+import { auditRefinement } from "./refinementService.js";
 
 export const LEGACY_IMPACT_CATALOG = Object.freeze({
   docs_only: {
@@ -58,7 +59,11 @@ const CLOSURE_RESTRICTIONS = Object.freeze([
   { name: "tbd", pattern: /\bTBD\b/i },
   { name: "template_comment", pattern: /<!--|-->/ },
   { name: "open_checklist", pattern: /^\s*-\s+\[\s\]/m },
-  { name: "template_instruction", pattern: /\b(?:describir|documentar|registrar|completar)\s+(?:el|la|los|las|aqui|aquí|pendiente|<)/i },
+  {
+    name: "template_instruction",
+    pattern:
+      /^(?!\s*\|)\s*(?:describir|documentar|registrar|completar)\s+(?:el|la|los|las|aqui|aquí|pendiente|<)/im,
+  },
 ]);
 
 const exists = async (targetPath) => access(targetPath).then(() => true).catch(() => false);
@@ -119,6 +124,7 @@ export const writeLegacyGovernanceArtifacts = async ({
   architectureProfile,
   technologyProfile,
   profileArtifactPaths,
+  refinementPath,
 }) => {
   const resolvedImpact = normalizeImpact(impact);
   const resolvedArchitectureProfile = normalizeArchitectureProfile(architectureProfile);
@@ -136,7 +142,7 @@ export const writeLegacyGovernanceArtifacts = async ({
   }
 
   const manifest = {
-    version: 2,
+    version: refinementPath ? 3 : 2,
     issueKey: normalizeIssueKey(issueKey),
     changeName,
     impact: resolvedImpact,
@@ -148,6 +154,19 @@ export const writeLegacyGovernanceArtifacts = async ({
       changeName,
       impact: resolvedImpact,
     }),
+    ...(refinementPath
+      ? {
+          refinement: {
+            version: 1,
+            required: true,
+            path: refinementPath,
+            state: "approved",
+            taskOriginFormat: "Origen: D-XX, RQ-XX",
+            enforcement:
+              "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico.",
+          },
+        }
+      : {}),
     ...(resolvedTechnologyProfile
       ? {
           technologyProfile: {
@@ -293,6 +312,10 @@ export const validateLegacyGovernance = async ({ baseDir, changeName, env = proc
     }
   }
   checks.push(...(await getArchitectureProfileChecks({ baseDir, manifest })));
+  if (manifest.refinement?.required) {
+    const refinement = await auditRefinement({ baseDir, changeName });
+    checks.push(...refinement.checks);
+  }
   const pendingTasks = await countPendingTasks(path.join(baseDir, "openspec", "changes", changeName, "tasks.md"));
   checks.push({ name: "openspec_tasks", status: pendingTasks === 0 ? "PASS" : "FAIL", details: { pendingTasks } });
   checks.push({ name: "openspec_review", status: env.OPSXJ_OPENSPEC_REVIEW_CONFIRMED ? "PASS" : "FAIL" });

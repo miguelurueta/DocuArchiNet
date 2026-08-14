@@ -6,6 +6,8 @@
   "scripts": {
     "opsxj:new": "node scripts/opsxj.js opsxj:new",
     "opsxj:orchestrate:new": "node scripts/opsxj.js opsxj:orchestrate:new",
+    "opsxj:refine": "node scripts/opsxj.js opsxj:refine",
+    "opsxj:orchestrate:refine": "node scripts/opsxj.js opsxj:orchestrate:refine",
     "opsxj:prompt-review": "node scripts/opsxj.js opsxj:prompt-review",
     "opsxj:technical-review": "node scripts/opsxj.js opsxj:technical-review",
     "opsxj:status": "node scripts/opsxj.js opsxj:status",
