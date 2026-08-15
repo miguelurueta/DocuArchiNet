@@ -28,24 +28,44 @@ Public Class ContextoModuloWorkflow
     End Property
 
     Public Overrides Function EsValido() As Boolean
-        Return MyBase.EsValido() AndAlso String.Equals(CodigoModulo, "WORKFLOW", StringComparison.OrdinalIgnoreCase)
+        Return MyBase.EsValido() AndAlso IdGrupoWorkflow > 0 AndAlso String.Equals(CodigoModulo, "WORKFLOW", StringComparison.OrdinalIgnoreCase)
     End Function
 End Class
 
 Public Class TareaWorkflow
+    Public Property IdEstado As Long
     Public Property IdTarea As Long
     Public Property Radicado As String
     Public Property IdActividadOrigen As Integer
+    Public Property IdActividadFlujoTrabajo As Integer
+    Public Property IdFlujoTrabajo As Integer
+    Public Property IdRuta As Integer
+    Public Property IdGrupoWorkflow As Integer
+    Public Property GrupoActual As String
     Public Property TipoDecision As String
+    Public Property RequiereNotificacion As Boolean
     Public Property TokenVersion As String
     Public Property EstaActiva As Boolean
+End Class
+
+Public Class ResultadoDestinosTransicion
+    Public Sub New()
+        Destinos = New List(Of DestinoTransicion)()
+    End Sub
+
+    Public Property Destinos As IList(Of DestinoTransicion)
+    Public Property CodigoBloqueo As String
+    Public Property MensajeFuncional As String
 End Class
 
 Public Class DestinoTransicion
     Public Property IdConector As Integer
     Public Property IdActividadDestino As Integer
     Public Property IdUsuarioWorkflowDestino As Integer
+    Public Property IdGrupoWorkflowDestino As Integer
     Public Property Nombre As String
+    Public Property NombreDestinatario As String
+    Public Property NombreGrupo As String
     Public Property TipoTransicion As String
     Public Property Orden As Integer
 End Class

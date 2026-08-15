@@ -26,6 +26,12 @@ Generated_Code/
 # Evidencia local asociada al SHA; se regenera en cada validación.
 /.opsxj/evidence/
 
+# Artefactos locales de Playwright: pueden incluir cookies de sesión o trazas.
+/tools/e2e/artifacts/
+/tools/e2e/node_modules/
+/tools/e2e/.env
+/tools/e2e/.env.*
+
 # Bitacora local append-only del flujo OPSXJ; no se versiona ni contiene secretos.
 /.opsxj/runs/
 

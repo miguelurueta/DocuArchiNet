@@ -1,0 +1,21 @@
+{
+  "name": "gestiondocumental-doc10-e2e",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Pruebas E2E del ASMX de previsualización DOC-10.",
+  "scripts": {
+    "install:browsers": "playwright install chromium",
+    "test:anonymous": "node scripts/assert-e2e-config.cjs anonymous && playwright test --grep @anonymous",
+    "test:session": "node scripts/assert-e2e-config.cjs session && playwright test --grep @session",
+    "test:authorization": "node scripts/assert-e2e-config.cjs authorization && playwright test --grep @authorization",
+    "test:e2e": "node scripts/assert-e2e-config.cjs full && playwright test --grep @full",
+    "test:load": "node scripts/assert-e2e-config.cjs load && node scripts/run-doc10-concurrency.cjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "mysql2": "^3.15.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

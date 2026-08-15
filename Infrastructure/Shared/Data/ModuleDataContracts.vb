@@ -1,3 +1,4 @@
+Imports System
 Imports System.Collections.Generic
 Imports System.Data
 
@@ -15,6 +16,11 @@ Public Interface IDataExecutor
                            ByVal transaction As IDbTransaction,
                            ByVal commandText As String,
                            ByVal parameters As IEnumerable(Of IDataParameter)) As Object
+    Function ExecuteReader(Of T)(ByVal connection As IDbConnection,
+                                 ByVal transaction As IDbTransaction,
+                                 ByVal commandText As String,
+                                 ByVal parameters As IEnumerable(Of IDataParameter),
+                                 ByVal projector As Func(Of IDataReader, T)) As T
 End Interface
 
 Public Interface ITransactionFactory

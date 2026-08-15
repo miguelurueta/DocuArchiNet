@@ -24,6 +24,20 @@ Public Class AdoNetDataExecutor
         End Using
     End Function
 
+    Public Function ExecuteReader(Of T)(ByVal connection As IDbConnection,
+                                        ByVal transaction As IDbTransaction,
+                                        ByVal commandText As String,
+                                        ByVal parameters As IEnumerable(Of IDataParameter),
+                                        ByVal projector As Func(Of IDataReader, T)) As T Implements IDataExecutor.ExecuteReader
+        If projector Is Nothing Then Throw New ArgumentNullException(NameOf(projector))
+
+        Using command As IDbCommand = CrearComando(connection, transaction, commandText, parameters)
+            Using reader As IDataReader = command.ExecuteReader()
+                Return projector(reader)
+            End Using
+        End Using
+    End Function
+
     Private Shared Function CrearComando(ByVal connection As IDbConnection,
                                          ByVal transaction As IDbTransaction,
                                          ByVal commandText As String,
