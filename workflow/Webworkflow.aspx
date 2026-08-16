@@ -26,7 +26,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/extensions/export/bootstrap-table-export.min.js" type="text/javascript"></script>
     <link href="../Styles/styleMenu.css" rel="stylesheet" type="text/css" /> 
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
-    <%-- Línea base visual aprobada antes de DOC-2: permanece activa para todos los usuarios. --%>
+    <!-- Línea base visual aprobada antes de DOC-2: permanece activa para todos los usuarios. -->
     <link href="../Styles/gridview-moderno.css?v=20260807-phase2-6" rel="stylesheet" />
     <link href="../Styles/workflow-tareas-modernas.css?v=20260811-grid44" rel="stylesheet" />
     <link href="../Styles/workflow-documentos-relacionados-modernos.css?v=20260812-docrel23" rel="stylesheet" />
@@ -694,7 +694,7 @@
                                   <asp:Panel ID="Panel_enviar_flujo" CssClass="navbar-nav " runat="server">
                                       <ul class="navbar-nav">
                                           <li class="nav-item active ml-2 ">
-                                              <a class="nav-link font-weight-light ctw-btn" style="color: #6d7fcc" title="Continuar la tarea por ruta o flujo de trabajo" href="#" onclick="actualiza_titulo_lista_actividades_workflow('Enviar tarea'); activa_boton_client_server('ImageButtonterminar');" tabindex="0"><i class="fad fa-arrow-alt-right"></i><span>Continuar flujo</span></a>
+                                              <a id="workflow-transition-trigger" class="nav-link font-weight-light ctw-btn" style="color: #6d7fcc" title="Continuar la tarea por ruta o flujo de trabajo" href="#" onclick="actualiza_titulo_lista_actividades_workflow('Enviar tarea'); activa_boton_client_server('ImageButtonterminar');" tabindex="0"><i class="fad fa-arrow-alt-right"></i><span>Continuar flujo</span></a>
                                           </li>
                                       </ul>
                                   </asp:Panel>
@@ -4645,7 +4645,27 @@
                 </div>
             </div>    
         <!--Trmina Popup seleccion -->
-          <!--mensaje_personalizado-->
+        <div id="workflow-transition-modern-modal" class="workflow-transition-modal" hidden="hidden" aria-hidden="true" data-workflow-transition-state="cerrado">
+            <div class="workflow-transition-modal__backdrop" data-workflow-transition-close="true"></div>
+            <section id="workflow-transition-modern-dialog" class="workflow-transition-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="workflow-transition-modern-title" tabindex="-1">
+                <header class="workflow-transition-modal__header">
+                    <h2 id="workflow-transition-modern-title" class="workflow-transition-modal__title">Seleccionar destino</h2>
+                    <button id="workflow-transition-modern-close" class="workflow-transition-modal__close" type="button" aria-label="Cerrar lista de destinos">&times;</button>
+                </header>
+                <div class="workflow-transition-modal__body">
+                    <div id="workflow-transition-modern-status" class="workflow-transition-modal__status" role="status" aria-live="polite"></div>
+                    <dl id="workflow-transition-modern-context" class="workflow-transition-modal__context" aria-label="Contexto de la tarea"></dl>
+                    <div id="workflow-transition-modern-table" class="workflow-transition-modal__desktop">
+                        <table class="workflow-transition-modal__table">
+                            <thead><tr><th scope="col">Destino</th><th scope="col">Destinatario o grupo</th><th scope="col">Tipo</th><th scope="col"><span class="sr-only">Acción</span></th></tr></thead>
+                            <tbody id="workflow-transition-modern-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div id="workflow-transition-modern-cards" class="workflow-transition-modal__mobile" aria-label="Destinos disponibles"></div>
+                </div>
+            </section>
+        </div>
+        <!--mensaje_personalizado-->
         <asp:Panel ID="Panel_mensaje_personalizado" runat="server" Style="display: none; color: black; width: auto; height: auto; z-index: 99999999999">
             <asp:ModalPopupExtender ID="ModalPopupExtender_mensaje_personalizado" runat="server"
                 TargetControlID="Button_mensaje_personalizado" BackgroundCssClass="FondoAplicacion"

@@ -9,12 +9,30 @@ const TASK_PATTERN = /^\s*-\s+\[[ xX]\]\s+(.+)$/gm;
 
 const exists = async (targetPath) => access(targetPath).then(() => true).catch(() => false);
 const toRepoPath = (value) => String(value).replace(/\\/g, "/");
+const getChangeRootPath = ({ baseDir, changeName, changePath }) =>
+  changePath ?? path.join(baseDir, "openspec", "changes", changeName);
+const resolveChangeArtifactRelativePath = ({ baseDir, changeName, changePath, relativePath }) => {
+  const normalized = toRepoPath(relativePath);
+  if (!changePath) return normalized;
 
-const getRefinementRelativePath = ({ changeName, manifest }) =>
-  manifest?.refinement?.path ?? path.posix.join("openspec", "changes", changeName, "refinement.md");
+  const activeRoot = path.posix.join("openspec", "changes", changeName);
+  const actualRoot = toRepoPath(path.relative(baseDir, getChangeRootPath({ baseDir, changeName, changePath })));
+  if (normalized === activeRoot) return actualRoot;
+  return normalized.startsWith(`${activeRoot}/`)
+    ? `${actualRoot}${normalized.slice(activeRoot.length)}`
+    : normalized;
+};
 
-const findSpecRelativePath = async ({ baseDir, changeName }) => {
-  const specsDir = path.join(baseDir, "openspec", "changes", changeName, "specs");
+const getRefinementRelativePath = ({ baseDir, changeName, changePath, manifest }) =>
+  resolveChangeArtifactRelativePath({
+    baseDir,
+    changeName,
+    changePath,
+    relativePath: manifest?.refinement?.path ?? path.posix.join("openspec", "changes", changeName, "refinement.md"),
+  });
+
+const findSpecRelativePath = async ({ baseDir, changeName, changePath }) => {
+  const specsDir = path.join(getChangeRootPath({ baseDir, changeName, changePath }), "specs");
   const visit = async (directory) => {
     const entries = await readdir(directory, { withFileTypes: true }).catch(() => []);
     for (const entry of entries) {
@@ -31,13 +49,25 @@ const findSpecRelativePath = async ({ baseDir, changeName }) => {
   return found ? toRepoPath(path.relative(baseDir, found)) : null;
 };
 
-const getArtifactRelativePaths = async ({ baseDir, changeName, manifest }) => {
+const getArtifactRelativePaths = async ({ baseDir, changeName, changePath, manifest }) => {
   const profilePaths = manifest?.architectureProfile?.artifactPaths ?? {};
-  const changeRoot = path.posix.join("openspec", "changes", changeName);
+  const changeRoot = toRepoPath(path.relative(baseDir, getChangeRootPath({ baseDir, changeName, changePath })));
   return {
-    design: profilePaths.design ?? path.posix.join(changeRoot, "design.md"),
-    spec: profilePaths.spec ?? (await findSpecRelativePath({ baseDir, changeName })),
-    tasks: profilePaths.tasks ?? path.posix.join(changeRoot, "tasks.md"),
+    design: resolveChangeArtifactRelativePath({
+      baseDir,
+      changeName,
+      changePath,
+      relativePath: profilePaths.design ?? path.posix.join(changeRoot, "design.md"),
+    }),
+    spec: profilePaths.spec
+      ? resolveChangeArtifactRelativePath({ baseDir, changeName, changePath, relativePath: profilePaths.spec })
+      : await findSpecRelativePath({ baseDir, changeName, changePath }),
+    tasks: resolveChangeArtifactRelativePath({
+      baseDir,
+      changeName,
+      changePath,
+      relativePath: profilePaths.tasks ?? path.posix.join(changeRoot, "tasks.md"),
+    }),
   };
 };
 
@@ -135,9 +165,9 @@ export const writeInitialRefinementArtifact = async ({
   return refinementPath;
 };
 
-const getRefinementChecks = async ({ baseDir, changeName, manifest }) => {
+const getRefinementChecks = async ({ baseDir, changeName, changePath, manifest }) => {
   const checks = [];
-  const refinementRelativePath = getRefinementRelativePath({ changeName, manifest });
+  const refinementRelativePath = getRefinementRelativePath({ baseDir, changeName, changePath, manifest });
   const refinementPath = path.join(baseDir, refinementRelativePath);
   const present = await exists(refinementPath);
   checks.push({ name: "refinement:exists", status: present ? "PASS" : "FAIL", details: { path: toRepoPath(refinementRelativePath) } });
@@ -158,7 +188,7 @@ const getRefinementChecks = async ({ baseDir, changeName, manifest }) => {
   });
   checks.push({ name: "refinement:requirements", status: requirementIds.length > 0 ? "PASS" : "FAIL", details: { requirementIds } });
 
-  const artifactPaths = await getArtifactRelativePaths({ baseDir, changeName, manifest });
+  const artifactPaths = await getArtifactRelativePaths({ baseDir, changeName, changePath, manifest });
   for (const [artifact, relativePath] of Object.entries(artifactPaths)) {
     if (!relativePath) {
       checks.push({ name: `refinement:${artifact}:path`, status: "FAIL" });
@@ -210,8 +240,9 @@ const getRefinementChecks = async ({ baseDir, changeName, manifest }) => {
   return { checks, decisionIds, artifactPaths, refinementPath, refinementRelativePath };
 };
 
-export const auditRefinement = async ({ baseDir, changeName, sync = false, bootstrap = false }) => {
-  const manifestPath = path.join(baseDir, "openspec", "changes", changeName, "opsxj-governance.json");
+export const auditRefinement = async ({ baseDir, changeName, changePath, sync = false, bootstrap = false }) => {
+  const changeRootPath = getChangeRootPath({ baseDir, changeName, changePath });
+  const manifestPath = path.join(changeRootPath, "opsxj-governance.json");
   let manifest = (await exists(manifestPath)) ? JSON.parse(await readFile(manifestPath, "utf8")) : null;
   let bootstrapped = false;
   if (manifest && !manifest.refinement?.required && bootstrap) {
@@ -249,7 +280,7 @@ export const auditRefinement = async ({ baseDir, changeName, sync = false, boots
     };
   }
 
-  const firstPass = await getRefinementChecks({ baseDir, changeName, manifest });
+  const firstPass = await getRefinementChecks({ baseDir, changeName, changePath, manifest });
   const refinementReadyForSync = [
     "refinement:approved",
     "refinement:no_placeholders",
@@ -267,7 +298,7 @@ export const auditRefinement = async ({ baseDir, changeName, sync = false, boots
   }
 
   const result = sync
-    ? await getRefinementChecks({ baseDir, changeName, manifest })
+    ? await getRefinementChecks({ baseDir, changeName, changePath, manifest })
     : firstPass;
   const failures = result.checks.filter((check) => check.status === "FAIL");
   return {

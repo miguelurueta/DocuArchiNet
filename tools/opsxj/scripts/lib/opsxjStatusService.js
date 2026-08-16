@@ -644,7 +644,9 @@ const buildStatusFromChange = async ({ baseDir, resolved, env, fetchImpl, curren
   const reviewCheck = checks.find((check) => check.name === "openspec_review");
   if (reviewCheck && reviewItem) {
     reviewCheck.status = reviewItem.state === "COMPLETE" ? "PASS" : "WARN";
-    reviewCheck.message = reviewItem.detail ?? reviewCheck.message;
+    reviewCheck.message = reviewItem.state === "COMPLETE"
+      ? "OpenSpec review is confirmed for the current SHA."
+      : reviewItem.detail ?? reviewCheck.message;
     reviewCheck.details = {
       state: reviewItem.state,
       recordedAtUtc: reviewItem.recordedAtUtc,

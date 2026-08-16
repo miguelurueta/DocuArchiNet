@@ -69,6 +69,20 @@ const CLOSURE_RESTRICTIONS = Object.freeze([
 
 const exists = async (targetPath) => access(targetPath).then(() => true).catch(() => false);
 const normalizeIssueKey = (value) => String(value ?? "").trim().toUpperCase();
+const getChangeRootPath = ({ baseDir, changeName, changePath }) =>
+  changePath ?? path.join(baseDir, "openspec", "changes", changeName);
+const toRepoPath = (value) => String(value).replace(/\\/g, "/");
+const resolveChangeArtifactRelativePath = ({ baseDir, changeName, changePath, relativePath }) => {
+  const normalized = toRepoPath(relativePath);
+  if (!changePath) return normalized;
+
+  const activeRoot = path.posix.join("openspec", "changes", changeName);
+  const actualRoot = toRepoPath(path.relative(baseDir, getChangeRootPath({ baseDir, changeName, changePath })));
+  if (normalized === activeRoot) return actualRoot;
+  return normalized.startsWith(`${activeRoot}/`)
+    ? `${actualRoot}${normalized.slice(activeRoot.length)}`
+    : normalized;
+};
 
 export const normalizeImpact = (value) => {
   const impact = String(value ?? "cross_cutting").trim().toLowerCase();
@@ -189,8 +203,8 @@ export const writeLegacyGovernanceArtifacts = async ({
   return { manifest, manifestPath, documentationPaths };
 };
 
-export const readLegacyGovernanceManifest = async ({ baseDir, changeName }) => {
-  const manifestPath = path.join(baseDir, "openspec", "changes", changeName, "opsxj-governance.json");
+export const readLegacyGovernanceManifest = async ({ baseDir, changeName, changePath }) => {
+  const manifestPath = path.join(getChangeRootPath({ baseDir, changeName, changePath }), "opsxj-governance.json");
   if (!(await exists(manifestPath))) return null;
   return { manifestPath, manifest: JSON.parse(await readFile(manifestPath, "utf8")) };
 };
@@ -246,7 +260,7 @@ const getDocumentationChecks = async ({ baseDir, contract }) => {
   return checks;
 };
 
-const getArchitectureProfileChecks = async ({ baseDir, manifest }) => {
+const getArchitectureProfileChecks = async ({ baseDir, changeName, changePath, manifest }) => {
   const profile = manifest.architectureProfile;
   if (!profile) return [];
 
@@ -271,7 +285,10 @@ const getArchitectureProfileChecks = async ({ baseDir, manifest }) => {
       checks.push({ name: `architecture_profile:${artifact}:path`, status: "FAIL" });
       continue;
     }
-    const absolutePath = path.join(baseDir, relativePath);
+    const absolutePath = path.join(
+      baseDir,
+      resolveChangeArtifactRelativePath({ baseDir, changeName, changePath, relativePath }),
+    );
     const present = await exists(absolutePath);
     checks.push({ name: `architecture_profile:${artifact}:exists`, status: present ? "PASS" : "FAIL" });
     if (!present) continue;
@@ -284,8 +301,11 @@ const getArchitectureProfileChecks = async ({ baseDir, manifest }) => {
   }
 
   const tasksPath = profile.artifactPaths?.tasks;
-  if (tasksPath && (await exists(path.join(baseDir, tasksPath)))) {
-    const tasksContent = await readFile(path.join(baseDir, tasksPath), "utf8");
+  const resolvedTasksPath = tasksPath
+    ? resolveChangeArtifactRelativePath({ baseDir, changeName, changePath, relativePath: tasksPath })
+    : null;
+  if (resolvedTasksPath && (await exists(path.join(baseDir, resolvedTasksPath)))) {
+    const tasksContent = await readFile(path.join(baseDir, resolvedTasksPath), "utf8");
     for (const marker of profile.requiredTaskMarkers ?? []) {
       checks.push({
         name: `architecture_profile:task:${marker}`,
@@ -296,8 +316,14 @@ const getArchitectureProfileChecks = async ({ baseDir, manifest }) => {
   return checks;
 };
 
-export const validateLegacyGovernance = async ({ baseDir, changeName, env = process.env, currentSha = null }) => {
-  const loaded = await readLegacyGovernanceManifest({ baseDir, changeName });
+export const validateLegacyGovernance = async ({
+  baseDir,
+  changeName,
+  changePath,
+  env = process.env,
+  currentSha = null,
+}) => {
+  const loaded = await readLegacyGovernanceManifest({ baseDir, changeName, changePath });
   if (!loaded) {
     return { applicable: false, status: "PASS", checks: [], message: "Cambio historico sin manifiesto de gobierno; compatibilidad preservada." };
   }
@@ -312,12 +338,12 @@ export const validateLegacyGovernance = async ({ baseDir, changeName, env = proc
       checks.push({ name: `document:${relativePath}`, status: (await exists(path.join(baseDir, relativePath))) ? "PASS" : "FAIL" });
     }
   }
-  checks.push(...(await getArchitectureProfileChecks({ baseDir, manifest })));
+  checks.push(...(await getArchitectureProfileChecks({ baseDir, changeName, changePath, manifest })));
   if (manifest.refinement?.required) {
-    const refinement = await auditRefinement({ baseDir, changeName });
+    const refinement = await auditRefinement({ baseDir, changeName, changePath });
     checks.push(...refinement.checks);
   }
-  const pendingTasks = await countPendingTasks(path.join(baseDir, "openspec", "changes", changeName, "tasks.md"));
+  const pendingTasks = await countPendingTasks(path.join(getChangeRootPath({ baseDir, changeName, changePath }), "tasks.md"));
   checks.push({ name: "openspec_tasks", status: pendingTasks === 0 ? "PASS" : "FAIL", details: { pendingTasks } });
   if (env.OPSXJ_OPENSPEC_REVIEW_CONFIRMED) {
     checks.push({

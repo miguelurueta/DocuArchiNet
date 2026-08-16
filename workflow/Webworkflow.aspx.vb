@@ -26,6 +26,7 @@ Public Class Webworkflow
     Dim ini As Long
     Dim Popupenlace As Object
     Dim bolindice As Boolean = False
+    Private _workflowTransitionModernActive As Nullable(Of Boolean)
 
     Public ReadOnly Property WorkflowCentroTrabajoModernActive As Boolean
         Get
@@ -265,6 +266,59 @@ Public Class Webworkflow
         End If
     End Sub
 
+    Private ReadOnly Property WorkflowTransitionModernActive As Boolean
+        Get
+            If Not _workflowTransitionModernActive.HasValue Then
+                _workflowTransitionModernActive = WorkflowModernPresentationBootstrap.EstaActivaParaSolicitudActual()
+            End If
+
+            Return _workflowTransitionModernActive.Value
+        End Get
+    End Property
+
+    Private Sub ConfigureWorkflowTransitionModernPresentation()
+        If Not WorkflowTransitionModernActive Then
+            Return
+        End If
+
+        RegisterWorkflowTransitionModernStyle()
+        RegisterWorkflowTransitionModernScript()
+        RegisterWorkflowTransitionModernBootstrap()
+    End Sub
+
+    Private Sub RegisterWorkflowTransitionModernStyle()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowTransitionModernStyle") IsNot Nothing Then
+            Return
+        End If
+
+        Dim style As New Global.System.Web.UI.HtmlControls.HtmlLink()
+        style.ID = "workflowTransitionModernStyle"
+        style.Href = "../Styles/workflow-transition-modern.css?v=20260816-doc12qa5"
+        style.Attributes("rel") = "stylesheet"
+        style.Attributes("type") = "text/css"
+        Page.Header.Controls.Add(style)
+    End Sub
+
+    Private Sub RegisterWorkflowTransitionModernScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowTransitionModernScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "workflowTransitionModernScript"
+        script.Attributes("src") = "../js/workflow/workflow-transition-ui.js?v=20260816-doc12qa4"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterWorkflowTransitionModernBootstrap()
+        Dim taskInputClientId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_sel.ClientID)
+        Dim currentTaskInputClientId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_selecionada.ClientID)
+        Dim startupScript As String = "(function(){var trigger=document.getElementById('workflow-transition-trigger');if(!trigger){return;}trigger.setAttribute('data-workflow-modern-active','true');trigger.setAttribute('data-workflow-current-task-input-id','" & currentTaskInputClientId & "');trigger.setAttribute('data-workflow-task-input-id','" & taskInputClientId & "');if(window.WorkflowTransitionUi&&typeof window.WorkflowTransitionUi.inicializar==='function'){window.WorkflowTransitionUi.inicializar();}}());"
+
+        ScriptManager.RegisterStartupScript(Me, Me.GetType(), "workflowTransitionModernBootstrap", startupScript, True)
+    End Sub
+
     Private Function MilisegundosDesdeInicioRequest() As Long
         Return CLng((DateTime.Now - HttpContext.Current.Timestamp).TotalMilliseconds)
     End Function
@@ -307,6 +361,7 @@ Public Class Webworkflow
     Protected Overrides Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
         System.Diagnostics.Debug.WriteLine("WF_LIFECYCLE|Webworkflow.Page_Load entrada|" & MilisegundosDesdeInicioRequest() & " ms desde inicio request")
         ConfigureWorkflowCentroTrabajoViewport()
+        ConfigureWorkflowTransitionModernPresentation()
         Dim cronometroTotal As Stopwatch = Stopwatch.StartNew()
         Try
             Dim cs As ClientScriptManager = Page.ClientScript
