@@ -1882,6 +1882,7 @@
     <Content Include="js\workflow\WebFormFreeImage_1.js" />
     <Content Include="js\workflow\WebFormListaDiagramaFlujo.js" />
     <Content Include="js\workflow\Webworkflow_2.js" />
+    <Content Include="js\workflow\workflow-transition-ui.js" />
     <Content Include="Login.aspx" />
     <Content Include="menu_scoope\assets\css\bootstrap.css" />
     <Content Include="menu_scoope\assets\css\bootstrap.min.css" />
@@ -8150,6 +8151,7 @@
     <Content Include="Scripts\PageMenu.js" />
     <Content Include="Styles\Aplicaction.css" />
     <Content Include="Styles\workflow-centro-trabajo-moderno.css" />
+    <Content Include="Styles\workflow-transition-modern.css" />
     <Content Include="Styles\Menu3.css" />
     <Content Include="Styles\menu_lib.css" />
     <Content Include="Styles\prettyPhoto.css" />
@@ -10028,6 +10030,7 @@
       <DependentUpon>Webworkflow.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="workflow\WorkflowModernPresentationBootstrap.vb" />
     <Compile Include="workflow\WebWorkflowCambiarPasword.aspx.designer.vb">
       <DependentUpon>WebWorkflowCambiarPasword.aspx</DependentUpon>
     </Compile>

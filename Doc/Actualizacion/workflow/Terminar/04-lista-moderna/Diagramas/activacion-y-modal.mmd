@@ -1,0 +1,12 @@
+flowchart TD
+    A[Solicitud Webworkflow] --> B{IWorkflowModernFeatureGate activo}
+    B -->|No| C[Continuar y modal legacy]
+    B -->|Sí| D[Bootstrap data-workflow-modern-active=true]
+    D --> E[JS y CSS de Presentation]
+    E --> F[PreviewEnviarTarea idTarea]
+    F --> G{Respuesta segura}
+    G -->|Destinos| H[Tabla o tarjetas]
+    G -->|Sin destinos| I[Estado sin destinos]
+    G -->|Error| J[Error controlado y reintento]
+    H --> K[Evento workflow:destination-selected]
+    K --> L[Confirmación posterior, fuera de DOC-12]

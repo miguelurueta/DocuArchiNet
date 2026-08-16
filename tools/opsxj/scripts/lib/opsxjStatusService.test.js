@@ -420,6 +420,13 @@ describe("opsxjStatusService", () => {
       expect(result.checklist.map((item) => item.state)).toEqual([
         "COMPLETE", "COMPLETE", "COMPLETE", "COMPLETE", "COMPLETE", "COMPLETE", "COMPLETE",
       ]);
+      expect(result.checks).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          name: "openspec_review",
+          status: "PASS",
+          message: "OpenSpec review is confirmed for the current SHA.",
+        }),
+      ]));
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }

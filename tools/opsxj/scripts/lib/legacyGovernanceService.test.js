@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -98,6 +98,43 @@ describe("legacyGovernanceService", () => {
     try {
       const result = await validateLegacyGovernance({ baseDir, changeName: "historical", currentSha: "abc" });
       expect(result).toMatchObject({ applicable: false, status: "PASS" });
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it("validates a governed archived change without moving it back to active", async () => {
+    const baseDir = await mkdtemp(path.join(os.tmpdir(), "opsxj-archived-validation-"));
+    const changeName = "scrum-95-archived";
+    const activeChangePath = path.join(baseDir, "openspec", "changes", changeName);
+    const archivedChangePath = path.join(baseDir, "openspec", "changes", "archive", "2026-08-16-scrum-95-archived");
+    try {
+      await mkdir(activeChangePath, { recursive: true });
+      await writeFile(path.join(activeChangePath, "tasks.md"), "- [x] terminado\n", "utf8");
+      const generated = await writeLegacyGovernanceArtifacts({
+        baseDir,
+        issueKey: "SCRUM-95",
+        changeName,
+        summary: "Validacion archivada",
+        impact: "backend_vb",
+      });
+      await completeDocumentation({ baseDir, manifest: generated.manifest });
+      await writeValidationEvidence({ baseDir, issueKey: "SCRUM-95", type: "unit", status: "pass", reference: "npm test", sha: "abc" });
+      await mkdir(path.dirname(archivedChangePath), { recursive: true });
+      await rename(activeChangePath, archivedChangePath);
+
+      const result = await validateLegacyGovernance({
+        baseDir,
+        changeName,
+        changePath: archivedChangePath,
+        env: { OPSXJ_OPENSPEC_REVIEW_CONFIRMED: "1" },
+        currentSha: "abc",
+      });
+
+      expect(result).toMatchObject({ applicable: true, status: "PASS" });
+      expect(result.checks).toEqual(expect.arrayContaining([
+        expect.objectContaining({ name: "openspec_tasks", status: "PASS" }),
+      ]));
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }

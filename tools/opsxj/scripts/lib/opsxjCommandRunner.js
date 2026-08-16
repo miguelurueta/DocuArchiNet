@@ -806,6 +806,19 @@ const resolveActiveChangeName = async ({
   return status;
 };
 
+const resolveValidatableChangeName = async ({
+  baseDir,
+  input,
+  commandName = "opsxj:validate",
+  statusFn = getOpsxjStatus,
+}) => {
+  const status = await statusFn({ baseDir, input, env: {} });
+  if (!status.changeName || !["active", "archived"].includes(status.lifecycle)) {
+    throw new Error(`${commandName} requiere un cambio OpenSpec activo o archivado.`);
+  }
+  return status;
+};
+
 const parseRefineArgs = (rawArgs) => {
   const positional = [];
   const options = { bootstrap: false, sync: false, json: false };
@@ -887,7 +900,7 @@ const runValidate = async ({ args, issueKeyFromArg, baseDir, env, stdout, valida
   const parsed = parseKeyValueArgs([issueKeyFromArg, ...args].filter(Boolean));
   const input = parsed.positional[0];
   if (!input) throw new Error(`Falta SCRUM key o change-name para opsxj:validate.\n${usage}`);
-  const resolved = await resolveActiveChangeName({
+  const resolved = await resolveValidatableChangeName({
     baseDir,
     input,
     commandName: "opsxj:validate",
@@ -913,6 +926,7 @@ const runValidate = async ({ args, issueKeyFromArg, baseDir, env, stdout, valida
     result = await validateFn({
       baseDir,
       changeName,
+      changePath: resolved.lifecycle === "archived" ? resolved.archivePath : undefined,
       env,
       currentSha,
     });

@@ -42,6 +42,37 @@ describe("opsxjCommandRunner", () => {
     expect(stderr.read()).toBe("");
   });
 
+  it("validates an archived change against its archived OpenSpec directory", async () => {
+    const stdout = buildBufferWriter();
+    const stderr = buildBufferWriter();
+    const archivePath = "D:/repo/openspec/changes/archive/2026-08-16-scrum-7-validar";
+    const validateFn = vi.fn().mockResolvedValue({ status: "PASS", message: "Gobierno validado.", checks: [] });
+
+    const exitCode = await runOpsxjCommand({
+      argv: ["opsxj:validate", "SCRUM-7"],
+      stdout,
+      stderr,
+      baseDir: "D:/repo",
+      statusFn: vi.fn().mockResolvedValue({
+        issueKey: "SCRUM-7",
+        changeName: "scrum-7-validar",
+        lifecycle: "archived",
+        archivePath,
+      }),
+      validateFn,
+      runChecklistFn: vi.fn().mockResolvedValue(undefined),
+      shaFn: vi.fn().mockResolvedValue("sha-7"),
+    });
+
+    expect(exitCode).toBe(0);
+    expect(validateFn).toHaveBeenCalledWith(expect.objectContaining({
+      changeName: "scrum-7-validar",
+      changePath: archivePath,
+      currentSha: "sha-7",
+    }));
+    expect(stderr.read()).toBe("");
+  });
+
   it("records a failed refinement without changing its failure exit code", async () => {
     const stdout = buildBufferWriter();
     const stderr = buildBufferWriter();
