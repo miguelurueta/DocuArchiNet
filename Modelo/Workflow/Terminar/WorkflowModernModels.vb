@@ -27,8 +27,12 @@ Public Class ContextoModuloWorkflow
         End Set
     End Property
 
+    Public Property IdRutaWorkflow As Integer
+    Public Property IdUsuarioGestion As Integer
+
     Public Overrides Function EsValido() As Boolean
-        Return MyBase.EsValido() AndAlso IdGrupoWorkflow > 0 AndAlso String.Equals(CodigoModulo, "WORKFLOW", StringComparison.OrdinalIgnoreCase)
+        Return MyBase.EsValido() AndAlso IdGrupoWorkflow > 0 AndAlso IdRutaWorkflow > 0 AndAlso
+               String.Equals(CodigoModulo, "WORKFLOW", StringComparison.OrdinalIgnoreCase)
     End Function
 End Class
 
@@ -83,13 +87,65 @@ Public Class SolicitudTransicionWorkflow
     Public Property TokenVersion As String
 End Class
 
+Public Class DestinoEjecucionWorkflow
+    Public Property IdConector As Integer
+    Public Property TipoTransicion As String
+    Public Property IdActividadDestino As Integer
+    Public Property IdUsuarioWorkflowDestino As Integer
+    Public Property IdGrupoWorkflowDestino As Integer
+    Public Property IdFlujoTrabajo As Integer
+    Public Property IdActividadFlujoTrabajoDestino As Integer
+    Public Property IdUsuarioWorkflowFlujoTrabajoDestino As Integer
+    Public Property IdUsuarioWorkflowFuente As Integer
+    Public Property IdActividadFlujoTrabajoFuente As Integer
+    Public Property RequiereNotificacion As Boolean
+    Public Property NombreActividadDestino As String
+    Public Property NombreDestinatario As String
+    Public Property NombreGrupoDestino As String
+End Class
+
+Public Class ResultadoResolucionDestinoTransicion
+    Public Property Destino As DestinoEjecucionWorkflow
+    Public Property CodigoBloqueo As String
+    Public Property MensajeFuncional As String
+
+    Public ReadOnly Property EsValido As Boolean
+        Get
+            Return Destino IsNot Nothing AndAlso String.IsNullOrWhiteSpace(CodigoBloqueo)
+        End Get
+    End Property
+End Class
+
+Public Class ResultadoRequisitosTransicion
+    Public Sub New()
+        Requisitos = New List(Of RequisitoTransicion)()
+    End Sub
+
+    Public Property Cumple As Boolean
+    Public Property CodigoBloqueo As String
+    Public Property MensajeFuncional As String
+    Public Property Requisitos As IList(Of RequisitoTransicion)
+End Class
+
+Public Class ResultadoGuardTransicion
+    Public Property Adquirido As Boolean
+    Public Property CodigoBloqueo As String
+    Public Property MensajeFuncional As String
+    Public Property Lease As ITransicionConcurrencyLease
+End Class
+
 Public Class ResultadoEjecucionWorkflow
+    Public Sub New()
+        Advertencias = New List(Of String)()
+    End Sub
+
     Public Property Exito As Boolean
     Public Property EstadoFinal As String
     Public Property CodigoBloqueo As String
     Public Property MensajeFuncional As String
     Public Property ReferenciaAuditoria As String
     Public Property EsReintentable As Boolean
+    Public Property Advertencias As IList(Of String)
 End Class
 
 Public Class HabilitacionWorkflowModern

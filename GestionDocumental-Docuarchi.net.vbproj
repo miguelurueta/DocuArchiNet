@@ -9712,7 +9712,11 @@
     <Compile Include="Infrastructure\Shared\Data\AdoNetDataInfrastructure.vb" />
     <Compile Include="Infrastructure\Shared\Data\WorkflowModuleConnectionFactory.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlWorkflowPreviewRepositories.vb" />
+    <Compile Include="Infrastructure\Repositories\Workflow\MySqlTransicionEjecucionRepository.vb" />
     <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyExecutorAdapter.vb" />
+    <Compile Include="Infrastructure\Workflow\Terminar\MySqlTransicionConcurrencyGuard.vb" />
+    <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyRequisitosAdapter.vb" />
+    <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyAuditoriaAdapter.vb" />
     <Compile Include="Infrastructure\Workflow\Terminar\ConfiguracionWorkflowModernFeatureGate.vb" />
     <Compile Include="workflow\ClassAlmacenamiento.vb" />
     <Compile Include="workflow\ClassAñadirDocumento.vb" />

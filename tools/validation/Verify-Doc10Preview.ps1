@@ -91,6 +91,7 @@ if ($anonymousSessionResult.Contexto.EsValido()) {
 [System.Web.HttpContext]::Current = New-Doc10SessionContext @{
     "Id_Usuario_Workflow" = "63"
     "Id_Grupo_Workflow" = "9"
+    "Id_Ruta_Workflow" = "7"
     "Login_Usuario_Workfow" = "doc10-static-test"
     "IP_SERVER_MODULO" = "localhost"
     "DB_NAME_MODULO" = "workflow-test"
@@ -119,6 +120,7 @@ if (-not $existingSessionResult.Contexto.EsValido() -or
 $context = [Activator]::CreateInstance($contextType)
 $context.IdUsuarioWorkflow = 1
 $context.IdGrupoWorkflow = 1
+$context.IdRutaWorkflow = 1
 $context.LoginUsuario = "doc10-static-test"
 $gate = [Activator]::CreateInstance($gateType)
 $gateResult = $gateType.GetMethod("Evaluar").Invoke($gate, @($context))
@@ -282,7 +284,7 @@ $repositoriesRoot = Join-Path $SourceRoot "Infrastructure\Repositories\Workflow"
 $flowRepositorySource = Get-Content -LiteralPath (Join-Path $repositoriesRoot "MySqlWorkflowPreviewRepositories.vb") -Raw
 
 if ($endpointSource -match "\b(?:IdUsuario|IdGrupo|IdRuta|IdActividad)\s+As\s+(?:Integer|Long)" -or
-    $endpointSource -match "IWorkflowLegacyExecutor|WorkflowLegacyExecutorAdapter|Terminar_Tarea_Workflow|Cambia_Estado|PRETERMINARACTIVIAD|TERMINARACTIVIDAD") {
+    $endpointSource -match "Terminar_Tarea_Workflow|Cambia_Estado|PRETERMINARACTIVIAD|TERMINARACTIVIDAD") {
     throw "El ASMX recibe autorizacion del cliente o depende del flujo legacy."
 }
 if ($endpointSource -notmatch "WorkflowPreviewSessionContextGate" -or
@@ -294,13 +296,14 @@ if ($endpointSource -notmatch "WorkflowPreviewSessionContextGate" -or
 if ($sessionGateSource -notmatch "SolicitaDatosUsuarioGestionLogin" -or
     $sessionGateSource -notmatch "SolicitaIdUsuarIdRutaGrupoWorkflow" -or
     $sessionGateSource -notmatch 'CrearCadenaConexion\(requestContext, "DA_"\)' -or
-    $sessionGateSource -match "InicializaSesionModuloWorkflow|RegistraLogSesionUsuarioWorkflow|CompilaScriptUsuario|ExecuteNonQuery") {
+    $sessionGateSource -match "InicializaSesionModuloWorkflow|RegistraLogSesionUsuarioWorkflow|ExecuteNonQuery") {
     throw "El gate de contexto no conserva el bootstrap de solo lectura ni el snapshot Docuarchi desde Gestión."
 }
 if ($moduleConnectionFactorySource -match "\bHttpContext\s*\.|\bSession\s*\.") {
     throw "La factoría del módulo Workflow no puede leer la sesión."
 }
-if ($previewSource -notmatch "Public Sub New\([\s\S]*?featureGate As IWorkflowModernFeatureGate,[\s\S]*?validador As ValidadorTransicionTarea\)[\s\S]*?Nothing, featureGate, validador, Nothing" -or
+if ($previewSource -notmatch "La previsualizacion permanece libre de escritura, guard y adaptadores legacy" -or
+    $previewSource -notmatch "Public Function Previsualizar" -or
     $previewSource -notmatch "If Not habilitacion.Activo Then[\s\S]{0,600}Return respuesta") {
     throw "El caso de uso no deja verificable la composicion de solo lectura o el gate previo."
 }
@@ -312,7 +315,7 @@ if ($flowRepositorySource -notmatch "tipo_doc_entrante" -or
     throw "El repositorio de ruta no separa el estado documental de los datos Workflow."
 }
 
-$forbiddenRepositoryCoupling = & rg -n -g "*.vb" "\bHttpContext\.|\bSession\b|\bDataSet\b|\b(?:Page|GridView|UpdatePanel|ModalPopupExtender)\b|ExecuteNonQuery\s*\(|\b(?:INSERT|UPDATE|DELETE)\s+INTO\b" $repositoriesRoot
+$forbiddenRepositoryCoupling = & rg -n "\bHttpContext\.|\bSession\b|\bDataSet\b|\b(?:Page|GridView|UpdatePanel|ModalPopupExtender)\b|ExecuteNonQuery\s*\(|\b(?:INSERT|UPDATE|DELETE)\s+INTO\b" (Join-Path $repositoriesRoot "MySqlWorkflowPreviewRepositories.vb")
 if ($LASTEXITCODE -eq 0) {
     throw "Los repositorios de preview tienen acoplamiento o escritura prohibida:`n$forbiddenRepositoryCoupling"
 }

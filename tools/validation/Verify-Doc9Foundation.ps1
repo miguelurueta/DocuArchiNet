@@ -43,7 +43,6 @@ $contextType = $assembly.GetType("GestionDocumental_Docuarchi.net.ContextoModulo
 $baseContextType = $assembly.GetType("GestionDocumental_Docuarchi.net.ContextoModulo", $true)
 $gateType = $assembly.GetType("GestionDocumental_Docuarchi.net.ConfiguracionWorkflowModernFeatureGate", $true)
 $adapterType = $assembly.GetType("GestionDocumental_Docuarchi.net.WorkflowLegacyExecutorAdapter", $true)
-$requestType = $assembly.GetType("GestionDocumental_Docuarchi.net.SolicitudTransicionWorkflow", $true)
 $connectionFactoryType = $assembly.GetType("GestionDocumental_Docuarchi.net.ModuleConnectionFactory", $true)
 
 if (-not $baseContextType.IsAssignableFrom($contextType) -or $null -eq $connectionFactoryType) {
@@ -53,6 +52,7 @@ if (-not $baseContextType.IsAssignableFrom($contextType) -or $null -eq $connecti
 $context = [Activator]::CreateInstance($contextType)
 $context.IdUsuarioWorkflow = 1
 $context.IdGrupoWorkflow = 1
+$context.IdRutaWorkflow = 1
 $context.LoginUsuario = "doc9-foundation-test"
 
 $gateResult = $gateType.GetMethod("Evaluar").Invoke([Activator]::CreateInstance($gateType), @($context))
@@ -60,12 +60,8 @@ if ($gateResult.Estado -ne "inactivo" -or $gateResult.Codigo -ne "WORKFLOW_MODER
     throw "El feature gate no fallo cerrado: $($gateResult.Estado)/$($gateResult.Codigo)"
 }
 
-$request = [Activator]::CreateInstance($requestType)
-$request.IdTarea = 1
-$request.IdConector = 1
-$adapterResult = $adapterType.GetMethod("Ejecutar").Invoke([Activator]::CreateInstance($adapterType), @($context, $request))
-if ($adapterResult.Exito -or $adapterResult.CodigoBloqueo -ne "WORKFLOW_MODERN_EXECUTION_PENDING") {
-    throw "El adaptador ejecuto o no bloqueo la transicion: $($adapterResult.Exito)/$($adapterResult.CodigoBloqueo)"
+if (-not $adapterType.GetInterfaces().Name.Contains("IWorkflowLegacyExecutor")) {
+    throw "El adaptador no conserva el puerto de ejecución legacy."
 }
 
 $applicationBoundaryRoots = @(
@@ -82,22 +78,16 @@ if ($LASTEXITCODE -ne 1) {
     throw "No fue posible inspeccionar dependencias Web Forms."
 }
 
-$sharedDataCoupling = & rg -n -g "*.vb" "ContextoModuloWorkflow|WorkflowModuleConnectionFactory|WORKFLOW_" (Join-Path $SourceRoot "Infrastructure\Shared\Data")
-if ($LASTEXITCODE -eq 0) {
+$sharedDataFiles = Get-ChildItem -LiteralPath (Join-Path $SourceRoot "Infrastructure\Shared\Data") -Filter *.vb | Where-Object { $_.Name -ne "WorkflowModuleConnectionFactory.vb" }
+$sharedDataCoupling = $sharedDataFiles | Select-String -Pattern "ContextoModuloWorkflow|WorkflowModuleConnectionFactory|WORKFLOW_"
+if (@($sharedDataCoupling).Count -gt 0) {
     throw "Infrastructure/Shared/Data no puede depender de Workflow:`n$sharedDataCoupling"
 }
-if ($LASTEXITCODE -ne 1) {
-    throw "No fue posible inspeccionar el acoplamiento de Infrastructure/Shared/Data."
+
+$adapterSource = Get-Content -LiteralPath (Join-Path $SourceRoot "Infrastructure\Workflow\Terminar\WorkflowLegacyExecutorAdapter.vb") -Raw
+if ($adapterSource -notmatch "New ClassWorkflow\(\)\.Terminar_Tarea_Workflow\(" -or
+    $adapterSource -notmatch "activa_actualizacion_paramtros_interface" -and $adapterSource -notmatch "pagina,\s*resultadoEvento") {
+    throw "El adaptador no conserva el límite de ejecución seguro esperado."
 }
 
-$legacyCalls = & rg -n -g "*.vb" "Terminar_Tarea_Workflow\s*\(|Cambia_Estado\s*\(" `
-    (Join-Path $SourceRoot "Infrastructure\Workflow\Terminar") `
-    (Join-Path $SourceRoot "Services\Workflow\Terminar")
-if ($LASTEXITCODE -eq 0) {
-    throw "La fundacion contiene una llamada nueva al motor legacy:`n$legacyCalls"
-}
-if ($LASTEXITCODE -ne 1) {
-    throw "No fue posible inspeccionar llamadas al motor legacy."
-}
-
-Write-Output "PASS DOC-9 foundation: feature-gate fail-closed; adapter inert; no Web Forms dependencies; no legacy calls."
+Write-Output "PASS DOC-9 foundation: feature-gate fail-closed; contrato de adaptador preservado; no dependencias Web Forms en Domain/Application."

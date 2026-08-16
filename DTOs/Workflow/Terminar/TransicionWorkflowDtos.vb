@@ -104,6 +104,12 @@ Public NotInheritable Class CodigosBloqueoPrevisualizacion
     Public Const ConectorInvalido As String = "WORKFLOW_CONNECTOR_INVALID"
     Public Const TransicionInconsistente As String = "WORKFLOW_TRANSITION_INCONSISTENT"
     Public Const SinDestinos As String = "WORKFLOW_NO_DESTINATIONS"
+    Public Const VersionInvalida As String = "WORKFLOW_VERSION_INVALID"
+    Public Const VersionConflicto As String = "WORKFLOW_VERSION_CONFLICT"
+    Public Const TransicionEnProgreso As String = "WORKFLOW_TRANSITION_IN_PROGRESS"
+    Public Const TransicionNoDisponible As String = "WORKFLOW_TRANSITION_UNAVAILABLE"
+    Public Const RequisitoNoCumplido As String = "WORKFLOW_REQUIREMENT_NOT_MET"
+    Public Const TransicionRechazada As String = "WORKFLOW_TRANSITION_REJECTED"
 
     Private Sub New()
     End Sub

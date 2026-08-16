@@ -1,0 +1,12 @@
+stateDiagram-v2
+    [*] --> Recibida
+    Recibida --> Bloqueada: sesión/gate/forma inválida
+    Recibida --> Protegida: lock adquirido
+    Protegida --> Bloqueada: versión, conector o requisito inválido
+    Protegida --> EjecutandoLegacy: destino autorizado
+    EjecutandoLegacy --> Bloqueada: PRETERMINAR o regla legacy rechaza
+    EjecutandoLegacy --> Completada: motor confirma cambio
+    Completada --> CompletadaConAdvertencia: correo, evento posterior o auditoría adicional falla
+    Bloqueada --> [*]
+    Completada --> [*]
+    CompletadaConAdvertencia --> [*]

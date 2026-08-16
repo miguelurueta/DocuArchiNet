@@ -5,6 +5,67 @@ Imports MySql.Data.MySqlClient
 'Valida y completa el contexto de preview en una sesión Gestión ya autenticada.
 'No es un feature gate y no acepta datos del navegador.
 Public NotInheritable Class WorkflowPreviewSessionContextGate
+    Public Function AsegurarContextoEjecucion() As ResultadoContextoSesionWorkflow
+        Dim resultado As New ResultadoContextoSesionWorkflow With {
+            .Contexto = New ContextoModuloWorkflow()
+        }
+        Dim requestContext As HttpContext = HttpContext.Current
+        If requestContext Is Nothing OrElse requestContext.Session Is Nothing OrElse Not EsSesionGestionAutenticada(requestContext) Then
+            Return resultado
+        End If
+
+        resultado = AsegurarContexto()
+        If resultado.Contexto Is Nothing OrElse Not resultado.Contexto.EsValido() OrElse
+           String.IsNullOrWhiteSpace(resultado.CadenaConexionWorkflow) Then
+            Return resultado
+        End If
+
+        Try
+            Dim permisos As String() = Nothing
+            Dim resultadoPermisos As String = New Class_permisos_usuarios_workflow().SolicitaPermisosUsuarioWorkflow(
+                resultado.Contexto.IdUsuarioWorkflow,
+                permisos)
+            If Not String.Equals(resultadoPermisos, "YES", StringComparison.OrdinalIgnoreCase) OrElse permisos Is Nothing Then
+                LimpiarContextoWorkflow(requestContext)
+                Return New ResultadoContextoSesionWorkflow With {.Contexto = New ContextoModuloWorkflow()}
+            End If
+
+            Dim nombreRuta As String = String.Empty
+            Dim resultadoRuta As String = New Class_worflow_rutas().Solicita_nombre_ruta_por_id_ruta(
+                resultado.Contexto.IdRutaWorkflow,
+                nombreRuta)
+            If Not String.Equals(resultadoRuta, "YES", StringComparison.OrdinalIgnoreCase) OrElse
+               Not EsNombreRutaSeguro(nombreRuta) Then
+                LimpiarContextoWorkflow(requestContext)
+                Return New ResultadoContextoSesionWorkflow With {.Contexto = New ContextoModuloWorkflow()}
+            End If
+            requestContext.Session.Item("WF_RUTAWORKFLOW") = nombreRuta
+
+            'El login Gestión ya ejecuta InicializaSesionModuloWorkflow y deja el resultado de la compilación.
+            'Solo se compila como recuperación de una sesión incompleta; no se reemplazan eventos ya cargados.
+            If requestContext.Session.Item("SESIONCOMPILAR") Is Nothing Then
+                Dim inicioWorkflow As New InicioWorkflow()
+                Dim resultadoEventos As String = inicioWorkflow.CompilaScriptUsuario(
+                    resultado.Contexto.IdGrupoWorkflow,
+                    inicioWorkflow.mEval)
+                If Not String.Equals(resultadoEventos, "YES", StringComparison.OrdinalIgnoreCase) AndAlso
+                   Not EsGrupoSinScripts(resultadoEventos) Then
+                    LimpiarContextoWorkflow(requestContext)
+                    Return New ResultadoContextoSesionWorkflow With {.Contexto = New ContextoModuloWorkflow()}
+                End If
+                If EsGrupoSinScripts(resultadoEventos) Then
+                    requestContext.Session.Item("PRETERMINARACTIVIAD") = String.Empty
+                    requestContext.Session.Item("TERMINARACTIVIDAD") = String.Empty
+                End If
+            End If
+
+            Return resultado
+        Catch
+            LimpiarContextoWorkflow(requestContext)
+            Return New ResultadoContextoSesionWorkflow With {.Contexto = New ContextoModuloWorkflow()}
+        End Try
+    End Function
+
     Public Function AsegurarContexto() As ResultadoContextoSesionWorkflow
         Dim resultado As New ResultadoContextoSesionWorkflow With {
             .Contexto = New ContextoModuloWorkflow()
@@ -53,6 +114,7 @@ Public NotInheritable Class WorkflowPreviewSessionContextGate
         If Not String.Equals(consultaContexto, "YES", StringComparison.OrdinalIgnoreCase) Then Return resultado
 
         contexto = CrearContexto(requestContext)
+        contexto.IdUsuarioGestion = idUsuarioGestion
         If Not contexto.EsValido() OrElse contexto.IdUsuarioWorkflow <> idUsuarioWorkflowRelacionado Then
             LimpiarContextoWorkflow(requestContext)
             Return resultado
@@ -81,8 +143,20 @@ Public NotInheritable Class WorkflowPreviewSessionContextGate
         Dim contexto As New ContextoModuloWorkflow()
         Integer.TryParse(Convert.ToString(requestContext.Session.Item("Id_Usuario_Workflow")), contexto.IdUsuarioWorkflow)
         Integer.TryParse(Convert.ToString(requestContext.Session.Item("Id_Grupo_Workflow")), contexto.IdGrupoWorkflow)
+        Integer.TryParse(Convert.ToString(requestContext.Session.Item("Id_Ruta_Workflow")), contexto.IdRutaWorkflow)
+        Integer.TryParse(Convert.ToString(requestContext.Session.Item("GA_IDUSUARIOGESTION")), contexto.IdUsuarioGestion)
         contexto.LoginUsuario = Convert.ToString(requestContext.Session.Item("Login_Usuario_Workfow")).Trim()
         Return contexto
+    End Function
+
+    Private Shared Function EsNombreRutaSeguro(ByVal nombreRuta As String) As Boolean
+        Return Not String.IsNullOrWhiteSpace(nombreRuta) AndAlso
+               System.Text.RegularExpressions.Regex.IsMatch(nombreRuta, "^[A-Za-z0-9_]+$")
+    End Function
+
+    Private Shared Function EsGrupoSinScripts(ByVal resultado As String) As Boolean
+        Return Not String.IsNullOrWhiteSpace(resultado) AndAlso
+               resultado.IndexOf("Usuario sin script registrados", StringComparison.OrdinalIgnoreCase) >= 0
     End Function
 
     Private Shared Function CrearCadenaConexion(ByVal requestContext As HttpContext,

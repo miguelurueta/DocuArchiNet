@@ -1,4 +1,4 @@
-# Runbook para agentes — E2E y concurrencia DOC-10
+# Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11
 
 Este documento permite reutilizar las pruebas del ASMX `PreviewEnviarTarea` sin copiar credenciales ni modificar datos Workflow.
 
@@ -19,7 +19,7 @@ npm.cmd --prefix tools/e2e install
 npm.cmd --prefix tools/e2e run install:browsers
 ```
 
-Si ya existe Microsoft Edge administrado, usar `DOC10_E2E_BROWSER_CHANNEL=msedge`. Las variables comunes se entregan por el almacén de secretos del agente o la sesión actual:
+Si ya existe Microsoft Edge administrado, usar `DOC10_E2E_BROWSER_CHANNEL=msedge` para DOC-10 o `DOC11_E2E_BROWSER_CHANNEL=msedge` para DOC-11. Las variables comunes se entregan por el almacén de secretos del agente o la sesión actual:
 
 ```powershell
 $env:DOC10_E2E_BASE_URL = 'https://ambiente-pruebas/app/'
@@ -90,5 +90,35 @@ La evidencia incluye sesiones autenticadas/fallidas, solicitudes exitosas/fallid
 3. Restaurar el gate apagado y confirmar sus valores.
 4. Ejecutar `git diff --name-only -- workflow/Webworkflow.aspx workflow/Webworkflow.aspx.vb`; el resultado debe estar vacío.
 5. Si hubo procesos de navegador o prueba residuales, detenerlos solo con autorización explícita y volver a comprobar el gate.
+
+## Ejecución mutante DOC-11
+
+`EjecutarEnvioTarea` cambia la tarea. No se ejecuta con cuentas, tareas o ambientes operativos. Antes de usarlo debe existir autorización explícita para una tarea descartable, usuario piloto, conector y token obtenidos del preview actual; además, una consulta `SELECT` de estado y otra de auditoría, ambas con un único parámetro `?` para la tarea y una conexión MySQL de solo lectura.
+
+Definir los secretos exclusivamente en el entorno de proceso. No imprimirlos, no crear `.env` ni conservar cookies:
+
+```powershell
+$env:DOC11_E2E_BASE_URL = 'https://ambiente-pruebas/app/'
+$env:DOC11_E2E_MODULE = 'GESTOR'
+$env:DOC11_E2E_AUTHORIZED_USER = '<piloto-descartable>'
+$env:DOC11_E2E_AUTHORIZED_PASSWORD = '<secreto>'
+$env:DOC11_E2E_TASK_ID = '<tarea-descartable>'
+$env:DOC11_E2E_CONNECTOR_ID = '<conector-del-preview>'
+$env:DOC11_E2E_TOKEN_VERSION = '<token-del-preview>'
+$env:DOC11_E2E_MYSQL_URL = 'mysql://usuario_solo_lectura:secreto@host/base'
+$env:DOC11_E2E_TASK_STATE_SQL = 'SELECT ... WHERE id_tarea = ?'
+$env:DOC11_E2E_AUDIT_SQL = 'SELECT ... WHERE id_tarea = ?'
+```
+
+| Objetivo | Comando | Protección |
+| --- | --- | --- |
+| Sin sesión | `npm.cmd --prefix tools/e2e run test:doc11:anonymous` | No cambia estado. |
+| Parámetros inválidos con sesión piloto | `npm.cmd --prefix tools/e2e run test:doc11:validation` | No cambia estado. |
+| Envío descartable | `npm.cmd --prefix tools/e2e run test:doc11:execute` | Requiere `DOC11_E2E_EXECUTION_AUTHORIZED=true` y resultado esperado. |
+| Doble solicitud | `npm.cmd --prefix tools/e2e run test:doc11:concurrency` | Requiere el mismo consentimiento y una tarea descartable nueva. |
+
+Para `test:doc11:execute`, agregar `DOC11_E2E_EXPECTED_OUTCOME=success` o `blocked`; en el segundo caso `DOC11_E2E_EXPECTED_CODE` es obligatorio. La prueba produce evidencia sin secretos bajo `tools/e2e/artifacts/` por defecto. La de concurrencia exige exactamente un envío efectivo y un bloqueo concurrente controlado.
+
+Después de cualquier corrida, restaurar los tres valores del gate a apagado, verificar el `rg` indicado arriba y registrar la evidencia en `Doc/Actualizacion/workflow/Terminar/03-ejecucion-segura/04-pruebas-y-evidencia.md`.
 
 La checklist para la aprobación humana está en [../../Doc/Actualizacion/workflow/Terminar/02-preview-ruta-flujo/07-checklist-qa-manual.md](../../Doc/Actualizacion/workflow/Terminar/02-preview-ruta-flujo/07-checklist-qa-manual.md). La referencia humana ampliada está en [README.md](README.md); este runbook es la entrada operativa para agentes.

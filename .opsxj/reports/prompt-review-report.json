@@ -1,21 +1,13 @@
 {
-  "status": "pass",
-  "promptPath": "D:\\imagenesda\\GestorDocumental\\Desarrollo\\old\\oldanterior\\GestionDocumental-Docuarchi.net\\Doc\\Actualizacion\\workflow\\Terminar\\06-piloto-pruebas-rollout.md",
-  "reviewedAtUtc": "2026-08-13T23:42:54.904Z",
-  "technologyProfile": "legacy-webforms-vb",
+  "status": "error",
+  "promptPath": "DOC-11",
+  "reviewedAtUtc": "2026-08-16T03:56:02.183Z",
   "summary": {
     "blockers": 0,
     "major": 0,
     "minor": 0,
-    "info": 1
+    "info": 0
   },
-  "findings": [
-    {
-      "severity": "INFO",
-      "code": "MANUAL_REVIEW_RECOMMENDED",
-      "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
-      "expected": "Revision humana del prompt.",
-      "evidence": null
-    }
-  ]
+  "findings": [],
+  "error": "ENOENT: no such file or directory, scandir 'D:\\imagenesda\\GestorDocumental\\Desarrollo\\old\\oldanterior\\GestionDocumental-Docuarchi.net\\docs'"
 }

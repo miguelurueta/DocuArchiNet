@@ -13,6 +13,8 @@ npm.cmd --prefix tools/e2e run install:browsers
 
 Si el agente ya tiene Edge o Chrome administrado, se puede evitar la descarga indicando `DOC10_E2E_BROWSER_CHANNEL=msedge` o la ruta explícita en `DOC10_E2E_BROWSER_PATH`.
 
+DOC-11 admite los equivalentes `DOC11_E2E_BROWSER_CHANNEL` y `DOC11_E2E_BROWSER_PATH`.
+
 ## Comprobación directa sin login
 
 La prueba anónima solo verifica que el ASMX rechaza una solicitud sin sesión con `WORKFLOW_CONTEXT_INVALID` y sin destinos:
@@ -59,6 +61,37 @@ npm.cmd --prefix tools/e2e run test:session
 ```
 
 Los comandos fallan antes de iniciar Playwright cuando falta una variable obligatoria; una E2E omitida no puede quedar aprobada en CI.
+
+## DOC-11: ejecución segura de una tarea descartable
+
+La suite también cubre `EjecutarEnvioTarea`. Las pruebas anónima y de validación no cambian estados; envío y concurrencia sí. Lea primero [AGENT-RUNBOOK.md](AGENT-RUNBOOK.md) y use exclusivamente ambiente, cuenta y tarea descartables autorizados.
+
+```powershell
+$env:DOC11_E2E_BASE_URL = 'https://qa.example/app/'
+$env:DOC11_E2E_MODULE = 'GESTOR'
+$env:DOC11_E2E_AUTHORIZED_USER = '<piloto-descartable>'
+$env:DOC11_E2E_AUTHORIZED_PASSWORD = '<secreto>'
+
+# Borde seguro: no requiere tarea real ni modifica Workflow.
+npm.cmd --prefix tools/e2e run test:doc11:anonymous
+npm.cmd --prefix tools/e2e run test:doc11:validation
+```
+
+Para ejecutar una transición se exige una confirmación deliberada y datos obtenidos del preview vigente. No guarde estos valores en archivos.
+
+```powershell
+$env:DOC11_E2E_EXECUTION_AUTHORIZED = 'true'
+$env:DOC11_E2E_TASK_ID = '<tarea-descartable>'
+$env:DOC11_E2E_CONNECTOR_ID = '<conector-del-preview>'
+$env:DOC11_E2E_TOKEN_VERSION = '<token-del-preview>'
+$env:DOC11_E2E_EXPECTED_OUTCOME = 'success' # o blocked
+$env:DOC11_E2E_MYSQL_URL = 'mysql://usuario_solo_lectura:secreto@host/base'
+$env:DOC11_E2E_TASK_STATE_SQL = 'SELECT ... WHERE id_tarea = ?'
+$env:DOC11_E2E_AUDIT_SQL = 'SELECT ... WHERE id_tarea = ?'
+npm.cmd --prefix tools/e2e run test:doc11:execute
+```
+
+Si el escenario esperado es `blocked`, agregue `DOC11_E2E_EXPECTED_CODE`. Para comprobar doble clic/dos sesiones ejecute `test:doc11:concurrency` con una tarea descartable nueva: debe haber exactamente una transición efectiva y un bloqueo concurrente seguro. Las evidencias solo contienen resultado público y huellas, no secretos ni cuerpos.
 
 ## Carga autenticada: 20 y 30 sesiones
 

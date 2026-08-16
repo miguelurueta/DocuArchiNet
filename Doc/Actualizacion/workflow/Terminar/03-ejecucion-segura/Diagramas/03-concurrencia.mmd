@@ -1,0 +1,14 @@
+sequenceDiagram
+    participant P1 as Solicitud 1
+    participant P2 as Solicitud 2
+    participant G as GET_LOCK tarea+token
+    participant M as Motor legacy
+
+    P1->>G: adquirir
+    G-->>P1: lease
+    P2->>G: adquirir
+    G-->>P2: WORKFLOW_TRANSITION_IN_PROGRESS
+    P1->>M: releer y terminar
+    M-->>P1: éxito o rechazo
+    P1->>G: liberar
+    Note over P2,G: Si P2 llega después de liberar,<br/>la releída detecta token/tarea vencida.
