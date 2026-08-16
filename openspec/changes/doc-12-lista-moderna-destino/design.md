@@ -1,0 +1,127 @@
+## Context
+
+DOC-12: LISTA-MODERNA-DESTINO
+
+## Jira Details
+
+> # Prompt 04 — Lista moderna de destinos
+> 
+> ```text
+> Rol esperado:
+> Especialista UI/UX y desarrollador senior de ASP.NET Web Forms .NET Framework 4.6.1, JavaScript progresivo, accesibilidad y modernización segura de interfaces enterprise legacy.
+> 
+> Contexto:
+> - Repositorio: `D:\imagenesda\GestorDocumental\Desarrollo\old\oldanterior\GestionDocumental-Docuarchi.net`.
+> - Interfaz legacy que debe preservarse: `workflow/Webworkflow.aspx`, sus controles `GridView_envia_flujo` y su modal actual.
+> - API de solo lectura ya definida: `webservice/WebServiceWorkflowModern.asmx`, método `PreviewEnviarTarea(idTarea)`.
+> - Esta fase implementa únicamente Presentation en `js/workflow/` y `Styles/`; no altera Application, Domain, Infrastructure ni el motor de transición.
+> 
+> Objetivo:
+> Implementar una lista moderna, accesible y responsive de destinos de envío que consuma exclusivamente `PreviewEnviarTarea`, preserve la interfaz legacy y se active solo mediante una bandera de funcionalidad reversible.
+> 
+> Restricciones críticas:
+> - No debe retirarse, renombrarse ni modificar el comportamiento de `GridView_envia_flujo`, el modal anterior, `workflow/Webworkflow.aspx` ni su code-behind.
+> - No debe ejecutarse la transición, invocarse `EjecutarEnvioTarea`, `Terminar_Tarea_Workflow`, `Cambia_Estado`, eventos dinámicos, correo ni cambios de estado desde esta lista.
+> - No debe duplicarse en JavaScript la resolución de ruta, flujo, permisos, conectores, requisitos ni validaciones de negocio; el servidor es la única autoridad.
+> - No debe generarse HTML de negocio desde VB, usar `UpdatePanel` para la carga moderna, depender de botones invisibles ni recargar la página para ver destinos.
+> - No debe confiarse en hidden fields, IDs o datos del navegador como autorización; tampoco exponer SQL, credenciales, Session, excepciones internas o HTML en la interfaz.
+> - No debe agregar bibliotecas UI nuevas, modificar estilos globales no relacionados ni romper la vista anterior cuando la bandera esté desactivada.
+> 
+> Alcance:
+> - Crear js/workflow/workflow-transition-ui.js.
+> - Crear Styles/workflow-transition-modern.css.
+> - No retirar GridView_envia_flujo ni el modal anterior.
+> - Activar la nueva interfaz solo mediante un atributo bootstrap emitido por el servidor, por ejemplo `data-workflow-modern-active`, derivado exclusivamente de `IWorkflowModernFeatureGate`. JavaScript no calcula, altera ni persiste la bandera.
+> - JavaScript pertenece a Presentation: no replica validaciones de negocio ni resuelve ruta, flujo, permisos o conectores.
+> 
+> Contrato técnico:
+> - Entrada a `PreviewEnviarTarea`: `idTarea` procede del contexto visual actual, pero el servidor revalida sesión, autorización y estado; el cliente no envía usuario, grupo, ruta, actividad ni permiso.
+> - La lista se inicializa solo si `data-workflow-modern-active=true`; si es `false` o falta, no enlaza el botón moderno, no llama ASMX y conserva el comportamiento legacy visible.
+> - El bootstrap visual no es control de seguridad: `PreviewEnviarTarea` y `EjecutarEnvioTarea` validan de nuevo `IWorkflowModernFeatureGate` en servidor.
+> - Respuesta esperada: `PrevisualizacionTransicionDto` con `IdTarea`, `TipoTransicion`, `Radicado`, `Tramite`, `ActividadActual`, `Destinos`, `Requisitos`, `TokenVersion`, `MensajeFuncional` y `CodigoBloqueo`.
+> - Cada destino se interpreta desde `DestinoTransicionDto`: `IdConector`, `Actividad`, `DestinatarioOGrupo`, `Notificacion`, `Requisitos`, `Orden` y tipo de destino; no se infieren campos ausentes ni se construyen permisos en el navegador.
+> - Estados Presentation: `cargando`, `sin-destinos`, `error-controlado`, `lista-disponible` y `destino-seleccionado`; cada estado debe tener mensaje visible, foco coherente y ruta de recuperación.
+> - Al seleccionar un destino, emitir un evento o callback documentado con `idTarea`, `idConector`, `tokenVersion` y el resumen visible del destino. Este contrato abre la confirmación especializada, pero no ejecuta envío.
+> 
+> Comportamiento:
+> 1. El botón “Continuar” llama async/await a PreviewEnviarTarea.
+> 2. Mostrar panel modal moderno.
+> 3. Mostrar radicado, trámite, actividad actual y tipo: Flujo documental o Ruta de trabajo.
+> 4. Renderizar destinos desde JSON, no desde HTML generado en VB.
+> 5. En escritorio usar tabla compacta; en móvil usar tarjetas.
+> 6. Cada destino muestra actividad, destinatario/grupo, notificación, requisitos y botón “Seleccionar”.
+> 7. Implementar estados: cargando, sin destinos, error, lista disponible y destino seleccionado.
+> 8. Accesibilidad: foco inicial, Escape, foco atrapado, teclado, ARIA y contraste suficiente.
+> 9. Al elegir destino, abrir confirmación especializada. No ejecutar todavía la transición.
+> 
+> Pruebas obligatorias:
+> - Ejecutar compilación del proyecto o solución afectada con MSBuild/.NET Framework y registrar comando, resultado y limitaciones reales.
+> - Agregar o ajustar pruebas JavaScript focales donde la infraestructura actual lo permita para el mapeo del DTO, estados visuales, selección y contrato del callback.
+> - Ejecutar QA manual reproducible en escritorio y móvil: carga, sin destinos, error controlado, selección, Escape, foco atrapado, teclado, contraste, bandera activada y bandera desactivada.
+> - Confirmar mediante QA que no se invoca `EjecutarEnvioTarea` al cargar ni al seleccionar un destino y que la lista legacy sigue disponible con la bandera desactivada.
+> - E2E automatizada no aplica si el repositorio no tiene infraestructura compatible para Web Forms; registrar esa justificación y evidencia manual. Si existe infraestructura disponible, ejecutar el recorrido completo hasta abrir la confirmación, sin ejecutar la transición.
+> 
+> Documentación técnica:
+> - Este prompt es autosuficiente: no depende de README ni de documentación externa para conocer su convención documental.
+> - Raíz documental obligatoria, relativa a la raíz del repositorio: `Doc/Actualizacion/workflow/Terminar/04-lista-moderna/`.
+> - Estructura obligatoria del paquete:
+>     `Doc/Actualizacion/workflow/Terminar/04-lista-moderna/`
+>     - `00-indice.md`
+>     - `01-arquitectura.md`
+>     - `02-contrato.md`
+>     - `03-flujo-y-seguridad.md`
+>     - `04-pruebas-y-evidencia.md`
+>     - `Diagramas/`
+> - `00-indice.md`: ticket, fecha, estado, alcance, rutas de archivos y resumen de cambios.
+> - `01-arquitectura.md`: frontera Presentation/ASMX, bandera `WorkflowCentroTrabajoModernActive`, responsabilidades, dependencias y alternativas descartadas.
+> - `02-contrato.md`: entrada/resultado de `PreviewEnviarTarea`, DTOs usados, estados UI, callback de selección y JSON de ejemplo.
+> - `03-flujo-y-seguridad.md`: secuencia Continuar → preview → renderizado → selección → confirmación; límites de servidor/cliente, accesibilidad, compatibilidad, riesgos y rollback.
+> - `04-pruebas-y-evidencia.md`: comandos, compilación, pruebas focales, QA responsive/accesible, E2E o justificación, resultados, limitaciones y evidencia.
+> - `Diagramas/`: diagramas Mermaid o fuentes estructuradas del flujo modal, estados de UI y activación por bandera cuando correspondan.
+> - Incluir una tabla con: función o selector, ruta, responsabilidad, parámetros/DTO, estado UI y dependencia legacy permitida.
+> - El prompt fuente `04-lista-moderna.md` permanece en `Doc/Actualizacion/workflow/Terminar/`; no crear documentación de implementación junto a él, en la raíz del repositorio ni en rutas alternativas sin justificarlo expresamente en el entregable.
+> 
+> Criterios de aceptación:
+> - No hay recarga ni UpdatePanel para cargar destinos modernos.
+> - El modal no depende de botones invisibles.
+> - La vista anterior funciona sin cambios con la bandera desactivada.
+> - Con la bandera activada, el botón Continuar obtiene destinos exclusivamente desde `PreviewEnviarTarea` y renderiza JSON, no HTML generado por VB.
+> - La lista representa correctamente flujo o ruta, muestra información visible de cada destino y no permite ejecutar la transición en esta fase.
+> - Los cinco estados Presentation son perceptibles, recuperables y no dejan foco perdido; Escape, foco atrapado, teclado, ARIA y contraste están verificados.
+> - La selección invoca únicamente el contrato documentado de confirmación con `idTarea`, `idConector` y `tokenVersion`.
+> - La lista consume el adaptador de confirmación definido en Prompt 05; antes de completar ese prompt solo puede entregar el contrato de selección y no crear una segunda confirmación.
+> - La compilación, pruebas focales y QA manual quedan registrados con resultados verificables.
+> 
+> Entregable final:
+> - Entregar `js/workflow/workflow-transition-ui.js`, `Styles/workflow-transition-modern.css` y cualquier cambio mínimo de integración con sus rutas y responsabilidades.
+> - Entregar contrato de datos/callback, tabla de funciones o selectores, documentación del paquete obligatorio y diagramas aplicables.
+> - Entregar comandos ejecutados, resultados de compilación/pruebas, evidencia QA de escritorio/móvil/accesibilidad, E2E o justificación y limitaciones.
+> - Declarar expresamente qué interfaz legacy se preservó, qué no se modificó y cómo desactivar la bandera para rollback inmediato.
+> ```
+
+## Goals / Non-Goals
+
+**Goals**
+- Refinar alcance tecnico usando el contexto completo de Jira.
+- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+
+**Non-Goals**
+- Cambios fuera del alcance descrito por el ticket.
+
+## Decisions
+
+1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+
+
+## Risks / Trade-offs
+
+- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+
+## Migration Plan
+
+1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
+2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+
+## Open Questions
+
+- TBD
