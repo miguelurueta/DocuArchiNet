@@ -12,8 +12,12 @@ Public Class ValidadorTransicionTarea
             Return CrearError(CodigosBloqueoPrevisualizacion.TareaInvalida, "La tarea seleccionada no es valida.")
         End If
 
-        If solicitud.IdConector < 0 Then
+        If solicitud.IdConector <= 0 Then
             Return CrearError(CodigosBloqueoPrevisualizacion.ConectorInvalido, "El destino seleccionado no es valido.")
+        End If
+
+        If String.IsNullOrWhiteSpace(solicitud.TokenVersion) Then
+            Return CrearError(CodigosBloqueoPrevisualizacion.VersionInvalida, "La informacion de la tarea debe actualizarse antes de enviarla.")
         End If
 
         Return Nothing

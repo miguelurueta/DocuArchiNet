@@ -1,0 +1,32 @@
+sequenceDiagram
+    participant N as Navegador
+    participant A as ASMX
+    participant S as Servicio
+    participant G as Guard MySQL
+    participant R as Repositorios
+    participant L as Adaptador legacy
+    participant W as ClassWorkflow
+
+    N->>A: idTarea, idConector, tokenVersion
+    A->>A: sesión, permisos y gate
+    A->>S: Ejecutar(contexto, solicitud)
+    S->>G: GET_LOCK(tarea, token)
+    alt lock no disponible
+        G-->>S: WORKFLOW_TRANSITION_IN_PROGRESS
+        S-->>A: Resultado bloqueado
+    else lock adquirido
+        S->>R: releer tarea, token y destino autorizado
+        R-->>S: tarea + destino + requisitos
+        alt requisito o versión bloquea
+            S-->>A: Resultado funcional seguro
+        else autorizado
+            S->>L: ejecutar destino tipado
+            L->>W: Terminar_Tarea_Workflow(Page Nothing)
+            W->>W: PRETERMINAR, estado, TERMINAR, correo
+            W-->>L: resultado legacy
+            L-->>S: resultado normalizado
+            S-->>A: Resultado + auditoría
+        end
+        S->>G: RELEASE_LOCK
+    end
+    A-->>N: JSON { d: ResultadoTransicionDto }

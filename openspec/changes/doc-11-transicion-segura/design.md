@@ -1,153 +1,92 @@
-## Context
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
 
-DOC-11: TRANSICION-SEGURA
+# Diseño técnico — DOC-11: transición segura
 
-## Jira Details
+## Objetivo
 
-> # Prompt 03 — Ejecución segura de la transición
-> 
-> ```text
-> Rol esperado:
-> Arquitecto de software senior especialista en ASP.NET Web Forms .NET Framework 4.6.1, VB.NET, ASMX, seguridad transaccional y modernización gradual de workflows legacy.
-> 
-> Contexto:
-> - Repositorio: `D:\imagenesda\GestorDocumental\Desarrollo\old\oldanterior\GestionDocumental-Docuarchi.net`.
-> - Interfaz y code-behind legacy: `workflow/Webworkflow.aspx` y `workflow/Webworkflow.aspx.vb`.
-> - Núcleo que se debe preservar: `ClassWorkflow.Terminar_Tarea_Workflow`, `ClassWorkflow.Cambia_Estado`, `PRETERMINARACTIVIAD` y `TERMINARACTIVIDAD`.
-> - La fundación y los contratos paralelos ya definidos viven bajo `workflow/modern/`; este prompt conecta la ejecución mediante el límite tipado existente.
-> 
-> Objetivo:
-> Implementar el endpoint paralelo de ejecución de transición para la versión moderna, reutilizando el núcleo legacy sin duplicarlo y sin alterar el flujo vigente hasta completar piloto y rollback.
-> 
-> Restricciones críticas:
-> - No debe modificarse ni retirarse `workflow/Webworkflow.aspx`, su code-behind, la interfaz actual ni el camino legacy de envío.
-> - No debe invocarse `Terminar_Tarea_Workflow` ni `Cambia_Estado` desde JavaScript, ASMX, Application, repositorios o una segunda implementación; solo `WorkflowLegacyExecutorAdapter` puede hacerlo.
-> - No debe crearse una transacción paralela, repositorio genérico, endpoint sin validación de servidor, microservicio ni lógica de negocio en JavaScript.
-> - No debe confiarse en hidden fields, token, conector, usuario, grupo, ruta, actividad, permisos ni otros valores enviados por el navegador sin revalidarlos en servidor.
-> - No debe devolverse HTML, `DataSet`, SQL, credenciales, Session, controles Web Forms, excepciones internas ni trazas técnicas en JSON.
-> - No debe ocultarse ni retirarse una tarea del cliente hasta que el servidor confirme éxito funcional real.
-> 
-> Endpoint:
-> EjecutarEnvioTarea(idTarea As Long, idConector As Integer, tokenVersion As String) As ResultadoTransicionDto
-> 
-> Ubicación obligatoria del endpoint:
-> - Agregar `EjecutarEnvioTarea` al mismo ASMX paralelo creado en Prompt 02: `webservice/WebServiceWorkflowModern.asmx` y `webservice/WebServiceWorkflowModern.asmx.vb`.
-> - No crear un segundo ASMX moderno, una página adicional ni otro punto de entrada para preview o ejecución.
-> 
-> Contrato técnico:
-> - Entrada: `idTarea` identifica la tarea existente; `idConector` representa el destino solicitado; `tokenVersion` representa la versión mostrada en el preview. Ninguno sustituye la autorización ni el contexto resuelto en servidor.
-> - Respuesta `ResultadoTransicionDto`: `Exito`, `EstadoFinal`, `MensajeFuncional`, `CodigoBloqueo`, `Advertencias`, `ActividadDestino`, `Destino`, `TokenVersion`, `ReferenciaAuditoria` y `EsReintentable`.
-> - Error o bloqueo: devolver un código funcional estable y un mensaje visible; no serializar excepciones, SQL, rutas internas, credenciales ni detalle del motor legacy.
-> - Idempotencia: la misma operación no puede ejecutar dos transiciones efectivas para una misma tarea y versión; un reintento debe devolver el resultado conocido o un bloqueo controlado.
-> 
-> Regla arquitectónica:
-> El navegador solicita; el servidor decide, valida y ejecuta.
-> 
-> Estructura obligatoria:
-> - El ASMX moderno llama a ServicioTransicionTarea de Application.
-> - ServicioTransicionTarea usa interfaces Domain, validadores y EjecutorTransicionTarea.
-> - Los repositorios de ruta, flujo y tarea viven en Infrastructure/Repositories.
-> - Los repositorios usan `IModuleConnectionFactory` e infraestructura `Shared/Data`; no acceden directamente a Session ni exponen credenciales.
-> - WorkflowLegacyExecutorAdapter, dentro de Infrastructure/LegacyAdapters, es el único punto que puede invocar Terminar_Tarea_Workflow y Cambia_Estado.
-> - No introducir una segunda transacción para el cambio de estado ni duplicar reglas del núcleo legado.
-> 
-> Antes de llamar Terminar_Tarea_Workflow, el servidor debe revalidar:
-> 1. `IWorkflowModernFeatureGate`: si no está activo para el usuario/grupo/configuración, devolver `WORKFLOW_MODERN_INACTIVE` sin invocar el motor legacy ni hacer fallback automático.
-> 2. Sesión y permisos.
-> 3. Pertenencia de la tarea al usuario/grupo actual.
-> 4. Que la tarea siga activa y coincida con tokenVersion.
-> 5. Que idConector corresponda a la ruta o flujo actual de la tarea.
-> 6. Para flujo: flujo, nodo origen, actividad origen y usuario/grupo origen.
-> 7. Para ruta: grupo, ruta y actividad origen.
-> 8. Respuesta o confirmación requerida.
-> 9. Solicitudes de aprobación pendientes.
-> 10. Requisitos de firma, expediente, copia documental y balanceo.
-> 
-> Ejecución:
-> - Reutilizar ClassWorkflow.Terminar_Tarea_Workflow y ClassWorkflow.Cambia_Estado.
-> - Hacerlo exclusivamente a través de WorkflowLegacyExecutorAdapter.
-> - Mantener PRETERMINARACTIVIAD en servidor y bloquear si falla.
-> - Mantener TERMINARACTIVIDAD, correo y trazabilidad actuales.
-> - No retirar la tarea de la interfaz hasta recibir éxito real.
-> - Evitar doble envío con control de concurrencia e idempotencia.
-> - Devolver JSON estructurado: éxito, bloqueo, advertencia, actividad destino y estado final.
-> 
-> Seguridad obligatoria:
-> - No confiar en hidden fields ni valores JavaScript.
-> - No ejecutar una transición solo porque exista un conector.
-> - Registrar auditoría: usuario, tarea, origen, destino, mecanismo, fecha y resultado.
-> - Si el estado de flujo es inconsistente, bloquear con mensaje controlado.
-> 
-> Pruebas obligatorias:
-> - Éxito por ruta y por flujo.
-> - Doble clic y dos usuarios sobre la misma tarea.
-> - Conector alterado.
-> - PRETERMINARACTIVIAD exitoso y fallido.
-> - Firma, expediente, autorización y respuesta faltante.
-> - Ejecutar compilación del proyecto o solución afectada con MSBuild/.NET Framework y registrar comando, resultado y limitaciones reales.
-> - Agregar o ajustar pruebas unitarias focales para validadores, idempotencia, DTOs, servicios y mapeos que no requieran ejecutar el motor legacy.
-> - Ejecutar QA manual reproducible para ruta, flujo, bloqueo, concurrencia y resultado visible, registrando ambiente, pasos, resultado y evidencia.
-> - E2E automatizada no aplica si el repositorio no cuenta con infraestructura compatible para Web Forms; registrar la justificación y la evidencia de QA manual. Si existe infraestructura disponible, ejecutar el recorrido end-to-end y adjuntar el resultado.
-> 
-> Documentación técnica:
-> - Este prompt es autosuficiente: no depende de README ni de documentación externa para conocer su convención documental.
-> - Raíz documental obligatoria, relativa a la raíz del repositorio: `Doc/Actualizacion/workflow/Terminar/03-ejecucion-segura/`.
-> - Estructura obligatoria del paquete:
->     `Doc/Actualizacion/workflow/Terminar/03-ejecucion-segura/`
->     - `00-indice.md`
->     - `01-arquitectura.md`
->     - `02-contrato.md`
->     - `03-flujo-y-seguridad.md`
->     - `04-pruebas-y-evidencia.md`
->     - `Diagramas/`
-> - `00-indice.md`: ticket, fecha, estado, alcance, archivos relacionados y resumen de cambios.
-> - `01-arquitectura.md`: capas, responsabilidades, dependencias, decisiones, alternativas descartadas y el límite único de `WorkflowLegacyExecutorAdapter`.
-> - `02-contrato.md`: entrada, `ResultadoTransicionDto`, DTOs relacionados, JSON de ejemplo, validaciones, bloqueos, idempotencia, errores funcionales y compatibilidad.
-> - `03-flujo-y-seguridad.md`: secuencia revalidación → PRETERMINARACTIVIAD → motor legacy → TERMINARACTIVIDAD → auditoría; autorización, concurrencia, límites, riesgos, piloto y rollback.
-> - `04-pruebas-y-evidencia.md`: comandos, compilación, pruebas focales, QA manual, E2E o justificación, resultados, limitaciones y referencias de evidencia.
-> - `Diagramas/`: diagramas Mermaid o fuentes estructuradas de componentes, secuencia, concurrencia y estados cuando correspondan.
-> - Incluir una tabla con: clase o función, ruta, capa, parámetros/DTO, responsabilidad y dependencia legacy permitida.
-> - El prompt fuente `03-ejecucion-segura.md` permanece en `Doc/Actualizacion/workflow/Terminar/`; no crear documentación de implementación junto a él, en la raíz del repositorio ni en rutas alternativas sin justificarlo expresamente en el entregable.
-> 
-> Criterios de aceptación:
-> - `EjecutarEnvioTarea` revalida en servidor sesión, permisos, pertenencia, estado, token de versión, conector y requisitos de negocio antes de invocar el motor legacy.
-> - `EjecutarEnvioTarea` vive en `WebServiceWorkflowModern` y rechaza llamadas directas fuera del piloto mediante `IWorkflowModernFeatureGate`, sin ejecutar transición ni fallback automático.
-> - Solo `WorkflowLegacyExecutorAdapter` invoca `Terminar_Tarea_Workflow` y `Cambia_Estado`; no existe una segunda transacción ni duplicación de reglas.
-> - Los eventos `PRETERMINARACTIVIAD` y `TERMINARACTIVIDAD`, correo y trazabilidad se conservan en servidor con el comportamiento legacy aplicable.
-> - La operación evita doble envío y entrega resultado idempotente o bloqueo funcional controlado ante concurrencia.
-> - El JSON no filtra datos internos y registra auditoría con usuario, tarea, origen, destino, mecanismo, fecha y resultado.
-> - La interfaz y el flujo legacy se preservan sin regresiones; compilación, pruebas focales y QA manual quedan registrados con evidencia.
-> 
-> Entregable final:
-> - Entregar los archivos creados o modificados con rutas, capas, dependencias y tabla de responsabilidades.
-> - Entregar contrato JSON de ejemplo, reglas de validación, límites legacy, documentación del paquete obligatorio y diagramas aplicables.
-> - Entregar comandos ejecutados, resultados de compilación/pruebas, evidencia de QA manual, E2E o justificación, riesgos y limitaciones.
-> - Declarar explícitamente qué comportamiento legacy se preservó, qué no se modificó y cuál es el criterio de piloto/rollback para habilitar la versión moderna.
-> ```
+Agregar EjecutarEnvioTarea al ASMX moderno existente. El navegador solo solicita una transición; el servidor reconstruye el contexto, autoriza el destino, serializa la operación y delega el cambio efectivo al motor legacy.
 
-## Goals / Non-Goals
+## Límites preservados
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- No se modifica workflow/Webworkflow.aspx ni workflow/Webworkflow.aspx.vb.
+- No se modifica workflow/ClassWorkflow.vb ni se reimplementa Terminar_Tarea_Workflow o Cambia_Estado.
+- JavaScript, ASMX, Application y repositorios no llaman Terminar_Tarea_Workflow ni Cambia_Estado.
+- WorkflowLegacyExecutorAdapter es el único adaptador que puede invocar Terminar_Tarea_Workflow; Cambia_Estado sigue siendo una llamada interna de ese método legacy.
+- No se abre una transacción nueva para cambiar estados Workflow.
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+## Flujo de componentes
 
-## Decisions
+1. WebServiceWorkflowModern.ASMX recibe idTarea, idConector y tokenVersion con sesión habilitada.
+2. WorkflowPreviewSessionContextGate crea el contexto de ejecución completo desde la sesión Gestión ya autenticada, incluida la inicialización de permisos que requiere el motor legacy.
+3. ServicioTransicionTarea aplica feature gate, valida forma de solicitud y relee la tarea asignada al usuario actual.
+4. El guard de concurrencia obtiene un bloqueo de MySQL por tarea y versión; dentro de él se releen tarea y destino.
+5. El repositorio de ejecución resuelve para RUTA o FLUJO los argumentos autorizados del conector, no el DTO mostrado en preview.
+6. El servicio valida requisitos y llama EjecutorTransicionTarea.
+7. WorkflowLegacyExecutorAdapter ejecuta la única llamada a Terminar_Tarea_Workflow, sin actualizar controles Web Forms y conservando los eventos y efectos legacy.
+8. El servicio normaliza el resultado, registra auditoría y devuelve ResultadoTransicionDto.
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+## Decisiones
 
+### D-01 — Un endpoint, composición segura
 
-## Risks / Trade-offs
+El método se agrega a webservice/WebServiceWorkflowModern.asmx.vb con EnableSession y ResponseFormat Json. El ASMX no recibe datos de usuario, ruta, grupo, actividad destino, conexión ni permisos. Ante una excepción devuelve ResultadoTransicionDto con código WORKFLOW_TRANSITION_UNAVAILABLE y no la excepción.
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+### D-02 — Contexto de ejecución completo
 
-## Migration Plan
+El gate de sesión existente tendrá una ruta explícita para ejecución. Comprueba la sesión Gestión, relación Gestión-Workflow, usuario, grupo, conexión Workflow y permisos mediante `SolicitaPermisosUsuarioWorkflow`; resuelve el nombre de ruta y conserva `SESIONCOMPILAR` y los eventos legacy ya preparados por el login Gestión. Solo si la sesión está incompleta prepara esos eventos con `InicioWorkflow.CompilaScriptUsuario`; no invoca `InicializaSesionModuloWorkflow`, porque esa rutina registra login y compone estado propio de la página Web Forms. Si falta un dato, limpia únicamente el contexto Workflow creado y retorna un contexto inválido. Preview sigue siendo de lectura y no invoca esta preparación.
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+### D-03 — Datos del navegador sin autoridad
 
-## Open Questions
+La solicitud solo identifica la intención. ValidadorTransicionTarea exige idTarea positivo, idConector positivo y token no vacío. ITareaWorkflowRepository relee la tarea seleccionada del usuario actual y su token. Un destino de ejecución tipado contiene solo datos que salen de consultas servidoras: tipo, actividad real destino, usuario destino, flujo, actividad de flujo destino, usuario origen, actividad origen, conector y bandera de correo.
 
-- TBD
+### D-04 — Resolución separada de RUTA y FLUJO
+
+ITransicionEjecucionRepository resuelve el conector contra la tarea actual.
+
+- RUTA valida grupo, ruta y actividad origen y recupera el conector de actividades_disponibles_envio, actividad siguiente y correo.
+- FLUJO valida flujo, nodo/actividad origen y usuario/grupo fuente, recupera tanto la actividad real de listado_actividades_workflow como los identificadores de wf_registro_actividaes_flujos_trabajo requeridos por el motor.
+
+Un conector encontrado fuera de este contexto produce WORKFLOW_CONNECTOR_UNAVAILABLE. Esta capa no recibe Session y usa IModuleConnectionFactory.
+
+### D-05 — Único límite legacy
+
+WorkflowLegacyExecutorAdapter recibe el contexto y el destino de ejecución ya autorizados. Es el único punto nuevo que crea ClassWorkflow y llama Terminar_Tarea_Workflow. Pasa Page=Nothing y activa_actualizacion_paramtros_interface=0 para que el servicio no manipule controles, cachés ni lista de tareas. Mantiene activa_evento_dinamicos=1, por lo que PRETERMINARACTIVIAD puede bloquear y TERMINARACTIVIDAD se conserva después del cambio. Correo, auditoría legacy y Cambia_Estado permanecen bajo la llamada legacy.
+
+### D-06 — Requisitos previos y mensajes
+
+Antes de la llamada efectiva, se conservan las verificaciones existentes de respuesta/confirmación, aprobaciones y autorizaciones. Firma, expediente, copia documental y balanceo se validan por las reglas actuales del motor legacy y se convierten a bloqueo funcional si impiden continuar. Ningún mensaje original de excepción, SQL o credencial pasa al DTO.
+
+### D-07 — Concurrencia sin segunda transacción
+
+ITransicionConcurrencyGuard mantiene una conexión MySQL y usa GET_LOCK con una clave determinista de tarea y versión. Mientras está retenido se vuelve a leer tarea y destino. Si no se adquiere, se devuelve WORKFLOW_TRANSITION_IN_PROGRESS; si el primer envío consumió la tarea, el segundo recibe WORKFLOW_VERSION_CONFLICT. Al liberar se ejecuta RELEASE_LOCK. El guard no escribe estados ni crea una transacción de negocio.
+
+### D-08 — Resultado, auditoría e idempotencia
+
+ResultadoTransicionDto se completa con Exito, EstadoFinal, MensajeFuncional, CodigoBloqueo, Advertencias, ActividadDestino, Destino, TokenVersion, ReferenciaAuditoria y EsReintentable. Los textos de resultado legacy se clasifican en éxito, rechazo funcional o indisponibilidad sin exponerse directamente. La auditoría registra usuario, tarea, origen, destino, mecanismo, fecha y resultado; la referencia se devuelve solo si no revela datos internos.
+
+### D-09 — Verificación
+
+Las pruebas unitarias cubren validación, mapeo, bloqueos y adaptación del resultado. Las integraciones prueban resolución de RUTA/FLUJO y el guard. QA/E2E ejercitan éxito, bloqueo y concurrencia. Una E2E de ejecución requiere tarea y cuentas descartables explícitamente autorizadas; nunca se usa una tarea real de operación solo para validar.
+
+### D-10 — Piloto y reversa
+
+El gate WorkflowCentroTrabajoModernActive se mantiene false por defecto. El piloto se limita a usuarios/grupos de configuración y se revierte poniendo el gate en false, sin revertir estados ni alterar el camino Web Forms.
+
+## Alternativas descartadas
+
+| Alternativa | Motivo de descarte |
+| --- | --- |
+| Llamar Terminar_Tarea_Workflow desde ASMX o ServicioTransicionTarea | Rompe el límite único y mezcla Presentation/Application con el núcleo legacy. |
+| Usar el DestinoTransicionDto de preview como orden de ejecución | El DTO no contiene todos los identificadores de FLUJO ni es una autorización vigente. |
+| Crear una transacción nueva que actualice estados_tarea_workflow | Duplicaría Cambia_Estado y podría dejar los dos caminos inconsistentes. |
+| Lock en memoria del proceso | No protege instalaciones con más de una instancia Web Forms. |
+| Ejecutar sin inicializar permisos de sesión | El motor legacy usa valores de sesión además del usuario, grupo y ruta. |
+
+## Riesgos y mitigaciones
+
+| Riesgo | Mitigación |
+| --- | --- |
+| Reglas legacy con efectos colaterales no visibles | Conservar el motor, eventos y correo; probar primero en un piloto aislado. |
+| El adaptador recibe texto legacy no apto para JSON | Normalizar y no retornar el texto original. |
+| Lock abandonado por error | Usar Using/Finally para RELEASE_LOCK y cierre de conexión. |
+| Una tarea cambia entre preview y envío | Token, releída dentro del lock y conflicto controlado. |

@@ -1,0 +1,16 @@
+flowchart LR
+    B[Navegador] --> A[WebServiceWorkflowModern<br/>EjecutarEnvioTarea]
+    A --> S[WorkflowPreviewSessionContextGate]
+    A --> T[ServicioTransicionTarea]
+    T --> G[IWorkflowModernFeatureGate]
+    T --> L[MySqlTransicionConcurrencyGuard]
+    T --> R[ITransicionEjecucionRepository]
+    T --> Q[IRequisitosTransicionRepository]
+    T --> E[EjecutorTransicionTarea]
+    T --> U[IAuditoriaTransicionRepository]
+    R --> DB[(Workflow / Docuarchi)]
+    L --> DB
+    E --> X[WorkflowLegacyExecutorAdapter]
+    X --> C[ClassWorkflow.Terminar_Tarea_Workflow]
+    C --> EV[PRETERMINARACTIVIAD / Cambia_Estado<br/>TERMINARACTIVIDAD / correo]
+    U --> AU[Auditoría legacy]
