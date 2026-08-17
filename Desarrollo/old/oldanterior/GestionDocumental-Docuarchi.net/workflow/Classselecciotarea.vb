@@ -856,6 +856,18 @@ Public Class Classselecciotarea
                 Actualiza_interface_estado_flujo_ruta = "Imposible encontrar el control (Label_estado_tarea_selecion)"
                 Exit Function
             End If
+            Dim workflowPage As Webworkflow = TryCast(pag, Webworkflow)
+            Dim modernTaskContextEnabled As Boolean = workflowPage IsNot Nothing AndAlso workflowPage.WorkflowCentroTrabajoModernActive
+            Dim Label_contexto_tramite As Label = Nothing
+            Dim Label_contexto_estado As Label = Nothing
+            If modernTaskContextEnabled Then
+                Label_contexto_tramite = pag.FindControl("Label_contexto_tramite")
+                Label_contexto_estado = pag.FindControl("Label_contexto_estado")
+                If Label_contexto_tramite Is Nothing OrElse Label_contexto_estado Is Nothing Then
+                    Actualiza_interface_estado_flujo_ruta = "Imposible encontrar los controles de contexto DOC-2"
+                    Exit Function
+                End If
+            End If
             Dim Panel_detalle_tarea As Panel = pag.FindControl("Panel_detalle_tarea")
             If Panel_detalle_tarea Is Nothing Then
                 Actualiza_interface_estado_flujo_ruta = "Imposible encontrar el control (Panel_detalle_tarea)"
@@ -890,6 +902,10 @@ Public Class Classselecciotarea
                 Panel_Buttonanotacion.Visible = False
                 Label_estado_selecion.Visible = False
                 Label_estado_tarea_selecion.Text = "Estado"
+                If modernTaskContextEnabled Then
+                    Label_contexto_tramite.Text = String.Empty
+                    Label_contexto_estado.Text = String.Empty
+                End If
                 updatemenu.Update()
                 UpdatePanel_estado_tarea.Update()
                 UpdatePanel_menu_cab.Update()
@@ -922,6 +938,9 @@ Public Class Classselecciotarea
             Dim estado_cerrado_flujo As Integer = 0
             Dim estado_ruta As Integer = 0
             Dim nombre_flujo_trabajo As String = ""
+            Dim tipo_proceso_contexto As String = ""
+            Dim nombre_proceso_contexto As String = ""
+            Dim estado_contexto As String = ""
             Result = Class_DAT_ADIC_TAR.SolicitaIdFlujoTrabajoIdTareaRutaWorkflow(HttpContext.Current.Session("WF_RUTAWORKFLOW"),
                                                                                   id_tarea,
                                                                                   id_flujo_trabajo)
@@ -947,11 +966,15 @@ Public Class Classselecciotarea
                     Panel_EnviaActividad.Visible = False
                     Label_estado_selecion.Text = "Flujo : " & nombre_flujo_trabajo & " Tipo : Cerrado"
                     Panel_autoterminar.Visible = False
+                    estado_contexto = "Cerrado"
                 Else
                     Panel_EnviarUsuario.Visible = True
                     Panel_EnviaActividad.Visible = True
                     Label_estado_selecion.Text = "Flujo : " & nombre_flujo_trabajo & " Tipo : Abierto"
+                    estado_contexto = "Abierto"
                 End If
+                tipo_proceso_contexto = "Flujo"
+                nombre_proceso_contexto = nombre_flujo_trabajo
 
             Else
                 Result = Ref_class_worlflow_ruta.Solicita_etado_abierto_cerrado_ruta_tarea(id_tarea,
@@ -967,11 +990,15 @@ Public Class Classselecciotarea
                     Panel_EnviaActividad.Visible = False
                     Label_estado_selecion.Text = "Ruta : " & HttpContext.Current.Session("WF_RUTAWORKFLOW") & " Tipo : Cerrado"
                     Panel_autoterminar.Visible = False
+                    estado_contexto = "Cerrado"
                 Else
                     Panel_EnviarUsuario.Visible = True
                     Panel_EnviaActividad.Visible = True
                     Label_estado_selecion.Text = "Ruta : " & HttpContext.Current.Session("WF_RUTAWORKFLOW") & " Tipo : Abierto"
+                    estado_contexto = "Abierto"
                 End If
+                tipo_proceso_contexto = "Ruta"
+                nombre_proceso_contexto = Convert.ToString(HttpContext.Current.Session("WF_RUTAWORKFLOW"))
             End If
             If HttpContext.Current.Session("CAMBIO_USUARIO") = 0 Then
                 Panel_EnviarUsuario.Visible = False
@@ -1045,7 +1072,17 @@ Public Class Classselecciotarea
                 Actualiza_interface_estado_flujo_ruta = Result
                 Exit Function
             End If
-            Label_estado_tarea_selecion.Text = "-Radicado : " & Radicado & "      -Solicitante : " & beneficiario & "    -Tramite : " & tramite
+            If modernTaskContextEnabled Then
+                Label_contexto_tramite.Text = System.Web.HttpUtility.HtmlEncode(tramite)
+                Label_contexto_estado.Text = System.Web.HttpUtility.HtmlEncode(estado_contexto)
+                Label_estado_tarea_selecion.Text = "Radicado " & System.Web.HttpUtility.HtmlEncode(Radicado)
+                If Not String.IsNullOrWhiteSpace(beneficiario) Then
+                    Label_estado_tarea_selecion.Text &= " · " & System.Web.HttpUtility.HtmlEncode(beneficiario)
+                End If
+                Label_estado_selecion.Text = tipo_proceso_contexto & " · " & System.Web.HttpUtility.HtmlEncode(nombre_proceso_contexto)
+            Else
+                Label_estado_tarea_selecion.Text = "-Radicado : " & Radicado & "      -Solicitante : " & beneficiario & "    -Tramite : " & tramite
+            End If
             UpdatePanel_estado_tarea.Update()
             Actualiza_interface_estado_flujo_ruta = "YES"
             updatemenu.Update()
@@ -2196,6 +2233,8 @@ Public Class Classselecciotarea
             Dim ref_hiden_seleccion_documento_wf As Object = pag.FindControl("hiden_seleccion_documento_wf")
             Dim ref_UpdatePanelseleccion As UpdatePanel = pag.FindControl("UpdatePanelseleccion")
             Dim ref_Hidden_numero_doc_rel_wf As Object = pag.FindControl("Hidden_numero_doc_rel_wf")
+            Dim ref_Webworkflow As Webworkflow = TryCast(pag, Webworkflow)
+            Dim modernDocumentCountFormat As Boolean = ref_Webworkflow IsNot Nothing AndAlso ref_Webworkflow.WorkflowCentroTrabajoModernActive
             '-------------------------------------------------------------------------
             'Lista los documentos para la tarea asignada en workflow
             '-------------------------------------------------------------------------
@@ -2211,7 +2250,8 @@ Public Class Classselecciotarea
                                                                                                ref_hiden_seleccion_documento_wf,
                                                                                                ref_UpdatePanelseleccion,
                                                                                                ref_UpdatePanel_label_seleccion,
-                                                                                               Val(ref_Hidden_numero_doc_rel_wf.Value))
+                                                                                               Val(ref_Hidden_numero_doc_rel_wf.Value),
+                                                                                               modernDocumentCountFormat)
 
                 If Result <> "YES" Then
                     Lista_imagenes_gestion_de_correspondencia = Result
@@ -2819,6 +2859,8 @@ Public Class Classselecciotarea
             Dim ref_Hidden_numero_doc_rel_wf As Object = pag.FindControl("Hidden_numero_doc_rel_wf")
             Dim UpdatePanelnumeroespera As UpdatePanel = pag.FindControl("UpdatePanelnumeroespera")
             Dim LabelEspera As Label = pag.FindControl("LabelEspera")
+            Dim ref_Webworkflow As Webworkflow = TryCast(pag, Webworkflow)
+            Dim modernDocumentCountFormat As Boolean = ref_Webworkflow IsNot Nothing AndAlso ref_Webworkflow.WorkflowCentroTrabajoModernActive
             '-------------------------------------------------------------------------
             'Lista los documentos para la tarea asignada en workflow CAMBIAR
             '-------------------------------------------------------------------------
@@ -2834,7 +2876,8 @@ Public Class Classselecciotarea
                                                                                               ref_hiden_seleccion_documento_wf,
                                                                                               ref_UpdatePanelseleccion,
                                                                                               ref_UpdatePanel_label_seleccion,
-                                                                                              Val(ref_Hidden_numero_doc_rel_wf.Value))
+                                                                                              Val(ref_Hidden_numero_doc_rel_wf.Value),
+                                                                                              modernDocumentCountFormat)
 
                 If Result <> "YES" Then
                     Asigna_tarea = Result

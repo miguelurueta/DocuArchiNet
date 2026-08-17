@@ -1,0 +1,30 @@
+sequenceDiagram
+    participant U as Usuario
+    participant L as Lista moderna
+    participant A as Adaptador Workflow
+    participant C as ConfirmationDialog
+    participant S as ASMX/Application
+    participant P as Callback de página
+
+    U->>L: Selecciona destino
+    L->>A: workflow:destination-selected
+    A->>C: open(config)
+    U->>C: Confirma envío
+    C->>A: execute(contexto opaco)
+    A->>S: EjecutarEnvioTarea(tarea, conector, token)
+    opt Usuario intenta cerrar o recargar durante enviando
+        C-->>U: Mantiene diálogo y anuncia espera
+        C-->>U: Navegación solicita confirmación nativa
+    end
+    S-->>A: ResultadoTransicionDto
+    alt éxito correlacionado
+        A->>C: normalizar success
+        C->>P: onSuccess
+        P->>P: Retira fila, limpia visor y ajusta contador
+    else bloqueo o error
+        A->>C: normalizar bloqueo/error
+        C->>U: Mantiene contexto y recupera acciones
+    else respuesta obsoleta
+        A->>C: ignored
+        C-->>U: Sin cambio visual
+    end

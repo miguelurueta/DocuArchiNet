@@ -1882,6 +1882,10 @@
     <Content Include="js\workflow\WebFormFreeImage_1.js" />
     <Content Include="js\workflow\WebFormListaDiagramaFlujo.js" />
     <Content Include="js\workflow\Webworkflow_2.js" />
+    <Content Include="js\workflow\workflow-transition-ui.js" />
+    <Content Include="js\workflow\workflow-transition-confirmation-integration.js" />
+    <Content Include="js\workflow\workflow-transition-page-presentation.js" />
+    <Content Include="js\java_general\ConfirmationDialog.js" />
     <Content Include="Login.aspx" />
     <Content Include="menu_scoope\assets\css\bootstrap.css" />
     <Content Include="menu_scoope\assets\css\bootstrap.min.css" />
@@ -7979,6 +7983,7 @@
     <Content Include="js\workflow\WebFormRecuperarTarea.js" />
     <Content Include="js\workflow\WebFormVisorExterno.js" />
     <Content Include="js\workflow\Webworkflow.js" />
+    <Content Include="js\workflow\centro-trabajo-visual.js" />
     <Content Include="logogestor.png" />
     <Content Include="mensajesajax\InnerPage.aspx" />
     <Content Include="mensajesajax\WebFormmensaje.aspx" />
@@ -8148,6 +8153,9 @@
     <Content Include="Scripts\MindFusion.Diagramming.js" />
     <Content Include="Scripts\PageMenu.js" />
     <Content Include="Styles\Aplicaction.css" />
+    <Content Include="Styles\workflow-centro-trabajo-moderno.css" />
+    <Content Include="Styles\workflow-transition-modern.css" />
+    <Content Include="Styles\confirmation-dialog.css" />
     <Content Include="Styles\Menu3.css" />
     <Content Include="Styles\menu_lib.css" />
     <Content Include="Styles\prettyPhoto.css" />
@@ -8375,6 +8383,7 @@
     <Content Include="webservice\WebServiceDocuarchi.asmx" />
     <Content Include="webservice\WebServiceRadicacion.asmx" />
     <Content Include="webservice\WebServiceWorkflow.asmx" />
+    <Content Include="webservice\WebServiceWorkflowModern.asmx" />
     <Content Include="workflow\act.js" />
     <Content Include="workflow\imageneswf\1471559663_Error.png" />
     <Content Include="workflow\imageneswf\1471560355_free-33.png" />
@@ -9651,6 +9660,10 @@
     <Compile Include="webservice\WebServiceWorkflow.asmx.vb">
       <DependentUpon>WebServiceWorkflow.asmx</DependentUpon>
     </Compile>
+    <Compile Include="webservice\WebServiceWorkflowModern.asmx.vb">
+      <DependentUpon>WebServiceWorkflowModern.asmx</DependentUpon>
+    </Compile>
+    <Compile Include="webservice\WorkflowPreviewSessionContextGate.vb" />
     <Compile Include="webservice\WebService_Config_Digitalizacion.asmx.vb">
       <DependentUpon>WebService_Config_Digitalizacion.asmx</DependentUpon>
       <SubType>Component</SubType>
@@ -9694,6 +9707,23 @@
       <DependentUpon>WebFormproduc.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="DTOs\Workflow\Terminar\TransicionWorkflowDtos.vb" />
+    <Compile Include="Services\Workflow\Terminar\ServicioTransicionTarea.vb" />
+    <Compile Include="Services\Workflow\Terminar\ValidadorTransicionTarea.vb" />
+    <Compile Include="Modelo\Workflow\Terminar\WorkflowModernModels.vb" />
+    <Compile Include="Modelo\Workflow\Terminar\WorkflowModernInterfaces.vb" />
+    <Compile Include="Domain\Shared\ContextoModulo.vb" />
+    <Compile Include="Infrastructure\Shared\Data\ModuleDataContracts.vb" />
+    <Compile Include="Infrastructure\Shared\Data\ModuleConnectionFactory.vb" />
+    <Compile Include="Infrastructure\Shared\Data\AdoNetDataInfrastructure.vb" />
+    <Compile Include="Infrastructure\Shared\Data\WorkflowModuleConnectionFactory.vb" />
+    <Compile Include="Infrastructure\Repositories\Workflow\MySqlWorkflowPreviewRepositories.vb" />
+    <Compile Include="Infrastructure\Repositories\Workflow\MySqlTransicionEjecucionRepository.vb" />
+    <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyExecutorAdapter.vb" />
+    <Compile Include="Infrastructure\Workflow\Terminar\MySqlTransicionConcurrencyGuard.vb" />
+    <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyRequisitosAdapter.vb" />
+    <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyAuditoriaAdapter.vb" />
+    <Compile Include="Infrastructure\Workflow\Terminar\ConfiguracionWorkflowModernFeatureGate.vb" />
     <Compile Include="workflow\ClassAlmacenamiento.vb" />
     <Compile Include="workflow\ClassAñadirDocumento.vb" />
     <Compile Include="workflow\ClassEdtiScript.vb" />
@@ -10004,6 +10034,7 @@
       <DependentUpon>Webworkflow.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="workflow\WorkflowModernPresentationBootstrap.vb" />
     <Compile Include="workflow\WebWorkflowCambiarPasword.aspx.designer.vb">
       <DependentUpon>WebWorkflowCambiarPasword.aspx</DependentUpon>
     </Compile>

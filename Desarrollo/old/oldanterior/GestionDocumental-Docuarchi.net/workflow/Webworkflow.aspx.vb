@@ -5,9 +5,13 @@ Imports Neodynamic.WebControls.ImageDraw
 Imports System.Windows.Forms
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 Imports System.Diagnostics
+Imports System.Configuration
 
 Public Class Webworkflow
     Inherits RefreshArticle.BasePage
+    Private Const WorkflowCentroTrabajoModernEnabledKey As String = "WorkflowCentroTrabajoModernEnabled"
+    Private Const WorkflowCentroTrabajoModernPilotProfilesKey As String = "WorkflowCentroTrabajoModernPilotProfiles"
+    Private Const WorkflowCentroTrabajoModernLayersKey As String = "WorkflowCentroTrabajoModernLayers"
     Public Matri_Doc_Visual() As String
     Public Doc_actual As String = ""
     Public ruta_documento As String = ""
@@ -22,6 +26,351 @@ Public Class Webworkflow
     Dim ini As Long
     Dim Popupenlace As Object
     Dim bolindice As Boolean = False
+    Private _workflowTransitionModernActive As Nullable(Of Boolean)
+
+    Public ReadOnly Property WorkflowCentroTrabajoModernActive As Boolean
+        Get
+            If Not IsConfigurationEnabled(ReadConfigurationValue(WorkflowCentroTrabajoModernEnabledKey, "false")) Then
+                Return False
+            End If
+
+            Return CurrentWorkflowPilotIsEnabled()
+        End Get
+    End Property
+
+    Public ReadOnly Property WorkflowCentroTrabajoModernCssAttribute As String
+        Get
+            If Not WorkflowCentroTrabajoModernActive Then
+                Return String.Empty
+            End If
+
+            Return " class=""workflow-centro-trabajo-moderno " & EnabledWorkflowCentroTrabajoLayers() & """"
+        End Get
+    End Property
+
+    Public ReadOnly Property WorkflowCentroTrabajoSelectedDocumentAvailable As Boolean
+        Get
+            Dim selectedDocument As String = WorkflowCentroTrabajoSelectedDocumentRaw()
+            Return Not String.IsNullOrWhiteSpace(selectedDocument) AndAlso selectedDocument <> "-1"
+        End Get
+    End Property
+
+    Public ReadOnly Property WorkflowCentroTrabajoSelectedDocumentTitle As String
+        Get
+            Dim values() As String = WorkflowCentroTrabajoSelectedDocumentRaw().Split("|"c)
+            Dim title As String = If(values.Length > 4, values(4), String.Empty)
+
+            Return EncodeWorkflowCentroTrabajoContextText(title, "Documento seleccionado")
+        End Get
+    End Property
+
+    Public ReadOnly Property WorkflowCentroTrabajoSelectedDocumentFormat As String
+        Get
+            Dim selectionTag As String = String.Empty
+            Dim values() As String
+            Dim extension As String
+
+            If HttpContext.Current IsNot Nothing AndAlso HttpContext.Current.Session IsNot Nothing Then
+                selectionTag = Convert.ToString(HttpContext.Current.Session.Item("WF_TAGSELECCION"))
+            End If
+
+            values = selectionTag.Split("|"c)
+            extension = If(values.Length > 3, values(3), String.Empty).Trim().TrimStart("."c)
+            If Not String.IsNullOrWhiteSpace(extension) Then
+                Return System.Web.HttpUtility.HtmlEncode(extension.ToUpperInvariant())
+            End If
+
+            Return If(WorkflowCentroTrabajoSelectedDocumentAvailable, "Documento", "")
+        End Get
+    End Property
+
+    Public ReadOnly Property WorkflowCentroTrabajoSelectedDocumentMetadataAvailable As Boolean
+        Get
+            Return WorkflowCentroTrabajoSelectedDocumentAvailable AndAlso
+                   Panel_tolbar_pdf IsNot Nothing AndAlso
+                   Panel_tolbar_pdf.Visible
+        End Get
+    End Property
+
+    Public ReadOnly Property WorkflowCentroTrabajoSelectedDocumentId As String
+        Get
+            Dim selectedDocumentId As String = String.Empty
+            Dim values() As String
+
+            If hiden_seleccion_documento_id_wf IsNot Nothing Then
+                selectedDocumentId = Convert.ToString(hiden_seleccion_documento_id_wf.Value).Trim()
+            End If
+
+            If String.IsNullOrWhiteSpace(selectedDocumentId) Then
+                values = WorkflowCentroTrabajoSelectedDocumentRaw().Split("|"c)
+                selectedDocumentId = If(values.Length > 1, values(1), String.Empty)
+            End If
+
+            Return System.Web.HttpUtility.HtmlAttributeEncode(selectedDocumentId)
+        End Get
+    End Property
+
+    Public ReadOnly Property WorkflowCentroTrabajoSelectedDocumentReference As String
+        Get
+            Return System.Web.HttpUtility.HtmlAttributeEncode(WorkflowCentroTrabajoSelectedDocumentRaw())
+        End Get
+    End Property
+
+    Public Function WorkflowCentroTrabajoSelectedDocumentActionExists(ByVal actionName As String) As Boolean
+        Return WorkflowCentroTrabajoSelectedDocumentAction(actionName) IsNot Nothing
+    End Function
+
+    Public Function WorkflowCentroTrabajoSelectedDocumentActionAttribute(ByVal actionName As String, ByVal attributeName As String) As String
+        Dim action As Global.System.Web.UI.HtmlControls.HtmlGenericControl = WorkflowCentroTrabajoSelectedDocumentAction(actionName)
+        If action Is Nothing OrElse String.IsNullOrWhiteSpace(attributeName) Then
+            Return String.Empty
+        End If
+
+        Return System.Web.HttpUtility.HtmlAttributeEncode(Convert.ToString(action.Attributes(attributeName)))
+    End Function
+
+    Private Function WorkflowCentroTrabajoSelectedDocumentRaw() As String
+        If hiden_seleccion_documento_wf Is Nothing Then
+            Return String.Empty
+        End If
+
+        Return Convert.ToString(hiden_seleccion_documento_wf.Value).Trim()
+    End Function
+
+    Private Function WorkflowCentroTrabajoSelectedDocumentAction(ByVal actionName As String) As Global.System.Web.UI.HtmlControls.HtmlGenericControl
+        Dim selectedDocumentId As String = String.Empty
+        Dim row As System.Web.UI.WebControls.GridViewRow
+
+        If String.IsNullOrWhiteSpace(actionName) OrElse Not WorkflowCentroTrabajoSelectedDocumentAvailable OrElse GridView_list_documento_relacion_wf Is Nothing Then
+            Return Nothing
+        End If
+
+        If hiden_seleccion_documento_id_wf IsNot Nothing Then
+            selectedDocumentId = Convert.ToString(hiden_seleccion_documento_id_wf.Value).Trim()
+        End If
+
+        For Each row In GridView_list_documento_relacion_wf.Rows
+            If String.Equals(Convert.ToString(row.Attributes("id_wf")), selectedDocumentId, StringComparison.Ordinal) Then
+                Return FindWorkflowCentroTrabajoAction(row, actionName)
+            End If
+        Next
+
+        Return Nothing
+    End Function
+
+    Private Shared Function FindWorkflowCentroTrabajoAction(ByVal parent As Global.System.Web.UI.Control, ByVal actionName As String) As Global.System.Web.UI.HtmlControls.HtmlGenericControl
+        Dim child As Global.System.Web.UI.Control
+        Dim htmlControl As Global.System.Web.UI.HtmlControls.HtmlGenericControl
+        Dim nestedAction As Global.System.Web.UI.HtmlControls.HtmlGenericControl
+
+        For Each child In parent.Controls
+            htmlControl = TryCast(child, Global.System.Web.UI.HtmlControls.HtmlGenericControl)
+            If htmlControl IsNot Nothing AndAlso String.Equals(Convert.ToString(htmlControl.Attributes("tip_event")), actionName, StringComparison.Ordinal) Then
+                Return htmlControl
+            End If
+
+            nestedAction = FindWorkflowCentroTrabajoAction(child, actionName)
+            If nestedAction IsNot Nothing Then
+                Return nestedAction
+            End If
+        Next
+
+        Return Nothing
+    End Function
+
+    Private Shared Function EncodeWorkflowCentroTrabajoContextText(ByVal value As String, ByVal fallback As String) As String
+        Dim text As String = If(String.IsNullOrWhiteSpace(value), fallback, value.Trim().TrimStart("-"c).Trim())
+        Return System.Web.HttpUtility.HtmlEncode(text)
+    End Function
+
+    Private Shared Function ReadConfigurationValue(ByVal key As String, ByVal fallback As String) As String
+        Dim configuredValue As String = ConfigurationManager.AppSettings(key)
+        If String.IsNullOrWhiteSpace(configuredValue) Then
+            Return fallback
+        End If
+
+        Return configuredValue.Trim()
+    End Function
+
+    Private Shared Function IsConfigurationEnabled(ByVal value As String) As Boolean
+        Return String.Equals(value, "true", StringComparison.OrdinalIgnoreCase) OrElse
+               String.Equals(value, "1", StringComparison.OrdinalIgnoreCase) OrElse
+               String.Equals(value, "yes", StringComparison.OrdinalIgnoreCase)
+    End Function
+
+    Private Function CurrentWorkflowPilotIsEnabled() As Boolean
+        If HttpContext.Current Is Nothing OrElse HttpContext.Current.Session Is Nothing Then
+            Return False
+        End If
+
+        'El perfil piloto es el login de gestión creado por el servidor durante el inicio de sesión.
+        Dim currentProfile As String = Convert.ToString(HttpContext.Current.Session.Item("GA_LOGINUSUARIOGESTION")).Trim()
+        Dim configuredProfiles As String = ReadConfigurationValue(WorkflowCentroTrabajoModernPilotProfilesKey, String.Empty)
+        Dim profiles() As String
+        Dim profile As String
+
+        If String.IsNullOrWhiteSpace(currentProfile) OrElse String.IsNullOrWhiteSpace(configuredProfiles) Then
+            Return False
+        End If
+
+        profiles = configuredProfiles.Split(New Char() {","c, ";"c, ControlChars.Cr, ControlChars.Lf}, StringSplitOptions.RemoveEmptyEntries)
+        For Each profile In profiles
+            If String.Equals(profile.Trim(), currentProfile, StringComparison.OrdinalIgnoreCase) Then
+                Return True
+            End If
+        Next
+
+        Return False
+    End Function
+
+    Private Function EnabledWorkflowCentroTrabajoLayers() As String
+        Dim configuredLayers As String = ReadConfigurationValue(WorkflowCentroTrabajoModernLayersKey, "layout,actions,documents,a11y")
+        Dim layoutEnabled As Boolean = IsWorkflowCentroTrabajoLayerEnabled(configuredLayers, "layout")
+        Dim classes As String = String.Empty
+
+        'Todas las subcapas dependen del layout: sin él la capa queda inerte y es reversible por configuración.
+        If Not layoutEnabled Then
+            Return classes
+        End If
+
+        classes = "ctw-layer-layout"
+        If IsWorkflowCentroTrabajoLayerEnabled(configuredLayers, "actions") Then
+            classes &= " ctw-layer-actions"
+        End If
+        If IsWorkflowCentroTrabajoLayerEnabled(configuredLayers, "documents") Then
+            classes &= " ctw-layer-documents"
+        End If
+        If IsWorkflowCentroTrabajoLayerEnabled(configuredLayers, "a11y") Then
+            classes &= " ctw-layer-a11y"
+        End If
+
+        Return classes
+    End Function
+
+    Private Shared Function IsWorkflowCentroTrabajoLayerEnabled(ByVal configuredLayers As String, ByVal expectedLayer As String) As Boolean
+        Dim layers() As String = configuredLayers.Split(New Char() {","c, ";"c, ControlChars.Cr, ControlChars.Lf}, StringSplitOptions.RemoveEmptyEntries)
+        Dim layer As String
+
+        For Each layer In layers
+            If String.Equals(layer.Trim(), expectedLayer, StringComparison.OrdinalIgnoreCase) Then
+                Return True
+            End If
+        Next
+
+        Return False
+    End Function
+
+    Private Sub ConfigureWorkflowCentroTrabajoViewport()
+        If workflowCentroTrabajoModernViewport IsNot Nothing Then
+            workflowCentroTrabajoModernViewport.Visible = WorkflowCentroTrabajoModernActive
+        End If
+    End Sub
+
+    Private ReadOnly Property WorkflowTransitionModernActive As Boolean
+        Get
+            If Not _workflowTransitionModernActive.HasValue Then
+                _workflowTransitionModernActive = WorkflowModernPresentationBootstrap.EstaActivaParaSolicitudActual()
+            End If
+
+            Return _workflowTransitionModernActive.Value
+        End Get
+    End Property
+
+    Private Sub ConfigureWorkflowTransitionModernPresentation()
+        If Not WorkflowTransitionModernActive Then
+            Return
+        End If
+
+        RegisterWorkflowTransitionModernStyle()
+        RegisterConfirmationDialogStyle()
+        RegisterWorkflowTransitionModernScript()
+        RegisterConfirmationDialogScript()
+        RegisterWorkflowTransitionConfirmationIntegrationScript()
+        RegisterWorkflowTransitionPagePresentationScript()
+        RegisterWorkflowTransitionModernBootstrap()
+    End Sub
+
+    Private Sub RegisterWorkflowTransitionModernStyle()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowTransitionModernStyle") IsNot Nothing Then
+            Return
+        End If
+
+        Dim style As New Global.System.Web.UI.HtmlControls.HtmlLink()
+        style.ID = "workflowTransitionModernStyle"
+        style.Href = "../Styles/workflow-transition-modern.css?v=20260816-doc12qa5"
+        style.Attributes("rel") = "stylesheet"
+        style.Attributes("type") = "text/css"
+        Page.Header.Controls.Add(style)
+    End Sub
+
+    Private Sub RegisterWorkflowTransitionModernScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowTransitionModernScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "workflowTransitionModernScript"
+        script.Attributes("src") = "../js/workflow/workflow-transition-ui.js?v=20260816-doc12qa4"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterConfirmationDialogStyle()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("confirmationDialogStyle") IsNot Nothing Then
+            Return
+        End If
+
+        Dim style As New Global.System.Web.UI.HtmlControls.HtmlLink()
+        style.ID = "confirmationDialogStyle"
+        style.Href = "../Styles/confirmation-dialog.css?v=20260816-doc13"
+        style.Attributes("rel") = "stylesheet"
+        style.Attributes("type") = "text/css"
+        Page.Header.Controls.Add(style)
+    End Sub
+
+    Private Sub RegisterConfirmationDialogScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("confirmationDialogScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "confirmationDialogScript"
+        script.Attributes("src") = "../js/java_general/ConfirmationDialog.js?v=20260817-doc13error3"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterWorkflowTransitionConfirmationIntegrationScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowTransitionConfirmationIntegrationScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "workflowTransitionConfirmationIntegrationScript"
+        script.Attributes("src") = "../js/workflow/workflow-transition-confirmation-integration.js?v=20260817-doc13lock1"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterWorkflowTransitionPagePresentationScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowTransitionPagePresentationScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "workflowTransitionPagePresentationScript"
+        script.Attributes("src") = "../js/workflow/workflow-transition-page-presentation.js?v=20260817-doc13fix2"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterWorkflowTransitionModernBootstrap()
+        Dim taskInputClientId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_sel.ClientID)
+        Dim currentTaskInputClientId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_selecionada.ClientID)
+        Dim startupScript As String = "(function(){var trigger=document.getElementById('workflow-transition-trigger');if(!trigger){return;}trigger.setAttribute('data-workflow-modern-active','true');trigger.setAttribute('data-workflow-current-task-input-id','" & currentTaskInputClientId & "');trigger.setAttribute('data-workflow-task-input-id','" & taskInputClientId & "');if(window.WorkflowTransitionUi&&typeof window.WorkflowTransitionUi.inicializar==='function'){window.WorkflowTransitionUi.inicializar();}}());"
+
+        ScriptManager.RegisterStartupScript(Me, Me.GetType(), "workflowTransitionModernBootstrap", startupScript, True)
+    End Sub
 
     Private Function MilisegundosDesdeInicioRequest() As Long
         Return CLng((DateTime.Now - HttpContext.Current.Timestamp).TotalMilliseconds)
@@ -64,6 +413,8 @@ Public Class Webworkflow
 
     Protected Overrides Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
         System.Diagnostics.Debug.WriteLine("WF_LIFECYCLE|Webworkflow.Page_Load entrada|" & MilisegundosDesdeInicioRequest() & " ms desde inicio request")
+        ConfigureWorkflowCentroTrabajoViewport()
+        ConfigureWorkflowTransitionModernPresentation()
         Dim cronometroTotal As Stopwatch = Stopwatch.StartNew()
         Try
             Dim cs As ClientScriptManager = Page.ClientScript
@@ -1395,6 +1746,10 @@ Public Class Webworkflow
             If Result <> "YES" Then
                 Mens.Showscripman(Result, Me.UpdatePanel_seleccion_treview)
                 Exit Sub
+            End If
+
+            If WorkflowCentroTrabajoModernActive Then
+                Me.UpdatePanel_panel_toll.Update()
             End If
         Catch ex As Exception
             Mens.Showscripman(ex.Message, Me.UpdatePanel_seleccion_treview)

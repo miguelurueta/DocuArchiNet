@@ -1,0 +1,1965 @@
+/* DOC-2. La capa completa queda aislada bajo la clase emitida por servidor. */
+.workflow-centro-trabajo-moderno {
+  --ctw-navy: #35477f;
+  --ctw-blue: #0062cc;
+  --ctw-ink: #202d47;
+  --ctw-muted: #69758b;
+  --ctw-line: #dce2f1;
+  --ctw-pale: #eef1fb;
+  --ctw-bg: #f5f7fb;
+  --ctw-danger: #ad3741;
+  --ctw-warning: #a56809;
+  --ctw-radius: 5px;
+  --ctw-control-height: 34px;
+  /* jQuery UI abre sus popups desde 100; Bootstrap y WebForms usan valores
+     todavía mayores. La capa del workflow debe quedar siempre por debajo. */
+  --ctw-z-workspace: 1;
+  --ctw-z-command-secondary: 10;
+  --ctw-z-command-primary: 20;
+  --ctw-z-command-open: 30;
+  --ctw-z-menu: 40;
+  --ctw-z-document-menu: 50;
+  --ctw-z-index-toggle: 60;
+  --ctw-z-popup-floor: 100;
+}
+
+/* Excepción de documento: Workflow se presenta dentro de un iframe y el
+   desbordamiento horizontal pertenece al documento, no al panel de acciones.
+   `:has` limita el efecto al piloto que ya recibió la raíz servidor; sin ella,
+   la hoja ni siquiera se entrega. Los modales legacy conservan sus propios
+   scrolls internos. */
+@media (max-width: 767px) {
+  html:has(.workflow-centro-trabajo-moderno.ctw-layer-layout),
+  html:has(.workflow-centro-trabajo-moderno.ctw-layer-layout) body,
+  html:has(.workflow-centro-trabajo-moderno.ctw-layer-layout) body > form {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+}
+
+/* El alto calculado por el workflow pertenece al centro completo. Las barras
+   conservan su alto natural y el espacio restante queda para el área activa. */
+.workflow-centro-trabajo-moderno.ctw-layer-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout > #div_error_content_wf,
+.workflow-centro-trabajo-moderno.ctw-layer-layout > #UpdatePanel_menu_cab,
+.workflow-centro-trabajo-moderno.ctw-layer-layout > #Menutol {
+  flex: 0 0 auto;
+}
+
+/* Capa de layout: no cambia tamaño, posición ni visibilidad de controles WebForms. */
+.workflow-centro-trabajo-moderno.ctw-layer-layout .ctw-panel {
+  background: #fff;
+  border: 1px solid var(--ctw-line);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout .ctw-pane-head {
+  color: var(--ctw-navy);
+  font-weight: 600;
+}
+
+/* Shell del modelo aplicado a los tres paneles WebForms existentes. */
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_selecion_tarea:not([style*="display:none"]) {
+  display: grid !important;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto !important;
+  box-sizing: border-box;
+  grid-template-columns: minmax(220px, 25%) minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0;
+  padding: 14px;
+  border: 1px solid var(--ctw-line);
+  background: var(--ctw-bg);
+  box-shadow: 0 12px 28px #23365d14;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_seleccion_documentos,
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen,
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_indice {
+  min-width: 0;
+  height: 100% !important;
+  margin: 0 !important;
+  float: none !important;
+  background: #fff;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_seleccion_documentos {
+  grid-column: 1;
+  grid-row: 2;
+  position: relative;
+  z-index: 3;
+  width: auto !important;
+  border: 1px solid var(--ctw-line);
+  border-right: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: visible;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout.ctw-layer-documents #seleccion {
+  display: block;
+  flex: 1 1 auto;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0;
+  min-height: 0;
+  float: none !important;
+  background: #fff;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout.ctw-layer-documents #content_boton_gestion {
+  width: 100%;
+  flex: 0 0 auto;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen {
+  grid-column: 2;
+  grid-row: 2;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: auto !important;
+  min-height: 0;
+  border: 1px solid var(--ctw-line);
+  overflow: hidden;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_indice {
+  grid-column: 3;
+  grid-row: 2;
+  width: 215px !important;
+  border: 1px solid var(--ctw-line);
+  border-left: 0;
+  overflow: hidden;
+}
+
+/* El disparador del índice se posiciona fijo. La regla legacy le asigna
+   z-index: 1, igual al visor, por lo que un iframe puede cubrirlo. */
+.workflow-centro-trabajo-moderno.ctw-layer-layout #da_show-sidebar_ {
+  position: fixed !important;
+  z-index: var(--ctw-z-index-toggle) !important;
+  pointer-events: auto;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #error_div_selecion_tarea_wf,
+.workflow-centro-trabajo-moderno.ctw-layer-layout #conten_error_seleccion_task {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  align-self: start;
+  z-index: 4;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Componentes reutilizables: se aplican solo a controles existentes decorados por el adaptador. */
+.workflow-centro-trabajo-moderno .ctw-btn,
+.workflow-centro-trabajo-moderno .ctw-menu__trigger {
+  align-items: center;
+  min-height: var(--ctw-control-height);
+  padding: 6px 11px;
+  border: 1px solid #bfcae0;
+  border-radius: var(--ctw-radius);
+  background: #fff;
+  color: var(--ctw-navy) !important;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.workflow-centro-trabajo-moderno .ctw-btn:hover,
+.workflow-centro-trabajo-moderno .ctw-btn:focus,
+.workflow-centro-trabajo-moderno .ctw-menu__trigger:hover,
+.workflow-centro-trabajo-moderno .ctw-menu__trigger:focus {
+  background: var(--ctw-pale);
+  color: var(--ctw-navy) !important;
+  text-decoration: none;
+}
+
+.workflow-centro-trabajo-moderno .ctw-btn--primary {
+  border-color: var(--ctw-blue);
+  background: var(--ctw-blue);
+  color: #fff !important;
+}
+
+.workflow-centro-trabajo-moderno .ctw-btn--primary:hover,
+.workflow-centro-trabajo-moderno .ctw-btn--primary:focus {
+  background: #0055b4;
+  color: #fff !important;
+}
+
+.workflow-centro-trabajo-moderno .ctw-btn--danger {
+  border-color: #d8a4a9;
+  background: #fff;
+  color: var(--ctw-danger) !important;
+}
+
+.workflow-centro-trabajo-moderno .ctw-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--ctw-control-height);
+  min-height: var(--ctw-control-height);
+  padding: 5px;
+  border: 1px solid #bfcae0;
+  border-radius: var(--ctw-radius);
+  background: #fff;
+  color: var(--ctw-navy) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--ctw-line);
+  background: var(--ctw-bg);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab.ctw-action-bar,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu.ctw-action-bar {
+  padding: 10px 16px;
+  border: 1px solid var(--ctw-line);
+  background: #fff;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab.ctw-action-bar {
+  border-radius: 0;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #Menutol {
+  margin: 0 !important;
+  border: 0 !important;
+  background: #fff;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu.ctw-action-bar {
+  border-top: 0;
+  border-radius: 0 0 var(--ctw-radius) var(--ctw-radius);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-action-bar .navbar-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .nav-item,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .nav-item {
+  margin: 0 !important;
+}
+
+/* Equivale a Bootstrap .ml-2 y mantiene alineados el primer menú y Notas. */
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-command-menu:first-child,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--notes {
+  margin-left: 8px !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .nav-link,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--ctw-control-height);
+  padding: 6px 10px;
+  border: 1px solid #bfcae0;
+  border-radius: var(--ctw-radius);
+  background: #fff;
+  color: var(--ctw-navy) !important;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .nav-link:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .nav-link:focus,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .nav-link:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .nav-link:focus {
+  background: #fff;
+  color: var(--ctw-navy) !important;
+}
+
+/* Los iconos ya entregados por WebForms se hacen visibles y consistentes solo en el piloto. */
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-btn > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-btn > .svg-inline--fa,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-btn > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-btn > .svg-inline--fa,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-menu__item > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-menu__item > .svg-inline--fa,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-menu__item > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-menu__item > .svg-inline--fa {
+  display: inline-flex !important;
+  flex: 0 0 auto;
+  margin: 0 6px 0 0 !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .navbar-toggler,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .navbar-toggler {
+  min-width: var(--ctw-control-height);
+  min-height: var(--ctw-control-height);
+  padding: 5px;
+  border: 1px solid var(--ctw-blue);
+  border-radius: var(--ctw-radius);
+}
+
+/* Dos barras WebForms existentes forman un único plano de comandos, sin mover nodos. */
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab #navbarNavDropdown > .navbar-nav {
+  width: 100%;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-action-slot--terminal {
+  order: 10;
+  margin-left: auto;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ {
+  width: 100%;
+  margin: 0;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-9 {
+  display: flex;
+  flex: 1 1 680px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  max-width: none;
+  padding: 0;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-3 {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-3 .ctw-action-host {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: auto;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  width: auto !important;
+  margin: 0 !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--operational {
+  order: 1;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--support {
+  order: 2;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--terminal {
+  order: 3;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--terminal-start {
+  margin-left: auto !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--send .ctw-btn {
+  border-color: var(--ctw-blue);
+  background: var(--ctw-blue);
+  color: #fff !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--send .ctw-btn > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--send .ctw-btn > .svg-inline--fa {
+  color: #fff !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--send .ctw-btn:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--send .ctw-btn:focus {
+  background: #0055b4;
+  color: #fff !important;
+}
+
+/* Las transferencias son decisiones alternativas: visibles, pero subordinadas
+   al avance por el flujo principal. */
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn {
+  border-color: #78a7e4;
+  background: #f7fbff;
+  color: var(--ctw-blue) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn > .svg-inline--fa,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn > span {
+  color: var(--ctw-blue) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn:focus {
+  border-color: var(--ctw-blue);
+  background: #e7f1ff;
+  color: #004f9f !important;
+}
+
+/* Se diferencia el receptor sin convertir las alternativas en acciones primarias. */
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-user .ctw-btn {
+  border-color: #9389dc;
+  background: #f8f7ff;
+  color: #5146a8 !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-user .ctw-btn > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-user .ctw-btn > .svg-inline--fa,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-user .ctw-btn > span {
+  color: #5146a8 !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-user .ctw-btn:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-user .ctw-btn:focus {
+  border-color: #665bc2;
+  background: #efedff;
+  color: #42378f !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-group .ctw-btn {
+  border-color: #66adaa;
+  background: #f2fbfa;
+  color: #087572 !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-group .ctw-btn > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-group .ctw-btn > .svg-inline--fa,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-group .ctw-btn > span {
+  color: #087572 !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-group .ctw-btn:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-group .ctw-btn:focus {
+  border-color: #168a86;
+  background: #e2f5f3;
+  color: #05615f !important;
+}
+
+/* Devolver retrocede el proceso; se separa semánticamente de las transferencias. */
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--return .ctw-btn {
+  border-color: #edbd73;
+  background: #fffaf0;
+  color: var(--ctw-warning) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--return .ctw-btn > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--return .ctw-btn > .svg-inline--fa,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--return .ctw-btn > span {
+  color: var(--ctw-warning) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--return .ctw-btn:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--return .ctw-btn:focus {
+  border-color: #d89125;
+  background: #fff0d5;
+  color: #815000 !important;
+}
+
+/* La decisión conserva su jerarquía también durante la interacción, sin
+   alterar handlers ni disponibilidad resuelta por WebForms. */
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot .ctw-btn {
+  transition: background .16s ease, border-color .16s ease, box-shadow .16s ease, transform .1s ease;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot .ctw-btn:active {
+  box-shadow: none;
+  transform: translateY(1px);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot .ctw-btn[aria-expanded="true"] {
+  box-shadow: 0 0 0 3px #1769d31a;
+}
+
+.workflow-centro-trabajo-moderno .ctw-separator {
+  width: 1px;
+  height: 22px;
+  margin: 0 4px;
+  background: var(--ctw-line);
+}
+
+.workflow-centro-trabajo-moderno .ctw-menu {
+  position: relative;
+}
+
+.workflow-centro-trabajo-moderno .ctw-menu__panel {
+  z-index: var(--ctw-z-menu);
+  min-width: 216px;
+  padding: 6px;
+  border: 1px solid var(--ctw-line);
+  border-radius: var(--ctw-radius);
+  box-shadow: 0 11px 24px #23345a30;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .dropdown-menu,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .dropdown-menu {
+  z-index: var(--ctw-z-menu);
+  min-width: 216px;
+  padding: 6px;
+  border: 1px solid var(--ctw-line);
+  border-radius: var(--ctw-radius);
+  box-shadow: 0 11px 24px #23345a30;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .dropdown-item,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .dropdown-item,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .dropdown-menu .nav-link {
+  min-height: 33px;
+  padding: 7px 10px;
+  border-radius: 4px;
+  color: var(--ctw-ink) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .dropdown-item:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .dropdown-item:focus,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .dropdown-item:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .dropdown-item:focus,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .dropdown-menu .nav-link:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .dropdown-menu .nav-link:focus {
+  background: #fff !important;
+  color: var(--ctw-ink) !important;
+}
+
+.workflow-centro-trabajo-moderno .ctw-menu__item {
+  display: flex;
+  align-items: center;
+  min-height: 33px;
+  padding: 7px 10px;
+  border-radius: 4px;
+  color: var(--ctw-ink) !important;
+}
+
+.workflow-centro-trabajo-moderno .ctw-menu__item:hover,
+.workflow-centro-trabajo-moderno .ctw-menu__item:focus {
+  background: var(--ctw-pale);
+  color: var(--ctw-ink) !important;
+}
+
+/* Patrón de menú contextual: cada acción conserva su control legacy, pero se
+   lee como una fila uniforme de icono, etiqueta y complemento opcional. */
+.workflow-centro-trabajo-moderno .ctw-menu__panel.show {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  max-width: calc(100vw - 28px);
+}
+
+.workflow-centro-trabajo-moderno .ctw-menu__item {
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  margin: 1px 0;
+  font-size: 15px;
+  line-height: 1.2;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.workflow-centro-trabajo-moderno .ctw-menu__item > i,
+.workflow-centro-trabajo-moderno .ctw-menu__item > .svg-inline--fa {
+  width: 18px;
+  margin-right: 0 !important;
+  color: var(--ctw-blue) !important;
+  text-align: center;
+}
+
+.workflow-centro-trabajo-moderno .ctw-menu__item > span:last-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workflow-centro-trabajo-moderno .ctw-menu__divider {
+  flex: 0 0 1px;
+  height: 1px;
+  margin: 6px 4px;
+  border: 0;
+  background: var(--ctw-line);
+}
+
+.workflow-centro-trabajo-moderno .ctw-menu__item--danger {
+  order: 10;
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid #efd2d5;
+  color: var(--ctw-danger) !important;
+}
+
+.workflow-centro-trabajo-moderno .ctw-menu__item--danger > span,
+.workflow-centro-trabajo-moderno .ctw-menu__item--danger > span * {
+  color: var(--ctw-danger) !important;
+}
+
+.workflow-centro-trabajo-moderno .ctw-menu__item--danger:hover,
+.workflow-centro-trabajo-moderno .ctw-menu__item--danger:focus {
+  background: #fff2f3;
+  color: var(--ctw-danger) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents .ctw-document-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 46px;
+  padding: 6px 8px;
+  border: 1px solid var(--ctw-line);
+  background: var(--ctw-pale);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label.ctw-document-bar {
+  position: relative;
+  z-index: 5;
+  display: flex !important;
+  gap: 7px;
+  align-items: center;
+  flex-wrap: wrap;
+  min-height: 46px;
+  padding: 8px 10px !important;
+  border: 1px solid var(--ctw-line);
+  background: #fff !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label > .col-1,
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label > .col-4,
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label > .col-5 {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: none;
+  padding: 0 !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label > .col-5 {
+  flex: 1 1 auto;
+}
+
+/* La cabecera lateral conserva sus accesos rápidos en el visor y mantiene
+   disponible su menú histórico de acciones sobre documentos seleccionados. */
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label > .col-4 {
+  display: none !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label > .col-1:last-child {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label #Label_docu_relacionado_wf {
+  float: none !important;
+  color: var(--ctw-navy) !important;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label > .col-4 {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  width: auto;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label > .col-4 .nav-link {
+  gap: 6px;
+  float: none !important;
+  white-space: nowrap;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label .ctw-document-action-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label > .col-1:first-child input {
+  margin: 0;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents .ctw-document-action--danger,
+.workflow-centro-trabajo-moderno.ctw-layer-documents .ctw-document-action--danger * {
+  color: var(--ctw-danger) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label .nav-link,
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label .dropdown-toggle,
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .nav-link,
+.workflow-centro-trabajo-moderno.ctw-layer-documents #tollimage .nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--ctw-control-height);
+  min-height: var(--ctw-control-height);
+  padding: 5px;
+  border: 1px solid #bfcae0;
+  border-radius: var(--ctw-radius);
+  background: #fff;
+  color: var(--ctw-navy) !important;
+}
+
+/* Los accesos existentes se presentan sobre la toolbar del visor sin mover nodos. */
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label .ctw-document-quick-action {
+  display: inline-flex !important;
+  flex: 0 0 auto;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label .ctw-document-more-actions {
+  position: relative;
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .nav {
+  width: 100%;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .nav-item_:last-child {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-viewer-document-context {
+  position: relative;
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding-right: 128px;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-viewer-document-actions {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  min-width: 0;
+  transform: translateY(-50%);
+  width: auto;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-viewer-document-context-title {
+  overflow: hidden;
+  color: var(--ctw-navy);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-document-metadata-action,
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-document-action-service {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--ctw-control-height);
+  white-space: nowrap;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_scroll {
+  height: 100% !important;
+  max-height: none;
+  background: #fff !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #GridView_list_documento_relacion_wf {
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #GridView_list_documento_relacion_wf .GridviewRow > td {
+  padding: 10px;
+  border-bottom: 1px solid #edf0f6;
+  color: var(--ctw-ink);
+  vertical-align: middle;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #GridView_list_documento_relacion_wf .GridviewRow:hover > td {
+  background: var(--ctw-pale);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents .ctw-document-bar .dropdown-menu {
+  z-index: var(--ctw-z-document-menu);
+  border-color: var(--ctw-line);
+  box-shadow: 0 11px 24px #23345a30;
+}
+
+.workflow-centro-trabajo-moderno .ctw-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--ctw-pale);
+  color: var(--ctw-navy);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.workflow-centro-trabajo-moderno .ctw-badge--warning {
+  background: #fff3d9;
+  color: var(--ctw-warning);
+}
+
+.workflow-centro-trabajo-moderno .ctw-badge--success {
+  background: #e8f5eb;
+  color: #27693a;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents .ctw-document-row--selected > td {
+  background: #edf3ff !important;
+  /* El marcador se limita a la primera celda para que no compita con el
+     estado seleccionado de toda la fila. */
+  box-shadow: none;
+}
+
+/* El borde legacy de la fila seleccionada altera tres píxeles de la primera
+   celda y desplaza su checkbox respecto al control maestro. Una barra
+   independiente evita además que el cromo redondeado heredado se alcance a
+   dibujar durante la actualización de la selección. */
+.workflow-centro-trabajo-moderno.ctw-layer-documents #GridView_list_documento_relacion_wf .GridviewRow.gridview-documento-seleccionado > td:first-child,
+.workflow-centro-trabajo-moderno.ctw-layer-documents #GridView_list_documento_relacion_wf .ctw-document-row--selected > td:first-child {
+  position: relative;
+  border-left: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #GridView_list_documento_relacion_wf .GridviewRow.gridview-documento-seleccionado > td:first-child::before,
+.workflow-centro-trabajo-moderno.ctw-layer-documents #GridView_list_documento_relacion_wf .ctw-document-row--selected > td:first-child::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  border-radius: 0 !important;
+  background: var(--ctw-blue);
+  content: "";
+  pointer-events: none;
+}
+
+/* Se usa el contador y la tabla ya emitidos por servidor; no se crea una
+   segunda fuente de documentos ni se reemplaza la grilla legacy. */
+.workflow-centro-trabajo-moderno.ctw-layer-documents #content_seleccion_documentos.ctw-documents-pane--empty #Panel_scroll {
+  position: relative;
+  min-height: 128px;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #content_seleccion_documentos.ctw-documents-pane--empty #Panel_scroll::after {
+  display: flex;
+  position: absolute;
+  inset: 14px;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  border: 1px dashed #cbd6e8;
+  border-radius: 7px;
+  background: #fbfcff;
+  color: var(--ctw-muted);
+  content: "No hay documentos asociados a esta tarea";
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+  pointer-events: none;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #Panel_tolbar_pdf,
+.workflow-centro-trabajo-moderno.ctw-layer-layout #tollimage {
+  display: flex !important;
+  align-items: center;
+  min-height: 46px;
+  padding: 6px 8px !important;
+  border-bottom: 1px solid var(--ctw-line);
+  background: #fff;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen > #UpdatePanel_content_iframe,
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen #panel_content_iframe,
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen #UpdatePanelVisor {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen #UpdatePanel_panel_toll {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen #UpdatePanelVisor {
+  overflow: hidden;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen #ifrm_visor_ {
+  display: block;
+  flex: 1 1 auto;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0;
+  border: 0;
+  background: #e7ebf1;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen #content {
+  border: 0 !important;
+  background: #edf0f5 !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen.ctw-viewer-pane {
+  box-shadow: 0 10px 24px #23365d14;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen.ctw-viewer-pane--empty {
+  align-items: stretch;
+  background: #f7f9fc;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen.ctw-viewer-pane--empty > #UpdatePanel_content_iframe {
+  flex: 0 0 auto;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen.ctw-viewer-pane--empty::before {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  margin: 18px;
+  padding: 28px;
+  border: 1px dashed #c9d5e8;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--ctw-muted);
+  content: "Seleccione un documento para visualizarlo";
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #title_indice {
+  min-height: 46px;
+  padding: 10px !important;
+  border-bottom: 1px solid var(--ctw-line);
+  background: #fff;
+  color: var(--ctw-navy);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #title_indice h6 {
+  color: var(--ctw-navy) !important;
+  font-size: 12px;
+  font-weight: 700 !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #title_indice {
+  display: flex;
+  align-items: center;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #title_indice #sidebarCollapse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px !important;
+  margin: 0 0 0 auto !important;
+  border-radius: 6px;
+  color: var(--ctw-muted) !important;
+  text-decoration: none;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #title_indice #sidebarCollapse:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-layout #title_indice #sidebarCollapse:focus {
+  background: var(--ctw-pale);
+  color: var(--ctw-blue) !important;
+  outline: 0;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #Panel_indice {
+  padding: 10px;
+  background: #fff;
+  color: var(--ctw-ink);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #div_buton {
+  padding: 8px 10px;
+  border-top: 1px solid var(--ctw-line);
+  background: #fbfcff !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #div_buton .nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: var(--ctw-control-height);
+  padding: 5px 9px;
+  border: 1px solid #bfcae0;
+  border-radius: var(--ctw-radius);
+  background: #fff;
+  color: var(--ctw-navy) !important;
+  font-weight: 600;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #div_buton .nav-link:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-layout #div_buton .nav-link:focus {
+  border-color: #7fa8e5;
+  background: var(--ctw-pale);
+  color: var(--ctw-blue) !important;
+  text-decoration: none;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea {
+  min-height: 46px;
+  margin: 0 0 8px;
+  padding: 5px 15px !important;
+  border: 1px solid var(--ctw-line);
+  border-radius: var(--ctw-radius);
+  background: #fff;
+  color: var(--ctw-navy) !important;
+  font-size: 12px;
+}
+
+/* El estilo legacy hide_bar_wf vuelve blanco el pie; en el piloto debe leerse siempre. */
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea.hide_bar_wf {
+  color: var(--ctw-navy) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 42%);
+  column-gap: 12px;
+  row-gap: 2px;
+  min-width: 0;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__headline {
+  display: flex;
+  align-items: center;
+  grid-column: 1 / -1;
+  gap: 12px;
+  min-width: 0;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__title {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ctw-navy) !important;
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: .025em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__state {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 2px 8px;
+  border: 1px solid #bfd3ed;
+  border-radius: 99px;
+  background: #f4f8ff;
+  color: #28558e !important;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__meta,
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__process {
+  display: block;
+  min-width: 0;
+  margin: 0 !important;
+  overflow: hidden;
+  color: var(--ctw-ink) !important;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__meta {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__process {
+  grid-column: 2;
+  grid-row: 2;
+  color: var(--ctw-muted) !important;
+  font-size: 11px;
+  font-weight: 500;
+  float: none !important;
+  text-align: right;
+}
+
+/* Los dos commandbars son hermanos. El segundo se renderiza después del
+   primero, así que un z-index únicamente en .dropdown-menu no basta: queda
+   atrapado en el contexto de apilamiento de su barra y termina debajo de la
+   barra posterior. Los niveles se asignan desde sus contenedores y se
+   mantienen deliberadamente por debajo de --ctw-z-popup-floor. */
+.workflow-centro-trabajo-moderno.ctw-layer-actions #UpdatePanel_menu_cab,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab {
+  position: relative;
+  z-index: var(--ctw-z-command-primary);
+  overflow: visible;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #Menutol,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #updatemenu,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu {
+  position: relative;
+  z-index: var(--ctw-z-command-secondary);
+  overflow: visible;
+}
+
+/* Lenguaje de comandos del prototipo aprobado: conserva el DOM WebForms y
+   ordena visualmente los menús, acciones operativas y acciones terminales. */
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-commandbar {
+  position: relative;
+  z-index: var(--ctw-z-workspace);
+  gap: 6px;
+  padding: 6px 12px;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab.ctw-commandbar {
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(110deg, #fff, #f8fbff);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu.ctw-commandbar--secondary {
+  border-radius: 0 0 8px 8px;
+  background: #fff;
+  box-shadow: 0 8px 18px #23365d0c;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-command-menu > .ctw-menu__trigger {
+  gap: 6px;
+  font-size: 14px;
+  border-color: #c9d5e8;
+  border-radius: 7px;
+  transition: background .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-command-menu > .ctw-menu__trigger > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-command-menu > .ctw-menu__trigger > .svg-inline--fa {
+  display: inline-flex !important;
+  width: 18px;
+  margin-right: 0 !important;
+  color: var(--ctw-blue) !important;
+}
+
+/* El checkbox persiste el estado; el menú solo consulta el historial. */
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-authorize-menu .ctw-authorize-control {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  min-height: var(--ctw-control-height);
+  border: 1px solid #b9cae3;
+  border-radius: 7px;
+  background: #fff;
+  box-shadow: 0 1px 2px #2145740d;
+  overflow: visible;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-authorize-menu .ctw-authorize-control:focus-within {
+  border-color: #7fa8e5;
+  box-shadow: 0 0 0 3px #1769d31a;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-authorize-menu .ctw-authorize-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: 0 7px;
+  border-radius: 6px 0 0 6px;
+  background: #f3f7fd;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-authorize-menu .ctw-authorize-state-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px 0 0;
+  color: var(--ctw-navy);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-authorize-menu .ctw-authorize-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  appearance: none;
+  border: 2px solid #7d9dca;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  transition: background .14s ease, border-color .14s ease, box-shadow .14s ease;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-authorize-menu .ctw-authorize-check input:checked {
+  border-color: var(--ctw-blue);
+  background-color: var(--ctw-blue);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m3 8 3 3 7-7' fill='none' stroke='white' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-authorize-menu .ctw-authorize-check input:focus-visible {
+  outline: 3px solid #8aa9ee;
+  outline-offset: 2px;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-authorize-menu .ctw-authorize-control > .ctw-menu__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  min-height: var(--ctw-control-height);
+  margin: 0;
+  padding: 6px 9px;
+  border: 0 !important;
+  border-left: 1px solid #d8e1ef !important;
+  border-radius: 0 6px 6px 0;
+  background: transparent;
+  color: var(--ctw-navy);
+  font-size: 15px;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-authorize-menu .ctw-authorize-control > .ctw-menu__trigger:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-authorize-menu .ctw-authorize-control > .ctw-menu__trigger:focus {
+  background: var(--ctw-pale);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-command-menu.show > .ctw-menu__trigger,
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-command-menu > .ctw-menu__trigger[aria-expanded="true"] {
+  border-color: #7fa8e5;
+  background: #edf4ff;
+  box-shadow: 0 0 0 3px #1769d31a;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-command-menu .ctw-menu__panel {
+  z-index: var(--ctw-z-menu);
+  min-width: 248px;
+  padding: 7px;
+  border-radius: 9px;
+  box-shadow: 0 18px 35px #1c345e2e;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .dropdown.show,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .dropdown.show {
+  position: relative;
+  z-index: var(--ctw-z-command-open);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .dropdown-menu.show,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .dropdown-menu.show {
+  z-index: var(--ctw-z-menu) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-command-menu .ctw-menu__item {
+  min-height: 40px;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-command-menu .ctw-menu__item > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-command-menu .ctw-menu__item > .svg-inline--fa {
+  width: 18px;
+  margin-right: 8px !important;
+  color: var(--ctw-blue) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--operational .ctw-btn,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--support .ctw-btn,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--terminal .ctw-btn {
+  border-color: #c9d5e8;
+  border-radius: 7px;
+  transition: background .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--terminal .ctw-btn:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--terminal .ctw-btn:focus {
+  border-color: #a8c0e3;
+  box-shadow: 0 3px 9px #21457414;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--send .ctw-btn {
+  box-shadow: 0 5px 12px #0062cc2e;
+}
+
+/* Jerarquía de comandos: herramientas sin caja persistente, decisiones
+   secundarias con borde suave y un único avance sólido. */
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-command-menu > .ctw-menu__trigger,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--notes .ctw-btn,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--support .ctw-btn {
+  border-color: transparent !important;
+  background: transparent;
+  box-shadow: none;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-command-menu > .ctw-menu__trigger:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-command-menu > .ctw-menu__trigger:focus,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--notes .ctw-btn:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--notes .ctw-btn:focus,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--support .ctw-btn:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--support .ctw-btn:focus {
+  border-color: transparent !important;
+  background: var(--ctw-pale);
+  box-shadow: none;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-command-menu.show > .ctw-menu__trigger,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-command-menu > .ctw-menu__trigger[aria-expanded="true"] {
+  border-color: #c1d3eb !important;
+  background: #f5f8ff;
+  box-shadow: none;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-detail-menu {
+  width: 380px;
+  min-width: 360px;
+  max-width: calc(100vw - 32px);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-detail-menu__section + .ctw-detail-menu__section {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid var(--ctw-line);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-detail-menu__section-label {
+  display: block;
+  padding: 5px 10px 3px;
+  color: var(--ctw-muted);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-detail-menu__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 10px;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-detail-menu__item > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-detail-menu__item > .svg-inline--fa {
+  flex: 0 0 18px;
+  margin: 1px 0 0 !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-detail-menu__item > span {
+  min-width: 0;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--return .ctw-btn,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-user .ctw-btn,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-group .ctw-btn {
+  border-color: #c9d5e8;
+  background: #fff;
+  color: var(--ctw-navy) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--return .ctw-btn > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--return .ctw-btn > .svg-inline--fa,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--return .ctw-btn > span,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn > .svg-inline--fa,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn > span,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-user .ctw-btn > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-user .ctw-btn > .svg-inline--fa,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-user .ctw-btn > span,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-group .ctw-btn > i,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-group .ctw-btn > .svg-inline--fa,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-group .ctw-btn > span {
+  color: var(--ctw-navy) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--return .ctw-btn:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--return .ctw-btn:focus,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn:focus,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-user .ctw-btn:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-user .ctw-btn:focus,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-group .ctw-btn:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff-group .ctw-btn:focus {
+  border-color: #9db8dc;
+  background: var(--ctw-pale);
+  color: var(--ctw-navy) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-command-menu > .ctw-menu__trigger:focus-visible,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--notes .ctw-btn:focus-visible,
+.workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--support .ctw-btn:focus-visible {
+  outline: 3px solid #8aa9ee;
+  outline-offset: 2px;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-authorize-menu .ctw-authorize-control {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-authorize-menu .ctw-authorize-control:focus-within {
+  border-color: transparent;
+  box-shadow: 0 0 0 3px #1769d31a;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-authorize-menu .ctw-authorize-check {
+  background: transparent;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-viewer-action {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-self: center;
+  width: fit-content !important;
+  max-width: 100%;
+  gap: 7px;
+  border-color: #c9d5e8;
+  border-radius: 7px;
+  transition: background .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-viewer-action:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-viewer-action:focus {
+  border-color: #a8c0e3;
+  background: var(--ctw-pale);
+  box-shadow: 0 3px 9px #21457414;
+}
+
+/* El hover pertenece al enlace de acción; el título y el espacio sobrante de
+   la barra contextual del visor permanecen neutros. */
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-viewer-document-context > :not(.ctw-viewer-document-actions) {
+  pointer-events: none;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .nav-item_:last-child:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-viewer-document-context:hover {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-viewer-action--service {
+  border-color: #9dbce7;
+  background: #f5f9ff;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-document-metadata-action > i,
+.workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-document-metadata-action > .svg-inline--fa {
+  width: 18px;
+  margin-right: 0 !important;
+  color: var(--ctw-blue) !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label .ctw-document-more-actions .ctw-icon-btn {
+  gap: 6px;
+  min-width: auto;
+  padding: 5px 9px;
+  border-color: #c9d5e8;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label .ctw-document-more-actions-label {
+  display: inline;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label .ctw-document-more-actions .ctw-document-menu__panel {
+  z-index: var(--ctw-z-document-menu);
+  min-width: 270px;
+  padding: 7px;
+  border-radius: 9px;
+  box-shadow: 0 18px 35px #1c345e2e;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label .ctw-document-menu__panel .ctw-menu__section-label {
+  display: block;
+  padding: 7px 10px 3px;
+  color: var(--ctw-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label .ctw-document-menu__panel .ctw-menu__item--danger {
+  order: initial;
+  margin-top: 1px;
+  padding-top: 8px;
+  border-top: 0;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-documents #div_label .ctw-document-more-actions .ctw-menu__item {
+  min-height: 40px;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+/* Compatibilidad visual Bootstrap para los modales WebForms existentes.
+   No cambia los ModalPopupExtender, sus triggers ni los UpdatePanel. */
+.workflow-centro-trabajo-moderno.ctw-layer-layout .ctw-legacy-modal .ctw-modal-content,
+.workflow-centro-trabajo-moderno.ctw-layer-layout .ctw-legacy-modal > .ctw-modal-header {
+  border: 1px solid var(--ctw-line);
+  background: #fff;
+  box-shadow: 0 18px 38px #1c345e2e;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout .ctw-legacy-modal .ctw-modal-content {
+  border-radius: 10px;
+  color: var(--ctw-ink);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout .ctw-legacy-modal .ctw-modal-header {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  gap: 12px;
+  padding: 12px 16px;
+  border-color: var(--ctw-line);
+  background: #f5f8ff;
+  color: var(--ctw-navy);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout .ctw-legacy-modal .ctw-modal-title {
+  flex: 1 1 auto;
+  margin: 0;
+  color: var(--ctw-navy) !important;
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout .ctw-legacy-modal .ctw-modal-header .close {
+  flex: 0 0 auto;
+  margin: -6px -6px -6px auto;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #526584;
+  font-size: 24px;
+  line-height: 1;
+  opacity: 1;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout .ctw-legacy-modal .ctw-modal-header .close:hover,
+.workflow-centro-trabajo-moderno.ctw-layer-layout .ctw-legacy-modal .ctw-modal-header .close:focus {
+  background: #e6eefb;
+  color: var(--ctw-blue);
+  outline: 0;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout .ctw-legacy-modal .ctw-modal-body {
+  box-sizing: border-box;
+  padding: 14px 16px;
+  color: var(--ctw-ink);
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout .ctw-legacy-modal .ctw-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 58px;
+  margin: 0;
+  padding: 10px 16px;
+  border-top: 1px solid var(--ctw-line);
+  background: #fbfcff;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout .ctw-legacy-modal .ctw-modal-footer .btn {
+  margin: 0 !important;
+}
+
+/* Este popup puede ser reubicado por AjaxControlToolkit fuera del contenedor
+   #div_content_general_wf al abrirse. Se acota al panel real para que conserve
+   su presentación moderna durante el postback parcial. */
+#Panel_lista_actividades_worflow_ruta.ctw-legacy-modal {
+  --ctw-line: #d8e1ef;
+  --ctw-ink: #24364f;
+  --ctw-navy: #273b64;
+  --ctw-blue: #0062cc;
+}
+
+#Panel_lista_actividades_worflow_ruta.ctw-legacy-modal .ctw-modal-content {
+  border: 1px solid var(--ctw-line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ctw-ink);
+  box-shadow: 0 18px 38px #1c345e2e;
+}
+
+#Panel_lista_actividades_worflow_ruta.ctw-legacy-modal .ctw-modal-header {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--ctw-line);
+  background: #fff;
+}
+
+#Panel_lista_actividades_worflow_ruta.ctw-legacy-modal .ctw-modal-title {
+  flex: 1 1 auto;
+  margin: 0;
+  color: var(--ctw-ink) !important;
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+#Panel_lista_actividades_worflow_ruta.ctw-legacy-modal .ctw-modal-body {
+  box-sizing: border-box;
+  padding: 14px 16px;
+  color: var(--ctw-ink);
+}
+
+#Panel_lista_actividades_worflow_ruta.ctw-legacy-modal .ctw-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 58px;
+  margin: 0;
+  padding: 10px 16px;
+  border-top: 1px solid var(--ctw-line);
+  background: #fbfcff;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-a11y .ctw-btn:focus,
+.workflow-centro-trabajo-moderno.ctw-layer-a11y .ctw-icon-btn:focus,
+.workflow-centro-trabajo-moderno.ctw-layer-a11y .ctw-menu__trigger:focus,
+.workflow-centro-trabajo-moderno.ctw-layer-a11y .ctw-menu__item:focus {
+  outline: 3px solid #8aa9ee;
+  outline-offset: 2px;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-a11y .ctw-btn[disabled],
+.workflow-centro-trabajo-moderno.ctw-layer-a11y .ctw-icon-btn[disabled],
+.workflow-centro-trabajo-moderno.ctw-layer-a11y [aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: .58;
+}
+
+/* Excepción acotada: Ajax muestra este indicador fuera de la raíz visual.
+   La clase solo se emite para el piloto y reutiliza el mismo progreso legacy. */
+#progres_bar.ctw-loading-indicator {
+  min-width: 168px;
+  padding: 10px 14px;
+  border: 1px solid #c9d5e8;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 28px #1f365d2b;
+  color: var(--ctw-navy, #35477f);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+#progres_bar.ctw-loading-indicator #imgr_modal {
+  width: 24px;
+  height: 24px;
+  margin-right: 9px;
+}
+
+#progres_bar.ctw-loading-indicator::after {
+  content: "Procesando…";
+  vertical-align: middle;
+}
+
+@media (max-width: 767px) {
+  /* El Workbench vive dentro de un iframe. Sin un ancho explícito, los paneles
+     legacy pueden expandir la raíz al ancho de su contenido y crear scroll
+     horizontal aunque sus hijos usen porcentajes. La raíz se limita primero al
+     viewport real del piloto; el baseline queda fuera de este selector. */
+  .workflow-centro-trabajo-moderno.ctw-layer-layout {
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+    overflow-x: hidden !important;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-actions {
+    --ctw-control-height: 44px;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-actions .ctw-action-bar {
+    align-items: stretch;
+  }
+
+  .workflow-centro-trabajo-moderno .ctw-icon-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .workflow-centro-trabajo-moderno .ctw-menu__item {
+    min-height: 44px;
+  }
+
+  .workflow-centro-trabajo-moderno .ctw-menu__panel {
+    min-width: 190px;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-detail-menu {
+    width: calc(100vw - 32px);
+    min-width: 0;
+  }
+
+  /* El host de operaciones usa columnas Bootstrap con una base de escritorio.
+     En 375 px cada grupo vuelve a ocupar el ancho disponible para que sus
+     acciones reales envuelvan, sin recortarse ni cambiar de contenedor. */
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-9,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-3 {
+    flex: 0 0 100%;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-9,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-3,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-3 .ctw-action-host {
+    justify-content: flex-start;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-host {
+    display: flex;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* `.row` conserva márgenes negativos de Bootstrap. En este host se vuelven
+     neutros para que los comandos no ganen ancho fuera del viewport táctil. */
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0;
+    box-sizing: border-box;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* En la ruta host → iframe, algunos estilos Bootstrap conservan el ancho
+     intrínseco de la fila colapsable. Se acota el contenedor existente antes
+     de distribuir acciones: no se oculta ni se reubica ningún Panel WebForms. */
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #Menutol,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #updatemenu,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu.ctw-action-bar {
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  /* Cada decisión conserva su propia fila en 375 px. Es una composición
+     deliberadamente vertical: ningún texto ni control puede salir del ancho
+     táctil disponible. */
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--terminal-start,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--send {
+    flex: 0 0 100%;
+    width: 100% !important;
+    max-width: 100%;
+    margin-left: 0 !important;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff {
+    flex: 0 0 100%;
+    width: 100% !important;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff > .navbar-nav,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--terminal-start > .navbar-nav,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--send > .navbar-nav,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--terminal-start .ctw-btn,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--send .ctw-btn {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--handoff .ctw-btn,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--terminal-start .ctw-btn,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--send .ctw-btn {
+    justify-content: center;
+    white-space: normal;
+  }
+
+  /* Los Panel WebForms son los hijos directos de la columna. Una única
+     cuadrícula vertical neutraliza de forma determinista el reparto flex
+     heredado: devolución, transferencias y avance ocupan filas completas. */
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-9 {
+    display: grid;
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0;
+    box-sizing: border-box;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    align-content: start;
+    justify-content: stretch !important;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-9 > .ctw-action-slot {
+    grid-column: 1;
+    width: auto !important;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-9 > .ctw-action-slot--terminal-start,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-9 > .ctw-action-slot--send {
+    grid-column: 1;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-9 > .ctw-action-slot--handoff > .navbar-nav,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-9 > .ctw-action-slot--send > .navbar-nav,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-9 > .ctw-action-slot--handoff > .navbar-nav > .nav-item,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-9 > .ctw-action-slot--send > .navbar-nav > .nav-item,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu #navbarNavDropdown_ > .col-md-9 > .ctw-action-slot--terminal-start > .nav-item {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #content_selecion_tarea:not([style*="display:none"]) {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 8px;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #content_seleccion_documentos,
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen,
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_indice {
+    grid-column: 1;
+    width: 100% !important;
+    border: 1px solid var(--ctw-line);
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #content_seleccion_documentos {
+    grid-row: 2;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-layout.ctw-layer-documents #seleccion {
+    border-right: 1px solid var(--ctw-line);
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen {
+    grid-row: 3;
+    margin-top: 8px !important;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_indice {
+    grid-row: 4;
+    margin-top: 8px !important;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea {
+    grid-row: 1;
+    margin: 0 0 8px;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__headline,
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__meta,
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__process {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__process {
+    text-align: left;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__title,
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__meta,
+  .workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea .ctw-task-context__process {
+    white-space: normal;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-layout.ctw-layer-documents #div_label > .col-4,
+  .workflow-centro-trabajo-moderno.ctw-layer-layout.ctw-layer-documents #div_label > .col-1:last-child {
+    position: static;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-viewer-document-context {
+    flex-wrap: wrap;
+    padding-right: 0;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-documents #Panel_tolbar_pdf .ctw-viewer-document-actions {
+    position: static;
+    transform: none;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #menucab.ctw-action-bar,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu.ctw-action-bar {
+    padding: 6px 8px;
+  }
+
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #menucab .ctw-action-slot--terminal,
+  .workflow-centro-trabajo-moderno.ctw-layer-actions #nav_menu .ctw-action-slot--terminal-start {
+    margin-left: 0 !important;
+  }
+
+}

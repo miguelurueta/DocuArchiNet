@@ -23,6 +23,14 @@ Partial Public Class Webworkflow
     Protected WithEvents form1 As Global.System.Web.UI.HtmlControls.HtmlForm
 
     '''<summary>
+    '''Control workflowCentroTrabajoModernViewport.
+    '''</summary>
+    '''<remarks>
+    '''Campo generado para el meta viewport condicional del piloto DOC-2.
+    '''</remarks>
+    Protected WithEvents workflowCentroTrabajoModernViewport As Global.System.Web.UI.HtmlControls.HtmlMeta
+
+    '''<summary>
     '''Control ScriptManager1.
     '''</summary>
     '''<remarks>
@@ -1200,6 +1208,24 @@ Partial Public Class Webworkflow
     '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
     '''</remarks>
     Protected WithEvents UpdatePanel_estado_tarea As Global.System.Web.UI.UpdatePanel
+
+    '''<summary>
+    '''Control Label_contexto_tramite.
+    '''</summary>
+    '''<remarks>
+    '''Campo generado automáticamente.
+    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+    '''</remarks>
+    Protected WithEvents Label_contexto_tramite As Global.System.Web.UI.WebControls.Label
+
+    '''<summary>
+    '''Control Label_contexto_estado.
+    '''</summary>
+    '''<remarks>
+    '''Campo generado automáticamente.
+    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+    '''</remarks>
+    Protected WithEvents Label_contexto_estado As Global.System.Web.UI.WebControls.Label
 
     '''<summary>
     '''Control Label_estado_tarea_selecion.
