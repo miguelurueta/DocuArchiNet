@@ -35,6 +35,7 @@ Generated_Code/
 /tools/e2e/node_modules/
 /tools/e2e/.env
 /tools/e2e/.env.*
+/tools/opsxj/node_modules/
 
 # Bitacora local append-only del flujo OPSXJ; no se versiona ni contiene secretos.
 /.opsxj/runs/
