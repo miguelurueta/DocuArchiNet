@@ -1,13 +1,21 @@
 {
-  "status": "error",
-  "promptPath": "DOC-11",
-  "reviewedAtUtc": "2026-08-16T03:56:02.183Z",
+  "status": "pass",
+  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\workflow\\TerminarGrupo\\prompts\\08-pruebas-verificacion.md",
+  "reviewedAtUtc": "2026-08-18T23:29:53.096Z",
+  "technologyProfile": "legacy-webforms-vb",
   "summary": {
     "blockers": 0,
     "major": 0,
     "minor": 0,
-    "info": 0
+    "info": 1
   },
-  "findings": [],
-  "error": "ENOENT: no such file or directory, scandir 'D:\\imagenesda\\GestorDocumental\\Desarrollo\\old\\oldanterior\\GestionDocumental-Docuarchi.net\\docs'"
+  "findings": [
+    {
+      "severity": "INFO",
+      "code": "MANUAL_REVIEW_RECOMMENDED",
+      "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+      "expected": "Revision humana del prompt.",
+      "evidence": null
+    }
+  ]
 }
