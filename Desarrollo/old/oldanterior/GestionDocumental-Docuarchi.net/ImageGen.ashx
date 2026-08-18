@@ -1,1 +1,0 @@
-﻿<%@ WebHandler Class="MindFusion.Common.WebForms.ImageHandler" %>
