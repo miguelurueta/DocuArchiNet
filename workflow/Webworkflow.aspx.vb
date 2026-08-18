@@ -9,8 +9,6 @@ Imports System.Configuration
 
 Public Class Webworkflow
     Inherits RefreshArticle.BasePage
-    Private Const WorkflowCentroTrabajoModernEnabledKey As String = "WorkflowCentroTrabajoModernEnabled"
-    Private Const WorkflowCentroTrabajoModernPilotProfilesKey As String = "WorkflowCentroTrabajoModernPilotProfiles"
     Private Const WorkflowCentroTrabajoModernLayersKey As String = "WorkflowCentroTrabajoModernLayers"
     Public Matri_Doc_Visual() As String
     Public Doc_actual As String = ""
@@ -30,11 +28,7 @@ Public Class Webworkflow
 
     Public ReadOnly Property WorkflowCentroTrabajoModernActive As Boolean
         Get
-            If Not IsConfigurationEnabled(ReadConfigurationValue(WorkflowCentroTrabajoModernEnabledKey, "false")) Then
-                Return False
-            End If
-
-            Return CurrentWorkflowPilotIsEnabled()
+            Return WorkflowTransitionModernActive
         End Get
     End Property
 
@@ -192,37 +186,6 @@ Public Class Webworkflow
         Return configuredValue.Trim()
     End Function
 
-    Private Shared Function IsConfigurationEnabled(ByVal value As String) As Boolean
-        Return String.Equals(value, "true", StringComparison.OrdinalIgnoreCase) OrElse
-               String.Equals(value, "1", StringComparison.OrdinalIgnoreCase) OrElse
-               String.Equals(value, "yes", StringComparison.OrdinalIgnoreCase)
-    End Function
-
-    Private Function CurrentWorkflowPilotIsEnabled() As Boolean
-        If HttpContext.Current Is Nothing OrElse HttpContext.Current.Session Is Nothing Then
-            Return False
-        End If
-
-        'El perfil piloto es el login de gestión creado por el servidor durante el inicio de sesión.
-        Dim currentProfile As String = Convert.ToString(HttpContext.Current.Session.Item("GA_LOGINUSUARIOGESTION")).Trim()
-        Dim configuredProfiles As String = ReadConfigurationValue(WorkflowCentroTrabajoModernPilotProfilesKey, String.Empty)
-        Dim profiles() As String
-        Dim profile As String
-
-        If String.IsNullOrWhiteSpace(currentProfile) OrElse String.IsNullOrWhiteSpace(configuredProfiles) Then
-            Return False
-        End If
-
-        profiles = configuredProfiles.Split(New Char() {","c, ";"c, ControlChars.Cr, ControlChars.Lf}, StringSplitOptions.RemoveEmptyEntries)
-        For Each profile In profiles
-            If String.Equals(profile.Trim(), currentProfile, StringComparison.OrdinalIgnoreCase) Then
-                Return True
-            End If
-        Next
-
-        Return False
-    End Function
-
     Private Function EnabledWorkflowCentroTrabajoLayers() As String
         Dim configuredLayers As String = ReadConfigurationValue(WorkflowCentroTrabajoModernLayersKey, "layout,actions,documents,a11y")
         Dim layoutEnabled As Boolean = IsWorkflowCentroTrabajoLayerEnabled(configuredLayers, "layout")
@@ -282,7 +245,11 @@ Public Class Webworkflow
         End If
 
         RegisterWorkflowTransitionModernStyle()
+        RegisterConfirmationDialogStyle()
+        RegisterConfirmationDialogScript()
+        RegisterWorkflowTransitionPagePresentationScript()
         RegisterWorkflowTransitionModernScript()
+        RegisterWorkflowTransitionConfirmationIntegrationScript()
         RegisterWorkflowTransitionModernBootstrap()
     End Sub
 
@@ -307,6 +274,55 @@ Public Class Webworkflow
         Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
         script.ID = "workflowTransitionModernScript"
         script.Attributes("src") = "../js/workflow/workflow-transition-ui.js?v=20260816-doc12qa4"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterConfirmationDialogStyle()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("confirmationDialogStyle") IsNot Nothing Then
+            Return
+        End If
+
+        Dim style As New Global.System.Web.UI.HtmlControls.HtmlLink()
+        style.ID = "confirmationDialogStyle"
+        style.Href = "../Styles/confirmation-dialog.css?v=20260818-doc14fullflow1"
+        style.Attributes("rel") = "stylesheet"
+        style.Attributes("type") = "text/css"
+        Page.Header.Controls.Add(style)
+    End Sub
+
+    Private Sub RegisterConfirmationDialogScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("confirmationDialogScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "confirmationDialogScript"
+        script.Attributes("src") = "../js/java_general/ConfirmationDialog.js?v=20260818-doc14fullflow1"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterWorkflowTransitionConfirmationIntegrationScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowTransitionConfirmationIntegrationScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "workflowTransitionConfirmationIntegrationScript"
+        script.Attributes("src") = "../js/workflow/workflow-transition-confirmation-integration.js?v=20260818-doc14fullflow1"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterWorkflowTransitionPagePresentationScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowTransitionPagePresentationScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "workflowTransitionPagePresentationScript"
+        script.Attributes("src") = "../js/workflow/workflow-transition-page-presentation.js?v=20260818-doc14fullflow1"
         script.Attributes("type") = "text/javascript"
         Page.Header.Controls.Add(script)
     End Sub

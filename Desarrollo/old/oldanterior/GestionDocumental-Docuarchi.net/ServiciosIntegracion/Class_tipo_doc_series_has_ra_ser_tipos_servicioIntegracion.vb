@@ -1,3 +1,0 @@
-﻿Public Class Class_tipo_doc_series_has_ra_ser_tipos_servicioIntegracion
-
-End Class

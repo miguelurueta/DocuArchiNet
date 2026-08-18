@@ -4,7 +4,7 @@
 
 Cada implementación funcional o visual se planifica, valida y revierte en su propio archivo. No se mezclan cambios de tablas, sesión, menú o login dentro de un único plan de ejecución.
 
-**Repositorio destino:** `D:\imagenesda\GestorDocumental\Desarrollo\old\oldanterior\GestionDocumental-Docuarchi.net`  
+**Repositorio destino:** `D:\imagenesda\DocuachiNet\DocuArchiNet`
 **Origen de contraste:** `D:\temfile\Gestion`
 
 ## Planes vigentes

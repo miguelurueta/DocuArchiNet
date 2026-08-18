@@ -12,7 +12,7 @@ La implementación es exclusivamente de presentación. No modifica consultas, co
 
 ```text
 Origen validado: D:\temfile\Gestion
-Repositorio destino: D:\imagenesda\GestorDocumental\Desarrollo\old\oldanterior\GestionDocumental-Docuarchi.net
+Repositorio destino: D:\imagenesda\DocuachiNet\DocuArchiNet
 Página: workflow\Webworkflow.aspx
 Estilo local: Styles\workflow-tareas-modernas.css
 ```

@@ -11,6 +11,10 @@ Public Module RouteConfig
         routes.IgnoreRoute("{resource}.axd/{*pathInfo}")
         routes.IgnoreRoute("{resource}.aspx/{*pathInfo}") ' Ignorar WebForms
         routes.IgnoreRoute("{*allaspx}", New With {.allaspx = ".*\.aspx(/.*)?"})
+        routes.MapPageRoute(
+            routeName:="Inicio",
+            routeUrl:="",
+            physicalFile:="~/gestor.aspx")
         ' Rutas MVC
         routes.MapRoute(
             name:="Default",

@@ -3,8 +3,8 @@ name: OPSXJ validation
 on:
   pull_request:
     paths:
-      - "Desarrollo/old/oldanterior/GestionDocumental-Docuarchi.net/tools/opsxj/**"
-      - "Desarrollo/old/oldanterior/GestionDocumental-Docuarchi.net/openspec/**"
+      - "tools/opsxj/**"
+      - "openspec/**"
       - ".github/workflows/opsxj-validation.yml"
   workflow_dispatch:
 
@@ -18,7 +18,7 @@ jobs:
     defaults:
       run:
         shell: pwsh
-        working-directory: Desarrollo/old/oldanterior/GestionDocumental-Docuarchi.net
+        working-directory: .
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: Desarrollo/old/oldanterior/GestionDocumental-Docuarchi.net/tools/opsxj/package-lock.json
+          cache-dependency-path: tools/opsxj/package-lock.json
 
       - name: Install opsxj dependencies
         run: npm.cmd --prefix tools/opsxj ci

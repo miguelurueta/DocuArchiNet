@@ -5,7 +5,7 @@ Rol esperado:
 Arquitecto de software senior especialista en ASP.NET Web Forms .NET Framework 4.6.1, VB.NET, ASMX, seguridad transaccional y modernización gradual de workflows legacy.
 
 Contexto:
-- Repositorio: `D:\imagenesda\GestorDocumental\Desarrollo\old\oldanterior\GestionDocumental-Docuarchi.net`.
+- Repositorio: `D:\imagenesda\DocuachiNet\DocuArchiNet`.
 - Interfaz y code-behind legacy: `workflow/Webworkflow.aspx` y `workflow/Webworkflow.aspx.vb`.
 - Núcleo que se debe preservar: `ClassWorkflow.Terminar_Tarea_Workflow`, `ClassWorkflow.Cambia_Estado`, `PRETERMINARACTIVIAD` y `TERMINARACTIVIDAD`.
 - La fundación y los contratos paralelos ya definidos viven en `Modelo/Workflow/Terminar/`, `DTOs/Workflow/Terminar/`, `Services/Workflow/Terminar/` e `Infrastructure/`; este prompt conecta la ejecución mediante esos límites tipados.

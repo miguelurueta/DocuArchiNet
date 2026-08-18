@@ -575,7 +575,7 @@
                                           <% End If %>
                                       </div>
                                   </li>  
-                                  <asp:Panel ID="Panel_detalle_tarea" CssClass="navbar-nav " runat="server">
+                                  <asp:Panel ID="Panel_detalle_tarea" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <li class="nav-item dropdown active ml-2 mr-0 ">
                                           <a class="nav-link  dropdown-toggle " style="color: #6d7fcc" href="#" id="A8" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i style="color: #0062cc" class="fad fa-tasks"></i> Detalle
                                           </a>
@@ -607,7 +607,7 @@
                                           </div>
                                       </li>
                                   </asp:Panel>
-                                  <asp:Panel ID="Panel_tramitar_tarea" CssClass="navbar-nav " runat="server">
+                                  <asp:Panel ID="Panel_tramitar_tarea" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <% If Not WorkflowCentroTrabajoModernActive Then %>
                                        <li class="nav-item dropdown active ml-2 mr-0 ">
                                           <a class="nav-link  dropdown-toggle " style="color: #6d7fcc" href="#" id="A7" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i style="color: #0062cc" class="fad fa-list"></i> Servicios
@@ -619,7 +619,7 @@
                                        </li>
                                       <% End If %>
                                   </asp:Panel>
-                                  <asp:Panel ID="Panel_documentos_tarea" CssClass="navbar-nav " runat="server">
+                                  <asp:Panel ID="Panel_documentos_tarea" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <% If Not WorkflowCentroTrabajoModernActive Then %>
                                       <li class="nav-item dropdown active ml-2 mr-0 ">
                                           <a class="nav-link  dropdown-toggle " style="color: #6d7fcc" href="#" id="A6" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i style="color: #0062cc" class="fad fa-folder-open"></i> Documentos
@@ -666,7 +666,7 @@
                           </button> 
                           <div class="collapse navbar-collapse row" id="navbarNavDropdown_">
                               <div  class="col-md-9 navbar-nav">
-                                  <asp:Panel ID="Panel_devolver_tarea" CssClass="navbar-nav " runat="server" Visible="false">      
+                                  <asp:Panel ID="Panel_devolver_tarea" CssClass="navbar-nav " runat="server" Visible="false" data-workflow-task-action="true">
                                      <li class="nav-item dropdown active ml-2 mr-0">  
                                          <a class="nav-link dropdown-toggle" style="color: #6d7fcc" title="Devuelve la tarea" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="#">
                                              <i style="color: #0062cc" class="fad fa-arrow-alt-left"></i> Devolver
@@ -677,35 +677,35 @@
                                          </div>
                                       </li>            
                                   </asp:Panel>
-                                  <asp:Panel ID="Panel_EnviarUsuario" CssClass="navbar-nav " runat="server">
+                                  <asp:Panel ID="Panel_EnviarUsuario" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <ul class="navbar-nav">
                                           <li class="nav-item active ml-2">
                                               <a class="nav-link font-weight-light" style="color: #6d7fcc" title="Envía la tarea a usuario" href="#" onclick="activa_boton_client_server('ImageButtonEnviarUsuario');"><i style="margin-left: 1px; margin-top: 7px; color: #0062cc" class="fad fa-user"></i> Enviar a usuario  </a>
                                           </li>
                                       </ul>
                                   </asp:Panel>
-                                  <asp:Panel ID="Panel_EnviaActividad" CssClass="navbar-nav " runat="server">
+                                  <asp:Panel ID="Panel_EnviaActividad" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <ul class="navbar-nav">
                                           <li class="nav-item active ml-2">
                                               <a class="nav-link font-weight-light" style="color: #6d7fcc" title="Envía la tarea a grupo de usuarios" href="#" onclick="activa_boton_client_server('ImageButtonEnviaActividad');"><i style="margin-left: 1px; margin-top: 7px; color: #0062cc" class="fad fa-user-friends"></i> Enviar a grupo  </a>
                                           </li>
                                       </ul>
                                   </asp:Panel>
-                                  <asp:Panel ID="Panel_enviar_flujo" CssClass="navbar-nav " runat="server">
+                                  <asp:Panel ID="Panel_enviar_flujo" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <ul class="navbar-nav">
                                           <li class="nav-item active ml-2 ">
                                               <a id="workflow-transition-trigger" class="nav-link font-weight-light ctw-btn" style="color: #6d7fcc" title="Continuar la tarea por ruta o flujo de trabajo" href="#" onclick="actualiza_titulo_lista_actividades_workflow('Enviar tarea'); activa_boton_client_server('ImageButtonterminar');" tabindex="0"><i class="fad fa-arrow-alt-right"></i><span>Continuar flujo</span></a>
                                           </li>
                                       </ul>
                                   </asp:Panel>
-                                  <asp:Panel ID="Panel_autoterminar" CssClass="navbar-nav " runat="server" Visible="false">
+                                  <asp:Panel ID="Panel_autoterminar" CssClass="navbar-nav " runat="server" Visible="false" data-workflow-task-action="true">
                                       <ul class="navbar-nav">
                                           <li class="nav-item active ml-2">
                                               <a class="nav-link font-weight-light"  style="color: #6d7fcc" title="Envía la tarea a gestión de correspondencia" href="#" onclick="activa_boton_client_server('ImageButtonautoterminar');"><i style="margin-left: 1px; margin-top: 7px; color: #0062cc" class="fad fa-check"></i> Enviar a gestión  </a>
                                           </li>
                                       </ul>
                                   </asp:Panel>
-                                  <asp:Panel ID="Panel_Buttonanotacion" CssClass="navbar-nav " runat="server">
+                                  <asp:Panel ID="Panel_Buttonanotacion" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <ul class="navbar-nav">
                                           <li class="nav-item active ml-2 ">
                                               <a class="nav-link" href="#" title="Notas" aria-label="Abrir notas" onclick="activa_boton_client_server('ImageButtonanotacion');">
@@ -716,7 +716,7 @@
                                           </li>
                                       </ul>
                                   </asp:Panel>
-                                  <asp:Panel ID="Panel_autoriza" CssClass="navbar-nav " runat="server">
+                                  <asp:Panel ID="Panel_autoriza" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <li class="nav-item dropdown active ml-2 mr-0 ctw-authorize-menu">
                                           <div class="ctw-authorize-control" role="group" aria-label="Autorización de la tarea">
                                               <span class="ctw-authorize-check"><asp:CheckBox ID="CheckBox_auturiza" runat="server" aria-label="<% If WorkflowCentroTrabajoModernActive Then %>Cambiar estado de autorización de la tarea<% Else %>Marcar tarea como autorizada<% End If %>" onclick="prevent_autoriza_tarea(event, this);" /></span>
@@ -728,7 +728,7 @@
                                           </div>
                                       </li>          
                                   </asp:Panel>
-                                  <asp:Panel ID="Panel_info_tarea" CssClass="navbar-nav " runat="server">
+                                  <asp:Panel ID="Panel_info_tarea" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <ul class="navbar-nav">
                                           <li class="nav-item active ml-1">
 
@@ -743,17 +743,17 @@
                                   <asp:Panel ID="Panel_show_hide" CssClass="navbar-nav " Style="float:right" runat="server">
                                        <ul class="navbar-nav">
                                            
-                                          <li id="hide_selec_tarea" style="display:none" class="nav-item active ml-0" >
+                                          <li id="hide_selec_tarea" style="display:none" class="nav-item active ml-0" data-workflow-task-toggle="true">
                                               <a class="nav-link" href="#">
                                               <span class=" font-weight-bold" style=" margin-left:0px; margin:2px; width:auto; color:#0062cc;" title="Mostrar la lista de tareas en espera"  onclick="hide_area_workflow_seleccion();"><i id="indice_title" style="margin-left: 1px; margin-top: 7px; color: #0062cc"  class="fad fa-list fa-1x"></i> Tareas</span> 
                                               </a>
                                           </li>
-                                           <li id="show_selec_tarea"  class="nav-item active ml-0" style="display:none">
+                                           <li id="show_selec_tarea"  class="nav-item active ml-0" style="display:none" data-workflow-task-toggle="true">
                                                <a class="nav-link" href="#">
                                                  <span class="font-weight-bold"  style=" margin-left:0px; margin:2px; width:auto; color:#0062cc;" title="Mostrar la tarea seleccionada"   onclick="show_area_workflow_seleccion()"><i id="i1" style="margin-left: 1px; margin-top: 7px; color: #0062cc"  class="far fa-window-alt fa-1x"></i> Mostrar tarea </span> 
                                               </a>
                                           </li>
-                                           <li id="pendiente_selec_tarea" style="display:none" class="nav-item active ml-0" >
+                                           <li id="pendiente_selec_tarea" style="display:none" class="nav-item active ml-0" data-workflow-task-action="true">
                                                <a class="nav-link ctw-btn" href="#" title="Cerrar tarea seleccionada" aria-label="Cerrar tarea seleccionada" onclick="inicializa_tipo_adjunto_documento(event,this,'E-ETP');" tabindex="0">
                                                  <i id="i2" class="fad fa-check-circle" aria-hidden="true"></i><span id="span_pendiente_selec_tarea">Cerrar tarea</span>
                                                </a>
@@ -802,7 +802,7 @@
               </div>
              
           </div>
-              <div id="contenido_lista_tareas"
+              <div id="contenido_lista_tareas" data-workflow-task-list="true"
               style="position: inherit; left: auto; width: 100%; height: 99%; margin: 0px 0px 0px 0px; background-color:white; display:none">
                    <div id="div_label_title_tareas" class="row p-1" >
                        <div class="col-7">
@@ -810,7 +810,7 @@
                            <div class="col3">
                                 <asp:UpdatePanel ID="UpdatePanelnumeroespera" runat="server" UpdateMode="Conditional">
                                <ContentTemplate>
-                                   <asp:Label ID="LabelEspera" runat="server" Text=""  CssClass="h6 ml-3" Style="color:#0062cc"></asp:Label>
+                                   <asp:Label ID="LabelEspera" runat="server" Text=""  CssClass="h6 ml-3" Style="color:#0062cc" data-workflow-task-count="true"></asp:Label>
                                    <input id="Hidden_00005_2222" type="hidden" value="" runat="server"/>
                                </ContentTemplate>
                            </asp:UpdatePanel>
@@ -879,7 +879,7 @@
                      
                   </div>                          
           </div>
-              <div id="content_selecion_tarea" style="width:100%; display:none"> 
+              <div id="content_selecion_tarea" style="width:100%; display:none" data-workflow-task-context="true">
                   <div id="error_div_selecion_tarea_wf" style="position: relative; width: 100%"></div>
                   <div id="content_seleccion_documentos" style="width: 25%; position: relative; left: auto; float: left; height: 100%;" class="modal_content_no_back_rigth modal_content_no_back_inferior">
                       <div id="div_label" class="row p-0 m-0 pt-2 pb-2 modal_content_no_back_inferior documentos-relacionados-titulo">
@@ -1080,7 +1080,7 @@
                                   <asp:UpdatePanel ID="UpdatePanelVisor" runat="server" UpdateMode="Conditional"
                                       RenderMode="Inline">
                                       <ContentTemplate>
-                                          <iframe id="ifrm_visor_" runat="server" style="border-style: none; left: 0px; width: 100%; height: auto; position: relative; top: 1px; z-index: auto; right: 1px"
+                                          <iframe id="ifrm_visor_" runat="server" data-workflow-task-viewer="true" style="border-style: none; left: 0px; width: 100%; height: auto; position: relative; top: 1px; z-index: auto; right: 1px"
                                               frameborder="0" scrolling="no"></iframe>
 
                                       </ContentTemplate>
@@ -4665,6 +4665,7 @@
                 </div>
             </section>
         </div>
+        <div id="workflow-transition-success-message" class="workflow-transition-success-message" data-workflow-transition-success="true" role="status" aria-live="polite" hidden="hidden"></div>
         <!--mensaje_personalizado-->
         <asp:Panel ID="Panel_mensaje_personalizado" runat="server" Style="display: none; color: black; width: auto; height: auto; z-index: 99999999999">
             <asp:ModalPopupExtender ID="ModalPopupExtender_mensaje_personalizado" runat="server"

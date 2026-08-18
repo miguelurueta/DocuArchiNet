@@ -32,6 +32,7 @@ Public Interface IRequisitosTransicionRepository
 End Interface
 
 Public Interface IAuditoriaTransicionRepository
+    'El contrato solo recibe telemetría estructurada y sanitizada; nunca Session, SQL ni payloads.
     Function Registrar(ByVal auditoria As AuditoriaTransicion) As Boolean
 End Interface
 

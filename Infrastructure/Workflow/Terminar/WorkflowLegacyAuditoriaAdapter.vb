@@ -15,13 +15,19 @@ Public Class WorkflowLegacyAuditoriaAdapter
         Try
             Dim detalle As String = String.Format(
                 Globalization.CultureInfo.InvariantCulture,
-                "WorkflowModern; Ref={0}; Tarea={1}; Origen={2}; Destino={3}; Mecanismo={4}; Resultado={5}",
-                auditoria.Referencia,
+                "WorkflowModern; Ref={0}; Canal={1}; Usuario={2}; Tarea={3}; Ruta={4}; Flujo={5}; Origen={6}; Destino={7}; Conector={8}; DuracionMs={9}; Resultado={10}; Codigo={11}",
+                NormalizarReferencia(auditoria.Referencia),
+                NormalizarCanal(auditoria.Canal),
+                auditoria.IdUsuarioWorkflow,
                 auditoria.IdTarea,
+                auditoria.IdRutaWorkflow,
+                auditoria.IdFlujoTrabajo,
                 auditoria.IdActividadOrigen,
                 auditoria.IdActividadDestino,
-                auditoria.Mecanismo,
-                auditoria.Resultado)
+                auditoria.IdConector,
+                Math.Max(0, auditoria.DuracionMilisegundos),
+                NormalizarResultado(auditoria.Resultado),
+                NormalizarCodigo(auditoria.CodigoFuncional))
             Dim requestContext As HttpContext = HttpContext.Current
             If requestContext Is Nothing OrElse requestContext.Session Is Nothing Then Return False
 
@@ -51,5 +57,30 @@ Public Class WorkflowLegacyAuditoriaAdapter
         Catch
             Return False
         End Try
+    End Function
+
+    Private Shared Function NormalizarCanal(ByVal canal As String) As String
+        If String.Equals(canal, "MODERNO", StringComparison.OrdinalIgnoreCase) Then Return "MODERNO"
+        If String.Equals(canal, "LEGACY", StringComparison.OrdinalIgnoreCase) Then Return "LEGACY"
+        Return "DESCONOCIDO"
+    End Function
+
+    Private Shared Function NormalizarResultado(ByVal resultado As String) As String
+        If String.Equals(resultado, "EXITO", StringComparison.OrdinalIgnoreCase) Then Return "EXITO"
+        If String.Equals(resultado, "BLOQUEADO", StringComparison.OrdinalIgnoreCase) Then Return "BLOQUEADO"
+        If String.Equals(resultado, "ERROR", StringComparison.OrdinalIgnoreCase) Then Return "ERROR"
+        Return "ERROR"
+    End Function
+
+    Private Shared Function NormalizarCodigo(ByVal codigo As String) As String
+        Dim valor As String = If(codigo, String.Empty).Trim().ToUpperInvariant()
+        If System.Text.RegularExpressions.Regex.IsMatch(valor, "^[A-Z0-9_]{1,80}$") Then Return valor
+        Return "WORKFLOW_UNKNOWN"
+    End Function
+
+    Private Shared Function NormalizarReferencia(ByVal referencia As String) As String
+        Dim valor As String = If(referencia, String.Empty).Trim()
+        If System.Text.RegularExpressions.Regex.IsMatch(valor, "^[A-Za-z0-9-]{1,64}$") Then Return valor
+        Return "WF-MOD-SIN-REFERENCIA"
     End Function
 End Class

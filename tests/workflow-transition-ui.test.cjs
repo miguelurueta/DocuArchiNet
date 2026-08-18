@@ -120,7 +120,7 @@ test("no reemplaza el enlace legacy cuando el bootstrap está inactivo", () => {
     assert.equal(trigger.onclick, legacyClick);
 });
 
-test("registra recursos DOC-12 sin bloques de servidor en la cabecera Web Forms", () => {
+test("registra recursos DOC-12 y DOC-14 sin bloques de servidor en la cabecera Web Forms", () => {
     const page = fs.readFileSync(workflowPagePath, "utf8");
     const codeBehind = fs.readFileSync(workflowCodeBehindPath, "utf8");
     const head = page.match(/<head\b[^>]*>[\s\S]*?<\/head>/i)[0];
@@ -137,6 +137,12 @@ test("registra recursos DOC-12 sin bloques de servidor en la cabecera Web Forms"
     assert.match(source, /data-workflow-modern-bound/);
     assert.match(source, /getClientRects\(\)\.length > 0/);
     assert.match(codeBehind, /workflow-transition-modern\.css\?v=20260816-doc12qa5/);
+    assert.match(codeBehind, /confirmation-dialog\.css\?v=20260818-doc14fullflow1/);
+    assert.match(codeBehind, /ConfirmationDialog\.js\?v=20260818-doc14fullflow1/);
+    assert.match(codeBehind, /workflow-transition-confirmation-integration\.js\?v=20260818-doc14fullflow1/);
+    assert.match(codeBehind, /workflow-transition-page-presentation\.js\?v=20260818-doc14fullflow1/);
+    assert.match(page, /data-workflow-task-list="true"/);
+    assert.match(page, /data-workflow-transition-success="true"/);
 });
 
 test("mantiene la cabecera y el cierre visibles en el modal móvil", () => {
@@ -149,7 +155,12 @@ test("mantiene la cabecera y el cierre visibles en el modal móvil", () => {
 test("la selección publica solamente el contrato para la confirmación posterior", () => {
     const ui = loadUi();
     const detail = ui.crearDetalleSeleccion(
-        { idTarea: 41, tokenVersion: "v-41" },
+        {
+            idTarea: 41,
+            tokenVersion: "v-41",
+            tipoDecision: "Flujo",
+            contexto: { radicado: "RAD-41", grupoActual: "Gestión documental" }
+        },
         { id: 8, nombre: "Revisión", destinatario: "Ana", grupo: "", tipo: "Flujo" }
     );
 
@@ -157,6 +168,8 @@ test("la selección publica solamente el contrato para la confirmación posterio
         idTarea: 41,
         idConector: 8,
         tokenVersion: "v-41",
+        tipoDecision: "Flujo",
+        contexto: { radicado: "RAD-41", grupoActual: "Gestión documental" },
         destino: { nombre: "Revisión", destinatario: "Ana", grupo: "", tipo: "Flujo" }
     });
 });

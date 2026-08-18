@@ -1017,6 +1017,7 @@ Public Class ClassListandoTareas
             update_gred.Update()
             For i As Integer = 0 To grediview.Rows.Count - 1
                 grediview.Rows(i).Attributes.Add("id", grediview.Rows(i).Cells(1).Text.ToString())
+                grediview.Rows(i).Attributes.Add("data-workflow-task-id", grediview.Rows(i).Cells(1).Text.ToString())
                 Dim divhtml As New HtmlControls.HtmlGenericControl("div")
                 Dim ihtml As New HtmlControls.HtmlGenericControl("i")
                 ihtml.Style.Add("color", "white")

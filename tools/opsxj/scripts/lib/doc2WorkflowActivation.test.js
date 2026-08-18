@@ -9,25 +9,40 @@ const appRoot = path.resolve(testDirectory, "..", "..", "..", "..");
 const readAppFile = (relativePath) => readFile(path.join(appRoot, relativePath), "utf8");
 
 describe("DOC-2 workflow visual activation", () => {
-  it("defaults safely and requires a closed server-side pilot when activation is enabled", async () => {
-    const [config, codeBehind, page] = await Promise.all([
+  it("delegates activation to the current server-side gate and keeps official scope closed", async () => {
+    const [config, codeBehind, page, bootstrap] = await Promise.all([
       readAppFile("Web.config"),
       readAppFile("workflow/Webworkflow.aspx.vb"),
       readAppFile("workflow/Webworkflow.aspx"),
+      readAppFile("workflow/WorkflowModernPresentationBootstrap.vb"),
     ]);
 
-    const masterFlag = config.match(/<add\s+key="WorkflowCentroTrabajoModernEnabled"\s+value="([^"]*)"\s*\/>/i);
-    const pilotProfiles = config.match(/<add\s+key="WorkflowCentroTrabajoModernPilotProfiles"\s+value="([^"]*)"\s*\/>/i);
+    const active = config.match(/<add\s+key="WorkflowCentroTrabajoModernActive"\s+value="([^"]*)"\s*\/>/i);
+    const official = config.match(/<add\s+key="WorkflowCentroTrabajoModernOfficialMode"\s+value="([^"]*)"\s*\/>/i);
+    const users = config.match(/<add\s+key="WorkflowCentroTrabajoModernUsers"\s+value="([^"]*)"\s*\/>/i);
+    const groups = config.match(/<add\s+key="WorkflowCentroTrabajoModernGroups"\s+value="([^"]*)"\s*\/>/i);
+    const pilotStart = config.match(/<add\s+key="WorkflowCentroTrabajoModernPilotStartUtc"\s+value="([^"]*)"\s*\/>/i);
+    const pilotOwner = config.match(/<add\s+key="WorkflowCentroTrabajoModernPilotOwner"\s+value="([^"]*)"\s*\/>/i);
+    const pilotReason = config.match(/<add\s+key="WorkflowCentroTrabajoModernPilotReason"\s+value="([^"]*)"\s*\/>/i);
 
-    expect(masterFlag).not.toBeNull();
-    expect(pilotProfiles).not.toBeNull();
-    expect(codeBehind).toContain('ReadConfigurationValue(WorkflowCentroTrabajoModernEnabledKey, "false")');
-    expect(["true", "false", "1", "0", "yes", "no"]).toContain(masterFlag[1].toLowerCase());
-    if (["true", "1", "yes"].includes(masterFlag[1].toLowerCase())) {
-      expect(pilotProfiles[1].trim()).not.toBe("");
+    [active, official, users, groups, pilotStart, pilotOwner, pilotReason].forEach((setting) => expect(setting).not.toBeNull());
+    expect(["true", "false", "1", "0", "yes", "no"]).toContain(active[1].toLowerCase());
+    expect(["true", "false", "1", "0", "yes", "no"]).toContain(official[1].toLowerCase());
+    expect(codeBehind).toContain("WorkflowModernPresentationBootstrap.EstaActivaParaSolicitudActual()");
+    expect(bootstrap).toContain("WorkflowPreviewSessionContextGate");
+    expect(bootstrap).toContain("ConfiguracionWorkflowModernFeatureGate");
+    expect(bootstrap).toContain("Return False");
+    if (["true", "1", "yes"].includes(active[1].toLowerCase())) {
+      expect(pilotStart[1].trim()).not.toBe("");
+      expect(pilotOwner[1].trim()).not.toBe("");
+      expect(pilotReason[1].trim()).not.toBe("");
+    }
+    if (["true", "1", "yes"].includes(official[1].toLowerCase())) {
+      expect(active[1].toLowerCase()).toMatch(/^(true|1|yes)$/);
+      expect(users[1].trim()).toBe("");
+      expect(groups[1].trim()).toBe("");
     }
     expect(config).toContain('WorkflowCentroTrabajoModernLayers');
-    expect(codeBehind).toContain('Session.Item("GA_LOGINUSUARIOGESTION")');
     expect(codeBehind).toContain('WorkflowCentroTrabajoModernActive');
     expect(page).toContain('<%= WorkflowCentroTrabajoModernCssAttribute %>');
   });
@@ -85,7 +100,6 @@ describe("DOC-2 workflow visual activation", () => {
       readAppFile("workflow/Webworkflow.aspx"),
       readAppFile("Styles/workflow-centro-trabajo-moderno.css"),
     ]);
-
     expect(page).toContain("workflow-centro-trabajo-moderno.css?v=20260813-mobileframe46");
     [
       "@media (max-width: 767px)",
@@ -507,6 +521,7 @@ describe("DOC-2 workflow visual activation", () => {
       readAppFile("workflow/Webworkflow.aspx"),
       readAppFile("Styles/workflow-centro-trabajo-moderno.css"),
     ]);
+    const normalizedCss = css.replace(/\r\n/g, "\n");
 
     expect(page).toContain('id="content_pie_seleccion_tarea"');
     expect(page).toContain('ID="Label_estado_tarea_selecion"');
@@ -514,11 +529,11 @@ describe("DOC-2 workflow visual activation", () => {
     expect(page).toContain('id="ctw-task-context"');
     [
       "grid-template-rows: auto minmax(0, 1fr);",
-      "#content_pie_seleccion_tarea {\n  grid-column: 1 / -1;\n  grid-row: 1;",
-      "#content_seleccion_documentos {\n  grid-column: 1;\n  grid-row: 2;",
-      "#contenido_imagen {\n  grid-column: 2;\n  grid-row: 2;",
-      "#contenido_indice {\n  grid-column: 3;\n  grid-row: 2;",
-    ].forEach((marker) => expect(css).toContain(marker));
+      ".workflow-centro-trabajo-moderno.ctw-layer-layout #content_pie_seleccion_tarea {\n  grid-column: 1 / -1;\n  grid-row: 1;",
+      ".workflow-centro-trabajo-moderno.ctw-layer-layout #content_seleccion_documentos {\n  grid-column: 1;\n  grid-row: 2;",
+      ".workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_imagen {\n  grid-column: 2;\n  grid-row: 2;",
+      ".workflow-centro-trabajo-moderno.ctw-layer-layout #contenido_indice {\n  grid-column: 3;\n  grid-row: 2;",
+    ].forEach((marker) => expect(normalizedCss).toContain(marker));
   });
 
   it("separates authorization state from its history and scopes the document counter format", async () => {

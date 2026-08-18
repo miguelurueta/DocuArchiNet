@@ -97,6 +97,10 @@ End Class
 Public NotInheritable Class CodigosBloqueoPrevisualizacion
     Public Const ContextoInvalido As String = "WORKFLOW_CONTEXT_INVALID"
     Public Const ModernoInactivo As String = "WORKFLOW_MODERN_INACTIVE"
+    Public Const ModernoAlcancePilotoRequerido As String = "WORKFLOW_MODERN_PILOT_SCOPE_REQUIRED"
+    Public Const ModernoMetadatosPilotoInvalidos As String = "WORKFLOW_MODERN_PILOT_METADATA_INVALID"
+    Public Const ModernoRollbackActivo As String = "WORKFLOW_MODERN_ROLLBACK_ACTIVE"
+    Public Const ModernoAlcanceOficialInconsistente As String = "WORKFLOW_MODERN_OFFICIAL_SCOPE_CONFLICT"
     Public Const TareaInvalida As String = "WORKFLOW_TASK_INVALID"
     Public Const TareaNoDisponible As String = "WORKFLOW_TASK_UNAVAILABLE"
     Public Const RutaCerrada As String = "WORKFLOW_ROUTE_CLOSED"

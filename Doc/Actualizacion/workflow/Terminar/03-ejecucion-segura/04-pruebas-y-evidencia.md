@@ -11,6 +11,7 @@
 | Preservación de Web Forms | PASS | No hay cambios en `workflow/Webworkflow.aspx`, `workflow/Webworkflow.aspx.vb` ni `workflow/ClassWorkflow.vb`. |
 | E2E anónima | PASS | 2026-08-15: `EjecutarEnvioTarea` sin sesión devolvió `WORKFLOW_CONTEXT_INVALID`; no hubo transición. |
 | E2E de validación autenticada | PASS | 2026-08-15: login real de GESTOR y `idTarea=0` devolvieron `WORKFLOW_TASK_INVALID`; no hubo transición. |
+| E2E autenticada, requisito pendiente | PASS | 2026-08-18: tarea descartable 557 devolvió `WORKFLOW_REQUIREMENT_NOT_MET`; la huella de estado no cambió y la auditoría registró el bloqueo. |
 | Preview autorizado de tareas de control | Parcial | 2026-08-15: 922 y 879 devolvieron `WORKFLOW_TASK_UNAVAILABLE`; 920 resolvió dos destinos RUTA. Ninguna se envió. |
 | E2E positiva RUTA | PASS | 2026-08-15: tareas 922 y 895, conector 18 (`CONTADOR`), HTTP 200, `Exito=true`, `EstadoFinal=completada`; 895 devolvió referencia `WF-MOD-*`. |
 | E2E positiva FLUJO | PASS | 2026-08-15: tarea 879, conector 250 (`CONTADOR`), HTTP 200, `Exito=true`, `EstadoFinal=completada`. |
