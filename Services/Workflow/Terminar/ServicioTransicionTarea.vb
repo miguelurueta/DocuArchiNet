@@ -1,5 +1,6 @@
 Imports System
 Imports System.Collections.Generic
+Imports System.Diagnostics
 
 'Fachada Application. El navegador aporta intención; esta capa revalida y compone el resultado público.
 Public Class ServicioTransicionTarea
@@ -117,103 +118,174 @@ Public Class ServicioTransicionTarea
 
     Public Function Ejecutar(ByVal contexto As ContextoModuloWorkflow,
                              ByVal solicitud As SolicitudTransicionWorkflow) As ResultadoTransicionDto
-        Dim habilitacion As HabilitacionWorkflowModernDto = EvaluarHabilitacion(contexto)
-        If Not habilitacion.Activo Then
-            Return CrearResultadoBloqueado(habilitacion.Codigo, habilitacion.MensajeFuncional, False, Nothing)
-        End If
+        Dim cronometro As Stopwatch = Stopwatch.StartNew()
+        Try
+            Dim habilitacion As HabilitacionWorkflowModernDto = EvaluarHabilitacion(contexto)
+            If Not habilitacion.Activo Then
+                Return RegistrarAuditoria(contexto,
+                                          CrearTareaAuditoria(contexto, solicitud),
+                                          Nothing,
+                                          CrearResultadoBloqueado(habilitacion.Codigo, habilitacion.MensajeFuncional, False, Nothing),
+                                          cronometro.ElapsedMilliseconds)
+            End If
 
-        Dim errorSolicitud As ErrorTransicionDto = _validador.ValidarSolicitud(solicitud)
-        If errorSolicitud IsNot Nothing Then
-            Return CrearResultadoBloqueado(errorSolicitud.Codigo, errorSolicitud.MensajeVisible, False, Nothing)
-        End If
-        If _tareaRepository Is Nothing OrElse _ejecucionRepository Is Nothing OrElse _requisitosRepository Is Nothing OrElse
-           _concurrencyGuard Is Nothing OrElse _ejecutor Is Nothing OrElse _auditoriaRepository Is Nothing Then
-            Return CrearResultadoBloqueado(CodigosBloqueoPrevisualizacion.TransicionNoDisponible,
-                                           "La operacion de envio no esta disponible en este servicio.",
-                                           True,
-                                           Nothing)
-        End If
-
-        Dim guard As ResultadoGuardTransicion = _concurrencyGuard.Adquirir(contexto, solicitud.IdTarea, solicitud.TokenVersion)
-        If guard Is Nothing OrElse Not guard.Adquirido OrElse guard.Lease Is Nothing Then
-            Return CrearResultadoBloqueado(If(guard Is Nothing OrElse String.IsNullOrWhiteSpace(guard.CodigoBloqueo),
-                                              CodigosBloqueoPrevisualizacion.TransicionNoDisponible,
-                                              guard.CodigoBloqueo),
-                                           If(guard Is Nothing OrElse String.IsNullOrWhiteSpace(guard.MensajeFuncional),
-                                              "No fue posible preparar el envio de la tarea.",
-                                              guard.MensajeFuncional),
-                                           True,
-                                           Nothing)
-        End If
-
-        Using guard.Lease
-            Dim tarea As TareaWorkflow = _tareaRepository.ObtenerTarea(contexto, solicitud.IdTarea)
-            If tarea Is Nothing OrElse Not tarea.EstaActiva OrElse
-               Not String.Equals(tarea.TokenVersion, solicitud.TokenVersion, StringComparison.Ordinal) Then
-                Return CrearResultadoBloqueado(CodigosBloqueoPrevisualizacion.VersionConflicto,
-                                               "La tarea cambio; actualice la informacion antes de enviarla.",
-                                               False,
+            Dim errorSolicitud As ErrorTransicionDto = _validador.ValidarSolicitud(solicitud)
+            If errorSolicitud IsNot Nothing Then
+                Return RegistrarAuditoria(contexto,
+                                          CrearTareaAuditoria(contexto, solicitud),
+                                          Nothing,
+                                          CrearResultadoBloqueado(errorSolicitud.Codigo, errorSolicitud.MensajeVisible, False, Nothing),
+                                          cronometro.ElapsedMilliseconds)
+            End If
+            If _tareaRepository Is Nothing OrElse _ejecucionRepository Is Nothing OrElse _requisitosRepository Is Nothing OrElse
+               _concurrencyGuard Is Nothing OrElse _ejecutor Is Nothing Then
+                Return CrearResultadoBloqueado(CodigosBloqueoPrevisualizacion.TransicionNoDisponible,
+                                               "La operacion de envio no esta disponible en este servicio.",
+                                               True,
                                                Nothing)
             End If
 
-            Dim resolucion As ResultadoResolucionDestinoTransicion = _ejecucionRepository.ResolverDestino(contexto, tarea, solicitud.IdConector)
-            If resolucion Is Nothing OrElse Not resolucion.EsValido Then
-                Dim codigo As String = If(resolucion Is Nothing OrElse String.IsNullOrWhiteSpace(resolucion.CodigoBloqueo),
-                                          CodigosBloqueoPrevisualizacion.ConectorNoDisponible,
-                                          resolucion.CodigoBloqueo)
-                Dim mensaje As String = If(resolucion Is Nothing OrElse String.IsNullOrWhiteSpace(resolucion.MensajeFuncional),
-                                           "El destino seleccionado ya no esta disponible.",
-                                           resolucion.MensajeFuncional)
+            Dim guard As ResultadoGuardTransicion = _concurrencyGuard.Adquirir(contexto, solicitud.IdTarea, solicitud.TokenVersion)
+            If guard Is Nothing OrElse Not guard.Adquirido OrElse guard.Lease Is Nothing Then
                 Return RegistrarAuditoria(contexto,
-                                          tarea,
+                                          CrearTareaAuditoria(contexto, solicitud),
                                           Nothing,
-                                          CrearResultadoBloqueado(codigo, mensaje, False, Nothing))
+                                          CrearResultadoBloqueado(If(guard Is Nothing OrElse String.IsNullOrWhiteSpace(guard.CodigoBloqueo),
+                                                                      CodigosBloqueoPrevisualizacion.TransicionNoDisponible,
+                                                                      guard.CodigoBloqueo),
+                                                                   If(guard Is Nothing OrElse String.IsNullOrWhiteSpace(guard.MensajeFuncional),
+                                                                      "No fue posible preparar el envio de la tarea.",
+                                                                      guard.MensajeFuncional),
+                                                                   True,
+                                                                   Nothing),
+                                          cronometro.ElapsedMilliseconds)
             End If
 
-            Dim requisitos As ResultadoRequisitosTransicion = _requisitosRepository.Evaluar(contexto, tarea, resolucion.Destino)
-            If requisitos Is Nothing OrElse Not requisitos.Cumple Then
-                Dim codigo As String = If(requisitos Is Nothing OrElse String.IsNullOrWhiteSpace(requisitos.CodigoBloqueo),
-                                          CodigosBloqueoPrevisualizacion.RequisitoNoCumplido,
-                                          requisitos.CodigoBloqueo)
-                Dim mensaje As String = If(requisitos Is Nothing OrElse String.IsNullOrWhiteSpace(requisitos.MensajeFuncional),
-                                           "La tarea no cumple los requisitos para enviarse.",
-                                           requisitos.MensajeFuncional)
-                Return RegistrarAuditoria(contexto,
-                                          tarea,
-                                          resolucion.Destino,
-                                          CrearResultadoBloqueado(codigo, mensaje, False, If(requisitos Is Nothing, Nothing, requisitos.Requisitos)))
-            End If
+            Using guard.Lease
+                Dim tarea As TareaWorkflow = _tareaRepository.ObtenerTarea(contexto, solicitud.IdTarea)
+                If tarea Is Nothing OrElse Not tarea.EstaActiva OrElse
+                   Not String.Equals(tarea.TokenVersion, solicitud.TokenVersion, StringComparison.Ordinal) Then
+                    Return RegistrarAuditoria(contexto,
+                                              CrearTareaAuditoria(contexto, solicitud),
+                                              Nothing,
+                                              CrearResultadoBloqueado(CodigosBloqueoPrevisualizacion.VersionConflicto,
+                                                                     "La tarea cambio; actualice la informacion antes de enviarla.",
+                                                                     False,
+                                                                     Nothing),
+                                              cronometro.ElapsedMilliseconds)
+                End If
 
-            Dim ejecucion As ResultadoEjecucionWorkflow = _ejecutor.Ejecutar(contexto, tarea, resolucion.Destino)
-            Dim respuesta As ResultadoTransicionDto = MapearEjecucion(ejecucion, tarea, resolucion.Destino, requisitos.Requisitos)
-            Return RegistrarAuditoria(contexto, tarea, resolucion.Destino, respuesta)
-        End Using
+                Dim resolucion As ResultadoResolucionDestinoTransicion = _ejecucionRepository.ResolverDestino(contexto, tarea, solicitud.IdConector)
+                If resolucion Is Nothing OrElse Not resolucion.EsValido Then
+                    Dim codigo As String = If(resolucion Is Nothing OrElse String.IsNullOrWhiteSpace(resolucion.CodigoBloqueo),
+                                              CodigosBloqueoPrevisualizacion.ConectorNoDisponible,
+                                              resolucion.CodigoBloqueo)
+                    Dim mensaje As String = If(resolucion Is Nothing OrElse String.IsNullOrWhiteSpace(resolucion.MensajeFuncional),
+                                               "El destino seleccionado ya no esta disponible.",
+                                               resolucion.MensajeFuncional)
+                    Return RegistrarAuditoria(contexto,
+                                              tarea,
+                                              Nothing,
+                                              CrearResultadoBloqueado(codigo, mensaje, False, Nothing),
+                                              cronometro.ElapsedMilliseconds)
+                End If
+
+                Dim requisitos As ResultadoRequisitosTransicion = _requisitosRepository.Evaluar(contexto, tarea, resolucion.Destino)
+                If requisitos Is Nothing OrElse Not requisitos.Cumple Then
+                    Dim codigo As String = If(requisitos Is Nothing OrElse String.IsNullOrWhiteSpace(requisitos.CodigoBloqueo),
+                                              CodigosBloqueoPrevisualizacion.RequisitoNoCumplido,
+                                              requisitos.CodigoBloqueo)
+                    Dim mensaje As String = If(requisitos Is Nothing OrElse String.IsNullOrWhiteSpace(requisitos.MensajeFuncional),
+                                               "La tarea no cumple los requisitos para enviarse.",
+                                               requisitos.MensajeFuncional)
+                    Return RegistrarAuditoria(contexto,
+                                              tarea,
+                                              resolucion.Destino,
+                                              CrearResultadoBloqueado(codigo, mensaje, False, If(requisitos Is Nothing, Nothing, requisitos.Requisitos)),
+                                              cronometro.ElapsedMilliseconds)
+                End If
+
+                Dim ejecucion As ResultadoEjecucionWorkflow = _ejecutor.Ejecutar(contexto, tarea, resolucion.Destino)
+                Dim respuesta As ResultadoTransicionDto = MapearEjecucion(ejecucion, tarea, resolucion.Destino, requisitos.Requisitos)
+                Return RegistrarAuditoria(contexto, tarea, resolucion.Destino, respuesta, cronometro.ElapsedMilliseconds)
+            End Using
+        Catch
+            Return RegistrarAuditoria(contexto,
+                                      CrearTareaAuditoria(contexto, solicitud),
+                                      Nothing,
+                                      CrearResultadoBloqueado(CodigosBloqueoPrevisualizacion.TransicionNoDisponible,
+                                                             "No fue posible enviar la tarea.",
+                                                             True,
+                                                             Nothing),
+                                      cronometro.ElapsedMilliseconds)
+        End Try
     End Function
 
     Private Function RegistrarAuditoria(ByVal contexto As ContextoModuloWorkflow,
                                         ByVal tarea As TareaWorkflow,
                                         ByVal destino As DestinoEjecucionWorkflow,
-                                        ByVal respuesta As ResultadoTransicionDto) As ResultadoTransicionDto
+                                        ByVal respuesta As ResultadoTransicionDto,
+                                        ByVal duracionMilisegundos As Long) As ResultadoTransicionDto
         If respuesta Is Nothing OrElse tarea Is Nothing OrElse _auditoriaRepository Is Nothing Then Return respuesta
 
         Dim referencia As String = "WF-MOD-" & Guid.NewGuid().ToString("N").Substring(0, 16)
         Dim auditoria As New AuditoriaTransicion With {
             .IdTarea = tarea.IdTarea,
-            .IdUsuarioWorkflow = contexto.IdUsuarioWorkflow,
+            .IdUsuarioWorkflow = If(contexto Is Nothing, 0, contexto.IdUsuarioWorkflow),
+            .IdRutaWorkflow = If(tarea.IdRuta > 0, tarea.IdRuta, If(contexto Is Nothing, 0, contexto.IdRutaWorkflow)),
+            .IdFlujoTrabajo = tarea.IdFlujoTrabajo,
             .IdActividadOrigen = tarea.IdActividadOrigen,
             .IdActividadDestino = If(destino Is Nothing, 0, destino.IdActividadDestino),
+            .IdConector = If(destino Is Nothing, 0, destino.IdConector),
+            .Canal = "MODERNO",
             .Mecanismo = "ASMX_MODERNO",
             .FechaUtc = DateTime.UtcNow,
-            .Resultado = If(respuesta.Exito, "EXITO", "BLOQUEADO"),
+            .DuracionMilisegundos = Math.Max(0, duracionMilisegundos),
+            .Resultado = ResolverResultadoAuditoria(respuesta),
+            .CodigoFuncional = ResolverCodigoAuditoria(respuesta),
             .Referencia = referencia
         }
-        If _auditoriaRepository.Registrar(auditoria) Then
-            respuesta.ReferenciaAuditoria = referencia
-        Else
-            respuesta.Advertencias.Add("No fue posible registrar la trazabilidad adicional de la solicitud.")
-        End If
+        Try
+            If _auditoriaRepository.Registrar(auditoria) Then
+                respuesta.ReferenciaAuditoria = referencia
+            Else
+                AgregarAdvertenciaAuditoria(respuesta)
+            End If
+        Catch
+            AgregarAdvertenciaAuditoria(respuesta)
+        End Try
         Return respuesta
     End Function
+
+    Private Shared Function CrearTareaAuditoria(ByVal contexto As ContextoModuloWorkflow,
+                                                ByVal solicitud As SolicitudTransicionWorkflow) As TareaWorkflow
+        Return New TareaWorkflow With {
+            .IdTarea = If(solicitud Is Nothing, 0, solicitud.IdTarea),
+            .IdRuta = If(contexto Is Nothing, 0, contexto.IdRutaWorkflow)
+        }
+    End Function
+
+    Private Shared Function ResolverResultadoAuditoria(ByVal respuesta As ResultadoTransicionDto) As String
+        If respuesta IsNot Nothing AndAlso respuesta.Exito Then Return "EXITO"
+        If respuesta IsNot Nothing AndAlso String.Equals(respuesta.EstadoFinal, "bloqueado", StringComparison.OrdinalIgnoreCase) Then
+            Return "BLOQUEADO"
+        End If
+        Return "ERROR"
+    End Function
+
+    Private Shared Function ResolverCodigoAuditoria(ByVal respuesta As ResultadoTransicionDto) As String
+        If respuesta IsNot Nothing AndAlso respuesta.Exito Then Return "WORKFLOW_MODERN_SUCCESS"
+        If respuesta IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(respuesta.CodigoBloqueo) Then
+            Return respuesta.CodigoBloqueo
+        End If
+        Return CodigosBloqueoPrevisualizacion.TransicionNoDisponible
+    End Function
+
+    Private Shared Sub AgregarAdvertenciaAuditoria(ByVal respuesta As ResultadoTransicionDto)
+        If respuesta Is Nothing Then Return
+        If respuesta.Advertencias Is Nothing Then respuesta.Advertencias = New List(Of String)()
+        respuesta.Advertencias.Add("No fue posible registrar la trazabilidad adicional de la solicitud.")
+    End Sub
 
     Private Shared Function MapearEjecucion(ByVal ejecucion As ResultadoEjecucionWorkflow,
                                             ByVal tarea As TareaWorkflow,

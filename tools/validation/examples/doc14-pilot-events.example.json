@@ -1,0 +1,8 @@
+[
+  { "Canal": "MODERNO", "Resultado": "EXITO", "DuracionMilisegundos": 120, "Abandonado": false, "Divergencia": false },
+  { "Canal": "MODERNO", "Resultado": "BLOQUEADO", "DuracionMilisegundos": 35, "Abandonado": false, "Divergencia": false },
+  { "Canal": "MODERNO", "Resultado": "ERROR", "DuracionMilisegundos": 190, "Abandonado": true, "Divergencia": true },
+  { "Canal": "LEGACY", "Resultado": "EXITO", "DuracionMilisegundos": 105, "Abandonado": false, "Divergencia": false },
+  { "Canal": "LEGACY", "Resultado": "EXITO", "DuracionMilisegundos": 95, "Abandonado": false, "Divergencia": false },
+  { "Canal": "LEGACY", "Resultado": "BLOQUEADO", "DuracionMilisegundos": 40, "Abandonado": false, "Divergencia": false }
+]

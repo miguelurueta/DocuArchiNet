@@ -1437,6 +1437,7 @@
     <Content Include="js\Integracionccv\WebForm_migra_tramite_sii.js" />
     <Content Include="js\java_general\ASMXClient.js" />
     <Content Include="js\java_general\BootstrapTable.js" />
+    <Content Include="js\java_general\ConfirmationDialog.js" />
     <Content Include="js\java_general\general_code_java.js" />
     <Content Include="js\java_general\general_config.js" />
     <Content Include="js\java_general\general_control_java.js" />
@@ -1890,6 +1891,8 @@
     <Content Include="js\workflow\WebFormFreeImage_1.js" />
     <Content Include="js\workflow\WebFormListaDiagramaFlujo.js" />
     <Content Include="js\workflow\Webworkflow_2.js" />
+    <Content Include="js\workflow\workflow-transition-confirmation-integration.js" />
+    <Content Include="js\workflow\workflow-transition-page-presentation.js" />
     <Content Include="js\workflow\workflow-transition-ui.js" />
     <Content Include="lib\MindFusion\MindFusion.Barcodes.dll" />
     <Content Include="lib\MindFusion\MindFusion.Barcodes.WebForms.dll" />
@@ -8240,6 +8243,7 @@
     <Content Include="Scripts\MindFusion.Diagramming.js" />
     <Content Include="Scripts\PageMenu.js" />
     <Content Include="Styles\Aplicaction.css" />
+    <Content Include="Styles\confirmation-dialog.css" />
     <Content Include="Styles\workflow-centro-trabajo-moderno.css" />
     <Content Include="Styles\workflow-transition-modern.css" />
     <Content Include="Styles\Menu3.css" />

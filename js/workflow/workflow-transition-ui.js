@@ -4,6 +4,7 @@
     var previewUrl = "../webservice/WebServiceWorkflowModern.asmx/PreviewEnviarTarea";
     var api = {};
     var requestSequence = 0;
+    var activeControl = null;
 
     function isObject(value) {
         return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -294,10 +295,17 @@
     }
 
     function crearDetalleSeleccion(preview, destino) {
+        var contexto = isObject(preview.contexto) ? preview.contexto : {};
+
         return {
             idTarea: preview.idTarea,
             idConector: destino.id,
             tokenVersion: preview.tokenVersion,
+            tipoDecision: asText(preview.tipoDecision, "No especificado"),
+            contexto: {
+                radicado: asText(contexto.radicado, "No disponible"),
+                grupoActual: asText(contexto.grupoActual, "No disponible")
+            },
             destino: {
                 nombre: destino.nombre,
                 destinatario: destino.destinatario,
@@ -335,6 +343,20 @@
 
         emitirSeleccion(control, destino);
         actualizarEstado(control, "destino-seleccionado", "Destino seleccionado: " + destino.nombre + ".", "exito");
+    }
+
+    function aplicarTransicionExitosa(detail) {
+        var preview = activeControl && activeControl.preview;
+
+        if (!preview || !detail || preview.idTarea !== detail.idTarea || preview.tokenVersion !== detail.tokenVersion) {
+            return false;
+        }
+        requestSequence += 1;
+        activeControl.preview = null;
+        limpiarDestinos(activeControl);
+        vaciar(activeControl.contexto);
+        cerrarModal(activeControl);
+        return true;
     }
 
     function idTareaActual(control) {
@@ -433,6 +455,7 @@
             return;
         }
 
+        activeControl = control;
         trigger.setAttribute("data-workflow-modern-bound", "true");
         trigger.onclick = function (event) {
             return interceptarContinuar(control, event || window.event);
@@ -450,6 +473,7 @@
     api.desempaquetarRespuestaAsmx = desempaquetarRespuestaAsmx;
     api.solicitarPrevisualizacion = solicitarPrevisualizacion;
     api.crearDetalleSeleccion = crearDetalleSeleccion;
+    api.aplicarTransicionExitosa = aplicarTransicionExitosa;
     api.inicializar = inicializar;
     api.onDestinationSelected = null;
     window.WorkflowTransitionUi = api;

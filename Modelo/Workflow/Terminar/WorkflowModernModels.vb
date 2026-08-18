@@ -163,10 +163,16 @@ End Class
 Public Class AuditoriaTransicion
     Public Property IdTarea As Long
     Public Property IdUsuarioWorkflow As Integer
+    Public Property IdRutaWorkflow As Integer
+    Public Property IdFlujoTrabajo As Integer
     Public Property IdActividadOrigen As Integer
     Public Property IdActividadDestino As Integer
+    Public Property IdConector As Integer
+    Public Property Canal As String
     Public Property Mecanismo As String
     Public Property FechaUtc As DateTime
+    Public Property DuracionMilisegundos As Long
     Public Property Resultado As String
+    Public Property CodigoFuncional As String
     Public Property Referencia As String
 End Class
