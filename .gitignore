@@ -10,6 +10,10 @@ Temp_Image/
 temp/
 tmp/
 
+# Credenciales locales de las automatizaciones OPSXJ
+.env.jira
+env.jira
+
 # Archivos de usuario de Visual Studio
 *.user
 *.suo
