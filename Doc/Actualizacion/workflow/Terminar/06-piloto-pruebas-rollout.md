@@ -5,7 +5,7 @@ Rol esperado:
 Arquitecto de software senior y responsable de calidad/release para ASP.NET Web Forms .NET Framework 4.6.1, VB.NET, operaciones controladas, trazabilidad y migración gradual de workflows legacy.
 
 Contexto:
-- Repositorio: `D:\imagenesda\GestorDocumental\Desarrollo\old\oldanterior\GestionDocumental-Docuarchi.net`.
+- Repositorio: `D:\imagenesda\DocuachiNet\DocuArchiNet`.
 - La modernización incluye la fundación paralela, preview de destinos, ejecución segura, lista moderna y confirmación especializada descritas en los prompts 01 a 05.
 - El flujo legacy de `workflow/Webworkflow.aspx`, `ClassWorkflow.Terminar_Tarea_Workflow`, `ClassWorkflow.Cambia_Estado`, autorización, firma, expediente, eventos dinámicos, correo y trazabilidad sigue siendo el respaldo operativo.
 - El contrato base de `WorkflowCentroTrabajoModernActive` se crea en Prompt 01. La bandera habilita Presentation moderna de forma reversible y los ASMX modernos la revalidan en servidor; no sustituye la autorización ni las validaciones de negocio.

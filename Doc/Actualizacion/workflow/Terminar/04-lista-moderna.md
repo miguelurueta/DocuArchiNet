@@ -5,7 +5,7 @@ Rol esperado:
 Especialista UI/UX y desarrollador senior de ASP.NET Web Forms .NET Framework 4.6.1, JavaScript progresivo, accesibilidad y modernización segura de interfaces enterprise legacy.
 
 Contexto:
-- Repositorio: `D:\imagenesda\GestorDocumental\Desarrollo\old\oldanterior\GestionDocumental-Docuarchi.net`.
+- Repositorio: `D:\imagenesda\DocuachiNet\DocuArchiNet`.
 - Interfaz legacy que debe preservarse: `workflow/Webworkflow.aspx`, sus controles `GridView_envia_flujo` y su modal actual.
 - API de solo lectura ya definida: `webservice/WebServiceWorkflowModern.asmx`, método `PreviewEnviarTarea(idTarea)`.
 - Esta fase implementa únicamente Presentation en `js/workflow/` y `Styles/`; no altera Application, Domain, Infrastructure ni el motor de transición.

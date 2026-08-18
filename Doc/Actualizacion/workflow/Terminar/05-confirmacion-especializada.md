@@ -5,7 +5,7 @@ Rol esperado:
 Especialista UI/UX y desarrollador senior de ASP.NET Web Forms .NET Framework 4.6.1, JavaScript progresivo, accesibilidad, concurrencia e integración segura con workflows legacy.
 
 Contexto:
-- Repositorio: `D:\imagenesda\GestorDocumental\Desarrollo\old\oldanterior\GestionDocumental-Docuarchi.net`.
+- Repositorio: `D:\imagenesda\DocuachiNet\DocuArchiNet`.
 - La lista moderna entrega un destino seleccionado desde `PreviewEnviarTarea`; la ejecución paralela se realiza exclusivamente por `webservice/WebServiceWorkflowModern.asmx` mediante `EjecutarEnvioTarea`.
 - La interfaz legacy de `workflow/Webworkflow.aspx`, sus modales, controles ocultos y el flujo de autorización vigente deben mantenerse funcionales.
 - Esta fase implementa Presentation en JavaScript/CSS e integra contratos existentes; no modifica el núcleo `Terminar_Tarea_Workflow`, `Cambia_Estado` ni reglas de autorización.

@@ -3,7 +3,7 @@
 ## Estado de referencia
 
 **Fecha de actualización:** 2026-08-07  
-**Repositorio fuente:** `D:\imagenesda\GestorDocumental\Desarrollo\old\oldanterior\GestionDocumental-Docuarchi.net`  
+**Repositorio fuente:** `D:\imagenesda\DocuachiNet\DocuArchiNet`
 **Precompilado de validación:** `D:\temfile\Gestion`  
 **Tabla piloto de Fase 2:** `workflow/Webworkflow.aspx` → `GridView2` (lista de tareas Workflow).
 

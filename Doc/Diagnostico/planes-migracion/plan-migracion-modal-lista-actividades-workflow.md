@@ -1,7 +1,7 @@
 # Plan de migración: modal de actividades de ruta Workflow
 
 **Estado:** implementado en el repositorio local el 2026-08-07; pendiente de validación funcional y publicación en el precompilado. El requerimiento posterior de tamaño fija este modal en 50% de ancho y alto disponible.  
-**Repositorio destino:** `D:\imagenesda\GestorDocumental\Desarrollo\old\oldanterior\GestionDocumental-Docuarchi.net`  
+**Repositorio destino:** `D:\imagenesda\DocuachiNet\DocuArchiNet`
 **Página:** `workflow\Webworkflow.aspx`  
 **Modal:** `modal_content_lista_actividades_worflow_ruta` (se conserva el identificador histórico, incluido `worflow`).
 
