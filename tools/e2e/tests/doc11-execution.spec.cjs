@@ -3,6 +3,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const mysql = require('mysql2/promise');
+const { createAuthenticatedWorkflowSession } = require('./support/authenticated-workflow-session.cjs');
 
 const repositoryRoot = path.resolve(__dirname, '..', '..', '..');
 const launchOptions = {};
@@ -25,10 +26,6 @@ function baseUrl() {
 
 function executionUrl() {
   return new URL('webservice/WebServiceWorkflowModern.asmx/EjecutarEnvioTarea', baseUrl()).toString();
-}
-
-function loginUrl() {
-  return new URL('gestor.aspx', baseUrl()).toString();
 }
 
 function positiveInteger(name) {
@@ -60,27 +57,14 @@ async function writeEvidence(evidence) {
   await fs.writeFile(destination, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
 }
 
-async function login(browser) {
-  const context = await browser.newContext({
+function login(browser) {
+  return createAuthenticatedWorkflowSession(browser, {
+    baseUrl: baseUrl(),
+    moduleEnvironmentVariable: 'DOC11_E2E_MODULE',
+    userEnvironmentVariable: 'DOC11_E2E_AUTHORIZED_USER',
+    passwordEnvironmentVariable: 'DOC11_E2E_AUTHORIZED_PASSWORD',
     ignoreHTTPSErrors: process.env.DOC11_E2E_IGNORE_HTTPS_ERRORS === 'true'
   });
-  const page = await context.newPage();
-  try {
-    await page.goto(loginUrl(), { waitUntil: 'domcontentloaded' });
-    await page.locator('#ContentPlacenter_DropDownListmodulos').selectOption({ value: required('DOC11_E2E_MODULE') });
-    await page.locator('#ContentPlacenter_TextBoxuser').fill(required('DOC11_E2E_AUTHORIZED_USER'));
-    await page.locator('#ContentPlacenter_TextBoxpasw').fill(process.env.DOC11_E2E_AUTHORIZED_PASSWORD);
-    const postback = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().split('?')[0] === loginUrl());
-    await page.locator('a.da-login-submit').click();
-    await postback;
-    await page.waitForLoadState('domcontentloaded');
-    return context;
-  } catch (error) {
-    await context.close();
-    throw error;
-  } finally {
-    await page.close();
-  }
 }
 
 async function invoke(context, payload) {

@@ -3,6 +3,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const mysql = require('mysql2/promise');
+const { createAuthenticatedWorkflowSession } = require('../tests/support/authenticated-workflow-session.cjs');
 
 const repositoryRoot = path.resolve(__dirname, '..', '..', '..');
 
@@ -26,10 +27,6 @@ function executionUrl() {
   return new URL('webservice/WebServiceWorkflowModern.asmx/EjecutarEnvioTarea', baseUrl()).toString();
 }
 
-function loginUrl() {
-  return new URL('gestor.aspx', baseUrl()).toString();
-}
-
 function assertReadOnlySql(sql, name) {
   if (!/^\s*SELECT\b/i.test(sql) || /;|\b(?:INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO)\b/i.test(sql) || (sql.match(/\?/g) || []).length !== 1) {
     throw new Error(`${name} debe ser una única consulta SELECT con un parámetro ?.`);
@@ -46,24 +43,14 @@ function evidencePath() {
   return path.isAbsolute(configured) ? configured : path.resolve(repositoryRoot, configured);
 }
 
-async function login(browser) {
-  const context = await browser.newContext({ ignoreHTTPSErrors: process.env.DOC11_E2E_IGNORE_HTTPS_ERRORS === 'true' });
-  const page = await context.newPage();
-  try {
-    await page.goto(loginUrl(), { waitUntil: 'domcontentloaded' });
-    await page.locator('#ContentPlacenter_DropDownListmodulos').selectOption({ value: required('DOC11_E2E_MODULE') });
-    await page.locator('#ContentPlacenter_TextBoxuser').fill(required('DOC11_E2E_AUTHORIZED_USER'));
-    await page.locator('#ContentPlacenter_TextBoxpasw').fill(process.env.DOC11_E2E_AUTHORIZED_PASSWORD);
-    const postback = page.waitForResponse((response) => response.request().method() === 'POST' && response.url().split('?')[0] === loginUrl());
-    await page.locator('a.da-login-submit').click();
-    await postback;
-    return context;
-  } catch (error) {
-    await context.close();
-    throw error;
-  } finally {
-    await page.close();
-  }
+function login(browser) {
+  return createAuthenticatedWorkflowSession(browser, {
+    baseUrl: baseUrl(),
+    moduleEnvironmentVariable: 'DOC11_E2E_MODULE',
+    userEnvironmentVariable: 'DOC11_E2E_AUTHORIZED_USER',
+    passwordEnvironmentVariable: 'DOC11_E2E_AUTHORIZED_PASSWORD',
+    ignoreHTTPSErrors: process.env.DOC11_E2E_IGNORE_HTTPS_ERRORS === 'true'
+  });
 }
 
 async function invoke(context, payload) {
