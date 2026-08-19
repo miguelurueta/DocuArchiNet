@@ -8,18 +8,18 @@
     "manual_qa"
   ],
   "documentation": [
-    "Doc/Tecnica/Opsxj/doc-15-base-enviar-grupo/01-ResumenTecnico.md",
-    "Doc/Tecnica/Opsxj/doc-15-base-enviar-grupo/02-ImpactoUI.md",
-    "Doc/Tecnica/Opsxj/doc-15-base-enviar-grupo/03-ServiciosYReglas.md",
-    "Doc/Tecnica/Opsxj/doc-15-base-enviar-grupo/04-ContratosIntegracion.md",
-    "Doc/Tecnica/Opsxj/doc-15-base-enviar-grupo/05-PruebasEvidencia.md"
+    "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/00-indice.md",
+    "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/01-arquitectura.md",
+    "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/02-contrato.md",
+    "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/03-flujo-y-seguridad.md",
+    "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/04-pruebas-y-evidencia.md"
   ],
   "documentationContract": [
     {
-      "path": "Doc/Tecnica/Opsxj/doc-15-base-enviar-grupo/01-ResumenTecnico.md",
+      "path": "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/00-indice.md",
       "requiredSections": [
-        "## Objetivo",
-        "## Alcance y compatibilidad"
+        "# DOC-15 — Implementación de Enviar a grupo",
+        "Estado: implementación local validada"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -35,10 +35,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-15-base-enviar-grupo/02-ImpactoUI.md",
+      "path": "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/01-arquitectura.md",
       "requiredSections": [
-        "## Superficies UI",
-        "## Validacion visual"
+        "# Arquitectura y componentes",
+        "## Diagramas de arquitectura"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -54,9 +54,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-15-base-enviar-grupo/03-ServiciosYReglas.md",
+      "path": "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/02-contrato.md",
       "requiredSections": [
-        "## Servicios y reglas"
+        "## Endpoints autenticados",
+        "## Códigos funcionales relevantes"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -72,9 +73,11 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-15-base-enviar-grupo/04-ContratosIntegracion.md",
+      "path": "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/03-flujo-y-seguridad.md",
       "requiredSections": [
-        "## Contratos e integraciones"
+        "## Preview",
+        "## Ejecución",
+        "## Gate, auditoría y rollback"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -90,10 +93,11 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-15-base-enviar-grupo/05-PruebasEvidencia.md",
+      "path": "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/04-pruebas-y-evidencia.md",
       "requiredSections": [
-        "## Evidencia requerida",
-        "## QA/E2E WebForms"
+        "# Pruebas, evidencia y riesgos",
+        "## Decisión de liberación",
+        "## Riesgos residuales"
       ],
       "minimumContentLength": 180,
       "identity": {

@@ -1,106 +1,76 @@
-## Context
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
+# Diseño técnico — DOC-15: Enviar a grupo
 
-DOC-15: BASE-ENVIAR-GRUPO
+## Alcance y límites
 
-## Jira Details
+La modernización agrega una operación de envío directo a actividad al límite existente `WebServiceWorkflowModern.asmx`. No cambia la transición moderna por conector ni el motor legacy. El navegador aporta intención; el servidor resuelve la autorización y todos los argumentos de ejecución.
 
-> # Prompt base obligatorio — Modernización de "Enviar a grupo"
-> 
-> Adjuntar este prompt al inicio de cada una de las etapas de implementación de esta carpeta.
-> 
-> ## ROL ESPERADO
-> 
-> Actúa como arquitecto y desarrollador senior de .NET Framework, VB.NET, ASP.NET Web Forms, MySQL y JavaScript legado. Trabaja de forma incremental, conserva la compatibilidad del sistema y no amplíes el alcance sin documentar antes la decisión.
-> 
-> ## OBJETIVO
-> 
-> Modernizar únicamente el comando **Enviar a grupo** de `workflow/Webworkflow.aspx` como una operación de envío directo a una actividad de la ruta.
-> 
-> La operación moderna debe recibir y ejecutar con `IdTarea`, `IdActividadDestino` y `TokenVersion`; debe conservar la semántica legacy del reenvío a grupo y coexistir con **Continuar flujo**.
-> 
-> ## ALCANCE
-> 
-> - Implementar solo la etapa solicitada por el prompt complementario en `prompts/`.
-> - Reutilizar componentes transversales seguros: contexto autenticado, feature gate, token de versión, `GET_LOCK`, auditoría, motor legacy, confirmación y actualización de presentación.
-> - Reutilizar el `IWorkflowModernFeatureGate`, `WorkflowModernPresentationBootstrap` y `WebServiceWorkflowModern.asmx` existentes; la capacidad de grupo se integra como una operación del mismo límite moderno.
-> - Mantener el fallback Web Forms cuando la capacidad moderna esté inhabilitada.
-> - Usar el documento `00-exploracion-arquitectura-envio-grupo.md` como referencia de decisiones técnicas.
-> 
-> ## RESTRICCIONES CRITICAS
-> 
-> - `Enviar a grupo` es un reenvío directo a actividad (`IdActividadDestino`), no una transición por conector (`IdConector`).
-> - No crear conectores ficticios ni relajar la regla `IdConector > 0` del flujo existente **Continuar flujo**.
-> - No crear una segunda configuración, bandera, fuente de evaluación ni gate para `Enviar a grupo`; cualquier evaluación de habilitación usa la fuente existente y conserva el comportamiento fail-closed.
-> - No modificar contratos, endpoints, destinos ni comportamiento de `PreviewEnviarTarea`, `EjecutarEnvioTarea` o `ServicioTransicionTarea`.
-> - No usar un destino recibido del navegador como autorización; revalidar en servidor permiso, tarea, token, ruta y destino.
-> - El preview solo puede ejecutar consultas `SELECT`; no puede modificar tarea, estado, auditoría ni eventos del motor.
-> - El ASMX no puede manipular controles Web Forms ni invocar handlers de página; la mutación final sigue en `Terminar_Tarea_Workflow` mediante un adaptador específico.
-> - No añadir la validación de respuesta radicada sin aprobación funcional explícita: el flujo legacy actual de envío a grupo no la aplica.
-> - No ejecutar E2E autenticado, pruebas de carga ni activar gates sin autorización explícita del ambiente y las cuentas de prueba.
-> - Ninguna etapa puede cambiar la configuración de habilitación. Si una prueba autorizada llegara a modificarla, se debe restaurar `WorkflowCentroTrabajoModernActive=false` y listas de usuarios/grupos vacías antes de terminar.
-> - No imprimir ni guardar credenciales, cookies ni cadenas de conexión.
-> - Mantener los cambios acotados al alcance solicitado; no refactorizar componentes no relacionados.
-> 
-> ## CRITERIOS DE ACEPTACION
-> 
-> - La nueva operación usa `IdActividadDestino` y nunca requiere un conector artificial.
-> - Con gate inactivo, el botón conserva el postback legacy de `Enviar a grupo`.
-> - Con gate activo y autorización válida, preview y ejecución validan `Cambio_Ruta`, tarea activa, token, ruta/flujo/actividad abiertos y pertenencia del destino a la ruta.
-> - Una ejecución concurrente o con token vencido no produce una segunda transición.
-> - La operación registra auditoría sanitizada con mecanismo distinguible `ASMX_ENVIO_GRUPO`.
-> - **Continuar flujo** conserva sus endpoints, payload `IdConector`, validaciones y pruebas actuales sin regresión.
-> - Los errores públicos no exponen SQL, Session, credenciales ni excepciones internas.
-> 
-> ## PRUEBAS OBLIGATORIAS
-> 
-> - Agregar o actualizar pruebas automatizadas de contratos y JavaScript para el área afectada.
-> - Ejecutar las pruebas unitarias/CJS afectadas y reportar comando, resultado y archivos cubiertos.
-> - Ejecutar la compilación MSBuild del proyecto afectado cuando esté disponible; si la solución no puede compilarse localmente, documentar causa y una verificación manual reproducible.
-> - Cubrir, cuando corresponda a la etapa: permiso denegado, ruta/flujo/actividad cerrados, destino fuera de ruta, aprobación pendiente, token vencido, concurrencia, fallback legacy y no regresión de continuar flujo.
-> - No sustituir estas evidencias por E2E autenticado o carga no autorizados.
-> 
-> ## DOCUMENTACION TECNICA
-> 
-> - Actualizar el documento de exploración o el artefacto OpenSpec aplicable cuando cambie una decisión, contrato o requisito.
-> - Cada etapa implementada crea o actualiza exclusivamente su paquete en `Doc/Actualizacion/workflow/TerminarGrupo/<NN>-<slug>/` con `00-indice.md`, `01-arquitectura.md`, `02-contrato.md`, `03-flujo-y-seguridad.md`, `04-pruebas-y-evidencia.md` y `Diagramas/` cuando corresponda.
-> - Documentar endpoints, payloads, códigos de bloqueo, mecanismos de auditoría, configuración de gate y rollback cuando sean introducidos.
-> - Registrar archivos modificados, supuestos y riesgos residuales en el resultado de la etapa.
-> 
-> ## ENTREGABLE FINAL
-> 
-> Entregar una respuesta breve y verificable con:
-> 
-> 1. Cambios implementados y su relación con el objetivo.
-> 2. Archivos modificados.
-> 3. Pruebas y compilación ejecutadas, con resultados.
-> 4. Documentación actualizada.
-> 5. Riesgos, limitaciones o decisiones pendientes.
-> 
-> No continuar hacia una etapa posterior si la etapa actual no cumple sus criterios de aceptación o si falta una decisión funcional.
+## Decisiones de diseño
 
-## Goals / Non-Goals
+### D-01 — Contrato directo de grupo
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+Se crearán contratos específicos para preview y ejecución de grupo. La ejecución acepta exclusivamente `IdTarea`, `IdActividadDestino` y `TokenVersion`; el tipo de destino se identifica como `ENVIO_GRUPO_DIRECTO`. Los contratos de `SolicitudTransicionWorkflow`, `PreviewEnviarTarea`, `EjecutarEnvioTarea` y `ServicioTransicionTarea` continúan reservados a `IdConector > 0`.
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+### D-02 — Único límite de habilitación
 
-## Decisions
+El ASMX construye el contexto desde `WorkflowPreviewSessionContextGate` y tanto preview como ejecución reevalúan `IWorkflowModernFeatureGate`. `WorkflowModernPresentationBootstrap` solo determina si se enlaza la experiencia visual. No se agrega capacidad, bandera, `appSetting` ni evaluación paralela; configuración ausente, inválida o fuera de alcance falla cerrada.
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-03 — Preview de lectura y destino específico
 
+Un repositorio de preview de grupo obtiene actividades válidas de la ruta con consultas `SELECT` y devuelve datos sanitizados. No llama `Class_Listado_Actividades_workflow` con controles Web Forms, no registra auditoría y no invoca el motor. La actividad que llega del navegador vuelve a resolverse durante ejecución.
 
-## Risks / Trade-offs
+### D-04 — Ejecución revalidada y serializada
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+`ServicioEnvioGrupoTarea` coordina validación de solicitud, gate, `GET_LOCK`, relectura de tarea y comparación de `TokenVersion`. Dentro del lock valida `Cambio_Ruta`, tarea activa, ruta, flujo/actividad de flujo cuando apliquen y pertenencia actual de `IdActividadDestino` a la ruta. Un repositorio de ejecución resuelve todos los valores del destino desde servidor.
 
-## Migration Plan
+### D-05 — Requisitos del caso de grupo
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+El adaptador de requisitos bloquea aprobaciones pendientes y normaliza su resultado. No reutiliza sin revisión el adaptador de transición por conector si incorpora la regla de respuesta radicada, porque esa regla no existe en el flujo legacy de grupo. La respuesta radicada permanece fuera del alcance hasta una aprobación funcional explícita.
 
-## Open Questions
+### D-06 — Frontera exclusiva con el motor legacy
 
-- TBD
+Un adaptador directo recibe `DestinoEjecucionWorkflow` autorizado e invoca `ClassWorkflow.Terminar_Tarea_Workflow` sin `Page`, sin controles y con actualización de interfaz desactivada. Para grupo usa conector e identificadores de flujo en cero, preservando el comportamiento de la llamada legacy, sus eventos y correo. El ASMX, Application y JavaScript no llaman al motor.
+
+### D-07 — Presentación progresiva
+
+La página enlaza assets y manejadores modernos de grupo solo cuando el bootstrap existente está activo. El componente de selección/confirmación recibe el identificador de actividad y llama los endpoints de grupo. Con gate inactivo no registra ese comportamiento y conserva el postback/modal actual. La ruta de Continuar flujo no se modifica.
+
+### D-08 — Resultado y auditoría
+
+La aplicación retorna resultados públicos normalizados y registra auditoría sanitizada con `Canal=MODERNO`, `Mecanismo=ASMX_ENVIO_GRUPO` y conector cero. Fallas o advertencias posteriores se expresan sin datos técnicos; una advertencia no revierte un éxito del motor.
+
+### D-09 — Validación y reversa
+
+Las pruebas cubren autorización, preview sin escritura, estado de ruta/flujo, destino retirado, aprobación pendiente, token, concurrencia, fallback y no regresión de conector. E2E autenticada, carga y cambios del gate están prohibidos salvo autorización expresa. El rollback consiste en usar el gate existente inactivo para que los nuevos intentos vuelvan al postback legacy, sin alterar transiciones confirmadas.
+
+## Secuencia de ejecución
+
+```text
+UI Enviar a grupo
+  -> PreviewEnviarGrupo(idTarea) [solo SELECT]
+  -> selección y confirmación de IdActividadDestino + TokenVersion
+  -> EjecutarEnvioGrupo(idTarea, idActividadDestino, tokenVersion)
+  -> contexto autenticado + gate existente
+  -> validación de solicitud + GET_LOCK
+  -> relectura de tarea, permiso, ruta/flujo y destino
+  -> requisitos de grupo
+  -> adaptador directo a Terminar_Tarea_Workflow
+  -> auditoría sanitizada + actualización visual
+```
+
+## Áreas afectadas
+
+| Capa | Área | Responsabilidad |
+| --- | --- | --- |
+| Presentation | `workflow/Webworkflow.aspx`, `.aspx.vb` y JavaScript asociado | Bootstrap, interacción accesible y fallback; sin SQL ni motor. |
+| ASMX | `webservice/WebServiceWorkflowModern.asmx.vb` | Contexto, composición y respuesta JSON segura. |
+| Application | `Services/Workflow/Terminar/` | Orquestación de preview/ejecución y códigos públicos. |
+| Domain/Modelo | `Modelo/Workflow/Terminar/` | DTOs y puertos de grupo, sin Web Forms ni Infrastructure. |
+| Infrastructure | `Infrastructure/Workflow/Terminar/`, `Infrastructure/Repositories/Workflow/` | SELECT de destinos, revalidación, guard, auditoría y adaptador legacy. |
+
+## Riesgos y mitigaciones
+
+- El destino de preview puede cambiar antes de confirmar: se resuelve nuevamente dentro del lock.
+- El contrato actual exige conector: la operación hermana impide relajar esa regla y evita un conector artificial.
+- El motor legacy puede informar advertencias posteriores: el resultado separa éxito confirmado de advertencias sanitizadas.
+- El gate no autoriza negocio: `Cambio_Ruta` y estado de tarea/ruta/destino se revalidan en servidor.

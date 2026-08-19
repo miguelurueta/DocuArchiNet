@@ -1,21 +1,10 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
 # base-enviar-grupo Specification
 
-## Trazabilidad de decisiones
+## Purpose
 
-| Decisión | Requisitos cubiertos |
-| --- | --- |
-| D-01 | RQ-01, RQ-03 |
-| D-02 | RQ-01, RQ-05 |
-| D-03 | RQ-02 |
-| D-04 | RQ-03 |
-| D-05 | RQ-04 |
-| D-06 | RQ-03, RQ-04 |
-| D-07 | RQ-05 |
-| D-08 | RQ-06 |
-| D-09 | RQ-07 |
+Define el envío directo y seguro de una tarea hacia una actividad destino de grupo, con preview de solo lectura y fallback legacy controlado.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: RQ-01 — Operación directa, autenticada y cerrada por defecto
 

@@ -1,6 +1,6 @@
 # Prompts de implementación: Enviar a grupo
 
-Ejecutar los prompts en este orden. Cada archivo es autosuficiente y debe respetar las reglas comunes de `00-contexto-obligatorio.md`, la arquitectura ya implementada en `../Terminar/` y el paquete documental de su propia etapa.
+Ejecutar los prompts en este orden. Cada archivo es autosuficiente y debe respetar las reglas comunes de `00-contexto-obligatorio.md`, la arquitectura ya implementada en `../Terminar/` y el único paquete documental `../01-implementacion-envio-grupo/`; cada etapa actualiza las secciones que le correspondan, sin crear paquetes por etapa.
 
 | Orden | Archivo | Propósito |
 | --- | --- | --- |

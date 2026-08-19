@@ -45,7 +45,7 @@ Agregar y ejecutar pruebas JavaScript de normalización, contratos ASMX, aislami
 
 ## DOCUMENTACION TECNICA
 
-Crear o actualizar `Doc/Actualizacion/workflow/TerminarGrupo/06-asmx-ui/` con selectores, endpoints, DTOs, estados UI, correlación, accesibilidad, fallback, pruebas y diagramas de interacción.
+Actualizar exclusivamente `Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/`: registrar endpoints y DTOs en `02-contrato.md`, selectores, estados UI, accesibilidad y fallback en `03-flujo-y-seguridad.md`, pruebas en `04-pruebas-y-evidencia.md` y diagramas de interacción en `Diagramas/`. No crear una carpeta documental para esta etapa.
 
 ## ENTREGABLE FINAL
 

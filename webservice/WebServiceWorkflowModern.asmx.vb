@@ -82,6 +82,76 @@ Public Class WebServiceWorkflowModern
         End Try
     End Function
 
+    <WebMethod(EnableSession:=True)>
+    <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
+    Public Function PreviewEnviarGrupo(ByVal idTarea As Long) As PrevisualizacionEnvioGrupoDto
+        Try
+            Dim resultadoSesion As ResultadoContextoSesionWorkflow = New WorkflowPreviewSessionContextGate().AsegurarContextoEnvioGrupo()
+            If resultadoSesion Is Nothing OrElse resultadoSesion.Contexto Is Nothing OrElse Not resultadoSesion.Contexto.EsValido() OrElse
+               String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionWorkflow) Then
+                Return CrearRespuestaGrupoSegura(idTarea, CodigosBloqueoPrevisualizacion.ContextoInvalido,
+                                                 "No fue posible validar la sesion de la tarea.")
+            End If
+
+            Dim factory As New WorkflowModuleConnectionFactory(resultadoSesion.CadenaConexionWorkflow)
+            Dim docuarchiFactory As IModuleConnectionFactory = Nothing
+            If Not String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionDocuarchi) Then
+                docuarchiFactory = New DocuarchiModuleConnectionFactory(resultadoSesion.CadenaConexionDocuarchi)
+            End If
+            Dim dataExecutor As New AdoNetDataExecutor()
+            Dim servicio As New ServicioEnvioGrupoTarea(
+                New MySqlTareaWorkflowRepository(factory, dataExecutor),
+                New MySqlEnvioGrupoRepository(factory, docuarchiFactory, dataExecutor),
+                New ConfiguracionWorkflowModernFeatureGate(),
+                New ValidadorEnvioGrupoTarea())
+            Return servicio.Previsualizar(resultadoSesion.Contexto, idTarea)
+        Catch
+            Return CrearRespuestaGrupoSegura(idTarea, CodigosBloqueoPrevisualizacion.TransicionNoDisponible,
+                                             "No fue posible consultar los destinos de la tarea.")
+        End Try
+    End Function
+
+    <WebMethod(EnableSession:=True)>
+    <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
+    Public Function EjecutarEnvioGrupo(ByVal idTarea As Long,
+                                       ByVal idActividadDestino As Integer,
+                                       ByVal tokenVersion As String) As ResultadoEnvioGrupoDto
+        Try
+            Dim resultadoSesion As ResultadoContextoSesionWorkflow = New WorkflowPreviewSessionContextGate().AsegurarContextoEnvioGrupo(True)
+            If resultadoSesion Is Nothing OrElse resultadoSesion.Contexto Is Nothing OrElse Not resultadoSesion.Contexto.EsValido() OrElse
+               String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionWorkflow) Then
+                Return CrearResultadoEnvioGrupoBloqueado(CodigosBloqueoPrevisualizacion.ContextoInvalido,
+                                                         "No fue posible validar la sesion de la tarea.")
+            End If
+
+            Dim factory As New WorkflowModuleConnectionFactory(resultadoSesion.CadenaConexionWorkflow)
+            Dim docuarchiFactory As IModuleConnectionFactory = Nothing
+            If Not String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionDocuarchi) Then
+                docuarchiFactory = New DocuarchiModuleConnectionFactory(resultadoSesion.CadenaConexionDocuarchi)
+            End If
+            Dim dataExecutor As New AdoNetDataExecutor()
+            Dim repositorioGrupo As New MySqlEnvioGrupoRepository(factory, docuarchiFactory, dataExecutor)
+            Dim servicio As New ServicioEnvioGrupoTarea(
+                New MySqlTareaWorkflowRepository(factory, dataExecutor),
+                repositorioGrupo,
+                repositorioGrupo,
+                New WorkflowLegacyEnvioGrupoRequisitosAdapter(),
+                New WorkflowLegacyAuditoriaAdapter(),
+                New MySqlTransicionConcurrencyGuard(factory, dataExecutor),
+                New ConfiguracionWorkflowModernFeatureGate(),
+                New WorkflowLegacyEnvioGrupoExecutorAdapter(),
+                New ValidadorEnvioGrupoTarea())
+            Return servicio.Ejecutar(resultadoSesion.Contexto, New SolicitudEnvioGrupoWorkflow With {
+                .IdTarea = idTarea,
+                .IdActividadDestino = idActividadDestino,
+                .TokenVersion = tokenVersion
+            })
+        Catch
+            Return CrearResultadoEnvioGrupoBloqueado(CodigosBloqueoPrevisualizacion.TransicionNoDisponible,
+                                                     "No fue posible enviar la tarea.")
+        End Try
+    End Function
+
     Private Shared Function CrearServicioSinConexion() As ServicioTransicionTarea
         Return New ServicioTransicionTarea(
             New MySqlTareaWorkflowRepository(),
@@ -102,9 +172,38 @@ Public Class WebServiceWorkflowModern
         }
     End Function
 
+    Private Shared Function CrearRespuestaGrupoSegura(ByVal idTarea As Long,
+                                                       ByVal codigo As String,
+                                                       ByVal mensaje As String) As PrevisualizacionEnvioGrupoDto
+        Return New PrevisualizacionEnvioGrupoDto With {
+            .IdTarea = idTarea,
+            .[Error] = New ErrorTransicionDto With {
+                .Codigo = codigo,
+                .MensajeVisible = mensaje,
+                .ReferenciaTrazabilidad = String.Empty
+            }
+        }
+    End Function
+
     Private Shared Function CrearResultadoEjecucionBloqueado(ByVal codigo As String,
                                                               ByVal mensaje As String) As ResultadoTransicionDto
         Return New ResultadoTransicionDto With {
+            .Exito = False,
+            .EstadoFinal = "bloqueado",
+            .CodigoBloqueo = codigo,
+            .MensajeFuncional = mensaje,
+            .EsReintentable = False,
+            .[Error] = New ErrorTransicionDto With {
+                .Codigo = codigo,
+                .MensajeVisible = mensaje,
+                .ReferenciaTrazabilidad = String.Empty
+            }
+        }
+    End Function
+
+    Private Shared Function CrearResultadoEnvioGrupoBloqueado(ByVal codigo As String,
+                                                               ByVal mensaje As String) As ResultadoEnvioGrupoDto
+        Return New ResultadoEnvioGrupoDto With {
             .Exito = False,
             .EstadoFinal = "bloqueado",
             .CodigoBloqueo = codigo,

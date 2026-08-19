@@ -29,6 +29,7 @@ Public Class ContextoModuloWorkflow
 
     Public Property IdRutaWorkflow As Integer
     Public Property IdUsuarioGestion As Integer
+    Public Property PuedeCambioRuta As Boolean
 
     Public Overrides Function EsValido() As Boolean
         Return MyBase.EsValido() AndAlso IdGrupoWorkflow > 0 AndAlso IdRutaWorkflow > 0 AndAlso
@@ -85,6 +86,54 @@ Public Class SolicitudTransicionWorkflow
     Public Property IdTarea As Long
     Public Property IdConector As Integer
     Public Property TokenVersion As String
+End Class
+
+'Solicitud exclusiva de Enviar a grupo. No admite conectores ni datos Web Forms.
+Public Class SolicitudEnvioGrupoWorkflow
+    Public Property IdTarea As Long
+    Public Property IdActividadDestino As Integer
+    Public Property TokenVersion As String
+End Class
+
+Public Class DestinoEnvioGrupoWorkflow
+    Public Property IdActividadDestino As Integer
+    Public Property IdGrupoWorkflowDestino As Integer
+    Public Property NombreActividad As String
+    Public Property NombreGrupoDestino As String
+    Public Property RequiereNotificacion As Boolean
+End Class
+
+Public Class ResultadoDestinosEnvioGrupo
+    Public Sub New()
+        Destinos = New List(Of DestinoEnvioGrupoWorkflow)()
+    End Sub
+
+    Public Property Destinos As IList(Of DestinoEnvioGrupoWorkflow)
+    Public Property CodigoBloqueo As String
+    Public Property MensajeFuncional As String
+End Class
+
+Public Class ResultadoResolucionEnvioGrupo
+    Public Property Destino As DestinoEnvioGrupoWorkflow
+    Public Property CodigoBloqueo As String
+    Public Property MensajeFuncional As String
+
+    Public ReadOnly Property EsValido As Boolean
+        Get
+            Return Destino IsNot Nothing AndAlso String.IsNullOrWhiteSpace(CodigoBloqueo)
+        End Get
+    End Property
+End Class
+
+Public Class ResultadoRequisitosEnvioGrupo
+    Public Sub New()
+        Requisitos = New List(Of RequisitoTransicion)()
+    End Sub
+
+    Public Property Cumple As Boolean
+    Public Property CodigoBloqueo As String
+    Public Property MensajeFuncional As String
+    Public Property Requisitos As IList(Of RequisitoTransicion)
 End Class
 
 Public Class DestinoEjecucionWorkflow

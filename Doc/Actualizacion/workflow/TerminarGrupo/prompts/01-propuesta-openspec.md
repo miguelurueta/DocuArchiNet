@@ -50,7 +50,7 @@ Definir la matriz mínima de contrato, preview de solo lectura, autorización, t
 
 ## DOCUMENTACION TECNICA
 
-Crear los artefactos OpenSpec y registrar que los paquetes posteriores se documentarán bajo `Doc/Actualizacion/workflow/TerminarGrupo/<NN>-<slug>/` con la convención `00` a `04` y `Diagramas/` de `Terminar`.
+Crear los artefactos OpenSpec y registrar que toda la documentación técnica posterior se consolidará en `Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/`, con la convención `00` a `04` y `Diagramas/` de `Terminar`; no crear un paquete por etapa.
 
 ## ENTREGABLE FINAL
 

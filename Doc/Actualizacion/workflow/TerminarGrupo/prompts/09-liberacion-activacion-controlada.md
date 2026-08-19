@@ -60,12 +60,13 @@ Documentar un runbook conciso, a ejecutar solo por el responsable autorizado:
 
 ## DOCUMENTACIÓN TÉCNICA
 
-Crear o actualizar `Doc/Actualizacion/workflow/TerminarGrupo/09-liberacion-activacion-controlada/` con:
+Actualizar exclusivamente el paquete documental único `Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/`:
 
 - `00-indice.md`: alcance y decisión de liberación.
-- `01-matriz-ambientes.md`: autorización, versión, ventana, responsables, alcance, evidencia y estado por ambiente.
-- `02-runbook-activacion-y-rollback.md`: pasos de activación autorizada, verificaciones y rollback.
-- `03-riesgos-y-aprobaciones.md`: bloqueos, riesgos residuales y referencias a las aprobaciones, sin secretos.
+- `03-flujo-y-seguridad.md`: gate, alcance, activación autorizada y rollback.
+- `04-pruebas-y-evidencia.md`: matriz de ambientes, runbook, bloqueos, riesgos residuales, referencias a aprobaciones y evidencia, sin secretos.
+
+No crear una carpeta documental para esta etapa.
 
 ## ENTREGABLE FINAL
 

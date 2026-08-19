@@ -5,6 +5,29 @@ Imports MySql.Data.MySqlClient
 'Valida y completa el contexto de preview en una sesión Gestión ya autenticada.
 'No es un feature gate y no acepta datos del navegador.
 Public NotInheritable Class WorkflowPreviewSessionContextGate
+    'Resuelve el permiso efectivo para la operación directa sin aceptar identidad ni permisos del navegador.
+    Public Function AsegurarContextoEnvioGrupo(Optional ByVal prepararEjecucion As Boolean = False) As ResultadoContextoSesionWorkflow
+        Dim resultado As ResultadoContextoSesionWorkflow = If(prepararEjecucion,
+                                                              AsegurarContextoEjecucion(),
+                                                              AsegurarContexto())
+        If resultado Is Nothing OrElse resultado.Contexto Is Nothing OrElse Not resultado.Contexto.EsValido() Then
+            Return If(resultado, New ResultadoContextoSesionWorkflow With {.Contexto = New ContextoModuloWorkflow()})
+        End If
+
+        Try
+            Dim permisos As String() = Nothing
+            Dim resultadoPermisos As String = New Class_permisos_usuarios_workflow().SolicitaPermisosUsuarioWorkflow(
+                resultado.Contexto.IdUsuarioWorkflow,
+                permisos)
+            resultado.Contexto.PuedeCambioRuta = String.Equals(resultadoPermisos, "YES", StringComparison.OrdinalIgnoreCase) AndAlso
+                                               permisos IsNot Nothing AndAlso permisos.Length > 8 AndAlso
+                                               String.Equals(permisos(8), "1", StringComparison.OrdinalIgnoreCase)
+        Catch
+            resultado.Contexto.PuedeCambioRuta = False
+        End Try
+        Return resultado
+    End Function
+
     Public Function AsegurarContextoEjecucion() As ResultadoContextoSesionWorkflow
         Dim resultado As New ResultadoContextoSesionWorkflow With {
             .Contexto = New ContextoModuloWorkflow()

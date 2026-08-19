@@ -52,7 +52,7 @@ Ejecutar MSBuild del proyecto afectado cuando sea posible; ejecutar pruebas VB/J
 
 ## DOCUMENTACION TECNICA
 
-Crear o actualizar `Doc/Actualizacion/workflow/TerminarGrupo/08-pruebas-verificacion/` con matriz, comandos, compilación, QA, evidencia, limitaciones, correlaciones y riesgos residuales; actualizar OpenSpec para reflejar la verificación.
+Actualizar exclusivamente `Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/04-pruebas-y-evidencia.md` con matriz, comandos, compilación, QA, evidencia, limitaciones, correlaciones y riesgos residuales; actualizar OpenSpec para reflejar la verificación. No crear una carpeta documental para esta etapa.
 
 ## ENTREGABLE FINAL
 

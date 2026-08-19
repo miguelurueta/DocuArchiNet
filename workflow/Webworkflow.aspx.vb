@@ -251,6 +251,9 @@ Public Class Webworkflow
         RegisterWorkflowTransitionModernScript()
         RegisterWorkflowTransitionConfirmationIntegrationScript()
         RegisterWorkflowTransitionModernBootstrap()
+        RegisterWorkflowEnvioGrupoModernScript()
+        RegisterWorkflowEnvioGrupoConfirmationIntegrationScript()
+        RegisterWorkflowEnvioGrupoModernBootstrap()
     End Sub
 
     Private Sub RegisterWorkflowTransitionModernStyle()
@@ -333,6 +336,38 @@ Public Class Webworkflow
         Dim startupScript As String = "(function(){var trigger=document.getElementById('workflow-transition-trigger');if(!trigger){return;}trigger.setAttribute('data-workflow-modern-active','true');trigger.setAttribute('data-workflow-current-task-input-id','" & currentTaskInputClientId & "');trigger.setAttribute('data-workflow-task-input-id','" & taskInputClientId & "');if(window.WorkflowTransitionUi&&typeof window.WorkflowTransitionUi.inicializar==='function'){window.WorkflowTransitionUi.inicializar();}}());"
 
         ScriptManager.RegisterStartupScript(Me, Me.GetType(), "workflowTransitionModernBootstrap", startupScript, True)
+    End Sub
+
+    Private Sub RegisterWorkflowEnvioGrupoModernScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowEnvioGrupoModernScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "workflowEnvioGrupoModernScript"
+        script.Attributes("src") = "../js/workflow/workflow-group-send-ui.js?v=20260819-doc15base1"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterWorkflowEnvioGrupoConfirmationIntegrationScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowEnvioGrupoConfirmationIntegrationScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "workflowEnvioGrupoConfirmationIntegrationScript"
+        script.Attributes("src") = "../js/workflow/workflow-group-send-confirmation.js?v=20260819-doc15base1"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterWorkflowEnvioGrupoModernBootstrap()
+        Dim taskInputClientId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_sel.ClientID)
+        Dim currentTaskInputClientId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_selecionada.ClientID)
+        Dim startupScript As String = "(function(){var trigger=document.getElementById('workflow-group-send-trigger');if(!trigger){return;}trigger.setAttribute('data-workflow-group-modern-active','true');trigger.setAttribute('data-workflow-current-task-input-id','" & currentTaskInputClientId & "');trigger.setAttribute('data-workflow-task-input-id','" & taskInputClientId & "');if(window.WorkflowGroupSendUi&&typeof window.WorkflowGroupSendUi.inicializar==='function'){window.WorkflowGroupSendUi.inicializar();}}());"
+
+        ScriptManager.RegisterStartupScript(Me, Me.GetType(), "workflowEnvioGrupoModernBootstrap", startupScript, True)
     End Sub
 
     Private Function MilisegundosDesdeInicioRequest() As Long

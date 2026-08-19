@@ -79,7 +79,7 @@
      <script src="../js/java_general/ubicacion_code_java.js" type="text/javascript"></script>  
      <% If WorkflowCentroTrabajoModernActive Then %>
       <link href="../Styles/workflow-centro-trabajo-moderno.css?v=20260813-mobileframe46" rel="stylesheet" type="text/css" />
-      <script src="../js/workflow/centro-trabajo-visual.js?v=20260812-taskclose12" type="text/javascript"></script>
+      <script src="../js/workflow/centro-trabajo-visual.js?v=20260819-doc15grouporder1" type="text/javascript"></script>
      <% End If %>
  <body  style="margin: 0;
     background-color : #ffffff" >
@@ -687,7 +687,11 @@
                                   <asp:Panel ID="Panel_EnviaActividad" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <ul class="navbar-nav">
                                           <li class="nav-item active ml-2">
+                                              <% If WorkflowCentroTrabajoModernActive Then %>
+                                              <a id="workflow-group-send-trigger" class="nav-link font-weight-light" style="color: #6d7fcc" title="Envía la tarea a grupo de usuarios" aria-label="Enviar tarea a grupo" href="#"><i style="margin-left: 1px; margin-top: 7px; color: #0062cc" class="fad fa-user-friends"></i> Enviar a grupo</a>
+                                              <% Else %>
                                               <a class="nav-link font-weight-light" style="color: #6d7fcc" title="Envía la tarea a grupo de usuarios" href="#" onclick="activa_boton_client_server('ImageButtonEnviaActividad');"><i style="margin-left: 1px; margin-top: 7px; color: #0062cc" class="fad fa-user-friends"></i> Enviar a grupo  </a>
+                                              <% End If %>
                                           </li>
                                       </ul>
                                   </asp:Panel>
@@ -4666,6 +4670,26 @@
             </section>
         </div>
         <div id="workflow-transition-success-message" class="workflow-transition-success-message" data-workflow-transition-success="true" role="status" aria-live="polite" hidden="hidden"></div>
+        <div id="workflow-group-send-modern-modal" class="workflow-transition-modal" hidden="hidden" aria-hidden="true" data-workflow-transition-state="cerrado">
+            <div class="workflow-transition-modal__backdrop" data-workflow-group-send-close="true"></div>
+            <section id="workflow-group-send-modern-dialog" class="workflow-transition-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="workflow-group-send-modern-title" tabindex="-1">
+                <header class="workflow-transition-modal__header">
+                    <h2 id="workflow-group-send-modern-title" class="workflow-transition-modal__title">Enviar a grupo</h2>
+                    <button id="workflow-group-send-modern-close" class="workflow-transition-modal__close" type="button" aria-label="Cerrar lista de actividades">&times;</button>
+                </header>
+                <div class="workflow-transition-modal__body">
+                    <div id="workflow-group-send-modern-status" class="workflow-transition-modal__status" role="status" aria-live="polite"></div>
+                    <dl id="workflow-group-send-modern-context" class="workflow-transition-modal__context" aria-label="Contexto de la tarea"></dl>
+                    <div id="workflow-group-send-modern-table" class="workflow-transition-modal__desktop">
+                        <table class="workflow-transition-modal__table">
+                            <thead><tr><th scope="col">Actividad destino</th><th scope="col">Grupo destino</th><th scope="col"><span class="sr-only">Acción</span></th></tr></thead>
+                            <tbody id="workflow-group-send-modern-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div id="workflow-group-send-modern-cards" class="workflow-transition-modal__mobile" aria-label="Actividades de destino disponibles"></div>
+                </div>
+            </section>
+        </div>
         <!--mensaje_personalizado-->
         <asp:Panel ID="Panel_mensaje_personalizado" runat="server" Style="display: none; color: black; width: auto; height: auto; z-index: 99999999999">
             <asp:ModalPopupExtender ID="ModalPopupExtender_mensaje_personalizado" runat="server"

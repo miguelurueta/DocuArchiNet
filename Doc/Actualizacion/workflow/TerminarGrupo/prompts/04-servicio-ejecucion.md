@@ -41,7 +41,7 @@ Agregar y ejecutar pruebas de solicitud inválida, gate/permiso bloqueados, toke
 
 ## DOCUMENTACION TECNICA
 
-Crear o actualizar `Doc/Actualizacion/workflow/TerminarGrupo/04-servicio-ejecucion/` con componentes, secuencia bajo lock, contrato de ejecución, códigos, auditoría, riesgos y evidencia de pruebas.
+Actualizar exclusivamente `Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/`: registrar componentes en `01-arquitectura.md`, contrato y códigos en `02-contrato.md`, secuencia bajo lock, auditoría y riesgos en `03-flujo-y-seguridad.md`, y evidencia en `04-pruebas-y-evidencia.md`. No crear una carpeta documental para esta etapa.
 
 ## ENTREGABLE FINAL
 

@@ -51,7 +51,7 @@ Agregar y ejecutar pruebas de gate activo/inactivo/inválido, exclusión, bloque
 
 ## DOCUMENTACION TECNICA
 
-Crear o actualizar `Doc/Actualizacion/workflow/TerminarGrupo/07-gate-auditoria/` con fuente única de gate, alcance, auditoría, código de rollback, responsable operativo, matriz de pruebas y diagrama de decisión.
+Actualizar exclusivamente `Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/`: registrar fuente única del gate, alcance, auditoría y rollback en `03-flujo-y-seguridad.md`, matriz de pruebas y responsable operativo en `04-pruebas-y-evidencia.md`, y el diagrama de decisión en `Diagramas/`. No crear una carpeta documental para esta etapa.
 
 ## ENTREGABLE FINAL
 

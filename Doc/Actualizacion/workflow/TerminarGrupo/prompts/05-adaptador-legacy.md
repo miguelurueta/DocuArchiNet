@@ -43,7 +43,7 @@ Agregar y ejecutar pruebas focales de éxito, bloqueo legacy, advertencia de cor
 
 ## DOCUMENTACION TECNICA
 
-Crear o actualizar `Doc/Actualizacion/workflow/TerminarGrupo/05-adaptador-legacy/` con frontera legacy, parámetros permitidos, estado de eventos, normalización de retorno, riesgos y pruebas.
+Actualizar exclusivamente `Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/`: registrar frontera legacy, parámetros y normalización de retorno en `01-arquitectura.md` y `03-flujo-y-seguridad.md`, y riesgos y pruebas en `04-pruebas-y-evidencia.md`. No crear una carpeta documental para esta etapa.
 
 ## ENTREGABLE FINAL
 
