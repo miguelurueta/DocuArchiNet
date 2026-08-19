@@ -13,6 +13,6 @@ Ejecutar estos prompts en orden. Cada archivo es autosuficiente y debe respetar 
 | 6 | `06-asmx-ui.md` | Integrar ASMX e interfaz moderna con fallback Web Forms. |
 | 7 | `07-gate-auditoria.md` | Integrar gate único, trazabilidad y rollback operativo. |
 | 8 | `08-pruebas-verificacion.md` | Ejecutar pruebas, QA y verificación final. |
+| 9 | `09-liberacion-activacion-controlada.md` | Decisión y preparación de activación autorizada por ambiente. |
 
-La operación moderna se limita al comando **Enviar a usuario** de `workflow/Webworkflow.aspx`. No incluye reasignación de respuesta: ante una respuesta pendiente debe bloquear con mensaje funcional. No activar gates ni ejecutar E2E autenticado sin autorización explícita.
-
+La operación moderna se limita al comando **Enviar a usuario** de `workflow/Webworkflow.aspx`. No incluye reasignación de respuesta: ante una respuesta pendiente debe bloquear con mensaje funcional. No activar gates ni ejecutar E2E autenticado sin autorización explícita. Las pruebas aprobadas no autorizan una activación automática: una activación requiere aprobación expresa por ambiente.
