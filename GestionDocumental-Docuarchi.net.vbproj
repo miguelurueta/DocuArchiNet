@@ -9752,6 +9752,7 @@
     </Compile>
     <Compile Include="webservice\WebServiceWorkflowModern.asmx.vb">
       <DependentUpon>WebServiceWorkflowModern.asmx</DependentUpon>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="webservice\WorkflowPreviewSessionContextGate.vb" />
     <Compile Include="webservice\WebService_Config_Digitalizacion.asmx.vb">
@@ -9800,6 +9801,8 @@
     <Compile Include="DTOs\Workflow\Terminar\TransicionWorkflowDtos.vb" />
     <Compile Include="Services\Workflow\Terminar\ServicioTransicionTarea.vb" />
     <Compile Include="Services\Workflow\Terminar\ValidadorTransicionTarea.vb" />
+    <Compile Include="Services\Workflow\Terminar\ServicioEnvioGrupoTarea.vb" />
+    <Compile Include="Services\Workflow\Terminar\ValidadorEnvioGrupoTarea.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernModels.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernInterfaces.vb" />
     <Compile Include="Domain\Shared\ContextoModulo.vb" />
@@ -9808,10 +9811,13 @@
     <Compile Include="Infrastructure\Shared\Data\AdoNetDataInfrastructure.vb" />
     <Compile Include="Infrastructure\Shared\Data\WorkflowModuleConnectionFactory.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlWorkflowPreviewRepositories.vb" />
+    <Compile Include="Infrastructure\Repositories\Workflow\MySqlEnvioGrupoRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlTransicionEjecucionRepository.vb" />
     <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyExecutorAdapter.vb" />
+    <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyEnvioGrupoExecutorAdapter.vb" />
     <Compile Include="Infrastructure\Workflow\Terminar\MySqlTransicionConcurrencyGuard.vb" />
     <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyRequisitosAdapter.vb" />
+    <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyEnvioGrupoRequisitosAdapter.vb" />
     <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyAuditoriaAdapter.vb" />
     <Compile Include="Infrastructure\Workflow\Terminar\ConfiguracionWorkflowModernFeatureGate.vb" />
     <Compile Include="workflow\ClassAlmacenamiento.vb" />

@@ -25,6 +25,24 @@ Public Interface ITransicionEjecucionRepository
                              ByVal idConector As Integer) As ResultadoResolucionDestinoTransicion
 End Interface
 
+'Puertos de Enviar a grupo. Mantienen separado el envio directo de la transicion por conector.
+Public Interface IEnvioGrupoDestinosRepository
+    Function ObtenerDestinos(ByVal contexto As ContextoModuloWorkflow,
+                             ByVal tarea As TareaWorkflow) As ResultadoDestinosEnvioGrupo
+End Interface
+
+Public Interface IEnvioGrupoEjecucionRepository
+    Function ResolverDestino(ByVal contexto As ContextoModuloWorkflow,
+                             ByVal tarea As TareaWorkflow,
+                             ByVal idActividadDestino As Integer) As ResultadoResolucionEnvioGrupo
+End Interface
+
+Public Interface IEnvioGrupoRequisitosRepository
+    Function Evaluar(ByVal contexto As ContextoModuloWorkflow,
+                     ByVal tarea As TareaWorkflow,
+                     ByVal destino As DestinoEnvioGrupoWorkflow) As ResultadoRequisitosEnvioGrupo
+End Interface
+
 Public Interface IRequisitosTransicionRepository
     Function Evaluar(ByVal contexto As ContextoModuloWorkflow,
                      ByVal tarea As TareaWorkflow,
@@ -54,4 +72,10 @@ Public Interface IWorkflowLegacyExecutor
     Function Ejecutar(ByVal contexto As ContextoModuloWorkflow,
                       ByVal tarea As TareaWorkflow,
                       ByVal destino As DestinoEjecucionWorkflow) As ResultadoEjecucionWorkflow
+End Interface
+
+Public Interface IEnvioGrupoLegacyExecutor
+    Function Ejecutar(ByVal contexto As ContextoModuloWorkflow,
+                      ByVal tarea As TareaWorkflow,
+                      ByVal destino As DestinoEnvioGrupoWorkflow) As ResultadoEjecucionWorkflow
 End Interface

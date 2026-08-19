@@ -1,0 +1,124 @@
+{
+  "version": 3,
+  "issueKey": "DOC-15",
+  "changeName": "doc-15-base-enviar-grupo",
+  "impact": "cross_cutting",
+  "requiredEvidence": [
+    "unit",
+    "manual_qa"
+  ],
+  "documentation": [
+    "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/00-indice.md",
+    "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/01-arquitectura.md",
+    "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/02-contrato.md",
+    "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/03-flujo-y-seguridad.md",
+    "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/04-pruebas-y-evidencia.md"
+  ],
+  "documentationContract": [
+    {
+      "path": "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/00-indice.md",
+      "requiredSections": [
+        "# DOC-15 — Implementación de Enviar a grupo",
+        "Estado: implementación local validada"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-15",
+        "changeName": "doc-15-base-enviar-grupo",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/01-arquitectura.md",
+      "requiredSections": [
+        "# Arquitectura y componentes",
+        "## Diagramas de arquitectura"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-15",
+        "changeName": "doc-15-base-enviar-grupo",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/02-contrato.md",
+      "requiredSections": [
+        "## Endpoints autenticados",
+        "## Códigos funcionales relevantes"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-15",
+        "changeName": "doc-15-base-enviar-grupo",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/03-flujo-y-seguridad.md",
+      "requiredSections": [
+        "## Preview",
+        "## Ejecución",
+        "## Gate, auditoría y rollback"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-15",
+        "changeName": "doc-15-base-enviar-grupo",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/04-pruebas-y-evidencia.md",
+      "requiredSections": [
+        "# Pruebas, evidencia y riesgos",
+        "## Decisión de liberación",
+        "## Riesgos residuales"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-15",
+        "changeName": "doc-15-base-enviar-grupo",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    }
+  ],
+  "refinement": {
+    "version": 1,
+    "required": true,
+    "path": "openspec/changes/doc-15-base-enviar-grupo/refinement.md",
+    "state": "approved",
+    "taskOriginFormat": "Origen: D-XX, RQ-XX",
+    "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  }
+}

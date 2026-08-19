@@ -66,6 +66,27 @@ Public Class PrevisualizacionTransicionDto
 End Class
 
 <Serializable()>
+Public Class DestinoEnvioGrupoDto
+    Public Property IdActividadDestino As Integer
+    Public Property NombreActividad As String
+    Public Property GrupoDestino As String
+End Class
+
+<Serializable()>
+Public Class PrevisualizacionEnvioGrupoDto
+    Public Sub New()
+        Destinos = New List(Of DestinoEnvioGrupoDto)()
+        Contexto = New ContextoPrevisualizacionTransicionDto()
+    End Sub
+
+    Public Property IdTarea As Long
+    Public Property Contexto As ContextoPrevisualizacionTransicionDto
+    Public Property Destinos As IList(Of DestinoEnvioGrupoDto)
+    Public Property TokenVersion As String
+    Public Property [Error] As ErrorTransicionDto
+End Class
+
+<Serializable()>
 Public Class ResultadoTransicionDto
     Public Sub New()
         Advertencias = New List(Of String)()
@@ -79,6 +100,27 @@ Public Class ResultadoTransicionDto
     Public Property Advertencias As IList(Of String)
     Public Property ActividadDestino As String
     Public Property Destino As DestinoTransicionDto
+    Public Property TokenVersion As String
+    Public Property ReferenciaAuditoria As String
+    Public Property EsReintentable As Boolean
+    Public Property Requisitos As IList(Of RequisitoTransicionDto)
+    Public Property [Error] As ErrorTransicionDto
+End Class
+
+<Serializable()>
+Public Class ResultadoEnvioGrupoDto
+    Public Sub New()
+        Advertencias = New List(Of String)()
+        Requisitos = New List(Of RequisitoTransicionDto)()
+    End Sub
+
+    Public Property Exito As Boolean
+    Public Property EstadoFinal As String
+    Public Property MensajeFuncional As String
+    Public Property CodigoBloqueo As String
+    Public Property Advertencias As IList(Of String)
+    Public Property ActividadDestino As String
+    Public Property Destino As DestinoEnvioGrupoDto
     Public Property TokenVersion As String
     Public Property ReferenciaAuditoria As String
     Public Property EsReintentable As Boolean
@@ -106,6 +148,10 @@ Public NotInheritable Class CodigosBloqueoPrevisualizacion
     Public Const RutaCerrada As String = "WORKFLOW_ROUTE_CLOSED"
     Public Const ConectorNoDisponible As String = "WORKFLOW_CONNECTOR_UNAVAILABLE"
     Public Const ConectorInvalido As String = "WORKFLOW_CONNECTOR_INVALID"
+    Public Const ActividadDestinoInvalida As String = "WORKFLOW_GROUP_DESTINATION_INVALID"
+    Public Const ActividadDestinoNoDisponible As String = "WORKFLOW_GROUP_DESTINATION_UNAVAILABLE"
+    Public Const PermisoCambioRutaDenegado As String = "WORKFLOW_ROUTE_CHANGE_FORBIDDEN"
+    Public Const AprobacionPendiente As String = "WORKFLOW_APPROVAL_PENDING"
     Public Const TransicionInconsistente As String = "WORKFLOW_TRANSITION_INCONSISTENT"
     Public Const SinDestinos As String = "WORKFLOW_NO_DESTINATIONS"
     Public Const VersionInvalida As String = "WORKFLOW_VERSION_INVALID"

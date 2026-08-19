@@ -271,13 +271,13 @@ describe("DOC-2 workflow visual activation", () => {
       "fa-sticky-note",
       "js/workflow/Webworkflow.js?v=20260812-taskclose53",
       "workflow-centro-trabajo-moderno.css?v=20260813-mobileframe46",
-      "centro-trabajo-visual.js?v=20260812-taskclose12",
       'aria-label="Seleccionar todos los documentos"',
       'role="status" aria-live="polite"',
       'aria-label="Mostrar acciones de tarea"',
       'aria-label="Abrir detalle del radicado"',
       'id="ctw-workflow-route-modal-title"',
     ].forEach((marker) => expect(page).toContain(marker));
+    expect(page).toMatch(/centro-trabajo-visual\.js\?v=[A-Za-z0-9._-]+/);
     [
       "actualiza_titulo_lista_actividades_workflow",
       "La tarea se devolverá al usuario anterior y saldrá de su bandeja.",

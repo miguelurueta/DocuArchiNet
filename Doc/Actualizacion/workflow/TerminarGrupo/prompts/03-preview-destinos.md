@@ -45,7 +45,7 @@ Agregar y ejecutar pruebas de preview válido, gate inactivo, permiso negado, ta
 
 ## DOCUMENTACION TECNICA
 
-Crear o actualizar `Doc/Actualizacion/workflow/TerminarGrupo/03-preview-destinos/` con contrato JSON, secuencia de solo lectura, consultas permitidas, códigos funcionales, matriz de pruebas y diagramas necesarios.
+Actualizar exclusivamente `Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/`: registrar contrato JSON y códigos en `02-contrato.md`, secuencia de solo lectura y consultas permitidas en `03-flujo-y-seguridad.md`, pruebas en `04-pruebas-y-evidencia.md` y diagramas necesarios en `Diagramas/`. No crear una carpeta documental para esta etapa.
 
 ## ENTREGABLE FINAL
 

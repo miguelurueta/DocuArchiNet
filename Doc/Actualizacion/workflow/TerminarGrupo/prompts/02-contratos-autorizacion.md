@@ -46,7 +46,7 @@ Agregar y ejecutar pruebas focales de serialización, validación de solicitud, 
 
 ## DOCUMENTACION TECNICA
 
-Crear o actualizar `Doc/Actualizacion/workflow/TerminarGrupo/02-contratos-autorizacion/` con índice, arquitectura, contrato, seguridad y evidencia de pruebas conforme a la convención de `Terminar`.
+Actualizar exclusivamente `Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/`: registrar contratos y DTOs en `02-contrato.md`, autorización y controles en `03-flujo-y-seguridad.md`, y evidencia en `04-pruebas-y-evidencia.md`. No crear una carpeta documental para esta etapa.
 
 ## JUSTIFICACION E2E
 

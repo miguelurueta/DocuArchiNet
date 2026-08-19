@@ -56,7 +56,7 @@ La operación moderna debe recibir y ejecutar con `IdTarea`, `IdActividadDestino
 ## DOCUMENTACION TECNICA
 
 - Actualizar el documento de exploración o el artefacto OpenSpec aplicable cuando cambie una decisión, contrato o requisito.
-- Cada etapa implementada crea o actualiza exclusivamente su paquete en `Doc/Actualizacion/workflow/TerminarGrupo/<NN>-<slug>/` con `00-indice.md`, `01-arquitectura.md`, `02-contrato.md`, `03-flujo-y-seguridad.md`, `04-pruebas-y-evidencia.md` y `Diagramas/` cuando corresponda.
+- Todas las etapas actualizan exclusivamente el paquete documental único `Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/`, compuesto por `00-indice.md`, `01-arquitectura.md`, `02-contrato.md`, `03-flujo-y-seguridad.md`, `04-pruebas-y-evidencia.md` y `Diagramas/` cuando corresponda. No crear carpetas documentales por etapa.
 - Documentar endpoints, payloads, códigos de bloqueo, mecanismos de auditoría, configuración de gate y rollback cuando sean introducidos.
 - Registrar archivos modificados, supuestos y riesgos residuales en el resultado de la etapa.
 

@@ -1,0 +1,91 @@
+# 10 — Búsqueda escalable de destinos y grupos
+
+## ROL ESPERADO
+
+Actúa como arquitecto y desarrollador senior de ASP.NET Web Forms, VB.NET, MySQL y JavaScript accesible. Diseña una mejora incremental para el modal moderno de **Enviar a grupo** que siga siendo útil cuando una ruta tenga muchas actividades o grupos asociados.
+
+## OBJETIVO
+
+Incorporar una búsqueda de destinos por actividad o grupo y una carga acotada de resultados en la experiencia moderna de `Enviar a grupo`.
+
+La búsqueda debe ayudar a localizar la actividad destino sin descargar una lista ilimitada, sin duplicar una actividad por cada grupo relacionado y sin cambiar la semántica del envío: la selección y la ejecución siempre se hacen por `IdActividadDestino`.
+
+## CONTEXTO OBLIGATORIO
+
+- Leer y aplicar `prompts/00-contexto-obligatorio.md` y `prompts/06-asmx-ui.md` antes de editar código.
+- La interfaz legacy contiene una búsqueda de actividades de ruta, pero no debe reutilizarse su endpoint ni su SQL concatenado. Su comportamiento es solo una referencia de UX.
+- `PreviewEnviarGrupo` y `EjecutarEnvioGrupo` representan el contrato moderno actual. Si la solución necesita un contrato adicional o cambia el DTO público, documentar primero la decisión y actualizar el artefacto OpenSpec aplicable antes de implementar.
+
+## RESTRICCIONES CRÍTICAS
+
+- No crear ni modificar gates, configuraciones, flags, fuentes de autorización o despliegues paralelos. Reutilizar el gate existente y conservar fail-closed.
+- No modificar `PreviewEnviarTarea`, `EjecutarEnvioTarea`, `IdConector`, `ServicioTransicionTarea` ni el comportamiento de **Continuar flujo**.
+- Con gate inactivo, conservar exactamente el postback y modal Web Forms de `Enviar a grupo`.
+- Toda consulta de búsqueda o paginación debe ser exclusivamente `SELECT`; no puede cambiar tarea, estado, auditoría, eventos ni configuración.
+- Evaluar sesión, gate, `Cambio_Ruta`, tarea activa, ruta y flujo aplicable en servidor antes de revelar resultados. El filtro nunca autoriza una ejecución.
+- Usar SQL parametrizado. Nunca concatenar el texto de búsqueda, ruta, página o tamaño de página en SQL.
+- No exponer nombres de grupos, actividades ni conteos fuera de la ruta y el contexto autorizados. No imprimir tokens, Session, SQL, credenciales ni excepciones.
+- La ejecución final conserva su relectura, token, lock y revalidación actual; un resultado de búsqueda no sustituye esas comprobaciones.
+- No ejecutar E2E autenticado, carga, ni activar el gate sin autorización explícita del ambiente y las cuentas de prueba.
+
+## DISEÑO REQUERIDO
+
+1. Inspeccionar la cardinalidad real entre actividades y `grupos_workflow`. Una actividad debe aparecer una sola vez porque se envía a una actividad, no a un grupo individual.
+2. Añadir al modal un campo accesible `Buscar actividad o grupo`, con etiqueta visible, instrucción breve y estado anunciado mediante `aria-live`.
+3. Definir una estrategia escalable:
+   - Para resultados pequeños, el filtro local puede reutilizar el preview ya recibido.
+   - Para listas potencialmente grandes, implementar búsqueda en servidor con página y tamaño máximos acotados. Debe solicitar solo la página necesaria y señalizar si existen más resultados; evitar un `COUNT(*)` por pulsación cuando no sea imprescindible.
+4. Aplicar una espera breve al escribir (por ejemplo, 250–350 ms), una longitud mínima definida y cancelación o descarte de respuestas obsoletas. Limpiar el filtro debe restaurar la primera página de resultados.
+5. Buscar por nombre de actividad y por nombre de grupo asociado. La consulta debe estar restringida a la ruta autorizada y devolver solo datos de presentación sanitizados.
+6. Evitar filas duplicadas cuando una actividad tiene varios grupos. Definir una representación clara y acotada para la columna de grupo, por ejemplo el grupo único, una cantidad de grupos asociados o un resumen truncado; nunca convertir un grupo en un nuevo identificador seleccionable.
+7. Mantener la tabla de escritorio y las tarjetas móviles sincronizadas, con estados explícitos: cargando, sin coincidencias, error recuperable, página siguiente/anterior y resultados disponibles.
+8. Conservar foco, Escape, trampa de foco, selección por teclado, prevención de doble clic y el diálogo de confirmación existente. Un cambio de filtro o página debe invalidar una selección visual obsoleta.
+
+## CONTRATO Y CONSULTAS
+
+Si se requiere una operación de búsqueda separada, debe ser un método ASMX moderno de solo lectura, con un request mínimo semejante a:
+
+```text
+{ idTarea, termino, pagina, tamanoPagina }
+```
+
+La respuesta debe incluir únicamente destinos permitidos, `tokenVersion`, la página solicitada, un indicador `tieneMas` y un error público normalizado. Limitar y normalizar `termino`, `pagina` y `tamanoPagina` en Application/Domain antes de llegar a Infrastructure.
+
+La consulta debe usar parámetros para ruta, término, límite y desplazamiento. Si se necesita incluir grupos para filtrar o presentar un resumen, asegurar que el resultado conserva unicidad por `IdActividadDestino`. No crear índices ni cambiar el esquema de base de datos sin una decisión y una migración aprobadas; registrar primero la consulta y el plan de rendimiento propuesto.
+
+## CRITERIOS DE ACEPTACIÓN
+
+- Un usuario autorizado encuentra una actividad por su nombre o por el nombre de un grupo relacionado sin ver destinos de otra ruta.
+- Una ruta con muchas asociaciones no genera una respuesta ilimitada ni filas repetidas para la misma actividad.
+- Los parámetros de búsqueda y paginación inválidos devuelven un error funcional seguro o se normalizan dentro de límites explícitos.
+- Las respuestas lentas u obsoletas no reemplazan el resultado más reciente ni permiten confirmar un destino distinto al mostrado.
+- Sin resultados se muestra un estado claro y se puede limpiar la búsqueda; los fallos transitorios ofrecen reintento.
+- El payload de ejecución continúa siendo exactamente `{ idTarea, idActividadDestino, tokenVersion }` y el servidor revalida el destino dentro del lock.
+- Gate inactivo y **Continuar flujo** permanecen sin cambios.
+
+## PRUEBAS OBLIGATORIAS
+
+Agregar y ejecutar pruebas focales que cubran:
+
+1. Filtro por actividad, filtro por grupo, normalización del término y lista vacía.
+2. Límite de tamaño de página, navegación, `tieneMas` y rechazo/normalización de página inválida.
+3. Restricción por ruta, permiso/gate denegados y garantía de consultas exclusivamente `SELECT`.
+4. Actividad con varios grupos: una única fila seleccionable y resumen correcto.
+5. Respuesta obsoleta, debounce, reintento, teclado, foco, Escape, móvil/escritorio y selección invalidada por cambiar el filtro.
+6. Token vencido, destino retirado y concurrencia durante ejecución, para confirmar que la búsqueda no debilita la revalidación existente.
+7. Fallback Web Forms con gate inactivo y no regresión de los endpoints y payload `IdConector` de **Continuar flujo**.
+
+Ejecutar las pruebas CJS/VB afectadas y la compilación disponible. Registrar comandos, código de salida y limitaciones reproducibles. No sustituirlas por E2E autenticado o pruebas de carga no autorizadas.
+
+## DOCUMENTACIÓN TÉCNICA
+
+Actualizar exclusivamente `Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/`:
+
+- `02-contrato.md`: request/response, límites y códigos funcionales.
+- `03-flujo-y-seguridad.md`: autorización, paginación, consultas permitidas, unicidad por actividad y revalidación.
+- `04-pruebas-y-evidencia.md`: matriz de filtros, rendimiento, accesibilidad, fallback y limitaciones.
+- `Diagramas/`: secuencia de búsqueda si se añade un endpoint o página remota.
+
+## ENTREGABLE FINAL
+
+Entregar los archivos modificados, la decisión documentada entre filtro local y consulta paginada, contrato y límites aplicados, consultas parametrizadas, pruebas/compilación ejecutadas, evidencia de no escritura, garantía de no regresión y riesgos residuales de rendimiento.
