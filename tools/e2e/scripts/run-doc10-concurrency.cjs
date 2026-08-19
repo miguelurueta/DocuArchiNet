@@ -3,6 +3,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const mysql = require('mysql2/promise');
+const { createAuthenticatedWorkflowSession } = require('../tests/support/authenticated-workflow-session.cjs');
 
 const repositoryRoot = path.resolve(__dirname, '..', '..', '..');
 const DEFAULT_TASK_STATE_SQL = [
@@ -97,9 +98,6 @@ function getEvidencePath() {
 
 const settings = {
   baseUrl: normalizeBaseUrl(required('DOC10_E2E_BASE_URL')),
-  moduleValue: required('DOC10_E2E_MODULE'),
-  user: required('DOC10_E2E_AUTHORIZED_USER'),
-  password: process.env.DOC10_E2E_AUTHORIZED_PASSWORD,
   idTarea: getPositiveInteger(required('DOC10_E2E_TASK_ID'), 'DOC10_E2E_TASK_ID'),
   mysqlUrl: process.env.DOC10_E2E_MYSQL_URL,
   auditSql: process.env.DOC10_E2E_AUDIT_SQL,
@@ -120,37 +118,20 @@ function previewUrl() {
   return new URL('webservice/WebServiceWorkflowModern.asmx/PreviewEnviarTarea', settings.baseUrl).toString();
 }
 
-function loginUrl() {
-  return new URL('gestor.aspx', settings.baseUrl).toString();
-}
-
 async function queryFingerprint(pool, sql) {
   const [rows] = await pool.execute(sql, [settings.idTarea]);
   return fingerprint(rows);
 }
 
-async function login(browser) {
-  const context = await browser.newContext({ ignoreHTTPSErrors: settings.ignoreHttpsErrors });
-  const page = await context.newPage();
-  try {
-    await page.goto(loginUrl(), { waitUntil: 'domcontentloaded', timeout: settings.loginTimeoutMilliseconds });
-    await page.locator('#ContentPlacenter_DropDownListmodulos').selectOption({ value: settings.moduleValue });
-    await page.locator('#ContentPlacenter_TextBoxuser').fill(settings.user);
-    await page.locator('#ContentPlacenter_TextBoxpasw').fill(settings.password);
-    const postback = page.waitForResponse((response) => {
-      const request = response.request();
-      return request.method() === 'POST' && response.url().split('?')[0] === loginUrl();
-    }, { timeout: settings.loginTimeoutMilliseconds });
-    await page.locator('a.da-login-submit').click();
-    await postback;
-    await page.waitForLoadState('domcontentloaded');
-    return context;
-  } catch (error) {
-    await context.close();
-    throw error;
-  } finally {
-    await page.close();
-  }
+function login(browser) {
+  return createAuthenticatedWorkflowSession(browser, {
+    baseUrl: settings.baseUrl,
+    moduleEnvironmentVariable: 'DOC10_E2E_MODULE',
+    userEnvironmentVariable: 'DOC10_E2E_AUTHORIZED_USER',
+    passwordEnvironmentVariable: 'DOC10_E2E_AUTHORIZED_PASSWORD',
+    ignoreHTTPSErrors: settings.ignoreHttpsErrors,
+    timeoutMilliseconds: settings.loginTimeoutMilliseconds
+  });
 }
 
 async function createSessions(browser, total) {

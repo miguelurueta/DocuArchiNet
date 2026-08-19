@@ -47,6 +47,14 @@ npm.cmd --prefix tools/e2e run test:e2e
 
 Si la tarea elegida está autorizada pero el preview debe devolver un bloqueo funcional conocido, configure opcionalmente `DOC10_E2E_AUTHORIZED_EXPECTED_CODE` con ese código. La prueba exigirá ese bloqueo y cero destinos, pero mantendrá las comparaciones antes/después de estado y auditoría.
 
+## Helper reutilizable de sesión autenticada
+
+Las suites JavaScript reutilizan `tests/support/authenticated-workflow-session.cjs` para iniciar sesión mediante el formulario Web Forms de `gestor.aspx`. El helper recibe el navegador y una configuración explícita con la URL base, las variables de módulo, usuario y contraseña, y devuelve un `BrowserContext` autenticado.
+
+El llamador es propietario del contexto que recibe y debe cerrarlo siempre en `finally`. Si el login falla, el helper cierra el contexto que creó y devuelve un error sanitizado. No registra ni guarda credenciales, cookies, `storageState`, HTML de respuesta ni archivos `.env`.
+
+Para una nueva suite, mantenga su propio prefijo de variables y entregue al helper los **nombres** de esas variables; no copie selectores ni el postback de login. El helper preserva el valor exacto de la contraseña (incluidos caracteres finales) y solo acepta secretos suministrados en las variables efímeras de la sesión.
+
 ## Verificación de sesión Gestión → Workflow
 
 Para diagnosticar autenticación y bootstrap de sesión antes de una E2E completa, use solo el usuario piloto. La prueba hace el postback Web Forms y confirma que el ASMX ya no responde `WORKFLOW_CONTEXT_INVALID`; no escribe en Workflow ni requiere conexión MySQL de auditoría.

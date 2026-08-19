@@ -3,6 +3,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const mysql = require('mysql2/promise');
+const { createAuthenticatedWorkflowSession } = require('./support/authenticated-workflow-session.cjs');
 
 const repositoryRoot = path.resolve(__dirname, '..', '..', '..');
 
@@ -44,9 +45,9 @@ const settings = {
   baseUrl: normalizeBaseUrl(required('DOC10_E2E_BASE_URL')),
   moduleValue: required('DOC10_E2E_MODULE'),
   authorizedUser: required('DOC10_E2E_AUTHORIZED_USER'),
-  authorizedPassword: process.env.DOC10_E2E_AUTHORIZED_PASSWORD,
+  authorizedPasswordConfigured: Boolean(required('DOC10_E2E_AUTHORIZED_PASSWORD')),
   unauthorizedUser: required('DOC10_E2E_UNAUTHORIZED_USER'),
-  unauthorizedPassword: process.env.DOC10_E2E_UNAUTHORIZED_PASSWORD,
+  unauthorizedPasswordConfigured: Boolean(required('DOC10_E2E_UNAUTHORIZED_PASSWORD')),
   mysqlUrl: process.env.DOC10_E2E_MYSQL_URL,
   auditSql: process.env.DOC10_E2E_AUDIT_SQL,
   authorizedExpectedCode: required('DOC10_E2E_AUTHORIZED_EXPECTED_CODE'),
@@ -56,10 +57,6 @@ const settings = {
 
 function previewUrl() {
   return new URL('webservice/WebServiceWorkflowModern.asmx/PreviewEnviarTarea', settings.baseUrl).toString();
-}
-
-function loginUrl() {
-  return new URL('gestor.aspx', settings.baseUrl).toString();
 }
 
 function assertReadOnlySql(sql, name) {
@@ -76,9 +73,9 @@ function fullE2EMissingSettings() {
     ['DOC10_E2E_BASE_URL', settings.baseUrl],
     ['DOC10_E2E_MODULE', settings.moduleValue],
     ['DOC10_E2E_AUTHORIZED_USER', settings.authorizedUser],
-    ['DOC10_E2E_AUTHORIZED_PASSWORD', settings.authorizedPassword],
+    ['DOC10_E2E_AUTHORIZED_PASSWORD', settings.authorizedPasswordConfigured],
     ['DOC10_E2E_UNAUTHORIZED_USER', settings.unauthorizedUser],
-    ['DOC10_E2E_UNAUTHORIZED_PASSWORD', settings.unauthorizedPassword],
+    ['DOC10_E2E_UNAUTHORIZED_PASSWORD', settings.unauthorizedPasswordConfigured],
     ['DOC10_E2E_MYSQL_URL', settings.mysqlUrl],
     ['DOC10_E2E_AUDIT_SQL', settings.auditSql]
   ];
@@ -94,23 +91,14 @@ async function queryFingerprint(pool, sql, idTarea) {
   return fingerprint(rows);
 }
 
-async function login(browser, user, password) {
-  const context = await browser.newContext({
+function login(browser, userEnvironmentVariable, passwordEnvironmentVariable) {
+  return createAuthenticatedWorkflowSession(browser, {
+    baseUrl: settings.baseUrl,
+    moduleEnvironmentVariable: 'DOC10_E2E_MODULE',
+    userEnvironmentVariable,
+    passwordEnvironmentVariable,
     ignoreHTTPSErrors: process.env.DOC10_E2E_IGNORE_HTTPS_ERRORS === 'true'
   });
-  const page = await context.newPage();
-  await page.goto(loginUrl(), { waitUntil: 'domcontentloaded' });
-  await page.locator('#ContentPlacenter_DropDownListmodulos').selectOption({ value: settings.moduleValue });
-  await page.locator('#ContentPlacenter_TextBoxuser').fill(user);
-  await page.locator('#ContentPlacenter_TextBoxpasw').fill(password);
-  const postback = page.waitForResponse((response) => {
-    const request = response.request();
-    return request.method() === 'POST' && response.url().split('?')[0] === loginUrl();
-  });
-  await page.locator('a.da-login-submit').click();
-  await postback;
-  await page.waitForLoadState('domcontentloaded');
-  return context;
 }
 
 async function invokePreview(context, idTarea) {
@@ -159,13 +147,13 @@ test('@session La sesión Gestión válida resuelve el contexto Workflow en el A
     ['DOC10_E2E_BASE_URL', settings.baseUrl],
     ['DOC10_E2E_MODULE', settings.moduleValue],
     ['DOC10_E2E_AUTHORIZED_USER', settings.authorizedUser],
-    ['DOC10_E2E_AUTHORIZED_PASSWORD', settings.authorizedPassword]
+    ['DOC10_E2E_AUTHORIZED_PASSWORD', settings.authorizedPasswordConfigured]
   ].filter(([, value]) => !value || !String(value).trim()).map(([name]) => name);
   if (missing.length > 0) {
     throw new Error(`Faltan variables para verificar sesión: ${missing.join(', ')}.`);
   }
 
-  const context = await login(browser, settings.authorizedUser, settings.authorizedPassword);
+  const context = await login(browser, 'DOC10_E2E_AUTHORIZED_USER', 'DOC10_E2E_AUTHORIZED_PASSWORD');
   try {
     const preview = await invokePreview(context, getTaskId());
     expect(preview.Error?.Codigo, 'La sesión Gestión no resolvió contexto Workflow.').not.toBe('WORKFLOW_CONTEXT_INVALID');
@@ -179,16 +167,16 @@ test('@authorization El piloto supera el gate y el usuario autenticado fuera del
     ['DOC10_E2E_BASE_URL', settings.baseUrl],
     ['DOC10_E2E_MODULE', settings.moduleValue],
     ['DOC10_E2E_AUTHORIZED_USER', settings.authorizedUser],
-    ['DOC10_E2E_AUTHORIZED_PASSWORD', settings.authorizedPassword],
+    ['DOC10_E2E_AUTHORIZED_PASSWORD', settings.authorizedPasswordConfigured],
     ['DOC10_E2E_UNAUTHORIZED_USER', settings.unauthorizedUser],
-    ['DOC10_E2E_UNAUTHORIZED_PASSWORD', settings.unauthorizedPassword]
+    ['DOC10_E2E_UNAUTHORIZED_PASSWORD', settings.unauthorizedPasswordConfigured]
   ].filter(([, value]) => !value || !String(value).trim()).map(([name]) => name);
   if (missing.length > 0) {
     throw new Error(`Faltan variables para verificar autorización: ${missing.join(', ')}.`);
   }
 
-  const authorizedContext = await login(browser, settings.authorizedUser, settings.authorizedPassword);
-  const unauthorizedContext = await login(browser, settings.unauthorizedUser, settings.unauthorizedPassword);
+  const authorizedContext = await login(browser, 'DOC10_E2E_AUTHORIZED_USER', 'DOC10_E2E_AUTHORIZED_PASSWORD');
+  const unauthorizedContext = await login(browser, 'DOC10_E2E_UNAUTHORIZED_USER', 'DOC10_E2E_UNAUTHORIZED_PASSWORD');
   try {
     const authorized = await invokePreview(authorizedContext, getTaskId());
     const unauthorized = await invokePreview(unauthorizedContext, getTaskId());
@@ -227,10 +215,10 @@ test('@full PreviewEnviarTarea preserva estado y auditoría para piloto y no pil
     beforeTask = await queryFingerprint(pool, settings.taskStateSql, idTarea);
     beforeAudit = await queryFingerprint(pool, settings.auditSql, idTarea);
 
-    authorizedContext = await login(browser, settings.authorizedUser, settings.authorizedPassword);
+    authorizedContext = await login(browser, 'DOC10_E2E_AUTHORIZED_USER', 'DOC10_E2E_AUTHORIZED_PASSWORD');
     authorized = await invokePreview(authorizedContext, idTarea);
 
-    unauthorizedContext = await login(browser, settings.unauthorizedUser, settings.unauthorizedPassword);
+    unauthorizedContext = await login(browser, 'DOC10_E2E_UNAUTHORIZED_USER', 'DOC10_E2E_UNAUTHORIZED_PASSWORD');
     unauthorized = await invokePreview(unauthorizedContext, idTarea);
   } finally {
     afterTask = await queryFingerprint(pool, settings.taskStateSql, idTarea);
