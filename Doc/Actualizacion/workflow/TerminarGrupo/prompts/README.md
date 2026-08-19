@@ -13,5 +13,6 @@ Ejecutar los prompts en este orden. Cada archivo es autosuficiente y debe respet
 | 6 | `06-asmx-ui.md` | Integración visual con el ASMX y componentes existentes. |
 | 7 | `07-gate-auditoria.md` | Operación con gate único, trazabilidad y rollback. |
 | 8 | `08-pruebas-verificacion.md` | Pruebas y verificación final. |
+| 9 | `09-liberacion-activacion-controlada.md` | Decisión y preparación de activación autorizada por ambiente. |
 
-No activar gates ni ejecutar E2E autenticado sin autorización explícita. Las etapas no crean una segunda bandera ni una segunda fuente de configuración.
+No activar gates ni ejecutar E2E autenticado sin autorización explícita. Las pruebas aprobadas no autorizan una activación automática: una activación requiere aprobación expresa por ambiente. Las etapas no crean una segunda bandera ni una segunda fuente de configuración.
