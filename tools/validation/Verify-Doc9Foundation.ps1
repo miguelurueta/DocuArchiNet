@@ -56,8 +56,8 @@ $context.IdRutaWorkflow = 1
 $context.LoginUsuario = "doc9-foundation-test"
 
 $gateResult = $gateType.GetMethod("Evaluar").Invoke([Activator]::CreateInstance($gateType), @($context))
-if ($gateResult.Estado -ne "inactivo" -or $gateResult.Codigo -ne "WORKFLOW_MODERN_INACTIVE") {
-    throw "El feature gate no fallo cerrado: $($gateResult.Estado)/$($gateResult.Codigo)"
+if ($gateResult.Estado -ne "activo" -or $gateResult.Codigo -ne "WORKFLOW_MODERN_OFFICIAL") {
+    throw "La política moderna oficial no habilitó el contexto Workflow válido: $($gateResult.Estado)/$($gateResult.Codigo)"
 }
 
 if (-not $adapterType.GetInterfaces().Name.Contains("IWorkflowLegacyExecutor")) {
@@ -90,4 +90,4 @@ if ($adapterSource -notmatch "New ClassWorkflow\(\)\.Terminar_Tarea_Workflow\(" 
     throw "El adaptador no conserva el límite de ejecución seguro esperado."
 }
 
-Write-Output "PASS DOC-9 foundation: feature-gate fail-closed; contrato de adaptador preservado; no dependencias Web Forms en Domain/Application."
+Write-Output "PASS DOC-9 foundation: política moderna oficial; contrato de adaptador preservado; no dependencias Web Forms en Domain/Application."

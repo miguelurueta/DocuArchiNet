@@ -31,6 +31,12 @@ Public Interface IEnvioGrupoDestinosRepository
                              ByVal tarea As TareaWorkflow) As ResultadoDestinosEnvioGrupo
 End Interface
 
+Public Interface IEnvioGrupoBusquedaRepository
+    Function BuscarDestinos(ByVal contexto As ContextoModuloWorkflow,
+                            ByVal tarea As TareaWorkflow,
+                            ByVal solicitud As SolicitudBusquedaDestinosEnvioGrupo) As ResultadoBusquedaDestinosEnvioGrupo
+End Interface
+
 Public Interface IEnvioGrupoEjecucionRepository
     Function ResolverDestino(ByVal contexto As ContextoModuloWorkflow,
                              ByVal tarea As TareaWorkflow,

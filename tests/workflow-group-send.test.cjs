@@ -15,6 +15,7 @@ const modelsSource = fs.readFileSync(path.resolve(__dirname, "../Modelo/Workflow
 const interfacesSource = fs.readFileSync(path.resolve(__dirname, "../Modelo/Workflow/Terminar/WorkflowModernInterfaces.vb"), "utf8");
 const pageSource = fs.readFileSync(path.resolve(__dirname, "../workflow/Webworkflow.aspx"), "utf8");
 const codeBehindSource = fs.readFileSync(path.resolve(__dirname, "../workflow/Webworkflow.aspx.vb"), "utf8");
+const stylesSource = fs.readFileSync(path.resolve(__dirname, "../Styles/workflow-transition-modern.css"), "utf8");
 
 function loadUi(trigger) {
     const document = {
@@ -75,6 +76,9 @@ test("normaliza el preview de grupo y publica una selección sin conector", () =
         contexto: { radicado: "RAD-41", grupoActual: "Gestión" },
         destinos: [{ idActividadDestino: 9, nombreActividad: "Revisión", grupoDestino: "Grupo revisor", orden: 1 }],
         tokenVersion: "v-41",
+        pagina: 1,
+        tamanoPagina: 25,
+        tieneMas: false,
         error: null
     });
     assert.deepEqual(JSON.parse(JSON.stringify(detail)), selection());
@@ -95,14 +99,44 @@ test("solicita exclusivamente PreviewEnviarGrupo por POST autenticado", async ()
     assert.doesNotMatch(uiSource, /EjecutarEnvioGrupo/);
 });
 
-test("preserva el enlace legacy de grupo si el bootstrap no está activo", () => {
-    const legacyClick = () => "legacy";
+test("normaliza y solicita una página de búsqueda de grupo con el contrato mínimo", async () => {
+    const ui = loadUi();
+    let call;
+    const search = ui.desempaquetarBusquedaAsmx({ d: {
+        IdTarea: 41,
+        TokenVersion: "v-41",
+        Pagina: 2,
+        TamanoPagina: 25,
+        TieneMas: true,
+        Destinos: [{ IdActividadDestino: 10, NombreActividad: "Archivo", GrupoDestino: "2 grupos asociados" }]
+    } });
+    await ui.solicitarBusqueda(41, "archivo", 2, 25, async (url, options) => {
+        call = { url, options };
+        return { ok: true, json: async () => ({ d: {
+            IdTarea: 41, TokenVersion: "v-41", Pagina: 2, TamanoPagina: 25, TieneMas: true, Destinos: []
+        } }) };
+    });
+
+    assert.deepEqual(JSON.parse(JSON.stringify(search)), {
+        idTarea: 41,
+        destinos: [{ idActividadDestino: 10, nombreActividad: "Archivo", grupoDestino: "2 grupos asociados", orden: 26 }],
+        tokenVersion: "v-41",
+        pagina: 2,
+        tamanoPagina: 25,
+        tieneMas: true,
+        error: null
+    });
+    assert.match(call.url, /BuscarDestinosEnvioGrupo$/);
+    assert.equal(call.options.credentials, "same-origin");
+    assert.deepEqual(JSON.parse(call.options.body), { idTarea: 41, termino: "archivo", pagina: 2, tamanoPagina: 25 });
+});
+
+test("no enlaza el control moderno de grupo si el bootstrap no está activo", () => {
     const trigger = {
-        onclick: legacyClick,
         getAttribute(name) { return name === "data-workflow-group-modern-active" ? "false" : ""; }
     };
     loadUi(trigger);
-    assert.equal(trigger.onclick, legacyClick);
+    assert.equal(trigger.onclick, undefined);
 });
 
 test("confirma y ejecuta con la terna directa de grupo", async () => {
@@ -138,6 +172,7 @@ test("los contratos de grupo no relajan el contrato existente por conector", () 
     assert.doesNotMatch(requestBlock, /IdConector|Page|Session/);
     assert.doesNotMatch(destinationBlock, /IdConector/);
     assert.match(interfacesSource, /Interface IEnvioGrupoDestinosRepository/);
+    assert.match(interfacesSource, /Interface IEnvioGrupoBusquedaRepository/);
     assert.match(interfacesSource, /Interface IEnvioGrupoEjecucionRepository/);
     assert.match(interfacesSource, /Interface IEnvioGrupoRequisitosRepository/);
     assert.match(interfacesSource, /Interface IEnvioGrupoLegacyExecutor/);
@@ -149,6 +184,10 @@ test("el preview de grupo usa solamente lecturas y devuelve el destino de la rut
     assert.match(repositorySource, /SELECT estado_ruta_open_close/);
     assert.match(repositorySource, /FROM LISTADO_ACTIVIDADES_WORKFLOW[\s\S]*?RUTAS_WORKFLOW_ID_RUTA = @idRuta/);
     assert.match(repositorySource, /AND actividad\.ID_ACTIVIDAD = @idActividadDestino/);
+    assert.match(repositorySource, /BuscarDestinos/);
+    assert.match(repositorySource, /EXISTS \(SELECT 1 FROM grupos_workflow AS grupoFiltro/);
+    assert.match(repositorySource, /GROUP BY actividad\.ID_ACTIVIDAD/);
+    assert.match(repositorySource, /LIMIT @limite OFFSET @desplazamiento/);
     assert.doesNotMatch(repositorySource, /\b(?:INSERT|UPDATE|DELETE|CALL)\b/i);
 });
 
@@ -171,6 +210,7 @@ test("la ejecución revalida dentro del guard y conserva los requisitos directos
 
 test("el ASMX compone operaciones de grupo sin exponer errores técnicos ni invocar el motor", () => {
     assert.match(asmxSource, /Public Function PreviewEnviarGrupo\(ByVal idTarea As Long\)[\s\S]*?AsegurarContextoEnvioGrupo\(\)/);
+    assert.match(asmxSource, /Public Function BuscarDestinosEnvioGrupo\(ByVal idTarea As Long,[\s\S]*?ByVal termino As String,[\s\S]*?ByVal pagina As Integer,[\s\S]*?ByVal tamanoPagina As Integer\)/);
     assert.match(asmxSource, /Public Function EjecutarEnvioGrupo\(ByVal idTarea As Long,[\s\S]*?ByVal idActividadDestino As Integer,[\s\S]*?ByVal tokenVersion As String\)/);
     assert.match(asmxSource, /AsegurarContextoEnvioGrupo\(True\)/);
     assert.match(asmxSource, /New WorkflowLegacyEnvioGrupoExecutorAdapter\(\)/);
@@ -178,13 +218,36 @@ test("el ASMX compone operaciones de grupo sin exponer errores técnicos ni invo
     assert.doesNotMatch(asmxSource, /Catch ex As Exception[\s\S]{0,120}ex\.Message/);
 });
 
-test("la presentación moderna de grupo queda aislada tras el gate y no cambia Continuar flujo", () => {
-    assert.match(pageSource, /If WorkflowCentroTrabajoModernActive Then[\s\S]*?workflow-group-send-trigger[\s\S]*?Else[\s\S]*?activa_boton_client_server\('ImageButtonEnviaActividad'\)/);
+test("la presentación moderna de grupo no deja un acceso legacy cuando el contexto no enlaza operaciones", () => {
+    assert.match(pageSource, /<button id="workflow-group-send-trigger" type="button"[^>]*?WorkflowCentroTrabajoModernOperationDisabledAttribute[^>]*?>/);
+    assert.match(pageSource, /<button id="workflow-transition-trigger" type="button"[^>]*?WorkflowCentroTrabajoModernOperationDisabledAttribute[^>]*?>/);
+    assert.doesNotMatch(pageSource, /activa_boton_client_server\('ImageButton(?:EnviaActividad|terminar)'\)/);
     assert.match(pageSource, /workflow-group-send-modern-modal/);
     assert.match(codeBehindSource, /RegisterWorkflowEnvioGrupoModernScript\(\)/);
-    assert.match(codeBehindSource, /workflow-group-send-ui\.js\?v=20260819-doc15base1/);
+    assert.match(codeBehindSource, /workflow-group-send-ui\.js\?v=20260820-doc26search1/);
     assert.match(codeBehindSource, /data-workflow-group-modern-active/);
     assert.match(codeBehindSource, /Hidden_id_tarea_selecionada\.ClientID/);
     assert.match(fs.readFileSync(path.resolve(__dirname, "workflow-transition-ui.test.cjs"), "utf8"), /PreviewEnviarTarea/);
     assert.match(fs.readFileSync(path.resolve(__dirname, "workflow-transition-confirmation-integration.test.cjs"), "utf8"), /idConector/);
+});
+
+test("la búsqueda conserva una representación responsive sincronizada para tabla y tarjetas", () => {
+    assert.match(pageSource, /<label for="workflow-group-send-modern-search">Buscar actividad o grupo<\/label>/);
+    assert.match(pageSource, /id="workflow-group-send-modern-previous"/);
+    assert.match(pageSource, /id="workflow-group-send-modern-next"/);
+    assert.match(uiSource, /control\.tableBody\.appendChild\(destinationRow/);
+    assert.match(uiSource, /control\.cards\.appendChild\(destinationCard/);
+    assert.match(uiSource, /searchDelayMilliseconds = 300/);
+    assert.match(uiSource, /minimumSearchLength = 2/);
+    assert.match(uiSource, /sequence !== requestSequence/);
+    assert.match(stylesSource, /@media \(max-width: 767px\)[\s\S]*?workflow-transition-modal__desktop[\s\S]*?display: none/);
+    assert.match(stylesSource, /@media \(max-width: 767px\)[\s\S]*?workflow-transition-modal__mobile[\s\S]*?display: grid/);
+    assert.match(stylesSource, /workflow-transition-modal__pager/);
+});
+
+test("un cambio de búsqueda invalida la confirmación abierta", () => {
+    const { api, window, listeners } = loadConfirmation();
+    assert.equal(api.openFromSelection(selection()), true);
+    listeners.get("workflow:group-destination-invalidated")({ detail: { idTarea: 41 } });
+    assert.equal(window.closed, true);
 });

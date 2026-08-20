@@ -1,53 +1,5 @@
 ﻿Public Class WebFormInicioDocuarchiGestion
     Inherits System.Web.UI.Page
-    Private Const WorkflowCentroTrabajoModernEnabledKey As String = "WorkflowCentroTrabajoModernEnabled"
-    Private Const WorkflowCentroTrabajoModernPilotProfilesKey As String = "WorkflowCentroTrabajoModernPilotProfiles"
-
-    Private ReadOnly Property WorkflowCentroTrabajoModernShellActive As Boolean
-        Get
-            If Not IsWorkflowCentroTrabajoConfigurationEnabled(ReadWorkflowCentroTrabajoConfigurationValue(WorkflowCentroTrabajoModernEnabledKey, "false")) Then
-                Return False
-            End If
-
-            If HttpContext.Current Is Nothing OrElse HttpContext.Current.Session Is Nothing Then
-                Return False
-            End If
-
-            Dim currentProfile As String = Convert.ToString(HttpContext.Current.Session.Item("GA_LOGINUSUARIOGESTION")).Trim()
-            Dim configuredProfiles As String = ReadWorkflowCentroTrabajoConfigurationValue(WorkflowCentroTrabajoModernPilotProfilesKey, String.Empty)
-            Dim profile As String
-
-            If String.IsNullOrWhiteSpace(currentProfile) OrElse String.IsNullOrWhiteSpace(configuredProfiles) Then
-                Return False
-            End If
-
-            For Each profile In configuredProfiles.Split(New Char() {","c, ";"c, ControlChars.Cr, ControlChars.Lf}, StringSplitOptions.RemoveEmptyEntries)
-                If String.Equals(profile.Trim(), currentProfile, StringComparison.OrdinalIgnoreCase) Then
-                    Return True
-                End If
-            Next
-
-            Return False
-        End Get
-    End Property
-
-    Private Shared Function ReadWorkflowCentroTrabajoConfigurationValue(ByVal key As String, ByVal fallback As String) As String
-        Dim configuredValue As String = System.Configuration.ConfigurationManager.AppSettings(key)
-        Return If(String.IsNullOrWhiteSpace(configuredValue), fallback, configuredValue.Trim())
-    End Function
-
-    Private Shared Function IsWorkflowCentroTrabajoConfigurationEnabled(ByVal value As String) As Boolean
-        Return String.Equals(value, "true", StringComparison.OrdinalIgnoreCase) OrElse
-               String.Equals(value, "1", StringComparison.OrdinalIgnoreCase) OrElse
-               String.Equals(value, "yes", StringComparison.OrdinalIgnoreCase)
-    End Function
-
-    Private Sub ConfigureWorkflowCentroTrabajoShellViewport()
-        If workflowCentroTrabajoModernShellViewport IsNot Nothing Then
-            workflowCentroTrabajoModernShellViewport.Visible = WorkflowCentroTrabajoModernShellActive
-        End If
-    End Sub
-
     Private Sub WebFormInicioDocuarchiGestion_Load(sender As Object, e As EventArgs) Handles Me.Load
         Try
             If Me.IsPostBack = False Then
@@ -111,7 +63,6 @@
     End Sub
 
     Private Sub WebFormInicioDocuarchiGestion_PreRender(sender As Object, e As EventArgs) Handles Me.PreRender
-        ConfigureWorkflowCentroTrabajoShellViewport()
         Dim cs As ClientScriptManager = Page.ClientScript
         Dim scr As [String] = "$(document).ready(function () {$().inicio();});"
         If (Not cs.IsClientScriptBlockRegistered(MyBase.Page.[GetType](), [String].Format("jQuery_{0}", ""))) Then

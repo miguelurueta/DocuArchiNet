@@ -5,7 +5,7 @@ Imports System.Data
 'Consultas de solo lectura y revalidación del envío directo a una actividad de grupo.
 Public Class MySqlEnvioGrupoRepository
     Inherits MySqlWorkflowPreviewRepositoryBase
-    Implements IEnvioGrupoDestinosRepository, IEnvioGrupoEjecucionRepository
+    Implements IEnvioGrupoDestinosRepository, IEnvioGrupoBusquedaRepository, IEnvioGrupoEjecucionRepository
 
     Private ReadOnly _docuarchiConnectionFactory As IModuleConnectionFactory
 
@@ -52,6 +52,27 @@ Public Class MySqlEnvioGrupoRepository
         Catch
             Return BloquearResolucion(CodigosBloqueoPrevisualizacion.TransicionNoDisponible,
                                       "No fue posible validar el destino seleccionado.")
+        End Try
+    End Function
+
+    Public Function BuscarDestinos(ByVal contexto As ContextoModuloWorkflow,
+                                   ByVal tarea As TareaWorkflow,
+                                   ByVal solicitud As SolicitudBusquedaDestinosEnvioGrupo) As ResultadoBusquedaDestinosEnvioGrupo Implements IEnvioGrupoBusquedaRepository.BuscarDestinos
+        If solicitud Is Nothing OrElse solicitud.IdTarea <= 0 OrElse solicitud.TamanoPagina < 1 Then
+            Return BloquearBusqueda(CodigosBloqueoPrevisualizacion.TareaInvalida,
+                                    "La consulta de destinos no es valida.")
+        End If
+
+        Dim bloqueo As ResultadoDestinosEnvioGrupo = ValidarEstado(contexto, tarea)
+        If bloqueo IsNot Nothing Then
+            Return BloquearBusqueda(bloqueo.CodigoBloqueo, bloqueo.MensajeFuncional)
+        End If
+
+        Try
+            Return LeerDestinosPaginados(contexto, tarea, solicitud)
+        Catch
+            Return BloquearBusqueda(CodigosBloqueoPrevisualizacion.TransicionNoDisponible,
+                                    "No fue posible consultar los destinos de la tarea.")
         End Try
     End Function
 
@@ -139,14 +160,16 @@ Public Class MySqlEnvioGrupoRepository
                                   ByVal tarea As TareaWorkflow,
                                   ByVal idActividadDestino As Integer) As IList(Of DestinoEnvioGrupoWorkflow)
         Dim sql As String = "SELECT actividad.ID_ACTIVIDAD AS ID_ACTIVIDAD_DESTINO, actividad.NOMBRE_ACTIVIDAD, " &
-                            "COALESCE(grupo.ID_GRUPO, 0) AS ID_GRUPO_DESTINO, grupo.NOMBRE_GRUPO, " &
+                            "COALESCE(MIN(grupo.ID_GRUPO), 0) AS ID_GRUPO_DESTINO, MIN(grupo.NOMBRE_GRUPO) AS NOMBRE_GRUPO, " &
+                            "COUNT(DISTINCT grupo.ID_GRUPO) AS CANTIDAD_GRUPOS, " &
                             "COALESCE(actividad.estado_envio_correo, 0) AS ESTADO_ENVIO_CORREO " &
                             "FROM LISTADO_ACTIVIDADES_WORKFLOW AS actividad " &
                             "LEFT JOIN grupos_workflow AS grupo ON grupo.ID_ACTIVIDAD = actividad.ID_ACTIVIDAD " &
                             "AND grupo.RUTAS_WORKFLOW_ID_RUTA = actividad.RUTAS_WORKFLOW_ID_RUTA " &
                             "WHERE actividad.RUTAS_WORKFLOW_ID_RUTA = @idRuta "
         If idActividadDestino > 0 Then sql &= "AND actividad.ID_ACTIVIDAD = @idActividadDestino "
-        sql &= "ORDER BY actividad.NOMBRE_ACTIVIDAD, actividad.ID_ACTIVIDAD"
+        sql &= "GROUP BY actividad.ID_ACTIVIDAD, actividad.NOMBRE_ACTIVIDAD, actividad.estado_envio_correo " &
+               "ORDER BY actividad.NOMBRE_ACTIVIDAD, actividad.ID_ACTIVIDAD"
 
         Dim parametros As New List(Of IDataParameter) From {Parametro("@idRuta", tarea.IdRuta)}
         If idActividadDestino > 0 Then parametros.Add(Parametro("@idActividadDestino", idActividadDestino))
@@ -158,7 +181,7 @@ Public Class MySqlEnvioGrupoRepository
                         .IdActividadDestino = Entero(reader, "ID_ACTIVIDAD_DESTINO"),
                         .IdGrupoWorkflowDestino = Entero(reader, "ID_GRUPO_DESTINO"),
                         .NombreActividad = Texto(reader, "NOMBRE_ACTIVIDAD"),
-                        .NombreGrupoDestino = Texto(reader, "NOMBRE_GRUPO"),
+                        .NombreGrupoDestino = CrearResumenGrupo(Texto(reader, "NOMBRE_GRUPO"), Entero(reader, "CANTIDAD_GRUPOS")),
                         .RequiereNotificacion = Entero(reader, "ESTADO_ENVIO_CORREO") <> 0
                     })
                 End While
@@ -166,8 +189,77 @@ Public Class MySqlEnvioGrupoRepository
             End Function)
     End Function
 
+    Private Function LeerDestinosPaginados(ByVal contexto As ContextoModuloWorkflow,
+                                           ByVal tarea As TareaWorkflow,
+                                           ByVal solicitud As SolicitudBusquedaDestinosEnvioGrupo) As ResultadoBusquedaDestinosEnvioGrupo
+        Dim pagina As Integer = Math.Max(1, solicitud.Pagina)
+        Dim tamanoPagina As Integer = Math.Max(1, Math.Min(50, solicitud.TamanoPagina))
+        Dim limite As Integer = tamanoPagina + 1
+        Dim desplazamiento As Long = (CLng(pagina) - 1L) * CLng(tamanoPagina)
+        Dim termino As String = If(solicitud.Termino, String.Empty)
+        Const sql As String = "SELECT actividad.ID_ACTIVIDAD AS ID_ACTIVIDAD_DESTINO, actividad.NOMBRE_ACTIVIDAD, " &
+                              "COALESCE(MIN(grupo.ID_GRUPO), 0) AS ID_GRUPO_DESTINO, MIN(grupo.NOMBRE_GRUPO) AS NOMBRE_GRUPO, " &
+                              "COUNT(DISTINCT grupo.ID_GRUPO) AS CANTIDAD_GRUPOS, " &
+                              "COALESCE(actividad.estado_envio_correo, 0) AS ESTADO_ENVIO_CORREO " &
+                              "FROM LISTADO_ACTIVIDADES_WORKFLOW AS actividad " &
+                              "LEFT JOIN grupos_workflow AS grupo ON grupo.ID_ACTIVIDAD = actividad.ID_ACTIVIDAD " &
+                              "AND grupo.RUTAS_WORKFLOW_ID_RUTA = actividad.RUTAS_WORKFLOW_ID_RUTA " &
+                              "WHERE actividad.RUTAS_WORKFLOW_ID_RUTA = @idRuta " &
+                              "AND (@termino = '' OR actividad.NOMBRE_ACTIVIDAD LIKE CONCAT('%', @termino, '%') " &
+                              "OR EXISTS (SELECT 1 FROM grupos_workflow AS grupoFiltro " &
+                              "WHERE grupoFiltro.ID_ACTIVIDAD = actividad.ID_ACTIVIDAD " &
+                              "AND grupoFiltro.RUTAS_WORKFLOW_ID_RUTA = actividad.RUTAS_WORKFLOW_ID_RUTA " &
+                              "AND grupoFiltro.NOMBRE_GRUPO LIKE CONCAT('%', @termino, '%'))) " &
+                              "GROUP BY actividad.ID_ACTIVIDAD, actividad.NOMBRE_ACTIVIDAD, actividad.estado_envio_correo " &
+                              "ORDER BY actividad.NOMBRE_ACTIVIDAD, actividad.ID_ACTIVIDAD LIMIT @limite OFFSET @desplazamiento"
+        Dim resultado As New ResultadoBusquedaDestinosEnvioGrupo With {
+            .Pagina = pagina,
+            .TamanoPagina = tamanoPagina
+        }
+        Dim parametros As New List(Of IDataParameter) From {
+            Parametro("@idRuta", tarea.IdRuta),
+            Parametro("@termino", termino),
+            Parametro("@limite", limite),
+            Parametro("@desplazamiento", desplazamiento)
+        }
+        Dim filas As IList(Of DestinoEnvioGrupoWorkflow) = EjecutarLectura(Of IList(Of DestinoEnvioGrupoWorkflow))(contexto, sql, parametros,
+            Function(reader As IDataReader) As IList(Of DestinoEnvioGrupoWorkflow)
+                Dim destinos As New List(Of DestinoEnvioGrupoWorkflow)()
+                While reader.Read()
+                    destinos.Add(New DestinoEnvioGrupoWorkflow With {
+                        .IdActividadDestino = Entero(reader, "ID_ACTIVIDAD_DESTINO"),
+                        .IdGrupoWorkflowDestino = Entero(reader, "ID_GRUPO_DESTINO"),
+                        .NombreActividad = Texto(reader, "NOMBRE_ACTIVIDAD"),
+                        .NombreGrupoDestino = CrearResumenGrupo(Texto(reader, "NOMBRE_GRUPO"), Entero(reader, "CANTIDAD_GRUPOS")),
+                        .RequiereNotificacion = Entero(reader, "ESTADO_ENVIO_CORREO") <> 0
+                    })
+                End While
+                Return destinos
+            End Function)
+        If filas Is Nothing Then Return resultado
+        resultado.TieneMas = filas.Count > tamanoPagina
+        For indice As Integer = 0 To Math.Min(tamanoPagina, filas.Count) - 1
+            resultado.Destinos.Add(filas(indice))
+        Next
+        Return resultado
+    End Function
+
+    Private Shared Function CrearResumenGrupo(ByVal nombreGrupo As String, ByVal cantidadGrupos As Integer) As String
+        If cantidadGrupos > 1 Then
+            Return cantidadGrupos.ToString() & " grupos asociados"
+        End If
+        If Not String.IsNullOrWhiteSpace(nombreGrupo) Then
+            Return nombreGrupo
+        End If
+        Return "Sin grupo asignado"
+    End Function
+
     Private Shared Function Bloquear(ByVal codigo As String, ByVal mensaje As String) As ResultadoDestinosEnvioGrupo
         Return New ResultadoDestinosEnvioGrupo With {.CodigoBloqueo = codigo, .MensajeFuncional = mensaje}
+    End Function
+
+    Private Shared Function BloquearBusqueda(ByVal codigo As String, ByVal mensaje As String) As ResultadoBusquedaDestinosEnvioGrupo
+        Return New ResultadoBusquedaDestinosEnvioGrupo With {.CodigoBloqueo = codigo, .MensajeFuncional = mensaje}
     End Function
 
     Private Shared Function BloquearResolucion(ByVal codigo As String, ByVal mensaje As String) As ResultadoResolucionEnvioGrupo

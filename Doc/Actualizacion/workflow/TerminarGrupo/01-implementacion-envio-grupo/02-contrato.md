@@ -23,3 +23,13 @@ Los contratos de grupo usan `IdTarea`, `IdActividadDestino` y `TokenVersion`; no
 - `WORKFLOW_TRANSITION_IN_PROGRESS`
 
 Los errores se normalizan sin exponer SQL, Session, token, credenciales ni excepciones internas.
+
+## DOC-26 — Búsqueda paginada
+
+| Endpoint | Payload | Respuesta | Efecto |
+| --- | --- | --- | --- |
+| `BuscarDestinosEnvioGrupo` | `{ idTarea, termino, pagina, tamanoPagina }` | `BusquedaDestinosEnvioGrupoDto` | Solo lectura paginada. |
+
+`PreviewEnviarGrupo` conserva el payload `{ idTarea }`, pero devuelve como máximo 25 destinos y añade `Pagina`, `TamanoPagina` y `TieneMas`. La búsqueda devuelve los mismos metadatos, `TokenVersion` y destinos con `IdActividadDestino`, nombre de actividad y resumen de grupo; nunca devuelve `IdConector`.
+
+El término vacío restaura la primera página. Un término no vacío debe tener entre 2 y 80 caracteres. Página menor que uno se normaliza a uno y el tamaño se normaliza a 1..50, con 25 como valor inicial. `WORKFLOW_GROUP_SEARCH_TERM_INVALID` representa un término de longitud inválida.

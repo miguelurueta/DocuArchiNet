@@ -1,9 +1,5 @@
-# infraestructura-visual-aislada-reversible Specification
+## MODIFIED Requirements
 
-## Purpose
-
-Define un Centro de Trabajo Workflow moderno y responsive para todos los contextos válidos, sin una restricción de despliegue por piloto ni una ruta visible alternativa legacy.
-## Requirements
 ### Requirement: Experiencia moderna oficial para contextos válidos
 El sistema SHALL entregar la capa visual moderna DOC-2 y registrar los scripts y bootstraps ASMX modernos para todo contexto Workflow válido. La política de servidor MUST NOT leer ni requerir `WorkflowCentroTrabajoModernActive`, modo oficial, usuarios, grupos, exclusiones, metadatos de piloto ni rollback para decidir la disponibilidad moderna. El sistema MUST NOT leer ni requerir `WorkflowCentroTrabajoModernEnabled` ni `WorkflowCentroTrabajoModernPilotProfiles`.
 
@@ -58,12 +54,3 @@ El sistema SHALL incrementar la versión de URL de los activos `workflow-centro-
 #### Scenario: Cambio de ubicación de una acción moderna
 - **WHEN** el adaptador visual cambia los selectores o clases que ubican una acción de Workflow
 - **THEN** el navegador solicita el adaptador y el CSS con una versión distinta de la previamente desplegada, y no conserva una posición ni estilo de la implementación anterior.
-
-### Requirement: Politica Frontend AppResponses
-
-La política de `AppResponses<T>` SHALL aplicar solo si un ticket crea o modifica consumidores de ese envelope.
-
-#### Scenario: Ticket WebForms sin consumidor AppResponses
-
-- **WHEN** DOC-2 no crea servicios, hooks ni componentes que consuman `AppResponses<T>`
-- **THEN** no se crea un helper frontend ni parser local fuera de alcance.

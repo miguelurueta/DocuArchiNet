@@ -113,6 +113,13 @@
         if (initialized || typeof window.addEventListener !== "function") { return; }
         initialized = true;
         window.addEventListener("workflow:group-destination-selected", function (event) { openFromSelection(event && event.detail); });
+        window.addEventListener("workflow:group-destination-invalidated", function () {
+            if (activeOpening <= 0) { return; }
+            activeOpening += 1;
+            if (window.ConfirmationDialog && typeof window.ConfirmationDialog.close === "function") {
+                window.ConfirmationDialog.close();
+            }
+        });
     }
     api.normalizeSelection = normalizeSelection;
     api.createSummaryFields = createSummaryFields;

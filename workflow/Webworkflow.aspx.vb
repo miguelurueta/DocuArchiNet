@@ -32,9 +32,25 @@ Public Class Webworkflow
         End Get
     End Property
 
+    Public ReadOnly Property WorkflowCentroTrabajoModernPresentationEnabled As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
+    Public ReadOnly Property WorkflowCentroTrabajoModernOperationDisabledAttribute As String
+        Get
+            If WorkflowCentroTrabajoModernActive Then
+                Return " aria-disabled=""false"""
+            End If
+
+            Return " disabled=""disabled"" aria-disabled=""true"""
+        End Get
+    End Property
+
     Public ReadOnly Property WorkflowCentroTrabajoModernCssAttribute As String
         Get
-            If Not WorkflowCentroTrabajoModernActive Then
+            If Not WorkflowCentroTrabajoModernPresentationEnabled Then
                 Return String.Empty
             End If
 
@@ -225,7 +241,7 @@ Public Class Webworkflow
 
     Private Sub ConfigureWorkflowCentroTrabajoViewport()
         If workflowCentroTrabajoModernViewport IsNot Nothing Then
-            workflowCentroTrabajoModernViewport.Visible = WorkflowCentroTrabajoModernActive
+            workflowCentroTrabajoModernViewport.Visible = WorkflowCentroTrabajoModernPresentationEnabled
         End If
     End Sub
 
@@ -240,14 +256,15 @@ Public Class Webworkflow
     End Property
 
     Private Sub ConfigureWorkflowTransitionModernPresentation()
+        RegisterWorkflowTransitionModernStyle()
+        RegisterWorkflowTransitionPagePresentationScript()
+
         If Not WorkflowTransitionModernActive Then
             Return
         End If
 
-        RegisterWorkflowTransitionModernStyle()
         RegisterConfirmationDialogStyle()
         RegisterConfirmationDialogScript()
-        RegisterWorkflowTransitionPagePresentationScript()
         RegisterWorkflowTransitionModernScript()
         RegisterWorkflowTransitionConfirmationIntegrationScript()
         RegisterWorkflowTransitionModernBootstrap()
@@ -345,7 +362,7 @@ Public Class Webworkflow
 
         Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
         script.ID = "workflowEnvioGrupoModernScript"
-        script.Attributes("src") = "../js/workflow/workflow-group-send-ui.js?v=20260819-doc15base1"
+        script.Attributes("src") = "../js/workflow/workflow-group-send-ui.js?v=20260820-doc26search1"
         script.Attributes("type") = "text/javascript"
         Page.Header.Controls.Add(script)
     End Sub
@@ -357,7 +374,7 @@ Public Class Webworkflow
 
         Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
         script.ID = "workflowEnvioGrupoConfirmationIntegrationScript"
-        script.Attributes("src") = "../js/workflow/workflow-group-send-confirmation.js?v=20260819-doc15base1"
+        script.Attributes("src") = "../js/workflow/workflow-group-send-confirmation.js?v=20260820-doc26search1"
         script.Attributes("type") = "text/javascript"
         Page.Header.Controls.Add(script)
     End Sub
@@ -1746,7 +1763,7 @@ Public Class Webworkflow
                 Exit Sub
             End If
 
-            If WorkflowCentroTrabajoModernActive Then
+            If WorkflowCentroTrabajoModernPresentationEnabled Then
                 Me.UpdatePanel_panel_toll.Update()
             End If
         Catch ex As Exception

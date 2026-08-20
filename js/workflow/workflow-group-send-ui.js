@@ -2,7 +2,12 @@
     "use strict";
 
     var previewUrl = "../webservice/WebServiceWorkflowModern.asmx/PreviewEnviarGrupo";
+    var searchUrl = "../webservice/WebServiceWorkflowModern.asmx/BuscarDestinosEnvioGrupo";
+    var defaultPageSize = 25;
+    var minimumSearchLength = 2;
+    var searchDelayMilliseconds = 300;
     var requestSequence = 0;
+    var activeAbortController = null;
     var activeControl = null;
     var api = {};
 
@@ -11,9 +16,9 @@
         var text = value === undefined || value === null ? "" : String(value).replace(/^\s+|\s+$/g, "");
         return text || (fallback || "");
     }
-    function asPositiveInteger(value) {
+    function asPositiveInteger(value, fallback) {
         var parsed = Number(value);
-        return isFinite(parsed) && parsed > 0 && Math.floor(parsed) === parsed ? parsed : 0;
+        return isFinite(parsed) && parsed > 0 && Math.floor(parsed) === parsed ? parsed : (fallback || 0);
     }
     function asArray(value) { return Array.isArray(value) ? value : []; }
     function createElement(tagName, className, text) {
@@ -24,38 +29,70 @@
     }
     function empty(node) { while (node && node.firstChild) { node.removeChild(node.firstChild); } }
 
-    function normalizeDestination(raw, index) {
+    function normalizeDestination(raw, index, page, pageSize) {
         raw = isObject(raw) ? raw : {};
         return {
             idActividadDestino: asPositiveInteger(raw.IdActividadDestino),
             nombreActividad: asText(raw.NombreActividad, "Actividad disponible"),
             grupoDestino: asText(raw.GrupoDestino, "No especificado"),
-            orden: index + 1
+            orden: ((page - 1) * pageSize) + index + 1
         };
     }
-
+    function normalizeError(raw) {
+        return isObject(raw) ? {
+            codigo: asText(raw.Codigo),
+            mensajeVisible: asText(raw.MensajeVisible, "No fue posible cargar las actividades.")
+        } : null;
+    }
+    function normalizePage(raw) {
+        raw = isObject(raw) ? raw : {};
+        var page = asPositiveInteger(raw.Pagina, 1);
+        var pageSize = asPositiveInteger(raw.TamanoPagina, defaultPageSize);
+        return {
+            pagina: page,
+            tamanoPagina: Math.min(50, pageSize),
+            tieneMas: raw.TieneMas === true
+        };
+    }
     function normalizePreview(raw) {
         var context;
-        var error;
+        var page;
         if (!isObject(raw)) { throw new Error("La respuesta de previsualización no tiene el formato esperado."); }
         context = isObject(raw.Contexto) ? raw.Contexto : {};
-        error = isObject(raw.Error) ? raw.Error : null;
+        page = normalizePage(raw);
         return {
             idTarea: asPositiveInteger(raw.IdTarea),
             contexto: {
                 radicado: asText(context.Radicado, "No disponible"),
                 grupoActual: asText(context.GrupoActual, "No disponible")
             },
-            destinos: asArray(raw.Destinos).map(normalizeDestination),
+            destinos: asArray(raw.Destinos).map(function (destination, index) {
+                return normalizeDestination(destination, index, page.pagina, page.tamanoPagina);
+            }),
             tokenVersion: asText(raw.TokenVersion),
-            error: error ? {
-                codigo: asText(error.Codigo),
-                mensajeVisible: asText(error.MensajeVisible, "No fue posible cargar las actividades.")
-            } : null
+            pagina: page.pagina,
+            tamanoPagina: page.tamanoPagina,
+            tieneMas: page.tieneMas,
+            error: normalizeError(raw.Error)
         };
     }
-
-    function unwrapAsmx(raw) {
+    function normalizeSearch(raw) {
+        var page;
+        if (!isObject(raw)) { throw new Error("La respuesta de búsqueda no tiene el formato esperado."); }
+        page = normalizePage(raw);
+        return {
+            idTarea: asPositiveInteger(raw.IdTarea),
+            destinos: asArray(raw.Destinos).map(function (destination, index) {
+                return normalizeDestination(destination, index, page.pagina, page.tamanoPagina);
+            }),
+            tokenVersion: asText(raw.TokenVersion),
+            pagina: page.pagina,
+            tamanoPagina: page.tamanoPagina,
+            tieneMas: page.tieneMas,
+            error: normalizeError(raw.Error)
+        };
+    }
+    function unwrapAsmx(raw, normalize) {
         var value;
         if (!isObject(raw) || !Object.prototype.hasOwnProperty.call(raw, "d")) {
             throw new Error("La respuesta del servicio no contiene el envoltorio ASMX esperado.");
@@ -64,8 +101,10 @@
         if (typeof value === "string") {
             try { value = JSON.parse(value); } catch (ignored) { throw new Error("La respuesta del servicio no contiene JSON válido."); }
         }
-        return normalizePreview(value);
+        return normalize(value);
     }
+    function unwrapPreviewAsmx(raw) { return unwrapAsmx(raw, normalizePreview); }
+    function unwrapSearchAsmx(raw) { return unwrapAsmx(raw, normalizeSearch); }
 
     function requestPreview(idTarea, fetchImplementation) {
         fetchImplementation = fetchImplementation || window.fetch;
@@ -78,11 +117,25 @@
             headers: { "Content-Type": "application/json; charset=utf-8" },
             body: JSON.stringify({ idTarea: idTarea })
         }).then(function (response) {
-            if (!response || response.ok === false) {
-                throw new Error("No fue posible consultar las actividades disponibles.");
-            }
+            if (!response || response.ok === false) { throw new Error("No fue posible consultar las actividades disponibles."); }
             return response.json();
-        }).then(unwrapAsmx);
+        }).then(unwrapPreviewAsmx);
+    }
+    function requestSearch(idTarea, term, page, pageSize, fetchImplementation, signal) {
+        fetchImplementation = fetchImplementation || window.fetch;
+        if (typeof fetchImplementation !== "function") {
+            return Promise.reject(new Error("Este navegador no permite buscar actividades de forma segura."));
+        }
+        return fetchImplementation(searchUrl, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json; charset=utf-8" },
+            body: JSON.stringify({ idTarea: idTarea, termino: term, pagina: page, tamanoPagina: pageSize }),
+            signal: signal
+        }).then(function (response) {
+            if (!response || response.ok === false) { throw new Error("No fue posible consultar las actividades disponibles."); }
+            return response.json();
+        }).then(unwrapSearchAsmx);
     }
 
     function addDefinition(container, label, value) {
@@ -100,7 +153,12 @@
         addDefinition(control.contexto, "Grupo actual", preview.contexto.grupoActual);
     }
     function clearDestinations(control) { empty(control.tableBody); empty(control.cards); }
-
+    function renderPager(control, preview) {
+        if (!control.previous || !control.next || !control.page) { return; }
+        control.previous.disabled = preview.pagina <= 1;
+        control.next.disabled = !preview.tieneMas;
+        control.page.textContent = "Página " + preview.pagina + ".";
+    }
     function selectedDetail(preview, destination) {
         return {
             idTarea: preview.idTarea,
@@ -116,19 +174,29 @@
             }
         };
     }
+    function dispatchCustomEvent(name, detail) {
+        var event;
+        if (typeof window.CustomEvent === "function") {
+            event = new window.CustomEvent(name, { detail: detail });
+        } else {
+            event = document.createEvent("CustomEvent");
+            event.initCustomEvent(name, false, false, detail);
+        }
+        window.dispatchEvent(event);
+    }
+    function invalidateSelection(control) {
+        if (!control || !control.preview) { return; }
+        dispatchCustomEvent("workflow:group-destination-invalidated", {
+            idTarea: control.preview.idTarea,
+            tokenVersion: control.preview.tokenVersion
+        });
+    }
     function dispatchSelection(control, destination) {
         var detail = selectedDetail(control.preview, destination);
-        var event;
         if (typeof api.onDestinationSelected === "function") {
             try { api.onDestinationSelected(detail); } catch (ignored) {}
         }
-        if (typeof window.CustomEvent === "function") {
-            event = new window.CustomEvent("workflow:group-destination-selected", { detail: detail });
-        } else {
-            event = document.createEvent("CustomEvent");
-            event.initCustomEvent("workflow:group-destination-selected", false, false, detail);
-        }
-        window.dispatchEvent(event);
+        dispatchCustomEvent("workflow:group-destination-selected", detail);
         setStatus(control, "destino-seleccionado", "Actividad seleccionada: " + destination.nombreActividad + ".", "exito");
     }
     function selectButton(control, destination) {
@@ -167,17 +235,21 @@
             control.tableBody.appendChild(destinationRow(control, preview.destinos[index]));
             control.cards.appendChild(destinationCard(control, preview.destinos[index]));
         }
-        setStatus(control, "lista-disponible", "Seleccione una actividad para continuar.", "informacion");
+        renderPager(control, preview);
+        setStatus(control, "lista-disponible", "Resultados disponibles. Página " + preview.pagina + ".", "informacion");
     }
     function renderEmpty(control, preview) {
         clearDestinations(control);
         renderContext(control, preview);
-        setStatus(control, "sin-destinos", "No hay actividades disponibles para esta tarea.", "informacion");
+        renderPager(control, preview);
+        setStatus(control, "sin-destinos", "No hay actividades que coincidan con la búsqueda.", "informacion");
     }
     function renderError(control, preview, retry, message) {
         var retryButton;
         clearDestinations(control);
         if (preview) { renderContext(control, preview); } else { empty(control.contexto); }
+        if (control.previous) { control.previous.disabled = true; }
+        if (control.next) { control.next.disabled = true; }
         setStatus(control, "error-controlado", asText(message, preview && preview.error ? preview.error.mensajeVisible : "No fue posible cargar las actividades. Intente nuevamente."), "error");
         retryButton = createElement("button", "workflow-transition-modal__retry", "Reintentar");
         retryButton.type = "button";
@@ -190,7 +262,10 @@
         control.modal.removeAttribute("hidden");
         control.modal.setAttribute("aria-hidden", "false");
         document.body.classList.add("workflow-transition-modal-open");
-        window.setTimeout(function () { control.close.focus(); }, 0);
+        window.setTimeout(function () {
+            if (control.search && typeof control.search.focus === "function") { control.search.focus(); }
+            else { control.close.focus(); }
+        }, 0);
     }
     function closeModal(control) {
         control.modal.hidden = true;
@@ -226,15 +301,69 @@
         }
         return 0;
     }
+    function nextRequestSequence() {
+        requestSequence += 1;
+        if (activeAbortController && typeof activeAbortController.abort === "function") { activeAbortController.abort(); }
+        activeAbortController = window.AbortController ? new window.AbortController() : null;
+        return requestSequence;
+    }
+    function loadSearch(control, term, page) {
+        var idTarea = currentTaskId(control);
+        var sequence;
+        var signal;
+        if (!idTarea) { renderError(control, control.preview, function () { loadDestinations(control); }, "Seleccione una tarea activa antes de continuar."); return; }
+        invalidateSelection(control);
+        sequence = nextRequestSequence();
+        signal = activeAbortController ? activeAbortController.signal : undefined;
+        clearDestinations(control);
+        setStatus(control, "cargando", "Buscando actividades disponibles…", "informacion");
+        requestSearch(idTarea, term, page, defaultPageSize, null, signal).then(function (search) {
+            if (sequence !== requestSequence) { return; }
+            control.preview = {
+                idTarea: search.idTarea,
+                contexto: control.preview ? control.preview.contexto : { radicado: "No disponible", grupoActual: "No disponible" },
+                destinos: search.destinos,
+                tokenVersion: search.tokenVersion || (control.preview ? control.preview.tokenVersion : ""),
+                pagina: search.pagina,
+                tamanoPagina: search.tamanoPagina,
+                tieneMas: search.tieneMas,
+                error: search.error
+            };
+            if (search.error && search.error.codigo === "WORKFLOW_NO_DESTINATIONS") { renderEmpty(control, control.preview); }
+            else if (search.error) { renderError(control, control.preview, function () { loadSearch(control, term, page); }, search.error.mensajeVisible); }
+            else if (!search.destinos.length) { renderEmpty(control, control.preview); }
+            else { renderDestinations(control, control.preview); }
+        }).catch(function (error) {
+            if (sequence === requestSequence && !(error && error.name === "AbortError")) {
+                renderError(control, control.preview, function () { loadSearch(control, term, page); }, error && error.message);
+            }
+        });
+    }
+    function scheduleSearch(control) {
+        var term = asText(control.search.value);
+        if (control.searchTimer) { window.clearTimeout(control.searchTimer); }
+        invalidateSelection(control);
+        if (term && term.length < minimumSearchLength) {
+            clearDestinations(control);
+            if (control.preview) { renderContext(control, control.preview); }
+            setStatus(control, "termino-corto", "Escriba al menos dos caracteres para buscar.", "informacion");
+            return;
+        }
+        if (!term) {
+            loadSearch(control, "", 1);
+            return;
+        }
+        control.searchTimer = window.setTimeout(function () { loadSearch(control, term, 1); }, searchDelayMilliseconds);
+    }
     function loadDestinations(control) {
         var idTarea = currentTaskId(control);
         var sequence;
         if (!idTarea) { renderError(control, null, function () { loadDestinations(control); }, "Seleccione una tarea activa antes de continuar."); return; }
-        sequence = requestSequence + 1;
-        requestSequence = sequence;
+        sequence = nextRequestSequence();
         control.preview = null;
         clearDestinations(control);
         empty(control.contexto);
+        if (control.search) { control.search.value = ""; }
         setStatus(control, "cargando", "Cargando actividades disponibles…", "informacion");
         requestPreview(idTarea).then(function (preview) {
             if (sequence !== requestSequence) { return; }
@@ -255,7 +384,7 @@
     }
     function applySuccess(detail) {
         if (!activeControl || !activeControl.preview || !detail || activeControl.preview.idTarea !== detail.idTarea || activeControl.preview.tokenVersion !== detail.tokenVersion) { return false; }
-        requestSequence += 1;
+        nextRequestSequence();
         activeControl.preview = null;
         clearDestinations(activeControl);
         empty(activeControl.contexto);
@@ -273,15 +402,27 @@
             close: document.getElementById("workflow-group-send-modern-close"),
             status: document.getElementById("workflow-group-send-modern-status"),
             contexto: document.getElementById("workflow-group-send-modern-context"),
+            search: document.getElementById("workflow-group-send-modern-search"),
+            previous: document.getElementById("workflow-group-send-modern-previous"),
+            next: document.getElementById("workflow-group-send-modern-next"),
+            page: document.getElementById("workflow-group-send-modern-page"),
             tableBody: document.getElementById("workflow-group-send-modern-table-body"),
             cards: document.getElementById("workflow-group-send-modern-cards"),
-            preview: null
+            preview: null,
+            searchTimer: null
         };
-        if (!control.modal || !control.dialog || !control.close || !control.status || !control.contexto || !control.tableBody || !control.cards) { return; }
+        if (!control.modal || !control.dialog || !control.close || !control.status || !control.contexto || !control.search || !control.previous || !control.next || !control.page || !control.tableBody || !control.cards) { return; }
         activeControl = control;
         trigger.setAttribute("data-workflow-group-modern-bound", "true");
         trigger.onclick = function (event) { return intercept(control, event || window.event); };
         control.close.addEventListener("click", function () { closeModal(control); });
+        control.search.addEventListener("input", function () { scheduleSearch(control); });
+        control.previous.addEventListener("click", function () {
+            if (control.preview && control.preview.pagina > 1) { loadSearch(control, asText(control.search.value), control.preview.pagina - 1); }
+        });
+        control.next.addEventListener("click", function () {
+            if (control.preview && control.preview.tieneMas) { loadSearch(control, asText(control.search.value), control.preview.pagina + 1); }
+        });
         control.modal.addEventListener("click", function (event) {
             if (event.target && event.target.getAttribute("data-workflow-group-send-close") === "true") { closeModal(control); }
         });
@@ -289,8 +430,11 @@
     }
 
     api.normalizarPrevisualizacion = normalizePreview;
-    api.desempaquetarRespuestaAsmx = unwrapAsmx;
+    api.normalizarBusqueda = normalizeSearch;
+    api.desempaquetarRespuestaAsmx = unwrapPreviewAsmx;
+    api.desempaquetarBusquedaAsmx = unwrapSearchAsmx;
     api.solicitarPrevisualizacion = requestPreview;
+    api.solicitarBusqueda = requestSearch;
     api.crearDetalleSeleccion = selectedDetail;
     api.aplicarEnvioExitoso = applySuccess;
     api.inicializar = initialize;
