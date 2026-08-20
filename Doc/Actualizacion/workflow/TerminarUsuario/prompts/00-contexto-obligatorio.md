@@ -2,6 +2,24 @@
 
 Adjuntar este prompt al inicio de cada etapa de implementación de esta carpeta.
 
+## USO DE ESTE ARCHIVO
+
+Este archivo **solo establece contexto, límites y criterios comunes**. Por sí solo no autoriza ni ordena implementar código, crear o modificar un cambio OpenSpec, ejecutar pruebas, generar paquetes documentales ni avanzar a una etapa posterior.
+
+- Si se entrega únicamente `00-contexto-obligatorio.md`, leerlo y responder que se requiere el prompt numerado de la etapa a ejecutar.
+- Ejecutar una etapa únicamente cuando la solicitud incluya de forma expresa uno de los prompts `01` a `06`; aplicar solo esa etapa.
+- No inferir una etapa a partir del objetivo global ni interpretar “implementar todo” como permiso para recorrer automáticamente los prompts. La secuencia debe ser solicitada o confirmada etapa por etapa.
+- Una instrucción del usuario que contradiga esta regla —por ejemplo, “no implementar código”— prevalece y detiene cualquier cambio de producto, aunque se hubiera indicado una etapa previamente.
+
+## CONTROL POR JIRA
+
+Jira es la única fuente de estado, dependencias, aprobaciones y cierre de esta modernización. Cada ticket fijo debe enlazar exactamente uno de los prompts de esta carpeta.
+
+- Antes de actuar, comprobar que el ticket Jira actual referencia el archivo de etapa correcto y que sus predecesores están aprobados o cerrados.
+- Ejecutar solo el prompt asociado al ticket actual. No crear tareas, propuestas ni artefactos OpenSpec paralelos y no avanzar al ticket sucesor.
+- El resultado de la etapa debe indicar ticket actual, evidencia producida, archivos modificados, verificaciones y bloqueos para que Jira pueda desbloquear la siguiente etapa.
+- Si el ticket no identifica con claridad el prompt, sus predecesores o la autorización aplicable, detenerse y solicitar la corrección del ticket; no inferirlos del objetivo global.
+
 ## ROL ESPERADO
 
 Actúa como arquitecto y desarrollador senior de .NET Framework, VB.NET, ASP.NET Web Forms, MySQL y JavaScript legado. Trabaja incrementalmente, conserva compatibilidad y no amplíes el alcance sin documentar la decisión y obtener la aprobación necesaria.
@@ -47,18 +65,16 @@ La operación moderna recibe y ejecuta con `IdTarea`, `IdUsuarioWorkflowDestino`
 - Continuar flujo conserva endpoints, payload `IdConector`, validaciones y pruebas actuales sin regresión.
 - Los errores públicos no exponen SQL, Session, credenciales ni excepciones internas.
 
-## PRUEBAS OBLIGATORIAS
+## PRUEBAS Y COMPILACIÓN
 
-- Agregar o actualizar pruebas automatizadas de contratos y JavaScript del área afectada.
-- Ejecutar pruebas unitarias/CJS afectadas y reportar comando, resultado y archivos cubiertos.
-- Ejecutar la compilación MSBuild del proyecto afectado cuando esté disponible; si no puede compilarse localmente, documentar causa y verificación manual reproducible.
-- Cubrir, cuando corresponda: permiso denegado, tarea no disponible, ruta/flujo cerrado, usuario inactivo o fuera de ruta, `UTIL_ASIGNA_TAREA=0`, respuesta pendiente, token vencido, concurrencia, fallback y no regresión de Continuar flujo.
-- No sustituir estas evidencias por E2E autenticado o carga no autorizados.
+- Las etapas de implementación ejecutan únicamente pruebas focales del área cambiada y la compilación disponible.
+- La verificación transversal, QA manual y consolidación de evidencia pertenecen exclusivamente a la etapa 05.
+- Registrar comando, resultado, cobertura y limitaciones reproducibles; no sustituir evidencias por E2E autenticado o carga no autorizados.
 
 ## DOCUMENTACIÓN TÉCNICA
 
-- Actualizar exploración u OpenSpec aplicable cuando cambie una decisión, contrato o requisito.
-- Cada etapa crea o actualiza exclusivamente su paquete bajo `Doc/Actualizacion/workflow/TerminarUsuario/<NN>-<slug>/` con `00-indice.md`, `01-arquitectura.md`, `02-contrato.md`, `03-flujo-y-seguridad.md`, `04-pruebas-y-evidencia.md` y `Diagramas/` cuando corresponda.
+- Actualizar la exploración cuando cambie una decisión, contrato o requisito; no crear OpenSpec para este flujo gestionado en Jira.
+- Todas las etapas actualizan exclusivamente el paquete documental único `Doc/Actualizacion/workflow/TerminarUsuario/01-implementacion-envio-usuario/`, con `00-indice.md`, `01-arquitectura.md`, `02-contrato.md`, `03-flujo-y-seguridad.md`, `04-pruebas-y-evidencia.md` y `Diagramas/` cuando corresponda.
 - Documentar endpoints, payloads, códigos de bloqueo, mecanismo de auditoría, gate y rollback cuando se introduzcan.
 - Registrar archivos modificados, supuestos y riesgos residuales en el resultado de cada etapa.
 
@@ -73,4 +89,3 @@ Entregar una respuesta breve y verificable con:
 5. Riesgos, limitaciones o decisiones pendientes.
 
 No continuar a una etapa posterior si la actual no cumple los criterios o requiere una decisión funcional.
-
