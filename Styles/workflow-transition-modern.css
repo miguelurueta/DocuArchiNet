@@ -58,7 +58,8 @@
 
 .workflow-transition-modal__close,
 .workflow-transition-modal__select,
-.workflow-transition-modal__retry {
+.workflow-transition-modal__retry,
+.workflow-transition-modal__page-button {
     border: 1px solid transparent;
     border-radius: 0.25rem;
     cursor: pointer;
@@ -164,6 +165,59 @@
     padding: 0.25rem 0.75rem;
 }
 
+.workflow-transition-modal__search {
+    display: grid;
+    gap: 0.375rem;
+    margin: 0 0 1rem;
+}
+
+.workflow-transition-modal__search label {
+    color: #172d58;
+    font-weight: 700;
+}
+
+.workflow-transition-modal__search input {
+    border: 1px solid #77869a;
+    border-radius: 0.25rem;
+    font: inherit;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    width: 100%;
+}
+
+.workflow-transition-modal__search-help {
+    color: #425466;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.workflow-transition-modal__pager {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin: 0 0 1rem;
+}
+
+.workflow-transition-modal__page-button {
+    background: #ffffff;
+    border-color: #1555a1;
+    color: #1555a1;
+    padding: 0.5rem 0.875rem;
+}
+
+.workflow-transition-modal__page-button:disabled {
+    border-color: #77869a;
+    color: #77869a;
+    cursor: not-allowed;
+}
+
+.workflow-transition-modal__page {
+    color: #425466;
+    min-width: 5.5rem;
+    text-align: center;
+}
+
 .workflow-transition-modal__mobile {
     display: none;
 }
@@ -191,7 +245,9 @@
 
 .workflow-transition-modal__close:focus,
 .workflow-transition-modal__select:focus,
-.workflow-transition-modal__retry:focus {
+.workflow-transition-modal__retry:focus,
+.workflow-transition-modal__page-button:focus,
+.workflow-transition-modal__search input:focus {
     outline: 3px solid #f5b700;
     outline-offset: 2px;
 }
@@ -224,6 +280,21 @@ body.workflow-transition-modal-open {
     }
 
     .workflow-transition-modal__select {
+        width: 100%;
+    }
+
+    .workflow-transition-modal__pager {
+        align-items: stretch;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .workflow-transition-modal__page {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+
+    .workflow-transition-modal__page-button {
         width: 100%;
     }
 }

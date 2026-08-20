@@ -45,3 +45,16 @@ La matriz debe sustituirse con los ambientes, versión, responsables, ventana, a
 - La activación queda bloqueada hasta contar con autorización explícita por ambiente, ventana, responsables, versión, alcance y plan de rollback.
 - No se efectuaron E2E autenticadas ni carga; requerirán la autorización, cuentas y tareas descartables previstas por el runbook del repositorio.
 - El alcance global no se debe inferir de listas vacías: debe verificarse contra la semántica aprobada de la configuración existente.
+
+## DOC-26 — Evidencia local de búsqueda responsive
+
+Ejecutado el 2026-08-20 desde la raíz:
+
+```powershell
+node --test tests\workflow-group-send.test.cjs
+msbuild .\GestionDocumental-Docuarchi.net.vbproj /t:Build /p:Configuration=Debug /verbosity:minimal
+```
+
+Resultados: la suite CJS finalizó con código 0 y 12 pruebas exitosas; MSBuild finalizó con código 0. La compilación conserva advertencias heredadas de conflictos de ensamblados y variables legacy, sin errores del cambio.
+
+Las pruebas incluyen contrato de búsqueda paginada, límites, parámetros, agrupación por actividad, consulta sin escrituras, descarte de respuesta obsoleta, invalidación de confirmación, etiqueta e instrucciones accesibles y la representación común de tabla de escritorio y tarjetas móviles mediante el breakpoint de 767 px. No se ejecutaron E2E autenticados, carga ni activación del gate.

@@ -77,10 +77,8 @@
      <script src="../js/java_general/JS_firma_digital.js" type="text/javascript"></script>
      <script src="../js/java_general/general_control_java.js" type="text/javascript"></script>
      <script src="../js/java_general/ubicacion_code_java.js" type="text/javascript"></script>  
-     <% If WorkflowCentroTrabajoModernActive Then %>
-      <link href="../Styles/workflow-centro-trabajo-moderno.css?v=20260813-mobileframe46" rel="stylesheet" type="text/css" />
-      <script src="../js/workflow/centro-trabajo-visual.js?v=20260819-doc15grouporder1" type="text/javascript"></script>
-     <% End If %>
+      <link href="../Styles/workflow-centro-trabajo-moderno.css?v=20260820-modern-actions3" rel="stylesheet" type="text/css" />
+      <script src="../js/workflow/centro-trabajo-visual.js?v=20260820-modern-actions3" type="text/javascript"></script>
  <body  style="margin: 0;
     background-color : #ffffff" >
       <form id="form1" style="height:100%" runat="server">
@@ -565,10 +563,10 @@
                                       </a>
                                       <div class="dropdown-menu" role="group" aria-label="Opciones de la tarea">
                                           <a  href="#" class="dropdown-item font-weight-light" onclick="prevent_tool_menucab(event,this,'T-RTW')"><i style="color: #6d7fcc" class="fad fa-search-plus"></i> <span class="font-weight-light"> Recuperar tarea </span></a>
-                                          <% If WorkflowCentroTrabajoModernActive Then %>
+                                          <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                           <a href="#" class="dropdown-item font-weight-light" id="bnt_eval_event_default" onclick="event_element_clic(event,this)"><i style="color: #6d7fcc" class="fad fa-sync-alt"></i><span class="font-weight-light"> Servicio default</span></a>
                                           <% End If %>
-                                          <% If Not WorkflowCentroTrabajoModernActive Then %>
+                                          <% If Not WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                           <a  href="#" class="dropdown-item font-weight-light" onclick="prevent_tool_menucab(event,this,'S-DDS')"><i style="color: #6d7fcc" class="fad fa-bars"></i><span class="font-weight-light"> Detalle de la sesión  </span></a>
                                           <a  href="#" class="dropdown-item font-weight-light" onclick="prevent_tool_menucab(event,this,'S-GAU')"><i style="color: #6d7fcc" class="fad fa-user-friends"></i><span class="font-weight-light"> Grupo relacionado </span></a>
                                           <a  href="#" class="dropdown-item font-weight-light" onclick="activa_boton_client_server('Button_activa_estado_paginacion');"><i style="color: #6d7fcc" class="fad fa-browser"></i><span class="font-weight-light"> Estado de paginación </span></a>
@@ -580,35 +578,35 @@
                                           <a class="nav-link  dropdown-toggle " style="color: #6d7fcc" href="#" id="A8" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i style="color: #0062cc" class="fad fa-tasks"></i> Detalle
                                           </a>
                                           <div class="dropdown-menu ctw-detail-menu" role="group" aria-label="Consultas de la tarea">
-                                              <% If WorkflowCentroTrabajoModernActive Then %>
+                                              <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                               <div class="ctw-detail-menu__section" role="group" aria-label="Información">
                                                   <span class="ctw-detail-menu__section-label">Información</span>
                                               <% End If %>
-                                              <a href="#" class="dropdown-item font-weight-light ctw-detail-menu__item" onclick="prevent_tool_menucab(event,this,'S-DTS')"><i style="color: #6d7fcc" class="fad <% If WorkflowCentroTrabajoModernActive Then %>fa-info-circle<% Else %>fa-bars<% End If %>"></i><span class="font-weight-light"> Información de la tarea </span></a>
-                                              <a href="#" class="dropdown-item font-weight-light ctw-detail-menu__item" onclick="prevent_tool_menucab(event,this,'G-DRR')"><i style="color: #6d7fcc" class="fad <% If WorkflowCentroTrabajoModernActive Then %>fa-file-alt<% Else %>fa-bars<% End If %>"></i><span class="font-weight-light"> Detalle del trámite  </span></a>
+                                              <a href="#" class="dropdown-item font-weight-light ctw-detail-menu__item" onclick="prevent_tool_menucab(event,this,'S-DTS')"><i style="color: #6d7fcc" class="fad <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>fa-info-circle<% Else %>fa-bars<% End If %>"></i><span class="font-weight-light"> Información de la tarea </span></a>
+                                              <a href="#" class="dropdown-item font-weight-light ctw-detail-menu__item" onclick="prevent_tool_menucab(event,this,'G-DRR')"><i style="color: #6d7fcc" class="fad <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>fa-file-alt<% Else %>fa-bars<% End If %>"></i><span class="font-weight-light"> Detalle del trámite  </span></a>
                                               <a href="#" class="dropdown-item font-weight-light ctw-detail-menu__item" onclick="prevent_tool_menucab(event,this,'G-TDR') "><i style="color: #6d7fcc" class="fad fa-list-ol"></i><span class="font-weight-light"> Transacciones del trámite </span></a>
-                                              <% If WorkflowCentroTrabajoModernActive Then %>
+                                              <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                               </div>
                                               <div class="ctw-detail-menu__section" role="group" aria-label="Trazabilidad">
                                                   <span class="ctw-detail-menu__section-label">Trazabilidad</span>
                                               <% End If %>
-                                              <a href="#" class="dropdown-item font-weight-light ctw-detail-menu__item" onclick="prevent_tool_menucab(event,this,'G-TDW')"><i style="color: #6d7fcc" class="fad <% If WorkflowCentroTrabajoModernActive Then %>fa-history<% Else %>fa-table<% End If %>"></i><span class="font-weight-light"> Trazabilidad de la tarea </span></a>
+                                              <a href="#" class="dropdown-item font-weight-light ctw-detail-menu__item" onclick="prevent_tool_menucab(event,this,'G-TDW')"><i style="color: #6d7fcc" class="fad <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>fa-history<% Else %>fa-table<% End If %>"></i><span class="font-weight-light"> Trazabilidad de la tarea </span></a>
                                               <a href="#" class="dropdown-item font-weight-light ctw-detail-menu__item" onclick="prevent_tool_menucab(event,this,'G-TDWG')"><i style="color: #6d7fcc" class="fad fa-project-diagram"></i><span class="font-weight-light"> Trazabilidad grafica de la tarea </span></a>
-                                              <% If WorkflowCentroTrabajoModernActive Then %>
+                                              <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                               </div>
                                               <div class="ctw-detail-menu__section" role="group" aria-label="Documentos">
                                                   <span class="ctw-detail-menu__section-label">Documentos</span>
                                               <% End If %>
-                                              <a href="#" class="dropdown-item font-weight-light ctw-detail-menu__item" id ="a_list_operation_document" ><i style="color: #6d7fcc" class="fad <% If WorkflowCentroTrabajoModernActive Then %>fa-cogs<% Else %>fa-info-square<% End If %>"></i><span class="font-weight-light">  Detalle de operaciones con documentos </span></a>
-                                              <a href="#" class="dropdown-item font-weight-light ctw-detail-menu__item" id ="a_list_copy_document_expedient"><i style="color: #6d7fcc"  class="fad <% If WorkflowCentroTrabajoModernActive Then %>fa-copy<% Else %>fa-table<% End If %>"></i><span class="font-weight-light">  Detalle documentos copiados a expediente </span></a>
-                                              <% If WorkflowCentroTrabajoModernActive Then %>
+                                              <a href="#" class="dropdown-item font-weight-light ctw-detail-menu__item" id ="a_list_operation_document" ><i style="color: #6d7fcc" class="fad <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>fa-cogs<% Else %>fa-info-square<% End If %>"></i><span class="font-weight-light">  Detalle de operaciones con documentos </span></a>
+                                              <a href="#" class="dropdown-item font-weight-light ctw-detail-menu__item" id ="a_list_copy_document_expedient"><i style="color: #6d7fcc"  class="fad <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>fa-copy<% Else %>fa-table<% End If %>"></i><span class="font-weight-light">  Detalle documentos copiados a expediente </span></a>
+                                              <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                               </div>
                                               <% End If %>
                                           </div>
                                       </li>
                                   </asp:Panel>
                                   <asp:Panel ID="Panel_tramitar_tarea" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
-                                      <% If Not WorkflowCentroTrabajoModernActive Then %>
+                                      <% If Not WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                        <li class="nav-item dropdown active ml-2 mr-0 ">
                                           <a class="nav-link  dropdown-toggle " style="color: #6d7fcc" href="#" id="A7" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i style="color: #0062cc" class="fad fa-list"></i> Servicios
                                           </a>
@@ -620,7 +618,7 @@
                                       <% End If %>
                                   </asp:Panel>
                                   <asp:Panel ID="Panel_documentos_tarea" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
-                                      <% If Not WorkflowCentroTrabajoModernActive Then %>
+                                      <% If Not WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                       <li class="nav-item dropdown active ml-2 mr-0 ">
                                           <a class="nav-link  dropdown-toggle " style="color: #6d7fcc" href="#" id="A6" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i style="color: #0062cc" class="fad fa-folder-open"></i> Documentos
                                           </a>
@@ -687,18 +685,14 @@
                                   <asp:Panel ID="Panel_EnviaActividad" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <ul class="navbar-nav">
                                           <li class="nav-item active ml-2">
-                                              <% If WorkflowCentroTrabajoModernActive Then %>
-                                              <a id="workflow-group-send-trigger" class="nav-link font-weight-light" style="color: #6d7fcc" title="Envía la tarea a grupo de usuarios" aria-label="Enviar tarea a grupo" href="#"><i style="margin-left: 1px; margin-top: 7px; color: #0062cc" class="fad fa-user-friends"></i> Enviar a grupo</a>
-                                              <% Else %>
-                                              <a class="nav-link font-weight-light" style="color: #6d7fcc" title="Envía la tarea a grupo de usuarios" href="#" onclick="activa_boton_client_server('ImageButtonEnviaActividad');"><i style="margin-left: 1px; margin-top: 7px; color: #0062cc" class="fad fa-user-friends"></i> Enviar a grupo  </a>
-                                              <% End If %>
+                                              <button id="workflow-group-send-trigger" type="button" class="nav-link font-weight-light ctw-btn" style="color: #6d7fcc" title="Envía la tarea a grupo de usuarios" aria-label="Enviar tarea a grupo"<%= WorkflowCentroTrabajoModernOperationDisabledAttribute %>><i style="margin-left: 1px; margin-top: 7px; color: #0062cc" class="fad fa-user-friends"></i> Enviar a grupo</button>
                                           </li>
                                       </ul>
                                   </asp:Panel>
                                   <asp:Panel ID="Panel_enviar_flujo" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <ul class="navbar-nav">
                                           <li class="nav-item active ml-2 ">
-                                              <a id="workflow-transition-trigger" class="nav-link font-weight-light ctw-btn" style="color: #6d7fcc" title="Continuar la tarea por ruta o flujo de trabajo" href="#" onclick="actualiza_titulo_lista_actividades_workflow('Enviar tarea'); activa_boton_client_server('ImageButtonterminar');" tabindex="0"><i class="fad fa-arrow-alt-right"></i><span>Continuar flujo</span></a>
+                                              <button id="workflow-transition-trigger" type="button" class="nav-link font-weight-light ctw-btn" style="color: #6d7fcc" title="Continuar la tarea por ruta o flujo de trabajo" aria-label="Continuar flujo"<%= WorkflowCentroTrabajoModernOperationDisabledAttribute %>><i class="fad fa-arrow-alt-right"></i><span>Continuar flujo</span></button>
                                           </li>
                                       </ul>
                                   </asp:Panel>
@@ -723,10 +717,10 @@
                                   <asp:Panel ID="Panel_autoriza" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <li class="nav-item dropdown active ml-2 mr-0 ctw-authorize-menu">
                                           <div class="ctw-authorize-control" role="group" aria-label="Autorización de la tarea">
-                                              <span class="ctw-authorize-check"><asp:CheckBox ID="CheckBox_auturiza" runat="server" aria-label="<% If WorkflowCentroTrabajoModernActive Then %>Cambiar estado de autorización de la tarea<% Else %>Marcar tarea como autorizada<% End If %>" onclick="prevent_autoriza_tarea(event, this);" /></span>
-                                              <% If WorkflowCentroTrabajoModernActive Then %><span class="ctw-authorize-state-label">Autorizada</span><% End If %>
-                                              <a class="nav-link dropdown-toggle" style="color: #6d7fcc" id="A11" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-controls="ctw-authorize-options" href="#"><% If WorkflowCentroTrabajoModernActive Then %>Historial<% Else %>Autorizar<% End If %></a>
-                                              <div id="ctw-authorize-options" class="dropdown-menu" role="group" aria-label="<% If WorkflowCentroTrabajoModernActive Then %>Historial de autorizaciones<% Else %>Opciones de autorización<% End If %>">
+                                              <span class="ctw-authorize-check"><asp:CheckBox ID="CheckBox_auturiza" runat="server" aria-label="<% If WorkflowCentroTrabajoModernPresentationEnabled Then %>Cambiar estado de autorización de la tarea<% Else %>Marcar tarea como autorizada<% End If %>" onclick="prevent_autoriza_tarea(event, this);" /></span>
+                                              <% If WorkflowCentroTrabajoModernPresentationEnabled Then %><span class="ctw-authorize-state-label">Autorizada</span><% End If %>
+                                              <a class="nav-link dropdown-toggle" style="color: #6d7fcc" id="A11" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-controls="ctw-authorize-options" href="#"><% If WorkflowCentroTrabajoModernPresentationEnabled Then %>Historial<% Else %>Autorizar<% End If %></a>
+                                              <div id="ctw-authorize-options" class="dropdown-menu" role="group" aria-label="<% If WorkflowCentroTrabajoModernPresentationEnabled Then %>Historial de autorizaciones<% Else %>Opciones de autorización<% End If %>">
                                                   <a href="#" class="dropdown-item" onclick="activa_boton_client_server('ImageButton_ista_autorizacio');"><i style="color: #0062cc" class="fad fa-list-ul"></i><span>Lista de autorizaciones</span></a>
                                               </div>
                                           </div>
@@ -898,20 +892,20 @@
                               </asp:UpdatePanel>
                           </div>
                           <div class="col-4 pr-1 pl-0">
-                              <a class="nav-link pr-2 pl-2" style="color: #6d7fcc;  float: right" title="Actualiza indice batch" href="#" onclick="inicializa_tipo_adjunto_documento(event,this,'C-DW-ACTU-INDICE')"><i style="" class="fal fa-info "></i><% If WorkflowCentroTrabajoModernActive Then %><span class="ctw-document-action-label">Actualizar índice</span><% End If %></a>
-                              <a class="nav-link pr-2 pl-2" id="btnLoadFile" style="color: #6d7fcc;  float: right" title="Adjuntar documento" href="#" ><i style="" class="fal fa-upload "></i><% If WorkflowCentroTrabajoModernActive Then %><span class="ctw-document-action-label">Cargar</span><% End If %></a>
-                              <a class="nav-link pr-2 pl-2" id="btnloadservice" style="color: #6d7fcc;  float: right" title="Adjuntar documentos desde servicio web" href="#" ><i style="" class="fal fa-page-break "></i><% If WorkflowCentroTrabajoModernActive Then %><span class="ctw-document-action-label">Servicio</span><% End If %></a>
+                              <a class="nav-link pr-2 pl-2" style="color: #6d7fcc;  float: right" title="Actualiza indice batch" href="#" onclick="inicializa_tipo_adjunto_documento(event,this,'C-DW-ACTU-INDICE')"><i style="" class="fal fa-info "></i><% If WorkflowCentroTrabajoModernPresentationEnabled Then %><span class="ctw-document-action-label">Actualizar índice</span><% End If %></a>
+                              <a class="nav-link pr-2 pl-2" id="btnLoadFile" style="color: #6d7fcc;  float: right" title="Adjuntar documento" href="#" ><i style="" class="fal fa-upload "></i><% If WorkflowCentroTrabajoModernPresentationEnabled Then %><span class="ctw-document-action-label">Cargar</span><% End If %></a>
+                              <a class="nav-link pr-2 pl-2" id="btnloadservice" style="color: #6d7fcc;  float: right" title="Adjuntar documentos desde servicio web" href="#" ><i style="" class="fal fa-page-break "></i><% If WorkflowCentroTrabajoModernPresentationEnabled Then %><span class="ctw-document-action-label">Servicio</span><% End If %></a>
                           </div> 
                           <div class="col-1 pr-0 d-flex justify-content-end">
                               <div class="dropright">
-                                  <button type="button" class="mt-1 btn btn-light dropdown-toggle ctw-document-more-toggle" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-controls="ctw-document-actions-menu" aria-label="<% If WorkflowCentroTrabajoModernActive Then %>Acciones de documentos<% Else %>Acciones para documentos seleccionados<% End If %>" title="<% If WorkflowCentroTrabajoModernActive Then %>Acciones de documentos<% Else %>Acciones para documentos seleccionados<% End If %>">
-                                      <% If WorkflowCentroTrabajoModernActive Then %>
+                                  <button type="button" class="mt-1 btn btn-light dropdown-toggle ctw-document-more-toggle" data-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-controls="ctw-document-actions-menu" aria-label="<% If WorkflowCentroTrabajoModernPresentationEnabled Then %>Acciones de documentos<% Else %>Acciones para documentos seleccionados<% End If %>" title="<% If WorkflowCentroTrabajoModernPresentationEnabled Then %>Acciones de documentos<% Else %>Acciones para documentos seleccionados<% End If %>">
+                                              <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                       <span class="ctw-document-more-actions-label">Acciones</span>
                                       <% End If %>
-                                      <span class="sr-only"><% If WorkflowCentroTrabajoModernActive Then %>Acciones de documentos<% Else %>Acciones para documentos seleccionados<% End If %></span>
+                                      <span class="sr-only"><% If WorkflowCentroTrabajoModernPresentationEnabled Then %>Acciones de documentos<% Else %>Acciones para documentos seleccionados<% End If %></span>
                                   </button>
-                                  <div id="ctw-document-actions-menu" class="dropdown-menu" role="group" aria-label="<% If WorkflowCentroTrabajoModernActive Then %>Acciones de documentos<% Else %>Acciones para documentos seleccionados<% End If %>">
-                                      <% If WorkflowCentroTrabajoModernActive Then %>
+                                  <div id="ctw-document-actions-menu" class="dropdown-menu" role="group" aria-label="<% If WorkflowCentroTrabajoModernPresentationEnabled Then %>Acciones de documentos<% Else %>Acciones para documentos seleccionados<% End If %>">
+                                      <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                       <span class="ctw-menu__section-label">Agregar documentos</span>
                                       <a id="ctw-document-action-attach-list" class="dropdown-item font-weight-light" href="#" title="Adjuntar documento a la lista" onclick="inicializa_tipo_adjunto_documento(event,this,'C-DW-ENL')"><i style="color: #6d7fcc" class="fad fa-upload"></i><span class="font-weight-light"> Adjuntar a la lista </span></a>
                                       <a id="ctw-document-action-service" class="dropdown-item font-weight-light" href="#" title="Adjuntar documento desde servicio web" onclick="inicializa_tipo_adjunto_documento(event,this,'C-DW-AUTO')"><i style="color: #6d7fcc" class="fad fa-page-break"></i><span class="font-weight-light"> Cargar desde servicio </span></a>
@@ -922,7 +916,7 @@
                                       <a class="dropdown-item font-weight-light"   href="#" onclick="inicializa_tipo_adjunto_documento(event,this,'C-DW-DEL-IMAGE')"><i style="color: #6d7fcc" class="fad fa-trash-alt"></i><span class="font-weight-light"> Eliminar documentos seleccionados </span> </a>
                                       <a class="dropdown-item font-weight-light" id="boton_menu_stamp_firm"  href="#"><i style="color: #6d7fcc" class="fad fa-file-signature"></i><span class="font-weight-light"> Firmar documentos seleccionados </span> </a>
                                       <div class="dropdown-divider"></div> 
-                                      <% If WorkflowCentroTrabajoModernActive Then %>
+                                      <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                       <span class="ctw-menu__section-label">Compartir</span>
                                       <a id="ctw-document-action-share-users" class="dropdown-item font-weight-light" href="#" onclick="prevent_tool_menucab(event,this,'D-CDW')"><i style="color: #6d7fcc" class="fad fa-share-square"></i><span class="font-weight-light"> Compartir con usuarios </span></a>
                                       <a id="ctw-document-action-share-email" class="dropdown-item font-weight-light" href="#" onclick="prevent_tool_menucab(event,this,'D-CEDTS')"><i style="color: #6d7fcc" class="fad fa-envelope"></i><span class="font-weight-light"> Compartir por correo </span></a>
@@ -1061,7 +1055,7 @@
                                                       <a id="A10" class="nav-link " style="color: #0062cc; font-family: Arial; text-decoration: none; font-weight: 600" title="Adjuntar documento desde servicio web" href="#" onclick="inicializa_tipo_adjunto_documento(event,this,'C-DW-AUTO')"><i style="color: #0062cc" class="fas fa-page-break"></i></a>
                                                   </div>
                                                   <div class="nav-item_ active active_">
-                                                    <% If WorkflowCentroTrabajoModernActive AndAlso WorkflowCentroTrabajoSelectedDocumentAvailable Then %>
+                                                    <% If WorkflowCentroTrabajoModernPresentationEnabled AndAlso WorkflowCentroTrabajoSelectedDocumentAvailable Then %>
                                                     <span class="ctw-viewer-document-context">
                                                         <strong class="ctw-viewer-document-context-title"><%= WorkflowCentroTrabajoSelectedDocumentTitle %></strong>
                                                         <span class="ctw-badge ctw-viewer-document-context-format"><%= WorkflowCentroTrabajoSelectedDocumentFormat %></span>
@@ -1253,7 +1247,7 @@
                           <asp:UpdatePanel ID="UpdatePanel_estado_tarea" runat="server" UpdateMode="Conditional"
                               RenderMode="Inline">
                               <ContentTemplate>
-                                  <% If WorkflowCentroTrabajoModernActive Then %>
+                                  <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                   <div id="ctw-task-context" class="ctw-task-context" aria-label="Contexto de la tarea seleccionada">
                                       <div class="ctw-task-context__headline">
                                           <asp:Label ID="Label_contexto_tramite" runat="server" Text="Trámite" CssClass="ctw-task-context__title"></asp:Label>
@@ -1264,12 +1258,12 @@
                                       <div class="col-8">
                                   <% End If %>
                                   <asp:Label ID="Label_estado_tarea_selecion" runat="server" Text="Estado" Style="color: #6d7fcc" CssClass="h6 font-weight-light ctw-task-context__meta"></asp:Label>
-                                  <% If Not WorkflowCentroTrabajoModernActive Then %>
+                                  <% If Not WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                       </div>
                                       <div class="col-4">
                                   <% End If %>
                                   <asp:Label ID="Label_estado_selecion" runat="server" Text="Estado ruta" Style="color: #6d7fcc; float: right" CssClass="font-weight-light h6 ctw-task-context__process"></asp:Label>
-                                  <% If WorkflowCentroTrabajoModernActive Then %>
+                                  <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>
                                   </div>
                                   <% Else %>
                                       </div>
@@ -4245,8 +4239,8 @@
             
         </div>
           <div >
-              <div id="progres_bar"<% If WorkflowCentroTrabajoModernActive Then %> class="ctw-loading-indicator" role="status" aria-live="polite"<% End If %> style="position:absolute; text-align: center; display: none; width: 200px">
-                <img id="imgr_modal" src="../workflow/loading.gif" style="vertical-align: middle" alt="<% If WorkflowCentroTrabajoModernActive Then %>Procesando<% End If %>" />
+              <div id="progres_bar"<% If WorkflowCentroTrabajoModernPresentationEnabled Then %> class="ctw-loading-indicator" role="status" aria-live="polite"<% End If %> style="position:absolute; text-align: center; display: none; width: 200px">
+                <img id="imgr_modal" src="../workflow/loading.gif" style="vertical-align: middle" alt="<% If WorkflowCentroTrabajoModernPresentationEnabled Then %>Procesando<% End If %>" />
             </div>
               <input id="Hidden_gredv_lista" type="hidden" value="YES" runat="server"/>
               <asp:Panel ID="Panelpagina" runat="server" Style="display:none; color: White; width: 80%; height: 100%;  margin-top:1px; margin:auto" CssClass="modal_content_general">
@@ -4680,6 +4674,16 @@
                 <div class="workflow-transition-modal__body">
                     <div id="workflow-group-send-modern-status" class="workflow-transition-modal__status" role="status" aria-live="polite"></div>
                     <dl id="workflow-group-send-modern-context" class="workflow-transition-modal__context" aria-label="Contexto de la tarea"></dl>
+                    <div class="workflow-transition-modal__search">
+                        <label for="workflow-group-send-modern-search">Buscar actividad o grupo</label>
+                        <input id="workflow-group-send-modern-search" type="search" maxlength="80" autocomplete="off" aria-describedby="workflow-group-send-modern-search-help" />
+                        <p id="workflow-group-send-modern-search-help" class="workflow-transition-modal__search-help">Escriba al menos dos caracteres. Al limpiar se restaura la primera página.</p>
+                    </div>
+                    <nav class="workflow-transition-modal__pager" aria-label="Paginación de actividades">
+                        <button id="workflow-group-send-modern-previous" class="workflow-transition-modal__page-button" type="button" disabled="disabled">Anterior</button>
+                        <span id="workflow-group-send-modern-page" class="workflow-transition-modal__page" aria-live="polite">Página 1.</span>
+                        <button id="workflow-group-send-modern-next" class="workflow-transition-modal__page-button" type="button" disabled="disabled">Siguiente</button>
+                    </nav>
                     <div id="workflow-group-send-modern-table" class="workflow-transition-modal__desktop">
                         <table class="workflow-transition-modal__table">
                             <thead><tr><th scope="col">Actividad destino</th><th scope="col">Grupo destino</th><th scope="col"><span class="sr-only">Acción</span></th></tr></thead>

@@ -857,7 +857,7 @@ Public Class Classselecciotarea
                 Exit Function
             End If
             Dim workflowPage As Webworkflow = TryCast(pag, Webworkflow)
-            Dim modernTaskContextEnabled As Boolean = workflowPage IsNot Nothing AndAlso workflowPage.WorkflowCentroTrabajoModernActive
+            Dim modernTaskContextEnabled As Boolean = workflowPage IsNot Nothing AndAlso workflowPage.WorkflowCentroTrabajoModernPresentationEnabled
             Dim Label_contexto_tramite As Label = Nothing
             Dim Label_contexto_estado As Label = Nothing
             If modernTaskContextEnabled Then
@@ -2234,7 +2234,7 @@ Public Class Classselecciotarea
             Dim ref_UpdatePanelseleccion As UpdatePanel = pag.FindControl("UpdatePanelseleccion")
             Dim ref_Hidden_numero_doc_rel_wf As Object = pag.FindControl("Hidden_numero_doc_rel_wf")
             Dim ref_Webworkflow As Webworkflow = TryCast(pag, Webworkflow)
-            Dim modernDocumentCountFormat As Boolean = ref_Webworkflow IsNot Nothing AndAlso ref_Webworkflow.WorkflowCentroTrabajoModernActive
+            Dim modernDocumentCountFormat As Boolean = ref_Webworkflow IsNot Nothing AndAlso ref_Webworkflow.WorkflowCentroTrabajoModernPresentationEnabled
             '-------------------------------------------------------------------------
             'Lista los documentos para la tarea asignada en workflow
             '-------------------------------------------------------------------------
@@ -2860,7 +2860,7 @@ Public Class Classselecciotarea
             Dim UpdatePanelnumeroespera As UpdatePanel = pag.FindControl("UpdatePanelnumeroespera")
             Dim LabelEspera As Label = pag.FindControl("LabelEspera")
             Dim ref_Webworkflow As Webworkflow = TryCast(pag, Webworkflow)
-            Dim modernDocumentCountFormat As Boolean = ref_Webworkflow IsNot Nothing AndAlso ref_Webworkflow.WorkflowCentroTrabajoModernActive
+            Dim modernDocumentCountFormat As Boolean = ref_Webworkflow IsNot Nothing AndAlso ref_Webworkflow.WorkflowCentroTrabajoModernPresentationEnabled
             '-------------------------------------------------------------------------
             'Lista los documentos para la tarea asignada en workflow CAMBIAR
             '-------------------------------------------------------------------------

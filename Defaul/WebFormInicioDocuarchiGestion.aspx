@@ -4,7 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <meta id="workflowCentroTrabajoModernShellViewport" runat="server" name="viewport" content="width=device-width, initial-scale=1" visible="false" />
+    <meta id="workflowCentroTrabajoModernShellViewport" runat="server" name="viewport" content="width=device-width, initial-scale=1" visible="true" />
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600,700,800" rel="stylesheet"/>
     <link href="../menu_scoope/assets/css/font-awesome.min.css" rel="stylesheet" />	

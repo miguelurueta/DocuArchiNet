@@ -107,17 +107,15 @@ test("solicita solo PreviewEnviarTarea con la tarea visual", async () => {
     assert.doesNotMatch(source, /EjecutarEnvioTarea/);
 });
 
-test("no reemplaza el enlace legacy cuando el bootstrap está inactivo", () => {
-    const legacyClick = () => "legacy";
+test("no enlaza el control moderno cuando el bootstrap está inactivo", () => {
     const trigger = {
-        onclick: legacyClick,
         getAttribute(name) {
             return name === "data-workflow-modern-active" ? "false" : "";
         }
     };
 
     loadUi(trigger);
-    assert.equal(trigger.onclick, legacyClick);
+    assert.equal(trigger.onclick, undefined);
 });
 
 test("registra recursos DOC-12 y DOC-14 sin bloques de servidor en la cabecera Web Forms", () => {

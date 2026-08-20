@@ -95,6 +95,13 @@ Public Class SolicitudEnvioGrupoWorkflow
     Public Property TokenVersion As String
 End Class
 
+Public Class SolicitudBusquedaDestinosEnvioGrupo
+    Public Property IdTarea As Long
+    Public Property Termino As String
+    Public Property Pagina As Integer
+    Public Property TamanoPagina As Integer
+End Class
+
 Public Class DestinoEnvioGrupoWorkflow
     Public Property IdActividadDestino As Integer
     Public Property IdGrupoWorkflowDestino As Integer
@@ -109,6 +116,19 @@ Public Class ResultadoDestinosEnvioGrupo
     End Sub
 
     Public Property Destinos As IList(Of DestinoEnvioGrupoWorkflow)
+    Public Property CodigoBloqueo As String
+    Public Property MensajeFuncional As String
+End Class
+
+Public Class ResultadoBusquedaDestinosEnvioGrupo
+    Public Sub New()
+        Destinos = New List(Of DestinoEnvioGrupoWorkflow)()
+    End Sub
+
+    Public Property Destinos As IList(Of DestinoEnvioGrupoWorkflow)
+    Public Property Pagina As Integer
+    Public Property TamanoPagina As Integer
+    Public Property TieneMas As Boolean
     Public Property CodigoBloqueo As String
     Public Property MensajeFuncional As String
 End Class

@@ -377,8 +377,8 @@ Public Class EvaluadorHabilitacionWorkflowModern
         If habilitacion Is Nothing Then
             Return New HabilitacionWorkflowModernDto With {
                 .Estado = "inactivo",
-                .Codigo = CodigosBloqueoPrevisualizacion.ModernoInactivo,
-                .MensajeFuncional = "La experiencia moderna no esta habilitada.",
+                .Codigo = CodigosBloqueoPrevisualizacion.PoliticaModernaNoDisponible,
+                .MensajeFuncional = "No fue posible validar la política de la experiencia moderna.",
                 .Activo = False
             }
         End If

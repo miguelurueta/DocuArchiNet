@@ -6,6 +6,7 @@ Imports System.Diagnostics
 Public Class ServicioEnvioGrupoTarea
     Private ReadOnly _tareaRepository As ITareaWorkflowRepository
     Private ReadOnly _destinosRepository As IEnvioGrupoDestinosRepository
+    Private ReadOnly _busquedaRepository As IEnvioGrupoBusquedaRepository
     Private ReadOnly _ejecucionRepository As IEnvioGrupoEjecucionRepository
     Private ReadOnly _requisitosRepository As IEnvioGrupoRequisitosRepository
     Private ReadOnly _auditoriaRepository As IAuditoriaTransicionRepository
@@ -33,6 +34,7 @@ Public Class ServicioEnvioGrupoTarea
                    ByVal validadorSolicitud As ValidadorEnvioGrupoTarea)
         _tareaRepository = tareaRepository
         _destinosRepository = destinosRepository
+        _busquedaRepository = TryCast(destinosRepository, IEnvioGrupoBusquedaRepository)
         _ejecucionRepository = ejecucionRepository
         _requisitosRepository = requisitosRepository
         _auditoriaRepository = auditoriaRepository
@@ -69,21 +71,92 @@ Public Class ServicioEnvioGrupoTarea
                                            "La tarea no esta disponible para envio.")
             Return respuesta
         End If
-        Dim destinos As ResultadoDestinosEnvioGrupo = _destinosRepository.ObtenerDestinos(contexto, tarea)
-        If destinos Is Nothing OrElse Not String.IsNullOrWhiteSpace(destinos.CodigoBloqueo) Then
-            respuesta.[Error] = CrearError(If(destinos Is Nothing, CodigosBloqueoPrevisualizacion.TransicionNoDisponible, destinos.CodigoBloqueo),
-                                           If(destinos Is Nothing, "No fue posible consultar los destinos de la tarea.", destinos.MensajeFuncional))
-            Return respuesta
-        End If
-
         respuesta.Contexto.Radicado = tarea.Radicado
         respuesta.Contexto.ActividadOrigen = tarea.IdActividadOrigen.ToString()
         respuesta.Contexto.GrupoActual = tarea.GrupoActual
         respuesta.TokenVersion = tarea.TokenVersion
-        respuesta.Destinos = MapearDestinos(destinos.Destinos)
+        If _busquedaRepository IsNot Nothing Then
+            Dim busqueda As ResultadoBusquedaDestinosEnvioGrupo = _busquedaRepository.BuscarDestinos(
+                contexto, tarea, New SolicitudBusquedaDestinosEnvioGrupo With {.IdTarea = idTarea, .Pagina = 1, .TamanoPagina = 25})
+            If busqueda Is Nothing OrElse Not String.IsNullOrWhiteSpace(busqueda.CodigoBloqueo) Then
+                respuesta.[Error] = CrearError(If(busqueda Is Nothing, CodigosBloqueoPrevisualizacion.TransicionNoDisponible, busqueda.CodigoBloqueo),
+                                               If(busqueda Is Nothing, "No fue posible consultar los destinos de la tarea.", busqueda.MensajeFuncional))
+                Return respuesta
+            End If
+            respuesta.Pagina = busqueda.Pagina
+            respuesta.TamanoPagina = busqueda.TamanoPagina
+            respuesta.TieneMas = busqueda.TieneMas
+            respuesta.Destinos = MapearDestinos(busqueda.Destinos)
+        Else
+            Dim destinos As ResultadoDestinosEnvioGrupo = _destinosRepository.ObtenerDestinos(contexto, tarea)
+            If destinos Is Nothing OrElse Not String.IsNullOrWhiteSpace(destinos.CodigoBloqueo) Then
+                respuesta.[Error] = CrearError(If(destinos Is Nothing, CodigosBloqueoPrevisualizacion.TransicionNoDisponible, destinos.CodigoBloqueo),
+                                               If(destinos Is Nothing, "No fue posible consultar los destinos de la tarea.", destinos.MensajeFuncional))
+                Return respuesta
+            End If
+            respuesta.Pagina = 1
+            respuesta.Destinos = MapearDestinos(destinos.Destinos)
+            respuesta.TamanoPagina = respuesta.Destinos.Count
+            respuesta.TieneMas = False
+        End If
         If respuesta.Destinos Is Nothing OrElse respuesta.Destinos.Count = 0 Then
             respuesta.[Error] = CrearError(CodigosBloqueoPrevisualizacion.SinDestinos,
                                            "No hay destinos disponibles para la tarea.")
+        End If
+        Return respuesta
+    End Function
+
+    Public Function BuscarDestinos(ByVal contexto As ContextoModuloWorkflow,
+                                   ByVal solicitud As SolicitudBusquedaDestinosEnvioGrupo) As BusquedaDestinosEnvioGrupoDto
+        Dim normalizada As SolicitudBusquedaDestinosEnvioGrupo = Nothing
+        Dim respuesta As New BusquedaDestinosEnvioGrupoDto With {.IdTarea = If(solicitud Is Nothing, 0, solicitud.IdTarea)}
+        Dim errorSolicitud As ErrorTransicionDto = _validadorSolicitud.NormalizarBusqueda(solicitud, normalizada)
+        If normalizada IsNot Nothing Then
+            respuesta.IdTarea = normalizada.IdTarea
+            respuesta.Pagina = normalizada.Pagina
+            respuesta.TamanoPagina = normalizada.TamanoPagina
+        End If
+        Dim habilitacion As HabilitacionWorkflowModernDto = EvaluarHabilitacion(contexto)
+        If Not habilitacion.Activo Then
+            respuesta.[Error] = CrearError(habilitacion.Codigo, habilitacion.MensajeFuncional)
+            Return respuesta
+        End If
+        If Not TieneCambioRuta(contexto) Then
+            respuesta.[Error] = CrearError(CodigosBloqueoPrevisualizacion.PermisoCambioRutaDenegado,
+                                           "El usuario no tiene permiso para consultar destinos de la tarea.")
+            Return respuesta
+        End If
+        If errorSolicitud IsNot Nothing Then
+            respuesta.[Error] = errorSolicitud
+            Return respuesta
+        End If
+        If _tareaRepository Is Nothing OrElse _busquedaRepository Is Nothing Then
+            respuesta.[Error] = CrearError(CodigosBloqueoPrevisualizacion.TransicionNoDisponible,
+                                           "La busqueda de destinos no esta disponible.")
+            Return respuesta
+        End If
+
+        Dim tarea As TareaWorkflow = _tareaRepository.ObtenerTarea(contexto, normalizada.IdTarea)
+        If tarea Is Nothing OrElse Not tarea.EstaActiva Then
+            respuesta.[Error] = CrearError(CodigosBloqueoPrevisualizacion.TareaNoDisponible,
+                                           "La tarea no esta disponible para envio.")
+            Return respuesta
+        End If
+        Dim resultados As ResultadoBusquedaDestinosEnvioGrupo = _busquedaRepository.BuscarDestinos(contexto, tarea, normalizada)
+        If resultados Is Nothing OrElse Not String.IsNullOrWhiteSpace(resultados.CodigoBloqueo) Then
+            respuesta.[Error] = CrearError(If(resultados Is Nothing, CodigosBloqueoPrevisualizacion.TransicionNoDisponible, resultados.CodigoBloqueo),
+                                           If(resultados Is Nothing, "No fue posible consultar los destinos de la tarea.", resultados.MensajeFuncional))
+            Return respuesta
+        End If
+
+        respuesta.TokenVersion = tarea.TokenVersion
+        respuesta.Pagina = resultados.Pagina
+        respuesta.TamanoPagina = resultados.TamanoPagina
+        respuesta.TieneMas = resultados.TieneMas
+        respuesta.Destinos = MapearDestinos(resultados.Destinos)
+        If respuesta.Destinos.Count = 0 Then
+            respuesta.[Error] = CrearError(CodigosBloqueoPrevisualizacion.SinDestinos,
+                                           "No hay actividades que coincidan con la busqueda.")
         End If
         Return respuesta
     End Function

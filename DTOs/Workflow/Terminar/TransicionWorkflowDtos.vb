@@ -83,6 +83,24 @@ Public Class PrevisualizacionEnvioGrupoDto
     Public Property Contexto As ContextoPrevisualizacionTransicionDto
     Public Property Destinos As IList(Of DestinoEnvioGrupoDto)
     Public Property TokenVersion As String
+    Public Property Pagina As Integer
+    Public Property TamanoPagina As Integer
+    Public Property TieneMas As Boolean
+    Public Property [Error] As ErrorTransicionDto
+End Class
+
+<Serializable()>
+Public Class BusquedaDestinosEnvioGrupoDto
+    Public Sub New()
+        Destinos = New List(Of DestinoEnvioGrupoDto)()
+    End Sub
+
+    Public Property IdTarea As Long
+    Public Property TokenVersion As String
+    Public Property Pagina As Integer
+    Public Property TamanoPagina As Integer
+    Public Property TieneMas As Boolean
+    Public Property Destinos As IList(Of DestinoEnvioGrupoDto)
     Public Property [Error] As ErrorTransicionDto
 End Class
 
@@ -138,11 +156,7 @@ End Class
 
 Public NotInheritable Class CodigosBloqueoPrevisualizacion
     Public Const ContextoInvalido As String = "WORKFLOW_CONTEXT_INVALID"
-    Public Const ModernoInactivo As String = "WORKFLOW_MODERN_INACTIVE"
-    Public Const ModernoAlcancePilotoRequerido As String = "WORKFLOW_MODERN_PILOT_SCOPE_REQUIRED"
-    Public Const ModernoMetadatosPilotoInvalidos As String = "WORKFLOW_MODERN_PILOT_METADATA_INVALID"
-    Public Const ModernoRollbackActivo As String = "WORKFLOW_MODERN_ROLLBACK_ACTIVE"
-    Public Const ModernoAlcanceOficialInconsistente As String = "WORKFLOW_MODERN_OFFICIAL_SCOPE_CONFLICT"
+    Public Const PoliticaModernaNoDisponible As String = "WORKFLOW_MODERN_POLICY_UNAVAILABLE"
     Public Const TareaInvalida As String = "WORKFLOW_TASK_INVALID"
     Public Const TareaNoDisponible As String = "WORKFLOW_TASK_UNAVAILABLE"
     Public Const RutaCerrada As String = "WORKFLOW_ROUTE_CLOSED"
@@ -150,6 +164,7 @@ Public NotInheritable Class CodigosBloqueoPrevisualizacion
     Public Const ConectorInvalido As String = "WORKFLOW_CONNECTOR_INVALID"
     Public Const ActividadDestinoInvalida As String = "WORKFLOW_GROUP_DESTINATION_INVALID"
     Public Const ActividadDestinoNoDisponible As String = "WORKFLOW_GROUP_DESTINATION_UNAVAILABLE"
+    Public Const BusquedaTerminoInvalido As String = "WORKFLOW_GROUP_SEARCH_TERM_INVALID"
     Public Const PermisoCambioRutaDenegado As String = "WORKFLOW_ROUTE_CHANGE_FORBIDDEN"
     Public Const AprobacionPendiente As String = "WORKFLOW_APPROVAL_PENDING"
     Public Const TransicionInconsistente As String = "WORKFLOW_TRANSITION_INCONSISTENT"

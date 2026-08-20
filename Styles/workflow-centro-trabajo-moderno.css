@@ -183,6 +183,18 @@
   text-decoration: none;
 }
 
+.workflow-centro-trabajo-moderno button.ctw-btn {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.workflow-centro-trabajo-moderno .ctw-btn:disabled,
+.workflow-centro-trabajo-moderno .ctw-btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: .56;
+  box-shadow: none;
+}
+
 .workflow-centro-trabajo-moderno .ctw-btn:hover,
 .workflow-centro-trabajo-moderno .ctw-btn:focus,
 .workflow-centro-trabajo-moderno .ctw-menu__trigger:hover,

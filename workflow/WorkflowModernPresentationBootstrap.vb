@@ -1,8 +1,8 @@
 Imports System
 Imports System.Web
 
-'Bootstrap de Presentation: no habilita ni autoriza operaciones; solo expone el mismo gate
-'que valida el ASMX para que el navegador pueda decidir si enlaza la experiencia moderna.
+'Bootstrap de Presentation: valida el contexto de sesion y expone la politica oficial
+'que usan los contratos ASMX para enlazar la experiencia moderna.
 Public NotInheritable Class WorkflowModernPresentationBootstrap
     Private Const ClaveSolicitudActiva As String = "WorkflowModernPresentationBootstrap.Activa"
     Private ReadOnly _contextGate As WorkflowPreviewSessionContextGate
@@ -53,7 +53,7 @@ Public NotInheritable Class WorkflowModernPresentationBootstrap
             Dim habilitacion As HabilitacionWorkflowModern = _featureGate.Evaluar(resultadoContexto.Contexto)
             Return habilitacion IsNot Nothing AndAlso habilitacion.EstaActiva
         Catch
-            'La ausencia de bootstrap conserva la experiencia legacy y no revela detalles internos.
+            'La ausencia de contexto no enlaza operaciones y no revela detalles internos.
             Return False
         End Try
     End Function

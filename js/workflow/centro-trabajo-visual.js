@@ -113,12 +113,12 @@
         addClassesToActionHosts(root, "#nav_menu #nota_db", ["ctw-action-slot", "ctw-action-slot--operational", "ctw-action-slot--notes"]);
         addClassesToActionHosts(root, "#nav_menu .ctw-authorize-control", ["ctw-action-slot", "ctw-action-slot--operational"]);
         addClassesToActionHosts(root, "#nav_menu [title='Detalle del radicado'], #nav_menu .fa-user-headset", ["ctw-action-slot", "ctw-action-slot--support"]);
-        addClassesToActionHosts(root, "#nav_menu [title='Devuelve la tarea'], #nav_menu [onclick*='ImageButtonEnviarUsuario'], #nav_menu [onclick*='ImageButtonEnviaActividad'], #nav_menu #workflow-group-send-trigger, #nav_menu [onclick*='ImageButtonterminar'], #nav_menu [onclick*='ImageButtonautoterminar']", ["ctw-action-slot", "ctw-action-slot--terminal"]);
+        addClassesToActionHosts(root, "#nav_menu [title='Devuelve la tarea'], #nav_menu [onclick*='ImageButtonEnviarUsuario'], #nav_menu [onclick*='ImageButtonEnviaActividad'], #nav_menu #workflow-group-send-trigger, #nav_menu #workflow-transition-trigger, #nav_menu [onclick*='ImageButtonautoterminar']", ["ctw-action-slot", "ctw-action-slot--terminal"]);
         addClassesToActionHosts(root, "#nav_menu [title='Devuelve la tarea']", ["ctw-action-slot--return"]);
         addClassesToActionHosts(root, "#nav_menu [onclick*='ImageButtonEnviarUsuario'], #nav_menu [onclick*='ImageButtonEnviaActividad'], #nav_menu #workflow-group-send-trigger", ["ctw-action-slot--handoff"]);
         addClassesToActionHosts(root, "#nav_menu [onclick*='ImageButtonEnviarUsuario']", ["ctw-action-slot--handoff-user"]);
         addClassesToActionHosts(root, "#nav_menu [onclick*='ImageButtonEnviaActividad'], #nav_menu #workflow-group-send-trigger", ["ctw-action-slot--handoff-group"]);
-        addClassesToActionHosts(root, "#nav_menu [onclick*='ImageButtonterminar'], #nav_menu [onclick*='ImageButtonautoterminar']", ["ctw-action-slot--send"]);
+        addClassesToActionHosts(root, "#nav_menu #workflow-transition-trigger, #nav_menu [onclick*='ImageButtonautoterminar']", ["ctw-action-slot--send"]);
         addClassesToActionHosts(root, "#nav_menu #pendiente_selec_tarea", ["ctw-action-slot", "ctw-action-slot--terminal"]);
         markFirstTerminalActionHost(root);
     }

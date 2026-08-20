@@ -113,6 +113,43 @@ Public Class WebServiceWorkflowModern
 
     <WebMethod(EnableSession:=True)>
     <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
+    Public Function BuscarDestinosEnvioGrupo(ByVal idTarea As Long,
+                                             ByVal termino As String,
+                                             ByVal pagina As Integer,
+                                             ByVal tamanoPagina As Integer) As BusquedaDestinosEnvioGrupoDto
+        Try
+            Dim resultadoSesion As ResultadoContextoSesionWorkflow = New WorkflowPreviewSessionContextGate().AsegurarContextoEnvioGrupo()
+            If resultadoSesion Is Nothing OrElse resultadoSesion.Contexto Is Nothing OrElse Not resultadoSesion.Contexto.EsValido() OrElse
+               String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionWorkflow) Then
+                Return CrearBusquedaGrupoSegura(idTarea, pagina, tamanoPagina, CodigosBloqueoPrevisualizacion.ContextoInvalido,
+                                                 "No fue posible validar la sesion de la tarea.")
+            End If
+
+            Dim factory As New WorkflowModuleConnectionFactory(resultadoSesion.CadenaConexionWorkflow)
+            Dim docuarchiFactory As IModuleConnectionFactory = Nothing
+            If Not String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionDocuarchi) Then
+                docuarchiFactory = New DocuarchiModuleConnectionFactory(resultadoSesion.CadenaConexionDocuarchi)
+            End If
+            Dim dataExecutor As New AdoNetDataExecutor()
+            Dim servicio As New ServicioEnvioGrupoTarea(
+                New MySqlTareaWorkflowRepository(factory, dataExecutor),
+                New MySqlEnvioGrupoRepository(factory, docuarchiFactory, dataExecutor),
+                New ConfiguracionWorkflowModernFeatureGate(),
+                New ValidadorEnvioGrupoTarea())
+            Return servicio.BuscarDestinos(resultadoSesion.Contexto, New SolicitudBusquedaDestinosEnvioGrupo With {
+                .IdTarea = idTarea,
+                .Termino = termino,
+                .Pagina = pagina,
+                .TamanoPagina = tamanoPagina
+            })
+        Catch
+            Return CrearBusquedaGrupoSegura(idTarea, pagina, tamanoPagina, CodigosBloqueoPrevisualizacion.TransicionNoDisponible,
+                                             "No fue posible consultar los destinos de la tarea.")
+        End Try
+    End Function
+
+    <WebMethod(EnableSession:=True)>
+    <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
     Public Function EjecutarEnvioGrupo(ByVal idTarea As Long,
                                        ByVal idActividadDestino As Integer,
                                        ByVal tokenVersion As String) As ResultadoEnvioGrupoDto
@@ -177,6 +214,23 @@ Public Class WebServiceWorkflowModern
                                                        ByVal mensaje As String) As PrevisualizacionEnvioGrupoDto
         Return New PrevisualizacionEnvioGrupoDto With {
             .IdTarea = idTarea,
+            .[Error] = New ErrorTransicionDto With {
+                .Codigo = codigo,
+                .MensajeVisible = mensaje,
+                .ReferenciaTrazabilidad = String.Empty
+            }
+        }
+    End Function
+
+    Private Shared Function CrearBusquedaGrupoSegura(ByVal idTarea As Long,
+                                                      ByVal pagina As Integer,
+                                                      ByVal tamanoPagina As Integer,
+                                                      ByVal codigo As String,
+                                                      ByVal mensaje As String) As BusquedaDestinosEnvioGrupoDto
+        Return New BusquedaDestinosEnvioGrupoDto With {
+            .IdTarea = idTarea,
+            .Pagina = If(pagina < 1, 1, pagina),
+            .TamanoPagina = If(tamanoPagina < 1, 25, Math.Min(50, tamanoPagina)),
             .[Error] = New ErrorTransicionDto With {
                 .Codigo = codigo,
                 .MensajeVisible = mensaje,
