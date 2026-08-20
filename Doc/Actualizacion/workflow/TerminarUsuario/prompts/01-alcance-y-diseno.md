@@ -16,19 +16,19 @@ Desde el ticket Jira inicial de **Enviar a usuario**, consolidar la decisión t�
 
 ## REQUISITOS POSITIVOS
 
-- Precisar contrato objetivo de `PreviewEnviarUsuario` y `EjecutarEnvioUsuario`, destino usuario–actividad, `CAMBIO_USUARIO`, búsqueda paginada, lock, auditoría y fallback Web Forms.
+- Precisar contrato objetivo de `PreviewEnviarUsuario` y `EjecutarEnvioUsuario`, destino usuario–actividad, `CAMBIO_USUARIO`, búsqueda paginada, lock, auditoría y experiencia moderna oficial.
 - Documentar respuesta pendiente como bloqueo sin reasignación, aislamiento de Continuar flujo y matriz mínima de aceptación/pruebas.
 - Registrar dependencias, exclusiones, rutas de código que podrán tocarse en 02 y riesgos que requieran decisión funcional.
 
 ## RESTRICCIONES CRÍTICAS
 
-- No modificar código, configuración, gate, endpoints, pruebas ni tickets Jira fuera de la evidencia autorizada.
+- No modificar código, configuración, endpoints, pruebas ni tickets Jira fuera de la evidencia autorizada.
 - No crear OpenSpec, tareas técnicas paralelas ni un segundo backlog.
 - No asumir decisiones abiertas ni autorizar 02 si falta un criterio verificable.
 
 ## REGLAS DE ANTIRREGRESIÓN
 
-- Preservar `PreviewEnviarTarea`, `EjecutarEnvioTarea`, `ServicioTransicionTarea`, `IdConector` y el fallback legacy como contratos fuera de alcance.
+- Preservar `PreviewEnviarTarea`, `EjecutarEnvioTarea`, `ServicioTransicionTarea` e `IdConector` como contratos fuera de alcance, sin reintroducir una ruta alternativa para Enviar a usuario.
 - No diseñar conectores ficticios ni rutas de reasignación de respuesta.
 
 ## CRITERIOS DE ACEPTACIÓN
