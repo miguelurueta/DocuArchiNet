@@ -1,0 +1,115 @@
+# Jira Context - SCRUM-382
+
+## Summary
+
+CONTRATO-INTEGRACION-MULTI-REPO
+
+## Description
+
+> # PROMPT 10 - Contrato y fixtures de integración multi-repo
+> 
+> ## Metadata
+> 
+> | Campo | Valor |
+> | --- | --- |
+> | Fuente de decisión | `Docs/Architecture/orquestador/07-Modelo-Requerimientos-Decision-Arquitectonica-Integracion-Multirepo.md` |
+> | Tipo | Fundaciones y pruebas de contrato |
+> | Prioridad | 0 — prerequisito |
+> | Relación | Esta serie 10–16 descompone el Prompt 10 histórico de `Docs/Architecture/orquestador`; aquel queda como antecedente, no como guía de ejecución paralela. |
+> | Dependencia | Prompt 1, Prompt 9 y catálogo `openspec/context/repo-catalog.json` |
+> | Desbloquea | Prompts 11 a 16 |
+> | Ámbito | `DocuArchiCore`, `Tools/jira-open`, fixtures locales y documentación |
+> 
+> ## Prompt
+> 
+> ````text
+> Actúa como arquitecto e implementador senior de PowerShell, Git, GitHub Actions, OpenSpec y pruebas de tooling.
+> 
+> Implementa exclusivamente la fundación verificable del modelo de integración multi-repo. Crea primero un cambio OpenSpec nuevo y no implementes aún cambios de comportamiento en `orchestrate:new`, CI, archive ni repositorios satélite. El objetivo es que las entregas posteriores compartan contratos y fixtures estables, en vez de introducir reglas incompatibles por partes.
+> 
+> Lee antes de modificar:
+> 
+> - `Docs/Architecture/orquestador/07-Modelo-Requerimientos-Decision-Arquitectonica-Integracion-Multirepo.md`;
+> - `openspec/context/repo-catalog.json`;
+> - `Tools/jira-open/multirepo-manifest.ps1`;
+> - `Tools/jira-open/workspace-reconstruct.ps1`;
+> - `Tools/jira-open/ci-pr-validation.ps1`;
+> - las pruebas existentes `test-multirepo-manifest.ps1`, `test-workspace-reconstruct.ps1`, `test-ci-pr-validation.ps1` y `test-opsxj-orchestration-state.ps1`.
+> 
+> ## Objetivo
+> 
+> Definir contratos JSON versionados, helpers de prueba y fixtures Git locales que permitan demostrar, sin GitHub real ni secretos, los siguientes casos:
+> 
+> 1. topología backend de exactamente siete repositorios requeridos;
+> 2. manifiesto con SHA inmutable y remote autorizado;
+> 3. `dependencyResolution` para desarrollo, distinta del manifiesto final;
+> 4. plan y unidad de validación estables;
+> 5. atestación remota simulada y reutilizable por evidencia/archive;
+> 6. clasificación segura de cambios funcionales, tooling, E2E y evidencia.
+> 
+> ## Contratos mínimos
+> 
+> Agregar esquemas, muestras válidas y muestras inválidas dentro de una ruta de fixtures de `Tools/jira-open`. No incluir tokens, rutas personales, fechas volátiles ni respuestas crudas de GitHub.
+> 
+> Definir y documentar como mínimo:
+> 
+> ```text
+> dependencyResolution.schemaVersion = "1.0"
+> build-manifest.schemaVersion = 1
+> validation-plan.schemaVersion = 1
+> validation-attestation.schemaVersion = 1
+> ```
+> 
+> La identidad debe normalizarse así:
+> 
+> ```text
+> validationUnitId = hash(
+>   functionalSha del coordinador,
+>   digest normalizado del manifiesto,
+>   SHA de los siete repositorios,
+>   perfil de validación,
+>   versión del clasificador
+> )
+> ```
+> 
+> La normalización debe ser determinista: el orden de propiedades JSON, fechas, rutas locales, secretos y orden incidental de repositorios no pueden cambiar el digest ni el identificador.
+> 
+> ## Fixtures obligatorios
+> 
+> Crear repos bare locales temporales o helpers que los creen durante las pruebas. No clonar ni consultar GitHub real. Cubrir:
+> 
+> - catálogo válido con siete repositorios backend y `DocuArchiCore.Web` opcional;
+> - nombre canónico, remote o SHA inválidos;
+> - SHA inaccesible;
+> - manifiesto incompleto, duplicado o con repositorio no declarado;
+> - dependencia de PR abierta admisible sólo para desarrollo;
+> - intento de usar esa dependencia transitoria en manifiesto final;
+> - estado legado `orchestration-state.json` 1.0 y estado nuevo compatible;
+> - plan de validación con backend, OPSXJ, Node/E2E y docs;
+> - atestación de la misma y de otra `validationUnitId`;
+> - evidencia permitida y cambio funcional posterior al snapshot.
+> 
+> ## Restricciones
+> 
+> - No cambiar la interfaz pública de comandos existentes en esta entrega.
+> - No añadir una lista hardcodeada de repositorios fuera del catálogo.
+> - No implementar mocks que oculten fallos de Git, JSON o SHA.
+> - No crear ramas, PRs, commits ni worktrees fuera de directorios temporales durante las pruebas.
+> - Mantener compatibilidad de lectura con el estado 1.0; cualquier migración persistente posterior debe ser explícita y trazable.
+> 
+> ## Pruebas y aceptación
+> 
+> 1. Los fixtures se ejecutan localmente de forma determinista y sin red.
+> 2. Dos representaciones JSON semánticamente iguales producen el mismo digest y `validationUnitId`.
+> 3. Cada caso inválido falla con código y siguiente acción legibles.
+> 4. Las pruebas existentes de manifiesto, reconstrucción, CI y estado continúan pasando.
+> 5. La documentación de fixtures explica qué prompt posterior consume cada contrato.
+> 
+> Ejecutar las pruebas focales añadidas y registrar los comandos y resultados en el cambio OpenSpec.
+> ````
+
+## Metadata
+
+- Tipo: Tarea
+- Prioridad: High
+- Labels: CONTRATO, INTEGRACION, MULTI, REPO
