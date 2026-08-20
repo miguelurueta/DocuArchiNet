@@ -25,9 +25,9 @@ Implementar el primer corte funcional de servidor: contratos exclusivos de usuar
 ## RESTRICCIONES CRÍTICAS
 
 - No ejecutar motor legacy, lock, auditoría, eventos ni cambios de tarea, respuesta o configuración.
-- No crear directorio global, UI, ejecución, gate nuevo ni lista completa en cliente.
+- No crear directorio global, UI, ejecución, banderas de habilitación ni lista completa en cliente.
 - No modificar `PreviewEnviarTarea`, `EjecutarEnvioTarea`, `SolicitudTransicionWorkflow`, `DestinoTransicionDto` ni Continuar flujo.
-- No ejecutar E2E autenticado, carga ni activar gate.
+- No ejecutar E2E autenticado ni carga sin autorización explícita de ambiente y cuentas de prueba.
 
 ## REGLAS DE ANTIRREGRESIÓN
 
@@ -36,7 +36,7 @@ Implementar el primer corte funcional de servidor: contratos exclusivos de usuar
 
 ## CRITERIOS DE ACEPTACIÓN
 
-- Gate, contexto, permiso, tarea, ruta/flujo, respuesta y destino se validan antes de devolver resultados.
+- Contexto, permiso, tarea, ruta/flujo, respuesta y destino se validan antes de devolver resultados.
 - Cursor inválido, token vencido, usuario fuera de ruta o lista extensa producen resultado público seguro, sin fuga ni escritura.
 
 ## PRUEBAS OBLIGATORIAS
@@ -49,4 +49,4 @@ Actualizar `01-arquitectura.md`, `02-contrato.md`, `03-flujo-y-seguridad.md` y `
 
 ## ENTREGABLE FINAL
 
-Reportar ticket, archivos, pruebas, compilación, evidencia de no escritura y riesgos. No implementar adaptador, ejecución, UI ni activación.
+Reportar ticket, archivos, pruebas, compilación, evidencia de no escritura y riesgos. No implementar adaptador, ejecución ni UI.

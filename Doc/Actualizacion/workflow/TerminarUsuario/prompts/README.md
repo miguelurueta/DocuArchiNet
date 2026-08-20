@@ -8,8 +8,8 @@ Jira controla el orden, las aprobaciones y el cierre. Cada ticket fijo enlaza un
 | 01 | `01-alcance-y-diseno.md` | Ticket de inicio aprobado | Decisión técnica y contrato objetivo para 02. |
 | 02 | `02-preview-paginado-autorizacion.md` | 01 aprobado | Autorización, preview paginado y búsqueda segura para 03. |
 | 03 | `03-ejecucion-directa-segura.md` | 02 aprobado | Adaptador, ejecución directa, lock y auditoría para 04. |
-| 04 | `04-ui-moderna-fallback.md` | 03 aprobado | Interfaz moderna y fallback Web Forms para 05. |
+| 04 | `04-ui-moderna-fallback.md` | 03 aprobado | Interfaz moderna oficial para 05. |
 | 05 | `05-verificacion-transversal.md` | 04 aprobado | Evidencia técnica y recomendación de liberación para 06. |
 | 06 | `06-liberacion-controlada.md` | 05 aprobado | Matriz de ambientes y runbook; no activa. |
 
-La documentación se consolida en `Doc/Actualizacion/workflow/TerminarUsuario/01-implementacion-envio-usuario/`. La operación moderna se limita a **Enviar a usuario** de `workflow/Webworkflow.aspx`; ante respuesta pendiente bloquea y nunca reasigna. Ningún prompt activa gates ni ejecuta E2E autenticado sin autorización explícita.
+La documentación se consolida en `Doc/Actualizacion/workflow/TerminarUsuario/01-implementacion-envio-usuario/`. La operación moderna se limita a **Enviar a usuario** de `workflow/Webworkflow.aspx`; ante respuesta pendiente bloquea y nunca reasigna. La ruta moderna aplica a todo usuario con contexto Workflow válido; ningún prompt ejecuta E2E autenticado sin autorización explícita.

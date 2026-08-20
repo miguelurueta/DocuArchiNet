@@ -6,7 +6,7 @@ Actúa como arquitecto de calidad y revisor técnico de Workflow ASP.NET Web For
 
 ## OBJETIVO
 
-Verificar la capacidad completa sin crear otra implementación: contrato, capas, gate, auditoría, seguridad, accesibilidad, compatibilidad y evidencia para liberación.
+Verificar la capacidad completa sin crear otra implementación: contrato, capas, auditoría, seguridad, accesibilidad, compatibilidad y evidencia para liberación.
 
 ## CONTEXTO OBLIGATORIO
 
@@ -17,18 +17,18 @@ Verificar la capacidad completa sin crear otra implementación: contrato, capas,
 ## REQUISITOS POSITIVOS
 
 - Ejecutar compilación, pruebas locales CJS/VB, análisis estático y QA manual no autenticado autorizado.
-- Confirmar preview solo `SELECT`, revalidación bajo lock, respuesta pendiente sin reasignación, destinos autorizados, auditoría sanitizada, gate único, fallback y aislamiento de Continuar flujo.
+- Confirmar preview solo `SELECT`, revalidación bajo lock, respuesta pendiente sin reasignación, destinos autorizados, auditoría sanitizada, experiencia moderna universal y aislamiento de Continuar flujo.
 - Verificar búsqueda: universo autorizado antes del filtro, límite, orden, cursor, privacidad, respuesta obsoleta, teclado, foco, Escape y responsive.
 
 ## RESTRICCIONES CRÍTICAS
 
-- No cambiar código de producción, configuración, gate, estado de tareas, auditoría, datos ni contratos para obtener evidencia.
+- No cambiar código de producción, configuración, estado de tareas, auditoría, datos ni contratos para obtener evidencia.
 - No ejecutar E2E autenticado, carga, activación, archivo, publicación o liberación automática.
 - No considerar suficiente una revisión visual sin evidencia de contrato, concurrencia y no regresión.
 
 ## REGLAS DE ANTIRREGRESIÓN
 
-- Comparar `PreviewEnviarTarea`, `EjecutarEnvioTarea`, `IdConector`, Continuar flujo y fallback Web Forms con sus contratos/pruebas existentes.
+- Comparar `PreviewEnviarTarea`, `EjecutarEnvioTarea`, `IdConector` y Continuar flujo con sus contratos/pruebas existentes; confirmar que Enviar a usuario no expone una ruta UI alternativa.
 - Un resultado de búsqueda o preview nunca elimina revalidación de ejecución ni amplía autorizaciones.
 
 ## CRITERIOS DE ACEPTACIÓN
@@ -46,4 +46,4 @@ Actualizar `04-pruebas-y-evidencia.md` e `00-indice.md` del paquete existente; d
 
 ## ENTREGABLE FINAL
 
-Reportar ticket, escenarios aprobados/fallidos, compilación, pruebas, QA, riesgos y recomendación para 06. No modificar gate.
+Reportar ticket, escenarios aprobados/fallidos, compilación, pruebas, QA, riesgos y recomendación para 06. No modificar configuración de ambiente.

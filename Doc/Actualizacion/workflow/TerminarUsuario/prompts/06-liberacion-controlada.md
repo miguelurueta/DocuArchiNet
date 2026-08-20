@@ -1,4 +1,4 @@
-# 06 — Liberación y activación controlada
+# 06 — Liberación y operación controlada
 
 ## ROL ESPERADO
 
@@ -6,39 +6,39 @@ Actúa como responsable técnico de liberación para Workflow ASP.NET Web Forms,
 
 ## OBJETIVO
 
-Preparar la decisión de liberación, matriz de ambientes y runbook reversible. Esta etapa no modifica, despliega ni activa la funcionalidad.
+Preparar la decisión de liberación, matriz de ambientes y runbook operativo. Esta etapa no modifica ni despliega la funcionalidad.
 
 ## CONTEXTO OBLIGATORIO
 
 - Requiere 05 aprobado y ausencia de bloqueos críticos.
-- Leer `00-contexto-obligatorio.md`, evidencia de 05, configuración aprobada y documentación de gate/rollback existente.
+- Leer `00-contexto-obligatorio.md`, evidencia de 05, versión aprobada y documentación operativa existente.
 - La aprobación técnica de pruebas no equivale a autorización operativa por ambiente.
 
 ## REQUISITOS POSITIVOS
 
-- Verificar que versión, artefactos, pruebas, gate único, auditoría, respuesta pendiente, fallback y Continuar flujo están identificados en evidencia.
-- Crear matriz por ambiente: autorización, versión, alcance usuarios/grupos, ventana, responsables, evidencia, continuación y rollback.
-- Crear runbook para futura operación autorizada: verificaciones `SELECT`, uso exclusivo del gate existente, comprobación sanitizada y rollback a `WorkflowCentroTrabajoModernActive=false` con usuarios/grupos vacíos.
+- Verificar que versión, artefactos, pruebas, auditoría, respuesta pendiente, experiencia moderna universal y Continuar flujo están identificados en evidencia.
+- Crear matriz por ambiente: autorización, versión, alcance funcional, ventana, responsables, evidencia y continuación.
+- Crear runbook para futura operación autorizada: verificaciones `SELECT`, comprobación sanitizada y procedimiento de reversión mediante la gestión de despliegue aprobada, sin reactivar una ruta UI alternativa.
 
 ## RESTRICCIONES CRÍTICAS
 
-- No activar, desactivar ni editar configuración; no desplegar, ejecutar E2E/carga ni usar/registrar secretos.
-- No inferir autorización global a partir de pruebas, listas vacías o autorización de otro ambiente.
+- No editar configuración; no desplegar, ejecutar E2E/carga ni usar/registrar secretos.
+- No inferir autorización para un ambiente a partir de pruebas o de la autorización de otro ambiente.
 - No revertir transiciones confirmadas, reasignar respuestas ni tocar Continuar flujo.
 
 ## REGLAS DE ANTIRREGRESIÓN
 
-- El rollback solo afecta nuevos intentos mediante el gate; no altera tareas ya terminadas.
-- El fallback Web Forms y el contrato `IdConector` de Continuar flujo permanecen intactos.
+- Una reversión de despliegue solo afecta nuevos intentos y no altera tareas ya terminadas.
+- El contrato `IdConector` de Continuar flujo permanece intacto; Enviar a usuario conserva su ruta moderna oficial.
 
 ## CRITERIOS DE ACEPTACIÓN
 
-- La decisión es una sola: **bloquear**, **solicitar aprobación** o **lista para activación autorizada**.
-- La matriz identifica cada ambiente sin secretos y ninguna activación queda implícita.
+- La decisión es una sola: **bloquear**, **solicitar aprobación** o **lista para despliegue autorizado**.
+- La matriz identifica cada ambiente sin secretos y ningún despliegue queda implícito.
 
 ## PRUEBAS OBLIGATORIAS
 
-No ejecutar E2E, carga ni cambios de ambiente. Verificar de forma documental y con consultas autorizadas de solo lectura que la evidencia de 05, gate, fallback y rollback es completa; registrar resultado y limitaciones.
+No ejecutar E2E, carga ni cambios de ambiente. Verificar de forma documental y con consultas autorizadas de solo lectura que la evidencia de 05, la ruta moderna universal y la reversión de despliegue es completa; registrar resultado y limitaciones.
 
 ## DOCUMENTACIÓN TÉCNICA
 
@@ -46,4 +46,4 @@ Actualizar el paquete documental existente con decisión, matriz de ambientes, r
 
 ## ENTREGABLE FINAL
 
-Reportar ticket, precondiciones y decisión de liberación; confirmar que no se modificó gate ni se ejecutó una activación.
+Reportar ticket, precondiciones y decisión de liberación; confirmar que no se modificó configuración ni se ejecutó un despliegue.

@@ -1,4 +1,4 @@
-# 04 — Interfaz moderna y fallback Web Forms
+# 04 — Interfaz moderna oficial
 
 ## ROL ESPERADO
 
@@ -6,7 +6,7 @@ Actúa como desarrollador senior de ASP.NET Web Forms y JavaScript legacy accesi
 
 ## OBJETIVO
 
-Conectar solo el comando **Enviar a usuario** a los endpoints ya implementados, con búsqueda paginada, confirmación accesible y fallback legacy exacto.
+Conectar solo el comando **Enviar a usuario** a los endpoints ya implementados, con búsqueda paginada, confirmación accesible y experiencia moderna oficial para todo contexto Workflow válido.
 
 ## CONTEXTO OBLIGATORIO
 
@@ -16,22 +16,22 @@ Conectar solo el comando **Enviar a usuario** a los endpoints ya implementados, 
 
 ## REQUISITOS POSITIVOS
 
-- Registrar trigger y bootstrap detrás del gate existente, con adaptador JavaScript exclusivo de usuario.
+- Registrar trigger y bootstrap de forma uniforme, con adaptador JavaScript exclusivo de usuario.
 - Consumir `PreviewEnviarUsuario` y `EjecutarEnvioUsuario`; aplicar debounce, páginas, descarte de respuesta obsoleta e invalidación de selección antigua.
 - Reutilizar confirmación, foco, trampa de foco, teclado, Escape, ARIA, responsive, cancelación, doble clic y mensaje de éxito correlacionado.
 - Tras éxito, actualizar solo tarea afectada, visor y contador mediante componentes modernos existentes.
 
 ## RESTRICCIONES CRÍTICAS
 
-- No crear ASMX, gate, framework, bundler, modal alterno ni autorización en JavaScript.
+- No crear ASMX, banderas de habilitación, framework, bundler, modal alterno ni autorización en JavaScript.
 - No invocar controles ocultos, motor, handlers, SQL, `Cambia_Estado`, reasignación de respuesta ni endpoints/payload de Continuar flujo.
-- Con gate inactivo, no cambiar enlace, postback ni modal legacy de `ImageButtonEnviarUsuario`.
-- No ejecutar E2E autenticado ni activar gate.
+- No habilitar un enlace, postback ni modal Web Forms alternativo para `ImageButtonEnviarUsuario`.
+- No ejecutar E2E autenticado sin autorización explícita de ambiente y cuentas de prueba.
 
 ## REGLAS DE ANTIRREGRESIÓN
 
 - Enviar a usuario y Continuar flujo no comparten selectores, eventos, estado, `IdConector` ni requests.
-- El fallback Web Forms es el recorrido exacto cuando el gate está inactivo.
+- Todo contexto Workflow válido usa el mismo adaptador y recorrido moderno de Enviar a usuario.
 
 ## CRITERIOS DE ACEPTACIÓN
 
@@ -40,12 +40,12 @@ Conectar solo el comando **Enviar a usuario** a los endpoints ya implementados, 
 
 ## PRUEBAS OBLIGATORIAS
 
-Agregar pruebas CJS de contratos, eventos aislados, búsqueda, debounce, páginas, respuesta obsoleta, vacío, error, selección, éxito, bloqueo, cancelación, doble clic, teclado, foco y fallback. Ejecutar MSBuild y pruebas focales; registrar evidencia. No E2E.
+Agregar pruebas CJS de contratos, eventos aislados, búsqueda, debounce, páginas, respuesta obsoleta, vacío, error, selección, éxito, bloqueo, cancelación, doble clic, teclado, foco y bootstrap uniforme. Ejecutar MSBuild y pruebas focales; registrar evidencia. No E2E sin autorización explícita.
 
 ## DOCUMENTACIÓN TÉCNICA
 
-Actualizar `01-arquitectura.md`, `02-contrato.md`, `03-flujo-y-seguridad.md`, `04-pruebas-y-evidencia.md` y diagramas necesarios con selectores, UI, accesibilidad, fallback y relevo a 05.
+Actualizar `01-arquitectura.md`, `02-contrato.md`, `03-flujo-y-seguridad.md`, `04-pruebas-y-evidencia.md` y diagramas necesarios con selectores, UI, accesibilidad, recorrido moderno y relevo a 05.
 
 ## ENTREGABLE FINAL
 
-Reportar ticket, archivos UI, pruebas, compilación y evidencia de fallback/no regresión. No activar gate ni realizar QA autenticado.
+Reportar ticket, archivos UI, pruebas, compilación y evidencia de ruta moderna/no regresión. No cambiar configuración de ambiente ni realizar QA autenticado sin autorización.

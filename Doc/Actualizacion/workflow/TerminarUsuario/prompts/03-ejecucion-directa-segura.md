@@ -17,14 +17,14 @@ Implementar juntos el adaptador exclusivo a `Terminar_Tarea_Workflow`, `Servicio
 ## REQUISITOS POSITIVOS
 
 - Aceptar solo `{ IdTarea, IdUsuarioWorkflowDestino, IdActividadDestino, TokenVersion }` en `EjecutarEnvioUsuario` del ASMX existente.
-- Dentro de `GET_LOCK`, releer y validar contexto, gate, `CAMBIO_USUARIO`, tarea, token, ruta/flujo, respuesta `YES`, usuario activo, relación usuario–actividad–ruta, `UTIL_ASIGNA_TAREA` y notificación.
+- Dentro de `GET_LOCK`, releer y validar contexto, `CAMBIO_USUARIO`, tarea, token, ruta/flujo, respuesta `YES`, usuario activo, relación usuario–actividad–ruta, `UTIL_ASIGNA_TAREA` y notificación.
 - Crear puerto y adaptador exclusivos; solo este adaptador invoca una vez `ClassWorkflow.Terminar_Tarea_Workflow` con `Page = Nothing`, sin conector.
 - Normalizar éxito, bloqueo, error reintentable y advertencias; auditar con `ASMX_ENVIO_USUARIO` sin datos sensibles.
 
 ## RESTRICCIONES CRÍTICAS
 
 - No invocar `After_envio_usuario_workflow`, `Reasigna_respuesta_envia_tarea_usuario`, `Cambia_Estado`, handlers Web Forms, batch de Pendientes ni ejecutor por conector.
-- No alterar `ServicioTransicionTarea`, `EjecutarEnvioTarea`, `IWorkflowLegacyExecutor`, `IdConector`, UI, gate o configuración.
+- No alterar `ServicioTransicionTarea`, `EjecutarEnvioTarea`, `IWorkflowLegacyExecutor`, `IdConector`, UI ni configuración.
 - Respuesta pendiente, token vencido o destino retirado bloquean antes del motor legacy.
 
 ## REGLAS DE ANTIRREGRESIÓN
@@ -39,7 +39,7 @@ Implementar juntos el adaptador exclusivo a `Terminar_Tarea_Workflow`, `Servicio
 
 ## PRUEBAS OBLIGATORIAS
 
-Cubrir solicitud inválida, gate/permiso, respuesta pendiente, token, destino retirado, usuario inactivo, `UTIL_ASIGNA_TAREA=0`, lock ocupado, advertencia correo/evento, auditoría fallida y éxito simulado. Ejecutar MSBuild y pruebas focales; no E2E mutante.
+Cubrir solicitud inválida, permiso, respuesta pendiente, token, destino retirado, usuario inactivo, `UTIL_ASIGNA_TAREA=0`, lock ocupado, advertencia correo/evento, auditoría fallida y éxito simulado. Ejecutar MSBuild y pruebas focales; no E2E mutante sin autorización explícita.
 
 ## DOCUMENTACIÓN TÉCNICA
 
@@ -47,4 +47,4 @@ Actualizar `02-contrato.md`, `03-flujo-y-seguridad.md` y `04-pruebas-y-evidencia
 
 ## ENTREGABLE FINAL
 
-Reportar ticket, archivos, pruebas, compilación, trazabilidad sanitizada y confirmación de no regresión de Continuar flujo. No implementar UI ni activar gate.
+Reportar ticket, archivos, pruebas, compilación, trazabilidad sanitizada y confirmación de no regresión de Continuar flujo. No implementar UI ni cambiar configuración de ambiente.
