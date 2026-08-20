@@ -35,6 +35,8 @@ function loadPagePresentation() {
     const list = element({ "data-workflow-task-list": "true" });
     list.hidden = true;
     list.style.display = "none";
+    const scroller = element({ "data-workflow-task-scroll": "true" });
+    scroller.scrollLeft = 236;
     const actions = [element({ "data-workflow-task-action": "true" }), element({ "data-workflow-task-action": "true" })];
     const toggles = [element({ "data-workflow-task-toggle": "true" })];
     const success = element({ "data-workflow-transition-success": "true", hidden: "hidden" });
@@ -52,6 +54,7 @@ function loadPagePresentation() {
                 "[data-workflow-task-context]": context,
                 "[data-workflow-task-viewer]": viewer,
                 "[data-workflow-task-list]": list,
+                "[data-workflow-task-scroll]": scroller,
                 "[data-workflow-transition-success]": success
             }[selector] || null;
         }
@@ -64,14 +67,16 @@ function loadPagePresentation() {
         },
         clearTimeout(identifier) {
             if (timers[identifier - 1]) timers[identifier - 1].cleared = true;
-        }
+        },
+        auto_zise_popup_workflow(argument) { window.layoutRefreshes.push(argument); },
+        layoutRefreshes: []
     };
     vm.runInNewContext(source, { window, document, Number, String, Math, isFinite });
-    return { api: window.WorkflowTransitionPagePresentation, parent, counter, context, viewer, list, actions, toggles, success, timers };
+    return { api: window.WorkflowTransitionPagePresentation, parent, counter, context, viewer, list, scroller, actions, toggles, success, timers, layoutRefreshes: window.layoutRefreshes };
 }
 
 test("actualiza solo la representación de la tarea confirmada mediante atributos data", () => {
-    const { api, parent, counter, context, viewer, list, actions, toggles, success, timers } = loadPagePresentation();
+    const { api, parent, counter, context, viewer, list, scroller, actions, toggles, success, timers, layoutRefreshes } = loadPagePresentation();
     assert.equal(api.applySuccess({ idTarea: 41, tokenVersion: "v-41" }), true);
     assert.equal(parent.children.length, 0);
     assert.equal(counter.textContent, "Tareas de Grupo=(2)");
@@ -80,6 +85,8 @@ test("actualiza solo la representación de la tarea confirmada mediante atributo
     assert.ok(viewer.removedAttributes.includes("src"));
     assert.equal(list.hidden, false);
     assert.equal(list.style.display, "block");
+    assert.equal(scroller.scrollLeft, 0);
+    assert.deepEqual(layoutRefreshes, ["1"]);
     assert.ok(actions.every((action) => action.hidden && action.style.display === "none"));
     assert.ok(toggles.every((toggle) => toggle.hidden && toggle.style.display === "none"));
     assert.equal(success.hidden, false);

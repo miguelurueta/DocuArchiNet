@@ -77,3 +77,12 @@ El sistema SHALL conservar el payload exacto de ejecución { idTarea, idActivida
 
 - **WHEN** el token vence, el destino se retira o existe concurrencia al confirmar
 - **THEN** EjecutarEnvioGrupo bloquea de forma segura y la búsqueda no sustituye ninguna de sus revalidaciones.
+
+### Requirement: D-09 Restablecer la bandeja después de un envío confirmado
+
+El cliente SHALL, después de aplicar el éxito correlacionado de un envío moderno, ocultar el contexto de tarea, mostrar el listado, restablecer el scroll horizontal del contenedor de la bandeja al inicio y recalcular su layout con la rutina existente. No SHALL generar una petición adicional, un postback ni modificar el payload, el gate o Continuar flujo.
+
+#### Scenario: Éxito de envío a grupo desde una bandeja desplazada
+
+- **WHEN** EjecutarEnvioGrupo confirma la tarea seleccionada y la bandeja tenía desplazamiento horizontal
+- **THEN** se retira únicamente esa fila, el contexto anterior queda oculto y la bandeja visible conserva paginador, controles y scroll horizontal desde la primera columna.

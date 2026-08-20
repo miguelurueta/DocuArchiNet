@@ -845,7 +845,7 @@
                     </div>      
                    </div>  
               <div id="contenedor_tab" style="height: 60%;" class="">
-                  <asp:Panel ID="Panelactividad" runat="server" Style="overflow: auto; height: 400px"
+                  <asp:Panel ID="Panelactividad" runat="server" Style="overflow: auto; height: 400px" data-workflow-task-scroll="true"
                       Enabled="true">
                       <asp:UpdatePanel ID="UpdatePanel1" runat="server"
                           UpdateMode="Conditional">

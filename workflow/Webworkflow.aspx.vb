@@ -342,7 +342,7 @@ Public Class Webworkflow
 
         Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
         script.ID = "workflowTransitionPagePresentationScript"
-        script.Attributes("src") = "../js/workflow/workflow-transition-page-presentation.js?v=20260818-doc14fullflow1"
+        script.Attributes("src") = "../js/workflow/workflow-transition-page-presentation.js?v=20260820-doc26layout1"
         script.Attributes("type") = "text/javascript"
         Page.Header.Controls.Add(script)
     End Sub

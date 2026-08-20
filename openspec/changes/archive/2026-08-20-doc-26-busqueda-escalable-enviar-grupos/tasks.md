@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08 -->
+<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
 ## 1. Contrato y dominio
 
 - [x] 1.1 [S] Añadir DTOs de request y respuesta para BuscarDestinosEnvioGrupo, metadatos de primera página en PreviewEnviarGrupo y una interfaz de lectura paginada, sin modificar las firmas de PreviewEnviarGrupo ni EjecutarEnvioGrupo. Área/archivos: modelos, interfaces y ServicioEnvioGrupoTarea. Origen: D-01, RQ-01.
@@ -24,3 +24,4 @@
 - [x] 4.3 Confirmar con pruebas que el payload de ejecución, token, destino retirado, concurrencia, fallback legacy y Continuar flujo no cambian. Área/archivos: suites de grupo y transición existentes. Origen: D-08, RQ-08.
 - [x] 4.4 Actualizar exclusivamente Doc/Actualizacion/workflow/TerminarGrupo/01-implementacion-envio-grupo/ con contrato, seguridad, secuencia de búsqueda y evidencia de pruebas. Área/archivos: 02-contrato.md, 03-flujo-y-seguridad.md, 04-pruebas-y-evidencia.md y Diagramas/. Origen: D-02, RQ-02.
 - [x] 4.5 Ejecutar las pruebas focales y la compilación disponible, registrar código de salida y limitaciones reproducibles; no ejecutar E2E autenticado, carga ni activar el gate. Área/archivos: evidencia técnica del cambio. Origen: D-06, RQ-06.
+- [x] 4.6 [S] Corregir la regresión posterior de validación: después del éxito moderno, cerrar el contexto de tarea, recalcular la bandeja visible y restablecer su scroll horizontal sin añadir llamadas ni cambiar contratos. Cubrirlo con pruebas de presentación y actualización de caché del recurso. Área/archivos: workflow-transition-page-presentation.js, workflow/Webworkflow.aspx, workflow/Webworkflow.aspx.vb y suites CJS. Origen: D-09, RQ-09.
