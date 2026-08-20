@@ -275,7 +275,7 @@ async function main() {
     fechaUtc: new Date().toISOString(),
     endpoint: previewUrl(),
     idTarea: settings.idTarea,
-    rolAutenticado: 'piloto',
+    rolAutenticado: 'contexto-workflow-valido',
     parametros: {
       concurrencias: settings.concurrencyLevels,
       solicitudesPorSesion: settings.requestsPerSession,

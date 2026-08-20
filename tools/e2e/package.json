@@ -7,7 +7,7 @@
     "install:browsers": "playwright install chromium",
     "test:anonymous": "node scripts/assert-e2e-config.cjs anonymous && playwright test --grep @anonymous",
     "test:session": "node scripts/assert-e2e-config.cjs session && playwright test --grep @session",
-    "test:authorization": "node scripts/assert-e2e-config.cjs authorization && playwright test --grep @authorization",
+    "test:contexts": "node scripts/assert-e2e-config.cjs contexts && playwright test --grep @contexts",
     "test:e2e": "node scripts/assert-e2e-config.cjs full && playwright test --grep @full",
     "test:load": "node scripts/assert-e2e-config.cjs load && node scripts/run-doc10-concurrency.cjs",
     "test:doc11:anonymous": "node scripts/assert-doc11-execution-config.cjs anonymous && playwright test tests/doc11-execution.spec.cjs --grep @doc11-anonymous",

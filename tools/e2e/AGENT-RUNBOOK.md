@@ -1,124 +1,72 @@
 # Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11
 
-Este documento permite reutilizar las pruebas del ASMX `PreviewEnviarTarea` sin copiar credenciales ni modificar datos Workflow.
+Este runbook permite reutilizar las pruebas del ASMX `PreviewEnviarTarea` sin copiar credenciales, modificar datos Workflow ni reactivar la política legacy.
 
 ## Límites obligatorios
 
-- Ejecutar contra un ambiente de pruebas autorizado; nunca asumir autorización para producción.
-- Recibir cuentas, URL y acceso MySQL de solo lectura únicamente por secretos del entorno o una instrucción explícita del responsable. No crear `.env`, no escribir ni mostrar valores de variables de entorno sensibles.
-- No enviar al ASMX usuario, grupo, ruta, actividad ni permisos: los scripts usan el login real de `gestor.aspx` y después llaman `PreviewEnviarTarea(idTarea)`.
-- El ASMX debe mantenerse de solo lectura. Las consultas de tarea y auditoría aceptadas por los scripts son una sola sentencia `SELECT` con un parámetro `?` para la tarea.
-- No modificar el flujo legacy. Al finalizar verificar que `workflow/Webworkflow.aspx` y `workflow/Webworkflow.aspx.vb` no tengan cambios.
+- Ejecutar solo contra un ambiente de pruebas autorizado; nunca inferir autorización para producción.
+- Recibir URL, cuentas y acceso MySQL de solo lectura mediante secretos del entorno o instrucción expresa. No crear `.env` ni mostrar secretos, cookies o cadenas de conexión.
+- Reutilizar `tests/support/authenticated-workflow-session.cjs` para todo login E2E DOC-10. No enviar usuario, grupo, ruta, actividad ni permisos al ASMX.
+- `PreviewEnviarTarea` es de solo lectura. Las consultas de control son una única sentencia `SELECT` con exactamente un parámetro `?` para la tarea.
+- No modificar el flujo legacy. Al cierre, `workflow/Webworkflow.aspx` y `workflow/Webworkflow.aspx.vb` no deben tener cambios.
+- No activar, editar ni limitar `WorkflowCentroTrabajoModernActive`, usuarios o grupos: la experiencia moderna es oficial para todo contexto Workflow válido.
 
 ## Preparación
-
-Desde la raíz del repositorio:
 
 ```powershell
 npm.cmd --prefix tools/e2e install
 npm.cmd --prefix tools/e2e run install:browsers
 ```
 
-Si ya existe Microsoft Edge administrado, usar `DOC10_E2E_BROWSER_CHANNEL=msedge` para DOC-10 o `DOC11_E2E_BROWSER_CHANNEL=msedge` para DOC-11. Las variables comunes se entregan por el almacén de secretos del agente o la sesión actual:
+Las variables de sesión se entregan por secretos efímeros:
 
 ```powershell
 $env:DOC10_E2E_BASE_URL = 'https://ambiente-pruebas/app/'
 $env:DOC10_E2E_MODULE = 'GESTOR'
-$env:DOC10_E2E_AUTHORIZED_USER = '<piloto>'
+$env:DOC10_E2E_AUTHORIZED_USER = '<cuenta-workflow-valida>'
 $env:DOC10_E2E_AUTHORIZED_PASSWORD = '<secreto>'
 $env:DOC10_E2E_TASK_ID = '<tarea-activa-autorizada>'
 ```
 
-Para las verificaciones con huellas, agregar un usuario MySQL de solo lectura y una consulta de auditoría aprobada:
+Para huellas antes/después, agregar únicamente una cuenta MySQL de lectura y una consulta de auditoría aprobada:
 
 ```powershell
 $env:DOC10_E2E_MYSQL_URL = 'mysql://usuario_solo_lectura:secreto@host/base'
 $env:DOC10_E2E_AUDIT_SQL = 'SELECT COUNT(*) AS total FROM tabla_auditoria WHERE id_tarea = ?'
 ```
 
-`DOC10_E2E_TASK_STATE_SQL` es opcional. Si se usa, también debe ser un único `SELECT` con un solo `?`.
+`DOC10_E2E_TASK_STATE_SQL` es opcional y también debe ser un `SELECT` con un único `?`.
 
-## Gate temporal
+## Estado del gate
 
-El gate normal es:
-
-```text
-WorkflowCentroTrabajoModernActive=false
-WorkflowCentroTrabajoModernUsers=
-WorkflowCentroTrabajoModernGroups=
-```
-
-Solo tras autorización explícita, habilitarlo temporalmente y limitarlo al piloto de prueba. Usar una edición reversible, ejecutar la prueba y restaurar inmediatamente los tres valores anteriores, incluso si la prueba falla. Confirmar la restauración con:
+Al inicio y cierre se comprueba que la configuración permanece apagada y sin alcance. Es un control de integridad, no un mecanismo de habilitación:
 
 ```powershell
 rg -n "WorkflowCentroTrabajoModern(Active|Users|Groups)" Web.config
 ```
 
+El resultado esperado es `Active=false` y listas vacías. Si difiere, detener la corrida y solicitar intervención del responsable del ambiente; nunca corregirlo desde la prueba.
+
 ## Selección de prueba
 
 | Objetivo | Comando | Requisitos adicionales | Resultado esperado |
 | --- | --- | --- | --- |
-| Borde sin sesión | `npm.cmd --prefix tools/e2e run test:anonymous` | Solo URL y tarea. | `WORKFLOW_CONTEXT_INVALID`, sin destinos. |
-| Diagnosticar login Gestión → Workflow | `npm.cmd --prefix tools/e2e run test:session` | Piloto y gate no necesario. | No retorna `WORKFLOW_CONTEXT_INVALID`. |
-| Gate piloto/no piloto | `npm.cmd --prefix tools/e2e run test:authorization` | Agregar usuario y clave no piloto; gate limitado al piloto. | Piloto supera el gate; no piloto recibe `WORKFLOW_MODERN_INACTIVE`. |
-| E2E funcional completa | `npm.cmd --prefix tools/e2e run test:e2e` | No piloto, MySQL de solo lectura y auditoría. | Destinos o bloqueo esperado; huellas iguales antes/después. |
-| Concurrencia ASMX | `npm.cmd --prefix tools/e2e run test:load` | MySQL de solo lectura y gate limitado al piloto. | Métricas por nivel y huellas iguales antes/después. |
-
-Para `test:e2e`, definir además `DOC10_E2E_UNAUTHORIZED_USER` y `DOC10_E2E_UNAUTHORIZED_PASSWORD`. Si una tarea autorizada debe bloquearse por una razón conocida, usar `DOC10_E2E_AUTHORIZED_EXPECTED_CODE`; no usarlo para ocultar un fallo inesperado.
-
-## Carga de 20 y 30 sesiones
-
-`test:load` crea sesiones Gestión independientes y luego dispara el ASMX simultáneamente. El login se dosifica para no confundir un cuello de botella de Web Forms con la latencia del endpoint.
-
-```powershell
-$env:DOC10_LOAD_CONCURRENCIES = '20,30'       # predeterminado
-$env:DOC10_LOAD_LOGIN_CONCURRENCY = '5'       # solo bootstrap de login
-$env:DOC10_LOAD_LOGIN_TIMEOUT_MS = '30000'    # opcional
-$env:DOC10_LOAD_REQUESTS_PER_SESSION = '1'    # predeterminado
-$env:DOC10_LOAD_MAX_FAILURE_PERCENT = '0'     # predeterminado
-$env:DOC10_LOAD_MAX_P95_MS = '<objetivo>'     # opcional, solo si fue acordado
-$env:DOC10_LOAD_EVIDENCE_PATH = 'Doc/Actualizacion/workflow/Terminar/02-preview-ruta-flujo/evidencias/qa-preview-load.json'
-npm.cmd --prefix tools/e2e run test:load
-```
-
-La evidencia incluye sesiones autenticadas/fallidas, solicitudes exitosas/fallidas, p50/p95/p99, códigos públicos de error y huellas de estado/auditoría. No contiene secretos, cookies ni cuerpos de respuesta. `LOGIN_TIMEOUT` indica un problema de bootstrap Web Forms; se reporta por separado de una falla del ASMX. No convertir el endpoint a asíncrono solo por ese código: primero revisar IIS, pool MySQL, CPU, memoria y la repetición en un ambiente representativo.
+| Borde sin sesión | `npm.cmd --prefix tools/e2e run test:anonymous` | URL y tarea. | Contexto anónimo rechazado, sin destinos. |
+| Sesión Gestión → Workflow | `npm.cmd --prefix tools/e2e run test:session` | Cuenta Workflow válida. | Contexto resuelto sin bloqueo de despliegue. |
+| Dos contextos oficiales | `npm.cmd --prefix tools/e2e run test:contexts` | Agregar segunda cuenta Workflow válida. | Ambas sesiones resuelven contexto; la disponibilidad es una regla de negocio. |
+| E2E funcional completa | `npm.cmd --prefix tools/e2e run test:e2e` | MySQL de solo lectura y auditoría. | Destinos o bloqueo funcional esperado; huellas iguales antes/después. |
+| Concurrencia ASMX | `npm.cmd --prefix tools/e2e run test:load` | Autorización específica de carga y MySQL de solo lectura. | Métricas y huellas iguales antes/después. |
 
 ## Cierre de cada corrida
 
-1. Conservar la evidencia resumida en `Doc/Actualizacion/workflow/Terminar/02-preview-ruta-flujo/evidencias/` si no incluye secretos.
-2. Registrar ambiente, tipo de tarea (`FLUJO` o `RUTA`), resultado y huellas en `04-pruebas-y-evidencia.md`.
-3. Restaurar el gate apagado y confirmar sus valores.
-4. Ejecutar `git diff --name-only -- workflow/Webworkflow.aspx workflow/Webworkflow.aspx.vb`; el resultado debe estar vacío.
-5. Si hubo procesos de navegador o prueba residuales, detenerlos solo con autorización explícita y volver a comprobar el gate.
+1. Conservar solo evidencia resumida sin secretos ni cuerpos de respuesta.
+2. Registrar ambiente, tipo de tarea, resultado y huellas cuando la evidencia pertenezca al cambio en curso.
+3. Confirmar que el gate siguió apagado y las listas vacías con el comando anterior.
+4. Ejecutar `git diff --name-only -- workflow/Webworkflow.aspx workflow/Webworkflow.aspx.vb`; no debe producir salida.
+5. No detener procesos residuales sin autorización explícita.
 
-## Ejecución mutante DOC-11
+## DOC-11 mutante
 
-`EjecutarEnvioTarea` cambia la tarea. No se ejecuta con cuentas, tareas o ambientes operativos. Antes de usarlo debe existir autorización explícita para una tarea descartable, usuario piloto, conector y token obtenidos del preview actual; además, una consulta `SELECT` de estado y otra de auditoría, ambas con un único parámetro `?` para la tarea y una conexión MySQL de solo lectura.
+`EjecutarEnvioTarea` cambia la tarea. Solo puede ejecutarse con autorización explícita para una tarea descartable, cuenta válida, conector y token obtenidos del preview actual, además de consultas de estado y auditoría `SELECT` con un parámetro `?` y MySQL de solo lectura.
 
-Definir los secretos exclusivamente en el entorno de proceso. No imprimirlos, no crear `.env` ni conservar cookies:
-
-```powershell
-$env:DOC11_E2E_BASE_URL = 'https://ambiente-pruebas/app/'
-$env:DOC11_E2E_MODULE = 'GESTOR'
-$env:DOC11_E2E_AUTHORIZED_USER = '<piloto-descartable>'
-$env:DOC11_E2E_AUTHORIZED_PASSWORD = '<secreto>'
-$env:DOC11_E2E_TASK_ID = '<tarea-descartable>'
-$env:DOC11_E2E_CONNECTOR_ID = '<conector-del-preview>'
-$env:DOC11_E2E_TOKEN_VERSION = '<token-del-preview>'
-$env:DOC11_E2E_MYSQL_URL = 'mysql://usuario_solo_lectura:secreto@host/base'
-$env:DOC11_E2E_TASK_STATE_SQL = 'SELECT ... WHERE id_tarea = ?'
-$env:DOC11_E2E_AUDIT_SQL = 'SELECT ... WHERE id_tarea = ?'
-```
-
-| Objetivo | Comando | Protección |
-| --- | --- | --- |
-| Sin sesión | `npm.cmd --prefix tools/e2e run test:doc11:anonymous` | No cambia estado. |
-| Parámetros inválidos con sesión piloto | `npm.cmd --prefix tools/e2e run test:doc11:validation` | No cambia estado. |
-| Envío descartable | `npm.cmd --prefix tools/e2e run test:doc11:execute` | Requiere `DOC11_E2E_EXECUTION_AUTHORIZED=true` y resultado esperado. |
-| Doble solicitud | `npm.cmd --prefix tools/e2e run test:doc11:concurrency` | Requiere el mismo consentimiento y una tarea descartable nueva. |
-
-Para `test:doc11:execute`, agregar `DOC11_E2E_EXPECTED_OUTCOME=success` o `blocked`; en el segundo caso `DOC11_E2E_EXPECTED_CODE` es obligatorio. La prueba produce evidencia sin secretos bajo `tools/e2e/artifacts/` por defecto. La de concurrencia exige exactamente un envío efectivo y un bloqueo concurrente controlado.
-
-Después de cualquier corrida, restaurar los tres valores del gate a apagado, verificar el `rg` indicado arriba y registrar la evidencia en `Doc/Actualizacion/workflow/Terminar/03-ejecucion-segura/04-pruebas-y-evidencia.md`.
-
-La checklist para la aprobación humana está en [../../Doc/Actualizacion/workflow/Terminar/02-preview-ruta-flujo/07-checklist-qa-manual.md](../../Doc/Actualizacion/workflow/Terminar/02-preview-ruta-flujo/07-checklist-qa-manual.md). La referencia humana ampliada está en [README.md](README.md); este runbook es la entrada operativa para agentes.
+Las pruebas anónima y de validación no cambian estado. Ejecución y concurrencia requieren además `DOC11_E2E_EXECUTION_AUTHORIZED=true`; después se confirma que la configuración del gate continuó apagada y el flujo legacy no cambió.

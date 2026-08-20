@@ -13,9 +13,9 @@
 
     /* El Workbench se carga dentro del iframe del shell. En la banda intermedia
        el menú abierto le resta 290 px y hace que el iframe active su breakpoint
-       táctil antes de tiempo. El meta solo se emite para el piloto autorizado;
-       por ello el ajuste no afecta baseline ni otros módulos del mismo shell. */
-    function esCentroTrabajoPilotoActivo() {
+       táctil antes de tiempo. La vista oficial del shell siempre emite el meta;
+       el ajuste se limita por ruta para no afectar otros módulos. */
+    function esCentroTrabajoOficialActivo() {
         var iframe = document.getElementById(idIframeContenido);
         var origen = iframe ? (iframe.getAttribute("src") || "") : "";
 
@@ -23,7 +23,7 @@
     }
 
     function puntoCierreActual() {
-        return esCentroTrabajoPilotoActivo() ? puntoCierreCentroTrabajo : puntoCierre;
+        return esCentroTrabajoOficialActivo() ? puntoCierreCentroTrabajo : puntoCierre;
     }
 
     function vistaReducida() {
