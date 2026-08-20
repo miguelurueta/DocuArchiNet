@@ -31,6 +31,7 @@ No se crean gates, fuentes de autorización, despliegues paralelos ni cambios de
 | D-06 | Se recupera tamanoPagina más uno para calcular tieneMas sin COUNT por pulsación; no se crean índices ni se modifica el esquema sin una migración y decisión posterior aprobadas. | MySqlEnvioGrupoRepository.vb | D-06 | RQ-06 | Origen: D-06, RQ-06 |
 | D-07 | La UI usa demora de 300 ms, mínimo de dos caracteres para iniciar búsqueda, cancelación o descarte de respuestas obsoletas, primera página al limpiar y selección invalidada ante filtro o página nuevos. | workflow-group-send-ui.js; workflow-group-send-confirmation.js | D-07 | RQ-07 | Origen: D-07, RQ-07 |
 | D-08 | La ejecución conserva exactamente { idTarea, idActividadDestino, tokenVersion }, su relectura dentro del lock y sus revalidaciones; se conservan accesibilidad, fallback legacy y aislamiento de Continuar flujo. | ServicioEnvioGrupoTarea; WorkflowLegacyEnvioGrupoExecutorAdapter.vb | D-08 | RQ-08 | Origen: D-08, RQ-08 |
+| D-09 | Después de un envío moderno confirmado, la bandeja vuelve al listado, recalcula su altura y restablece su desplazamiento horizontal inicial; no cambia el contrato ni realiza una operación adicional. | workflow-transition-page-presentation.js; workflow/Webworkflow.aspx | D-09 | RQ-09 | Origen: D-09, RQ-09 |
 
 ## Requisitos verificables
 
@@ -44,6 +45,7 @@ No se crean gates, fuentes de autorización, despliegues paralelos ni cambios de
 | RQ-06 | Las rutas extensas devuelven como máximo el tamaño aplicado y tienen indicador de continuación. | Dada una lista de más de una página, cuando se consulta una página, entonces tieneMas deriva de una fila adicional sin COUNT por pulsación. | El rendimiento se verifica con plan de consulta antes de cualquier índice. |
 | RQ-07 | Tabla, tarjetas y estado anunciado muestran el mismo conjunto vigente. | Dada una respuesta lenta, cambio de término, limpieza, página o reintento, entonces una respuesta anterior no reemplaza los resultados actuales y una selección anterior no se puede confirmar. | Conserva teclado, foco, Escape y uso móvil. |
 | RQ-08 | Buscar no debilita la operación mutante ni el fallback. | Dado token vencido, destino retirado o concurrencia, cuando se ejecuta, entonces EjecutarEnvioGrupo conserva el bloqueo; con gate inactivo continúa el postback legacy y Continuar flujo conserva IdConector. | No hay regresión de contratos ni de seguridad. |
+| RQ-09 | La bandeja conserva un estado visual estable al terminar un envío moderno. | Dado un envío confirmado, cuando se retira la fila de la tarea, entonces se oculta el contexto de tarea, se muestra el listado redimensionado y el scroll horizontal vuelve al inicio. | Evita que el contexto anterior o un scroll desplazado oculten columnas, paginador o controles de la bandeja. |
 
 ## Resultado del refinamiento
 

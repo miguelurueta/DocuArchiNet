@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08 -->
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
 ## Context
 
 DOC-26 amplía únicamente la presentación moderna de Enviar a grupo cuando una ruta tiene muchos destinos o grupos relacionados. La implementación actual obtiene todos los destinos con PreviewEnviarGrupo y MySqlEnvioGrupoRepository; la consulta une grupos_workflow sin agrupar, por lo que su cardinalidad no escala y puede duplicar una actividad.
@@ -56,6 +56,10 @@ workflow-group-send-ui.js añadirá campo visible Buscar actividad o grupo, inst
 
 El diálogo de confirmación sigue recibiendo solo idTarea, idActividadDestino y tokenVersion. No reutiliza IdConector ni cambia WorkflowLegacyEnvioGrupoExecutorAdapter. Escape, trampa de foco, foco de retorno, teclado, doble clic y fallback conservan el comportamiento actual. Con gate inactivo el enlace legacy no se intercepta.
 
+### D-09 — Retorno estable a la bandeja después del éxito
+
+Tras una ejecución moderna confirmada, WorkflowTransitionPagePresentation conserva la retirada local de la fila y el cierre del contexto de tarea. Después restablece a cero el desplazamiento horizontal del contenedor marcado de la bandeja y llama a auto_zise_popup_workflow existente cuando está disponible, una vez que el listado ya es visible. No se agrega una petición, un postback, un cambio de payload ni una regla de gate; el atributo de datos identifica el contenedor visual sin acoplar el presentador a controles Web Forms.
+
 ## Arquitectura y flujo
 
     Trigger moderno
@@ -67,6 +71,7 @@ El diálogo de confirmación sigue recibiendo solo idTarea, idActividadDestino y
       -> selección IdActividadDestino
       -> EjecutarEnvioGrupo(idTarea, idActividadDestino, tokenVersion)
          -> relectura, GET_LOCK y revalidación existentes
+         -> éxito confirmado: retirar fila, cerrar contexto y restaurar bandeja
 
 La búsqueda usa una interfaz de lectura dedicada para que MySqlEnvioGrupoRepository conserve separados ObtenerDestinos y ResolverDestino de la nueva consulta paginada. Los DTOs y el servicio modelan explícitamente la página para que la UI no sintetice autorización ni límites.
 
@@ -79,4 +84,4 @@ La búsqueda usa una interfaz de lectura dedicada para que MySqlEnvioGrupoReposi
 
 ## Plan de pruebas
 
-Las pruebas CJS y VB focales cubren límites, filtros, agrupación, SELECT, sesión y gate denegados, resultados obsoletos, accesibilidad, fallback y ejecución con token o destino inválido. Se ejecutan la suite afectada y la compilación disponible; no se sustituyen por E2E autenticado ni carga.
+Las pruebas CJS y VB focales cubren límites, filtros, agrupación, SELECT, sesión y gate denegados, resultados obsoletos, accesibilidad, fallback, ejecución con token o destino inválido y la restauración de la bandeja tras éxito. Se ejecutan la suite afectada y la compilación disponible; no se sustituyen por E2E autenticado ni carga.

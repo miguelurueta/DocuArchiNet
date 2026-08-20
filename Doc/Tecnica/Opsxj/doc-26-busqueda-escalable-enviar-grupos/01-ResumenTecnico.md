@@ -10,4 +10,4 @@ Limitar la carga de destinos de Enviar a grupo y permitir buscar una actividad p
 
 ## Alcance y compatibilidad
 
-Se incorporó una consulta paginada de solo lectura y el preview conserva su firma, pero devuelve únicamente la primera página. EjecutarEnvioGrupo conserva la terna de ejecución, su relectura y el lock. Continuar flujo no cambia y sigue usando IdConector. No se crearon gates, configuraciones, índices ni migraciones. Con el gate inactivo permanece el postback Web Forms.
+Se incorporó una consulta paginada de solo lectura y el preview conserva su firma, pero devuelve únicamente la primera página. EjecutarEnvioGrupo conserva la terna de ejecución, su relectura y el lock. Después de un éxito moderno, la bandeja vuelve al listado con su layout y scroll horizontal restablecidos. Continuar flujo no cambia y sigue usando IdConector. No se crearon gates, configuraciones, índices ni migraciones. Con el gate inactivo permanece el postback Web Forms.

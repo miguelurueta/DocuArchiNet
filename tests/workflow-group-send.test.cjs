@@ -205,7 +205,7 @@ test("la ejecución revalida dentro del guard y conserva los requisitos directos
     assert.match(requirementsSource, /CodigosBloqueoPrevisualizacion\.AprobacionPendiente/);
     assert.doesNotMatch(requirementsSource, /Classgestionrespuesta|respuesta radicada/i);
     assert.match(executorSource, /Dim pagina As System\.Web\.UI\.Page = Nothing/);
-    assert.match(executorSource, /Terminar_Tarea_Workflow\([\s\S]*?\n\s*0,\n\s*\n?\s*contexto\.IdUsuarioWorkflow/);
+    assert.match(executorSource, /Terminar_Tarea_Workflow\([\s\S]*?\r?\n\s*If\(destino\.RequiereNotificacion, 1, 0\),\r?\n\s*0,\r?\n\s*contexto\.IdUsuarioWorkflow,\r?\n\s*tarea\.IdActividadOrigen/);
 });
 
 test("el ASMX compone operaciones de grupo sin exponer errores técnicos ni invocar el motor", () => {

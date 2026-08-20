@@ -77,6 +77,17 @@
         }
     }
 
+    function restoreTaskListLayout() {
+        var scroller = find("[data-workflow-task-scroll]");
+
+        if (scroller && typeof scroller.scrollLeft === "number") {
+            scroller.scrollLeft = 0;
+        }
+        if (typeof window.auto_zise_popup_workflow === "function") {
+            window.auto_zise_popup_workflow("1");
+        }
+    }
+
     function showSuccess() {
         var message = find("[data-workflow-transition-success]");
         if (!message) {
@@ -111,6 +122,7 @@
         }
         updateCounter();
         clearTaskContext();
+        restoreTaskListLayout();
         showSuccess();
         return true;
     }

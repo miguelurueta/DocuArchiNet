@@ -138,7 +138,7 @@ test("registra recursos DOC-12 y DOC-14 sin bloques de servidor en la cabecera W
     assert.match(codeBehind, /confirmation-dialog\.css\?v=20260818-doc14fullflow1/);
     assert.match(codeBehind, /ConfirmationDialog\.js\?v=20260818-doc14fullflow1/);
     assert.match(codeBehind, /workflow-transition-confirmation-integration\.js\?v=20260818-doc14fullflow1/);
-    assert.match(codeBehind, /workflow-transition-page-presentation\.js\?v=20260818-doc14fullflow1/);
+    assert.match(codeBehind, /workflow-transition-page-presentation\.js\?v=20260820-doc26layout1/);
     assert.match(page, /data-workflow-task-list="true"/);
     assert.match(page, /data-workflow-transition-success="true"/);
 });
