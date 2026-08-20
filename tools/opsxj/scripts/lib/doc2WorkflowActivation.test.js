@@ -9,7 +9,7 @@ const appRoot = path.resolve(testDirectory, "..", "..", "..", "..");
 const readAppFile = (relativePath) => readFile(path.join(appRoot, relativePath), "utf8");
 
 describe("DOC-2 workflow visual activation", () => {
-  it("delegates activation to the current server-side gate and keeps official scope closed", async () => {
+  it("keeps the retired gate configuration closed without governing the official presentation", async () => {
     const [config, codeBehind, page, bootstrap] = await Promise.all([
       readAppFile("Web.config"),
       readAppFile("workflow/Webworkflow.aspx.vb"),
@@ -21,33 +21,24 @@ describe("DOC-2 workflow visual activation", () => {
     const official = config.match(/<add\s+key="WorkflowCentroTrabajoModernOfficialMode"\s+value="([^"]*)"\s*\/>/i);
     const users = config.match(/<add\s+key="WorkflowCentroTrabajoModernUsers"\s+value="([^"]*)"\s*\/>/i);
     const groups = config.match(/<add\s+key="WorkflowCentroTrabajoModernGroups"\s+value="([^"]*)"\s*\/>/i);
-    const pilotStart = config.match(/<add\s+key="WorkflowCentroTrabajoModernPilotStartUtc"\s+value="([^"]*)"\s*\/>/i);
-    const pilotOwner = config.match(/<add\s+key="WorkflowCentroTrabajoModernPilotOwner"\s+value="([^"]*)"\s*\/>/i);
-    const pilotReason = config.match(/<add\s+key="WorkflowCentroTrabajoModernPilotReason"\s+value="([^"]*)"\s*\/>/i);
 
-    [active, official, users, groups, pilotStart, pilotOwner, pilotReason].forEach((setting) => expect(setting).not.toBeNull());
-    expect(["true", "false", "1", "0", "yes", "no"]).toContain(active[1].toLowerCase());
-    expect(["true", "false", "1", "0", "yes", "no"]).toContain(official[1].toLowerCase());
+    [active, official, users, groups].forEach((setting) => expect(setting).not.toBeNull());
+    expect(active[1].trim().toLowerCase()).toBe("false");
+    expect(official[1].trim().toLowerCase()).toBe("false");
+    expect(users[1].trim()).toBe("");
+    expect(groups[1].trim()).toBe("");
     expect(codeBehind).toContain("WorkflowModernPresentationBootstrap.EstaActivaParaSolicitudActual()");
+    expect(codeBehind).toMatch(/WorkflowCentroTrabajoModernPresentationEnabled As Boolean\s+Get\s+Return True/);
     expect(bootstrap).toContain("WorkflowPreviewSessionContextGate");
     expect(bootstrap).toContain("ConfiguracionWorkflowModernFeatureGate");
     expect(bootstrap).toContain("Return False");
-    if (["true", "1", "yes"].includes(active[1].toLowerCase())) {
-      expect(pilotStart[1].trim()).not.toBe("");
-      expect(pilotOwner[1].trim()).not.toBe("");
-      expect(pilotReason[1].trim()).not.toBe("");
-    }
-    if (["true", "1", "yes"].includes(official[1].toLowerCase())) {
-      expect(active[1].toLowerCase()).toMatch(/^(true|1|yes)$/);
-      expect(users[1].trim()).toBe("");
-      expect(groups[1].trim()).toBe("");
-    }
     expect(config).toContain('WorkflowCentroTrabajoModernLayers');
     expect(codeBehind).toContain('WorkflowCentroTrabajoModernActive');
     expect(page).toContain('<%= WorkflowCentroTrabajoModernCssAttribute %>');
+    expect(page).not.toContain("WorkflowCentroTrabajoModernActive");
   });
 
-  it("emits the real mobile viewport in the approved pilot and its iframe host", async () => {
+  it("emits the real mobile viewport in the official presentation and its iframe host", async () => {
     const [page, codeBehind, designer, shellPage, shellCodeBehind, shellDesigner] = await Promise.all([
       readAppFile("workflow/Webworkflow.aspx"),
       readAppFile("workflow/Webworkflow.aspx.vb"),
@@ -63,21 +54,19 @@ describe("DOC-2 workflow visual activation", () => {
     expect(page).toMatch(/<head runat="server">\s*<meta id="workflowCentroTrabajoModernViewport"/);
     expect(head).not.toMatch(/<%\s*(?:If|Else|End If)\b/);
     expect(head).toContain('<meta id="workflowCentroTrabajoModernViewport" runat="server" name="viewport" content="width=device-width, initial-scale=1" visible="false" />');
-    expect(codeBehind).toMatch(/Private Sub ConfigureWorkflowCentroTrabajoViewport\(\)[\s\S]*?workflowCentroTrabajoModernViewport\.Visible = WorkflowCentroTrabajoModernActive/);
+    expect(codeBehind).toMatch(/Private Sub ConfigureWorkflowCentroTrabajoViewport\(\)[\s\S]*?workflowCentroTrabajoModernViewport\.Visible = WorkflowCentroTrabajoModernPresentationEnabled/);
     expect(codeBehind).toMatch(/Protected Overrides Sub Page_Load[\s\S]*?ConfigureWorkflowCentroTrabajoViewport\(\)/);
     expect(codeBehind).not.toContain("Page.Header.Controls.Add(viewport)");
     expect(designer).toContain("Protected WithEvents workflowCentroTrabajoModernViewport As Global.System.Web.UI.HtmlControls.HtmlMeta");
     expect(shellPage).toMatch(/<head runat="server">\s*<meta id="workflowCentroTrabajoModernShellViewport"/);
     expect(shellHead).not.toMatch(/<%\s*(?:If|Else|End If)\b/);
-    expect(shellHead).toContain('<meta id="workflowCentroTrabajoModernShellViewport" runat="server" name="viewport" content="width=device-width, initial-scale=1" visible="false" />');
-    expect(shellCodeBehind).toMatch(/Private ReadOnly Property WorkflowCentroTrabajoModernShellActive As Boolean[\s\S]*?GA_LOGINUSUARIOGESTION/);
-    expect(shellCodeBehind).toMatch(/Private Sub ConfigureWorkflowCentroTrabajoShellViewport\(\)[\s\S]*?workflowCentroTrabajoModernShellViewport\.Visible = WorkflowCentroTrabajoModernShellActive/);
-    expect(shellCodeBehind).toMatch(/WebFormInicioDocuarchiGestion_PreRender[\s\S]*?ConfigureWorkflowCentroTrabajoShellViewport\(\)/);
+    expect(shellHead).toContain('<meta id="workflowCentroTrabajoModernShellViewport" runat="server" name="viewport" content="width=device-width, initial-scale=1" visible="true" />');
+    expect(shellCodeBehind).not.toMatch(/WorkflowCentroTrabajoModernShellActive|ConfigureWorkflowCentroTrabajoShellViewport|GA_LOGINUSUARIOGESTION/);
     expect(shellCodeBehind).not.toContain("Page.Header.Controls.Add(viewport)");
     expect(shellDesigner).toContain("Protected WithEvents workflowCentroTrabajoModernShellViewport As Global.System.Web.UI.HtmlControls.HtmlMeta");
   });
 
-  it("preserves the Workbench width by collapsing only the authorized pilot shell in the intermediate range", async () => {
+  it("preserves the Workbench width by collapsing only the official shell in the intermediate range", async () => {
     const [shellPage, shellMenu] = await Promise.all([
       readAppFile("Defaul/WebFormInicioDocuarchiGestion.aspx"),
       readAppFile("js/inicio/menu-vertical-responsivo.js"),
@@ -89,18 +78,18 @@ describe("DOC-2 workflow visual activation", () => {
       "workflowCentroTrabajoModernShellViewport",
       "ContentPlacenter_ifrm_ds_",
       "rutaCentroTrabajo = /(?:^|\\/)workflow\\/Webworkflow\\.aspx",
-      "esCentroTrabajoPilotoActivo",
+      "esCentroTrabajoOficialActivo",
       "puntoCierreActual",
       "iframe.addEventListener(\"load\", sincronizarVista)",
     ].forEach((marker) => expect(shellMenu).toContain(marker));
   });
 
-  it("wraps the existing task actions within the narrow pilot viewport", async () => {
+  it("wraps the existing task actions within the narrow official viewport", async () => {
     const [page, css] = await Promise.all([
       readAppFile("workflow/Webworkflow.aspx"),
       readAppFile("Styles/workflow-centro-trabajo-moderno.css"),
     ]);
-    expect(page).toContain("workflow-centro-trabajo-moderno.css?v=20260813-mobileframe46");
+    expect(page).toMatch(/workflow-centro-trabajo-moderno\.css\?v=[A-Za-z0-9._-]+/);
     [
       "@media (max-width: 767px)",
       "#nav_menu #navbarNavDropdown_ > .col-md-9",
@@ -249,12 +238,14 @@ describe("DOC-2 workflow visual activation", () => {
       ".ctw-authorize-control",
       "ImageButtonEnviarUsuario",
       "ImageButtonEnviaActividad",
-      "ImageButtonterminar",
+      "workflow-group-send-trigger",
+      "workflow-transition-trigger",
       "ImageButtonautoterminar",
       "#pendiente_selec_tarea",
       "ctw-commandbar",
       "ctw-command-menu",
     ].forEach((marker) => expect(adapter).toContain(marker));
+    expect(adapter).not.toContain("ImageButtonterminar");
     expect(adapter).not.toMatch(/innerHTML|outerHTML|insertAdjacentHTML|appendChild|insertBefore|removeChild|\.click\(/);
   });
 
@@ -270,7 +261,7 @@ describe("DOC-2 workflow visual activation", () => {
       "Elegir actividad anterior",
       "fa-sticky-note",
       "js/workflow/Webworkflow.js?v=20260812-taskclose53",
-      "workflow-centro-trabajo-moderno.css?v=20260813-mobileframe46",
+      "workflow-centro-trabajo-moderno.css",
       'aria-label="Seleccionar todos los documentos"',
       'role="status" aria-live="polite"',
       'aria-label="Mostrar acciones de tarea"',
@@ -369,7 +360,7 @@ describe("DOC-2 workflow visual activation", () => {
       "fa-history",
       "fa-cogs",
       "fa-copy",
-      "<% If WorkflowCentroTrabajoModernActive Then %>",
+      "<% If WorkflowCentroTrabajoModernPresentationEnabled Then %>",
     ].forEach((marker) => expect(page).toContain(marker));
     [
       "width: 380px;",
@@ -383,7 +374,7 @@ describe("DOC-2 workflow visual activation", () => {
     ].forEach((marker) => expect(css).toContain(marker));
   });
 
-  it("preserves the legacy task-close transition for pilot and baseline", async () => {
+  it("preserves the legacy task-close transition for the official presentation", async () => {
     const [page, workflowScript, adapter, css] = await Promise.all([
       readAppFile("workflow/Webworkflow.aspx"),
       readAppFile("js/workflow/Webworkflow.js"),
@@ -420,20 +411,20 @@ describe("DOC-2 workflow visual activation", () => {
     expect(adapter).not.toMatch(/innerHTML|outerHTML|insertAdjacentHTML|appendChild|insertBefore|removeChild/);
   });
 
-  it("keeps only task recovery in the pilot options menu", async () => {
+  it("keeps only task recovery in the official options menu", async () => {
     const page = await readAppFile("workflow/Webworkflow.aspx");
 
-    expect(page).toMatch(/aria-label="Opciones de la tarea"[\s\S]*?T-RTW[\s\S]*?<% If WorkflowCentroTrabajoModernActive Then %>[\s\S]*?bnt_eval_event_default[\s\S]*?<% End If %>[\s\S]*?<% If Not WorkflowCentroTrabajoModernActive Then %>[\s\S]*?S-DDS[\s\S]*?S-GAU[\s\S]*?Button_activa_estado_paginacion[\s\S]*?<% End If %>/);
+    expect(page).toMatch(/aria-label="Opciones de la tarea"[\s\S]*?T-RTW[\s\S]*?<% If WorkflowCentroTrabajoModernPresentationEnabled Then %>[\s\S]*?bnt_eval_event_default[\s\S]*?<% End If %>[\s\S]*?<% If Not WorkflowCentroTrabajoModernPresentationEnabled Then %>[\s\S]*?S-DDS[\s\S]*?S-GAU[\s\S]*?Button_activa_estado_paginacion[\s\S]*?<% End If %>/);
   });
 
-  it("moves the default service to pilot options without removing required server panels", async () => {
+  it("moves the default service to official options without removing required server panels", async () => {
     const page = await readAppFile("workflow/Webworkflow.aspx");
 
-    expect(page).toMatch(/<asp:Panel ID="Panel_tramitar_tarea"[\s\S]*?<% If Not WorkflowCentroTrabajoModernActive Then %>[\s\S]*?Servicios[\s\S]*?bnt_eval_event_default[\s\S]*?<% End If %>[\s\S]*?<\/asp:Panel>/);
-    expect(page).toMatch(/<asp:Panel ID="Panel_documentos_tarea"[\s\S]*?<% If Not WorkflowCentroTrabajoModernActive Then %>[\s\S]*?<li[\s\S]*?Documentos[\s\S]*?<\/li>[\s\S]*?<% End If %>[\s\S]*?<\/asp:Panel>/);
+    expect(page).toMatch(/<asp:Panel ID="Panel_tramitar_tarea"[\s\S]*?<% If Not WorkflowCentroTrabajoModernPresentationEnabled Then %>[\s\S]*?Servicios[\s\S]*?bnt_eval_event_default[\s\S]*?<% End If %>[\s\S]*?<\/asp:Panel>/);
+    expect(page).toMatch(/<asp:Panel ID="Panel_documentos_tarea"[\s\S]*?<% If Not WorkflowCentroTrabajoModernPresentationEnabled Then %>[\s\S]*?<li[\s\S]*?Documentos[\s\S]*?<\/li>[\s\S]*?<% End If %>[\s\S]*?<\/asp:Panel>/);
   });
 
-  it("consolidates duplicate document commands in the pilot menu while preserving baseline", async () => {
+  it("consolidates duplicate document commands in the official menu while preserving backend controls", async () => {
     const [page, css, adapter] = await Promise.all([
       readAppFile("workflow/Webworkflow.aspx"),
       readAppFile("Styles/workflow-centro-trabajo-moderno.css"),
@@ -441,7 +432,7 @@ describe("DOC-2 workflow visual activation", () => {
     ]);
 
     [
-      "<% If Not WorkflowCentroTrabajoModernActive Then %>",
+      "<% If Not WorkflowCentroTrabajoModernPresentationEnabled Then %>",
       'ID="Panel_documentos_tarea"',
       'id="ctw-document-action-attach-list"',
       'id="ctw-document-action-digitize"',
@@ -450,7 +441,7 @@ describe("DOC-2 workflow visual activation", () => {
       "Acciones de documentos",
       "Gestionar selección",
     ].forEach((marker) => expect(page).toContain(marker));
-    expect(page).toMatch(/<asp:Panel ID="Panel_documentos_tarea"[\s\S]*?<% If Not WorkflowCentroTrabajoModernActive Then %>[\s\S]*?<\/asp:Panel>/);
+    expect(page).toMatch(/<asp:Panel ID="Panel_documentos_tarea"[\s\S]*?<% If Not WorkflowCentroTrabajoModernPresentationEnabled Then %>[\s\S]*?<\/asp:Panel>/);
     expect(page).toContain("C-DW-ENL");
     expect(page).toContain("C-DW-AUTO");
     expect(page).not.toContain('id="ctw-document-action-upload"');
@@ -546,7 +537,7 @@ describe("DOC-2 workflow visual activation", () => {
     [
       'ctw-authorize-state-label">Autorizada',
       "Cambiar estado de autorización de la tarea",
-      "<% If WorkflowCentroTrabajoModernActive Then %>Historial<% Else %>Autorizar<% End If %>",
+      "<% If WorkflowCentroTrabajoModernPresentationEnabled Then %>Historial<% Else %>Autorizar<% End If %>",
       "Historial de autorizaciones",
       "prevent_autoriza_tarea(event, this);",
       "Cerrar tarea seleccionada",
@@ -554,7 +545,7 @@ describe("DOC-2 workflow visual activation", () => {
     expect(documentData).toContain("Optional ByVal modernDocumentCountFormat As Boolean = False");
     expect(documentData).toContain('If(modernDocumentCountFormat, "Documentos (0)", "Documentos 0")');
     expect(documentData).toContain('"Documentos (" & Datset.Tables(0).Rows.Count & ")"');
-    expect(taskSelection).toContain("ref_Webworkflow.WorkflowCentroTrabajoModernActive");
+    expect(taskSelection).toContain("ref_Webworkflow.WorkflowCentroTrabajoModernPresentationEnabled");
     expect(taskSelection).toContain("modernDocumentCountFormat)");
   });
 
@@ -585,7 +576,7 @@ describe("DOC-2 workflow visual activation", () => {
       "grid-row: 2;",
       "float: none !important;",
     ].forEach((marker) => expect(css).toContain(marker));
-    expect(page).toContain("<% If WorkflowCentroTrabajoModernActive Then %>");
+    expect(page).toContain("<% If WorkflowCentroTrabajoModernPresentationEnabled Then %>");
   });
 
   it("projects the selected document bar without duplicating its upload action in the document menu", async () => {
