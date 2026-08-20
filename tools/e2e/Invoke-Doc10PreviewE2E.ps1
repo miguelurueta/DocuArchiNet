@@ -7,10 +7,7 @@ param(
     [string]$ModuleValue,
 
     [Parameter(Mandatory = $true)]
-    [System.Management.Automation.PSCredential]$AuthorizedCredential,
-
-    [Parameter(Mandatory = $true)]
-    [System.Management.Automation.PSCredential]$UnauthorizedCredential,
+    [System.Management.Automation.PSCredential]$PrimaryCredential,
 
     [Parameter(Mandatory = $true)]
     [Int64]$IdTarea,
@@ -23,6 +20,8 @@ param(
 
     [Parameter(Mandatory = $true)]
     [string]$EvidencePath,
+
+    [string]$ExpectedFunctionalCode,
 
     [string]$TaskStateProbeSql = "SELECT ID_ESTADO, INICIO_TAREAS_WORKFLOW_ID_TAREA, ID_ACTIVIDAD, FECHA_INICIO, FECHA_SELECCION, FECHA_FIN, ESTADO_TAREA, ID_USUARIO, ID_FLUJO_TRABAJO, ID_ACTIVIDAD_FLUJO_TRABAJO FROM estados_tarea_workflow WHERE INICIO_TAREAS_WORKFLOW_ID_TAREA = @idTarea ORDER BY ID_ESTADO",
 
@@ -151,18 +150,20 @@ Add-Type -Path $MySqlAssemblyPath
 
 $beforeTask = Get-Fingerprint (Get-MySqlRows -Sql $TaskStateProbeSql)
 $beforeAudit = Get-Fingerprint (Get-MySqlRows -Sql $AuditProbeSql)
-$authorizedSession = New-AuthenticatedSession -Credential $AuthorizedCredential
-$authorized = Invoke-Preview -Session $authorizedSession
-$unauthorizedSession = New-AuthenticatedSession -Credential $UnauthorizedCredential
-$unauthorized = Invoke-Preview -Session $unauthorizedSession
+$primarySession = New-AuthenticatedSession -Credential $PrimaryCredential
+$primary = Invoke-Preview -Session $primarySession
 $afterTask = Get-Fingerprint (Get-MySqlRows -Sql $TaskStateProbeSql)
 $afterAudit = Get-Fingerprint (Get-MySqlRows -Sql $AuditProbeSql)
 
-if ($null -ne $authorized.Error -or @($authorized.Destinos).Count -lt 1) {
-    throw "El usuario autorizado no recibio destinos validos en el preview."
+if ($null -ne $primary.Error -and ($primary.Error.Codigo -eq "WORKFLOW_CONTEXT_INVALID" -or $primary.Error.Codigo -eq "WORKFLOW_MODERN_INACTIVE")) {
+    throw "La cuenta principal quedo bloqueada por contexto o por el gate retirado."
 }
-if ($null -eq $unauthorized.Error -or $unauthorized.Error.Codigo -ne "WORKFLOW_MODERN_INACTIVE" -or @($unauthorized.Destinos).Count -ne 0) {
-    throw "El usuario fuera del piloto no recibio el bloqueo fail-closed esperado."
+if (-not [string]::IsNullOrWhiteSpace($ExpectedFunctionalCode)) {
+    if ($null -eq $primary.Error -or $primary.Error.Codigo -ne $ExpectedFunctionalCode -or @($primary.Destinos).Count -ne 0) {
+        throw "La cuenta principal no recibio el bloqueo funcional esperado."
+    }
+} elseif ($null -ne $primary.Error -or @($primary.Destinos).Count -lt 1) {
+    throw "La cuenta principal no recibio destinos validos en el preview."
 }
 if ($beforeTask -ne $afterTask -or $beforeAudit -ne $afterAudit) {
     throw "La E2E detecto una mutacion de tarea, estado o auditoria."
@@ -176,10 +177,9 @@ $evidence = [ordered]@{
     fechaUtc = [DateTime]::UtcNow.ToString("o")
     endpoint = ([Uri]::new($BaseUri, "webservice/WebServiceWorkflowModern.asmx/PreviewEnviarTarea")).AbsoluteUri
     idTarea = $IdTarea
-    autorizado = [ordered]@{ destinos = @($authorized.Destinos).Count; tipoDecision = $authorized.TipoDecision; bloqueo = $null }
-    noAutorizado = [ordered]@{ destinos = @($unauthorized.Destinos).Count; bloqueo = $unauthorized.Error.Codigo }
+    principal = [ordered]@{ destinos = @($primary.Destinos).Count; tipoDecision = $primary.TipoDecision; bloqueo = if ($null -eq $primary.Error) { $null } else { $primary.Error.Codigo } }
     estadoSinMutacion = $true
     auditoriaSinMutacion = $true
 }
 $evidence | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $EvidencePath -Encoding UTF8
-Write-Output "PASS DOC-10 E2E: preview autorizado, bloqueo no autorizado y ausencia de mutacion comprobados."
+Write-Output "PASS DOC-10 E2E: preview oficial y ausencia de mutacion comprobados."

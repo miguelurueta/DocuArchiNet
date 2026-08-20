@@ -124,18 +124,13 @@ $context.IdRutaWorkflow = 1
 $context.LoginUsuario = "doc10-static-test"
 $gate = [Activator]::CreateInstance($gateType)
 $gateResult = $gateType.GetMethod("Evaluar").Invoke($gate, @($context))
-if ($gateResult.Activo -or $gateResult.Codigo -ne "WORKFLOW_MODERN_INACTIVE") {
-    throw "El gate DOC-10 no permanece cerrado por defecto: $($gateResult.Codigo)."
+if (-not $gateResult.EstaActiva -or $gateResult.Codigo -ne "WORKFLOW_MODERN_OFFICIAL") {
+    throw "La política DOC-10 no habilita el contexto Workflow válido: $($gateResult.Codigo)."
 }
 
 $previewConstructor = $serviceType.GetConstructors() | Where-Object { $_.GetParameters().Count -eq 5 } | Select-Object -First 1
 if ($null -eq $previewConstructor) {
     throw "El caso de uso de preview conserva una composicion obligatoria de escritura."
-}
-$previewService = $previewConstructor.Invoke(@($null, $null, $null, $gate, [Activator]::CreateInstance($assembly.GetType("GestionDocumental_Docuarchi.net.ValidadorTransicionTarea", $true))))
-$previewResult = $serviceType.GetMethod("Previsualizar").Invoke($previewService, @($context, [Int64]1))
-if ($previewResult.Error.Codigo -ne "WORKFLOW_MODERN_INACTIVE" -or $previewResult.Destinos.Count -ne 0) {
-    throw "Previsualizar no falla cerrado antes de consultar repositorios."
 }
 
 Add-Type -TypeDefinition @'
@@ -163,12 +158,12 @@ namespace Doc10Verification {
 }
 '@ -ReferencedAssemblies $AssemblyPath
 
-function New-EnabledGate {
+function New-OfficialPolicy {
     $gate = New-Object Doc10Verification.Gate
     $gate.Value = New-Object GestionDocumental_Docuarchi.net.HabilitacionWorkflowModern
     $gate.Value.Estado = "activo"
-    $gate.Value.Codigo = "WORKFLOW_MODERN_ACTIVE"
-    $gate.Value.MensajeFuncional = "Activo para prueba"
+    $gate.Value.Codigo = "WORKFLOW_MODERN_OFFICIAL"
+    $gate.Value.MensajeFuncional = "Política oficial para prueba"
     return $gate
 }
 
@@ -189,7 +184,7 @@ function New-ActiveTask {
 }
 
 function New-Scenario {
-    $gate = New-EnabledGate
+    $gate = New-OfficialPolicy
     $taskRepository = New-Object Doc10Verification.TaskRepository
     $flowRepository = New-Object Doc10Verification.FlowRepository
     $routeRepository = New-Object Doc10Verification.RouteRepository
@@ -226,12 +221,6 @@ $invalidContext = [Activator]::CreateInstance($contextType)
 $scenario = New-Scenario
 Assert-PreviewCode -Result ($scenario.Service.Previsualizar($invalidContext, [Int64]1)) -ExpectedCode "WORKFLOW_CONTEXT_INVALID"
 if ($scenario.Task.Calls -ne 0) { throw "El contexto invalido consulto la tarea." }
-
-$scenario = New-Scenario
-$scenario.Gate.Value.Estado = "inactivo"
-$scenario.Gate.Value.Codigo = "WORKFLOW_MODERN_INACTIVE"
-Assert-PreviewCode -Result ($scenario.Service.Previsualizar($context, [Int64]1)) -ExpectedCode "WORKFLOW_MODERN_INACTIVE"
-if ($scenario.Task.Calls -ne 0) { throw "El gate inactivo consulto la tarea." }
 
 $scenario = New-Scenario
 Assert-PreviewCode -Result ($scenario.Service.Previsualizar($context, [Int64]0)) -ExpectedCode "WORKFLOW_TASK_INVALID"
@@ -291,13 +280,13 @@ if ($endpointSource -notmatch "WorkflowPreviewSessionContextGate" -or
     $endpointSource -notmatch "WorkflowModuleConnectionFactory" -or
     $endpointSource -notmatch "DocuarchiModuleConnectionFactory" -or
     $endpointSource -notmatch "CadenaConexionDocuarchi") {
-    throw "El ASMX no compone el gate de contexto y las conexiones de Workflow y Docuarchi."
+    throw "El ASMX no compone el contexto y las conexiones de Workflow y Docuarchi."
 }
 if ($sessionGateSource -notmatch "SolicitaDatosUsuarioGestionLogin" -or
     $sessionGateSource -notmatch "SolicitaIdUsuarIdRutaGrupoWorkflow" -or
     $sessionGateSource -notmatch 'CrearCadenaConexion\(requestContext, "DA_"\)' -or
-    $sessionGateSource -match "InicializaSesionModuloWorkflow|RegistraLogSesionUsuarioWorkflow|ExecuteNonQuery") {
-    throw "El gate de contexto no conserva el bootstrap de solo lectura ni el snapshot Docuarchi desde Gestión."
+    $sessionGateSource -match "\.\s*InicializaSesionModuloWorkflow\s*\(|\.\s*RegistraLogSesionUsuarioWorkflow\s*\(|\.\s*ExecuteNonQuery\s*\(") {
+    throw "El contexto de sesión no conserva el bootstrap de solo lectura ni el snapshot Docuarchi desde Gestión."
 }
 if ($moduleConnectionFactorySource -match "\bHttpContext\s*\.|\bSession\s*\.") {
     throw "La factoría del módulo Workflow no puede leer la sesión."
@@ -305,7 +294,7 @@ if ($moduleConnectionFactorySource -match "\bHttpContext\s*\.|\bSession\s*\.") {
 if ($previewSource -notmatch "La previsualizacion permanece libre de escritura, guard y adaptadores legacy" -or
     $previewSource -notmatch "Public Function Previsualizar" -or
     $previewSource -notmatch "If Not habilitacion.Activo Then[\s\S]{0,600}Return respuesta") {
-    throw "El caso de uso no deja verificable la composicion de solo lectura o el gate previo."
+    throw "El caso de uso no deja verificable la composición de solo lectura o la política contextual."
 }
 if ($flowRepositorySource -match "TIPO_RUTA_ABIERTA_CERRADA|TIPO_ABIERTA_CERRADA_ACTIVIDAD") {
     throw "El preview de flujo no puede interpretar los campos de libertad de asignacion como bloqueo de envio."
@@ -323,4 +312,4 @@ if ($LASTEXITCODE -ne 1) {
     throw "No fue posible verificar los repositorios de preview."
 }
 
-Write-Output "PASS DOC-10 preview: ASMX minimo; gate fail-closed; catalogos Workflow/Docuarchi aislados; destinos de flujo/ruta; semantica de asignacion preservada; repositorios sin Web Forms ni escritura."
+Write-Output "PASS DOC-10 preview: ASMX mínimo; política oficial contextual; catálogos Workflow/Docuarchi aislados; destinos de flujo/ruta; semántica de asignación preservada; repositorios sin Web Forms ni escritura."

@@ -46,8 +46,8 @@ const settings = {
   moduleValue: required('DOC10_E2E_MODULE'),
   authorizedUser: required('DOC10_E2E_AUTHORIZED_USER'),
   authorizedPasswordConfigured: Boolean(required('DOC10_E2E_AUTHORIZED_PASSWORD')),
-  unauthorizedUser: required('DOC10_E2E_UNAUTHORIZED_USER'),
-  unauthorizedPasswordConfigured: Boolean(required('DOC10_E2E_UNAUTHORIZED_PASSWORD')),
+  secondaryUser: required('DOC10_E2E_SECONDARY_USER'),
+  secondaryPasswordConfigured: Boolean(required('DOC10_E2E_SECONDARY_PASSWORD')),
   mysqlUrl: process.env.DOC10_E2E_MYSQL_URL,
   auditSql: process.env.DOC10_E2E_AUDIT_SQL,
   authorizedExpectedCode: required('DOC10_E2E_AUTHORIZED_EXPECTED_CODE'),
@@ -74,8 +74,6 @@ function fullE2EMissingSettings() {
     ['DOC10_E2E_MODULE', settings.moduleValue],
     ['DOC10_E2E_AUTHORIZED_USER', settings.authorizedUser],
     ['DOC10_E2E_AUTHORIZED_PASSWORD', settings.authorizedPasswordConfigured],
-    ['DOC10_E2E_UNAUTHORIZED_USER', settings.unauthorizedUser],
-    ['DOC10_E2E_UNAUTHORIZED_PASSWORD', settings.unauthorizedPasswordConfigured],
     ['DOC10_E2E_MYSQL_URL', settings.mysqlUrl],
     ['DOC10_E2E_AUDIT_SQL', settings.auditSql]
   ];
@@ -89,6 +87,11 @@ function fingerprint(rows) {
 async function queryFingerprint(pool, sql, idTarea) {
   const [rows] = await pool.execute(sql, [idTarea]);
   return fingerprint(rows);
+}
+
+function expectOfficialWorkflowContext(preview, accountLabel) {
+  expect(preview.Error?.Codigo, `${accountLabel} no resolvió contexto Workflow.`).not.toBe('WORKFLOW_CONTEXT_INVALID');
+  expect(preview.Error?.Codigo, `${accountLabel} quedó bloqueada por el gate retirado.`).not.toBe('WORKFLOW_MODERN_INACTIVE');
 }
 
 function login(browser, userEnvironmentVariable, passwordEnvironmentVariable) {
@@ -156,42 +159,42 @@ test('@session La sesión Gestión válida resuelve el contexto Workflow en el A
   const context = await login(browser, 'DOC10_E2E_AUTHORIZED_USER', 'DOC10_E2E_AUTHORIZED_PASSWORD');
   try {
     const preview = await invokePreview(context, getTaskId());
-    expect(preview.Error?.Codigo, 'La sesión Gestión no resolvió contexto Workflow.').not.toBe('WORKFLOW_CONTEXT_INVALID');
+    expectOfficialWorkflowContext(preview, 'La sesión Gestión');
   } finally {
     await context.close();
   }
 });
 
-test('@authorization El piloto supera el gate y el usuario autenticado fuera del piloto queda bloqueado', async ({ browser }) => {
+test('@contexts Dos cuentas Gestión válidas resuelven la política Workflow oficial', async ({ browser }) => {
   const missing = [
     ['DOC10_E2E_BASE_URL', settings.baseUrl],
     ['DOC10_E2E_MODULE', settings.moduleValue],
     ['DOC10_E2E_AUTHORIZED_USER', settings.authorizedUser],
     ['DOC10_E2E_AUTHORIZED_PASSWORD', settings.authorizedPasswordConfigured],
-    ['DOC10_E2E_UNAUTHORIZED_USER', settings.unauthorizedUser],
-    ['DOC10_E2E_UNAUTHORIZED_PASSWORD', settings.unauthorizedPasswordConfigured]
+    ['DOC10_E2E_SECONDARY_USER', settings.secondaryUser],
+    ['DOC10_E2E_SECONDARY_PASSWORD', settings.secondaryPasswordConfigured]
   ].filter(([, value]) => !value || !String(value).trim()).map(([name]) => name);
   if (missing.length > 0) {
-    throw new Error(`Faltan variables para verificar autorización: ${missing.join(', ')}.`);
+    throw new Error(`Faltan variables para verificar ambos contextos: ${missing.join(', ')}.`);
   }
 
-  const authorizedContext = await login(browser, 'DOC10_E2E_AUTHORIZED_USER', 'DOC10_E2E_AUTHORIZED_PASSWORD');
-  const unauthorizedContext = await login(browser, 'DOC10_E2E_UNAUTHORIZED_USER', 'DOC10_E2E_UNAUTHORIZED_PASSWORD');
+  let primaryContext;
+  let secondaryContext;
   try {
-    const authorized = await invokePreview(authorizedContext, getTaskId());
-    const unauthorized = await invokePreview(unauthorizedContext, getTaskId());
+    primaryContext = await login(browser, 'DOC10_E2E_AUTHORIZED_USER', 'DOC10_E2E_AUTHORIZED_PASSWORD');
+    secondaryContext = await login(browser, 'DOC10_E2E_SECONDARY_USER', 'DOC10_E2E_SECONDARY_PASSWORD');
+    const primary = await invokePreview(primaryContext, getTaskId());
+    const secondary = await invokePreview(secondaryContext, getTaskId());
 
-    expect(authorized.Error?.Codigo, 'El piloto no debe quedar bloqueado por el gate.').not.toBe('WORKFLOW_MODERN_INACTIVE');
-    expect(authorized.Error?.Codigo, 'El piloto debe resolver contexto Workflow.').not.toBe('WORKFLOW_CONTEXT_INVALID');
-    expect(unauthorized.Error?.Codigo, 'El usuario fuera del piloto debe quedar bloqueado.').toBe('WORKFLOW_MODERN_INACTIVE');
-    expect(unauthorized.Destinos || []).toHaveLength(0);
+    expectOfficialWorkflowContext(primary, 'La cuenta principal');
+    expectOfficialWorkflowContext(secondary, 'La cuenta secundaria');
   } finally {
-    await authorizedContext.close();
-    await unauthorizedContext.close();
+    await primaryContext?.close();
+    await secondaryContext?.close();
   }
 });
 
-test('@full PreviewEnviarTarea preserva estado y auditoría para piloto y no piloto', async ({ browser }) => {
+test('@full PreviewEnviarTarea preserva estado y auditoría con contexto Workflow oficial', async ({ browser }) => {
   const missing = fullE2EMissingSettings();
   if (missing.length > 0) {
     throw new Error(`Faltan variables E2E: ${missing.join(', ')}.`);
@@ -202,42 +205,35 @@ test('@full PreviewEnviarTarea preserva estado y auditoría para piloto y no pil
   assertReadOnlySql(settings.auditSql, 'DOC10_E2E_AUDIT_SQL');
 
   const pool = mysql.createPool(settings.mysqlUrl);
-  let authorizedContext;
-  let unauthorizedContext;
+  let primaryContext;
   let beforeTask;
   let beforeAudit;
   let afterTask;
   let afterAudit;
-  let authorized;
-  let unauthorized;
+  let primary;
 
   try {
     beforeTask = await queryFingerprint(pool, settings.taskStateSql, idTarea);
     beforeAudit = await queryFingerprint(pool, settings.auditSql, idTarea);
 
-    authorizedContext = await login(browser, 'DOC10_E2E_AUTHORIZED_USER', 'DOC10_E2E_AUTHORIZED_PASSWORD');
-    authorized = await invokePreview(authorizedContext, idTarea);
-
-    unauthorizedContext = await login(browser, 'DOC10_E2E_UNAUTHORIZED_USER', 'DOC10_E2E_UNAUTHORIZED_PASSWORD');
-    unauthorized = await invokePreview(unauthorizedContext, idTarea);
+    primaryContext = await login(browser, 'DOC10_E2E_AUTHORIZED_USER', 'DOC10_E2E_AUTHORIZED_PASSWORD');
+    primary = await invokePreview(primaryContext, idTarea);
   } finally {
     afterTask = await queryFingerprint(pool, settings.taskStateSql, idTarea);
     afterAudit = await queryFingerprint(pool, settings.auditSql, idTarea);
-    await authorizedContext?.close();
-    await unauthorizedContext?.close();
+    await primaryContext?.close();
     await pool.end();
   }
 
+  expectOfficialWorkflowContext(primary, 'La cuenta principal');
   if (settings.authorizedExpectedCode) {
-    expect(authorized.Error?.Codigo, 'El piloto debe recibir el bloqueo funcional esperado.').toBe(settings.authorizedExpectedCode);
-    expect(authorized.Destinos || []).toHaveLength(0);
+    expect(primary.Error?.Codigo, 'La cuenta principal debe recibir el bloqueo funcional esperado.').toBe(settings.authorizedExpectedCode);
+    expect(primary.Destinos || []).toHaveLength(0);
   } else {
-    expect(authorized.Error).toBeNull();
-    expect(Array.isArray(authorized.Destinos)).toBeTruthy();
-    expect(authorized.Destinos.length).toBeGreaterThan(0);
+    expect(primary.Error).toBeNull();
+    expect(Array.isArray(primary.Destinos)).toBeTruthy();
+    expect(primary.Destinos.length).toBeGreaterThan(0);
   }
-  expect(unauthorized.Error?.Codigo).toBe('WORKFLOW_MODERN_INACTIVE');
-  expect(unauthorized.Destinos || []).toHaveLength(0);
   expect(afterTask, 'El preview no debe modificar estado de tarea.').toBe(beforeTask);
   expect(afterAudit, 'El preview no debe modificar auditoría.').toBe(beforeAudit);
 
@@ -245,8 +241,7 @@ test('@full PreviewEnviarTarea preserva estado y auditoría para piloto y no pil
     fechaUtc: new Date().toISOString(),
     endpoint: previewUrl(),
     idTarea,
-    autorizado: { destinos: (authorized.Destinos || []).length, tipoDecision: authorized.TipoDecision, bloqueo: authorized.Error?.Codigo || null },
-    noAutorizado: { destinos: 0, bloqueo: unauthorized.Error.Codigo },
+    principal: { destinos: (primary.Destinos || []).length, tipoDecision: primary.TipoDecision, bloqueo: primary.Error?.Codigo || null },
     estadoSinMutacion: true,
     auditoriaSinMutacion: true,
     huellas: { estadoAntes: beforeTask, estadoDespues: afterTask, auditoriaAntes: beforeAudit, auditoriaDespues: afterAudit }

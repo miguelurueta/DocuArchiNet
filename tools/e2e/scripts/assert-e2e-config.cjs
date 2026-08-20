@@ -8,13 +8,13 @@ const requiredByMode = {
     'DOC10_E2E_AUTHORIZED_USER',
     'DOC10_E2E_AUTHORIZED_PASSWORD'
   ],
-  authorization: [
+  contexts: [
     'DOC10_E2E_BASE_URL',
     'DOC10_E2E_MODULE',
     'DOC10_E2E_AUTHORIZED_USER',
     'DOC10_E2E_AUTHORIZED_PASSWORD',
-    'DOC10_E2E_UNAUTHORIZED_USER',
-    'DOC10_E2E_UNAUTHORIZED_PASSWORD',
+    'DOC10_E2E_SECONDARY_USER',
+    'DOC10_E2E_SECONDARY_PASSWORD',
     'DOC10_E2E_TASK_ID'
   ],
   full: [
@@ -22,8 +22,6 @@ const requiredByMode = {
     'DOC10_E2E_MODULE',
     'DOC10_E2E_AUTHORIZED_USER',
     'DOC10_E2E_AUTHORIZED_PASSWORD',
-    'DOC10_E2E_UNAUTHORIZED_USER',
-    'DOC10_E2E_UNAUTHORIZED_PASSWORD',
     'DOC10_E2E_TASK_ID',
     'DOC10_E2E_MYSQL_URL',
     'DOC10_E2E_AUDIT_SQL'
@@ -40,7 +38,7 @@ const requiredByMode = {
 };
 
 if (!Object.hasOwn(requiredByMode, mode)) {
-  console.error('Modo inválido. Use anonymous, session, authorization, full o load.');
+  console.error('Modo inválido. Use anonymous, session, contexts, full o load.');
   process.exit(2);
 }
 
@@ -57,7 +55,7 @@ try {
   process.exit(2);
 }
 
-if ((mode === 'authorization' || mode === 'full' || mode === 'load') && (!/^\d+$/.test(process.env.DOC10_E2E_TASK_ID) || Number(process.env.DOC10_E2E_TASK_ID) <= 0)) {
+if ((mode === 'contexts' || mode === 'full' || mode === 'load') && (!/^\d+$/.test(process.env.DOC10_E2E_TASK_ID) || Number(process.env.DOC10_E2E_TASK_ID) <= 0)) {
   console.error('DOC10_E2E_TASK_ID debe ser un entero positivo.');
   process.exit(2);
 }
