@@ -1,20 +1,34 @@
 {
   "status": "pass",
-  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\workflow\\TerminarGrupo\\prompts\\08-pruebas-verificacion.md",
-  "reviewedAtUtc": "2026-08-18T23:29:53.096Z",
+  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\workflow\\TerminarUsuario\\prompts\\06-liberacion-controlada.md",
+  "reviewedAtUtc": "2026-08-19T23:49:42.846Z",
   "technologyProfile": "legacy-webforms-vb",
   "summary": {
     "blockers": 0,
-    "major": 0,
+    "major": 3,
     "minor": 0,
-    "info": 1
+    "info": 0
   },
   "findings": [
     {
-      "severity": "INFO",
-      "code": "MANUAL_REVIEW_RECOMMENDED",
-      "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
-      "expected": "Revision humana del prompt.",
+      "severity": "MAJOR",
+      "code": "ANTI_REGRESSION_DETAIL_REQUIRED",
+      "message": "El prompt alude a comportamiento existente pero no define reglas de antirregresion.",
+      "expected": "Reglas explicitas de no romper, preservar, no llamar o no usar workarounds.",
+      "evidence": null
+    },
+    {
+      "severity": "MAJOR",
+      "code": "BUILD_EVIDENCE_RECOMMENDED",
+      "message": "Falta exigir evidencia estructural de compilacion MSBuild/dotnet segun impacto.",
+      "expected": "compilacion MSBuild/dotnet segun impacto.",
+      "evidence": null
+    },
+    {
+      "severity": "MAJOR",
+      "code": "UNIT_TEST_EVIDENCE_REQUIRED",
+      "message": "Falta exigir evidencia estructural de prueba unitaria o QA manual reproducible segun impacto.",
+      "expected": "prueba unitaria o QA manual reproducible segun impacto.",
       "evidence": null
     }
   ]
