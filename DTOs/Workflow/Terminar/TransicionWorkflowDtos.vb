@@ -146,6 +146,53 @@ Public Class ResultadoEnvioGrupoDto
     Public Property [Error] As ErrorTransicionDto
 End Class
 
+'DTOs serializables exclusivos de Enviar a usuario. El conector no forma parte del contrato.
+<Serializable()>
+Public Class DestinoEnvioUsuarioDto
+    Public Property IdUsuarioWorkflowDestino As Integer
+    Public Property IdActividadDestino As Integer
+    Public Property NombreUsuarioDestino As String
+    Public Property CargoUsuarioDestino As String
+    Public Property NombreActividadDestino As String
+End Class
+
+<Serializable()>
+Public Class PrevisualizacionEnvioUsuarioDto
+    Public Sub New()
+        Destinos = New List(Of DestinoEnvioUsuarioDto)()
+        Contexto = New ContextoPrevisualizacionTransicionDto()
+    End Sub
+
+    Public Property IdTarea As Long
+    Public Property Contexto As ContextoPrevisualizacionTransicionDto
+    Public Property TokenVersion As String
+    Public Property CursorSiguiente As String
+    Public Property TieneMas As Boolean
+    Public Property TamanoPagina As Integer
+    Public Property Destinos As IList(Of DestinoEnvioUsuarioDto)
+    Public Property [Error] As ErrorTransicionDto
+End Class
+
+<Serializable()>
+Public Class ResultadoEnvioUsuarioDto
+    Public Sub New()
+        Advertencias = New List(Of String)()
+        Requisitos = New List(Of RequisitoTransicionDto)()
+    End Sub
+
+    Public Property Exito As Boolean
+    Public Property EstadoFinal As String
+    Public Property MensajeFuncional As String
+    Public Property CodigoBloqueo As String
+    Public Property Advertencias As IList(Of String)
+    Public Property Destino As DestinoEnvioUsuarioDto
+    Public Property TokenVersion As String
+    Public Property ReferenciaAuditoria As String
+    Public Property EsReintentable As Boolean
+    Public Property Requisitos As IList(Of RequisitoTransicionDto)
+    Public Property [Error] As ErrorTransicionDto
+End Class
+
 <Serializable()>
 Public Class HabilitacionWorkflowModernDto
     Public Property Estado As String
@@ -165,6 +212,11 @@ Public NotInheritable Class CodigosBloqueoPrevisualizacion
     Public Const ActividadDestinoInvalida As String = "WORKFLOW_GROUP_DESTINATION_INVALID"
     Public Const ActividadDestinoNoDisponible As String = "WORKFLOW_GROUP_DESTINATION_UNAVAILABLE"
     Public Const BusquedaTerminoInvalido As String = "WORKFLOW_GROUP_SEARCH_TERM_INVALID"
+    Public Const UsuarioDestinoInvalido As String = "WORKFLOW_USER_DESTINATION_INVALID"
+    Public Const UsuarioDestinoNoDisponible As String = "WORKFLOW_USER_DESTINATION_UNAVAILABLE"
+    Public Const BusquedaUsuarioTerminoInvalido As String = "WORKFLOW_USER_SEARCH_TERM_INVALID"
+    Public Const CursorUsuarioInvalido As String = "WORKFLOW_USER_CURSOR_INVALID"
+    Public Const PermisoCambioUsuarioDenegado As String = "WORKFLOW_USER_SEND_FORBIDDEN"
     Public Const PermisoCambioRutaDenegado As String = "WORKFLOW_ROUTE_CHANGE_FORBIDDEN"
     Public Const AprobacionPendiente As String = "WORKFLOW_APPROVAL_PENDING"
     Public Const TransicionInconsistente As String = "WORKFLOW_TRANSITION_INCONSISTENT"

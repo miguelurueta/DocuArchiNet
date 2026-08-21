@@ -15,7 +15,7 @@ Public Class WorkflowLegacyAuditoriaAdapter
         Try
             Dim detalle As String = String.Format(
                 Globalization.CultureInfo.InvariantCulture,
-                "WorkflowModern; Ref={0}; Canal={1}; Usuario={2}; Tarea={3}; Ruta={4}; Flujo={5}; Origen={6}; Destino={7}; Conector={8}; DuracionMs={9}; Resultado={10}; Codigo={11}",
+                "WorkflowModern; Ref={0}; Canal={1}; Usuario={2}; Tarea={3}; Ruta={4}; Flujo={5}; Origen={6}; Destino={7}; Conector={8}; DuracionMs={9}; Resultado={10}; Codigo={11}; Mecanismo={12}",
                 NormalizarReferencia(auditoria.Referencia),
                 NormalizarCanal(auditoria.Canal),
                 auditoria.IdUsuarioWorkflow,
@@ -27,7 +27,8 @@ Public Class WorkflowLegacyAuditoriaAdapter
                 auditoria.IdConector,
                 Math.Max(0, auditoria.DuracionMilisegundos),
                 NormalizarResultado(auditoria.Resultado),
-                NormalizarCodigo(auditoria.CodigoFuncional))
+                NormalizarCodigo(auditoria.CodigoFuncional),
+                NormalizarMecanismo(auditoria.Mecanismo))
             Dim requestContext As HttpContext = HttpContext.Current
             If requestContext Is Nothing OrElse requestContext.Session Is Nothing Then Return False
 
@@ -70,6 +71,14 @@ Public Class WorkflowLegacyAuditoriaAdapter
         If String.Equals(resultado, "BLOQUEADO", StringComparison.OrdinalIgnoreCase) Then Return "BLOQUEADO"
         If String.Equals(resultado, "ERROR", StringComparison.OrdinalIgnoreCase) Then Return "ERROR"
         Return "ERROR"
+    End Function
+
+    Private Shared Function NormalizarMecanismo(ByVal mecanismo As String) As String
+        Dim valor As String = If(mecanismo, String.Empty).Trim().ToUpperInvariant()
+        If valor = "ASMX_MODERNO" OrElse valor = "ASMX_ENVIO_GRUPO" OrElse valor = "ASMX_ENVIO_USUARIO" Then
+            Return valor
+        End If
+        Return "ASMX_DESCONOCIDO"
     End Function
 
     Private Shared Function NormalizarCodigo(ByVal codigo As String) As String

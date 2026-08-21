@@ -85,3 +85,33 @@ Public Interface IEnvioGrupoLegacyExecutor
                       ByVal tarea As TareaWorkflow,
                       ByVal destino As DestinoEnvioGrupoWorkflow) As ResultadoEjecucionWorkflow
 End Interface
+
+'Puertos exclusivos del envio directo a usuario. No reutilizan contratos por conector.
+Public Interface IEnvioUsuarioBusquedaRepository
+    Function BuscarDestinos(ByVal contexto As ContextoModuloWorkflow,
+                            ByVal tarea As TareaWorkflow,
+                            ByVal solicitud As SolicitudPreviewEnvioUsuario) As ResultadoBusquedaDestinosEnvioUsuario
+End Interface
+
+Public Interface IEnvioUsuarioEjecucionRepository
+    Function ResolverDestino(ByVal contexto As ContextoModuloWorkflow,
+                             ByVal tarea As TareaWorkflow,
+                             ByVal idUsuarioWorkflowDestino As Integer,
+                             ByVal idActividadDestino As Integer) As ResultadoResolucionEnvioUsuario
+End Interface
+
+Public Interface IEnvioUsuarioRequisitosRepository
+    Function Evaluar(ByVal contexto As ContextoModuloWorkflow,
+                     ByVal tarea As TareaWorkflow,
+                     ByVal destino As DestinoEnvioUsuarioWorkflow) As ResultadoRequisitosEnvioUsuario
+End Interface
+
+Public Interface IEnvioUsuarioAutorizacionRepository
+    Function TieneCambioUsuario(ByVal contexto As ContextoModuloWorkflow) As Boolean
+End Interface
+
+Public Interface IEnvioUsuarioLegacyExecutor
+    Function Ejecutar(ByVal contexto As ContextoModuloWorkflow,
+                      ByVal tarea As TareaWorkflow,
+                      ByVal destino As DestinoEnvioUsuarioWorkflow) As ResultadoEjecucionWorkflow
+End Interface
