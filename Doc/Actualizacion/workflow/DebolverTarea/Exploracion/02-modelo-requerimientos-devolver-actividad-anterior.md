@@ -26,7 +26,7 @@ Excluye:
 
 El sistema debe mostrar la acción **Devolver a actividad anterior** para una tarea seleccionada y con contexto Workflow válido.
 
-La acción debe abrir una experiencia moderna accesible y no debe iniciar un postback Web Forms.
+La acción debe abrir una experiencia moderna accesible y no debe iniciar un postback Web Forms. Su registro depende del contexto Workflow válido, no de `WorkflowCentroTrabajoModernActive`; esto no altera el gate de las demás operaciones.
 
 ### RF-02 — Previsualización de actividades anteriores
 
@@ -39,9 +39,9 @@ Antes de devolver destinos, el servidor debe validar:
 - Permiso de devolución del usuario autenticado.
 - Consistencia entre la tarea y su Ruta o Flujo.
 
-Para Flujo, la previsualización debe resolver solamente conectores entrantes cuya actividad destino sea la actividad actual del flujo.
+Para Flujo, la previsualización debe resolver solamente conectores entrantes cuya actividad destino sea la actividad actual del flujo. En este contexto `IdConector` identifica solo el registro de conector de Flujo.
 
-Para Ruta, la previsualización debe resolver solamente actividades cuya siguiente actividad sea la actividad actual y pertenezcan a la ruta de la tarea.
+Para Ruta, la previsualización debe resolver solamente las configuraciones `actividades_disponibles_envio` cuya actividad siguiente sea la actividad actual, actividad origen sea predecesora y `id_Ruta` coincida con la tarea. En este contexto `IdConector` identifica solo `id_actividades_disponibles_envio`.
 
 Cada destino debe contener solo los datos mínimos: identificador de conector, nombre de actividad, usuario o grupo resumido cuando aplique, tipo de contexto y token de versión.
 
@@ -62,9 +62,9 @@ La ejecución debe adquirir el lock de concurrencia y, dentro de él, releer y v
 - Ruta o Flujo vigente.
 - Conector entrante solicitado, su origen y su pertenencia al contexto real de la tarea.
 
-El identificador del conector recibido desde el navegador se debe considerar no confiable. El servidor debe resolverlo nuevamente y no debe usar datos de destino publicados por el cliente.
+El identificador del conector recibido desde el navegador se debe considerar no confiable. El servidor debe resolverlo nuevamente dentro del tipo de contexto deducido de la tarea y no debe usar datos de destino publicados por el cliente.
 
-La transición efectiva debe pasar por un adaptador exclusivo de devolución hacia `Terminar_Tarea_Workflow`, sin controles Web Forms.
+La transición efectiva debe pasar por un adaptador exclusivo de devolución hacia `Terminar_Tarea_Workflow`, con `Page = Nothing`, actualización de interfaz legacy desactivada y un perfil aprobado de notificación/eventos que no ejecute métodos de componentes de respuestas.
 
 ### RF-05 — Resultado y presentación
 
@@ -91,7 +91,7 @@ No debe referenciar `Classgestionrespuesta`, `Verifica_respuesta_*` ni `Reasigna
 
 ### RNF-02 — Concurrencia y resiliencia
 
-- Dos solicitudes simultáneas no pueden devolver dos veces la misma tarea.
+- Dos solicitudes simultáneas no pueden devolver dos veces la misma tarea. El lock es exclusivo por `IdTarea`, no por token; token y conector se revalidan dentro de él.
 - Un token vencido, un lock ocupado o un conector retirado deben producir un bloqueo funcional estable.
 - Mientras la ejecución esté pendiente, la interfaz no debe permitir cerrar o confirmar nuevamente la operación.
 
@@ -123,4 +123,4 @@ No debe referenciar `Classgestionrespuesta`, `Verifica_respuesta_*` ni `Reasigna
 
 ## Trazabilidad
 
-Este modelo se fundamenta en `01-exploracion-modernizacion-actividad-anterior.md` del mismo directorio. Antes de implementar se debe convertir en tareas atómicas, asignar ticket Jira y aprobar las decisiones de UX y auditoría.
+Este modelo se fundamenta en `01-exploracion-modernizacion-actividad-anterior.md` del mismo directorio. Antes del ticket backend se deben aprobar las decisiones de identidad Ruta/Flujo, cursor, notificación/eventos y sustitución del postback legacy; después se asignan los cuatro tickets Jira de ejecución.

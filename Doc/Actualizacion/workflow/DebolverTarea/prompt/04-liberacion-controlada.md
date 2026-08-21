@@ -1,4 +1,4 @@
-# 06 — Liberación y operación controlada
+# 04 — Liberación y operación controlada
 
 ## ROL ESPERADO
 
@@ -10,15 +10,15 @@ Preparar la decisión de liberación, matriz de ambientes y runbook operativo. E
 
 ## CONTEXTO OBLIGATORIO
 
-- Requiere 05 aprobado y ausencia de bloqueos críticos.
-- Leer `00-contexto-obligatorio.md`, evidencia de 05, versión aprobada y documentación operativa existente.
+- Requiere 03 aprobado y ausencia de bloqueos críticos.
+- Leer `00-contexto-obligatorio.md`, `../Exploracion/`, evidencia de 03, versión aprobada y documentación operativa existente.
 - La aprobación técnica de pruebas no equivale a autorización operativa por ambiente.
 
 ## REQUISITOS POSITIVOS
 
-- Verificar que versión, artefactos, pruebas, auditoría, conectores entrantes, búsqueda paginada, experiencia moderna universal y aislamiento de respuestas estén identificados en evidencia.
+- Verificar que versión, artefactos, pruebas, auditoría, aristas entrantes Ruta/Flujo, búsqueda paginada, lock por tarea, ruta moderna única y aislamiento de respuestas estén identificados en evidencia.
 - Crear matriz por ambiente: autorización, versión, alcance funcional, ventana, responsables, evidencia y continuación.
-- Crear runbook para una operación autorizada: verificaciones `SELECT`, comprobación sanitizada y reversión mediante gestión de despliegue aprobada, sin reactivar una ruta UI alternativa.
+- Crear runbook para una operación autorizada: verificaciones `SELECT`, comprobación sanitizada y reversión mediante gestión de despliegue aprobada, sin reactivar postback ni ruta UI alternativa.
 
 ## RESTRICCIONES CRÍTICAS
 
@@ -38,7 +38,7 @@ Preparar la decisión de liberación, matriz de ambientes y runbook operativo. E
 
 ## PRUEBAS OBLIGATORIAS
 
-No ejecutar E2E, carga ni cambios de ambiente. Verificar documentalmente y con consultas autorizadas de solo lectura que la evidencia de 05, ruta moderna universal, aislamiento de respuestas y reversión de despliegue es completa; registrar resultado y limitaciones.
+No ejecutar E2E, carga ni cambios de ambiente. Verificar documentalmente y con consultas autorizadas de solo lectura que la evidencia de 03, aristas Ruta/Flujo, ruta moderna única, aislamiento de respuestas y reversión de despliegue es completa; registrar resultado y limitaciones.
 
 ## DOCUMENTACIÓN TÉCNICA
 

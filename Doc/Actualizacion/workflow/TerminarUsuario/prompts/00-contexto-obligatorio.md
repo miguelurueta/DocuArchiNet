@@ -7,7 +7,7 @@ Adjuntar este prompt al inicio de cada etapa de implementación de esta carpeta.
 Este archivo **solo establece contexto, límites y criterios comunes**. Por sí solo no autoriza ni ordena implementar código, crear o modificar un cambio OpenSpec, ejecutar pruebas, generar paquetes documentales ni avanzar a una etapa posterior.
 
 - Si se entrega únicamente `00-contexto-obligatorio.md`, leerlo y responder que se requiere el prompt numerado de la etapa a ejecutar.
-- Ejecutar una etapa únicamente cuando la solicitud incluya de forma expresa uno de los prompts `01` a `06`; aplicar solo esa etapa.
+- Ejecutar una etapa únicamente cuando la solicitud incluya de forma expresa uno de los prompts `01` a `04`; aplicar solo esa etapa.
 - No inferir una etapa a partir del objetivo global ni interpretar “implementar todo” como permiso para recorrer automáticamente los prompts. La secuencia debe ser solicitada o confirmada etapa por etapa.
 - Una instrucción del usuario que contradiga esta regla —por ejemplo, “no implementar código”— prevalece y detiene cualquier cambio de producto, aunque se hubiera indicado una etapa previamente.
 
@@ -68,7 +68,7 @@ La operación moderna recibe y ejecuta con `IdTarea`, `IdUsuarioWorkflowDestino`
 ## PRUEBAS Y COMPILACIÓN
 
 - Las etapas de implementación ejecutan únicamente pruebas focales del área cambiada y la compilación disponible.
-- La verificación transversal, QA manual y consolidación de evidencia pertenecen exclusivamente a la etapa 05.
+- La verificación transversal, QA manual y consolidación de evidencia pertenecen exclusivamente a la etapa 03.
 - Registrar comando, resultado, cobertura y limitaciones reproducibles; no sustituir evidencias por E2E autenticado o carga no autorizados.
 
 ## DOCUMENTACIÓN TÉCNICA

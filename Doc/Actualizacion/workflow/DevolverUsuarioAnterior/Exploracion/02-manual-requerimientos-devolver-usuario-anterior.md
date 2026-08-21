@@ -25,9 +25,9 @@ Excluye:
 
 ### RF-01 — Disponibilidad de la operación
 
-El sistema debe mostrar **Devolver a usuario anterior** para una tarea seleccionada y con contexto Workflow válido.
+El sistema debe ofrecer **Devolver a usuario anterior** para una tarea seleccionada y con contexto Workflow válido.
 
-La opción debe estar disponible solo si el servidor puede resolver un usuario histórico anterior válido. La interfaz no debe abrir ni proponer la devolución a actividad anterior como alternativa automática.
+La previsualización determina si existe un usuario histórico anterior válido. Cuando no exista, la confirmación queda bloqueada con un mensaje funcional; la interfaz no debe abrir ni proponer la devolución a actividad anterior como alternativa automática.
 
 ### RF-02 — Previsualización del usuario anterior
 
@@ -42,7 +42,7 @@ Antes de devolver datos, el servidor debe validar:
 - Que el registro histórico anterior tenga `Id_Usuario > 0` y represente un usuario elegible.
 - Consistencia del historial con la Ruta o Flujo de la tarea.
 
-El preview debe devolver únicamente actividad anterior, usuario anterior resumido, token de versión y bloqueo funcional cuando aplique.
+El preview debe devolver únicamente actividad anterior, usuario anterior resumido, token de versión opaco y bloqueo funcional cuando aplique. El token vincula la versión de tarea y el identificador del registro histórico confirmado, sin exponer ni aceptar este identificador como parámetro separado.
 
 No debe devolver grupos, actividades alternativas, conectores, datos de respuestas ni datos de otros historiales.
 
@@ -72,7 +72,7 @@ El sistema debe exponer un endpoint equivalente a `EjecutarDevolverUsuarioAnteri
 
 La ejecución no debe recibir usuario, actividad, grupo, Ruta, Flujo ni conector desde el navegador.
 
-Dentro de `GET_LOCK`, el servidor debe releer y validar:
+Dentro de un `GET_LOCK` exclusivo por `IdTarea`, el servidor debe releer y validar:
 
 - Contexto autenticado y permiso de devolución.
 - Tarea activa y token de versión vigente.
@@ -80,7 +80,9 @@ Dentro de `GET_LOCK`, el servidor debe releer y validar:
 - Usuario histórico con identificador positivo, elegible y distinto del usuario Workflow autenticado actual.
 - Consistencia de la actividad, Ruta o Flujo del registro histórico con la tarea actual.
 
-La transición efectiva debe usar un adaptador exclusivo hacia `Terminar_Tarea_Workflow`, sin `Page` ni handlers Web Forms.
+Si el registro histórico ya no coincide con el comprometido en `tokenVersion`, debe bloquear. No puede enviar la tarea a un destino nuevo que el usuario no confirmó.
+
+La transición efectiva debe usar un adaptador exclusivo hacia `Terminar_Tarea_Workflow`, con `Page = Nothing`, actualización de interfaz legacy desactivada y una política de notificación/eventos aprobada. El adaptador y componentes nuevos no usan componentes de respuestas; si el motor legacy los construye internamente, los parámetros deben impedir invocar sus métodos y una prueba focal debe demostrarlo.
 
 ### RF-06 — Corrección de auto-devolución
 
@@ -114,7 +116,7 @@ No debe referenciar `Classgestionrespuesta`, `Verifica_respuesta_*` ni `Reasigna
 ### RNF-02 — Concurrencia y resiliencia
 
 - Dos solicitudes simultáneas no pueden devolver dos veces la misma tarea.
-- Un token vencido, lock ocupado, usuario retirado o historial cambiado deben producir un bloqueo funcional estable.
+- Un token vencido, lock ocupado, usuario retirado o historial cambiado deben producir un bloqueo funcional estable. El lock no se puede derivar del token: debe serializar todos los intentos sobre la misma tarea.
 - Mientras la ejecución esté pendiente, la interfaz no debe permitir confirmar nuevamente ni cerrar de forma que abandone el resultado pendiente.
 
 ### RNF-03 — Accesibilidad y responsive
@@ -149,3 +151,5 @@ No debe referenciar `Classgestionrespuesta`, `Verifica_respuesta_*` ni `Reasigna
 ## Trazabilidad
 
 Este manual se fundamenta en `01-exploracion-modernizacion-devolver-usuario-anterior.md` del mismo directorio. Antes de implementar se deben crear tareas atómicas, asignar ticket Jira y aprobar las decisiones funcionales de auditoría y presentación.
+
+Antes del ticket backend también se deben aprobar el algoritmo de orden/desempate del historial, los parámetros de notificación y eventos dinámicos de `Terminar_Tarea_Workflow`, y la sustitución del postback legacy. La presentación de Usuario anterior debe registrarse por contexto válido sin evaluar `WorkflowCentroTrabajoModernActive`; el gate de otras operaciones no se modifica.

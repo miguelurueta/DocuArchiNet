@@ -1,4 +1,4 @@
-# 04 — Interfaz moderna oficial
+# 02 — Interfaz moderna oficial
 
 ## ROL ESPERADO
 
@@ -10,13 +10,13 @@ Conectar solo el comando **Enviar a usuario** a los endpoints ya implementados, 
 
 ## CONTEXTO OBLIGATORIO
 
-- Requiere 03 aprobado y contratos de preview/ejecución disponibles.
-- Leer `00-contexto-obligatorio.md`, evidencia de 03, CSS/componentes de confirmación existentes y exploración arquitectónica.
-- Habilita 05 únicamente cuando no haya listeners, estado ni payload compartido con Continuar flujo.
+- Requiere 01 aprobado y que el ticket actual enlace este archivo.
+- Leer `00-contexto-obligatorio.md`, evidencia de 01, CSS/componentes de confirmación existentes y exploración arquitectónica.
+- Habilita 03 únicamente cuando no haya listeners, estado ni payload compartido con Continuar flujo.
 
 ## REQUISITOS POSITIVOS
 
-- Registrar trigger y bootstrap de forma uniforme, con adaptador JavaScript exclusivo de usuario.
+- Registrar trigger y bootstrap de forma uniforme, con adaptador JavaScript exclusivo de usuario que no evalúe feature gate para este comando.
 - Consumir `PreviewEnviarUsuario` y `EjecutarEnvioUsuario`; aplicar debounce, páginas, descarte de respuesta obsoleta e invalidación de selección antigua.
 - Reutilizar confirmación, foco, trampa de foco, teclado, Escape, ARIA, responsive, cancelación, doble clic y mensaje de éxito correlacionado.
 - Tras éxito, actualizar solo tarea afectada, visor y contador mediante componentes modernos existentes.
@@ -44,7 +44,7 @@ Agregar pruebas CJS de contratos, eventos aislados, búsqueda, debounce, página
 
 ## DOCUMENTACIÓN TÉCNICA
 
-Actualizar `01-arquitectura.md`, `02-contrato.md`, `03-flujo-y-seguridad.md`, `04-pruebas-y-evidencia.md` y diagramas necesarios con selectores, UI, accesibilidad, recorrido moderno y relevo a 05.
+Actualizar `01-arquitectura.md`, `02-contrato.md`, `03-flujo-y-seguridad.md`, `04-pruebas-y-evidencia.md` y diagramas necesarios con selectores, UI, accesibilidad, recorrido moderno y relevo a 03.
 
 ## ENTREGABLE FINAL
 

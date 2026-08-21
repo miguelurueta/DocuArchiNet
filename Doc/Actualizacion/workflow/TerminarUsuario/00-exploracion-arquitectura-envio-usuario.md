@@ -12,7 +12,7 @@ Cuando la tarea requiera confirmacion o radicado de respuesta, la experiencia mo
 
 La modernizacion es viable con complejidad media. El flujo no es una transicion por conector: el destino se identifica por el par `idUsuarioWorkflowDestino` e `idActividadDestino`. Por ello debe ser una operacion moderna especifica y no una extension de `ServicioTransicionTarea`.
 
-Se pueden reutilizar el gate actual, el contexto autenticado, la proteccion de concurrencia, el token de version, la auditoria y componentes visuales de confirmacion. No se deben reutilizar directamente los contratos ni el ejecutor de Continuar flujo porque exigen `idConector`.
+Se pueden reutilizar el contexto autenticado, la proteccion de concurrencia, el token de version, la auditoria y componentes visuales de confirmacion. El comando no debe evaluar el feature gate actual ni depender de configuracion de habilitacion: para todo contexto Workflow valido la ruta moderna es la unica ruta de **Enviar a usuario**. No se deben reutilizar directamente los contratos ni el ejecutor de Continuar flujo porque exigen `idConector`.
 
 ## Flujo legacy observado
 
@@ -48,7 +48,7 @@ La lista legacy devuelve usuarios de la ruta actual que cumplen `ESTADO_USUARIO 
 
 ```text
 Enviar a usuario
-  -> PreviewEnviarUsuario(idTarea) [solo lectura]
+  -> PreviewEnviarUsuario(idTarea, consulta?, cursor?, tamanoPagina?) [solo lectura]
   -> muestra destinos validos y tokenVersion
   -> usuario confirma un destino
   -> EjecutarEnvioUsuario(idTarea, idUsuarioDestino, idActividadDestino, tokenVersion)
@@ -81,14 +81,14 @@ Endpoints ASMX paralelos en `WebServiceWorkflowModern.asmx`:
 
 | Endpoint | Tipo | Proposito |
 | --- | --- | --- |
-| `PreviewEnviarUsuario(idTarea)` | Lectura | Valida contexto, tarea y requisitos; devuelve destinos y token. |
+| `PreviewEnviarUsuario(idTarea, consulta?, cursor?, tamanoPagina?)` | Lectura | Valida contexto y requisitos; devuelve una página de destinos autorizados, `hayMas`, cursor seguro y token. |
 | `EjecutarEnvioUsuario(idTarea, idUsuarioDestino, idActividadDestino, tokenVersion)` | Escritura | Revalida, termina la tarea y devuelve resultado publico. |
 
 ## Componentes reutilizables
 
 | Componente | Reutilizacion |
 | --- | --- |
-| `IWorkflowModernFeatureGate` y `WorkflowModernPresentationBootstrap` | Misma fuente de activacion; no crear un segundo gate. |
+| `WorkflowModernPresentationBootstrap` | Registro uniforme de la presentacion; se debe usar sin evaluar feature gate para este comando. |
 | `WorkflowPreviewSessionContextGate` | Contexto autenticado y conexiones del modulo. |
 | `MySqlTareaWorkflowRepository` | Verificar que la tarea sigue activa y pertenece al usuario actual. |
 | `MySqlTransicionConcurrencyGuard` | Lock por tarea y token contra doble envio. |
@@ -110,7 +110,7 @@ El adaptador legacy nuevo debe llamar a `Terminar_Tarea_Workflow` con los parame
 
 El navegador solo expresa la intencion. Dentro del lock, el servidor debe validar nuevamente:
 
-1. Contexto autenticado valido y gate moderno habilitado.
+1. Contexto autenticado valido.
 2. Permiso `CAMBIO_USUARIO` calculado desde servidor.
 3. Tarea activa, seleccionable y aun perteneciente al usuario actual.
 4. Coincidencia del `tokenVersion` con el estado actual de la tarea.
@@ -128,15 +128,13 @@ No se deben aceptar como autorizacion los valores de `Hidden_id_usuario_envio`, 
 - La ejecucion debe usar datos tipados y consultas parametrizadas; no concatenar el criterio de busqueda en SQL.
 - Las respuestas de ASMX no deben devolver mensajes internos, SQL, Session ni detalles de infraestructura.
 - La auditoria debe registrar origen, usuario, destino, resultado, codigo funcional y referencia.
-- La configuracion existente no se modifica. El gate `WorkflowCentroTrabajoModernActive` se conserva apagado salvo autorizacion expresa de prueba y se deja en `false` al finalizar.
+- La configuracion existente no se modifica. El comando no evalua `WorkflowCentroTrabajoModernActive`; si se autorizara una prueba que altere ese gate por otros recorridos, se conserva apagado y se deja en `false` al finalizar.
 
 ## Secuencia recomendada de implementacion
 
-1. Definir DTOs, codigos funcionales, repositorios e interfaces especificas de Enviar a usuario.
-2. Implementar `PreviewEnviarUsuario` de solo lectura y su prueba de contrato.
-3. Implementar el adaptador legacy directo a `Terminar_Tarea_Workflow` y el servicio de ejecucion con lock, token y auditoria.
-4. Crear la interfaz moderna de seleccion y confirmacion sin interceptar otros comandos del Centro de trabajo.
-5. Añadir pruebas unitarias, de integracion sin mutacion para preview y, solo con autorizacion, pruebas E2E controladas.
+1. En una única etapa backend, definir DTOs, códigos funcionales, repositorios e interfaces específicas, implementar `PreviewEnviarUsuario` de solo lectura y el adaptador directo a `Terminar_Tarea_Workflow` con lock, token, auditoría y pruebas focales.
+2. Crear la interfaz moderna de selección y confirmación sin interceptar otros comandos del Centro de trabajo.
+3. Ejecutar verificación transversal independiente y, solo con autorización, considerar pruebas E2E controladas en el proceso operativo correspondiente.
 
 ## Matriz minima de pruebas
 
