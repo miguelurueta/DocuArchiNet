@@ -58,24 +58,27 @@ Crear contratos exclusivos:
 1. `PreviewDevolverUsuarioAnterior(idTarea)`
    - Solo lectura y `SELECT` parametrizado.
    - Valida contexto autenticado, tarea activa, permiso de devolución y existencia de un usuario histórico anterior.
-   - Devuelve datos mínimos para confirmar: actividad y usuario anteriores, token de versión y bloqueos funcionales.
+   - Devuelve datos mínimos para confirmar: actividad y usuario anteriores, token de versión opaco y bloqueos funcionales. El token vincula la versión de tarea y el identificador del registro histórico confirmado.
 
 2. `EjecutarDevolverUsuarioAnterior(idTarea, tokenVersion)`
    - No recibe usuario, actividad ni conector desde el navegador.
-   - Adquiere `GET_LOCK` y relee tarea, token, permiso y registro histórico anterior.
+   - Adquiere `GET_LOCK` exclusivo por tarea y relee tarea, token, permiso y registro histórico anterior. Debe bloquear si el registro ya no coincide con el confirmado por el token.
    - Valida que el usuario anterior sea distinto del usuario Workflow autenticado y continúe siendo elegible.
    - Invoca un adaptador exclusivo hacia `Terminar_Tarea_Workflow`, sin controles Web Forms.
    - Normaliza éxito, bloqueo, error y auditoría sin filtrar detalles técnicos.
 
-La interfaz moderna solo necesita presentar una confirmación del usuario y actividad resueltos por el servidor; no requiere búsqueda ni paginación.
+La interfaz moderna solo necesita presentar una confirmación del usuario y actividad resueltos por el servidor; no requiere búsqueda ni paginación. El comando se ofrece a cualquier contexto Workflow válido y el preview comunica el bloqueo cuando no existe destino; esto evita un estado de elegibilidad confiado al navegador.
 
 ## Seguridad y consistencia
 
 - El historial es fuente de destino, pero debe revalidarse dentro del lock antes de ejecutar.
+- El historial se ordena de manera determinista y el diseño debe definir qué fila es el estado actual y cuál es el antecedente. El orden legacy observado es `id_Estado DESC`; no se puede usar una marca de tiempo sin desempate.
 - La tarea debe estar activa y pertenecer al contexto autenticado actual.
 - El permiso de devolución debe resolverse en servidor, no mediante valores de Session o navegador no revalidados.
 - Token vencido, lock ocupado, usuario retirado, historial ausente o auto-devolución deben devolver códigos funcionales estables.
 - Los mensajes públicos no exponen SQL, sesión, controles Web Forms ni excepciones internas.
+- La presentación de esta operación no evalúa `WorkflowCentroTrabajoModernActive`; su registro depende exclusivamente del contexto válido y no altera el gate de otras operaciones.
+- El adaptador usa `Page = Nothing` y desactiva actualización de interfaz legacy. La política de notificación y de eventos dinámicos debe aprobarse antes de codificar: los componentes nuevos no pueden invocar componentes de respuestas y, si el motor legacy los construye internamente, los parámetros deben impedir que ejecute sus métodos.
 
 ## Pruebas requeridas
 

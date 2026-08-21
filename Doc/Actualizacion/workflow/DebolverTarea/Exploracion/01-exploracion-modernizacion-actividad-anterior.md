@@ -38,7 +38,7 @@ Crear una capacidad separada, con contratos y servicios propios:
    - Devuelve actividad, usuario o grupo destino mínimo, tipo de contexto, token de versión y bloqueos funcionales.
 
 2. `EjecutarDevolverActividad(idTarea, idConector, tokenVersion)`
-   - Adquiere el lock de concurrencia.
+   - Adquiere un lock exclusivo por tarea, independiente del token.
    - Relee tarea, token, contexto, permiso y conector entrante dentro del lock.
    - Invoca un adaptador específico de devolución hacia `Terminar_Tarea_Workflow`.
    - Normaliza resultado, auditoría y advertencias sin exponer SQL, sesión ni excepciones.
@@ -65,7 +65,16 @@ El recorrido Web Forms actual contiene lógica de validación y reasignación de
 - El menú legado se muestra al seleccionar una tarea y la comprobación de permiso no queda revalidada de forma uniforme en todos los caminos de ejecución.
 - El identificador de conector se conserva en el cliente; la implementación moderna debe tratarlo solo como una referencia no confiable y resolverlo de nuevo en servidor.
 - Ruta y flujo tienen consultas y handlers diferentes; el contrato público puede ser único, pero los repositorios deben preservar la validación específica de cada contexto.
-- No existe cobertura automatizada ni una especificación OpenSpec vigente para esta operación.
+- No existe cobertura automatizada ni una especificación técnica vigente para esta operación.
+
+## Decisiones de compatibilidad obligatorias
+
+- El contrato público conserva `IdConector`, pero su significado se determina solo desde el contexto de la tarea: en Ruta es `id_actividades_disponibles_envio`; en Flujo es el registro de conector de Flujo. El repositorio nunca prueba una identidad de un contexto contra el otro.
+- La consulta de Ruta debe validar `id_Ruta`, actividad origen, actividad siguiente y el registro de configuración; no puede basarse solamente en `Id_Actividad_Siguiente` como el recorrido legacy observado.
+- El cursor de búsqueda debe estar firmado o ser opaco y vinculado a tarea, usuario/contexto, tipo Ruta/Flujo, término normalizado, orden y versión de la previsualización.
+- La presentación de esta operación se registra por contexto Workflow válido sin evaluar `WorkflowCentroTrabajoModernActive`; la política del gate de otras capacidades no se modifica.
+- El enlace `D-TASK-ANT`, el postback `Button_tool_devolver_a_actividades_anterior` y el recorrido `Activa_devolver_actividades_anteriores` se sustituyen y no quedan alcanzables desde la acción moderna.
+- Antes del ticket backend se debe aprobar el perfil de parámetros de `Terminar_Tarea_Workflow`, en especial notificación y eventos dinámicos. Debe usar `Page = Nothing`, desactivar actualización legacy y no ejecutar métodos de respuestas.
 
 ## Pruebas requeridas
 

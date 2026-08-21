@@ -1,4 +1,4 @@
-# 05 — Verificación transversal y evidencia
+# 03 — Verificación transversal y evidencia
 
 ## ROL ESPERADO
 
@@ -10,9 +10,9 @@ Verificar la capacidad completa sin crear otra implementación: contrato, capas,
 
 ## CONTEXTO OBLIGATORIO
 
-- Requiere 04 aprobado y evidencia focal de los tickets 02 a 04.
+- Requiere 02 aprobado y evidencia focal de los tickets 01 y 02.
 - Leer `00-contexto-obligatorio.md`, contratos/documentación existente y resultados de compilación/pruebas previos.
-- Si hay fallo, registrar o devolver un ticket de corrección específico; 06 no se desbloquea hasta resolverlo.
+- Si hay fallo, registrar o devolver un ticket de corrección específico; 04 no se desbloquea hasta resolverlo.
 
 ## REQUISITOS POSITIVOS
 
@@ -34,7 +34,7 @@ Verificar la capacidad completa sin crear otra implementación: contrato, capas,
 ## CRITERIOS DE ACEPTACIÓN
 
 - Todos los escenarios críticos quedan aprobados o asociados a ticket de corrección con evidencia reproducible.
-- La recomendación para 06 es inequívoca: apto, bloqueado o requiere corrección.
+- La recomendación para 04 es inequívoca: apto, bloqueado o requiere corrección.
 
 ## PRUEBAS OBLIGATORIAS
 
@@ -46,4 +46,4 @@ Actualizar `04-pruebas-y-evidencia.md` e `00-indice.md` del paquete existente; d
 
 ## ENTREGABLE FINAL
 
-Reportar ticket, escenarios aprobados/fallidos, compilación, pruebas, QA, riesgos y recomendación para 06. No modificar configuración de ambiente.
+Reportar ticket, escenarios aprobados/fallidos, compilación, pruebas, QA, riesgos y recomendación para 04. No modificar configuración de ambiente.

@@ -1,4 +1,4 @@
-# 06 — Liberación y operación controlada
+# 04 — Liberación y operación controlada
 
 ## ROL ESPERADO
 
@@ -10,8 +10,8 @@ Preparar la decisión de liberación, matriz de ambientes y runbook operativo. E
 
 ## CONTEXTO OBLIGATORIO
 
-- Requiere 05 aprobado y ausencia de bloqueos críticos.
-- Leer `00-contexto-obligatorio.md`, evidencia de 05, versión aprobada y documentación operativa existente.
+- Requiere 03 aprobado y ausencia de bloqueos críticos.
+- Leer `00-contexto-obligatorio.md`, evidencia de 03, versión aprobada y documentación operativa existente.
 - La aprobación técnica de pruebas no equivale a autorización operativa por ambiente.
 
 ## REQUISITOS POSITIVOS
@@ -38,7 +38,7 @@ Preparar la decisión de liberación, matriz de ambientes y runbook operativo. E
 
 ## PRUEBAS OBLIGATORIAS
 
-No ejecutar E2E, carga ni cambios de ambiente. Verificar de forma documental y con consultas autorizadas de solo lectura que la evidencia de 05, la ruta moderna universal y la reversión de despliegue es completa; registrar resultado y limitaciones.
+No ejecutar E2E, carga ni cambios de ambiente. Verificar de forma documental y con consultas autorizadas de solo lectura que la evidencia de 03, la ruta moderna universal y la reversión de despliegue es completa; registrar resultado y limitaciones.
 
 ## DOCUMENTACIÓN TÉCNICA
 
