@@ -13,7 +13,12 @@
     "test:doc11:anonymous": "node scripts/assert-doc11-execution-config.cjs anonymous && playwright test tests/doc11-execution.spec.cjs --grep @doc11-anonymous",
     "test:doc11:validation": "node scripts/assert-doc11-execution-config.cjs validation && playwright test tests/doc11-execution.spec.cjs --grep @doc11-validation",
     "test:doc11:execute": "node scripts/assert-doc11-execution-config.cjs execute && playwright test tests/doc11-execution.spec.cjs --grep @doc11-execute",
-    "test:doc11:concurrency": "node scripts/assert-doc11-execution-config.cjs concurrency && node scripts/run-doc11-concurrency.cjs"
+    "test:doc11:concurrency": "node scripts/assert-doc11-execution-config.cjs concurrency && node scripts/run-doc11-concurrency.cjs",
+    "test:doc28:anonymous": "node scripts/assert-doc28-user-send-config.cjs anonymous && playwright test tests/doc28-user-send.spec.cjs --grep @doc28-anonymous --reporter=list",
+    "test:doc28:validation": "node scripts/assert-doc28-user-send-config.cjs validation && playwright test tests/doc28-user-send.spec.cjs --grep @doc28-validation --reporter=list",
+    "test:doc28:preview": "node scripts/assert-doc28-user-send-config.cjs preview && playwright test tests/doc28-user-send.spec.cjs --grep @doc28-preview --reporter=list",
+    "test:doc28:execute": "node scripts/assert-doc28-user-send-config.cjs execute && playwright test tests/doc28-user-send.spec.cjs --grep @doc28-execute --reporter=list",
+    "test:doc28:concurrency": "node scripts/assert-doc28-user-send-config.cjs concurrency && node scripts/run-doc28-user-send-concurrency.cjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

@@ -15,6 +15,7 @@ const executorSource = fs.readFileSync(path.resolve(__dirname, "../Infrastructur
 const authorizationSource = fs.readFileSync(path.resolve(__dirname, "../Infrastructure/Workflow/Terminar/WorkflowLegacyEnvioUsuarioAutorizacionAdapter.vb"), "utf8");
 const auditSource = fs.readFileSync(path.resolve(__dirname, "../Infrastructure/Workflow/Terminar/WorkflowLegacyAuditoriaAdapter.vb"), "utf8");
 const asmxSource = fs.readFileSync(path.resolve(__dirname, "../webservice/WebServiceWorkflowModern.asmx.vb"), "utf8");
+const projectSource = fs.readFileSync(path.resolve(__dirname, "../GestionDocumental-Docuarchi.net.vbproj"), "utf8");
 
 function classBlock(source, name) {
     const match = source.match(new RegExp(`Public Class ${name}[\\s\\S]*?End Class`));
@@ -43,6 +44,19 @@ test("los contratos exclusivos de enviar a usuario no exponen conector", () => {
     assert.match(interfacesSource, /Interface IEnvioUsuarioLegacyExecutor/);
     assert.match(dtoSource, /PermisoCambioUsuarioDenegado As String = "WORKFLOW_USER_SEND_FORBIDDEN"/);
     assert.match(classBlock(modelsSource, "SolicitudTransicionWorkflow"), /IdConector/);
+});
+
+test("el proyecto incluye todos los tipos exclusivos de enviar a usuario", () => {
+    for (const file of [
+        "Services\\Workflow\\Terminar\\ServicioEnvioUsuarioTarea.vb",
+        "Services\\Workflow\\Terminar\\ValidadorEnvioUsuarioTarea.vb",
+        "Infrastructure\\Repositories\\Workflow\\MySqlEnvioUsuarioRepository.vb",
+        "Infrastructure\\Workflow\\Terminar\\WorkflowLegacyEnvioUsuarioRequisitosAdapter.vb",
+        "Infrastructure\\Workflow\\Terminar\\WorkflowLegacyEnvioUsuarioAutorizacionAdapter.vb",
+        "Infrastructure\\Workflow\\Terminar\\WorkflowLegacyEnvioUsuarioExecutorAdapter.vb"
+    ]) {
+        assert.ok(projectSource.includes(`<Compile Include="${file}" />`), `falta incluir ${file} en el proyecto.`);
+    }
 });
 
 test("el contexto de enviar a usuario calcula CAMBIO_USUARIO en servidor y falla cerrado", () => {

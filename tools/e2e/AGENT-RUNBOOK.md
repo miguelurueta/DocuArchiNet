@@ -1,13 +1,13 @@
-# Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11
+# Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28
 
-Este runbook permite reutilizar las pruebas del ASMX `PreviewEnviarTarea` sin copiar credenciales, modificar datos Workflow ni reactivar la política legacy.
+Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciales, modificar datos sin autorización ni reactivar la política legacy.
 
 ## Límites obligatorios
 
 - Ejecutar solo contra un ambiente de pruebas autorizado; nunca inferir autorización para producción.
 - Recibir URL, cuentas y acceso MySQL de solo lectura mediante secretos del entorno o instrucción expresa. No crear `.env` ni mostrar secretos, cookies o cadenas de conexión.
-- Reutilizar `tests/support/authenticated-workflow-session.cjs` para todo login E2E DOC-10. No enviar usuario, grupo, ruta, actividad ni permisos al ASMX.
-- `PreviewEnviarTarea` es de solo lectura. Las consultas de control son una única sentencia `SELECT` con exactamente un parámetro `?` para la tarea.
+- Reutilizar `tests/support/authenticated-workflow-session.cjs` para todo login E2E DOC-10/DOC-11/DOC-28. No enviar usuario, grupo, ruta, actividad ni permisos al ASMX salvo el destino que DOC-28 obtiene del preview actual al ejecutar.
+- `PreviewEnviarTarea` y `PreviewEnviarUsuario` son de solo lectura. Las consultas de control son una única sentencia `SELECT` con exactamente un parámetro `?` para la tarea.
 - No modificar el flujo legacy. Al cierre, `workflow/Webworkflow.aspx` y `workflow/Webworkflow.aspx.vb` no deben tener cambios.
 - No activar, editar ni limitar `WorkflowCentroTrabajoModernActive`, usuarios o grupos: la experiencia moderna es oficial para todo contexto Workflow válido.
 
@@ -56,6 +56,11 @@ El resultado esperado es `Active=false` y listas vacías. Si difiere, detener la
 | Dos contextos oficiales | `npm.cmd --prefix tools/e2e run test:contexts` | Agregar segunda cuenta Workflow válida. | Ambas sesiones resuelven contexto; la disponibilidad es una regla de negocio. |
 | E2E funcional completa | `npm.cmd --prefix tools/e2e run test:e2e` | MySQL de solo lectura y auditoría. | Destinos o bloqueo funcional esperado; huellas iguales antes/después. |
 | Concurrencia ASMX | `npm.cmd --prefix tools/e2e run test:load` | Autorización específica de carga y MySQL de solo lectura. | Métricas y huellas iguales antes/después. |
+| DOC-28 anónimo | `npm.cmd --prefix tools/e2e run test:doc28:anonymous` | URL autorizada. | Contexto rechazado, sin destinos usuario. |
+| DOC-28 validación | `npm.cmd --prefix tools/e2e run test:doc28:validation` | Cuenta Gestión con `CAMBIO_USUARIO`. | Parámetro inválido bloqueado sin transición. |
+| DOC-28 preview | `npm.cmd --prefix tools/e2e run test:doc28:preview` | Ambiente/cuenta autorizados, tarea activa y MySQL solo lectura. | Preview usuario sin cambios de estado/auditoría. |
+| DOC-28 ejecución | `npm.cmd --prefix tools/e2e run test:doc28:execute` | Autorización explícita, tarea descartable, MySQL solo lectura y `DOC28_E2E_EXECUTION_AUTHORIZED=true`. | Resultado y huellas esperadas, sin tocar gate/legacy. |
+| DOC-28 concurrencia | `npm.cmd --prefix tools/e2e run test:doc28:concurrency` | Autorización doble, tarea descartable y MySQL solo lectura. | Dos solicitudes: una `completada` y un bloqueo seguro; estado/auditoría cambian. |
 
 ## Cierre de cada corrida
 
@@ -70,3 +75,15 @@ El resultado esperado es `Active=false` y listas vacías. Si difiere, detener la
 `EjecutarEnvioTarea` cambia la tarea. Solo puede ejecutarse con autorización explícita para una tarea descartable, cuenta válida, conector y token obtenidos del preview actual, además de consultas de estado y auditoría `SELECT` con un parámetro `?` y MySQL de solo lectura.
 
 Las pruebas anónima y de validación no cambian estado. Ejecución y concurrencia requieren además `DOC11_E2E_EXECUTION_AUTHORIZED=true`; después se confirma que la configuración del gate continuó apagada y el flujo legacy no cambió.
+
+## DOC-28 envío a usuario
+
+`PreviewEnviarUsuario` recibe siempre tarea, filtro, cursor y tamaño de página. En el preview completo DOC-28 se usan `DOC28_E2E_TASK_STATE_SQL` y `DOC28_E2E_AUDIT_SQL`; ambas son obligatorias y el harness rechaza cualquier instrucción distinta de un `SELECT` con un único `?`.
+
+`EjecutarEnvioUsuario` es mutante. Además de los límites generales, exige autorización explícita para el ambiente y cuentas, una tarea descartable, `DOC28_E2E_EXECUTION_AUTHORIZED=true`, resultado esperado y acceso MySQL solo lectura. El test obtiene usuario destino, actividad y token desde el preview de la misma sesión; nunca acepte ni configure esos valores por variables de entorno.
+
+La auditoría propia de DOC-28 se registra en `log_usuario`, con `Mecanismo=ASMX_ENVIO_USUARIO` dentro de `Valor_Log`. La consulta `DOC28_E2E_AUDIT_SQL` debe ser un único `SELECT` con un parámetro `?` que filtre ese mecanismo y `Tarea=<parámetro>`; no use `wf_log_estados_workflow` como sustituto.
+
+`test:doc28:concurrency` es una carrera fija de exactamente dos solicitudes mutantes y no una prueba de carga. Requiere además `DOC28_E2E_CONCURRENCY_AUTHORIZED=true`, autorización explícita de concurrencia, tarea descartable y las dos consultas MySQL de lectura. Debe producir una sola respuesta `completada`, un único bloqueo entre `WORKFLOW_TRANSITION_IN_PROGRESS`, `WORKFLOW_VERSION_CONFLICT` o `WORKFLOW_TASK_UNAVAILABLE`, y cambios de estado/auditoría. No admita niveles configurables, usuarios virtuales ni carga masiva.
+
+La evidencia DOC-28 solo puede guardar códigos, conteos, banderas de cambio y huellas; no guarde destinos, token, cookies, secretos, cadena de conexión ni cuerpos de respuesta. Al cierre, ejecute el control del gate y la comprobación de páginas legacy de la sección anterior.
