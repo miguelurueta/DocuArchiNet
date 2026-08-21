@@ -30,6 +30,7 @@ Public Class ContextoModuloWorkflow
     Public Property IdRutaWorkflow As Integer
     Public Property IdUsuarioGestion As Integer
     Public Property PuedeCambioRuta As Boolean
+    Public Property PuedeCambioUsuario As Boolean
 
     Public Overrides Function EsValido() As Boolean
         Return MyBase.EsValido() AndAlso IdGrupoWorkflow > 0 AndAlso IdRutaWorkflow > 0 AndAlso
@@ -100,6 +101,66 @@ Public Class SolicitudBusquedaDestinosEnvioGrupo
     Public Property Termino As String
     Public Property Pagina As Integer
     Public Property TamanoPagina As Integer
+End Class
+
+'Contratos internos exclusivos de Enviar a usuario. No contienen conectores ni controles Web Forms.
+Public Class SolicitudPreviewEnvioUsuario
+    Public Property IdTarea As Long
+    Public Property Consulta As String
+    Public Property Cursor As String
+    Public Property TamanoPagina As Integer
+End Class
+
+Public Class SolicitudEnvioUsuarioWorkflow
+    Public Property IdTarea As Long
+    Public Property IdUsuarioWorkflowDestino As Integer
+    Public Property IdActividadDestino As Integer
+    Public Property TokenVersion As String
+End Class
+
+Public Class DestinoEnvioUsuarioWorkflow
+    Public Property IdUsuarioWorkflowDestino As Integer
+    Public Property IdActividadDestino As Integer
+    Public Property NombreUsuarioDestino As String
+    Public Property CargoUsuarioDestino As String
+    Public Property NombreActividadDestino As String
+    Public Property RequiereNotificacion As Boolean
+End Class
+
+Public Class ResultadoBusquedaDestinosEnvioUsuario
+    Public Sub New()
+        Destinos = New List(Of DestinoEnvioUsuarioWorkflow)()
+    End Sub
+
+    Public Property Destinos As IList(Of DestinoEnvioUsuarioWorkflow)
+    Public Property CursorSiguiente As String
+    Public Property TieneMas As Boolean
+    Public Property TamanoPagina As Integer
+    Public Property CodigoBloqueo As String
+    Public Property MensajeFuncional As String
+End Class
+
+Public Class ResultadoResolucionEnvioUsuario
+    Public Property Destino As DestinoEnvioUsuarioWorkflow
+    Public Property CodigoBloqueo As String
+    Public Property MensajeFuncional As String
+
+    Public ReadOnly Property EsValido As Boolean
+        Get
+            Return Destino IsNot Nothing AndAlso String.IsNullOrWhiteSpace(CodigoBloqueo)
+        End Get
+    End Property
+End Class
+
+Public Class ResultadoRequisitosEnvioUsuario
+    Public Sub New()
+        Requisitos = New List(Of RequisitoTransicion)()
+    End Sub
+
+    Public Property Cumple As Boolean
+    Public Property CodigoBloqueo As String
+    Public Property MensajeFuncional As String
+    Public Property Requisitos As IList(Of RequisitoTransicion)
 End Class
 
 Public Class DestinoEnvioGrupoWorkflow

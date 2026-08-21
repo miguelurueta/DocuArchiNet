@@ -84,6 +84,85 @@ Public Class WebServiceWorkflowModern
 
     <WebMethod(EnableSession:=True)>
     <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
+    Public Function PreviewEnviarUsuario(ByVal idTarea As Long,
+                                         ByVal consulta As String,
+                                         ByVal cursor As String,
+                                         ByVal tamanoPagina As Integer) As PrevisualizacionEnvioUsuarioDto
+        Try
+            Dim resultadoSesion As ResultadoContextoSesionWorkflow = New WorkflowPreviewSessionContextGate().AsegurarContextoEnvioUsuario()
+            If resultadoSesion Is Nothing OrElse resultadoSesion.Contexto Is Nothing OrElse Not resultadoSesion.Contexto.EsValido() OrElse
+               String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionWorkflow) Then
+                Return CrearRespuestaUsuarioSegura(idTarea, tamanoPagina, CodigosBloqueoPrevisualizacion.ContextoInvalido,
+                                                   "No fue posible validar la sesion de la tarea.")
+            End If
+
+            Dim factory As New WorkflowModuleConnectionFactory(resultadoSesion.CadenaConexionWorkflow)
+            Dim docuarchiFactory As IModuleConnectionFactory = Nothing
+            If Not String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionDocuarchi) Then
+                docuarchiFactory = New DocuarchiModuleConnectionFactory(resultadoSesion.CadenaConexionDocuarchi)
+            End If
+            Dim dataExecutor As New AdoNetDataExecutor()
+            Dim servicio As New ServicioEnvioUsuarioTarea(
+                New MySqlTareaWorkflowRepository(factory, dataExecutor),
+                New MySqlEnvioUsuarioRepository(factory, docuarchiFactory, dataExecutor),
+                New ValidadorEnvioUsuarioTarea())
+            Return servicio.Previsualizar(resultadoSesion.Contexto, New SolicitudPreviewEnvioUsuario With {
+                .IdTarea = idTarea,
+                .Consulta = consulta,
+                .Cursor = cursor,
+                .TamanoPagina = tamanoPagina
+            })
+        Catch
+            Return CrearRespuestaUsuarioSegura(idTarea, tamanoPagina, CodigosBloqueoPrevisualizacion.TransicionNoDisponible,
+                                               "No fue posible consultar los destinos de la tarea.")
+        End Try
+    End Function
+
+    <WebMethod(EnableSession:=True)>
+    <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
+    Public Function EjecutarEnvioUsuario(ByVal idTarea As Long,
+                                         ByVal idUsuarioWorkflowDestino As Integer,
+                                         ByVal idActividadDestino As Integer,
+                                         ByVal tokenVersion As String) As ResultadoEnvioUsuarioDto
+        Try
+            Dim resultadoSesion As ResultadoContextoSesionWorkflow = New WorkflowPreviewSessionContextGate().AsegurarContextoEnvioUsuario(True)
+            If resultadoSesion Is Nothing OrElse resultadoSesion.Contexto Is Nothing OrElse Not resultadoSesion.Contexto.EsValido() OrElse
+               String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionWorkflow) Then
+                Return CrearResultadoEnvioUsuarioBloqueado(CodigosBloqueoPrevisualizacion.ContextoInvalido,
+                                                           "No fue posible validar la sesion de la tarea.")
+            End If
+
+            Dim factory As New WorkflowModuleConnectionFactory(resultadoSesion.CadenaConexionWorkflow)
+            Dim docuarchiFactory As IModuleConnectionFactory = Nothing
+            If Not String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionDocuarchi) Then
+                docuarchiFactory = New DocuarchiModuleConnectionFactory(resultadoSesion.CadenaConexionDocuarchi)
+            End If
+            Dim dataExecutor As New AdoNetDataExecutor()
+            Dim repositorioUsuario As New MySqlEnvioUsuarioRepository(factory, docuarchiFactory, dataExecutor)
+            Dim servicio As New ServicioEnvioUsuarioTarea(
+                New MySqlTareaWorkflowRepository(factory, dataExecutor),
+                repositorioUsuario,
+                repositorioUsuario,
+                New WorkflowLegacyEnvioUsuarioRequisitosAdapter(),
+                New WorkflowLegacyEnvioUsuarioAutorizacionAdapter(),
+                New WorkflowLegacyAuditoriaAdapter(),
+                New MySqlTransicionConcurrencyGuard(factory, dataExecutor),
+                New WorkflowLegacyEnvioUsuarioExecutorAdapter(),
+                New ValidadorEnvioUsuarioTarea())
+            Return servicio.Ejecutar(resultadoSesion.Contexto, New SolicitudEnvioUsuarioWorkflow With {
+                .IdTarea = idTarea,
+                .IdUsuarioWorkflowDestino = idUsuarioWorkflowDestino,
+                .IdActividadDestino = idActividadDestino,
+                .TokenVersion = tokenVersion
+            })
+        Catch
+            Return CrearResultadoEnvioUsuarioBloqueado(CodigosBloqueoPrevisualizacion.TransicionNoDisponible,
+                                                       "No fue posible enviar la tarea.")
+        End Try
+    End Function
+
+    <WebMethod(EnableSession:=True)>
+    <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
     Public Function PreviewEnviarGrupo(ByVal idTarea As Long) As PrevisualizacionEnvioGrupoDto
         Try
             Dim resultadoSesion As ResultadoContextoSesionWorkflow = New WorkflowPreviewSessionContextGate().AsegurarContextoEnvioGrupo()
@@ -222,6 +301,21 @@ Public Class WebServiceWorkflowModern
         }
     End Function
 
+    Private Shared Function CrearRespuestaUsuarioSegura(ByVal idTarea As Long,
+                                                         ByVal tamanoPagina As Integer,
+                                                         ByVal codigo As String,
+                                                         ByVal mensaje As String) As PrevisualizacionEnvioUsuarioDto
+        Return New PrevisualizacionEnvioUsuarioDto With {
+            .IdTarea = idTarea,
+            .TamanoPagina = If(tamanoPagina < 1, 25, Math.Min(50, tamanoPagina)),
+            .[Error] = New ErrorTransicionDto With {
+                .Codigo = codigo,
+                .MensajeVisible = mensaje,
+                .ReferenciaTrazabilidad = String.Empty
+            }
+        }
+    End Function
+
     Private Shared Function CrearBusquedaGrupoSegura(ByVal idTarea As Long,
                                                       ByVal pagina As Integer,
                                                       ByVal tamanoPagina As Integer,
@@ -258,6 +352,22 @@ Public Class WebServiceWorkflowModern
     Private Shared Function CrearResultadoEnvioGrupoBloqueado(ByVal codigo As String,
                                                                ByVal mensaje As String) As ResultadoEnvioGrupoDto
         Return New ResultadoEnvioGrupoDto With {
+            .Exito = False,
+            .EstadoFinal = "bloqueado",
+            .CodigoBloqueo = codigo,
+            .MensajeFuncional = mensaje,
+            .EsReintentable = False,
+            .[Error] = New ErrorTransicionDto With {
+                .Codigo = codigo,
+                .MensajeVisible = mensaje,
+                .ReferenciaTrazabilidad = String.Empty
+            }
+        }
+    End Function
+
+    Private Shared Function CrearResultadoEnvioUsuarioBloqueado(ByVal codigo As String,
+                                                                 ByVal mensaje As String) As ResultadoEnvioUsuarioDto
+        Return New ResultadoEnvioUsuarioDto With {
             .Exito = False,
             .EstadoFinal = "bloqueado",
             .CodigoBloqueo = codigo,
