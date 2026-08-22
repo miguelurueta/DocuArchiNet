@@ -6,6 +6,8 @@ Paquete documental único de la implementación de Enviar a usuario. DOC-28 entr
 - Cambio OpenSpec: doc-28-backend-enviar-usuario-workflow
 - Ticket: DOC-29
 - Cambio OpenSpec: doc-29-interfaz-moderna-enviar-usuario
+- Ticket de verificación: DOC-30
+- Cambio OpenSpec de verificación: doc-30-verificacion-transversal-enviar-usuario
 - Clasificación: cross_cutting
 
 - [Arquitectura y componentes](01-arquitectura.md)
@@ -15,5 +17,6 @@ Paquete documental único de la implementación de Enviar a usuario. DOC-28 entr
 - [Inventario de funciones implementadas y reutilizadas](05-inventario-funciones.md)
 - [Diagramas](Diagramas/)
 - [Documentación técnica y gobernanza DOC-29](../02-documentacion-tecnica-doc-29/00-indice.md)
+- [Verificación transversal DOC-30](../03-verificacion-transversal-doc-30/00-indice.md)
 
-Estado: backend e interfaz local validados. La experiencia de usuario no depende de gate; no hubo cambios de configuración, E2E autenticado ni carga. La verificación operativa queda para la etapa 03, con autorización explícita.
+Estado: backend e interfaz validados. DOC-30 consolidó inspección estática, 66 pruebas CJS, compilación MSBuild y QA visual no autenticada; el dictamen es apto para solicitar aprobación operativa. No se modificó configuración ni se ejecutaron carga, despliegue o una nueva operación autenticada durante la verificación.

@@ -47,3 +47,9 @@ Resultados: CJS 61/61 correctas y MSBuild con código 0. Las pruebas verifican e
 No se ejecutaron QA manual autenticada, E2E autenticado, carga, activación de gate ni transición real: no hubo autorización explícita de ambiente y cuentas para DOC-29. Las pruebas locales no conceden esa autorización.
 
 Cuando exista autorización, el recorrido manual debe: seleccionar una tarea descartable, abrir **Enviar a usuario** con el gate apagado, verificar foco/Tab/Escape, buscar y navegar páginas, cancelar una selección, confirmar un destino válido, comprobar que solo cambia la fila/visor/contador y registrar evidencia sanitizada. Antes de cualquier E2E autenticado se debe leer `tools/e2e/AGENT-RUNBOOK.md`; no se guardan credenciales, cookies ni cadenas de conexión y el gate debe finalizar en `false` con usuarios/grupos vacíos.
+
+## DOC-30 — Verificación transversal
+
+DOC-30 ejecutó la compuerta no mutante sobre el snapshot integrado: inspección estática de contratos, revalidación con lock, respuesta y auditoría; la batería CJS de nueve suites focales terminó con 66/66 correctas y MSBuild terminó sin errores. La QA visual no autenticada verificó apertura, búsqueda, transición visual, selección, recarga, cierre y geometría estable del modal. No se ejecutaron E2E autenticados, carga, activación de gate, cambios de ambiente ni despliegue en esta etapa.
+
+El dictamen técnico es **apto para solicitar aprobación operativa**. El detalle de matriz, riesgos, diagramas y límites se conserva en `../03-verificacion-transversal-doc-30/`; esa conclusión no autoriza un ambiente ni revierte una transición confirmada.
