@@ -18,7 +18,8 @@
     "test:doc28:validation": "node scripts/assert-doc28-user-send-config.cjs validation && playwright test tests/doc28-user-send.spec.cjs --grep @doc28-validation --reporter=list",
     "test:doc28:preview": "node scripts/assert-doc28-user-send-config.cjs preview && playwright test tests/doc28-user-send.spec.cjs --grep @doc28-preview --reporter=list",
     "test:doc28:execute": "node scripts/assert-doc28-user-send-config.cjs execute && playwright test tests/doc28-user-send.spec.cjs --grep @doc28-execute --reporter=list",
-    "test:doc28:concurrency": "node scripts/assert-doc28-user-send-config.cjs concurrency && node scripts/run-doc28-user-send-concurrency.cjs"
+    "test:doc28:concurrency": "node scripts/assert-doc28-user-send-config.cjs concurrency && node scripts/run-doc28-user-send-concurrency.cjs",
+    "test:doc29:user-send-lock": "node scripts/assert-doc29-user-send-ui-lock-config.cjs && playwright test tests/doc29-user-send-ui-lock.spec.cjs --grep @doc29-ui-lock --reporter=list"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

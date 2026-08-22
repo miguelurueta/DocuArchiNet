@@ -85,7 +85,6 @@ $(document).ready(function () {
             });
            
             GetLista_lista_actividades_ruta("TextBox_buequeda_general_lista_actividades");
-            GetLista_listado_usuarios_workflow_ruta("TextBox_buequeda_general_lista_usuarios");
             $('#data_grid_actividad tr[id]').click(function () {
                 $('#data_grid_actividad tr[id]').css({ "background": "White", "color": "Black" });
                 $(this).css({ "background-color": "#e8e8f7", "color": "Black" });
@@ -361,7 +360,6 @@ $(document).ready(function () {
                 service_posibles_datos_tramites_();
                 service_GetPosiblesDatos_lista_tareas_pendientes();
                 auto_zise_popup_detalle_radicado();
-                auto_zise_popup_lista_usuarios_ruta();
                 auto_zise_popup_autorizados();
                 auto_size_content_anotacion();
                 auto_zise_popup_visor_tarea_pendiente();
@@ -741,7 +739,6 @@ function rezize_event() {
         service_GetPosiblesDatos_lista_tareas_pendientes();
         auto_zise_popup_detalle_radicado();
         auto_zise_popup_lista_usuario_flujo();
-        auto_zise_popup_lista_usuarios_ruta();
         auto_zise_popup_autorizados();
         auto_size_content_anotacion();
         auto_zise_popup_visor_tarea_pendiente();
@@ -752,7 +749,6 @@ function rezize_event() {
         auto_zise_popup_adjunta_documento_workflow();
         auto_zise_popup_list_inscripciones_sii();
         GetLista_lista_actividades_ruta("TextBox_buequeda_general_lista_actividades");
-        GetLista_listado_usuarios_workflow_ruta("TextBox_buequeda_general_lista_usuarios");
         $.fn.redienciona();
         auto_zise_popup_lista_form_control_person("actualiza_indice_batch_wf");
         auto_zise_popup_lista_form_control_person("actualiza_indice_batch_wf_enlace");
@@ -4706,43 +4702,6 @@ const ServiceRESTGuardaDocumentoAnexoSII = async (CDParameterAnexosSII, CDlistaA
     let result = await myPromise;
     return result;
 }
-function GetLista_listado_usuarios_workflow_ruta(name_texbox) {
-    function extractLast(term) {
-        return term;
-    }
-    $("#" + name_texbox)
-        .on("keydown", function (event) {
-            if (event.keyCode === $.ui.keyCode.TAB &&
-                $(this).autocomplete("instance").menu.active) {
-                event.preventDefault();
-            }
-        })
-        .autocomplete({
-            source: function (request, response) {
-                var param = { keyword: $('#' + name_texbox).val() };
-                $.ajax({
-                    url: "../webservice/WebServiceWorkflow.asmx/GetLista_listado_usuarios_workflow_ruta",
-                    data: "{'DName':'" + document.getElementById(name_texbox).value + "'}",
-                    dataType: "json",
-                    type: "POST",
-                    traditional: true,
-                    processData: false,
-                    contentType: "application/json; charset=utf-8",
-                    success: function (data) {
-                        term: extractLast(request.term)
-                        response($.ui.autocomplete.filter(
-                            data.d, extractLast(request.term)));
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        alert(textStatus);
-                    }
-                });
-            }, select: function (event, ui) {
-                document.getElementById(name_texbox).value = ui.item.label;
-                document.getElementById("Button_tool_busqueda_enviar_usuario").click();
-            }, minLength: 3, max: 10, scroll: true
-        });
-}
 function preven_event_search(event, e) {
     try {
         document.getElementById("Button_tool_search_lista_tareas").click();
@@ -4883,38 +4842,6 @@ function preven_event_search_lista_actividad(event, e) {
     }
     catch (err) {
         alert(err.message + " Funcion preven_event_search_keypres_enter_lista_actividad");
-    }
-}
-function preven_event_search_lista_usuario(event, e) {
-    try {
-        document.getElementById("Button_tool_busqueda_enviar_usuario").click();
-        event.preventDefault();
-    }
-    catch (err) {
-        alert(err.message + " Funcion preven_event_search_lista_usuario");
-    }
-}
-function preven_event_restor_search_lista_usuario(event, e) {
-    try {
-        document.getElementById("Button_tool_restore_busqueda_enviar_usuario").click();
-        event.preventDefault();
-    }
-    catch (err) {
-        alert(err.message + " Funcion preven_event_restor_search_lista_usuario");
-    } finally {
-
-    }
-}
-function preven_event_search_keypres_enter_lista_usuario(e, sender) {
-    try {
-
-        tecla = (document.all) ? e.keyCode : e.which;
-        if (tecla == 13) {
-            document.getElementById("Button_tool_busqueda_enviar_usuario").click();
-            e.preventDefault();
-        }
-    } catch (err) {
-        alert(err.message + " funcion preven_event_search_keypres_enter_lista_usuario " + err.message);
     }
 }
 function prevent_detalle_usuario(event, element) {
@@ -5188,32 +5115,6 @@ function prevent_envio_actividad_flujo_anterior(event, element) {
         alert(err.message + " Funcion prevent_envio_actividad_flujo");
     }
 }
-//Envio de actividad por usuario
-function prevent_envio_usuario_actividad(event, element) {
-    try {
-        var title_promp = "Desea enviar la tarea ?";
-        if (document.getElementById("Hidden_vi_reasigna").value == 2) {
-            title_promp = "Desea " + element.title + " ?";
-        } else {
-            title_promp = "Desea " + element.title + " ?";
-        }
-        event.preventDefault();
-        var x;
-        var r = confirm(title_promp);
-        if (r == true) {
-            $('#Hidden_id_usuario_envio').val($(element).attr("id"));
-            $('#Hidden_id_actividad_envio').val($(element).attr("idd"));
-            document.getElementById("Button_tool_enviar_usuario").click();
-        } else {
-            $('#Hidden_id_usuario_envio').val(0);
-            $('#Hidden_id_actividad_envio').val(0);
-        }
-        element.focus();
-    }
-    catch (err) {
-        alert(err.message + " Funcion prevent_envio_actividad");
-    }
-}
 //Envio de actividad por grupo 
 function prevent_envio_actividad_tarea(event, element) {
     try {
@@ -5241,7 +5142,6 @@ function prevent_envio_ruta_actividad(event, element) {
             $('#Hidden_id_actividad_disp_envio').val($(element).attr("idd"));
             document.getElementById("Button_activa_enviar_actividad_ruta").click();
         } else {
-            $('#Hidden_id_usuario_envio').val(0);
             $('#Hidden_id_actividad_disp_envio').val(0);
         }
         element.focus();
@@ -7017,44 +6917,6 @@ function ConfirmMensajeGeneral_dos(mensaje, name_hiden) {
     }
     
    
-//funciones envio usuario
-    function auto_zise_popup_lista_usuarios_ruta() {
-        try {
-            var espacio_iframe = 420;
-            var hidenpadre = 0;
-            var with_frame = 420;
-            if (window.innerHeight) {
-                //navegadores basados en mozilla 
-                espacio_iframe = window.innerHeight;
-                with_frame = window.innerWidth;
-            } else {
-                if (document.body.clientHeight) {
-                    //Navegadores basados en IExplorer, es que no tengo innerheight 
-                    espacio_iframe = document.body.clientHeight;
-                    with_frame = document.body.clientWidth;
-                } else {
-                    //otros navegadores y iframe
-                    //hidenpadre = $('#Hiddenheigpaginapopup', window.parent.document).val();
-
-                }
-            }
-
-            //corrige el posicionamiento horizontal del modalpopuextender, la propiedad width del panel debe estar en auto
-            //var widtth_procent_left_rigth = (with_frame - document.getElementById("Panel_agregar_expediente_carpeta").clientHeight) / 2;
-            //$('#Panel_agregar_expediente_carpeta').css("left", (Math.round(widtth_procent_left_rigth)) + "px");
-            var heig_porcent = espacio_iframe - ((espacio_iframe * 2) / 100);  // Indica el porcentaje de espacio vertical del elemento
-            $('#Panel_lista_usuarios_ruta').css("height", (heig_porcent) + "px"); //Asigna altura al panel contenedor del modal
-            $('#modal_content_lista_usuarios_ruta').css("height", (heig_porcent - 3) + "px"); // Asigna altura del contenedor bootstraf
-            //Asgina el valor del contenido central del modal  contenedor bootstraf  menos la suma del footer y la cabecera
-            $('#contenido_procesa_lista_usuarios_ruta').css("height", (document.getElementById("modal_content_lista_usuarios_ruta").clientHeight - (document.getElementById("divcabecer2_lista_usuarios_ruta").clientHeight)) + "px");
-            //Para los modal que contiene gred
-            $('#div_gred_usuarios').css("height", (document.getElementById("contenido_procesa_lista_usuarios_ruta").clientHeight - (document.getElementById("contenido_titulo_data_grid_lista_usuarios_ruta").clientHeight + document.getElementById("div_contenido_procesa_lista_usuarios_ruta_botones_desicion").clientHeight)) + "px");
-        }
-        catch (err) {
-            alert(err.message + " funcion auto_zise_popup_lista_usuarios_ruta " + err.message);
-        }
-    }
-    
     function dispalyInterfaceEscaner() {
         try {
             var espacio_iframe = 420;

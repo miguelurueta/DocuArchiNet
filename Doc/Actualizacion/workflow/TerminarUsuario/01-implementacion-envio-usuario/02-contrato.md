@@ -35,3 +35,14 @@ El filtro se limita a 100 caracteres, no acepta controles y la página se limita
 - `WORKFLOW_REQUIREMENT_NOT_MET` cuando la política de respuesta no permite enviar.
 
 Los errores se normalizan sin exponer `IdConector`, `Page`, `Session`, token completo, SQL, credenciales ni detalles de infraestructura.
+
+## DOC-29 — Consumo de interfaz
+
+La interfaz envía siempre JSON con `credentials: "same-origin"`; no interpreta sus datos como autorización.
+
+| Acción | Endpoint | Payload | Resultado visual |
+| --- | --- | --- | --- |
+| Apertura, búsqueda y páginas | `PreviewEnviarUsuario` | `{ idTarea, consulta, cursor, tamanoPagina }` | Renderiza solo `Destinos` de la página, `CursorSiguiente`, `TieneMas`, contexto mínimo y token. |
+| Confirmación | `EjecutarEnvioUsuario` | `{ idTarea, idUsuarioWorkflowDestino, idActividadDestino, tokenVersion }` | Éxito correlacionado, bloqueo funcional o error controlado. |
+
+El adaptador conserva historial de cursores por término. Cada nueva búsqueda, página, cierre o respuesta obsoleta invalida la selección anterior. No existe endpoint de búsqueda paralelo, `IdConector`, controlador Web Forms, SQL ni llamada al motor desde JavaScript.

@@ -310,15 +310,6 @@ Partial Public Class Webworkflow
     Protected WithEvents ImageButtonEnviaActividad As Global.System.Web.UI.WebControls.ImageButton
 
     '''<summary>
-    '''Control ImageButtonEnviarUsuario.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents ImageButtonEnviarUsuario As Global.System.Web.UI.WebControls.ImageButton
-
-    '''<summary>
     '''Control ImageButtonseleccionar.
     '''</summary>
     '''<remarks>
@@ -2884,15 +2875,6 @@ Partial Public Class Webworkflow
     Protected WithEvents Hidden_id_actividad_disp_envio As Global.System.Web.UI.HtmlControls.HtmlInputHidden
 
     '''<summary>
-    '''Control Hidden_id_usuario_envio.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Hidden_id_usuario_envio As Global.System.Web.UI.HtmlControls.HtmlInputHidden
-
-    '''<summary>
     '''Control Hidden_id_tarea.
     '''</summary>
     '''<remarks>
@@ -3145,24 +3127,6 @@ Partial Public Class Webworkflow
     Protected WithEvents Button_tool_restore_busqueda_enviar_actividad As Global.System.Web.UI.WebControls.Button
 
     '''<summary>
-    '''Control Button_tool_activa_enviar_usuario.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Button_tool_activa_enviar_usuario As Global.System.Web.UI.WebControls.Button
-
-    '''<summary>
-    '''Control Button_tool_enviar_usuario.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Button_tool_enviar_usuario As Global.System.Web.UI.WebControls.Button
-
-    '''<summary>
     '''Control Button_tool_devolver_a_usuario.
     '''</summary>
     '''<remarks>
@@ -3181,15 +3145,6 @@ Partial Public Class Webworkflow
     Protected WithEvents Button_tool_devolver_a_actividades_anterior As Global.System.Web.UI.WebControls.Button
 
     '''<summary>
-    '''Control Button_tool_busqueda_enviar_usuario.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Button_tool_busqueda_enviar_usuario As Global.System.Web.UI.WebControls.Button
-
-    '''<summary>
     '''Control Button_tool_enviar_ruta.
     '''</summary>
     '''<remarks>
@@ -3197,15 +3152,6 @@ Partial Public Class Webworkflow
     '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
     '''</remarks>
     Protected WithEvents Button_tool_enviar_ruta As Global.System.Web.UI.WebControls.Button
-
-    '''<summary>
-    '''Control Button_tool_restore_busqueda_enviar_usuario.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Button_tool_restore_busqueda_enviar_usuario As Global.System.Web.UI.WebControls.Button
 
     '''<summary>
     '''Control ButtonAlmacenar.
@@ -6023,87 +5969,6 @@ Partial Public Class Webworkflow
     '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
     '''</remarks>
     Protected WithEvents Hidden_result_actividad_ruta As Global.System.Web.UI.HtmlControls.HtmlInputHidden
-
-    '''<summary>
-    '''Control Panel_lista_usuarios_ruta.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Panel_lista_usuarios_ruta As Global.System.Web.UI.WebControls.Panel
-
-    '''<summary>
-    '''Control ModalPopupExtender_edition_lista_usuarios_ruta.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents ModalPopupExtender_edition_lista_usuarios_ruta As Global.AjaxControlToolkit.ModalPopupExtender
-
-    '''<summary>
-    '''Control UpdateGeneral_lista_usuarios_ruta.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents UpdateGeneral_lista_usuarios_ruta As Global.System.Web.UI.UpdatePanel
-
-    '''<summary>
-    '''Control titulo_label_lista_usuario_ruta.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents titulo_label_lista_usuario_ruta As Global.System.Web.UI.WebControls.Label
-
-    '''<summary>
-    '''Control TextBox_buequeda_general_lista_usuarios.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents TextBox_buequeda_general_lista_usuarios As Global.System.Web.UI.WebControls.TextBox
-
-    '''<summary>
-    '''Control GridView_envia_usuario.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents GridView_envia_usuario As Global.System.Web.UI.WebControls.GridView
-
-    '''<summary>
-    '''Control Button_lista_usuarios_ruta.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Button_lista_usuarios_ruta As Global.System.Web.UI.WebControls.Button
-
-    '''<summary>
-    '''Control ButtonSalir_lista_usuarios_ruta.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents ButtonSalir_lista_usuarios_ruta As Global.System.Web.UI.WebControls.Button
-
-    '''<summary>
-    '''Control Button_cerrar_lista_usuarios_ruta.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Button_cerrar_lista_usuarios_ruta As Global.System.Web.UI.WebControls.Button
 
     '''<summary>
     '''Control Panel_lista_actividades_worflow_ruta.

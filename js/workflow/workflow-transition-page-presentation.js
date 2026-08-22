@@ -2,7 +2,6 @@
     "use strict";
 
     var api = {};
-    var successTimer = null;
     var successMessageDuration = 6000;
 
     function asPositiveInteger(value) {
@@ -88,28 +87,28 @@
         }
     }
 
-    function showSuccess() {
-        var message = find("[data-workflow-transition-success]");
+    function showSuccess(options) {
+        var message = options && options.successElementId ? document.getElementById(options.successElementId) : find("[data-workflow-transition-success]");
         if (!message) {
             return;
         }
-        if (successTimer !== null && typeof window.clearTimeout === "function") {
-            window.clearTimeout(successTimer);
+        if (message._workflowSuccessTimer !== undefined && message._workflowSuccessTimer !== null && typeof window.clearTimeout === "function") {
+            window.clearTimeout(message._workflowSuccessTimer);
         }
-        message.textContent = "La tarea fue enviada correctamente.";
+        message.textContent = options && options.successMessage ? options.successMessage : "La tarea fue enviada correctamente.";
         setVisible(message, true);
         message.removeAttribute("hidden");
         if (typeof window.setTimeout === "function") {
-            successTimer = window.setTimeout(function () {
+            message._workflowSuccessTimer = window.setTimeout(function () {
                 setVisible(message, false);
                 message.setAttribute("hidden", "hidden");
                 message.textContent = "";
-                successTimer = null;
+                message._workflowSuccessTimer = null;
             }, successMessageDuration);
         }
     }
 
-    function applySuccess(detail) {
+    function applySuccess(detail, options) {
         var idTarea = asPositiveInteger(detail && detail.idTarea);
         var row;
 
@@ -123,7 +122,7 @@
         updateCounter();
         clearTaskContext();
         restoreTaskListLayout();
-        showSuccess();
+        showSuccess(options);
         return true;
     }
 

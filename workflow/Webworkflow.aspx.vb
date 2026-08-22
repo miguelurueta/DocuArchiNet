@@ -258,6 +258,7 @@ Public Class Webworkflow
     Private Sub ConfigureWorkflowTransitionModernPresentation()
         RegisterWorkflowTransitionModernStyle()
         RegisterWorkflowTransitionPagePresentationScript()
+        RegisterWorkflowEnvioUsuarioModernPresentation()
 
         If Not WorkflowTransitionModernActive Then
             Return
@@ -273,6 +274,14 @@ Public Class Webworkflow
         RegisterWorkflowEnvioGrupoModernBootstrap()
     End Sub
 
+    Private Sub RegisterWorkflowEnvioUsuarioModernPresentation()
+        RegisterConfirmationDialogStyle()
+        RegisterConfirmationDialogScript()
+        RegisterWorkflowEnvioUsuarioModernScript()
+        RegisterWorkflowEnvioUsuarioConfirmationIntegrationScript()
+        RegisterWorkflowEnvioUsuarioModernBootstrap()
+    End Sub
+
     Private Sub RegisterWorkflowTransitionModernStyle()
         If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowTransitionModernStyle") IsNot Nothing Then
             Return
@@ -280,7 +289,7 @@ Public Class Webworkflow
 
         Dim style As New Global.System.Web.UI.HtmlControls.HtmlLink()
         style.ID = "workflowTransitionModernStyle"
-        style.Href = "../Styles/workflow-transition-modern.css?v=20260816-doc12qa5"
+        style.Href = "../Styles/workflow-transition-modern.css?v=20260821-doc29ui2"
         style.Attributes("rel") = "stylesheet"
         style.Attributes("type") = "text/css"
         Page.Header.Controls.Add(style)
@@ -345,6 +354,38 @@ Public Class Webworkflow
         script.Attributes("src") = "../js/workflow/workflow-transition-page-presentation.js?v=20260820-doc26layout1"
         script.Attributes("type") = "text/javascript"
         Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterWorkflowEnvioUsuarioModernScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowEnvioUsuarioModernScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "workflowEnvioUsuarioModernScript"
+        script.Attributes("src") = "../js/workflow/workflow-user-send-ui.js?v=20260821-doc29ui1"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterWorkflowEnvioUsuarioConfirmationIntegrationScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowEnvioUsuarioConfirmationIntegrationScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "workflowEnvioUsuarioConfirmationIntegrationScript"
+        script.Attributes("src") = "../js/workflow/workflow-user-send-confirmation.js?v=20260821-doc29ui1"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterWorkflowEnvioUsuarioModernBootstrap()
+        Dim taskInputClientId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_sel.ClientID)
+        Dim currentTaskInputClientId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_selecionada.ClientID)
+        Dim startupScript As String = "(function(){var trigger=document.getElementById('workflow-user-send-trigger');if(!trigger){return;}trigger.setAttribute('data-workflow-user-send-active','true');trigger.setAttribute('data-workflow-current-task-input-id','" & currentTaskInputClientId & "');trigger.setAttribute('data-workflow-task-input-id','" & taskInputClientId & "');if(window.WorkflowUserSendUi&&typeof window.WorkflowUserSendUi.inicializar==='function'){window.WorkflowUserSendUi.inicializar();}}());"
+
+        ScriptManager.RegisterStartupScript(Me, Me.GetType(), "workflowEnvioUsuarioModernBootstrap", startupScript, True)
     End Sub
 
     Private Sub RegisterWorkflowTransitionModernBootstrap()
@@ -2460,129 +2501,6 @@ Public Class Webworkflow
         End Try
     End Sub
 
-
-    '-----Sub para desencadenar popup enviar actividad a usuario 
-    Private Sub ImageButtonEnviarUsuario_Click(ByVal sender As Object, ByVal e As System.Web.UI.ImageClickEventArgs) Handles ImageButtonEnviarUsuario.Click
-        Dim refclsjava As New Classscrripjava
-        Try
-            Dim Class_usuario_workflow As New Class_usuario_workflow
-            Dim Result As String = ""
-            Result = Class_usuario_workflow.Valida_lista_usuarios_workflow_para_envio_tarea(Me.Page)
-            If Result <> "YES" Then
-                refclsjava.Showscripman_menu(Result, Me.UpdatePanel_tool_menu, "ModalPopupExtender_mensaje_personalizado")
-                Exit Sub
-            End If
-
-        Catch ex As Exception
-            refclsjava.Showscripman(ex.Message, Me.UpdatePanel_tool_menu)
-        End Try
-    End Sub
-    Private Sub GridView_envia_usuario_RowCreated(sender As Object, e As GridViewRowEventArgs) Handles GridView_envia_usuario.RowCreated
-        Try
-            e.Row.Cells(1).Visible = False
-            e.Row.Cells(2).Visible = False
-        Catch ex As Exception
-
-        End Try
-    End Sub
-
-    Private Sub Button_tool_busqueda_enviar_usuario_Click(sender As Object, e As EventArgs) Handles Button_tool_busqueda_enviar_usuario.Click
-        Dim clasjava As New Classscrripjava
-        Try
-            Dim Result As String = ""
-            Dim Ref_class_usuario_workflow As New Class_usuario_workflow
-            Result = Ref_class_usuario_workflow.Solicita_listado_usuarios_workflow_ruta(Val(HttpContext.Current.Session.Item("Id_Ruta_Workflow")),
-                                                                                        2,
-                                                                                        Me.TextBox_buequeda_general_lista_usuarios.Text,
-                                                                                        Me.GridView_envia_usuario,
-                                                                                        Me.titulo_label_lista_usuario_ruta,
-                                                                                        Me.Hidden_sel_actividad,
-                                                                                        Me.UpdateGeneral_lista_usuarios_ruta)
-            If Result <> "YES" Then
-                clasjava.Showscripman_menu(Result, Me.UpdatePanel_boton_tool, "ModalPopupExtender_mensaje_personalizado")
-            End If
-        Catch ex As Exception
-            clasjava.Showscripman_menu(ex.Message, Me.UpdatePanel_boton_tool, "ModalPopupExtender_mensaje_personalizado")
-        End Try
-    End Sub
-
-    Private Sub Button_tool_restore_busqueda_enviar_usuario_Click(sender As Object, e As EventArgs) Handles Button_tool_restore_busqueda_enviar_usuario.Click
-        Dim clasjava As New Classscrripjava
-        Try
-            Dim Result As String = ""
-            Dim Ref_class_usuario_workflow As New Class_usuario_workflow
-            Result = Ref_class_usuario_workflow.Solicita_listado_usuarios_workflow_ruta(Val(HttpContext.Current.Session.Item("Id_Ruta_Workflow")),
-                                                                                        1,
-                                                                                        "",
-                                                                                        Me.GridView_envia_usuario,
-                                                                                        Me.titulo_label_lista_usuario_ruta,
-                                                                                        Me.Hidden_sel_actividad,
-                                                                                        Me.UpdateGeneral_lista_usuarios_ruta)
-            If Result <> "YES" Then
-                clasjava.Showscripman_menu(Result, Me.UpdatePanel_boton_tool, "ModalPopupExtender_mensaje_personalizado")
-            End If
-        Catch ex As Exception
-            clasjava.Showscripman_menu(ex.Message, Me.UpdatePanel_boton_tool, "ModalPopupExtender_mensaje_personalizado")
-        End Try
-    End Sub
-    'Envia la actividad a usuario especifico
-    Private Sub Button_tool_enviar_usuario_Click(sender As Object, e As EventArgs) Handles Button_tool_enviar_usuario.Click
-        Dim clasjava As New Classscrripjava
-        Try
-            Dim refclas As New ClassWorkflow
-            Dim ref_classsWorkflowUsuario As New ClassWorkflowUsuario
-            Dim estado_envio_correo As Integer = 0
-            Dim Result As String = ""
-            Dim resul_correo As String = ""
-            Me.Hidden_result_boton_tool.Value = ""
-            Result = ref_classsWorkflowUsuario.Solicita_estado_envio_correo_usuario_workflow(Me.Hidden_id_usuario_envio.Value,
-                                                                                            estado_envio_correo)
-            If Result <> "YES" Then
-                clasjava.Showscripman(Result, Me.UpdatePanel_boton_tool)
-                Exit Sub
-            End If
-            Dim Resultado_evalua_terminar As String = ""
-            Result = refclas.After_envio_usuario_workflow(Session.Item("WF_ESTADO_RESPUESTA_TRAMITE_USUARIO"),
-                                                          estado_envio_correo,
-                                                          Me.Hidden_id_usuario_envio.Value,
-                                                          Me.Hidden_id_actividad_envio.Value,
-                                                          HttpContext.Current.Session.Item("ID_TAREA_SELECCIONDA"),
-                                                          Me.Page,
-                                                          resul_correo,
-                                                          Resultado_evalua_terminar)
-            If Result <> "YES" Then
-                clasjava.Showscripman(Result, Me.UpdatePanel_boton_tool)
-                Exit Sub
-            Else
-                Dim Resutl_ As String = ""
-                Dim ref_ClassDaGabinete As New ClassDaGabinete
-                Resutl_ = ref_ClassDaGabinete.Inicializa_documentos_seleccion_workflow(Me.Page)
-                If Resutl_ <> "YES" Then
-                    clasjava.Showscripman_menu(Resutl_, Me.UpdatePanel_boton_tool, "ModalPopupExtender_mensaje_personalizado")
-                End If
-                Hidden_id_tarea_selecionada.Value = HttpContext.Current.Session.Item("ID_TAREA_SELECCIONDA")
-                Me.Hidden_result_boton_tool.Value = "YES"
-                UpdatePanel_general_variable.Update()
-                Me.UpdatePanelintercambio.Update()
-                Me.UpdatePanelseleccion.Update()
-                Me.ModalPopupExtender_edition_lista_usuarios_ruta.Hide()
-                Dim refcla As New ClassWorflowVisor
-                Dim Resutl As String = ""
-                Resutl = refcla.Limpia_Visor_Workflow(Me, "PRINCIPAL")
-                If Resutl <> "YES" Then
-                    clasjava.Showscripman(Result, Me.UpdatePanel_boton_tool)
-                End If
-                If Resultado_evalua_terminar <> "YES" Then
-                    clasjava.Showscripman(Resultado_evalua_terminar, Me.UpdatePanel_boton_tool)
-                End If
-                If resul_correo <> "" And resul_correo <> "YES" Then
-                    clasjava.Showscripman(resul_correo, Me.UpdatePanel_boton_tool)
-                End If
-            End If
-        Catch ex As Exception
-            clasjava.Showscripman(ex.Message, UpdatePanel_boton_tool)
-        End Try
-    End Sub
     Private Sub Button_tool_devolver_a_actividades_anterior_Click(sender As Object, e As EventArgs) Handles Button_tool_devolver_a_actividades_anterior.Click
         Dim clasjava As New Classscrripjava
         Try
