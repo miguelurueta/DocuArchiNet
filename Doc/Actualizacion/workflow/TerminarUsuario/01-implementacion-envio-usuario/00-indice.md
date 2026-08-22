@@ -18,5 +18,6 @@ Paquete documental único de la implementación de Enviar a usuario. DOC-28 entr
 - [Diagramas](Diagramas/)
 - [Documentación técnica y gobernanza DOC-29](../02-documentacion-tecnica-doc-29/00-indice.md)
 - [Verificación transversal DOC-30](../03-verificacion-transversal-doc-30/00-indice.md)
+- [Liberación controlada DOC-31](../04-liberacion-controlada-doc-31/00-indice.md)
 
 Estado: backend e interfaz validados. DOC-30 consolidó inspección estática, 66 pruebas CJS, compilación MSBuild y QA visual no autenticada; el dictamen es apto para solicitar aprobación operativa. No se modificó configuración ni se ejecutaron carga, despliegue o una nueva operación autenticada durante la verificación.
