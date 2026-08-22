@@ -325,15 +325,14 @@ const codeLocationExpectedForProfile = (technologyProfile) => {
 const requiresE2EEvidence = (normalized) =>
   hasAny(normalized, [
     /\bflujo\s+completo\b/,
-    /\bend\s+to\s+end\b/,
-    /\be2e\b/,
-    /\bnavegacion\b|\brouting\b|\bruta\b.*\bnueva\b/,
+    /(?<!no\s)(?<!sin\s)(?<!prohibir\s)\b(?:implementar|integrar|ejecutar|agregar|incluir|exigir|cubrir)\b(?:(?!\b(?:no|sin|prohib\w*)\b)[\s\S]){0,80}\b(?:e2e|end\s+to\s+end)\b/,
+    /\b(?:e2e|end\s+to\s+end)\b[\s\S]{0,40}\b(?:obligatori|required|integral|mismo\s+cambio|cierre|cobertura)\b/,
+    /\bnavegacion\b|\brouting\b/,
     /\bintegracion\b.*\b(componentes?|paneles?|vistas?|modulos?)\b/,
     /\b(componentes?|paneles?|vistas?|modulos?)\b.*\bintegracion\b/,
     /\bpreservar\b.*\bestado\b|\bestado\b.*\bpreservar\b/,
     /\babrir\b.*\bcerrar\b|\bcerrar\b.*\babrir\b/,
     /\b(transaccional|guardar|eliminar|upload|batch|lote|adjuntar|almacenar)\b/,
-    /\bregresion\s+critica\b|\bantirregresion\b|\banti-regresion\b/,
   ]);
 
 const hasE2EEvidenceRequirement = (normalized) =>
@@ -347,6 +346,115 @@ const hasE2EEvidenceRequirement = (normalized) =>
     /\bjustificacion\b.*\b(no\s+aplica|infraestructura|no\s+existe|no\s+disponible)\b/,
     /\b(no\s+aplica|infraestructura|no\s+existe|no\s+disponible)\b.*\bjustificacion\b/,
   ]);
+
+const hasFormalE2ENotApplicableJustification = (normalized) =>
+  hasAny(normalized, [
+    /\be2e\b[\s\S]{0,80}\bno\s+aplica\b/,
+    /\bno\s+aplica\b[\s\S]{0,80}\be2e\b/,
+  ]) &&
+  hasAny(normalized, [
+    /\bsin\s+(?:recorrido|flujo)\s+(?:de\s+)?usuario\b/,
+    /\bno\s+expone\b[\s\S]{0,50}\b(?:recorrido|flujo|endpoint)\b/,
+    /\bsolo\s+(?:contratos|fundacion|fundamento|infraestructura)\b/,
+  ]);
+
+const addIntegratedE2EFindings = ({ findings, normalized }) => {
+  const rules = [
+    {
+      code: "E2E_INTEGRATED_CHANGE_REQUIRED",
+      message:
+        "El prompt exige E2E pero no la declara como parte integral del mismo cambio y de su cierre.",
+      expected:
+        "E2E integrada al mismo cambio funcional, no como tarea/entrega independiente, con código + E2E + validación autorizada + evidencia saneada como unidad de entrega.",
+      matches: () =>
+        hasAny(normalized, [
+          /\bparte\s+integral\b/,
+          /\bmismo\s+cambio\b/,
+          /\bunidad\s+de\s+entrega\b/,
+        ]),
+    },
+    {
+      code: "E2E_REUSE_INFRASTRUCTURE_REQUIRED",
+      message:
+        "El prompt exige E2E pero no obliga a reutilizar exclusivamente la infraestructura existente.",
+      expected:
+        "Reutilizar autenticación, configuración, validadores, evidencias y utilidades existentes (por ejemplo tools/e2e), sin login, arnés, Playwright, configuración ni .env paralelos.",
+      matches: () =>
+        /\btools[\\/]e2e\b/.test(normalized) &&
+        hasAny(normalized, [/\breutiliz/, /\binfraestructura\s+existente\b/]) &&
+        hasAny(normalized, [
+          /\bno\s+cre(?:ar|es)\b.*\b(login|arnes|playwright|\.env|configuracion)\b/,
+          /\bsin\s+(?:infraestructura|login|arnes|proyecto)\s+paralel/,
+          /\bno\s+(?:usar|crear)\s+.*\bparalel/,
+        ]),
+    },
+    {
+      code: "E2E_RUNBOOK_AUTHORIZATION_REQUIRED",
+      message:
+        "El prompt exige E2E pero no exige runbook previo y autorización explícita de ambiente, cuentas y datos descartables.",
+      expected:
+        "Leer AGENTS.md y el runbook E2E antes de autenticar, y ejecutar solo con ambiente, usuarios/cuentas y datos o tareas descartables expresamente autorizados.",
+      matches: () =>
+        /\bagents\.md\b/.test(normalized) &&
+        /\bagent-runbook\.md\b/.test(normalized) &&
+        /\bautoriz/.test(normalized) &&
+        hasAny(normalized, [/\bambiente\b/, /\benvironment\b/]) &&
+        hasAny(normalized, [/\bcuentas?\b/, /\busuarios?\b/]) &&
+        hasAny(normalized, [/\bdatos?\s+descartables?\b/, /\btareas?\s+descartables?\b/]),
+    },
+    {
+      code: "E2E_SENSITIVE_DATA_CONTROLS_REQUIRED",
+      message:
+        "El prompt exige E2E pero no define higiene de secretos, controles SELECT y evidencia saneada.",
+      expected:
+        "Secretos efímeros; no exponer/imprimir/persistir credenciales, cookies, tokens ni cadenas de conexión; verificaciones solo SELECT y evidencia saneada.",
+      matches: () =>
+        /\bsecretos?\s+efimeros?\b/.test(normalized) &&
+        hasAny(normalized, [/\bno\s+(?:expon|imprim|persist|guard)/, /\bnunca\s+(?:expon|imprim|persist|guard)/]) &&
+        hasAny(normalized, [/\bcredenciales?\b/, /\bcookies?\b/, /\btokens?\b/, /\bcadenas?\s+de\s+conexion\b/]) &&
+        /\bselect\b/.test(normalized) &&
+        /\bevidencia\s+saneada\b/.test(normalized),
+    },
+    {
+      code: "E2E_SCOPE_COVERAGE_REQUIRED",
+      message:
+        "El prompt exige E2E pero no define cobertura verificable según el alcance.",
+      expected:
+        "Cubrir, cuando aplique, autorización/control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada.",
+      matches: () =>
+        /\bautoriz/.test(normalized) &&
+        /\bregresion\b/.test(normalized) &&
+        hasAny(normalized, [/\blectura\b.*\bsin\s+mutacion\b/, /\bsin\s+mutacion\b.*\blectura\b/]) &&
+        hasAny(normalized, [/\bescrituras?\s+autorizadas?\b/, /\boperaciones?\s+autorizadas?\b/]) &&
+        /\bconcurren/.test(normalized),
+    },
+    {
+      code: "E2E_SECURITY_CLOSURE_REQUIRED",
+      message:
+        "El prompt exige E2E pero no protege la configuración ni define cierre y bloqueo explícito.",
+      expected:
+        "Respetar feature flags/gates/usuarios/grupos sin habilitarlos arbitrariamente; no cerrar sin validación autorizada y registrar bloqueo explícito sin mocks, simulaciones ni evidencia ficticia.",
+      matches: () =>
+        hasAny(normalized, [/\bfeature\s+flags?\b/, /\bgates?\b/, /\bflags?\b/]) &&
+        hasAny(normalized, [/\bno\s+habilit(?:ar|es).*\barbitrariamente\b/, /\bsin\s+habilit(?:ar|es).*\barbitrariamente\b/]) &&
+        hasAny(normalized, [/\bno\s+se\s+considera\s+terminad/, /\bno\s+cerrar\b.*\bvalidacion\b/, /\bcriterio\s+de\s+cierre\b/]) &&
+        /\bbloqueo\s+explicito\b/.test(normalized) &&
+        hasAny(normalized, [/\bmocks?\b/, /\bsimulaciones?\b/, /\bevidencia\s+ficticia\b/]),
+    },
+  ];
+
+  for (const rule of rules) {
+    if (rule.matches()) continue;
+    findings.push(
+      newPromptReviewFinding({
+        severity: "BLOCKER",
+        code: rule.code,
+        message: rule.message,
+        expected: rule.expected,
+      }),
+    );
+  }
+};
 
 const getMissingFrontendQualityRules = (normalized) => {
   const rules = [
@@ -923,11 +1031,12 @@ const addStructuralFindings = ({ findings, text, technologyProfile }) => {
     }
   }
 
-  if (
+  const e2eIsRequired =
     !isPromptReviewToolingPrompt &&
     requiresE2EEvidence(normalized) &&
-    !hasE2EEvidenceRequirement(normalized)
-  ) {
+    !hasFormalE2ENotApplicableJustification(normalized);
+  const hasE2ERequirement = hasE2EEvidenceRequirement(normalized);
+  if (e2eIsRequired && !hasE2ERequirement) {
     findings.push(
       newPromptReviewFinding({
         severity: "BLOCKER",
@@ -940,6 +1049,10 @@ const addStructuralFindings = ({ findings, text, technologyProfile }) => {
             : "Exigir E2E real con Playwright/end-to-end, o justificar explicitamente por que no aplica y dejar evidencia manual.",
       }),
     );
+  }
+
+  if (e2eIsRequired && hasE2ERequirement) {
+    addIntegratedE2EFindings({ findings, normalized });
   }
 };
 
@@ -1317,6 +1430,30 @@ const correctionSnippets = new Map([
   [
     "E2E_EVIDENCE_REQUIRED",
     "Cuando el ticket afecte un flujo completo de usuario, navegacion, integracion entre vistas, persistencia de estado u operacion transaccional, exigir E2E real con Playwright; si no aplica, documentar justificacion formal y evidencia manual.",
+  ],
+  [
+    "E2E_INTEGRATED_CHANGE_REQUIRED",
+    "Declarar que código + E2E + validación autorizada + evidencia saneada son una única unidad de entrega dentro del mismo cambio; no crear una tarea o entrega E2E independiente.",
+  ],
+  [
+    "E2E_REUSE_INFRASTRUCTURE_REQUIRED",
+    "Reutilizar exclusivamente `tools/e2e`, su autenticación, configuración, validadores, evidencias y utilidades; prohibir login, arnés, proyecto Playwright, configuración o `.env` paralelos.",
+  ],
+  [
+    "E2E_RUNBOOK_AUTHORIZATION_REQUIRED",
+    "Antes de autenticar, exigir lectura de `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`; ejecutar solo con ambiente, cuentas y datos/tareas descartables expresamente autorizados.",
+  ],
+  [
+    "E2E_SENSITIVE_DATA_CONTROLS_REQUIRED",
+    "Exigir secretos efímeros, prohibir exponer/imprimir/persistir credenciales, cookies, tokens y cadenas de conexión, usar verificaciones solo `SELECT` y conservar evidencia saneada.",
+  ],
+  [
+    "E2E_SCOPE_COVERAGE_REQUIRED",
+    "Exigir cobertura E2E, cuando aplique, de autorización/control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada.",
+  ],
+  [
+    "E2E_SECURITY_CLOSURE_REQUIRED",
+    "Respetar feature flags, gates, usuarios, grupos y seguridad sin habilitarlos arbitrariamente; no cerrar sin validación autorizada, registrar bloqueo explícito y prohibir mocks, simulaciones, resultados inventados y evidencia ficticia.",
   ],
   [
     "BUILD_EVIDENCE_RECOMMENDED",

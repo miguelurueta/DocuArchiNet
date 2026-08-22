@@ -9,6 +9,54 @@ import {
   testFrontendPromptReview,
 } from "./frontendPromptReviewService.js";
 
+const integratedE2ERequirement = [
+  "La E2E es parte integral del mismo cambio; código + pruebas E2E + validación autorizada + evidencia saneada son una única unidad de entrega.",
+  "Reutilizar exclusivamente tools/e2e, su autenticación, configuración, validadores, evidencias y utilidades; no crear login, arnés, Playwright, configuración ni .env paralelos.",
+  "Antes de ejecutar E2E autenticada, leer AGENTS.md y tools/e2e/AGENT-RUNBOOK.md. Ejecutar solo sobre ambiente, cuentas y tareas descartables expresamente autorizados.",
+  "Usar secretos efímeros; no exponer, imprimir ni persistir credenciales, cookies, tokens o cadenas de conexión. Las verificaciones son solo SELECT y la evidencia saneada.",
+  "Cubrir autorización y control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión cuando aplique al alcance.",
+  "Respetar feature flags, gates, usuarios, grupos y seguridad sin habilitarlos arbitrariamente. La implementación no se considera terminada sin validación autorizada; ante falta de autorización dejar bloqueo explícito y no usar mocks, simulaciones ni evidencia ficticia.",
+].join("\n");
+
+const e2ePromptBase = [
+  "## Rol esperado",
+  "Arquitecto ASP.NET Web Forms y VB.NET.",
+  "## Contexto",
+  "Modificar workflow/Notas.aspx, workflow/Notas.aspx.vb y tools/e2e/tests/notas.spec.cjs.",
+  "## Objetivo",
+  "Implementar una operación transaccional de Notas en un flujo completo de usuario.",
+  "## Restricciones criticas",
+  "No romper el comportamiento legacy ni modificar datos fuera de alcance.",
+  "## Pruebas obligatorias",
+  "Ejecutar E2E real con Playwright y registrar comandos, resultados y evidencia.",
+  "## Documentacion tecnica",
+  "Actualizar la documentación existente de Notas.",
+  "## Criterios de aceptacion",
+  "El flujo transaccional queda validado.",
+  "## Entregable final",
+  "Código, pruebas y evidencia.",
+].join("\n");
+
+const e2eNotApplicableFoundationPrompt = [
+  "## Rol esperado",
+  "Arquitecto ASP.NET Web Forms y VB.NET.",
+  "## Contexto",
+  "Modificar Modelo/Workflow/Notas y Services/Workflow/Notas.",
+  "## Objetivo",
+  "Crear contratos de fundación para operaciones de lectura y escritura futuras.",
+  "## Restricciones criticas",
+  "No exponer endpoints ni activar consumidores.",
+  "## Pruebas obligatorias",
+  "Ejecutar pruebas unitarias y compilación MSBuild con comandos y resultado.",
+  "E2E no aplica: esta fase solo crea contratos de fundación y no expone un recorrido de usuario.",
+  "## Documentacion tecnica",
+  "Actualizar la documentación existente de Notas.",
+  "## Criterios de aceptacion",
+  "Los contratos quedan compilados y probados.",
+  "## Entregable final",
+  "Contratos, pruebas y evidencia.",
+].join("\n");
+
 const validPrompt = [
   "## Rol esperado",
   "Actua como Arquitecto Frontend Senior especialista en React 19 y tooling Node.",
@@ -57,6 +105,7 @@ const validPrompt = [
   "## Pruebas obligatorias",
   "Ejecutar npm run build y npm test -- scripts/lib/frontendPromptReviewService.test.js.",
   "Ejecutar E2E con Playwright si el cambio afecta flujo completo de usuario; si no aplica, dejar justificacion formal y evidencia manual.",
+  integratedE2ERequirement,
   "Registrar comandos ejecutados, resultado y evidencia.",
   "",
   "## Reglas React transversales",
@@ -87,6 +136,78 @@ describe("frontendPromptReviewService", () => {
         }),
       ]),
     );
+  });
+
+  it("blocks an E2E prompt that omits integrated-delivery safeguards", () => {
+    const findings = testFrontendPromptReview({
+      technologyProfile: "legacy-webforms-vb",
+      promptText: e2ePromptBase,
+    });
+
+    expect(findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          severity: "BLOCKER",
+          code: "E2E_INTEGRATED_CHANGE_REQUIRED",
+        }),
+        expect.objectContaining({
+          severity: "BLOCKER",
+          code: "E2E_REUSE_INFRASTRUCTURE_REQUIRED",
+        }),
+        expect.objectContaining({
+          severity: "BLOCKER",
+          code: "E2E_RUNBOOK_AUTHORIZATION_REQUIRED",
+        }),
+        expect.objectContaining({
+          severity: "BLOCKER",
+          code: "E2E_SENSITIVE_DATA_CONTROLS_REQUIRED",
+        }),
+        expect.objectContaining({
+          severity: "BLOCKER",
+          code: "E2E_SCOPE_COVERAGE_REQUIRED",
+        }),
+        expect.objectContaining({
+          severity: "BLOCKER",
+          code: "E2E_SECURITY_CLOSURE_REQUIRED",
+        }),
+      ]),
+    );
+  });
+
+  it("accepts a complete integrated E2E requirement for a Web Forms flow", () => {
+    const findings = testFrontendPromptReview({
+      technologyProfile: "legacy-webforms-vb",
+      promptText: `${e2ePromptBase}\n${integratedE2ERequirement}`,
+    });
+    const e2eGovernanceCodes = new Set([
+      "E2E_INTEGRATED_CHANGE_REQUIRED",
+      "E2E_REUSE_INFRASTRUCTURE_REQUIRED",
+      "E2E_RUNBOOK_AUTHORIZATION_REQUIRED",
+      "E2E_SENSITIVE_DATA_CONTROLS_REQUIRED",
+      "E2E_SCOPE_COVERAGE_REQUIRED",
+      "E2E_SECURITY_CLOSURE_REQUIRED",
+    ]);
+
+    expect(findings.some((finding) => e2eGovernanceCodes.has(finding.code))).toBe(false);
+  });
+
+  it("does not require integrated E2E for a justified foundation without a user flow", () => {
+    const findings = testFrontendPromptReview({
+      technologyProfile: "legacy-webforms-vb",
+      promptText: e2eNotApplicableFoundationPrompt,
+    });
+
+    const e2eCodes = new Set([
+      "E2E_EVIDENCE_REQUIRED",
+      "E2E_INTEGRATED_CHANGE_REQUIRED",
+      "E2E_REUSE_INFRASTRUCTURE_REQUIRED",
+      "E2E_RUNBOOK_AUTHORIZATION_REQUIRED",
+      "E2E_SENSITIVE_DATA_CONTROLS_REQUIRED",
+      "E2E_SCOPE_COVERAGE_REQUIRED",
+      "E2E_SECURITY_CLOSURE_REQUIRED",
+    ]);
+
+    expect(findings.some((finding) => e2eCodes.has(finding.code))).toBe(false);
   });
 
   it("does not apply React or TypeScript rules to an explicit Web Forms/VB profile", () => {
@@ -183,6 +304,15 @@ describe("frontendPromptReviewService", () => {
     expect(correction).toContain("00-Indice.md");
     expect(correction).toContain("src/app/Components");
     expect(correction).not.toContain("MANUAL_REVIEW_RECOMMENDED");
+  });
+
+  it("builds E2E integrated-delivery correction guidance", () => {
+    const correction = buildPromptReviewCorrection({
+      findings: [{ severity: "BLOCKER", code: "E2E_INTEGRATED_CHANGE_REQUIRED" }],
+    });
+
+    expect(correction).toContain("mismo cambio");
+    expect(correction).toContain("unidad de entrega");
   });
 
   it("reports blockers when required enterprise sections are missing", () => {
