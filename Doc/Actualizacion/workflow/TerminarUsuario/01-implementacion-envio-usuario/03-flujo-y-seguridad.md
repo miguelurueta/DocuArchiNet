@@ -30,3 +30,16 @@ Solo `WorkflowLegacyEnvioUsuarioExecutorAdapter` cruza la frontera mutante. Llam
 La auditoría conserva el formato histórico y agrega el mecanismo `ASMX_ENVIO_USUARIO`. Si esa escritura adicional falla después de un envío exitoso, se agrega una advertencia sanitizada sin revertir la transición.
 
 DOC-28 no consulta ni modifica `WorkflowCentroTrabajoModernActive`; no existe fallback por gate en este corte de servidor. Tampoco intercepta `ImageButtonEnviarUsuario` ni actualiza la presentación. La etapa 02 debe consumir los endpoints con el payload mínimo, mantener el navegador como expresión de intención y definir su propia experiencia accesible sin alterar Continuar flujo.
+
+## DOC-29 — Recorrido de interfaz, accesibilidad y aislamiento
+
+1. El bootstrap de usuario se registra aun cuando `WorkflowCentroTrabajoModernActive` está en `false`; no lo lee ni lo modifica.
+2. `workflow-user-send-trigger` abre un modal con foco inicial en búsqueda. El modal atrapa Tab/Shift+Tab, Escape, cierre y fondo, y devuelve el foco al disparador.
+3. Preview usa el cursor opaco emitido por servidor. Debounce, `AbortController` cuando está disponible y un contador monotónico descartan resultados tardíos.
+4. Elegir un destino emite `workflow:user-destination-selected`; la confirmación muestra únicamente datos JSON del preview y evita doble ejecución mediante `ConfirmationDialog`.
+5. Cancelar, bloquear, fallar o invalidar una búsqueda no invoca postback, campos ocultos, reasignación de respuesta ni `After_envio_usuario_workflow`.
+6. Solo una ejecución exitosa correlacionada remueve la fila de la tarea, limpia visor/contexto, decrementa contador y anuncia `workflow-user-send-success-message`.
+
+`workflow-user-send-*` y `WorkflowUserSendUi` no comparten listeners, selectores, estado de solicitudes ni payload de `WorkflowTransitionUi`/`workflow:destination-selected`. Se comparten únicamente estilos y el componente genérico de confirmación; los temporizadores de mensaje están asociados a cada elemento de éxito.
+
+La reversión es restaurar el cambio versionado completo. No requiere migración de datos ni modificación de appSettings; tampoco revierte transiciones ya confirmadas por el servidor.

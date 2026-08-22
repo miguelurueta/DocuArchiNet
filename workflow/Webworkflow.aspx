@@ -78,7 +78,7 @@
      <script src="../js/java_general/general_control_java.js" type="text/javascript"></script>
      <script src="../js/java_general/ubicacion_code_java.js" type="text/javascript"></script>  
       <link href="../Styles/workflow-centro-trabajo-moderno.css?v=20260820-modern-actions3" rel="stylesheet" type="text/css" />
-      <script src="../js/workflow/centro-trabajo-visual.js?v=20260820-modern-actions3" type="text/javascript"></script>
+      <script src="../js/workflow/centro-trabajo-visual.js?v=20260821-modern-actions4" type="text/javascript"></script>
  <body  style="margin: 0;
     background-color : #ffffff" >
       <form id="form1" style="height:100%" runat="server">
@@ -179,25 +179,6 @@
                        $("#progres_bar").removeClass("overlay_");             
                    }   
                        
-                   if (elment_postbak.id == "ImageButtonEnviarUsuario") {
-                       if (document.getElementById("Hidden_vi_reasigna").value == "1") {
-
-                           if (document.getElementById("btnOkpagina")) {
-                               document.getElementById("btnOkpagina").style.visibility = 'hidden';
-                           }
-                           if (document.getElementById("ButtonReasignarTerminar")) {
-                               document.getElementById("ButtonReasignarTerminar").style.visibility = 'visible';
-                           }
-
-                       } else {
-                           if (document.getElementById("btnOkpagina")) { document.getElementById("btnOkpagina").style.visibility = 'visible'; }
-                           if (document.getElementById("ButtonReasignarTerminar")) { document.getElementById("ButtonReasignarTerminar").style.visibility = 'hidden'; }
-
-                       }
-                       document.getElementById("Labeletiqueta").innerHTML = "Enviar la tarea seleccionada al usuario a seleccionar en la lista";
-                       document.getElementById("Hidden_gredv_lista").value = "YES";
-                       auto_zise_popup_envia_usuario_grupo();
-                   }
                    if (elment_postbak.id == "ImageButtonEnviaActividad") {
                        document.getElementById("Labeletiqueta").innerHTML = "Enviar la tarea seleccionada al grupo o actividad a seleccionar en la lista";
                        document.getElementById("Hidden_gredv_lista").value = "YES";
@@ -474,13 +455,6 @@
                        }
                    }
                   
-                   if (elment_postbak.id == "Button_tool_enviar_usuario") {
-                       if (document.getElementById("Hidden_result_boton_tool").value == "YES") {
-                           document.getElementById("Hidden_result_boton_tool").value = "";
-                           eliminar_fila_data_gred_lista('GridView2', 'Hidden_00005_2222');
-                           hide_area_workflow_seleccion();
-                       }
-                   }
                        if (elment_postbak.id == "Button_tool_devolver_a_usuario") {
                            if (document.getElementById("Hidden_result_boton_tool").value == "YES") {
                                document.getElementById("Hidden_result_boton_tool").value = "";
@@ -678,7 +652,7 @@
                                   <asp:Panel ID="Panel_EnviarUsuario" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <ul class="navbar-nav">
                                           <li class="nav-item active ml-2">
-                                              <a class="nav-link font-weight-light" style="color: #6d7fcc" title="Envía la tarea a usuario" href="#" onclick="activa_boton_client_server('ImageButtonEnviarUsuario');"><i style="margin-left: 1px; margin-top: 7px; color: #0062cc" class="fad fa-user"></i> Enviar a usuario  </a>
+                                              <button id="workflow-user-send-trigger" type="button" class="nav-link font-weight-light ctw-btn" style="color: #6d7fcc" title="Envía la tarea a usuario" aria-label="Enviar tarea a usuario"><i style="margin-left: 1px; margin-top: 7px; color: #0062cc" class="fad fa-user"></i> Enviar a usuario</button>
                                           </li>
                                       </ul>
                                   </asp:Panel>
@@ -780,7 +754,6 @@
                            <asp:ImageButton ID="ImageButtonestadograficotrazabilida" runat="server"  Width="0px" Height="0px"   style="display:none"  />
                            <asp:ImageButton ID="ImageButtonterminar" runat="server"  Width="0px" Height="0px"   style="display:none"  />
                            <asp:ImageButton ID="ImageButtonEnviaActividad" runat="server"  Width="0px" Height="0px" style="display:none" CssClass="alterna_image"  OnClientClick="cambia_estado_boton_reasignar('FALSE');" />
-                           <asp:ImageButton ID="ImageButtonEnviarUsuario" runat="server"  Width="0px" Height="0px" style="display:none"  OnClientClick="cambia_estado_boton_reasignar('VISIBLE');"/>    
                            <asp:ImageButton ID="ImageButtonseleccionar" runat="server"  Width="0px" Height="0px" style="display:none" CssClass="alterna_image" /> 
                            <asp:ImageButton ID="ImageButton_pendiente_aprobacion" runat="server" Width="0px" Height="0px" style="display:none"    /> 
                            <asp:ImageButton ID="ImageButton_autorizar" runat="server" Style="display: none" />
@@ -1977,7 +1950,6 @@
                       <input id="HiddenRuta" type="hidden" value="0" runat="server" />
                       <input id="Hidden_id_actividad_envio" type="hidden" value="0" runat="server" />
                       <input id="Hidden_id_actividad_disp_envio" type="hidden" value="0" runat="server" />
-                      <input id="Hidden_id_usuario_envio" type="hidden" value="0" runat="server" />
                       <input id="Hidden_id_tarea" type="hidden" value="" runat="server" />
                       <input id="Hidden_date_row_" type="hidden" value="" runat="server" />
                       <asp:HiddenField ID="Hidden_url_" runat="server" />
@@ -2006,13 +1978,9 @@
                       <asp:Button ID="Button_tool_enviar_actividad" runat="server" Text="" />
                       <asp:Button ID="Button_tool_busqueda_enviar_actividad" runat="server" Text="" />
                       <asp:Button ID="Button_tool_restore_busqueda_enviar_actividad" runat="server" Text="" />
-                      <asp:Button ID="Button_tool_activa_enviar_usuario" runat="server" Text="" />
-                      <asp:Button ID="Button_tool_enviar_usuario" runat="server" Text="" />
                       <asp:Button ID="Button_tool_devolver_a_usuario" runat="server" Text="" />
                       <asp:Button ID="Button_tool_devolver_a_actividades_anterior" runat="server" Text="" />
-                      <asp:Button ID="Button_tool_busqueda_enviar_usuario" runat="server" Text="" />
                       <asp:Button ID="Button_tool_enviar_ruta" runat="server" Text="" />
-                      <asp:Button ID="Button_tool_restore_busqueda_enviar_usuario" runat="server" Text="" />
                       <asp:Button ID="ButtonAlmacenar" Text="" runat="server" />
                       <asp:Button ID="Button_tool_activa_sube_documento_lista" runat="server" Text="" />
                       <input id="HiddenSeleccion" type="hidden" value="-1" runat="server" />
@@ -3426,65 +3394,6 @@
                       <input id="Hidden_result_actividad_ruta" type="hidden" value="" runat="server"/>
                   </ContentTemplate>
               </asp:UpdatePanel>
-            <!--enviar usuario-->
-            <asp:Panel ID="Panel_lista_usuarios_ruta" runat="server" Style="display:none;  width: 80%; height:100%" CssClass="modal_content_general">
-                <asp:ModalPopupExtender ID="ModalPopupExtender_edition_lista_usuarios_ruta"  runat="server"   
-                    TargetControlID="ButtonSalir_lista_usuarios_ruta" BackgroundCssClass="FondoAplicacion"
-                    CancelControlID="Button_cerrar_lista_usuarios_ruta" PopupControlID="Panel_lista_usuarios_ruta" ></asp:ModalPopupExtender>
-                <div id="modal_content_lista_usuarios_ruta" class="modal-content">
-                    <div id="divcabecer2_lista_usuarios_ruta" class="modal_title_superior_ modal-header">
-                        <h6 class="modal-title d-inline ">Enviar a usuario</h6>
-                        <button type="button" value="Button_cerrar_lista_usuarios_ruta" class="close da_event_captive ">&times;</button>
-                    </div>
-                    <div id="contenido_procesa_lista_usuarios_ruta" style="background-color: white; width: 100%; height: 99%" class="p-1">
-                        <asp:UpdatePanel ID="UpdateGeneral_lista_usuarios_ruta" runat="server" UpdateMode="Conditional" RenderMode="Inline">
-                            <ContentTemplate>
-                                <div id="contenido_titulo_data_grid_lista_usuarios_ruta" style="width: auto; height: auto; border-bottom: 1px solid #e9ecef"  class="border_superior_radius_   row p-2 ml-1 mr-1">
-                                    <div class="col-6 ">
-                                         <asp:Label ID="titulo_label_lista_usuario_ruta" runat="server"  CssClass="h6 font-weight-light "  ></asp:Label>
-                                    </div>
-                                    <div class="col-6  text-right">
-                                        <div class="input-group ">
-                                            <button id="Button_restore_lista_usuarios" class="btn btn-outline-secondary border-right-2 " title="Restaura lista" style="border-top-right-radius: 0px; border-bottom-right-radius: 0px" onclick="preven_event_restor_search_lista_usuario(event,this)" type="button">
-                                                <i class="fal fa-long-arrow-left"></i>
-                                            </button>
-                                            <asp:TextBox ID="TextBox_buequeda_general_lista_usuarios" runat="server" class="form-control form-control-sm complex  border-left-0" placeholder="Busqueda...." onkeypress="preven_event_search_keypres_enter_lista_usuario(event,this);"></asp:TextBox>
-                                            <div class="input-group-append">
-                                                <button class="btn btn-outline-secondary" title="Consultar" onclick="preven_event_search_lista_usuario(event,this)" type="button">
-                                                    <i class="fal fa-search"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                     
-                                </div>
-                                <div id="div_gred_usuarios" style="  overflow: auto">
-                                    <asp:GridView ID="GridView_envia_usuario" runat="server" Style="width:100%"
-                                        AutoGenerateSelectButton="False" CssClass="filtrar table font-weight-light" GridLines="None" >
-                                        <SelectedRowStyle BackColor="LightSkyBlue"  />
-                                        <HeaderStyle CssClass="GridviewScrollHeader_line_boot" />
-                                        <Columns>
-                                            <asp:BoundField HeaderText="DETALLE" />
-                                        </Columns>
-                                    </asp:GridView>
-
-                                </div>
-                            </ContentTemplate>
-
-                        </asp:UpdatePanel>
-                        <div id="div_contenido_procesa_lista_usuarios_ruta_botones_desicion" class=" modal-footer" >
-                          
-                            
-                        </div>
-                    </div>
-                    <div style="display: none; height: 1px">
-                        <asp:Button ID="Button_lista_usuarios_ruta" CssClass="invisible" runat="server" Text="" Height="0px" Width="0px" />
-                        <asp:Button ID="ButtonSalir_lista_usuarios_ruta" CssClass="invisible" runat="server" Text="" Height="0px" Width="0px" />
-                        <asp:Button ID="Button_cerrar_lista_usuarios_ruta" runat="Server" Text="" CssClass="invisible" />
-                        
-                    </div>
-                </div>
-            </asp:Panel>
             <!--lista_actividades_worflow_ruta-->
            <asp:Panel ID="Panel_lista_actividades_worflow_ruta" runat="server" Style="display:none;  width: 50%; height:50%" CssClass="modal_content_general ctw-legacy-modal">
                 <asp:ModalPopupExtender ID="ModalPopupExtender_edition_lista_actividades_worflow_ruta"  runat="server"   
@@ -4664,6 +4573,37 @@
             </section>
         </div>
         <div id="workflow-transition-success-message" class="workflow-transition-success-message" data-workflow-transition-success="true" role="status" aria-live="polite" hidden="hidden"></div>
+        <div id="workflow-user-send-modern-modal" class="workflow-transition-modal" hidden="hidden" aria-hidden="true" data-workflow-user-send-state="cerrado">
+            <div class="workflow-transition-modal__backdrop" data-workflow-user-send-close="true"></div>
+            <section id="workflow-user-send-modern-dialog" class="workflow-transition-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="workflow-user-send-modern-title" tabindex="-1">
+                <header class="workflow-transition-modal__header">
+                    <h2 id="workflow-user-send-modern-title" class="workflow-transition-modal__title">Enviar a usuario</h2>
+                    <button id="workflow-user-send-modern-close" class="workflow-transition-modal__close" type="button" aria-label="Cerrar lista de usuarios">&times;</button>
+                </header>
+                <div class="workflow-transition-modal__body">
+                    <div id="workflow-user-send-modern-status" class="workflow-transition-modal__status" role="status" aria-live="polite"></div>
+                    <dl id="workflow-user-send-modern-context" class="workflow-transition-modal__context" aria-label="Contexto de la tarea"></dl>
+                    <div class="workflow-transition-modal__search">
+                        <label for="workflow-user-send-modern-search">Buscar usuario o actividad</label>
+                        <input id="workflow-user-send-modern-search" type="search" maxlength="100" autocomplete="off" aria-describedby="workflow-user-send-modern-search-help" />
+                        <p id="workflow-user-send-modern-search-help" class="workflow-transition-modal__search-help">Escriba al menos dos caracteres. Al limpiar se restaura la primera página.</p>
+                    </div>
+                    <nav class="workflow-transition-modal__pager" aria-label="Paginación de usuarios disponibles">
+                        <button id="workflow-user-send-modern-previous" class="workflow-transition-modal__page-button" type="button" disabled="disabled">Anterior</button>
+                        <span id="workflow-user-send-modern-page" class="workflow-transition-modal__page" aria-live="polite">Página 1.</span>
+                        <button id="workflow-user-send-modern-next" class="workflow-transition-modal__page-button" type="button" disabled="disabled">Siguiente</button>
+                    </nav>
+                    <div id="workflow-user-send-modern-table" class="workflow-transition-modal__desktop">
+                        <table class="workflow-transition-modal__table">
+                            <thead><tr><th scope="col">Usuario destino</th><th scope="col">Cargo</th><th scope="col">Actividad destino</th><th scope="col"><span class="sr-only">Acción</span></th></tr></thead>
+                            <tbody id="workflow-user-send-modern-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div id="workflow-user-send-modern-cards" class="workflow-transition-modal__mobile" aria-label="Usuarios destino disponibles"></div>
+                </div>
+            </section>
+        </div>
+        <div id="workflow-user-send-success-message" class="workflow-transition-success-message" data-workflow-user-send-success="true" role="status" aria-live="polite" hidden="hidden"></div>
         <div id="workflow-group-send-modern-modal" class="workflow-transition-modal" hidden="hidden" aria-hidden="true" data-workflow-transition-state="cerrado">
             <div class="workflow-transition-modal__backdrop" data-workflow-group-send-close="true"></div>
             <section id="workflow-group-send-modern-dialog" class="workflow-transition-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="workflow-group-send-modern-title" tabindex="-1">

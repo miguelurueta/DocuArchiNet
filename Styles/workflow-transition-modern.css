@@ -39,6 +39,16 @@
     width: 100%;
 }
 
+/* La búsqueda repinta la lista de destinos. La geometría del diálogo se mantiene
+   estable para que esa actualización no desplace visualmente el formulario. */
+#workflow-user-send-modern-dialog {
+    height: 42rem;
+}
+
+#workflow-user-send-modern-dialog .workflow-transition-modal__body {
+    overflow-y: scroll;
+}
+
 .workflow-transition-modal__header {
     align-items: center;
     border-bottom: 1px solid #d7dee9;
@@ -100,7 +110,19 @@
     color: #7a1b14;
 }
 
+.workflow-transition-modal__status[data-workflow-user-send-status="error"] {
+    background: #fff2f2;
+    border-left-color: #b42318;
+    color: #7a1b14;
+}
+
 .workflow-transition-modal__status[data-workflow-transition-status="exito"] {
+    background: #edf9f0;
+    border-left-color: #237a3b;
+    color: #145326;
+}
+
+.workflow-transition-modal__status[data-workflow-user-send-status="exito"] {
     background: #edf9f0;
     border-left-color: #237a3b;
     color: #145326;

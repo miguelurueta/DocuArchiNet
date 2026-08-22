@@ -8,17 +8,17 @@
     "manual_qa"
   ],
   "documentation": [
-    "Doc/Tecnica/Opsxj/doc-29-interfaz-moderna-enviar-usuario/01-ResumenTecnico.md",
-    "Doc/Tecnica/Opsxj/doc-29-interfaz-moderna-enviar-usuario/02-ImpactoUI.md",
-    "Doc/Tecnica/Opsxj/doc-29-interfaz-moderna-enviar-usuario/03-ServiciosYReglas.md",
-    "Doc/Tecnica/Opsxj/doc-29-interfaz-moderna-enviar-usuario/04-ContratosIntegracion.md",
-    "Doc/Tecnica/Opsxj/doc-29-interfaz-moderna-enviar-usuario/05-PruebasEvidencia.md"
+    "Doc/Actualizacion/workflow/TerminarUsuario/02-documentacion-tecnica-doc-29/01-interfaz-moderna-envio-usuario/01-arquitectura.md",
+    "Doc/Actualizacion/workflow/TerminarUsuario/02-documentacion-tecnica-doc-29/01-interfaz-moderna-envio-usuario/02-contrato.md",
+    "Doc/Actualizacion/workflow/TerminarUsuario/02-documentacion-tecnica-doc-29/01-interfaz-moderna-envio-usuario/03-flujo-y-seguridad.md",
+    "Doc/Actualizacion/workflow/TerminarUsuario/02-documentacion-tecnica-doc-29/01-interfaz-moderna-envio-usuario/04-pruebas-y-evidencia.md",
+    "Doc/Actualizacion/workflow/TerminarUsuario/02-documentacion-tecnica-doc-29/01-interfaz-moderna-envio-usuario/05-inventario-funciones.md"
   ],
   "documentationContract": [
     {
-      "path": "Doc/Tecnica/Opsxj/doc-29-interfaz-moderna-enviar-usuario/01-ResumenTecnico.md",
+      "path": "Doc/Actualizacion/workflow/TerminarUsuario/02-documentacion-tecnica-doc-29/01-interfaz-moderna-envio-usuario/01-arquitectura.md",
       "requiredSections": [
-        "## Objetivo",
+        "## Arquitectura de la solución",
         "## Alcance y compatibilidad"
       ],
       "minimumContentLength": 180,
@@ -35,10 +35,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-29-interfaz-moderna-enviar-usuario/02-ImpactoUI.md",
+      "path": "Doc/Actualizacion/workflow/TerminarUsuario/02-documentacion-tecnica-doc-29/01-interfaz-moderna-envio-usuario/02-contrato.md",
       "requiredSections": [
-        "## Superficies UI",
-        "## Validacion visual"
+        "## Endpoints y contratos",
+        "## Compatibilidad de integración"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -54,9 +54,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-29-interfaz-moderna-enviar-usuario/03-ServiciosYReglas.md",
+      "path": "Doc/Actualizacion/workflow/TerminarUsuario/02-documentacion-tecnica-doc-29/01-interfaz-moderna-envio-usuario/03-flujo-y-seguridad.md",
       "requiredSections": [
-        "## Servicios y reglas"
+        "## Flujo de interfaz",
+        "## Seguridad y aislamiento"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -72,28 +73,29 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-29-interfaz-moderna-enviar-usuario/04-ContratosIntegracion.md",
+      "path": "Doc/Actualizacion/workflow/TerminarUsuario/02-documentacion-tecnica-doc-29/01-interfaz-moderna-envio-usuario/04-pruebas-y-evidencia.md",
       "requiredSections": [
-        "## Contratos e integraciones"
-      ],
-      "minimumContentLength": 180,
-      "identity": {
-        "issueKey": "DOC-29",
-        "changeName": "doc-29-interfaz-moderna-enviar-usuario",
-        "impact": "cross_cutting"
-      },
-      "closureRestrictions": [
-        "tbd",
-        "template_comment",
-        "open_checklist",
-        "template_instruction"
-      ]
-    },
-    {
-      "path": "Doc/Tecnica/Opsxj/doc-29-interfaz-moderna-enviar-usuario/05-PruebasEvidencia.md",
-      "requiredSections": [
-        "## Evidencia requerida",
+        "## Pruebas y evidencia",
         "## QA/E2E WebForms"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-29",
+        "changeName": "doc-29-interfaz-moderna-enviar-usuario",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/TerminarUsuario/02-documentacion-tecnica-doc-29/01-interfaz-moderna-envio-usuario/05-inventario-funciones.md",
+      "requiredSections": [
+        "## Componentes implementados",
+        "## Componentes reutilizados"
       ],
       "minimumContentLength": 180,
       "identity": {

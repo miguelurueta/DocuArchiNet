@@ -24,3 +24,19 @@ Continuar flujo conserva `PreviewEnviarTarea`, `EjecutarEnvioTarea`, `SolicitudT
 - [Validación y ejecución](Diagramas/04-validacion-y-ejecucion.md): muestra la secuencia de reautorización y el único punto mutante.
 - [Secuencia del envío](Diagramas/01-secuencia-envio-usuario.md): muestra preview, selección y confirmación como contratos de servidor.
 - [Alcance sin gate y relevo](Diagramas/02-alcance-y-relevo.md): delimita explícitamente lo que DOC-28 no modifica y la responsabilidad de la etapa 02.
+
+## DOC-29 — Interfaz moderna oficial
+
+DOC-29 completa la capa de presentación sin cambiar las capas ASMX, aplicación, dominio ni infraestructura entregadas por DOC-28.
+
+| Responsabilidad | Componentes DOC-29 | Regla de compatibilidad |
+| --- | --- | --- |
+| Disparador y bootstrap | `workflow/Webworkflow.aspx`, `workflow/Webworkflow.aspx.vb` | `workflow-user-send-trigger` se registra para todo contexto Workflow válido, antes de la rama del gate de Grupo/Continuar flujo. |
+| Selección paginada | `js/workflow/workflow-user-send-ui.js` | Mantiene estado, cursores, eventos y selectores propios; solo llama `PreviewEnviarUsuario`. |
+| Confirmación | `js/workflow/workflow-user-send-confirmation.js`, `js/java_general/ConfirmationDialog.js` | Reutiliza el diálogo genérico, pero solo ejecuta el contrato usuario–actividad–token. |
+| Presentación parcial | `js/workflow/workflow-transition-page-presentation.js` | Reutiliza la operación de fila/visor/contador con `workflow-user-send-success-message` y temporizador asociado a ese mensaje. |
+| Pruebas | `tests/workflow-user-send-ui.test.cjs`, `tests/workflow-user-send-confirmation.test.cjs` | Comprueban contrato, aislamiento y accesibilidad sin red ni sesión. |
+
+La ruta Web Forms de usuario fue retirada de esta página: ya no existen `ImageButtonEnviarUsuario`, el `ModalPopupExtender` de usuarios, sus campos ocultos, su handler ni la ejecución mediante `After_envio_usuario_workflow`. Los modales de otras operaciones no se modificaron.
+
+- [Secuencia de la interfaz oficial](Diagramas/05-interfaz-moderna-envio-usuario.md): muestra bootstrap sin gate, preview paginado, confirmación y actualización parcial.

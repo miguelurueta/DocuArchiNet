@@ -1,84 +1,47 @@
-## Context
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05 -->
+## Contexto
 
-DOC-29: INTERFAZ-MODERNA-ENVIAR-USUARIO
+DOC-29 moderniza exclusivamente **Enviar a usuario** de `workflow/Webworkflow.aspx`. DOC-28 entrega el backend de destino directo usuario–actividad: el navegador expresa intención y el servidor conserva autorización, token, concurrencia, requisitos y auditoría.
 
-## Jira Details
+La entrada actual usa `ImageButtonEnviarUsuario`, campos ocultos, un modal Web Forms y `After_envio_usuario_workflow`. Esa cadena admite reasignación de respuesta y no cumple el contrato moderno. Este cambio no modifica endpoints, esquema, motor legacy, Grupo ni Continuar flujo.
 
-> # 02 — Interfaz moderna oficial
-> 
-> ## ROL ESPERADO
-> 
-> Actúa como desarrollador senior de ASP.NET Web Forms y JavaScript legacy accesible.
-> 
-> ## OBJETIVO
-> 
-> Conectar solo el comando **Enviar a usuario** a los endpoints ya implementados, con búsqueda paginada, confirmación accesible y experiencia moderna oficial para todo contexto Workflow válido.
-> 
-> ## CONTEXTO OBLIGATORIO
-> 
-> - Requiere 01 aprobado y que el ticket actual enlace este archivo.
-> - Leer `00-contexto-obligatorio.md`, evidencia de 01, CSS/componentes de confirmación existentes y exploración arquitectónica.
-> - Habilita 03 únicamente cuando no haya listeners, estado ni payload compartido con Continuar flujo.
-> 
-> ## REQUISITOS POSITIVOS
-> 
-> - Registrar trigger y bootstrap de forma uniforme, con adaptador JavaScript exclusivo de usuario que no evalúe feature gate para este comando.
-> - Consumir `PreviewEnviarUsuario` y `EjecutarEnvioUsuario`; aplicar debounce, páginas, descarte de respuesta obsoleta e invalidación de selección antigua.
-> - Reutilizar confirmación, foco, trampa de foco, teclado, Escape, ARIA, responsive, cancelación, doble clic y mensaje de éxito correlacionado.
-> - Tras éxito, actualizar solo tarea afectada, visor y contador mediante componentes modernos existentes.
-> 
-> ## RESTRICCIONES CRÍTICAS
-> 
-> - No crear ASMX, banderas de habilitación, framework, bundler, modal alterno ni autorización en JavaScript.
-> - No invocar controles ocultos, motor, handlers, SQL, `Cambia_Estado`, reasignación de respuesta ni endpoints/payload de Continuar flujo.
-> - No habilitar un enlace, postback ni modal Web Forms alternativo para `ImageButtonEnviarUsuario`.
-> - No ejecutar E2E autenticado sin autorización explícita de ambiente y cuentas de prueba.
-> 
-> ## REGLAS DE ANTIRREGRESIÓN
-> 
-> - Enviar a usuario y Continuar flujo no comparten selectores, eventos, estado, `IdConector` ni requests.
-> - Todo contexto Workflow válido usa el mismo adaptador y recorrido moderno de Enviar a usuario.
-> 
-> ## CRITERIOS DE ACEPTACIÓN
-> 
-> - Modal y búsqueda representan solo JSON autorizado, soportan teclado/foco/Escape y no materializan la lista completa.
-> - Error, bloqueo, cancelación y respuesta obsoleta restauran contexto sin iniciar flujo legacy de reasignación.
-> 
-> ## PRUEBAS OBLIGATORIAS
-> 
-> Agregar pruebas CJS de contratos, eventos aislados, búsqueda, debounce, páginas, respuesta obsoleta, vacío, error, selección, éxito, bloqueo, cancelación, doble clic, teclado, foco y bootstrap uniforme. Ejecutar MSBuild y pruebas focales; registrar evidencia. No E2E sin autorización explícita.
-> 
-> ## DOCUMENTACIÓN TÉCNICA
-> 
-> Actualizar `01-arquitectura.md`, `02-contrato.md`, `03-flujo-y-seguridad.md`, `04-pruebas-y-evidencia.md` y diagramas necesarios con selectores, UI, accesibilidad, recorrido moderno y relevo a 03.
-> 
-> ## ENTREGABLE FINAL
-> 
-> Reportar ticket, archivos UI, pruebas, compilación y evidencia de ruta moderna/no regresión. No cambiar configuración de ambiente ni realizar QA autenticado sin autorización.
+## Decisiones
 
-## Goals / Non-Goals
+### D-01 — Entrada oficial sin gate ni postback
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+`Panel_EnviarUsuario` expondrá `workflow-user-send-trigger`, un `button` sin atributo de gate. `Webworkflow.aspx.vb` registrará estilo, adaptador, confirmación y bootstrap propios antes de la rama que usa `WorkflowModernPresentationBootstrap` para Grupo y Continuar flujo.
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+Se retirarán de esta página el enlace a `ImageButtonEnviarUsuario`, su handler y los controles/handlers exclusivamente de envío legacy de usuario. Los controles que sirven otro recorrido no se cambian sin evidencia de uso exclusivo. No quedará enlace, postback ni modal Web Forms habilitado para este comando.
 
-## Decisions
+### D-02 — Cliente paginado sobre contratos DOC-28
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+`workflow-user-send-ui.js` hará POST `same-origin` a `PreviewEnviarUsuario` con `{ idTarea, consulta, cursor, tamanoPagina }`. Mantendrá historial de cursores por búsqueda, aplicará debounce y contador monotónico, y descartará respuestas tardías. El cliente renderizará únicamente la página devuelta.
 
+La selección contiene `{ idTarea, idUsuarioWorkflowDestino, idActividadDestino, tokenVersion, contexto, destino }`. La confirmación enviará los cuatro campos de ejecución a `EjecutarEnvioUsuario`. No habrá `IdConector`, SQL, motores, controles ocultos, `Cambia_Estado` ni autorización JavaScript.
 
-## Risks / Trade-offs
+### D-03 — Aislamiento y accesibilidad
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+Modal, IDs, evento `workflow:user-destination-selected`, evento de invalidación, contador de solicitudes y objeto global serán propios. No se usan `workflow:destination-selected`, `WorkflowTransitionUi`, sus selectores ni payload de conector.
 
-## Migration Plan
+Se reutilizan `ConfirmationDialog`, estilos y el patrón de foco: apertura al cierre, trampa Tab/Shift+Tab, Escape, cancelación, clic de fondo, recuperación de foco y prevención de doble ejecución. La confirmación muestra solo JSON autorizado.
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+Durante la ejecución pendiente, `ConfirmationDialog` deshabilita confirmar, cancelar y X. Sus rutas de cierre por fondo, Escape, API o intento de reemplazo conservan el diálogo y anuncian que debe esperarse la respuesta; `beforeunload` solicita la confirmación nativa del navegador. Una respuesta controlada libera el bloqueo conforme a su resultado. El navegador no permite impedir de forma absoluta el cierre de una pestaña, por lo que la salvaguarda de esa ruta es la advertencia nativa.
 
-## Open Questions
+### D-04 — Presentación parcial correlacionada
 
-- TBD
+La confirmación de usuario invocará la presentación moderna con un mensaje de éxito exclusivo. La presentación quitará solo la fila de la tarea resultante, actualizará una vez el contador, limpiará visor/contexto y asociará el temporizador a cada mensaje para no compartir estado con Grupo ni Continuar flujo.
+
+### D-05 — Evidencia sin operación no autorizada
+
+Las pruebas CJS simularán ASMX y cubrirán contratos, ausencia de `IdConector` y rutas legacy, cursores, obsolescencia, errores, accesibilidad, confirmación y presentación. La validación final incluye MSBuild. E2E autenticado, carga, gate y transición real quedan fuera hasta recibir autorización explícita.
+
+## Secuencia de implementación
+
+1. Sustituir el disparador legacy y registrar bootstrap independiente.
+2. Añadir modal, adaptador paginado y confirmación exclusiva.
+3. Integrar presentación parcial y mensaje correlacionado.
+4. Añadir pruebas, compilar y actualizar el paquete técnico único de `TerminarUsuario`.
+
+## Compatibilidad y reversión
+
+Grupo y Continuar flujo conservan sus archivos, endpoints, selectores, eventos, payload y gate. No hay cambios de datos ni configuración. La reversión es revertir el cambio versionado completo; el contrato DOC-28 y los datos Workflow no se alteran.

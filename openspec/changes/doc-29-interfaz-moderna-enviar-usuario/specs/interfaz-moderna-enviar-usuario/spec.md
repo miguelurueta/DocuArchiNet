@@ -1,64 +1,73 @@
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05 -->
 ## ADDED Requirements
-### Requirement: INTERFAZ-MODERNA-ENVIAR-USUARIO
-El sistema SHALL implementar el alcance definido para DOC-29.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- # 02 — Interfaz moderna oficial
-- 
-- ## ROL ESPERADO
-- 
-- Actúa como desarrollador senior de ASP.NET Web Forms y JavaScript legacy accesible.
-- 
-- ## OBJETIVO
-- 
-- Conectar solo el comando **Enviar a usuario** a los endpoints ya implementados, con búsqueda paginada, confirmación accesible y experiencia moderna oficial para todo contexto Workflow válido.
-- 
-- ## CONTEXTO OBLIGATORIO
-- 
-- - Requiere 01 aprobado y que el ticket actual enlace este archivo.
-- - Leer `00-contexto-obligatorio.md`, evidencia de 01, CSS/componentes de confirmación existentes y exploración arquitectónica.
-- - Habilita 03 únicamente cuando no haya listeners, estado ni payload compartido con Continuar flujo.
-- 
-- ## REQUISITOS POSITIVOS
-- 
-- - Registrar trigger y bootstrap de forma uniforme, con adaptador JavaScript exclusivo de usuario que no evalúe feature gate para este comando.
-- - Consumir `PreviewEnviarUsuario` y `EjecutarEnvioUsuario`; aplicar debounce, páginas, descarte de respuesta obsoleta e invalidación de selección antigua.
-- - Reutilizar confirmación, foco, trampa de foco, teclado, Escape, ARIA, responsive, cancelación, doble clic y mensaje de éxito correlacionado.
-- - Tras éxito, actualizar solo tarea afectada, visor y contador mediante componentes modernos existentes.
-- 
-- ## RESTRICCIONES CRÍTICAS
-- 
-- - No crear ASMX, banderas de habilitación, framework, bundler, modal alterno ni autorización en JavaScript.
-- - No invocar controles ocultos, motor, handlers, SQL, `Cambia_Estado`, reasignación de respuesta ni endpoints/payload de Continuar flujo.
-- - No habilitar un enlace, postback ni modal Web Forms alternativo para `ImageButtonEnviarUsuario`.
-- - No ejecutar E2E autenticado sin autorización explícita de ambiente y cuentas de prueba.
-- 
-- ## REGLAS DE ANTIRREGRESIÓN
-- 
-- - Enviar a usuario y Continuar flujo no comparten selectores, eventos, estado, `IdConector` ni requests.
-- - Todo contexto Workflow válido usa el mismo adaptador y recorrido moderno de Enviar a usuario.
-- 
-- ## CRITERIOS DE ACEPTACIÓN
-- 
-- - Modal y búsqueda representan solo JSON autorizado, soportan teclado/foco/Escape y no materializan la lista completa.
-- - Error, bloqueo, cancelación y respuesta obsoleta restauran contexto sin iniciar flujo legacy de reasignación.
-- 
-- ## PRUEBAS OBLIGATORIAS
-- 
-- Agregar pruebas CJS de contratos, eventos aislados, búsqueda, debounce, páginas, respuesta obsoleta, vacío, error, selección, éxito, bloqueo, cancelación, doble clic, teclado, foco y bootstrap uniforme. Ejecutar MSBuild y pruebas focales; registrar evidencia. No E2E sin autorización explícita.
-- 
-- ## DOCUMENTACIÓN TÉCNICA
-- 
-- Actualizar `01-arquitectura.md`, `02-contrato.md`, `03-flujo-y-seguridad.md`, `04-pruebas-y-evidencia.md` y diagramas necesarios con selectores, UI, accesibilidad, recorrido moderno y relevo a 03.
-- 
-- ## ENTREGABLE FINAL
-- 
-- Reportar ticket, archivos UI, pruebas, compilación y evidencia de ruta moderna/no regresión. No cambiar configuración de ambiente ni realizar QA autenticado sin autorización.
+### Requirement: RQ-01 / D-01 Entrada moderna oficial de Enviar a usuario
+
+La página `workflow/Webworkflow.aspx` SHALL exponer `workflow-user-send-trigger` como única entrada de **Enviar a usuario** para todo contexto Workflow válido, sin depender de `WorkflowCentroTrabajoModernActive`.
+
+#### Scenario: El gate de otras operaciones está apagado
+
+- **WHEN** el contexto Workflow es válido y el gate de Grupo/Continuar flujo está apagado
+- **THEN** el bootstrap de usuario enlaza su disparador moderno y no consulta ni modifica el gate.
+
+#### Scenario: No existe ruta legacy de usuario
+
+- **WHEN** el usuario activa el comando moderno
+- **THEN** no se invoca `ImageButtonEnviarUsuario`, un postback, un handler o un modal Web Forms de envío a usuario.
+
+### Requirement: RQ-02 / D-02 Búsqueda y ejecución con contrato directo paginado
+
+El adaptador de usuario SHALL consumir exclusivamente los endpoints JSON de DOC-28 y SHALL conservar el destino directo usuario–actividad y el token de versión.
+
+#### Scenario: Búsqueda de destinos por cursor
+
+- **WHEN** el usuario abre el modal, escribe una búsqueda o navega de página
+- **THEN** el cliente envía `{ idTarea, consulta, cursor, tamanoPagina }` a `PreviewEnviarUsuario`, muestra solo la página recibida y descarta respuestas obsoletas.
+
+#### Scenario: Ejecución de una selección vigente
+
+- **WHEN** el usuario confirma un destino de la página vigente
+- **THEN** el cliente envía únicamente `{ idTarea, idUsuarioWorkflowDestino, idActividadDestino, tokenVersion }` a `EjecutarEnvioUsuario` y nunca incluye `IdConector`.
+
+### Requirement: RQ-03 / D-03 Operación accesible y aislada de Continuar flujo
+
+La interfaz SHALL usar modal, selectores, eventos, estado de solicitudes y confirmación propios para Enviar a usuario.
+
+#### Scenario: Navegación accesible y cancelación
+
+- **WHEN** se abre el modal o la confirmación
+- **THEN** foco, Tab/Shift+Tab, Escape, fondo y cancelar permiten abandonar la operación y restituir el foco sin postback legacy.
+
+#### Scenario: Cierre bloqueado durante el envío
+
+- **WHEN** el usuario confirma el destino y `EjecutarEnvioUsuario` continúa pendiente
+- **THEN** los controles de confirmar, cancelar y cerrar quedan deshabilitados y X, fondo, Escape o un nuevo intento de abrir confirmación no cierran ni reemplazan el diálogo; tras una respuesta controlada se recupera el cierre según el resultado.
+- **AND** un intento de cerrar o recargar la pestaña solicita la confirmación nativa del navegador mientras haya una operación pendiente.
+
+#### Scenario: Cambio de contexto y antirregresión
+
+- **WHEN** llega una respuesta obsoleta, cambia el término/página o se cancela la confirmación
+- **THEN** la selección se invalida y no se ejecuta un destino de otro contexto ni se registran listeners, estado o payload de `WorkflowTransitionUi`.
+
+### Requirement: RQ-04 / D-04 Actualización parcial correlacionada
+
+Tras éxito de Enviar a usuario, la presentación SHALL actualizar exclusivamente tarea afectada, visor, contador y mensaje de éxito propio.
+
+#### Scenario: Envío exitoso
+
+- **WHEN** `EjecutarEnvioUsuario` devuelve éxito para tarea y token seleccionados
+- **THEN** la fila afectada se elimina una vez, visor/contexto se limpia, contador disminuye una vez y se anuncia éxito de usuario sin refrescar la lista completa.
+
+### Requirement: RQ-05 / D-05 Verificación y límites operativos
+
+La entrega SHALL aportar pruebas focales y compilación reproducibles, sin operaciones autenticadas no autorizadas.
+
+#### Scenario: Evidencia local
+
+- **WHEN** se valida DOC-29 localmente
+- **THEN** CJS focal y MSBuild terminan sin errores y la documentación registra comando, resultado y cobertura.
+
+#### Scenario: E2E no autorizado
+
+- **WHEN** no existe autorización explícita de ambiente y cuentas
+- **THEN** no se activa gate, no se ejecuta E2E/carga ni transición real y la evidencia consigna la limitación.

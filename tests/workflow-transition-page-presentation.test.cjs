@@ -41,6 +41,8 @@ function loadPagePresentation() {
     const toggles = [element({ "data-workflow-task-toggle": "true" })];
     const success = element({ "data-workflow-transition-success": "true", hidden: "hidden" });
     success.hidden = true;
+    const userSuccess = element({ "data-workflow-user-send-success": "true", hidden: "hidden" });
+    userSuccess.hidden = true;
     const document = {
         querySelectorAll(selector) {
             if (selector === "[data-workflow-task-id]") return parent.children;
@@ -57,7 +59,8 @@ function loadPagePresentation() {
                 "[data-workflow-task-scroll]": scroller,
                 "[data-workflow-transition-success]": success
             }[selector] || null;
-        }
+        },
+        getElementById(id) { return id === "workflow-user-send-success-message" ? userSuccess : null; }
     };
     const timers = [];
     const window = {
@@ -72,7 +75,7 @@ function loadPagePresentation() {
         layoutRefreshes: []
     };
     vm.runInNewContext(source, { window, document, Number, String, Math, isFinite });
-    return { api: window.WorkflowTransitionPagePresentation, parent, counter, context, viewer, list, scroller, actions, toggles, success, timers, layoutRefreshes: window.layoutRefreshes };
+    return { api: window.WorkflowTransitionPagePresentation, parent, counter, context, viewer, list, scroller, actions, toggles, success, userSuccess, timers, layoutRefreshes: window.layoutRefreshes };
 }
 
 test("actualiza solo la representación de la tarea confirmada mediante atributos data", () => {
@@ -115,4 +118,16 @@ test("no cambia la página cuando no hay una tarea válida", () => {
     assert.equal(counter.textContent, "Tareas de Grupo=(3)");
     assert.equal(context.hidden, false);
     assert.doesNotMatch(source, /Hidden_id_tarea|eliminar_fila_data_gred_lista|Terminar_Tarea_Workflow|Cambia_Estado/);
+});
+
+test("el éxito de usuario usa un mensaje y temporizador propios", () => {
+    const { api, success, userSuccess, timers } = loadPagePresentation();
+    assert.equal(api.applySuccess({ idTarea: 41 }, {
+        successElementId: "workflow-user-send-success-message",
+        successMessage: "Tarea enviada al usuario."
+    }), true);
+    assert.equal(success.hidden, true);
+    assert.equal(userSuccess.hidden, false);
+    assert.equal(userSuccess.textContent, "Tarea enviada al usuario.");
+    assert.equal(timers.length, 1);
 });

@@ -30,3 +30,20 @@ La decisión técnica es **habilitar el trabajo de la etapa 02 de interfaz**, no
 - La transición real y la concurrencia contra MySQL no se probaron en un ambiente autenticado; requieren autorización, tareas descartables y el runbook del repositorio.
 - La consulta está protegida por validaciones y pruebas estáticas/locales; cambios futuros en el esquema de Workflow deben volver a revisar las columnas de usuario, grupo y actividad.
 - La UI de la etapa 02 no debe tratar preview como autorización: debe enviar siempre usuario, actividad y token, y aceptar bloqueos de la revalidación del servidor.
+
+## DOC-29 — Evidencia local de interfaz
+
+Ejecutado el 2026-08-21 desde la raíz del repositorio:
+
+```powershell
+node --test tests\workflow-user-send.test.cjs tests\workflow-user-send-ui.test.cjs tests\workflow-user-send-confirmation.test.cjs tests\workflow-group-send.test.cjs tests\workflow-transition-ui.test.cjs tests\workflow-transition-confirmation-integration.test.cjs tests\workflow-transition-page-presentation.test.cjs tests\workflow-modern-feature-gate.test.cjs
+msbuild .\GestionDocumental-Docuarchi.net.sln /t:Build /p:Configuration=Debug /m /verbosity:minimal /clp:ErrorsOnly
+```
+
+Resultados: CJS 61/61 correctas y MSBuild con código 0. Las pruebas verifican el disparador sin gate, ausencia de fallback Web Forms de usuario, contrato paginado por cursor, búsqueda/debounce, descarte de respuesta obsoleta, selección, confirmación, bloqueo, cancelación, doble clic, teclado, foco, aislamiento respecto de Continuar flujo y actualización parcial con mensaje propio.
+
+## QA/E2E Web Forms
+
+No se ejecutaron QA manual autenticada, E2E autenticado, carga, activación de gate ni transición real: no hubo autorización explícita de ambiente y cuentas para DOC-29. Las pruebas locales no conceden esa autorización.
+
+Cuando exista autorización, el recorrido manual debe: seleccionar una tarea descartable, abrir **Enviar a usuario** con el gate apagado, verificar foco/Tab/Escape, buscar y navegar páginas, cancelar una selección, confirmar un destino válido, comprobar que solo cambia la fila/visor/contador y registrar evidencia sanitizada. Antes de cualquier E2E autenticado se debe leer `tools/e2e/AGENT-RUNBOOK.md`; no se guardan credenciales, cookies ni cadenas de conexión y el gate debe finalizar en `false` con usuarios/grupos vacíos.
