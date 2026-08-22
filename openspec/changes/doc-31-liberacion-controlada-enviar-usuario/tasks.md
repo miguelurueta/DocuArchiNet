@@ -13,4 +13,4 @@
 ## 3. Validación documental
 
 - [x] 3.1 [S] Corroborar documentalmente evidencia DOC-30, versión integrada y ausencia de autorización de ambiente. Área/archivos: `Doc/Actualizacion/workflow/TerminarUsuario/03-verificacion-transversal-doc-30/` y `04-liberacion-controlada-doc-31/`. Origen: D-01, RQ-01. Verificación: referencias cruzadas consistentes y sin comandos de ambiente ejecutados.
-- [ ] 3.2 [S] Validar OpenSpec, gobierno OPSXJ y documentación de liberación. Área/archivos: `openspec/changes/doc-31-liberacion-controlada-enviar-usuario/` y `Doc/Tecnica/Opsxj/doc-31-liberacion-controlada-enviar-usuario/`. Origen: D-03, RQ-02. Verificación: validación estricta y de gobierno aprobadas.
+- [x] 3.2 [S] Validar OpenSpec, gobierno OPSXJ y documentación de liberación. Área/archivos: `openspec/changes/doc-31-liberacion-controlada-enviar-usuario/` y `Doc/Tecnica/Opsxj/doc-31-liberacion-controlada-enviar-usuario/`. Origen: D-03, RQ-02. Verificación: validación estricta y de gobierno aprobadas.
