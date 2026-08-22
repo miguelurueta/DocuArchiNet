@@ -1,62 +1,66 @@
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04 -->
 ## ADDED Requirements
-### Requirement: VERIFICACION-TRANSVERSAL-ENVIAR-USUARIO
-El sistema SHALL implementar el alcance definido para DOC-30.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- # 03 — Verificación transversal y evidencia
-- 
-- ## ROL ESPERADO
-- 
-- Actúa como arquitecto de calidad y revisor técnico de Workflow ASP.NET Web Forms.
-- 
-- ## OBJETIVO
-- 
-- Verificar la capacidad completa sin crear otra implementación: contrato, capas, auditoría, seguridad, accesibilidad, compatibilidad y evidencia para liberación.
-- 
-- ## CONTEXTO OBLIGATORIO
-- 
-- - Requiere 02 aprobado y evidencia focal de los tickets 01 y 02.
-- - Leer `00-contexto-obligatorio.md`, contratos/documentación existente y resultados de compilación/pruebas previos.
-- - Si hay fallo, registrar o devolver un ticket de corrección específico; 04 no se desbloquea hasta resolverlo.
-- 
-- ## REQUISITOS POSITIVOS
-- 
-- - Ejecutar compilación, pruebas locales CJS/VB, análisis estático y QA manual no autenticado autorizado.
-- - Confirmar preview solo `SELECT`, revalidación bajo lock, respuesta pendiente sin reasignación, destinos autorizados, auditoría sanitizada, experiencia moderna universal y aislamiento de Continuar flujo.
-- - Verificar búsqueda: universo autorizado antes del filtro, límite, orden, cursor, privacidad, respuesta obsoleta, teclado, foco, Escape y responsive.
-- 
-- ## RESTRICCIONES CRÍTICAS
-- 
-- - No cambiar código de producción, configuración, estado de tareas, auditoría, datos ni contratos para obtener evidencia.
-- - No ejecutar E2E autenticado, carga, activación, archivo, publicación o liberación automática.
-- - No considerar suficiente una revisión visual sin evidencia de contrato, concurrencia y no regresión.
-- 
-- ## REGLAS DE ANTIRREGRESIÓN
-- 
-- - Comparar `PreviewEnviarTarea`, `EjecutarEnvioTarea`, `IdConector` y Continuar flujo con sus contratos/pruebas existentes; confirmar que Enviar a usuario no expone una ruta UI alternativa.
-- - Un resultado de búsqueda o preview nunca elimina revalidación de ejecución ni amplía autorizaciones.
-- 
-- ## CRITERIOS DE ACEPTACIÓN
-- 
-- - Todos los escenarios críticos quedan aprobados o asociados a ticket de corrección con evidencia reproducible.
-- - La recomendación para 04 es inequívoca: apto, bloqueado o requiere corrección.
-- 
-- ## PRUEBAS OBLIGATORIAS
-- 
-- Ejecutar MSBuild disponible, pruebas focales y QA manual de cancelación, éxito, bloqueo, búsqueda, responsive y accesibilidad. Registrar comandos, resultados, cobertura, limitaciones y exclusión justificada de E2E/carga.
-- 
-- ## DOCUMENTACIÓN TÉCNICA
-- 
-- Actualizar `04-pruebas-y-evidencia.md` e `00-indice.md` del paquete existente; documentar matriz, correlaciones sanitizadas, riesgos, decisión Jira y ticket de corrección si aplica.
-- 
-- ## ENTREGABLE FINAL
-- 
-- Reportar ticket, escenarios aprobados/fallidos, compilación, pruebas, QA, riesgos y recomendación para 04. No modificar configuración de ambiente.
+### Requirement: Verificación no mutante y reproducible
+
+DOC-30 SHALL ejecutar la verificación sobre el snapshot versionado sin modificar código de producción, configuración, tareas, auditoría, datos ni contratos.
+
+#### Scenario: Evidencia local disponible
+
+- **WHEN** se valida la entrega DOC-28/DOC-29
+- **THEN** se registran comandos, resultado, cobertura y límites de la compilación, pruebas CJS, inspección estática y QA visual no autenticada.
+
+#### Scenario: Operación fuera del alcance
+
+- **WHEN** una comprobación requiere E2E autenticado, carga, activación de gate o despliegue
+- **THEN** DOC-30 no la ejecuta ni infiere autorización para realizarla.
+
+Trazabilidad: D-01, RQ-01.
+
+### Requirement: Contrato y seguridad del envío directo
+
+DOC-30 SHALL confirmar que la evidencia del snapshot conserva preview de solo lectura y ejecución por `IdTarea`, usuario destino, actividad destino y token de versión.
+
+#### Scenario: Preview y ejecución
+
+- **WHEN** se inspeccionan `PreviewEnviarUsuario` y `EjecutarEnvioUsuario`
+- **THEN** el preview no muta estado ni auditoría, y la ejecución revalida autorización, tarea, destino, respuesta, token y lock en servidor.
+
+#### Scenario: Respuesta o destino inválido
+
+- **WHEN** la respuesta exige confirmación/radicado o el destino deja de ser válido
+- **THEN** se bloquea de forma funcional, sin reasignar la respuesta ni revelar detalles internos.
+
+Trazabilidad: D-02, RQ-02.
+
+### Requirement: Experiencia moderna aislada y accesible
+
+DOC-30 SHALL verificar que Enviar a usuario conserva su ruta moderna oficial y que la lista de destinos mantiene sus garantías de búsqueda, foco y cierre seguro.
+
+#### Scenario: Búsqueda y selección
+
+- **WHEN** se revisan búsqueda, límite, orden, cursor y respuestas obsoletas
+- **THEN** solo se muestra el universo autorizado, la selección vencida se invalida y el modal conserva geometría, foco y comportamiento de teclado.
+
+#### Scenario: Integración con otros comandos
+
+- **WHEN** se compara el envío a usuario con Grupo y Continuar flujo
+- **THEN** usuario no usa `IdConector`, postback legacy ni listeners de transición, y los contratos existentes de los otros comandos permanecen intactos.
+
+Trazabilidad: D-03, RQ-03.
+
+### Requirement: Dictamen técnico previo a liberación
+
+DOC-30 SHALL consolidar una matriz sanitizada de resultados, riesgos y correcciones, con un único dictamen para la etapa operativa posterior.
+
+#### Scenario: Todos los controles aprobados
+
+- **WHEN** compilación, pruebas, inspección y QA cumplen los criterios
+- **THEN** el dictamen es `apto para solicitar aprobación operativa`, sin iniciar despliegue ni cambios de ambiente.
+
+#### Scenario: Control no aprobado
+
+- **WHEN** un escenario crítico falla o carece de evidencia reproducible
+- **THEN** el dictamen es `bloqueado` o `requiere corrección`, y se registra el ticket correctivo antes de cualquier liberación.
+
+Trazabilidad: D-04, RQ-04.

@@ -1,82 +1,36 @@
-## Context
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04 -->
+# Diseño — DOC-30 Verificación transversal de Enviar a usuario
 
-DOC-30: VERIFICACION-TRANSVERSAL-ENVIAR-USUARIO
+## Contexto
 
-## Jira Details
+DOC-30 revisa el snapshot integrado de la capacidad moderna entregada por DOC-28 y DOC-29. La superficie es ASP.NET Web Forms/VB.NET, ASMX y JavaScript legado. El ticket es una compuerta de calidad: sus entradas son el código versionado, las pruebas locales y la evidencia ya saneada; sus salidas son un dictamen técnico y documentación trazable.
 
-> # 03 — Verificación transversal y evidencia
-> 
-> ## ROL ESPERADO
-> 
-> Actúa como arquitecto de calidad y revisor técnico de Workflow ASP.NET Web Forms.
-> 
-> ## OBJETIVO
-> 
-> Verificar la capacidad completa sin crear otra implementación: contrato, capas, auditoría, seguridad, accesibilidad, compatibilidad y evidencia para liberación.
-> 
-> ## CONTEXTO OBLIGATORIO
-> 
-> - Requiere 02 aprobado y evidencia focal de los tickets 01 y 02.
-> - Leer `00-contexto-obligatorio.md`, contratos/documentación existente y resultados de compilación/pruebas previos.
-> - Si hay fallo, registrar o devolver un ticket de corrección específico; 04 no se desbloquea hasta resolverlo.
-> 
-> ## REQUISITOS POSITIVOS
-> 
-> - Ejecutar compilación, pruebas locales CJS/VB, análisis estático y QA manual no autenticado autorizado.
-> - Confirmar preview solo `SELECT`, revalidación bajo lock, respuesta pendiente sin reasignación, destinos autorizados, auditoría sanitizada, experiencia moderna universal y aislamiento de Continuar flujo.
-> - Verificar búsqueda: universo autorizado antes del filtro, límite, orden, cursor, privacidad, respuesta obsoleta, teclado, foco, Escape y responsive.
-> 
-> ## RESTRICCIONES CRÍTICAS
-> 
-> - No cambiar código de producción, configuración, estado de tareas, auditoría, datos ni contratos para obtener evidencia.
-> - No ejecutar E2E autenticado, carga, activación, archivo, publicación o liberación automática.
-> - No considerar suficiente una revisión visual sin evidencia de contrato, concurrencia y no regresión.
-> 
-> ## REGLAS DE ANTIRREGRESIÓN
-> 
-> - Comparar `PreviewEnviarTarea`, `EjecutarEnvioTarea`, `IdConector` y Continuar flujo con sus contratos/pruebas existentes; confirmar que Enviar a usuario no expone una ruta UI alternativa.
-> - Un resultado de búsqueda o preview nunca elimina revalidación de ejecución ni amplía autorizaciones.
-> 
-> ## CRITERIOS DE ACEPTACIÓN
-> 
-> - Todos los escenarios críticos quedan aprobados o asociados a ticket de corrección con evidencia reproducible.
-> - La recomendación para 04 es inequívoca: apto, bloqueado o requiere corrección.
-> 
-> ## PRUEBAS OBLIGATORIAS
-> 
-> Ejecutar MSBuild disponible, pruebas focales y QA manual de cancelación, éxito, bloqueo, búsqueda, responsive y accesibilidad. Registrar comandos, resultados, cobertura, limitaciones y exclusión justificada de E2E/carga.
-> 
-> ## DOCUMENTACIÓN TÉCNICA
-> 
-> Actualizar `04-pruebas-y-evidencia.md` e `00-indice.md` del paquete existente; documentar matriz, correlaciones sanitizadas, riesgos, decisión Jira y ticket de corrección si aplica.
-> 
-> ## ENTREGABLE FINAL
-> 
-> Reportar ticket, escenarios aprobados/fallidos, compilación, pruebas, QA, riesgos y recomendación para 04. No modificar configuración de ambiente.
+## Decisiones
 
-## Goals / Non-Goals
+| ID | Decisión | Justificación |
+| --- | --- | --- |
+| D-01 | La verificación ejecuta únicamente compilación, pruebas locales, inspección estática y QA visual no autenticada; no muta Workflow ni ambientes. | Separa la evidencia de calidad de cualquier autorización E2E, carga o despliegue. |
+| D-02 | La revisión del backend se apoya en el contrato directo `usuario–actividad–token`, preview de solo lectura, revalidación bajo lock y auditoría sanitizada. | Evita que una verificación visual sustituya los controles de autorización y concurrencia del servidor. |
+| D-03 | La revisión de UI verifica búsqueda paginada, accesibilidad, bloqueo durante envío e independencia de Grupo y Continuar flujo. | La ruta moderna de usuario no puede reintroducir postback Web Forms, `IdConector` ni listeners compartidos. |
+| D-04 | La salida de DOC-30 es una recomendación técnica única para la operación posterior, sin desplegar ni editar configuración. | La aprobación de pruebas no equivale a autorización por ambiente y mantiene la reversibilidad operativa. |
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+## Flujo de verificación
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+```text
+snapshot versionado
+  -> inspección estática de contratos y aislamiento
+  -> pruebas CJS focales + compilación MSBuild
+  -> revisión QA visual no autenticada
+  -> matriz de evidencia y riesgos sanitizada
+  -> dictamen técnico para la etapa operativa
+```
 
-## Decisions
+## Riesgos y límites
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+- Las pruebas locales no sustituyen una autorización operativa por ambiente.
+- La concurrencia mutante y la carga no se ejecutan en DOC-30; la evidencia histórica autorizada se cita solo como antecedente, sin repetirla.
+- Un fallo de compilación, contrato, aislamiento o accesibilidad produce un ticket de corrección específico y bloquea la recomendación operativa.
 
+## Trazabilidad
 
-## Risks / Trade-offs
-
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
-
-## Migration Plan
-
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
-
-## Open Questions
-
-- TBD
+Las decisiones D-01 a D-04 se reflejan en los requisitos RQ-01 a RQ-04 y en tareas con su origen explícito.
