@@ -1,82 +1,34 @@
-## Context
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
+# Diseño — DOC-31 Liberación controlada de Enviar a usuario
 
-DOC-31: LIBERACION-CONTROLADA-ENVIAR-USUARIO
+## Contexto
 
-## Jira Details
+La versión integrada está en `main` mediante el merge del PR #23 y DOC-30 certificó compilación, pruebas, inspección y QA visual. Jira no identifica ambiente objetivo, ventana aprobada ni responsables nominales de operación. Por ello la única decisión compatible es solicitar aprobación operativa, no desplegar.
 
-> # 04 — Liberación y operación controlada
-> 
-> ## ROL ESPERADO
-> 
-> Actúa como responsable técnico de liberación para Workflow ASP.NET Web Forms, con foco en seguridad operativa y reversibilidad.
-> 
-> ## OBJETIVO
-> 
-> Preparar la decisión de liberación, matriz de ambientes y runbook operativo. Esta etapa no modifica ni despliega la funcionalidad.
-> 
-> ## CONTEXTO OBLIGATORIO
-> 
-> - Requiere 03 aprobado y ausencia de bloqueos críticos.
-> - Leer `00-contexto-obligatorio.md`, evidencia de 03, versión aprobada y documentación operativa existente.
-> - La aprobación técnica de pruebas no equivale a autorización operativa por ambiente.
-> 
-> ## REQUISITOS POSITIVOS
-> 
-> - Verificar que versión, artefactos, pruebas, auditoría, respuesta pendiente, experiencia moderna universal y Continuar flujo están identificados en evidencia.
-> - Crear matriz por ambiente: autorización, versión, alcance funcional, ventana, responsables, evidencia y continuación.
-> - Crear runbook para futura operación autorizada: verificaciones `SELECT`, comprobación sanitizada y procedimiento de reversión mediante la gestión de despliegue aprobada, sin reactivar una ruta UI alternativa.
-> 
-> ## RESTRICCIONES CRÍTICAS
-> 
-> - No editar configuración; no desplegar, ejecutar E2E/carga ni usar/registrar secretos.
-> - No inferir autorización para un ambiente a partir de pruebas o de la autorización de otro ambiente.
-> - No revertir transiciones confirmadas, reasignar respuestas ni tocar Continuar flujo.
-> 
-> ## REGLAS DE ANTIRREGRESIÓN
-> 
-> - Una reversión de despliegue solo afecta nuevos intentos y no altera tareas ya terminadas.
-> - El contrato `IdConector` de Continuar flujo permanece intacto; Enviar a usuario conserva su ruta moderna oficial.
-> 
-> ## CRITERIOS DE ACEPTACIÓN
-> 
-> - La decisión es una sola: **bloquear**, **solicitar aprobación** o **lista para despliegue autorizado**.
-> - La matriz identifica cada ambiente sin secretos y ningún despliegue queda implícito.
-> 
-> ## PRUEBAS OBLIGATORIAS
-> 
-> No ejecutar E2E, carga ni cambios de ambiente. Verificar de forma documental y con consultas autorizadas de solo lectura que la evidencia de 03, la ruta moderna universal y la reversión de despliegue es completa; registrar resultado y limitaciones.
-> 
-> ## DOCUMENTACIÓN TÉCNICA
-> 
-> Actualizar el paquete documental existente con decisión, matriz de ambientes, runbook, responsables, aprobaciones requeridas y riesgos residuales, sin secretos.
-> 
-> ## ENTREGABLE FINAL
-> 
-> Reportar ticket, precondiciones y decisión de liberación; confirmar que no se modificó configuración ni se ejecutó un despliegue.
+## Decisiones
 
-## Goals / Non-Goals
+| ID | Decisión | Justificación |
+| --- | --- | --- |
+| D-01 | La decisión de DOC-31 es `solicitar aprobación operativa`. | La evidencia técnica está aprobada, pero falta autorización explícita por ambiente. |
+| D-02 | La versión de referencia es `main` en el merge `43d42045beea0984c1b63193e66d12f6a49e5e1c` del PR #23. | Identifica un artefacto versionado sin asociarlo a un despliegue. |
+| D-03 | La matriz declara cero ambientes elegibles hasta que una solicitud de operación nombre ambiente, ventana, responsables por rol y aprobador. | Evita inferir autorización entre ambientes o desde pruebas anteriores. |
+| D-04 | El runbook solo permite verificaciones documentales o consultas `SELECT` autorizadas y sanitizadas. | Mantiene el principio de mínimo privilegio y evita mutaciones durante preparación. |
+| D-05 | La reversión se realiza mediante el mecanismo de despliegue aprobado hacia el paquete previo; no revierte tareas ni respuestas confirmadas. | La reversibilidad aplica a nuevos intentos, no al historial de Workflow. |
+| D-06 | La liberación preserva la ruta moderna oficial de usuario y el contrato `IdConector` de Continuar flujo. | No se permite reactivar postback legacy ni alterar flujos ajenos. |
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+## Flujo operativo futuro
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+```text
+solicitud por ambiente y roles
+  -> validar versión y evidencia DOC-30
+  -> aprobar ventana y plan de reversión
+  -> desplegar mediante gestión aprobada
+  -> verificar con SELECT sanitizado
+  -> continuar o abortar/revertir el paquete
+```
 
-## Decisions
+## Riesgos y límites
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
-
-
-## Risks / Trade-offs
-
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
-
-## Migration Plan
-
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
-
-## Open Questions
-
-- TBD
+- Ningún ambiente está autorizado por este ticket; la matriz no habilita una operación.
+- Las consultas y evidencias solo pueden ejecutarse con aprobación del ambiente correspondiente.
+- Un incidente posterior se trata con el proceso de despliegue y soporte vigente, sin alterar transiciones de Workflow ya confirmadas.
