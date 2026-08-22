@@ -15,4 +15,4 @@
 
 - [x] 3.1 Completar el paquete documental DOC-30, con evidencia sanitizada y sin secretos. Origen: D-04, RQ-04
 - [x] 3.2 Emitir el dictamen técnico y, si aplica, el ticket de corrección; no desplegar ni alterar configuración. Origen: D-04, RQ-04
-- [ ] 3.3 Validar OpenSpec y el gobierno OPSXJ con las evidencias de DOC-30. Origen: D-01, RQ-01
+- [x] 3.3 Validar OpenSpec y el gobierno OPSXJ con las evidencias de DOC-30. Origen: D-01, RQ-01
