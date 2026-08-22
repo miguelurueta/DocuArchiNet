@@ -61,6 +61,7 @@ El resultado esperado es `Active=false` y listas vacías. Si difiere, detener la
 | DOC-28 preview | `npm.cmd --prefix tools/e2e run test:doc28:preview` | Ambiente/cuenta autorizados, tarea activa y MySQL solo lectura. | Preview usuario sin cambios de estado/auditoría. |
 | DOC-28 ejecución | `npm.cmd --prefix tools/e2e run test:doc28:execute` | Autorización explícita, tarea descartable, MySQL solo lectura y `DOC28_E2E_EXECUTION_AUTHORIZED=true`. | Resultado y huellas esperadas, sin tocar gate/legacy. |
 | DOC-28 concurrencia | `npm.cmd --prefix tools/e2e run test:doc28:concurrency` | Autorización doble, tarea descartable y MySQL solo lectura. | Dos solicitudes: una `completada` y un bloqueo seguro; estado/auditoría cambian. |
+| DOC-29 bloqueo UI | `npm.cmd --prefix tools/e2e run test:doc29:user-send-lock` | Autorización explícita doble, tarea descartable activa en la sesión, MySQL solo lectura, `DOC28_E2E_EXECUTION_AUTHORIZED=true` y `DOC29_E2E_UI_LOCK_AUTHORIZED=true`. | Un solo envío real; X, cancelar, fondo, Escape, API y recarga quedan bloqueados mientras se retiene la respuesta, y se valida el cambio de estado/auditoría. |
 
 ## Cierre de cada corrida
 
@@ -85,5 +86,7 @@ Las pruebas anónima y de validación no cambian estado. Ejecución y concurrenc
 La auditoría propia de DOC-28 se registra en `log_usuario`, con `Mecanismo=ASMX_ENVIO_USUARIO` dentro de `Valor_Log`. La consulta `DOC28_E2E_AUDIT_SQL` debe ser un único `SELECT` con un parámetro `?` que filtre ese mecanismo y `Tarea=<parámetro>`; no use `wf_log_estados_workflow` como sustituto.
 
 `test:doc28:concurrency` es una carrera fija de exactamente dos solicitudes mutantes y no una prueba de carga. Requiere además `DOC28_E2E_CONCURRENCY_AUTHORIZED=true`, autorización explícita de concurrencia, tarea descartable y las dos consultas MySQL de lectura. Debe producir una sola respuesta `completada`, un único bloqueo entre `WORKFLOW_TRANSITION_IN_PROGRESS`, `WORKFLOW_VERSION_CONFLICT` o `WORKFLOW_TASK_UNAVAILABLE`, y cambios de estado/auditoría. No admita niveles configurables, usuarios virtuales ni carga masiva.
+
+`test:doc29:user-send-lock` es una única transición UI DOC-29, no una carrera ni una prueba de carga. Intercepta la respuesta después de que el servidor atendió el POST para mantener el diálogo en estado `enviando`; durante ese intervalo verifica controles deshabilitados, fondo, Escape, API y el guardia `beforeunload`. Exige una tarea descartable seleccionada activamente en la sesión y las dos banderas de autorización. La evidencia saneada solo conserva conteos, banderas y huellas.
 
 La evidencia DOC-28 solo puede guardar códigos, conteos, banderas de cambio y huellas; no guarde destinos, token, cookies, secretos, cadena de conexión ni cuerpos de respuesta. Al cierre, ejecute el control del gate y la comprobación de páginas legacy de la sección anterior.

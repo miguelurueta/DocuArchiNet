@@ -26,4 +26,4 @@ El detalle operativo y los diagramas canónicos están en `Doc/Actualizacion/wor
 
 ## Estado de cierre
 
-La implementación, la validación OpenSpec estricta, las pruebas CJS y la compilación local se ejecutaron el 2026-08-21. La aceptación visual posterior al ajuste de geometría del modal fue revisada mediante la grabación de QA; el E2E autenticado con transición real permanece fuera de esta entrega hasta contar con autorización específica.
+La implementación, la validación OpenSpec estricta, las pruebas CJS y la compilación local se ejecutaron el 2026-08-21. La aceptación visual posterior al ajuste de geometría del modal fue revisada mediante la grabación de QA. El preview E2E autenticado preservó estado y auditoría, y la corrida UI integral autorizada confirmó un único envío, bloqueo de cierre/recarga mientras el ASMX respondía y cambios esperados de estado y auditoría. Gate, carga y concurrencia mutante permanecieron fuera de la corrida.
