@@ -1,82 +1,44 @@
-## Context
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05 -->
+## Contexto
 
-DOC-35: LIBERACION-DEVOLVER-TAREA-ACTIVIDAD
+DOC-35 es la etapa 04 posterior a DOC-32, DOC-33 y DOC-34. DOC-34 registró compilación correcta, 83 pruebas CJS focales correctas, QA no autenticada y evidencia saneada de E2E autorizadas anteriores. El merge del PR #29 en main es la versión de referencia para una solicitud operativa futura.
 
-## Jira Details
+Esta etapa prepara documentos; no edita configuración, no despliega, no ejecuta E2E o carga y no usa ni registra secretos.
 
-> # 04 — Liberación y operación controlada
-> 
-> ## ROL ESPERADO
-> 
-> Actúa como responsable técnico de liberación para Workflow ASP.NET Web Forms, con foco en seguridad operativa y reversibilidad de despliegue.
-> 
-> ## OBJETIVO
-> 
-> Preparar la decisión de liberación, matriz de ambientes y runbook operativo. Esta etapa no modifica ni despliega la funcionalidad.
-> 
-> ## CONTEXTO OBLIGATORIO
-> 
-> - Requiere 03 aprobado y ausencia de bloqueos críticos.
-> - Leer `00-contexto-obligatorio.md`, `../Exploracion/`, evidencia de 03, versión aprobada y documentación operativa existente.
-> - La aprobación técnica de pruebas no equivale a autorización operativa por ambiente.
-> 
-> ## REQUISITOS POSITIVOS
-> 
-> - Verificar que versión, artefactos, pruebas, auditoría, aristas entrantes Ruta/Flujo, búsqueda paginada, lock por tarea, ruta moderna única y aislamiento de respuestas estén identificados en evidencia.
-> - Crear matriz por ambiente: autorización, versión, alcance funcional, ventana, responsables, evidencia y continuación.
-> - Crear runbook para una operación autorizada: verificaciones `SELECT`, comprobación sanitizada y reversión mediante gestión de despliegue aprobada, sin reactivar postback ni ruta UI alternativa.
-> 
-> ## RESTRICCIONES CRÍTICAS
-> 
-> - No editar configuración, desplegar, ejecutar E2E/carga ni usar o registrar secretos.
-> - No inferir autorización para un ambiente a partir de pruebas o autorización de otro ambiente.
-> - No revertir transiciones confirmadas ni tocar las operaciones fuera de alcance.
-> 
-> ## REGLAS DE ANTIRREGRESIÓN
-> 
-> - Una reversión de despliegue solo afecta nuevos intentos y no altera tareas ya terminadas.
-> - La devolución conserva su ruta moderna oficial y las operaciones existentes conservan sus contratos.
-> 
-> ## CRITERIOS DE ACEPTACIÓN
-> 
-> - La decisión es una sola: **bloquear**, **solicitar aprobación** o **lista para despliegue autorizado**.
-> - La matriz identifica cada ambiente sin secretos y ningún despliegue queda implícito.
-> 
-> ## PRUEBAS OBLIGATORIAS
-> 
-> No ejecutar E2E, carga ni cambios de ambiente. Verificar documentalmente y con consultas autorizadas de solo lectura que la evidencia de 03, aristas Ruta/Flujo, ruta moderna única, aislamiento de respuestas y reversión de despliegue es completa; registrar resultado y limitaciones.
-> 
-> ## DOCUMENTACIÓN TÉCNICA
-> 
-> Actualizar el paquete documental con decisión, matriz de ambientes, runbook, responsables, aprobaciones requeridas y riesgos residuales, sin secretos.
-> 
-> ## ENTREGABLE FINAL
-> 
-> Reportar ticket, precondiciones y decisión de liberación; confirmar que no se modificó configuración ni se ejecutó un despliegue.
+## Objetivos y exclusiones
 
-## Goals / Non-Goals
+Los objetivos son emitir una decisión de liberación única, dejar una matriz de ambientes verificable y describir el procedimiento que un operador podrá seguir solamente después de una autorización explícita.
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+Quedan fuera de alcance la ejecución de despliegues, consultas de ambiente sin autorización, cambios de gate, reversión de tareas confirmadas, postbacks Web Forms y cualquier cambio de contrato de Devolver, Continuar flujo, Enviar a usuario, Enviar a grupo o Usuario anterior.
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+## Decisiones
 
-## Decisions
+### D-01 — Base técnica y decisión vigente
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+La base técnica es DOC-34 y la versión de referencia es main en el merge del PR #29. Como no hay ambiente, ventana ni responsables autorizados, la decisión vigente es solicitar aprobación operativa; la evidencia técnica no equivale a permiso de operación.
 
+### D-02 — Autorización aislada por ambiente
 
-## Risks / Trade-offs
+La matriz inicia con cero ambientes elegibles. Cada solicitud futura debe identificar ambiente exacto, versión, alcance, ventana, aprobador, operador de despliegue, dueño funcional, evidencia y acción de continuación. La autorización no se transfiere entre ambientes, versiones ni ventanas.
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+### D-03 — Controles y operación mínima
 
-## Migration Plan
+Después de autorización explícita, el operador solo puede realizar comprobaciones documentales y consultas SELECT parametrizadas y saneadas. El runbook prohíbe E2E, carga, cambios de configuración, cambios de gate y registro de credenciales, cookies, cadenas de conexión o datos de tarea.
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+### D-04 — Reversión por paquete e invariantes
 
-## Open Questions
+La reversión se ejecuta exclusivamente mediante la gestión de despliegue aprobada y afecta intentos nuevos. No revierte tareas, auditoría ni transiciones ya confirmadas, no reactiva postbacks ni una ruta UI alternativa y conserva la ruta moderna oficial, los conectores entrantes Ruta/Flujo, el lock por tarea y el aislamiento de respuestas.
 
-- TBD
+### D-05 — Registro de resultado saneado
+
+El resultado operativo registra solamente decisión, ambiente, versión y referencias saneadas. Se aborta antes de desplegar ante autorización incompleta, diferencia de versión o contrato, controles no conformes o retiro de aprobación.
+
+## Riesgos y compatibilidad
+
+El riesgo principal es interpretar la evidencia previa como autorización de ambiente. La matriz vacía y el criterio de aborto lo evitan. Persisten la advertencia heredada MSB3247 y la cobertura visual anónima limitada; ninguno bloquea la solicitud de aprobación, pero ambos deben acompañar la evidencia del ambiente.
+
+## Plan de operación
+
+1. Recibir una solicitud que complete todos los campos de la matriz para un ambiente y una versión concretos.
+2. Confirmar evidencia, alcance e invariantes mediante controles autorizados de solo lectura.
+3. Continuar, abortar o revertir únicamente por la gestión de despliegue aprobada y registrar el resultado saneado.

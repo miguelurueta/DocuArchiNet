@@ -1,62 +1,47 @@
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05 -->
 ## ADDED Requirements
-### Requirement: LIBERACION-DEVOLVER-TAREA-ACTIVIDAD
-El sistema SHALL implementar el alcance definido para DOC-35.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- # 04 — Liberación y operación controlada
-- 
-- ## ROL ESPERADO
-- 
-- Actúa como responsable técnico de liberación para Workflow ASP.NET Web Forms, con foco en seguridad operativa y reversibilidad de despliegue.
-- 
-- ## OBJETIVO
-- 
-- Preparar la decisión de liberación, matriz de ambientes y runbook operativo. Esta etapa no modifica ni despliega la funcionalidad.
-- 
-- ## CONTEXTO OBLIGATORIO
-- 
-- - Requiere 03 aprobado y ausencia de bloqueos críticos.
-- - Leer `00-contexto-obligatorio.md`, `../Exploracion/`, evidencia de 03, versión aprobada y documentación operativa existente.
-- - La aprobación técnica de pruebas no equivale a autorización operativa por ambiente.
-- 
-- ## REQUISITOS POSITIVOS
-- 
-- - Verificar que versión, artefactos, pruebas, auditoría, aristas entrantes Ruta/Flujo, búsqueda paginada, lock por tarea, ruta moderna única y aislamiento de respuestas estén identificados en evidencia.
-- - Crear matriz por ambiente: autorización, versión, alcance funcional, ventana, responsables, evidencia y continuación.
-- - Crear runbook para una operación autorizada: verificaciones `SELECT`, comprobación sanitizada y reversión mediante gestión de despliegue aprobada, sin reactivar postback ni ruta UI alternativa.
-- 
-- ## RESTRICCIONES CRÍTICAS
-- 
-- - No editar configuración, desplegar, ejecutar E2E/carga ni usar o registrar secretos.
-- - No inferir autorización para un ambiente a partir de pruebas o autorización de otro ambiente.
-- - No revertir transiciones confirmadas ni tocar las operaciones fuera de alcance.
-- 
-- ## REGLAS DE ANTIRREGRESIÓN
-- 
-- - Una reversión de despliegue solo afecta nuevos intentos y no altera tareas ya terminadas.
-- - La devolución conserva su ruta moderna oficial y las operaciones existentes conservan sus contratos.
-- 
-- ## CRITERIOS DE ACEPTACIÓN
-- 
-- - La decisión es una sola: **bloquear**, **solicitar aprobación** o **lista para despliegue autorizado**.
-- - La matriz identifica cada ambiente sin secretos y ningún despliegue queda implícito.
-- 
-- ## PRUEBAS OBLIGATORIAS
-- 
-- No ejecutar E2E, carga ni cambios de ambiente. Verificar documentalmente y con consultas autorizadas de solo lectura que la evidencia de 03, aristas Ruta/Flujo, ruta moderna única, aislamiento de respuestas y reversión de despliegue es completa; registrar resultado y limitaciones.
-- 
-- ## DOCUMENTACIÓN TÉCNICA
-- 
-- Actualizar el paquete documental con decisión, matriz de ambientes, runbook, responsables, aprobaciones requeridas y riesgos residuales, sin secretos.
-- 
-- ## ENTREGABLE FINAL
-- 
-- Reportar ticket, precondiciones y decisión de liberación; confirmar que no se modificó configuración ni se ejecutó un despliegue.
+### Requirement: Decisión de liberación única (D-01)
+
+El paquete de liberación MUST basarse en la evidencia técnica aprobada de DOC-34 y declarar exactamente una decisión operativa para la versión de referencia.
+
+#### Scenario: Sin autorización de ambiente
+
+- **WHEN** no existen ambiente, ventana, aprobador y responsables autorizados para la versión de referencia
+- **THEN** la decisión es solicitar aprobación operativa y no se infiere un despliegue
+
+### Requirement: Matriz aislada por ambiente (D-02)
+
+El paquete MUST contener una matriz que identifique, sin secretos, autorización, versión, alcance, ventana, responsables por rol, evidencia y continuación para cada ambiente.
+
+#### Scenario: Ambiente no incluido
+
+- **WHEN** un ambiente no tiene una solicitud que complete todos los campos requeridos
+- **THEN** queda fuera de operación y la autorización de otro ambiente, versión o ventana no se reutiliza
+
+### Requirement: Runbook de controles autorizados (D-03)
+
+El runbook MUST permitir únicamente comprobaciones documentales y consultas SELECT parametrizadas y saneadas después de una autorización explícita para el ambiente.
+
+#### Scenario: Autorización incompleta
+
+- **WHEN** falta autorización, versión, alcance, ventana o responsables
+- **THEN** el operador aborta antes de desplegar y no ejecuta E2E, carga, cambios de configuración ni cambios de gate
+
+### Requirement: Reversión e invariantes de la capacidad (D-04)
+
+La liberación MUST conservar la ruta moderna oficial de devolución, los contratos de operaciones vecinas, conectores entrantes Ruta/Flujo, lock por tarea y aislamiento de respuestas.
+
+#### Scenario: Reversión aprobada
+
+- **WHEN** la gestión de despliegue ordena regresar al paquete previamente acordado
+- **THEN** solo se afectan intentos nuevos y no se alteran tareas, auditoría o transiciones confirmadas ni se reactiva una ruta Web Forms alternativa
+
+### Requirement: Registro sano de resultado (D-05)
+
+El resultado de una operación autorizada MUST registrar decisión, ambiente, versión y referencias saneadas, sin secretos, cookies, cadenas de conexión, datos de tarea ni cuerpos de respuesta.
+
+#### Scenario: Control no conforme
+
+- **WHEN** aparece una diferencia de versión o contrato, un control no conforme o retiro de aprobación
+- **THEN** el resultado se registra como abortado con referencias saneadas y no inicia el despliegue

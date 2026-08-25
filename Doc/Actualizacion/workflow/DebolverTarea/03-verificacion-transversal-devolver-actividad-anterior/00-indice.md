@@ -12,5 +12,6 @@ Paquete técnico de la etapa 03 posterior a DOC-32 (backend) y DOC-33 (UI). Cons
 - [Flujo, seguridad y límites](03-flujo-y-seguridad.md)
 - [Pruebas, evidencia y dictamen](04-pruebas-y-evidencia.md)
 - [Inventario de superficies verificadas](05-inventario-funciones.md)
+- [Liberación y operación controlada DOC-35](../04-liberacion-controlada-devolver-actividad-anterior/00-indice.md)
 
 DOC-34 no autoriza E2E autenticada, carga, activación de gate, despliegue ni liberación. El dictamen técnico habilita solo solicitar la fase 04; cualquier operación de ambiente requiere autorización independiente.

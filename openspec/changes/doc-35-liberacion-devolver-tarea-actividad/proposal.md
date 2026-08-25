@@ -1,13 +1,13 @@
 ## Why
 
-LIBERACION-DEVOLVER-TAREA-ACTIVIDAD. Ver detalle funcional completo del ticket en la seccion Jira Details.
+La implementación y la verificación transversal de Devolver a actividad anterior ya tienen evidencia técnica aprobada, pero no existe autorización operativa por ambiente. Se requiere una decisión de liberación única, una matriz explícita y un runbook reversible para evitar que una evidencia técnica se interprete como despliegue autorizado.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-35.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se documenta la decisión vigente de solicitar aprobación operativa para la versión integrada de la capacidad.
+- Se crea una matriz de ambientes sin secretos que obliga a identificar autorización, versión, alcance, ventana, responsables, evidencia y continuación para cada ambiente.
+- Se define un runbook de controles SELECT autorizados, registro saneado, aborto y reversión mediante el proceso de despliegue aprobado.
+- Se preservan la ruta moderna oficial, los contratos de las operaciones vecinas y la prohibición de reactivar la UI Web Forms heredada.
 
 ## Jira Details
 
@@ -70,13 +70,12 @@ LIBERACION-DEVOLVER-TAREA-ACTIVIDAD. Ver detalle funcional completo del ticket e
 ## Capabilities
 
 ### New Capabilities
-- `liberacion-devolver-tarea-actividad`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- liberacion-devolver-tarea-actividad: paquete documental que controla la decisión y la operación futura de liberación de Devolver a actividad anterior.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
+- Documentación de actualización Workflow, artefactos OpenSpec y documentación técnica OPSXJ.
+- No cambia código, contratos, configuración, datos, auditoría, tareas de Workflow ni ambientes.
