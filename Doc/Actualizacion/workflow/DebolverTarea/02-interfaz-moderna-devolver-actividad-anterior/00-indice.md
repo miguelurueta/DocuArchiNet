@@ -15,3 +15,5 @@ Este paquete documenta la segunda etapa de Devolver tarea. DOC-32 entregó los c
 - [Diagramas](Diagramas/)
 
 DOC-33 no habilita ni consulta `WorkflowCentroTrabajoModernActive`; tampoco agrega configuración, gates, esquemas ni cambios de base de datos.
+
+La evidencia transversal y el dictamen para la fase siguiente se registran en [DOC-34 — Verificación transversal](../03-verificacion-transversal-devolver-actividad-anterior/00-indice.md). Este enlace no autoriza otra E2E ni cambio de ambiente.
