@@ -1,0 +1,23 @@
+{
+  "doc": "doc33",
+  "environment": "CERTIFICACION",
+  "baseUrl": "https://workflow.example.invalid/GestionDocumental-Docuarchi.net/",
+  "ignoreHttpsErrors": false,
+  "module": "GESTOR",
+  "odbcDsn": "workflowconta",
+  "uiExecutionTaskId": 100002,
+  "previewActivityNames": [
+    "Actividad anterior A",
+    "Actividad anterior B"
+  ],
+  "uiExecutionActivityName": "Actividad anterior A",
+  "uiExecutionFinalActivityName": "Actividad final de prueba",
+  "uiLockTaskId": 100001,
+  "uiLockActivityName": "Actividad anterior A",
+  "uiLockFinalActivityName": "Actividad final de prueba",
+  "taskStateSql": "SELECT estado FROM tarea WHERE id_tarea = ?",
+  "auditSql": "SELECT total FROM auditoria_doc33 WHERE id_tarea = ?",
+  "previewMaxMs": 10000,
+  "uiExecutionMaxMs": 15000,
+  "uiLockMaxMs": 180000
+}

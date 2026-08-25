@@ -5,7 +5,7 @@ Este paquete documenta la segunda etapa de Devolver tarea. DOC-32 entregó los c
 - Ticket: DOC-33
 - Cambio OpenSpec: `doc-33-interfaz-moderna-devolver-tarea`
 - Clasificación: `cross_cutting`
-- Estado: implementación y verificación local completadas; una E2E autenticada requiere autorización independiente de ambiente y cuentas.
+- Estado: implementación, verificación local y E2E UI autorizada completadas. Las futuras corridas requieren autorización independiente de ambiente, cuenta y tareas descartables.
 
 - [Arquitectura y componentes](01-arquitectura.md)
 - [Contratos y estado de cliente](02-contrato.md)

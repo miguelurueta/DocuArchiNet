@@ -1,6 +1,10 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07 -->
-<!-- Decisiones aplicadas: D-01, D-02, D-03, D-04, D-05, D-06 y D-07. -->
-## ADDED Requirements
+# interfaz-moderna-devolver-tarea Specification
+
+## Purpose
+
+TBD: Definir el propósito estable de la interfaz moderna para devolver una tarea a una actividad anterior.
+
+## Requirements
 
 ### Requirement: Presentación moderna exclusiva de devolución
 
@@ -28,6 +32,11 @@ La interfaz SHALL confirmar la actividad elegida mediante el diálogo accesible 
 
 - **WHEN** el servidor devuelve bloqueo de token, conector, concurrencia o autorización
 - **THEN** la interfaz no modifica la bandeja, no inicia otra ejecución y presenta el mensaje funcional asociado.
+
+#### Scenario: Respuesta de backend retenida
+
+- **WHEN** la ejecución ya fue enviada al servidor y su respuesta permanece pendiente
+- **THEN** la confirmación y el modal de devolución no permiten cancelar, cerrar, usar Escape ni abandonar la página hasta recibir un resultado.
 
 ### Requirement: Éxito puntual y accesible
 

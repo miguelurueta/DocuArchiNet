@@ -85,4 +85,7 @@ test("el markup y bootstrap son exclusivos, accesibles y sin postback legacy", (
     assert.match(source, /event\.key === "Escape"/);
     assert.match(source, /event\.shiftKey/);
     assert.match(source, /aplicarDevolucionExitosa/);
+    assert.match(source, /executionPending/);
+    assert.match(source, /establecerEjecucionPendiente/);
+    assert.match(source, /La devolución está en curso\. Espere la respuesta antes de cerrar\./);
 });

@@ -15,6 +15,7 @@ const {
   writeResourceLifecycleEvidence
 } = require('./e2e-test-resource-lifecycle.cjs');
 const { DOC32_RESOURCE_CONTRACT } = require('./doc32-e2e-resource-adapter.cjs');
+const { DOC33_RESOURCE_CONTRACT } = require('./doc33-e2e-resource-adapter.cjs');
 
 const e2eRoot = path.resolve(__dirname, '..', '..');
 const repositoryRoot = path.resolve(e2eRoot, '..', '..');
@@ -28,6 +29,14 @@ function playwrightCommand(mode) {
   return {
     command: process.execPath,
     args: [cli, 'test', 'tests/doc32-return-activity.spec.cjs', '--grep', `@doc32-${mode}`, '--reporter=list']
+  };
+}
+
+function doc33PlaywrightCommand(mode) {
+  const cli = path.resolve(e2eRoot, 'node_modules', '@playwright', 'test', 'cli.js');
+  return {
+    command: process.execPath,
+    args: [cli, 'test', 'tests/doc33-return-activity-ui.spec.cjs', '--grep', `@doc33-ui-${mode}`, '--reporter=list']
   };
 }
 
@@ -96,10 +105,75 @@ const DOC_REGISTRY = Object.freeze({
         ...secrets
       };
     }
+  }),
+  doc33: Object.freeze({
+    resourceContract: DOC33_RESOURCE_CONTRACT,
+    profileKeys: Object.freeze([
+      'doc',
+      'environment',
+      'baseUrl',
+      'ignoreHttpsErrors',
+      'module',
+      'odbcDsn',
+      'uiExecutionTaskId',
+      'previewActivityNames',
+      'uiExecutionActivityName',
+      'uiExecutionFinalActivityName',
+      'uiLockTaskId',
+      'uiLockActivityName',
+      'uiLockFinalActivityName',
+      'taskStateSql',
+      'auditSql',
+      'previewMaxMs',
+      'uiExecutionMaxMs',
+      'uiLockMaxMs'
+    ]),
+    stages: Object.freeze([
+      Object.freeze({ id: 'preview', authorizations: Object.freeze(['environment']), launch: () => doc33PlaywrightCommand('preview') }),
+      Object.freeze({ id: 'execution', resourceRole: 'execution', authorizations: Object.freeze(['environment', 'execution']), launch: () => doc33PlaywrightCommand('execute') }),
+      Object.freeze({ id: 'ui-lock', resourceRole: 'ui-lock', authorizations: Object.freeze(['environment', 'ui_lock']), launch: () => doc33PlaywrightCommand('lock') })
+    ]),
+    async collectSecrets() {
+      requireInteractiveConsole();
+      const values = {};
+      await collectValue(values, 'DOC33_E2E_AUTHORIZED_USER', 'Cuenta Workflow autorizada');
+      await collectValue(values, 'DOC33_E2E_AUTHORIZED_PASSWORD', 'Contraseña Workflow', { secret: true });
+      await collectValue(values, 'DOC33_E2E_MYSQL_USER', 'Usuario MySQL de solo lectura');
+      await collectValue(values, 'DOC33_E2E_MYSQL_PASSWORD', 'Contraseña MySQL de solo lectura', { secret: true });
+      return values;
+    },
+    environment(profile, secrets, authorizations) {
+      return {
+        DOC33_E2E_BASE_URL: profile.baseUrl,
+        DOC33_E2E_IGNORE_HTTPS_ERRORS: profile.ignoreHttpsErrors ? 'true' : 'false',
+        DOC33_E2E_MODULE: profile.module,
+        DOC33_E2E_ENVIRONMENT: profile.environment,
+        DOC33_E2E_ODBC_DSN: profile.odbcDsn,
+        DOC33_E2E_UI_EXECUTION_TASK_ID: String(profile.uiExecutionTaskId),
+        DOC33_E2E_PREVIEW_ACTIVITY_NAMES: JSON.stringify(profile.previewActivityNames.map((name) => name.trim())),
+        DOC33_E2E_UI_EXECUTION_ACTIVITY_NAME: profile.uiExecutionActivityName.trim(),
+        DOC33_E2E_UI_EXECUTION_FINAL_ACTIVITY_NAME: profile.uiExecutionFinalActivityName.trim(),
+        DOC33_E2E_UI_LOCK_TASK_ID: String(profile.uiLockTaskId),
+        DOC33_E2E_UI_LOCK_ACTIVITY_NAME: profile.uiLockActivityName.trim(),
+        DOC33_E2E_UI_LOCK_FINAL_ACTIVITY_NAME: profile.uiLockFinalActivityName.trim(),
+        DOC33_E2E_TASK_STATE_SQL: profile.taskStateSql,
+        DOC33_E2E_AUDIT_SQL: profile.auditSql,
+        DOC33_E2E_PREVIEW_MAX_MS: String(profile.previewMaxMs),
+        DOC33_E2E_UI_EXECUTION_MAX_MS: String(profile.uiExecutionMaxMs),
+        DOC33_E2E_UI_LOCK_MAX_MS: String(profile.uiLockMaxMs),
+        DOC33_E2E_ENVIRONMENT_AUTHORIZED: authorizations.has('environment') ? 'true' : 'false',
+        DOC33_E2E_EXECUTION_AUTHORIZED: authorizations.has('execution') ? 'true' : 'false',
+        DOC33_E2E_UI_LOCK_AUTHORIZED: authorizations.has('ui_lock') ? 'true' : 'false',
+        ...secrets
+      };
+    }
   })
 });
 
-validateRegisteredResourceContracts({ [DOC32_RESOURCE_CONTRACT.id]: DOC32_RESOURCE_CONTRACT });
+validateRegisteredResourceContracts({
+  [DOC32_RESOURCE_CONTRACT.id]: DOC32_RESOURCE_CONTRACT,
+  [DOC33_RESOURCE_CONTRACT.id]: DOC33_RESOURCE_CONTRACT
+});
 
 function fail(message) {
   throw new Error(message);
@@ -210,7 +284,23 @@ function validateProfile(profile, docName) {
   if (typeof profile.module !== 'string' || !profile.module.trim()) fail('module es obligatoria.');
   if (typeof profile.ignoreHttpsErrors !== 'boolean') fail('ignoreHttpsErrors debe ser booleano.');
   assertAbsoluteHttpUrl(profile.baseUrl, 'baseUrl');
-  assertDsn({ DOC32_E2E_ODBC_DSN: profile.odbcDsn });
+  assertDsn({ [`${docName.toUpperCase()}_E2E_ODBC_DSN`]: profile.odbcDsn }, `${docName.toUpperCase()}_E2E`);
+  if (docName === 'doc33') {
+    assertPositiveInteger(profile.uiExecutionTaskId, 'uiExecutionTaskId');
+    assertActivityNames(profile.previewActivityNames, 'previewActivityNames');
+    assertActivityName(profile.uiExecutionActivityName, 'uiExecutionActivityName');
+    assertActivityName(profile.uiExecutionFinalActivityName, 'uiExecutionFinalActivityName');
+    assertPositiveInteger(profile.uiLockTaskId, 'uiLockTaskId');
+    assertActivityName(profile.uiLockActivityName, 'uiLockActivityName');
+    assertActivityName(profile.uiLockFinalActivityName, 'uiLockFinalActivityName');
+    if (profile.uiExecutionTaskId === profile.uiLockTaskId) fail('Las tareas de ejecución y bloqueo UI deben ser distintas.');
+    assertReadOnlySql(profile.taskStateSql, 'taskStateSql');
+    assertReadOnlySql(profile.auditSql, 'auditSql');
+    assertPositiveInteger(profile.previewMaxMs, 'previewMaxMs');
+    assertPositiveInteger(profile.uiExecutionMaxMs, 'uiExecutionMaxMs');
+    assertPositiveInteger(profile.uiLockMaxMs, 'uiLockMaxMs');
+    return definition;
+  }
   assertPositiveInteger(profile.executionTaskId, 'executionTaskId');
   assertActivityNames(profile.previewActivityNames, 'previewActivityNames');
   assertActivityName(profile.executionActivityName, 'executionActivityName');
@@ -351,6 +441,7 @@ module.exports = {
   loadProfile,
   parseArguments,
   playwrightCommand,
+  doc33PlaywrightCommand,
   selectedStages,
   validateAuthorizations,
   validateProfile

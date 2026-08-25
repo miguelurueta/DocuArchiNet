@@ -3,16 +3,19 @@ param(
     [string]$Sql,
 
     [Parameter(Mandatory = $true)]
-    [Int64]$TaskId
+    [Int64]$TaskId,
+
+    [ValidatePattern('^DOC[0-9]+_E2E$')]
+    [string]$EnvironmentPrefix = 'DOC32_E2E'
 )
 
 $ErrorActionPreference = 'Stop'
 $stage = 'input'
 
 try {
-    $dsn = [Environment]::GetEnvironmentVariable('DOC32_E2E_ODBC_DSN')
-    $user = [Environment]::GetEnvironmentVariable('DOC32_E2E_MYSQL_USER')
-    $password = [Environment]::GetEnvironmentVariable('DOC32_E2E_MYSQL_PASSWORD')
+    $dsn = [Environment]::GetEnvironmentVariable(('{0}_ODBC_DSN' -f $EnvironmentPrefix))
+    $user = [Environment]::GetEnvironmentVariable(('{0}_MYSQL_USER' -f $EnvironmentPrefix))
+    $password = [Environment]::GetEnvironmentVariable(('{0}_MYSQL_PASSWORD' -f $EnvironmentPrefix))
     if ([string]::IsNullOrWhiteSpace($dsn) -or [string]::IsNullOrWhiteSpace($user) -or [string]::IsNullOrWhiteSpace($password)) { throw 'missing-input' }
     if ($dsn -notmatch '^[A-Za-z0-9 _.-]+$' -or $Sql -notmatch '^\s*SELECT\b' -or $Sql -match ';|\b(?:INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO)\b' -or ([regex]::Matches($Sql, '\?')).Count -ne 1) { throw 'invalid-input' }
 

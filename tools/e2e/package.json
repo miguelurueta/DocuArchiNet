@@ -27,6 +27,7 @@
     "test:doc32:concurrency": "node scripts/run-doc32-return-activity-interactive.cjs concurrency",
     "test:workflow:run": "node scripts/run-workflow-e2e.cjs",
     "test:workflow:runner": "node --test tests/workflow-e2e-orchestrator.test.cjs",
+    "test:doc33:policy": "node --test tests/doc33-return-activity-ui-policy.test.cjs",
     "test:notes:anonymous": "node scripts/run-notes-workflow-interactive.cjs anonymous",
     "test:notes:read": "node scripts/run-notes-workflow-interactive.cjs read",
     "test:notes:write": "node scripts/run-notes-workflow-interactive.cjs write",

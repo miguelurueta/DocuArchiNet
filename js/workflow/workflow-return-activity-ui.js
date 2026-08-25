@@ -211,13 +211,18 @@
         loadPreview(control, "", 1);
     }
     function closeModal(control) {
+        if (control.executionPending) {
+            setStatus(control, "ejecucion-pendiente", "La devolución está en curso. Espere la respuesta antes de cerrar.", "informacion");
+            return false;
+        }
         invalidateSelection(control); cancelRequest(control); control.isOpen = false; control.preview = null; control.cursorHistory = {};
         control.modal.hidden = true; control.modal.setAttribute("hidden", "hidden"); control.modal.setAttribute("aria-hidden", "true");
         document.body.classList.remove("workflow-transition-modal-open"); if (control.trigger && typeof control.trigger.focus === "function") { control.trigger.focus(); } setStatus(control, "cerrado", "", "informacion");
+        return true;
     }
     function createControl(trigger) {
         return {
-            trigger: trigger, modal: find("workflow-return-activity-modern-modal"), close: find("workflow-return-activity-modern-close"), search: find("workflow-return-activity-modern-search"), status: find("workflow-return-activity-modern-status"), context: find("workflow-return-activity-modern-context"), previous: find("workflow-return-activity-modern-previous"), next: find("workflow-return-activity-modern-next"), page: find("workflow-return-activity-modern-page"), tableBody: find("workflow-return-activity-modern-table-body"), cards: find("workflow-return-activity-modern-cards"), preview: null, cursorHistory: {}, abortController: null, searchTimer: null, isOpen: false
+            trigger: trigger, modal: find("workflow-return-activity-modern-modal"), close: find("workflow-return-activity-modern-close"), search: find("workflow-return-activity-modern-search"), status: find("workflow-return-activity-modern-status"), context: find("workflow-return-activity-modern-context"), previous: find("workflow-return-activity-modern-previous"), next: find("workflow-return-activity-modern-next"), page: find("workflow-return-activity-modern-page"), tableBody: find("workflow-return-activity-modern-table-body"), cards: find("workflow-return-activity-modern-cards"), preview: null, cursorHistory: {}, abortController: null, searchTimer: null, isOpen: false, executionPending: false
         };
     }
     function attach(control) {
@@ -249,7 +254,13 @@
     }
     function aplicarDevolucionExitosa(selection) {
         if (!activeControl || !activeControl.preview || !selection || activeControl.preview.idTarea !== asPositiveInteger(selection.idTarea) || activeControl.preview.tokenVersion !== asText(selection.tokenVersion)) { return false; }
+        activeControl.executionPending = false;
         closeModal(activeControl);
+        return true;
+    }
+    function establecerEjecucionPendiente(selection, pending) {
+        if (!activeControl || !activeControl.preview || !selection || activeControl.preview.idTarea !== asPositiveInteger(selection.idTarea) || activeControl.preview.tokenVersion !== asText(selection.tokenVersion)) { return false; }
+        activeControl.executionPending = pending === true;
         return true;
     }
 
@@ -258,6 +269,7 @@
     api.solicitarPrevisualizacion = solicitarPrevisualizacion;
     api.crearDetalleSeleccion = selectionDetail;
     api.aplicarDevolucionExitosa = aplicarDevolucionExitosa;
+    api.establecerEjecucionPendiente = establecerEjecucionPendiente;
     api.inicializar = inicializar;
     window.WorkflowReturnActivityUi = api;
 }(window, document));

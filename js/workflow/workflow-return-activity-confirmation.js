@@ -48,6 +48,22 @@
             return response.json();
         });
     }
+    function setExecutionPending(selection, pending) {
+        if (window.WorkflowReturnActivityUi && typeof window.WorkflowReturnActivityUi.establecerEjecucionPendiente === "function") {
+            return window.WorkflowReturnActivityUi.establecerEjecucionPendiente(selection, pending === true);
+        }
+        return false;
+    }
+    function executeWithLock(selection) {
+        setExecutionPending(selection, true);
+        return execute(selection, api.fetchImplementation).then(function (raw) {
+            setExecutionPending(selection, false);
+            return raw;
+        }, function (error) {
+            setExecutionPending(selection, false);
+            throw error;
+        });
+    }
     function openFromSelection(selection) {
         if (!validSelection(selection) || !window.ConfirmationDialog || typeof window.ConfirmationDialog.open !== "function") { return false; }
         window.ConfirmationDialog.open({
@@ -67,7 +83,7 @@
             ],
             confirmationNotice: "El servidor volverá a validar el destino, el token y la concurrencia antes de devolver la tarea.",
             executionContext: { idTarea: selection.idTarea, idConector: selection.idConector, tokenVersion: selection.tokenVersion },
-            execute: function () { return execute(selection, api.fetchImplementation); },
+            execute: function () { return executeWithLock(selection); },
             normalizeResult: normalizeResult,
             onSuccess: function (result) {
                 if (window.WorkflowReturnActivityUi && typeof window.WorkflowReturnActivityUi.aplicarDevolucionExitosa === "function") {
@@ -94,6 +110,7 @@
 
     api.openFromSelection = openFromSelection;
     api.execute = execute;
+    api.executeWithLock = executeWithLock;
     api.normalizeResult = normalizeResult;
     api.fetchImplementation = null;
     window.WorkflowReturnActivityConfirmation = api;

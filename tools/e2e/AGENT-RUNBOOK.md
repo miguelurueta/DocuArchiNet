@@ -1,4 +1,4 @@
-# Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32
+# Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33
 
 Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciales, modificar datos sin autorización ni reactivar la política legacy.
 
@@ -65,6 +65,9 @@ El resultado esperado es `Active=false` y listas vacías. Si difiere, detener la
 | DOC-32 preview | `npm.cmd --prefix tools/e2e run test:doc32:preview` | El comando solicita ambiente/cuenta autorizados, tarea descartable, MySQL solo lectura y presupuesto. | Estado y auditoría sin cambios; evidencia saneada. |
 | DOC-32 ejecución | `npm.cmd --prefix tools/e2e run test:doc32:execute` | El comando solicita autorización explícita, primera tarea descartable, MySQL solo lectura y presupuesto. | Ejecución E2E oficial: una devolución real desde conector/token del preview actual. |
 | DOC-32 concurrencia | `npm.cmd --prefix tools/e2e run test:doc32:concurrency` | El comando solicita autorizaciones explícitas, segunda tarea descartable, MySQL solo lectura y presupuesto. | Ejecución E2E oficial: dos solicitudes, una transición y un bloqueo seguro. |
+| DOC-33 preview UI | `test:workflow:run -- --doc doc33 --profile <perfil> --stages preview --authorize environment` | Ambiente/cuenta autorizados, tarea UI seleccionada y ODBC solo lectura. | El modal moderno representa el preview sin alterar estado ni auditoría. |
+| DOC-33 devolución UI | `test:workflow:run -- --doc doc33 --profile <perfil> --stages preview,execution --authorize environment,execution` | Autorización explícita, tarea descartable seleccionada y ODBC solo lectura. | Una devolución real iniciada por el modal moderno; valida estado, auditoría y actividad final. |
+| DOC-33 bloqueo UI | `test:workflow:run -- --doc doc33 --profile <perfil> --stages ui-lock --authorize environment,ui_lock` | Autorización explícita y una segunda tarea descartable seleccionada. | Retiene la respuesta de ejecución y bloquea cancelar, cerrar, Escape, modal y abandono hasta recibirla. |
 | Notas anónimo | `npm.cmd --prefix tools/e2e run test:notes:anonymous` | URL autorizada. | Validación contractual: contexto rechazado, sin notas ni información interna. |
 | Notas lectura | `npm.cmd --prefix tools/e2e run test:notes:read` | Ambiente/cuenta autorizados, tarea con nota visible y MySQL solo lectura. | Validación contractual: listado/consulta sin cambios de estado o auditoría. |
 | Notas escritura | `npm.cmd --prefix tools/e2e run test:notes:write` | Autorización explícita, tarea descartable y MySQL solo lectura. | Validación contractual: crear idempotente, editar/conflicto/eliminar. |
@@ -125,6 +128,32 @@ Una etapa mutante debe declarar un contrato de recurso registrado, no un comando
 La reserva `local` protege corridas en este espacio de trabajo. Para un recurso compartido entre equipos se requiere un coordinador compartido registrado; si falta, la corrida falla cerrada. No implemente restauraciones de datos de negocio en el núcleo: un adaptador puede declarar una restauración segura y autorizada, o el responsable prepara otro recurso. Para registrar un escenario no Workflow, añada su adaptador y pruebas de política; no herede tareas, actividades ni consultas DOC-32.
 
 `DOC32_E2E_TASK_STATE_SQL` y `DOC32_E2E_AUDIT_SQL` deben ser cada una una sola sentencia `SELECT` con exactamente un parámetro `?`. La cuenta MySQL es solo de lectura. La consulta de auditoría debe apuntar al registro adicional `ASMX_DEVOLVER_ACTIVIDAD`; no sustituirlo por el log histórico del motor.
+
+## DOC-33 — Devolución por interfaz moderna y bloqueo de respuesta
+
+DOC-33 reutiliza la sesión autenticada y el ODBC de solo lectura de DOC-32, pero opera el modal oficial de **Elegir actividad anterior**. No agrega login, cookies, `.env`, URL de conexión ni atajos de backend. El perfil contiene solo configuración no sensible y declara dos tareas distintas: una para la devolución UI y otra exclusivamente para el escenario de bloqueo.
+
+Para derivar un perfil DOC-33 desde un perfil **JSON no sensible** DOC-32 existente sin copiar secretos, cree una vez el archivo persistente y editable:
+
+```powershell
+node tools/e2e/scripts/create-doc33-workflow-ui-profile.cjs --source C:\cert\doc32-e2e.profile.json --destination C:\cert\doc33-e2e-852.profile.json --execution-task 852 --lock-task 843
+```
+
+El archivo fuente debe seguir `profiles/workflow-e2e.profile.example.json` y no puede contener cuentas ni contraseñas. Un archivo heredado `clave=valor` con credenciales no es un perfil E2E y se rechaza antes de abrir el navegador. La primera tarea queda como `uiExecutionTaskId=852`. La segunda es una reserva para una futura E2E de bloqueo y debe reemplazarse por una tarea descartable diferente, preparada y seleccionada por la cuenta autorizada. No ejecute ambas etapas sobre la misma tarea ni use una tarea ya devuelta.
+
+Después de autorización explícita del ambiente, la cuenta y la tarea 852, la devolución UI se inicia con una sola corrida:
+
+```powershell
+npm.cmd --prefix tools/e2e run test:workflow:run -- --doc doc33 --profile C:\cert\doc33-e2e-852.profile.json --stages preview,execution --authorize environment,execution
+```
+
+La etapa `ui-lock` se ejecuta únicamente después de preparar la segunda tarea declarada y de obtener autorización explícita para ella:
+
+```powershell
+npm.cmd --prefix tools/e2e run test:workflow:run -- --doc doc33 --profile C:\cert\doc33-e2e-852.profile.json --stages ui-lock --authorize environment,ui_lock
+```
+
+La prueba intercepta la respuesta **después** de enviar el único POST al servidor. Desde el navegador, esto reproduce una ejecución cuya respuesta sigue pendiente: la confirmación, el fondo, Escape, el cierre API, el cierre del modal y `beforeunload` deben permanecer bloqueados. Al liberar la respuesta, verifica una transición, estado/auditoría y actividad final por ODBC. La evidencia conserva solo conteos, banderas, códigos funcionales, latencias y huellas; no destinos, actividades, tokens, cuerpos, cookies ni credenciales.
 
 Primero, el preview real no mutante:
 

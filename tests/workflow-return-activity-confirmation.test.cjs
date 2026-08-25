@@ -15,7 +15,14 @@ function loadConfirmation() {
     const window = {
         addEventListener(name, callback) { listeners.set(name, callback); },
         ConfirmationDialog: { open(config) { window.opened = config; }, close() { window.closed = true; } },
-        WorkflowReturnActivityUi: { aplicarDevolucionExitosa(detail) { window.returnActivityUi = detail; } },
+        WorkflowReturnActivityUi: {
+            aplicarDevolucionExitosa(detail) { window.returnActivityUi = detail; },
+            establecerEjecucionPendiente(detail, pending) {
+                window.executionPending = window.executionPending || [];
+                window.executionPending.push({ detail, pending });
+                return true;
+            }
+        },
         WorkflowTransitionPagePresentation: { applySuccess(detail, options) { window.presentation = { detail, options }; } }
     };
     vm.runInNewContext(source, { window, Promise, JSON, Array, Object, Number, String, Error, isFinite });
@@ -38,6 +45,10 @@ test("confirma y ejecuta solo tarea, conector y token", async () => {
     assert.deepEqual(JSON.parse(call.options.body), { idTarea: 843, idConector: 7, tokenVersion: "v-843" });
     assert.equal(result.status, "success");
     assert.deepEqual(JSON.parse(JSON.stringify(window.returnActivityUi)), selection());
+    assert.deepEqual(JSON.parse(JSON.stringify(window.executionPending)), [
+        { detail: selection(), pending: true },
+        { detail: selection(), pending: false }
+    ]);
     assert.deepEqual(JSON.parse(JSON.stringify(window.presentation.detail)), { idTarea: 843 });
     assert.equal(window.presentation.options.successElementId, "workflow-return-activity-success-message");
     assert.equal(window.closed, true);
@@ -57,6 +68,8 @@ test("permanece aislada de otras transiciones y usa el bloqueo compartido de dob
     assert.match(source, /workflow:return-activity-selected/);
     assert.match(source, /workflow:return-activity-invalidated/);
     assert.match(source, /ConfirmationDialog/);
+    assert.match(source, /executeWithLock/);
+    assert.match(source, /establecerEjecucionPendiente/);
     assert.doesNotMatch(source, /WorkflowUserSend|WorkflowTransitionUi|PreviewEnviar|EjecutarEnvio|Activa_devolver_actividades_anteriores/);
     assert.match(dialog, /if \(!context \|\| context\.sending\) \{\s*return;/);
     assert.match(dialog, /context\.sending = true/);

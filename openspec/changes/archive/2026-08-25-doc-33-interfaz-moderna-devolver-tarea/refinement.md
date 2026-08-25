@@ -28,7 +28,8 @@ DOC-32 ya entrega `PreviewDevolverActividad` y `EjecutarDevolverActividad`. DOC-
 | D-04 | Ejecutar únicamente tarea, `IdConector` y token provenientes del preview vigente mediante confirmación accesible y estado de envío exclusivo. | `EjecutarDevolverActividad` y `ConfirmationDialog.js`. | D-04 | RQ-03 | Origen: D-04, RQ-03 |
 | D-05 | Tras éxito, actualizar solo la tarea afectada con `WorkflowTransitionPagePresentation`; bloqueo, error, timeout o cancelación no inician otra transición ni alteran otras acciones. | `workflow-transition-page-presentation.js` y resultados públicos DOC-32. | D-05 | RQ-04 | Origen: D-05, RQ-04 |
 | D-06 | Retirar el enlace, botón, handler y listener de postback legacy de actividad anterior; preservar de forma comprobable Usuario anterior, Continuar flujo, Enviar a usuario y Enviar a grupo. | `inicializa_tipo_adjunto_documento`, `Button_tool_devolver_a_actividades_anterior_Click` y el callback de `Webworkflow.aspx`. | D-06 | RQ-05 | Origen: D-06, RQ-05 |
-| D-07 | Cubrir bootstrap, aislamiento, búsqueda, paginación, respuesta obsoleta, selección, accesibilidad, ejecución y presentación con CJS; compilar y documentar sin ejecutar E2E autenticada. | `tests/workflow-user-send-*.test.cjs`, `tests/workflow-return-activity.test.cjs` y paquete técnico DOC-32. | D-07 | RQ-06 | Origen: D-07, RQ-06 |
+| D-07 | Cubrir bootstrap, aislamiento, búsqueda, paginación, respuesta obsoleta, selección, accesibilidad, ejecución y presentación con CJS; compilar y documentar. La E2E autenticada solo se ejecuta con autorización expresa. | `tests/workflow-user-send-*.test.cjs`, `tests/workflow-return-activity.test.cjs` y paquete técnico DOC-32. | D-07 | RQ-06 | Origen: D-07, RQ-06 |
+| D-08 | Verificar en E2E de interfaz que una respuesta de ejecución retenida conserva bloqueados la confirmación y los cierres de la devolución hasta que el backend responde. | `ConfirmationDialog.js`, módulos DOC-33 y patrón de retención controlada de `doc29-user-send-ui-lock.spec.cjs`. | D-08 | RQ-07 | Origen: D-08, RQ-07 |
 
 ## Requisitos verificables
 
@@ -40,6 +41,7 @@ DOC-32 ya entrega `PreviewDevolverActividad` y `EjecutarDevolverActividad`. DOC-
 | RQ-04 | Éxito retira/actualiza la tarea puntual, contador, visor y scroll; los estados no exitosos conservan la bandeja. | WHEN el resultado es éxito, bloqueo, error, timeout o cancelación THEN el foco y mensajes quedan accesibles y correlacionados. | No modifica estado de otras operaciones. |
 | RQ-05 | No queda ruta Web Forms alcanzable desde la acción moderna. | WHEN se inspecciona el markup, code-behind y scripts THEN no hay `D-TASK-ANT`, botón, handler ni listener legacy de actividad anterior. | Se prueba que las demás rutas conservan sus contratos. |
 | RQ-06 | Existe evidencia reproducible de UI, compilación y documentación; no se ejecuta E2E real sin autorización. | WHEN corren pruebas focales y MSBuild THEN cubren los contratos nuevos y registran la limitación de QA. | No se cambia ambiente ni se persisten secretos. |
+| RQ-07 | Durante una ejecución cuya respuesta de backend sigue en espera no se puede cancelar, cerrar la confirmación, cerrar el modal de devolución, usar Escape ni abandonar la página. | WHEN la E2E retiene la respuesta después de que el servidor recibe la solicitud THEN todos los cierres permanecen bloqueados hasta liberar el resultado. | La retención solo existe en la prueba; no altera el contrato ni la autoridad del servidor. |
 
 ## Resultado del refinamiento
 

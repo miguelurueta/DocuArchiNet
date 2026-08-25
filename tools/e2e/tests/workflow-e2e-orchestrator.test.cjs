@@ -10,11 +10,13 @@ const {
   executeSequence,
   loadProfile,
   parseArguments,
+  doc33PlaywrightCommand,
   playwrightCommand,
   selectedStages,
   validateAuthorizations,
   validateProfile
 } = require('../scripts/support/workflow-e2e-orchestrator.cjs');
+const { createDoc33Profile, parseArguments: parseDoc33ProfileArguments } = require('../scripts/create-doc33-workflow-ui-profile.cjs');
 const { assertDsn, finalActivityMatches, safeFailureMessage } = require('../scripts/support/doc32-e2e-odbc.cjs');
 const orchestratorSource = require('node:fs').readFileSync(path.join(__dirname, '..', 'scripts', 'support', 'workflow-e2e-orchestrator.cjs'), 'utf8');
 
@@ -37,6 +39,29 @@ function profile() {
     previewMaxMs: 10000,
     executionMaxMs: 15000,
     concurrencyMaxMs: 15000
+  };
+}
+
+function doc33Profile() {
+  return {
+    doc: 'doc33',
+    environment: 'CERTIFICACION',
+    baseUrl: 'https://workflow.example.invalid/app/',
+    ignoreHttpsErrors: false,
+    module: 'GESTOR',
+    odbcDsn: 'workflowconta',
+    uiExecutionTaskId: 100002,
+    previewActivityNames: ['Actividad de prueba', 'Otra actividad de prueba'],
+    uiExecutionActivityName: 'Actividad de prueba',
+    uiExecutionFinalActivityName: 'Actividad final de prueba',
+    uiLockTaskId: 100001,
+    uiLockActivityName: 'Actividad de prueba',
+    uiLockFinalActivityName: 'Actividad final de prueba',
+    taskStateSql: 'SELECT estado FROM tarea WHERE id_tarea = ?',
+    auditSql: 'SELECT total FROM auditoria_doc33 WHERE id_tarea = ?',
+    previewMaxMs: 10000,
+    uiExecutionMaxMs: 15000,
+    uiLockMaxMs: 180000
   };
 }
 
@@ -63,6 +88,33 @@ test('el perfil controla de forma explícita la excepción TLS no sensible', () 
   assert.equal(DOC_REGISTRY.doc32.environment(profile(), {}, authorizations).DOC32_E2E_EXECUTION_FINAL_ACTIVITY_NAME, 'Actividad final de prueba');
   assert.equal(DOC_REGISTRY.doc32.environment(profile(), {}, authorizations).DOC32_E2E_CONCURRENCY_ACTIVITY_NAME, 'Otra actividad de prueba');
   assert.deepEqual(JSON.parse(DOC_REGISTRY.doc32.environment(profile(), {}, authorizations).DOC32_E2E_PREVIEW_ACTIVITY_NAMES), ['Actividad de prueba', 'Otra actividad de prueba']);
+});
+
+test('el perfil DOC-33 mantiene ejecución UI y bloqueo UI en tareas distintas', async () => {
+  const definition = validateProfile(doc33Profile(), 'doc33');
+  const templatePath = path.join(__dirname, '..', 'profiles', 'doc33-workflow-ui.profile.example.json');
+  const template = JSON.parse(await fs.readFile(templatePath, 'utf8'));
+  assert.equal(definition, DOC_REGISTRY.doc33);
+  assert.equal(definition.resourceContract.id, 'doc33-workflow-ui-task');
+  assert.equal(definition.stages.find((stage) => stage.id === 'execution').resourceRole, 'execution');
+  assert.equal(definition.stages.find((stage) => stage.id === 'ui-lock').resourceRole, 'ui-lock');
+  assert.notEqual(doc33Profile().uiExecutionTaskId, doc33Profile().uiLockTaskId);
+  assert.equal(validateProfile(template, 'doc33').resourceContract.id, 'doc33-workflow-ui-task');
+  assert.throws(() => validateProfile({ ...doc33Profile(), uiLockTaskId: 100002 }, 'doc33'), /deben ser distintas/);
+  assert.throws(() => validateProfile({ ...doc33Profile(), uiLockActivityName: ' ' }, 'doc33'), /nombre no sensible de una actividad/);
+});
+
+test('el creador DOC-33 migra solo el perfil DOC-32 no sensible y exige dos tareas', () => {
+  const migrated = createDoc33Profile(profile(), 100002, 100001);
+  const migratedWithObservedFinalActivity = createDoc33Profile(profile(), 100002, 100001, 'Actividad final observada');
+  assert.equal(migrated.doc, 'doc33');
+  assert.equal(migrated.uiExecutionTaskId, 100002);
+  assert.equal(migrated.uiLockTaskId, 100001);
+  assert.equal(migrated.uiExecutionActivityName, profile().concurrencyActivityName);
+  assert.equal(migrated.uiLockActivityName, profile().executionActivityName);
+  assert.equal(migratedWithObservedFinalActivity.uiExecutionFinalActivityName, 'Actividad final observada');
+  assert.throws(() => parseDoc33ProfileArguments(['--source', 'source.json', '--destination', 'target.json', '--execution-task', '100002', '--lock-task', '100002']), /deben ser distintas/);
+  assert.throws(() => createDoc33Profile(profile(), 100002, 100001, ' '), /nombre no sensible de actividad/);
 });
 
 test('la plantilla DOC-32 enlaza recursos de ejecución y concurrencia distintos mediante el contrato registrado', async () => {
@@ -117,6 +169,9 @@ test('las etapas Playwright invocan el CLI JavaScript con Node, no el shim .cmd'
   assert.match(launch.args[0], /node_modules[\\/]@playwright[\\/]test[\\/]cli\.js$/);
   assert.deepEqual(launch.args.slice(1), ['test', 'tests/doc32-return-activity.spec.cjs', '--grep', '@doc32-preview', '--reporter=list']);
   assert.match(orchestratorSource, /nonInteractiveChild:\s*true/);
+  const doc33Launch = doc33PlaywrightCommand('lock');
+  assert.equal(doc33Launch.command, process.execPath);
+  assert.deepEqual(doc33Launch.args.slice(1), ['test', 'tests/doc33-return-activity-ui.spec.cjs', '--grep', '@doc33-ui-lock', '--reporter=list']);
 });
 
 test('el destino DOC-32 solo acepta un DSN ODBC no sensible', () => {
@@ -206,4 +261,27 @@ test('una corrida parcial no inicia la concurrencia no solicitada', async () => 
     }
   });
   assert.deepEqual(events, ['preview', 'execution']);
+});
+
+test('una corrida DOC-33 puede separar ejecución UI y bloqueo UI', async () => {
+  const definition = validateProfile(doc33Profile(), 'doc33');
+  const events = [];
+  await executeSequence({
+    definition,
+    profile: doc33Profile(),
+    authorizations: new Set(['environment', 'execution']),
+    stages: selectedStages(definition, ['preview', 'execution']),
+    assertIntegrity: async () => {},
+    collectSecrets: async () => ({}),
+    stageRunner: async (stage, environment) => {
+      events.push(stage.id);
+      assert.equal(environment.DOC33_E2E_UI_EXECUTION_TASK_ID, '100002');
+      assert.equal(environment.DOC33_E2E_UI_LOCK_TASK_ID, '100001');
+      assert.equal(environment.DOC33_E2E_EXECUTION_AUTHORIZED, 'true');
+      assert.equal(environment.DOC33_E2E_UI_LOCK_AUTHORIZED, 'false');
+      return { code: 0 };
+    }
+  });
+  assert.deepEqual(events, ['preview', 'execution']);
+  validateAuthorizations(selectedStages(definition, ['ui-lock']), new Set(['environment', 'ui_lock']));
 });

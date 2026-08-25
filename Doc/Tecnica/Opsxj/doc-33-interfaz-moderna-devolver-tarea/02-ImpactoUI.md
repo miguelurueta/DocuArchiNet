@@ -12,4 +12,4 @@
 
 ## Validacion visual
 
-La validación local cubre declarativamente selectores, ARIA, teclado, responsive y aislamiento. El recorrido visual autenticado queda pendiente de una autorización de ambiente y cuentas separada; no se ejecutó ni se supone aprobado por esta entrega.
+La validación local cubre declarativamente selectores, ARIA, teclado, responsive y aislamiento. El recorrido visual autenticado autorizado completó preview no mutante, devolución UI y bloqueo mientras la respuesta permanece pendiente. Las futuras corridas requieren autorización independiente de ambiente, cuenta y tareas descartables.
