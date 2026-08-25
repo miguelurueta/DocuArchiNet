@@ -5,7 +5,27 @@ Imports MySql.Data.MySqlClient
 
 'Registra la trazabilidad adicional usando el log existente de Workflow.
 Public Class WorkflowLegacyAuditoriaAdapter
-    Implements IAuditoriaTransicionRepository
+    Implements IAuditoriaTransicionRepository, IDevolverActividadAuditoriaRepository
+
+    Public Function Registrar(ByVal auditoria As AuditoriaDevolverActividad) As Boolean Implements IDevolverActividadAuditoriaRepository.Registrar
+        If auditoria Is Nothing Then Return False
+        Return Registrar(New AuditoriaTransicion With {
+            .IdTarea = auditoria.IdTarea,
+            .IdUsuarioWorkflow = auditoria.IdUsuarioWorkflow,
+            .IdRutaWorkflow = auditoria.IdRuta,
+            .IdFlujoTrabajo = auditoria.IdFlujoTrabajo,
+            .IdActividadOrigen = auditoria.IdActividadOrigen,
+            .IdActividadDestino = auditoria.IdActividadDestino,
+            .IdConector = auditoria.IdConector,
+            .Canal = "MODERNO",
+            .Mecanismo = "ASMX_DEVOLVER_ACTIVIDAD",
+            .FechaUtc = auditoria.FechaUtc,
+            .DuracionMilisegundos = auditoria.DuracionMilisegundos,
+            .Resultado = auditoria.Resultado,
+            .CodigoFuncional = auditoria.CodigoFuncional,
+            .Referencia = auditoria.Referencia
+        })
+    End Function
 
     Public Function Registrar(ByVal auditoria As AuditoriaTransicion) As Boolean Implements IAuditoriaTransicionRepository.Registrar
         If auditoria Is Nothing OrElse auditoria.IdUsuarioWorkflow <= 0 OrElse auditoria.IdTarea <= 0 Then
@@ -75,7 +95,8 @@ Public Class WorkflowLegacyAuditoriaAdapter
 
     Private Shared Function NormalizarMecanismo(ByVal mecanismo As String) As String
         Dim valor As String = If(mecanismo, String.Empty).Trim().ToUpperInvariant()
-        If valor = "ASMX_MODERNO" OrElse valor = "ASMX_ENVIO_GRUPO" OrElse valor = "ASMX_ENVIO_USUARIO" Then
+        If valor = "ASMX_MODERNO" OrElse valor = "ASMX_ENVIO_GRUPO" OrElse valor = "ASMX_ENVIO_USUARIO" OrElse
+           valor = "ASMX_DEVOLVER_ACTIVIDAD" Then
             Return valor
         End If
         Return "ASMX_DESCONOCIDO"

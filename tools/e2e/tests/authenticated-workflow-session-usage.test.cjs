@@ -10,7 +10,9 @@ const consumers = [
   'tests/doc10-preview.spec.cjs',
   'tests/doc11-execution.spec.cjs',
   'scripts/run-doc10-concurrency.cjs',
-  'scripts/run-doc11-concurrency.cjs'
+  'scripts/run-doc11-concurrency.cjs',
+  'tests/doc32-return-activity.spec.cjs',
+  'scripts/run-doc32-return-activity-concurrency.cjs'
 ];
 const loginSelectors = /ContentPlacenter_(?:DropDownListmodulos|TextBoxuser|TextBoxpasw)|a\.da-login-submit/;
 

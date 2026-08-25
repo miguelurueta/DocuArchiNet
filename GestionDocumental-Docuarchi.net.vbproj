@@ -9799,6 +9799,7 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="DTOs\Workflow\Terminar\TransicionWorkflowDtos.vb" />
+    <Compile Include="DTOs\Workflow\Devolver\DevolverActividadDtos.vb" />
     <Compile Include="Services\Workflow\Terminar\ServicioTransicionTarea.vb" />
     <Compile Include="Services\Workflow\Terminar\ValidadorTransicionTarea.vb" />
     <Compile Include="Services\Workflow\Terminar\ServicioEnvioGrupoTarea.vb" />
@@ -9807,6 +9808,13 @@
     <Compile Include="Services\Workflow\Terminar\ValidadorEnvioUsuarioTarea.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernModels.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernInterfaces.vb" />
+    <Compile Include="Modelo\Workflow\Devolver\DevolverActividadModels.vb" />
+    <Compile Include="Modelo\Workflow\Devolver\DevolverActividadInterfaces.vb" />
+    <Compile Include="Infrastructure\Repositories\Workflow\MySqlDevolverActividadRepository.vb" />
+    <Compile Include="Infrastructure\Workflow\Devolver\DevolverActividadCursorCodec.vb" />
+    <Compile Include="Services\Workflow\Devolver\ServicioDevolverActividad.vb" />
+    <Compile Include="Infrastructure\Workflow\Devolver\MySqlDevolverActividadConcurrencyGuard.vb" />
+    <Compile Include="Infrastructure\Workflow\Devolver\WorkflowLegacyDevolverActividadExecutorAdapter.vb" />
     <Compile Include="Domain\Shared\ContextoModulo.vb" />
     <Compile Include="Infrastructure\Shared\Data\ModuleDataContracts.vb" />
     <Compile Include="Infrastructure\Shared\Data\ModuleConnectionFactory.vb" />

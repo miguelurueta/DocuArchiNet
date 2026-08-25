@@ -1,3 +1,4 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08 -->
 ## Context
 
 DOC-32: BACKEND-ACTIVIDAD-ANTERIOR
@@ -92,3 +93,37 @@ DOC-32: BACKEND-ACTIVIDAD-ANTERIOR
 ## Open Questions
 
 - TBD
+
+## Diseño refinado
+
+### D-01 — Capacidad aislada de devolución
+
+Se crearán modelos, DTOs, puertos, validador, servicio, repositorios, guard y adaptador bajo una capacidad `Devolver`. Los contratos existentes de `Terminar` y de Enviar a usuario/grupo no se reutilizan ni se modifican. El ASMX moderno añade dos métodos y solo compone la capacidad nueva.
+
+### D-02 — Autorización e identidad contextual
+
+El endpoint obtiene el contexto autenticado con sesión habilitada y calcula el permiso específico de devolver en el servidor. La tarea determina el tipo: en Ruta, `IdConector` es exclusivamente `actividades_disponibles_envio.id_actividades_disponibles_envio`; en Flujo, es exclusivamente el registro de conector entrante del Flujo. Cada repositorio consulta y valida solo su semántica.
+
+### D-03 — Preview de solo lectura y cursor ligado
+
+El servicio construye primero el universo autorizado y solo después aplica el término mínimo, límite máximo, orden determinista y paginación. El cursor se protege y contiene identidad de tarea, usuario/contexto, tipo, término normalizado, orden y la última clave; un cursor ajeno se trata como bloqueo funcional. Las consultas de preview usan únicamente SELECT parametrizados.
+
+### D-04 — Ejecución exclusiva por tarea
+
+La capacidad usa un guard nuevo que adquiere `GET_LOCK` con un nombre derivado solo de `IdTarea`. Dentro del lease vuelve a evaluar permiso, contexto, tarea activa, token, tipo Ruta/Flujo y conector entrante antes de invocar el adaptador. El guard actual permanece sin cambios porque su identidad contiene token.
+
+### D-05 — Adaptador único con efectos legacy preservados
+
+`WorkflowLegacyDevolverActividadExecutorAdapter` será el único componente nuevo que llame `ClassWorkflow.Terminar_Tarea_Workflow`. Su llamada usa `Page = Nothing`, desactiva actualización de interfaz y reasignaciones, conserva eventos dinámicos y conserva la notificación de asignación a partir del destino reconstruido. No llama `Activa_devolver_actividades_anteriores`, `Enviar_actividad_por_conector_flujo_de_trabajo_anterior`, postbacks ni controles.
+
+### D-06 — Resultado y auditoría sanitizados
+
+El servicio devuelve códigos funcionales, mensaje visible, estado, advertencias, token y referencia de auditoría sin serializar excepciones ni datos técnicos. La auditoría utiliza `ASMX_DEVOLVER_ACTIVIDAD`; si falla después de una transición exitosa, añade una advertencia y no intenta revertir el motor.
+
+### D-07 — Compatibilidad y evidencia
+
+No se implementa UI, feature flag ni configuración de ambiente. Las pruebas estáticas y focales verifican ausencia de dependencias de respuestas, no escritura en preview, semánticas Ruta/Flujo, concurrencia y la no modificación de contratos existentes. La documentación técnica describe el relevo al ticket 02 y la evidencia E2E protegida.
+
+### D-08 — E2E real protegida, concurrencia y rendimiento acotado
+
+DOC-32 incorpora una suite E2E propia que reutiliza exclusivamente `tools/e2e/tests/support/authenticated-workflow-session.cjs` para iniciar sesión. La suite recibe secretos efímeros por entorno, usa una cuenta MySQL de solo lectura para dos controles `SELECT` con un parámetro `?`, y nunca escribe configuración ni datos directamente. La ejecución real requiere una tarea descartable y autorización explícita; la carrera usa exactamente dos solicitudes sobre una tarea descartable distinta, comprueba una sola transición, un bloqueo seguro y registra las latencias observadas. Los presupuestos máximos de latencia se declaran por ambiente y bloquean la corrida cuando no están presentes o se exceden.

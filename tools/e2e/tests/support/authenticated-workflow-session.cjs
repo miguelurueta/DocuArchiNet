@@ -23,7 +23,7 @@ function normalizeBaseUrl(baseUrl) {
   }
 
   try {
-    return new URL(baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`).toString();
+    return new URL(baseUrl).toString();
   } catch {
     throw new Error('La URL base de la sesión E2E debe ser absoluta y válida.');
   }
@@ -56,6 +56,25 @@ async function closeQuietly(resource) {
   }
 }
 
+function sessionFailureMessage(stage) {
+  switch (stage) {
+    case 'navigate':
+      return 'No fue posible abrir la página de inicio de sesión E2E autorizada.';
+    case 'module-control':
+      return 'El navegador no encontró el selector de módulo del inicio de sesión E2E.';
+    case 'module-option':
+      return 'El selector de módulo no contiene el valor configurado para el inicio de sesión E2E.';
+    case 'credentials':
+      return 'No fue posible preparar el formulario de inicio de sesión E2E.';
+    case 'postback':
+      return 'El inicio de sesión E2E no recibió el postback esperado.';
+    case 'load':
+      return 'El inicio de sesión E2E no completó la carga posterior al postback.';
+    default:
+      return 'No fue posible iniciar la sesión E2E autenticada.';
+  }
+}
+
 /**
  * Crea un BrowserContext autenticado mediante el formulario Web Forms de Gestión.
  * El llamador es responsable de cerrar el contexto retornado.
@@ -76,21 +95,34 @@ async function createAuthenticatedWorkflowSession(browser, options) {
 
   let context;
   let page;
+  let stage = 'context';
   try {
-    context = await browser.newContext({ ignoreHTTPSErrors: configuration.ignoreHTTPSErrors === true });
+    // La sonda pública y la configuración normal de Playwright crean el
+    // contexto sin opciones. Solo se añade esta opción cuando el ambiente la
+    // autoriza expresamente, para no alterar el transporte predeterminado.
+    context = configuration.ignoreHTTPSErrors === true
+      ? await browser.newContext({ ignoreHTTPSErrors: true })
+      : await browser.newContext();
     page = await context.newPage();
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout });
-    await page.locator(LOGIN_SELECTORS.module).selectOption({ value: moduleValue });
+    stage = 'navigate';
+    await page.goto(url, { waitUntil: 'commit', timeout });
+    stage = 'module-control';
+    const moduleControl = page.locator(LOGIN_SELECTORS.module);
+    await moduleControl.waitFor({ state: 'attached', timeout });
+    stage = 'module-option';
+    await moduleControl.selectOption({ value: moduleValue });
+    if (configuration.preflightOnly === true) return context;
+    stage = 'credentials';
     await page.locator(LOGIN_SELECTORS.user).fill(user);
     await page.locator(LOGIN_SELECTORS.password).fill(password);
+    stage = 'postback';
     const postback = page.waitForResponse(loginPostbackFor(url), { timeout });
     await page.locator(LOGIN_SELECTORS.submit).click();
     await postback;
-    await page.waitForLoadState('domcontentloaded');
     return context;
-  } catch {
+  } catch (error) {
     await closeQuietly(context);
-    throw new Error('No fue posible iniciar la sesión E2E autenticada.');
+    throw new Error(sessionFailureMessage(stage));
   } finally {
     await closeQuietly(page);
   }
@@ -98,5 +130,6 @@ async function createAuthenticatedWorkflowSession(browser, options) {
 
 module.exports = {
   LOGIN_SELECTORS,
-  createAuthenticatedWorkflowSession
+  createAuthenticatedWorkflowSession,
+  sessionFailureMessage
 };
