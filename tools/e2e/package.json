@@ -26,7 +26,11 @@
     "test:doc32:execute": "node scripts/run-doc32-return-activity-interactive.cjs execute",
     "test:doc32:concurrency": "node scripts/run-doc32-return-activity-interactive.cjs concurrency",
     "test:workflow:run": "node scripts/run-workflow-e2e.cjs",
-    "test:workflow:runner": "node --test tests/workflow-e2e-orchestrator.test.cjs"
+    "test:workflow:runner": "node --test tests/workflow-e2e-orchestrator.test.cjs",
+    "test:notes:anonymous": "node scripts/run-notes-workflow-interactive.cjs anonymous",
+    "test:notes:read": "node scripts/run-notes-workflow-interactive.cjs read",
+    "test:notes:write": "node scripts/run-notes-workflow-interactive.cjs write",
+    "test:notes:concurrency": "node scripts/run-notes-workflow-interactive.cjs concurrency"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

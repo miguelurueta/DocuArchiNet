@@ -32,10 +32,14 @@ Generated_Code/
 
 # Artefactos locales de Playwright: pueden incluir cookies de sesión o trazas.
 /tools/e2e/artifacts/
+/tools/e2e/scripts/artifacts/
 /tools/e2e/node_modules/
 /tools/e2e/.env
 /tools/e2e/.env.*
 /tools/opsxj/node_modules/
+
+# Worktrees auxiliares locales: se administran con `git worktree` y no se versionan.
+/.worktrees/
 
 # Bitacora local append-only del flujo OPSXJ; no se versiona ni contiene secretos.
 /.opsxj/runs/
