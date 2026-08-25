@@ -1,9 +1,10 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05 -->
+# liberacion-devolver-tarea-actividad Specification
+
 ## Purpose
 
 Define la decisión, controles y límites para una liberación futura y autorizada de Devolver a actividad anterior, sin convertir la evidencia técnica en un despliegue implícito.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Decisión de liberación única (D-01)
 
