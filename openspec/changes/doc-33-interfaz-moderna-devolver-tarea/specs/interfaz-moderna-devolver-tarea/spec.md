@@ -1,70 +1,48 @@
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07 -->
+<!-- Decisiones aplicadas: D-01, D-02, D-03, D-04, D-05, D-06 y D-07. -->
 ## ADDED Requirements
-### Requirement: INTERFAZ-MODERNA-DEVOLVER-TAREA
-El sistema SHALL implementar el alcance definido para DOC-33.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- # 02 — Interfaz moderna oficial
-- 
-- ## ROL ESPERADO
-- 
-- Actúa como desarrollador senior de ASP.NET Web Forms y JavaScript accesible.
-- 
-- ## OBJETIVO
-- 
-- Conectar **Devolver a actividad anterior** a los endpoints modernos, con búsqueda paginada, confirmación accesible y una única experiencia moderna para todo contexto Workflow válido.
-- 
-- ## CONTEXTO OBLIGATORIO
-- 
-- - Requiere 01 aprobado y endpoints de preview/ejecución disponibles.
-- - Leer `00-contexto-obligatorio.md`, `../Exploracion/`, evidencia de 01 y componentes modernos existentes.
-- - Habilita 03 únicamente si no comparte listeners, estado o payload con otras operaciones y no existe recorrido legacy alcanzable.
-- 
-- ## REQUISITOS POSITIVOS
-- 
-- - Registrar la presentación de esta operación por contexto Workflow válido, sin evaluar `WorkflowCentroTrabajoModernActive` ni cambiar la política de feature gate de otras operaciones modernas.
-- - Reemplazar el enlace legacy `D-TASK-ANT` por un trigger con selector y adaptador JavaScript exclusivos. No debe invocar `inicializa_tipo_adjunto_documento`, controles ocultos ni `Button_tool_devolver_a_actividades_anterior`.
-- - Desconectar o retirar el handler/postback legacy y cualquier listener que abra el modal Web Forms de actividades anteriores. Devolver a Usuario anterior conserva su propio trigger y ruta.
-- - Consumir `PreviewDevolverActividad` y `EjecutarDevolverActividad`; aplicar término mínimo, debounce, páginas, descarte de respuesta obsoleta e invalidación de selección antigua.
-- - Representar solo JSON autorizado, incluido `IdConector` contextual; la UI no deduce ni transforma una identidad de Ruta en una de Flujo.
-- - Reutilizar modal, foco, trampa de foco, teclado, Escape, ARIA, responsive, cancelación, doble clic y mensajes correlacionados.
-- - Mientras ejecuta, deshabilitar confirmación y cierre que pueda abandonar un resultado pendiente; aplicar política de timeout y recuperación documentada en la evidencia backend.
-- - Tras éxito, actualizar solo tarea afectada, visor, contador, listado y scroll horizontal mediante componentes modernos existentes.
-- 
-- ## RESTRICCIONES CRÍTICAS
-- 
-- - No crear framework, bundler, modal paralelo, banderas de habilitación ni autorización JavaScript.
-- - No usar postbacks, `GridView`, `UpdatePanel`, `ModalPopupExtender`, SQL, handlers Web Forms, campos ocultos ni endpoints/payloads/selectores de Continuar flujo, Enviar a usuario, Enviar a grupo o Usuario anterior.
-- - No incluir ni mostrar datos de respuestas.
-- -NO  ejecutar E2E autenticada sin autorización explícita de ambiente y cuentas de prueba.
-- 
-- ## REGLAS DE ANTIRREGRESIÓN
-- 
-- - La devolución y las demás operaciones no comparten selectores, eventos, estado ni requests.
-- - La sustitución de la ruta legacy afecta solo Devolver a actividad anterior; las demás operaciones conservan contratos y triggers.
-- 
-- ## CRITERIOS DE ACEPTACIÓN
-- 
-- - El modal representa solo JSON autorizado, nunca materializa la lista completa y no expone actividades o conectores de otro contexto.
-- - Búsqueda, paginación, vacío, error, cursor inválido, respuesta obsoleta, bloqueo, timeout y cancelación restauran estado sin iniciar una transición.
-- - No existe recorrido de postback o fallback Web Forms alcanzable desde el comando Devolver a actividad anterior.
-- - Éxito, bloqueo y error mantienen la bandeja en estado consistente, accesible y con foco/restauración de scroll definidos.
-- 
-- ## PRUEBAS OBLIGATORIAS
-- 
-- Agregar pruebas CJS de bootstrap sin feature gate, trigger exclusivo, ausencia de postback legacy, contratos Ruta/Flujo aislados, búsqueda, debounce, páginas, respuesta obsoleta, vacío, error, selección, éxito, bloqueo, timeout, cancelación, doble clic, teclado, foco, Escape, responsive y bloqueo durante ejecución. Ejecutar MSBuild y pruebas focales; registrar evidencia. No E2E sin autorización.
-- 
-- ## DOCUMENTACIÓN TÉCNICA
-- 
-- Actualizar arquitectura, contrato, flujo, evidencia y diagramas necesarios con registro de presentación, selectores, ruta sustituida, UI, accesibilidad y relevo a 03.
-- 
-- ## ENTREGABLE FINAL
-- 
-- Reportar ticket, archivos UI, pruebas, compilación y evidencia de ruta moderna única/no regresión. No cambiar configuración de ambiente ni realizar QA autenticada sin autorización.
+### Requirement: Presentación moderna exclusiva de devolución
+
+La página Workflow SHALL presentar **Elegir actividad anterior** mediante un trigger, modal y bootstrap exclusivos para todo contexto Workflow válido, sin evaluar `WorkflowCentroTrabajoModernActive` ni crear un gate nuevo. MUST NOT usar postback, controles ocultos, `UpdatePanel`, `ModalPopupExtender` ni los selectores, eventos o payloads de otras transiciones.
+
+#### Scenario: Apertura con tarea seleccionada
+
+- **WHEN** una persona activa el trigger moderno sobre una tarea válida
+- **THEN** abre el modal exclusivo sin invocar `inicializa_tipo_adjunto_documento` ni una ruta Web Forms.
+
+### Requirement: Preview paginado y aislado de actividades anteriores
+
+La interfaz SHALL solicitar `PreviewDevolverActividad` con tarea, término, cursor y tamaño permitidos. SHALL aplicar término mínimo, debounce, páginas, cancelación, descarte de respuesta obsoleta e invalidación de toda selección que deje de corresponder al preview vigente. SHALL mostrar solamente los campos autorizados, incluido `IdConector` como referencia opaca contextual.
+
+#### Scenario: Búsqueda o página reemplaza el preview vigente
+
+- **WHEN** cambia la tarea, búsqueda, cursor o página mientras hay una solicitud pendiente o una actividad seleccionada
+- **THEN** descarta el resultado anterior, invalida la selección y no permite ejecutar una transición con datos obsoletos.
+
+### Requirement: Confirmación accesible y ejecución mínima
+
+La interfaz SHALL confirmar la actividad elegida mediante el diálogo accesible existente y SHALL invocar `EjecutarDevolverActividad` solo con `idTarea`, `idConector` y `tokenVersion` procedentes del preview vigente. Mientras ejecuta SHALL impedir doble confirmación y cierre inseguro; los bloqueos, errores y timeout SHALL mantener un estado funcional para cancelar o reintentar sin fallback legacy.
+
+#### Scenario: Resultado de ejecución bloqueado
+
+- **WHEN** el servidor devuelve bloqueo de token, conector, concurrencia o autorización
+- **THEN** la interfaz no modifica la bandeja, no inicia otra ejecución y presenta el mensaje funcional asociado.
+
+### Requirement: Éxito puntual y accesible
+
+La interfaz SHALL actualizar únicamente la tarea afectada, visor, contador y scroll mediante la presentación moderna compartida después de un éxito. SHALL restaurar foco, teclado, Escape, cancelación, ARIA y diseño responsive; ningún estado no exitoso modificará otra tarea o acción Workflow.
+
+#### Scenario: Devolución confirmada
+
+- **WHEN** `EjecutarDevolverActividad` responde éxito
+- **THEN** cierra la confirmación, refleja el éxito correlacionado y actualiza solo la tarea que se devolvió.
+
+### Requirement: Retiro y aislamiento del recorrido legacy
+
+La acción moderna SHALL retirar el enlace `D-TASK-ANT`, el botón, handler y listener de postback de actividad anterior. SHALL preservar los triggers, contratos y recorridos de Usuario anterior, Continuar flujo, Enviar a usuario y Enviar a grupo.
+
+#### Scenario: Inspección de no regresión
+
+- **WHEN** se inspeccionan markup, code-behind y módulos de la acción modernizada
+- **THEN** no existe una ruta alcanzable de actividad anterior hacia `Activa_devolver_actividades_anteriores` y las otras transiciones conservan sus identificadores propios.

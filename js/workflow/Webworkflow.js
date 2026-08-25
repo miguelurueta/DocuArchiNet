@@ -1663,20 +1663,6 @@ function inicializa_tipo_adjunto_documento(event, element, value_sel) {
                 return false;
             }
         }
-        //Evento activa devolver a actividades anteriores
-        if (value_sel == "D-TASK-ANT") {
-            var confirmaActividadAnterior = confirm("Se abrirá la lista de actividades anteriores para elegir el destino de la devolución. ¿Desea continuar?");
-            if (confirmaActividadAnterior == true) {
-                actualiza_titulo_lista_actividades_workflow("Devolver tarea");
-                document.getElementById("Button_tool_devolver_a_actividades_anterior").click();
-            } else {
-                if (event && event.preventDefault) {
-                    event.preventDefault();
-                }
-                return false;
-            }
-        }
-        
         //Activa la ventana de enviar a pediente tarea 
         if (value_sel == "E-ETP") {
             show_windows_pendiente(1);

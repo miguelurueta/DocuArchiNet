@@ -1,90 +1,44 @@
-## Context
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07 -->
+## Contexto
 
-DOC-33: INTERFAZ-MODERNA-DEVOLVER-TAREA
+DOC-32 expone preview y ejecución de devolución con contexto servidor, validación Ruta/Flujo, cursor opaco, token y lock. La página aún deriva **Elegir actividad anterior** al postback `D-TASK-ANT`, botón oculto y handler Web Forms. DOC-33 elimina únicamente ese borde y conserva la página Web Forms como host de módulos JavaScript aislados.
 
-## Jira Details
+## Decisiones
 
-> # 02 — Interfaz moderna oficial
-> 
-> ## ROL ESPERADO
-> 
-> Actúa como desarrollador senior de ASP.NET Web Forms y JavaScript accesible.
-> 
-> ## OBJETIVO
-> 
-> Conectar **Devolver a actividad anterior** a los endpoints modernos, con búsqueda paginada, confirmación accesible y una única experiencia moderna para todo contexto Workflow válido.
-> 
-> ## CONTEXTO OBLIGATORIO
-> 
-> - Requiere 01 aprobado y endpoints de preview/ejecución disponibles.
-> - Leer `00-contexto-obligatorio.md`, `../Exploracion/`, evidencia de 01 y componentes modernos existentes.
-> - Habilita 03 únicamente si no comparte listeners, estado o payload con otras operaciones y no existe recorrido legacy alcanzable.
-> 
-> ## REQUISITOS POSITIVOS
-> 
-> - Registrar la presentación de esta operación por contexto Workflow válido, sin evaluar `WorkflowCentroTrabajoModernActive` ni cambiar la política de feature gate de otras operaciones modernas.
-> - Reemplazar el enlace legacy `D-TASK-ANT` por un trigger con selector y adaptador JavaScript exclusivos. No debe invocar `inicializa_tipo_adjunto_documento`, controles ocultos ni `Button_tool_devolver_a_actividades_anterior`.
-> - Desconectar o retirar el handler/postback legacy y cualquier listener que abra el modal Web Forms de actividades anteriores. Devolver a Usuario anterior conserva su propio trigger y ruta.
-> - Consumir `PreviewDevolverActividad` y `EjecutarDevolverActividad`; aplicar término mínimo, debounce, páginas, descarte de respuesta obsoleta e invalidación de selección antigua.
-> - Representar solo JSON autorizado, incluido `IdConector` contextual; la UI no deduce ni transforma una identidad de Ruta en una de Flujo.
-> - Reutilizar modal, foco, trampa de foco, teclado, Escape, ARIA, responsive, cancelación, doble clic y mensajes correlacionados.
-> - Mientras ejecuta, deshabilitar confirmación y cierre que pueda abandonar un resultado pendiente; aplicar política de timeout y recuperación documentada en la evidencia backend.
-> - Tras éxito, actualizar solo tarea afectada, visor, contador, listado y scroll horizontal mediante componentes modernos existentes.
-> 
-> ## RESTRICCIONES CRÍTICAS
-> 
-> - No crear framework, bundler, modal paralelo, banderas de habilitación ni autorización JavaScript.
-> - No usar postbacks, `GridView`, `UpdatePanel`, `ModalPopupExtender`, SQL, handlers Web Forms, campos ocultos ni endpoints/payloads/selectores de Continuar flujo, Enviar a usuario, Enviar a grupo o Usuario anterior.
-> - No incluir ni mostrar datos de respuestas.
-> -NO  ejecutar E2E autenticada sin autorización explícita de ambiente y cuentas de prueba.
-> 
-> ## REGLAS DE ANTIRREGRESIÓN
-> 
-> - La devolución y las demás operaciones no comparten selectores, eventos, estado ni requests.
-> - La sustitución de la ruta legacy afecta solo Devolver a actividad anterior; las demás operaciones conservan contratos y triggers.
-> 
-> ## CRITERIOS DE ACEPTACIÓN
-> 
-> - El modal representa solo JSON autorizado, nunca materializa la lista completa y no expone actividades o conectores de otro contexto.
-> - Búsqueda, paginación, vacío, error, cursor inválido, respuesta obsoleta, bloqueo, timeout y cancelación restauran estado sin iniciar una transición.
-> - No existe recorrido de postback o fallback Web Forms alcanzable desde el comando Devolver a actividad anterior.
-> - Éxito, bloqueo y error mantienen la bandeja en estado consistente, accesible y con foco/restauración de scroll definidos.
-> 
-> ## PRUEBAS OBLIGATORIAS
-> 
-> Agregar pruebas CJS de bootstrap sin feature gate, trigger exclusivo, ausencia de postback legacy, contratos Ruta/Flujo aislados, búsqueda, debounce, páginas, respuesta obsoleta, vacío, error, selección, éxito, bloqueo, timeout, cancelación, doble clic, teclado, foco, Escape, responsive y bloqueo durante ejecución. Ejecutar MSBuild y pruebas focales; registrar evidencia. No E2E sin autorización.
-> 
-> ## DOCUMENTACIÓN TÉCNICA
-> 
-> Actualizar arquitectura, contrato, flujo, evidencia y diagramas necesarios con registro de presentación, selectores, ruta sustituida, UI, accesibilidad y relevo a 03.
-> 
-> ## ENTREGABLE FINAL
-> 
-> Reportar ticket, archivos UI, pruebas, compilación y evidencia de ruta moderna única/no regresión. No cambiar configuración de ambiente ni realizar QA autenticada sin autorización.
+### D-01 — Registro moderno sin gate
 
-## Goals / Non-Goals
+`workflow/Webworkflow.aspx.vb` registrará estilo, diálogo común, módulos y bootstrap de devolución siempre que la presentación Workflow sea válida. El bootstrap toma únicamente los `ClientID` de los campos de tarea ya existentes; no consulta ni cambia `WorkflowCentroTrabajoModernActive` y no agrega una bandera nueva.
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+### D-02 — Contrato y estado exclusivos del cliente
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+El markup usará un trigger `workflow-return-activity-trigger`, un modal y atributos `data-workflow-return-activity-*`. `workflow-return-activity-ui.js` conservará su propio contador de solicitudes, selección, cursor, aborto y listeners `workflow:return-activity-*`; no importará ni emitirá eventos de envío, grupo o Usuario anterior.
 
-## Decisions
+### D-03 — Preview paginado no mutante
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+El módulo envía `idTarea`, `termino`, `cursor` y `tamanoPagina` a `PreviewDevolverActividad`. El término tiene mínimo de dos caracteres cuando no es vacío, debounce de 300 ms, límite de página del contrato y descarte de resultados que no correspondan a la solicitud actual. Solo materializa el JSON autorizado de `PrevisualizacionDevolverActividadDto`; trata `IdConector` como referencia contextual opaca.
 
+### D-04 — Confirmación y ejecución
 
-## Risks / Trade-offs
+`workflow-return-activity-confirmation.js` recibe una única selección vigente y usa `ConfirmationDialog`. Envía a `EjecutarDevolverActividad` exclusivamente `idTarea`, `idConector` y `tokenVersion`. Mientras la promesa está pendiente no permite doble clic, confirmación adicional ni un cierre que abandone el resultado. Un bloqueo, error o timeout no inventa autorización ni usa fallback legacy.
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+### D-05 — Presentación posterior al resultado
 
-## Migration Plan
+Solo un resultado exitoso invoca `WorkflowTransitionPagePresentation.applySuccess` con la tarea afectada y un mensaje de devolución. El módulo conserva foco, Escape, cancelación, trampa de foco, estados ARIA y diseño móvil. Los resultados no exitosos mantienen el modal en estado seguro y no alteran bandeja, contador, visor ni scroll.
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+### D-06 — Retiro de la ruta sustituida
 
-## Open Questions
+Se retiran el `onclick` `D-TASK-ANT`, `Button_tool_devolver_a_actividades_anterior`, su declaración de diseñador, handler y lógica de callback/postback asociada. No se tocan `Button_tool_devolver_a_usuario`, Continuar flujo, envío a usuario o envío a grupo.
 
-- TBD
+### D-07 — Verificación y documentación
+
+Pruebas CJS cargarán los módulos en VM y comprobarán bootstrap, payload, páginas, obsolescencia, selección, confirmación, accesibilidad, éxito y aislamiento. Se ejecutarán MSBuild y pruebas focales. La QA autenticada se documenta como no ejecutada hasta recibir autorización expresa.
+
+## Riesgos y mitigación
+
+- Un selector común contaminaría otra transición: se usan nombres, eventos y pruebas de ausencia exclusivos.
+- Un preview viejo podría ejecutar una devolución incorrecta: la selección se invalida con cada búsqueda, página, tarea o cierre; servidor revalida token y conector.
+- Retirar Web Forms podría afectar Usuario anterior: las pruebas estáticas aíslan exclusivamente el botón y handler de actividad anterior.
+
+## Reversión
+
+La reversión restaura solo el trigger y handler de actividad anterior desde el commit previo; no revierte transiciones ya confirmadas ni modifica datos, endpoints o configuración de ambiente.

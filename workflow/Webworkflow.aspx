@@ -202,7 +202,7 @@
                    }
                    
                        //ENVIAR ACTIVIDAD FLUJO 
-                       if (elment_postbak.id == "ImageButtonterminar" || elment_postbak.id == "Button_tool_devolver_a_usuario" || elment_postbak.id == "Button_tool_devolver_a_actividades_anterior") {
+                       if (elment_postbak.id == "ImageButtonterminar" || elment_postbak.id == "Button_tool_devolver_a_usuario") {
                        if (document.getElementById("Hidden_lista_ruta_flujo").value == "F") {
                            auto_zise_popup_lista_usuario_flujo();
                           
@@ -645,7 +645,7 @@
                                          </a>
                                          <div class="dropdown-menu" role="group" aria-label="Opciones para devolver la tarea">
                                              <a class="dropdown-item" title="Devolver la tarea directamente al usuario anterior" href="#" onclick="inicializa_tipo_adjunto_documento(event,this,'D-TWU-ANT');"><i style="color: #0062cc" class="fad fa-arrow-alt-left"></i><span>Usuario anterior</span></a>
-                                             <a class="dropdown-item" title="Elegir la actividad anterior de destino" href="#" onclick="inicializa_tipo_adjunto_documento(event,this,'D-TASK-ANT');"><i style="color: #0062cc" class="fad fa-arrow-alt-to-left"></i><span>Elegir actividad anterior</span></a>
+                                             <button id="workflow-return-activity-trigger" type="button" class="dropdown-item" title="Elegir la actividad anterior de destino" aria-label="Elegir actividad anterior" data-workflow-return-activity-active="false"><i style="color: #0062cc" class="fad fa-arrow-alt-to-left"></i><span>Elegir actividad anterior</span></button>
                                          </div>
                                       </li>            
                                   </asp:Panel>
@@ -1979,7 +1979,6 @@
                       <asp:Button ID="Button_tool_busqueda_enviar_actividad" runat="server" Text="" />
                       <asp:Button ID="Button_tool_restore_busqueda_enviar_actividad" runat="server" Text="" />
                       <asp:Button ID="Button_tool_devolver_a_usuario" runat="server" Text="" />
-                      <asp:Button ID="Button_tool_devolver_a_actividades_anterior" runat="server" Text="" />
                       <asp:Button ID="Button_tool_enviar_ruta" runat="server" Text="" />
                       <asp:Button ID="ButtonAlmacenar" Text="" runat="server" />
                       <asp:Button ID="Button_tool_activa_sube_documento_lista" runat="server" Text="" />
@@ -4573,6 +4572,34 @@
             </section>
         </div>
         <div id="workflow-transition-success-message" class="workflow-transition-success-message" data-workflow-transition-success="true" role="status" aria-live="polite" hidden="hidden"></div>
+        <div id="workflow-return-activity-modern-modal" class="workflow-transition-modal" hidden="hidden" aria-hidden="true" data-workflow-return-activity-state="cerrado">
+            <div class="workflow-transition-modal__backdrop" data-workflow-return-activity-close="true"></div>
+            <section id="workflow-return-activity-modern-dialog" class="workflow-transition-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="workflow-return-activity-modern-title" tabindex="-1">
+                <header class="workflow-transition-modal__header">
+                    <h2 id="workflow-return-activity-modern-title" class="workflow-transition-modal__title">Elegir actividad anterior</h2>
+                    <button id="workflow-return-activity-modern-close" class="workflow-transition-modal__close" type="button" aria-label="Cerrar actividades anteriores">&times;</button>
+                </header>
+                <div class="workflow-transition-modal__body">
+                    <div id="workflow-return-activity-modern-status" class="workflow-transition-modal__status" role="status" aria-live="polite"></div>
+                    <div class="workflow-transition-modal__search" role="search">
+                        <label for="workflow-return-activity-modern-search">Buscar actividad anterior</label>
+                        <input id="workflow-return-activity-modern-search" type="search" maxlength="80" autocomplete="off" aria-describedby="workflow-return-activity-modern-search-help" />
+                        <p id="workflow-return-activity-modern-search-help" class="workflow-transition-modal__search-help">Escriba al menos dos caracteres para filtrar.</p>
+                    </div>
+                    <dl id="workflow-return-activity-modern-context" class="workflow-transition-modal__context"></dl>
+                    <div class="workflow-transition-modal__pager" aria-label="Paginación de actividades anteriores">
+                        <button id="workflow-return-activity-modern-previous" class="workflow-transition-modal__page-button" type="button">Anterior</button>
+                        <span id="workflow-return-activity-modern-page" class="workflow-transition-modal__page" aria-live="polite"></span>
+                        <button id="workflow-return-activity-modern-next" class="workflow-transition-modal__page-button" type="button">Siguiente</button>
+                    </div>
+                    <div class="workflow-transition-modal__desktop">
+                        <table class="workflow-transition-modal__table"><thead><tr><th scope="col">Actividad anterior</th><th scope="col">Destino</th><th scope="col">Contexto</th><th scope="col"><span class="sr-only">Acción</span></th></tr></thead><tbody id="workflow-return-activity-modern-table-body"></tbody></table>
+                    </div>
+                    <div id="workflow-return-activity-modern-cards" class="workflow-transition-modal__mobile" aria-label="Actividades anteriores disponibles"></div>
+                </div>
+            </section>
+        </div>
+        <div id="workflow-return-activity-success-message" class="workflow-transition-success-message" data-workflow-return-activity-success="true" role="status" aria-live="polite" hidden="hidden"></div>
         <div id="workflow-user-send-modern-modal" class="workflow-transition-modal" hidden="hidden" aria-hidden="true" data-workflow-user-send-state="cerrado">
             <div class="workflow-transition-modal__backdrop" data-workflow-user-send-close="true"></div>
             <section id="workflow-user-send-modern-dialog" class="workflow-transition-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="workflow-user-send-modern-title" tabindex="-1">

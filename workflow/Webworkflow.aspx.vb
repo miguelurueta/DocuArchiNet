@@ -259,6 +259,7 @@ Public Class Webworkflow
         RegisterWorkflowTransitionModernStyle()
         RegisterWorkflowTransitionPagePresentationScript()
         RegisterWorkflowEnvioUsuarioModernPresentation()
+        RegisterWorkflowReturnActivityModernPresentation()
 
         If Not WorkflowTransitionModernActive Then
             Return
@@ -280,6 +281,46 @@ Public Class Webworkflow
         RegisterWorkflowEnvioUsuarioModernScript()
         RegisterWorkflowEnvioUsuarioConfirmationIntegrationScript()
         RegisterWorkflowEnvioUsuarioModernBootstrap()
+    End Sub
+
+    Private Sub RegisterWorkflowReturnActivityModernPresentation()
+        RegisterConfirmationDialogStyle()
+        RegisterConfirmationDialogScript()
+        RegisterWorkflowReturnActivityModernScript()
+        RegisterWorkflowReturnActivityConfirmationIntegrationScript()
+        RegisterWorkflowReturnActivityModernBootstrap()
+    End Sub
+
+    Private Sub RegisterWorkflowReturnActivityModernScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowReturnActivityModernScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "workflowReturnActivityModernScript"
+        script.Attributes("src") = "../js/workflow/workflow-return-activity-ui.js?v=20260825-doc33ui1"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterWorkflowReturnActivityConfirmationIntegrationScript()
+        If Page.Header Is Nothing OrElse Page.Header.FindControl("workflowReturnActivityConfirmationIntegrationScript") IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = "workflowReturnActivityConfirmationIntegrationScript"
+        script.Attributes("src") = "../js/workflow/workflow-return-activity-confirmation.js?v=20260825-doc33ui1"
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterWorkflowReturnActivityModernBootstrap()
+        Dim taskInputClientId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_sel.ClientID)
+        Dim currentTaskInputClientId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_selecionada.ClientID)
+        Dim startupScript As String = "(function(){var trigger=document.getElementById('workflow-return-activity-trigger');if(!trigger){return;}trigger.setAttribute('data-workflow-return-activity-active','true');trigger.setAttribute('data-workflow-current-task-input-id','" & currentTaskInputClientId & "');trigger.setAttribute('data-workflow-task-input-id','" & taskInputClientId & "');if(window.WorkflowReturnActivityUi&&typeof window.WorkflowReturnActivityUi.inicializar==='function'){window.WorkflowReturnActivityUi.inicializar();}}());"
+
+        ScriptManager.RegisterStartupScript(Me, Me.GetType(), "workflowReturnActivityModernBootstrap", startupScript, True)
     End Sub
 
     Private Sub RegisterWorkflowTransitionModernStyle()
@@ -2501,25 +2542,6 @@ Public Class Webworkflow
         End Try
     End Sub
 
-    Private Sub Button_tool_devolver_a_actividades_anterior_Click(sender As Object, e As EventArgs) Handles Button_tool_devolver_a_actividades_anterior.Click
-        Dim clasjava As New Classscrripjava
-        Try
-            If HttpContext.Current.Session.Item("ID_TAREA_SELECCIONDA") = 0 Or HttpContext.Current.Session.Item("ID_TAREA_SELECCIONDA") = -1 Then
-                clasjava.Showscripman("Debe seleccionar una tarea para devolver", Me.UpdatePanel_boton_tool)
-                Exit Sub
-            End If
-            Dim Result As String = ""
-            Dim ClassWorkflow As New ClassWorkflow
-            Result = ClassWorkflow.Activa_devolver_actividades_anteriores(HttpContext.Current.Session.Item("ID_TAREA_SELECCIONDA"),
-                                                                          Me.Page)
-            If Result <> "YES" Then
-                clasjava.Showscripman(Result, Me.UpdatePanel_boton_tool)
-                Exit Sub
-            End If
-        Catch ex As Exception
-            clasjava.Showscripman(ex.Message, UpdatePanel_boton_tool)
-        End Try
-    End Sub
     Private Sub Button_tool_devolver_a_usuario_Click(sender As Object, e As EventArgs) Handles Button_tool_devolver_a_usuario.Click
         Dim clasjava As New Classscrripjava
         Try
