@@ -17,3 +17,5 @@ Paquete técnico del corte backend seguro para devolver una tarea Workflow a una
 La siguiente etapa debe implementar la interfaz oficial consumiendo exclusivamente estos contratos. No debe reconstruir permisos, Ruta, Flujo, destinos, cursor ni invocar el motor legacy.
 
 La etapa DOC-33 ya materializa esa interfaz oficial en un paquete separado, con el mismo criterio de aislamiento y sin modificar los contratos del servidor: [DOC-33 — Interfaz moderna](../02-interfaz-moderna-devolver-actividad-anterior/00-indice.md).
+
+La compuerta posterior de evidencia se consolida en [DOC-34 — Verificación transversal](../03-verificacion-transversal-devolver-actividad-anterior/00-indice.md). No reejecuta ni reemplaza la E2E autorizada registrada en este paquete.
