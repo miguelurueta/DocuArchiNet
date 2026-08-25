@@ -2,7 +2,7 @@
 
 Esta suite verifica el ASMX `PreviewEnviarTarea` con sesiones Gestión reales y de solo lectura. La política moderna es oficial para todo contexto Workflow válido: las pruebas no habilitan, limitan ni validan pilotos, usuarios, grupos o gates.
 
-Antes de una corrida real, leer [AGENT-RUNBOOK.md](AGENT-RUNBOOK.md). Los secretos solo se reciben desde el almacén de secretos o variables efímeras de proceso; nunca se versionan `.env`, cookies, capturas ni cadenas de conexión.
+Antes de una corrida real, leer [AGENT-RUNBOOK.md](AGENT-RUNBOOK.md). Los secretos solo se reciben de forma efímera durante la corrida; nunca se versionan `.env`, cookies, capturas ni cadenas de conexión.
 
 ## Instalación local
 
@@ -154,3 +154,13 @@ El runner crea dos sesiones autenticadas, espera una única ganadora con estado 
 Para DOC-28, la consulta de auditoría debe leer `log_usuario` y filtrar `Mecanismo=ASMX_ENVIO_USUARIO` y la tarea con su único parámetro `?`, como en el ejemplo anterior. No use `wf_log_estados_workflow`: registra el motor histórico, pero no la auditoría adicional del endpoint.
 
 La evidencia se escribe en `tools/e2e/artifacts/` y solo conserva endpoint, resultado, códigos, conteos y huellas. Antes y después de cualquier corrida real, compruebe que el gate sigue en `false` y que sus listas están vacías, y confirme que las páginas legacy no cambiaron según el runbook.
+
+## Orquestador reutilizable de Workflow
+
+`test:workflow:run` ejecuta una secuencia configurada por DOC con un único perfil no sensible y una única captura interactiva de secretos. DOC-32 es el primer consumidor. Consulte el runbook para crear el perfil externo, obtener autorización y ejecutar la secuencia; el perfil puede contener solo el nombre de un DSN ODBC, nunca cuentas, contraseñas ni URL MySQL. `previewActivityNames` obliga a que el preview devuelva exactamente las actividades declaradas. Para una devolución con varios resultados, `executionActivityName` fija la única actividad elegida; el conector y token siguen siendo derivados del preview vigente. `executionFinalActivityName` comprueba por ODBC el nombre de la actividad activa (`listado_actividades_workflow.NOMBRE_ACTIVIDAD`) tras la transición: no es el nombre del grupo ni del usuario asignado. Puede diferir de esa etiqueta de selección solo si la transición crea otra actividad efectiva. `concurrencyActivityName` fija de la misma forma la actividad de la carrera y evita depender del orden del preview.
+
+### Ciclo reutilizable de recursos E2E
+
+Las etapas mutantes usan un contrato registrado de recursos: preflight de solo lectura, reserva exclusiva, ejecución y cierre. El núcleo no conoce tareas, actividades ni consultas Workflow; cada DOC o tipo de prueba aporta un adaptador registrado y un descriptor no sensible. Un perfil no puede escoger proveedor, SQL, scripts, rutas ni comandos.
+
+La reserva local evita que dos corridas desde el mismo espacio de trabajo reutilicen el recurso. Un ambiente que necesite exclusión entre equipos debe registrar un coordinador compartido; si no existe, la prueba mutante falla antes de iniciar. Tras una transición efectiva el recurso queda consumido hasta que el preflight observa una nueva generación preparada por el responsable del ambiente. La plataforma nunca intenta revertir datos de negocio de forma genérica.

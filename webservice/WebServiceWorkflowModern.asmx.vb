@@ -268,6 +268,72 @@ Public Class WebServiceWorkflowModern
         End Try
     End Function
 
+    <WebMethod(EnableSession:=True)>
+    <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
+    Public Function PreviewDevolverActividad(ByVal idTarea As Long,
+                                             ByVal termino As String,
+                                             ByVal cursor As String,
+                                             ByVal tamanoPagina As Integer) As PrevisualizacionDevolverActividadDto
+        Try
+            Dim resultadoSesion As ResultadoContextoSesionWorkflow = New WorkflowPreviewSessionContextGate().AsegurarContextoDevolverActividad()
+            If resultadoSesion Is Nothing OrElse resultadoSesion.Contexto Is Nothing OrElse Not resultadoSesion.Contexto.EsValido() OrElse
+               String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionWorkflow) Then
+                Return CrearRespuestaDevolverSegura(idTarea, tamanoPagina, CodigosBloqueoDevolverActividad.ContextoInvalido,
+                                                    "No fue posible validar la sesión de la tarea.")
+            End If
+
+            Dim factory As New WorkflowModuleConnectionFactory(resultadoSesion.CadenaConexionWorkflow)
+            Dim dataExecutor As New AdoNetDataExecutor()
+            Dim repositorio As New MySqlDevolverActividadRepository(factory, dataExecutor)
+            Dim servicio As New ServicioDevolverActividad(repositorio, repositorio, repositorio, New DevolverActividadCursorCodec())
+            Return servicio.Previsualizar(resultadoSesion.Contexto, New SolicitudPreviewDevolverActividad With {
+                .IdTarea = idTarea,
+                .Termino = termino,
+                .Cursor = cursor,
+                .TamanoPagina = tamanoPagina
+            })
+        Catch
+            Return CrearRespuestaDevolverSegura(idTarea, tamanoPagina, CodigosBloqueoDevolverActividad.NoDisponible,
+                                                "No fue posible consultar las actividades anteriores.")
+        End Try
+    End Function
+
+    <WebMethod(EnableSession:=True)>
+    <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
+    Public Function EjecutarDevolverActividad(ByVal idTarea As Long,
+                                              ByVal idConector As Integer,
+                                              ByVal tokenVersion As String) As ResultadoDevolverActividadDto
+        Try
+            Dim resultadoSesion As ResultadoContextoSesionWorkflow = New WorkflowPreviewSessionContextGate().AsegurarContextoDevolverActividad(True)
+            If resultadoSesion Is Nothing OrElse resultadoSesion.Contexto Is Nothing OrElse Not resultadoSesion.Contexto.EsValido() OrElse
+               String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionWorkflow) Then
+                Return CrearResultadoDevolverBloqueado(CodigosBloqueoDevolverActividad.ContextoInvalido,
+                                                       "No fue posible validar la sesión de la tarea.")
+            End If
+
+            Dim factory As New WorkflowModuleConnectionFactory(resultadoSesion.CadenaConexionWorkflow)
+            Dim dataExecutor As New AdoNetDataExecutor()
+            Dim repositorio As New MySqlDevolverActividadRepository(factory, dataExecutor)
+            Dim servicio As New ServicioDevolverActividad(
+                repositorio,
+                repositorio,
+                repositorio,
+                repositorio,
+                New DevolverActividadCursorCodec(),
+                New MySqlDevolverActividadConcurrencyGuard(factory, dataExecutor),
+                New WorkflowLegacyDevolverActividadExecutorAdapter(),
+                New WorkflowLegacyAuditoriaAdapter())
+            Return servicio.Ejecutar(resultadoSesion.Contexto, New SolicitudEjecutarDevolverActividad With {
+                .IdTarea = idTarea,
+                .IdConector = idConector,
+                .TokenVersion = tokenVersion
+            })
+        Catch
+            Return CrearResultadoDevolverBloqueado(CodigosBloqueoDevolverActividad.NoDisponible,
+                                                   "No fue posible devolver la tarea.")
+        End Try
+    End Function
+
     Private Shared Function CrearServicioSinConexion() As ServicioTransicionTarea
         Return New ServicioTransicionTarea(
             New MySqlTareaWorkflowRepository(),
@@ -294,6 +360,37 @@ Public Class WebServiceWorkflowModern
         Return New PrevisualizacionEnvioGrupoDto With {
             .IdTarea = idTarea,
             .[Error] = New ErrorTransicionDto With {
+                .Codigo = codigo,
+                .MensajeVisible = mensaje,
+                .ReferenciaTrazabilidad = String.Empty
+            }
+        }
+    End Function
+
+    Private Shared Function CrearRespuestaDevolverSegura(ByVal idTarea As Long,
+                                                          ByVal tamanoPagina As Integer,
+                                                          ByVal codigo As String,
+                                                          ByVal mensaje As String) As PrevisualizacionDevolverActividadDto
+        Return New PrevisualizacionDevolverActividadDto With {
+            .IdTarea = idTarea,
+            .TamanoPagina = If(tamanoPagina < 1, 25, Math.Min(50, tamanoPagina)),
+            .[Error] = New ErrorDevolverActividadDto With {
+                .Codigo = codigo,
+                .MensajeVisible = mensaje,
+                .ReferenciaTrazabilidad = String.Empty
+            }
+        }
+    End Function
+
+    Private Shared Function CrearResultadoDevolverBloqueado(ByVal codigo As String,
+                                                            ByVal mensaje As String) As ResultadoDevolverActividadDto
+        Return New ResultadoDevolverActividadDto With {
+            .Exito = False,
+            .EstadoFinal = "bloqueado",
+            .CodigoBloqueo = codigo,
+            .MensajeFuncional = mensaje,
+            .EsReintentable = False,
+            .[Error] = New ErrorDevolverActividadDto With {
                 .Codigo = codigo,
                 .MensajeVisible = mensaje,
                 .ReferenciaTrazabilidad = String.Empty
