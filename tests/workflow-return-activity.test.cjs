@@ -19,6 +19,10 @@ const returnGuard = read('Infrastructure', 'Workflow', 'Devolver', 'MySqlDevolve
 const legacyExecutor = read('Infrastructure', 'Workflow', 'Devolver', 'WorkflowLegacyDevolverActividadExecutorAdapter.vb');
 const legacyAudit = read('Infrastructure', 'Workflow', 'Terminar', 'WorkflowLegacyAuditoriaAdapter.vb');
 const project = read('GestionDocumental-Docuarchi.net.vbproj');
+const returnPage = read('workflow', 'Webworkflow.aspx');
+const returnCodeBehind = read('workflow', 'Webworkflow.aspx.vb');
+const returnDesigner = read('workflow', 'Webworkflow.aspx.designer.vb');
+const returnLegacyScript = read('js', 'workflow', 'Webworkflow.js');
 
 test('DOC-32: contratos de devolución son exclusivos y no dependen de UI', () => {
   for (const typeName of [
@@ -150,7 +154,7 @@ test('DOC-32: el adaptador conserva eventos y notificación sin interfaz ni reas
   assert.equal(calls.length, 1);
   assert.match(legacyExecutor, /Dim pagina As System\.Web\.UI\.Page = Nothing/);
   assert.match(legacyExecutor, /If\(destino\.RequiereNotificacion, 1, 0\)/);
-  assert.match(legacyExecutor, /\n\s*0,\n\s*1,\n\s*0,\n\s*0\)/);
+  assert.match(legacyExecutor, /\r?\n\s*0,\r?\n\s*1,\r?\n\s*0,\r?\n\s*0\)/);
   assert.doesNotMatch(legacyExecutor, /(?:Activa_devolver_actividades_anteriores|Enviar_actividad_por_conector_flujo_de_trabajo_anterior|GridView|UpdatePanel|ModalPopupExtender)/);
 });
 
@@ -199,4 +203,17 @@ test('DOC-32: contratos existentes de envío y su guard tokenizado mantienen sus
   const oldGuard = read('Infrastructure', 'Workflow', 'Terminar', 'MySqlTransicionConcurrencyGuard.vb');
   assert.match(oldGuard, /Public Function Adquirir\(ByVal contexto As ContextoModuloWorkflow,[\s\S]*?ByVal idTarea As Long,[\s\S]*?ByVal tokenVersion As String\) As ResultadoGuardTransicion/);
   assert.match(oldGuard, /CrearNombreLock\(idTarea, tokenVersion\)/);
+});
+
+test('DOC-33: la interfaz moderna sustituye solo el postback legacy de actividad anterior', () => {
+  assert.match(returnPage, /workflow-return-activity-trigger/);
+  assert.match(returnPage, /workflow-return-activity-modern-modal/);
+  assert.match(returnCodeBehind, /RegisterWorkflowReturnActivityModernPresentation\(\)/);
+  assert.match(returnCodeBehind, /workflow-return-activity-ui\.js/);
+  assert.doesNotMatch(returnPage, /D-TASK-ANT|Button_tool_devolver_a_actividades_anterior/);
+  assert.doesNotMatch(returnCodeBehind, /Button_tool_devolver_a_actividades_anterior|Activa_devolver_actividades_anteriores/);
+  assert.doesNotMatch(returnDesigner, /Button_tool_devolver_a_actividades_anterior/);
+  assert.doesNotMatch(returnLegacyScript, /D-TASK-ANT|Button_tool_devolver_a_actividades_anterior/);
+  assert.match(returnPage, /Button_tool_devolver_a_usuario/);
+  assert.match(returnCodeBehind, /Button_tool_devolver_a_usuario_Click/);
 });

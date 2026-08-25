@@ -272,8 +272,8 @@ describe("DOC-2 workflow visual activation", () => {
     [
       "actualiza_titulo_lista_actividades_workflow",
       "La tarea se devolverá al usuario anterior y saldrá de su bandeja.",
-      "Se abrirá la lista de actividades anteriores para elegir el destino de la devolución.",
     ].forEach((marker) => expect(workflowScript).toContain(marker));
+    expect(workflowScript).not.toContain("Se abrirá la lista de actividades anteriores para elegir el destino de la devolución.");
     [
       "--ctw-control-height: 44px",
       "min-height: 44px",

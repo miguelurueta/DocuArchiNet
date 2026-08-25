@@ -7,16 +7,25 @@ const { promisify } = require('node:util');
 const execute = promisify(execFile);
 const scriptPath = path.resolve(__dirname, '..', 'query-doc32-odbc-fingerprint.ps1');
 const finalActivityScriptPath = path.resolve(__dirname, '..', 'query-doc32-odbc-final-activity.ps1');
+const activeActivityScriptPath = path.resolve(__dirname, '..', 'query-doc32-odbc-active-activity.ps1');
 
 function required(environment, name) {
   const value = environment[name];
   return typeof value === 'string' && value.trim() ? value.trim() : null;
 }
 
-function assertDsn(environment = process.env) {
-  const dsn = required(environment, 'DOC32_E2E_ODBC_DSN');
+function prefixName(prefix, suffix) {
+  if (typeof prefix !== 'string' || !/^DOC\d+_E2E$/.test(prefix)) {
+    throw new Error('El prefijo ODBC E2E no es válido. No se mostró ningún valor.');
+  }
+  return `${prefix}_${suffix}`;
+}
+
+function assertDsn(environment = process.env, prefix = 'DOC32_E2E') {
+  const name = prefixName(prefix, 'ODBC_DSN');
+  const dsn = required(environment, name);
   if (!dsn || !/^[A-Za-z0-9 _.-]+$/.test(dsn)) {
-    throw new Error('DOC32_E2E_ODBC_DSN debe identificar un DSN ODBC permitido. No se mostró ningún valor.');
+    throw new Error(`${name} debe identificar un DSN ODBC permitido. No se mostró ningún valor.`);
   }
   return dsn;
 }
@@ -53,8 +62,8 @@ function finalActivityMatches(marker) {
   throw new Error('No fue posible comprobar la actividad final mediante el control ODBC de solo lectura. No se mostraron credenciales, destino ni detalles internos.');
 }
 
-async function queryFingerprint(sql, idTarea, environment = process.env) {
-  assertDsn(environment);
+async function queryFingerprint(sql, idTarea, environment = process.env, prefix = 'DOC32_E2E') {
+  assertDsn(environment, prefix);
   try {
     const result = await execute('powershell.exe', [
       '-NoProfile',
@@ -62,7 +71,8 @@ async function queryFingerprint(sql, idTarea, environment = process.env) {
       '-ExecutionPolicy', 'Bypass',
       '-File', scriptPath,
       '-Sql', sql,
-      '-TaskId', String(idTarea)
+      '-TaskId', String(idTarea),
+      '-EnvironmentPrefix', prefix
     ], { env: environment, windowsHide: true, maxBuffer: 1024 * 1024 });
     const fingerprint = result.stdout.trim();
     if (!/^[a-f0-9]{64}$/i.test(fingerprint)) throw new Error('invalid-fingerprint');
@@ -72,8 +82,8 @@ async function queryFingerprint(sql, idTarea, environment = process.env) {
   }
 }
 
-async function queryFinalActivity(idTarea, expectedActivityName, environment = process.env) {
-  assertDsn(environment);
+async function queryFinalActivity(idTarea, expectedActivityName, environment = process.env, prefix = 'DOC32_E2E') {
+  assertDsn(environment, prefix);
   if (typeof expectedActivityName !== 'string' || !expectedActivityName.trim()) {
     throw new Error('No fue posible comprobar la actividad final mediante el control ODBC de solo lectura. No se mostraron credenciales, destino ni detalles internos.');
   }
@@ -83,9 +93,10 @@ async function queryFinalActivity(idTarea, expectedActivityName, environment = p
       '-NonInteractive',
       '-ExecutionPolicy', 'Bypass',
       '-File', finalActivityScriptPath,
-      '-TaskId', String(idTarea)
+      '-TaskId', String(idTarea),
+      '-EnvironmentPrefix', prefix
     ], {
-      env: { ...environment, DOC32_E2E_EXPECTED_ACTIVITY_NAME: expectedActivityName.trim() },
+      env: { ...environment, [prefixName(prefix, 'EXPECTED_ACTIVITY_NAME')]: expectedActivityName.trim() },
       windowsHide: true,
       maxBuffer: 1024 * 1024
     });
@@ -96,9 +107,32 @@ async function queryFinalActivity(idTarea, expectedActivityName, environment = p
   }
 }
 
+async function queryActiveActivity(idTarea, environment = process.env, prefix = 'DOC32_E2E') {
+  assertDsn(environment, prefix);
+  try {
+    const result = await execute('powershell.exe', [
+      '-NoProfile',
+      '-NonInteractive',
+      '-ExecutionPolicy', 'Bypass',
+      '-File', activeActivityScriptPath,
+      '-TaskId', String(idTarea),
+      '-EnvironmentPrefix', prefix
+    ], { env: environment, windowsHide: true, maxBuffer: 1024 * 1024 });
+    const output = result.stdout.trim();
+    if (output === 'WORKFLOW_ODBC_ACTIVE_ACTIVITY_AMBIGUOUS') return null;
+    const match = /^WORKFLOW_ODBC_ACTIVE_ACTIVITY=([^\r\n]{1,160})$/.exec(output);
+    if (!match || !match[1].trim()) throw new Error('invalid-activity');
+    return match[1].normalize('NFKC').trim();
+  } catch {
+    throw new Error('No fue posible consultar la actividad activa mediante el control ODBC de solo lectura. No se mostraron credenciales, destino ni detalles internos.');
+  }
+}
+
 module.exports = {
   assertDsn,
   finalActivityMatches,
+  prefixName,
+  queryActiveActivity,
   queryFinalActivity,
   queryFingerprint,
   safeFailureMessage

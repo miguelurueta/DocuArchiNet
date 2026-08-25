@@ -3136,15 +3136,6 @@ Partial Public Class Webworkflow
     Protected WithEvents Button_tool_devolver_a_usuario As Global.System.Web.UI.WebControls.Button
 
     '''<summary>
-    '''Control Button_tool_devolver_a_actividades_anterior.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Button_tool_devolver_a_actividades_anterior As Global.System.Web.UI.WebControls.Button
-
-    '''<summary>
     '''Control Button_tool_enviar_ruta.
     '''</summary>
     '''<remarks>
