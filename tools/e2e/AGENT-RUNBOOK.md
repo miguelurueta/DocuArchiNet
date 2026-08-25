@@ -6,7 +6,7 @@ Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciale
 
 - Ejecutar solo contra un ambiente de pruebas autorizado; nunca inferir autorización para producción.
 - Recibir URL, cuentas y acceso MySQL de solo lectura mediante secretos del entorno o instrucción expresa. No crear `.env` ni mostrar secretos, cookies o cadenas de conexión.
-- Reutilizar `tests/support/authenticated-workflow-session.cjs` para todo login E2E DOC-10/DOC-11/DOC-28/DOC-32. No enviar usuario, grupo, ruta, actividad ni permisos al ASMX salvo el destino que DOC-28 obtiene del preview actual al ejecutar.
+- Reutilizar `tests/support/authenticated-workflow-session.cjs` para todo login E2E DOC-10/DOC-11/DOC-28/DOC-32/Notas. No enviar usuario, grupo, ruta, actividad ni permisos al ASMX salvo el destino que DOC-28 obtiene del preview actual al ejecutar.
 - `PreviewEnviarTarea` y `PreviewEnviarUsuario` son de solo lectura. Las consultas de control son una única sentencia `SELECT` con exactamente un parámetro `?` para la tarea.
 - No modificar el flujo legacy. Al cierre, `workflow/Webworkflow.aspx` y `workflow/Webworkflow.aspx.vb` no deben tener cambios.
 - No activar, editar ni limitar `WorkflowCentroTrabajoModernActive`, usuarios o grupos: la experiencia moderna es oficial para todo contexto Workflow válido.
@@ -65,6 +65,10 @@ El resultado esperado es `Active=false` y listas vacías. Si difiere, detener la
 | DOC-32 preview | `npm.cmd --prefix tools/e2e run test:doc32:preview` | El comando solicita ambiente/cuenta autorizados, tarea descartable, MySQL solo lectura y presupuesto. | Estado y auditoría sin cambios; evidencia saneada. |
 | DOC-32 ejecución | `npm.cmd --prefix tools/e2e run test:doc32:execute` | El comando solicita autorización explícita, primera tarea descartable, MySQL solo lectura y presupuesto. | Ejecución E2E oficial: una devolución real desde conector/token del preview actual. |
 | DOC-32 concurrencia | `npm.cmd --prefix tools/e2e run test:doc32:concurrency` | El comando solicita autorizaciones explícitas, segunda tarea descartable, MySQL solo lectura y presupuesto. | Ejecución E2E oficial: dos solicitudes, una transición y un bloqueo seguro. |
+| Notas anónimo | `npm.cmd --prefix tools/e2e run test:notes:anonymous` | URL autorizada. | Validación contractual: contexto rechazado, sin notas ni información interna. |
+| Notas lectura | `npm.cmd --prefix tools/e2e run test:notes:read` | Ambiente/cuenta autorizados, tarea con nota visible y MySQL solo lectura. | Validación contractual: listado/consulta sin cambios de estado o auditoría. |
+| Notas escritura | `npm.cmd --prefix tools/e2e run test:notes:write` | Autorización explícita, tarea descartable y MySQL solo lectura. | Validación contractual: crear idempotente, editar/conflicto/eliminar. |
+| Notas concurrencia | `npm.cmd --prefix tools/e2e run test:notes:concurrency` | Autorización doble, tarea descartable distinta, nota semilla propia y MySQL solo lectura. | Validación contractual: exactamente dos actualizaciones, una efectiva y un bloqueo seguro. |
 
 ## Cierre de cada corrida
 
@@ -145,3 +149,29 @@ El harness toma `IdConector` y token exclusivamente del preview actual. La evide
 ### Registrar otro DOC
 
 Cada DOC adicional debe declarar en el registro común su lista estricta de campos de perfil no sensibles, las etapas ordenadas, las autorizaciones de cada etapa, el mapeo de variables efímeras y las pruebas propietarias que se invocan. El perfil no puede seleccionar scripts ni comandos. Antes de habilitarlo, agregue pruebas de perfil, autorización, orden, limpieza de secretos y evidencia saneada; conserve las pruebas específicas del DOC sin alterar sus semánticas.
+
+## Notas Workflow
+
+Las pruebas de Notas usan exclusivamente `tests/support/authenticated-workflow-session.cjs` y los contratos modernos de Notas con `idTarea` explícito. Son validaciones contractuales complementarias; la ejecución E2E de transición Workflow corresponde exclusivamente a DOC-32. No se permite usar `Session("ID_TAREA_SELECCIONDA")`, endpoints legacy, login alterno, `.env` ni valores de usuario, grupo, permiso o autor entregados por el cliente.
+
+Los comandos `test:notes:*` solicitan los datos directamente en una consola interactiva y los pasan solo a sus procesos hijos. La contraseña Workflow y la URL MySQL se capturan ocultas; no se deben cargar manualmente, persistir con `setx` ni pegar en el chat. Sin TTY, el comando se detiene antes de iniciar sesión o abrir un navegador.
+
+Antes de cualquier modo autenticado, el responsable debe contar con autorización del ambiente, cuenta válida, acceso MySQL de solo lectura y las tareas aprobadas. El iniciador los solicitará en esa consola, incluidos los presupuestos; pedirá confirmación literal `SI` para ambiente, escritura y concurrencia antes de asignar las banderas correspondientes.
+
+`NOTES_E2E_SERVICE_PATH` es opcional y, si se omite, la suite usa `webservice/WebServiceWorkflowNotesModern.asmx`. Las consultas `NOTES_E2E_TASK_STATE_SQL` y `NOTES_E2E_AUDIT_SQL` son cada una una sola sentencia `SELECT` con exactamente un parámetro `?`; la primera debe incluir el estado relevante de las notas de la tarea y la segunda la auditoría que corresponda. La cuenta MySQL es solo de lectura.
+
+Primero ejecute el borde anónimo y la lectura real no mutante. Cada comando preguntará solo los valores necesarios. La lectura usa una tarea con al menos una nota visible y debe conservar las huellas de estado y auditoría:
+
+```powershell
+npm.cmd --prefix tools/e2e run test:notes:anonymous
+npm.cmd --prefix tools/e2e run test:notes:read
+```
+
+Escritura y concurrencia son mutantes. Requieren autorización explícita del ambiente y de cada tarea descartable, solicitadas por el iniciador. La concurrencia usa una nota semilla propiedad de la cuenta autorizada y ejecuta exactamente dos actualizaciones con la misma versión; no es una prueba de carga:
+
+```powershell
+npm.cmd --prefix tools/e2e run test:notes:write
+npm.cmd --prefix tools/e2e run test:notes:concurrency
+```
+
+La evidencia de Notas solo conserva modo, códigos, conteos, latencias, banderas y huellas. No guarda el contenido de notas, identificadores de nota, credenciales, cookies, tokens, usuarios, destinos, cadenas de conexión ni cuerpos HTTP. Al cierre aplique todos los controles de la sección "Cierre de cada corrida": gate apagado con listas vacías y páginas legacy sin cambios.

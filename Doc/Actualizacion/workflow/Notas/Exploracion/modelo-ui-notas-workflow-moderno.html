@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Modelo UX/UI — Notas de Workflow</title>
+  <style>
+    :root {
+      --ctw-navy: #35477f;
+      --ctw-blue: #0062cc;
+      --ctw-ink: #202d47;
+      --ctw-muted: #69758b;
+      --ctw-line: #dce2f1;
+      --ctw-pale: #eef1fb;
+      --ctw-bg: #f5f7fb;
+      --ctw-danger: #ad3741;
+      --ctw-warning: #a56809;
+      --ctw-success: #18794e;
+      --ctw-radius: 8px;
+      --shadow: 0 10px 26px rgba(32, 45, 71, .11);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--ctw-bg);
+      color: var(--ctw-ink);
+      font: 14px/1.45 "Segoe UI", Arial, sans-serif;
+    }
+
+    button, select, textarea { font: inherit; }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid rgba(0, 98, 204, .35);
+      outline-offset: 2px;
+    }
+
+    .prototype-notice {
+      background: #fff7e5;
+      border-bottom: 1px solid #f0d89b;
+      color: #6c4b00;
+      font-size: 12px;
+      padding: 8px 20px;
+      text-align: center;
+    }
+
+    .topbar {
+      align-items: center;
+      background: #fff;
+      border-bottom: 1px solid var(--ctw-line);
+      display: flex;
+      gap: 14px;
+      min-height: 58px;
+      padding: 0 28px;
+    }
+
+    .brand {
+      color: var(--ctw-navy);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -.2px;
+      white-space: nowrap;
+    }
+
+    .crumb {
+      border-left: 1px solid var(--ctw-line);
+      color: var(--ctw-muted);
+      margin-left: 4px;
+      padding-left: 14px;
+    }
+
+    .session {
+      align-items: center;
+      color: var(--ctw-muted);
+      display: flex;
+      font-size: 13px;
+      gap: 9px;
+      margin-left: auto;
+    }
+
+    .session-avatar, .avatar {
+      align-items: center;
+      background: #e0e7f9;
+      border-radius: 50%;
+      color: var(--ctw-navy);
+      display: inline-flex;
+      flex: 0 0 auto;
+      font-size: 12px;
+      font-weight: 700;
+      height: 32px;
+      justify-content: center;
+      width: 32px;
+    }
+
+    .workspace {
+      margin: 0 auto;
+      max-width: 1160px;
+      padding: 30px 24px 42px;
+    }
+
+    .task-context {
+      align-items: flex-start;
+      display: flex;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .back-link {
+      background: transparent;
+      border: 0;
+      color: var(--ctw-blue);
+      padding: 4px 0;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .task-context h1 {
+      font-size: 23px;
+      letter-spacing: -.35px;
+      line-height: 1.2;
+      margin: 7px 0 6px;
+    }
+
+    .task-context p {
+      color: var(--ctw-muted);
+      margin: 0;
+    }
+
+    .status {
+      align-items: center;
+      background: #fff4db;
+      border: 1px solid #f2d28a;
+      border-radius: 999px;
+      color: var(--ctw-warning);
+      display: inline-flex;
+      font-size: 12px;
+      font-weight: 700;
+      gap: 6px;
+      margin-left: auto;
+      margin-top: 12px;
+      padding: 5px 10px;
+      white-space: nowrap;
+    }
+
+    .status::before {
+      background: currentColor;
+      border-radius: 50%;
+      content: "";
+      height: 7px;
+      width: 7px;
+    }
+
+    .notes-shell {
+      background: #fff;
+      border: 1px solid var(--ctw-line);
+      border-radius: var(--ctw-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .notes-head {
+      align-items: center;
+      border-bottom: 1px solid var(--ctw-line);
+      display: flex;
+      gap: 16px;
+      padding: 18px 22px;
+    }
+
+    .notes-title {
+      align-items: center;
+      display: flex;
+      gap: 10px;
+    }
+
+    .notes-title h2 {
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .badge {
+      background: var(--ctw-pale);
+      border-radius: 999px;
+      color: var(--ctw-navy);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 9px;
+    }
+
+    .notes-subtitle {
+      color: var(--ctw-muted);
+      font-size: 13px;
+      margin: 3px 0 0;
+    }
+
+    .action-bar {
+      align-items: center;
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .btn, .icon-btn, .sort-select {
+      border: 1px solid #bfcae0;
+      border-radius: 5px;
+      min-height: 34px;
+    }
+
+    .btn {
+      background: #fff;
+      color: var(--ctw-navy);
+      font-weight: 600;
+      padding: 6px 12px;
+    }
+
+    .btn:hover, .icon-btn:hover, .sort-select:hover { background: var(--ctw-pale); }
+
+    .btn-add {
+      background: var(--ctw-navy);
+      border-color: var(--ctw-navy);
+      color: #fff;
+    }
+
+    .btn-add:hover { background: #2b3b6d; }
+
+    .btn-danger {
+      border-color: #d69aa1;
+      color: var(--ctw-danger);
+    }
+
+    .sort-select {
+      background: #fff;
+      color: var(--ctw-ink);
+      padding: 5px 30px 5px 9px;
+    }
+
+    .notes-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .note {
+      border-bottom: 1px solid var(--ctw-line);
+      display: grid;
+      gap: 13px;
+      grid-template-columns: 38px minmax(0, 1fr) auto;
+      padding: 19px 22px;
+      transition: background .16s ease;
+    }
+
+    .note:hover { background: #fbfcff; }
+    .note:last-child { border-bottom: 0; }
+
+    .avatar { height: 38px; width: 38px; }
+    .avatar-blue { background: #dcecff; color: #0051a8; }
+    .avatar-green { background: #dff5e8; color: #12633e; }
+    .avatar-purple { background: #eee5ff; color: #6544a3; }
+
+    .note-main { min-width: 0; }
+
+    .note-meta {
+      align-items: baseline;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 9px;
+    }
+
+    .author { font-weight: 700; }
+    .role, time { color: var(--ctw-muted); font-size: 12px; }
+    time { margin-left: auto; }
+
+    .activity {
+      background: #e8f3ff;
+      border-radius: 99px;
+      color: #175b96;
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 6px;
+      padding: 3px 8px;
+    }
+
+    .note-content {
+      color: #33405b;
+      margin: 9px 0 0;
+      max-width: 78ch;
+      white-space: pre-wrap;
+    }
+
+    .note-actions { align-items: start; display: flex; gap: 6px; }
+
+    .icon-btn {
+      align-items: center;
+      background: #fff;
+      color: var(--ctw-navy);
+      display: inline-flex;
+      height: 34px;
+      justify-content: center;
+      padding: 0;
+      width: 34px;
+    }
+
+    .icon-btn.delete { color: var(--ctw-danger); }
+    .icon { font-size: 17px; line-height: 1; }
+
+    .empty-state {
+      color: var(--ctw-muted);
+      padding: 42px 22px;
+      text-align: center;
+    }
+
+    .empty-state strong { color: var(--ctw-ink); display: block; font-size: 15px; margin-bottom: 5px; }
+
+    .notes-footer {
+      align-items: center;
+      background: #fbfcff;
+      border-top: 1px solid var(--ctw-line);
+      color: var(--ctw-muted);
+      display: flex;
+      font-size: 12px;
+      justify-content: space-between;
+      padding: 12px 22px;
+    }
+
+    .dialog-backdrop {
+      align-items: center;
+      background: rgba(18, 30, 58, .45);
+      display: flex;
+      inset: 0;
+      justify-content: center;
+      padding: 18px;
+      position: fixed;
+      z-index: 10;
+    }
+
+    .dialog-backdrop[hidden] { display: none; }
+
+    .dialog {
+      background: #fff;
+      border-radius: var(--ctw-radius);
+      box-shadow: 0 20px 55px rgba(11, 22, 50, .28);
+      max-width: 620px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .dialog-head {
+      align-items: center;
+      border-bottom: 1px solid var(--ctw-line);
+      display: flex;
+      justify-content: space-between;
+      padding: 16px 18px;
+    }
+
+    .dialog-head h2 { font-size: 17px; margin: 0; }
+
+    .dialog-body { padding: 18px; }
+    .dialog-body label { display: block; font-weight: 700; margin-bottom: 7px; }
+
+    textarea {
+      border: 1px solid #b9c5db;
+      border-radius: 6px;
+      color: var(--ctw-ink);
+      min-height: 156px;
+      padding: 11px;
+      resize: vertical;
+      width: 100%;
+    }
+
+    .field-help {
+      color: var(--ctw-muted);
+      display: flex;
+      font-size: 12px;
+      justify-content: space-between;
+      margin-top: 6px;
+    }
+
+    .dialog-footer {
+      align-items: center;
+      background: #fbfcff;
+      border-top: 1px solid var(--ctw-line);
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      padding: 13px 18px;
+    }
+
+    .confirm { max-width: 440px; }
+    .confirm p { color: #45526c; margin: 0; }
+
+    @media (max-width: 680px) {
+      .topbar { padding: 0 16px; }
+      .crumb { display: none; }
+      .session span:not(.session-avatar) { display: none; }
+      .workspace { padding: 20px 12px 28px; }
+      .task-context h1 { font-size: 20px; }
+      .status { margin-top: 8px; }
+      .notes-head { align-items: stretch; flex-direction: column; padding: 16px; }
+      .action-bar { flex-wrap: wrap; margin-left: 0; }
+      .btn-add { flex: 1; }
+      .sort-select { flex: 1; }
+      .note { grid-template-columns: 36px minmax(0, 1fr); padding: 16px; }
+      .avatar { height: 36px; width: 36px; }
+      .note-actions { grid-column: 2; }
+      time { margin-left: 0; width: 100%; }
+      .notes-footer { padding: 11px 16px; }
+      .task-context { gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="prototype-notice">Modelo navegable de UX/UI — no está conectado a Workflow ni persiste información.</div>
+
+  <header class="topbar">
+    <div class="brand">DocuArchi</div>
+    <div class="crumb">Workflow / Tarea seleccionada / Notas</div>
+    <div class="session"><span>María González</span><span class="session-avatar" aria-hidden="true">MG</span></div>
+  </header>
+
+  <main class="workspace">
+    <section class="task-context" aria-labelledby="task-title">
+      <div>
+        <button class="back-link" type="button" onclick="showMessage('Volver a la tarea es una acción de demostración.')">← Volver a la tarea</button>
+        <h1 id="task-title">Constitución de persona jurídica</h1>
+        <p>Radicado S002188378 · SURTITIENDA PAGUEMENOS SAS · Matrícula mercantil</p>
+      </div>
+      <span class="status">En espera</span>
+    </section>
+
+    <section class="notes-shell" aria-labelledby="notes-heading">
+      <header class="notes-head">
+        <div>
+          <div class="notes-title">
+            <h2 id="notes-heading">Notas</h2>
+            <span class="badge" id="notes-count">3 notas</span>
+          </div>
+          <p class="notes-subtitle">Comentarios y contexto compartido de la tarea</p>
+        </div>
+        <div class="action-bar" aria-label="Acciones de notas">
+          <select class="sort-select" id="sort-notes" aria-label="Ordenar notas">
+            <option value="recent">Más recientes primero</option>
+            <option value="oldest">Más antiguas primero</option>
+          </select>
+          <button class="btn btn-add" type="button" id="new-note">+ Nueva nota</button>
+        </div>
+      </header>
+
+      <ol class="notes-list" id="notes-list" aria-live="polite">
+        <li class="note" data-note-id="1" data-created="2026-08-22T10:42:00">
+          <div class="avatar avatar-blue" aria-hidden="true">MG</div>
+          <div class="note-main">
+            <div class="note-meta">
+              <span class="author">María González</span>
+              <span class="role">Analista registral</span>
+              <time datetime="2026-08-22T10:42:00">Hoy, 10:42</time>
+            </div>
+            <span class="activity">Revisión documental</span>
+            <p class="note-content">Se validó la documentación anexa. Falta confirmar el número de identificación del representante legal antes de continuar con la siguiente actividad.</p>
+          </div>
+          <div class="note-actions" aria-label="Acciones de la nota de María González">
+            <button class="icon-btn edit-note" type="button" aria-label="Editar nota de María González" title="Editar nota"><span class="icon" aria-hidden="true">✎</span></button>
+            <button class="icon-btn delete delete-note" type="button" aria-label="Eliminar nota de María González" title="Eliminar nota"><span class="icon" aria-hidden="true">×</span></button>
+          </div>
+        </li>
+
+        <li class="note" data-note-id="2" data-created="2026-08-21T15:24:00">
+          <div class="avatar avatar-green" aria-hidden="true">JP</div>
+          <div class="note-main">
+            <div class="note-meta">
+              <span class="author">Juan Pérez</span>
+              <span class="role">Profesional jurídico</span>
+              <time datetime="2026-08-21T15:24:00">Ayer, 15:24</time>
+            </div>
+            <span class="activity">Validación jurídica</span>
+            <p class="note-content">La información societaria es consistente con el formulario. No se identifican observaciones jurídicas para el trámite.</p>
+          </div>
+          <div class="note-actions" aria-label="Acciones de la nota de Juan Pérez">
+            <button class="icon-btn" type="button" aria-label="Editar nota de Juan Pérez" title="Editar nota" disabled><span class="icon" aria-hidden="true">✎</span></button>
+            <button class="icon-btn delete" type="button" aria-label="Eliminar nota de Juan Pérez" title="Eliminar nota" disabled><span class="icon" aria-hidden="true">×</span></button>
+          </div>
+        </li>
+
+        <li class="note" data-note-id="3" data-created="2026-08-20T09:10:00">
+          <div class="avatar avatar-purple" aria-hidden="true">LC</div>
+          <div class="note-main">
+            <div class="note-meta">
+              <span class="author">Laura Cárdenas</span>
+              <span class="role">Coordinadora</span>
+              <time datetime="2026-08-20T09:10:00">20 ago., 09:10</time>
+            </div>
+            <span class="activity">Asignación</span>
+            <p class="note-content">Se prioriza esta solicitud por vencimiento próximo del plazo de respuesta.</p>
+          </div>
+          <div class="note-actions" aria-label="Acciones de la nota de Laura Cárdenas">
+            <button class="icon-btn" type="button" aria-label="Editar nota de Laura Cárdenas" title="Editar nota" disabled><span class="icon" aria-hidden="true">✎</span></button>
+            <button class="icon-btn delete" type="button" aria-label="Eliminar nota de Laura Cárdenas" title="Eliminar nota" disabled><span class="icon" aria-hidden="true">×</span></button>
+          </div>
+        </li>
+      </ol>
+
+      <footer class="notes-footer">
+        <span>Las acciones de edición y eliminación dependen de los permisos y propiedad de cada nota.</span>
+        <span id="saved-message" role="status"></span>
+      </footer>
+    </section>
+  </main>
+
+  <div class="dialog-backdrop" id="editor-backdrop" hidden>
+    <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+      <header class="dialog-head">
+        <h2 id="editor-title">Nueva nota</h2>
+        <button class="icon-btn" type="button" id="close-editor" aria-label="Cerrar editor de nota"><span class="icon" aria-hidden="true">×</span></button>
+      </header>
+      <div class="dialog-body">
+        <label for="note-text">Escriba el contexto útil para quien continúe la tarea</label>
+        <textarea id="note-text" maxlength="1000" placeholder="Ejemplo: se verificó el documento, queda pendiente confirmar…"></textarea>
+        <div class="field-help"><span>El contenido se guardará como texto.</span><span id="character-count">0 / 1000</span></div>
+      </div>
+      <footer class="dialog-footer">
+        <button class="btn" type="button" id="cancel-editor">Cancelar</button>
+        <button class="btn btn-add" type="button" id="save-note">Guardar nota</button>
+      </footer>
+    </section>
+  </div>
+
+  <div class="dialog-backdrop" id="confirm-backdrop" hidden>
+    <section class="dialog confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+      <header class="dialog-head"><h2 id="confirm-title">¿Eliminar esta nota?</h2></header>
+      <div class="dialog-body"><p>La nota dejará de estar disponible en la lista. Esta acción requiere confirmación.</p></div>
+      <footer class="dialog-footer">
+        <button class="btn" type="button" id="cancel-delete">Cancelar</button>
+        <button class="btn btn-danger" type="button" id="confirm-delete">Eliminar nota</button>
+      </footer>
+    </section>
+  </div>
+
+  <script>
+    const notesList = document.getElementById('notes-list');
+    const notesCount = document.getElementById('notes-count');
+    const editorBackdrop = document.getElementById('editor-backdrop');
+    const confirmBackdrop = document.getElementById('confirm-backdrop');
+    const editorTitle = document.getElementById('editor-title');
+    const noteText = document.getElementById('note-text');
+    const characterCount = document.getElementById('character-count');
+    const savedMessage = document.getElementById('saved-message');
+    let editingNote = null;
+    let deletingNote = null;
+
+    function openEditor(note) {
+      editingNote = note || null;
+      editorTitle.textContent = editingNote ? 'Editar nota' : 'Nueva nota';
+      noteText.value = editingNote ? editingNote.querySelector('.note-content').textContent : '';
+      updateCharacterCount();
+      editorBackdrop.hidden = false;
+      setTimeout(() => noteText.focus(), 0);
+    }
+
+    function closeEditor() {
+      editorBackdrop.hidden = true;
+      editingNote = null;
+      noteText.value = '';
+    }
+
+    function updateCharacterCount() {
+      characterCount.textContent = `${noteText.value.length} / 1000`;
+    }
+
+    function updateCount() {
+      const count = notesList.querySelectorAll('.note').length;
+      notesCount.textContent = `${count} ${count === 1 ? 'nota' : 'notas'}`;
+    }
+
+    function showMessage(message) {
+      savedMessage.textContent = message;
+      window.setTimeout(() => { if (savedMessage.textContent === message) savedMessage.textContent = ''; }, 3500);
+    }
+
+    function buildNewNote(content) {
+      const note = document.createElement('li');
+      note.className = 'note';
+      note.dataset.noteId = String(Date.now());
+      note.dataset.created = new Date().toISOString();
+      note.innerHTML = `
+        <div class="avatar avatar-blue" aria-hidden="true">MG</div>
+        <div class="note-main">
+          <div class="note-meta">
+            <span class="author">María González</span>
+            <span class="role">Analista registral</span>
+            <time datetime="${note.dataset.created}">Ahora</time>
+          </div>
+          <span class="activity">Actividad actual</span>
+          <p class="note-content"></p>
+        </div>
+        <div class="note-actions" aria-label="Acciones de la nueva nota">
+          <button class="icon-btn edit-note" type="button" aria-label="Editar nueva nota" title="Editar nota"><span class="icon" aria-hidden="true">✎</span></button>
+          <button class="icon-btn delete delete-note" type="button" aria-label="Eliminar nueva nota" title="Eliminar nota"><span class="icon" aria-hidden="true">×</span></button>
+        </div>`;
+      note.querySelector('.note-content').textContent = content;
+      return note;
+    }
+
+    document.getElementById('new-note').addEventListener('click', () => openEditor());
+    document.getElementById('close-editor').addEventListener('click', closeEditor);
+    document.getElementById('cancel-editor').addEventListener('click', closeEditor);
+    noteText.addEventListener('input', updateCharacterCount);
+
+    document.getElementById('save-note').addEventListener('click', () => {
+      const content = noteText.value.trim();
+      if (!content) {
+        noteText.focus();
+        showMessage('Escriba una nota antes de guardar.');
+        return;
+      }
+      if (editingNote) {
+        editingNote.querySelector('.note-content').textContent = content;
+        showMessage('Nota actualizada (demostración).');
+      } else {
+        notesList.prepend(buildNewNote(content));
+        updateCount();
+        showMessage('Nota creada (demostración).');
+      }
+      closeEditor();
+    });
+
+    notesList.addEventListener('click', event => {
+      const note = event.target.closest('.note');
+      if (!note) return;
+      if (event.target.closest('.edit-note')) openEditor(note);
+      if (event.target.closest('.delete-note')) {
+        deletingNote = note;
+        confirmBackdrop.hidden = false;
+        document.getElementById('confirm-delete').focus();
+      }
+    });
+
+    document.getElementById('cancel-delete').addEventListener('click', () => { confirmBackdrop.hidden = true; deletingNote = null; });
+    document.getElementById('confirm-delete').addEventListener('click', () => {
+      if (deletingNote) {
+        deletingNote.remove();
+        updateCount();
+        showMessage('Nota eliminada (demostración).');
+      }
+      confirmBackdrop.hidden = true;
+      deletingNote = null;
+    });
+
+    document.getElementById('sort-notes').addEventListener('change', event => {
+      const notes = Array.from(notesList.querySelectorAll('.note'));
+      notes.sort((a, b) => event.target.value === 'recent'
+        ? new Date(b.dataset.created) - new Date(a.dataset.created)
+        : new Date(a.dataset.created) - new Date(b.dataset.created));
+      notes.forEach(note => notesList.appendChild(note));
+      showMessage('Orden de notas actualizado.');
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      if (!editorBackdrop.hidden) closeEditor();
+      if (!confirmBackdrop.hidden) { confirmBackdrop.hidden = true; deletingNote = null; }
+    });
+  </script>
+</body>
+</html>
