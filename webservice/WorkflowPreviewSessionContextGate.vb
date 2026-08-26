@@ -74,6 +74,28 @@ Public NotInheritable Class WorkflowPreviewSessionContextGate
         Return resultado
     End Function
 
+    'Resuelve el permiso específico de Usuario anterior de forma fail-closed; no reutiliza permisos de ruta ni datos del navegador.
+    Public Function AsegurarContextoDevolverUsuarioAnterior(Optional ByVal prepararEjecucion As Boolean = False) As ResultadoContextoSesionWorkflow
+        Dim resultado As ResultadoContextoSesionWorkflow = If(prepararEjecucion,
+                                                              AsegurarContextoEjecucion(),
+                                                              AsegurarContexto())
+        If resultado Is Nothing OrElse resultado.Contexto Is Nothing OrElse Not resultado.Contexto.EsValido() Then
+            Return If(resultado, New ResultadoContextoSesionWorkflow With {.Contexto = New ContextoModuloWorkflow()})
+        End If
+        Try
+            Dim permisos As String() = Nothing
+            Dim resultadoPermisos As String = New Class_permisos_usuarios_workflow().SolicitaPermisosUsuarioWorkflow(
+                resultado.Contexto.IdUsuarioWorkflow,
+                permisos)
+            resultado.Contexto.PuedeDevolverUsuarioAnterior = String.Equals(resultadoPermisos, "YES", StringComparison.OrdinalIgnoreCase) AndAlso
+                                                                 permisos IsNot Nothing AndAlso permisos.Length > 43 AndAlso
+                                                                 String.Equals(permisos(43), "1", StringComparison.OrdinalIgnoreCase)
+        Catch
+            resultado.Contexto.PuedeDevolverUsuarioAnterior = False
+        End Try
+        Return resultado
+    End Function
+
     Public Function AsegurarContextoEjecucion() As ResultadoContextoSesionWorkflow
         Dim resultado As New ResultadoContextoSesionWorkflow With {
             .Contexto = New ContextoModuloWorkflow()

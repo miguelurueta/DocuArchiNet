@@ -334,6 +334,58 @@ Public Class WebServiceWorkflowModern
         End Try
     End Function
 
+    <WebMethod(EnableSession:=True)>
+    <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
+    Public Function PreviewDevolverUsuarioAnterior(ByVal idTarea As Long) As PrevisualizacionDevolverUsuarioAnteriorDto
+        Try
+            Dim resultadoSesion As ResultadoContextoSesionWorkflow = New WorkflowPreviewSessionContextGate().AsegurarContextoDevolverUsuarioAnterior()
+            If resultadoSesion Is Nothing OrElse resultadoSesion.Contexto Is Nothing OrElse Not resultadoSesion.Contexto.EsValido() OrElse
+               String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionWorkflow) Then
+                Return CrearRespuestaDevolverUsuarioAnteriorSegura(idTarea, CodigosBloqueoDevolverUsuarioAnterior.ContextoInvalido,
+                                                                    "No fue posible validar la sesión de la tarea.")
+            End If
+            Dim factory As New WorkflowModuleConnectionFactory(resultadoSesion.CadenaConexionWorkflow)
+            Dim dataExecutor As New AdoNetDataExecutor()
+            Dim repositorio As New MySqlDevolverUsuarioAnteriorRepository(factory, dataExecutor)
+            Dim servicio As New ServicioDevolverUsuarioAnterior(repositorio, repositorio, repositorio, New DevolverUsuarioAnteriorTokenCodec())
+            Return servicio.Previsualizar(resultadoSesion.Contexto, New SolicitudPreviewDevolverUsuarioAnterior With {.IdTarea = idTarea})
+        Catch
+            Return CrearRespuestaDevolverUsuarioAnteriorSegura(idTarea, CodigosBloqueoDevolverUsuarioAnterior.NoDisponible,
+                                                                "No fue posible consultar el usuario anterior.")
+        End Try
+    End Function
+
+    <WebMethod(EnableSession:=True)>
+    <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
+    Public Function EjecutarDevolverUsuarioAnterior(ByVal idTarea As Long,
+                                                    ByVal tokenVersion As String) As ResultadoDevolverUsuarioAnteriorDto
+        Try
+            Dim resultadoSesion As ResultadoContextoSesionWorkflow = New WorkflowPreviewSessionContextGate().AsegurarContextoDevolverUsuarioAnterior(True)
+            If resultadoSesion Is Nothing OrElse resultadoSesion.Contexto Is Nothing OrElse Not resultadoSesion.Contexto.EsValido() OrElse
+               String.IsNullOrWhiteSpace(resultadoSesion.CadenaConexionWorkflow) Then
+                Return CrearResultadoDevolverUsuarioAnteriorBloqueado(CodigosBloqueoDevolverUsuarioAnterior.ContextoInvalido,
+                                                                        "No fue posible validar la sesión de la tarea.")
+            End If
+            Dim factory As New WorkflowModuleConnectionFactory(resultadoSesion.CadenaConexionWorkflow)
+            Dim dataExecutor As New AdoNetDataExecutor()
+            Dim repositorio As New MySqlDevolverUsuarioAnteriorRepository(factory, dataExecutor)
+            Dim servicio As New ServicioDevolverUsuarioAnterior(
+                repositorio,
+                repositorio,
+                repositorio,
+                New DevolverUsuarioAnteriorTokenCodec(),
+                New MySqlDevolverUsuarioAnteriorConcurrencyGuard(factory, dataExecutor),
+                New WorkflowLegacyDevolverUsuarioAnteriorExecutorAdapter(),
+                New WorkflowLegacyDevolverUsuarioAnteriorAuditoriaAdapter())
+            Return servicio.Ejecutar(resultadoSesion.Contexto, New SolicitudEjecutarDevolverUsuarioAnterior With {
+                .IdTarea = idTarea,
+                .TokenVersion = tokenVersion})
+        Catch
+            Return CrearResultadoDevolverUsuarioAnteriorBloqueado(CodigosBloqueoDevolverUsuarioAnterior.NoDisponible,
+                                                                    "No fue posible devolver la tarea.")
+        End Try
+    End Function
+
     Private Shared Function CrearServicioSinConexion() As ServicioTransicionTarea
         Return New ServicioTransicionTarea(
             New MySqlTareaWorkflowRepository(),
@@ -380,6 +432,31 @@ Public Class WebServiceWorkflowModern
                 .ReferenciaTrazabilidad = String.Empty
             }
         }
+    End Function
+
+    Private Shared Function CrearRespuestaDevolverUsuarioAnteriorSegura(ByVal idTarea As Long,
+                                                                         ByVal codigo As String,
+                                                                         ByVal mensaje As String) As PrevisualizacionDevolverUsuarioAnteriorDto
+        Return New PrevisualizacionDevolverUsuarioAnteriorDto With {
+            .IdTarea = idTarea,
+            .[Error] = New ErrorDevolverUsuarioAnteriorDto With {
+                .Codigo = codigo,
+                .MensajeVisible = mensaje,
+                .ReferenciaTrazabilidad = String.Empty}}
+    End Function
+
+    Private Shared Function CrearResultadoDevolverUsuarioAnteriorBloqueado(ByVal codigo As String,
+                                                                             ByVal mensaje As String) As ResultadoDevolverUsuarioAnteriorDto
+        Return New ResultadoDevolverUsuarioAnteriorDto With {
+            .Exito = False,
+            .EstadoFinal = "bloqueado",
+            .CodigoBloqueo = codigo,
+            .MensajeFuncional = mensaje,
+            .EsReintentable = False,
+            .[Error] = New ErrorDevolverUsuarioAnteriorDto With {
+                .Codigo = codigo,
+                .MensajeVisible = mensaje,
+                .ReferenciaTrazabilidad = String.Empty}}
     End Function
 
     Private Shared Function CrearResultadoDevolverBloqueado(ByVal codigo As String,
