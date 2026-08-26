@@ -1,0 +1,95 @@
+## Why
+
+BACKEND-DEVOLUCION-USUARIO-ANTERIOR. Ver detalle funcional completo del ticket en la seccion Jira Details.
+
+## What Changes
+
+- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-36.
+- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
+- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
+- Se deja lista una base coherente para continuar con design, specs y tasks.
+
+## Jira Details
+
+> # 02 — Backend seguro de devolución a usuario anterior
+> 
+> ## ROL ESPERADO
+> 
+> Actúa como desarrollador senior VB.NET de capas Domain, Application e Infrastructure para Workflow, con experiencia en concurrencia MySQL y encapsulación de motores existentes.
+> 
+> ## OBJETIVO
+> 
+> Implementar el corte completo de servidor de **Devolver a usuario anterior**: contrato exclusivo, autorización, `PreviewDevolverUsuarioAnterior` de solo lectura, `EjecutarDevolverUsuarioAnterior`, lock por tarea, adaptador, auditoría y pruebas focales. Preview y ejecución se implementan juntos porque comparten el mismo historial, token y límite de seguridad.
+> 
+> ## CONTEXTO OBLIGATORIO
+> 
+> - Requiere 01 aprobado, con decisiones explícitas sobre historial, token, lock, parámetros de `Terminar_Tarea_Workflow`, notificación y eventos dinámicos.
+> - Leer `00-contexto-obligatorio.md`, los documentos de `../Exploracion/` y la evidencia de 01.
+> - La salida habilita 03; no implementa UI, activación ni liberación.
+> 
+> ## REQUISITOS POSITIVOS
+> 
+> - Crear DTOs, modelos, puertos, códigos públicos y servicio exclusivos de devolución a usuario anterior; no reutilizar contratos de actividades, conectores ni envíos.
+> - Exponer en el ASMX moderno existente `PreviewDevolverUsuarioAnterior(idTarea)` y `EjecutarDevolverUsuarioAnterior({ IdTarea, TokenVersion })`, con sesión habilitada y contexto autenticado revalidado en servidor.
+> - Calcular el permiso de devolución específico en servidor, fail-closed; no reutilizar `PuedeCambioRuta` ni aceptar permisos, destino, Ruta, Flujo, actividad, grupo o historial desde el navegador.
+> - Ejecutar el preview exclusivamente con `SELECT` parametrizados. Resolver cero o un registro histórico mediante el algoritmo aprobado en 01, validar tarea activa y accesible, usuario elegible, actividad y Ruta/Flujo consistentes, y devolver datos mínimos para confirmación junto con token opaco.
+> - Emitir un token que vincule versión de tarea e identificador del registro histórico confirmado. El endpoint de ejecución recibe solo ese token, no un identificador histórico adicional.
+> - Adquirir un lock exclusivo por `IdTarea`, independiente del token. Dentro del lock releer y validar contexto, permiso, tarea, token, registro histórico, usuario, actividad, Ruta/Flujo y auto-devolución frente al usuario Workflow autenticado.
+> - Crear puerto y adaptador exclusivos. Solo ese adaptador invoca una vez `Terminar_Tarea_Workflow` con `Page = Nothing`, actualización de interfaz legacy desactivada y los parámetros de notificación/eventos aprobados en 01.
+> - La política aprobada de notificación no permite que el adaptador ni los componentes nuevos construyan o invoquen componentes de respuestas. Si el motor legacy los construye internamente, los parámetros aprobados deben impedir llamar sus métodos y una prueba focal debe demostrarlo. Normalizar éxito, bloqueo, error reintentable y advertencias; auditar con `ASMX_DEVOLVER_USUARIO_ANTERIOR`, sin datos sensibles.
+> 
+> ## RESTRICCIONES CRÍTICAS
+> 
+> - No implementar UI, feature flags, directorio global, búsqueda, paginación, selector de destinos ni cambios de configuración.
+> - No modificar contratos o comportamiento de Devolver a actividad anterior, Continuar flujo, Enviar a usuario, Enviar a grupo, `PreviewEnviarTarea`, `EjecutarEnvioTarea`, `ServicioTransicionTarea` ni `IdConector`.
+> - No invocar el método legacy `Devolver_tarea_workflow_usuario_anterior`, postbacks, handlers Web Forms, `GridView`, `UpdatePanel`, `ModalPopupExtender` ni ejecutores de otras operaciones.
+> - Los componentes nuevos no referencian `Classgestionrespuesta`, `Verifica_respuesta_*`, `Reasigna_respuesta_envia_tarea_usuario` ni componentes de respuestas.
+> - No modificar el guard genérico de transiciones si su contrato actual usa token; crear o parametrizar un guard exclusivo que preserve la exclusión por tarea sin alterar las demás operaciones.
+> - Historial ausente, de grupo, no elegible, distinto del confirmado, auto-devolución, token vencido, permiso retirado o lock ocupado bloquean antes del motor.
+> - No ejecutar E2E autenticada, carga ni una tarea real sin autorización explícita de ambiente y cuentas de prueba.
+> 
+> ## REGLAS DE ANTIRREGIÓN
+> 
+> - El preview no revela registros de otras tareas ni destinos alternativos y no escribe tarea, estado, auditoría, eventos ni datos de negocio.
+> - Existe un único punto mutante directo y el navegador nunca autoriza ni el destino ni el registro histórico.
+> - Una falla de auditoría no revierte una transición ya confirmada; solicitudes concurrentes, incluso con tokens distintos, no devuelven dos veces la tarea.
+> - Las demás operaciones preservan endpoints, payloads, adaptadores, feature gates y pruebas existentes.
+> 
+> ## CRITERIOS DE ACEPTACIÓN
+> 
+> - El preview devuelve cero o un usuario histórico elegible, nunca grupo, actividad alternativa, conector ni datos de respuestas.
+> - Si el historial cambia desde el preview, la ejecución bloquea; nunca devuelve a un destino distinto del confirmado.
+> - La auto-devolución compara el usuario histórico con el usuario Workflow autenticado real, nunca con `Id_Ruta_Workflow`.
+> - Errores y bloqueos públicos no exponen SQL, sesión, controles Web Forms, credenciales ni excepciones internas.
+> 
+> ## PRUEBAS OBLIGATORIAS
+> 
+> Agregar y ejecutar pruebas focales para permiso específico, preview sin escritura, orden/desempate de historial, historial válido/ausente/de grupo, usuario retirado, Ruta/Flujo inconsistente, auto-devolución, SQL parametrizado, token vencido, token con historial cambiado, lock por tarea con tokens distintos, concurrencia, advertencia aprobada, auditoría fallida, éxito simulado y ausencia de referencias a componentes de respuestas. Ejecutar MSBuild disponible y pruebas afectadas; registrar comando, resultado, cobertura y limitaciones. No E2E.
+> 
+> ## DOCUMENTACIÓN TÉCNICA
+> 
+> Actualizar `01-arquitectura.md`, `02-contrato.md`, `03-flujo-y-seguridad.md` y `04-pruebas-y-evidencia.md` bajo `../01-implementacion-devolver-usuario-anterior/` con algoritmo de historial, token, lock, punto mutante, parámetros aprobados, auditoría, estados/error y relevo a 03.
+> 
+> ## ENTREGABLE FINAL
+> 
+> Reportar ticket, cambios backend, archivos, pruebas, compilación, evidencia de no escritura, trazabilidad sanitizada, decisiones aplicadas y confirmación de no regresión. No implementar UI ni cambiar configuración de ambiente.
+
+## Jira Metadata
+
+- Tipo: Tarea
+- Prioridad: Medium
+- Labels: ANTERIOR, BACKEND, DEVOLUCION, USUARIO
+
+## Capabilities
+
+### New Capabilities
+- `backend-devolucion-usuario-anterior`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+
+### Modified Capabilities
+- 
+
+## Impact
+
+- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
+- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+
