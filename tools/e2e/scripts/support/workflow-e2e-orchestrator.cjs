@@ -16,6 +16,7 @@ const {
 } = require('./e2e-test-resource-lifecycle.cjs');
 const { DOC32_RESOURCE_CONTRACT } = require('./doc32-e2e-resource-adapter.cjs');
 const { DOC33_RESOURCE_CONTRACT } = require('./doc33-e2e-resource-adapter.cjs');
+const { DOC36_RESOURCE_CONTRACT } = require('./doc36-e2e-resource-adapter.cjs');
 
 const e2eRoot = path.resolve(__dirname, '..', '..');
 const repositoryRoot = path.resolve(e2eRoot, '..', '..');
@@ -37,6 +38,14 @@ function doc33PlaywrightCommand(mode) {
   return {
     command: process.execPath,
     args: [cli, 'test', 'tests/doc33-return-activity-ui.spec.cjs', '--grep', `@doc33-ui-${mode}`, '--reporter=list']
+  };
+}
+
+function doc36PlaywrightCommand(mode) {
+  const cli = path.resolve(e2eRoot, 'node_modules', '@playwright', 'test', 'cli.js');
+  return {
+    command: process.execPath,
+    args: [cli, 'test', 'tests/doc36-return-user-previous.spec.cjs', '--grep', `@doc36-${mode}`, '--reporter=list']
   };
 }
 
@@ -167,12 +176,78 @@ const DOC_REGISTRY = Object.freeze({
         ...secrets
       };
     }
+  }),
+  doc36: Object.freeze({
+    resourceContract: DOC36_RESOURCE_CONTRACT,
+    profileKeys: Object.freeze([
+      'doc',
+      'environment',
+      'baseUrl',
+      'ignoreHttpsErrors',
+      'module',
+      'odbcDsn',
+      'executionTaskId',
+      'previewActivityNames',
+      'executionActivityName',
+      'executionFinalActivityName',
+      'concurrencyTaskId',
+      'concurrencyActivityName',
+      'taskStateSql',
+      'auditSql',
+      'previewMaxMs',
+      'executionMaxMs',
+      'concurrencyMaxMs'
+    ]),
+    stages: Object.freeze([
+      Object.freeze({ id: 'preview', authorizations: Object.freeze(['environment']), launch: () => doc36PlaywrightCommand('preview') }),
+      Object.freeze({ id: 'execution', resourceRole: 'execution', authorizations: Object.freeze(['environment', 'execution']), launch: () => doc36PlaywrightCommand('execute') }),
+      Object.freeze({
+        id: 'concurrency',
+        resourceRole: 'concurrency',
+        authorizations: Object.freeze(['environment', 'execution', 'concurrency']),
+        launch: () => ({ command: process.execPath, args: [path.resolve(e2eRoot, 'scripts', 'run-doc36-return-user-previous-concurrency.cjs')] })
+      })
+    ]),
+    async collectSecrets() {
+      requireInteractiveConsole();
+      const values = {};
+      await collectValue(values, 'DOC36_E2E_AUTHORIZED_USER', 'Cuenta Workflow autorizada');
+      await collectValue(values, 'DOC36_E2E_AUTHORIZED_PASSWORD', 'Contraseña Workflow', { secret: true });
+      await collectValue(values, 'DOC36_E2E_MYSQL_USER', 'Usuario MySQL de solo lectura');
+      await collectValue(values, 'DOC36_E2E_MYSQL_PASSWORD', 'Contraseña MySQL de solo lectura', { secret: true });
+      return values;
+    },
+    environment(profile, secrets, authorizations) {
+      return {
+        DOC36_E2E_BASE_URL: profile.baseUrl,
+        DOC36_E2E_IGNORE_HTTPS_ERRORS: profile.ignoreHttpsErrors ? 'true' : 'false',
+        DOC36_E2E_MODULE: profile.module,
+        DOC36_E2E_ENVIRONMENT: profile.environment,
+        DOC36_E2E_ODBC_DSN: profile.odbcDsn,
+        DOC36_E2E_EXECUTION_TASK_ID: String(profile.executionTaskId),
+        DOC36_E2E_PREVIEW_ACTIVITY_NAMES: JSON.stringify(profile.previewActivityNames.map((name) => name.trim())),
+        DOC36_E2E_EXECUTION_ACTIVITY_NAME: profile.executionActivityName.trim(),
+        DOC36_E2E_EXECUTION_FINAL_ACTIVITY_NAME: profile.executionFinalActivityName.trim(),
+        DOC36_E2E_CONCURRENCY_TASK_ID: String(profile.concurrencyTaskId),
+        DOC36_E2E_CONCURRENCY_ACTIVITY_NAME: profile.concurrencyActivityName.trim(),
+        DOC36_E2E_TASK_STATE_SQL: profile.taskStateSql,
+        DOC36_E2E_AUDIT_SQL: profile.auditSql,
+        DOC36_E2E_PREVIEW_MAX_MS: String(profile.previewMaxMs),
+        DOC36_E2E_EXECUTION_MAX_MS: String(profile.executionMaxMs),
+        DOC36_E2E_CONCURRENCY_MAX_MS: String(profile.concurrencyMaxMs),
+        DOC36_E2E_ENVIRONMENT_AUTHORIZED: authorizations.has('environment') ? 'true' : 'false',
+        DOC36_E2E_EXECUTION_AUTHORIZED: authorizations.has('execution') ? 'true' : 'false',
+        DOC36_E2E_CONCURRENCY_AUTHORIZED: authorizations.has('concurrency') ? 'true' : 'false',
+        ...secrets
+      };
+    }
   })
 });
 
 validateRegisteredResourceContracts({
   [DOC32_RESOURCE_CONTRACT.id]: DOC32_RESOURCE_CONTRACT,
-  [DOC33_RESOURCE_CONTRACT.id]: DOC33_RESOURCE_CONTRACT
+  [DOC33_RESOURCE_CONTRACT.id]: DOC33_RESOURCE_CONTRACT,
+  [DOC36_RESOURCE_CONTRACT.id]: DOC36_RESOURCE_CONTRACT
 });
 
 function fail(message) {
@@ -442,6 +517,7 @@ module.exports = {
   parseArguments,
   playwrightCommand,
   doc33PlaywrightCommand,
+  doc36PlaywrightCommand,
   selectedStages,
   validateAuthorizations,
   validateProfile

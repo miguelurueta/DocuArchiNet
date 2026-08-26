@@ -1,4 +1,8 @@
-## ADDED Requirements
+# backend-devolucion-usuario-anterior Specification
+
+## Purpose
+TBD - created by archiving change doc-36-backend-devolucion-usuario-anterior. Update Purpose after archive.
+## Requirements
 ### Requirement: BACKEND-DEVOLUCION-USUARIO-ANTERIOR
 El sistema SHALL implementar el alcance definido para DOC-36.
 #### Scenario: Flujo principal
@@ -7,6 +11,7 @@ El sistema SHALL implementar el alcance definido para DOC-36.
 #### Scenario: No-regresion
 - **WHEN** se valida el modulo afectado
 - **THEN** no se rompen flujos existentes
+
 ### Requirement: Detalle funcional Jira
 El sistema SHALL considerar las reglas detalladas del ticket.
 
@@ -73,3 +78,71 @@ El sistema SHALL considerar las reglas detalladas del ticket.
 - ## ENTREGABLE FINAL
 - 
 - Reportar ticket, cambios backend, archivos, pruebas, compilación, evidencia de no escritura, trazabilidad sanitizada, decisiones aplicadas y confirmación de no regresión. No implementar UI ni cambiar configuración de ambiente.
+
+### Requirement: Preview de usuario histórico inmediato
+
+El sistema SHALL exponer un preview autenticado y de solo lectura que resuelva como máximo un usuario anterior de la misma tarea mediante el historial determinista aprobado.
+
+#### Scenario: Historial válido
+
+- **WHEN** una tarea activa accesible tiene dos snapshots consistentes y el segundo corresponde a un usuario elegible distinto del autenticado
+- **THEN** el preview devuelve actividad y usuario mínimos junto con un token opaco
+- **AND** no escribe estado, tarea, auditoría, evento ni datos de negocio.
+
+#### Scenario: Historial no elegible
+
+- **WHEN** falta el antecedente o este representa grupo, usuario retirado, inconsistencia Ruta/Flujo o el usuario autenticado
+- **THEN** el preview devuelve un bloqueo público específico
+- **AND** no devuelve alternativas ni abre la capacidad de actividad anterior.
+
+#### Scenario: Búsqueda automática del usuario anterior
+
+- **WHEN** existen snapshots grupales entre la tarea actual y un snapshot histórico de usuario de la misma tarea
+- **THEN** el servidor ignora los snapshots grupales y selecciona el usuario real más reciente anterior al estado actual
+- **AND** el cliente no proporciona ni selecciona el identificador del usuario.
+
+#### Scenario: Usuario de flujo histórico diferenciado
+
+- **WHEN** el antecedente válido contiene un `ID_USUARIO_WORKFLOW_FLUJO_TRABAJO` positivo distinto de `Id_Usuario`
+- **THEN** el preview conserva ese usuario de flujo para la ejecución revalidada
+- **AND** solo sustituye ese valor con el usuario destino cuando el campo histórico es cero.
+
+### Requirement: Token que compromete el historial
+
+El sistema SHALL proteger el token de usuario anterior con tarea, estado actual, estado histórico y vencimiento de cinco minutos.
+
+#### Scenario: Historial cambia después del preview
+
+- **WHEN** la ejecución recibe token válido pero el estado actual o antecedente ya no coincide
+- **THEN** bloquea con conflicto de versión
+- **AND** nunca resuelve una fila histórica distinta.
+
+### Requirement: Ejecución exclusiva por tarea
+
+El sistema SHALL serializar la ejecución con un lock exclusivo por `IdTarea`, independiente del token.
+
+#### Scenario: Intentos concurrentes
+
+- **WHEN** dos solicitudes para la misma tarea compiten, incluso con tokens distintos
+- **THEN** una sola puede adquirir el lock y alcanzar el motor
+- **AND** la otra recibe bloqueo en progreso sin mutación.
+
+### Requirement: Punto mutante sin UI, correo, eventos ni respuestas
+
+El sistema SHALL ejecutar la transición mediante un adaptador exclusivo que llama una vez a `Terminar_Tarea_Workflow` con `Page = Nothing`, notificación, interfaz legacy y eventos dinámicos desactivados.
+
+#### Scenario: Ejecución revalidada
+
+- **WHEN** contexto, permiso, token, historial, usuario y Ruta/Flujo pasan la revalidación dentro del lock
+- **THEN** el adaptador usa solo valores reconstruidos del servidor y ejecuta una transición
+- **AND** los componentes nuevos no referencian tratamientos de respuestas.
+
+### Requirement: Auditoría saneada posterior
+
+El sistema SHALL registrar el resultado bajo la acción `ASMX_DEVOLVER_USUARIO_ANTERIOR` sin secretos ni token.
+
+#### Scenario: Falla de auditoría posterior al éxito
+
+- **WHEN** el motor confirma la transición y la auditoría adicional falla
+- **THEN** el resultado conserva éxito y agrega una advertencia saneada.
+

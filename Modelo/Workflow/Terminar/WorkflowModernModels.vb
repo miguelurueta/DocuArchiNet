@@ -32,6 +32,7 @@ Public Class ContextoModuloWorkflow
     Public Property PuedeCambioRuta As Boolean
     Public Property PuedeCambioUsuario As Boolean
     Public Property PuedeDevolverActividad As Boolean
+    Public Property PuedeDevolverUsuarioAnterior As Boolean
 
     Public Overrides Function EsValido() As Boolean
         Return MyBase.EsValido() AndAlso IdGrupoWorkflow > 0 AndAlso IdRutaWorkflow > 0 AndAlso

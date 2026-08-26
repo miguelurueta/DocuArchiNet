@@ -1,3 +1,4 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07 -->
 ## Context
 
 DOC-36: BACKEND-DEVOLUCION-USUARIO-ANTERIOR
@@ -78,7 +79,33 @@ DOC-36: BACKEND-DEVOLUCION-USUARIO-ANTERIOR
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Último usuario histórico real
+
+La fila actual se identifica por su `id_Estado` revalidado y el antecedente se resuelve en servidor como el registro histórico más reciente con `Id_Usuario > 0` y `id_Estado` menor al actual, ordenado por `id_Estado DESC LIMIT 1`. Los snapshots grupales se saltan porque no son un usuario destino; si no existe ningún usuario histórico elegible, se bloquea. `id_Estado` evita depender de fechas y no permite que el cliente indique un usuario.
+
+### D-02 — Token exclusivo
+
+Un protector exclusivo de usuario anterior emitirá un token opaco de cinco minutos con tarea, `id_Estado` actual y `id_Estado` histórico. Ejecución recibe solo `{ IdTarea, TokenVersion }` y exige coincidencia completa dentro del lock.
+
+### D-03 — Concurrencia por tarea
+
+El guard exclusivo usa `GET_LOCK('workflow-return-user-' + IdTarea, 0)` y retiene su conexión hasta liberar en `Finally`. No comparte contrato ni nombre de lock con otras operaciones y no se deriva del token.
+
+### D-04 — Autorización y destino de servidor
+
+El contexto autenticado calcula el permiso específico. Preview y ejecución validan tarea accesible, usuario histórico positivo/elegible y consistencia de Ruta, flujo y actividad de flujo según las reglas existentes de recuperación; no dependen de `ESTADO_RECUPERACION_FLUJO_TRABAJO` como permiso. La auto-devolución compara el histórico contra `IdUsuarioWorkflow` autenticado; no usa Ruta ni valores del cliente. Cuando el antecedente de flujo trae `ID_USUARIO_WORKFLOW_FLUJO_TRABAJO` positivo, se conserva aunque sea diferente del usuario destino; únicamente se completa con el usuario destino si viene en cero, igual que el motor legado.
+
+### D-05 — Adaptador mutante exclusivo
+
+El adaptador nuevo es el único invocador de `Terminar_Tarea_Workflow`. No llama el método legacy de devolución, postbacks ni controles Web Forms. La llamada usa `Page = Nothing`, usuario/actividad/ruta/flujo revalidados y una sola invocación.
+
+### D-06 — Política de motor sin respuestas
+
+El adaptador fija `notifica = 0`, `notifica_envio_correo = 0`, actualización legacy `0`, eventos dinámicos `0`, reasignación SII `0` y reasignación de tarea `0`. No se referencian componentes ni métodos de respuestas.
+
+### D-07 — Auditoría posterior saneada
+
+La auditoría registra la acción `ASMX_DEVOLVER_USUARIO_ANTERIOR` con referencia opaca. Una falla de auditoría luego de éxito se devuelve como advertencia y no revierte la transición.
 
 
 ## Risks / Trade-offs
@@ -92,4 +119,4 @@ DOC-36: BACKEND-DEVOLUCION-USUARIO-ANTERIOR
 
 ## Open Questions
 
-- TBD
+- Ninguna para la implementación de servidor. UI, activación y liberación permanecen en etapas posteriores.

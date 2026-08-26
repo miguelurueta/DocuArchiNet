@@ -13,6 +13,8 @@ const consumers = [
   'scripts/run-doc11-concurrency.cjs',
   'tests/doc32-return-activity.spec.cjs',
   'scripts/run-doc32-return-activity-concurrency.cjs',
+  'tests/doc36-return-user-previous.spec.cjs',
+  'scripts/run-doc36-return-user-previous-concurrency.cjs',
   'tests/notes-workflow.spec.cjs',
   'scripts/run-notes-workflow-concurrency.cjs'
 ];
