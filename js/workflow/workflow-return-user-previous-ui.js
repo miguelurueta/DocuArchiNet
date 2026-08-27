@@ -234,8 +234,11 @@
         emit("workflow:return-user-previous-selected", selection);
         setStatus(control, "confirmacion-abierta", "Confirme la devolución para continuar.", "informacion");
     }
-    function attach(control) {
+    function attachTrigger(control) {
         control.trigger.addEventListener("click", function () { if (!control.isOpen) { openModal(control); } });
+    }
+    function attach(control) {
+        attachTrigger(control);
         control.close.addEventListener("click", function () { closeModal(control); });
         control.confirm.addEventListener("click", function () { openConfirmation(control); });
         control.modal.querySelector("[data-workflow-return-user-previous-close]").addEventListener("click", function () { closeModal(control); });
@@ -255,7 +258,13 @@
     }
     function inicializar() {
         var trigger = find("workflow-return-user-previous-trigger");
-        if (!trigger || trigger.getAttribute("data-workflow-return-user-previous-active") !== "true" || activeControl) { return false; }
+        if (!trigger || trigger.getAttribute("data-workflow-return-user-previous-active") !== "true") { return false; }
+        if (activeControl) {
+            if (activeControl.trigger === trigger) { return false; }
+            activeControl.trigger = trigger;
+            attachTrigger(activeControl);
+            return true;
+        }
         activeControl = {
             trigger: trigger,
             modal: find("workflow-return-user-previous-modern-modal"),

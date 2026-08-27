@@ -307,7 +307,7 @@ Public Class Webworkflow
 
         Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
         script.ID = "workflowReturnUserPreviousModernScript"
-        script.Attributes("src") = "../js/workflow/workflow-return-user-previous-ui.js?v=20260827-doc37ui1"
+        script.Attributes("src") = "../js/workflow/workflow-return-user-previous-ui.js?v=20260827-doc37rebind1"
         script.Attributes("type") = "text/javascript"
         Page.Header.Controls.Add(script)
     End Sub
@@ -339,7 +339,7 @@ Public Class Webworkflow
 
         Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
         script.ID = "workflowReturnActivityModernScript"
-        script.Attributes("src") = "../js/workflow/workflow-return-activity-ui.js?v=20260825-doc33ui1"
+        script.Attributes("src") = "../js/workflow/workflow-return-activity-ui.js?v=20260827-doc33rebind1"
         script.Attributes("type") = "text/javascript"
         Page.Header.Controls.Add(script)
     End Sub
