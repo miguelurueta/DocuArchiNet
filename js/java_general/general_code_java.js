@@ -21,7 +21,7 @@ function myFunction(event, thiss) {
 }
 
 function registrar_evento_documento(nombre_evento, manejador) {
-    if (window.jQuery) {
+    if (typeof window.jQuery === "function" && window.jQuery.fn && typeof window.jQuery.fn.on === "function") {
         window.jQuery(document).on(nombre_evento, manejador);
     } else if (document.addEventListener) {
         document.addEventListener(nombre_evento, manejador, false);
