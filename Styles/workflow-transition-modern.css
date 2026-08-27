@@ -49,12 +49,20 @@
     height: 42rem;
 }
 
+#workflow-return-user-previous-modern-dialog {
+    max-width: 36rem;
+}
+
 #workflow-user-send-modern-dialog .workflow-transition-modal__body {
     overflow-y: scroll;
 }
 
 #workflow-return-activity-modern-dialog .workflow-transition-modal__body {
     overflow-y: scroll;
+}
+
+#workflow-return-user-previous-modern-dialog .workflow-transition-modal__body {
+    overflow-y: auto;
 }
 
 .workflow-transition-modal__header {
@@ -130,6 +138,12 @@
     color: #7a1b14;
 }
 
+.workflow-transition-modal__status[data-workflow-return-user-previous-status="error"] {
+    background: #fff2f2;
+    border-left-color: #b42318;
+    color: #7a1b14;
+}
+
 .workflow-transition-modal__status[data-workflow-transition-status="exito"] {
     background: #edf9f0;
     border-left-color: #237a3b;
@@ -143,6 +157,12 @@
 }
 
 .workflow-transition-modal__status[data-workflow-return-activity-status="exito"] {
+    background: #edf9f0;
+    border-left-color: #237a3b;
+    color: #145326;
+}
+
+.workflow-transition-modal__status[data-workflow-return-user-previous-status="exito"] {
     background: #edf9f0;
     border-left-color: #237a3b;
     color: #145326;

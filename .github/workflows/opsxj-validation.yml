@@ -37,4 +37,4 @@ jobs:
         run: npm.cmd --prefix tools/opsxj test
 
       - name: Validate OpenSpec changes
-        run: npx --yes @fission-ai/openspec@latest validate --all --strict
+        run: npx --yes @fission-ai/openspec@1.7.0 validate --all --strict

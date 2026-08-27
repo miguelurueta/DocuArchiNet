@@ -1894,6 +1894,8 @@
     <Content Include="js\workflow\workflow-transition-confirmation-integration.js" />
     <Content Include="js\workflow\workflow-transition-page-presentation.js" />
     <Content Include="js\workflow\workflow-transition-ui.js" />
+    <Content Include="js\workflow\workflow-return-user-previous-ui.js" />
+    <Content Include="js\workflow\workflow-return-user-previous-confirmation.js" />
     <Content Include="lib\MindFusion\MindFusion.Barcodes.dll" />
     <Content Include="lib\MindFusion\MindFusion.Barcodes.WebForms.dll" />
     <Content Include="lib\MindFusion\MindFusion.Charting.dll" />

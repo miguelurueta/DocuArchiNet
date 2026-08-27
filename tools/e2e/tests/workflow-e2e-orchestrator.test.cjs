@@ -12,12 +12,14 @@ const {
   parseArguments,
   doc33PlaywrightCommand,
   doc36PlaywrightCommand,
+  doc37PlaywrightCommand,
   playwrightCommand,
   selectedStages,
   validateAuthorizations,
   validateProfile
 } = require('../scripts/support/workflow-e2e-orchestrator.cjs');
 const { createDoc33Profile, parseArguments: parseDoc33ProfileArguments } = require('../scripts/create-doc33-workflow-ui-profile.cjs');
+const { createDoc37Profile, parseArguments: parseDoc37ProfileArguments } = require('../scripts/create-doc37-workflow-user-previous-ui-profile.cjs');
 const { assertDsn, finalActivityMatches, safeFailureMessage } = require('../scripts/support/doc32-e2e-odbc.cjs');
 const orchestratorSource = require('node:fs').readFileSync(path.join(__dirname, '..', 'scripts', 'support', 'workflow-e2e-orchestrator.cjs'), 'utf8');
 
@@ -88,6 +90,24 @@ function doc36Profile() {
   };
 }
 
+function doc37Profile() {
+  return {
+    doc: 'doc37',
+    environment: 'GESTOR',
+    baseUrl: 'https://workflow.example.invalid/app/',
+    ignoreHttpsErrors: false,
+    module: 'GESTOR',
+    odbcDsn: 'workflowconta',
+    uiExecutionTaskId: 100003,
+    uiLockTaskId: 100004,
+    taskStateSql: 'SELECT estado FROM tarea WHERE id_tarea = ?',
+    auditSql: 'SELECT total FROM auditoria_doc37 WHERE id_tarea = ?',
+    previewMaxMs: 10000,
+    uiExecutionMaxMs: 15000,
+    uiLockMaxMs: 180000
+  };
+}
+
 test('el perfil DOC-32 acepta solo configuración no sensible registrada', () => {
   const definition = validateProfile(profile(), 'doc32');
   assert.equal(definition, DOC_REGISTRY.doc32);
@@ -141,6 +161,23 @@ test('el perfil DOC-36 registra preview, ejecución y concurrencia con recursos 
   assert.throws(() => validateProfile({ ...doc36Profile(), previewActivityNames: ['Usuario histórico de prueba', 'Usuario histórico de prueba'] }, 'doc36'), /actividades repetidas/);
 });
 
+test('el perfil DOC-37 separa ejecución UI y bloqueo UI sobre recursos DOC-36', async () => {
+  const templatePath = path.join(__dirname, '..', 'profiles', 'doc37-workflow-user-previous-ui.profile.example.json');
+  const template = JSON.parse(await fs.readFile(templatePath, 'utf8'));
+  const definition = validateProfile(doc37Profile(), 'doc37');
+  assert.equal(definition, DOC_REGISTRY.doc37);
+  assert.equal(definition.resourceContract.id, 'doc37-workflow-user-previous-ui-task');
+  assert.deepEqual(definition.stages.map((stage) => stage.id), ['preview', 'execution', 'ui-lock']);
+  assert.equal(definition.stages.find((stage) => stage.id === 'execution').resourceRole, 'execution');
+  assert.equal(definition.stages.find((stage) => stage.id === 'ui-lock').resourceRole, 'ui-lock');
+  assert.notEqual(doc37Profile().uiExecutionTaskId, doc37Profile().uiLockTaskId);
+  assert.equal(validateProfile(template, 'doc37').resourceContract.id, 'doc37-workflow-user-previous-ui-task');
+  assert.throws(() => validateProfile({ ...doc37Profile(), uiLockTaskId: 100003 }, 'doc37'), /deben ser distintas/);
+  assert.deepEqual(selectedStages(definition, ['preview']).map((stage) => stage.id), ['preview']);
+  assert.throws(() => selectedStages(definition, ['preview', 'execution']), /una sola etapa por invocación/);
+  assert.throws(() => selectedStages(definition), /una sola etapa por invocación/);
+});
+
 test('el creador DOC-33 migra solo el perfil DOC-32 no sensible y exige dos tareas', () => {
   const migrated = createDoc33Profile(profile(), 100002, 100001);
   const migratedWithObservedFinalActivity = createDoc33Profile(profile(), 100002, 100001, 'Actividad final observada');
@@ -152,6 +189,16 @@ test('el creador DOC-33 migra solo el perfil DOC-32 no sensible y exige dos tare
   assert.equal(migratedWithObservedFinalActivity.uiExecutionFinalActivityName, 'Actividad final observada');
   assert.throws(() => parseDoc33ProfileArguments(['--source', 'source.json', '--destination', 'target.json', '--execution-task', '100002', '--lock-task', '100002']), /deben ser distintas/);
   assert.throws(() => createDoc33Profile(profile(), 100002, 100001, ' '), /nombre no sensible de actividad/);
+});
+
+test('el creador DOC-37 consume exclusivamente el perfil no sensible DOC-36', () => {
+  const migrated = createDoc37Profile(doc36Profile(), 'GESTOR', 100005, 100006);
+  assert.equal(migrated.doc, 'doc37');
+  assert.equal(migrated.environment, 'GESTOR');
+  assert.equal(migrated.uiExecutionTaskId, 100005);
+  assert.equal(migrated.uiLockTaskId, 100006);
+  assert.throws(() => createDoc37Profile(doc36Profile(), ' ', 100005, 100006), /ambiente de pruebas autorizado/);
+  assert.throws(() => parseDoc37ProfileArguments(['--source', 'source.json', '--destination', 'target.json', '--environment', 'GESTOR', '--execution-task', '100003', '--lock-task', '100003']), /deben ser distintas/);
 });
 
 test('la plantilla DOC-32 enlaza recursos de ejecución y concurrencia distintos mediante el contrato registrado', async () => {
@@ -212,6 +259,9 @@ test('las etapas Playwright invocan el CLI JavaScript con Node, no el shim .cmd'
   const doc36Launch = doc36PlaywrightCommand('execute');
   assert.equal(doc36Launch.command, process.execPath);
   assert.deepEqual(doc36Launch.args.slice(1), ['test', 'tests/doc36-return-user-previous.spec.cjs', '--grep', '@doc36-execute', '--reporter=list']);
+  const doc37Launch = doc37PlaywrightCommand('lock');
+  assert.equal(doc37Launch.command, process.execPath);
+  assert.deepEqual(doc37Launch.args.slice(1), ['test', 'tests/doc37-return-user-previous-ui.spec.cjs', '--grep', '@doc37-ui-lock', '--reporter=list']);
 });
 
 test('el destino DOC-32 solo acepta un DSN ODBC no sensible', () => {
@@ -356,4 +406,37 @@ test('una corrida DOC-36 propaga autorizaciones y elimina secretos al cierre', a
   assert.equal(Object.hasOwn(childEnvironment, 'DOC36_E2E_AUTHORIZED_PASSWORD'), false);
   assert.equal(Object.hasOwn(childEnvironment, 'DOC36_E2E_MYSQL_USER'), false);
   assert.equal(Object.hasOwn(childEnvironment, 'DOC36_E2E_MYSQL_PASSWORD'), false);
+});
+
+test('una corrida DOC-37 propaga autorizaciones UI y elimina secretos al cierre', async () => {
+  const definition = validateProfile(doc37Profile(), 'doc37');
+  const events = [];
+  let childEnvironment;
+  await executeSequence({
+    definition,
+    profile: doc37Profile(),
+    authorizations: new Set(['environment', 'execution']),
+    stages: selectedStages(definition, ['execution']),
+    assertIntegrity: async () => {},
+    collectSecrets: async () => ({
+      DOC37_E2E_AUTHORIZED_USER: 'usuario-simulado',
+      DOC37_E2E_AUTHORIZED_PASSWORD: 'valor-sensible-simulado',
+      DOC37_E2E_MYSQL_USER: 'lector-simulado',
+      DOC37_E2E_MYSQL_PASSWORD: 'valor-sensible-simulado'
+    }),
+    stageRunner: async (stage, environment) => {
+      events.push(stage.id);
+      childEnvironment = environment;
+      assert.equal(environment.DOC37_E2E_UI_EXECUTION_TASK_ID, '100003');
+      assert.equal(environment.DOC37_E2E_UI_LOCK_TASK_ID, '100004');
+      assert.equal(environment.DOC37_E2E_EXECUTION_AUTHORIZED, 'true');
+      assert.equal(environment.DOC37_E2E_UI_LOCK_AUTHORIZED, 'false');
+      return { code: 0 };
+    }
+  });
+  assert.deepEqual(events, ['execution']);
+  assert.equal(Object.hasOwn(childEnvironment, 'DOC37_E2E_AUTHORIZED_PASSWORD'), false);
+  assert.equal(Object.hasOwn(childEnvironment, 'DOC37_E2E_MYSQL_USER'), false);
+  assert.equal(Object.hasOwn(childEnvironment, 'DOC37_E2E_MYSQL_PASSWORD'), false);
+  validateAuthorizations(selectedStages(definition, ['ui-lock']), new Set(['environment', 'ui_lock']));
 });

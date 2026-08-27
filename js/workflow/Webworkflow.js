@@ -1650,19 +1650,6 @@ function inicializa_tipo_adjunto_documento(event, element, value_sel) {
                 Service_solicita_lista_gabinetes_permitidos_js("0");
             }
         }
-        //Evento activa devolver al usuario anterior
-        if (value_sel == "D-TWU-ANT") {
-            var title_promp = "La tarea se devolverá al usuario anterior y saldrá de su bandeja. ¿Desea continuar?";
-            var r = confirm(title_promp);
-            if (r == true) {              
-                document.getElementById("Button_tool_devolver_a_usuario").click();
-            } else {
-                if (event && event.preventDefault) {
-                    event.preventDefault();
-                }
-                return false;
-            }
-        }
         //Activa la ventana de enviar a pediente tarea 
         if (value_sel == "E-ETP") {
             show_windows_pendiente(1);

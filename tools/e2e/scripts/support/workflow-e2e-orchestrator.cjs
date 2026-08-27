@@ -17,6 +17,7 @@ const {
 const { DOC32_RESOURCE_CONTRACT } = require('./doc32-e2e-resource-adapter.cjs');
 const { DOC33_RESOURCE_CONTRACT } = require('./doc33-e2e-resource-adapter.cjs');
 const { DOC36_RESOURCE_CONTRACT } = require('./doc36-e2e-resource-adapter.cjs');
+const { DOC37_RESOURCE_CONTRACT } = require('./doc37-e2e-resource-adapter.cjs');
 
 const e2eRoot = path.resolve(__dirname, '..', '..');
 const repositoryRoot = path.resolve(e2eRoot, '..', '..');
@@ -46,6 +47,14 @@ function doc36PlaywrightCommand(mode) {
   return {
     command: process.execPath,
     args: [cli, 'test', 'tests/doc36-return-user-previous.spec.cjs', '--grep', `@doc36-${mode}`, '--reporter=list']
+  };
+}
+
+function doc37PlaywrightCommand(mode) {
+  const cli = path.resolve(e2eRoot, 'node_modules', '@playwright', 'test', 'cli.js');
+  return {
+    command: process.execPath,
+    args: [cli, 'test', 'tests/doc37-return-user-previous-ui.spec.cjs', '--grep', `@doc37-ui-${mode}`, '--reporter=list']
   };
 }
 
@@ -241,13 +250,69 @@ const DOC_REGISTRY = Object.freeze({
         ...secrets
       };
     }
+  }),
+  doc37: Object.freeze({
+    resourceContract: DOC37_RESOURCE_CONTRACT,
+    profileKeys: Object.freeze([
+      'doc',
+      'environment',
+      'baseUrl',
+      'ignoreHttpsErrors',
+      'module',
+      'odbcDsn',
+      'uiExecutionTaskId',
+      'uiLockTaskId',
+      'taskStateSql',
+      'auditSql',
+      'previewMaxMs',
+      'uiExecutionMaxMs',
+      'uiLockMaxMs'
+    ]),
+    stages: Object.freeze([
+      Object.freeze({ id: 'preview', authorizations: Object.freeze(['environment']), launch: () => doc37PlaywrightCommand('preview') }),
+      Object.freeze({ id: 'execution', resourceRole: 'execution', authorizations: Object.freeze(['environment', 'execution']), launch: () => doc37PlaywrightCommand('execute') }),
+      Object.freeze({ id: 'ui-lock', resourceRole: 'ui-lock', authorizations: Object.freeze(['environment', 'ui_lock']), launch: () => doc37PlaywrightCommand('lock') })
+    ]),
+    validateStages(stages) {
+      if (stages.length !== 1) fail('DOC-37 requiere ejecutar una sola etapa por invocación porque Workflow solo mantiene una tarea seleccionada.');
+    },
+    async collectSecrets() {
+      requireInteractiveConsole();
+      const values = {};
+      await collectValue(values, 'DOC37_E2E_AUTHORIZED_USER', 'Cuenta Workflow autorizada');
+      await collectValue(values, 'DOC37_E2E_AUTHORIZED_PASSWORD', 'Contraseña Workflow', { secret: true });
+      await collectValue(values, 'DOC37_E2E_MYSQL_USER', 'Usuario MySQL de solo lectura');
+      await collectValue(values, 'DOC37_E2E_MYSQL_PASSWORD', 'Contraseña MySQL de solo lectura', { secret: true });
+      return values;
+    },
+    environment(profile, secrets, authorizations) {
+      return {
+        DOC37_E2E_BASE_URL: profile.baseUrl,
+        DOC37_E2E_IGNORE_HTTPS_ERRORS: profile.ignoreHttpsErrors ? 'true' : 'false',
+        DOC37_E2E_MODULE: profile.module,
+        DOC37_E2E_ENVIRONMENT: profile.environment,
+        DOC37_E2E_ODBC_DSN: profile.odbcDsn,
+        DOC37_E2E_UI_EXECUTION_TASK_ID: String(profile.uiExecutionTaskId),
+        DOC37_E2E_UI_LOCK_TASK_ID: String(profile.uiLockTaskId),
+        DOC37_E2E_TASK_STATE_SQL: profile.taskStateSql,
+        DOC37_E2E_AUDIT_SQL: profile.auditSql,
+        DOC37_E2E_PREVIEW_MAX_MS: String(profile.previewMaxMs),
+        DOC37_E2E_UI_EXECUTION_MAX_MS: String(profile.uiExecutionMaxMs),
+        DOC37_E2E_UI_LOCK_MAX_MS: String(profile.uiLockMaxMs),
+        DOC37_E2E_ENVIRONMENT_AUTHORIZED: authorizations.has('environment') ? 'true' : 'false',
+        DOC37_E2E_EXECUTION_AUTHORIZED: authorizations.has('execution') ? 'true' : 'false',
+        DOC37_E2E_UI_LOCK_AUTHORIZED: authorizations.has('ui_lock') ? 'true' : 'false',
+        ...secrets
+      };
+    }
   })
 });
 
 validateRegisteredResourceContracts({
   [DOC32_RESOURCE_CONTRACT.id]: DOC32_RESOURCE_CONTRACT,
   [DOC33_RESOURCE_CONTRACT.id]: DOC33_RESOURCE_CONTRACT,
-  [DOC36_RESOURCE_CONTRACT.id]: DOC36_RESOURCE_CONTRACT
+  [DOC36_RESOURCE_CONTRACT.id]: DOC36_RESOURCE_CONTRACT,
+  [DOC37_RESOURCE_CONTRACT.id]: DOC37_RESOURCE_CONTRACT
 });
 
 function fail(message) {
@@ -376,6 +441,17 @@ function validateProfile(profile, docName) {
     assertPositiveInteger(profile.uiLockMaxMs, 'uiLockMaxMs');
     return definition;
   }
+  if (docName === 'doc37') {
+    assertPositiveInteger(profile.uiExecutionTaskId, 'uiExecutionTaskId');
+    assertPositiveInteger(profile.uiLockTaskId, 'uiLockTaskId');
+    if (profile.uiExecutionTaskId === profile.uiLockTaskId) fail('Las tareas de ejecución y bloqueo UI deben ser distintas.');
+    assertReadOnlySql(profile.taskStateSql, 'taskStateSql');
+    assertReadOnlySql(profile.auditSql, 'auditSql');
+    assertPositiveInteger(profile.previewMaxMs, 'previewMaxMs');
+    assertPositiveInteger(profile.uiExecutionMaxMs, 'uiExecutionMaxMs');
+    assertPositiveInteger(profile.uiLockMaxMs, 'uiLockMaxMs');
+    return definition;
+  }
   assertPositiveInteger(profile.executionTaskId, 'executionTaskId');
   assertActivityNames(profile.previewActivityNames, 'previewActivityNames');
   assertActivityName(profile.executionActivityName, 'executionActivityName');
@@ -392,10 +468,15 @@ function validateProfile(profile, docName) {
 }
 
 function selectedStages(definition, requestedStages) {
-  if (!requestedStages) return definition.stages;
+  if (!requestedStages) {
+    const stages = definition.stages;
+    if (typeof definition.validateStages === 'function') definition.validateStages(stages);
+    return stages;
+  }
   const requested = new Set(requestedStages);
   const stages = definition.stages.filter((stage) => requested.has(stage.id));
   if (stages.length !== requested.size) fail('La selección contiene una etapa E2E no registrada para el DOC.');
+  if (typeof definition.validateStages === 'function') definition.validateStages(stages);
   return stages;
 }
 
@@ -518,6 +599,7 @@ module.exports = {
   playwrightCommand,
   doc33PlaywrightCommand,
   doc36PlaywrightCommand,
+  doc37PlaywrightCommand,
   selectedStages,
   validateAuthorizations,
   validateProfile
