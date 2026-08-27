@@ -27,7 +27,7 @@
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
     <script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
     <link href="../js/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
-     <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events4" type="text/javascript"></script>
+     <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events5" type="text/javascript"></script>
      <script  src="../Awesome/js/all.js" type="text/javascript"></script>
     <script  src="../Awesome/js/brands.js" type="text/javascript"></script>
     <script  src="../Awesome/js/solid.js" type="text/javascript"></script>

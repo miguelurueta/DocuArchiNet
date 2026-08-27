@@ -39,7 +39,7 @@
   <script  src="../Awesome/js/fontawesome.js"></script>
    
     <script src="../js/validate_campos.js"></script>
-    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events4"></script>
+    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events5"></script>
 </head>
 <body>
     <form id="form1" runat="server">

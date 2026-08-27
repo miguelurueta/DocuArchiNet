@@ -18,7 +18,7 @@
     <script src="../bootstrap/js/bootstrap.min.js"></script>
     <link href="../Styles/bootra-person.css" rel="stylesheet" />
     <link href="../Styles/tabacordion.css" rel="stylesheet" />
-    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events4"></script>
+    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events5"></script>
     <link href="../js/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
     <script src="../js/jquery.contextMenu.js" type="text/javascript"></script>  
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />  

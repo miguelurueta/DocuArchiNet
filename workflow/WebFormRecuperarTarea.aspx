@@ -10,7 +10,7 @@
     <script src="../js/ui/jquery-ui-1.8.22.custom.js" type="text/javascript"></script>
    <script src="../js/ui/jquery.ui.core.js" type="text/javascript"></script>   
    <script src="../js/Filtrar.js"></script>
-    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events4"></script>
+    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events5"></script>
     <script src="../js/workflow/WebFormRecuperarTarea.js"></script>
     <script src="../js/validate_campos.js"></script> 
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />

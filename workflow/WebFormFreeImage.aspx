@@ -56,7 +56,7 @@
     <script src="../bootstrap/js/bootstrap.min.js"></script>
     <link href="../Styles/bootra-person.css" rel="stylesheet" />
     <script src="../js/workflow/WebFormFreeImage.js"></script>
-    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events4"></script>
+    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events5"></script>
     <script defer src="../Awesome/js/all.js"></script>
      <link href="../Awesome/css/fontawesome.css" rel="stylesheet">
   <link href="../Awesome/css/brands.css" rel="stylesheet">

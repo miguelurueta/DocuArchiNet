@@ -44,7 +44,7 @@
     <script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
     <script src="../js/workflow/Webworkflow_2.js" type="text/javascript"></script>
      <script src="../js/java_general/GredviewControl.js?v=20260811-selector1" type="text/javascript"></script>
-    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events4" type="text/javascript"></script>
+    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events5" type="text/javascript"></script>
     <script src="../generic_control/FileUploadHandler.js" type="text/javascript"></script>
     <script src="../js/java_general/ASMXClient.js?v=20260807-asmxclient1" type="text/javascript"></script>
     <script src="../js/java_general/JSProgresBar.js" type="text/javascript"></script>

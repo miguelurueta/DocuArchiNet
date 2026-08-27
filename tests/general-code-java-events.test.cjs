@@ -10,15 +10,22 @@ const workflowDirectory = path.resolve(__dirname, "..", "workflow");
 test("general_code_java usa attachEvent cuando jQuery no admite .on", () => {
     const attached = [];
     const document = {
-        attachEvent(name, handler) { attached.push({ name, handler }); }
+        attachEvent(name, handler) { attached.push({ name, handler }); },
+        getElementById() { return null; }
+    };
+    const window = {
+        event: { keyCode: 0, srcElement: { id: "otro-control" } },
+        jQuery: function jQueryIncompatible() {}
     };
 
     vm.runInNewContext(source, {
-        window: { jQuery: function jQueryIncompatible() {} },
+        window,
         document
     });
 
     assert.deepEqual(attached.map((event) => event.name), ["onkeydown", "onclick"]);
+    assert.doesNotThrow(() => attached[0].handler());
+    assert.doesNotThrow(() => attached[1].handler());
 });
 
 test("general_code_java usa jQuery solo cuando expone .on", () => {
@@ -49,7 +56,7 @@ test("Workflow solicita una versión nueva del script global en todas sus págin
         const references = page.content.match(/general_code_java\.js[^"']*/g) || [];
         assert.ok(references.length > 0, `${page.name} debe referenciar el script global`);
         for (const reference of references) {
-            assert.match(reference, /\?v=20260827-compatible-events4$/, `${page.name} no puede dejar el script global sin versión`);
+            assert.match(reference, /\?v=20260827-compatible-events5$/, `${page.name} no puede dejar el script global sin versión`);
         }
     }
 });
