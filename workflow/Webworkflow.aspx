@@ -202,7 +202,7 @@
                    }
                    
                        //ENVIAR ACTIVIDAD FLUJO 
-                       if (elment_postbak.id == "ImageButtonterminar" || elment_postbak.id == "Button_tool_devolver_a_usuario") {
+                       if (elment_postbak.id == "ImageButtonterminar") {
                        if (document.getElementById("Hidden_lista_ruta_flujo").value == "F") {
                            auto_zise_popup_lista_usuario_flujo();
                           
@@ -455,13 +455,6 @@
                        }
                    }
                   
-                       if (elment_postbak.id == "Button_tool_devolver_a_usuario") {
-                           if (document.getElementById("Hidden_result_boton_tool").value == "YES") {
-                               document.getElementById("Hidden_result_boton_tool").value = "";
-                               eliminar_fila_data_gred_lista('GridView2', 'Hidden_00005_2222');
-                               hide_area_workflow_seleccion();
-                           }
-                       }
                    if (elment_postbak.id == "Button_tool_enviar_actividad") {
                        if (document.getElementById("Hidden_result_boton_tool").value == "YES") {
                            document.getElementById("Hidden_result_boton_tool").value = "";
@@ -644,7 +637,7 @@
                                              <i style="color: #0062cc" class="fad fa-arrow-alt-left"></i> Devolver
                                          </a>
                                          <div class="dropdown-menu" role="group" aria-label="Opciones para devolver la tarea">
-                                             <a class="dropdown-item" title="Devolver la tarea directamente al usuario anterior" href="#" onclick="inicializa_tipo_adjunto_documento(event,this,'D-TWU-ANT');"><i style="color: #0062cc" class="fad fa-arrow-alt-left"></i><span>Usuario anterior</span></a>
+                                             <button id="workflow-return-user-previous-trigger" type="button" class="dropdown-item" title="Devolver la tarea directamente al usuario anterior" aria-label="Devolver tarea al usuario anterior" data-workflow-return-user-previous-active="false"><i style="color: #0062cc" class="fad fa-arrow-alt-left"></i><span>Usuario anterior</span></button>
                                              <button id="workflow-return-activity-trigger" type="button" class="dropdown-item" title="Elegir la actividad anterior de destino" aria-label="Elegir actividad anterior" data-workflow-return-activity-active="false"><i style="color: #0062cc" class="fad fa-arrow-alt-to-left"></i><span>Elegir actividad anterior</span></button>
                                          </div>
                                       </li>            
@@ -1978,7 +1971,6 @@
                       <asp:Button ID="Button_tool_enviar_actividad" runat="server" Text="" />
                       <asp:Button ID="Button_tool_busqueda_enviar_actividad" runat="server" Text="" />
                       <asp:Button ID="Button_tool_restore_busqueda_enviar_actividad" runat="server" Text="" />
-                      <asp:Button ID="Button_tool_devolver_a_usuario" runat="server" Text="" />
                       <asp:Button ID="Button_tool_enviar_ruta" runat="server" Text="" />
                       <asp:Button ID="ButtonAlmacenar" Text="" runat="server" />
                       <asp:Button ID="Button_tool_activa_sube_documento_lista" runat="server" Text="" />
@@ -4572,6 +4564,23 @@
             </section>
         </div>
         <div id="workflow-transition-success-message" class="workflow-transition-success-message" data-workflow-transition-success="true" role="status" aria-live="polite" hidden="hidden"></div>
+        <div id="workflow-return-user-previous-modern-modal" class="workflow-transition-modal" hidden="hidden" aria-hidden="true" data-workflow-return-user-previous-state="cerrado">
+            <div class="workflow-transition-modal__backdrop" data-workflow-return-user-previous-close="true"></div>
+            <section id="workflow-return-user-previous-modern-dialog" class="workflow-transition-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="workflow-return-user-previous-modern-title" tabindex="-1">
+                <header class="workflow-transition-modal__header">
+                    <h2 id="workflow-return-user-previous-modern-title" class="workflow-transition-modal__title">Devolver a usuario anterior</h2>
+                    <button id="workflow-return-user-previous-modern-close" class="workflow-transition-modal__close" type="button" aria-label="Cerrar devolución a usuario anterior">&times;</button>
+                </header>
+                <div class="workflow-transition-modal__body">
+                    <div id="workflow-return-user-previous-modern-status" class="workflow-transition-modal__status" role="status" aria-live="polite"></div>
+                    <dl id="workflow-return-user-previous-modern-context" class="workflow-transition-modal__context" aria-label="Contexto de la devolución"></dl>
+                    <div class="workflow-transition-modal__action">
+                        <button id="workflow-return-user-previous-modern-confirm" class="workflow-transition-modal__select" type="button" disabled="disabled">Continuar</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div id="workflow-return-user-previous-success-message" class="workflow-transition-success-message" data-workflow-return-user-previous-success="true" role="status" aria-live="polite" hidden="hidden"></div>
         <div id="workflow-return-activity-modern-modal" class="workflow-transition-modal" hidden="hidden" aria-hidden="true" data-workflow-return-activity-state="cerrado">
             <div class="workflow-transition-modal__backdrop" data-workflow-return-activity-close="true"></div>
             <section id="workflow-return-activity-modern-dialog" class="workflow-transition-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="workflow-return-activity-modern-title" tabindex="-1">

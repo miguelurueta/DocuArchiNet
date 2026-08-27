@@ -1,69 +1,80 @@
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
 ## ADDED Requirements
-### Requirement: INTERFAZ-MODERNA-DEVOLVER-USUARIO-ANTERIOR
-El sistema SHALL implementar el alcance definido para DOC-37.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- # 03 — Interfaz moderna oficial
-- 
-- ## ROL ESPERADO
-- 
-- Actúa como desarrollador senior de ASP.NET Web Forms y JavaScript accesible.
-- 
-- ## OBJETIVO
-- 
-- Conectar **Devolver a usuario anterior** a los endpoints modernos mediante una confirmación accesible y una única experiencia moderna para todo contexto Workflow válido.
-- 
-- ## CONTEXTO OBLIGATORIO
-- 
-- - Requiere 02 aprobado y endpoints de preview/ejecución disponibles.
-- - Leer `00-contexto-obligatorio.md`, evidencia de 02, decisiones de 01 y componentes modernos existentes.
-- - Habilita 04 únicamente si no comparte listeners, estado o payload con otras operaciones y no existe ruta legacy alcanzable.
-- 
-- ## REQUISITOS POSITIVOS
-- 
-- - Registrar la presentación de esta operación por contexto Workflow válido, sin evaluar `WorkflowCentroTrabajoModernActive` ni cambiar la política de feature gate de otras operaciones modernas.
-- - Reemplazar el enlace legacy de **Usuario anterior** por un trigger con selector y adaptador JavaScript exclusivos. No debe invocar `inicializa_tipo_adjunto_documento`, controles ocultos ni `Button_tool_devolver_a_usuario`.
-- - Desconectar o retirar el handler/postback legacy de esta operación y cualquier listener que abra actividades anteriores. El comando se ofrece en contexto válido; `PreviewDevolverUsuarioAnterior` determina elegibilidad y presenta bloqueo funcional cuando no existe destino.
-- - Consumir `PreviewDevolverUsuarioAnterior` y `EjecutarDevolverUsuarioAnterior`; presentar exclusivamente el usuario y actividad históricos resueltos por servidor y conservar el token opaco recibido.
-- - Reutilizar modal, foco, trampa de foco, teclado, Escape, ARIA, responsive, cancelación, doble clic y mensajes correlacionados.
-- - Mientras ejecuta, deshabilitar confirmación y cierre que pueda abandonar un resultado pendiente; aplicar la política de timeout y recuperación aprobada en 01.
-- - Tras éxito, actualizar solo tarea afectada, visor, contador, listado y scroll horizontal mediante componentes modernos existentes.
-- 
-- ## RESTRICCIONES CRÍTICAS
-- 
-- - No crear framework, bundler, selector de destinos, búsqueda, paginación, modal paralelo, banderas de habilitación ni autorización JavaScript.
-- - No usar postbacks, `GridView`, `UpdatePanel`, `ModalPopupExtender`, SQL, handlers Web Forms, campos ocultos ni endpoints/payloads/selectores de Devolver a actividad anterior, Continuar flujo, Enviar a usuario o Enviar a grupo.
-- - No incluir ni mostrar datos de respuestas.
-- - No ejecutar E2E autenticada sin autorización explícita de ambiente y cuentas de prueba.
-- 
-- ## REGLAS DE ANTIRREGRESIÓN
-- 
-- - La devolución a usuario anterior y las demás operaciones no comparten selectores, eventos, estado ni requests.
-- - La desactivación de la ruta legacy afecta únicamente Usuario anterior; Devolver a actividad anterior y las demás operaciones conservan sus contratos y triggers.
-- 
-- ## CRITERIOS DE ACEPTACIÓN
-- 
-- - El modal representa solo JSON autorizado con un único destino histórico de usuario.
-- - Historial ausente, grupo, usuario retirado, token/historial desactualizado o auto-devolución muestran bloqueo y no proponen actividades alternativas.
-- - No existe un recorrido de postback o fallback Web Forms alcanzable desde el comando Usuario anterior.
-- - Éxito, bloqueo, timeout, cancelación y error mantienen la bandeja en estado consistente, accesible y con foco/restauración de scroll definidos.
-- 
-- ## PRUEBAS OBLIGATORIAS
-- 
-- Agregar pruebas CJS de bootstrap sin feature gate, trigger exclusivo, ausencia de postback legacy, contratos, eventos aislados, confirmación, historial ausente, grupo, usuario retirado, auto-devolución, token/historial cambiado, error, éxito, bloqueo, timeout, cancelación, doble clic, teclado, foco, Escape, responsive y restauración de bandeja. Ejecutar MSBuild y pruebas focales; registrar evidencia.  E2E reutilizando patron de DOC-36. Todas estas preubas son de caracter obligatorio.
-- 
-- ## DOCUMENTACIÓN TÉCNICA
-- 
-- Actualizar arquitectura, contrato, flujo, evidencia y diagramas necesarios con registro de presentación, selectores, ruta sustituida, UI, accesibilidad y relevo a 04.
-- 
-- ## ENTREGABLE FINAL
-- 
-- Reportar ticket, archivos UI, pruebas, compilación y evidencia de ruta moderna única/no regresión. No cambiar configuración de ambiente ni realizar QA autenticada sin autorización.
+### Requirement: Presentación moderna independiente de gate
+
+La página SHALL registrar la presentación de Devolver a usuario anterior para cada contexto Workflow válido, sin evaluar `WorkflowCentroTrabajoModernActive` ni modificar la política de otras operaciones. (D-01, RQ-01)
+
+#### Scenario: Registro sin gate de transición
+
+- **WHEN** `Webworkflow.aspx` prepara una solicitud con contexto Workflow válido
+- **THEN** el trigger exclusivo recibe su bootstrap aunque el gate de transición de otras operaciones esté desactivado.
+
+### Requirement: Sustitución exclusiva de la ruta heredada
+
+El menú SHALL reemplazar solo Usuario anterior por un trigger sin postback y SHALL retirar los símbolos heredados asociados a esa operación. (D-02, RQ-02)
+
+#### Scenario: Comando Usuario anterior
+
+- **WHEN** una persona activa Usuario anterior en el menú Devolver
+- **THEN** se abre únicamente el modal moderno propio y no se invocan `D-TWU-ANT`, `Button_tool_devolver_a_usuario`, controles ocultos ni handlers Web Forms.
+
+#### Scenario: Operaciones vecinas
+
+- **WHEN** se activa Devolver a actividad anterior u otra operación Workflow
+- **THEN** conserva sus triggers, eventos, estado y contratos existentes.
+
+### Requirement: Contrato de usuario histórico mínimo
+
+La interfaz SHALL consumir solo `PreviewDevolverUsuarioAnterior` y `EjecutarDevolverUsuarioAnterior`, usando la identidad mínima definida por DOC-36. (D-03, RQ-03)
+
+#### Scenario: Preview elegible o bloqueado
+
+- **WHEN** el preview devuelve un usuario histórico elegible
+- **THEN** el modal muestra exclusivamente `ActividadAnterior`, `UsuarioAnterior` y el contexto autorizado por servidor; conserva `TokenVersion` como valor opaco.
+
+- **WHEN** el preview devuelve un bloqueo por historial, grupo, usuario retirado o auto-devolución
+- **THEN** se muestra el mensaje funcional y no se presentan actividades alternativas.
+
+### Requirement: Confirmación accesible y aislada
+
+La interfaz SHALL reutilizar el diálogo de confirmación, foco, teclado, Escape y bloqueo de ejecución sin compartir listeners, estado ni requests con otras operaciones. (D-04, RQ-04)
+
+#### Scenario: Ejecución en curso y recuperación
+
+- **WHEN** la ejecución está en curso
+- **THEN** confirmar, cancelar, cierre, backdrop, Escape y doble clic no pueden iniciar ni abandonar una segunda ejecución.
+
+- **WHEN** ocurre timeout o error técnico
+- **THEN** la bandeja permanece intacta, se informa un mensaje seguro y la persona puede solicitar un preview nuevo.
+
+### Requirement: Actualización localizada de bandeja
+
+La interfaz SHALL aplicar el resultado exitoso solo a la tarea confirmada y SHALL preservar la bandeja ante bloqueo o error. (D-05, RQ-05)
+
+#### Scenario: Resultado de ejecución
+
+- **WHEN** `EjecutarDevolverUsuarioAnterior` confirma éxito
+- **THEN** se actualizan fila, visor, contador, listado y scroll mediante la presentación existente.
+
+- **WHEN** el servidor bloquea o rechaza la operación
+- **THEN** la tarea no se retira ni se altera el estado de las demás operaciones.
+
+### Requirement: Arquitectura E2E reutilizable y segura
+
+El repositorio SHALL registrar una corrida `doc37` que reutilice el patrón de sesión efímera, ODBC de solo lectura y ciclo de recursos de DOC-36, con perfil no sensible y dos tareas de interfaz distintas. (D-06, RQ-06)
+
+#### Scenario: Perfil y etapas aislados
+
+- **WHEN** se prepara un perfil DOC-37 desde los recursos descartables de DOC-36
+- **THEN** el perfil conserva únicamente configuración operativa no sensible, separa tarea de ejecución y bloqueo UI, y registra las etapas `preview`, `execution` y `ui-lock` con autorización explícita.
+
+#### Scenario: Una tarea seleccionada por prueba
+
+- **WHEN** se invoca el runner DOC-37
+- **THEN** acepta exactamente una etapa; cada etapa abre una sesión propia, obtiene su preview vigente y opera solo la tarea seleccionada para esa prueba.
+
+#### Scenario: Validación de interfaz autorizada
+
+- **WHEN** una persona autorizada ejecuta una etapa DOC-37 contra el ambiente y las cuentas de prueba aprobados
+- **THEN** el preview controla estado y auditoría mediante consultas `SELECT`, la ejecución usa solo los endpoints de DOC-36 y el bloqueo UI conserva una única solicitud mutante sin registrar valores sensibles.

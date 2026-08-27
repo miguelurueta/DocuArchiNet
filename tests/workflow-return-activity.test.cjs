@@ -214,6 +214,7 @@ test('DOC-33: la interfaz moderna sustituye solo el postback legacy de actividad
   assert.doesNotMatch(returnCodeBehind, /Button_tool_devolver_a_actividades_anterior|Activa_devolver_actividades_anteriores/);
   assert.doesNotMatch(returnDesigner, /Button_tool_devolver_a_actividades_anterior/);
   assert.doesNotMatch(returnLegacyScript, /D-TASK-ANT|Button_tool_devolver_a_actividades_anterior/);
-  assert.match(returnPage, /Button_tool_devolver_a_usuario/);
-  assert.match(returnCodeBehind, /Button_tool_devolver_a_usuario_Click/);
+  assert.match(returnPage, /workflow-return-user-previous-trigger/);
+  assert.doesNotMatch(returnPage, /D-TWU-ANT|Button_tool_devolver_a_usuario/);
+  assert.doesNotMatch(returnCodeBehind, /Button_tool_devolver_a_usuario_Click/);
 });

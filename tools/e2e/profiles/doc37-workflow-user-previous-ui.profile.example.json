@@ -1,0 +1,15 @@
+{
+  "doc": "doc37",
+  "environment": "CERTIFICACION",
+  "baseUrl": "https://ambiente-pruebas.example.invalid/GestionDocumental-Docuarchi.net/",
+  "ignoreHttpsErrors": false,
+  "module": "GESTOR",
+  "odbcDsn": "workflowconta",
+  "uiExecutionTaskId": 100001,
+  "uiLockTaskId": 100002,
+  "taskStateSql": "SELECT id_Estado, Inicio_Tareas_Workflow_Rutas_Workflow_id_Ruta, Inicio_Tareas_Workflow_id_Tarea, Id_Actividad, Id_Usuario, Fecha_Inicio, Fecha_Seleccion, Fecha_Fin, Duracion_Inicio_Seleccion, Duracion_Seleccion_Fin, Estado_Prioridad, Estado_Tarea, ID_FLUJO_TRABAJO, ID_ACTIVIDAD_FLUJO_TRABAJO, ID_USUARIO_WORKFLOW_FLUJO_TRABAJO, ESTADO_RECUPERACION_FLUJO_TRABAJO, ESTADO_ACTIVIDA_MODULO_RAD, TOTAL_DURACION_ACTIVIDAD FROM estados_tarea_workflow WHERE Inicio_Tareas_Workflow_id_Tarea = ? ORDER BY id_Estado",
+  "auditSql": "SELECT Usuario_Workflow_idU_suario, Fecha_Inicio_Seccion, Direccion_ip_Nombre, Valor_Log FROM log_usuario WHERE INSTR(Valor_Log, CONCAT('Tarea=', ?, CHAR(59))) > 0 AND INSTR(Valor_Log, 'Mecanismo=ASMX_DEVOLVER_USUARIO_ANTERIOR') > 0 ORDER BY Fecha_Inicio_Seccion",
+  "previewMaxMs": 10000,
+  "uiExecutionMaxMs": 15000,
+  "uiLockMaxMs": 180000
+}
