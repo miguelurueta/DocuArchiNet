@@ -21,6 +21,46 @@ function loadUi() {
     return { api: window.WorkflowReturnActivityUi, events };
 }
 
+function fakeElement(attributes) {
+    const listeners = new Map();
+    return {
+        attributes: { ...(attributes || {}) },
+        getAttribute(name) { return Object.prototype.hasOwnProperty.call(this.attributes, name) ? this.attributes[name] : null; },
+        setAttribute(name, value) { this.attributes[name] = String(value); },
+        addEventListener(name, listener) { listeners.set(name, [...(listeners.get(name) || []), listener]); },
+        listenerCount(name) { return (listeners.get(name) || []).length; },
+        querySelectorAll() { return []; },
+        focus() {}
+    };
+}
+
+function loadUiWithTrigger(trigger) {
+    const elements = {};
+    const backdrop = fakeElement();
+    const modal = fakeElement();
+    modal.querySelector = () => backdrop;
+    elements["workflow-return-activity-trigger"] = trigger;
+    elements["workflow-return-activity-modern-modal"] = modal;
+    elements["workflow-return-activity-modern-close"] = fakeElement();
+    elements["workflow-return-activity-modern-search"] = fakeElement();
+    elements["workflow-return-activity-modern-status"] = fakeElement();
+    elements["workflow-return-activity-modern-context"] = fakeElement();
+    elements["workflow-return-activity-modern-previous"] = fakeElement();
+    elements["workflow-return-activity-modern-next"] = fakeElement();
+    elements["workflow-return-activity-modern-page"] = fakeElement();
+    elements["workflow-return-activity-modern-table-body"] = fakeElement();
+    elements["workflow-return-activity-modern-cards"] = fakeElement();
+    const document = {
+        body: { classList: { add() {}, remove() {} } },
+        createEvent() { return { initCustomEvent() {} }; },
+        createElement() { return fakeElement(); },
+        getElementById(id) { return elements[id] || null; }
+    };
+    const window = { CustomEvent: function CustomEvent() {}, dispatchEvent() {} };
+    vm.runInNewContext(source, { window, document, Promise, JSON, Array, Object, Number, String, Error, isFinite });
+    return { api: window.WorkflowReturnActivityUi, elements };
+}
+
 test("normaliza el preview de devolución sin identidad de Ruta o Flujo", () => {
     const { api } = loadUi();
     const preview = api.desempaquetarRespuestaAsmx({ d: {
@@ -78,6 +118,7 @@ test("el markup y bootstrap son exclusivos, accesibles y sin postback legacy", (
     assert.doesNotMatch(page, /D-TASK-ANT|Button_tool_devolver_a_actividades_anterior/);
     assert.match(codeBehind, /RegisterWorkflowReturnActivityModernPresentation\(\)/);
     assert.match(codeBehind, /workflow-return-activity-ui\.js/);
+    assert.match(codeBehind, /workflow-return-activity-ui\.js\?v=20260827-doc33rebind1/);
     assert.match(codeBehind, /workflow-return-activity-confirmation\.js/);
     assert.doesNotMatch(codeBehind, /Button_tool_devolver_a_actividades_anterior|Activa_devolver_actividades_anteriores/);
     assert.match(styles, /#workflow-return-activity-modern-dialog/);
@@ -88,4 +129,21 @@ test("el markup y bootstrap son exclusivos, accesibles y sin postback legacy", (
     assert.match(source, /executionPending/);
     assert.match(source, /establecerEjecucionPendiente/);
     assert.match(source, /La devolución está en curso\. Espere la respuesta antes de cerrar\./);
+});
+
+test("vuelve a enlazar Actividad anterior cuando el UpdatePanel reemplaza el trigger", () => {
+    const firstTrigger = fakeElement({ "data-workflow-return-activity-active": "true" });
+    const { api, elements } = loadUiWithTrigger(firstTrigger);
+
+    assert.equal(api.inicializar(), true);
+    assert.equal(api.inicializar(), false, "no duplica listeners sobre el mismo trigger");
+    assert.equal(firstTrigger.listenerCount("click"), 1);
+    assert.equal(elements["workflow-return-activity-modern-close"].listenerCount("click"), 1);
+
+    const replacementTrigger = fakeElement({ "data-workflow-return-activity-active": "true" });
+    elements["workflow-return-activity-trigger"] = replacementTrigger;
+
+    assert.equal(api.inicializar(), true, "reconoce el trigger renderizado para la siguiente tarea");
+    assert.equal(replacementTrigger.listenerCount("click"), 1);
+    assert.equal(elements["workflow-return-activity-modern-close"].listenerCount("click"), 1, "no duplica listeners del modal persistente");
 });

@@ -225,8 +225,11 @@
             trigger: trigger, modal: find("workflow-return-activity-modern-modal"), close: find("workflow-return-activity-modern-close"), search: find("workflow-return-activity-modern-search"), status: find("workflow-return-activity-modern-status"), context: find("workflow-return-activity-modern-context"), previous: find("workflow-return-activity-modern-previous"), next: find("workflow-return-activity-modern-next"), page: find("workflow-return-activity-modern-page"), tableBody: find("workflow-return-activity-modern-table-body"), cards: find("workflow-return-activity-modern-cards"), preview: null, cursorHistory: {}, abortController: null, searchTimer: null, isOpen: false, executionPending: false
         };
     }
-    function attach(control) {
+    function attachTrigger(control) {
         control.trigger.addEventListener("click", function () { if (!control.isOpen) { openModal(control); } });
+    }
+    function attach(control) {
+        attachTrigger(control);
         control.close.addEventListener("click", function () { closeModal(control); });
         control.modal.querySelector("[data-workflow-return-activity-close]").addEventListener("click", function () { closeModal(control); });
         control.search.addEventListener("input", function () {
@@ -247,7 +250,13 @@
     }
     function inicializar() {
         var trigger = find("workflow-return-activity-trigger");
-        if (!trigger || trigger.getAttribute("data-workflow-return-activity-active") !== "true" || activeControl) { return false; }
+        if (!trigger || trigger.getAttribute("data-workflow-return-activity-active") !== "true") { return false; }
+        if (activeControl) {
+            if (activeControl.trigger === trigger) { return false; }
+            activeControl.trigger = trigger;
+            attachTrigger(activeControl);
+            return true;
+        }
         activeControl = createControl(trigger);
         if (!activeControl.modal || !activeControl.close || !activeControl.search || !activeControl.status || !activeControl.context || !activeControl.previous || !activeControl.next || !activeControl.page || !activeControl.tableBody || !activeControl.cards) { activeControl = null; return false; }
         attach(activeControl); return true;

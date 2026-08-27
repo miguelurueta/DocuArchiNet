@@ -36,6 +36,42 @@ function loadConfirmation() {
     return window.WorkflowReturnUserPreviousConfirmation;
 }
 
+function fakeElement(attributes) {
+    const listeners = new Map();
+    return {
+        attributes: { ...(attributes || {}) },
+        getAttribute(name) { return Object.prototype.hasOwnProperty.call(this.attributes, name) ? this.attributes[name] : null; },
+        setAttribute(name, value) { this.attributes[name] = String(value); },
+        addEventListener(name, listener) { listeners.set(name, [...(listeners.get(name) || []), listener]); },
+        listenerCount(name) { return (listeners.get(name) || []).length; },
+        querySelectorAll() { return []; },
+        focus() {}
+    };
+}
+
+function loadUiWithTrigger(trigger) {
+    const elements = {};
+    const backdrop = fakeElement();
+    const modal = fakeElement();
+    modal.querySelector = () => backdrop;
+    elements["workflow-return-user-previous-trigger"] = trigger;
+    elements["workflow-return-user-previous-modern-modal"] = modal;
+    elements["workflow-return-user-previous-modern-dialog"] = fakeElement();
+    elements["workflow-return-user-previous-modern-close"] = fakeElement();
+    elements["workflow-return-user-previous-modern-status"] = fakeElement();
+    elements["workflow-return-user-previous-modern-context"] = fakeElement();
+    elements["workflow-return-user-previous-modern-confirm"] = fakeElement();
+    const document = {
+        body: { classList: { add() {}, remove() {} } },
+        createEvent() { return { initCustomEvent() {} }; },
+        createElement() { return fakeElement(); },
+        getElementById(id) { return elements[id] || null; }
+    };
+    const window = { CustomEvent: function CustomEvent() {}, dispatchEvent() {} };
+    vm.runInNewContext(uiSource, { window, document, Promise, JSON, Array, Object, Number, String, Error, isFinite });
+    return { api: window.WorkflowReturnUserPreviousUi, elements };
+}
+
 test("DOC-37: normaliza solo el usuario histórico y token opaco del preview", () => {
     const { api } = loadUi();
     const preview = api.desempaquetarRespuestaAsmx({ d: {
@@ -86,6 +122,7 @@ test("DOC-37: la ruta moderna es exclusiva, accesible y no depende del feature g
     assert.match(page, /workflow-return-user-previous-modern-confirm/);
     assert.match(codeBehind, /RegisterWorkflowReturnUserPreviousModernPresentation\(\)/);
     assert.match(codeBehind, /workflow-return-user-previous-ui\.js/);
+    assert.match(codeBehind, /workflow-return-user-previous-ui\.js\?v=20260827-doc37rebind1/);
     assert.match(codeBehind, /workflow-return-user-previous-confirmation\.js/);
     assert.doesNotMatch(presentation[0], /WorkflowCentroTrabajoModernActive|WorkflowTransitionModernActive/);
     assert.match(styles, /#workflow-return-user-previous-modern-dialog/);
@@ -108,4 +145,21 @@ test("DOC-37: elimina el fallback Web Forms y no mezcla otras operaciones", () =
     for (const source of [uiSource, confirmationSource]) {
         assert.doesNotMatch(source, /WorkflowReturnActivity|PreviewDevolverActividad|EjecutarDevolverActividad|PreviewEnviar|EjecutarEnvio|workflow:return-activity|workflow:user-destination/);
     }
+});
+
+test("DOC-37: vuelve a enlazar Usuario anterior cuando el UpdatePanel reemplaza el trigger", () => {
+    const firstTrigger = fakeElement({ "data-workflow-return-user-previous-active": "true" });
+    const { api, elements } = loadUiWithTrigger(firstTrigger);
+
+    assert.equal(api.inicializar(), true);
+    assert.equal(api.inicializar(), false, "no duplica listeners sobre el mismo trigger");
+    assert.equal(firstTrigger.listenerCount("click"), 1);
+    assert.equal(elements["workflow-return-user-previous-modern-close"].listenerCount("click"), 1);
+
+    const replacementTrigger = fakeElement({ "data-workflow-return-user-previous-active": "true" });
+    elements["workflow-return-user-previous-trigger"] = replacementTrigger;
+
+    assert.equal(api.inicializar(), true, "reconoce el trigger renderizado para la siguiente tarea");
+    assert.equal(replacementTrigger.listenerCount("click"), 1);
+    assert.equal(elements["workflow-return-user-previous-modern-close"].listenerCount("click"), 1, "no duplica listeners del modal persistente");
 });
