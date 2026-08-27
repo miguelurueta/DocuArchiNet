@@ -5,6 +5,7 @@ const test = require("node:test");
 const vm = require("node:vm");
 
 const source = fs.readFileSync(path.resolve(__dirname, "..", "js", "java_general", "general_code_java.js"), "utf8");
+const workflowDirectory = path.resolve(__dirname, "..", "workflow");
 
 test("general_code_java usa attachEvent cuando jQuery no admite .on", () => {
     const attached = [];
@@ -35,4 +36,20 @@ test("general_code_java usa jQuery solo cuando expone .on", () => {
     vm.runInNewContext(source, { window: { jQuery }, document });
 
     assert.deepEqual(registered.map((event) => event.name), ["keydown", "click"]);
+});
+
+test("Workflow solicita una versión nueva del script global en todas sus páginas", () => {
+    const pages = fs.readdirSync(workflowDirectory)
+        .filter((name) => name.endsWith(".aspx"))
+        .map((name) => ({ name, content: fs.readFileSync(path.join(workflowDirectory, name), "utf8") }))
+        .filter((page) => page.content.includes("general_code_java.js"));
+
+    assert.ok(pages.length > 0);
+    for (const page of pages) {
+        const references = page.content.match(/general_code_java\.js[^"']*/g) || [];
+        assert.ok(references.length > 0, `${page.name} debe referenciar el script global`);
+        for (const reference of references) {
+            assert.match(reference, /\?v=20260827-compatible-events4$/, `${page.name} no puede dejar el script global sin versión`);
+        }
+    }
 });

@@ -21,7 +21,7 @@
       <link href="../Styles/Aplicaction.css" rel="stylesheet" />
     <link href="../Styles/samples.css" rel="stylesheet" />
     <script src="../js/workflow/WebFormDiagramadorEstadoRutaWorkflow.js"></script>
-     <script src="../js/java_general/general_code_java.js"></script>
+     <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events4"></script>
     <script src="../js/validate_campos.js"></script>
      <script defer src="../Awesome/js/all.js"></script>
      <link href="../Awesome/css/fontawesome.css" rel="stylesheet">
