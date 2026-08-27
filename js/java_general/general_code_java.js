@@ -20,7 +20,17 @@ function myFunction(event, thiss) {
     event.preventDefault();
 }
 
-document.addEventListener("keydown", function (tecla) {
+function registrar_evento_documento(nombre_evento, manejador) {
+    if (window.jQuery) {
+        window.jQuery(document).on(nombre_evento, manejador);
+    } else if (document.addEventListener) {
+        document.addEventListener(nombre_evento, manejador, false);
+    } else if (document.attachEvent) {
+        document.attachEvent("on" + nombre_evento, manejador);
+    }
+}
+
+registrar_evento_documento("keydown", function (tecla) {
     if (tecla.keyCode == 27) {
         if (document.getElementById("myDropdown")) {
             document.getElementById("myDropdown").classList.remove("show_filter");
@@ -28,7 +38,7 @@ document.addEventListener("keydown", function (tecla) {
         
     }
 });
-document.addEventListener("click", function (e) {
+registrar_evento_documento("click", function (e) {
     if (e.target.id !== "myDropdown" && e.target.id !== "div_filtro__fil" && e.target.id !== "boton__filtro_ver" && e.target.id !== "myInput") {
         if (document.getElementById("myDropdown")) {
             document.getElementById("myDropdown").classList.remove("show_filter");
