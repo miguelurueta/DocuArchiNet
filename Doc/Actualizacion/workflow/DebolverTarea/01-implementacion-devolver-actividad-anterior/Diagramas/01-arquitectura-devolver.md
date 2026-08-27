@@ -15,7 +15,12 @@ flowchart LR
     Adaptador --> Motor[ClassWorkflow.Terminar_Tarea_Workflow]
     Auditoria --> MySQL
 
-    classDef boundary fill:#eef6ff,stroke:#276fbf;
+    %% Contraste AA/AAA: texto oscuro explícito sobre fondos claros.
+    classDef boundary fill:#e8f1fb,stroke:#174a7e,color:#102a43,stroke-width:2px;
+    classDef external fill:#fff7e6,stroke:#8a4b08,color:#3b2405,stroke-width:2px;
+    classDef datastore fill:#e9f7ef,stroke:#176b3a,color:#123b25,stroke-width:2px;
+    class Cliente external;
+    class MySQL datastore;
     class ASMX,Servicio,Repositorio,Cursor,Guard,Adaptador,Auditoria boundary;
 ```
 
