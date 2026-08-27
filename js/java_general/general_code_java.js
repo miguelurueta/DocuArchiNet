@@ -20,7 +20,7 @@ function myFunction(event, thiss) {
     event.preventDefault();
 }
 
-$(document).keydown(function (tecla) {
+document.addEventListener("keydown", function (tecla) {
     if (tecla.keyCode == 27) {
         if (document.getElementById("myDropdown")) {
             document.getElementById("myDropdown").classList.remove("show_filter");
@@ -28,7 +28,7 @@ $(document).keydown(function (tecla) {
         
     }
 });
-$(document).click(function (e) {
+document.addEventListener("click", function (e) {
     if (e.target.id !== "myDropdown" && e.target.id !== "div_filtro__fil" && e.target.id !== "boton__filtro_ver" && e.target.id !== "myInput") {
         if (document.getElementById("myDropdown")) {
             document.getElementById("myDropdown").classList.remove("show_filter");
