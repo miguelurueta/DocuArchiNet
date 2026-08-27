@@ -2,7 +2,7 @@
 
 - Ticket: DOC-37
 - Cambio OpenSpec: doc-37-interfaz-moderna-devolver-usuario-anterior
-- Clasificación: cross_cutting
+- Clasificacion: cross_cutting
 
 ## Servicios y reglas
 

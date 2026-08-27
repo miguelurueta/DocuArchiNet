@@ -2,7 +2,7 @@
 
 - Ticket: DOC-37
 - Cambio OpenSpec: doc-37-interfaz-moderna-devolver-usuario-anterior
-- Clasificación: cross_cutting
+- Clasificacion: cross_cutting
 
 ## Objetivo
 
@@ -16,4 +16,4 @@ El cambio afecta `workflow/Webworkflow.aspx`, sus archivos code-behind y diseña
 
 DOC-37 registra su propio perfil y contrato de recursos en `tools/e2e/`, reutilizando de DOC-36 la sesión efímera, las huellas ODBC de solo lectura y la reserva local de tareas. El perfil DOC-37 se deriva de uno DOC-36 y recibe dos tareas descartables distintas: una para ejecución y otra para `ui-lock`. El perfil no contiene credenciales, cookies, tokens, usuario, actividad, destino ni autorización; esos valores se solicitan en TTY o proceden del preview vigente y se eliminan del proceso hijo al terminar.
 
-La extensión no crea un ambiente. Solo cuando se autoricen expresamente el ambiente y las cuentas de prueba puede derivarse un perfil con `create-doc37-workflow-user-previous-ui-profile.cjs` y ejecutarse el runner por etapas. DOC-37 rechaza combinaciones de etapas: cada invocación abre una sesión y usa una sola tarea seleccionada. La comprobación inicial y final exige que `WorkflowCentroTrabajoModernActive` permanezca apagado, sin usuarios ni grupos, y que las consultas de estado y auditoría sean un único `SELECT` parametrizado.
+La extensión no crea un ambiente. Solo cuando se autoricen expresamente el ambiente y las cuentas de prueba puede derivarse un perfil con `create-doc37-workflow-user-previous-ui-profile.cjs` y ejecutarse el runner por etapas. DOC-37 rechaza combinaciones de etapas: cada invocación abre una sesión y selecciona una sola tarea autorizada con el comando oficial de la bandeja. Las huellas se toman después de esa precondición; la prueba no escribe campos ocultos, sesión ni invoca servicios internos para simularla. La comprobación inicial y final exige que `WorkflowCentroTrabajoModernActive` permanezca apagado, sin usuarios ni grupos, y que las consultas de estado y auditoría sean un único `SELECT` parametrizado.

@@ -72,7 +72,13 @@ El repositorio SHALL registrar una corrida `doc37` que reutilice el patrón de s
 #### Scenario: Una tarea seleccionada por prueba
 
 - **WHEN** se invoca el runner DOC-37
-- **THEN** acepta exactamente una etapa; cada etapa abre una sesión propia, obtiene su preview vigente y opera solo la tarea seleccionada para esa prueba.
+- **THEN** acepta exactamente una etapa; cada etapa abre una sesión propia, selecciona solo la tarea autorizada mediante el comando oficial de la bandeja, obtiene su preview vigente y opera solo esa tarea.
+
+#### Scenario: Precondición de selección segura
+
+- **WHEN** una sesión E2E nueva no tiene tarea seleccionada
+- **THEN** la prueba activa únicamente el comando oficial de selección de la tarea autorizada y espera su confirmación antes de capturar las huellas de control.
+- **THEN** no escribe campos ocultos, sesión ni invoca endpoints internos para simular la selección; si la tarea no está disponible, falla antes de invocar preview o ejecución.
 
 #### Scenario: Validación de interfaz autorizada
 

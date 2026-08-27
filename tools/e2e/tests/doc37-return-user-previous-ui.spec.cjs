@@ -134,11 +134,26 @@ function finalActivityMatches(taskId, expectedActivityName) {
   return queryOdbcFinalActivity(taskId, expectedActivityName, process.env, e2ePrefix);
 }
 
+function selectedTaskInput(page) {
+  return page.locator('#Hidden_id_tarea_selecionada');
+}
+
+async function selectAuthorizedTask(page, taskId) {
+  await page.goto(new URL('workflow/Webworkflow.aspx', baseUrl()).toString(), { waitUntil: 'domcontentloaded' });
+  const selectedTask = selectedTaskInput(page);
+  const expectedTaskId = String(taskId);
+  if (await selectedTask.inputValue() !== expectedTaskId) {
+    const selectCommand = page.locator(`[tip_event="seleccion_tarea_wf"][idd="${taskId}"]`);
+    await expect(selectCommand, 'La tarea autorizada no está disponible para seleccionarse en la UI Workflow.').toHaveCount(1);
+    await selectCommand.click();
+    await expect(selectedTask, 'La UI Workflow no confirmó la selección de la tarea autorizada.').toHaveValue(expectedTaskId, { timeout: 30000 });
+  }
+}
+
 async function openPreview(page, taskId) {
   const modal = page.locator('#workflow-return-user-previous-modern-modal');
   const trigger = page.locator('#workflow-return-user-previous-trigger');
-  await page.goto(new URL('workflow/Webworkflow.aspx', baseUrl()).toString(), { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('#Hidden_id_tarea_selecionada')).toHaveValue(String(taskId));
+  await expect(selectedTaskInput(page)).toHaveValue(String(taskId));
   if (!await trigger.isVisible()) await page.getByRole('link', { name: 'Devolver', exact: true }).click();
   await expect(trigger).toBeVisible();
   await trigger.click();
@@ -178,10 +193,11 @@ test('@doc37-ui-preview El preview UI de Usuario anterior no cambia estado ni au
   let afterAudit;
   let elapsedMs = 0;
   try {
-    beforeState = await queryFingerprint(stateSql, taskId);
-    beforeAudit = await queryFingerprint(auditSql, taskId);
     context = await login(browser);
     const page = await context.newPage();
+    await selectAuthorizedTask(page, taskId);
+    beforeState = await queryFingerprint(stateSql, taskId);
+    beforeAudit = await queryFingerprint(auditSql, taskId);
     const started = performance.now();
     await openPreview(page, taskId);
     elapsedMs = Math.round(performance.now() - started);
@@ -195,7 +211,6 @@ test('@doc37-ui-preview El preview UI de Usuario anterior no cambia estado ni au
   expect(afterAudit).toBe(beforeAudit);
   await writeEvidence('preview', {
     fechaUtc: new Date().toISOString(),
-    endpoint: 'PreviewDevolverUsuarioAnterior',
     latenciaMs: elapsedMs,
     estadoSinCambio: true,
     auditoriaSinCambio: true,
@@ -225,10 +240,11 @@ test('@doc37-ui-execute La interfaz ejecuta únicamente el preview vigente de Us
   let payloadWasMinimal = false;
   let executionResult = { httpOk: false, exito: false, codigo: 'NOT_STARTED', estadoFinal: null };
   try {
-    beforeState = await queryFingerprint(stateSql, taskId);
-    beforeAudit = await queryFingerprint(auditSql, taskId);
     context = await login(browser);
     page = await context.newPage();
+    await selectAuthorizedTask(page, taskId);
+    beforeState = await queryFingerprint(stateSql, taskId);
+    beforeAudit = await queryFingerprint(auditSql, taskId);
     await page.route(executionEndpoint, async (route) => {
       const payload = route.request().postDataJSON();
       payloadWasMinimal = !!payload && Object.keys(payload).sort().join(',') === 'idTarea,tokenVersion' && payload.idTarea === taskId && typeof payload.tokenVersion === 'string' && !!payload.tokenVersion.trim();
@@ -260,7 +276,6 @@ test('@doc37-ui-execute La interfaz ejecuta únicamente el preview vigente de Us
   expect(await finalActivityMatches(taskId, actividadAnterior)).toBeTruthy();
   await writeEvidence('execution', {
     fechaUtc: new Date().toISOString(),
-    endpoint: 'EjecutarDevolverUsuarioAnterior',
     exito: true,
     estadoFinal: executionResult.estadoFinal,
     payloadMinimo: payloadWasMinimal,
@@ -308,10 +323,11 @@ test('@doc37-ui-lock Una respuesta pendiente no permite duplicar ni abandonar la
     rejectResponseFulfilled = reject;
   });
   try {
-    beforeState = await queryFingerprint(stateSql, taskId);
-    beforeAudit = await queryFingerprint(auditSql, taskId);
     context = await login(browser);
     page = await context.newPage();
+    await selectAuthorizedTask(page, taskId);
+    beforeState = await queryFingerprint(stateSql, taskId);
+    beforeAudit = await queryFingerprint(auditSql, taskId);
     await page.route(executionEndpoint, async (route) => {
       routeStarted = true;
       executionRequests += 1;
@@ -387,7 +403,6 @@ test('@doc37-ui-lock Una respuesta pendiente no permite duplicar ni abandonar la
   expect(await finalActivityMatches(taskId, actividadAnterior)).toBeTruthy();
   await writeEvidence('ui-lock', {
     fechaUtc: new Date().toISOString(),
-    endpoint: 'EjecutarDevolverUsuarioAnterior',
     solicitudesMutantes: executionRequests,
     controlesBloqueados: pendingControlsLocked,
     modalBloqueado: modalWasLocked,

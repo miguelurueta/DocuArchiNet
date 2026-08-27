@@ -17,10 +17,11 @@
 - [x] 3.4 Agregar prueba Playwright UI DOC-37 y pruebas locales de política/orquestador sin iniciar una sesión autenticada. Origen: D-06, RQ-06
 - [x] 3.5 Adaptar el runner y perfil DOC-37 a una sola tarea seleccionada por etapa, usando el preview vigente como única fuente de actividad. Origen: D-06, RQ-06
 - [x] 3.6 Verificar localmente el aislamiento de etapas, contratos y limpieza de secretos tras la adaptación. Origen: D-06, RQ-06
+- [x] 3.7 Establecer la precondición de tarea mediante el comando oficial de la bandeja, antes de las huellas E2E y sin simular sesión o campos ocultos. Origen: D-06, RQ-06
 
 ## 4. Cierre
 
 - [x] 4.1 Validar OpenSpec y la trazabilidad de refinement. Origen: D-01, RQ-01
 - [x] 4.2 Documentar el diff final, contratos, compatibilidad y evidencia de no regresión. Origen: D-05, RQ-05
 - [x] 4.3 Validar OpenSpec, documentación y evidencia local de la arquitectura E2E reutilizable. Origen: D-06, RQ-06
-- [ ] 4.4 Ejecutar y registrar las etapas E2E autorizadas de GESTOR, una por una, con tareas descartables distintas. Origen: D-06, RQ-06
+- [x] 4.4 Ejecutar y registrar las etapas E2E autorizadas de GESTOR, una por una, con tareas descartables distintas. Origen: D-06, RQ-06

@@ -59,5 +59,17 @@ test('DOC-37: preview usa controles SELECT y el bloqueo UI limita la mutación a
   assert.match(spec, /assertLocalGateOff/);
   assert.match(spec, /assertWorkflowPagesCommitted/);
   assert.doesNotMatch(spec, /console\.(?:log|error)\(/);
+  assert.doesNotMatch(spec, /endpoint:\s*'(?:Preview|Ejecutar)DevolverUsuarioAnterior'/);
   assert.doesNotMatch(spec, /(?:\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bCREATE\b|\bDROP\b)\s+(?:INTO|SET|TABLE|DATABASE)/i);
+});
+
+test('DOC-37: la selección E2E usa el comando oficial antes de las huellas de control', () => {
+  assert.match(spec, /async function selectAuthorizedTask/);
+  assert.match(spec, /\[tip_event="seleccion_tarea_wf"\]\[idd="\$\{taskId\}"\]/);
+  assert.match(spec, /selectCommand\.click\(\)/);
+  assert.match(spec, /selectCommand[\s\S]{0,300}toHaveCount\(1\)/);
+  assert.doesNotMatch(spec, /Hidden_id_tarea_selecionada[^\n]*(?:\.value\s*=|setAttribute\()/);
+  const selection = spec.indexOf('await selectAuthorizedTask(page, taskId);');
+  const baseline = spec.indexOf('beforeState = await queryFingerprint(stateSql, taskId);');
+  assert.ok(selection >= 0 && baseline > selection, 'La línea base debe tomarse después de la selección oficial.');
 });

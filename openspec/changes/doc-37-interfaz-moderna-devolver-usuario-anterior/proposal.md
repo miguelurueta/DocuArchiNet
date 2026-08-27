@@ -9,7 +9,7 @@ DOC-36 expone el preview y la ejecución seguros para devolver una tarea al usua
 - Agregar un adaptador JavaScript exclusivo que consulte `PreviewDevolverUsuarioAnterior`, conserve el token opaco y ejecute únicamente `EjecutarDevolverUsuarioAnterior` después de confirmación.
 - Reutilizar `ConfirmationDialog`, las convenciones de foco, teclado, Escape, bloqueo durante ejecución y la actualización localizada de la bandeja existentes.
 - Añadir pruebas focales CJS y documentación técnica de contratos, aislamiento y no regresión.
-- Extender el orquestador E2E local de DOC-36 con un perfil DOC-37 no sensible, recursos de UI aislados y etapas autorizadas. Cada invocación valida una sola tarea seleccionada. La extensión no aprovisiona ni configura un ambiente autenticado.
+- Extender el orquestador E2E local de DOC-36 con un perfil DOC-37 no sensible, recursos de UI aislados y etapas autorizadas. Cada invocación selecciona una sola tarea mediante el comando oficial de la bandeja antes de iniciar sus controles. La extensión no aprovisiona ni configura un ambiente autenticado.
 
 ## Scope
 
