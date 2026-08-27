@@ -13,7 +13,7 @@ DOC-36 ya resuelve el usuario histórico, actividad, token opaco, autorización 
 
 ### D-01 — Registro independiente del feature gate
 
-`ConfigureWorkflowTransitionModernPresentation` registrará la nueva presentación junto con las operaciones que ya se registran antes de evaluar `WorkflowTransitionModernActive`. El bootstrap se limita a los IDs de tarea ya presentes y no introduce autorización de cliente.
+`ConfigureWorkflowTransitionModernPresentation` registrará la nueva presentación junto con las operaciones que ya se registran antes de evaluar `WorkflowTransitionModernActive`. El bootstrap se limita a los IDs de tarea ya presentes y no introduce autorización de cliente. La regresión transversal DOC-2 comprueba la copia de confirmación en el adaptador moderno propio, no en el JavaScript que perdió la ruta heredada.
 
 ### D-02 — Sustitución puntual de la ruta heredada
 

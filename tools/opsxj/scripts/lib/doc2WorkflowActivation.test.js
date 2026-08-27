@@ -250,9 +250,10 @@ describe("DOC-2 workflow visual activation", () => {
   });
 
   it("uses explicit workflow decisions without changing the authorization control", async () => {
-    const [page, workflowScript, css] = await Promise.all([
+    const [page, workflowScript, returnUserPreviousConfirmation, css] = await Promise.all([
       readAppFile("workflow/Webworkflow.aspx"),
       readAppFile("js/workflow/Webworkflow.js"),
+      readAppFile("js/workflow/workflow-return-user-previous-confirmation.js"),
       readAppFile("Styles/workflow-centro-trabajo-moderno.css"),
     ]);
 
@@ -269,11 +270,13 @@ describe("DOC-2 workflow visual activation", () => {
       'id="ctw-workflow-route-modal-title"',
     ].forEach((marker) => expect(page).toContain(marker));
     expect(page).toMatch(/centro-trabajo-visual\.js\?v=[A-Za-z0-9._-]+/);
-    [
-      "actualiza_titulo_lista_actividades_workflow",
-      "La tarea se devolverá al usuario anterior y saldrá de su bandeja.",
-    ].forEach((marker) => expect(workflowScript).toContain(marker));
+    expect(workflowScript).toContain("actualiza_titulo_lista_actividades_workflow");
     expect(workflowScript).not.toContain("Se abrirá la lista de actividades anteriores para elegir el destino de la devolución.");
+    [
+      "Confirmar devolución a usuario anterior",
+      "El servidor volverá a validar el historial, el token y la concurrencia antes de devolver la tarea.",
+    ].forEach((marker) => expect(returnUserPreviousConfirmation).toContain(marker));
+    expect(returnUserPreviousConfirmation).not.toContain("Button_tool_devolver_a_usuario");
     [
       "--ctw-control-height: 44px",
       "min-height: 44px",

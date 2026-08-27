@@ -18,6 +18,7 @@
 - [x] 3.5 Adaptar el runner y perfil DOC-37 a una sola tarea seleccionada por etapa, usando el preview vigente como única fuente de actividad. Origen: D-06, RQ-06
 - [x] 3.6 Verificar localmente el aislamiento de etapas, contratos y limpieza de secretos tras la adaptación. Origen: D-06, RQ-06
 - [x] 3.7 Establecer la precondición de tarea mediante el comando oficial de la bandeja, antes de las huellas E2E y sin simular sesión o campos ocultos. Origen: D-06, RQ-06
+- [x] 3.8 Adaptar la regresión transversal DOC-2 para validar la confirmación moderna sin reintroducir la ruta heredada. Origen: D-02, RQ-02
 
 ## 4. Cierre
 

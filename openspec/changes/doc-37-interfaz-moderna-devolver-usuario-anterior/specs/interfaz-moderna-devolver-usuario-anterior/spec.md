@@ -24,6 +24,11 @@ El menú SHALL reemplazar solo Usuario anterior por un trigger sin postback y SH
 - **WHEN** se activa Devolver a actividad anterior u otra operación Workflow
 - **THEN** conserva sus triggers, eventos, estado y contratos existentes.
 
+#### Scenario: Regresión transversal de confirmación
+
+- **WHEN** la validación transversal comprueba la decisión de devolver a usuario anterior
+- **THEN** obtiene la copia de confirmación del adaptador moderno exclusivo y verifica que no reaparezca el botón o fallback Web Forms heredado.
+
 ### Requirement: Contrato de usuario histórico mínimo
 
 La interfaz SHALL consumir solo `PreviewDevolverUsuarioAnterior` y `EjecutarDevolverUsuarioAnterior`, usando la identidad mínima definida por DOC-36. (D-03, RQ-03)

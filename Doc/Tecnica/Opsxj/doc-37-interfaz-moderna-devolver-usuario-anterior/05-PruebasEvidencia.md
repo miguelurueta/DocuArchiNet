@@ -8,7 +8,7 @@
 
 La evidencia local ejecutada fue `node --test tests/workflow-return-user-previous-ui.test.cjs tests/workflow-return-user-previous.test.cjs tests/workflow-return-activity.test.cjs`, con 29 pruebas aprobadas. Cubre bootstrap sin feature gate, trigger exclusivo, ausencia de postback, payload mínimo, preview, token opaco, confirmación, bloqueo de doble clic, foco, Escape, timeout, cancelación y actualización localizada; también incluye regresiones de DOC-36 y devolución de actividad. `msbuild GestionDocumental-Docuarchi.net.vbproj /t:Build /p:Configuration=Debug /m:1 /v:minimal` completó correctamente con advertencias históricas de referencias y VB.NET, sin errores de compilación.
 
-La ampliación E2E se comprobó de forma local con 21 pruebas del orquestador y 4 políticas DOC-37 aprobadas. Cubren perfil no sensible, derivación DOC-37 desde DOC-36, dos tareas aisladas, autorizaciones por etapa, limpieza de secretos efímeros, endpoints exclusivos, payload de ejecución mínimo, `SELECT` de control, gate apagado, selección oficial de tarea y bloqueo de una única mutación.
+La ampliación E2E se comprobó de forma local con 21 pruebas del orquestador y 4 políticas DOC-37 aprobadas. Cubren perfil no sensible, derivación DOC-37 desde DOC-36, dos tareas aisladas, autorizaciones por etapa, limpieza de secretos efímeros, endpoints exclusivos, payload de ejecución mínimo, `SELECT` de control, gate apagado, selección oficial de tarea y bloqueo de una única mutación. La suite OPSXJ completó 124 pruebas y valida que la regresión transversal DOC-2 lea la confirmación desde el adaptador moderno exclusivo, sin recuperar el botón Web Forms retirado.
 
 ## QA/E2E WebForms
 
