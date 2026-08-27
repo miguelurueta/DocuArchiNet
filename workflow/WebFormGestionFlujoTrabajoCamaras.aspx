@@ -36,7 +36,7 @@
     <script  src="../Awesome/js/solid.js"></script>
     <script  src="../Awesome/js/fontawesome.js"></script>
     <script src="../js/workflow/WebFormGestionFlujoTrabajoCamaras.js"></script>
-    <script src="../js/java_general/general_code_java.js"></script>
+    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events4"></script>
     <script src="../js/java_general/general_config.js"></script>
     <script src="../js/java_general/general_control_java.js"></script>
     <script src="../generic_control/FileUploadHandler.js" type="text/javascript"></script>

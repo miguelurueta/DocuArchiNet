@@ -14,7 +14,7 @@
    <script src="../js/ui/jquery.ui.core.js" type="text/javascript"></script>
     <script src="../js/workflow/WebFormVisorExterno.js"></script>
      <link href="../Styles/Aplicaction.css" rel="stylesheet" />
-    <script src="../js/java_general/general_code_java.js"></script>
+    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events4"></script>
     <script defer src="../Awesome/js/all.js"></script>
      <link href="../Awesome/css/fontawesome.css" rel="stylesheet">
   <link href="../Awesome/css/brands.css" rel="stylesheet">
