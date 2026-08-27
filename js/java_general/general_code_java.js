@@ -21,17 +21,32 @@ function myFunction(event, thiss) {
 }
 
 function registrar_evento_documento(nombre_evento, manejador) {
-    if (typeof window.jQuery === "function" && window.jQuery.fn && typeof window.jQuery.fn.on === "function") {
-        window.jQuery(document).on(nombre_evento, manejador);
-    } else if (document.addEventListener) {
+    var receptor_jquery;
+    if (typeof window.jQuery === "function") {
+        try {
+            receptor_jquery = window.jQuery(document);
+            if (receptor_jquery && typeof receptor_jquery.on === "function") {
+                receptor_jquery.on(nombre_evento, manejador);
+                return;
+            }
+        } catch (error_jquery) {
+            receptor_jquery = null;
+        }
+    }
+    if (document.addEventListener) {
         document.addEventListener(nombre_evento, manejador, false);
     } else if (document.attachEvent) {
         document.attachEvent("on" + nombre_evento, manejador);
     }
 }
 
+function obtener_evento_documento(evento) {
+    return evento || window.event || null;
+}
+
 registrar_evento_documento("keydown", function (tecla) {
-    if (tecla.keyCode == 27) {
+    tecla = obtener_evento_documento(tecla);
+    if (tecla && tecla.keyCode == 27) {
         if (document.getElementById("myDropdown")) {
             document.getElementById("myDropdown").classList.remove("show_filter");
         }
@@ -39,7 +54,10 @@ registrar_evento_documento("keydown", function (tecla) {
     }
 });
 registrar_evento_documento("click", function (e) {
-    if (e.target.id !== "myDropdown" && e.target.id !== "div_filtro__fil" && e.target.id !== "boton__filtro_ver" && e.target.id !== "myInput") {
+    e = obtener_evento_documento(e);
+    var elemento_objetivo = e && (e.target || e.srcElement);
+    if (!elemento_objetivo) return;
+    if (elemento_objetivo.id !== "myDropdown" && elemento_objetivo.id !== "div_filtro__fil" && elemento_objetivo.id !== "boton__filtro_ver" && elemento_objetivo.id !== "myInput") {
         if (document.getElementById("myDropdown")) {
             document.getElementById("myDropdown").classList.remove("show_filter");
         }

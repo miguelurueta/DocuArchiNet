@@ -27,7 +27,7 @@
      <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <script src="../bootstrap/js/bootstrap.min.js"></script>
     <link href="../Styles/bootra-person.css" rel="stylesheet" />
-    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events4" type="text/javascript"></script>
+    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events5" type="text/javascript"></script>
     <script src="../js/java_general/ubicacion_code_java.js" type="text/javascript"></script>   
    <script src="../js/java_general/general_control_java.js"></script>
     <script  src="../Awesome/js/all.js"></script>
@@ -38,7 +38,7 @@
   <script  src="../Awesome/js/solid.js"></script>
   <script  src="../Awesome/js/fontawesome.js"></script>
     <script src="../js/validate_campos.js"></script>
-    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events4"></script>
+    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events5"></script>
     <style type="text/css">
         .auto-style1 {
             height: 26px;

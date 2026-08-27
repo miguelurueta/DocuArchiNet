@@ -23,7 +23,7 @@
     <script src="../Fixed-Header-Table-master/gridviewScroll.min.js"></script>
    <link href="../js/ui/jquery-ui.css" rel="stylesheet" />
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
-    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events4"></script>
+    <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events5"></script>
    <style type="text/css">
   
         .invisible { 
