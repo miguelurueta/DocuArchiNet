@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
+<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07 -->
 ## 1. Refinement
 
 - [x] 1.1 Consolidar alcance final desde Jira, DOC-36 y el contexto de código. Origen: D-01, RQ-01
@@ -19,6 +19,7 @@
 - [x] 3.6 Verificar localmente el aislamiento de etapas, contratos y limpieza de secretos tras la adaptación. Origen: D-06, RQ-06
 - [x] 3.7 Establecer la precondición de tarea mediante el comando oficial de la bandeja, antes de las huellas E2E y sin simular sesión o campos ocultos. Origen: D-06, RQ-06
 - [x] 3.8 Adaptar la regresión transversal DOC-2 para validar la confirmación moderna sin reintroducir la ruta heredada. Origen: D-02, RQ-02
+- [x] 3.9 Fijar OpenSpec 1.7.0 en CI y verificar la validación completa del repositorio. Origen: D-07, RQ-07
 
 ## 4. Cierre
 

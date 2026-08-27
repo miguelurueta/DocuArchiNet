@@ -10,6 +10,8 @@ La evidencia local ejecutada fue `node --test tests/workflow-return-user-previou
 
 La ampliación E2E se comprobó de forma local con 21 pruebas del orquestador y 4 políticas DOC-37 aprobadas. Cubren perfil no sensible, derivación DOC-37 desde DOC-36, dos tareas aisladas, autorizaciones por etapa, limpieza de secretos efímeros, endpoints exclusivos, payload de ejecución mínimo, `SELECT` de control, gate apagado, selección oficial de tarea y bloqueo de una única mutación. La suite OPSXJ completó 124 pruebas y valida que la regresión transversal DOC-2 lea la confirmación desde el adaptador moderno exclusivo, sin recuperar el botón Web Forms retirado.
 
+El workflow OPSXJ fija OpenSpec 1.7.0: `npx --yes @fission-ai/openspec@1.7.0 validate --all --strict` validó las 30 especificaciones. La versión `@latest` se descartó porque añadió reglas incompatibles con cuatro especificaciones base no modificadas por DOC-37.
+
 ## QA/E2E WebForms
 
 El 2026-08-27, con autorización expresa de ambiente, cuenta y dos tareas descartables distintas, se ejecutaron en GESTOR las tres etapas DOC-37 por separado: `preview` (22.2 s), `execution` (25.5 s) y `ui-lock` (25.7 s). El preview conservó las huellas de estado y auditoría. Las etapas mutantes confirmaron una transición real con las huellas esperadas; `ui-lock` verificó una sola solicitud mientras confirmación, cierre, Escape, backdrop y abandono permanecían bloqueados hasta recibir la respuesta.

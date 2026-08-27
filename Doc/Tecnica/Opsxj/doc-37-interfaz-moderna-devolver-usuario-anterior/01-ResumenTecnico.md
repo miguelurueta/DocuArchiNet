@@ -10,7 +10,7 @@ Sustituir el postback heredado de **Devolver → Usuario anterior** por una úni
 
 ## Alcance y compatibilidad
 
-El cambio afecta `workflow/Webworkflow.aspx`, sus archivos code-behind y diseñador, `Styles/workflow-transition-modern.css`, los adaptadores `workflow-return-user-previous-ui.js` y `workflow-return-user-previous-confirmation.js`, y el runner de `tools/e2e/`. Se elimina solo la ruta `D-TWU-ANT`, el botón oculto y el handler de Usuario anterior. Devolver a actividad anterior, Enviar a usuario, Enviar a grupo y Continuar flujo conservan sus rutas, eventos y contratos. El rollback consiste en revertir este conjunto de archivos; no existen cambios de base de datos, endpoint ni configuración de ambiente.
+El cambio afecta `workflow/Webworkflow.aspx`, sus archivos code-behind y diseñador, `Styles/workflow-transition-modern.css`, los adaptadores `workflow-return-user-previous-ui.js` y `workflow-return-user-previous-confirmation.js`, el runner de `tools/e2e/` y la versión de OpenSpec del workflow de validación. Se elimina solo la ruta `D-TWU-ANT`, el botón oculto y el handler de Usuario anterior. Devolver a actividad anterior, Enviar a usuario, Enviar a grupo y Continuar flujo conservan sus rutas, eventos y contratos. El rollback consiste en revertir este conjunto de archivos; no existen cambios de base de datos, endpoint ni configuración de ambiente.
 
 ## Arquitectura de pruebas reutilizada
 

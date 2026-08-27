@@ -13,7 +13,7 @@ DOC-36 expone el preview y la ejecución seguros para devolver una tarea al usua
 
 ## Scope
 
-La modificación se limita a `workflow/Webworkflow.aspx`, su code-behind y diseñador, `js/workflow/`, estilos existentes, `tools/e2e/`, pruebas focales y documentación DOC-37. Los endpoints, contratos y capas de servidor de DOC-36 se consumen sin modificación.
+La modificación se limita a `workflow/Webworkflow.aspx`, su code-behind y diseñador, `js/workflow/`, estilos existentes, `tools/e2e/`, `.github/workflows/`, pruebas focales y documentación DOC-37. Los endpoints, contratos y capas de servidor de DOC-36 se consumen sin modificación.
 
 ## Capabilities
 

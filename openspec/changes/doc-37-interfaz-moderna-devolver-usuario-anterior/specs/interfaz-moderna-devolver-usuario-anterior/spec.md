@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07 -->
 ## ADDED Requirements
 
 ### Requirement: Presentación moderna independiente de gate
@@ -89,3 +89,12 @@ El repositorio SHALL registrar una corrida `doc37` que reutilice el patrón de s
 
 - **WHEN** una persona autorizada ejecuta una etapa DOC-37 contra el ambiente y las cuentas de prueba aprobados
 - **THEN** el preview controla estado y auditoría mediante consultas `SELECT`, la ejecución usa solo los endpoints de DOC-36 y el bloqueo UI conserva una única solicitud mutante sin registrar valores sensibles.
+
+### Requirement: Validación CI reproducible
+
+El workflow de validación SHALL fijar la versión de OpenSpec compatible con las especificaciones del repositorio al validarlas en conjunto. (D-07, RQ-07)
+
+#### Scenario: Validación completa en CI
+
+- **WHEN** el workflow OPSXJ valida todas las especificaciones en una solicitud de cambio DOC-37
+- **THEN** usa OpenSpec 1.7.0 y termina sin fallos introducidos por cambios de contrato de una versión más reciente.
