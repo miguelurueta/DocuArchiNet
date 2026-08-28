@@ -82,12 +82,14 @@ test("la presentación es constante y el contexto conserva únicamente los boots
     assert.match(pageMarkup, /<link href="\.\.\/Styles\/workflow-centro-trabajo-moderno\.css\?v=20260820-modern-actions3/);
     assert.match(pageMarkup, /<script src="\.\.\/js\/workflow\/centro-trabajo-visual\.js\?v=20260821-modern-actions4/);
     assert.doesNotMatch(pageMarkup, /<% If WorkflowCentroTrabajoModernActive Then %>\s+<link href="\.\.\/Styles\/workflow-centro-trabajo-moderno\.css/);
-    assert.match(pageSource, /RegisterWorkflowTransitionModernStyle\(\)\s+RegisterWorkflowTransitionPagePresentationScript\(\)\s+RegisterWorkflowEnvioUsuarioModernPresentation\(\)\s+RegisterWorkflowReturnActivityModernPresentation\(\)\s+If Not WorkflowTransitionModernActive Then\s+Return\s+End If\s+RegisterConfirmationDialogStyle\(\)/);
+    assert.match(pageSource, /RegisterWorkflowTransitionModernStyle\(\)\s+RegisterWorkflowTransitionPagePresentationScript\(\)\s+RegisterWorkflowEnvioUsuarioModernPresentation\(\)\s+RegisterWorkflowReturnActivityModernPresentation\(\)\s+RegisterWorkflowReturnUserPreviousModernPresentation\(\)\s+If Not WorkflowTransitionModernActive Then\s+Return\s+End If\s+RegisterConfirmationDialogStyle\(\)/);
     assert.match(pageSource, /If Not WorkflowTransitionModernActive Then[\s\S]*?Return[\s\S]*?RegisterWorkflowTransitionModernBootstrap\(\)[\s\S]*?RegisterWorkflowEnvioGrupoModernBootstrap\(\)/);
     assert.match(pageSource, /Private Sub RegisterWorkflowEnvioUsuarioModernPresentation\(\)[\s\S]*?RegisterWorkflowEnvioUsuarioModernBootstrap\(\)[\s\S]*?End Sub/);
     assert.match(pageSource, /Private Sub RegisterWorkflowReturnActivityModernPresentation\(\)[\s\S]*?RegisterWorkflowReturnActivityModernBootstrap\(\)[\s\S]*?End Sub/);
+    assert.match(pageSource, /Private Sub RegisterWorkflowReturnUserPreviousModernPresentation\(\)[\s\S]*?RegisterWorkflowReturnUserPreviousModernBootstrap\(\)[\s\S]*?End Sub/);
     assert.match(pageSource, /workflow-user-send-ui\.js\?v=20260821-doc29ui1/);
-    assert.match(pageSource, /workflow-return-activity-ui\.js\?v=20260825-doc33ui1/);
+    assert.match(pageSource, /workflow-return-activity-ui\.js\?v=20260827-doc33rebind1/);
+    assert.match(pageSource, /workflow-return-user-previous-ui\.js\?v=20260827-doc37rebind1/);
     assert.match(pageSource, /data-workflow-user-send-active/);
     assert.match(pageSource, /workflowCentroTrabajoModernViewport\.Visible = WorkflowCentroTrabajoModernPresentationEnabled/);
     assert.match(pageSource, /If Not WorkflowCentroTrabajoModernPresentationEnabled Then\s+Return String\.Empty/);

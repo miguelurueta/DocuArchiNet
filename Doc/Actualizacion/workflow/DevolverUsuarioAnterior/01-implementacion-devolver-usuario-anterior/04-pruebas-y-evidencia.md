@@ -49,3 +49,36 @@ Estado de este cambio: **automatizado y validado localmente; no ejecutado en amb
 Al completar DOC-36, la etapa de interfaz consumirá únicamente estos dos endpoints y el token opaco. No podrá reabrir ni conservar el postback legado como ruta alternativa.
 
 La matriz obligatoria de la etapa 03 debe ejecutar E2E de interfaz para: mostrar la confirmación con el contexto mínimo del preview; cancelar sin mutación; foco y teclado (`Escape`); impedir doble clic, cierre del modal o abandono mientras `EjecutarDevolverUsuarioAnterior` esté pendiente; restaurar la bandeja cuando termine; y consumir exclusivamente los endpoints DOC-36. DOC-36 no implementa esa interfaz ni activa rutas legacy.
+
+## Evidencia transversal DOC-38 — 2026-08-27
+
+| Control | Resultado |
+| --- | --- |
+| Línea base | El diff de DOC-38 contiene artefactos OpenSpec, documentación técnica y ajustes de arnés de pruebas; no modifica código de producción, contratos, configuración ni datos de negocio. |
+| `node --test` sobre los 17 archivos `tests/*.test.cjs` | 114 pruebas aprobadas. Cubre preview, historial, token, permiso, auto-devolución, lock, revalidación, adaptador, auditoría, UI, actividad anterior, continuar flujo, enviar a usuario y enviar a grupo. |
+| Análisis estático focal | Sin referencias de la capacidad nueva a `Classgestionrespuesta`, `Verifica_respuesta_*` ni `Reasigna_respuesta_envia_tarea_usuario`. Las suites verifican preview de solo lectura, contratos exclusivos, ausencia de fallback y aislamiento del motor. |
+| `msbuild GestionDocumental-Docuarchi.net.vbproj /t:Build /p:Configuration=Debug /m:1 /v:minimal` | Compilación correcta. Mantiene advertencias históricas `MSB3247` por conflictos de versiones de ensamblados; no hubo errores de compilación. |
+
+El arnés local se actualizó para reconocer el registro de Usuario anterior junto con Actividad anterior y para normalizar CRLF al analizar la suite estática de Enviar a usuario. Estos ajustes restauran la cobertura de regresión; no modifican la aplicación.
+
+### QA manual DOC-38 — 2026-08-28
+
+Un operador autorizado ejecutó el recorrido visual sin confirmar la devolución final. La correlación saneada es `QA-MANUAL-DOC38-20260828`; los videos permanecen fuera del repositorio para no incorporar datos de sesión ni de tareas.
+
+| # | Escenario | Resultado |
+| --- | --- | --- |
+| 1 | Preview de usuario anterior con contexto de la tarea | Aprobado: abre el modal sin ejecutar una devolución. |
+| 2 | Cancelación | Aprobado: cierra el modal sin transición. |
+| 3 | Tecla `Escape` | Aprobado: cierra el modal sin transición. |
+| 4 | Cambio de tarea A → B | Aprobado: las dos opciones permanecen disponibles y el preview se asocia a la nueva tarea. |
+| 5 | Historial no elegible | Aprobado: se muestra bloqueo funcional sin abrir Actividad anterior. |
+| 6 | Antecedente sin usuario individual de flujo | Aprobado: se bloquea la devolución y no se confirma ni modifica la tarea. |
+| 7 | Exclusividad con Actividad anterior | Aprobado: cada opción abre y conserva su modal propio. |
+| 8 | Doble clic / espera | No aplica: observar la espera exige confirmar una devolución real, excluida de DOC-38. |
+| 9 | Responsive | Aprobado: modal, texto y botones siguen visibles y utilizables en ancho reducido. |
+| 10 | Accesibilidad básica | Aprobado: `Tab`/`Shift+Tab` permanecen en el modal y `Escape` cancela. |
+| 11 | Compatibilidad JavaScript | Aprobado: no se observó error en `general_code_java.js`; el recurso usa `compatible-events5`. |
+
+No se ejecutaron E2E autenticada automatizada, carga, despliegue ni liberación automática. Tampoco se confirmó la ejecución, por lo que no hubo transición de tarea, auditoría ni modificación de datos durante esta QA. Esas exclusiones no sustituyen la evidencia local de contrato, lock y no regresión ya registrada arriba.
+
+**Recomendación para 05: apto para continuar con la liberación controlada documental.** La recomendación no autoriza un despliegue ni una operación real; ambos requieren las aprobaciones y el runbook de la etapa 05.

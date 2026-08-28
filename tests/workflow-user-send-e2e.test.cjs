@@ -61,7 +61,7 @@ test('DOC-28 conserva contratos ASMX exclusivos de destino usuario', () => {
 });
 
 test('la suite DOC-28 protege preview, consultas de control y evidencia', () => {
-  const suite = read('tests/doc28-user-send.spec.cjs');
+  const suite = read('tests/doc28-user-send.spec.cjs').replace(/\r\n/g, '\n');
   const readOnlySql = suite.match(/function assertReadOnlySql[\s\S]*?\n}\n/)[0];
   const previewEvidence = suite.match(/await writeEvidence\('preview',[\s\S]*?\n  }\);/)[0];
   const executionEvidence = suite.match(/await writeEvidence\('execution',[\s\S]*?\n  }\);/)[0];
