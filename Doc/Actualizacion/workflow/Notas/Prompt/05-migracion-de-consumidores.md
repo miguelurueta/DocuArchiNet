@@ -13,7 +13,7 @@ Contexto obligatorio: revisa el adaptador de Centro de Trabajo aprobado, contrat
 
 Restricciones críticas:
 - No migrar los tres consumidores en una modificación indivisible, habilitar gates, retirar endpoints legacy, aplicar migraciones ni ejecutar E2E autenticada.
-- No copiar CRUD/serialización, reactivar permisos comentados, depender de tarea mutable de sesión, exponer mutaciones en histórico ni producir doble escritura/modales.
+- No copiar CRUD/serialización, reactivar permisos comentados, depender de tarea mutable de sesión ni de `Session("ID_TAREA_SELECCIONDA")`, exponer mutaciones en histórico ni producir doble escritura/modales.
 - No asumir las decisiones DP-01/DP-02 ni cambiar semántica legacy; registra el bloqueo y preserva el fallback individual.
 - No romper consumidores no migrados ni cambios ajenos; cualquier dependencia nueva requiere justificación aprobada.
 
@@ -34,7 +34,7 @@ Alcance: RF-11, RF-14, RF-19 y RF-20; RN-08, RN-10, RN-15 y RN-16; RNF-04, RNF-0
 3. Migra Radicación Entrante usando contratos con idTarea explícito y los resultados funcionales existentes. Conserva el mecanismo de rollback por consumidor y evita doble escritura o modales simultáneos.
 4. Migra Gestión de Correspondencia con las mismas garantías. No reactives ni reproduzcas verificaciones de permiso comentadas del legacy: el permiso lo determina el gate de servidor.
 5. Para histórico, primero verifica que DP-02 y DP-01 estén aprobadas. Implementa únicamente lectura, orden estable y política de estado explícita. No expongas creación, edición ni borrado en histórico.
-6. Revisa que toda pantalla use el resultado de tarea validada por backend y que ninguna ruta moderna dependa de la última tarea guardada en sesión.
+6. Revisa que toda pantalla use el resultado de tarea validada por backend y que ninguna ruta moderna dependa de la última tarea guardada en sesión ni de `Session("ID_TAREA_SELECCIONDA")`.
 7. Agrega pruebas de regresión por consumidor: autorización directa, tarea ajena/inactiva, nota cruzada, contenido texto, conflicto, cursor si corresponde, rollback de bandera y ausencia de doble operación. Integra la E2E indicada, ejecútala solo con autorización y no actives el gate.
 
 Fuera de alcance: retirar endpoints legacy, eliminar WebFormAnotacion, aplicar migraciones de datos/esquema no aprobadas y activar usuarios/grupos piloto.
