@@ -13,6 +13,7 @@ Este paquete registra las decisiones aprobadas de diseño que habilitan DOC-36 y
 | [02-contrato.md](02-contrato.md) | Endpoints, DTOs y códigos públicos. |
 | [03-flujo-y-seguridad.md](03-flujo-y-seguridad.md) | Historial, token, lock y parámetros del motor. |
 | [04-pruebas-y-evidencia.md](04-pruebas-y-evidencia.md) | Matriz de pruebas y límites de evidencia. |
+| [06-liberacion-operacion-controlada.md](06-liberacion-operacion-controlada.md) | Decisión DOC-39, matriz de ambiente, runbook y límites de reversión. |
 
 ## Decisión de entrada aprobada
 
@@ -23,6 +24,10 @@ La ejecución llamará al motor solo mediante un adaptador exclusivo, con `Page 
 ## Verificación transversal DOC-38
 
 DOC-38 consolida la línea base de DOC-36 y DOC-37 sin modificar contratos ni producción. Su matriz vigente, resultados locales, QA manual del 2026-08-28 y recomendación para la etapa 05 se registran en [04-pruebas-y-evidencia.md](04-pruebas-y-evidencia.md). La verificación compara además devolución a actividad anterior, continuar flujo, enviar a usuario y enviar a grupo para evitar regresiones transversales.
+
+## Liberación controlada DOC-39
+
+DOC-39 prepara la operación por ambiente sin desplegar ni modificar configuración. Su decisión vigente es **solicitar aprobación** porque GESTOR no tiene aún una autorización formal, ventana ni responsables registrados. La matriz, el runbook y los controles `SELECT` autorizables se describen en [06-liberacion-operacion-controlada.md](06-liberacion-operacion-controlada.md); la evidencia técnica de DOC-38 no equivale a autorización operativa.
 # Paquete técnico DOC-36
 
 Estructura alineada con el paquete de referencia de devolución de actividad anterior.
