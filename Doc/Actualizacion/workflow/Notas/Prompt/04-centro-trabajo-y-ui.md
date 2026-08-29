@@ -39,7 +39,7 @@ Alcance: RF-13, RF-14 y requerimientos de UX, accesibilidad y compatibilidad; RS
 8. Ejecuta QA responsive no autenticada y conserva una matriz de evidencia para 375 px, 768 px, 1024 px y 1440 px; en móvil valida también orientación vertical y horizontal. En cada viewport comprueba que no haya desplazamiento horizontal no intencional, recortes de la lista, diálogos o acciones, objetivos táctiles menores de 40 px, foco invisible ni superposición de controles.
 9. Valida el flujo de carga, vacío, error, éxito y conflicto al menos en 375 px y 1024 px. Adjunta capturas o evidencia estática de cada viewport/estado, con navegador y resultado; cubre los navegadores soportados por el proyecto y registra como limitación verificable cualquier navegador o dispositivo no disponible.
 
-Fuera de alcance: Radicación, Gestión de Correspondencia, histórico, cambios de servidor no necesarios para el adaptador, y retiro de legacy.
+Fuera de alcance: cualquier consumidor o módulo ajeno a `workflow/`, cambios de servidor no necesarios para el adaptador y retiro de legacy.
 
 Criterios de aceptación:
 - La nueva lista coincide con el modelo aprobado y no introduce una grilla objetivo nueva.

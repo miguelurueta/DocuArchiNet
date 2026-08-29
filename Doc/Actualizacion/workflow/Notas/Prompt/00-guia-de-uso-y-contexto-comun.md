@@ -10,7 +10,7 @@ Arquitecto y desarrollador senior de DocuArchi con experiencia en ASP.NET Web Fo
 
 ## Objetivo
 
-Guiar una modernización gradual de Notas de Workflow con contratos explícitos, seguridad en servidor, migración reversible y evidencia reproducible por fase.
+Guiar una modernización gradual de Notas exclusivamente dentro del módulo `workflow/`, con contratos explícitos, seguridad en servidor, migración reversible y evidencia reproducible por fase.
 
 ## Restricciones críticas
 
@@ -22,6 +22,10 @@ Guiar una modernización gradual de Notas de Workflow con contratos explícitos,
 ## Contexto obligatorio
 
 Las fuentes y el orden de ejecución de las fases se describen en las secciones siguientes. La implementación se limita a las rutas legacy existentes de páginas `.aspx`/code-behind `.vb`, servicios ASMX, modelos, servicios, repositorios, scripts y estilos vinculados a Notas de Workflow.
+
+## Límite de módulo
+
+El alcance actual termina en el consumidor Centro de Trabajo y en las rutas de Notas bajo `workflow/`. Los inventarios históricos pueden describir reutilizaciones de Notas fuera de ese módulo, pero son contexto de diagnóstico: no autorizan cambios, migraciones, pruebas, retiros ni E2E sobre otros módulos. Cualquier extensión futura requiere un ticket, propuesta OpenSpec y prompts propios.
 
 ## Pruebas obligatorias
 
@@ -43,12 +47,12 @@ Cada fase entrega el cambio mínimo implementado, rutas modificadas, decisiones,
 2. `02-lectura-listado-y-contador.md`
 3. `03-escrituras-transaccionales.md`
 4. `04-centro-trabajo-y-ui.md`
-5. `05-migracion-de-consumidores.md`
+5. `05-estabilizacion-consumidor-workflow.md`
 6. `06-verificacion-y-retiro-legacy.md`
 
-Los prompts 04 y 05 requieren que los contratos de lectura y escritura de las fases anteriores estén aprobados. No se habilita ningún consumidor moderno hasta completar su matriz de verificación.
+Los prompts 04 y 05 requieren que los contratos de lectura y escritura de las fases anteriores estén aprobados. No se habilita el consumidor moderno de Workflow hasta completar su matriz de verificación.
 
-Las E2E reales que correspondan a cada cambio son obligatorias para cerrar su alcance. Deben ejecutarse únicamente cuando exista autorización explícita de ambiente, cuentas y tareas descartables, y reutilizan el arnés de `tools/e2e`; no se sustituyen por mocks, scripts ad hoc ni un login alterno.
+Las E2E reales que correspondan a cada cambio son obligatorias para cerrar su alcance. Deben ejecutarse únicamente cuando exista autorización explícita de ambiente, cuentas y tareas descartables, y reutilizan el arnés de `tools/e2e`; no se sustituyen por mocks, scripts ad hoc ni un login alterno. Su recorrido se limita a pantallas y contratos del módulo `workflow/`.
 
 Requisito E2E completo: la E2E es parte integral del mismo cambio y de su cierre, no una tarea o entrega independiente. Reutiliza exclusivamente `tools/e2e`, su autenticación, configuración, validadores, evidencias y utilidades; no crear login, arnés, proyecto Playwright, configuración ni `.env` paralelos. Antes de una E2E autenticada lee `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`; ejecútala solo con ambiente, cuentas y datos o tareas descartables expresamente autorizados. Usa secretos efímeros y no exponer, imprimir ni persistir credenciales, cookies, tokens ni cadenas de conexión; las verificaciones son solo `SELECT` y toda evidencia saneada. Cubre, cuando aplique, autorización y control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión. Respeta feature flags, gates, usuarios, grupos y seguridad sin habilitarlos arbitrariamente; la implementación no se considera terminada sin validación autorizada y, si falta una precondición, registra bloqueo explícito sin mocks, simulaciones ni evidencia ficticia.
 
@@ -72,7 +76,7 @@ Actúa como arquitecto y desarrollador senior de DocuArchi. Implementa únicamen
 
 Primero, lee AGENTS.md y los tres artefactos de Exploración de Notas. Revisa el árbol de trabajo y conserva cualquier cambio ajeno. No uses ni modifiques los cambios OpenSpec activos que no correspondan a Notas; crea o continúa una propuesta OpenSpec dedicada a esta modernización.
 
-Trabaja como monolito modular: transporte ASMX/API → gate de contexto → servicio de aplicación → interfaces/repositorios → MySQL. No copies ni envuelvas Class_anotacion_tarea como la nueva implementación. Mantén WebForms solo como adaptador temporal.
+Trabaja como monolito modular: transporte ASMX/API → gate de contexto → servicio de aplicación → interfaces/repositorios → MySQL. No copies ni envuelvas Class_anotacion_tarea como la nueva implementación. Mantén WebForms solo como adaptador temporal. No modifiques rutas, páginas, scripts, consumidores ni pruebas de módulos ajenos a `workflow/`.
 
 Las E2E reales aplicables a esta fase son obligatorias y deben reutilizar `tools/e2e`. No las ejecutes antes de recibir autorización explícita de ambiente y cuentas; para escrituras, requiere además autorización explícita para cada tarea descartable. No ejecutes carga ni habilites gates. No expongas ni registres credenciales, cookies ni cadenas de conexión. `WorkflowCentroTrabajoModernActive` debe permanecer `false` y sin usuarios ni grupos de piloto al terminar.
 
@@ -83,7 +87,7 @@ Usa idTarea explícito en cada contrato. La sesión solo resuelve identidad y co
 
 Una fase solo se considera completa cuando:
 
-- Su alcance no invade fases posteriores.
+- Su alcance no invade fases posteriores ni módulos ajenos a `workflow/`.
 - Los requerimientos y criterios de aceptación que le aplican tienen prueba automatizada o una evidencia explícita de por qué aún no procede.
 - No introduce doble escritura, doble acción visual ni dependencia de `Session("ID_TAREA_SELECCIONDA")` en el flujo moderno.
 - La activación permanece reversible y deshabilitada por defecto.
