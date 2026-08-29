@@ -35,7 +35,8 @@
     "test:notes:anonymous": "node scripts/run-notes-workflow-interactive.cjs anonymous",
     "test:notes:read": "node scripts/run-notes-workflow-interactive.cjs read",
     "test:notes:write": "node scripts/run-notes-workflow-interactive.cjs write",
-    "test:notes:concurrency": "node scripts/run-notes-workflow-interactive.cjs concurrency"
+    "test:notes:concurrency": "node scripts/run-notes-workflow-interactive.cjs concurrency",
+    "inspect:notes:schema": "node scripts/inspect-notes-column-schema-interactive.cjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

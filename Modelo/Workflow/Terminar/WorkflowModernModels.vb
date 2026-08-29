@@ -31,6 +31,7 @@ Public Class ContextoModuloWorkflow
     Public Property IdUsuarioGestion As Integer
     Public Property PuedeCambioRuta As Boolean
     Public Property PuedeCambioUsuario As Boolean
+    Public Property PuedeInteractuarAnotaciones As Boolean
     Public Property PuedeDevolverActividad As Boolean
     Public Property PuedeDevolverUsuarioAnterior As Boolean
 

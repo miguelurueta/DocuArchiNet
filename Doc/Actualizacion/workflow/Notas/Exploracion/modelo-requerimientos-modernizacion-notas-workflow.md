@@ -2,9 +2,9 @@
 
 | Atributo | Valor |
 |---|---|
-| Estado | Borrador para validación funcional, técnica y de seguridad |
-| Versión | 0.2 |
-| Fecha | 2026-08-22 |
+| Estado | Base técnica resuelta; implementación mutante condicionada a preflight por esquema |
+| Versión | 0.3 |
+| Fecha | 2026-08-28 |
 | Producto | DocuArchi — Workflow |
 | Capacidad | Notas de tarea Workflow |
 | Artefactos relacionados | `diagnostico-modernizacion-notas-workflow.md` y `modelo-ui-notas-workflow-moderno.html` |
@@ -68,8 +68,8 @@ La modernización debe resolver estas condiciones sin interrumpir el Centro de T
 | Usuario Workflow autorizado | Trabaja una tarea asignada o accesible. | Ver notas, crear nota; editar/eliminar únicamente sus propias notas según política vigente. |
 | Propietario de nota | Usuario que creó la nota. | Editar y eliminar su nota, mientras la tarea y permiso sigan vigentes. |
 | Usuario sin permiso de anotaciones | Usuario autenticado sin privilegio para notas. | No ve contenido ni puede ejecutar ninguna operación de notas. |
-| Usuario de consulta histórica | Usuario con autorización de consulta que no necesariamente trabaja la tarea. | Solo ver notas si la política de historial lo permite. |
-| Administrador/a funcional | Define excepciones de visibilidad, retención y administración. | Fuera del alcance hasta que se apruebe una política específica. |
+| Usuario de consulta histórica | Usuario Workflow con autorización de consulta de una tarea, aunque no la trabaje. | Puede ver las notas históricas de esa tarea; no puede crear, editar ni eliminar desde el modo histórico. |
+| Administrador/a funcional | Consulta la trazabilidad bajo los controles del sistema. | No recibe excepción de edición ni eliminación en la política inicial. |
 
 ### 5.1 Política base obligatoria
 
@@ -77,6 +77,11 @@ La modernización debe resolver estas condiciones sin interrumpir el Centro de T
 - La interfaz no concede permisos: únicamente representa una autorización recibida del backend.
 - Toda operación exige una tarea válida y accesible para el contexto del actor.
 - La política base de mutación es **solo propietario**. Cualquier excepción requiere requisito nuevo y evidencia de auditoría adicional.
+- La consulta histórica es solo lectura y está disponible para todo usuario Workflow autorizado a consultar la tarea histórica; no depende de ser propietario ni del usuario que actualmente trabaja la tarea.
+- El contenido es texto plano no vacío, sin NUL y con máximo de **16.000 unidades UTF-16**. En MySQL 5.1 se admite Unicode BMP (`utf8` de tres bytes); pares sustitutos, incluidos emojis, se rechazan en servidor. El máximo usa como máximo 48.000 bytes del `TEXT` de 65.535 bytes confirmado.
+- La eliminación moderna es física. Retira el contenido de las lecturas operativas e históricas y conserva únicamente la auditoría de metadatos de la operación.
+- No existe excepción de mutación para supervisor, administrador ni rol equivalente: crear, editar y eliminar se limitan al propietario autorizado mientras la tarea sea operable.
+- La nota hereda la clasificación y retención de su tarea o documento padre; no tiene calendario autónomo ni se replica íntegra en auditoría.
 
 ## 6. Glosario
 
@@ -89,7 +94,7 @@ La modernización debe resolver estas condiciones sin interrumpir el Centro de T
 | Versión | Valor de concurrencia que identifica el estado conocido de una nota al editar o eliminar. |
 | Idempotencia | Propiedad por la que el reintento de una misma intención de creación no genera más de una nota. |
 | `clientRequestId` | Identificador opaco y único de una intención de crear nota, generado por cliente y validado por servidor. |
-| Borrado | Operación que retira una nota de la lista operativa; su semántica física o lógica queda pendiente de decisión. |
+| Borrado | `DELETE` físico condicionado por nota, tarea, propietario y versión, dentro de la misma transacción de auditoría. |
 | Consulta histórica | Vista de solo lectura de notas bajo una política explícita de acceso a tareas no activas. |
 
 ## 7. Requerimientos funcionales
@@ -105,13 +110,13 @@ La modernización debe resolver estas condiciones sin interrumpir el Centro de T
 | RF-07 | El sistema debe rechazar crear, editar o eliminar para usuario sin permiso de notas. | Obligatorio | La invocación directa al endpoint devuelve código de autorización y no cambia datos. |
 | RF-08 | El sistema debe validar que la tarea exista, esté en un estado operable para la acción y sea accesible para el contexto del actor. | Obligatorio | Un id de tarea alterado o ajeno no devuelve notas ni permite mutación. |
 | RF-09 | El sistema debe mostrar un contador de notas para la tarea seleccionada. | Obligatorio | Se actualiza tras operaciones confirmadas y cambio de tarea; no hace sondeo cada 600 ms. |
-| RF-10 | El sistema debe registrar auditoría de creación, actualización y eliminación en la misma unidad transaccional de la operación. | Obligatorio | La auditoría conserva actor, tarea real, nota, operación, fecha, resultado y referencia de correlación. |
+| RF-10 | El sistema debe registrar auditoría de creación, actualización y eliminación en la misma unidad transaccional de la operación. | Obligatorio | La auditoría conserva actor, tarea real, nota, operación, fecha, resultado, correlación, versión, longitudes y huellas SHA-256, sin texto completo. |
 | RF-11 | El sistema debe soportar consulta histórica de solo lectura bajo una política de visibilidad explícita. | Obligatorio | Un usuario habilitado puede listar; ninguna acción de mutación se expone ni se acepta. |
 | RF-12 | El sistema debe devolver errores funcionales estables y seguros. | Obligatorio | No se devuelven consultas SQL, trazas, excepciones ni detalles de infraestructura. |
 | RF-13 | El sistema debe presentar estado vacío, carga, error, éxito y conflicto de concurrencia. | Obligatorio | La interfaz comunica cada estado sin dejar controles ambiguos o bloqueados. |
 | RF-14 | El sistema debe conservar la compatibilidad temporal con las cuatro superficies consumidoras. | Obligatorio | Cada consumidor puede migrar de forma independiente sin doble escritura ni doble acción visible. |
 | RF-15 | Cada operación debe recibir `idTarea` explícitamente y no debe tomar la tarea objetivo de un valor mutable de sesión. | Obligatorio | Dos pestañas de la misma sesión y tareas distintas operan siempre sobre el `idTarea` de su solicitud validada. |
-| RF-16 | Crear una nota debe ser idempotente para una misma intención de usuario. | Obligatorio | Un reintento con igual `clientRequestId`, tarea y autor devuelve el resultado original y no crea ni audita una segunda nota. |
+| RF-16 | Crear una nota debe ser idempotente para una misma intención de usuario. | Obligatorio | Un reintento dentro de 30 días con igual `clientRequestId`, tarea y autor devuelve el resultado original y no crea ni audita una segunda nota. |
 | RF-17 | Actualizar y eliminar deben aplicar autorización, pertenencia, estado y versión como condición atómica de la mutación. | Obligatorio | Ninguna escritura se ejecuta si no coinciden nota, tarea, actor, estado aplicable y versión esperada. |
 | RF-18 | La actividad de origen debe derivarse del snapshot autorizado y vigente de la tarea. | Obligatorio | El backend no combina una tarea solicitada con una actividad obtenida solo desde grupo o navegador. |
 | RF-19 | El listado operativo e histórico debe aplicar orden estable y una política de estados explícita. | Obligatorio | Las respuestas se ordenan por fecha e identificador; no exponen estados fuera de la política del modo consultado. |
@@ -124,13 +129,13 @@ La modernización debe resolver estas condiciones sin interrumpir el Centro de T
 | RN-01 | Una nota pertenece a una única tarea Workflow y su relación no puede cambiarse después de crearla. |
 | RN-02 | Autor, fecha de creación, actividad de origen y grupo se derivan del contexto validado por servidor. |
 | RN-03 | El contenido es texto plano. El formato HTML ejecutable no es parte del dominio de notas. |
-| RN-04 | El autor solo puede modificar o eliminar su propia nota, salvo nueva regla aprobada para un rol distinto. |
+| RN-04 | El autor es el único actor que puede modificar o eliminar su propia nota; no existe excepción inicial para supervisor o administrador. |
 | RN-05 | Editar y eliminar requieren que la nota pertenezca a la tarea solicitada y que la tarea continúe autorizada para el actor. |
 | RN-06 | Ninguna mutación se completa si la auditoría asociada no se registra satisfactoriamente. |
 | RN-07 | La eliminación requiere confirmación en interfaz, pero la confirmación no reemplaza la autorización ni la validación de servidor. |
 | RN-08 | El contador representa notas visibles bajo la misma política de la lista. |
 | RN-09 | La consulta histórica no altera la tarea, estado, auditoría ni el contenido de notas. |
-| RN-10 | El criterio de borrado físico o lógico se decide antes de liberar mutación moderna; todos los lectores respetan la semántica elegida. |
+| RN-10 | El borrado moderno es físico, se ejecuta con tarea, propietario y versión como condición atómica, y la nota deja de estar disponible tanto en lectura operativa como histórica. |
 | RN-11 | `idTarea` identifica el recurso objetivo de cada comando; la sesión no puede suplirlo ni sobrescribirlo. |
 | RN-12 | La validación de acceso a tarea, propiedad, estado y versión forma parte de la condición de persistencia de editar o eliminar, no de una comprobación previa aislada. |
 | RN-13 | La actividad registrada para una nota pertenece al estado y recorrido de la tarea autorizada en el momento de crear. |
@@ -138,6 +143,13 @@ La modernización debe resolver estas condiciones sin interrumpir el Centro de T
 | RN-15 | El orden predeterminado es `fechaCreacion DESC, idNota DESC`; otros órdenes solo se habilitan si están definidos en el contrato. |
 | RN-16 | Cursores, filtros y orden no permiten trasladar el contexto de listado entre tareas o actores. |
 | RN-17 | Las validaciones que no requieren datos se resuelven antes de abrir conexión; cualquier recurso abierto se libera en todos los resultados y excepciones. |
+| RN-18 | La ruta de negocio de Workflow forma parte del contexto autorizado y del snapshot de tarea; no procede de URL, campo oculto ni payload de Notas. |
+| RN-19 | La consulta histórica permite leer a cualquier usuario Workflow autorizado para consultar la tarea histórica, pero nunca habilita mutaciones. |
+| RN-20 | El contenido de una nota es texto plano no vacío, sin carácter NUL, no supera 16.000 unidades UTF-16 y se limita a Unicode BMP mientras el motor sea MySQL 5.1. |
+| RN-21 | La versión es un ETag SHA-256 opaco calculado por servidor a partir de los valores persistidos de la nota; editar y eliminar lo comparan dentro de la condición de persistencia. |
+| RN-22 | La auditoría no registra contenido completo ni valores anterior/nuevo completos; registra huella SHA-256 y longitud de cada valor relevante. |
+| RN-23 | `clientRequestId` es un UUID opaco y único por tarea y autor durante 30 días; la misma combinación devuelve la primera respuesta y no añade otra auditoría. |
+| RN-24 | Antes de una mutación en MySQL 5.1, el esquema debe confirmar InnoDB para nota y auditoría, `TEXT utf8` para contenido, índices de listado y tabla InnoDB de idempotencia; sin ello responde `Unavailable`. |
 
 ## 9. Requerimientos de experiencia de usuario
 
@@ -193,6 +205,7 @@ Los estilos se encapsulan en `.workflow-centro-trabajo-moderno` y reutilizan el 
 | RS-08 | La autorización falla cerrada si no se puede resolver sesión, permiso, tarea o propiedad. |
 | RS-09 | El log de seguridad no debe registrar credenciales, cookies, cadenas de conexión ni contenido sensible fuera de la política de auditoría aprobada. |
 | RS-10 | El cursor debe estar protegido y ligado a tarea, actor o contexto, filtros y orden; el orden se resuelve mediante lista blanca, nunca desde SQL dinámico recibido del cliente. |
+| RS-11 | `IdRutaWorkflow` del contexto y `IdRuta` de la tarea se validan en servidor. Los metadatos de ruta se consultan con parámetros desde `rutas_workflow`; el cliente no puede aportar nombres de ruta, tablas ni campos dinámicos. |
 
 ## 11. Requerimientos de datos e integridad
 
@@ -208,20 +221,21 @@ Los estilos se encapsulan en `.workflow-centro-trabajo-moderno` y reutilizan el 
 | `fechaCreacion` | Asignada por servidor. |
 | `fechaActualizacion` | Asignada por servidor si aplica. |
 | `estado` | Debe reflejar la semántica de eliminación aprobada. |
-| `version` | Incrementa en cada cambio para control optimista. |
-| `clientRequestId` | Requerido al crear; permite detectar reintentos y correlacionar una única intención de usuario. |
+| `version` | ETag SHA-256 opaco calculado por servidor desde los valores persistidos; cambia cuando cambia el estado relevante de la nota. |
+| `clientRequestId` | UUID requerido al crear; permite detectar reintentos y correlacionar una única intención de usuario durante 30 días. |
 
 ### 11.2 Validación de contenido
 
 - La nota no puede estar vacía ni contener solo espacio en blanco.
-- La longitud máxima debe definirse antes de implementación y validarse en cliente y servidor; el servidor prevalece.
-- Se aceptan caracteres Unicode, comillas y saltos de línea como texto.
+- La longitud máxima es 16.000 unidades UTF-16 y se valida en cliente y servidor; el servidor prevalece.
+- Se aceptan caracteres Unicode BMP, comillas y saltos de línea como texto; se rechazan pares sustitutos y caracteres suplementarios.
 - El contenido no se sanitiza mediante eliminación silenciosa de texto; se almacena y muestra como texto plano.
+- En MySQL 5.1 la columna se conserva como `utf8`; el contrato restringe el contenido a Unicode BMP. `utf8mb4` exige MySQL 5.5.3 o posterior y no se aplica en esta fase.
 
 ### 11.3 Concurrencia
 
 - Crear no requiere versión.
-- Editar y eliminar exigen la versión observada por el usuario.
+- Editar y eliminar exigen el ETag SHA-256 observado por el usuario.
 - Ante conflicto, el sistema no sobrescribe; informa que la nota cambió y ofrece recargar el contenido vigente.
 - La respuesta de conflicto no revela contenido de una nota que dejó de ser autorizada.
 
@@ -234,14 +248,14 @@ Para crear, editar y eliminar se registra como mínimo:
 - Tarea real y nota afectada.
 - Tipo de operación y momento de servidor.
 - Resultado, motivo de rechazo cuando aplique y versión resultante.
-- Valor anterior/nuevo o huellas equivalentes, según política de privacidad y retención aprobada.
+- Huella SHA-256 y longitud de valor anterior/nuevo, sin texto completo.
 
 ### 11.5 Persistencia, atomicidad y recursos
 
-- Crear, actualizar o eliminar y su auditoría se ejecutan en una única transacción.
+- Crear, actualizar o eliminar y su auditoría se ejecutan en una única transacción InnoDB.
 - Editar y eliminar usan una sentencia condicionada por nota, tarea, actor, estado y versión; no se acepta una autorización previa como sustituto de esa condición.
 - Conexiones, comandos, lectores y transacciones se liberan de forma determinista ante éxito, rechazo funcional y excepción.
-- El esquema e índices actuales se verifican mediante consultas de solo lectura antes de proponer cambios. Como hipótesis inicial se evaluarán índices para listado por tarea/estado/fecha/nota y para mutación por nota/tarea/autor/versión; su definición final depende del esquema confirmado y del volumen aprobado.
+- La migración previa por esquema convierte `ANOTACION_TAREA` de MyISAM a InnoDB, verifica `Dato_Anotacion TEXT utf8`, agrega índices de operación `(tarea, estado, fecha, nota)` e histórico `(tarea, fecha, nota)`, y garantiza `wf_log_workflow` InnoDB con índice `(tarea, fecha, log)` y tabla InnoDB de idempotencia. El servidor rechaza caracteres fuera de Unicode BMP. Su aprobación y aplicación quedan fuera de DOC-40.
 
 ## 12. Requerimientos no funcionales
 
@@ -357,6 +371,12 @@ No se autoriza la exposición de endpoints que reciban una nota sin tarea asocia
 **cuando** se ejecuta la validación E2E de Notas,  
 **entonces** reutiliza `tools/e2e/tests/support/authenticated-workflow-session.cjs` y los controles de configuración/evidencia existentes; solicita la configuración necesaria desde la misma consola de forma efímera, oculta secretos y falla sin TTY antes de autenticar; la lectura preserva las huellas de estado y auditoría y las escrituras autorizadas prueban los resultados esperados sin revelar secretos ni contenido sensible.
 
+### CA-17 — Aislamiento por ruta Workflow
+
+**Dado** un contexto autenticado y una tarea solicitada,
+**cuando** el servidor no puede validar la ruta del contexto, la ruta de la tarea o la coherencia entre ambas,
+**entonces** rechaza la operación sin usar una ruta, tabla o campo recibido desde el navegador.
+
 ### CA-09 — Accesibilidad
 
 **Dado** un usuario de teclado o lector de pantalla,  
@@ -403,25 +423,27 @@ La activación debe iniciar deshabilitada. No se habilitan usuarios, grupos, E2E
 | Tipo | Elemento |
 |---|---|
 | Dependencia técnica | Contexto de sesión Workflow validado y matriz de permisos disponible en servidor. |
-| Dependencia técnica | Acceso a persistencia MySQL mediante repositorio parametrizado y transacciones. |
+| Dependencia técnica | Acceso a persistencia MySQL mediante repositorio parametrizado y transacciones InnoDB. |
 | Dependencia técnica | Patrón moderno existente para context gate, DTOs, servicios y repositorios. |
+| Dependencia técnica | Ruta Workflow validada mediante `IdRutaWorkflow`, `IdRuta` de la tarea y metadatos de `rutas_workflow` consultados en servidor. |
 | Dependencia técnica | Verificación del esquema e índices MySQL mediante consultas de solo lectura antes de definir migración de índices. |
-| Dependencia de negocio | Definición de visibilidad histórica, supervisión y retención. |
+| Dependencia de despliegue | Migración autorizada y preflight por esquema de motor InnoDB, `TEXT utf8` compatible con MySQL 5.1, auditoría, índices e idempotencia antes de la primera escritura. |
+| Evidencia de esquema | En 2026-08-28, siete esquemas Workflow inspeccionados exponen `ANOTACION_TAREA` MyISAM con `Dato_Anotacion TEXT utf8` nullable, 65.535 bytes y solo índice individual por tarea; tres exponen `wf_log_workflow` InnoDB con `datos_operacion LONGTEXT latin1`. |
 | Supuesto | La política inicial de mutación es solo propietario. |
 | Supuesto | Las notas son texto plano, sin formato enriquecido ni adjuntos. |
 | Supuesto | La activación moderna se mantiene reversible por consumidor. |
 
-## 18. Decisiones pendientes de aprobación
+## 18. Decisiones de negocio y estado
 
-| ID | Decisión | Impacto si no se resuelve |
-|---|---|---|
-| DP-01 | Semántica definitiva de eliminación: física, lógica o archivada. | No se puede cerrar el diseño de lectores, retención y auditoría. |
-| DP-02 | Usuarios que pueden ver notas de tareas cerradas, reasignadas o históricas. | No se puede fijar la política de consulta histórica. |
-| DP-03 | Excepciones a “solo propietario” para supervisores o administradores. | No se pueden implementar roles de mutación especiales. |
-| DP-04 | Longitud máxima, clasificación y retención del contenido. | No se puede cerrar validación ni auditoría de privacidad. |
-| DP-05 | Nivel de detalle de auditoría: texto completo, valor anterior/nuevo o huellas. | No se puede cerrar almacenamiento ni controles de acceso a logs. |
-| DP-06 | Presupuesto de rendimiento y volumen esperado de notas por tarea. | Se deben validar tamaño de página, índices y umbrales de observabilidad. |
-| DP-07 | Política de retención de `clientRequestId` y de respuesta idempotente. | No se puede cerrar la unicidad, limpieza y trazabilidad de reintentos. |
+| ID | Decisión | Estado | Impacto si no se resuelve |
+|---|---|---|---|
+| DP-01 | Semántica definitiva de eliminación: física, lógica o archivada. | **Resuelta:** borrado físico con auditoría atómica de metadatos; no hay recuperación ni visibilidad operativa o histórica del contenido eliminado. | Preserva la semántica legacy y evita retener contenido borrado. |
+| DP-02 | Usuarios que pueden ver notas de tareas cerradas, reasignadas o históricas. | **Resuelta:** todo usuario Workflow autorizado a consultar la tarea histórica puede leer sus notas; el modo es estrictamente de solo lectura. | Se debe implementar con autorización de tarea independiente de la condición operativa de mutación. |
+| DP-03 | Excepciones a “solo propietario” para supervisores o administradores. | **Resuelta:** no hay excepción inicial; los roles distintos del propietario no crean, editan ni eliminan. | Evita ampliar privilegios sin evidencia de regla legacy. |
+| DP-04 | Longitud máxima, clasificación y retención del contenido. | **Resuelta:** máximo 16.000 UTF-16, texto plano y Unicode BMP; clasificación y retención heredan de tarea/documento padre. MySQL 5.1 conserva `TEXT utf8` y el servidor rechaza caracteres suplementarios. | Es compatible con el motor actual y no crea una política documental autónoma. |
+| DP-05 | Nivel de detalle de auditoría: texto completo, valor anterior/nuevo o huellas. | **Resuelta:** metadatos, resultado, correlación, longitudes y SHA-256; nunca contenido completo. | Evita duplicar contenido en `wf_log_workflow.datos_operacion`. |
+| DP-06 | Presupuesto de rendimiento y volumen esperado de notas por tarea. | **Resuelta:** página inicial 50, máximo 100, `COUNT(*)` y refresco por evento o cambio de tarea; índices específicos para operación e histórico. | El mayor esquema observado tiene 17.048 notas, por lo que se elimina el sondeo de 600 ms. |
+| DP-07 | Política de retención de `clientRequestId` y de respuesta idempotente. | **Resuelta:** unicidad por tarea, autor y UUID; se conserva resultado original durante 30 días y después se limpia mediante proceso controlado. | Evita doble creación/auditoría sin acumulación indefinida. |
 
 ## 19. Trazabilidad con el diagnóstico
 
@@ -433,6 +455,7 @@ La activación debe iniciar deshabilitada. No se habilitan usuarios, grupos, E2E
 | RF-05, RF-06, RN-05, concurrencia | Actualización/borrado sin tarea y sin versión. |
 | RF-10, RN-06, auditoría | Auditoría que puede quedar asociada a tarea incorrecta. |
 | RF-15, RN-11, CA-11 | Tarea tomada de sesión mutable y compartida entre pestañas. |
+| RN-18, RS-11, CA-17 | Ruta de Workflow ausente, incoherente o controlada por el cliente al resolver metadatos técnicos. |
 | RF-16, RN-14, CA-13 | Doble clic, reintento de red o pérdida de respuesta que duplica una nota. |
 | RF-17, RN-12, CA-12 | Ventana TOCTOU entre comprobar propiedad y mutar por identificador. |
 | RF-18, RN-13 | Actividad de la nota derivada de grupo sin validar el estado de la tarea. |
@@ -444,4 +467,4 @@ La activación debe iniciar deshabilitada. No se habilitan usuarios, grupos, E2E
 
 ## 20. Criterio de preparación para implementación
 
-La capacidad está lista para abrir una propuesta de cambio cuando se aprueben al menos DP-01 a DP-05 y DP-07, se confirme la política de consulta histórica, se valide el esquema actual por consultas de solo lectura y se acepte este modelo de requerimientos como línea base funcional.
+La capacidad está lista para abrir una propuesta de escritura cuando el cambio de esa fase reciba autorización y complete la migración y preflight por cada esquema objetivo. Las decisiones de acceso, borrado, contenido, auditoría, rendimiento e idempotencia quedaron definidas mediante código legacy y metadatos MySQL de solo lectura.

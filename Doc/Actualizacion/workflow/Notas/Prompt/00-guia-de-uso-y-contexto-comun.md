@@ -17,7 +17,7 @@ Guiar una modernización gradual de Notas exclusivamente dentro del módulo `wor
 - No modificar cambios OpenSpec ajenos ni sobrescribir trabajo no relacionado.
 - No habilitar gates, audiencias, consumidores modernos, E2E reales ni escrituras sin la autorización indicada en `AGENTS.md` y el runbook.
 - No guardar ni exponer secretos, cookies, cadenas de conexión, contenido de notas ni respuestas sensibles.
-- No usar `Session("ID_TAREA_SELECCIONDA")` como origen de una tarea moderna, duplicar operaciones legacy ni cambiar decisiones de negocio no aprobadas.
+- No usar `Session("ID_TAREA_SELECCIONDA")` como origen de una tarea moderna, duplicar operaciones legacy ni alterar las políticas registradas de borrado físico, solo propietario, histórico de lectura, retención heredada, auditoría por huellas e idempotencia.
 
 ## Contexto obligatorio
 
@@ -52,6 +52,8 @@ Cada fase entrega el cambio mínimo implementado, rutas modificadas, decisiones,
 
 Los prompts 04 y 05 requieren que los contratos de lectura y escritura de las fases anteriores estén aprobados. No se habilita el consumidor moderno de Workflow hasta completar su matriz de verificación.
 
+Antes de la primera escritura en MySQL 5.1, la fase 03 debe contar con una migración autorizada y su preflight por cada esquema objetivo: `ANOTACION_TAREA` InnoDB, `Dato_Anotacion TEXT utf8`, auditoría InnoDB, índices de listado e idempotencia InnoDB. El contenido queda limitado a Unicode BMP; si una condición falla, el contrato responde `Unavailable` y no se intenta una operación parcial.
+
 Las E2E reales que correspondan a cada cambio son obligatorias para cerrar su alcance. Deben ejecutarse únicamente cuando exista autorización explícita de ambiente, cuentas y tareas descartables, y reutilizan el arnés de `tools/e2e`; no se sustituyen por mocks, scripts ad hoc ni un login alterno. Su recorrido se limita a pantallas y contratos del módulo `workflow/`.
 
 Requisito E2E completo: la E2E es parte integral del mismo cambio y de su cierre, no una tarea o entrega independiente. Reutiliza exclusivamente `tools/e2e`, su autenticación, configuración, validadores, evidencias y utilidades; no crear login, arnés, proyecto Playwright, configuración ni `.env` paralelos. Antes de una E2E autenticada lee `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`; ejecútala solo con ambiente, cuentas y datos o tareas descartables expresamente autorizados. Usa secretos efímeros y no exponer, imprimir ni persistir credenciales, cookies, tokens ni cadenas de conexión; las verificaciones son solo `SELECT` y toda evidencia saneada. Cubre, cuando aplique, autorización y control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión. Respeta feature flags, gates, usuarios, grupos y seguridad sin habilitarlos arbitrariamente; la implementación no se considera terminada sin validación autorizada y, si falta una precondición, registra bloqueo explícito sin mocks, simulaciones ni evidencia ficticia.
@@ -80,7 +82,7 @@ Trabaja como monolito modular: transporte ASMX/API → gate de contexto → serv
 
 Las E2E reales aplicables a esta fase son obligatorias y deben reutilizar `tools/e2e`. No las ejecutes antes de recibir autorización explícita de ambiente y cuentas; para escrituras, requiere además autorización explícita para cada tarea descartable. No ejecutes carga ni habilites gates. No expongas ni registres credenciales, cookies ni cadenas de conexión. `WorkflowCentroTrabajoModernActive` debe permanecer `false` y sin usuarios ni grupos de piloto al terminar.
 
-Usa idTarea explícito en cada contrato. La sesión solo resuelve identidad y contexto; nunca es la fuente de la tarea objetivo. Usa SQL parametrizado, DTOs tipados, resultados funcionales seguros y recursos liberados determinísticamente. Entrega cambios mínimos, pruebas proporcionales y un resumen con archivos modificados, verificación ejecutada, riesgos y decisiones pendientes.
+Usa idTarea explícito en cada contrato. La sesión solo resuelve identidad y contexto; nunca es la fuente de la tarea objetivo. Usa SQL parametrizado, DTOs tipados, resultados funcionales seguros y recursos liberados determinísticamente. Para notas, aplica la política registrada de texto plano con máximo 16.000 UTF-16, ETag SHA-256, borrado físico auditado, solo propietario e idempotencia de 30 días. Entrega cambios mínimos, pruebas proporcionales y un resumen con archivos modificados, verificación ejecutada y riesgos.
 ```
 
 ## Criterio transversal de finalización
