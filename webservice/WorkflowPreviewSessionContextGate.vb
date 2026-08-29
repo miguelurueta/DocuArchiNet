@@ -51,6 +51,27 @@ Public NotInheritable Class WorkflowPreviewSessionContextGate
         Return resultado
     End Function
 
+    'Resuelve el permiso de Notas solo desde la sesión autenticada. No acepta autor, grupo, permiso, tarea ni ruta desde el navegador.
+    Public Function AsegurarContextoNotas() As ResultadoContextoSesionWorkflow
+        Dim resultado As ResultadoContextoSesionWorkflow = AsegurarContexto()
+        If resultado Is Nothing OrElse resultado.Contexto Is Nothing OrElse Not resultado.Contexto.EsValido() Then
+            Return If(resultado, New ResultadoContextoSesionWorkflow With {.Contexto = New ContextoModuloWorkflow()})
+        End If
+
+        Try
+            Dim permisos As String() = Nothing
+            Dim resultadoPermisos As String = New Class_permisos_usuarios_workflow().SolicitaPermisosUsuarioWorkflow(
+                resultado.Contexto.IdUsuarioWorkflow,
+                permisos)
+            resultado.Contexto.PuedeInteractuarAnotaciones = String.Equals(resultadoPermisos, "YES", StringComparison.OrdinalIgnoreCase) AndAlso
+                                                       permisos IsNot Nothing AndAlso permisos.Length > 9 AndAlso
+                                                       String.Equals(permisos(9), "1", StringComparison.OrdinalIgnoreCase)
+        Catch
+            resultado.Contexto.PuedeInteractuarAnotaciones = False
+        End Try
+        Return resultado
+    End Function
+
     'Resuelve el permiso efectivo de devolución en el servidor, sin aceptar permisos del navegador.
     Public Function AsegurarContextoDevolverActividad(Optional ByVal prepararEjecucion As Boolean = False) As ResultadoContextoSesionWorkflow
         Dim resultado As ResultadoContextoSesionWorkflow = If(prepararEjecucion,

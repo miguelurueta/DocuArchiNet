@@ -3,7 +3,7 @@
 ## Prompt para ejecutar
 
 ```text
-Aplica primero el contexto común de Prompt/00-guia-de-uso-y-contexto-comun.md. Ejecuta esta fase solo cuando el consumidor Centro de Trabajo Workflow tenga adaptación moderna revisada y las decisiones de negocio pendientes estén cerradas.
+Aplica primero el contexto común de Prompt/00-guia-de-uso-y-contexto-comun.md. Ejecuta esta fase solo cuando el consumidor Centro de Trabajo Workflow tenga adaptación moderna revisada, la política registrada de Notas esté aplicada y el preflight de cada esquema activo haya sido aprobado.
 
 La implementación de E2E forma parte del mismo cambio de modernización de Notas y de su criterio de cierre. Usa `bloque-e2e-integrado-en-modernizacion.md` como bloque incorporado al prompt principal; no abras una tarea, historia ni cambio independiente únicamente para la automatización.
 

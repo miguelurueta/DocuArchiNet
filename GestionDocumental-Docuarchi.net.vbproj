@@ -9801,6 +9801,7 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="DTOs\Workflow\Terminar\TransicionWorkflowDtos.vb" />
+    <Compile Include="DTOs\Workflow\Notas\NotasWorkflowDtos.vb" />
     <Compile Include="DTOs\Workflow\Devolver\DevolverActividadDtos.vb" />
     <Compile Include="DTOs\Workflow\DevolverUsuarioAnterior\DevolverUsuarioAnteriorDtos.vb" />
     <Compile Include="Services\Workflow\Terminar\ServicioTransicionTarea.vb" />
@@ -9809,8 +9810,11 @@
     <Compile Include="Services\Workflow\Terminar\ServicioEnvioUsuarioTarea.vb" />
     <Compile Include="Services\Workflow\Terminar\ValidadorEnvioGrupoTarea.vb" />
     <Compile Include="Services\Workflow\Terminar\ValidadorEnvioUsuarioTarea.vb" />
+    <Compile Include="Services\Workflow\Notas\ServicioNotasWorkflow.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernModels.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernInterfaces.vb" />
+    <Compile Include="Modelo\Workflow\Notas\NotasWorkflowModels.vb" />
+    <Compile Include="Modelo\Workflow\Notas\NotasWorkflowInterfaces.vb" />
     <Compile Include="Modelo\Workflow\Devolver\DevolverActividadModels.vb" />
     <Compile Include="Modelo\Workflow\Devolver\DevolverActividadInterfaces.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlDevolverActividadRepository.vb" />
@@ -9832,6 +9836,7 @@
     <Compile Include="Infrastructure\Shared\Data\AdoNetDataInfrastructure.vb" />
     <Compile Include="Infrastructure\Shared\Data\WorkflowModuleConnectionFactory.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlWorkflowPreviewRepositories.vb" />
+    <Compile Include="Infrastructure\Repositories\Workflow\MySqlNotasWorkflowRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlEnvioGrupoRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlEnvioUsuarioRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlTransicionEjecucionRepository.vb" />

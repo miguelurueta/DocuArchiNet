@@ -23,9 +23,9 @@ Pruebas obligatorias: agrega pruebas focales de contratos, gate y resultados fun
 
 E2E no aplica: esta fase solo establece contratos y gate de fundación, y no expone un endpoint ni un recorrido de usuario. La E2E se integra con el mismo cambio que exponga el primer comportamiento verificable; no se crea una tarea E2E independiente.
 
-Documentación técnica: actualiza la propuesta OpenSpec de Notas y los documentos de Exploración/requerimientos bajo `Doc/Actualizacion/workflow/Notas/` con contratos, decisiones pendientes, rutas afectadas y riesgos. No crees documentos en la raíz.
+Documentación técnica: actualiza la propuesta OpenSpec de Notas y los documentos de Exploración/requerimientos bajo `Doc/Actualizacion/workflow/Notas/` con contratos, políticas de futura escritura, rutas afectadas y riesgos. No crees documentos en la raíz.
 
-Entregable final: entrega DTOs, modelos, interfaces y contratos mínimos; lista de archivos modificados, pruebas y comandos ejecutados, resultados, decisiones de negocio pendientes y precondiciones verificables de la fase 02.
+Entregable final: entrega DTOs, modelos, interfaces y contratos mínimos; lista de archivos modificados, pruebas y comandos ejecutados, resultados, políticas registradas y precondiciones verificables de la fase 02.
 
 Alcance funcional: RF-07, RF-08, RF-12, RF-14 y RF-15; RS-01 a RS-09; RN-11 y RNF-10 del modelo de requerimientos. Deja preparada la estructura para RF-01 a RF-20, pero no dupliques lógica legacy.
 
@@ -45,7 +45,7 @@ Criterios de aceptación:
 - El gate decide permiso en servidor y falla cerrado.
 - La capa moderna no depende de Class_anotacion_tarea ni de controles WebForms.
 - Existen DTOs y códigos funcionales que permiten a las fases posteriores no filtrar mensajes técnicos.
-- La propuesta y los cambios documentan las decisiones que quedan pendientes: borrado, histórico, supervisión, retención e idempotencia.
+- La propuesta y los cambios documentan la política de borrado físico, histórico de lectura autorizado, solo propietario, retención heredada, auditoría por huellas e idempotencia de 30 días, además del preflight que exigirá la primera escritura.
 
 Al finalizar, no actives consumidores ni modifiques WorkflowCentroTrabajoModernActive. Reporta archivos, pruebas, riesgos y la ruta propuesta para la fase 02.
 ```

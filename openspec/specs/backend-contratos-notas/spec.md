@@ -1,5 +1,10 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08 -->
-## ADDED Requirements
+# backend-contratos-notas Specification
+
+## Purpose
+
+TBD: Definir el propósito estable de la capacidad de contratos internos de Notas Workflow.
+
+## Requirements
 
 ### Requirement: Alcance interno y compatibilidad de DOC-40
 

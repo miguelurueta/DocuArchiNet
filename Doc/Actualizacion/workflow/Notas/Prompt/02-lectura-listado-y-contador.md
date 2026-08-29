@@ -15,13 +15,13 @@ Restricciones críticas:
 - No crear, editar, eliminar, migrar consumidores, cambiar el gate ni consultar una base real sin autorización.
 - No usar `Class_anotacion_tarea`, `SELECT *` para el contador, SQL dinámico por orden/filtro ni `Session("ID_TAREA_SELECCIONDA")` como tarea objetivo.
 - No revelar existencia, contenido, conteos ni cursores de otra tarea o contexto; preserva comportamiento legacy y cambios ajenos.
-- No activar histórico sin una política de negocio aprobada.
+- No exponer histórico fuera de su política aprobada: solo lectura para todo usuario Workflow autorizado a consultar la tarea histórica; nunca inferir permiso desde el navegador ni habilitar mutaciones.
 
 Pruebas obligatorias: implementa pruebas focales de repositorio y servicio para autorización, orden, cursor, aislamiento y contador. Integra en este mismo cambio la E2E de rechazo anónimo y lectura autorizada con controles antes/después que demuestren ausencia de mutación. Ejecuta MSBuild o `dotnet` cuando afecte proyectos VB y registra comandos, resultados y evidencia saneada; complementa con QA manual reproducible solo si no existe una prueba automatizable apropiada.
 
 Documentación técnica: actualiza propuesta OpenSpec, modelo de requerimientos y matriz de pruebas bajo `Doc/Actualizacion/workflow/Notas/` con el contrato de lectura, límites de cursor, política de histórico, rutas modificadas y riesgos. No documentes en la raíz.
 
-Entregable final: entrega contratos de lectura, implementación parametrizada, pruebas y comandos ejecutados con resultado, más la política pendiente de histórico y precondiciones concretas para la fase 03.
+Entregable final: entrega contratos de lectura, implementación parametrizada, pruebas y comandos ejecutados con resultado, más la aplicación verificable de la política histórica y las precondiciones concretas para la fase 03.
 
 Flujo paso a paso esperado: el endpoint recibe `idTarea` y filtros permitidos; el gate resuelve actor y autoriza la tarea; el servicio valida cursor/orden y aplica la política de visibilidad; el repositorio ejecuta la consulta parametrizada; el servicio normaliza un resultado seguro y el transporte devuelve listado, contenido o contador sin revelar datos de otro contexto.
 
@@ -33,10 +33,10 @@ Alcance: RF-01, RF-02, RF-04, RF-09, RF-11, RF-12, RF-15 y RF-19; RN-08, RN-15 y
 
 1. Implementa repositorios MySQL parametrizados para listado, contenido y contador, detrás de interfaces de Notas. No uses Class_anotacion_tarea como repositorio ni SELECT * para contar.
 2. En toda lectura, usa idTarea del contrato y el puerto de acceso autorizado a tarea. Verifica pertenencia nota-tarea antes de devolver contenido. Una nota de otra tarea nunca se revela por id.
-3. Implementa paginación por cursor protegido. El cursor debe estar ligado a idTarea, actor o contexto, filtros y orden. No aceptar cursores trasladados desde otra tarea o usuario. Define tamaño por defecto y máximo; no cargar sin límite.
+3. Implementa paginación por cursor protegido. El cursor debe estar ligado a idTarea, actor o contexto, filtros y orden. No aceptar cursores trasladados desde otra tarea o usuario. El tamaño por defecto es 50 y el máximo 100; no cargar sin límite.
 4. Usa orden estable por defecto: fechaCreacion DESC e idNota DESC. Cualquier orden alternativo debe venir de una lista blanca; no interpolar campos de orden ni filtros en SQL.
-5. Implementa el contador como COUNT(*) parametrizado bajo exactamente la misma política de visibilidad del listado operativo. El contrato no debe incentivar sondeo inferior a 30 segundos; el consumidor se actualizará por evento en una fase posterior.
-6. Delimita el histórico: si la decisión DP-02 (visibilidad histórica) no está aprobada, no actives ni expongas el modo histórico moderno. Puedes dejar la interfaz preparada para una política explícita, sin asumir que histórico equivale a operativo.
+5. Implementa el contador como `COUNT(*)` parametrizado bajo exactamente la misma política de visibilidad del listado operativo. Se refresca al cambiar tarea o tras una mutación confirmada; no se programa sondeo periódico, incluido el legacy de 600 ms.
+6. Delimita el histórico: DP-02 está aprobada. Todo usuario Workflow autorizado a consultar la tarea histórica puede leer sus notas, aunque no sea el propietario ni el trabajador actual. Implementa una autorización de tarea explícita y un modo estrictamente de solo lectura; no asumas que histórico equivale a operativo ni conviertas la ausencia de actividad en autorización.
 7. Define y prueba respuestas sin filtración de existencia: tarea no accesible, nota de otra tarea, cursor inválido y orden no permitido devuelven resultados funcionales seguros.
 8. Agrega pruebas de repositorio con dobles/fakes y pruebas de servicio para: orden estable, paginación, cursor cruzado, contenido cruzado, tarea inactiva y contador consistente. Integra la E2E indicada y no la ejecutes ni consultes una base real sin autorización.
 
@@ -46,8 +46,9 @@ Criterios de aceptación:
 - Ningún endpoint moderno de lectura acepta idNota sin idTarea.
 - El orden es determinista y el contador no materializa filas para contarlas.
 - Cursor y orden no introducen fuga entre contextos ni SQL dinámico inseguro.
-- Histórico permanece bloqueado o definido por política explícita; no se infiere de forma accidental desde ESTADO_TAREA.
+- Histórico aplica la política aprobada de solo lectura y autorización de tarea; no se infiere de forma accidental desde ESTADO_TAREA.
+- El listado usa los índices previstos `(tarea, estado, fecha, nota)` o `(tarea, fecha, nota)` según modo; el cambio no expone escritura ni intenta crear índices sin autorización.
 - No se altera la bandera de activación ni se crean acciones de escritura.
 
-Entrega un resumen de contratos reales, pruebas, política pendiente de histórico y precondiciones de la fase 03.
+Entrega un resumen de contratos reales, pruebas, aplicación de la política histórica y precondiciones de la fase 03.
 ```

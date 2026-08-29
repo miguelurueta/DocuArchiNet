@@ -1,84 +1,37 @@
+# Fundación de backend y contratos de Notas de Workflow
+
 ## Why
 
-BACKEND-CONTRATOS-NOTAS. Ver detalle funcional completo del ticket en la seccion Jira Details.
+Las notas de Workflow dependen hoy de endpoints y una clase legacy que mezclan sesión, controles WebForms, autorización y persistencia. La revisión estática identifica que la tarea seleccionada puede provenir de un valor de sesión mutable y que los contratos actuales no delimitan de forma uniforme tarea, nota, actor y resultado funcional.
+
+DOC-40 define la base interna que permitirá sustituir ese acoplamiento de forma gradual. La fase autorizada crea únicamente contratos, gate, servicio y repositorio inactivo; no cambia todavía el recorrido de ningún usuario ni habilita operaciones sobre datos.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-40.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Define contratos internos de Notas para listar, contar, crear, consultar, actualizar y eliminar, siempre con `idTarea` explícito y, cuando corresponda, `idNota`.
+- Define un gate de contexto de Notas que obtiene identidad, grupo y permiso desde la sesión autenticada del servidor y falla cerrado.
+- Define el puerto de acceso a tarea reutilizando el patrón `ITareaWorkflowRepository.ObtenerTarea(contexto, idTarea)` para comprobar acceso y estado antes de cualquier operación posterior.
+- Incorpora la ruta de negocio de Workflow al snapshot autorizado: el servidor resuelve `IdRutaWorkflow` en el contexto y el `IdRuta` propio de la tarea; ningún cliente entrega nombre de ruta, tabla o metadato de ruta.
+- Establece resultados funcionales estables: `Forbidden`, `TaskNotActive`, `NoteNotFound`, `NotOwner`, `VersionConflict`, `InvalidContent` y `Unavailable`.
+- Establece la separación entre transporte, gate, servicio, modelos y repositorios, sin introducir `Page`, `GridView`, `UpdatePanel` ni `HttpContext` en dominio o infraestructura.
+- Documenta pruebas unitarias focales y la evidencia requerida para la etapa que autorice crear el código.
 
-## Jira Details
+## Non-Goals
 
-> # Prompt 01 — Fundación backend y contratos de Notas
-> 
-> ## Prompt para ejecutar
-> 
-> ```text
-> Aplica primero el contexto común de Prompt/00-guia-de-uso-y-contexto-comun.md.
-> 
-> Objetivo: crear la base aislada y reutilizable del backend moderno de Notas de Workflow, sin migrar aún consumidores ni habilitar escrituras productivas.
-> 
-> Rol esperado: arquitecto y desarrollador senior de ASP.NET Web Forms/VB.NET y MySQL, responsable de diseñar contratos de aplicación tipados y compatibles con el monolito modular existente.
-> 
-> Contexto obligatorio: revisa `WorkflowPreviewSessionContextGate`, `WebServiceWorkflowModern`, los proyectos de DTOs, `Modelo/Workflow`, `Services/Workflow`, `Infrastructure/Repositories/Workflow`, `AdoNetDataInfrastructure` y los documentos de Exploración de Notas antes de crear una ruta nueva. Ubica código nuevo en las carpetas equivalentes existentes de DTOs, modelos, servicios, interfaces y repositorios Workflow; los endpoints ASMX quedan en `webservice/` y no se usa una página WebForms como capa de dominio.
-> 
-> Restricciones críticas:
-> - No modificar páginas, consumidores ni `WorkflowCentroTrabajoModernActive` en esta fase.
-> - No copiar, envolver ni extender `Class_anotacion_tarea` como implementación moderna; no aceptar identidad, permiso ni tarea desde el cliente.
-> - No hacer escrituras reales, migraciones de esquema, E2E autenticada ni consultas a base real sin la autorización aplicable.
-> - Preserva contratos legacy y cambios ajenos; todo contrato moderno usa `idTarea` explícito y SQL parametrizado.
-> 
-> Reglas de anti-regresión: conserva el comportamiento legacy mientras no exista consumidor migrado, no modifica contratos públicos ajenos y no agrega atajos, wrappers ni dependencias que dupliquen una capacidad moderna existente.
-> 
-> Pruebas obligatorias: agrega pruebas focales de contratos, gate y resultados funcionales. Ejecuta MSBuild o `dotnet` si se modifica el proyecto VB, registra cada comando, resultado y evidencia saneada; si una prueba no procede, deja una justificación reproducible.
-> 
-> E2E no aplica: esta fase solo establece contratos y gate de fundación, y no expone un endpoint ni un recorrido de usuario. La E2E se integra con el mismo cambio que exponga el primer comportamiento verificable; no se crea una tarea E2E independiente.
-> 
-> Documentación técnica: actualiza la propuesta OpenSpec de Notas y los documentos de Exploración/requerimientos bajo `Doc/Actualizacion/workflow/Notas/` con contratos, decisiones pendientes, rutas afectadas y riesgos. No crees documentos en la raíz.
-> 
-> Entregable final: entrega DTOs, modelos, interfaces y contratos mínimos; lista de archivos modificados, pruebas y comandos ejecutados, resultados, decisiones de negocio pendientes y precondiciones verificables de la fase 02.
-> 
-> Alcance funcional: RF-07, RF-08, RF-12, RF-14 y RF-15; RS-01 a RS-09; RN-11 y RNF-10 del modelo de requerimientos. Deja preparada la estructura para RF-01 a RF-20, pero no dupliques lógica legacy.
-> 
-> 1. Crea o continúa una propuesta OpenSpec dedicada a modernización de notas. No reutilices doc-32-backend-actividad-anterior ni otros cambios activos.
-> 2. Inspecciona los patrones existentes: WorkflowPreviewSessionContextGate, WebServiceWorkflowModern, DTOs y repositorios Workflow, además de AdoNetDataInfrastructure. Explica brevemente qué patrón reutilizas antes de modificarlo.
-> 3. Diseña y crea los modelos, DTOs e interfaces de Notas en los namespaces/ubicaciones coherentes con el patrón moderno existente. Los contratos mínimos son listar, contar, crear, consultar, actualizar y eliminar; todos reciben idTarea explícito y las operaciones sobre una nota reciben también idNota.
-> 4. Implementa un gate de contexto específico para notas. Debe resolver identidad, grupo y permiso de anotaciones en servidor, fallar cerrado y no aceptar autor, usuario, grupo ni permiso desde el cliente. No uses Session("ID_TAREA_SELECCIONDA") para ningún flujo moderno.
-> 5. Define un puerto de acceso a tarea que valide, en cada solicitud, pertenencia al actor, selección/estado aplicable y datos necesarios del snapshot de tarea. Reutiliza o adapta con cuidado el patrón de ITareaWorkflowRepository.ObtenerTarea; no copies SQL ni lógica de UI.
-> 6. Define resultados funcionales tipados y estables como Forbidden, TaskNotActive, NoteNotFound, NotOwner, VersionConflict, InvalidContent y Unavailable. No devuelvas excepciones, SQL ni detalles de infraestructura al navegador.
-> 7. Establece la separación de capas: solo el transporte conoce ASMX y sesión; servicio, modelos y repositorios no conocen Page, GridView, UpdatePanel ni HttpContext.
-> 8. Agrega pruebas unitarias de gate, mapeo de contratos y rechazo por sesión, permiso o tarea incompletos. No uses bases reales, E2E autenticado ni actives el gate.
-> 
-> Fuera de alcance: UI, JavaScript, migración del consumidor Centro de Trabajo Workflow, operaciones de escritura reales, cambios de esquema, consulta histórica y retiro de legacy.
-> 
-> Criterios de aceptación:
-> - Cada contrato moderno exige idTarea y el compilador/pruebas demuestran que no hay fuente alternativa de tarea desde sesión.
-> - El gate decide permiso en servidor y falla cerrado.
-> - La capa moderna no depende de Class_anotacion_tarea ni de controles WebForms.
-> - Existen DTOs y códigos funcionales que permiten a las fases posteriores no filtrar mensajes técnicos.
-> - La propuesta y los cambios documentan las decisiones que quedan pendientes: borrado, histórico, supervisión, retención e idempotencia.
-> 
-> Al finalizar, no actives consumidores ni modifiques WorkflowCentroTrabajoModernActive. Reporta archivos, pruebas, riesgos y la ruta propuesta para la fase 02.
-> ```
-
-## Jira Metadata
-
-- Tipo: Tarea
-- Prioridad: Medium
-- Labels: BACKEND, CONTRATOS, NOTAS
-
-## Capabilities
-
-### New Capabilities
-- `backend-contratos-notas`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
-
-### Modified Capabilities
-- 
+- No se modifica `workflow/`, JavaScript, páginas WebForms, consumidores ni `WorkflowCentroTrabajoModernActive`.
+- No se publica un ASMX de Notas, no se ejecutan escrituras, no se modifica esquema ni se consulta una base de datos real.
+- No se copia, envuelve ni extiende `Class_anotacion_tarea` como implementación moderna.
+- No se cambian módulos distintos de Workflow ni se migra Radicación, Gestión de Correspondencia o consulta histórica.
+- No se aplica una migración ni se ejecuta una escritura. Las políticas de futura mutación se documentan con base en la inspección de código y metadatos MySQL, pero su implementación exige un cambio posterior autorizado.
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+- Capacidad nueva: `backend-contratos-notas`.
+- Áreas candidatas para una autorización posterior: `Modelo/Workflow/`, DTOs de Workflow, `Services/Workflow/`, `Infrastructure/Repositories/Workflow/` y `webservice/`.
+- Compatibilidad: los contratos y clientes legacy permanecen intactos mientras no exista un consumidor de Workflow migrado y habilitado de forma explícita.
+- Patrón de rutas: el acceso posterior reutilizará la resolución parametrizada de `rutas_workflow`; si requiere metadatos dinámicos, el nombre de ruta se valida en servidor antes de formar un identificador técnico.
+- Evidencia futura: pruebas unitarias sin base real; una E2E no procede hasta que otra fase exponga un comportamiento de usuario y cuente con autorización de ambiente y cuentas.
 
+## Decision Boundary
+
+La autorización recibida habilita contratos internos, gate, pruebas locales y consultas MySQL de metadatos en solo lectura. Los esquemas autorizados operan en MySQL 5.1: la primera escritura exige una migración aprobada por esquema con `ANOTACION_TAREA` en InnoDB, `Dato_Anotacion TEXT utf8`, auditoría InnoDB disponible, índices de lectura y tabla de idempotencia verificadas. El contrato acepta solo Unicode BMP y rechaza pares sustitutos; una futura actualización de motor podrá habilitar `utf8mb4` en un cambio separado. La publicación de endpoints, activación de consumidores, configuración de gate, E2E y cambios de ambiente siguen requiriendo autorización explícita posterior.
