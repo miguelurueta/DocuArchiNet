@@ -1,0 +1,120 @@
+{
+  "version": 3,
+  "issueKey": "DOC-40",
+  "changeName": "doc-40-backend-contratos-notas",
+  "impact": "cross_cutting",
+  "requiredEvidence": [
+    "unit",
+    "manual_qa"
+  ],
+  "documentation": [
+    "Doc/Tecnica/Opsxj/doc-40-backend-contratos-notas/01-ResumenTecnico.md",
+    "Doc/Tecnica/Opsxj/doc-40-backend-contratos-notas/02-ImpactoUI.md",
+    "Doc/Tecnica/Opsxj/doc-40-backend-contratos-notas/03-ServiciosYReglas.md",
+    "Doc/Tecnica/Opsxj/doc-40-backend-contratos-notas/04-ContratosIntegracion.md",
+    "Doc/Tecnica/Opsxj/doc-40-backend-contratos-notas/05-PruebasEvidencia.md"
+  ],
+  "documentationContract": [
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-40-backend-contratos-notas/01-ResumenTecnico.md",
+      "requiredSections": [
+        "## Objetivo",
+        "## Alcance y compatibilidad"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-40",
+        "changeName": "doc-40-backend-contratos-notas",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-40-backend-contratos-notas/02-ImpactoUI.md",
+      "requiredSections": [
+        "## Superficies UI",
+        "## Validacion visual"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-40",
+        "changeName": "doc-40-backend-contratos-notas",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-40-backend-contratos-notas/03-ServiciosYReglas.md",
+      "requiredSections": [
+        "## Servicios y reglas"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-40",
+        "changeName": "doc-40-backend-contratos-notas",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-40-backend-contratos-notas/04-ContratosIntegracion.md",
+      "requiredSections": [
+        "## Contratos e integraciones"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-40",
+        "changeName": "doc-40-backend-contratos-notas",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Tecnica/Opsxj/doc-40-backend-contratos-notas/05-PruebasEvidencia.md",
+      "requiredSections": [
+        "## Evidencia requerida",
+        "## QA/E2E WebForms"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-40",
+        "changeName": "doc-40-backend-contratos-notas",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    }
+  ],
+  "refinement": {
+    "version": 1,
+    "required": true,
+    "path": "openspec/changes/doc-40-backend-contratos-notas/refinement.md",
+    "state": "approved",
+    "taskOriginFormat": "Origen: D-XX, RQ-XX",
+    "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  }
+}
