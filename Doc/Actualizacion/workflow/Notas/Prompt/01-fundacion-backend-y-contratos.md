@@ -38,7 +38,7 @@ Alcance funcional: RF-07, RF-08, RF-12, RF-14 y RF-15; RS-01 a RS-09; RN-11 y RN
 7. Establece la separación de capas: solo el transporte conoce ASMX y sesión; servicio, modelos y repositorios no conocen Page, GridView, UpdatePanel ni HttpContext.
 8. Agrega pruebas unitarias de gate, mapeo de contratos y rechazo por sesión, permiso o tarea incompletos. No uses bases reales, E2E autenticado ni actives el gate.
 
-Fuera de alcance: UI, JavaScript, migración de consumidores, operaciones de escritura reales, cambios de esquema, consulta histórica y retiro de legacy.
+Fuera de alcance: UI, JavaScript, migración del consumidor Centro de Trabajo Workflow, operaciones de escritura reales, cambios de esquema, consulta histórica y retiro de legacy.
 
 Criterios de aceptación:
 - Cada contrato moderno exige idTarea y el compilador/pruebas demuestran que no hay fuente alternativa de tarea desde sesión.
