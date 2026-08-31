@@ -6,14 +6,24 @@ Public Class ServicioNotasWorkflow
 
     'MySQL 5.1 utf8 admite únicamente el plano básico multilingüe. 16.000 unidades UTF-16 usan como máximo 48.000 bytes.
     Friend Const LongitudMaximaContenido As Integer = 16000
+    Friend Const TamanoPaginaPredeterminado As Integer = 25
+    Friend Const TamanoPaginaMaximo As Integer = 50
 
     Private ReadOnly _tareaRepository As ITareaWorkflowRepository
     Private ReadOnly _notasRepository As INotasWorkflowRepository
+    Private ReadOnly _cursorCodec As INotasWorkflowCursorCodec
 
     Public Sub New(ByVal tareaRepository As ITareaWorkflowRepository,
                    ByVal notasRepository As INotasWorkflowRepository)
+        Me.New(tareaRepository, notasRepository, Nothing)
+    End Sub
+
+    Public Sub New(ByVal tareaRepository As ITareaWorkflowRepository,
+                   ByVal notasRepository As INotasWorkflowRepository,
+                   ByVal cursorCodec As INotasWorkflowCursorCodec)
         _tareaRepository = tareaRepository
         _notasRepository = notasRepository
+        _cursorCodec = cursorCodec
     End Sub
 
     Public Function Listar(ByVal contexto As ContextoModuloWorkflow,
@@ -21,7 +31,24 @@ Public Class ServicioNotasWorkflow
         Dim tarea As TareaWorkflow = Nothing
         Dim bloqueo As ResultadoNotasWorkflow = PrepararOperacion(contexto, If(solicitud Is Nothing, 0L, solicitud.IdTarea), tarea)
         If bloqueo IsNot Nothing Then Return bloqueo
-        Return EjecutarRepositorio(Function() _notasRepository.Listar(contexto, tarea, solicitud))
+
+        Dim normalizada As SolicitudListarNotasWorkflow = Nothing
+        bloqueo = NormalizarSolicitudListar(contexto, tarea, solicitud, normalizada)
+        If bloqueo IsNot Nothing Then Return bloqueo
+
+        Dim resultado As ResultadoNotasWorkflow = EjecutarRepositorio(Function() _notasRepository.Listar(contexto, tarea, normalizada))
+        If resultado Is Nothing OrElse Not resultado.EsExitoso OrElse Not resultado.TieneMas Then Return resultado
+        If resultado.Notas Is Nothing OrElse resultado.Notas.Count = 0 Then
+            Return Bloqueado(CodigosResultadoNotasWorkflow.Unavailable, "No fue posible continuar el listado de notas.")
+        End If
+
+        Dim ultima As NotaWorkflow = resultado.Notas(resultado.Notas.Count - 1)
+        resultado.CursorSiguiente = If(_cursorCodec Is Nothing, String.Empty,
+                                      _cursorCodec.Proteger(contexto, tarea, ultima.FechaCreacionUtc, ultima.IdNota))
+        If String.IsNullOrWhiteSpace(resultado.CursorSiguiente) Then
+            Return Bloqueado(CodigosResultadoNotasWorkflow.Unavailable, "No fue posible continuar el listado de notas.")
+        End If
+        Return resultado
     End Function
 
     Public Function Contar(ByVal contexto As ContextoModuloWorkflow,
@@ -105,6 +132,38 @@ Public Class ServicioNotasWorkflow
            tarea.IdRuta <> contexto.IdRutaWorkflow Then
             Return Bloqueado(CodigosResultadoNotasWorkflow.TaskNotActive, "La tarea no está disponible para notas.")
         End If
+        Return Nothing
+    End Function
+
+    Private Function NormalizarSolicitudListar(ByVal contexto As ContextoModuloWorkflow,
+                                               ByVal tarea As TareaWorkflow,
+                                               ByVal solicitud As SolicitudListarNotasWorkflow,
+                                               ByRef normalizada As SolicitudListarNotasWorkflow) As ResultadoNotasWorkflow
+        normalizada = Nothing
+        If solicitud Is Nothing Then
+            Return Bloqueado(CodigosResultadoNotasWorkflow.TaskNotActive, "La tarea no está disponible para notas.")
+        End If
+        If solicitud.TamanoPagina < 0 OrElse solicitud.TamanoPagina > TamanoPaginaMaximo Then
+            Return Bloqueado(CodigosResultadoNotasWorkflow.NoteNotFound, "La página solicitada no está disponible.")
+        End If
+
+        normalizada = New SolicitudListarNotasWorkflow With {
+            .IdTarea = solicitud.IdTarea,
+            .Cursor = If(solicitud.Cursor, String.Empty),
+            .TamanoPagina = If(solicitud.TamanoPagina = 0, TamanoPaginaPredeterminado, solicitud.TamanoPagina)
+        }
+        If String.IsNullOrWhiteSpace(normalizada.Cursor) Then Return Nothing
+        If _cursorCodec Is Nothing Then
+            Return Bloqueado(CodigosResultadoNotasWorkflow.Unavailable, "El servicio de notas no está disponible.")
+        End If
+
+        Dim fechaCursorUtc As DateTime = DateTime.MinValue
+        Dim idNotaCursor As Long = 0L
+        If Not _cursorCodec.Validar(contexto, tarea, normalizada.Cursor, fechaCursorUtc, idNotaCursor) Then
+            Return Bloqueado(CodigosResultadoNotasWorkflow.NoteNotFound, "La página solicitada no está disponible.")
+        End If
+        normalizada.FechaCursorUtc = fechaCursorUtc
+        normalizada.IdNotaCursor = idNotaCursor
         Return Nothing
     End Function
 

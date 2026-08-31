@@ -1,9 +1,12 @@
 'use strict';
 
+const fs = require('node:fs/promises');
+const os = require('node:os');
 const path = require('node:path');
 const {
   collectConfirmation,
   collectValue,
+  redactChildOutput,
   requireInteractiveConsole,
   runChild
 } = require('./support/interactive-e2e-console.cjs');
@@ -11,6 +14,16 @@ const {
 const mode = process.argv[2];
 const supportedModes = new Set(['anonymous', 'read', 'write', 'concurrency']);
 const servicePath = 'webservice/WebServiceWorkflowNotesModern.asmx';
+const defaultBaseUrl = 'https://localhost/GestionDocumental-Docuarchi.net/';
+const defaultModule = 'GESTOR';
+const defaultEnvironment = 'GESTOR';
+const taskStateSql = 'SELECT ID_ANOTACION, INICIO_TAREAS_WORKFLOW_ID_TAREA, ID_ACTIVIDAD, ID_USUARIO, FECHA_ANOTACION, ESTADO_TAREA FROM ANOTACION_TAREA WHERE INICIO_TAREAS_WORKFLOW_ID_TAREA = ? ORDER BY ID_ANOTACION';
+const auditSql = "SELECT usuario_workflow_idU_suario, fecha_hora, operacion, ID_TAREA_WORKFLOW, opcion, descripcion_opcion, ip_transacion, id_operacion FROM wf_log_workflow WHERE ID_TAREA_WORKFLOW = ? AND descripcion_opcion = 'NOTA WORKFLOW' ORDER BY fecha_hora, id_operacion";
+
+function nonSensitiveValue(name, fallback) {
+  const value = process.env[name];
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+}
 
 function fail(message) {
   console.error(message);
@@ -19,19 +32,21 @@ function fail(message) {
 
 async function collectConfiguration(selectedMode) {
   const values = {};
-  await collectValue(values, 'NOTES_E2E_BASE_URL', 'URL base de Gestión');
+  values.NOTES_E2E_BASE_URL = nonSensitiveValue('NOTES_E2E_BASE_URL', defaultBaseUrl);
   values.NOTES_E2E_SERVICE_PATH = servicePath;
 
   if (selectedMode === 'anonymous') return values;
 
-  await collectValue(values, 'NOTES_E2E_MODULE', 'Módulo');
+  values.NOTES_E2E_MODULE = nonSensitiveValue('NOTES_E2E_MODULE', defaultModule);
   await collectValue(values, 'NOTES_E2E_AUTHORIZED_USER', 'Cuenta Workflow autorizada');
   await collectValue(values, 'NOTES_E2E_AUTHORIZED_PASSWORD', 'Contraseña Workflow', { secret: true });
-  await collectValue(values, 'NOTES_E2E_ENVIRONMENT', 'Ambiente autorizado');
+  values.NOTES_E2E_ENVIRONMENT = nonSensitiveValue('NOTES_E2E_ENVIRONMENT', defaultEnvironment);
   await collectConfirmation(values, 'NOTES_E2E_ENVIRONMENT_AUTHORIZED', '¿Autoriza este ambiente de pruebas?');
-  await collectValue(values, 'NOTES_E2E_MYSQL_URL', 'URL MySQL de solo lectura', { secret: true });
-  await collectValue(values, 'NOTES_E2E_TASK_STATE_SQL', 'SELECT de estado de la tarea');
-  await collectValue(values, 'NOTES_E2E_AUDIT_SQL', 'SELECT de auditoría de la tarea');
+  values.NOTES_E2E_ODBC_DSN = 'workflowconta';
+  await collectValue(values, 'NOTES_E2E_MYSQL_USER', 'Usuario MySQL de solo lectura');
+  await collectValue(values, 'NOTES_E2E_MYSQL_PASSWORD', 'Contraseña MySQL de solo lectura', { secret: true });
+  values.NOTES_E2E_TASK_STATE_SQL = taskStateSql;
+  values.NOTES_E2E_AUDIT_SQL = auditSql;
 
   if (selectedMode === 'read') {
     await collectValue(values, 'NOTES_E2E_READ_TASK_ID', 'ID de tarea de lectura');
@@ -53,10 +68,10 @@ async function collectConfiguration(selectedMode) {
   return values;
 }
 
-function playwrightCommand(selectedMode) {
-  const executable = path.resolve(__dirname, '..', 'node_modules', '.bin', process.platform === 'win32' ? 'playwright.cmd' : 'playwright');
+function playwrightCommand(selectedMode, outputDirectory) {
+  const cli = path.resolve(__dirname, '..', 'node_modules', '@playwright', 'test', 'cli.js');
   const tag = selectedMode === 'anonymous' ? '@notes-anonymous' : selectedMode === 'read' ? '@notes-read' : '@notes-write';
-  return { command: executable, args: ['test', 'tests/notes-workflow.spec.cjs', '--grep', tag, '--reporter=list'] };
+  return { command: process.execPath, args: [cli, 'test', 'tests/notes-workflow.spec.cjs', '--grep', tag, '--reporter=list', '--output', outputDirectory] };
 }
 
 async function main() {
@@ -68,6 +83,7 @@ async function main() {
   requireInteractiveConsole();
   const values = await collectConfiguration(mode);
   const environment = { ...process.env, ...values };
+  let outputDirectory;
   try {
     const validation = await runChild(process.execPath, [path.resolve(__dirname, 'assert-notes-workflow-config.cjs'), mode], path.resolve(__dirname, '..'), environment);
     if (validation.code !== 0) {
@@ -76,10 +92,14 @@ async function main() {
     }
     const target = mode === 'concurrency'
       ? { command: process.execPath, args: [path.resolve(__dirname, 'run-notes-workflow-concurrency.cjs')] }
-      : playwrightCommand(mode);
-    const result = await runChild(target.command, target.args, path.resolve(__dirname, '..'), environment);
+      : playwrightCommand(mode, outputDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'notes-workflow-e2e-')));
+    const result = await runChild(target.command, target.args, path.resolve(__dirname, '..'), environment, {
+      nonInteractiveChild: true,
+      redactOutput: redactChildOutput
+    });
     process.exitCode = result.code;
   } finally {
+    if (outputDirectory) await fs.rm(outputDirectory, { recursive: true, force: true });
     for (const name of Object.keys(values)) delete environment[name];
   }
 }

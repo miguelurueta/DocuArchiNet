@@ -93,9 +93,19 @@ async function collectConfirmation(values, name, label) {
   values[name] = 'true';
 }
 
+function redactChildOutput(value) {
+  return String(value)
+    .replace(/((?:^|\r?\n)\s*(?:set-cookie|cookie|authorization)\s*:\s*)[^\r\n]*/gim, '$1[oculto]')
+    .replace(/((?:ASP\.NET_SessionId|\.ASPXAUTH)=)[^;\s\r\n]*/gi, '$1[oculto]')
+    .replace(/((?:password|contrase(?:ñ|n)a)\s*(?:=|:)\s*)[^\r\n]*/gi, '$1[oculto]');
+}
+
 function runChild(command, args, cwd, environment, options = {}) {
   return new Promise((resolve, reject) => {
     const nonInteractiveChild = options.nonInteractiveChild === true;
+    const redactOutput = typeof options.redactOutput === 'function' ? options.redactOutput : null;
+    let stdout = '';
+    let stderr = '';
     const child = spawn(command, args, {
       cwd,
       env: environment,
@@ -103,11 +113,22 @@ function runChild(command, args, cwd, environment, options = {}) {
       shell: false
     });
     if (nonInteractiveChild) {
-      child.stdout?.pipe(process.stdout, { end: false });
-      child.stderr?.pipe(process.stderr, { end: false });
+      if (redactOutput) {
+        child.stdout?.on('data', (chunk) => { stdout += String(chunk); });
+        child.stderr?.on('data', (chunk) => { stderr += String(chunk); });
+      } else {
+        child.stdout?.pipe(process.stdout, { end: false });
+        child.stderr?.pipe(process.stderr, { end: false });
+      }
     }
     child.once('error', reject);
-    child.once(nonInteractiveChild ? 'close' : 'exit', (code, signal) => resolve({ code: code ?? 1, signal }));
+    child.once(nonInteractiveChild ? 'close' : 'exit', (code, signal) => {
+      if (redactOutput) {
+        if (stdout) process.stdout.write(redactOutput(stdout));
+        if (stderr) process.stderr.write(redactOutput(stderr));
+      }
+      resolve({ code: code ?? 1, signal });
+    });
   });
 }
 
@@ -115,6 +136,7 @@ module.exports = {
   collectConfirmation,
   collectValue,
   promptSecret,
+  redactChildOutput,
   requireInteractiveConsole,
   runChild
 };

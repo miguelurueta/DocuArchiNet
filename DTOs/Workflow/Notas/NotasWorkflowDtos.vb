@@ -60,6 +60,8 @@ Public Class ResultadoNotasDto
     End Sub
 
     Public Property Codigo As String
+    Public Property CodigoBloqueo As String
+    Public Property Exito As Boolean
     Public Property MensajeFuncional As String
     Public Property Nota As NotaWorkflowDto
     Public Property Notas As IList(Of NotaWorkflowDto)

@@ -133,6 +133,11 @@ test('el perfil controla de forma explícita la excepción TLS no sensible', () 
   assert.deepEqual(JSON.parse(DOC_REGISTRY.doc32.environment(profile(), {}, authorizations).DOC32_E2E_PREVIEW_ACTIVITY_NAMES), ['Actividad de prueba', 'Otra actividad de prueba']);
 });
 
+test('el helper ODBC reutilizable admite el prefijo de Notas sin URL de conexión', () => {
+  assert.equal(assertDsn({ NOTES_E2E_ODBC_DSN: 'workflowconta' }, 'NOTES_E2E'), 'workflowconta');
+  assert.throws(() => assertDsn({ NOTES_E2E_ODBC_DSN: 'mysql://valor-prohibido' }, 'NOTES_E2E'), /DSN ODBC permitido/);
+});
+
 test('el perfil DOC-33 mantiene ejecución UI y bloqueo UI en tareas distintas', async () => {
   const definition = validateProfile(doc33Profile(), 'doc33');
   const templatePath = path.join(__dirname, '..', 'profiles', 'doc33-workflow-ui.profile.example.json');

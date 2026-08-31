@@ -15,7 +15,7 @@ function required(environment, name) {
 }
 
 function prefixName(prefix, suffix) {
-  if (typeof prefix !== 'string' || !/^DOC\d+_E2E$/.test(prefix)) {
+  if (typeof prefix !== 'string' || !/^(?:DOC\d+|NOTES)_E2E$/.test(prefix)) {
     throw new Error('El prefijo ODBC E2E no es válido. No se mostró ningún valor.');
   }
   return `${prefix}_${suffix}`;

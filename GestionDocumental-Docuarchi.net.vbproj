@@ -8476,6 +8476,7 @@
     <Content Include="webservice\WebServiceRadicacion.asmx" />
     <Content Include="webservice\WebServiceWorkflow.asmx" />
     <Content Include="webservice\WebServiceWorkflowModern.asmx" />
+    <Content Include="webservice\WebServiceWorkflowNotesModern.asmx" />
     <Content Include="workflow\act.js" />
     <Content Include="workflow\imageneswf\1471559663_Error.png" />
     <Content Include="workflow\imageneswf\1471560355_free-33.png" />
@@ -9756,6 +9757,10 @@
       <DependentUpon>WebServiceWorkflowModern.asmx</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="webservice\WebServiceWorkflowNotesModern.asmx.vb">
+      <DependentUpon>WebServiceWorkflowNotesModern.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="webservice\WorkflowPreviewSessionContextGate.vb" />
     <Compile Include="webservice\WebService_Config_Digitalizacion.asmx.vb">
       <DependentUpon>WebService_Config_Digitalizacion.asmx</DependentUpon>
@@ -9837,6 +9842,7 @@
     <Compile Include="Infrastructure\Shared\Data\WorkflowModuleConnectionFactory.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlWorkflowPreviewRepositories.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlNotasWorkflowRepository.vb" />
+    <Compile Include="Infrastructure\Workflow\Notas\NotasWorkflowCursorCodec.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlEnvioGrupoRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlEnvioUsuarioRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlTransicionEjecucionRepository.vb" />
@@ -10311,6 +10317,9 @@
     <Content Include="Doc\Actualizacion\workflow\Terminar\05-confirmacion-especializada\Diagramas\secuencia-envio.mmd" />
     <Content Include="Doc\Actualizacion\workflow\Terminar\06-piloto-pruebas-rollout.md" />
     <Content Include="Doc\Actualizacion\workflow\Terminar\README.md" />
+    <Content Include="Doc\Actualizacion\workflow\Notas\README.md" />
+    <Content Include="Doc\Actualizacion\workflow\Notas\contrato-lectura.md" />
+    <Content Include="Doc\Actualizacion\workflow\Notas\matriz-pruebas.md" />
     <Content Include="Doc\Diagnostico\diagnostico-carga-webworkflow.md" />
     <Content Include="Doc\Diagnostico\guia-despliegue-estatico-session-workflow.md" />
     <Content Include="Doc\Diagnostico\guia-implementacion-manual-correccion-bloqueo-session-workflow.md" />
