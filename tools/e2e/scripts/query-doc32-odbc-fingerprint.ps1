@@ -5,7 +5,7 @@ param(
     [Parameter(Mandatory = $true)]
     [Int64]$TaskId,
 
-    [ValidatePattern('^DOC[0-9]+_E2E$')]
+    [ValidatePattern('^(?:DOC[0-9]+|NOTES)_E2E$')]
     [string]$EnvironmentPrefix = 'DOC32_E2E'
 )
 

@@ -25,6 +25,19 @@ Public Interface INotasWorkflowRepository
                       ByVal solicitud As SolicitudEliminarNotaWorkflow) As ResultadoNotasWorkflow
 End Interface
 
+Public Interface INotasWorkflowCursorCodec
+    Function Proteger(ByVal contexto As ContextoModuloWorkflow,
+                      ByVal tarea As TareaWorkflow,
+                      ByVal fechaCreacionUtc As DateTime,
+                      ByVal idNota As Long) As String
+
+    Function Validar(ByVal contexto As ContextoModuloWorkflow,
+                     ByVal tarea As TareaWorkflow,
+                     ByVal cursor As String,
+                     ByRef fechaCreacionUtc As DateTime,
+                     ByRef idNota As Long) As Boolean
+End Interface
+
 Public Interface IServicioNotasWorkflow
     Function Listar(ByVal contexto As ContextoModuloWorkflow,
                     ByVal solicitud As SolicitudListarNotasWorkflow) As ResultadoNotasWorkflow

@@ -1,0 +1,10 @@
+{
+  "scenarioId": "notes-read",
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "module": "GESTOR",
+  "environment": "GESTOR",
+  "odbcDsn": "workflowconta",
+  "taskId": 708,
+  "budgetMs": 10000,
+  "ignoreHttpsErrors": false
+}

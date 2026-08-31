@@ -30,6 +30,8 @@ Public Class SolicitudListarNotasWorkflow
     Public Property IdTarea As Long
     Public Property Cursor As String
     Public Property TamanoPagina As Integer
+    Public Property FechaCursorUtc As Nullable(Of DateTime)
+    Public Property IdNotaCursor As Long
 End Class
 
 Public Class SolicitudContarNotasWorkflow

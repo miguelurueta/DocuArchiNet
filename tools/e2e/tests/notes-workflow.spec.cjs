@@ -2,12 +2,12 @@
 
 const { test, expect } = require('@playwright/test');
 const crypto = require('node:crypto');
-const mysql = require('mysql2/promise');
 const {
   assertLatency,
   assertLegacyPagesUnchanged,
   assertLocalGateOff,
   assertReadOnlySql,
+  createRequestClient,
   functionalCode,
   invoke,
   isSuccessful,
@@ -41,7 +41,9 @@ function protectedNames(taskVariable, authorizationNames, budgetVariable) {
     'NOTES_E2E_ENVIRONMENT_AUTHORIZED',
     ...authorizationNames,
     taskVariable,
-    'NOTES_E2E_MYSQL_URL',
+    'NOTES_E2E_ODBC_DSN',
+    'NOTES_E2E_MYSQL_USER',
+    'NOTES_E2E_MYSQL_PASSWORD',
     'NOTES_E2E_TASK_STATE_SQL',
     'NOTES_E2E_AUDIT_SQL',
     budgetVariable
@@ -83,10 +85,13 @@ test.afterAll(async () => {
 test('@notes-anonymous ListarNotas sin sesión bloquea sin exponer notas', async ({ browser }) => {
   requireNames(['NOTES_E2E_BASE_URL']);
   const context = await browser.newContext({ ignoreHTTPSErrors: process.env.NOTES_E2E_IGNORE_HTTPS_ERRORS === 'true' });
+  let client;
   try {
-    const { dto } = await invoke(context, 'ListarNotas', operationPayload(1, { cursor: '', tamanoPagina: 1 }));
+    client = await createRequestClient(context);
+    const { dto } = await invoke(client, 'ListarNotas', operationPayload(1, { cursor: '', tamanoPagina: 1 }));
     expectBlocked(dto);
   } finally {
+    await client?.dispose();
     await context.close();
   }
 });
@@ -99,8 +104,8 @@ test('@notes-read Lecturas autorizadas preservan estado, auditoría y aislamient
   const budgetMs = positiveInteger(budgetVariable);
   const stateSql = required('NOTES_E2E_TASK_STATE_SQL');
   const auditSql = required('NOTES_E2E_AUDIT_SQL');
-  const pool = mysql.createPool(required('NOTES_E2E_MYSQL_URL'));
   let context;
+  let client;
   let beforeState;
   let beforeAudit;
   let afterState;
@@ -109,26 +114,27 @@ test('@notes-read Lecturas autorizadas preservan estado, auditoría y aislamient
   let noteResult;
   let invalidCursorResult;
   try {
-    beforeState = await queryFingerprint(pool, stateSql, idTarea);
-    beforeAudit = await queryFingerprint(pool, auditSql, idTarea);
+    beforeState = await queryFingerprint(stateSql, idTarea);
+    beforeAudit = await queryFingerprint(auditSql, idTarea);
     context = await login(browser);
-    listResult = await invoke(context, 'ListarNotas', operationPayload(idTarea, { cursor: '', tamanoPagina: 1 }));
+    client = await createRequestClient(context);
+    listResult = await invoke(client, 'ListarNotas', operationPayload(idTarea, { cursor: '', tamanoPagina: 1 }));
     assertLatency(listResult.elapsedMs, budgetMs, 'El listado de Notas');
     expect(functionalCode(listResult.dto), 'El listado autorizado no debe bloquearse.').toBeFalsy();
     const notes = notesFrom(listResult.dto);
     expect(notes, 'La tarea de lectura debe tener una nota visible para validar consulta.').not.toHaveLength(0);
     const idNota = noteId(notes[0]);
-    noteResult = await invoke(context, 'ConsultarNota', operationPayload(idTarea, { idNota }));
+    noteResult = await invoke(client, 'ConsultarNota', operationPayload(idTarea, { idNota }));
     assertLatency(noteResult.elapsedMs, budgetMs, 'La consulta de Nota');
     expect(functionalCode(noteResult.dto), 'La nota de la tarea autorizada debe consultarse.').toBeFalsy();
-    invalidCursorResult = await invoke(context, 'ListarNotas', operationPayload(idTarea, { cursor: 'cursor-invalido-e2e', tamanoPagina: 1 }));
+    invalidCursorResult = await invoke(client, 'ListarNotas', operationPayload(idTarea, { cursor: 'cursor-invalido-e2e', tamanoPagina: 1 }));
     assertLatency(invalidCursorResult.elapsedMs, budgetMs, 'La validación de cursor de Notas');
     expectBlocked(invalidCursorResult.dto);
   } finally {
-    afterState = await queryFingerprint(pool, stateSql, idTarea);
-    afterAudit = await queryFingerprint(pool, auditSql, idTarea);
+    afterState = await queryFingerprint(stateSql, idTarea);
+    afterAudit = await queryFingerprint(auditSql, idTarea);
+    await client?.dispose();
     await context?.close();
-    await pool.end();
   }
   expect(afterState, 'La lectura no debe modificar estado.').toBe(beforeState);
   expect(afterAudit, 'La lectura no debe modificar auditoría.').toBe(beforeAudit);
@@ -154,11 +160,11 @@ test('@notes-write Escrituras autorizadas verifican idempotencia, versión y eli
   const budgetMs = positiveInteger(budgetVariable);
   const stateSql = required('NOTES_E2E_TASK_STATE_SQL');
   const auditSql = required('NOTES_E2E_AUDIT_SQL');
-  const pool = mysql.createPool(required('NOTES_E2E_MYSQL_URL'));
   const clientRequestId = crypto.randomUUID();
   const initialContent = 'Prueba E2E temporal de Notas';
   const updatedContent = 'Prueba E2E temporal de Notas actualizada';
   let context;
+  let client;
   let beforeState;
   let beforeAudit;
   let afterState;
@@ -169,34 +175,35 @@ test('@notes-write Escrituras autorizadas verifican idempotencia, versión y eli
   let staleUpdate;
   let deletion;
   try {
-    beforeState = await queryFingerprint(pool, stateSql, idTarea);
-    beforeAudit = await queryFingerprint(pool, auditSql, idTarea);
+    beforeState = await queryFingerprint(stateSql, idTarea);
+    beforeAudit = await queryFingerprint(auditSql, idTarea);
     context = await login(browser);
-    createFirst = await invoke(context, 'CrearNota', writePayload(idTarea, initialContent, clientRequestId));
+    client = await createRequestClient(context);
+    createFirst = await invoke(client, 'CrearNota', writePayload(idTarea, initialContent, clientRequestId));
     assertLatency(createFirst.elapsedMs, budgetMs, 'La creación de Nota');
     expectSuccessful(createFirst.dto, 'La creación de Nota');
     const firstNote = noteFrom(createFirst.dto);
     const idNota = noteId(firstNote);
     const versionInicial = noteVersion(firstNote);
-    createRetry = await invoke(context, 'CrearNota', writePayload(idTarea, initialContent, clientRequestId));
+    createRetry = await invoke(client, 'CrearNota', writePayload(idTarea, initialContent, clientRequestId));
     assertLatency(createRetry.elapsedMs, budgetMs, 'El reintento idempotente de Nota');
     expectSuccessful(createRetry.dto, 'El reintento idempotente de Nota');
     expect(noteId(noteFrom(createRetry.dto)), 'El reintento debe devolver la nota original.').toBe(idNota);
-    update = await invoke(context, 'ActualizarNota', operationPayload(idTarea, { idNota, contenido: updatedContent, version: versionInicial }));
+    update = await invoke(client, 'ActualizarNota', operationPayload(idTarea, { idNota, contenido: updatedContent, version: versionInicial }));
     assertLatency(update.elapsedMs, budgetMs, 'La actualización de Nota');
     expectSuccessful(update.dto, 'La actualización de Nota');
     const versionActualizada = noteVersion(noteFrom(update.dto));
-    staleUpdate = await invoke(context, 'ActualizarNota', operationPayload(idTarea, { idNota, contenido: initialContent, version: versionInicial }));
+    staleUpdate = await invoke(client, 'ActualizarNota', operationPayload(idTarea, { idNota, contenido: initialContent, version: versionInicial }));
     assertLatency(staleUpdate.elapsedMs, budgetMs, 'El conflicto de versión de Nota');
     expectBlocked(staleUpdate.dto);
-    deletion = await invoke(context, 'EliminarNota', operationPayload(idTarea, { idNota, version: versionActualizada }));
+    deletion = await invoke(client, 'EliminarNota', operationPayload(idTarea, { idNota, version: versionActualizada }));
     assertLatency(deletion.elapsedMs, budgetMs, 'La eliminación de Nota');
     expectSuccessful(deletion.dto, 'La eliminación de Nota');
   } finally {
-    afterState = await queryFingerprint(pool, stateSql, idTarea);
-    afterAudit = await queryFingerprint(pool, auditSql, idTarea);
+    afterState = await queryFingerprint(stateSql, idTarea);
+    afterAudit = await queryFingerprint(auditSql, idTarea);
+    await client?.dispose();
     await context?.close();
-    await pool.end();
   }
   expect(afterState, 'Las escrituras autorizadas deben reflejarse en el estado esperado.').not.toBe(beforeState);
   expect(afterAudit, 'Las escrituras autorizadas deben reflejarse en auditoría.').not.toBe(beforeAudit);

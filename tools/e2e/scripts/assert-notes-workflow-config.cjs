@@ -12,7 +12,9 @@ const approvedEnvironment = [
   'NOTES_E2E_ENVIRONMENT_AUTHORIZED'
 ];
 const readOnlyControls = [
-  'NOTES_E2E_MYSQL_URL',
+  'NOTES_E2E_ODBC_DSN',
+  'NOTES_E2E_MYSQL_USER',
+  'NOTES_E2E_MYSQL_PASSWORD',
   'NOTES_E2E_TASK_STATE_SQL',
   'NOTES_E2E_AUDIT_SQL'
 ];
@@ -62,12 +64,23 @@ if (missing.length > 0) {
 }
 
 try {
-  new URL(required('NOTES_E2E_BASE_URL'));
+  const baseUrl = new URL(required('NOTES_E2E_BASE_URL'));
+  if (baseUrl.username || baseUrl.password) throw new Error('credential-url');
 } catch {
-  fail('NOTES_E2E_BASE_URL debe ser una URL absoluta válida.');
+  fail('NOTES_E2E_BASE_URL debe ser una URL absoluta válida y sin credenciales.');
 }
 
 assertServicePath();
+
+if (mode === 'read' || mode === 'write' || mode === 'concurrency') {
+  const dsn = required('NOTES_E2E_ODBC_DSN');
+  if (!dsn || !/^[A-Za-z0-9 _.-]+$/.test(dsn)) {
+    fail('NOTES_E2E_ODBC_DSN debe identificar un DSN ODBC permitido. No se mostró ningún valor.');
+  }
+  if (required('NOTES_E2E_MYSQL_URL')) {
+    fail('NOTES_E2E_MYSQL_URL no está permitida; use el DSN ODBC y credenciales efímeras. No se mostró ningún valor.');
+  }
+}
 
 if (mode === 'read' || mode === 'write' || mode === 'concurrency') {
   if (required('NOTES_E2E_ENVIRONMENT_AUTHORIZED').toLowerCase() !== 'true') {

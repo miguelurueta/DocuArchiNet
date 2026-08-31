@@ -1,12 +1,12 @@
 'use strict';
 
 const { chromium } = require('@playwright/test');
-const mysql = require('mysql2/promise');
 const {
   assertLatency,
   assertLegacyPagesUnchanged,
   assertLocalGateOff,
   assertReadOnlySql,
+  createRequestClient,
   functionalCode,
   invoke,
   isSuccessful,
@@ -33,7 +33,8 @@ function assertConfiguration() {
     'NOTES_E2E_BASE_URL', 'NOTES_E2E_MODULE', 'NOTES_E2E_AUTHORIZED_USER', 'NOTES_E2E_AUTHORIZED_PASSWORD',
     'NOTES_E2E_ENVIRONMENT', 'NOTES_E2E_ENVIRONMENT_AUTHORIZED', 'NOTES_E2E_EXECUTION_AUTHORIZED',
     'NOTES_E2E_CONCURRENCY_AUTHORIZED', 'NOTES_E2E_CONCURRENCY_TASK_ID', 'NOTES_E2E_CONCURRENCY_NOTE_ID',
-    'NOTES_E2E_MYSQL_URL', 'NOTES_E2E_TASK_STATE_SQL', 'NOTES_E2E_AUDIT_SQL', 'NOTES_E2E_CONCURRENCY_MAX_MS'
+    'NOTES_E2E_ODBC_DSN', 'NOTES_E2E_MYSQL_USER', 'NOTES_E2E_MYSQL_PASSWORD',
+    'NOTES_E2E_TASK_STATE_SQL', 'NOTES_E2E_AUDIT_SQL', 'NOTES_E2E_CONCURRENCY_MAX_MS'
   ];
   requireNames(names);
   for (const name of ['NOTES_E2E_ENVIRONMENT_AUTHORIZED', 'NOTES_E2E_EXECUTION_AUTHORIZED', 'NOTES_E2E_CONCURRENCY_AUTHORIZED']) {
@@ -55,32 +56,33 @@ async function main() {
   const stateSql = required('NOTES_E2E_TASK_STATE_SQL');
   const auditSql = required('NOTES_E2E_AUDIT_SQL');
   const browser = await chromium.launch(launchOptions());
-  const pool = mysql.createPool(required('NOTES_E2E_MYSQL_URL'));
   let contexts = [];
+  let clients = [];
   let beforeState;
   let beforeAudit;
   let afterState;
   let afterAudit;
   let results = [];
   try {
-    beforeState = await queryFingerprint(pool, stateSql, idTarea);
-    beforeAudit = await queryFingerprint(pool, auditSql, idTarea);
+    beforeState = await queryFingerprint(stateSql, idTarea);
+    beforeAudit = await queryFingerprint(auditSql, idTarea);
     contexts = [await login(browser), await login(browser)];
-    const current = await invoke(contexts[0], 'ConsultarNota', operationPayload(idTarea, { idNota }));
+    clients = await Promise.all(contexts.map((context) => createRequestClient(context)));
+    const current = await invoke(clients[0], 'ConsultarNota', operationPayload(idTarea, { idNota }));
     if (functionalCode(current.dto)) throw new Error('La nota semilla de concurrencia no está autorizada.');
     const version = noteVersion(noteFrom(current.dto));
-    results = await Promise.all(contexts.map((context, index) => invoke(context, 'ActualizarNota', operationPayload(idTarea, {
+    results = await Promise.all(clients.map((client, index) => invoke(client, 'ActualizarNota', operationPayload(idTarea, {
       idNota,
       contenido: `Prueba E2E de concurrencia ${index + 1}`,
       version
     }))));
   } finally {
     try {
-      afterState = await queryFingerprint(pool, stateSql, idTarea);
-      afterAudit = await queryFingerprint(pool, auditSql, idTarea);
+      afterState = await queryFingerprint(stateSql, idTarea);
+      afterAudit = await queryFingerprint(auditSql, idTarea);
     } finally {
+      await Promise.all(clients.map((client) => client.dispose()));
       await Promise.all(contexts.map((context) => context.close()));
-      await pool.end();
       await browser.close();
       await assertLocalGateOff();
       await assertLegacyPagesUnchanged();

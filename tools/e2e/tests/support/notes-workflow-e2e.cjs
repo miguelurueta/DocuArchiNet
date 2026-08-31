@@ -1,9 +1,10 @@
 'use strict';
 
-const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const { request } = require('playwright');
 const { createAuthenticatedWorkflowSession } = require('./authenticated-workflow-session.cjs');
+const { queryFingerprint: queryOdbcFingerprint } = require('../../scripts/support/doc32-e2e-odbc.cjs');
 
 const repositoryRoot = path.resolve(__dirname, '..', '..', '..', '..');
 const sensitiveEvidencePattern = /password|cookie|token|destino|usuario|mysql|connection|contenido|nota|request|response/i;
@@ -46,13 +47,8 @@ function assertReadOnlySql(sql, name) {
   }
 }
 
-function fingerprint(rows) {
-  return crypto.createHash('sha256').update(JSON.stringify(rows)).digest('hex');
-}
-
-async function queryFingerprint(pool, sql, idTarea) {
-  const [rows] = await pool.execute(sql, [idTarea]);
-  return fingerprint(rows);
+async function queryFingerprint(sql, idTarea, environment = process.env) {
+  return queryOdbcFingerprint(sql, idTarea, environment, 'NOTES_E2E');
 }
 
 function login(browser) {
@@ -65,6 +61,17 @@ function login(browser) {
   });
 }
 
+async function createRequestClient(context) {
+  if (process.env.NOTES_E2E_IGNORE_HTTPS_ERRORS !== 'true') {
+    return { request: context.request, dispose: async () => {} };
+  }
+  const api = await request.newContext({
+    storageState: await context.storageState(),
+    ignoreHTTPSErrors: true
+  });
+  return { request: api, dispose: () => api.dispose() };
+}
+
 function assertPublicResponse(dto) {
   const serialized = JSON.stringify(dto);
   if (/System\.(?:Exception|Data)|(?:SELECT|INSERT|UPDATE|DELETE)\s/i.test(serialized)) {
@@ -72,9 +79,9 @@ function assertPublicResponse(dto) {
   }
 }
 
-async function invoke(context, operation, payload) {
+async function invoke(client, operation, payload) {
   const started = performance.now();
-  const response = await context.request.post(endpoint(operation), {
+  const response = await client.request.post(endpoint(operation), {
     headers: { 'X-Requested-With': 'XMLHttpRequest' },
     data: payload,
     timeout: 60000
@@ -181,6 +188,7 @@ module.exports = {
   assertLocalGateOff,
   assertReadOnlySql,
   baseUrl,
+  createRequestClient,
   endpoint,
   field,
   functionalCode,
