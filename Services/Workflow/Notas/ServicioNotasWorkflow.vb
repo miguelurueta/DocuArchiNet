@@ -61,6 +61,8 @@ Public Class ServicioNotasWorkflow
 
     Public Function Crear(ByVal contexto As ContextoModuloWorkflow,
                          ByVal solicitud As SolicitudCrearNotaWorkflow) As ResultadoNotasWorkflow Implements IServicioNotasWorkflow.Crear
+        Dim solicitudInvalida As ResultadoNotasWorkflow = ValidarSolicitudCliente(If(solicitud Is Nothing, Nothing, solicitud.IdSolicitudCliente))
+        If solicitudInvalida IsNot Nothing Then Return solicitudInvalida
         Dim contenidoInvalido As ResultadoNotasWorkflow = ValidarContenido(If(solicitud Is Nothing, Nothing, solicitud.Contenido))
         If contenidoInvalido IsNot Nothing Then Return contenidoInvalido
 
@@ -192,6 +194,14 @@ Public Class ServicioNotasWorkflow
     Private Shared Function ValidarVersion(ByVal version As String) As ResultadoNotasWorkflow
         If String.IsNullOrWhiteSpace(version) Then
             Return Bloqueado(CodigosResultadoNotasWorkflow.VersionConflict, "La versión de la nota no está disponible.")
+        End If
+        Return Nothing
+    End Function
+
+    Private Shared Function ValidarSolicitudCliente(ByVal idSolicitud As String) As ResultadoNotasWorkflow
+        Dim solicitud As Guid
+        If String.IsNullOrWhiteSpace(idSolicitud) OrElse Not Guid.TryParse(idSolicitud, solicitud) OrElse solicitud = Guid.Empty Then
+            Return Bloqueado(CodigosResultadoNotasWorkflow.InvalidContent, "La solicitud de cliente no es válida.")
         End If
         Return Nothing
     End Function

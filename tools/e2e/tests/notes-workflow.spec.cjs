@@ -68,8 +68,16 @@ function expectBlocked(dto) {
   expect(notesFrom(dto), 'Un bloqueo no debe exponer notas.').toHaveLength(0);
 }
 
+function diagnosticCode(dto) {
+  const code = functionalCode(dto);
+  return new Set(['Forbidden', 'TaskNotActive', 'NoteNotFound', 'NotOwner', 'VersionConflict', 'InvalidContent', 'Unavailable']).has(code)
+    ? code
+    : '';
+}
+
 function expectSuccessful(dto, label) {
-  expect(isSuccessful(dto), `${label} debe confirmar éxito.`).toBeTruthy();
+  const code = diagnosticCode(dto);
+  expect(isSuccessful(dto), `${label} debe confirmar éxito.${code ? ` Código funcional: ${code}.` : ''}`).toBeTruthy();
   expect(functionalCode(dto), `${label} no debe devolver bloqueo.`).toBeFalsy();
 }
 
@@ -171,6 +179,7 @@ test('@notes-write Escrituras autorizadas verifican idempotencia, versión y eli
   let afterAudit;
   let createFirst;
   let createRetry;
+  let createdLookup;
   let update;
   let staleUpdate;
   let deletion;
@@ -189,6 +198,11 @@ test('@notes-write Escrituras autorizadas verifican idempotencia, versión y eli
     assertLatency(createRetry.elapsedMs, budgetMs, 'El reintento idempotente de Nota');
     expectSuccessful(createRetry.dto, 'El reintento idempotente de Nota');
     expect(noteId(noteFrom(createRetry.dto)), 'El reintento debe devolver la nota original.').toBe(idNota);
+    createdLookup = await invoke(client, 'ConsultarNota', operationPayload(idTarea, { idNota }));
+    assertLatency(createdLookup.elapsedMs, budgetMs, 'La consulta de la Nota recién creada');
+    expectSuccessful(createdLookup.dto, 'La consulta de la Nota recién creada');
+    expect(noteVersion(noteFrom(createdLookup.dto)) === versionInicial,
+      'La versión de creación debe coincidir con la versión calculada desde la nota persistida.').toBeTruthy();
     update = await invoke(client, 'ActualizarNota', operationPayload(idTarea, { idNota, contenido: updatedContent, version: versionInicial }));
     assertLatency(update.elapsedMs, budgetMs, 'La actualización de Nota');
     expectSuccessful(update.dto, 'La actualización de Nota');
@@ -205,17 +219,18 @@ test('@notes-write Escrituras autorizadas verifican idempotencia, versión y eli
     await client?.dispose();
     await context?.close();
   }
-  expect(afterState, 'Las escrituras autorizadas deben reflejarse en el estado esperado.').not.toBe(beforeState);
+  expect(afterState, 'La secuencia crear-editar-eliminar no debe dejar una nota persistida.').toBe(beforeState);
   expect(afterAudit, 'Las escrituras autorizadas deben reflejarse en auditoría.').not.toBe(beforeAudit);
   await writeEvidence('write', {
     fechaUtc: new Date().toISOString(),
     modo: 'write',
-    codigos: [functionalCode(createFirst?.dto), functionalCode(createRetry?.dto), functionalCode(update?.dto), functionalCode(staleUpdate?.dto), functionalCode(deletion?.dto)],
+    codigos: [functionalCode(createFirst?.dto), functionalCode(createRetry?.dto), functionalCode(createdLookup?.dto), functionalCode(update?.dto), functionalCode(staleUpdate?.dto), functionalCode(deletion?.dto)],
     creacionIdempotente: noteId(noteFrom(createFirst?.dto)) === noteId(noteFrom(createRetry?.dto)),
+    versionCreacionPersistida: noteVersion(noteFrom(createdLookup?.dto)) === noteVersion(noteFrom(createFirst?.dto)),
     conflictoVersion: Boolean(functionalCode(staleUpdate?.dto)),
     eliminacionExitosa: isSuccessful(deletion?.dto),
     latenciasMs: [createFirst?.elapsedMs, createRetry?.elapsedMs, update?.elapsedMs, staleUpdate?.elapsedMs, deletion?.elapsedMs],
-    estadoCambio: true,
+    estadoSinCambio: true,
     auditoriaCambio: true,
     huellas: { estadoAntes: beforeState, estadoDespues: afterState, auditoriaAntes: beforeAudit, auditoriaDespues: afterAudit }
   });

@@ -15,6 +15,9 @@ internal static class WorkflowNotesReadBehaviorTests
             ListRejectsCrossContextCursorBeforeRepository();
             ListNormalizesDefaultPageAndProtectsContinuation();
             ContentDoesNotExposeForeignNote();
+            CreateRejectsInvalidClientRequestIdBeforeRepository();
+            CreateRejectsInvalidContentBeforeRepository();
+            CreateRejectsInactiveTaskBeforeRepository();
             Console.WriteLine("workflow-notes-read behavior tests: passed");
             return 0;
         }
@@ -88,6 +91,51 @@ internal static class WorkflowNotesReadBehaviorTests
         AssertNoWrites(ports, "contenido cruzado");
     }
 
+    private static void CreateRejectsInvalidClientRequestIdBeforeRepository()
+    {
+        var ports = new Ports();
+        var response = Service(ports).Crear(Context(), new Workflow.SolicitudCrearNotaWorkflow
+        {
+            IdTarea = TaskId,
+            Contenido = "nota de prueba",
+            IdSolicitudCliente = "no-es-un-uuid"
+        });
+
+        Equal(Workflow.CodigosResultadoNotasWorkflow.InvalidContent, response.Codigo, "UUID inválido");
+        Equal(0, ports.Tasks.Calls, "lectura de tarea con UUID inválido");
+        AssertNoWrites(ports, "UUID inválido");
+    }
+
+    private static void CreateRejectsInvalidContentBeforeRepository()
+    {
+        var ports = new Ports();
+        var response = Service(ports).Crear(Context(), new Workflow.SolicitudCrearNotaWorkflow
+        {
+            IdTarea = TaskId,
+            Contenido = "\0contenido",
+            IdSolicitudCliente = Guid.NewGuid().ToString()
+        });
+
+        Equal(Workflow.CodigosResultadoNotasWorkflow.InvalidContent, response.Codigo, "contenido inválido");
+        Equal(0, ports.Tasks.Calls, "lectura de tarea con contenido inválido");
+        AssertNoWrites(ports, "contenido inválido");
+    }
+
+    private static void CreateRejectsInactiveTaskBeforeRepository()
+    {
+        var ports = new Ports();
+        ports.Tasks.Active = false;
+        var response = Service(ports).Crear(Context(), new Workflow.SolicitudCrearNotaWorkflow
+        {
+            IdTarea = TaskId,
+            Contenido = "nota",
+            IdSolicitudCliente = Guid.NewGuid().ToString()
+        });
+
+        Equal(Workflow.CodigosResultadoNotasWorkflow.TaskNotActive, response.Codigo, "tarea inactiva");
+        Equal(0, ports.Notes.CreateCalls, "creación con tarea inactiva");
+    }
+
     private static Workflow.ServicioNotasWorkflow Service(Ports ports) =>
         new Workflow.ServicioNotasWorkflow(ports.Tasks, ports.Notes, ports.Cursor);
 
@@ -131,6 +179,7 @@ internal static class WorkflowNotesReadBehaviorTests
     private sealed class FakeTasks : Workflow.ITareaWorkflowRepository
     {
         public int Calls;
+        public bool Active = true;
 
         public Workflow.TareaWorkflow ObtenerTarea(Workflow.ContextoModuloWorkflow context, long idTarea)
         {
@@ -139,7 +188,7 @@ internal static class WorkflowNotesReadBehaviorTests
             {
                 IdTarea = idTarea,
                 IdRuta = context.IdRutaWorkflow,
-                EstaActiva = true,
+                EstaActiva = Active,
                 TokenVersion = "estado-1"
             };
         }

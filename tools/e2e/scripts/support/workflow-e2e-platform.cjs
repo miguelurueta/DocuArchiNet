@@ -2,16 +2,17 @@
 
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const { createHash } = require('node:crypto');
 const { execFile } = require('node:child_process');
 const { promisify } = require('node:util');
 const { createResourceLifecycle } = require('./e2e-test-resource-lifecycle.cjs');
-const { resolveAdapter, resolveControls, resolveScenario } = require('./workflow-e2e-platform-registry.cjs');
+const { resolveAdapter, resolveControls, resolveScenario, STAGE_HANDLER } = require('./workflow-e2e-platform-registry.cjs');
 const { validateProfile } = require('./workflow-e2e-platform-profile.cjs');
 
 const execute = promisify(execFile);
 const repositoryRoot = path.resolve(__dirname, '..', '..', '..', '..');
 const SENSITIVE_EVIDENCE = /passw(?:ord)?|pwd|cookie|token|secret|credential|credencial|connection|conexion|authorization|authorized|usuario|user|contenido|nota|request|response|mysql|odbc/i;
-const SAFE_CODE = /^(?:E2E_PLATFORM|E2E_RESOURCE|NOTES_READ|NOTES_ANONYMOUS)_[A-Z0-9_]{3,100}$/;
+const SAFE_CODE = /^(?:E2E_PLATFORM|E2E_RESOURCE|NOTES_READ|NOTES_ANONYMOUS|NOTES_WRITE|NOTES_CONCURRENCY)_[A-Z0-9_]{3,100}$/;
 const SAFE_STAGE_AUTHORIZATIONS = Object.freeze({
   anonymous: Object.freeze([]),
   read: Object.freeze([]),
@@ -78,14 +79,40 @@ function preflightPlatform({ profile, authorizations = [] }) {
   });
 }
 
-function createManagedLifecycle(options, plan, environment) {
+function createRegisteredResourceContract(plan, environment, readControl) {
+  const resource = plan.scenario.resource;
+  if (!resource?.mutating || !resource.contractId || typeof readControl !== 'function') fail('E2E_PLATFORM_RESOURCE_COORDINATOR_REQUIRED');
+  const captureGeneration = async () => {
+    const fingerprints = await captureControls(plan.controls, plan, environment, readControl);
+    if (Object.keys(fingerprints).length === 0) fail('E2E_PLATFORM_RESOURCE_INVALID');
+    return createHash('sha256').update(JSON.stringify(fingerprints)).digest('hex');
+  };
+  return Object.freeze({
+    id: resource.contractId,
+    scope: 'local',
+    resources: Object.freeze({
+      [resource.role]: Object.freeze({
+        descriptor: (profile) => Object.freeze({ taskId: profile[resource.profileField] }),
+        preflight: async ({ descriptor }) => Object.freeze({
+          available: Number.isSafeInteger(descriptor?.taskId) && descriptor.taskId > 0,
+          code: 'E2E_RESOURCE_READY',
+          resourceKey: `${resource.kind}:${descriptor.taskId}`,
+          generation: await captureGeneration()
+        }),
+        observeGeneration: async () => captureGeneration(),
+        consumeOnSuccess: true
+      })
+    })
+  });
+}
+
+function createManagedLifecycle(options, plan, environment, readControl) {
   if (!plan.scenario.resource?.mutating) return null;
   if (typeof options?.resourceLifecycleFactory === 'function') {
     return options.resourceLifecycleFactory({ plan, environment });
   }
   const contractId = plan.scenario.resource.contractId;
-  const contract = options?.resourceContracts?.[contractId];
-  if (!contract) fail('E2E_PLATFORM_RESOURCE_COORDINATOR_REQUIRED');
+  const contract = options?.resourceContracts?.[contractId] || createRegisteredResourceContract(plan, environment, readControl);
   return createResourceLifecycle({ contract, profile: plan.profile, environment, leaseStore: options?.leaseStore });
 }
 
@@ -128,6 +155,9 @@ function validatePayload(adapter, operation, payload) {
   if (Object.hasOwn(payload, 'idNota') && (!Number.isSafeInteger(payload.idNota) || payload.idNota <= 0)) fail('E2E_PLATFORM_OPERATION_INVALID');
   if (Object.hasOwn(payload, 'cursor') && (typeof payload.cursor !== 'string' || payload.cursor.length > 160 || /[\r\n\u0000]/.test(payload.cursor))) fail('E2E_PLATFORM_OPERATION_INVALID');
   if (Object.hasOwn(payload, 'tamanoPagina') && (!Number.isSafeInteger(payload.tamanoPagina) || payload.tamanoPagina < 1 || payload.tamanoPagina > 100)) fail('E2E_PLATFORM_OPERATION_INVALID');
+  if (Object.hasOwn(payload, 'contenido') && (typeof payload.contenido !== 'string' || payload.contenido.length < 1 || payload.contenido.length > 16000 || /\u0000/.test(payload.contenido))) fail('E2E_PLATFORM_OPERATION_INVALID');
+  if (Object.hasOwn(payload, 'clientRequestId') && (typeof payload.clientRequestId !== 'string' || !/^[a-f0-9-]{36}$/i.test(payload.clientRequestId))) fail('E2E_PLATFORM_OPERATION_INVALID');
+  if (Object.hasOwn(payload, 'version') && (typeof payload.version !== 'string' || !/^[a-f0-9]{64}$/i.test(payload.version))) fail('E2E_PLATFORM_OPERATION_INVALID');
 }
 
 function createRestrictedInvoker({ adapter, client, invoke }) {
@@ -156,6 +186,23 @@ async function captureControls(controls, plan, environment, readControl) {
 
 function controlsUnchanged(before, after) {
   return Object.keys(before).every((key) => after && before[key] === after[key]);
+}
+
+function controlsChanged(before, after) {
+  const keys = Object.keys(before);
+  return keys.length > 0 && keys.every((key) => after && before[key] !== after[key]);
+}
+
+function controlsMeetExpectation(plan, before, after) {
+  for (const [controlId, expectation] of Object.entries(plan.scenario.controlExpectations || {})) {
+    const changed = before?.[controlId] !== after?.[controlId];
+    if ((expectation === 'changed' && !changed) || (expectation === 'unchanged' && changed)) return false;
+  }
+  return true;
+}
+
+function controlsFailureCode(plan) {
+  return plan.scenario.resource?.mutating ? 'E2E_PLATFORM_MUTATION_EXPECTATION_FAILED' : 'E2E_PLATFORM_NON_MUTATION_FAILED';
 }
 
 function createSafeEvidence({ plan, result, before, after, failureCode, resourceEvents }) {
@@ -229,6 +276,8 @@ async function executePlatformRun(options) {
   let browser;
   let context;
   let client;
+  let concurrentContext;
+  let concurrentClient;
   let reservation;
   let lifecycle;
   let before = Object.freeze({});
@@ -242,7 +291,7 @@ async function executePlatformRun(options) {
     }
     environment = createRuntimeEnvironment(plan, secrets);
     if (plan.scenario.resource?.mutating) {
-      lifecycle = createManagedLifecycle(options, plan, environment);
+      lifecycle = createManagedLifecycle(options, plan, environment, readControl);
       if (!lifecycle || typeof lifecycle.prepare !== 'function') fail('E2E_PLATFORM_RESOURCE_COORDINATOR_REQUIRED');
       reservation = await lifecycle.prepare(plan.scenario.resource.role);
     }
@@ -255,15 +304,22 @@ async function executePlatformRun(options) {
     if (typeof createClient !== 'function') fail('E2E_PLATFORM_TRANSPORT_INVALID');
     client = await createClient({ context, plan });
     const restrictedInvoke = createRestrictedInvoker({ adapter: plan.adapter, client, invoke });
-    if (plan.scenario.stage === 'read') {
-      adapterResult = await plan.adapter.executeRead({ invoke: restrictedInvoke, taskId: plan.profile.taskId, budgetMs: plan.profile.budgetMs });
-    } else if (plan.scenario.stage === 'anonymous' && typeof plan.adapter.executeAnonymous === 'function') {
-      adapterResult = await plan.adapter.executeAnonymous({ invoke: restrictedInvoke, budgetMs: plan.profile.budgetMs });
+    const handlerName = STAGE_HANDLER[plan.scenario.stage];
+    const handler = plan.adapter[handlerName];
+    if (typeof handler !== 'function') fail('E2E_PLATFORM_STAGE_UNSUPPORTED');
+    if (plan.scenario.stage === 'concurrency') {
+      if (plan.scenario.transport.session !== 'workflow' || typeof createSession !== 'function') fail('E2E_PLATFORM_SESSION_FACTORY_REQUIRED');
+      concurrentContext = await createSession({ browser, plan, environment });
+      concurrentClient = await createClient({ context: concurrentContext, plan });
+      const concurrentInvoke = createRestrictedInvoker({ adapter: plan.adapter, client: concurrentClient, invoke });
+      adapterResult = await handler({ invoke: restrictedInvoke, concurrentInvoke, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs });
+    } else if (plan.scenario.stage === 'anonymous') {
+      adapterResult = await handler({ invoke: restrictedInvoke, budgetMs: plan.profile.budgetMs });
     } else {
-      fail('E2E_PLATFORM_STAGE_UNSUPPORTED');
+      adapterResult = await handler({ invoke: restrictedInvoke, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs });
     }
     after = await captureControls(plan.controls, plan, environment, readControl);
-    if (!controlsUnchanged(before, after)) fail('E2E_PLATFORM_NON_MUTATION_FAILED');
+    if (!controlsMeetExpectation(plan, before, after)) fail(controlsFailureCode(plan));
     if (reservation) await lifecycle.finalize(reservation, true);
   } catch (error) {
     failure = error;
@@ -271,12 +327,14 @@ async function executePlatformRun(options) {
     if (Object.keys(before).length > 0 && !after && environment) {
       try {
         after = await captureControls(plan.controls, plan, environment, readControl);
-        if (!failure && !controlsUnchanged(before, after)) failure = new PlatformExecutionError('E2E_PLATFORM_NON_MUTATION_FAILED');
+        if (!failure && !controlsMeetExpectation(plan, before, after)) failure = new PlatformExecutionError(controlsFailureCode(plan));
       } catch (error) {
         if (!failure) failure = error;
       }
     }
     if (reservation) await closeQuietly({ close: () => lifecycle.finalize(reservation, false) });
+    await closeQuietly(concurrentClient, 'dispose');
+    await closeQuietly(concurrentContext);
     await closeQuietly(client, 'dispose');
     await closeQuietly(context);
     await closeQuietly(browser);
@@ -319,6 +377,7 @@ module.exports = {
   createRuntimeEnvironment,
   createSafeEvidence,
   createManagedLifecycle,
+  createRegisteredResourceContract,
   eraseSecrets,
   executePlatformRun,
   preflightPlatform,

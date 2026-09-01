@@ -33,9 +33,10 @@ internal static class WorkflowNotesReadRepositoryTests
         data.Columns.Add("ID_TAREA", typeof(long));
         data.Columns.Add("ID_AUTOR", typeof(int));
         data.Columns.Add("ID_ACTIVIDAD_ORIGEN", typeof(int));
+        data.Columns.Add("CONTENIDO_VERSION", typeof(string));
         data.Columns.Add("FECHA_CREACION", typeof(DateTime));
-        data.Rows.Add(7L, TaskId, 101, 6, new DateTime(2026, 1, 2, 3, 4, 5));
-        data.Rows.Add(6L, TaskId, 101, 6, new DateTime(2026, 1, 2, 3, 4, 4));
+        data.Rows.Add(7L, TaskId, 101, 6, "nota más reciente", new DateTime(2026, 1, 2, 3, 4, 5));
+        data.Rows.Add(6L, TaskId, 101, 6, "nota anterior", new DateTime(2026, 1, 2, 3, 4, 4));
         var executor = new FakeExecutor(data);
         var response = Repository(executor).Listar(Context(), Task(), new Workflow.SolicitudListarNotasWorkflow { IdTarea = TaskId, TamanoPagina = 1 });
 
@@ -45,6 +46,7 @@ internal static class WorkflowNotesReadRepositoryTests
         Assert(executor.Parameters.Contains("@idTarea") && executor.Parameters.Contains("@limite"), "valores ligados");
         Equal(1, response.Notas.Count, "tamaño de página");
         Assert(response.TieneMas, "fila adicional");
+        Assert(response.Notas[0].Version.Length == 64, "ETag calculado en .NET desde contenido persistido");
     }
 
     private static void CountUsesCountStarAndOperationalVisibility()
