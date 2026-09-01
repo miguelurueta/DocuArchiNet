@@ -1512,6 +1512,24 @@
                   </ContentTemplate>
               </asp:UpdatePanel>
           </div>
+           <asp:Panel ID="Panel_notas_modernas" runat="server" CssClass="workflow-centro-trabajo-moderno workflow-notes-modern" data-workflow-notes-modern="true">
+               <div class="notes-shell" role="region" aria-labelledby="workflow-notes-modern-heading">
+                   <div class="notes-head">
+                       <div><div class="notes-title"><h2 id="workflow-notes-modern-heading">Notas</h2><span id="workflow-notes-modern-count" class="badge">0 notas</span></div><p class="notes-subtitle">Comentarios y contexto compartido de la tarea</p></div>
+                       <div class="action-bar" aria-label="Acciones de notas"><button id="workflow-notes-modern-new" type="button" class="btn btn-add">+ Nueva nota</button></div>
+                   </div>
+                   <div class="notes-feedback"><div id="workflow-notes-modern-status" role="status" aria-live="polite"></div><button id="workflow-notes-modern-retry" type="button" class="btn" hidden="hidden">Reintentar</button></div>
+                   <ol id="workflow-notes-modern-list" class="notes-list" aria-live="polite"></ol>
+                   <footer class="notes-footer">Las acciones de edición y eliminación dependen de los permisos y propiedad de cada nota.</footer>
+                   <div id="workflow-notes-modern-editor" class="dialog-backdrop" hidden="hidden">
+                       <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="workflow-notes-modern-editor-title">
+                           <header class="dialog-head"><h2 id="workflow-notes-modern-editor-title">Nueva nota</h2><button id="workflow-notes-modern-close" class="icon-btn" type="button" aria-label="Cerrar editor de nota">×</button></header>
+                           <div class="dialog-body"><label for="workflow-notes-modern-text">Escriba el contexto útil para quien continúe la tarea</label><textarea id="workflow-notes-modern-text" maxlength="1000" placeholder="Ejemplo: se verificó el documento, queda pendiente confirmar…"></textarea><div class="field-help"><span>El contenido se guardará como texto.</span><span id="workflow-notes-modern-character-count">0 / 1000</span></div></div>
+                           <footer class="dialog-footer"><button id="workflow-notes-modern-cancel" type="button" class="btn">Cancelar</button><button id="workflow-notes-modern-save" type="button" class="btn btn-add">Guardar nota</button></footer>
+                       </section>
+                   </div>
+               </div>
+           </asp:Panel>
            <!--nota_flujo-->  
            <asp:Panel ID="Panel_content_anotacion" runat="server" Style="display: none; width: 90%; height: 100%" CssClass="modal_content_general_">
                   <asp:ModalPopupExtender ID="ModalPopupExtender_edition_content_anotacion" runat="server"

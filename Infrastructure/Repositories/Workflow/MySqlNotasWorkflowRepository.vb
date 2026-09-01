@@ -71,6 +71,7 @@ Public Class MySqlNotasWorkflowRepository
                         .IdTarea = idTarea,
                         .IdAutorWorkflow = idAutor,
                         .IdActividadOrigen = idActividad,
+                        .Contenido = Texto(reader, "CONTENIDO_VERSION"),
                         .Version = VersionNota(idNota, idTarea, idAutor, idActividad, 1, Texto(reader, "CONTENIDO_VERSION")),
                         .FechaCreacionUtc = FechaUtc(reader, "FECHA_CREACION")
                     })

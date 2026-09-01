@@ -18,6 +18,18 @@ Public MustInherit Class MySqlWorkflowPreviewRepositoryBase
         _dataExecutor = dataExecutor
     End Sub
 
+    Protected ReadOnly Property FabricaConexion As IModuleConnectionFactory
+        Get
+            Return _connectionFactory
+        End Get
+    End Property
+
+    Protected ReadOnly Property EjecutorDatos As IDataExecutor
+        Get
+            Return _dataExecutor
+        End Get
+    End Property
+
     Protected Function EjecutarLectura(Of T)(ByVal contexto As ContextoModuloWorkflow,
                                              ByVal sql As String,
                                              ByVal parameters As IEnumerable(Of IDataParameter),
