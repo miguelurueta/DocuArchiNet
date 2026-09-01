@@ -659,7 +659,12 @@ export const resolvePromptReviewInput = async ({ baseDir, promptInput }) => {
   }
 
   if (/^[A-Za-z]+-\d+$/.test(trimmed)) {
-    const docsRoot = path.join(baseDir, "docs");
+    // Repos legacy pueden conservar la raíz documental con mayúscula (`Doc`).
+    // Preferir `docs` cuando exista y usar `Doc` como fallback compatible.
+    const docsRootCandidate = path.join(baseDir, "docs");
+    const docsRoot = (await stat(docsRootCandidate).catch(() => null))
+      ? docsRootCandidate
+      : path.join(baseDir, "Doc");
     const files = await findFiles({
       dir: docsRoot,
       extensions: SUPPORTED_EXTENSIONS,
