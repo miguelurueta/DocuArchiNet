@@ -1,3 +1,4 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04 -->
 ## Context
 
 DOC-43: INTEGRAR-CENTRO-TRABAJO-NOTA
@@ -83,3 +84,10 @@ DOC-43: INTEGRAR-CENTRO-TRABAJO-NOTA
 ## Open Questions
 
 - TBD
+
+## Decisiones de refinamiento
+
+- D-01: La integración moderna se activa solo mediante `WorkflowCentroTrabajoModernActive`; permanece apagada por defecto y conserva el fallback legacy. (RQ-01)
+- D-02: Un único adaptador JavaScript usa los contratos modernos, JSON serializado y `idTarea` explícito; no usa sesión ni doble escritura. (RQ-02)
+- D-03: El renderizado es seguro y accesible, con estados de carga, vacío, error, éxito y conflicto, foco, teclado y Escape. (RQ-03)
+- D-04: QA responsive y E2E reutilizan la infraestructura existente; el rollback es desactivar el gate sin alterar backend. (RQ-04)

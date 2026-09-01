@@ -37,6 +37,7 @@
     "test:notes:read": "node scripts/run-notes-workflow-interactive.cjs read",
     "test:notes:write": "node scripts/run-notes-workflow-interactive.cjs write",
     "test:notes:concurrency": "node scripts/run-notes-workflow-interactive.cjs concurrency",
+    "test:doc43:notes-ui": "node scripts/run-doc43-notes-ui-interactive.cjs",
     "inspect:notes:schema": "node scripts/inspect-notes-column-schema-interactive.cjs"
   },
   "devDependencies": {

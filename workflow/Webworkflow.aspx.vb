@@ -245,6 +245,27 @@ Public Class Webworkflow
         End If
     End Sub
 
+    Private Sub ConfigureWorkflowNotesModernPresentation()
+        If Panel_Buttonanotacion IsNot Nothing Then
+            Panel_Buttonanotacion.Visible = Not WorkflowCentroTrabajoModernActive
+        End If
+        If Panel_notas_modernas IsNot Nothing Then
+            Panel_notas_modernas.Visible = WorkflowCentroTrabajoModernActive
+            If Page.Header IsNot Nothing AndAlso WorkflowCentroTrabajoModernActive AndAlso Page.Header.FindControl("workflowNotesModernStyle") Is Nothing Then
+                Dim style As New Global.System.Web.UI.HtmlControls.HtmlLink()
+                style.ID = "workflowNotesModernStyle"
+                style.Href = "../Styles/workflow-notes-modern.css?v=20260901-doc43"
+                style.Attributes("rel") = "stylesheet"
+                Page.Header.Controls.Add(style)
+            End If
+            If WorkflowCentroTrabajoModernActive Then
+                Dim taskInputId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_selecionada.ClientID)
+                Dim startupScript As String = "(function(){var root=document.querySelector('[data-workflow-notes-modern]');if(!root){return;}root.setAttribute('data-workflow-notes-task-input-id','" & taskInputId & "');if(window.WorkflowNotesModern&&typeof window.WorkflowNotesModern.inicializar==='function'){window.WorkflowNotesModern.inicializar(root);}}());"
+                ScriptManager.RegisterStartupScript(Me, Me.GetType(), "workflowNotesModernBootstrap", startupScript, True)
+            End If
+        End If
+    End Sub
+
     Private ReadOnly Property WorkflowTransitionModernActive As Boolean
         Get
             If Not _workflowTransitionModernActive.HasValue Then
@@ -553,6 +574,7 @@ Public Class Webworkflow
         System.Diagnostics.Debug.WriteLine("WF_LIFECYCLE|Webworkflow.Page_Load entrada|" & MilisegundosDesdeInicioRequest() & " ms desde inicio request")
         ConfigureWorkflowCentroTrabajoViewport()
         ConfigureWorkflowTransitionModernPresentation()
+        ConfigureWorkflowNotesModernPresentation()
         Dim cronometroTotal As Stopwatch = Stopwatch.StartNew()
         Try
             Dim cs As ClientScriptManager = Page.ClientScript

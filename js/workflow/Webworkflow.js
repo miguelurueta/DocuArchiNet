@@ -3,6 +3,149 @@ $(document).ready(function () {
     $.fn.inicio = function () {
    
     }
+
+// Cliente único para el contrato moderno de Notas del Centro de Trabajo.
+// La presentación lo habilita únicamente cuando el gate del servidor lo permite.
+window.WorkflowNotesModern = window.WorkflowNotesModern || (function () {
+    const endpoint = operation => `../webservice/WebServiceWorkflowNotesModern.asmx/${operation}`;
+    const invoke = (operation, data) => fetch(endpoint(operation), {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify(data)
+    }).then(response => {
+        if (!response.ok) throw new Error('NOTES_HTTP_ERROR');
+        return response.json();
+    }).then(payload => payload && payload.d !== undefined ? payload.d : payload);
+
+    const isSuccess = dto => dto && dto.Exito === true;
+    const isConflict = dto => dto && dto.Codigo === 'VersionConflict';
+
+    const inicializar = root => {
+        if (!root || root.getAttribute('data-workflow-notes-initialized') === 'true') return;
+        root.setAttribute('data-workflow-notes-initialized', 'true');
+        const input = document.getElementById(root.getAttribute('data-workflow-notes-task-input-id'));
+        const list = root.querySelector('#workflow-notes-modern-list');
+        const status = root.querySelector('#workflow-notes-modern-status');
+        const count = root.querySelector('#workflow-notes-modern-count');
+        const editor = root.querySelector('#workflow-notes-modern-editor');
+        const editorTitle = root.querySelector('#workflow-notes-modern-editor-title');
+        const text = root.querySelector('#workflow-notes-modern-text');
+        const characterCount = root.querySelector('#workflow-notes-modern-character-count');
+        const save = root.querySelector('#workflow-notes-modern-save');
+        const open = root.querySelector('#workflow-notes-modern-new');
+        const close = root.querySelector('#workflow-notes-modern-close');
+        const cancel = root.querySelector('#workflow-notes-modern-cancel');
+        const retry = root.querySelector('#workflow-notes-modern-retry');
+        let idTarea = input ? Number(input.value) : 0;
+        let editingNote = null;
+        let returnFocus = null;
+        const setStatus = (message, state) => {
+            if (status) { status.textContent = message || ''; status.setAttribute('data-state', state || 'idle'); }
+            if (retry) retry.hidden = state !== 'error';
+        };
+        const updateCharacterCount = () => { if (characterCount) characterCount.textContent = `${text ? text.value.length : 0} / 1000`; };
+        const openEditor = (note, trigger) => {
+            editingNote = note || null; returnFocus = trigger || document.activeElement;
+            if (editorTitle) editorTitle.textContent = note ? 'Editar nota' : 'Nueva nota';
+            editor.hidden = false; text.value = note ? note.Contenido || '' : ''; updateCharacterCount(); text.focus();
+        };
+        const closeEditor = () => {
+            editingNote = null; editor.hidden = true; text.value = ''; updateCharacterCount();
+            if (returnFocus && typeof returnFocus.focus === 'function') returnFocus.focus();
+        };
+        const displayDate = value => {
+            if (!value) return '';
+            const parsed = new Date(value); return Number.isNaN(parsed.getTime()) ? '' : parsed.toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
+        };
+        const renderNotes = items => {
+            if (!list) return;
+            list.textContent = '';
+            if (!items.length) {
+                const empty = document.createElement('li'); empty.className = 'empty-state';
+                const heading = document.createElement('strong'); heading.textContent = 'Aún no hay notas';
+                const help = document.createElement('span'); help.textContent = 'Cree una nota para compartir contexto de esta tarea.';
+                empty.appendChild(heading); empty.appendChild(help); list.appendChild(empty); return;
+            }
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'note';
+                const avatar = document.createElement('div'); avatar.className = 'avatar'; avatar.setAttribute('aria-hidden', 'true'); avatar.textContent = 'N';
+                const main = document.createElement('div'); main.className = 'note-main';
+                const meta = document.createElement('div'); meta.className = 'note-meta';
+                const author = document.createElement('span'); author.className = 'author'; author.textContent = item.Autor || `Usuario ${item.IdAutorWorkflow || ''}`.trim();
+                const time = document.createElement('time'); time.dateTime = item.FechaCreacionUtc || ''; time.textContent = displayDate(item.FechaCreacionUtc);
+                const content = document.createElement('p'); content.className = 'note-content'; content.textContent = item.Contenido || '';
+                const actions = document.createElement('div'); actions.className = 'note-actions'; actions.setAttribute('aria-label', 'Acciones de la nota');
+                const edit = document.createElement('button'); edit.className = 'icon-btn'; edit.type = 'button'; edit.textContent = 'Editar'; edit.setAttribute('aria-label', 'Editar nota'); edit.addEventListener('click', event => openEditor(item, event.currentTarget));
+                const remove = document.createElement('button'); remove.className = 'icon-btn delete'; remove.type = 'button'; remove.textContent = 'Eliminar'; remove.setAttribute('aria-label', 'Eliminar nota');
+                remove.addEventListener('click', () => {
+                    if (!window.confirm('¿Eliminar esta nota?')) return;
+                    remove.disabled = true;
+                    invoke('EliminarNota', { idTarea, idNota: item.IdNota, version: item.Version }).then(dto => {
+                        if (isConflict(dto)) { setStatus('La nota cambió. Recargue antes de eliminar.', 'conflict'); return load(); }
+                        if (!isSuccess(dto)) throw new Error('NOTES_REMOVE_FAILED');
+                        setStatus('Nota eliminada.', 'success'); return load();
+                    }).catch(() => setStatus('No fue posible eliminar la nota.', 'error')).finally(() => { remove.disabled = false; });
+                });
+                meta.appendChild(author); meta.appendChild(time); main.appendChild(meta); main.appendChild(content);
+                actions.appendChild(edit); actions.appendChild(remove); li.appendChild(avatar); li.appendChild(main); li.appendChild(actions); list.appendChild(li);
+            });
+        };
+        const load = () => Promise.all([invoke('ListarNotas', { idTarea, cursor: '', tamanoPagina: 20 }), invoke('ContarNotas', { idTarea })]).then(([result, total]) => {
+            if (!isSuccess(result) || !isSuccess(total)) throw new Error('NOTES_LOAD_FAILED');
+            const items = result && Array.isArray(result.Notas) ? result.Notas : [];
+            renderNotes(items);
+            if (count) count.textContent = `${Number(total && total.Contador) || items.length} notas`;
+        });
+        const loadSelectedTask = () => {
+            const selectedTaskId = input ? Number(input.value) : 0;
+            if (!Number.isFinite(selectedTaskId) || selectedTaskId <= 0) { setStatus('Seleccione una tarea para consultar sus notas.', 'error'); return Promise.resolve(); }
+            idTarea = selectedTaskId;
+            if (editor && !editor.hidden) closeEditor();
+            setStatus('Cargando notas…', 'loading');
+            return load().then(() => {
+                if (status && status.textContent === 'Cargando notas…') setStatus('', 'idle');
+            }).catch(() => setStatus('No fue posible cargar las notas.', 'error'));
+        };
+        if (input) input.addEventListener('change', loadSelectedTask);
+        if (open && editor) open.addEventListener('click', event => openEditor(null, event.currentTarget));
+        if (close) close.addEventListener('click', closeEditor);
+        if (cancel) cancel.addEventListener('click', closeEditor);
+        if (retry) retry.addEventListener('click', () => { setStatus('Cargando notas…', 'loading'); load().then(() => setStatus('', 'idle')).catch(() => setStatus('No fue posible cargar las notas.', 'error')); });
+        if (text) text.addEventListener('input', updateCharacterCount);
+        if (editor) editor.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); closeEditor(); } });
+        if (save) save.addEventListener('click', () => {
+            if (save.disabled) return;
+            const contenido = text ? text.value : '';
+            if (!contenido.trim()) { setStatus('Escriba el contenido de la nota.', 'error'); text.focus(); return; }
+            save.disabled = true;
+            const request = editingNote
+                ? invoke('ActualizarNota', { idTarea, idNota: editingNote.IdNota, contenido, version: editingNote.Version })
+                : invoke('CrearNota', { idTarea, contenido, clientRequestId: window.crypto && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}` });
+            const wasEditing = editingNote !== null;
+            request.then(dto => {
+                if (isConflict(dto)) { setStatus('La nota cambió. Recargue antes de editar.', 'conflict'); return load(); }
+                if (!isSuccess(dto)) throw new Error('NOTES_SAVE_FAILED');
+                closeEditor(); setStatus(wasEditing ? 'Nota actualizada.' : 'Nota guardada.', 'success'); return load();
+            }).catch(() => setStatus('No fue posible guardar la nota.', 'error'))
+                .finally(() => { save.disabled = false; });
+        });
+        loadSelectedTask();
+    };
+
+    return Object.freeze({
+        inicializar,
+        listar: (idTarea, cursor, tamanoPagina) => invoke('ListarNotas', { idTarea, cursor: cursor || '', tamanoPagina }),
+        consultar: (idTarea, idNota) => invoke('ConsultarNota', { idTarea, idNota }),
+        contar: idTarea => invoke('ContarNotas', { idTarea }),
+        crear: (idTarea, contenido, clientRequestId) => invoke('CrearNota', { idTarea, contenido, clientRequestId }),
+        actualizar: (idTarea, idNota, contenido, version) => invoke('ActualizarNota', { idTarea, idNota, contenido, version }),
+        eliminar: (idTarea, idNota, version) => invoke('EliminarNota', { idTarea, idNota, version })
+    });
+}());
+    const workflowNotesRoot = document.querySelector('[data-workflow-notes-modern="true"]');
+    if (workflowNotesRoot) window.WorkflowNotesModern.inicializar(workflowNotesRoot);
     //REGISTRA EVENTOS GREDVIEW GRUPO
     $.fn.auto_postback = function () {
         //actualiza_treview_seleccion_dos();

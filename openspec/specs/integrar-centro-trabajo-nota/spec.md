@@ -1,9 +1,10 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04 -->
+# integrar-centro-trabajo-nota Specification
+
 ## Purpose
 
 Modernizar el consumo de Notas en el Centro de Trabajo con una experiencia segura, accesible y reversible que conserva el flujo legacy como fallback.
 
-## ADDED Requirements
+## Requirements
 ### Requirement: INTEGRAR-CENTRO-TRABAJO-NOTA
 El sistema SHALL implementar el alcance definido para DOC-43.
 #### Scenario: Flujo principal
