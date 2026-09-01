@@ -2,7 +2,7 @@ Imports System
 Imports System.ComponentModel
 Imports System.Web.Services
 
-'Endpoint especializado y exclusivamente de lectura para Notas Workflow.
+'Endpoint especializado de Notas Workflow. Las mutaciones se delegan al servicio y repositorio modernos.
 <System.Web.Script.Services.ScriptService()>
 <System.Web.Services.WebService(Namespace:="http://tempuri.org/")>
 <System.Web.Services.WebServiceBinding(ConformsTo:=WsiProfiles.BasicProfile1_1)>
@@ -49,6 +49,55 @@ Public Class WebServiceWorkflowNotesModern
             If Not ContextoDisponible(resultadoSesion) Then Return RespuestaBloqueada()
             Dim resultado As ResultadoNotasWorkflow = CrearServicio(resultadoSesion).Contar(resultadoSesion.Contexto,
                 New SolicitudContarNotasWorkflow With {.IdTarea = idTarea})
+            Return Mapear(resultado)
+        Catch
+            Return RespuestaBloqueada()
+        End Try
+    End Function
+
+    <WebMethod(EnableSession:=True)>
+    <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
+    Public Function CrearNota(ByVal idTarea As Long,
+                              ByVal contenido As String,
+                              ByVal clientRequestId As String) As ResultadoNotasDto
+        Try
+            Dim resultadoSesion As ResultadoContextoSesionWorkflow = New WorkflowPreviewSessionContextGate().AsegurarContextoNotas()
+            If Not ContextoDisponible(resultadoSesion) Then Return RespuestaBloqueada()
+            Dim resultado As ResultadoNotasWorkflow = CrearServicio(resultadoSesion).Crear(resultadoSesion.Contexto,
+                New SolicitudCrearNotaWorkflow With {.IdTarea = idTarea, .Contenido = contenido, .IdSolicitudCliente = clientRequestId})
+            Return Mapear(resultado)
+        Catch
+            Return RespuestaBloqueada()
+        End Try
+    End Function
+
+    <WebMethod(EnableSession:=True)>
+    <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
+    Public Function ActualizarNota(ByVal idTarea As Long,
+                                   ByVal idNota As Long,
+                                   ByVal contenido As String,
+                                   ByVal version As String) As ResultadoNotasDto
+        Try
+            Dim resultadoSesion As ResultadoContextoSesionWorkflow = New WorkflowPreviewSessionContextGate().AsegurarContextoNotas()
+            If Not ContextoDisponible(resultadoSesion) Then Return RespuestaBloqueada()
+            Dim resultado As ResultadoNotasWorkflow = CrearServicio(resultadoSesion).Actualizar(resultadoSesion.Contexto,
+                New SolicitudActualizarNotaWorkflow With {.IdTarea = idTarea, .IdNota = idNota, .Contenido = contenido, .Version = version})
+            Return Mapear(resultado)
+        Catch
+            Return RespuestaBloqueada()
+        End Try
+    End Function
+
+    <WebMethod(EnableSession:=True)>
+    <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
+    Public Function EliminarNota(ByVal idTarea As Long,
+                                 ByVal idNota As Long,
+                                 ByVal version As String) As ResultadoNotasDto
+        Try
+            Dim resultadoSesion As ResultadoContextoSesionWorkflow = New WorkflowPreviewSessionContextGate().AsegurarContextoNotas()
+            If Not ContextoDisponible(resultadoSesion) Then Return RespuestaBloqueada()
+            Dim resultado As ResultadoNotasWorkflow = CrearServicio(resultadoSesion).Eliminar(resultadoSesion.Contexto,
+                New SolicitudEliminarNotaWorkflow With {.IdTarea = idTarea, .IdNota = idNota, .Version = version})
             Return Mapear(resultado)
         Catch
             Return RespuestaBloqueada()

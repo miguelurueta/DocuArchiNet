@@ -1,4 +1,10 @@
-# Notas Workflow: lectura moderna
+# Notas Workflow
+
+## Paquete DOC-42
+
+La documentación normalizada de transacciones y escrituras está en [DOC-42-TRANSACIONES-NOTAS](DOC-42-TRANSACIONES-NOTAS/00-indice.md).
+
+## DOC-41: lectura moderna
 
 DOC-41 habilita únicamente la lectura moderna de notas asociadas a una tarea Workflow autorizada. El límite público es `webservice/WebServiceWorkflowNotesModern.asmx`; las páginas Web Forms, los endpoints legacy y las operaciones de escritura no forman parte de este cambio.
 

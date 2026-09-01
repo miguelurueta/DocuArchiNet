@@ -82,18 +82,47 @@ test("el repositorio de lectura usa SQL parametrizado, orden fijo y contador con
     assert.match(repositorySource, /at\.ESTADO_TAREA = 1/);
     assert.match(repositorySource, /ORDER BY at\.FECHA_ANOTACION DESC, at\.ID_ANOTACION DESC/);
     assert.match(repositorySource, /COUNT\(\*\) AS TOTAL/);
-    assert.doesNotMatch(repositorySource, /Class_anotacion_tarea|ExecuteNonQuery|INSERT|UPDATE|DELETE|CALL/i);
+    assert.doesNotMatch(repositorySource, /Class_anotacion_tarea|CALL/i);
     assert.doesNotMatch(repositorySource, /SELECT \*/i);
 });
 
-test("el ASMX especializado expone solo las tres lecturas y no usa la tarea de sesión", () => {
+test("el ASMX especializado expone lecturas y mutaciones modernas sin usar la tarea de sesión", () => {
     assert.match(notesAsmxMarkup, /WebServiceWorkflowNotesModern/);
     for (const operation of ["ListarNotas", "ConsultarNota", "ContarNotas"]) {
         assert.match(notesAsmxSource, new RegExp(`Public Function ${operation}\\(`));
     }
+    for (const operation of ["CrearNota", "ActualizarNota", "EliminarNota"]) {
+        assert.match(notesAsmxSource, new RegExp(`Public Function ${operation}\\(`));
+    }
     assert.match(notesAsmxSource, /AsegurarContextoNotas/);
     assert.match(notesAsmxSource, /New MySqlNotasWorkflowRepository/);
-    assert.doesNotMatch(withoutComments(notesAsmxSource), /ID_TAREA_SELECCIONDA|Class_anotacion_tarea|CrearNota|ActualizarNota|EliminarNota/);
+    assert.doesNotMatch(withoutComments(notesAsmxSource), /ID_TAREA_SELECCIONDA|Class_anotacion_tarea/);
+});
+
+test("las mutaciones de notas reservan idempotencia, usan un ETag canónico y transacción", () => {
+    assert.match(repositorySource, /workflow_notas_idempotencia/i);
+    assert.match(repositorySource, /Client_Request_Id/i);
+    assert.match(repositorySource, /Version_Resultado/i);
+    assert.match(repositorySource, /workflow_notas_version/i);
+    assert.match(repositorySource, /Version_Nota/i);
+    assert.match(repositorySource, /EjecutarEnTransaccion/);
+    assert.match(repositorySource, /wf_log_workflow/i);
+    assert.match(repositorySource, /HashSha256/);
+    assert.doesNotMatch(repositorySource, /SHA2\(/i);
+    assert.match(repositorySource, /estados_tarea_workflow/i);
+});
+
+test("el preflight de escrituras sólo consulta metadatos y falla cerrado", () => {
+    const block = repositorySource.match(/Private Function PreflightEscriturasDisponible[\s\S]*?End Function/)[0];
+    for (const marker of [
+        "information_schema.TABLES",
+        "information_schema.COLUMNS",
+        "information_schema.STATISTICS",
+        "NOTAS_TEXTO_UTF8",
+        "UX_NOTAS_IDEMPOTENCIA_INTENCION",
+        "Return False"
+    ]) assert.match(block, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.doesNotMatch(block, /INSERT|UPDATE|DELETE/i);
 });
 
 test("el proyecto incluye el endpoint y las piezas modernas de Notas", () => {

@@ -4,7 +4,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { resolveScenario } = require('./workflow-e2e-platform-registry.cjs');
 
-const PROFILE_KEYS = new Set(['scenarioId', 'baseUrl', 'module', 'environment', 'odbcDsn', 'taskId', 'budgetMs', 'browser', 'ignoreHttpsErrors']);
+const PROFILE_KEYS = new Set(['scenarioId', 'baseUrl', 'module', 'environment', 'odbcDsn', 'taskId', 'noteId', 'budgetMs', 'browser', 'ignoreHttpsErrors']);
 const FORBIDDEN_KEY = /(passw(?:ord)?|pwd|cookie|token|secret|credential|credencial|connection|conexion|sql|query|command|comando|script|mysql|database|user)/i;
 const FORBIDDEN_VALUE = /(?:mysql|odbc):\/\/|(?:^|[;\s])(?:password|pwd|uid)\s*=|\b(?:SELECT|INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO)\b/i;
 const SAFE_LABEL = /^[A-Za-z0-9_-]{2,80}$/;
@@ -84,6 +84,11 @@ function validateProfile(input) {
   if (scenario.resource?.profileField === 'taskId') {
     profile.taskId = assertPositiveInteger(input.taskId, 'E2E_PLATFORM_PROFILE_TASK_INVALID');
   } else if (input.taskId !== undefined) {
+    fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
+  }
+  if (scenario.stage === 'concurrency') {
+    profile.noteId = assertPositiveInteger(input.noteId, 'E2E_PLATFORM_PROFILE_NOTE_INVALID');
+  } else if (input.noteId !== undefined) {
     fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
   }
   return Object.freeze(profile);

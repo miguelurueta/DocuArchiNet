@@ -1,9 +1,18 @@
 'use strict';
 
 const { NOTES_READ_E2E_ADAPTER } = require('../adapters/notes-read-e2e-adapter.cjs');
+const { NOTES_WRITE_E2E_ADAPTER } = require('../adapters/notes-write-e2e-adapter.cjs');
 
 const SAFE_ID = /^[a-z][a-z0-9-]{1,79}$/;
 const STAGES = Object.freeze(['anonymous', 'read', 'preview', 'execution', 'concurrency', 'ui-lock']);
+const STAGE_HANDLER = Object.freeze({
+  anonymous: 'executeAnonymous',
+  read: 'executeRead',
+  preview: 'executePreview',
+  execution: 'executeExecution',
+  concurrency: 'executeConcurrency',
+  'ui-lock': 'executeUiLock'
+});
 const SENSITIVE_KEY = /(passw(?:ord)?|pwd|cookie|token|secret|credential|credencial|connection|conexion|sql|query|command|comando|script|url.*(?:mysql|database)|database.*url)/i;
 const READ_ONLY_SQL = /;|\b(?:INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO)\b/i;
 
@@ -40,7 +49,8 @@ const CONTROL_REGISTRY = Object.freeze({
 });
 
 const ADAPTER_REGISTRY = Object.freeze({
-  [NOTES_READ_E2E_ADAPTER.id]: NOTES_READ_E2E_ADAPTER
+  [NOTES_READ_E2E_ADAPTER.id]: NOTES_READ_E2E_ADAPTER,
+  [NOTES_WRITE_E2E_ADAPTER.id]: NOTES_WRITE_E2E_ADAPTER
 });
 
 const SCENARIO_REGISTRY = Object.freeze({
@@ -53,6 +63,7 @@ const SCENARIO_REGISTRY = Object.freeze({
     requiredSecrets: Object.freeze([]),
     resource: null,
     controls: Object.freeze([]),
+    controlExpectations: Object.freeze({}),
     transport: Object.freeze({ session: 'none', service: 'notes-modern' }),
     expectations: Object.freeze(['blocked-without-session', 'sanitized-evidence'])
   }),
@@ -65,8 +76,35 @@ const SCENARIO_REGISTRY = Object.freeze({
     requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
     resource: Object.freeze({ kind: 'workflow-task', role: 'read', profileField: 'taskId', mutating: false }),
     controls: Object.freeze(['notes-task-state', 'notes-audit']),
+    controlExpectations: Object.freeze({ 'notes-task-state': 'unchanged', 'notes-audit': 'unchanged' }),
     transport: Object.freeze({ session: 'workflow', service: 'notes-modern' }),
     expectations: Object.freeze(['no-state-change', 'no-audit-change', 'sanitized-evidence'])
+  }),
+  'notes-write': Object.freeze({
+    id: 'notes-write',
+    doc: 'doc42',
+    stage: 'execution',
+    adapterId: 'notes-write',
+    requiredAuthorizations: Object.freeze(['environment']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-task', role: 'execution', profileField: 'taskId', mutating: true, contractId: 'workflow-task-controls' }),
+    controls: Object.freeze(['notes-task-state', 'notes-audit']),
+    transport: Object.freeze({ session: 'workflow', service: 'notes-modern' }),
+    controlExpectations: Object.freeze({ 'notes-task-state': 'unchanged', 'notes-audit': 'changed' }),
+    expectations: Object.freeze(['no-state-change', 'audit-change', 'idempotent-create', 'version-conflict', 'sanitized-evidence'])
+  }),
+  'notes-concurrency': Object.freeze({
+    id: 'notes-concurrency',
+    doc: 'doc42',
+    stage: 'concurrency',
+    adapterId: 'notes-write',
+    requiredAuthorizations: Object.freeze(['environment']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-task', role: 'concurrency', profileField: 'taskId', mutating: true, contractId: 'workflow-task-controls' }),
+    controls: Object.freeze(['notes-task-state', 'notes-audit']),
+    controlExpectations: Object.freeze({ 'notes-task-state': 'changed', 'notes-audit': 'changed' }),
+    transport: Object.freeze({ session: 'workflow', service: 'notes-modern' }),
+    expectations: Object.freeze(['state-change', 'audit-change', 'single-success', 'version-conflict', 'sanitized-evidence'])
   })
 });
 
@@ -82,7 +120,6 @@ function validateAdapter(adapter) {
       fail('E2E_PLATFORM_ADAPTER_INVALID');
     }
   }
-  if (typeof adapter.executeRead !== 'function') fail('E2E_PLATFORM_ADAPTER_INVALID');
 }
 
 function validateScenario(scenario) {
@@ -95,6 +132,16 @@ function validateScenario(scenario) {
   assertStringList(scenario.requiredSecrets, 'E2E_PLATFORM_SCENARIO_INVALID');
   assertStringList(scenario.controls, 'E2E_PLATFORM_SCENARIO_INVALID');
   assertStringList(scenario.expectations, 'E2E_PLATFORM_SCENARIO_INVALID');
+  if (!scenario.controlExpectations || typeof scenario.controlExpectations !== 'object' || Array.isArray(scenario.controlExpectations)) {
+    fail('E2E_PLATFORM_SCENARIO_INVALID');
+  }
+  const expectationControls = Object.keys(scenario.controlExpectations).sort();
+  if (expectationControls.length !== scenario.controls.length || expectationControls.some((id, index) => id !== [...scenario.controls].sort()[index])) {
+    fail('E2E_PLATFORM_SCENARIO_INVALID');
+  }
+  for (const expectation of Object.values(scenario.controlExpectations)) {
+    if (expectation !== 'changed' && expectation !== 'unchanged') fail('E2E_PLATFORM_SCENARIO_INVALID');
+  }
   if (!scenario.transport || typeof scenario.transport !== 'object' || !['none', 'workflow'].includes(scenario.transport.session) || typeof scenario.transport.service !== 'string') {
     fail('E2E_PLATFORM_SCENARIO_INVALID');
   }
@@ -103,6 +150,9 @@ function validateScenario(scenario) {
     assertId(scenario.resource.kind, 'E2E_PLATFORM_SCENARIO_INVALID');
     assertId(scenario.resource.role, 'E2E_PLATFORM_SCENARIO_INVALID');
     if (typeof scenario.resource.profileField !== 'string' || !/^[a-z][A-Za-z0-9]{1,79}$/.test(scenario.resource.profileField)) fail('E2E_PLATFORM_SCENARIO_INVALID');
+    if (scenario.resource.mutating && (typeof scenario.resource.contractId !== 'string' || !SAFE_ID.test(scenario.resource.contractId))) {
+      fail('E2E_PLATFORM_SCENARIO_INVALID');
+    }
   }
 }
 
@@ -121,6 +171,7 @@ function validateRegistry() {
     assertId(id, 'E2E_PLATFORM_SCENARIO_INVALID');
     validateScenario(scenario);
     if (scenario.id !== id || !ADAPTER_REGISTRY[scenario.adapterId]) fail('E2E_PLATFORM_SCENARIO_INVALID');
+    if (typeof ADAPTER_REGISTRY[scenario.adapterId][STAGE_HANDLER[scenario.stage]] !== 'function') fail('E2E_PLATFORM_SCENARIO_INVALID');
     for (const control of scenario.controls) if (!CONTROL_REGISTRY[control]) fail('E2E_PLATFORM_SCENARIO_INVALID');
   }
 }
@@ -149,6 +200,7 @@ module.exports = {
   ADAPTER_REGISTRY,
   CONTROL_REGISTRY,
   SCENARIO_REGISTRY,
+  STAGE_HANDLER,
   STAGES,
   resolveAdapter,
   resolveControls,
