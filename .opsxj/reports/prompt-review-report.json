@@ -1,8 +1,8 @@
 {
   "status": "pass",
-  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\workflow\\Notas\\Prompt\\bloque-e2e-integrado-en-modernizacion.md",
-  "reviewedAtUtc": "2026-08-22T20:15:14.141Z",
-  "technologyProfile": "generic",
+  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Tecnica\\Opsxj\\doc-42-transacciones-notas\\00-PromptImplementacion.md",
+  "reviewedAtUtc": "2026-09-01T15:46:43.446Z",
+  "technologyProfile": "legacy-webforms-vb",
   "summary": {
     "blockers": 0,
     "major": 0,
