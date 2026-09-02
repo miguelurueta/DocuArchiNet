@@ -54,6 +54,16 @@ window.WorkflowNotesModern = window.WorkflowNotesModern || (function () {
             editingNote = null; editor.hidden = true; text.value = ''; updateCharacterCount();
             if (returnFocus && typeof returnFocus.focus === 'function') returnFocus.focus();
         };
+        const keepDialogFocus = event => {
+            if (event.key === 'Escape') { event.preventDefault(); closeEditor(); return; }
+            if (event.key !== 'Tab') return;
+            const focusable = Array.from(editor.querySelectorAll('button:not([disabled]), textarea:not([disabled])'));
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        };
         const displayDate = value => {
             if (!value) return '';
             const parsed = new Date(value); return Number.isNaN(parsed.getTime()) ? '' : parsed.toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
@@ -114,7 +124,7 @@ window.WorkflowNotesModern = window.WorkflowNotesModern || (function () {
         if (cancel) cancel.addEventListener('click', closeEditor);
         if (retry) retry.addEventListener('click', () => { setStatus('Cargando notas…', 'loading'); load().then(() => setStatus('', 'idle')).catch(() => setStatus('No fue posible cargar las notas.', 'error')); });
         if (text) text.addEventListener('input', updateCharacterCount);
-        if (editor) editor.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); closeEditor(); } });
+        if (editor) editor.addEventListener('keydown', keepDialogFocus);
         if (save) save.addEventListener('click', () => {
             if (save.disabled) return;
             const contenido = text ? text.value : '';

@@ -1,3 +1,4 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04 -->
 ## Context
 
 DOC-44: ESTABILIZACION-WORKFLOW
@@ -55,26 +56,35 @@ DOC-44: ESTABILIZACION-WORKFLOW
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Estabilizar exclusivamente el consumidor de Notas en `workflow/Webworkflow.aspx`.
+- Demostrar contrato moderno único, tarea explícita, exclusión de canales y rollback seguro.
+- Dejar una matriz de regresión y deuda legacy verificable para fase 06.
 
 **Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+- Consumidores ajenos a `workflow/`, cambios de esquema o semántica de negocio.
+- Activación de gates/audiencias o retiro de la ruta legacy.
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+1. **D-01 / RQ-01 — Alcance aislado.** Los cambios de producto se limitan a `workflow/Webworkflow.aspx(.vb)`, su cliente y estilos de Notas y la configuración necesaria para entregar el gate apagado. El ASMX y contrato compartidos se validan y reutilizan sin alterar consumidores ajenos; las utilidades E2E y la documentación DOC-44 sí forman parte del entregable. Los demás consumidores quedan fuera de inventario, modificación y ejecución.
+2. **D-02 / RQ-02 — Contrato moderno único.** `WorkflowNotesModern` conserva JSON real e invoca el ASMX moderno con `idTarea` explícito; autorización, propiedad, cursor y conflicto se resuelven en backend.
+3. **D-03 / RQ-03 — Exclusión y rollback.** `ConfigureWorkflowNotesModernPresentation` mantiene mutuamente excluyentes el panel moderno y el disparador legacy. La entrega conserva el gate apagado y las audiencias vacías.
+4. **D-04 / RQ-04 — Regresión verificable.** Se amplían pruebas focales, se integra una regresión E2E exclusiva de Workflow reutilizando autenticación, configuración, validadores y evidencia existentes, y se cubren autorización, cruces, contenido, cursor, conflicto y doble operación. Integrar la prueba no autoriza su ejecución real: la corrida requiere autorización expresa y debe restaurar el gate.
 
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+- La página contiene numerosas referencias de sesión para funciones no relacionadas; la verificación debe limitarse al bloque moderno de Notas para no confundir deuda global con dependencia del cliente nuevo.
+- El fallback mantiene código legacy con SQL/JS histórico; retirarlo en DOC-44 rompería la reversibilidad y queda como deuda explícita de fase 06.
+- La E2E real muta una tarea descartable; sin autorización se registra el bloqueo y no se sustituye por simulaciones.
 
 ## Migration Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+1. Mantener `WorkflowCentroTrabajoModernActive=false` y audiencias vacías durante desarrollo y entrega.
+2. Inventariar y probar el consumidor moderno y su exclusión con legacy.
+3. Ejecutar QA/E2E solo con autorización y restaurar la configuración exacta.
+4. Rollback operativo: gate `false`; no revertir datos, contratos ni migraciones DOC-42.
 
 ## Open Questions
 
-- TBD
+- Ninguna pregunta bloqueante. El retiro de handlers, GridView, modal y `Class_anotacion_tarea` pertenece a fase 06 y requiere criterio de referencias cero.
