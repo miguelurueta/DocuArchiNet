@@ -38,6 +38,9 @@
     "test:notes:write": "node scripts/run-notes-workflow-interactive.cjs write",
     "test:notes:concurrency": "node scripts/run-notes-workflow-interactive.cjs concurrency",
     "test:doc43:notes-ui": "node scripts/run-doc43-notes-ui-interactive.cjs",
+    "test:doc44:policy": "node --test tests/doc44-workflow-notes-policy.test.cjs",
+    "test:doc44:workflow-notes": "node scripts/run-doc44-workflow-notes-interactive.cjs",
+    "inspect:doc44:test-data": "node scripts/inspect-doc44-test-data-interactive.cjs",
     "inspect:notes:schema": "node scripts/inspect-notes-column-schema-interactive.cjs"
   },
   "devDependencies": {

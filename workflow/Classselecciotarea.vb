@@ -858,6 +858,7 @@ Public Class Classselecciotarea
             End If
             Dim workflowPage As Webworkflow = TryCast(pag, Webworkflow)
             Dim modernTaskContextEnabled As Boolean = workflowPage IsNot Nothing AndAlso workflowPage.WorkflowCentroTrabajoModernPresentationEnabled
+            Dim modernNotesEnabled As Boolean = workflowPage IsNot Nothing AndAlso workflowPage.WorkflowCentroTrabajoModernActive
             Dim Label_contexto_tramite As Label = Nothing
             Dim Label_contexto_estado As Label = Nothing
             If modernTaskContextEnabled Then
@@ -921,7 +922,7 @@ Public Class Classselecciotarea
                 Panel_documentos_tarea.Visible = True
                 Panel_autoriza.Visible = True
                 Panel_enviar_flujo.Visible = True
-                Panel_Buttonanotacion.Visible = True
+                Panel_Buttonanotacion.Visible = Not modernNotesEnabled
                 Label_estado_selecion.Visible = True
                 Panel_info_tarea.Visible = True
                 UpdatePanel_menu_cab.Update()

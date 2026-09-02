@@ -1,4 +1,4 @@
-# Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33
+# Runbook para agentes — E2E y concurrencia DOC-10 / DOC-11 / DOC-28 / DOC-32 / DOC-33 / DOC-44
 
 Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciales, modificar datos sin autorización ni reactivar la política legacy.
 
@@ -8,8 +8,8 @@ Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciale
 - Recibir URL, cuentas y acceso MySQL de solo lectura mediante secretos del entorno o instrucción expresa. No crear `.env` ni mostrar secretos, cookies o cadenas de conexión.
 - Reutilizar `tests/support/authenticated-workflow-session.cjs` para todo login E2E DOC-10/DOC-11/DOC-28/DOC-32/Notas. No enviar usuario, grupo, ruta, actividad ni permisos al ASMX salvo el destino que DOC-28 obtiene del preview actual al ejecutar.
 - `PreviewEnviarTarea` y `PreviewEnviarUsuario` son de solo lectura. Las consultas de control son una única sentencia `SELECT` con exactamente un parámetro `?` para la tarea.
-- No modificar el flujo legacy. Al cierre, `workflow/Webworkflow.aspx` y `workflow/Webworkflow.aspx.vb` no deben tener cambios.
-- No activar, editar ni limitar `WorkflowCentroTrabajoModernActive`, usuarios o grupos: la experiencia moderna es oficial para todo contexto Workflow válido.
+- Las suites de preview no modifican el flujo legacy. Un cambio de modernización aprobado puede ajustar `workflow/`, pero debe conservar la semántica del fallback y demostrar ausencia de doble operación.
+- La entrega mantiene `WorkflowCentroTrabajoModernActive=false` con usuarios y grupos vacíos. Solo un runner aprobado, con autorización literal del ambiente, mutación y gate, puede habilitarlo durante una corrida y debe restaurar exactamente la configuración segura en `finally`.
 
 ## Preparación
 
@@ -182,7 +182,7 @@ Cada DOC adicional debe declarar en el registro común su lista estricta de camp
 
 ## Notas Workflow
 
-Las pruebas de Notas usan exclusivamente `tests/support/authenticated-workflow-session.cjs` y los contratos modernos de Notas con `idTarea` explícito. Son validaciones contractuales complementarias; la ejecución E2E de transición Workflow corresponde exclusivamente a DOC-32. No se permite usar `Session("ID_TAREA_SELECCIONDA")`, endpoints legacy, login alterno, `.env` ni valores de usuario, grupo, permiso o autor entregados por el cliente.
+Las pruebas de Notas usan exclusivamente `tests/support/authenticated-workflow-session.cjs` y los contratos modernos de Notas con `idTarea` explícito. DOC-44 posee la regresión E2E exclusiva del consumidor de Notas; DOC-32 conserva su transición de devolución de actividad. No se permite usar `Session("ID_TAREA_SELECCIONDA")`, endpoints legacy, login alterno, `.env` ni valores de usuario, grupo, permiso o autor entregados por el cliente.
 
 Los comandos `test:notes:*` precargan desde valores no sensibles la raíz local de Gestión, módulo y ambiente `GESTOR` (se pueden sustituir por variables efímeras no sensibles del mismo nombre) y solicitan directamente en una consola interactiva solo los datos de cuenta, las confirmaciones y las tareas. La contraseña Workflow y la contraseña MySQL se capturan ocultas; el control de base de datos reutiliza exclusivamente el DSN ODBC no sensible `workflowconta` y solicita el usuario MySQL de solo lectura. No se acepta URL ni cadena de conexión MySQL, ni se deben cargar secretos manualmente, persistir con `setx` ni pegar en el chat. Sin TTY, el comando se detiene antes de iniciar sesión o abrir un navegador.
 
@@ -206,4 +206,11 @@ npm.cmd --prefix tools/e2e run test:notes:write
 npm.cmd --prefix tools/e2e run test:notes:concurrency
 ```
 
-La evidencia de Notas solo conserva modo, códigos, conteos, latencias, banderas y huellas. No guarda el contenido de notas, identificadores de nota, credenciales, cookies, tokens, usuarios, destinos, cadenas de conexión ni cuerpos HTTP. Al cierre aplique todos los controles de la sección "Cierre de cada corrida": gate apagado con listas vacías y páginas legacy sin cambios.
+La regresión DOC-44 agrega lecturas negativas sobre tarea ajena/inactiva y nota cruzada, además de un CRUD sobre una tarea descartable. Requiere tres confirmaciones independientes y restaura el gate aunque falle:
+
+```powershell
+npm.cmd --prefix tools/e2e run inspect:doc44:test-data
+npm.cmd --prefix tools/e2e run test:doc44:workflow-notes
+```
+
+La evidencia de Notas solo conserva modo, códigos, conteos, latencias, banderas y huellas. No guarda el contenido de notas, credenciales, cookies, tokens, usuarios, destinos, cadenas de conexión ni cuerpos HTTP. Al cierre aplique todos los controles de la sección "Cierre de cada corrida": gate apagado, listas vacías y fallback legacy disponible.
