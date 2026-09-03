@@ -139,15 +139,6 @@ Partial Public Class Webworkflow
     Protected WithEvents Panel_autoterminar As Global.System.Web.UI.WebControls.Panel
 
     '''<summary>
-    '''Control Panel_Buttonanotacion.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Panel_Buttonanotacion As Global.System.Web.UI.WebControls.Panel
-
-    '''<summary>
     '''Control Panel_autoriza.
     '''</summary>
     '''<remarks>
@@ -254,24 +245,6 @@ Partial Public Class Webworkflow
     '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
     '''</remarks>
     Protected WithEvents ImageButtonpendiente As Global.System.Web.UI.WebControls.ImageButton
-
-    '''<summary>
-    '''Control ImageButtonanotacion.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents ImageButtonanotacion As Global.System.Web.UI.WebControls.ImageButton
-
-    '''<summary>
-    '''Control ImageButtonanotacion_.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents ImageButtonanotacion_ As Global.System.Web.UI.WebControls.ImageButton
 
     '''<summary>
     '''Control ImageButtonautoterminar.
@@ -1901,150 +1874,6 @@ Partial Public Class Webworkflow
     '''To modify move field declaration from designer file to code-behind file.
     '''</remarks>
     Protected WithEvents Panel_notas_modernas As Global.System.Web.UI.WebControls.Panel
-
-    '''<summary>
-    '''Control Panel_content_anotacion.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Panel_content_anotacion As Global.System.Web.UI.WebControls.Panel
-
-    '''<summary>
-    '''Control ModalPopupExtender_edition_content_anotacion.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents ModalPopupExtender_edition_content_anotacion As Global.AjaxControlToolkit.ModalPopupExtender
-
-    '''<summary>
-    '''Control LabelTitulo.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents LabelTitulo As Global.System.Web.UI.WebControls.Label
-
-    '''<summary>
-    '''Control UpdatePanelanotacion.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents UpdatePanelanotacion As Global.System.Web.UI.UpdatePanel
-
-    '''<summary>
-    '''Control Panel_content_anotacion_gred.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Panel_content_anotacion_gred As Global.System.Web.UI.WebControls.Panel
-
-    '''<summary>
-    '''Control GridView_lista_notas.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents GridView_lista_notas As Global.System.Web.UI.WebControls.GridView
-
-    '''<summary>
-    '''Control hdnidlista.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents hdnidlista As Global.System.Web.UI.HtmlControls.HtmlInputHidden
-
-    '''<summary>
-    '''Control Button_content_anotacion.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Button_content_anotacion As Global.System.Web.UI.WebControls.Button
-
-    '''<summary>
-    '''Control ButtonSalir_content_anotacion_.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents ButtonSalir_content_anotacion_ As Global.System.Web.UI.WebControls.Button
-
-    '''<summary>
-    '''Control Button_cerrar_content_anotacion.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Button_cerrar_content_anotacion As Global.System.Web.UI.WebControls.Button
-
-    '''<summary>
-    '''Control Panel_nota_respuesta.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Panel_nota_respuesta As Global.System.Web.UI.WebControls.Panel
-
-    '''<summary>
-    '''Control ModalPopupExtender_edition_nota_respuesta.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents ModalPopupExtender_edition_nota_respuesta As Global.AjaxControlToolkit.ModalPopupExtender
-
-    '''<summary>
-    '''Control Label_nota_respuesta.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Label_nota_respuesta As Global.System.Web.UI.WebControls.Label
-
-    '''<summary>
-    '''Control Button_nota_respuesta.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Button_nota_respuesta As Global.System.Web.UI.WebControls.Button
-
-    '''<summary>
-    '''Control ButtonSalir_nota_respuesta.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents ButtonSalir_nota_respuesta As Global.System.Web.UI.WebControls.Button
-
-    '''<summary>
-    '''Control Button_cerrar_nota_respuesta.
-    '''</summary>
-    '''<remarks>
-    '''Campo generado automáticamente.
-    '''Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-    '''</remarks>
-    Protected WithEvents Button_cerrar_nota_respuesta As Global.System.Web.UI.WebControls.Button
 
     '''<summary>
     '''Control Panel_detalle_flujo.

@@ -73,7 +73,8 @@ Public Class MySqlNotasWorkflowRepository
                         .IdActividadOrigen = idActividad,
                         .Contenido = Texto(reader, "CONTENIDO_VERSION"),
                         .Version = VersionNota(idNota, idTarea, idAutor, idActividad, 1, Texto(reader, "CONTENIDO_VERSION")),
-                        .FechaCreacionUtc = FechaUtc(reader, "FECHA_CREACION")
+                        .FechaCreacionUtc = FechaUtc(reader, "FECHA_CREACION"),
+                        .PuedeGestionar = idAutor = contexto.IdUsuarioWorkflow AndAlso idActividad = tarea.IdActividadOrigen
                     })
                 End While
                 Return resultado
@@ -132,7 +133,7 @@ Public Class MySqlNotasWorkflowRepository
                 Const auditar As String = "INSERT INTO wf_log_workflow (usuario_workflow_idU_suario, fecha_hora, operacion, ID_TAREA_WORKFLOW, datos_operacion, opcion, descripcion_opcion, ip_transacion, id_operacion) VALUES (@idUsuario, UTC_TIMESTAMP(), 'Agrega', @idTarea, @datos, 1, 'NOTA WORKFLOW', '', @idNota)"
                 EjecutorDatos.ExecuteNonQuery(connection, transaction, auditar, New List(Of IDataParameter) From {Parametro("@idUsuario", contexto.IdUsuarioWorkflow), Parametro("@idTarea", tarea.IdTarea), Parametro("@datos", "correlacion=" & solicitud.IdSolicitudCliente & ";actividad=" & tarea.IdActividadOrigen.ToString(CultureInfo.InvariantCulture) & ";resultado=OK;version_resultante=" & version & ";longitud_nueva=" & solicitud.Contenido.Length.ToString(CultureInfo.InvariantCulture) & ";sha256_nuevo=" & HashSha256(solicitud.Contenido)), Parametro("@idNota", idNota)})
                 EjecutorDatos.ExecuteNonQuery(connection, transaction, "UPDATE workflow_notas_idempotencia SET Id_Anotacion=@idNota, Version_Resultado=@version, Codigo_Resultado='OK' WHERE Inicio_Tareas_Workflow_id_Tarea=@idTarea AND Id_Usuario_Workflow=@idUsuario AND Client_Request_Id=@requestId", New List(Of IDataParameter) From {Parametro("@idNota", idNota), Parametro("@version", version), Parametro("@idTarea", tarea.IdTarea), Parametro("@idUsuario", contexto.IdUsuarioWorkflow), Parametro("@requestId", solicitud.IdSolicitudCliente)})
-                Return New ResultadoNotasWorkflow With {.Codigo = CodigosResultadoNotasWorkflow.Exito, .Nota = New NotaWorkflow With {.IdNota = idNota, .IdTarea = tarea.IdTarea, .IdAutorWorkflow = contexto.IdUsuarioWorkflow, .IdActividadOrigen = tarea.IdActividadOrigen, .Contenido = solicitud.Contenido, .Version = version}}
+                Return New ResultadoNotasWorkflow With {.Codigo = CodigosResultadoNotasWorkflow.Exito, .Nota = New NotaWorkflow With {.IdNota = idNota, .IdTarea = tarea.IdTarea, .IdAutorWorkflow = contexto.IdUsuarioWorkflow, .IdActividadOrigen = tarea.IdActividadOrigen, .Contenido = solicitud.Contenido, .Version = version, .PuedeGestionar = True}}
             End Function)
         Catch ex As ResultadoFuncionalNotasException
             Return ex.Resultado
@@ -175,7 +176,8 @@ Public Class MySqlNotasWorkflowRepository
                     .IdActividadOrigen = idActividad,
                     .Version = VersionNota(idNota, idTarea, idAutor, idActividad, 1, contenido),
                     .Contenido = contenido,
-                    .FechaCreacionUtc = FechaUtc(reader, "FECHA_CREACION")
+                    .FechaCreacionUtc = FechaUtc(reader, "FECHA_CREACION"),
+                    .PuedeGestionar = idAutor = contexto.IdUsuarioWorkflow AndAlso idActividad = tarea.IdActividadOrigen
                 }
             End Function)
         If nota Is Nothing Then
@@ -195,9 +197,9 @@ Public Class MySqlNotasWorkflowRepository
                 Dim version As String = VersionNota(solicitud.IdNota, tarea.IdTarea, contexto.IdUsuarioWorkflow, tarea.IdActividadOrigen, 1, solicitud.Contenido)
                 Const sql As String = "UPDATE ANOTACION_TAREA AS at INNER JOIN workflow_notas_version AS vn ON vn.Id_Anotacion=at.ID_ANOTACION AND vn.Inicio_Tareas_Workflow_id_Tarea=at.INICIO_TAREAS_WORKFLOW_ID_TAREA AND vn.Id_Usuario_Workflow=at.ID_USUARIO SET at.DATO_ANOTACION=@contenido, vn.Version_Nota=@versionResultante, vn.Fecha_Actualizacion=UTC_TIMESTAMP() WHERE at.ID_ANOTACION=@idNota AND at.INICIO_TAREAS_WORKFLOW_ID_TAREA=@idTarea AND at.ID_USUARIO=@idUsuario AND at.ID_ACTIVIDAD=@idActividad AND at.ESTADO_TAREA=1 AND vn.Version_Nota=@version AND " & CondicionTareaOperativa
                 Dim afectados As Integer = EjecutorDatos.ExecuteNonQuery(connection, transaction, sql, New List(Of IDataParameter) From {Parametro("@contenido", solicitud.Contenido), Parametro("@versionResultante", version), Parametro("@idNota", solicitud.IdNota), Parametro("@idTarea", tarea.IdTarea), Parametro("@idUsuario", contexto.IdUsuarioWorkflow), Parametro("@idActividad", tarea.IdActividadOrigen), Parametro("@version", solicitud.Version)})
-                If afectados <= 0 Then Return New ResultadoNotasWorkflow With {.Codigo = CodigosResultadoNotasWorkflow.VersionConflict, .MensajeFuncional = "La versión de la nota ya no está vigente."}
+                If afectados <= 0 Then Return DiagnosticarMutacionNoAplicada(connection, transaction, contexto, tarea, solicitud.IdNota)
                 EjecutorDatos.ExecuteNonQuery(connection, transaction, "INSERT INTO wf_log_workflow (usuario_workflow_idU_suario, fecha_hora, operacion, ID_TAREA_WORKFLOW, datos_operacion, opcion, descripcion_opcion, ip_transacion, id_operacion) VALUES (@idUsuario, UTC_TIMESTAMP(), 'Actualiza', @idTarea, @datos, 2, 'NOTA WORKFLOW', '', @idNota)", New List(Of IDataParameter) From {Parametro("@idUsuario", contexto.IdUsuarioWorkflow), Parametro("@idTarea", tarea.IdTarea), Parametro("@datos", "actividad=" & tarea.IdActividadOrigen.ToString(CultureInfo.InvariantCulture) & ";resultado=OK;version_anterior=" & solicitud.Version & ";version_resultante=" & version & ";longitud_nueva=" & solicitud.Contenido.Length.ToString(CultureInfo.InvariantCulture) & ";sha256_nuevo=" & HashSha256(solicitud.Contenido)), Parametro("@idNota", solicitud.IdNota)})
-                Return New ResultadoNotasWorkflow With {.Codigo = CodigosResultadoNotasWorkflow.Exito, .Nota = New NotaWorkflow With {.IdNota = solicitud.IdNota, .IdTarea = tarea.IdTarea, .IdAutorWorkflow = contexto.IdUsuarioWorkflow, .IdActividadOrigen = tarea.IdActividadOrigen, .Contenido = solicitud.Contenido, .Version = version}}
+                Return New ResultadoNotasWorkflow With {.Codigo = CodigosResultadoNotasWorkflow.Exito, .Nota = New NotaWorkflow With {.IdNota = solicitud.IdNota, .IdTarea = tarea.IdTarea, .IdAutorWorkflow = contexto.IdUsuarioWorkflow, .IdActividadOrigen = tarea.IdActividadOrigen, .Contenido = solicitud.Contenido, .Version = version, .PuedeGestionar = True}}
             End Function)
         Catch
             Return NoDisponible()
@@ -213,7 +215,7 @@ Public Class MySqlNotasWorkflowRepository
             Return EjecutarEnTransaccion(contexto, Function(connection As IDbConnection, transaction As IDbTransaction) As ResultadoNotasWorkflow
                 Const sql As String = "DELETE at, vn FROM ANOTACION_TAREA AS at INNER JOIN workflow_notas_version AS vn ON vn.Id_Anotacion=at.ID_ANOTACION AND vn.Inicio_Tareas_Workflow_id_Tarea=at.INICIO_TAREAS_WORKFLOW_ID_TAREA AND vn.Id_Usuario_Workflow=at.ID_USUARIO WHERE at.ID_ANOTACION=@idNota AND at.INICIO_TAREAS_WORKFLOW_ID_TAREA=@idTarea AND at.ID_USUARIO=@idUsuario AND at.ID_ACTIVIDAD=@idActividad AND at.ESTADO_TAREA=1 AND vn.Version_Nota=@version AND " & CondicionTareaOperativa
                 Dim afectados As Integer = EjecutorDatos.ExecuteNonQuery(connection, transaction, sql, New List(Of IDataParameter) From {Parametro("@idNota", solicitud.IdNota), Parametro("@idTarea", tarea.IdTarea), Parametro("@idUsuario", contexto.IdUsuarioWorkflow), Parametro("@idActividad", tarea.IdActividadOrigen), Parametro("@version", solicitud.Version)})
-                If afectados <= 0 Then Return New ResultadoNotasWorkflow With {.Codigo = CodigosResultadoNotasWorkflow.VersionConflict, .MensajeFuncional = "La versión de la nota ya no está vigente."}
+                If afectados <= 0 Then Return DiagnosticarMutacionNoAplicada(connection, transaction, contexto, tarea, solicitud.IdNota)
                 EjecutorDatos.ExecuteNonQuery(connection, transaction, "INSERT INTO wf_log_workflow (usuario_workflow_idU_suario, fecha_hora, operacion, ID_TAREA_WORKFLOW, datos_operacion, opcion, descripcion_opcion, ip_transacion, id_operacion) VALUES (@idUsuario, UTC_TIMESTAMP(), 'Elimina', @idTarea, @datos, 3, 'NOTA WORKFLOW', '', @idNota)", New List(Of IDataParameter) From {Parametro("@idUsuario", contexto.IdUsuarioWorkflow), Parametro("@idTarea", tarea.IdTarea), Parametro("@datos", "actividad=" & tarea.IdActividadOrigen.ToString(CultureInfo.InvariantCulture) & ";resultado=OK;eliminada=1;version_anterior=" & solicitud.Version), Parametro("@idNota", solicitud.IdNota)})
                 Return New ResultadoNotasWorkflow With {.Codigo = CodigosResultadoNotasWorkflow.Exito}
             End Function)
@@ -311,6 +313,23 @@ Public Class MySqlNotasWorkflowRepository
         }
     End Function
 
+    Private Function DiagnosticarMutacionNoAplicada(ByVal connection As IDbConnection,
+                                                      ByVal transaction As IDbTransaction,
+                                                      ByVal contexto As ContextoModuloWorkflow,
+                                                      ByVal tarea As TareaWorkflow,
+                                                      ByVal idNota As Long) As ResultadoNotasWorkflow
+        Const sql As String = "SELECT COALESCE(ID_USUARIO, 0) FROM ANOTACION_TAREA WHERE ID_ANOTACION=@idNota AND INICIO_TAREAS_WORKFLOW_ID_TAREA=@idTarea AND ESTADO_TAREA=1 LIMIT 1"
+        Dim autor As Object = EjecutorDatos.ExecuteScalar(connection, transaction, sql,
+            New List(Of IDataParameter) From {Parametro("@idNota", idNota), Parametro("@idTarea", tarea.IdTarea)})
+        If autor Is Nothing OrElse autor Is DBNull.Value Then
+            Return New ResultadoNotasWorkflow With {.Codigo = CodigosResultadoNotasWorkflow.NoteNotFound, .MensajeFuncional = "La nota solicitada no está disponible."}
+        End If
+        If Convert.ToInt32(autor, CultureInfo.InvariantCulture) <> contexto.IdUsuarioWorkflow Then
+            Return New ResultadoNotasWorkflow With {.Codigo = CodigosResultadoNotasWorkflow.NotOwner, .MensajeFuncional = "La nota solo puede ser gestionada por su autor."}
+        End If
+        Return New ResultadoNotasWorkflow With {.Codigo = CodigosResultadoNotasWorkflow.VersionConflict, .MensajeFuncional = "La versión de la nota ya no está vigente."}
+    End Function
+
     Private Shared Function RespuestaIdempotente(ByVal value As Object,
                                                   ByVal tarea As TareaWorkflow,
                                                   ByVal contexto As ContextoModuloWorkflow) As NotaWorkflow
@@ -329,7 +348,8 @@ Public Class MySqlNotasWorkflowRepository
             .IdTarea = tarea.IdTarea,
             .IdAutorWorkflow = contexto.IdUsuarioWorkflow,
             .IdActividadOrigen = tarea.IdActividadOrigen,
-            .Version = version
+            .Version = version,
+            .PuedeGestionar = True
         }
     End Function
 

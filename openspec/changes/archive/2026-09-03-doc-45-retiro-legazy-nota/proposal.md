@@ -4,10 +4,12 @@ RETIRO-LEGAZY-NOTA. Ver detalle funcional completo del ticket en la seccion Jira
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-45.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se retira del Centro de Trabajo Workflow el consumidor visual legacy de Notas y la rutina duplicada sin consumidores.
+- Se conserva únicamente el legacy compartido que todavía utilizan Radicación o Correspondencia.
+- Se integra en el mismo cambio la E2E real autorizada, reutilizando exclusivamente la infraestructura de `tools/e2e`.
+- Se exige evidencia saneada de ausencia del consumidor legacy, funcionamiento moderno, seguridad, build y rollback antes del cierre.
+- Se completa la experiencia moderna con lectura ampliada de notas extensas y capacidades de edición/eliminación calculadas por el servidor, de modo que las notas ajenas sean consultables pero nunca mutables.
+- Se hace descubrible la creación cuando una tarea no tiene notas, se preserva el acceso tras postbacks parciales de Web Forms y se corrigen regresiones visuales de acciones e índice sin cambiar sus permisos ni eventos.
 
 ## Jira Details
 
@@ -85,6 +87,7 @@ RETIRO-LEGAZY-NOTA. Ver detalle funcional completo del ticket en la seccion Jira
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
+- Retiro de la rutina duplicada y del consumidor visual legacy exclusivo de `Webworkflow`.
+- Evolución coordinada de DTO, modelo, repositorio, ASMX, markup, JavaScript y estilos de Notas modernas.
+- Reutilización y ampliación de la suite oficial bajo `tools/e2e`, incluida selección asíncrona, propiedad, CRUD y estado vacío.
+- Sin DDL, sin migración de datos y sin activación permanente del gate.

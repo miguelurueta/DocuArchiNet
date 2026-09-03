@@ -1,4 +1,7 @@
-.workflow-centro-trabajo-moderno.workflow-notes-modern { --notes-ink: #17233f; --notes-muted: #65708a; --notes-navy: #35477f; --notes-line: #dce2f1; background: #fff; border: 1px solid var(--notes-line); border-radius: 8px; box-shadow: 0 8px 24px rgba(20, 35, 70, .08); color: var(--notes-ink); overflow: hidden; }
+.workflow-centro-trabajo-moderno.workflow-notes-modern { --notes-ink: #17233f; --notes-muted: #65708a; --notes-navy: #35477f; --notes-line: #dce2f1; align-items: center; background: rgba(18, 30, 58, .45); color: var(--notes-ink); display: flex; inset: 0; justify-content: center; overflow: auto; padding: 18px; position: fixed; z-index: 10000; }
+.workflow-centro-trabajo-moderno.workflow-notes-modern[hidden] { display: none; }
+.workflow-centro-trabajo-moderno.workflow-notes-modern > .notes-shell { background: #fff; border: 1px solid var(--notes-line); border-radius: 8px; box-shadow: 0 20px 55px rgba(11, 22, 50, .28); display: flex; flex-direction: column; height: min(720px, calc(100vh - 36px)); max-width: 980px; overflow: hidden; width: 100%; }
+.ctw-notes-count { align-items: center; background: #eef1fb; border-radius: 999px; color: #35477f; display: inline-flex; font-size: 11px; font-weight: 700; justify-content: center; margin-left: 6px; min-height: 20px; min-width: 20px; padding: 0 6px; }
 .workflow-centro-trabajo-moderno .notes-head { align-items: center; border-bottom: 1px solid var(--notes-line); display: flex; gap: 16px; padding: 18px 22px; }
 .workflow-centro-trabajo-moderno .notes-title { align-items: center; display: flex; gap: 10px; }
 .workflow-centro-trabajo-moderno .notes-title h2 { font-size: 18px; margin: 0; }
@@ -9,11 +12,12 @@
 .workflow-centro-trabajo-moderno .btn-add { background: var(--notes-navy); border-color: var(--notes-navy); color: #fff; font-weight: 600; }
 .workflow-centro-trabajo-moderno .btn:hover, .workflow-centro-trabajo-moderno .icon-btn:hover { background: #eef1fb; }
 .workflow-centro-trabajo-moderno .btn-add:hover { background: #2b3b6d; }
+.workflow-centro-trabajo-moderno .btn-danger { border-color: #d69aa1; color: #a92536; }
 .workflow-centro-trabajo-moderno button:focus-visible, .workflow-centro-trabajo-moderno textarea:focus-visible { outline: 3px solid #2f72c4; outline-offset: 2px; }
 .workflow-centro-trabajo-moderno .notes-feedback { align-items: center; display: flex; gap: 10px; min-height: 24px; padding: 8px 22px; }
 .workflow-centro-trabajo-moderno [role="status"][data-state="error"], .workflow-centro-trabajo-moderno [role="status"][data-state="conflict"] { color: #9b2433; font-weight: 600; }
 .workflow-centro-trabajo-moderno [role="status"][data-state="success"] { color: #17633c; font-weight: 600; }
-.workflow-centro-trabajo-moderno .notes-list { list-style: none; margin: 0; padding: 0; }
+.workflow-centro-trabajo-moderno .notes-list { flex: 1 1 auto; list-style: none; margin: 0; min-height: 0; overflow-y: auto; padding: 0; }
 .workflow-centro-trabajo-moderno .note { border-bottom: 1px solid var(--notes-line); display: grid; gap: 13px; grid-template-columns: 40px minmax(0, 1fr) auto; padding: 19px 22px; }
 .workflow-centro-trabajo-moderno .note:last-child { border-bottom: 0; }
 .workflow-centro-trabajo-moderno .avatar { align-items: center; background: #dcecff; border-radius: 50%; color: #0051a8; display: flex; font-weight: 700; height: 38px; justify-content: center; width: 38px; }
@@ -21,7 +25,10 @@
 .workflow-centro-trabajo-moderno .note-meta { align-items: baseline; display: flex; flex-wrap: wrap; gap: 5px 9px; }
 .workflow-centro-trabajo-moderno .author { font-weight: 700; }
 .workflow-centro-trabajo-moderno time { color: var(--notes-muted); font-size: 12px; margin-left: auto; }
-.workflow-centro-trabajo-moderno .note-content { color: #33405b; margin: 9px 0 0; max-width: 78ch; overflow-wrap: anywhere; white-space: pre-wrap; }
+.workflow-centro-trabajo-moderno .note-content { color: #33405b; display: -webkit-box; margin: 9px 0 0; max-width: 78ch; overflow: hidden; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 5; white-space: pre-wrap; }
+.workflow-centro-trabajo-moderno .note-viewer { display: flex; flex-direction: column; height: min(560px, calc(100vh - 72px)); }
+.workflow-centro-trabajo-moderno .note-viewer-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.workflow-centro-trabajo-moderno .note-viewer-content { color: #33405b; margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
 .workflow-centro-trabajo-moderno .note-actions { align-items: start; display: flex; gap: 6px; }
 .workflow-centro-trabajo-moderno .icon-btn { align-items: center; display: inline-flex; justify-content: center; min-width: 40px; }
 .workflow-centro-trabajo-moderno .icon-btn.delete { color: #a92536; }

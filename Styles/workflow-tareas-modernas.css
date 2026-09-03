@@ -198,6 +198,33 @@
   height: 34px;
 }
 
+/* DOC-45: los botones se crean dinámicamente y deben conservar su semántica
+   cromática aunque otra hoja normalice el fondo genérico de `.btn`. */
+#GridView2 td:first-child .btn-primary {
+  background-color: #0062cc !important;
+  border-color: #005cbf !important;
+}
+
+#GridView2 td:first-child .btn-info {
+  background-color: #138496 !important;
+  border-color: #117a8b !important;
+}
+
+#GridView2 td:first-child .btn-warning {
+  background-color: #d39e00 !important;
+  border-color: #c69500 !important;
+}
+
+#GridView2 td:first-child .btn-success {
+  background-color: #218838 !important;
+  border-color: #1e7e34 !important;
+}
+
+#GridView2 td:first-child .btn > i,
+#GridView2 td:first-child .btn > svg {
+  color: #fff !important;
+}
+
 /* Buscador de tareas: conserva eventos y autocompletado, mejora legibilidad. */
 #auto_complex {
   height: 36px;

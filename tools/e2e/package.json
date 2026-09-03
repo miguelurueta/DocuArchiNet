@@ -40,6 +40,9 @@
     "test:doc43:notes-ui": "node scripts/run-doc43-notes-ui-interactive.cjs",
     "test:doc44:policy": "node --test tests/doc44-workflow-notes-policy.test.cjs",
     "test:doc44:workflow-notes": "node scripts/run-doc44-workflow-notes-interactive.cjs",
+    "test:doc45:empty-notes": "node scripts/run-doc44-workflow-notes-interactive.cjs empty",
+    "test:doc45:unassigned-color": "node scripts/run-doc44-workflow-notes-interactive.cjs unassigned-color",
+    "test:doc45:policy": "node --test tests/doc45-notes-legacy-retirement-policy.test.cjs",
     "inspect:doc44:test-data": "node scripts/inspect-doc44-test-data-interactive.cjs",
     "inspect:notes:schema": "node scripts/inspect-notes-column-schema-interactive.cjs"
   },

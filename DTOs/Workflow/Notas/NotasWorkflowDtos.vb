@@ -11,6 +11,8 @@ Public Class NotaWorkflowDto
     Public Property Contenido As String
     Public Property Version As String
     Public Property FechaCreacionUtc As DateTime
+    'Capacidad de UI calculada por el servidor; nunca se recibe como entrada del cliente.
+    Public Property PuedeGestionar As Boolean
 End Class
 
 <Serializable()>
