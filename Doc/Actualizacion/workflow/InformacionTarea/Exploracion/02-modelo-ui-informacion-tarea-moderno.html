@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Modelo UX/UI — Información de la tarea</title>
+  <style>
+    :root {
+      --navy:#35477f; --blue:#0062cc; --ink:#202d47; --muted:#69758b;
+      --line:#dce2f1; --pale:#eef1fb; --bg:#f5f7fb; --success:#18794e;
+      --danger:#ad3741; --warning:#9a6700; --radius:8px;
+      --shadow:0 16px 42px rgba(32,45,71,.2);
+    }
+    * { box-sizing:border-box }
+    body { margin:0; min-width:320px; background:var(--bg); color:var(--ink); font:14px/1.45 "Segoe UI",Arial,sans-serif }
+    button,input { font:inherit }
+    button { cursor:pointer }
+    button:focus-visible,input:focus-visible,[tabindex]:focus-visible { outline:3px solid rgba(0,98,204,.3); outline-offset:2px }
+    [hidden] { display:none!important }
+    .prototype { padding:7px 18px; background:#fff7e5; border-bottom:1px solid #f0d89b; color:#6c4b00; text-align:center; font-size:12px }
+    .topbar { height:56px; display:flex; align-items:center; gap:18px; padding:0 24px; background:#fff; border-bottom:1px solid var(--line) }
+    .hamburger { color:var(--navy); font-size:21px }
+    .brand { color:var(--navy); font-size:16px }
+    .user { margin-left:auto; color:var(--navy); font-size:12px; font-weight:700 }
+    .actions { position:relative; display:flex; align-items:center; gap:12px; padding:14px 24px; background:#fff; border-bottom:1px solid var(--line) }
+    .btn { min-height:38px; padding:8px 14px; border:1px solid #c8d3e8; border-radius:7px; background:#fff; color:var(--navy); font-weight:600 }
+    .btn:hover { background:#f5f8ff }
+    .btn.primary { border-color:var(--navy); background:var(--navy); color:#fff }
+    .btn.icon { display:grid; width:38px; padding:0; place-items:center; font-size:18px }
+    .detail-menu { position:absolute; z-index:3; top:56px; left:24px; width:270px; padding:7px; background:#fff; border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow) }
+    .menu-label { display:block; padding:7px 10px 4px; color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.7px; text-transform:uppercase }
+    .detail-menu button { width:100%; padding:10px; border:0; border-radius:6px; background:transparent; color:var(--ink); text-align:left }
+    .detail-menu button:hover { background:var(--pale) }
+    .page { padding:20px 24px }
+    .task { display:flex; align-items:center; gap:16px; padding:16px 18px; background:#fff; border:1px solid var(--line); border-radius:var(--radius) }
+    .task h1 { margin:0 0 3px; font-size:17px }
+    .task p { margin:0; color:var(--muted) }
+    .state { margin-left:auto; padding:4px 10px; border-radius:14px; background:#e8f5ed; color:var(--success); font-size:12px; font-weight:700 }
+    .workspace { display:grid; min-height:540px; margin-top:14px; place-items:center; background:#fff; border:1px dashed #ccd7ea; border-radius:var(--radius); color:var(--muted) }
+    .backdrop { position:fixed; z-index:10; inset:0; display:grid; place-items:center; padding:22px; background:rgba(20,28,47,.5) }
+    .modal { display:flex; flex-direction:column; width:min(720px,96vw); height:min(760px,92vh); overflow:hidden; background:#fff; border-radius:12px; box-shadow:var(--shadow) }
+    .modal-head { flex:0 0 auto; display:flex; align-items:flex-start; gap:14px; padding:18px 20px; border-bottom:1px solid var(--line) }
+    .modal-head h2 { margin:0; font-size:19px }
+    .modal-head p { margin:3px 0 0; color:var(--muted) }
+    .modal-head .close { margin-left:auto }
+    .task-summary { flex:0 0 auto; display:grid; grid-template-columns:1.4fr 1fr auto; gap:12px; align-items:center; padding:14px 20px; background:var(--pale); border-bottom:1px solid var(--line) }
+    .eyebrow { display:block; color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.5px; text-transform:uppercase }
+    .summary-value { display:block; margin-top:2px; font-weight:700 }
+    .status { padding:4px 10px; border-radius:14px; background:#e8f5ed; color:var(--success); font-size:12px; font-weight:700 }
+    .toolbar { flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:12px 20px; border-bottom:1px solid var(--line) }
+    .search { flex:1; height:38px; padding:8px 11px; border:1px solid #c8d3e8; border-radius:7px; color:var(--ink) }
+    .content { flex:1 1 auto; min-height:0; overflow:auto; padding:18px 20px; scroll-behavior:smooth }
+    .section { margin-bottom:18px; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden }
+    .section-head { display:flex; align-items:center; gap:8px; width:100%; padding:12px 14px; border:0; background:#fafbfe; color:var(--ink); text-align:left; font-weight:700 }
+    .section-head span:last-child { margin-left:auto; color:var(--muted) }
+    .section-body { display:grid; grid-template-columns:1fr 1fr; gap:0; padding:0 14px }
+    .field { min-width:0; padding:13px 6px; border-bottom:1px solid #edf0f6 }
+    .field.full { grid-column:1/-1 }
+    .field-label { display:block; margin-bottom:4px; color:var(--muted); font-size:11px; font-weight:700; letter-spacing:.25px; text-transform:uppercase }
+    .field-value { display:block; overflow-wrap:anywhere; font-weight:600 }
+    .field[data-match="false"] { display:none }
+    .long-value { display:-webkit-box; overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:2; font-weight:400 }
+    .long-value.expanded { display:block }
+    .text-button { margin-top:6px; padding:0; border:0; background:transparent; color:var(--blue); font-weight:600 }
+    .technical-note { display:flex; gap:9px; padding:11px 13px; border:1px solid #f0d89b; border-radius:7px; background:#fff9e9; color:#6c4b00; font-size:12px }
+    .empty,.error,.loading { display:grid; min-height:390px; place-items:center; text-align:center }
+    .empty h3,.error h3 { margin:0 0 6px }
+    .empty p,.error p { max-width:390px; margin:0 0 16px; color:var(--muted) }
+    .error { color:var(--danger) }
+    .spinner { width:34px; height:34px; margin:auto; border:4px solid var(--pale); border-top-color:var(--navy); border-radius:50%; animation:spin .8s linear infinite }
+    @keyframes spin { to { transform:rotate(360deg) } }
+    .feedback { flex:0 0 auto; min-height:38px; padding:9px 20px; border-top:1px solid #d7eee1; background:#f4fbf7; color:var(--success) }
+    .modal-footer { flex:0 0 auto; display:flex; justify-content:flex-end; padding:12px 20px; border-top:1px solid var(--line) }
+    .demo { position:fixed; z-index:30; right:12px; bottom:12px; display:flex; gap:5px; padding:6px; border:1px solid var(--line); border-radius:8px; background:#fff; box-shadow:var(--shadow) }
+    .demo button { padding:5px 8px; border:0; border-radius:5px; background:var(--pale); color:var(--navy); font-size:11px }
+    @media (max-width:620px) {
+      .backdrop { padding:0 }
+      .modal { width:100vw; height:100vh; border-radius:0 }
+      .task-summary { grid-template-columns:1fr auto }
+      .task-summary > div:nth-child(2) { grid-column:1/-1; grid-row:2 }
+      .section-body { grid-template-columns:1fr }
+      .field.full { grid-column:auto }
+      .demo { display:none }
+    }
+  </style>
+</head>
+<body>
+  <div class="prototype">Prototipo de exploración — información ficticia y sin conexión al servicio Workflow</div>
+  <header class="topbar"><span class="hamburger">☰</span><span class="brand">FLUJOS Y TAREAS</span><span class="user">USUARIO.DEMO · Workflow</span></header>
+  <nav class="actions" aria-label="Acciones de la tarea">
+    <button class="btn" id="detail-button" aria-expanded="false" aria-controls="detail-menu">▣ Detalle ▾</button>
+    <div class="detail-menu" id="detail-menu" hidden>
+      <span class="menu-label">Información</span>
+      <button id="open-info">ⓘ Información de la tarea</button>
+      <button>▤ Detalle del trámite</button>
+      <button>≡ Transacciones del trámite</button>
+      <span class="menu-label">Trazabilidad</span>
+      <button>◷ Trazabilidad de la tarea</button>
+    </div>
+    <button class="btn">Devolver ▾</button><button class="btn primary">Continuar flujo</button>
+  </nav>
+  <main class="page">
+    <section class="task"><div><h1>FACTURA INTERNA</h1><p>Radicado 2026-DEMO-00142 · Beneficiario Empresa de demostración</p></div><span class="state">En trámite</span></section>
+    <section class="workspace">Abra “Detalle → Información de la tarea” para explorar la propuesta.</section>
+  </main>
+
+  <div class="backdrop" id="info-backdrop" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="info-title" aria-describedby="info-description">
+      <header class="modal-head">
+        <div><h2 id="info-title">Información de la tarea</h2><p id="info-description">Resumen funcional y datos asociados al trámite</p></div>
+        <button class="btn icon close" id="close-info" aria-label="Cerrar información de la tarea">×</button>
+      </header>
+      <div class="task-summary">
+        <div><span class="eyebrow">Radicado</span><span class="summary-value">2026-DEMO-00142</span></div>
+        <div><span class="eyebrow">Trámite</span><span class="summary-value">Factura interna</span></div>
+        <span class="status">En trámite</span>
+      </div>
+      <div class="toolbar"><input class="search" id="field-search" type="search" placeholder="Buscar dentro de la información…" aria-label="Buscar campos de la tarea"><button class="btn" id="refresh">↻ Actualizar</button></div>
+      <div class="content" id="info-content">
+        <div class="loading" id="loading" hidden><div><div class="spinner" aria-hidden="true"></div><p>Cargando información de la tarea…</p></div></div>
+        <div class="error" id="error" hidden><div><h3>No fue posible cargar la información</h3><p>La tarea permanece seleccionada. Intente nuevamente.</p><button class="btn" id="retry">Reintentar</button></div></div>
+        <div class="empty" id="empty" hidden><div><h3>No hay información disponible</h3><p>La tarea no tiene campos publicables para este usuario.</p><button class="btn" id="empty-close">Cerrar</button></div></div>
+        <div id="information">
+          <section class="section" data-section>
+            <button class="section-head" type="button" aria-expanded="true"><span>Resumen</span><span aria-hidden="true">⌃</span></button>
+            <div class="section-body">
+              <div class="field" data-search="beneficiario empresa demostracion"><span class="field-label">Beneficiario</span><span class="field-value">Empresa de demostración S.A.S.</span></div>
+              <div class="field" data-search="identificacion numero documento"><span class="field-label">Identificación</span><span class="field-value">*** *** 4106</span></div>
+              <div class="field" data-search="fecha radicacion"><span class="field-label">Fecha de radicación</span><span class="field-value">3 de septiembre de 2026, 9:25 a. m.</span></div>
+              <div class="field" data-search="fecha vencimiento"><span class="field-label">Fecha de vencimiento</span><span class="field-value">18 de septiembre de 2026</span></div>
+              <div class="field full" data-search="asunto descripcion"><span class="field-label">Asunto</span><span class="field-value long-value" id="subject">Validación y aprobación de factura correspondiente al período de demostración, con anexos de soporte y observaciones adicionales para el responsable de la actividad.</span><button class="text-button" id="toggle-subject" type="button" aria-expanded="false" aria-controls="subject">Ver completo</button></div>
+            </div>
+          </section>
+          <section class="section" data-section>
+            <button class="section-head" type="button" aria-expanded="true"><span>Workflow</span><span aria-hidden="true">⌃</span></button>
+            <div class="section-body">
+              <div class="field" data-search="actividad actual revision"><span class="field-label">Actividad actual</span><span class="field-value">Revisión contable</span></div>
+              <div class="field" data-search="ruta flujo aprobacion"><span class="field-label">Ruta</span><span class="field-value">Aprobación de facturas</span></div>
+              <div class="field" data-search="estado tarea"><span class="field-label">Estado de la tarea</span><span class="field-value">Activa y asignada</span></div>
+              <div class="field" data-search="fecha asignacion"><span class="field-label">Asignada desde</span><span class="field-value">3 de septiembre de 2026, 10:02 a. m.</span></div>
+            </div>
+          </section>
+          <section class="section" data-section>
+            <button class="section-head" type="button" aria-expanded="true"><span>Información adicional</span><span aria-hidden="true">⌃</span></button>
+            <div class="section-body">
+              <div class="field" data-search="subtotal valor moneda"><span class="field-label">Subtotal</span><span class="field-value">$ 2.450.000 COP</span></div>
+              <div class="field" data-search="centro costo"><span class="field-label">Centro de costo</span><span class="field-value">Administración</span></div>
+              <div class="field full" data-search="observacion adicional"><span class="field-label">Observación</span><span class="field-value">Información configurada como visible para esta Ruta.</span></div>
+            </div>
+          </section>
+          <div class="technical-note"><span aria-hidden="true">ⓘ</span><span>Los identificadores internos, nombres físicos de columnas y campos no autorizados no se muestran en esta vista.</span></div>
+        </div>
+      </div>
+      <div class="feedback" id="feedback" role="status" aria-live="polite">Información actualizada.</div>
+      <footer class="modal-footer"><button class="btn primary" id="accept-close">Cerrar</button></footer>
+    </section>
+  </div>
+
+  <div class="demo" aria-label="Simulación de estados"><button data-demo="data">Datos</button><button data-demo="empty">Vacío</button><button data-demo="error">Error</button><button data-demo="loading">Carga</button></div>
+  <script>
+    const $ = id => document.getElementById(id);
+    const state = {mode:'data',lastFocus:null};
+    function render() {
+      ['loading','error','empty','information'].forEach(id => $(id).hidden=true);
+      const target=state.mode==='data'?'information':state.mode;
+      $(target).hidden=false;
+      $('field-search').disabled=state.mode!=='data';
+    }
+    function openInfo() {
+      state.lastFocus=document.activeElement;
+      $('detail-menu').hidden=true;
+      $('detail-button').setAttribute('aria-expanded','false');
+      $('info-backdrop').hidden=false;
+      document.body.style.overflow='hidden';
+      state.mode='data'; render(); $('close-info').focus();
+    }
+    function closeInfo() {
+      $('info-backdrop').hidden=true;
+      document.body.style.overflow='';
+      state.lastFocus?.focus();
+    }
+    function refresh() {
+      state.mode='loading'; render(); $('feedback').textContent='Actualizando información…';
+      setTimeout(()=>{state.mode='data';render();$('feedback').textContent='Información actualizada.'},700);
+    }
+    $('detail-button').addEventListener('click',()=>{const wasHidden=$('detail-menu').hidden;$('detail-menu').hidden=!wasHidden;$('detail-button').setAttribute('aria-expanded',String(wasHidden))});
+    $('open-info').addEventListener('click',openInfo);
+    ['close-info','accept-close','empty-close'].forEach(id=>$(id).addEventListener('click',closeInfo));
+    $('refresh').addEventListener('click',refresh); $('retry').addEventListener('click',refresh);
+    $('field-search').addEventListener('input',e=>{const term=e.target.value.trim().toLocaleLowerCase('es');let visible=0;document.querySelectorAll('.field[data-search]').forEach(field=>{const match=!term||field.dataset.search.toLocaleLowerCase('es').includes(term)||field.textContent.toLocaleLowerCase('es').includes(term);field.dataset.match=String(match);if(match)visible++});$('feedback').textContent=term?`${visible} campos coinciden con la búsqueda.`:'Información actualizada.'});
+    document.querySelectorAll('.section-head').forEach(button=>button.addEventListener('click',()=>{const body=button.nextElementSibling;const expanded=button.getAttribute('aria-expanded')==='true';button.setAttribute('aria-expanded',String(!expanded));button.lastElementChild.textContent=expanded?'⌄':'⌃';body.hidden=expanded}));
+    $('toggle-subject').addEventListener('click',()=>{const expanded=$('toggle-subject').getAttribute('aria-expanded')==='true';$('toggle-subject').setAttribute('aria-expanded',String(!expanded));$('toggle-subject').textContent=expanded?'Ver completo':'Ver menos';$('subject').classList.toggle('expanded',!expanded)});
+    document.querySelectorAll('[data-demo]').forEach(button=>button.addEventListener('click',()=>{const mode=button.dataset.demo;if($('info-backdrop').hidden)openInfo();state.mode=mode;render()}));
+    $('info-backdrop').addEventListener('click',e=>{if(e.target===$('info-backdrop'))closeInfo()});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('info-backdrop').hidden)closeInfo()});
+  </script>
+</body>
+</html>
