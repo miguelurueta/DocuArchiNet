@@ -12,11 +12,11 @@ const uiSpec = fs.readFileSync(path.join(root, 'tools', 'e2e', 'tests', 'doc43-n
 const uiRunner = fs.readFileSync(path.join(root, 'tools', 'e2e', 'scripts', 'run-doc43-notes-ui-interactive.cjs'), 'utf8');
 const modernBlock = js.slice(js.indexOf('window.WorkflowNotesModern'), js.indexOf('//REGISTRA EVENTOS GREDVIEW GRUPO'));
 
-test('DOC-43 registra la UI de Notas detrás del gate y preserva legacy', () => {
+test('DOC-43 registra la UI moderna de Notas y DOC-45 retira el consumidor legacy', () => {
   assert.match(page, /data-workflow-notes-modern="true"/);
-  assert.match(codeBehind, /Panel_notas_modernas\.Visible = WorkflowCentroTrabajoModernActive/);
-  assert.match(codeBehind, /Panel_Buttonanotacion\.Visible = Not WorkflowCentroTrabajoModernActive/);
-  assert.match(page, /GridView_lista_notas/);
+  assert.match(codeBehind, /Panel_notas_modernas\.Visible = WorkflowCentroTrabajoModernPresentationEnabled/);
+  assert.doesNotMatch(codeBehind, /Panel_Buttonanotacion/);
+  assert.doesNotMatch(page, /GridView_lista_notas|ImageButtonanotacion/);
 });
 
 test('DOC-43 usa el contrato moderno completo con idTarea y versión explícitos', () => {
@@ -33,7 +33,7 @@ test('DOC-43 renderiza texto seguro y maneja conflicto y doble envío', () => {
   assert.doesNotMatch(modernBlock, /innerHTML/);
   assert.match(modernBlock, /VersionConflict/);
   assert.match(modernBlock, /save\.disabled = true/);
-  assert.match(modernBlock, /remove\.disabled = true/);
+  assert.match(modernBlock, /deleteAccept\.disabled = true/);
 });
 
 test('DOC-43 cubre estados recuperables y contenido especial sin HTML dinámico', () => {
@@ -48,10 +48,12 @@ test('DOC-43 cubre estados recuperables y contenido especial sin HTML dinámico'
 });
 
 test('DOC-43 recarga dos selecciones consecutivas con la tarea explícita vigente', () => {
-  assert.match(modernBlock, /let idTarea = input \? Number\(input\.value\) : 0/);
+  assert.match(modernBlock, /const getTaskInput = \(\) => document\.getElementById\(taskInputId\)/);
+  assert.match(modernBlock, /let idTarea = initialInput \? Number\(initialInput\.value\) : 0/);
   assert.match(modernBlock, /const selectedTaskId = input \? Number\(input\.value\) : 0/);
   assert.match(modernBlock, /idTarea = selectedTaskId/);
-  assert.match(modernBlock, /input\.addEventListener\('change', loadSelectedTask\)/);
+  assert.match(modernBlock, /document\.addEventListener\('change',[\s\S]*?loadSelectedTask\(\)/);
+  assert.match(modernBlock, /PageRequestManager\.getInstance\(\)\.add_endRequest\(loadSelectedTask\)/);
   assert.match(modernBlock, /if \(editor && !editor\.hidden\) closeEditor\(\)/);
 });
 
@@ -71,7 +73,7 @@ test('DOC-43 conserva la composición cronológica aprobada sin GridView moderno
   assert.match(page, /notes-subtitle/);
   assert.match(page, /notes-footer/);
   assert.match(styles, /grid-template-columns: 40px minmax\(0, 1fr\) auto/);
-  assert.doesNotMatch(page.slice(page.indexOf('Panel_notas_modernas'), page.indexOf('<!--nota_flujo-->')), /GridView/);
+  assert.doesNotMatch(page.slice(page.indexOf('<asp:Panel ID="Panel_notas_modernas"'), page.indexOf('<!--detalle_flujo-->')), /GridView/);
 });
 
 test('DOC-43 reutiliza sesión autenticada y captura secretos solo por consola', () => {

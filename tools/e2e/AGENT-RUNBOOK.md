@@ -72,14 +72,14 @@ El resultado esperado es `Active=false` y listas vacías. Si difiere, detener la
 | Notas lectura | `npm.cmd --prefix tools/e2e run test:notes:read` | Ambiente/cuenta autorizados, tarea con nota visible y MySQL solo lectura. | Validación contractual: listado/consulta sin cambios de estado o auditoría. |
 | Notas escritura | `npm.cmd --prefix tools/e2e run test:notes:write` | Autorización explícita, tarea descartable y MySQL solo lectura. | Validación contractual: crear idempotente, editar/conflicto/eliminar. |
 | Notas concurrencia | `npm.cmd --prefix tools/e2e run test:notes:concurrency` | Autorización doble, tarea descartable distinta, nota semilla propia y MySQL solo lectura. | Validación contractual: exactamente dos actualizaciones, una efectiva y un bloqueo seguro. |
-| DOC-43 UI Notas | `npm.cmd --prefix tools/e2e run test:doc43:notes-ui` | Ambiente/cuenta/tarea descartable autorizados y gate habilitado externamente durante la corrida. | Crear, editar y eliminar desde la UI moderna; falla cerrada si el panel no está visible. |
+| DOC-43/44/45 UI Notas | `npm.cmd --prefix tools/e2e run test:doc44:workflow-notes` | Ambiente, cuenta y tarea descartable expresamente autorizados; datos para lecturas negativas y una nota ajena perteneciente a la misma tarea. | La presentación moderna es única; una nota propia extensa valida lectura completa y una nota ajena valida ausencia de acciones y rechazo `NotOwner`, sin modificar el gate. |
 
 ## Cierre de cada corrida
 
 1. Conservar solo evidencia resumida sin secretos ni cuerpos de respuesta.
 2. Registrar ambiente, tipo de tarea, resultado y huellas cuando la evidencia pertenezca al cambio en curso.
 3. Confirmar que el gate siguió apagado y las listas vacías con el comando anterior.
-4. Ejecutar `git diff --name-only -- workflow/Webworkflow.aspx workflow/Webworkflow.aspx.vb`; no debe producir salida.
+4. Ejecutar `git diff --name-only -- workflow/Webworkflow.aspx workflow/Webworkflow.aspx.vb`; solo DOC con retiro o modernización explícitamente trazada puede contener esas rutas. Cualquier cambio no declarado detiene la corrida.
 5. No detener procesos residuales sin autorización explícita.
 
 ## DOC-11 mutante

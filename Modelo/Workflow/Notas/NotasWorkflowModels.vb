@@ -24,6 +24,7 @@ Public Class NotaWorkflow
     Public Property Contenido As String
     Public Property Version As String
     Public Property FechaCreacionUtc As DateTime
+    Public Property PuedeGestionar As Boolean
 End Class
 
 Public Class SolicitudListarNotasWorkflow

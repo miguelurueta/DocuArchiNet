@@ -150,6 +150,14 @@
   position: fixed !important;
   z-index: var(--ctw-z-index-toggle) !important;
   pointer-events: auto;
+  background-color: #6d7fcc !important;
+  border-color: #5b6db8 !important;
+  color: #fff !important;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #da_show-sidebar_ > i,
+.workflow-centro-trabajo-moderno.ctw-layer-layout #da_show-sidebar_ > svg {
+  color: #fff !important;
 }
 
 .workflow-centro-trabajo-moderno.ctw-layer-layout #error_div_selecion_tarea_wf,
@@ -1015,6 +1023,11 @@
   background: var(--ctw-pale);
   color: var(--ctw-blue) !important;
   outline: 0;
+}
+
+.workflow-centro-trabajo-moderno.ctw-layer-layout #title_indice #sidebarCollapse > i,
+.workflow-centro-trabajo-moderno.ctw-layer-layout #title_indice #sidebarCollapse > svg {
+  color: currentColor !important;
 }
 
 .workflow-centro-trabajo-moderno.ctw-layer-layout #Panel_indice {

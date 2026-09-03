@@ -146,7 +146,8 @@ Public Class WebServiceWorkflowNotesModern
             .IdTarea = nota.IdTarea,
             .Contenido = If(nota.Contenido, String.Empty),
             .Version = If(nota.Version, String.Empty),
-            .FechaCreacionUtc = nota.FechaCreacionUtc
+            .FechaCreacionUtc = nota.FechaCreacionUtc,
+            .PuedeGestionar = nota.PuedeGestionar
         }
     End Function
 

@@ -28,7 +28,7 @@
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
     <!-- Línea base visual aprobada antes de DOC-2: permanece activa para todos los usuarios. -->
     <link href="../Styles/gridview-moderno.css?v=20260807-phase2-6" rel="stylesheet" />
-    <link href="../Styles/workflow-tareas-modernas.css?v=20260811-grid44" rel="stylesheet" />
+    <link href="../Styles/workflow-tareas-modernas.css?v=20260903-doc45-icon-colors2" rel="stylesheet" />
     <link href="../Styles/workflow-documentos-relacionados-modernos.css?v=20260812-docrel23" rel="stylesheet" />
     <link href="../Styles/workflow-documentos-relacionados-titulo.css?v=20260808-title6" rel="stylesheet" />
     <script src="../js/workflow/workflow-paginacion-visual.js?v=20260807-pager6" type="text/javascript"></script>
@@ -71,13 +71,13 @@
      <script src="../js/java_general/row_multiple_gred.js" type="text/javascript"></script>
      <script src="../js/java_general/JSExpediente.js" type="text/javascript"></script>
      <script src="../js/java_general/gestion_meta_dato.js" type="text/javascript"></script>
-     <script src="../js/workflow/Webworkflow.js?v=20260812-taskclose53" type="text/javascript"></script>
+     <script src="../js/workflow/Webworkflow.js?v=20260903-doc45-empty-ready1" type="text/javascript"></script>
      <script src="../js/sesion/js_sesion_gestor.js" type="text/javascript"></script>
      <script src="../js/versiondocumento/gestion_version_documento.js" type="text/javascript"></script>
      <script src="../js/java_general/JS_firma_digital.js" type="text/javascript"></script>
      <script src="../js/java_general/general_control_java.js" type="text/javascript"></script>
      <script src="../js/java_general/ubicacion_code_java.js" type="text/javascript"></script>  
-      <link href="../Styles/workflow-centro-trabajo-moderno.css?v=20260820-modern-actions3" rel="stylesheet" type="text/css" />
+      <link href="../Styles/workflow-centro-trabajo-moderno.css?v=20260902-doc45-icon-colors1" rel="stylesheet" type="text/css" />
       <script src="../js/workflow/centro-trabajo-visual.js?v=20260821-modern-actions4" type="text/javascript"></script>
  <body  style="margin: 0;
     background-color : #ffffff" >
@@ -670,17 +670,6 @@
                                           </li>
                                       </ul>
                                   </asp:Panel>
-                                  <asp:Panel ID="Panel_Buttonanotacion" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
-                                      <ul class="navbar-nav">
-                                          <li class="nav-item active ml-2 ">
-                                              <a class="nav-link" href="#" title="Notas" aria-label="Abrir notas" onclick="activa_boton_client_server('ImageButtonanotacion');">
-                                                  <i style="color: #0062cc" class="fad fa-sticky-note"></i>
-                                                  <span id="nota_db">Notas</span>
-                                              </a>
-                                             
-                                          </li>
-                                      </ul>
-                                  </asp:Panel>
                                   <asp:Panel ID="Panel_autoriza" CssClass="navbar-nav " runat="server" data-workflow-task-action="true">
                                       <li class="nav-item dropdown active ml-2 mr-0 ctw-authorize-menu">
                                           <div class="ctw-authorize-control" role="group" aria-label="Autorización de la tarea">
@@ -702,8 +691,17 @@
                                               </a>       
                                           </li>
                                       </ul>
-                                 </asp:Panel>                
-                              </div>
+                                  </asp:Panel>
+                                  <% If WorkflowCentroTrabajoModernPresentationEnabled Then %>
+                                  <div class="navbar-nav" data-workflow-task-action="true">
+                                      <ul class="navbar-nav">
+                                          <li class="nav-item active ml-1">
+                                              <button id="workflow-notes-modern-access" type="button" class="nav-link font-weight-light ctw-btn" style="color: #35477f" title="Gestionar las notas de la tarea" aria-label="Crear una nota" aria-controls="Panel_notas_modernas" aria-haspopup="dialog"><i style="margin-left: 1px; margin-top: 7px; color: #0062cc" class="fad fa-sticky-note"></i><span id="workflow-notes-modern-access-label"> Nueva nota</span><span id="workflow-notes-modern-access-count" class="ctw-notes-count" aria-label="0 notas">0</span></button>
+                                          </li>
+                                      </ul>
+                                  </div>
+                                  <% End If %>
+                               </div>
                               <div class="col-md-3  navbar-nav justify-content-end">
                                   <asp:Panel ID="Panel_show_hide" CssClass="navbar-nav " Style="float:right" runat="server">
                                        <ul class="navbar-nav">
@@ -741,8 +739,6 @@
                            <asp:Button ID="Button_activa_incorpora_expediente" runat="server" Text="Button" style="display:none"   />
                            <asp:ImageButton ID="ImageButtonactualizar" runat="server"  Width="0px" Height="0px"   />
                            <asp:ImageButton ID="ImageButtonpendiente" runat="server" style="display:none"/>
-                           <asp:ImageButton ID="ImageButtonanotacion" runat="server"   Width="0px" Height="0px" style="margin-left:0px; display:none" />
-                           <asp:ImageButton ID="ImageButtonanotacion_" runat="server" />
                            <asp:ImageButton ID="ImageButtonautoterminar" runat="server"  Width="0px" Height="0px" style="display:none" />
                            <asp:ImageButton ID="ImageButtonestadograficotrazabilida" runat="server"  Width="0px" Height="0px"   style="display:none"  />
                            <asp:ImageButton ID="ImageButtonterminar" runat="server"  Width="0px" Height="0px"   style="display:none"  />
@@ -1512,94 +1508,38 @@
                   </ContentTemplate>
               </asp:UpdatePanel>
           </div>
-           <asp:Panel ID="Panel_notas_modernas" runat="server" CssClass="workflow-centro-trabajo-moderno workflow-notes-modern" data-workflow-notes-modern="true">
-               <div class="notes-shell" role="region" aria-labelledby="workflow-notes-modern-heading">
+           <asp:Panel ID="Panel_notas_modernas" runat="server" CssClass="workflow-centro-trabajo-moderno workflow-notes-modern" data-workflow-notes-modern="true" role="dialog" aria-modal="true" aria-labelledby="workflow-notes-modern-heading" tabindex="-1" hidden="hidden">
+               <div class="notes-shell">
                    <div class="notes-head">
                        <div><div class="notes-title"><h2 id="workflow-notes-modern-heading">Notas</h2><span id="workflow-notes-modern-count" class="badge">0 notas</span></div><p class="notes-subtitle">Comentarios y contexto compartido de la tarea</p></div>
-                       <div class="action-bar" aria-label="Acciones de notas"><button id="workflow-notes-modern-new" type="button" class="btn btn-add">+ Nueva nota</button></div>
+                       <div class="action-bar" aria-label="Acciones de notas"><button id="workflow-notes-modern-new" type="button" class="btn btn-add">+ Nueva nota</button><button id="workflow-notes-modern-dismiss" type="button" class="icon-btn" aria-label="Cerrar notas">×</button></div>
                    </div>
                    <div class="notes-feedback"><div id="workflow-notes-modern-status" role="status" aria-live="polite"></div><button id="workflow-notes-modern-retry" type="button" class="btn" hidden="hidden">Reintentar</button></div>
                    <ol id="workflow-notes-modern-list" class="notes-list" aria-live="polite"></ol>
                    <footer class="notes-footer">Las acciones de edición y eliminación dependen de los permisos y propiedad de cada nota.</footer>
-                   <div id="workflow-notes-modern-editor" class="dialog-backdrop" hidden="hidden">
+                    <div id="workflow-notes-modern-editor" class="dialog-backdrop" hidden="hidden">
                        <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="workflow-notes-modern-editor-title">
                            <header class="dialog-head"><h2 id="workflow-notes-modern-editor-title">Nueva nota</h2><button id="workflow-notes-modern-close" class="icon-btn" type="button" aria-label="Cerrar editor de nota">×</button></header>
                            <div class="dialog-body"><label for="workflow-notes-modern-text">Escriba el contexto útil para quien continúe la tarea</label><textarea id="workflow-notes-modern-text" maxlength="1000" aria-describedby="workflow-notes-modern-text-help workflow-notes-modern-character-count" placeholder="Ejemplo: se verificó el documento, queda pendiente confirmar…"></textarea><div class="field-help"><span id="workflow-notes-modern-text-help">El contenido se guardará como texto.</span><span id="workflow-notes-modern-character-count">0 / 1000</span></div></div>
                            <footer class="dialog-footer"><button id="workflow-notes-modern-cancel" type="button" class="btn">Cancelar</button><button id="workflow-notes-modern-save" type="button" class="btn btn-add">Guardar nota</button></footer>
-                       </section>
-                   </div>
-               </div>
+                        </section>
+                    </div>
+                    <div id="workflow-notes-modern-delete-confirm" class="dialog-backdrop" hidden="hidden">
+                        <section class="dialog confirm" role="alertdialog" aria-modal="true" aria-labelledby="workflow-notes-modern-delete-title" aria-describedby="workflow-notes-modern-delete-description">
+                            <header class="dialog-head"><h2 id="workflow-notes-modern-delete-title">¿Eliminar esta nota?</h2></header>
+                            <div class="dialog-body"><p id="workflow-notes-modern-delete-description">La nota dejará de estar disponible. Esta acción no se puede deshacer.</p></div>
+                            <footer class="dialog-footer"><button id="workflow-notes-modern-delete-cancel" type="button" class="btn">Cancelar</button><button id="workflow-notes-modern-delete-accept" type="button" class="btn btn-danger">Eliminar nota</button></footer>
+                        </section>
+                    </div>
+                    <div id="workflow-notes-modern-viewer" class="dialog-backdrop" hidden="hidden">
+                        <section class="dialog note-viewer" role="dialog" aria-modal="true" aria-labelledby="workflow-notes-modern-viewer-title">
+                            <header class="dialog-head"><h2 id="workflow-notes-modern-viewer-title">Nota completa</h2><button id="workflow-notes-modern-viewer-close" class="icon-btn" type="button" aria-label="Cerrar nota completa">×</button></header>
+                            <div class="dialog-body note-viewer-body"><p id="workflow-notes-modern-viewer-content" class="note-viewer-content" tabindex="0"></p></div>
+                            <footer class="dialog-footer"><button id="workflow-notes-modern-viewer-accept" type="button" class="btn">Cerrar</button></footer>
+                        </section>
+                    </div>
+                </div>
            </asp:Panel>
-           <!--nota_flujo-->  
-           <asp:Panel ID="Panel_content_anotacion" runat="server" Style="display: none; width: 90%; height: 100%" CssClass="modal_content_general_">
-                  <asp:ModalPopupExtender ID="ModalPopupExtender_edition_content_anotacion" runat="server"
-                      TargetControlID="ButtonSalir_content_anotacion_" BackgroundCssClass="FondoAplicacion"
-                      CancelControlID="Button_cerrar_content_anotacion" PopupControlID="Panel_content_anotacion">
-                  </asp:ModalPopupExtender>
-                  <div id="modal_content_anotacion" class="modal-content">
-                      <div id="diver_cabcera_content_anotacion" class="modal_title_superior_ modal-header">
-                          <asp:Label ID="LabelTitulo" runat="server" Text="Anotaciones de la Tarea" CssClass="h6 font-weight-light"> </asp:Label>
-                          <button type="button" value="Button_cerrar_content_anotacion" class="close da_event_captive ">&times;</button>
-                      </div>
-                      <div id="contenido_procesa_content_anotacion" style="height: auto; width: 100%; overflow: auto; border-top:none" class="pl-3 pr-3">
-                          <asp:UpdatePanel ID="UpdatePanelanotacion" runat="server" UpdateMode="Conditional">
-                              <ContentTemplate>
-                                  <asp:Panel ID="Panel_content_anotacion_gred" runat="server"
-                                      Enabled="true" Style="margin-bottom: 5px">
-                                      <asp:GridView ID="GridView_lista_notas" runat="server" Style="width: 100%"
-                                          AutoGenerateSelectButton="False" CssClass="filtrar table  font-weight-light" GridLines="None">
-                                          <SelectedRowStyle BackColor="LightSkyBlue" Font-Bold="True" ForeColor="Red" />
-                                          <HeaderStyle CssClass="GridviewScrollHeader_line_boot" />
-                                          <Columns>
-                                              <asp:BoundField HeaderText="OPCIONES" />
-                                          </Columns>
-                                      </asp:GridView>
-                                  </asp:Panel>
-                                  <input id="hdnidlista" type="hidden" value="-1" runat="server"/>
-                              </ContentTemplate>
-                              <Triggers>
-                              </Triggers>
-                          </asp:UpdatePanel>
-                      </div>
-                       <div id="content_boton" class="modal-footer justify-content-end">
-                           <input id="Button_Show_Guardar" type="button" class="btn btn-success" value="Nueva nota"  />        
-                  </div>
-                  </div>
-                 
-                  <div style="display: none; height: 1px">
-                      <asp:Button ID="Button_content_anotacion" CssClass="invisible" runat="server" Text="Button" Height="1px" Width="1px" />
-                      <asp:Button ID="ButtonSalir_content_anotacion_" CssClass="invisible" runat="server" Text="" Height="1px" Width="1px" />
-                      <asp:Button ID="Button_cerrar_content_anotacion" runat="Server" Text="X" CssClass="invisible" />
-                  </div>
-              </asp:Panel>
-             <div id="nota_respuesta">
-                  <asp:Panel ID="Panel_nota_respuesta" runat="server" Style="display: none; width: 66%; height: auto" CssClass="modal_content_general_">
-                      <asp:ModalPopupExtender ID="ModalPopupExtender_edition_nota_respuesta" runat="server" TargetControlID="ButtonSalir_nota_respuesta" BackgroundCssClass="FondoAplicacion"
-                          CancelControlID="Button_cerrar_nota_respuesta" PopupControlID="Panel_nota_respuesta">
-                      </asp:ModalPopupExtender>
-                      <div id="modal_content_nota_respuesta" class="modal-content">
-                          <div id="divcabecer_nota_respuesta" class="modal_title_superior_ modal-header">
-                              <asp:Label ID="Label_nota_respuesta" class="modal-title d-inline ml-1 h6" runat="server" Text="Nota">
-                              </asp:Label>
-                              <button type="button" value="Button_cerrar_nota_respuesta" class="close da_event_captive">&times;</button>
-                          </div>
-                         
-                          <div id="contenido_procesa_nota_respuesta" style="border-top: none; overflow: hidden" class="p-1">    
-                               <textarea id="TextBox_nota" rows="10" style="width: 100%; height: 100%" cols="50">Write something here</textarea>
-                          </div>
-                          <div id="content_boton_nota" class="modal-footer">
-                              <input id="Button_actualizar_nota" type="button" class="btn btn-success" value="Aceptar" style="display:none" />
-                              <input id="Button_duardar_nota" type="button" class="btn btn-success" value="Aceptar" style="display:none"/>
-                          </div>
-                          <div style="display: none; height: 1px">
-                              <asp:Button ID="Button_nota_respuesta" CssClass="invisible" runat="server" Text="Button" Height="0px" Width="0px" Style="display: none" />
-                              <asp:Button ID="ButtonSalir_nota_respuesta" CssClass="invisible" runat="server" Text="Button" Height="0px" Width="0px" Style="display: none" />
-                              <asp:Button ID="Button_cerrar_nota_respuesta" runat="Server" Text="X" CssClass="modal_boton_hiden" />
-                          </div>
-
-                      </div>
-                  </asp:Panel>
-              </div>  
           <!--detalle_flujo-->     
             <asp:Panel ID="Panel_detalle_flujo" runat="server" Style="display:none;  width:auto; height:auto" >
                 <asp:ModalPopupExtender ID="ModalPopupExtender_edition_detalle_flujo"  runat="server"  TargetControlID="ButtonSalir_detalle_flujo" 

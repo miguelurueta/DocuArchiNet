@@ -220,7 +220,6 @@ describe("DOC-2 workflow visual activation", () => {
     [
       'id="nav_menu"',
       "Panel_tareas_estado_pendiente",
-      "Panel_Buttonanotacion",
       "Panel_autoriza",
       'id="A11"',
       'id="ctw-authorize-options"',
@@ -234,7 +233,6 @@ describe("DOC-2 workflow visual activation", () => {
       "addClassesToActionHosts",
       "markFirstTerminalActionHost",
       "#pendiente_db",
-      "#nota_db",
       ".ctw-authorize-control",
       "ImageButtonEnviarUsuario",
       "ImageButtonEnviaActividad",
@@ -260,8 +258,7 @@ describe("DOC-2 workflow visual activation", () => {
     [
       "Continuar flujo",
       "Elegir actividad anterior",
-      "fa-sticky-note",
-      "js/workflow/Webworkflow.js?v=20260812-taskclose53",
+      "js/workflow/Webworkflow.js?v=20260903-doc45-empty-ready1",
       "workflow-centro-trabajo-moderno.css",
       'aria-label="Seleccionar todos los documentos"',
       'role="status" aria-live="polite"',

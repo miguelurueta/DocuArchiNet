@@ -831,11 +831,6 @@ Public Class Classselecciotarea
                 Exit Function
             End If
 
-            Dim Panel_Buttonanotacion As Panel = pag.FindControl("Panel_Buttonanotacion")
-            If Panel_Buttonanotacion Is Nothing Then
-                Actualiza_interface_estado_flujo_ruta = "Impsosible encontrar el control (Panel_Buttonanotacion)"
-                Exit Function
-            End If
             Dim updatemenu As UpdatePanel = pag.FindControl("updatemenu")
             If updatemenu Is Nothing Then
                 Actualiza_interface_estado_flujo_ruta = "Impsosible encontrar el control (updatemenu)"
@@ -858,7 +853,6 @@ Public Class Classselecciotarea
             End If
             Dim workflowPage As Webworkflow = TryCast(pag, Webworkflow)
             Dim modernTaskContextEnabled As Boolean = workflowPage IsNot Nothing AndAlso workflowPage.WorkflowCentroTrabajoModernPresentationEnabled
-            Dim modernNotesEnabled As Boolean = workflowPage IsNot Nothing AndAlso workflowPage.WorkflowCentroTrabajoModernActive
             Dim Label_contexto_tramite As Label = Nothing
             Dim Label_contexto_estado As Label = Nothing
             If modernTaskContextEnabled Then
@@ -900,7 +894,6 @@ Public Class Classselecciotarea
                 Panel_tramitar_tarea.Visible = False
                 Panel_documentos_tarea.Visible = False
                 Panel_info_tarea.Visible = False
-                Panel_Buttonanotacion.Visible = False
                 Label_estado_selecion.Visible = False
                 Label_estado_tarea_selecion.Text = "Estado"
                 If modernTaskContextEnabled Then
@@ -922,7 +915,6 @@ Public Class Classselecciotarea
                 Panel_documentos_tarea.Visible = True
                 Panel_autoriza.Visible = True
                 Panel_enviar_flujo.Visible = True
-                Panel_Buttonanotacion.Visible = Not modernNotesEnabled
                 Label_estado_selecion.Visible = True
                 Panel_info_tarea.Visible = True
                 UpdatePanel_menu_cab.Update()

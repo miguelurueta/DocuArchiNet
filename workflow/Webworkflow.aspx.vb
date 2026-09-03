@@ -246,19 +246,16 @@ Public Class Webworkflow
     End Sub
 
     Private Sub ConfigureWorkflowNotesModernPresentation()
-        If Panel_Buttonanotacion IsNot Nothing Then
-            Panel_Buttonanotacion.Visible = Not WorkflowCentroTrabajoModernActive
-        End If
         If Panel_notas_modernas IsNot Nothing Then
-            Panel_notas_modernas.Visible = WorkflowCentroTrabajoModernActive
-            If Page.Header IsNot Nothing AndAlso WorkflowCentroTrabajoModernActive AndAlso Page.Header.FindControl("workflowNotesModernStyle") Is Nothing Then
+            Panel_notas_modernas.Visible = WorkflowCentroTrabajoModernPresentationEnabled
+            If Page.Header IsNot Nothing AndAlso WorkflowCentroTrabajoModernPresentationEnabled AndAlso Page.Header.FindControl("workflowNotesModernStyle") Is Nothing Then
                 Dim style As New Global.System.Web.UI.HtmlControls.HtmlLink()
                 style.ID = "workflowNotesModernStyle"
-                style.Href = "../Styles/workflow-notes-modern.css?v=20260901-doc43"
+                style.Href = "../Styles/workflow-notes-modern.css?v=20260902-doc45-ownership1"
                 style.Attributes("rel") = "stylesheet"
                 Page.Header.Controls.Add(style)
             End If
-            If WorkflowCentroTrabajoModernActive Then
+            If WorkflowCentroTrabajoModernPresentationEnabled Then
                 Dim taskInputId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_selecionada.ClientID)
                 Dim startupScript As String = "(function(){var root=document.querySelector('[data-workflow-notes-modern]');if(!root){return;}root.setAttribute('data-workflow-notes-task-input-id','" & taskInputId & "');if(window.WorkflowNotesModern&&typeof window.WorkflowNotesModern.inicializar==='function'){window.WorkflowNotesModern.inicializar(root);}}());"
                 ScriptManager.RegisterStartupScript(Me, Me.GetType(), "workflowNotesModernBootstrap", startupScript, True)
@@ -995,58 +992,6 @@ Public Class Webworkflow
 
         End Try
     End Sub
-    Private Sub ImageButtonanotacion__Click(sender As Object, e As ImageClickEventArgs) Handles ImageButtonanotacion_.Click
-        Dim refclsjava As New Classscrripjava
-        Try
-            Dim Result As String = ""
-            If HiddenSeleccion.Value = "-1" Or HiddenSeleccion.Value = "" Then Exit Sub
-            If HttpContext.Current.Session("Interactuar_Anotaciones") = "0" Then
-                refclsjava.Showscripman("El usuario no tiene permiso para interactuar con anotaciones ", UpdatePanel_tool_menu)
-                Exit Sub
-            End If
-            Dim refclas As New Class_anotacion_tarea
-            Result = refclas.Listar_Anotaciones_tarea_workflow(Me.GridView_lista_notas,
-                                                               Val(HiddenSeleccion.Value))
-            If Result <> "YES" Then
-                refclsjava.Showscripman(Result, UpdatePanel_tool_menu)
-                Exit Sub
-            Else
-                Me.ModalPopupExtender_edition_content_anotacion.Show()
-                Exit Sub
-            End If
-
-        Catch ex As Exception
-            refclsjava.Showscripman(ex.Message, UpdatePanel_tool_menu)
-        End Try
-    End Sub
-    '-------Anotacion sobre la actividad
-    Private Sub ImageButtonanotacion_Click(sender As Object, e As ImageClickEventArgs) Handles ImageButtonanotacion.Click
-        Dim refclsjava As New Classscrripjava
-        Try
-            Dim Result As String = ""
-            If Session.Item("ID_TAREA_SELECCIONDA") = "0" Then Exit Sub
-            If HttpContext.Current.Session("Interactuar_Anotaciones") = "0" Then
-                refclsjava.Showscripman("El usuario no tiene permiso para interactuar con anotaciones ", UpdatePanel_tool_menu)
-                Exit Sub
-            End If
-            Dim refclas As New Class_anotacion_tarea
-            Result = refclas.Listar_Anotaciones_tarea_workflow(Me.GridView_lista_notas,
-                                                               HttpContext.Current.Session("ID_TAREA_SELECCIONDA"))
-            If Result <> "YES" Then
-                refclsjava.Showscripman(Result, UpdatePanel_tool_menu)
-                Exit Sub
-            Else
-                Me.ModalPopupExtender_edition_content_anotacion.Show()
-                Exit Sub
-            End If
-
-        Catch ex As Exception
-            refclsjava.Showscripman(ex.Message, UpdatePanel_tool_menu)
-        End Try
-    End Sub
-
-
-
     '----- boton para cerrar el popup
     Private Sub btnCancel_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles btnCancel.Click
         Me.ModalPopupExtendermensaje.Hide()
@@ -6019,17 +5964,6 @@ Public Class Webworkflow
             clasjava.Showscripman(ex.Message, Me.updatemenu_lista_autorizacion)
         End Try
     End Sub
-    Private Sub GridView_lista_notas_RowCreated(ByVal sender As Object, ByVal e As System.Web.UI.WebControls.GridViewRowEventArgs) Handles GridView_lista_notas.RowCreated
-        Try
-            e.Row.Cells(2).Visible = False
-            e.Row.Cells(1).Visible = False
-            e.Row.Cells(5).Visible = False
-        Catch ex As Exception
-
-        End Try
-    End Sub
-
-
     Private Sub data_grid_lista_pendientes_RowCreated(sender As Object, e As GridViewRowEventArgs) Handles data_grid_lista_pendientes.RowCreated
         Try
             e.Row.Cells(1).Visible = False

@@ -110,8 +110,8 @@
 
         addClasses(root, "#menucab #navbarNavDropdown > .navbar-nav > .navbar-nav, #nav_menu #navbarNavDropdown_ > .col-md-9 > .navbar-nav, #nav_menu #navbarNavDropdown_ > .col-md-3 > .navbar-nav", ["ctw-action-host"]);
         addClassesToActionHosts(root, "#menucab #pendiente_db", ["ctw-action-slot", "ctw-action-slot--terminal"]);
-        addClassesToActionHosts(root, "#nav_menu #nota_db", ["ctw-action-slot", "ctw-action-slot--operational", "ctw-action-slot--notes"]);
         addClassesToActionHosts(root, "#nav_menu .ctw-authorize-control", ["ctw-action-slot", "ctw-action-slot--operational"]);
+        addClassesToActionHosts(root, "#nav_menu #workflow-notes-modern-access", ["ctw-action-slot", "ctw-action-slot--operational"]);
         addClassesToActionHosts(root, "#nav_menu [title='Detalle del radicado'], #nav_menu .fa-user-headset", ["ctw-action-slot", "ctw-action-slot--support"]);
         addClassesToActionHosts(root, "#nav_menu [title='Devuelve la tarea'], #nav_menu #workflow-return-activity-trigger, #nav_menu #workflow-user-send-trigger, #nav_menu [onclick*='ImageButtonEnviarUsuario'], #nav_menu [onclick*='ImageButtonEnviaActividad'], #nav_menu #workflow-group-send-trigger, #nav_menu #workflow-transition-trigger, #nav_menu [onclick*='ImageButtonautoterminar']", ["ctw-action-slot", "ctw-action-slot--terminal"]);
         addClassesToActionHosts(root, "#nav_menu [title='Devuelve la tarea']", ["ctw-action-slot--return"]);

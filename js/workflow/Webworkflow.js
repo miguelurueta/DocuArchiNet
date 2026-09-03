@@ -24,7 +24,9 @@ window.WorkflowNotesModern = window.WorkflowNotesModern || (function () {
     const inicializar = root => {
         if (!root || root.getAttribute('data-workflow-notes-initialized') === 'true') return;
         root.setAttribute('data-workflow-notes-initialized', 'true');
-        const input = document.getElementById(root.getAttribute('data-workflow-notes-task-input-id'));
+        const taskInputId = root.getAttribute('data-workflow-notes-task-input-id');
+        const getTaskInput = () => document.getElementById(taskInputId);
+        const getAccess = () => document.getElementById('workflow-notes-modern-access');
         const list = root.querySelector('#workflow-notes-modern-list');
         const status = root.querySelector('#workflow-notes-modern-status');
         const count = root.querySelector('#workflow-notes-modern-count');
@@ -37,12 +39,27 @@ window.WorkflowNotesModern = window.WorkflowNotesModern || (function () {
         const close = root.querySelector('#workflow-notes-modern-close');
         const cancel = root.querySelector('#workflow-notes-modern-cancel');
         const retry = root.querySelector('#workflow-notes-modern-retry');
-        let idTarea = input ? Number(input.value) : 0;
+        const dismiss = root.querySelector('#workflow-notes-modern-dismiss');
+        const deleteConfirm = root.querySelector('#workflow-notes-modern-delete-confirm');
+        const deleteCancel = root.querySelector('#workflow-notes-modern-delete-cancel');
+        const deleteAccept = root.querySelector('#workflow-notes-modern-delete-accept');
+        const viewer = root.querySelector('#workflow-notes-modern-viewer');
+        const viewerContent = root.querySelector('#workflow-notes-modern-viewer-content');
+        const viewerClose = root.querySelector('#workflow-notes-modern-viewer-close');
+        const viewerAccept = root.querySelector('#workflow-notes-modern-viewer-accept');
+        const initialInput = getTaskInput();
+        let idTarea = initialInput ? Number(initialInput.value) : 0;
         let editingNote = null;
+        let deletingNote = null;
         let returnFocus = null;
+        let statusTimer = null;
+        let totalNotesLoaded = null;
+        let selectedTaskLoad = null;
         const setStatus = (message, state) => {
+            if (statusTimer) { window.clearTimeout(statusTimer); statusTimer = null; }
             if (status) { status.textContent = message || ''; status.setAttribute('data-state', state || 'idle'); }
             if (retry) retry.hidden = state !== 'error';
+            if (message && state === 'success') statusTimer = window.setTimeout(() => setStatus('', 'idle'), 3500);
         };
         const updateCharacterCount = () => { if (characterCount) characterCount.textContent = `${text ? text.value.length : 0} / 1000`; };
         const openEditor = (note, trigger) => {
@@ -68,6 +85,18 @@ window.WorkflowNotesModern = window.WorkflowNotesModern || (function () {
             if (!value) return '';
             const parsed = new Date(value); return Number.isNaN(parsed.getTime()) ? '' : parsed.toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' });
         };
+        const isLongNote = value => (value || '').length > 280 || ((value || '').match(/\n/g) || []).length >= 5;
+        const openViewer = (item, trigger) => {
+            returnFocus = trigger || document.activeElement;
+            viewerContent.textContent = item.Contenido || '';
+            viewer.hidden = false;
+            viewerContent.focus();
+        };
+        const closeViewer = () => {
+            viewer.hidden = true;
+            viewerContent.textContent = '';
+            if (returnFocus && typeof returnFocus.focus === 'function') returnFocus.focus();
+        };
         const renderNotes = items => {
             if (!list) return;
             list.textContent = '';
@@ -80,6 +109,7 @@ window.WorkflowNotesModern = window.WorkflowNotesModern || (function () {
             items.forEach(item => {
                 const li = document.createElement('li');
                 li.className = 'note';
+                li.setAttribute('data-note-id', String(item.IdNota));
                 const avatar = document.createElement('div'); avatar.className = 'avatar'; avatar.setAttribute('aria-hidden', 'true'); avatar.textContent = 'N';
                 const main = document.createElement('div'); main.className = 'note-main';
                 const meta = document.createElement('div'); meta.className = 'note-meta';
@@ -87,42 +117,95 @@ window.WorkflowNotesModern = window.WorkflowNotesModern || (function () {
                 const time = document.createElement('time'); time.dateTime = item.FechaCreacionUtc || ''; time.textContent = displayDate(item.FechaCreacionUtc);
                 const content = document.createElement('p'); content.className = 'note-content'; content.textContent = item.Contenido || '';
                 const actions = document.createElement('div'); actions.className = 'note-actions'; actions.setAttribute('aria-label', 'Acciones de la nota');
-                const edit = document.createElement('button'); edit.className = 'icon-btn'; edit.type = 'button'; edit.textContent = 'Editar'; edit.setAttribute('aria-label', 'Editar nota'); edit.addEventListener('click', event => openEditor(item, event.currentTarget));
-                const remove = document.createElement('button'); remove.className = 'icon-btn delete'; remove.type = 'button'; remove.textContent = 'Eliminar'; remove.setAttribute('aria-label', 'Eliminar nota');
-                remove.addEventListener('click', () => {
-                    if (!window.confirm('¿Eliminar esta nota?')) return;
-                    remove.disabled = true;
-                    invoke('EliminarNota', { idTarea, idNota: item.IdNota, version: item.Version }).then(dto => {
-                        if (isConflict(dto)) { setStatus('La nota cambió. Recargue antes de eliminar.', 'conflict'); return load(); }
-                        if (!isSuccess(dto)) throw new Error('NOTES_REMOVE_FAILED');
-                        setStatus('Nota eliminada.', 'success'); return load();
-                    }).catch(() => setStatus('No fue posible eliminar la nota.', 'error')).finally(() => { remove.disabled = false; });
-                });
                 meta.appendChild(author); meta.appendChild(time); main.appendChild(meta); main.appendChild(content);
-                actions.appendChild(edit); actions.appendChild(remove); li.appendChild(avatar); li.appendChild(main); li.appendChild(actions); list.appendChild(li);
+                if (isLongNote(item.Contenido)) {
+                    const view = document.createElement('button'); view.className = 'icon-btn'; view.type = 'button'; view.textContent = 'Ver nota completa'; view.addEventListener('click', event => openViewer(item, event.currentTarget)); actions.appendChild(view);
+                }
+                if (item.PuedeGestionar === true) {
+                    const edit = document.createElement('button'); edit.className = 'icon-btn'; edit.type = 'button'; edit.textContent = 'Editar'; edit.setAttribute('aria-label', 'Editar nota'); edit.addEventListener('click', event => openEditor(item, event.currentTarget));
+                    const remove = document.createElement('button'); remove.className = 'icon-btn delete'; remove.type = 'button'; remove.textContent = 'Eliminar'; remove.setAttribute('aria-label', 'Eliminar nota');
+                    remove.addEventListener('click', event => { deletingNote = { item, trigger: event.currentTarget }; deleteConfirm.hidden = false; deleteCancel.focus(); });
+                    actions.appendChild(edit); actions.appendChild(remove);
+                }
+                li.appendChild(avatar); li.appendChild(main); if (actions.childElementCount) li.appendChild(actions); list.appendChild(li);
             });
         };
         const load = () => Promise.all([invoke('ListarNotas', { idTarea, cursor: '', tamanoPagina: 20 }), invoke('ContarNotas', { idTarea })]).then(([result, total]) => {
             if (!isSuccess(result) || !isSuccess(total)) throw new Error('NOTES_LOAD_FAILED');
             const items = result && Array.isArray(result.Notas) ? result.Notas : [];
             renderNotes(items);
-            if (count) count.textContent = `${Number(total && total.Contador) || items.length} notas`;
+            const totalNotes = Number(total && total.Contador) || items.length;
+            totalNotesLoaded = totalNotes;
+            const countLabel = `${totalNotes} ${totalNotes === 1 ? 'nota' : 'notas'}`;
+            if (count) count.textContent = countLabel;
+            const access = getAccess();
+            const accessLabel = document.getElementById('workflow-notes-modern-access-label');
+            const accessCount = document.getElementById('workflow-notes-modern-access-count');
+            if (accessLabel) accessLabel.textContent = totalNotes === 0 ? ' Nueva nota' : ' Notas';
+            if (access) access.setAttribute('aria-label', totalNotes === 0 ? 'Crear una nota' : `Abrir ${countLabel} de la tarea`);
+            if (accessCount) { accessCount.textContent = String(totalNotes); accessCount.setAttribute('aria-label', countLabel); }
         });
         const loadSelectedTask = () => {
+            const input = getTaskInput();
             const selectedTaskId = input ? Number(input.value) : 0;
             if (!Number.isFinite(selectedTaskId) || selectedTaskId <= 0) { setStatus('Seleccione una tarea para consultar sus notas.', 'error'); return Promise.resolve(); }
             idTarea = selectedTaskId;
+            totalNotesLoaded = null;
             if (editor && !editor.hidden) closeEditor();
             setStatus('Cargando notas…', 'loading');
-            return load().then(() => {
+            const request = load().then(() => {
                 if (status && status.textContent === 'Cargando notas…') setStatus('', 'idle');
             }).catch(() => setStatus('No fue posible cargar las notas.', 'error'));
+            const trackedRequest = request.finally(() => { if (selectedTaskLoad === trackedRequest) selectedTaskLoad = null; });
+            selectedTaskLoad = trackedRequest;
+            return selectedTaskLoad;
         };
-        if (input) input.addEventListener('change', loadSelectedTask);
+        document.addEventListener('change', event => { if (event.target && event.target.id === taskInputId) loadSelectedTask(); });
         if (open && editor) open.addEventListener('click', event => openEditor(null, event.currentTarget));
         if (close) close.addEventListener('click', closeEditor);
         if (cancel) cancel.addEventListener('click', closeEditor);
         if (retry) retry.addEventListener('click', () => { setStatus('Cargando notas…', 'loading'); load().then(() => setStatus('', 'idle')).catch(() => setStatus('No fue posible cargar las notas.', 'error')); });
+        document.addEventListener('click', event => {
+            const access = event.target && event.target.closest ? event.target.closest('#workflow-notes-modern-access') : null;
+            if (!access) return;
+            const reveal = () => {
+                root.hidden = false;
+                if (totalNotesLoaded === 0) openEditor(null, access);
+                else root.focus();
+            };
+            if (totalNotesLoaded === null) (selectedTaskLoad || loadSelectedTask()).then(reveal);
+            else reveal();
+        });
+        const closeNotes = () => { if (editor && !editor.hidden) closeEditor(); if (viewer && !viewer.hidden) closeViewer(); root.hidden = true; const access = getAccess(); if (access) access.focus(); };
+        if (dismiss) dismiss.addEventListener('click', closeNotes);
+        const closeDeleteConfirm = () => {
+            const trigger = deletingNote && deletingNote.trigger;
+            deletingNote = null;
+            deleteConfirm.hidden = true;
+            if (trigger && typeof trigger.focus === 'function') trigger.focus();
+        };
+        if (deleteCancel) deleteCancel.addEventListener('click', closeDeleteConfirm);
+        if (deleteAccept) deleteAccept.addEventListener('click', () => {
+            if (!deletingNote || deleteAccept.disabled) return;
+            const pending = deletingNote;
+            deleteAccept.disabled = true;
+            invoke('EliminarNota', { idTarea, idNota: pending.item.IdNota, version: pending.item.Version }).then(dto => {
+                if (isConflict(dto)) { setStatus('La nota cambió. Recargue antes de eliminar.', 'conflict'); return load(); }
+                if (!isSuccess(dto)) throw new Error('NOTES_REMOVE_FAILED');
+                setStatus('Nota eliminada.', 'success'); return load();
+            }).catch(() => setStatus('No fue posible eliminar la nota.', 'error')).finally(() => {
+                deleteAccept.disabled = false;
+                deleteConfirm.hidden = true;
+                deletingNote = null;
+                root.focus();
+            });
+        });
+        if (deleteConfirm) deleteConfirm.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); closeDeleteConfirm(); } });
+        if (viewerClose) viewerClose.addEventListener('click', closeViewer);
+        if (viewerAccept) viewerAccept.addEventListener('click', closeViewer);
+        if (viewer) viewer.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeViewer(); } });
+        root.addEventListener('click', event => { if (event.target === root) closeNotes(); });
+        root.addEventListener('keydown', event => { if (event.key === 'Escape' && (!editor || editor.hidden) && (!viewer || viewer.hidden) && (!deleteConfirm || deleteConfirm.hidden)) { event.preventDefault(); closeNotes(); } });
         if (text) text.addEventListener('input', updateCharacterCount);
         if (editor) editor.addEventListener('keydown', keepDialogFocus);
         if (save) save.addEventListener('click', () => {
@@ -141,6 +224,9 @@ window.WorkflowNotesModern = window.WorkflowNotesModern || (function () {
             }).catch(() => setStatus('No fue posible guardar la nota.', 'error'))
                 .finally(() => { save.disabled = false; });
         });
+        if (window.Sys && Sys.WebForms && Sys.WebForms.PageRequestManager) {
+            Sys.WebForms.PageRequestManager.getInstance().add_endRequest(loadSelectedTask);
+        }
         loadSelectedTask();
     };
 
@@ -268,17 +354,6 @@ window.WorkflowNotesModern = window.WorkflowNotesModern || (function () {
             //ASIGNA EL CURSOR DE SELECCION CUANDO PASA EL CURSOR
             $('#data_grid_chequeo_actualiza tr[id]').mouseover(function () {
                 $(this).css({ cursor: "hand", cursor: "pointer" });
-            });
-            //ASIGNA CURSOR PARA LA LISTA DE NOTAS
-            $('#GridView_lista_notas tr[id]').mouseover(function () {
-                $(this).css({ cursor: "hand", cursor: "pointer" });
-            });
-            $('#GridView_lista_notas tr[id]').click(function () {
-                $('#GridView_lista_notas tr[id]').css({ "background-color": "White", "color": "Black" });
-                $(this).css({ "background-color": "#e8e8f7", "color": "Black" });
-                var fer = $(this).attr("id");
-                $('#hdnidlista').val(fer.toString());
-
             });
             //ASIGNA CURSOR PARA LISTA TAREAS PENDIENTES
             $('#data_grid_lista_pendientes tr[id]').click(function () {
@@ -514,7 +589,6 @@ window.WorkflowNotesModern = window.WorkflowNotesModern || (function () {
                 service_GetPosiblesDatos_lista_tareas_pendientes();
                 auto_zise_popup_detalle_radicado();
                 auto_zise_popup_autorizados();
-                auto_size_content_anotacion();
                 auto_zise_popup_visor_tarea_pendiente();
                 auto_zise_popup_estado_paginacion();
                 auto_zise_popup_guardar_documento();
@@ -742,9 +816,6 @@ window.WorkflowNotesModern = window.WorkflowNotesModern || (function () {
                     
                 }, klass: "fal fa-folder-open"
             },               
-            'Notas del registro': {
-                click: function (element) { document.getElementById("ImageButtonanotacion_").click(); }, klass: "fad fa-sticky-note"
-            },
             'Lista de autorizaciones': {
                 click: function (element) { document.getElementById("ImageButton_ista_autorizacio_").click(); }, klass: "fal fa-list-ul"
             },
@@ -792,7 +863,6 @@ $(window).on("load", function () {
         ShowModalPopup("ModalPopupExtender_edition_detalle_actividad_flujo_backgroundElement", "Panel_detalle_actividad_flujo", 100001);
         ShowModalPopup("ModalPopupExtender_edition_autoriza_reasignacion_tarea_recuperada_enlazada_backgroundElement", "Panel_autoriza_reasignacion_tarea_recuperada_enlazada", 100001);
         ShowModalPopup("ModalPopupExtender_edition_detalle_actividad_flujo_user_backgroundElement", "Panel_detalle_actividad_flujo_user", 100001);
-        ShowModalPopup("ModalPopupExtender_edition_nota_respuesta_backgroundElement", "Panel_nota_respuesta", 100004);
         ShowModalPopup("ModalPopupExtender_detalle_respuesta_backgroundElement", "Panel_detalle_respuesta", 100001);
         ShowModalPopup("ModalPopupExtender_visor_tareas_pendiente_backgroundElement", "Panel_visor_tareas_pendiente", 100001);
         ShowModalPopup("ModalPopupExtender_edition_list_imagenes_sii_backgroundElement", "Panel_list_imagenes_sii", 100001);
@@ -829,22 +899,11 @@ const ini_event_page = () => {
     let array_element = new Array;
     array_element.push({ id: "a_copy_document_production_proceedings" }, { id: "a_copy_document_proceedings" },
         { id: "a_link_document_proceedings" }, { id: "a_auto_link_document_proceedings" },
-        { id: "Button_actualizar_nota" }, { id: "a_copy_document_production_proceedings_" }, { id: "a_copy_document_proceedings_" },
+        { id: "a_copy_document_production_proceedings_" }, { id: "a_copy_document_proceedings_" },
         { id: "a_link_document_proceedings_" }, { id: "a_auto_link_document_proceedings_" }, { id: "a_list_copy_document_expedient" },
         { id: "btn_nav_registra_gestion_user" }, { id: "btn_nav_lista_gestion_user" }, { id: "Button_registra_gestion" }, { id: "Button_actualiza_registra_gestion" },
         { id: "boton_menu_stamp_firm" }, { id: "btnloadservice" }, { id: "Button_Activa_guardar_Multiplex_Constancias_sii" }, { id: "Button_guarda_inscipciones_sii" },
         { id: "a_adj_service_web" }, { id: "Button_guarda_anexos_sii" }, { id: "btnLoadFile" }, { id: "btnLoadFileEnlace"}
-    );
-    for (let i = 0; i < array_element.length; i++) {
-        let elment_a_document_production = document.getElementById(array_element[i].id);
-        if (elment_a_document_production) {
-            elment_a_document_production.addEventListener("click", handler_element_event, false);
-        }
-    }
-    //active note procesing
-    array_element = new Array;
-    array_element.push(
-        { id: "Button_actualizar_nota" }, { id: "Button_Show_Guardar" }, { id: "Button_duardar_nota" }
     );
     for (let i = 0; i < array_element.length; i++) {
         let elment_a_document_production = document.getElementById(array_element[i].id);
@@ -893,9 +952,7 @@ function rezize_event() {
         auto_zise_popup_detalle_radicado();
         auto_zise_popup_lista_usuario_flujo();
         auto_zise_popup_autorizados();
-        auto_size_content_anotacion();
         auto_zise_popup_visor_tarea_pendiente();
-        auto_zise_nota_tarea();
         auto_zise_tareas_pendientes();
         auto_zise_popup_consulta_meta_dato();
         auto_zise_popup_detalle_grupo_usuario();
@@ -1032,24 +1089,6 @@ const handler_element_event = (e) => {
                 break;
             case "a_auto_link_document_proceedings_":
                 result = Event_document_proceesings("C-DW-AUTO-VIN", "", "GridView_list_documento_relacion_wf", "chek_selecion_list_wf");
-                if (result !== "YES") {
-                    alert(result);
-                }
-                break;
-            case "Button_actualizar_nota":
-                result = Event_note_workflow(document.getElementById("hdnidlista").value, document.getElementById("TextBox_nota").value, "Button_actualizar_nota");
-                if (result !== "YES") {
-                    alert(result);
-                }
-                break;
-            case "Button_Show_Guardar":
-                result = Event_note_workflow("", "", "Button_Show_Guardar");
-                if (result !== "YES") {
-                    alert(result);
-                }
-                break;   
-            case "Button_duardar_nota":
-                result = Event_note_workflow("", document.getElementById("TextBox_nota").value, "Button_duardar_nota");
                 if (result !== "YES") {
                     alert(result);
                 }
@@ -1245,33 +1284,6 @@ const Event_document_proceesings = (ident_proceesing, description_proceesing, na
         return "function Event_document_proceesings error : " + ex.mensaje;
     }   
 }
-const Event_note_workflow = (ident_note, date_note,ident_booton ) => {
-    try {
-        if (ident_booton == "Button_actualizar_nota") {
-            if (ident_note== - 1 || ident_note == 1) {
-                return "Debe selecionar la nota";
-            }
-            if (date_note == "" ) {
-                return "Debe informar la nota";
-            }
-            event_element_menu(ident_booton, "");
-            return "YES"
-        }
-        //Activa ventana guardar nota
-        if (ident_booton == "Button_Show_Guardar") {
-            let result = Show_new_note_workflow();
-            return result;
-        }
-        //Guarda la nota workflow
-        if (ident_booton == "Button_duardar_nota") {
-            event_element_menu(ident_booton, "");
-            return "YES"
-        }
-        return "YES"
-    } catch (ex) {
-        return "Error funcion Event_note_workflow " & ex.mensaje
-    }
-}
 //Eventos detail procesing document workflow 
 //--------Activa el show de las transaciones de la tarea con documentos
 let ID_TAREA_WORKFLOW_WF = 0;  
@@ -1315,21 +1327,6 @@ const event_change_drowslisi_lista_tipos_gestion_usuario = async (e) => {
         alert_bot(ex.mensaje, 'warning', "error_registro_gestion_usuario");
     } finally {
         progres_hiden('progres_bar');
-    }
-}
-//Active ventana add new note task workflow
-const Show_new_note_workflow = () => {
-    try {
-        document.getElementById("TextBox_nota").value = "";
-        document.getElementById("Button_actualizar_nota").style.display = "none";
-        document.getElementById("Button_duardar_nota").style.display = "flex";
-        document.getElementById("Label_nota_respuesta").innerHTML = "Nueva nota";
-        $find("ModalPopupExtender_edition_nota_respuesta").show();
-        auto_zise_nota_tarea();
-        return "YES";
-    }
-    catch (ex) {
-    return "Error funcion Event_note_workflow " & ex.mensaje
     }
 }
 function botom_boton_event_actualiza_indice_batch_wf(e) {
@@ -1719,18 +1716,6 @@ function event_element_menu(evento, tip_event) {
                 //Delete severals images on workflow link
                 if (evento == "C-DW-DEL-IMAGE-ENLACE") {
                     event_multiple_row("", "GridView_list_documento_relacion", "elimina_doc_enlace_wf");
-                    return true;
-                }
-                if (evento == "Button_actualizar_nota") {      
-                    Service_actualiza_nota_tarea_workflow(document.getElementById("hdnidlista").value, document.getElementById("TextBox_nota").value);
-                    return true;
-                }
-                if (evento == "Button_duardar_nota") {
-                    Service_add_nota_tarea_workflow(document.getElementById("TextBox_nota").value);
-                    return true;
-                }
-                if (evento == "delete_note_workflow") {
-                    Service_delete_nota_tarea_workflow(tip_event,document.getElementById("TextBox_nota").value);
                     return true;
                 }
                 if (evento == "C-DW-DETAIL-DOCUMENT") {
@@ -3379,231 +3364,6 @@ function Service_lista_copia_documento_expediente(table, id_tarea) {
         alert(ex.message + " funcion Service_lista_copia_documento_expediente");
     }
 }
-////WEB SERVICE ACTUALIZA NOTA TAREA
-function Service_actualiza_nota_tarea_workflow(id_nota, value_nota) {
-    try {
-        $.ajax('../webservice/WebServiceWorkflow.asmx/Service_actualiza_nota_tarea_workflow', {
-            data: "{" + "'parameter':'" + id_nota + "','value_nota':'" + value_nota + "'}",
-            dataType: 'json',
-            type: "POST",
-            traditional: true,
-            processData: false,
-            contentType: "application/json; charset=utf-8",
-            success: function (data) {
-                if (data.d[0].error_result !== "YES") {
-                    alert(data.d[0].error_result);
-                    ESTADO_EVENT_GENERAL = "out";
-                } else {   
-                    actualiza_gre_campo_wf_lista('GridView_lista_notas', data.d[0].identificador, data.d[0].value, 'NOTA');
-                    $find("ModalPopupExtender_edition_nota_respuesta").hide();
-                    ESTADO_EVENT_GENERAL = "out";
-                }
-            }, error: function (xception, textStatus, errorThrown) {
-                ESTADO_EVENT_GENERAL = "out";
-                if (xception.status === 0) {
-                    alert('Not connect: Verify Network.');
-
-                } else if (xception.status == 404) {
-                    alert('Requested page not found [404]');
-
-                } else if (xception.status == 500) {
-                    alert('Internal Server Error [500].' + xception.responseText);
-
-
-                } else if (textStatus === 'parsererror') {
-                    alert('Requested JSON parse failed.');
-
-
-                } else if (textStatus === 'timeout') {
-                    alert('Time out error.');
-
-
-                } else if (textStatus === 'abort') {
-                    alert('Ajax request aborted.');
-
-                } else {
-                    alert('Uncaught Error: ' + xception.responseText);
-
-                }
-            }
-        });
-    }
-    catch (ex) {
-        ESTADO_EVENT_GENERAL = "out";
-        alert(ex.message);
-    }
-}
-//WEB SERVICE ELIMINA ANOTAION
-function Service_delete_nota_tarea_workflow(id_nota, value_nota) {
-    try {
-        $.ajax('../webservice/WebServiceWorkflow.asmx/Service_delete_nota_tarea_workflow', {
-            data: "{" + "'parameter':'" + id_nota + "','value_nota':'" + value_nota + "'}",
-            dataType: 'json',
-            type: "POST",
-            traditional: true,
-            processData: false,
-            contentType: "application/json; charset=utf-8",
-            success: function (data) {
-                if (data.d[0].error_result !== "YES") {
-                    alert(data.d[0].error_result);
-                    ESTADO_EVENT_GENERAL = "out";
-                } else {
-                    let result = eliminar_fila_data_gred_nota(data.d[0].identificador, 'GridView_lista_notas');
-                    if (result !== "YES") {
-                        alert(result);
-                    }
-                    ESTADO_EVENT_GENERAL = "out";
-                }
-            }, error: function (xception, textStatus, errorThrown) {
-                ESTADO_EVENT_GENERAL = "out";
-                if (xception.status === 0) {
-                    alert('Not connect: Verify Network.');
-
-                } else if (xception.status == 404) {
-                    alert('Requested page not found [404]');
-
-                } else if (xception.status == 500) {
-                    alert('Internal Server Error [500].' + xception.responseText);
-
-
-                } else if (textStatus === 'parsererror') {
-                    alert('Requested JSON parse failed.');
-
-
-                } else if (textStatus === 'timeout') {
-                    alert('Time out error.');
-
-
-                } else if (textStatus === 'abort') {
-                    alert('Ajax request aborted.');
-
-                } else {
-                    alert('Uncaught Error: ' + xception.responseText);
-
-                }
-            }
-        });
-    }
-    catch (ex) {
-        ESTADO_EVENT_GENERAL = "out";
-        alert(ex.message);
-    }
-}
-//WEB SERVICE ADD ANOTACION
-function Service_add_nota_tarea_workflow(value_nota) {
-    try {
-        $.ajax('../webservice/WebServiceWorkflow.asmx/Service_add_nota_tarea_workflow', {
-            data: "{'value_nota':'" + value_nota + "'}",
-            dataType: 'json',
-            type: "POST",
-            traditional: true,
-            processData: false,
-            contentType: "application/json; charset=utf-8",
-            success: function (data) {
-                if (data.d[0].error_result !== "YES") {
-                    alert(data.d[0].error_result);
-                    ESTADO_EVENT_GENERAL = "out";
-                } else {
-                    let result = insert_row_list_anotation(data, "GridView_lista_notas");
-                    if (result !== "YES") {
-                        alert(result);
-                    }
-                    $find("ModalPopupExtender_edition_nota_respuesta").hide();
-                    ESTADO_EVENT_GENERAL = "out";
-                }
-            }, error: function (xception, textStatus, errorThrown) {
-                ESTADO_EVENT_GENERAL = "out";
-                if (xception.status === 0) {
-                    alert('Not connect: Verify Network.');
-
-                } else if (xception.status == 404) {
-                    alert('Requested page not found [404]');
-
-                } else if (xception.status == 500) {
-                    alert('Internal Server Error [500].' + xception.responseText);
-
-
-                } else if (textStatus === 'parsererror') {
-                    alert('Requested JSON parse failed.');
-
-
-                } else if (textStatus === 'timeout') {
-                    alert('Time out error.');
-
-
-                } else if (textStatus === 'abort') {
-                    alert('Ajax request aborted.');
-
-                } else {
-                    alert('Uncaught Error: ' + xception.responseText);
-
-                }
-            }
-        });
-    }
-    catch (ex) {
-        ESTADO_EVENT_GENERAL = "out";
-        alert(ex.message);
-    }
-}
-//WEB SERVICE SOLICITA CONTENIDO NOTA
-function Service_contenido_nota_tarea_workflow(id_nota, element_name) {
-    try {
-        $.ajax('../webservice/WebServiceWorkflow.asmx/Service_contenido_nota_tarea_workflow', {
-            data: "{" + "'parameter':'" + id_nota + "'}",
-            dataType: 'json',
-            type: "POST",
-            traditional: true,
-            processData: false,
-            contentType: "application/json; charset=utf-8",
-            success: function (data) {
-                if (data.d[0].error_result !== "YES") {
-                    alert(data.d[0].error_result);
-                    ESTADO_EVENT_GENERAL = "out";
-                } else {
-                    document.getElementById(element_name).value = data.d[0].value;
-                    document.getElementById("Button_actualizar_nota").style.display = "flex";
-                    document.getElementById("Button_duardar_nota").style.display = "none";
-                    document.getElementById("Label_nota_respuesta").innerHTML = "Nota " + data.d[0].identificador;
-                    $find("ModalPopupExtender_edition_nota_respuesta").show();
-                    auto_zise_nota_tarea();
-                    ESTADO_EVENT_GENERAL = "out";
-                }
-            }, error: function (xception, textStatus, errorThrown) {
-                ESTADO_EVENT_GENERAL = "out";
-                if (xception.status === 0) {
-                    alert('Not connect: Verify Network.');
-
-                } else if (xception.status == 404) {
-                    alert('Requested page not found [404]');
-
-                } else if (xception.status == 500) {
-                    alert('Internal Server Error [500].' + xception.responseText);
-
-
-                } else if (textStatus === 'parsererror') {
-                    alert('Requested JSON parse failed.');
-
-
-                } else if (textStatus === 'timeout') {
-                    alert('Time out error.');
-
-
-                } else if (textStatus === 'abort') {
-                    alert('Ajax request aborted.');
-
-                } else {
-                    alert('Uncaught Error: ' + xception.responseText);
-
-                }
-            }
-        });
-    }
-    catch (ex) {
-        ESTADO_EVENT_GENERAL = "out";
-        alert(ex.message);
-    }
-}
 function Service_Eval_tarea_default_workflow() {
     try {
         var id = 0;
@@ -4936,31 +4696,6 @@ function prevent_cerrar(event, element) {
         alert(err.message + " Funcion prevent_cerrar ");
     }
 }
-function prevent_event(event, element) {
-    try {
-        var fer = $(element).attr("idd");
-        var tip_event = $(element).attr("tip_event");
-        if (tip_event == "eli_nota") {
-            var r = confirm("Desea eliminar la nota");
-            if (r == false) {
-                return false;
-            }
-            $('#hdnidlista').val(fer);
-            event_element_menu("delete_note_workflow", fer);
-        }
-        if (tip_event == "ver_nota") {
-            $('#hdnidlista').val(fer);
-            Service_contenido_nota_tarea_workflow(fer, "TextBox_nota");
-            
-            //document.getElementById("Button_ver_nota").click();
-        }
-        event.preventDefault();
-        element.focus();
-    }
-    catch (err) {
-        alert(err.message + " Funcion prevent_event");
-    }
-}
 function preven_event_search_lista_actividad(event, e) {
     try {
         document.getElementById("Button_tool_busqueda_enviar_actividad").click();
@@ -5839,9 +5574,6 @@ function show_area_workflow_seleccion() {
         if (document.getElementById("Panel_devolver_tarea")) {
             document.getElementById("Panel_devolver_tarea").style.display = "block";
         }
-        if (document.getElementById("Panel_Buttonanotacion")) {
-            document.getElementById("Panel_Buttonanotacion").style.display = "block";
-        }
         if (document.getElementById("Panel_autoriza")) {
             document.getElementById("Panel_autoriza").style.display = "block";
         }
@@ -5901,9 +5633,6 @@ function hide_area_workflow_seleccion() {
         if (document.getElementById("Panel_autoriza")) {
             document.getElementById("Panel_autoriza").style.display = "none";
         }
-        if (document.getElementById("Panel_Buttonanotacion")) {
-            document.getElementById("Panel_Buttonanotacion").style.display = "none";
-        }
         if (document.getElementById("Panel_autoterminar")) {
             document.getElementById("Panel_autoterminar").style.display = "none";
         }            
@@ -5924,76 +5653,6 @@ function hide_area_workflow_seleccion() {
     }
     catch (err) {
         alert(err.message + " funcion hide_area_workflow_seleccion " + err.message);
-    }
-}
-function auto_size_content_anotacion() {
-    try {
-        var espacio_iframe = 420;
-        var hidenpadre = 0;
-        var with_frame = 420;
-        if (window.innerHeight) {
-            //navegadores basados en mozilla 
-            espacio_iframe = window.innerHeight;
-            with_frame = window.innerWidth;
-        } else {
-            if (document.body.clientHeight) {
-                //Navegadores basados en IExplorer, es que no tengo innerheight 
-                espacio_iframe = document.body.clientHeight;
-                with_frame = document.body.clientWidth;
-            } else {
-                //otros navegadores y iframe
-                //hidenpadre = $('#Hiddenheigpaginapopup', window.parent.document).val();
-
-            }
-        }
-        //corrige el posicionamiento horizontal del modalpopuextender, la propiedad width del panel debe estar en auto
-        //var widtth_procent_left_rigth = (with_frame - document.getElementById("Panel_agregar_expediente_carpeta").clientHeight) / 2;
-        //$('#Panel_agregar_expediente_carpeta').css("left", (Math.round(widtth_procent_left_rigth)) + "px");
-        var heig_porcent = espacio_iframe - ((espacio_iframe * 1) / 100);  // Indica el porcentaje de espacio vertical del elemento
-        $('#modal_content_anotacion').css("height", (heig_porcent - 1) + "px"); // Asigna altura del contenedor bootstraf
-        //Asgina el valor del contenido central del modal  contenedor bootstraf  menos la suma del footer y la cabecera
-        $('#contenido_procesa_content_anotacion').css("height", (document.getElementById("modal_content_anotacion").clientHeight - (document.getElementById("content_boton").clientHeight + document.getElementById("diver_cabcera_content_anotacion").clientHeight)) + "px");
-        //Para los modal que contiene gred
-        $('#Panel_content_anotacion_gred').css("height", (document.getElementById("contenido_procesa_content_anotacion").clientHeight - 5) + "px");
-    }
-    catch (err) {
-        alert(err.message + " funcion auto_size_content_anotacion " + err.message);
-    }
-}
-function auto_zise_nota_tarea() {
-    try {
-        var espacio_iframe = 420;
-        var hidenpadre = 0;
-        var with_frame = 420;
-        if (window.innerHeight) {
-            //navegadores basados en mozilla 
-            espacio_iframe = window.innerHeight;
-            with_frame = window.innerWidth;
-        } else {
-            if (document.body.clientHeight) {
-                //Navegadores basados en IExplorer, es que no tengo innerheight 
-                espacio_iframe = document.body.clientHeight;
-                with_frame = document.body.clientWidth;
-            } else {
-                //otros navegadores y iframe
-                //hidenpadre = $('#Hiddenheigpaginapopup', window.parent.document).val();
-
-            }
-        }
-        //corrige el posicionamiento horizontal del modalpopuextender, la propiedad width del panel debe estar en auto
-        //var widtth_procent_left_rigth = (with_frame - document.getElementById("Panel_agregar_expediente_carpeta").clientHeight) / 2;
-        //$('#Panel_agregar_expediente_carpeta').css("left", (Math.round(widtth_procent_left_rigth)) + "px");
-        var heig_porcent = espacio_iframe - ((espacio_iframe * 50) / 100);  // Indica el porcentaje de espacio vertical del elemento
-        $('#Panel_nota_respuesta').css("height", (heig_porcent) + "px"); //Asigna altura al panel contenedor del modal
-        $('#modal_content_nota_respuesta').css("height", (heig_porcent - 10) + "px"); // Asigna altura del contenedor bootstraf
-        //Asgina el valor del contenido central del modal  contenedor bootstraf  menos la suma del footer y la cabecera
-        $('#contenido_procesa_nota_respuesta').css("height", (document.getElementById("modal_content_nota_respuesta").clientHeight - (document.getElementById("divcabecer_nota_respuesta").clientHeight + document.getElementById("content_boton_nota").clientHeight)) + "px");
-        //Para los modal que contiene gred
-        //$('#TextBox_nota').css("height", (document.getElementById("contenido_procesa_nota_respuesta").clientHeight - 5) + "px");
-
-    }
-    catch (err) {
-        alert(err.message + " funcion auto_zise_nota_tarea " + err.message);
     }
 }
 function auto_zise_popup_envia_usuario_grupo() {
@@ -7743,100 +7402,6 @@ function ConfirmMensajeGeneral_dos(mensaje, name_hiden) {
         return res;
     }
     
-const eliminar_fila_data_gred_nota =(id_nota, name_table)=> {
-    try {
-        $("#" + name_table + " tr[id=" + id_nota + "]").remove();
-        $('#hdnidlista').val("-1");
-        return "YES";
-    }
-    catch (err) {
-        return "Funcion eliminar_fila_data_gred_nota error : " + err.mensaje;
-    }
-
-}
-//Inserta row lista anotaciones
-const insert_row_list_anotation = (array_date, data_table) => {
-    try {
-        var element_table = document.getElementById(data_table);
-        var element_row;
-        var element_td;
-        var index_tr_title = -1;
-        for (i = 0; i < element_table.rows.length; i++) {
-            if (element_table.rows[i].className == "GridviewScrollHeader_line_boot") {
-                index_tr_title = i + 1;
-            }
-        }
-        element_row = element_table.insertRow(index_tr_title);
-        //Agrega los atributos del row
-        var conta_td = 0;
-        element_td = element_row.insertCell(conta_td);
-        element_row.setAttribute("id", array_date.d[0].detailt_note.id_anotacion);
-        element_row.style.cursor = "pointer";
-        element_row.style.background = "#e8e8f7";
-        element_row.style.color = "black";
-        //Agrega el boton de ver anotacion
-        var divhtml = document.createElement("div");
-        var ihtml = document.createElement("i");
-        ihtml.style.color = "white";
-        ihtml.classList.add("fas");
-        ihtml.classList.add("fa-sticky-note");
-        var ahtml = document.createElement("a");
-        ahtml.classList.add("btn");
-        ahtml.classList.add("btn-success");
-        ahtml.classList.add("btn-sm");
-        ahtml.setAttribute("onclick", "prevent_event(event,this);");
-        ahtml.setAttribute("title", "nota");
-        ahtml.setAttribute("idd", array_date.d[0].detailt_note.id_anotacion);
-        ahtml.setAttribute("tip_event", "ver_nota");
-        ahtml.style.marginLeft = "3px";
-        ahtml.appendChild(ihtml);
-        divhtml.appendChild(ahtml);
-        //Agrega boton eliminar nota
-        ihtml = document.createElement("i");
-        ihtml.style.color = "white";
-        ihtml.classList.add("far");
-        ihtml.classList.add("fa-trash-alt");
-        ihtml.classList.add("fa-lg");
-        ahtml = document.createElement("a");
-        ahtml.classList.add("btn");
-        ahtml.classList.add("btn-danger");
-        ahtml.classList.add("btn-sm");
-        ahtml.setAttribute("onclick", "prevent_event(event,this);");
-        ahtml.setAttribute("title", "Eliminar nota");
-        ahtml.setAttribute("idd", array_date.d[0].detailt_note.id_anotacion);
-        ahtml.setAttribute("tip_event", "eli_nota");
-        ahtml.style.marginLeft = "3px";
-        ahtml.appendChild(ihtml);
-        divhtml.appendChild(ahtml);
-        divhtml.style.display = "inline-flex";
-        element_td.appendChild(divhtml);
-        conta_td++;
-        element_td = element_row.insertCell(conta_td);
-        element_td.innerHTML = array_date.d[0].detailt_note.nombre_usuario;
-        element_td.classList.add("GridviewScrollItem_line_cort_tr_flex");
-        element_td.setAttribute("onclick", "prevent_scrol(event,this,'')");
-        conta_td++;
-        element_td = element_row.insertCell(conta_td);
-        element_td.innerHTML = array_date.d[0].detailt_note.loguin_usuario;
-        element_td.classList.add("GridviewScrollItem_line_cort_tr_flex");
-        element_td.setAttribute("onclick", "prevent_scrol(event,this,'')");
-        conta_td++;
-        element_td = element_row.insertCell(conta_td);
-        element_td.innerHTML = array_date.d[0].detailt_note.dato_anotacion;
-        element_td.classList.add("GridviewScrollItem_line_cort_tr_flex");
-        element_td.setAttribute("onclick", "prevent_scrol(event,this,'')");
-        conta_td++;
-        element_td = element_row.insertCell(conta_td);
-        element_td.innerHTML = array_date.d[0].detailt_note.fecha_anotacion;
-        element_td.classList.add("GridviewScrollItem_line_cort_tr_flex");
-        element_td.setAttribute("onclick", "prevent_scrol(event,this,'')");
-        return "YES";
-    }
-    catch (ex) {
-        return "function insert_row_list_anotation error " + ex.mensaje;
-    }
-}
- //Inserta row lista workflow
 function insert_row_lista_workflow(id_tarea, data_table, data_campos) {
     try {
         var element_table = document.getElementById(data_table);
