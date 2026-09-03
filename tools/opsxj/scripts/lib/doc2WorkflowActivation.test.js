@@ -258,7 +258,7 @@ describe("DOC-2 workflow visual activation", () => {
     [
       "Continuar flujo",
       "Elegir actividad anterior",
-      "js/workflow/Webworkflow.js?v=20260902-doc45-notes-modal3",
+      "js/workflow/Webworkflow.js?v=20260903-doc45-empty-ready1",
       "workflow-centro-trabajo-moderno.css",
       'aria-label="Seleccionar todos los documentos"',
       'role="status" aria-live="polite"',
