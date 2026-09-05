@@ -2,9 +2,38 @@
 
 Implementa el primer adaptador del núcleo creado en el Prompt 01. Lee la exploración completa y conserva los controles de permiso, tarea, ruta, trámite y servicio configurado.
 
+Depende de los prompts backend 01, 02 y de la porción de consulta del 06. Consume exclusivamente `ResolveCapabilities` y `QueryItems` conforme al contrato compartido versionado.
+
 ## Objetivo
 
 Encapsular la consulta SII existente y traducirla al contrato común sin mutación.
+
+## Rutas canónicas de implementación
+
+```txt
+js/workflow/importar-servicio-web/sii/
+├── importar-servicio-web-sii-adapter.js
+├── importar-servicio-web-sii-contract-mapper.js
+└── importar-servicio-web-sii-list.js
+
+Tests/
+├── importar-servicio-web-sii-adapter.test.cjs
+├── importar-servicio-web-sii-list.test.cjs
+└── importar-servicio-web-sii-query-contract.test.cjs
+```
+
+- Reutilizar fixtures de `Tests/Fixtures/Workflow/ImportarServicioWeb/contracts-v1/` y `sii-v1/`; no copiarlos.
+- Registrar módulos nuevos en el `.vbproj` y consumir `importar-servicio-web-api.js`; no hacer AJAX desde lista o mapper.
+- No agregar reglas SII al núcleo, `Webworkflow.aspx`, `Webworkflow.aspx.vb` o scripts globales.
+- No modificar `Webworkflow.js`, ASMX legacy, `Class_consultarInformacionSello` ni almacenamiento.
+
+## Ruta documental obligatoria
+
+```txt
+docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-adaptador-sii-consulta-listado/
+```
+
+Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diagramas/` sin duplicarlo bajo `Doc/Actualizacion`.
 
 ## Implementa
 
@@ -18,6 +47,8 @@ Encapsular la consulta SII existente y traducirla al contrato común sin mutaci�
 ## Restricciones
 
 - La consulta no cambia documentos, expedientes, índices, caché ni auditoría funcional.
+- No llames directamente el transporte SII ni interpretes respuestas ASMX o códigos legacy desde el frontend moderno.
+- No modifiques `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` ni el recorrido vigente.
 - No expongas token, credenciales, URL técnica permanente, ruta física ni respuesta externa cruda.
 - No ejecutes consultas reales contra SII durante pruebas automatizadas.
 
@@ -46,13 +77,13 @@ Describir el objetivo funcional y tecnico verificable.
 - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
 
 ## Contexto obligatorio
-Listar archivos, modulos, servicios, hooks, adapters y documentacion que deben leerse antes de implementar.
+Leer F01, contratos/fixtures B01, endpoints publicados por B06 y el comportamiento de consulta en `webservice/WebService_integracion_sii.asmx.vb` y `Integracionccv/Class_consultarInformacionSello.vb` solo como referencia; no modificarlos.
 
 ## Pruebas obligatorias
 Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
 
 ## Documentacion tecnica
-Actualizar el paquete documental canonico del ticket.
+Actualizar exclusivamente el paquete de **Ruta documental obligatoria**, incluida la frontera núcleo/SII, mapping contractual, estados de consulta, pruebas y diagramas.
 
 ## Entregable final
 Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.

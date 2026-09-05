@@ -1,3 +1,6 @@
+# Secuencia de guardado múltiple actual
+
+```mermaid
 sequenceDiagram
     autonumber
     actor U as Usuario
@@ -41,3 +44,4 @@ sequenceDiagram
       WSS->>DB: INSERT con datos del primer elemento
     end
     JS-->>U: cerrar modales o mostrar error
+```

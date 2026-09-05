@@ -1,3 +1,6 @@
+# Estados actuales
+
+```mermaid
 stateDiagram-v2
     [*] --> SinTarea
     SinTarea --> Bloqueada: tarea 0 o -1
@@ -42,3 +45,4 @@ stateDiagram-v2
     SinAdaptadorObservado --> [*]
     Bloqueada --> [*]
     ErrorParcial --> [*]
+```

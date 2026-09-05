@@ -2,9 +2,42 @@
 
 Actúa como implementador senior de ASP.NET WebForms, JavaScript y accesibilidad. Lee completa la exploración y el preview indicados en `README.md`, inspecciona el código vigente y crea o continúa un cambio OpenSpec antes de modificar código productivo.
 
+Depende del contrato publicado por el Prompt backend 01 y debe consumir la versión definida en `../CONTRATO-COMPARTIDO-FRONTEND-BACKEND.md`. Si ese contrato no existe todavía, limita la entrega a UI y adaptadores falsos locales.
+
 ## Objetivo
 
 Construir el núcleo frontend genérico de **Importar documentos desde servicio**, desacoplado de SII, con resolución del proveedor configurado y registro explícito de adaptadores.
+
+## Rutas canónicas de implementación
+
+```txt
+js/workflow/importar-servicio-web/
+├── importar-servicio-web-api.js
+├── importar-servicio-web-core.js
+├── importar-servicio-web-provider-registry.js
+└── importar-servicio-web-ui.js
+
+Styles/
+└── importar-servicio-web-modern.css
+
+Tests/
+├── importar-servicio-web-core.test.cjs
+├── importar-servicio-web-provider-registry-ui.test.cjs
+└── importar-servicio-web-accessibility.test.cjs
+```
+
+- El marcado aditivo vive en `workflow/Webworkflow.aspx`; la carga de assets y gate en `workflow/Webworkflow.aspx.vb`.
+- Los módulos nuevos se registran como `<Content>` en el `.vbproj`; no insertar lógica de negocio inline en `.aspx` o `.aspx.vb`.
+- `importar-servicio-web-api.js` es el único cliente de operaciones backend modernas; `ui.js` no hace AJAX directo.
+- No crear código nuevo en `js/Webworkflow.js`, `js/java_general/JSProgresBar.js`, `App_Code/` ni scripts globales legacy.
+
+## Ruta documental obligatoria
+
+```txt
+docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-nucleo-registro-adaptadores/
+```
+
+Sustituir `SCRUMCORE-000` por el ticket real y crear `00-Indice.md` a `07-Metadata.md` y `Diagramas/` según el paquete canónico de `opsxj`.
 
 ## Implementa
 
@@ -19,6 +52,8 @@ Construir el núcleo frontend genérico de **Importar documentos desde servicio*
 
 - El núcleo no puede referenciar `CIncripcionSII`, caché SII, libro, registro, matrícula, acto, noticia ni código de barras.
 - No cambies endpoints mutadores ni inventes respuestas backend.
+- El orquestador de UI coordina presentación y solicitudes; nunca ejecuta las fases mutadoras ni decide su orden.
+- No modifiques `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento`, endpoints ni consumidores legacy.
 - Un proveedor desconocido nunca debe dirigirse a SII.
 - Mantén el recorrido anterior cuando el gate esté desactivado.
 
@@ -47,13 +82,13 @@ Describir el objetivo funcional y tecnico verificable.
 - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
 
 ## Contexto obligatorio
-Listar archivos, modulos, servicios, hooks, adapters y documentacion que deben leerse antes de implementar.
+Leer `workflow/Webworkflow.aspx`, `workflow/Webworkflow.aspx.vb`, `js/workflow/workflow-transition-ui.js`, `js/workflow/workflow-transition-page-presentation.js`, `Styles/workflow-transition-modern.css`, el contrato compartido y fixtures B01. Son referencia de convención; no acoplar ImportarServicioWeb con Terminar.
 
 ## Pruebas obligatorias
 Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
 
 ## Documentacion tecnica
-Actualizar el paquete documental canonico del ticket.
+Actualizar exclusivamente el paquete de **Ruta documental obligatoria**, con arquitectura, integración, contrato/mapping, estados, pruebas, diagramas y metadata reales.
 
 ## Entregable final
 Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
@@ -64,9 +99,8 @@ Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo 
 - Dejar evidencia de pruebas y documentacion tecnica actualizada.
 
 ## Reglas de ubicacion de codigo
-- Si se construye una app reusable o componente compartido, ubicarlo bajo `src/app/Components/<NombreComponente>/` o la ruta compartida equivalente existente.
-- Si se implementa comportamiento de modulo funcional, ubicarlo bajo `src/modules/<modulo>/components/`, `hooks/`, `services/`, `adapters/` o `types/` segun responsabilidad.
-- Adaptarse a la estructura existente del repo antes de crear carpetas nuevas.
+- Usar exclusivamente `js/workflow/importar-servicio-web/`, `Styles/importar-servicio-web-modern.css`, los puntos aditivos declarados de `workflow/Webworkflow.aspx(.vb)` y las pruebas indicadas en **Rutas canónicas de implementación**.
+- No crear `src/app`, `src/modules`, otra raíz frontend, scripts globales o una implementación paralela fuera de la carpeta del feature.
 
 Exigir `npm run build` o `tsc` segun impacto y registrar el resultado.
 

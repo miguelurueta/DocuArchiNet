@@ -1,3 +1,6 @@
+# Secuencia de guardado individual actual
+
+```mermaid
 sequenceDiagram
     autonumber
     actor U as Usuario
@@ -48,3 +51,4 @@ sequenceDiagram
       WSS-->>JS: error_gestion y dato_lista
       JS-->>U: insertar documento en la lista
     end
+```

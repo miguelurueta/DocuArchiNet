@@ -1,3 +1,6 @@
+# Retorno a la lista de documentos actual
+
+```mermaid
 sequenceDiagram
     participant ALM as AlmacenaDocumentoTareaWorkflow
     participant WSS as SeviceGuardaConstanciaInscripcionSII
@@ -9,3 +12,4 @@ sequenceDiagram
     WSS-->>AJAX: error_gestion = YES y dato_lista
     AJAX->>AJAX: separar dato_lista y validar respuesta
     AJAX->>UI: insert_row_documento_relacionado(...)
+```

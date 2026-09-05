@@ -2,9 +2,28 @@
 
 Extiende el núcleo y el adaptador SII sin reutilizar como autoridad las URL recibidas en las filas.
 
+Depende de `GetPreview` publicado por los prompts backend 01, 02 y 06. Debe respetar íntegramente la sección de preview mediado del contrato compartido.
+
 ## Objetivo
 
 Mostrar un recurso externo todavía no importado mediante una vista mediada y mantener separado el documento ya almacenado.
+
+## Rutas canónicas de implementación
+
+```txt
+js/workflow/importar-servicio-web/
+├── importar-servicio-web-preview.js
+└── importar-servicio-web-preview-state.js
+
+Tests/
+├── importar-servicio-web-preview.test.cjs
+├── importar-servicio-web-preview-security.test.cjs
+└── importar-servicio-web-preview-accessibility.test.cjs
+```
+
+- El panel se agrega de forma aditiva en `workflow/Webworkflow.aspx`; sus estilos van únicamente en `Styles/importar-servicio-web-modern.css`.
+- Preview usa `importar-servicio-web-api.js`; no crea un segundo cliente HTTP ni inserta URL externa como autoridad.
+- Registrar scripts en el `.vbproj`; no usar JavaScript inline, `window.open` como flujo principal ni modificar visores documentales existentes.
 
 ## Implementa
 
@@ -20,6 +39,7 @@ Mostrar un recurso externo todavía no importado mediante una vista mediada y ma
 - No insertes directamente una URL externa de la fila en `iframe` ni uses `window.open` como recorrido principal.
 - No registres ni muestres tokens, rutas físicas o respuestas externas completas.
 - Si el backend mediador aún no existe, deja el estado bloqueado y documenta el contrato requerido; no lo simules en producción.
+- No modifiques almacenamiento, `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` ni rutas legacy.
 
 ## Aceptación
 
@@ -45,21 +65,20 @@ Describir el objetivo funcional y tecnico verificable.
 - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
 
 ## Contexto obligatorio
-Listar archivos, modulos, servicios, hooks, adapters y documentacion que deben leerse antes de implementar.
+Leer F01–F02, contrato `GetPreview`, fixtures B01/B06, `workflow/Webworkflow.aspx` y el visor documental vigente. El visor existente es referencia/reutilización y no se modifica.
 
 ## Pruebas obligatorias
 Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
 
 ## Documentacion tecnica
-Actualizar el paquete documental canonico del ticket.
+Actualizar exclusivamente el paquete definido en **Ruta documental obligatoria**, incluida seguridad del preview, expiración, fallbacks, accesibilidad, pruebas y diagramas.
 
 ## Entregable final
 Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
 
 ## Reglas de ubicacion de codigo
-- Si se construye una app reusable o componente compartido, ubicarlo bajo `src/app/Components/<NombreComponente>/` o la ruta compartida equivalente existente.
-- Si se implementa comportamiento de modulo funcional, ubicarlo bajo `src/modules/<modulo>/components/`, `hooks/`, `services/`, `adapters/` o `types/` segun responsabilidad.
-- Adaptarse a la estructura existente del repo antes de crear carpetas nuevas.
+- Usar exclusivamente las rutas declaradas en **Rutas canónicas de implementación**.
+- No crear `src/app`, `src/modules`, otra raíz frontend ni una segunda implementación del visor.
 
 Agregar regla para [FLOW_DETAIL_REQUIRED]: Flujo paso a paso, secuencia o comportamiento esperado.
 
@@ -76,20 +95,12 @@ Cuando el ticket afecte un flujo completo de usuario, navegacion, integracion en
 Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
 
 ## Ruta documental obligatoria
-La documentacion debe quedar en una ruta canonica segun el contexto:
 
 ```txt
-Modulo funcional:
-docs/modulos/<modulo>/<feature>/SCRUMCORE-000-resumen-del-asunto/
-
-App reusable / nucleo compartido:
-docs/Architecture/<area>/<feature>/SCRUMCORE-000-resumen-del-asunto/
-
-Componente compartido documentado historicamente:
-docs/Components/<componente>/SCRUMCORE-000-resumen-del-asunto/
+docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-vista-segura-recursos-externos/
 ```
 
-Usar siempre identificador SCRUMCORE para el paquete documental del frontend.
+Sustituir `SCRUMCORE-000` por el ticket real. No crear documentación en otra ruta ni duplicarla bajo `Doc/Actualizacion`.
 
 ## Paquete documental minimo
 Generar como minimo:
