@@ -1,0 +1,11 @@
+sequenceDiagram
+    participant ALM as AlmacenaDocumentoTareaWorkflow
+    participant WSS as SeviceGuardaConstanciaInscripcionSII
+    participant AJAX as ServiceRESTGuardaConstanciaInscripcionSII
+    participant UI as Lista de documentos Workflow
+
+    ALM-->>WSS: IdImgenAlmacenada y stru_datos_image_lista
+    WSS->>WSS: concatenar gabinete|id_imagen|radicado|tipología|...|id_tarea|firma|icono
+    WSS-->>AJAX: error_gestion = YES y dato_lista
+    AJAX->>AJAX: separar dato_lista y validar respuesta
+    AJAX->>UI: insert_row_documento_relacionado(...)

@@ -1,0 +1,39 @@
+flowchart TB
+    UI[Webworkflow.js]
+    subgraph Browser[Estado global del navegador]
+      CI[CIncripcionSII array]
+      CS[CacheInscripcion array]
+      MS[MULTIPLE_SII]
+      CFG[IListCservicioIntegracionAdjuntaDocumento]
+      JSR[_JSEexpedienteResult]
+    end
+    subgraph Session[Session ASP.NET]
+      T[ID_TAREA_SELECCIONDA]
+      R[WF_RUTAWORKFLOW / Id_Ruta_Workflow]
+      U[GA_IDUSUARIOGESTION]
+      TP[DG_LISTA_CHEQUEO]
+      PM[ADJUNTAR_IMAGENES_PREDETERMINADA]
+      TMP[Rutas temporales]
+    end
+    subgraph Persistence[Persistencia]
+      CE[(Caché expediente SII)]
+      CV[(Caché vinculación SII)]
+      CX[(Caché índices SII)]
+      CI2[(ra_sii_cahche_inscripcion)]
+      EX[(Expedientes y vínculos)]
+      DOC[(Documentos e índices)]
+      FILE[(Archivos documentales)]
+    end
+    UI --> CI
+    UI --> CS
+    UI --> MS
+    UI --> CFG
+    UI --> JSR
+    UI --> Session
+    Session --> CE
+    Session --> CV
+    Session --> CX
+    Session --> CI2
+    Session --> EX
+    Session --> DOC
+    Session --> FILE

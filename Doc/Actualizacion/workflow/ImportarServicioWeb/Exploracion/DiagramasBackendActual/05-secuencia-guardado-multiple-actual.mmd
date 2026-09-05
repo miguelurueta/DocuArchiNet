@@ -1,0 +1,43 @@
+sequenceDiagram
+    autonumber
+    actor U as Usuario
+    participant JS as Webworkflow.js
+    participant JSE as JSExpediente.js
+    participant PB as JSProgresBar.js
+    participant WSE as WebServiceGaExpediente
+    participant WSS as WebService_integracion_sii
+    participant DB as Expedientes, índices y cachés
+    participant ALM as ClassAlmacenamiento
+    participant FS as Almacenamiento documental
+
+    U->>JS: Guardar todas
+    JS->>WSS: Service_solicita_registros_sellos_sii(0)
+    WSS-->>JS: colección CIncripcionSII
+    JS->>WSS: consultar caché del radicado
+    WSS-->>JS: caché o vacío
+    JS-->>U: solicitar tipología
+    U->>JS: confirmar
+    JS->>JSE: crear o vincular expediente(s)
+    JSE->>WSS: consultar cachés de expediente y vínculo
+    JSE->>WSE: crear expediente o preparar vínculos
+    WSE->>DB: mutaciones de expediente y vínculo
+    JSE->>PB: vincular documentos secuencialmente
+    PB->>WSE: ServiceVinculaDocumentoExpediente por elemento
+    JSE->>WSS: registrar caché de vínculo si aplica
+    JS->>WSS: ServiceActualizaIndiceDocumentosSII(colección)
+    WSS->>DB: actualizar índices antes de almacenar
+    JS->>PB: JSProgresBarBoot(ServiceGuardaSelloSII)
+    loop una inscripción por iteración
+      PB->>WSS: SeviceGuardaConstanciaInscripcionSII(elemento)
+      WSS->>ALM: preparar constancia
+      ALM->>FS: almacenar documento
+      FS-->>ALM: resultado
+      ALM-->>WSS: YES o error
+      WSS-->>PB: error_gestion y dato_lista
+      PB-->>JS: YES, CTRL, CTRLRETURN u otro
+    end
+    alt caché inicialmente vacío
+      JS->>WSS: ServiceRegistraCacheInscripcionRadicadoSII(colección)
+      WSS->>DB: INSERT con datos del primer elemento
+    end
+    JS-->>U: cerrar modales o mostrar error
