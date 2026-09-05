@@ -1,0 +1,44 @@
+sequenceDiagram
+    autonumber
+    actor U as Usuario
+    participant JS as Webworkflow.js
+    participant WSA as WebServiceAdjuntaDocumentoServicioIntegracion
+    participant CFG as ClassAdjuntaDocumentoServicioIntegracion
+    participant CAT as Class_ra_ser_servicioIntegracion
+    participant WSS as WebService_integracion_sii
+    participant CIS as Class_consultarInformacionSello
+    participant HTTP as Class_ClassResfull
+    participant EXT as Servicio SII
+    participant SES as Session ASP.NET
+
+    U->>JS: Cargar desde servicio
+    JS->>WSA: ServiceAdjuntaDocumentoServicioIntegracion(0)
+    WSA->>SES: leer tarea, ruta y permiso
+    WSA->>CFG: ActivaAdjuntaDocumentoServicioIntegracion(...)
+    CFG->>SES: validar permiso
+    CFG->>CAT: SolicitaEstructuraServicioIntegracion(id)
+    CAT-->>CFG: nombre e id del servicio
+    CFG-->>WSA: YES y configuración
+    WSA-->>JS: NameService, IdServicioIntegracion y trámite
+    alt NameService = INTEGRACIONSII
+      JS->>WSS: ServiceSolicitaListaConstanciaInscripcionSII("")
+      WSS->>CIS: SolicitaListaConstanciasIncripcionSII(...)
+      CIS->>SES: leer tarea y permiso
+      CIS->>CIS: obtener código de barras y radicado
+      CIS->>HTTP: Solicitar_token_general(...)
+      HTTP->>EXT: POST solicitarToken síncrono
+      EXT-->>HTTP: token o error
+      HTTP-->>CIS: token deserializado
+      CIS->>HTTP: GetResponse(consultarInformacionSello)
+      HTTP->>EXT: POST consultarInformacionSello síncrono
+      EXT-->>HTTP: inscripciones o error
+      HTTP-->>CIS: respuesta textual
+      CIS->>CIS: deserializar y consolidar filas
+      CIS-->>WSS: columnas y filas Bootstrap
+      WSS-->>JS: Error_result y tabla
+      JS-->>U: mostrar modal
+    else servicio vacío
+      JS-->>U: advertencia de configuración
+    else proveedor distinto
+      Note over JS: No se observó otro adaptador en este despacho
+    end
