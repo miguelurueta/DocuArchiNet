@@ -10,6 +10,8 @@ Este documento es exclusivamente exploratorio. No autoriza cambios de código, l
 
 La experiencia, decisiones frontend, progreso, reconciliación visual y transición legacy se documentan en `01-exploracion-modernizacion-importar-servicio-web.md`. El presente documento profundiza exclusivamente en las garantías que deben residir en servidor.
 
+La sincronización normativa entre ambos lados, incluida la propiedad única de ejecución, operaciones, estados, preview, gate y orden cruzado, se mantiene en `../CONTRATO-COMPARTIDO-FRONTEND-BACKEND.md`.
+
 Los diagramas de clases, casos de uso, secuencias, estados y datos del backend existente se mantienen en `04-radiografia-backend-actual.md`. Ese documento representa el estado observado y no debe confundirse con los diseños objetivo de esta exploración.
 
 La frontera deseada es:
@@ -304,6 +306,8 @@ El cliente usa la importación masiva para inicializar contexto requerido por la
 
 `AlmacenaDocumentoTareaWorkflow` ya es una infraestructura compartida, pero contiene comportamiento condicionado por `NombreCaso = "SII"`. Esto indica una frontera incompleta entre reglas de proveedor y almacenamiento común.
 
+La modernización se implementará en paralelo y no reemplazará el código vigente. `AlmacenaDocumentoTareaWorkflow(...)` se reutilizará como una caja negra compartida: estos prompts no autorizan cambiar su firma, lógica interna, efectos ni consumidores actuales. El adaptador nuevo deberá resolver externamente cualquier traducción entre el contrato moderno y los argumentos que esta función ya espera.
+
 El adaptador debe entregar un comando documental normalizado:
 
 ```text
@@ -395,6 +399,8 @@ El registro de proveedores se resolverá mediante la identidad configurada. Un p
 
 La migración no debe obligar a reemplazar todos los ASMX en una sola entrega.
 
+La primera implementación será aditiva y coexistirá con los ASMX y la coreografía actuales bajo un gate reversible. Ningún endpoint moderno sustituirá ni redirigirá silenciosamente una ruta existente.
+
 Estrategia recomendada:
 
 1. Extraer contratos y lógica a clases independientes de `HttpContext`.
@@ -468,6 +474,7 @@ La E2E real requiere autorización explícita. Antes de una prueba autenticada d
 6. Núcleo multiproveedor; SII no será fallback ni contaminará almacenamiento común.
 7. Reconciliación obligatoria para resultados inciertos y actualización de documentos.
 8. Seguridad de transporte y SQL como parte de la modernización, no como mejora opcional posterior.
+9. `ImportServiceOrchestrator` como único ejecutor moderno; `JSProgresBar` conserva su ejecución legacy y actúa solo como presentación en la ruta moderna.
 
 ## 21. Preguntas abiertas
 
@@ -484,12 +491,12 @@ La E2E real requiere autorización explícita. Antes de una prueba autenticada d
 
 ## 22. Prompts backend derivados
 
-Después de validar las preguntas abiertas, la implementación deberá dividirse al menos en:
+Después de validar las preguntas abiertas, la implementación se divide en los prompts ejecutables de [`../PromptBackend/`](../PromptBackend/README.md):
 
-1. Contratos, contexto y registro multiproveedor.
-2. Clientes HTTP asíncronos, timeout, cancelación y seguridad TLS.
-3. Preflight, intención persistida e idempotencia.
-4. Orquestación secuencial, estados y compensación.
-5. Reconciliación y actualización de la lista de documentos.
-6. Adaptador SII y compatibilidad ASMX.
-7. Pruebas backend, integración local y evidencia autorizada.
+1. [Contratos, contexto y registro multiproveedor](../PromptBackend/01-contratos-contexto-registro-multiproveedor.md).
+2. [Clientes HTTP asíncronos, timeout, cancelación y seguridad](../PromptBackend/02-clientes-http-asincronos-seguridad.md).
+3. [Preflight, intención persistida e idempotencia](../PromptBackend/03-preflight-intencion-idempotencia.md).
+4. [Orquestación secuencial, estados y compensación](../PromptBackend/04-orquestacion-secuencial-estados-compensacion.md).
+5. [Reconciliación y actualización de la lista de documentos](../PromptBackend/05-reconciliacion-lista-documentos.md).
+6. [Adaptador SII y compatibilidad ASMX](../PromptBackend/06-adaptador-sii-compatibilidad-asmx.md).
+7. [Pruebas backend, integración local y evidencia autorizada](../PromptBackend/07-pruebas-backend-evidencia.md).

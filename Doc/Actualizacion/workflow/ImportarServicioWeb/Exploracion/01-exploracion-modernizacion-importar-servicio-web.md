@@ -307,9 +307,9 @@ Para una importación individual se conserva la misma secuencia técnica, pero e
 
 El modelo HTML asociado emula ambos recorridos. La simulación representa intención UX; no afirma que el backend actual exponga eventos intermedios suficientes para alimentar cada estado en tiempo real. Esa capacidad deberá formar parte del contrato de modernización.
 
-#### Requisito obligatorio: reutilizar la barra de progreso existente
+#### Requisito obligatorio: reutilizar la presentación de progreso existente
 
-La modernización **debe reutilizar `js/java_general/JSProgresBar.js` como único ejecutor de progreso para el procesamiento secuencial**, tanto para múltiples inscripciones como para una colección de un solo elemento. No se debe crear una segunda barra, un ejecutor paralelo ni una simulación de progreso desconectada de la operación real.
+El recorrido legacy mantiene `js/java_general/JSProgresBar.js` como ejecutor existente, sin cambios de comportamiento. En el recorrido moderno, `ImportServiceOrchestrator` es el único ejecutor de efectos y procesa secuencialmente tanto múltiples inscripciones como una colección de un elemento. `JSProgresBar` se reutiliza únicamente mediante un adaptador de presentación que refleja eventos y estados confirmados por backend; no inicia llamadas mutadoras por elemento.
 
 `JSProgresBar` es infraestructura compartida por recorridos ajenos a `ImportarServicioWeb`, incluyendo creación y vinculación de expedientes, carga de archivos, firma digital, actualización de índices por lotes y eliminación documental. En consecuencia, no debe modernizarse de manera invasiva ni especializarse para SII.
 
@@ -319,12 +319,13 @@ La integración con la interfaz moderna debe realizarse mediante un adaptador es
 
 ```text
 JSProgresBar compartido
-├── consumidores existentes → comportamiento sin cambios
-└── adaptador ImportarServicioWeb
-    └── presentación moderna del progreso
+├── consumidores legacy → ejecución y comportamiento sin cambios
+└── adaptador ImportarServicioWeb → solo presentación moderna
+        ▲
+        └── estados confirmados por ImportServiceOrchestrator
 ```
 
-El adaptador será responsable de traducir el progreso y los resultados actuales a estados de presentación propios de la capacidad, sin cambiar los contratos esperados por los demás consumidores.
+El adaptador será responsable de traducir estados estructurados del backend a estados de presentación propios de la capacidad, sin cambiar los contratos esperados por los consumidores legacy.
 
 Cualquier modificación interna de `JSProgresBar` queda restringida a callbacks o eventos que cumplan simultáneamente estas condiciones:
 
@@ -332,7 +333,7 @@ Cualquier modificación interna de `JSProgresBar` queda restringida a callbacks 
 - conserven los valores de retorno existentes;
 - no cambien la secuencia cuando no se proporcionen;
 - no incorporen conocimiento de SII ni de `ImportarServicioWeb`;
-- mantengan los códigos `YES`, `CTRL` y `CTRLRETURN` durante la transición;
+- mantengan los códigos `YES`, `CTRL` y `CTRLRETURN` exclusivamente para consumidores legacy durante la transición;
 - cuenten con pruebas focales y de regresión para los consumidores compartidos identificados.
 
 No se autoriza duplicar `JSProgresBar`, copiar su lógica, reemplazarla por temporizadores visuales ni modificar sus consumidores existentes para facilitar esta modernización.
@@ -349,7 +350,7 @@ Cuando sea estrictamente necesario, la extensión retrocompatible puede publicar
 
 La interfaz moderna consumirá esos eventos para mostrar el estado real del proceso. No estimará porcentajes con temporizadores ni anunciará como completada una fase que el backend no haya confirmado.
 
-Los códigos actuales `YES`, `CTRL` y `CTRLRETURN` deben preservarse mediante una capa adaptadora durante la transición. El resultado presentado al usuario debe diferenciar, como mínimo, guardadas, omitidas, fallidas y no procesadas.
+Los códigos actuales `YES`, `CTRL` y `CTRLRETURN` deben preservarse exclusivamente en el adaptador backend de compatibilidad. El frontend moderno no los interpreta: recibe resultados estructurados y diferencia, como mínimo, importadas, omitidas, fallidas, en verificación y no procesadas.
 
 Para la importación individual se utilizará el mismo mecanismo con una lista de un elemento. Esto evita mantener un segundo camino de ejecución y garantiza que las reglas de cancelación, error, progreso y resultado sean uniformes.
 
@@ -362,7 +363,7 @@ La acción **Importar** o **Guardar** de una fila debe abrir un popup secundario
 3. Exigir tipología cuando la configuración de digitalización la marque como obligatoria.
 4. Mantener **Guardar** deshabilitado hasta completar los datos requeridos.
 5. Permitir cancelar y devolver el foco a la acción de la fila sin producir mutaciones.
-6. Al confirmar **Guardar**, cerrar el selector e iniciar `JSProgresBar` con una colección de exactamente un elemento.
+6. Al confirmar **Guardar**, cerrar el selector, crear/ejecutar la intención backend con una colección de exactamente un elemento y activar el adaptador visual de progreso.
 7. Mostrar las fases y el resultado de esa constancia hasta recibir confirmación real del ejecutor.
 8. Después del resultado, ofrecer **Volver a la lista** sin cerrar el modal principal ni perder el contexto de tarea y consulta.
 9. Al regresar, reconciliar la lista con el estado persistido, limpiar la selección anterior y devolver el foco a un punto predecible de la lista.
@@ -376,12 +377,13 @@ La capacidad debe incorporar un adaptador propio entre el orquestador de importa
 ```text
 ImportarServicioWeb
 └── ImportarServicioWebProgressAdapter
-    ├── traduce respuestas legacy
+    ├── traduce estados estructurados a presentación
     ├── conserva resultados por inscripción
     ├── presenta fases globales
-    └── configura callbacks opcionales
-        └── JSProgresBar
-            └── servicios ASMX existentes
+    └── observa GetImportIntent/ReconcileImportIntent
+        └── ImportServiceOrchestrator
+            └── adaptador backend de compatibilidad
+                └── infraestructura existente
 ```
 
 El cambio mínimo permitido en `JSProgresBar` consiste en aceptar callbacks genéricos, opcionales y sin efectos cuando no sean suministrados. Como referencia conceptual:
@@ -397,22 +399,24 @@ onFinish
 
 Esta extensión no puede cambiar el orden del ciclo, `_GeneraProcesingProgres`, `estado_control`, las reglas de pausa y cancelación, los valores de retorno ni la selección de servicio mediante `name_service`.
 
-El adaptador debe mantener externamente una colección con el resultado de cada inscripción. Como mínimo registrará clave externa, estado normalizado, código legacy y mensaje seguro. La traducción requerida es:
+El adaptador debe mantener externamente una colección con el resultado de cada inscripción. Como mínimo registrará clave externa, fase backend, estado visible y mensaje seguro. La traducción normativa es:
 
-| Código actual | Estado de presentación | Comportamiento |
+| Estado backend | Estado de presentación | Comportamiento |
 |---|---|---|
-| `YES` | Guardada | Continuar |
-| `CTRL` | Omitida o no procesada | Registrar causa y continuar |
-| `CTRLRETURN` | Requiere decisión | Pausar y solicitar decisión |
-| Otro valor | Fallida | Conservar el comportamiento de detención vigente |
+| Fase persistente en curso | Procesando | Mostrar fase confirmada |
+| `ResultadoIncierto` | Verificando | Reconciliar sin reintento ciego |
+| `Reconciliada` o `Completada` con documento | Importada | Refrescar documento confirmado |
+| `RequiereDecision` | Requiere decisión | Solicitar continuar o detener |
+| `FallidaAntesDePersistir` | Fallida | Mostrar mensaje seguro |
+| `Detenida` antes del elemento | No procesada | Conservar resultado |
 
 Los códigos internos no se mostrarán literalmente al usuario.
 
-Las fases de validación, expediente, índices y caché se encuentran fuera del ciclo de almacenamiento de `JSProgresBar`. Por ello serán informadas por el orquestador o adaptador, mientras `JSProgresBar` reportará únicamente el avance real de los elementos que procesa. No se le trasladarán responsabilidades de SII, expedientes, índices ni caché.
+Las fases de validación, expediente, almacenamiento, índices y caché pertenecen al orquestador backend. `JSProgresBar` y su adaptador reportarán únicamente estados ya confirmados; no recibirán responsabilidades de SII, expedientes, índices, caché ni almacenamiento.
 
-Para una operación múltiple, `CTRLRETURN` debe ofrecer **Continuar con las demás** o **Detener importación**. Para una operación individual debe ofrecer **Cerrar y revisar** y, únicamente cuando el resultado sea reintentable e idempotente, **Reintentar**.
+Para una operación múltiple, `RequiereDecision` debe ofrecer **Continuar con las demás** o **Detener importación**. Para una operación individual debe ofrecer **Cerrar y revisar** y, únicamente cuando el backend declare el resultado reintentable e idempotente, **Reintentar**.
 
-Durante la primera migración, los servicios ASMX pueden conservar su contrato. El adaptador normalizará sus respuestas. Una evolución posterior podrá incorporar resultados estructurados con código funcional, indicador de reintento y mensaje seguro, manteniendo una traducción compatible hacia los códigos que espera `JSProgresBar`.
+Durante la primera migración, los servicios ASMX conservan su contrato para consumidores legacy. El adaptador backend normaliza sus respuestas para la ruta moderna y es el único propietario de traducir códigos legacy; el frontend recibe resultados estructurados con código funcional, indicador de reintento y mensaje seguro.
 
 Queda expresamente prohibido:
 

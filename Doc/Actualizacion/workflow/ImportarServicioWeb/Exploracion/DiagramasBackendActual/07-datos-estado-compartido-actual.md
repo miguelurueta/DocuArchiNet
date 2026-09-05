@@ -1,3 +1,6 @@
+# Datos y estado compartido actuales
+
+```mermaid
 flowchart TB
     UI[Webworkflow.js]
     subgraph Browser[Estado global del navegador]
@@ -37,3 +40,4 @@ flowchart TB
     Session --> EX
     Session --> DOC
     Session --> FILE
+```

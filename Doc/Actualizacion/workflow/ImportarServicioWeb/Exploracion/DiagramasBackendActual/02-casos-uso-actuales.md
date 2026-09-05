@@ -1,3 +1,6 @@
+# Casos de uso actuales
+
+```mermaid
 flowchart LR
     U[Usuario Workflow]
     S[Sesión ASP.NET]
@@ -44,3 +47,4 @@ flowchart LR
     UC7 --> DB
     UC10 --> DB
     FS --> UC11
+```

@@ -2,9 +2,38 @@
 
 Implementa la captura de requisitos previa a cualquier escritura utilizando el mismo contrato para una colección de uno o varios elementos.
 
+Depende de `PreflightImport` y `CreateImportIntent` publicados por el Prompt backend 03 sobre los contratos de B01.
+
 ## Objetivo
 
 Unificar la preparación de importaciones individuales y múltiples sin hacer que **Guardar todas** inicialice implícitamente el contexto.
+
+## Rutas canónicas de implementación
+
+```txt
+js/workflow/importar-servicio-web/
+├── importar-servicio-web-preparation.js
+├── importar-servicio-web-requirements.js
+└── importar-servicio-web-intent-client.js
+
+Tests/
+├── importar-servicio-web-preparation.test.cjs
+├── importar-servicio-web-preflight-contract.test.cjs
+└── importar-servicio-web-intent-client.test.cjs
+```
+
+- El popup secundario se agrega en `workflow/Webworkflow.aspx` y reutiliza `Styles/importar-servicio-web-modern.css`.
+- `intent-client.js` usa `importar-servicio-web-api.js`; no duplica transporte ni persistencia.
+- Consumir fixtures B03 desde `Tests/Fixtures/Workflow/ImportarServicioWeb/intents-v1/`.
+- No modificar `JSExpediente.js`, `JSProgresBar.js`, mutadores legacy, `ClassAlmacenamiento` ni almacenamiento.
+
+## Ruta documental obligatoria
+
+```txt
+docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-preparacion-individual-multiple/
+```
+
+Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diagramas/` exclusivamente allí.
 
 ## Implementa
 
@@ -18,6 +47,8 @@ Unificar la preparación de importaciones individuales y múltiples sin hacer qu
 ## Restricciones
 
 - No mantengas caminos de persistencia separados para individual y múltiple.
+- El frontend no persiste la intención ni ejecuta sus efectos; solicita al backend su creación idempotente.
+- Está prohibido modificar o invocar directamente `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` o mutadores legacy.
 - El núcleo no debe conocer caché, expediente ni índices SII.
 - No presentes como ejecutable un plan que el backend no haya confirmado.
 - Cancelar la preparación no produce mutaciones y devuelve el foco a la fila.
@@ -46,13 +77,13 @@ Describir el objetivo funcional y tecnico verificable.
 - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
 
 ## Contexto obligatorio
-Listar archivos, modulos, servicios, hooks, adapters y documentacion que deben leerse antes de implementar.
+Leer F01–F03, contratos `PreflightImport`/`CreateImportIntent`, fixtures B03, `workflow/Webworkflow.aspx` y el comportamiento legacy de preparación solo como referencia. No modificar ejecutores o mutadores existentes.
 
 ## Pruebas obligatorias
 Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
 
 ## Documentacion tecnica
-Actualizar el paquete documental canonico del ticket.
+Actualizar exclusivamente el paquete de **Ruta documental obligatoria**, con flujo individual/múltiple, contrato, requisitos, estados, pruebas y diagramas.
 
 ## Entregable final
 Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.

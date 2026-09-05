@@ -2,9 +2,37 @@
 
 Implementa el cierre funcional de una importación utilizando el backend como fuente de verdad.
 
+Depende de `GetImportIntent` y `ReconcileImportIntent` publicados por el Prompt backend 05 y usa el mapeo de estados normativo del contrato compartido.
+
 ## Objetivo
 
 Actualizar cada elemento externo y hacer visibles los documentos confirmados en la lista principal de documentos de la tarea original.
+
+## Rutas canónicas de implementación
+
+```txt
+js/workflow/importar-servicio-web/
+├── importar-servicio-web-reconciliation.js
+└── importar-servicio-web-document-list-adapter.js
+
+Tests/
+├── importar-servicio-web-reconciliation-ui.test.cjs
+├── importar-servicio-web-document-list-adapter.test.cjs
+└── importar-servicio-web-task-isolation.test.cjs
+```
+
+- Consumir `GetImportIntent`/`ReconcileImportIntent` solo mediante `importar-servicio-web-api.js` y fixtures B05.
+- `document-list-adapter.js` encapsula la compatibilidad visual; no modifica `insert_row_documento_relacionado(...)` ni interpreta `dato_lista`.
+- No crear una segunda lista documental ni tocar almacenamiento, ASMX o scripts legacy.
+- Registrar módulos nuevos en el `.vbproj`; usar estilos del feature ya creados.
+
+## Ruta documental obligatoria
+
+```txt
+docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-reconciliacion-lista-documentos/
+```
+
+Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diagramas/` exclusivamente allí.
 
 ## Implementa
 
@@ -19,6 +47,8 @@ Actualizar cada elemento externo y hacer visibles los documentos confirmados en 
 ## Restricciones
 
 - No elimines una fila externa ni la marques importada por una actualización optimista.
+- No interpretes códigos legacy ni `dato_lista`; recibe exclusivamente `ImportItemResult` estructurado del backend moderno.
+- No modifiques `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` ni la escritura existente.
 - Timeout o ausencia de respuesta conduce a Verificando, no a Disponible ni Importada.
 - Si la vista actual corresponde a otra tarea, no insertes allí los documentos de la tarea original.
 
@@ -46,13 +76,13 @@ Describir el objetivo funcional y tecnico verificable.
 - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
 
 ## Contexto obligatorio
-Listar archivos, modulos, servicios, hooks, adapters y documentacion que deben leerse antes de implementar.
+Leer F01–F05, B05, fixtures de reconciliación, `js/workflow/documentos-relacionados-visual.js` y la implementación de `insert_row_documento_relacionado(...)` como referencia. No modificar funciones o listas existentes.
 
 ## Pruebas obligatorias
 Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
 
 ## Documentacion tecnica
-Actualizar el paquete documental canonico del ticket.
+Actualizar exclusivamente el paquete de **Ruta documental obligatoria**, con reconciliación, aislamiento de tarea, deduplicación, mapping, pruebas y diagramas.
 
 ## Entregable final
 Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.

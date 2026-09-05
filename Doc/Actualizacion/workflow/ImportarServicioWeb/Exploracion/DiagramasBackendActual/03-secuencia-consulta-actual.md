@@ -1,3 +1,6 @@
+# Secuencia de consulta actual
+
+```mermaid
 sequenceDiagram
     autonumber
     actor U as Usuario
@@ -42,3 +45,4 @@ sequenceDiagram
     else proveedor distinto
       Note over JS: No se observó otro adaptador en este despacho
     end
+```

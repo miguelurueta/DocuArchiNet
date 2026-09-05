@@ -2,9 +2,37 @@
 
 Implementa las defensas de interfaz y los contratos requeridos para que una importación nunca cambie silenciosamente de tarea.
 
+Depende de los contratos publicados por B01, B03, B04 y B05. El frontend representa conflictos y recuperación; el backend conserva la autoridad sobre intención, tarea y ejecución.
+
 ## Objetivo
 
 Vincular toda ejecución a una intención inmutable y reconciliar siempre contra su tarea original.
+
+## Rutas canónicas de implementación
+
+```txt
+js/workflow/importar-servicio-web/
+├── importar-servicio-web-task-context-guard.js
+└── importar-servicio-web-recovery.js
+
+Tests/
+├── importar-servicio-web-task-context-guard.test.cjs
+├── importar-servicio-web-recovery.test.cjs
+└── importar-servicio-web-multi-tab-context.test.cjs
+```
+
+- El guard se integra mediante eventos públicos del núcleo y la página; no sobrescribe selectores o handlers globales.
+- `recovery.js` consulta la intención por `importar-servicio-web-api.js`; no persiste autoridad en `localStorage` ni reconstruye contexto desde sesión cliente.
+- Los cambios aditivos de atributos/estado de controles se realizan en `workflow/Webworkflow.aspx` y módulos del feature.
+- No modificar endpoints, almacenamiento, scripts globales o acciones Workflow existentes.
+
+## Ruta documental obligatoria
+
+```txt
+docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-proteccion-contexto-recuperacion/
+```
+
+Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diagramas/` exclusivamente allí.
 
 ## Implementa
 
@@ -21,6 +49,8 @@ Vincular toda ejecución a una intención inmutable y reconciliar siempre contra
 - `beforeunload` es solo advertencia, no garantía.
 - La sesión no puede sustituir la tarea ligada a la intención.
 - Cada endpoint mutador debe volver a validar usuario, tarea, ruta, proveedor e identidad.
+- El frontend no ejecuta mutaciones por elemento ni reconstruye una intención a partir de la sesión.
+- No modifiques `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` o endpoints legacy.
 - Si falta el contrato backend, no presentes la protección UX como garantía de integridad.
 
 ## Aceptación
@@ -47,13 +77,13 @@ Describir el objetivo funcional y tecnico verificable.
 - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
 
 ## Contexto obligatorio
-Listar archivos, modulos, servicios, hooks, adapters y documentacion que deben leerse antes de implementar.
+Leer F01–F06, B01/B03/B04/B05, `workflow/Webworkflow.aspx`, módulos modernos de transición y eventos actuales de selección/búsqueda de tareas. Inspeccionar sin modificar los handlers legacy.
 
 ## Pruebas obligatorias
 Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
 
 ## Documentacion tecnica
-Actualizar el paquete documental canonico del ticket.
+Actualizar exclusivamente el paquete de **Ruta documental obligatoria**, con matriz de acciones bloqueadas, cambio de tarea/pestaña, recuperación, estados y pruebas.
 
 ## Entregable final
 Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.

@@ -1,3 +1,6 @@
+# Clases y dependencias actuales
+
+```mermaid
 classDiagram
     direction LR
 
@@ -127,3 +130,4 @@ classDiagram
     ClassAlmacenamiento --> ClassGaExpediente
     ClassAlmacenamiento --> ClassRaSiiCahcheInscripcion
     ClassAlmacenamiento --> SessionASPNet
+```
