@@ -5,9 +5,9 @@
 - Clasificacion: cross_cutting (Transversal)
 ## Evidencia requerida
 
-- [ ] unit: comando, resultado, fecha y referencia verificable.
-- [ ] manual_qa: comando, resultado, fecha y referencia verificable.
+- [x] unit: `node --test Tests/importar-servicio-web-contracts.test.cjs Tests/importar-servicio-web-provider-registry.test.cjs Tests/importar-servicio-web-context.test.cjs`; 11/11 PASS; 2026-09-06; suites y fixtures versionados en la rama DOC-50.
+- [x] manual_qa: revisión estructural de rutas, enlaces, ausencia de duplicados y frontera legacy; 8 documentos + 7 diagramas, 0 enlaces rotos; 2026-09-06. Build MSBuild Debug PASS y OpenSpec estricto 41/41 PASS.
 
 ## QA/E2E WebForms
 
-Las pruebas E2E automatizadas no se suponen disponibles. Cuando aplique, registrar ambiente, pasos manuales, resultado y limitacion; si hay automatizacion real, adjuntar comando y reporte.
+E2E autenticado, carga y activación de gates: **NO EJECUTADOS — requieren autorización explícita de ambiente y cuentas de prueba**. DOC-50 no cambia UI ni activa `WorkflowCentroTrabajoModernActive`.
