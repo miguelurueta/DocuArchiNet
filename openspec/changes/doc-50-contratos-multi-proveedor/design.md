@@ -1,230 +1,121 @@
-## Context
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08 -->
 
-DOC-50: CONTRATOS-MULTI-PROVEEDOR
+# Diseño técnico — DOC-50 contratos multiproveedor
 
-## Jira Details
+## Contexto
 
-> Prompt backend 01 — Contratos, contexto y registro multiproveedor
-> Actúa como implementador senior de   sobre .NET Framework 4.6.1. Lee completas las dos exploraciones backend y funcional, inspecciona el código vigente y crea o continúa un cambio OpenSpec antes de modificar código productivo.
-> Publica el contrato canónico exigido por ../CONTRATO-COMPARTIDO-FRONTEND-BACKEND.md; ninguna integración frontend productiva puede adelantarse a este artefacto.
-> Objetivo
-> Crear el núcleo contractual de ImportarServicioWeb, independiente de HttpContext y de conceptos SII, con contexto autorizado e inmutable y resolución explícita de proveedores.
-> Investigación obligatoria
-> Confirmar qué proveedores están configurados además de INTEGRACIONSII.
-> 
-> Inventariar los endpoints que leen o escriben sesión y documentar cuáles pueden recibir contexto explícito.
-> 
-> Identificar la fuente autorizada de usuario, tarea, ruta, trámite, permisos y proveedor habilitado.
-> 
-> Implementa
-> Contratos versionados para contexto, capacidades, consulta, preflight, intención, comando documental, resultado por elemento y reconciliación.
-> 
-> Definición completa de las ocho operaciones lógicas compartidas, incluyendo transporte, DTO, nulabilidad, códigos, autorización, idempotencia, concurrencia, ejemplos saneados y fixtures.
-> 
-> Un contexto inmutable con usuario autenticado, tarea, ruta, trámite, proveedor y datos necesarios de autorización, capturado antes de cualquier Await.
-> 
-> Un registro IExternalImportProvider por identidad canónica configurada.
-> 
-> Resultado explícito para proveedor no soportado; nunca resolver SII por defecto.
-> 
-> Validaciones comunes reutilizables que revaliden permiso vigente, tarea operable, ruta, trámite y proveedor.
-> 
-> Composición desacoplada de WebForms/ASMX y pruebas focales sin sesión ni red.
-> 
-> Rutas canónicas de código y contratos
-> Crear únicamente la estructura aditiva siguiente:
-> DTOs/Workflow/ImportarServicioWeb/
-> └── ImportarServicioWebDtos.vb
-> 
-> Modelo/Workflow/ImportarServicioWeb/
-> ├── ImportarServicioWebModels.vb
-> └── ImportarServicioWebInterfaces.vb
-> 
-> Services/Workflow/ImportarServicioWeb/
-> ├── ServicioImportarServicioWeb.vb
-> ├── RegistroProveedoresImportacion.vb
-> └── ValidadorContextoImportacion.vb
-> 
-> Tests/
-> ├── importar-servicio-web-contracts.test.cjs
-> ├── importar-servicio-web-provider-registry.test.cjs
-> └── importar-servicio-web-context.test.cjs
-> 
-> Tests/Fixtures/Workflow/ImportarServicioWeb/contracts-v1/
-> ├── resolve-capabilities-request.json
-> ├── resolve-capabilities-response.json
-> ├── query-items-response.json
-> ├── preflight-import-response.json
-> ├── create-import-intent-response.json
-> ├── execute-import-intent-response.json
-> ├── get-import-intent-response.json
-> └── reconcile-import-intent-response.jsonResponsabilidad obligatoria por ruta:
-> Ruta
-> Contenido permitido
-> DTOs/Workflow/ImportarServicioWeb/ImportarServicioWebDtos.vb 
-> Clases públicas <Serializable()> de request/response para las ocho operaciones; schemaVersion, nulabilidad, errores seguros e identificadores de correlación. No contiene reglas, SQL, sesión ni transporte. 
-> Modelo/Workflow/ImportarServicioWeb/ImportarServicioWebModels.vb 
-> Modelos internos e invariantes: contexto inmutable, proveedor, capacidades, identidad externa, plan, intención, elemento, fase y resultado. No contiene DTO de endpoint ni referencias a WebForms. 
-> Modelo/Workflow/ImportarServicioWeb/ImportarServicioWebInterfaces.vb 
-> Puertos IExternalImportProvider, registro/resolución, autorización, reloj y repositorios futuros. No contiene implementaciones ni acceso a HttpContext. 
-> Services/Workflow/ImportarServicioWeb/ServicioImportarServicioWeb.vb 
-> Fachada de aplicación para capacidades y consulta contractual de esta entrega; recibe contexto explícito mediante constructor/parámetros. No ejecuta importaciones todavía. 
-> Services/Workflow/ImportarServicioWeb/RegistroProveedoresImportacion.vb 
-> Registro explícito por identidad canónica, sin fallback a SII. 
-> Services/Workflow/ImportarServicioWeb/ValidadorContextoImportacion.vb 
-> Validaciones comunes de usuario, tarea, ruta, trámite y proveedor sobre datos explícitos. 
-> Tests/*.test.cjs 
-> Verificaciones estructurales y contractuales coherentes con la infraestructura actual del repositorio. 
-> Tests/Fixtures/Workflow/ImportarServicioWeb/contracts-v1/ 
-> Ejemplos JSON saneados que consumirán frontend y backend como fuente contractual compartida. 
-> Reutilizar Domain/Shared/ContextoModulo.vb y ContextoModuloWorkflow como fuente común cuando sus invariantes sean suficientes. Si se necesita contexto adicional, componer ContextoImportacionServicio en ImportarServicioWebModels.vb; no modificar ni duplicar ContextoModuloWorkflow.
-> Agregar cada archivo .vb nuevo a GestionDocumental-Docuarchi.net.vbproj mediante entradas <Compile Include="..." />, respetando el agrupamiento existente de DTOs, Modelo y Services. No mover ni reemplazar entradas actuales.
-> Queda prohibido definir estos contratos en:
-> webservice/*.asmx.vb;
-> 
-> App_Code/;
-> 
-> ServiciosIntegracion/;
-> 
-> Integracionccv/;
-> 
-> workflow/;
-> 
-> Infrastructure/;
-> 
-> archivos de Terminar, Notas, Devolver o DevolverUsuarioAnterior;
-> 
-> el propio GestionDocumental-Docuarchi.net.vbproj mediante código embebido.
-> 
-> Los ASMX y adaptadores de infraestructura de prompts posteriores consumirán los contratos desde estas rutas; no crearán copias locales.
-> Restricciones
-> La implementación es aditiva y paralela al backend vigente; no reemplaza ni modifica sus clases, endpoints o recorridos.
-> 
-> No modificar AlmacenaDocumentoTareaWorkflow(...); el núcleo solo definirá la frontera necesaria para reutilizarla posteriormente.
-> 
-> No incluir libro, registro, matrícula, acto, noticia, código de barras ni cachés SII en los contratos comunes.
-> 
-> No aceptar tarea, usuario, gabinete, tipología o proveedor del navegador como autoridad.
-> 
-> No cambiar todavía persistencia ni ejecutar efectos de importación.
-> 
-> No romper las firmas ASMX existentes en esta entrega.
-> 
-> No crear un segundo DTO o interfaz con el mismo significado fuera de las rutas canónicas declaradas.
-> 
-> Aceptación
-> Un proveedor conocido se resuelve únicamente por su identidad registrada.
-> 
-> Un proveedor desconocido falla de forma segura y tipada.
-> 
-> El contexto no cambia aunque la sesión seleccionada cambie después de capturarlo.
-> 
-> Las reglas de autorización pueden probarse con dobles deterministas.
-> 
-> Los contratos tienen schemaVersion o una estrategia explícita de evolución compatible.
-> 
-> Los fixtures contractuales se consumen desde pruebas frontend y backend y detectan deriva entre ambos lados.
-> 
-> Una verificación estructural confirma que cada contrato reside en su ruta canónica y que ningún ASMX contiene definiciones duplicadas.
-> 
-> Trazabilidad
-> Exploración backend: secciones 5, 6, 13, 15 y 20; hallazgos B-01, B-02 y B-03; preguntas abiertas 2 y 10.
-> Correcciones opsxj:prompt-review
-> Estas reglas fueron agregadas desde opsxj:prompt-review para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-> Ruta documental obligatoria
-> Este cambio crea un núcleo compartido y reutilizable. Toda su documentación técnica debe quedar exclusivamente en:
-> docs/Architecture/Workflow/ImportarServicioWeb/SCRUMCORE-000-contratos-contexto-registro-multiproveedor/Sustituir SCRUMCORE-000 por el identificador real del ticket antes de implementar. No crear el paquete en Doc/Actualizacion, docs/modulos, docs/Components, la raíz del repositorio ni una ruta paralela. Los documentos de Doc/Actualizacion/workflow/ImportarServicioWeb/ son fuentes de exploración y prompts, no el paquete técnico entregable del cambio.
-> Paquete documental mínimo
-> Crear en la ruta canónica exactamente:
-> 00-Indice.md
-> 01-Arquitectura.md
-> 02-FlujoIntegracion.md
-> 03-ContratoUploadYMapping.md
-> 04-EstadosErroresYAntiregresion.md
-> 05-PruebasEvidencia.md
-> 06-Diagramas.md
-> 07-Metadata.md
-> Diagramas/00-Indice.md: objetivo, alcance, componentes, servicios, adaptadores, dependencias y listado documental.
-> 
-> 01-Arquitectura.md: implementación paralela, fronteras frontend/backend, contexto inmutable, registro multiproveedor, coexistencia ASMX y reutilización intocable de AlmacenaDocumentoTareaWorkflow(...).
-> 
-> 01-Arquitectura.md debe incluir además la tabla de rutas canónicas de código, dependencias permitidas y direcciones de referencia entre DTOs, Modelo, Services e infraestructura futura.
-> 
-> 02-FlujoIntegracion.md: las ocho operaciones lógicas, requests, validación, respuestas, dependencias y secuencia sin mutación de este primer cambio.
-> 
-> 03-ContratoUploadYMapping.md: aunque conserva el nombre canónico, documenta DTO, nulabilidad, versionado, request/response, mapeos y fixtures del contrato de importación; debe declarar que este prompt no carga ni almacena documentos.
-> 
-> 04-EstadosErroresYAntiregresion.md: estados, errores seguros, proveedor desconocido, sesión mutable, compatibilidad pública y garantías de no modificación del recorrido vigente.
-> 
-> 05-PruebasEvidencia.md: pruebas focales, fixtures compartidos, comandos, resultados, limitaciones y evidencia de que no hubo efectos de importación.
-> 
-> 06-Diagramas.md: componentes, dependencias, secuencia, flujo principal/alterno, casos de uso y estados mediante Mermaid; los diagramas individuales van en Diagramas/.
-> 
-> 07-Metadata.md: identificador SCRUMCORE, rama, fecha, estado, archivos, versión contractual, prompts, dependencias, riesgos y deuda técnica.
-> 
-> No duplicar estos documentos en otra ruta. Todos los enlaces del paquete deben ser relativos y verificables.
-> Tabla documental de funciones
-> 01-Arquitectura.md o 02-FlujoIntegracion.md debe incluir para cada función creada o modificada:
-> Función
-> Ruta
-> Clase/interfaz
-> Parámetros
-> Responsabilidad
-> Nueva/existente
-> La tabla debe demostrar que AlmacenaDocumentoTareaWorkflow(...) no fue modificada.
-> Rol esperado
-> Definir el rol tecnico esperado para ejecutar el ticket.
-> Objetivo
-> Describir el objetivo funcional y tecnico verificable.
-> Restricciones criticas
-> No introducir cambios fuera del alcance declarado.
-> 
-> No romper comportamiento existente ni contratos publicos.
-> 
-> Criterios de aceptacion
-> El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-> 
-> Contexto obligatorio
-> Leer Domain/Shared/ContextoModulo.vb, Modelo/Workflow/Terminar/WorkflowModernModels.vb, Modelo/Workflow/Terminar/WorkflowModernInterfaces.vb, DTOs/Workflow/Terminar/TransicionWorkflowDtos.vb, Services/Workflow/Terminar/ServicioTransicionTarea.vb y las entradas correspondientes de GestionDocumental-Docuarchi.net.vbproj. Usarlos solo como referencia de convenciones; no modificarlos ni acoplar ImportarServicioWeb con Terminar.
-> Pruebas obligatorias
-> Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
-> Documentacion tecnica
-> Crear y actualizar únicamente el paquete definido en Ruta documental obligatoria, con los ocho documentos, la carpeta Diagramas/, enlaces relativos válidos y contenido coherente con el código y las pruebas realmente entregados.
-> Entregable final
-> Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-> Requisitos positivos
-> Implementar el comportamiento esperado con contratos tipados y responsabilidades claras.
-> 
-> Mantener la integracion sobre los puntos de extension existentes del repo.
-> 
-> Dejar evidencia de pruebas y documentacion tecnica actualizada.
-> 
-> Exigir npm run build o tsc segun impacto y registrar el resultado.
-> Exigir pruebas unitarias/focales con Vitest o Testing Library segun el alcance.
+El recorrido actual de ImportarServicioWeb está acoplado a Web Forms/ASMX, estado de `Session` y ramas específicas de `INTEGRACIONSII`. DOC-50 crea una frontera contractual paralela sobre .NET Framework 4.6.1. No reemplaza endpoints, no consulta proveedores reales y no almacena documentos.
 
-## Goals / Non-Goals
+La inspección estática solo demuestra un proveedor implementado explícitamente: `INTEGRACIONSII`. La tabla de servicios puede contener otras identidades en datos, pero no se declararán como soportadas sin configuración y adaptador comprobados.
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+## Metas y no metas
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+### Metas
 
-## Decisions
+- Publicar contratos v1 compartidos para las ocho operaciones lógicas.
+- Capturar un contexto autorizado e inmutable antes de cualquier `Await`.
+- Resolver proveedores mediante registro explícito y resultados tipados.
+- Separar DTOs, modelo y servicios de `HttpContext`, ASMX, SQL y red.
+- Probar contratos, contexto y registro con fixtures deterministas.
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### No metas
 
+- Modificar firmas o comportamiento ASMX.
+- Ejecutar preflight, intenciones o almacenamiento documental reales.
+- Modificar `AlmacenaDocumentoTareaWorkflow(...)`.
+- Crear adaptadores HTTP, persistencia, cachés o un gate productivo.
+- Afirmar soporte productivo de proveedores distintos de `INTEGRACIONSII`.
 
-## Risks / Trade-offs
+## Arquitectura y dependencias
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+```text
+DTOs/Workflow/ImportarServicioWeb
+        ^ mapeo en frontera futura
+        |
+Services/Workflow/ImportarServicioWeb
+        |
+        v
+Modelo/Workflow/ImportarServicioWeb
+        |
+        +--> IExternalImportProvider (adaptadores futuros)
+        +--> autorización/repositorios/reloj (implementaciones futuras)
+```
 
-## Migration Plan
+Las dependencias apuntan hacia el modelo. DTOs no contienen reglas; Modelo no conoce transporte; Services orquesta puertos explícitos. Web Forms/ASMX e infraestructura futura pueden depender de esta frontera, pero la frontera nunca depende de ellos.
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+## Decisiones
 
-## Open Questions
+### D-01 — Contrato v1 único y versionado
 
-- TBD
+`ImportarServicioWebDtos.vb` contendrá clases públicas `<Serializable()>` para las ocho operaciones canónicas: `ResolveCapabilities`, `QueryItems`, `GetPreview`, `PreflightImport`, `CreateImportIntent`, `ExecuteImportIntent`, `GetImportIntent` y `ReconcileImportIntent`. El comando y resultado documental por elemento serán contratos auxiliares de preflight/intención, no una novena operación. Todas las respuestas incluirán `SchemaVersion`, `OperationId`, `CorrelationId` y error seguro cuando aplique; requests incluirán `TaskId`, `ProviderId` y `ExternalKey` cuando la operación los requiera. Los fixtures JSON de `contracts-v1` serán ejemplos ejecutables y fuente de detección de deriva. No se incluirán campos SII como libro, matrícula, acto, noticia o código de barras.
+
+La frontera futura se publica como contrato `v1` sobre HTTPS `POST`, con métodos ASMX modernos homónimos bajo `/webservice/WebServiceImportarServicioWeb.asmx/<Operation>`. DOC-50 define esa dirección contractual pero no crea ni modifica el ASMX. Valores ausentes usarán `Nothing` solo cuando la operación los declare opcionales; colecciones de respuesta se inicializarán vacías. Los códigos funcionales mínimos son `INVALID_CONTEXT`, `FORBIDDEN`, `TASK_NOT_OPERABLE`, `ROUTE_MISMATCH`, `PROCEDURE_MISMATCH`, `PROVIDER_NOT_SUPPORTED`, `EXTERNAL_ITEM_NOT_FOUND`, `CONCURRENCY_CONFLICT`, `TIMEOUT` e `INTERNAL_ERROR`, sin mensajes o detalles sensibles.
+
+`ResolveCapabilities`, `QueryItems`, `GetPreview`, `PreflightImport`, `GetImportIntent` y `ReconcileImportIntent` son idempotentes por lectura. `CreateImportIntent` usa una clave de idempotencia por tarea, proveedor y selección; `ExecuteImportIntent` exige token de versión y rechaza reejecución concurrente. Los timeouts son declarativos por proveedor/capacidad en v1: DOC-50 no fija un valor global ni implementa clientes HTTP. Compatibilidad: `SchemaVersion = "1.0"`, campos aditivos opcionales dentro de v1 y nueva versión para cambios incompatibles.
+
+### D-02 — Contexto como instantánea inmutable
+
+`ContextoImportacionServicio` compondrá, sin modificar `ContextoModuloWorkflow`, usuario autenticado, grupo, login, tarea, ruta, trámite, proveedor y permisos requeridos. Sus valores se fijarán por constructor, se expondrán como solo lectura y se validarán antes de pasar a servicios o proveedores. Ningún archivo nuevo leerá `HttpContext.Current` o `Session`.
+
+### D-03 — Registro explícito sin fallback
+
+`RegistroProveedoresImportacion` recibirá una colección de `IExternalImportProvider`, normalizará la identidad canónica de forma consistente y rechazará entradas nulas, vacías o duplicadas. La resolución devolverá un resultado explícito; una identidad desconocida producirá `PROVIDER_NOT_SUPPORTED`. Nunca se instanciará SII como valor por defecto.
+
+### D-04 — Autorización reutilizable y determinista
+
+`ValidadorContextoImportacion` coordinará puertos inyectables para revalidar usuario, permiso vigente, tarea operable, coincidencia de ruta y trámite y proveedor habilitado. La primera falla detendrá el flujo con un código seguro. Los identificadores enviados por cliente solo podrán usarse para localizar y comparar; la autoridad será el contexto construido en servidor y los repositorios autorizados.
+
+### D-05 — Fachada sin efectos en esta entrega
+
+`ServicioImportarServicioWeb` expondrá únicamente resolución de capacidades y consulta contractual usando contexto explícito y proveedor registrado. Preflight e intenciones se publican como contrato para entregas posteriores, pero DOC-50 no ejecutará red, SQL, caché, escritura documental ni `AlmacenaDocumentoTareaWorkflow(...)`. Los ASMX y recorridos existentes permanecen intactos.
+
+### D-06 — Ubicación canónica y compilación
+
+Se crearán exactamente los archivos VB indicados bajo `DTOs/Workflow/ImportarServicioWeb`, `Modelo/Workflow/ImportarServicioWeb` y `Services/Workflow/ImportarServicioWeb`. Cada archivo se agregará a `GestionDocumental-Docuarchi.net.vbproj` con `Compile Include` en su agrupación. Una prueba estructural impedirá copias en ASMX, `App_Code`, `ServiciosIntegracion`, `Integracionccv`, `workflow`, `Infrastructure` o módulos Workflow no relacionados.
+
+### D-07 — Verificación focal sin sesión ni red
+
+Las pruebas CommonJS cubrirán forma y versionado contractual, fixtures, registro conocido/desconocido/duplicado e inmutabilidad y validación del contexto. Se ejecutará el build disponible para el proyecto y se registrará evidencia real. No se ejecutará E2E autenticado, carga ni activación de gates dentro de DOC-50; cualquier corrida posterior necesitará autorización expresa y su runbook.
+
+### D-08 — Paquete técnico único
+
+La documentación vivirá exclusivamente en `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-50-contratos-contexto-registro-multiproveedor/`, según la ubicación confirmada para la entrega. Contendrá `00-Indice.md` a `07-Metadata.md` y `Diagramas/`, con enlaces relativos. La tabla de funciones mostrará explícitamente que `AlmacenaDocumentoTareaWorkflow(...)` es existente y no fue modificada.
+
+## Operaciones contractuales
+
+| Operación | Transporte futuro | Autoridad | Mutación en DOC-50 |
+| --- | --- | --- | --- |
+| ResolveCapabilities | POST ASMX v1, request/response | Contexto y registro | No |
+| QueryItems | POST ASMX v1, request/response | Contexto y proveedor | No; solo puerto/doble |
+| GetPreview | POST ASMX v1, descriptor/stream mediado | Tarea, proveedor, elemento y operación | No |
+| PreflightImport | POST ASMX v1, request/response | Contexto y validador | No |
+| CreateImportIntent | POST ASMX v1, request/response | Contexto e idempotencia futura | No en DOC-50 |
+| ExecuteImportIntent | POST ASMX v1, request/response | Intención y token de versión | No en DOC-50 |
+| GetImportIntent | POST ASMX v1, request/response | Contexto e identidad futura | No |
+| ReconcileImportIntent | POST ASMX v1, request/response | Estado persistido futuro | No |
+
+El comando y resultado documental por elemento forman parte del modelo auxiliar de `PreflightImport` y del estado de intención; no son una operación transportable independiente.
+
+## Riesgos y compensaciones
+
+- La configuración real de proveedores no puede demostrarse solo con código. Se compensa registrando únicamente implementaciones suministradas y fallando cerrado.
+- VB sobre .NET Framework 4.6.1 limita algunas construcciones modernas de inmutabilidad. Se usarán campos privados y propiedades `ReadOnly`, sin setters públicos.
+- Los fixtures podrían divergir de consumidores futuros. Se compensa consumiéndolos desde pruebas estructurales de ambos lados y versionando cambios incompatibles.
+- Publicar contratos de operaciones aún no ejecutables puede sugerir capacidad inexistente. Las respuestas de capacidades distinguirán lo soportado y la documentación declarará el alcance sin efectos.
+
+## Plan de implementación y reversión
+
+1. Crear modelos e interfaces internos, sin referencias Web Forms.
+2. Crear DTOs v1 y fixtures compartidos.
+3. Implementar registro, validador y fachada de capacidades/consulta.
+4. Registrar únicamente los archivos nuevos en el proyecto.
+5. Agregar pruebas focales y paquete técnico DOC-50.
+6. Ejecutar pruebas y build permitidos; registrar resultados y limitaciones.
+
+La reversión consiste en retirar los archivos, fixtures, documentación y entradas `Compile Include` añadidos por DOC-50. No exige migración de datos ni restauración de endpoints porque el recorrido legacy no se modifica.
+
+## Preguntas resueltas y deuda posterior
+
+- Proveedores comprobados en código: solo `INTEGRACIONSII`; otros requieren evidencia de datos y adaptadores.
+- La fuente autorizada se abstrae detrás de puertos; el navegador y la sesión mutable no son autoridad dentro del núcleo.
+- Timeouts, tamaños, clientes HTTP, persistencia de intenciones, ejecución, reconciliación real y adaptación ASMX corresponden a cambios posteriores.

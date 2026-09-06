@@ -135,7 +135,7 @@ CONTRATOS-MULTI-PROVEEDOR
 > Estas reglas fueron agregadas desde opsxj:prompt-review para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
 > Ruta documental obligatoria
 > Este cambio crea un núcleo compartido y reutilizable. Toda su documentación técnica debe quedar exclusivamente en:
-> docs/Architecture/Workflow/ImportarServicioWeb/SCRUMCORE-000-contratos-contexto-registro-multiproveedor/Sustituir SCRUMCORE-000 por el identificador real del ticket antes de implementar. No crear el paquete en Doc/Actualizacion, docs/modulos, docs/Components, la raíz del repositorio ni una ruta paralela. Los documentos de Doc/Actualizacion/workflow/ImportarServicioWeb/ son fuentes de exploración y prompts, no el paquete técnico entregable del cambio.
+> Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-50-contratos-contexto-registro-multiproveedor/. Esta ubicación fue confirmada explícitamente para la entrega técnica. No crear el paquete en docs/Architecture, docs/modulos, docs/Components, la raíz del repositorio ni una ruta paralela.
 > Paquete documental mínimo
 > Crear en la ruta canónica exactamente:
 > 00-Indice.md

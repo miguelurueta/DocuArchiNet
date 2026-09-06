@@ -1,10 +1,10 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08 -->
+# contratos-multi-proveedor Specification
 
 ## Purpose
 
 Define el contrato compartido, el contexto autorizado y el registro explícito necesarios para integrar proveedores externos sin acoplar el núcleo a sesión, transporte o conceptos específicos de SII.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Contrato compartido versionado
 
