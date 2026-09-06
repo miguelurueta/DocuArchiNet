@@ -1,3 +1,7 @@
+## Purpose
+
+Define la frontera HTTP externa asíncrona, cancelable y segura usada por adaptadores de proveedores del flujo moderno de ImportarServicioWeb.
+
 ## ADDED Requirements
 
 ### Requirement: RQ-01 Puerto externo asíncrono y aditivo (D-01)
