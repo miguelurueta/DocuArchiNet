@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "operationId": "op-cap-001",
+  "correlationId": "corr-001",
+  "providerId": "PROVIDER_DEMO",
+  "contextAllowed": true,
+  "capabilities": [
+    { "codigo": "QUERY_ITEMS", "habilitada": true, "timeoutSeconds": 30 },
+    { "codigo": "PREVIEW", "habilitada": true, "timeoutSeconds": 15 }
+  ],
+  "error": null
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0",
+  "operationId": "op-reconcile-001",
+  "correlationId": "corr-007",
+  "intentId": "intent-001",
+  "status": "Reconciliada",
+  "confirmedDocumentCount": 1,
+  "items": [
+    {
+      "clientItemId": "item-001",
+      "externalKey": "external-001",
+      "status": "Reconciliada",
+      "documentId": 5001,
+      "errorCode": null,
+      "message": null
+    }
+  ],
+  "error": null
+}
