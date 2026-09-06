@@ -1,13 +1,14 @@
 ## Why
 
-SERVICIO-PROVEEDOR. Ver detalle funcional completo del ticket en la seccion Jira Details.
+El recorrido modernizado necesita una frontera HTTP segura antes de integrar proveedores concretos. El transporte legacy es bloqueante y contiene configuración global que no debe heredarse.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-51.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se agrega un puerto asíncrono y cancelable para capacidades, consulta, preview y descarga.
+- Se implementa transporte común con configuración inmutable, timeout y validación acotada.
+- Se publican errores tipados y saneados con `correlationId`.
+- Se agregan fixtures y pruebas loopback sin llamadas a SII.
+- Se documenta bajo `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-51-clientes-http-asincronos-seguridad/`.
 
 ## Jira Details
 
@@ -146,13 +147,12 @@ SERVICIO-PROVEEDOR. Ver detalle funcional completo del ticket en la seccion Jira
 ## Capabilities
 
 ### New Capabilities
-- `servicio-proveedor`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `servicio-proveedor`: frontera HTTP asíncrona, cancelable, validada y segura para adaptadores externos.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
+- Cambios aditivos en Modelo, Infrastructure, proyecto, pruebas y documentación.
+- Sin modificación del transporte legacy, endpoints, almacenamiento, DTO públicos ni gate.

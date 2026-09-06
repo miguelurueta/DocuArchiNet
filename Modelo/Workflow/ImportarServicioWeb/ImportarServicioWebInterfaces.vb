@@ -1,5 +1,7 @@
 Imports System
 Imports System.Collections.Generic
+Imports System.Threading
+Imports System.Threading.Tasks
 
 ' Puertos del núcleo. Sus implementaciones futuras no pertenecen al modelo.
 Public Interface IExternalImportProvider
@@ -8,6 +10,20 @@ Public Interface IExternalImportProvider
     Function ConsultarElementos(ByVal contexto As ContextoImportacionServicio,
                                ByVal continuationToken As String,
                                ByVal pageSize As Nullable(Of Integer)) As IList(Of ElementoExternoImportacion)
+End Interface
+
+' Puerto moderno aditivo. Los adaptadores concretos de proveedor se implementan en entregas posteriores.
+Public Interface IExternalImportProviderClient
+    ReadOnly Property ProviderId As String
+    Function ResolveCapabilitiesAsync(ByVal request As ResolveCapabilitiesRequestDto,
+                                      ByVal cancellationToken As CancellationToken) As Task(Of ResolveCapabilitiesResponseDto)
+    Function QueryItemsAsync(ByVal request As QueryItemsRequestDto,
+                             ByVal cancellationToken As CancellationToken) As Task(Of QueryItemsResponseDto)
+    Function GetPreviewAsync(ByVal request As GetPreviewRequestDto,
+                             ByVal cancellationToken As CancellationToken) As Task(Of GetPreviewResponseDto)
+    Function DownloadAsync(ByVal externalKey As String,
+                           ByVal correlationId As String,
+                           ByVal cancellationToken As CancellationToken) As Task(Of Byte())
 End Interface
 
 Public Interface IRegistroProveedoresImportacion
