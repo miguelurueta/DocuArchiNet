@@ -1,0 +1,117 @@
+{
+  "version": 3,
+  "issueKey": "DOC-51",
+  "changeName": "doc-51-servicio-proveedor",
+  "impact": "cross_cutting",
+  "requiredEvidence": [
+    "unit",
+    "manual_qa"
+  ],
+  "documentation": [
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-51-clientes-http-asincronos-seguridad/01-Arquitectura.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-51-clientes-http-asincronos-seguridad/02-FlujoIntegracion.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-51-clientes-http-asincronos-seguridad/03-ContratoUploadYMapping.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-51-clientes-http-asincronos-seguridad/04-EstadosErroresYAntiregresion.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-51-clientes-http-asincronos-seguridad/05-PruebasEvidencia.md"
+  ],
+  "documentationContract": [
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-51-clientes-http-asincronos-seguridad/01-Arquitectura.md",
+      "requiredSections": [
+        "# Arquitectura"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-51",
+        "changeName": "doc-51-servicio-proveedor",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-51-clientes-http-asincronos-seguridad/02-FlujoIntegracion.md",
+      "requiredSections": [
+        "# Flujo de integración"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-51",
+        "changeName": "doc-51-servicio-proveedor",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-51-clientes-http-asincronos-seguridad/03-ContratoUploadYMapping.md",
+      "requiredSections": [
+        "## Solicitud preparada"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-51",
+        "changeName": "doc-51-servicio-proveedor",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-51-clientes-http-asincronos-seguridad/04-EstadosErroresYAntiregresion.md",
+      "requiredSections": [
+        "# Estados, errores y antirregresión"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-51",
+        "changeName": "doc-51-servicio-proveedor",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-51-clientes-http-asincronos-seguridad/05-PruebasEvidencia.md",
+      "requiredSections": [
+        "# Pruebas y evidencia"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-51",
+        "changeName": "doc-51-servicio-proveedor",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    }
+  ],
+  "refinement": {
+    "version": 1,
+    "required": true,
+    "path": "openspec/changes/doc-51-servicio-proveedor/refinement.md",
+    "state": "approved",
+    "taskOriginFormat": "Origen: D-XX, RQ-XX",
+    "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  }
+}

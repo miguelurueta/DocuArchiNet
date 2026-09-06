@@ -9824,6 +9824,10 @@
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernInterfaces.vb" />
     <Compile Include="Modelo\Workflow\ImportarServicioWeb\ImportarServicioWebModels.vb" />
     <Compile Include="Modelo\Workflow\ImportarServicioWeb\ImportarServicioWebInterfaces.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Http\ExternalImportHttpClientFactory.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Http\ExternalImportHttpErrorMapper.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Http\ExternalImportHttpResponseValidator.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Http\ExternalImportHttpTransport.vb" />
     <Compile Include="Modelo\Workflow\Notas\NotasWorkflowModels.vb" />
     <Compile Include="Modelo\Workflow\Notas\NotasWorkflowInterfaces.vb" />
     <Compile Include="Modelo\Workflow\Devolver\DevolverActividadModels.vb" />
