@@ -1,5 +1,9 @@
 # Arquitectura
 
+- Ticket: DOC-51
+- Cambio OpenSpec: doc-51-servicio-proveedor
+- Clasificacion: cross_cutting
+
 `IExternalImportProviderClient` permanece en Modelo y define capacidades, consulta, preview y descarga asíncronos con `CancellationToken`. Los adaptadores concretos consumen esta interfaz; el cliente SII corresponde a Backend 06.
 
 La infraestructura se divide en:

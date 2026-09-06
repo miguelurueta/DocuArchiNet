@@ -1,5 +1,9 @@
 # Estados, errores y antirregresión
 
+- Ticket: DOC-51
+- Cambio OpenSpec: doc-51-servicio-proveedor
+- Clasificacion: cross_cutting
+
 | Código | Condición |
 |---|---|
 | `EXTERNAL_ACCESS_DENIED` | HTTP 401/403 |

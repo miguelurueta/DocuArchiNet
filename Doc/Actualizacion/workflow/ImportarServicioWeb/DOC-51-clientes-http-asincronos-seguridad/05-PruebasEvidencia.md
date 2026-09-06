@@ -1,5 +1,9 @@
 # Pruebas y evidencia
 
+- Ticket: DOC-51
+- Cambio OpenSpec: doc-51-servicio-proveedor
+- Clasificacion: cross_cutting
+
 Fecha: 2026-09-06.
 
 | Evidencia | Resultado |

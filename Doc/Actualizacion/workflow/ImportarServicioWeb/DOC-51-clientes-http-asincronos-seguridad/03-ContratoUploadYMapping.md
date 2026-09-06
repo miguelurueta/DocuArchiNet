@@ -1,5 +1,9 @@
 # Contrato HTTP, serialización y límites
 
+- Ticket: DOC-51
+- Cambio OpenSpec: doc-51-servicio-proveedor
+- Clasificacion: cross_cutting
+
 ## Solicitud preparada
 
 | Campo | Regla |

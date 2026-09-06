@@ -1,5 +1,9 @@
 # Flujo de integración
 
+- Ticket: DOC-51
+- Cambio OpenSpec: doc-51-servicio-proveedor
+- Clasificacion: cross_cutting
+
 1. Un adaptador de proveedor prepara URI, verbo, bytes, media type, encabezados permitidos, timeout, máximo, MIME aceptados y `correlationId`.
 2. El transporte copia los valores y construye un `HttpRequestMessage` exclusivo.
 3. El token del llamador se enlaza con el timeout de la operación.
