@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0",
+  "operationId": "op-query-001",
+  "correlationId": "corr-002",
+  "items": [
+    {
+      "externalKey": "external-001",
+      "displayName": "Documento de ejemplo.pdf",
+      "contentType": "application/pdf",
+      "length": 2048,
+      "previewAvailable": true
+    }
+  ],
+  "continuationToken": null,
+  "error": null
+}

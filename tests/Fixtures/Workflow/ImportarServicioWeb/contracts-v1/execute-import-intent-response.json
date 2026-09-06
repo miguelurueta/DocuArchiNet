@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0",
+  "operationId": "op-execute-001",
+  "correlationId": "corr-005",
+  "intentId": "intent-001",
+  "accepted": true,
+  "status": "Validada",
+  "versionToken": "v2",
+  "error": null
+}

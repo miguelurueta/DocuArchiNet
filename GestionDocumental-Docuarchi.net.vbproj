@@ -9809,6 +9809,7 @@
     <Compile Include="DTOs\Workflow\Notas\NotasWorkflowDtos.vb" />
     <Compile Include="DTOs\Workflow\Devolver\DevolverActividadDtos.vb" />
     <Compile Include="DTOs\Workflow\DevolverUsuarioAnterior\DevolverUsuarioAnteriorDtos.vb" />
+    <Compile Include="DTOs\Workflow\ImportarServicioWeb\ImportarServicioWebDtos.vb" />
     <Compile Include="Services\Workflow\Terminar\ServicioTransicionTarea.vb" />
     <Compile Include="Services\Workflow\Terminar\ValidadorTransicionTarea.vb" />
     <Compile Include="Services\Workflow\Terminar\ServicioEnvioGrupoTarea.vb" />
@@ -9816,8 +9817,13 @@
     <Compile Include="Services\Workflow\Terminar\ValidadorEnvioGrupoTarea.vb" />
     <Compile Include="Services\Workflow\Terminar\ValidadorEnvioUsuarioTarea.vb" />
     <Compile Include="Services\Workflow\Notas\ServicioNotasWorkflow.vb" />
+    <Compile Include="Services\Workflow\ImportarServicioWeb\ServicioImportarServicioWeb.vb" />
+    <Compile Include="Services\Workflow\ImportarServicioWeb\RegistroProveedoresImportacion.vb" />
+    <Compile Include="Services\Workflow\ImportarServicioWeb\ValidadorContextoImportacion.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernModels.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernInterfaces.vb" />
+    <Compile Include="Modelo\Workflow\ImportarServicioWeb\ImportarServicioWebModels.vb" />
+    <Compile Include="Modelo\Workflow\ImportarServicioWeb\ImportarServicioWebInterfaces.vb" />
     <Compile Include="Modelo\Workflow\Notas\NotasWorkflowModels.vb" />
     <Compile Include="Modelo\Workflow\Notas\NotasWorkflowInterfaces.vb" />
     <Compile Include="Modelo\Workflow\Devolver\DevolverActividadModels.vb" />
