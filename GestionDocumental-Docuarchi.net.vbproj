@@ -9822,6 +9822,8 @@
     <Compile Include="Services\Workflow\ImportarServicioWeb\ValidadorContextoImportacion.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\ServicioPreflightImportacion.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\ServicioIntencionImportacion.vb" />
+    <Compile Include="Services\Workflow\ImportarServicioWeb\ImportIntentStateMachine.vb" />
+    <Compile Include="Services\Workflow\ImportarServicioWeb\ImportItemResultFactory.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportIntentRepository.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\MySqlImportIntentConcurrencyGuard.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernModels.vb" />

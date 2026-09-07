@@ -41,6 +41,26 @@ Public NotInheritable Class MySqlImportIntentRepository
             End Using
         End Using
     End Function
+    Public Function ActualizarTransicion(ByVal context As ContextoImportacionServicio, ByVal cambio As TransicionImportacion, ByVal item As ResultadoElementoImportacion) As Boolean Implements IImportIntentRepository.ActualizarTransicion
+        If context Is Nothing OrElse cambio Is Nothing OrElse item Is Nothing Then Return False
+        Using connection = _connections.CreateOpenConnection(ModuleContext(context))
+            Using transaction = _transactions.BeginTransaction(connection)
+                Try
+                    Dim itemSql = "UPDATE workflow_import_intent_item SET status=@status WHERE intent_id=@intentId AND client_item_id=@clientId AND status=@previousStatus"
+                    If _executor.ExecuteNonQuery(connection, transaction, itemSql, New List(Of IDataParameter) From {P("@status", cambio.FaseNueva.ToString()), P("@intentId", cambio.IntentId), P("@clientId", cambio.ClientItemId), P("@previousStatus", cambio.FaseAnterior.ToString())}) <> 1 Then
+                        transaction.Rollback() : Return False
+                    End If
+                    Dim intentSql = "UPDATE workflow_import_intent SET status=@status,version_token=@newVersion,updated_utc=@updated WHERE intent_id=@intentId AND user_id=@userId AND task_id=@taskId AND version_token=@oldVersion"
+                    If _executor.ExecuteNonQuery(connection, transaction, intentSql, New List(Of IDataParameter) From {P("@status", cambio.FaseNueva.ToString()), P("@newVersion", cambio.VersionNueva), P("@updated", cambio.FechaUtc), P("@intentId", cambio.IntentId), P("@userId", context.IdUsuario), P("@taskId", context.IdTarea), P("@oldVersion", cambio.VersionAnterior)}) <> 1 Then
+                        transaction.Rollback() : Return False
+                    End If
+                    transaction.Commit() : Return True
+                Catch
+                    transaction.Rollback() : Return False
+                End Try
+            End Using
+        End Using
+    End Function
     Private Function ReadOne(ByVal context As ContextoImportacionServicio, ByVal whereClause As String, ByVal value As String) As IntencionImportacionServicio
         Using connection = _connections.CreateOpenConnection(ModuleContext(context))
             Dim intent = _executor.ExecuteReader(connection, Nothing, "SELECT i.* FROM workflow_import_intent i WHERE " & whereClause & " LIMIT 1", New List(Of IDataParameter) From {P("@userId", context.IdUsuario), P("@taskId", context.IdTarea), P("@value", value)}, AddressOf MapHeader)

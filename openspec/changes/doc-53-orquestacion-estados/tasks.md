@@ -1,13 +1,13 @@
 ## 1. Contratos y persistencia
 
-- [ ] 1.1 [M] Extender modelos con resultado, persistencia conocida, reintento, correlación y auditoría. Área/archivos: `Modelo/Workflow/ImportarServicioWeb/ImportarServicioWebModels.vb`. Origen: D-01, RQ-01. Verificación: expresa éxito, fallo, incertidumbre y detención sin WebForms.
-- [ ] 1.2 [M] Agregar actualización optimista de intención, item y transición. Área/archivos: interfaces y `MySqlImportIntentRepository.vb`. Origen: D-02, RQ-02. Verificación: versión obsoleta no actualiza ni repite efectos.
-- [ ] 1.3 [S] Completar DTO y fixtures Execute/Get v1. Área/archivos: DTOs y `Tests/Fixtures/Workflow/ImportarServicioWeb/`. Origen: D-08, RQ-08. Verificación: serializa fase, persistenceKnown, retryable, código, correlación y versión.
+- [x] 1.1 [M] Extender modelos con resultado, persistencia conocida, reintento, correlación y auditoría. Área/archivos: `Modelo/Workflow/ImportarServicioWeb/ImportarServicioWebModels.vb`. Origen: D-01, RQ-01. Verificación: expresa éxito, fallo, incertidumbre y detención sin WebForms.
+- [x] 1.2 [M] Agregar actualización optimista de intención, item y transición. Área/archivos: interfaces y `MySqlImportIntentRepository.vb`. Origen: D-02, RQ-02. Verificación: versión obsoleta no actualiza ni repite efectos.
+- [x] 1.3 [S] Completar DTO y fixtures Execute/Get v1. Área/archivos: DTOs y `Tests/Fixtures/Workflow/ImportarServicioWeb/`. Origen: D-08, RQ-08. Verificación: serializa fase, persistenceKnown, retryable, código, correlación y versión.
 
 ## 2. Orquestación y fronteras
 
 - [ ] 2.1 [M] Implementar ejecución estrictamente secuencial. Área/archivos: `Services/Workflow/ImportarServicioWeb/ImportServiceOrchestrator.vb`. Origen: D-02, RQ-02. Verificación: máximo una operación de item activa.
-- [ ] 2.2 [M] Implementar tabla pura de transiciones. Área/archivos: `ImportIntentStateMachine.vb`. Origen: D-03, RQ-03. Verificación: matriz cubre fases normales y alternativas.
+- [x] 2.2 [M] Implementar tabla pura de transiciones. Área/archivos: `ImportIntentStateMachine.vb`. Origen: D-03, RQ-03. Verificación: matriz cubre fases normales y alternativas.
 - [ ] 2.3 [M] Coordinar proveedor, expediente, índices, storage y caché en el orden aprobado. Área/archivos: orquestador y puertos modernos. Origen: D-04, RQ-04. Verificación: fallo por fase conserva última confirmación.
 - [ ] 2.4 [M] Crear puerto y adaptador exclusivo de storage. Área/archivos: `ImportDocumentStoragePort.vb`, `Storage/LegacyImportDocumentStorageAdapter.vb`. Origen: D-05, RQ-05. Verificación: caracteriza 16 argumentos y YES/error/excepción sin editar legacy.
 - [ ] 2.5 [M] Clasificar fallos e incertidumbre sin reintento inseguro. Área/archivos: `ImportItemResultFactory.vb`, orquestador. Origen: D-06, RQ-06. Verificación: retryable solo sin posible efecto mutador.
