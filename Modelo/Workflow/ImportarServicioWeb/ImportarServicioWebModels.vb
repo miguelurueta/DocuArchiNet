@@ -139,6 +139,7 @@ Public Class SnapshotItemReconciliacionImportacion
     Public Property CodigoError As String
     Public Property MensajeVisible As String
     Public Property CorrelationId As String
+    Public Property CantidadDocumentos As Integer
     Public Property CantidadRelaciones As Integer
     Public Property CantidadRelacionesOtraTarea As Integer
 End Class

@@ -27,6 +27,7 @@ Public NotInheritable Class ImportItemResultMapper
         If item.Fase=FaseImportacionServicio.ResultadoIncierto OrElse (item.IdDocumento.HasValue AndAlso Not item.PersistenciaConocida) Then Return ConsistenciaDocumentoImportacion.ResultadoIncierto
         If item.IdTareaDestino<>taskId OrElse item.CantidadRelacionesOtraTarea>0 Then Return ConsistenciaDocumentoImportacion.TareaDistinta
         If item.IdDocumento.HasValue AndAlso item.PersistenciaConocida Then
+            If item.CantidadDocumentos<>1 Then Return ConsistenciaDocumentoImportacion.RelacionAusente
             If item.CantidadRelaciones=0 Then Return ConsistenciaDocumentoImportacion.RelacionAusente
             If item.CantidadRelaciones>1 Then Return ConsistenciaDocumentoImportacion.RelacionDuplicada
             Return ConsistenciaDocumentoImportacion.Confirmado

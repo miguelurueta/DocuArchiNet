@@ -6,10 +6,11 @@ const service = fs.readFileSync('Services/Workflow/ImportarServicioWeb/ServicioR
 const repository = fs.readFileSync('Infrastructure/Repositories/Workflow/ImportarServicioWeb/MySqlImportReconciliationRepository.vb', 'utf8');
 
 test('reconstruye intención completa o item focal desde persistencia', () => {
-  assert.match(service, /Function \[Get\][\s\S]*_repository\.Obtener/);
-  assert.match(service, /Function Reconcile[\s\S]*_repository\.ObtenerItem/);
+  assert.match(service, /Function GetImportIntent[\s\S]*_repository\.Obtener/);
+  assert.match(service, /Function ReconcileImportIntent[\s\S]*_repository\.ObtenerItem/);
   assert.match(repository, /INNER JOIN workflow_import_intent_item item ON item\.intent_id=intent\.intent_id/);
   assert.match(repository, /intent\.intent_id=@intentId[\s\S]*intent\.user_id=@userId[\s\S]*intent\.task_id=@taskId/);
+  assert.match(repository, /registro_producion_documental[\s\S]*ID_DOCUMENTO_DOCUARCHI_ALMACEN=item\.document_id/);
 });
 
 test('todas las lecturas del repositorio son parametrizadas y no mutan', () => {

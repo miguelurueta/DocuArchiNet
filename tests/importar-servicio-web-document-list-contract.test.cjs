@@ -25,6 +25,7 @@ test('mapper cubre enum y clasificaciones conservadoras', () => {
 test('lista deduplica por tarea y documento', () => {
   assert.match(service, /HashSet\(Of String\)/);
   assert.match(service, /mapped\.TaskId[\s\S]*mapped\.DocumentId/);
+  assert.match(service, /Function AggregateStatus/);
   const duplicate = JSON.parse(fs.readFileSync('Tests/Fixtures/Workflow/ImportarServicioWeb/reconciliation-v1/duplicated-document.json', 'utf8'));
   assert.equal(new Set(duplicate.items.map(x => `${x.taskId}:${x.documentId}`)).size, 1);
 });
