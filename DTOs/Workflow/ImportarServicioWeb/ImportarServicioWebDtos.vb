@@ -126,6 +126,9 @@ End Class
     Public Property DocumentId As Nullable(Of Long)
     Public Property ErrorCode As String
     Public Property Message As String
+    Public Property PersistenceKnown As Boolean
+    Public Property Retryable As Boolean
+    Public Property CorrelationId As String
 End Class
 
 <Serializable()> Public Class PreflightImportResponseDto
@@ -164,14 +167,19 @@ End Class
     Inherits SolicitudImportacionServicioDto
     Public Property IntentId As String
     Public Property VersionToken As String
+    Public Property StopRequested As Boolean
 End Class
 
 <Serializable()> Public Class ExecuteImportIntentResponseDto
     Inherits RespuestaImportacionServicioDto
+    Public Sub New()
+        Items = New List(Of ImportItemResultDto)()
+    End Sub
     Public Property IntentId As String
     Public Property Accepted As Boolean
     Public Property Status As String
     Public Property VersionToken As String
+    Public Property Items As IList(Of ImportItemResultDto)
 End Class
 
 <Serializable()> Public Class GetImportIntentRequestDto

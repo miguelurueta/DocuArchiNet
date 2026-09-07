@@ -50,6 +50,20 @@ Public Interface IImportIntentRepository
                                     ByVal idempotencyKey As String) As IntencionImportacionServicio
     Function CrearOReutilizar(ByVal contexto As ContextoImportacionServicio,
                               ByVal intencion As IntencionImportacionServicio) As ResultadoPersistenciaIntencionImportacion
+    Function ActualizarTransicion(ByVal contexto As ContextoImportacionServicio,
+                                  ByVal transicion As TransicionImportacion,
+                                  ByVal resultado As ResultadoElementoImportacion) As Boolean
+End Interface
+
+Public Interface IImportIntentTransitionAudit
+    Sub Registrar(ByVal transicion As TransicionImportacion, ByVal aceptada As Boolean, ByVal codigo As String)
+End Interface
+
+Public Interface IImportExecutionStep
+    ReadOnly Property FaseConfirmada As FaseImportacionServicio
+    Function Ejecutar(ByVal contexto As ContextoImportacionServicio,
+                      ByVal intencion As IntencionImportacionServicio,
+                      ByVal item As ResultadoElementoImportacion) As ResultadoFaseImportacion
 End Interface
 
 Public Interface IImportIntentConcurrencyGuard

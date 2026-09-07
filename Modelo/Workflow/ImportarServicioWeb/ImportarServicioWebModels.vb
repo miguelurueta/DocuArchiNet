@@ -97,6 +97,37 @@ Public Class ResultadoElementoImportacion
     Public Property IdDocumento As Nullable(Of Long)
     Public Property CodigoError As String
     Public Property MensajeVisible As String
+    Public Property PersistenciaConocida As Boolean
+    Public Property Reintentable As Boolean
+    Public Property CorrelationId As String
+End Class
+
+Public Class ResultadoFaseImportacion
+    Public Property Exitoso As Boolean
+    Public Property PersistenciaConocida As Boolean
+    Public Property Reintentable As Boolean
+    Public Property IdDocumento As Nullable(Of Long)
+    Public Property Codigo As String
+    Public Property MensajeVisible As String
+End Class
+
+Public Class TransicionImportacion
+    Public Property IntentId As String
+    Public Property ClientItemId As String
+    Public Property FaseAnterior As FaseImportacionServicio
+    Public Property FaseNueva As FaseImportacionServicio
+    Public Property VersionAnterior As String
+    Public Property VersionNueva As String
+    Public Property FechaUtc As DateTime
+    Public Property CorrelationId As String
+    Public Property Codigo As String
+End Class
+
+Public Class ResultadoTransicionImportacion
+    Public Property Aceptada As Boolean
+    Public Property Codigo As String
+    Public Property MensajeVisible As String
+    Public Property Transicion As TransicionImportacion
 End Class
 
 Public Class IntencionImportacionServicio
@@ -115,6 +146,7 @@ Public Class IntencionImportacionServicio
     Public Property FechaActualizacionUtc As DateTime
     Public Property Requisitos As IList(Of RequisitoPlanImportacion)
     Public Property Resultados As IList(Of ResultadoElementoImportacion)
+    Public Property DetencionSolicitada As Boolean
 End Class
 
 Public Class ResultadoPersistenciaIntencionImportacion

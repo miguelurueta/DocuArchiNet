@@ -6,5 +6,18 @@
   "accepted": true,
   "status": "Validada",
   "versionToken": "v2",
+  "items": [
+    {
+      "clientItemId": "item-001",
+      "externalKey": "external-001",
+      "status": "Validada",
+      "documentId": null,
+      "errorCode": null,
+      "message": null,
+      "persistenceKnown": true,
+      "retryable": false,
+      "correlationId": "corr-005"
+    }
+  ],
   "error": null
 }
