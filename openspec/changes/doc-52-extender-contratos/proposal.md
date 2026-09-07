@@ -1,13 +1,14 @@
 ## Why
 
-EXTENDER-CONTRATOS. Ver detalle funcional completo del ticket en la seccion Jira Details.
+La ejecución moderna necesita separar la preparación sin efectos de una intención persistente que resuelva reintentos y carreras antes de almacenar documentos.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-52.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se extienden los contratos v1 con snapshot, requisitos y elementos de intención.
+- Se implementan `PreflightImport` sin efectos y `CreateImportIntent` idempotente.
+- Se agrega persistencia MySQL parametrizada con transacción, unicidad y guard concurrente.
+- Se entrega DDL y rollback manual sin ejecutarlos en ningún ambiente.
+- Se documenta bajo `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-52-preflight-intencion-idempotencia/`.
 
 ## Jira Details
 
@@ -149,13 +150,12 @@ EXTENDER-CONTRATOS. Ver detalle funcional completo del ticket en la seccion Jira
 ## Capabilities
 
 ### New Capabilities
-- `extender-contratos`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `extender-contratos`: preflight autoritativo e intención persistida e idempotente.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
+- Cambios aditivos en contratos, Services, Infrastructure, proyecto, pruebas, SQL manual y documentación.
+- Sin cambios en endpoints, Session, cachés, almacenamiento o tablas legacy.

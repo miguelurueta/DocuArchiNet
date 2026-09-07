@@ -1,141 +1,80 @@
-## ADDED Requirements
-### Requirement: EXTENDER-CONTRATOS
-El sistema SHALL implementar el alcance definido para DOC-52.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+## Purpose
 
-#### Scenario: Reglas del ticket
-- # Prompt backend 03 — Preflight, intención persistida e idempotencia
-- 
-- Implementa la preparación autoritativa de una importación y su identidad persistente sobre los contratos de los prompts backend 01 y 02.
-- 
-- Publica `PreflightImport` y `CreateImportIntent` con los DTO, códigos e invariantes definidos en el contrato compartido.
-- 
-- ## Objetivo
-- 
-- Separar la validación previa de los efectos y crear una intención inmutable e idempotente para colecciones de uno o varios elementos.
-- 
-- ## Rutas canónicas de implementación
-- 
-- ```txt
-- Services/Workflow/ImportarServicioWeb/
-- ├── ServicioPreflightImportacion.vb
-- └── ServicioIntencionImportacion.vb
-- 
-- Infrastructure/Repositories/Workflow/ImportarServicioWeb/
-- └── MySqlImportIntentRepository.vb
-- 
-- Infrastructure/Workflow/ImportarServicioWeb/
-- └── MySqlImportIntentConcurrencyGuard.vb
-- 
-- Tests/
-- ├── importar-servicio-web-preflight.test.cjs
-- ├── importar-servicio-web-intent-idempotency.test.cjs
-- └── importar-servicio-web-intent-concurrency.test.cjs
-- 
-- Tests/Fixtures/Workflow/ImportarServicioWeb/intents-v1/
-- ├── single-item-intent.json
-- ├── multiple-items-intent.json
-- ├── repeated-equivalent-intent.json
-- └── conflicting-intent.json
-- ```
-- 
-- - Extender contratos únicamente en los archivos canónicos `DTOs/Workflow/ImportarServicioWeb/ImportarServicioWebDtos.vb`, `Modelo/Workflow/ImportarServicioWeb/ImportarServicioWebModels.vb` e `ImportarServicioWebInterfaces.vb` creados por Backend 01.
-- - La implementación MySQL pertenece a `Infrastructure/Repositories`; servicios y modelos no contienen SQL.
-- - Cualquier script de esquema aprobado debe ubicarse en el paquete documental del ticket bajo `Sql/`, con aplicación manual y rollback documentados; no se ejecuta automáticamente.
-- - Agregar nuevos `.vb` al `.vbproj` sin modificar implementaciones existentes.
-- 
-- No crear intención o preflight en ASMX, `App_Code`, `Session`, `ClassRaSiiCahcheInscripcion`, `ClassAlmacenamiento` o tablas/cachés legacy existentes.
-- 
-- ## Ruta documental obligatoria
-- 
-- ```txt
-- docs/Architecture/Workflow/ImportarServicioWeb/SCRUMCORE-000-preflight-intencion-idempotencia/
-- ```
-- 
-- Sustituir `SCRUMCORE-000` por el ticket real. Crear `00-Indice.md` a `07-Metadata.md`, `Diagramas/` y, solo si existe un cambio persistente aprobado, `Sql/` con script versionado, precondiciones y rollback.
-- 
-- ## Investigación obligatoria
-- 
-- - Confirmar la identidad externa canónica de una inscripción SII.
-- - Precisar si el caché pertenece al radicado, a la intención o al elemento.
-- - Inventariar tablas, archivos, transacciones locales y auditoría afectadas por cada fase.
-- - Diseñar la migración persistente y su rollback antes de aplicarla.
-- 
-- ## Implementa
-- 
-- - Preflight sin mutación que revalide usuario, permiso, tarea, ruta, proveedor, selección, tipología y destino.
-- - Plan tipado de efectos y requisitos, independiente de la cardinalidad de la colección.
-- - Intención persistida con `operationId`, contexto original, selección, requisitos, versión, estado, fechas y correlación.
-- - Elementos de intención con proveedor, clave externa canónica, tarea destino y estado propio.
-- - Restricción de unicidad e idempotencia aplicada en servidor y, cuando corresponda, en almacenamiento.
-- - Reutilización segura de una intención ante solicitudes repetidas equivalentes y conflicto explícito ante payload incompatible.
-- - Repositorios parametrizados; ninguna consulta nueva concatena valores funcionales.
-- 
-- ## Restricciones
-- 
-- - Crear persistencia y endpoints nuevos en paralelo; no reemplazar ni alterar los endpoints mutadores, cachés o tablas del recorrido vigente.
-- - No modificar ni invocar `AlmacenaDocumentoTareaWorkflow(...)` durante el preflight.
-- - Preflight no crea expediente, vínculo, índice, caché ni documento.
-- - No usar una comprobación del cliente como garantía contra carreras.
-- - No obtener contexto general tomando implícitamente el primer elemento.
-- - No guardar tipología de la operación moderna en `Session("DG_LISTA_CHEQUEO")`.
-- - No aplicar migraciones ni escrituras de ambiente sin autorización y plan aprobado.
-- 
-- ## Aceptación
-- 
-- - Individual y múltiple utilizan el mismo contrato y difieren solo en cardinalidad.
-- - Dos solicitudes concurrentes del mismo elemento no crean dos intenciones ejecutables.
-- - Repetir la misma solicitud devuelve la intención existente o un resultado idempotente definido.
-- - Un cambio de tarea, usuario o requisitos produce conflicto, no reutilización silenciosa.
-- - Las pruebas cubren carreras, unicidad, SQL parametrizado y preflight libre de efectos.
-- 
-- ## Trazabilidad
-- 
-- Exploración backend: secciones 9, 10, 11 y 18; hallazgos B-07, B-08 y B-09; preguntas abiertas 3, 4, 5 y 8.
-- 
-- ## Correcciones opsxj:prompt-review
-- 
-- Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-- 
-- ## Rol esperado
-- Definir el rol tecnico esperado para ejecutar el ticket.
-- 
-- ## Objetivo
-- Describir el objetivo funcional y tecnico verificable.
-- 
-- ## Restricciones criticas
-- - No introducir cambios fuera del alcance declarado.
-- - No romper comportamiento existente ni contratos publicos.
-- 
-- ## Criterios de aceptacion
-- - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-- 
-- ## Contexto obligatorio
-- Leer los contratos canónicos de Backend 01, `Domain/Shared/ContextoModulo.vb`, `Infrastructure/Shared/Data/AdoNetDataInfrastructure.vb`, `Infrastructure/Shared/Data/ModuleConnectionFactory.vb` y repositorios modernos de `Infrastructure/Repositories/Workflow/` como referencia. No modificar cachés, repositorios o tablas legacy.
-- 
-- ## Pruebas obligatorias
-- Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
-- 
-- ## Documentacion tecnica
-- Actualizar exclusivamente el paquete de **Ruta documental obligatoria**; documentar modelo persistente, unicidad, transacciones locales, SQL parametrizado, rollback y pruebas de carreras.
-- 
-- ## Entregable final
-- Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-- 
-- ## Requisitos positivos
-- - Implementar el comportamiento esperado con contratos tipados y responsabilidades claras.
-- - Mantener la integracion sobre los puntos de extension existentes del repo.
-- - Dejar evidencia de pruebas y documentacion tecnica actualizada.
-- 
-- Exigir `npm run build` o `tsc` segun impacto y registrar el resultado.
-- 
-- Exigir pruebas unitarias/focales con Vitest o Testing Library segun el alcance.
-- 
-- Cuando el ticket afecte un flujo completo de usuario, navegacion, integracion entre vistas, persistencia de estado u operacion transaccional, exigir E2E real con Playwright; si no aplica, documentar justificacion formal y evidencia manual.
+Define la preparación sin efectos y la identidad persistente e idempotente de importaciones modernas de uno o varios elementos externos.
+
+## ADDED Requirements
+
+### Requirement: RQ-01 Contrato completo de intención (D-01)
+El sistema SHALL representar el contexto original, plan, requisitos, selección, estado, versión, fechas y correlación de una intención.
+
+#### Scenario: Round-trip tipado
+- **WHEN** una intención se guarda y recupera
+- **THEN** conserva cabecera, requisitos y todos sus elementos sin depender de Session
+
+### Requirement: RQ-02 Preflight sin efectos (D-02)
+El sistema SHALL revalidar usuario, permiso, tarea, ruta, trámite, proveedor, selección, tipología y destino antes de crear una intención, sin realizar efectos.
+
+#### Scenario: Preflight válido
+- **WHEN** contexto y todos los elementos son válidos
+- **THEN** devuelve un plan válido con requisitos y comandos y no escribe datos ni documentos
+
+#### Scenario: Selección inválida
+- **WHEN** falta un elemento, hay duplicado o no cumple un requisito
+- **THEN** retorna un requisito/código seguro y no crea intención
+
+### Requirement: RQ-03 Identidad y cardinalidad explícitas (D-03)
+El sistema SHALL identificar cada elemento mediante proveedor, clave externa y tarea destino explícitos, usando el mismo contrato para uno o varios.
+
+#### Scenario: Colección múltiple
+- **WHEN** se previsualizan varios elementos
+- **THEN** cada comando conserva su propio contexto sin tomar valores del primer elemento
+
+### Requirement: RQ-04 Equivalencia canónica (D-04)
+El sistema SHALL calcular una huella determinista de contexto, selección y requisitos autoritativos.
+
+#### Scenario: Reordenamiento equivalente
+- **WHEN** dos solicitudes contienen los mismos valores con elementos en distinto orden
+- **THEN** producen la misma huella
+
+#### Scenario: Contexto diferente
+- **WHEN** cambia usuario, tarea, proveedor, destino o requisito
+- **THEN** la huella es diferente
+
+### Requirement: RQ-05 Reutilización o conflicto (D-05)
+El sistema SHALL reutilizar una intención para la misma clave y huella y SHALL rechazar la misma clave con huella distinta.
+
+#### Scenario: Repetición equivalente
+- **WHEN** se repite una solicitud ya persistida con igual huella
+- **THEN** retorna el mismo intentId con `Reused=True`
+
+#### Scenario: Repetición incompatible
+- **WHEN** se reutiliza la clave con huella distinta
+- **THEN** retorna `IDEMPOTENCY_CONFLICT` sin modificar la intención existente
+
+### Requirement: RQ-06 Unicidad concurrente (D-06)
+El sistema SHALL garantizar en almacenamiento que dos solicitudes concurrentes equivalentes no creen dos intenciones ejecutables.
+
+#### Scenario: Carrera de inserción
+- **WHEN** dos procesos reservan simultáneamente la misma identidad idempotente
+- **THEN** una sola fila gana y el otro proceso reutiliza o retorna conflicto según la huella
+
+### Requirement: RQ-07 Persistencia parametrizada y reversible (D-07)
+El sistema SHALL usar tablas modernas propias, transacciones locales y parámetros para todo valor funcional.
+
+#### Scenario: Inspección SQL
+- **WHEN** se revisan repositorio y DDL
+- **THEN** no concatenan entradas y el paquete incluye precondiciones y rollback manual
+
+### Requirement: RQ-08 Estado inicial auditable (D-08)
+El sistema SHALL crear intención y elementos en estado `Creada` con versión, fechas UTC, operación y correlación saneadas.
+
+#### Scenario: Creación exitosa
+- **WHEN** se persiste una nueva intención
+- **THEN** cabecera y elementos quedan completos en una transacción y sin payload sensible
+
+### Requirement: RQ-09 Compatibilidad aislada (D-09)
+El sistema SHALL validar DOC-52 sin red, base real, ejecución de migraciones, E2E autenticado o activación del gate.
+
+#### Scenario: Regresión legacy
+- **WHEN** se inspecciona el cambio y corre la suite focal
+- **THEN** endpoints, cachés, Session y almacenamiento legacy permanecen intactos
