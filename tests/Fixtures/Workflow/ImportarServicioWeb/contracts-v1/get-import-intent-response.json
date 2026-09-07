@@ -12,7 +12,10 @@
       "status": "DocumentoAlmacenado",
       "documentId": 5001,
       "errorCode": null,
-      "message": null
+      "message": null,
+      "persistenceKnown": true,
+      "retryable": false,
+      "correlationId": "corr-006"
     }
   ],
   "error": null
