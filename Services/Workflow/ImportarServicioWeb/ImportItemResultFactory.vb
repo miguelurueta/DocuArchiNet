@@ -5,7 +5,13 @@ Public NotInheritable Class ImportItemResultFactory
         item.CodigoError = resultado.Codigo : item.MensajeVisible = resultado.MensajeVisible
         item.PersistenciaConocida = resultado.PersistenciaConocida AndAlso Not efectoMutadorPosible
         item.Reintentable = resultado.Reintentable AndAlso item.PersistenciaConocida
-        item.Fase = If(item.PersistenciaConocida, FaseImportacionServicio.FallidaAntesDePersistir, FaseImportacionServicio.ResultadoIncierto)
+        If Not item.PersistenciaConocida Then
+            item.Fase = FaseImportacionServicio.ResultadoIncierto
+        ElseIf item.Fase = FaseImportacionServicio.Creada OrElse item.Fase = FaseImportacionServicio.Validada Then
+            item.Fase = FaseImportacionServicio.FallidaAntesDePersistir
+        Else
+            item.Fase = FaseImportacionServicio.Parcial
+        End If
         Return item
     End Function
 

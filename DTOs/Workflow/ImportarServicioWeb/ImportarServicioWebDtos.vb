@@ -167,6 +167,7 @@ End Class
     Inherits SolicitudImportacionServicioDto
     Public Property IntentId As String
     Public Property VersionToken As String
+    Public Property StopRequested As Boolean
 End Class
 
 <Serializable()> Public Class ExecuteImportIntentResponseDto
