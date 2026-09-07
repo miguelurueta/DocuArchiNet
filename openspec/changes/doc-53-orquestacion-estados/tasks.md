@@ -30,4 +30,4 @@
 
 - [x] 4.1 [M] Crear paquete 00-07 y diagramas canónicos. Área/archivos: `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-53-orquestacion-estados-compensacion/`. Origen: D-09, RQ-09. Verificación: cubre secuencia, estados, fallos, transacciones y frontera inmutable.
 - [x] 4.2 [S] Auditar rutas legacy prohibidas. Área/archivos: diff DOC-53. Origen: D-09, RQ-09. Verificación: ASMX, JS, Integracionccv, ServiciosIntegracion y ClassAlmacenamiento intactos.
-- [ ] 4.3 [M] Ejecutar suite, build, OpenSpec y OPSXJ. Área/archivos: solución/cambio. Origen: D-09, RQ-09. Verificación: resultados registrados sin DDL, base real, E2E ni gate.
+- [x] 4.3 [M] Ejecutar suite, build, OpenSpec y OPSXJ. Área/archivos: solución/cambio. Origen: D-09, RQ-09. Verificación: resultados registrados sin DDL, base real, E2E ni gate.
