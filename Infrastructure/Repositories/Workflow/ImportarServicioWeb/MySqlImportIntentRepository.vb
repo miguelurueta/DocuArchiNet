@@ -43,8 +43,31 @@ Public NotInheritable Class MySqlImportIntentRepository
     End Function
     Private Function ReadOne(ByVal context As ContextoImportacionServicio, ByVal whereClause As String, ByVal value As String) As IntencionImportacionServicio
         Using connection = _connections.CreateOpenConnection(ModuleContext(context))
-            Return _executor.ExecuteReader(connection, Nothing, "SELECT i.* FROM workflow_import_intent i WHERE " & whereClause & " LIMIT 1", New List(Of IDataParameter) From {P("@userId", context.IdUsuario), P("@taskId", context.IdTarea), P("@value", value)}, Function(reader) If(reader.Read(), New IntencionImportacionServicio With {.Id = Convert.ToString(reader("intent_id")), .IdempotencyKey = Convert.ToString(reader("idempotency_key")), .HuellaContexto = Convert.ToString(reader("payload_hash")), .VersionToken = Convert.ToString(reader("version_token")), .Fase = CType([Enum].Parse(GetType(FaseImportacionServicio), Convert.ToString(reader("status"))), FaseImportacionServicio)}, Nothing))
+            Dim intent = _executor.ExecuteReader(connection, Nothing, "SELECT i.* FROM workflow_import_intent i WHERE " & whereClause & " LIMIT 1", New List(Of IDataParameter) From {P("@userId", context.IdUsuario), P("@taskId", context.IdTarea), P("@value", value)}, AddressOf MapHeader)
+            If intent Is Nothing Then Return Nothing
+            intent.Requisitos = _executor.ExecuteReader(connection, Nothing, "SELECT requirement_code,is_satisfied,visible_message FROM workflow_import_intent_requirement WHERE intent_id=@intentId ORDER BY requirement_code", New List(Of IDataParameter) From {P("@intentId", intent.Id)}, AddressOf MapRequirements)
+            intent.Resultados = _executor.ExecuteReader(connection, Nothing, "SELECT client_item_id,provider_id,external_key,target_task_id,document_type_id,file_name,content_type,status FROM workflow_import_intent_item WHERE intent_id=@intentId ORDER BY client_item_id", New List(Of IDataParameter) From {P("@intentId", intent.Id)}, AddressOf MapItems)
+            Return intent
         End Using
+    End Function
+    Private Shared Function MapHeader(ByVal reader As IDataReader) As IntencionImportacionServicio
+        If Not reader.Read() Then Return Nothing
+        Return New IntencionImportacionServicio With {.Id=Convert.ToString(reader("intent_id")),.IdempotencyKey=Convert.ToString(reader("idempotency_key")),.HuellaContexto=Convert.ToString(reader("payload_hash")),.VersionToken=Convert.ToString(reader("version_token")),.Fase=CType([Enum].Parse(GetType(FaseImportacionServicio),Convert.ToString(reader("status"))),FaseImportacionServicio),.FechaCreacionUtc=Convert.ToDateTime(reader("created_utc")),.FechaActualizacionUtc=Convert.ToDateTime(reader("updated_utc")),.ContextoOriginal=New ContextoIntencionImportacion With {.OperationId=Convert.ToString(reader("operation_id")),.CorrelationId=Convert.ToString(reader("correlation_id")),.IdUsuario=Convert.ToInt32(reader("user_id")),.IdGrupo=Convert.ToInt32(reader("group_id")),.LoginUsuario=Convert.ToString(reader("user_login")),.IdTarea=Convert.ToInt64(reader("task_id")),.IdRuta=Convert.ToInt32(reader("route_id")),.IdTramite=Convert.ToInt32(reader("procedure_id")),.ProviderId=Convert.ToString(reader("provider_id"))}}
+    End Function
+    Private Shared Function MapRequirements(ByVal reader As IDataReader) As IList(Of RequisitoPlanImportacion)
+        Dim values As New List(Of RequisitoPlanImportacion)()
+        While reader.Read()
+            values.Add(New RequisitoPlanImportacion With {.Codigo=Convert.ToString(reader("requirement_code")),.Satisfecho=Convert.ToBoolean(reader("is_satisfied")),.MensajeVisible=Convert.ToString(reader("visible_message"))})
+        End While
+        Return values
+    End Function
+    Private Shared Function MapItems(ByVal reader As IDataReader) As IList(Of ResultadoElementoImportacion)
+        Dim values As New List(Of ResultadoElementoImportacion)()
+        While reader.Read()
+            Dim documentType As Nullable(Of Integer) = If(reader.IsDBNull(reader.GetOrdinal("document_type_id")), Nothing, New Nullable(Of Integer)(Convert.ToInt32(reader("document_type_id"))))
+            values.Add(New ResultadoElementoImportacion With {.ClientItemId=Convert.ToString(reader("client_item_id")),.IdentidadExterna=New IdentidadExternaImportacion With {.ProviderId=Convert.ToString(reader("provider_id")),.ExternalKey=Convert.ToString(reader("external_key"))},.IdTareaDestino=Convert.ToInt64(reader("target_task_id")),.IdTipoDocumental=documentType,.NombreArchivo=Convert.ToString(reader("file_name")),.TipoContenido=Convert.ToString(reader("content_type")),.Fase=CType([Enum].Parse(GetType(FaseImportacionServicio),Convert.ToString(reader("status"))),FaseImportacionServicio)})
+        End While
+        Return values
     End Function
     Private Shared Function Params(ByVal i As IntencionImportacionServicio) As IList(Of IDataParameter)
         Dim c=i.ContextoOriginal : Return New List(Of IDataParameter) From {P("@intentId",i.Id),P("@key",i.IdempotencyKey),P("@hash",i.HuellaContexto),P("@operation",c.OperationId),P("@correlation",c.CorrelationId),P("@userId",c.IdUsuario),P("@groupId",c.IdGrupo),P("@login",c.LoginUsuario),P("@taskId",c.IdTarea),P("@routeId",c.IdRuta),P("@procedureId",c.IdTramite),P("@providerId",c.ProviderId),P("@status",i.Fase.ToString()),P("@version",i.VersionToken),P("@created",i.FechaCreacionUtc),P("@updated",i.FechaActualizacionUtc)}

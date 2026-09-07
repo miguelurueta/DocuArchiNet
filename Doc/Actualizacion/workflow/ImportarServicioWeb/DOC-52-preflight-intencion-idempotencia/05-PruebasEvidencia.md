@@ -1,0 +1,8 @@
+# Pruebas y evidencia
+
+- Suite completa ImportarServicioWeb: 28/28 PASS (`node --test Tests/importar-servicio-web-*.test.cjs`).
+- Build VB.NET: PASS (`msbuild GestionDocumental-Docuarchi.net.vbproj /t:Compile /p:Configuration=Debug /m /v:minimal`), con advertencias legacy preexistentes.
+- OpenSpec estricto y `opsxj:refine`: PASS.
+- DDL: inspeccionado, no ejecutado.
+- E2E: no aplica; no existen endpoint ni UI en este cambio.
+- Gate y cuentas: no usados.

@@ -21,7 +21,7 @@
 ## 4. Persistencia
 
 - [x] 4.1 [M] Crear script versionado de cabecera, requisitos, elementos, claves únicas e índices. Área/archivos: `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-52-preflight-intencion-idempotencia/Sql/001-create-import-intents.sql`. Origen: D-07, RQ-07. Verificación: DDL no referencia tablas legacy y define unicidad idempotente.
-- [ ] 4.2 [M] Implementar lectura y escritura agregada parametrizada. Área/archivos: `Infrastructure/Repositories/Workflow/ImportarServicioWeb/MySqlImportIntentRepository.vb`. Origen: D-08, RQ-08. Verificación: dobles ADO.NET comprueban parámetros y round-trip completo.
+- [x] 4.2 [M] Implementar lectura y escritura agregada parametrizada. Área/archivos: `Infrastructure/Repositories/Workflow/ImportarServicioWeb/MySqlImportIntentRepository.vb`. Origen: D-08, RQ-08. Verificación: dobles ADO.NET comprueban parámetros y round-trip completo.
 - [x] 4.3 [M] Implementar transacción para reserva, agregado, reutilización y conflicto ante duplicado. Área/archivos: `Infrastructure/Repositories/Workflow/ImportarServicioWeb/MySqlImportIntentRepository.vb`. Origen: D-05, RQ-05. Verificación: commit solo con agregado completo; rollback ante error.
 - [x] 4.4 [M] Implementar guard cooperativo con nombre hash y liberación garantizada. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/MySqlImportIntentConcurrencyGuard.vb`. Origen: D-06, RQ-06. Verificación: prueba simula adquisición, contención y dispose.
 - [x] 4.5 [S] Registrar cuatro archivos VB nuevos en el proyecto. Área/archivos: `GestionDocumental-Docuarchi.net.vbproj`. Origen: D-07, RQ-07. Verificación: una entrada Compile por archivo sin mover existentes.
@@ -36,7 +36,7 @@
 ## 6. Validación y documentación
 
 - [x] 6.1 [S] Documentar precondiciones, aplicación y rollback SQL manual. Área/archivos: paquete DOC-52 `Sql/README.md`, `002-rollback-import-intents.sql`. Origen: D-07, RQ-07. Verificación: orden de rollback y advertencia de autorización explícitos.
-- [ ] 6.2 [M] Crear paquete canónico 00-07 y diagramas. Área/archivos: `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-52-preflight-intencion-idempotencia/`. Origen: D-09, RQ-09. Verificación: enlaces relativos, modelo, transacción, concurrencia y evidencia completos.
-- [ ] 6.3 [M] Ejecutar suite focal y build VB.NET. Área/archivos: tests DOC-50/51/52 y proyecto. Origen: D-09, RQ-09. Verificación: comandos y resultados registrados.
-- [ ] 6.4 [S] Auditar ausencia de SQL concatenado y cambios legacy/ambientales. Área/archivos: diff DOC-52. Origen: D-07, RQ-07. Verificación: búsquedas y diff confirman parámetros, sin migración ejecutada, E2E/gate no aplicables.
-- [ ] 6.5 [S] Validar OpenSpec y refinamiento OPSXJ. Área/archivos: cambio DOC-52. Origen: D-01, RQ-01. Verificación: validación estricta y `opsxj:refine DOC-52` pasan.
+- [x] 6.2 [M] Crear paquete canónico 00-07 y diagramas. Área/archivos: `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-52-preflight-intencion-idempotencia/`. Origen: D-09, RQ-09. Verificación: enlaces relativos, modelo, transacción, concurrencia y evidencia completos.
+- [x] 6.3 [M] Ejecutar suite focal y build VB.NET. Área/archivos: tests DOC-50/51/52 y proyecto. Origen: D-09, RQ-09. Verificación: comandos y resultados registrados.
+- [x] 6.4 [S] Auditar ausencia de SQL concatenado y cambios legacy/ambientales. Área/archivos: diff DOC-52. Origen: D-07, RQ-07. Verificación: búsquedas y diff confirman parámetros, sin migración ejecutada, E2E/gate no aplicables.
+- [x] 6.5 [S] Validar OpenSpec y refinamiento OPSXJ. Área/archivos: cambio DOC-52. Origen: D-01, RQ-01. Verificación: validación estricta y `opsxj:refine DOC-52` pasan.
