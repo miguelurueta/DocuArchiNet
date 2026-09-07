@@ -16,15 +16,15 @@
 
 - [x] 3.1 [M] Implementar serialización canónica ordenada y no ambigua del snapshot. Área/archivos: `Services/Workflow/ImportarServicioWeb/ServicioIntencionImportacion.vb`. Origen: D-04, RQ-04. Verificación: reordenamiento equivalente produce la misma representación.
 - [x] 3.2 [S] Calcular huella SHA-256 en minúsculas y cultura invariante. Área/archivos: `Services/Workflow/ImportarServicioWeb/ServicioIntencionImportacion.vb`. Origen: D-04, RQ-04. Verificación: fixture equivalente coincide y cambio autoritativo difiere.
-- [ ] 3.3 [M] Orquestar validación, guard, creación/reutilización/conflicto y mapeo DTO. Área/archivos: `Services/Workflow/ImportarServicioWeb/ServicioIntencionImportacion.vb`. Origen: D-05, RQ-05. Verificación: pruebas retornan mismo ID para equivalencia y `IDEMPOTENCY_CONFLICT` para diferencia.
+- [x] 3.3 [M] Orquestar validación, guard, creación/reutilización/conflicto y mapeo DTO. Área/archivos: `Services/Workflow/ImportarServicioWeb/ServicioIntencionImportacion.vb`. Origen: D-05, RQ-05. Verificación: pruebas retornan mismo ID para equivalencia y `IDEMPOTENCY_CONFLICT` para diferencia.
 
 ## 4. Persistencia
 
 - [ ] 4.1 [M] Crear script versionado de cabecera, requisitos, elementos, claves únicas e índices. Área/archivos: `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-52-preflight-intencion-idempotencia/Sql/001-create-import-intents.sql`. Origen: D-07, RQ-07. Verificación: DDL no referencia tablas legacy y define unicidad idempotente.
 - [ ] 4.2 [M] Implementar lectura y escritura agregada parametrizada. Área/archivos: `Infrastructure/Repositories/Workflow/ImportarServicioWeb/MySqlImportIntentRepository.vb`. Origen: D-08, RQ-08. Verificación: dobles ADO.NET comprueban parámetros y round-trip completo.
-- [ ] 4.3 [M] Implementar transacción para reserva, agregado, reutilización y conflicto ante duplicado. Área/archivos: `Infrastructure/Repositories/Workflow/ImportarServicioWeb/MySqlImportIntentRepository.vb`. Origen: D-05, RQ-05. Verificación: commit solo con agregado completo; rollback ante error.
-- [ ] 4.4 [M] Implementar guard cooperativo con nombre hash y liberación garantizada. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/MySqlImportIntentConcurrencyGuard.vb`. Origen: D-06, RQ-06. Verificación: prueba simula adquisición, contención y dispose.
-- [ ] 4.5 [S] Registrar cuatro archivos VB nuevos en el proyecto. Área/archivos: `GestionDocumental-Docuarchi.net.vbproj`. Origen: D-07, RQ-07. Verificación: una entrada Compile por archivo sin mover existentes.
+- [x] 4.3 [M] Implementar transacción para reserva, agregado, reutilización y conflicto ante duplicado. Área/archivos: `Infrastructure/Repositories/Workflow/ImportarServicioWeb/MySqlImportIntentRepository.vb`. Origen: D-05, RQ-05. Verificación: commit solo con agregado completo; rollback ante error.
+- [x] 4.4 [M] Implementar guard cooperativo con nombre hash y liberación garantizada. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/MySqlImportIntentConcurrencyGuard.vb`. Origen: D-06, RQ-06. Verificación: prueba simula adquisición, contención y dispose.
+- [x] 4.5 [S] Registrar cuatro archivos VB nuevos en el proyecto. Área/archivos: `GestionDocumental-Docuarchi.net.vbproj`. Origen: D-07, RQ-07. Verificación: una entrada Compile por archivo sin mover existentes.
 
 ## 5. Pruebas
 
