@@ -46,14 +46,16 @@ Public NotInheritable Class MySqlImportIntentRepository
         Using connection = _connections.CreateOpenConnection(ModuleContext(context))
             Using transaction = _transactions.BeginTransaction(connection)
                 Try
-                    Dim itemSql = "UPDATE workflow_import_intent_item SET status=@status WHERE intent_id=@intentId AND client_item_id=@clientId AND status=@previousStatus"
-                    If _executor.ExecuteNonQuery(connection, transaction, itemSql, New List(Of IDataParameter) From {P("@status", cambio.FaseNueva.ToString()), P("@intentId", cambio.IntentId), P("@clientId", cambio.ClientItemId), P("@previousStatus", cambio.FaseAnterior.ToString())}) <> 1 Then
+                    Dim itemSql = "UPDATE workflow_import_intent_item SET status=@status,document_id=@documentId,persistence_known=@known,retryable=@retryable,error_code=@errorCode,visible_message=@message,correlation_id=@correlation WHERE intent_id=@intentId AND client_item_id=@clientId AND status=@previousStatus"
+                    If _executor.ExecuteNonQuery(connection, transaction, itemSql, New List(Of IDataParameter) From {P("@status", cambio.FaseNueva.ToString()), P("@documentId", item.IdDocumento), P("@known", item.PersistenciaConocida), P("@retryable", item.Reintentable), P("@errorCode", item.CodigoError), P("@message", item.MensajeVisible), P("@correlation", item.CorrelationId), P("@intentId", cambio.IntentId), P("@clientId", cambio.ClientItemId), P("@previousStatus", cambio.FaseAnterior.ToString())}) <> 1 Then
                         transaction.Rollback() : Return False
                     End If
                     Dim intentSql = "UPDATE workflow_import_intent SET status=@status,version_token=@newVersion,updated_utc=@updated WHERE intent_id=@intentId AND user_id=@userId AND task_id=@taskId AND version_token=@oldVersion"
                     If _executor.ExecuteNonQuery(connection, transaction, intentSql, New List(Of IDataParameter) From {P("@status", cambio.FaseNueva.ToString()), P("@newVersion", cambio.VersionNueva), P("@updated", cambio.FechaUtc), P("@intentId", cambio.IntentId), P("@userId", context.IdUsuario), P("@taskId", context.IdTarea), P("@oldVersion", cambio.VersionAnterior)}) <> 1 Then
                         transaction.Rollback() : Return False
                     End If
+                    Dim auditSql = "INSERT INTO workflow_import_intent_transition (intent_id,client_item_id,previous_status,new_status,previous_version,new_version,occurred_utc,correlation_id,result_code) VALUES (@intentId,@clientId,@previousStatus,@status,@oldVersion,@newVersion,@updated,@correlation,@resultCode)"
+                    _executor.ExecuteNonQuery(connection, transaction, auditSql, New List(Of IDataParameter) From {P("@intentId", cambio.IntentId), P("@clientId", cambio.ClientItemId), P("@previousStatus", cambio.FaseAnterior.ToString()), P("@status", cambio.FaseNueva.ToString()), P("@oldVersion", cambio.VersionAnterior), P("@newVersion", cambio.VersionNueva), P("@updated", cambio.FechaUtc), P("@correlation", cambio.CorrelationId), P("@resultCode", cambio.Codigo)})
                     transaction.Commit() : Return True
                 Catch
                     transaction.Rollback() : Return False
@@ -66,7 +68,7 @@ Public NotInheritable Class MySqlImportIntentRepository
             Dim intent = _executor.ExecuteReader(connection, Nothing, "SELECT i.* FROM workflow_import_intent i WHERE " & whereClause & " LIMIT 1", New List(Of IDataParameter) From {P("@userId", context.IdUsuario), P("@taskId", context.IdTarea), P("@value", value)}, AddressOf MapHeader)
             If intent Is Nothing Then Return Nothing
             intent.Requisitos = _executor.ExecuteReader(connection, Nothing, "SELECT requirement_code,is_satisfied,visible_message FROM workflow_import_intent_requirement WHERE intent_id=@intentId ORDER BY requirement_code", New List(Of IDataParameter) From {P("@intentId", intent.Id)}, AddressOf MapRequirements)
-            intent.Resultados = _executor.ExecuteReader(connection, Nothing, "SELECT client_item_id,provider_id,external_key,target_task_id,document_type_id,file_name,content_type,status FROM workflow_import_intent_item WHERE intent_id=@intentId ORDER BY client_item_id", New List(Of IDataParameter) From {P("@intentId", intent.Id)}, AddressOf MapItems)
+            intent.Resultados = _executor.ExecuteReader(connection, Nothing, "SELECT client_item_id,provider_id,external_key,target_task_id,document_type_id,file_name,content_type,status,document_id,persistence_known,retryable,error_code,visible_message,correlation_id FROM workflow_import_intent_item WHERE intent_id=@intentId ORDER BY client_item_id", New List(Of IDataParameter) From {P("@intentId", intent.Id)}, AddressOf MapItems)
             Return intent
         End Using
     End Function
@@ -85,7 +87,8 @@ Public NotInheritable Class MySqlImportIntentRepository
         Dim values As New List(Of ResultadoElementoImportacion)()
         While reader.Read()
             Dim documentType As Nullable(Of Integer) = If(reader.IsDBNull(reader.GetOrdinal("document_type_id")), Nothing, New Nullable(Of Integer)(Convert.ToInt32(reader("document_type_id"))))
-            values.Add(New ResultadoElementoImportacion With {.ClientItemId=Convert.ToString(reader("client_item_id")),.IdentidadExterna=New IdentidadExternaImportacion With {.ProviderId=Convert.ToString(reader("provider_id")),.ExternalKey=Convert.ToString(reader("external_key"))},.IdTareaDestino=Convert.ToInt64(reader("target_task_id")),.IdTipoDocumental=documentType,.NombreArchivo=Convert.ToString(reader("file_name")),.TipoContenido=Convert.ToString(reader("content_type")),.Fase=CType([Enum].Parse(GetType(FaseImportacionServicio),Convert.ToString(reader("status"))),FaseImportacionServicio)})
+            Dim documentId As Nullable(Of Long) = If(reader.IsDBNull(reader.GetOrdinal("document_id")), Nothing, New Nullable(Of Long)(Convert.ToInt64(reader("document_id"))))
+            values.Add(New ResultadoElementoImportacion With {.ClientItemId=Convert.ToString(reader("client_item_id")),.IdentidadExterna=New IdentidadExternaImportacion With {.ProviderId=Convert.ToString(reader("provider_id")),.ExternalKey=Convert.ToString(reader("external_key"))},.IdTareaDestino=Convert.ToInt64(reader("target_task_id")),.IdTipoDocumental=documentType,.NombreArchivo=Convert.ToString(reader("file_name")),.TipoContenido=Convert.ToString(reader("content_type")),.Fase=CType([Enum].Parse(GetType(FaseImportacionServicio),Convert.ToString(reader("status"))),FaseImportacionServicio),.IdDocumento=documentId,.PersistenciaConocida=Convert.ToBoolean(reader("persistence_known")),.Reintentable=Convert.ToBoolean(reader("retryable")),.CodigoError=Convert.ToString(reader("error_code")),.MensajeVisible=Convert.ToString(reader("visible_message")),.CorrelationId=Convert.ToString(reader("correlation_id"))})
         End While
         Return values
     End Function

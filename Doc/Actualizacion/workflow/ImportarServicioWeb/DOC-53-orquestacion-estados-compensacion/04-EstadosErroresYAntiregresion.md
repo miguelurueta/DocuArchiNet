@@ -8,4 +8,4 @@ El recorrido normal es `Creada → Validada → RecursoObtenido → ExpedientePr
 
 `VERSION_CONFLICT` impide repetir efectos con una instantánea obsoleta. Un resultado incierto nunca es reintentable automáticamente. Los mensajes externos se reducen a códigos seguros; no se propagan respuestas legacy, secretos ni payloads del proveedor.
 
-Rollback: retirar los cinco componentes modernos y sus entradas de proyecto. No hay DDL DOC-53.
+Rollback: detener ejecuciones modernas, aplicar el script manual inverso y retirar los cinco componentes nuevos. Ningún DDL fue ejecutado durante DOC-53.

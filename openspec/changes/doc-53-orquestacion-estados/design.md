@@ -35,7 +35,7 @@ La detención se consulta entre fases/items, no interrumpe una mutación, no rev
 Modelos/DTOs incluyen `PersistenceKnown`, `Retryable`, correlación y versión. Get lee exclusivamente la instantánea persistida.
 
 ### D-09 — Aislamiento y rollback
-Solo se agregan componentes modernos, pruebas, proyecto y `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-53-orquestacion-estados-compensacion/`. Rollback retira componentes nuevos; no hay migración DOC-53.
+Solo se agregan componentes modernos, pruebas, proyecto y `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-53-orquestacion-estados-compensacion/`. Un script manual reversible amplía exclusivamente las tablas modernas DOC-52 para conservar resultado y auditoría; no se ejecuta como parte del cambio.
 
 ## Risks / Trade-offs
 

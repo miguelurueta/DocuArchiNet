@@ -4,7 +4,7 @@
 - Cambio OpenSpec: doc-53-orquestacion-estados
 - Clasificacion: cross_cutting
 
-- Suite focal: `node --test Tests/importar-servicio-web-*.test.cjs`: 42/42 PASS.
+- Suite focal: `node --test Tests/importar-servicio-web-*.test.cjs`: 43/43 PASS.
 - Build: MSBuild `/t:Compile /p:Configuration=Debug /m /v:minimal /clp:ErrorsOnly`: PASS sin errores.
 - `openspec validate doc-53-orquestacion-estados --strict`: PASS.
 - `opsxj:refine DOC-53`: PASS.
