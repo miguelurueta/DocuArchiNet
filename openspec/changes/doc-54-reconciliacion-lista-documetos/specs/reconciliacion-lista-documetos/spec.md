@@ -1,128 +1,63 @@
-## ADDED Requirements
-### Requirement: RECONCILIACION-LISTA-DOCUMETOS
-El sistema SHALL implementar el alcance definido para DOC-54.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
+## Purpose
 
-#### Scenario: Reglas del ticket
-- # Prompt backend 05 — Reconciliación y lista de documentos
-- 
-- Implementa la consulta autoritativa del resultado de una intención y de cada elemento ejecutado por el Prompt backend 04.
-- 
-- Publica `ReconcileImportIntent` y completa `GetImportIntent` con el `ImportItemResult` versionado definido en el contrato compartido.
-- 
-- ## Objetivo
-- 
-- Resolver resultados inciertos y devolver al frontend únicamente documentos confirmados, autorizados y relacionados con la tarea original.
-- 
-- ## Rutas canónicas de implementación
-- 
-- ```txt
-- Services/Workflow/ImportarServicioWeb/
-- ├── ServicioReconciliacionImportacion.vb
-- └── ImportItemResultMapper.vb
-- 
-- Infrastructure/Repositories/Workflow/ImportarServicioWeb/
-- └── MySqlImportReconciliationRepository.vb
-- 
-- Tests/
-- ├── importar-servicio-web-reconciliation.test.cjs
-- ├── importar-servicio-web-document-list-contract.test.cjs
-- └── importar-servicio-web-reconciliation-authorization.test.cjs
-- 
-- Tests/Fixtures/Workflow/ImportarServicioWeb/reconciliation-v1/
-- ├── completed.json
-- ├── partial.json
-- ├── uncertain.json
-- ├── wrong-task.json
-- └── duplicated-document.json
-- ```
-- 
-- - Extender `ImportItemResult` solo en los DTO/modelos canónicos de Backend 01.
-- - Toda lectura MySQL reside en `MySqlImportReconciliationRepository.vb` y utiliza infraestructura de datos compartida parametrizada.
-- - El mapeo a lista documental pertenece al servicio/mapper moderno; `dato_lista` solo se maneja en el adaptador de compatibilidad de Backend 06.
-- - Agregar archivos `.vb` al `.vbproj` sin editar repositorios o endpoints actuales.
-- 
-- No implementar reconciliación dentro de `insert_row_documento_relacionado(...)`, ASMX legacy, `ClassAlmacenamiento` o cachés SII existentes.
-- 
-- ## Ruta documental obligatoria
-- 
-- ```txt
-- docs/Architecture/Workflow/ImportarServicioWeb/SCRUMCORE-000-reconciliacion-lista-documentos/
-- ```
-- 
-- Sustituir `SCRUMCORE-000` por el ticket real. Crear el paquete `00-Indice.md` a `07-Metadata.md` y `Diagramas/`, incluyendo fuentes de verdad, joins/lecturas, autorización, duplicados, mapeo de estados y resultados inciertos.
-- 
-- ## Implementa
-- 
-- - Consulta de reconciliación por intención y consulta focal por intención más identidad externa.
-- - Composición de intención, fase, tarea original, identidad externa, documento, relación documento-tarea, expediente, índices y caché aplicables.
-- - `ImportItemResult` estructurado y versionado con estado, código, mensaje seguro, fase alcanzada, conocimiento de persistencia, documento y correlación.
-- - Mapeo contractual probado entre cada estado/fase backend y su único estado visible frontend.
-- - Identificador documental interno y datos mínimos necesarios para refrescar la lista sin depender de `dato_lista` delimitado.
-- - Detección de relación faltante, duplicada, parcial o inconsistente.
-- - Autorización de lectura que valide propietario o alcance permitido sobre intención y tarea.
-- - Compatibilidad temporal para traducir resultados confirmados hacia `insert_row_documento_relacionado(...)`, confinada al adaptador legacy.
-- 
-- ## Restricciones
-- 
-- - Implementar consultas nuevas en paralelo; no modificar la escritura vigente ni `AlmacenaDocumentoTareaWorkflow(...)`.
-- - No declarar importado un elemento solo porque el endpoint mutador respondió correctamente.
-- - No insertar un documento en una vista correspondiente a otra tarea.
-- - Timeout o ausencia de confirmación produce ResultadoIncierto o Verificando, nunca Disponible.
-- - No reconstruir autoridad a partir de datos enviados por el navegador.
-- - No devolver rutas físicas, secretos, metadatos internos innecesarios ni mensajes de excepción.
-- 
-- ## Aceptación
-- 
-- - Cada documento confirmado aparece una sola vez y en la tarea correcta.
-- - Recarga o pérdida de respuesta permite reconstruir el estado desde persistencia.
-- - La reconciliación distingue completado, parcial, detenido, fallido e incierto.
-- - Una inconsistencia queda visible para soporte mediante correlación y no se oculta como éxito.
-- - Las pruebas cubren duplicados, tarea distinta, relación ausente y fallo entre fases.
-- 
-- ## Trazabilidad
-- 
-- Exploración backend: secciones 13, 14, 17 y 19; decisión recomendada 7.
-- 
-- ## Correcciones opsxj:prompt-review
-- 
-- Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-- 
-- ## Rol esperado
-- Definir el rol tecnico esperado para ejecutar el ticket.
-- 
-- ## Objetivo
-- Describir el objetivo funcional y tecnico verificable.
-- 
-- ## Restricciones criticas
-- - No introducir cambios fuera del alcance declarado.
-- - No romper comportamiento existente ni contratos publicos.
-- 
-- ## Criterios de aceptacion
-- - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-- 
-- ## Contexto obligatorio
-- Leer contratos B01, intención B03, orquestación B04, `DTOs/Workflow/Terminar/TransicionWorkflowDtos.vb` y repositorios de lectura de `Infrastructure/Repositories/Workflow/` como convenciones. Inspeccionar `insert_row_documento_relacionado(...)` y `dato_lista` solo para compatibilidad; no modificarlos.
-- 
-- ## Pruebas obligatorias
-- Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
-- 
-- ## Documentacion tecnica
-- Actualizar exclusivamente el paquete de **Ruta documental obligatoria**, con contrato de reconciliación, consultas parametrizadas, mapa de estados, diagramas y evidencia reproducible.
-- 
-- ## Entregable final
-- Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-- 
-- ## Requisitos positivos
-- - Implementar el comportamiento esperado con contratos tipados y responsabilidades claras.
-- - Mantener la integracion sobre los puntos de extension existentes del repo.
-- - Dejar evidencia de pruebas y documentacion tecnica actualizada.
-- 
-- Exigir `npm run build` o `tsc` segun impacto y registrar el resultado.
+Definir reconciliación autoritativa, autorizada y conservadora desde persistencia.
+
+## ADDED Requirements
+
+### Requirement: RQ-01 Consulta autorizada (D-01)
+El sistema SHALL validar contexto contra intención y tarea original antes de responder.
+#### Scenario: Contexto ajeno
+- **WHEN** usuario o tarea no coinciden
+- **THEN** Get/Reconcile responden error seguro sin items
+
+### Requirement: RQ-02 Reconstrucción persistida (D-02)
+El sistema SHALL reconstruir intención, items y documentos desde fuentes persistidas con consultas parametrizadas.
+#### Scenario: Respuesta perdida
+- **WHEN** el cliente recarga tras perder la respuesta
+- **THEN** recibe la última evidencia confirmada sin Session
+
+### Requirement: RQ-03 Consulta focal (D-03)
+El sistema SHALL limitar búsqueda por intención, proveedor, identidad externa y tarea autorizada.
+#### Scenario: Identidad ajena
+- **WHEN** la identidad existe fuera de la intención
+- **THEN** no aparece en la respuesta
+
+### Requirement: RQ-04 Relación inequívoca (D-04)
+El sistema SHALL declarar `Disponible` solo un documento con relación única a la tarea original.
+#### Scenario: Relación ausente o cruzada
+- **WHEN** falta relación o pertenece a otra tarea
+- **THEN** queda inconsistente y fuera de confirmados
+#### Scenario: Relación duplicada
+- **WHEN** hay relaciones incompatibles
+- **THEN** no se elige una arbitrariamente
+
+### Requirement: RQ-05 Mapping total (D-05)
+El sistema SHALL mapear cada fase/consistencia a exactamente un estado visible.
+#### Scenario: Fase soportada
+- **WHEN** se proyecta cualquier fase válida
+- **THEN** existe una única salida contractual segura
+
+### Requirement: RQ-06 Incertidumbre (D-06)
+El sistema SHALL evitar que timeout o persistencia desconocida se presenten como disponibles.
+#### Scenario: Efecto no demostrable
+- **WHEN** la lectura no confirma el efecto
+- **THEN** retorna `Verificando`/`ResultadoIncierto` sin reintento inseguro
+
+### Requirement: RQ-07 DTO saneado (D-07)
+El sistema SHALL devolver mínimos de refresco en contrato v1.
+#### Scenario: Serialización pública
+- **WHEN** se serializa el resultado
+- **THEN** omite ruta, secreto, excepción, SQL y `dato_lista`
+
+### Requirement: RQ-08 Deduplicación trazable (D-08)
+El sistema SHALL emitir una entrada por documento/tarea y conservar correlación en anomalías.
+#### Scenario: Filas repetidas
+- **WHEN** varias filas representan el mismo confirmado
+- **THEN** la respuesta contiene una sola entrada
+
+### Requirement: RQ-09 Compatibilidad aditiva (D-09)
+El sistema SHALL agregar reconciliación sin modificar endpoints, escritura o legacy.
+#### Scenario: Auditoría de regresión
+- **WHEN** se revisa diff y pruebas
+- **THEN** ASMX, JS, almacenamiento y cachés permanecen intactos
