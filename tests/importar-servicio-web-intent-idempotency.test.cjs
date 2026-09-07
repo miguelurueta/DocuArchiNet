@@ -1,0 +1,4 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'..'),service=fs.readFileSync(path.join(root,'Services/Workflow/ImportarServicioWeb/ServicioIntencionImportacion.vb'),'utf8'),repo=fs.readFileSync(path.join(root,'Infrastructure/Repositories/Workflow/ImportarServicioWeb/MySqlImportIntentRepository.vb'),'utf8');
+test('huella canónica ordena, delimita y usa sha256',()=>{assert.match(service,/\.Sort\(StringComparer\.Ordinal\)/);assert.match(service,/safe\.Length/);assert.match(service,/SHA256\.Create/);assert.match(service,/ToLowerInvariant/)});
+test('repositorio reutiliza equivalencia y rechaza conflicto',()=>{assert.match(repo,/existing\.HuellaContexto = intent\.HuellaContexto/);assert.match(repo,/IDEMPOTENCY_CONFLICT/);assert.doesNotMatch(repo,/"\s*&\s*(?:context|intent)\./i)});

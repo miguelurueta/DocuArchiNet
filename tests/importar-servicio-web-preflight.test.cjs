@@ -1,0 +1,4 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'Services/Workflow/ImportarServicioWeb/ServicioPreflightImportacion.vb'),'utf8');
+test('preflight revalida y no produce efectos',()=>{assert.match(source,/_validador\.Validar\(contexto\)/);assert.doesNotMatch(source,/IImportIntentRepository|Session|ClassRaSii|ClassAlmacenamiento|AlmacenaDocumentoTareaWorkflow|INSERT|UPDATE|DELETE/i)});
+test('valida colección y conserva comando por elemento',()=>{assert.match(source,/request\.Items\.Count = 0/);assert.match(source,/DUPLICATE_SELECTION/);assert.match(source,/For Each item In request\.Items/);assert.match(source,/\.ExternalKey = item\.ExternalKey/)});
