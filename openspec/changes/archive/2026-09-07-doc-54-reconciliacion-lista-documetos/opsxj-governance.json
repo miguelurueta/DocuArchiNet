@@ -1,0 +1,117 @@
+{
+  "version": 3,
+  "issueKey": "DOC-54",
+  "changeName": "doc-54-reconciliacion-lista-documetos",
+  "impact": "cross_cutting",
+  "requiredEvidence": [
+    "unit",
+    "manual_qa"
+  ],
+  "documentation": [
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/01-Arquitectura.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/02-FuentesYConsultas.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/03-ContratoYMapping.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/04-AutorizacionEInconsistencias.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/05-PruebasEvidencia.md"
+  ],
+  "documentationContract": [
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/01-Arquitectura.md",
+      "requiredSections": [
+        "# Arquitectura"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-54",
+        "changeName": "doc-54-reconciliacion-lista-documetos",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/02-FuentesYConsultas.md",
+      "requiredSections": [
+        "# Fuentes y consultas"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-54",
+        "changeName": "doc-54-reconciliacion-lista-documetos",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/03-ContratoYMapping.md",
+      "requiredSections": [
+        "# Contrato y mapping"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-54",
+        "changeName": "doc-54-reconciliacion-lista-documetos",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/04-AutorizacionEInconsistencias.md",
+      "requiredSections": [
+        "# Autorización e inconsistencias"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-54",
+        "changeName": "doc-54-reconciliacion-lista-documetos",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/05-PruebasEvidencia.md",
+      "requiredSections": [
+        "# Pruebas y evidencia"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-54",
+        "changeName": "doc-54-reconciliacion-lista-documetos",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    }
+  ],
+  "refinement": {
+    "version": 1,
+    "required": true,
+    "path": "openspec/changes/doc-54-reconciliacion-lista-documetos/refinement.md",
+    "state": "approved",
+    "taskOriginFormat": "Origen: D-XX, RQ-XX",
+    "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  }
+}

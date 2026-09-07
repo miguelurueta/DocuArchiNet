@@ -1,0 +1,1 @@
+{"schemaVersion":"1.0","intentId":"intent-wrong-task","status":"Parcial","versionToken":"v5","confirmedDocumentCount":0,"items":[{"clientItemId":"item-1","externalKey":"ext-1","status":"Inconsistente","reachedPhase":"Completada","taskId":1001,"documentId":null,"persistenceKnown":true,"retryable":false,"errorCode":"DOCUMENT_TASK_MISMATCH","correlationId":"corr-wrong-task"}]}
