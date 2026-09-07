@@ -102,6 +102,47 @@ Public Class ResultadoElementoImportacion
     Public Property CorrelationId As String
 End Class
 
+Public Enum ConsistenciaDocumentoImportacion
+    NoConfirmado
+    Confirmado
+    RelacionAusente
+    RelacionDuplicada
+    TareaDistinta
+    ResultadoIncierto
+End Enum
+
+' Instantánea read-only; representa evidencia persistida sin conocer capas de transporte o datos.
+Public Class SnapshotReconciliacionImportacion
+    Public Sub New()
+        Items = New List(Of SnapshotItemReconciliacionImportacion)()
+    End Sub
+    Public Property IntentId As String
+    Public Property VersionToken As String
+    Public Property Fase As FaseImportacionServicio
+    Public Property IdUsuario As Integer
+    Public Property IdTareaOriginal As Long
+    Public Property ProviderId As String
+    Public Property Items As IList(Of SnapshotItemReconciliacionImportacion)
+End Class
+
+Public Class SnapshotItemReconciliacionImportacion
+    Public Property ClientItemId As String
+    Public Property ProviderId As String
+    Public Property ExternalKey As String
+    Public Property IdTareaDestino As Long
+    Public Property IdDocumento As Nullable(Of Long)
+    Public Property NombreDocumento As String
+    Public Property TipoContenido As String
+    Public Property Fase As FaseImportacionServicio
+    Public Property PersistenciaConocida As Boolean
+    Public Property Reintentable As Boolean
+    Public Property CodigoError As String
+    Public Property MensajeVisible As String
+    Public Property CorrelationId As String
+    Public Property CantidadRelaciones As Integer
+    Public Property CantidadRelacionesOtraTarea As Integer
+End Class
+
 Public Class ResultadoFaseImportacion
     Public Property Exitoso As Boolean
     Public Property PersistenciaConocida As Boolean

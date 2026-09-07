@@ -129,6 +129,10 @@ End Class
     Public Property PersistenceKnown As Boolean
     Public Property Retryable As Boolean
     Public Property CorrelationId As String
+    Public Property ReachedPhase As String
+    Public Property TaskId As Long
+    Public Property DocumentName As String
+    Public Property ContentType As String
 End Class
 
 <Serializable()> Public Class PreflightImportResponseDto
@@ -201,6 +205,7 @@ End Class
 <Serializable()> Public Class ReconcileImportIntentRequestDto
     Inherits SolicitudImportacionServicioDto
     Public Property IntentId As String
+    Public Property ExternalKey As String
 End Class
 
 <Serializable()> Public Class ReconcileImportIntentResponseDto
@@ -210,6 +215,7 @@ End Class
     End Sub
     Public Property IntentId As String
     Public Property Status As String
+    Public Property VersionToken As String
     Public Property ConfirmedDocumentCount As Integer
     Public Property Items As IList(Of ImportItemResultDto)
 End Class

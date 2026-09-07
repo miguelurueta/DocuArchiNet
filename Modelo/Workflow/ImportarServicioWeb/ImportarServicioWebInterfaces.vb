@@ -55,6 +55,15 @@ Public Interface IImportIntentRepository
                                   ByVal resultado As ResultadoElementoImportacion) As Boolean
 End Interface
 
+Public Interface IImportReconciliationRepository
+    Function Obtener(ByVal contexto As ContextoImportacionServicio,
+                     ByVal intentId As String) As SnapshotReconciliacionImportacion
+    Function ObtenerItem(ByVal contexto As ContextoImportacionServicio,
+                         ByVal intentId As String,
+                         ByVal providerId As String,
+                         ByVal externalKey As String) As SnapshotReconciliacionImportacion
+End Interface
+
 Public Interface IImportIntentTransitionAudit
     Sub Registrar(ByVal transicion As TransicionImportacion, ByVal aceptada As Boolean, ByVal codigo As String)
 End Interface

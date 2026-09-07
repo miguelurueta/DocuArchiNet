@@ -9828,6 +9828,9 @@
     <Compile Include="Services\Workflow\ImportarServicioWeb\ImportDocumentStoragePort.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Storage\LegacyImportDocumentStorageAdapter.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportIntentRepository.vb" />
+    <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportReconciliationRepository.vb" />
+    <Compile Include="Services\Workflow\ImportarServicioWeb\ImportItemResultMapper.vb" />
+    <Compile Include="Services\Workflow\ImportarServicioWeb\ServicioReconciliacionImportacion.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\MySqlImportIntentConcurrencyGuard.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernModels.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernInterfaces.vb" />

@@ -8,18 +8,17 @@
     "manual_qa"
   ],
   "documentation": [
-    "Doc/Tecnica/Opsxj/doc-54-reconciliacion-lista-documetos/01-ResumenTecnico.md",
-    "Doc/Tecnica/Opsxj/doc-54-reconciliacion-lista-documetos/02-ImpactoUI.md",
-    "Doc/Tecnica/Opsxj/doc-54-reconciliacion-lista-documetos/03-ServiciosYReglas.md",
-    "Doc/Tecnica/Opsxj/doc-54-reconciliacion-lista-documetos/04-ContratosIntegracion.md",
-    "Doc/Tecnica/Opsxj/doc-54-reconciliacion-lista-documetos/05-PruebasEvidencia.md"
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/01-Arquitectura.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/02-FuentesYConsultas.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/03-ContratoYMapping.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/04-AutorizacionEInconsistencias.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/05-PruebasEvidencia.md"
   ],
   "documentationContract": [
     {
-      "path": "Doc/Tecnica/Opsxj/doc-54-reconciliacion-lista-documetos/01-ResumenTecnico.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/01-Arquitectura.md",
       "requiredSections": [
-        "## Objetivo",
-        "## Alcance y compatibilidad"
+        "# Arquitectura"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -35,10 +34,9 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-54-reconciliacion-lista-documetos/02-ImpactoUI.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/02-FuentesYConsultas.md",
       "requiredSections": [
-        "## Superficies UI",
-        "## Validacion visual"
+        "# Fuentes y consultas"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -54,9 +52,9 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-54-reconciliacion-lista-documetos/03-ServiciosYReglas.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/03-ContratoYMapping.md",
       "requiredSections": [
-        "## Servicios y reglas"
+        "# Contrato y mapping"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -72,9 +70,9 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-54-reconciliacion-lista-documetos/04-ContratosIntegracion.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/04-AutorizacionEInconsistencias.md",
       "requiredSections": [
-        "## Contratos e integraciones"
+        "# Autorización e inconsistencias"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -90,10 +88,9 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-54-reconciliacion-lista-documetos/05-PruebasEvidencia.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-54-reconciliacion-lista-documentos/05-PruebasEvidencia.md",
       "requiredSections": [
-        "## Evidencia requerida",
-        "## QA/E2E WebForms"
+        "# Pruebas y evidencia"
       ],
       "minimumContentLength": 180,
       "identity": {
