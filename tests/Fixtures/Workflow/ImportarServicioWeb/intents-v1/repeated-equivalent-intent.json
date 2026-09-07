@@ -1,0 +1,1 @@
+{"schemaVersion":"1.0","operationId":"op-fixture-2","correlationId":"corr-retry","idempotencyKey":"idem-fixture-2","items":[{"clientItemId":"item-2","externalKey":"external-2","targetTaskId":100,"documentTypeId":11},{"clientItemId":"item-1","externalKey":"external-1","targetTaskId":100,"documentTypeId":10}]}

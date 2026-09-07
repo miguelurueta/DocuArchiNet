@@ -1,0 +1,1 @@
+{"schemaVersion":"1.0","operationId":"op-fixture-2","correlationId":"corr-conflict","idempotencyKey":"idem-fixture-2","items":[{"clientItemId":"item-1","externalKey":"external-changed","targetTaskId":101,"documentTypeId":10}]}

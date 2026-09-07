@@ -1,6 +1,18 @@
 Imports System
 Imports System.Collections.Generic
 
+Public NotInheritable Class ContextoIntencionImportacion
+    Public Property OperationId As String
+    Public Property CorrelationId As String
+    Public Property IdUsuario As Integer
+    Public Property IdGrupo As Integer
+    Public Property LoginUsuario As String
+    Public Property IdTarea As Long
+    Public Property IdRuta As Integer
+    Public Property IdTramite As Integer
+    Public Property ProviderId As String
+End Class
+
 ' Modelos internos del núcleo de importación. No conocen DTOs ni infraestructura web.
 Public Class CapacidadProveedorImportacion
     Public Property Codigo As String
@@ -77,6 +89,10 @@ End Class
 Public Class ResultadoElementoImportacion
     Public Property ClientItemId As String
     Public Property IdentidadExterna As IdentidadExternaImportacion
+    Public Property IdTareaDestino As Long
+    Public Property IdTipoDocumental As Nullable(Of Integer)
+    Public Property NombreArchivo As String
+    Public Property TipoContenido As String
     Public Property Fase As FaseImportacionServicio
     Public Property IdDocumento As Nullable(Of Long)
     Public Property CodigoError As String
@@ -86,13 +102,33 @@ End Class
 Public Class IntencionImportacionServicio
     Public Sub New()
         Resultados = New List(Of ResultadoElementoImportacion)()
+        Requisitos = New List(Of RequisitoPlanImportacion)()
     End Sub
 
     Public Property Id As String
     Public Property IdempotencyKey As String
+    Public Property HuellaContexto As String
+    Public Property ContextoOriginal As ContextoIntencionImportacion
     Public Property VersionToken As String
     Public Property Fase As FaseImportacionServicio
+    Public Property FechaCreacionUtc As DateTime
+    Public Property FechaActualizacionUtc As DateTime
+    Public Property Requisitos As IList(Of RequisitoPlanImportacion)
     Public Property Resultados As IList(Of ResultadoElementoImportacion)
+End Class
+
+Public Class ResultadoPersistenciaIntencionImportacion
+    Public Property Intencion As IntencionImportacionServicio
+    Public Property Reutilizada As Boolean
+    Public Property Codigo As String
+    Public Property MensajeVisible As String
+End Class
+
+Public Class ResultadoGuardIntencionImportacion
+    Public Property Adquirido As Boolean
+    Public Property Lease As IDisposable
+    Public Property Codigo As String
+    Public Property MensajeVisible As String
 End Class
 
 Public Class ResultadoValidacionContextoImportacion
