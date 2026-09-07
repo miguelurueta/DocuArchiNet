@@ -2,20 +2,20 @@
 
 ## 1. Contratos y modelos
 
-- [ ] 1.1 [M] Extender DTO de preflight e intención con contexto, requisitos, elementos y resultado idempotente. Área/archivos: `DTOs/Workflow/ImportarServicioWeb/ImportarServicioWebDtos.vb`. Origen: D-01, RQ-01. Verificación: prueba contractual confirma campos, defaults y serialización v1.
-- [ ] 1.2 [M] Modelar snapshot, elemento de intención, huella, estados y resultado de creación. Área/archivos: `Modelo/Workflow/ImportarServicioWeb/ImportarServicioWebModels.vb`. Origen: D-03, RQ-03. Verificación: individual y múltiple usan las mismas clases y cada elemento conserva identidad/tarea.
-- [ ] 1.3 [M] Extender puertos de validación, repositorio y guard de concurrencia sin duplicarlos. Área/archivos: `Modelo/Workflow/ImportarServicioWeb/ImportarServicioWebInterfaces.vb`. Origen: D-01, RQ-01. Verificación: interfaces compilan y no contienen SQL/web/session.
+- [x] 1.1 [M] Extender DTO de preflight e intención con contexto, requisitos, elementos y resultado idempotente. Área/archivos: `DTOs/Workflow/ImportarServicioWeb/ImportarServicioWebDtos.vb`. Origen: D-01, RQ-01. Verificación: prueba contractual confirma campos, defaults y serialización v1.
+- [x] 1.2 [M] Modelar snapshot, elemento de intención, huella, estados y resultado de creación. Área/archivos: `Modelo/Workflow/ImportarServicioWeb/ImportarServicioWebModels.vb`. Origen: D-03, RQ-03. Verificación: individual y múltiple usan las mismas clases y cada elemento conserva identidad/tarea.
+- [x] 1.3 [M] Extender puertos de validación, repositorio y guard de concurrencia sin duplicarlos. Área/archivos: `Modelo/Workflow/ImportarServicioWeb/ImportarServicioWebInterfaces.vb`. Origen: D-01, RQ-01. Verificación: interfaces compilan y no contienen SQL/web/session.
 
 ## 2. Preflight
 
-- [ ] 2.1 [M] Implementar revalidación autoritativa de contexto y selección. Área/archivos: `Services/Workflow/ImportarServicioWeb/ServicioPreflightImportacion.vb`. Origen: D-02, RQ-02. Verificación: dobles cubren usuario, permiso, tarea, ruta, trámite, proveedor y selección inválidos.
-- [ ] 2.2 [M] Construir requisitos y comandos por elemento sin inferir contexto del primero. Área/archivos: `Services/Workflow/ImportarServicioWeb/ServicioPreflightImportacion.vb`. Origen: D-03, RQ-03. Verificación: fixture múltiple conserva destino/identidad individual.
+- [x] 2.1 [M] Implementar revalidación autoritativa de contexto y selección. Área/archivos: `Services/Workflow/ImportarServicioWeb/ServicioPreflightImportacion.vb`. Origen: D-02, RQ-02. Verificación: dobles cubren usuario, permiso, tarea, ruta, trámite, proveedor y selección inválidos.
+- [x] 2.2 [M] Construir requisitos y comandos por elemento sin inferir contexto del primero. Área/archivos: `Services/Workflow/ImportarServicioWeb/ServicioPreflightImportacion.vb`. Origen: D-03, RQ-03. Verificación: fixture múltiple conserva destino/identidad individual.
 - [ ] 2.3 [S] Demostrar que preflight no invoca repositorio, Session, caché ni almacenamiento. Área/archivos: `Tests/importar-servicio-web-preflight.test.cjs`. Origen: D-02, RQ-02. Verificación: prueba focal y auditoría fuente pasan.
 
 ## 3. Intención e idempotencia
 
-- [ ] 3.1 [M] Implementar serialización canónica ordenada y no ambigua del snapshot. Área/archivos: `Services/Workflow/ImportarServicioWeb/ServicioIntencionImportacion.vb`. Origen: D-04, RQ-04. Verificación: reordenamiento equivalente produce la misma representación.
-- [ ] 3.2 [S] Calcular huella SHA-256 en minúsculas y cultura invariante. Área/archivos: `Services/Workflow/ImportarServicioWeb/ServicioIntencionImportacion.vb`. Origen: D-04, RQ-04. Verificación: fixture equivalente coincide y cambio autoritativo difiere.
+- [x] 3.1 [M] Implementar serialización canónica ordenada y no ambigua del snapshot. Área/archivos: `Services/Workflow/ImportarServicioWeb/ServicioIntencionImportacion.vb`. Origen: D-04, RQ-04. Verificación: reordenamiento equivalente produce la misma representación.
+- [x] 3.2 [S] Calcular huella SHA-256 en minúsculas y cultura invariante. Área/archivos: `Services/Workflow/ImportarServicioWeb/ServicioIntencionImportacion.vb`. Origen: D-04, RQ-04. Verificación: fixture equivalente coincide y cambio autoritativo difiere.
 - [ ] 3.3 [M] Orquestar validación, guard, creación/reutilización/conflicto y mapeo DTO. Área/archivos: `Services/Workflow/ImportarServicioWeb/ServicioIntencionImportacion.vb`. Origen: D-05, RQ-05. Verificación: pruebas retornan mismo ID para equivalencia y `IDEMPOTENCY_CONFLICT` para diferencia.
 
 ## 4. Persistencia

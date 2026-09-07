@@ -9820,6 +9820,8 @@
     <Compile Include="Services\Workflow\ImportarServicioWeb\ServicioImportarServicioWeb.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\RegistroProveedoresImportacion.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\ValidadorContextoImportacion.vb" />
+    <Compile Include="Services\Workflow\ImportarServicioWeb\ServicioPreflightImportacion.vb" />
+    <Compile Include="Services\Workflow\ImportarServicioWeb\ServicioIntencionImportacion.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernModels.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernInterfaces.vb" />
     <Compile Include="Modelo\Workflow\ImportarServicioWeb\ImportarServicioWebModels.vb" />

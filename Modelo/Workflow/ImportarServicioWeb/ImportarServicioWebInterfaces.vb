@@ -45,8 +45,14 @@ End Interface
 
 ' Reservado para entregas posteriores; DOC-50 no aporta implementación ni lo usa para persistir.
 Public Interface IImportIntentRepository
-    Function Obtener(ByVal contexto As ContextoImportacionServicio,
-                     ByVal intentId As String) As IntencionImportacionServicio
-    Function Guardar(ByVal contexto As ContextoImportacionServicio,
-                     ByVal intencion As IntencionImportacionServicio) As Boolean
+    Function Obtener(ByVal contexto As ContextoImportacionServicio, ByVal intentId As String) As IntencionImportacionServicio
+    Function ObtenerPorIdempotencia(ByVal contexto As ContextoImportacionServicio,
+                                    ByVal idempotencyKey As String) As IntencionImportacionServicio
+    Function CrearOReutilizar(ByVal contexto As ContextoImportacionServicio,
+                              ByVal intencion As IntencionImportacionServicio) As ResultadoPersistenciaIntencionImportacion
+End Interface
+
+Public Interface IImportIntentConcurrencyGuard
+    Function Adquirir(ByVal contexto As ContextoImportacionServicio,
+                      ByVal idempotencyKey As String) As ResultadoGuardIntencionImportacion
 End Interface

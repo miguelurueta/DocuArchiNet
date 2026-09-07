@@ -91,6 +91,10 @@ End Class
 <Serializable()> Public Class ImportItemSelectionDto
     Public Property ExternalKey As String
     Public Property ClientItemId As String
+    Public Property TargetTaskId As Long
+    Public Property DocumentTypeId As Nullable(Of Integer)
+    Public Property FileName As String
+    Public Property ContentType As String
 End Class
 
 <Serializable()> Public Class PreflightImportRequestDto
@@ -133,15 +137,19 @@ End Class
     Public Property IsValid As Boolean
     Public Property Requirements As IList(Of ImportRequirementDto)
     Public Property Commands As IList(Of DocumentCommandDto)
+    Public Property ContextFingerprint As String
 End Class
 
 <Serializable()> Public Class CreateImportIntentRequestDto
     Inherits SolicitudImportacionServicioDto
     Public Sub New()
         Items = New List(Of ImportItemSelectionDto)()
+        Requirements = New List(Of ImportRequirementDto)()
     End Sub
     Public Property IdempotencyKey As String
     Public Property Items As IList(Of ImportItemSelectionDto)
+    Public Property Requirements As IList(Of ImportRequirementDto)
+    Public Property ContextFingerprint As String
 End Class
 
 <Serializable()> Public Class CreateImportIntentResponseDto
