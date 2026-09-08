@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
+<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
 ## 1. Investigación y contratos
 
 - [x] 1.1 [S] Inventariar firmas ASMX, consumidores y códigos legacy que DOC-55 debe preservar. Área/archivos: `webservice/WebService_integracion_sii.asmx.vb`, `webservice/WebServiceGaExpediente.asmx.vb`, `Integracionccv/`, `js/java_general/JSProgresBar.js`. Origen: D-04, RQ-04. Verificación: tabla de consumidores y traducciones incorporada a la documentación canónica.
@@ -6,7 +6,7 @@
 
 ## 2. Adaptador SII
 
-- [ ] 2.1 [S] Registrar `INTEGRACIONSII` como identidad exacta sin fallback. Área/archivos: `Services/Workflow/ImportarServicioWeb/RegistroProveedoresImportacion.vb`, `GestionDocumental-Docuarchi.net.vbproj`. Origen: D-01, RQ-01. Verificación: prueba focal rechaza proveedor desconocido.
+- [x] 2.1 [S] Registrar `INTEGRACIONSII` como cliente asíncrono exacto sin fallback, preservando el registro síncrono. Área/archivos: `Services/Workflow/ImportarServicioWeb/RegistroClientesProveedoresImportacion.vb`, `Modelo/Workflow/ImportarServicioWeb/`, `GestionDocumental-Docuarchi.net.vbproj`. Origen: D-10, RQ-10. Verificación: prueba focal resuelve SII, rechaza desconocidos y prohíbe bloqueo síncrono.
 - [ ] 2.2 [M] Implementar el cliente externo SII sobre el transporte común. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiExternalImportProviderClient.vb`. Origen: D-02, RQ-02. Verificación: prueba con transporte falso cubre éxito, límite, cancelación y error saneado.
 - [ ] 2.3 [M] Mapear capacidades e items SII al contrato común. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportContractMapper.vb`. Origen: D-03, RQ-03. Verificación: fixtures producen campos normalizados y clave externa estable.
 - [ ] 2.4 [M] Implementar `ResolveCapabilities`, `QueryItems` y preparación documental del proveedor. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb`. Origen: D-01, RQ-01. Verificación: prueba del proveedor cubre las operaciones y ausencia de fallback.

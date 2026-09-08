@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
 ## Purpose
 
 Definir la adaptación aislada de SII, el preview mediado y la compatibilidad ASMX reversible sobre los contratos comunes de importación.
@@ -85,3 +85,12 @@ El sistema SHALL preservar endpoints y consumidores vigentes y validar el compor
 
 - **WHEN** se revisan diff, pruebas y build
 - **THEN** ASMX existentes, `Integracionccv`, almacenamiento y JavaScript legacy permanecen sin cambios
+
+### Requirement: RQ-10 Resolución asíncrona aditiva (D-10)
+
+El sistema SHALL resolver proveedores modernos mediante clientes asíncronos sin bloquear tareas ni modificar el registro síncrono existente.
+
+#### Scenario: Resolución moderna SII
+
+- **WHEN** la frontera moderna solicita `INTEGRACIONSII`
+- **THEN** obtiene un cliente asíncrono registrado y puede usar `Await` de extremo a extremo

@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
 # Diseño: adaptador SII y compatibilidad ASMX
 
 ## Contexto
@@ -56,6 +56,10 @@ El proveedor generará el comando normalizado y el orquestador coordinará persi
 ### D-09 — Compatibilidad demostrable
 
 Fixtures saneados cubrirán contratos SII y traducciones legacy sin red. Se registrarán pruebas focales, build VB.NET, validación OpenSpec y comparación de archivos protegidos.
+
+### D-10 — Resolución asíncrona aditiva
+
+El registro existente de `IExternalImportProvider` y sus consumidores síncronos permanecen intactos. La frontera moderna resolverá `IExternalImportProviderClient` mediante un registro paralelo y esperará sus tareas con `Await`; no usará `.Result`, `.Wait()` ni `GetAwaiter().GetResult()`.
 
 ## Flujo
 

@@ -28,6 +28,7 @@
 | D-07 | Evaluar `WorkflowCentroTrabajoModernActive` en servidor; apagado retorna `FEATURE_DISABLED` sin efectos. | Configuración y servicios modernos de workflow | D-07 | RQ-07 | Origen: D-07, RQ-07 |
 | D-08 | Persistir solo mediante el orquestador y el puerto moderno; no modificar `ClassAlmacenamiento`. | `Infrastructure/Workflow/ImportarServicioWeb/Storage/LegacyImportDocumentStorageAdapter.vb` | D-08 | RQ-08 | Origen: D-08, RQ-08 |
 | D-09 | Preservar rutas legacy y validar el adaptador con fixtures saneados, build y evidencia reproducible. | ASMX/Integracionccv/workflow existentes y `Tests/` | D-09 | RQ-09 | Origen: D-09, RQ-09 |
+| D-10 | Mantener intacto el registro síncrono y agregar un registro paralelo de clientes asíncronos. | `Modelo/Workflow/ImportarServicioWeb/ImportarServicioWebInterfaces.vb` | D-10 | RQ-10 | Origen: D-10, RQ-10 |
 
 ## Requisitos verificables
 
@@ -42,6 +43,7 @@
 | RQ-07 | Gate apagado bloquea rutas modernas sin efectos. | Respuesta `FEATURE_DISABLED` y cero invocaciones downstream. | Rollback inmediato por configuración. |
 | RQ-08 | Documento SII se normaliza y persiste una sola vez por el puerto moderno. | Orquestador conserva correlación e idempotencia. | No se modifica almacenamiento legacy. |
 | RQ-09 | Pruebas y documentación demuestran compatibilidad. | Suite focal, build y diff protegido quedan registrados. | No ejecutar SII real ni E2E sin autorización. |
+| RQ-10 | La ruta moderna resuelve clientes asíncronos sin bloqueo síncrono. | Registro nuevo resuelve SII y rechaza desconocidos. | Preserva el registro y servicio síncronos existentes. |
 
 ## Reglas de trazabilidad obligatorias
 
