@@ -1,172 +1,78 @@
-## Context
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
+# Diseño: adaptador SII y compatibilidad ASMX
 
-DOC-55: ADAPTADOR-SII-ASMX
+## Contexto
 
-## Jira Details
+Los contratos B01-B05 ya separan proveedor, transporte, orquestación, almacenamiento y reconciliación. DOC-55 conecta SII a esas fronteras sin trasladar conceptos registrales al núcleo ni alterar rutas históricas.
 
-> # Prompt backend 06 — Adaptador SII y compatibilidad ASMX
-> 
-> Implementa `INTEGRACIONSII` como primer adaptador del núcleo backend, preservando el recorrido legacy mientras esté vigente.
-> 
-> Publica las implementaciones SII de `ResolveCapabilities`, `QueryItems` y `GetPreview`, y respeta la propiedad contractual de compatibilidad legacy.
-> 
-> ## Objetivo
-> 
-> Encapsular reglas, identidad y traducciones SII sin contaminar los contratos comunes ni el almacenamiento documental.
-> 
-> ## Rutas canónicas de implementación
-> 
-> ```txt
-> Infrastructure/Workflow/ImportarServicioWeb/Sii/
-> ├── SiiImportProvider.vb
-> ├── SiiExternalImportProviderClient.vb
-> ├── SiiImportContractMapper.vb
-> ├── SiiLegacyResultAdapter.vb
-> └── SiiPreviewResponseFactory.vb
-> 
-> webservice/
-> ├── WebServiceImportarServicioWebModern.asmx
-> └── WebServiceImportarServicioWebModern.asmx.vb
-> 
-> Tests/
-> ├── importar-servicio-web-sii-provider.test.cjs
-> ├── importar-servicio-web-sii-contract-mapping.test.cjs
-> ├── importar-servicio-web-sii-legacy-compatibility.test.cjs
-> └── importar-servicio-web-preview-mediation.test.cjs
-> 
-> Tests/Fixtures/Workflow/ImportarServicioWeb/sii-v1/
-> ├── query-provider-response.json
-> ├── normalized-query-response.json
-> ├── preview-metadata.json
-> ├── legacy-yes.json
-> ├── legacy-ctrl.json
-> └── legacy-ctrlreturn.json
-> ```
-> 
-> - Toda regla SII reside en `Infrastructure/Workflow/ImportarServicioWeb/Sii/`; no se agrega conocimiento SII a `Modelo`, DTO comunes, orquestador o almacenamiento.
-> - `SiiExternalImportProviderClient.vb` consume el transporte común de Backend 02.
-> - `SiiLegacyResultAdapter.vb` es el único traductor nuevo de `YES`, `CTRL`, `CTRLRETURN` y `dato_lista`.
-> - El ASMX nuevo es una frontera paralela delgada: contexto, gate, validación, invocación de servicios y serialización. No contiene negocio ni llama directamente `ClassAlmacenamiento`.
-> - Registrar los `.vb` y `.asmx` nuevos en el `.vbproj` sin cambiar entradas o endpoints existentes.
-> 
-> No modificar `webservice/WebService_integracion_sii.asmx*`, `WebServiceGaExpediente.asmx*`, `Integracionccv/`, `ServiciosIntegracion/`, `workflow/ClassAlmacenamiento.vb` ni `js/java_general/JSProgresBar.js`.
-> 
-> ## Ruta documental obligatoria
-> 
-> ```txt
-> docs/Architecture/Workflow/ImportarServicioWeb/SCRUMCORE-000-adaptador-sii-compatibilidad-asmx/
-> ```
-> 
-> Sustituir `SCRUMCORE-000` por el ticket real. Crear `00-Indice.md` a `07-Metadata.md` y `Diagramas/`; documentar endpoints modernos, contratos SII saneados, traducción legacy, preview mediado, gate, compatibilidad y archivos legacy comprobados sin cambios.
-> 
-> ## Investigación obligatoria
-> 
-> - Resolver y documentar la clave externa canónica de cada inscripción.
-> - Caracterizar los contratos reales de token, consulta, recurso y constancia con fixtures saneados.
-> - Inventariar consumidores de `WebService_integracion_sii`, `WebServiceGaExpediente`, códigos `YES`/`CTRL`/`CTRLRETURN` y `dato_lista`.
-> - Confirmar qué controles y firmas ASMX deben conservarse durante la transición.
-> 
-> ## Implementa
-> 
-> - `SiiImportProvider` y su registro exclusivo para la identidad configurada `INTEGRACIONSII`.
-> - Traducción de libro, registro, matrícula, acto, noticia, código de barras y cachés hacia contratos comunes en la frontera del adaptador.
-> - Consulta, preview/descarga, preparación y generación del comando documental normalizado.
-> - Uso del orquestador para expediente, documento, índices y caché, sin devolver la coordinación al navegador.
-> - Adaptadores ASMX delgados que validen entrada, construyan contexto explícito, invoquen casos de uso y traduzcan respuestas legacy.
-> - Traducción localizada entre resultados estructurados y `YES`, `CTRL`, `CTRLRETURN`/`dato_lista` mientras existan consumidores legacy.
-> - El adaptador backend ASMX es el único traductor de códigos legacy para la ruta moderna; nunca delega esa interpretación al frontend.
-> - Endpoint `GetPreview` mediado con autorización, expiración, tipo/tamaño, disposición y encabezados seguros conforme al contrato compartido.
-> - Gate reversible con comportamiento anterior intacto cuando esté desactivado.
-> - Evaluación servidor del gate `WorkflowCentroTrabajoModernActive`; apagado responde `FEATURE_DISABLED` sin efectos en las rutas modernas.
-> - Adaptación de los datos SII al contrato requerido por `AlmacenaDocumentoTareaWorkflow(...)`, invocándola sin modificar su implementación.
-> 
-> ## Restricciones
-> 
-> - Construir endpoints y adaptadores modernos en paralelo; no reemplazar, reescribir ni redirigir los ASMX existentes.
-> - No modificar `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` ni sus consumidores vigentes; toda traducción se implementa fuera de ellos.
-> - SII nunca es fallback para proveedor desconocido.
-> - El almacenamiento común no interpreta conceptos registrales SII.
-> - No duplicar lógica moderna dentro de ASMX ni bloquear tareas asíncronas.
-> - No retirar endpoints o controles legacy sin inventario, regresión y evidencia autorizada.
-> - No cambiar formatos del proveedor basándose solo en variantes asíncronas existentes.
-> - No ejecutar llamadas reales a SII en pruebas automatizadas.
-> 
-> ## Aceptación
-> 
-> - El núcleo backend no contiene símbolos ni reglas exclusivas de SII.
-> - El adaptador SII reutiliza la función de almacenamiento existente sin cambios comprobables en su archivo.
-> - Los consumidores legacy mantienen sus códigos y forma de respuesta bajo gate apagado.
-> - El recorrido moderno devuelve contratos estructurados y correlacionables.
-> - Proveedor desconocido y SII deshabilitado fallan de manera explícita.
-> - Las pruebas contractuales usan fixtures sin red y cubren traducción bidireccional legacy.
-> 
-> ## Trazabilidad
-> 
-> Exploración backend: secciones 3, 4, 8, 12, 15 y 16; preguntas abiertas 1, 2, 3 y 10.
-> 
-> ## Correcciones opsxj:prompt-review
-> 
-> Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-> 
-> ## Rol esperado
-> Definir el rol tecnico esperado para ejecutar el ticket.
-> 
-> ## Objetivo
-> Describir el objetivo funcional y tecnico verificable.
-> 
-> ## Restricciones criticas
-> - No introducir cambios fuera del alcance declarado.
-> - No romper comportamiento existente ni contratos publicos.
-> 
-> ## Criterios de aceptacion
-> - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-> 
-> ## Contexto obligatorio
-> Leer B01–B05, `webservice/WebService_integracion_sii.asmx.vb`, `webservice/WebServiceGaExpediente.asmx.vb`, `Integracionccv/Class_consultarInformacionSello.vb`, `Integracionccv/Class_ClassResfull.vb`, `workflow/ClassAlmacenamiento.vb` y el `.vbproj`. Son referencias de comportamiento/contrato y no se modifican.
-> 
-> ## Pruebas obligatorias
-> Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
-> 
-> ## Documentacion tecnica
-> Actualizar exclusivamente el paquete de **Ruta documental obligatoria**, con contratos, diagramas, tabla de funciones, matriz legacy/moderno y evidencia de no modificación de almacenamiento y ASMX vigentes.
-> 
-> ## Entregable final
-> Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-> 
-> ## Requisitos positivos
-> - Implementar el comportamiento esperado con contratos tipados y responsabilidades claras.
-> - Mantener la integracion sobre los puntos de extension existentes del repo.
-> - Dejar evidencia de pruebas y documentacion tecnica actualizada.
-> 
-> Agregar regla para [ANTI_REGRESSION_DETAIL_REQUIRED]: Reglas explicitas de no romper, preservar, no llamar o no usar workarounds.
-> 
-> Exigir `npm run build` o `tsc` segun impacto y registrar el resultado.
-> 
-> Exigir pruebas unitarias/focales con Vitest o Testing Library segun el alcance.
+## Objetivos y no objetivos
 
-## Goals / Non-Goals
+### Objetivos
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Implementar `ResolveCapabilities`, `QueryItems` y `GetPreview` para `INTEGRACIONSII`.
+- Mantener compatibilidad legacy localizada y reversible.
+- Publicar una frontera ASMX moderna delgada protegida por gate.
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+### No objetivos
 
-## Decisions
+- Reescribir o redirigir ASMX existentes.
+- Modificar `ClassAlmacenamiento`, `AlmacenaDocumentoTareaWorkflow(...)` o consumidores legacy.
+- Activar el gate, llamar SII real o ejecutar E2E autenticado.
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+## Decisiones
 
+### D-01 — Registro exacto del proveedor
 
-## Risks / Trade-offs
+`RegistroProveedoresImportacion` resolverá SII solo para `INTEGRACIONSII`, con comparación normalizada explícita. Una identidad no registrada retorna error contractual; nunca cae en SII.
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+### D-02 — Transporte común
 
-## Migration Plan
+`SiiExternalImportProviderClient` compondrá solicitudes SII sobre las abstracciones HTTP de B02. Tokens, timeouts, límites y errores se gestionan en esa infraestructura y no atraviesan el contrato público.
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+### D-03 — Mapper fronterizo
 
-## Open Questions
+`SiiImportContractMapper` convertirá libro, registro, matrícula, acto, noticia, código de barras y metadatos mínimos a DTO comunes. La clave externa será estable, opaca para el núcleo y documentada con fixtures.
 
-- TBD
+### D-04 — Compatibilidad localizada
+
+`SiiLegacyResultAdapter` será el único código nuevo que reconoce `YES`, `CTRL`, `CTRLRETURN` y `dato_lista`. La traducción será total, determinista y no se delegará al navegador.
+
+### D-05 — ASMX moderno delgado
+
+`WebServiceImportarServicioWebModern.asmx.vb` solo obtendrá contexto autenticado, evaluará gate, validará entrada, llamará servicios modernos y serializará. No incorporará reglas SII, SQL, filesystem ni llamadas directas a `ClassAlmacenamiento`.
+
+### D-06 — Preview mediado
+
+`SiiPreviewResponseFactory` proyectará preview autorizado con expiración, tipo/tamaño permitido, disposición segura y encabezados defensivos. Ninguna ruta física, token o excepción será serializada.
+
+### D-07 — Gate reversible
+
+El servidor evaluará `WorkflowCentroTrabajoModernActive` antes de cualquier llamada downstream. Apagado retorna `FEATURE_DISABLED`; la configuración debe permanecer en false al finalizar cualquier validación.
+
+### D-08 — Persistencia por puerto moderno
+
+El proveedor generará el comando normalizado y el orquestador coordinará persistencia mediante `IImportDocumentStorage`/`LegacyImportDocumentStorageAdapter`. DOC-55 no modificará la implementación legacy invocada.
+
+### D-09 — Compatibilidad demostrable
+
+Fixtures saneados cubrirán contratos SII y traducciones legacy sin red. Se registrarán pruebas focales, build VB.NET, validación OpenSpec y comparación de archivos protegidos.
+
+## Flujo
+
+1. El ASMX moderno valida contexto y gate.
+2. El servicio resuelve exactamente `INTEGRACIONSII`.
+3. El cliente usa el transporte HTTP compartido.
+4. El mapper normaliza la respuesta SII.
+5. Query/preview regresan DTO estructurado; ejecución entrega comando al orquestador.
+6. Solo si un consumidor legacy lo requiere, el adaptador traduce la salida estructurada.
+
+## Riesgos y mitigaciones
+
+- Variantes SII no confirmadas: capturarlas como fixtures saneados antes de codificar mapping.
+- Regresión legacy: archivos históricos quedan fuera del diff y se verifican por hash/diff.
+- Exposición de contenido: preview valida autorización, expiración, tipo y tamaño.
+- Activación accidental: gate evaluado en servidor y documentado en false.
+
+## Rollback
+
+Desactivar `WorkflowCentroTrabajoModernActive` retira la ruta moderna sin cambiar consumidores legacy. Los archivos nuevos pueden revertirse de forma aditiva porque ningún endpoint vigente será redirigido.
