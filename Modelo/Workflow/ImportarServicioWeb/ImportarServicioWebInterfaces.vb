@@ -26,6 +26,10 @@ Public Interface IExternalImportProviderClient
                            ByVal cancellationToken As CancellationToken) As Task(Of Byte())
 End Interface
 
+Public Interface IRegistroClientesProveedoresImportacion
+    Function Resolver(ByVal providerId As String) As ResultadoResolucionClienteProveedorImportacion
+End Interface
+
 Public Interface IRegistroProveedoresImportacion
     Function Resolver(ByVal providerId As String) As ResultadoResolucionProveedorImportacion
 End Interface

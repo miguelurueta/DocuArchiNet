@@ -236,6 +236,18 @@ Public Class ResultadoResolucionProveedorImportacion
     End Property
 End Class
 
+Public Class ResultadoResolucionClienteProveedorImportacion
+    Public Property Cliente As IExternalImportProviderClient
+    Public Property Codigo As String
+    Public Property MensajeVisible As String
+
+    Public ReadOnly Property Encontrado As Boolean
+        Get
+            Return Cliente IsNot Nothing AndAlso String.IsNullOrWhiteSpace(Codigo)
+        End Get
+    End Property
+End Class
+
 Public Class ContextoImportacionServicio
     Private ReadOnly _idUsuario As Integer
     Private ReadOnly _idGrupo As Integer

@@ -3,6 +3,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const src = fs.readFileSync('Infrastructure/Workflow/ImportarServicioWeb/Storage/LegacyImportDocumentStorageAdapter.vb', 'utf8');
 const legacy = fs.readFileSync('workflow/ClassAlmacenamiento.vb', 'utf8');
+const orchestrator = fs.readFileSync('Services/Workflow/ImportarServicioWeb/ImportServiceOrchestrator.vb', 'utf8');
+const port = fs.readFileSync('Services/Workflow/ImportarServicioWeb/ImportDocumentStoragePort.vb', 'utf8');
 
 test('adaptador es el unico componente moderno que invoca storage legacy', () => {
   assert.match(src, /New ClassAlmacenamiento\(\)\.AlmacenaDocumentoTareaWorkflow/);
@@ -19,4 +21,12 @@ test('mapea YES, rechazo y excepcion sin filtrar el mensaje legacy', () => {
 
 test('la caja negra permanece declarada con su firma conocida', () => {
   assert.match(legacy, /Function AlmacenaDocumentoTareaWorkflow\([\s\S]*ByRef EstructuraDatosImagen/);
+});
+
+test('orquestador persiste exclusivamente por pasos modernos y una invocacion del adaptador', () => {
+  assert.match(orchestrator, /IList\(Of IImportExecutionStep\)/);
+  assert.match(orchestrator, /For Each stepItem In _steps/);
+  assert.doesNotMatch(orchestrator, /ClassAlmacenamiento|AlmacenaDocumentoTareaWorkflow/);
+  assert.match(port, /Interface IImportDocumentStoragePort/);
+  assert.equal((src.match(/\.AlmacenaDocumentoTareaWorkflow\(/g) || []).length, 1);
 });
