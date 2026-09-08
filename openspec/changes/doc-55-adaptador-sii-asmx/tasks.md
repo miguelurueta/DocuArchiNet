@@ -1,8 +1,8 @@
 <!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
 ## 1. Investigación y contratos
 
-- [ ] 1.1 [S] Inventariar firmas ASMX, consumidores y códigos legacy que DOC-55 debe preservar. Área/archivos: `webservice/WebService_integracion_sii.asmx.vb`, `webservice/WebServiceGaExpediente.asmx.vb`, `Integracionccv/`, `js/java_general/JSProgresBar.js`. Origen: D-04, RQ-04. Verificación: tabla de consumidores y traducciones incorporada a la documentación canónica.
-- [ ] 1.2 [M] Caracterizar respuestas saneadas de token, consulta, recurso y constancia SII y fijar la clave externa estable. Área/archivos: `Tests/Fixtures/Workflow/ImportarServicioWeb/sii-v1/`. Origen: D-02, RQ-02. Verificación: seis fixtures válidos sin secretos ni datos reales.
+- [x] 1.1 [S] Inventariar firmas ASMX, consumidores y códigos legacy que DOC-55 debe preservar. Área/archivos: `webservice/WebService_integracion_sii.asmx.vb`, `webservice/WebServiceGaExpediente.asmx.vb`, `Integracionccv/`, `js/java_general/JSProgresBar.js`. Origen: D-04, RQ-04. Verificación: tabla de consumidores y traducciones incorporada a la documentación canónica.
+- [x] 1.2 [M] Caracterizar respuestas saneadas de token, consulta, recurso y constancia SII y fijar la clave externa estable. Área/archivos: `Tests/Fixtures/Workflow/ImportarServicioWeb/sii-v1/`. Origen: D-02, RQ-02. Verificación: seis fixtures válidos sin secretos ni datos reales.
 
 ## 2. Adaptador SII
 
