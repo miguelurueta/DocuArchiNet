@@ -7,10 +7,10 @@
 ## 2. Adaptador SII
 
 - [x] 2.1 [S] Registrar `INTEGRACIONSII` como cliente asíncrono exacto sin fallback, preservando el registro síncrono. Área/archivos: `Services/Workflow/ImportarServicioWeb/RegistroClientesProveedoresImportacion.vb`, `Modelo/Workflow/ImportarServicioWeb/`, `GestionDocumental-Docuarchi.net.vbproj`. Origen: D-10, RQ-10. Verificación: prueba focal resuelve SII, rechaza desconocidos y prohíbe bloqueo síncrono.
-- [ ] 2.2 [M] Implementar el cliente externo SII sobre el transporte común. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiExternalImportProviderClient.vb`. Origen: D-02, RQ-02. Verificación: prueba con transporte falso cubre éxito, límite, cancelación y error saneado.
-- [ ] 2.3 [M] Mapear capacidades e items SII al contrato común. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportContractMapper.vb`. Origen: D-03, RQ-03. Verificación: fixtures producen campos normalizados y clave externa estable.
-- [ ] 2.4 [M] Implementar `ResolveCapabilities`, `QueryItems` y preparación documental del proveedor. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb`. Origen: D-01, RQ-01. Verificación: prueba del proveedor cubre las operaciones y ausencia de fallback.
-- [ ] 2.5 [M] Implementar traducción bidireccional legacy localizada. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiLegacyResultAdapter.vb`. Origen: D-04, RQ-04. Verificación: matriz `YES`/`CTRL`/`CTRLRETURN`/`dato_lista` queda cubierta sin símbolos legacy en DTO comunes.
+- [x] 2.2 [M] Implementar el cliente externo SII sobre el transporte común. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiExternalImportProviderClient.vb`. Origen: D-02, RQ-02. Verificación: prueba con transporte falso cubre éxito, límite, cancelación y error saneado.
+- [x] 2.3 [M] Mapear capacidades e items SII al contrato común. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportContractMapper.vb`. Origen: D-03, RQ-03. Verificación: fixtures producen campos normalizados y clave externa estable.
+- [x] 2.4 [M] Implementar `ResolveCapabilities`, `QueryItems` y preparación documental del proveedor. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb`. Origen: D-01, RQ-01. Verificación: prueba del proveedor cubre las operaciones y ausencia de fallback.
+- [x] 2.5 [M] Implementar traducción bidireccional legacy localizada. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiLegacyResultAdapter.vb`. Origen: D-04, RQ-04. Verificación: matriz `YES`/`CTRL`/`CTRLRETURN`/`dato_lista` queda cubierta sin símbolos legacy en DTO comunes.
 
 ## 3. Preview y frontera ASMX
 
@@ -21,15 +21,15 @@
 
 ## 4. Orquestación y compatibilidad
 
-- [ ] 4.1 [M] Generar el comando documental SII normalizado para el orquestador. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb`, `SiiImportContractMapper.vb`. Origen: D-08, RQ-08. Verificación: prueba prueba correlación, tarea, expediente, tipo documental e identidad externa.
+- [x] 4.1 [M] Generar el comando documental SII normalizado para el orquestador. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb`, `SiiImportContractMapper.vb`. Origen: D-08, RQ-08. Verificación: prueba prueba correlación, tarea, expediente, tipo documental e identidad externa.
 - [ ] 4.2 [S] Verificar que la ejecución usa exclusivamente el puerto moderno de almacenamiento. Área/archivos: `Services/Workflow/ImportarServicioWeb/ImportServiceOrchestrator.vb`, `Infrastructure/Workflow/ImportarServicioWeb/Storage/LegacyImportDocumentStorageAdapter.vb`. Origen: D-08, RQ-08. Verificación: prueba focal demuestra una sola invocación idempotente.
 - [ ] 4.3 [S] Registrar todos los archivos nuevos sin alterar inclusiones legacy. Área/archivos: `GestionDocumental-Docuarchi.net.vbproj`. Origen: D-09, RQ-09. Verificación: build resuelve cada clase y ASMX nuevo.
 
 ## 5. Pruebas y evidencia
 
-- [ ] 5.1 [M] Cubrir resolución, consulta y preparación del proveedor SII. Área/archivos: `Tests/importar-servicio-web-sii-provider.test.cjs`. Origen: D-01, RQ-01. Verificación: suite focal aprobada sin red.
-- [ ] 5.2 [M] Cubrir mapping contractual contra fixtures saneados. Área/archivos: `Tests/importar-servicio-web-sii-contract-mapping.test.cjs`, `Tests/Fixtures/Workflow/ImportarServicioWeb/sii-v1/`. Origen: D-03, RQ-03. Verificación: todos los fixtures normalizan determinísticamente.
-- [ ] 5.3 [M] Cubrir compatibilidad legacy y ausencia de contaminación contractual. Área/archivos: `Tests/importar-servicio-web-sii-legacy-compatibility.test.cjs`. Origen: D-04, RQ-04. Verificación: tabla de códigos cubierta y búsqueda estructural limitada al adaptador.
+- [x] 5.1 [M] Cubrir resolución, consulta y preparación del proveedor SII. Área/archivos: `Tests/importar-servicio-web-sii-provider.test.cjs`. Origen: D-01, RQ-01. Verificación: suite focal aprobada sin red.
+- [x] 5.2 [M] Cubrir mapping contractual contra fixtures saneados. Área/archivos: `Tests/importar-servicio-web-sii-contract-mapping.test.cjs`, `Tests/Fixtures/Workflow/ImportarServicioWeb/sii-v1/`. Origen: D-03, RQ-03. Verificación: todos los fixtures normalizan determinísticamente.
+- [x] 5.3 [M] Cubrir compatibilidad legacy y ausencia de contaminación contractual. Área/archivos: `Tests/importar-servicio-web-sii-legacy-compatibility.test.cjs`. Origen: D-04, RQ-04. Verificación: tabla de códigos cubierta y búsqueda estructural limitada al adaptador.
 - [ ] 5.4 [M] Cubrir preview, autorización, gate y mediación ASMX. Área/archivos: `Tests/importar-servicio-web-preview-mediation.test.cjs`. Origen: D-06, RQ-06. Verificación: escenarios seguro, vencido, ajeno, sobredimensionado y gate apagado aprobados.
 - [ ] 5.5 [S] Ejecutar todas las pruebas focales de ImportarServicioWeb. Área/archivos: `Tests/importar-servicio-web-*.test.cjs`. Origen: D-09, RQ-09. Verificación: comando y conteo final registrados como evidencia unit.
 - [ ] 5.6 [M] Compilar el proyecto VB.NET y registrar advertencias heredadas. Área/archivos: `GestionDocumental-Docuarchi.net.vbproj`. Origen: D-09, RQ-09. Verificación: MSBuild finaliza con código 0.
