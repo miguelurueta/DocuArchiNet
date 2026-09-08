@@ -2,7 +2,7 @@
 
 - Ticket: DOC-55
 - Cambio OpenSpec: doc-55-adaptador-sii-asmx
-- Clasificación: cross_cutting
+- Clasificacion: cross_cutting
 
 ## Contratos e integraciones
 

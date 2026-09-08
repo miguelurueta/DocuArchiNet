@@ -22,7 +22,7 @@
 ## 4. Orquestación y compatibilidad
 
 - [x] 4.1 [M] Generar el comando documental SII normalizado para el orquestador. Área/archivos: `Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb`, `SiiImportContractMapper.vb`. Origen: D-08, RQ-08. Verificación: prueba prueba correlación, tarea, expediente, tipo documental e identidad externa.
-- [ ] 4.2 [S] Verificar que la ejecución usa exclusivamente el puerto moderno de almacenamiento. Área/archivos: `Services/Workflow/ImportarServicioWeb/ImportServiceOrchestrator.vb`, `Infrastructure/Workflow/ImportarServicioWeb/Storage/LegacyImportDocumentStorageAdapter.vb`. Origen: D-08, RQ-08. Verificación: prueba focal demuestra una sola invocación idempotente.
+- [x] 4.2 [S] Verificar que la ejecución usa exclusivamente el puerto moderno de almacenamiento. Área/archivos: `Services/Workflow/ImportarServicioWeb/ImportServiceOrchestrator.vb`, `Infrastructure/Workflow/ImportarServicioWeb/Storage/LegacyImportDocumentStorageAdapter.vb`. Origen: D-08, RQ-08. Verificación: prueba focal demuestra una sola invocación idempotente.
 - [x] 4.3 [S] Registrar todos los archivos nuevos sin alterar inclusiones legacy. Área/archivos: `GestionDocumental-Docuarchi.net.vbproj`. Origen: D-09, RQ-09. Verificación: build resuelve cada clase y ASMX nuevo.
 
 ## 5. Pruebas y evidencia
@@ -31,12 +31,12 @@
 - [x] 5.2 [M] Cubrir mapping contractual contra fixtures saneados. Área/archivos: `Tests/importar-servicio-web-sii-contract-mapping.test.cjs`, `Tests/Fixtures/Workflow/ImportarServicioWeb/sii-v1/`. Origen: D-03, RQ-03. Verificación: todos los fixtures normalizan determinísticamente.
 - [x] 5.3 [M] Cubrir compatibilidad legacy y ausencia de contaminación contractual. Área/archivos: `Tests/importar-servicio-web-sii-legacy-compatibility.test.cjs`. Origen: D-04, RQ-04. Verificación: tabla de códigos cubierta y búsqueda estructural limitada al adaptador.
 - [x] 5.4 [M] Cubrir preview, autorización, gate y mediación ASMX. Área/archivos: `Tests/importar-servicio-web-preview-mediation.test.cjs`. Origen: D-06, RQ-06. Verificación: escenarios seguro, vencido, ajeno, sobredimensionado y gate apagado aprobados.
-- [ ] 5.5 [S] Ejecutar todas las pruebas focales de ImportarServicioWeb. Área/archivos: `Tests/importar-servicio-web-*.test.cjs`. Origen: D-09, RQ-09. Verificación: comando y conteo final registrados como evidencia unit.
-- [ ] 5.6 [M] Compilar el proyecto VB.NET y registrar advertencias heredadas. Área/archivos: `GestionDocumental-Docuarchi.net.vbproj`. Origen: D-09, RQ-09. Verificación: MSBuild finaliza con código 0.
-- [ ] 5.7 [S] Confirmar por diff que las superficies legacy protegidas no cambiaron. Área/archivos: `webservice/WebService_integracion_sii.asmx*`, `webservice/WebServiceGaExpediente.asmx*`, `Integracionccv/`, `ServiciosIntegracion/`, `workflow/ClassAlmacenamiento.vb`, `js/java_general/JSProgresBar.js`. Origen: D-09, RQ-09. Verificación: `git diff --exit-code` focal no reporta cambios.
+- [x] 5.5 [S] Ejecutar todas las pruebas focales de ImportarServicioWeb. Área/archivos: `Tests/importar-servicio-web-*.test.cjs`. Origen: D-09, RQ-09. Verificación: comando y conteo final registrados como evidencia unit.
+- [x] 5.6 [M] Compilar el proyecto VB.NET y registrar advertencias heredadas. Área/archivos: `GestionDocumental-Docuarchi.net.vbproj`. Origen: D-09, RQ-09. Verificación: MSBuild finaliza con código 0.
+- [x] 5.7 [S] Confirmar por diff que las superficies legacy protegidas no cambiaron. Área/archivos: `webservice/WebService_integracion_sii.asmx*`, `webservice/WebServiceGaExpediente.asmx*`, `Integracionccv/`, `ServiciosIntegracion/`, `workflow/ClassAlmacenamiento.vb`, `js/java_general/JSProgresBar.js`. Origen: D-09, RQ-09. Verificación: `git diff --exit-code` focal no reporta cambios.
 
 ## 6. Documentación y cierre
 
-- [ ] 6.1 [M] Crear el paquete técnico canónico 00-07 y diagramas. Área/archivos: `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-55-adaptador-sii-compatibilidad-asmx/`. Origen: D-09, RQ-09. Verificación: índice enlaza contratos, matriz legacy/moderno, preview, gate, compatibilidad y evidencia.
-- [ ] 6.2 [S] Documentar rollback y comprobar que el gate queda desactivado. Área/archivos: paquete técnico canónico y configuración aplicable. Origen: D-07, RQ-07. Verificación: evidencia manual registra gate false y listas de usuarios/grupos vacías.
-- [ ] 6.3 [S] Validar OpenSpec y gobierno OPSXJ. Área/archivos: `openspec/changes/doc-55-adaptador-sii-asmx/`, `.opsxj/evidence/DOC-55.json`. Origen: D-09, RQ-09. Verificación: validación strict y `opsxj:validate` finalizan PASS.
+- [x] 6.1 [M] Crear el paquete técnico canónico 00-07 y diagramas. Área/archivos: `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-55-adaptador-sii-compatibilidad-asmx/`. Origen: D-09, RQ-09. Verificación: índice enlaza contratos, matriz legacy/moderno, preview, gate, compatibilidad y evidencia.
+- [x] 6.2 [S] Documentar rollback y comprobar que el gate queda desactivado. Área/archivos: paquete técnico canónico y configuración aplicable. Origen: D-07, RQ-07. Verificación: evidencia manual registra gate false y listas de usuarios/grupos vacías.
+- [x] 6.3 [S] Validar OpenSpec y gobierno OPSXJ. Área/archivos: `openspec/changes/doc-55-adaptador-sii-asmx/`, `.opsxj/evidence/DOC-55.json`. Origen: D-09, RQ-09. Verificación: validación strict y `opsxj:validate` finalizan PASS.
