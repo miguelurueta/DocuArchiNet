@@ -31,6 +31,14 @@ test("ASMX aplica gate antes de resolver contexto o proveedor", () => {
   assert.doesNotMatch(service, /\.Result\b|\.Wait\s*\(|GetAwaiter\s*\(/);
 });
 
+test("contexto de importación usa tarea y trámite confiables de sesión", () => {
+  assert.match(service, /Session\.Item\("ID_TAREA_SELECCIONDA"\)/);
+  assert.match(service, /Session\.Item\("DG_ID_TRAMITE"\)/);
+  assert.match(service, /request\.TaskId <> trustedTaskId/);
+  assert.match(service, /trustedProcedureId, request\.ProviderId/);
+  assert.doesNotMatch(service, /IdRutaWorkflow, request\.TaskId, request\.ProviderId/);
+});
+
 test("frontera es delgada y descriptor referencia code-behind", () => {
   assert.match(descriptor, /CodeBehind="WebServiceImportarServicioWebModern\.asmx\.vb"/);
   assert.match(descriptor, /Class="WebServiceImportarServicioWebModern"/);

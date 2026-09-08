@@ -3,6 +3,7 @@ Imports System.ComponentModel
 Imports System.Configuration
 Imports System.Threading
 Imports System.Threading.Tasks
+Imports System.Web
 Imports System.Web.Services
 
 ' Frontera paralela y delgada para ImportarServicioWeb. No contiene reglas SII ni persistencia.
@@ -19,7 +20,8 @@ Public Class WebServiceImportarServicioWebModern
         If Not FeatureEnabled() Then Return DisabledCapabilities(request)
         If Not ValidRequest(request) Then Return InvalidCapabilities(request)
         Try
-            If Not AuthenticatedContextAvailable() Then Return ProviderCapabilitiesError(request, New ResultadoResolucionClienteProveedorImportacion With {.Codigo = "FORBIDDEN"})
+            Dim importContext As ContextoImportacionServicio = Nothing
+            If Not TryBuildImportContext(request, importContext) Then Return ProviderCapabilitiesError(request, New ResultadoResolucionClienteProveedorImportacion With {.Codigo = "FORBIDDEN"})
             Dim provider = ResolveProvider(request.ProviderId)
             If Not provider.Encontrado Then Return ProviderCapabilitiesError(request, provider)
             Return Await provider.Cliente.ResolveCapabilitiesAsync(request, CancellationToken.None).ConfigureAwait(False)
@@ -34,7 +36,8 @@ Public Class WebServiceImportarServicioWebModern
         If Not FeatureEnabled() Then Return FailureQuery(request, "FEATURE_DISABLED")
         If Not ValidRequest(request) Then Return FailureQuery(request, "INVALID_REQUEST")
         Try
-            If Not AuthenticatedContextAvailable() Then Return FailureQuery(request, "FORBIDDEN")
+            Dim importContext As ContextoImportacionServicio = Nothing
+            If Not TryBuildImportContext(request, importContext) Then Return FailureQuery(request, "FORBIDDEN")
             Dim provider = ResolveProvider(request.ProviderId)
             If Not provider.Encontrado Then Return FailureQuery(request, provider.Codigo)
             Return Await provider.Cliente.QueryItemsAsync(request, CancellationToken.None).ConfigureAwait(False)
@@ -49,13 +52,8 @@ Public Class WebServiceImportarServicioWebModern
         If Not FeatureEnabled() Then Return FailurePreview(request, "FEATURE_DISABLED")
         If Not ValidRequest(request) OrElse String.IsNullOrWhiteSpace(request.ExternalKey) Then Return FailurePreview(request, "INVALID_REQUEST")
         Try
-            Dim sessionResult = New WorkflowPreviewSessionContextGate().AsegurarContexto()
-            If sessionResult Is Nothing OrElse sessionResult.Contexto Is Nothing OrElse Not sessionResult.Contexto.EsValido() Then
-                Return FailurePreview(request, "PREVIEW_FORBIDDEN")
-            End If
-            Dim context = New ContextoImportacionServicio(sessionResult.Contexto.IdUsuarioWorkflow,
-                sessionResult.Contexto.IdGrupoWorkflow, sessionResult.Contexto.LoginUsuario, request.TaskId,
-                sessionResult.Contexto.IdRutaWorkflow, request.TaskId, request.ProviderId, True)
+            Dim context As ContextoImportacionServicio = Nothing
+            If Not TryBuildImportContext(request, context) Then Return FailurePreview(request, "PREVIEW_FORBIDDEN")
             Dim provider = ResolveProvider(request.ProviderId)
             If Not provider.Encontrado Then Return FailurePreview(request, provider.Codigo)
             Dim source = Await provider.Cliente.GetPreviewAsync(request, CancellationToken.None).ConfigureAwait(False)
@@ -70,9 +68,24 @@ Public Class WebServiceImportarServicioWebModern
         Return String.Equals(ConfigurationManager.AppSettings("WorkflowCentroTrabajoModernActive"), "true", StringComparison.OrdinalIgnoreCase)
     End Function
 
-    Private Shared Function AuthenticatedContextAvailable() As Boolean
+    Private Shared Function TryBuildImportContext(ByVal request As SolicitudImportacionServicioDto,
+                                                  ByRef context As ContextoImportacionServicio) As Boolean
+        context = Nothing
         Dim result = New WorkflowPreviewSessionContextGate().AsegurarContexto()
-        Return result IsNot Nothing AndAlso result.Contexto IsNot Nothing AndAlso result.Contexto.EsValido()
+        Dim current = HttpContext.Current
+        If result Is Nothing OrElse result.Contexto Is Nothing OrElse Not result.Contexto.EsValido() OrElse
+           current Is Nothing OrElse current.Session Is Nothing Then Return False
+
+        Dim trustedTaskId As Long
+        Dim trustedProcedureId As Integer
+        If Not Long.TryParse(Convert.ToString(current.Session.Item("ID_TAREA_SELECCIONDA")), trustedTaskId) OrElse
+           Not Integer.TryParse(Convert.ToString(current.Session.Item("DG_ID_TRAMITE")), trustedProcedureId) OrElse
+           trustedTaskId <= 0 OrElse trustedProcedureId <= 0 OrElse request Is Nothing OrElse request.TaskId <> trustedTaskId Then Return False
+
+        context = New ContextoImportacionServicio(result.Contexto.IdUsuarioWorkflow,
+            result.Contexto.IdGrupoWorkflow, result.Contexto.LoginUsuario, trustedTaskId,
+            result.Contexto.IdRutaWorkflow, trustedProcedureId, request.ProviderId, True)
+        Return True
     End Function
 
     Private Shared Function ValidRequest(ByVal request As SolicitudImportacionServicioDto) As Boolean
