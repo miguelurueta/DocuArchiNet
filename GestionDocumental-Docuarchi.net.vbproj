@@ -8476,6 +8476,7 @@
     <Content Include="webservice\WebServiceRadicacion.asmx" />
     <Content Include="webservice\WebServiceWorkflow.asmx" />
     <Content Include="webservice\WebServiceWorkflowModern.asmx" />
+    <Content Include="webservice\WebServiceImportarServicioWebModern.asmx" />
     <Content Include="webservice\WebServiceWorkflowNotesModern.asmx" />
     <Content Include="workflow\act.js" />
     <Content Include="workflow\imageneswf\1471559663_Error.png" />
@@ -9757,6 +9758,10 @@
       <DependentUpon>WebServiceWorkflowModern.asmx</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="webservice\WebServiceImportarServicioWebModern.asmx.vb">
+      <DependentUpon>WebServiceImportarServicioWebModern.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="webservice\WebServiceWorkflowNotesModern.asmx.vb">
       <DependentUpon>WebServiceWorkflowNotesModern.asmx</DependentUpon>
       <SubType>Component</SubType>
@@ -9845,6 +9850,7 @@
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiImportContractMapper.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiImportProvider.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiLegacyResultAdapter.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiPreviewResponseFactory.vb" />
     <Compile Include="Modelo\Workflow\Notas\NotasWorkflowModels.vb" />
     <Compile Include="Modelo\Workflow\Notas\NotasWorkflowInterfaces.vb" />
     <Compile Include="Modelo\Workflow\Devolver\DevolverActividadModels.vb" />
