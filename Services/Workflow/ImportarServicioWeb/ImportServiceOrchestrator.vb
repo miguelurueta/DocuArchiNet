@@ -30,6 +30,12 @@ Public NotInheritable Class ImportServiceOrchestrator
                 response.Items.Add(MapItem(item)) : Continue For
             End If
             If item.Fase = FaseImportacionServicio.Creada AndAlso Not Avanzar(contexto, intent, item, FaseImportacionServicio.Validada, request.CorrelationId) Then Return ErrorExecute(response, "VERSION_CONFLICT", "La intención cambió; consulte su estado.")
+            If EsReintentoSeguro(item) Then
+                item.CodigoError = Nothing : item.MensajeVisible = Nothing : item.Reintentable = False
+                If Not Avanzar(contexto, intent, item, FaseImportacionServicio.Validada, request.CorrelationId) Then Return ErrorExecute(response, "VERSION_CONFLICT", "La intención cambió; consulte su estado.")
+            ElseIf item.Fase <> FaseImportacionServicio.Validada AndAlso item.Fase <> FaseImportacionServicio.Creada Then
+                Return ErrorExecute(response, "IMPORT_RETRY_NOT_ALLOWED", "La intención no admite reintento.")
+            End If
             For Each stepItem In _steps
                 If intent.DetencionSolicitada Then Exit For
                 Dim result = stepItem.Ejecutar(contexto, intent, item)
@@ -49,6 +55,16 @@ Public NotInheritable Class ImportServiceOrchestrator
         Next
         response.Accepted = True : response.Status = AggregateStatus(intent).ToString() : response.VersionToken = intent.VersionToken
         Return response
+    End Function
+
+    Private Shared Function EsReintentoSeguro(ByVal item As ResultadoElementoImportacion) As Boolean
+        If item Is Nothing OrElse Not item.PersistenciaConocida OrElse item.IdDocumento.HasValue Then Return False
+        If item.Fase = FaseImportacionServicio.RecursoObtenido OrElse
+           item.Fase = FaseImportacionServicio.ExpedientePreparado OrElse
+           item.Fase = FaseImportacionServicio.IndicesActualizados Then Return True
+        If Not item.Reintentable Then Return False
+        Return item.Fase = FaseImportacionServicio.FallidaAntesDePersistir OrElse
+               item.Fase = FaseImportacionServicio.Parcial OrElse item.Fase = FaseImportacionServicio.Detenida
     End Function
 
     Public Function [Get](ByVal contexto As ContextoImportacionServicio, ByVal request As GetImportIntentRequestDto) As GetImportIntentResponseDto

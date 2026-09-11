@@ -2470,6 +2470,7 @@ Public Class ClassGestorSesion
                     Exit Function
 
                 End If
+                HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION") = id_usuario_gestion_wf
                 '-----------------------------------------------------
                 'Retorna id usuario docuarchi de workflow relacionado 
                 '-----------------------------------------------------

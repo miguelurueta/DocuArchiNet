@@ -6,6 +6,7 @@ const dto = fs.readFileSync('DTOs/Workflow/ImportarServicioWeb/ImportarServicioW
 const mapper = fs.readFileSync('Services/Workflow/ImportarServicioWeb/ImportItemResultMapper.vb', 'utf8');
 const service = fs.readFileSync('Services/Workflow/ImportarServicioWeb/ServicioReconciliacionImportacion.vb', 'utf8');
 const model = fs.readFileSync('Modelo/Workflow/ImportarServicioWeb/ImportarServicioWebModels.vb', 'utf8');
+const executeFixture = JSON.parse(fs.readFileSync('Tests/Fixtures/Workflow/ImportarServicioWeb/contracts-v1/execute-import-intent-response.json', 'utf8'));
 
 test('contrato incluye mínimos documentales y excluye dato_lista', () => {
   for (const field of ['ReachedPhase', 'TaskId', 'DocumentName', 'ContentType']) assert.match(dto, new RegExp(`Property ${field}`));
@@ -28,4 +29,15 @@ test('lista deduplica por tarea y documento', () => {
   assert.match(service, /Function AggregateStatus/);
   const duplicate = JSON.parse(fs.readFileSync('Tests/Fixtures/Workflow/ImportarServicioWeb/reconciliation-v1/duplicated-document.json', 'utf8'));
   assert.equal(new Set(duplicate.items.map(x => `${x.taskId}:${x.documentId}`)).size, 1);
+});
+
+test('respuesta Execute confirmada contiene identidad documental para refrescar la interfaz', () => {
+  assert.equal(executeFixture.accepted, true);
+  assert.equal(executeFixture.items.length, 1);
+  const item = executeFixture.items[0];
+  for (const field of ['taskId', 'documentId', 'documentName', 'contentType', 'reachedPhase', 'persistenceKnown', 'correlationId']) {
+    assert.notEqual(item[field], null, field);
+    assert.notEqual(item[field], undefined, field);
+  }
+  assert.equal(item.status, 'Disponible');
 });

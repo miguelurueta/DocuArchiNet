@@ -52,6 +52,7 @@ End Class
 
 <Serializable()> Public Class QueryItemsRequestDto
     Inherits SolicitudImportacionServicioDto
+    Public Property CodigoBarras As String
     Public Property ContinuationToken As String
     Public Property PageSize As Nullable(Of Integer)
 End Class
@@ -71,6 +72,9 @@ End Class
     End Sub
     Public Property Items As IList(Of ExternalItemDto)
     Public Property ContinuationToken As String
+    Public Property ProviderResultCode As String
+    Public Property InscriptionCount As Integer
+    Public Property ImageCount As Integer
 End Class
 
 <Serializable()> Public Class GetPreviewRequestDto
@@ -92,7 +96,9 @@ End Class
     Public Property ExternalKey As String
     Public Property ClientItemId As String
     Public Property TargetTaskId As Long
+    ' ID canónico de tipo_doc_series seleccionado por el frontend.
     Public Property DocumentTypeId As Nullable(Of Integer)
+    Public Property DocumentTypeName As String
     Public Property FileName As String
     Public Property ContentType As String
 End Class
@@ -114,7 +120,9 @@ End Class
 <Serializable()> Public Class DocumentCommandDto
     Public Property ClientItemId As String
     Public Property ExternalKey As String
+    ' Conserva el ID canónico TRD; el ID legacy de checklist nunca cruza el contrato público.
     Public Property DocumentTypeId As Nullable(Of Integer)
+    Public Property DocumentTypeName As String
     Public Property FileName As String
     Public Property ContentType As String
 End Class
@@ -157,6 +165,7 @@ End Class
     Public Property Items As IList(Of ImportItemSelectionDto)
     Public Property Requirements As IList(Of ImportRequirementDto)
     Public Property ContextFingerprint As String
+    Public Property Radicado As String
 End Class
 
 <Serializable()> Public Class CreateImportIntentResponseDto

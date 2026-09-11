@@ -2,6 +2,7 @@
 
 const { NOTES_READ_E2E_ADAPTER } = require('../adapters/notes-read-e2e-adapter.cjs');
 const { NOTES_WRITE_E2E_ADAPTER } = require('../adapters/notes-write-e2e-adapter.cjs');
+const { IMPORTAR_SERVICIO_WEB_E2E_ADAPTER } = require('../adapters/importar-servicio-web-e2e-adapter.cjs');
 
 const SAFE_ID = /^[a-z][a-z0-9-]{1,79}$/;
 const STAGES = Object.freeze(['anonymous', 'read', 'preview', 'execution', 'concurrency', 'ui-lock']);
@@ -45,12 +46,25 @@ const CONTROL_REGISTRY = Object.freeze({
   'notes-audit': Object.freeze({
     id: 'notes-audit',
     query: "SELECT usuario_workflow_idU_suario, fecha_hora, operacion, ID_TAREA_WORKFLOW, opcion, descripcion_opcion, ip_transacion, id_operacion FROM wf_log_workflow WHERE ID_TAREA_WORKFLOW = ? AND descripcion_opcion = 'NOTA WORKFLOW' ORDER BY fecha_hora, id_operacion"
+  }),
+  'import-intent-state': Object.freeze({
+    id: 'import-intent-state',
+    query: 'SELECT intent_id, idempotency_key, status, version_token FROM workflow_import_intent WHERE task_id = ? ORDER BY created_utc, intent_id'
+  }),
+  'import-item-state': Object.freeze({
+    id: 'import-item-state',
+    query: 'SELECT item.intent_id, item.client_item_id, item.external_key, item.status, item.document_id FROM workflow_import_intent_item item INNER JOIN workflow_import_intent intent ON intent.intent_id = item.intent_id WHERE intent.task_id = ? ORDER BY item.intent_id, item.client_item_id'
+  }),
+  'import-transition-audit': Object.freeze({
+    id: 'import-transition-audit',
+    query: 'SELECT transition.intent_id, transition.client_item_id, transition.previous_status, transition.new_status, transition.occurred_utc FROM workflow_import_intent_transition transition INNER JOIN workflow_import_intent intent ON intent.intent_id = transition.intent_id WHERE intent.task_id = ? ORDER BY transition.occurred_utc, transition.transition_id'
   })
 });
 
 const ADAPTER_REGISTRY = Object.freeze({
   [NOTES_READ_E2E_ADAPTER.id]: NOTES_READ_E2E_ADAPTER,
-  [NOTES_WRITE_E2E_ADAPTER.id]: NOTES_WRITE_E2E_ADAPTER
+  [NOTES_WRITE_E2E_ADAPTER.id]: NOTES_WRITE_E2E_ADAPTER,
+  [IMPORTAR_SERVICIO_WEB_E2E_ADAPTER.id]: IMPORTAR_SERVICIO_WEB_E2E_ADAPTER
 });
 
 const SCENARIO_REGISTRY = Object.freeze({
@@ -105,6 +119,56 @@ const SCENARIO_REGISTRY = Object.freeze({
     controlExpectations: Object.freeze({ 'notes-task-state': 'changed', 'notes-audit': 'changed' }),
     transport: Object.freeze({ session: 'workflow', service: 'notes-modern' }),
     expectations: Object.freeze(['state-change', 'audit-change', 'single-success', 'version-conflict', 'sanitized-evidence'])
+  }),
+  'import-sii-read': Object.freeze({
+    id: 'import-sii-read', doc: 'doc56', stage: 'read', adapterId: 'importar-servicio-web',
+    requiredAuthorizations: Object.freeze(['environment', 'gate']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-task', role: 'read', profileField: 'taskId', mutating: false }),
+    controls: Object.freeze(['import-intent-state', 'import-item-state', 'import-transition-audit']),
+    controlExpectations: Object.freeze({ 'import-intent-state': 'unchanged', 'import-item-state': 'unchanged', 'import-transition-audit': 'unchanged' }),
+    transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
+    expectations: Object.freeze(['real-sii', 'no-state-change', 'temporary-feature-gate', 'sanitized-evidence'])
+  }),
+  'import-sii-recovery': Object.freeze({
+    id: 'import-sii-recovery', doc: 'doc56', stage: 'read', adapterId: 'importar-servicio-web',
+    requiredAuthorizations: Object.freeze(['environment', 'gate']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-task', role: 'recovery', profileField: 'taskId', mutating: false }),
+    controls: Object.freeze(['import-intent-state', 'import-item-state', 'import-transition-audit']),
+    controlExpectations: Object.freeze({ 'import-intent-state': 'unchanged', 'import-item-state': 'unchanged', 'import-transition-audit': 'unchanged' }),
+    transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
+    expectations: Object.freeze(['existing-intent', 'no-state-change', 'temporary-feature-gate', 'sanitized-evidence'])
+  }),
+  'import-sii-retry': Object.freeze({
+    id: 'import-sii-retry', doc: 'doc56', stage: 'execution', adapterId: 'importar-servicio-web',
+    requiredAuthorizations: Object.freeze(['environment', 'gate']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-import-retry', role: 'retry', profileField: 'taskId', mutating: true, contractId: 'workflow-import-retry-controls' }),
+    controls: Object.freeze(['import-intent-state', 'import-item-state', 'import-transition-audit']),
+    controlExpectations: Object.freeze({ 'import-intent-state': 'changed', 'import-item-state': 'changed', 'import-transition-audit': 'changed' }),
+    transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
+    expectations: Object.freeze(['existing-retryable-intent', 'single-document', 'temporary-feature-gate', 'sanitized-evidence'])
+  }),
+  'import-sii-execution': Object.freeze({
+    id: 'import-sii-execution', doc: 'doc56', stage: 'execution', adapterId: 'importar-servicio-web',
+    requiredAuthorizations: Object.freeze(['environment', 'gate']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-task', role: 'execution', profileField: 'taskId', mutating: true, contractId: 'workflow-task-controls' }),
+    controls: Object.freeze(['import-intent-state', 'import-item-state', 'import-transition-audit']),
+    controlExpectations: Object.freeze({ 'import-intent-state': 'changed', 'import-item-state': 'changed', 'import-transition-audit': 'changed' }),
+    transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
+    expectations: Object.freeze(['real-sii', 'state-change', 'single-document', 'temporary-feature-gate', 'sanitized-evidence'])
+  }),
+  'import-sii-concurrency': Object.freeze({
+    id: 'import-sii-concurrency', doc: 'doc56', stage: 'concurrency', adapterId: 'importar-servicio-web',
+    requiredAuthorizations: Object.freeze(['environment', 'gate']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-task', role: 'concurrency', profileField: 'taskId', mutating: true, contractId: 'workflow-task-controls' }),
+    controls: Object.freeze(['import-intent-state', 'import-item-state', 'import-transition-audit']),
+    controlExpectations: Object.freeze({ 'import-intent-state': 'changed', 'import-item-state': 'changed', 'import-transition-audit': 'changed' }),
+    transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
+    expectations: Object.freeze(['real-sii', 'single-intent', 'single-document', 'version-conflict', 'temporary-feature-gate', 'sanitized-evidence'])
   })
 });
 

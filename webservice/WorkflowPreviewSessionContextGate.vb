@@ -192,6 +192,9 @@ Public NotInheritable Class WorkflowPreviewSessionContextGate
                 resultado.CadenaConexionWorkflow = CrearCadenaConexion(requestContext)
                 If String.IsNullOrWhiteSpace(resultado.CadenaConexionWorkflow) Then
                     resultado.Contexto = New ContextoModuloWorkflow()
+                Else
+                    resultado.CadenaConexionDocuarchi = CrearCadenaConexion(requestContext, "DA_")
+                    resultado.CadenaConexionRadicacion = CrearCadenaConexion(requestContext, "RA_")
                 End If
             End If
             Return resultado
@@ -239,6 +242,7 @@ Public NotInheritable Class WorkflowPreviewSessionContextGate
             Return resultado
         End If
         resultado.CadenaConexionDocuarchi = CrearCadenaConexion(requestContext, "DA_")
+        resultado.CadenaConexionRadicacion = CrearCadenaConexion(requestContext, "RA_")
 
         resultado.Contexto = contexto
         Return resultado
@@ -316,4 +320,5 @@ Public NotInheritable Class ResultadoContextoSesionWorkflow
     Public Property Contexto As ContextoModuloWorkflow
     Public Property CadenaConexionWorkflow As String
     Public Property CadenaConexionDocuarchi As String
+    Public Property CadenaConexionRadicacion As String
 End Class

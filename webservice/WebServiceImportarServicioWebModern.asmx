@@ -1,1 +1,1 @@
-<%@ WebService Language="VB" CodeBehind="WebServiceImportarServicioWebModern.asmx.vb" Class="WebServiceImportarServicioWebModern" %>
+<%@ WebService Language="VB" CodeBehind="WebServiceImportarServicioWebModern.asmx.vb" Class="GestionDocumental_Docuarchi.net.WebServiceImportarServicioWebModern" %>

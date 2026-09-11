@@ -8,18 +8,18 @@
     "manual_qa"
   ],
   "documentation": [
-    "Doc/Tecnica/Opsxj/doc-56-pruebas-integracion/01-ResumenTecnico.md",
-    "Doc/Tecnica/Opsxj/doc-56-pruebas-integracion/02-ImpactoUI.md",
-    "Doc/Tecnica/Opsxj/doc-56-pruebas-integracion/03-ServiciosYReglas.md",
-    "Doc/Tecnica/Opsxj/doc-56-pruebas-integracion/04-ContratosIntegracion.md",
-    "Doc/Tecnica/Opsxj/doc-56-pruebas-integracion/05-PruebasEvidencia.md"
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/01-ResumenTecnico.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/02-ImpactoUI.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/03-ServiciosYReglas.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/04-ContratosIntegracion.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/05-PruebasEvidencia.md"
   ],
   "documentationContract": [
     {
-      "path": "Doc/Tecnica/Opsxj/doc-56-pruebas-integracion/01-ResumenTecnico.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/01-ResumenTecnico.md",
       "requiredSections": [
-        "## Objetivo",
-        "## Alcance y compatibilidad"
+        "## Objetivo implementado",
+        "## Fronteras preservadas"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -35,10 +35,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-56-pruebas-integracion/02-ImpactoUI.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/02-ImpactoUI.md",
       "requiredSections": [
-        "## Superficies UI",
-        "## Validacion visual"
+        "## Alcance",
+        "## Validación visual"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -54,9 +54,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-56-pruebas-integracion/03-ServiciosYReglas.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/03-ServiciosYReglas.md",
       "requiredSections": [
-        "## Servicios y reglas"
+        "## Frontera web",
+        "## Composición concreta"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -72,9 +73,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-56-pruebas-integracion/04-ContratosIntegracion.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/04-ContratosIntegracion.md",
       "requiredSections": [
-        "## Contratos e integraciones"
+        "## Envelope v1",
+        "## SII efectivo"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -90,10 +92,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-56-pruebas-integracion/05-PruebasEvidencia.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/05-PruebasEvidencia.md",
       "requiredSections": [
-        "## Evidencia requerida",
-        "## QA/E2E WebForms"
+        "## Validación local vigente",
+        "## E2E real del contrato"
       ],
       "minimumContentLength": 180,
       "identity": {

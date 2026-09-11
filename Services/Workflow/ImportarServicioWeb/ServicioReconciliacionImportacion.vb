@@ -33,6 +33,24 @@ Public NotInheritable Class ServicioReconciliacionImportacion
         Return response
     End Function
 
+    Public Function ProjectExecutionResult(ByVal context As ContextoImportacionServicio, ByVal execution As ExecuteImportIntentResponseDto) As ExecuteImportIntentResponseDto
+        If execution Is Nothing Then Throw New ArgumentNullException("execution")
+        If execution.Error IsNot Nothing OrElse Not execution.Accepted Then Return execution
+
+        Dim snapshot = AuthorizedSnapshot(context, execution.IntentId, Nothing)
+        If snapshot Is Nothing Then Return ProtectUnconfirmedExecution(context, execution)
+
+        Dim response As New ExecuteImportIntentResponseDto With {
+            .OperationId=execution.OperationId,
+            .CorrelationId=execution.CorrelationId,
+            .IntentId=snapshot.IntentId,
+            .Accepted=True,
+            .VersionToken=snapshot.VersionToken}
+        For Each item In Project(snapshot) : response.Items.Add(item) : Next
+        response.Status=AggregateStatus(response.Items)
+        Return response
+    End Function
+
     Private Function AuthorizedSnapshot(ByVal context As ContextoImportacionServicio, ByVal intentId As String, ByVal request As ReconcileImportIntentRequestDto) As SnapshotReconciliacionImportacion
         If context Is Nothing OrElse String.IsNullOrWhiteSpace(intentId) OrElse Not _validator.Validar(context).Valido Then Return Nothing
         If request IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(request.ExternalKey) Then Return _repository.ObtenerItem(context,intentId,context.ProviderId,request.ExternalKey)
@@ -51,6 +69,18 @@ Public NotInheritable Class ServicioReconciliacionImportacion
             result.Add(mapped)
         Next
         Return result
+    End Function
+    Private Shared Function ProtectUnconfirmedExecution(ByVal context As ContextoImportacionServicio, ByVal execution As ExecuteImportIntentResponseDto) As ExecuteImportIntentResponseDto
+        execution.Status="ResultadoIncierto"
+        For Each item In execution.Items
+            item.ReachedPhase=item.Status
+            item.Status="ResultadoIncierto"
+            item.TaskId=If(context Is Nothing,0,context.IdTarea)
+            item.DocumentId=Nothing : item.DocumentName=Nothing : item.ContentType=Nothing
+            item.ErrorCode="IMPORT_RESULT_UNCERTAIN" : item.Message="Se está verificando el resultado."
+            item.Retryable=False
+        Next
+        Return execution
     End Function
     Private Shared Function SafeError() As ErrorImportacionServicioDto
         Return New ErrorImportacionServicioDto With {.Codigo="IMPORT_INTENT_UNAVAILABLE",.MensajeVisible="No fue posible consultar la intención.",.EsReintentable=False}

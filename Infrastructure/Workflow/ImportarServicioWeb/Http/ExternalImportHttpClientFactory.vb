@@ -14,7 +14,11 @@ Public NotInheritable Class ExternalImportHttpClientFactory
     Private ReadOnly _ownsClient As Boolean
 
     Public Sub New()
-        Me.New(New HttpClientHandler())
+        Me.New(False)
+    End Sub
+
+    Public Sub New(ByVal useDefaultCredentials As Boolean)
+        Me.New(New HttpClientHandler() With {.UseDefaultCredentials = useDefaultCredentials})
     End Sub
 
     Public Sub New(ByVal handler As HttpMessageHandler)

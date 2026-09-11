@@ -24,7 +24,7 @@ CREATE TABLE workflow_import_intent_requirement (
 CREATE TABLE workflow_import_intent_item (
   intent_id VARCHAR(32) NOT NULL, client_item_id VARCHAR(128) NOT NULL,
   provider_id VARCHAR(128) NOT NULL, external_key VARCHAR(500) NOT NULL,
-  target_task_id BIGINT NOT NULL, document_type_id INT NULL,
+  target_task_id BIGINT NOT NULL, document_type_id INT NULL, document_type_name VARCHAR(255) NULL,
   file_name VARCHAR(500) NULL, content_type VARCHAR(255) NULL, status VARCHAR(40) NOT NULL,
   PRIMARY KEY (intent_id, client_item_id),
   UNIQUE KEY uq_import_intent_external (intent_id, provider_id, external_key, target_task_id),

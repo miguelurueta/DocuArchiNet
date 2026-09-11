@@ -1,0 +1,13 @@
+{
+  "scenarioId": "import-sii-read",
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "module": "WORKFLOW REGISTRO",
+  "environment": "CERTIFICACION",
+  "odbcDsn": "workflowdocument",
+  "taskId": 219887,
+  "radicado": "S002188378",
+  "codigoBarras": "18221381",
+  "sampleSize": 1,
+  "budgetMs": 30000,
+  "ignoreHttpsErrors": true
+}

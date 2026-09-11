@@ -42,7 +42,8 @@ Public NotInheritable Class SiiPreviewResponseFactory
            Not String.Equals(request.ProviderId, context.ProviderId, StringComparison.OrdinalIgnoreCase) OrElse
            Not String.Equals(request.ProviderId, SiiImportProvider.CanonicalProviderId, StringComparison.OrdinalIgnoreCase) OrElse
            Not String.Equals(request.ExternalKey, source.ExternalKey, StringComparison.Ordinal) Then Return "PREVIEW_FORBIDDEN"
-        If Not source.ExpiresAtUtc.HasValue OrElse source.ExpiresAtUtc.Value.ToUniversalTime() <= utcNow.ToUniversalTime() Then Return "PREVIEW_EXPIRED"
+        If Not source.ExpiresAtUtc.HasValue Then Return "PREVIEW_EXPIRY_MISSING"
+        If source.ExpiresAtUtc.Value.ToUniversalTime() <= utcNow.ToUniversalTime() Then Return "PREVIEW_EXPIRY_PAST"
         If String.IsNullOrWhiteSpace(source.ContentType) OrElse Not _allowedContentTypes.Contains(source.ContentType.Trim()) Then Return "PREVIEW_CONTENT_TYPE_INVALID"
         If Not source.Length.HasValue OrElse source.Length.Value <= 0 OrElse source.Length.Value > _maximumBytes Then Return "PREVIEW_SIZE_INVALID"
         Dim disposition As String = If(source.Disposition, String.Empty).Trim()

@@ -9831,13 +9831,18 @@
     <Compile Include="Services\Workflow\ImportarServicioWeb\ImportIntentStateMachine.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\ImportItemResultFactory.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\ImportServiceOrchestrator.vb" />
+    <Compile Include="Services\Workflow\ImportarServicioWeb\ImportExecutionSteps.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\ImportDocumentStoragePort.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Storage\LegacyImportDocumentStorageAdapter.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportIntentRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportReconciliationRepository.vb" />
+    <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportStorageMetadataRepository.vb" />
+    <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportDocumentTypeResolver.vb" />
+    <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlExternalServiceTelemetryRepository.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\ImportItemResultMapper.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\ServicioReconciliacionImportacion.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\MySqlImportIntentConcurrencyGuard.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\MySqlSiiImportAuthorizationRepository.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernModels.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernInterfaces.vb" />
     <Compile Include="Modelo\Workflow\ImportarServicioWeb\ImportarServicioWebModels.vb" />
@@ -9846,6 +9851,7 @@
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Http\ExternalImportHttpErrorMapper.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Http\ExternalImportHttpResponseValidator.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Http\ExternalImportHttpTransport.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Http\ExternalServiceAttemptTelemetry.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiExternalImportProviderClient.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiImportContractMapper.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiImportProvider.vb" />
