@@ -12,6 +12,9 @@ Public Class ComandoAlmacenamientoImportacion
     Public Property TipoAlmacenamiento As Integer
     Public Property NombreCaso As String
     Public Property NombreClaseFormatoDocumento As String
+    Public Property NombreArchivoOrigen As String
+    Public Property FormatoProveedor As String
+    Public Property TipoContenidoOrigen As String
     Public Property Campos As IList(Of CampoAlmacenamientoImportacion)
 
     Public Sub New()

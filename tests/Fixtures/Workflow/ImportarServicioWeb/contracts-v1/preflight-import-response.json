@@ -11,6 +11,7 @@
       "clientItemId": "item-001",
       "externalKey": "external-001",
       "documentTypeId": 10,
+      "documentTypeName": "Constancia de inscripción",
       "fileName": "Documento de ejemplo.pdf",
       "contentType": "application/pdf"
     }

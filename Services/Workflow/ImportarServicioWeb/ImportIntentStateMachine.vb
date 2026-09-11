@@ -33,14 +33,17 @@ Public NotInheritable Class ImportIntentStateMachine
         Dim t = New Dictionary(Of FaseImportacionServicio, ISet(Of FaseImportacionServicio))()
         Agregar(t, FaseImportacionServicio.Creada, FaseImportacionServicio.Validada, FaseImportacionServicio.FallidaAntesDePersistir, FaseImportacionServicio.Detenida)
         Agregar(t, FaseImportacionServicio.Validada, FaseImportacionServicio.RecursoObtenido, FaseImportacionServicio.FallidaAntesDePersistir, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.Detenida)
-        Agregar(t, FaseImportacionServicio.RecursoObtenido, FaseImportacionServicio.ExpedientePreparado, FaseImportacionServicio.Parcial, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.Detenida)
-        Agregar(t, FaseImportacionServicio.ExpedientePreparado, FaseImportacionServicio.IndicesActualizados, FaseImportacionServicio.Parcial, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.Detenida)
-        Agregar(t, FaseImportacionServicio.IndicesActualizados, FaseImportacionServicio.DocumentoAlmacenado, FaseImportacionServicio.Parcial, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.Detenida)
+        Agregar(t, FaseImportacionServicio.RecursoObtenido, FaseImportacionServicio.Validada, FaseImportacionServicio.ExpedientePreparado, FaseImportacionServicio.Parcial, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.Detenida)
+        Agregar(t, FaseImportacionServicio.ExpedientePreparado, FaseImportacionServicio.Validada, FaseImportacionServicio.IndicesActualizados, FaseImportacionServicio.Parcial, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.Detenida)
+        Agregar(t, FaseImportacionServicio.IndicesActualizados, FaseImportacionServicio.Validada, FaseImportacionServicio.DocumentoAlmacenado, FaseImportacionServicio.Parcial, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.Detenida)
         Agregar(t, FaseImportacionServicio.DocumentoAlmacenado, FaseImportacionServicio.CacheActualizado, FaseImportacionServicio.Parcial, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.Detenida)
         Agregar(t, FaseImportacionServicio.CacheActualizado, FaseImportacionServicio.Completada, FaseImportacionServicio.Parcial)
         Agregar(t, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.RequiereDecision, FaseImportacionServicio.Reconciliada)
         Agregar(t, FaseImportacionServicio.RequiereDecision, FaseImportacionServicio.Reconciliada)
         Agregar(t, FaseImportacionServicio.Reconciliada, FaseImportacionServicio.Completada, FaseImportacionServicio.Parcial)
+        Agregar(t, FaseImportacionServicio.FallidaAntesDePersistir, FaseImportacionServicio.Validada)
+        Agregar(t, FaseImportacionServicio.Parcial, FaseImportacionServicio.Validada)
+        Agregar(t, FaseImportacionServicio.Detenida, FaseImportacionServicio.Validada)
         Return t
     End Function
 

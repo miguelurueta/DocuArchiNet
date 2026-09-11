@@ -82,6 +82,18 @@ El resultado esperado es `Active=false` y listas vacías. Si difiere, detener la
 4. Ejecutar `git diff --name-only -- workflow/Webworkflow.aspx workflow/Webworkflow.aspx.vb`; solo DOC con retiro o modernización explícitamente trazada puede contener esas rutas. Cualquier cambio no declarado detiene la corrida.
 5. No detener procesos residuales sin autorización explícita.
 
+## DOC-56 importación SII
+
+DOC-56 reutiliza `test:workflow:platform`; no tiene login, `.env`, conexión ni configuración Playwright propios. Sus perfiles de ejemplo `doc56-import-sii-*.profile.example.json` deben copiarse dentro de `tools/e2e/profiles/` con otro nombre y completar únicamente ambiente, DSN, tarea descartable, radicado y presupuestos no sensibles.
+
+La lectura exige `--authorize environment,gate`; la ejecución exige `--authorize environment,gate,execution,discardable-resource`; la carrera fija de dos solicitudes exige `--authorize environment,gate,execution,concurrency,discardable-resource`. Cada valor se confirma nuevamente por TTY. El runner captura allí las cuentas, habilita temporalmente el gate local y restaura en `finally` el contenido original antes de validar gate apagado, alcance vacío y páginas legacy intactas.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario import-sii-read --profile <perfil.json> --authorize environment,gate
+npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario import-sii-execution --profile <perfil.json> --authorize environment,gate,execution,discardable-resource
+npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario import-sii-concurrency --profile <perfil.json> --authorize environment,gate,execution,concurrency,discardable-resource
+```
+
 ## DOC-11 mutante
 
 `EjecutarEnvioTarea` cambia la tarea. Solo puede ejecutarse con autorización explícita para una tarea descartable, cuenta válida, conector y token obtenidos del preview actual, además de consultas de estado y auditoría `SELECT` con un parámetro `?` y MySQL de solo lectura.

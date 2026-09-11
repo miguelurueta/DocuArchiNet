@@ -5,11 +5,19 @@ const fs = require('node:fs');
 const read = (path) => fs.readFileSync(path, 'utf8');
 const dto = read('DTOs/Workflow/ImportarServicioWeb/ImportarServicioWebDtos.vb');
 const repo = read('Infrastructure/Repositories/Workflow/ImportarServicioWeb/MySqlImportIntentRepository.vb');
+const reconciliation = read('Services/Workflow/ImportarServicioWeb/ServicioReconciliacionImportacion.vb');
+const endpoint = read('webservice/WebServiceImportarServicioWebModern.asmx.vb');
 
 test('Execute y Get comparten resultados v1 consultables', () => {
   for (const field of ['PersistenceKnown', 'Retryable', 'CorrelationId']) assert.match(dto, new RegExp(`Property ${field}`));
   assert.match(dto, /Class ExecuteImportIntentResponseDto[\s\S]*Items As IList\(Of ImportItemResultDto\)/);
   assert.match(dto, /SchemaVersion = "1\.0"/);
+});
+
+test('Execute proyecta solamente documentos confirmados para el frontend', () => {
+  assert.match(endpoint, /Orchestrator\.Execute\(context, request\)[\s\S]*ProjectExecutionResult\(context, execution\)/);
+  assert.match(reconciliation, /Function ProjectExecutionResult[\s\S]*AuthorizedSnapshot[\s\S]*For Each item In Project\(snapshot\)/);
+  assert.match(reconciliation, /ProtectUnconfirmedExecution[\s\S]*DocumentId=Nothing[\s\S]*DocumentName=Nothing[\s\S]*ContentType=Nothing/);
 });
 
 test('la transicion usa parametros, transaccion y version optimista', () => {

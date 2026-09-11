@@ -46,8 +46,19 @@ Public NotInheritable Class SiiImportProvider
     End Function
 
     Public Function DownloadAsync(ByVal externalKey As String, ByVal correlationId As String,
-        ByVal cancellationToken As CancellationToken) As Task(Of Byte()) Implements IExternalImportProviderClient.DownloadAsync
-        Return _client.DownloadAsync(externalKey, correlationId, cancellationToken)
+        ByVal cancellationToken As CancellationToken, Optional ByVal intentId As String = Nothing,
+        Optional ByVal clientItemId As String = Nothing, Optional ByVal operationId As String = Nothing,
+        Optional ByVal taskId As Nullable(Of Long) = Nothing, Optional ByVal radicado As String = Nothing,
+        Optional ByVal referenciaProveedor As String = Nothing) As Task(Of Byte()) Implements IExternalImportProviderClient.DownloadAsync
+        Return _client.DownloadAsync(externalKey, correlationId, cancellationToken, intentId, clientItemId, operationId, taskId, radicado, referenciaProveedor)
+    End Function
+
+    Public Function ResolveStorageMetadataAsync(ByVal externalKey As String, ByVal correlationId As String,
+        ByVal cancellationToken As CancellationToken, Optional ByVal intentId As String = Nothing,
+        Optional ByVal clientItemId As String = Nothing, Optional ByVal operationId As String = Nothing,
+        Optional ByVal taskId As Nullable(Of Long) = Nothing, Optional ByVal radicado As String = Nothing,
+        Optional ByVal referenciaProveedor As String = Nothing) As Task(Of MetadatosDocumentoSii)
+        Return _client.ResolveStorageMetadataAsync(externalKey, correlationId, cancellationToken, intentId, clientItemId, operationId, taskId, radicado, referenciaProveedor)
     End Function
 
     Private Shared Sub ValidateProvider(ByVal request As SolicitudImportacionServicioDto)

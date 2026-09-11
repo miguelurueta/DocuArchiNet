@@ -13,6 +13,7 @@ const { queryFingerprint } = require('./support/doc32-e2e-odbc.cjs');
 const { createAuthenticatedWorkflowSession } = require('../tests/support/authenticated-workflow-session.cjs');
 const {
   executePlatformRun,
+  assertPlatformIntegrity,
   preflightPlatform,
   requiredAuthorizationsFor
 } = require('./support/workflow-e2e-platform.cjs');
@@ -29,6 +30,7 @@ const AUTHORIZATION_LABELS = Object.freeze({
   concurrency: '¿Autoriza la concurrencia sobre un recurso descartable?',
   'ui-lock': '¿Autoriza el bloqueo UI sobre un recurso descartable?',
   'discardable-resource': '¿Confirma que el recurso es descartable?'
+  ,gate: '¿Autoriza activar temporalmente el gate moderno y restaurarlo al finalizar?'
 });
 const SECRET_LABELS = Object.freeze({
   'workflow-account': Object.freeze({ label: 'Cuenta Workflow autorizada', secret: false }),
@@ -133,6 +135,64 @@ async function writeEvidence(evidence) {
   await fs.writeFile(destination, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
 }
 
+async function initializeWorkflowContext(context, plan) {
+  const page = await context.newPage();
+  try {
+    await page.goto(new URL('workflow/Webworkflow.aspx', plan.profile.baseUrl).toString(), {
+      waitUntil: 'domcontentloaded',
+      timeout: Math.min(plan.profile.budgetMs, 60000)
+    });
+  } finally {
+    await page.close();
+  }
+  return context;
+}
+
+async function readWorkflowControl({ control, taskId, environment }) {
+  try {
+    return await queryFingerprint(control.query, taskId, environment, 'NOTES_E2E');
+  } catch (error) {
+    const message = String(error?.message || '');
+    if (/tabla requerida/i.test(message)) fail('E2E_PLATFORM_CONTROL_TABLE_UNAVAILABLE');
+    if (/columna no disponible/i.test(message)) fail('E2E_PLATFORM_CONTROL_COLUMN_UNAVAILABLE');
+    if (/no admite la forma/i.test(message)) fail('E2E_PLATFORM_CONTROL_QUERY_UNSUPPORTED');
+    if (/abrir el control ODBC/i.test(message)) fail('E2E_PLATFORM_CONTROL_OPEN_FAILED');
+    fail('E2E_PLATFORM_CONTROL_FAILED');
+  }
+}
+
+async function enableTemporaryGate(plan) {
+  if (!plan.scenario.expectations.includes('temporary-feature-gate')) return async () => {};
+  const webConfigPath = path.join(repositoryRoot, 'Web.config');
+  const original = await fs.readFile(webConfigPath, 'utf8');
+  if (!/<add key="WorkflowCentroTrabajoModernActive" value="false"\s*\/>/i.test(original) ||
+      !/<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i.test(original) ||
+      !/<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i.test(original)) fail('E2E_PLATFORM_GATE_INTEGRITY_FAILED');
+  const enabled = original.replace(/(<add key="WorkflowCentroTrabajoModernActive" value=")false("\s*\/>)/i, '$1true$2');
+  if (enabled === original) fail('E2E_PLATFORM_GATE_ENABLE_FAILED');
+  await fs.writeFile(webConfigPath, enabled, 'utf8');
+  let restored = false;
+  return async () => {
+    if (restored) return;
+    await fs.writeFile(webConfigPath, original, 'utf8');
+    restored = true;
+  };
+}
+
+async function waitForApplicationReload(plan) {
+  const api = await request.newContext({ ignoreHTTPSErrors: plan.profile.ignoreHttpsErrors === true });
+  try {
+    const login = new URL('gestor.aspx', plan.profile.baseUrl).toString();
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const response = await api.get(login, { timeout: Math.min(plan.profile.budgetMs, 60000) });
+      if (!response.ok()) fail('E2E_PLATFORM_RELOAD_STABILIZATION_FAILED');
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+  } finally {
+    await api.dispose();
+  }
+}
+
 async function main() {
   const parsedArguments = parseArguments(process.argv.slice(2));
   const profile = await loadProfile(parsedArguments.profilePath);
@@ -142,30 +202,45 @@ async function main() {
   const authorizations = await collectAuthorizations(required, parsedArguments.requestedAuthorizations);
   const plan = preflightPlatform({ profile, authorizations });
   const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'workflow-e2e-platform-'));
-  await executePlatformRun({
+  let restoreGate = async () => {};
+  try {
+    restoreGate = await enableTemporaryGate(plan);
+    await waitForApplicationReload(plan);
+    await executePlatformRun({
     profile,
     authorizations,
     temporaryDirectory,
     collectSecrets,
     createBrowser: async (selectedProfile) => chromium.launch(selectedProfile.browser || {}),
-    createSession: async ({ browser, plan: currentPlan, environment }) => createAuthenticatedWorkflowSession(browser, {
-      baseUrl: currentPlan.profile.baseUrl,
-      environment,
-      moduleEnvironmentVariable: 'WORKFLOW_E2E_PLATFORM_MODULE',
-      userEnvironmentVariable: 'WORKFLOW_E2E_PLATFORM_AUTHORIZED_USER',
-      passwordEnvironmentVariable: 'WORKFLOW_E2E_PLATFORM_AUTHORIZED_PASSWORD',
-      ignoreHTTPSErrors: currentPlan.profile.ignoreHttpsErrors
-    }),
+    createSession: async ({ browser, plan: currentPlan, environment }) => {
+      const context = await createAuthenticatedWorkflowSession(browser, {
+        baseUrl: currentPlan.profile.baseUrl,
+        environment,
+        moduleEnvironmentVariable: 'WORKFLOW_E2E_PLATFORM_MODULE',
+        userEnvironmentVariable: 'WORKFLOW_E2E_PLATFORM_AUTHORIZED_USER',
+        passwordEnvironmentVariable: 'WORKFLOW_E2E_PLATFORM_AUTHORIZED_PASSWORD',
+        ignoreHTTPSErrors: currentPlan.profile.ignoreHttpsErrors
+      });
+      return initializeWorkflowContext(context, currentPlan);
+    },
     createClient,
     invoke: (requestOptions) => invokeNotes({ ...requestOptions, plan }),
-    readControl: ({ control, taskId, environment }) => queryFingerprint(control.query, taskId, environment, 'NOTES_E2E'),
-    writeEvidence
-  });
+    readControl: readWorkflowControl,
+      writeEvidence,
+      assertIntegrity: async (options) => {
+        await restoreGate();
+        await assertPlatformIntegrity(options);
+      }
+    });
+  } finally {
+    await restoreGate();
+  }
 }
 
 main().catch((error) => {
   const code = /^[A-Z0-9_]{3,120}$/.test(error?.code || '') ? error.code : 'E2E_PLATFORM_RUNNER_FAILED';
   console.error(`La plataforma E2E se detuvo de forma segura (${code}). No se mostraron valores sensibles.`);
+  if (typeof error?.diagnostic === 'string' && error.diagnostic) console.error(`LEGACY_FUNCTION_RESPONSE: ${error.diagnostic}`);
   process.exitCode = 2;
 });
 

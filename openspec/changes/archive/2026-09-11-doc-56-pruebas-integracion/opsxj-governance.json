@@ -1,0 +1,122 @@
+{
+  "version": 3,
+  "issueKey": "DOC-56",
+  "changeName": "doc-56-pruebas-integracion",
+  "impact": "cross_cutting",
+  "requiredEvidence": [
+    "unit",
+    "manual_qa"
+  ],
+  "documentation": [
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/01-ResumenTecnico.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/02-ImpactoUI.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/03-ServiciosYReglas.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/04-ContratosIntegracion.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/05-PruebasEvidencia.md"
+  ],
+  "documentationContract": [
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/01-ResumenTecnico.md",
+      "requiredSections": [
+        "## Objetivo implementado",
+        "## Fronteras preservadas"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-56",
+        "changeName": "doc-56-pruebas-integracion",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/02-ImpactoUI.md",
+      "requiredSections": [
+        "## Alcance",
+        "## Validación visual"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-56",
+        "changeName": "doc-56-pruebas-integracion",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/03-ServiciosYReglas.md",
+      "requiredSections": [
+        "## Frontera web",
+        "## Composición concreta"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-56",
+        "changeName": "doc-56-pruebas-integracion",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/04-ContratosIntegracion.md",
+      "requiredSections": [
+        "## Envelope v1",
+        "## SII efectivo"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-56",
+        "changeName": "doc-56-pruebas-integracion",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-56-pruebas-backend-evidencia/05-PruebasEvidencia.md",
+      "requiredSections": [
+        "## Validación local vigente",
+        "## E2E real del contrato"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-56",
+        "changeName": "doc-56-pruebas-integracion",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    }
+  ],
+  "refinement": {
+    "version": 1,
+    "required": true,
+    "path": "openspec/changes/doc-56-pruebas-integracion/refinement.md",
+    "state": "approved",
+    "taskOriginFormat": "Origen: D-XX, RQ-XX",
+    "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  }
+}

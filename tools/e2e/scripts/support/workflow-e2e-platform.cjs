@@ -12,7 +12,7 @@ const { validateProfile } = require('./workflow-e2e-platform-profile.cjs');
 const execute = promisify(execFile);
 const repositoryRoot = path.resolve(__dirname, '..', '..', '..', '..');
 const SENSITIVE_EVIDENCE = /passw(?:ord)?|pwd|cookie|token|secret|credential|credencial|connection|conexion|authorization|authorized|usuario|user|contenido|nota|request|response|mysql|odbc/i;
-const SAFE_CODE = /^(?:E2E_PLATFORM|E2E_RESOURCE|NOTES_READ|NOTES_ANONYMOUS|NOTES_WRITE|NOTES_CONCURRENCY)_[A-Z0-9_]{3,100}$/;
+const SAFE_CODE = /^(?:E2E_PLATFORM|E2E_RESOURCE|NOTES_READ|NOTES_ANONYMOUS|NOTES_WRITE|NOTES_CONCURRENCY|IMPORT_E2E)_[A-Z0-9_]{3,100}$/;
 const SAFE_STAGE_AUTHORIZATIONS = Object.freeze({
   anonymous: Object.freeze([]),
   read: Object.freeze([]),
@@ -29,15 +29,23 @@ const SECRET_ENVIRONMENT = Object.freeze({
 });
 
 class PlatformExecutionError extends Error {
-  constructor(code) {
+  constructor(code, diagnostic = '') {
     super(`La plataforma E2E detuvo la corrida de forma segura (${code}).`);
     this.name = 'PlatformExecutionError';
     this.code = code;
+    this.diagnostic = safeDiagnostic(diagnostic);
   }
 }
 
-function fail(code) {
-  throw new PlatformExecutionError(code);
+function fail(code, diagnostic = '') {
+  throw new PlatformExecutionError(code, diagnostic);
+}
+
+function safeDiagnostic(value) {
+  if (typeof value !== 'string') return '';
+  const text = value.replace(/[\r\n\t]+/g, ' ').trim().slice(0, 500);
+  if (/password|pwd|contrase(?:ña|na)|token|authorization|cookie|connection\s*string|cadena\s+de\s+conexi(?:ó|o)n|https?:\/\/[^\s]*\?/i.test(text)) return '';
+  return text;
 }
 
 function safeCode(error, fallback = 'E2E_PLATFORM_STAGE_FAILED') {
@@ -151,6 +159,14 @@ function validatePayload(adapter, operation, payload) {
   const keys = Object.keys(payload).sort();
   const expected = [...allowed.payload].sort();
   if (keys.length !== expected.length || keys.some((key, index) => key !== expected[index])) fail('E2E_PLATFORM_OPERATION_INVALID');
+  if (Object.hasOwn(payload, 'request')) {
+    const request = payload.request;
+    if (!request || typeof request !== 'object' || Array.isArray(request) || !Number.isSafeInteger(request.TaskId) || request.TaskId <= 0 ||
+        typeof request.OperationId !== 'string' || typeof request.CorrelationId !== 'string' || request.ProviderId !== 'INTEGRACIONSII') fail('E2E_PLATFORM_OPERATION_INVALID');
+    const serialized = JSON.stringify(request);
+    if (serialized.length > 32000 || /[\u0000]/.test(serialized) || /password|cookie|authorization|connectionString/i.test(serialized)) fail('E2E_PLATFORM_OPERATION_INVALID');
+    return;
+  }
   if (!Number.isSafeInteger(payload.idTarea) || payload.idTarea <= 0) fail('E2E_PLATFORM_OPERATION_INVALID');
   if (Object.hasOwn(payload, 'idNota') && (!Number.isSafeInteger(payload.idNota) || payload.idNota <= 0)) fail('E2E_PLATFORM_OPERATION_INVALID');
   if (Object.hasOwn(payload, 'cursor') && (typeof payload.cursor !== 'string' || payload.cursor.length > 160 || /[\r\n\u0000]/.test(payload.cursor))) fail('E2E_PLATFORM_OPERATION_INVALID');
@@ -312,11 +328,11 @@ async function executePlatformRun(options) {
       concurrentContext = await createSession({ browser, plan, environment });
       concurrentClient = await createClient({ context: concurrentContext, plan });
       const concurrentInvoke = createRestrictedInvoker({ adapter: plan.adapter, client: concurrentClient, invoke });
-      adapterResult = await handler({ invoke: restrictedInvoke, concurrentInvoke, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs });
+      adapterResult = await handler({ invoke: restrictedInvoke, concurrentInvoke, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs, profile: plan.profile });
     } else if (plan.scenario.stage === 'anonymous') {
       adapterResult = await handler({ invoke: restrictedInvoke, budgetMs: plan.profile.budgetMs });
     } else {
-      adapterResult = await handler({ invoke: restrictedInvoke, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs });
+      adapterResult = await handler({ invoke: restrictedInvoke, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs, profile: plan.profile });
     }
     after = await captureControls(plan.controls, plan, environment, readControl);
     if (!controlsMeetExpectation(plan, before, after)) fail(controlsFailureCode(plan));
@@ -365,7 +381,7 @@ async function executePlatformRun(options) {
   }
   if (failure) {
     if (failure instanceof PlatformExecutionError) throw failure;
-    fail(safeCode(failure));
+    fail(safeCode(failure), failure?.diagnostic || failure?.message);
   }
   return createSafeEvidence({ plan, result: adapterResult, before, after, failureCode: null, resourceEvents: lifecycle?.evidence?.() || [] });
 }

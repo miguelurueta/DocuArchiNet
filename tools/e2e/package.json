@@ -32,6 +32,7 @@
     "test:workflow:run": "node scripts/run-workflow-e2e.cjs",
     "test:workflow:runner": "node --test tests/workflow-e2e-orchestrator.test.cjs",
     "test:workflow:platform": "node scripts/run-workflow-e2e-platform.cjs",
+    "test:doc56:policy": "node --test tests/importar-servicio-web-modern.spec.cjs",
     "test:doc33:policy": "node --test tests/doc33-return-activity-ui-policy.test.cjs",
     "test:notes:anonymous": "node scripts/run-notes-workflow-interactive.cjs anonymous",
     "test:notes:read": "node scripts/run-notes-workflow-interactive.cjs read",

@@ -23,7 +23,13 @@ Public Interface IExternalImportProviderClient
                              ByVal cancellationToken As CancellationToken) As Task(Of GetPreviewResponseDto)
     Function DownloadAsync(ByVal externalKey As String,
                            ByVal correlationId As String,
-                           ByVal cancellationToken As CancellationToken) As Task(Of Byte())
+                           ByVal cancellationToken As CancellationToken,
+                           Optional ByVal intentId As String = Nothing,
+                           Optional ByVal clientItemId As String = Nothing,
+                           Optional ByVal operationId As String = Nothing,
+                           Optional ByVal taskId As Nullable(Of Long) = Nothing,
+                           Optional ByVal radicado As String = Nothing,
+                           Optional ByVal referenciaProveedor As String = Nothing) As Task(Of Byte())
 End Interface
 
 Public Interface IRegistroClientesProveedoresImportacion
@@ -79,7 +85,29 @@ Public Interface IImportExecutionStep
                       ByVal item As ResultadoElementoImportacion) As ResultadoFaseImportacion
 End Interface
 
+Public Interface IImportStorageMetadataRepository
+    Function Resolver(ByVal contexto As ContextoImportacionServicio) As MetadatosAlmacenamientoImportacion
+End Interface
+
+' Traduce la identidad TRD pública a la identidad contextual exigida por el almacenamiento legacy.
+Public Interface IImportDocumentTypeResolver
+    Function Resolver(ByVal contexto As ContextoImportacionServicio,
+                      ByVal idTipoDocumentalTrd As Integer,
+                      ByVal nombreTipoDocumental As String) As ResolucionTipoDocumentalImportacion
+End Interface
+
 Public Interface IImportIntentConcurrencyGuard
     Function Adquirir(ByVal contexto As ContextoImportacionServicio,
                       ByVal idempotencyKey As String) As ResultadoGuardIntencionImportacion
+End Interface
+
+Public Interface IExternalServiceAttemptRecorder
+    Sub Registrar(ByVal intento As IntentoServicioExterno)
+End Interface
+
+Public Interface IExternalServiceAvailabilityRepository
+    Function Consultar(ByVal providerId As String,
+                       ByVal operation As String,
+                       ByVal desdeUtc As DateTime,
+                       ByVal hastaUtc As DateTime) As DisponibilidadServicioExterno
 End Interface

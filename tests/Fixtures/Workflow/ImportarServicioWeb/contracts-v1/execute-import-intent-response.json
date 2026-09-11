@@ -4,19 +4,23 @@
   "correlationId": "corr-005",
   "intentId": "intent-001",
   "accepted": true,
-  "status": "Validada",
+  "status": "Completado",
   "versionToken": "v2",
   "items": [
     {
       "clientItemId": "item-001",
       "externalKey": "external-001",
-      "status": "Validada",
-      "documentId": null,
+      "status": "Disponible",
+      "documentId": 5001,
       "errorCode": null,
       "message": null,
       "persistenceKnown": true,
       "retryable": false,
-      "correlationId": "corr-005"
+      "correlationId": "corr-005",
+      "reachedPhase": "Completada",
+      "taskId": 219306,
+      "documentName": "constancia.pdf",
+      "contentType": "application/pdf"
     }
   ],
   "error": null

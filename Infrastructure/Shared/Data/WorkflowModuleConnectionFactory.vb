@@ -43,3 +43,11 @@ Public NotInheritable Class DocuarchiModuleConnectionFactory
         MyBase.New(connectionString, "Docuarchi")
     End Sub
 End Class
+
+Public NotInheritable Class RadicacionModuleConnectionFactory
+    Inherits ModuleSnapshotConnectionFactory
+
+    Public Sub New(ByVal connectionString As String)
+        MyBase.New(connectionString, "Radicacion")
+    End Sub
+End Class

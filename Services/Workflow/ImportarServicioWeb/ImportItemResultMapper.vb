@@ -4,7 +4,7 @@ Public NotInheritable Class ImportItemResultMapper
     Public Function Map(ByVal item As SnapshotItemReconciliacionImportacion, ByVal taskId As Long) As ImportItemResultDto
         If item Is Nothing Then Throw New ArgumentNullException("item")
         Dim consistency = Classify(item, taskId)
-        Dim dto As New ImportItemResultDto With {.ClientItemId=item.ClientItemId,.ExternalKey=item.ExternalKey,.DocumentId=item.IdDocumento,.TaskId=taskId,.ReachedPhase=item.Fase.ToString(),.PersistenceKnown=item.PersistenciaConocida,.CorrelationId=item.CorrelationId,.DocumentName=item.NombreDocumento,.ContentType=item.TipoContenido,.Retryable=False}
+        Dim dto As New ImportItemResultDto With {.ClientItemId=item.ClientItemId,.ExternalKey=item.ExternalKey,.DocumentId=item.IdDocumento,.TaskId=taskId,.ReachedPhase=item.Fase.ToString(),.PersistenceKnown=item.PersistenciaConocida,.CorrelationId=item.CorrelationId,.DocumentName=item.NombreDocumento,.ContentType=item.TipoContenido,.Retryable=item.Reintentable AndAlso item.PersistenciaConocida AndAlso Not item.IdDocumento.HasValue}
         Select Case consistency
             Case ConsistenciaDocumentoImportacion.Confirmado
                 dto.Status="Disponible" : dto.Message="Documento disponible."
@@ -17,7 +17,7 @@ Public NotInheritable Class ImportItemResultMapper
             Case ConsistenciaDocumentoImportacion.RelacionAusente
                 dto.Status="Inconsistente" : dto.ErrorCode="DOCUMENT_RELATION_MISSING" : dto.Message="La relación documental requiere revisión."
             Case Else
-                dto.Status=VisibleStatus(item.Fase) : dto.ErrorCode=SafeCode(item.CodigoError) : dto.Message=SafeMessage(item.MensajeVisible, item.Fase) : dto.Retryable=item.Reintentable AndAlso Not item.PersistenciaConocida
+                dto.Status=VisibleStatus(item.Fase) : dto.ErrorCode=SafeCode(item.CodigoError) : dto.Message=SafeMessage(item.MensajeVisible, item.Fase, dto.ErrorCode)
         End Select
         If dto.Status<>"Disponible" Then dto.DocumentId=Nothing : dto.DocumentName=Nothing : dto.ContentType=Nothing
         Return dto
@@ -50,7 +50,8 @@ Public NotInheritable Class ImportItemResultMapper
         If value.Length>64 OrElse Not Text.RegularExpressions.Regex.IsMatch(value,"^[A-Z0-9_]+$") Then Return "IMPORT_RECONCILIATION_ERROR"
         Return value
     End Function
-    Private Shared Function SafeMessage(ByVal value As String, ByVal phase As FaseImportacionServicio) As String
+    Private Shared Function SafeMessage(ByVal value As String, ByVal phase As FaseImportacionServicio, ByVal code As String) As String
+        If Not String.IsNullOrWhiteSpace(value) AndAlso Not String.IsNullOrWhiteSpace(code) AndAlso code.StartsWith("DOCUMENT_STORAGE_", StringComparison.Ordinal) Then Return value
         If phase=FaseImportacionServicio.FallidaAntesDePersistir Then Return "No fue posible completar la importación."
         If phase=FaseImportacionServicio.Detenida Then Return "La importación fue detenida."
         If phase=FaseImportacionServicio.Parcial Then Return "La importación se completó parcialmente."

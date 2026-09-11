@@ -1,0 +1,16 @@
+{
+  "scenarioId": "import-sii-concurrency",
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "module": "WORKFLOW REGISTRO",
+  "environment": "CERTIFICACION",
+  "odbcDsn": "workflowdocument",
+  "taskId": 219888,
+  "radicado": "S002188335",
+  "codigoBarras": "18221365",
+  "documentTypeId": 154,
+  "documentTypeName": "Constancia de inscripción",
+  "sampleSize": 1,
+  "concurrencyLevel": 2,
+  "budgetMs": 60000,
+  "ignoreHttpsErrors": true
+}

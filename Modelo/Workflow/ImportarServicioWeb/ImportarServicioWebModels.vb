@@ -11,6 +11,21 @@ Public NotInheritable Class ContextoIntencionImportacion
     Public Property IdRuta As Integer
     Public Property IdTramite As Integer
     Public Property ProviderId As String
+    Public Property Radicado As String
+End Class
+
+Public NotInheritable Class MetadatosAlmacenamientoImportacion
+    Public Property NombreRutaWorkflow As String
+    Public Property NombreGabinete As String
+    Public Property NombreClaseFormatoDocumento As String
+End Class
+
+Public NotInheritable Class ResolucionTipoDocumentalImportacion
+    Public Property Valida As Boolean
+    Public Property Codigo As String
+    Public Property IdTipoListaChequeo As Integer
+    Public Property IdTipoDocumentalTrd As Integer
+    Public Property NombreTipoDocumental As String
 End Class
 
 ' Modelos internos del núcleo de importación. No conocen DTOs ni infraestructura web.
@@ -70,7 +85,9 @@ End Class
 Public Class ComandoDocumentoImportacion
     Public Property ClientItemId As String
     Public Property IdentidadExterna As IdentidadExternaImportacion
+    ' Identidad canónica de tipo_doc_series; nunca es ID_TIPO_DOCUMENTAL_CHEQUEO.
     Public Property IdTipoDocumental As Nullable(Of Integer)
+    Public Property NombreTipoDocumental As String
     Public Property NombreArchivo As String
     Public Property TipoContenido As String
 End Class
@@ -91,6 +108,7 @@ Public Class ResultadoElementoImportacion
     Public Property IdentidadExterna As IdentidadExternaImportacion
     Public Property IdTareaDestino As Long
     Public Property IdTipoDocumental As Nullable(Of Integer)
+    Public Property NombreTipoDocumental As String
     Public Property NombreArchivo As String
     Public Property TipoContenido As String
     Public Property Fase As FaseImportacionServicio
@@ -100,6 +118,70 @@ Public Class ResultadoElementoImportacion
     Public Property PersistenciaConocida As Boolean
     Public Property Reintentable As Boolean
     Public Property CorrelationId As String
+    ' Estado efímero de una ejecución. Nunca se serializa ni se persiste en el repositorio.
+    Public Property ContenidoDescargado As Byte()
+    Public Property RutaArchivoPreparado As String
+    Public Property MetadatosSii As MetadatosDocumentoSii
+End Class
+
+Public NotInheritable Class MetadatosDocumentoSii
+    Public Property Libro As String
+    Public Property Registro As String
+    Public Property Duplicado As String
+    Public Property Fecha As String
+    Public Property Hora As String
+    Public Property UsuarioSii As String
+    Public Property Acto As String
+    Public Property NombreActo As String
+    Public Property Matricula As String
+    Public Property Proponente As String
+    Public Property RazonSocial As String
+    Public Property NitCedula As String
+    Public Property IdAnexo As String
+    Public Property TipoImagen As String
+    Public Property TipoAnexo As String
+    Public Property TipoSirep As String
+    Public Property TipoDigitalizacion As String
+    Public Property IdentificadorImagen As String
+    Public Property Formato As String
+    Public Property FechaDocumento As String
+    Public Property Origen As String
+    Public Property Observaciones As String
+End Class
+
+Public NotInheritable Class IntentoServicioExterno
+    Public Property ProviderId As String
+    Public Property Operacion As String
+    Public Property Exitoso As Boolean
+    Public Property CodigoError As String
+    Public Property CategoriaError As String
+    Public Property CodigoDependencia As String
+    Public Property MensajeDiagnostico As String
+    Public Property EstadoHttp As Nullable(Of Integer)
+    Public Property Reintentable As Boolean
+    Public Property TaskId As Nullable(Of Long)
+    Public Property Radicado As String
+    Public Property CodigoBarras As String
+    Public Property ReferenciaProveedor As String
+    Public Property IntentId As String
+    Public Property ClientItemId As String
+    Public Property OperationId As String
+    Public Property CorrelationId As String
+    Public Property FechaInicioUtc As DateTime
+    Public Property FechaFinUtc As DateTime
+    Public Property DuracionMs As Long
+End Class
+
+Public NotInheritable Class DisponibilidadServicioExterno
+    Public Property ProviderId As String
+    Public Property Operacion As String
+    Public Property DesdeUtc As DateTime
+    Public Property HastaUtc As DateTime
+    Public Property Total As Long
+    Public Property Exitosos As Long
+    Public Property Fallidos As Long
+    Public Property DisponibilidadPorcentaje As Decimal
+    Public Property LatenciaPromedioMs As Decimal
 End Class
 
 Public Enum ConsistenciaDocumentoImportacion
