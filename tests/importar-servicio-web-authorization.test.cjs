@@ -39,5 +39,12 @@ test("resuelve el tramite faltante desde tarea y ruta confiables del servidor", 
   const service = fs.readFileSync(path.join(root, "webservice/WebServiceImportarServicioWebModern.asmx.vb"), "utf8");
   assert.match(service, /Solicita_id_tipo_tramite_tarea_workflow\(\s*trustedTaskId, result\.Contexto\.IdRutaWorkflow, routeName, trustedProcedureId\)/);
   assert.match(service, /SERVER_PROCEDURE_UNAVAILABLE/);
+  assert.match(service, /SESSION_HTTP_CONTEXT_UNAVAILABLE/);
+  assert.match(service, /SESSION_WORKFLOW_USER_UNAVAILABLE/);
+  assert.match(service, /SESSION_WORKFLOW_GROUP_UNAVAILABLE/);
+  assert.match(service, /SESSION_WORKFLOW_ROUTE_UNAVAILABLE/);
+  assert.match(service, /SESSION_WORKFLOW_LOGIN_UNAVAILABLE/);
+  assert.match(service, /SESSION_WORKFLOW_CONNECTION_UNAVAILABLE/);
+  assert.match(service, /SESSION_CONTEXT_GATE_REJECTED/);
   assert.doesNotMatch(service, /request\.IdTramite|request\.ProcedureId/i);
 });

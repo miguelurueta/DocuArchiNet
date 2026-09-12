@@ -51,14 +51,46 @@ test('recuperación DOC-56 sólo consulta una intención opaca existente', async
   assert.equal(result.count, 1);
 });
 
+test('ejecución DOC-56 envía y confirma cuatro documentos en una sola intención', async () => {
+  const calls = [];
+  const externalItems = Array.from({ length: 4 }, (_, index) => ({
+    ExternalKey: `SII2.item-${index + 1}`, DisplayName: `documento-${index + 1}.pdf`, ContentType: 'application/pdf'
+  }));
+  const storedItems = externalItems.map((item, index) => ({
+    ExternalKey: item.ExternalKey, DocumentId: 1001 + index, Status: 'Disponible', PersistenceKnown: true
+  }));
+  const invoke = async (operation, payload) => {
+    calls.push({ operation, payload });
+    const responses = {
+      QueryItems: { Items: externalItems },
+      PreflightImport: { IsValid: true, Requirements: [] },
+      CreateImportIntent: { IntentId: '0123456789abcdef0123456789abcdef', VersionToken: 'v1' },
+      ExecuteImportIntent: { Items: storedItems, VersionToken: 'v2' },
+      GetImportIntent: { Items: storedItems, VersionToken: 'v2' },
+      ReconcileImportIntent: { Items: storedItems }
+    };
+    return { dto: responses[operation], elapsedMs: 5 };
+  };
+  const result = await IMPORTAR_SERVICIO_WEB_E2E_ADAPTER.executeExecution({
+    invoke, taskId: 219887, budgetMs: 1000,
+    profile: { scenarioId: 'import-sii-execution', codigoBarras: '18221381', radicado: 'S002188378', documentTypeId: 154, documentTypeName: 'Constancia de inscripción', sampleSize: 4 }
+  });
+  const preflight = calls.find(({ operation }) => operation === 'PreflightImport').payload.request;
+  const create = calls.find(({ operation }) => operation === 'CreateImportIntent').payload.request;
+  assert.equal(preflight.Items.length, 4);
+  assert.equal(create.Items.length, 4);
+  assert.equal(new Set(create.Items.map((item) => item.ExternalKey)).size, 4);
+  assert.equal(result.count, 4);
+});
+
 test('ejecución y concurrencia exigen confirmación documental reconciliada', () => {
   const source = fs.readFileSync(path.resolve(__dirname, '..', 'scripts', 'adapters', 'importar-servicio-web-e2e-adapter.cjs'), 'utf8');
-  assert.match(source, /function assertSingleStoredDocument[\s\S]*recovered\.length !== 1/);
+  assert.match(source, /function assertStoredDocuments[\s\S]*recovered\.length !== expectedCount/);
   assert.match(source, /IMPORT_E2E_STORED_DOCUMENT_STATUS_NOT_AVAILABLE_[\s\S]*IMPORT_E2E_STORED_DOCUMENT_ID_MISSING[\s\S]*IMPORT_E2E_STORED_DOCUMENT_PERSISTENCE_UNKNOWN/);
   assert.match(source, /safeLegacyDiagnostic/);
   const runner = fs.readFileSync(path.resolve(__dirname, '..', 'scripts', 'run-workflow-e2e-platform.cjs'), 'utf8');
   assert.match(runner, /LEGACY_FUNCTION_RESPONSE/);
-  assert.match(source, /executeExecution[\s\S]*GetImportIntent[\s\S]*assertSingleStoredDocument/);
+  assert.match(source, /executeExecution[\s\S]*GetImportIntent[\s\S]*assertStoredDocuments/);
   assert.match(source, /executeConcurrency[\s\S]*GetImportIntent[\s\S]*storedDocument: 'CONFIRMED'/);
 });
 
@@ -66,6 +98,7 @@ test('los perfiles DOC-56 contienen sólo ambiente, recurso y presupuestos no se
   const read = validateProfile(load('doc56-import-sii-read.profile.example.json'));
   const execution = validateProfile(load('doc56-import-sii-execution.profile.example.json'));
   const concurrency = validateProfile(load('doc56-import-sii-concurrency.profile.example.json'));
+  const multidocument = validateProfile(load('doc56-import-sii-multidocument.profile.example.json'));
   assert.equal(read.sampleSize, 1);
   assert.equal(read.module, 'WORKFLOW REGISTRO');
   assert.equal(execution.module, 'WORKFLOW REGISTRO');
@@ -85,7 +118,9 @@ test('los perfiles DOC-56 contienen sólo ambiente, recurso y presupuestos no se
   assert.equal(concurrency.documentTypeId, 154);
   assert.equal(concurrency.documentTypeName, 'Constancia de inscripción');
   assert.equal(concurrency.concurrencyLevel, 2);
-  for (const profile of [read, execution, concurrency]) {
+  assert.equal(multidocument.sampleSize, 3);
+  assert.equal(multidocument.taskId, 219887);
+  for (const profile of [read, execution, concurrency, multidocument]) {
     assert.ok(!Object.keys(profile).some((key) => /password|cookie|token|secret|sql|query|connection|user/i.test(key)));
   }
 });
@@ -97,7 +132,7 @@ test('adaptador DOC-56 declara ocho operaciones y no duplica infraestructura tra
   ]);
   const source = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'adapters', 'importar-servicio-web-e2e-adapter.cjs'), 'utf8');
   assert.match(source, /DocumentTypeId: documentTypeId, DocumentTypeName: documentTypeName/);
-  assert.match(source, /profile\.documentTypeId, profile\.documentTypeName, budgetMs, latencies/);
+  assert.match(source, /profile\.documentTypeId, profile\.documentTypeName, profile\.sampleSize, budgetMs, latencies/);
   assert.doesNotMatch(source, /require\(|createAuthenticatedWorkflowSession|queryFingerprint|promptSecret|ignoreHTTPSErrors|writeFile|setx/i);
 });
 

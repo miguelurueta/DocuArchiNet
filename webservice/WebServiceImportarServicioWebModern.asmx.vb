@@ -185,11 +185,44 @@ Public Class WebServiceImportarServicioWebModern
                                                   ByRef failureCode As String) As Boolean
         context = Nothing
         failureCode = "SESSION_CONTEXT_UNAVAILABLE"
+        Dim current = HttpContext.Current
+        If current Is Nothing OrElse current.Session Is Nothing Then
+            failureCode = "SESSION_HTTP_CONTEXT_UNAVAILABLE"
+            Return False
+        End If
+
+        'Captura únicamente presencia/validez antes de que el gate fail-closed
+        'pueda limpiar el contexto. Nunca expone valores ni conexiones.
+        Dim sessionUser As Integer = 0
+        Dim sessionGroup As Integer = 0
+        Dim sessionRoute As Integer = 0
+        Integer.TryParse(Convert.ToString(current.Session.Item("Id_Usuario_Workflow")), sessionUser)
+        Integer.TryParse(Convert.ToString(current.Session.Item("Id_Grupo_Workflow")), sessionGroup)
+        Integer.TryParse(Convert.ToString(current.Session.Item("Id_Ruta_Workflow")), sessionRoute)
+        Dim sessionLoginPresent = Not String.IsNullOrWhiteSpace(Convert.ToString(current.Session.Item("Login_Usuario_Workfow")))
+        Dim workflowConnectionPresent = Not String.IsNullOrWhiteSpace(Convert.ToString(current.Session.Item("IP_SERVER_MODULO"))) AndAlso
+                                        Not String.IsNullOrWhiteSpace(Convert.ToString(current.Session.Item("DB_NAME_MODULO"))) AndAlso
+                                        Not String.IsNullOrWhiteSpace(Convert.ToString(current.Session.Item("USER_DBMS_MODULO"))) AndAlso
+                                        Not String.IsNullOrWhiteSpace(Convert.ToString(current.Session.Item("PASW_DBMS_MODULO"))) AndAlso
+                                        String.Equals(Convert.ToString(current.Session.Item("TYPE_DBMS_MODULO")).Trim(), "mysql", StringComparison.OrdinalIgnoreCase)
         session = New WorkflowPreviewSessionContextGate().AsegurarContexto()
         Dim result = session
-        Dim current = HttpContext.Current
-        If result Is Nothing OrElse result.Contexto Is Nothing OrElse Not result.Contexto.EsValido() OrElse
-           current Is Nothing OrElse current.Session Is Nothing Then Return False
+        If result Is Nothing OrElse result.Contexto Is Nothing OrElse Not result.Contexto.EsValido() Then
+            If sessionUser <= 0 Then
+                failureCode = "SESSION_WORKFLOW_USER_UNAVAILABLE"
+            ElseIf sessionGroup <= 0 Then
+                failureCode = "SESSION_WORKFLOW_GROUP_UNAVAILABLE"
+            ElseIf sessionRoute <= 0 Then
+                failureCode = "SESSION_WORKFLOW_ROUTE_UNAVAILABLE"
+            ElseIf Not sessionLoginPresent Then
+                failureCode = "SESSION_WORKFLOW_LOGIN_UNAVAILABLE"
+            ElseIf Not workflowConnectionPresent Then
+                failureCode = "SESSION_WORKFLOW_CONNECTION_UNAVAILABLE"
+            Else
+                failureCode = "SESSION_CONTEXT_GATE_REJECTED"
+            End If
+            Return False
+        End If
 
         Dim trustedTaskId As Long
         Dim trustedProcedureId As Integer

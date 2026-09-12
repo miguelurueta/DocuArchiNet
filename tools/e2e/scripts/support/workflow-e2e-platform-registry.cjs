@@ -158,7 +158,7 @@ const SCENARIO_REGISTRY = Object.freeze({
     controls: Object.freeze(['import-intent-state', 'import-item-state', 'import-transition-audit']),
     controlExpectations: Object.freeze({ 'import-intent-state': 'changed', 'import-item-state': 'changed', 'import-transition-audit': 'changed' }),
     transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
-    expectations: Object.freeze(['real-sii', 'state-change', 'single-document', 'temporary-feature-gate', 'sanitized-evidence'])
+    expectations: Object.freeze(['real-sii', 'state-change', 'selected-documents', 'temporary-feature-gate', 'sanitized-evidence'])
   }),
   'import-sii-concurrency': Object.freeze({
     id: 'import-sii-concurrency', doc: 'doc56', stage: 'concurrency', adapterId: 'importar-servicio-web',
@@ -168,7 +168,7 @@ const SCENARIO_REGISTRY = Object.freeze({
     controls: Object.freeze(['import-intent-state', 'import-item-state', 'import-transition-audit']),
     controlExpectations: Object.freeze({ 'import-intent-state': 'changed', 'import-item-state': 'changed', 'import-transition-audit': 'changed' }),
     transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
-    expectations: Object.freeze(['real-sii', 'single-intent', 'single-document', 'version-conflict', 'temporary-feature-gate', 'sanitized-evidence'])
+    expectations: Object.freeze(['real-sii', 'single-intent', 'selected-documents', 'version-conflict', 'temporary-feature-gate', 'sanitized-evidence'])
   })
 });
 
