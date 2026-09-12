@@ -13,6 +13,7 @@ El contrato normativo, mapeo de estados, propiedad de la ejecución y orden cruz
 5. [`05-reconciliacion-lista-documentos.md`](05-reconciliacion-lista-documentos.md)
 6. [`06-adaptador-sii-compatibilidad-asmx.md`](06-adaptador-sii-compatibilidad-asmx.md)
 7. [`07-pruebas-backend-evidencia.md`](07-pruebas-backend-evidencia.md)
+8. [`08-creacion-vinculacion-expedientes-sii.md`](08-creacion-vinculacion-expedientes-sii.md)
 
 Cada prompt debe ejecutarse mediante un cambio OpenSpec propio o tareas atómicas trazables. Antes de implementar, debe resolver o registrar como bloqueo las preguntas abiertas que afecten su alcance; una suposición no puede convertirse silenciosamente en contrato productivo.
 
