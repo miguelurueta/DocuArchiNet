@@ -2,7 +2,9 @@
 
 ## Objetivo
 
-Documentar la exploración arquitectónica del flujo legacy y definir cómo debe incorporarse al flujo moderno de `ImportarServicioWeb` la creación, reutilización, vinculación y reconciliación de expedientes SII.
+Documentar la exploración arquitectónica del flujo legacy y definir cómo debe incorporarse al flujo moderno de `ImportarServicioWeb` la resolución, creación, reutilización, vinculación, actualización de índices y reconciliación de expedientes SII.
+
+La creación del expediente no se considera completa cuando únicamente existe un registro de expediente. Se considera completa cuando todos los documentos encontrados en el gabinete mediante `ENLASE = radicado SII` están vinculados exactamente al expediente que les corresponde, tienen actualizados `NITCEDULA`, `RAZONSOCIAL` y `MATRICULA`, forman parte del índice electrónico SQL y del XML, y una reconciliación independiente puede demostrar esos efectos.
 
 ## Diagnóstico ejecutivo
 
@@ -28,6 +30,8 @@ El flujo moderno actual no:
 - reconcilia la relación documento-expediente.
 
 Por tanto, una ejecución moderna puede finalizar satisfactoriamente y demostrar `documento → tarea`, sin demostrar `documento → expediente SII`.
+
+La caché legacy agrava la brecha en ejecuciones posteriores: un registro global por radicado puede impedir que se vuelvan a consultar y vincular documentos añadidos después. El flujo requerido debe ser incremental por documento y conservar el expediente ya resuelto.
 
 ## Evidencia del flujo moderno actual
 
@@ -146,7 +150,9 @@ Posteriormente ejecuta la vinculación y registra su caché.
 | Actualizar índices SII | Fase presente, lógica ausente |
 | Reconciliar documento-expediente | No implementado |
 
-## Flujo propuesto
+## Flujo preliminar sustituido
+
+> Este diagrama conserva el razonamiento inicial. Fue sustituido por el flujo consolidado siguiente porque ubicaba el plan de vinculación antes de almacenar los nuevos documentos y no modelaba la caché incremental por `IdImagen`.
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -328,6 +334,89 @@ Posteriormente ejecuta la vinculación y registra su caché.
                 Completada        Parcial      ResultadoIncierto
 ```
 
+## Flujo consolidado vigente
+
+El flujo conserva la entrada moderna y agrega coordinación a nivel de intención. La operación obligatoria es resolver los expedientes: reutilizarlos cuando existen o crearlos cuando faltan. Después de almacenar los items seleccionados se consulta nuevamente el universo documental mediante la única relación disponible: `NombreGabinete + ENLASE`.
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. CONSULTAR Y SELECCIONAR SII                             │
+│ Validar contexto y conservar inscripción → imágenes.        │
+└────────────────────────────────┬────────────────────────────────┘
+                               ▼
+┌────────────────────────────────────────────────────────────────┐
+│ 2. PREFLIGHT Y CREAR/RECUPERAR INTENCIÓN                 │
+│ Validar tarea, trámite, tipologías y claves; persistir lote.│
+└────────────────────────────────┬────────────────────────────────┘
+                               ▼
+┌───────────────────────────────────────────────────────────────┐
+│ 3. RESOLVER EXPEDIENTES SII — OBLIGATORIO                │
+│ Resolver configuración, gabinete, campos únicos y roles.    │
+│ Buscar por matrícula normalizada + gabinete.                 │
+└────────────────────────────────┬────────────────────────────────┘
+                               ▼
+                   ┌────────────────────┐
+                   │ ¿Existe y es válido?│
+                   └─────────┬──────────┘
+                       SÍ   │   NO
+             ┌───────────┴───────────┐
+             ▼                       ▼
+      Verificar y reutilizar      Crear expediente(s)
+             │                       │
+             │                       ▼
+             │               Verificar y cachear
+             └───────────┬───────────┘
+                       ▼
+┌───────────────────────────────────────────────────────────────┐
+│ 4. PLANIFICAR EXPEDIENTES                                 │
+│ Único: todos al mismo. Múltiple: primario/secundarios por│
+│ tipologías configuradas. Un solo destino por documento.      │
+└────────────────────────────────┬────────────────────────────────┘
+                               ▼
+┌───────────────────────────────────────────────────────────────┐
+│ 5. ALMACENAR ITEMS SII SELECCIONADOS                      │
+│ Descargar, validar, preparar, almacenar y obtener IdImagen.│
+└────────────────────────────────┬────────────────────────────────┘
+                               ▼
+┌───────────────────────────────────────────────────────────────┐
+│ 6. CONSULTAR UNIVERSO DOCUMENTAL ACTUAL                    │
+│ Única fuente: NombreGabinete WHERE ENLASE = RadicadoSII. │
+│ Incluye documentos previos y nuevos; deduplica por IdImagen.│
+└────────────────────────────────┬────────────────────────────────┘
+                               ▼
+┌──────────────────────────────────────────────────────────────┐
+│ 7. PROCESAR CADA DOCUMENTO                                │
+│ Caché: UNIQUE(IdTarea, IdImagen, NombreGabinete).         │
+│ Verificar siempre la relación física con IdExpediente.     │
+└────────────────────────────────┬────────────────────────────────┘
+                               ▼
+         ┌──────────────┼─────────────┐
+         ▼             ▼             ▼
+      Ausente          Correcta       Conflictiva/duplicada
+         │             │             │
+         ▼             ▼             ▼
+      Vincular       No revincular      Detener item
+         │             │
+         └──────┼─────┘
+                   ▼
+┌───────────────────────────────────────────────────────────────┐
+│ 8. VERIFICAR, CACHEAR Y ACTUALIZAR ÍNDICES              │
+│ Cachear solo relación confirmada. Actualizar NITCEDULA,     │
+│ RAZONSOCIAL y MATRICULA. Confirmar índice SQL y XML.      │
+└────────────────────────────────┬────────────────────────────────┘
+                               ▼
+┌───────────────────────────────────────────────────────────────┐
+│ 9. RECONCILIAR                                              │
+│ Documento + expediente + relación + caché + índices + XML.│
+└────────────────────────────────┬────────────────────────────────┘
+                               ▼
+          Completada / Parcial / ResultadoIncierto
+```
+
+### Comportamiento incremental
+
+En cada nueva ejecución se reutilizan los expedientes confirmados y se consulta de nuevo el gabinete por `ENLASE`. Un documento con caché se verifica y no se revincula; un `IdImagen` nuevo se vincula, se cachea y se indexa. Un sello corregido se conserva junto con el anterior y se procesa como documento adicional.
+
 ## Regla central
 
 ```text
@@ -347,20 +436,26 @@ Busca expediente de forma idempotente
     Existe            No existe
        │                 │
        ▼                 ▼
-   Reutilizar       ¿Creación autorizada?
-                         │
-                  ┌──────┴──────┐
-                  ▼             ▼
-                 Sí             No
-                  │             │
-                  ▼             ▼
-           Crear y cachear   Detener/aplicar regla
+ Verificar y         Crear, verificar
+ reutilizar          y cachear
+       └──────────┬──────────┘
+                  ▼
+       Almacenar items seleccionados
                   │
                   ▼
-           Vincular documentos
+       Consultar todos los documentos
+       por gabinete + ENLASE
                   │
                   ▼
-           Reconciliar relación
+       Vincular solo relaciones ausentes
+       y cachear por tarea + imagen + gabinete
+                  │
+                  ▼
+       Actualizar NITCEDULA, RAZONSOCIAL,
+       MATRICULA, índice SQL y XML
+                  │
+                  ▼
+           Reconciliar el conjunto
 ```
 
 ## Estados y códigos recomendados
@@ -413,14 +508,14 @@ Lote con resultados mixtos
 
 ## Recomendación arquitectónica
 
-La creación de expedientes debe ser una operación coordinada a nivel de intención o de inscripción, no un paso aislado por imagen. El modelo debe preservar la relación `inscripción → documentos` y generar antes del almacenamiento un plan explícito `documento → expediente`.
+La resolución de expedientes debe ser una operación coordinada a nivel de intención o de inscripción, no un paso aislado por imagen. Antes del almacenamiento se persiste el plan de expedientes; después del almacenamiento se consulta el universo actual por `ENLASE` y se genera el plan físico `IdImagen → expediente`.
 
 Las fases actuales deben corregirse:
 
 - `ExpedientePreparado` debe ejecutar resolución/creación real o cambiar de nombre a `ArchivoTemporalPreparado`.
 - `IndicesActualizados` debe ejecutar la actualización real antes de confirmar éxito.
-- `CacheActualizado` debe registrar y verificar las cachés SII antes de confirmar éxito.
-- `Completada` solo debe alcanzarse después de reconciliar documento, tarea, expediente, índices y caché.
+- `CacheActualizado` debe registrar la caché documental por `IdTarea + IdImagen + NombreGabinete` únicamente después de verificar la relación física.
+- `Completada` solo debe alcanzarse después de reconciliar documento, expediente, índices, caché e índice XML.
 
 ## Cobertura E2E requerida
 
@@ -435,7 +530,11 @@ La E2E debe incluir al menos:
 7. relación duplicada detectada;
 8. documento relacionado con otro expediente detectado;
 9. fallo después de crear expediente y antes de almacenar documento;
-10. reconciliación posterior de resultado incierto.
+10. reconciliación posterior de resultado incierto;
+11. segundo intento con el mismo radicado y un nuevo `IdImagen`;
+12. sello corregido conservando el sello anterior;
+13. caché documental existente con relación física ausente;
+14. índice XML ausente o desactualizado impide completar.
 
 ## Diagnóstico técnico de posible implementación
 
@@ -470,19 +569,21 @@ descargar → preparar archivo → marcador índices
 
 Por esta diferencia no es suficiente completar los pasos vacíos: se necesita coordinación a nivel de intención.
 
-### Componentes legacy reutilizables
+### Funciones legacy y estrategia de migración
 
 | Responsabilidad | Función legacy | Recomendación |
 |---|---|---|
-| Configuración del trámite | `SolicitaEstructuraTramite` | Encapsular en repositorio moderno |
-| Buscar expediente por matrícula | `SolicitaRegistroExpedienteMatricula` y caché | Reutilizar mediante puerto |
+| Configuración del trámite | `SolicitaEstructuraTramite` | Migrar a repositorio moderno |
+| Buscar expediente por matrícula | `SolicitaRegistroExpedienteMatricula` y `SolicitaCacheCreacionExpedienteSII` | Migrar; la caché solo localiza y el expediente real debe verificarse |
 | Obtener datos SII | `SolicitaEstructuraExpedienteSII` | Reutilizar temporalmente |
-| Crear expediente | `AutoRegistraExpedienteTramite` | Encapsular en adaptador |
-| Coordinar creación única/múltiple | `CreaExpedienteIntegracionSII` | Reutilizar la lógica, no el ASMX por HTTP |
-| Vincular documento | `VinculaDocumentoExpediente` | Encapsular como relación idempotente |
-| Registrar caché de creación | `RegistraCacheCreacionExpedienteSII` | Encapsular en repositorio |
-| Registrar caché de vinculación | `RegistraCahcheVinculacionSII` | Encapsular en repositorio |
-| Actualizar índices | `ActualizaIndiceDocumentoCacheExpediente` | Ejecutar realmente |
+| Crear expediente | `AutoRegistraExpedienteTramite` | Adaptador transitorio; migrar progresivamente sus escrituras |
+| Coordinar creación única/múltiple | `CreaExpedienteIntegracionSII` | Migrar sus reglas al coordinador; no invocar el ASMX |
+| Consultar documentos por `ENLASE` | `SolicitaListaImagenesGabineteEnlace` | Migrar a consulta parametrizada; `ENLASE` es la única pertenencia disponible |
+| Planificar expediente único/múltiple | `SolicitaDocumentosTareaWorkflowVinculacionUnicoExpedientesSII` y `SolicitaDocumentosTareaWorkflowVinculacionMultipleExpedientesSII` | Migrar reglas; no reutilizar directamente |
+| Vincular documento | `VinculaDocumentoExpediente` | Adaptador transitorio con precheck y postcheck; migrar progresivamente |
+| Registrar caché de creación | `RegistraCacheCreacionExpedienteSII` | Encapsular para compatibilidad; no usar como fuente de verdad |
+| Registrar caché de vinculación | `RegistraCahcheVinculacionSII` | Sustituir el control global por caché moderna por tarea, imagen y gabinete |
+| Actualizar índices SII | `ActualizaIndiceDocumentosSII`, `ActualizaIndiceDocumentoCacheExpediente` y `ActualizaIndiceDocumentoIntegracionSII` | Migrar; actualizar `NITCEDULA`, `RAZONSOCIAL` y `MATRICULA` |
 | Resolver expediente durante almacenamiento | `SolicitaEstructuraExpedienteDocumentoVinculante` | Mantener como compatibilidad |
 
 El flujo moderno no debe llamar los ASMX legacy mediante HTTP interno. Debe utilizar adaptadores que encapsulen directamente las clases existentes.
@@ -546,9 +647,9 @@ Sin estos datos no puede retomarse de manera segura una ejecución parcialmente 
 La intención protege el lote, pero no protege directamente estas identidades:
 
 ```text
-matrícula + gabinete + trámite → expediente
-documento + expediente → relación
-radicado + expediente → caché
+matrícula normalizada + gabinete → localización SII del expediente
+campos configurados estado_unico=1 → identidad física del expediente
+IdTarea + IdImagen + NombreGabinete → caché moderna de vinculación
 ```
 
 Todo reintento debe consultar primero el efecto real. Una respuesta perdida nunca debe provocar un segundo expediente o una segunda relación.
@@ -603,9 +704,14 @@ IImportDocumentExpedientRelationPort
 
 IImportExpedientCacheRepository
     ├── BuscarCreacion(...)
-    ├── RegistrarCreacion(...)
-    ├── BuscarVinculacion(...)
-    └── RegistrarVinculacion(...)
+    └── RegistrarCreacion(...)
+
+IImportRelatedDocumentRepository
+    └── BuscarPorEnlace(gabinete, radicadoSii)
+
+IImportDocumentLinkCacheRepository
+    ├── Buscar(taskId, imageId, gabinete)
+    └── RegistrarVerificada(taskId, imageId, gabinete, expedientId, radicadoSii)
 
 IImportDocumentIndexUpdater
     └── Actualizar(documentId, metadatosSii, expediente)
@@ -627,7 +733,7 @@ workflow_import_intent
     │     ├── expedient_status
     │     └── cache_status
     │
-    └── workflow_import_intent_item
+    ├── workflow_import_intent_item
           ├── inscription_key
           ├── document_id
           ├── expedient_id
@@ -635,9 +741,20 @@ workflow_import_intent
           ├── relation_status
           ├── index_status
           └── cache_status
+    │
+    └── workflow_import_related_document
+          ├── task_id
+          ├── image_id
+          ├── cabinet_name
+          ├── sii_radicado
+          ├── expected_expedient_id
+          ├── relation_status
+          ├── index_status
+          ├── xml_index_status
+          └── reconciliation_status
 ```
 
-Esto permite que varias imágenes pertenezcan a una inscripción y que varias inscripciones compartan o no un expediente.
+La caché documental usa `UNIQUE(task_id, image_id, cabinet_name)` y conserva además el expediente esperado y el radicado. No sustituye la relación física: una entrada cacheada siempre debe contrastarse con el estado real. El modelo permite que varias imágenes pertenezcan a una inscripción, que varias inscripciones compartan o no un expediente y que una segunda ejecución descubra nuevos `IdImagen`.
 
 ### Máquina de estados propuesta
 
@@ -652,17 +769,13 @@ ExpedientesPlanificados
   ↓
 ExpedientesResueltos
   ↓
-RecursoObtenido
+ItemsSiiAlmacenados
   ↓
-ArchivoTemporalPreparado
+UniversoDocumentalConsultado
   ↓
-DocumentoAlmacenado
+VinculacionesProcesadas
   ↓
-DocumentoVinculado
-  ↓
-IndicesActualizados
-  ↓
-CacheActualizado
+IndicesYXmlActualizados
   ↓
 Reconciliada
   ↓
@@ -688,17 +801,21 @@ Intención
 La secuencia de compatibilidad propuesta es:
 
 ```text
-1. Consultar SII y conservar inscripciones.
-2. Validar selección y tipologías.
-3. Consultar configuración del trámite.
-4. Buscar expediente y caché.
-5. Crear el expediente si corresponde y está ausente.
-6. Persistir el expediente resuelto en la intención.
-7. Descargar y almacenar cada documento.
-8. Vincular cada DocumentId al expediente planificado.
-9. Actualizar índices.
-10. Registrar caché de vinculación e inscripción.
-11. Reconciliar todos los efectos.
+1. Consultar SII y conservar inscripciones e imágenes.
+2. Validar selección y tipologías y crear o recuperar la intención.
+3. Consultar configuración del trámite y campos `estado_unico=1`.
+4. Buscar cada expediente por matrícula normalizada y gabinete y verificarlo físicamente.
+5. Crear únicamente los expedientes ausentes, incluidos primario y secundarios, verificarlos y registrar la caché de creación.
+6. Persistir el plan de expedientes resuelto en la intención.
+7. Descargar y almacenar los items SII seleccionados y obtener cada `IdImagen`.
+8. Consultar nuevamente todos los documentos del gabinete mediante `ENLASE = radicado SII`.
+9. Asignar un expediente único a cada documento según modo único o reglas de tipología para primario/secundarios.
+10. Por documento, consultar la caché moderna y verificar la relación física.
+11. Vincular únicamente relaciones ausentes; detener relaciones cruzadas o duplicadas.
+12. Registrar la caché documental solo después de confirmar la relación correcta.
+13. Actualizar `NITCEDULA`, `RAZONSOCIAL` y `MATRICULA` según gabinete.
+14. Confirmar el índice electrónico SQL y actualizar obligatoriamente el XML.
+15. Reconciliar todos los efectos y completar solo cuando todo el universo documental sea consistente.
 ```
 
 Si la creación legacy requiere documentos previos del trámite, el preflight debe comprobar esa condición antes de iniciar la saga.
@@ -722,15 +839,17 @@ Para cada documento debe comprobarse:
 ```text
 DocumentId existe exactamente una vez
         AND
-tarea relacionada = tarea esperada
+fue descubierto en el gabinete por ENLASE = radicado SII
         AND
 expediente relacionado = expediente esperado
         AND
 no existe relación con otro expediente
         AND
-índices corresponden a la inscripción
+NITCEDULA, RAZONSOCIAL y MATRICULA corresponden al gabinete
         AND
 caché apunta al mismo expediente
+        AND
+índice electrónico SQL y XML son consistentes
 ```
 
 La reconciliación y la E2E actuales solo comprueban existencia documental y relación con la tarea; no prueban expediente, índices ni caché.
@@ -743,14 +862,27 @@ La reconciliación y la E2E actuales solo comprueban existencia documental y rel
 - No existe atomicidad global.
 - La lógica cambia entre expediente único y múltiple.
 - Algunas decisiones utilizan exclusivamente `CIncripcionSII(0)`.
-- La caché actúa como control de repetición, pero se deben verificar sus restricciones únicas reales.
+- Las tablas legacy no tienen restricciones únicas que garanticen la idempotencia requerida.
 - En el caso múltiple, la tipología puede determinar el expediente destino, no solamente la inscripción.
+- La actualización del XML no participa en la transacción SQL y exige reconciliación.
 
-### Decisiones pendientes antes del prompt definitivo
+### Decisiones funcionales consolidadas
 
-1. Identificar todas las tablas y escrituras ejecutadas por `AutoRegistraExpedienteTramite`, `VinculaDocumentoExpediente` y las cachés.
-2. Confirmar las restricciones únicas existentes para expediente, caché y relación.
-3. Determinar si la importación debe fallar cuando el trámite exige expediente y este no puede crearse.
-4. Confirmar si los sellos importados también deben vincularse al expediente o si el legacy únicamente vincula documentos previos del trámite.
+1. La única forma disponible de descubrir los documentos relacionados es `NombreGabinete + ENLASE = radicado SII`; no existe otra relación física demostrable con la tarea.
+2. Un sello corregido se conserva junto con el anterior. El nuevo sello obtiene otro `IdImagen` y se procesa como documento adicional.
+3. La localización SII del expediente usa matrícula normalizada más gabinete. La identidad física se obtiene dinámicamente de los campos del auto-registro marcados `estado_unico=1`; no existe una lista fija universal.
+4. Las tablas legacy no tienen restricciones únicas aplicables a esta idempotencia. La caché moderna debe imponer `UNIQUE(task_id, image_id, cabinet_name)`.
+5. Los índices SII obligatorios son `NITCEDULA`, `RAZONSOCIAL` y `MATRICULA`:
+   - `MERCANTIL`: matrícula mercantil;
+   - `ESAL`: matrícula normalizada sin `S0`;
+   - `RUP`: número de proponente.
+6. El índice electrónico SQL y el archivo XML forman parte obligatoria de la condición de finalización.
+7. El alcance incluye expediente único y expedientes múltiples con primario y secundarios.
+8. Cuando el expediente obligatorio no pueda resolverse o crearse, la intención no puede continuar con el almacenamiento ni declararse completada.
 
-Estas comprobaciones son necesarias para producir un prompt de implementación cerrado que no introduzca duplicados, estados falsamente completados o dependencias accidentales de sesión.
+### Verificaciones técnicas previas a implementación
+
+1. Caracterizar con pruebas las escrituras de `AutoRegistraExpedienteTramite` y `VinculaDocumentoExpediente`, incluido el XML.
+2. Definir la migración SQL de la caché documental con su restricción única moderna.
+3. Corregir en el diseño moderno la diferencia legacy entre la matrícula usada al crear y la usada al recuperar expedientes secundarios.
+4. Precisar la consulta de reconciliación para índice SQL y archivo XML sin depender del retorno `YES` de la operación legacy.
