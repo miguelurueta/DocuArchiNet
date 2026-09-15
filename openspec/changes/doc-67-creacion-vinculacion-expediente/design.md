@@ -1,175 +1,246 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14 -->
 ## Context
 
-DOC-67: CREACION-VINCULACION-EXPEDIENTE
+DOC-67 extiende el flujo moderno de `ImportarServicioWeb` construido por los prompts backend 01–07. El flujo actual consulta SII, persiste una intención, procesa items secuencialmente y almacena documentos mediante `LegacyImportDocumentStorageAdapter`, pero no coordina explícitamente expedientes por inscripción, no demuestra la relación documento–expediente y mantiene pasos nominales para índices/caché.
 
-## Jira Details
+La capacidad equivalente existe distribuida entre JavaScript, ASMX y clases VB legacy. Sus funciones contienen reglas válidas y también dependencias de sesión, retornos ambiguos, ausencia de unicidad suficiente y efectos SQL/XML no atómicos. La modernización será aditiva bajo gate; véanse `proposal.md`, `refinement.md`, el prompt backend 08 y su exploración normativa.
 
-> # Implementar creación, vinculación e indexación de expedientes SII
-> 
-> ## Fuente normativa obligatoria
-> 
-> Antes de analizar, estimar o implementar este ticket, leer completo el siguiente prompt del repositorio:
-> 
-> ```text
-> Doc/Actualizacion/workflow/ImportarServicioWeb/PromptBackend/08-creacion-vinculacion-expedientes-sii.md
-> ```
-> 
-> Consultar también la exploración arquitectónica que lo sustenta:
-> 
-> ```text
-> Doc/Actualizacion/workflow/ImportarServicioWeb/Exploracion/implementacion-creacion-vinculacion-expedientes-sii.md
-> ```
-> 
-> Versión consolidada en `main`: commit `d26e9c3a`, PR `#66`.
-> 
-> El prompt completo del repositorio es la especificación normativa. Este texto de Jira es únicamente una ficha ejecutiva y no lo sustituye. Si existe contradicción, omisión o diferencia de detalle, prevalece el prompt versionado en el repositorio. Está prohibido implementar basándose solamente en este resumen.
-> 
-> ## Objetivo
-> 
-> Completar el flujo backend de importación SII para que, de manera secuencial e idempotente:
-> 
-> 1. resuelva o cree obligatoriamente los expedientes requeridos;
-> 2. almacene los items SII seleccionados;
-> 3. consulte el universo documental mediante `NombreGabinete + ENLASE = RadicadoSII`;
-> 4. asigne cada `IdImagen` a exactamente un expediente único, primario o secundario;
-> 5. vincule únicamente relaciones ausentes;
-> 6. registre caché persistente por documento;
-> 7. actualice `NITCEDULA`, `RAZONSOCIAL` y `MATRICULA` según el gabinete;
-> 8. confirme el índice electrónico SQL y su archivo XML;
-> 9. reconcilie todos los efectos antes de completar la intención.
-> 
-> El servicio no se considera multiplex. Los documentos deben procesarse uno por uno, conservando los efectos ya confirmados ante reintentos.
-> 
-> ## Reglas funcionales innegociables
-> 
-> - Crear o reutilizar expediente es obligatorio. Si no puede resolverse, no almacenar ni completar.
-> - `ENLASE` es la única forma disponible de descubrir los documentos relacionados con el radicado. No exigir otra relación física con la tarea.
-> - Un sello corregido no sustituye ni elimina el anterior; ambos deben conservarse y reconciliarse.
-> - Cubrir expediente único y múltiples expedientes, incluidos primario y secundarios.
-> - Localizar el expediente SII con matrícula normalizada y gabinete; verificar su identidad física mediante todos los campos configurados con `estado_unico=1`.
-> - La caché documental debe identificar `IdTarea + IdImagen + NombreGabinete`, guardar el expediente esperado y el radicado, y contar con protección única persistente.
-> - La caché no es fuente de verdad: antes de vincular o confirmar se debe consultar la relación física.
-> - No completar mientras SQL, XML, vínculo, expediente, caché o índices no estén reconciliados.
-> 
-> ## Migración obligatoria de funciones existentes
-> 
-> La implementación debe partir del comportamiento comprobado de las funciones legacy. No se autoriza una reimplementación paralela desde cero.
-> 
-> Caracterizar y definir individualmente el destino moderno de:
-> 
-> - `SolicitaEstructuraTramite`
-> - `SolicitaRegistroExpedienteMatricula`
-> - `SolicitaCacheCreacionExpedienteSII`
-> - `SolicitaEstructuraExpedienteSII`
-> - `AutoRegistraExpedienteTramite`
-> - `CreaExpedienteIntegracionSII`
-> - `SolicitaListaImagenesGabineteEnlace`
-> - `SolicitaDocumentosTareaWorkflowVinculacionUnicoExpedientesSII`
-> - `SolicitaDocumentosTareaWorkflowVinculacionMultipleExpedientesSII`
-> - `VinculaDocumentoExpediente`
-> - `RegistraCacheCreacionExpedienteSII`
-> - `RegistraCahcheVinculacionSII`
-> - `ActualizaIndiceDocumentosSII`
-> - `ActualizaIndiceDocumentoCacheExpediente`
-> - `ActualizaIndiceDocumentoIntegracionSII`
-> 
-> Para cada función registrar:
-> 
-> ```text
-> archivo/líneas y llamadores
-> → entradas explícitas e implícitas
-> → consultas, tablas, archivos y efectos
-> → regla reutilizada y defecto conocido
-> → migración directa | adaptador transitorio | reemplazo controlado
-> → componente moderno responsable
-> → prueba de caracterización y prueba equivalente
-> → estado final
-> ```
-> 
-> No aceptar agrupaciones genéricas como “se reutilizó la lógica legacy”. Los efectos físicos complejos pueden permanecer temporalmente detrás de puertos, pero requieren precondición, postcondición, idempotencia y reconciliación. Un retorno `YES` no demuestra por sí solo una vinculación correcta.
-> 
-> ## Compatibilidad y restricciones
-> 
-> - Implementación aditiva bajo el gate vigente.
-> - Con el gate apagado debe conservarse íntegramente el recorrido legacy.
-> - No modificar `workflow/ClassAlmacenamiento.vb` ni `AlmacenaDocumentoTareaWorkflow(...)`.
-> - No modificar ni redirigir consumidores de las funciones legacy protegidas.
-> - No invocar ASMX legacy mediante HTTP interno.
-> - No usar frontend o sesión como autoridad del expediente.
-> - No paralelizar documentos en esta primera versión.
-> - No introducir DDL productivo sin migración versionada, rollback y autorización.
-> - Mantener .NET Framework 4.6.1 y compatibilidad con el proyecto VB existente.
-> 
-> ## E2E: reutilización obligatoria
-> 
-> Leer `tools/e2e/AGENT-RUNBOOK.md` antes de preparar o ejecutar pruebas autenticadas.
-> 
-> Reutilizar y ampliar exclusivamente la plataforma DOC-56 existente:
-> 
-> - `import-sii-execution`
-> - `import-sii-retry`
-> - `import-sii-recovery`
-> - `import-sii-concurrency`
-> - `scripts/adapters/importar-servicio-web-e2e-adapter.cjs`
-> - `doc56-import-sii-execution.profile.example.json`
-> - `doc56-import-sii-multidocument.profile.example.json`
-> - registro, controles, autenticación, gate, TLS, recursos y evidencia de `workflow-e2e-platform`
-> 
-> No crear el escenario `import-sii-expedient-execution`, un runner, login, adaptador general, transporte ASMX, manejo de gate o generador de reportes paralelo. Agregar solamente campos de perfil, controles `SELECT` y verificadores que realmente falten.
-> 
-> Durante el desarrollo ejecutar primero pruebas Node focales. Reservar las E2E autenticadas y mutadoras para la validación final expresamente autorizada. No ejecutar toda la matriz si una evidencia existente ya demuestra la misma propiedad.
-> 
-> No ejecutar E2E real, carga ni activar el gate sin autorización explícita para ambiente, cuentas y recursos descartables. Todas las consultas de control deben ser `SELECT`. El gate debe quedar siempre en:
-> 
-> ```text
-> WorkflowCentroTrabajoModernActive=false
-> WorkflowCentroTrabajoModernUsers=
-> WorkflowCentroTrabajoModernGroups=
-> ```
-> 
-> ## Cierre obligatorio
-> 
-> No cerrar el ticket hasta demostrar:
-> 
-> - expediente existente reutilizado y expediente faltante creado idempotentemente;
-> - caso único y caso primario/secundarios;
-> - procesamiento secuencial de todos los documentos esperados;
-> - relación física correcta de cada `IdImagen` con un solo expediente;
-> - segundo intento sin duplicados y nuevo `IdImagen` procesado incrementalmente;
-> - sello anterior conservado cuando llega uno corregido;
-> - caché por documento consistente con la relación física;
-> - `NITCEDULA`, `RAZONSOCIAL`, `MATRICULA`, índice SQL y XML verificados;
-> - recuperación de fallos parciales sin repetir efectos confirmados;
-> - trazabilidad completa de todas las funciones legacy enumeradas;
-> - regresión legacy intacta con gate apagado;
-> - pruebas focales, integración, compilación y E2E autorizada con evidencia saneada;
-> - gate restaurado incluso ante fallo.
-> 
-> Entregar código, migraciones, matriz función–destino–prueba, documentación, diagramas, resultados reales y riesgos residuales como una sola unidad. Cualquier comprobación obligatoria pendiente, fallida o bloqueada impide declarar completa la implementación.
+Restricciones determinantes:
+
+- ASP.NET Web Forms/ASMX y VB.NET sobre .NET Framework 4.6.1.
+- MySQL, almacenamiento físico, índice electrónico SQL y XML sin transacción distribuida.
+- `workflow/ClassAlmacenamiento.vb`, `AlmacenaDocumentoTareaWorkflow(...)` y consumidores legacy protegidos no se modifican.
+- El contexto persistido gobierna; frontend y sesión no deciden expediente.
+- Ejecución secuencial documento por documento.
+- `ENLASE` es la única pertenencia documental demostrable disponible.
 
 ## Goals / Non-Goals
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+**Goals:**
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+- Coordinar resolución/creación de expedientes a nivel de intención e inscripción.
+- Preservar el agregado inscripción–documentos y soportar expediente único, primario y secundarios.
+- Procesar incrementalmente todo `IdImagen` descubierto por gabinete y `ENLASE`.
+- Hacer idempotentes y reconciliables creación, vínculo, caché, índices SQL y XML.
+- Migrar las reglas legacy comprobadas detrás de contratos modernos con trazabilidad por función.
+- Reutilizar la plataforma E2E DOC-56 existente.
+
+**Non-Goals:**
+
+- Reescribir o retirar el recorrido legacy.
+- Alterar `ClassAlmacenamiento` o redirigir sus consumidores.
+- Crear un ASMX interno, runner E2E, autenticación, gate o reporte paralelo.
+- Introducir paralelismo/multiplex, compensación destructiva de expedientes o una transacción distribuida ficticia.
+- Codificar una lista universal de campos únicos o aceptar el expediente enviado por cliente.
+
+## Architecture
+
+```text
+API/ASMX moderno
+  ↓ contexto autorizado e inmutable
+ImportServiceOrchestrator
+  ├─ agregado de inscripciones
+  ├─ ImportExpedientCoordinator
+  │    ├─ configuración/identidad
+  │    ├─ búsqueda/creación/verificación
+  │    └─ plan inscripción-tipología → expediente
+  ├─ almacenamiento secuencial → IdImagen
+  ├─ ImportRelatedDocumentCoordinator
+  │    ├─ consulta gabinete + ENLASE
+  │    ├─ plan físico IdImagen → expediente
+  │    ├─ relación + caché
+  │    └─ índices SQL/XML
+  └─ ServicioReconciliacionImportacion
+       └─ postcondiciones autoritativas
+```
+
+Los servicios de aplicación dependen de puertos modernos. Adaptadores de infraestructura encapsulan llamadas directas a clases legacy; nunca se invoca ASMX legacy por loopback HTTP.
+
+Puertos previstos, sujetos a las convenciones comprobadas del repositorio:
+
+- `IImportExpedientConfigurationRepository`
+- `ISiiExpedientSubjectResolver`
+- `IImportExpedientRepository`
+- `IImportDocumentExpedientRelationPort`
+- `IImportExpedientCacheRepository`
+- `IImportRelatedDocumentRepository`
+- `IImportDocumentLinkCacheRepository`
+- `IImportDocumentIndexUpdater`
+- `IImportElectronicIndexVerifier`
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Expediente como precondición obligatoria
 
+El coordinador busca y verifica un expediente existente o crea solamente el faltante antes de almacenar items. Si la configuración, identidad, creación o verificación no puede resolverse, la intención no avanza al almacenamiento.
+
+Alternativa descartada: almacenar primero y “completar después” el expediente. Deja documentos disponibles sin destino obligatorio y dificulta recuperación segura.
+
+### D-02 — Coordinación agregada por intención e inscripción
+
+Se introduce un agregado interno que conserva `inscriptionKey`, libro, registro, matrícula/proponente, identificación, razón social, propietario y documentos. `ImportExpedientCoordinator` trabaja una vez por intención/grupo de inscripción y persiste el plan lógico antes de almacenar.
+
+Alternativa descartada: ejecutar creación por imagen. Duplica consultas/efectos y pierde la semántica primario/secundario.
+
+### D-03 — Dos niveles de planificación
+
+Antes del almacenamiento se persiste `inscripción/tipología → expediente`. Después, con los identificadores físicos disponibles, se construye `IdImagen → expediente`. Tanto en modo único como múltiple cada imagen debe tener exactamente un destino; ambigüedad o ausencia bloquea el documento.
+
+Alternativa descartada: considerar definitivo el plan previo. No incluye nuevos `IdImagen` ni documentos ya existentes descubiertos por enlace.
+
+### D-04 — Localización funcional separada de identidad física
+
+La localización SII usa matrícula normalizada más gabinete. La confirmación del expediente compara dinámicamente todos los campos configurados con `estado_unico=1`. La normalización mantiene reglas distintas para MERCANTIL, ESAL y RUP y debe ser simétrica en creación/recuperación, incluidos secundarios.
+
+Alternativa descartada: identidad fija codificada o caché como autoridad. La configuración cambia por trámite/gabinete y el legacy no ofrece unicidad suficiente.
+
+### D-05 — Universo documental posterior por ENLASE
+
+Tras almacenar los items seleccionados, `IImportRelatedDocumentRepository` consulta nuevamente `NombreGabinete + ENLASE = RadicadoSII` y deduplica por `IdImagen`. Esa consulta constituye el universo a planificar y reconciliar; `IdTarea` permanece como contexto/caché, no como relación física adicional inventada.
+
+Alternativa descartada: procesar únicamente los items recién almacenados. Omite documentos previos y correcciones posteriores.
+
+### D-06 — Correcciones aditivas
+
+Un sello corregido obtiene otro `IdImagen`; no anula ni sustituye físicamente el anterior. Una nueva ejecución reutiliza expediente y efectos confirmados y procesa únicamente documentos nuevos o pendientes.
+
+Alternativa descartada: borrar o marcar sustituido el sello previo, porque la decisión funcional exige conservar ambos.
+
+### D-07 — Caché documental como diario, no autoridad
+
+La persistencia moderna impone unicidad por `(task_id,image_id,cabinet_name)` y conserva `expected_expedient_id`, `sii_radicado`, estado y fechas de verificación. Toda lectura de caché se contrasta con la relación física; una discrepancia es conflicto y no se sobrescribe silenciosamente. Se escribe solo después de verificar el vínculo.
+
+Alternativa descartada: reutilizar la caché global por radicado. Puede ocultar documentos agregados en ejecuciones posteriores.
+
+### D-08 — Vinculación con precheck y postcheck
+
+Por documento se consulta primero la relación física. Una relación correcta se conserva, una ausente se crea mediante adaptador y se verifica, y una duplicada/cruzada detiene la finalización con código seguro. El retorno textual `YES` nunca confirma por sí solo el destino.
+
+Alternativa descartada: invocar siempre el mutador o confiar en su texto de retorno; ambos permiten dobles relaciones o falsos positivos.
+
+### D-09 — Índices reales y finalización SQL/XML
+
+`IImportDocumentIndexUpdater` materializa `NITCEDULA`, `RAZONSOCIAL` y `MATRICULA` según gabinete. `IImportElectronicIndexVerifier` comprueba de forma independiente índice electrónico SQL y archivo XML. `IndicesYXmlActualizados` solo se confirma si ambos efectos coinciden.
+
+Alternativa descartada: conservar `PrepareImportIndicesExecutionStep` como marcador o aceptar SQL sin XML.
+
+### D-10 — Saga persistente y ResultadoIncierto
+
+No se intenta una transacción global. Después de cada efecto se verifica su postcondición y se persiste el estado. Un reintento continúa desde el último efecto demostrado. Expedientes ya creados no se compensan destructivamente. Una respuesta perdida o discrepancia no demostrable produce `ResultadoIncierto` y reconciliación antes de mutar nuevamente.
+
+Estados de intención:
+
+```text
+Creada → Validada → ExpedientesPlanificados → ExpedientesResueltos
+→ ItemsSiiAlmacenados → UniversoDocumentalConsultado
+→ VinculacionesProcesadas → IndicesYXmlActualizados
+→ Reconciliada → Completada
+```
+
+Se conservan estados por item para descarga/preparación/almacenamiento y por documento relacionado para descubrimiento, destino, consulta de relación, vínculo, índices, XML y reconciliación. `Parcial` representa resultados mixtos confirmados.
+
+### D-11 — Migración gobernada por función legacy
+
+Cada función enumerada en `refinement.md` debe registrar archivo/llamadores, entradas explícitas e implícitas, SQL/tablas/archivos, efectos, defecto conocido, disposición, componente moderno, caracterización y prueba equivalente.
+
+Orden:
+
+1. migrar lecturas/reglas deterministas (configuración, identidad, ENLASE, clasificación);
+2. encapsular temporalmente mutaciones complejas (creación, vínculo, SQL/XML);
+3. reemplazar controles insuficientes (caché global) manteniendo compatibilidad demostrada;
+4. migrar progresivamente adaptadores cuando exista equivalencia comprobada.
+
+Alternativas descartadas: copiar cuerpos completos, llamarlos ciegamente o reimplementar desde cero. Las tres pierden control sobre sesión, efectos laterales o reglas duplicadas.
+
+### D-12 — Extensión mínima de E2E DOC-56
+
+Las 18 aserciones se distribuyen entre `import-sii-execution`, `import-sii-retry`, `import-sii-recovery` e `import-sii-concurrency`. Se reutilizan runner, adaptador, perfiles, sesión, gate, TLS, ciclo de recursos, controles y evidencia. Solo se agregan campos/controles/verificadores faltantes para expedientes, vínculos, caché e índices SQL/XML.
+
+Alternativa descartada: `import-sii-expedient-execution` o infraestructura paralela; aumenta costo y duplica seguridad ya resuelta.
+
+### D-13 — Contexto explícito e inmutable
+
+Tarea, ruta, gabinete, empresa y actor se resuelven en servidor y se persisten con la intención. Los reintentos usan ese contexto; la sesión valida que el actor siga autorizado. Si un adaptador legacy requiere sesión, compara sus valores con el contexto y nunca altera sesión para fabricar coincidencia.
+
+Alternativa descartada: usar `ID_TAREA_SELECCIONDA` u otras globales como autoridad mutable.
+
+### D-14 — Convivencia aditiva bajo gate
+
+El recorrido moderno se habilita con el gate vigente y el fallback legacy permanece intacto. No se modifican funciones/consumidores protegidos. Estados, DTO, fixtures y mapeos se versionan cuando cambie su semántica. El gate debe restaurarse a `false`, con usuarios y grupos vacíos, incluso ante fallo de E2E.
+
+Alternativa descartada: redirigir consumidores legacy al coordinador nuevo; amplía el radio de regresión y puede duplicar operaciones.
+
+## Persistence and consistency
+
+El modelo lógico añade o amplía:
+
+```text
+workflow_import_inscription
+  intent_id, inscription_key, datos SII,
+  expedient_id, expedient_role, expedient_status, cache_status
+
+workflow_import_intent_item
+  inscription_key, document_id, expedient_id,
+  storage_status, relation_status, index_status, cache_status
+
+workflow_import_related_document
+  intent_id, task_id, image_id, cabinet_name, sii_radicado,
+  expected_expedient_id, relation_status, index_status,
+  xml_index_status, reconciliation_status
+
+workflow_import_document_link_cache
+  task_id, image_id, cabinet_name, expected_expedient_id,
+  sii_radicado, relation_status, created_utc, verified_utc
+  UNIQUE(task_id,image_id,cabinet_name)
+```
+
+Los nombres físicos finales deben respetar convenciones/migraciones existentes. Todo DDL se entrega como migración versionada con rollback. La unicidad se implementa en persistencia o mediante escritura condicionada autoritativa demostrable; un `If` en memoria no basta.
+
+## Reconciliation contract
+
+Por cada documento descubierto mediante gabinete+`ENLASE`, la reconciliación confirma:
+
+```text
+documento existe exactamente una vez
+AND expediente relacionado = esperado
+AND no hay relación con otro expediente
+AND NITCEDULA, RAZONSOCIAL y MATRICULA corresponden
+AND caché apunta al expediente esperado
+AND índice electrónico SQL es consistente
+AND archivo XML es consistente
+```
+
+Los resultados seguros distinguen configuración/expediente ausente, creación fallida o incierta, relación ausente/duplicada/conflictiva, consulta documental fallida, conflicto de caché e índice SQL/XML fallido o incierto. Nunca exponen SQL, rutas, respuestas SII crudas, secretos ni excepciones internas.
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+- [Efectos legacy no caracterizados] → bloquear la mutación afectada hasta documentar SQL, archivos, retornos y postcondiciones.
+- [Dependencia de `HttpContext.Session`] → puertos libres de sesión y adaptador que contrasta contexto persistido.
+- [Creación y respuesta perdida] → búsqueda por identidad/caché y verificación física antes de recrear.
+- [Relación `YES` ambigua] → precheck/postcheck autoritativos.
+- [SQL confirmado y XML fallido] → estados separados, `ResultadoIncierto` y reconciliación.
+- [Reglas distintas de matrícula secundaria] → un normalizador compartido para creación y recuperación, probado por gabinete.
+- [Sin unicidad legacy] → índice único moderno y manejo explícito de conflicto concurrente.
+- [E2E costosa] → pruebas Node focales durante desarrollo y escenarios autenticados solo para evidencia distinta y autorizada.
+- [Cambio semántico de estados] → versionar contratos/fixtures y conservar compatibilidad con consumidores existentes.
 
 ## Migration Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+1. Completar caracterización y matriz por función antes de código mutador.
+2. Introducir migraciones persistentes versionadas y sus rollbacks.
+3. Extender modelos, DTO y repositorios conservando compatibilidad.
+4. Implementar coordinador de expedientes y plan lógico bajo gate.
+5. Mantener almacenamiento secuencial existente y capturar `IdImagen`.
+6. Implementar descubrimiento por `ENLASE`, plan físico y vinculación verificada.
+7. Implementar caché documental e índices SQL/XML con postcondiciones.
+8. Extender reconciliación y recuperación de la saga.
+9. Ejecutar caracterización, unitarias, integración y compilación.
+10. Extender/reutilizar E2E DOC-56; ejecutar únicamente con autorización y evidencia saneada.
+11. Desplegar inicialmente con gate apagado; habilitar alcance controlado y observar reconciliación.
 
-## Open Questions
+Rollback:
 
-- TBD
+- Deshabilitar el gate restaura el recorrido legacy sin borrar expedientes/documentos ya confirmados.
+- Revertir binarios y contratos modernos compatibles.
+- Aplicar rollback versionado de nuevas tablas/índices solo después de conservar/exportar evidencia necesaria y confirmar que no hay ejecución activa.
+- No borrar automáticamente expedientes, relaciones o documentos como compensación.
