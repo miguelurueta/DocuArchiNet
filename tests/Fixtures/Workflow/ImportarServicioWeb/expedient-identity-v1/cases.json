@@ -1,0 +1,11 @@
+[
+  {"case":"mercantil-primary","cabinet":"MERCANTIL","enrollment":"001234","proponent":"","query":"1234","persisted":"1234","valid":true},
+  {"case":"mercantil-secondary-alphanumeric","cabinet":"mercantil","enrollment":"AB009876X","proponent":"","query":"9876","persisted":"9876","valid":true},
+  {"case":"esal-legacy-prefix","cabinet":"ESAL","enrollment":"90001234","proponent":"","query":"90001234","persisted":"90001234","valid":true},
+  {"case":"esal-query-prefix","cabinet":"esal","enrollment":"S01234","proponent":"","query":"1234","persisted":"1234","valid":true},
+  {"case":"esal-secondary","cabinet":"ESAL","enrollment":"S00999","proponent":"","query":"999","persisted":"999","valid":true},
+  {"case":"rup-primary","cabinet":"RUP","enrollment":"ignored","proponent":"000567","query":"567","persisted":"567","valid":true},
+  {"case":"rup-alphanumeric","cabinet":"RUP","enrollment":"","proponent":"RP000567A","query":"567","persisted":"567","valid":true},
+  {"case":"zero-only-invalid","cabinet":"MERCANTIL","enrollment":"A000","proponent":"","query":"","persisted":"","valid":false},
+  {"case":"unknown-cabinet","cabinet":"ARCHIVE","enrollment":"123","proponent":"","query":"","persisted":"","valid":false}
+]

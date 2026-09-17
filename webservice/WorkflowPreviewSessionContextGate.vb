@@ -260,7 +260,9 @@ Public NotInheritable Class WorkflowPreviewSessionContextGate
         Integer.TryParse(Convert.ToString(requestContext.Session.Item("Id_Usuario_Workflow")), contexto.IdUsuarioWorkflow)
         Integer.TryParse(Convert.ToString(requestContext.Session.Item("Id_Grupo_Workflow")), contexto.IdGrupoWorkflow)
         Integer.TryParse(Convert.ToString(requestContext.Session.Item("Id_Ruta_Workflow")), contexto.IdRutaWorkflow)
+        contexto.NombreRutaWorkflow = Convert.ToString(requestContext.Session.Item("WF_RUTAWORKFLOW")).Trim()
         Integer.TryParse(Convert.ToString(requestContext.Session.Item("GA_IDUSUARIOGESTION")), contexto.IdUsuarioGestion)
+        Integer.TryParse(Convert.ToString(requestContext.Session.Item("GA_IDEMPRESA")), contexto.IdEmpresaGestion)
         contexto.LoginUsuario = Convert.ToString(requestContext.Session.Item("Login_Usuario_Workfow")).Trim()
         Return contexto
     End Function

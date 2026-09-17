@@ -1,0 +1,15 @@
+{
+  "provider": {
+    "codigoerror": "0000",
+    "mensajeerror": "",
+    "inscripciones": [
+      {"libro":"RM15","registro":"900001","matricula":"400001","proponente":"","identificacion":"900000001","nombre":"SOCIEDAD UNO","imagenes":[{"idanexo":"A1"},{"idanexo":"A2"}]},
+      {"libro":"RM20","registro":"900002","matricula":"400002","proponente":"","identificacion":"900000002","nombre":"SOCIEDAD DOS","imagenes":[{"idanexo":"B1"}]}
+    ]
+  },
+  "selected": [
+    {"clientItemId":"item-a1","book":"RM15","registration":"900001","attachment":"A1"},
+    {"clientItemId":"item-a2","book":"RM15","registration":"900001","attachment":"A2"},
+    {"clientItemId":"item-b1","book":"RM20","registration":"900002","attachment":"B1"}
+  ]
+}

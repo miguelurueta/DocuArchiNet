@@ -6,11 +6,22 @@ Public NotInheritable Class ImportServiceOrchestrator
     Private ReadOnly _repository As IImportIntentRepository
     Private ReadOnly _machine As ImportIntentStateMachine
     Private ReadOnly _steps As IList(Of IImportExecutionStep)
+    Private ReadOnly _expedientCoordinator As ImportExpedientCoordinator
+    Private ReadOnly _relatedDocumentCoordinator As ImportRelatedDocumentCoordinator
 
     Public Sub New(ByVal validator As ValidadorContextoImportacion, ByVal repository As IImportIntentRepository,
                    ByVal machine As ImportIntentStateMachine, ByVal steps As IList(Of IImportExecutionStep))
+        Me.New(validator, repository, machine, steps, Nothing, Nothing)
+    End Sub
+
+    Public Sub New(ByVal validator As ValidadorContextoImportacion, ByVal repository As IImportIntentRepository,
+                   ByVal machine As ImportIntentStateMachine, ByVal steps As IList(Of IImportExecutionStep),
+                   ByVal expedientCoordinator As ImportExpedientCoordinator,
+                   ByVal relatedDocumentCoordinator As ImportRelatedDocumentCoordinator)
         If validator Is Nothing OrElse repository Is Nothing OrElse machine Is Nothing OrElse steps Is Nothing Then Throw New ArgumentNullException("dependency")
         _validator = validator : _repository = repository : _machine = machine : _steps = steps
+        _expedientCoordinator = expedientCoordinator
+        _relatedDocumentCoordinator = relatedDocumentCoordinator
     End Sub
 
     Public Function Execute(ByVal contexto As ContextoImportacionServicio, ByVal request As ExecuteImportIntentRequestDto) As ExecuteImportIntentResponseDto
@@ -19,7 +30,20 @@ Public NotInheritable Class ImportServiceOrchestrator
         If request Is Nothing OrElse Not validacion.Valido Then Return ErrorExecute(response, If(request Is Nothing, "INVALID_REQUEST", validacion.Codigo), "No fue posible iniciar la ejecución.")
         Dim intent = _repository.Obtener(contexto, request.IntentId)
         If intent Is Nothing Then Return ErrorExecute(response, "INTENT_NOT_FOUND", "La intención no está disponible.")
+        Dim persistedContextValidation = _validator.Validar(contexto, intent.ContextoOriginal)
+        If Not persistedContextValidation.Valido Then Return ErrorExecute(response, persistedContextValidation.Codigo, persistedContextValidation.MensajeVisible)
         If Not String.Equals(intent.VersionToken, request.VersionToken, StringComparison.Ordinal) Then Return ErrorExecute(response, "VERSION_CONFLICT", "La intención cambió; consulte su estado.")
+        Dim expedientPlan As PlanExpedienteImportacion = Nothing
+        If _expedientCoordinator IsNot Nothing Then
+            expedientPlan = _expedientCoordinator.Resolver(contexto, intent)
+            If expedientPlan Is Nothing OrElse expedientPlan.Estado <> EstadoEfectoExpedienteImportacion.Confirmado Then
+                Dim code = If(expedientPlan Is Nothing OrElse String.IsNullOrWhiteSpace(expedientPlan.Codigo), "EXPEDIENT_DESTINATION_UNRESOLVED", expedientPlan.Codigo)
+                Return ErrorExecute(response, code, "No fue posible resolver el expediente de todos los documentos.")
+            End If
+            If Not _repository.PersistirPlanExpedientes(contexto, intent, expedientPlan) Then
+                Return ErrorExecute(response, "EXPEDIENT_PLAN_NOT_PERSISTED", "No fue posible conservar el plan de expedientes.")
+            End If
+        End If
         intent.DetencionSolicitada = request.StopRequested
         response.IntentId = intent.Id
         For Each item In intent.Resultados
@@ -53,8 +77,55 @@ Public NotInheritable Class ImportServiceOrchestrator
             If intent.DetencionSolicitada Then ImportItemResultFactory.Detenido(item)
             response.Items.Add(MapItem(item))
         Next
+        'Una detención solicitada es un checkpoint recuperable, no un fallo documental.
+        'Los relacionados sólo pueden procesarse después de que todos los items estén almacenados.
+        If intent.DetencionSolicitada Then
+            response.Items.Clear()
+            For Each item In intent.Resultados : response.Items.Add(MapItem(item)) : Next
+            response.Accepted = True
+            response.Status = AggregateStatus(intent).ToString()
+            response.VersionToken = intent.VersionToken
+            Return response
+        End If
+        If _relatedDocumentCoordinator IsNot Nothing AndAlso expedientPlan IsNot Nothing Then
+            If Not AllItemsStored(intent) Then
+                Return ErrorExecute(response, "RELATED_DOCUMENTS_WAITING_FOR_STORAGE", "No fue posible procesar los documentos relacionados.")
+            End If
+            Dim cabinet = If(expedientPlan.Inscripciones.Count = 0, String.Empty, expedientPlan.Inscripciones(0).NombreGabinete)
+            Dim radicado = If(intent.ContextoOriginal Is Nothing, String.Empty, intent.ContextoOriginal.Radicado)
+            Dim documentPlan = _relatedDocumentCoordinator.Procesar(contexto, intent, expedientPlan, cabinet, radicado)
+            If documentPlan Is Nothing OrElse documentPlan.Estado <> EstadoEfectoExpedienteImportacion.Confirmado Then
+                Dim code = If(documentPlan Is Nothing OrElse String.IsNullOrWhiteSpace(documentPlan.Codigo), "RELATED_DOCUMENTS_NOT_CONFIRMED", documentPlan.Codigo)
+                Return ErrorExecute(response, code, "No fue posible confirmar todos los documentos relacionados.")
+            End If
+            For Each item In intent.Resultados
+                'El plan físico confirmado es la autoridad para cerrar los efectos agregados
+                'del item. Deben persistirse antes de Reconciliada/Completada.
+                item.EstadoRelacion = EstadoEfectoExpedienteImportacion.Confirmado
+                item.EstadoIndice = EstadoEfectoExpedienteImportacion.Confirmado
+                item.EstadoCache = EstadoEfectoExpedienteImportacion.Confirmado
+                If item.Fase <> FaseImportacionServicio.Reconciliada AndAlso item.Fase <> FaseImportacionServicio.Completada AndAlso
+                   Not Avanzar(contexto, intent, item, FaseImportacionServicio.Reconciliada, request.CorrelationId) Then
+                    Return ErrorExecute(response, "VERSION_CONFLICT", "La intención cambió; consulte su estado.")
+                End If
+                If item.Fase <> FaseImportacionServicio.Completada AndAlso
+                   Not Avanzar(contexto, intent, item, FaseImportacionServicio.Completada, request.CorrelationId) Then
+                    Return ErrorExecute(response, "VERSION_CONFLICT", "La intención cambió; consulte su estado.")
+                End If
+            Next
+        End If
+        response.Items.Clear()
+        For Each item In intent.Resultados : response.Items.Add(MapItem(item)) : Next
         response.Accepted = True : response.Status = AggregateStatus(intent).ToString() : response.VersionToken = intent.VersionToken
         Return response
+    End Function
+
+    Private Shared Function AllItemsStored(ByVal intent As IntencionImportacionServicio) As Boolean
+        If intent Is Nothing OrElse intent.Resultados Is Nothing OrElse intent.Resultados.Count = 0 Then Return False
+        For Each item In intent.Resultados
+            If item Is Nothing OrElse Not item.IdDocumento.HasValue OrElse item.IdDocumento.Value <= 0 Then Return False
+        Next
+        Return True
     End Function
 
     Private Shared Function EsReintentoSeguro(ByVal item As ResultadoElementoImportacion) As Boolean
@@ -73,6 +144,7 @@ Public NotInheritable Class ImportServiceOrchestrator
         If request Is Nothing OrElse Not validacion.Valido Then Return ErrorGet(response, If(request Is Nothing, "INVALID_REQUEST", validacion.Codigo))
         Dim intent = _repository.Obtener(contexto, request.IntentId)
         If intent Is Nothing Then Return ErrorGet(response, "INTENT_NOT_FOUND")
+        If Not _validator.Validar(contexto, intent.ContextoOriginal).Valido Then Return ErrorGet(response, "PERSISTED_CONTEXT_MISMATCH")
         response.IntentId = intent.Id : response.Status = intent.Fase.ToString() : response.VersionToken = intent.VersionToken
         For Each item In intent.Resultados : response.Items.Add(MapItem(item)) : Next
         Return response

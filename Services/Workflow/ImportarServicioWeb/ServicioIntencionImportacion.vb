@@ -8,13 +8,19 @@ Public NotInheritable Class ServicioIntencionImportacion
     Private ReadOnly _repository As IImportIntentRepository
     Private ReadOnly _guard As IImportIntentConcurrencyGuard
     Private ReadOnly _clock As IImportacionServicioClock
+    Private ReadOnly _inscriptions As IImportInscriptionResolver
 
     Public Sub New(ByVal repository As IImportIntentRepository, ByVal guard As IImportIntentConcurrencyGuard,
                    ByVal clock As IImportacionServicioClock)
+        Me.New(repository, guard, clock, Nothing)
+    End Sub
+
+    Public Sub New(ByVal repository As IImportIntentRepository, ByVal guard As IImportIntentConcurrencyGuard,
+                   ByVal clock As IImportacionServicioClock, ByVal inscriptions As IImportInscriptionResolver)
         If repository Is Nothing Then Throw New ArgumentNullException("repository")
         If guard Is Nothing Then Throw New ArgumentNullException("guard")
         If clock Is Nothing Then Throw New ArgumentNullException("clock")
-        _repository = repository : _guard = guard : _clock = clock
+        _repository = repository : _guard = guard : _clock = clock : _inscriptions = inscriptions
     End Sub
 
     Public Function Crear(ByVal contexto As ContextoImportacionServicio,
@@ -47,6 +53,10 @@ Public NotInheritable Class ServicioIntencionImportacion
         For Each item In request.Items
             intent.Resultados.Add(New ResultadoElementoImportacion With {.ClientItemId = item.ClientItemId.Trim(), .IdentidadExterna = New IdentidadExternaImportacion With {.ProviderId = context.ProviderId.Trim(), .ExternalKey = item.ExternalKey.Trim()}, .IdTareaDestino = item.TargetTaskId, .IdTipoDocumental = item.DocumentTypeId, .NombreTipoDocumental = item.DocumentTypeName.Trim(), .NombreArchivo = item.FileName, .TipoContenido = item.ContentType, .Fase = FaseImportacionServicio.Creada})
         Next
+        If String.Equals(context.ProviderId, SiiImportProvider.CanonicalProviderId, StringComparison.OrdinalIgnoreCase) Then
+            If _inscriptions Is Nothing Then Throw New InvalidOperationException("SII_INSCRIPTION_RESOLVER_UNAVAILABLE")
+            intent.Inscripciones = _inscriptions.Resolver(context, request, intent.Resultados)
+        End If
         intent.HuellaContexto = Hash(Canonical(intent))
         intent.VersionToken = intent.HuellaContexto
         Return intent

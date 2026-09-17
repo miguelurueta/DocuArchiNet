@@ -36,3 +36,18 @@ test("el adaptador conserva la unica invocacion moderna al almacenamiento legacy
     }
   }
 });
+
+test("orquestador no repite almacenamiento durante expedientes o vinculación", () => {
+  const orchestrator = fs.readFileSync(path.join(root, "Services/Workflow/ImportarServicioWeb/ImportServiceOrchestrator.vb"), "utf8");
+  const steps = fs.readFileSync(path.join(root, "Services/Workflow/ImportarServicioWeb/ImportExecutionSteps.vb"), "utf8");
+  const relations = fs.readFileSync(path.join(root, "Services/Workflow/ImportarServicioWeb/ImportRelatedDocumentCoordinator.vb"), "utf8");
+  assert.doesNotMatch(orchestrator + relations, /AlmacenaDocumentoTareaWorkflow|_storage\.Almacenar/);
+  assert.equal((steps.match(/_storage\.Almacenar\(command\)/g) || []).length, 1);
+});
+
+test("gate versionado permanece apagado y sin alcance", () => {
+  const configuration = fs.readFileSync(path.join(root, "web.config"), "utf8");
+  assert.match(configuration, /WorkflowCentroTrabajoModernActive" value="false"/i);
+  assert.match(configuration, /WorkflowCentroTrabajoModernUsers" value=""/i);
+  assert.match(configuration, /WorkflowCentroTrabajoModernGroups" value=""/i);
+});

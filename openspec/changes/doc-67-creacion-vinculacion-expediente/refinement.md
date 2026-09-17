@@ -66,6 +66,7 @@ Jira resume el resultado. El prompt completo y la exploración gobiernan comport
 | D-12 | Reutilizar E2E DOC-56 (`execution`, `retry`, `recovery`, `concurrency`); no crear infraestructura paralela. | `tools/e2e`; prompt §E2E | D-12 | RQ-12 | Origen: D-12, RQ-12 |
 | D-13 | Contexto persistido es autoridad; sesión solo autoriza y toda dependencia legacy se encapsula/contrasta. | Dependencias `HttpContext.Session`; prompt §Contexto | D-13 | RQ-13 | Origen: D-13, RQ-13 |
 | D-14 | Implementación aditiva bajo gate con invariancia de funciones y consumidores legacy protegidos. | Prompt §Restricciones | D-14 | RQ-14 | Origen: D-14, RQ-14 |
+| D-15 | Consultar el sujeto por transporte moderno seguro y conservar la función legacy como fallback configurable sin modificarla. | E2E ESAL `SII_SUBJECT_UNAVAILABLE`; auditoría de `ConsultaExpedienteMercantilEsal` | D-15 | RQ-15 | Origen: D-15, RQ-15 |
 
 ## Requisitos verificables
 
@@ -85,6 +86,7 @@ Jira resume el resultado. El prompt completo y la exploración gobiernan comport
 | RQ-12 | Las 18 aserciones E2E reutilizan activos DOC-56. | Evidencias `passed/failed/blocked`, consultas `SELECT`, sin runner/escenario paralelo. | Requiere autorización y muestras descartables. |
 | RQ-13 | Frontend/sesión no deciden expediente. | Reintento usa contexto persistido; sesión solo valida actor. | Globales pueden apuntar a otra tarea/ruta. |
 | RQ-14 | Gate apagado conserva legacy y evita doble operación. | Archivos invariantes; gate restaurado a false/listas vacías aun ante fallo. | Activación incompleta afecta terceros. |
+| RQ-15 | Consulta de sujeto tipada, acotada y observable, con fallback legacy conservado. | MERCANTIL/ESAL/RUP usan transporte moderno; respuesta incompleta bloquea creación; fallback es configurable. | Dependencia externa y fallback temporal legacy. |
 
 ## Compuerta técnica previa a mutaciones
 
@@ -136,6 +138,6 @@ Una respuesta no demostrable se registra como bloqueo; nunca se completa con sup
 ## Resultado del refinamiento
 
 - Contenido consolidado desde Jira, prompt completo y exploración.
-- Estado: `approved`; D-01 a D-14 están desarrolladas en `design.md`, RQ-01 a RQ-14 tienen escenarios verificables en `spec.md` y las tareas atómicas declaran su origen.
+- Estado: `approved`; D-01 a D-15 están desarrolladas en `design.md`, RQ-01 a RQ-15 tienen escenarios verificables en `spec.md` y las tareas atómicas declaran su origen.
 - Auditoría: sin marcadores abiertos y con cobertura bidireccional de decisiones y requisitos en diseño, especificación y tareas.
 - Próximo: sincronizar encabezados OPSXJ, validar la compuerta y comenzar por la caracterización legacy; ninguna tarea mutadora puede adelantarse a su evidencia correspondiente.

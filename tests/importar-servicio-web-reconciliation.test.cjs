@@ -42,6 +42,20 @@ test('reconciliación sólo expone retry conocido y sin documento', () => {
   assert.doesNotMatch(mapper, /item\.Reintentable AndAlso Not item\.PersistenciaConocida/);
 });
 
+test('reconciliación incorpora todas las postcondiciones DOC-67', () => {
+  for (const column of ['expected_expedient_id', 'relation_status', 'cache_status', 'cabinet_index_status', 'electronic_index_status', 'xml_index_status', 'reconciliation_status']) {
+    assert.match(repository, new RegExp(column));
+  }
+  assert.match(service, /ApplyExpedientEvidence/);
+  assert.match(service, /ImportExpedientResultCodes\.Confirmed/);
+});
+
+test('resultado incierto no se publica como disponible', () => {
+  assert.match(service, /RejectExpedientEvidence/);
+  assert.match(service, /mapped\.DocumentId = Nothing/);
+  assert.match(service, /"ResultadoIncierto"/);
+});
+
 for (const name of ['completed', 'partial', 'uncertain']) {
   test(`fixture ${name} conserva contrato v1`, () => {
     const value = JSON.parse(fs.readFileSync(`Tests/Fixtures/Workflow/ImportarServicioWeb/reconciliation-v1/${name}.json`, 'utf8'));

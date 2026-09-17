@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14 -->
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15 -->
 ## Purpose
 
 Garantizar que cada importación SII resuelva, cree, vincule, indexe y reconcilie sus expedientes y documentos de forma secuencial, idempotente, recuperable y compatible con el recorrido legacy.
@@ -55,7 +55,11 @@ El sistema SHALL localizar expedientes mediante matrícula normalizada y gabinet
 
 #### Scenario: Normalización por gabinete
 - **WHEN** se resuelve un expediente MERCANTIL, ESAL o RUP
-- **THEN** el sistema aplica respectivamente matrícula mercantil, matrícula sin el prefijo `S0` o número de proponente
+- **THEN** el sistema toma la matrícula —o el número de proponente para RUP—, elimina todo carácter no numérico y los ceros a la izquierda, exige un entero positivo y usa ese mismo valor canónico al buscar, crear, cachear e indexar
+
+#### Scenario: Matriz integral de tipos de registro
+- **WHEN** se valida la entrega DOC-67
+- **THEN** una matriz ejecuta para MERCANTIL, ESAL y RUP el recorrido completo de intención, expediente, almacenamiento, universo por `ENLASE`, vínculo, caché, índices SQL/XML y reconciliación, y ningún tipo puede darse por cubierto únicamente mediante pruebas aisladas de normalización
 
 #### Scenario: Validación de campos únicos dinámicos
 - **WHEN** el trámite configura campos con `estado_unico=1`
@@ -140,6 +144,8 @@ El sistema SHALL vincular cada documento exactamente al expediente esperado y SH
 ### Requirement: RQ-09 Índices documentales y electrónicos completos
 Origen de diseño: D-09.
 El sistema SHALL actualizar `NITCEDULA`, `RAZONSOCIAL` y `MATRICULA` con las reglas del gabinete y SHALL verificar independientemente el índice electrónico SQL y el archivo XML.
+
+La actualización posterior al vínculo SHALL limitarse a esos tres campos. `LIBRO`, `INSCRIPCION`, descripción, fechas, acto, `ENLASE` y recibo se materializan durante la incorporación inicial del documento y no SHALL reescribirse en esta fase.
 
 #### Scenario: Índices completos
 - **WHEN** documento, sujeto y expediente están resueltos
@@ -248,3 +254,23 @@ La implementación SHALL ser aditiva y SHALL conservar intacto el recorrido lega
 #### Scenario: Protección de información
 - **WHEN** ocurre un error o se conserva evidencia
 - **THEN** no se exponen SQL, rutas físicas, cuerpos SII, datos personales innecesarios, cookies, credenciales ni excepciones internas
+
+### Requirement: RQ-15 Consulta moderna y resiliente del sujeto SII
+Origen de diseño: D-15.
+El sistema SHALL consultar el sujeto de expediente mediante el transporte moderno tipado, conservando la función legacy original como fallback configurable de rollout.
+
+#### Scenario: Consulta primaria moderna
+- **WHEN** se resuelve el sujeto de un expediente MERCANTIL, ESAL o RUP
+- **THEN** se usan timeout acotado, TLS validado por el sistema, UTF-8, límite de respuesta, telemetría y códigos seguros sin depender de sesión
+
+#### Scenario: Identidad ESAL
+- **WHEN** la matrícula ESAL incluye marcadores o prefijo histórico `9000`
+- **THEN** se extrae una identidad numérica positiva de forma posicional y se construye una sola clave `S0`, sin reemplazar secuencias internas arbitrarias
+
+#### Scenario: Fallback conservado
+- **WHEN** la consulta moderna falla y el fallback de rollout está habilitado
+- **THEN** se puede invocar la función legacy conservada sin modificarla ni redirigir sus demás consumidores
+
+#### Scenario: Respuesta incompleta o rechazada
+- **WHEN** el proveedor no confirma NIT y razón social o devuelve error funcional/técnico
+- **THEN** no se crea expediente y se retorna un código seguro, clasificado y observable

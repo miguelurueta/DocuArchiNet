@@ -1,0 +1,1 @@
+{"schemaVersion":"1.1","clientItemId":"item-002","expedientId":null,"status":"Pendiente","resultCode":"EXPEDIENT_UNRESOLVED","retryable":false,"effects":{"destination":"Ausente","relation":"NoConsultada","linkCache":"Pendiente","cabinetIndex":"Pendiente","electronicIndexSql":"Pendiente","electronicIndexXml":"Pendiente","reconciliation":"Pendiente"}}

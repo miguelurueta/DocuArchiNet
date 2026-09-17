@@ -34,4 +34,18 @@ Public Class ValidadorContextoImportacion
         End If
         Return ResultadoValidacionContextoImportacion.Exitoso()
     End Function
+
+    Public Function Validar(ByVal contexto As ContextoImportacionServicio,
+                            ByVal persistido As ContextoIntencionImportacion) As ResultadoValidacionContextoImportacion
+        Dim current = Validar(contexto)
+        If Not current.Valido Then Return current
+        If persistido Is Nothing OrElse contexto.IdUsuario <> persistido.IdUsuario OrElse
+           contexto.IdGrupo <> persistido.IdGrupo OrElse contexto.IdTarea <> persistido.IdTarea OrElse
+           contexto.IdRuta <> persistido.IdRuta OrElse contexto.IdTramite <> persistido.IdTramite OrElse
+           Not String.Equals(contexto.LoginUsuario, persistido.LoginUsuario, StringComparison.OrdinalIgnoreCase) OrElse
+           Not String.Equals(contexto.ProviderId, persistido.ProviderId, StringComparison.OrdinalIgnoreCase) Then
+            Return ResultadoValidacionContextoImportacion.Fallido("PERSISTED_CONTEXT_MISMATCH", "La intención no corresponde al contexto autenticado.")
+        End If
+        Return ResultadoValidacionContextoImportacion.Exitoso()
+    End Function
 End Class

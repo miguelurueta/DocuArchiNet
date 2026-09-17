@@ -19,6 +19,7 @@ test('procesa items y pasos con bucles secuenciales', () => {
 test('detencion conserva confirmados y no inicia pasos pendientes', () => {
   assert.match(src, /If intent\.DetencionSolicitada Then[\s\S]*Continue For/);
   assert.match(src, /StopRequested/);
+  assert.match(src, /If intent\.DetencionSolicitada Then[\s\S]*response\.Status = AggregateStatus\(intent\)\.ToString\(\)[\s\S]*Return response[\s\S]*If _relatedDocumentCoordinator/);
 });
 
 test('Get mapea solo la instantanea obtenida del repositorio', () => {

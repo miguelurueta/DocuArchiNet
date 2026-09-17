@@ -1,0 +1,1 @@
+{"schemaVersion":"1.1","clientItemId":"item-003","expedientId":null,"status":"Conflicto","resultCode":"DOCUMENT_RELATION_CROSSED","retryable":false,"effects":{"destination":"Confirmado","relation":"Cruzada","linkCache":"Pendiente","cabinetIndex":"Pendiente","electronicIndexSql":"Pendiente","electronicIndexXml":"Pendiente","reconciliation":"Conflicto"}}

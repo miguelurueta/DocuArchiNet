@@ -3,6 +3,7 @@ Imports System.Collections.Generic
 Imports System.IO
 
 ' Único límite nuevo autorizado para invocar AlmacenaDocumentoTareaWorkflow.
+' La saga llama este puerto una sola vez por item; la vinculación posterior reutiliza IdImagen.
 Public NotInheritable Class LegacyImportDocumentStorageAdapter
     Implements IImportDocumentStoragePort
 

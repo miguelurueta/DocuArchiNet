@@ -17,6 +17,7 @@ Public NotInheritable Class ServicioReconciliacionImportacion
         If snapshot Is Nothing Then response.Error=SafeError() : Return response
         response.IntentId=snapshot.IntentId : response.VersionToken=snapshot.VersionToken
         For Each item In Project(snapshot) : response.Items.Add(item) : Next
+        For Each effect In ProjectExpedientEffects(snapshot) : response.ExpedientEffects.Add(effect) : Next
         response.Status=AggregateStatus(response.Items)
         Return response
     End Function
@@ -29,6 +30,7 @@ Public NotInheritable Class ServicioReconciliacionImportacion
         For Each item In Project(snapshot)
             response.Items.Add(item) : If item.Status="Disponible" Then response.ConfirmedDocumentCount+=1
         Next
+        For Each effect In ProjectExpedientEffects(snapshot) : response.ExpedientEffects.Add(effect) : Next
         response.Status=AggregateStatus(response.Items)
         Return response
     End Function
@@ -47,20 +49,28 @@ Public NotInheritable Class ServicioReconciliacionImportacion
             .Accepted=True,
             .VersionToken=snapshot.VersionToken}
         For Each item In Project(snapshot) : response.Items.Add(item) : Next
+        For Each effect In ProjectExpedientEffects(snapshot) : response.ExpedientEffects.Add(effect) : Next
         response.Status=AggregateStatus(response.Items)
         Return response
     End Function
 
     Private Function AuthorizedSnapshot(ByVal context As ContextoImportacionServicio, ByVal intentId As String, ByVal request As ReconcileImportIntentRequestDto) As SnapshotReconciliacionImportacion
         If context Is Nothing OrElse String.IsNullOrWhiteSpace(intentId) OrElse Not _validator.Validar(context).Valido Then Return Nothing
-        If request IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(request.ExternalKey) Then Return _repository.ObtenerItem(context,intentId,context.ProviderId,request.ExternalKey)
-        Return _repository.Obtener(context,intentId)
+        Dim snapshot As SnapshotReconciliacionImportacion
+        If request IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(request.ExternalKey) Then
+            snapshot = _repository.ObtenerItem(context,intentId,context.ProviderId,request.ExternalKey)
+        Else
+            snapshot = _repository.Obtener(context,intentId)
+        End If
+        If snapshot Is Nothing OrElse Not _validator.Validar(context, snapshot.ContextoOriginal).Valido Then Return Nothing
+        Return snapshot
     End Function
 
     Private Function Project(ByVal snapshot As SnapshotReconciliacionImportacion) As IList(Of ImportItemResultDto)
         Dim result As New List(Of ImportItemResultDto)() : Dim confirmed As New HashSet(Of String)(StringComparer.Ordinal)
         For Each item In snapshot.Items
             Dim mapped=_mapper.Map(item,snapshot.IdTareaOriginal)
+            ApplyExpedientEvidence(mapped, item, snapshot.DocumentosRelacionados)
             If mapped.Status="Disponible" Then
                 Dim key=mapped.TaskId.ToString() & ":" & mapped.DocumentId.Value.ToString()
                 If confirmed.Contains(key) Then Continue For
@@ -70,6 +80,48 @@ Public NotInheritable Class ServicioReconciliacionImportacion
         Next
         Return result
     End Function
+
+    Private Function ProjectExpedientEffects(ByVal snapshot As SnapshotReconciliacionImportacion) As IList(Of ImportItemExpedientEffectsDto)
+        Dim result As New List(Of ImportItemExpedientEffectsDto)()
+        If snapshot Is Nothing OrElse snapshot.DocumentosRelacionados Is Nothing Then Return result
+        For Each document In snapshot.DocumentosRelacionados
+            Dim clientItemId As String = Nothing
+            For Each item In snapshot.Items
+                If item.IdDocumento.HasValue AndAlso item.IdDocumento.Value = document.IdImagen Then
+                    clientItemId = item.ClientItemId
+                    Exit For
+                End If
+            Next
+            result.Add(_mapper.MapExpedientEffects(clientItemId, document))
+        Next
+        Return result
+    End Function
+
+    Private Sub ApplyExpedientEvidence(ByVal mapped As ImportItemResultDto,
+                                       ByVal item As SnapshotItemReconciliacionImportacion,
+                                       ByVal documents As IList(Of DocumentoRelacionadoImportacion))
+        If Not item.IdDocumento.HasValue OrElse documents Is Nothing Then Return
+        Dim matches As New List(Of DocumentoRelacionadoImportacion)()
+        For Each document In documents
+            If document.IdImagen = item.IdDocumento.Value Then matches.Add(document)
+        Next
+        If matches.Count = 0 Then
+            RejectExpedientEvidence(mapped, ImportExpedientResultCodes.ExpedientUnresolved)
+            Return
+        End If
+        If matches.Count > 1 Then
+            RejectExpedientEvidence(mapped, ImportExpedientResultCodes.RelationDuplicated)
+            Return
+        End If
+        Dim effect = _mapper.MapExpedientEffects(item.ClientItemId, matches(0))
+        If effect.ResultCode <> ImportExpedientResultCodes.Confirmed Then RejectExpedientEvidence(mapped, effect.ResultCode)
+    End Sub
+
+    Private Shared Sub RejectExpedientEvidence(ByVal mapped As ImportItemResultDto, ByVal code As String)
+        mapped.Status = If(code = ImportExpedientResultCodes.EffectUncertain, "ResultadoIncierto", "Inconsistente")
+        mapped.ErrorCode = code : mapped.Message = "Los efectos documentales requieren reconciliación."
+        mapped.DocumentId = Nothing : mapped.DocumentName = Nothing : mapped.ContentType = Nothing
+    End Sub
     Private Shared Function ProtectUnconfirmedExecution(ByVal context As ContextoImportacionServicio, ByVal execution As ExecuteImportIntentResponseDto) As ExecuteImportIntentResponseDto
         execution.Status="ResultadoIncierto"
         For Each item In execution.Items

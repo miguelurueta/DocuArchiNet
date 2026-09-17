@@ -72,7 +72,7 @@ test("la consulta moderna usa token y consultarInformacionSello con codigo de ba
   assert.doesNotMatch(client, /items\?taskId|preview\/|resource\//);
   assert.match(service, /New ExternalImportHttpClientFactory\(True\)/);
   assert.match(factory, /UseDefaultCredentials = useDefaultCredentials/);
-  assert.match(client, /Encoding\.ASCII\.GetBytes/);
+  assert.match(client, /Encoding\.UTF8\.GetBytes/);
   assert.match(client, /DownloadSelectedAsync\(selected, request\.CorrelationId, cancellationToken, Nothing, Nothing,[\s\S]*request\.OperationId, request\.TaskId, Nothing, selected\.CodigoBarras, request\.ExternalKey\)/);
   assert.match(client, /content\.LongLength/);
   assert.match(client, /DateTime\.UtcNow\.AddMinutes\(5\)/);

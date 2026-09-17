@@ -1,8 +1,56 @@
 Imports System
 Imports System.Text
+Imports System.Collections.Generic
+Imports System.Security.Cryptography
 Imports Newtonsoft.Json.Linq
 
 Public NotInheritable Class SiiImportContractMapper
+    Public Function MapInscriptions(ByVal payload As Byte(),
+                                    ByVal selectedItems As IList(Of ResultadoElementoImportacion),
+                                    ByVal cabinetName As String) As IList(Of InscripcionImportacion)
+        If payload Is Nothing OrElse selectedItems Is Nothing Then Throw New ArgumentNullException("payload")
+        Dim source = NormalizeSource(Encoding.UTF8.GetString(payload))
+        Dim values As New List(Of InscripcionImportacion)()
+        Dim inscriptions = TryCast(Token(source, "inscripciones"), JArray)
+        If inscriptions Is Nothing Then Return values
+        Dim ordinal As Integer = 0
+        For Each inscription As JObject In inscriptions
+            ordinal += 1
+            Dim book = Value(inscription, "libro")
+            Dim registration = Value(inscription, "registro")
+            Dim key = BuildInscriptionKey(book, registration)
+            Dim aggregate As New InscripcionImportacion With {
+                .ClaveInscripcion = key, .Orden = ordinal, .Libro = book, .Registro = registration,
+                .Matricula = Value(inscription, "matricula"), .Proponente = Value(inscription, "proponente"),
+                .IdentificacionSujeto = Value(inscription, "identificacion"), .RazonSocial = Value(inscription, "nombre"),
+                .MatriculaPropietario = Value(inscription, "matriculapropietario"),
+                .IdentificacionPropietario = Value(inscription, "identificacionpropietario"),
+                .NombrePropietario = Value(inscription, "nombrepropietario"), .NombreGabinete = cabinetName,
+                .RolExpediente = RolExpedienteImportacion.Pendiente,
+                .EstadoExpediente = EstadoEfectoExpedienteImportacion.Pendiente,
+                .EstadoCache = EstadoEfectoExpedienteImportacion.Pendiente
+            }
+            For Each item In selectedItems
+                Dim radicado As String = Nothing, itemBook As String = Nothing, itemRegistration As String = Nothing, attachment As String = Nothing
+                If item IsNot Nothing AndAlso item.IdentidadExterna IsNot Nothing AndAlso
+                   TryParseExternalKey(item.IdentidadExterna.ExternalKey, radicado, itemBook, itemRegistration, attachment) AndAlso
+                   String.Equals(book, itemBook, StringComparison.Ordinal) AndAlso String.Equals(registration, itemRegistration, StringComparison.Ordinal) Then
+                    item.ClaveInscripcion = key
+                    aggregate.ClientItemIds.Add(item.ClientItemId)
+                End If
+            Next
+            If aggregate.ClientItemIds.Count > 0 Then values.Add(aggregate)
+        Next
+        Return values
+    End Function
+
+    Public Shared Function BuildInscriptionKey(ByVal book As String, ByVal registration As String) As String
+        Using sha = SHA256.Create()
+            Dim canonical = If(book, String.Empty).Trim() & ChrW(31) & If(registration, String.Empty).Trim()
+            Return BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(canonical))).Replace("-", String.Empty).ToLowerInvariant()
+        End Using
+    End Function
+
     Public Function MapQuery(ByVal payload As Byte(), ByVal request As QueryItemsRequestDto) As QueryItemsResponseDto
         If payload Is Nothing OrElse request Is Nothing Then Throw New ArgumentNullException("payload")
         Dim source = NormalizeSource(Encoding.UTF8.GetString(payload))

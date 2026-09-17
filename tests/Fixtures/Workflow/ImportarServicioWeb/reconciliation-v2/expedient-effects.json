@@ -1,0 +1,8 @@
+[
+  {"case":"missing-expedient","expedient":null,"relation":"Ausente","cache":"Ausente","cabinetIndex":"Ausente","sql":"Ausente","xml":"Ausente","expected":"EXPEDIENT_UNRESOLVED"},
+  {"case":"duplicated-relation","expedient":71,"relation":"Duplicada","cache":"Confirmado","cabinetIndex":"Confirmado","sql":"Confirmado","xml":"Confirmado","expected":"DOCUMENT_RELATION_DUPLICATED"},
+  {"case":"crossed-relation","expedient":71,"relation":"Cruzada","cache":"Confirmado","cabinetIndex":"Confirmado","sql":"Confirmado","xml":"Confirmado","expected":"DOCUMENT_RELATION_CROSSED"},
+  {"case":"stale-cache","expedient":71,"relation":"Correcta","cache":"Conflicto","cabinetIndex":"Confirmado","sql":"Confirmado","xml":"Confirmado","expected":"DOCUMENT_LINK_CACHE_CONFLICT"},
+  {"case":"sql-xml-divergence","expedient":71,"relation":"Correcta","cache":"Confirmado","cabinetIndex":"Confirmado","sql":"Confirmado","xml":"Ausente","expected":"ELECTRONIC_INDEX_XML_MISSING"},
+  {"case":"new-document","expedient":null,"relation":"NoConsultada","cache":"Pendiente","cabinetIndex":"Pendiente","sql":"Pendiente","xml":"Pendiente","expected":"EXPEDIENT_UNRESOLVED"}
+]

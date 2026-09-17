@@ -8,6 +8,7 @@ Imports System.Threading
 Imports System.Threading.Tasks
 Imports Newtonsoft.Json
 Imports Newtonsoft.Json.Linq
+Imports System.Text.RegularExpressions
 
 ' Token y consultarInformacionSello se ejecutan en servidor; nunca se acepta una URL del navegador.
 Public NotInheritable Class SiiExternalImportProviderClient
@@ -49,6 +50,75 @@ Public NotInheritable Class SiiExternalImportProviderClient
         If request.CodigoBarras.Trim().Length > 15 Then Throw New ArgumentException("SII_BARCODE_INVALID", "request")
         Return QuerySealAsync(request.CodigoBarras.Trim(), request.CorrelationId, cancellationToken, Nothing, Nothing,
             request.OperationId, request.TaskId, Nothing, request.CodigoBarras.Trim(), request.CodigoBarras.Trim())
+    End Function
+
+    Public Async Function ResolveExpedientSubjectAsync(ByVal cabinetName As String, ByVal enrollment As String,
+        ByVal proponent As String, ByVal correlationId As String, ByVal cancellationToken As CancellationToken,
+        Optional ByVal taskId As Nullable(Of Long) = Nothing) As Task(Of SujetoExpedienteSii)
+        Dim cabinet = If(cabinetName, String.Empty).Trim().ToUpperInvariant()
+        Dim lookup As String
+        Dim endpointName As String
+        Dim lookupName As String
+        Select Case cabinet
+            Case "MERCANTIL"
+                lookup = CanonicalPositiveNumber(enrollment)
+                endpointName = "consultarExpedienteMercantil" : lookupName = "matricula"
+            Case "ESAL"
+                lookup = CanonicalPositiveNumber(enrollment)
+                If lookup.StartsWith("9000", StringComparison.Ordinal) AndAlso lookup.Length > 4 Then lookup = CanonicalPositiveNumber(lookup.Substring(4))
+                lookup = "S0" & lookup
+                endpointName = "consultarExpedienteMercantil" : lookupName = "matricula"
+            Case "RUP"
+                lookup = CanonicalPositiveNumber(proponent)
+                endpointName = "consultarExpedienteProponente" : lookupName = "proponente"
+            Case Else
+                Throw New InvalidOperationException("EXPEDIENT_CABINET_NOT_SUPPORTED")
+        End Select
+        If String.IsNullOrWhiteSpace(correlationId) Then Throw New ArgumentException("SII_CORRELATION_REQUIRED", "correlationId")
+
+        Dim token = Await RequestTokenAsync(correlationId, cancellationToken, taskId, lookup).ConfigureAwait(False)
+        Return Await ObserveAsync("CONSULTAR_SUJETO_EXPEDIENTE", correlationId,
+            Async Function()
+                Dim bytes = Await PostAsync(Endpoint(endpointName), New Dictionary(Of String, String) From {
+                    {"codigoempresa", _companyCode}, {"usuariows", _serviceUser}, {"token", token}, {lookupName, lookup}}, correlationId, cancellationToken).ConfigureAwait(False)
+                Dim source = SiiImportContractMapper.NormalizeSource(Encoding.UTF8.GetString(bytes))
+                Dim resultCode = SiiImportContractMapper.Value(source, "codigoerror")
+                If resultCode = "9998" Then Throw New InvalidOperationException("SII_SUBJECT_TOKEN_INVALID")
+                If resultCode = "9999" Then Throw New InvalidOperationException("SII_SUBJECT_NOT_FOUND")
+                If SiiImportContractMapper.Value(source, "mensajeerror").Length > 0 OrElse
+                   (resultCode.Length > 0 AndAlso resultCode <> "0000") Then Throw New InvalidOperationException("SII_SUBJECT_REJECTED")
+                Dim identification = SiiImportContractMapper.Value(source, "nit")
+                Dim name = SiiImportContractMapper.Value(source, "nombre")
+                If String.IsNullOrWhiteSpace(identification) OrElse String.IsNullOrWhiteSpace(name) Then Throw New InvalidOperationException("SII_SUBJECT_INCOMPLETE")
+                Return New SujetoExpedienteSii With {
+                    .MatriculaCanonica = CanonicalPositiveNumber(If(cabinet = "RUP", proponent, enrollment)),
+                    .Identificacion = identification.Trim(), .RazonSocial = name.Trim(),
+                    .MatriculaPropietario = SiiImportContractMapper.Value(source, "matriculapro").Trim(),
+                    .IdentificacionPropietario = SiiImportContractMapper.Value(source, "identificacionpro").Trim(),
+                    .NombrePropietario = SiiImportContractMapper.Value(source, "nombrepro").Trim()}
+            End Function, Nothing, Nothing, Nothing, taskId, Nothing, Nothing, lookup).ConfigureAwait(False)
+    End Function
+
+    Private Async Function RequestTokenAsync(ByVal correlationId As String, ByVal cancellationToken As CancellationToken,
+                                              ByVal taskId As Nullable(Of Long), ByVal reference As String) As Task(Of String)
+        Return Await ObserveAsync("SOLICITAR_TOKEN_SUJETO", correlationId,
+            Async Function()
+                Dim tokenBytes = Await PostAsync(Endpoint("solicitarToken"), New Dictionary(Of String, String) From {
+                    {"codigoempresa", _companyCode}, {"usuariows", _serviceUser}, {"clavews", _servicePassword}}, correlationId, cancellationToken).ConfigureAwait(False)
+                Dim tokenJson = SiiImportContractMapper.NormalizeSource(Encoding.UTF8.GetString(tokenBytes))
+                Dim value = SiiImportContractMapper.Value(tokenJson, "token")
+                Dim resultCode = SiiImportContractMapper.Value(tokenJson, "codigoerror")
+                If resultCode = "9999" Then Throw New InvalidOperationException("SII_TOKEN_INVALID_CREDENTIALS")
+                If value.Length = 0 OrElse value.Length > 256 OrElse SiiImportContractMapper.Value(tokenJson, "mensajeerror").Length > 0 OrElse
+                   (resultCode.Length > 0 AndAlso resultCode <> "0000") Then Throw New InvalidOperationException("SII_TOKEN_REJECTED")
+                Return value
+            End Function, Nothing, Nothing, Nothing, taskId, Nothing, Nothing, reference).ConfigureAwait(False)
+    End Function
+
+    Private Shared Function CanonicalPositiveNumber(ByVal value As String) As String
+        Dim canonical = Regex.Replace(If(value, String.Empty).Trim(), "[^0-9]", String.Empty).TrimStart("0"c)
+        If canonical.Length = 0 Then Throw New InvalidOperationException("EXPEDIENT_IDENTITY_INVALID")
+        Return canonical
     End Function
 
     Public Async Function GetPreviewMetadataAsync(ByVal request As GetPreviewRequestDto, ByVal cancellationToken As CancellationToken) As Task(Of Byte())
@@ -178,7 +248,7 @@ Public NotInheritable Class SiiExternalImportProviderClient
     End Function
 
     Private Function PostAsync(ByVal uri As Uri, ByVal values As IDictionary(Of String, String), ByVal correlationId As String, ByVal cancellationToken As CancellationToken) As Task(Of Byte())
-        Return SendAsync(uri, HttpMethod.Post, Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(values)), "application/json", correlationId, New String() {"application/json", "text/json"}, cancellationToken)
+        Return SendAsync(uri, HttpMethod.Post, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(values)), "application/json", correlationId, New String() {"application/json", "text/json"}, cancellationToken)
     End Function
     Private Function SendAsync(ByVal uri As Uri, ByVal method As HttpMethod, ByVal body As Byte(), ByVal contentType As String, ByVal correlationId As String, ByVal mediaTypes As IEnumerable(Of String), ByVal cancellationToken As CancellationToken) As Task(Of Byte())
         Dim headers As New Dictionary(Of String, String) From {{"X-Correlation-Id", correlationId}}

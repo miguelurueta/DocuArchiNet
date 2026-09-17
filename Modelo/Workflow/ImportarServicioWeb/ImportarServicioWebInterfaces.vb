@@ -60,6 +60,9 @@ Public Interface IImportIntentRepository
                                     ByVal idempotencyKey As String) As IntencionImportacionServicio
     Function CrearOReutilizar(ByVal contexto As ContextoImportacionServicio,
                               ByVal intencion As IntencionImportacionServicio) As ResultadoPersistenciaIntencionImportacion
+    Function PersistirPlanExpedientes(ByVal contexto As ContextoImportacionServicio,
+                                      ByVal intencion As IntencionImportacionServicio,
+                                      ByVal plan As PlanExpedienteImportacion) As Boolean
     Function ActualizarTransicion(ByVal contexto As ContextoImportacionServicio,
                                   ByVal transicion As TransicionImportacion,
                                   ByVal resultado As ResultadoElementoImportacion) As Boolean
@@ -83,6 +86,13 @@ Public Interface IImportExecutionStep
     Function Ejecutar(ByVal contexto As ContextoImportacionServicio,
                       ByVal intencion As IntencionImportacionServicio,
                       ByVal item As ResultadoElementoImportacion) As ResultadoFaseImportacion
+End Interface
+
+' Reconstruye el agregado desde la respuesta SII autoritativa; el cliente solo aporta identidades seleccionadas.
+Public Interface IImportInscriptionResolver
+    Function Resolver(ByVal contexto As ContextoImportacionServicio,
+                      ByVal solicitud As CreateImportIntentRequestDto,
+                      ByVal items As IList(Of ResultadoElementoImportacion)) As IList(Of InscripcionImportacion)
 End Interface
 
 Public Interface IImportStorageMetadataRepository
@@ -110,4 +120,75 @@ Public Interface IExternalServiceAvailabilityRepository
                        ByVal operation As String,
                        ByVal desdeUtc As DateTime,
                        ByVal hastaUtc As DateTime) As DisponibilidadServicioExterno
+End Interface
+
+Public Interface IImportExpedientConfigurationRepository
+    Function Obtener(ByVal contexto As ContextoImportacionServicio) As ConfiguracionExpedienteImportacion
+End Interface
+
+Public Interface ISiiExpedientSubjectResolver
+    Function Resolver(ByVal contexto As ContextoImportacionServicio,
+                      ByVal inscripcion As InscripcionImportacion,
+                      ByVal configuracion As ConfiguracionExpedienteImportacion) As ResultadoEfectoExpedienteImportacion
+End Interface
+
+Public Interface IImportExpedientIdentityNormalizer
+    Function Normalizar(ByVal contexto As ContextoImportacionServicio,
+                        ByVal nombreGabinete As String,
+                        ByVal matricula As String,
+                        ByVal proponente As String) As IdentidadExpedienteNormalizada
+End Interface
+
+Public Interface IImportExpedientRepository
+    Function Buscar(ByVal contexto As ContextoImportacionServicio,
+                    ByVal inscripcion As InscripcionImportacion,
+                    ByVal configuracion As ConfiguracionExpedienteImportacion) As ResultadoEfectoExpedienteImportacion
+    Function Crear(ByVal contexto As ContextoImportacionServicio,
+                   ByVal inscripcion As InscripcionImportacion,
+                   ByVal configuracion As ConfiguracionExpedienteImportacion) As ResultadoEfectoExpedienteImportacion
+    Function Verificar(ByVal contexto As ContextoImportacionServicio,
+                       ByVal idExpediente As Long,
+                       ByVal configuracion As ConfiguracionExpedienteImportacion) As ResultadoEfectoExpedienteImportacion
+End Interface
+
+Public Interface IImportExpedientCacheRepository
+    Function Obtener(ByVal contexto As ContextoImportacionServicio,
+                     ByVal inscripcion As InscripcionImportacion) As InscripcionImportacion
+    Function RegistrarVerificado(ByVal contexto As ContextoImportacionServicio,
+                                 ByVal inscripcion As InscripcionImportacion) As ResultadoEfectoExpedienteImportacion
+End Interface
+
+Public Interface IImportRelatedDocumentRepository
+    Function ObtenerPorEnlace(ByVal contexto As ContextoImportacionServicio,
+                              ByVal nombreGabinete As String,
+                              ByVal radicadoSii As String) As IList(Of DocumentoRelacionadoImportacion)
+    Function Persistir(ByVal contexto As ContextoImportacionServicio,
+                       ByVal intentId As String,
+                       ByVal documento As DocumentoRelacionadoImportacion) As Boolean
+End Interface
+
+Public Interface IImportDocumentExpedientRelationPort
+    Function Consultar(ByVal contexto As ContextoImportacionServicio,
+                       ByVal documento As DocumentoRelacionadoImportacion) As ResultadoEfectoExpedienteImportacion
+    Function Vincular(ByVal contexto As ContextoImportacionServicio,
+                      ByVal documento As DocumentoRelacionadoImportacion) As ResultadoEfectoExpedienteImportacion
+End Interface
+
+Public Interface IImportDocumentLinkCacheRepository
+    Function Obtener(ByVal contexto As ContextoImportacionServicio,
+                     ByVal idImagen As Long,
+                     ByVal nombreGabinete As String) As EntradaCacheVinculoDocumentoImportacion
+    Function RegistrarVerificado(ByVal contexto As ContextoImportacionServicio,
+                                 ByVal entrada As EntradaCacheVinculoDocumentoImportacion) As ResultadoEfectoExpedienteImportacion
+End Interface
+
+Public Interface IImportDocumentIndexUpdater
+    Function Actualizar(ByVal contexto As ContextoImportacionServicio,
+                        ByVal documento As DocumentoRelacionadoImportacion,
+                        ByVal inscripcion As InscripcionImportacion) As ResultadoEfectoExpedienteImportacion
+End Interface
+
+Public Interface IImportElectronicIndexVerifier
+    Function Verificar(ByVal contexto As ContextoImportacionServicio,
+                       ByVal documento As DocumentoRelacionadoImportacion) As EvidenciaIndiceElectronicoImportacion
 End Interface

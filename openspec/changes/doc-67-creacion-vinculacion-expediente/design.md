@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14 -->
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10,D-11,D-12,D-13,D-14,D-15 -->
 ## Context
 
 DOC-67 extiende el flujo moderno de `ImportarServicioWeb` construido por los prompts backend 01–07. El flujo actual consulta SII, persiste una intención, procesa items secuencialmente y almacena documentos mediante `LegacyImportDocumentStorageAdapter`, pero no coordina explícitamente expedientes por inscripción, no demuestra la relación documento–expediente y mantiene pasos nominales para índices/caché.
@@ -73,6 +73,8 @@ Puertos previstos, sujetos a las convenciones comprobadas del repositorio:
 ### D-01 — Expediente como precondición obligatoria
 
 El coordinador busca y verifica un expediente existente o crea solamente el faltante antes de almacenar items. Si la configuración, identidad, creación o verificación no puede resolverse, la intención no avanza al almacenamiento.
+
+La matrícula física es un entero positivo canónico. El normalizador compartido elimina letras y demás caracteres no numéricos, quita ceros iniciales y rechaza entradas sin dígitos significativos. Su resultado se reutiliza sin divergencias en localización, materialización de campos únicos, creación legacy, caché e índice documental.
 
 Alternativa descartada: almacenar primero y “completar después” el expediente. Deja documentos disponibles sin destino obligatorio y dificulta recuperación segura.
 
@@ -170,6 +172,16 @@ El recorrido moderno se habilita con el gate vigente y el fallback legacy perman
 
 Alternativa descartada: redirigir consumidores legacy al coordinador nuevo; amplía el radio de regresión y puede duplicar operaciones.
 
+### D-15 — Consulta moderna de sujeto con fallback legacy conservado
+
+`ModernSiiExpedientSubjectResolver` es la ruta primaria del flujo moderno. Reutiliza `SiiExternalImportProviderClient` y `ExternalImportHttpTransport` para solicitar token y consultar `consultarExpedienteMercantil` o `consultarExpedienteProponente` con TLS del sistema, timeout por solicitud, cancelación, UTF-8, límite de cuerpo, contrato JSON tipado, telemetría y códigos seguros. No instala callbacks TLS globales ni depende de `HttpContext.Session`.
+
+La identidad ESAL se deriva eliminando caracteres no numéricos, retirando el prefijo histórico `9000` únicamente si ocupa el inicio y anteponiendo exactamente una vez `S0`. La respuesta solo se acepta con NIT y razón social; luego se aplica el normalizador compartido y la materialización dinámica de campos únicos.
+
+La función legacy `SolicitaEstructuraExpedienteSII` y `ConsultaExpedienteMercantilEsal` permanecen intactas. `LegacySiiExpedientSubjectResolver` se inyecta como fallback configurable mediante `ImportarServicioWebSiiSubjectLegacyFallback`, inicialmente habilitado para rollout y desactivable sin cambiar binarios. Sus demás consumidores no se redirigen.
+
+Alternativa descartada: modificar el helper REST legacy. Sus callbacks TLS globales, sesión, protocolo textual y numerosos consumidores ampliarían el radio de regresión.
+
 ## Persistence and consistency
 
 El modelo lógico añade o amplía:
@@ -237,6 +249,7 @@ Los resultados seguros distinguen configuración/expediente ausente, creación f
 9. Ejecutar caracterización, unitarias, integración y compilación.
 10. Extender/reutilizar E2E DOC-56; ejecutar únicamente con autorización y evidencia saneada.
 11. Desplegar inicialmente con gate apagado; habilitar alcance controlado y observar reconciliación.
+12. Observar la consulta moderna de sujeto, retirar progresivamente el fallback configurable y conservar el legacy para el recorrido con gate apagado.
 
 Rollback:
 

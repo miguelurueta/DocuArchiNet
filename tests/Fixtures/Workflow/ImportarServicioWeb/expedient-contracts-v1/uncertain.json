@@ -1,0 +1,1 @@
+{"schemaVersion":"1.1","clientItemId":"item-006","expedientId":null,"status":"ResultadoIncierto","resultCode":"EXPEDIENT_EFFECT_UNCERTAIN","retryable":false,"effects":{"destination":"Confirmado","relation":"ResultadoIncierto","linkCache":"Pendiente","cabinetIndex":"Pendiente","electronicIndexSql":"Pendiente","electronicIndexXml":"Pendiente","reconciliation":"ResultadoIncierto"}}

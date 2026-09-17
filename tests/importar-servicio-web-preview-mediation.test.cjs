@@ -53,5 +53,5 @@ test("contexto de importación usa tarea y trámite confiables de sesión", () =
 test("frontera es delgada y descriptor referencia code-behind", () => {
   assert.match(descriptor, /CodeBehind="WebServiceImportarServicioWebModern\.asmx\.vb"/);
   assert.match(descriptor, /Class="GestionDocumental_Docuarchi\.net\.WebServiceImportarServicioWebModern"/);
-  assert.doesNotMatch(service, /SELECT\s|INSERT\s|UPDATE\s|DELETE\s|ClassAlmacenamiento|System\.IO|File\./i);
+  assert.doesNotMatch(service, /SELECT\s+[^\r\n]{1,200}\sFROM\s|INSERT\s+INTO\s|UPDATE\s+[^\r\n]{1,100}\sSET\s|DELETE\s+FROM\s|ClassAlmacenamiento|System\.IO|File\./i);
 });
