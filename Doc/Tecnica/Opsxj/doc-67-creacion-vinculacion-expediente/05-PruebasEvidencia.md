@@ -5,7 +5,7 @@
 - Clasificacion: cross_cutting (Transversal)
 ## Evidencia requerida
 
-- [x] Suite local (2026-09-17): `node --test tests/importar-servicio-web-*.test.cjs` → 332 aprobadas, 0 fallidas, incluida la regresión de proyección relación/índice antes de completar y la proyección de varios efectos relacionados por item.
+- [x] Suite local (2026-09-17): `node --test tests/importar-servicio-web-*.test.cjs` → 336 aprobadas, 0 fallidas, incluida la validación estructural de diagramas y firmas VB.NET.
 - [x] Integración saga local: intención, expediente, almacenamiento simulado, `ENLASE`, vínculo, caché, índices y reintento incremental aprobados.
 - [x] Compilación: MSBuild .NET Framework 4.6.1 → código 0.
 - [x] Validación: `openspec validate doc-67-creacion-vinculacion-expediente --strict` → válida.
@@ -41,7 +41,7 @@ El comando no autentica usuarios, no activa el gate y no modifica recursos reale
 - pérdida de cobertura local MERCANTIL, ESAL o RUP;
 - cualquier regresión en la suite DOC-67 o error de compilación VB.NET.
 
-Evidencia del 2026-09-17: `READINESS_OK`, 332 pruebas aprobadas, 0 fallidas y MSBuild con código 0. La E2E queda reservada para comprobar infraestructura e integración real, no para descubrir defectos estructurales ya verificables localmente.
+Evidencia del 2026-09-17: `READINESS_OK`, 336 pruebas aprobadas, 0 fallidas y MSBuild con código 0. La E2E queda reservada para comprobar infraestructura e integración real, no para descubrir defectos estructurales ya verificables localmente.
 
 ## QA/E2E WebForms
 

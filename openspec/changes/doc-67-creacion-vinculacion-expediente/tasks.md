@@ -91,8 +91,8 @@
 
 ## 11. Auditoría estructural de documentación técnica
 
-- [x] 11.1 Inspeccionar código y declarar módulos/repositorios revisados, exclusiones y convenciones de símbolos.
-- [x] 11.2 Publicar el inventario de endpoints, servicios, repositorios, interfaces, implementaciones y DTOs con firmas reales.
-- [x] 11.3 Documentar casos de uso implementados, condiciones, alternativas, errores y trazabilidad.
-- [x] 11.4 Crear el inventario obligatorio de diagramas Mermaid con fuentes de código y firmas exactas.
-- [x] 11.5 Incorporar al readiness una prueba estructural que falle por diagrama ausente, Mermaid inválido o firma VB inconsistente, ejecutarla y registrar límites/resultados.
+- [x] 11.1 Inspeccionar código y declarar módulos/repositorios revisados, exclusiones y convenciones de símbolos. Origen: D-11, RQ-11.
+- [x] 11.2 Publicar el inventario de endpoints, servicios, repositorios, interfaces, implementaciones y DTOs con firmas reales. Origen: D-11, RQ-11.
+- [x] 11.3 Documentar casos de uso implementados, condiciones, alternativas, errores y trazabilidad. Origen: D-11, RQ-11.
+- [x] 11.4 Crear el inventario obligatorio de diagramas Mermaid con fuentes de código y firmas exactas. Origen: D-11, RQ-11.
+- [x] 11.5 Incorporar al readiness una prueba estructural que falle por diagrama ausente, Mermaid inválido o firma VB inconsistente, ejecutarla y registrar límites/resultados. Origen: D-12, RQ-12.
