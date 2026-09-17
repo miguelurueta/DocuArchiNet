@@ -5,9 +5,9 @@
 - Clasificacion: cross_cutting (Transversal)
 ## Superficies UI
 
-- [ ] Paginas WebForms, UserControls, modales y tablas afectadas.
-- [ ] Estados de foco, hover, seleccion, responsive y accesibilidad.
+- [x] No se modificaron páginas WebForms, UserControls, modales ni tablas visuales.
+- [x] Foco, hover, selección, responsive y accesibilidad no cambian porque DOC-67 actúa en backend y persistencia.
 
 ## Validacion visual
 
-Registrar captura o recorrido manual reproducible cuando aplique.
+La validación confirmó que `workflow/Webworkflow.aspx` y su code-behind no presentan diferencias. No aplica captura visual porque no existe modificación de interfaz; la regresión se demuestra mediante invariancia de esas superficies y recorridos E2E sobre el consumidor existente.

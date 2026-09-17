@@ -5,7 +5,7 @@
 - Clasificacion: cross_cutting (Transversal)
 ## Objetivo
 
-Completar la importación SII con expediente obligatorio, almacenamiento secuencial, descubrimiento por `ENLASE`, vínculo verificado, caché documental, índices SQL/XML y reconciliación persistente.
+La importación SII queda completada con expediente obligatorio, almacenamiento secuencial, descubrimiento por `ENLASE`, vínculo verificado, caché documental, índices SQL/XML y reconciliación persistente.
 
 ## Alcance y compatibilidad
 
