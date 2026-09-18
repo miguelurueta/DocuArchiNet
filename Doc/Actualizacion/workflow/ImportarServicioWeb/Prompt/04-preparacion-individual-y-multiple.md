@@ -2,7 +2,7 @@
 
 Implementa la captura de requisitos previa a cualquier escritura utilizando el mismo contrato para una colección de uno o varios elementos.
 
-Depende de `PreflightImport` y `CreateImportIntent` publicados por el Prompt backend 03 sobre los contratos de B01.
+Depende de `PreflightImport`/`CreateImportIntent` de B03, del catálogo B09 y del plan aditivo B11. El resumen productivo de efectos queda bloqueado hasta completar B11.
 
 ## Objetivo
 
@@ -39,8 +39,8 @@ Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diag
 
 - Popup secundario contextual para una fila, con identidad inequívoca y selector de tipología.
 - Preparación múltiple para los elementos seleccionados.
-- Validación de tipología obligatoria según configuración de digitalización.
-- Plan de efectos confirmado por backend: destino, documentos y requisitos adicionales declarados por el adaptador.
+- Selector construido exclusivamente con el catálogo de tipologías autorizado por backend.
+- Plan lógico confirmado: tarea destino, tipología, requisitos y clases de efectos previstos; no mostrar `ExpedientId` ni afirmar que ya ocurrieron.
 - Una colección de exactamente un elemento para el recorrido individual.
 - Contrato de preflight o estado bloqueado documentado cuando el backend aún no pueda preparar el contexto SII independientemente.
 
@@ -48,6 +48,7 @@ Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diag
 
 - No mantengas caminos de persistencia separados para individual y múltiple.
 - El frontend no persiste la intención ni ejecuta sus efectos; solicita al backend su creación idempotente.
+- Preflight no consulta SII; usa selección, catálogo y configuración resueltos por backend.
 - Está prohibido modificar o invocar directamente `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` o mutadores legacy.
 - El núcleo no debe conocer caché, expediente ni índices SII.
 - No presentes como ejecutable un plan que el backend no haya confirmado.
@@ -57,6 +58,7 @@ Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diag
 
 - Guardar permanece deshabilitado mientras falten datos obligatorios.
 - La preparación individual no exige seleccionar ni importar todos los elementos.
+- Confirmar la preparación crea una sola intención con toda la selección; no una intención por inscripción.
 - Los requisitos específicos se obtienen desde el adaptador.
 
 ## Correcciones opsxj:prompt-review

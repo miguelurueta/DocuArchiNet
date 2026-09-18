@@ -2,7 +2,7 @@
 
 Extiende el núcleo y el adaptador SII sin reutilizar como autoridad las URL recibidas en las filas.
 
-Depende de `GetPreview` publicado por los prompts backend 01, 02 y 06. Debe respetar íntegramente la sección de preview mediado del contrato compartido.
+Depende de `GetPreview` y del handler de streaming publicados por backend 01, 02, 06 y 10. La integración productiva queda bloqueada hasta completar B10.
 
 ## Objetivo
 
@@ -28,15 +28,16 @@ Tests/
 ## Implementa
 
 - Panel lateral dentro del modal; en pantallas pequeñas, subvista completa con **Volver a la lista**.
-- Solicitud por proveedor e identidad externa estable, no por URL manipulable enviada como autoridad.
+- Solicitud por proveedor e identidad externa para obtener `DescriptorId`, seguida del handler seguro; nunca por URL SII enviada como autoridad.
 - Estados preparando, disponible, formato no visualizable, recurso vencido, proveedor indisponible y acceso no autorizado.
-- Descarga temporal controlada cuando el formato no sea visualizable.
+- Descarga temporal controlada mediante el mismo handler cuando el formato no sea visualizable.
 - Acción **Ver documento importado** mediante el visor documental existente solo después de reconciliar un identificador interno autorizado.
 - Conservación de selección, filtros, scroll y foco al abrir y cerrar la vista.
 
 ## Restricciones
 
 - No insertes directamente una URL externa de la fila en `iframe` ni uses `window.open` como recorrido principal.
+- No transportes bytes como JSON/base64, no construyas URLs técnicas y no reutilices descriptores vencidos.
 - No registres ni muestres tokens, rutas físicas o respuestas externas completas.
 - Si el backend mediador aún no existe, deja el estado bloqueado y documenta el contrato requerido; no lo simules en producción.
 - No modifiques almacenamiento, `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` ni rutas legacy.
@@ -45,6 +46,7 @@ Tests/
 
 - La vista externa se distingue visual y semánticamente del documento importado.
 - La expiración permite solicitar un recurso nuevo sin mutación.
+- Cambios de foco, tamaño o layout no repiten la descarga del contenido.
 - Las pruebas cubren foco, cierre y fallback de formato.
 
 ## Correcciones opsxj:prompt-review

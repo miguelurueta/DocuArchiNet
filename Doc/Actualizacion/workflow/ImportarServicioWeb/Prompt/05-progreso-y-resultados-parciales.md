@@ -1,10 +1,10 @@
-# Prompt 05 — Progreso real y resultados parciales
+# Prompt 05 — Espera global y resultados por elemento
 
-Integra la presentación del recorrido moderno con `js/java_general/JSProgresBar.js` conservando todos sus consumidores existentes. Depende de `ExecuteImportIntent` y `GetImportIntent` publicados por el Prompt backend 04.
+Implementa la presentación del recorrido moderno dentro de los módulos y estilos propios del feature. `js/java_general/JSProgresBar.js` y todos sus consumidores legacy permanecen intactos y no son una dependencia de esta pantalla. Depende de `ExecuteImportIntent` y `GetImportIntent` publicados por el Prompt backend 04.
 
 ## Objetivo
 
-Presentar fases globales y resultados por elemento confirmados por el orquestador backend, sin convertir el navegador en un segundo ejecutor ni inventar porcentajes.
+Presentar una espera global durante la única ejecución síncrona y, al finalizar, los resultados por elemento confirmados por el orquestador backend, sin convertir el navegador en un segundo ejecutor ni inventar porcentajes.
 
 ## Rutas canónicas de implementación
 
@@ -19,9 +19,9 @@ Tests/
 └── importar-servicio-web-progress-legacy-regression.test.cjs
 ```
 
-- `progress-adapter.js` consume `GetImportIntent` mediante `importar-servicio-web-api.js` y aplica el mapa contractual; no ejecuta mutaciones.
-- `progress-view.js` integra presentación sin modificar `js/java_general/JSProgresBar.js` ni sus consumidores.
-- No crear `JSProgresBarSII`, una copia de la barra, temporizadores de progreso o handlers inline.
+- `progress-adapter.js` consume la respuesta de `ExecuteImportIntent` y puede confirmar el snapshot final mediante `GetImportIntent`; no ejecuta mutaciones.
+- `progress-view.js` presenta un indicador indeterminado accesible mediante HTML/CSS del feature, sin importar, instanciar, adaptar ni invocar `js/java_general/JSProgresBar.js`.
+- No crear `JSProgresBarSII`, copiar la barra, inventar porcentajes, usar temporizadores de progreso ni agregar handlers inline.
 - Registrar módulos nuevos en el `.vbproj`; estilos adicionales permanecen en `Styles/importar-servicio-web-modern.css`.
 
 ## Ruta documental obligatoria
@@ -35,26 +35,31 @@ Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diag
 ## Implementa
 
 - `ImportarServicioWebProgressAdapter` con estado estructurado por clave externa, fase backend, estado visible y mensaje seguro.
-- Adaptación de eventos confirmados por `GetImportIntent`; inicio, elemento iniciado, progreso, resultado, decisión y finalización son notificaciones, no órdenes mutadoras.
+- Una sola llamada a `ExecuteImportIntent` por intención, tanto para uno como para varios elementos.
+- Espera global indeterminada mientras la llamada está pendiente, sin porcentaje ni avance individual simulado.
+- Al finalizar, adaptación de `response.Items` y presentación de un resultado independiente por elemento.
 - Aplicación exacta del mapeo de estados definido en `../CONTRATO-COMPARTIDO-FRONTEND-BACKEND.md`.
-- En múltiple, **Continuar con las demás** y **Detener importación** ante `CTRLRETURN`.
 - Resumen con guardadas, omitidas, fallidas y no procesadas.
+- No realizar polling durante la llamada síncrona; `GetImportIntent` se reserva para timeout, pérdida de respuesta o reapertura autorizada.
 
 ## Restricciones
 
-- No copies ni especialices `JSProgresBar` para SII.
-- En el recorrido moderno, `JSProgresBar` no invoca guardado, expediente, índices, caché ni almacenamiento por elemento; el único ejecutor es `ImportServiceOrchestrator`.
+- No copies, especialices, importes ni invoques `JSProgresBar` desde el feature moderno. Es infraestructura exclusivamente legacy.
+- En el recorrido moderno, el único ejecutor es `ImportServiceOrchestrator`; el indicador local solo refleja solicitud pendiente y respuesta final.
 - No interpretes `YES`, `CTRL`, `CTRLRETURN` ni `dato_lista`; esa traducción pertenece exclusivamente al adaptador backend.
+- No realices una llamada por inscripción, no consultes nuevamente SII por elemento y no fragmentes la intención para simular progreso.
 - No cambies orden, retornos, `estado_control`, pausas, cancelación o selección por `name_service` de los consumidores legacy.
 - No modifiques `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` ni sus consumidores.
 - No ofrezcas **Reintentar fallidos** en esta entrega.
 - No anuncies éxito total cuando exista cualquier resultado distinto de Guardada.
+- Una vez iniciada `ExecuteImportIntent`, la primera entrega no ofrece cancelación en curso; cerrar el modal no cancela ni revierte la operación.
 
 ## Aceptación
 
-- Individual y múltiple usan el mismo orquestador backend con colecciones de diferente cardinalidad.
+- Individual y múltiple usan una sola intención y una sola invocación al mismo orquestador backend con colecciones de diferente cardinalidad.
+- La espera termina únicamente con respuesta o fallo de transporte; después se muestran todos los resultados disponibles.
 - Los códigos legacy no llegan al frontend moderno ni aparecen en la interfaz.
-- Existen pruebas de regresión de los consumidores compartidos afectados.
+- Existen pruebas de invariancia que demuestran que `JSProgresBar` y sus consumidores legacy no fueron modificados ni invocados por el feature moderno.
 
 ## Correcciones opsxj:prompt-review
 
@@ -74,7 +79,7 @@ Describir el objetivo funcional y tecnico verificable.
 - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
 
 ## Contexto obligatorio
-Leer F01–F04, B04, el mapa normativo, `js/java_general/JSProgresBar.js` y sus consumidores identificados. La barra y consumidores existentes son referencia de compatibilidad y no se modifican.
+Leer F01–F04, B04, el mapa normativo, `js/java_general/JSProgresBar.js` y sus consumidores identificados. Inspeccionarlos únicamente para demostrar aislamiento e invariancia; no convertirlos en dependencia del feature moderno.
 
 ## Pruebas obligatorias
 Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.

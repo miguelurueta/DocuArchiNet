@@ -39,14 +39,16 @@ Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diag
 - Preflight inmediatamente anterior al primer efecto.
 - Intención con operación, tarea, ruta, usuario autenticado, proveedor, identidades externas y fecha de inicio.
 - Bloqueo de selección/búsqueda de tareas, continuar flujo, devolver, cerrar y demás acciones incompatibles durante escrituras.
-- **Detener importación** con explicación de que no revierte efectos ya confirmados.
-- Conflicto `TASK_CONTEXT_CHANGED` si la sesión deja de coincidir mientras los endpoints legacy aún dependen de ella.
+- Antes de iniciar, permitir cancelar la preparación sin efectos. Después de enviar `ExecuteImportIntent`, bloquear acciones incompatibles y explicar que cerrar el modal no detiene ni revierte la operación.
+- Tratar `TASK_CONTEXT_MISMATCH` cuando la tarea solicitada no coincide con la sesión y `PERSISTED_CONTEXT_MISMATCH` cuando la intención persistida no coincide con el contexto autenticado. Ambos detienen pendientes y obligan a consultar el estado autoritativo; no inventar `TASK_CONTEXT_CHANGED`.
 - Consulta y recuperación de la intención después de recarga, cierre forzado o pérdida de conexión.
 - Actualización de documentos solo cuando la vista corresponde a la tarea original.
 
 ## Restricciones
 
 - `beforeunload` es solo advertencia, no garantía.
+- La primera entrega no promete cancelación de una solicitud `ExecuteImportIntent` ya iniciada.
+- La recuperación solo se habilita con un `IntentId` autoritativo provisto por página o persistencia backend; no guardar autoridad en `localStorage` ni crear un buscador frontend.
 - La sesión no puede sustituir la tarea ligada a la intención.
 - Cada endpoint mutador debe volver a validar usuario, tarea, ruta, proveedor e identidad.
 - El frontend no ejecuta mutaciones por elemento ni reconstruye una intención a partir de la sesión.

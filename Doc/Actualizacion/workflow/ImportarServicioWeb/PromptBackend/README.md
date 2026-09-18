@@ -14,6 +14,10 @@ El contrato normativo, mapeo de estados, propiedad de la ejecución y orden cruz
 6. [`06-adaptador-sii-compatibilidad-asmx.md`](06-adaptador-sii-compatibilidad-asmx.md)
 7. [`07-pruebas-backend-evidencia.md`](07-pruebas-backend-evidencia.md)
 8. [`08-creacion-vinculacion-expedientes-sii.md`](08-creacion-vinculacion-expedientes-sii.md)
+9. [`09-listado-enriquecido-catalogo-tipologias.md`](09-listado-enriquecido-catalogo-tipologias.md)
+10. [`10-preview-stream-descarga-segura.md`](10-preview-stream-descarga-segura.md)
+11. [`11-preflight-plan-efectos-destino.md`](11-preflight-plan-efectos-destino.md)
+12. [`12-gate-autorizacion-endpoints-modernos.md`](12-gate-autorizacion-endpoints-modernos.md)
 
 Cada prompt debe ejecutarse mediante un cambio OpenSpec propio o tareas atómicas trazables. Antes de implementar, debe resolver o registrar como bloqueo las preguntas abiertas que afecten su alcance; una suposición no puede convertirse silenciosamente en contrato productivo.
 
@@ -37,3 +41,9 @@ Cada prompt debe ejecutarse mediante un cambio OpenSpec propio o tareas atómica
 Los prompts de `../Prompt/` consumen contratos confirmados por este backend. El frontend no sustituye autorización, idempotencia, persistencia, progreso ni reconciliación del servidor.
 
 “Implementación paralela” describe la coexistencia entre arquitectura nueva y legacy; no autoriza procesamiento concurrente de elementos, que seguirá siendo secuencial.
+
+Los prompts 09 a 11 son extensiones aditivas posteriores a DOC-67. Deben preservar la decisión frontend de una sola intención y una sola llamada síncrona a `ExecuteImportIntent`; no introducen progreso por elemento ni nuevas consultas SII durante preflight o ejecución.
+
+El prompt 12 cierra la brecha de seguridad del gate en la frontera backend. Es independiente de la lógica funcional, pero bloquea la habilitación productiva hasta demostrar autorización por booleano, sesión, usuario y grupo en todos los endpoints modernos.
+
+Cada uno de los prompts 09 a 11 incluye E2E real obligatoria reutilizando `tools/e2e`. La obligación de evidencia no concede autorización operativa: si falta autorización de ambiente, cuenta o recurso descartable, el cambio queda bloqueado y no puede cerrarse con mocks o evidencia inventada.

@@ -2,7 +2,7 @@
 
 Implementa el primer adaptador del núcleo creado en el Prompt 01. Lee la exploración completa y conserva los controles de permiso, tarea, ruta, trámite y servicio configurado.
 
-Depende de los prompts backend 01, 02 y de la porción de consulta del 06. Consume exclusivamente `ResolveCapabilities` y `QueryItems` conforme al contrato compartido versionado.
+Depende de los prompts backend 01, 02, 06 y 09. La integración productiva queda bloqueada hasta publicar B09; consume exclusivamente `ResolveCapabilities` y `QueryItems`.
 
 ## Objetivo
 
@@ -38,15 +38,17 @@ Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diag
 ## Implementa
 
 - Adaptador registrado únicamente para `INTEGRACIONSII`.
-- Normalización de cada inscripción a identidad externa, título, fecha, descripción, estado, metadatos presentables y acciones.
+- Lectura de cada item ya normalizado por backend: identidad, título, fecha, descripción, estado, metadatos y acciones; no analizar `ExternalKey` para reconstruir campos.
 - Tabla SII con libro, inscripción, fecha, naturaleza/acto, noticia y referencia, sin convertir esas columnas en parte del núcleo.
 - Estados de consulta: preparando, disponible, vacío, indisponible, respuesta inválida y no autorizado.
 - Filtros Todos, Disponibles, Importados y Con novedad; selección solo para elementos importables.
+- Catálogo de tipologías recibido con `ResolveCapabilities`; no consultar tablas ni endpoints legacy desde el frontend.
 - Saneamiento de textos y retiro de registros sensibles en consola.
 
 ## Restricciones
 
 - La consulta no cambia documentos, expedientes, índices, caché ni auditoría funcional.
+- Filtrar, seleccionar tipología o paginar localmente no vuelve a llamar SII; una nueva consulta ocurre solo por actualización explícita.
 - No llames directamente el transporte SII ni interpretes respuestas ASMX o códigos legacy desde el frontend moderno.
 - No modifiques `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` ni el recorrido vigente.
 - No expongas token, credenciales, URL técnica permanente, ruta física ni respuesta externa cruda.
@@ -55,6 +57,7 @@ Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diag
 ## Aceptación
 
 - Cero, uno y múltiples elementos se representan correctamente.
+- Una consulta produce una sola invocación backend y los filtros operan sobre la respuesta recibida.
 - Elementos importados quedan fuera de la selección masiva.
 - Errores seguros no pierden el contexto de tarea.
 - Las pruebas usan fixtures deterministas y sin red.

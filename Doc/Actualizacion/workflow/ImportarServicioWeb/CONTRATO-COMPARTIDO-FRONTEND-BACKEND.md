@@ -7,9 +7,11 @@ Este documento es normativo para los prompts de `Prompt/` y `PromptBackend/`. Si
 | Recorrido | Propietario de la secuencia | Papel de `JSProgresBar` |
 |---|---|---|
 | Legacy, gate apagado | Navegador y endpoints ASMX existentes | Ejecutor existente, sin cambios |
-| Moderno, gate encendido | `ImportServiceOrchestrator` en backend | Adaptador de presentación de eventos/estados confirmados; no inicia efectos por elemento |
+| Moderno, gate encendido | `ImportServiceOrchestrator` en backend | No participa. El feature usa un indicador indeterminado local y presenta resultados finales; no integra `JSProgresBar` |
 
 La implementación moderna no puede tener dos ejecutores. El frontend crea o solicita la ejecución de una intención y consulta/recibe su estado; únicamente el backend decide e invoca las fases mutadoras en orden secuencial.
+
+Para la primera entrega frontend, todos los elementos seleccionados pertenecen a una sola intención y se envían en una sola llamada síncrona a `ExecuteImportIntent`. Mientras la llamada está pendiente, la UI muestra espera global indeterminada; no inventa porcentajes ni progreso individual. Al recibir la respuesta, recorre `Items`, presenta el resultado de cada elemento y agrega a la lista documental todos los elementos confirmados, deduplicados por `DocumentId` y únicamente si `TaskId` coincide con la tarea visible.
 
 ## 2. Invariantes de coexistencia y almacenamiento
 
@@ -40,7 +42,7 @@ Operaciones lógicas mínimas:
 | `GetPreview` | No | descriptor/stream temporal autorizado |
 | `PreflightImport` | No | plan de efectos y requisitos validados |
 | `CreateImportIntent` | Sí, solo intención | intención idempotente |
-| `ExecuteImportIntent` | Sí | aceptación de ejecución; el servidor conserva la secuencia |
+| `ExecuteImportIntent` | Sí | ejecución síncrona de la intención completa y resultado estructurado por elemento |
 | `GetImportIntent` | No | estado global y por elemento |
 | `ReconcileImportIntent` | No | resultado persistido y documentos confirmados |
 
@@ -66,7 +68,7 @@ El frontend no deriva `Importada` de una respuesta optimista: requiere reconcili
 
 - El adaptador backend ASMX es el único propietario de traducir `YES`, `CTRL`, `CTRLRETURN` y `dato_lista` hacia o desde el resultado estructurado.
 - El frontend moderno nunca interpreta esos códigos.
-- `ImportarServicioWebProgressAdapter` transforma estados estructurados en presentación y eventos compatibles de UI.
+- `ImportarServicioWebProgressAdapter` transforma la respuesta final y los snapshots estructurados en presentación; no presupone eventos push, progreso intermedio ni integración con `JSProgresBar`.
 - Los consumidores legacy conservan su traducción y comportamiento actuales sin modificación.
 
 ## 6. Preview mediado
@@ -80,13 +82,23 @@ El frontend no deriva `Importada` de una respuesta optimista: requiere reconcili
 - usa encabezados seguros y diferencia inline de attachment;
 - nunca entrega como autoridad la URL externa, token, ruta física o respuesta cruda.
 
+`GetPreview` devuelve metadatos y un `DescriptorId` opaco. El contenido se obtiene mediante un handler de streaming separado que vuelve a validar sesión, tarea, proveedor, identidad, expiración, tipo y tamaño; nunca se transportan bytes como JSON/base64. `HEAD` no descarga contenido externo y cada consumo evita repetir innecesariamente la descarga SII.
+
 El preview es de solo lectura y no cambia tarea, estado, intención, documento, expediente, índices, caché ni auditoría funcional.
+
+## 6.1 Listado, catálogo y preflight enriquecidos
+
+- `QueryItems` realiza una sola consulta SII por solicitud y enriquece localmente cada item con metadatos presentables, estado y acciones.
+- El catálogo de tipologías proviene de configuración local autoritativa de tarea/trámite; nunca de SII ni del cliente.
+- `PreflightImport` puede describir destino lógico, requisitos y efectos previstos, pero no expone `ExpedientId` ni afirma que los efectos físicos ya ocurrieron.
+- Catálogo y preflight no realizan llamadas externas SII ni mutaciones.
 
 ## 7. Gate compartido
 
 El gate canónico es `WorkflowCentroTrabajoModernActive`:
 
 - se evalúa en presentación y en la frontera de endpoints modernos;
+- la frontera de cada endpoint valida conjuntamente el booleano, el usuario y el grupo autorizados; el ocultamiento de la UI no reemplaza esta autorización;
 - apagado: la UI moderna queda oculta, los endpoints modernos responden `FEATURE_DISABLED` sin efectos y el legacy continúa intacto;
 - encendido para usuario/grupo autorizado: habilita exclusivamente la ruta moderna paralela;
 - nunca se activa automáticamente desde código o pruebas;
