@@ -32,7 +32,7 @@ Public NotInheritable Class MySqlImportReconciliationRepository
     Private Function ReadSnapshot(ByVal contexto As ContextoImportacionServicio, ByVal intentId As String, ByVal providerId As String, ByVal externalKey As String) As SnapshotReconciliacionImportacion
         If contexto Is Nothing OrElse String.IsNullOrWhiteSpace(intentId) Then Return Nothing
         Dim filter = If(externalKey Is Nothing, String.Empty, " AND item.provider_id=@providerId AND item.external_key=@externalKey")
-        Dim sql = "SELECT intent.intent_id,intent.version_token,intent.status AS intent_status,intent.user_id,intent.task_id,intent.provider_id AS intent_provider," &
+        Dim sql = "SELECT intent.intent_id,intent.version_token,intent.status AS intent_status,intent.user_id,intent.group_id,intent.user_login,intent.task_id,intent.route_id,intent.procedure_id,intent.provider_id AS intent_provider," &
                   "item.client_item_id,item.provider_id,item.external_key,item.target_task_id,item.document_id," &
                   "item.file_name,item.content_type,item.status AS item_status," &
                   "item.persistence_known,item.retryable,item.error_code,item.visible_message,item.correlation_id," &
@@ -56,7 +56,51 @@ Public NotInheritable Class MySqlImportReconciliationRepository
         Catch ex As Exception
             Throw New InvalidOperationException("DOCUARCHI_RECONCILIATION_UNAVAILABLE", ex)
         End Try
+        If snapshot IsNot Nothing Then LoadExpedientEffects(contexto, snapshot)
         Return snapshot
+    End Function
+
+    Private Sub LoadExpedientEffects(ByVal contexto As ContextoImportacionServicio,
+                                     ByVal snapshot As SnapshotReconciliacionImportacion)
+        Const sql As String =
+            "SELECT related.intent_id,related.task_id,related.image_id,related.cabinet_name,related.sii_radicado," &
+            "related.document_type_id,related.inscription_key,related.expected_expedient_id,related.destination_status," &
+            "related.relation_status,related.cache_status,related.cabinet_index_status,related.electronic_index_status," &
+            "related.xml_index_status,related.reconciliation_status," &
+            "cache.expected_expedient_id AS cached_expedient_id,cache.relation_status AS cached_relation_status " &
+            "FROM workflow_import_related_document related " &
+            "LEFT JOIN workflow_import_document_link_cache cache ON cache.task_id=related.task_id " &
+            "AND cache.image_id=related.image_id AND cache.cabinet_name=related.cabinet_name " &
+            "WHERE related.intent_id=@intentId AND related.task_id=@taskId ORDER BY related.image_id"
+        Using connection = _connections.CreateOpenConnection(New ContextoModulo With {.CodigoModulo="IMPORTAR_SERVICIO_WEB",.IdUsuario=contexto.IdUsuario,.IdGrupo=contexto.IdGrupo,.LoginUsuario=contexto.LoginUsuario})
+            snapshot.DocumentosRelacionados = _executor.ExecuteReader(connection, Nothing, sql,
+                New List(Of IDataParameter) From {P("@intentId", snapshot.IntentId), P("@taskId", snapshot.IdTareaOriginal)},
+                AddressOf MapExpedientEffects)
+        End Using
+    End Sub
+
+    Private Shared Function MapExpedientEffects(ByVal reader As IDataReader) As IList(Of DocumentoRelacionadoImportacion)
+        Dim result As New List(Of DocumentoRelacionadoImportacion)()
+        While reader.Read()
+            Dim document As New DocumentoRelacionadoImportacion With {
+                .IntentId=Convert.ToString(reader("intent_id")),.IdTarea=Convert.ToInt64(reader("task_id")),
+                .IdImagen=Convert.ToInt64(reader("image_id")),.NombreGabinete=Convert.ToString(reader("cabinet_name")),
+                .RadicadoSii=Convert.ToString(reader("sii_radicado")),.IdTipoDocumental=NullableInteger(reader,"document_type_id"),
+                .ClaveInscripcion=Convert.ToString(reader("inscription_key")),.IdExpedienteEsperado=NullableLong(reader,"expected_expedient_id"),
+                .EstadoDestino=ParseEffect(reader("destination_status")),.EstadoRelacion=ParseRelation(reader("relation_status")),
+                .EstadoCache=ParseEffect(reader("cache_status")),.EstadoIndiceGabinete=ParseEffect(reader("cabinet_index_status")),
+                .EstadoIndiceSql=ParseEffect(reader("electronic_index_status")),.EstadoIndiceXml=ParseEffect(reader("xml_index_status")),
+                .EstadoReconciliacion=ParseEffect(reader("reconciliation_status"))}
+            If Not reader.IsDBNull(reader.GetOrdinal("cached_expedient_id")) AndAlso
+               (Not document.IdExpedienteEsperado.HasValue OrElse Convert.ToInt64(reader("cached_expedient_id")) <> document.IdExpedienteEsperado.Value) Then
+                document.EstadoCache = EstadoEfectoExpedienteImportacion.Conflicto
+            ElseIf Not reader.IsDBNull(reader.GetOrdinal("cached_relation_status")) AndAlso
+                   ParseRelation(reader("cached_relation_status")) <> EstadoRelacionDocumentoExpediente.Correcta Then
+                document.EstadoCache = EstadoEfectoExpedienteImportacion.Conflicto
+            End If
+            result.Add(document)
+        End While
+        Return result
     End Function
 
     Private Sub EnrichFromDocuarchi(ByVal contexto As ContextoImportacionServicio, ByVal snapshot As SnapshotReconciliacionImportacion)
@@ -115,7 +159,7 @@ Public NotInheritable Class MySqlImportReconciliationRepository
         Dim result As SnapshotReconciliacionImportacion = Nothing
         While reader.Read()
             If result Is Nothing Then
-                result = New SnapshotReconciliacionImportacion With {.IntentId=Convert.ToString(reader("intent_id")),.VersionToken=Convert.ToString(reader("version_token")),.Fase=ParsePhase(reader("intent_status")),.IdUsuario=Convert.ToInt32(reader("user_id")),.IdTareaOriginal=Convert.ToInt64(reader("task_id")),.ProviderId=Convert.ToString(reader("intent_provider"))}
+                result = New SnapshotReconciliacionImportacion With {.IntentId=Convert.ToString(reader("intent_id")),.VersionToken=Convert.ToString(reader("version_token")),.Fase=ParsePhase(reader("intent_status")),.IdUsuario=Convert.ToInt32(reader("user_id")),.IdTareaOriginal=Convert.ToInt64(reader("task_id")),.ProviderId=Convert.ToString(reader("intent_provider")),.ContextoOriginal=New ContextoIntencionImportacion With {.IdUsuario=Convert.ToInt32(reader("user_id")),.IdGrupo=Convert.ToInt32(reader("group_id")),.LoginUsuario=Convert.ToString(reader("user_login")),.IdTarea=Convert.ToInt64(reader("task_id")),.IdRuta=Convert.ToInt32(reader("route_id")),.IdTramite=Convert.ToInt32(reader("procedure_id")),.ProviderId=Convert.ToString(reader("intent_provider"))}}
             End If
             result.Items.Add(New SnapshotItemReconciliacionImportacion With {.ClientItemId=Convert.ToString(reader("client_item_id")),.ProviderId=Convert.ToString(reader("provider_id")),.ExternalKey=Convert.ToString(reader("external_key")),.IdTareaDestino=Convert.ToInt64(reader("target_task_id")),.IdDocumento=NullableLong(reader,"document_id"),.NombreDocumento=Convert.ToString(reader("file_name")),.TipoContenido=Convert.ToString(reader("content_type")),.Fase=ParsePhase(reader("item_status")),.PersistenciaConocida=Convert.ToBoolean(reader("persistence_known")),.Reintentable=Convert.ToBoolean(reader("retryable")),.CodigoError=Convert.ToString(reader("error_code")),.MensajeVisible=Convert.ToString(reader("visible_message")),.CorrelationId=Convert.ToString(reader("correlation_id")),.CantidadDocumentos=Convert.ToInt32(reader("document_count")),.CantidadRelaciones=Convert.ToInt32(reader("relation_count")),.CantidadRelacionesOtraTarea=Convert.ToInt32(reader("other_task_count"))})
         End While
@@ -128,6 +172,20 @@ Public NotInheritable Class MySqlImportReconciliationRepository
     Private Shared Function NullableLong(ByVal reader As IDataReader, ByVal name As String) As Nullable(Of Long)
         If reader.IsDBNull(reader.GetOrdinal(name)) Then Return Nothing
         Return New Nullable(Of Long)(Convert.ToInt64(reader(name)))
+    End Function
+    Private Shared Function NullableInteger(ByVal reader As IDataReader, ByVal name As String) As Nullable(Of Integer)
+        If reader.IsDBNull(reader.GetOrdinal(name)) Then Return Nothing
+        Return New Nullable(Of Integer)(Convert.ToInt32(reader(name)))
+    End Function
+    Private Shared Function ParseEffect(ByVal value As Object) As EstadoEfectoExpedienteImportacion
+        Dim result As EstadoEfectoExpedienteImportacion
+        If [Enum].TryParse(Of EstadoEfectoExpedienteImportacion)(Convert.ToString(value), True, result) Then Return result
+        Return EstadoEfectoExpedienteImportacion.Pendiente
+    End Function
+    Private Shared Function ParseRelation(ByVal value As Object) As EstadoRelacionDocumentoExpediente
+        Dim result As EstadoRelacionDocumentoExpediente
+        If [Enum].TryParse(Of EstadoRelacionDocumentoExpediente)(Convert.ToString(value), True, result) Then Return result
+        Return EstadoRelacionDocumentoExpediente.NoConsultada
     End Function
     Private Shared Function P(ByVal name As String, ByVal value As Object) As IDataParameter
         Return New MySqlParameter(name, If(value, DBNull.Value))

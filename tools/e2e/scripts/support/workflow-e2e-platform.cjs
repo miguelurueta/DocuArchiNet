@@ -233,16 +233,35 @@ function createSafeEvidence({ plan, result, before, after, failureCode, resource
   if (!Array.isArray(latencies) || latencies.length > 20 || latencies.some((value) => !Number.isSafeInteger(value) || value < 0 || value > plan.profile.budgetMs)) {
     fail('E2E_PLATFORM_EVIDENCE_INVALID');
   }
+  const assertions = result?.assertions || [];
+  if (!Array.isArray(assertions) || assertions.length > 18 || assertions.some((assertion) => {
+    const keys = assertion && typeof assertion === 'object' ? Object.keys(assertion).sort() : [];
+    return keys.join(',') !== 'code,expectedCount,id,observedCount,scenario,status' ||
+      !/^DOC67-E2E-(?:0[1-9]|1[0-8])$/.test(assertion.id) || assertion.scenario !== plan.scenario.id ||
+      !['passed', 'failed', 'blocked'].includes(assertion.status) ||
+      !/^ASSERTION_[A-Z_]{3,80}$/.test(assertion.code) ||
+      !Number.isSafeInteger(assertion.expectedCount) || assertion.expectedCount < 0 ||
+      !Number.isSafeInteger(assertion.observedCount) || assertion.observedCount < 0;
+  })) fail('E2E_PLATFORM_EVIDENCE_INVALID');
+  const controlResults = Object.keys(before || {}).sort().map((id) => Object.freeze({
+    id,
+    changed: Boolean(after && before[id] !== after[id])
+  }));
   const evidence = {
     scenario: plan.scenario.id,
     stage: plan.scenario.stage,
     success: !failureCode,
     failureCode: failureCode || null,
-    controls: Object.freeze({ checked: Object.keys(before || {}).length, unchanged: controlsUnchanged(before || {}, after || {}) }),
+    controls: Object.freeze({
+      checked: controlResults.length,
+      unchanged: controlsUnchanged(before || {}, after || {}),
+      results: Object.freeze(controlResults)
+    }),
     result: Object.freeze({
       codes: Object.freeze(codes),
       count: Number.isSafeInteger(result?.count) && result.count >= 0 ? result.count : 0,
-      latenciesMs: Object.freeze([...latencies])
+      latenciesMs: Object.freeze([...latencies]),
+      assertions: Object.freeze(assertions.map((assertion) => Object.freeze({ ...assertion })))
     }),
     resources: Object.freeze((resourceEvents || []).map((event) => ({ role: event.role, phase: event.phase, code: event.code })))
   };
@@ -357,6 +376,9 @@ async function executePlatformRun(options) {
     eraseSecrets(secrets, environment);
     try {
       await assertIntegrity({ root: repositoryRoot });
+      if (typeof plan.adapter.finalizeEvidence === 'function') {
+        adapterResult = plan.adapter.finalizeEvidence(adapterResult, { integrityConfirmed: true });
+      }
     } catch (error) {
       if (!failure) failure = error;
     }

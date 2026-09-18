@@ -279,6 +279,15 @@ Public NotInheritable Class CompleteImportExecutionStep
     Public Function Ejecutar(ByVal contexto As ContextoImportacionServicio,
                              ByVal intencion As IntencionImportacionServicio,
                              ByVal item As ResultadoElementoImportacion) As ResultadoFaseImportacion Implements IImportExecutionStep.Ejecutar
+        If _phase = FaseImportacionServicio.Completada AndAlso
+           (intencion Is Nothing OrElse Not ImportIntentStateMachine.PuedeCompletar(intencion.Fase)) Then
+            Return New ResultadoFaseImportacion With {
+                .Codigo = "RECONCILIATION_REQUIRED",
+                .MensajeVisible = "La importación requiere reconciliación antes de completarse.",
+                .PersistenciaConocida = True,
+                .Reintentable = False
+            }
+        End If
         Return New ResultadoFaseImportacion With {.Exitoso = True, .PersistenciaConocida = True}
     End Function
 End Class

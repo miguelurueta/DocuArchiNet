@@ -187,12 +187,14 @@ End Class
     Inherits RespuestaImportacionServicioDto
     Public Sub New()
         Items = New List(Of ImportItemResultDto)()
+        ExpedientEffects = New List(Of ImportItemExpedientEffectsDto)()
     End Sub
     Public Property IntentId As String
     Public Property Accepted As Boolean
     Public Property Status As String
     Public Property VersionToken As String
     Public Property Items As IList(Of ImportItemResultDto)
+    Public Property ExpedientEffects As IList(Of ImportItemExpedientEffectsDto)
 End Class
 
 <Serializable()> Public Class GetImportIntentRequestDto
@@ -204,11 +206,13 @@ End Class
     Inherits RespuestaImportacionServicioDto
     Public Sub New()
         Items = New List(Of ImportItemResultDto)()
+        ExpedientEffects = New List(Of ImportItemExpedientEffectsDto)()
     End Sub
     Public Property IntentId As String
     Public Property Status As String
     Public Property VersionToken As String
     Public Property Items As IList(Of ImportItemResultDto)
+    Public Property ExpedientEffects As IList(Of ImportItemExpedientEffectsDto)
 End Class
 
 <Serializable()> Public Class ReconcileImportIntentRequestDto
@@ -221,10 +225,34 @@ End Class
     Inherits RespuestaImportacionServicioDto
     Public Sub New()
         Items = New List(Of ImportItemResultDto)()
+        ExpedientEffects = New List(Of ImportItemExpedientEffectsDto)()
     End Sub
     Public Property IntentId As String
     Public Property Status As String
     Public Property VersionToken As String
     Public Property ConfirmedDocumentCount As Integer
     Public Property Items As IList(Of ImportItemResultDto)
+    Public Property ExpedientEffects As IList(Of ImportItemExpedientEffectsDto)
+End Class
+
+' Contrato aditivo 1.1 para postcondiciones de expediente. No altera los envelopes 1.0 existentes.
+<Serializable()> Public Class ImportItemExpedientEffectsDto
+    Public Sub New()
+        SchemaVersion = "1.1"
+    End Sub
+    Public Property SchemaVersion As String
+    Public Property ClientItemId As String
+    Public Property InscriptionKey As String
+    Public Property ExpedientId As Nullable(Of Long)
+    Public Property ExpedientStatus As String
+    Public Property DestinationStatus As String
+    Public Property RelationStatus As String
+    Public Property LinkCacheStatus As String
+    Public Property CabinetIndexStatus As String
+    Public Property ElectronicIndexSqlStatus As String
+    Public Property ElectronicIndexXmlStatus As String
+    Public Property ReconciliationStatus As String
+    Public Property ResultCode As String
+    Public Property Message As String
+    Public Property Retryable As Boolean
 End Class

@@ -138,10 +138,35 @@ async function writeEvidence(evidence) {
 async function initializeWorkflowContext(context, plan) {
   const page = await context.newPage();
   try {
+    const taskId = plan.profile[plan.scenario.resource.profileField];
+    if (!Number.isSafeInteger(taskId) || taskId <= 0) fail('E2E_PLATFORM_TASK_CONTEXT_INVALID');
     await page.goto(new URL('workflow/Webworkflow.aspx', plan.profile.baseUrl).toString(), {
       waitUntil: 'domcontentloaded',
       timeout: Math.min(plan.profile.budgetMs, 60000)
     });
+    const selectedTask = page.locator('#Hidden_id_tarea_selecionada');
+    const expectedTaskId = String(taskId);
+    await selectedTask.waitFor({ state: 'attached', timeout: Math.min(plan.profile.budgetMs, 60000) });
+    if (await selectedTask.inputValue() !== expectedTaskId) {
+      await page.evaluate(() => {
+        if (typeof window.hide_area_workflow_seleccion === 'function') window.hide_area_workflow_seleccion();
+      });
+      const selectCommand = page.locator(`[tip_event="seleccion_tarea_wf"][idd="${taskId}"]:visible`).first();
+      if (!await selectCommand.count()) {
+        const taskSearch = page.locator('#auto_complex:visible');
+        await taskSearch.waitFor({ state: 'visible', timeout: Math.min(plan.profile.budgetMs, 30000) });
+        await taskSearch.fill(expectedTaskId);
+        await page.locator('button[title="consultar lista"]:visible').click();
+      }
+      await selectCommand.waitFor({ state: 'visible', timeout: Math.min(plan.profile.budgetMs, 30000) });
+      await selectCommand.click();
+      await page.waitForFunction(
+        ([selector, expected]) => document.querySelector(selector)?.value === expected,
+        ['#Hidden_id_tarea_selecionada', expectedTaskId],
+        { timeout: Math.min(plan.profile.budgetMs, 30000) }
+      );
+    }
+    if (await selectedTask.inputValue() !== expectedTaskId) fail('E2E_PLATFORM_TASK_CONTEXT_UNAVAILABLE');
   } finally {
     await page.close();
   }

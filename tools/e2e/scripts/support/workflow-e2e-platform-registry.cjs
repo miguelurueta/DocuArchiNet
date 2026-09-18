@@ -53,12 +53,39 @@ const CONTROL_REGISTRY = Object.freeze({
   }),
   'import-item-state': Object.freeze({
     id: 'import-item-state',
-    query: 'SELECT item.intent_id, item.client_item_id, item.external_key, item.status, item.document_id FROM workflow_import_intent_item item INNER JOIN workflow_import_intent intent ON intent.intent_id = item.intent_id WHERE intent.task_id = ? ORDER BY item.intent_id, item.client_item_id'
+    query: 'SELECT item.intent_id, item.client_item_id, item.external_key, item.status, item.document_id, item.expedient_id, item.storage_status, item.relation_status, item.index_status, item.cache_status FROM workflow_import_intent_item item INNER JOIN workflow_import_intent intent ON intent.intent_id = item.intent_id WHERE intent.task_id = ? ORDER BY item.intent_id, item.client_item_id'
   }),
   'import-transition-audit': Object.freeze({
     id: 'import-transition-audit',
     query: 'SELECT transition.intent_id, transition.client_item_id, transition.previous_status, transition.new_status, transition.occurred_utc FROM workflow_import_intent_transition transition INNER JOIN workflow_import_intent intent ON intent.intent_id = transition.intent_id WHERE intent.task_id = ? ORDER BY transition.occurred_utc, transition.transition_id'
+  }),
+  'import-expedient-state': Object.freeze({
+    id: 'import-expedient-state',
+    query: 'SELECT inscription.intent_id, inscription.inscription_key, inscription.expedient_id, inscription.expedient_role, inscription.expedient_status, inscription.cache_status FROM workflow_import_inscription inscription INNER JOIN workflow_import_intent intent ON intent.intent_id = inscription.intent_id WHERE intent.task_id = ? ORDER BY inscription.intent_id, inscription.inscription_ordinal'
+  }),
+  'import-document-relation-state': Object.freeze({
+    id: 'import-document-relation-state',
+    query: 'SELECT related.intent_id, related.image_id, related.expected_expedient_id, related.destination_status, related.relation_status, related.reconciliation_status FROM workflow_import_related_document related WHERE related.task_id = ? ORDER BY related.intent_id, related.image_id, related.cabinet_name'
+  }),
+  'import-document-link-cache-state': Object.freeze({
+    id: 'import-document-link-cache-state',
+    query: 'SELECT cache.image_id, cache.expected_expedient_id, cache.relation_status, cache.created_utc, cache.verified_utc FROM workflow_import_document_link_cache cache WHERE cache.task_id = ? ORDER BY cache.image_id, cache.cabinet_name'
+  }),
+  'import-document-index-state': Object.freeze({
+    id: 'import-document-index-state',
+    query: 'SELECT related.intent_id, related.image_id, related.cabinet_index_status, related.electronic_index_status, related.xml_index_status, related.reconciliation_status FROM workflow_import_related_document related WHERE related.task_id = ? ORDER BY related.intent_id, related.image_id, related.cabinet_name'
   })
+});
+
+const IMPORT_CONTROLS = Object.freeze([
+  'import-intent-state', 'import-item-state', 'import-transition-audit', 'import-expedient-state',
+  'import-document-relation-state', 'import-document-link-cache-state', 'import-document-index-state'
+]);
+const IMPORT_CONTROLS_UNCHANGED = Object.freeze(Object.fromEntries(IMPORT_CONTROLS.map((id) => [id, 'unchanged'])));
+const IMPORT_CONTROLS_CHANGED = Object.freeze(Object.fromEntries(IMPORT_CONTROLS.map((id) => [id, 'changed'])));
+const IMPORT_RETRY_CONTROLS = Object.freeze({
+  ...IMPORT_CONTROLS_CHANGED,
+  'import-expedient-state': 'unchanged'
 });
 
 const ADAPTER_REGISTRY = Object.freeze({
@@ -125,8 +152,8 @@ const SCENARIO_REGISTRY = Object.freeze({
     requiredAuthorizations: Object.freeze(['environment', 'gate']),
     requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
     resource: Object.freeze({ kind: 'workflow-task', role: 'read', profileField: 'taskId', mutating: false }),
-    controls: Object.freeze(['import-intent-state', 'import-item-state', 'import-transition-audit']),
-    controlExpectations: Object.freeze({ 'import-intent-state': 'unchanged', 'import-item-state': 'unchanged', 'import-transition-audit': 'unchanged' }),
+    controls: IMPORT_CONTROLS,
+    controlExpectations: IMPORT_CONTROLS_UNCHANGED,
     transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
     expectations: Object.freeze(['real-sii', 'no-state-change', 'temporary-feature-gate', 'sanitized-evidence'])
   }),
@@ -135,8 +162,8 @@ const SCENARIO_REGISTRY = Object.freeze({
     requiredAuthorizations: Object.freeze(['environment', 'gate']),
     requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
     resource: Object.freeze({ kind: 'workflow-task', role: 'recovery', profileField: 'taskId', mutating: false }),
-    controls: Object.freeze(['import-intent-state', 'import-item-state', 'import-transition-audit']),
-    controlExpectations: Object.freeze({ 'import-intent-state': 'unchanged', 'import-item-state': 'unchanged', 'import-transition-audit': 'unchanged' }),
+    controls: IMPORT_CONTROLS,
+    controlExpectations: IMPORT_CONTROLS_UNCHANGED,
     transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
     expectations: Object.freeze(['existing-intent', 'no-state-change', 'temporary-feature-gate', 'sanitized-evidence'])
   }),
@@ -145,8 +172,8 @@ const SCENARIO_REGISTRY = Object.freeze({
     requiredAuthorizations: Object.freeze(['environment', 'gate']),
     requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
     resource: Object.freeze({ kind: 'workflow-import-retry', role: 'retry', profileField: 'taskId', mutating: true, contractId: 'workflow-import-retry-controls' }),
-    controls: Object.freeze(['import-intent-state', 'import-item-state', 'import-transition-audit']),
-    controlExpectations: Object.freeze({ 'import-intent-state': 'changed', 'import-item-state': 'changed', 'import-transition-audit': 'changed' }),
+    controls: IMPORT_CONTROLS,
+    controlExpectations: IMPORT_RETRY_CONTROLS,
     transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
     expectations: Object.freeze(['existing-retryable-intent', 'single-document', 'temporary-feature-gate', 'sanitized-evidence'])
   }),
@@ -155,8 +182,8 @@ const SCENARIO_REGISTRY = Object.freeze({
     requiredAuthorizations: Object.freeze(['environment', 'gate']),
     requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
     resource: Object.freeze({ kind: 'workflow-task', role: 'execution', profileField: 'taskId', mutating: true, contractId: 'workflow-task-controls' }),
-    controls: Object.freeze(['import-intent-state', 'import-item-state', 'import-transition-audit']),
-    controlExpectations: Object.freeze({ 'import-intent-state': 'changed', 'import-item-state': 'changed', 'import-transition-audit': 'changed' }),
+    controls: IMPORT_CONTROLS,
+    controlExpectations: IMPORT_CONTROLS_CHANGED,
     transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
     expectations: Object.freeze(['real-sii', 'state-change', 'selected-documents', 'temporary-feature-gate', 'sanitized-evidence'])
   }),
@@ -165,8 +192,8 @@ const SCENARIO_REGISTRY = Object.freeze({
     requiredAuthorizations: Object.freeze(['environment', 'gate']),
     requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
     resource: Object.freeze({ kind: 'workflow-task', role: 'concurrency', profileField: 'taskId', mutating: true, contractId: 'workflow-task-controls' }),
-    controls: Object.freeze(['import-intent-state', 'import-item-state', 'import-transition-audit']),
-    controlExpectations: Object.freeze({ 'import-intent-state': 'changed', 'import-item-state': 'changed', 'import-transition-audit': 'changed' }),
+    controls: IMPORT_CONTROLS,
+    controlExpectations: IMPORT_CONTROLS_CHANGED,
     transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
     expectations: Object.freeze(['real-sii', 'single-intent', 'selected-documents', 'version-conflict', 'temporary-feature-gate', 'sanitized-evidence'])
   })

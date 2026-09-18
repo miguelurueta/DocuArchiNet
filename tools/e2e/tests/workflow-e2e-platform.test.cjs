@@ -77,7 +77,14 @@ test('el ciclo de lectura captura controles antes y después, sanea secretos y c
   const config = dependencies({ collectSecrets: async () => providedSecrets, temporaryDirectory });
   const outcome = await executePlatformRun({ profile: profile(), authorizations: ['environment'], ...config });
   assert.equal(outcome.success, true);
-  assert.deepEqual(outcome.controls, { checked: 2, unchanged: true });
+  assert.deepEqual(outcome.controls, {
+    checked: 2,
+    unchanged: true,
+    results: [
+      { id: 'notes-audit', changed: false },
+      { id: 'notes-task-state', changed: false }
+    ]
+  });
   assert.deepEqual(config.events, ['client-dispose', 'context-close', 'browser-close', 'integrity']);
   assert.deepEqual(providedSecrets, {});
   assert.equal(config.evidence.length, 1);

@@ -14,12 +14,16 @@ const composition = read("webservice/WebServiceImportarServicioWebModern.asmx.vb
 const executionSteps = read("Services/Workflow/ImportarServicioWeb/ImportExecutionSteps.vb");
 
 test("la bitacora pertenece a DocuArchi y solo tiene FK local al catalogo", () => {
-  assert.match(migration, /CREATE TABLE ra_ser_intento_serviciointegracion/);
-  assert.match(migration, /REFERENCES ra_ser_serviciointegracion \(Id_ser_servicioIntegracion\)/);
+  assert.match(migration, /TABLE_NAME = 'ra_ser_serviciointegracion'[\s\S]*HAVING COUNT\(\*\) = 1/);
+  assert.match(migration, /UPPER\(COALESCE\(@doc56_service_engine, ''\)\) <> 'INNODB'/);
+  assert.match(migration, /COLUMN_TYPE[\s\S]*COLUMN_NAME = 'Id_ser_servicioIntegracion'/);
+  assert.match(migration, /CREATE TABLE IF NOT EXISTS `', @doc56_schema_escaped, '`\.`ra_ser_intento_serviciointegracion`/);
+  assert.match(migration, /REFERENCES `', @doc56_schema_escaped, '`\.`ra_ser_serviciointegracion`/);
   assert.match(migration, /ON DELETE RESTRICT/);
   assert.doesNotMatch(migration, /REFERENCES workflow_import_intent/i);
   assert.match(migration, /IntentId VARCHAR\(32\) NULL/);
   assert.match(migration, /ix_ra_ser_intento_disponibilidad/);
+  assert.doesNotMatch(migration, /CREATE\s+PROCEDURE/i);
 });
 
 test("el repositorio resuelve el proveedor activo y usa exclusivamente SQL parametrizado", () => {

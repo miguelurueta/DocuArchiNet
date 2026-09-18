@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "convention": {
+    "CODE": "Símbolo resoluble estructuralmente contra código VB.NET",
+    "EXT": "Actor o sistema externo; se excluye de resolución contra código",
+    "CONCEPT": "Estado o concepto del dominio; se excluye de resolución contra código"
+  },
+  "required": [
+    "01-frontera-endpoints.md",
+    "02-expediente-antes-storage.md",
+    "03-saga-documentos-relacionados.md",
+    "04-retry-recovery.md",
+    "05-componentes-persistencia.md"
+  ]
+}

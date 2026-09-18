@@ -17,6 +17,7 @@ End Class
 Public NotInheritable Class MetadatosAlmacenamientoImportacion
     Public Property NombreRutaWorkflow As String
     Public Property NombreGabinete As String
+    Public Property RadicadoSii As String
     Public Property NombreClaseFormatoDocumento As String
 End Class
 
@@ -61,10 +62,16 @@ End Class
 Public Enum FaseImportacionServicio
     Creada
     Validada
+    ExpedientesPlanificados
+    ExpedientesResueltos
     RecursoObtenido
     ExpedientePreparado
     DocumentoAlmacenado
+    ItemsSiiAlmacenados
+    UniversoDocumentalConsultado
+    VinculacionesProcesadas
     IndicesActualizados
+    IndicesYXmlActualizados
     CacheActualizado
     ResultadoIncierto
     RequiereDecision
@@ -105,6 +112,7 @@ End Class
 
 Public Class ResultadoElementoImportacion
     Public Property ClientItemId As String
+    Public Property ClaveInscripcion As String
     Public Property IdentidadExterna As IdentidadExternaImportacion
     Public Property IdTareaDestino As Long
     Public Property IdTipoDocumental As Nullable(Of Integer)
@@ -113,6 +121,11 @@ Public Class ResultadoElementoImportacion
     Public Property TipoContenido As String
     Public Property Fase As FaseImportacionServicio
     Public Property IdDocumento As Nullable(Of Long)
+    Public Property IdExpediente As Nullable(Of Long)
+    Public Property EstadoAlmacenamiento As EstadoEfectoExpedienteImportacion
+    Public Property EstadoRelacion As EstadoEfectoExpedienteImportacion
+    Public Property EstadoIndice As EstadoEfectoExpedienteImportacion
+    Public Property EstadoCache As EstadoEfectoExpedienteImportacion
     Public Property CodigoError As String
     Public Property MensajeVisible As String
     Public Property PersistenciaConocida As Boolean
@@ -197,6 +210,7 @@ End Enum
 Public Class SnapshotReconciliacionImportacion
     Public Sub New()
         Items = New List(Of SnapshotItemReconciliacionImportacion)()
+        DocumentosRelacionados = New List(Of DocumentoRelacionadoImportacion)()
     End Sub
     Public Property IntentId As String
     Public Property VersionToken As String
@@ -204,7 +218,9 @@ Public Class SnapshotReconciliacionImportacion
     Public Property IdUsuario As Integer
     Public Property IdTareaOriginal As Long
     Public Property ProviderId As String
+    Public Property ContextoOriginal As ContextoIntencionImportacion
     Public Property Items As IList(Of SnapshotItemReconciliacionImportacion)
+    Public Property DocumentosRelacionados As IList(Of DocumentoRelacionadoImportacion)
 End Class
 
 Public Class SnapshotItemReconciliacionImportacion
@@ -258,6 +274,7 @@ Public Class IntencionImportacionServicio
     Public Sub New()
         Resultados = New List(Of ResultadoElementoImportacion)()
         Requisitos = New List(Of RequisitoPlanImportacion)()
+        Inscripciones = New List(Of InscripcionImportacion)()
     End Sub
 
     Public Property Id As String
@@ -270,6 +287,7 @@ Public Class IntencionImportacionServicio
     Public Property FechaActualizacionUtc As DateTime
     Public Property Requisitos As IList(Of RequisitoPlanImportacion)
     Public Property Resultados As IList(Of ResultadoElementoImportacion)
+    Public Property Inscripciones As IList(Of InscripcionImportacion)
     Public Property DetencionSolicitada As Boolean
 End Class
 
@@ -330,6 +348,176 @@ Public Class ResultadoResolucionClienteProveedorImportacion
     End Property
 End Class
 
+Public Enum RolExpedienteImportacion
+    Pendiente
+    Unico
+    Primario
+    Secundario
+End Enum
+
+Public Enum EstadoEfectoExpedienteImportacion
+    Pendiente
+    Confirmado
+    Ausente
+    Conflicto
+    ResultadoIncierto
+    Fallido
+End Enum
+
+Public Enum EstadoRelacionDocumentoExpediente
+    NoConsultada
+    Ausente
+    Correcta
+    Duplicada
+    Cruzada
+    ResultadoIncierto
+End Enum
+
+' Agregado persistible: conserva la inscripción y sus documentos sin depender del cliente al reanudar.
+Public NotInheritable Class InscripcionImportacion
+    Public Sub New()
+        ClientItemIds = New List(Of String)()
+    End Sub
+
+    Public Property ClaveInscripcion As String
+    Public Property Orden As Integer
+    Public Property Libro As String
+    Public Property Registro As String
+    Public Property Matricula As String
+    Public Property MatriculaNormalizada As String
+    Public Property Proponente As String
+    Public Property IdentificacionSujeto As String
+    Public Property RazonSocial As String
+    Public Property MatriculaPropietario As String
+    Public Property IdentificacionPropietario As String
+    Public Property NombrePropietario As String
+    Public Property NombreGabinete As String
+    Public Property RadicadoSii As String
+    Public Property IdExpediente As Nullable(Of Long)
+    Public Property RolExpediente As RolExpedienteImportacion
+    Public Property EstadoExpediente As EstadoEfectoExpedienteImportacion
+    Public Property EstadoCache As EstadoEfectoExpedienteImportacion
+    Public Property ClientItemIds As IList(Of String)
+End Class
+
+Public NotInheritable Class ConfiguracionExpedienteImportacion
+    Public Sub New()
+        CamposIdentidad = New List(Of CampoIdentidadExpedienteImportacion)()
+        TipologiasSecundarias = New List(Of Integer)()
+    End Sub
+
+    Public Property NombreGabinete As String
+    Public Property IdAutoRegistro As Integer
+    Public Property CreacionAutomaticaHabilitada As Boolean
+    Public Property ExpedienteObligatorio As Boolean
+    Public Property MultiplesExpedientes As Boolean
+    Public Property CamposIdentidad As IList(Of CampoIdentidadExpedienteImportacion)
+    Public Property TipologiasSecundarias As IList(Of Integer)
+End Class
+
+' Respuesta interna tipada de la consulta moderna de sujeto SII. No conserva token,
+' credenciales, cuerpo JSON ni mensajes crudos del proveedor.
+Public NotInheritable Class SujetoExpedienteSii
+    Public Property MatriculaCanonica As String
+    Public Property Identificacion As String
+    Public Property RazonSocial As String
+    Public Property MatriculaPropietario As String
+    Public Property IdentificacionPropietario As String
+    Public Property NombrePropietario As String
+End Class
+
+Public NotInheritable Class CampoIdentidadExpedienteImportacion
+    Public Property NombreCampo As String
+    Public Property Valor As String
+    Public Property Obligatorio As Boolean
+End Class
+
+Public NotInheritable Class IdentidadExpedienteNormalizada
+    Public Property Valida As Boolean
+    Public Property Codigo As String
+    Public Property NombreGabinete As String
+    Public Property ValorConsulta As String
+    Public Property ValorPersistencia As String
+End Class
+
+Public NotInheritable Class DestinoLogicoExpedienteImportacion
+    Public Property ClaveInscripcion As String
+    Public Property IdTipoDocumental As Nullable(Of Integer)
+    Public Property IdExpediente As Long
+    Public Property Rol As RolExpedienteImportacion
+End Class
+
+Public NotInheritable Class PlanExpedienteImportacion
+    Public Sub New()
+        Inscripciones = New List(Of InscripcionImportacion)()
+        Destinos = New List(Of DestinoLogicoExpedienteImportacion)()
+    End Sub
+
+    Public Property IntentId As String
+    Public Property Inscripciones As IList(Of InscripcionImportacion)
+    Public Property Destinos As IList(Of DestinoLogicoExpedienteImportacion)
+    Public Property Estado As EstadoEfectoExpedienteImportacion
+    Public Property Codigo As String
+End Class
+
+Public NotInheritable Class DocumentoRelacionadoImportacion
+    Public Property IntentId As String
+    Public Property IdTarea As Long
+    Public Property IdImagen As Long
+    Public Property NombreGabinete As String
+    Public Property RadicadoSii As String
+    Public Property IdTipoDocumental As Nullable(Of Integer)
+    Public Property ClaveInscripcion As String
+    Public Property IdExpedienteEsperado As Nullable(Of Long)
+    Public Property EstadoDestino As EstadoEfectoExpedienteImportacion
+    Public Property EstadoRelacion As EstadoRelacionDocumentoExpediente
+    Public Property EstadoCache As EstadoEfectoExpedienteImportacion
+    Public Property EstadoIndiceGabinete As EstadoEfectoExpedienteImportacion
+    Public Property EstadoIndiceSql As EstadoEfectoExpedienteImportacion
+    Public Property EstadoIndiceXml As EstadoEfectoExpedienteImportacion
+    Public Property EstadoReconciliacion As EstadoEfectoExpedienteImportacion
+End Class
+
+Public NotInheritable Class PlanDocumentosRelacionadosImportacion
+    Public Sub New()
+        Documentos = New List(Of DocumentoRelacionadoImportacion)()
+    End Sub
+
+    Public Property IntentId As String
+    Public Property Documentos As IList(Of DocumentoRelacionadoImportacion)
+    Public Property Estado As EstadoEfectoExpedienteImportacion
+    Public Property Codigo As String
+End Class
+
+Public NotInheritable Class EntradaCacheVinculoDocumentoImportacion
+    Public Property IdTarea As Long
+    Public Property IdImagen As Long
+    Public Property NombreGabinete As String
+    Public Property IdExpedienteEsperado As Long
+    Public Property RadicadoSii As String
+    Public Property EstadoRelacion As EstadoRelacionDocumentoExpediente
+    Public Property FechaCreacionUtc As DateTime
+    Public Property FechaVerificacionUtc As Nullable(Of DateTime)
+End Class
+
+Public NotInheritable Class EvidenciaIndiceElectronicoImportacion
+    Public Property IdExpediente As Long
+    Public Property IdImagen As Long
+    Public Property SqlConfirmado As Boolean
+    Public Property XmlConfirmado As Boolean
+    Public Property Estado As EstadoEfectoExpedienteImportacion
+End Class
+
+' Resultado seguro por efecto: no expone SQL, rutas físicas, sesión ni mensajes de excepción.
+Public NotInheritable Class ResultadoEfectoExpedienteImportacion
+    Public Property Estado As EstadoEfectoExpedienteImportacion
+    Public Property Codigo As String
+    Public Property MensajeVisible As String
+    Public Property Reintentable As Boolean
+    Public Property IdExpediente As Nullable(Of Long)
+    Public Property Relacion As EstadoRelacionDocumentoExpediente
+End Class
+
 Public Class ContextoImportacionServicio
     Private ReadOnly _idUsuario As Integer
     Private ReadOnly _idGrupo As Integer
@@ -339,6 +527,9 @@ Public Class ContextoImportacionServicio
     Private ReadOnly _idTramite As Integer
     Private ReadOnly _providerId As String
     Private ReadOnly _permiteImportar As Boolean
+    Private ReadOnly _idUsuarioGestion As Integer
+    Private ReadOnly _idEmpresaGestion As Integer
+    Private ReadOnly _nombreRutaWorkflow As String
 
     Public Sub New(ByVal idUsuario As Integer,
                    ByVal idGrupo As Integer,
@@ -347,7 +538,10 @@ Public Class ContextoImportacionServicio
                    ByVal idRuta As Integer,
                    ByVal idTramite As Integer,
                    ByVal providerId As String,
-                   ByVal permiteImportar As Boolean)
+                   ByVal permiteImportar As Boolean,
+                   Optional ByVal idUsuarioGestion As Integer = 0,
+                   Optional ByVal idEmpresaGestion As Integer = 0,
+                   Optional ByVal nombreRutaWorkflow As String = Nothing)
         _idUsuario = idUsuario
         _idGrupo = idGrupo
         _loginUsuario = loginUsuario
@@ -356,6 +550,9 @@ Public Class ContextoImportacionServicio
         _idTramite = idTramite
         _providerId = providerId
         _permiteImportar = permiteImportar
+        _idUsuarioGestion = idUsuarioGestion
+        _idEmpresaGestion = idEmpresaGestion
+        _nombreRutaWorkflow = If(nombreRutaWorkflow, String.Empty).Trim()
     End Sub
 
     Public ReadOnly Property IdUsuario As Integer
@@ -403,6 +600,24 @@ Public Class ContextoImportacionServicio
     Public ReadOnly Property PermiteImportar As Boolean
         Get
             Return _permiteImportar
+        End Get
+    End Property
+
+    Public ReadOnly Property IdUsuarioGestion As Integer
+        Get
+            Return _idUsuarioGestion
+        End Get
+    End Property
+
+    Public ReadOnly Property IdEmpresaGestion As Integer
+        Get
+            Return _idEmpresaGestion
+        End Get
+    End Property
+
+    Public ReadOnly Property NombreRutaWorkflow As String
+        Get
+            Return _nombreRutaWorkflow
         End Get
     End Property
 End Class

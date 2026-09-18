@@ -9,8 +9,11 @@ const model = fs.readFileSync('Modelo/Workflow/ImportarServicioWeb/ImportarServi
 const executeFixture = JSON.parse(fs.readFileSync('Tests/Fixtures/Workflow/ImportarServicioWeb/contracts-v1/execute-import-intent-response.json', 'utf8'));
 
 test('contrato incluye mínimos documentales y excluye dato_lista', () => {
-  for (const field of ['ReachedPhase', 'TaskId', 'DocumentName', 'ContentType']) assert.match(dto, new RegExp(`Property ${field}`));
-  assert.doesNotMatch(dto, /dato_lista|physical|exception|sql/i);
+  const start = dto.indexOf('Public Class ImportItemResultDto');
+  const end = dto.indexOf('End Class', start);
+  const itemContract = dto.slice(start, end);
+  for (const field of ['ReachedPhase', 'TaskId', 'DocumentName', 'ContentType']) assert.match(itemContract, new RegExp(`Property ${field}`));
+  assert.doesNotMatch(itemContract, /dato_lista|physical|exception|sql/i);
 });
 
 test('mapper cubre enum y clasificaciones conservadoras', () => {

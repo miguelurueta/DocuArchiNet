@@ -4,7 +4,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { resolveScenario } = require('./workflow-e2e-platform-registry.cjs');
 
-const PROFILE_KEYS = new Set(['scenarioId', 'baseUrl', 'module', 'environment', 'odbcDsn', 'taskId', 'noteId', 'radicado', 'codigoBarras', 'documentTypeId', 'documentTypeName', 'intentId', 'sampleSize', 'concurrencyLevel', 'budgetMs', 'browser', 'ignoreHttpsErrors']);
+const PROFILE_KEYS = new Set(['scenarioId', 'baseUrl', 'module', 'environment', 'odbcDsn', 'taskId', 'noteId', 'radicado', 'codigoBarras', 'documentTypeId', 'documentTypeName', 'intentId', 'sampleSize', 'minimumExpedientCount', 'prepareStoppedIntent', 'concurrencyLevel', 'budgetMs', 'browser', 'ignoreHttpsErrors']);
 const FORBIDDEN_KEY = /(passw(?:ord)?|pwd|cookie|token|secret|credential|credencial|connection|conexion|sql|query|command|comando|script|mysql|database|user)/i;
 const FORBIDDEN_VALUE = /(?:mysql|odbc):\/\/|(?:^|[;\s])(?:password|pwd|uid)\s*=|\b(?:SELECT|INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO)\b/i;
 const SAFE_LABEL = /^[A-Za-z0-9_-]{2,80}$/;
@@ -93,15 +93,35 @@ function validateProfile(input) {
     fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
   }
   if (scenario.adapterId === 'importar-servicio-web') {
-    profile.sampleSize = input.sampleSize === undefined ? 1 : assertPositiveInteger(input.sampleSize, 'E2E_PLATFORM_PROFILE_SAMPLE_INVALID');
-    if (profile.sampleSize > 20) fail('E2E_PLATFORM_PROFILE_SAMPLE_INVALID');
-    profile.radicado = assertSafeText(input.radicado, /^[A-Za-z0-9_.-]{1,120}$/, 'E2E_PLATFORM_PROFILE_RADICADO_INVALID');
-    profile.codigoBarras = assertSafeText(input.codigoBarras, /^[A-Za-z0-9_.-]{1,120}$/, 'E2E_PLATFORM_PROFILE_BARCODE_INVALID');
-    if (scenario.stage === 'execution' && scenario.id !== 'import-sii-retry' || scenario.stage === 'concurrency') {
+    const preparesRetry = scenario.id === 'import-sii-retry' && input.prepareStoppedIntent === true;
+    if (input.prepareStoppedIntent !== undefined && !preparesRetry) fail('E2E_PLATFORM_PROFILE_RETRY_PREPARATION_INVALID');
+    if (preparesRetry) profile.prepareStoppedIntent = true;
+    const intentOnly = scenario.id === 'import-sii-recovery' || (scenario.id === 'import-sii-retry' && !preparesRetry);
+    if (!intentOnly) {
+      profile.sampleSize = input.sampleSize === undefined ? 1 : assertPositiveInteger(input.sampleSize, 'E2E_PLATFORM_PROFILE_SAMPLE_INVALID');
+      if (profile.sampleSize > 20) fail('E2E_PLATFORM_PROFILE_SAMPLE_INVALID');
+      profile.radicado = assertSafeText(input.radicado, /^[A-Za-z0-9_.-]{1,120}$/, 'E2E_PLATFORM_PROFILE_RADICADO_INVALID');
+      profile.codigoBarras = assertSafeText(input.codigoBarras, /^[A-Za-z0-9_.-]{1,120}$/, 'E2E_PLATFORM_PROFILE_BARCODE_INVALID');
+    } else {
+      if (input.sampleSize !== undefined) {
+        profile.sampleSize = assertPositiveInteger(input.sampleSize, 'E2E_PLATFORM_PROFILE_SAMPLE_INVALID');
+        if (profile.sampleSize > 20) fail('E2E_PLATFORM_PROFILE_SAMPLE_INVALID');
+      }
+      if (input.radicado !== undefined) profile.radicado = assertSafeText(input.radicado, /^[A-Za-z0-9_.-]{1,120}$/, 'E2E_PLATFORM_PROFILE_RADICADO_INVALID');
+      if (input.codigoBarras !== undefined) profile.codigoBarras = assertSafeText(input.codigoBarras, /^[A-Za-z0-9_.-]{1,120}$/, 'E2E_PLATFORM_PROFILE_BARCODE_INVALID');
+    }
+    const requiresDocumentType = (scenario.stage === 'execution' && scenario.id !== 'import-sii-retry') || preparesRetry || scenario.stage === 'concurrency';
+    if (requiresDocumentType) {
       profile.documentTypeId = assertPositiveInteger(input.documentTypeId, 'E2E_PLATFORM_PROFILE_DOCUMENT_TYPE_INVALID');
       profile.documentTypeName = assertSafeText(input.documentTypeName, /^[^\r\n\t]{1,255}$/u, 'E2E_PLATFORM_PROFILE_DOCUMENT_TYPE_NAME_INVALID').trim();
+    } else if (scenario.id === 'import-sii-read' && (input.documentTypeId !== undefined || input.documentTypeName !== undefined)) {
+      if (input.documentTypeId === undefined || input.documentTypeName === undefined) fail('E2E_PLATFORM_PROFILE_DOCUMENT_TYPE_INVALID');
+      profile.documentTypeId = assertPositiveInteger(input.documentTypeId, 'E2E_PLATFORM_PROFILE_DOCUMENT_TYPE_INVALID');
+      profile.documentTypeName = assertSafeText(input.documentTypeName, /^[^\r\n\t]{1,255}$/u, 'E2E_PLATFORM_PROFILE_DOCUMENT_TYPE_NAME_INVALID').trim();
+    } else if (input.documentTypeId !== undefined || input.documentTypeName !== undefined) {
+      fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
     }
-    if (scenario.id === 'import-sii-recovery' || scenario.id === 'import-sii-retry') {
+    if ((scenario.id === 'import-sii-recovery' || scenario.id === 'import-sii-retry') && !preparesRetry) {
       profile.intentId = assertSafeText(input.intentId, /^[a-f0-9]{32}$/i, 'E2E_PLATFORM_PROFILE_INTENT_INVALID');
     } else if (input.intentId !== undefined) {
       fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
@@ -109,8 +129,17 @@ function validateProfile(input) {
     if (scenario.stage === 'concurrency') {
       profile.concurrencyLevel = assertPositiveInteger(input.concurrencyLevel, 'E2E_PLATFORM_PROFILE_CONCURRENCY_INVALID');
       if (profile.concurrencyLevel !== 2) fail('E2E_PLATFORM_PROFILE_CONCURRENCY_INVALID');
+    } else if (input.concurrencyLevel !== undefined) {
+      fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
     }
-  } else if (input.radicado !== undefined || input.codigoBarras !== undefined || input.sampleSize !== undefined || input.concurrencyLevel !== undefined) {
+    if (scenario.id === 'import-sii-execution' && input.minimumExpedientCount !== undefined) {
+      profile.minimumExpedientCount = assertPositiveInteger(input.minimumExpedientCount, 'E2E_PLATFORM_PROFILE_EXPEDIENT_COUNT_INVALID');
+      if (profile.minimumExpedientCount < 2 || profile.minimumExpedientCount > 20) fail('E2E_PLATFORM_PROFILE_EXPEDIENT_COUNT_INVALID');
+    } else if (input.minimumExpedientCount !== undefined) {
+      fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
+    }
+  } else if (input.radicado !== undefined || input.codigoBarras !== undefined || input.sampleSize !== undefined || input.concurrencyLevel !== undefined ||
+             input.documentTypeId !== undefined || input.documentTypeName !== undefined || input.intentId !== undefined || input.minimumExpedientCount !== undefined) {
     fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
   }
   return Object.freeze(profile);

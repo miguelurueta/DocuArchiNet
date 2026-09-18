@@ -1,0 +1,5 @@
+[
+  {"case":"mercantil-single","cabinet":"MERCANTIL","multiple":false,"inscriptions":[{"key":"m1","expedient":101}],"items":[{"client":"a","key":"m1","type":11}],"roles":["Unico"]},
+  {"case":"esal-primary-secondary","cabinet":"ESAL","multiple":true,"inscriptions":[{"key":"e1","expedient":201},{"key":"e2","expedient":202},{"key":"e3","expedient":203}],"items":[{"client":"a","key":"e1","type":21},{"client":"b","key":"e2","type":22},{"client":"c","key":"e3","type":23}],"roles":["Primario","Secundario","Secundario"]},
+  {"case":"rup-primary-secondary","cabinet":"RUP","multiple":true,"inscriptions":[{"key":"r1","expedient":301},{"key":"r2","expedient":302}],"items":[{"client":"a","key":"r1","type":31},{"client":"b","key":"r2","type":32}],"roles":["Primario","Secundario"]}
+]

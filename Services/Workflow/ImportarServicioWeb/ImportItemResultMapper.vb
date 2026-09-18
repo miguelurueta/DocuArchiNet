@@ -23,6 +23,62 @@ Public NotInheritable Class ImportItemResultMapper
         Return dto
     End Function
 
+    Public Function MapExpedientEffects(ByVal clientItemId As String,
+                                        ByVal documento As DocumentoRelacionadoImportacion) As ImportItemExpedientEffectsDto
+        If documento Is Nothing Then Throw New ArgumentNullException("documento")
+        Dim dto As New ImportItemExpedientEffectsDto With {
+            .ClientItemId = clientItemId,
+            .InscriptionKey = documento.ClaveInscripcion,
+            .ExpedientId = documento.IdExpedienteEsperado,
+            .ExpedientStatus = If(documento.IdExpedienteEsperado.HasValue, "Confirmado", "Pendiente"),
+            .DestinationStatus = documento.EstadoDestino.ToString(),
+            .RelationStatus = documento.EstadoRelacion.ToString(),
+            .LinkCacheStatus = documento.EstadoCache.ToString(),
+            .CabinetIndexStatus = documento.EstadoIndiceGabinete.ToString(),
+            .ElectronicIndexSqlStatus = documento.EstadoIndiceSql.ToString(),
+            .ElectronicIndexXmlStatus = documento.EstadoIndiceXml.ToString(),
+            .ReconciliationStatus = documento.EstadoReconciliacion.ToString()
+        }
+        dto.ResultCode = ExpedientEffectCode(documento)
+        dto.Retryable = dto.ResultCode = ImportExpedientResultCodes.CacheWriteUncertain OrElse
+                        dto.ResultCode = ImportExpedientResultCodes.IndexUpdateFailed
+        dto.Message = ExpedientEffectMessage(dto.ResultCode)
+        If dto.ResultCode <> ImportExpedientResultCodes.Confirmed Then dto.ExpedientId = Nothing
+        Return dto
+    End Function
+
+    Private Shared Function ExpedientEffectCode(ByVal documento As DocumentoRelacionadoImportacion) As String
+        If Not documento.IdExpedienteEsperado.HasValue Then Return ImportExpedientResultCodes.ExpedientUnresolved
+        If documento.EstadoDestino = EstadoEfectoExpedienteImportacion.Conflicto Then Return ImportExpedientResultCodes.DestinationConflict
+        Select Case documento.EstadoRelacion
+            Case EstadoRelacionDocumentoExpediente.Ausente : Return ImportExpedientResultCodes.RelationMissing
+            Case EstadoRelacionDocumentoExpediente.Duplicada : Return ImportExpedientResultCodes.RelationDuplicated
+            Case EstadoRelacionDocumentoExpediente.Cruzada : Return ImportExpedientResultCodes.RelationCrossed
+            Case EstadoRelacionDocumentoExpediente.ResultadoIncierto : Return ImportExpedientResultCodes.EffectUncertain
+        End Select
+        If documento.EstadoCache = EstadoEfectoExpedienteImportacion.Conflicto Then Return ImportExpedientResultCodes.CacheConflict
+        If documento.EstadoCache = EstadoEfectoExpedienteImportacion.ResultadoIncierto Then Return ImportExpedientResultCodes.CacheWriteUncertain
+        If documento.EstadoIndiceGabinete = EstadoEfectoExpedienteImportacion.Fallido Then Return ImportExpedientResultCodes.IndexUpdateFailed
+        If documento.EstadoIndiceSql <> EstadoEfectoExpedienteImportacion.Confirmado Then Return ImportExpedientResultCodes.ElectronicIndexSqlMissing
+        If documento.EstadoIndiceXml <> EstadoEfectoExpedienteImportacion.Confirmado Then Return ImportExpedientResultCodes.ElectronicIndexXmlMissing
+        If documento.EstadoReconciliacion <> EstadoEfectoExpedienteImportacion.Confirmado Then Return ImportExpedientResultCodes.EffectUncertain
+        Return ImportExpedientResultCodes.Confirmed
+    End Function
+
+    Private Shared Function ExpedientEffectMessage(ByVal code As String) As String
+        If code = ImportExpedientResultCodes.Confirmed Then Return "Expediente y efectos documentales confirmados."
+        If code = ImportExpedientResultCodes.ExpedientUnresolved Then Return "No fue posible resolver el expediente requerido."
+        If code = ImportExpedientResultCodes.DestinationConflict Then Return "El destino documental requiere revisión."
+        If code = ImportExpedientResultCodes.RelationMissing OrElse
+           code = ImportExpedientResultCodes.RelationDuplicated OrElse
+           code = ImportExpedientResultCodes.RelationCrossed Then Return "La relación documental requiere revisión."
+        If code = ImportExpedientResultCodes.CacheConflict OrElse code = ImportExpedientResultCodes.CacheWriteUncertain Then Return "La verificación de caché requiere revisión."
+        If code = ImportExpedientResultCodes.IndexUpdateFailed OrElse
+           code = ImportExpedientResultCodes.ElectronicIndexSqlMissing OrElse
+           code = ImportExpedientResultCodes.ElectronicIndexXmlMissing Then Return "La indexación documental requiere verificación."
+        Return "El resultado requiere reconciliación."
+    End Function
+
     Private Shared Function Classify(ByVal item As SnapshotItemReconciliacionImportacion, ByVal taskId As Long) As ConsistenciaDocumentoImportacion
         If item.Fase=FaseImportacionServicio.ResultadoIncierto OrElse (item.IdDocumento.HasValue AndAlso Not item.PersistenciaConocida) Then Return ConsistenciaDocumentoImportacion.ResultadoIncierto
         If item.IdTareaDestino<>taskId OrElse item.CantidadRelacionesOtraTarea>0 Then Return ConsistenciaDocumentoImportacion.TareaDistinta
@@ -57,4 +113,19 @@ Public NotInheritable Class ImportItemResultMapper
         If phase=FaseImportacionServicio.Parcial Then Return "La importación se completó parcialmente."
         Return "El resultado de importación está en proceso."
     End Function
+End Class
+
+Public NotInheritable Class ImportExpedientResultCodes
+    Public Const Confirmed As String = "EXPEDIENT_EFFECTS_CONFIRMED"
+    Public Const ExpedientUnresolved As String = "EXPEDIENT_UNRESOLVED"
+    Public Const DestinationConflict As String = "DOCUMENT_DESTINATION_CONFLICT"
+    Public Const RelationMissing As String = "DOCUMENT_RELATION_MISSING"
+    Public Const RelationDuplicated As String = "DOCUMENT_RELATION_DUPLICATED"
+    Public Const RelationCrossed As String = "DOCUMENT_RELATION_CROSSED"
+    Public Const CacheConflict As String = "DOCUMENT_LINK_CACHE_CONFLICT"
+    Public Const CacheWriteUncertain As String = "DOCUMENT_LINK_CACHE_WRITE_UNCERTAIN"
+    Public Const IndexUpdateFailed As String = "DOCUMENT_INDEX_UPDATE_FAILED"
+    Public Const ElectronicIndexSqlMissing As String = "ELECTRONIC_INDEX_SQL_MISSING"
+    Public Const ElectronicIndexXmlMissing As String = "ELECTRONIC_INDEX_XML_MISSING"
+    Public Const EffectUncertain As String = "EXPEDIENT_EFFECT_UNCERTAIN"
 End Class

@@ -1,0 +1,1 @@
+{"schemaVersion":"1.1","clientItemId":"item-001","expedientId":8101,"status":"Confirmado","resultCode":"EXPEDIENT_EFFECTS_CONFIRMED","retryable":false,"effects":{"destination":"Confirmado","relation":"Correcta","linkCache":"Confirmado","cabinetIndex":"Confirmado","electronicIndexSql":"Confirmado","electronicIndexXml":"Confirmado","reconciliation":"Confirmado"}}

@@ -1,0 +1,7 @@
+[
+  {"boundary":"expedient","confirmedBefore":[],"failure":"known","resumeFrom":"ExpedientesPlanificados"},
+  {"boundary":"storage","confirmedBefore":["expedient"],"failure":"known","resumeFrom":"ExpedientesResueltos"},
+  {"boundary":"relation","confirmedBefore":["expedient","storage"],"failure":"unknown","resumeFrom":"ItemsSiiAlmacenados"},
+  {"boundary":"cache","confirmedBefore":["expedient","storage","relation"],"failure":"race","resumeFrom":"VinculacionesProcesadas"},
+  {"boundary":"indices","confirmedBefore":["expedient","storage","relation","cache"],"failure":"xml-missing","resumeFrom":"VinculacionesProcesadas"}
+]

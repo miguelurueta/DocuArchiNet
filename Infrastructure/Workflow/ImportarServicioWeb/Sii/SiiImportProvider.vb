@@ -1,4 +1,5 @@
 Imports System
+Imports System.Collections.Generic
 Imports System.Threading
 Imports System.Threading.Tasks
 
@@ -36,6 +37,20 @@ Public NotInheritable Class SiiImportProvider
         ValidateProvider(request)
         Dim payload = Await _client.QueryItemsAsync(request, cancellationToken).ConfigureAwait(False)
         Return _mapper.MapQuery(payload, request)
+    End Function
+
+    Public Async Function ResolveInscriptionsAsync(ByVal request As QueryItemsRequestDto,
+        ByVal selectedItems As IList(Of ResultadoElementoImportacion), ByVal cabinetName As String,
+        ByVal cancellationToken As CancellationToken) As Task(Of IList(Of InscripcionImportacion))
+        ValidateProvider(request)
+        Dim payload = Await _client.QueryItemsAsync(request, cancellationToken).ConfigureAwait(False)
+        Return _mapper.MapInscriptions(payload, selectedItems, cabinetName)
+    End Function
+
+    Public Function ResolveExpedientSubjectAsync(ByVal cabinetName As String, ByVal enrollment As String,
+        ByVal proponent As String, ByVal correlationId As String, ByVal cancellationToken As CancellationToken,
+        Optional ByVal taskId As Nullable(Of Long) = Nothing) As Task(Of SujetoExpedienteSii)
+        Return _client.ResolveExpedientSubjectAsync(cabinetName, enrollment, proponent, correlationId, cancellationToken, taskId)
     End Function
 
     Public Async Function GetPreviewAsync(ByVal request As GetPreviewRequestDto,

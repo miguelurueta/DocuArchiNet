@@ -1,0 +1,11 @@
+{
+  "scenarioId": "import-sii-recovery",
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "module": "WORKFLOW REGISTRO",
+  "environment": "PRUEBAS",
+  "odbcDsn": "workflowdocument",
+  "taskId": 219890,
+  "intentId": "fedcba9876543210fedcba9876543210",
+  "budgetMs": 30000,
+  "ignoreHttpsErrors": true
+}

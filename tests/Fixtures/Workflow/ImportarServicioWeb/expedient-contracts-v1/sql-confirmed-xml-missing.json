@@ -1,0 +1,1 @@
+{"schemaVersion":"1.1","clientItemId":"item-005","expedientId":null,"status":"ResultadoIncierto","resultCode":"ELECTRONIC_INDEX_XML_MISSING","retryable":false,"effects":{"destination":"Confirmado","relation":"Correcta","linkCache":"Confirmado","cabinetIndex":"Confirmado","electronicIndexSql":"Confirmado","electronicIndexXml":"Ausente","reconciliation":"ResultadoIncierto"}}

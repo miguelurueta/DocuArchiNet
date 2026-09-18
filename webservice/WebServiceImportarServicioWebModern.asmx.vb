@@ -103,6 +103,8 @@ Public Class WebServiceImportarServicioWebModern
             Dim context As ContextoImportacionServicio = Nothing : Dim session As ResultadoContextoSesionWorkflow = Nothing
             If Not TryBuildImportContext(request, context, session) Then Return New CreateImportIntentResponseDto With {.Error = ErrorDto("FORBIDDEN")}
             Return Compose(session, request.ProviderId, context).Intents.Crear(context, request)
+        Catch ex As InvalidOperationException
+            Return New CreateImportIntentResponseDto With {.Error = ErrorDto(SafeIntentCreationCode(ex.Message))}
         Catch
             Return New CreateImportIntentResponseDto With {.Error = ErrorDto("IMPORT_UNAVAILABLE")}
         End Try
@@ -241,7 +243,9 @@ Public Class WebServiceImportarServicioWebModern
 
         context = New ContextoImportacionServicio(result.Contexto.IdUsuarioWorkflow,
             result.Contexto.IdGrupoWorkflow, result.Contexto.LoginUsuario, trustedTaskId,
-            result.Contexto.IdRutaWorkflow, trustedProcedureId, request.ProviderId, True)
+            result.Contexto.IdRutaWorkflow, trustedProcedureId, request.ProviderId, True,
+            result.Contexto.IdUsuarioGestion, result.Contexto.IdEmpresaGestion,
+            result.Contexto.NombreRutaWorkflow)
         failureCode = Nothing
         Return True
     End Function
@@ -255,25 +259,44 @@ Public Class WebServiceImportarServicioWebModern
         If String.IsNullOrWhiteSpace(session.CadenaConexionRadicacion) Then Throw New InvalidOperationException("RADICACION_CONTEXT_UNAVAILABLE")
         Dim radicacionConnections As IModuleConnectionFactory = New RadicacionModuleConnectionFactory(session.CadenaConexionRadicacion)
         Dim executor As IDataExecutor = New AdoNetDataExecutor()
-        Dim repository As IImportIntentRepository = New MySqlImportIntentRepository(connections, executor, New DbTransactionFactory())
+        Dim transactions As ITransactionFactory = New DbTransactionFactory()
+        Dim repository As IImportIntentRepository = New MySqlImportIntentRepository(connections, executor, transactions)
         Dim validator = New ValidadorContextoImportacion(New MySqlSiiImportAuthorizationRepository(connections, executor, trustedContext))
         Dim clock As IImportacionServicioClock = New SystemImportacionServicioClock()
         Dim attempts As IExternalServiceAttemptRecorder = New MySqlExternalServiceTelemetryRepository(docuarchiConnections, executor, ModuleContext(trustedContext))
-        Dim clients = BuildProviderRegistry(attempts)
+        Dim resolvedProvider = ResolveProvider(SiiImportProvider.CanonicalProviderId, attempts)
+        If resolvedProvider Is Nothing OrElse Not resolvedProvider.Encontrado Then Throw New InvalidOperationException("PROVIDER_NOT_CONFIGURED")
+        Dim siiProvider = TryCast(resolvedProvider.Cliente, SiiImportProvider)
+        If siiProvider Is Nothing Then Throw New InvalidOperationException("PROVIDER_COMPOSITION_INVALID")
+        Dim clients = BuildProviderRegistry(resolvedProvider)
+        Dim expedientConfiguration As IImportExpedientConfigurationRepository = New MySqlImportExpedientConfigurationRepository(docuarchiConnections, radicacionConnections, executor)
+        Dim expedientIdentityNormalizer As IImportExpedientIdentityNormalizer = New ImportExpedientIdentityNormalizer()
+        Dim legacySubjectResolver As ISiiExpedientSubjectResolver = New LegacySiiExpedientSubjectResolver(expedientIdentityNormalizer)
+        Dim subjectResolver As ISiiExpedientSubjectResolver = New ModernSiiExpedientSubjectResolver(siiProvider, expedientIdentityNormalizer,
+            legacySubjectResolver, SubjectLegacyFallbackEnabled())
+        Dim expedientCoordinator = New ImportExpedientCoordinator(expedientConfiguration, subjectResolver,
+            New PhysicalImportExpedientRepository(expedientIdentityNormalizer,
+                New ModernPhysicalExpedientGateway(New MySqlPhysicalExpedientIdentityLookup(docuarchiConnections, executor))),
+            New MySqlImportExpedientCacheRepository(docuarchiConnections, executor, transactions), New ImportExpedientPlan())
+        Dim relatedDocuments As IImportRelatedDocumentRepository = New MySqlImportRelatedDocumentRepository(docuarchiConnections, connections, executor)
+        Dim relationPort As IImportDocumentExpedientRelationPort = New DocumentExpedientRelationAdapter(
+            New ModernDocumentExpedientPhysicalGateway(docuarchiConnections, executor))
+        Dim linkCache As IImportDocumentLinkCacheRepository = New MySqlImportDocumentLinkCacheRepository(connections, executor)
+        Dim indexAdapter = New SiiDocumentIndexAdapter(New LegacySiiDocumentIndexPhysicalGateway(docuarchiConnections, executor))
+        Dim relatedCoordinator = New ImportRelatedDocumentCoordinator(relatedDocuments, relationPort, linkCache, indexAdapter, indexAdapter, New ImportRelatedDocumentPlan())
         Dim documentTypes As IImportDocumentTypeResolver = New MySqlImportDocumentTypeResolver(radicacionConnections, executor)
         Dim steps As New Collections.Generic.List(Of IImportExecutionStep) From {
             New DownloadImportExecutionStep(clients), New PrepareImportExecutionStep(), New PrepareImportIndicesExecutionStep(),
             New StoreImportExecutionStep(New MySqlImportStorageMetadataRepository(connections, executor), documentTypes, New LegacyImportDocumentStorageAdapter()),
-            New CompleteImportExecutionStep(FaseImportacionServicio.CacheActualizado), New CompleteImportExecutionStep(FaseImportacionServicio.Completada)}
+            New CompleteImportExecutionStep(FaseImportacionServicio.CacheActualizado)}
         Return New ImportComposition With {
             .Preflight = New ServicioPreflightImportacion(validator, documentTypes),
-            .Intents = New ServicioIntencionImportacion(repository, New MySqlImportIntentConcurrencyGuard(connections, executor), clock),
-            .Orchestrator = New ImportServiceOrchestrator(validator, repository, New ImportIntentStateMachine(clock, New SafeImportIntentTransitionAudit()), steps),
+            .Intents = New ServicioIntencionImportacion(repository, New MySqlImportIntentConcurrencyGuard(connections, executor), clock, New SiiImportInscriptionResolver(siiProvider, expedientConfiguration)),
+            .Orchestrator = New ImportServiceOrchestrator(validator, repository, New ImportIntentStateMachine(clock, New SafeImportIntentTransitionAudit()), steps, expedientCoordinator, relatedCoordinator),
             .Reconciliation = New ServicioReconciliacionImportacion(validator, New MySqlImportReconciliationRepository(connections, docuarchiConnections, executor), New ImportItemResultMapper())}
     End Function
 
-    Private Shared Function BuildProviderRegistry(ByVal attempts As IExternalServiceAttemptRecorder) As RegistroClientesProveedoresImportacion
-        Dim resolved = ResolveProvider(SiiImportProvider.CanonicalProviderId, attempts)
+    Private Shared Function BuildProviderRegistry(ByVal resolved As ResultadoResolucionClienteProveedorImportacion) As RegistroClientesProveedoresImportacion
         If resolved Is Nothing OrElse Not resolved.Encontrado Then Throw New InvalidOperationException("PROVIDER_NOT_CONFIGURED")
         Return New RegistroClientesProveedoresImportacion(New IExternalImportProviderClient() {resolved.Cliente})
     End Function
@@ -335,6 +358,11 @@ Public Class WebServiceImportarServicioWebModern
         Return New ErrorImportacionServicioDto With {.Codigo = code, .MensajeVisible = If(String.IsNullOrWhiteSpace(diagnostic), "La operación no está disponible.", diagnostic)}
     End Function
 
+    Private Shared Function SubjectLegacyFallbackEnabled() As Boolean
+        Dim configured As Boolean
+        Return Boolean.TryParse(ConfigurationManager.AppSettings("ImportarServicioWebSiiSubjectLegacyFallback"), configured) AndAlso configured
+    End Function
+
     Private Shared Function SafeExecutionDiagnostic(ByVal value As String) As String
         Dim diagnosticText As String = System.Text.RegularExpressions.Regex.Replace(If(value, String.Empty), "[\r\n\t]+", " ").Trim()
         If diagnosticText.Length = 0 Then Return "La ejecución falló sin informar detalle."
@@ -389,6 +417,20 @@ Public Class WebServiceImportarServicioWebModern
 
     Private Shared Function SafeReconciliationCode(ByVal candidate As String) As String
         If candidate = "WORKFLOW_RECONCILIATION_UNAVAILABLE" OrElse candidate = "DOCUARCHI_RECONCILIATION_UNAVAILABLE" Then Return candidate
+        Return "IMPORT_UNAVAILABLE"
+    End Function
+
+    Private Shared Function SafeIntentCreationCode(ByVal candidate As String) As String
+        Select Case If(candidate, String.Empty)
+            Case "SII_INSCRIPTION_CONTEXT_INVALID", "SII_INSCRIPTION_ITEM_INVALID", "SII_INSCRIPTION_BARCODE_CONFLICT",
+                 "EXPEDIENT_CONFIGURATION_UNAVAILABLE", "EXPEDIENT_CONFIGURATION_QUERY_FAILED", "EXPEDIENT_CONFIGURATION_HEADER_QUERY_FAILED",
+                 "EXPEDIENT_CONFIGURATION_IDENTITY_FIELDS_QUERY_FAILED", "EXPEDIENT_CONFIGURATION_SECONDARY_TYPES_QUERY_FAILED",
+                 "EXPEDIENT_CONFIGURATION_RADICACION_CONNECTION_FAILED", "SII_INSCRIPTION_QUERY_FAILED",
+                 "SII_INSCRIPTIONS_UNAVAILABLE", "SII_INSCRIPTION_ITEM_UNRESOLVED",
+                 "SII_INSCRIPTION_RESOLVER_UNAVAILABLE", "PROVIDER_NOT_CONFIGURED", "PROVIDER_COMPOSITION_INVALID",
+                 "IMPORT_CONTEXT_UNAVAILABLE", "DOCUARCHI_RECONCILIATION_UNAVAILABLE", "RADICACION_CONTEXT_UNAVAILABLE"
+                Return candidate
+        End Select
         Return "IMPORT_UNAVAILABLE"
     End Function
 End Class

@@ -10,6 +10,7 @@
   "documentTypeId": 154,
   "documentTypeName": "Constancia de inscripción",
   "sampleSize": 3,
+  "minimumExpedientCount": 2,
   "budgetMs": 120000,
   "ignoreHttpsErrors": true,
   "browser": {
