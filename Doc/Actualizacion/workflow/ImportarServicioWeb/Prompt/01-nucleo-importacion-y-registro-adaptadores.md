@@ -42,6 +42,7 @@ Sustituir `SCRUMCORE-000` por el ticket real y crear `00-Indice.md` a `07-Metada
 ## Implementa
 
 - Un orquestador de UI con estados cerrado, resolviendo proveedor, consultando, vacío, resultados, preparando, ejecutando, reconciliando, completado y error.
+- El estado `ejecutando` representa una única espera global indeterminada; no modela porcentaje ni progreso individual.
 - Un contrato de adaptador basado en capacidades: selección múltiple, vista previa, descarga, tipología, requisitos adicionales y acciones permitidas.
 - Un registro que resuelva el adaptador por identidad canónica del proveedor; no uses una cadena de `if` dispersos.
 - Apertura desde `ctw-document-action-service`, conservando `btnloadservice` como puente temporal según el gate.
@@ -53,6 +54,7 @@ Sustituir `SCRUMCORE-000` por el ticket real y crear `00-Indice.md` a `07-Metada
 - El núcleo no puede referenciar `CIncripcionSII`, caché SII, libro, registro, matrícula, acto, noticia ni código de barras.
 - No cambies endpoints mutadores ni inventes respuestas backend.
 - El orquestador de UI coordina presentación y solicitudes; nunca ejecuta las fases mutadoras ni decide su orden.
+- El núcleo realiza una sola invocación a `ExecuteImportIntent` por intención y no fragmenta la selección por inscripción.
 - No modifiques `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento`, endpoints ni consumidores legacy.
 - Un proveedor desconocido nunca debe dirigirse a SII.
 - Mantén el recorrido anterior cuando el gate esté desactivado.

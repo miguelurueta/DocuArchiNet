@@ -36,11 +36,13 @@ Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diag
 
 ## Implementa
 
-- Estado por elemento: Disponible, Procesando, Verificando, Importada, Omitida, Fallida o No procesada.
+- Mapeo visible desde los estados reales del backend: `Disponible`, `Verificando`, `ResultadoIncierto`, `Inconsistente`, `Completado`, `Parcial`, `Detenido` y `Fallido`.
 - Consulta de reconciliación por intención, tarea, proveedor e identidad externa.
 - Relación entre elemento externo e identificador interno del documento.
-- Actualización o refresco de la lista de documentos sin duplicados.
+- Después de finalizar `ExecuteImportIntent`, recorrido único de `response.Items` y actualización de la lista por cada item `Disponible` con `DocumentId`.
+- Deduplicación por `DocumentId` y validación estricta de que `TaskId` coincide con la tarea actualmente visible.
 - Puente temporal con el resultado que alimenta `insert_row_documento_relacionado(...)`, encapsulado en el adaptador.
+- Si el DTO moderno no permite construir ese contrato visual con seguridad, refrescar la lista autoritativa completa en vez de inventar campos o consultar SII.
 - Acción **Ver documento importado** cuando exista identificador autorizado.
 - Conservación de filtros y scroll; limpieza de selección y foco predecible al volver.
 
@@ -50,11 +52,13 @@ Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diag
 - No interpretes códigos legacy ni `dato_lista`; recibe exclusivamente `ImportItemResult` estructurado del backend moderno.
 - No modifiques `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` ni la escritura existente.
 - Timeout o ausencia de respuesta conduce a Verificando, no a Disponible ni Importada.
+- No insertar documentos durante la espera global ni asumir que el orden de `Items` equivale al orden visual.
 - Si la vista actual corresponde a otra tarea, no insertes allí los documentos de la tarea original.
 
 ## Aceptación
 
 - Cada documento confirmado aparece una sola vez en la lista de la tarea correcta.
+- Una intención con varios elementos actualiza la lista en lote al finalizar, aunque la inserción visual se realice item por item.
 - Un resultado incierto se resuelve mediante reconciliación.
 - Cerrar y volver a abrir conserva el estado persistido.
 

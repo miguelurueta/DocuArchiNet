@@ -41,6 +41,9 @@ Sustituir `SCRUMCORE-000` por el ticket real; crear `00-Indice.md` a `07-Metadat
 ## Implementa
 
 - Pruebas focales del núcleo, registro de adaptadores, SII, vista, preparación, progreso, reconciliación y bloqueo de tarea.
+- Prueba contractual de una sola llamada `ExecuteImportIntent` por intención, espera global sin progreso ficticio y actualización final de todos los documentos confirmados sin duplicados.
+- Reutilizar la evidencia E2E obligatoria de B09, B10 y B11 para listado/catálogo, preview por descriptor y preflight puro; no repetir corridas ni crear perfiles paralelos.
+- Verificar que filtros, tipologías, apertura/cierre del preview y preflight no multiplican llamadas SII.
 - Regresión con gate desactivado y activado, garantizando una sola entrada y un solo handler efectivo.
 - Inventario de referencias de `Panel_list_inscripciones_sii`, `GridView_list_inscripciones_sii`, `ModalPopupExtender_edition_list_inscripciones_sii`, `Panel_sube_documento_integra_sii`, botones de postback y handlers asociados.
 - Ocultamiento inicial del árbol visual legacy bajo gate.
@@ -52,6 +55,7 @@ Sustituir `SCRUMCORE-000` por el ticket real; crear `00-Indice.md` a `07-Metadat
 - Antes de cualquier prueba autenticada de `PreviewEnviarTarea`, leer `tools/e2e/AGENT-RUNBOOK.md`.
 - No modificar `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento`, sus consumidores ni rutas legacy.
 - Gate apagado debe producir `FEATURE_DISABLED` sin efectos en endpoints modernos y conservar el recorrido vigente.
+- La activación productiva queda bloqueada hasta demostrar que cada endpoint moderno aplica el alcance completo del gate: booleano habilitado, usuario autorizado y grupo autorizado. Ocultar la UI no constituye autorización backend.
 - No ejecutar E2E real, carga ni activar gates sin autorización explícita para ambiente y cuentas.
 - No guardar ni imprimir credenciales, cookies o cadenas de conexión.
 - Las consultas de control serán exclusivamente `SELECT`.
@@ -63,6 +67,7 @@ Sustituir `SCRUMCORE-000` por el ticket real; crear `00-Indice.md` a `07-Metadat
 - La evidencia identifica claramente qué se ocultó y qué todavía no puede eliminarse.
 - Ninguna E2E de consulta modifica tarea, estado, documentos, expediente, índices, caché o auditoría.
 - Una E2E mutadora, si se autoriza separadamente, demuestra documento visible en la tarea correcta, resultados parciales y ausencia de duplicados.
+- Una prueba de acceso directo a cada endpoint demuestra rechazo seguro para usuarios o grupos fuera del alcance, aunque conozcan la URL ASMX.
 
 ## Correcciones opsxj:prompt-review
 
