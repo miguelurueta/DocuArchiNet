@@ -330,6 +330,16 @@ test('adaptador DOC-56 declara ocho operaciones y no duplica infraestructura tra
   assert.doesNotMatch(source, /require\(|createAuthenticatedWorkflowSession|queryFingerprint|promptSecret|ignoreHTTPSErrors|writeFile|setx/i);
 });
 
+test('DOC-68 exige catálogo y presentación enriquecida dentro de la lectura existente', () => {
+  const source=fs.readFileSync(path.join(__dirname,'..','scripts','adapters','importar-servicio-web-e2e-adapter.cjs'),'utf8');
+  assert.match(source,/assertDoc68Catalog\(capabilitiesDto\)/);
+  assert.match(source,/assertDoc68Items\(dto\)/);
+  assert.match(source,/\['Disponible','Importado','ConNovedad'\]/);
+  const querySelection=source.slice(source.indexOf('async function querySelection'),source.indexOf('async function preflight'));
+  assert.equal((querySelection.match(/invoke\('QueryItems'/g)||[]).length,1);
+  assert.doesNotMatch(querySelection,/GetPreview|Download|consultarInformacionSello/);
+});
+
 test('preflight bloquea escritura y concurrencia sin todas las autorizaciones', () => {
   const execution = validateProfile(load('doc56-import-sii-execution.profile.example.json'));
   const concurrency = validateProfile(load('doc56-import-sii-concurrency.profile.example.json'));

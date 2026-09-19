@@ -31,7 +31,7 @@ Public NotInheritable Class ExternalServiceAttemptNormalizer
             Case "EXTERNAL_ACCESS_DENIED", "SII_TOKEN_INVALID_CREDENTIALS" : result.CategoriaError="AUTHENTICATION"
             Case "EXTERNAL_CANCELLED" : result.CategoriaError="CANCELLED"
             Case "SII_TOKEN_INVALID", "SII_QUERY_PROVIDER_ERROR", "SII_TOKEN_REJECTED" : result.CategoriaError="BUSINESS_REJECTION" : result.Reintentable=(code="SII_TOKEN_INVALID")
-            Case "SII_ITEM_NOT_FOUND" : result.CategoriaError="BUSINESS_REJECTION"
+            Case "SII_ITEM_NOT_FOUND", "SII_INSCRIPTION_SEAL_MISSING", "SII_INSCRIPTION_SEAL_AMBIGUOUS" : result.CategoriaError="BUSINESS_REJECTION"
             Case Else : result.CategoriaError="INVALID_RESPONSE"
         End Select
         result.MensajeDiagnostico = "Fallo normalizado del proveedor externo."

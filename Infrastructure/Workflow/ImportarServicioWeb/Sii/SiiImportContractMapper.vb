@@ -65,19 +65,36 @@ Public NotInheritable Class SiiImportContractMapper
         If inscriptions.Count = 0 Then response.ProviderResultCode = "SII_INSCRIPTIONS_EMPTY" : Return response
         For Each inscription As JObject In inscriptions
             Dim images = TryCast(Token(inscription, "imagenes"), JArray)
-            If images Is Nothing Then Continue For
+            If images Is Nothing Then Throw New InvalidOperationException("SII_INSCRIPTION_SEAL_MISSING")
+            Dim sealImages As New List(Of JObject)()
             For Each image As JObject In images
-                response.ImageCount += 1
-                Dim format = Value(image, "formato").ToLowerInvariant()
-                response.Items.Add(New ExternalItemDto With {
-                    .ExternalKey = BuildExternalKey(request.CodigoBarras, Value(inscription, "libro"), Value(inscription, "registro"), Value(image, "idanexo")),
-                    .DisplayName = DisplayName(inscription, image),
-                    .ContentType = ContentTypeForFormat(format),
-                    .PreviewAvailable = True})
+                If IsInscriptionAttachment(image) Then sealImages.Add(image)
             Next
+            If sealImages.Count = 0 Then Throw New InvalidOperationException("SII_INSCRIPTION_SEAL_MISSING")
+            If sealImages.Count > 1 Then Throw New InvalidOperationException("SII_INSCRIPTION_SEAL_AMBIGUOUS")
+            Dim sealImage = sealImages(0)
+            response.ImageCount += 1
+            Dim format = Value(sealImage, "formato").ToLowerInvariant()
+            Dim item As New ExternalItemDto With {
+                .ExternalKey = BuildExternalKey(request.CodigoBarras, Value(inscription, "libro"), Value(inscription, "registro"), Value(sealImage, "idanexo")),
+                .DisplayName = DisplayName(inscription, sealImage),
+                .ContentType = ContentTypeForFormat(format),
+                .PreviewAvailable = True,
+                .PresentationSchemaVersion = "1.1"}
+            AddMetadata(item, "book", "Libro", Value(inscription, "libro"))
+            AddMetadata(item, "registration", "Inscripción/registro", Value(inscription, "registro"))
+            AddMetadata(item, "date", "Fecha", Value(inscription, "fecha"))
+            AddMetadata(item, "act", "Acto/naturaleza", First(Value(inscription, "nacto"), Value(inscription, "acto")))
+            AddMetadata(item, "news", "Noticia", Value(inscription, "noticia"))
+            AddMetadata(item, "reference", "Referencia", First(Value(sealImage, "referencia"), Value(inscription, "referencia")))
+            response.Items.Add(item)
         Next
         response.ProviderResultCode = If(response.ImageCount = 0, "SII_IMAGES_EMPTY", "SII_ITEMS_READY")
         Return response
+    End Function
+
+    Public Shared Function IsInscriptionAttachment(ByVal image As JObject) As Boolean
+        Return image IsNot Nothing AndAlso String.Equals(Value(image, "tipoanexo"), "505", StringComparison.Ordinal)
     End Function
 
     Public Function MapPreview(ByVal payload As Byte(), ByVal request As GetPreviewRequestDto) As GetPreviewResponseDto
@@ -133,6 +150,15 @@ Public NotInheritable Class SiiImportContractMapper
     Private Shared Function DisplayName(ByVal inscription As JObject, ByVal image As JObject) As String
         Dim result = (Value(inscription, "nacto") & " - " & Value(image, "nombre")).Trim(" "c, "-"c)
         Return If(result.Length > 160, result.Substring(0, 160), result)
+    End Function
+    Private Shared Sub AddMetadata(ByVal item As ExternalItemDto, ByVal code As String, ByVal label As String, ByVal raw As String)
+        Dim value=If(raw,String.Empty).Trim()
+        If value.Length=0 Then Return
+        If value.Length>200 Then value=value.Substring(0,200)
+        item.Metadata.Add(New ImportItemMetadataDto With {.Code=code,.Label=label,.Value=value})
+    End Sub
+    Private Shared Function First(ByVal primary As String, ByVal alternate As String) As String
+        Return If(String.IsNullOrWhiteSpace(primary),alternate,primary)
     End Function
     Friend Shared Function Value(ByVal source As JObject, ByVal name As String) As String
         Dim tokenValue = Token(source, name)

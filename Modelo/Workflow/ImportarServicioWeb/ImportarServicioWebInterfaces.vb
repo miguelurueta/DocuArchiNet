@@ -106,6 +106,16 @@ Public Interface IImportDocumentTypeResolver
                       ByVal nombreTipoDocumental As String) As ResolucionTipoDocumentalImportacion
 End Interface
 
+Public Interface IImportDocumentTypeCatalogRepository
+    Function Obtener(ByVal contexto As ContextoImportacionServicio) As IList(Of TipoDocumentalCatalogoImportacion)
+End Interface
+
+Public Interface IImportItemStatusRepository
+    Function ObtenerLote(ByVal contexto As ContextoImportacionServicio,
+                         ByVal providerId As String,
+                         ByVal externalKeys As IList(Of String)) As IDictionary(Of String, EstadoItemListadoImportacion)
+End Interface
+
 Public Interface IImportIntentConcurrencyGuard
     Function Adquirir(ByVal contexto As ContextoImportacionServicio,
                       ByVal idempotencyKey As String) As ResultadoGuardIntencionImportacion

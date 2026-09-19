@@ -29,6 +29,19 @@ Public NotInheritable Class ResolucionTipoDocumentalImportacion
     Public Property NombreTipoDocumental As String
 End Class
 
+Public NotInheritable Class TipoDocumentalCatalogoImportacion
+    Public Property IdTipoDocumentalTrd As Integer
+    Public Property Nombre As String
+    Public Property Obligatorio As Boolean
+    Public Property Orden As Integer
+End Class
+
+Public NotInheritable Class EstadoItemListadoImportacion
+    Public Property TieneAntecedente As Boolean
+    Public Property Confirmado As Boolean
+    Public Property TieneNovedad As Boolean
+End Class
+
 ' Modelos internos del núcleo de importación. No conocen DTOs ni infraestructura web.
 Public Class CapacidadProveedorImportacion
     Public Property Codigo As String

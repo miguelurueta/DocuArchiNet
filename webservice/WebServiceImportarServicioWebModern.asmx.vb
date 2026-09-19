@@ -21,11 +21,14 @@ Public Class WebServiceImportarServicioWebModern
         If Not ValidRequest(request) Then Return InvalidCapabilities(request)
         Try
             Dim importContext As ContextoImportacionServicio = Nothing
+            Dim session As ResultadoContextoSesionWorkflow = Nothing
             Dim contextFailure As String = Nothing
-            If Not TryBuildImportContext(request, importContext, contextFailure) Then Return ProviderCapabilitiesError(request, New ResultadoResolucionClienteProveedorImportacion With {.Codigo = contextFailure})
+            If Not TryBuildImportContext(request, importContext, session, contextFailure) Then Return ProviderCapabilitiesError(request, New ResultadoResolucionClienteProveedorImportacion With {.Codigo = contextFailure})
             Dim provider = ResolveProvider(request.ProviderId)
             If Not provider.Encontrado Then Return ProviderCapabilitiesError(request, provider)
-            Return provider.Cliente.ResolveCapabilitiesAsync(request, CancellationToken.None).GetAwaiter().GetResult()
+            Dim response=provider.Cliente.ResolveCapabilitiesAsync(request, CancellationToken.None).GetAwaiter().GetResult()
+            CreatePresentation(session,importContext).EnrichCapabilities(importContext,response)
+            Return response
         Catch
             Return ProviderCapabilitiesError(request, New ResultadoResolucionClienteProveedorImportacion With {.Codigo = "CAPABILITIES_UNAVAILABLE"})
         End Try
@@ -44,7 +47,11 @@ Public Class WebServiceImportarServicioWebModern
             request.CodigoBarras = request.CodigoBarras.Trim()
             Dim provider = ResolveProvider(request.ProviderId, CreateAttemptRecorder(session, importContext))
             If Not provider.Encontrado Then Return FailureQuery(request, provider.Codigo)
-            Return provider.Cliente.QueryItemsAsync(request, CancellationToken.None).GetAwaiter().GetResult()
+            Dim response=provider.Cliente.QueryItemsAsync(request, CancellationToken.None).GetAwaiter().GetResult()
+            Dim presentation=CreatePresentation(session,importContext)
+            presentation.EnrichItems(importContext,request.ProviderId,response)
+            presentation.ApplyPagination(request,response)
+            Return response
         Catch ex As ExternalImportHttpException
             Return FailureQuery(request, SafeExternalCode(ex))
         Catch ex As InvalidOperationException
@@ -296,6 +303,16 @@ Public Class WebServiceImportarServicioWebModern
             .Reconciliation = New ServicioReconciliacionImportacion(validator, New MySqlImportReconciliationRepository(connections, docuarchiConnections, executor), New ImportItemResultMapper())}
     End Function
 
+    Private Shared Function CreatePresentation(ByVal session As ResultadoContextoSesionWorkflow,
+                                               ByVal context As ContextoImportacionServicio) As ImportItemPresentationService
+        If session Is Nothing OrElse String.IsNullOrWhiteSpace(session.CadenaConexionWorkflow) Then Throw New InvalidOperationException("IMPORT_CONTEXT_UNAVAILABLE")
+        If String.IsNullOrWhiteSpace(session.CadenaConexionRadicacion) Then Throw New InvalidOperationException("RADICACION_CONTEXT_UNAVAILABLE")
+        Dim executor As IDataExecutor=New AdoNetDataExecutor()
+        Return New ImportItemPresentationService(
+            New MySqlImportDocumentTypeCatalogRepository(New RadicacionModuleConnectionFactory(session.CadenaConexionRadicacion),executor),
+            New MySqlImportItemStatusRepository(New WorkflowModuleConnectionFactory(session.CadenaConexionWorkflow),executor))
+    End Function
+
     Private Shared Function BuildProviderRegistry(ByVal resolved As ResultadoResolucionClienteProveedorImportacion) As RegistroClientesProveedoresImportacion
         If resolved Is Nothing OrElse Not resolved.Encontrado Then Throw New InvalidOperationException("PROVIDER_NOT_CONFIGURED")
         Return New RegistroClientesProveedoresImportacion(New IExternalImportProviderClient() {resolved.Cliente})
@@ -410,6 +427,7 @@ Public Class WebServiceImportarServicioWebModern
            Text.RegularExpressions.Regex.IsMatch(code, "^[A-Z0-9_]+$") Then Return code
         If code = "SII_RESOURCE_URL_INVALID" OrElse code = "SII_RESOURCE_SCHEME_NOT_ALLOWED" OrElse code = "SII_RESOURCE_HOST_NOT_ALLOWED" OrElse
            code = "SII_RESOURCE_FORMAT_UNSUPPORTED" OrElse code = "SII_ITEM_NOT_FOUND" OrElse
+           code = "SII_INSCRIPTION_SEAL_MISSING" OrElse code = "SII_INSCRIPTION_SEAL_AMBIGUOUS" OrElse
            code = "SII_TOKEN_INVALID" OrElse code = "SII_TOKEN_INVALID_CREDENTIALS" OrElse code = "SII_TOKEN_REJECTED" OrElse
            code = "SII_QUERY_PROVIDER_ERROR" OrElse code = "SII_QUERY_REJECTED" Then Return code
         Return "EXTERNAL_PROVIDER_UNAVAILABLE"
