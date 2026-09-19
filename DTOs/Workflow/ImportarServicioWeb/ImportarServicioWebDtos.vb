@@ -44,10 +44,33 @@ End Class
     Inherits RespuestaImportacionServicioDto
     Public Sub New()
         Capabilities = New List(Of ProviderCapabilityDto)()
+        DocumentTypes = New List(Of ImportDocumentTypeDto)()
     End Sub
     Public Property ProviderId As String
     Public Property ContextAllowed As Boolean
     Public Property Capabilities As IList(Of ProviderCapabilityDto)
+    Public Property DocumentTypes As IList(Of ImportDocumentTypeDto)
+End Class
+
+<Serializable()> Public Class ImportDocumentTypeDto
+    Public Sub New()
+        SchemaVersion = "1.1"
+    End Sub
+    Public Property SchemaVersion As String
+    Public Property DocumentTypeId As Integer
+    Public Property Name As String
+    Public Property Required As Boolean
+    Public Property SortOrder As Integer
+End Class
+
+<Serializable()> Public Class ImportItemMetadataDto
+    Public Sub New()
+        SchemaVersion = "1.1"
+    End Sub
+    Public Property SchemaVersion As String
+    Public Property Code As String
+    Public Property Label As String
+    Public Property Value As String
 End Class
 
 <Serializable()> Public Class QueryItemsRequestDto
@@ -58,11 +81,19 @@ End Class
 End Class
 
 <Serializable()> Public Class ExternalItemDto
+    Public Sub New()
+        Metadata = New List(Of ImportItemMetadataDto)()
+        AllowedActions = New List(Of String)()
+    End Sub
     Public Property ExternalKey As String
     Public Property DisplayName As String
     Public Property ContentType As String
     Public Property Length As Nullable(Of Long)
     Public Property PreviewAvailable As Boolean
+    Public Property PresentationSchemaVersion As String
+    Public Property Metadata As IList(Of ImportItemMetadataDto)
+    Public Property ImportStatus As String
+    Public Property AllowedActions As IList(Of String)
 End Class
 
 <Serializable()> Public Class QueryItemsResponseDto

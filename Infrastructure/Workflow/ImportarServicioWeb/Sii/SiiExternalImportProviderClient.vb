@@ -226,21 +226,25 @@ Public NotInheritable Class SiiExternalImportProviderClient
             For Each inscription As JObject In inscriptions
                 If Value(inscription, "libro") = book AndAlso Value(inscription, "registro") = registration Then
                     Dim images = TryCast(SiiImportContractMapper.Token(inscription, "imagenes"), JArray)
-                    If images Is Nothing Then Continue For
+                    If images Is Nothing Then Throw New InvalidOperationException("SII_INSCRIPTION_SEAL_MISSING")
+                    Dim sealImages As New List(Of JObject)()
                     For Each image As JObject In images
-                        If Value(image, "idanexo") = attachmentId Then
-                            Dim format = Value(image, "formato").ToLowerInvariant()
-                            Return New ResolvedImage With {.Url = Value(image, "url"), .ContentType = SiiImportContractMapper.ContentTypeForFormat(format), .CodigoBarras = codigoBarras,
-                                .Metadata = New MetadatosDocumentoSii With {.Libro = book, .Registro = registration, .Fecha = Value(inscription, "fecha"),
-                                .Duplicado = Value(inscription, "dupli"), .Hora = Value(inscription, "hora"), .UsuarioSii = Value(inscription, "usuariosii"),
-                                .Acto = Value(inscription, "acto"), .NombreActo = Value(inscription, "nacto"), .Matricula = Value(inscription, "matricula"),
-                                .Proponente = Value(inscription, "proponente"), .RazonSocial = If(Value(image, "nombre").Length > 0, Value(image, "nombre"), Value(inscription, "nombre")),
-                                .NitCedula = If(Value(image, "identificacion").Length > 0, Value(image, "identificacion"), Value(inscription, "identificacion")), .IdAnexo = attachmentId,
-                                .TipoImagen = Value(image, "tipo"), .TipoAnexo = Value(image, "tipoanexo"), .TipoSirep = Value(image, "tiposirep"),
-                                .TipoDigitalizacion = Value(image, "tipodigitalizacion"), .IdentificadorImagen = Value(image, "identificador"), .Formato = format,
-                                .FechaDocumento = Value(image, "fechadocumento"), .Origen = Value(image, "origen"), .Observaciones = Value(image, "observaciones")}}
-                        End If
+                        If SiiImportContractMapper.IsInscriptionAttachment(image) Then sealImages.Add(image)
                     Next
+                    If sealImages.Count = 0 Then Throw New InvalidOperationException("SII_INSCRIPTION_SEAL_MISSING")
+                    If sealImages.Count > 1 Then Throw New InvalidOperationException("SII_INSCRIPTION_SEAL_AMBIGUOUS")
+                    Dim sealImage = sealImages(0)
+                    If Not String.Equals(Value(sealImage, "idanexo"), attachmentId, StringComparison.Ordinal) Then Throw New InvalidOperationException("SII_ITEM_NOT_FOUND")
+                    Dim format = Value(sealImage, "formato").ToLowerInvariant()
+                    Return New ResolvedImage With {.Url = Value(sealImage, "url"), .ContentType = SiiImportContractMapper.ContentTypeForFormat(format), .CodigoBarras = codigoBarras,
+                        .Metadata = New MetadatosDocumentoSii With {.Libro = book, .Registro = registration, .Fecha = Value(inscription, "fecha"),
+                        .Duplicado = Value(inscription, "dupli"), .Hora = Value(inscription, "hora"), .UsuarioSii = Value(inscription, "usuariosii"),
+                        .Acto = Value(inscription, "acto"), .NombreActo = Value(inscription, "nacto"), .Matricula = Value(inscription, "matricula"),
+                        .Proponente = Value(inscription, "proponente"), .RazonSocial = If(Value(sealImage, "nombre").Length > 0, Value(sealImage, "nombre"), Value(inscription, "nombre")),
+                        .NitCedula = If(Value(sealImage, "identificacion").Length > 0, Value(sealImage, "identificacion"), Value(inscription, "identificacion")), .IdAnexo = attachmentId,
+                        .TipoImagen = Value(sealImage, "tipo"), .TipoAnexo = Value(sealImage, "tipoanexo"), .TipoSirep = Value(sealImage, "tiposirep"),
+                        .TipoDigitalizacion = Value(sealImage, "tipodigitalizacion"), .IdentificadorImagen = Value(sealImage, "identificador"), .Formato = format,
+                        .FechaDocumento = Value(sealImage, "fechadocumento"), .Origen = Value(sealImage, "origen"), .Observaciones = Value(sealImage, "observaciones")}}
                 End If
             Next
         End If

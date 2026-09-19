@@ -216,14 +216,75 @@ function selectedItems(dto, documentTypeId, documentTypeName, sampleSize = 1) {
   });
 }
 
-async function querySelection(invoke, taskId, codigoBarras, documentTypeId, documentTypeName, sampleSize, budgetMs, latencies) {
+async function querySelection(invoke, taskId, codigoBarras, documentTypeId, documentTypeName, sampleSize, budgetMs, latencies, requireDoc68Presentation = false) {
   if (typeof codigoBarras !== 'string' || !codigoBarras.trim()) fail('IMPORT_E2E_BARCODE_REQUIRED');
-  const query = await invoke('QueryItems', request({ ...base(taskId), CodigoBarras: codigoBarras.trim(), PageSize: sampleSize, ContinuationToken: '' }));
+  const diagnosticPageSize = process.env.DOC68_E2E_SHOW_PUBLIC_CONTRACT === 'true' ? 100 : sampleSize;
+  const query = await invoke('QueryItems', request({ ...base(taskId), CodigoBarras: codigoBarras.trim(), PageSize: diagnosticPageSize, ContinuationToken: '' }));
   const dto = assertResult(query, budgetMs, 'IMPORT_E2E_QUERY_FAILED');
+  if(requireDoc68Presentation) assertDoc68Items(dto);
+  if(requireDoc68Presentation && process.env.DOC68_E2E_SHOW_SAFE_ITEMS === 'true') printSafeDoc68Items(dto);
+  if(requireDoc68Presentation && process.env.DOC68_E2E_SHOW_PUBLIC_CONTRACT === 'true') printPublicDoc68Contract(dto);
   latencies.push(query.elapsedMs);
   const selection = selectedItems(dto, documentTypeId, documentTypeName, sampleSize);
   selection.forEach((item) => { item.TargetTaskId = taskId; });
   return selection;
+}
+
+function printSafeDoc68Items(dto) {
+  const items = field(dto, ['Items', 'items']) || [];
+  const safeItems = items.map((item, index) => ({
+    ordinal: index + 1,
+    externalKey: field(item, ['ExternalKey', 'externalKey']) || '',
+    displayName: field(item, ['DisplayName', 'displayName']) || '',
+    contentType: field(item, ['ContentType', 'contentType']) || '',
+    importStatus: field(item, ['ImportStatus', 'importStatus']) || '',
+    allowedActions: (field(item, ['AllowedActions', 'allowedActions']) || []).join(',')
+  }));
+  console.log('DOC68_SII_DOCUMENTS_SAFE=' + JSON.stringify(safeItems));
+}
+
+function printPublicDoc68Contract(dto) {
+  const items = field(dto, ['Items', 'items']) || [];
+  const contract = {
+    providerResultCode: field(dto, ['ProviderResultCode', 'providerResultCode']) || '',
+    inscriptionCount: field(dto, ['InscriptionCount', 'inscriptionCount']) || 0,
+    imageCount: field(dto, ['ImageCount', 'imageCount']) || 0,
+    continuationToken: field(dto, ['ContinuationToken', 'continuationToken']) || null,
+    items: items.map((item) => ({
+      externalKey: field(item, ['ExternalKey', 'externalKey']) || '',
+      displayName: field(item, ['DisplayName', 'displayName']) || '',
+      contentType: field(item, ['ContentType', 'contentType']) || '',
+      length: field(item, ['Length', 'length']) ?? null,
+      previewAvailable: field(item, ['PreviewAvailable', 'previewAvailable']) === true,
+      presentationSchemaVersion: field(item, ['PresentationSchemaVersion', 'presentationSchemaVersion']) || '',
+      metadata: (field(item, ['Metadata', 'metadata']) || []).map((value) => ({
+        schemaVersion: field(value, ['SchemaVersion', 'schemaVersion']) || '',
+        code: field(value, ['Code', 'code']) || '',
+        label: field(value, ['Label', 'label']) || '',
+        value: field(value, ['Value', 'value']) || ''
+      })),
+      importStatus: field(item, ['ImportStatus', 'importStatus']) || '',
+      allowedActions: field(item, ['AllowedActions', 'allowedActions']) || []
+    }))
+  };
+  console.log('DOC68_SII_PUBLIC_CONTRACT=' + JSON.stringify(contract));
+}
+
+function assertDoc68Items(dto) {
+  const items=field(dto,['Items','items']);
+  if(!Array.isArray(items)) fail('IMPORT_E2E_DOC68_ITEMS_INVALID');
+  for(const item of items) {
+    const metadata=field(item,['Metadata','metadata']), actions=field(item,['AllowedActions','allowedActions']);
+    const status=field(item,['ImportStatus','importStatus']);
+    if(!Array.isArray(metadata) || !Array.isArray(actions) || !['Disponible','Importado','ConNovedad'].includes(status)) fail('IMPORT_E2E_DOC68_PRESENTATION_INVALID');
+    for(const value of metadata) if(!field(value,['Code','code']) || !field(value,['Label','label']) || !field(value,['Value','value'])) fail('IMPORT_E2E_DOC68_METADATA_INVALID');
+  }
+}
+
+function assertDoc68Catalog(dto) {
+  const types=field(dto,['DocumentTypes','documentTypes']);
+  if(!Array.isArray(types)) fail('IMPORT_E2E_DOC68_CATALOG_INVALID');
+  for(const type of types) if(!Number.isSafeInteger(field(type,['DocumentTypeId','documentTypeId'])) || !field(type,['Name','name'])) fail('IMPORT_E2E_DOC68_CATALOG_INVALID');
 }
 
 async function preflight(invoke, taskId, selection, budgetMs, latencies) {
@@ -290,8 +351,9 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
       });
     }
     const capabilities = await invoke('ResolveCapabilities', request(base(taskId)));
-    assertResult(capabilities, budgetMs, 'IMPORT_E2E_CAPABILITIES_FAILED'); latencies.push(capabilities.elapsedMs);
-    const selection = await querySelection(invoke, taskId, profile.codigoBarras, profile.documentTypeId, profile.documentTypeName, profile.sampleSize, budgetMs, latencies);
+    const capabilitiesDto=assertResult(capabilities, budgetMs, 'IMPORT_E2E_CAPABILITIES_FAILED');
+    assertDoc68Catalog(capabilitiesDto); latencies.push(capabilities.elapsedMs);
+    const selection = await querySelection(invoke, taskId, profile.codigoBarras, profile.documentTypeId, profile.documentTypeName, profile.sampleSize, budgetMs, latencies, true);
     const preview = await invoke('GetPreview', request({ ...base(taskId), ExternalKey: selection[0].ExternalKey }));
     assertResult(preview, budgetMs, 'IMPORT_E2E_PREVIEW_FAILED'); latencies.push(preview.elapsedMs);
     let preflightCode;
