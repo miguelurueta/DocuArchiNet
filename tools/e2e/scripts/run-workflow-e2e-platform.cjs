@@ -129,6 +129,24 @@ async function invokeNotes({ client, servicePath, operation, payload, plan }) {
   return { dto: envelope.d, elapsedMs };
 }
 
+async function consumeImportPreview({ client, plan, descriptorId, method }) {
+  if (typeof descriptorId !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(descriptorId)) fail('IMPORT_E2E_PREVIEW_DESCRIPTOR_INVALID');
+  if (!['GET', 'HEAD'].includes(method)) fail('IMPORT_E2E_PREVIEW_METHOD_INVALID');
+  const started = performance.now();
+  const url = new URL('workflow/ImportarServicioWebPreview.ashx', plan.profile.baseUrl);
+  url.searchParams.set('d', descriptorId);
+  const response = await client.request.fetch(url.toString(), { method, timeout: Math.min(plan.profile.budgetMs, 60000) });
+  const headers = response.headers();
+  const body = method === 'GET' && response.status() === 200 ? await response.body() : Buffer.alloc(0);
+  return Object.freeze({
+    status: response.status(), elapsedMs: Math.round(performance.now() - started),
+    contentType: headers['content-type'] || '', contentLength: Number(headers['content-length'] || 0),
+    contentDisposition: headers['content-disposition'] || '', cacheControl: headers['cache-control'] || '',
+    noSniff: headers['x-content-type-options'] || '', frameOptions: headers['x-frame-options'] || '',
+    bodyLength: body.length
+  });
+}
+
 async function writeEvidence(evidence) {
   const destination = path.join(e2eRoot, 'artifacts', `workflow-e2e-platform-${evidence.scenario}.json`);
   await fs.mkdir(path.dirname(destination), { recursive: true });
@@ -159,12 +177,27 @@ async function initializeWorkflowContext(context, plan) {
         await page.locator('button[title="consultar lista"]:visible').click();
       }
       await selectCommand.waitFor({ state: 'visible', timeout: Math.min(plan.profile.budgetMs, 30000) });
+      await page.evaluate(() => {
+        window.__docE2eTaskSelectionPostbackCompleted = false;
+        const manager = window.Sys?.WebForms?.PageRequestManager?.getInstance?.();
+        if (manager) {
+          const completed = () => {
+            window.__docE2eTaskSelectionPostbackCompleted = true;
+            manager.remove_endRequest(completed);
+          };
+          manager.add_endRequest(completed);
+        }
+      });
       await selectCommand.click();
       await page.waitForFunction(
-        ([selector, expected]) => document.querySelector(selector)?.value === expected,
+        ([selector, expected]) => document.querySelector(selector)?.value === expected
+          || window.__docE2eTaskSelectionPostbackCompleted === true,
         ['#Hidden_id_tarea_selecionada', expectedTaskId],
         { timeout: Math.min(plan.profile.budgetMs, 30000) }
       );
+      if (await selectedTask.inputValue() !== expectedTaskId) {
+        fail('E2E_PLATFORM_TASK_SELECTION_REJECTED');
+      }
     }
     if (await selectedTask.inputValue() !== expectedTaskId) fail('E2E_PLATFORM_TASK_CONTEXT_UNAVAILABLE');
   } finally {
@@ -193,7 +226,11 @@ async function enableTemporaryGate(plan) {
   if (!/<add key="WorkflowCentroTrabajoModernActive" value="false"\s*\/>/i.test(original) ||
       !/<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i.test(original) ||
       !/<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i.test(original)) fail('E2E_PLATFORM_GATE_INTEGRITY_FAILED');
-  const enabled = original.replace(/(<add key="WorkflowCentroTrabajoModernActive" value=")false("\s*\/>)/i, '$1true$2');
+  let enabled = original.replace(/(<add key="WorkflowCentroTrabajoModernActive" value=")false("\s*\/>)/i, '$1true$2');
+  if (plan.profile.previewExpiryMinutes === 1) {
+    enabled = enabled.replace(/(<add key="ImportarServicioWebPreviewTtlMinutes" value=")\d+("\s*\/>)/i,
+      (_match, prefix, suffix) => `${prefix}1${suffix}`);
+  }
   if (enabled === original) fail('E2E_PLATFORM_GATE_ENABLE_FAILED');
   await fs.writeFile(webConfigPath, enabled, 'utf8');
   let restored = false;
@@ -250,6 +287,7 @@ async function main() {
     },
     createClient,
     invoke: (requestOptions) => invokeNotes({ ...requestOptions, plan }),
+    consumePreview: consumeImportPreview,
     readControl: readWorkflowControl,
       writeEvidence,
       assertIntegrity: async (options) => {

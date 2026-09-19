@@ -60,6 +60,12 @@ Public NotInheritable Class SiiImportProvider
         Return _mapper.MapPreview(payload, request)
     End Function
 
+    Public Function GetPreviewContentAsync(ByVal request As GetPreviewRequestDto,
+                                           ByVal cancellationToken As CancellationToken) As Task(Of SiiPreviewContent)
+        ValidateProvider(request)
+        Return _client.GetPreviewContentAsync(request, cancellationToken)
+    End Function
+
     Public Function DownloadAsync(ByVal externalKey As String, ByVal correlationId As String,
         ByVal cancellationToken As CancellationToken, Optional ByVal intentId As String = Nothing,
         Optional ByVal clientItemId As String = Nothing, Optional ByVal operationId As String = Nothing,

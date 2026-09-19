@@ -340,6 +340,29 @@ test('DOC-68 exige catálogo y presentación enriquecida dentro de la lectura ex
   assert.doesNotMatch(querySelection,/GetPreview|Download|consultarInformacionSello/);
 });
 
+test('DOC-69 canjea preview por HEAD y GET, rechaza alteración y consumo repetido', async () => {
+  const descriptorId = 'A'.repeat(43);
+  const calls = [];
+  const invoke = async (operation) => ({ elapsedMs: 2, dto: {
+    ResolveCapabilities: { DocumentTypes: [] },
+    QueryItems: { Items: [{ ExternalKey: 'SII2.item-1', DisplayName: 'preview.pdf', ContentType: 'application/pdf', Metadata: [], ImportStatus: 'Disponible', AllowedActions: ['Preview'] }] },
+    GetPreview: { DescriptorId: descriptorId, ContentType: 'application/pdf', Length: 4 },
+    PreflightImport: { IsValid: true, Requirements: [] }
+  }[operation] });
+  const consumePreview = async (descriptor, method) => {
+    calls.push({ descriptor, method });
+    if (descriptor !== descriptorId) return { status: 404, elapsedMs: 1, bodyLength: 0 };
+    const sequence = calls.filter((entry) => entry.descriptor === descriptorId).length;
+    if (sequence === 1) return { status: 200, elapsedMs: 1, bodyLength: 0, contentLength: 4 };
+    if (sequence === 2) return { status: 200, elapsedMs: 1, bodyLength: 4, contentLength: 4, cacheControl: 'private, no-store', noSniff: 'nosniff', contentDisposition: 'inline; filename="preview.pdf"' };
+    return { status: 404, elapsedMs: 1, bodyLength: 0 };
+  };
+  const result = await IMPORTAR_SERVICIO_WEB_E2E_ADAPTER.executeRead({ invoke, consumePreview, taskId: 220580, budgetMs: 1000,
+    profile: { scenarioId: 'import-sii-read', codigoBarras: '18341190', documentTypeId: 154, documentTypeName: 'Constancia De Inscripción', sampleSize: 1 } });
+  assert.deepEqual(calls.map(({ method }) => method), ['HEAD', 'HEAD', 'GET', 'GET', 'HEAD']);
+  assert.equal(result.codes.previewContent, 'CONFIRMED');
+});
+
 test('preflight bloquea escritura y concurrencia sin todas las autorizaciones', () => {
   const execution = validateProfile(load('doc56-import-sii-execution.profile.example.json'));
   const concurrency = validateProfile(load('doc56-import-sii-concurrency.profile.example.json'));
