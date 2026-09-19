@@ -71,9 +71,15 @@ Public Class WebServiceImportarServicioWebModern
             If Not TryBuildImportContext(request, context, session) Then Return FailurePreview(request, "PREVIEW_FORBIDDEN")
             Dim provider = ResolveProvider(request.ProviderId, CreateAttemptRecorder(session, context))
             If Not provider.Encontrado Then Return FailurePreview(request, provider.Codigo)
-            Dim source = provider.Cliente.GetPreviewAsync(request, CancellationToken.None).GetAwaiter().GetResult()
-            Return New SiiPreviewResponseFactory(New String() {"application/pdf", "image/png", "image/jpeg", "image/tiff"},
-                MaximumPreviewBytes()).Create(source, request, context, DateTime.UtcNow)
+            Dim siiProvider = TryCast(provider.Cliente, SiiImportProvider)
+            If siiProvider Is Nothing Then Return FailurePreview(request, "PREVIEW_PROVIDER_UNAVAILABLE")
+            Dim content = siiProvider.GetPreviewContentAsync(request, CancellationToken.None).GetAwaiter().GetResult()
+            Dim created = ImportPreviewCompositionFactory.CreateDescriptorService(session.CadenaConexionWorkflow,
+                ModuleContext(context), MaximumPreviewBytes(), PreviewTtl()).Create(context, content, DateTime.UtcNow)
+            Return New GetPreviewResponseDto With {.OperationId = request.OperationId, .CorrelationId = request.CorrelationId,
+                .ExternalKey = request.ExternalKey, .DescriptorId = created.DescriptorId,
+                .ContentType = created.Snapshot.ContentType, .Length = created.Snapshot.ContentLength,
+                .Disposition = created.Snapshot.ContentDisposition, .ExpiresAtUtc = created.Snapshot.ExpiresUtc}
         Catch ex As ExternalImportHttpException
             Return FailurePreview(request, SafeExternalCode(ex))
         Catch ex As InvalidOperationException
@@ -369,6 +375,13 @@ Public Class WebServiceImportarServicioWebModern
         Dim value As Long
         If Long.TryParse(ConfigurationManager.AppSettings("ImportarServicioWebPreviewMaximumBytes"), value) AndAlso value > 0 Then Return value
         Return 10485760L
+    End Function
+
+    Private Shared Function PreviewTtl() As TimeSpan
+        Dim minutes As Integer
+        If Integer.TryParse(ConfigurationManager.AppSettings("ImportarServicioWebPreviewTtlMinutes"), minutes) AndAlso
+           minutes > 0 AndAlso minutes <= 30 Then Return TimeSpan.FromMinutes(minutes)
+        Return TimeSpan.FromMinutes(5)
     End Function
 
     Private Shared Function ErrorDto(ByVal code As String, Optional ByVal diagnostic As String = Nothing) As ErrorImportacionServicioDto

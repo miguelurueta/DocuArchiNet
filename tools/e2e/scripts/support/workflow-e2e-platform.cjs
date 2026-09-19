@@ -303,6 +303,7 @@ async function executePlatformRun(options) {
   const createSession = options?.createSession;
   const createClient = options?.createClient;
   const invoke = options?.invoke;
+  const consumePreview = options?.consumePreview;
   const readControl = options?.readControl;
   const assertIntegrity = options?.assertIntegrity || assertPlatformIntegrity;
   const writeEvidence = options?.writeEvidence;
@@ -339,6 +340,9 @@ async function executePlatformRun(options) {
     if (typeof createClient !== 'function') fail('E2E_PLATFORM_TRANSPORT_INVALID');
     client = await createClient({ context, plan });
     const restrictedInvoke = createRestrictedInvoker({ adapter: plan.adapter, client, invoke });
+    const restrictedPreviewConsumer = typeof consumePreview === 'function'
+      ? (descriptorId, method) => consumePreview({ client, plan, descriptorId, method })
+      : null;
     const handlerName = STAGE_HANDLER[plan.scenario.stage];
     const handler = plan.adapter[handlerName];
     if (typeof handler !== 'function') fail('E2E_PLATFORM_STAGE_UNSUPPORTED');
@@ -347,11 +351,11 @@ async function executePlatformRun(options) {
       concurrentContext = await createSession({ browser, plan, environment });
       concurrentClient = await createClient({ context: concurrentContext, plan });
       const concurrentInvoke = createRestrictedInvoker({ adapter: plan.adapter, client: concurrentClient, invoke });
-      adapterResult = await handler({ invoke: restrictedInvoke, concurrentInvoke, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs, profile: plan.profile });
+      adapterResult = await handler({ invoke: restrictedInvoke, concurrentInvoke, consumePreview: restrictedPreviewConsumer, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs, profile: plan.profile });
     } else if (plan.scenario.stage === 'anonymous') {
       adapterResult = await handler({ invoke: restrictedInvoke, budgetMs: plan.profile.budgetMs });
     } else {
-      adapterResult = await handler({ invoke: restrictedInvoke, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs, profile: plan.profile });
+      adapterResult = await handler({ invoke: restrictedInvoke, consumePreview: restrictedPreviewConsumer, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs, profile: plan.profile });
     }
     after = await captureControls(plan.controls, plan, environment, readControl);
     if (!controlsMeetExpectation(plan, before, after)) fail(controlsFailureCode(plan));

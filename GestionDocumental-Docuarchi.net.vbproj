@@ -8477,6 +8477,7 @@
     <Content Include="webservice\WebServiceWorkflow.asmx" />
     <Content Include="webservice\WebServiceWorkflowModern.asmx" />
     <Content Include="webservice\WebServiceImportarServicioWebModern.asmx" />
+    <Content Include="workflow\ImportarServicioWebPreview.ashx" />
     <Content Include="webservice\WebServiceWorkflowNotesModern.asmx" />
     <Content Include="workflow\act.js" />
     <Content Include="workflow\imageneswf\1471559663_Error.png" />
@@ -9882,6 +9883,14 @@
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiImportInscriptionResolver.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiLegacyResultAdapter.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiPreviewResponseFactory.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Preview\ImportPreviewModels.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Preview\ImportPreviewDescriptorRepository.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Preview\ImportPreviewDescriptorService.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Preview\ImportPreviewContentService.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Preview\ImportPreviewCompositionFactory.vb" />
+    <Compile Include="workflow\ImportarServicioWebPreview.ashx.vb">
+      <DependentUpon>ImportarServicioWebPreview.ashx</DependentUpon>
+    </Compile>
     <Compile Include="Modelo\Workflow\Notas\NotasWorkflowModels.vb" />
     <Compile Include="Modelo\Workflow\Notas\NotasWorkflowInterfaces.vb" />
     <Compile Include="Modelo\Workflow\Devolver\DevolverActividadModels.vb" />

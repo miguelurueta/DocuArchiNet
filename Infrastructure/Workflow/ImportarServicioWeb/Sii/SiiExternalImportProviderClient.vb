@@ -131,6 +131,17 @@ Public NotInheritable Class SiiExternalImportProviderClient
         Return Encoding.UTF8.GetBytes(result.ToString(Formatting.None))
     End Function
 
+    Public Async Function GetPreviewContentAsync(ByVal request As GetPreviewRequestDto,
+                                                 ByVal cancellationToken As CancellationToken) As Task(Of SiiPreviewContent)
+        If request Is Nothing Then Throw New ArgumentNullException("request")
+        Dim selected = Await ResolveImageAsync(request.ExternalKey, request.CorrelationId, cancellationToken, Nothing, Nothing,
+            request.OperationId, request.TaskId, Nothing, request.ExternalKey).ConfigureAwait(False)
+        Dim content = Await DownloadSelectedAsync(selected, request.CorrelationId, cancellationToken, Nothing, Nothing,
+            request.OperationId, request.TaskId, Nothing, selected.CodigoBarras, request.ExternalKey).ConfigureAwait(False)
+        Return New SiiPreviewContent With {.ExternalKey = request.ExternalKey, .ContentType = selected.ContentType,
+            .FileName = "preview", .Content = content}
+    End Function
+
     Public Async Function DownloadAsync(ByVal externalKey As String, ByVal correlationId As String, ByVal cancellationToken As CancellationToken,
                                         Optional ByVal intentId As String = Nothing, Optional ByVal clientItemId As String = Nothing,
                                         Optional ByVal operationId As String = Nothing, Optional ByVal taskId As Nullable(Of Long) = Nothing,

@@ -114,13 +114,15 @@ LISTA-PREVIEW-INCRIPCIONES. Ver detalle funcional completo del ticket en la secc
 ## Capabilities
 
 ### New Capabilities
-- `lista-preview-incripciones`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `lista-preview-incripciones`: Canje temporal, autorizado y de un solo uso del preview SII mediante descriptor opaco, sin exponer autoridad externa ni repetir la descarga del contenido.
 
 ### Modified Capabilities
-- 
+- No aplica. La capacidad se incorpora detrás del gate moderno y conserva el flujo legado.
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
+- Backend Workflow: `GetPreview` descargará y validará una sola vez el anexo SII y persistirá un snapshot temporal compartido.
+- Superficie HTTP: se agregará un handler GET/HEAD que canjeará el descriptor sin invocar SII.
+- Persistencia: se agregará una tabla temporal compatible con MySQL 5.1 en `workflowdocument`, sin llaves foráneas entre bases.
+- Seguridad: descriptor aleatorio opaco, autoridad ligada al contexto, expiración, consumo único y respuestas públicas uniformes.
+- Verificación: pruebas automatizadas, compilación, documentación técnica y E2E real autorizada con restauración del gate.

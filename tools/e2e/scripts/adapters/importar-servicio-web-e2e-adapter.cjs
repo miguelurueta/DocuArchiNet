@@ -338,7 +338,7 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
     return Object.freeze({ ...result, assertions: Object.freeze(assertions) });
   },
 
-  async executeRead({ invoke, taskId, budgetMs, profile }) {
+  async executeRead({ invoke, consumePreview, taskId, budgetMs, profile }) {
     const latencies = [];
     if (profile.scenarioId === 'import-sii-recovery') {
       const get = await invoke('GetImportIntent', request({ ...base(taskId), IntentId: profile.intentId }));
@@ -355,13 +355,52 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
     assertDoc68Catalog(capabilitiesDto); latencies.push(capabilities.elapsedMs);
     const selection = await querySelection(invoke, taskId, profile.codigoBarras, profile.documentTypeId, profile.documentTypeName, profile.sampleSize, budgetMs, latencies, true);
     const preview = await invoke('GetPreview', request({ ...base(taskId), ExternalKey: selection[0].ExternalKey }));
-    assertResult(preview, budgetMs, 'IMPORT_E2E_PREVIEW_FAILED'); latencies.push(preview.elapsedMs);
+    const previewDto = assertResult(preview, budgetMs, 'IMPORT_E2E_PREVIEW_FAILED'); latencies.push(preview.elapsedMs);
+    const descriptorId = field(previewDto, ['DescriptorId', 'descriptorId']);
+    if (typeof descriptorId !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(descriptorId)) fail('IMPORT_E2E_PREVIEW_DESCRIPTOR_INVALID');
+    let previewContract;
+    if (typeof consumePreview === 'function') {
+      const altered = `${descriptorId.slice(0, -1)}${descriptorId.endsWith('A') ? 'B' : 'A'}`;
+      const rejected = await consumePreview(altered, 'HEAD');
+      if (rejected.status !== 404) fail(`IMPORT_E2E_PREVIEW_ALTERED_NOT_REJECTED_HTTP_${rejected.status}`);
+      const head = await consumePreview(descriptorId, 'HEAD');
+      if (head.status !== 200 || head.bodyLength !== 0 || head.contentLength <= 0) fail('IMPORT_E2E_PREVIEW_HEAD_INVALID');
+      const competing = await Promise.all([consumePreview(descriptorId, 'GET'), consumePreview(descriptorId, 'GET')]);
+      const get = competing.find((result) => result.status === 200);
+      const rejectedGet = competing.find((result) => result.status === 404);
+      if (!get || !rejectedGet) {
+        const statuses = competing.map((result) => result.status).sort((left, right) => left - right).join('_');
+        fail(`IMPORT_E2E_PREVIEW_CONCURRENCY_INVALID_HTTP_${statuses}`);
+      }
+      if (get.bodyLength <= 0 || get.bodyLength !== get.contentLength || !/no-store/i.test(get.cacheControl) ||
+          get.noSniff.toLowerCase() !== 'nosniff' || !/^(?:inline|attachment);/i.test(get.contentDisposition)) fail('IMPORT_E2E_PREVIEW_CONTENT_INVALID');
+      const reused = await consumePreview(descriptorId, 'HEAD');
+      if (reused.status !== 404) fail('IMPORT_E2E_PREVIEW_REUSE_NOT_REJECTED');
+      latencies.push(head.elapsedMs, ...competing.map((result) => result.elapsedMs), reused.elapsedMs);
+      previewContract = Object.freeze({ head: 'CONFIRMED', get: 'CONFIRMED', concurrentGet: 'REJECTED', altered: 'REJECTED', reused: 'REJECTED' });
+      if (profile.previewExpiryMinutes === 1) {
+        const expiringPreview = await invoke('GetPreview', request({ ...base(taskId), ExternalKey: selection[0].ExternalKey }));
+        const expiringDto = assertResult(expiringPreview, budgetMs, 'IMPORT_E2E_PREVIEW_EXPIRY_CREATE_FAILED');
+        const expiringDescriptor = field(expiringDto, ['DescriptorId', 'descriptorId']);
+        if (typeof expiringDescriptor !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(expiringDescriptor)) fail('IMPORT_E2E_PREVIEW_DESCRIPTOR_INVALID');
+        const beforeExpiry = await consumePreview(expiringDescriptor, 'HEAD');
+        if (beforeExpiry.status !== 200) fail(`IMPORT_E2E_PREVIEW_EXPIRY_INITIAL_HTTP_${beforeExpiry.status}`);
+        await new Promise((resolve) => setTimeout(resolve, 62000));
+        const afterExpiry = await consumePreview(expiringDescriptor, 'HEAD');
+        if (afterExpiry.status !== 404) fail(`IMPORT_E2E_PREVIEW_EXPIRY_NOT_REJECTED_HTTP_${afterExpiry.status}`);
+        latencies.push(expiringPreview.elapsedMs, beforeExpiry.elapsedMs, afterExpiry.elapsedMs);
+        previewContract = Object.freeze({ ...previewContract, expiry: 'REJECTED' });
+      }
+    }
     let preflightCode;
     if (Number.isSafeInteger(profile.documentTypeId) && profile.documentTypeId > 0) {
       await preflight(invoke, taskId, selection, budgetMs, latencies);
       preflightCode = null;
     }
-    return Object.freeze({ codes: Object.freeze({ capabilities: null, query: null, preview: null, ...(preflightCode === null ? { preflight: null } : {}) }), count: preflightCode === null ? 4 : 3, latenciesMs: Object.freeze(latencies) });
+    return Object.freeze({ codes: Object.freeze({ capabilities: null, query: null, preview: null,
+      ...(previewContract ? { previewContent: 'CONFIRMED' } : {}),
+      ...(previewContract?.expiry === 'REJECTED' ? { previewExpiry: 'CONFIRMED' } : {}),
+      ...(preflightCode === null ? { preflight: null } : {}) }), count: preflightCode === null ? 4 : 3, latenciesMs: Object.freeze(latencies) });
   },
 
   async executeExecution({ invoke, taskId, budgetMs, profile }) {

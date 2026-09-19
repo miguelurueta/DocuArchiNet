@@ -55,6 +55,7 @@ test("documentacion tecnica segmenta diagramas y referencia simbolos implementad
     "Services/Workflow/ImportarServicioWeb/ServicioReconciliacionImportacion.vb",
     "Services/Workflow/ImportarServicioWeb/ImportItemResultMapper.vb",
     "Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiExternalImportProviderClient.vb",
+    "Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb",
     "Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportContractMapper.vb",
     "Infrastructure/Workflow/ImportarServicioWeb/MySqlImportIntentConcurrencyGuard.vb",
     "Infrastructure/Repositories/Workflow/ImportarServicioWeb/MySqlImportIntentRepository.vb",
