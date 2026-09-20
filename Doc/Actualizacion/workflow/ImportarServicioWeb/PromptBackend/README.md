@@ -18,6 +18,7 @@ El contrato normativo, mapeo de estados, propiedad de la ejecución y orden cruz
 10. [`10-preview-stream-descarga-segura.md`](10-preview-stream-descarga-segura.md)
 11. [`11-preflight-plan-efectos-destino.md`](11-preflight-plan-efectos-destino.md)
 12. [`12-gate-autorizacion-endpoints-modernos.md`](12-gate-autorizacion-endpoints-modernos.md)
+13. [`13-importacion-sin-expediente-por-configuracion.md`](13-importacion-sin-expediente-por-configuracion.md)
 
 Cada prompt debe ejecutarse mediante un cambio OpenSpec propio o tareas atómicas trazables. Antes de implementar, debe resolver o registrar como bloqueo las preguntas abiertas que afecten su alcance; una suposición no puede convertirse silenciosamente en contrato productivo.
 
@@ -45,5 +46,7 @@ Los prompts de `../Prompt/` consumen contratos confirmados por este backend. El 
 Los prompts 09 a 11 son extensiones aditivas posteriores a DOC-67. Deben preservar la decisión frontend de una sola intención y una sola llamada síncrona a `ExecuteImportIntent`; no introducen progreso por elemento ni nuevas consultas SII durante preflight o ejecución.
 
 El prompt 12 cierra la brecha de seguridad del gate en la frontera backend. Es independiente de la lógica funcional, pero bloquea la habilitación productiva hasta demostrar autorización por booleano, sesión, usuario y grupo en todos los endpoints modernos.
+
+El prompt 13 corrige la confusión entre importar un documento y crear un expediente. Define que los trámites con `util_Estado_Crea_ExpedienteSII=0` omiten de forma explícita todos los efectos de expediente, los registran como `NoAplica` y pueden completar el almacenamiento documental sin forzar una configuración riesgosa para el histórico.
 
 Cada uno de los prompts 09 a 11 incluye E2E real obligatoria reutilizando `tools/e2e`. La obligación de evidencia no concede autorización operativa: si falta autorización de ambiente, cuenta o recurso descartable, el cambio queda bloqueado y no puede cerrarse con mocks o evidencia inventada.

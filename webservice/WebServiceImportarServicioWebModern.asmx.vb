@@ -298,13 +298,15 @@ Public Class WebServiceImportarServicioWebModern
         Dim indexAdapter = New SiiDocumentIndexAdapter(New LegacySiiDocumentIndexPhysicalGateway(docuarchiConnections, executor))
         Dim relatedCoordinator = New ImportRelatedDocumentCoordinator(relatedDocuments, relationPort, linkCache, indexAdapter, indexAdapter, New ImportRelatedDocumentPlan())
         Dim documentTypes As IImportDocumentTypeResolver = New MySqlImportDocumentTypeResolver(radicacionConnections, executor)
+        Dim preflight = New ServicioPreflightImportacion(validator, documentTypes,
+            New MySqlImportEffectConfigurationRepository(expedientConfiguration), New ImportEffectPlanBuilder())
         Dim steps As New Collections.Generic.List(Of IImportExecutionStep) From {
             New DownloadImportExecutionStep(clients), New PrepareImportExecutionStep(), New PrepareImportIndicesExecutionStep(),
             New StoreImportExecutionStep(New MySqlImportStorageMetadataRepository(connections, executor), documentTypes, New LegacyImportDocumentStorageAdapter()),
             New CompleteImportExecutionStep(FaseImportacionServicio.CacheActualizado)}
         Return New ImportComposition With {
-            .Preflight = New ServicioPreflightImportacion(validator, documentTypes),
-            .Intents = New ServicioIntencionImportacion(repository, New MySqlImportIntentConcurrencyGuard(connections, executor), clock, New SiiImportInscriptionResolver(siiProvider, expedientConfiguration)),
+            .Preflight = preflight,
+            .Intents = New ServicioIntencionImportacion(repository, New MySqlImportIntentConcurrencyGuard(connections, executor), clock, New SiiImportInscriptionResolver(siiProvider, expedientConfiguration), preflight),
             .Orchestrator = New ImportServiceOrchestrator(validator, repository, New ImportIntentStateMachine(clock, New SafeImportIntentTransitionAudit()), steps, expedientCoordinator, relatedCoordinator),
             .Reconciliation = New ServicioReconciliacionImportacion(validator, New MySqlImportReconciliationRepository(connections, docuarchiConnections, executor), New ImportItemResultMapper())}
     End Function

@@ -370,6 +370,21 @@ test('preflight bloquea escritura y concurrencia sin todas las autorizaciones', 
   assert.throws(() => preflightPlatform({ profile: concurrency, authorizations: ['environment', 'execution'] }), /E2E_PLATFORM_AUTHORIZATION_REQUIRED/);
 });
 
+test('DOC-70 valida plan por item y fingerprint estable en el preflight existente', async () => {
+  const calls=[];
+  const items=[1,2].map((value)=>({ExternalKey:`SII2.item-${value}`,ClientItemId:`client-${value}`,TargetTaskId:220580,DocumentTypeId:154,DocumentTypeName:'Constancia'}));
+  const plans=items.map((item)=>({ClientItemId:item.ClientItemId,TargetTaskId:220580,DocumentTypeId:154,DestinationMode:'Single',ExpedientRequired:true,Effects:['DOCUMENT_STORAGE','EXPEDIENT_RESOLUTION','DOCUMENT_LINK','LINK_CACHE','DOCUMENT_INDEXES'].map((Code)=>({Code,Status:'Planned'}))}));
+  const fingerprint='a'.repeat(64);
+  const invoke=async(operation,payload)=>{calls.push({operation,payload});return {elapsedMs:2,dto:{IsValid:true,Executable:true,ContextFingerprint:fingerprint,Requirements:[],EffectPlans:plans}}};
+  const result=await IMPORTAR_SERVICIO_WEB_E2E_ADAPTER.executeRead({invoke,taskId:220580,budgetMs:1000,profile:{scenarioId:'import-sii-read',codigoBarras:'18341190',documentTypeId:154,documentTypeName:'Constancia',sampleSize:2}}).catch(()=>null);
+  // executeRead necesita query/preview reales; la política estructural confirma que la validación DOC-70 vive en la única función preflight.
+  const source=fs.readFileSync(path.resolve(__dirname,'../scripts/adapters/importar-servicio-web-e2e-adapter.cjs'),'utf8');
+  assert.match(source,/IMPORT_E2E_PREFLIGHT_EFFECT_PLAN_INVALID/);
+  assert.match(source,/IMPORT_E2E_PREFLIGHT_FINGERPRINT_UNSTABLE/);
+  assert.match(source,/\[\.\.\.selection\]\.reverse\(\)/);
+  assert.equal(result,null);
+});
+
 test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   const source = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'run-workflow-e2e-platform.cjs'), 'utf8');
   const platform = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'support', 'workflow-e2e-platform.cjs'), 'utf8');

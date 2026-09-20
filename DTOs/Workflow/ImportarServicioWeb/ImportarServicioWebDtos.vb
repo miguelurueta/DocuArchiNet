@@ -158,6 +158,26 @@ End Class
     Public Property ContentType As String
 End Class
 
+<Serializable()> Public Class ImportPlannedEffectDto
+    Public Property Code As String
+    Public Property Status As String
+End Class
+
+<Serializable()> Public Class ImportEffectPlanDto
+    Public Sub New()
+        Effects = New List(Of ImportPlannedEffectDto)()
+        Requirements = New List(Of ImportRequirementDto)()
+    End Sub
+    Public Property ClientItemId As String
+    Public Property TargetTaskId As Long
+    Public Property DocumentTypeId As Nullable(Of Integer)
+    Public Property DocumentTypeName As String
+    Public Property DestinationMode As String
+    Public Property ExpedientRequired As Boolean
+    Public Property Effects As IList(Of ImportPlannedEffectDto)
+    Public Property Requirements As IList(Of ImportRequirementDto)
+End Class
+
 <Serializable()> Public Class ImportItemResultDto
     Public Property ClientItemId As String
     Public Property ExternalKey As String
@@ -179,11 +199,14 @@ End Class
     Public Sub New()
         Requirements = New List(Of ImportRequirementDto)()
         Commands = New List(Of DocumentCommandDto)()
+        EffectPlans = New List(Of ImportEffectPlanDto)()
     End Sub
     Public Property IsValid As Boolean
     Public Property Requirements As IList(Of ImportRequirementDto)
     Public Property Commands As IList(Of DocumentCommandDto)
     Public Property ContextFingerprint As String
+    Public Property Executable As Boolean
+    Public Property EffectPlans As IList(Of ImportEffectPlanDto)
 End Class
 
 <Serializable()> Public Class CreateImportIntentRequestDto

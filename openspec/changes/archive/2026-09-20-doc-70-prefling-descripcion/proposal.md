@@ -1,6 +1,14 @@
-## Context
+## Why
 
-DOC-70: PREFLING-DESCRIPCION
+El preflight actual confirma contexto, selección y tipología, pero no explica el destino lógico ni los efectos previstos y su huella no se revalida al crear la intención. El frontend necesita una descripción confiable antes de ejecutar, sin adelantar mutaciones ni volver a consumir SII.
+
+## What Changes
+
+- Extender aditivamente `PreflightImportResponseDto` con `Executable` y un plan lógico por item.
+- Resolver tipología, modo de destino, requisitos y efectos previstos desde configuración local autoritativa.
+- Ampliar el fingerprint y revalidarlo antes de crear la intención.
+- Mantener preflight sin escrituras, IDs físicos ni llamadas SII.
+- Incorporar pruebas, documentación y E2E saneada sobre la infraestructura existente.
 
 ## Jira Details
 
@@ -97,29 +105,23 @@ DOC-70: PREFLING-DESCRIPCION
 > 
 > Entregar contratos aditivos, servicios, repositorios, pruebas, documentación y evidencia de que preflight permanece puro y no consume SII.
 
-## Goals / Non-Goals
+## Jira Metadata
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Tipo: Tarea
+- Prioridad: Medium
+- Labels: DESCRIPCION, PREFILING
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+## Capabilities
 
-## Decisions
+### New Capabilities
+- `prefling-descripcion`: Plan lógico seguro de efectos y destino, huella determinista y revalidación previa a crear la intención.
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### Modified Capabilities
+- 
 
+## Impact
 
-## Risks / Trade-offs
-
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
-
-## Migration Plan
-
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
-
-## Open Questions
-
-- TBD
+- Backend Workflow: DTOs, preflight, creación de intención y composición.
+- Persistencia: solo consultas SELECT parametrizadas; no requiere nueva tabla.
+- Integraciones: cero llamadas SII durante preflight y ejecución DOC-67 sin cambios.
+- Verificación: `node:test`, MSBuild, documentación y E2E autorizada.
