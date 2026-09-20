@@ -9,24 +9,43 @@ Public NotInheritable Class ServicioIntencionImportacion
     Private ReadOnly _guard As IImportIntentConcurrencyGuard
     Private ReadOnly _clock As IImportacionServicioClock
     Private ReadOnly _inscriptions As IImportInscriptionResolver
+    Private ReadOnly _preflight As ServicioPreflightImportacion
 
     Public Sub New(ByVal repository As IImportIntentRepository, ByVal guard As IImportIntentConcurrencyGuard,
                    ByVal clock As IImportacionServicioClock)
-        Me.New(repository, guard, clock, Nothing)
+        Me.New(repository, guard, clock, Nothing, Nothing)
     End Sub
 
     Public Sub New(ByVal repository As IImportIntentRepository, ByVal guard As IImportIntentConcurrencyGuard,
                    ByVal clock As IImportacionServicioClock, ByVal inscriptions As IImportInscriptionResolver)
+        Me.New(repository, guard, clock, inscriptions, Nothing)
+    End Sub
+
+    Public Sub New(ByVal repository As IImportIntentRepository, ByVal guard As IImportIntentConcurrencyGuard,
+                   ByVal clock As IImportacionServicioClock, ByVal inscriptions As IImportInscriptionResolver,
+                   ByVal preflight As ServicioPreflightImportacion)
         If repository Is Nothing Then Throw New ArgumentNullException("repository")
         If guard Is Nothing Then Throw New ArgumentNullException("guard")
         If clock Is Nothing Then Throw New ArgumentNullException("clock")
         _repository = repository : _guard = guard : _clock = clock : _inscriptions = inscriptions
+        _preflight = preflight
     End Sub
 
     Public Function Crear(ByVal contexto As ContextoImportacionServicio,
                           ByVal request As CreateImportIntentRequestDto) As CreateImportIntentResponseDto
         Dim response As New CreateImportIntentResponseDto With {.OperationId = If(request Is Nothing, Nothing, request.OperationId), .CorrelationId = If(request Is Nothing, Nothing, request.CorrelationId)}
         If Not Valid(contexto, request) Then Return Fail(response, "INVALID_INTENT", "No fue posible crear la intención.")
+        If _preflight IsNot Nothing Then
+            Dim preflightRequest As New PreflightImportRequestDto With {
+                .OperationId = request.OperationId, .CorrelationId = request.CorrelationId,
+                .TaskId = request.TaskId, .ProviderId = request.ProviderId, .Items = request.Items}
+            Dim current = _preflight.Preflight(contexto, preflightRequest)
+            If current Is Nothing OrElse Not current.Executable OrElse current.Error IsNot Nothing OrElse
+               Not String.Equals(current.ContextFingerprint, request.ContextFingerprint, StringComparison.Ordinal) OrElse
+               Not EquivalentRequirements(current.Requirements, request.Requirements) Then
+                Return Fail(response, "PREFLIGHT_STALE", "El plan de importación cambió; repita la validación.")
+            End If
+        End If
         Dim lockResult = _guard.Adquirir(contexto, request.IdempotencyKey.Trim())
         If lockResult Is Nothing OrElse Not lockResult.Adquirido OrElse lockResult.Lease Is Nothing Then Return Fail(response, "INTENT_IN_PROGRESS", "La intención está siendo procesada.")
         Using lockResult.Lease
@@ -39,6 +58,20 @@ Public NotInheritable Class ServicioIntencionImportacion
             response.Reused = stored.Reutilizada
             Return response
         End Using
+    End Function
+
+    Private Shared Function EquivalentRequirements(ByVal expected As IList(Of ImportRequirementDto), ByVal supplied As IList(Of ImportRequirementDto)) As Boolean
+        If expected Is Nothing OrElse supplied Is Nothing OrElse expected.Count <> supplied.Count Then Return False
+        Dim values As New Dictionary(Of String, Boolean)(StringComparer.Ordinal)
+        For Each requirement In supplied
+            If requirement Is Nothing OrElse String.IsNullOrWhiteSpace(requirement.Codigo) OrElse values.ContainsKey(requirement.Codigo) Then Return False
+            values.Add(requirement.Codigo, requirement.Satisfecho)
+        Next
+        For Each requirement In expected
+            Dim satisfied As Boolean
+            If requirement Is Nothing OrElse Not values.TryGetValue(requirement.Codigo, satisfied) OrElse satisfied <> requirement.Satisfecho Then Return False
+        Next
+        Return True
     End Function
 
     Private Function BuildIntent(ByVal context As ContextoImportacionServicio, ByVal request As CreateImportIntentRequestDto) As IntencionImportacionServicio

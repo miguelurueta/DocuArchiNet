@@ -9828,6 +9828,7 @@
     <Compile Include="Services\Workflow\ImportarServicioWeb\RegistroClientesProveedoresImportacion.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\ValidadorContextoImportacion.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\ServicioPreflightImportacion.vb" />
+    <Compile Include="Services\Workflow\ImportarServicioWeb\ImportEffectPlanBuilder.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\ServicioIntencionImportacion.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\ImportIntentStateMachine.vb" />
     <Compile Include="Services\Workflow\ImportarServicioWeb\ImportItemResultFactory.vb" />
@@ -9848,6 +9849,7 @@
     <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportDocumentTypeCatalogRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportItemStatusRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportExpedientConfigurationRepository.vb" />
+    <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportEffectConfigurationRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportDocumentLinkCacheRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportRelatedDocumentRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\PhysicalImportExpedientRepository.vb" />

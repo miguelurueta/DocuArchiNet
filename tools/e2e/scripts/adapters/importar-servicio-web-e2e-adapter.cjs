@@ -292,6 +292,33 @@ async function preflight(invoke, taskId, selection, budgetMs, latencies) {
   const dto = assertResult(result, budgetMs, 'IMPORT_E2E_PREFLIGHT_FAILED');
   latencies.push(result.elapsedMs);
   if (field(dto, ['IsValid', 'isValid']) !== true) fail('IMPORT_E2E_PREFLIGHT_INVALID');
+  const executable = field(dto, ['Executable', 'executable']);
+  const plans = field(dto, ['EffectPlans', 'effectPlans']);
+  if (executable !== undefined || plans !== undefined) {
+    if (executable !== true || !Array.isArray(plans) || plans.length !== selection.length) fail('IMPORT_E2E_PREFLIGHT_EFFECT_PLAN_INVALID');
+    const expected = new Set(selection.map((item) => item.ClientItemId));
+    for (const plan of plans) {
+      const clientItemId = field(plan, ['ClientItemId', 'clientItemId']);
+      const targetTaskId = field(plan, ['TargetTaskId', 'targetTaskId']);
+      const documentTypeId = field(plan, ['DocumentTypeId', 'documentTypeId']);
+      const destinationMode = field(plan, ['DestinationMode', 'destinationMode']);
+      const effects = field(plan, ['Effects', 'effects']);
+      if (!expected.delete(clientItemId) || targetTaskId !== taskId || !Number.isSafeInteger(documentTypeId) ||
+          !['Single', 'Multiple'].includes(destinationMode) || !Array.isArray(effects) || effects.length !== 5 ||
+          effects.some((effect) => field(effect, ['Status', 'status']) !== 'Planned')) fail('IMPORT_E2E_PREFLIGHT_EFFECT_PLAN_INVALID');
+      for (const forbidden of ['ExpedientId', 'CabinetName', 'TableName', 'Sql', 'PhysicalPath']) {
+        if (Object.prototype.hasOwnProperty.call(plan, forbidden)) fail('IMPORT_E2E_PREFLIGHT_PHYSICAL_FIELD_EXPOSED');
+      }
+    }
+    if (expected.size !== 0) fail('IMPORT_E2E_PREFLIGHT_EFFECT_PLAN_INVALID');
+    const fingerprint = field(dto, ['ContextFingerprint', 'contextFingerprint']);
+    if (typeof fingerprint !== 'string' || !/^[a-f0-9]{64}$/.test(fingerprint)) fail('IMPORT_E2E_PREFLIGHT_FINGERPRINT_INVALID');
+    const repeated = await invoke('PreflightImport', request({ ...base(taskId), Items: [...selection].reverse() }));
+    const repeatedDto = assertResult(repeated, budgetMs, 'IMPORT_E2E_PREFLIGHT_REPEAT_FAILED');
+    latencies.push(repeated.elapsedMs);
+    if (field(repeatedDto, ['ContextFingerprint', 'contextFingerprint']) !== fingerprint ||
+        field(repeatedDto, ['Executable', 'executable']) !== true) fail('IMPORT_E2E_PREFLIGHT_FINGERPRINT_UNSTABLE');
+  }
   return dto;
 }
 

@@ -136,6 +136,10 @@ Public Interface IImportExpedientConfigurationRepository
     Function Obtener(ByVal contexto As ContextoImportacionServicio) As ConfiguracionExpedienteImportacion
 End Interface
 
+Public Interface IImportEffectConfigurationRepository
+    Function Obtener(ByVal contexto As ContextoImportacionServicio) As ImportEffectConfiguration
+End Interface
+
 Public Interface ISiiExpedientSubjectResolver
     Function Resolver(ByVal contexto As ContextoImportacionServicio,
                       ByVal inscripcion As InscripcionImportacion,
