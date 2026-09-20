@@ -27,10 +27,12 @@ Public NotInheritable Class ImportRelatedDocumentCoordinator
                              ByVal nombreGabinete As String,
                              ByVal radicadoSii As String) As PlanDocumentosRelacionadosImportacion
         Dim discovered = _documents.ObtenerPorEnlace(contexto, nombreGabinete, radicadoSii)
-        For Each document In discovered
-            Dim cached = _cache.Obtener(contexto, document.IdImagen, document.NombreGabinete)
-            If cached IsNot Nothing Then document.IdExpedienteEsperado = cached.IdExpedienteEsperado
-        Next
+        If planExpedientes.Modo = ModoExpedienteImportacion.GestionarExpediente Then
+            For Each document In discovered
+                Dim cached = _cache.Obtener(contexto, document.IdImagen, document.NombreGabinete)
+                If cached IsNot Nothing Then document.IdExpedienteEsperado = cached.IdExpedienteEsperado
+            Next
+        End If
         Dim plan = _planBuilder.Construir(intencion, planExpedientes, discovered)
         If plan.Estado <> EstadoEfectoExpedienteImportacion.Confirmado Then Return plan
 
@@ -50,7 +52,7 @@ Public NotInheritable Class ImportRelatedDocumentCoordinator
                 Return plan
             End If
             Dim failureCode As String = Nothing
-            If Not ProcessOne(contexto, intencion.Id, document, inscription, failureCode) Then
+            If Not ProcessOne(contexto, intencion.Id, document, inscription, planExpedientes.Modo, failureCode) Then
                 plan.Estado = If(document.EstadoRelacion = EstadoRelacionDocumentoExpediente.ResultadoIncierto,
                                   EstadoEfectoExpedienteImportacion.ResultadoIncierto,
                                   EstadoEfectoExpedienteImportacion.Conflicto)
@@ -66,7 +68,23 @@ Public NotInheritable Class ImportRelatedDocumentCoordinator
                                 ByVal intentId As String,
                                 ByVal document As DocumentoRelacionadoImportacion,
                                 ByVal inscription As InscripcionImportacion,
+                                ByVal mode As ModoExpedienteImportacion,
                                 ByRef failureCode As String) As Boolean
+        If mode = ModoExpedienteImportacion.SinExpediente Then
+            document.EstadoRelacion = EstadoRelacionDocumentoExpediente.NoConsultada
+            document.EstadoCache = EstadoEfectoExpedienteImportacion.NoAplica
+            document.EstadoIndiceSql = EstadoEfectoExpedienteImportacion.NoAplica
+            document.EstadoIndiceXml = EstadoEfectoExpedienteImportacion.NoAplica
+            Dim documentIndex = _indices.Actualizar(contexto, document, inscription)
+            document.EstadoIndiceGabinete = documentIndex.Estado
+            document.EstadoReconciliacion = documentIndex.Estado
+            If Not _documents.Persistir(contexto, intentId, document) Then failureCode = "RELATED_DOCUMENT_PERSISTENCE_FAILED" : Return False
+            If documentIndex.Estado <> EstadoEfectoExpedienteImportacion.Confirmado Then
+                failureCode = If(String.IsNullOrWhiteSpace(documentIndex.Codigo), "DOCUMENT_INDEX_NOT_CONFIRMED", documentIndex.Codigo)
+                Return False
+            End If
+            Return True
+        End If
         Dim relation = _relations.Vincular(contexto, document)
         document.EstadoRelacion = relation.Relacion
         If Not _documents.Persistir(contexto, intentId, document) Then

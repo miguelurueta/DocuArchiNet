@@ -36,9 +36,9 @@ test("la finalización persiste reconciliada antes de completada", () => {
 
 test("el plan físico confirmado se proyecta al item antes de reconciliar y completar", () => {
   const related = orchestrator.indexOf("_relatedDocumentCoordinator.Procesar");
-  const relation = orchestrator.indexOf("item.EstadoRelacion = EstadoEfectoExpedienteImportacion.Confirmado", related);
+  const relation = orchestrator.indexOf("item.EstadoRelacion = If(expedientPlan.Modo", related);
   const index = orchestrator.indexOf("item.EstadoIndice = EstadoEfectoExpedienteImportacion.Confirmado", relation);
-  const cache = orchestrator.indexOf("item.EstadoCache = EstadoEfectoExpedienteImportacion.Confirmado", index);
+  const cache = orchestrator.indexOf("item.EstadoCache = If(expedientPlan.Modo", index);
   const reconciled = orchestrator.indexOf("Avanzar(contexto, intent, item, FaseImportacionServicio.Reconciliada", cache);
   const completed = orchestrator.indexOf("Avanzar(contexto, intent, item, FaseImportacionServicio.Completada", reconciled);
   assert.ok(related >= 0 && relation > related && index > relation && cache > index && reconciled > cache && completed > reconciled);

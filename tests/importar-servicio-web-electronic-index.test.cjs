@@ -25,7 +25,7 @@ test("XML inconsistente bloquea confirmación aunque SQL exista", () => {
 });
 
 test("los tres índices de gabinete se leen después de actualizar", () => {
-  for (const field of ["NITCEDULA", "RAZONSOCIAL", "MATRICULA"]) assert.match(adapter, new RegExp(`\\{"${field}"`));
+  for (const field of ["NITCEDULA", "RAZONSOCIAL", "MATRICULA"]) assert.match(adapter, new RegExp(`AddIfPresent\\(fields, "${field}"`));
   const update = adapter.indexOf("_gateway.ActualizarCampos");
   const read = adapter.indexOf("_gateway.LeerCampos", update);
   assert.ok(update >= 0 && read > update);

@@ -65,8 +65,16 @@ Public NotInheritable Class MySqlImportIntentRepository
                         For Each candidate In plan.Inscripciones
                             If String.Equals(candidate.ClaveInscripcion, item.ClaveInscripcion, StringComparison.Ordinal) Then inscription = candidate : Exit For
                         Next
-                        If inscription Is Nothing OrElse Not inscription.IdExpediente.HasValue Then transaction.Rollback() : Return False
-                        item.IdExpediente = inscription.IdExpediente : item.EstadoCache = inscription.EstadoCache
+                        If inscription Is Nothing OrElse
+                           (plan.Modo = ModoExpedienteImportacion.GestionarExpediente AndAlso Not inscription.IdExpediente.HasValue) Then
+                            transaction.Rollback() : Return False
+                        End If
+                        item.IdExpediente = inscription.IdExpediente
+                        item.EstadoCache = inscription.EstadoCache
+                        If plan.Modo = ModoExpedienteImportacion.SinExpediente Then
+                            item.EstadoRelacion = EstadoEfectoExpedienteImportacion.NoAplica
+                            item.EstadoCache = EstadoEfectoExpedienteImportacion.NoAplica
+                        End If
                         Const itemSql As String = "UPDATE workflow_import_intent_item SET expedient_id=@expedientId,storage_status=@storageStatus,relation_status=@relationStatus,index_status=@indexStatus,cache_status=@cacheStatus WHERE intent_id=@intentId AND client_item_id=@clientId AND inscription_key=@key"
                         Dim itemParameters As New List(Of IDataParameter) From {P("@expedientId", item.IdExpediente), P("@storageStatus", item.EstadoAlmacenamiento.ToString()), P("@relationStatus", item.EstadoRelacion.ToString()), P("@indexStatus", item.EstadoIndice.ToString()), P("@cacheStatus", item.EstadoCache.ToString()), P("@intentId", intent.Id), P("@clientId", item.ClientItemId), P("@key", item.ClaveInscripcion)}
                         If _executor.ExecuteNonQuery(connection, transaction, itemSql, itemParameters) <> 1 Then transaction.Rollback() : Return False

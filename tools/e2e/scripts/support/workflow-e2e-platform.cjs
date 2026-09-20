@@ -209,10 +209,15 @@ function controlsChanged(before, after) {
   return keys.length > 0 && keys.every((key) => after && before[key] !== after[key]);
 }
 
-function controlsMeetExpectation(plan, before, after) {
+function controlsMeetExpectation(plan, before, after, result) {
   for (const [controlId, expectation] of Object.entries(plan.scenario.controlExpectations || {})) {
     const changed = before?.[controlId] !== after?.[controlId];
     if ((expectation === 'changed' && !changed) || (expectation === 'unchanged' && changed)) return false;
+    if (expectation === 'expedient-mode') {
+      const mode = result?.codes?.expedientMode;
+      if ((mode === 'without-expedient' && changed) || (mode === 'with-expedient' && !changed) ||
+          !['without-expedient', 'with-expedient'].includes(mode)) return false;
+    }
   }
   return true;
 }
@@ -358,7 +363,7 @@ async function executePlatformRun(options) {
       adapterResult = await handler({ invoke: restrictedInvoke, consumePreview: restrictedPreviewConsumer, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs, profile: plan.profile });
     }
     after = await captureControls(plan.controls, plan, environment, readControl);
-    if (!controlsMeetExpectation(plan, before, after)) fail(controlsFailureCode(plan));
+    if (!controlsMeetExpectation(plan, before, after, adapterResult)) fail(controlsFailureCode(plan));
     if (reservation) await lifecycle.finalize(reservation, true);
   } catch (error) {
     failure = error;
@@ -366,7 +371,7 @@ async function executePlatformRun(options) {
     if (Object.keys(before).length > 0 && !after && environment) {
       try {
         after = await captureControls(plan.controls, plan, environment, readControl);
-        if (!failure && !controlsMeetExpectation(plan, before, after)) failure = new PlatformExecutionError(controlsFailureCode(plan));
+        if (!failure && !controlsMeetExpectation(plan, before, after, adapterResult)) failure = new PlatformExecutionError(controlsFailureCode(plan));
       } catch (error) {
         if (!failure) failure = error;
       }

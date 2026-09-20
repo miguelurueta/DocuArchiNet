@@ -1,7 +1,7 @@
 {
   "status": "pass",
-  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\workflow\\ImportarServicioWeb\\PromptBackend\\13-importacion-sin-expediente-por-configuracion.md",
-  "reviewedAtUtc": "2026-09-20T18:09:56.165Z",
+  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\docs\\Architecture\\Workflow\\ImportarServicioWeb\\DOC-71-importacion-sin-expediente\\README.md",
+  "reviewedAtUtc": "2026-09-20T21:16:11.108Z",
   "technologyProfile": "legacy-webforms-vb",
   "summary": {
     "blockers": 0,

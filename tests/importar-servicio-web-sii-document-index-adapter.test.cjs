@@ -14,13 +14,13 @@ function fields(cabinet, input) {
 test("candidatos SII se filtran posteriormente por la estructura dinámica", () => {
   const input = { subject: " 9001 ", name: "Sociedad de prueba", enrollment: "S00123", normalized: "", radicado: "R1", libro: "1", registro: "2" };
   assert.equal(fields("ESAL", input).MATRICULA, "0123");
-  for (const field of ["NITCEDULA", "RAZONSOCIAL", "MATRICULA"]) assert.match(source, new RegExp(`\\{"${field}"`));
-  for (const field of ["ENLASE", "RECIBOCAJA", "LIBRO", "INSCRIPCION"]) assert.doesNotMatch(source, new RegExp(`\\{"${field}"`));
+  for (const field of ["NITCEDULA", "RAZONSOCIAL", "MATRICULA"]) assert.match(source, new RegExp(`AddIfPresent\\(fields, "${field}"`));
+  for (const field of ["ENLASE", "RECIBOCAJA", "LIBRO", "INSCRIPCION"]) assert.doesNotMatch(source, new RegExp(`AddIfPresent\\(fields, "${field}"`));
   assert.doesNotMatch(source, /cabinet <> "MERCANTIL"/);
 });
 
 test("la actualización posterior no reescribe campos propios de incorporación", () => {
-  for (const field of ["ENLASE", "RECIBOCAJA", "LIBRO", "INSCRIPCION"]) assert.doesNotMatch(source, new RegExp(`\\{"${field}"`));
+  for (const field of ["ENLASE", "RECIBOCAJA", "LIBRO", "INSCRIPCION"]) assert.doesNotMatch(source, new RegExp(`AddIfPresent\\(fields, "${field}"`));
 });
 
 test("actualización se confirma releyendo el conjunto efectivo", () => {

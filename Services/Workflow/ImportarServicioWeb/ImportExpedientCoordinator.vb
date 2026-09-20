@@ -25,18 +25,36 @@ Public NotInheritable Class ImportExpedientCoordinator
            intencion.Inscripciones.Count = 0 Then Return EmptyPlan(intencion, "EXPEDIENT_PLAN_INPUT_INVALID")
         Dim configuration = _configurations.Obtener(contexto)
         If configuration Is Nothing Then Return EmptyPlan(intencion, "EXPEDIENT_CONFIGURATION_UNAVAILABLE")
-        If Not configuration.ExpedienteObligatorio Then Return EmptyPlan(intencion, "EXPEDIENT_CREATION_DISABLED")
+        Dim subjectOrdinal As Integer = 0
+        For Each inscription In intencion.Inscripciones
+            subjectOrdinal += 1
+            inscription.Orden = subjectOrdinal
+            inscription.NombreGabinete = configuration.NombreGabinete
+            inscription.RadicadoSii = If(intencion.ContextoOriginal Is Nothing, String.Empty, intencion.ContextoOriginal.Radicado)
+            Dim subject = _subjects.Resolver(contexto, inscription, configuration)
+            If subject Is Nothing OrElse subject.Estado <> EstadoEfectoExpedienteImportacion.Confirmado Then
+                Return EmptyPlan(intencion, If(subject Is Nothing, "SII_SUBJECT_UNAVAILABLE", subject.Codigo))
+            End If
+        Next
+        If configuration.Modo = ModoExpedienteImportacion.SinExpediente Then
+            Dim plan As New PlanExpedienteImportacion With {
+                .IntentId = intencion.Id, .Estado = EstadoEfectoExpedienteImportacion.Confirmado,
+                .Codigo = "EXPEDIENT_EFFECTS_NOT_APPLICABLE", .Modo = ModoExpedienteImportacion.SinExpediente}
+            For Each inscription In intencion.Inscripciones
+                inscription.RolExpediente = RolExpedienteImportacion.Unico
+                inscription.IdExpediente = Nothing
+                inscription.EstadoExpediente = EstadoEfectoExpedienteImportacion.NoAplica
+                inscription.EstadoCache = EstadoEfectoExpedienteImportacion.NoAplica
+                plan.Inscripciones.Add(inscription)
+            Next
+            Return plan
+        End If
 
         Dim ordinal As Integer = 0
         For Each inscription In intencion.Inscripciones
             ordinal += 1
             inscription.Orden = ordinal
-            inscription.NombreGabinete = configuration.NombreGabinete
-            inscription.RadicadoSii = If(intencion.ContextoOriginal Is Nothing, String.Empty, intencion.ContextoOriginal.Radicado)
             inscription.RolExpediente = Role(configuration, ordinal)
-            Dim subject = _subjects.Resolver(contexto, inscription, configuration)
-            If subject Is Nothing OrElse subject.Estado <> EstadoEfectoExpedienteImportacion.Confirmado Then Return EmptyPlan(intencion, If(subject Is Nothing, "SII_SUBJECT_UNAVAILABLE", subject.Codigo))
-
             Dim resolved = ResolveOne(contexto, inscription, configuration)
             If resolved Is Nothing OrElse resolved.Estado <> EstadoEfectoExpedienteImportacion.Confirmado OrElse Not resolved.IdExpediente.HasValue Then Return EmptyPlan(intencion, If(resolved Is Nothing, "EXPEDIENT_DESTINATION_UNRESOLVED", resolved.Codigo))
             inscription.IdExpediente = resolved.IdExpediente
@@ -46,7 +64,9 @@ Public NotInheritable Class ImportExpedientCoordinator
             If cached Is Nothing OrElse cached.Estado <> EstadoEfectoExpedienteImportacion.Confirmado Then Return EmptyPlan(intencion, If(cached Is Nothing, "EXPEDIENT_CACHE_UNAVAILABLE", cached.Codigo))
             inscription.EstadoCache = EstadoEfectoExpedienteImportacion.Confirmado
         Next
-        Return _planBuilder.Construir(intencion, intencion.Inscripciones)
+        Dim resolvedPlan = _planBuilder.Construir(intencion, intencion.Inscripciones)
+        resolvedPlan.Modo = ModoExpedienteImportacion.GestionarExpediente
+        Return resolvedPlan
     End Function
 
     Private Function ResolveOne(ByVal contexto As ContextoImportacionServicio,

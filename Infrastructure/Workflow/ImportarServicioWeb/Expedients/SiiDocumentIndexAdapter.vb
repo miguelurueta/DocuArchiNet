@@ -6,6 +6,9 @@ Public Interface ISiiDocumentIndexPhysicalGateway
     Function ActualizarCampos(ByVal contexto As ContextoImportacionServicio,
                               ByVal documento As DocumentoRelacionadoImportacion,
                               ByVal campos As IDictionary(Of String, String)) As Boolean
+    Function ActualizarCamposSinExpediente(ByVal contexto As ContextoImportacionServicio,
+                                           ByVal documento As DocumentoRelacionadoImportacion,
+                                           ByVal campos As IDictionary(Of String, String)) As Boolean
     Function LeerCampos(ByVal contexto As ContextoImportacionServicio,
                         ByVal documento As DocumentoRelacionadoImportacion,
                         ByVal campos As IDictionary(Of String, String)) As IDictionary(Of String, String)
@@ -34,9 +37,16 @@ Public NotInheritable Class SiiDocumentIndexAdapter
         End If
         Dim fields = BuildFields(documento, inscripcion)
         If fields Is Nothing Then Return Result(EstadoEfectoExpedienteImportacion.Fallido, "DOCUMENT_INDEX_CABINET_NOT_SUPPORTED", False)
+        If fields.Count = 0 Then Return Result(EstadoEfectoExpedienteImportacion.NoAplica, "DOCUMENT_INDEX_FIELDS_NOT_PROVIDED", False)
         Try
-            If Not _gateway.ActualizarCampos(contexto, documento, fields) Then
+            Dim updated = If(documento.IdExpedienteEsperado.HasValue,
+                             _gateway.ActualizarCampos(contexto, documento, fields),
+                             _gateway.ActualizarCamposSinExpediente(contexto, documento, fields))
+            If Not updated Then
                 Return Result(EstadoEfectoExpedienteImportacion.Fallido, "DOCUMENT_INDEX_UPDATE_REJECTED", False)
+            End If
+            If Not documento.IdExpedienteEsperado.HasValue Then
+                Return Result(EstadoEfectoExpedienteImportacion.Confirmado, "DOCUMENT_INDEX_FIELDS_CONFIRMED", False)
             End If
             Dim persisted = _gateway.LeerCampos(contexto, documento, fields)
             Dim mismatch = MismatchedField(fields, persisted)
@@ -80,12 +90,18 @@ Public NotInheritable Class SiiDocumentIndexAdapter
         Dim cabinet = If(documento.NombreGabinete, String.Empty).Trim().ToUpperInvariant()
         If String.IsNullOrWhiteSpace(cabinet) Then Return Nothing
         Dim enrollment = If(inscription.MatriculaNormalizada, inscription.Matricula)
-        Return New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase) From {
-            {"NITCEDULA", Clean(inscription.IdentificacionSujeto)},
-            {"RAZONSOCIAL", Truncate(Clean(inscription.RazonSocial), 40)},
-            {"MATRICULA", Clean(enrollment)}
-        }
+        Dim fields As New Dictionary(Of String, String)(StringComparer.OrdinalIgnoreCase)
+        AddIfPresent(fields, "NITCEDULA", Clean(inscription.IdentificacionSujeto))
+        AddIfPresent(fields, "RAZONSOCIAL", Truncate(Clean(inscription.RazonSocial), 40))
+        AddIfPresent(fields, "MATRICULA", Clean(enrollment))
+        Return fields
     End Function
+
+    Private Shared Sub AddIfPresent(ByVal fields As IDictionary(Of String, String),
+                                    ByVal name As String,
+                                    ByVal value As String)
+        If Not String.IsNullOrWhiteSpace(value) Then fields(name) = value
+    End Sub
 
     Private Shared Function MismatchedField(ByVal expected As IDictionary(Of String, String),
                                             ByVal actual As IDictionary(Of String, String)) As String
@@ -102,7 +118,8 @@ Public NotInheritable Class SiiDocumentIndexAdapter
                                   ByVal documento As DocumentoRelacionadoImportacion) As Boolean
         Return contexto IsNot Nothing AndAlso documento IsNot Nothing AndAlso contexto.IdTarea > 0 AndAlso
             contexto.IdTarea = documento.IdTarea AndAlso documento.IdImagen > 0 AndAlso
-            documento.IdExpedienteEsperado.HasValue AndAlso documento.IdExpedienteEsperado.Value > 0
+            (documento.IdExpedienteEsperado.HasValue AndAlso documento.IdExpedienteEsperado.Value > 0 OrElse
+             Not String.IsNullOrWhiteSpace(documento.RadicadoSii))
     End Function
 
     Private Shared Function Clean(ByVal value As String) As String

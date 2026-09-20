@@ -1,6 +1,14 @@
-## Context
+## Why
 
-DOC-71: ACTUALIZACION-UTIL-CREA-EXPEDIENTE-SII
+ACTUALIZACION-UTIL-CREA-EXPEDIENTE-SII. Ver detalle funcional completo del ticket en la seccion Jira Details.
+
+## What Changes
+
+- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-71.
+- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
+- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
+- Se deja lista una base coherente para continuar con design, specs y tasks.
+- La aclaración funcional posterior distingue consulta informativa del expediente SII de efectos físicos locales: ambas ramas consultan `consultarExpedienteMercantil`/`consultarExpedienteProponente` para construir índices; la rama 0 omite únicamente creación, búsqueda local, vínculo, `ID_EXPEDIENTE` y caché.
 
 ## Jira Details
 
@@ -238,29 +246,21 @@ DOC-71: ACTUALIZACION-UTIL-CREA-EXPEDIENTE-SII
 > Entregable final
 > Entregar cambio OpenSpec independiente, implementación, contratos aditivos, pruebas, compilación, E2E autorizadas, documentación técnica y evidencia saneada. No mezclar este cambio con la resolución de sujeto de establecimientos ni con reconstrucción histórica de expedientes.
 
-## Goals / Non-Goals
+## Jira Metadata
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Tipo: Tarea
+- Prioridad: Medium
+- Labels: ACTUALIZACION, CREA, EXPEDIENTE, SII, UTIL
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+## Capabilities
 
-## Decisions
+### New Capabilities
+- `actualizacion-util-crea-expediente-sii`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### Modified Capabilities
+- 
 
+## Impact
 
-## Risks / Trade-offs
-
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
-
-## Migration Plan
-
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
-
-## Open Questions
-
-- TBD
+- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
+- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
