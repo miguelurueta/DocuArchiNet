@@ -630,7 +630,7 @@ Las consultas de verificación serán exclusivamente `SELECT`. La evidencia debe
 ## Ruta documental obligatoria
 
 ```text
-docs/Architecture/Workflow/ImportarServicioWeb/SCRUMCORE-000-creacion-vinculacion-expedientes-sii/
+Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-creacion-vinculacion-expedientes-sii/
 ```
 
 Sustituir `SCRUMCORE-000` por el ticket real. Crear el paquete `00-Indice.md` a `07-Metadata.md`, `Diagramas/` y `Evidencias/` siguiendo la estructura documental vigente.

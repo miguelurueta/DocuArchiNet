@@ -55,7 +55,7 @@ El recorrido modernizado necesita una frontera HTTP segura antes de integrar pro
 > ## Ruta documental obligatoria
 > 
 > ```txt
-> docs/Architecture/Workflow/ImportarServicioWeb/SCRUMCORE-000-clientes-http-asincronos-seguridad/
+> Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-clientes-http-asincronos-seguridad/
 > ```
 > 
 > Sustituir `SCRUMCORE-000` por el ticket real. Crear allí el paquete canónico `00-Indice.md` a `07-Metadata.md` y `Diagramas/` definido en Backend 01. `03-ContratoUploadYMapping.md` documentará transporte, serialización, timeout, cancelación, límites y errores; no describe almacenamiento documental.

@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "requiredDiagrams": [
+    {
+      "path": "Diagramas/01-Componentes.md",
+      "kind": "flowchart",
+      "symbols": ["JS.Api.create", "JS.Registry.create", "JS.Core.create", "JS.Ui.initialize", "VB.Webworkflow.RegisterImportarServicioWebModernAssets"]
+    },
+    {
+      "path": "Diagramas/02-AperturaConsulta.md",
+      "kind": "sequence",
+      "symbols": ["JS.Ui.open", "JS.Core.open", "JS.Registry.resolve", "JS.Core.query", "JS.Ui.createBackendAdapter", "VB.Endpoint.ResolveCapabilities", "VB.Endpoint.QueryItems"]
+    },
+    {
+      "path": "Diagramas/03-EjecucionUnica.md",
+      "kind": "sequence",
+      "symbols": ["JS.Core.execute", "VB.Endpoint.ExecuteImportIntent"]
+    },
+    {
+      "path": "Diagramas/04-ValidacionesErrores.md",
+      "kind": "flowchart",
+      "symbols": ["VB.Endpoint.FeatureEnabled", "VB.Endpoint.ValidRequest", "VB.Endpoint.TryBuildImportContext", "VB.Endpoint.ResolveProvider"]
+    }
+  ],
+  "javascriptSymbols": {
+    "JS.Api.create": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-api.js", "function": "create", "parameters": ["options"] },
+    "JS.Registry.create": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-provider-registry.js", "function": "create", "parameters": ["options"] },
+    "JS.Registry.resolve": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-provider-registry.js", "function": "resolve", "parameters": ["providerId"] },
+    "JS.Core.create": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-core.js", "function": "create", "parameters": ["options"] },
+    "JS.Core.open": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-core.js", "function": "open", "parameters": ["providerId"] },
+    "JS.Core.query": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-core.js", "function": "query", "parameters": ["request"] },
+    "JS.Core.execute": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-core.js", "function": "execute", "parameters": ["request"] },
+    "JS.Ui.initialize": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-ui.js", "function": "initialize", "parameters": ["options"] },
+    "JS.Ui.open": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-ui.js", "function": "open", "parameters": ["control", "event"] },
+    "JS.Ui.createBackendAdapter": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-ui.js", "function": "createBackendAdapter", "parameters": ["api", "control"] }
+  },
+  "dotnetSymbols": {
+    "VB.Webworkflow.RegisterImportarServicioWebModernAssets": { "type": "Webworkflow", "method": "RegisterImportarServicioWebModernAssets", "parameters": [], "return": "System.Void", "visibility": "nonpublic" },
+    "VB.Endpoint.ResolveCapabilities": { "type": "WebServiceImportarServicioWebModern", "method": "ResolveCapabilities", "parameters": ["ResolveCapabilitiesRequestDto"], "return": "ResolveCapabilitiesResponseDto" },
+    "VB.Endpoint.QueryItems": { "type": "WebServiceImportarServicioWebModern", "method": "QueryItems", "parameters": ["QueryItemsRequestDto"], "return": "QueryItemsResponseDto" },
+    "VB.Endpoint.GetPreview": { "type": "WebServiceImportarServicioWebModern", "method": "GetPreview", "parameters": ["GetPreviewRequestDto"], "return": "GetPreviewResponseDto" },
+    "VB.Endpoint.PreflightImport": { "type": "WebServiceImportarServicioWebModern", "method": "PreflightImport", "parameters": ["PreflightImportRequestDto"], "return": "PreflightImportResponseDto" },
+    "VB.Endpoint.CreateImportIntent": { "type": "WebServiceImportarServicioWebModern", "method": "CreateImportIntent", "parameters": ["CreateImportIntentRequestDto"], "return": "CreateImportIntentResponseDto" },
+    "VB.Endpoint.ExecuteImportIntent": { "type": "WebServiceImportarServicioWebModern", "method": "ExecuteImportIntent", "parameters": ["ExecuteImportIntentRequestDto"], "return": "ExecuteImportIntentResponseDto" },
+    "VB.Endpoint.GetImportIntent": { "type": "WebServiceImportarServicioWebModern", "method": "GetImportIntent", "parameters": ["GetImportIntentRequestDto"], "return": "GetImportIntentResponseDto" },
+    "VB.Endpoint.ReconcileImportIntent": { "type": "WebServiceImportarServicioWebModern", "method": "ReconcileImportIntent", "parameters": ["ReconcileImportIntentRequestDto"], "return": "ReconcileImportIntentResponseDto" },
+    "VB.Endpoint.FeatureEnabled": { "type": "WebServiceImportarServicioWebModern", "method": "FeatureEnabled", "parameters": [], "return": "System.Boolean", "visibility": "nonpublic" },
+    "VB.Endpoint.ValidRequest": { "type": "WebServiceImportarServicioWebModern", "method": "ValidRequest", "parameters": ["SolicitudImportacionServicioDto"], "return": "System.Boolean", "visibility": "nonpublic" },
+    "VB.Endpoint.TryBuildImportContext": { "type": "WebServiceImportarServicioWebModern", "method": "TryBuildImportContext", "parameters": ["SolicitudImportacionServicioDto", "ContextoImportacionServicio&", "ResultadoContextoSesionWorkflow&", "System.String&"], "return": "System.Boolean", "visibility": "nonpublic" },
+    "VB.Endpoint.ResolveProvider": { "type": "WebServiceImportarServicioWebModern", "method": "ResolveProvider", "parameters": ["System.String", "IExternalServiceAttemptRecorder"], "return": "ResultadoResolucionClienteProveedorImportacion", "visibility": "nonpublic" }
+  },
+  "dotnetTypes": {
+    "SolicitudImportacionServicioDto": ["SchemaVersion:System.String", "OperationId:System.String", "CorrelationId:System.String", "TaskId:System.Int64", "ProviderId:System.String"],
+    "ResolveCapabilitiesRequestDto": [],
+    "ResolveCapabilitiesResponseDto": ["ProviderId:System.String", "ContextAllowed:System.Boolean", "Capabilities:IList<ProviderCapabilityDto>", "DocumentTypes:IList<ImportDocumentTypeDto>"],
+    "QueryItemsRequestDto": ["CodigoBarras:System.String", "ContinuationToken:System.String", "PageSize:Nullable<System.Int32>"],
+    "QueryItemsResponseDto": ["Items:IList<ExternalItemDto>", "ContinuationToken:System.String", "ProviderResultCode:System.String", "InscriptionCount:System.Int32", "ImageCount:System.Int32"],
+    "GetPreviewRequestDto": ["ExternalKey:System.String"],
+    "GetPreviewResponseDto": ["ExternalKey:System.String", "DescriptorId:System.String", "ContentType:System.String", "Length:Nullable<System.Int64>", "Disposition:System.String", "ExpiresAtUtc:Nullable<System.DateTime>"],
+    "PreflightImportRequestDto": ["Items:IList<ImportItemSelectionDto>"],
+    "PreflightImportResponseDto": ["IsValid:System.Boolean", "Requirements:IList<ImportRequirementDto>", "Commands:IList<DocumentCommandDto>", "ContextFingerprint:System.String", "Executable:System.Boolean", "EffectPlans:IList<ImportEffectPlanDto>"],
+    "CreateImportIntentRequestDto": ["IdempotencyKey:System.String", "Items:IList<ImportItemSelectionDto>", "Requirements:IList<ImportRequirementDto>", "ContextFingerprint:System.String", "Radicado:System.String"],
+    "CreateImportIntentResponseDto": ["IntentId:System.String", "Status:System.String", "VersionToken:System.String", "Reused:System.Boolean"],
+    "ExecuteImportIntentRequestDto": ["IntentId:System.String", "VersionToken:System.String", "StopRequested:System.Boolean"],
+    "ExecuteImportIntentResponseDto": ["IntentId:System.String", "Accepted:System.Boolean", "Status:System.String", "VersionToken:System.String", "Items:IList<ImportItemResultDto>", "ExpedientEffects:IList<ImportItemExpedientEffectsDto>"],
+    "GetImportIntentRequestDto": ["IntentId:System.String"],
+    "GetImportIntentResponseDto": ["IntentId:System.String", "Status:System.String", "VersionToken:System.String", "Items:IList<ImportItemResultDto>", "ExpedientEffects:IList<ImportItemExpedientEffectsDto>"],
+    "ReconcileImportIntentRequestDto": ["IntentId:System.String", "ExternalKey:System.String"],
+    "ReconcileImportIntentResponseDto": ["IntentId:System.String", "Status:System.String", "VersionToken:System.String", "ConfirmedDocumentCount:System.Int32", "Items:IList<ImportItemResultDto>", "ExpedientEffects:IList<ImportItemExpedientEffectsDto>"]
+  },
+  "excludedKinds": {
+    "external": ["Usuario", "Navegador"],
+    "conceptual": ["Gate operativo", "Proveedor externo", "Espera global"]
+  }
+}

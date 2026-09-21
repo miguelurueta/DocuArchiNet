@@ -1894,6 +1894,10 @@
     <Content Include="js\workflow\workflow-transition-confirmation-integration.js" />
     <Content Include="js\workflow\workflow-transition-page-presentation.js" />
     <Content Include="js\workflow\workflow-transition-ui.js" />
+    <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-api.js" />
+    <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-core.js" />
+    <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-provider-registry.js" />
+    <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-ui.js" />
     <Content Include="js\workflow\workflow-return-user-previous-ui.js" />
     <Content Include="js\workflow\workflow-return-user-previous-confirmation.js" />
     <Content Include="lib\MindFusion\MindFusion.Barcodes.dll" />
@@ -8248,6 +8252,7 @@
     <Content Include="Styles\confirmation-dialog.css" />
     <Content Include="Styles\workflow-centro-trabajo-moderno.css" />
     <Content Include="Styles\workflow-transition-modern.css" />
+    <Content Include="Styles\importar-servicio-web-modern.css" />
     <Content Include="Styles\Menu3.css" />
     <Content Include="Styles\menu_lib.css" />
     <Content Include="Styles\prettyPhoto.css" />

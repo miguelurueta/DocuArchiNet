@@ -25,7 +25,7 @@
 
 ## 5. Documentación y E2E
 
-- [x] 5.1 [M] Crear paquete técnico DOC-68 con inventario, contratos, SQL y diagramas. Área: `docs/Architecture/Workflow/ImportarServicioWeb/DOC-68-listado-enriquecido-catalogo-tipologias/`. Origen: D-01, RQ-01. Cobertura: D-02,D-03,D-04,D-05,RQ-02,RQ-03,RQ-04,RQ-05. Verificación: `00-Indice.md` a `07-Metadata.md` consistentes.
+- [x] 5.1 [M] Crear paquete técnico DOC-68 con inventario, contratos, SQL y diagramas. Área: `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-68-listado-enriquecido-catalogo-tipologias/`. Origen: D-01, RQ-01. Cobertura: D-02,D-03,D-04,D-05,RQ-02,RQ-03,RQ-04,RQ-05. Verificación: `00-Indice.md` a `07-Metadata.md` consistentes.
 - [x] 5.2 [M] Extender E2E existente para listado/catálogo/conteo. Área: `tools/e2e`. Origen: D-05, RQ-05. Verificación: sin runner, login o configuración paralelos; controles `SELECT`.
 - [x] 5.3 [L] Ejecutar E2E autorizada MERCANTIL/ESAL/RUP disponibles. Área: `tools/e2e`. Origen: D-05, RQ-05. Cobertura: D-02,D-03,D-04,RQ-02,RQ-03,RQ-04. Verificación: autorización, evidencia saneada y gate restaurado; sin autorización se bloquea.
 - [x] 5.4 [S] Validar OpenSpec/OPSXJ sobre SHA final. Área: OpenSpec/.opsxj. Origen: D-01, RQ-01. Cobertura: D-02,D-03,D-04,D-05,RQ-02,RQ-03,RQ-04,RQ-05. Verificación: refinement, OpenSpec strict y opsxj pasan.

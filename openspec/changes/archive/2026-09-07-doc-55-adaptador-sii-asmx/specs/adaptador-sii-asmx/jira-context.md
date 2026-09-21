@@ -56,7 +56,7 @@ ADAPTADOR-SII-ASMX
 > ## Ruta documental obligatoria
 > 
 > ```txt
-> docs/Architecture/Workflow/ImportarServicioWeb/SCRUMCORE-000-adaptador-sii-compatibilidad-asmx/
+> Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-adaptador-sii-compatibilidad-asmx/
 > ```
 > 
 > Sustituir `SCRUMCORE-000` por el ticket real. Crear `00-Indice.md` a `07-Metadata.md` y `Diagramas/`; documentar endpoints modernos, contratos SII saneados, traducción legacy, preview mediado, gate, compatibilidad y archivos legacy comprobados sin cambios.

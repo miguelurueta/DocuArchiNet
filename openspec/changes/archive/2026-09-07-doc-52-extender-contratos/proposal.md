@@ -57,7 +57,7 @@ La ejecución moderna necesita separar la preparación sin efectos de una intenc
 > ## Ruta documental obligatoria
 > 
 > ```txt
-> docs/Architecture/Workflow/ImportarServicioWeb/SCRUMCORE-000-preflight-intencion-idempotencia/
+> Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-preflight-intencion-idempotencia/
 > ```
 > 
 > Sustituir `SCRUMCORE-000` por el ticket real. Crear `00-Indice.md` a `07-Metadata.md`, `Diagramas/` y, solo si existe un cambio persistente aprobado, `Sql/` con script versionado, precondiciones y rollback.

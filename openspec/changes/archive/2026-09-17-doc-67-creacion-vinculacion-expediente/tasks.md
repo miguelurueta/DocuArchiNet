@@ -58,7 +58,7 @@
 
 ## 7. Documentación, rollout y cierre
 
-- [x] 7.1 [M] Crear el paquete técnico DOC-67 y la matriz función legacy–destino moderno–prueba–evidencia. Área/archivos: `docs/Architecture/Workflow/ImportarServicioWeb/DOC-67-creacion-vinculacion-expedientes-sii/`, `Doc/Tecnica/Opsxj/doc-67-creacion-vinculacion-expediente/`. Origen: D-11, RQ-11. Verificación: cada función de `refinement.md` tiene fila propia, estado y enlaces a evidencia real.
+- [x] 7.1 [M] Crear el paquete técnico DOC-67 y la matriz función legacy–destino moderno–prueba–evidencia. Área/archivos: `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-67-creacion-vinculacion-expedientes-sii/`, `Doc/Tecnica/Opsxj/doc-67-creacion-vinculacion-expediente/`. Origen: D-11, RQ-11. Verificación: cada función de `refinement.md` tiene fila propia, estado y enlaces a evidencia real.
 - [x] 7.2 [S] Documentar despliegue inicial con gate apagado y rollback no destructivo. Área/archivos: paquete técnico DOC-67, configuración del gate documentada. Origen: D-10, RQ-10. Cobertura adicional: D-14, RQ-14. Verificación: checklist prohíbe borrar expedientes/documentos y define restauración segura del fallback.
 - [x] 7.3 [M] Validar trazabilidad y cierre OpenSpec/OPSXJ sobre el SHA final. Área/archivos: `openspec/changes/doc-67-creacion-vinculacion-expediente/`, `.opsxj/runs/DOC-67.json`. Origen: D-01, RQ-01. Cobertura adicional: D-02, D-03, D-04, D-05, D-06, D-07, D-08, D-09, D-10, D-11, D-12, D-13, D-14, RQ-02, RQ-03, RQ-04, RQ-05, RQ-06, RQ-07, RQ-08, RQ-09, RQ-10, RQ-11, RQ-12, RQ-13, RQ-14. Verificación: `openspec validate --strict`, refinement, review y `opsxj:validate` pasan sin tareas, marcadores o evidencias obligatorias pendientes.
 
