@@ -27,7 +27,7 @@ La lista representará preparando, disponible, vacío, indisponible, respuesta i
 
 ### D-06 — Aislamiento, regresión y documentación
 
-Las pruebas Node reutilizarán fixtures y transporte falso, comprobando ausencia de red, logs sensibles, parsing de claves y cambios legacy. Los módulos serán `<Content>`; la documentación canónica estará en `docs/modulos/workflow/importar-servicio-web/DOC-73-adaptador-sii-consulta-listado/`. Satisface RQ-06.
+Las pruebas Node reutilizarán fixtures y transporte falso, comprobando ausencia de red, logs sensibles, parsing de claves y cambios legacy. Los módulos serán `<Content>`; la documentación canónica estará en `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-73-adaptador-sii-consulta-listado/`. Satisface RQ-06.
 
 ## Risks / Trade-offs
 
@@ -47,4 +47,3 @@ Las pruebas Node reutilizarán fixtures y transporte falso, comprobando ausencia
 ## Open Questions
 
 - La habilitación productiva depende de que el contrato backend requerido por Jira esté publicado en el ambiente objetivo.
-

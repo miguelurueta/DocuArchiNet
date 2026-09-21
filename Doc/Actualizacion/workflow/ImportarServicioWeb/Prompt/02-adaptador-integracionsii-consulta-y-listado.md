@@ -30,7 +30,7 @@ Tests/
 ## Ruta documental obligatoria
 
 ```txt
-docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-adaptador-sii-consulta-listado/
+Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-73-adaptador-sii-consulta-listado/
 ```
 
 Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diagramas/` sin duplicarlo bajo `Doc/Actualizacion`.
