@@ -3,7 +3,7 @@
 
 - [x] 1.1 Crear `importar-servicio-web-api.js` con operaciones contractuales, transporte inyectable y normalización ASMX. Origen: D-01, RQ-01
 - [x] 1.2 Crear registro de proveedores, identidad canónica, capacidades y errores seguros sin fallback a SII. Origen: D-02, RQ-02
-- [x] 1.3 Crear máquina de estados cerrada y garantizar una ejecución por intención. Origen: D-03, RQ-03
+- [x] 1.3 Crear máquina de estados cerrada y garantizar una ejecución programática por intención; la selección y confirmación visual quedan fuera de DOC-72. Origen: D-03, RQ-03
 
 ## 2. Integración WebForms y accesibilidad
 

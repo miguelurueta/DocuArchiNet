@@ -15,7 +15,7 @@ El registro normaliza la identidad sin inferir proveedores. Cada adaptador decla
 
 ### D-03 — Máquina de estados y mutación única
 
-Core posee los estados `cerrado`, `resolviendo-proveedor`, `consultando`, `vacio`, `resultados`, `preparando`, `ejecutando`, `reconciliando`, `completado` y `error`. Coordina presentación y solicitudes, pero el backend conserva el orden mutador. Una intención genera una llamada síncrona a `ExecuteImportIntent`; `ejecutando` es espera global indeterminada. Satisface RQ-03.
+Core posee los estados `cerrado`, `resolviendo-proveedor`, `consultando`, `vacio`, `resultados`, `preparando`, `ejecutando`, `reconciliando`, `completado` y `error`. Coordina presentación y solicitudes, pero el backend conserva el orden mutador. Las invocaciones concurrentes de `execute(request)` reutilizan la misma promesa en curso y generan una sola llamada a `ExecuteImportIntent`; `ejecutando` es espera global indeterminada. La entrega no conecta selección ni confirmación visibles con esta capacidad programática. Satisface RQ-03 dentro del alcance de núcleo de DOC-72.
 
 ### D-04 — Integración aditiva bajo gate
 
