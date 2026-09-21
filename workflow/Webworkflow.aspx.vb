@@ -10,6 +10,7 @@ Imports System.Configuration
 Public Class Webworkflow
     Inherits RefreshArticle.BasePage
     Private Const WorkflowCentroTrabajoModernLayersKey As String = "WorkflowCentroTrabajoModernLayers"
+    Private Const ImportarServicioWebProviderIdKey As String = "ImportarServicioWebProviderId"
     Public Matri_Doc_Visual() As String
     Public Doc_actual As String = ""
     Public ruta_documento As String = ""
@@ -284,6 +285,8 @@ Public Class Webworkflow
             Return
         End If
 
+        RegisterImportarServicioWebModernAssets()
+        RegisterImportarServicioWebModernBootstrap()
         RegisterConfirmationDialogStyle()
         RegisterConfirmationDialogScript()
         RegisterWorkflowTransitionModernScript()
@@ -292,6 +295,46 @@ Public Class Webworkflow
         RegisterWorkflowEnvioGrupoModernScript()
         RegisterWorkflowEnvioGrupoConfirmationIntegrationScript()
         RegisterWorkflowEnvioGrupoModernBootstrap()
+    End Sub
+
+    Private Sub RegisterImportarServicioWebModernAssets()
+        If Page.Header Is Nothing Then
+            Return
+        End If
+
+        If Page.Header.FindControl("importarServicioWebModernStyle") Is Nothing Then
+            Dim style As New Global.System.Web.UI.HtmlControls.HtmlLink()
+            style.ID = "importarServicioWebModernStyle"
+            style.Href = "../Styles/importar-servicio-web-modern.css?v=20260921-doc72core1"
+            style.Attributes("rel") = "stylesheet"
+            style.Attributes("type") = "text/css"
+            Page.Header.Controls.Add(style)
+        End If
+
+        RegisterImportarServicioWebScript("importarServicioWebApiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-api.js?v=20260921-doc72core1")
+        RegisterImportarServicioWebScript("importarServicioWebProviderRegistryScript", "../js/workflow/importar-servicio-web/importar-servicio-web-provider-registry.js?v=20260921-doc72core1")
+        RegisterImportarServicioWebScript("importarServicioWebCoreScript", "../js/workflow/importar-servicio-web/importar-servicio-web-core.js?v=20260921-doc72core1")
+        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260921-doc72core1")
+    End Sub
+
+    Private Sub RegisterImportarServicioWebScript(ByVal controlId As String, ByVal source As String)
+        If Page.Header.FindControl(controlId) IsNot Nothing Then
+            Return
+        End If
+
+        Dim script As New Global.System.Web.UI.HtmlControls.HtmlGenericControl("script")
+        script.ID = controlId
+        script.Attributes("src") = source
+        script.Attributes("type") = "text/javascript"
+        Page.Header.Controls.Add(script)
+    End Sub
+
+    Private Sub RegisterImportarServicioWebModernBootstrap()
+        Dim taskInputId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_selecionada.ClientID)
+        Dim providerId As String = System.Web.HttpUtility.JavaScriptStringEncode(ReadConfigurationValue(ImportarServicioWebProviderIdKey, String.Empty))
+        Dim startupScript As String = "(function(){var trigger=document.getElementById('ctw-document-action-service');if(!trigger){return;}trigger.setAttribute('data-import-modern-active','true');trigger.setAttribute('data-import-task-input-id','" & taskInputId & "');trigger.setAttribute('data-import-provider-id','" & providerId & "');if(window.ImportarServicioWebUi&&typeof window.ImportarServicioWebUi.initialize==='function'){window.ImportarServicioWebUi.initialize();}}());"
+
+        ScriptManager.RegisterStartupScript(Me, Me.GetType(), "importarServicioWebModernBootstrap", startupScript, True)
     End Sub
 
     Private Sub RegisterWorkflowEnvioUsuarioModernPresentation()

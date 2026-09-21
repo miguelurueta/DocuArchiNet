@@ -4522,6 +4522,19 @@
             </section>
         </div>
         <div id="workflow-transition-success-message" class="workflow-transition-success-message" data-workflow-transition-success="true" role="status" aria-live="polite" hidden="hidden"></div>
+        <div id="importar-servicio-web-modal" class="importar-servicio-web" hidden="hidden" aria-hidden="true" data-import-state="cerrado">
+            <div class="importar-servicio-web__backdrop" data-import-close="true"></div>
+            <section id="importar-servicio-web-dialog" class="importar-servicio-web__dialog" role="dialog" aria-modal="true" aria-labelledby="importar-servicio-web-title" tabindex="-1">
+                <header class="importar-servicio-web__header">
+                    <h2 id="importar-servicio-web-title" class="importar-servicio-web__title">Importar documentos desde servicio</h2>
+                    <button id="importar-servicio-web-close" class="importar-servicio-web__close" type="button" aria-label="Cerrar importación">&times;</button>
+                </header>
+                <div class="importar-servicio-web__body">
+                    <div id="importar-servicio-web-status" class="importar-servicio-web__status" role="status" aria-live="polite"></div>
+                    <ul id="importar-servicio-web-results" class="importar-servicio-web__results" aria-label="Documentos disponibles"></ul>
+                </div>
+            </section>
+        </div>
         <div id="workflow-return-user-previous-modern-modal" class="workflow-transition-modal" hidden="hidden" aria-hidden="true" data-workflow-return-user-previous-state="cerrado">
             <div class="workflow-transition-modal__backdrop" data-workflow-return-user-previous-close="true"></div>
             <section id="workflow-return-user-previous-modern-dialog" class="workflow-transition-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="workflow-return-user-previous-modern-title" tabindex="-1">
