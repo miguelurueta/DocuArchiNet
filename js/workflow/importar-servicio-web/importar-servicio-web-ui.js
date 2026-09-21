@@ -46,6 +46,7 @@
     function renderItems(control, data) {
         var items = data && Array.isArray(data.Items) ? data.Items : [];
         clear(control.results);
+        if (control.adapter && typeof control.adapter.renderItems === "function") { control.adapter.renderItems(control.results, data); return; }
         items.forEach(function (item) {
             var entry = document.createElement("li");
             entry.className = "importar-servicio-web__item";
@@ -111,7 +112,7 @@
         var apiFactory = options.api || window.ImportarServicioWebApi;
         var registryFactory = options.registry || window.ImportarServicioWebProviderRegistry;
         var coreFactory = options.core || window.ImportarServicioWebCore;
-        var control, registry, api;
+        var control, registry, api, siiFactory;
 
         if (!trigger || trigger.getAttribute("data-import-modern-active") !== "true" || trigger.getAttribute("data-import-modern-bound") === "true") { return null; }
         if (!modal || !apiFactory || !registryFactory || !coreFactory) { return null; }
@@ -119,7 +120,9 @@
         if (!control.dialog || !control.closeButton || !control.status || !control.results) { return null; }
         api = apiFactory.create(options.apiOptions || {});
         registry = registryFactory.create({ knownNotMigrated: options.knownNotMigrated || [] });
-        if (control.providerId) { registry.register(control.providerId, createBackendAdapter(api, control)); }
+        siiFactory = options.sii || window.ImportarServicioWebSiiAdapter;
+        if (siiFactory && registryFactory.normalizeProviderId(control.providerId) === siiFactory.canonicalId) { control.adapter = siiFactory.create({ api: api, mapper: options.siiMapper, list: options.siiList, contextFactory: function () { return requestContext(control); } }); registry.register(siiFactory.canonicalId, control.adapter); }
+        else if (control.providerId) { control.adapter = createBackendAdapter(api, control); registry.register(control.providerId, control.adapter); }
         control.core = coreFactory.create({ registry: registry });
         control.core.subscribe(function (snapshot) { render(control, snapshot); });
         trigger.setAttribute("data-import-modern-bound", "true");

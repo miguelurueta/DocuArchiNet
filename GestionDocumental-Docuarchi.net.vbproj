@@ -1898,6 +1898,9 @@
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-core.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-provider-registry.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-ui.js" />
+    <Content Include="js\workflow\importar-servicio-web\sii\importar-servicio-web-sii-adapter.js" />
+    <Content Include="js\workflow\importar-servicio-web\sii\importar-servicio-web-sii-contract-mapper.js" />
+    <Content Include="js\workflow\importar-servicio-web\sii\importar-servicio-web-sii-list.js" />
     <Content Include="js\workflow\workflow-return-user-previous-ui.js" />
     <Content Include="js\workflow\workflow-return-user-previous-confirmation.js" />
     <Content Include="lib\MindFusion\MindFusion.Barcodes.dll" />

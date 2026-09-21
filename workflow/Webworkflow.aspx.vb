@@ -314,6 +314,9 @@ Public Class Webworkflow
         RegisterImportarServicioWebScript("importarServicioWebApiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-api.js?v=20260921-doc72core1")
         RegisterImportarServicioWebScript("importarServicioWebProviderRegistryScript", "../js/workflow/importar-servicio-web/importar-servicio-web-provider-registry.js?v=20260921-doc72core1")
         RegisterImportarServicioWebScript("importarServicioWebCoreScript", "../js/workflow/importar-servicio-web/importar-servicio-web-core.js?v=20260921-doc72core1")
+        RegisterImportarServicioWebScript("importarServicioWebSiiMapperScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-contract-mapper.js?v=20260921-doc73sii1")
+        RegisterImportarServicioWebScript("importarServicioWebSiiListScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-list.js?v=20260921-doc73sii1")
+        RegisterImportarServicioWebScript("importarServicioWebSiiAdapterScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-adapter.js?v=20260921-doc73sii1")
         RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260921-doc72core1")
     End Sub
 
