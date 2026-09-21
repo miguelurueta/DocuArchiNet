@@ -46,7 +46,7 @@ PRUEBAS-INTEGRACION. Ver detalle funcional completo del ticket en la seccion Jir
 > ## Ruta documental obligatoria
 > 
 > ```txt
-> docs/Architecture/Workflow/ImportarServicioWeb/SCRUMCORE-000-pruebas-backend-evidencia/
+> Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-pruebas-backend-evidencia/
 > ```
 > 
 > Sustituir `SCRUMCORE-000` por el ticket real. Crear `00-Indice.md` a `07-Metadata.md`, `Diagramas/` y `Evidencias/`. Esta última solo contiene evidencia saneada; no almacena credenciales, cookies, tokens, cadenas de conexión ni respuestas externas crudas.

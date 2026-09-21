@@ -120,7 +120,7 @@ Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos 
 Este cambio crea un núcleo compartido y reutilizable. Toda su documentación técnica debe quedar exclusivamente en:
 
 ```txt
-docs/Architecture/Workflow/ImportarServicioWeb/SCRUMCORE-000-contratos-contexto-registro-multiproveedor/
+Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-contratos-contexto-registro-multiproveedor/
 ```
 
 Sustituir `SCRUMCORE-000` por el identificador real del ticket antes de implementar. No crear el paquete en `Doc/Actualizacion`, `docs/modulos`, `docs/Components`, la raíz del repositorio ni una ruta paralela. Los documentos de `Doc/Actualizacion/workflow/ImportarServicioWeb/` son fuentes de exploración y prompts, no el paquete técnico entregable del cambio.

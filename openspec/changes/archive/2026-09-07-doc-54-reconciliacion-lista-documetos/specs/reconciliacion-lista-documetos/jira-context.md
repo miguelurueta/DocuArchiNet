@@ -49,7 +49,7 @@ RECONCILIACION-LISTA-DOCUMETOS
 > ## Ruta documental obligatoria
 > 
 > ```txt
-> docs/Architecture/Workflow/ImportarServicioWeb/SCRUMCORE-000-reconciliacion-lista-documentos/
+> Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-reconciliacion-lista-documentos/
 > ```
 > 
 > Sustituir `SCRUMCORE-000` por el ticket real. Crear el paquete `00-Indice.md` a `07-Metadata.md` y `Diagramas/`, incluyendo fuentes de verdad, joins/lecturas, autorización, duplicados, mapeo de estados y resultados inciertos.

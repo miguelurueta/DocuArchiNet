@@ -5,7 +5,7 @@
 - Clasificacion: cross_cutting (Transversal)
 ## Evidencia requerida
 
-- [x] `unit` — 2026-09-19: `node --test` sobre contratos, mapper, presentación, catálogo, conteo y composición; 17/17 pruebas aprobadas. Referencia: `docs/Architecture/Workflow/ImportarServicioWeb/DOC-68-listado-enriquecido-catalogo-tipologias/06-PruebasEvidencia.md`.
+- [x] `unit` — 2026-09-19: `node --test` sobre contratos, mapper, presentación, catálogo, conteo y composición; 17/17 pruebas aprobadas. Referencia: `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-68-listado-enriquecido-catalogo-tipologias/06-PruebasEvidencia.md`.
 - [x] `manual_qa` — 2026-09-19: E2E autenticada `import-sii-read` aprobada para MERCANTIL, ESAL y RUP; metadatos, estado, acciones, tipologías, cardinalidad y filtro de sellos verificados. Referencia: `tools/e2e/artifacts/workflow-e2e-platform-import-sii-read.json` y el paquete técnico DOC-68.
 
 ## QA/E2E WebForms

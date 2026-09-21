@@ -45,7 +45,7 @@ LISTADO-TIPOLOGIAS
 > ## Ruta documental obligatoria
 > 
 > ```txt
-> docs/Architecture/Workflow/ImportarServicioWeb/<TICKET>-listado-enriquecido-catalogo-tipologias/
+> Doc/Actualizacion/workflow/ImportarServicioWeb/<TICKET>-listado-enriquecido-catalogo-tipologias/
 > ```
 > 
 > Crear `00-Indice.md` a `07-Metadata.md`, `Diagramas/` y evidencia de contratos/consultas. Sustituir `<TICKET>` por el identificador real.

@@ -76,4 +76,4 @@ Esta sección distingue cuatro estados que no deben confundirse:
 
 La composición que demuestra este resultado está en `WebServiceImportarServicioWebModern.CreateService`: configuración, sujeto, coordinadores, documentos, caché de vínculo e índices se cablean a implementaciones modernas; creación/búsqueda de expediente, caché de creación y vínculo se cablean todavía a clases con prefijo `Legacy`. Los adaptadores reducen riesgo con precheck/postcheck, idempotencia y reconciliación, pero no equivalen a eliminar la dependencia legacy.
 
-El dictamen de confiabilidad, severidad y necesidad de migración para cada función está persistido en `docs/Architecture/Workflow/ImportarServicioWeb/DOC-67-creacion-vinculacion-expedientes-sii/auditoria-confiabilidad-funciones-legacy.md`.
+El dictamen de confiabilidad, severidad y necesidad de migración para cada función está persistido en `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-67-creacion-vinculacion-expedientes-sii/auditoria-confiabilidad-funciones-legacy.md`.

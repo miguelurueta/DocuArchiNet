@@ -32,7 +32,7 @@ Tests/
 ## Ruta documental obligatoria
 
 ```txt
-docs/Architecture/Workflow/ImportarServicioWeb/<TICKET>-preflight-plan-efectos-destino/
+Doc/Actualizacion/workflow/ImportarServicioWeb/<TICKET>-preflight-plan-efectos-destino/
 ```
 
 Crear paquete canónico, diagramas, matriz de campos, códigos funcionales y evidencia de ausencia de efectos.

@@ -192,7 +192,7 @@ Agregar casos de error para almacenamiento rechazado, respuesta incierta, confli
 ## Ruta documental obligatoria
 
 ```txt
-docs/Architecture/Workflow/ImportarServicioWeb/<TICKET>-importacion-sin-expediente/
+Doc/Actualizacion/workflow/ImportarServicioWeb/<TICKET>-importacion-sin-expediente/
 ```
 
 Documentar arquitectura real, secuencia de ambas ramas, matriz de estados, contratos, seguridad, migración si aplica, rollback, casos de uso, inventario técnico y evidencia saneada.

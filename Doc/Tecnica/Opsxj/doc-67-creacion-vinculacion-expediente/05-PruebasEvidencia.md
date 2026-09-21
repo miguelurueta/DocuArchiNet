@@ -20,7 +20,7 @@
 - Evidencia real: ejecución normal aprobada para ESAL, MERCANTIL y RUP, con auditoría autoritativa `SELECT` y gate restaurado en cada corrida.
 - Evidencia adicional: concurrencia MERCANTIL, retry controlado y recovery de solo lectura aprobados. El caso real multi-expediente se difiere a un ticket específico por dependencia del contrato externo y no se declara probado en DOC-67.
 
-La progresión de errores reales, causas, correcciones y riesgos residuales se conserva en `docs/Architecture/Workflow/ImportarServicioWeb/DOC-67-creacion-vinculacion-expedientes-sii/bitacora-diagnostico-e2e.md`.
+La progresión de errores reales, causas, correcciones y riesgos residuales se conserva en `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-67-creacion-vinculacion-expedientes-sii/bitacora-diagnostico-e2e.md`.
 
 ## Puerta local de readiness previa a E2E
 

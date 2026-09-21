@@ -50,7 +50,7 @@ LISTADO-TIPOLOGIAS. Ver detalle funcional completo del ticket en la seccion Jira
 > ## Ruta documental obligatoria
 > 
 > ```txt
-> docs/Architecture/Workflow/ImportarServicioWeb/<TICKET>-listado-enriquecido-catalogo-tipologias/
+> Doc/Actualizacion/workflow/ImportarServicioWeb/<TICKET>-listado-enriquecido-catalogo-tipologias/
 > ```
 > 
 > Crear `00-Indice.md` a `07-Metadata.md`, `Diagramas/` y evidencia de contratos/consultas. Sustituir `<TICKET>` por el identificador real.

@@ -58,7 +58,7 @@ Reutilizar, si ya existe, la resolución autoritativa de usuario y grupo Workflo
 ## Ruta documental obligatoria
 
 ```txt
-docs/Architecture/Workflow/ImportarServicioWeb/<TICKET>-gate-autorizacion-endpoints/
+Doc/Actualizacion/workflow/ImportarServicioWeb/<TICKET>-gate-autorizacion-endpoints/
 ```
 
 Documentar matriz de decisiones, configuración, endpoints cubiertos, códigos seguros, pruebas, rollback y evidencia saneada.

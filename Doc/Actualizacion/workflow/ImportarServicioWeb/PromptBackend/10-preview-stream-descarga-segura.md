@@ -33,7 +33,7 @@ Tests/
 ## Ruta documental obligatoria
 
 ```txt
-docs/Architecture/Workflow/ImportarServicioWeb/<TICKET>-preview-stream-descarga-segura/
+Doc/Actualizacion/workflow/ImportarServicioWeb/<TICKET>-preview-stream-descarga-segura/
 ```
 
 Crear paquete técnico canónico, diagramas de secuencia y amenazas, contrato HTTP, expiración, límites y evidencia saneada.

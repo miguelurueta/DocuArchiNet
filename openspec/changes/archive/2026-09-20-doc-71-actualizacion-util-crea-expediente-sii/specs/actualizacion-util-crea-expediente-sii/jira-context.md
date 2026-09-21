@@ -223,7 +223,7 @@ ACTUALIZACION-UTIL-CREA-EXPEDIENTE-SII
 > Respetar feature flags, gates, usuarios y grupos sin habilitarlos arbitrariamente. No cerrar sin validación autorizada: registrar bloqueo explícito y prohibir mocks, simulaciones, resultados inventados y evidencia ficticia.
 > 
 > Ruta documental obligatoria
-> docs/Architecture/Workflow/ImportarServicioWeb/<TICKET>-importacion-sin-expediente/Documentar arquitectura real, secuencia de ambas ramas, matriz de estados, contratos, seguridad, migración si aplica, rollback, casos de uso, inventario técnico y evidencia saneada.
+> Doc/Actualizacion/workflow/ImportarServicioWeb/<TICKET>-importacion-sin-expediente/Documentar arquitectura real, secuencia de ambas ramas, matriz de estados, contratos, seguridad, migración si aplica, rollback, casos de uso, inventario técnico y evidencia saneada.
 > Criterios de aceptación
 > Un trámite con bandera 0 importa documentos sin gestionar expediente y termina correctamente.
 > 
