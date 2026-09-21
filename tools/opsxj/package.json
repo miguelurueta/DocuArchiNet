@@ -23,6 +23,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "acorn": "^8.15.0",
     "vitest": "^4.0.18"
   },
   "engines": {

@@ -5,6 +5,14 @@ on:
     paths:
       - "tools/opsxj/**"
       - "openspec/**"
+      - "Doc/Actualizacion/workflow/ImportarServicioWeb/**"
+      - "js/workflow/importar-servicio-web/**"
+      - "DTOs/Workflow/ImportarServicioWeb/**"
+      - "Modelo/Workflow/ImportarServicioWeb/**"
+      - "webservice/WebServiceImportarServicioWebModern.asmx.vb"
+      - "workflow/Webworkflow.aspx.vb"
+      - "tests/doc72-technical-documentation.test.cjs"
+      - "tools/validation/Validate-Doc72DotNetSymbols.ps1"
       - ".github/workflows/opsxj-validation.yml"
   workflow_dispatch:
 
@@ -35,6 +43,18 @@ jobs:
 
       - name: Run opsxj tests
         run: npm.cmd --prefix tools/opsxj test
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build WebForms metadata for documentation checks
+        run: msbuild GestionDocumental-Docuarchi.net.vbproj /t:Build /p:Configuration=Debug /m /nologo /v:minimal
+
+      - name: Validate DOC-72 diagrams and JavaScript symbols
+        run: node --test tests/doc72-technical-documentation.test.cjs
+
+      - name: Validate DOC-72 .NET signatures
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./tools/validation/Validate-Doc72DotNetSymbols.ps1 -ManifestPath ./Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-72-nucleo-registro-adaptadores/diagram-contract.json -AssemblyPath ./bin/GestionDocumental-Docuarchi.net.dll
 
       - name: Validate OpenSpec changes
         run: npx --yes @fission-ai/openspec@1.7.0 validate --all --strict
