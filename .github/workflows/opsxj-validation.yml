@@ -13,6 +13,7 @@ on:
       - "workflow/Webworkflow.aspx.vb"
       - "tests/doc72-technical-documentation.test.cjs"
       - "tools/validation/Validate-Doc72DotNetSymbols.ps1"
+      - "tools/validation/Doc72SourceValidator/**"
       - ".github/workflows/opsxj-validation.yml"
   workflow_dispatch:
 
@@ -44,26 +45,11 @@ jobs:
       - name: Run opsxj tests
         run: npm.cmd --prefix tools/opsxj test
 
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v2
-
-      - name: Install .NET Framework 4.6.1 reference assemblies
-        run: nuget install Microsoft.NETFramework.ReferenceAssemblies.net461 -Version 1.0.3 -OutputDirectory .packages -NonInteractive
-
-      - name: Restore WebForms NuGet dependencies
-        run: nuget restore GestionDocumental-Docuarchi.net.sln -PackagesDirectory packages -NonInteractive
-
-      - name: Build WebForms metadata for documentation checks
-        run: msbuild GestionDocumental-Docuarchi.net.vbproj /t:Build /p:Configuration=Debug /p:TargetFrameworkRootPath="$pwd\.packages\Microsoft.NETFramework.ReferenceAssemblies.net461.1.0.3\build\" /m /nologo /v:minimal
-
       - name: Validate DOC-72 diagrams and JavaScript symbols
         run: node --test tests/doc72-technical-documentation.test.cjs
 
-      - name: Validate DOC-72 .NET signatures
-        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./tools/validation/Validate-Doc72DotNetSymbols.ps1 -ManifestPath ./Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-72-nucleo-registro-adaptadores/diagram-contract.json -AssemblyPath ./bin/GestionDocumental-Docuarchi.net.dll
+      - name: Validate DOC-72 .NET signatures with Roslyn
+        run: dotnet run --project ./tools/validation/Doc72SourceValidator/Doc72SourceValidator.csproj -- ./Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-72-nucleo-registro-adaptadores/diagram-contract.json .
 
       - name: Validate OpenSpec changes
         run: npx --yes @fission-ai/openspec@1.7.0 validate --all --strict
