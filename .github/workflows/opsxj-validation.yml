@@ -54,7 +54,7 @@ jobs:
         run: nuget install Microsoft.NETFramework.ReferenceAssemblies.net461 -Version 1.0.3 -OutputDirectory .packages -NonInteractive
 
       - name: Build WebForms metadata for documentation checks
-        run: msbuild GestionDocumental-Docuarchi.net.vbproj /t:Build /p:Configuration=Debug /p:TargetFrameworkRootPath="$pwd\.packages\Microsoft.NETFramework.ReferenceAssemblies.net461.1.0.3\build\.NETFramework\" /m /nologo /v:minimal
+        run: msbuild GestionDocumental-Docuarchi.net.vbproj /t:Build /p:Configuration=Debug /p:TargetFrameworkRootPath="$pwd\.packages\Microsoft.NETFramework.ReferenceAssemblies.net461.1.0.3\build\" /m /nologo /v:minimal
 
       - name: Validate DOC-72 diagrams and JavaScript symbols
         run: node --test tests/doc72-technical-documentation.test.cjs
