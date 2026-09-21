@@ -4531,7 +4531,7 @@
                 </header>
                 <div class="importar-servicio-web__body">
                     <div id="importar-servicio-web-status" class="importar-servicio-web__status" role="status" aria-live="polite"></div>
-                    <ul id="importar-servicio-web-results" class="importar-servicio-web__results" aria-label="Documentos disponibles"></ul>
+                    <div id="importar-servicio-web-results" class="importar-servicio-web__results" aria-label="Documentos disponibles"></div>
                 </div>
             </section>
         </div>

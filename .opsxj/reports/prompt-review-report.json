@@ -1,7 +1,7 @@
 {
   "status": "pass",
-  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\docs\\Architecture\\Workflow\\ImportarServicioWeb\\DOC-71-importacion-sin-expediente\\README.md",
-  "reviewedAtUtc": "2026-09-20T21:16:11.108Z",
+  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\openspec\\changes\\doc-73-adaptador-interfaz-integracion-sii\\specs\\adaptador-interfaz-integracion-sii\\jira-context.md",
+  "reviewedAtUtc": "2026-09-21T22:30:46.048Z",
   "technologyProfile": "legacy-webforms-vb",
   "summary": {
     "blockers": 0,

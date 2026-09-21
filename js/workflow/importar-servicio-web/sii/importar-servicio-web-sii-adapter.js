@@ -1,0 +1,13 @@
+(function (root, document) {
+    "use strict";
+    var canonicalId = "INTEGRACIONSII";
+    function text(value) { return value == null ? "" : String(value); }
+    function create(options) {
+        options = options || {}; var api = options.api, mapper = options.mapper || root.ImportarServicioWebSiiContractMapper, listFactory = options.list || root.ImportarServicioWebSiiList, contextFactory = options.contextFactory || function () { return {}; }, model;
+        if (!api || !mapper || !listFactory) { throw new Error("SII_ADAPTER_DEPENDENCY_REQUIRED"); } model = listFactory.create({ pageSize: options.pageSize || 25 });
+        return { providerId: canonicalId, capabilities: { multipleSelection: true, preview: true, download: true, documentType: true, additionalRequirements: false, allowedActions: ["query"] },
+            queryItems: function (request) { var query = Object.assign(contextFactory(), request || {}); return api.resolveCapabilities(query).then(function (capabilities) { if (!capabilities || capabilities.Error || capabilities.ContextAllowed === false) { throw new Error(capabilities && capabilities.Error ? text(capabilities.Error.Codigo) : "SII_NOT_AUTHORIZED"); } return api.queryItems(query).then(function (response) { var mapped = mapper.mapResponse(response), state = model.replace(mapped.items); return { Items: state.items, Total: state.total, DocumentTypes: capabilities.DocumentTypes || [], ProviderResultCode: mapped.providerResultCode }; }); }); },
+            renderItems: function (container, data) { var items = data && Array.isArray(data.Items) ? data.Items : [], table = document.createElement("table"), body = document.createElement("tbody"); table.className = "importar-servicio-web-sii__table"; table.setAttribute("aria-label", "Documentos de INTEGRACIONSII"); items.forEach(function (item) { var row = document.createElement("tr"), select = document.createElement("input"), cell = document.createElement("td"); select.type = "checkbox"; select.disabled = !item.importable; select.setAttribute("aria-label", "Seleccionar " + text(item.displayName)); cell.appendChild(select); row.appendChild(cell); [item.book, item.inscription, item.date, item.act, item.news, item.reference].forEach(function (column) { var td = document.createElement("td"); td.textContent = text(column); row.appendChild(td); }); body.appendChild(row); }); table.appendChild(body); container.appendChild(table); }, list: model };
+    }
+    var api = { canonicalId: canonicalId, create: create }; root.ImportarServicioWebSiiAdapter = api; if (typeof module !== "undefined" && module.exports) { module.exports = api; }
+}(typeof window !== "undefined" ? window : globalThis, typeof document !== "undefined" ? document : null));
