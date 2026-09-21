@@ -53,6 +53,9 @@ jobs:
       - name: Install .NET Framework 4.6.1 reference assemblies
         run: nuget install Microsoft.NETFramework.ReferenceAssemblies.net461 -Version 1.0.3 -OutputDirectory .packages -NonInteractive
 
+      - name: Restore WebForms NuGet dependencies
+        run: nuget restore GestionDocumental-Docuarchi.net.sln -PackagesDirectory packages -NonInteractive
+
       - name: Build WebForms metadata for documentation checks
         run: msbuild GestionDocumental-Docuarchi.net.vbproj /t:Build /p:Configuration=Debug /p:TargetFrameworkRootPath="$pwd\.packages\Microsoft.NETFramework.ReferenceAssemblies.net461.1.0.3\build\" /m /nologo /v:minimal
 
