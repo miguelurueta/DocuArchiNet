@@ -89,7 +89,6 @@ Public NotInheritable Class SiiExternalImportProviderClient
                    (resultCode.Length > 0 AndAlso resultCode <> "0000") Then Throw New InvalidOperationException("SII_SUBJECT_REJECTED")
                 Dim identification = SiiImportContractMapper.Value(source, "nit")
                 Dim name = SiiImportContractMapper.Value(source, "nombre")
-                If String.IsNullOrWhiteSpace(identification) OrElse String.IsNullOrWhiteSpace(name) Then Throw New InvalidOperationException("SII_SUBJECT_INCOMPLETE")
                 Return New SujetoExpedienteSii With {
                     .MatriculaCanonica = CanonicalPositiveNumber(If(cabinet = "RUP", proponent, enrollment)),
                     .Identificacion = identification.Trim(), .RazonSocial = name.Trim(),

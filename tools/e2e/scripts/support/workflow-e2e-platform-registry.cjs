@@ -83,6 +83,10 @@ const IMPORT_CONTROLS = Object.freeze([
 ]);
 const IMPORT_CONTROLS_UNCHANGED = Object.freeze(Object.fromEntries(IMPORT_CONTROLS.map((id) => [id, 'unchanged'])));
 const IMPORT_CONTROLS_CHANGED = Object.freeze(Object.fromEntries(IMPORT_CONTROLS.map((id) => [id, 'changed'])));
+const IMPORT_EXECUTION_CONTROLS = Object.freeze({
+  ...IMPORT_CONTROLS_CHANGED,
+  'import-document-link-cache-state': 'expedient-mode'
+});
 const IMPORT_RETRY_CONTROLS = Object.freeze({
   ...IMPORT_CONTROLS_CHANGED,
   'import-expedient-state': 'unchanged'
@@ -183,7 +187,7 @@ const SCENARIO_REGISTRY = Object.freeze({
     requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
     resource: Object.freeze({ kind: 'workflow-task', role: 'execution', profileField: 'taskId', mutating: true, contractId: 'workflow-task-controls' }),
     controls: IMPORT_CONTROLS,
-    controlExpectations: IMPORT_CONTROLS_CHANGED,
+    controlExpectations: IMPORT_EXECUTION_CONTROLS,
     transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
     expectations: Object.freeze(['real-sii', 'state-change', 'selected-documents', 'temporary-feature-gate', 'sanitized-evidence'])
   }),
@@ -231,7 +235,7 @@ function validateScenario(scenario) {
     fail('E2E_PLATFORM_SCENARIO_INVALID');
   }
   for (const expectation of Object.values(scenario.controlExpectations)) {
-    if (expectation !== 'changed' && expectation !== 'unchanged') fail('E2E_PLATFORM_SCENARIO_INVALID');
+    if (!['changed', 'unchanged', 'expedient-mode'].includes(expectation)) fail('E2E_PLATFORM_SCENARIO_INVALID');
   }
   if (!scenario.transport || typeof scenario.transport !== 'object' || !['none', 'workflow'].includes(scenario.transport.session) || typeof scenario.transport.service !== 'string') {
     fail('E2E_PLATFORM_SCENARIO_INVALID');

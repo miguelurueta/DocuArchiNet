@@ -37,6 +37,7 @@ test('DOC-56 registra lectura, ejecución y concurrencia sobre la plataforma com
     .every(([, expectation]) => expectation === 'changed'));
   assert.deepEqual(requiredAuthorizationsFor(execution, validateProfile(load('doc56-import-sii-execution.profile.example.json'))),
     ['environment', 'gate', 'execution', 'discardable-resource', 'local-tls']);
+  assert.equal(execution.controlExpectations['import-document-link-cache-state'], 'expedient-mode');
   assert.deepEqual(requiredAuthorizationsFor(concurrency, validateProfile(load('doc56-import-sii-concurrency.profile.example.json'))),
     ['environment', 'gate', 'execution', 'concurrency', 'discardable-resource', 'local-tls']);
   assert.deepEqual(requiredAuthorizationsFor(retry, validateProfile(load('doc56-import-sii-retry.profile.example.json'))),
@@ -383,6 +384,58 @@ test('DOC-70 valida plan por item y fingerprint estable en el preflight existent
   assert.match(source,/IMPORT_E2E_PREFLIGHT_FINGERPRINT_UNSTABLE/);
   assert.match(source,/\[\.\.\.selection\]\.reverse\(\)/);
   assert.equal(result,null);
+});
+
+test('DOC-71 acepta preflight sin expediente y exige solo efectos documentales planeados', () => {
+  const source=fs.readFileSync(path.resolve(__dirname,'../scripts/adapters/importar-servicio-web-e2e-adapter.cjs'),'utf8');
+  assert.match(source,/\['Single', 'Multiple', 'WithoutExpedient'\]/);
+  assert.match(source,/requiredDocumentEffect = code === 'DOCUMENT_STORAGE' \|\| code === 'DOCUMENT_INDEXES'/);
+  assert.match(source,/withoutExpedient && !requiredDocumentEffect \? 'NotApplicable' : 'Planned'/);
+});
+
+test('DOC-71 verifica NoAplica sin exigir relación caché ni índices electrónicos de expediente', () => {
+  const source=fs.readFileSync(path.resolve(__dirname,'../scripts/adapters/importar-servicio-web-e2e-adapter.cjs'),'utf8');
+  assert.match(source,/notApplicable\(field\(effect, \['ExpedientStatus'/);
+  assert.match(source,/confirmed\(field\(effect, \['CabinetIndexStatus'/);
+  assert.match(source,/\['LinkCacheStatus', 'ElectronicIndexSqlStatus', 'ElectronicIndexXmlStatus'\]/);
+});
+
+test('DOC-71 repite la creación con la misma clave y exige recuperar la misma intención', async () => {
+  const createPayloads = [];
+  const stored = { ExternalKey: 'SII2.item-1', DocumentId: 1001, Status: 'Disponible', PersistenceKnown: true, ReachedPhase: 'Completada' };
+  const effect = {
+    ExpedientStatus: 'NoAplica', RelationStatus: 'NoAplica', LinkCacheStatus: 'NoAplica',
+    CabinetIndexStatus: 'Confirmado', ElectronicIndexSqlStatus: 'NoAplica', ElectronicIndexXmlStatus: 'NoAplica',
+    ReconciliationStatus: 'Confirmado'
+  };
+  const invoke = async (operation, payload) => {
+    if (operation === 'CreateImportIntent') createPayloads.push(payload.request);
+    const selectedItem = payload?.request?.Items?.[0];
+    return { elapsedMs: 2, dto: {
+      QueryItems: { Items: [{ ExternalKey: stored.ExternalKey }] },
+      PreflightImport: {
+        IsValid: true, Executable: true, ContextFingerprint: 'a'.repeat(64), Requirements: [],
+        EffectPlans: [{ ClientItemId: selectedItem?.ClientItemId, TargetTaskId: 220581, DocumentTypeId: 154,
+          DestinationMode: 'WithoutExpedient', Effects: [
+            { Code: 'DOCUMENT_STORAGE', Status: 'Planned' }, { Code: 'EXPEDIENT_RESOLUTION', Status: 'NotApplicable' },
+            { Code: 'DOCUMENT_LINK', Status: 'NotApplicable' }, { Code: 'LINK_CACHE', Status: 'NotApplicable' },
+            { Code: 'DOCUMENT_INDEXES', Status: 'Planned' }
+          ] }]
+      },
+      CreateImportIntent: { IntentId: '0123456789abcdef0123456789abcdef', VersionToken: 'v1' },
+      ExecuteImportIntent: { Items: [stored], ExpedientEffects: [effect], VersionToken: 'v2' },
+      GetImportIntent: { Items: [stored], ExpedientEffects: [effect], VersionToken: 'v2' },
+      ReconcileImportIntent: { Items: [stored], ExpedientEffects: [effect], Status: 'Completada' }
+    }[operation] };
+  };
+  const result = await IMPORTAR_SERVICIO_WEB_E2E_ADAPTER.executeExecution({
+    invoke, taskId: 220581, budgetMs: 1000,
+    profile: { scenarioId: 'import-sii-execution', codigoBarras: 'sample', radicado: 'sample', documentTypeId: 154, documentTypeName: 'Constancia', sampleSize: 1 }
+  });
+  assert.equal(createPayloads.length, 2);
+  assert.deepEqual(createPayloads[1], createPayloads[0]);
+  assert.equal(result.codes.idempotentCreate, 'CONFIRMED');
+  assert.equal(result.codes.expedientMode, 'without-expedient');
 });
 
 test('runner restaura el gate y aplica integridad legacy desde finally', () => {

@@ -91,10 +91,12 @@ Public NotInheritable Class MySqlImportReconciliationRepository
                 .EstadoCache=ParseEffect(reader("cache_status")),.EstadoIndiceGabinete=ParseEffect(reader("cabinet_index_status")),
                 .EstadoIndiceSql=ParseEffect(reader("electronic_index_status")),.EstadoIndiceXml=ParseEffect(reader("xml_index_status")),
                 .EstadoReconciliacion=ParseEffect(reader("reconciliation_status"))}
-            If Not reader.IsDBNull(reader.GetOrdinal("cached_expedient_id")) AndAlso
+            If document.EstadoDestino <> EstadoEfectoExpedienteImportacion.NoAplica AndAlso
+               Not reader.IsDBNull(reader.GetOrdinal("cached_expedient_id")) AndAlso
                (Not document.IdExpedienteEsperado.HasValue OrElse Convert.ToInt64(reader("cached_expedient_id")) <> document.IdExpedienteEsperado.Value) Then
                 document.EstadoCache = EstadoEfectoExpedienteImportacion.Conflicto
-            ElseIf Not reader.IsDBNull(reader.GetOrdinal("cached_relation_status")) AndAlso
+            ElseIf document.EstadoDestino <> EstadoEfectoExpedienteImportacion.NoAplica AndAlso
+                   Not reader.IsDBNull(reader.GetOrdinal("cached_relation_status")) AndAlso
                    ParseRelation(reader("cached_relation_status")) <> EstadoRelacionDocumentoExpediente.Correcta Then
                 document.EstadoCache = EstadoEfectoExpedienteImportacion.Conflicto
             End If

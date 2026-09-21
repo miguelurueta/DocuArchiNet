@@ -73,8 +73,9 @@ test("DOC-67 readiness: expediente precede almacenamiento y documentos relaciona
   assert.ok(expedient >= 0 && expedient < storageLoop, "expediente antes del almacenamiento");
   assert.ok(related >= 0 && related < completed, "relacionados antes de Completada");
   const physicalEffects = source.slice(related, completed);
-  for (const effect of ["EstadoRelacion", "EstadoIndice", "EstadoCache"])
-    assert.match(physicalEffects, new RegExp(`item\\.${effect} = EstadoEfectoExpedienteImportacion\\.Confirmado`), effect);
+  assert.match(physicalEffects, /item\.EstadoIndice = EstadoEfectoExpedienteImportacion\.Confirmado/, "EstadoIndice");
+  for (const effect of ["EstadoRelacion", "EstadoCache"])
+    assert.match(physicalEffects, new RegExp(`item\\.${effect} = If\\(expedientPlan\\.Modo = ModoExpedienteImportacion\\.SinExpediente, EstadoEfectoExpedienteImportacion\\.NoAplica, EstadoEfectoExpedienteImportacion\\.Confirmado\\)`), effect);
 });
 
 test("DOC-67 readiness: la integración local general cubre MERCANTIL, ESAL y RUP", () => {

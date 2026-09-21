@@ -13,7 +13,8 @@ test("consulta moderna de sujeto usa transporte tipado para MERCANTIL ESAL y RUP
   assert.match(client, /Case "ESAL"[\s\S]*StartsWith\("9000"[\s\S]*"S0" & lookup/);
   assert.match(client, /Case "RUP"[\s\S]*consultarExpedienteProponente/);
   assert.match(client, /SII_SUBJECT_NOT_FOUND/);
-  assert.match(client, /SII_SUBJECT_INCOMPLETE/);
+  assert.match(client, /\.Identificacion = identification\.Trim\(\), \.RazonSocial = name\.Trim\(\)/);
+  assert.doesNotMatch(client, /String\.IsNullOrWhiteSpace\(identification\)[\s\S]{0,100}SII_SUBJECT_INCOMPLETE/);
   assert.match(client, /Encoding\.UTF8\.GetBytes/);
   assert.doesNotMatch(client, /ServerCertificateValidationCallback|validarCertificado|HttpContext|Session/);
 });
@@ -22,6 +23,7 @@ test("resolvedor moderno valida sujeto y conserva fallback legacy configurable",
   assert.match(resolver, /Implements ISiiExpedientSubjectResolver/);
   assert.match(resolver, /ResolveExpedientSubjectAsync/);
   assert.match(resolver, /MaterializeIdentityFields/);
+  assert.match(resolver, /ModoExpedienteImportacion\.SinExpediente Then Return Confirmed\(\)/);
   assert.match(resolver, /_fallbackEnabled AndAlso _legacyFallback IsNot Nothing/);
   assert.match(composition, /New ModernSiiExpedientSubjectResolver/);
   assert.match(composition, /ImportarServicioWebSiiSubjectLegacyFallback/);

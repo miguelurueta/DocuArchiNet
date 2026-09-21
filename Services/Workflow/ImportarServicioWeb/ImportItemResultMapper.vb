@@ -26,13 +26,14 @@ Public NotInheritable Class ImportItemResultMapper
     Public Function MapExpedientEffects(ByVal clientItemId As String,
                                         ByVal documento As DocumentoRelacionadoImportacion) As ImportItemExpedientEffectsDto
         If documento Is Nothing Then Throw New ArgumentNullException("documento")
+        Dim withoutExpedient = documento.EstadoDestino = EstadoEfectoExpedienteImportacion.NoAplica
         Dim dto As New ImportItemExpedientEffectsDto With {
             .ClientItemId = clientItemId,
             .InscriptionKey = documento.ClaveInscripcion,
             .ExpedientId = documento.IdExpedienteEsperado,
-            .ExpedientStatus = If(documento.IdExpedienteEsperado.HasValue, "Confirmado", "Pendiente"),
+            .ExpedientStatus = If(withoutExpedient, "NoAplica", If(documento.IdExpedienteEsperado.HasValue, "Confirmado", "Pendiente")),
             .DestinationStatus = documento.EstadoDestino.ToString(),
-            .RelationStatus = documento.EstadoRelacion.ToString(),
+            .RelationStatus = If(withoutExpedient, "NoAplica", documento.EstadoRelacion.ToString()),
             .LinkCacheStatus = documento.EstadoCache.ToString(),
             .CabinetIndexStatus = documento.EstadoIndiceGabinete.ToString(),
             .ElectronicIndexSqlStatus = documento.EstadoIndiceSql.ToString(),
@@ -48,6 +49,11 @@ Public NotInheritable Class ImportItemResultMapper
     End Function
 
     Private Shared Function ExpedientEffectCode(ByVal documento As DocumentoRelacionadoImportacion) As String
+        If documento.EstadoDestino = EstadoEfectoExpedienteImportacion.NoAplica Then
+            If documento.EstadoIndiceGabinete <> EstadoEfectoExpedienteImportacion.Confirmado Then Return ImportExpedientResultCodes.IndexUpdateFailed
+            If documento.EstadoReconciliacion <> EstadoEfectoExpedienteImportacion.Confirmado Then Return ImportExpedientResultCodes.EffectUncertain
+            Return ImportExpedientResultCodes.Confirmed
+        End If
         If Not documento.IdExpedienteEsperado.HasValue Then Return ImportExpedientResultCodes.ExpedientUnresolved
         If documento.EstadoDestino = EstadoEfectoExpedienteImportacion.Conflicto Then Return ImportExpedientResultCodes.DestinationConflict
         Select Case documento.EstadoRelacion

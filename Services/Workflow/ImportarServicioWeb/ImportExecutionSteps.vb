@@ -186,7 +186,8 @@ Public NotInheritable Class StoreImportExecutionStep
             If New Class_DAT_ADIC_TAR().SolicitaReciboCodigoBarrasSII(item.IdTareaDestino, metadata.NombreRutaWorkflow,
                 intencion.ContextoOriginal.IdRuta, receipt, taskBarcode) <> "YES" OrElse String.IsNullOrWhiteSpace(receipt) OrElse
                 String.IsNullOrWhiteSpace(taskBarcode) Then Return Fallo("SII_RECEIPT_UNAVAILABLE", True)
-            If String.IsNullOrWhiteSpace(item.MetadatosSii.RazonSocial) Then
+            If String.IsNullOrWhiteSpace(item.MetadatosSii.RazonSocial) AndAlso
+               item.EstadoRelacion <> EstadoEfectoExpedienteImportacion.NoAplica Then
                 Dim subject As StruSiiCahcheInscripcion = Nothing
                 Dim subjectResult = New ClassConsultaExpedienteSII().SolicitaEstructuraExpedienteSII(
                     item.MetadatosSii.Matricula, item.MetadatosSii.Proponente, metadata.NombreGabinete, subject)
@@ -219,9 +220,9 @@ Public NotInheritable Class StoreImportExecutionStep
         Dim fields As New List(Of CampoAlmacenamientoImportacion)()
         AddField(fields, "CODBARRAS", Limit(barcode, 20)) : AddField(fields, "ENLASE", Limit(receipt, 20))
         Dim enrollment = If(String.Equals(cabinet, "RUP", StringComparison.OrdinalIgnoreCase), sii.Proponente, sii.Matricula)
-        AddField(fields, "MATRICULA", Digits(enrollment))
-        AddField(fields, "RAZONSOCIAL", Limit(sii.RazonSocial, If(String.Equals(cabinet, "RUP", StringComparison.OrdinalIgnoreCase), 40, 120)))
-        AddField(fields, "NITCEDULA", Limit(sii.NitCedula, If(String.Equals(cabinet, "RUP", StringComparison.OrdinalIgnoreCase), 40, 20)))
+        AddOptionalField(fields, "MATRICULA", Digits(enrollment))
+        AddOptionalField(fields, "RAZONSOCIAL", Limit(sii.RazonSocial, If(String.Equals(cabinet, "RUP", StringComparison.OrdinalIgnoreCase), 40, 120)))
+        AddOptionalField(fields, "NITCEDULA", Limit(sii.NitCedula, If(String.Equals(cabinet, "RUP", StringComparison.OrdinalIgnoreCase), 40, 20)))
         AddField(fields, "LIBRO", Digits(sii.Libro.Replace("RM", "").Replace("RE", "").Replace("RP", "")))
         AddField(fields, "INSCRIPCION", Digits(sii.Registro)) : AddField(fields, "RECIBOCAJA", Limit(receipt, 20))
         Dim dateField = If(String.Equals(cabinet, "ESAL", StringComparison.OrdinalIgnoreCase), "FECHAINSCRIP", "FECHAREGISTR")
@@ -232,6 +233,9 @@ Public NotInheritable Class StoreImportExecutionStep
     End Function
     Private Shared Sub AddField(ByVal fields As IList(Of CampoAlmacenamientoImportacion), ByVal name As String, ByVal value As String)
         fields.Add(New CampoAlmacenamientoImportacion With {.Nombre = name, .Valor = If(value, String.Empty)})
+    End Sub
+    Private Shared Sub AddOptionalField(ByVal fields As IList(Of CampoAlmacenamientoImportacion), ByVal name As String, ByVal value As String)
+        If Not String.IsNullOrWhiteSpace(value) Then AddField(fields, name, value)
     End Sub
     Private Shared Function Digits(ByVal value As String) As String
         Return New String(If(value, String.Empty).Where(Function(c) Char.IsDigit(c)).ToArray())

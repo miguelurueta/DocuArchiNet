@@ -32,19 +32,20 @@ Public NotInheritable Class ModernSiiExpedientSubjectResolver
                 inscripcion.Proponente, correlationId, CancellationToken.None, contexto.IdTarea).ConfigureAwait(False).GetAwaiter().GetResult()
             If subject Is Nothing Then Return FallbackOrFailure(contexto, inscripcion, configuracion, "SII_SUBJECT_INVALID_RESPONSE", False)
 
-            inscripcion.IdentificacionSujeto = If(subject.Identificacion, String.Empty).Trim()
-            inscripcion.RazonSocial = If(subject.RazonSocial, String.Empty).Trim()
-            inscripcion.Matricula = If(subject.MatriculaCanonica, inscripcion.Matricula)
-            inscripcion.MatriculaPropietario = If(subject.MatriculaPropietario, String.Empty).Trim()
-            inscripcion.IdentificacionPropietario = If(subject.IdentificacionPropietario, String.Empty).Trim()
-            inscripcion.NombrePropietario = If(subject.NombrePropietario, String.Empty).Trim()
-            If String.IsNullOrWhiteSpace(inscripcion.IdentificacionSujeto) OrElse String.IsNullOrWhiteSpace(inscripcion.RazonSocial) Then
-                Return FallbackOrFailure(contexto, inscripcion, configuracion, "SII_SUBJECT_INCOMPLETE", False)
-            End If
+            inscripcion.IdentificacionSujeto = MergeValue(inscripcion.IdentificacionSujeto, subject.Identificacion)
+            inscripcion.RazonSocial = MergeValue(inscripcion.RazonSocial, subject.RazonSocial)
+            inscripcion.Matricula = MergeValue(inscripcion.Matricula, subject.MatriculaCanonica)
+            inscripcion.MatriculaPropietario = MergeValue(inscripcion.MatriculaPropietario, subject.MatriculaPropietario)
+            inscripcion.IdentificacionPropietario = MergeValue(inscripcion.IdentificacionPropietario, subject.IdentificacionPropietario)
+            inscripcion.NombrePropietario = MergeValue(inscripcion.NombrePropietario, subject.NombrePropietario)
 
             Dim normalized = _normalizer.Normalizar(contexto, configuracion.NombreGabinete, inscripcion.Matricula, inscripcion.Proponente)
             If normalized Is Nothing OrElse Not normalized.Valida Then Return Failure(If(normalized Is Nothing, "EXPEDIENT_IDENTITY_INVALID", normalized.Codigo), False)
             inscripcion.MatriculaNormalizada = normalized.ValorPersistencia
+            If configuracion.Modo = ModoExpedienteImportacion.SinExpediente Then Return Confirmed()
+            If String.IsNullOrWhiteSpace(inscripcion.IdentificacionSujeto) OrElse String.IsNullOrWhiteSpace(inscripcion.RazonSocial) Then
+                Return FallbackOrFailure(contexto, inscripcion, configuracion, "SII_SUBJECT_INCOMPLETE", False)
+            End If
             Dim identityResult = LegacySiiExpedientSubjectResolver.MaterializeIdentityFields(inscripcion, configuracion)
             If identityResult IsNot Nothing Then Return identityResult
             Return Confirmed()
@@ -56,6 +57,11 @@ Public NotInheritable Class ModernSiiExpedientSubjectResolver
         Catch
             Return FallbackOrFailure(contexto, inscripcion, configuracion, "SII_SUBJECT_INVALID_RESPONSE", False)
         End Try
+    End Function
+
+    Private Shared Function MergeValue(ByVal destination As String, ByVal source As String) As String
+        Dim value = If(source, String.Empty).Trim()
+        Return If(String.IsNullOrWhiteSpace(value), destination, value)
     End Function
 
     Private Function FallbackOrFailure(ByVal contexto As ContextoImportacionServicio,

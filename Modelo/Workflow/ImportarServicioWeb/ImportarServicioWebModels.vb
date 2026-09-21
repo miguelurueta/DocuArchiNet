@@ -370,11 +370,17 @@ End Enum
 
 Public Enum EstadoEfectoExpedienteImportacion
     Pendiente
+    NoAplica
     Confirmado
     Ausente
     Conflicto
     ResultadoIncierto
     Fallido
+End Enum
+
+Public Enum ModoExpedienteImportacion
+    SinExpediente
+    GestionarExpediente
 End Enum
 
 Public Enum EstadoRelacionDocumentoExpediente
@@ -423,6 +429,7 @@ Public NotInheritable Class ConfiguracionExpedienteImportacion
     Public Property IdAutoRegistro As Integer
     Public Property CreacionAutomaticaHabilitada As Boolean
     Public Property ExpedienteObligatorio As Boolean
+    Public Property Modo As ModoExpedienteImportacion
     Public Property MultiplesExpedientes As Boolean
     Public Property CamposIdentidad As IList(Of CampoIdentidadExpedienteImportacion)
     Public Property TipologiasSecundarias As IList(Of Integer)
@@ -471,6 +478,7 @@ Public NotInheritable Class PlanExpedienteImportacion
     Public Property Destinos As IList(Of DestinoLogicoExpedienteImportacion)
     Public Property Estado As EstadoEfectoExpedienteImportacion
     Public Property Codigo As String
+    Public Property Modo As ModoExpedienteImportacion
 End Class
 
 Public NotInheritable Class DocumentoRelacionadoImportacion

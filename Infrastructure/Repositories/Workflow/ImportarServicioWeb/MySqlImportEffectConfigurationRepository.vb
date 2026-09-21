@@ -17,6 +17,7 @@ Public NotInheritable Class MySqlImportEffectConfigurationRepository
         If source Is Nothing Then Return Nothing
         Dim result As New ImportEffectConfiguration With {
             .ExpedientRequired = source.ExpedienteObligatorio,
+            .ExpedientMode = source.Modo,
             .AutomaticCreationEnabled = source.CreacionAutomaticaHabilitada,
             .MultipleExpedients = source.MultiplesExpedientes}
         If source.CamposIdentidad IsNot Nothing Then

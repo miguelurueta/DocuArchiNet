@@ -13,6 +13,21 @@ Public NotInheritable Class ImportRelatedDocumentPlan
         If intencion Is Nothing OrElse planExpedientes Is Nothing OrElse
            planExpedientes.Estado <> EstadoEfectoExpedienteImportacion.Confirmado OrElse documentos Is Nothing Then Return result
 
+        If planExpedientes.Modo = ModoExpedienteImportacion.SinExpediente Then
+            Dim common = CommonInscription(planExpedientes.Inscripciones)
+            If common Is Nothing Then Return result
+            Dim withoutExpedient As New HashSet(Of Long)()
+            For Each document In documentos
+                If document Is Nothing OrElse document.IdImagen <= 0 OrElse Not withoutExpedient.Add(document.IdImagen) Then Continue For
+                document.IntentId = intencion.Id : document.ClaveInscripcion = common.ClaveInscripcion
+                document.IdExpedienteEsperado = Nothing : document.EstadoDestino = EstadoEfectoExpedienteImportacion.NoAplica
+                result.Documentos.Add(document)
+            Next
+            If result.Documentos.Count <> withoutExpedient.Count Then Return result
+            result.Estado = EstadoEfectoExpedienteImportacion.Confirmado
+            Return result
+        End If
+
         Dim distinctExpedients = planExpedientes.Destinos.Select(Function(x) x.IdExpediente).Distinct().ToList()
         Dim seen As New HashSet(Of Long)()
         For Each document In documentos
@@ -28,6 +43,19 @@ Public NotInheritable Class ImportRelatedDocumentPlan
         If result.Documentos.Count <> seen.Count Then Return result
         result.Estado = EstadoEfectoExpedienteImportacion.Confirmado
         Return result
+    End Function
+
+    Private Shared Function CommonInscription(ByVal values As IList(Of InscripcionImportacion)) As InscripcionImportacion
+        If values Is Nothing OrElse values.Count = 0 Then Return Nothing
+        Dim first = values(0)
+        If first Is Nothing Then Return Nothing
+        For index As Integer = 1 To values.Count - 1
+            Dim current = values(index)
+            If current Is Nothing OrElse Not String.Equals(first.IdentificacionSujeto, current.IdentificacionSujeto, StringComparison.OrdinalIgnoreCase) OrElse
+               Not String.Equals(first.RazonSocial, current.RazonSocial, StringComparison.OrdinalIgnoreCase) OrElse
+               Not String.Equals(first.Matricula, current.Matricula, StringComparison.OrdinalIgnoreCase) Then Return Nothing
+        Next
+        Return first
     End Function
 
     Private Shared Function ResolveDestination(ByVal document As DocumentoRelacionadoImportacion,

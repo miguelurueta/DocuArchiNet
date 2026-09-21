@@ -8,6 +8,7 @@ Public NotInheritable Class ImportEffectConfiguration
         SecondaryDocumentTypeIds = New List(Of Integer)()
     End Sub
     Public Property ExpedientRequired As Boolean
+    Public Property ExpedientMode As ModoExpedienteImportacion
     Public Property AutomaticCreationEnabled As Boolean
     Public Property MultipleExpedients As Boolean
     Public Property IdentityFields As IList(Of String)
@@ -16,7 +17,7 @@ Public NotInheritable Class ImportEffectConfiguration
     Public Function CanonicalValue() As String
         Dim fields As New List(Of String)(IdentityFields) : fields.Sort(StringComparer.OrdinalIgnoreCase)
         Dim types As New List(Of Integer)(SecondaryDocumentTypeIds) : types.Sort()
-        Return ExpedientRequired.ToString() & "|" & AutomaticCreationEnabled.ToString() & "|" &
+        Return ExpedientMode.ToString() & "|" & ExpedientRequired.ToString() & "|" & AutomaticCreationEnabled.ToString() & "|" &
             MultipleExpedients.ToString() & "|" & String.Join(",", fields.ToArray()) & "|" &
             String.Join(",", types.ConvertAll(Function(value) value.ToString(CultureInfo.InvariantCulture)).ToArray())
     End Function
@@ -34,13 +35,14 @@ Public NotInheritable Class ImportEffectPlanBuilder
             Dim plan As New ImportEffectPlanDto With {
                 .ClientItemId = item.ClientItemId.Trim(), .TargetTaskId = context.IdTarea,
                 .DocumentTypeId = item.DocumentTypeId, .DocumentTypeName = item.DocumentTypeName.Trim(),
-                .DestinationMode = If(configuration.MultipleExpedients, "Multiple", "Single"),
+                .DestinationMode = If(configuration.ExpedientMode = ModoExpedienteImportacion.SinExpediente, "WithoutExpedient", If(configuration.MultipleExpedients, "Multiple", "Single")),
                 .ExpedientRequired = configuration.ExpedientRequired}
             For Each code In EffectCodes
-                plan.Effects.Add(New ImportPlannedEffectDto With {.Code = code, .Status = "Planned"})
+                Dim applies = code = "DOCUMENT_STORAGE" OrElse code = "DOCUMENT_INDEXES" OrElse configuration.ExpedientMode = ModoExpedienteImportacion.GestionarExpediente
+                plan.Effects.Add(New ImportPlannedEffectDto With {.Code = code, .Status = If(applies, "Planned", "NotApplicable")})
             Next
             plan.Requirements.Add(New ImportRequirementDto With {.Codigo = "EFFECT_CONFIGURATION_AVAILABLE", .Satisfecho = True})
-            plan.Requirements.Add(New ImportRequirementDto With {.Codigo = "EXPEDIENT_DESTINATION_PLANNED", .Satisfecho = True})
+            plan.Requirements.Add(New ImportRequirementDto With {.Codigo = If(configuration.ExpedientMode = ModoExpedienteImportacion.GestionarExpediente, "EXPEDIENT_DESTINATION_PLANNED", "EXPEDIENT_EFFECTS_NOT_APPLICABLE"), .Satisfecho = True})
             plans.Add(plan)
         Next
         Return plans

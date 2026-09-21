@@ -117,6 +117,10 @@ function confirmed(value) {
   return value === 'Confirmado' || value === 'Correcta';
 }
 
+function notApplicable(value) {
+  return value === 'NoAplica';
+}
+
 function assertMinimumExpedientUniverse(dto, minimumExpedientCount) {
   if (minimumExpedientCount === undefined) return null;
   const effects = expedientEffects(dto);
@@ -304,8 +308,17 @@ async function preflight(invoke, taskId, selection, budgetMs, latencies) {
       const destinationMode = field(plan, ['DestinationMode', 'destinationMode']);
       const effects = field(plan, ['Effects', 'effects']);
       if (!expected.delete(clientItemId) || targetTaskId !== taskId || !Number.isSafeInteger(documentTypeId) ||
-          !['Single', 'Multiple'].includes(destinationMode) || !Array.isArray(effects) || effects.length !== 5 ||
-          effects.some((effect) => field(effect, ['Status', 'status']) !== 'Planned')) fail('IMPORT_E2E_PREFLIGHT_EFFECT_PLAN_INVALID');
+          !['Single', 'Multiple', 'WithoutExpedient'].includes(destinationMode) || !Array.isArray(effects) || effects.length !== 5) {
+        fail('IMPORT_E2E_PREFLIGHT_EFFECT_PLAN_INVALID');
+      }
+      const withoutExpedient = destinationMode === 'WithoutExpedient';
+      for (const effect of effects) {
+        const code = field(effect, ['Code', 'code']);
+        const status = field(effect, ['Status', 'status']);
+        const requiredDocumentEffect = code === 'DOCUMENT_STORAGE' || code === 'DOCUMENT_INDEXES';
+        const expectedStatus = withoutExpedient && !requiredDocumentEffect ? 'NotApplicable' : 'Planned';
+        if (status !== expectedStatus) fail('IMPORT_E2E_PREFLIGHT_EFFECT_PLAN_INVALID');
+      }
       for (const forbidden of ['ExpedientId', 'CabinetName', 'TableName', 'Sql', 'PhysicalPath']) {
         if (Object.prototype.hasOwnProperty.call(plan, forbidden)) fail('IMPORT_E2E_PREFLIGHT_PHYSICAL_FIELD_EXPOSED');
       }
@@ -480,9 +493,16 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
     }
     const selection = await querySelection(invoke, taskId, profile.codigoBarras, profile.documentTypeId, profile.documentTypeName, profile.sampleSize, budgetMs, latencies);
     const prepared = await preflight(invoke, taskId, selection, budgetMs, latencies);
-    const create = await invoke('CreateImportIntent', request(createPayload(taskId, selection, prepared, profile.radicado, uuid())));
+    const createRequest = request(createPayload(taskId, selection, prepared, profile.radicado, uuid()));
+    const create = await invoke('CreateImportIntent', createRequest);
     const created = assertResult(create, budgetMs, 'IMPORT_E2E_CREATE_FAILED'); latencies.push(create.elapsedMs);
     const identity = intentIdentity(created);
+    const repeatedCreate = await invoke('CreateImportIntent', createRequest);
+    const repeatedIdentity = intentIdentity(assertResult(repeatedCreate, budgetMs, 'IMPORT_E2E_CREATE_REPEAT_FAILED'));
+    latencies.push(repeatedCreate.elapsedMs);
+    if (repeatedIdentity.IntentId !== identity.IntentId || repeatedIdentity.VersionToken !== identity.VersionToken) {
+      fail('IMPORT_E2E_CREATE_NOT_IDEMPOTENT');
+    }
     const execute = await invoke('ExecuteImportIntent', request(executionPayload(taskId, identity)));
     const executed = assertResult(execute, budgetMs, 'IMPORT_E2E_EXECUTE_FAILED'); latencies.push(execute.elapsedMs);
     assertStoredDocuments(executed, profile.sampleSize);
@@ -496,6 +516,7 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
     const effectDto = effects ? { ExpedientEffects: effects } : {};
     const multiExpedientVerdict = assertMinimumExpedientUniverse(effectDto, profile.minimumExpedientCount);
     const allEffects = (predicate) => effectVerdict(effectDto, predicate);
+    const withoutExpedient = allEffects((effect) => notApplicable(field(effect, ['ExpedientStatus', 'expedientStatus'])));
     const finalPhases = items(recovered);
     const stateVerdict = finalPhases.every((item) => ['Reconciliada', 'Completada'].includes(field(item, ['ReachedPhase', 'reachedPhase'])))
       ? true : finalPhases.some((item) => field(item, ['ReachedPhase', 'reachedPhase'])) ? false : null;
@@ -503,15 +524,28 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
     const reconciliationVerdict = ['Completado', 'Reconciliada', 'Completada'].includes(reconcileStatus)
       ? allEffects((effect) => confirmed(field(effect, ['ReconciliationStatus', 'reconciliationStatus']))) : (reconcileStatus ? false : null);
     return Object.freeze({
-      codes: Object.freeze({ create: null, execute: null, get: null, reconcile: null }), count: profile.sampleSize,
+      codes: Object.freeze({
+        create: null,
+        idempotentCreate: 'CONFIRMED',
+        expedientMode: withoutExpedient === true ? 'without-expedient' : 'with-expedient',
+        execute: null,
+        get: null,
+        reconcile: null
+      }), count: profile.sampleSize,
       latenciesMs: Object.freeze(latencies),
       assertions: buildAssertionReport('import-sii-execution', {
         1: multiExpedientVerdict,
         2: true,
         6: true,
-        7: allEffects((effect) => confirmed(field(effect, ['RelationStatus', 'relationStatus']))),
-        8: allEffects((effect) => ['LinkCacheStatus', 'CabinetIndexStatus', 'ElectronicIndexSqlStatus', 'ElectronicIndexXmlStatus']
-          .every((name) => confirmed(field(effect, [name, `${name[0].toLowerCase()}${name.slice(1)}`])))),
+        7: allEffects((effect) => withoutExpedient === true
+          ? notApplicable(field(effect, ['RelationStatus', 'relationStatus']))
+          : confirmed(field(effect, ['RelationStatus', 'relationStatus']))),
+        8: allEffects((effect) => withoutExpedient === true
+          ? confirmed(field(effect, ['CabinetIndexStatus', 'cabinetIndexStatus'])) &&
+            ['LinkCacheStatus', 'ElectronicIndexSqlStatus', 'ElectronicIndexXmlStatus']
+              .every((name) => notApplicable(field(effect, [name, `${name[0].toLowerCase()}${name.slice(1)}`])))
+          : ['LinkCacheStatus', 'CabinetIndexStatus', 'ElectronicIndexSqlStatus', 'ElectronicIndexXmlStatus']
+              .every((name) => confirmed(field(effect, [name, `${name[0].toLowerCase()}${name.slice(1)}`])))),
         9: stateVerdict,
         10: reconciliationVerdict
       })

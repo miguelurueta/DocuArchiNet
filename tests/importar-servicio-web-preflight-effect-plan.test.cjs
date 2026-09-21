@@ -8,7 +8,8 @@ test('DOC-70 publica un plan aditivo por item sin identidad física',()=>{
   assert.doesNotMatch(dto.slice(dto.indexOf('Public Class ImportEffectPlanDto'),dto.indexOf('Public Class ImportItemResultDto')),/ExpedientId|Cabinet|TableName|Sql|PhysicalPath/);
   for(const code of ['DOCUMENT_STORAGE','EXPEDIENT_RESOLUTION','DOCUMENT_LINK','LINK_CACHE','DOCUMENT_INDEXES']) assert.match(builder,new RegExp(code));
 });
-test('builder produce modos Single y Multiple y estado Planned',()=>{
-  assert.match(builder,/If\(configuration\.MultipleExpedients, "Multiple", "Single"\)/);
-  assert.match(builder,/\.Status = "Planned"/);
+test('builder distingue destino con y sin expediente y conserva índices documentales',()=>{
+  for(const mode of ['WithoutExpedient','Multiple','Single']) assert.match(builder,new RegExp(mode));
+  assert.match(builder,/code = "DOCUMENT_STORAGE" OrElse code = "DOCUMENT_INDEXES"/);
+  assert.match(builder,/"NotApplicable"/);
 });

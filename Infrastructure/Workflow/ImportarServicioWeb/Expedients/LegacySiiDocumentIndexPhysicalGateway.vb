@@ -60,6 +60,50 @@ Public NotInheritable Class LegacySiiDocumentIndexPhysicalGateway
         End Try
     End Function
 
+    Public Function ActualizarCamposSinExpediente(ByVal contexto As ContextoImportacionServicio,
+                                                  ByVal documento As DocumentoRelacionadoImportacion,
+                                                  ByVal campos As IDictionary(Of String, String)) As Boolean Implements ISiiDocumentIndexPhysicalGateway.ActualizarCamposSinExpediente
+        If contexto Is Nothing OrElse documento Is Nothing OrElse contexto.IdTarea <> documento.IdTarea OrElse
+           documento.IdImagen <= 0 OrElse String.IsNullOrWhiteSpace(documento.RadicadoSii) OrElse campos Is Nothing Then Return False
+        Dim cabinet = SafeCabinet(documento.NombreGabinete)
+        Try
+          Using connection = _connections.CreateOpenConnection(ModuleContext(contexto))
+            Dim effective = ResolveEffectiveFields(connection, cabinet, campos)
+            If effective.Count = 0 Then Return False
+            Dim assignments As New List(Of String)(), parameters As New List(Of IDataParameter)()
+            Dim ordinal As Integer = 0
+            For Each pair In effective
+                Dim parameterName = "@field" & ordinal.ToString()
+                assignments.Add("`" & pair.Key & "`=" & parameterName)
+                parameters.Add(New MySqlParameter(parameterName, pair.Value)) : ordinal += 1
+            Next
+            parameters.Add(New MySqlParameter("@imageId", documento.IdImagen))
+            parameters.Add(New MySqlParameter("@radicado", documento.RadicadoSii.Trim()))
+            Dim sql = "UPDATE `" & cabinet & "` SET " & String.Join(",", assignments.ToArray()) &
+                " WHERE ID=@imageId AND ENLASE=@radicado"
+            Dim affected = _executor.ExecuteNonQuery(connection, Nothing, sql, parameters)
+            If affected < 0 OrElse affected > 1 Then Return False
+            Dim names As New List(Of String)()
+            For Each pair In effective : names.Add("`" & pair.Key & "`") : Next
+            Dim snapshotSql = "SELECT " & String.Join(",", names.ToArray()) & " FROM `" & cabinet &
+                "` WHERE ID=@imageId AND ENLASE=@radicado LIMIT 2"
+            Dim persisted = _executor.ExecuteReader(connection, Nothing, snapshotSql,
+                New List(Of IDataParameter) From {New MySqlParameter("@imageId", documento.IdImagen), New MySqlParameter("@radicado", documento.RadicadoSii.Trim())}, AddressOf MapFields)
+            If persisted Is Nothing Then Return False
+            For Each pair In effective
+                Dim actual As String = Nothing
+                If Not persisted.TryGetValue(pair.Key, actual) OrElse Not String.Equals(pair.Value, actual, StringComparison.OrdinalIgnoreCase) Then Return False
+            Next
+            campos.Clear() : For Each pair In effective : campos(pair.Key) = pair.Value : Next
+            Return True
+          End Using
+        Catch ex As InvalidOperationException
+            Throw
+        Catch
+            Throw New InvalidOperationException("DOCUMENT_INDEX_CONNECTION_FAILED")
+        End Try
+    End Function
+
     Public Function LeerCampos(ByVal contexto As ContextoImportacionServicio,
                                ByVal documento As DocumentoRelacionadoImportacion,
                                ByVal campos As IDictionary(Of String, String)) As IDictionary(Of String, String) Implements ISiiDocumentIndexPhysicalGateway.LeerCampos

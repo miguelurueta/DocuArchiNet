@@ -91,6 +91,7 @@ Public NotInheritable Class ImportServiceOrchestrator
             If Not AllItemsStored(intent) Then
                 Return ErrorExecute(response, "RELATED_DOCUMENTS_WAITING_FOR_STORAGE", "No fue posible procesar los documentos relacionados.")
             End If
+            MergeDownloadedSiiMetadata(intent, expedientPlan)
             Dim cabinet = If(expedientPlan.Inscripciones.Count = 0, String.Empty, expedientPlan.Inscripciones(0).NombreGabinete)
             Dim radicado = If(intent.ContextoOriginal Is Nothing, String.Empty, intent.ContextoOriginal.Radicado)
             Dim documentPlan = _relatedDocumentCoordinator.Procesar(contexto, intent, expedientPlan, cabinet, radicado)
@@ -101,9 +102,9 @@ Public NotInheritable Class ImportServiceOrchestrator
             For Each item In intent.Resultados
                 'El plan físico confirmado es la autoridad para cerrar los efectos agregados
                 'del item. Deben persistirse antes de Reconciliada/Completada.
-                item.EstadoRelacion = EstadoEfectoExpedienteImportacion.Confirmado
+                item.EstadoRelacion = If(expedientPlan.Modo = ModoExpedienteImportacion.SinExpediente, EstadoEfectoExpedienteImportacion.NoAplica, EstadoEfectoExpedienteImportacion.Confirmado)
                 item.EstadoIndice = EstadoEfectoExpedienteImportacion.Confirmado
-                item.EstadoCache = EstadoEfectoExpedienteImportacion.Confirmado
+                item.EstadoCache = If(expedientPlan.Modo = ModoExpedienteImportacion.SinExpediente, EstadoEfectoExpedienteImportacion.NoAplica, EstadoEfectoExpedienteImportacion.Confirmado)
                 If item.Fase <> FaseImportacionServicio.Reconciliada AndAlso item.Fase <> FaseImportacionServicio.Completada AndAlso
                    Not Avanzar(contexto, intent, item, FaseImportacionServicio.Reconciliada, request.CorrelationId) Then
                     Return ErrorExecute(response, "VERSION_CONFLICT", "La intención cambió; consulte su estado.")
@@ -127,6 +128,30 @@ Public NotInheritable Class ImportServiceOrchestrator
         Next
         Return True
     End Function
+
+    Private Shared Sub MergeDownloadedSiiMetadata(ByVal intent As IntencionImportacionServicio,
+                                                   ByVal plan As PlanExpedienteImportacion)
+        If intent Is Nothing OrElse intent.Resultados Is Nothing OrElse plan Is Nothing OrElse
+           plan.Inscripciones Is Nothing Then Return
+        For Each item In intent.Resultados
+            If item Is Nothing OrElse item.MetadatosSii Is Nothing OrElse
+               String.IsNullOrWhiteSpace(item.ClaveInscripcion) Then Continue For
+            Dim inscription As InscripcionImportacion = Nothing
+            For Each candidate In plan.Inscripciones
+                If candidate IsNot Nothing AndAlso String.Equals(candidate.ClaveInscripcion, item.ClaveInscripcion, StringComparison.Ordinal) Then
+                    inscription = candidate : Exit For
+                End If
+            Next
+            If inscription Is Nothing Then Continue For
+            Dim metadata = item.MetadatosSii
+            If String.IsNullOrWhiteSpace(inscription.Matricula) Then
+                inscription.Matricula = If(String.Equals(inscription.NombreGabinete, "RUP", StringComparison.OrdinalIgnoreCase),
+                                            metadata.Proponente, metadata.Matricula)
+            End If
+            If String.IsNullOrWhiteSpace(inscription.IdentificacionSujeto) Then inscription.IdentificacionSujeto = metadata.NitCedula
+            If String.IsNullOrWhiteSpace(inscription.RazonSocial) Then inscription.RazonSocial = metadata.RazonSocial
+        Next
+    End Sub
 
     Private Shared Function EsReintentoSeguro(ByVal item As ResultadoElementoImportacion) As Boolean
         If item Is Nothing OrElse Not item.PersistenciaConocida OrElse item.IdDocumento.HasValue Then Return False

@@ -32,7 +32,7 @@ test("duplicados de consulta se eliminan solo por IdImagen", () => {
 
 test("cada imagen del universo atraviesa el procesamiento secuencial", () => {
   assert.match(coordinator, /For Each document In plan\.Documentos/);
-  assert.match(coordinator, /Not ProcessOne\(contexto, intencion\.Id, document, inscription, failureCode\)/);
+  assert.match(coordinator, /Not ProcessOne\(contexto, intencion\.Id, document, inscription, planExpedientes\.Modo, failureCode\)/);
   assert.match(coordinator, /RELATED_DOCUMENT_SQL_INDEX_MISSING/);
   assert.match(coordinator, /RELATED_DOCUMENT_XML_INDEX_MISSING/);
 });

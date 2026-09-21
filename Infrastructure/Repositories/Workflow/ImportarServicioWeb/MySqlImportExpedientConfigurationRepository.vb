@@ -79,6 +79,7 @@ Public NotInheritable Class MySqlImportExpedientConfigurationRepository
                 .IdAutoRegistro = header.AutoRegistrationId,
                 .CreacionAutomaticaHabilitada = header.CreateEnabled,
                 .ExpedienteObligatorio = header.CreateEnabled,
+                .Modo = If(header.CreateEnabled, ModoExpedienteImportacion.GestionarExpediente, ModoExpedienteImportacion.SinExpediente),
                 .MultiplesExpedientes = header.MultipleEnabled,
                 .CamposIdentidad = fields,
                 .TipologiasSecundarias = secondaryTypes
