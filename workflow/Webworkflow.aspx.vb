@@ -305,7 +305,7 @@ Public Class Webworkflow
         If Page.Header.FindControl("importarServicioWebModernStyle") Is Nothing Then
             Dim style As New Global.System.Web.UI.HtmlControls.HtmlLink()
             style.ID = "importarServicioWebModernStyle"
-            style.Href = "../Styles/importar-servicio-web-modern.css?v=20260922-doc74preview2"
+            style.Href = "../Styles/importar-servicio-web-modern.css?v=20260922-doc76progress1"
             style.Attributes("rel") = "stylesheet"
             style.Attributes("type") = "text/css"
             Page.Header.Controls.Add(style)
@@ -322,7 +322,9 @@ Public Class Webworkflow
         RegisterImportarServicioWebScript("importarServicioWebRequirementsScript", "../js/workflow/importar-servicio-web/importar-servicio-web-requirements.js?v=20260922-doc75prep1")
         RegisterImportarServicioWebScript("importarServicioWebPreparationScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preparation.js?v=20260922-doc75prep1")
         RegisterImportarServicioWebScript("importarServicioWebIntentClientScript", "../js/workflow/importar-servicio-web/importar-servicio-web-intent-client.js?v=20260922-doc75prep1")
-        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260922-doc75prep1")
+        RegisterImportarServicioWebScript("importarServicioWebProgressAdapterScript", "../js/workflow/importar-servicio-web/importar-servicio-web-progress-adapter.js?v=20260922-doc76progress1")
+        RegisterImportarServicioWebScript("importarServicioWebProgressViewScript", "../js/workflow/importar-servicio-web/importar-servicio-web-progress-view.js?v=20260922-doc76progress1")
+        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260922-doc76progress1")
     End Sub
 
     Private Sub RegisterImportarServicioWebScript(ByVal controlId As String, ByVal source As String)
