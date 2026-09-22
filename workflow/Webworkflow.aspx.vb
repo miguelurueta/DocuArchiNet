@@ -319,7 +319,10 @@ Public Class Webworkflow
         RegisterImportarServicioWebScript("importarServicioWebSiiAdapterScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-adapter.js?v=20260921-doc73sii1")
         RegisterImportarServicioWebScript("importarServicioWebPreviewStateScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preview-state.js?v=20260922-doc74preview1")
         RegisterImportarServicioWebScript("importarServicioWebPreviewScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preview.js?v=20260922-doc74preview1")
-        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260922-doc74preview2")
+        RegisterImportarServicioWebScript("importarServicioWebRequirementsScript", "../js/workflow/importar-servicio-web/importar-servicio-web-requirements.js?v=20260922-doc75prep1")
+        RegisterImportarServicioWebScript("importarServicioWebPreparationScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preparation.js?v=20260922-doc75prep1")
+        RegisterImportarServicioWebScript("importarServicioWebIntentClientScript", "../js/workflow/importar-servicio-web/importar-servicio-web-intent-client.js?v=20260922-doc75prep1")
+        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260922-doc75prep1")
     End Sub
 
     Private Sub RegisterImportarServicioWebScript(ByVal controlId As String, ByVal source As String)
@@ -337,7 +340,8 @@ Public Class Webworkflow
     Private Sub RegisterImportarServicioWebModernBootstrap()
         Dim taskInputId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_selecionada.ClientID)
         Dim providerId As String = System.Web.HttpUtility.JavaScriptStringEncode(ReadConfigurationValue(ImportarServicioWebProviderIdKey, String.Empty))
-        Dim startupScript As String = "(function(){var trigger=document.getElementById('ctw-document-action-service');if(!trigger){return;}trigger.setAttribute('data-import-modern-active','true');trigger.setAttribute('data-import-task-input-id','" & taskInputId & "');trigger.setAttribute('data-import-provider-id','" & providerId & "');if(window.ImportarServicioWebUi&&typeof window.ImportarServicioWebUi.initialize==='function'){window.ImportarServicioWebUi.initialize();}}());"
+        Dim radicadoInputId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_radicado.ClientID)
+        Dim startupScript As String = "(function(){var trigger=document.getElementById('ctw-document-action-service');if(!trigger){return;}trigger.setAttribute('data-import-modern-active','true');trigger.setAttribute('data-import-task-input-id','" & taskInputId & "');trigger.setAttribute('data-import-radicado-input-id','" & radicadoInputId & "');trigger.setAttribute('data-import-provider-id','" & providerId & "');if(window.ImportarServicioWebUi&&typeof window.ImportarServicioWebUi.initialize==='function'){window.ImportarServicioWebUi.initialize();}}());"
 
         ScriptManager.RegisterStartupScript(Me, Me.GetType(), "importarServicioWebModernBootstrap", startupScript, True)
     End Sub

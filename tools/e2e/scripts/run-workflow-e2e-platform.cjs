@@ -175,24 +175,19 @@ async function selectWorkflowTask(page, plan) {
         await page.locator('button[title="consultar lista"]:visible').click();
       }
       await selectCommand.waitFor({ state: 'visible', timeout: Math.min(plan.profile.budgetMs, 30000) });
-      await page.evaluate(() => {
-        window.__docE2eTaskSelectionPostbackCompleted = false;
-        const manager = window.Sys?.WebForms?.PageRequestManager?.getInstance?.();
-        if (manager) {
-          const completed = () => {
-            window.__docE2eTaskSelectionPostbackCompleted = true;
-            manager.remove_endRequest(completed);
-          };
-          manager.add_endRequest(completed);
-        }
-      });
-      await selectCommand.click();
+      await page.evaluate((expected) => {
+        const candidate = document.querySelector(`[tip_event="seleccion_tarea_wf"][idd="${expected}"]`);
+        const stagedTask = document.querySelector('#Hidden_id_tarea_sel');
+        const officialSelector = document.querySelector('#ButtonSeleccionGrupo');
+        if (!candidate || !stagedTask || !officialSelector) throw new Error('E2E_PLATFORM_TASK_SELECTION_CONTROLS_UNAVAILABLE');
+        stagedTask.value = expected;
+        officialSelector.click();
+      }, expectedTaskId).catch(() => fail('E2E_PLATFORM_TASK_SELECTION_CONTROLS_UNAVAILABLE'));
       await page.waitForFunction(
-        ([selector, expected]) => document.querySelector(selector)?.value === expected
-          || window.__docE2eTaskSelectionPostbackCompleted === true,
+        ([selector, expected]) => document.querySelector(selector)?.value === expected,
         ['#Hidden_id_tarea_selecionada', expectedTaskId],
         { timeout: Math.min(plan.profile.budgetMs, 30000) }
-      );
+      ).catch(() => fail('E2E_PLATFORM_TASK_SELECTION_REJECTED'));
       if (await selectedTask.inputValue() !== expectedTaskId) {
         fail('E2E_PLATFORM_TASK_SELECTION_REJECTED');
       }
@@ -213,12 +208,16 @@ async function initializeWorkflowContext(context, plan) {
 async function inspectImportPreviewUi({ context, plan }) {
   const page = await context.newPage();
   let previewRequests = 0;
+  let preflightRequests = 0;
+  let mutationRequests = 0;
   let queryRequestsObserved = 0;
   let queryContextInjected = 0;
   let queryContextMismatch = false;
   const queryRoute = /\/webservice\/WebServiceImportarServicioWebModern\.asmx\/QueryItems(?:\?|$)/i;
   const onRequest = (request) => {
     if (/WebServiceImportarServicioWebModern\.asmx\/GetPreview(?:\?|$)/i.test(request.url())) previewRequests += 1;
+    if (/WebServiceImportarServicioWebModern\.asmx\/PreflightImport(?:\?|$)/i.test(request.url())) preflightRequests += 1;
+    if (/WebServiceImportarServicioWebModern\.asmx\/(?:CreateImportIntent|ExecuteImportIntent)(?:\?|$)/i.test(request.url())) mutationRequests += 1;
   };
   page.on('request', onRequest);
   try {
@@ -267,6 +266,71 @@ async function inspectImportPreviewUi({ context, plan }) {
         .then((value) => String(value || '').match(/\b[A-Z][A-Z0-9_]{2,50}\b/)?.[0] || 'RESULTS_EMPTY');
       fail(`IMPORT_E2E_PREVIEW_UI_${publicCode}`);
     }
+    await page.setViewportSize({ width: 760, height: 900 });
+    const tableScroll = page.locator('.importar-servicio-web-sii__table-scroll');
+    await tableScroll.waitFor({ state: 'visible', timeout });
+    const responsive = await tableScroll.evaluate((element) => {
+      const region = element.getBoundingClientRect();
+      const dialog = element.closest('[role="dialog"]')?.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return {
+        role: element.getAttribute('role'), tabIndex: element.tabIndex,
+        overflowX: style.overflowX, overflowY: style.overflowY,
+        insideDialog: Boolean(dialog) && region.left >= dialog.left - 1 && region.right <= dialog.right + 1,
+        insideViewport: region.left >= -1 && region.right <= window.innerWidth + 1 && region.bottom <= window.innerHeight + 1
+      };
+    });
+    if (responsive.role !== 'region' || responsive.tabIndex !== 0 || responsive.overflowX !== 'auto' ||
+        responsive.overflowY !== 'auto' || !responsive.insideDialog || !responsive.insideViewport) {
+      fail('IMPORT_E2E_PREPARATION_UI_RESPONSIVE_INVALID');
+    }
+
+    const preparationRows = page.locator('[data-import-prepare="true"]:visible');
+    const importablePreparationRows = page.locator('[data-import-prepare="true"]:visible:not([disabled])');
+    if (await preparationRows.count() === 0) fail('IMPORT_E2E_PREPARATION_UI_ACTIONS_UNAVAILABLE');
+    if (await importablePreparationRows.count() === 0) fail('IMPORT_E2E_PREPARATION_UI_NO_IMPORTABLE_ITEMS');
+    const prepareButton = importablePreparationRows.first();
+    await prepareButton.click();
+    const preparation = page.locator('#importar-servicio-web-preparation');
+    await preparation.waitFor({ state: 'visible', timeout });
+    const preparationTitle = page.locator('#importar-servicio-web-preparation-title');
+    if (await preparationTitle.evaluate((element) => document.activeElement === element) !== true) {
+      fail('IMPORT_E2E_PREPARATION_UI_FOCUS_INVALID');
+    }
+    const preparationConfirm = page.locator('#importar-servicio-web-preparation-confirm');
+    if (!await preparationConfirm.isDisabled()) fail('IMPORT_E2E_PREPARATION_UI_PREMATURE_CONFIRM');
+    const documentType = page.locator('[data-import-document-type]').first();
+    const options = await documentType.locator('option').count();
+    if (options < 2) fail('IMPORT_E2E_PREPARATION_UI_CATALOG_UNAVAILABLE');
+    await documentType.selectOption({ index: 1 });
+    await preparationConfirm.waitFor({ state: 'visible', timeout });
+    await page.waitForFunction(() => {
+      const confirm = document.querySelector('#importar-servicio-web-preparation-confirm');
+      return confirm && confirm.disabled === false;
+    }, null, { timeout }).catch(() => fail('IMPORT_E2E_PREPARATION_UI_PLAN_UNAVAILABLE'));
+    if (preflightRequests !== 1 || mutationRequests !== 0) fail('IMPORT_E2E_PREPARATION_UI_REQUESTS_INVALID');
+    await page.locator('#importar-servicio-web-preparation-cancel').click();
+    if (await preparation.isVisible() || await prepareButton.evaluate((element) => document.activeElement === element) !== true) {
+      fail('IMPORT_E2E_PREPARATION_UI_CONTEXT_NOT_RESTORED');
+    }
+
+    let multiplePreparation = 'INSUFFICIENT_ITEMS';
+    const selectable = page.locator('[data-import-select="true"]:visible:not([disabled])');
+    const selectableCount = await selectable.count();
+    if (plan.profile.sampleSize >= 2 && selectableCount < 2) fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_ITEMS_UNAVAILABLE');
+    if (selectableCount >= 2) {
+      await selectable.nth(0).check();
+      await selectable.nth(1).check();
+      const prepareSelected = page.locator('[data-import-prepare-selected="true"]:visible:not([disabled])');
+      await prepareSelected.click();
+      await preparation.waitFor({ state: 'visible', timeout });
+      if (await page.locator('[data-import-document-type]').count() !== 2) fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_INVALID');
+      await page.locator('#importar-servicio-web-preparation-cancel').click();
+      if (await prepareSelected.evaluate((element) => document.activeElement === element) !== true) {
+        fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_CONTEXT_NOT_RESTORED');
+      }
+      multiplePreparation = 'CONFIRMED';
+    }
     const previewButton = page.locator('[data-import-preview="true"]:visible').first();
     await previewButton.waitFor({ state: 'visible', timeout });
     await previewButton.click();
@@ -276,7 +340,6 @@ async function inspectImportPreviewUi({ context, plan }) {
     if (await page.locator('#importar-servicio-web-preview-title').evaluate((element) => document.activeElement === element) !== true) {
       fail('IMPORT_E2E_PREVIEW_UI_FOCUS_INVALID');
     }
-    await page.setViewportSize({ width: 760, height: 900 });
     await page.evaluate(() => window.dispatchEvent(new Event('focus')));
     await page.waitForTimeout(100);
     if (previewRequests !== 1) fail('IMPORT_E2E_PREVIEW_UI_DUPLICATE_REQUEST');
@@ -292,8 +355,11 @@ async function inspectImportPreviewUi({ context, plan }) {
     if (!focusRestored || await modal.isVisible()) {
       fail('IMPORT_E2E_PREVIEW_UI_CLOSE_INVALID');
     }
+    if (mutationRequests !== 0) fail('IMPORT_E2E_PREPARATION_UI_MUTATION_OBSERVED');
     return Object.freeze({
-      codes: Object.freeze({ uiPreview: 'CONFIRMED', uiFocus: 'CONFIRMED', uiSingleFetch: 'CONFIRMED' }),
+      codes: Object.freeze({ uiPreview: 'CONFIRMED', uiFocus: 'CONFIRMED', uiSingleFetch: 'CONFIRMED',
+        uiResponsiveTable: 'CONFIRMED', uiIndividualPreparation: 'CONFIRMED', uiMultiplePreparation: multiplePreparation,
+        uiPreparationMutation: 'NOT_OBSERVED' }),
       count: 1,
       latenciesMs: Object.freeze([])
     });
@@ -375,7 +441,7 @@ async function main() {
   try {
     restoreGate = await enableTemporaryGate(plan);
     await waitForApplicationReload(plan);
-    await executePlatformRun({
+    const outcome = await executePlatformRun({
     profile,
     authorizations,
     temporaryDirectory,
@@ -403,6 +469,7 @@ async function main() {
         await assertPlatformIntegrity(options);
       }
     });
+    console.log(`La plataforma E2E terminó correctamente (${plan.scenario.id}); controles=${outcome.controls.checked}; sinCambios=${outcome.controls.unchanged === true ? 'SI' : 'NO'}. Evidencia saneada disponible.`);
   } finally {
     await restoreGate();
   }
