@@ -1,0 +1,54 @@
+{
+  "version": 3,
+  "issueKey": "DOC-76",
+  "changeName": "doc-76-progreso-integracion-sii",
+  "impact": "cross_cutting",
+  "requiredEvidence": ["unit", "manual_qa"],
+  "documentation": [
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-76-progreso-resultados-parciales/00-Indice.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-76-progreso-resultados-parciales/01-Arquitectura.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-76-progreso-resultados-parciales/02-ContratoYEstados.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-76-progreso-resultados-parciales/03-CompatibilidadYOperacion.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-76-progreso-resultados-parciales/04-PruebasEvidencia.md"
+  ],
+  "documentationContract": [
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-76-progreso-resultados-parciales/00-Indice.md",
+      "requiredSections": [], "minimumContentLength": 180,
+      "identity": { "issueKey": "DOC-76", "changeName": "doc-76-progreso-integracion-sii", "impact": "cross_cutting" },
+      "closureRestrictions": ["tbd", "template_comment", "open_checklist", "template_instruction"]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-76-progreso-resultados-parciales/01-Arquitectura.md",
+      "requiredSections": ["## Propiedad de ejecución", "## Flujo"], "minimumContentLength": 180,
+      "identity": { "issueKey": "DOC-76", "changeName": "doc-76-progreso-integracion-sii", "impact": "cross_cutting" },
+      "closureRestrictions": ["tbd", "template_comment", "open_checklist", "template_instruction"]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-76-progreso-resultados-parciales/02-ContratoYEstados.md",
+      "requiredSections": ["## Solicitud y respuesta", "## Mapeo normativo"], "minimumContentLength": 180,
+      "identity": { "issueKey": "DOC-76", "changeName": "doc-76-progreso-integracion-sii", "impact": "cross_cutting" },
+      "closureRestrictions": ["tbd", "template_comment", "open_checklist", "template_instruction"]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-76-progreso-resultados-parciales/03-CompatibilidadYOperacion.md",
+      "requiredSections": [], "minimumContentLength": 180,
+      "identity": { "issueKey": "DOC-76", "changeName": "doc-76-progreso-integracion-sii", "impact": "cross_cutting" },
+      "closureRestrictions": ["tbd", "template_comment", "open_checklist", "template_instruction"]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-76-progreso-resultados-parciales/04-PruebasEvidencia.md",
+      "requiredSections": ["## Resultado local 2026-09-22"], "minimumContentLength": 180,
+      "identity": { "issueKey": "DOC-76", "changeName": "doc-76-progreso-integracion-sii", "impact": "cross_cutting" },
+      "closureRestrictions": ["tbd", "template_comment", "open_checklist", "template_instruction"]
+    }
+  ],
+  "refinement": {
+    "version": 1,
+    "required": true,
+    "path": "openspec/changes/doc-76-progreso-integracion-sii/refinement.md",
+    "state": "approved",
+    "taskOriginFormat": "Origen: D-XX, RQ-XX",
+    "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  }
+}

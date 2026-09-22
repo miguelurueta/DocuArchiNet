@@ -34,7 +34,7 @@ Tests/
 ## Ruta documental obligatoria
 
 ```txt
-docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-nucleo-registro-adaptadores/
+Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-nucleo-registro-adaptadores/
 ```
 
 Sustituir `SCRUMCORE-000` por el ticket real y crear `00-Indice.md` a `07-Metadata.md` y `Diagramas/` según el paquete canónico de `opsxj`.

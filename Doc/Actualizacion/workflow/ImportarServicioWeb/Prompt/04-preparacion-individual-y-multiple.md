@@ -30,7 +30,7 @@ Tests/
 ## Ruta documental obligatoria
 
 ```txt
-docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-preparacion-individual-multiple/
+Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-preparacion-individual-multiple/
 ```
 
 Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diagramas/` exclusivamente allí.

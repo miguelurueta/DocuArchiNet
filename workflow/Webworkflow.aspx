@@ -4565,6 +4565,13 @@
                             <button id="importar-servicio-web-preparation-confirm" type="button" disabled="disabled">Crear intención</button>
                         </div>
                     </section>
+                    <section id="importar-servicio-web-progress" class="importar-servicio-web__progress" aria-labelledby="importar-servicio-web-progress-title" hidden="hidden" data-progress-state="idle">
+                        <h3 id="importar-servicio-web-progress-title" tabindex="-1">Resultado de la importación</h3>
+                        <div id="importar-servicio-web-progress-status" class="importar-servicio-web__progress-status" role="status" aria-live="polite"></div>
+                        <div class="importar-servicio-web__progress-indicator" aria-hidden="true"></div>
+                        <p id="importar-servicio-web-progress-summary" class="importar-servicio-web__progress-summary"></p>
+                        <ul id="importar-servicio-web-progress-results" class="importar-servicio-web__progress-results" aria-label="Resultados por documento"></ul>
+                    </section>
                 </div>
             </section>
         </div>

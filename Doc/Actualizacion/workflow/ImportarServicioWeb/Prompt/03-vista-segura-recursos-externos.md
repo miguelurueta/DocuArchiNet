@@ -99,7 +99,7 @@ Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos 
 ## Ruta documental obligatoria
 
 ```txt
-docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-vista-segura-recursos-externos/
+Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-vista-segura-recursos-externos/
 ```
 
 Sustituir `SCRUMCORE-000` por el ticket real. No crear documentación en otra ruta ni duplicarla bajo `Doc/Actualizacion`.

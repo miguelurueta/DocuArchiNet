@@ -126,6 +126,12 @@
         if (control.preparationContext) { control.body.scrollTop = control.preparationContext.scrollTop; control.body.scrollLeft = control.preparationContext.scrollLeft; if (control.preparationContext.focus && typeof control.preparationContext.focus.focus === "function") { control.preparationContext.focus.focus(); } }
     }
 
+    function executeCreatedIntent(control, intent) {
+        var request = Object.assign(requestContext(control), { IntentId: intent.IntentId, VersionToken: intent.VersionToken });
+        control.preparationPanel.hidden = true; control.listPanel.hidden = true; control.progressView.renderPending(); control.progressTitle.focus();
+        return control.progressAdapter.execute(request).then(function (snapshot) { control.progressView.renderResult(snapshot); return snapshot; }).catch(function (error) { control.progressView.renderFailure(); throw error; });
+    }
+
     function prepareCurrent(control) {
         control.preparationStatus.textContent = "Validando requisitos y plan previsto…"; control.preparationConfirm.disabled = true;
         control.intentClient.preflight(requestContext(control), control.preparationModel.items).then(function (response) { control.preparationResponse = response; renderPreparationPlan(control, response); control.preparationStatus.textContent = "Plan previsto confirmado. No se ha ejecutado ningún efecto."; control.preparationConfirm.disabled = false; }).catch(function () { control.preparationStatus.textContent = "No fue posible confirmar el plan de importación."; control.preparationConfirm.disabled = true; });
@@ -242,6 +248,8 @@
 
     function open(control, event) {
         if (event) { event.preventDefault(); event.stopPropagation(); }
+        if (control.progressView) { control.progressView.hide(); }
+        control.listPanel.hidden = false;
         control.modal.hidden = false;
         control.modal.removeAttribute("hidden");
         control.modal.setAttribute("aria-hidden", "false");
@@ -259,11 +267,11 @@
         var apiFactory = options.api || window.ImportarServicioWebApi;
         var registryFactory = options.registry || window.ImportarServicioWebProviderRegistry;
         var coreFactory = options.core || window.ImportarServicioWebCore;
-        var control, registry, api, siiFactory;
+        var control, registry, api, siiFactory, progressAdapterFactory, progressViewFactory;
 
         if (!trigger || trigger.getAttribute("data-import-modern-active") !== "true" || trigger.getAttribute("data-import-modern-bound") === "true") { return null; }
         if (!modal || !apiFactory || !registryFactory || !coreFactory) { return null; }
-        control = { trigger: trigger, modal: modal, dialog: document.getElementById("importar-servicio-web-dialog"), closeButton: document.getElementById("importar-servicio-web-close"), body: document.getElementById("importar-servicio-web-body"), listPanel: document.getElementById("importar-servicio-web-list"), status: document.getElementById("importar-servicio-web-status"), results: document.getElementById("importar-servicio-web-results"), previewPanel: document.getElementById("importar-servicio-web-preview"), previewTitle: document.getElementById("importar-servicio-web-preview-title"), previewStatus: document.getElementById("importar-servicio-web-preview-status"), previewFrame: document.getElementById("importar-servicio-web-preview-frame"), previewBack: document.getElementById("importar-servicio-web-preview-back"), previewRenew: document.getElementById("importar-servicio-web-preview-renew"), previewDownload: document.getElementById("importar-servicio-web-preview-download"), previewImported: document.getElementById("importar-servicio-web-preview-imported"), preparationPanel: document.getElementById("importar-servicio-web-preparation"), preparationTitle: document.getElementById("importar-servicio-web-preparation-title"), preparationStatus: document.getElementById("importar-servicio-web-preparation-status"), preparationItems: document.getElementById("importar-servicio-web-preparation-items"), preparationPlan: document.getElementById("importar-servicio-web-preparation-plan"), preparationClose: document.getElementById("importar-servicio-web-preparation-close"), preparationCancel: document.getElementById("importar-servicio-web-preparation-cancel"), preparationConfirm: document.getElementById("importar-servicio-web-preparation-confirm"), providerId: text(trigger.getAttribute("data-import-provider-id")), viewImported: options.viewImported };
+        control = { trigger: trigger, modal: modal, dialog: document.getElementById("importar-servicio-web-dialog"), closeButton: document.getElementById("importar-servicio-web-close"), body: document.getElementById("importar-servicio-web-body"), listPanel: document.getElementById("importar-servicio-web-list"), status: document.getElementById("importar-servicio-web-status"), results: document.getElementById("importar-servicio-web-results"), previewPanel: document.getElementById("importar-servicio-web-preview"), previewTitle: document.getElementById("importar-servicio-web-preview-title"), previewStatus: document.getElementById("importar-servicio-web-preview-status"), previewFrame: document.getElementById("importar-servicio-web-preview-frame"), previewBack: document.getElementById("importar-servicio-web-preview-back"), previewRenew: document.getElementById("importar-servicio-web-preview-renew"), previewDownload: document.getElementById("importar-servicio-web-preview-download"), previewImported: document.getElementById("importar-servicio-web-preview-imported"), preparationPanel: document.getElementById("importar-servicio-web-preparation"), preparationTitle: document.getElementById("importar-servicio-web-preparation-title"), preparationStatus: document.getElementById("importar-servicio-web-preparation-status"), preparationItems: document.getElementById("importar-servicio-web-preparation-items"), preparationPlan: document.getElementById("importar-servicio-web-preparation-plan"), preparationClose: document.getElementById("importar-servicio-web-preparation-close"), preparationCancel: document.getElementById("importar-servicio-web-preparation-cancel"), preparationConfirm: document.getElementById("importar-servicio-web-preparation-confirm"), progressPanel: document.getElementById("importar-servicio-web-progress"), progressTitle: document.getElementById("importar-servicio-web-progress-title"), progressStatus: document.getElementById("importar-servicio-web-progress-status"), progressSummary: document.getElementById("importar-servicio-web-progress-summary"), progressResults: document.getElementById("importar-servicio-web-progress-results"), providerId: text(trigger.getAttribute("data-import-provider-id")), viewImported: options.viewImported };
         if (!control.dialog || !control.closeButton || !control.body || !control.listPanel || !control.status || !control.results || !control.previewPanel || !control.previewTitle || !control.previewStatus || !control.previewFrame || !control.previewBack || !control.previewRenew || !control.previewDownload || !control.previewImported) { return null; }
         api = apiFactory.create(options.apiOptions || {});
         registry = registryFactory.create({ knownNotMigrated: options.knownNotMigrated || [] });
@@ -275,8 +283,12 @@
         control.importedViewer = options.importedViewer || createImportedViewerAdapter(control);
         control.preview = (options.preview || window.ImportarServicioWebPreview).create({ api: api, state: options.previewState || window.ImportarServicioWebPreviewState });
         control.preparation = options.preparation || window.ImportarServicioWebPreparation;
-        if (!control.preparation || !window.ImportarServicioWebIntentClient || !control.preparationPanel || !control.preparationTitle || !control.preparationStatus || !control.preparationItems || !control.preparationPlan || !control.preparationClose || !control.preparationCancel || !control.preparationConfirm) { return null; }
+        progressAdapterFactory = options.progressAdapter || window.ImportarServicioWebProgressAdapter;
+        progressViewFactory = options.progressView || window.ImportarServicioWebProgressView;
+        if (!control.preparation || !window.ImportarServicioWebIntentClient || !progressAdapterFactory || !progressViewFactory || !control.preparationPanel || !control.preparationTitle || !control.preparationStatus || !control.preparationItems || !control.preparationPlan || !control.preparationClose || !control.preparationCancel || !control.preparationConfirm || !control.progressPanel || !control.progressTitle || !control.progressStatus || !control.progressSummary || !control.progressResults) { return null; }
         control.intentClient = (options.intentClient || window.ImportarServicioWebIntentClient).create({ api: api });
+        control.progressAdapter = progressAdapterFactory.create({ api: api });
+        control.progressView = progressViewFactory.create({ panel: control.progressPanel, status: control.progressStatus, summary: control.progressSummary, results: control.progressResults });
         control.preview.subscribe(function (snapshot) { renderPreview(control, snapshot); });
         control.core.subscribe(function (snapshot) { render(control, snapshot); });
         trigger.setAttribute("data-import-modern-bound", "true");
@@ -290,7 +302,7 @@
         control.preparationItems.addEventListener("change", function (event) { var target = event.target, entry; if (!target || !target.getAttribute("data-import-document-type")) { return; } entry = control.preparationCatalog.filter(function (candidate) { return Number(candidate.Id || candidate.DocumentTypeId) === Number(target.value); })[0]; control.preparationModel.items = control.preparation.assignDocumentType(control.preparationModel.items, target.getAttribute("data-import-document-type"), entry, control.preparationCatalog); control.preparationConfirm.disabled = true; clear(control.preparationPlan); if (window.ImportarServicioWebRequirements.complete(control.preparationModel.items)) { prepareCurrent(control); } });
         control.preparationClose.addEventListener("click", function () { closePreparation(control); });
         control.preparationCancel.addEventListener("click", function () { closePreparation(control); });
-        control.preparationConfirm.addEventListener("click", function () { control.preparationConfirm.disabled = true; control.preparationStatus.textContent = "Creando intención…"; control.intentClient.confirm({ IdempotencyKey: "ui-" + String(new Date().getTime()), Radicado: radicado(control) }).then(function (response) { control.preparationStatus.textContent = "Intención creada: " + text(response.Status, "Creada") + ". Aún no se ha ejecutado."; }).catch(function (error) { control.preparationStatus.textContent = error && error.message === "PREFLIGHT_STALE" ? "El plan cambió; prepare nuevamente." : "No fue posible crear la intención."; }); });
+        control.preparationConfirm.addEventListener("click", function () { control.preparationConfirm.disabled = true; control.preparationStatus.textContent = "Creando intención…"; control.intentClient.confirm({ IdempotencyKey: "ui-" + String(new Date().getTime()), Radicado: radicado(control) }).then(function (response) { return executeCreatedIntent(control, response); }).catch(function (error) { if (!control.preparationPanel.hidden) { control.preparationStatus.textContent = error && error.message === "PREFLIGHT_STALE" ? "El plan cambió; prepare nuevamente." : "No fue posible crear la intención."; } }); });
         control.previewBack.addEventListener("click", function () { control.preview.close(); restoreListContext(control); });
         control.previewRenew.addEventListener("click", function () { control.preview.renew(control.previewItem, requestContext(control)); });
         control.previewImported.addEventListener("click", function () { viewImported(control); });
@@ -298,7 +310,7 @@
         return control;
     }
 
-    var ui = { initialize: initialize, open: open, close: close, onKeydown: onKeydown, createBackendAdapter: createBackendAdapter, createImportedViewerAdapter: createImportedViewerAdapter, openPreview: openPreview, openPreparation: openPreparation, closePreparation: closePreparation, restoreListContext: restoreListContext, restoreTriggerFocus: restoreTriggerFocus, getActiveControl: function () { return activeControl; } };
+    var ui = { initialize: initialize, open: open, close: close, onKeydown: onKeydown, createBackendAdapter: createBackendAdapter, createImportedViewerAdapter: createImportedViewerAdapter, openPreview: openPreview, openPreparation: openPreparation, closePreparation: closePreparation, executeCreatedIntent: executeCreatedIntent, restoreListContext: restoreListContext, restoreTriggerFocus: restoreTriggerFocus, getActiveControl: function () { return activeControl; } };
     window.ImportarServicioWebUi = ui;
     if (typeof module !== "undefined" && module.exports) { module.exports = ui; }
     if (window.Sys && window.Sys.Application && typeof window.Sys.Application.add_load === "function") { window.Sys.Application.add_load(initialize); }

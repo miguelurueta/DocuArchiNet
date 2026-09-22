@@ -29,7 +29,7 @@ Tests/
 ## Ruta documental obligatoria
 
 ```txt
-docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-reconciliacion-lista-documentos/
+Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-reconciliacion-lista-documentos/
 ```
 
 Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diagramas/` exclusivamente allí.
