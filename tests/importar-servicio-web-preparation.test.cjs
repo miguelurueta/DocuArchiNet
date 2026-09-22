@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const preparation = require('../js/workflow/importar-servicio-web/importar-servicio-web-preparation.js');
 const requirements = require('../js/workflow/importar-servicio-web/importar-servicio-web-requirements.js');
+const fs = require('node:fs');
 
 test('individual usa una colección de exactamente una fila y múltiple conserva selección', () => {
   const a={externalKey:'a'}, b={externalKey:'b'};
@@ -22,4 +23,21 @@ test('estado habilita confirmar solo con datos completos y preflight ejecutable'
   model=requirements.transition(model,'prepared',{Executable:true,ContextFingerprint:'fp',Requirements:[],EffectPlans:[]});
   assert.equal(requirements.canConfirm(model),true);
   assert.equal(requirements.transition(model,'stale').state,'edicion');
+});
+
+test('UI integra preparación explícita, plan previsto y restauración de foco', () => {
+  const ui=fs.readFileSync('js/workflow/importar-servicio-web/importar-servicio-web-ui.js','utf8');
+  const markup=fs.readFileSync('workflow/Webworkflow.aspx','utf8');
+  assert.match(ui,/data-import-prepare-selected/);
+  assert.match(ui,/intentClient\.preflight/);
+  assert.match(ui,/Efectos previstos/);
+  assert.match(ui,/preparationContext\.focus\.focus/);
+  assert.match(markup,/importar-servicio-web-preparation-confirm/);
+  assert.match(markup,/Crear intención/);
+});
+
+test('frontend no crea transporte, no ejecuta intención ni toca persistencia legacy', () => {
+  const files=['js/workflow/importar-servicio-web/importar-servicio-web-preparation.js','js/workflow/importar-servicio-web/importar-servicio-web-requirements.js','js/workflow/importar-servicio-web/importar-servicio-web-intent-client.js'];
+  const source=files.map(file=>fs.readFileSync(file,'utf8')).join('\n');
+  assert.doesNotMatch(source,/fetch\s*\(|XMLHttpRequest|executeImportIntent|AlmacenaDocumentoTareaWorkflow|ClassAlmacenamiento|JSExpediente|JSProgresBar|ExpedientId/);
 });

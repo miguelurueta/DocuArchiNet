@@ -340,7 +340,8 @@ Public Class Webworkflow
     Private Sub RegisterImportarServicioWebModernBootstrap()
         Dim taskInputId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_selecionada.ClientID)
         Dim providerId As String = System.Web.HttpUtility.JavaScriptStringEncode(ReadConfigurationValue(ImportarServicioWebProviderIdKey, String.Empty))
-        Dim startupScript As String = "(function(){var trigger=document.getElementById('ctw-document-action-service');if(!trigger){return;}trigger.setAttribute('data-import-modern-active','true');trigger.setAttribute('data-import-task-input-id','" & taskInputId & "');trigger.setAttribute('data-import-provider-id','" & providerId & "');if(window.ImportarServicioWebUi&&typeof window.ImportarServicioWebUi.initialize==='function'){window.ImportarServicioWebUi.initialize();}}());"
+        Dim radicadoInputId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_radicado.ClientID)
+        Dim startupScript As String = "(function(){var trigger=document.getElementById('ctw-document-action-service');if(!trigger){return;}trigger.setAttribute('data-import-modern-active','true');trigger.setAttribute('data-import-task-input-id','" & taskInputId & "');trigger.setAttribute('data-import-radicado-input-id','" & radicadoInputId & "');trigger.setAttribute('data-import-provider-id','" & providerId & "');if(window.ImportarServicioWebUi&&typeof window.ImportarServicioWebUi.initialize==='function'){window.ImportarServicioWebUi.initialize();}}());"
 
         ScriptManager.RegisterStartupScript(Me, Me.GetType(), "importarServicioWebModernBootstrap", startupScript, True)
     End Sub
