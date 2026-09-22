@@ -1,8 +1,12 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
-## ADDED Requirements
+# progreso-integracion-sii Specification
+
+## Purpose
+
+Presentar una espera global accesible y resultados autoritativos por elemento durante la ejecución moderna de importaciones SII, sin duplicar la ejecución backend ni afectar el recorrido legacy.
+
+## Requirements
 
 ### Requirement: RQ-01 Ejecución única de la intención
-Origen: D-01, RQ-01.
 El sistema SHALL ejecutar una intención moderna completa mediante exactamente una llamada síncrona a `ExecuteImportIntent`.
 
 #### Scenario: Intención individual
@@ -14,7 +18,6 @@ El sistema SHALL ejecutar una intención moderna completa mediante exactamente u
 - **THEN** el frontend realiza una sola llamada y no fragmenta ni consulta SII por elemento
 
 ### Requirement: RQ-02 Mapeo autoritativo por elemento
-Origen: D-02, RQ-02.
 El sistema SHALL adaptar cada elemento de `response.Items` usando las fases y estados visibles del contrato compartido.
 
 #### Scenario: Resultado importado confirmado
@@ -26,7 +29,6 @@ El sistema SHALL adaptar cada elemento de `response.Items` usando las fases y es
 - **THEN** se presenta con estado seguro y nunca como Importada por optimismo
 
 ### Requirement: RQ-03 Espera indeterminada y resumen fiel
-Origen: D-03, RQ-03.
 El sistema SHALL presentar espera global accesible mientras la ejecución está pendiente y resultados independientes al finalizar.
 
 #### Scenario: Solicitud pendiente
@@ -38,7 +40,6 @@ El sistema SHALL presentar espera global accesible mientras la ejecución está 
 - **THEN** muestra todos los resultados, cuenta importadas, omitidas, fallidas y no procesadas, y no anuncia éxito total
 
 ### Requirement: RQ-04 Recuperación sin polling
-Origen: D-04, RQ-04.
 El sistema SHALL reservar `GetImportIntent` para recuperación explícita y autorizada.
 
 #### Scenario: Flujo síncrono normal
@@ -50,7 +51,6 @@ El sistema SHALL reservar `GetImportIntent` para recuperación explícita y auto
 - **THEN** permite una única consulta explícita del snapshot sin mutaciones
 
 ### Requirement: RQ-05 Cierre sin cancelación ni reintento
-Origen: D-05, RQ-05.
 El sistema SHALL separar el cierre visual del ciclo de vida de la ejecución.
 
 #### Scenario: Cierre durante ejecución
@@ -62,7 +62,6 @@ El sistema SHALL separar el cierre visual del ciclo de vida de la ejecución.
 - **THEN** no ofrece “Reintentar fallidos”
 
 ### Requirement: RQ-06 Invariancia legacy
-Origen: D-06, RQ-06.
 El sistema SHALL mantener el feature moderno aislado de infraestructura y códigos legacy.
 
 #### Scenario: Dependencias modernas
