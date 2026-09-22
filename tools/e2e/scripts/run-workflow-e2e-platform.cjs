@@ -443,7 +443,7 @@ async function main() {
   try {
     restoreGate = await enableTemporaryGate(plan);
     await waitForApplicationReload(plan);
-    await executePlatformRun({
+    const outcome = await executePlatformRun({
     profile,
     authorizations,
     temporaryDirectory,
@@ -471,6 +471,7 @@ async function main() {
         await assertPlatformIntegrity(options);
       }
     });
+    console.log(`La plataforma E2E terminó correctamente (${plan.scenario.id}); controles=${outcome.controls.checked}; sinCambios=${outcome.controls.unchanged === true ? 'SI' : 'NO'}. Evidencia saneada disponible.`);
   } finally {
     await restoreGate();
   }

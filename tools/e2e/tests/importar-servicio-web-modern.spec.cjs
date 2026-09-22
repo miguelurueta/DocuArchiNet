@@ -459,6 +459,9 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(source, /IMPORT_E2E_PREPARATION_UI_MULTIPLE_ITEMS_UNAVAILABLE/);
   assert.match(source, /CreateImportIntent\|ExecuteImportIntent/);
   assert.match(source, /mutationRequests !== 0/);
+  assert.match(source, /La plataforma E2E terminó correctamente/);
+  assert.match(source, /controles=\$\{outcome\.controls\.checked\}/);
+  assert.match(source, /sinCambios=\$\{outcome\.controls\.unchanged/);
   assert.doesNotMatch(source, /uiSingleRequest/);
   assert.match(source, /uiSingleFetch: 'CONFIRMED'[\s\S]{0,500}latenciesMs: Object\.freeze\(\[\]\)/);
   assert.match(source, /page\.route\(queryRoute/);

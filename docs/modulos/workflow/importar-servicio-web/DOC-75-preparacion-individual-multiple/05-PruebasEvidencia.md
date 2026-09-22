@@ -33,7 +33,13 @@ node --test tools/e2e/tests/importar-servicio-web-modern.spec.cjs tools/e2e/test
 Resultado de política/plataforma: PASS, 27/27.
 ```
 
-La E2E autenticada real continúa pendiente: requiere autorización explícita para el ambiente y la cuenta, un perfil no sensible con `sampleSize >= 2`, controles de solo lectura y restauración del gate. La evidencia solo podrá marcar preparación múltiple como confirmada cuando existan dos filas importables en la respuesta real.
+## Corrida autenticada
+
+La corrida autorizada para la tarea `220585`, con perfil no sensible y `sampleSize: 2`, terminó correctamente. Los siete controles de estado/auditoría permanecieron sin cambios; quedaron confirmados preview seguro, foco, petición única, tabla responsive, preparación individual y ausencia de mutaciones. El gate terminó apagado, con usuarios, grupos y proveedor vacíos, y no hubo diferencias en las páginas legacy controladas.
+
+La preparación múltiple quedó registrada como `INSUFFICIENT_ITEMS`: SII entregó menos de dos filas importables para el código autorizado. Esto no invalida la corrida de lectura ni la cobertura individual, pero deja pendiente la evidencia E2E del recorrido múltiple hasta contar con un código de barras que devuelva al menos dos elementos importables.
+
+También se corrigió la salida silenciosa del runner: una corrida exitosa imprime ahora un resumen saneado con escenario, cantidad de controles y bandera de ausencia de cambios.
 
 ## Limitaciones
 
