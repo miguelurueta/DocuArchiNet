@@ -1,5 +1,9 @@
 # DOC-76 — Progreso y resultados parciales
 
+- Ticket: DOC-76
+- Cambio OpenSpec: doc-76-progreso-integracion-sii
+- Clasificacion: cross_cutting
+
 Paquete técnico canónico para la espera global y presentación de resultados por elemento de la importación SII.
 
 - [01-Arquitectura.md](01-Arquitectura.md): propiedad de ejecución y componentes.

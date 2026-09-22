@@ -1,5 +1,9 @@
 # Contrato y estados
 
+- Ticket: DOC-76
+- Cambio OpenSpec: doc-76-progreso-integracion-sii
+- Clasificacion: cross_cutting
+
 ## Solicitud y respuesta
 
 El adaptador recibe `IntentId` obligatorio, `VersionToken`, `TaskId`, `ProviderId`, `OperationId`, `CorrelationId` y `SchemaVersion`. Consume `IntentId`, `Status`, `VersionToken`, `Items[]` y `Error`. Por item conserva los campos contractuales de identidad, fase, documento, tarea, mensaje, error, persistencia y correlación.

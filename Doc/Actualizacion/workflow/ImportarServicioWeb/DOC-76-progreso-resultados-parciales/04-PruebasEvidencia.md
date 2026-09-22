@@ -1,5 +1,9 @@
 # Pruebas y evidencia
 
+- Ticket: DOC-76
+- Cambio OpenSpec: doc-76-progreso-integracion-sii
+- Clasificacion: cross_cutting
+
 - `importar-servicio-web-progress-adapter.test.cjs`: ejecución individual/múltiple, concurrencia y recuperación.
 - `importar-servicio-web-progress-state-mapping.test.cjs`: fases, conteos y falso éxito.
 - `importar-servicio-web-progress-legacy-regression.test.cjs`: aislamiento, ausencia de polling/cancelación/reintento y registro.

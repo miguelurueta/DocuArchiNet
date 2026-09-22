@@ -1,5 +1,9 @@
 # Compatibilidad y operación
 
+- Ticket: DOC-76
+- Cambio OpenSpec: doc-76-progreso-integracion-sii
+- Clasificacion: cross_cutting
+
 `GetImportIntent` se habilita únicamente para `timeout`, pérdida de respuesta (`lost-response`) o reapertura autorizada (`authorized-reopen`). Cada acción realiza una sola consulta; no existe polling.
 
 Los módulos modernos no importan, copian ni invocan `JSProgresBar`, no interpretan `YES`, `CTRL`, `CTRLRETURN` o `dato_lista`, y no modifican almacenamiento ni consumidores legacy. Con el gate apagado, el recorrido legacy permanece intacto.

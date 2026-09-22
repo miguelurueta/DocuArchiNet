@@ -1,5 +1,9 @@
 # Arquitectura
 
+- Ticket: DOC-76
+- Cambio OpenSpec: doc-76-progreso-integracion-sii
+- Clasificacion: cross_cutting
+
 ## Propiedad de ejecución
 
 `ImportServiceOrchestrator` es el único ejecutor. El navegador crea la intención mediante el flujo DOC-75 y hace una sola llamada a `ExecuteImportIntent`; no ejecuta fases por elemento ni vuelve a consultar SII.
