@@ -309,6 +309,7 @@ async function executePlatformRun(options) {
   const createClient = options?.createClient;
   const invoke = options?.invoke;
   const consumePreview = options?.consumePreview;
+  const inspectSession = options?.inspectSession;
   const readControl = options?.readControl;
   const assertIntegrity = options?.assertIntegrity || assertPlatformIntegrity;
   const writeEvidence = options?.writeEvidence;
@@ -361,6 +362,18 @@ async function executePlatformRun(options) {
       adapterResult = await handler({ invoke: restrictedInvoke, budgetMs: plan.profile.budgetMs });
     } else {
       adapterResult = await handler({ invoke: restrictedInvoke, consumePreview: restrictedPreviewConsumer, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs, profile: plan.profile });
+    }
+    if (plan.scenario.expectations.includes('secure-preview-ui')) {
+      if (typeof inspectSession !== 'function' || !context) fail('E2E_PLATFORM_SESSION_INSPECTOR_REQUIRED');
+      const inspection = await inspectSession({ context, plan });
+      if (!inspection || typeof inspection !== 'object' || Array.isArray(inspection)) fail('E2E_PLATFORM_SESSION_INSPECTION_INVALID');
+      adapterResult = Object.freeze({
+        ...adapterResult,
+        codes: Object.freeze({ ...(adapterResult?.codes || {}), ...(inspection.codes || {}) }),
+        count: (Number.isSafeInteger(adapterResult?.count) ? adapterResult.count : 0) +
+          (Number.isSafeInteger(inspection.count) ? inspection.count : 0),
+        latenciesMs: Object.freeze([...(adapterResult?.latenciesMs || []), ...(inspection.latenciesMs || [])])
+      });
     }
     after = await captureControls(plan.controls, plan, environment, readControl);
     if (!controlsMeetExpectation(plan, before, after, adapterResult)) fail(controlsFailureCode(plan));

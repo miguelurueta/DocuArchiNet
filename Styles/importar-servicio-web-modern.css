@@ -13,5 +13,16 @@
 .importar-servicio-web__item { padding: .75rem 1rem; border: 1px solid #d9dee8; border-radius: .35rem; }
 .importar-servicio-web-sii__table { width: 100%; border-collapse: collapse; }
 .importar-servicio-web-sii__table td { padding: .5rem; border-bottom: 1px solid #d9dee8; text-align: left; }
+.importar-servicio-web-sii__preview, .importar-servicio-web__preview button, .importar-servicio-web__preview a { display: inline-flex; align-items: center; min-height: 2.5rem; padding: .45rem .75rem; border: 1px solid #446aa8; border-radius: .3rem; background: #fff; color: #244d8d; text-decoration: none; cursor: pointer; }
+.importar-servicio-web__preview { min-height: 28rem; }
+.importar-servicio-web__preview-header { display: flex; align-items: center; gap: 1rem; margin-bottom: .5rem; }
+.importar-servicio-web__preview-title { margin: 0; color: #1f2d44; font-size: 1.1rem; }
+.importar-servicio-web__preview-title:focus { outline: 3px solid #8ab4f8; outline-offset: .2rem; }
+.importar-servicio-web__preview-help { color: #596780; }
+.importar-servicio-web__preview-status { min-height: 2rem; margin: .75rem 0; }
+.importar-servicio-web__preview-frame { width: 100%; min-height: 24rem; border: 1px solid #cbd3df; background: #f7f9fc; }
+.importar-servicio-web__preview-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; }
+.importar-servicio-web__preview [hidden] { display: none !important; }
 .importar-servicio-web-open { overflow: hidden; }
-@media (max-width: 760px) { .importar-servicio-web__dialog { width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; border-radius: 0; } }
+@media (min-width: 761px) { .importar-servicio-web__dialog--preview { width: min(78rem, calc(100vw - 2rem)); } .importar-servicio-web__dialog--preview .importar-servicio-web__body { display: grid; grid-template-columns: minmax(20rem, 2fr) minmax(24rem, 3fr); gap: 1rem; } .importar-servicio-web__dialog--preview #importar-servicio-web-list { display: block !important; } .importar-servicio-web__dialog--preview .importar-servicio-web__preview { display: block; border-left: 1px solid #d9dee8; padding-left: 1rem; } .importar-servicio-web__dialog--preview .importar-servicio-web__preview-back { display: none; } }
+@media (max-width: 760px) { .importar-servicio-web__dialog { width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; border-radius: 0; } .importar-servicio-web__preview-frame { min-height: calc(100dvh - 19rem); } }

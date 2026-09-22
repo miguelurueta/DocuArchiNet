@@ -153,9 +153,7 @@ async function writeEvidence(evidence) {
   await fs.writeFile(destination, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
 }
 
-async function initializeWorkflowContext(context, plan) {
-  const page = await context.newPage();
-  try {
+async function selectWorkflowTask(page, plan) {
     const taskId = plan.profile[plan.scenario.resource.profileField];
     if (!Number.isSafeInteger(taskId) || taskId <= 0) fail('E2E_PLATFORM_TASK_CONTEXT_INVALID');
     await page.goto(new URL('workflow/Webworkflow.aspx', plan.profile.baseUrl).toString(), {
@@ -200,10 +198,110 @@ async function initializeWorkflowContext(context, plan) {
       }
     }
     if (await selectedTask.inputValue() !== expectedTaskId) fail('E2E_PLATFORM_TASK_CONTEXT_UNAVAILABLE');
+}
+
+async function initializeWorkflowContext(context, plan) {
+  const page = await context.newPage();
+  try {
+    await selectWorkflowTask(page, plan);
   } finally {
     await page.close();
   }
   return context;
+}
+
+async function inspectImportPreviewUi({ context, plan }) {
+  const page = await context.newPage();
+  let previewRequests = 0;
+  let queryRequestsObserved = 0;
+  let queryContextInjected = 0;
+  let queryContextMismatch = false;
+  const queryRoute = /\/webservice\/WebServiceImportarServicioWebModern\.asmx\/QueryItems(?:\?|$)/i;
+  const onRequest = (request) => {
+    if (/WebServiceImportarServicioWebModern\.asmx\/GetPreview(?:\?|$)/i.test(request.url())) previewRequests += 1;
+  };
+  page.on('request', onRequest);
+  try {
+    await selectWorkflowTask(page, plan);
+    const timeout = Math.min(plan.profile.budgetMs, 60000);
+    await page.route(queryRoute, async (route) => {
+      let payload;
+      try { payload = route.request().postDataJSON(); } catch { payload = null; }
+      if (!payload?.request || typeof payload.request !== 'object' || Array.isArray(payload.request)) {
+        await route.abort('blockedbyclient');
+        return;
+      }
+      queryRequestsObserved += 1;
+      if (!payload.request.CodigoBarras) {
+        payload.request.CodigoBarras = plan.profile.codigoBarras;
+        queryContextInjected += 1;
+      } else if (String(payload.request.CodigoBarras) !== plan.profile.codigoBarras) {
+        queryContextMismatch = true;
+        await route.abort('blockedbyclient');
+        return;
+      }
+      await route.continue({ postData: JSON.stringify(payload) });
+    });
+    const trigger = page.locator('#ctw-document-action-service');
+    const triggerToggle = page.locator('.ctw-document-more-toggle:visible').first();
+    if (await trigger.getAttribute('data-import-modern-active') !== 'true' ||
+        await trigger.getAttribute('data-import-modern-bound') !== 'true') fail('IMPORT_E2E_PREVIEW_UI_UNAVAILABLE');
+    await triggerToggle.click();
+    await trigger.waitFor({ state: 'visible', timeout });
+    await trigger.click();
+    const modal = page.locator('#importar-servicio-web-modal');
+    await modal.waitFor({ state: 'visible', timeout });
+    try {
+      await page.waitForFunction(() => {
+        const state = document.querySelector('#importar-servicio-web-modal')?.getAttribute('data-import-state');
+        return ['resultados', 'vacio', 'error'].includes(state);
+      }, null, { timeout });
+    } catch {
+      fail('IMPORT_E2E_PREVIEW_UI_RESULTS_UNAVAILABLE');
+    }
+    if (queryRequestsObserved > 1 || queryContextInjected > 1 || queryContextMismatch) {
+      fail('IMPORT_E2E_PREVIEW_UI_QUERY_CONTEXT_INVALID');
+    }
+    if (await modal.getAttribute('data-import-state') !== 'resultados') {
+      const publicCode = await page.locator('#importar-servicio-web-status').textContent()
+        .then((value) => String(value || '').match(/\b[A-Z][A-Z0-9_]{2,50}\b/)?.[0] || 'RESULTS_EMPTY');
+      fail(`IMPORT_E2E_PREVIEW_UI_${publicCode}`);
+    }
+    const previewButton = page.locator('[data-import-preview="true"]:visible').first();
+    await previewButton.waitFor({ state: 'visible', timeout });
+    await previewButton.click();
+    const panel = page.locator('#importar-servicio-web-preview');
+    await page.locator('#importar-servicio-web-preview[data-preview-state="disponible"], #importar-servicio-web-preview[data-preview-state="formato-no-visualizable"]').waitFor({ state: 'visible', timeout });
+    if (previewRequests !== 1) fail('IMPORT_E2E_PREVIEW_UI_REQUEST_COUNT_INVALID');
+    if (await page.locator('#importar-servicio-web-preview-title').evaluate((element) => document.activeElement === element) !== true) {
+      fail('IMPORT_E2E_PREVIEW_UI_FOCUS_INVALID');
+    }
+    await page.setViewportSize({ width: 760, height: 900 });
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+    await page.waitForTimeout(100);
+    if (previewRequests !== 1) fail('IMPORT_E2E_PREVIEW_UI_DUPLICATE_REQUEST');
+    await page.locator('#importar-servicio-web-preview-back').click();
+    if (await previewButton.evaluate((element) => document.activeElement === element) !== true || await panel.isVisible()) {
+      fail('IMPORT_E2E_PREVIEW_UI_CONTEXT_NOT_RESTORED');
+    }
+    await page.locator('#importar-servicio-web-close').click();
+    const focusRestored = await page.evaluate(() => {
+      const active = document.activeElement;
+      return active?.id === 'ctw-document-action-service' || active?.classList.contains('ctw-document-more-toggle');
+    });
+    if (!focusRestored || await modal.isVisible()) {
+      fail('IMPORT_E2E_PREVIEW_UI_CLOSE_INVALID');
+    }
+    return Object.freeze({
+      codes: Object.freeze({ uiPreview: 'CONFIRMED', uiFocus: 'CONFIRMED', uiSingleFetch: 'CONFIRMED' }),
+      count: 1,
+      latenciesMs: Object.freeze([])
+    });
+  } finally {
+    await page.unroute(queryRoute).catch(() => {});
+    page.off('request', onRequest);
+    await page.close();
+  }
 }
 
 async function readWorkflowControl({ control, taskId, environment }) {
@@ -227,11 +325,20 @@ async function enableTemporaryGate(plan) {
       !/<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i.test(original) ||
       !/<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i.test(original)) fail('E2E_PLATFORM_GATE_INTEGRITY_FAILED');
   let enabled = original.replace(/(<add key="WorkflowCentroTrabajoModernActive" value=")false("\s*\/>)/i, '$1true$2');
+  if (plan.scenario.expectations.includes('secure-preview-ui')) {
+    if (!/<add key="ImportarServicioWebProviderId" value=""\s*\/>/i.test(original)) {
+      fail('E2E_PLATFORM_PROVIDER_INTEGRITY_FAILED');
+    }
+    enabled = enabled.replace(/(<add key="ImportarServicioWebProviderId" value=")("\s*\/>)/i, '$1INTEGRACIONSII$2');
+  }
   if (plan.profile.previewExpiryMinutes === 1) {
     enabled = enabled.replace(/(<add key="ImportarServicioWebPreviewTtlMinutes" value=")\d+("\s*\/>)/i,
       (_match, prefix, suffix) => `${prefix}1${suffix}`);
   }
-  if (enabled === original) fail('E2E_PLATFORM_GATE_ENABLE_FAILED');
+  if (enabled === original || (plan.scenario.expectations.includes('secure-preview-ui') &&
+      !/<add key="ImportarServicioWebProviderId" value="INTEGRACIONSII"\s*\/>/i.test(enabled))) {
+    fail('E2E_PLATFORM_GATE_ENABLE_FAILED');
+  }
   await fs.writeFile(webConfigPath, enabled, 'utf8');
   let restored = false;
   return async () => {
@@ -288,6 +395,7 @@ async function main() {
     createClient,
     invoke: (requestOptions) => invokeNotes({ ...requestOptions, plan }),
     consumePreview: consumeImportPreview,
+    inspectSession: inspectImportPreviewUi,
     readControl: readWorkflowControl,
       writeEvidence,
       assertIntegrity: async (options) => {
@@ -309,5 +417,6 @@ main().catch((error) => {
 
 module.exports = {
   collectAuthorizations,
+  inspectImportPreviewUi,
   parseArguments
 };

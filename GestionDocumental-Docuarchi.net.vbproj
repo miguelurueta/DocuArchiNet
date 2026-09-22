@@ -1897,6 +1897,8 @@
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-api.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-core.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-provider-registry.js" />
+    <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-preview-state.js" />
+    <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-preview.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-ui.js" />
     <Content Include="js\workflow\importar-servicio-web\sii\importar-servicio-web-sii-adapter.js" />
     <Content Include="js\workflow\importar-servicio-web\sii\importar-servicio-web-sii-contract-mapper.js" />
