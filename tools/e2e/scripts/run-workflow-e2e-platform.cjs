@@ -294,7 +294,7 @@ async function inspectImportPreviewUi({ context, plan }) {
       fail('IMPORT_E2E_PREVIEW_UI_CLOSE_INVALID');
     }
     return Object.freeze({
-      codes: Object.freeze({ uiPreview: 'CONFIRMED', uiFocus: 'CONFIRMED', uiSingleRequest: 'CONFIRMED' }),
+      codes: Object.freeze({ uiPreview: 'CONFIRMED', uiFocus: 'CONFIRMED', uiSingleFetch: 'CONFIRMED' }),
       count: 1,
       latenciesMs: Object.freeze([Math.round(performance.now() - started)])
     });
