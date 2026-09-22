@@ -23,6 +23,18 @@
 .importar-servicio-web__preview-frame { width: 100%; min-height: 24rem; border: 1px solid #cbd3df; background: #f7f9fc; }
 .importar-servicio-web__preview-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; }
 .importar-servicio-web__preview [hidden] { display: none !important; }
+.importar-servicio-web__preparation { min-height: 24rem; }
+.importar-servicio-web__preparation[hidden] { display: none !important; }
+.importar-servicio-web__preparation-header, .importar-servicio-web__preparation-actions { display: flex; align-items: center; gap: .75rem; }
+.importar-servicio-web__preparation-header h3 { margin: 0; }
+.importar-servicio-web__preparation-header button { margin-left: auto; }
+.importar-servicio-web__preparation-items { display: grid; gap: .75rem; margin: 1rem 0; }
+.importar-servicio-web__preparation-item { display: grid; grid-template-columns: minmax(12rem, 1fr) minmax(12rem, 1fr); gap: .75rem; align-items: center; padding: .75rem; border: 1px solid #d9dee8; border-radius: .35rem; }
+.importar-servicio-web__preparation-plan { margin: .75rem 0; padding: .75rem; border-left: .25rem solid #446aa8; background: #f7f9fc; }
+.importar-servicio-web__preparation-actions { justify-content: flex-end; margin-top: 1rem; }
+.importar-servicio-web__preparation button { min-height: 2.5rem; padding: .45rem .75rem; }
+.importar-servicio-web__preparation button:focus, .importar-servicio-web__preparation select:focus { outline: 3px solid #8ab4f8; outline-offset: .15rem; }
+.importar-servicio-web__preparation button[disabled] { cursor: not-allowed; opacity: .55; }
 .importar-servicio-web-open { overflow: hidden; }
 @media (min-width: 761px) { .importar-servicio-web__dialog--preview { width: min(78rem, calc(100vw - 2rem)); } .importar-servicio-web__dialog--preview .importar-servicio-web__body { display: grid; grid-template-columns: minmax(20rem, 2fr) minmax(24rem, 3fr); gap: 1rem; } .importar-servicio-web__dialog--preview #importar-servicio-web-list { display: block !important; } .importar-servicio-web__dialog--preview .importar-servicio-web__preview { display: block; border-left: 1px solid #d9dee8; padding-left: 1rem; } .importar-servicio-web__dialog--preview .importar-servicio-web__preview-back { display: none; } }
-@media (max-width: 760px) { .importar-servicio-web__dialog { width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; border-radius: 0; } .importar-servicio-web__preview-frame { min-height: calc(100dvh - 19rem); } }
+@media (max-width: 760px) { .importar-servicio-web__dialog { width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; border-radius: 0; } .importar-servicio-web__preview-frame { min-height: calc(100dvh - 19rem); } .importar-servicio-web__preparation-item { grid-template-columns: 1fr; } }

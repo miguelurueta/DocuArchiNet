@@ -4548,6 +4548,23 @@
                             <button id="importar-servicio-web-preview-imported" type="button" hidden="hidden">Ver documento importado</button>
                         </div>
                     </section>
+                    <section id="importar-servicio-web-preparation" class="importar-servicio-web__preparation" aria-labelledby="importar-servicio-web-preparation-title" hidden="hidden" data-preparation-state="cerrado">
+                        <header class="importar-servicio-web__preparation-header">
+                            <h3 id="importar-servicio-web-preparation-title" tabindex="-1">Preparar importación</h3>
+                            <button id="importar-servicio-web-preparation-close" type="button" aria-label="Cancelar preparación">&times;</button>
+                        </header>
+                        <p>Revise la tipología y los efectos previstos antes de crear la intención.</p>
+                        <div id="importar-servicio-web-preparation-status" role="status" aria-live="polite"></div>
+                        <div id="importar-servicio-web-preparation-items"></div>
+                        <section aria-labelledby="importar-servicio-web-preparation-plan-title">
+                            <h4 id="importar-servicio-web-preparation-plan-title">Plan previsto</h4>
+                            <div id="importar-servicio-web-preparation-plan"></div>
+                        </section>
+                        <div class="importar-servicio-web__preparation-actions">
+                            <button id="importar-servicio-web-preparation-cancel" type="button">Cancelar</button>
+                            <button id="importar-servicio-web-preparation-confirm" type="button" disabled="disabled">Crear intención</button>
+                        </div>
+                    </section>
                 </div>
             </section>
         </div>

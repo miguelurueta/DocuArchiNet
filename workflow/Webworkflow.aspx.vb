@@ -319,7 +319,10 @@ Public Class Webworkflow
         RegisterImportarServicioWebScript("importarServicioWebSiiAdapterScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-adapter.js?v=20260921-doc73sii1")
         RegisterImportarServicioWebScript("importarServicioWebPreviewStateScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preview-state.js?v=20260922-doc74preview1")
         RegisterImportarServicioWebScript("importarServicioWebPreviewScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preview.js?v=20260922-doc74preview1")
-        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260922-doc74preview2")
+        RegisterImportarServicioWebScript("importarServicioWebRequirementsScript", "../js/workflow/importar-servicio-web/importar-servicio-web-requirements.js?v=20260922-doc75prep1")
+        RegisterImportarServicioWebScript("importarServicioWebPreparationScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preparation.js?v=20260922-doc75prep1")
+        RegisterImportarServicioWebScript("importarServicioWebIntentClientScript", "../js/workflow/importar-servicio-web/importar-servicio-web-intent-client.js?v=20260922-doc75prep1")
+        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260922-doc75prep1")
     End Sub
 
     Private Sub RegisterImportarServicioWebScript(ByVal controlId As String, ByVal source As String)

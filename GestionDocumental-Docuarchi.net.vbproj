@@ -1896,7 +1896,10 @@
     <Content Include="js\workflow\workflow-transition-ui.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-api.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-core.js" />
+    <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-intent-client.js" />
+    <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-preparation.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-provider-registry.js" />
+    <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-requirements.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-preview-state.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-preview.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-ui.js" />
