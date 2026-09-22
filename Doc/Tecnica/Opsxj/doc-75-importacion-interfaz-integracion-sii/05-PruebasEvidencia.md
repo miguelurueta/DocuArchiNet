@@ -5,9 +5,9 @@
 - Clasificacion: cross_cutting (Transversal)
 ## Evidencia requerida
 
-- [ ] unit: comando, resultado, fecha y referencia verificable.
-- [ ] manual_qa: comando, resultado, fecha y referencia verificable.
+- [x] unit: 2026-09-22; `node --test` focal/regresión PASS 46/46; MSBuild Debug PASS; OpenSpec estricto PASS. Referencia: paquete canónico `05-PruebasEvidencia.md`.
+- [x] manual_qa: 2026-09-22; revisión estática del popup, foco, catálogo/plan autoritativos, gate y ausencia de ejecución/persistencia; PASS local no autenticado.
 
 ## QA/E2E WebForms
 
-Las pruebas E2E automatizadas no se suponen disponibles. Cuando aplique, registrar ambiente, pasos manuales, resultado y limitacion; si hay automatizacion real, adjuntar comando y reporte.
+La E2E real aplica al flujo completo, pero no se ejecutó sin autorización explícita para DOC-75. Una corrida futura debe usar recursos controlados, confirmar B11 y restaurar gate/proveedor en `finally`.

@@ -5,9 +5,9 @@
 - Clasificacion: cross_cutting (Transversal)
 ## Objetivo
 
-Describir el problema, la solucion aprobada y los componentes legacy afectados.
+Unifica la preparación previa a escritura para una o varias filas SII. La solución agrega estado, colección y cliente frontend sobre B03/B09/B11, sin ejecutar intenciones ni modificar persistencia.
 
 ## Alcance y compatibilidad
 
-- [ ] Identificar paginas, controles, servicios o scripts afectados.
-- [ ] Registrar comportamiento preservado y estrategia de reversa.
+- [x] Superficies: `Webworkflow.aspx(.vb)`, CSS moderno, UI/adaptador SII y tres módulos canónicos DOC-75.
+- [x] Se preservan gate apagado, cliente ASMX único, DOC-74, almacenamiento y mutadores legacy; rollback retira únicamente markup, listeners, estilos y registros aditivos.
