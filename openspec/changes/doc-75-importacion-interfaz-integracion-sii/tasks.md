@@ -1,20 +1,32 @@
-## 1. Refinement
+<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
+## 1. Estado y composición
 
-- [ ] 1.1 Consolidar alcance final desde Jira + contexto de codigo.
-- [ ] 1.2 Ajustar design/spec con decisiones y riesgos definitivos.
+- [ ] 1.1 Crear `importar-servicio-web-requirements.js` con estados y habilitación cerrada. Origen: D-02, RQ-02; D-06, RQ-06
+- [ ] 1.2 Crear `importar-servicio-web-preparation.js` para colección individual/múltiple. Origen: D-01, RQ-01
+- [ ] 1.3 Crear `importar-servicio-web-intent-client.js` reutilizando API, preflight, huella e idempotencia. Origen: D-03, RQ-03; D-04, RQ-04
+- [ ] 1.4 Deduplicar confirmaciones y traducir `PREFLIGHT_STALE`. Origen: D-04, RQ-04; D-06, RQ-06
 
-## 2. Implementacion
+## 2. UI y accesibilidad
 
-- [ ] 2.1 Implementar cambios funcionales del ticket.
-- [ ] 2.2 Mantener compatibilidad y evitar regresiones.
+- [ ] 2.1 Agregar popup, selectores, resumen, cancelar y confirmar en `Webworkflow.aspx`. Origen: D-02, RQ-02; D-05, RQ-05
+- [ ] 2.2 Extender solo `importar-servicio-web-modern.css` con layout responsive. Origen: D-05, RQ-05
+- [ ] 2.3 Integrar acciones individual/múltiple sin preflight implícito desde `Guardar todas`. Origen: D-01, RQ-01; D-05, RQ-05
+- [ ] 2.4 Mostrar catálogo/plan autoritativos sin `ExpedientId` y restaurar contexto/foco. Origen: D-03, RQ-03; D-05, RQ-05; D-06, RQ-06
 
+## 3. Registro y límites
 
-## 3. Pruebas
+- [ ] 3.1 Registrar scripts en orden en code-behind y `.vbproj` bajo el gate existente. Origen: D-04, RQ-04; D-05, RQ-05
+- [ ] 3.2 Probar invariancias contra segundo transporte, ejecución, persistencia y cambios legacy. Origen: D-04, RQ-04; D-06, RQ-06
 
-- [ ] 3.1 Agregar/ajustar pruebas unitarias e integracion.
-- [ ] 3.2 Ejecutar suite afectada y registrar evidencia.
+## 4. Pruebas
 
-## 4. Cierre
+- [ ] 4.1 Crear `importar-servicio-web-preparation.test.cjs`. Origen: D-01, RQ-01; D-05, RQ-05
+- [ ] 4.2 Crear `importar-servicio-web-preflight-contract.test.cjs`. Origen: D-02, RQ-02; D-03, RQ-03; D-06, RQ-06
+- [ ] 4.3 Crear `importar-servicio-web-intent-client.test.cjs`. Origen: D-04, RQ-04; D-06, RQ-06
+- [ ] 4.4 Ejecutar focales, regresión y build; E2E real solo con autorización. Origen: D-05, RQ-05; D-06, RQ-06
 
-- [ ] 4.1 Validar OpenSpec.
-- [ ] 4.2 Documentar diff final y decisiones de arquitectura.
+## 5. Documentación
+
+- [ ] 5.1 Crear paquete canónico `DOC-75-preparacion-individual-multiple/` y `Diagramas/`. Origen: D-01, RQ-01; D-05, RQ-05
+- [ ] 5.2 Documentar B03/B09/B11, estados, riesgos, rollout, rollback y funciones. Origen: D-03, RQ-03; D-06, RQ-06
+- [ ] 5.3 Registrar evidencia y validar OpenSpec/Opsxj. Origen: D-06, RQ-06

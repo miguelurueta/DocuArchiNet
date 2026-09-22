@@ -1,112 +1,61 @@
-## ADDED Requirements
-### Requirement: IMPORTACION-INTERFAZ-INTEGRACION-SII
-El sistema SHALL implementar el alcance definido para DOC-75.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
+## Purpose
 
-#### Scenario: Reglas del ticket
-- # Prompt 04 — Preparación individual y múltiple
-- 
-- Implementa la captura de requisitos previa a cualquier escritura utilizando el mismo contrato para una colección de uno o varios elementos.
-- 
-- Depende de `PreflightImport`/`CreateImportIntent` de B03, del catálogo B09 y del plan aditivo B11. El resumen productivo de efectos queda bloqueado hasta completar B11.
-- 
-- ## Objetivo
-- 
-- Unificar la preparación de importaciones individuales y múltiples sin hacer que **Guardar todas** inicialice implícitamente el contexto.
-- 
-- ## Rutas canónicas de implementación
-- 
-- ```txt
-- js/workflow/importar-servicio-web/
-- ├── importar-servicio-web-preparation.js
-- ├── importar-servicio-web-requirements.js
-- └── importar-servicio-web-intent-client.js
-- 
-- Tests/
-- ├── importar-servicio-web-preparation.test.cjs
-- ├── importar-servicio-web-preflight-contract.test.cjs
-- └── importar-servicio-web-intent-client.test.cjs
-- ```
-- 
-- - El popup secundario se agrega en `workflow/Webworkflow.aspx` y reutiliza `Styles/importar-servicio-web-modern.css`.
-- - `intent-client.js` usa `importar-servicio-web-api.js`; no duplica transporte ni persistencia.
-- - Consumir fixtures B03 desde `Tests/Fixtures/Workflow/ImportarServicioWeb/intents-v1/`.
-- - No modificar `JSExpediente.js`, `JSProgresBar.js`, mutadores legacy, `ClassAlmacenamiento` ni almacenamiento.
-- 
-- ## Ruta documental obligatoria
-- 
-- ```txt
-- docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-preparacion-individual-multiple/
-- ```
-- 
-- Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diagramas/` exclusivamente allí.
-- 
-- ## Implementa
-- 
-- - Popup secundario contextual para una fila, con identidad inequívoca y selector de tipología.
-- - Preparación múltiple para los elementos seleccionados.
-- - Selector construido exclusivamente con el catálogo de tipologías autorizado por backend.
-- - Plan lógico confirmado: tarea destino, tipología, requisitos y clases de efectos previstos; no mostrar `ExpedientId` ni afirmar que ya ocurrieron.
-- - Una colección de exactamente un elemento para el recorrido individual.
-- - Contrato de preflight o estado bloqueado documentado cuando el backend aún no pueda preparar el contexto SII independientemente.
-- 
-- ## Restricciones
-- 
-- - No mantengas caminos de persistencia separados para individual y múltiple.
-- - El frontend no persiste la intención ni ejecuta sus efectos; solicita al backend su creación idempotente.
-- - Preflight no consulta SII; usa selección, catálogo y configuración resueltos por backend.
-- - Está prohibido modificar o invocar directamente `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` o mutadores legacy.
-- - El núcleo no debe conocer caché, expediente ni índices SII.
-- - No presentes como ejecutable un plan que el backend no haya confirmado.
-- - Cancelar la preparación no produce mutaciones y devuelve el foco a la fila.
-- 
-- ## Aceptación
-- 
-- - Guardar permanece deshabilitado mientras falten datos obligatorios.
-- - La preparación individual no exige seleccionar ni importar todos los elementos.
-- - Confirmar la preparación crea una sola intención con toda la selección; no una intención por inscripción.
-- - Los requisitos específicos se obtienen desde el adaptador.
-- 
-- ## Correcciones opsxj:prompt-review
-- 
-- Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-- 
-- ## Rol esperado
-- Definir el rol tecnico esperado para ejecutar el ticket.
-- 
-- ## Objetivo
-- Describir el objetivo funcional y tecnico verificable.
-- 
-- ## Restricciones criticas
-- - No introducir cambios fuera del alcance declarado.
-- - No romper comportamiento existente ni contratos publicos.
-- 
-- ## Criterios de aceptacion
-- - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-- 
-- ## Contexto obligatorio
-- Leer F01–F03, contratos `PreflightImport`/`CreateImportIntent`, fixtures B03, `workflow/Webworkflow.aspx` y el comportamiento legacy de preparación solo como referencia. No modificar ejecutores o mutadores existentes.
-- 
-- ## Pruebas obligatorias
-- Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
-- 
-- ## Documentacion tecnica
-- Actualizar exclusivamente el paquete de **Ruta documental obligatoria**, con flujo individual/múltiple, contrato, requisitos, estados, pruebas y diagramas.
-- 
-- ## Entregable final
-- Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-- 
-- Exigir `npm run build` o `tsc` segun impacto y registrar el resultado.
-- 
-- Exigir pruebas unitarias/focales con Vitest o Testing Library segun el alcance.
-- 
-- Registrar comandos ejecutados, resultados obtenidos y evidencia en `05-PruebasEvidencia.md`.
-- 
-- Cuando el ticket afecte un flujo completo de usuario, navegacion, integracion entre vistas, persistencia de estado u operacion transaccional, exigir E2E real con Playwright; si no aplica, documentar justificacion formal y evidencia manual.
+Preparar de forma segura una importación SII individual o múltiple antes de cualquier escritura, con catálogo, requisitos y plan confirmados por backend.
+
+## ADDED Requirements
+
+### Requirement: Colección única de preparación
+El sistema SHALL usar el mismo contrato para uno o varios elementos. Origen: D-01, RQ-01.
+
+#### Scenario: Individual
+- **WHEN** se prepara una fila
+- **THEN** la colección contiene exactamente ese elemento
+
+#### Scenario: Múltiple
+- **WHEN** se preparan varias filas
+- **THEN** una colección contiene exactamente la selección explícita
+
+### Requirement: Preflight obligatorio
+El sistema SHALL impedir crear intención hasta completar datos y recibir preflight ejecutable. Origen: D-02, RQ-02.
+
+#### Scenario: Datos incompletos
+- **WHEN** falta tipología o `Executable` no es verdadero
+- **THEN** confirmar queda deshabilitado y no se crea intención
+
+### Requirement: Autoridad de backend
+El sistema SHALL representar solo catálogo, requisitos, huella y plan confirmados por backend. Origen: D-03, RQ-03.
+
+#### Scenario: Resumen confirmado
+- **WHEN** se presenta el plan
+- **THEN** muestra tarea, tipología, requisitos y efectos previstos
+- **AND** no muestra `ExpedientId` ni efectos consumados
+
+### Requirement: Intención única e idempotente
+El sistema SHALL crear una sola intención para toda la colección mediante el API existente y no ejecutarla. Origen: D-04, RQ-04.
+
+#### Scenario: Confirmación concurrente
+- **WHEN** doble clic o rerender ocurren durante la creación
+- **THEN** se comparte la operación y no se crea una intención por elemento
+
+### Requirement: Popup accesible sin mutación
+El sistema SHALL conservar contexto y restaurar foco al cerrar. Origen: D-05, RQ-05.
+
+#### Scenario: Cancelar
+- **WHEN** se cancela o cierra la preparación
+- **THEN** no hay mutación y se restauran selección, filtros, scroll y foco
+
+#### Scenario: Guardar todas pasivo
+- **WHEN** no se inició preparación múltiple explícita
+- **THEN** `Guardar todas` no inicializa contexto ni preflight
+
+### Requirement: Fallo cerrado
+El sistema SHALL bloquear cuando B03, B09, B11 o sus respuestas no sean utilizables. Origen: D-06, RQ-06.
+
+#### Scenario: Dependencia ausente
+- **WHEN** catálogo, preflight o plan no están disponibles
+- **THEN** se bloquea sin fabricar datos ni filtrar detalles internos
+
+#### Scenario: Preflight obsoleto
+- **WHEN** backend responde `PREFLIGHT_STALE`
+- **THEN** se exige preparar nuevamente sin reutilizar la huella

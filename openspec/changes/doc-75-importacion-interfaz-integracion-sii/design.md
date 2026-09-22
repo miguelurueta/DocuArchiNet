@@ -1,132 +1,47 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
 ## Context
 
-DOC-75: IMPORTACION-INTERFAZ-INTEGRACION-SII
-
-## Jira Details
-
-> # Prompt 04 — Preparación individual y múltiple
-> 
-> Implementa la captura de requisitos previa a cualquier escritura utilizando el mismo contrato para una colección de uno o varios elementos.
-> 
-> Depende de `PreflightImport`/`CreateImportIntent` de B03, del catálogo B09 y del plan aditivo B11. El resumen productivo de efectos queda bloqueado hasta completar B11.
-> 
-> ## Objetivo
-> 
-> Unificar la preparación de importaciones individuales y múltiples sin hacer que **Guardar todas** inicialice implícitamente el contexto.
-> 
-> ## Rutas canónicas de implementación
-> 
-> ```txt
-> js/workflow/importar-servicio-web/
-> ├── importar-servicio-web-preparation.js
-> ├── importar-servicio-web-requirements.js
-> └── importar-servicio-web-intent-client.js
-> 
-> Tests/
-> ├── importar-servicio-web-preparation.test.cjs
-> ├── importar-servicio-web-preflight-contract.test.cjs
-> └── importar-servicio-web-intent-client.test.cjs
-> ```
-> 
-> - El popup secundario se agrega en `workflow/Webworkflow.aspx` y reutiliza `Styles/importar-servicio-web-modern.css`.
-> - `intent-client.js` usa `importar-servicio-web-api.js`; no duplica transporte ni persistencia.
-> - Consumir fixtures B03 desde `Tests/Fixtures/Workflow/ImportarServicioWeb/intents-v1/`.
-> - No modificar `JSExpediente.js`, `JSProgresBar.js`, mutadores legacy, `ClassAlmacenamiento` ni almacenamiento.
-> 
-> ## Ruta documental obligatoria
-> 
-> ```txt
-> docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-preparacion-individual-multiple/
-> ```
-> 
-> Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diagramas/` exclusivamente allí.
-> 
-> ## Implementa
-> 
-> - Popup secundario contextual para una fila, con identidad inequívoca y selector de tipología.
-> - Preparación múltiple para los elementos seleccionados.
-> - Selector construido exclusivamente con el catálogo de tipologías autorizado por backend.
-> - Plan lógico confirmado: tarea destino, tipología, requisitos y clases de efectos previstos; no mostrar `ExpedientId` ni afirmar que ya ocurrieron.
-> - Una colección de exactamente un elemento para el recorrido individual.
-> - Contrato de preflight o estado bloqueado documentado cuando el backend aún no pueda preparar el contexto SII independientemente.
-> 
-> ## Restricciones
-> 
-> - No mantengas caminos de persistencia separados para individual y múltiple.
-> - El frontend no persiste la intención ni ejecuta sus efectos; solicita al backend su creación idempotente.
-> - Preflight no consulta SII; usa selección, catálogo y configuración resueltos por backend.
-> - Está prohibido modificar o invocar directamente `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` o mutadores legacy.
-> - El núcleo no debe conocer caché, expediente ni índices SII.
-> - No presentes como ejecutable un plan que el backend no haya confirmado.
-> - Cancelar la preparación no produce mutaciones y devuelve el foco a la fila.
-> 
-> ## Aceptación
-> 
-> - Guardar permanece deshabilitado mientras falten datos obligatorios.
-> - La preparación individual no exige seleccionar ni importar todos los elementos.
-> - Confirmar la preparación crea una sola intención con toda la selección; no una intención por inscripción.
-> - Los requisitos específicos se obtienen desde el adaptador.
-> 
-> ## Correcciones opsxj:prompt-review
-> 
-> Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-> 
-> ## Rol esperado
-> Definir el rol tecnico esperado para ejecutar el ticket.
-> 
-> ## Objetivo
-> Describir el objetivo funcional y tecnico verificable.
-> 
-> ## Restricciones criticas
-> - No introducir cambios fuera del alcance declarado.
-> - No romper comportamiento existente ni contratos publicos.
-> 
-> ## Criterios de aceptacion
-> - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-> 
-> ## Contexto obligatorio
-> Leer F01–F03, contratos `PreflightImport`/`CreateImportIntent`, fixtures B03, `workflow/Webworkflow.aspx` y el comportamiento legacy de preparación solo como referencia. No modificar ejecutores o mutadores existentes.
-> 
-> ## Pruebas obligatorias
-> Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
-> 
-> ## Documentacion tecnica
-> Actualizar exclusivamente el paquete de **Ruta documental obligatoria**, con flujo individual/múltiple, contrato, requisitos, estados, pruebas y diagramas.
-> 
-> ## Entregable final
-> Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-> 
-> Exigir `npm run build` o `tsc` segun impacto y registrar el resultado.
-> 
-> Exigir pruebas unitarias/focales con Vitest o Testing Library segun el alcance.
-> 
-> Registrar comandos ejecutados, resultados obtenidos y evidencia en `05-PruebasEvidencia.md`.
-> 
-> Cuando el ticket afecte un flujo completo de usuario, navegacion, integracion entre vistas, persistencia de estado u operacion transaccional, exigir E2E real con Playwright; si no aplica, documentar justificacion formal y evidencia manual.
+DOC-75 compone en frontend los contratos B03, B09 y B11 ya presentes. La lista/preview modernos existen; falta capturar tipología, preparar uno o varios elementos y crear una intención sin ejecutarla.
 
 ## Goals / Non-Goals
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+**Goals**: unificar preparación individual/múltiple; consumir catálogo, preflight y creación idempotente; conservar selección y foco.
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+**Non-Goals**: ejecutar o persistir desde frontend, consultar SII en preflight, modificar almacenamiento, expedientes, índices o mutadores legacy.
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Colección única
+`importar-servicio-web-preparation.js` recibe siempre una colección; individual contiene exactamente una fila y múltiple solo la selección explícita.
 
+### D-02 — Estado aislado y cerrado
+`importar-servicio-web-requirements.js` modela edición, preparando, listo, creando, creado y bloqueado. Confirmar exige tipología completa y `Executable=true`.
+
+### D-03 — Backend como autoridad
+La UI consume catálogo, `Requirements`, `Commands`, `ContextFingerprint` y `EffectPlans`; no fabrica IDs, requisitos, huellas ni efectos.
+
+### D-04 — Cliente delgado e idempotente
+`importar-servicio-web-intent-client.js` reutiliza el API existente para preflight y una sola creación por colección, deduplica concurrencia y nunca ejecuta la intención.
+
+### D-05 — Popup secundario aditivo
+El popup reutiliza modal/CSS modernos, conserva fila, selección, filtros, scroll y foco. Cancelar no muta; `Guardar todas` no inicializa preparación implícita.
+
+### D-06 — Dependencias y semántica seguras
+B03/B09/B11 ausentes, respuestas inválidas o `PREFLIGHT_STALE` bloquean. El resumen rotula efectos como previstos y nunca muestra `ExpedientId`.
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+- Catálogo o plan no disponibles bloquean el recorrido.
+- Un preflight obsoleto exige preparar de nuevo.
+- La integración anidada exige restauración de foco cuidadosa.
 
 ## Migration Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+1. Agregar módulos/pruebas con gate apagado.
+2. Integrar markup, CSS y scripts aditivamente.
+3. Ejecutar focales, regresión y E2E solo con autorización.
+4. Rollback retirando exclusivamente la integración aditiva.
 
 ## Open Questions
 
-- TBD
+- La habilitación productiva continúa condicionada a evidencia de B11 en el ambiente objetivo.
