@@ -41,3 +41,13 @@ test('frontend no crea transporte, no ejecuta intención ni toca persistencia le
   const source=files.map(file=>fs.readFileSync(file,'utf8')).join('\n');
   assert.doesNotMatch(source,/fetch\s*\(|XMLHttpRequest|executeImportIntent|AlmacenaDocumentoTareaWorkflow|ClassAlmacenamiento|JSExpediente|JSProgresBar|ExpedientId/);
 });
+
+test('tabla SII mantiene scroll horizontal y vertical dentro del viewport', () => {
+  const adapter=fs.readFileSync('js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-adapter.js','utf8');
+  const css=fs.readFileSync('Styles/importar-servicio-web-modern.css','utf8');
+  assert.match(adapter,/importar-servicio-web-sii__table-scroll/);
+  assert.match(adapter,/Tabla desplazable/);
+  assert.match(css,/\.importar-servicio-web-sii__table-scroll\s*\{[^}]*max-height:[^}]*overflow:\s*auto/);
+  assert.match(css,/\.importar-servicio-web-sii__table\s*\{[^}]*width:\s*max-content;[^}]*min-width:\s*100%/);
+  assert.match(css,/@media \(max-width:\s*760px\)[^{]*\{[^}]*\.importar-servicio-web__dialog\s*\{[^}]*width:\s*100vw;[^}]*height:\s*100dvh/);
+});

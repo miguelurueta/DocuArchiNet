@@ -13,3 +13,4 @@ Confirmar permanece deshabilitado con selección vacía, tipología faltante, ca
 - Sin cambios a `JSExpediente.js`, `JSProgresBar.js`, almacenamiento o `ClassAlmacenamiento`.
 - Gate apagado conserva flujo legacy.
 - Foco, scroll y selección se restauran al cancelar.
+- La tabla usa una región enfocable con scroll horizontal/vertical propio, altura limitada al viewport y `overscroll-behavior: contain`; no ensancha ni alarga el popup.
