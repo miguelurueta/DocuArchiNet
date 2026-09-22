@@ -29,10 +29,19 @@ node --test tools/e2e/tests/workflow-e2e-platform*.test.cjs tools/e2e/tests/impo
 Resultado: PASS, 40/40.
 ```
 
-Esta validación fue local y no autenticada. La corrida real preparada sigue siendo `test:workflow:platform` con el perfil existente `doc56-import-sii-read.profile.example.json` y requiere autorizaciones interactivas de ambiente, gate y TLS local cuando aplique.
+La validación 40/40 anterior fue local y no autenticada. La corrida real usa `test:workflow:platform` y requiere autorizaciones interactivas de ambiente, gate y TLS local cuando aplique.
+
+## E2E real autorizada
+
+```text
+npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario import-sii-read --profile doc74-import-sii-preview-220585.runtime.json --authorize environment,gate,local-tls
+Resultado: PASS; 2026-09-22 12:20:33.
+```
+
+La evidencia saneada confirmó `uiPreview`, `uiFocus` y `uiSingleFetch`; los siete controles de intención, ítems, transiciones, expediente, relación, caché e índices permanecieron sin cambios. El gate regresó a `false`, el proveedor temporal se restauró a vacío y no quedaron diferencias en las páginas Workflow.
 
 ## Limitaciones
 
-- No se ejecutó E2E real: la infraestructura quedó preparada, pero requiere autorización explícita de ambiente, cuentas y tarea.
-- No se activó el gate ni se hizo carga.
+- La E2E real de lectura fue ejecutada con autorización explícita; no se realizó ejecución mutante ni carga.
+- El gate y el proveedor se habilitaron únicamente durante la corrida y fueron restaurados al finalizar.
 - La disponibilidad productiva de B10 sigue pendiente de confirmación externa.
