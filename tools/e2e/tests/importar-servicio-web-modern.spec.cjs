@@ -450,6 +450,9 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(source, /initializeWorkflowContext\(context, currentPlan\)/);
   assert.match(source, /document\.querySelector\(selector\)\?\.value === expected/);
   assert.doesNotMatch(source, /__docE2eTaskSelectionPostbackCompleted/);
+  assert.match(source, /querySelector\('#Hidden_id_tarea_sel'\)/);
+  assert.match(source, /querySelector\('#ButtonSeleccionGrupo'\)/);
+  assert.doesNotMatch(source, /querySelector\('#Hidden_id_tarea_selecionada'\)\.value\s*=/);
   assert.match(source, /inspectSession:\s*inspectImportPreviewUi/);
   assert.match(source, /IMPORT_E2E_PREVIEW_UI_DUPLICATE_REQUEST/);
   assert.match(source, /uiSingleFetch: 'CONFIRMED'/);

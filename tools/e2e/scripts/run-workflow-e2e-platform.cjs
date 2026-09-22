@@ -175,7 +175,14 @@ async function selectWorkflowTask(page, plan) {
         await page.locator('button[title="consultar lista"]:visible').click();
       }
       await selectCommand.waitFor({ state: 'visible', timeout: Math.min(plan.profile.budgetMs, 30000) });
-      await selectCommand.click();
+      await page.evaluate((expected) => {
+        const candidate = document.querySelector(`[tip_event="seleccion_tarea_wf"][idd="${expected}"]`);
+        const stagedTask = document.querySelector('#Hidden_id_tarea_sel');
+        const officialSelector = document.querySelector('#ButtonSeleccionGrupo');
+        if (!candidate || !stagedTask || !officialSelector) throw new Error('E2E_PLATFORM_TASK_SELECTION_CONTROLS_UNAVAILABLE');
+        stagedTask.value = expected;
+        officialSelector.click();
+      }, expectedTaskId).catch(() => fail('E2E_PLATFORM_TASK_SELECTION_CONTROLS_UNAVAILABLE'));
       await page.waitForFunction(
         ([selector, expected]) => document.querySelector(selector)?.value === expected,
         ['#Hidden_id_tarea_selecionada', expectedTaskId],
