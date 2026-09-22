@@ -175,24 +175,12 @@ async function selectWorkflowTask(page, plan) {
         await page.locator('button[title="consultar lista"]:visible').click();
       }
       await selectCommand.waitFor({ state: 'visible', timeout: Math.min(plan.profile.budgetMs, 30000) });
-      await page.evaluate(() => {
-        window.__docE2eTaskSelectionPostbackCompleted = false;
-        const manager = window.Sys?.WebForms?.PageRequestManager?.getInstance?.();
-        if (manager) {
-          const completed = () => {
-            window.__docE2eTaskSelectionPostbackCompleted = true;
-            manager.remove_endRequest(completed);
-          };
-          manager.add_endRequest(completed);
-        }
-      });
       await selectCommand.click();
       await page.waitForFunction(
-        ([selector, expected]) => document.querySelector(selector)?.value === expected
-          || window.__docE2eTaskSelectionPostbackCompleted === true,
+        ([selector, expected]) => document.querySelector(selector)?.value === expected,
         ['#Hidden_id_tarea_selecionada', expectedTaskId],
         { timeout: Math.min(plan.profile.budgetMs, 30000) }
-      );
+      ).catch(() => fail('E2E_PLATFORM_TASK_SELECTION_REJECTED'));
       if (await selectedTask.inputValue() !== expectedTaskId) {
         fail('E2E_PLATFORM_TASK_SELECTION_REJECTED');
       }
