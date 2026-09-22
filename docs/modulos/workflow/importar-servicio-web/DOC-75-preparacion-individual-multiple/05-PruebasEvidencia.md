@@ -37,7 +37,9 @@ Resultado de política/plataforma: PASS, 27/27.
 
 La corrida autorizada para la tarea `220585`, con perfil no sensible y `sampleSize: 2`, terminó correctamente. Los siete controles de estado/auditoría permanecieron sin cambios; quedaron confirmados preview seguro, foco, petición única, tabla responsive, preparación individual y ausencia de mutaciones. El gate terminó apagado, con usuarios, grupos y proveedor vacíos, y no hubo diferencias en las páginas legacy controladas.
 
-La preparación múltiple quedó registrada como `INSUFFICIENT_ITEMS`: SII entregó menos de dos filas importables para el código autorizado. Esto no invalida la corrida de lectura ni la cobertura individual, pero deja pendiente la evidencia E2E del recorrido múltiple hasta contar con un código de barras que devuelva al menos dos elementos importables.
+En esa primera corrida, la preparación múltiple quedó registrada como `INSUFFICIENT_ITEMS`: SII entregó menos de dos filas importables para el código autorizado. Una segunda corrida autorizada con la tarea `219877` aportó dos elementos importables y cerró la brecha con `uiMultiplePreparation: CONFIRMED`.
+
+El resultado final autenticado confirmó `uiPreview`, `uiResponsiveTable`, `uiIndividualPreparation` y `uiMultiplePreparation`; `uiPreparationMutation` permaneció en `NOT_OBSERVED`. Los siete controles conservaron su huella, el gate terminó apagado con alcance y proveedor vacíos, y no hubo diferencias en las páginas legacy controladas.
 
 También se corrigió la salida silenciosa del runner: una corrida exitosa imprime ahora un resumen saneado con escenario, cantidad de controles y bandera de ausencia de cambios.
 
