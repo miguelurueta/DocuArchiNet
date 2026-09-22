@@ -212,7 +212,6 @@ async function initializeWorkflowContext(context, plan) {
 
 async function inspectImportPreviewUi({ context, plan }) {
   const page = await context.newPage();
-  const started = performance.now();
   let previewRequests = 0;
   let queryRequestsObserved = 0;
   let queryContextInjected = 0;
@@ -296,7 +295,7 @@ async function inspectImportPreviewUi({ context, plan }) {
     return Object.freeze({
       codes: Object.freeze({ uiPreview: 'CONFIRMED', uiFocus: 'CONFIRMED', uiSingleFetch: 'CONFIRMED' }),
       count: 1,
-      latenciesMs: Object.freeze([Math.round(performance.now() - started)])
+      latenciesMs: Object.freeze([])
     });
   } finally {
     await page.unroute(queryRoute).catch(() => {});

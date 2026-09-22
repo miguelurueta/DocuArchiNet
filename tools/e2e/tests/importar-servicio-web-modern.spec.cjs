@@ -452,6 +452,7 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(source, /IMPORT_E2E_PREVIEW_UI_DUPLICATE_REQUEST/);
   assert.match(source, /uiSingleFetch: 'CONFIRMED'/);
   assert.doesNotMatch(source, /uiSingleRequest/);
+  assert.match(source, /uiSingleFetch: 'CONFIRMED'[\s\S]{0,160}latenciesMs: Object\.freeze\(\[\]\)/);
   assert.match(source, /page\.route\(queryRoute/);
   assert.match(source, /queryRequestsObserved > 1/);
   assert.match(source, /queryContextInjected > 1/);
