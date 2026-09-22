@@ -159,7 +159,7 @@ const SCENARIO_REGISTRY = Object.freeze({
     controls: IMPORT_CONTROLS,
     controlExpectations: IMPORT_CONTROLS_UNCHANGED,
     transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
-    expectations: Object.freeze(['real-sii', 'no-state-change', 'temporary-feature-gate', 'sanitized-evidence'])
+    expectations: Object.freeze(['real-sii', 'no-state-change', 'secure-preview-ui', 'temporary-feature-gate', 'sanitized-evidence'])
   }),
   'import-sii-recovery': Object.freeze({
     id: 'import-sii-recovery', doc: 'doc56', stage: 'read', adapterId: 'importar-servicio-web',

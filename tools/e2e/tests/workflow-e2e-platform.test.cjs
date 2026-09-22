@@ -124,6 +124,33 @@ test('la plataforma acepta el mínimo anónimo y exige autorización adicional p
   assert.doesNotThrow(() => preflightPlatform({ profile: profile({ ignoreHttpsErrors: true }), authorizations: ['environment', 'local-tls'] }));
 });
 
+test('el escenario de preview UI exige inspector y agrega evidencia saneada', async () => {
+  const importProfile = {
+    scenarioId: 'import-sii-read', baseUrl: 'https://workflow.example.invalid/app/', module: 'GESTOR',
+    environment: 'CERTIFICACION', odbcDsn: 'workflowconta', taskId: 708, radicado: 'RAD-1',
+    codigoBarras: 'BAR-1', sampleSize: 1, budgetMs: 10000, ignoreHttpsErrors: false
+  };
+  const importDependencies = dependencies({
+    invoke: async ({ operation }) => ({
+      elapsedMs: 1,
+      dto: operation === 'ResolveCapabilities'
+        ? { DocumentTypes: [] }
+        : operation === 'QueryItems'
+          ? { Items: [{ ExternalKey: 'SII2.item-1', DisplayName: 'sample.pdf', ContentType: 'application/pdf', Metadata: [], ImportStatus: 'Disponible', AllowedActions: ['Preview'] }] }
+          : { DescriptorId: 'A'.repeat(43), ContentType: 'application/pdf', Length: 4 }
+    })
+  });
+  await assert.rejects(() => executePlatformRun({ profile: importProfile, authorizations: ['environment', 'gate'], ...importDependencies }),
+    (error) => error instanceof PlatformExecutionError && error.code === 'E2E_PLATFORM_SESSION_INSPECTOR_REQUIRED');
+  const outcome = await executePlatformRun({
+    profile: importProfile, authorizations: ['environment', 'gate'], ...dependencies({
+      ...importDependencies,
+      inspectSession: async () => ({ codes: { uiPreview: 'CONFIRMED' }, count: 1, latenciesMs: [2] })
+    })
+  });
+  assert.equal(outcome.result.codes.uiPreview, 'CONFIRMED');
+});
+
 test('el kernel reutiliza el ciclo de recursos local para etapas mutantes registradas', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'workflow-e2e-platform-resource-'));
   const contract = {

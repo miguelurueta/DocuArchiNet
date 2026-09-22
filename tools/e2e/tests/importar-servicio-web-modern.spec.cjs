@@ -25,6 +25,7 @@ test('DOC-56 registra lectura, ejecución y concurrencia sobre la plataforma com
   assert.equal(execution.stage, 'execution');
   assert.equal(concurrency.stage, 'concurrency');
   assert.equal(read.adapterId, IMPORTAR_SERVICIO_WEB_E2E_ADAPTER.id);
+  assert.ok(read.expectations.includes('secure-preview-ui'));
   assert.deepEqual(read.controls, [
     'import-intent-state', 'import-item-state', 'import-transition-audit', 'import-expedient-state',
     'import-document-relation-state', 'import-document-link-cache-state', 'import-document-index-state'
@@ -443,8 +444,23 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   const platform = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'support', 'workflow-e2e-platform.cjs'), 'utf8');
   assert.match(source, /finally\s*\{\s*await restoreGate\(\)/);
   assert.match(source, /await restoreGate\(\);\s*await assertPlatformIntegrity/);
+  assert.match(source, /ImportarServicioWebProviderId" value=""/);
+  assert.match(source, /ImportarServicioWebProviderId" value="INTEGRACIONSII"/);
   assert.match(source, /workflow\/Webworkflow\.aspx/);
   assert.match(source, /initializeWorkflowContext\(context, currentPlan\)/);
+  assert.match(source, /inspectSession:\s*inspectImportPreviewUi/);
+  assert.match(source, /IMPORT_E2E_PREVIEW_UI_DUPLICATE_REQUEST/);
+  assert.match(source, /page\.route\(queryRoute/);
+  assert.match(source, /queryRequestsObserved > 1/);
+  assert.match(source, /queryContextInjected > 1/);
+  assert.match(source, /String\(payload\.request\.CodigoBarras\) !== plan\.profile\.codigoBarras/);
+  assert.match(source, /WebServiceImportarServicioWebModern\\\.asmx\\\/GetPreview/);
+  assert.match(source, /payload\.request\.CodigoBarras = plan\.profile\.codigoBarras/);
+  assert.match(source, /route\.continue\(\{ postData: JSON\.stringify\(payload\) \}\)/);
+  assert.match(source, /IMPORT_E2E_PREVIEW_UI_RESULTS_UNAVAILABLE/);
+  assert.match(source, /\['resultados', 'vacio', 'error'\]\.includes\(state\)/);
+  assert.match(source, /IMPORT_E2E_PREVIEW_UI_\$\{publicCode\}/);
+  assert.match(source, /#importar-servicio-web-preview-back/);
   assert.match(source, /#Hidden_id_tarea_selecionada/);
   assert.match(source, /tip_event="seleccion_tarea_wf"/);
   assert.match(source, /#auto_complex:visible/);

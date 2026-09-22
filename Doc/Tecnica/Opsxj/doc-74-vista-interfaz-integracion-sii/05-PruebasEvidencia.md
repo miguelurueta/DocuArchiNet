@@ -15,6 +15,8 @@ Suite relacionada de API, adaptador SII, mediación, handler, invariancia legacy
 
 ## QA/E2E WebForms
 
-No ejecutado. El flujo requiere navegador autenticado y el runbook prohíbe inferir autorización de ambiente o cuentas. No se activó el gate, no se realizó carga y no se guardaron secretos, cookies ni cadenas de conexión.
+Infraestructura preparada reutilizando el escenario `import-sii-read` de DOC-56: sesión autenticada, tarea autorizada, gate y proveedor `INTEGRACIONSII` temporales con restauración exacta en `finally`, controles ODBC `SELECT` y evidencia saneada. El inspector añadido cubre apertura, consulta visual con el código de barras no sensible del perfil, preview, foco, no repetición por foco/resize, retorno y cierre. Pruebas de plataforma locales: PASS 40/40.
+
+E2E real no ejecutado. El flujo requiere navegador autenticado y el runbook prohíbe inferir autorización de ambiente o cuentas. No se activó el gate, no se realizó carga y no se guardaron secretos, cookies ni cadenas de conexión.
 
 Al recibir autorización se debe validar: apertura, foco, cierre, retorno, layout reducido, fallback MIME, renovación tras expiración y delegación al visor con una identidad interna autorizada; al finalizar, confirmar gate `false` y alcance vacío.

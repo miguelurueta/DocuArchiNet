@@ -305,7 +305,7 @@ Public Class Webworkflow
         If Page.Header.FindControl("importarServicioWebModernStyle") Is Nothing Then
             Dim style As New Global.System.Web.UI.HtmlControls.HtmlLink()
             style.ID = "importarServicioWebModernStyle"
-            style.Href = "../Styles/importar-servicio-web-modern.css?v=20260921-doc72core1"
+            style.Href = "../Styles/importar-servicio-web-modern.css?v=20260922-doc74preview2"
             style.Attributes("rel") = "stylesheet"
             style.Attributes("type") = "text/css"
             Page.Header.Controls.Add(style)
@@ -319,7 +319,7 @@ Public Class Webworkflow
         RegisterImportarServicioWebScript("importarServicioWebSiiAdapterScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-adapter.js?v=20260921-doc73sii1")
         RegisterImportarServicioWebScript("importarServicioWebPreviewStateScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preview-state.js?v=20260922-doc74preview1")
         RegisterImportarServicioWebScript("importarServicioWebPreviewScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preview.js?v=20260922-doc74preview1")
-        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260921-doc72core1")
+        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260922-doc74preview2")
     End Sub
 
     Private Sub RegisterImportarServicioWebScript(ByVal controlId As String, ByVal source As String)

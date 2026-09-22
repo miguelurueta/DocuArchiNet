@@ -162,13 +162,24 @@
         });
     }
 
+    function restoreTriggerFocus(control) {
+        var fallback;
+        if (control.trigger && (!control.trigger.getClientRects || control.trigger.getClientRects().length > 0)) {
+            control.trigger.focus();
+            return;
+        }
+        fallback = control.trigger && control.trigger.closest ? control.trigger.closest(".dropright") : null;
+        fallback = fallback && fallback.querySelector ? fallback.querySelector(".dropdown-toggle") : null;
+        if (fallback && typeof fallback.focus === "function") { fallback.focus(); }
+    }
+
     function close(control) {
         if (control.preview) { control.preview.close(); restoreListContext(control); }
         control.core.close();
         control.modal.hidden = true;
         control.modal.setAttribute("aria-hidden", "true");
         document.body.classList.remove("importar-servicio-web-open");
-        if (control.trigger && typeof control.trigger.focus === "function") { control.trigger.focus(); }
+        restoreTriggerFocus(control);
     }
 
     function onKeydown(control, event) {
@@ -232,7 +243,7 @@
         return control;
     }
 
-    var ui = { initialize: initialize, open: open, close: close, onKeydown: onKeydown, createBackendAdapter: createBackendAdapter, createImportedViewerAdapter: createImportedViewerAdapter, openPreview: openPreview, restoreListContext: restoreListContext, getActiveControl: function () { return activeControl; } };
+    var ui = { initialize: initialize, open: open, close: close, onKeydown: onKeydown, createBackendAdapter: createBackendAdapter, createImportedViewerAdapter: createImportedViewerAdapter, openPreview: openPreview, restoreListContext: restoreListContext, restoreTriggerFocus: restoreTriggerFocus, getActiveControl: function () { return activeControl; } };
     window.ImportarServicioWebUi = ui;
     if (typeof module !== "undefined" && module.exports) { module.exports = ui; }
     if (window.Sys && window.Sys.Application && typeof window.Sys.Application.add_load === "function") { window.Sys.Application.add_load(initialize); }

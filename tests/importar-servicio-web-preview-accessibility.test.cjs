@@ -18,6 +18,9 @@ test("la vista restaura foco y scroll sin solicitar de nuevo por resize", () => 
   assert.match(ui, /scrollTop: control\.body\.scrollTop/);
   assert.match(ui, /control\.body\.scrollTop = saved\.scrollTop/);
   assert.match(ui, /saved\.focus\.focus\(\)/);
+  assert.match(ui, /function restoreTriggerFocus\(control\)/);
+  assert.match(ui, /closest\("\.dropright"\)/);
+  assert.match(ui, /querySelector\("\.dropdown-toggle"\)/);
   assert.doesNotMatch(ui, /addEventListener\(["']resize["'][\s\S]{0,300}(?:getPreview|preview\.open)/);
 });
 
