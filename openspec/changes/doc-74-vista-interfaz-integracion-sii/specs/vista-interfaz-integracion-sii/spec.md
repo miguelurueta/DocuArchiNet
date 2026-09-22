@@ -1,155 +1,99 @@
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
 ## ADDED Requirements
-### Requirement: VISTA-INTERFAZ-INTEGRACION-SII
-El sistema SHALL implementar el alcance definido para DOC-74.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- # Prompt 03 — Vista segura de recursos externos
-- 
-- Extiende el núcleo y el adaptador SII sin reutilizar como autoridad las URL recibidas en las filas.
-- 
-- Depende de `GetPreview` y del handler de streaming publicados por backend 01, 02, 06 y 10. La integración productiva queda bloqueada hasta completar B10.
-- 
-- ## Objetivo
-- 
-- Mostrar un recurso externo todavía no importado mediante una vista mediada y mantener separado el documento ya almacenado.
-- 
-- ## Rutas canónicas de implementación
-- 
-- ```txt
-- js/workflow/importar-servicio-web/
-- ├── importar-servicio-web-preview.js
-- └── importar-servicio-web-preview-state.js
-- 
-- Tests/
-- ├── importar-servicio-web-preview.test.cjs
-- ├── importar-servicio-web-preview-security.test.cjs
-- └── importar-servicio-web-preview-accessibility.test.cjs
-- ```
-- 
-- - El panel se agrega de forma aditiva en `workflow/Webworkflow.aspx`; sus estilos van únicamente en `Styles/importar-servicio-web-modern.css`.
-- - Preview usa `importar-servicio-web-api.js`; no crea un segundo cliente HTTP ni inserta URL externa como autoridad.
-- - Registrar scripts en el `.vbproj`; no usar JavaScript inline, `window.open` como flujo principal ni modificar visores documentales existentes.
-- 
-- ## Implementa
-- 
-- - Panel lateral dentro del modal; en pantallas pequeñas, subvista completa con **Volver a la lista**.
-- - Solicitud por proveedor e identidad externa para obtener `DescriptorId`, seguida del handler seguro; nunca por URL SII enviada como autoridad.
-- - Estados preparando, disponible, formato no visualizable, recurso vencido, proveedor indisponible y acceso no autorizado.
-- - Descarga temporal controlada mediante el mismo handler cuando el formato no sea visualizable.
-- - Acción **Ver documento importado** mediante el visor documental existente solo después de reconciliar un identificador interno autorizado.
-- - Conservación de selección, filtros, scroll y foco al abrir y cerrar la vista.
-- 
-- ## Restricciones
-- 
-- - No insertes directamente una URL externa de la fila en `iframe` ni uses `window.open` como recorrido principal.
-- - No transportes bytes como JSON/base64, no construyas URLs técnicas y no reutilices descriptores vencidos.
-- - No registres ni muestres tokens, rutas físicas o respuestas externas completas.
-- - Si el backend mediador aún no existe, deja el estado bloqueado y documenta el contrato requerido; no lo simules en producción.
-- - No modifiques almacenamiento, `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` ni rutas legacy.
-- 
-- ## Aceptación
-- 
-- - La vista externa se distingue visual y semánticamente del documento importado.
-- - La expiración permite solicitar un recurso nuevo sin mutación.
-- - Cambios de foco, tamaño o layout no repiten la descarga del contenido.
-- - Las pruebas cubren foco, cierre y fallback de formato.
-- 
-- ## Correcciones opsxj:prompt-review
-- 
-- Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-- 
-- ## Rol esperado
-- Definir el rol tecnico esperado para ejecutar el ticket.
-- 
-- ## Objetivo
-- Describir el objetivo funcional y tecnico verificable.
-- 
-- ## Restricciones criticas
-- - No introducir cambios fuera del alcance declarado.
-- - No romper comportamiento existente ni contratos publicos.
-- 
-- ## Criterios de aceptacion
-- - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-- 
-- ## Contexto obligatorio
-- Leer F01–F02, contrato `GetPreview`, fixtures B01/B06, `workflow/Webworkflow.aspx` y el visor documental vigente. El visor existente es referencia/reutilización y no se modifica.
-- 
-- ## Pruebas obligatorias
-- Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
-- 
-- ## Documentacion tecnica
-- Actualizar exclusivamente el paquete definido en **Ruta documental obligatoria**, incluida seguridad del preview, expiración, fallbacks, accesibilidad, pruebas y diagramas.
-- 
-- ## Entregable final
-- Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-- 
-- ## Reglas de ubicacion de codigo
-- - Usar exclusivamente las rutas declaradas en **Rutas canónicas de implementación**.
-- - No crear `src/app`, `src/modules`, otra raíz frontend ni una segunda implementación del visor.
-- 
-- Agregar regla para [FLOW_DETAIL_REQUIRED]: Flujo paso a paso, secuencia o comportamiento esperado.
-- 
-- Exigir `npm run build` o `tsc` segun impacto y registrar el resultado.
-- 
-- Exigir pruebas unitarias/focales con Vitest o Testing Library segun el alcance.
-- 
-- Registrar comandos ejecutados, resultados obtenidos y evidencia en `05-PruebasEvidencia.md`.
-- 
-- Cuando el ticket afecte un flujo completo de usuario, navegacion, integracion entre vistas, persistencia de estado u operacion transaccional, exigir E2E real con Playwright; si no aplica, documentar justificacion formal y evidencia manual.
-- 
-- ## Correcciones opsxj:prompt-review
-- 
-- Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-- 
-- ## Ruta documental obligatoria
-- 
-- ```txt
-- docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-vista-segura-recursos-externos/
-- ```
-- 
-- Sustituir `SCRUMCORE-000` por el ticket real. No crear documentación en otra ruta ni duplicarla bajo `Doc/Actualizacion`.
-- 
-- ## Paquete documental minimo
-- Generar como minimo:
-- 
-- ```txt
-- 00-Indice.md
-- 01-Arquitectura.md
-- 02-FlujoIntegracion.md
-- 03-ContratoUploadYMapping.md
-- 04-EstadosErroresYAntiregresion.md
-- 05-PruebasEvidencia.md
-- 06-Diagramas.md
-- 07-Metadata.md
-- ```
-- 
-- 00-Indice.md debe incluir objetivo, alcance, componentes, hooks/adapters/servicios, modulos, dependencias y listado documental.
-- 
-- 01-Arquitectura.md debe explicar decisiones arquitectonicas, reutilizacion, responsabilidades, desacople, alternativas descartadas, componentes de presentacion, contenedores, servicios, adapters, mappers, hooks e infraestructura.
-- 
-- 02-FlujoIntegracion.md debe cubrir usuario, renderizado, carga de datos, requests, backend, responses, estado, interfaz UI y batch/lote si aplica.
-- 
-- 03-ContratoUploadYMapping.md debe documentar props, contexto, DTOs, request, response, modelos, transformacion/mapping, deduplicacion, metadata y frontera frontend/backend.
-- 
-- 04-EstadosErroresYAntiregresion.md debe cubrir estado inicial, carga/loading, exito, errores, datos incompletos, estados parciales, respuestas invalidas, antirregresion, remount, refresh, recargas silenciosas, duplicacion, logica heredada y soluciones temporales.
-- 
-- 05-PruebasEvidencia.md debe listar pruebas unitarias, integracion, manuales, comandos, resultados, limitaciones, riesgos y evidencia.
-- 
-- 06-Diagramas.md debe incluir componentes, secuencia, flujo principal, flujo alterno, casos de uso, estados y Mermaid o formato estructurado legible.
-- 
-- 07-Metadata.md debe consolidar SCRUMCORE, branch/rama, fecha, estado, archivos modificados, prompts, dependencias, riesgos y deuda tecnica.
-- 
-- Crear carpeta `Diagramas/` dentro del paquete documental para diagramas individuales.
-- 
-- ## Tabla de funciones creadas o modificadas
-- | Funcion | Ruta | Ubicacion | Parametros | Responsabilidad |
-- | --- | --- | --- | --- | --- |
-- | `<nombre>` | `<path>` | `<componente/hook/service/adapter>` | `<params>` | `<responsabilidad>` |
+### Requirement: Preview mediado por descriptor
+
+El sistema SHALL solicitar el recurso por proveedor e identidad externa y consumirlo únicamente mediante el descriptor emitido por backend. Origen: D-01, RQ-01.
+
+#### Scenario: Apertura segura
+
+- **WHEN** el usuario abre un recurso SII no importado
+- **THEN** la UI invoca `GetPreview` mediante el cliente existente
+- **AND** obtiene contenido del handler same-origin usando `DescriptorId`
+- **AND** ignora cualquier URL externa de la fila
+
+#### Scenario: Datos inseguros ausentes
+
+- **WHEN** se renderiza preview o error
+- **THEN** no se muestran ni registran tokens, rutas físicas, respuestas completas o URLs técnicas
+
+### Requirement: Estado determinista y renovación explícita
+
+El sistema SHALL modelar el preview sin repetir la descarga por foco, resize o layout. Origen: D-02, RQ-02.
+
+#### Scenario: Una solicitud por apertura
+
+- **WHEN** cambia el foco o tamaño con el preview abierto
+- **THEN** se conserva la solicitud o descriptor actual
+- **AND** no se descarga nuevamente
+
+#### Scenario: Descriptor vencido
+
+- **WHEN** el backend informa expiración
+- **THEN** se presenta `recurso-vencido`
+- **AND** se puede solicitar otro descriptor sin mutar tarea, estado o auditoría
+
+#### Scenario: Formato no visualizable
+
+- **WHEN** el MIME permitido no puede embeberse
+- **THEN** se presenta el fallback y la descarga usa el mismo handler seguro
+
+### Requirement: Panel accesible y responsive
+
+El sistema SHALL presentar panel lateral en escritorio y subvista en pantallas pequeñas, preservando contexto. Origen: D-03, RQ-03.
+
+#### Scenario: Abrir y volver
+
+- **WHEN** el usuario abre y luego usa `Volver a la lista`
+- **THEN** se restauran selección, filtros, scroll y foco
+
+#### Scenario: Navegación por teclado
+
+- **WHEN** el usuario opera con teclado
+- **THEN** los estados se anuncian y cerrar devuelve el foco al control de origen
+
+### Requirement: Separación del documento importado
+
+El sistema SHALL distinguir la vista temporal y reutilizar el visor vigente solo con identidad interna autorizada. Origen: D-04, RQ-04.
+
+#### Scenario: Documento reconciliado
+
+- **WHEN** existe identificador interno autorizado
+- **THEN** se habilita `Ver documento importado` mediante el visor existente
+
+#### Scenario: Documento no reconciliado
+
+- **WHEN** no existe identificador interno autorizado
+- **THEN** la acción no está disponible y el preview no se presenta como almacenado
+
+### Requirement: Fallo cerrado
+
+El sistema SHALL bloquear la vista si el mediador, B10, gate o proveedor no están disponibles. Origen: D-05, RQ-05.
+
+#### Scenario: Dependencia ausente
+
+- **WHEN** la dependencia no está disponible
+- **THEN** se muestra estado bloqueado o proveedor no disponible
+- **AND** no se usa URL externa, contenido simulado ni bytes JSON/base64
+
+#### Scenario: Acceso no autorizado
+
+- **WHEN** backend rechaza el acceso
+- **THEN** se muestra `no-autorizado` sin detalles internos
+
+### Requirement: Cambios acotados y verificables
+
+La implementación SHALL respetar rutas canónicas y proteger superficies legacy. Origen: D-06, RQ-06.
+
+#### Scenario: Revisión del diff
+
+- **WHEN** se revisa DOC-74
+- **THEN** los módulos nuevos son `importar-servicio-web-preview.js` y `importar-servicio-web-preview-state.js`
+- **AND** markup, CSS, code-behind y `.vbproj` solo reciben integración aditiva
+- **AND** no cambian almacenamiento ni visores existentes
+
+#### Scenario: Evidencia focal
+
+- **WHEN** se valida la implementación
+- **THEN** pruebas funcionales, seguridad y accesibilidad cubren foco, cierre, expiración y fallback
+- **AND** la evidencia se registra sin secretos

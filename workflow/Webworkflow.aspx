@@ -4529,9 +4529,25 @@
                     <h2 id="importar-servicio-web-title" class="importar-servicio-web__title">Importar documentos desde servicio</h2>
                     <button id="importar-servicio-web-close" class="importar-servicio-web__close" type="button" aria-label="Cerrar importación">&times;</button>
                 </header>
-                <div class="importar-servicio-web__body">
-                    <div id="importar-servicio-web-status" class="importar-servicio-web__status" role="status" aria-live="polite"></div>
-                    <div id="importar-servicio-web-results" class="importar-servicio-web__results" aria-label="Documentos disponibles"></div>
+                <div id="importar-servicio-web-body" class="importar-servicio-web__body">
+                    <div id="importar-servicio-web-list">
+                        <div id="importar-servicio-web-status" class="importar-servicio-web__status" role="status" aria-live="polite"></div>
+                        <div id="importar-servicio-web-results" class="importar-servicio-web__results" aria-label="Documentos disponibles"></div>
+                    </div>
+                    <section id="importar-servicio-web-preview" class="importar-servicio-web__preview" aria-labelledby="importar-servicio-web-preview-title" hidden="hidden" data-preview-state="cerrado">
+                        <header class="importar-servicio-web__preview-header">
+                            <button id="importar-servicio-web-preview-back" class="importar-servicio-web__preview-back" type="button">Volver a la lista</button>
+                            <h3 id="importar-servicio-web-preview-title" class="importar-servicio-web__preview-title" tabindex="-1">Recurso externo temporal</h3>
+                        </header>
+                        <p class="importar-servicio-web__preview-help">Esta vista no representa un documento almacenado en DocuArchi.</p>
+                        <div id="importar-servicio-web-preview-status" class="importar-servicio-web__preview-status" role="status" aria-live="polite"></div>
+                        <iframe id="importar-servicio-web-preview-frame" class="importar-servicio-web__preview-frame" title="Recurso externo temporal" sandbox="allow-same-origin" hidden="hidden"></iframe>
+                        <div class="importar-servicio-web__preview-actions">
+                            <button id="importar-servicio-web-preview-renew" type="button" hidden="hidden">Solicitar recurso nuevo</button>
+                            <a id="importar-servicio-web-preview-download" href="#" download="download" hidden="hidden">Descargar temporalmente</a>
+                            <button id="importar-servicio-web-preview-imported" type="button" hidden="hidden">Ver documento importado</button>
+                        </div>
+                    </section>
                 </div>
             </section>
         </div>
