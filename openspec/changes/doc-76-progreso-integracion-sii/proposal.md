@@ -40,7 +40,7 @@ PROGRESO-INTEGRACION-SII. Ver detalle funcional completo del ticket en la seccio
 > ## Ruta documental obligatoria
 > 
 > ```txt
-> docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-progreso-resultados-parciales/
+> Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-progreso-resultados-parciales/
 > ```
 > 
 > Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diagramas/` únicamente allí.
@@ -129,4 +129,3 @@ PROGRESO-INTEGRACION-SII. Ver detalle funcional completo del ticket en la seccio
 
 - Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
 - Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-

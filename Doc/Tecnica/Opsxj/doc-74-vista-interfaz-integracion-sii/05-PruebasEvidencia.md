@@ -6,7 +6,7 @@
 
 ## Evidencia requerida
 
-- [x] unit: `node --test Tests/importar-servicio-web-preview.test.cjs Tests/importar-servicio-web-preview-security.test.cjs Tests/importar-servicio-web-preview-accessibility.test.cjs`; PASS 12/12; 2026-09-22; detalle en `docs/modulos/workflow/importar-servicio-web/DOC-74-vista-segura-recursos-externos/05-PruebasEvidencia.md`.
+- [x] unit: `node --test Tests/importar-servicio-web-preview.test.cjs Tests/importar-servicio-web-preview-security.test.cjs Tests/importar-servicio-web-preview-accessibility.test.cjs`; PASS 12/12; 2026-09-22; detalle en `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-74-vista-segura-recursos-externos/05-PruebasEvidencia.md`.
 - [x] manual_qa: E2E real `import-sii-read`; PASS; tarea autorizada 220585; evidencia saneada en `tools/e2e/artifacts/workflow-e2e-platform-import-sii-read.json`; 2026-09-22.
 
 ## Regresión local

@@ -33,7 +33,7 @@ tools/e2e/tests/
 ## Ruta documental obligatoria
 
 ```txt
-docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-pruebas-gate-transicion-legacy/
+Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-pruebas-gate-transicion-legacy/
 ```
 
 Sustituir `SCRUMCORE-000` por el ticket real; crear `00-Indice.md` a `07-Metadata.md`, `Diagramas/` y `Evidencias/` exclusivamente allí. `Evidencias/` solo admite material saneado.

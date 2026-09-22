@@ -51,6 +51,6 @@ Cada prompt debe implementarse y validarse dentro de su propio cambio OpenSpec o
 - Fixtures compartidos: `Tests/Fixtures/Workflow/ImportarServicioWeb/`.
 - Validación local: `tools/validation/`.
 - E2E autorizable: `tools/e2e/tests/importar-servicio-web-modern.spec.cjs`.
-- Documentación: `docs/modulos/workflow/importar-servicio-web/SCRUMCORE-<ID>-<alcance>/`.
+- Documentación: `Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-<ID>-<alcance>/`.
 
 No crear `src/app`, `src/modules`, otra raíz frontend ni paquetes documentales duplicados.

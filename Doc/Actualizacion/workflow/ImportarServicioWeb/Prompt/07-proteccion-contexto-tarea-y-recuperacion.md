@@ -29,7 +29,7 @@ Tests/
 ## Ruta documental obligatoria
 
 ```txt
-docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-proteccion-contexto-recuperacion/
+Doc/Actualizacion/workflow/ImportarServicioWeb/SCRUMCORE-000-proteccion-contexto-recuperacion/
 ```
 
 Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diagramas/` exclusivamente allí.
