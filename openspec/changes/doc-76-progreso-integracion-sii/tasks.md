@@ -21,4 +21,4 @@
 ## 4. Documentación y cierre
 
 - [x] 4.1 Crear exclusivamente `docs/modulos/workflow/importar-servicio-web/DOC-76-progreso-resultados-parciales/` con arquitectura, contratos, estados, regresión, evidencia y diagramas. Origen: D-02, RQ-02; también D-06, RQ-06.
-- [ ] 4.2 Ejecutar validación OpenSpec y revisión manual/E2E autorizada de individual, múltiple, cierre y parcial. Origen: D-03, RQ-03; también D-05, RQ-05.
+- [x] 4.2 Ejecutar validación OpenSpec y revisión manual/E2E autorizada de individual, múltiple, cierre y parcial. Origen: D-03, RQ-03; también D-05, RQ-05.

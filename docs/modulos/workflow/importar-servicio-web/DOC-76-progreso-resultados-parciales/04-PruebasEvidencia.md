@@ -13,4 +13,6 @@ Antes de una prueba autenticada de `PreviewEnviarTarea` se sigue `tools/e2e/AGEN
 - `node --test Tests/importar-servicio-web-*.test.cjs`: PASS, 415/415.
 - `msbuild GestionDocumental-Docuarchi.net.sln /t:Build /p:Configuration=Debug /m`: PASS, 0 errores; 310 advertencias preexistentes del proyecto legacy.
 - `openspec validate doc-76-progreso-integracion-sii --strict --json`: PASS.
-- E2E autenticado: pendiente de autorización específica para DOC-76; no ejecutado durante esta validación local.
+- E2E autenticado `import-sii-execution`: PASS; controles=7; `sinCambios=NO`, esperado por tratarse de una ejecución mutante sobre recurso descartable autorizado. Evidencia saneada disponible.
+
+La corrida real cubrió una intención individual y una única ejecución backend. Los casos múltiple, resultado parcial, cierre sin cancelación y ausencia de doble ejecución quedaron cubiertos por las pruebas automatizadas focales; no se consumió un segundo recurso descartable.
