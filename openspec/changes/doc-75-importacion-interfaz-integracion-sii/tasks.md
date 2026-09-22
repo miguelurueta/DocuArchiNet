@@ -29,4 +29,4 @@
 
 - [x] 5.1 Crear paquete canónico `DOC-75-preparacion-individual-multiple/` y `Diagramas/`. Origen: D-01, RQ-01; D-05, RQ-05
 - [x] 5.2 Documentar B03/B09/B11, estados, riesgos, rollout, rollback y funciones. Origen: D-03, RQ-03; D-06, RQ-06
-- [ ] 5.3 Registrar evidencia y validar OpenSpec/Opsxj. Origen: D-06, RQ-06
+- [x] 5.3 Registrar evidencia y validar OpenSpec/Opsxj. Origen: D-06, RQ-06
