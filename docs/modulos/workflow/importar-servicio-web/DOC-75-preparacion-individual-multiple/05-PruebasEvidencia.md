@@ -17,7 +17,23 @@ openspec.cmd validate doc-75-importacion-interfaz-integracion-sii --strict
 Resultado: PASS.
 ```
 
-La E2E real no se ejecutó en este corte: requiere autorización explícita, ambiente/cuenta controlados y restauración del gate.
+## Cobertura E2E DOC-75
+
+Se extendió el inspector UI no mutante del escenario compartido `import-sii-read`; no se creó un login, transporte ni runner paralelo. La extensión valida en navegador real:
+
+- popup y tabla contenidos dentro del viewport de `760 x 900`;
+- región de tabla accesible y con scroll horizontal/vertical propio;
+- preparación individual, catálogo autorizado, preflight y habilitación posterior del botón;
+- cancelación y restauración del foco al botón de la fila;
+- preparación múltiple cuando el perfil solicita al menos dos elementos importables;
+- ausencia total de solicitudes `CreateImportIntent` y `ExecuteImportIntent` durante la inspección.
+
+```text
+node --test tools/e2e/tests/importar-servicio-web-modern.spec.cjs tools/e2e/tests/workflow-e2e-platform.test.cjs
+Resultado de política/plataforma: PASS, 27/27.
+```
+
+La E2E autenticada real continúa pendiente: requiere autorización explícita para el ambiente y la cuenta, un perfil no sensible con `sampleSize >= 2`, controles de solo lectura y restauración del gate. La evidencia solo podrá marcar preparación múltiple como confirmada cuando existan dos filas importables en la respuesta real.
 
 ## Limitaciones
 

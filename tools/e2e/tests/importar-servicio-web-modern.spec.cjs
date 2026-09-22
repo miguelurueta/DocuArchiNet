@@ -451,8 +451,16 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(source, /inspectSession:\s*inspectImportPreviewUi/);
   assert.match(source, /IMPORT_E2E_PREVIEW_UI_DUPLICATE_REQUEST/);
   assert.match(source, /uiSingleFetch: 'CONFIRMED'/);
+  assert.match(source, /uiResponsiveTable: 'CONFIRMED'/);
+  assert.match(source, /uiIndividualPreparation: 'CONFIRMED'/);
+  assert.match(source, /uiMultiplePreparation: multiplePreparation/);
+  assert.match(source, /uiPreparationMutation: 'NOT_OBSERVED'/);
+  assert.match(source, /IMPORT_E2E_PREPARATION_UI_RESPONSIVE_INVALID/);
+  assert.match(source, /IMPORT_E2E_PREPARATION_UI_MULTIPLE_ITEMS_UNAVAILABLE/);
+  assert.match(source, /CreateImportIntent\|ExecuteImportIntent/);
+  assert.match(source, /mutationRequests !== 0/);
   assert.doesNotMatch(source, /uiSingleRequest/);
-  assert.match(source, /uiSingleFetch: 'CONFIRMED'[\s\S]{0,160}latenciesMs: Object\.freeze\(\[\]\)/);
+  assert.match(source, /uiSingleFetch: 'CONFIRMED'[\s\S]{0,500}latenciesMs: Object\.freeze\(\[\]\)/);
   assert.match(source, /page\.route\(queryRoute/);
   assert.match(source, /queryRequestsObserved > 1/);
   assert.match(source, /queryContextInjected > 1/);
