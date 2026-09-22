@@ -278,8 +278,11 @@ async function inspectImportPreviewUi({ context, plan }) {
       fail('IMPORT_E2E_PREPARATION_UI_RESPONSIVE_INVALID');
     }
 
-    const prepareButton = page.locator('[data-import-prepare="true"]:visible:not([disabled])').first();
-    await prepareButton.waitFor({ state: 'visible', timeout });
+    const preparationRows = page.locator('[data-import-prepare="true"]:visible');
+    const importablePreparationRows = page.locator('[data-import-prepare="true"]:visible:not([disabled])');
+    if (await preparationRows.count() === 0) fail('IMPORT_E2E_PREPARATION_UI_ACTIONS_UNAVAILABLE');
+    if (await importablePreparationRows.count() === 0) fail('IMPORT_E2E_PREPARATION_UI_NO_IMPORTABLE_ITEMS');
+    const prepareButton = importablePreparationRows.first();
     await prepareButton.click();
     const preparation = page.locator('#importar-servicio-web-preparation');
     await preparation.waitFor({ state: 'visible', timeout });

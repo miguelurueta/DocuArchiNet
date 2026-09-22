@@ -458,6 +458,7 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(source, /uiMultiplePreparation: multiplePreparation/);
   assert.match(source, /uiPreparationMutation: 'NOT_OBSERVED'/);
   assert.match(source, /IMPORT_E2E_PREPARATION_UI_RESPONSIVE_INVALID/);
+  assert.match(source, /IMPORT_E2E_PREPARATION_UI_NO_IMPORTABLE_ITEMS/);
   assert.match(source, /IMPORT_E2E_PREPARATION_UI_MULTIPLE_ITEMS_UNAVAILABLE/);
   assert.match(source, /CreateImportIntent\|ExecuteImportIntent/);
   assert.match(source, /mutationRequests !== 0/);
