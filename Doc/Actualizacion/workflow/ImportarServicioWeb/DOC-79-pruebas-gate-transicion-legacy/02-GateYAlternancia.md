@@ -15,6 +15,8 @@ No se aplican listas adicionales de usuarios o grupos: la funcionalidad es trans
 
 La configuración versionada activa el gate y selecciona `INTEGRACIONSII` como proveedor, por lo que la interfaz queda visible y operativa sin una habilitación manual por cuenta.
 
+`QueryItems` resuelve el código de barras en servidor a partir de la tarea validada. El navegador no necesita publicarlo ni puede sustituirlo por otro valor. Si la tarea no tiene código de barras, la UI presenta el código seguro `SERVER_BARCODE_UNAVAILABLE` como error y no como un resultado vacío.
+
 ## Estados
 
 | Estado | UI moderna | UI legacy | ASMX moderno |

@@ -8,6 +8,19 @@ test("mapea contrato normalizado sin interpretar ExternalKey", () => {
 });
 
 test("rechaza respuesta o item sin forma mínima", () => {
+  assert.throws(() => mapper.mapResponse({ Error: { Codigo: "SERVER_BARCODE_UNAVAILABLE" }, Items: [] }), /SERVER_BARCODE_UNAVAILABLE/);
   assert.throws(() => mapper.mapResponse({}), /SII_QUERY_RESPONSE_INVALID/);
   assert.throws(() => mapper.mapResponse({ Items: [{ ExternalKey: "x" }] }), /SII_QUERY_RESPONSE_INVALID/);
+});
+
+test("QueryItems resuelve el código de barras desde la tarea confiable", () => {
+  const fs = require("node:fs");
+  const service = fs.readFileSync("webservice/WebServiceImportarServicioWebModern.asmx.vb", "utf8");
+  const start = service.indexOf("Public Function QueryItems");
+  const end = service.indexOf("End Function", start);
+  const body = service.slice(start, end);
+  assert.match(body, /TryResolveTrustedBarcode\(request\.TaskId, trustedBarcode\)/);
+  assert.match(body, /request\.CodigoBarras = trustedBarcode/);
+  assert.doesNotMatch(body, /request\.CodigoBarras\.Trim/);
+  assert.match(service, /SolicitaCodigoBarrasIdTareaWorflow\(taskId, barcode\)/);
 });

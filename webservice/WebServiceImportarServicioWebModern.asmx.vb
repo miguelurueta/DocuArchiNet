@@ -43,8 +43,9 @@ Public Class WebServiceImportarServicioWebModern
             Dim importContext As ContextoImportacionServicio = Nothing : Dim session As ResultadoContextoSesionWorkflow = Nothing
             Dim contextFailure As String = Nothing
             If Not TryBuildImportContext(request, importContext, session, contextFailure) Then Return FailureQuery(request, contextFailure)
-            If String.IsNullOrWhiteSpace(request.CodigoBarras) Then Return FailureQuery(request, "SII_BARCODE_UNAVAILABLE")
-            request.CodigoBarras = request.CodigoBarras.Trim()
+            Dim trustedBarcode As String = String.Empty
+            If Not TryResolveTrustedBarcode(request.TaskId, trustedBarcode) Then Return FailureQuery(request, "SERVER_BARCODE_UNAVAILABLE")
+            request.CodigoBarras = trustedBarcode
             Dim provider = ResolveProvider(request.ProviderId, CreateAttemptRecorder(session, importContext))
             If Not provider.Encontrado Then Return FailureQuery(request, provider.Codigo)
             Dim response=provider.Cliente.QueryItemsAsync(request, CancellationToken.None).GetAwaiter().GetResult()
@@ -59,6 +60,14 @@ Public Class WebServiceImportarServicioWebModern
         Catch
             Return FailureQuery(request, "EXTERNAL_PROVIDER_UNAVAILABLE")
         End Try
+    End Function
+
+    Private Shared Function TryResolveTrustedBarcode(ByVal taskId As Long, ByRef barcode As String) As Boolean
+        barcode = String.Empty
+        If taskId <= 0 Then Return False
+        Dim result = New Class_DAT_ADIC_TAR().SolicitaCodigoBarrasIdTareaWorflow(taskId, barcode)
+        barcode = If(barcode, String.Empty).Trim()
+        Return String.Equals(result, "YES", StringComparison.OrdinalIgnoreCase) AndAlso barcode.Length > 0 AndAlso barcode.Length <= 15
     End Function
 
     <WebMethod(EnableSession:=True)>
