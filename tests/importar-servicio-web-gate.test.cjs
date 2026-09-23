@@ -22,18 +22,17 @@ test('las ocho operaciones cortan por gate antes de validar o resolver dependenc
   }
 });
 
-test('el gate exige bandera y audiencia explícita de usuario o grupo', () => {
+test('el gate exige bandera activa y sesión Workflow válida, sin restringir usuarios o grupos', () => {
   assert.match(gate, /WorkflowCentroTrabajoModernActive/);
-  assert.match(gate, /WorkflowCentroTrabajoModernUsers/);
-  assert.match(gate, /WorkflowCentroTrabajoModernGroups/);
-  assert.match(gate, /users\) AndAlso String\.IsNullOrWhiteSpace\(groups\) Then Return False/);
-  assert.match(gate, /Contains\(users, contexto\.LoginUsuario\) OrElse Contains\(groups, contexto\.IdGrupoWorkflow\.ToString\(\)\)/);
+  assert.match(gate, /contexto Is Nothing OrElse Not contexto\.EsValido\(\) Then Return False/);
+  assert.match(gate, /Return String\.Equals\(Read\(ActiveKey\), "true", StringComparison\.OrdinalIgnoreCase\)/);
+  assert.doesNotMatch(gate, /WorkflowCentroTrabajoModernUsers|WorkflowCentroTrabajoModernGroups|LoginUsuario|IdGrupoWorkflow/);
   assert.match(service, /New ImportarServicioWebFeatureGate\(\)\.EstaHabilitado\(session\.Contexto\)/);
   assert.match(pageSource, /Private ReadOnly Property ImportarServicioWebModernActive As Boolean/);
 });
 
-test('la configuración versionada queda cerrada y sin audiencias', () => {
-  assert.match(config, /WorkflowCentroTrabajoModernActive" value="false"/i);
+test('la configuración versionada habilita la interfaz global sin audiencias', () => {
+  assert.match(config, /WorkflowCentroTrabajoModernActive" value="true"/i);
   assert.match(config, /WorkflowCentroTrabajoModernUsers" value=""/i);
   assert.match(config, /WorkflowCentroTrabajoModernGroups" value=""/i);
 });

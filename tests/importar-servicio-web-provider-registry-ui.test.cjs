@@ -27,12 +27,12 @@ test("cliente API usa exclusivamente envelopes ASMX y transporte inyectado", asy
     assert.throws(() => api.unwrapAsmx({}), /IMPORT_RESPONSE_INVALID/);
 });
 
-test("integración WebForms conserva legacy con gate apagado y registra assets bajo gate", () => {
+test("integración WebForms conserva legacy y registra assets con el gate global activo", () => {
     const page = fs.readFileSync(path.resolve(__dirname, "../workflow/Webworkflow.aspx"), "utf8");
     const codeBehind = fs.readFileSync(path.resolve(__dirname, "../workflow/Webworkflow.aspx.vb"), "utf8");
     const config = fs.readFileSync(path.resolve(__dirname, "../Web.config"), "utf8");
     const ui = fs.readFileSync(path.resolve(__dirname, "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js"), "utf8");
-    assert.match(config, /WorkflowCentroTrabajoModernActive" value="false"/);
+    assert.match(config, /WorkflowCentroTrabajoModernActive" value="true"/);
     assert.match(config, /WorkflowCentroTrabajoModernUsers" value=""/);
     assert.match(config, /WorkflowCentroTrabajoModernGroups" value=""/);
     assert.match(page, /id="btnloadservice"/);

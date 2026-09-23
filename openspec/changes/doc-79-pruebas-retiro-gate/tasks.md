@@ -3,7 +3,9 @@
 ## 1. Validación local y gate
 
 - [x] 1.1 [S] Crear la suite de arquitectura UI que compruebe composición única y ausencia de infraestructura paralela. Área/archivos: `tests/importar-servicio-web-ui-architecture.test.cjs`. Origen: D-01, RQ-01; también D-03, RQ-03. Verificación: `node --test tests/importar-servicio-web-ui-architecture.test.cjs`.
-- [x] 1.2 [M] Crear la suite del gate completo para las ocho operaciones y audiencias. Área/archivos: `tests/importar-servicio-web-gate.test.cjs`, servicio moderno y `web.config`. Origen: D-02, RQ-02. Verificación: prueba verde y corte anterior a dependencias/efectos.
+- [x] 1.2 [M] Crear la suite del gate global para las ocho operaciones y sesiones Workflow válidas. Área/archivos: `tests/importar-servicio-web-gate.test.cjs`, servicio moderno y `web.config`. Origen: D-02, RQ-02. Verificación: prueba verde y corte anterior a dependencias/efectos.
+
+- [x] 1.6 [S] Corregir el gate para habilitar a todos los usuarios autenticados del módulo, eliminando listas adicionales de usuario/grupo y dejando la bandera global activa con proveedor `INTEGRACIONSII`. Área/archivos: gate específico, configuración, pruebas y documentación DOC-79. Origen: D-02, RQ-02. Verificación: gate activo + sesión válida habilita; sesión inválida o gate apagado rechaza.
 - [x] 1.3 [S] Crear la suite de regresión UI legacy y doble handler. Área/archivos: `tests/importar-servicio-web-legacy-ui-regression.test.cjs`, `workflow/Webworkflow.aspx(.vb)`. Origen: D-03, RQ-03; también D-06, RQ-06. Verificación: gate apagado preserva legacy y gate activo expone una sola entrada.
 - [x] 1.4 [S] Crear la suite de invariancia UI/almacenamiento. Área/archivos: `tests/importar-servicio-web-storage-invariance-ui.test.cjs`, `workflow/ClassAlmacenamiento.vb`, adaptador moderno. Origen: D-01, RQ-01; también D-06, RQ-06. Verificación: huellas legacy e invocación única permanecen válidas.
 - [x] 1.5 [M] Crear el validador frontend determinista que componga suites existentes y nuevas. Área/archivos: `tools/validation/Verify-ImportarServicioWebFrontend.ps1`. Origen: D-01, RQ-01. Verificación: comando local sin red retorna cero y propaga fallos.

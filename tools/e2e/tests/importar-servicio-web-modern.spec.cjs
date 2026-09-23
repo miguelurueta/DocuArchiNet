@@ -499,7 +499,9 @@ test('DOC-79 reutiliza la plataforma y verifica gate integral y fallback legacy'
   const page = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'workflow', 'Webworkflow.aspx'), 'utf8');
   const ui = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'js', 'workflow', 'importar-servicio-web', 'importar-servicio-web-ui.js'), 'utf8');
   assert.match(service, /New ImportarServicioWebFeatureGate\(\)\.EstaHabilitado\(session\.Contexto\)/);
-  assert.match(gate, /WorkflowCentroTrabajoModernActive[\s\S]*WorkflowCentroTrabajoModernUsers[\s\S]*WorkflowCentroTrabajoModernGroups/);
+  assert.match(gate, /WorkflowCentroTrabajoModernActive/);
+  assert.match(gate, /contexto Is Nothing OrElse Not contexto\.EsValido\(\) Then Return False/);
+  assert.doesNotMatch(gate, /WorkflowCentroTrabajoModernUsers|WorkflowCentroTrabajoModernGroups/);
   assert.equal((page.match(/data-import-legacy-root="true"/g) || []).length, 3);
   assert.match(ui, /querySelectorAll\('\[data-import-legacy-root="true"\]'\)/);
   assert.match(ui, /data-import-modern-bound/);

@@ -3,7 +3,7 @@
 ## Procedimiento
 
 1. Establecer `WorkflowCentroTrabajoModernActive=false`.
-2. Vaciar `WorkflowCentroTrabajoModernUsers` y `WorkflowCentroTrabajoModernGroups`.
+2. Confirmar que `WorkflowCentroTrabajoModernUsers` y `WorkflowCentroTrabajoModernGroups` permanezcan vacíos y no sean usados por este feature.
 3. Confirmar que no se registran assets ni bootstrap de Importar Servicio Web moderno.
 4. Confirmar que el ASMX moderno responde `FEATURE_DISABLED` sin efectos.
 5. Verificar que `btnloadservice`, modales, postbacks y handlers legacy siguen disponibles.

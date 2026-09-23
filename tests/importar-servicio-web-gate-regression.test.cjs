@@ -48,8 +48,8 @@ test("gate apagado produce codigo funcional estable", () => {
   assert.ok((service.match(/FEATURE_DISABLED/g) || []).length >= 3);
 });
 
-test("configuracion versionada conserva gate y alcance vacios", () => {
-  assert.match(configuration, /<add key="WorkflowCentroTrabajoModernActive" value="false"\s*\/>/i);
+test("configuracion versionada habilita importación moderna sin listas de audiencia", () => {
+  assert.match(configuration, /<add key="WorkflowCentroTrabajoModernActive" value="true"\s*\/>/i);
   assert.match(configuration, /<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i);
   assert.match(configuration, /<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i);
 });

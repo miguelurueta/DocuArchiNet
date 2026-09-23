@@ -9,13 +9,13 @@ sequenceDiagram
     participant L as Flujo legacy
 
     P->>G: contexto autenticado
-    alt bandera y audiencia autorizadas
+    alt bandera activa y sesión válida
         G-->>P: activo
         P-->>U: una entrada moderna
         P->>A: operación con sesión
         A->>G: revalidar contexto
         G-->>A: autorizado
-    else apagado o fuera de audiencia
+    else apagado o sesión inválida
         G-->>P: inactivo
         P-->>U: conservar entrada legacy
         U->>L: recorrido vigente

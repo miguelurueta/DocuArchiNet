@@ -21,8 +21,8 @@ DOC-79 cierra la transición verificable de Importar Servicio Web bajo el gate c
 ### D-01 — Validador local único
 `tools/validation/Verify-ImportarServicioWebFrontend.ps1` compondrá las suites Node focales sin autenticación ni red. Las cuatro suites canónicas agregarán cobertura reutilizando contratos existentes. Relacionado con RQ-01.
 
-### D-02 — Gate completo en servidor
-La validación comprobará las ocho operaciones modernas, el corte anterior a dependencias/efectos, `FEATURE_DISABLED` y la restricción por usuario y grupo. El gate visual nunca será evidencia suficiente de autorización. Relacionado con RQ-02.
+### D-02 — Gate global en servidor
+La validación comprobará las ocho operaciones modernas, el corte anterior a dependencias/efectos y `FEATURE_DISABLED`. Con la bandera activa, cualquier sesión Workflow válida queda habilitada; no se duplicará la autorización funcional mediante listas de usuarios o grupos. El gate visual nunca sustituye la validación backend de sesión. Relacionado con RQ-02.
 
 ### D-03 — Alternancia UI sin doble ejecución
 La vista conservará el árbol legacy como fallback. Cuando el gate moderno esté activo se ocultará inicialmente ese árbol y existirá una sola entrada y un solo handler efectivo; apagado conservará el recorrido anterior. Relacionado con RQ-03.

@@ -15,7 +15,7 @@
 - `webservice/WebServiceImportarServicioWebModern.asmx.vb`: ocho operaciones modernas y validación inicial de `WorkflowCentroTrabajoModernActive`.
 - `tests/importar-servicio-web-*.test.cjs`: contratos, gate, regresión legacy, almacenamiento, ejecución, progreso, reconciliación y contexto.
 - `tools/e2e/tests/importar-servicio-web-modern.spec.cjs` y plataforma compartida: lectura, ejecución, recuperación, retry, concurrencia, controles SELECT y restauración del gate.
-- `web.config`: gate apagado y audiencias vacías como estado versionado seguro.
+- `web.config`: gate global activo y listas de audiencia vacías, porque la funcionalidad aplica a todos los usuarios autenticados del módulo.
 - Ruta documental vigente: `Doc/Actualizacion/workflow/ImportarServicioWeb/`; no se recreará `docs/`.
 
 ## Decisiones aprobadas
@@ -35,7 +35,7 @@
 | ID | Resultado observable | Escenario o criterio de aceptación | Riesgo/compatibilidad |
 | --- | --- | --- | --- |
 | RQ-01 | Un comando local valida arquitectura UI, gate, legacy e invariancia sin red. | Falla con salida no cero ante cualquier contrato roto. | No duplicar suites ni infraestructura. |
-| RQ-02 | Cada endpoint rechaza acceso fuera del alcance antes de resolver contexto, proveedor o efectos. | Gate apagado o audiencia no autorizada produce error seguro y cero mutaciones. | Ocultar UI no sustituye autorización backend. |
+| RQ-02 | Cada endpoint rechaza acceso sin sesión válida o con gate apagado antes de resolver proveedor o efectos. | Gate apagado o sesión inválida produce error seguro y cero mutaciones; gate activo admite cualquier sesión válida. | No duplicar autorización con listas de usuario o grupo. |
 | RQ-03 | Gate activo muestra una sola entrada moderna; gate apagado conserva legacy. | No coexisten dos handlers efectivos para la misma acción. | El markup y handlers legacy no se eliminan. |
 | RQ-04 | Una intención produce una llamada de ejecución y todos sus documentos confirmados se proyectan una vez. | La espera no inventa progreso y la reconciliación no duplica filas. | Preservar resultados parciales y recuperación. |
 | RQ-05 | E2E usa plataforma, perfiles, controles y saneamiento existentes. | Toda corrida autorizada termina con gate falso y audiencias vacías, incluso al fallar. | Sin autorización se limita a validación local. |
