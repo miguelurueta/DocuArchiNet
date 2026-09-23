@@ -1,20 +1,25 @@
-## 1. Refinement
+<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
+## 1. Guard de contexto
 
-- [ ] 1.1 Consolidar alcance final desde Jira + contexto de codigo.
-- [ ] 1.2 Ajustar design/spec con decisiones y riesgos definitivos.
+- [ ] 1.1 Crear `importar-servicio-web-task-context-guard.js` con captura inmutable, comparación de tarea y bloqueo reversible. Origen: D-01, RQ-01; también D-03, RQ-03.
+- [ ] 1.2 Integrar el preflight fresco inmediatamente antes del primer efecto y rechazar contexto divergente sin ejecutar. Origen: D-02, RQ-02.
+- [ ] 1.3 Declarar aditivamente en `workflow/Webworkflow.aspx` los controles incompatibles y mensajes de escritura, sin reemplazar handlers legacy. Origen: D-03, RQ-03.
 
-## 2. Implementacion
+## 2. Conflicto y recuperación
 
-- [ ] 2.1 Implementar cambios funcionales del ticket.
-- [ ] 2.2 Mantener compatibilidad y evitar regresiones.
+- [ ] 2.1 Crear `importar-servicio-web-recovery.js` usando `GetImportIntent`/`ReconcileImportIntent` y solo `IntentId` autoritativo. Origen: D-05, RQ-05.
+- [ ] 2.2 Integrar los conflictos normativos, conservando resultados y deteniendo pendientes. Origen: D-04, RQ-04.
+- [ ] 2.3 Integrar detección de cambio de tarea/pestaña como señal de verificación y mantener aislamiento documental. Origen: D-06, RQ-06.
+- [ ] 2.4 Registrar módulos en el `.vbproj` y conservar el gate moderno. Origen: D-03, RQ-03; también D-05, RQ-05.
 
+## 3. Pruebas y evidencia
 
-## 3. Pruebas
+- [ ] 3.1 Crear `Tests/importar-servicio-web-task-context-guard.test.cjs`. Origen: D-01, RQ-01; también D-02, RQ-02 y D-03, RQ-03.
+- [ ] 3.2 Crear `Tests/importar-servicio-web-recovery.test.cjs`. Origen: D-04, RQ-04; también D-05, RQ-05.
+- [ ] 3.3 Crear `Tests/importar-servicio-web-multi-tab-context.test.cjs`. Origen: D-06, RQ-06.
+- [ ] 3.4 Ejecutar pruebas focales, regresión y MSBuild; registrar evidencia saneada. Origen: D-01, RQ-01; cubre D-02, D-03, D-04, D-05, D-06 y RQ-02, RQ-03, RQ-04, RQ-05, RQ-06.
 
-- [ ] 3.1 Agregar/ajustar pruebas unitarias e integracion.
-- [ ] 3.2 Ejecutar suite afectada y registrar evidencia.
+## 4. Documentación y cierre
 
-## 4. Cierre
-
-- [ ] 4.1 Validar OpenSpec.
-- [ ] 4.2 Documentar diff final y decisiones de arquitectura.
+- [ ] 4.1 Crear exclusivamente `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-78-proteccion-contexto-recuperacion/` con arquitectura, matriz, recuperación, estados, pruebas y diagramas. Origen: D-03, RQ-03; también D-04, D-05, D-06 y RQ-04, RQ-05, RQ-06.
+- [ ] 4.2 Ejecutar validación OpenSpec y E2E real autorizado; verificar restauración del gate. Origen: D-05, RQ-05; también D-06, RQ-06.

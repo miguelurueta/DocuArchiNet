@@ -1,130 +1,54 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
 ## Context
 
-DOC-78: PROTECCION-CONTEXTO
-
-## Jira Details
-
-> # Prompt 07 — Protección del contexto de tarea y recuperación
-> 
-> Implementa las defensas de interfaz y los contratos requeridos para que una importación nunca cambie silenciosamente de tarea.
-> 
-> Depende de los contratos publicados por B01, B03, B04 y B05. El frontend representa conflictos y recuperación; el backend conserva la autoridad sobre intención, tarea y ejecución.
-> 
-> ## Objetivo
-> 
-> Vincular toda ejecución a una intención inmutable y reconciliar siempre contra su tarea original.
-> 
-> ## Rutas canónicas de implementación
-> 
-> ```txt
-> js/workflow/importar-servicio-web/
-> ├── importar-servicio-web-task-context-guard.js
-> └── importar-servicio-web-recovery.js
-> 
-> Tests/
-> ├── importar-servicio-web-task-context-guard.test.cjs
-> ├── importar-servicio-web-recovery.test.cjs
-> └── importar-servicio-web-multi-tab-context.test.cjs
-> ```
-> 
-> - El guard se integra mediante eventos públicos del núcleo y la página; no sobrescribe selectores o handlers globales.
-> - `recovery.js` consulta la intención por `importar-servicio-web-api.js`; no persiste autoridad en `localStorage` ni reconstruye contexto desde sesión cliente.
-> - Los cambios aditivos de atributos/estado de controles se realizan en `workflow/Webworkflow.aspx` y módulos del feature.
-> - No modificar endpoints, almacenamiento, scripts globales o acciones Workflow existentes.
-> 
-> ## Ruta documental obligatoria
-> 
-> ```txt
-> docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-proteccion-contexto-recuperacion/
-> ```
-> 
-> Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diagramas/` exclusivamente allí.
-> 
-> ## Implementa
-> 
-> - Preflight inmediatamente anterior al primer efecto.
-> - Intención con operación, tarea, ruta, usuario autenticado, proveedor, identidades externas y fecha de inicio.
-> - Bloqueo de selección/búsqueda de tareas, continuar flujo, devolver, cerrar y demás acciones incompatibles durante escrituras.
-> - Antes de iniciar, permitir cancelar la preparación sin efectos. Después de enviar `ExecuteImportIntent`, bloquear acciones incompatibles y explicar que cerrar el modal no detiene ni revierte la operación.
-> - Tratar `TASK_CONTEXT_MISMATCH` cuando la tarea solicitada no coincide con la sesión y `PERSISTED_CONTEXT_MISMATCH` cuando la intención persistida no coincide con el contexto autenticado. Ambos detienen pendientes y obligan a consultar el estado autoritativo; no inventar `TASK_CONTEXT_CHANGED`.
-> - Consulta y recuperación de la intención después de recarga, cierre forzado o pérdida de conexión.
-> - Actualización de documentos solo cuando la vista corresponde a la tarea original.
-> 
-> ## Restricciones
-> 
-> - `beforeunload` es solo advertencia, no garantía.
-> - La primera entrega no promete cancelación de una solicitud `ExecuteImportIntent` ya iniciada.
-> - La recuperación solo se habilita con un `IntentId` autoritativo provisto por página o persistencia backend; no guardar autoridad en `localStorage` ni crear un buscador frontend.
-> - La sesión no puede sustituir la tarea ligada a la intención.
-> - Cada endpoint mutador debe volver a validar usuario, tarea, ruta, proveedor e identidad.
-> - El frontend no ejecuta mutaciones por elemento ni reconstruye una intención a partir de la sesión.
-> - No modifiques `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` o endpoints legacy.
-> - Si falta el contrato backend, no presentes la protección UX como garantía de integridad.
-> 
-> ## Aceptación
-> 
-> - Las pruebas cubren cambio de tarea en la misma pestaña y en otra pestaña simulada.
-> - El conflicto detiene los pendientes y conserva los resultados anteriores.
-> - La recuperación muestra estado verificable y no reintenta ciegamente.
-> 
-> ## Correcciones opsxj:prompt-review
-> 
-> Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-> 
-> ## Rol esperado
-> Definir el rol tecnico esperado para ejecutar el ticket.
-> 
-> ## Objetivo
-> Describir el objetivo funcional y tecnico verificable.
-> 
-> ## Restricciones criticas
-> - No introducir cambios fuera del alcance declarado.
-> - No romper comportamiento existente ni contratos publicos.
-> 
-> ## Criterios de aceptacion
-> - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-> 
-> ## Contexto obligatorio
-> Leer F01–F06, B01/B03/B04/B05, `workflow/Webworkflow.aspx`, módulos modernos de transición y eventos actuales de selección/búsqueda de tareas. Inspeccionar sin modificar los handlers legacy.
-> 
-> ## Pruebas obligatorias
-> Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
-> 
-> ## Documentacion tecnica
-> Actualizar exclusivamente el paquete de **Ruta documental obligatoria**, con matriz de acciones bloqueadas, cambio de tarea/pestaña, recuperación, estados y pruebas.
-> 
-> ## Entregable final
-> Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-> 
-> Exigir `npm run build` o `tsc` segun impacto y registrar el resultado.
-> 
-> Exigir pruebas unitarias/focales con Vitest o Testing Library segun el alcance.
-> 
-> Registrar comandos ejecutados, resultados obtenidos y evidencia en `05-PruebasEvidencia.md`.
+DOC-78 agrega protección de contexto y recuperación al flujo moderno. La UI toma la tarea visible al construir requests, pero aún no conserva una identidad inmutable durante toda la operación ni coordina el bloqueo de acciones Workflow durante una escritura.
 
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Impedir ejecución o proyección sobre una tarea distinta de la original.
+- Revalidar el contexto inmediatamente antes del primer efecto.
+- Representar conflictos y recuperar el snapshot persistido sin reintentos ciegos.
+- Bloquear reversiblemente las acciones incompatibles durante escritura.
 
 **Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+- Cancelar `ExecuteImportIntent` después de enviarlo.
+- Modificar endpoints, ASMX, persistencia o handlers legacy.
+- Usar `localStorage`, polling o sesión cliente como autoridad.
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Contexto inmutable
+El guard capturará tarea, operación, ruta, proveedor, identidades externas e intención. La tarea visible solo permite detectar divergencia y nunca reemplaza la capturada.
 
+### D-02 — Preflight en la frontera del efecto
+La confirmación realizará una comprobación fresca antes de `ExecuteImportIntent`. Si el contexto difiere, la ejecución no se envía.
+
+### D-03 — Bloqueo declarativo y reversible
+Un módulo aislado recibirá controles marcados en `Webworkflow.aspx`, preservará su estado y los deshabilitará durante escritura mediante eventos públicos del feature.
+
+### D-04 — Conflictos normativos
+Solo `TASK_CONTEXT_MISMATCH` y `PERSISTED_CONTEXT_MISMATCH` activan conflicto. Se conservan resultados confirmados, se detienen pendientes y se consulta el backend.
+
+### D-05 — Recuperación autoritativa
+`importar-servicio-web-recovery.js` aceptará únicamente un `IntentId` entregado por página/backend y consultará la API moderna existente, sin reconstruir autoridad desde el navegador.
+
+### D-06 — Aislamiento de vista y pestañas
+El guard comprobará la tarea antes de proyectar resultados. Una señal de otra pestaña solo dispara verificación; la autoridad permanece en el snapshot backend.
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+- Algunos controles legacy requieren una estrategia de bloqueo reversible distinta de `disabled`.
+- Cerrar el modal no cancela la operación; la UI debe explicarlo.
+- `beforeunload` y señales entre pestañas son auxiliares y pueden no llegar.
 
 ## Migration Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+1. Agregar módulos y pruebas dentro del gate moderno.
+2. Declarar controles incompatibles y el `IntentId` recuperable en la página.
+3. Integrar guard/recovery y validar la regresión completa.
+4. Documentar en `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-78-proteccion-contexto-recuperacion/`.
 
 ## Open Questions
 
-- TBD
+- Ninguna bloqueante; los contratos backend existentes conservan la autoridad.

@@ -8,15 +8,15 @@
     "manual_qa"
   ],
   "documentation": [
-    "Doc/Tecnica/Opsxj/doc-78-proteccion-contexto/01-ResumenTecnico.md",
-    "Doc/Tecnica/Opsxj/doc-78-proteccion-contexto/02-ImpactoUI.md",
-    "Doc/Tecnica/Opsxj/doc-78-proteccion-contexto/03-ServiciosYReglas.md",
-    "Doc/Tecnica/Opsxj/doc-78-proteccion-contexto/04-ContratosIntegracion.md",
-    "Doc/Tecnica/Opsxj/doc-78-proteccion-contexto/05-PruebasEvidencia.md"
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-78-proteccion-contexto-recuperacion/01-ResumenTecnico.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-78-proteccion-contexto-recuperacion/02-ImpactoUI.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-78-proteccion-contexto-recuperacion/03-ServiciosYReglas.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-78-proteccion-contexto-recuperacion/04-ContratosIntegracion.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-78-proteccion-contexto-recuperacion/05-PruebasEvidencia.md"
   ],
   "documentationContract": [
     {
-      "path": "Doc/Tecnica/Opsxj/doc-78-proteccion-contexto/01-ResumenTecnico.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-78-proteccion-contexto-recuperacion/01-ResumenTecnico.md",
       "requiredSections": [
         "## Objetivo",
         "## Alcance y compatibilidad"
@@ -35,7 +35,7 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-78-proteccion-contexto/02-ImpactoUI.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-78-proteccion-contexto-recuperacion/02-ImpactoUI.md",
       "requiredSections": [
         "## Superficies UI",
         "## Validacion visual"
@@ -54,7 +54,7 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-78-proteccion-contexto/03-ServiciosYReglas.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-78-proteccion-contexto-recuperacion/03-ServiciosYReglas.md",
       "requiredSections": [
         "## Servicios y reglas"
       ],
@@ -72,7 +72,7 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-78-proteccion-contexto/04-ContratosIntegracion.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-78-proteccion-contexto-recuperacion/04-ContratosIntegracion.md",
       "requiredSections": [
         "## Contratos e integraciones"
       ],
@@ -90,7 +90,7 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-78-proteccion-contexto/05-PruebasEvidencia.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-78-proteccion-contexto-recuperacion/05-PruebasEvidencia.md",
       "requiredSections": [
         "## Evidencia requerida",
         "## QA/E2E WebForms"
