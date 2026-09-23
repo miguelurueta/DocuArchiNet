@@ -856,7 +856,7 @@
                           <div class="col-4 pr-1 pl-0">
                               <a class="nav-link pr-2 pl-2" style="color: #6d7fcc;  float: right" title="Actualiza indice batch" href="#" onclick="inicializa_tipo_adjunto_documento(event,this,'C-DW-ACTU-INDICE')"><i style="" class="fal fa-info "></i><% If WorkflowCentroTrabajoModernPresentationEnabled Then %><span class="ctw-document-action-label">Actualizar índice</span><% End If %></a>
                               <a class="nav-link pr-2 pl-2" id="btnLoadFile" style="color: #6d7fcc;  float: right" title="Adjuntar documento" href="#" ><i style="" class="fal fa-upload "></i><% If WorkflowCentroTrabajoModernPresentationEnabled Then %><span class="ctw-document-action-label">Cargar</span><% End If %></a>
-                              <a class="nav-link pr-2 pl-2" id="btnloadservice" style="color: #6d7fcc;  float: right" title="Adjuntar documentos desde servicio web" href="#" ><i style="" class="fal fa-page-break "></i><% If WorkflowCentroTrabajoModernPresentationEnabled Then %><span class="ctw-document-action-label">Servicio</span><% End If %></a>
+                              <a class="nav-link pr-2 pl-2" id="btnloadservice" data-import-legacy-root="true" style="color: #6d7fcc;  float: right" title="Adjuntar documentos desde servicio web" href="#" ><i style="" class="fal fa-page-break "></i><% If WorkflowCentroTrabajoModernPresentationEnabled Then %><span class="ctw-document-action-label">Servicio</span><% End If %></a>
                           </div> 
                           <div class="col-1 pr-0 d-flex justify-content-end">
                               <div class="dropright">
@@ -2086,7 +2086,7 @@
               
             </div>
         </asp:Panel>
-            <asp:Panel ID="Panel_sube_documento_integra_sii" runat="server" Style="display:none;  width: 50%; height: auto" CssClass="modal_content_general_">
+            <asp:Panel ID="Panel_sube_documento_integra_sii" runat="server" data-import-legacy-root="true" Style="display:none;  width: 50%; height: auto" CssClass="modal_content_general_">
                 <asp:ModalPopupExtender ID="ModalPopupExtender_sube_documento_integra_sii" runat="Server" BackgroundCssClass="FondoAplicacion" 
                     TargetControlID="Button_sube_documento_integra_sii"
                     PopupControlID="Panel_sube_documento_integra_sii" CancelControlID="Button3_sube_documento_integra_sii" ></asp:ModalPopupExtender>
@@ -2119,7 +2119,7 @@
                     </div>
                 </div>
             </asp:Panel>    
-          <asp:Panel ID="Panel_list_inscripciones_sii" runat="server" Style="display:none; width: 90%; height: 100%" CssClass="modal_content_general_">
+          <asp:Panel ID="Panel_list_inscripciones_sii" runat="server" data-import-legacy-root="true" Style="display:none; width: 90%; height: 100%" CssClass="modal_content_general_">
             <asp:ModalPopupExtender ID="ModalPopupExtender_edition_list_inscripciones_sii" runat="server"
                 TargetControlID="ButtonSalir_list_inscripciones_sii" BackgroundCssClass="FondoAplicacion"
                 CancelControlID="Button_cerrar_list_inscripciones_sii" PopupControlID="Panel_list_inscripciones_sii">

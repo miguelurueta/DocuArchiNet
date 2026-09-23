@@ -317,6 +317,10 @@
         trigger.setAttribute("data-import-modern-bound", "true");
         trigger.onclick = function (event) { return open(control, event || window.event); };
         if (legacy) { legacy.hidden = true; legacy.setAttribute("aria-hidden", "true"); }
+        Array.prototype.forEach.call(document.querySelectorAll('[data-import-legacy-root="true"]'), function (legacyRoot) {
+            legacyRoot.hidden = true;
+            legacyRoot.setAttribute("aria-hidden", "true");
+        });
         control.closeButton.addEventListener("click", function () { close(control); });
         control.modal.addEventListener("click", function (event) { if (event.target && event.target.getAttribute("data-import-close") === "true") { close(control); } });
         control.dialog.addEventListener("keydown", function (event) { onKeydown(control, event); });

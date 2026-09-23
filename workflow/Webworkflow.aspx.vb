@@ -26,6 +26,7 @@ Public Class Webworkflow
     Dim Popupenlace As Object
     Dim bolindice As Boolean = False
     Private _workflowTransitionModernActive As Nullable(Of Boolean)
+    Private _importarServicioWebModernActive As Nullable(Of Boolean)
 
     Public ReadOnly Property WorkflowCentroTrabajoModernActive As Boolean
         Get
@@ -274,6 +275,21 @@ Public Class Webworkflow
         End Get
     End Property
 
+    Private ReadOnly Property ImportarServicioWebModernActive As Boolean
+        Get
+            If Not _importarServicioWebModernActive.HasValue Then
+                Try
+                    Dim session = New WorkflowPreviewSessionContextGate().AsegurarContexto()
+                    _importarServicioWebModernActive = session IsNot Nothing AndAlso
+                        New ImportarServicioWebFeatureGate().EstaHabilitado(session.Contexto)
+                Catch
+                    _importarServicioWebModernActive = False
+                End Try
+            End If
+            Return _importarServicioWebModernActive.Value
+        End Get
+    End Property
+
     Private Sub ConfigureWorkflowTransitionModernPresentation()
         RegisterWorkflowTransitionModernStyle()
         RegisterWorkflowTransitionPagePresentationScript()
@@ -285,8 +301,10 @@ Public Class Webworkflow
             Return
         End If
 
-        RegisterImportarServicioWebModernAssets()
-        RegisterImportarServicioWebModernBootstrap()
+        If ImportarServicioWebModernActive Then
+            RegisterImportarServicioWebModernAssets()
+            RegisterImportarServicioWebModernBootstrap()
+        End If
         RegisterConfirmationDialogStyle()
         RegisterConfirmationDialogScript()
         RegisterWorkflowTransitionModernScript()

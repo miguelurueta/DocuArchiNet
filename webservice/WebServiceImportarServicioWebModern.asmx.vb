@@ -170,7 +170,12 @@ Public Class WebServiceImportarServicioWebModern
     End Function
 
     Private Shared Function FeatureEnabled() As Boolean
-        Return String.Equals(ConfigurationManager.AppSettings("WorkflowCentroTrabajoModernActive"), "true", StringComparison.OrdinalIgnoreCase)
+        Try
+            Dim session = New WorkflowPreviewSessionContextGate().AsegurarContexto()
+            Return session IsNot Nothing AndAlso New ImportarServicioWebFeatureGate().EstaHabilitado(session.Contexto)
+        Catch
+            Return False
+        End Try
     End Function
 
     Private Shared Function TryBuildImportContext(ByVal request As SolicitudImportacionServicioDto,

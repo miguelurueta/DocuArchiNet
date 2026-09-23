@@ -489,3 +489,16 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(platform, /git', \['diff', '--name-only'.*workflow\/Webworkflow\.aspx/s);
   assert.match(platform, /WorkflowCentroTrabajoModernActive" value="false/);
 });
+
+test('DOC-79 reutiliza la plataforma y verifica gate integral y fallback legacy', () => {
+  const service = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'webservice', 'WebServiceImportarServicioWebModern.asmx.vb'), 'utf8');
+  const gate = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'Infrastructure', 'Workflow', 'ImportarServicioWeb', 'ImportarServicioWebFeatureGate.vb'), 'utf8');
+  const page = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'workflow', 'Webworkflow.aspx'), 'utf8');
+  const ui = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'js', 'workflow', 'importar-servicio-web', 'importar-servicio-web-ui.js'), 'utf8');
+  assert.match(service, /New ImportarServicioWebFeatureGate\(\)\.EstaHabilitado\(session\.Contexto\)/);
+  assert.match(gate, /WorkflowCentroTrabajoModernActive[\s\S]*WorkflowCentroTrabajoModernUsers[\s\S]*WorkflowCentroTrabajoModernGroups/);
+  assert.equal((page.match(/data-import-legacy-root="true"/g) || []).length, 3);
+  assert.match(ui, /querySelectorAll\('\[data-import-legacy-root="true"\]'\)/);
+  assert.match(ui, /data-import-modern-bound/);
+  assert.doesNotMatch(ui, /playwright|localStorage|setInterval\s*\(/i);
+});

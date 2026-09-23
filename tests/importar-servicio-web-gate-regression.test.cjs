@@ -5,6 +5,7 @@ const path = require("node:path");
 
 const root = path.resolve(__dirname, "..");
 const service = fs.readFileSync(path.join(root, "webservice/WebServiceImportarServicioWebModern.asmx.vb"), "utf8");
+const gate = fs.readFileSync(path.join(root, "Infrastructure/Workflow/ImportarServicioWeb/ImportarServicioWebFeatureGate.vb"), "utf8");
 const configuration = fs.readFileSync(path.join(root, "web.config"), "utf8");
 
 test("cada endpoint ASMX implementado evalua el gate antes de sus dependencias", () => {
@@ -41,7 +42,9 @@ test("fallback no invoca simultáneamente ruta moderna y legacy", () => {
 });
 
 test("gate apagado produce codigo funcional estable", () => {
-  assert.match(service, /ConfigurationManager\.AppSettings\("WorkflowCentroTrabajoModernActive"\)/);
+  assert.match(gate, /ConfigurationManager\.AppSettings\(key\)/);
+  assert.match(gate, /WorkflowCentroTrabajoModernActive/);
+  assert.match(service, /ImportarServicioWebFeatureGate/);
   assert.ok((service.match(/FEATURE_DISABLED/g) || []).length >= 3);
 });
 
