@@ -1903,10 +1903,12 @@
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-progress-view.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-provider-registry.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-reconciliation.js" />
+    <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-recovery.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-requirements.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-preview-state.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-preview.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-ui.js" />
+    <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-task-context-guard.js" />
     <Content Include="js\workflow\importar-servicio-web\sii\importar-servicio-web-sii-adapter.js" />
     <Content Include="js\workflow\importar-servicio-web\sii\importar-servicio-web-sii-contract-mapper.js" />
     <Content Include="js\workflow\importar-servicio-web\sii\importar-servicio-web-sii-list.js" />

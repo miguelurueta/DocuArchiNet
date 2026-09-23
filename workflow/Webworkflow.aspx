@@ -2742,7 +2742,7 @@
                               <ContentTemplate>
                                   <br />
                                   <br />
-                                  <asp:TextBox ID="contenidobusqueda" runat="server" Style="width: 85%; margin-left: 5px" placeholder="Buscar en lista de tareas..."></asp:TextBox>
+                                  <asp:TextBox ID="contenidobusqueda" runat="server" Style="width: 85%; margin-left: 5px" placeholder="Buscar en lista de tareas..." data-import-context-action="true"></asp:TextBox>
                                   <asp:Button ID="Buttonbuscar" runat="server" Text="Buscar" OnClientClick="activa_busqueda();" CssClass="boton_azul" style="margin-left:3px" />
                                   <br />    
                                   <asp:CheckBox ID="checkbox" runat="server" Text="Buscar sólo palabra completa" Font-Size="9" Font-Names="arial" Style="float: right; margin-right: 15px; margin-bottom:20px" />
@@ -4568,6 +4568,7 @@
                     <section id="importar-servicio-web-progress" class="importar-servicio-web__progress" aria-labelledby="importar-servicio-web-progress-title" hidden="hidden" data-progress-state="idle">
                         <h3 id="importar-servicio-web-progress-title" tabindex="-1">Resultado de la importación</h3>
                         <div id="importar-servicio-web-progress-status" class="importar-servicio-web__progress-status" role="status" aria-live="polite"></div>
+                        <p class="importar-servicio-web__progress-help">Después de iniciar la ejecución, cerrar esta ventana no detiene ni revierte la importación.</p>
                         <div class="importar-servicio-web__progress-indicator" aria-hidden="true"></div>
                         <p id="importar-servicio-web-progress-summary" class="importar-servicio-web__progress-summary"></p>
                         <ul id="importar-servicio-web-progress-results" class="importar-servicio-web__progress-results" aria-label="Resultados por documento"></ul>
