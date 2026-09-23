@@ -52,8 +52,8 @@ test("la política oficial habilita todo contexto Workflow válido sin leer conf
     assert.doesNotMatch(gateSource, /ConfigurationManager|AppSettings|WorkflowCentroTrabajoModern|Pilot|Rollback|Excluded|Contiene\(/);
 });
 
-test("la configuración local conserva el registro inactivo sin gobernar la política oficial", () => {
-    assert.equal(appSettingValue("WorkflowCentroTrabajoModernActive"), "false");
+test("la configuración local activa el gate global sin restringir la política oficial por audiencia", () => {
+    assert.equal(appSettingValue("WorkflowCentroTrabajoModernActive"), "true");
     assert.equal(appSettingValue("WorkflowCentroTrabajoModernOfficialMode"), "false");
     assert.equal(appSettingValue("WorkflowCentroTrabajoModernUsers"), "");
     assert.equal(appSettingValue("WorkflowCentroTrabajoModernGroups"), "");
@@ -79,10 +79,10 @@ test("la presentación es constante y el contexto conserva únicamente los boots
     assert.match(pageSource, /Public ReadOnly Property WorkflowCentroTrabajoModernPresentationEnabled As Boolean\s+Get\s+Return True\s+End Get\s+End Property/);
     assert.match(pageSource, /_workflowTransitionModernActive = WorkflowModernPresentationBootstrap\.EstaActivaParaSolicitudActual\(\)/);
     assert.doesNotMatch(pageSource, /WorkflowCentroTrabajoModernEnabled|WorkflowCentroTrabajoModernPilotProfiles|CurrentWorkflowPilotIsEnabled/);
-    assert.match(pageMarkup, /<link href="\.\.\/Styles\/workflow-centro-trabajo-moderno\.css\?v=20260820-modern-actions3/);
+    assert.match(pageMarkup, /<link href="\.\.\/Styles\/workflow-centro-trabajo-moderno\.css\?v=20260902-doc45-icon-colors1/);
     assert.match(pageMarkup, /<script src="\.\.\/js\/workflow\/centro-trabajo-visual\.js\?v=20260821-modern-actions4/);
     assert.doesNotMatch(pageMarkup, /<% If WorkflowCentroTrabajoModernActive Then %>\s+<link href="\.\.\/Styles\/workflow-centro-trabajo-moderno\.css/);
-    assert.match(pageSource, /RegisterWorkflowTransitionModernStyle\(\)\s+RegisterWorkflowTransitionPagePresentationScript\(\)\s+RegisterWorkflowEnvioUsuarioModernPresentation\(\)\s+RegisterWorkflowReturnActivityModernPresentation\(\)\s+RegisterWorkflowReturnUserPreviousModernPresentation\(\)\s+If Not WorkflowTransitionModernActive Then\s+Return\s+End If\s+RegisterConfirmationDialogStyle\(\)/);
+    assert.match(pageSource, /RegisterWorkflowTransitionModernStyle\(\)\s+RegisterWorkflowTransitionPagePresentationScript\(\)\s+RegisterWorkflowEnvioUsuarioModernPresentation\(\)\s+RegisterWorkflowReturnActivityModernPresentation\(\)\s+RegisterWorkflowReturnUserPreviousModernPresentation\(\)\s+If Not WorkflowTransitionModernActive Then\s+Return\s+End If\s+If ImportarServicioWebModernActive Then\s+RegisterImportarServicioWebModernAssets\(\)\s+RegisterImportarServicioWebModernBootstrap\(\)\s+End If\s+RegisterConfirmationDialogStyle\(\)/);
     assert.match(pageSource, /If Not WorkflowTransitionModernActive Then[\s\S]*?Return[\s\S]*?RegisterWorkflowTransitionModernBootstrap\(\)[\s\S]*?RegisterWorkflowEnvioGrupoModernBootstrap\(\)/);
     assert.match(pageSource, /Private Sub RegisterWorkflowEnvioUsuarioModernPresentation\(\)[\s\S]*?RegisterWorkflowEnvioUsuarioModernBootstrap\(\)[\s\S]*?End Sub/);
     assert.match(pageSource, /Private Sub RegisterWorkflowReturnActivityModernPresentation\(\)[\s\S]*?RegisterWorkflowReturnActivityModernBootstrap\(\)[\s\S]*?End Sub/);
