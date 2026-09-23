@@ -22,4 +22,4 @@
 ## 4. Documentación y cierre
 
 - [x] 4.1 Crear exclusivamente `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-78-proteccion-contexto-recuperacion/` con arquitectura, matriz, recuperación, estados, pruebas y diagramas. Origen: D-03, RQ-03; también D-04, D-05, D-06 y RQ-04, RQ-05, RQ-06.
-- [ ] 4.2 Ejecutar validación OpenSpec y E2E real autorizado; verificar restauración del gate. Origen: D-05, RQ-05; también D-06, RQ-06.
+- [x] 4.2 Ejecutar validación OpenSpec y E2E real autorizado; verificar restauración del gate. Origen: D-05, RQ-05; también D-06, RQ-06.

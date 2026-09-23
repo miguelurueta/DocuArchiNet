@@ -15,4 +15,6 @@ Las suites focales cubren contexto inmutable, preflight anterior al efecto, bloq
 
 ## QA/E2E WebForms
 
-El E2E debe ejecutarse únicamente con autorización explícita, usando la infraestructura reutilizable y el runbook. Debe confirmar tarea original, cambio de contexto, recuperación sin reejecución, ausencia de cambios en preview y restauración final del gate moderno.
+Se ejecutó con autorización explícita el escenario `import-sii-recovery` para la tarea `219877` y una intención autoritativa persistida. La plataforma terminó correctamente con 7 controles y `sinCambios=SI`; la recuperación consultó estado verificable sin reejecutar la intención.
+
+Al cierre se verificó la restauración del gate moderno con usuarios y grupos vacíos. La evidencia producida por la plataforma quedó saneada y no contiene credenciales, cookies ni cadenas de conexión.
