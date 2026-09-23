@@ -3,110 +3,44 @@
   "issueKey": "DOC-77",
   "changeName": "doc-77-reconciliacion-lista-documentos",
   "impact": "cross_cutting",
-  "requiredEvidence": [
-    "unit",
-    "manual_qa"
-  ],
+  "requiredEvidence": ["unit", "manual_qa"],
   "documentation": [
-    "Doc/Tecnica/Opsxj/doc-77-reconciliacion-lista-documentos/01-ResumenTecnico.md",
-    "Doc/Tecnica/Opsxj/doc-77-reconciliacion-lista-documentos/02-ImpactoUI.md",
-    "Doc/Tecnica/Opsxj/doc-77-reconciliacion-lista-documentos/03-ServiciosYReglas.md",
-    "Doc/Tecnica/Opsxj/doc-77-reconciliacion-lista-documentos/04-ContratosIntegracion.md",
-    "Doc/Tecnica/Opsxj/doc-77-reconciliacion-lista-documentos/05-PruebasEvidencia.md"
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-77-reconciliacion-lista-documentos/00-Indice.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-77-reconciliacion-lista-documentos/01-Arquitectura.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-77-reconciliacion-lista-documentos/02-EstadosYReconciliacion.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-77-reconciliacion-lista-documentos/03-ListaAislamientoYNavegacion.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-77-reconciliacion-lista-documentos/04-PruebasEvidencia.md"
   ],
   "documentationContract": [
     {
-      "path": "Doc/Tecnica/Opsxj/doc-77-reconciliacion-lista-documentos/01-ResumenTecnico.md",
-      "requiredSections": [
-        "## Objetivo",
-        "## Alcance y compatibilidad"
-      ],
-      "minimumContentLength": 180,
-      "identity": {
-        "issueKey": "DOC-77",
-        "changeName": "doc-77-reconciliacion-lista-documentos",
-        "impact": "cross_cutting"
-      },
-      "closureRestrictions": [
-        "tbd",
-        "template_comment",
-        "open_checklist",
-        "template_instruction"
-      ]
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-77-reconciliacion-lista-documentos/00-Indice.md",
+      "requiredSections": [], "minimumContentLength": 180,
+      "identity": { "issueKey": "DOC-77", "changeName": "doc-77-reconciliacion-lista-documentos", "impact": "cross_cutting" },
+      "closureRestrictions": ["tbd", "template_comment", "open_checklist", "template_instruction"]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-77-reconciliacion-lista-documentos/02-ImpactoUI.md",
-      "requiredSections": [
-        "## Superficies UI",
-        "## Validacion visual"
-      ],
-      "minimumContentLength": 180,
-      "identity": {
-        "issueKey": "DOC-77",
-        "changeName": "doc-77-reconciliacion-lista-documentos",
-        "impact": "cross_cutting"
-      },
-      "closureRestrictions": [
-        "tbd",
-        "template_comment",
-        "open_checklist",
-        "template_instruction"
-      ]
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-77-reconciliacion-lista-documentos/01-Arquitectura.md",
+      "requiredSections": ["## Objetivo", "## Componentes", "## Límites"], "minimumContentLength": 180,
+      "identity": { "issueKey": "DOC-77", "changeName": "doc-77-reconciliacion-lista-documentos", "impact": "cross_cutting" },
+      "closureRestrictions": ["tbd", "template_comment", "open_checklist", "template_instruction"]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-77-reconciliacion-lista-documentos/03-ServiciosYReglas.md",
-      "requiredSections": [
-        "## Servicios y reglas"
-      ],
-      "minimumContentLength": 180,
-      "identity": {
-        "issueKey": "DOC-77",
-        "changeName": "doc-77-reconciliacion-lista-documentos",
-        "impact": "cross_cutting"
-      },
-      "closureRestrictions": [
-        "tbd",
-        "template_comment",
-        "open_checklist",
-        "template_instruction"
-      ]
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-77-reconciliacion-lista-documentos/02-EstadosYReconciliacion.md",
+      "requiredSections": ["## Mapeo conservador", "## Recuperación"], "minimumContentLength": 180,
+      "identity": { "issueKey": "DOC-77", "changeName": "doc-77-reconciliacion-lista-documentos", "impact": "cross_cutting" },
+      "closureRestrictions": ["tbd", "template_comment", "open_checklist", "template_instruction"]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-77-reconciliacion-lista-documentos/04-ContratosIntegracion.md",
-      "requiredSections": [
-        "## Contratos e integraciones"
-      ],
-      "minimumContentLength": 180,
-      "identity": {
-        "issueKey": "DOC-77",
-        "changeName": "doc-77-reconciliacion-lista-documentos",
-        "impact": "cross_cutting"
-      },
-      "closureRestrictions": [
-        "tbd",
-        "template_comment",
-        "open_checklist",
-        "template_instruction"
-      ]
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-77-reconciliacion-lista-documentos/03-ListaAislamientoYNavegacion.md",
+      "requiredSections": ["## Actualización final", "## Compatibilidad visual", "## Ver documento importado"], "minimumContentLength": 180,
+      "identity": { "issueKey": "DOC-77", "changeName": "doc-77-reconciliacion-lista-documentos", "impact": "cross_cutting" },
+      "closureRestrictions": ["tbd", "template_comment", "open_checklist", "template_instruction"]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-77-reconciliacion-lista-documentos/05-PruebasEvidencia.md",
-      "requiredSections": [
-        "## Evidencia requerida",
-        "## QA/E2E WebForms"
-      ],
-      "minimumContentLength": 180,
-      "identity": {
-        "issueKey": "DOC-77",
-        "changeName": "doc-77-reconciliacion-lista-documentos",
-        "impact": "cross_cutting"
-      },
-      "closureRestrictions": [
-        "tbd",
-        "template_comment",
-        "open_checklist",
-        "template_instruction"
-      ]
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-77-reconciliacion-lista-documentos/04-PruebasEvidencia.md",
+      "requiredSections": ["## Automatización", "## Cobertura", "## E2E pendiente"], "minimumContentLength": 180,
+      "identity": { "issueKey": "DOC-77", "changeName": "doc-77-reconciliacion-lista-documentos", "impact": "cross_cutting" },
+      "closureRestrictions": ["tbd", "template_comment", "open_checklist", "template_instruction"]
     }
   ],
   "refinement": {

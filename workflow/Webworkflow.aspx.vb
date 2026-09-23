@@ -324,7 +324,9 @@ Public Class Webworkflow
         RegisterImportarServicioWebScript("importarServicioWebIntentClientScript", "../js/workflow/importar-servicio-web/importar-servicio-web-intent-client.js?v=20260922-doc75prep1")
         RegisterImportarServicioWebScript("importarServicioWebProgressAdapterScript", "../js/workflow/importar-servicio-web/importar-servicio-web-progress-adapter.js?v=20260922-doc76progress1")
         RegisterImportarServicioWebScript("importarServicioWebProgressViewScript", "../js/workflow/importar-servicio-web/importar-servicio-web-progress-view.js?v=20260922-doc76progress1")
-        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260922-doc76progress1")
+        RegisterImportarServicioWebScript("importarServicioWebReconciliationScript", "../js/workflow/importar-servicio-web/importar-servicio-web-reconciliation.js?v=20260922-doc77reconciliation1")
+        RegisterImportarServicioWebScript("importarServicioWebDocumentListScript", "../js/workflow/importar-servicio-web/importar-servicio-web-document-list-adapter.js?v=20260922-doc77reconciliation1")
+        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260922-doc77reconciliation1")
     End Sub
 
     Private Sub RegisterImportarServicioWebScript(ByVal controlId As String, ByVal source As String)

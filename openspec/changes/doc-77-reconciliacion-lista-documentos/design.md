@@ -1,138 +1,55 @@
-## Context
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
+# Diseño técnico — DOC-77
 
-DOC-77: RECONCILIACION-LISTA-DOCUMENTOS
+## Contexto
 
-## Jira Details
+DOC-76 termina con una respuesta estructurada de ejecución. DOC-77 cierra el recorrido visual tomando el backend como fuente de verdad, reconciliando resultados inciertos y reflejando documentos confirmados en la lista ya existente de la tarea. Los módulos nuevos son aditivos y no modifican almacenamiento, ASMX ni funciones legacy.
 
-> # Prompt 06 — Reconciliación y lista de documentos
-> 
-> Implementa el cierre funcional de una importación utilizando el backend como fuente de verdad.
-> 
-> Depende de `GetImportIntent` y `ReconcileImportIntent` publicados por el Prompt backend 05 y usa el mapeo de estados normativo del contrato compartido.
-> 
-> ## Objetivo
-> 
-> Actualizar cada elemento externo y hacer visibles los documentos confirmados en la lista principal de documentos de la tarea original.
-> 
-> ## Rutas canónicas de implementación
-> 
-> ```txt
-> js/workflow/importar-servicio-web/
-> ├── importar-servicio-web-reconciliation.js
-> └── importar-servicio-web-document-list-adapter.js
-> 
-> Tests/
-> ├── importar-servicio-web-reconciliation-ui.test.cjs
-> ├── importar-servicio-web-document-list-adapter.test.cjs
-> └── importar-servicio-web-task-isolation.test.cjs
-> ```
-> 
-> - Consumir `GetImportIntent`/`ReconcileImportIntent` solo mediante `importar-servicio-web-api.js` y fixtures B05.
-> - `document-list-adapter.js` encapsula la compatibilidad visual; no modifica `insert_row_documento_relacionado(...)` ni interpreta `dato_lista`.
-> - No crear una segunda lista documental ni tocar almacenamiento, ASMX o scripts legacy.
-> - Registrar módulos nuevos en el `.vbproj`; usar estilos del feature ya creados.
-> 
-> ## Ruta documental obligatoria
-> 
-> ```txt
-> docs/modulos/workflow/importar-servicio-web/SCRUMCORE-000-reconciliacion-lista-documentos/
-> ```
-> 
-> Sustituir `SCRUMCORE-000` por el ticket real; crear el paquete canónico y `Diagramas/` exclusivamente allí.
-> 
-> ## Implementa
-> 
-> - Mapeo visible desde los estados reales del backend: `Disponible`, `Verificando`, `ResultadoIncierto`, `Inconsistente`, `Completado`, `Parcial`, `Detenido` y `Fallido`.
-> - Consulta de reconciliación por intención, tarea, proveedor e identidad externa.
-> - Relación entre elemento externo e identificador interno del documento.
-> - Después de finalizar `ExecuteImportIntent`, recorrido único de `response.Items` y actualización de la lista por cada item `Disponible` con `DocumentId`.
-> - Deduplicación por `DocumentId` y validación estricta de que `TaskId` coincide con la tarea actualmente visible.
-> - Puente temporal con el resultado que alimenta `insert_row_documento_relacionado(...)`, encapsulado en el adaptador.
-> - Si el DTO moderno no permite construir ese contrato visual con seguridad, refrescar la lista autoritativa completa en vez de inventar campos o consultar SII.
-> - Acción **Ver documento importado** cuando exista identificador autorizado.
-> - Conservación de filtros y scroll; limpieza de selección y foco predecible al volver.
-> 
-> ## Restricciones
-> 
-> - No elimines una fila externa ni la marques importada por una actualización optimista.
-> - No interpretes códigos legacy ni `dato_lista`; recibe exclusivamente `ImportItemResult` estructurado del backend moderno.
-> - No modifiques `AlmacenaDocumentoTareaWorkflow(...)`, `ClassAlmacenamiento` ni la escritura existente.
-> - Timeout o ausencia de respuesta conduce a Verificando, no a Disponible ni Importada.
-> - No insertar documentos durante la espera global ni asumir que el orden de `Items` equivale al orden visual.
-> - Si la vista actual corresponde a otra tarea, no insertes allí los documentos de la tarea original.
-> 
-> ## Aceptación
-> 
-> - Cada documento confirmado aparece una sola vez en la lista de la tarea correcta.
-> - Una intención con varios elementos actualiza la lista en lote al finalizar, aunque la inserción visual se realice item por item.
-> - Un resultado incierto se resuelve mediante reconciliación.
-> - Cerrar y volver a abrir conserva el estado persistido.
-> 
-> ## Correcciones opsxj:prompt-review
-> 
-> Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-> 
-> ## Rol esperado
-> Definir el rol tecnico esperado para ejecutar el ticket.
-> 
-> ## Objetivo
-> Describir el objetivo funcional y tecnico verificable.
-> 
-> ## Restricciones criticas
-> - No introducir cambios fuera del alcance declarado.
-> - No romper comportamiento existente ni contratos publicos.
-> 
-> ## Criterios de aceptacion
-> - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-> 
-> ## Contexto obligatorio
-> Leer F01–F05, B05, fixtures de reconciliación, `js/workflow/documentos-relacionados-visual.js` y la implementación de `insert_row_documento_relacionado(...)` como referencia. No modificar funciones o listas existentes.
-> 
-> ## Pruebas obligatorias
-> Ejecutar pruebas unitarias/focales, build/tsc segun impacto y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
-> 
-> ## Documentacion tecnica
-> Actualizar exclusivamente el paquete de **Ruta documental obligatoria**, con reconciliación, aislamiento de tarea, deduplicación, mapping, pruebas y diagramas.
-> 
-> ## Entregable final
-> Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-> 
-> ## Requisitos positivos
-> - Implementar el comportamiento esperado con contratos tipados y responsabilidades claras.
-> - Mantener la integracion sobre los puntos de extension existentes del repo.
-> - Dejar evidencia de pruebas y documentacion tecnica actualizada.
-> 
-> Agregar regla para [FLOW_DETAIL_REQUIRED]: Flujo paso a paso, secuencia o comportamiento esperado.
-> 
-> Exigir `npm run build` o `tsc` segun impacto y registrar el resultado.
-> 
-> Exigir pruebas unitarias/focales con Vitest o Testing Library segun el alcance.
-> 
-> Cuando el ticket afecte un flujo completo de usuario, navegacion, integracion entre vistas, persistencia de estado u operacion transaccional, exigir E2E real con Playwright; si no aplica, documentar justificacion formal y evidencia manual.
+## Decisiones
 
-## Goals / Non-Goals
+### D-01 — Reconciliación únicamente por la API moderna
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+`importar-servicio-web-reconciliation.js` recibe API, intención y contexto autorizado. El flujo normal consume el resultado final de ejecución; timeout, pérdida de respuesta o reapertura pueden consultar `GetImportIntent`, y un resultado incierto puede usar `ReconcileImportIntent`. Ambas operaciones atraviesan `importar-servicio-web-api.js`. El navegador no consulta SII, no persiste y no sondea periódicamente.
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+### D-02 — Proyección conservadora de estados
 
-## Decisions
+El reconciliador normaliza los estados contractuales sin interpretar códigos legacy. `Disponible` exige confirmación backend; timeout o ausencia queda `Verificando`; `ResultadoIncierto`, `Inconsistente`, `Completado`, `Parcial`, `Detenido` y `Fallido` se conservan como resultados explícitos. Un valor desconocido nunca se convierte en importado ni disponible.
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-03 — Aislamiento estricto por tarea y autorización
 
+Antes de tocar la lista, el adaptador compara numéricamente el `TaskId` confirmado con el identificador de la tarea actualmente visible. También exige `DocumentId` positivo y estado `Disponible`. Si cambia la tarea durante la operación, descarta la proyección visual. La acción “Ver documento importado” solo se ofrece cuando el identificador ha pasado estas validaciones.
 
-## Risks / Trade-offs
+### D-04 — Recorrido único y deduplicación por documento
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+Al finalizar, el coordinador recorre `response.Items` una sola vez, mantiene un conjunto local de `DocumentId` y produce un lote estable de documentos confirmados. No inserta durante la espera, no usa la posición visual como identidad y no repite un documento aunque varias identidades externas lo referencien.
 
-## Migration Plan
+### D-05 — Adaptador visual seguro con fallback autoritativo
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+`importar-servicio-web-document-list-adapter.js` encapsula toda interacción con la lista existente. Cuando el DTO permite construir de forma segura la entrada visual documentada, delega item por item al punto de extensión existente. Si faltan campos, solicita refrescar la lista completa mediante una función inyectada. Nunca analiza ni fabrica `dato_lista` y no modifica `insert_row_documento_relacionado(...)`.
 
-## Open Questions
+### D-06 — Contexto visual estable y reapertura persistida
 
-- TBD
+Antes de abrir un documento se captura filtro y scroll de la vista; al volver se restauran, se limpia la selección transitoria y el foco regresa a una acción conocida. El cierre elimina estado efímero del modal. La reapertura consulta el snapshot persistido autorizado, por lo que no depende de memoria local para afirmar importación.
+
+## Flujo paso a paso
+
+1. `ExecuteImportIntent` termina y entrega `Items`, o el usuario inicia una recuperación autorizada.
+2. El reconciliador obtiene el snapshot mediante la API moderna cuando corresponde.
+3. Se normalizan estados sin inferir éxito por timeout, ausencia o código desconocido.
+4. Se valida que la tarea del snapshot y de cada item coincida con la tarea visible.
+5. Se recorre una vez la colección y se deduplican documentos confirmados por `DocumentId`.
+6. El adaptador actualiza la lista existente; si el contrato visual no es seguro, solicita refresco autoritativo completo.
+7. La UI habilita “Ver documento importado” solo para identificadores autorizados y conserva el contexto al regresar.
+8. Al cerrar y reabrir, el estado se reconstruye desde el backend.
+
+## Riesgos y mitigaciones
+
+- Cambio de tarea durante la respuesta: comparación estricta inmediatamente antes de actualizar.
+- DTO visual incompleto: refresco autoritativo, nunca campos inventados.
+- Documento repetido: conjunto por `DocumentId` y pruebas con fixture duplicado.
+- Resultado incierto: reconciliación explícita y estado no optimista.
+- Regresión legacy: archivos aditivos y pruebas que prohíben modificar/interpretar funciones y datos legacy.
+
+## Validación y reversión
+
+Se crearán las tres pruebas canónicas DOC-77, se ejecutará la suite focal y el build MSBuild. El flujo completo requiere E2E real autorizado para confirmar reconciliación, aislamiento por tarea, lista, filtros, scroll, foco y reapertura. La reversión elimina módulos y registros aditivos; no requiere migración de datos.
