@@ -34,6 +34,10 @@ Suites DOC-77:
 - Rechazo de tarea distinta, cambio de tarea y documento no confirmado.
 - Apertura solo con identificador interno positivo.
 
-## E2E pendiente
+## E2E real autorizado
 
-El E2E real requiere autorización explícita del ambiente y cuentas, más identificadores de tarea/radicado/código de barras. Debe seguir `tools/e2e/AGENT-RUNBOOK.md`, dejar el gate apagado y ejecutar controles SQL únicamente de lectura.
+Se reutilizó quirúrgicamente `test:workflow:platform` con el escenario `import-sii-read`, tarea `219877`, radicado `S002188422` y código de barras `18221398`. La plataforma finalizó correctamente con 7 controles y `sinCambios=SI`.
+
+La corrida confirmó consulta/preview/preparación individual sobre el estado persistido sin repetir la mutación ya consumida. El perfil usó `sampleSize: 1` porque la tarea conserva un único elemento seleccionable; el aislamiento por tarea, la deduplicación y la autorización de apertura quedan cubiertos adicionalmente por las suites focales DOC-77.
+
+Al finalizar se verificó `WorkflowCentroTrabajoModernActive=false`, proveedor vacío y usuarios/grupos vacíos. No hubo diferencias residuales en las páginas legacy controladas.

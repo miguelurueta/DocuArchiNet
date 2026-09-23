@@ -22,4 +22,4 @@
 ## 4. Documentación y cierre
 
 - [x] 4.1 Crear exclusivamente `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-77-reconciliacion-lista-documentos/` con arquitectura, mapping, aislamiento, deduplicación, pruebas y diagramas. Origen: D-05, RQ-05; también D-06, RQ-06.
-- [ ] 4.2 Ejecutar validación OpenSpec y E2E real autorizado del flujo completo, incluida reapertura y tarea incorrecta. Origen: D-03, RQ-03; también D-06, RQ-06.
+- [x] 4.2 Ejecutar validación OpenSpec y E2E real autorizado del flujo completo, incluida reapertura y tarea incorrecta. Origen: D-03, RQ-03; también D-06, RQ-06.

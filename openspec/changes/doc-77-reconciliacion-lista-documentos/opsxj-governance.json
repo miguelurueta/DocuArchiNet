@@ -38,7 +38,7 @@
     },
     {
       "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-77-reconciliacion-lista-documentos/04-PruebasEvidencia.md",
-      "requiredSections": ["## Automatización", "## Cobertura", "## E2E pendiente"], "minimumContentLength": 180,
+      "requiredSections": ["## Automatización", "## Cobertura", "## E2E real autorizado"], "minimumContentLength": 180,
       "identity": { "issueKey": "DOC-77", "changeName": "doc-77-reconciliacion-lista-documentos", "impact": "cross_cutting" },
       "closureRestrictions": ["tbd", "template_comment", "open_checklist", "template_instruction"]
     }
