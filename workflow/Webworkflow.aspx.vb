@@ -26,6 +26,7 @@ Public Class Webworkflow
     Dim Popupenlace As Object
     Dim bolindice As Boolean = False
     Private _workflowTransitionModernActive As Nullable(Of Boolean)
+    Private _importarServicioWebModernActive As Nullable(Of Boolean)
 
     Public ReadOnly Property WorkflowCentroTrabajoModernActive As Boolean
         Get
@@ -274,6 +275,21 @@ Public Class Webworkflow
         End Get
     End Property
 
+    Private ReadOnly Property ImportarServicioWebModernActive As Boolean
+        Get
+            If Not _importarServicioWebModernActive.HasValue Then
+                Try
+                    Dim session = New WorkflowPreviewSessionContextGate().AsegurarContexto()
+                    _importarServicioWebModernActive = session IsNot Nothing AndAlso
+                        New ImportarServicioWebFeatureGate().EstaHabilitado(session.Contexto)
+                Catch
+                    _importarServicioWebModernActive = False
+                End Try
+            End If
+            Return _importarServicioWebModernActive.Value
+        End Get
+    End Property
+
     Private Sub ConfigureWorkflowTransitionModernPresentation()
         RegisterWorkflowTransitionModernStyle()
         RegisterWorkflowTransitionPagePresentationScript()
@@ -285,8 +301,10 @@ Public Class Webworkflow
             Return
         End If
 
-        RegisterImportarServicioWebModernAssets()
-        RegisterImportarServicioWebModernBootstrap()
+        If ImportarServicioWebModernActive Then
+            RegisterImportarServicioWebModernAssets()
+            RegisterImportarServicioWebModernBootstrap()
+        End If
         RegisterConfirmationDialogStyle()
         RegisterConfirmationDialogScript()
         RegisterWorkflowTransitionModernScript()
@@ -305,7 +323,7 @@ Public Class Webworkflow
         If Page.Header.FindControl("importarServicioWebModernStyle") Is Nothing Then
             Dim style As New Global.System.Web.UI.HtmlControls.HtmlLink()
             style.ID = "importarServicioWebModernStyle"
-            style.Href = "../Styles/importar-servicio-web-modern.css?v=20260922-doc76progress1"
+            style.Href = "../Styles/importar-servicio-web-modern.css?v=20260923-doc79ux10"
             style.Attributes("rel") = "stylesheet"
             style.Attributes("type") = "text/css"
             Page.Header.Controls.Add(style)
@@ -314,13 +332,13 @@ Public Class Webworkflow
         RegisterImportarServicioWebScript("importarServicioWebApiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-api.js?v=20260921-doc72core1")
         RegisterImportarServicioWebScript("importarServicioWebProviderRegistryScript", "../js/workflow/importar-servicio-web/importar-servicio-web-provider-registry.js?v=20260921-doc72core1")
         RegisterImportarServicioWebScript("importarServicioWebCoreScript", "../js/workflow/importar-servicio-web/importar-servicio-web-core.js?v=20260921-doc72core1")
-        RegisterImportarServicioWebScript("importarServicioWebSiiMapperScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-contract-mapper.js?v=20260921-doc73sii1")
+        RegisterImportarServicioWebScript("importarServicioWebSiiMapperScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-contract-mapper.js?v=20260923-doc79ux4")
         RegisterImportarServicioWebScript("importarServicioWebSiiListScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-list.js?v=20260921-doc73sii1")
-        RegisterImportarServicioWebScript("importarServicioWebSiiAdapterScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-adapter.js?v=20260921-doc73sii1")
+        RegisterImportarServicioWebScript("importarServicioWebSiiAdapterScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-adapter.js?v=20260923-doc79ux8")
         RegisterImportarServicioWebScript("importarServicioWebPreviewStateScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preview-state.js?v=20260922-doc74preview1")
         RegisterImportarServicioWebScript("importarServicioWebPreviewScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preview.js?v=20260922-doc74preview1")
         RegisterImportarServicioWebScript("importarServicioWebRequirementsScript", "../js/workflow/importar-servicio-web/importar-servicio-web-requirements.js?v=20260922-doc75prep1")
-        RegisterImportarServicioWebScript("importarServicioWebPreparationScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preparation.js?v=20260922-doc75prep1")
+        RegisterImportarServicioWebScript("importarServicioWebPreparationScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preparation.js?v=20260923-doc79ux9")
         RegisterImportarServicioWebScript("importarServicioWebIntentClientScript", "../js/workflow/importar-servicio-web/importar-servicio-web-intent-client.js?v=20260922-doc75prep1")
         RegisterImportarServicioWebScript("importarServicioWebProgressAdapterScript", "../js/workflow/importar-servicio-web/importar-servicio-web-progress-adapter.js?v=20260922-doc76progress1")
         RegisterImportarServicioWebScript("importarServicioWebProgressViewScript", "../js/workflow/importar-servicio-web/importar-servicio-web-progress-view.js?v=20260922-doc76progress1")
@@ -328,7 +346,7 @@ Public Class Webworkflow
         RegisterImportarServicioWebScript("importarServicioWebDocumentListScript", "../js/workflow/importar-servicio-web/importar-servicio-web-document-list-adapter.js?v=20260922-doc77reconciliation1")
         RegisterImportarServicioWebScript("importarServicioWebTaskContextGuardScript", "../js/workflow/importar-servicio-web/importar-servicio-web-task-context-guard.js?v=20260923-doc78context1")
         RegisterImportarServicioWebScript("importarServicioWebRecoveryScript", "../js/workflow/importar-servicio-web/importar-servicio-web-recovery.js?v=20260923-doc78context1")
-        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260923-doc78context1")
+        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260923-doc79ux9")
     End Sub
 
     Private Sub RegisterImportarServicioWebScript(ByVal controlId As String, ByVal source As String)
@@ -346,7 +364,7 @@ Public Class Webworkflow
     Private Sub RegisterImportarServicioWebModernBootstrap()
         Dim taskInputId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_id_tarea_selecionada.ClientID)
         Dim providerId As String = System.Web.HttpUtility.JavaScriptStringEncode(ReadConfigurationValue(ImportarServicioWebProviderIdKey, String.Empty))
-        Dim radicadoInputId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_radicado.ClientID)
+        Dim radicadoInputId As String = System.Web.HttpUtility.JavaScriptStringEncode(Hidden_radicado_seleccion.ClientID)
         Dim startupScript As String = "(function(){var trigger=document.getElementById('ctw-document-action-service');if(!trigger){return;}trigger.setAttribute('data-import-modern-active','true');trigger.setAttribute('data-import-task-input-id','" & taskInputId & "');trigger.setAttribute('data-import-radicado-input-id','" & radicadoInputId & "');trigger.setAttribute('data-import-provider-id','" & providerId & "');if(window.ImportarServicioWebUi&&typeof window.ImportarServicioWebUi.initialize==='function'){window.ImportarServicioWebUi.initialize();}}());"
 
         ScriptManager.RegisterStartupScript(Me, Me.GetType(), "importarServicioWebModernBootstrap", startupScript, True)

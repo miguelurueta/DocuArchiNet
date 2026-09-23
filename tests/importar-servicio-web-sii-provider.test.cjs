@@ -46,10 +46,12 @@ test("proveedor SII expone contrato comun y cliente usa transporte B02", () => {
   assert.match(client, /cancellationToken/);
 });
 
-test("la consulta usa exactamente el codigo de barras autorizado del request", () => {
-  assert.match(service, /String\.IsNullOrWhiteSpace\(request\.CodigoBarras\)/);
-  assert.match(service, /request\.CodigoBarras = request\.CodigoBarras\.Trim\(\)/);
-  assert.doesNotMatch(service, /ResolveTaskBarcode/);
+test("la consulta usa exclusivamente el código de barras resuelto para la tarea confiable", () => {
+  assert.match(service, /TryResolveTrustedSiiReferences\(importContext, trustedReceipt, trustedBarcode\)/);
+  assert.match(service, /request\.CodigoBarras = trustedBarcode/);
+  assert.match(service, /SolicitaReciboCodigoBarrasSII\(context\.IdTarea, context\.NombreRutaWorkflow/);
+  assert.match(service, /response\.Radicado = trustedReceipt/);
+  assert.doesNotMatch(service, /request\.CodigoBarras = request\.CodigoBarras\.Trim\(\)/);
   assert.doesNotMatch(dtos.slice(dtos.indexOf('Public Class CreateImportIntentRequestDto')), /Property CodigoBarras|Property Recibo/);
 });
 

@@ -1,0 +1,122 @@
+{
+  "version": 3,
+  "issueKey": "DOC-79",
+  "changeName": "doc-79-pruebas-retiro-gate",
+  "impact": "cross_cutting",
+  "requiredEvidence": [
+    "unit",
+    "manual_qa"
+  ],
+  "documentation": [
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/01-Arquitectura.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/02-GateYAlternancia.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/03-InventarioLegacy.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/04-Pruebas.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/05-Evidencia.md"
+  ],
+  "documentationContract": [
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/01-Arquitectura.md",
+      "requiredSections": [
+        "## Objetivo",
+        "## Componentes"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-79",
+        "changeName": "doc-79-pruebas-retiro-gate",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/02-GateYAlternancia.md",
+      "requiredSections": [
+        "## Regla de autorización",
+        "## Estados"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-79",
+        "changeName": "doc-79-pruebas-retiro-gate",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/03-InventarioLegacy.md",
+      "requiredSections": [
+        "## Referencias conservadas",
+        "## Criterios para un retiro futuro"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-79",
+        "changeName": "doc-79-pruebas-retiro-gate",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/04-Pruebas.md",
+      "requiredSections": [
+        "## Validación local",
+        "## Plataforma E2E reutilizada"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-79",
+        "changeName": "doc-79-pruebas-retiro-gate",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/05-Evidencia.md",
+      "requiredSections": [
+        "## Evidencia local",
+        "## Evidencia E2E real"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-79",
+        "changeName": "doc-79-pruebas-retiro-gate",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    }
+  ],
+  "refinement": {
+    "version": 1,
+    "required": true,
+    "path": "openspec/changes/doc-79-pruebas-retiro-gate/refinement.md",
+    "state": "approved",
+    "taskOriginFormat": "Origen: D-XX, RQ-XX",
+    "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  }
+}

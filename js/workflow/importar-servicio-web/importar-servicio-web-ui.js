@@ -62,7 +62,10 @@
 
     function radicado(control) {
         var input = document.getElementById(control.trigger.getAttribute("data-import-radicado-input-id"));
-        return text(input && input.value);
+        var trusted = text(control.trustedRadicado);
+        if (trusted && trusted !== "-1") { return trusted; }
+        var candidate = text(input && input.value);
+        return candidate === "-1" ? "" : candidate;
     }
 
     function createBackendAdapter(api, control) {
@@ -84,9 +87,18 @@
 
     function clear(node) { while (node && node.firstChild) { node.removeChild(node.firstChild); } }
 
+    function setStage(control, stage) {
+        Array.prototype.forEach.call(control.dialog.querySelectorAll("[data-import-step]"), function (step) {
+            var number = Number(step.getAttribute("data-import-step"));
+            step.setAttribute("data-step-state", number < stage ? "done" : (number === stage ? "active" : "pending"));
+        });
+    }
+
     function renderItems(control, data) {
         var items = data && Array.isArray(data.Items) ? data.Items : [];
         control.resultData = data || { Items: [], DocumentTypes: [] };
+        control.trustedRadicado = text(control.resultData.Radicado);
+        if (control.contextRecord) { control.contextRecord.textContent = control.trustedRadicado || "—"; }
         control.preparationCatalog = Array.isArray(control.resultData.DocumentTypes) ? control.resultData.DocumentTypes.slice(0) : [];
         clear(control.results);
         if (control.adapter && typeof control.adapter.renderItems === "function") { control.adapter.renderItems(control.results, data); return; }
@@ -111,7 +123,7 @@
         control.preparationModel.items.forEach(function (item) {
             var wrapper = document.createElement("div"), label = document.createElement("label"), select = document.createElement("select"), empty = document.createElement("option");
             wrapper.className = "importar-servicio-web__preparation-item"; label.textContent = item.FileName || item.ExternalKey; empty.value = ""; empty.textContent = "Seleccione tipología"; select.appendChild(empty);
-            control.preparationCatalog.forEach(function (entry) { var option = document.createElement("option"), id = entry.Id || entry.DocumentTypeId, name = entry.Name || entry.Nombre || entry.DocumentTypeName; option.value = String(id); option.textContent = text(name); select.appendChild(option); });
+            control.preparationCatalog.forEach(function (entry) { var option = document.createElement("option"), id = entry.Id || entry.DocumentTypeId, name = entry.Name || entry.Nombre || entry.DocumentTypeName; option.value = String(id); option.textContent = text(name); option.selected = Number(item.DocumentTypeId) === Number(id); select.appendChild(option); });
             select.setAttribute("data-import-document-type", item.ExternalKey); select.setAttribute("aria-label", "Tipología de " + (item.FileName || item.ExternalKey)); wrapper.appendChild(label); wrapper.appendChild(select); control.preparationItems.appendChild(wrapper);
         });
     }
@@ -123,14 +135,54 @@
 
     function closePreparation(control) {
         control.preparationPanel.hidden = true; control.listPanel.hidden = false; control.preparationStatus.textContent = ""; control.preparationConfirm.disabled = true;
+        setStage(control, 1);
         if (control.preparationContext) { control.body.scrollTop = control.preparationContext.scrollTop; control.body.scrollLeft = control.preparationContext.scrollLeft; if (control.preparationContext.focus && typeof control.preparationContext.focus.focus === "function") { control.preparationContext.focus.focus(); } }
+    }
+
+    function updateSelectionState(control) {
+        var available = Array.prototype.slice.call(control.results.querySelectorAll('[data-import-select="true"]:not([disabled])'));
+        var selected = available.filter(function (input) { return input.checked; });
+        var selectAll = control.results.querySelector('[data-import-select-all="true"]');
+        var bulk = control.results.querySelector('[data-import-prepare-selected="true"]');
+        if (selectAll) { selectAll.checked = available.length > 0 && selected.length === available.length; selectAll.indeterminate = selected.length > 0 && selected.length < available.length; selectAll.disabled = available.length === 0; }
+        if (bulk) { bulk.disabled = selected.length === 0; }
+    }
+
+    function setExecutionCloseLock(control, locked) {
+        control.executionCloseLocked = locked === true;
+        control.modal.setAttribute("data-import-close-locked", control.executionCloseLocked ? "true" : "false");
+        control.dialog.setAttribute("aria-busy", control.executionCloseLocked ? "true" : "false");
+        control.closeButton.disabled = control.executionCloseLocked;
+        control.closeButton.setAttribute("aria-disabled", control.executionCloseLocked ? "true" : "false");
+    }
+
+    function refreshDocumentListPartial(control) {
+        var button = document.getElementById("Button_actualiza_trevie_seleccion"), manager;
+        if (!button || typeof button.click !== "function" || !window.Sys || !window.Sys.WebForms || !window.Sys.WebForms.PageRequestManager) { return Promise.resolve(false); }
+        manager = window.Sys.WebForms.PageRequestManager.getInstance();
+        return new Promise(function (resolve) {
+            var completed = false, timeoutId;
+            function finish(updated) {
+                if (completed) { return; }
+                completed = true; window.clearTimeout(timeoutId); manager.remove_endRequest(onEndRequest); resolve(updated);
+            }
+            function onEndRequest() { finish(true); }
+            manager.add_endRequest(onEndRequest);
+            timeoutId = window.setTimeout(function () { finish(false); }, 15000);
+            button.click();
+        });
+    }
+
+    function closeAfterResult(control, snapshot) {
+        var projection = control.documentList.synchronize(snapshot), completion = control.projectionCompletion || Promise.resolve(!projection.refreshed);
+        control.projectionCompletion = null;
+        return Promise.resolve(completion).catch(function () { return false; }).then(function () { setExecutionCloseLock(control, false); close(control, true); return snapshot; });
     }
 
     function executeCreatedIntent(control, intent) {
         var request = Object.assign(requestContext(control), { IntentId: intent.IntentId, VersionToken: intent.VersionToken });
         var fresh = Object.assign({}, requestContext(control), { Items: control.preparationModel.items });
-        control.preparationPanel.hidden = true; control.listPanel.hidden = true; control.progressView.renderPending(); control.progressTitle.focus();
-        control.taskContextGuard.assertCurrent();
+        control.taskContextGuard.assertCurrent(); setExecutionCloseLock(control, true); control.preparationPanel.hidden = true; control.listPanel.hidden = true; setStage(control, 3); control.progressView.renderPending(); control.progressTitle.focus();
         return control.api.preflightImport(fresh).then(function (preflight) {
             if (!preflight || preflight.Error || preflight.Executable !== true) { throw new Error(preflight && preflight.Error ? text(preflight.Error.Codigo) : "PREFLIGHT_NOT_EXECUTABLE"); }
             control.taskContextGuard.assertCurrent(); control.taskContextGuard.lock();
@@ -139,11 +191,10 @@
         }).then(function (snapshot) {
             return control.reconciliation.complete(snapshot, request).then(function (reconciled) {
                 control.taskContextGuard.assertCurrent();
-                control.progressView.renderResult(snapshot);
-                control.documentList.synchronize(reconciled);
-                return snapshot;
+                control.progressView.renderResult(snapshot); setStage(control, 4);
+                return closeAfterResult(control, reconciled);
             });
-        }).catch(function (error) { if (control.recovery.isConflict(error)) { return control.recovery.recoverConflict(error, request).then(function (result) { control.progressView.renderResult(result.snapshot); return result.snapshot; }); } control.progressView.renderFailure(); throw error; }).finally(function () { control.taskContextGuard.unlock(); });
+        }).catch(function (error) { if (control.recovery.isConflict(error)) { return control.recovery.recoverConflict(error, request).then(function (result) { control.progressView.renderResult(result.snapshot); setStage(control, 4); return closeAfterResult(control, result.snapshot); }); } control.progressView.renderFailure(); setStage(control, 4); setExecutionCloseLock(control, false); throw error; }).finally(function () { control.taskContextGuard.unlock(); });
     }
 
     function prepareCurrent(control) {
@@ -154,8 +205,13 @@
     function openPreparation(control, keys, trigger) {
         var rows = keys.map(function (key) { return itemByKey(control, key); }).filter(Boolean);
         if (!rows.length || !control.preparationCatalog.length) { control.status.textContent = "No hay catálogo autorizado para preparar la importación."; return; }
+        control.dialog.classList.remove("importar-servicio-web__dialog--preview"); setStage(control, 2);
+        if (control.preview) { control.preview.close(); }
         control.taskContextGuard.capture(Object.assign(requestContext(control), { ExternalKeys: keys, StartedAt: new Date().toISOString() }));
-        control.preparationContext = captureListContext(control, trigger); control.preparationModel = { items: control.preparation.multiple(rows.map(preparationRow), taskId(control)) }; control.preparationResponse = null; control.listPanel.hidden = true; control.previewPanel.hidden = true; control.preparationPanel.hidden = false; control.preparationPanel.setAttribute("data-preparation-state", "edicion"); renderPreparationItems(control); clear(control.preparationPlan); control.preparationStatus.textContent = "Seleccione una tipología autorizada para cada elemento."; control.preparationTitle.focus();
+        control.preparationContext = captureListContext(control, trigger); control.preparationModel = { items: control.preparation.multiple(rows.map(preparationRow), taskId(control)) };
+        var defaultAssignment = control.preparation.assignDefaultDocumentType(control.preparationModel.items, control.preparationCatalog);
+        control.preparationModel.items = defaultAssignment.items; control.preparationResponse = null; control.listPanel.hidden = true; control.previewPanel.hidden = true; control.preparationPanel.hidden = false; control.preparationPanel.setAttribute("data-preparation-state", "edicion"); renderPreparationItems(control); clear(control.preparationPlan); control.preparationStatus.textContent = defaultAssignment.documentType ? "Tipología predeterminada: " + text(defaultAssignment.documentType.Name || defaultAssignment.documentType.Nombre || defaultAssignment.documentType.DocumentTypeName) + ". Puede cambiarla antes de crear la intención." : "Seleccione una tipología autorizada para cada elemento."; control.preparationTitle.focus();
+        if (defaultAssignment.documentType) { prepareCurrent(control); }
     }
 
     function renderPreview(control, snapshot) {
@@ -169,12 +225,30 @@
         control.previewImported.hidden = !snapshot.internalDocumentId || !control.importedViewer.canOpen(snapshot.internalDocumentId);
         if (snapshot.state === "disponible" && snapshot.resourcePath) {
             control.previewFrame.title = "Recurso externo temporal";
+            control.previewStatus.textContent = "Cargando documento…";
             control.previewFrame.src = snapshot.resourcePath;
             control.previewFrame.hidden = false;
         } else if (snapshot.state === "formato-no-visualizable" && snapshot.resourcePath) {
             control.previewDownload.href = snapshot.resourcePath;
             control.previewDownload.hidden = false;
         }
+    }
+
+    function previewFrameLoaded(control) {
+        var snapshot = control.preview.snapshot();
+        if (snapshot.state !== "disponible" || !snapshot.resourcePath || control.previewFrame.getAttribute("src") !== snapshot.resourcePath) { return; }
+        control.previewPanel.setAttribute("data-preview-state", "disponible");
+        control.previewStatus.textContent = "Documento listo para visualizar.";
+    }
+
+    function previewFrameFailed(control) {
+        var snapshot = control.preview.snapshot();
+        if (snapshot.state !== "disponible") { return; }
+        control.previewPanel.setAttribute("data-preview-state", "proveedor-no-disponible");
+        control.previewStatus.textContent = "El navegador no pudo mostrar el documento. Solicite un recurso nuevo.";
+        control.previewFrame.hidden = true;
+        control.previewFrame.removeAttribute("src");
+        control.previewRenew.hidden = false;
     }
 
     function captureListContext(control, trigger) {
@@ -240,7 +314,8 @@
         if (fallback && typeof fallback.focus === "function") { fallback.focus(); }
     }
 
-    function close(control) {
+    function close(control, force) {
+        if (control.executionCloseLocked && force !== true) { return false; }
         if (control.preparationPanel && !control.preparationPanel.hidden) { closePreparation(control); }
         if (control.preview) { control.preview.close(); restoreListContext(control); }
         control.core.close();
@@ -248,6 +323,7 @@
         control.modal.setAttribute("aria-hidden", "true");
         document.body.classList.remove("importar-servicio-web-open");
         restoreTriggerFocus(control);
+        return true;
     }
 
     function onKeydown(control, event) {
@@ -264,11 +340,15 @@
     function open(control, event) {
         if (event) { event.preventDefault(); event.stopPropagation(); }
         if (control.progressView) { control.progressView.hide(); }
+        setExecutionCloseLock(control, false);
         control.listPanel.hidden = false;
         control.modal.hidden = false;
         control.modal.removeAttribute("hidden");
         control.modal.setAttribute("aria-hidden", "false");
         document.body.classList.add("importar-servicio-web-open");
+        setStage(control, 1);
+        if (control.contextTask) { control.contextTask.textContent = String(taskId(control) || "—"); }
+        if (control.contextRecord) { control.contextRecord.textContent = radicado(control) || "—"; }
         control.closeButton.focus();
         control.core.open(control.providerId);
         return false;
@@ -286,7 +366,7 @@
 
         if (!trigger || trigger.getAttribute("data-import-modern-active") !== "true" || trigger.getAttribute("data-import-modern-bound") === "true") { return null; }
         if (!modal || !apiFactory || !registryFactory || !coreFactory) { return null; }
-        control = { trigger: trigger, modal: modal, dialog: document.getElementById("importar-servicio-web-dialog"), closeButton: document.getElementById("importar-servicio-web-close"), body: document.getElementById("importar-servicio-web-body"), listPanel: document.getElementById("importar-servicio-web-list"), status: document.getElementById("importar-servicio-web-status"), results: document.getElementById("importar-servicio-web-results"), previewPanel: document.getElementById("importar-servicio-web-preview"), previewTitle: document.getElementById("importar-servicio-web-preview-title"), previewStatus: document.getElementById("importar-servicio-web-preview-status"), previewFrame: document.getElementById("importar-servicio-web-preview-frame"), previewBack: document.getElementById("importar-servicio-web-preview-back"), previewRenew: document.getElementById("importar-servicio-web-preview-renew"), previewDownload: document.getElementById("importar-servicio-web-preview-download"), previewImported: document.getElementById("importar-servicio-web-preview-imported"), preparationPanel: document.getElementById("importar-servicio-web-preparation"), preparationTitle: document.getElementById("importar-servicio-web-preparation-title"), preparationStatus: document.getElementById("importar-servicio-web-preparation-status"), preparationItems: document.getElementById("importar-servicio-web-preparation-items"), preparationPlan: document.getElementById("importar-servicio-web-preparation-plan"), preparationClose: document.getElementById("importar-servicio-web-preparation-close"), preparationCancel: document.getElementById("importar-servicio-web-preparation-cancel"), preparationConfirm: document.getElementById("importar-servicio-web-preparation-confirm"), progressPanel: document.getElementById("importar-servicio-web-progress"), progressTitle: document.getElementById("importar-servicio-web-progress-title"), progressStatus: document.getElementById("importar-servicio-web-progress-status"), progressSummary: document.getElementById("importar-servicio-web-progress-summary"), progressResults: document.getElementById("importar-servicio-web-progress-results"), providerId: text(trigger.getAttribute("data-import-provider-id")), viewImported: options.viewImported };
+        control = { trigger: trigger, modal: modal, dialog: document.getElementById("importar-servicio-web-dialog"), closeButton: document.getElementById("importar-servicio-web-close"), body: document.getElementById("importar-servicio-web-body"), contextTask: document.getElementById("importar-servicio-web-context-task"), contextRecord: document.getElementById("importar-servicio-web-context-record"), listPanel: document.getElementById("importar-servicio-web-list"), status: document.getElementById("importar-servicio-web-status"), results: document.getElementById("importar-servicio-web-results"), previewPanel: document.getElementById("importar-servicio-web-preview"), previewTitle: document.getElementById("importar-servicio-web-preview-title"), previewStatus: document.getElementById("importar-servicio-web-preview-status"), previewFrame: document.getElementById("importar-servicio-web-preview-frame"), previewBack: document.getElementById("importar-servicio-web-preview-back"), previewRenew: document.getElementById("importar-servicio-web-preview-renew"), previewDownload: document.getElementById("importar-servicio-web-preview-download"), previewImported: document.getElementById("importar-servicio-web-preview-imported"), preparationPanel: document.getElementById("importar-servicio-web-preparation"), preparationTitle: document.getElementById("importar-servicio-web-preparation-title"), preparationStatus: document.getElementById("importar-servicio-web-preparation-status"), preparationItems: document.getElementById("importar-servicio-web-preparation-items"), preparationPlan: document.getElementById("importar-servicio-web-preparation-plan"), preparationClose: document.getElementById("importar-servicio-web-preparation-close"), preparationCancel: document.getElementById("importar-servicio-web-preparation-cancel"), preparationConfirm: document.getElementById("importar-servicio-web-preparation-confirm"), progressPanel: document.getElementById("importar-servicio-web-progress"), progressTitle: document.getElementById("importar-servicio-web-progress-title"), progressStatus: document.getElementById("importar-servicio-web-progress-status"), progressSummary: document.getElementById("importar-servicio-web-progress-summary"), progressResults: document.getElementById("importar-servicio-web-progress-results"), providerId: text(trigger.getAttribute("data-import-provider-id")), viewImported: options.viewImported };
         if (!control.dialog || !control.closeButton || !control.body || !control.listPanel || !control.status || !control.results || !control.previewPanel || !control.previewTitle || !control.previewStatus || !control.previewFrame || !control.previewBack || !control.previewRenew || !control.previewDownload || !control.previewImported) { return null; }
         api = apiFactory.create(options.apiOptions || {});
         control.api = api;
@@ -310,18 +390,24 @@
         control.reconciliation = reconciliationFactory.create({ api: api });
         control.taskContextGuard = guardFactory.create({ currentTaskId: function () { return taskId(control); }, controls: Array.prototype.slice.call(document.querySelectorAll('[data-import-context-action="true"], [data-workflow-task-action="true"]')), eventTarget: window });
         control.recovery = recoveryFactory.create({ api: api, adapt: control.reconciliation.adapt });
-        control.documentList = documentListFactory.create({ currentTaskId: function () { return taskId(control); }, appendDocument: options.appendImportedDocument, refresh: options.refreshDocumentList || function () { if (window.location && typeof window.location.reload === "function") { window.location.reload(); } }, openDocument: function (id) { return control.importedViewer.open(id); } });
+        control.documentList = documentListFactory.create({ currentTaskId: function () { return taskId(control); }, appendDocument: options.appendImportedDocument, refresh: function (request) { control.projectionCompletion = options.refreshDocumentList ? Promise.resolve(options.refreshDocumentList(request)) : refreshDocumentListPartial(control); }, openDocument: function (id) { return control.importedViewer.open(id); } });
         control.progressView = progressViewFactory.create({ panel: control.progressPanel, status: control.progressStatus, summary: control.progressSummary, results: control.progressResults, canViewImported: function (item) { return control.documentList.isAuthorized(item); }, viewImported: function (item) { control.documentList.open(item.documentId); } });
         control.preview.subscribe(function (snapshot) { renderPreview(control, snapshot); });
+        control.previewFrame.addEventListener("load", function () { previewFrameLoaded(control); });
+        control.previewFrame.addEventListener("error", function () { previewFrameFailed(control); });
         control.core.subscribe(function (snapshot) { render(control, snapshot); });
         trigger.setAttribute("data-import-modern-bound", "true");
         trigger.onclick = function (event) { return open(control, event || window.event); };
         if (legacy) { legacy.hidden = true; legacy.setAttribute("aria-hidden", "true"); }
+        Array.prototype.forEach.call(document.querySelectorAll('[data-import-legacy-root="true"]'), function (legacyRoot) {
+            legacyRoot.hidden = true;
+            legacyRoot.setAttribute("aria-hidden", "true");
+        });
         control.closeButton.addEventListener("click", function () { close(control); });
         control.modal.addEventListener("click", function (event) { if (event.target && event.target.getAttribute("data-import-close") === "true") { close(control); } });
         control.dialog.addEventListener("keydown", function (event) { onKeydown(control, event); });
         control.results.addEventListener("click", function (event) { var target = event.target, keys; if (!target) { return; } if (target.getAttribute("data-import-preview") === "true") { event.preventDefault(); openPreview(control, target); } else if (target.getAttribute("data-import-prepare") === "true") { event.preventDefault(); openPreparation(control, [text(target.getAttribute("data-external-key"))], target); } else if (target.getAttribute("data-import-prepare-selected") === "true") { keys = Array.prototype.map.call(control.results.querySelectorAll('[data-import-select="true"]:checked'), function (input) { return text(input.getAttribute("data-external-key")); }); openPreparation(control, keys, target); } });
-        control.results.addEventListener("change", function (event) { var bulk; if (event.target && event.target.getAttribute("data-import-select") === "true") { bulk = control.results.querySelector('[data-import-prepare-selected="true"]'); if (bulk) { bulk.disabled = !control.results.querySelector('[data-import-select="true"]:checked'); } } });
+        control.results.addEventListener("change", function (event) { var target = event.target, checked; if (!target) { return; } if (target.getAttribute("data-import-select-all") === "true") { checked = target.checked; Array.prototype.forEach.call(control.results.querySelectorAll('[data-import-select="true"]:not([disabled])'), function (input) { input.checked = checked; }); updateSelectionState(control); } else if (target.getAttribute("data-import-select") === "true") { updateSelectionState(control); } });
         control.preparationItems.addEventListener("change", function (event) { var target = event.target, entry; if (!target || !target.getAttribute("data-import-document-type")) { return; } entry = control.preparationCatalog.filter(function (candidate) { return Number(candidate.Id || candidate.DocumentTypeId) === Number(target.value); })[0]; control.preparationModel.items = control.preparation.assignDocumentType(control.preparationModel.items, target.getAttribute("data-import-document-type"), entry, control.preparationCatalog); control.preparationConfirm.disabled = true; clear(control.preparationPlan); if (window.ImportarServicioWebRequirements.complete(control.preparationModel.items)) { prepareCurrent(control); } });
         control.preparationClose.addEventListener("click", function () { closePreparation(control); });
         control.preparationCancel.addEventListener("click", function () { closePreparation(control); });
@@ -334,7 +420,7 @@
         return control;
     }
 
-    var ui = { initialize: initialize, open: open, close: close, onKeydown: onKeydown, createBackendAdapter: createBackendAdapter, createImportedViewerAdapter: createImportedViewerAdapter, openPreview: openPreview, openPreparation: openPreparation, closePreparation: closePreparation, executeCreatedIntent: executeCreatedIntent, restoreListContext: restoreListContext, restoreTriggerFocus: restoreTriggerFocus, getActiveControl: function () { return activeControl; } };
+    var ui = { initialize: initialize, open: open, close: close, onKeydown: onKeydown, createBackendAdapter: createBackendAdapter, createImportedViewerAdapter: createImportedViewerAdapter, openPreview: openPreview, openPreparation: openPreparation, closePreparation: closePreparation, executeCreatedIntent: executeCreatedIntent, setExecutionCloseLock: setExecutionCloseLock, refreshDocumentListPartial: refreshDocumentListPartial, closeAfterResult: closeAfterResult, previewFrameLoaded: previewFrameLoaded, previewFrameFailed: previewFrameFailed, updateSelectionState: updateSelectionState, restoreListContext: restoreListContext, restoreTriggerFocus: restoreTriggerFocus, getActiveControl: function () { return activeControl; } };
     window.ImportarServicioWebUi = ui;
     if (typeof module !== "undefined" && module.exports) { module.exports = ui; }
     if (window.Sys && window.Sys.Application && typeof window.Sys.Application.add_load === "function") { window.Sys.Application.add_load(initialize); }

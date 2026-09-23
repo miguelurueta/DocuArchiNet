@@ -444,8 +444,13 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   const platform = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'support', 'workflow-e2e-platform.cjs'), 'utf8');
   assert.match(source, /finally\s*\{\s*await restoreGate\(\)/);
   assert.match(source, /await restoreGate\(\);\s*await assertPlatformIntegrity/);
-  assert.match(source, /ImportarServicioWebProviderId" value=""/);
+  assert.match(source, /captureLegacyIntegrityBaseline\(\{ root: repositoryRoot \}\)/);
+  assert.match(source, /assertPlatformIntegrity\(\{ \.\.\.options, legacyBaseline \}\)/);
+  assert.match(source, /ImportarServicioWebProviderId" value="\(\?:\|INTEGRACIONSII\)"/);
   assert.match(source, /ImportarServicioWebProviderId" value="INTEGRACIONSII"/);
+  assert.match(source, /WorkflowCentroTrabajoModernUsers" value="\[\^"\\s\]\+"/);
+  assert.match(source, /enableTemporaryGate\(plan, secrets\['workflow-account'\]\)/);
+  assert.match(source, /collectSecrets: async \(\) => secrets/);
   assert.match(source, /workflow\/Webworkflow\.aspx/);
   assert.match(source, /initializeWorkflowContext\(context, currentPlan\)/);
   assert.match(source, /document\.querySelector\(selector\)\?\.value === expected/);
@@ -463,6 +468,12 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(source, /IMPORT_E2E_PREPARATION_UI_RESPONSIVE_INVALID/);
   assert.match(source, /IMPORT_E2E_PREPARATION_UI_NO_IMPORTABLE_ITEMS/);
   assert.match(source, /IMPORT_E2E_PREPARATION_UI_MULTIPLE_ITEMS_UNAVAILABLE/);
+  assert.match(source, /count\(\) !== selectableCount/);
+  assert.match(source, /IMPORT_E2E_PREPARATION_UI_DEFAULT_TYPE_INVALID/);
+  assert.match(source, /IMPORT_E2E_PREPARATION_UI_SELECT_ALL_PARTIAL_INVALID/);
+  assert.match(source, /IMPORT_E2E_PREPARATION_UI_SELECT_ALL_INVALID/);
+  assert.match(source, /IMPORT_E2E_PREPARATION_UI_DESELECT_ALL_INVALID/);
+  assert.match(source, /IMPORT_E2E_PREPARATION_UI_MULTIPLE_DEFAULT_TYPE_INVALID/);
   assert.match(source, /CreateImportIntent\|ExecuteImportIntent/);
   assert.match(source, /mutationRequests !== 0/);
   assert.match(source, /La plataforma E2E terminó correctamente/);
@@ -486,6 +497,23 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(source, /#auto_complex:visible/);
   assert.match(source, /waitForFunction/);
   assert.doesNotMatch(source, /ID_TAREA_SELECCIONDA\s*=|DG_ID_TRAMITE\s*=/);
-  assert.match(platform, /git', \['diff', '--name-only'.*workflow\/Webworkflow\.aspx/s);
+  assert.match(platform, /git', \['diff', '--name-only', '--', \.\.\.LEGACY_INTEGRITY_PATHS\]/);
+  assert.match(platform, /LEGACY_INTEGRITY_PATHS/);
+  assert.match(platform, /legacyBaseline\[relativePath\]/);
   assert.match(platform, /WorkflowCentroTrabajoModernActive" value="false/);
+});
+
+test('DOC-79 reutiliza la plataforma y verifica gate integral y fallback legacy', () => {
+  const service = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'webservice', 'WebServiceImportarServicioWebModern.asmx.vb'), 'utf8');
+  const gate = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'Infrastructure', 'Workflow', 'ImportarServicioWeb', 'ImportarServicioWebFeatureGate.vb'), 'utf8');
+  const page = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'workflow', 'Webworkflow.aspx'), 'utf8');
+  const ui = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'js', 'workflow', 'importar-servicio-web', 'importar-servicio-web-ui.js'), 'utf8');
+  assert.match(service, /New ImportarServicioWebFeatureGate\(\)\.EstaHabilitado\(session\.Contexto\)/);
+  assert.match(gate, /WorkflowCentroTrabajoModernActive/);
+  assert.match(gate, /contexto Is Nothing OrElse Not contexto\.EsValido\(\) Then Return False/);
+  assert.doesNotMatch(gate, /WorkflowCentroTrabajoModernUsers|WorkflowCentroTrabajoModernGroups/);
+  assert.equal((page.match(/data-import-legacy-root="true"/g) || []).length, 3);
+  assert.match(ui, /querySelectorAll\('\[data-import-legacy-root="true"\]'\)/);
+  assert.match(ui, /data-import-modern-bound/);
+  assert.doesNotMatch(ui, /playwright|localStorage|setInterval\s*\(/i);
 });

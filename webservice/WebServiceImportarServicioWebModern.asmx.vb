@@ -43,14 +43,16 @@ Public Class WebServiceImportarServicioWebModern
             Dim importContext As ContextoImportacionServicio = Nothing : Dim session As ResultadoContextoSesionWorkflow = Nothing
             Dim contextFailure As String = Nothing
             If Not TryBuildImportContext(request, importContext, session, contextFailure) Then Return FailureQuery(request, contextFailure)
-            If String.IsNullOrWhiteSpace(request.CodigoBarras) Then Return FailureQuery(request, "SII_BARCODE_UNAVAILABLE")
-            request.CodigoBarras = request.CodigoBarras.Trim()
+            Dim trustedBarcode As String = String.Empty, trustedReceipt As String = String.Empty
+            If Not TryResolveTrustedSiiReferences(importContext, trustedReceipt, trustedBarcode) Then Return FailureQuery(request, "SERVER_SII_REFERENCE_UNAVAILABLE")
+            request.CodigoBarras = trustedBarcode
             Dim provider = ResolveProvider(request.ProviderId, CreateAttemptRecorder(session, importContext))
             If Not provider.Encontrado Then Return FailureQuery(request, provider.Codigo)
             Dim response=provider.Cliente.QueryItemsAsync(request, CancellationToken.None).GetAwaiter().GetResult()
             Dim presentation=CreatePresentation(session,importContext)
             presentation.EnrichItems(importContext,request.ProviderId,response)
             presentation.ApplyPagination(request,response)
+            response.Radicado = trustedReceipt
             Return response
         Catch ex As ExternalImportHttpException
             Return FailureQuery(request, SafeExternalCode(ex))
@@ -59,6 +61,18 @@ Public Class WebServiceImportarServicioWebModern
         Catch
             Return FailureQuery(request, "EXTERNAL_PROVIDER_UNAVAILABLE")
         End Try
+    End Function
+
+    Private Shared Function TryResolveTrustedSiiReferences(ByVal context As ContextoImportacionServicio,
+                                                           ByRef receipt As String,
+                                                           ByRef barcode As String) As Boolean
+        receipt = String.Empty : barcode = String.Empty
+        If context Is Nothing OrElse context.IdTarea <= 0 OrElse context.IdRuta <= 0 OrElse String.IsNullOrWhiteSpace(context.NombreRutaWorkflow) Then Return False
+        Dim result = New Class_DAT_ADIC_TAR().SolicitaReciboCodigoBarrasSII(context.IdTarea, context.NombreRutaWorkflow,
+            context.IdRuta, receipt, barcode)
+        receipt = If(receipt, String.Empty).Trim() : barcode = If(barcode, String.Empty).Trim()
+        Return String.Equals(result, "YES", StringComparison.OrdinalIgnoreCase) AndAlso
+            receipt.Length > 0 AndAlso receipt.Length <= 80 AndAlso barcode.Length > 0 AndAlso barcode.Length <= 15
     End Function
 
     <WebMethod(EnableSession:=True)>
@@ -115,6 +129,9 @@ Public Class WebServiceImportarServicioWebModern
         Try
             Dim context As ContextoImportacionServicio = Nothing : Dim session As ResultadoContextoSesionWorkflow = Nothing
             If Not TryBuildImportContext(request, context, session) Then Return New CreateImportIntentResponseDto With {.Error = ErrorDto("FORBIDDEN")}
+            Dim trustedReceipt As String = String.Empty, trustedBarcode As String = String.Empty
+            If Not TryResolveTrustedSiiReferences(context, trustedReceipt, trustedBarcode) Then Return New CreateImportIntentResponseDto With {.Error = ErrorDto("SERVER_SII_REFERENCE_UNAVAILABLE")}
+            request.Radicado = trustedReceipt
             Return Compose(session, request.ProviderId, context).Intents.Crear(context, request)
         Catch ex As InvalidOperationException
             Return New CreateImportIntentResponseDto With {.Error = ErrorDto(SafeIntentCreationCode(ex.Message))}
@@ -170,7 +187,12 @@ Public Class WebServiceImportarServicioWebModern
     End Function
 
     Private Shared Function FeatureEnabled() As Boolean
-        Return String.Equals(ConfigurationManager.AppSettings("WorkflowCentroTrabajoModernActive"), "true", StringComparison.OrdinalIgnoreCase)
+        Try
+            Dim session = New WorkflowPreviewSessionContextGate().AsegurarContexto()
+            Return session IsNot Nothing AndAlso New ImportarServicioWebFeatureGate().EstaHabilitado(session.Contexto)
+        Catch
+            Return False
+        End Try
     End Function
 
     Private Shared Function TryBuildImportContext(ByVal request As SolicitudImportacionServicioDto,
@@ -314,11 +336,13 @@ Public Class WebServiceImportarServicioWebModern
     Private Shared Function CreatePresentation(ByVal session As ResultadoContextoSesionWorkflow,
                                                ByVal context As ContextoImportacionServicio) As ImportItemPresentationService
         If session Is Nothing OrElse String.IsNullOrWhiteSpace(session.CadenaConexionWorkflow) Then Throw New InvalidOperationException("IMPORT_CONTEXT_UNAVAILABLE")
+        If String.IsNullOrWhiteSpace(session.CadenaConexionDocuarchi) Then Throw New InvalidOperationException("DOCUARCHI_CONTEXT_UNAVAILABLE")
         If String.IsNullOrWhiteSpace(session.CadenaConexionRadicacion) Then Throw New InvalidOperationException("RADICACION_CONTEXT_UNAVAILABLE")
         Dim executor As IDataExecutor=New AdoNetDataExecutor()
         Return New ImportItemPresentationService(
             New MySqlImportDocumentTypeCatalogRepository(New RadicacionModuleConnectionFactory(session.CadenaConexionRadicacion),executor),
-            New MySqlImportItemStatusRepository(New WorkflowModuleConnectionFactory(session.CadenaConexionWorkflow),executor))
+            New MySqlImportItemStatusRepository(New WorkflowModuleConnectionFactory(session.CadenaConexionWorkflow),
+                New DocuarchiModuleConnectionFactory(session.CadenaConexionDocuarchi),executor))
     End Function
 
     Private Shared Function BuildProviderRegistry(ByVal resolved As ResultadoResolucionClienteProveedorImportacion) As RegistroClientesProveedoresImportacion

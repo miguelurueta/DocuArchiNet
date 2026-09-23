@@ -856,7 +856,7 @@
                           <div class="col-4 pr-1 pl-0">
                               <a class="nav-link pr-2 pl-2" style="color: #6d7fcc;  float: right" title="Actualiza indice batch" href="#" onclick="inicializa_tipo_adjunto_documento(event,this,'C-DW-ACTU-INDICE')"><i style="" class="fal fa-info "></i><% If WorkflowCentroTrabajoModernPresentationEnabled Then %><span class="ctw-document-action-label">Actualizar índice</span><% End If %></a>
                               <a class="nav-link pr-2 pl-2" id="btnLoadFile" style="color: #6d7fcc;  float: right" title="Adjuntar documento" href="#" ><i style="" class="fal fa-upload "></i><% If WorkflowCentroTrabajoModernPresentationEnabled Then %><span class="ctw-document-action-label">Cargar</span><% End If %></a>
-                              <a class="nav-link pr-2 pl-2" id="btnloadservice" style="color: #6d7fcc;  float: right" title="Adjuntar documentos desde servicio web" href="#" ><i style="" class="fal fa-page-break "></i><% If WorkflowCentroTrabajoModernPresentationEnabled Then %><span class="ctw-document-action-label">Servicio</span><% End If %></a>
+                              <a class="nav-link pr-2 pl-2" id="btnloadservice" data-import-legacy-root="true" style="color: #6d7fcc;  float: right" title="Adjuntar documentos desde servicio web" href="#" ><i style="" class="fal fa-page-break "></i><% If WorkflowCentroTrabajoModernPresentationEnabled Then %><span class="ctw-document-action-label">Servicio</span><% End If %></a>
                           </div> 
                           <div class="col-1 pr-0 d-flex justify-content-end">
                               <div class="dropright">
@@ -2086,7 +2086,7 @@
               
             </div>
         </asp:Panel>
-            <asp:Panel ID="Panel_sube_documento_integra_sii" runat="server" Style="display:none;  width: 50%; height: auto" CssClass="modal_content_general_">
+            <asp:Panel ID="Panel_sube_documento_integra_sii" runat="server" data-import-legacy-root="true" Style="display:none;  width: 50%; height: auto" CssClass="modal_content_general_">
                 <asp:ModalPopupExtender ID="ModalPopupExtender_sube_documento_integra_sii" runat="Server" BackgroundCssClass="FondoAplicacion" 
                     TargetControlID="Button_sube_documento_integra_sii"
                     PopupControlID="Panel_sube_documento_integra_sii" CancelControlID="Button3_sube_documento_integra_sii" ></asp:ModalPopupExtender>
@@ -2119,7 +2119,7 @@
                     </div>
                 </div>
             </asp:Panel>    
-          <asp:Panel ID="Panel_list_inscripciones_sii" runat="server" Style="display:none; width: 90%; height: 100%" CssClass="modal_content_general_">
+          <asp:Panel ID="Panel_list_inscripciones_sii" runat="server" data-import-legacy-root="true" Style="display:none; width: 90%; height: 100%" CssClass="modal_content_general_">
             <asp:ModalPopupExtender ID="ModalPopupExtender_edition_list_inscripciones_sii" runat="server"
                 TargetControlID="ButtonSalir_list_inscripciones_sii" BackgroundCssClass="FondoAplicacion"
                 CancelControlID="Button_cerrar_list_inscripciones_sii" PopupControlID="Panel_list_inscripciones_sii">
@@ -4526,9 +4526,20 @@
             <div class="importar-servicio-web__backdrop" data-import-close="true"></div>
             <section id="importar-servicio-web-dialog" class="importar-servicio-web__dialog" role="dialog" aria-modal="true" aria-labelledby="importar-servicio-web-title" tabindex="-1">
                 <header class="importar-servicio-web__header">
-                    <h2 id="importar-servicio-web-title" class="importar-servicio-web__title">Importar documentos desde servicio</h2>
+                    <div><h2 id="importar-servicio-web-title" class="importar-servicio-web__title">Importar documentos desde SII</h2><p class="importar-servicio-web__subtitle">Consulte, seleccione y clasifique las constancias antes de incorporarlas a la tarea.</p></div>
                     <button id="importar-servicio-web-close" class="importar-servicio-web__close" type="button" aria-label="Cerrar importación">&times;</button>
                 </header>
+                <div class="importar-servicio-web__context" aria-label="Contexto de importación">
+                    <div><span>Tarea</span><strong id="importar-servicio-web-context-task">—</strong></div>
+                    <div><span>Radicado</span><strong id="importar-servicio-web-context-record">—</strong></div>
+                    <strong class="importar-servicio-web__provider">SII conectado</strong>
+                </div>
+                <ol class="importar-servicio-web__steps" aria-label="Progreso de importación">
+                    <li data-import-step="1" data-step-state="active"><span>1</span>Seleccionar</li>
+                    <li data-import-step="2"><span>2</span>Clasificar</li>
+                    <li data-import-step="3"><span>3</span>Importar</li>
+                    <li data-import-step="4"><span>4</span>Resultado</li>
+                </ol>
                 <div id="importar-servicio-web-body" class="importar-servicio-web__body">
                     <div id="importar-servicio-web-list">
                         <div id="importar-servicio-web-status" class="importar-servicio-web__status" role="status" aria-live="polite"></div>
@@ -4541,7 +4552,7 @@
                         </header>
                         <p class="importar-servicio-web__preview-help">Esta vista no representa un documento almacenado en DocuArchi.</p>
                         <div id="importar-servicio-web-preview-status" class="importar-servicio-web__preview-status" role="status" aria-live="polite"></div>
-                        <iframe id="importar-servicio-web-preview-frame" class="importar-servicio-web__preview-frame" title="Recurso externo temporal" sandbox="allow-same-origin" hidden="hidden"></iframe>
+                        <iframe id="importar-servicio-web-preview-frame" class="importar-servicio-web__preview-frame" title="Recurso externo temporal" hidden="hidden"></iframe>
                         <div class="importar-servicio-web__preview-actions">
                             <button id="importar-servicio-web-preview-renew" type="button" hidden="hidden">Solicitar recurso nuevo</button>
                             <a id="importar-servicio-web-preview-download" href="#" download="download" hidden="hidden">Descargar temporalmente</a>

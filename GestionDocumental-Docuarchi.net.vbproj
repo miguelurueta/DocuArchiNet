@@ -9950,6 +9950,7 @@
     <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyEnvioUsuarioRequisitosAdapter.vb" />
     <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyAuditoriaAdapter.vb" />
     <Compile Include="Infrastructure\Workflow\Terminar\ConfiguracionWorkflowModernFeatureGate.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\ImportarServicioWebFeatureGate.vb" />
     <Compile Include="workflow\ClassAlmacenamiento.vb" />
     <Compile Include="workflow\ClassAñadirDocumento.vb" />
     <Compile Include="workflow\ClassEdtiScript.vb" />
