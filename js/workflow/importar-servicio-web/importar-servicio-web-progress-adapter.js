@@ -9,6 +9,8 @@
     function visibleState(item) {
         var phase = normalized(item && (item.Status || item.ReachedPhase)), confirmed = Number(item && item.DocumentId) > 0;
         if (phase === "creada") { return "Disponible"; }
+        if (phase === "disponible" && confirmed) { return "Importada"; }
+        if (phase === "disponible") { return "Verificando"; }
         if (phase === "validada") { return "Preparando"; }
         if (["recursoobtenido", "expedientepreparado", "documentoalmacenado", "indicesactualizados", "cacheactualizado"].indexOf(phase) >= 0) { return "Procesando"; }
         if (phase === "resultadoincierto") { return "Verificando"; }

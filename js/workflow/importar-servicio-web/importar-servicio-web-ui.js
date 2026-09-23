@@ -129,7 +129,13 @@
     function executeCreatedIntent(control, intent) {
         var request = Object.assign(requestContext(control), { IntentId: intent.IntentId, VersionToken: intent.VersionToken });
         control.preparationPanel.hidden = true; control.listPanel.hidden = true; control.progressView.renderPending(); control.progressTitle.focus();
-        return control.progressAdapter.execute(request).then(function (snapshot) { control.progressView.renderResult(snapshot); return snapshot; }).catch(function (error) { control.progressView.renderFailure(); throw error; });
+        return control.progressAdapter.execute(request).then(function (snapshot) {
+            return control.reconciliation.complete(snapshot, request).then(function (reconciled) {
+                control.progressView.renderResult(snapshot);
+                control.documentList.synchronize(reconciled);
+                return snapshot;
+            });
+        }).catch(function (error) { control.progressView.renderFailure(); throw error; });
     }
 
     function prepareCurrent(control) {
@@ -267,7 +273,7 @@
         var apiFactory = options.api || window.ImportarServicioWebApi;
         var registryFactory = options.registry || window.ImportarServicioWebProviderRegistry;
         var coreFactory = options.core || window.ImportarServicioWebCore;
-        var control, registry, api, siiFactory, progressAdapterFactory, progressViewFactory;
+        var control, registry, api, siiFactory, progressAdapterFactory, progressViewFactory, reconciliationFactory, documentListFactory;
 
         if (!trigger || trigger.getAttribute("data-import-modern-active") !== "true" || trigger.getAttribute("data-import-modern-bound") === "true") { return null; }
         if (!modal || !apiFactory || !registryFactory || !coreFactory) { return null; }
@@ -285,10 +291,14 @@
         control.preparation = options.preparation || window.ImportarServicioWebPreparation;
         progressAdapterFactory = options.progressAdapter || window.ImportarServicioWebProgressAdapter;
         progressViewFactory = options.progressView || window.ImportarServicioWebProgressView;
-        if (!control.preparation || !window.ImportarServicioWebIntentClient || !progressAdapterFactory || !progressViewFactory || !control.preparationPanel || !control.preparationTitle || !control.preparationStatus || !control.preparationItems || !control.preparationPlan || !control.preparationClose || !control.preparationCancel || !control.preparationConfirm || !control.progressPanel || !control.progressTitle || !control.progressStatus || !control.progressSummary || !control.progressResults) { return null; }
+        reconciliationFactory = options.reconciliation || window.ImportarServicioWebReconciliation;
+        documentListFactory = options.documentList || window.ImportarServicioWebDocumentListAdapter;
+        if (!control.preparation || !window.ImportarServicioWebIntentClient || !progressAdapterFactory || !progressViewFactory || !reconciliationFactory || !documentListFactory || !control.preparationPanel || !control.preparationTitle || !control.preparationStatus || !control.preparationItems || !control.preparationPlan || !control.preparationClose || !control.preparationCancel || !control.preparationConfirm || !control.progressPanel || !control.progressTitle || !control.progressStatus || !control.progressSummary || !control.progressResults) { return null; }
         control.intentClient = (options.intentClient || window.ImportarServicioWebIntentClient).create({ api: api });
         control.progressAdapter = progressAdapterFactory.create({ api: api });
-        control.progressView = progressViewFactory.create({ panel: control.progressPanel, status: control.progressStatus, summary: control.progressSummary, results: control.progressResults });
+        control.reconciliation = reconciliationFactory.create({ api: api });
+        control.documentList = documentListFactory.create({ currentTaskId: function () { return taskId(control); }, appendDocument: options.appendImportedDocument, refresh: options.refreshDocumentList || function () { if (window.location && typeof window.location.reload === "function") { window.location.reload(); } }, openDocument: function (id) { return control.importedViewer.open(id); } });
+        control.progressView = progressViewFactory.create({ panel: control.progressPanel, status: control.progressStatus, summary: control.progressSummary, results: control.progressResults, canViewImported: function (item) { return control.documentList.isAuthorized(item); }, viewImported: function (item) { control.documentList.open(item.documentId); } });
         control.preview.subscribe(function (snapshot) { renderPreview(control, snapshot); });
         control.core.subscribe(function (snapshot) { render(control, snapshot); });
         trigger.setAttribute("data-import-modern-bound", "true");
