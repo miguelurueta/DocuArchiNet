@@ -383,7 +383,7 @@ async function readWorkflowControl({ control, taskId, environment }) {
   }
 }
 
-async function enableTemporaryGate(plan) {
+async function enableTemporaryGate(plan, workflowAccount) {
   if (!plan.scenario.expectations.includes('temporary-feature-gate')) return async () => {};
   const webConfigPath = path.join(repositoryRoot, 'Web.config');
   const original = await fs.readFile(webConfigPath, 'utf8');
@@ -391,6 +391,10 @@ async function enableTemporaryGate(plan) {
       !/<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i.test(original) ||
       !/<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i.test(original)) fail('E2E_PLATFORM_GATE_INTEGRITY_FAILED');
   let enabled = original.replace(/(<add key="WorkflowCentroTrabajoModernActive" value=")false("\s*\/>)/i, '$1true$2');
+  const authorizedAccount = String(workflowAccount || '').trim();
+  if (!/^[A-Za-z0-9._@-]{1,128}$/.test(authorizedAccount)) fail('E2E_PLATFORM_GATE_AUDIENCE_INVALID');
+  enabled = enabled.replace(/(<add key="WorkflowCentroTrabajoModernUsers" value=")("\s*\/>)/i,
+    (_match, prefix, suffix) => `${prefix}${authorizedAccount}${suffix}`);
   if (plan.scenario.expectations.includes('secure-preview-ui')) {
     if (!/<add key="ImportarServicioWebProviderId" value=""\s*\/>/i.test(original)) {
       fail('E2E_PLATFORM_PROVIDER_INTEGRITY_FAILED');
@@ -401,7 +405,7 @@ async function enableTemporaryGate(plan) {
     enabled = enabled.replace(/(<add key="ImportarServicioWebPreviewTtlMinutes" value=")\d+("\s*\/>)/i,
       (_match, prefix, suffix) => `${prefix}1${suffix}`);
   }
-  if (enabled === original || (plan.scenario.expectations.includes('secure-preview-ui') &&
+  if (enabled === original || !/<add key="WorkflowCentroTrabajoModernUsers" value="[^"\s]+"\s*\/>/i.test(enabled) || (plan.scenario.expectations.includes('secure-preview-ui') &&
       !/<add key="ImportarServicioWebProviderId" value="INTEGRACIONSII"\s*\/>/i.test(enabled))) {
     fail('E2E_PLATFORM_GATE_ENABLE_FAILED');
   }
@@ -437,15 +441,16 @@ async function main() {
   const authorizations = await collectAuthorizations(required, parsedArguments.requestedAuthorizations);
   const plan = preflightPlatform({ profile, authorizations });
   const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'workflow-e2e-platform-'));
+  const secrets = plan.scenario.requiredSecrets.length > 0 ? await collectSecrets(plan) : {};
   let restoreGate = async () => {};
   try {
-    restoreGate = await enableTemporaryGate(plan);
+    restoreGate = await enableTemporaryGate(plan, secrets['workflow-account']);
     await waitForApplicationReload(plan);
     const outcome = await executePlatformRun({
     profile,
     authorizations,
     temporaryDirectory,
-    collectSecrets,
+    collectSecrets: async () => secrets,
     createBrowser: async (selectedProfile) => chromium.launch(selectedProfile.browser || {}),
     createSession: async ({ browser, plan: currentPlan, environment }) => {
       const context = await createAuthenticatedWorkflowSession(browser, {

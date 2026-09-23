@@ -446,6 +446,9 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(source, /await restoreGate\(\);\s*await assertPlatformIntegrity/);
   assert.match(source, /ImportarServicioWebProviderId" value=""/);
   assert.match(source, /ImportarServicioWebProviderId" value="INTEGRACIONSII"/);
+  assert.match(source, /WorkflowCentroTrabajoModernUsers" value="\[\^"\\s\]\+"/);
+  assert.match(source, /enableTemporaryGate\(plan, secrets\['workflow-account'\]\)/);
+  assert.match(source, /collectSecrets: async \(\) => secrets/);
   assert.match(source, /workflow\/Webworkflow\.aspx/);
   assert.match(source, /initializeWorkflowContext\(context, currentPlan\)/);
   assert.match(source, /document\.querySelector\(selector\)\?\.value === expected/);
