@@ -14,6 +14,7 @@ const { createAuthenticatedWorkflowSession } = require('../tests/support/authent
 const {
   executePlatformRun,
   assertPlatformIntegrity,
+  captureLegacyIntegrityBaseline,
   preflightPlatform,
   requiredAuthorizationsFor
 } = require('./support/workflow-e2e-platform.cjs');
@@ -298,11 +299,10 @@ async function inspectImportPreviewUi({ context, plan }) {
       fail('IMPORT_E2E_PREPARATION_UI_FOCUS_INVALID');
     }
     const preparationConfirm = page.locator('#importar-servicio-web-preparation-confirm');
-    if (!await preparationConfirm.isDisabled()) fail('IMPORT_E2E_PREPARATION_UI_PREMATURE_CONFIRM');
     const documentType = page.locator('[data-import-document-type]').first();
     const options = await documentType.locator('option').count();
     if (options < 2) fail('IMPORT_E2E_PREPARATION_UI_CATALOG_UNAVAILABLE');
-    await documentType.selectOption({ index: 1 });
+    if (Number(await documentType.inputValue()) !== Number(plan.profile.documentTypeId)) fail('IMPORT_E2E_PREPARATION_UI_DEFAULT_TYPE_INVALID');
     await preparationConfirm.waitFor({ state: 'visible', timeout });
     await page.waitForFunction(() => {
       const confirm = document.querySelector('#importar-servicio-web-preparation-confirm');
@@ -320,11 +320,23 @@ async function inspectImportPreviewUi({ context, plan }) {
     if (plan.profile.sampleSize >= 2 && selectableCount < 2) fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_ITEMS_UNAVAILABLE');
     if (selectableCount >= 2) {
       await selectable.nth(0).check();
-      await selectable.nth(1).check();
+      const selectAll = page.locator('[data-import-select-all="true"]');
+      if (await selectAll.isChecked() || await selectAll.evaluate((element) => element.indeterminate) !== true) fail('IMPORT_E2E_PREPARATION_UI_SELECT_ALL_PARTIAL_INVALID');
+      await selectAll.check();
+      if (await selectable.evaluateAll((elements) => elements.some((element) => !element.checked))) fail('IMPORT_E2E_PREPARATION_UI_SELECT_ALL_INVALID');
+      await selectAll.uncheck();
+      if (await selectable.evaluateAll((elements) => elements.some((element) => element.checked))) fail('IMPORT_E2E_PREPARATION_UI_DESELECT_ALL_INVALID');
+      await selectAll.check();
       const prepareSelected = page.locator('[data-import-prepare-selected="true"]:visible:not([disabled])');
       await prepareSelected.click();
       await preparation.waitFor({ state: 'visible', timeout });
-      if (await page.locator('[data-import-document-type]').count() !== 2) fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_INVALID');
+      if (await page.locator('[data-import-document-type]').count() !== selectableCount) fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_INVALID');
+      if (await page.locator('[data-import-document-type]').evaluateAll((elements, expected) => elements.some((element) => Number(element.value) !== Number(expected)), plan.profile.documentTypeId)) fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_DEFAULT_TYPE_INVALID');
+      await page.waitForFunction(() => {
+        const confirm = document.querySelector('#importar-servicio-web-preparation-confirm');
+        return confirm && confirm.disabled === false;
+      }, null, { timeout }).catch(() => fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_PLAN_UNAVAILABLE'));
+      if (preflightRequests !== 2 || mutationRequests !== 0) fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_REQUESTS_INVALID');
       await page.locator('#importar-servicio-web-preparation-cancel').click();
       if (await prepareSelected.evaluate((element) => document.activeElement === element) !== true) {
         fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_CONTEXT_NOT_RESTORED');
@@ -396,7 +408,7 @@ async function enableTemporaryGate(plan, workflowAccount) {
   enabled = enabled.replace(/(<add key="WorkflowCentroTrabajoModernUsers" value=")("\s*\/>)/i,
     (_match, prefix, suffix) => `${prefix}${authorizedAccount}${suffix}`);
   if (plan.scenario.expectations.includes('secure-preview-ui')) {
-    if (!/<add key="ImportarServicioWebProviderId" value=""\s*\/>/i.test(original)) {
+    if (!/<add key="ImportarServicioWebProviderId" value="(?:|INTEGRACIONSII)"\s*\/>/i.test(original)) {
       fail('E2E_PLATFORM_PROVIDER_INTEGRITY_FAILED');
     }
     enabled = enabled.replace(/(<add key="ImportarServicioWebProviderId" value=")("\s*\/>)/i, '$1INTEGRACIONSII$2');
@@ -440,6 +452,7 @@ async function main() {
   const required = requiredAuthorizationsFor(scenario, profile);
   const authorizations = await collectAuthorizations(required, parsedArguments.requestedAuthorizations);
   const plan = preflightPlatform({ profile, authorizations });
+  const legacyBaseline = await captureLegacyIntegrityBaseline({ root: repositoryRoot });
   const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'workflow-e2e-platform-'));
   const secrets = plan.scenario.requiredSecrets.length > 0 ? await collectSecrets(plan) : {};
   let restoreGate = async () => {};
@@ -471,7 +484,7 @@ async function main() {
       writeEvidence,
       assertIntegrity: async (options) => {
         await restoreGate();
-        await assertPlatformIntegrity(options);
+        await assertPlatformIntegrity({ ...options, legacyBaseline });
       }
     });
     console.log(`La plataforma E2E terminó correctamente (${plan.scenario.id}); controles=${outcome.controls.checked}; sinCambios=${outcome.controls.unchanged === true ? 'SI' : 'NO'}. Evidencia saneada disponible.`);

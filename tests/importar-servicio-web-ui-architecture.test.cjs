@@ -24,5 +24,6 @@ test('la UI usa los adaptadores existentes sin arnés ni transporte paralelo', (
 test('ejecución, espera y proyección mantienen contratos únicos', () => {
   assert.equal((ui.match(/progressAdapter\.execute\(request\)/g) || []).length, 1);
   assert.match(ui, /renderPending\(\)[\s\S]*progressAdapter\.execute\(request\)/);
-  assert.match(ui, /reconciliation\.complete\(snapshot, request\)[\s\S]*documentList\.synchronize\(reconciled\)/);
+  assert.match(ui, /reconciliation\.complete\(snapshot, request\)[\s\S]*closeAfterResult\(control, reconciled\)/);
+  assert.match(ui, /function closeAfterResult\(control, snapshot\)[\s\S]*documentList\.synchronize\(snapshot\)/);
 });

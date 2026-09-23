@@ -15,7 +15,7 @@
 - `webservice/WebServiceImportarServicioWebModern.asmx.vb`: ocho operaciones modernas y validación inicial de `WorkflowCentroTrabajoModernActive`.
 - `tests/importar-servicio-web-*.test.cjs`: contratos, gate, regresión legacy, almacenamiento, ejecución, progreso, reconciliación y contexto.
 - `tools/e2e/tests/importar-servicio-web-modern.spec.cjs` y plataforma compartida: lectura, ejecución, recuperación, retry, concurrencia, controles SELECT y restauración del gate.
-- `web.config`: gate global activo y listas de audiencia vacías, porque la funcionalidad aplica a todos los usuarios autenticados del módulo.
+- `web.config`: gate activo por autorización posterior a la certificación y listas de audiencia vacías; la funcionalidad aplica a todos los usuarios autenticados del módulo.
 - Ruta documental vigente: `Doc/Actualizacion/workflow/ImportarServicioWeb/`; no se recreará `docs/`.
 
 ## Decisiones aprobadas

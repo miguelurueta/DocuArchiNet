@@ -106,6 +106,7 @@ End Class
     Public Property ProviderResultCode As String
     Public Property InscriptionCount As Integer
     Public Property ImageCount As Integer
+    Public Property Radicado As String
 End Class
 
 <Serializable()> Public Class GetPreviewRequestDto

@@ -47,9 +47,10 @@ test("proveedor SII expone contrato comun y cliente usa transporte B02", () => {
 });
 
 test("la consulta usa exclusivamente el código de barras resuelto para la tarea confiable", () => {
-  assert.match(service, /TryResolveTrustedBarcode\(request\.TaskId, trustedBarcode\)/);
+  assert.match(service, /TryResolveTrustedSiiReferences\(importContext, trustedReceipt, trustedBarcode\)/);
   assert.match(service, /request\.CodigoBarras = trustedBarcode/);
-  assert.match(service, /SolicitaCodigoBarrasIdTareaWorflow\(taskId, barcode\)/);
+  assert.match(service, /SolicitaReciboCodigoBarrasSII\(context\.IdTarea, context\.NombreRutaWorkflow/);
+  assert.match(service, /response\.Radicado = trustedReceipt/);
   assert.doesNotMatch(service, /request\.CodigoBarras = request\.CodigoBarras\.Trim\(\)/);
   assert.doesNotMatch(dtos.slice(dtos.indexOf('Public Class CreateImportIntentRequestDto')), /Property CodigoBarras|Property Recibo/);
 });

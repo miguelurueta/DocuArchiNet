@@ -290,15 +290,32 @@ async function removeTemporaryDirectory(directory) {
   await fs.rm(resolved, { recursive: true, force: true });
 }
 
-async function assertPlatformIntegrity({ root = repositoryRoot } = {}) {
+const LEGACY_INTEGRITY_PATHS = Object.freeze(['workflow/Webworkflow.aspx', 'workflow/Webworkflow.aspx.vb']);
+
+async function captureLegacyIntegrityBaseline({ root = repositoryRoot } = {}) {
+  const entries = await Promise.all(LEGACY_INTEGRITY_PATHS.map(async (relativePath) =>
+    [relativePath, await fs.readFile(path.join(root, relativePath), 'utf8')]));
+  return Object.freeze(Object.fromEntries(entries));
+}
+
+async function assertPlatformIntegrity({ root = repositoryRoot, legacyBaseline } = {}) {
   const configuration = await fs.readFile(path.join(root, 'Web.config'), 'utf8');
   if (!/<add key="WorkflowCentroTrabajoModernActive" value="false"\s*\/>/i.test(configuration) ||
       !/<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i.test(configuration) ||
       !/<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i.test(configuration)) {
     fail('E2E_PLATFORM_GATE_INTEGRITY_FAILED');
   }
-  const result = await execute('git', ['diff', '--name-only', '--', 'workflow/Webworkflow.aspx', 'workflow/Webworkflow.aspx.vb'], { cwd: root, windowsHide: true });
-  if (result.stdout.trim()) fail('E2E_PLATFORM_LEGACY_INTEGRITY_FAILED');
+  if (legacyBaseline) {
+    for (const relativePath of LEGACY_INTEGRITY_PATHS) {
+      if (typeof legacyBaseline[relativePath] !== 'string' ||
+          await fs.readFile(path.join(root, relativePath), 'utf8') !== legacyBaseline[relativePath]) {
+        fail('E2E_PLATFORM_LEGACY_INTEGRITY_FAILED');
+      }
+    }
+  } else {
+    const result = await execute('git', ['diff', '--name-only', '--', ...LEGACY_INTEGRITY_PATHS], { cwd: root, windowsHide: true });
+    if (result.stdout.trim()) fail('E2E_PLATFORM_LEGACY_INTEGRITY_FAILED');
+  }
 }
 
 async function executePlatformRun(options) {
@@ -433,6 +450,7 @@ async function executePlatformRun(options) {
 module.exports = {
   PlatformExecutionError,
   assertPlatformIntegrity,
+  captureLegacyIntegrityBaseline,
   createRestrictedInvoker,
   createRuntimeEnvironment,
   createSafeEvidence,

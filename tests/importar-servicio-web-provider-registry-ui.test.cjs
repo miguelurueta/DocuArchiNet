@@ -27,7 +27,7 @@ test("cliente API usa exclusivamente envelopes ASMX y transporte inyectado", asy
     assert.throws(() => api.unwrapAsmx({}), /IMPORT_RESPONSE_INVALID/);
 });
 
-test("integración WebForms conserva legacy y registra assets con el gate global activo", () => {
+test("integración WebForms conserva legacy y activa la experiencia moderna global", () => {
     const page = fs.readFileSync(path.resolve(__dirname, "../workflow/Webworkflow.aspx"), "utf8");
     const codeBehind = fs.readFileSync(path.resolve(__dirname, "../workflow/Webworkflow.aspx.vb"), "utf8");
     const config = fs.readFileSync(path.resolve(__dirname, "../Web.config"), "utf8");

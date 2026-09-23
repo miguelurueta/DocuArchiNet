@@ -1,0 +1,49 @@
+<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07 -->
+
+## 1. Validación local y gate
+
+- [x] 1.1 [S] Crear la suite de arquitectura UI que compruebe composición única y ausencia de infraestructura paralela. Área/archivos: `tests/importar-servicio-web-ui-architecture.test.cjs`. Origen: D-01, RQ-01; también D-03, RQ-03. Verificación: `node --test tests/importar-servicio-web-ui-architecture.test.cjs`.
+- [x] 1.2 [M] Crear la suite del gate global para las ocho operaciones y sesiones Workflow válidas. Área/archivos: `tests/importar-servicio-web-gate.test.cjs`, servicio moderno y `web.config`. Origen: D-02, RQ-02. Verificación: prueba verde y corte anterior a dependencias/efectos.
+
+- [x] 1.6 [S] Corregir el gate para habilitar a todos los usuarios autenticados del módulo, eliminando listas adicionales de usuario/grupo y activando la configuración versionada con proveedor `INTEGRACIONSII` después de la certificación autorizada. Área/archivos: gate específico, configuración, pruebas y documentación DOC-79. Origen: D-02, RQ-02. Verificación: gate activo + sesión válida habilita; sesión inválida o gate apagado rechaza; toda corrida E2E restaura temporalmente el gate a apagado.
+- [x] 1.7 [M] Resolver el código de barras en servidor desde la tarea confiable y mostrar errores de consulta en lugar de representarlos como listas vacías. Área/archivos: ASMX moderno, mapper SII y prueba contractual. Origen: D-02, RQ-02. Verificación: la apertura real no depende de inyección E2E ni de entrada manipulable del navegador.
+- [x] 1.3 [S] Crear la suite de regresión UI legacy y doble handler. Área/archivos: `tests/importar-servicio-web-legacy-ui-regression.test.cjs`, `workflow/Webworkflow.aspx(.vb)`. Origen: D-03, RQ-03; también D-06, RQ-06. Verificación: gate apagado preserva legacy y gate activo expone una sola entrada.
+- [x] 1.4 [S] Crear la suite de invariancia UI/almacenamiento. Área/archivos: `tests/importar-servicio-web-storage-invariance-ui.test.cjs`, `workflow/ClassAlmacenamiento.vb`, adaptador moderno. Origen: D-01, RQ-01; también D-06, RQ-06. Verificación: huellas legacy e invocación única permanecen válidas.
+- [x] 1.5 [M] Crear el validador frontend determinista que componga suites existentes y nuevas. Área/archivos: `tools/validation/Verify-ImportarServicioWebFrontend.ps1`. Origen: D-01, RQ-01. Verificación: comando local sin red retorna cero y propaga fallos.
+
+## 2. Alternancia y contratos de ejecución
+
+- [x] 2.1 [M] Declarar el árbol visual legacy y aplicar ocultamiento inicial reversible bajo el gate sin eliminar controles ni handlers. Área/archivos: `workflow/Webworkflow.aspx(.vb)`, estilos/módulos existentes. Origen: D-03, RQ-03; también D-06, RQ-06. Verificación: suites de gate activo/apagado y revisión de markup.
+- [x] 2.2 [M] Cubrir una sola ejecución por intención, espera global y proyección final sin duplicados. Área/archivos: pruebas del UI, progreso y reconciliación existentes. Origen: D-04, RQ-04. Verificación: conteo de `ExecuteImportIntent`, estados pendientes y claves documentales únicas.
+
+## 3. E2E y evidencia
+
+- [x] 3.1 [S] Extender solo la suite E2E compartida con las aserciones estructurales faltantes, sin crear escenarios o perfiles paralelos. Área/archivos: `tools/e2e/tests/importar-servicio-web-modern.spec.cjs`. Origen: D-05, RQ-05. Verificación: suite local del arnés pasa sin autenticación.
+- [x] 3.2 [M] Ejecutar suites focales, regresión completa y compilación, registrando resultados reales. Área/archivos: tests Importar Servicio Web y solución WebForms. Origen: D-01, RQ-01; cubre D-02, D-03, D-04 y RQ-02, RQ-03, RQ-04. Verificación: conteos y errores documentados.
+- [x] 3.3 [M] Ejecutar E2E real únicamente tras autorización explícita o registrar bloqueo verificable. Área/archivos: `tools/e2e`, perfil runtime autorizado y evidencia saneada. Origen: D-05, RQ-05. Verificación: controles esperados, resultado real y gate restaurado.
+
+## 4. Inventario, documentación y cierre
+
+- [x] 4.1 [M] Inventariar controles, postbacks, handlers y ASMX legacy, clasificando referencias y criterios de retiro futuro. Área/archivos: superficies legacy y documentación DOC-79. Origen: D-06, RQ-06. Verificación: matriz completa sin declarar eliminaciones dentro del cambio.
+- [x] 4.2 [M] Crear el paquete técnico y diagramas exclusivamente en la ruta canónica DOC-79. Área/archivos: `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/`. Origen: D-07, RQ-07; también D-05, RQ-05 y D-06, RQ-06. Verificación: índice, arquitectura, pruebas, inventario, rollback y evidencia saneada presentes; `docs/` ausente.
+- [x] 4.3 [S] Validar estrictamente OpenSpec y OPSXJ con evidencia ligada al SHA final. Área/archivos: cambio `doc-79-pruebas-retiro-gate` y gobierno OPSXJ. Origen: D-07, RQ-07; cubre D-01 a D-06 y RQ-01 a RQ-06. Verificación: `openspec validate --strict` y `opsxj:validate` exitosos.
+
+- [x] 4.4 [M] Corregir la degradación UX observada en video contra el prototipo canónico: modal adaptable, contexto y pasos, tabla titulada con cabecera fija, acciones siempre visibles, preview PDF y transición limpia hacia preparación. Área/archivos: adaptador SII, UI, estilos, markup y pruebas frontend. Origen: D-03, RQ-03; evidencia de usuario y `Exploracion/02-modelo-ui-importar-servicio-web-moderno.html`. Verificación: suites focales y validación frontend completa.
+
+- [x] 4.5 [M] Revalidar el estado importado contra la existencia física del documento en su gabinete. La intención completada conserva valor histórico, pero no prueba existencia actual; un documento eliminado vuelve a estar disponible y una evidencia no verificable falla cerrada como novedad. Área/archivos: repositorio de estado, composición ASMX, pruebas y documentación. Origen: D-04, RQ-04; también D-06, RQ-06. Verificación: consulta local parametrizada por `document_id`, gabinete validado y cero llamadas SII adicionales.
+
+- [x] 4.6 [M] Sustituir el radicado transitorio del navegador por el recibo SII resuelto desde la tarea confiable y exponer el estado que gobierna cada acción. Área/archivos: DTO, ASMX moderno, adaptador, UI, estilos y pruebas contractuales. Origen: D-02, RQ-02; evidencia visual de usuario y D-10. Verificación: `QueryItems` retorna el recibo autoritativo, `CreateImportIntent` ignora el valor del cliente y la tabla explica `Disponible`, `Importado` o `ConNovedad`.
+
+- [x] 4.7 [S] Corregir la incompatibilidad entre el metadato SII `registration` y la columna Inscripción, y versionar conjuntamente los recursos de la tabla para impedir mezclas de frontend nuevo y antiguo. Área/archivos: mapper, adaptador, registro de assets y prueba contractual. Origen: D-03, RQ-03; evidencia visual posterior del usuario. Verificación: `registration` se presenta como inscripción, la tabla incluye Referencia/Estado y un botón bloqueado expone su estado como ayuda contextual.
+
+- [x] 4.8 [M] Corregir la clasificación que bloqueaba importaciones válidas sin expediente: aceptar `NoAplica` como efecto resuelto y dar precedencia a una ausencia física verificable sobre intentos fallidos anteriores, sin desplazar la precedencia de un documento existente. Área/archivos: repositorio de estado, prueba contractual, diseño y evidencia. Origen: D-04, RQ-04; bloqueo persistente observado por el usuario y D-11. Verificación: importación completada sin expediente puede verificarse físicamente; documento ausente queda `Disponible` y documento presente permanece `Importado`.
+
+- [x] 4.9 [S] Evitar la degradación visual posterior a crear la intención sustituyendo la recarga completa por la actualización parcial WebForms existente y aplicar estilos autocontenidos a cierre, cancelación, confirmación y tipología. Área/archivos: UI, CSS, registro de assets, pruebas y evidencia. Origen: D-03, RQ-03; grabación del usuario del 23 de septiembre de 2026 y D-12. Verificación: no existe fallback a `window.location.reload`, se invoca `Button_actualiza_trevie_seleccion` y los controles de preparación tienen estilos explícitos.
+
+- [x] 4.10 [M] Gobernar el cierre por el resultado terminal: bloquear botón superior, backdrop y Escape durante ejecución; cerrar automáticamente después de resultado exitoso/parcial y actualización parcial; mantener visible un fallo terminal con cierre habilitado. Área/archivos: UI, CSS, assets, pruebas y evidencia. Origen: D-04, RQ-04; captura final del usuario y D-13. Verificación: guard central de cierre, `aria-busy/aria-disabled`, espera del `endRequest` y ausencia de cierre previo al resultado.
+
+- [x] 4.11 [S] Habilitar el visor PDF integrado para el recurso temporal local mediado: retirar el sandbox incompatible, conservar controles HTTP del handler y gobernar la presentación mediante eventos `load/error`. Área/archivos: markup, UI, assets, pruebas y evidencia. Origen: D-03, RQ-03; captura del visor roto aportada por el usuario y D-14. Verificación: iframe sin sandbox, estado de carga explícito, confirmación solo tras `load` y renovación visible tras `error`.
+
+- [x] 4.12 [S] Agregar selección y deselección total en la cabecera de inscripciones, restringida a filas importables y sincronizada con selección parcial y preparación múltiple. Área/archivos: adaptador SII, UI, CSS, assets, pruebas y evidencia. Origen: D-03, RQ-03; solicitud del usuario y D-15. Verificación: checkbox accesible, filas bloqueadas intactas, estado indeterminado correcto y botón masivo coherente.
+
+- [x] 4.13 [S] Predeterminar la tipología de la preparación múltiple cuando el catálogo autoritativo ofrece una única opción o una única coincidencia normalizada de Constancia de Inscripción. Área/archivos: preparación, UI, assets, pruebas y evidencia. Origen: D-04, RQ-04; solicitud del usuario y D-16. Verificación: asignación completa editable, ambigüedad cerrada a selección manual y preflight servidor conservado.

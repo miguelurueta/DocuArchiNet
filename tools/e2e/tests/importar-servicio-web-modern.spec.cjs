@@ -444,7 +444,9 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   const platform = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'support', 'workflow-e2e-platform.cjs'), 'utf8');
   assert.match(source, /finally\s*\{\s*await restoreGate\(\)/);
   assert.match(source, /await restoreGate\(\);\s*await assertPlatformIntegrity/);
-  assert.match(source, /ImportarServicioWebProviderId" value=""/);
+  assert.match(source, /captureLegacyIntegrityBaseline\(\{ root: repositoryRoot \}\)/);
+  assert.match(source, /assertPlatformIntegrity\(\{ \.\.\.options, legacyBaseline \}\)/);
+  assert.match(source, /ImportarServicioWebProviderId" value="\(\?:\|INTEGRACIONSII\)"/);
   assert.match(source, /ImportarServicioWebProviderId" value="INTEGRACIONSII"/);
   assert.match(source, /WorkflowCentroTrabajoModernUsers" value="\[\^"\\s\]\+"/);
   assert.match(source, /enableTemporaryGate\(plan, secrets\['workflow-account'\]\)/);
@@ -466,6 +468,12 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(source, /IMPORT_E2E_PREPARATION_UI_RESPONSIVE_INVALID/);
   assert.match(source, /IMPORT_E2E_PREPARATION_UI_NO_IMPORTABLE_ITEMS/);
   assert.match(source, /IMPORT_E2E_PREPARATION_UI_MULTIPLE_ITEMS_UNAVAILABLE/);
+  assert.match(source, /count\(\) !== selectableCount/);
+  assert.match(source, /IMPORT_E2E_PREPARATION_UI_DEFAULT_TYPE_INVALID/);
+  assert.match(source, /IMPORT_E2E_PREPARATION_UI_SELECT_ALL_PARTIAL_INVALID/);
+  assert.match(source, /IMPORT_E2E_PREPARATION_UI_SELECT_ALL_INVALID/);
+  assert.match(source, /IMPORT_E2E_PREPARATION_UI_DESELECT_ALL_INVALID/);
+  assert.match(source, /IMPORT_E2E_PREPARATION_UI_MULTIPLE_DEFAULT_TYPE_INVALID/);
   assert.match(source, /CreateImportIntent\|ExecuteImportIntent/);
   assert.match(source, /mutationRequests !== 0/);
   assert.match(source, /La plataforma E2E terminó correctamente/);
@@ -489,7 +497,9 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(source, /#auto_complex:visible/);
   assert.match(source, /waitForFunction/);
   assert.doesNotMatch(source, /ID_TAREA_SELECCIONDA\s*=|DG_ID_TRAMITE\s*=/);
-  assert.match(platform, /git', \['diff', '--name-only'.*workflow\/Webworkflow\.aspx/s);
+  assert.match(platform, /git', \['diff', '--name-only', '--', \.\.\.LEGACY_INTEGRITY_PATHS\]/);
+  assert.match(platform, /LEGACY_INTEGRITY_PATHS/);
+  assert.match(platform, /legacyBaseline\[relativePath\]/);
   assert.match(platform, /WorkflowCentroTrabajoModernActive" value="false/);
 });
 

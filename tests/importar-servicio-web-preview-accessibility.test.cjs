@@ -10,8 +10,13 @@ test("el panel tiene nombre accesible, estado anunciado y navegación de retorno
   assert.match(markup, /id="importar-servicio-web-preview"[^>]+aria-labelledby="importar-servicio-web-preview-title"/);
   assert.match(markup, /id="importar-servicio-web-preview-status"[^>]+role="status"[^>]+aria-live="polite"/);
   assert.match(markup, />Volver a la lista</);
-  assert.match(markup, /title="Recurso externo temporal"[^>]+sandbox="allow-same-origin"/);
+  assert.match(markup, /title="Recurso externo temporal"/);
+  assert.doesNotMatch(markup, /id="importar-servicio-web-preview-frame"[^>]+sandbox=/);
   assert.match(markup, /Esta vista no representa un documento almacenado/);
+  assert.match(ui, /previewFrame\.addEventListener\("load"/);
+  assert.match(ui, /previewFrame\.addEventListener\("error"/);
+  assert.match(ui, /Documento listo para visualizar/);
+  assert.match(ui, /El navegador no pudo mostrar el documento/);
 });
 
 test("la vista restaura foco y scroll sin solicitar de nuevo por resize", () => {

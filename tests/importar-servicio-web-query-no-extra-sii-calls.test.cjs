@@ -18,6 +18,13 @@ test('estado se resuelve localmente por tarea proveedor y clave',()=>{
   for(const p of ['@taskId','@providerId','@externalKey']) assert.match(repo,new RegExp(p));
   assert.match(repo,/external_key IN \(/);
   assert.match(repo,/workflow_import_intent_item/);
+  assert.match(repo,/workflow_import_related_document/);
+  assert.match(repo,/SELECT ID FROM `" & cabinet\.Key & "` WHERE ID IN/);
+  assert.match(repo,/physicallyPresent/);
+  assert.match(repo,/ResolvedEffect\(reader\("relation_status"\)\)/);
+  assert.match(repo,/String\.Equals\(status,"NoAplica"/);
+  assert.match(repo,/verifiedMissing\.Contains\(pair\.Key\)/);
+  assert.match(repo,/documento históricamente confirmado pero eliminado vuelve a estar disponible/i);
   assert.doesNotMatch(repo,/HttpClient|consultarInformacionSello|SiiExternal/);
   const presentation=read('Services','Workflow','ImportarServicioWeb','ImportItemPresentationService.vb');
   assert.equal((presentation.match(/ObtenerLote\(/g)||[]).length,1);
