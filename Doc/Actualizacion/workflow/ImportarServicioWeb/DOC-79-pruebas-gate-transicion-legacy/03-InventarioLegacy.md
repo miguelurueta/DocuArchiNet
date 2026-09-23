@@ -1,5 +1,9 @@
 # Inventario legacy
 
+- Ticket: DOC-79
+- Cambio OpenSpec: doc-79-pruebas-retiro-gate
+- Clasificacion: cross_cutting
+
 ## Referencias conservadas
 
 | Superficie | Referencias observadas | Clasificación DOC-79 |

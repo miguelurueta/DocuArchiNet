@@ -1,5 +1,9 @@
 # Pruebas
 
+- Ticket: DOC-79
+- Cambio OpenSpec: doc-79-pruebas-retiro-gate
+- Clasificacion: cross_cutting
+
 ## Validación local
 
 `tools/validation/Verify-ImportarServicioWebFrontend.ps1` ejecuta:

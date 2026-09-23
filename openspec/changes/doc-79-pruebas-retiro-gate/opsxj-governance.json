@@ -8,18 +8,18 @@
     "manual_qa"
   ],
   "documentation": [
-    "Doc/Tecnica/Opsxj/doc-79-pruebas-retiro-gate/01-ResumenTecnico.md",
-    "Doc/Tecnica/Opsxj/doc-79-pruebas-retiro-gate/02-ImpactoUI.md",
-    "Doc/Tecnica/Opsxj/doc-79-pruebas-retiro-gate/03-ServiciosYReglas.md",
-    "Doc/Tecnica/Opsxj/doc-79-pruebas-retiro-gate/04-ContratosIntegracion.md",
-    "Doc/Tecnica/Opsxj/doc-79-pruebas-retiro-gate/05-PruebasEvidencia.md"
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/01-Arquitectura.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/02-GateYAlternancia.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/03-InventarioLegacy.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/04-Pruebas.md",
+    "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/05-Evidencia.md"
   ],
   "documentationContract": [
     {
-      "path": "Doc/Tecnica/Opsxj/doc-79-pruebas-retiro-gate/01-ResumenTecnico.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/01-Arquitectura.md",
       "requiredSections": [
         "## Objetivo",
-        "## Alcance y compatibilidad"
+        "## Componentes"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -35,10 +35,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-79-pruebas-retiro-gate/02-ImpactoUI.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/02-GateYAlternancia.md",
       "requiredSections": [
-        "## Superficies UI",
-        "## Validacion visual"
+        "## Regla de autorización",
+        "## Estados"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -54,9 +54,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-79-pruebas-retiro-gate/03-ServiciosYReglas.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/03-InventarioLegacy.md",
       "requiredSections": [
-        "## Servicios y reglas"
+        "## Referencias conservadas",
+        "## Criterios para un retiro futuro"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -72,9 +73,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-79-pruebas-retiro-gate/04-ContratosIntegracion.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/04-Pruebas.md",
       "requiredSections": [
-        "## Contratos e integraciones"
+        "## Validación local",
+        "## Plataforma E2E reutilizada"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -90,10 +92,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-79-pruebas-retiro-gate/05-PruebasEvidencia.md",
+      "path": "Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/05-Evidencia.md",
       "requiredSections": [
-        "## Evidencia requerida",
-        "## QA/E2E WebForms"
+        "## Evidencia local",
+        "## Evidencia E2E real"
       ],
       "minimumContentLength": 180,
       "identity": {

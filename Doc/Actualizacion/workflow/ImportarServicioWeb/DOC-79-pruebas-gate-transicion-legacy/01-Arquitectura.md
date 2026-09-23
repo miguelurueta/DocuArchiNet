@@ -1,5 +1,9 @@
 # Arquitectura
 
+- Ticket: DOC-79
+- Cambio OpenSpec: doc-79-pruebas-retiro-gate
+- Clasificacion: cross_cutting
+
 ## Objetivo
 
 Validar la experiencia moderna sin retirar el fallback legacy y sin crear infraestructura paralela.

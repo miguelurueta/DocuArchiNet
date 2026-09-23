@@ -1,5 +1,9 @@
 # Gate y alternancia
 
+- Ticket: DOC-79
+- Cambio OpenSpec: doc-79-pruebas-retiro-gate
+- Clasificacion: cross_cutting
+
 ## Regla de autorización
 
 La importación moderna está disponible únicamente si:

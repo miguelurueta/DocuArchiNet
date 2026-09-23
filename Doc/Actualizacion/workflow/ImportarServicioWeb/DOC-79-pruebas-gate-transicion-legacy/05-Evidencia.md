@@ -1,5 +1,9 @@
 # Evidencia
 
+- Ticket: DOC-79
+- Cambio OpenSpec: doc-79-pruebas-retiro-gate
+- Clasificacion: cross_cutting
+
 ## Evidencia local
 
 | Comando | Resultado |
@@ -13,8 +17,22 @@ Estas ejecuciones no autenticaron usuarios, no usaron red, no modificaron tareas
 
 ## Evidencia E2E real
 
-Pendiente de autorización explícita para DOC-79. No se reutiliza un resultado anterior como si fuera una nueva corrida; la plataforma y sus controles sí se reutilizan.
+La corrida de lectura fue autorizada expresamente para el ambiente y la cuenta de prueba, después de leer el runbook obligatorio. Se reutilizó exclusivamente la plataforma E2E existente.
+
+| Campo | Resultado saneado |
+| --- | --- |
+| Escenario | `import-sii-read` |
+| Tarea autorizada | `219877` |
+| Recibo | `S002188422` |
+| Código de barras | `18221398` |
+| Tamaño de muestra efectivo | `1` |
+| Controles | `7` |
+| Cambios persistentes | `NO` (`sinCambios=SI`) |
+| Resultado | Correcto |
+| Gate al finalizar | `false`; usuarios y grupos vacíos |
+
+El perfil inicialmente solicitó dos elementos, pero la UI expuso menos de dos elementos seleccionables. La plataforma se detuvo antes de cualquier mutación con `IMPORT_E2E_PREPARATION_UI_MULTIPLE_ITEMS_UNAVAILABLE`. Se ajustó únicamente el perfil runtime a una muestra compatible de un elemento y la repetición autorizada terminó correctamente. La cobertura multidocumento permanece en las suites automatizadas específicas.
 
 ## Saneamiento
 
-No se registran credenciales, cookies, tokens, cadenas de conexión ni valores sensibles. Las consultas de control serán exclusivamente `SELECT`.
+No se registraron credenciales, cookies, tokens, cadenas de conexión ni valores sensibles. Las consultas de control fueron exclusivamente `SELECT`.

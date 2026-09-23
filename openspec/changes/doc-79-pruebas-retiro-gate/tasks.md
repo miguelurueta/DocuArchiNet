@@ -17,10 +17,10 @@
 
 - [x] 3.1 [S] Extender solo la suite E2E compartida con las aserciones estructurales faltantes, sin crear escenarios o perfiles paralelos. Área/archivos: `tools/e2e/tests/importar-servicio-web-modern.spec.cjs`. Origen: D-05, RQ-05. Verificación: suite local del arnés pasa sin autenticación.
 - [x] 3.2 [M] Ejecutar suites focales, regresión completa y compilación, registrando resultados reales. Área/archivos: tests Importar Servicio Web y solución WebForms. Origen: D-01, RQ-01; cubre D-02, D-03, D-04 y RQ-02, RQ-03, RQ-04. Verificación: conteos y errores documentados.
-- [ ] 3.3 [M] Ejecutar E2E real únicamente tras autorización explícita o registrar bloqueo verificable. Área/archivos: `tools/e2e`, perfil runtime autorizado y evidencia saneada. Origen: D-05, RQ-05. Verificación: controles esperados, resultado real y gate restaurado.
+- [x] 3.3 [M] Ejecutar E2E real únicamente tras autorización explícita o registrar bloqueo verificable. Área/archivos: `tools/e2e`, perfil runtime autorizado y evidencia saneada. Origen: D-05, RQ-05. Verificación: controles esperados, resultado real y gate restaurado.
 
 ## 4. Inventario, documentación y cierre
 
 - [x] 4.1 [M] Inventariar controles, postbacks, handlers y ASMX legacy, clasificando referencias y criterios de retiro futuro. Área/archivos: superficies legacy y documentación DOC-79. Origen: D-06, RQ-06. Verificación: matriz completa sin declarar eliminaciones dentro del cambio.
 - [x] 4.2 [M] Crear el paquete técnico y diagramas exclusivamente en la ruta canónica DOC-79. Área/archivos: `Doc/Actualizacion/workflow/ImportarServicioWeb/DOC-79-pruebas-gate-transicion-legacy/`. Origen: D-07, RQ-07; también D-05, RQ-05 y D-06, RQ-06. Verificación: índice, arquitectura, pruebas, inventario, rollback y evidencia saneada presentes; `docs/` ausente.
-- [ ] 4.3 [S] Validar estrictamente OpenSpec y OPSXJ con evidencia ligada al SHA final. Área/archivos: cambio `doc-79-pruebas-retiro-gate` y gobierno OPSXJ. Origen: D-07, RQ-07; cubre D-01 a D-06 y RQ-01 a RQ-06. Verificación: `openspec validate --strict` y `opsxj:validate` exitosos.
+- [x] 4.3 [S] Validar estrictamente OpenSpec y OPSXJ con evidencia ligada al SHA final. Área/archivos: cambio `doc-79-pruebas-retiro-gate` y gobierno OPSXJ. Origen: D-07, RQ-07; cubre D-01 a D-06 y RQ-01 a RQ-06. Verificación: `openspec validate --strict` y `opsxj:validate` exitosos.
