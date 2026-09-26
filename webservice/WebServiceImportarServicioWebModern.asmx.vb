@@ -50,7 +50,7 @@ Public Class WebServiceImportarServicioWebModern
             If Not provider.Encontrado Then Return FailureQuery(request, provider.Codigo)
             Dim response=provider.Cliente.QueryItemsAsync(request, CancellationToken.None).GetAwaiter().GetResult()
             Dim presentation=CreatePresentation(session,importContext)
-            presentation.EnrichItems(importContext,request.ProviderId,response)
+            If Not SiiImportProvider.IsAnnexRequest(request) Then presentation.EnrichItems(importContext,request.ProviderId,response)
             presentation.ApplyPagination(request,response)
             response.Radicado = trustedReceipt
             Return response
@@ -86,6 +86,9 @@ Public Class WebServiceImportarServicioWebModern
             Dim provider = ResolveProvider(request.ProviderId, CreateAttemptRecorder(session, context))
             If Not provider.Encontrado Then Return FailurePreview(request, provider.Codigo)
             Dim siiProvider = TryCast(provider.Cliente, SiiImportProvider)
+            Dim trustedReceipt As String = String.Empty, trustedBarcode As String = String.Empty
+            If Not TryResolveTrustedSiiReferences(context, trustedReceipt, trustedBarcode) Then Return FailurePreview(request, "SERVER_SII_REFERENCE_UNAVAILABLE")
+            request.CodigoBarras = trustedBarcode
             If siiProvider Is Nothing Then Return FailurePreview(request, "PREVIEW_PROVIDER_UNAVAILABLE")
             Dim content = siiProvider.GetPreviewContentAsync(request, CancellationToken.None).GetAwaiter().GetResult()
             Dim created = ImportPreviewCompositionFactory.CreateDescriptorService(session.CadenaConexionWorkflow,
@@ -263,7 +266,20 @@ Public Class WebServiceImportarServicioWebModern
 
         Dim trustedTaskId As Long
         Dim trustedProcedureId As Integer
-        If Not Long.TryParse(Convert.ToString(current.Session.Item("ID_TAREA_SELECCIONDA")), trustedTaskId) OrElse trustedTaskId <= 0 Then
+        Dim annexRequest = SiiImportProvider.IsAnnexRequest(request)
+        If annexRequest Then
+            Dim selection = Convert.ToString(current.Session.Item("SELECCIONTEMPORAL")).Split("|"c)
+            If selection.Length < 4 OrElse Not String.Equals(selection(3).Trim(), "ENLASE", StringComparison.OrdinalIgnoreCase) Then
+                failureCode = "ENLASE_ACTIVITY_REQUIRED" : Return False
+            End If
+            If Not Long.TryParse(Convert.ToString(current.Session.Item("ID_TAREA_SELECCIONDA_ENLACE")), trustedTaskId) OrElse trustedTaskId <= 0 Then
+                failureCode = "SESSION_TASK_UNAVAILABLE" : Return False
+            End If
+            Dim selectionTaskId As Long
+            If Not Long.TryParse(selection(0), selectionTaskId) OrElse selectionTaskId <> trustedTaskId Then
+                failureCode = "ENLASE_TASK_CONTEXT_MISMATCH" : Return False
+            End If
+        ElseIf Not Long.TryParse(Convert.ToString(current.Session.Item("ID_TAREA_SELECCIONDA")), trustedTaskId) OrElse trustedTaskId <= 0 Then
             failureCode = "SESSION_TASK_UNAVAILABLE" : Return False
         End If
         If request Is Nothing OrElse request.TaskId <> trustedTaskId Then failureCode = "TASK_CONTEXT_MISMATCH" : Return False

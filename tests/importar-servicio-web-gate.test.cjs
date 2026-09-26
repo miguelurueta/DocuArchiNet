@@ -31,8 +31,8 @@ test('el gate exige bandera activa y sesión Workflow válida, sin restringir us
   assert.match(pageSource, /Private ReadOnly Property ImportarServicioWebModernActive As Boolean/);
 });
 
-test('la configuración versionada habilita la interfaz global sin audiencias', () => {
-  assert.match(config, /WorkflowCentroTrabajoModernActive" value="true"/i);
+test('la configuración versionada conserva la interfaz global desactivada sin audiencias', () => {
+  assert.match(config, /WorkflowCentroTrabajoModernActive" value="false"/i);
   assert.match(config, /WorkflowCentroTrabajoModernUsers" value=""/i);
   assert.match(config, /WorkflowCentroTrabajoModernGroups" value=""/i);
 });

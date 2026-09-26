@@ -52,6 +52,34 @@ Public NotInheritable Class SiiExternalImportProviderClient
             request.OperationId, request.TaskId, Nothing, request.CodigoBarras.Trim(), request.CodigoBarras.Trim())
     End Function
 
+    Public Async Function QueryAnnexesAsync(ByVal request As QueryItemsRequestDto, ByVal cancellationToken As CancellationToken) As Task(Of QueryItemsResponseDto)
+        ValidateAnnexContext(request.CodigoBarras, request.CorrelationId)
+        Dim source = Await QueryRadicadoAsync(request.CodigoBarras.Trim(), request.CorrelationId, cancellationToken,
+            request.OperationId, request.TaskId, request.CodigoBarras.Trim()).ConfigureAwait(False)
+        Return SiiEnlaseAnnexContractMapper.MapQuery(source, request)
+    End Function
+
+    Public Async Function GetAnnexPreviewContentAsync(ByVal request As GetPreviewRequestDto,
+                                                       ByVal cancellationToken As CancellationToken) As Task(Of SiiPreviewContent)
+        If request Is Nothing OrElse String.IsNullOrWhiteSpace(request.ExternalKey) Then Throw New ArgumentException("SII_ANNEX_ID_REQUIRED", "request")
+        ValidateAnnexContext(request.CodigoBarras, request.CorrelationId)
+        Dim source = Await QueryRadicadoAsync(request.CodigoBarras.Trim(), request.CorrelationId, cancellationToken,
+            request.OperationId, request.TaskId, request.ExternalKey).ConfigureAwait(False)
+        Dim selected = SiiEnlaseAnnexContractMapper.Resolve(source, request.ExternalKey)
+        Dim resolved As New ResolvedImage With {.Url = selected.Url, .ContentType = selected.ContentType,
+            .CodigoBarras = request.CodigoBarras.Trim(), .Metadata = New MetadatosDocumentoSii With {
+                .IdAnexo = selected.IdAnexo, .Formato = selected.Formato, .TipoImagen = selected.Tipo,
+                .TipoAnexo = selected.TipoAnexo, .TipoSirep = selected.TipoSirep,
+                .TipoDigitalizacion = selected.TipoDigitalizacion, .IdentificadorImagen = selected.Identificador,
+                .FechaDocumento = selected.FechaDocumento, .Origen = selected.Origen,
+                .Observaciones = selected.Observaciones, .RazonSocial = selected.Nombre,
+                .NitCedula = selected.Identificacion, .Matricula = selected.Matricula,
+                .Proponente = selected.Proponente}}
+        Dim content = Await DownloadSelectedAsync(resolved, request.CorrelationId, cancellationToken, Nothing, Nothing,
+            request.OperationId, request.TaskId, Nothing, request.CodigoBarras.Trim(), request.ExternalKey).ConfigureAwait(False)
+        Return New SiiPreviewContent With {.ExternalKey = request.ExternalKey, .ContentType = selected.ContentType,
+            .FileName = selected.FileName, .Content = content}
+    End Function
     Public Async Function ResolveExpedientSubjectAsync(ByVal cabinetName As String, ByVal enrollment As String,
         ByVal proponent As String, ByVal correlationId As String, ByVal cancellationToken As CancellationToken,
         Optional ByVal taskId As Nullable(Of Long) = Nothing) As Task(Of SujetoExpedienteSii)
@@ -216,6 +244,28 @@ Public NotInheritable Class SiiExternalImportProviderClient
             End Function, intentId, clientItemId, operationId, taskId, radicado, businessBarcode, referenciaProveedor).ConfigureAwait(False)
     End Function
 
+    Private Async Function QueryRadicadoAsync(ByVal codigoBarras As String, ByVal correlationId As String,
+                                               ByVal cancellationToken As CancellationToken, ByVal operationId As String,
+                                               ByVal taskId As Long, ByVal reference As String) As Task(Of JObject)
+        Dim token = Await RequestTokenAsync(correlationId, cancellationToken, taskId, reference).ConfigureAwait(False)
+        Return Await ObserveAsync("CONSULTAR_ANEXOS_RADICADO_ENLASE", correlationId,
+            Async Function()
+                Dim bytes = Await PostAsync(Endpoint("consultarRadicado"), New Dictionary(Of String, String) From {
+                    {"codigoempresa", _companyCode}, {"usuariows", _serviceUser}, {"token", token}, {"radicado", codigoBarras}}, correlationId, cancellationToken).ConfigureAwait(False)
+                Dim source = SiiImportContractMapper.NormalizeSource(Encoding.UTF8.GetString(bytes))
+                Dim resultCode = SiiImportContractMapper.Value(source, "codigoerror")
+                If resultCode = "9998" Then Throw New InvalidOperationException("SII_TOKEN_INVALID")
+                If resultCode = "9999" Then Throw New InvalidOperationException("SII_QUERY_PROVIDER_ERROR")
+                If SiiImportContractMapper.Value(source, "mensajeerror").Length > 0 OrElse
+                   (resultCode.Length > 0 AndAlso resultCode <> "0000") Then Throw New InvalidOperationException("SII_ANNEX_QUERY_REJECTED")
+                Return source
+            End Function, Nothing, Nothing, operationId, taskId, Nothing, codigoBarras, reference).ConfigureAwait(False)
+    End Function
+
+    Private Shared Sub ValidateAnnexContext(ByVal codigoBarras As String, ByVal correlationId As String)
+        If String.IsNullOrWhiteSpace(codigoBarras) OrElse codigoBarras.Trim().Length > 15 Then Throw New ArgumentException("SII_BARCODE_INVALID")
+        If String.IsNullOrWhiteSpace(correlationId) Then Throw New ArgumentException("SII_CORRELATION_REQUIRED")
+    End Sub
     Private Function Endpoint(ByVal methodName As String) As Uri
         Return New Uri(_baseUri.AbsoluteUri.TrimEnd("/"c) & "/" & methodName, UriKind.Absolute)
     End Function

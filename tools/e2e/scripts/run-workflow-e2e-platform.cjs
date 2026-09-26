@@ -161,8 +161,47 @@ async function selectWorkflowTask(page, plan) {
       waitUntil: 'domcontentloaded',
       timeout: Math.min(plan.profile.budgetMs, 60000)
     });
-    const selectedTask = page.locator('#Hidden_id_tarea_selecionada');
     const expectedTaskId = String(taskId);
+    if (plan.scenario.id === 'import-sii-enlase-read') {
+      const enlaceSelection = page.locator('#HiddenIdFlujo');
+      await enlaceSelection.waitFor({ state: 'attached', timeout: Math.min(plan.profile.budgetMs, 60000) });
+      const isExpectedEnlase = (value) => {
+        const parts = String(value || '').split('|');
+        return parts.length >= 4 && parts[0] === expectedTaskId && parts[3].toUpperCase() === 'ENLASE';
+      };
+      if (!isExpectedEnlase(await enlaceSelection.inputValue())) {
+        await page.evaluate(() => {
+          if (typeof window.hide_area_workflow_seleccion === 'function') window.hide_area_workflow_seleccion();
+        });
+        const selectCommand = page.locator(`[tip_event="seleccion_tarea_wf"][idd="${taskId}"]:visible`).first();
+        if (!await selectCommand.count()) {
+          const taskSearch = page.locator('#auto_complex:visible');
+          await taskSearch.waitFor({ state: 'visible', timeout: Math.min(plan.profile.budgetMs, 30000) });
+          await taskSearch.fill(expectedTaskId);
+          await page.locator('button[title="consultar lista"]:visible').click();
+        }
+        await selectCommand.waitFor({ state: 'visible', timeout: Math.min(plan.profile.budgetMs, 30000) });
+        await page.evaluate((expected) => {
+          const candidate = document.querySelector(`[tip_event="seleccion_tarea_wf"][idd="${expected}"]`);
+          const stagedTask = document.querySelector('#Hidden_id_tarea_sel');
+          const officialSelector = document.querySelector('#ButtonSeleccionGrupo');
+          if (!candidate || !stagedTask || !officialSelector) throw new Error('E2E_PLATFORM_TASK_SELECTION_CONTROLS_UNAVAILABLE');
+          stagedTask.value = expected;
+          officialSelector.click();
+        }, expectedTaskId).catch(() => fail('E2E_PLATFORM_TASK_SELECTION_CONTROLS_UNAVAILABLE'));
+        await page.waitForFunction(
+          (expected) => {
+            const parts = String(document.querySelector('#HiddenIdFlujo')?.value || '').split('|');
+            return parts.length >= 4 && parts[0] === expected && parts[3].toUpperCase() === 'ENLASE';
+          },
+          expectedTaskId,
+          { timeout: Math.min(plan.profile.budgetMs, 30000) }
+        ).catch(() => fail('E2E_PLATFORM_ENLASE_CONTEXT_REJECTED'));
+      }
+      if (!isExpectedEnlase(await enlaceSelection.inputValue())) fail('E2E_PLATFORM_ENLASE_CONTEXT_UNAVAILABLE');
+      return;
+    }
+    const selectedTask = page.locator('#Hidden_id_tarea_selecionada');
     await selectedTask.waitFor({ state: 'attached', timeout: Math.min(plan.profile.budgetMs, 60000) });
     if (await selectedTask.inputValue() !== expectedTaskId) {
       await page.evaluate(() => {

@@ -52,8 +52,8 @@ test("la política oficial habilita todo contexto Workflow válido sin leer conf
     assert.doesNotMatch(gateSource, /ConfigurationManager|AppSettings|WorkflowCentroTrabajoModern|Pilot|Rollback|Excluded|Contiene\(/);
 });
 
-test("la configuración local activa el gate global sin restringir la política oficial por audiencia", () => {
-    assert.equal(appSettingValue("WorkflowCentroTrabajoModernActive"), "true");
+test("la configuración local mantiene el gate global desactivado y sin audiencias", () => {
+    assert.equal(appSettingValue("WorkflowCentroTrabajoModernActive"), "false");
     assert.equal(appSettingValue("WorkflowCentroTrabajoModernOfficialMode"), "false");
     assert.equal(appSettingValue("WorkflowCentroTrabajoModernUsers"), "");
     assert.equal(appSettingValue("WorkflowCentroTrabajoModernGroups"), "");

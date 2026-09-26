@@ -1,20 +1,20 @@
 {
   "status": "pass",
-  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\openspec\\changes\\doc-73-adaptador-interfaz-integracion-sii\\specs\\adaptador-interfaz-integracion-sii\\jira-context.md",
-  "reviewedAtUtc": "2026-09-21T22:30:46.048Z",
+  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\workflow\\ImportarServiciWebEnlace\\Prompt\\01-capacidad-consulta-preview-anexos-sii.md",
+  "reviewedAtUtc": "2026-09-24T16:17:21.695Z",
   "technologyProfile": "legacy-webforms-vb",
   "summary": {
     "blockers": 0,
-    "major": 0,
+    "major": 1,
     "minor": 0,
-    "info": 1
+    "info": 0
   },
   "findings": [
     {
-      "severity": "INFO",
-      "code": "MANUAL_REVIEW_RECOMMENDED",
-      "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
-      "expected": "Revision humana del prompt.",
+      "severity": "MAJOR",
+      "code": "ANTI_REGRESSION_DETAIL_REQUIRED",
+      "message": "El prompt alude a comportamiento existente pero no define reglas de antirregresion.",
+      "expected": "Reglas explicitas de no romper, preservar, no llamar o no usar workarounds.",
       "evidence": null
     }
   ]

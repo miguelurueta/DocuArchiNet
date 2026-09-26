@@ -1,0 +1,40 @@
+@startuml DOC80_D02_ConsultaAnexos
+title DOC-80 - Diagrama UML de secuencia: consulta de anexos
+' Convención: CODE = símbolo resoluble; EXT = sistema externo; CONCEPT = concepto.
+' Fuentes: webservice/WebServiceImportarServicioWebModern.asmx.vb | Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb | Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiExternalImportProviderClient.vb | Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiEnlaseAnnexContractMapper.vb
+' Referencias CODE: VB.Endpoint.QueryItems | VB.Endpoint.TryResolveTrustedSiiReferences | VB.Provider.QueryItemsAsync | VB.Client.QueryAnnexesAsync | VB.Mapper.MapQuery
+actor "Usuario Workflow\nEXT:WorkflowUser" as User
+participant "Cliente moderno\nCONCEPT:ModernImportClient" as Browser
+participant "WebServiceImportarServicioWebModern\nCODE:WebServiceImportarServicioWebModern" as Endpoint
+participant "SiiImportProvider\nCODE:SiiImportProvider" as Provider
+participant "SiiExternalImportProviderClient\nCODE:SiiExternalImportProviderClient" as Client
+participant "SiiEnlaseAnnexContractMapper\nCODE:SiiEnlaseAnnexContractMapper" as Mapper
+participant "SII\nEXT:SII" as SII
+User -> Browser : solicita documentos disponibles
+Browser -> Endpoint : QueryItems(request: QueryItemsRequestDto)
+Endpoint -> Endpoint : TryBuildImportContext(request, context, sessionResult, errorCode): Boolean
+alt contexto inválido
+  Endpoint --> Browser : QueryItemsResponseDto(Error)
+else contexto autorizado
+  Endpoint -> Endpoint : TryResolveTrustedSiiReferences(context, receipt, barcode): Boolean
+  alt referencias ausentes
+    Endpoint --> Browser : QueryItemsResponseDto(SERVER_SII_REFERENCE_UNAVAILABLE)
+  else referencias resueltas
+    Endpoint -> Provider : QueryItemsAsync(request, cancellationToken): Task<QueryItemsResponseDto>
+    Provider -> Client : QueryAnnexesAsync(request, cancellationToken): Task<QueryItemsResponseDto>
+    Client -> SII : solicitarToken + consultarRadicado
+    SII --> Client : respuesta JSON
+    Client -> Mapper : MapQuery(payload, request): QueryItemsResponseDto
+    alt imagenes nulo o vacío
+      Mapper --> Client : Items = []
+    else idanexo ausente o duplicado
+      Mapper --> Client : SII_ANNEX_ID_INVALID
+    else anexos válidos
+      Mapper --> Client : Items con ExternalKey = idanexo
+    end
+    Client --> Provider : QueryItemsResponseDto
+    Provider --> Endpoint : QueryItemsResponseDto
+    Endpoint --> Browser : HTTP 200 + envelope saneado
+  end
+end
+@enduml

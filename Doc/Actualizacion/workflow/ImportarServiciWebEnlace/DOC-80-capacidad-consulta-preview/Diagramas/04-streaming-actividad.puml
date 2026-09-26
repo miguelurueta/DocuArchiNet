@@ -1,0 +1,48 @@
+@startuml DOC80_D04_Streaming
+title DOC-80 - Diagrama UML de actividad: streaming del preview
+' Convención: CODE = símbolo resoluble; EXT = sistema externo; CONCEPT = concepto.
+' Fuentes: workflow/ImportarServicioWebPreview.ashx.vb | Infrastructure/Workflow/ImportarServicioWeb/Preview/ImportPreviewContentService.vb | Infrastructure/Workflow/ImportarServicioWeb/Preview/ImportPreviewDescriptorRepository.vb
+' Referencias CODE: VB.Handler.ProcessRequest | VB.Handler.TryResolveTrustedTaskId | VB.Content.Head | VB.Content.Claim | VB.Content.Complete | VB.Repository.GetAvailableMetadata | VB.Repository.ClaimAndLoad | VB.Repository.MarkConsumed
+start
+:Cliente solicita HEAD o GET;
+:CODE:ImportarServicioWebPreview.ProcessRequest(context);
+if (¿método HEAD o GET?) then (no)
+  :HTTP 405;
+  stop
+else (sí)
+  :CODE:ImportarServicioWebPreview.TryResolveTrustedTaskId(context, taskId);
+  if (¿sesión, usuario y tarea confiables?) then (no)
+    :HTTP 404;
+    stop
+  else (sí)
+    if (¿método HEAD?) then (sí)
+      :CODE:ImportPreviewContentService.Head(descriptorId, authority, utcNow);
+      :CODE:ImportPreviewDescriptorRepository.GetAvailableMetadata(descriptorHash, authority, utcNow);
+      if (¿descriptor vigente y autorizado?) then (no)
+        :HTTP 404;
+      else (sí)
+        :HTTP 200 sin consumir;
+      endif
+      stop
+    else (GET)
+      :CODE:ImportPreviewContentService.Claim(descriptorId, authority, utcNow);
+      :CODE:ImportPreviewDescriptorRepository.ClaimAndLoad(descriptorHash, authority, utcNow);
+      if (¿descriptor reclamado?) then (no)
+        :HTTP 404;
+        stop
+      else (sí)
+        :stream binario inline;
+        if (¿stream completado?) then (no)
+          :HTTP 503 si aún es posible responder;
+          stop
+        else (sí)
+          :CODE:ImportPreviewContentService.Complete(snapshot, utcNow);
+          :CODE:ImportPreviewDescriptorRepository.MarkConsumed(descriptorHash, claimToken, utcNow);
+          :HTTP 200 y descriptor consumido;
+          stop
+        endif
+      endif
+    endif
+  endif
+endif
+@enduml

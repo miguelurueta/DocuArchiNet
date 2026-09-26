@@ -29,7 +29,7 @@ Public NotInheritable Class ImportarServicioWebPreview
             If session Is Nothing OrElse session.Contexto Is Nothing OrElse Not session.Contexto.EsValido() OrElse
                String.IsNullOrWhiteSpace(session.CadenaConexionWorkflow) Then Reject(context, 404) : Return
             Dim taskId As Long
-            If Not Long.TryParse(Convert.ToString(context.Session.Item("ID_TAREA_SELECCIONDA")), taskId) OrElse taskId <= 0 Then Reject(context, 404) : Return
+            If Not TryResolveTrustedTaskId(context, taskId) Then Reject(context, 404) : Return
             Dim moduleContext As New ContextoModulo With {.CodigoModulo = "IMPORTAR_SERVICIO_WEB",
                 .IdUsuario = session.Contexto.IdUsuarioWorkflow, .IdGrupo = session.Contexto.IdGrupoWorkflow,
                 .LoginUsuario = session.Contexto.LoginUsuario}
@@ -87,6 +87,24 @@ Public NotInheritable Class ImportarServicioWebPreview
         context.Response.SuppressContent = True
     End Sub
 
+    'Usa la misma identidad de tarea que originó el preview. ENLASE no puede
+    'degradarse silenciosamente a la selección estándar ni aceptar una tarea
+    'que no coincida con SELECCIONTEMPORAL.
+    Private Shared Function TryResolveTrustedTaskId(ByVal context As HttpContext, ByRef taskId As Long) As Boolean
+        taskId = 0
+        If context Is Nothing OrElse context.Session Is Nothing Then Return False
+
+        Dim selection = Convert.ToString(context.Session.Item("SELECCIONTEMPORAL")).Split("|"c)
+        Dim isEnlase = selection.Length >= 4 AndAlso
+            String.Equals(selection(3).Trim(), "ENLASE", StringComparison.OrdinalIgnoreCase)
+        If isEnlase Then
+            If Not Long.TryParse(Convert.ToString(context.Session.Item("ID_TAREA_SELECCIONDA_ENLACE")), taskId) OrElse taskId <= 0 Then Return False
+            Dim selectionTaskId As Long
+            Return Long.TryParse(selection(0), selectionTaskId) AndAlso selectionTaskId = taskId
+        End If
+
+        Return Long.TryParse(Convert.ToString(context.Session.Item("ID_TAREA_SELECCIONDA")), taskId) AndAlso taskId > 0
+    End Function
     Private Shared Function FeatureEnabled() As Boolean
         Return String.Equals(ConfigurationManager.AppSettings("WorkflowCentroTrabajoModernActive"), "true", StringComparison.OrdinalIgnoreCase)
     End Function

@@ -113,6 +113,24 @@ RegistroClientesProveedoresImportacion
 | Consulta repetida | Sin mutación documental |
 | Constancias existentes | Sin regresión funcional |
 
+## CRITERIOS DE ACEPTACION
+
+- `INTEGRACIONSII` publica `ANEXOS_RADICADO_ENLASE` sin registrar un proveedor o credenciales adicionales.
+- El contexto se reconstruye desde la tarea seleccionada en servidor y rechaza una actividad distinta de `ENLASE` antes de llamar a SII.
+- `consultarRadicado` produce cero, uno o varios elementos por `idanexo`; una identidad vacía o duplicada falla cerrada.
+- El preview reconsulta por `idanexo`, crea un descriptor temporal y aplica pertenencia, expiración, tamaño, formato y allowlist de host.
+- Consulta y preview no modifican tarea, documentos, expedientes, índices ni auditoría funcional.
+- Compilación, pruebas focales y regresión completa de `ImportarServicioWeb` finalizan sin errores.
+- El escenario E2E se entrega reutilizable y no se ejecuta sin autorización expresa de ambiente y cuenta.
+
+## REGLAS DE ANTIRREGRESION
+
+- Las solicitudes sin `Capability` conservan el despacho actual de constancias y sus claves `SII2`.
+- `ResolveInscriptionsAsync`, preparación, intención, ejecución, reconciliación y almacenamiento mantienen su comportamiento previo.
+- `ClassAlmacenamiento`, páginas Workflow y endpoints de integración legacy no se modifican.
+- La capacidad desconocida falla cerrada; nunca cae implícitamente en constancias o anexos.
+- El nuevo recorrido no acepta URL, recibo ni código de barras del navegador como autoridad.
+- La regresión debe incluir todas las suites `tests/importar-servicio-web-*.test.cjs` y las pruebas de registro/perfil de `tools/e2e` afectadas.
 ## Pruebas obligatorias
 
 - Unitarias del registro y despacho por capacidad.
@@ -122,6 +140,12 @@ RegistroClientesProveedoresImportacion
 - Seguridad del preview, expiración, formatos y hosts permitidos.
 - Regresión del proveedor de constancias existente.
 
+## EVIDENCIA DE COMPILACION
+
+- Ejecutar MSBuild sobre `GestionDocumental-Docuarchi.net.vbproj` con el target `Compile`.
+- Registrar resultado, configuración y advertencias preexistentes sin ocultar errores.
+- Ejecutar `git diff --check` y validación OpenSpec estricta.
+- No considerar suficiente una prueba textual de fuentes si la compilación VB.NET falla.
 ## Documentación técnica
 
 Documenta exclusivamente en:

@@ -18,6 +18,8 @@ End Class
     Public Property CorrelationId As String
     Public Property TaskId As Long
     Public Property ProviderId As String
+    ' Vacio conserva la capacidad historica de constancias.
+    Public Property Capability As String
 End Class
 
 <Serializable()> Public MustInherit Class RespuestaImportacionServicioDto
@@ -112,6 +114,8 @@ End Class
 <Serializable()> Public Class GetPreviewRequestDto
     Inherits SolicitudImportacionServicioDto
     Public Property ExternalKey As String
+    ' Contexto autoritativo asignado exclusivamente por el servidor.
+    Public Property CodigoBarras As String
 End Class
 
 <Serializable()> Public Class GetPreviewResponseDto
