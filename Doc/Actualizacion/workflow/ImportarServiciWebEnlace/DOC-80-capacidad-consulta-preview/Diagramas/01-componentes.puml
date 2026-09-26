@@ -1,0 +1,27 @@
+@startuml DOC80_D01_Componentes
+title DOC-80 - Diagrama UML de componentes
+left to right direction
+' Convención: CODE = símbolo resoluble; EXT = sistema externo; CONCEPT = concepto.
+' Fuentes: webservice/WebServiceImportarServicioWebModern.asmx.vb | Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb | Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiExternalImportProviderClient.vb
+' Referencias CODE: VB.Interface.ResolveCapabilitiesAsync | VB.Endpoint.ResolveCapabilities | VB.Endpoint.TryBuildImportContext | VB.Provider.ResolveCapabilitiesAsync
+actor "Usuario Workflow\nEXT:WorkflowUser" as User <<external>>
+component "Cliente moderno\nCONCEPT:ModernImportClient" as Browser <<conceptual>>
+component "WebServiceImportarServicioWebModern\nCODE:WebServiceImportarServicioWebModern" as Endpoint
+interface "IImportProvider\nCODE:IImportProvider" as Contract
+component "SiiImportProvider\nCODE:SiiImportProvider" as Provider
+component "SiiExternalImportProviderClient\nCODE:SiiExternalImportProviderClient" as Client
+database "Contexto Workflow\nCONCEPT:TrustedWorkflowContext" as Context <<conceptual>>
+cloud "SII\nEXT:SII" as SII <<external>>
+User --> Browser
+Browser --> Endpoint : ResolveCapabilities(request)
+Endpoint --> Context : valida sesión, tarea y ENLASE
+Endpoint --> Contract : ResolveCapabilitiesAsync(request, cancellationToken)
+Contract <|.. Provider
+Provider --> Client
+Client --> SII : contrato autenticado existente
+Endpoint --> Browser : ResolveCapabilitiesResponseDto
+note bottom of Endpoint
+TryBuildImportContext rechaza gate inactivo, sesión inválida,
+tarea no coincidente o actividad distinta de ENLASE.
+end note
+@enduml

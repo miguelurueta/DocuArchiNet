@@ -1,6 +1,14 @@
-## Context
+## Why
 
-DOC-80: IMPORTAR-SERVICIO-ENLACE-SII
+Las tareas `ENLASE` consultan anexos SII antes de su asignación mediante un recorrido legacy dependiente de sesión, tablas Bootstrap y URL externa. DOC-80 necesita consulta y preview modernos, seguros y no mutadores reutilizando `ImportarServicioWeb`, sin mezclar anexos con constancias ni cambiar almacenamiento.
+
+## What Changes
+
+- Agrega `ANEXOS_RADICADO_ENLASE` como capacidad de `INTEGRACIONSII`.
+- Reconstruye y autoriza en servidor el contexto de preasignación.
+- Consulta `consultarRadicado`, normaliza `imagenes` y usa `idanexo` como identidad externa.
+- Reutiliza descriptor y streaming seguro para preview, sin confiar en URL cliente.
+- Registra telemetría por operación y conserva constancias, almacenamiento y legacy.
 
 ## Jira Details
 
@@ -142,29 +150,23 @@ DOC-80: IMPORTAR-SERVICIO-ENLACE-SII
 > 
 > Entrega código, pruebas, documentación y evidencia coherentes. El prompt se completa únicamente si la consulta y preview son no mutadores, el proveedor existente no presenta regresión y OPSXJ valida el cambio.
 
-## Goals / Non-Goals
+## Jira Metadata
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Tipo: Tarea
+- Prioridad: Medium
+- Labels: CONSULTA, ENLACE, IMPORTACION, PREVIA, SII
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+## Capabilities
 
-## Decisions
+### New Capabilities
+- `importar-servicio-enlace-sii`: consulta y preview seguros de anexos SII durante preasignación `ENLASE`.
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### Modified Capabilities
+- 
 
+## Impact
 
-## Risks / Trade-offs
-
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
-
-## Migration Plan
-
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
-
-## Open Questions
-
-- TBD
+- Backend moderno WebForms/VB.NET de `ImportarServicioWeb`.
+- Contratos de capacidad, contexto, proveedor SII, preview y telemetría.
+- Pruebas focales, fixtures y especificación E2E reutilizada.
+- Sin mutaciones documentales, cambios de esquema, asignación o retiro legacy en DOC-80.

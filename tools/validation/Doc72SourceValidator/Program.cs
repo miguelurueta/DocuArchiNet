@@ -12,7 +12,7 @@ var excluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".git", "
 var files = Directory.EnumerateFiles(repoRoot, "*.vb", SearchOption.AllDirectories)
     .Where(path => !path.Split(Path.DirectorySeparatorChar).Any(excluded.Contains));
 var roots = files.Select(path => VisualBasicSyntaxTree.ParseText(File.ReadAllText(path), path: path).GetRoot()).ToArray();
-var classes = roots.SelectMany(root => root.DescendantNodes().OfType<ClassBlockSyntax>()).ToArray();
+var typeBlocks = roots.SelectMany(root => root.DescendantNodes().Where(node => node is ClassBlockSyntax or InterfaceBlockSyntax)).ToArray();
 var errors = new List<string>();
 
 string TypeName(TypeSyntax? type)
@@ -48,19 +48,31 @@ string TypeName(TypeSyntax? type)
     return value.StartsWith("System.", StringComparison.Ordinal) ? value : value;
 }
 
-ClassBlockSyntax[] FindClasses(string name) => classes.Where(c => c.ClassStatement.Identifier.ValueText == name).ToArray();
+string BlockName(SyntaxNode node) => node switch
+{
+    ClassBlockSyntax c => c.ClassStatement.Identifier.ValueText,
+    InterfaceBlockSyntax i => i.InterfaceStatement.Identifier.ValueText,
+    _ => string.Empty
+};
+SyntaxNode[] FindTypes(string name) => typeBlocks.Where(block => BlockName(block) == name).ToArray();
 
 foreach (var symbol in manifest.GetProperty("dotnetSymbols").EnumerateObject())
 {
     var expected = symbol.Value;
     var typeName = expected.GetProperty("type").GetString()!;
     var methodName = expected.GetProperty("method").GetString()!;
-    var types = FindClasses(typeName);
+    var types = FindTypes(typeName);
     if (types.Length == 0) { errors.Add($"{symbol.Name}: tipo {typeName} inexistente"); continue; }
     var expectedParams = expected.GetProperty("parameters").EnumerateArray().Select(x => x.GetString()!).ToArray();
     var expectedReturn = expected.GetProperty("return").GetString()!;
+    var expectedFile = expected.TryGetProperty("file", out var fileElement)
+        ? Path.GetFullPath(Path.Combine(repoRoot, fileElement.GetString()!.Replace('/', Path.DirectorySeparatorChar)))
+        : null;
     var expectedNonPublic = expected.TryGetProperty("visibility", out var visibility) && visibility.GetString() == "nonpublic";
-    var candidates = types.SelectMany(type => type.DescendantNodes().OfType<MethodStatementSyntax>()).Where(m => m.Identifier.ValueText == methodName).ToArray();
+    var candidates = types.SelectMany(type => type.DescendantNodes().OfType<MethodStatementSyntax>())
+        .Where(m => m.Identifier.ValueText == methodName)
+        .Where(m => expectedFile is null || string.Equals(Path.GetFullPath(m.SyntaxTree.FilePath), expectedFile, StringComparison.OrdinalIgnoreCase))
+        .ToArray();
     var matches = candidates.Where(method =>
     {
         var actualParams = method.ParameterList?.Parameters.Select(parameter =>
@@ -80,7 +92,7 @@ foreach (var symbol in manifest.GetProperty("dotnetSymbols").EnumerateObject())
 
 foreach (var dto in manifest.GetProperty("dotnetTypes").EnumerateObject())
 {
-    var types = FindClasses(dto.Name);
+    var types = FindTypes(dto.Name);
     if (types.Length == 0) { errors.Add($"DTO {dto.Name} inexistente"); continue; }
     var properties = types.SelectMany(type => type.DescendantNodes().OfType<PropertyStatementSyntax>()).ToArray();
     foreach (var contract in dto.Value.EnumerateArray().Select(x => x.GetString()!))
@@ -94,4 +106,5 @@ foreach (var dto in manifest.GetProperty("dotnetTypes").EnumerateObject())
 }
 
 if (errors.Count > 0) throw new InvalidOperationException(string.Join(Environment.NewLine, errors));
-Console.WriteLine($"DOC-72 Roslyn symbols: PASS ({manifest.GetProperty("dotnetSymbols").EnumerateObject().Count()} firmas, {manifest.GetProperty("dotnetTypes").EnumerateObject().Count()} tipos).");
+var contractName = manifest.TryGetProperty("name", out var nameElement) ? nameElement.GetString() : "DOC-72";
+Console.WriteLine($"{contractName} Roslyn symbols: PASS ({manifest.GetProperty("dotnetSymbols").EnumerateObject().Count()} firmas, {manifest.GetProperty("dotnetTypes").EnumerateObject().Count()} tipos).");

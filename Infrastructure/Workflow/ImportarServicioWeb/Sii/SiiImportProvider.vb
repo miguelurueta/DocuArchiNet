@@ -7,6 +7,7 @@ Public NotInheritable Class SiiImportProvider
     Implements IExternalImportProviderClient
 
     Public Const CanonicalProviderId As String = "INTEGRACIONSII"
+    Public Const AnnexesEnlaseCapability As String = "ANEXOS_RADICADO_ENLASE"
     Private ReadOnly _client As SiiExternalImportProviderClient
     Private ReadOnly _mapper As SiiImportContractMapper
 
@@ -25,16 +26,19 @@ Public NotInheritable Class SiiImportProvider
 
     Public Function ResolveCapabilitiesAsync(ByVal request As ResolveCapabilitiesRequestDto,
         ByVal cancellationToken As CancellationToken) As Task(Of ResolveCapabilitiesResponseDto) Implements IExternalImportProviderClient.ResolveCapabilitiesAsync
+        ValidateProvider(request)
         Dim response As New ResolveCapabilitiesResponseDto With {.OperationId = request.OperationId,
             .CorrelationId = request.CorrelationId, .ProviderId = CanonicalProviderId, .ContextAllowed = True}
         response.Capabilities.Add(New ProviderCapabilityDto With {.Codigo = "QUERY_ITEMS", .Habilitada = True, .TimeoutSeconds = 30})
         response.Capabilities.Add(New ProviderCapabilityDto With {.Codigo = "PREVIEW", .Habilitada = True, .TimeoutSeconds = 30})
+        response.Capabilities.Add(New ProviderCapabilityDto With {.Codigo = AnnexesEnlaseCapability, .Habilitada = True, .TimeoutSeconds = 30})
         Return Task.FromResult(response)
     End Function
 
     Public Async Function QueryItemsAsync(ByVal request As QueryItemsRequestDto,
         ByVal cancellationToken As CancellationToken) As Task(Of QueryItemsResponseDto) Implements IExternalImportProviderClient.QueryItemsAsync
         ValidateProvider(request)
+        If IsAnnexRequest(request) Then Return Await _client.QueryAnnexesAsync(request, cancellationToken).ConfigureAwait(False)
         Dim payload = Await _client.QueryItemsAsync(request, cancellationToken).ConfigureAwait(False)
         Return _mapper.MapQuery(payload, request)
     End Function
@@ -63,6 +67,7 @@ Public NotInheritable Class SiiImportProvider
     Public Function GetPreviewContentAsync(ByVal request As GetPreviewRequestDto,
                                            ByVal cancellationToken As CancellationToken) As Task(Of SiiPreviewContent)
         ValidateProvider(request)
+        If IsAnnexRequest(request) Then Return _client.GetAnnexPreviewContentAsync(request, cancellationToken)
         Return _client.GetPreviewContentAsync(request, cancellationToken)
     End Function
 
@@ -86,5 +91,12 @@ Public NotInheritable Class SiiImportProvider
         If request Is Nothing OrElse Not String.Equals(request.ProviderId, CanonicalProviderId, StringComparison.OrdinalIgnoreCase) Then
             Throw New ArgumentException("Proveedor SII inválido.", "request")
         End If
+        If Not String.IsNullOrWhiteSpace(request.Capability) AndAlso Not IsAnnexRequest(request) Then
+            Throw New InvalidOperationException("SII_CAPABILITY_UNSUPPORTED")
+        End If
     End Sub
+
+    Public Shared Function IsAnnexRequest(ByVal request As SolicitudImportacionServicioDto) As Boolean
+        Return request IsNot Nothing AndAlso String.Equals(request.Capability, AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase)
+    End Function
 End Class

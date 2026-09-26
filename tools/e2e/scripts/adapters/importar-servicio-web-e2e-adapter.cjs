@@ -390,6 +390,37 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
         assertions: buildAssertionReport('import-sii-recovery')
       });
     }
+    if (profile.scenarioId === 'import-sii-enlase-read') {
+      const context = { ...base(taskId), Capability: 'ANEXOS_RADICADO_ENLASE' };
+      const capabilities = await invoke('ResolveCapabilities', request(context));
+      const capabilitiesDto = assertResult(capabilities, budgetMs, 'IMPORT_E2E_ENLASE_CAPABILITIES_FAILED');
+      latencies.push(capabilities.elapsedMs);
+      const available = field(capabilitiesDto, ['Capabilities', 'capabilities']) || [];
+      if (!available.some((entry) => field(entry, ['Codigo', 'codigo']) === 'ANEXOS_RADICADO_ENLASE' && field(entry, ['Habilitada', 'habilitada']) === true)) {
+        fail('IMPORT_E2E_ENLASE_CAPABILITY_UNAVAILABLE');
+      }
+      const query = await invoke('QueryItems', request(context));
+      const queryDto = assertResult(query, budgetMs, 'IMPORT_E2E_ENLASE_QUERY_FAILED');
+      latencies.push(query.elapsedMs);
+      const annexes = items(queryDto);
+      if (annexes.length < 1 || annexes.length > profile.sampleSize) fail('IMPORT_E2E_ENLASE_ITEMS_INVALID');
+      const keys = new Set();
+      for (const item of annexes) {
+        const key = field(item, ['ExternalKey', 'externalKey']);
+        if (typeof key !== 'string' || !key || !keys.add(key)) fail('IMPORT_E2E_ENLASE_ID_INVALID');
+      }
+      const preview = await invoke('GetPreview', request({ ...context, OperationId: uuid(), CorrelationId: uuid(), ExternalKey: field(annexes[0], ['ExternalKey', 'externalKey']) }));
+      const previewDto = assertResult(preview, budgetMs, 'IMPORT_E2E_ENLASE_PREVIEW_FAILED');
+      latencies.push(preview.elapsedMs);
+      const descriptorId = field(previewDto, ['DescriptorId', 'descriptorId']);
+      if (typeof descriptorId !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(descriptorId)) fail('IMPORT_E2E_ENLASE_DESCRIPTOR_INVALID');
+      if (typeof consumePreview === 'function') {
+        const consumed = await consumePreview(descriptorId, 'GET');
+        if (consumed.status !== 200) fail(`IMPORT_E2E_ENLASE_PREVIEW_HTTP_${consumed.status}`);
+      }
+      return Object.freeze({ codes: Object.freeze({ capabilities: null, query: null, preview: null }), count: annexes.length,
+        latenciesMs: Object.freeze(latencies), assertions: Object.freeze([]) });
+    }
     const capabilities = await invoke('ResolveCapabilities', request(base(taskId)));
     const capabilitiesDto=assertResult(capabilities, budgetMs, 'IMPORT_E2E_CAPABILITIES_FAILED');
     assertDoc68Catalog(capabilitiesDto); latencies.push(capabilities.elapsedMs);

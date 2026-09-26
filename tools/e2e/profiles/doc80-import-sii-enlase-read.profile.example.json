@@ -1,0 +1,13 @@
+{
+  "scenarioId": "import-sii-enlase-read",
+  "baseUrl": "https://workflow.example.invalid/GestionDocumental-Docuarchi.net/",
+  "module": "GESTOR",
+  "environment": "pruebas-autorizadas",
+  "odbcDsn": "workflowconta",
+  "taskId": 1,
+  "radicado": "RADICADO-SANEADO",
+  "codigoBarras": "CODIGO-SANEADO",
+  "sampleSize": 20,
+  "budgetMs": 60000,
+  "ignoreHttpsErrors": false
+}

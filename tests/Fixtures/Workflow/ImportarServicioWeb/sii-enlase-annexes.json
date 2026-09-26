@@ -1,0 +1,16 @@
+{
+  "codigoerror": "0000",
+  "mensajeerror": "",
+  "imagenes": [
+    {
+      "idanexo": "ANX-1001",
+      "formato": "pdf",
+      "tipo": "DOCUMENTO",
+      "tipoanexo": "CONSTANCIA",
+      "observaciones": "Constancia de inscripción",
+      "url": "https://sii.example.test/anexos/ANX-1001",
+      "fechadocumento": "2026-09-24",
+      "origen": "SII"
+    }
+  ]
+}

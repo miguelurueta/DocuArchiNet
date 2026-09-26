@@ -9899,6 +9899,7 @@
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Http\ExternalImportHttpTransport.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Http\ExternalServiceAttemptTelemetry.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiExternalImportProviderClient.vb" />
+    <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiEnlaseAnnexContractMapper.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiImportContractMapper.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiImportProvider.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Sii\SiiImportInscriptionResolver.vb" />

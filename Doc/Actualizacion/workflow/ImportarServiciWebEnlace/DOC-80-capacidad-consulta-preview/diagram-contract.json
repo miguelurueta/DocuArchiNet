@@ -1,0 +1,347 @@
+{
+    "name":  "DOC-80",
+    "version":  2,
+    "requiredDiagrams":  [
+                             {
+                                 "path":  "Diagramas/01-componentes.puml",
+                                 "kind":  "component",
+                                 "symbols":  [
+                                                 "VB.Interface.ResolveCapabilitiesAsync",
+                                                 "VB.Endpoint.ResolveCapabilities",
+                                                 "VB.Endpoint.TryBuildImportContext",
+                                                 "VB.Provider.ResolveCapabilitiesAsync"
+                                             ]
+                             },
+                             {
+                                 "path":  "Diagramas/02-consulta-anexos-secuencia.puml",
+                                 "kind":  "sequence",
+                                 "symbols":  [
+                                                 "VB.Endpoint.QueryItems",
+                                                 "VB.Endpoint.TryResolveTrustedSiiReferences",
+                                                 "VB.Provider.QueryItemsAsync",
+                                                 "VB.Client.QueryAnnexesAsync",
+                                                 "VB.Mapper.MapQuery"
+                                             ]
+                             },
+                             {
+                                 "path":  "Diagramas/03-preview-descriptor-secuencia.puml",
+                                 "kind":  "sequence",
+                                 "symbols":  [
+                                                 "VB.Endpoint.GetPreview",
+                                                 "VB.Provider.GetPreviewContentAsync",
+                                                 "VB.Client.GetAnnexPreviewContentAsync",
+                                                 "VB.Mapper.Resolve",
+                                                 "VB.Descriptor.Create",
+                                                 "VB.Repository.Create"
+                                             ]
+                             },
+                             {
+                                 "path":  "Diagramas/04-streaming-actividad.puml",
+                                 "kind":  "activity",
+                                 "symbols":  [
+                                                 "VB.Handler.ProcessRequest",
+                                                 "VB.Handler.TryResolveTrustedTaskId",
+                                                 "VB.Content.Head",
+                                                 "VB.Content.Claim",
+                                                 "VB.Content.Complete",
+                                                 "VB.Repository.GetAvailableMetadata",
+                                                 "VB.Repository.ClaimAndLoad",
+                                                 "VB.Repository.MarkConsumed"
+                                             ]
+                             }
+                         ],
+    "dotnetSymbols":  {
+                          "VB.Endpoint.ResolveCapabilities":  {
+                                                                  "file":  "webservice/WebServiceImportarServicioWebModern.asmx.vb",
+                                                                  "type":  "WebServiceImportarServicioWebModern",
+                                                                  "method":  "ResolveCapabilities",
+                                                                  "parameters":  [
+                                                                                     "ResolveCapabilitiesRequestDto"
+                                                                                 ],
+                                                                  "return":  "ResolveCapabilitiesResponseDto"
+                                                              },
+                          "VB.Endpoint.QueryItems":  {
+                                                         "file":  "webservice/WebServiceImportarServicioWebModern.asmx.vb",
+                                                         "type":  "WebServiceImportarServicioWebModern",
+                                                         "method":  "QueryItems",
+                                                         "parameters":  [
+                                                                            "QueryItemsRequestDto"
+                                                                        ],
+                                                         "return":  "QueryItemsResponseDto"
+                                                     },
+                          "VB.Endpoint.GetPreview":  {
+                                                         "file":  "webservice/WebServiceImportarServicioWebModern.asmx.vb",
+                                                         "type":  "WebServiceImportarServicioWebModern",
+                                                         "method":  "GetPreview",
+                                                         "parameters":  [
+                                                                            "GetPreviewRequestDto"
+                                                                        ],
+                                                         "return":  "GetPreviewResponseDto"
+                                                     },
+                          "VB.Endpoint.TryBuildImportContext":  {
+                                                                    "file":  "webservice/WebServiceImportarServicioWebModern.asmx.vb",
+                                                                    "type":  "WebServiceImportarServicioWebModern",
+                                                                    "method":  "TryBuildImportContext",
+                                                                    "parameters":  [
+                                                                                       "SolicitudImportacionServicioDto",
+                                                                                       "ContextoImportacionServicio\u0026",
+                                                                                       "ResultadoContextoSesionWorkflow\u0026",
+                                                                                       "System.String\u0026"
+                                                                                   ],
+                                                                    "return":  "System.Boolean",
+                                                                    "visibility":  "nonpublic"
+                                                                },
+                          "VB.Endpoint.TryResolveTrustedSiiReferences":  {
+                                                                             "file":  "webservice/WebServiceImportarServicioWebModern.asmx.vb",
+                                                                             "type":  "WebServiceImportarServicioWebModern",
+                                                                             "method":  "TryResolveTrustedSiiReferences",
+                                                                             "parameters":  [
+                                                                                                "ContextoImportacionServicio",
+                                                                                                "System.String\u0026",
+                                                                                                "System.String\u0026"
+                                                                                            ],
+                                                                             "return":  "System.Boolean",
+                                                                             "visibility":  "nonpublic"
+                                                                         },
+                          "VB.Provider.ResolveCapabilitiesAsync":  {
+                                                                       "file":  "Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb",
+                                                                       "type":  "SiiImportProvider",
+                                                                       "method":  "ResolveCapabilitiesAsync",
+                                                                       "parameters":  [
+                                                                                          "ResolveCapabilitiesRequestDto",
+                                                                                          "CancellationToken"
+                                                                                      ],
+                                                                       "return":  "Task\u003cResolveCapabilitiesResponseDto\u003e"
+                                                                   },
+                          "VB.Provider.QueryItemsAsync":  {
+                                                              "file":  "Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb",
+                                                              "type":  "SiiImportProvider",
+                                                              "method":  "QueryItemsAsync",
+                                                              "parameters":  [
+                                                                                 "QueryItemsRequestDto",
+                                                                                 "CancellationToken"
+                                                                             ],
+                                                              "return":  "Task\u003cQueryItemsResponseDto\u003e"
+                                                          },
+                          "VB.Provider.GetPreviewContentAsync":  {
+                                                                     "file":  "Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb",
+                                                                     "type":  "SiiImportProvider",
+                                                                     "method":  "GetPreviewContentAsync",
+                                                                     "parameters":  [
+                                                                                        "GetPreviewRequestDto",
+                                                                                        "CancellationToken"
+                                                                                    ],
+                                                                     "return":  "Task\u003cSiiPreviewContent\u003e"
+                                                                 },
+                          "VB.Client.QueryAnnexesAsync":  {
+                                                              "file":  "Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiExternalImportProviderClient.vb",
+                                                              "type":  "SiiExternalImportProviderClient",
+                                                              "method":  "QueryAnnexesAsync",
+                                                              "parameters":  [
+                                                                                 "QueryItemsRequestDto",
+                                                                                 "CancellationToken"
+                                                                             ],
+                                                              "return":  "Task\u003cQueryItemsResponseDto\u003e"
+                                                          },
+                          "VB.Client.GetAnnexPreviewContentAsync":  {
+                                                                        "file":  "Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiExternalImportProviderClient.vb",
+                                                                        "type":  "SiiExternalImportProviderClient",
+                                                                        "method":  "GetAnnexPreviewContentAsync",
+                                                                        "parameters":  [
+                                                                                           "GetPreviewRequestDto",
+                                                                                           "CancellationToken"
+                                                                                       ],
+                                                                        "return":  "Task\u003cSiiPreviewContent\u003e"
+                                                                    },
+                          "VB.Mapper.MapQuery":  {
+                                                     "file":  "Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiEnlaseAnnexContractMapper.vb",
+                                                     "type":  "SiiEnlaseAnnexContractMapper",
+                                                     "method":  "MapQuery",
+                                                     "parameters":  [
+                                                                        "JObject",
+                                                                        "QueryItemsRequestDto"
+                                                                    ],
+                                                     "return":  "QueryItemsResponseDto"
+                                                 },
+                          "VB.Mapper.Resolve":  {
+                                                    "file":  "Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiEnlaseAnnexContractMapper.vb",
+                                                    "type":  "SiiEnlaseAnnexContractMapper",
+                                                    "method":  "Resolve",
+                                                    "parameters":  [
+                                                                       "JObject",
+                                                                       "System.String"
+                                                                   ],
+                                                    "return":  "SiiEnlaseAnnex"
+                                                },
+                          "VB.Descriptor.Create":  {
+                                                       "file":  "Infrastructure/Workflow/ImportarServicioWeb/Preview/ImportPreviewDescriptorService.vb",
+                                                       "type":  "ImportPreviewDescriptorService",
+                                                       "method":  "Create",
+                                                       "parameters":  [
+                                                                          "ContextoImportacionServicio",
+                                                                          "SiiPreviewContent",
+                                                                          "System.DateTime"
+                                                                      ],
+                                                       "return":  "ImportPreviewCreationResult"
+                                                   },
+                          "VB.Content.Head":  {
+                                                  "file":  "Infrastructure/Workflow/ImportarServicioWeb/Preview/ImportPreviewContentService.vb",
+                                                  "type":  "ImportPreviewContentService",
+                                                  "method":  "Head",
+                                                  "parameters":  [
+                                                                     "System.String",
+                                                                     "ImportPreviewAuthority",
+                                                                     "System.DateTime"
+                                                                 ],
+                                                  "return":  "ImportPreviewSnapshot"
+                                              },
+                          "VB.Content.Claim":  {
+                                                   "file":  "Infrastructure/Workflow/ImportarServicioWeb/Preview/ImportPreviewContentService.vb",
+                                                   "type":  "ImportPreviewContentService",
+                                                   "method":  "Claim",
+                                                   "parameters":  [
+                                                                      "System.String",
+                                                                      "ImportPreviewAuthority",
+                                                                      "System.DateTime"
+                                                                  ],
+                                                   "return":  "ImportPreviewSnapshot"
+                                               },
+                          "VB.Content.Complete":  {
+                                                      "file":  "Infrastructure/Workflow/ImportarServicioWeb/Preview/ImportPreviewContentService.vb",
+                                                      "type":  "ImportPreviewContentService",
+                                                      "method":  "Complete",
+                                                      "parameters":  [
+                                                                         "ImportPreviewSnapshot",
+                                                                         "System.DateTime"
+                                                                     ],
+                                                      "return":  "System.Boolean"
+                                                  },
+                          "VB.Repository.Create":  {
+                                                       "file":  "Infrastructure/Workflow/ImportarServicioWeb/Preview/ImportPreviewDescriptorRepository.vb",
+                                                       "type":  "ImportPreviewDescriptorRepository",
+                                                       "method":  "Create",
+                                                       "parameters":  [
+                                                                          "ImportPreviewSnapshot"
+                                                                      ],
+                                                       "return":  "System.Boolean"
+                                                   },
+                          "VB.Repository.GetAvailableMetadata":  {
+                                                                     "file":  "Infrastructure/Workflow/ImportarServicioWeb/Preview/ImportPreviewDescriptorRepository.vb",
+                                                                     "type":  "ImportPreviewDescriptorRepository",
+                                                                     "method":  "GetAvailableMetadata",
+                                                                     "parameters":  [
+                                                                                        "Byte()",
+                                                                                        "ImportPreviewAuthority",
+                                                                                        "System.DateTime"
+                                                                                    ],
+                                                                     "return":  "ImportPreviewSnapshot"
+                                                                 },
+                          "VB.Repository.ClaimAndLoad":  {
+                                                             "file":  "Infrastructure/Workflow/ImportarServicioWeb/Preview/ImportPreviewDescriptorRepository.vb",
+                                                             "type":  "ImportPreviewDescriptorRepository",
+                                                             "method":  "ClaimAndLoad",
+                                                             "parameters":  [
+                                                                                "Byte()",
+                                                                                "ImportPreviewAuthority",
+                                                                                "System.DateTime"
+                                                                            ],
+                                                             "return":  "ImportPreviewSnapshot"
+                                                         },
+                          "VB.Repository.MarkConsumed":  {
+                                                             "file":  "Infrastructure/Workflow/ImportarServicioWeb/Preview/ImportPreviewDescriptorRepository.vb",
+                                                             "type":  "ImportPreviewDescriptorRepository",
+                                                             "method":  "MarkConsumed",
+                                                             "parameters":  [
+                                                                                "System.Int64",
+                                                                                "System.DateTime"
+                                                                            ],
+                                                             "return":  "System.Boolean"
+                                                         },
+                          "VB.Handler.ProcessRequest":  {
+                                                            "file":  "workflow/ImportarServicioWebPreview.ashx.vb",
+                                                            "type":  "ImportarServicioWebPreview",
+                                                            "method":  "ProcessRequest",
+                                                            "parameters":  [
+                                                                               "HttpContext"
+                                                                           ],
+                                                            "return":  "System.Void"
+                                                        },
+                          "VB.Interface.ResolveCapabilitiesAsync":  {
+                                                                        "file":  "Modelo/Workflow/ImportarServicioWeb/ImportarServicioWebInterfaces.vb",
+                                                                        "type":  "IExternalImportProviderClient",
+                                                                        "method":  "ResolveCapabilitiesAsync",
+                                                                        "parameters":  [
+                                                                                           "ResolveCapabilitiesRequestDto",
+                                                                                           "CancellationToken"
+                                                                                       ],
+                                                                        "return":  "Task\u003cResolveCapabilitiesResponseDto\u003e"
+                                                                    },
+                          "VB.Handler.TryResolveTrustedTaskId":  {
+                                                                     "file":  "workflow/ImportarServicioWebPreview.ashx.vb",
+                                                                     "type":  "ImportarServicioWebPreview",
+                                                                     "method":  "TryResolveTrustedTaskId",
+                                                                     "parameters":  [
+                                                                                        "HttpContext",
+                                                                                        "System.Int64\u0026"
+                                                                                    ],
+                                                                     "return":  "System.Boolean",
+                                                                     "visibility":  "nonpublic"
+                                                                 }
+                      },
+    "dotnetTypes":  {
+                        "SolicitudImportacionServicioDto":  [
+                                                                "SchemaVersion:System.String",
+                                                                "OperationId:System.String",
+                                                                "CorrelationId:System.String",
+                                                                "TaskId:System.Int64",
+                                                                "ProviderId:System.String",
+                                                                "Capability:System.String"
+                                                            ],
+                        "QueryItemsRequestDto":  [
+                                                     "CodigoBarras:System.String",
+                                                     "ContinuationToken:System.String",
+                                                     "PageSize:Nullable\u003cSystem.Int32\u003e"
+                                                 ],
+                        "GetPreviewRequestDto":  [
+                                                     "ExternalKey:System.String",
+                                                     "CodigoBarras:System.String"
+                                                 ],
+                        "ExternalItemDto":  [
+                                                "ExternalKey:System.String",
+                                                "DisplayName:System.String",
+                                                "ContentType:System.String",
+                                                "PreviewAvailable:System.Boolean",
+                                                "Metadata:IList\u003cImportItemMetadataDto\u003e",
+                                                "AllowedActions:IList\u003cSystem.String\u003e"
+                                            ],
+                        "GetPreviewResponseDto":  [
+                                                      "ExternalKey:System.String",
+                                                      "DescriptorId:System.String",
+                                                      "ContentType:System.String",
+                                                      "Length:Nullable\u003cSystem.Int64\u003e",
+                                                      "Disposition:System.String",
+                                                      "ExpiresAtUtc:Nullable\u003cSystem.DateTime\u003e"
+                                                  ],
+                        "SiiEnlaseAnnex":  [
+                                               "IdAnexo:System.String",
+                                               "Url:System.String",
+                                               "Formato:System.String",
+                                               "ContentType:System.String",
+                                               "Observaciones:System.String"
+                                           ]
+                    },
+    "excludedKinds":  {
+                          "external":  [
+                                           "EXT:Cliente",
+                                           "EXT:SII",
+                                           "EXT:MySQL"
+                                       ],
+                          "conceptual":  [
+                                             "CONCEPT:Gate",
+                                             "CONCEPT:RespuestaASMX",
+                                             "CONCEPT:ErrorSeguro"
+                                         ]
+                      },
+    "notation":  "PlantUML",
+    "umlStandard":  "UML 2"
+}

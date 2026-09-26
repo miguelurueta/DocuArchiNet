@@ -1,0 +1,42 @@
+@startuml DOC80_D03_PreviewDescriptor
+title DOC-80 - Diagrama UML de secuencia: preview y descriptor
+' Convención: CODE = símbolo resoluble; EXT = sistema externo; CONCEPT = concepto.
+' Fuentes: webservice/WebServiceImportarServicioWebModern.asmx.vb | Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiImportProvider.vb | Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiExternalImportProviderClient.vb | Infrastructure/Workflow/ImportarServicioWeb/Sii/SiiEnlaseAnnexContractMapper.vb | Infrastructure/Workflow/ImportarServicioWeb/Preview/ImportPreviewDescriptorService.vb | Infrastructure/Workflow/ImportarServicioWeb/Preview/ImportPreviewDescriptorRepository.vb
+' Referencias CODE: VB.Endpoint.GetPreview | VB.Provider.GetPreviewContentAsync | VB.Client.GetAnnexPreviewContentAsync | VB.Mapper.Resolve | VB.Descriptor.Create | VB.Repository.Create
+actor "Usuario Workflow\nEXT:WorkflowUser" as User
+participant "Cliente moderno\nCONCEPT:ModernImportClient" as Browser
+participant "WebServiceImportarServicioWebModern\nCODE:WebServiceImportarServicioWebModern" as Endpoint
+participant "SiiImportProvider\nCODE:SiiImportProvider" as Provider
+participant "SiiExternalImportProviderClient\nCODE:SiiExternalImportProviderClient" as Client
+participant "SiiEnlaseAnnexContractMapper\nCODE:SiiEnlaseAnnexContractMapper" as Mapper
+participant "SII\nEXT:SII" as SII
+participant "ImportPreviewDescriptorService\nCODE:ImportPreviewDescriptorService" as Service
+database "ImportPreviewDescriptorRepository\nCODE:ImportPreviewDescriptorRepository" as Repository
+User -> Browser : Vista previa(ExternalKey)
+Browser -> Endpoint : GetPreview(request: GetPreviewRequestDto)
+Endpoint -> Endpoint : valida contexto y referencias autoritativas
+alt contexto o capability inválidos
+  Endpoint --> Browser : GetPreviewResponseDto(Error)
+else autorizado
+  Endpoint -> Provider : GetPreviewContentAsync(request, cancellationToken): Task<SiiPreviewContent>
+  Provider -> Client : GetAnnexPreviewContentAsync(request, cancellationToken): Task<SiiPreviewContent>
+  Client -> SII : consultarRadicado
+  SII --> Client : colección imagenes
+  Client -> Mapper : Resolve(payload, externalKey): SiiEnlaseAnnex
+  alt idanexo no pertenece al radicado
+    Mapper --> Client : SII_ANNEX_NOT_FOUND
+    Client --> Endpoint : error saneado
+    Endpoint --> Browser : GetPreviewResponseDto(Error)
+  else anexo y recurso permitidos
+    Client -> SII : descarga limitada
+    SII --> Client : contenido binario
+    Client --> Provider : SiiPreviewContent
+    Provider --> Endpoint : SiiPreviewContent
+    Endpoint -> Service : Create(context, content, utcNow): ImportPreviewCreationResult
+    Service -> Repository : Create(snapshot): Boolean
+    Repository --> Service : creado / rechazado
+    Service --> Endpoint : descriptor opaco
+    Endpoint --> Browser : GetPreviewResponseDto(DescriptorId, metadata)
+  end
+end
+@enduml
