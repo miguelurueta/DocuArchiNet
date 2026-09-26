@@ -38,7 +38,7 @@ Public NotInheritable Class ServicioIntencionImportacion
         If _preflight IsNot Nothing Then
             Dim preflightRequest As New PreflightImportRequestDto With {
                 .OperationId = request.OperationId, .CorrelationId = request.CorrelationId,
-                .TaskId = request.TaskId, .ProviderId = request.ProviderId, .Items = request.Items}
+                .TaskId = request.TaskId, .ProviderId = request.ProviderId, .Capability = contexto.Capability, .Items = request.Items}
             Dim current = _preflight.Preflight(contexto, preflightRequest)
             If current Is Nothing OrElse Not current.Executable OrElse current.Error IsNot Nothing OrElse
                Not String.Equals(current.ContextFingerprint, request.ContextFingerprint, StringComparison.Ordinal) OrElse
@@ -78,15 +78,17 @@ Public NotInheritable Class ServicioIntencionImportacion
         Dim now = _clock.UtcNow()
         Dim intent As New IntencionImportacionServicio With {
             .Id = Guid.NewGuid().ToString("N"), .IdempotencyKey = request.IdempotencyKey.Trim(),
-            .ContextoOriginal = New ContextoIntencionImportacion With {.OperationId = request.OperationId, .CorrelationId = request.CorrelationId, .IdUsuario = context.IdUsuario, .IdGrupo = context.IdGrupo, .LoginUsuario = context.LoginUsuario, .IdTarea = context.IdTarea, .IdRuta = context.IdRuta, .IdTramite = context.IdTramite, .ProviderId = context.ProviderId.Trim(), .Radicado = request.Radicado.Trim()},
+            .ContextoOriginal = New ContextoIntencionImportacion With {.OperationId = request.OperationId, .CorrelationId = request.CorrelationId, .IdUsuario = context.IdUsuario, .IdGrupo = context.IdGrupo, .LoginUsuario = context.LoginUsuario, .IdTarea = context.IdTarea, .IdRuta = context.IdRuta, .IdTramite = context.IdTramite, .ProviderId = context.ProviderId.Trim(), .Capability = context.Capability, .Radicado = request.Radicado.Trim(), .ProviderReference = If(request.ProviderReference, String.Empty).Trim()},
             .Fase = FaseImportacionServicio.Creada, .FechaCreacionUtc = now, .FechaActualizacionUtc = now}
         For Each requirement In request.Requirements
             intent.Requisitos.Add(New RequisitoPlanImportacion With {.Codigo = requirement.Codigo, .Satisfecho = requirement.Satisfecho, .MensajeVisible = requirement.MensajeVisible})
         Next
+        Dim isEnlase = String.Equals(context.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase)
         For Each item In request.Items
-            intent.Resultados.Add(New ResultadoElementoImportacion With {.ClientItemId = item.ClientItemId.Trim(), .IdentidadExterna = New IdentidadExternaImportacion With {.ProviderId = context.ProviderId.Trim(), .ExternalKey = item.ExternalKey.Trim()}, .IdTareaDestino = item.TargetTaskId, .IdTipoDocumental = item.DocumentTypeId, .NombreTipoDocumental = item.DocumentTypeName.Trim(), .NombreArchivo = item.FileName, .TipoContenido = item.ContentType, .Fase = FaseImportacionServicio.Creada})
+            intent.Resultados.Add(New ResultadoElementoImportacion With {.ClientItemId = item.ClientItemId.Trim(), .IdentidadExterna = New IdentidadExternaImportacion With {.ProviderId = context.ProviderId.Trim(), .ExternalKey = item.ExternalKey.Trim()}, .IdTareaDestino = item.TargetTaskId, .IdTipoDocumental = item.DocumentTypeId, .NombreTipoDocumental = item.DocumentTypeName.Trim(), .NombreArchivo = If(isEnlase, EnlaseFileName(item.ExternalKey, item.ContentType), item.FileName), .TipoContenido = item.ContentType, .Fase = FaseImportacionServicio.Creada, .EstadoRelacion = If(isEnlase, EstadoEfectoExpedienteImportacion.NoAplica, EstadoEfectoExpedienteImportacion.Pendiente), .EstadoCache = If(isEnlase, EstadoEfectoExpedienteImportacion.NoAplica, EstadoEfectoExpedienteImportacion.Pendiente)})
         Next
-        If String.Equals(context.ProviderId, SiiImportProvider.CanonicalProviderId, StringComparison.OrdinalIgnoreCase) Then
+        If String.Equals(context.ProviderId, SiiImportProvider.CanonicalProviderId, StringComparison.OrdinalIgnoreCase) AndAlso
+           Not String.Equals(context.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase) Then
             If _inscriptions Is Nothing Then Throw New InvalidOperationException("SII_INSCRIPTION_RESOLVER_UNAVAILABLE")
             intent.Inscripciones = _inscriptions.Resolver(context, request, intent.Resultados)
         End If
@@ -96,7 +98,7 @@ Public NotInheritable Class ServicioIntencionImportacion
     End Function
 
     Public Shared Function Canonical(ByVal intent As IntencionImportacionServicio) As String
-        Dim parts As New List(Of String) From {Field(intent.ContextoOriginal.OperationId), Field(intent.ContextoOriginal.IdUsuario.ToString(CultureInfo.InvariantCulture)), Field(intent.ContextoOriginal.IdGrupo.ToString(CultureInfo.InvariantCulture)), Field(intent.ContextoOriginal.IdTarea.ToString(CultureInfo.InvariantCulture)), Field(intent.ContextoOriginal.IdRuta.ToString(CultureInfo.InvariantCulture)), Field(intent.ContextoOriginal.IdTramite.ToString(CultureInfo.InvariantCulture)), Field(intent.ContextoOriginal.ProviderId.ToLowerInvariant()), Field(intent.ContextoOriginal.Radicado)}
+        Dim parts As New List(Of String) From {Field(intent.ContextoOriginal.OperationId), Field(intent.ContextoOriginal.IdUsuario.ToString(CultureInfo.InvariantCulture)), Field(intent.ContextoOriginal.IdGrupo.ToString(CultureInfo.InvariantCulture)), Field(intent.ContextoOriginal.IdTarea.ToString(CultureInfo.InvariantCulture)), Field(intent.ContextoOriginal.IdRuta.ToString(CultureInfo.InvariantCulture)), Field(intent.ContextoOriginal.IdTramite.ToString(CultureInfo.InvariantCulture)), Field(intent.ContextoOriginal.ProviderId.ToLowerInvariant()), Field(intent.ContextoOriginal.Capability.ToUpperInvariant()), Field(intent.ContextoOriginal.Radicado), Field(intent.ContextoOriginal.ProviderReference)}
         Dim requirements As New List(Of String)()
         For Each value In intent.Requisitos
             requirements.Add(Field(value.Codigo) & Field(If(value.Satisfecho, "1", "0")))
@@ -120,12 +122,24 @@ Public NotInheritable Class ServicioIntencionImportacion
             Return BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(value))).Replace("-", String.Empty).ToLowerInvariant()
         End Using
     End Function
+    Private Shared Function EnlaseFileName(ByVal externalKey As String, ByVal contentType As String) As String
+        Dim extension = If(String.Equals(If(contentType, String.Empty).Trim(), "application/pdf", StringComparison.OrdinalIgnoreCase), ".pdf", ".bin")
+        Return "anexo-" & Hash(If(externalKey, String.Empty).Trim()).Substring(0, 24) & extension
+    End Function
     Private Shared Function Valid(ByVal context As ContextoImportacionServicio, ByVal request As CreateImportIntentRequestDto) As Boolean
         If context Is Nothing OrElse request Is Nothing OrElse String.IsNullOrWhiteSpace(request.IdempotencyKey) OrElse String.IsNullOrWhiteSpace(request.Radicado) OrElse request.Items Is Nothing OrElse request.Items.Count = 0 OrElse request.Requirements Is Nothing Then Return False
+        If String.Equals(context.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase) AndAlso String.IsNullOrWhiteSpace(request.ProviderReference) Then Return False
         For Each item In request.Items
             If item Is Nothing OrElse Not item.DocumentTypeId.HasValue OrElse item.DocumentTypeId.Value <= 0 OrElse String.IsNullOrWhiteSpace(item.DocumentTypeName) OrElse item.DocumentTypeName.Trim().Length > 255 Then Return False
+            If String.Equals(request.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase) AndAlso IsHttpLocation(item.ExternalKey) Then Return False
         Next
         Return True
+    End Function
+    Private Shared Function IsHttpLocation(ByVal value As String) As Boolean
+        Dim parsed As Uri = Nothing
+        Return Uri.TryCreate(If(value, String.Empty).Trim(), UriKind.Absolute, parsed) AndAlso
+            (String.Equals(parsed.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) OrElse
+             String.Equals(parsed.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
     End Function
     Private Shared Function Fail(ByVal response As CreateImportIntentResponseDto, ByVal code As String, ByVal message As String) As CreateImportIntentResponseDto
         response.Error = New ErrorImportacionServicioDto With {.Codigo = code, .MensajeVisible = message, .EsReintentable = code = "INTENT_IN_PROGRESS" OrElse code = "INTENT_UNAVAILABLE"}

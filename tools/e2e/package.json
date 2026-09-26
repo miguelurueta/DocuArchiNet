@@ -46,7 +46,8 @@
     "test:doc45:unassigned-color": "node scripts/run-doc44-workflow-notes-interactive.cjs unassigned-color",
     "test:doc45:policy": "node --test tests/doc45-notes-legacy-retirement-policy.test.cjs",
     "inspect:doc44:test-data": "node scripts/inspect-doc44-test-data-interactive.cjs",
-    "inspect:notes:schema": "node scripts/inspect-notes-column-schema-interactive.cjs"
+    "inspect:notes:schema": "node scripts/inspect-notes-column-schema-interactive.cjs",
+    "migrate:doc81:intent-schema": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/apply-doc81-intent-schema-interactive.ps1"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

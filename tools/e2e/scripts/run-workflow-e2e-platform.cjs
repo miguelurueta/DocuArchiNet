@@ -162,7 +162,7 @@ async function selectWorkflowTask(page, plan) {
       timeout: Math.min(plan.profile.budgetMs, 60000)
     });
     const expectedTaskId = String(taskId);
-    if (plan.scenario.id === 'import-sii-enlase-read') {
+    if (['import-sii-enlase-read', 'import-sii-enlase-execution'].includes(plan.scenario.id)) {
       const enlaceSelection = page.locator('#HiddenIdFlujo');
       await enlaceSelection.waitFor({ state: 'attached', timeout: Math.min(plan.profile.budgetMs, 60000) });
       const isExpectedEnlase = (value) => {
@@ -173,14 +173,14 @@ async function selectWorkflowTask(page, plan) {
         await page.evaluate(() => {
           if (typeof window.hide_area_workflow_seleccion === 'function') window.hide_area_workflow_seleccion();
         });
-        const selectCommand = page.locator(`[tip_event="seleccion_tarea_wf"][idd="${taskId}"]:visible`).first();
+        const selectCommand = page.locator(`[tip_event="seleccion_tarea_wf"][idd="${taskId}"]`).first();
         if (!await selectCommand.count()) {
           const taskSearch = page.locator('#auto_complex:visible');
           await taskSearch.waitFor({ state: 'visible', timeout: Math.min(plan.profile.budgetMs, 30000) });
           await taskSearch.fill(expectedTaskId);
           await page.locator('button[title="consultar lista"]:visible').click();
         }
-        await selectCommand.waitFor({ state: 'visible', timeout: Math.min(plan.profile.budgetMs, 30000) });
+        await selectCommand.waitFor({ state: 'attached', timeout: Math.min(plan.profile.budgetMs, 30000) });
         await page.evaluate((expected) => {
           const candidate = document.querySelector(`[tip_event="seleccion_tarea_wf"][idd="${expected}"]`);
           const stagedTask = document.querySelector('#Hidden_id_tarea_sel');

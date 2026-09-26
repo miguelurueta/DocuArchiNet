@@ -91,6 +91,15 @@ const IMPORT_RETRY_CONTROLS = Object.freeze({
   ...IMPORT_CONTROLS_CHANGED,
   'import-expedient-state': 'unchanged'
 });
+const IMPORT_ENLASE_EXECUTION_CONTROLS = Object.freeze({
+  'import-intent-state': 'changed',
+  'import-item-state': 'changed',
+  'import-transition-audit': 'changed',
+  'import-expedient-state': 'unchanged',
+  'import-document-relation-state': 'unchanged',
+  'import-document-link-cache-state': 'unchanged',
+  'import-document-index-state': 'unchanged'
+});
 
 const ADAPTER_REGISTRY = Object.freeze({
   [NOTES_READ_E2E_ADAPTER.id]: NOTES_READ_E2E_ADAPTER,
@@ -161,7 +170,16 @@ const SCENARIO_REGISTRY = Object.freeze({
     transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
     expectations: Object.freeze(['real-sii', 'enlase-context', 'no-state-change', 'secure-preview', 'temporary-feature-gate', 'sanitized-evidence'])
   }),
-  'import-sii-read': Object.freeze({
+  'import-sii-enlase-execution': Object.freeze({
+    id: 'import-sii-enlase-execution', doc: 'doc81', stage: 'execution', adapterId: 'importar-servicio-web',
+    requiredAuthorizations: Object.freeze(['environment', 'gate']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-task', role: 'execution', profileField: 'taskId', mutating: true, contractId: 'workflow-task-controls' }),
+    controls: IMPORT_CONTROLS,
+    controlExpectations: IMPORT_ENLASE_EXECUTION_CONTROLS,
+    transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
+    expectations: Object.freeze(['real-sii', 'enlase-context', 'single-intent', 'physical-evidence', 'no-expedient-effects', 'no-task-transition', 'temporary-feature-gate', 'sanitized-evidence'])
+  }),  'import-sii-read': Object.freeze({
     id: 'import-sii-read', doc: 'doc56', stage: 'read', adapterId: 'importar-servicio-web',
     requiredAuthorizations: Object.freeze(['environment', 'gate']),
     requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),

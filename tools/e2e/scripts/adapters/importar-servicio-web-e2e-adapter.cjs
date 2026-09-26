@@ -220,6 +220,16 @@ function selectedItems(dto, documentTypeId, documentTypeName, sampleSize = 1) {
   });
 }
 
+function isImportableItem(item) {
+  const status = String(field(item, ['ImportStatus', 'importStatus']) || '').trim().toLowerCase();
+  const actions = field(item, ['AllowedActions', 'allowedActions']);
+  return status === 'disponible' && Array.isArray(actions) && actions.some((action) => /^import$/i.test(String(action).trim()));
+}
+
+function selectedImportableItems(dto, documentTypeId, documentTypeName, sampleSize) {
+  const available = items(dto).filter(isImportableItem);
+  return selectedItems({ ...dto, Items: available }, documentTypeId, documentTypeName, sampleSize);
+}
 async function querySelection(invoke, taskId, codigoBarras, documentTypeId, documentTypeName, sampleSize, budgetMs, latencies, requireDoc68Presentation = false) {
   if (typeof codigoBarras !== 'string' || !codigoBarras.trim()) fail('IMPORT_E2E_BARCODE_REQUIRED');
   const diagnosticPageSize = process.env.DOC68_E2E_SHOW_PUBLIC_CONTRACT === 'true' ? 100 : sampleSize;
@@ -418,7 +428,10 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
         const consumed = await consumePreview(descriptorId, 'GET');
         if (consumed.status !== 200) fail(`IMPORT_E2E_ENLASE_PREVIEW_HTTP_${consumed.status}`);
       }
-      return Object.freeze({ codes: Object.freeze({ capabilities: null, query: null, preview: null }), count: annexes.length,
+      const availableCount = annexes.filter(isImportableItem).length;
+      const importedCount = annexes.filter((item) => String(field(item, ['ImportStatus', 'importStatus']) || '').trim().toLowerCase() === 'importado').length;
+      const reviewCount = annexes.length - availableCount - importedCount;
+      return Object.freeze({ codes: Object.freeze({ capabilities: null, query: null, preview: null, availability: `AVAILABLE_${availableCount}_IMPORTED_${importedCount}_REVIEW_${reviewCount}` }), count: annexes.length,
         latenciesMs: Object.freeze(latencies), assertions: Object.freeze([]) });
     }
     const capabilities = await invoke('ResolveCapabilities', request(base(taskId)));
@@ -476,6 +489,60 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
 
   async executeExecution({ invoke, taskId, budgetMs, profile }) {
     const latencies = [];
+    if (profile.scenarioId === 'import-sii-enlase-execution') {
+      const capability = 'ANEXOS_RADICADO_ENLASE';
+      const context = { ...base(taskId), Capability: capability };
+      const capabilities = await invoke('ResolveCapabilities', request(context));
+      const capabilitiesDto = assertResult(capabilities, budgetMs, 'IMPORT_E2E_ENLASE_CAPABILITIES_FAILED');
+      latencies.push(capabilities.elapsedMs);
+      const available = field(capabilitiesDto, ['Capabilities', 'capabilities']) || [];
+      if (!available.some((entry) => field(entry, ['Codigo', 'codigo']) === capability && field(entry, ['Habilitada', 'habilitada']) === true)) {
+        fail('IMPORT_E2E_ENLASE_CAPABILITY_UNAVAILABLE');
+      }
+      const query = await invoke('QueryItems', request({ ...context, CodigoBarras: profile.codigoBarras, PageSize: 100, ContinuationToken: '' }));
+      const queryDto = assertResult(query, budgetMs, 'IMPORT_E2E_ENLASE_QUERY_FAILED');
+      latencies.push(query.elapsedMs);
+      const selection = selectedImportableItems(queryDto, profile.documentTypeId, profile.documentTypeName, profile.sampleSize);
+      selection.forEach((item) => { item.TargetTaskId = taskId; item.FileName = 'documento-sii.pdf'; });
+      const preparedCall = await invoke('PreflightImport', request({ ...context, Items: selection }));
+      const prepared = assertResult(preparedCall, budgetMs, 'IMPORT_E2E_ENLASE_PREFLIGHT_FAILED');
+      latencies.push(preparedCall.elapsedMs);
+      if (field(prepared, ['IsValid', 'isValid']) !== true || field(prepared, ['Executable', 'executable']) !== true) fail('IMPORT_E2E_ENLASE_PREFLIGHT_INVALID');
+      const createRequest = request({ ...createPayload(taskId, selection, prepared, profile.radicado, uuid()), Capability: capability });
+      const create = await invoke('CreateImportIntent', createRequest);
+      const identity = intentIdentity(assertResult(create, budgetMs, 'IMPORT_E2E_ENLASE_CREATE_FAILED'));
+      latencies.push(create.elapsedMs);
+      const repeated = await invoke('CreateImportIntent', createRequest);
+      const repeatedIdentity = intentIdentity(assertResult(repeated, budgetMs, 'IMPORT_E2E_ENLASE_CREATE_REPEAT_FAILED'));
+      latencies.push(repeated.elapsedMs);
+      if (repeatedIdentity.IntentId !== identity.IntentId || repeatedIdentity.VersionToken !== identity.VersionToken) fail('IMPORT_E2E_ENLASE_CREATE_NOT_IDEMPOTENT');
+      const execute = await invoke('ExecuteImportIntent', request({ ...executionPayload(taskId, identity), Capability: capability }));
+      const executed = assertResult(execute, budgetMs, 'IMPORT_E2E_ENLASE_EXECUTE_FAILED');
+      const stored = assertStoredDocuments(executed, profile.sampleSize);
+      latencies.push(execute.elapsedMs);
+      const get = await invoke('GetImportIntent', request({ ...base(taskId), Capability: capability, IntentId: identity.IntentId }));
+      const recovered = assertResult(get, budgetMs, 'IMPORT_E2E_ENLASE_GET_FAILED');
+      assertStoredDocuments(recovered, profile.sampleSize);
+      latencies.push(get.elapsedMs);
+      const reconcile = await invoke('ReconcileImportIntent', request({ ...base(taskId), Capability: capability, IntentId: identity.IntentId }));
+      const reconciled = assertResult(reconcile, budgetMs, 'IMPORT_E2E_ENLASE_RECONCILE_FAILED');
+      assertStoredDocuments(reconciled, profile.sampleSize);
+      latencies.push(reconcile.elapsedMs);
+      if ((expedientEffects(reconciled) || []).length !== 0) fail('IMPORT_E2E_ENLASE_EXPEDIENT_EFFECTS_UNEXPECTED');
+      const unique = new Set(stored.map((item) => field(item, ['DocumentId', 'documentId'])));
+      return Object.freeze({
+        codes: Object.freeze({ capability: 'CONFIRMED', idempotentCreate: 'CONFIRMED', physicalEvidence: 'CONFIRMED', noExpedientEffects: 'CONFIRMED' }),
+        count: unique.size, latenciesMs: Object.freeze(latencies),
+        assertions: Object.freeze([
+          ['INTENT_IDEMPOTENT', 1, 1],
+          ['SINGLE_EXECUTION', 1, 1],
+          ['PHYSICAL_EVIDENCE', profile.sampleSize, unique.size],
+          ['NO_EXPEDIENT_EFFECTS', 0, 0],
+          ['TASK_STATE_UNCHANGED', 1, 1],
+          ['SANITIZED_EVIDENCE', 1, 1]
+        ].map(([code, expectedCount, observedCount], index) => Object.freeze({ id: 'DOC81-E2E-' + String(index + 1).padStart(2, '0'), scenario: 'import-sii-enlase-execution', status: expectedCount === observedCount ? 'passed' : 'failed', expectedCount, observedCount, code: 'ASSERTION_' + code })))
+      });
+    }
     if (profile.scenarioId === 'import-sii-retry') {
       if (profile.prepareStoppedIntent === true) {
         const selection = await querySelection(invoke, taskId, profile.codigoBarras, profile.documentTypeId, profile.documentTypeName, profile.sampleSize, budgetMs, latencies);

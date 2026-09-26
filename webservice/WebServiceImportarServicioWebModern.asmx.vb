@@ -50,12 +50,14 @@ Public Class WebServiceImportarServicioWebModern
             If Not provider.Encontrado Then Return FailureQuery(request, provider.Codigo)
             Dim response=provider.Cliente.QueryItemsAsync(request, CancellationToken.None).GetAwaiter().GetResult()
             Dim presentation=CreatePresentation(session,importContext)
-            If Not SiiImportProvider.IsAnnexRequest(request) Then presentation.EnrichItems(importContext,request.ProviderId,response)
+            presentation.EnrichItems(importContext,request.ProviderId,response)
             presentation.ApplyPagination(request,response)
             response.Radicado = trustedReceipt
             Return response
         Catch ex As ExternalImportHttpException
             Return FailureQuery(request, SafeExternalCode(ex))
+        Catch ex As MySql.Data.MySqlClient.MySqlException When ex.Number = 1054
+            Return FailureQuery(request, "IMPORT_SCHEMA_MIGRATION_REQUIRED")
         Catch ex As InvalidOperationException
             Return FailureQuery(request, SafeProviderCode(ex.Message))
         Catch
@@ -135,6 +137,7 @@ Public Class WebServiceImportarServicioWebModern
             Dim trustedReceipt As String = String.Empty, trustedBarcode As String = String.Empty
             If Not TryResolveTrustedSiiReferences(context, trustedReceipt, trustedBarcode) Then Return New CreateImportIntentResponseDto With {.Error = ErrorDto("SERVER_SII_REFERENCE_UNAVAILABLE")}
             request.Radicado = trustedReceipt
+            request.ProviderReference = trustedBarcode
             Return Compose(session, request.ProviderId, context).Intents.Crear(context, request)
         Catch ex As InvalidOperationException
             Return New CreateImportIntentResponseDto With {.Error = ErrorDto(SafeIntentCreationCode(ex.Message))}
@@ -296,7 +299,7 @@ Public Class WebServiceImportarServicioWebModern
             result.Contexto.IdGrupoWorkflow, result.Contexto.LoginUsuario, trustedTaskId,
             result.Contexto.IdRutaWorkflow, trustedProcedureId, request.ProviderId, True,
             result.Contexto.IdUsuarioGestion, result.Contexto.IdEmpresaGestion,
-            result.Contexto.NombreRutaWorkflow)
+            result.Contexto.NombreRutaWorkflow, request.Capability)
         failureCode = Nothing
         Return True
     End Function
@@ -318,6 +321,7 @@ Public Class WebServiceImportarServicioWebModern
         Dim resolvedProvider = ResolveProvider(SiiImportProvider.CanonicalProviderId, attempts)
         If resolvedProvider Is Nothing OrElse Not resolvedProvider.Encontrado Then Throw New InvalidOperationException("PROVIDER_NOT_CONFIGURED")
         Dim siiProvider = TryCast(resolvedProvider.Cliente, SiiImportProvider)
+        Dim isEnlase = String.Equals(trustedContext.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase)
         If siiProvider Is Nothing Then Throw New InvalidOperationException("PROVIDER_COMPOSITION_INVALID")
         Dim clients = BuildProviderRegistry(resolvedProvider)
         Dim expedientConfiguration As IImportExpedientConfigurationRepository = New MySqlImportExpedientConfigurationRepository(docuarchiConnections, radicacionConnections, executor)
@@ -336,17 +340,33 @@ Public Class WebServiceImportarServicioWebModern
         Dim indexAdapter = New SiiDocumentIndexAdapter(New LegacySiiDocumentIndexPhysicalGateway(docuarchiConnections, executor))
         Dim relatedCoordinator = New ImportRelatedDocumentCoordinator(relatedDocuments, relationPort, linkCache, indexAdapter, indexAdapter, New ImportRelatedDocumentPlan())
         Dim documentTypes As IImportDocumentTypeResolver = New MySqlImportDocumentTypeResolver(radicacionConnections, executor)
-        Dim preflight = New ServicioPreflightImportacion(validator, documentTypes,
-            New MySqlImportEffectConfigurationRepository(expedientConfiguration), New ImportEffectPlanBuilder())
+        Dim effectConfiguration As IImportEffectConfigurationRepository = If(isEnlase,
+            CType(New EnlaseImportEffectConfigurationRepository(), IImportEffectConfigurationRepository),
+            New MySqlImportEffectConfigurationRepository(expedientConfiguration))
+        Dim itemStatus As IImportItemStatusRepository = New MySqlImportItemStatusRepository(connections, docuarchiConnections, executor)
+        Dim preflight = New ServicioPreflightImportacion(validator, documentTypes, effectConfiguration, New ImportEffectPlanBuilder(), itemStatus)
+        Dim storage As IImportDocumentStoragePort = If(isEnlase,
+            CType(New LegacyEnlaseImportDocumentStorageAdapter(), IImportDocumentStoragePort),
+            New LegacyImportDocumentStorageAdapter())
+        Dim inscriptionResolver As IImportInscriptionResolver = If(isEnlase, Nothing,
+            CType(New SiiImportInscriptionResolver(siiProvider, expedientConfiguration), IImportInscriptionResolver))
+        Dim executionExpedientCoordinator As ImportExpedientCoordinator = If(isEnlase, Nothing, expedientCoordinator)
+        Dim executionRelatedCoordinator As ImportRelatedDocumentCoordinator = If(isEnlase, Nothing, relatedCoordinator)
+        Dim reconciliationRepository As IImportReconciliationRepository = New MySqlImportReconciliationRepository(connections, docuarchiConnections, executor)
         Dim steps As New Collections.Generic.List(Of IImportExecutionStep) From {
             New DownloadImportExecutionStep(clients), New PrepareImportExecutionStep(), New PrepareImportIndicesExecutionStep(),
-            New StoreImportExecutionStep(New MySqlImportStorageMetadataRepository(connections, executor), documentTypes, New LegacyImportDocumentStorageAdapter()),
-            New CompleteImportExecutionStep(FaseImportacionServicio.CacheActualizado)}
+            New StoreImportExecutionStep(New MySqlImportStorageMetadataRepository(connections, executor), documentTypes, storage)}
+        If isEnlase Then
+            steps.Add(New VerifyStoredImportExecutionStep(reconciliationRepository))
+            steps.Add(New CompleteImportExecutionStep(FaseImportacionServicio.Completada))
+        Else
+            steps.Add(New CompleteImportExecutionStep(FaseImportacionServicio.CacheActualizado))
+        End If
         Return New ImportComposition With {
             .Preflight = preflight,
-            .Intents = New ServicioIntencionImportacion(repository, New MySqlImportIntentConcurrencyGuard(connections, executor), clock, New SiiImportInscriptionResolver(siiProvider, expedientConfiguration), preflight),
-            .Orchestrator = New ImportServiceOrchestrator(validator, repository, New ImportIntentStateMachine(clock, New SafeImportIntentTransitionAudit()), steps, expedientCoordinator, relatedCoordinator),
-            .Reconciliation = New ServicioReconciliacionImportacion(validator, New MySqlImportReconciliationRepository(connections, docuarchiConnections, executor), New ImportItemResultMapper())}
+            .Intents = New ServicioIntencionImportacion(repository, New MySqlImportIntentConcurrencyGuard(connections, executor), clock, inscriptionResolver, preflight),
+            .Orchestrator = New ImportServiceOrchestrator(validator, repository, New ImportIntentStateMachine(clock, New SafeImportIntentTransitionAudit()), steps, executionExpedientCoordinator, executionRelatedCoordinator, New MySqlImportIntentConcurrencyGuard(connections, executor)),
+            .Reconciliation = New ServicioReconciliacionImportacion(validator, reconciliationRepository, New ImportItemResultMapper())}
     End Function
 
     Private Shared Function CreatePresentation(ByVal session As ResultadoContextoSesionWorkflow,

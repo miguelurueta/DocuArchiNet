@@ -38,6 +38,13 @@ Public NotInheritable Class MySqlSiiImportAuthorizationRepository
 
     Public Function TareaOperable(ByVal contexto As ContextoImportacionServicio) As Boolean Implements IAutorizacionImportacionRepository.TareaOperable
         If Not SameContext(contexto) Then Return False
+        If IsEnlase(contexto) Then
+            Const enlaceSql As String = "SELECT COUNT(*) FROM estados_tarea_workflow WHERE Inicio_Tareas_Workflow_id_Tarea=@idTarea AND Inicio_Tareas_Workflow_Rutas_Workflow_id_Ruta=@idRuta AND FECHA_FIN IS NULL AND ESTADO_TAREA=0"
+            Return ReadBoolean(contexto, enlaceSql,
+                Function(reader As IDataReader) As Boolean
+                    Return reader.Read() AndAlso Convert.ToInt32(reader(0)) = 1
+                End Function)
+        End If
         Const sql As String = "SELECT COUNT(*) FROM estados_tarea_workflow WHERE Inicio_Tareas_Workflow_id_Tarea=@idTarea AND ID_USUARIO=@idUsuario AND FECHA_SELECCION IS NOT NULL AND FECHA_FIN IS NULL AND ESTADO_TAREA=0"
         Return ReadBoolean(contexto, sql,
             Function(reader As IDataReader) As Boolean
@@ -47,6 +54,13 @@ Public NotInheritable Class MySqlSiiImportAuthorizationRepository
 
     Public Function RutaCoincide(ByVal contexto As ContextoImportacionServicio) As Boolean Implements IAutorizacionImportacionRepository.RutaCoincide
         If Not SameContext(contexto) Then Return False
+        If IsEnlase(contexto) Then
+            Const enlaceSql As String = "SELECT COUNT(*) FROM estados_tarea_workflow WHERE Inicio_Tareas_Workflow_id_Tarea=@idTarea AND Inicio_Tareas_Workflow_Rutas_Workflow_id_Ruta=@idRuta AND FECHA_FIN IS NULL AND ESTADO_TAREA=0"
+            Return ReadBoolean(contexto, enlaceSql,
+                Function(reader As IDataReader) As Boolean
+                    Return reader.Read() AndAlso Convert.ToInt32(reader(0)) = 1
+                End Function)
+        End If
         Const sql As String = "SELECT COUNT(*) FROM estados_tarea_workflow WHERE Inicio_Tareas_Workflow_id_Tarea=@idTarea AND ID_USUARIO=@idUsuario AND Inicio_Tareas_Workflow_Rutas_Workflow_id_Ruta=@idRuta AND FECHA_FIN IS NULL AND ESTADO_TAREA=0"
         Return ReadBoolean(contexto, sql,
             Function(reader As IDataReader) As Boolean
@@ -84,7 +98,13 @@ Public NotInheritable Class MySqlSiiImportAuthorizationRepository
             contexto.IdUsuario = _trusted.IdUsuario AndAlso contexto.IdGrupo = _trusted.IdGrupo AndAlso
             contexto.IdTarea = _trusted.IdTarea AndAlso contexto.IdRuta = _trusted.IdRuta AndAlso
             contexto.IdTramite = _trusted.IdTramite AndAlso
-            String.Equals(contexto.LoginUsuario, _trusted.LoginUsuario, StringComparison.OrdinalIgnoreCase)
+            String.Equals(contexto.LoginUsuario, _trusted.LoginUsuario, StringComparison.OrdinalIgnoreCase) AndAlso
+            String.Equals(contexto.Capability, _trusted.Capability, StringComparison.OrdinalIgnoreCase)
+    End Function
+
+    Private Shared Function IsEnlase(ByVal contexto As ContextoImportacionServicio) As Boolean
+        Return contexto IsNot Nothing AndAlso
+            String.Equals(contexto.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase)
     End Function
 
     Private Shared Function Enabled(ByVal value As Object) As Boolean

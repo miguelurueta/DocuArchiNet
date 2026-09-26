@@ -29,7 +29,8 @@ Public Interface IExternalImportProviderClient
                            Optional ByVal operationId As String = Nothing,
                            Optional ByVal taskId As Nullable(Of Long) = Nothing,
                            Optional ByVal radicado As String = Nothing,
-                           Optional ByVal referenciaProveedor As String = Nothing) As Task(Of Byte())
+                           Optional ByVal referenciaProveedor As String = Nothing,
+                           Optional ByVal capability As String = Nothing) As Task(Of Byte())
 End Interface
 
 Public Interface IRegistroClientesProveedoresImportacion

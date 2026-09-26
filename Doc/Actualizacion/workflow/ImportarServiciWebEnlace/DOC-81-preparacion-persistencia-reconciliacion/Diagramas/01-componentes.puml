@@ -1,0 +1,30 @@
+@startuml DOC81_D01_Componentes
+' Convención: CODE=símbolo resoluble | EXT=actor externo | CONCEPT=estado conceptual
+' Fuentes: webservice/WebServiceImportarServicioWebModern.asmx.vb | Services/Workflow/ImportarServicioWeb/ImportServiceOrchestrator.vb | Infrastructure/Workflow/ImportarServicioWeb/Storage/LegacyEnlaseImportDocumentStorageAdapter.vb
+' Referencias CODE: VB.Endpoint.ExecuteImportIntent | VB.Orchestrator.Execute | VB.Storage.Almacenar
+skinparam componentStyle uml2
+actor "EXT:Usuario Workflow" as User
+cloud "EXT:SII" as SII
+database "EXT:MySQL Workflow/DocuArchi" as DB
+component "CODE:WebServiceImportarServicioWebModern" as Endpoint
+component "CODE:ServicioPreflightImportacion" as Preflight
+component "CODE:ServicioIntencionImportacion" as Intent
+component "CODE:ImportServiceOrchestrator" as Orchestrator
+component "CODE:SiiImportProvider" as Provider
+component "CODE:SiiExternalImportProviderClient" as Client
+component "CODE:LegacyEnlaseImportDocumentStorageAdapter" as Storage
+component "CODE:MySqlImportReconciliationRepository" as Reconciliation
+component "CODE:ServicioReconciliacionImportacion" as ServiceR
+User --> Endpoint
+Endpoint --> Preflight
+Endpoint --> Intent
+Endpoint --> Orchestrator
+Orchestrator --> Provider
+Provider --> Client
+Client --> SII
+Orchestrator --> Storage
+Storage --> DB
+Orchestrator --> Reconciliation
+ServiceR --> Reconciliation
+Reconciliation --> DB
+@enduml

@@ -48,13 +48,13 @@ Public NotInheritable Class DownloadImportExecutionStep
             item.ContenidoDescargado = resolved.Cliente.DownloadAsync(item.IdentidadExterna.ExternalKey,
                 item.CorrelationId, CancellationToken.None, intencion.Id, item.ClientItemId,
                 If(intencion.ContextoOriginal Is Nothing, Nothing, intencion.ContextoOriginal.OperationId), contexto.IdTarea,
-                If(intencion.ContextoOriginal Is Nothing, Nothing, intencion.ContextoOriginal.Radicado), item.IdentidadExterna.ExternalKey).GetAwaiter().GetResult()
+                If(intencion.ContextoOriginal Is Nothing, Nothing, intencion.ContextoOriginal.Radicado), If(intencion.ContextoOriginal Is Nothing, Nothing, intencion.ContextoOriginal.ProviderReference), If(intencion.ContextoOriginal Is Nothing, Nothing, intencion.ContextoOriginal.Capability)).GetAwaiter().GetResult()
             If item.ContenidoDescargado Is Nothing OrElse item.ContenidoDescargado.Length = 0 Then Return Fallo("EMPTY_EXTERNAL_RESOURCE", True)
             Dim sii = TryCast(resolved.Cliente, SiiImportProvider)
             If sii IsNot Nothing Then item.MetadatosSii = sii.ResolveStorageMetadataAsync(item.IdentidadExterna.ExternalKey,
                 item.CorrelationId, CancellationToken.None, intencion.Id, item.ClientItemId,
                 If(intencion.ContextoOriginal Is Nothing, Nothing, intencion.ContextoOriginal.OperationId), contexto.IdTarea,
-                If(intencion.ContextoOriginal Is Nothing, Nothing, intencion.ContextoOriginal.Radicado), item.IdentidadExterna.ExternalKey).GetAwaiter().GetResult()
+                If(intencion.ContextoOriginal Is Nothing, Nothing, intencion.ContextoOriginal.Radicado), If(intencion.ContextoOriginal Is Nothing, Nothing, intencion.ContextoOriginal.ProviderReference)).GetAwaiter().GetResult()
             Return Exito()
         Catch
             Return Fallo("EXTERNAL_DOWNLOAD_FAILED", True)
@@ -180,13 +180,17 @@ Public NotInheritable Class StoreImportExecutionStep
             .IdTipoListaChequeo = documentType.IdTipoListaChequeo,
             .TipoAlmacenamiento = 2, .NombreClaseFormatoDocumento = metadata.NombreClaseFormatoDocumento,
             .NombreArchivoOrigen = item.NombreArchivo, .FormatoProveedor = If(item.MetadatosSii Is Nothing, Nothing, item.MetadatosSii.Formato),
-            .TipoContenidoOrigen = item.TipoContenido}
+            .TipoContenidoOrigen = item.TipoContenido, .Capability = intencion.ContextoOriginal.Capability,
+            .ProviderReference = intencion.ContextoOriginal.ProviderReference, .ExternalKey = item.IdentidadExterna.ExternalKey,
+            .IdTramite = intencion.ContextoOriginal.IdTramite, .MetadatosSii = item.MetadatosSii}
             If item.MetadatosSii Is Nothing Then Return Fallo("SII_STORAGE_METADATA_UNAVAILABLE", True)
+            Dim isEnlase = String.Equals(intencion.ContextoOriginal.Capability,
+                SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase)
             Dim receipt As String = Nothing, taskBarcode As String = Nothing
             If New Class_DAT_ADIC_TAR().SolicitaReciboCodigoBarrasSII(item.IdTareaDestino, metadata.NombreRutaWorkflow,
                 intencion.ContextoOriginal.IdRuta, receipt, taskBarcode) <> "YES" OrElse String.IsNullOrWhiteSpace(receipt) OrElse
                 String.IsNullOrWhiteSpace(taskBarcode) Then Return Fallo("SII_RECEIPT_UNAVAILABLE", True)
-            If String.IsNullOrWhiteSpace(item.MetadatosSii.RazonSocial) AndAlso
+            If Not isEnlase AndAlso String.IsNullOrWhiteSpace(item.MetadatosSii.RazonSocial) AndAlso
                item.EstadoRelacion <> EstadoEfectoExpedienteImportacion.NoAplica Then
                 Dim subject As StruSiiCahcheInscripcion = Nothing
                 Dim subjectResult = New ClassConsultaExpedienteSII().SolicitaEstructuraExpedienteSII(
@@ -199,7 +203,9 @@ Public NotInheritable Class StoreImportExecutionStep
                 item.MetadatosSii.NitCedula = subject.NitIdentificacion
             End If
             command.Radicado = receipt
-            command.Campos = BuildSiiFields(metadata.NombreGabinete, taskBarcode, receipt, item.MetadatosSii)
+            command.Campos = If(isEnlase,
+                New List(Of CampoAlmacenamientoImportacion)(),
+                BuildSiiFields(metadata.NombreGabinete, taskBarcode, receipt, item.MetadatosSii))
         Catch ex As Exception
             Return FalloDiagnostico("DOCUMENT_STORAGE_PREPARATION_FAILED", ex.Message)
         End Try
@@ -223,7 +229,7 @@ Public NotInheritable Class StoreImportExecutionStep
         AddOptionalField(fields, "MATRICULA", Digits(enrollment))
         AddOptionalField(fields, "RAZONSOCIAL", Limit(sii.RazonSocial, If(String.Equals(cabinet, "RUP", StringComparison.OrdinalIgnoreCase), 40, 120)))
         AddOptionalField(fields, "NITCEDULA", Limit(sii.NitCedula, If(String.Equals(cabinet, "RUP", StringComparison.OrdinalIgnoreCase), 40, 20)))
-        AddField(fields, "LIBRO", Digits(sii.Libro.Replace("RM", "").Replace("RE", "").Replace("RP", "")))
+        AddField(fields, "LIBRO", Digits(If(sii.Libro, String.Empty).Replace("RM", "").Replace("RE", "").Replace("RP", "")))
         AddField(fields, "INSCRIPCION", Digits(sii.Registro)) : AddField(fields, "RECIBOCAJA", Limit(receipt, 20))
         Dim dateField = If(String.Equals(cabinet, "ESAL", StringComparison.OrdinalIgnoreCase), "FECHAINSCRIP", "FECHAREGISTR")
         AddField(fields, dateField, SiiDate(sii.Fecha)) : AddField(fields, "ACTO", Digits(sii.Acto))
@@ -265,6 +271,77 @@ Public NotInheritable Class StoreImportExecutionStep
     End Function
 End Class
 
+Public NotInheritable Class VerifyStoredImportExecutionStep
+    Implements IImportExecutionStep
+
+    Private ReadOnly _repository As IImportReconciliationRepository
+
+    Public Sub New(ByVal repository As IImportReconciliationRepository)
+        If repository Is Nothing Then Throw New ArgumentNullException("repository")
+        _repository = repository
+    End Sub
+
+    Public ReadOnly Property FaseConfirmada As FaseImportacionServicio Implements IImportExecutionStep.FaseConfirmada
+        Get
+            Return FaseImportacionServicio.Reconciliada
+        End Get
+    End Property
+
+    Public Function Ejecutar(ByVal contexto As ContextoImportacionServicio,
+                             ByVal intencion As IntencionImportacionServicio,
+                             ByVal item As ResultadoElementoImportacion) As ResultadoFaseImportacion Implements IImportExecutionStep.Ejecutar
+        If contexto Is Nothing OrElse intencion Is Nothing OrElse item Is Nothing OrElse
+           item.IdentidadExterna Is Nothing OrElse Not item.IdDocumento.HasValue Then
+            Return Incierto("ENLASE_STORAGE_EVIDENCE_INVALID")
+        End If
+        Try
+            Dim snapshot = _repository.ObtenerItem(contexto, intencion.Id,
+                item.IdentidadExterna.ProviderId, item.IdentidadExterna.ExternalKey)
+            If snapshot Is Nothing OrElse snapshot.Items Is Nothing OrElse snapshot.Items.Count <> 1 Then
+                Return Incierto("ENLASE_STORAGE_EVIDENCE_UNAVAILABLE")
+            End If
+            Dim evidence = snapshot.Items(0)
+            If Not evidence.IdDocumento.HasValue OrElse evidence.IdDocumento.Value <> item.IdDocumento.Value Then
+                Return Incierto("ENLASE_STORAGE_EVIDENCE_MISMATCH")
+            End If
+            If evidence.CantidadDocumentos <> 1 OrElse evidence.CantidadRelaciones <> 1 OrElse
+               evidence.CantidadRelacionesOtraTarea <> 0 Then
+                Return Incierto("ENLASE_STORAGE_RELATION_INCONSISTENT")
+            End If
+            If Not evidence.EvidenciaFisicaConfirmada Then
+                Return New ResultadoFaseImportacion With {
+                    .Codigo = "DOCUMENT_PHYSICAL_RESOURCE_MISSING",
+                    .MensajeVisible = "El registro existe, pero el recurso físico no está disponible.",
+                    .PersistenciaConocida = True,
+                    .Reintentable = False,
+                    .IdDocumento = item.IdDocumento,
+                    .Recuperable = True,
+                    .EvidenciaFisicaConfirmada = False}
+            End If
+            item.EstadoAlmacenamiento = EstadoEfectoExpedienteImportacion.Confirmado
+            item.EstadoRelacion = EstadoEfectoExpedienteImportacion.NoAplica
+            item.EstadoIndice = EstadoEfectoExpedienteImportacion.Confirmado
+            item.EstadoCache = EstadoEfectoExpedienteImportacion.NoAplica
+            Return New ResultadoFaseImportacion With {
+                .Exitoso = True,
+                .PersistenciaConocida = True,
+                .Reintentable = False,
+                .IdDocumento = item.IdDocumento,
+                .EvidenciaFisicaConfirmada = True}
+        Catch
+            Return Incierto("ENLASE_STORAGE_EVIDENCE_UNAVAILABLE")
+        End Try
+    End Function
+
+    Private Shared Function Incierto(ByVal codigo As String) As ResultadoFaseImportacion
+        Return New ResultadoFaseImportacion With {
+            .Codigo = codigo,
+            .MensajeVisible = "No fue posible confirmar el resultado; se requiere reconciliación.",
+            .PersistenciaConocida = False,
+            .Reintentable = False,
+            .EvidenciaFisicaConfirmada = False}
+    End Function
+End Class
 Public NotInheritable Class CompleteImportExecutionStep
     Implements IImportExecutionStep
     Private ReadOnly _phase As FaseImportacionServicio

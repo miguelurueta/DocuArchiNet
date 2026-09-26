@@ -242,7 +242,9 @@ function createSafeEvidence({ plan, result, before, after, failureCode, resource
   if (!Array.isArray(assertions) || assertions.length > 18 || assertions.some((assertion) => {
     const keys = assertion && typeof assertion === 'object' ? Object.keys(assertion).sort() : [];
     return keys.join(',') !== 'code,expectedCount,id,observedCount,scenario,status' ||
-      !/^DOC67-E2E-(?:0[1-9]|1[0-8])$/.test(assertion.id) || assertion.scenario !== plan.scenario.id ||
+      !((/^DOC67-E2E-(?:0[1-9]|1[0-8])$/.test(assertion.id) && assertion.scenario !== 'import-sii-enlase-execution') ||
+        (/^DOC81-E2E-0[1-6]$/.test(assertion.id) && assertion.scenario === 'import-sii-enlase-execution')) ||
+      assertion.scenario !== plan.scenario.id ||
       !['passed', 'failed', 'blocked'].includes(assertion.status) ||
       !/^ASSERTION_[A-Z_]{3,80}$/.test(assertion.code) ||
       !Number.isSafeInteger(assertion.expectedCount) || assertion.expectedCount < 0 ||

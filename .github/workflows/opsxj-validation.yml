@@ -14,6 +14,7 @@ on:
       - "workflow/Webworkflow.aspx.vb"
       - "tests/doc72-technical-documentation.test.cjs"
       - "tests/doc80-technical-documentation.test.cjs"
+      - "tests/doc81-technical-documentation.test.cjs"
       - "tools/validation/Validate-Doc72DotNetSymbols.ps1"
       - "tools/validation/Doc72SourceValidator/**"
       - ".github/workflows/opsxj-validation.yml"
@@ -59,5 +60,10 @@ jobs:
       - name: Validate DOC-80 .NET signatures with Roslyn
         run: dotnet run --project ./tools/validation/Doc72SourceValidator/Doc72SourceValidator.csproj -- ./Doc/Actualizacion/workflow/ImportarServiciWebEnlace/DOC-80-capacidad-consulta-preview/diagram-contract.json .
 
+      - name: Validate DOC-81 text diagrams and documentation contract
+        run: node --test tests/doc81-technical-documentation.test.cjs
+
+      - name: Validate DOC-81 .NET signatures with Roslyn
+        run: dotnet run --project ./tools/validation/Doc72SourceValidator/Doc72SourceValidator.csproj -- ./Doc/Actualizacion/workflow/ImportarServiciWebEnlace/DOC-81-preparacion-persistencia-reconciliacion/diagram-contract.json .
       - name: Validate OpenSpec changes
         run: npx --yes @fission-ai/openspec@1.7.0 validate --all --strict

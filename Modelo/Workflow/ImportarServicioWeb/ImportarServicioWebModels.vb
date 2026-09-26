@@ -11,7 +11,9 @@ Public NotInheritable Class ContextoIntencionImportacion
     Public Property IdRuta As Integer
     Public Property IdTramite As Integer
     Public Property ProviderId As String
+    Public Property Capability As String
     Public Property Radicado As String
+    Public Property ProviderReference As String
 End Class
 
 Public NotInheritable Class MetadatosAlmacenamientoImportacion
@@ -33,6 +35,7 @@ Public NotInheritable Class TipoDocumentalCatalogoImportacion
     Public Property IdTipoDocumentalTrd As Integer
     Public Property Nombre As String
     Public Property Obligatorio As Boolean
+    Public Property Predeterminado As Boolean
     Public Property Orden As Integer
 End Class
 
@@ -214,6 +217,7 @@ Public Enum ConsistenciaDocumentoImportacion
     NoConfirmado
     Confirmado
     RelacionAusente
+    RecursoFisicoAusente
     RelacionDuplicada
     TareaDistinta
     ResultadoIncierto
@@ -253,6 +257,8 @@ Public Class SnapshotItemReconciliacionImportacion
     Public Property CantidadDocumentos As Integer
     Public Property CantidadRelaciones As Integer
     Public Property CantidadRelacionesOtraTarea As Integer
+    Public Property EvidenciaFisicaConfirmada As Boolean
+    Public Property Recuperable As Boolean
 End Class
 
 Public Class ResultadoFaseImportacion
@@ -262,6 +268,8 @@ Public Class ResultadoFaseImportacion
     Public Property IdDocumento As Nullable(Of Long)
     Public Property Codigo As String
     Public Property MensajeVisible As String
+    Public Property EvidenciaFisicaConfirmada As Boolean
+    Public Property Recuperable As Boolean
 End Class
 
 Public Class TransicionImportacion
@@ -551,6 +559,7 @@ Public Class ContextoImportacionServicio
     Private ReadOnly _idUsuarioGestion As Integer
     Private ReadOnly _idEmpresaGestion As Integer
     Private ReadOnly _nombreRutaWorkflow As String
+    Private ReadOnly _capability As String
 
     Public Sub New(ByVal idUsuario As Integer,
                    ByVal idGrupo As Integer,
@@ -562,7 +571,8 @@ Public Class ContextoImportacionServicio
                    ByVal permiteImportar As Boolean,
                    Optional ByVal idUsuarioGestion As Integer = 0,
                    Optional ByVal idEmpresaGestion As Integer = 0,
-                   Optional ByVal nombreRutaWorkflow As String = Nothing)
+                   Optional ByVal nombreRutaWorkflow As String = Nothing,
+                   Optional ByVal capability As String = Nothing)
         _idUsuario = idUsuario
         _idGrupo = idGrupo
         _loginUsuario = loginUsuario
@@ -574,6 +584,7 @@ Public Class ContextoImportacionServicio
         _idUsuarioGestion = idUsuarioGestion
         _idEmpresaGestion = idEmpresaGestion
         _nombreRutaWorkflow = If(nombreRutaWorkflow, String.Empty).Trim()
+        _capability = If(capability, String.Empty).Trim().ToUpperInvariant()
     End Sub
 
     Public ReadOnly Property IdUsuario As Integer
@@ -639,6 +650,12 @@ Public Class ContextoImportacionServicio
     Public ReadOnly Property NombreRutaWorkflow As String
         Get
             Return _nombreRutaWorkflow
+        End Get
+    End Property
+
+    Public ReadOnly Property Capability As String
+        Get
+            Return _capability
         End Get
     End Property
 End Class

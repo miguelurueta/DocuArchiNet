@@ -7327,7 +7327,8 @@ Public Class ClassAlmacenamiento
                                                             ByVal CDlistaAnexosSII As CDlistaAnexosSII,
                                                             ByVal NombreClaseDocumento As String,
                                                             ByRef IdImagenAlamacenada As Integer,
-                                                            ByRef EstructuraDatosImagen As stru_datos_image_lista) As String
+                                                            ByRef EstructuraDatosImagen As stru_datos_image_lista,
+                                                            Optional ByVal RutaArchivoPreparada As String = Nothing) As String
         '-----------------------------------------------------------------------------------------------
         'Funcion : Prepara la estructura para el almacenamineto de los anexos de integración SII
         '          
@@ -7388,36 +7389,41 @@ Public Class ClassAlmacenamiento
                 Exit Function
             End If
             Dim stru_datos_image_lista As stru_datos_image_lista = Nothing
-            Dim RutaVirtual As String = "../Temp_Image/" & HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION").ToString & "/DONWLOAD/"
-            Dim RutaFisica As String = HttpContext.Current.Server.MapPath(RutaVirtual)
-            If Directory.Exists(RutaFisica) = False Then
-                Directory.CreateDirectory(RutaFisica)
-            End If
-            Dim FormatoFile As String = ""
-            If CDlistaAnexosSII.formato = "" Then
-                FormatoFile = ".PDF"
+            Dim ArchivoDonwload As String = Nothing
+            If Not String.IsNullOrWhiteSpace(RutaArchivoPreparada) Then
+                ArchivoDonwload = Path.GetFullPath(RutaArchivoPreparada)
+                If Not File.Exists(ArchivoDonwload) Then
+                    PreAlmacenaDocumentoAnexosEnlaceIntegracionSII = "El archivo preparado no está disponible para almacenamiento."
+                    Exit Function
+                End If
             Else
-                If InStr(CDlistaAnexosSII.formato, ".") = 0 Then
+                Dim RutaVirtual As String = "../Temp_Image/" & HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION").ToString & "/DONWLOAD/"
+                Dim RutaFisica As String = HttpContext.Current.Server.MapPath(RutaVirtual)
+                If Directory.Exists(RutaFisica) = False Then
+                    Directory.CreateDirectory(RutaFisica)
+                End If
+                Dim FormatoFile As String = ""
+                If CDlistaAnexosSII.formato = "" Then
+                    FormatoFile = ".PDF"
+                ElseIf InStr(CDlistaAnexosSII.formato, ".") = 0 Then
                     FormatoFile = "." & CDlistaAnexosSII.formato
                 Else
                     FormatoFile = CDlistaAnexosSII.formato
                 End If
-            End If
-            Dim Archivo As String = HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION").ToString & "_doc_adjunto_" & FormatoFile
-            Dim ArchivoDonwload As String = RutaFisica & Archivo
-            If File.Exists(ArchivoDonwload) Then
-                Kill(ArchivoDonwload)
-            End If
-            Dim ObJectElement As Object = Nothing
-            Dim Class_file_byte As New Class_file_byte
-            Result = Class_file_byte.DownloadFileViaRestAPI(CDlistaAnexosSII.url,
-                                                            ObJectElement,
-                                                            "MyDocumentLib",
-                                                            Archivo,
-                                                            RutaFisica)
-            If Result <> "YES" Then
-                PreAlmacenaDocumentoAnexosEnlaceIntegracionSII = "Imposible descargar el anexo desde el servicio web SII. La operación no pudo completarse debido al siguiente mensaje:" & Result
-                Exit Function
+                Dim Archivo As String = HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION").ToString & "_doc_adjunto_" & FormatoFile
+                ArchivoDonwload = RutaFisica & Archivo
+                If File.Exists(ArchivoDonwload) Then Kill(ArchivoDonwload)
+                Dim ObJectElement As Object = Nothing
+                Dim Class_file_byte As New Class_file_byte
+                Result = Class_file_byte.DownloadFileViaRestAPI(CDlistaAnexosSII.url,
+                                                                ObJectElement,
+                                                                "MyDocumentLib",
+                                                                Archivo,
+                                                                RutaFisica)
+                If Result <> "YES" Then
+                    PreAlmacenaDocumentoAnexosEnlaceIntegracionSII = "Imposible descargar el anexo desde el servicio web SII. La operación no pudo completarse debido al siguiente mensaje:" & Result
+                    Exit Function
+                End If
             End If
             HttpContext.Current.Session.Item("WF_RUTA_TEMPO_ADJUNTA") = ArchivoDonwload
             '////------------------------Asigna valores y campos ----------------------///

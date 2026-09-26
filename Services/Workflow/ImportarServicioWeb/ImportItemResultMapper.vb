@@ -4,12 +4,15 @@ Public NotInheritable Class ImportItemResultMapper
     Public Function Map(ByVal item As SnapshotItemReconciliacionImportacion, ByVal taskId As Long) As ImportItemResultDto
         If item Is Nothing Then Throw New ArgumentNullException("item")
         Dim consistency = Classify(item, taskId)
-        Dim dto As New ImportItemResultDto With {.ClientItemId=item.ClientItemId,.ExternalKey=item.ExternalKey,.DocumentId=item.IdDocumento,.TaskId=taskId,.ReachedPhase=item.Fase.ToString(),.PersistenceKnown=item.PersistenciaConocida,.CorrelationId=item.CorrelationId,.DocumentName=item.NombreDocumento,.ContentType=item.TipoContenido,.Retryable=item.Reintentable AndAlso item.PersistenciaConocida AndAlso Not item.IdDocumento.HasValue}
+        Dim dto As New ImportItemResultDto With {.ClientItemId=item.ClientItemId,.ExternalKey=item.ExternalKey,.DocumentId=item.IdDocumento,.TaskId=taskId,.ReachedPhase=item.Fase.ToString(),.PersistenceKnown=item.PersistenciaConocida,.CorrelationId=item.CorrelationId,.DocumentName=item.NombreDocumento,.ContentType=item.TipoContenido,.Retryable=item.Reintentable AndAlso item.PersistenciaConocida AndAlso Not item.IdDocumento.HasValue,.EvidenceStatus="Unverified",.RecoveryAllowed=False}
         Select Case consistency
             Case ConsistenciaDocumentoImportacion.Confirmado
-                dto.Status="Disponible" : dto.Message="Documento disponible."
+                dto.Status="Disponible" : dto.Message="Documento disponible." : dto.PersistenceKnown=True : dto.EvidenceStatus="Confirmed"
+            Case ConsistenciaDocumentoImportacion.RecursoFisicoAusente
+                dto.Status="Recuperable" : dto.ErrorCode="DOCUMENT_PHYSICAL_RESOURCE_MISSING" : dto.Message="El registro existe, pero el recurso físico no está disponible."
+                dto.EvidenceStatus="Missing" : dto.RecoveryAllowed=True : dto.Retryable=False
             Case ConsistenciaDocumentoImportacion.ResultadoIncierto
-                dto.Status=If(item.Fase=FaseImportacionServicio.ResultadoIncierto,"ResultadoIncierto","Verificando") : dto.ErrorCode="IMPORT_RESULT_UNCERTAIN" : dto.Message="Se está verificando el resultado."
+                dto.Status=If(item.Fase=FaseImportacionServicio.ResultadoIncierto,"ResultadoIncierto","Verificando") : dto.ErrorCode="IMPORT_RESULT_UNCERTAIN" : dto.Message="Se está verificando el resultado." : dto.Retryable=False : dto.EvidenceStatus="Unknown"
             Case ConsistenciaDocumentoImportacion.RelacionDuplicada
                 dto.Status="Inconsistente" : dto.ErrorCode="DOCUMENT_RELATION_DUPLICATED" : dto.Message="La relación documental requiere revisión."
             Case ConsistenciaDocumentoImportacion.TareaDistinta
@@ -86,17 +89,16 @@ Public NotInheritable Class ImportItemResultMapper
     End Function
 
     Private Shared Function Classify(ByVal item As SnapshotItemReconciliacionImportacion, ByVal taskId As Long) As ConsistenciaDocumentoImportacion
-        If item.Fase=FaseImportacionServicio.ResultadoIncierto OrElse (item.IdDocumento.HasValue AndAlso Not item.PersistenciaConocida) Then Return ConsistenciaDocumentoImportacion.ResultadoIncierto
         If item.IdTareaDestino<>taskId OrElse item.CantidadRelacionesOtraTarea>0 Then Return ConsistenciaDocumentoImportacion.TareaDistinta
-        If item.IdDocumento.HasValue AndAlso item.PersistenciaConocida Then
-            If item.CantidadDocumentos<>1 Then Return ConsistenciaDocumentoImportacion.RelacionAusente
-            If item.CantidadRelaciones=0 Then Return ConsistenciaDocumentoImportacion.RelacionAusente
+        If item.IdDocumento.HasValue Then
+            If item.CantidadDocumentos<>1 OrElse item.CantidadRelaciones=0 Then Return ConsistenciaDocumentoImportacion.RelacionAusente
             If item.CantidadRelaciones>1 Then Return ConsistenciaDocumentoImportacion.RelacionDuplicada
+            If Not item.EvidenciaFisicaConfirmada Then Return ConsistenciaDocumentoImportacion.RecursoFisicoAusente
             Return ConsistenciaDocumentoImportacion.Confirmado
         End If
+        If item.Fase=FaseImportacionServicio.ResultadoIncierto OrElse Not item.PersistenciaConocida Then Return ConsistenciaDocumentoImportacion.ResultadoIncierto
         Return ConsistenciaDocumentoImportacion.NoConfirmado
     End Function
-
     Private Shared Function VisibleStatus(ByVal phase As FaseImportacionServicio) As String
         Select Case phase
             Case FaseImportacionServicio.Completada, FaseImportacionServicio.Reconciliada : Return "Completado"

@@ -1,0 +1,29 @@
+@startuml DOC81_D04_Reconciliacion
+' Convención: CODE=símbolo resoluble | EXT=actor externo | CONCEPT=estado conceptual
+' Fuentes: Services/Workflow/ImportarServicioWeb/ServicioReconciliacionImportacion.vb | Infrastructure/Repositories/Workflow/ImportarServicioWeb/MySqlImportReconciliationRepository.vb | Services/Workflow/ImportarServicioWeb/ImportItemResultMapper.vb
+' Referencias CODE: VB.Reconciliation.ReconcileImportIntent | VB.Repository.ObtenerItem
+start
+:CODE:ServicioReconciliacionImportacion.ReconcileImportIntent;
+if (contexto e intención autorizados?) then (sí)
+  :CODE:MySqlImportReconciliationRepository.ObtenerItem;
+  if (ID y relación única de la misma tarea?) then (sí)
+    if (recurso físico existe exactamente una vez?) then (sí)
+      :CONCEPT:Disponible;
+    else (no)
+      :CONCEPT:Recuperable;
+      :ocultar DocumentId;
+    endif
+  else (no)
+    if (relación duplicada/cruzada?) then (sí)
+      :CONCEPT:Inconsistente;
+    else (no verificable)
+      :CONCEPT:ResultadoIncierto;
+    endif
+    :ocultar DocumentId;
+  endif
+else (no)
+  :IMPORT_INTENT_UNAVAILABLE;
+endif
+:agregar Completado/Parcial/Recuperable/ResultadoIncierto;
+stop
+@enduml

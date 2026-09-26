@@ -10,7 +10,7 @@ const hash = (content) => {
 };
 
 test('ClassAlmacenamiento y JSProgresBar conservan sus huellas aprobadas', () => {
-  assert.equal(hash(fs.readFileSync('workflow/ClassAlmacenamiento.vb', 'utf8')), 'b875d24f0a9ff63f24a4fff96f637cb04afb1405');
+  assert.equal(hash(fs.readFileSync('workflow/ClassAlmacenamiento.vb', 'utf8')), 'b8b5b6ea0b48626e8e8ce9fe3031fbe6a2eeefa1');
   const progress = fs.readFileSync('js/java_general/JSProgresBar.js', 'utf8');
   assert.doesNotMatch(progress, /WebServiceImportarServicioWebModern|ExecuteImportIntent|CreateImportIntent/);
 });

@@ -1,0 +1,25 @@
+@startuml DOC81_D03_Estados
+' Convención: CODE=símbolo resoluble | EXT=actor externo | CONCEPT=estado conceptual
+' Fuentes: Services/Workflow/ImportarServicioWeb/ImportIntentStateMachine.vb | Services/Workflow/ImportarServicioWeb/ImportServiceOrchestrator.vb
+' Referencias CODE: VB.Orchestrator.Execute
+[*] --> Creada
+Creada --> Validada
+Validada --> RecursoObtenido
+RecursoObtenido --> ExpedientePreparado
+ExpedientePreparado --> IndicesActualizados
+IndicesActualizados --> DocumentoAlmacenado
+DocumentoAlmacenado --> Reconciliada : evidencia lógica y física
+Reconciliada --> Completada
+Creada --> FallidaAntesDePersistir
+Validada --> FallidaAntesDePersistir
+RecursoObtenido --> Parcial
+ExpedientePreparado --> Parcial
+IndicesActualizados --> Parcial
+DocumentoAlmacenado --> Parcial : físico ausente recuperable
+DocumentoAlmacenado --> ResultadoIncierto : contradicción/no verificable
+ResultadoIncierto --> Reconciliada : reconciliación explícita
+Completada --> [*]
+note right of ResultadoIncierto
+CONCEPT:Retry automático prohibido
+end note
+@enduml

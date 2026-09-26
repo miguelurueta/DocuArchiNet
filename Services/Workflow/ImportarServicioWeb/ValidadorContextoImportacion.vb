@@ -43,7 +43,8 @@ Public Class ValidadorContextoImportacion
            contexto.IdGrupo <> persistido.IdGrupo OrElse contexto.IdTarea <> persistido.IdTarea OrElse
            contexto.IdRuta <> persistido.IdRuta OrElse contexto.IdTramite <> persistido.IdTramite OrElse
            Not String.Equals(contexto.LoginUsuario, persistido.LoginUsuario, StringComparison.OrdinalIgnoreCase) OrElse
-           Not String.Equals(contexto.ProviderId, persistido.ProviderId, StringComparison.OrdinalIgnoreCase) Then
+           Not String.Equals(contexto.ProviderId, persistido.ProviderId, StringComparison.OrdinalIgnoreCase) OrElse
+           Not String.Equals(contexto.Capability, persistido.Capability, StringComparison.OrdinalIgnoreCase) Then
             Return ResultadoValidacionContextoImportacion.Fallido("PERSISTED_CONTEXT_MISMATCH", "La intención no corresponde al contexto autenticado.")
         End If
         Return ResultadoValidacionContextoImportacion.Exitoso()

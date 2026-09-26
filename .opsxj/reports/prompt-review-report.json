@@ -1,21 +1,13 @@
 {
-  "status": "pass",
-  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\workflow\\ImportarServiciWebEnlace\\Prompt\\01-capacidad-consulta-preview-anexos-sii.md",
-  "reviewedAtUtc": "2026-09-24T16:17:21.695Z",
-  "technologyProfile": "legacy-webforms-vb",
+  "status": "error",
+  "promptPath": "DOC-81",
+  "reviewedAtUtc": "2026-09-26T14:50:23.704Z",
   "summary": {
     "blockers": 0,
-    "major": 1,
+    "major": 0,
     "minor": 0,
     "info": 0
   },
-  "findings": [
-    {
-      "severity": "MAJOR",
-      "code": "ANTI_REGRESSION_DETAIL_REQUIRED",
-      "message": "El prompt alude a comportamiento existente pero no define reglas de antirregresion.",
-      "expected": "Reglas explicitas de no romper, preservar, no llamar o no usar workarounds.",
-      "evidence": null
-    }
-  ]
+  "findings": [],
+  "error": "Multiple prompts found for 'DOC-81'. Provide an explicit path. Candidates: D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\workflow\\ImportarServiciWebEnlace\\DOC-81-preparacion-persistencia-reconciliacion\\04-PRUEBAS-SEGURIDAD-ROLLBACK.md; D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\workflow\\ImportarServiciWebEnlace\\DOC-81-preparacion-persistencia-reconciliacion\\README.md; D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Tecnica\\Opsxj\\doc-81-reconciliacion-persistencia-servicio-enlace-sii\\01-ResumenTecnico.md; D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Tecnica\\Opsxj\\doc-81-reconciliacion-persistencia-servicio-enlace-sii\\02-ImpactoUI.md; D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Tecnica\\Opsxj\\doc-81-reconciliacion-persistencia-servicio-enlace-sii\\03-ServiciosYReglas.md; D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Tecnica\\Opsxj\\doc-81-reconciliacion-persistencia-servicio-enlace-sii\\04-ContratosIntegracion.md; D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Tecnica\\Opsxj\\doc-81-reconciliacion-persistencia-servicio-enlace-sii\\05-PruebasEvidencia.md"
 }

@@ -1,6 +1,7 @@
 Imports System
 Imports System.Collections.Generic
 Imports System.Data
+Imports System.Text.RegularExpressions
 Imports MySql.Data.MySqlClient
 
 ' Todas las lecturas de reconciliación son parametrizadas y read-only.
@@ -32,7 +33,7 @@ Public NotInheritable Class MySqlImportReconciliationRepository
     Private Function ReadSnapshot(ByVal contexto As ContextoImportacionServicio, ByVal intentId As String, ByVal providerId As String, ByVal externalKey As String) As SnapshotReconciliacionImportacion
         If contexto Is Nothing OrElse String.IsNullOrWhiteSpace(intentId) Then Return Nothing
         Dim filter = If(externalKey Is Nothing, String.Empty, " AND item.provider_id=@providerId AND item.external_key=@externalKey")
-        Dim sql = "SELECT intent.intent_id,intent.version_token,intent.status AS intent_status,intent.user_id,intent.group_id,intent.user_login,intent.task_id,intent.route_id,intent.procedure_id,intent.provider_id AS intent_provider," &
+        Dim sql = "SELECT intent.intent_id,intent.version_token,intent.status AS intent_status,intent.user_id,intent.group_id,intent.user_login,intent.task_id,intent.route_id,intent.procedure_id,intent.provider_id AS intent_provider,intent.capability,intent.radicado,intent.provider_reference," &
                   "item.client_item_id,item.provider_id,item.external_key,item.target_task_id,item.document_id," &
                   "item.file_name,item.content_type,item.status AS item_status," &
                   "item.persistence_known,item.retryable,item.error_code,item.visible_message,item.correlation_id," &
@@ -40,8 +41,8 @@ Public NotInheritable Class MySqlImportReconciliationRepository
                   "(SELECT COUNT(*) FROM workflow_import_intent_item same_item WHERE same_item.intent_id=item.intent_id AND same_item.document_id=item.document_id AND same_item.target_task_id=intent.task_id) AS relation_count," &
                   "(SELECT COUNT(*) FROM workflow_import_intent_item other_item WHERE other_item.document_id=item.document_id AND other_item.target_task_id<>intent.task_id) AS other_task_count " &
                   "FROM workflow_import_intent intent INNER JOIN workflow_import_intent_item item ON item.intent_id=intent.intent_id " &
-                  "WHERE intent.intent_id=@intentId AND intent.user_id=@userId AND intent.task_id=@taskId" & filter & " ORDER BY item.client_item_id"
-        Dim parameters As New List(Of IDataParameter) From {P("@intentId", intentId.Trim()), P("@userId", contexto.IdUsuario), P("@taskId", contexto.IdTarea)}
+                  "WHERE intent.intent_id=@intentId AND intent.user_id=@userId AND intent.task_id=@taskId AND intent.provider_id=@contextProvider AND intent.capability=@capability" & filter & " ORDER BY item.client_item_id"
+        Dim parameters As New List(Of IDataParameter) From {P("@intentId", intentId.Trim()), P("@userId", contexto.IdUsuario), P("@taskId", contexto.IdTarea), P("@contextProvider", contexto.ProviderId), P("@capability", If(contexto.Capability, String.Empty).Trim())}
         If externalKey IsNot Nothing Then parameters.Add(P("@providerId", providerId)) : parameters.Add(P("@externalKey", externalKey))
         Dim snapshot As SnapshotReconciliacionImportacion
         Try
@@ -111,7 +112,7 @@ Public NotInheritable Class MySqlImportReconciliationRepository
         Using connection = _docuarchiConnections.CreateOpenConnection(moduleContext)
             For Each item In snapshot.Items
                 If Not item.IdDocumento.HasValue Then Continue For
-                Dim relationSql = "SELECT ID_TAREA_WF FROM logdocuarchi WHERE id_tran=@documentId AND desc_op='Registra' AND MODULO_REGISTRO='WORKFLOW' " &
+                Dim relationSql = "SELECT ID_TAREA_WF,GABINETE FROM logdocuarchi WHERE id_tran=@documentId AND desc_op='Registra' AND MODULO_REGISTRO='WORKFLOW' " &
                     "AND GABINETE=(SELECT scoped.GABINETE FROM logdocuarchi scoped WHERE scoped.id_tran=@documentId AND scoped.desc_op='Registra' " &
                     "AND scoped.MODULO_REGISTRO='WORKFLOW' AND scoped.ID_TAREA_WF=@taskId LIMIT 1) LIMIT 3"
                 Dim relationParameters As New List(Of IDataParameter) From {P("@documentId", item.IdDocumento.Value), P("@taskId", snapshot.IdTareaOriginal)}
@@ -119,6 +120,8 @@ Public NotInheritable Class MySqlImportReconciliationRepository
                 item.CantidadDocumentos = relation.Total
                 item.CantidadRelaciones = relation.SameTask
                 item.CantidadRelacionesOtraTarea = relation.OtherTask
+                item.EvidenciaFisicaConfirmada = relation.SameTask = 1 AndAlso relation.OtherTask = 0 AndAlso
+                    DocumentoFisicoExiste(connection, relation.CabinetName, item.IdDocumento.Value)
                 Dim nameSql = "SELECT SEGUNDO_NOMBRE_DOCUMENTO FROM registro_producion_documental WHERE ID_DOCUMENTO_DOCUARCHI_ALMACEN=@documentId " &
                     "AND NOMBRE_GABINETE=(SELECT scoped.GABINETE FROM logdocuarchi scoped WHERE scoped.id_tran=@documentId AND scoped.desc_op='Registra' " &
                     "AND scoped.MODULO_REGISTRO='WORKFLOW' AND scoped.ID_TAREA_WF=@taskId LIMIT 1) LIMIT 2"
@@ -132,17 +135,48 @@ Public NotInheritable Class MySqlImportReconciliationRepository
         Dim result As New StorageRelation()
         While reader.Read()
             result.Total += 1
-            If Convert.ToInt64(reader("ID_TAREA_WF")) = taskId Then result.SameTask += 1 Else result.OtherTask += 1
+            If Convert.ToInt64(reader("ID_TAREA_WF")) = taskId Then
+                result.SameTask += 1
+                Dim cabinet = Convert.ToString(reader("GABINETE"))
+                If result.CabinetName.Length = 0 Then
+                    result.CabinetName = cabinet
+                ElseIf Not String.Equals(result.CabinetName, cabinet, StringComparison.OrdinalIgnoreCase) Then
+                    result.CabinetName = String.Empty
+                End If
+            Else
+                result.OtherTask += 1
+            End If
         End While
         Return result
     End Function
-
     Private NotInheritable Class StorageRelation
         Public Property Total As Integer
         Public Property SameTask As Integer
         Public Property OtherTask As Integer
+        Public Property CabinetName As String = String.Empty
     End Class
 
+    Private Function DocumentoFisicoExiste(ByVal connection As IDbConnection,
+                                            ByVal cabinetName As String,
+                                            ByVal documentId As Long) As Boolean
+        If connection Is Nothing OrElse documentId <= 0 OrElse Not SafeIdentifier(cabinetName) Then Return False
+        Dim sql = "SELECT ID FROM `" & cabinetName.Trim() & "` WHERE ID=@physicalDocumentId LIMIT 2"
+        Dim count = _executor.ExecuteReader(connection, Nothing, sql,
+            New List(Of IDataParameter) From {P("@physicalDocumentId", documentId)}, AddressOf CountPhysicalDocuments)
+        Return count = 1
+    End Function
+
+    Private Shared Function CountPhysicalDocuments(ByVal reader As IDataReader) As Integer
+        Dim count As Integer = 0
+        While reader.Read()
+            count += 1
+        End While
+        Return count
+    End Function
+
+    Private Shared Function SafeIdentifier(ByVal value As String) As Boolean
+        Return Not String.IsNullOrWhiteSpace(value) AndAlso Regex.IsMatch(value, "^[A-Za-z][A-Za-z0-9_]{0,63}$")
+    End Function
     Private Shared Function MapProductionRecord(ByVal reader As IDataReader) As ProductionRecord
         Dim result As New ProductionRecord()
         While reader.Read()
@@ -161,7 +195,7 @@ Public NotInheritable Class MySqlImportReconciliationRepository
         Dim result As SnapshotReconciliacionImportacion = Nothing
         While reader.Read()
             If result Is Nothing Then
-                result = New SnapshotReconciliacionImportacion With {.IntentId=Convert.ToString(reader("intent_id")),.VersionToken=Convert.ToString(reader("version_token")),.Fase=ParsePhase(reader("intent_status")),.IdUsuario=Convert.ToInt32(reader("user_id")),.IdTareaOriginal=Convert.ToInt64(reader("task_id")),.ProviderId=Convert.ToString(reader("intent_provider")),.ContextoOriginal=New ContextoIntencionImportacion With {.IdUsuario=Convert.ToInt32(reader("user_id")),.IdGrupo=Convert.ToInt32(reader("group_id")),.LoginUsuario=Convert.ToString(reader("user_login")),.IdTarea=Convert.ToInt64(reader("task_id")),.IdRuta=Convert.ToInt32(reader("route_id")),.IdTramite=Convert.ToInt32(reader("procedure_id")),.ProviderId=Convert.ToString(reader("intent_provider"))}}
+                result = New SnapshotReconciliacionImportacion With {.IntentId=Convert.ToString(reader("intent_id")),.VersionToken=Convert.ToString(reader("version_token")),.Fase=ParsePhase(reader("intent_status")),.IdUsuario=Convert.ToInt32(reader("user_id")),.IdTareaOriginal=Convert.ToInt64(reader("task_id")),.ProviderId=Convert.ToString(reader("intent_provider")),.ContextoOriginal=New ContextoIntencionImportacion With {.IdUsuario=Convert.ToInt32(reader("user_id")),.IdGrupo=Convert.ToInt32(reader("group_id")),.LoginUsuario=Convert.ToString(reader("user_login")),.IdTarea=Convert.ToInt64(reader("task_id")),.IdRuta=Convert.ToInt32(reader("route_id")),.IdTramite=Convert.ToInt32(reader("procedure_id")),.ProviderId=Convert.ToString(reader("intent_provider")),.Capability=Convert.ToString(reader("capability")),.Radicado=Convert.ToString(reader("radicado")),.ProviderReference=Convert.ToString(reader("provider_reference"))}}
             End If
             result.Items.Add(New SnapshotItemReconciliacionImportacion With {.ClientItemId=Convert.ToString(reader("client_item_id")),.ProviderId=Convert.ToString(reader("provider_id")),.ExternalKey=Convert.ToString(reader("external_key")),.IdTareaDestino=Convert.ToInt64(reader("target_task_id")),.IdDocumento=NullableLong(reader,"document_id"),.NombreDocumento=Convert.ToString(reader("file_name")),.TipoContenido=Convert.ToString(reader("content_type")),.Fase=ParsePhase(reader("item_status")),.PersistenciaConocida=Convert.ToBoolean(reader("persistence_known")),.Reintentable=Convert.ToBoolean(reader("retryable")),.CodigoError=Convert.ToString(reader("error_code")),.MensajeVisible=Convert.ToString(reader("visible_message")),.CorrelationId=Convert.ToString(reader("correlation_id")),.CantidadDocumentos=Convert.ToInt32(reader("document_count")),.CantidadRelaciones=Convert.ToInt32(reader("relation_count")),.CantidadRelacionesOtraTarea=Convert.ToInt32(reader("other_task_count"))})
         End While

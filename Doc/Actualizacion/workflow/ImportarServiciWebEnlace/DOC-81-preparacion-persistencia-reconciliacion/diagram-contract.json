@@ -1,0 +1,188 @@
+{
+    "name":  "DOC-81",
+    "version":  1,
+    "requiredDiagrams":  [
+                             {
+                                 "path":  "Diagramas/01-componentes.puml",
+                                 "kind":  "component",
+                                 "symbols":  [
+                                                 "VB.Endpoint.ExecuteImportIntent",
+                                                 "VB.Orchestrator.Execute",
+                                                 "VB.Storage.Almacenar"
+                                             ]
+                             },
+                             {
+                                 "path":  "Diagramas/02-ejecucion-secuencia.puml",
+                                 "kind":  "sequence",
+                                 "symbols":  [
+                                                 "VB.Endpoint.PreflightImport",
+                                                 "VB.Preflight.Preflight",
+                                                 "VB.Endpoint.CreateImportIntent",
+                                                 "VB.Intent.Crear",
+                                                 "VB.Endpoint.ExecuteImportIntent",
+                                                 "VB.Orchestrator.Execute",
+                                                 "VB.Download.Ejecutar",
+                                                 "VB.Store.Ejecutar",
+                                                 "VB.Verify.Ejecutar",
+                                                 "VB.Repository.ObtenerItem"
+                                             ]
+                             },
+                             {
+                                 "path":  "Diagramas/03-estados.puml",
+                                 "kind":  "state",
+                                 "symbols":  [
+                                                 "VB.Orchestrator.Execute"
+                                             ]
+                             },
+                             {
+                                 "path":  "Diagramas/04-reconciliacion-actividad.puml",
+                                 "kind":  "activity",
+                                 "symbols":  [
+                                                 "VB.Reconciliation.ReconcileImportIntent",
+                                                 "VB.Repository.ObtenerItem"
+                                             ]
+                             }
+                         ],
+    "dotnetSymbols":  {
+                          "VB.Endpoint.PreflightImport":  {
+                                                              "file":  "webservice/WebServiceImportarServicioWebModern.asmx.vb",
+                                                              "type":  "WebServiceImportarServicioWebModern",
+                                                              "method":  "PreflightImport",
+                                                              "parameters":  [
+                                                                                 "PreflightImportRequestDto"
+                                                                             ],
+                                                              "return":  "PreflightImportResponseDto"
+                                                          },
+                          "VB.Endpoint.CreateImportIntent":  {
+                                                                 "file":  "webservice/WebServiceImportarServicioWebModern.asmx.vb",
+                                                                 "type":  "WebServiceImportarServicioWebModern",
+                                                                 "method":  "CreateImportIntent",
+                                                                 "parameters":  [
+                                                                                    "CreateImportIntentRequestDto"
+                                                                                ],
+                                                                 "return":  "CreateImportIntentResponseDto"
+                                                             },
+                          "VB.Endpoint.ExecuteImportIntent":  {
+                                                                  "file":  "webservice/WebServiceImportarServicioWebModern.asmx.vb",
+                                                                  "type":  "WebServiceImportarServicioWebModern",
+                                                                  "method":  "ExecuteImportIntent",
+                                                                  "parameters":  [
+                                                                                     "ExecuteImportIntentRequestDto"
+                                                                                 ],
+                                                                  "return":  "ExecuteImportIntentResponseDto"
+                                                              },
+                          "VB.Preflight.Preflight":  {
+                                                         "file":  "Services/Workflow/ImportarServicioWeb/ServicioPreflightImportacion.vb",
+                                                         "type":  "ServicioPreflightImportacion",
+                                                         "method":  "Preflight",
+                                                         "parameters":  [
+                                                                            "ContextoImportacionServicio",
+                                                                            "PreflightImportRequestDto"
+                                                                        ],
+                                                         "return":  "PreflightImportResponseDto"
+                                                     },
+                          "VB.Intent.Crear":  {
+                                                  "file":  "Services/Workflow/ImportarServicioWeb/ServicioIntencionImportacion.vb",
+                                                  "type":  "ServicioIntencionImportacion",
+                                                  "method":  "Crear",
+                                                  "parameters":  [
+                                                                     "ContextoImportacionServicio",
+                                                                     "CreateImportIntentRequestDto"
+                                                                 ],
+                                                  "return":  "CreateImportIntentResponseDto"
+                                              },
+                          "VB.Orchestrator.Execute":  {
+                                                          "file":  "Services/Workflow/ImportarServicioWeb/ImportServiceOrchestrator.vb",
+                                                          "type":  "ImportServiceOrchestrator",
+                                                          "method":  "Execute",
+                                                          "parameters":  [
+                                                                             "ContextoImportacionServicio",
+                                                                             "ExecuteImportIntentRequestDto"
+                                                                         ],
+                                                          "return":  "ExecuteImportIntentResponseDto"
+                                                      },
+                          "VB.Download.Ejecutar":  {
+                                                       "file":  "Services/Workflow/ImportarServicioWeb/ImportExecutionSteps.vb",
+                                                       "type":  "DownloadImportExecutionStep",
+                                                       "method":  "Ejecutar",
+                                                       "parameters":  [
+                                                                          "ContextoImportacionServicio",
+                                                                          "IntencionImportacionServicio",
+                                                                          "ResultadoElementoImportacion"
+                                                                      ],
+                                                       "return":  "ResultadoFaseImportacion"
+                                                   },
+                          "VB.Store.Ejecutar":  {
+                                                    "file":  "Services/Workflow/ImportarServicioWeb/ImportExecutionSteps.vb",
+                                                    "type":  "StoreImportExecutionStep",
+                                                    "method":  "Ejecutar",
+                                                    "parameters":  [
+                                                                       "ContextoImportacionServicio",
+                                                                       "IntencionImportacionServicio",
+                                                                       "ResultadoElementoImportacion"
+                                                                   ],
+                                                    "return":  "ResultadoFaseImportacion"
+                                                },
+                          "VB.Verify.Ejecutar":  {
+                                                     "file":  "Services/Workflow/ImportarServicioWeb/ImportExecutionSteps.vb",
+                                                     "type":  "VerifyStoredImportExecutionStep",
+                                                     "method":  "Ejecutar",
+                                                     "parameters":  [
+                                                                        "ContextoImportacionServicio",
+                                                                        "IntencionImportacionServicio",
+                                                                        "ResultadoElementoImportacion"
+                                                                    ],
+                                                     "return":  "ResultadoFaseImportacion"
+                                                 },
+                          "VB.Storage.Almacenar":  {
+                                                       "file":  "Infrastructure/Workflow/ImportarServicioWeb/Storage/LegacyEnlaseImportDocumentStorageAdapter.vb",
+                                                       "type":  "LegacyEnlaseImportDocumentStorageAdapter",
+                                                       "method":  "Almacenar",
+                                                       "parameters":  [
+                                                                          "ComandoAlmacenamientoImportacion"
+                                                                      ],
+                                                       "return":  "ResultadoFaseImportacion"
+                                                   },
+                          "VB.Repository.ObtenerItem":  {
+                                                            "file":  "Infrastructure/Repositories/Workflow/ImportarServicioWeb/MySqlImportReconciliationRepository.vb",
+                                                            "type":  "MySqlImportReconciliationRepository",
+                                                            "method":  "ObtenerItem",
+                                                            "parameters":  [
+                                                                               "ContextoImportacionServicio",
+                                                                               "System.String",
+                                                                               "System.String",
+                                                                               "System.String"
+                                                                           ],
+                                                            "return":  "SnapshotReconciliacionImportacion"
+                                                        },
+                          "VB.Reconciliation.ReconcileImportIntent":  {
+                                                                          "file":  "Services/Workflow/ImportarServicioWeb/ServicioReconciliacionImportacion.vb",
+                                                                          "type":  "ServicioReconciliacionImportacion",
+                                                                          "method":  "ReconcileImportIntent",
+                                                                          "parameters":  [
+                                                                                             "ContextoImportacionServicio",
+                                                                                             "ReconcileImportIntentRequestDto"
+                                                                                         ],
+                                                                          "return":  "ReconcileImportIntentResponseDto"
+                                                                      }
+                      },
+    "dotnetTypes":  {
+
+                    },
+    "excludedKinds":  {
+                          "external":  [
+                                           "EXT:Cliente",
+                                           "EXT:Usuario Workflow",
+                                           "EXT:SII",
+                                           "EXT:MySQL Workflow/DocuArchi"
+                                       ],
+                          "conceptual":  [
+                                             "CONCEPT:Disponible",
+                                             "CONCEPT:Recuperable",
+                                             "CONCEPT:Inconsistente",
+                                             "CONCEPT:ResultadoIncierto"
+                                         ]
+                      },
+    "notation":  "PlantUML",
+    "umlStandard":  "UML 2"
+}

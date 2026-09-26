@@ -180,6 +180,43 @@ Public NotInheritable Class SiiExternalImportProviderClient
             taskId, radicado, selected.CodigoBarras, referenciaProveedor).ConfigureAwait(False)
     End Function
 
+    Public Async Function DownloadAnnexAsync(ByVal externalKey As String, ByVal providerReference As String,
+                                             ByVal correlationId As String, ByVal cancellationToken As CancellationToken,
+                                             Optional ByVal intentId As String = Nothing,
+                                             Optional ByVal clientItemId As String = Nothing,
+                                             Optional ByVal operationId As String = Nothing,
+                                             Optional ByVal taskId As Nullable(Of Long) = Nothing,
+                                             Optional ByVal radicado As String = Nothing) As Task(Of Byte())
+        If String.IsNullOrWhiteSpace(externalKey) Then Throw New ArgumentException("SII_ANNEX_ID_REQUIRED", "externalKey")
+        If Not taskId.HasValue OrElse taskId.Value <= 0 Then Throw New ArgumentException("SII_TASK_REQUIRED", "taskId")
+        ValidateAnnexContext(providerReference, correlationId)
+        Dim barcode = providerReference.Trim()
+        Dim source = Await QueryRadicadoAsync(barcode, correlationId, cancellationToken,
+            operationId, taskId.Value, externalKey.Trim()).ConfigureAwait(False)
+        Dim selected = SiiEnlaseAnnexContractMapper.Resolve(source, externalKey.Trim())
+        Dim resolved As New ResolvedImage With {
+            .Url = selected.Url,
+            .ContentType = selected.ContentType,
+            .CodigoBarras = barcode,
+            .Metadata = New MetadatosDocumentoSii With {
+                .IdAnexo = selected.IdAnexo,
+                .Formato = selected.Formato,
+                .TipoImagen = selected.Tipo,
+                .TipoAnexo = selected.TipoAnexo,
+                .TipoSirep = selected.TipoSirep,
+                .TipoDigitalizacion = selected.TipoDigitalizacion,
+                .IdentificadorImagen = selected.Identificador,
+                .FechaDocumento = selected.FechaDocumento,
+                .Origen = selected.Origen,
+                .Observaciones = selected.Observaciones,
+                .RazonSocial = selected.Nombre,
+                .NitCedula = selected.Identificacion,
+                .Matricula = selected.Matricula,
+                .Proponente = selected.Proponente}}
+        _resolvedMetadata(CacheKey(externalKey, correlationId)) = resolved.Metadata
+        Return Await DownloadSelectedAsync(resolved, correlationId, cancellationToken, intentId, clientItemId,
+            operationId, taskId, radicado, barcode, externalKey.Trim()).ConfigureAwait(False)
+    End Function
     Private Function DownloadSelectedAsync(ByVal selected As ResolvedImage, ByVal correlationId As String,
                                            ByVal cancellationToken As CancellationToken, Optional ByVal intentId As String = Nothing,
                                            Optional ByVal clientItemId As String = Nothing, Optional ByVal operationId As String = Nothing,

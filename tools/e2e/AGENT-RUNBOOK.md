@@ -4,6 +4,8 @@ Este runbook permite reutilizar las pruebas ASMX Workflow sin copiar credenciale
 
 ## Límites obligatorios
 
+No activar, editar ni limitar el gate fuera del runner aprobado y de una autorización explícita.
+
 - Ejecutar solo contra un ambiente de pruebas autorizado; nunca inferir autorización para producción.
 - Recibir URL, cuentas y acceso MySQL de solo lectura mediante secretos del entorno o instrucción expresa. No crear `.env` ni mostrar secretos, cookies o cadenas de conexión.
 - Reutilizar `tests/support/authenticated-workflow-session.cjs` para todo login E2E DOC-10/DOC-11/DOC-28/DOC-32/Notas. No enviar usuario, grupo, ruta, actividad ni permisos al ASMX salvo el destino que DOC-28 obtiene del preview actual al ejecutar.
@@ -226,3 +228,13 @@ npm.cmd --prefix tools/e2e run test:doc44:workflow-notes
 ```
 
 La evidencia de Notas solo conserva modo, códigos, conteos, latencias, banderas y huellas. No guarda el contenido de notas, credenciales, cookies, tokens, usuarios, destinos, cadenas de conexión ni cuerpos HTTP. Al cierre aplique todos los controles de la sección "Cierre de cada corrida": gate apagado, listas vacías y fallback legacy disponible.
+
+## DOC-81 importación de anexos ENLASE
+
+DOC-81 reutiliza `test:workflow:platform` con el escenario `import-sii-enlase-execution`. Exige ambiente, gate temporal, ejecución y recurso descartable; cada autorización se confirma por TTY. El perfil no contiene secretos y la tarea debe estar seleccionable por el contexto oficial `ENLASE` (`HiddenIdFlujo`).
+
+```powershell
+npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario import-sii-enlase-execution --profile <perfil-runtime.json> --authorize environment,gate,execution,discardable-resource
+```
+
+Los controles SQL permanecen registrados y son únicamente `SELECT`. La corrida confirma intención idempotente, documento con evidencia lógica/física, ausencia de efectos de expediente y preservación del estado de la tarea. En `finally` restaura el gate a `false`, con usuarios y grupos vacíos, y conserva evidencia saneada.
