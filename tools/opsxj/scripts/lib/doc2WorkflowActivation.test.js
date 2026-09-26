@@ -9,7 +9,7 @@ const appRoot = path.resolve(testDirectory, "..", "..", "..", "..");
 const readAppFile = (relativePath) => readFile(path.join(appRoot, relativePath), "utf8");
 
 describe("DOC-2 workflow visual activation", () => {
-  it("keeps the global workflow gate enabled without restricting the official presentation audience", async () => {
+  it("keeps the global workflow gate disabled by default without audience lists", async () => {
     const [config, codeBehind, page, bootstrap] = await Promise.all([
       readAppFile("Web.config"),
       readAppFile("workflow/Webworkflow.aspx.vb"),
@@ -23,7 +23,7 @@ describe("DOC-2 workflow visual activation", () => {
     const groups = config.match(/<add\s+key="WorkflowCentroTrabajoModernGroups"\s+value="([^"]*)"\s*\/>/i);
 
     [active, official, users, groups].forEach((setting) => expect(setting).not.toBeNull());
-    expect(active[1].trim().toLowerCase()).toBe("true");
+    expect(active[1].trim().toLowerCase()).toBe("false");
     expect(official[1].trim().toLowerCase()).toBe("false");
     expect(users[1].trim()).toBe("");
     expect(groups[1].trim()).toBe("");

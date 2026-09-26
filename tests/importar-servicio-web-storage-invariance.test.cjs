@@ -45,9 +45,9 @@ test("orquestador no repite almacenamiento durante expedientes o vinculación", 
   assert.equal((steps.match(/_storage\.Almacenar\(command\)/g) || []).length, 1);
 });
 
-test("gate versionado permanece activo globalmente y sin listas de alcance", () => {
+test("gate versionado permanece desactivado y sin listas de alcance", () => {
   const configuration = fs.readFileSync(path.join(root, "web.config"), "utf8");
-  assert.match(configuration, /WorkflowCentroTrabajoModernActive" value="true"/i);
+  assert.match(configuration, /WorkflowCentroTrabajoModernActive" value="false"/i);
   assert.match(configuration, /WorkflowCentroTrabajoModernUsers" value=""/i);
   assert.match(configuration, /WorkflowCentroTrabajoModernGroups" value=""/i);
 });
