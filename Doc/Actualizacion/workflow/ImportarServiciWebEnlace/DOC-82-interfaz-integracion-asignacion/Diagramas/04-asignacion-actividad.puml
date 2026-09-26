@@ -1,0 +1,27 @@
+@startuml DOC82_D04_ASIGNACION_ACTIVIDAD
+' Convención: CODE = símbolo resoluble; EXT = actor/sistema externo; CONCEPT = concepto
+' Fuentes: workflow/Webworkflow.aspx.vb | workflow/ClassWorkflowDigitalizacion.vb | js/workflow/importar-servicio-web/enlase/importar-servicio-web-enlase-assignment-bridge.js
+' Referencias CODE: JS.AssignmentBridge.create | VB.Webworkflow.Buttonaceptar_Click | VB.Digitalizacion.VerificaObligatorios
+start
+:EXT:Usuario pulsa Asignar;
+:JS.AssignmentBridge.create solo identifica controles;
+:VB.Webworkflow.Buttonaceptar_Click;
+if (¿SELECCIONTEMPORAL válida?) then (sí)
+  if (¿hay trámite, gabinete y radicado?) then (sí)
+    :VB.Digitalizacion.VerificaObligatorios;
+    if (¿resultado = YES?) then (sí)
+      :continuar validaciones legacy de asignación;
+    else (no)
+      :mostrar mensaje y Exit Sub;
+      stop
+    endif
+  else (no)
+    :continuar validaciones legacy;
+  endif
+else (no)
+  :mostrar mensaje y Exit Sub;
+  stop
+endif
+:asignación explícita, nunca automática;
+stop
+@enduml

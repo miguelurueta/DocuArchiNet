@@ -110,7 +110,7 @@ function validateProfile(input) {
       if (input.radicado !== undefined) profile.radicado = assertSafeText(input.radicado, /^[A-Za-z0-9_.-]{1,120}$/, 'E2E_PLATFORM_PROFILE_RADICADO_INVALID');
       if (input.codigoBarras !== undefined) profile.codigoBarras = assertSafeText(input.codigoBarras, /^[A-Za-z0-9_.-]{1,120}$/, 'E2E_PLATFORM_PROFILE_BARCODE_INVALID');
     }
-    const requiresDocumentType = (scenario.stage === 'execution' && scenario.id !== 'import-sii-retry') || preparesRetry || scenario.stage === 'concurrency';
+    const requiresDocumentType = (scenario.stage === 'execution' && scenario.id !== 'import-sii-retry') || preparesRetry || scenario.stage === 'concurrency' || scenario.id === 'import-sii-enlase-ui';
     if (requiresDocumentType) {
       profile.documentTypeId = assertPositiveInteger(input.documentTypeId, 'E2E_PLATFORM_PROFILE_DOCUMENT_TYPE_INVALID');
       profile.documentTypeName = assertSafeText(input.documentTypeName, /^[^\r\n\t]{1,255}$/u, 'E2E_PLATFORM_PROFILE_DOCUMENT_TYPE_NAME_INVALID').trim();

@@ -4,10 +4,11 @@ INTERFAZ-INTEGRACION-SII-ENLACE. Ver detalle funcional completo del ticket en la
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-82.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Integrar de forma aditiva la importación moderna de anexos SII en la preasignación `ENLASE`.
+- Reutilizar los contratos DOC-80/DOC-81, el modal y el núcleo frontend modernos sin crear proveedor ni backend paralelos.
+- Soportar selección múltiple, preview, tipología, intención única, resultados, recuperación y refresco documental.
+- Mantener la asignación como acción explícita con revalidación autoritativa existente en `Buttonaceptar_Click`.
+- Conservar legacy bajo gate y entregar pruebas focales, E2E reutilizable y documentación técnica trazable.
 
 ## Jira Details
 
@@ -171,13 +172,12 @@ INTERFAZ-INTEGRACION-SII-ENLACE. Ver detalle funcional completo del ticket en la
 ## Capabilities
 
 ### New Capabilities
-- `interfaz-integracion-sii-enlace`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `interfaz-integracion-sii-enlace`: Experiencia moderna para anexos SII antes de asignar una tarea `ENLASE`.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
+- Afecta composición Web Forms, JavaScript/CSS del importador moderno, pruebas focales, plataforma E2E y documentación DOC-82.
+- No agrega endpoints, no modifica almacenamiento y no asigna tareas automáticamente.

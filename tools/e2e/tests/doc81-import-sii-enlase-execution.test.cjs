@@ -46,7 +46,7 @@ test('DOC-81 ejecuta capacidad ENLASE, reconcilia evidencia y no acepta efectos 
 
 test('DOC-81 selecciona la tarea por el contexto oficial ENLASE',()=>{
   const runner=fs.readFileSync('tools/e2e/scripts/run-workflow-e2e-platform.cjs','utf8');
-  assert.match(runner,/\['import-sii-enlase-read', 'import-sii-enlase-execution'\]\.includes\(plan\.scenario\.id\)/);
+  assert.match(runner,/\['import-sii-enlase-read', 'import-sii-enlase-ui', 'import-sii-enlase-execution'\]\.includes\(plan\.scenario\.id\)/);
   assert.match(runner,/#HiddenIdFlujo/); assert.match(runner,/parts\[3\]\.toUpperCase\(\) === 'ENLASE'/);
   assert.ok(runner.includes('page.locator(`[tip_event="seleccion_tarea_wf"][idd="${taskId}"]`).first()'));
   assert.match(runner,/selectCommand\.waitFor\(\{ state: 'attached'/);

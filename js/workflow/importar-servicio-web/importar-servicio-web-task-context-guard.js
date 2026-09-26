@@ -2,7 +2,7 @@
     "use strict";
     function text(value) { return value == null ? "" : String(value).replace(/^\s+|\s+$/g, ""); }
     function number(value) { value = Number(value); return isFinite(value) && value > 0 ? value : 0; }
-    function copy(value) { value = value || {}; return Object.freeze({ intentId: text(value.IntentId || value.intentId), operationId: text(value.OperationId || value.operationId), taskId: number(value.TaskId || value.taskId), routeId: text(value.RouteId || value.routeId), providerId: text(value.ProviderId || value.providerId), externalKeys: Object.freeze((value.ExternalKeys || value.externalKeys || []).map(text).filter(Boolean)), startedAt: text(value.StartedAt || value.startedAt) || new Date().toISOString() }); }
+    function copy(value) { value = value || {}; return Object.freeze({ intentId: text(value.IntentId || value.intentId), operationId: text(value.OperationId || value.operationId), taskId: number(value.TaskId || value.taskId), routeId: text(value.RouteId || value.routeId), providerId: text(value.ProviderId || value.providerId), capability: text(value.Capability || value.capability), externalKeys: Object.freeze((value.ExternalKeys || value.externalKeys || []).map(text).filter(Boolean)), startedAt: text(value.StartedAt || value.startedAt) || new Date().toISOString() }); }
     function create(options) {
         options = options || {}; var currentTaskId = options.currentTaskId, controls = options.controls || [], eventTarget = options.eventTarget || root, context = null, writing = false, saved = [];
         if (typeof currentTaskId !== "function") { throw new Error("TASK_CONTEXT_READER_REQUIRED"); }

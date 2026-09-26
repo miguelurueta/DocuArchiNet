@@ -170,6 +170,16 @@ const SCENARIO_REGISTRY = Object.freeze({
     transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
     expectations: Object.freeze(['real-sii', 'enlase-context', 'no-state-change', 'secure-preview', 'temporary-feature-gate', 'sanitized-evidence'])
   }),
+  'import-sii-enlase-ui': Object.freeze({
+    id: 'import-sii-enlase-ui', doc: 'doc82', stage: 'read', adapterId: 'importar-servicio-web',
+    requiredAuthorizations: Object.freeze(['environment', 'gate']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-task', role: 'read', profileField: 'taskId', mutating: false }),
+    controls: IMPORT_CONTROLS,
+    controlExpectations: IMPORT_CONTROLS_UNCHANGED,
+    transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
+    expectations: Object.freeze(['real-sii', 'enlase-context', 'enlase-ui', 'no-state-change', 'secure-preview-ui', 'temporary-feature-gate', 'sanitized-evidence'])
+  }),
   'import-sii-enlase-execution': Object.freeze({
     id: 'import-sii-enlase-execution', doc: 'doc81', stage: 'execution', adapterId: 'importar-servicio-web',
     requiredAuthorizations: Object.freeze(['environment', 'gate']),

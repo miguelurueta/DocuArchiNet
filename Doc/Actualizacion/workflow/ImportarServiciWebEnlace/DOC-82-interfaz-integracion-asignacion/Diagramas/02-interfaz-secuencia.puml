@@ -1,0 +1,32 @@
+@startuml DOC82_D02_INTERFAZ_SECUENCIA
+' Convención: CODE = símbolo resoluble; EXT = actor/sistema externo; CONCEPT = concepto
+' Fuentes: js/workflow/importar-servicio-web/importar-servicio-web-ui.js | js/workflow/importar-servicio-web/enlase/importar-servicio-web-enlase-adapter.js | js/workflow/importar-servicio-web/importar-servicio-web-task-context-guard.js
+' Referencias CODE: JS.Ui.open | JS.Ui.openPreparation | JS.Ui.executeCreatedIntent | JS.Ui.settleAfterResult | JS.Guard.create
+actor "EXT:Usuario" as User
+participant "CODE:UI.open\nJS.Ui.open" as UI
+participant "CODE:Guard\nJS.Guard.create" as Guard
+participant "EXT:ASMX DOC-80/81" as Api
+participant "CODE:Preparación\nJS.Ui.openPreparation" as Prep
+participant "CODE:Ejecución\nJS.Ui.executeCreatedIntent" as Exec
+participant "CODE:Resultado\nJS.Ui.settleAfterResult" as Result
+User -> UI : open(control,event)
+UI -> Api : QueryItems(TaskId,Radicado,ProviderId,Capability)
+Api --> UI : Items[0..N]
+User -> Prep : openPreparation(control,keys,trigger)
+Prep -> Api : PreflightImport(Items[1..N])
+alt plan válido y contexto vigente
+  Prep -> Guard : capture(contexto)
+  Prep -> Api : CreateImportIntent(Items[1..N])
+  Api --> Exec : IntentId, VersionToken
+  Exec -> Api : ExecuteImportIntent(IntentId,VersionToken)
+  Exec -> Api : ReconcileImportIntent(IntentId)
+  Api --> Result : estado e Items reconciliados
+  alt éxito total confirmado
+    Result --> UI : refrescar y cerrar
+  else parcial, incierto o fallo
+    Result --> UI : mantener abierto
+  end
+else plan inválido o cambio de tarea
+  Prep --> UI : error seguro; no crear intención
+end
+@enduml

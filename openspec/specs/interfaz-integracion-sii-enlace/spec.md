@@ -1,11 +1,10 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
+# interfaz-integracion-sii-enlace Specification
+
 ## Purpose
 
 Ofrecer una experiencia moderna, segura y adaptable para consultar, preparar e importar anexos SII antes de la asignacion explicita de una tarea ENLASE.
 
-## ADDED Requirements
-Trazabilidad de decisiones: D-01, D-02, D-03, D-04, D-05, D-06, D-07, D-08, D-09.
-
+## Requirements
 ### Requirement: RQ-01 Composición moderna ENLASE
 El sistema SHALL abrir el modal moderno existente desde `a_adj_service_web` usando `INTEGRACIONSII/ANEXOS_RADICADO_ENLASE`, sin duplicar proveedor, credenciales ni modal.
 

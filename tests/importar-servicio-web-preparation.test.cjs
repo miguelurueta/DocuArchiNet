@@ -60,7 +60,8 @@ test('UI integra preparación explícita, plan previsto y restauración de foco'
   assert.doesNotMatch(ui,/window\.location\.reload/);
   assert.match(ui,/function setExecutionCloseLock\(control, locked\)/);
   assert.match(ui,/control\.executionCloseLocked && force !== true/);
-  assert.match(ui,/closeAfterResult\(control, reconciled\)/);
+  assert.match(ui,/settleAfterResult\(control, snapshot, reconciled\)/);
+  assert.match(ui,/function shouldCloseAfterResult/);
   assert.match(ui,/remove_endRequest\(onEndRequest\)/);
   assert.match(css,/#importar-servicio-web-preparation-confirm/);
   assert.match(css,/#importar-servicio-web-preparation-cancel/);

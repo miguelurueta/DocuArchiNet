@@ -1,3 +1,4 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
 ## Context
 
 DOC-82: INTERFAZ-INTEGRACION-SII-ENLACE
@@ -166,18 +167,59 @@ DOC-82: INTERFAZ-INTEGRACION-SII-ENLACE
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Composición aditiva por capacidad
+
+`a_adj_service_web` será el disparador ENLASE del modal existente. El bootstrap declarará `INTEGRACIONSII` y `ANEXOS_RADICADO_ENLASE`; el registro conservará una sola identidad de proveedor. No se duplicarán modal, API, credenciales ni núcleo de estados.
+
+### D-02 — Contexto inmutable y correlación
+
+`requestContext` propagará `Capability` junto con `TaskId`, `ProviderId`, `OperationId` y `CorrelationId`. El contexto se captura al comenzar la intención y `ImportarServicioWebTaskContextGuard` bloqueará acciones y proyecciones si la tarea visible deja de coincidir.
+
+### D-03 — Presentación especializada, contratos compartidos
+
+El adaptador SII se resolverá también por capacidad. La variante ENLASE renderizará únicamente metadatos publicados por DOC-80 y mantendrá selección total sobre elementos importables. La presentación actual de constancias no cambiará.
+
+### D-04 — Preview, preparación e intención única
+
+Se reutilizan `ImportarServicioWebPreview`, `ImportarServicioWebPreparation` e `ImportarServicioWebIntentClient`. El frontend no interpreta URL externas ni fabrica tipologías. Una selección de N anexos se envía a un único preflight y crea una única intención con N elementos.
+
+### D-05 — Cierre gobernado por resultado
+
+Desde el inicio de la ejecución hasta un resultado terminal, X, Escape y backdrop permanecen bloqueados. Éxito completo sincroniza/refresca y luego cierra. Fallo, parcial o incierto conserva el modal y el detalle seguro; recuperación consulta la intención original antes de permitir otra acción.
+
+### D-06 — Proyección documental aislada
+
+`ImportarServicioWebDocumentListAdapter` acepta exclusivamente documentos confirmados con `DocumentId` positivo y `TaskId` igual al contexto capturado, deduplica y activa `Button_actualiza_trevie_seleccion`. No se manipula directamente el GridView con datos no confirmados.
+
+### D-07 — Asignación explícita con autoridad legacy vigente
+
+No existe `ValidateAssignment` en DOC-80/DOC-81. Por decisión aceptada, DOC-82 no simulará una habilitación preventiva. El usuario conserva la acción `Buttonaceptar`; `Buttonaceptar_Click` invoca `Verfica_existencia_tipo_documental_obligatorio_digitalizado` inmediatamente antes de asignar y detiene la operación si el resultado no es `YES`. Importar jamás dispara ese postback automáticamente.
+
+### D-08 — Adaptabilidad y accesibilidad contenidas
+
+Los estilos quedan bajo namespaces `importar-servicio-web*`; el diálogo usa dimensiones máximas relativas al viewport, el cuerpo controla scroll vertical y la región de tabla scroll horizontal. Se preservan foco inicial, trampa de Tab, Escape sujeto al lock, restauración de foco y anuncios `aria-live`.
+
+### D-09 — Alternancia, pruebas y evidencia
+
+El gate existente decide si se enlaza el disparador moderno; el legacy permanece como rollback. Las pruebas Node reutilizan fixtures/harness actuales y el E2E extiende `tools/e2e` sin crear login, configuración ni evidencia paralelos. Las corridas reales siguen el runbook y requieren autorización expresa.
 
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+- Un mismo modal atiende constancias y anexos: la capacidad debe aislar presentación, textos y solicitudes para evitar contaminación cruzada.
+- Los UpdatePanel pueden recrear disparadores y lista documental: la inicialización debe ser idempotente y el refresco debe esperar `endRequest`.
+- La validación de asignación solo existe al hacer postback; la UI no puede mostrar preventivamente un estado autoritativo de completitud.
+- El cierre automático antes de refrescar puede dejar la interfaz anfitriona inconsistente; el orden obligatorio es reconciliar, sincronizar, refrescar y cerrar.
+- Rollback: desactivar el gate restaura el recorrido legacy sin modificar contratos DOC-80/DOC-81 ni datos persistidos.
 
 ## Migration Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+1. Integrar el disparador y contexto por capacidad manteniendo el legacy.
+2. Incorporar presentación ENLASE y pruebas de lista antes de conectar mutaciones.
+3. Conectar preview, preparación, intención, resultado y refresco con pruebas por estado.
+4. Integrar el puente de asignación sin automatizar el postback ni eliminar la revalidación del servidor.
+5. Validar suites, documentación y E2E autorizado; desactivar el gate revierte la exposición moderna.
 
-## Open Questions
+## Restricción contractual aceptada
 
-- TBD
+DOC-82 usa la revalidación final implementada en `Buttonaceptar_Click`. Una futura habilitación preventiva del botón requerirá un contrato backend explícito y otro refinamiento; no forma parte de este cambio.

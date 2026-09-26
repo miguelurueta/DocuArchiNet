@@ -1732,7 +1732,7 @@
                                       </ul>
                                       <ul class="navbar-nav">
                                            <li class="nav-item active ml-2  ">
-                                              <a class="nav-link" style="color: #6d7fcc" title="Asignar tarea" href="#" onclick="activa_boton_client_server('Buttonaceptar');"><i style="margin-left: 1px; margin-top: 7px; color: #0062cc" class="fad fa-arrow-down"></i> Asignar  </a>
+                                              <a id="enlase-assign-action" class="nav-link" style="color: #6d7fcc" title="Asignar tarea" href="#" data-import-context-action="true" onclick="activa_boton_client_server('Buttonaceptar');"><i style="margin-left: 1px; margin-top: 7px; color: #0062cc" class="fad fa-arrow-down"></i> Asignar  </a>
                                           </li>
                                       </ul>
                                   </asp:Panel>
@@ -1886,7 +1886,7 @@
                               <ContentTemplate>
                                    <asp:TextBox ID="TextBoxDatos" runat="server" TextMode="MultiLine" Width="95%" Height="50px" ReadOnly="True" style="display:none"></asp:TextBox>
                                       <asp:Button ID="Button_actualiza_enlace" runat="server" style="display:block; margin:1px" Text="&#8634; Actualizar índices" Width="99%" ToolTip="Actualiza el índice de los nuevos documentos relacionados a la tarea"  CssClass="boton_azul"/>
-                                      <asp:Button ID="Buttonaceptar" runat="server" Text="&#10004; Asignar tarea" Width="99%" Style="margin:1px" CssClass="boton_azul"/>
+                                      <asp:Button ID="Buttonaceptar" runat="server" Text="&#10004; Asignar tarea" Width="99%" Style="margin:1px" CssClass="boton_azul" data-import-context-action="true"/>
                                       <input id="Hidden_resultado_selecion_enlace" type="hidden" value="NO" runat="server"/>  
                                       <input id="Hidden_00022_row" type="hidden" value="" runat="server"/>   
                               </ContentTemplate>
