@@ -45,7 +45,8 @@ test("cada tabla y estado DOC-67 tiene escritor y lector", () => {
   assert.match(cache, /FROM workflow_import_document_link_cache/);
 });
 
-test("la composición no permite coordinadores DOC-67 nulos", () => {
-  assert.match(composition, /steps, expedientCoordinator, relatedCoordinator/);
-  assert.doesNotMatch(composition, /New ImportServiceOrchestrator\([^\n]+steps\)\s*,/);
+test("la composición conserva coordinadores DOC-67 para constancias y los omite solo en ENLASE", () => {
+  assert.match(composition, /executionExpedientCoordinator As ImportExpedientCoordinator = If\(isEnlase, Nothing, expedientCoordinator\)/);
+  assert.match(composition, /executionRelatedCoordinator As ImportRelatedDocumentCoordinator = If\(isEnlase, Nothing, relatedCoordinator\)/);
+  assert.match(composition, /steps, executionExpedientCoordinator, executionRelatedCoordinator/);
 });

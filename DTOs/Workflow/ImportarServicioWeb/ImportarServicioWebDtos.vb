@@ -62,6 +62,7 @@ End Class
     Public Property DocumentTypeId As Integer
     Public Property Name As String
     Public Property Required As Boolean
+    Public Property IsDefault As Boolean
     Public Property SortOrder As Integer
 End Class
 
@@ -197,6 +198,8 @@ End Class
     Public Property TaskId As Long
     Public Property DocumentName As String
     Public Property ContentType As String
+    Public Property EvidenceStatus As String
+    Public Property RecoveryAllowed As Boolean
 End Class
 
 <Serializable()> Public Class PreflightImportResponseDto
@@ -225,6 +228,8 @@ End Class
     Public Property Requirements As IList(Of ImportRequirementDto)
     Public Property ContextFingerprint As String
     Public Property Radicado As String
+    ' Referencia opaca reconstruida por el endpoint desde fuentes servidor; el valor recibido del navegador se reemplaza.
+    Public Property ProviderReference As String
 End Class
 
 <Serializable()> Public Class CreateImportIntentResponseDto

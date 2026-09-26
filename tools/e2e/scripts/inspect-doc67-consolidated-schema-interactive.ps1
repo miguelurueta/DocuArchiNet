@@ -38,7 +38,7 @@ try {
 
     $escapedSchema = $WorkflowSchema.Replace("'", "''")
     $expectedColumns = [ordered]@{
-        workflow_import_intent = @('intent_id','idempotency_key','payload_hash','operation_id','correlation_id','user_id','group_id','user_login','task_id','route_id','procedure_id','provider_id','radicado','status','version_token','created_utc','updated_utc')
+        workflow_import_intent = @('intent_id','idempotency_key','payload_hash','operation_id','correlation_id','user_id','group_id','user_login','task_id','route_id','procedure_id','provider_id','capability','radicado','provider_reference','status','version_token','created_utc','updated_utc')
         workflow_import_intent_requirement = @('intent_id','requirement_code','is_satisfied','visible_message')
         workflow_import_inscription = @('intent_id','inscription_key','inscription_ordinal','book_code','registry_number','matricula','normalized_matricula','proponente','subject_identification','subject_name','owner_matricula','owner_identification','owner_name','cabinet_name','expedient_id','expedient_role','expedient_status','cache_status','created_utc','updated_utc')
         workflow_import_intent_item = @('intent_id','client_item_id','inscription_key','provider_id','external_key','target_task_id','document_type_id','document_type_name','file_name','content_type','status','document_id','expedient_id','storage_status','relation_status','index_status','cache_status','persistence_known','retryable','error_code','visible_message','correlation_id')

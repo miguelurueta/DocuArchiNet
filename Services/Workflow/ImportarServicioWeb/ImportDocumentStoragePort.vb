@@ -15,6 +15,11 @@ Public Class ComandoAlmacenamientoImportacion
     Public Property NombreArchivoOrigen As String
     Public Property FormatoProveedor As String
     Public Property TipoContenidoOrigen As String
+    Public Property Capability As String
+    Public Property ProviderReference As String
+    Public Property ExternalKey As String
+    Public Property IdTramite As Integer
+    Public Property MetadatosSii As MetadatosDocumentoSii
     Public Property Campos As IList(Of CampoAlmacenamientoImportacion)
 
     Public Sub New()

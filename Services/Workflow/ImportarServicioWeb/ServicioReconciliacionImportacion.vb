@@ -68,9 +68,11 @@ Public NotInheritable Class ServicioReconciliacionImportacion
 
     Private Function Project(ByVal snapshot As SnapshotReconciliacionImportacion) As IList(Of ImportItemResultDto)
         Dim result As New List(Of ImportItemResultDto)() : Dim confirmed As New HashSet(Of String)(StringComparer.Ordinal)
+        Dim requiresExpedientEvidence = snapshot.ContextoOriginal Is Nothing OrElse
+            Not String.Equals(snapshot.ContextoOriginal.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase)
         For Each item In snapshot.Items
             Dim mapped=_mapper.Map(item,snapshot.IdTareaOriginal)
-            ApplyExpedientEvidence(mapped, item, snapshot.DocumentosRelacionados)
+            If requiresExpedientEvidence Then ApplyExpedientEvidence(mapped, item, snapshot.DocumentosRelacionados)
             If mapped.Status="Disponible" Then
                 Dim key=mapped.TaskId.ToString() & ":" & mapped.DocumentId.Value.ToString()
                 If confirmed.Contains(key) Then Continue For
@@ -139,17 +141,19 @@ Public NotInheritable Class ServicioReconciliacionImportacion
     End Function
     Private Shared Function AggregateStatus(ByVal items As IList(Of ImportItemResultDto)) As String
         If items Is Nothing OrElse items.Count=0 Then Return "Verificando"
-        Dim available=0 : Dim failed=0 : Dim stopped=0 : Dim uncertain=0
+        Dim available=0 : Dim failed=0 : Dim stopped=0 : Dim uncertain=0 : Dim recoverable=0
         For Each item In items
             If item.Status="Disponible" Then available+=1
             If item.Status="Fallido" OrElse item.Status="Inconsistente" Then failed+=1
             If item.Status="Detenido" Then stopped+=1
             If item.Status="ResultadoIncierto" OrElse item.Status="Verificando" Then uncertain+=1
+            If item.Status="Recuperable" Then recoverable+=1
         Next
         If available=items.Count Then Return "Completado"
         If stopped=items.Count Then Return "Detenido"
         If failed=items.Count Then Return "Fallido"
         If uncertain=items.Count Then Return "ResultadoIncierto"
+        If recoverable=items.Count Then Return "Recuperable"
         Return "Parcial"
     End Function
 End Class

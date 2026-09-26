@@ -8,6 +8,7 @@ Public NotInheritable Class ImportServiceOrchestrator
     Private ReadOnly _steps As IList(Of IImportExecutionStep)
     Private ReadOnly _expedientCoordinator As ImportExpedientCoordinator
     Private ReadOnly _relatedDocumentCoordinator As ImportRelatedDocumentCoordinator
+    Private ReadOnly _guard As IImportIntentConcurrencyGuard
 
     Public Sub New(ByVal validator As ValidadorContextoImportacion, ByVal repository As IImportIntentRepository,
                    ByVal machine As ImportIntentStateMachine, ByVal steps As IList(Of IImportExecutionStep))
@@ -18,21 +19,50 @@ Public NotInheritable Class ImportServiceOrchestrator
                    ByVal machine As ImportIntentStateMachine, ByVal steps As IList(Of IImportExecutionStep),
                    ByVal expedientCoordinator As ImportExpedientCoordinator,
                    ByVal relatedDocumentCoordinator As ImportRelatedDocumentCoordinator)
+        Me.New(validator, repository, machine, steps, expedientCoordinator, relatedDocumentCoordinator, Nothing)
+    End Sub
+
+    Public Sub New(ByVal validator As ValidadorContextoImportacion, ByVal repository As IImportIntentRepository,
+                   ByVal machine As ImportIntentStateMachine, ByVal steps As IList(Of IImportExecutionStep),
+                   ByVal expedientCoordinator As ImportExpedientCoordinator,
+                   ByVal relatedDocumentCoordinator As ImportRelatedDocumentCoordinator,
+                   ByVal guard As IImportIntentConcurrencyGuard)
         If validator Is Nothing OrElse repository Is Nothing OrElse machine Is Nothing OrElse steps Is Nothing Then Throw New ArgumentNullException("dependency")
         _validator = validator : _repository = repository : _machine = machine : _steps = steps
         _expedientCoordinator = expedientCoordinator
         _relatedDocumentCoordinator = relatedDocumentCoordinator
+        _guard = guard
     End Sub
 
     Public Function Execute(ByVal contexto As ContextoImportacionServicio, ByVal request As ExecuteImportIntentRequestDto) As ExecuteImportIntentResponseDto
         Dim response = New ExecuteImportIntentResponseDto With {.OperationId = If(request Is Nothing, Nothing, request.OperationId), .CorrelationId = If(request Is Nothing, Nothing, request.CorrelationId)}
         Dim validacion = _validator.Validar(contexto)
         If request Is Nothing OrElse Not validacion.Valido Then Return ErrorExecute(response, If(request Is Nothing, "INVALID_REQUEST", validacion.Codigo), "No fue posible iniciar la ejecución.")
+        Dim executionLease As IDisposable = Nothing
+        If _guard IsNot Nothing Then
+            Dim reservation = _guard.Adquirir(contexto, "execute|" & If(request.IntentId, String.Empty).Trim())
+            If reservation Is Nothing OrElse Not reservation.Adquirido OrElse reservation.Lease Is Nothing Then
+                Return ErrorExecute(response, "INTENT_IN_PROGRESS", "La intención está siendo procesada.")
+            End If
+            executionLease = reservation.Lease
+        End If
+        Using leaseToDispose As IDisposable = executionLease
         Dim intent = _repository.Obtener(contexto, request.IntentId)
         If intent Is Nothing Then Return ErrorExecute(response, "INTENT_NOT_FOUND", "La intención no está disponible.")
         Dim persistedContextValidation = _validator.Validar(contexto, intent.ContextoOriginal)
         If Not persistedContextValidation.Valido Then Return ErrorExecute(response, persistedContextValidation.Codigo, persistedContextValidation.MensajeVisible)
+        If Not String.Equals(If(intent.ContextoOriginal.Capability, String.Empty).Trim(), If(request.Capability, String.Empty).Trim(), StringComparison.OrdinalIgnoreCase) Then Return ErrorExecute(response, "PERSISTED_CONTEXT_MISMATCH", "La intención no corresponde a la capacidad autorizada.")
         If Not String.Equals(intent.VersionToken, request.VersionToken, StringComparison.Ordinal) Then Return ErrorExecute(response, "VERSION_CONFLICT", "La intención cambió; consulte su estado.")
+        If AllItemsCompleted(intent) Then
+            response.IntentId = intent.Id
+            response.Accepted = True
+            response.Status = FaseImportacionServicio.Completada.ToString()
+            response.VersionToken = intent.VersionToken
+            For Each completedItem In intent.Resultados
+                response.Items.Add(MapItem(completedItem))
+            Next
+            Return response
+        End If
         Dim expedientPlan As PlanExpedienteImportacion = Nothing
         If _expedientCoordinator IsNot Nothing Then
             expedientPlan = _expedientCoordinator.Resolver(contexto, intent)
@@ -66,6 +96,7 @@ Public NotInheritable Class ImportServiceOrchestrator
                 If result Is Nothing OrElse Not result.Exitoso Then
                     Dim faseConfirmada = item.Fase
                     Dim fallo = If(result, New ResultadoFaseImportacion With {.Codigo = "EXECUTION_UNAVAILABLE", .MensajeVisible = "No fue posible continuar."})
+                    If fallo.IdDocumento.HasValue Then item.IdDocumento = fallo.IdDocumento
                     ImportItemResultFactory.DesdeFallo(item, fallo, Not fallo.PersistenciaConocida)
                     Dim faseFallo = item.Fase : item.Fase = faseConfirmada
                     Avanzar(contexto, intent, item, faseFallo, request.CorrelationId) : Exit For
@@ -119,8 +150,16 @@ Public NotInheritable Class ImportServiceOrchestrator
         For Each item In intent.Resultados : response.Items.Add(MapItem(item)) : Next
         response.Accepted = True : response.Status = AggregateStatus(intent).ToString() : response.VersionToken = intent.VersionToken
         Return response
+        End Using
     End Function
 
+    Private Shared Function AllItemsCompleted(ByVal intent As IntencionImportacionServicio) As Boolean
+        If intent Is Nothing OrElse intent.Resultados Is Nothing OrElse intent.Resultados.Count = 0 Then Return False
+        For Each item In intent.Resultados
+            If item Is Nothing OrElse item.Fase <> FaseImportacionServicio.Completada Then Return False
+        Next
+        Return True
+    End Function
     Private Shared Function AllItemsStored(ByVal intent As IntencionImportacionServicio) As Boolean
         If intent Is Nothing OrElse intent.Resultados Is Nothing OrElse intent.Resultados.Count = 0 Then Return False
         For Each item In intent.Resultados
@@ -195,7 +234,8 @@ Public NotInheritable Class ImportServiceOrchestrator
     End Function
 
     Private Shared Function MapItem(ByVal item As ResultadoElementoImportacion) As ImportItemResultDto
-        Return New ImportItemResultDto With {.ClientItemId = item.ClientItemId, .ExternalKey = If(item.IdentidadExterna Is Nothing, Nothing, item.IdentidadExterna.ExternalKey), .Status = item.Fase.ToString(), .DocumentId = item.IdDocumento, .ErrorCode = item.CodigoError, .Message = item.MensajeVisible, .PersistenceKnown = item.PersistenciaConocida, .Retryable = item.Reintentable, .CorrelationId = item.CorrelationId}
+        Dim confirmed = item.Fase = FaseImportacionServicio.Reconciliada OrElse item.Fase = FaseImportacionServicio.Completada
+        Return New ImportItemResultDto With {.ClientItemId = item.ClientItemId, .ExternalKey = If(item.IdentidadExterna Is Nothing, Nothing, item.IdentidadExterna.ExternalKey), .Status = item.Fase.ToString(), .DocumentId = If(confirmed, item.IdDocumento, Nothing), .ErrorCode = item.CodigoError, .Message = item.MensajeVisible, .PersistenceKnown = item.PersistenciaConocida, .Retryable = item.Reintentable, .CorrelationId = item.CorrelationId, .EvidenceStatus = If(confirmed, "Confirmed", "PendingVerification"), .RecoveryAllowed = False}
     End Function
     Private Shared Function ErrorExecute(ByVal r As ExecuteImportIntentResponseDto, ByVal code As String, ByVal message As String) As ExecuteImportIntentResponseDto
         r.Error = New ErrorImportacionServicioDto With {.Codigo = code, .MensajeVisible = message} : Return r

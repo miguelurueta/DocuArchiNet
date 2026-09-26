@@ -21,6 +21,21 @@ test("valida tarea y ruta activas con consultas parametrizadas", () => {
   assert.doesNotMatch(source, /WHERE[^"\r\n]*"\s*&/i);
 });
 
+test("ENLASE valida tarea abierta por ruta sin exigir asignacion previa", () => {
+  assert.match(source, /If IsEnlase\(contexto\) Then/);
+  assert.match(source, /AnnexesEnlaseCapability/);
+  const enlaceQueries = [...source.matchAll(/Const enlaceSql As String = "([^"]+)"/g)].map((match) => match[1]);
+  assert.equal(enlaceQueries.length, 2);
+  enlaceQueries.forEach((sql) => {
+    assert.match(sql, /Inicio_Tareas_Workflow_id_Tarea=@idTarea/);
+    assert.match(sql, /Inicio_Tareas_Workflow_Rutas_Workflow_id_Ruta=@idRuta/);
+    assert.match(sql, /FECHA_FIN IS NULL/);
+    assert.match(sql, /ESTADO_TAREA=0/);
+    assert.doesNotMatch(sql, /ID_USUARIO|FECHA_SELECCION/);
+  });
+  assert.match(source, /ID_USUARIO=@idUsuario AND FECHA_SELECCION IS NOT NULL/);
+});
+
 test("falla cerrada ante contexto, proveedor o consulta invalidos", () => {
   assert.match(source, /Return SameContext\(contexto\) AndAlso/);
   assert.match(source, /SiiImportProvider\.CanonicalProviderId/);

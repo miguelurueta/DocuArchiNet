@@ -40,6 +40,7 @@ Public NotInheritable Class MySqlImportDocumentTypeCatalogRepository
             result.Add(New TipoDocumentalCatalogoImportacion With {.IdTipoDocumentalTrd=id,.Nombre=name,
                 .Obligatorio=Convert.ToInt32(reader("required_value"))=1,.Orden=Convert.ToInt32(reader("sort_order"))})
         End While
+        If result.Count = 1 Then result(0).Predeterminado = True
         Return result
     End Function
 

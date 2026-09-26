@@ -42,7 +42,7 @@ Public NotInheritable Class ImportIntentStateMachine
         Agregar(t, FaseImportacionServicio.RecursoObtenido, FaseImportacionServicio.Validada, FaseImportacionServicio.ExpedientePreparado, FaseImportacionServicio.Parcial, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.Detenida)
         Agregar(t, FaseImportacionServicio.ExpedientePreparado, FaseImportacionServicio.Validada, FaseImportacionServicio.IndicesActualizados, FaseImportacionServicio.Parcial, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.Detenida)
         Agregar(t, FaseImportacionServicio.IndicesActualizados, FaseImportacionServicio.Validada, FaseImportacionServicio.DocumentoAlmacenado, FaseImportacionServicio.Parcial, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.Detenida)
-        Agregar(t, FaseImportacionServicio.DocumentoAlmacenado, FaseImportacionServicio.CacheActualizado, FaseImportacionServicio.Parcial, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.Detenida)
+        Agregar(t, FaseImportacionServicio.DocumentoAlmacenado, FaseImportacionServicio.CacheActualizado, FaseImportacionServicio.Reconciliada, FaseImportacionServicio.Parcial, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.Detenida)
         Agregar(t, FaseImportacionServicio.CacheActualizado, FaseImportacionServicio.Reconciliada, FaseImportacionServicio.Parcial, FaseImportacionServicio.ResultadoIncierto)
         Agregar(t, FaseImportacionServicio.ResultadoIncierto, FaseImportacionServicio.RequiereDecision, FaseImportacionServicio.Reconciliada)
         Agregar(t, FaseImportacionServicio.RequiereDecision, FaseImportacionServicio.Reconciliada)

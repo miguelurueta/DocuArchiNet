@@ -25,7 +25,7 @@ Public NotInheritable Class MySqlImportItemStatusRepository
                                 ByVal externalKeys As IList(Of String)) As IDictionary(Of String, EstadoItemListadoImportacion) Implements IImportItemStatusRepository.ObtenerLote
         If contexto Is Nothing OrElse contexto.IdTarea<=0 OrElse String.IsNullOrWhiteSpace(providerId) OrElse externalKeys Is Nothing Then Throw New InvalidOperationException("ITEM_STATUS_CONTEXT_INVALID")
         Dim result As New Dictionary(Of String,EstadoItemListadoImportacion)(StringComparer.Ordinal)
-        Dim parameters As New List(Of IDataParameter) From {New MySqlParameter("@taskId",contexto.IdTarea),New MySqlParameter("@providerId",providerId.Trim())}
+        Dim parameters As New List(Of IDataParameter) From {New MySqlParameter("@taskId",contexto.IdTarea),New MySqlParameter("@providerId",providerId.Trim()),New MySqlParameter("@capability",If(contexto.Capability,String.Empty).Trim())}
         Dim placeholders As New List(Of String)()
         For Each raw In externalKeys
             Dim key=If(raw,String.Empty).Trim()
@@ -40,12 +40,13 @@ Public NotInheritable Class MySqlImportItemStatusRepository
             "(SELECT related.cabinet_name FROM workflow_import_related_document related WHERE related.intent_id=item.intent_id " &
             "AND related.task_id=i.task_id AND related.image_id=item.document_id LIMIT 1) AS cabinet_name " &
             "FROM workflow_import_intent i INNER JOIN workflow_import_intent_item item ON item.intent_id=i.intent_id " &
-            "WHERE i.task_id=@taskId AND item.provider_id=@providerId AND item.external_key IN (" & String.Join(",",placeholders.ToArray()) & ") " &
+            "WHERE i.task_id=@taskId AND i.capability=@capability AND item.provider_id=@providerId AND item.external_key IN (" & String.Join(",",placeholders.ToArray()) & ") " &
             "ORDER BY i.created_utc DESC"
         Dim rows As IList(Of StatusRow)
         Using connection=_connections.CreateOpenConnection(ModuleContext(contexto))
             rows=_executor.ExecuteReader(connection,Nothing,sql,parameters,AddressOf Map)
         End Using
+        ResolverGabinetes(contexto,rows)
         Dim existing=ObtenerDocumentosExistentes(contexto,rows)
         Dim verifiedMissing As ISet(Of String)=New HashSet(Of String)(StringComparer.Ordinal)
         For Each row In rows
@@ -95,6 +96,25 @@ Public NotInheritable Class MySqlImportItemStatusRepository
             String.Equals(status,"NoAplica",StringComparison.OrdinalIgnoreCase)
     End Function
 
+    Private Sub ResolverGabinetes(ByVal contexto As ContextoImportacionServicio, ByVal rows As IList(Of StatusRow))
+        Using connection=_documentConnections.CreateOpenConnection(ModuleContext(contexto))
+            For Each row In rows
+                If Not row.HistoricamenteConfirmado OrElse row.DocumentId<=0 OrElse SafeIdentifier(row.CabinetName) Then Continue For
+                Const sql As String = "SELECT GABINETE FROM logdocuarchi WHERE id_tran=@documentId AND ID_TAREA_WF=@taskId " &
+                    "AND desc_op='Registra' AND MODULO_REGISTRO='WORKFLOW' LIMIT 2"
+                Dim cabinets=_executor.ExecuteReader(connection,Nothing,sql,
+                    New List(Of IDataParameter) From {New MySqlParameter("@documentId",row.DocumentId),New MySqlParameter("@taskId",contexto.IdTarea)},
+                    AddressOf MapCabinets)
+                If cabinets.Count=1 AndAlso SafeIdentifier(cabinets(0)) Then row.CabinetName=cabinets(0)
+            Next
+        End Using
+    End Sub
+
+    Private Shared Function MapCabinets(ByVal reader As IDataReader) As IList(Of String)
+        Dim result As New List(Of String)()
+        While reader.Read() : result.Add(Convert.ToString(reader("GABINETE"))) : End While
+        Return result
+    End Function
     Private Function ObtenerDocumentosExistentes(ByVal contexto As ContextoImportacionServicio,
                                                    ByVal rows As IList(Of StatusRow)) As ISet(Of String)
         Dim result As ISet(Of String)=New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)

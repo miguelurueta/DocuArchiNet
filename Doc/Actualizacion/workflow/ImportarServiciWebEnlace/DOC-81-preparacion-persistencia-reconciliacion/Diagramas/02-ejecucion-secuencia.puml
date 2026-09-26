@@ -1,0 +1,53 @@
+@startuml DOC81_D02_Ejecucion
+' Convención: CODE=símbolo resoluble | EXT=actor externo | CONCEPT=estado conceptual
+' Fuentes: webservice/WebServiceImportarServicioWebModern.asmx.vb | Services/Workflow/ImportarServicioWeb/ServicioPreflightImportacion.vb | Services/Workflow/ImportarServicioWeb/ServicioIntencionImportacion.vb | Services/Workflow/ImportarServicioWeb/ImportExecutionSteps.vb | Infrastructure/Repositories/Workflow/ImportarServicioWeb/MySqlImportReconciliationRepository.vb
+' Referencias CODE: VB.Endpoint.PreflightImport | VB.Preflight.Preflight | VB.Endpoint.CreateImportIntent | VB.Intent.Crear | VB.Endpoint.ExecuteImportIntent | VB.Orchestrator.Execute | VB.Download.Ejecutar | VB.Store.Ejecutar | VB.Verify.Ejecutar | VB.Repository.ObtenerItem
+actor "EXT:Cliente" as C
+participant "CODE:WebServiceImportarServicioWebModern" as E
+participant "CODE:ServicioPreflightImportacion" as P
+participant "CODE:ServicioIntencionImportacion" as I
+participant "CODE:ImportServiceOrchestrator" as O
+participant "CODE:DownloadImportExecutionStep" as D
+participant "CODE:SiiExternalImportProviderClient" as SII
+participant "CODE:StoreImportExecutionStep" as ST
+participant "CODE:LegacyEnlaseImportDocumentStorageAdapter" as A
+participant "CODE:VerifyStoredImportExecutionStep" as V
+participant "CODE:MySqlImportReconciliationRepository" as R
+C -> E: PreflightImport(request: PreflightImportRequestDto)
+E -> P: Preflight(contexto, request)
+alt selección inválida o documento confirmado
+ P --> E: Error seguro; sin escritura
+else válida
+ P --> E: comandos + fingerprint
+ C -> E: CreateImportIntent(request)
+ E -> I: Crear(contexto, request)
+ I --> E: intención creada/reutilizada
+ C -> E: ExecuteImportIntent(request)
+ E -> O: Execute(contexto, request)
+ O -> O: adquirir guard, recargar y revalidar
+ alt contexto/version inválidos
+  O --> E: error seguro
+ else autorizado
+  O -> D: Ejecutar(contexto, intención, item)
+  D -> SII: DownloadAnnexAsync(externalKey, providerReference, ...)
+  SII --> D: bytes y metadata validados
+  O -> ST: Ejecutar(contexto, intención, item)
+  ST -> A: Almacenar(comando)
+  A --> ST: ID provisional / fallo conocido / incierto
+  O -> V: Ejecutar(contexto, intención, item)
+  V -> R: ObtenerItem(contexto, intentId, providerId, externalKey)
+  alt lógica y físico únicos
+   R --> V: evidencia confirmada
+   V --> O: Reconciliada
+  else físico ausente
+   R --> V: evidencia Missing
+   V --> O: Recuperable
+  else contradicción o no verificable
+   R --> V: evidencia inconsistente
+   V --> O: ResultadoIncierto; no retry
+  end
+  O --> E: resultado por elemento
+ end
+ E --> C: envelope ASMX
+end
+@enduml

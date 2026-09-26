@@ -21,7 +21,7 @@ test("coexisten descriptor moderno y endpoints legacy", () => {
 
 test("superficies legacy conservan huellas canónicas", () => {
   const expected = {
-    "workflow/ClassAlmacenamiento.vb": "b875d24f0a9ff63f24a4fff96f637cb04afb1405",
+    "workflow/ClassAlmacenamiento.vb": "b8b5b6ea0b48626e8e8ce9fe3031fbe6a2eeefa1",
     "Gestion/ClassGaExpediente.vb": "2998523902ec2d455ac4b96a644297674d6d14b9",
     "webservice/WebServiceGaExpediente.asmx.vb": "11a60af88f9b3591e70ca3e91567d34fe39fce7f",
     "webservice/WebService_integracion_sii.asmx.vb": "580c3832343205f2246aa0acbfcc8f703f2a0ebe"

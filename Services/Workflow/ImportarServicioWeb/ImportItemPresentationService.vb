@@ -14,7 +14,7 @@ Public NotInheritable Class ImportItemPresentationService
         response.DocumentTypes.Clear()
         For Each item In _catalog.Obtener(context)
             response.DocumentTypes.Add(New ImportDocumentTypeDto With {.DocumentTypeId=item.IdTipoDocumentalTrd,.Name=item.Nombre,
-                .Required=item.Obligatorio,.SortOrder=item.Orden})
+                .Required=item.Obligatorio,.IsDefault=item.Predeterminado,.SortOrder=item.Orden})
         Next
     End Sub
 

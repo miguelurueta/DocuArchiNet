@@ -75,7 +75,10 @@ Public NotInheritable Class SiiImportProvider
         ByVal cancellationToken As CancellationToken, Optional ByVal intentId As String = Nothing,
         Optional ByVal clientItemId As String = Nothing, Optional ByVal operationId As String = Nothing,
         Optional ByVal taskId As Nullable(Of Long) = Nothing, Optional ByVal radicado As String = Nothing,
-        Optional ByVal referenciaProveedor As String = Nothing) As Task(Of Byte()) Implements IExternalImportProviderClient.DownloadAsync
+        Optional ByVal referenciaProveedor As String = Nothing, Optional ByVal capability As String = Nothing) As Task(Of Byte()) Implements IExternalImportProviderClient.DownloadAsync
+        If String.Equals(capability, AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase) Then
+            Return _client.DownloadAnnexAsync(externalKey, referenciaProveedor, correlationId, cancellationToken, intentId, clientItemId, operationId, taskId, radicado)
+        End If
         Return _client.DownloadAsync(externalKey, correlationId, cancellationToken, intentId, clientItemId, operationId, taskId, radicado, referenciaProveedor)
     End Function
 

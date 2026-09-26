@@ -25,12 +25,12 @@ test('DOC-80 valida perfil saneado y el adaptador envía capacidad explícita', 
 test('DOC-80 selecciona contexto ENLASE oficial sin exigir tarea estándar', () => {
   const runner = fs.readFileSync('tools/e2e/scripts/run-workflow-e2e-platform.cjs', 'utf8');
   const selector = runner.match(/async function selectWorkflowTask[\s\S]*?async function initializeWorkflowContext/)[0];
-  assert.match(selector, /plan\.scenario\.id === 'import-sii-enlase-read'/);
+  assert.match(selector, /\['import-sii-enlase-read', 'import-sii-enlase-execution'\]\.includes\(plan\.scenario\.id\)/);
   assert.match(selector, /#HiddenIdFlujo/);
   assert.match(selector, /parts\[0\] === expectedTaskId/);
   assert.match(selector, /parts\[3\]\.toUpperCase\(\) === 'ENLASE'/);
   assert.match(selector, /E2E_PLATFORM_ENLASE_CONTEXT_REJECTED/);
-  const branchStart = selector.indexOf("if (plan.scenario.id === 'import-sii-enlase-read')");
+  const branchStart = selector.indexOf("if ([\'import-sii-enlase-read\', \'import-sii-enlase-execution\'].includes(plan.scenario.id))");
   const branchEnd = selector.indexOf("const selectedTask = page.locator('#Hidden_id_tarea_selecionada')");
   assert.ok(branchStart >= 0 && branchEnd > branchStart);
   assert.doesNotMatch(selector.slice(branchStart, branchEnd), /Hidden_id_tarea_selecionada/);});

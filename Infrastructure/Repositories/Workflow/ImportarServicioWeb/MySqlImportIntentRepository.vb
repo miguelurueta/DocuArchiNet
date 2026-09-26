@@ -21,21 +21,36 @@ Public NotInheritable Class MySqlImportIntentRepository
     Public Function CrearOReutilizar(ByVal context As ContextoImportacionServicio, ByVal intent As IntencionImportacionServicio) As ResultadoPersistenciaIntencionImportacion Implements IImportIntentRepository.CrearOReutilizar
         Using connection = _connections.CreateOpenConnection(ModuleContext(context))
             Using transaction = _transactions.BeginTransaction(connection)
+                Dim failureStage As String = "HEADER"
                 Try
-                    Dim sql = "INSERT INTO workflow_import_intent (intent_id,idempotency_key,payload_hash,operation_id,correlation_id,user_id,group_id,user_login,task_id,route_id,procedure_id,provider_id,radicado,status,version_token,created_utc,updated_utc) VALUES (@intentId,@key,@hash,@operation,@correlation,@userId,@groupId,@login,@taskId,@routeId,@procedureId,@providerId,@radicado,@status,@version,@created,@updated)"
+                    Dim sql = "INSERT INTO workflow_import_intent (intent_id,idempotency_key,payload_hash,operation_id,correlation_id,user_id,group_id,user_login,task_id,route_id,procedure_id,provider_id,capability,radicado,provider_reference,status,version_token,created_utc,updated_utc) VALUES (@intentId,@key,@hash,@operation,@correlation,@userId,@groupId,@login,@taskId,@routeId,@procedureId,@providerId,@capability,@radicado,@providerReference,@status,@version,@created,@updated)"
                     _executor.ExecuteNonQuery(connection, transaction, sql, Params(intent))
+                    failureStage = "REQUIREMENT"
                     For Each requirement In intent.Requisitos
                         _executor.ExecuteNonQuery(connection, transaction, "INSERT INTO workflow_import_intent_requirement (intent_id,requirement_code,is_satisfied,visible_message) VALUES (@intentId,@code,@satisfied,@message)", New List(Of IDataParameter) From {P("@intentId", intent.Id), P("@code", requirement.Codigo), P("@satisfied", requirement.Satisfecho), P("@message", requirement.MensajeVisible)})
                     Next
+                    failureStage = "INSCRIPTION"
                     For Each inscription In intent.Inscripciones
                         Const inscriptionSql As String = "INSERT INTO workflow_import_inscription (intent_id,inscription_key,inscription_ordinal,book_code,registry_number,matricula,normalized_matricula,proponente,subject_identification,subject_name,owner_matricula,owner_identification,owner_name,cabinet_name,expedient_id,expedient_role,expedient_status,cache_status,created_utc,updated_utc) VALUES (@intentId,@key,@ordinal,@book,@registry,@matricula,@normalized,@proponente,@subjectId,@subjectName,@ownerMatricula,@ownerId,@ownerName,@cabinet,@expedientId,@role,@expedientStatus,@cacheStatus,@created,@updated)"
                         _executor.ExecuteNonQuery(connection, transaction, inscriptionSql, InscriptionParams(intent, inscription))
                     Next
+                    failureStage = "ITEM"
                     For Each item In intent.Resultados
                         _executor.ExecuteNonQuery(connection, transaction, "INSERT INTO workflow_import_intent_item (intent_id,client_item_id,inscription_key,provider_id,external_key,target_task_id,document_type_id,document_type_name,file_name,content_type,status,expedient_id,storage_status,relation_status,index_status,cache_status) VALUES (@intentId,@clientId,@inscriptionKey,@providerId,@externalKey,@taskId,@documentTypeId,@documentTypeName,@fileName,@contentType,@status,@expedientId,@storageStatus,@relationStatus,@indexStatus,@cacheStatus)", New List(Of IDataParameter) From {P("@intentId", intent.Id), P("@clientId", item.ClientItemId), P("@inscriptionKey", item.ClaveInscripcion), P("@providerId", item.IdentidadExterna.ProviderId), P("@externalKey", item.IdentidadExterna.ExternalKey), P("@taskId", item.IdTareaDestino), P("@documentTypeId", item.IdTipoDocumental), P("@documentTypeName", item.NombreTipoDocumental), P("@fileName", item.NombreArchivo), P("@contentType", item.TipoContenido), P("@status", item.Fase.ToString()), P("@expedientId", item.IdExpediente), P("@storageStatus", item.EstadoAlmacenamiento.ToString()), P("@relationStatus", item.EstadoRelacion.ToString()), P("@indexStatus", item.EstadoIndice.ToString()), P("@cacheStatus", item.EstadoCache.ToString())})
                     Next
+                    failureStage = "COMMIT"
                     transaction.Commit()
                     Return New ResultadoPersistenciaIntencionImportacion With {.Intencion = intent}
+                Catch ex As MySqlException
+                    transaction.Rollback()
+                    Try
+                        Dim existing = ObtenerPorIdempotencia(context, intent.IdempotencyKey)
+                        If existing IsNot Nothing AndAlso existing.HuellaContexto = intent.HuellaContexto Then Return New ResultadoPersistenciaIntencionImportacion With {.Intencion = existing, .Reutilizada = True}
+                        If existing IsNot Nothing Then Return New ResultadoPersistenciaIntencionImportacion With {.Codigo = "IDEMPOTENCY_CONFLICT", .MensajeVisible = "La clave idempotente corresponde a otra solicitud."}
+                    Catch
+                        Return New ResultadoPersistenciaIntencionImportacion With {.Codigo = "INTENT_PERSISTENCE_UNAVAILABLE", .MensajeVisible = "No fue posible verificar la persistencia de la intención."}
+                    End Try
+                    Return New ResultadoPersistenciaIntencionImportacion With {.Codigo = "INTENT_PERSISTENCE_" & failureStage & "_" & PersistenceReason(ex), .MensajeVisible = "No fue posible persistir la intención."}
                 Catch
                     transaction.Rollback()
                     Try
@@ -49,6 +64,16 @@ Public NotInheritable Class MySqlImportIntentRepository
                 End Try
             End Using
         End Using
+    End Function
+    Private Shared Function PersistenceReason(ByVal ex As MySqlException) As String
+        Select Case ex.Number
+            Case 1048, 1364 : Return "REQUIRED_VALUE"
+            Case 1062 : Return "DUPLICATE"
+            Case 1265, 1406 : Return "VALUE_LENGTH"
+            Case 1452 : Return "FOREIGN_KEY"
+            Case 1054 : Return "SCHEMA"
+            Case Else : Return "DATABASE"
+        End Select
     End Function
     Public Function PersistirPlanExpedientes(ByVal context As ContextoImportacionServicio, ByVal intent As IntencionImportacionServicio, ByVal plan As PlanExpedienteImportacion) As Boolean Implements IImportIntentRepository.PersistirPlanExpedientes
         If context Is Nothing OrElse intent Is Nothing OrElse plan Is Nothing OrElse plan.Estado <> EstadoEfectoExpedienteImportacion.Confirmado Then Return False
@@ -121,7 +146,7 @@ Public NotInheritable Class MySqlImportIntentRepository
     End Function
     Private Shared Function MapHeader(ByVal reader As IDataReader) As IntencionImportacionServicio
         If Not reader.Read() Then Return Nothing
-        Return New IntencionImportacionServicio With {.Id=Convert.ToString(reader("intent_id")),.IdempotencyKey=Convert.ToString(reader("idempotency_key")),.HuellaContexto=Convert.ToString(reader("payload_hash")),.VersionToken=Convert.ToString(reader("version_token")),.Fase=CType([Enum].Parse(GetType(FaseImportacionServicio),Convert.ToString(reader("status"))),FaseImportacionServicio),.FechaCreacionUtc=Convert.ToDateTime(reader("created_utc")),.FechaActualizacionUtc=Convert.ToDateTime(reader("updated_utc")),.ContextoOriginal=New ContextoIntencionImportacion With {.OperationId=Convert.ToString(reader("operation_id")),.CorrelationId=Convert.ToString(reader("correlation_id")),.IdUsuario=Convert.ToInt32(reader("user_id")),.IdGrupo=Convert.ToInt32(reader("group_id")),.LoginUsuario=Convert.ToString(reader("user_login")),.IdTarea=Convert.ToInt64(reader("task_id")),.IdRuta=Convert.ToInt32(reader("route_id")),.IdTramite=Convert.ToInt32(reader("procedure_id")),.ProviderId=Convert.ToString(reader("provider_id")),.Radicado=Convert.ToString(reader("radicado"))}}
+        Return New IntencionImportacionServicio With {.Id=Convert.ToString(reader("intent_id")),.IdempotencyKey=Convert.ToString(reader("idempotency_key")),.HuellaContexto=Convert.ToString(reader("payload_hash")),.VersionToken=Convert.ToString(reader("version_token")),.Fase=CType([Enum].Parse(GetType(FaseImportacionServicio),Convert.ToString(reader("status"))),FaseImportacionServicio),.FechaCreacionUtc=Convert.ToDateTime(reader("created_utc")),.FechaActualizacionUtc=Convert.ToDateTime(reader("updated_utc")),.ContextoOriginal=New ContextoIntencionImportacion With {.OperationId=Convert.ToString(reader("operation_id")),.CorrelationId=Convert.ToString(reader("correlation_id")),.IdUsuario=Convert.ToInt32(reader("user_id")),.IdGrupo=Convert.ToInt32(reader("group_id")),.LoginUsuario=Convert.ToString(reader("user_login")),.IdTarea=Convert.ToInt64(reader("task_id")),.IdRuta=Convert.ToInt32(reader("route_id")),.IdTramite=Convert.ToInt32(reader("procedure_id")),.ProviderId=Convert.ToString(reader("provider_id")),.Capability=Convert.ToString(reader("capability")),.Radicado=Convert.ToString(reader("radicado")),.ProviderReference=Convert.ToString(reader("provider_reference"))}}
     End Function
     Private Shared Function MapRequirements(ByVal reader As IDataReader) As IList(Of RequisitoPlanImportacion)
         Dim values As New List(Of RequisitoPlanImportacion)()
@@ -157,7 +182,7 @@ Public NotInheritable Class MySqlImportIntentRepository
         Return New List(Of IDataParameter) From {P("@intentId",intent.Id),P("@key",i.ClaveInscripcion),P("@ordinal",i.Orden),P("@book",i.Libro),P("@registry",i.Registro),P("@matricula",i.Matricula),P("@normalized",i.MatriculaNormalizada),P("@proponente",i.Proponente),P("@subjectId",i.IdentificacionSujeto),P("@subjectName",i.RazonSocial),P("@ownerMatricula",i.MatriculaPropietario),P("@ownerId",i.IdentificacionPropietario),P("@ownerName",i.NombrePropietario),P("@cabinet",i.NombreGabinete),P("@expedientId",i.IdExpediente),P("@role",i.RolExpediente.ToString()),P("@expedientStatus",i.EstadoExpediente.ToString()),P("@cacheStatus",i.EstadoCache.ToString()),P("@created",intent.FechaCreacionUtc),P("@updated",intent.FechaActualizacionUtc)}
     End Function
     Private Shared Function Params(ByVal i As IntencionImportacionServicio) As IList(Of IDataParameter)
-        Dim c=i.ContextoOriginal : Return New List(Of IDataParameter) From {P("@intentId",i.Id),P("@key",i.IdempotencyKey),P("@hash",i.HuellaContexto),P("@operation",c.OperationId),P("@correlation",c.CorrelationId),P("@userId",c.IdUsuario),P("@groupId",c.IdGrupo),P("@login",c.LoginUsuario),P("@taskId",c.IdTarea),P("@routeId",c.IdRuta),P("@procedureId",c.IdTramite),P("@providerId",c.ProviderId),P("@radicado",c.Radicado),P("@status",i.Fase.ToString()),P("@version",i.VersionToken),P("@created",i.FechaCreacionUtc),P("@updated",i.FechaActualizacionUtc)}
+        Dim c=i.ContextoOriginal : Return New List(Of IDataParameter) From {P("@intentId",i.Id),P("@key",i.IdempotencyKey),P("@hash",i.HuellaContexto),P("@operation",c.OperationId),P("@correlation",c.CorrelationId),P("@userId",c.IdUsuario),P("@groupId",c.IdGrupo),P("@login",c.LoginUsuario),P("@taskId",c.IdTarea),P("@routeId",c.IdRuta),P("@procedureId",c.IdTramite),P("@providerId",c.ProviderId),P("@capability",c.Capability),P("@radicado",c.Radicado),P("@providerReference",c.ProviderReference),P("@status",i.Fase.ToString()),P("@version",i.VersionToken),P("@created",i.FechaCreacionUtc),P("@updated",i.FechaActualizacionUtc)}
     End Function
     Private Shared Function P(ByVal name As String, ByVal value As Object) As IDataParameter
         Return New MySqlParameter(name, If(value, DBNull.Value))
