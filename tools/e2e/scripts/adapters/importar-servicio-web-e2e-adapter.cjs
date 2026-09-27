@@ -400,7 +400,7 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
         assertions: buildAssertionReport('import-sii-recovery')
       });
     }
-    if (profile.scenarioId === 'import-sii-enlase-read') {
+    if (['import-sii-enlase-read', 'import-sii-enlase-ui'].includes(profile.scenarioId)) {
       const context = { ...base(taskId), Capability: 'ANEXOS_RADICADO_ENLASE' };
       const capabilities = await invoke('ResolveCapabilities', request(context));
       const capabilitiesDto = assertResult(capabilities, budgetMs, 'IMPORT_E2E_ENLASE_CAPABILITIES_FAILED');

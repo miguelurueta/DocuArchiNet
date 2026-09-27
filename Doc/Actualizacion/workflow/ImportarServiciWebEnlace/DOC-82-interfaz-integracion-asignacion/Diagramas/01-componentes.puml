@@ -1,0 +1,16 @@
+@startuml DOC82_D01_COMPONENTES
+' Convención: CODE = símbolo resoluble; EXT = actor/sistema externo; CONCEPT = concepto
+' Fuentes: workflow/Webworkflow.aspx.vb | js/workflow/importar-servicio-web/importar-servicio-web-ui.js | js/workflow/importar-servicio-web/enlase/importar-servicio-web-enlase-adapter.js | js/workflow/importar-servicio-web/enlase/importar-servicio-web-enlase-list.js
+' Referencias CODE: JS.Ui.initialize | JS.Ui.requestContext | JS.EnlaseAdapter.create | JS.EnlaseList.render | VB.Webworkflow.Buttonaceptar_Click
+actor "EXT:Usuario Workflow" as User
+component "CODE: Webworkflow\nVB.Webworkflow.Buttonaceptar_Click" as Page
+component "CODE: UI moderna\nJS.Ui.initialize\nJS.Ui.requestContext" as Ui
+component "CODE: Adaptador ENLASE\nJS.EnlaseAdapter.create" as Adapter
+component "CODE: Lista ENLASE\nJS.EnlaseList.render" as List
+cloud "EXT:SII" as Sii
+User --> Page
+Page --> Ui
+Ui --> Adapter
+Adapter --> List
+Adapter --> Sii : ASMX DOC-80/81
+@enduml

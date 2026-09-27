@@ -162,7 +162,7 @@ async function selectWorkflowTask(page, plan) {
       timeout: Math.min(plan.profile.budgetMs, 60000)
     });
     const expectedTaskId = String(taskId);
-    if (['import-sii-enlase-read', 'import-sii-enlase-execution'].includes(plan.scenario.id)) {
+    if (['import-sii-enlase-read', 'import-sii-enlase-ui', 'import-sii-enlase-execution'].includes(plan.scenario.id)) {
       const enlaceSelection = page.locator('#HiddenIdFlujo');
       await enlaceSelection.waitFor({ state: 'attached', timeout: Math.min(plan.profile.budgetMs, 60000) });
       const isExpectedEnlase = (value) => {
@@ -170,17 +170,29 @@ async function selectWorkflowTask(page, plan) {
         return parts.length >= 4 && parts[0] === expectedTaskId && parts[3].toUpperCase() === 'ENLASE';
       };
       if (!isExpectedEnlase(await enlaceSelection.inputValue())) {
+        const selectionTimeout = Math.min(plan.profile.budgetMs, 60000);
         await page.evaluate(() => {
           if (typeof window.hide_area_workflow_seleccion === 'function') window.hide_area_workflow_seleccion();
         });
         const selectCommand = page.locator(`[tip_event="seleccion_tarea_wf"][idd="${taskId}"]`).first();
         if (!await selectCommand.count()) {
           const taskSearch = page.locator('#auto_complex:visible');
-          await taskSearch.waitFor({ state: 'visible', timeout: Math.min(plan.profile.budgetMs, 30000) });
+          await taskSearch.waitFor({ state: 'visible', timeout: selectionTimeout });
           await taskSearch.fill(expectedTaskId);
           await page.locator('button[title="consultar lista"]:visible').click();
         }
-        await selectCommand.waitFor({ state: 'attached', timeout: Math.min(plan.profile.budgetMs, 30000) });
+        await Promise.race([
+          selectCommand.waitFor({ state: 'attached', timeout: selectionTimeout }),
+          page.waitForFunction(
+            (expected) => {
+              const parts = String(document.querySelector('#HiddenIdFlujo')?.value || '').split('|');
+              return parts.length >= 4 && parts[0] === expected && parts[3].toUpperCase() === 'ENLASE';
+            },
+            expectedTaskId,
+            { timeout: selectionTimeout }
+          )
+        ]).catch(() => fail('E2E_PLATFORM_ENLASE_TASK_NOT_LISTED'));
+        if (isExpectedEnlase(await enlaceSelection.inputValue())) return;
         await page.evaluate((expected) => {
           const candidate = document.querySelector(`[tip_event="seleccion_tarea_wf"][idd="${expected}"]`);
           const stagedTask = document.querySelector('#Hidden_id_tarea_sel');
@@ -195,7 +207,7 @@ async function selectWorkflowTask(page, plan) {
             return parts.length >= 4 && parts[0] === expected && parts[3].toUpperCase() === 'ENLASE';
           },
           expectedTaskId,
-          { timeout: Math.min(plan.profile.budgetMs, 30000) }
+          { timeout: selectionTimeout }
         ).catch(() => fail('E2E_PLATFORM_ENLASE_CONTEXT_REJECTED'));
       }
       if (!isExpectedEnlase(await enlaceSelection.inputValue())) fail('E2E_PLATFORM_ENLASE_CONTEXT_UNAVAILABLE');
@@ -247,6 +259,7 @@ async function initializeWorkflowContext(context, plan) {
 
 async function inspectImportPreviewUi({ context, plan }) {
   const page = await context.newPage();
+  const isEnlaseUi = plan.scenario.expectations.includes('enlase-ui');
   let previewRequests = 0;
   let preflightRequests = 0;
   let mutationRequests = 0;
@@ -281,11 +294,18 @@ async function inspectImportPreviewUi({ context, plan }) {
       }
       await route.continue({ postData: JSON.stringify(payload) });
     });
-    const trigger = page.locator('#ctw-document-action-service');
+    const trigger = page.locator(isEnlaseUi ? '#a_adj_service_web' : '#ctw-document-action-service');
     const triggerToggle = page.locator('.ctw-document-more-toggle:visible').first();
-    if (await trigger.getAttribute('data-import-modern-active') !== 'true' ||
-        await trigger.getAttribute('data-import-modern-bound') !== 'true') fail('IMPORT_E2E_PREVIEW_UI_UNAVAILABLE');
-    await triggerToggle.click();
+    if (await trigger.count() !== 1) fail('IMPORT_E2E_ENLASE_UI_TRIGGER_UNAVAILABLE');
+    if (await trigger.getAttribute('data-import-modern-active') !== 'true') fail('IMPORT_E2E_ENLASE_UI_BOOTSTRAP_INACTIVE');
+    if (await trigger.getAttribute('data-import-modern-bound') !== 'true') fail('IMPORT_E2E_ENLASE_UI_BINDING_UNAVAILABLE');
+    if (isEnlaseUi) {
+      if ((await trigger.getAttribute('data-import-capability') || '').toUpperCase() !== 'ANEXOS_RADICADO_ENLASE') {
+        fail('IMPORT_E2E_ENLASE_UI_CAPABILITY_INVALID');
+      }
+    } else {
+      await triggerToggle.click();
+    }
     await trigger.waitFor({ state: 'visible', timeout });
     await trigger.click();
     const modal = page.locator('#importar-servicio-web-modal');
@@ -399,10 +419,11 @@ async function inspectImportPreviewUi({ context, plan }) {
       fail('IMPORT_E2E_PREVIEW_UI_CONTEXT_NOT_RESTORED');
     }
     await page.locator('#importar-servicio-web-close').click();
-    const focusRestored = await page.evaluate(() => {
+    const focusRestored = await page.evaluate((enlase) => {
       const active = document.activeElement;
-      return active?.id === 'ctw-document-action-service' || active?.classList.contains('ctw-document-more-toggle');
-    });
+      return active?.id === (enlase ? 'a_adj_service_web' : 'ctw-document-action-service') ||
+        (!enlase && active?.classList.contains('ctw-document-more-toggle'));
+    }, isEnlaseUi);
     if (!focusRestored || await modal.isVisible()) {
       fail('IMPORT_E2E_PREVIEW_UI_CLOSE_INVALID');
     }

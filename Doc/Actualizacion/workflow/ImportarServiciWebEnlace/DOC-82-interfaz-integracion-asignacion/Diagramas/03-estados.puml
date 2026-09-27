@@ -1,0 +1,30 @@
+@startuml DOC82_D03_ESTADOS
+' Convención: CODE = símbolo resoluble; EXT = actor/sistema externo; CONCEPT = concepto
+' Fuentes: js/workflow/importar-servicio-web/importar-servicio-web-ui.js
+' Referencias CODE: JS.Ui.setExecutionCloseLock | JS.Ui.shouldCloseAfterResult | JS.Ui.close
+[*] --> Cerrado
+Cerrado --> Consultando
+Consultando --> Vacio
+Consultando --> Resultados
+Consultando --> Error
+Resultados --> VistaPrevia
+VistaPrevia --> Resultados
+Resultados --> Preparando
+Preparando --> Ejecutando
+Ejecutando --> Reconciliando
+Reconciliando --> Completado
+Reconciliando --> Parcial
+Reconciliando --> Incierto
+Reconciliando --> Fallido
+Completado --> Cerrado : JS.Ui.shouldCloseAfterResult
+Parcial --> Resultados : permanece visible
+Incierto --> Resultados : recuperación explícita
+Fallido --> Resultados : detalle seguro
+note right of Ejecutando
+  JS.Ui.setExecutionCloseLock
+  bloquea X/Escape/backdrop
+end note
+note right of Cerrado
+  JS.Ui.close restaura foco y body
+end note
+@enduml

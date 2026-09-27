@@ -46,7 +46,9 @@
 
     function taskId(control) {
         var input = document.getElementById(control.trigger.getAttribute("data-import-task-input-id"));
-        var value = input ? Number(input.value) : 0;
+        var raw = text(input && input.value), parts = raw.split("|");
+        var isEnlase = text(control.trigger.getAttribute("data-import-capability")).toUpperCase() === "ANEXOS_RADICADO_ENLASE";
+        var value = isEnlase && parts.length >= 4 && text(parts[3]).toUpperCase() === "ENLASE" ? Number(parts[0]) : Number(raw);
         return isFinite(value) && value > 0 ? value : 0;
     }
 
@@ -56,8 +58,19 @@
             OperationId: "ui-" + String(new Date().getTime()),
             CorrelationId: "ui-" + String(new Date().getTime()),
             TaskId: taskId(control),
-            ProviderId: control.providerId
+            ProviderId: control.providerId,
+            Capability: text(control.trigger.getAttribute("data-import-capability"))
         };
+    }
+
+    function activeAdapter(control) {
+        return text(control.trigger.getAttribute("data-import-capability")).toUpperCase() === "ANEXOS_RADICADO_ENLASE" && control.enlaseAdapter ? control.enlaseAdapter : control.siiAdapter;
+    }
+
+    function bindTrigger(control, trigger) {
+        if (!trigger || trigger.getAttribute("data-import-modern-active") !== "true" || trigger.getAttribute("data-import-modern-bound") === "true") { return; }
+        trigger.setAttribute("data-import-modern-bound", "true");
+        trigger.onclick = function (event) { control.trigger = trigger; return open(control, event || window.event); };
     }
 
     function radicado(control) {
@@ -101,7 +114,8 @@
         if (control.contextRecord) { control.contextRecord.textContent = control.trustedRadicado || "—"; }
         control.preparationCatalog = Array.isArray(control.resultData.DocumentTypes) ? control.resultData.DocumentTypes.slice(0) : [];
         clear(control.results);
-        if (control.adapter && typeof control.adapter.renderItems === "function") { control.adapter.renderItems(control.results, data); return; }
+        var adapter = activeAdapter(control) || control.adapter;
+        if (adapter && typeof adapter.renderItems === "function") { adapter.renderItems(control.results, data); return; }
         items.forEach(function (item) {
             var entry = document.createElement("li");
             entry.className = "importar-servicio-web__item";
@@ -179,6 +193,17 @@
         return Promise.resolve(completion).catch(function () { return false; }).then(function () { setExecutionCloseLock(control, false); close(control, true); return snapshot; });
     }
 
+    function shouldCloseAfterResult(execution, authoritative) {
+        var items = authoritative && Array.isArray(authoritative.items) ? authoritative.items : [];
+        return !!(execution && execution.isTotalSuccess === true && items.length && items.every(function (item) { return Number(item.documentId) > 0 && (item.status === "Disponible" || item.status === "Completado"); }));
+    }
+
+    function settleAfterResult(control, execution, authoritative) {
+        if (shouldCloseAfterResult(execution, authoritative)) { return closeAfterResult(control, authoritative); }
+        setExecutionCloseLock(control, false);
+        return Promise.resolve(authoritative);
+    }
+
     function executeCreatedIntent(control, intent) {
         var request = Object.assign(requestContext(control), { IntentId: intent.IntentId, VersionToken: intent.VersionToken });
         var fresh = Object.assign({}, requestContext(control), { Items: control.preparationModel.items });
@@ -192,9 +217,9 @@
             return control.reconciliation.complete(snapshot, request).then(function (reconciled) {
                 control.taskContextGuard.assertCurrent();
                 control.progressView.renderResult(snapshot); setStage(control, 4);
-                return closeAfterResult(control, reconciled);
+                return settleAfterResult(control, snapshot, reconciled);
             });
-        }).catch(function (error) { if (control.recovery.isConflict(error)) { return control.recovery.recoverConflict(error, request).then(function (result) { control.progressView.renderResult(result.snapshot); setStage(control, 4); return closeAfterResult(control, result.snapshot); }); } control.progressView.renderFailure(); setStage(control, 4); setExecutionCloseLock(control, false); throw error; }).finally(function () { control.taskContextGuard.unlock(); });
+        }).catch(function (error) { if (control.recovery.isConflict(error)) { return control.recovery.recoverConflict(error, request).then(function (result) { control.progressView.renderResult(result.snapshot); setStage(control, 4); return result.snapshot.isTotalSuccess ? closeAfterResult(control, result.snapshot) : settleAfterResult(control, result.snapshot, result.snapshot); }); } control.progressView.renderFailure(); setStage(control, 4); setExecutionCloseLock(control, false); throw error; }).finally(function () { control.taskContextGuard.unlock(); });
     }
 
     function prepareCurrent(control) {
@@ -338,7 +363,12 @@
     }
 
     function open(control, event) {
-        if (event) { event.preventDefault(); event.stopPropagation(); }
+        var isEnlase;
+        if (event) { event.preventDefault(); event.stopPropagation(); if (typeof event.stopImmediatePropagation === "function") { event.stopImmediatePropagation(); } }
+        isEnlase = text(control.trigger.getAttribute("data-import-capability")).toUpperCase() === "ANEXOS_RADICADO_ENLASE";
+        control.modal.setAttribute("data-import-capability", isEnlase ? "ANEXOS_RADICADO_ENLASE" : "CONSTANCIAS_INSCRIPCION");
+        if (control.title) { control.title.textContent = isEnlase ? "Importar anexos desde SII" : "Importar documentos desde SII"; }
+        if (control.subtitle) { control.subtitle.textContent = isEnlase ? "Consulte, seleccione y clasifique los anexos antes de asignar la tarea." : "Consulte, seleccione y clasifique las constancias antes de incorporarlas a la tarea."; }
         if (control.progressView) { control.progressView.hide(); }
         setExecutionCloseLock(control, false);
         control.listPanel.hidden = false;
@@ -356,23 +386,27 @@
 
     function initialize(options) {
         options = options || {};
-        var trigger = document.getElementById("ctw-document-action-service");
+        var triggers = Array.prototype.slice.call(document.querySelectorAll('[data-import-modern-active="true"]'));
+        var trigger = triggers[0];
         var legacy = document.getElementById("btnloadservice");
         var modal = document.getElementById("importar-servicio-web-modal");
         var apiFactory = options.api || window.ImportarServicioWebApi;
         var registryFactory = options.registry || window.ImportarServicioWebProviderRegistry;
         var coreFactory = options.core || window.ImportarServicioWebCore;
-        var control, registry, api, siiFactory, progressAdapterFactory, progressViewFactory, reconciliationFactory, documentListFactory, guardFactory, recoveryFactory;
+        var control, registry, api, siiFactory, enlaseFactory, assignmentBridgeFactory, progressAdapterFactory, progressViewFactory, reconciliationFactory, documentListFactory, guardFactory, recoveryFactory, contextControls;
 
-        if (!trigger || trigger.getAttribute("data-import-modern-active") !== "true" || trigger.getAttribute("data-import-modern-bound") === "true") { return null; }
+        if (activeControl && activeControl.modal === modal) { triggers.forEach(function (candidate) { bindTrigger(activeControl, candidate); }); return activeControl; }
+        if (!trigger) { return null; }
         if (!modal || !apiFactory || !registryFactory || !coreFactory) { return null; }
-        control = { trigger: trigger, modal: modal, dialog: document.getElementById("importar-servicio-web-dialog"), closeButton: document.getElementById("importar-servicio-web-close"), body: document.getElementById("importar-servicio-web-body"), contextTask: document.getElementById("importar-servicio-web-context-task"), contextRecord: document.getElementById("importar-servicio-web-context-record"), listPanel: document.getElementById("importar-servicio-web-list"), status: document.getElementById("importar-servicio-web-status"), results: document.getElementById("importar-servicio-web-results"), previewPanel: document.getElementById("importar-servicio-web-preview"), previewTitle: document.getElementById("importar-servicio-web-preview-title"), previewStatus: document.getElementById("importar-servicio-web-preview-status"), previewFrame: document.getElementById("importar-servicio-web-preview-frame"), previewBack: document.getElementById("importar-servicio-web-preview-back"), previewRenew: document.getElementById("importar-servicio-web-preview-renew"), previewDownload: document.getElementById("importar-servicio-web-preview-download"), previewImported: document.getElementById("importar-servicio-web-preview-imported"), preparationPanel: document.getElementById("importar-servicio-web-preparation"), preparationTitle: document.getElementById("importar-servicio-web-preparation-title"), preparationStatus: document.getElementById("importar-servicio-web-preparation-status"), preparationItems: document.getElementById("importar-servicio-web-preparation-items"), preparationPlan: document.getElementById("importar-servicio-web-preparation-plan"), preparationClose: document.getElementById("importar-servicio-web-preparation-close"), preparationCancel: document.getElementById("importar-servicio-web-preparation-cancel"), preparationConfirm: document.getElementById("importar-servicio-web-preparation-confirm"), progressPanel: document.getElementById("importar-servicio-web-progress"), progressTitle: document.getElementById("importar-servicio-web-progress-title"), progressStatus: document.getElementById("importar-servicio-web-progress-status"), progressSummary: document.getElementById("importar-servicio-web-progress-summary"), progressResults: document.getElementById("importar-servicio-web-progress-results"), providerId: text(trigger.getAttribute("data-import-provider-id")), viewImported: options.viewImported };
+        control = { trigger: trigger, modal: modal, dialog: document.getElementById("importar-servicio-web-dialog"), title: document.getElementById("importar-servicio-web-title"), subtitle: document.querySelector(".importar-servicio-web__subtitle"), closeButton: document.getElementById("importar-servicio-web-close"), body: document.getElementById("importar-servicio-web-body"), contextTask: document.getElementById("importar-servicio-web-context-task"), contextRecord: document.getElementById("importar-servicio-web-context-record"), listPanel: document.getElementById("importar-servicio-web-list"), status: document.getElementById("importar-servicio-web-status"), results: document.getElementById("importar-servicio-web-results"), previewPanel: document.getElementById("importar-servicio-web-preview"), previewTitle: document.getElementById("importar-servicio-web-preview-title"), previewStatus: document.getElementById("importar-servicio-web-preview-status"), previewFrame: document.getElementById("importar-servicio-web-preview-frame"), previewBack: document.getElementById("importar-servicio-web-preview-back"), previewRenew: document.getElementById("importar-servicio-web-preview-renew"), previewDownload: document.getElementById("importar-servicio-web-preview-download"), previewImported: document.getElementById("importar-servicio-web-preview-imported"), preparationPanel: document.getElementById("importar-servicio-web-preparation"), preparationTitle: document.getElementById("importar-servicio-web-preparation-title"), preparationStatus: document.getElementById("importar-servicio-web-preparation-status"), preparationItems: document.getElementById("importar-servicio-web-preparation-items"), preparationPlan: document.getElementById("importar-servicio-web-preparation-plan"), preparationClose: document.getElementById("importar-servicio-web-preparation-close"), preparationCancel: document.getElementById("importar-servicio-web-preparation-cancel"), preparationConfirm: document.getElementById("importar-servicio-web-preparation-confirm"), progressPanel: document.getElementById("importar-servicio-web-progress"), progressTitle: document.getElementById("importar-servicio-web-progress-title"), progressStatus: document.getElementById("importar-servicio-web-progress-status"), progressSummary: document.getElementById("importar-servicio-web-progress-summary"), progressResults: document.getElementById("importar-servicio-web-progress-results"), providerId: text(trigger.getAttribute("data-import-provider-id")), viewImported: options.viewImported };
         if (!control.dialog || !control.closeButton || !control.body || !control.listPanel || !control.status || !control.results || !control.previewPanel || !control.previewTitle || !control.previewStatus || !control.previewFrame || !control.previewBack || !control.previewRenew || !control.previewDownload || !control.previewImported) { return null; }
         api = apiFactory.create(options.apiOptions || {});
         control.api = api;
         registry = registryFactory.create({ knownNotMigrated: options.knownNotMigrated || [] });
         siiFactory = options.sii || window.ImportarServicioWebSiiAdapter;
-        if (siiFactory && registryFactory.normalizeProviderId(control.providerId) === siiFactory.canonicalId) { control.adapter = siiFactory.create({ api: api, mapper: options.siiMapper, list: options.siiList, contextFactory: function () { return requestContext(control); } }); registry.register(siiFactory.canonicalId, control.adapter); }
+        enlaseFactory = options.enlase || window.ImportarServicioWebEnlaseAdapter;
+        assignmentBridgeFactory = options.assignmentBridge || window.ImportarServicioWebEnlaseAssignmentBridge;
+        if (siiFactory && registryFactory.normalizeProviderId(control.providerId) === siiFactory.canonicalId) { control.siiAdapter = siiFactory.create({ api: api, mapper: options.siiMapper, list: options.siiList, contextFactory: function () { return requestContext(control); } }); control.enlaseAdapter = enlaseFactory ? enlaseFactory.create({ base: control.siiAdapter, contextFactory: function () { return requestContext(control); } }) : null; control.adapter = { queryItems: function (request) { return activeAdapter(control).queryItems(request); }, renderItems: function (container, data) { return activeAdapter(control).renderItems(container, data); } }; registry.register(siiFactory.canonicalId, control.adapter); }
         else if (control.providerId) { control.adapter = createBackendAdapter(api, control); registry.register(control.providerId, control.adapter); }
         control.core = coreFactory.create({ registry: registry });
         if (!options.preview && (!window.ImportarServicioWebPreview || !window.ImportarServicioWebPreviewState)) { return null; }
@@ -388,7 +422,10 @@
         control.intentClient = (options.intentClient || window.ImportarServicioWebIntentClient).create({ api: api });
         control.progressAdapter = progressAdapterFactory.create({ api: api });
         control.reconciliation = reconciliationFactory.create({ api: api });
-        control.taskContextGuard = guardFactory.create({ currentTaskId: function () { return taskId(control); }, controls: Array.prototype.slice.call(document.querySelectorAll('[data-import-context-action="true"], [data-workflow-task-action="true"]')), eventTarget: window });
+        control.assignmentBridge = assignmentBridgeFactory ? assignmentBridgeFactory.create({ document: document }) : null;
+        contextControls = Array.prototype.slice.call(document.querySelectorAll('[data-import-context-action="true"], [data-workflow-task-action="true"]'));
+        (control.assignmentBridge ? control.assignmentBridge.controls() : []).forEach(function (candidate) { if (contextControls.indexOf(candidate) < 0) { contextControls.push(candidate); } });
+        control.taskContextGuard = guardFactory.create({ currentTaskId: function () { return taskId(control); }, controls: contextControls, eventTarget: window });
         control.recovery = recoveryFactory.create({ api: api, adapt: control.reconciliation.adapt });
         control.documentList = documentListFactory.create({ currentTaskId: function () { return taskId(control); }, appendDocument: options.appendImportedDocument, refresh: function (request) { control.projectionCompletion = options.refreshDocumentList ? Promise.resolve(options.refreshDocumentList(request)) : refreshDocumentListPartial(control); }, openDocument: function (id) { return control.importedViewer.open(id); } });
         control.progressView = progressViewFactory.create({ panel: control.progressPanel, status: control.progressStatus, summary: control.progressSummary, results: control.progressResults, canViewImported: function (item) { return control.documentList.isAuthorized(item); }, viewImported: function (item) { control.documentList.open(item.documentId); } });
@@ -396,8 +433,7 @@
         control.previewFrame.addEventListener("load", function () { previewFrameLoaded(control); });
         control.previewFrame.addEventListener("error", function () { previewFrameFailed(control); });
         control.core.subscribe(function (snapshot) { render(control, snapshot); });
-        trigger.setAttribute("data-import-modern-bound", "true");
-        trigger.onclick = function (event) { return open(control, event || window.event); };
+        triggers.forEach(function (candidate) { bindTrigger(control, candidate); });
         if (legacy) { legacy.hidden = true; legacy.setAttribute("aria-hidden", "true"); }
         Array.prototype.forEach.call(document.querySelectorAll('[data-import-legacy-root="true"]'), function (legacyRoot) {
             legacyRoot.hidden = true;
@@ -420,7 +456,7 @@
         return control;
     }
 
-    var ui = { initialize: initialize, open: open, close: close, onKeydown: onKeydown, createBackendAdapter: createBackendAdapter, createImportedViewerAdapter: createImportedViewerAdapter, openPreview: openPreview, openPreparation: openPreparation, closePreparation: closePreparation, executeCreatedIntent: executeCreatedIntent, setExecutionCloseLock: setExecutionCloseLock, refreshDocumentListPartial: refreshDocumentListPartial, closeAfterResult: closeAfterResult, previewFrameLoaded: previewFrameLoaded, previewFrameFailed: previewFrameFailed, updateSelectionState: updateSelectionState, restoreListContext: restoreListContext, restoreTriggerFocus: restoreTriggerFocus, getActiveControl: function () { return activeControl; } };
+    var ui = { initialize: initialize, open: open, close: close, onKeydown: onKeydown, createBackendAdapter: createBackendAdapter, createImportedViewerAdapter: createImportedViewerAdapter, openPreview: openPreview, openPreparation: openPreparation, closePreparation: closePreparation, executeCreatedIntent: executeCreatedIntent, setExecutionCloseLock: setExecutionCloseLock, shouldCloseAfterResult: shouldCloseAfterResult, settleAfterResult: settleAfterResult, refreshDocumentListPartial: refreshDocumentListPartial, closeAfterResult: closeAfterResult, previewFrameLoaded: previewFrameLoaded, previewFrameFailed: previewFrameFailed, updateSelectionState: updateSelectionState, restoreListContext: restoreListContext, restoreTriggerFocus: restoreTriggerFocus, getActiveControl: function () { return activeControl; } };
     window.ImportarServicioWebUi = ui;
     if (typeof module !== "undefined" && module.exports) { module.exports = ui; }
     if (window.Sys && window.Sys.Application && typeof window.Sys.Application.add_load === "function") { window.Sys.Application.add_load(initialize); }

@@ -1,0 +1,36 @@
+{
+  "name": "DOC-82",
+  "version": 1,
+  "notation": "PlantUML",
+  "umlStandard": "UML 2",
+  "requiredDiagrams": [
+    { "path": "Diagramas/01-componentes.puml", "kind": "component", "symbols": ["JS.Ui.initialize", "JS.Ui.requestContext", "JS.EnlaseAdapter.create", "JS.EnlaseList.render", "VB.Webworkflow.Buttonaceptar_Click"] },
+    { "path": "Diagramas/02-interfaz-secuencia.puml", "kind": "sequence", "symbols": ["JS.Ui.open", "JS.Ui.openPreparation", "JS.Ui.executeCreatedIntent", "JS.Ui.settleAfterResult", "JS.Guard.create"] },
+    { "path": "Diagramas/03-estados.puml", "kind": "state", "symbols": ["JS.Ui.setExecutionCloseLock", "JS.Ui.shouldCloseAfterResult", "JS.Ui.close"] },
+    { "path": "Diagramas/04-asignacion-actividad.puml", "kind": "activity", "symbols": ["JS.AssignmentBridge.create", "VB.Webworkflow.Buttonaceptar_Click", "VB.Digitalizacion.VerificaObligatorios"] }
+  ],
+  "javascriptSymbols": {
+    "JS.Ui.initialize": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-ui.js", "function": "initialize", "parameters": ["options"] },
+    "JS.Ui.requestContext": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-ui.js", "function": "requestContext", "parameters": ["control"] },
+    "JS.Ui.open": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-ui.js", "function": "open", "parameters": ["control", "event"] },
+    "JS.Ui.openPreparation": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-ui.js", "function": "openPreparation", "parameters": ["control", "keys", "trigger"] },
+    "JS.Ui.executeCreatedIntent": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-ui.js", "function": "executeCreatedIntent", "parameters": ["control", "intent"] },
+    "JS.Ui.settleAfterResult": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-ui.js", "function": "settleAfterResult", "parameters": ["control", "execution", "authoritative"] },
+    "JS.Ui.setExecutionCloseLock": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-ui.js", "function": "setExecutionCloseLock", "parameters": ["control", "locked"] },
+    "JS.Ui.shouldCloseAfterResult": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-ui.js", "function": "shouldCloseAfterResult", "parameters": ["execution", "authoritative"] },
+    "JS.Ui.close": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-ui.js", "function": "close", "parameters": ["control", "force"] },
+    "JS.EnlaseAdapter.create": { "file": "js/workflow/importar-servicio-web/enlase/importar-servicio-web-enlase-adapter.js", "function": "create", "parameters": ["options"] },
+    "JS.EnlaseList.render": { "file": "js/workflow/importar-servicio-web/enlase/importar-servicio-web-enlase-list.js", "function": "render", "parameters": ["container", "data"] },
+    "JS.AssignmentBridge.create": { "file": "js/workflow/importar-servicio-web/enlase/importar-servicio-web-enlase-assignment-bridge.js", "function": "create", "parameters": ["options"] },
+    "JS.Guard.create": { "file": "js/workflow/importar-servicio-web/importar-servicio-web-task-context-guard.js", "function": "create", "parameters": ["options"] }
+  },
+  "dotnetSymbols": {
+    "VB.Webworkflow.Buttonaceptar_Click": { "file": "workflow/Webworkflow.aspx.vb", "type": "Webworkflow", "method": "Buttonaceptar_Click", "parameters": ["Object", "EventArgs"], "return": "System.Void", "visibility": "nonpublic" },
+    "VB.Digitalizacion.VerificaObligatorios": { "file": "workflow/ClassWorkflowDigitalizacion.vb", "type": "ClassWorkflowDigitalizacion", "method": "Verfica_existencia_tipo_documental_obligatorio_digitalizado", "parameters": ["System.String", "System.String", "System.Int32"], "return": "System.String" }
+  },
+  "dotnetTypes": {},
+  "excludedKinds": {
+    "external": ["EXT:Usuario Workflow", "EXT:Navegador", "EXT:SII", "EXT:ASMX DOC-80/81"],
+    "conceptual": ["CONCEPT:Cerrado", "CONCEPT:Parcial", "CONCEPT:Incierto", "CONCEPT:Fallido"]
+  }
+}
