@@ -1,5 +1,11 @@
 # DOC-83 — Impacto UI
 
+- Ticket: DOC-83
+- Cambio OpenSpec: doc-83-pruebas-servicio-sii-enlace
+- Clasificacion: cross_cutting
+
+## Superficies UI
+
 No se modifican markup, CSS ni JavaScript productivos. La regresión valida las superficies existentes:
 
 - modal ENLASE con semántica, foco y anuncios accesibles;
@@ -10,5 +16,7 @@ No se modifican markup, CSS ni JavaScript productivos. La regresión valida las 
 - cierre solo ante éxito total confirmado;
 - error, parcial o incertidumbre visibles;
 - asignación como acción separada y explícita.
+
+## Validacion visual
 
 La validación visual real se reutiliza de DOC-82. DOC-83 no afirma una revisión visual nueva sin una corrida autorizada.

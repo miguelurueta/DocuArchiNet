@@ -1,5 +1,11 @@
 # DOC-83 — Contratos e integraciones
 
+- Ticket: DOC-83
+- Cambio OpenSpec: doc-83-pruebas-servicio-sii-enlace
+- Clasificacion: cross_cutting
+
+## Contratos e integraciones
+
 DOC-83 no agrega endpoint, DTO, esquema o proveedor. Reutiliza los escenarios registrados:
 
 | Escenario | Etapa | Recurso | Autorización mínima |
