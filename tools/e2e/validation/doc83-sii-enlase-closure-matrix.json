@@ -1,0 +1,296 @@
+{
+    "schemaVersion":  1,
+    "ticket":  "DOC-83",
+    "capability":  "ANEXOS_RADICADO_ENLASE",
+    "policy":  {
+                   "realExecutionRequiresCurrentExplicitAuthorization":  true,
+                   "assignmentUsesIndependentReservation":  true,
+                   "controlsMustBeRegisteredSelects":  true,
+                   "safeFinalGate":  {
+                                         "enabled":  false,
+                                         "users":  [
+
+                                                   ],
+                                         "groups":  [
+
+                                                    ]
+                                     }
+               },
+    "scenarios":  [
+                      {
+                          "id":  "import-sii-enlase-read",
+                          "sourceDoc":  "DOC-80",
+                          "coverage":  "historical-e2e",
+                          "stage":  "read",
+                          "mutating":  false,
+                          "requiredBaseAuthorizations":  [
+                                                             "environment",
+                                                             "gate"
+                                                         ],
+                          "requiredControls":  [
+                                                   "import-intent-state",
+                                                   "import-item-state",
+                                                   "import-transition-audit",
+                                                   "import-expedient-state",
+                                                   "import-document-relation-state",
+                                                   "import-document-link-cache-state",
+                                                   "import-document-index-state"
+                                               ],
+                          "requiredExpectations":  [
+                                                       "real-sii",
+                                                       "enlase-context",
+                                                       "no-state-change",
+                                                       "temporary-feature-gate",
+                                                       "sanitized-evidence"
+                                                   ],
+                          "evidence":  "Doc/Actualizacion/workflow/ImportarServiciWebEnlace/DOC-80-capacidad-consulta-preview/README.md"
+                      },
+                      {
+                          "id":  "import-sii-enlase-execution",
+                          "sourceDoc":  "DOC-81",
+                          "coverage":  "historical-e2e",
+                          "stage":  "execution",
+                          "mutating":  true,
+                          "requiredBaseAuthorizations":  [
+                                                             "environment",
+                                                             "gate"
+                                                         ],
+                          "requiredStageAuthorizations":  [
+                                                              "execution",
+                                                              "discardable-resource"
+                                                          ],
+                          "requiredControls":  [
+                                                   "import-intent-state",
+                                                   "import-item-state",
+                                                   "import-transition-audit",
+                                                   "import-expedient-state",
+                                                   "import-document-relation-state",
+                                                   "import-document-link-cache-state",
+                                                   "import-document-index-state"
+                                               ],
+                          "requiredExpectations":  [
+                                                       "real-sii",
+                                                       "single-intent",
+                                                       "physical-evidence",
+                                                       "no-expedient-effects",
+                                                       "no-task-transition",
+                                                       "temporary-feature-gate",
+                                                       "sanitized-evidence"
+                                                   ],
+                          "evidence":  "Doc/Actualizacion/workflow/ImportarServiciWebEnlace/DOC-81-preparacion-persistencia-reconciliacion/04-PRUEBAS-SEGURIDAD-ROLLBACK.md"
+                      },
+                      {
+                          "id":  "import-sii-enlase-ui",
+                          "sourceDoc":  "DOC-82",
+                          "coverage":  "historical-e2e",
+                          "stage":  "read",
+                          "mutating":  false,
+                          "requiredBaseAuthorizations":  [
+                                                             "environment",
+                                                             "gate"
+                                                         ],
+                          "requiredControls":  [
+                                                   "import-intent-state",
+                                                   "import-item-state",
+                                                   "import-transition-audit",
+                                                   "import-expedient-state",
+                                                   "import-document-relation-state",
+                                                   "import-document-link-cache-state",
+                                                   "import-document-index-state"
+                                               ],
+                          "requiredExpectations":  [
+                                                       "real-sii",
+                                                       "enlase-ui",
+                                                       "no-state-change",
+                                                       "temporary-feature-gate",
+                                                       "sanitized-evidence"
+                                                   ],
+                          "evidence":  "Doc/Actualizacion/workflow/ImportarServiciWebEnlace/DOC-82-interfaz-integracion-asignacion/04-PRUEBAS-SEGURIDAD-Y-OPERACION.md"
+                      },
+                      {
+                          "id":  "import-sii-enlase-anonymous",
+                          "sourceDoc":  "DOC-83",
+                          "coverage":  "current-e2e",
+                          "stage":  "anonymous",
+                          "mutating":  false,
+                          "requiredBaseAuthorizations":  [
+                                                             "environment",
+                                                             "gate"
+                                                         ],
+                          "requiredControls":  [
+
+                                               ],
+                          "requiredExpectations":  [
+                                                       "blocked-without-session",
+                                                       "temporary-feature-gate",
+                                                       "sanitized-evidence"
+                                                   ],
+                          "evidence":  "Doc/Actualizacion/workflow/ImportarServiciWebEnlace/DOC-83-pruebas-gate-compatibilidad/04-EVIDENCIA-Y-LIMITACIONES.md"
+                      },
+                      {
+                          "id":  "import-sii-enlase-assignment",
+                          "sourceDoc":  "DOC-83",
+                          "coverage":  "current-e2e-blocked-and-assigned",
+                          "stage":  "assignment",
+                          "mutating":  true,
+                          "requiredBaseAuthorizations":  [
+                                                             "environment",
+                                                             "gate"
+                                                         ],
+                          "requiredStageAuthorizations":  [
+                                                              "execution",
+                                                              "discardable-resource"
+                                                          ],
+                          "requiredControls":  [
+                                                   "workflow-assignment-state"
+                                               ],
+                          "requiredExpectations":  [
+                                                       "enlase-context",
+                                                       "explicit-assignment-ui",
+                                                       "authoritative-document-validation",
+                                                       "temporary-feature-gate",
+                                                       "sanitized-evidence"
+                                                   ],
+                          "evidence":  "Doc/Actualizacion/workflow/ImportarServiciWebEnlace/DOC-83-pruebas-gate-compatibilidad/04-EVIDENCIA-Y-LIMITACIONES.md"
+                      }
+                  ],
+    "risks":  [
+                  {
+                      "id":  "R-DOC83-01",
+                      "severity":  "high",
+                      "description":  "Consulta o preview fuera del contexto ENLASE autorizado.",
+                      "closure":  "deterministic-and-historical-e2e",
+                      "tests":  [
+                                    "tests/importar-servicio-web-enlase-context.test.cjs",
+                                    "tests/importar-servicio-web-enlase-list.test.cjs",
+                                    "tests/importar-servicio-web-preview-authorization.test.cjs",
+                                    "tools/e2e/tests/doc80-import-sii-enlase-read.test.cjs"
+                                ],
+                      "scenarios":  [
+                                        "import-sii-enlase-read"
+                                    ]
+                  },
+                  {
+                      "id":  "R-DOC83-02",
+                      "severity":  "high",
+                      "description":  "Una operacion de lectura modifica intencion, documento, relacion o indice.",
+                      "closure":  "deterministic-and-historical-e2e",
+                      "tests":  [
+                                    "tests/importar-servicio-web-preview-mediation.test.cjs",
+                                    "tests/importar-servicio-web-query-no-extra-sii-calls.test.cjs",
+                                    "tools/e2e/tests/doc80-import-sii-enlase-read.test.cjs"
+                                ],
+                      "scenarios":  [
+                                        "import-sii-enlase-read",
+                                        "import-sii-enlase-ui"
+                                    ]
+                  },
+                  {
+                      "id":  "R-DOC83-03",
+                      "severity":  "very-high",
+                      "description":  "La importacion multiple duplica intenciones o no confirma persistencia fisica por elemento.",
+                      "closure":  "deterministic-and-historical-e2e",
+                      "tests":  [
+                                    "tests/importar-servicio-web-enlase-persistence-contract.test.cjs",
+                                    "tests/importar-servicio-web-intent-idempotency.test.cjs",
+                                    "tests/importar-servicio-web-intent-concurrency.test.cjs",
+                                    "tests/importar-servicio-web-reconciliation.test.cjs",
+                                    "tools/e2e/tests/doc81-import-sii-enlase-execution.test.cjs"
+                                ],
+                      "scenarios":  [
+                                        "import-sii-enlase-execution"
+                                    ]
+                  },
+                  {
+                      "id":  "R-DOC83-04",
+                      "severity":  "high",
+                      "description":  "La interfaz pierde seleccion multiple, preview, foco, cierre por resultado o adaptacion responsive.",
+                      "closure":  "deterministic-and-historical-e2e",
+                      "tests":  [
+                                    "tests/importar-servicio-web-enlase-ui.test.cjs",
+                                    "tests/importar-servicio-web-enlase-accessibility.test.cjs",
+                                    "tools/e2e/tests/doc82-import-sii-enlase-ui.test.cjs"
+                                ],
+                      "scenarios":  [
+                                        "import-sii-enlase-ui"
+                                    ]
+                  },
+                  {
+                      "id":  "R-DOC83-05",
+                      "severity":  "very-high",
+                      "description":  "Importar asigna automaticamente o evita la revalidacion autoritativa de Buttonaceptar_Click.",
+                      "closure":  "deterministic-and-current-e2e",
+                      "tests":  [
+                                    "tests/importar-servicio-web-enlase-assignment.test.cjs",
+                                    "tests/workflow-transition-confirmation-integration.test.cjs",
+                                    "tools/e2e/tests/doc83-import-sii-enlase-assignment.test.cjs"
+                                ],
+                      "scenarios":  [
+                                        "import-sii-enlase-assignment"
+                                    ]
+                  },
+                  {
+                      "id":  "R-DOC83-06",
+                      "severity":  "high",
+                      "description":  "El gate deja doble ruta, alcance residual o altera la superficie legacy.",
+                      "closure":  "deterministic-and-historical-restoration",
+                      "tests":  [
+                                    "tests/importar-servicio-web-gate.test.cjs",
+                                    "tests/importar-servicio-web-gate-regression.test.cjs",
+                                    "tests/importar-servicio-web-legacy-regression.test.cjs",
+                                    "tests/importar-servicio-web-legacy-surface-invariance.test.cjs",
+                                    "tools/e2e/tests/workflow-e2e-platform.test.cjs"
+                                ],
+                      "scenarios":  [
+                                        "import-sii-enlase-read",
+                                        "import-sii-enlase-execution",
+                                        "import-sii-enlase-ui"
+                                    ]
+                  },
+                  {
+                      "id":  "R-DOC83-07",
+                      "severity":  "high",
+                      "description":  "La plataforma admite acceso sin autorizacion, perfiles inseguros o evidencia no saneada.",
+                      "closure":  "deterministic-and-current-e2e",
+                      "tests":  [
+                                    "tests/importar-servicio-web-authorization.test.cjs",
+                                    "tests/importar-servicio-web-preview-security.test.cjs",
+                                    "tools/e2e/tests/workflow-e2e-platform-profile.test.cjs",
+                                    "tools/e2e/tests/workflow-e2e-platform-security.test.cjs",
+                                    "tools/e2e/tests/doc83-import-sii-enlase-anonymous.test.cjs"
+                                ],
+                      "scenarios":  [
+                                        "import-sii-enlase-anonymous"
+                                    ]
+                  },
+                  {
+                      "id":  "R-DOC83-08",
+                      "severity":  "high",
+                      "description":  "Un resultado tardio se aplica a otra tarea o se pierde aislamiento de contexto.",
+                      "closure":  "deterministic-and-historical-e2e",
+                      "tests":  [
+                                    "tests/importar-servicio-web-task-context-guard.test.cjs",
+                                    "tests/importar-servicio-web-task-isolation.test.cjs",
+                                    "tests/importar-servicio-web-multi-tab-context.test.cjs",
+                                    "tools/e2e/tests/doc82-import-sii-enlase-ui.test.cjs"
+                                ],
+                      "scenarios":  [
+                                        "import-sii-enlase-ui"
+                                    ]
+                  },
+                  {
+                      "id":  "R-DOC83-09",
+                      "severity":  "high",
+                      "description":  "La modernizacion ENLASE causa una regresion en la importacion legacy de constancias.",
+                      "closure":  "deterministic-complete",
+                      "tests":  [
+                                    "tests/importar-servicio-web-legacy-ui-regression.test.cjs",
+                                    "tests/importar-servicio-web-sii-legacy-compatibility.test.cjs",
+                                    "tests/importar-servicio-web-storage-invariance-ui.test.cjs"
+                                ],
+                      "scenarios":  [
+
+                                    ]
+                  }
+              ]
+}

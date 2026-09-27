@@ -1,169 +1,77 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
 ## Context
 
-DOC-83: PRUEBAS-SERVICIO-SII-ENLACE
-
-## Jira Details
-
-> # Prompt 04 — Pruebas, gate, compatibilidad y cierre OPSXJ
-> 
-> ## Contexto de ejecución OPSXJ
-> 
-> Este prompt se ejecuta dentro de un ticket OPSXJ previamente creado y revisado. No ejecutar `opsxj:new`, no crear otro ticket, no reiniciar la orquestación y no crear un cambio OpenSpec manual. Continúa exclusivamente sobre el contexto, identificador y artefactos OPSXJ recibidos.
-> 
-> Este prompt completa la validación del flujo; no amplía por sí mismo la autorización para ejecutar E2E, activar gates o usar cuentas reales.
-> 
-> ## Rol esperado
-> 
-> Actúa como QA senior, arquitecto de confiabilidad y responsable de transición reversible. Verifica evidencia real; no reemplaces fallos con mocks, resultados inventados ni validaciones manuales incompletas.
-> 
-> ## Contexto obligatorio
-> 
-> Lee completamente antes de diseñar o ejecutar validaciones:
-> 
-> - `../exploracion/modernizacion-importacion-anexos-sii-enlase.md` como base arquitectónica común y fuente de la matriz E2E y de reutilización.
-> - Prompts 01 a 03 y sus entregables reales.
-> - `AGENTS.md`.
-> - `tools/e2e/AGENT-RUNBOOK.md` antes de cualquier prueba autenticada aplicable.
-> - Infraestructura E2E existente de `ImportarServicioWeb`.
-> - Perfiles, fixtures, validadores y evidencia saneada existentes.
-> - Configuración vigente del gate y flujo legacy `ENLASE`.
-> - Documentación y pruebas de DOC-56 y DOC-79 como patrones de seguridad y restauración.
-> 
-> La cobertura debe demostrar las decisiones y riesgos documentados en la exploración, no limitarse a verificar que la interfaz abre. Mantén trazabilidad entre cada riesgo alto o muy alto, su prueba, evidencia y resultado OPSXJ.
-> 
-> Si las pruebas o la evidencia real contradicen la exploración, registra el hallazgo, conserva el fallo y actualiza la documentación mediante OPSXJ. No adaptes la expectativa después de la corrida para declarar éxito, no ocultes el resultado y no cierres el ticket mientras exista una contradicción material sin resolver.
-> 
-> ## Objetivo
-> 
-> Demostrar que la capacidad moderna de anexos SII funciona de extremo a extremo, conserva el flujo legacy cuando corresponde, no contamina otras tareas y puede activarse o revertirse de manera segura mediante el mecanismo aprobado.
-> 
-> ## Reutilización obligatoria
-> 
-> - Reutilizar exclusivamente `tools/e2e`, su autenticación, configuración, sanitización y utilidades.
-> - Extender escenarios existentes cuando sea técnicamente coherente.
-> - No crear otro proyecto Playwright, login, `.env`, arnés, configuración, carpeta E2E o sistema de evidencias paralelo.
-> - Reutilizar fixtures y pruebas focales de `ImportarServicioWeb`; no copiarlos para cambiar solamente nombres.
-> 
-> ## Cobertura obligatoria
-> 
-> ### Pruebas locales y de integración
-> 
-> - Registro y resolución de la capacidad.
-> - Autorización del contexto `ENLASE`.
-> - Consulta, preview y descarga segura.
-> - Preparación individual y múltiple.
-> - Tipología predeterminada inequívoca y selección manual cuando sea ambigua.
-> - Idempotencia, concurrencia, resultado parcial e incierto.
-> - Existencia física, deduplicación y reconciliación.
-> - Actualización de documentos relacionados.
-> - Protección ante cambio de tarea.
-> - Revalidación anterior a la asignación.
-> - Accesibilidad y comportamiento adaptable.
-> - Gate habilitado y deshabilitado.
-> - Regresión de constancias SII y del flujo legacy.
-> 
-> ### E2E autorizada
-> 
-> Cuando exista autorización expresa, cubrir como mínimo:
-> 
-> 1. Lectura con una tarea `ENLASE` válida sin producir mutaciones.
-> 2. Cero, uno y múltiples anexos.
-> 3. Selección total y preparación de múltiples elementos.
-> 4. Preview seguro.
-> 5. Importación autorizada con datos descartables.
-> 6. Resultado visible en la lista documental de la tarea original.
-> 7. Ausencia de duplicados ante repetición o recuperación.
-> 8. Rechazo de contexto, capacidad o acceso directo no autorizado.
-> 9. Bloqueo de asignación cuando falten documentos.
-> 10. Asignación explícita después de completar requisitos.
-> 11. Regresión con gate desactivado.
-> 12. Restauración íntegra del ambiente al finalizar.
-> 
-> ## Reglas operativas de seguridad
-> 
-> - No ejecutar E2E real, carga ni activar gates sin autorización explícita para ambiente, cuentas y datos.
-> - No guardar, imprimir ni incorporar a evidencia credenciales, cookies, tokens o cadenas de conexión.
-> - Utilizar secretos efímeros durante la ejecución autorizada.
-> - Las consultas de control deben ser exclusivamente `SELECT`.
-> - Una prueba de lectura no puede cambiar tarea, estado, documento, expediente, índice, caché o auditoría funcional.
-> - Una prueba mutadora requiere autorización separada y datos descartables identificados.
-> - Ante fallo de integridad del gate, proveedor, legacy o evidencia, detener la corrida de forma segura.
-> - Verificar y documentar la restauración del gate, usuarios y grupos conforme a la configuración aprobada.
-> 
-> ## Gate y transición
-> 
-> - Inspeccionar primero si `WorkflowCentroTrabajoModernActive` es reutilizable para esta capacidad sin acoplar indebidamente ambos recorridos.
-> - Si se requiere alcance independiente, proponerlo y obtener aprobación dentro de OPSXJ; no inventar ni activar un gate nuevo silenciosamente.
-> - Ocultar la interfaz no reemplaza autorización backend.
-> - Cada endpoint moderno debe validar la habilitación y el contexto completo.
-> - No retirar controles, handlers o endpoints legacy en este prompt salvo que el ticket lo autorice expresamente y exista inventario sin referencias más rollback probado.
-> - La primera entrega debe priorizar alternancia reversible.
-> 
-> ## Matriz de cierre
-> 
-> | Condición | Requisito de cierre |
-> |---|---|
-> | Suites focales | Todas aprobadas |
-> | Build/compilación | Aprobado o limitación externa demostrada |
-> | E2E requerida | Ejecutada con autorización y evidencia saneada |
-> | E2E no autorizada | Bloqueo explícito; no declarar validación completa |
-> | Gate | Restaurado y verificado |
-> | Flujo legacy | Disponible cuando el gate está apagado |
-> | Capacidad moderna | Autorizada en backend, no solo visible en UI |
-> | Persistencia | Documento y relación verificados |
-> | Idempotencia | Sin duplicados |
-> | Tarea | No asignada por la importación |
-> | Asignación | Solo después de revalidación explícita |
-> | Evidencia | Saneada y trazable |
-> | Documentación | Coincide con el código realmente entregado |
-> 
-> ## Restricciones críticas y antirregresión
-> 
-> - No corregir una prueba debilitando validaciones productivas.
-> - No introducir esperas arbitrarias para ocultar carreras.
-> - No aceptar un resultado visual como prueba única de persistencia.
-> - No ejecutar scripts SQL mutadores como consultas de control.
-> - No eliminar legacy únicamente porque la interfaz moderna abrió correctamente.
-> - No cerrar OPSXJ con pruebas obligatorias omitidas sin bloqueo formal.
-> - No declarar éxito basándose en mocks cuando el criterio exige integración real.
-> 
-> ## Documentación y evidencia
-> 
-> Documenta exclusivamente en:
-> 
-> ```text
-> Doc/Actualizacion/workflow/ImportarServiciWebEnlace/<TICKET>-pruebas-gate-compatibilidad/
-> ```
-> 
-> Incluye inventario legacy, matriz de pruebas, comandos, resultados, evidencia saneada, gate, autorización, restauración, rollout, rollback, limitaciones y metadata OPSXJ.
-> 
-> ## Entregable final
-> 
-> Entrega código de pruebas, validadores, documentación y evidencia. Código, E2E autorizada y evidencia forman una sola unidad cuando el criterio funcional exige recorrido real. Continúa publicación, sincronización y cierre únicamente mediante OPSXJ.
+DOC-83 cierra la validación transversal de la importación moderna de anexos SII ENLASE implementada por DOC-80, DOC-81 y DOC-82. El alcance es pruebas, evidencia, gate, compatibilidad y operación reversible; no es una cuarta implementación funcional.
 
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Convertir riesgos altos y muy altos en una matriz trazable de prueba, evidencia y criterio de cierre.
+- Reutilizar la plataforma E2E y las suites focales existentes.
+- Demostrar separación entre lectura, importación y asignación.
+- Mantener gate y legacy restaurables y fallar cerrado ante evidencia incompleta.
 
 **Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+- Crear proveedor, endpoint, modal, login, gate o almacenamiento nuevos.
+- Retirar legacy o cambiar la política de asignación.
+- Ejecutar E2E real sin autorización vigente, o repetir una mutación ya demostrada sin necesidad técnica.
+- Corregir producción debilitando una expectativa de prueba.
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Cierre orientado a evidencia, no nueva funcionalidad
 
+DOC-83 añade pruebas, validadores y documentación. Una falla productiva se conserva como hallazgo y requiere refinamiento explícito antes de cualquier corrección de lógica.
+
+### D-02 — Inventario único de cobertura
+
+Una matriz versionada relacionará cada riesgo y condición de cierre con requisito, prueba determinista, escenario E2E, autorización, mutabilidad, controles y evidencia. La prueba documental fallará si falta una fila obligatoria o referencia registrada.
+
+### D-03 — Reutilización de tres recorridos existentes
+
+`import-sii-enlase-read` demuestra lectura/preview sin cambios; `import-sii-enlase-ui` demuestra interacción real no mutadora; `import-sii-enlase-execution` demuestra intención, persistencia física y ausencia de transición. DOC-83 los orquesta y extiende solo donde exista una brecha verificable.
+
+### D-04 — Fronteras de autorización independientes
+
+Lectura exige ambiente y gate. Importación exige además ejecución y recurso descartable. Una asignación exitosa, si debe ejecutarse, usa autorización y reserva E2E independientes de la importación. Por defecto se prepara otra tarea; reutilizar la misma exige autorización expresa y una precondición funcional nueva verificable. Ninguna autorización se hereda entre corridas.
+
+### D-05 — Gate global existente y rollback verificable
+
+Se conserva `WorkflowCentroTrabajoModernActive`; no se crea gate ENLASE paralelo. El runner es el único autorizado para habilitarlo temporalmente y debe restaurar `false`, usuarios y grupos vacíos en `finally`. Gate apagado conserva la superficie legacy y no enlaza bootstrap moderno.
+
+### D-06 — Evidencia mínima, saneada y autoritativa
+
+Los controles son `SELECT` registrados. La evidencia conserva códigos, conteos, huellas, aserciones y eventos de recurso; excluye cuerpos SII, credenciales, cookies, tokens, cadenas de conexión e identidades innecesarias. Una señal visual no sustituye persistencia física o controles de tarea.
+
+### D-07 — Idempotencia y aislamiento por tarea
+
+La matriz debe cubrir intención única, selección múltiple, repetición/recuperación sin duplicados, existencia física y rechazo de respuestas de otra tarea. No se reejecutará una mutación solo para obtener otra captura cuando la evidencia previa siga siendo aplicable y trazable.
+
+### D-08 — Asignación explícita conserva autoridad legacy
+
+Importar nunca asigna. La cobertura verifica que `Buttonaceptar_Click` revalida documentos obligatorios y que una asignación real solo se prueba con autorización mutadora separada. DOC-83 no inventa `ValidateAssignment` ni anuncia habilitación preventiva.
+
+### D-09 — Cierre fallando cerrado
+
+No se declara validación completa si falta autorización E2E, recurso descartable, proveedor, integridad legacy, restauración o evidencia. El resultado se registra como bloqueo explícito; OPSXJ solo continúa cuando la matriz obligatoria está satisfecha o documenta una limitación externa aceptada.
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+- Las evidencias DOC-80/81/82 pertenecen a corridas y recursos concretos; deben citarse sin presentarlas como cobertura universal de ambientes.
+- El gate global acopla temporalmente varias capacidades modernas, pero crear otro gate en un ticket de pruebas aumentaría el riesgo y excedería el alcance.
+- Asignar una tarea es una mutación distinta de importar; ambas operaciones conservan reservas y autorizaciones independientes. Reutilizar la tarea subyacente es una excepción trazada, no una autorización heredada.
+- Casos cero/uno/múltiples dependen de datos externos reales; la matriz debe distinguir cobertura determinista de observación E2E.
+- El estado remoto del SII puede impedir una corrida; el fallo se conserva y no se reemplaza con mocks cuando el criterio exige integración real.
 
-## Migration Plan
+## Validation Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+1. Inventariar suites, escenarios, perfiles, controles y evidencias DOC-80/81/82.
+2. Ejecutar pruebas deterministas de contratos, autorización, gate, legacy, UI, persistencia, idempotencia y documentación.
+3. Añadir escenarios/políticas faltantes sin duplicar infraestructura.
+4. Solicitar autorización solo al llegar a una E2E real concreta y declarar su mutabilidad.
+5. Comprobar restauración del gate y ausencia de cambios no autorizados incluso ante fallos.
+6. Registrar resultados y limitaciones en documentación DOC-83 y evidencia OPSXJ.
 
-## Open Questions
+## Rollback
 
-- TBD
+Los cambios de DOC-83 son pruebas/documentación. Su rollback retira esos artefactos sin tocar producción. Durante E2E, el runner restaura el contenido original de configuración; si falla la integridad final, la corrida se detiene y no se declara éxito ni se continúa con otra etapa.

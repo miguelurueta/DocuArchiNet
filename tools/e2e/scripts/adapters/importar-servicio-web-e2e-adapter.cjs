@@ -379,6 +379,17 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
   id: 'importar-servicio-web', servicePath: SERVICE_PATH, operations,
   expectations: Object.freeze(['real-sii', 'no-duplicate-intent', 'no-duplicate-document', 'sanitized-evidence']),
 
+  async executeAnonymous({ invoke, budgetMs }) {
+    if (typeof invoke !== 'function' || !Number.isSafeInteger(budgetMs) || budgetMs <= 0) fail('IMPORT_E2E_ENLASE_ANONYMOUS_INPUT_INVALID');
+    const result = await invoke('QueryItems', request({
+      ...base(1), Capability: 'ANEXOS_RADICADO_ENLASE', CodigoBarras: '', PageSize: 1, ContinuationToken: ''
+    }));
+    if (!result || !Number.isSafeInteger(result.elapsedMs) || result.elapsedMs < 0 || result.elapsedMs > budgetMs) fail('IMPORT_E2E_ENLASE_ANONYMOUS_BUDGET_INVALID');
+    const code = errorCode(result.dto);
+    const safelyBlocked = code === 'FEATURE_DISABLED' || (typeof code === 'string' && /^SESSION_[A-Z0-9_]{3,72}$/.test(code));
+    if (!safelyBlocked || items(result.dto).length !== 0) fail('IMPORT_E2E_ENLASE_ANONYMOUS_NOT_BLOCKED');
+    return Object.freeze({ codes: Object.freeze({ query: code }), count: 0, latenciesMs: Object.freeze([result.elapsedMs]) });
+  },
   finalizeEvidence(result, { integrityConfirmed = false } = {}) {
     if (!result || !Array.isArray(result.assertions) || !integrityConfirmed) return result;
     const assertions = result.assertions.map((assertion) => {
@@ -485,6 +496,14 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
       ...(previewContract ? { previewContent: 'CONFIRMED' } : {}),
       ...(previewContract?.expiry === 'REJECTED' ? { previewExpiry: 'CONFIRMED' } : {}),
       ...(preflightCode === null ? { preflight: null } : {}) }), count: preflightCode === null ? 4 : 3, latenciesMs: Object.freeze(latencies) });
+  },
+
+  async executeAssignment() {
+    return Object.freeze({
+      codes: Object.freeze({ assignmentAction: 'EXPLICIT' }),
+      count: 0,
+      latenciesMs: Object.freeze([])
+    });
   },
 
   async executeExecution({ invoke, taskId, budgetMs, profile }) {

@@ -18,6 +18,7 @@ const SAFE_STAGE_AUTHORIZATIONS = Object.freeze({
   read: Object.freeze([]),
   preview: Object.freeze([]),
   execution: Object.freeze(['execution', 'discardable-resource']),
+  assignment: Object.freeze(['execution', 'discardable-resource']),
   concurrency: Object.freeze(['execution', 'concurrency', 'discardable-resource']),
   'ui-lock': Object.freeze(['ui-lock', 'discardable-resource'])
 });
@@ -218,6 +219,11 @@ function controlsMeetExpectation(plan, before, after, result) {
       if ((mode === 'without-expedient' && changed) || (mode === 'with-expedient' && !changed) ||
           !['without-expedient', 'with-expedient'].includes(mode)) return false;
     }
+    if (expectation === 'assignment-mode') {
+      const mode = result?.codes?.assignmentResult;
+      if ((mode === 'BLOCKED' && changed) || (mode === 'ASSIGNED' && !changed) ||
+          !['BLOCKED', 'ASSIGNED'].includes(mode)) return false;
+    }
   }
   return true;
 }
@@ -382,7 +388,7 @@ async function executePlatformRun(options) {
     } else {
       adapterResult = await handler({ invoke: restrictedInvoke, consumePreview: restrictedPreviewConsumer, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs, profile: plan.profile });
     }
-    if (plan.scenario.expectations.includes('secure-preview-ui')) {
+    if (plan.scenario.expectations.includes('secure-preview-ui') || plan.scenario.expectations.includes('explicit-assignment-ui')) {
       if (typeof inspectSession !== 'function' || !context) fail('E2E_PLATFORM_SESSION_INSPECTOR_REQUIRED');
       const inspection = await inspectSession({ context, plan });
       if (!inspection || typeof inspection !== 'object' || Array.isArray(inspection)) fail('E2E_PLATFORM_SESSION_INSPECTION_INVALID');

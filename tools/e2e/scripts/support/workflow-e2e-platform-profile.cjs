@@ -92,7 +92,15 @@ function validateProfile(input) {
   } else if (input.noteId !== undefined) {
     fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
   }
-  if (scenario.adapterId === 'importar-servicio-web') {
+  if (scenario.adapterId === 'importar-servicio-web' && scenario.stage !== 'anonymous') {
+    if (scenario.stage === 'assignment') {
+      if (input.radicado !== undefined || input.codigoBarras !== undefined || input.sampleSize !== undefined ||
+          input.documentTypeId !== undefined || input.documentTypeName !== undefined || input.intentId !== undefined ||
+          input.minimumExpedientCount !== undefined || input.prepareStoppedIntent !== undefined || input.concurrencyLevel !== undefined) {
+        fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
+      }
+      return Object.freeze(profile);
+    }
     const preparesRetry = scenario.id === 'import-sii-retry' && input.prepareStoppedIntent === true;
     if (input.prepareStoppedIntent !== undefined && !preparesRetry) fail('E2E_PLATFORM_PROFILE_RETRY_PREPARATION_INVALID');
     if (preparesRetry) profile.prepareStoppedIntent = true;

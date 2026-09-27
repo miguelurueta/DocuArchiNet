@@ -238,3 +238,13 @@ npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario import-sii-e
 ```
 
 Los controles SQL permanecen registrados y son únicamente `SELECT`. La corrida confirma intención idempotente, documento con evidencia lógica/física, ausencia de efectos de expediente y preservación del estado de la tarea. En `finally` restaura el gate a `false`, con usuarios y grupos vacíos, y conserva evidencia saneada.
+
+## DOC-83 asignación explícita ENLASE
+
+DOC-83 reutiliza la misma sesión, TTY, ciclo de recursos y restauración con `import-sii-enlase-assignment`. Es una etapa mutadora independiente de la importación y requiere otra tarea descartable. No llama al servicio SII: acciona `enlase-assign-action`, deja que `Buttonaceptar_Click` revalide los documentos obligatorios y compara un `SELECT` registrado sobre `estados_tarea_workflow`.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario import-sii-enlase-assignment --profile <perfil-runtime.json> --authorize environment,gate,execution,discardable-resource
+```
+
+`assignmentResult=BLOCKED` solo es válido con el control intacto y un aviso funcional observado. `assignmentResult=ASSIGNED` exige cambio en el control. La evidencia no guarda el texto del aviso ni identidades. Cualquiera de los caminos consume conservadoramente el recurso para impedir una repetición accidental; una validación exitosa posterior necesita otra tarea descartable y una autorización nueva.

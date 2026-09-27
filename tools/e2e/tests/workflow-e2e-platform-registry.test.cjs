@@ -21,7 +21,7 @@ test('el registro de plataforma solo resuelve escenarios, controles y adaptadore
   assert.deepEqual(resolveControls(scenario.controls).map((control) => control.id), ['notes-task-state', 'notes-audit']);
   assert.throws(() => resolveScenario('script-arbitrario'), { code: 'E2E_PLATFORM_SCENARIO_UNREGISTERED' });
   assert.throws(() => resolveControls(['sql-libre']), { code: 'E2E_PLATFORM_CONTROL_UNREGISTERED' });
-  assert.deepEqual(STAGES, ['anonymous', 'read', 'preview', 'execution', 'concurrency', 'ui-lock']);
+  assert.deepEqual(STAGES, ['anonymous', 'read', 'preview', 'execution', 'assignment', 'concurrency', 'ui-lock']);
 });
 
 test('los controles de Notas son SELECT registrados y no incluyen contenido de notas', () => {

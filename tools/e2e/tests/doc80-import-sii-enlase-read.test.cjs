@@ -30,7 +30,7 @@ test('DOC-80 selecciona contexto ENLASE oficial sin exigir tarea estándar', () 
   assert.match(selector, /parts\[0\] === expectedTaskId/);
   assert.match(selector, /parts\[3\]\.toUpperCase\(\) === 'ENLASE'/);
   assert.match(selector, /E2E_PLATFORM_ENLASE_CONTEXT_REJECTED/);
-  const branchStart = selector.indexOf("if ([\'import-sii-enlase-read\', \'import-sii-enlase-ui\', \'import-sii-enlase-execution\'].includes(plan.scenario.id))");
+  const branchStart = selector.indexOf("if ([\'import-sii-enlase-read\', \'import-sii-enlase-ui\', \'import-sii-enlase-execution\'].includes(plan.scenario.id)");
   const branchEnd = selector.indexOf("const selectedTask = page.locator('#Hidden_id_tarea_selecionada')");
   assert.ok(branchStart >= 0 && branchEnd > branchStart);
   assert.doesNotMatch(selector.slice(branchStart, branchEnd), /Hidden_id_tarea_selecionada/);});

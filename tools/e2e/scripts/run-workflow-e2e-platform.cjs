@@ -162,7 +162,8 @@ async function selectWorkflowTask(page, plan) {
       timeout: Math.min(plan.profile.budgetMs, 60000)
     });
     const expectedTaskId = String(taskId);
-    if (['import-sii-enlase-read', 'import-sii-enlase-ui', 'import-sii-enlase-execution'].includes(plan.scenario.id)) {
+    if (['import-sii-enlase-read', 'import-sii-enlase-ui', 'import-sii-enlase-execution'].includes(plan.scenario.id) ||
+        plan.scenario.id === 'import-sii-enlase-assignment') {
       const enlaceSelection = page.locator('#HiddenIdFlujo');
       await enlaceSelection.waitFor({ state: 'attached', timeout: Math.min(plan.profile.budgetMs, 60000) });
       const isExpectedEnlase = (value) => {
@@ -255,6 +256,60 @@ async function initializeWorkflowContext(context, plan) {
     await page.close();
   }
   return context;
+}
+
+async function inspectEnlaseAssignmentUi({ context, plan }) {
+  const page = await context.newPage();
+  let dialogObserved = false;
+  const onDialog = async (dialog) => {
+    dialogObserved = true;
+    await dialog.dismiss().catch(() => {});
+  };
+  page.on('dialog', onDialog);
+  try {
+    await selectWorkflowTask(page, plan);
+    const timeout = Math.min(plan.profile.budgetMs, 60000);
+    const panel = page.locator('#Panel_admon_documentos');
+    const action = page.locator('#enlase-assign-action:visible');
+    const officialButton = page.locator('#Buttonaceptar');
+    await panel.waitFor({ state: 'visible', timeout });
+    await action.waitFor({ state: 'visible', timeout });
+    if (await action.getAttribute('data-import-context-action') !== 'true' ||
+        await officialButton.getAttribute('data-import-context-action') !== 'true') {
+      fail('IMPORT_E2E_ENLASE_ASSIGNMENT_ACTION_INVALID');
+    }
+    const postback = page.waitForResponse((response) =>
+      response.request().method() === 'POST' && /\/workflow\/Webworkflow\.aspx(?:\?|$)/i.test(response.url()),
+    { timeout });
+    await action.click();
+    const response = await postback.catch(() => fail('IMPORT_E2E_ENLASE_ASSIGNMENT_POSTBACK_UNAVAILABLE'));
+    if (!response.ok()) fail('IMPORT_E2E_ENLASE_ASSIGNMENT_POSTBACK_FAILED');
+    await page.waitForFunction(() => {
+      const button = document.querySelector('#Buttonaceptar');
+      return button && button.disabled === false && !/espere/i.test(String(button.value || ''));
+    }, null, { timeout }).catch(() => fail('IMPORT_E2E_ENLASE_ASSIGNMENT_RESULT_UNAVAILABLE'));
+    await page.waitForTimeout(250);
+    const panelVisible = await panel.isVisible();
+    const assignmentResult = panelVisible ? 'BLOCKED' : 'ASSIGNED';
+    if (assignmentResult === 'BLOCKED' && !dialogObserved) {
+      fail('IMPORT_E2E_ENLASE_ASSIGNMENT_BLOCK_REASON_UNAVAILABLE');
+    }
+    return Object.freeze({
+      codes: Object.freeze({ assignmentResult, authoritativeValidation: 'CONFIRMED' }),
+      count: 1,
+      latenciesMs: Object.freeze([])
+    });
+  } finally {
+    page.off('dialog', onDialog);
+    await page.close();
+  }
+}
+
+async function inspectWorkflowSession(options) {
+  if (options.plan.scenario.expectations.includes('explicit-assignment-ui')) {
+    return inspectEnlaseAssignmentUi(options);
+  }
+  return inspectImportPreviewUi(options);
 }
 
 async function inspectImportPreviewUi({ context, plan }) {
@@ -463,7 +518,7 @@ async function enableTemporaryGate(plan, workflowAccount) {
       !/<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i.test(original) ||
       !/<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i.test(original)) fail('E2E_PLATFORM_GATE_INTEGRITY_FAILED');
   let enabled = original.replace(/(<add key="WorkflowCentroTrabajoModernActive" value=")false("\s*\/>)/i, '$1true$2');
-  const authorizedAccount = String(workflowAccount || '').trim();
+  const authorizedAccount = String(workflowAccount || (plan.scenario.stage === 'anonymous' ? 'e2e-anonymous' : '')).trim();
   if (!/^[A-Za-z0-9._@-]{1,128}$/.test(authorizedAccount)) fail('E2E_PLATFORM_GATE_AUDIENCE_INVALID');
   enabled = enabled.replace(/(<add key="WorkflowCentroTrabajoModernUsers" value=")("\s*\/>)/i,
     (_match, prefix, suffix) => `${prefix}${authorizedAccount}${suffix}`);
@@ -482,6 +537,11 @@ async function enableTemporaryGate(plan, workflowAccount) {
     fail('E2E_PLATFORM_GATE_ENABLE_FAILED');
   }
   await fs.writeFile(webConfigPath, enabled, 'utf8');
+  const applied = await fs.readFile(webConfigPath, 'utf8');
+  if (!/<add key="WorkflowCentroTrabajoModernActive" value="true"\s*\/>/i.test(applied) ||
+      !/<add key="WorkflowCentroTrabajoModernUsers" value="[^"\s]+"\s*\/>/i.test(applied)) {
+    fail('E2E_PLATFORM_GATE_ENABLE_FAILED');
+  }
   let restored = false;
   return async () => {
     if (restored) return;
@@ -494,11 +554,18 @@ async function waitForApplicationReload(plan) {
   const api = await request.newContext({ ignoreHTTPSErrors: plan.profile.ignoreHttpsErrors === true });
   try {
     const login = new URL('gestor.aspx', plan.profile.baseUrl).toString();
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      const response = await api.get(login, { timeout: Math.min(plan.profile.budgetMs, 60000) });
-      if (!response.ok()) fail('E2E_PLATFORM_RELOAD_STABILIZATION_FAILED');
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+    let consecutiveSuccesses = 0;
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      try {
+        const response = await api.get(login, { timeout: Math.min(plan.profile.budgetMs, 5000) });
+        consecutiveSuccesses = response.ok() ? consecutiveSuccesses + 1 : 0;
+        if (consecutiveSuccesses >= 2) return;
+      } catch {
+        consecutiveSuccesses = 0;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
+    fail('E2E_PLATFORM_RELOAD_STABILIZATION_FAILED');
   } finally {
     await api.dispose();
   }
@@ -539,7 +606,7 @@ async function main() {
     createClient,
     invoke: (requestOptions) => invokeNotes({ ...requestOptions, plan }),
     consumePreview: consumeImportPreview,
-    inspectSession: inspectImportPreviewUi,
+    inspectSession: inspectWorkflowSession,
     readControl: readWorkflowControl,
       writeEvidence,
       assertIntegrity: async (options) => {
@@ -562,6 +629,8 @@ main().catch((error) => {
 
 module.exports = {
   collectAuthorizations,
+  inspectEnlaseAssignmentUi,
   inspectImportPreviewUi,
+  inspectWorkflowSession,
   parseArguments
 };
