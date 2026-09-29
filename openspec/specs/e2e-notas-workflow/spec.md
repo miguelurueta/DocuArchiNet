@@ -73,4 +73,4 @@ La automatización SHALL conservar únicamente evidencia resumida de códigos, c
 #### Scenario: Cierre E2E autorizado
 
 - **WHEN** finaliza una corrida DOC-32 real de preview, ejecución o concurrencia
-- **THEN** la evidencia queda saneada, el gate de Centro de Trabajo permanece en `false` con listas vacías y se aplican los controles de integridad establecidos por el runbook E2E.
+- **THEN** la evidencia queda saneada, no se crea ni modifica configuración de rollout y se aplican los controles de integridad establecidos por el runbook E2E.

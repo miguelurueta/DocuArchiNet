@@ -815,38 +815,29 @@ async function readWorkflowControl({ control, taskId, environment }) {
   }
 }
 
-async function enableTemporaryGate(plan, workflowAccount) {
+async function configureTemporaryScenario(plan) {
   if (!plan.scenario.expectations.includes('temporary-feature-gate')) return async () => {};
   const webConfigPath = path.join(repositoryRoot, 'Web.config');
   const original = await fs.readFile(webConfigPath, 'utf8');
-  if (!/<add key="WorkflowCentroTrabajoModernActive" value="false"\s*\/>/i.test(original) ||
-      !/<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i.test(original) ||
-      !/<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i.test(original)) fail('E2E_PLATFORM_GATE_INTEGRITY_FAILED');
-  let enabled = original.replace(/(<add key="WorkflowCentroTrabajoModernActive" value=")false("\s*\/>)/i, '$1true$2');
-  const authorizedAccount = String(workflowAccount || (plan.scenario.stage === 'anonymous' ? 'e2e-anonymous' : '')).trim();
-  if (!/^[A-Za-z0-9._@-]{1,128}$/.test(authorizedAccount)) fail('E2E_PLATFORM_GATE_AUDIENCE_INVALID');
-  enabled = enabled.replace(/(<add key="WorkflowCentroTrabajoModernUsers" value=")("\s*\/>)/i,
-    (_match, prefix, suffix) => `${prefix}${authorizedAccount}${suffix}`);
+  if (/WorkflowCentroTrabajoModernActive|WorkflowCentroTrabajoModernUsers|WorkflowCentroTrabajoModernGroups/i.test(original)) {
+    fail('E2E_PLATFORM_GATE_INTEGRITY_FAILED');
+  }
+  let configured = original;
   if (plan.scenario.expectations.includes('secure-preview-ui')) {
     if (!/<add key="ImportarServicioWebProviderId" value="(?:|INTEGRACIONSII)"\s*\/>/i.test(original)) {
       fail('E2E_PLATFORM_PROVIDER_INTEGRITY_FAILED');
     }
-    enabled = enabled.replace(/(<add key="ImportarServicioWebProviderId" value=")("\s*\/>)/i, '$1INTEGRACIONSII$2');
+    configured = configured.replace(/(<add key="ImportarServicioWebProviderId" value=")("\s*\/>)/i, '$1INTEGRACIONSII$2');
   }
   if (plan.profile.previewExpiryMinutes === 1) {
-    enabled = enabled.replace(/(<add key="ImportarServicioWebPreviewTtlMinutes" value=")\d+("\s*\/>)/i,
+    configured = configured.replace(/(<add key="ImportarServicioWebPreviewTtlMinutes" value=")\d+("\s*\/>)/i,
       (_match, prefix, suffix) => `${prefix}1${suffix}`);
   }
-  if (enabled === original || !/<add key="WorkflowCentroTrabajoModernUsers" value="[^"\s]+"\s*\/>/i.test(enabled) || (plan.scenario.expectations.includes('secure-preview-ui') &&
-      !/<add key="ImportarServicioWebProviderId" value="INTEGRACIONSII"\s*\/>/i.test(enabled))) {
-    fail('E2E_PLATFORM_GATE_ENABLE_FAILED');
+  if (plan.scenario.expectations.includes('secure-preview-ui') &&
+      !/<add key="ImportarServicioWebProviderId" value="INTEGRACIONSII"\s*\/>/i.test(configured)) {
+    fail('E2E_PLATFORM_PROVIDER_ENABLE_FAILED');
   }
-  await fs.writeFile(webConfigPath, enabled, 'utf8');
-  const applied = await fs.readFile(webConfigPath, 'utf8');
-  if (!/<add key="WorkflowCentroTrabajoModernActive" value="true"\s*\/>/i.test(applied) ||
-      !/<add key="WorkflowCentroTrabajoModernUsers" value="[^"\s]+"\s*\/>/i.test(applied)) {
-    fail('E2E_PLATFORM_GATE_ENABLE_FAILED');
-  }
+  if (configured !== original) await fs.writeFile(webConfigPath, configured, 'utf8');
   let restored = false;
   return async () => {
     if (restored) return;
@@ -887,9 +878,9 @@ async function main() {
   const legacyBaseline = await captureLegacyIntegrityBaseline({ root: repositoryRoot });
   const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'workflow-e2e-platform-'));
   const secrets = plan.scenario.requiredSecrets.length > 0 ? await collectSecrets(plan) : {};
-  let restoreGate = async () => {};
+  let restoreConfiguration = async () => {};
   try {
-    restoreGate = await enableTemporaryGate(plan, secrets['workflow-account']);
+    restoreConfiguration = await configureTemporaryScenario(plan);
     await waitForApplicationReload(plan);
     const outcome = await executePlatformRun({
     profile,
@@ -915,13 +906,13 @@ async function main() {
     readControl: readWorkflowControl,
       writeEvidence,
       assertIntegrity: async (options) => {
-        await restoreGate();
+        await restoreConfiguration();
         await assertPlatformIntegrity({ ...options, legacyBaseline });
       }
     });
     console.log(`La plataforma E2E terminó correctamente (${plan.scenario.id}); controles=${outcome.controls.checked}; sinCambios=${outcome.controls.unchanged === true ? 'SI' : 'NO'}. Evidencia saneada disponible.`);
   } finally {
-    await restoreGate();
+    await restoreConfiguration();
   }
 }
 

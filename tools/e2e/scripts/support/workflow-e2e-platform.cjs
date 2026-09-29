@@ -308,9 +308,7 @@ async function captureLegacyIntegrityBaseline({ root = repositoryRoot } = {}) {
 
 async function assertPlatformIntegrity({ root = repositoryRoot, legacyBaseline } = {}) {
   const configuration = await fs.readFile(path.join(root, 'Web.config'), 'utf8');
-  if (!/<add key="WorkflowCentroTrabajoModernActive" value="false"\s*\/>/i.test(configuration) ||
-      !/<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i.test(configuration) ||
-      !/<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i.test(configuration)) {
+  if (/WorkflowCentroTrabajoModernActive|WorkflowCentroTrabajoModernUsers|WorkflowCentroTrabajoModernGroups/i.test(configuration)) {
     fail('E2E_PLATFORM_GATE_INTEGRITY_FAILED');
   }
   if (legacyBaseline) {

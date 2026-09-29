@@ -29,7 +29,7 @@ test('DOC-83 registra aceptación visual mutadora con autorizaciones y controles
   }));
 });
 
-test('DOC-83 limita la aceptación visual, abre navegador visible y restaura el gate', () => {
+test('DOC-83 limita la aceptación visual, abre navegador visible y restaura configuración temporal', () => {
   const runner = load('tools', 'e2e', 'scripts', 'run-workflow-e2e-platform.cjs');
   const platform = load('tools', 'e2e', 'scripts', 'support', 'workflow-e2e-platform.cjs');
   const consoleSupport = load('tools', 'e2e', 'scripts', 'support', 'interactive-e2e-console.cjs');
@@ -56,7 +56,7 @@ test('DOC-83 limita la aceptación visual, abre navegador visible y restaura el 
   assert.match(runner, /Number\(parts\[5\]\) !== Number\(taskId\)/);
   assert.match(runner, /headless: !plan\.scenario\.expectations\.some/);
   assert.match(runner, /\['manual-visual-execution', 'manual-layout-review'\]\.includes\(expectation\)/);
-  assert.match(runner, /finally\s*\{\s*await restoreGate\(\)/);
+  assert.match(runner, /finally\s*\{\s*await restoreConfiguration\(\)/);
   assert.match(platform, /expectations\.includes\('manual-visual-execution'\)/);
   assert.match(consoleSupport, /function promptWithTimeout/);
   assert.match(consoleSupport, /clearTimeout\(timer\)/);

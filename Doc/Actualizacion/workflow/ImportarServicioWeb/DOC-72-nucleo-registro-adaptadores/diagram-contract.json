@@ -19,7 +19,7 @@
     {
       "path": "Diagramas/04-ValidacionesErrores.md",
       "kind": "flowchart",
-      "symbols": ["VB.Endpoint.FeatureEnabled", "VB.Endpoint.ValidRequest", "VB.Endpoint.TryBuildImportContext", "VB.Endpoint.ResolveProvider"]
+      "symbols": ["VB.Endpoint.ValidRequest", "VB.Endpoint.TryBuildImportContext", "VB.Endpoint.ResolveProvider"]
     }
   ],
   "javascriptSymbols": {
@@ -44,7 +44,6 @@
     "VB.Endpoint.ExecuteImportIntent": { "type": "WebServiceImportarServicioWebModern", "method": "ExecuteImportIntent", "parameters": ["ExecuteImportIntentRequestDto"], "return": "ExecuteImportIntentResponseDto" },
     "VB.Endpoint.GetImportIntent": { "type": "WebServiceImportarServicioWebModern", "method": "GetImportIntent", "parameters": ["GetImportIntentRequestDto"], "return": "GetImportIntentResponseDto" },
     "VB.Endpoint.ReconcileImportIntent": { "type": "WebServiceImportarServicioWebModern", "method": "ReconcileImportIntent", "parameters": ["ReconcileImportIntentRequestDto"], "return": "ReconcileImportIntentResponseDto" },
-    "VB.Endpoint.FeatureEnabled": { "type": "WebServiceImportarServicioWebModern", "method": "FeatureEnabled", "parameters": [], "return": "System.Boolean", "visibility": "nonpublic" },
     "VB.Endpoint.ValidRequest": { "type": "WebServiceImportarServicioWebModern", "method": "ValidRequest", "parameters": ["SolicitudImportacionServicioDto"], "return": "System.Boolean", "visibility": "nonpublic" },
     "VB.Endpoint.TryBuildImportContext": { "type": "WebServiceImportarServicioWebModern", "method": "TryBuildImportContext", "parameters": ["SolicitudImportacionServicioDto", "ContextoImportacionServicio&", "ResultadoContextoSesionWorkflow&", "System.String&"], "return": "System.Boolean", "visibility": "nonpublic" },
     "VB.Endpoint.ResolveProvider": { "type": "WebServiceImportarServicioWebModern", "method": "ResolveProvider", "parameters": ["System.String", "IExternalServiceAttemptRecorder"], "return": "ResultadoResolucionClienteProveedorImportacion", "visibility": "nonpublic" }
@@ -70,6 +69,6 @@
   },
   "excludedKinds": {
     "external": ["Usuario", "Navegador"],
-    "conceptual": ["Gate operativo", "Proveedor externo", "Espera global"]
+    "conceptual": ["Proveedor externo", "Espera global"]
   }
 }

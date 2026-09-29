@@ -69,6 +69,19 @@ test("el contexto de enviar a usuario calcula CAMBIO_USUARIO en servidor y falla
     assert.doesNotMatch(block, /IWorkflowModernFeatureGate|WorkflowCentroTrabajoModernActive/);
 });
 
+test("preview y ejecución aceptan los mismos orígenes de sesión autenticada", () => {
+    const executionBlock = contextGateSource.match(/Public Function AsegurarContextoEjecucion[\s\S]*?End Function/)[0];
+    const previewBlock = contextGateSource.match(/Public Function AsegurarContexto\(\)[\s\S]*?End Function/)[0];
+
+    assert.match(executionBlock, /If requestContext Is Nothing OrElse requestContext\.Session Is Nothing Then/);
+    assert.match(executionBlock, /Not EsOrigenSesionPermitido\(requestContext\)/);
+    assert.match(executionBlock, /resultado = AsegurarContexto\(\)/);
+    assert.match(previewBlock, /Not esSesionGestion AndAlso Not EsSesionWorkflowAutenticada\(requestContext\)/);
+    assert.match(contextGateSource, /Private Shared Function EsOrigenSesionPermitido[\s\S]*?EsSesionGestionAutenticada\(requestContext\) OrElse EsSesionWorkflowAutenticada\(requestContext\)/);
+    assert.match(contextGateSource, /Private Shared Function EsSesionWorkflowAutenticada[\s\S]*?"WORKFLOW DOCUMENTAL"[\s\S]*?"Login_Usuario_Workfow"/);
+    assert.match(previewBlock, /If Not esSesionGestion Then[\s\S]*?contexto\.EsValido\(\)[\s\S]*?CrearCadenaConexion\(requestContext\)/);
+});
+
 test("el preview de usuario filtra y pagina destinos autorizados mediante solo lecturas", () => {
     assert.match(repositorySource, /Implements IEnvioUsuarioBusquedaRepository, IEnvioUsuarioEjecucionRepository/);
     assert.match(repositorySource, /usuario\.GRUPOS_WORKFLOW_RUTAS_WORKFLOW_ID_RUTA = @idRuta/);

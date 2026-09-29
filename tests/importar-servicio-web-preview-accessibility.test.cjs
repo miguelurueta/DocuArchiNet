@@ -9,7 +9,7 @@ const ui = fs.readFileSync("js/workflow/importar-servicio-web/importar-servicio-
 test("el panel tiene nombre accesible, estado anunciado y navegación de retorno", () => {
   assert.match(markup, /id="importar-servicio-web-preview"[^>]+aria-labelledby="importar-servicio-web-preview-title"/);
   assert.match(markup, /id="importar-servicio-web-preview-status"[^>]+role="status"[^>]+aria-live="polite"/);
-  assert.match(markup, />Volver a la lista</);
+  assert.match(markup, />&#8592; Volver a documentos</);
   assert.match(markup, /title="Recurso externo temporal"/);
   assert.doesNotMatch(markup, /id="importar-servicio-web-preview-frame"[^>]+sandbox=/);
   assert.match(markup, /Esta vista no representa un documento almacenado/);
@@ -29,8 +29,9 @@ test("la vista restaura foco y scroll sin solicitar de nuevo por resize", () => 
   assert.doesNotMatch(ui, /addEventListener\(["']resize["'][\s\S]{0,300}(?:getPreview|preview\.open)/);
 });
 
-test("el CSS ofrece panel lateral y subvista de ancho reducido", () => {
-  assert.match(css, /@media \(min-width: 761px\)[\s\S]+grid-template-columns/);
+test("el CSS ofrece subvista contenida y adaptación móvil", () => {
+  assert.match(css, /\.importar-servicio-web__preview \{[^}]*display: flex;[^}]*overflow: hidden;/);
+  assert.match(css, /\.importar-servicio-web__dialog--preview \.importar-servicio-web__body \{ overflow: hidden; \}/);
   assert.match(css, /@media \(max-width: 760px\)[\s\S]+100dvh/);
   assert.match(css, /importar-servicio-web__preview-title:focus/);
 });

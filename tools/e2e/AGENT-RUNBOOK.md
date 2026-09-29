@@ -11,7 +11,7 @@ No activar, editar ni limitar el gate fuera del runner aprobado y de una autoriz
 - Reutilizar `tests/support/authenticated-workflow-session.cjs` para todo login E2E DOC-10/DOC-11/DOC-28/DOC-32/Notas. No enviar usuario, grupo, ruta, actividad ni permisos al ASMX salvo el destino que DOC-28 obtiene del preview actual al ejecutar.
 - `PreviewEnviarTarea` y `PreviewEnviarUsuario` son de solo lectura. Las consultas de control son una única sentencia `SELECT` con exactamente un parámetro `?` para la tarea.
 - Las suites de preview no modifican el flujo legacy. Un cambio de modernización aprobado puede ajustar `workflow/`, pero debe conservar la semántica del fallback y demostrar ausencia de doble operación.
-- La entrega mantiene `WorkflowCentroTrabajoModernActive=false` con usuarios y grupos vacíos. Solo un runner aprobado, con autorización literal del ambiente, mutación y gate, puede habilitarlo durante una corrida y debe restaurar exactamente la configuración segura en `finally`.
+- La experiencia moderna es oficial y no tiene gate configurable ni listas de audiencia. Los runners no pueden reintroducir esas claves; cualquier ajuste temporal permitido debe restaurar exactamente `Web.config` en `finally`.
 
 ## Preparación
 
@@ -250,7 +250,7 @@ npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario import-sii-e
 `assignmentResult=BLOCKED` solo es válido con el control intacto y un aviso funcional observado. `assignmentResult=ASSIGNED` exige cambio en el control. La evidencia no guarda el texto del aviso ni identidades. Cualquiera de los caminos consume conservadoramente el recurso para impedir una repetición accidental; una validación exitosa posterior necesita otra tarea descartable y una autorización nueva.
 ## DOC-83 aceptación visual ENLASE
 
-La activación manual aislada de `WorkflowCentroTrabajoModernActive` está prohibida. Para comprobar que una importación aparece inmediatamente en `GridView_list_documento_relacion` sin recargar, use exclusivamente `import-sii-enlase-manual-visual`.
+La reintroducción manual de `WorkflowCentroTrabajoModernActive` está prohibida. Para comprobar que una importación aparece inmediatamente en `GridView_list_documento_relacion` sin recargar, use exclusivamente `import-sii-enlase-manual-visual`.
 
 La etapa es mutadora: exige autorización de ambiente, gate, ejecución y recurso descartable, cuenta Workflow, MySQL de solo lectura y una tarea ENLASE operable. El navegador visible pertenece al runner; no abra otra sesión ni cambie de tarea. El plazo total es de diez minutos.
 

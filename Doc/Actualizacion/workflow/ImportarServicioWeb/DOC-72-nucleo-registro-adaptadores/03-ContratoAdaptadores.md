@@ -35,4 +35,4 @@ La declaración local de capacidades no sustituye la respuesta backend: antes de
 
 ## Autorización y validación backend
 
-Todos los métodos tienen `WebMethod(EnableSession:=True)`. La frontera valida primero `FeatureEnabled`, luego `ValidRequest` y después contexto de sesión/tarea. `ValidRequest` exige `TaskId>0`, `OperationId`, `CorrelationId` y proveedor igual al canónico SII. La ocultación del modal no constituye autorización.
+Todos los métodos tienen `WebMethod(EnableSession:=True)`. La frontera valida primero `ValidRequest` y después el contexto autenticado de sesión/tarea. `ValidRequest` exige `TaskId>0`, `OperationId`, `CorrelationId` y proveedor igual al canónico SII. La ocultación del modal no constituye autorización.

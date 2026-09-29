@@ -75,7 +75,7 @@ El sistema SHALL crear intención y elementos en estado `Creada` con versión, f
 - **THEN** cabecera y elementos quedan completos en una transacción y sin payload sensible
 
 ### Requirement: RQ-09 Compatibilidad aislada (D-09)
-El sistema SHALL validar DOC-52 sin red, base real, ejecución de migraciones, E2E autenticado o activación del gate.
+El sistema SHALL validar DOC-52 sin red, base real, ejecución de migraciones, E2E autenticado o cambios de configuración de rollout.
 
 #### Scenario: Regresión legacy
 - **WHEN** se inspecciona el cambio y corre la suite focal

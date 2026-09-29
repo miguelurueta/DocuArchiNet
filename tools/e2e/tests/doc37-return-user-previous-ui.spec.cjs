@@ -103,9 +103,7 @@ async function writeEvidence(stage, evidence) {
 
 async function assertLocalGateOff() {
   const configuration = await fs.readFile(path.join(repositoryRoot, 'Web.config'), 'utf8');
-  expect(configuration).toMatch(/<add key="WorkflowCentroTrabajoModernActive" value="false"\s*\/>/i);
-  expect(configuration).toMatch(/<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i);
-  expect(configuration).toMatch(/<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i);
+  expect(configuration).not.toMatch(/WorkflowCentroTrabajoModernActive|WorkflowCentroTrabajoModernUsers|WorkflowCentroTrabajoModernGroups/i);
 }
 
 async function assertWorkflowPagesCommitted() {

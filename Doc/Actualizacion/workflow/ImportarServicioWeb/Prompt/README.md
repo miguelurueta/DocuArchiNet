@@ -14,6 +14,9 @@ El contrato normativo entre ambos lados y el orden cruzado de implementación es
 6. `06-reconciliacion-y-lista-documentos.md`
 7. `07-proteccion-contexto-tarea-y-recuperacion.md`
 8. `08-pruebas-gate-y-retiro-legacy.md`
+9. `09-correccion-proyeccion-sellos-lista-workflow.md`
+
+El Prompt 09 es correctivo y reemplaza, solo para sellos y ENLASE, el fallback de refresco autoritativo descrito en el Prompt 06. Ambos recorridos deben proyectar sus filas mediante JavaScript sin recarga parcial o completa del GridView.
 
 ## Alcance reducido aprobado
 

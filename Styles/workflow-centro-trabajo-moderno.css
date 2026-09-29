@@ -1538,9 +1538,12 @@
 .workflow-centro-trabajo-moderno.ctw-layer-documents #div_label .ctw-document-more-actions .ctw-document-menu__panel {
   z-index: var(--ctw-z-document-menu);
   min-width: 270px;
+  max-height: 60vh;
   padding: 7px;
   border-radius: 9px;
   box-shadow: 0 18px 35px #1c345e2e;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .workflow-centro-trabajo-moderno.ctw-layer-documents #div_label .ctw-document-menu__panel .ctw-menu__section-label {
@@ -1564,6 +1567,103 @@
   min-height: 40px;
   padding: 8px 10px;
   border-radius: 6px;
+}
+
+/* Enlace de documentos: las operaciones pertenecen a la selección y el
+   colapso modifica el layout, por eso permanecen en controles separados. */
+.ctw-enlase-document-modal {
+  --ctw-navy: #35477f;
+  --ctw-blue: #0062cc;
+  --ctw-ink: #202d47;
+  --ctw-line: #dce2f1;
+  --ctw-pale: #eef1fb;
+  --ctw-danger: #ad3741;
+  --ctw-z-document-menu: 50;
+}
+
+.ctw-enlase-document-modal .ctw-enlase-document-toolbar {
+  gap: 6px;
+}
+
+.ctw-enlase-document-modal #title_treview {
+  position: relative;
+  z-index: var(--ctw-z-document-menu);
+  overflow: visible;
+}
+
+.ctw-enlase-document-modal .ctw-enlase-document-actions {
+  position: relative;
+}
+
+.ctw-enlase-document-modal .ctw-enlase-document-actions > .dropdown-toggle,
+.ctw-enlase-document-modal .ctw-enlase-sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  border: 1px solid #c9d5e8;
+  border-radius: 7px;
+  background: #fff;
+  color: var(--ctw-navy);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.ctw-enlase-document-modal .ctw-enlase-document-actions > .dropdown-toggle {
+  gap: 6px;
+  padding: 5px 9px;
+  color: var(--ctw-blue) !important;
+}
+
+.ctw-enlase-document-modal .ctw-enlase-sidebar-toggle {
+  width: 34px;
+  padding: 5px;
+}
+
+.ctw-enlase-document-modal .ctw-enlase-document-actions > .dropdown-toggle:hover,
+.ctw-enlase-document-modal .ctw-enlase-document-actions > .dropdown-toggle:focus,
+.ctw-enlase-document-modal .ctw-enlase-sidebar-toggle:hover,
+.ctw-enlase-document-modal .ctw-enlase-sidebar-toggle:focus {
+  border-color: #7fa8e5;
+  background: var(--ctw-pale);
+  box-shadow: 0 0 0 3px #1769d31a;
+}
+
+.ctw-enlase-document-modal .ctw-enlase-document-actions .dropdown-menu {
+  z-index: var(--ctw-z-document-menu);
+  min-width: 260px;
+  max-height: 60vh;
+  padding: 7px;
+  border: 1px solid var(--ctw-line);
+  border-radius: 9px;
+  box-shadow: 0 18px 35px #1c345e2e;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.ctw-enlase-document-modal .ctw-enlase-document-actions .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: var(--ctw-ink);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.ctw-enlase-document-modal .ctw-enlase-document-actions .dropdown-item > i,
+.ctw-enlase-document-modal .ctw-enlase-document-actions .dropdown-item > .svg-inline--fa {
+  width: 18px;
+  color: var(--ctw-blue);
+  text-align: center;
+}
+
+.ctw-enlase-document-modal .ctw-enlase-document-actions .ctw-enlase-document-action-danger,
+.ctw-enlase-document-modal .ctw-enlase-document-actions .ctw-enlase-document-action-danger > i,
+.ctw-enlase-document-modal .ctw-enlase-document-actions .ctw-enlase-document-action-danger > .svg-inline--fa {
+  color: var(--ctw-danger);
 }
 
 /* Compatibilidad visual Bootstrap para los modales WebForms existentes.

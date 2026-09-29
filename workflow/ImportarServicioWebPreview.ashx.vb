@@ -1,5 +1,4 @@
 Imports System
-Imports System.Configuration
 Imports System.IO
 Imports System.Web
 Imports System.Web.SessionState
@@ -16,7 +15,6 @@ Public NotInheritable Class ImportarServicioWebPreview
     Public Sub ProcessRequest(ByVal context As HttpContext) Implements IHttpHandler.ProcessRequest
         If context Is Nothing Then Return
         ApplyDefensiveHeaders(context.Response)
-        If Not FeatureEnabled() Then Reject(context, 404) : Return
         Dim method = If(context.Request.HttpMethod, String.Empty).ToUpperInvariant()
         If method <> "GET" AndAlso method <> "HEAD" Then
             context.Response.AppendHeader("Allow", "GET, HEAD")
@@ -104,8 +102,5 @@ Public NotInheritable Class ImportarServicioWebPreview
         End If
 
         Return Long.TryParse(Convert.ToString(context.Session.Item("ID_TAREA_SELECCIONDA")), taskId) AndAlso taskId > 0
-    End Function
-    Private Shared Function FeatureEnabled() As Boolean
-        Return String.Equals(ConfigurationManager.AppSettings("WorkflowCentroTrabajoModernActive"), "true", StringComparison.OrdinalIgnoreCase)
     End Function
 End Class

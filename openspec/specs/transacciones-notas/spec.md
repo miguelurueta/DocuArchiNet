@@ -76,10 +76,10 @@ El sistema SHALL rechazar toda escritura con `Unavailable` si preflight no confi
 
 ### Requirement: RQ-06 Verificación integrada sin habilitación implícita
 
-El sistema SHALL incluir pruebas locales para autorización, idempotencia, concurrencia, aislamiento, auditoría y rollback. La E2E SHALL reutilizar exclusivamente `tools/e2e` y controles `SELECT`; una E2E de escritura SHALL ejecutarse sólo con autorización explícita de ambiente, cuenta y tarea descartable. Gates, usuarios y grupos SHALL permanecer en su estado seguro requerido.
+El sistema SHALL incluir pruebas locales para autorización, idempotencia, concurrencia, aislamiento, auditoría y rollback. La E2E SHALL reutilizar exclusivamente `tools/e2e` y controles `SELECT`; una E2E de escritura SHALL ejecutarse sólo con autorización explícita de ambiente, cuenta y tarea descartable. La prueba SHALL NOT crear configuración de rollout ni audiencias piloto.
 
 #### Scenario: Ausencia de autorización de escritura
 
 - **WHEN** no se autoriza ambiente, cuenta o tarea descartable para E2E
 - **THEN** la evidencia registra el bloqueo operacional
-- **AND** no se ejecuta E2E real, no se habilita gate y no se sustituyen resultados por simulaciones.
+- **AND** no se ejecuta E2E real, no se crea configuración de rollout y no se sustituyen resultados por simulaciones.

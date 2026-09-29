@@ -1,13 +1,21 @@
 {
-  "status": "error",
-  "promptPath": "DOC-81",
-  "reviewedAtUtc": "2026-09-26T14:50:23.704Z",
+  "status": "pass",
+  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\workflow\\ImportarServicioWeb\\Prompt\\09-correccion-proyeccion-sellos-lista-workflow.md",
+  "reviewedAtUtc": "2026-09-29T22:45:56.361Z",
+  "technologyProfile": "legacy-webforms-vb",
   "summary": {
     "blockers": 0,
     "major": 0,
     "minor": 0,
-    "info": 0
+    "info": 1
   },
-  "findings": [],
-  "error": "Multiple prompts found for 'DOC-81'. Provide an explicit path. Candidates: D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\workflow\\ImportarServiciWebEnlace\\DOC-81-preparacion-persistencia-reconciliacion\\04-PRUEBAS-SEGURIDAD-ROLLBACK.md; D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\workflow\\ImportarServiciWebEnlace\\DOC-81-preparacion-persistencia-reconciliacion\\README.md; D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Tecnica\\Opsxj\\doc-81-reconciliacion-persistencia-servicio-enlace-sii\\01-ResumenTecnico.md; D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Tecnica\\Opsxj\\doc-81-reconciliacion-persistencia-servicio-enlace-sii\\02-ImpactoUI.md; D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Tecnica\\Opsxj\\doc-81-reconciliacion-persistencia-servicio-enlace-sii\\03-ServiciosYReglas.md; D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Tecnica\\Opsxj\\doc-81-reconciliacion-persistencia-servicio-enlace-sii\\04-ContratosIntegracion.md; D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Tecnica\\Opsxj\\doc-81-reconciliacion-persistencia-servicio-enlace-sii\\05-PruebasEvidencia.md"
+  "findings": [
+    {
+      "severity": "INFO",
+      "code": "MANUAL_REVIEW_RECOMMENDED",
+      "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+      "expected": "Revision humana del prompt.",
+      "evidence": null
+    }
+  ]
 }

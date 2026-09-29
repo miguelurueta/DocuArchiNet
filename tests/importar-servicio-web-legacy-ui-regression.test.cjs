@@ -18,8 +18,9 @@ test('el árbol legacy permanece presente y queda declarado para ocultamiento re
   assert.match(ui, /legacyRoot\.hidden = true/);
 });
 
-test('gate apagado no registra assets modernos y conserva handlers legacy', () => {
-  assert.match(source, /If ImportarServicioWebModernActive Then[\s\S]*RegisterImportarServicioWebModernAssets/);
+test('la versión oficial registra assets con contexto válido y conserva handlers legacy', () => {
+  assert.match(source, /If Not WorkflowModernContextAvailable Then[\s\S]*Return[\s\S]*RegisterImportarServicioWebModernAssets/);
+  assert.doesNotMatch(source, /WorkflowCentroTrabajoModernActive|ImportarServicioWebFeatureGate/);
   assert.match(source, /Handles Button_acepta_sube_documento_integra_sii\.Click/);
   assert.match(source, /Handles GridView_list_inscripciones_sii\.RowCreated/);
   assert.match(source, /Handles GridView_list_inscripciones_sii\.PageIndexChanging/);

@@ -61,11 +61,11 @@ El sistema SHALL actualizar la página únicamente después de un resultado exit
 
 ### Requirement: RQ-06 Convivencia y reversa legacy (D-06)
 
-El sistema SHALL habilitar la confirmación moderna solamente con el bootstrap respaldado por `IWorkflowModernFeatureGate` y conservar el flujo legacy fuera del piloto.
+El sistema SHALL habilitar la confirmación moderna solamente con el bootstrap respaldado por un contexto Workflow autenticado y válido, sin consultar configuración de rollout.
 
 #### Scenario: Bandera inactiva durante la navegación
 
-- **WHEN** el bootstrap no está activo o la ejecución devuelve `WORKFLOW_MODERN_INACTIVE`
+- **WHEN** el bootstrap no dispone de contexto válido o la ejecución devuelve `WORKFLOW_CONTEXT_INVALID`
 - **THEN** la interfaz moderna no sustituye ni ejecuta fallback sobre los modales, controles y postbacks legacy
 - **AND THEN** la desactivación de la bandera permite volver al comportamiento previo sin migración ni cambio de estado
 

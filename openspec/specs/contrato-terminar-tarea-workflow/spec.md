@@ -37,10 +37,10 @@ Para D-03, `WorkflowLegacyExecutorAdapter` SHALL ser la única frontera nueva re
 
 Para D-04, `IWorkflowModernFeatureGate` SHALL evaluar una configuración de servidor y un `ContextoModuloWorkflow` validado; la ausencia, invalidez o falta de autorización SHALL devolver estado `inactivo`.
 
-#### Scenario: Configuración ausente o perfil excluido
+#### Scenario: Contexto inválido
 
-- **WHEN** `WorkflowCentroTrabajoModernActive` no existe, es inválido, el contexto no coincide o existe una exclusión
-- **THEN** `ConfiguracionWorkflowModernFeatureGate` devuelve `WORKFLOW_MODERN_INACTIVE` o `WORKFLOW_MODERN_EXCLUDED` sin habilitar por defecto.
+- **WHEN** la sesión no está autenticada o el contexto Workflow no es válido
+- **THEN** la política oficial devuelve `WORKFLOW_CONTEXT_INVALID` sin consultar configuración de rollout ni audiencias.
 
 ### Requirement: RQ-05 Datos reutilizables y persistencia acotada
 

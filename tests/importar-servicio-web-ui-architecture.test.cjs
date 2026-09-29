@@ -11,7 +11,8 @@ test('la importación moderna conserva una composición y una entrada canónicas
   assert.equal((page.match(/id="ctw-document-action-service"/g) || []).length, 1);
   assert.equal((source.match(/RegisterImportarServicioWebModernBootstrap\(\)/g) || []).length, 2);
   assert.equal((ui.match(/trigger\.onclick\s*=/g) || []).length, 1);
-  assert.match(source, /If ImportarServicioWebModernActive Then[\s\S]*RegisterImportarServicioWebModernAssets\(\)[\s\S]*RegisterImportarServicioWebModernBootstrap\(\)/);
+  assert.match(source, /If Not WorkflowModernContextAvailable Then[\s\S]*Return[\s\S]*RegisterImportarServicioWebModernAssets\(\)[\s\S]*RegisterImportarServicioWebModernBootstrap\(\)/);
+  assert.doesNotMatch(source, /WorkflowCentroTrabajoModernActive|ImportarServicioWebFeatureGate/);
 });
 
 test('la UI usa los adaptadores existentes sin arnés ni transporte paralelo', () => {

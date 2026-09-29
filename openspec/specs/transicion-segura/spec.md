@@ -7,9 +7,9 @@ TBD - created by archiving change doc-11-transicion-segura. Update Purpose after
 
 El sistema SHALL exponer EjecutarEnvioTarea(idTarea, idConector, tokenVersion) en WebServiceWorkflowModern, con sesión habilitada y respuesta JSON. La operación SHALL reconstruir el contexto desde la sesión autenticada, evaluar IWorkflowModernFeatureGate antes de ejecutar y no hacer fallback al envío legacy de la interfaz.
 
-#### Scenario: Gate o sesión no autorizan la ejecución
+#### Scenario: Sesión o permisos no autorizan la ejecución
 
-- **WHEN** el gate está inactivo, la sesión Gestión no está autenticada, no existe relación Workflow, faltan permisos, usuario, grupo o conexión
+- **WHEN** la sesión Gestión o Workflow no está autenticada, no existe relación Workflow, o faltan permisos, usuario, grupo o conexión
 - **THEN** se devuelve ResultadoTransicionDto con Exito=false y un código funcional estable
 - **AND THEN** no se invoca WorkflowLegacyExecutorAdapter ni se modifica una tarea
 
@@ -101,17 +101,17 @@ El sistema SHALL devolver ResultadoTransicionDto con Exito, EstadoFinal, Mensaje
 
 ### Requirement: RQ-07 — Compatibilidad, evidencia y reversa
 
-El sistema SHALL conservar workflow/Webworkflow.aspx, workflow/Webworkflow.aspx.vb y el camino legado sin cambios funcionales. SHALL entregar pruebas focales, compilación, QA manual, E2E reutilizable, prueba de concurrencia y documentación en Doc/Actualizacion/workflow/Terminar/03-ejecucion-segura. El gate SHALL iniciar desactivado y permitir reversa sin migrar datos.
+El sistema SHALL entregar pruebas focales, compilación, QA manual, E2E reutilizable, prueba de concurrencia y documentación en Doc/Actualizacion/workflow/Terminar/03-ejecucion-segura. La experiencia moderna SHALL ser oficial para todo contexto válido y la reversa SHALL realizarse por control de versiones sin migrar datos.
 
-#### Scenario: Validación antes de piloto
+#### Scenario: Validación antes de despliegue
 
-- **WHEN** se prepara el piloto
+- **WHEN** se prepara el despliegue
 - **THEN** existen resultados de build, pruebas focales, QA de RUTA/FLUJO/bloqueos/concurrencia y guía E2E
 - **AND THEN** una prueba que cambie estado solo se ejecuta con ambiente, cuentas y tareas descartables autorizadas
 
-#### Scenario: Reversa del piloto
+#### Scenario: Contexto deja de ser válido
 
-- **WHEN** se desactiva WorkflowCentroTrabajoModernActive
+- **WHEN** la sesión deja de estar autenticada o pierde su contexto Workflow válido
 - **THEN** EjecutarEnvioTarea rechaza nuevas ejecuciones modernas
-- **AND THEN** Webworkflow.aspx continúa usando el camino legacy sin cambios
+- **AND THEN** Webworkflow.aspx no ofrece una ruta alternativa que omita la validación
 

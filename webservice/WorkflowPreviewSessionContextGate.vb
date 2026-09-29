@@ -122,10 +122,16 @@ Public NotInheritable Class WorkflowPreviewSessionContextGate
             .Contexto = New ContextoModuloWorkflow()
         }
         Dim requestContext As HttpContext = HttpContext.Current
-        If requestContext Is Nothing OrElse requestContext.Session Is Nothing OrElse Not EsSesionGestionAutenticada(requestContext) Then
+        If requestContext Is Nothing OrElse requestContext.Session Is Nothing Then
+            Return resultado
+        End If
+        If Not EsOrigenSesionPermitido(requestContext) Then
             Return resultado
         End If
 
+        'AsegurarContexto valida tanto la sesión Gestión relacionada como una sesión
+        'Workflow directa ya autenticada. La ejecución debe aceptar los mismos dos
+        'orígenes que el preview; identidad y conexiones siguen saliendo de Session.
         resultado = AsegurarContexto()
         If resultado.Contexto Is Nothing OrElse Not resultado.Contexto.EsValido() OrElse
            String.IsNullOrWhiteSpace(resultado.CadenaConexionWorkflow) Then
@@ -186,7 +192,11 @@ Public NotInheritable Class WorkflowPreviewSessionContextGate
         If requestContext Is Nothing OrElse requestContext.Session Is Nothing Then Return resultado
 
         Dim contexto As ContextoModuloWorkflow = CrearContexto(requestContext)
-        If Not EsSesionGestionAutenticada(requestContext) Then
+        Dim esSesionGestion As Boolean = EsSesionGestionAutenticada(requestContext)
+        If Not esSesionGestion AndAlso Not EsSesionWorkflowAutenticada(requestContext) Then
+            Return resultado
+        End If
+        If Not esSesionGestion Then
             If contexto.EsValido() Then
                 resultado.Contexto = contexto
                 resultado.CadenaConexionWorkflow = CrearCadenaConexion(requestContext)
@@ -253,6 +263,17 @@ Public NotInheritable Class WorkflowPreviewSessionContextGate
                              "GESTOR DOCUMENTAL",
                              StringComparison.OrdinalIgnoreCase) AndAlso
                Not String.IsNullOrWhiteSpace(Convert.ToString(requestContext.Session.Item("GA_LOGINUSUARIOGESTION")))
+    End Function
+
+    Private Shared Function EsSesionWorkflowAutenticada(ByVal requestContext As HttpContext) As Boolean
+        Return String.Equals(Convert.ToString(requestContext.Session.Item("TIPOMODULO")).Trim(),
+                             "WORKFLOW DOCUMENTAL",
+                             StringComparison.OrdinalIgnoreCase) AndAlso
+               Not String.IsNullOrWhiteSpace(Convert.ToString(requestContext.Session.Item("Login_Usuario_Workfow")))
+    End Function
+
+    Private Shared Function EsOrigenSesionPermitido(ByVal requestContext As HttpContext) As Boolean
+        Return EsSesionGestionAutenticada(requestContext) OrElse EsSesionWorkflowAutenticada(requestContext)
     End Function
 
     Private Shared Function CrearContexto(ByVal requestContext As HttpContext) As ContextoModuloWorkflow

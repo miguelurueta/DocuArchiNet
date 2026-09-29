@@ -10,9 +10,7 @@
 
 ```mermaid
 flowchart TD
-    START["Solicitud POST ASMX"] --> GATE["VB.Endpoint.FeatureEnabled(): System.Boolean"]
-    GATE -->|false| DISABLED["FEATURE_DISABLED"]
-    GATE -->|true| VALID["VB.Endpoint.ValidRequest(request:SolicitudImportacionServicioDto): System.Boolean"]
+    START["Solicitud POST ASMX"] --> VALID["VB.Endpoint.ValidRequest(request:SolicitudImportacionServicioDto): System.Boolean"]
     VALID -->|false| INVALID["INVALID_REQUEST"]
     VALID -->|true| CONTEXT["VB.Endpoint.TryBuildImportContext(request,context ByRef,session ByRef,failureCode ByRef): System.Boolean"]
     CONTEXT -->|false| SAFE["Código seguro de sesión/tarea/contexto"]
@@ -27,4 +25,4 @@ flowchart TD
 - `Modelo/Workflow/ImportarServicioWeb/ImportarServicioWebInterfaces.vb`
 - `DTOs/Workflow/ImportarServicioWeb/ImportarServicioWebDtos.vb`
 
-Símbolos: `VB.Endpoint.FeatureEnabled`, `VB.Endpoint.ValidRequest`, `VB.Endpoint.TryBuildImportContext`, `VB.Endpoint.ResolveProvider`.
+Símbolos: `VB.Endpoint.ValidRequest`, `VB.Endpoint.TryBuildImportContext`, `VB.Endpoint.ResolveProvider`.

@@ -9,7 +9,7 @@ const appRoot = path.resolve(testDirectory, "..", "..", "..", "..");
 const readAppFile = (relativePath) => readFile(path.join(appRoot, relativePath), "utf8");
 
 describe("DOC-2 workflow visual activation", () => {
-  it("keeps the global workflow gate disabled by default without audience lists", async () => {
+  it("keeps the official workflow experience free of activation flags and audience lists", async () => {
     const [config, codeBehind, page, bootstrap] = await Promise.all([
       readAppFile("Web.config"),
       readAppFile("workflow/Webworkflow.aspx.vb"),
@@ -22,18 +22,14 @@ describe("DOC-2 workflow visual activation", () => {
     const users = config.match(/<add\s+key="WorkflowCentroTrabajoModernUsers"\s+value="([^"]*)"\s*\/>/i);
     const groups = config.match(/<add\s+key="WorkflowCentroTrabajoModernGroups"\s+value="([^"]*)"\s*\/>/i);
 
-    [active, official, users, groups].forEach((setting) => expect(setting).not.toBeNull());
-    expect(active[1].trim().toLowerCase()).toBe("false");
-    expect(official[1].trim().toLowerCase()).toBe("false");
-    expect(users[1].trim()).toBe("");
-    expect(groups[1].trim()).toBe("");
+    [active, official, users, groups].forEach((setting) => expect(setting).toBeNull());
     expect(codeBehind).toContain("WorkflowModernPresentationBootstrap.EstaActivaParaSolicitudActual()");
     expect(codeBehind).toMatch(/WorkflowCentroTrabajoModernPresentationEnabled As Boolean\s+Get\s+Return True/);
     expect(bootstrap).toContain("WorkflowPreviewSessionContextGate");
     expect(bootstrap).toContain("ConfiguracionWorkflowModernFeatureGate");
     expect(bootstrap).toContain("Return False");
     expect(config).toContain('WorkflowCentroTrabajoModernLayers');
-    expect(codeBehind).toContain('WorkflowCentroTrabajoModernActive');
+    expect(codeBehind).not.toContain('WorkflowCentroTrabajoModernActive');
     expect(page).toContain('<%= WorkflowCentroTrabajoModernCssAttribute %>');
     expect(page).not.toContain("WorkflowCentroTrabajoModernActive");
   });

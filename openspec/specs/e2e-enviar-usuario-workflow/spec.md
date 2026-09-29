@@ -51,7 +51,7 @@ La automatización SHALL mantener la ejecución de envío a usuario deshabilitad
 #### Scenario: Ejecución autorizada sobre recurso reservado
 
 - **WHEN** se autoriza explícitamente un recurso Workflow descartable reservado, con token y destino actuales obtenidos del preview
-- **THEN** la prueba verifica el resultado funcional esperado y las huellas de estado y auditoría correspondientes, libera o restaura el recurso al cierre y no modifica el gate ni el flujo legacy.
+- **THEN** la prueba verifica el resultado funcional esperado y las huellas de estado y auditoría correspondientes, libera o restaura el recurso al cierre y no crea configuración de rollout.
 
 ### Requirement: Evidencia libre de secretos y cierre seguro
 
@@ -65,4 +65,4 @@ La automatización SHALL recibir credenciales y conexiones solo mediante variabl
 #### Scenario: Cierre de una corrida autorizada
 
 - **WHEN** termina una corrida de preview o ejecución autorizada
-- **THEN** se conserva únicamente resultado, códigos, conteos y huellas, y se verifica que el gate permanezca apagado y sus listas vacías.
+- **THEN** se conserva únicamente resultado, códigos, conteos y huellas, y se verifica que no existan claves de rollout ni audiencias piloto.

@@ -35,12 +35,12 @@ El sistema SHALL proteger fronteras legacy mediante caracterización y verificac
 - **WHEN** se valida DOC-56
 - **THEN** `ClassAlmacenamiento.vb`, rutas legacy y `JSProgresBar.js` permanecen sin cambios
 
-### Requirement: RQ-04 Contratos y gate
-El sistema SHALL validar ocho operaciones y bloquear efectos modernos con el gate apagado, según D-04.
+### Requirement: RQ-04 Contratos y contexto
+El sistema SHALL validar ocho operaciones y bloquear efectos modernos cuando la sesión o el contexto Workflow sean inválidos, según D-04.
 
-#### Scenario: Gate apagado
-- **WHEN** `WorkflowCentroTrabajoModernActive` es `false`
-- **THEN** cada endpoint moderno devuelve `FEATURE_DISABLED` sin invocar dependencias
+#### Scenario: Contexto inválido
+- **WHEN** la sesión no está autenticada o el contexto Workflow no es válido
+- **THEN** cada endpoint moderno devuelve un rechazo seguro sin invocar dependencias mutantes
 
 #### Scenario: Contrato compartido
 - **WHEN** se validan solicitudes, respuestas y estados
@@ -58,11 +58,11 @@ El sistema SHALL preparar E2E sólo en `tools/e2e` y separar evidencia local de 
 
 #### Scenario: Sin autorización
 - **WHEN** no hay autorización explícita
-- **THEN** no ejecuta E2E, no activa gate y declara la prueba pendiente
+- **THEN** no ejecuta E2E, no modifica configuración de rollout y declara la prueba pendiente
 
 #### Scenario: Restauración
 - **WHEN** una corrida futura sea autorizada
-- **THEN** usa controles `SELECT`, no expone secretos y restaura gate `false`, usuarios y grupos vacíos
+- **THEN** usa controles `SELECT`, no expone secretos y no crea ni modifica configuración de rollout
 
 ### Requirement: RQ-07 Operaciones productivas completas
 El sistema SHALL publicar las ocho operaciones con composición productiva, autorización existente y metadatos confiables, según D-07.

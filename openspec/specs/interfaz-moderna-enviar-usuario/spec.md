@@ -10,10 +10,10 @@ Define la experiencia oficial, accesible y aislada para enviar una tarea Workflo
 
 La página `workflow/Webworkflow.aspx` SHALL exponer `workflow-user-send-trigger` como única entrada de **Enviar a usuario** para todo contexto Workflow válido, sin depender de `WorkflowCentroTrabajoModernActive`.
 
-#### Scenario: El gate de otras operaciones está apagado
+#### Scenario: Disponibilidad transversal
 
-- **WHEN** el contexto Workflow es válido y el gate de Grupo/Continuar flujo está apagado
-- **THEN** el bootstrap de usuario enlaza su disparador moderno y no consulta ni modifica el gate.
+- **WHEN** el contexto Workflow es válido
+- **THEN** el bootstrap de usuario enlaza su disparador moderno sin consultar configuración de rollout.
 
 #### Scenario: No existe ruta legacy de usuario
 
@@ -75,4 +75,4 @@ La entrega SHALL aportar pruebas focales y compilación reproducibles, sin opera
 #### Scenario: E2E no autorizado
 
 - **WHEN** no existe autorización explícita de ambiente y cuentas
-- **THEN** no se activa gate, no se ejecuta E2E/carga ni transición real y la evidencia consigna la limitación.
+- **THEN** no se modifica configuración de rollout, no se ejecuta E2E/carga ni transición real y la evidencia consigna la limitación.

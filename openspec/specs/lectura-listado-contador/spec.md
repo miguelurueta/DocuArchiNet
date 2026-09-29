@@ -69,7 +69,7 @@ El sistema SHALL mantener las operaciones modernas de DOC-41 como lecturas sin a
 #### Scenario: Invocación de cualquier endpoint DOC-41
 
 - **WHEN** se invoca listado, contenido o contador
-- **THEN** la operación no ejecuta una mutación ni modifica `WorkflowCentroTrabajoModernActive`
+- **THEN** la operación no ejecuta una mutación ni crea configuración de rollout
 
 ### Requirement: Evidencia local y E2E gobernada (RQ-06, D-06)
 

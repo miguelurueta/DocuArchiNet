@@ -13,27 +13,27 @@ El sistema SHALL ofrecer una validación determinista, no autenticada y sin red 
 - **WHEN** una suite focal detecta una regresión de arquitectura, gate, legacy o almacenamiento
 - **THEN** el validador termina con código distinto de cero e identifica la suite fallida
 
-### Requirement: Gate global para sesiones Workflow válidas
-Cada endpoint moderno SHALL comprobar la bandera habilitada y una sesión Workflow válida antes de resolver dependencias o producir efectos. No SHALL aplicar listas adicionales de usuarios o grupos a una funcionalidad transversal. **Origen: D-02, RQ-02.**
+### Requirement: Disponibilidad oficial para sesiones Workflow válidas
+Cada endpoint moderno SHALL comprobar una sesión autenticada y un contexto Workflow válido antes de resolver dependencias o producir efectos. No SHALL consultar una bandera de rollout ni aplicar listas adicionales de usuarios o grupos. **Origen: D-02, RQ-02.**
 
 #### Scenario: Acceso directo fuera del alcance
-- **WHEN** un consumidor invoca directamente un endpoint con gate apagado o una sesión Workflow inválida
+- **WHEN** un consumidor invoca directamente un endpoint con una sesión o contexto Workflow inválidos
 - **THEN** recibe un rechazo seguro y no se invoca proveedor, intención, almacenamiento ni reconciliación
 
-#### Scenario: Usuario autenticado con gate activo
-- **WHEN** cualquier usuario con una sesión Workflow válida accede al módulo y el gate está activo
+#### Scenario: Usuario autenticado
+- **WHEN** cualquier usuario con una sesión Workflow válida accede al módulo
 - **THEN** la interfaz y los endpoints modernos están disponibles sin exigir pertenencia a listas de usuarios o grupos
 
-### Requirement: Alternancia visual reversible
-La vista SHALL mantener una sola entrada y un solo handler efectivo, ocultando inicialmente el árbol visual legacy bajo gate activo y preservándolo como fallback bajo gate apagado. **Origen: D-03, RQ-03.**
+### Requirement: Presentación visual oficial
+La vista SHALL mantener una sola entrada y un solo handler efectivo para la experiencia moderna oficial, sin depender de configuración de rollout. **Origen: D-03, RQ-03.**
 
-#### Scenario: Gate activo
+#### Scenario: Contexto válido
 - **WHEN** la página se representa con la experiencia moderna autorizada
 - **THEN** solo la entrada moderna queda disponible y los controles legacy no originan una segunda ejecución
 
-#### Scenario: Gate apagado
-- **WHEN** la página se representa con el gate desactivado
-- **THEN** el recorrido legacy conserva sus controles, postbacks y handlers vigentes
+#### Scenario: Contexto inválido
+- **WHEN** la página se representa sin un contexto Workflow válido
+- **THEN** las operaciones quedan deshabilitadas sin habilitar una segunda ruta de actualización
 
 ### Requirement: Ejecución única y proyección completa
 La interfaz SHALL realizar una sola llamada `ExecuteImportIntent` por intención y proyectar una vez todos los documentos confirmados, sin progreso ficticio ni duplicados. **Origen: D-04, RQ-04.**
@@ -47,7 +47,7 @@ La validación E2E SHALL reutilizar exclusivamente la plataforma existente, requ
 
 #### Scenario: Corrida autorizada finaliza o falla
 - **WHEN** una prueba autenticada termina por cualquier ruta
-- **THEN** el gate queda en `false`, usuarios y grupos quedan vacíos y los controles de consulta son solo `SELECT`
+- **THEN** no se crea ni modifica configuración de rollout y los controles de consulta son solo `SELECT`
 
 #### Scenario: Autorización ausente
 - **WHEN** no existe autorización explícita para ambiente, cuenta o mutación aplicable

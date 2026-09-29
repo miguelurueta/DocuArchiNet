@@ -13,7 +13,7 @@ La página SHALL registrar la presentación de Devolver a usuario anterior para 
 #### Scenario: Registro sin gate de transición
 
 - **WHEN** `Webworkflow.aspx` prepara una solicitud con contexto Workflow válido
-- **THEN** el trigger exclusivo recibe su bootstrap aunque el gate de transición de otras operaciones esté desactivado.
+- **THEN** el trigger exclusivo recibe su bootstrap sin depender de configuración de rollout de otras operaciones.
 
 ### Requirement: Sustitución exclusiva de la ruta heredada
 

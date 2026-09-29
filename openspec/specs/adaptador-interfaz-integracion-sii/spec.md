@@ -69,5 +69,5 @@ El sistema SHALL validarse con fixtures deterministas, sin red real, secretos ni
 - **THEN** valida mapping, consulta única, filtros y selección sin contactar SII
 
 #### Scenario: Antirregresión
-- **WHEN** se inspeccionan superficies prohibidas y gate apagado
+- **WHEN** se inspeccionan superficies prohibidas y un contexto no autorizado
 - **THEN** permanecen sin acoplamiento, logs sensibles ni cambios al recorrido legacy

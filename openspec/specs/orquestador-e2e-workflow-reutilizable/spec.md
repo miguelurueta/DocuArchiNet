@@ -55,9 +55,9 @@ El sistema SHALL exigir confirmación explícita e independiente para el ambient
 
 ### Requirement: Evidencia y cierre uniforme
 
-El sistema SHALL aplicar al inicio y al cierre de toda secuencia los controles de gate y de rutas legacy definidos para Workflow. SHALL generar evidencia que contenga únicamente códigos, conteos, banderas, latencias y huellas, y SHALL eliminar del entorno de la corrida los secretos efímeros al finalizar.
+El sistema SHALL aplicar al inicio y al cierre de toda secuencia los controles de sesión, contexto e integridad definidos para Workflow. SHALL generar evidencia que contenga únicamente códigos, conteos, banderas, latencias y huellas, y SHALL eliminar del entorno de la corrida los secretos efímeros al finalizar.
 
 #### Scenario: Secuencia completada o interrumpida
 
 - **WHEN** una secuencia termina, falla o es interrumpida tras iniciar una etapa
-- **THEN** se ejecutan los controles de cierre aplicables, el gate queda apagado con listas vacías y la evidencia no contiene datos sensibles ni cuerpos de respuesta.
+- **THEN** se ejecutan los controles de cierre aplicables, no quedan cambios de configuración de rollout y la evidencia no contiene datos sensibles ni cuerpos de respuesta.
