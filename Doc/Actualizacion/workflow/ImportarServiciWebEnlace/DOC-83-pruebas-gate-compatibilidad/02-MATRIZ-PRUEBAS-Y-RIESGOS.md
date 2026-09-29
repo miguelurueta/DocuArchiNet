@@ -13,9 +13,16 @@ La fuente ejecutable es `tools/e2e/validation/doc83-sii-enlase-closure-matrix.js
 | Acceso, perfil o evidencia inseguros | Alta | autorización, perfiles y saneamiento | DOC-83 anónima: bloqueo opaco, cero elementos y sin cambios | Cubierto |
 | Resultado tardío contamina otra tarea | Alta | guard, aislamiento y multi-pestaña | DOC-82 | Cubierto |
 | Regresión de constancias legacy | Alta | compatibilidad SII, UI legacy e invariancia | No requiere mutación adicional | Cubierto |
+| Proyección inmediata o interacción de la fila ENLASE falla | Muy alta | contrato DTO/adapter y fila de ocho campos | DOC-83 manual visual: proyección e interacción `CONFIRMED` | Cubierto |
 
 ## Brecha de asignación cerrada
 
 La tarea descartable 220589 confirmó primero `BLOCKED`: el trámite `mutacionregmer` exigía `Recibo De Caja` (tipo 186, serie 15, subserie 20) y la consulta de control encontró cero coincidencias físicas. Una corrida real y autorizada de `import-sii-enlase-execution` incorporó el documento; una autorización y reserva E2E independientes permitieron accionar nuevamente la asignación, que devolvió `ASSIGNED` y cambió `workflow-assignment-state`.
 
 La misma tarea se reutilizó por autorización expresa del usuario debido a la ausencia de otro recurso. Antes de rearmar la reserva local de asignación consumida se conservaron respaldos `.bak`. No se alteraron datos de negocio para evadir la validación: la importación real cambió la precondición documental y `Buttonaceptar_Click` volvió a decidir de forma autoritativa.
+
+## Brecha visual cerrada
+
+La corrida autorizada `import-sii-enlase-manual-visual` sobre la tarea descartable 220586 comenzó con siete filas relacionadas y ocho acciones SII. El operador importó sin recargar, confirmó la fila nueva antes de abrirla y después abrió una sola vez el documento. El resultado saneado fue `manualVisual=CONFIRMED`, `gridProjection=CONFIRMED` y `rowInteraction=CONFIRMED`, con una proyección observada.
+
+Los controles de intención, ítem y transición cambiaron como corresponde a la importación; índice, caché, relación y expediente permanecieron invariantes. La reserva terminó `consumed` y el `finally` restauró `WorkflowCentroTrabajoModernActive=false`, usuarios vacíos y grupos vacíos.

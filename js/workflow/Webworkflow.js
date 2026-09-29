@@ -1006,6 +1006,11 @@ function event_click(e) {
 const handler_element_event = (e) => {
     try {
         delete_alert_boot();
+        if (e.currentTarget &&
+            e.currentTarget.getAttribute("data-import-modern-active") === "true" &&
+            e.currentTarget.getAttribute("data-import-modern-bound") === "true") {
+            return;
+        }
         let name_ID = e.currentTarget.id;
         let result = "";
         switch (name_ID) {

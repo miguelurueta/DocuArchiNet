@@ -1,0 +1,18 @@
+{
+    "scenarioId":  "import-sii-enlase-manual-visual",
+    "baseUrl":  "https://workflow.example.invalid/GestionDocumental-Docuarchi.net/",
+    "module":  "WORKFLOW REGISTRO",
+    "environment":  "pruebas-autorizadas",
+    "odbcDsn":  "workflowdocument",
+    "taskId":  1,
+    "radicado":  "RADICADO-SANEADO",
+    "codigoBarras":  "CODIGO-SANEADO",
+    "documentTypeId":  154,
+    "documentTypeName":  "Constancia De Inscripción",
+    "sampleSize":  1,
+    "budgetMs":  600000,
+    "browser":  {
+                    "channel":  "chrome"
+                },
+    "ignoreHttpsErrors":  false
+}

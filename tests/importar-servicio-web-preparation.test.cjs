@@ -10,6 +10,12 @@ test('individual usa una colección de exactamente una fila y múltiple conserva
   assert.deepEqual(preparation.multiple([b,a],220585).map(x=>x.ExternalKey),['b','a']);
 });
 
+test('preparación conserva la confirmación explícita de reimportación por ExternalKey', () => {
+  const items=preparation.multiple([{externalKey:'recibo-1',reimportRequested:true},{externalKey:'recibo-2'}],220589);
+  assert.equal(items[0].ReimportRequested,true);
+  assert.equal(items[1].ReimportRequested,false);
+});
+
 test('tipología solo se asigna desde catálogo autorizado', () => {
   const items=preparation.individual({externalKey:'a'},1);
   assert.throws(()=>preparation.assignDocumentType(items,'a',{Id:9},[{Id:10,Name:'Permitida'}]),/DOCUMENT_TYPE_NOT_AUTHORIZED/);
@@ -23,6 +29,14 @@ test('predetermina Constancia de Inscripción sin depender de mayúsculas o tild
   assert.equal(result.documentType.DocumentTypeId,154);
   assert.deepEqual(result.items.map(item=>[item.DocumentTypeId,item.DocumentTypeName]),[[154,'Constancia De Inscripción'],[154,'Constancia De Inscripción']]);
 });
+test('predetermina el unico tipo obligatorio antes que Constancia de Inscripcion', () => {
+  const catalog=[{DocumentTypeId:154,Name:'Constancia De Inscripcion',Required:false},{DocumentTypeId:186,Name:'Recibo De Caja',Required:true}];
+  const result=preparation.assignDefaultDocumentType(preparation.individual({externalKey:'a'},1),catalog);
+  assert.equal(result.documentType.DocumentTypeId,186);
+  assert.equal(result.items[0].DocumentTypeName,'Recibo De Caja');
+  assert.equal(preparation.defaultDocumentType(catalog.concat([{DocumentTypeId:99,Name:'Otro obligatorio',Required:true}])),null);
+});
+
 
 test('predetermina el único tipo autorizado y falla cerrado ante coincidencia ambigua', () => {
   assert.equal(preparation.defaultDocumentType([{DocumentTypeId:77,Name:'Certificado registral'}]).DocumentTypeId,77);
@@ -40,18 +54,21 @@ test('estado habilita confirmar solo con datos completos y preflight ejecutable'
   assert.equal(requirements.transition(model,'stale').state,'edicion');
 });
 
-test('UI integra preparación explícita, plan previsto y restauración de foco', () => {
+test('UI integra preparación explícita, acciones persistentes y restauración de foco', () => {
   const ui=fs.readFileSync('js/workflow/importar-servicio-web/importar-servicio-web-ui.js','utf8');
   const markup=fs.readFileSync('workflow/Webworkflow.aspx','utf8');
   const css=fs.readFileSync('Styles/importar-servicio-web-modern.css','utf8');
   assert.match(ui,/data-import-prepare-selected/);
   assert.match(ui,/intentClient\.preflight/);
-  assert.match(ui,/Efectos previstos/);
+  assert.match(ui,/Preparación validada\. Puede crear la intención\./);
+  assert.doesNotMatch(ui,/renderPreparationPlan|preparationPlan|Plan previsto/);
   assert.match(ui,/preparationContext\.focus\.focus/);
   assert.match(markup,/importar-servicio-web-preparation-confirm/);
   assert.match(markup,/Crear intención/);
   assert.match(ui,/Button_actualiza_trevie_seleccion/);
   assert.match(ui,/function updateSelectionState\(control\)/);
+  assert.match(ui,/publicErrorCode\(error\)/);
+  assert.match(ui,/No fue posible validar la preparación \(/);
   assert.match(ui,/data-import-select-all/);
   assert.match(ui,/selectAll\.indeterminate/);
   assert.match(ui,/data-import-select="true"\]:not\(\[disabled\]\)/);
@@ -65,6 +82,8 @@ test('UI integra preparación explícita, plan previsto y restauración de foco'
   assert.match(ui,/remove_endRequest\(onEndRequest\)/);
   assert.match(css,/#importar-servicio-web-preparation-confirm/);
   assert.match(css,/#importar-servicio-web-preparation-cancel/);
+  assert.match(css,/\.importar-servicio-web__preparation-items\s*\{[^}]*overflow:\s*auto/);
+  assert.match(css,/\.importar-servicio-web__preparation-actions\s*\{[^}]*flex:\s*0 0 auto/);
 });
 
 test('frontend no crea transporte, no ejecuta intención ni toca persistencia legacy', () => {

@@ -340,11 +340,12 @@ Public Class WebServiceImportarServicioWebModern
         Dim indexAdapter = New SiiDocumentIndexAdapter(New LegacySiiDocumentIndexPhysicalGateway(docuarchiConnections, executor))
         Dim relatedCoordinator = New ImportRelatedDocumentCoordinator(relatedDocuments, relationPort, linkCache, indexAdapter, indexAdapter, New ImportRelatedDocumentPlan())
         Dim documentTypes As IImportDocumentTypeResolver = New MySqlImportDocumentTypeResolver(radicacionConnections, executor)
+        Dim documentTypeCatalog As IImportDocumentTypeCatalogRepository = New MySqlImportDocumentTypeCatalogRepository(radicacionConnections, executor)
         Dim effectConfiguration As IImportEffectConfigurationRepository = If(isEnlase,
             CType(New EnlaseImportEffectConfigurationRepository(), IImportEffectConfigurationRepository),
             New MySqlImportEffectConfigurationRepository(expedientConfiguration))
         Dim itemStatus As IImportItemStatusRepository = New MySqlImportItemStatusRepository(connections, docuarchiConnections, executor)
-        Dim preflight = New ServicioPreflightImportacion(validator, documentTypes, effectConfiguration, New ImportEffectPlanBuilder(), itemStatus)
+        Dim preflight = New ServicioPreflightImportacion(validator, documentTypes, effectConfiguration, New ImportEffectPlanBuilder(), itemStatus, documentTypeCatalog)
         Dim storage As IImportDocumentStoragePort = If(isEnlase,
             CType(New LegacyEnlaseImportDocumentStorageAdapter(), IImportDocumentStoragePort),
             New LegacyImportDocumentStorageAdapter())
@@ -355,7 +356,7 @@ Public Class WebServiceImportarServicioWebModern
         Dim reconciliationRepository As IImportReconciliationRepository = New MySqlImportReconciliationRepository(connections, docuarchiConnections, executor)
         Dim steps As New Collections.Generic.List(Of IImportExecutionStep) From {
             New DownloadImportExecutionStep(clients), New PrepareImportExecutionStep(), New PrepareImportIndicesExecutionStep(),
-            New StoreImportExecutionStep(New MySqlImportStorageMetadataRepository(connections, executor), documentTypes, storage)}
+            New StoreImportExecutionStep(New MySqlImportStorageMetadataRepository(connections, executor), documentTypes, storage, documentTypeCatalog)}
         If isEnlase Then
             steps.Add(New VerifyStoredImportExecutionStep(reconciliationRepository))
             steps.Add(New CompleteImportExecutionStep(FaseImportacionServicio.Completada))

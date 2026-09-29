@@ -34,7 +34,7 @@ Public NotInheritable Class ImportEffectPlanBuilder
         For Each item In items
             Dim plan As New ImportEffectPlanDto With {
                 .ClientItemId = item.ClientItemId.Trim(), .TargetTaskId = context.IdTarea,
-                .DocumentTypeId = item.DocumentTypeId, .DocumentTypeName = item.DocumentTypeName.Trim(),
+                .DocumentTypeId = item.DocumentTypeId, .DocumentTypeName = If(item.DocumentTypeName, String.Empty).Trim(),
                 .DestinationMode = If(configuration.ExpedientMode = ModoExpedienteImportacion.SinExpediente, "WithoutExpedient", If(configuration.MultipleExpedients, "Multiple", "Single")),
                 .ExpedientRequired = configuration.ExpedientRequired}
             For Each code In EffectCodes

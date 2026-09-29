@@ -37,6 +37,11 @@
             return true;
         }
         return { canOpen: function (id) { return !!resolve(id); }, open: open };
+    function publicErrorCode(error) {
+        var code = text(error && error.message).toUpperCase();
+        return /^[A-Z][A-Z0-9_]{2,50}$/.test(code) ? code : "PREFLIGHT_NOT_EXECUTABLE";
+    }
+
     }
 
     function text(value, fallback) {
@@ -65,6 +70,10 @@
 
     function activeAdapter(control) {
         return text(control.trigger.getAttribute("data-import-capability")).toUpperCase() === "ANEXOS_RADICADO_ENLASE" && control.enlaseAdapter ? control.enlaseAdapter : control.siiAdapter;
+    }
+
+    function isEnlase(control) {
+        return text(control && control.trigger && control.trigger.getAttribute("data-import-capability")).toUpperCase() === "ANEXOS_RADICADO_ENLASE";
     }
 
     function bindTrigger(control, trigger) {
@@ -113,6 +122,7 @@
         control.trustedRadicado = text(control.resultData.Radicado);
         if (control.contextRecord) { control.contextRecord.textContent = control.trustedRadicado || "—"; }
         control.preparationCatalog = Array.isArray(control.resultData.DocumentTypes) ? control.resultData.DocumentTypes.slice(0) : [];
+        control.documentTypeRequired = control.resultData.DocumentTypeRequired !== false;
         clear(control.results);
         var adapter = activeAdapter(control) || control.adapter;
         if (adapter && typeof adapter.renderItems === "function") { adapter.renderItems(control.results, data); return; }
@@ -129,22 +139,19 @@
     }
 
     function preparationRow(item) {
-        return { externalKey: text(item.externalKey || item.ExternalKey), clientItemId: text(item.externalKey || item.ExternalKey), fileName: text(item.displayName || item.DisplayName), contentType: text(item.contentType || item.ContentType) };
+        return { externalKey: text(item.externalKey || item.ExternalKey), clientItemId: text(item.externalKey || item.ExternalKey), fileName: text(item.displayName || item.DisplayName), contentType: text(item.contentType || item.ContentType), reimportRequested: item.reimportable === true };
     }
 
     function renderPreparationItems(control) {
         clear(control.preparationItems);
         control.preparationModel.items.forEach(function (item) {
-            var wrapper = document.createElement("div"), label = document.createElement("label"), select = document.createElement("select"), empty = document.createElement("option");
-            wrapper.className = "importar-servicio-web__preparation-item"; label.textContent = item.FileName || item.ExternalKey; empty.value = ""; empty.textContent = "Seleccione tipología"; select.appendChild(empty);
+            var wrapper = document.createElement("div"), label = document.createElement("label"), select, empty, optional;
+            wrapper.className = "importar-servicio-web__preparation-item"; label.textContent = item.FileName || item.ExternalKey; wrapper.appendChild(label);
+            if (!control.documentTypeRequired) { optional = document.createElement("span"); optional.className = "importar-servicio-web__document-type-optional"; optional.textContent = "Este trámite no requiere tipología documental."; wrapper.appendChild(optional); control.preparationItems.appendChild(wrapper); return; }
+            select = document.createElement("select"); empty = document.createElement("option"); empty.value = ""; empty.textContent = "Seleccione tipología"; select.appendChild(empty);
             control.preparationCatalog.forEach(function (entry) { var option = document.createElement("option"), id = entry.Id || entry.DocumentTypeId, name = entry.Name || entry.Nombre || entry.DocumentTypeName; option.value = String(id); option.textContent = text(name); option.selected = Number(item.DocumentTypeId) === Number(id); select.appendChild(option); });
-            select.setAttribute("data-import-document-type", item.ExternalKey); select.setAttribute("aria-label", "Tipología de " + (item.FileName || item.ExternalKey)); wrapper.appendChild(label); wrapper.appendChild(select); control.preparationItems.appendChild(wrapper);
+            select.setAttribute("data-import-document-type", item.ExternalKey); select.setAttribute("aria-label", "Tipología de " + (item.FileName || item.ExternalKey)); wrapper.appendChild(select); control.preparationItems.appendChild(wrapper);
         });
-    }
-
-    function renderPreparationPlan(control, response) {
-        clear(control.preparationPlan);
-        (response.EffectPlans || []).forEach(function (plan) { var block = document.createElement("div"), effects = (plan.Effects || []).map(function (effect) { return text(effect.Code) + ": " + text(effect.Status); }); block.className = "importar-servicio-web__preparation-plan"; block.textContent = "Tarea " + text(plan.TargetTaskId) + " · " + text(plan.DocumentTypeName) + " · Efectos previstos: " + effects.join(", "); control.preparationPlan.appendChild(block); });
     }
 
     function closePreparation(control) {
@@ -190,7 +197,7 @@
     function closeAfterResult(control, snapshot) {
         var projection = control.documentList.synchronize(snapshot), completion = control.projectionCompletion || Promise.resolve(!projection.refreshed);
         control.projectionCompletion = null;
-        return Promise.resolve(completion).catch(function () { return false; }).then(function () { setExecutionCloseLock(control, false); close(control, true); return snapshot; });
+        return Promise.resolve(completion).catch(function () { return false; }).then(function (projected) { setExecutionCloseLock(control, false); if (projected === false) { control.progressStatus.textContent = "El documento fue importado, pero no pudo agregarse a la lista visible. Mantenga esta ventana abierta y reintente la proyeccion."; return snapshot; } close(control, true); return snapshot; });
     }
 
     function shouldCloseAfterResult(execution, authoritative) {
@@ -223,20 +230,21 @@
     }
 
     function prepareCurrent(control) {
-        control.preparationStatus.textContent = "Validando requisitos y plan previsto…"; control.preparationConfirm.disabled = true;
-        control.intentClient.preflight(requestContext(control), control.preparationModel.items).then(function (response) { control.preparationResponse = response; renderPreparationPlan(control, response); control.preparationStatus.textContent = "Plan previsto confirmado. No se ha ejecutado ningún efecto."; control.preparationConfirm.disabled = false; }).catch(function () { control.preparationStatus.textContent = "No fue posible confirmar el plan de importación."; control.preparationConfirm.disabled = true; });
+        control.preparationStatus.textContent = "Validando requisitos de importación…"; control.preparationConfirm.disabled = true;
+        control.intentClient.preflight(requestContext(control), control.preparationModel.items).then(function () { control.preparationStatus.textContent = "Preparación validada. Puede crear la intención."; control.preparationConfirm.disabled = false; }).catch(function (error) { control.preparationStatus.textContent = "No fue posible validar la preparación (" + publicErrorCode(error) + ")."; control.preparationConfirm.disabled = true; });
     }
 
     function openPreparation(control, keys, trigger) {
         var rows = keys.map(function (key) { return itemByKey(control, key); }).filter(Boolean);
-        if (!rows.length || !control.preparationCatalog.length) { control.status.textContent = "No hay catálogo autorizado para preparar la importación."; return; }
+        if (!rows.length) { control.status.textContent = "No hay documentos válidos para preparar la importación."; return; }
+        if (control.documentTypeRequired && !control.preparationCatalog.length) { control.status.textContent = "No hay catálogo autorizado para preparar la importación."; return; }
         control.dialog.classList.remove("importar-servicio-web__dialog--preview"); setStage(control, 2);
         if (control.preview) { control.preview.close(); }
         control.taskContextGuard.capture(Object.assign(requestContext(control), { ExternalKeys: keys, StartedAt: new Date().toISOString() }));
         control.preparationContext = captureListContext(control, trigger); control.preparationModel = { items: control.preparation.multiple(rows.map(preparationRow), taskId(control)) };
         var defaultAssignment = control.preparation.assignDefaultDocumentType(control.preparationModel.items, control.preparationCatalog);
-        control.preparationModel.items = defaultAssignment.items; control.preparationResponse = null; control.listPanel.hidden = true; control.previewPanel.hidden = true; control.preparationPanel.hidden = false; control.preparationPanel.setAttribute("data-preparation-state", "edicion"); renderPreparationItems(control); clear(control.preparationPlan); control.preparationStatus.textContent = defaultAssignment.documentType ? "Tipología predeterminada: " + text(defaultAssignment.documentType.Name || defaultAssignment.documentType.Nombre || defaultAssignment.documentType.DocumentTypeName) + ". Puede cambiarla antes de crear la intención." : "Seleccione una tipología autorizada para cada elemento."; control.preparationTitle.focus();
-        if (defaultAssignment.documentType) { prepareCurrent(control); }
+        control.preparationModel.items = defaultAssignment.items; control.listPanel.hidden = true; control.previewPanel.hidden = true; control.preparationPanel.hidden = false; control.preparationPanel.setAttribute("data-preparation-state", "edicion"); renderPreparationItems(control); control.preparationItems.scrollTop = 0; control.preparationStatus.textContent = !control.documentTypeRequired ? "Este trámite permite importar sin tipología documental." : (defaultAssignment.documentType ? "Tipología predeterminada: " + text(defaultAssignment.documentType.Name || defaultAssignment.documentType.Nombre || defaultAssignment.documentType.DocumentTypeName) + ". Puede cambiarla antes de crear la intención." : "Seleccione una tipología autorizada para cada elemento."); control.preparationTitle.focus();
+        if (!control.documentTypeRequired || defaultAssignment.documentType) { prepareCurrent(control); }
     }
 
     function renderPreview(control, snapshot) {
@@ -393,12 +401,12 @@
         var apiFactory = options.api || window.ImportarServicioWebApi;
         var registryFactory = options.registry || window.ImportarServicioWebProviderRegistry;
         var coreFactory = options.core || window.ImportarServicioWebCore;
-        var control, registry, api, siiFactory, enlaseFactory, assignmentBridgeFactory, progressAdapterFactory, progressViewFactory, reconciliationFactory, documentListFactory, guardFactory, recoveryFactory, contextControls;
+        var control, registry, api, siiFactory, enlaseFactory, assignmentBridgeFactory, progressAdapterFactory, progressViewFactory, reconciliationFactory, documentListFactory, guardFactory, recoveryFactory, contextControls, appendImportedDocument;
 
         if (activeControl && activeControl.modal === modal) { triggers.forEach(function (candidate) { bindTrigger(activeControl, candidate); }); return activeControl; }
         if (!trigger) { return null; }
         if (!modal || !apiFactory || !registryFactory || !coreFactory) { return null; }
-        control = { trigger: trigger, modal: modal, dialog: document.getElementById("importar-servicio-web-dialog"), title: document.getElementById("importar-servicio-web-title"), subtitle: document.querySelector(".importar-servicio-web__subtitle"), closeButton: document.getElementById("importar-servicio-web-close"), body: document.getElementById("importar-servicio-web-body"), contextTask: document.getElementById("importar-servicio-web-context-task"), contextRecord: document.getElementById("importar-servicio-web-context-record"), listPanel: document.getElementById("importar-servicio-web-list"), status: document.getElementById("importar-servicio-web-status"), results: document.getElementById("importar-servicio-web-results"), previewPanel: document.getElementById("importar-servicio-web-preview"), previewTitle: document.getElementById("importar-servicio-web-preview-title"), previewStatus: document.getElementById("importar-servicio-web-preview-status"), previewFrame: document.getElementById("importar-servicio-web-preview-frame"), previewBack: document.getElementById("importar-servicio-web-preview-back"), previewRenew: document.getElementById("importar-servicio-web-preview-renew"), previewDownload: document.getElementById("importar-servicio-web-preview-download"), previewImported: document.getElementById("importar-servicio-web-preview-imported"), preparationPanel: document.getElementById("importar-servicio-web-preparation"), preparationTitle: document.getElementById("importar-servicio-web-preparation-title"), preparationStatus: document.getElementById("importar-servicio-web-preparation-status"), preparationItems: document.getElementById("importar-servicio-web-preparation-items"), preparationPlan: document.getElementById("importar-servicio-web-preparation-plan"), preparationClose: document.getElementById("importar-servicio-web-preparation-close"), preparationCancel: document.getElementById("importar-servicio-web-preparation-cancel"), preparationConfirm: document.getElementById("importar-servicio-web-preparation-confirm"), progressPanel: document.getElementById("importar-servicio-web-progress"), progressTitle: document.getElementById("importar-servicio-web-progress-title"), progressStatus: document.getElementById("importar-servicio-web-progress-status"), progressSummary: document.getElementById("importar-servicio-web-progress-summary"), progressResults: document.getElementById("importar-servicio-web-progress-results"), providerId: text(trigger.getAttribute("data-import-provider-id")), viewImported: options.viewImported };
+        control = { trigger: trigger, modal: modal, dialog: document.getElementById("importar-servicio-web-dialog"), title: document.getElementById("importar-servicio-web-title"), subtitle: document.querySelector(".importar-servicio-web__subtitle"), closeButton: document.getElementById("importar-servicio-web-close"), body: document.getElementById("importar-servicio-web-body"), contextTask: document.getElementById("importar-servicio-web-context-task"), contextRecord: document.getElementById("importar-servicio-web-context-record"), listPanel: document.getElementById("importar-servicio-web-list"), status: document.getElementById("importar-servicio-web-status"), results: document.getElementById("importar-servicio-web-results"), previewPanel: document.getElementById("importar-servicio-web-preview"), previewTitle: document.getElementById("importar-servicio-web-preview-title"), previewStatus: document.getElementById("importar-servicio-web-preview-status"), previewFrame: document.getElementById("importar-servicio-web-preview-frame"), previewBack: document.getElementById("importar-servicio-web-preview-back"), previewRenew: document.getElementById("importar-servicio-web-preview-renew"), previewDownload: document.getElementById("importar-servicio-web-preview-download"), previewImported: document.getElementById("importar-servicio-web-preview-imported"), preparationPanel: document.getElementById("importar-servicio-web-preparation"), preparationTitle: document.getElementById("importar-servicio-web-preparation-title"), preparationStatus: document.getElementById("importar-servicio-web-preparation-status"), preparationItems: document.getElementById("importar-servicio-web-preparation-items"), preparationClose: document.getElementById("importar-servicio-web-preparation-close"), preparationCancel: document.getElementById("importar-servicio-web-preparation-cancel"), preparationConfirm: document.getElementById("importar-servicio-web-preparation-confirm"), progressPanel: document.getElementById("importar-servicio-web-progress"), progressTitle: document.getElementById("importar-servicio-web-progress-title"), progressStatus: document.getElementById("importar-servicio-web-progress-status"), progressSummary: document.getElementById("importar-servicio-web-progress-summary"), progressResults: document.getElementById("importar-servicio-web-progress-results"), providerId: text(trigger.getAttribute("data-import-provider-id")), viewImported: options.viewImported };
         if (!control.dialog || !control.closeButton || !control.body || !control.listPanel || !control.status || !control.results || !control.previewPanel || !control.previewTitle || !control.previewStatus || !control.previewFrame || !control.previewBack || !control.previewRenew || !control.previewDownload || !control.previewImported) { return null; }
         api = apiFactory.create(options.apiOptions || {});
         control.api = api;
@@ -418,7 +426,7 @@
         reconciliationFactory = options.reconciliation || window.ImportarServicioWebReconciliation;
         documentListFactory = options.documentList || window.ImportarServicioWebDocumentListAdapter;
         guardFactory = options.taskContextGuard || window.ImportarServicioWebTaskContextGuard; recoveryFactory = options.recovery || window.ImportarServicioWebRecovery;
-        if (!control.preparation || !window.ImportarServicioWebIntentClient || !progressAdapterFactory || !progressViewFactory || !reconciliationFactory || !documentListFactory || !guardFactory || !recoveryFactory || !control.preparationPanel || !control.preparationTitle || !control.preparationStatus || !control.preparationItems || !control.preparationPlan || !control.preparationClose || !control.preparationCancel || !control.preparationConfirm || !control.progressPanel || !control.progressTitle || !control.progressStatus || !control.progressSummary || !control.progressResults) { return null; }
+        if (!control.preparation || !window.ImportarServicioWebIntentClient || !progressAdapterFactory || !progressViewFactory || !reconciliationFactory || !documentListFactory || !guardFactory || !recoveryFactory || !control.preparationPanel || !control.preparationTitle || !control.preparationStatus || !control.preparationItems || !control.preparationClose || !control.preparationCancel || !control.preparationConfirm || !control.progressPanel || !control.progressTitle || !control.progressStatus || !control.progressSummary || !control.progressResults) { return null; }
         control.intentClient = (options.intentClient || window.ImportarServicioWebIntentClient).create({ api: api });
         control.progressAdapter = progressAdapterFactory.create({ api: api });
         control.reconciliation = reconciliationFactory.create({ api: api });
@@ -427,7 +435,18 @@
         (control.assignmentBridge ? control.assignmentBridge.controls() : []).forEach(function (candidate) { if (contextControls.indexOf(candidate) < 0) { contextControls.push(candidate); } });
         control.taskContextGuard = guardFactory.create({ currentTaskId: function () { return taskId(control); }, controls: contextControls, eventTarget: window });
         control.recovery = recoveryFactory.create({ api: api, adapt: control.reconciliation.adapt });
-        control.documentList = documentListFactory.create({ currentTaskId: function () { return taskId(control); }, appendDocument: options.appendImportedDocument, refresh: function (request) { control.projectionCompletion = options.refreshDocumentList ? Promise.resolve(options.refreshDocumentList(request)) : refreshDocumentListPartial(control); }, openDocument: function (id) { return control.importedViewer.open(id); } });
+        appendImportedDocument = options.appendImportedDocument;
+        if (typeof appendImportedDocument !== "function" && typeof documentListFactory.createLegacyGridAppender === "function") {
+            appendImportedDocument = documentListFactory.createLegacyGridAppender({ document: document, resolveTarget: function () { return isEnlase(control) ? { gridId: "GridView_list_documento_relacion", destination: "rad", rowIdAttribute: "id_rad" } : { gridId: "GridView_list_documento_relacion_wf", destination: "wf", rowIdAttribute: "id_wf" }; }, insertRow: function (legacyData, destination, versioned) {
+                if (typeof window.insert_row_documento_relacionado !== "function") { return false; }
+                window.insert_row_documento_relacionado(legacyData, destination, versioned);
+                return true;
+            } });
+        }
+        control.documentList = documentListFactory.create({ currentTaskId: function () { return taskId(control); }, appendDocument: appendImportedDocument, refresh: function (request) {
+            if (isEnlase(control)) { control.projectionCompletion = Promise.resolve(false); return; }
+            control.projectionCompletion = options.refreshDocumentList ? Promise.resolve(options.refreshDocumentList(request)) : refreshDocumentListPartial(control);
+        }, openDocument: function (id) { return control.importedViewer.open(id); } });
         control.progressView = progressViewFactory.create({ panel: control.progressPanel, status: control.progressStatus, summary: control.progressSummary, results: control.progressResults, canViewImported: function (item) { return control.documentList.isAuthorized(item); }, viewImported: function (item) { control.documentList.open(item.documentId); } });
         control.preview.subscribe(function (snapshot) { renderPreview(control, snapshot); });
         control.previewFrame.addEventListener("load", function () { previewFrameLoaded(control); });
@@ -444,7 +463,7 @@
         control.dialog.addEventListener("keydown", function (event) { onKeydown(control, event); });
         control.results.addEventListener("click", function (event) { var target = event.target, keys; if (!target) { return; } if (target.getAttribute("data-import-preview") === "true") { event.preventDefault(); openPreview(control, target); } else if (target.getAttribute("data-import-prepare") === "true") { event.preventDefault(); openPreparation(control, [text(target.getAttribute("data-external-key"))], target); } else if (target.getAttribute("data-import-prepare-selected") === "true") { keys = Array.prototype.map.call(control.results.querySelectorAll('[data-import-select="true"]:checked'), function (input) { return text(input.getAttribute("data-external-key")); }); openPreparation(control, keys, target); } });
         control.results.addEventListener("change", function (event) { var target = event.target, checked; if (!target) { return; } if (target.getAttribute("data-import-select-all") === "true") { checked = target.checked; Array.prototype.forEach.call(control.results.querySelectorAll('[data-import-select="true"]:not([disabled])'), function (input) { input.checked = checked; }); updateSelectionState(control); } else if (target.getAttribute("data-import-select") === "true") { updateSelectionState(control); } });
-        control.preparationItems.addEventListener("change", function (event) { var target = event.target, entry; if (!target || !target.getAttribute("data-import-document-type")) { return; } entry = control.preparationCatalog.filter(function (candidate) { return Number(candidate.Id || candidate.DocumentTypeId) === Number(target.value); })[0]; control.preparationModel.items = control.preparation.assignDocumentType(control.preparationModel.items, target.getAttribute("data-import-document-type"), entry, control.preparationCatalog); control.preparationConfirm.disabled = true; clear(control.preparationPlan); if (window.ImportarServicioWebRequirements.complete(control.preparationModel.items)) { prepareCurrent(control); } });
+        control.preparationItems.addEventListener("change", function (event) { var target = event.target, entry; if (!target || !target.getAttribute("data-import-document-type")) { return; } entry = control.preparationCatalog.filter(function (candidate) { return Number(candidate.Id || candidate.DocumentTypeId) === Number(target.value); })[0]; control.preparationModel.items = control.preparation.assignDocumentType(control.preparationModel.items, target.getAttribute("data-import-document-type"), entry, control.preparationCatalog); control.preparationConfirm.disabled = true; if (window.ImportarServicioWebRequirements.complete(control.preparationModel.items)) { prepareCurrent(control); } });
         control.preparationClose.addEventListener("click", function () { closePreparation(control); });
         control.preparationCancel.addEventListener("click", function () { closePreparation(control); });
         control.preparationConfirm.addEventListener("click", function () { control.preparationConfirm.disabled = true; control.preparationStatus.textContent = "Creando intención…"; control.intentClient.confirm({ IdempotencyKey: "ui-" + String(new Date().getTime()), Radicado: radicado(control) }).then(function (response) { return executeCreatedIntent(control, response); }).catch(function (error) { if (!control.preparationPanel.hidden) { control.preparationStatus.textContent = error && error.message === "PREFLIGHT_STALE" ? "El plan cambió; prepare nuevamente." : "No fue posible crear la intención."; } }); });

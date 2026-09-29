@@ -9,7 +9,7 @@ DOC-83 valida transversalmente `ANEXOS_RADICADO_ENLASE` sin cambiar lógica prod
 - Prueba positiva y negativas controladas: `tools/e2e/tests/doc83-sii-enlase-closure-matrix.test.cjs`.
 - Regresión consolidada: `npm.cmd --prefix tools/e2e run test:doc83:regression`.
 - Escenarios reutilizados: `import-sii-enlase-read`, `import-sii-enlase-execution` e `import-sii-enlase-ui`.
-- Escenarios DOC-83: `import-sii-enlase-anonymous` e `import-sii-enlase-assignment`.
+- Escenarios DOC-83: `import-sii-enlase-anonymous`, `import-sii-enlase-assignment` e `import-sii-enlase-manual-visual`.
 
 ## Estado de cierre
 

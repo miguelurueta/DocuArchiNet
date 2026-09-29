@@ -11,12 +11,18 @@ const tests = Object.freeze([
   'tests/importar-servicio-web-preview-mediation.test.cjs',
   'tests/importar-servicio-web-preparation.test.cjs',
   'tests/importar-servicio-web-document-type-catalog.test.cjs',
+  'tests/importar-servicio-web-doc83-receipt-cardinality.test.cjs',
   'tests/importar-servicio-web-enlase-persistence-contract.test.cjs',
+  'tests/importar-servicio-web-execution-contract.test.cjs',
   'tests/importar-servicio-web-intent-idempotency.test.cjs',
   'tests/importar-servicio-web-intent-concurrency.test.cjs',
   'tests/importar-servicio-web-reconciliation.test.cjs',
   'tests/importar-servicio-web-task-context-guard.test.cjs',
   'tests/importar-servicio-web-task-isolation.test.cjs',
+  'tests/importar-servicio-web-progress-adapter.test.cjs',
+  'tests/importar-servicio-web-reconciliation-ui.test.cjs',
+  'tests/importar-servicio-web-document-list-adapter.test.cjs',
+  'tests/importar-servicio-web-ui-architecture.test.cjs',
   'tests/importar-servicio-web-multi-tab-context.test.cjs',
   'tests/importar-servicio-web-enlase-assignment.test.cjs',
   'tests/workflow-transition-confirmation-integration.test.cjs',
@@ -37,6 +43,8 @@ const tests = Object.freeze([
   'tools/e2e/tests/doc82-import-sii-enlase-ui.test.cjs',
   'tools/e2e/tests/doc83-import-sii-enlase-anonymous.test.cjs',
   'tools/e2e/tests/doc83-import-sii-enlase-assignment.test.cjs',
+  'tools/e2e/tests/doc83-import-sii-enlase-manual-visual.test.cjs',
+  'tools/e2e/tests/doc83-import-sii-enlase-layout-review.test.cjs',
   'tools/e2e/tests/doc83-sii-enlase-closure-matrix.test.cjs'
 ]);
 

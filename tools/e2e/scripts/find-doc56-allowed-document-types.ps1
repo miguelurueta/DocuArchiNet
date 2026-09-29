@@ -68,6 +68,7 @@ GROUP BY table_schema HAVING COUNT(DISTINCT table_name)=3 ORDER BY table_schema
     $found = 0
     foreach ($schema in $schemas) {
         if ($schema -notmatch '^[A-Za-z0-9_]+$') { continue }
+        $resolvedProcedureId = 0
         $headerCommand = $connection.CreateCommand()
         $headerCommand.CommandText = @"
 SELECT id_Tipo_Doc_Entrante,nombre_gabinete_workflow,
@@ -81,13 +82,26 @@ LIMIT 2
         $headers = $headerCommand.ExecuteReader()
         try {
             while ($headers.Read()) {
+                $resolvedProcedureId = [int]$headers.GetValue(0)
                 Write-Host ('DOC56_TASK_CONFIG_SCHEMA={0}' -f $schema)
-                Write-Host ('DOC56_TASK_CONFIG_PROCEDURE_ID={0}' -f [string]$headers.GetValue(0))
+                Write-Host ('DOC56_TASK_CONFIG_PROCEDURE_ID={0}' -f $resolvedProcedureId)
                 Write-Host ('DOC56_TASK_CONFIG_CABINET={0}' -f [string]$headers.GetValue(1))
                 Write-Host ('DOC56_TASK_CONFIG_CREATE_ENABLED={0}' -f [string]$headers.GetValue(2))
                 Write-Host ('DOC56_TASK_CONFIG_MULTIPLE_ENABLED={0}' -f [string]$headers.GetValue(3))
             }
         } finally { $headers.Dispose(); $headerCommand.Dispose() }
+        if ($resolvedProcedureId -gt 0) {
+            $checklistCommand = $connection.CreateCommand()
+            $checklistCommand.CommandText = @"
+SELECT COALESCE(MAX(OBLIGA_LISTA_CHEQUEO),0)
+FROM ``$schema``.RA_DIG_CONFIG_DIGITALIZACION
+WHERE tipo_doc_entrante_id_Tipo_Doc_Entrante=?
+"@
+            New-Parameter $checklistCommand $resolvedProcedureId
+            try {
+                Write-Host ('DOC56_TASK_CONFIG_CHECKLIST_REQUIRED={0}' -f [string]$checklistCommand.ExecuteScalar())
+            } finally { $checklistCommand.Dispose() }
+        }
         $command = $connection.CreateCommand()
         $command.CommandText = @"
 SELECT DISTINCT tds.Id_Tipo_Doc_Series, tds.Descripcion_Documento

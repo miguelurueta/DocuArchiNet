@@ -411,7 +411,7 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
         assertions: buildAssertionReport('import-sii-recovery')
       });
     }
-    if (['import-sii-enlase-read', 'import-sii-enlase-ui'].includes(profile.scenarioId)) {
+    if (['import-sii-enlase-read', 'import-sii-enlase-ui', 'import-sii-enlase-layout-review'].includes(profile.scenarioId)) {
       const context = { ...base(taskId), Capability: 'ANEXOS_RADICADO_ENLASE' };
       const capabilities = await invoke('ResolveCapabilities', request(context));
       const capabilitiesDto = assertResult(capabilities, budgetMs, 'IMPORT_E2E_ENLASE_CAPABILITIES_FAILED');
@@ -508,6 +508,9 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
 
   async executeExecution({ invoke, taskId, budgetMs, profile }) {
     const latencies = [];
+    if (profile.scenarioId === 'import-sii-enlase-manual-visual') {
+      return Object.freeze({ codes: Object.freeze({ manualVisual: 'PENDING' }), count: 0, latenciesMs: Object.freeze([]) });
+    }
     if (profile.scenarioId === 'import-sii-enlase-execution') {
       const capability = 'ANEXOS_RADICADO_ENLASE';
       const context = { ...base(taskId), Capability: capability };

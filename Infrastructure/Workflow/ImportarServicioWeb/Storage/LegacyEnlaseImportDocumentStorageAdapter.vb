@@ -28,12 +28,15 @@ Public NotInheritable Class LegacyEnlaseImportDocumentStorageAdapter
                 imagen,
                 comando.RutaArchivo)
             If String.Equals(respuesta, "YES", StringComparison.OrdinalIgnoreCase) Then
+                Dim proyeccion = CrearProyeccion(comando, imagen, idImagen)
+                If proyeccion Is Nothing Then Return FalloIncierto(idImagen)
                 Return New ResultadoFaseImportacion With {
                     .Exitoso = True,
                     .PersistenciaConocida = False,
                     .IdDocumento = idImagen,
                     .EvidenciaFisicaConfirmada = False,
-                    .Reintentable = False}
+                    .Reintentable = False,
+                    .ProyeccionDocumentoEnlase = proyeccion}
             End If
             Return MapearRechazo(respuesta, idImagen)
         Catch
@@ -41,11 +44,34 @@ Public NotInheritable Class LegacyEnlaseImportDocumentStorageAdapter
         End Try
     End Function
 
+    Private Shared Function CrearProyeccion(ByVal comando As ComandoAlmacenamientoImportacion,
+                                             ByVal imagen As stru_datos_image_lista,
+                                             ByVal idImagen As Integer) As ProyeccionDocumentoEnlaseImportacion
+        If comando Is Nothing OrElse idImagen <= 0 Then Return Nothing
+        Dim gabinete = If(String.IsNullOrWhiteSpace(imagen.nombre_gabinete), comando.NombreGabinete, imagen.nombre_gabinete)
+        Dim radicado = If(String.IsNullOrWhiteSpace(imagen.radicado), comando.Radicado, imagen.radicado)
+        ' DBT no es poblado por todos los caminos legacy (en particular, el anexo sin
+        ' tipología). La extensión sí pertenece al resultado del almacenamiento y es el
+        ' descriptor físico autoritativo disponible sin una segunda consulta.
+        Dim tipoFisico = If(String.IsNullOrWhiteSpace(Convert.ToString(imagen.DBT)), imagen.extension, Convert.ToString(imagen.DBT))
+        Dim nombre = If(String.IsNullOrWhiteSpace(imagen.notipodocumento), comando.DescripcionTipo, imagen.notipodocumento)
+        If String.IsNullOrWhiteSpace(nombre) Then nombre = comando.NombreArchivoOrigen
+        Dim icono = If(String.IsNullOrWhiteSpace(imagen.icono_icono_awe_some), "fa-file", imagen.icono_icono_awe_some)
+        If String.IsNullOrWhiteSpace(gabinete) OrElse String.IsNullOrWhiteSpace(radicado) OrElse
+           String.IsNullOrWhiteSpace(tipoFisico) OrElse String.IsNullOrWhiteSpace(nombre) OrElse
+           comando.IdTareaWorkflow <= 0 Then Return Nothing
+        Return New ProyeccionDocumentoEnlaseImportacion With {
+            .NombreGabinete = gabinete, .IdDocumento = idImagen, .Radicado = radicado,
+            .TipoFisico = tipoFisico, .NombreDocumento = nombre, .IdTarea = comando.IdTareaWorkflow,
+            .EstadoFirma = imagen.estado_firma_digital, .ClaseIcono = icono}
+    End Function
+
     Private Shared Function Validar(ByVal comando As ComandoAlmacenamientoImportacion) As Boolean
         Return comando IsNot Nothing AndAlso
             String.Equals(comando.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase) AndAlso
             comando.IdTareaWorkflow > 0 AndAlso comando.IdRutaWorkflow > 0 AndAlso comando.IdTramite > 0 AndAlso
-            comando.IdTipoListaChequeo > 0 AndAlso Not String.IsNullOrWhiteSpace(comando.DescripcionTipo) AndAlso
+            ((Not comando.DocumentTypeRequired AndAlso comando.IdTipoListaChequeo = 0 AndAlso String.IsNullOrWhiteSpace(comando.DescripcionTipo)) OrElse
+             (comando.IdTipoListaChequeo > 0 AndAlso Not String.IsNullOrWhiteSpace(comando.DescripcionTipo))) AndAlso
             Not String.IsNullOrWhiteSpace(comando.NombreGabinete) AndAlso Not String.IsNullOrWhiteSpace(comando.NombreRutaWorkflow) AndAlso
             Not String.IsNullOrWhiteSpace(comando.Radicado) AndAlso Not String.IsNullOrWhiteSpace(comando.ProviderReference) AndAlso
             Not String.IsNullOrWhiteSpace(comando.ExternalKey) AndAlso comando.MetadatosSii IsNot Nothing AndAlso

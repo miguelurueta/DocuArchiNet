@@ -71,7 +71,7 @@
      <script src="../js/java_general/row_multiple_gred.js" type="text/javascript"></script>
      <script src="../js/java_general/JSExpediente.js" type="text/javascript"></script>
      <script src="../js/java_general/gestion_meta_dato.js" type="text/javascript"></script>
-     <script src="../js/workflow/Webworkflow.js?v=20260903-doc45-empty-ready1" type="text/javascript"></script>
+     <script src="../js/workflow/Webworkflow.js?v=20260927-doc83fix2" type="text/javascript"></script>
      <script src="../js/sesion/js_sesion_gestor.js" type="text/javascript"></script>
      <script src="../js/versiondocumento/gestion_version_documento.js" type="text/javascript"></script>
      <script src="../js/java_general/JS_firma_digital.js" type="text/javascript"></script>
@@ -4547,7 +4547,7 @@
                     </div>
                     <section id="importar-servicio-web-preview" class="importar-servicio-web__preview" aria-labelledby="importar-servicio-web-preview-title" hidden="hidden" data-preview-state="cerrado">
                         <header class="importar-servicio-web__preview-header">
-                            <button id="importar-servicio-web-preview-back" class="importar-servicio-web__preview-back" type="button">Volver a la lista</button>
+                            <button id="importar-servicio-web-preview-back" class="importar-servicio-web__preview-back" type="button">&#8592; Volver a documentos</button>
                             <h3 id="importar-servicio-web-preview-title" class="importar-servicio-web__preview-title" tabindex="-1">Recurso externo temporal</h3>
                         </header>
                         <p class="importar-servicio-web__preview-help">Esta vista no representa un documento almacenado en DocuArchi.</p>
@@ -4564,13 +4564,9 @@
                             <h3 id="importar-servicio-web-preparation-title" tabindex="-1">Preparar importación</h3>
                             <button id="importar-servicio-web-preparation-close" type="button" aria-label="Cancelar preparación">&times;</button>
                         </header>
-                        <p>Revise la tipología y los efectos previstos antes de crear la intención.</p>
+                        <p>Revise la tipología de los documentos antes de crear la intención.</p>
                         <div id="importar-servicio-web-preparation-status" role="status" aria-live="polite"></div>
-                        <div id="importar-servicio-web-preparation-items"></div>
-                        <section aria-labelledby="importar-servicio-web-preparation-plan-title">
-                            <h4 id="importar-servicio-web-preparation-plan-title">Plan previsto</h4>
-                            <div id="importar-servicio-web-preparation-plan"></div>
-                        </section>
+                        <div id="importar-servicio-web-preparation-items" class="importar-servicio-web__preparation-items" tabindex="0" aria-label="Documentos seleccionados para importar"></div>
                         <div class="importar-servicio-web__preparation-actions">
                             <button id="importar-servicio-web-preparation-cancel" type="button">Cancelar</button>
                             <button id="importar-servicio-web-preparation-confirm" type="button" disabled="disabled">Crear intención</button>

@@ -1,4 +1,4 @@
-﻿Imports System.Drawing
+Imports System.Drawing
 Imports System.Web.Services
 Imports System.IO
 Imports Neodynamic.WebControls.ImageDraw
@@ -323,7 +323,7 @@ Public Class Webworkflow
         If Page.Header.FindControl("importarServicioWebModernStyle") Is Nothing Then
             Dim style As New Global.System.Web.UI.HtmlControls.HtmlLink()
             style.ID = "importarServicioWebModernStyle"
-            style.Href = "../Styles/importar-servicio-web-modern.css?v=20260923-doc79ux10"
+            style.Href = "../Styles/importar-servicio-web-modern.css?v=20260928-doc83fix18"
             style.Attributes("rel") = "stylesheet"
             style.Attributes("type") = "text/css"
             Page.Header.Controls.Add(style)
@@ -332,24 +332,24 @@ Public Class Webworkflow
         RegisterImportarServicioWebScript("importarServicioWebApiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-api.js?v=20260921-doc72core1")
         RegisterImportarServicioWebScript("importarServicioWebProviderRegistryScript", "../js/workflow/importar-servicio-web/importar-servicio-web-provider-registry.js?v=20260921-doc72core1")
         RegisterImportarServicioWebScript("importarServicioWebCoreScript", "../js/workflow/importar-servicio-web/importar-servicio-web-core.js?v=20260921-doc72core1")
-        RegisterImportarServicioWebScript("importarServicioWebSiiMapperScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-contract-mapper.js?v=20260923-doc79ux4")
+        RegisterImportarServicioWebScript("importarServicioWebSiiMapperScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-contract-mapper.js?v=20260928-doc83fix4")
         RegisterImportarServicioWebScript("importarServicioWebSiiListScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-list.js?v=20260921-doc73sii1")
-        RegisterImportarServicioWebScript("importarServicioWebSiiAdapterScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-adapter.js?v=20260923-doc79ux8")
-        RegisterImportarServicioWebScript("importarServicioWebEnlaseListScript", "../js/workflow/importar-servicio-web/enlase/importar-servicio-web-enlase-list.js?v=20260926-doc82ui1")
+        RegisterImportarServicioWebScript("importarServicioWebSiiAdapterScript", "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-adapter.js?v=20260928-doc83fix17")
+        RegisterImportarServicioWebScript("importarServicioWebEnlaseListScript", "../js/workflow/importar-servicio-web/enlase/importar-servicio-web-enlase-list.js?v=20260928-doc83fix17")
         RegisterImportarServicioWebScript("importarServicioWebEnlaseAdapterScript", "../js/workflow/importar-servicio-web/enlase/importar-servicio-web-enlase-adapter.js?v=20260926-doc82ui1")
         RegisterImportarServicioWebScript("importarServicioWebEnlaseAssignmentBridgeScript", "../js/workflow/importar-servicio-web/enlase/importar-servicio-web-enlase-assignment-bridge.js?v=20260926-doc82ui1")
         RegisterImportarServicioWebScript("importarServicioWebPreviewStateScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preview-state.js?v=20260922-doc74preview1")
         RegisterImportarServicioWebScript("importarServicioWebPreviewScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preview.js?v=20260922-doc74preview1")
         RegisterImportarServicioWebScript("importarServicioWebRequirementsScript", "../js/workflow/importar-servicio-web/importar-servicio-web-requirements.js?v=20260922-doc75prep1")
-        RegisterImportarServicioWebScript("importarServicioWebPreparationScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preparation.js?v=20260923-doc79ux9")
+        RegisterImportarServicioWebScript("importarServicioWebPreparationScript", "../js/workflow/importar-servicio-web/importar-servicio-web-preparation.js?v=20260928-doc83fix4")
         RegisterImportarServicioWebScript("importarServicioWebIntentClientScript", "../js/workflow/importar-servicio-web/importar-servicio-web-intent-client.js?v=20260922-doc75prep1")
-        RegisterImportarServicioWebScript("importarServicioWebProgressAdapterScript", "../js/workflow/importar-servicio-web/importar-servicio-web-progress-adapter.js?v=20260922-doc76progress1")
+        RegisterImportarServicioWebScript("importarServicioWebProgressAdapterScript", "../js/workflow/importar-servicio-web/importar-servicio-web-progress-adapter.js?v=20260928-doc83fix9")
         RegisterImportarServicioWebScript("importarServicioWebProgressViewScript", "../js/workflow/importar-servicio-web/importar-servicio-web-progress-view.js?v=20260922-doc76progress1")
-        RegisterImportarServicioWebScript("importarServicioWebReconciliationScript", "../js/workflow/importar-servicio-web/importar-servicio-web-reconciliation.js?v=20260922-doc77reconciliation1")
-        RegisterImportarServicioWebScript("importarServicioWebDocumentListScript", "../js/workflow/importar-servicio-web/importar-servicio-web-document-list-adapter.js?v=20260922-doc77reconciliation1")
+        RegisterImportarServicioWebScript("importarServicioWebReconciliationScript", "../js/workflow/importar-servicio-web/importar-servicio-web-reconciliation.js?v=20260928-doc83fix9")
+        RegisterImportarServicioWebScript("importarServicioWebDocumentListScript", "../js/workflow/importar-servicio-web/importar-servicio-web-document-list-adapter.js?v=20260928-doc83fix13")
         RegisterImportarServicioWebScript("importarServicioWebTaskContextGuardScript", "../js/workflow/importar-servicio-web/importar-servicio-web-task-context-guard.js?v=20260926-doc82ui1")
         RegisterImportarServicioWebScript("importarServicioWebRecoveryScript", "../js/workflow/importar-servicio-web/importar-servicio-web-recovery.js?v=20260923-doc78context1")
-        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260926-doc82ui2")
+        RegisterImportarServicioWebScript("importarServicioWebUiScript", "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js?v=20260928-doc83fix18")
     End Sub
 
     Private Sub RegisterImportarServicioWebScript(ByVal controlId As String, ByVal source As String)

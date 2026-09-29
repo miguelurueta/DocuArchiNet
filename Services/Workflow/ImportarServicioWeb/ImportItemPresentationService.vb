@@ -11,6 +11,7 @@ Public NotInheritable Class ImportItemPresentationService
 
     Public Sub EnrichCapabilities(ByVal context As ContextoImportacionServicio, ByVal response As ResolveCapabilitiesResponseDto)
         If response Is Nothing OrElse response.Error IsNot Nothing Then Return
+        response.DocumentTypeRequired = _catalog.RequiereSeleccion(context)
         response.DocumentTypes.Clear()
         For Each item In _catalog.Obtener(context)
             response.DocumentTypes.Add(New ImportDocumentTypeDto With {.DocumentTypeId=item.IdTipoDocumentalTrd,.Name=item.Nombre,
@@ -28,7 +29,7 @@ Public NotInheritable Class ImportItemPresentationService
             If Not states.TryGetValue(item.ExternalKey,state) Then state=New EstadoItemListadoImportacion()
             item.PresentationSchemaVersion="1.1" : item.AllowedActions.Clear()
             If state.Confirmado Then
-                item.ImportStatus="Importado" : item.AllowedActions.Add("View")
+                item.ImportStatus="Importado" : item.AllowedActions.Add("View") : item.AllowedActions.Add("Preview") : item.AllowedActions.Add("Reimport")
             ElseIf state.TieneNovedad Then
                 item.ImportStatus="ConNovedad" : item.AllowedActions.Add("Review")
             Else

@@ -458,7 +458,7 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(source, /querySelector\('#Hidden_id_tarea_sel'\)/);
   assert.match(source, /querySelector\('#ButtonSeleccionGrupo'\)/);
   assert.doesNotMatch(source, /querySelector\('#Hidden_id_tarea_selecionada'\)\.value\s*=/);
-  assert.match(source, /inspectSession:\s*inspectImportPreviewUi/);
+  assert.match(source, /inspectSession:\s*inspectWorkflowSession/);
   assert.match(source, /IMPORT_E2E_PREVIEW_UI_DUPLICATE_REQUEST/);
   assert.match(source, /uiSingleFetch: 'CONFIRMED'/);
   assert.match(source, /uiResponsiveTable: 'CONFIRMED'/);
@@ -483,11 +483,11 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(source, /uiSingleFetch: 'CONFIRMED'[\s\S]{0,500}latenciesMs: Object\.freeze\(\[\]\)/);
   assert.match(source, /page\.route\(queryRoute/);
   assert.match(source, /queryRequestsObserved > 1/);
-  assert.match(source, /queryContextInjected > 1/);
+  assert.match(source, /queryBarcodeSupplied/);
   assert.match(source, /String\(payload\.request\.CodigoBarras\) !== plan\.profile\.codigoBarras/);
   assert.match(source, /WebServiceImportarServicioWebModern\\\.asmx\\\/GetPreview/);
-  assert.match(source, /payload\.request\.CodigoBarras = plan\.profile\.codigoBarras/);
-  assert.match(source, /route\.continue\(\{ postData: JSON\.stringify\(payload\) \}\)/);
+  assert.doesNotMatch(source, /payload\.request\.CodigoBarras = plan\.profile\.codigoBarras/);
+  assert.match(source, /route\.continue\(\)/);
   assert.match(source, /IMPORT_E2E_PREVIEW_UI_RESULTS_UNAVAILABLE/);
   assert.match(source, /\['resultados', 'vacio', 'error'\]\.includes\(state\)/);
   assert.match(source, /IMPORT_E2E_PREVIEW_UI_\$\{publicCode\}/);

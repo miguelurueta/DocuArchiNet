@@ -85,7 +85,7 @@ Public NotInheritable Class ServicioIntencionImportacion
         Next
         Dim isEnlase = String.Equals(context.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase)
         For Each item In request.Items
-            intent.Resultados.Add(New ResultadoElementoImportacion With {.ClientItemId = item.ClientItemId.Trim(), .IdentidadExterna = New IdentidadExternaImportacion With {.ProviderId = context.ProviderId.Trim(), .ExternalKey = item.ExternalKey.Trim()}, .IdTareaDestino = item.TargetTaskId, .IdTipoDocumental = item.DocumentTypeId, .NombreTipoDocumental = item.DocumentTypeName.Trim(), .NombreArchivo = If(isEnlase, EnlaseFileName(item.ExternalKey, item.ContentType), item.FileName), .TipoContenido = item.ContentType, .Fase = FaseImportacionServicio.Creada, .EstadoRelacion = If(isEnlase, EstadoEfectoExpedienteImportacion.NoAplica, EstadoEfectoExpedienteImportacion.Pendiente), .EstadoCache = If(isEnlase, EstadoEfectoExpedienteImportacion.NoAplica, EstadoEfectoExpedienteImportacion.Pendiente)})
+            intent.Resultados.Add(New ResultadoElementoImportacion With {.ClientItemId = item.ClientItemId.Trim(), .IdentidadExterna = New IdentidadExternaImportacion With {.ProviderId = context.ProviderId.Trim(), .ExternalKey = item.ExternalKey.Trim()}, .IdTareaDestino = item.TargetTaskId, .IdTipoDocumental = item.DocumentTypeId, .NombreTipoDocumental = If(item.DocumentTypeName, String.Empty).Trim(), .NombreArchivo = If(isEnlase, EnlaseFileName(item.ExternalKey, item.ContentType), item.FileName), .TipoContenido = item.ContentType, .Fase = FaseImportacionServicio.Creada, .EstadoRelacion = If(isEnlase, EstadoEfectoExpedienteImportacion.NoAplica, EstadoEfectoExpedienteImportacion.Pendiente), .EstadoCache = If(isEnlase, EstadoEfectoExpedienteImportacion.NoAplica, EstadoEfectoExpedienteImportacion.Pendiente)})
         Next
         If String.Equals(context.ProviderId, SiiImportProvider.CanonicalProviderId, StringComparison.OrdinalIgnoreCase) AndAlso
            Not String.Equals(context.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase) Then
@@ -129,8 +129,13 @@ Public NotInheritable Class ServicioIntencionImportacion
     Private Shared Function Valid(ByVal context As ContextoImportacionServicio, ByVal request As CreateImportIntentRequestDto) As Boolean
         If context Is Nothing OrElse request Is Nothing OrElse String.IsNullOrWhiteSpace(request.IdempotencyKey) OrElse String.IsNullOrWhiteSpace(request.Radicado) OrElse request.Items Is Nothing OrElse request.Items.Count = 0 OrElse request.Requirements Is Nothing Then Return False
         If String.Equals(context.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase) AndAlso String.IsNullOrWhiteSpace(request.ProviderReference) Then Return False
+        Dim isEnlase = String.Equals(context.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase)
         For Each item In request.Items
-            If item Is Nothing OrElse Not item.DocumentTypeId.HasValue OrElse item.DocumentTypeId.Value <= 0 OrElse String.IsNullOrWhiteSpace(item.DocumentTypeName) OrElse item.DocumentTypeName.Trim().Length > 255 Then Return False
+            If item Is Nothing Then Return False
+            Dim hasDocumentType = item.DocumentTypeId.HasValue AndAlso item.DocumentTypeId.Value > 0 AndAlso Not String.IsNullOrWhiteSpace(item.DocumentTypeName)
+            If Not isEnlase AndAlso Not hasDocumentType Then Return False
+            If (item.DocumentTypeId.HasValue OrElse Not String.IsNullOrWhiteSpace(item.DocumentTypeName)) AndAlso Not hasDocumentType Then Return False
+            If If(item.DocumentTypeName, String.Empty).Trim().Length > 255 Then Return False
             If String.Equals(request.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase) AndAlso IsHttpLocation(item.ExternalKey) Then Return False
         Next
         Return True

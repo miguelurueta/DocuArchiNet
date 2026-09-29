@@ -25,3 +25,8 @@ test('recuperación exige causa explícita y realiza una sola lectura', async ()
   await adapter.recover({IntentId:'i'},'timeout');
   assert.equal(reads,1);
 });
+
+test('transporta la proyección ENLASE tipada del resultado confirmado', () => {
+  const mapped=progress.mapItem({Status:'Completada',DocumentId:92,TaskId:220586,EnlaseProjection:{CabinetName:'MERCANTIL',DocumentId:92,Radicado:'S002469800',StorageType:'PDF',DocumentName:'Recibo De Caja',TaskId:220586,SignatureStatus:0,IconClass:'fa-file-pdf'}});
+  assert.deepEqual(mapped.enlaseProjection,{cabinetName:'MERCANTIL',documentId:92,radicado:'S002469800',storageType:'PDF',documentName:'Recibo De Caja',taskId:220586,signatureStatus:0,iconClass:'fa-file-pdf'});
+});

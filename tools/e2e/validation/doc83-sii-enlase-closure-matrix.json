@@ -152,6 +152,38 @@
                                                        "sanitized-evidence"
                                                    ],
                           "evidence":  "Doc/Actualizacion/workflow/ImportarServiciWebEnlace/DOC-83-pruebas-gate-compatibilidad/04-EVIDENCIA-Y-LIMITACIONES.md"
+                      },
+                      {
+                          "id":  "import-sii-enlase-manual-visual",
+                          "sourceDoc":  "DOC-83",
+                          "coverage":  "current-e2e-pending",
+                          "stage":  "execution",
+                          "mutating":  true,
+                          "requiredBaseAuthorizations":  [
+                                                             "environment",
+                                                             "gate"
+                                                         ],
+                          "requiredStageAuthorizations":  [
+                                                              "execution",
+                                                              "discardable-resource"
+                                                          ],
+                          "requiredControls":  [
+                                                   "import-intent-state",
+                                                   "import-item-state",
+                                                   "import-transition-audit",
+                                                   "import-expedient-state",
+                                                   "import-document-relation-state",
+                                                   "import-document-link-cache-state",
+                                                   "import-document-index-state"
+                                               ],
+                          "requiredExpectations":  [
+                                                       "real-sii",
+                                                       "enlase-context",
+                                                       "manual-visual-execution",
+                                                       "temporary-feature-gate",
+                                                       "sanitized-evidence"
+                                                   ],
+                          "evidence":  "Doc/Actualizacion/workflow/ImportarServiciWebEnlace/DOC-83-pruebas-gate-compatibilidad/04-EVIDENCIA-Y-LIMITACIONES.md"
                       }
                   ],
     "risks":  [
@@ -290,6 +322,20 @@
                                 ],
                       "scenarios":  [
 
+                                    ]
+                  },
+                  {
+                      "id":  "R-DOC83-10",
+                      "severity":  "very-high",
+                      "description":  "La importación confirmada no aparece inmediatamente en la lista ENLASE o su fila no permite abrir el documento.",
+                      "closure":  "deterministic-and-current-e2e",
+                      "tests":  [
+                                    "tests/importar-servicio-web-document-list-adapter.test.cjs",
+                                    "tests/importar-servicio-web-enlase-persistence-contract.test.cjs",
+                                    "tools/e2e/tests/doc83-import-sii-enlase-manual-visual.test.cjs"
+                                ],
+                      "scenarios":  [
+                                        "import-sii-enlase-manual-visual"
                                     ]
                   }
               ]

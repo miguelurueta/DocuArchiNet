@@ -7,7 +7,7 @@ const { loadDoc83ClosureMatrix, validateDoc83ClosureMatrix } = require('../scrip
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
 test('la matriz DOC-83 enlaza riesgos altos con pruebas, escenarios registrados y evidencia existente', () => {
-  assert.deepEqual(validateDoc83ClosureMatrix(loadDoc83ClosureMatrix()), { scenarios: 5, risks: 9 });
+  assert.deepEqual(validateDoc83ClosureMatrix(loadDoc83ClosureMatrix()), { scenarios: 6, risks: 10 });
 });
 
 test('la matriz DOC-83 falla si una referencia determinística no existe', () => {

@@ -13,7 +13,26 @@ test('catálogo usa fuente autoritativa, ID TRD y SQL parametrizado',()=>{
   assert.match(repo,/tipo_doc_series_Id_Tipo_Doc_Series AS document_type_id/);
   assert.match(repo,/OBLIGATORIO/); assert.match(repo,/ORDEN_LISTA/);
   assert.match(repo,/DOCUMENT_TYPE_CATALOG_AMBIGUOUS/);
+  assert.match(repo,/Function RequiereSeleccion/);
+  assert.match(repo,/MAX\(OBLIGA_LISTA_CHEQUEO\)/);
+  assert.match(repo,/RA_DIG_CONFIG_DIGITALIZACION/);
   assert.doesNotMatch(repo,/@procedureId\s*"\s*&\s*contexto/i);
+});
+
+test('tipología opcional se propaga sin inventar una clasificación',()=>{
+  const dto=read('DTOs','Workflow','ImportarServicioWeb','ImportarServicioWebDtos.vb');
+  const presentation=read('Services','Workflow','ImportarServicioWeb','ImportItemPresentationService.vb');
+  const preflight=read('Services','Workflow','ImportarServicioWeb','ServicioPreflightImportacion.vb');
+  const storage=read('Services','Workflow','ImportarServicioWeb','ImportExecutionSteps.vb');
+  const adapter=read('Infrastructure','Workflow','ImportarServicioWeb','Storage','LegacyEnlaseImportDocumentStorageAdapter.vb');
+  const ui=read('js','workflow','importar-servicio-web','importar-servicio-web-ui.js');
+  assert.match(dto,/Property DocumentTypeRequired As Boolean/);
+  assert.match(presentation,/response\.DocumentTypeRequired = _catalog\.RequiereSeleccion\(context\)/);
+  assert.match(preflight,/DOCUMENT_TYPE_NOT_REQUIRED/);
+  assert.match(preflight,/If\(item\.DocumentTypeId\.HasValue/);
+  assert.match(storage,/documentTypeRequired = _catalog\.RequiereSeleccion\(contexto\)/);
+  assert.match(adapter,/Not comando\.DocumentTypeRequired/);
+  assert.match(ui,/Este trámite permite importar sin tipología documental/);
 });
 
 test('capabilities enriquece sólo después de validar contexto',()=>{

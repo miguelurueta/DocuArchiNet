@@ -151,6 +151,20 @@ Public Class ResultadoElementoImportacion
     Public Property ContenidoDescargado As Byte()
     Public Property RutaArchivoPreparado As String
     Public Property MetadatosSii As MetadatosDocumentoSii
+    ' Proyeccion efimera devuelta por el almacenamiento ENLASE confirmado.
+    ' No se persiste ni transporta el contrato delimitado del control legacy.
+    Public Property ProyeccionDocumentoEnlase As ProyeccionDocumentoEnlaseImportacion
+End Class
+
+Public NotInheritable Class ProyeccionDocumentoEnlaseImportacion
+    Public Property NombreGabinete As String
+    Public Property IdDocumento As Long
+    Public Property Radicado As String
+    Public Property TipoFisico As String
+    Public Property NombreDocumento As String
+    Public Property IdTarea As Long
+    Public Property EstadoFirma As Integer
+    Public Property ClaseIcono As String
 End Class
 
 Public NotInheritable Class MetadatosDocumentoSii
@@ -270,6 +284,7 @@ Public Class ResultadoFaseImportacion
     Public Property MensajeVisible As String
     Public Property EvidenciaFisicaConfirmada As Boolean
     Public Property Recuperable As Boolean
+    Public Property ProyeccionDocumentoEnlase As ProyeccionDocumentoEnlaseImportacion
 End Class
 
 Public Class TransicionImportacion

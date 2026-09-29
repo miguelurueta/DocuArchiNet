@@ -18,6 +18,14 @@ test("catálogo de tipologías proviene de capacidades y no de QueryItems", asyn
   assert.deepEqual(result.DocumentTypes, catalog);
 });
 
+test("propaga que la tipología no es obligatoria aunque el catálogo esté vacío", async () => {
+  const api = { resolveCapabilities: async () => ({ ContextAllowed: true, DocumentTypes: [], DocumentTypeRequired: false }), queryItems: async () => ({ Items: [{ ExternalKey: "item-1", DisplayName: "Anexo", AllowedActions: ["IMPORT"] }] }) };
+  const adapter = adapterFactory.create({ api, mapper, list, contextFactory: () => ({ TaskId: 220588, ProviderId: "INTEGRACIONSII", Capability: "ANEXOS_RADICADO_ENLASE" }) });
+  const result = await adapter.queryItems({});
+  assert.equal(result.DocumentTypeRequired, false);
+  assert.deepEqual(result.DocumentTypes, []);
+});
+
 test("identidad canónica y fuente sin transporte ni logs", () => {
   assert.equal(adapterFactory.canonicalId, "INTEGRACIONSII"); const source = require("node:fs").readFileSync(require("node:path").resolve(__dirname, "../js/workflow/importar-servicio-web/sii/importar-servicio-web-sii-adapter.js"), "utf8"); assert.doesNotMatch(source, /fetch\s*\(|XMLHttpRequest|\$\.ajax|console\./);
 });
@@ -33,6 +41,11 @@ test("tabla presenta encabezados y mantiene visibles las acciones", () => {
   assert.match(source, /importar-servicio-web-sii__actions-cell/);
   assert.match(css, /importar-servicio-web-sii__actions-cell[^}]*position:\s*sticky/);
   assert.match(css, /importar-servicio-web-sii__actions-cell[^}]*right:\s*0/);
+  assert.match(source, /importar-servicio-web-sii__data-cell/);
+  assert.match(source, /cell\.title = fullText/);
+  assert.match(css, /importar-servicio-web-sii__data-cell[^}]*overflow:\s*hidden[^}]*text-overflow:\s*ellipsis/);
+  assert.match(css, /importar-servicio-web-sii__column--act[^}]*16rem/);
+  assert.match(css, /importar-servicio-web-sii__actions-cell[^}]*background:\s*#fff/);
 });
 
 test("preparación abandona la composición de vista previa", () => {

@@ -388,7 +388,8 @@ async function executePlatformRun(options) {
     } else {
       adapterResult = await handler({ invoke: restrictedInvoke, consumePreview: restrictedPreviewConsumer, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs, profile: plan.profile });
     }
-    if (plan.scenario.expectations.includes('secure-preview-ui') || plan.scenario.expectations.includes('explicit-assignment-ui')) {
+    if (plan.scenario.expectations.includes('secure-preview-ui') || plan.scenario.expectations.includes('explicit-assignment-ui') ||
+        plan.scenario.expectations.includes('manual-visual-execution') || plan.scenario.expectations.includes('manual-layout-review')) {
       if (typeof inspectSession !== 'function' || !context) fail('E2E_PLATFORM_SESSION_INSPECTOR_REQUIRED');
       const inspection = await inspectSession({ context, plan });
       if (!inspection || typeof inspection !== 'object' || Array.isArray(inspection)) fail('E2E_PLATFORM_SESSION_INSPECTION_INVALID');
