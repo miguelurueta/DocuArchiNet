@@ -386,7 +386,7 @@ const IMPORTAR_SERVICIO_WEB_E2E_ADAPTER = Object.freeze({
     }));
     if (!result || !Number.isSafeInteger(result.elapsedMs) || result.elapsedMs < 0 || result.elapsedMs > budgetMs) fail('IMPORT_E2E_ENLASE_ANONYMOUS_BUDGET_INVALID');
     const code = errorCode(result.dto);
-    const safelyBlocked = code === 'FEATURE_DISABLED' || (typeof code === 'string' && /^SESSION_[A-Z0-9_]{3,72}$/.test(code));
+    const safelyBlocked = typeof code === 'string' && /^SESSION_[A-Z0-9_]{3,72}$/.test(code);
     if (!safelyBlocked || items(result.dto).length !== 0) fail('IMPORT_E2E_ENLASE_ANONYMOUS_NOT_BLOCKED');
     return Object.freeze({ codes: Object.freeze({ query: code }), count: 0, latenciesMs: Object.freeze([result.elapsedMs]) });
   },

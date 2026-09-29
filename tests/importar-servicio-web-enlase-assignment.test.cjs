@@ -24,10 +24,11 @@ test('markup bloquea acciones de asignación durante escritura y servidor revali
   assert.match(fragment, /If Result <> "YES" Then[\s\S]*Exit Sub/);
 });
 
-test('legacy permanece en código y el gate gobierna bootstrap moderno', () => {
+test('legacy permanece en código y el bootstrap moderno oficial requiere contexto válido', () => {
   const legacy = fs.readFileSync('js/workflow/Webworkflow.js', 'utf8');
   const composition = fs.readFileSync('workflow/Webworkflow.aspx.vb', 'utf8');
   assert.match(legacy, /ActivaListaAnexosIntegracionSII/);
   assert.match(legacy, /ServiceRESTActivaAdjuntaDocumentoServicioIntegracionEnlace/);
-  assert.match(composition, /If ImportarServicioWebModernActive Then[\s\S]*RegisterImportarServicioWebModernBootstrap/);
+  assert.match(composition, /If Not WorkflowModernContextAvailable Then[\s\S]*Return[\s\S]*RegisterImportarServicioWebModernBootstrap/);
+  assert.doesNotMatch(composition, /WorkflowCentroTrabajoModernActive|ImportarServicioWebFeatureGate/);
 });

@@ -64,6 +64,6 @@ El sistema SHALL ejecutar una sola `consultarInformacionSello` por `QueryItems`,
 - **WHEN** hay cero, uno o múltiples items
 - **THEN** mapea, enriquece, filtra y pagina sin otra llamada SII
 
-#### Scenario: Gate o contexto rechazado
-- **WHEN** el gate está apagado o cambia la tarea
+#### Scenario: Contexto rechazado
+- **WHEN** la sesión o el contexto son inválidos, o cambia la tarea
 - **THEN** no llama SII ni catálogo y devuelve código seguro

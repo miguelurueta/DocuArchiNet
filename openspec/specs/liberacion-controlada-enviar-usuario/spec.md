@@ -31,7 +31,7 @@ La liberación SHALL disponer de un runbook que limite las verificaciones a evid
 #### Scenario: Verificación posterior autorizada
 
 - **WHEN** un ambiente recibe autorización explícita
-- **THEN** el operador valida versión, evidencia sanitizada, gate inactivo y estado esperado mediante controles de solo lectura antes de continuar.
+- **THEN** el operador valida versión, evidencia sanitizada, ausencia de configuración de rollout y estado esperado mediante controles de solo lectura antes de continuar.
 
 #### Scenario: Reversión requerida
 

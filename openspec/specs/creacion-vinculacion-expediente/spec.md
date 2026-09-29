@@ -206,7 +206,7 @@ La validación E2E SHALL ampliar los activos DOC-56 existentes y SHALL reportar 
 
 #### Scenario: Cobertura distribuida existente
 - **WHEN** se preparan pruebas de ejecución, reintento, recuperación y concurrencia
-- **THEN** se reutilizan sus escenarios, runner, adaptador, perfiles, autenticación, gate, controles y reporte existentes
+- **THEN** se reutilizan sus escenarios, runner, adaptador, perfiles, autenticación, controles y reporte existentes
 
 #### Scenario: Infraestructura paralela propuesta
 - **WHEN** una aserción nueva requiere información adicional
@@ -236,21 +236,21 @@ El sistema SHALL resolver en servidor y persistir el contexto de tarea, ruta, ga
 - **WHEN** el cliente envía un expediente, gabinete o destino no autoritativo
 - **THEN** el sistema no lo usa para decidir la asignación
 
-### Requirement: RQ-14 Convivencia y gate seguro
+### Requirement: RQ-14 Convivencia y contexto seguro
 Origen de diseño: D-14.
-La implementación SHALL ser aditiva y SHALL conservar intacto el recorrido legacy cuando el gate moderno esté apagado.
+La implementación SHALL ser aditiva y SHALL rechazar de forma segura una sesión o contexto Workflow inválidos.
 
 #### Scenario: Gate apagado
-- **WHEN** el gate moderno no aplica al usuario o está en `false`
+- **WHEN** la sesión o el contexto Workflow no son válidos
 - **THEN** el recorrido legacy mantiene su comportamiento y no se ejecuta ningún efecto moderno duplicado
 
 #### Scenario: Contratos y estados extendidos
 - **WHEN** se agregan estados o datos persistidos
 - **THEN** DTO, fixtures, mapeos y documentación se versionan sin romper consumidores existentes
 
-#### Scenario: Restauración del gate en pruebas
+#### Scenario: Conservación del modo oficial en pruebas
 - **WHEN** finaliza una corrida autorizada, tanto en éxito como en fallo
-- **THEN** el gate queda en `false` y las listas de usuarios y grupos quedan vacías
+- **THEN** la corrida no crea ni modifica configuración de rollout, usuarios o grupos piloto
 
 #### Scenario: Protección de información
 - **WHEN** ocurre un error o se conserva evidencia
@@ -258,7 +258,7 @@ La implementación SHALL ser aditiva y SHALL conservar intacto el recorrido lega
 
 ### Requirement: RQ-15 Consulta moderna y resiliente del sujeto SII
 Origen de diseño: D-15.
-El sistema SHALL consultar el sujeto de expediente mediante el transporte moderno tipado, conservando la función legacy original como fallback configurable de rollout.
+El sistema SHALL consultar el sujeto de expediente mediante el transporte moderno tipado. Un fallback técnico temporal SHALL ser independiente de la disponibilidad de la experiencia moderna y estar acotado explícitamente.
 
 #### Scenario: Consulta primaria moderna
 - **WHEN** se resuelve el sujeto de un expediente MERCANTIL, ESAL o RUP
@@ -269,7 +269,7 @@ El sistema SHALL consultar el sujeto de expediente mediante el transporte modern
 - **THEN** se extrae una identidad numérica positiva de forma posicional y se construye una sola clave `S0`, sin reemplazar secuencias internas arbitrarias
 
 #### Scenario: Fallback conservado
-- **WHEN** la consulta moderna falla y el fallback de rollout está habilitado
+- **WHEN** la consulta moderna falla y el fallback técnico temporal está habilitado
 - **THEN** se puede invocar la función legacy conservada sin modificarla ni redirigir sus demás consumidores
 
 #### Scenario: Respuesta incompleta o rechazada

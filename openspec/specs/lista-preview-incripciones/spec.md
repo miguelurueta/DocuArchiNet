@@ -60,11 +60,11 @@ El sistema SHALL limpiar snapshots temporales y ocultar estado interno, conforme
 - **WHEN** falta, expiró, fue consumido o es ajeno
 - **THEN** devuelve la misma respuesta pública sin diagnóstico interno
 
-### Requirement: RQ-07 Gate y contexto
-El sistema SHALL validar gate y contexto Workflow antes de descriptor o proveedor, conforme a D-07.
+### Requirement: RQ-07 Sesión y contexto
+El sistema SHALL validar sesión autenticada y contexto Workflow antes de descriptor o proveedor, conforme a D-07.
 
 #### Scenario: Rechazo temprano
-- **WHEN** gate está apagado o tarea cambió
+- **WHEN** la sesión o el contexto son inválidos, o la tarea cambió
 - **THEN** rechaza antes de repositorio o llamada externa
 
 ### Requirement: RQ-08 Evidencia
@@ -72,4 +72,4 @@ El sistema SHALL conservar pruebas automatizadas y E2E saneada, conforme a D-08.
 
 #### Scenario: Verificación
 - **WHEN** se valida la entrega
-- **THEN** suites, build, amenazas, conteo y E2E autorizada demuestran requisitos y gate restaurado
+- **THEN** suites, build, amenazas, conteo y E2E autorizada demuestran requisitos y ausencia de cambios de rollout

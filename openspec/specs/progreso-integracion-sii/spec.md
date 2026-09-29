@@ -68,6 +68,6 @@ El sistema SHALL mantener el feature moderno aislado de infraestructura y códig
 - **WHEN** se prueban los módulos DOC-76
 - **THEN** no importan, copian ni invocan `JSProgresBar` y no interpretan `YES`, `CTRL`, `CTRLRETURN` ni `dato_lista`
 
-#### Scenario: Gate moderno apagado
-- **WHEN** `WorkflowCentroTrabajoModernActive` está apagado
-- **THEN** el comportamiento del recorrido legacy permanece intacto
+#### Scenario: Contexto moderno no autorizado
+- **WHEN** la sesión no aporta un contexto Workflow válido
+- **THEN** no se inicia una operación moderna ni se alteran recorridos ajenos

@@ -8,18 +8,17 @@ const { IMPORTAR_SERVICIO_WEB_E2E_ADAPTER } = require('../scripts/adapters/impor
 const { resolveScenario } = require('../scripts/support/workflow-e2e-platform-registry.cjs');
 const { validateProfile } = require('../scripts/support/workflow-e2e-platform-profile.cjs');
 
-test('DOC-83 registra acceso negativo ENLASE sin sesión, tarea, controles ni secretos', () => {
+test('DOC-83 registra acceso negativo ENLASE oficial sin sesión, tarea, controles ni secretos', () => {
   const scenario = resolveScenario('import-sii-enlase-anonymous');
   assert.equal(scenario.stage, 'anonymous');
   assert.equal(scenario.transport.session, 'none');
   assert.deepEqual(scenario.requiredAuthorizations, ['environment', 'gate']);
   assert.ok(scenario.expectations.includes('temporary-feature-gate'));
   const runner = fs.readFileSync(path.resolve('tools/e2e/scripts/run-workflow-e2e-platform.cjs'), 'utf8');
-  assert.match(runner, /plan\.scenario\.stage === 'anonymous' \? 'e2e-anonymous'/);
   assert.match(runner, /attempt < 6/);
   assert.match(runner, /consecutiveSuccesses >= 2/);
   assert.match(runner, /E2E_PLATFORM_RELOAD_STABILIZATION_FAILED/);
-  assert.match(runner, /const applied = await fs\.readFile\(webConfigPath/);
+  assert.match(runner, /configureTemporaryScenario/);
   assert.deepEqual(scenario.requiredSecrets, []);
   assert.equal(scenario.resource, null);
   assert.deepEqual(scenario.controls, []);
@@ -55,10 +54,9 @@ test('DOC-83 rechaza respuesta anónima que exponga elementos', async () => {
     invoke: async () => ({ elapsedMs: 4, dto: { Items: [{ ExternalKey: 'unexpected' }] } })
   }), { code: 'IMPORT_E2E_ENLASE_ANONYMOUS_NOT_BLOCKED' });
 });
-test('DOC-83 acepta FEATURE_DISABLED como bloqueo opaco del gate ligado a sesión', async () => {
-  const result = await IMPORTAR_SERVICIO_WEB_E2E_ADAPTER.executeAnonymous({
+test('DOC-83 rechaza el código retirado FEATURE_DISABLED', async () => {
+  await assert.rejects(() => IMPORTAR_SERVICIO_WEB_E2E_ADAPTER.executeAnonymous({
     budgetMs: 10000,
     invoke: async () => ({ elapsedMs: 3, dto: { Items: [], Error: { Codigo: 'FEATURE_DISABLED' } } })
-  });
-  assert.deepEqual(result.codes, { query: 'FEATURE_DISABLED' });
+  }), { code: 'IMPORT_E2E_ENLASE_ANONYMOUS_NOT_BLOCKED' });
 });

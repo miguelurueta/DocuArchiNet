@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Definir el núcleo frontend genérico para consultar e importar documentos desde proveedores registrados, preservando el flujo legacy mediante un gate y ofreciendo contratos comprobables, errores seguros y una experiencia accesible.
+Definir el núcleo frontend genérico oficial para consultar e importar documentos desde proveedores registrados, con contratos comprobables, errores seguros y una experiencia accesible.
 
 ## Requirements
 
@@ -37,15 +37,15 @@ La selección y confirmación mediante controles visibles no forman parte de DOC
 - **WHEN** se intenta un salto no permitido
 - **THEN** rechaza la transición sin ejecutar mutaciones
 
-### Requirement: RQ-04 Coexistencia controlada por gate (D-04)
-El sistema SHALL preservar legacy con gate apagado y ofrecer una entrada moderna al usuario autorizado.
+### Requirement: RQ-04 Disponibilidad controlada por contexto (D-04)
+El sistema SHALL ofrecer la entrada moderna oficial al usuario autorizado y evitar una segunda ejecución por controles legacy residuales.
 
-#### Scenario: Gate apagado
-- **WHEN** `WorkflowCentroTrabajoModernActive` es `false`
-- **THEN** `btnloadservice` conserva su recorrido y el núcleo moderno permanece inerte
+#### Scenario: Contexto inválido
+- **WHEN** la sesión no aporta un contexto Workflow válido
+- **THEN** el núcleo moderno permanece inerte y no inicia una importación
 
-#### Scenario: Gate autorizado
-- **WHEN** el gate está activo para el usuario o grupo permitido
+#### Scenario: Contexto autorizado
+- **WHEN** la sesión aporta un contexto Workflow válido
 - **THEN** `ctw-document-action-service` abre el modal sin duplicar entradas visibles
 
 ### Requirement: RQ-05 Modal accesible (D-05)
@@ -60,12 +60,12 @@ El sistema SHALL ofrecer diálogo nombrado, teclado, foco inicial/restaurado y a
 - **THEN** `aria-live` lo anuncia sin progreso porcentual ficticio
 
 ### Requirement: RQ-06 Verificación aislada y segura (D-06)
-El sistema SHALL disponer de pruebas deterministas sin credenciales, red ni activación del gate real.
+El sistema SHALL disponer de pruebas deterministas sin credenciales, red ni cambios de configuración de rollout.
 
 #### Scenario: Suite local
-- **WHEN** se ejecutan las pruebas de core, registro/UI, accesibilidad y gate
+- **WHEN** se ejecutan las pruebas de core, registro/UI, accesibilidad y contexto
 - **THEN** validan resolución, estados, ejecución única, foco y compatibilidad legacy
 
 #### Scenario: E2E no autorizado
 - **WHEN** no existe autorización explícita
-- **THEN** no se activa el gate ni se ejecutan pruebas autenticadas o carga
+- **THEN** no se modifica configuración de rollout ni se ejecutan pruebas autenticadas o carga

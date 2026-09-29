@@ -77,7 +77,7 @@
      <script src="../js/java_general/JS_firma_digital.js" type="text/javascript"></script>
      <script src="../js/java_general/general_control_java.js" type="text/javascript"></script>
      <script src="../js/java_general/ubicacion_code_java.js" type="text/javascript"></script>  
-      <link href="../Styles/workflow-centro-trabajo-moderno.css?v=20260902-doc45-icon-colors1" rel="stylesheet" type="text/css" />
+      <link href="../Styles/workflow-centro-trabajo-moderno.css?v=20260929-enlase-actions3" rel="stylesheet" type="text/css" />
       <script src="../js/workflow/centro-trabajo-visual.js?v=20260821-modern-actions4" type="text/javascript"></script>
  <body  style="margin: 0;
     background-color : #ffffff" >
@@ -1694,7 +1694,7 @@
                   </div>
                   
               </asp:Panel>
-          <asp:Panel ID="Panel_admon_documentos" runat="server" Style="display:none; width: 100%; height: auto" CssClass="modal_content_general">
+          <asp:Panel ID="Panel_admon_documentos" runat="server" Style="display:none; width: 100%; height: auto" CssClass="modal_content_general ctw-enlase-document-modal">
               <asp:ModalPopupExtender ID="ModalPopupExtender_edition_admon_documentos" runat="server" BackgroundCssClass="FondoAplicacion" TargetControlID="ButtonSalir_admon_documentos"
                   CancelControlID="Button_cerrar_admon_documentos" PopupControlID="Panel_admon_documentos">
               </asp:ModalPopupExtender>
@@ -1740,8 +1740,8 @@
                           </ContentTemplate>
                       </asp:UpdatePanel>
                       <div id="conte_waper" class="container-fluid mr-0 ml-0 pl-0 pr-0" style="border-top: 1px solid #e9ecef">
-                          <a id="da_show-sidebar__" class="btn btn-sm   hide_da_sidebar " href="#" data-target="#sidebar__">
-                              <i style="color: white" class="fas fa-bars"></i>
+                          <a id="da_show-sidebar__" class="btn btn-sm hide_da_sidebar" href="#" data-target="#sidebar__" role="button" aria-controls="sidebar__" aria-expanded="false" aria-label="Mostrar lista de documentos" title="Mostrar lista de documentos">
+                              <i style="color: white" class="fas fa-chevron-right" aria-hidden="true"></i>
                           </a>
                           <div id="da_content_wraper_" class="wrapper_ ml-0 mr-0  d-flex  justify-content-between_" style="padding-left: 1px; padding-right: 1px">
                               <div id="Contentizquierdo_" class="bg-light_ " style="width: 22%; float: left">
@@ -1758,12 +1758,22 @@
                                                       </ContentTemplate>
                                                   </asp:UpdatePanel>
                                               </div>                 
-                                              <div class="col-7 p-0 d-flex justify-content-end">   
-                                                   <a class="nav-link pr-2 pl-2" style="color: #6d7fcc; font-family: Arial; text-decoration: none; font-weight: 600; float: right" title="Eliminar documentos" href="#" onclick="inicializa_tipo_adjunto_documento(event,this,'C-DW-DEL-IMAGE-ENLACE')"><i style="" class="fad fa-trash-alt"></i></a>
-                                                   <a class="nav-link pr-2 pl-2" style="color: #6d7fcc; font-family: Arial; text-decoration: none; font-weight: 600; float: right" title="Actualiza indice batch" href="#" onclick="inicializa_tipo_adjunto_documento(event,this,'C-DW-ACTU-INDICE-ENLACE')"><i style="" class="fad fa-info "></i></a>
-                                                   <a class="nav-link pr-2 pl-2" id="btnLoadFileEnlace" style="color: #6d7fcc; font-family: Arial; text-decoration: none; font-weight: 600; float: right" title="Adjuntar documento" href="#" ><i style="" class="fas fa-upload "></i></a>
-				                                   <a id="a_adj_service_web" class="nav-link pr-2 pl-2" style="color: #6d7fcc; font-family: Arial; text-decoration: none; font-weight: 600; float: right" title="Adjuntar documento desde servicio web" href="#" ><i style="" class="fas fa-page-break "></i></a>
-                                                   <a id="sidebarCollapse_" class="close__   nav-link pr-2 pl-2" style="float: right; color: #6d7fcc; font-family: Arial; text-decoration: none; font-weight: 600"  title="Cerrar lista"><i class="fad fa-bars"></i></a>
+                                              <div class="col-7 p-0 d-flex justify-content-end align-items-center ctw-enlase-document-toolbar">
+                                                  <div class="dropdown ctw-enlase-document-actions">
+                                                      <button id="ctw-enlase-document-actions-toggle" type="button" class="btn btn-light btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-controls="ctw-enlase-document-actions-menu">
+                                                          Acciones
+                                                      </button>
+                                                      <div id="ctw-enlase-document-actions-menu" class="dropdown-menu dropdown-menu-right" role="group" aria-label="Acciones para documentos relacionados">
+                                                          <a class="dropdown-item" href="#" onclick="inicializa_tipo_adjunto_documento(event,this,'C-DW-ACTU-INDICE-ENLACE')"><i class="fad fa-info" aria-hidden="true"></i><span>Actualizar índice</span></a>
+                                                          <a id="btnLoadFileEnlace" class="dropdown-item" href="#"><i class="fas fa-upload" aria-hidden="true"></i><span>Adjuntar documento</span></a>
+                                                          <a id="a_adj_service_web" class="dropdown-item" href="#"><i class="fas fa-page-break" aria-hidden="true"></i><span>Adjuntar desde servicio web</span></a>
+                                                          <div class="dropdown-divider"></div>
+                                                          <a class="dropdown-item ctw-enlase-document-action-danger" href="#" onclick="inicializa_tipo_adjunto_documento(event,this,'C-DW-DEL-IMAGE-ENLACE')"><i class="fad fa-trash-alt" aria-hidden="true"></i><span>Eliminar documentos seleccionados</span></a>
+                                                      </div>
+                                                  </div>
+                                                  <button id="sidebarCollapse_" type="button" class="close__ btn btn-light btn-sm ctw-enlase-sidebar-toggle" aria-controls="sidebar__" aria-expanded="true" aria-label="Ocultar lista de documentos" title="Ocultar lista de documentos">
+                                                      <i class="fad fa-chevron-left" aria-hidden="true"></i>
+                                                  </button>
                                               </div>
 
                                           </div>
@@ -4721,18 +4731,24 @@
           AjaxFileUpload_change_text();
           
           $(document).ready(function () {
-              $('#sidebarCollapse_').on('click', function () {
+              $('#sidebarCollapse_').on('click', function (event) {
+                  event.preventDefault();
                   $('#sidebar__').toggleClass('active_da_slider');
                   $('#Contenedorderecho_').toggleClass('active_content_rigth');
                   $('#Contentizquierdo_').toggleClass('active_content_left');
                   $(this).toggleClass('active_da_slider');
+                  $(this).attr('aria-expanded', 'false');
+                  $('#da_show-sidebar__').attr('aria-expanded', 'false');
                   $('#da_show-sidebar__').toggleClass('show_da_slide');
                   $('#da_show-sidebar__').toggleClass('hide_da_sidebar');
               });
-              $('#da_show-sidebar__').on('click', function () {
+              $('#da_show-sidebar__').on('click', function (event) {
+                  event.preventDefault();
                   $('#sidebar__').toggleClass('active_da_slider');
                   $('#Contenedorderecho_').toggleClass('active_content_rigth');
                   $('#Contentizquierdo_').toggleClass('active_content_left');
+                  $('#sidebarCollapse_').attr('aria-expanded', 'true');
+                  $(this).attr('aria-expanded', 'true');
                   $(this).toggleClass('show_da_slide');
                   $(this).toggleClass('hide_da_sidebar');
               });

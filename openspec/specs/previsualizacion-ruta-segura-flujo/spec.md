@@ -17,12 +17,12 @@ El sistema SHALL exponer una previsualización paralela que no modifique el fluj
 
 ### Requirement: RQ-02 Contexto y habilitación de servidor (D-02)
 
-El sistema SHALL resolver identidad y autorización desde la sesión autenticada y evaluar `IWorkflowModernFeatureGate` antes de consultar datos del preview.
+El sistema SHALL resolver identidad y autorización desde la sesión autenticada y validar el contexto Workflow antes de consultar datos del preview.
 
-#### Scenario: Usuario fuera del piloto
+#### Scenario: Contexto inválido
 
-- **WHEN** el feature gate devuelve un estado distinto de activo para el contexto de sesión
-- **THEN** la respuesta devuelve `WORKFLOW_MODERN_INACTIVE`, no contiene destinos y no consulta repositorios de flujo o ruta
+- **WHEN** la sesión no aporta un contexto Workflow válido
+- **THEN** la respuesta devuelve `WORKFLOW_CONTEXT_INVALID`, no contiene destinos y no consulta repositorios de flujo o ruta
 
 ### Requirement: RQ-03 Lectura autorizada por dominio Workflow (D-03)
 

@@ -10,13 +10,9 @@ const {
   runChild
 } = require('./support/interactive-e2e-console.cjs');
 
-const SAFE_ACTIVE = /WorkflowCentroTrabajoModernActive" value="false"/i;
-const SAFE_USERS = /WorkflowCentroTrabajoModernUsers" value=""/i;
-const SAFE_GROUPS = /WorkflowCentroTrabajoModernGroups" value=""/i;
-
 function assertSafeGate(configuration) {
-  if (!SAFE_ACTIVE.test(configuration) || !SAFE_USERS.test(configuration) || !SAFE_GROUPS.test(configuration)) {
-    throw new Error('La configuración inicial del gate DOC-44 no es segura. No se inició la prueba.');
+  if (/WorkflowCentroTrabajoModernActive|WorkflowCentroTrabajoModernUsers|WorkflowCentroTrabajoModernGroups/i.test(configuration)) {
+    throw new Error('El gate Workflow retirado reapareció. No se inició la prueba.');
   }
 }
 

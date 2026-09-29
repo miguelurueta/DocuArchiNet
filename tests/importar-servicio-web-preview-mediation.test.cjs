@@ -30,14 +30,14 @@ test("preview SII usa allowlist versionada y diagnosticos seguros", () => {
   assert.match(service, /StartsWith\("SII_RESOURCE_HOST_NOT_ALLOWED_"/);
 });
 
-test("ASMX aplica gate antes de resolver contexto o proveedor", () => {
+test("ASMX valida contexto antes de resolver proveedor", () => {
   for (const method of ["ResolveCapabilities", "QueryItems", "GetPreview"]) {
     const start = service.indexOf(`Function ${method}`);
     const body = service.slice(start, service.indexOf("End Function", start));
-    assert.ok(body.indexOf("FeatureEnabled()") >= 0);
-    assert.ok(body.indexOf("FeatureEnabled()") < body.indexOf("ResolveProvider("));
+    assert.ok(body.indexOf("TryBuildImportContext(") >= 0);
+    assert.ok(body.indexOf("TryBuildImportContext(") < body.indexOf("ResolveProvider("));
   }
-  assert.match(service, /FEATURE_DISABLED/);
+  assert.doesNotMatch(service, /FeatureEnabled|FEATURE_DISABLED|ImportarServicioWebFeatureGate/);
   assert.match(service, /provider\.Cliente\.[A-Za-z]+Async\([^\r\n]+\)\.GetAwaiter\(\)\.GetResult\(\)/);
   assert.doesNotMatch(service, /\.Result\b|\.Wait\s*\(/);
 });

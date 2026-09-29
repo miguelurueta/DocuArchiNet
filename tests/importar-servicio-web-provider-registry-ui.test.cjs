@@ -27,18 +27,16 @@ test("cliente API usa exclusivamente envelopes ASMX y transporte inyectado", asy
     assert.throws(() => api.unwrapAsmx({}), /IMPORT_RESPONSE_INVALID/);
 });
 
-test("integración WebForms conserva legacy y mantiene la experiencia moderna bajo gate", () => {
+test("integración WebForms publica la experiencia moderna oficial", () => {
     const page = fs.readFileSync(path.resolve(__dirname, "../workflow/Webworkflow.aspx"), "utf8");
     const codeBehind = fs.readFileSync(path.resolve(__dirname, "../workflow/Webworkflow.aspx.vb"), "utf8");
     const config = fs.readFileSync(path.resolve(__dirname, "../Web.config"), "utf8");
     const ui = fs.readFileSync(path.resolve(__dirname, "../js/workflow/importar-servicio-web/importar-servicio-web-ui.js"), "utf8");
-    assert.match(config, /WorkflowCentroTrabajoModernActive" value="false"/);
-    assert.match(config, /WorkflowCentroTrabajoModernUsers" value=""/);
-    assert.match(config, /WorkflowCentroTrabajoModernGroups" value=""/);
+    assert.doesNotMatch(config, /WorkflowCentroTrabajoModernActive|WorkflowCentroTrabajoModernUsers|WorkflowCentroTrabajoModernGroups/);
     assert.match(page, /id="btnloadservice"/);
     assert.match(page, /id="ctw-document-action-service"/);
     assert.match(page, /id="importar-servicio-web-modal"/);
-    assert.match(codeBehind, /If Not WorkflowTransitionModernActive Then[\s\S]*?Return[\s\S]*?RegisterImportarServicioWebModernAssets/);
+    assert.match(codeBehind, /If Not WorkflowModernContextAvailable Then[\s\S]*?Return[\s\S]*?RegisterImportarServicioWebModernAssets/);
     assert.match(ui, /legacy\.hidden = true/);
     assert.doesNotMatch(ui, /fetch\s*\(|XMLHttpRequest|\$\.ajax/);
 });

@@ -18,13 +18,13 @@ El sistema SHALL mantener `GridView_envia_flujo`, su modal y el comportamiento W
 - **THEN** la página no carga ni inicializa la lista moderna
 - **AND THEN** el enlace Continuar conserva el flujo legacy actual sin llamadas a `PreviewEnviarTarea`
 
-### Requirement: RQ-02 Bootstrap con el gate de servidor (D-02)
+### Requirement: RQ-02 Bootstrap con contexto de servidor (D-02)
 
-El sistema SHALL habilitar la lista solo con un atributo emitido en servidor después de evaluar `IWorkflowModernFeatureGate` para el contexto autenticado.
+El sistema SHALL habilitar la lista solo con un atributo emitido en servidor después de validar el contexto Workflow autenticado.
 
-#### Scenario: Usuario fuera del piloto del ASMX
+#### Scenario: Contexto ASMX inválido
 
-- **WHEN** `IWorkflowModernFeatureGate` no devuelve un estado activo
+- **WHEN** el servidor no resuelve un contexto Workflow válido
 - **THEN** el atributo no habilita la UI moderna
 - **AND THEN** el navegador no consulta el ASMX ni intenta modificar la bandera
 
@@ -50,10 +50,10 @@ El sistema SHALL ofrecer estados visuales recuperables y seleccionar un destino 
 
 ### Requirement: RQ-05 Validación y rollback verificables (D-05)
 
-La entrega SHALL documentar y verificar la compilación, pruebas focales, QA visual y la reversa por gate.
+La entrega SHALL documentar y verificar la compilación, pruebas focales, QA visual y la reversa por control de versiones.
 
 #### Scenario: Desactivación de la experiencia moderna
 
-- **WHEN** se desactiva el gate para el piloto
-- **THEN** la siguiente carga usa la interfaz legacy sin migración ni cambio de estado
+- **WHEN** se revierte el despliegue a la versión anterior
+- **THEN** la siguiente carga usa esa versión sin migración ni cambio de estado
 - **AND THEN** la evidencia no expone credenciales, cookies, SQL ni cadenas de conexión

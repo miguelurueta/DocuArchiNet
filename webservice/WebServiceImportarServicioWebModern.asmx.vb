@@ -17,7 +17,6 @@ Public Class WebServiceImportarServicioWebModern
     <WebMethod(EnableSession:=True)>
     <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
     Public Function ResolveCapabilities(ByVal request As ResolveCapabilitiesRequestDto) As ResolveCapabilitiesResponseDto
-        If Not FeatureEnabled() Then Return DisabledCapabilities(request)
         If Not ValidRequest(request) Then Return InvalidCapabilities(request)
         Try
             Dim importContext As ContextoImportacionServicio = Nothing
@@ -37,7 +36,6 @@ Public Class WebServiceImportarServicioWebModern
     <WebMethod(EnableSession:=True)>
     <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
     Public Function QueryItems(ByVal request As QueryItemsRequestDto) As QueryItemsResponseDto
-        If Not FeatureEnabled() Then Return FailureQuery(request, "FEATURE_DISABLED")
         If Not ValidRequest(request) Then Return FailureQuery(request, "INVALID_REQUEST")
         Try
             Dim importContext As ContextoImportacionServicio = Nothing : Dim session As ResultadoContextoSesionWorkflow = Nothing
@@ -80,7 +78,6 @@ Public Class WebServiceImportarServicioWebModern
     <WebMethod(EnableSession:=True)>
     <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
     Public Function GetPreview(ByVal request As GetPreviewRequestDto) As GetPreviewResponseDto
-        If Not FeatureEnabled() Then Return FailurePreview(request, "FEATURE_DISABLED")
         If Not ValidRequest(request) OrElse String.IsNullOrWhiteSpace(request.ExternalKey) Then Return FailurePreview(request, "INVALID_REQUEST")
         Try
             Dim context As ContextoImportacionServicio = Nothing : Dim session As ResultadoContextoSesionWorkflow = Nothing
@@ -111,7 +108,6 @@ Public Class WebServiceImportarServicioWebModern
     <WebMethod(EnableSession:=True)>
     <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
     Public Function PreflightImport(ByVal request As PreflightImportRequestDto) As PreflightImportResponseDto
-        If Not FeatureEnabled() Then Return New PreflightImportResponseDto With {.Error = ErrorDto("FEATURE_DISABLED")}
         If Not ValidRequest(request) Then Return New PreflightImportResponseDto With {.Error = ErrorDto("INVALID_REQUEST")}
         Try
             Dim context As ContextoImportacionServicio = Nothing : Dim session As ResultadoContextoSesionWorkflow = Nothing
@@ -129,7 +125,6 @@ Public Class WebServiceImportarServicioWebModern
     <WebMethod(EnableSession:=True)>
     <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
     Public Function CreateImportIntent(ByVal request As CreateImportIntentRequestDto) As CreateImportIntentResponseDto
-        If Not FeatureEnabled() Then Return New CreateImportIntentResponseDto With {.Error = ErrorDto("FEATURE_DISABLED")}
         If Not ValidRequest(request) Then Return New CreateImportIntentResponseDto With {.Error = ErrorDto("INVALID_REQUEST")}
         Try
             Dim context As ContextoImportacionServicio = Nothing : Dim session As ResultadoContextoSesionWorkflow = Nothing
@@ -149,7 +144,6 @@ Public Class WebServiceImportarServicioWebModern
     <WebMethod(EnableSession:=True)>
     <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
     Public Function ExecuteImportIntent(ByVal request As ExecuteImportIntentRequestDto) As ExecuteImportIntentResponseDto
-        If Not FeatureEnabled() Then Return New ExecuteImportIntentResponseDto With {.Error = ErrorDto("FEATURE_DISABLED")}
         If Not ValidRequest(request) Then Return New ExecuteImportIntentResponseDto With {.Error = ErrorDto("INVALID_REQUEST")}
         Try
             Dim context As ContextoImportacionServicio = Nothing : Dim session As ResultadoContextoSesionWorkflow = Nothing
@@ -165,7 +159,6 @@ Public Class WebServiceImportarServicioWebModern
     <WebMethod(EnableSession:=True)>
     <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
     Public Function GetImportIntent(ByVal request As GetImportIntentRequestDto) As GetImportIntentResponseDto
-        If Not FeatureEnabled() Then Return New GetImportIntentResponseDto With {.Error = ErrorDto("FEATURE_DISABLED")}
         If Not ValidRequest(request) Then Return New GetImportIntentResponseDto With {.Error = ErrorDto("INVALID_REQUEST")}
         Try
             Dim context As ContextoImportacionServicio = Nothing : Dim session As ResultadoContextoSesionWorkflow = Nothing
@@ -181,7 +174,6 @@ Public Class WebServiceImportarServicioWebModern
     <WebMethod(EnableSession:=True)>
     <System.Web.Script.Services.ScriptMethod(ResponseFormat:=System.Web.Script.Services.ResponseFormat.Json)>
     Public Function ReconcileImportIntent(ByVal request As ReconcileImportIntentRequestDto) As ReconcileImportIntentResponseDto
-        If Not FeatureEnabled() Then Return New ReconcileImportIntentResponseDto With {.Error = ErrorDto("FEATURE_DISABLED")}
         If Not ValidRequest(request) Then Return New ReconcileImportIntentResponseDto With {.Error = ErrorDto("INVALID_REQUEST")}
         Try
             Dim context As ContextoImportacionServicio = Nothing : Dim session As ResultadoContextoSesionWorkflow = Nothing
@@ -189,15 +181,6 @@ Public Class WebServiceImportarServicioWebModern
             Return Compose(session, request.ProviderId, context).Reconciliation.ReconcileImportIntent(context, request)
         Catch
             Return New ReconcileImportIntentResponseDto With {.Error = ErrorDto("IMPORT_UNAVAILABLE")}
-        End Try
-    End Function
-
-    Private Shared Function FeatureEnabled() As Boolean
-        Try
-            Dim session = New WorkflowPreviewSessionContextGate().AsegurarContexto()
-            Return session IsNot Nothing AndAlso New ImportarServicioWebFeatureGate().EstaHabilitado(session.Contexto)
-        Catch
-            Return False
         End Try
     End Function
 
@@ -464,10 +447,6 @@ Public Class WebServiceImportarServicioWebModern
         diagnosticText = System.Text.RegularExpressions.Regex.Replace(diagnosticText, "(?i)(https?://[^?\s]+)\?[^\s]+", "$1?[REDACTED]")
         If diagnosticText.Length > 500 Then diagnosticText = diagnosticText.Substring(0, 500) & "…"
         Return diagnosticText
-    End Function
-
-    Private Shared Function DisabledCapabilities(ByVal request As ResolveCapabilitiesRequestDto) As ResolveCapabilitiesResponseDto
-        Return ProviderCapabilitiesError(request, New ResultadoResolucionClienteProveedorImportacion With {.Codigo = "FEATURE_DISABLED"})
     End Function
 
     Private Shared Function InvalidCapabilities(ByVal request As ResolveCapabilitiesRequestDto) As ResolveCapabilitiesResponseDto

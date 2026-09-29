@@ -25,14 +25,7 @@ Public Class Webworkflow
     Dim ini As Long
     Dim Popupenlace As Object
     Dim bolindice As Boolean = False
-    Private _workflowTransitionModernActive As Nullable(Of Boolean)
-    Private _importarServicioWebModernActive As Nullable(Of Boolean)
-
-    Public ReadOnly Property WorkflowCentroTrabajoModernActive As Boolean
-        Get
-            Return WorkflowTransitionModernActive
-        End Get
-    End Property
+    Private _workflowModernContextAvailable As Nullable(Of Boolean)
 
     Public ReadOnly Property WorkflowCentroTrabajoModernPresentationEnabled As Boolean
         Get
@@ -42,7 +35,7 @@ Public Class Webworkflow
 
     Public ReadOnly Property WorkflowCentroTrabajoModernOperationDisabledAttribute As String
         Get
-            If WorkflowCentroTrabajoModernActive Then
+            If WorkflowModernContextAvailable Then
                 Return " aria-disabled=""false"""
             End If
 
@@ -265,28 +258,13 @@ Public Class Webworkflow
         End If
     End Sub
 
-    Private ReadOnly Property WorkflowTransitionModernActive As Boolean
+    Private ReadOnly Property WorkflowModernContextAvailable As Boolean
         Get
-            If Not _workflowTransitionModernActive.HasValue Then
-                _workflowTransitionModernActive = WorkflowModernPresentationBootstrap.EstaActivaParaSolicitudActual()
+            If Not _workflowModernContextAvailable.HasValue Then
+                _workflowModernContextAvailable = WorkflowModernPresentationBootstrap.EstaActivaParaSolicitudActual()
             End If
 
-            Return _workflowTransitionModernActive.Value
-        End Get
-    End Property
-
-    Private ReadOnly Property ImportarServicioWebModernActive As Boolean
-        Get
-            If Not _importarServicioWebModernActive.HasValue Then
-                Try
-                    Dim session = New WorkflowPreviewSessionContextGate().AsegurarContexto()
-                    _importarServicioWebModernActive = session IsNot Nothing AndAlso
-                        New ImportarServicioWebFeatureGate().EstaHabilitado(session.Contexto)
-                Catch
-                    _importarServicioWebModernActive = False
-                End Try
-            End If
-            Return _importarServicioWebModernActive.Value
+            Return _workflowModernContextAvailable.Value
         End Get
     End Property
 
@@ -297,14 +275,14 @@ Public Class Webworkflow
         RegisterWorkflowReturnActivityModernPresentation()
         RegisterWorkflowReturnUserPreviousModernPresentation()
 
-        If Not WorkflowTransitionModernActive Then
+        'La experiencia moderna es oficial. Esta condición solo evita enlazar
+        'operaciones cuando la solicitud no tiene un contexto Workflow válido.
+        If Not WorkflowModernContextAvailable Then
             Return
         End If
 
-        If ImportarServicioWebModernActive Then
-            RegisterImportarServicioWebModernAssets()
-            RegisterImportarServicioWebModernBootstrap()
-        End If
+        RegisterImportarServicioWebModernAssets()
+        RegisterImportarServicioWebModernBootstrap()
         RegisterConfirmationDialogStyle()
         RegisterConfirmationDialogScript()
         RegisterWorkflowTransitionModernScript()

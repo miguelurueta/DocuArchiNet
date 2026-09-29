@@ -41,7 +41,7 @@ test("servidor deriva ruta, gabinete y clase documental", () => {
   assert.match(documentTypes, /DOCUMENT_TYPE_MAPPING_AMBIGUOUS/);
   assert.match(documentTypes, /DOCUMENT_TYPE_NAME_MISMATCH/);
   assert.match(steps, /IdTipoListaChequeo = documentType\.IdTipoListaChequeo/);
-  assert.match(steps, /DescripcionTipo = documentType\.NombreTipoDocumental/);
+  assert.match(steps, /DescripcionTipo = If\(documentType\.NombreTipoDocumental, String\.Empty\)/);
   assert.doesNotMatch(steps, /IdTipoListaChequeo = If\(item\.IdTipoDocumental/);
   assert.doesNotMatch(steps, /DescripcionTipo = If\(item\.NombreArchivo/);
   assert.match(persistence, /document_type_name/);

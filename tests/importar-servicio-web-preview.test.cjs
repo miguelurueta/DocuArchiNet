@@ -37,7 +37,7 @@ test("una apertura concurrente comparte la solicitud y renovar crea otra", async
 });
 
 test("errores de backend se traducen a estados cerrados", async () => {
-  const cases = [["PREVIEW_FORBIDDEN", "no-autorizado"], ["PREVIEW_EXPIRY_PAST", "recurso-vencido"], ["FEATURE_DISABLED", "bloqueado"], ["EXTERNAL_PROVIDER_UNAVAILABLE", "proveedor-no-disponible"]];
+  const cases = [["PREVIEW_FORBIDDEN", "no-autorizado"], ["PREVIEW_EXPIRY_PAST", "recurso-vencido"], ["PROVIDER_BLOCKED", "bloqueado"], ["EXTERNAL_PROVIDER_UNAVAILABLE", "proveedor-no-disponible"]];
   for (const [code, expected] of cases) {
     const control = preview.create({ api: { getPreview() { return Promise.resolve({ Error: { Codigo: code } }); } }, state });
     assert.equal((await control.open({ externalKey: "sii-1" }, {})).state, expected);

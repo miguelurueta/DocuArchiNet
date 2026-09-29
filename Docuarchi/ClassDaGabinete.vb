@@ -5479,7 +5479,7 @@ Public Class ClassDaGabinete
                     '-------//Agrega la celda contenedora de los atributos de visualizacion de documentos
                     Dim divhtml_Celda_icono_title As New HtmlControls.HtmlGenericControl("div")
                     divhtml_Celda_icono_title.Attributes.Add("class", "w-100 col-10 pl-2 row")
-                    divhtml_Celda_icono_title.Style.Add("margin-right", "1px")
+                    divhtml_Celda_icono_title.Style.Add("margin-right", "0px")
                     divhtml_Celda_icono_title.Attributes.Add("onclick", "prevent(event,this);")
                     divhtml_Celda_icono_title.Attributes.Add("title", "Ver documento")
                     divhtml_Celda_icono_title.Attributes.Add("id_rad", scripma.Rows(i).Cells(1).Text)

@@ -10,9 +10,9 @@ Define el envío directo y seguro de una tarea hacia una actividad destino de gr
 
 El sistema SHALL exponer `PreviewEnviarGrupo(idTarea)` y `EjecutarEnvioGrupo(idTarea, idActividadDestino, tokenVersion)` en `WebServiceWorkflowModern`. Ambas operaciones SHALL reconstruir el contexto desde la sesión autenticada y reevaluar `IWorkflowModernFeatureGate`. `IdConector` no forma parte de sus contratos ni se modifican los endpoints existentes por conector.
 
-#### Scenario: Gate, sesión o permiso no autorizan
+#### Scenario: Sesión o permiso no autorizan
 
-- **WHEN** el gate está inactivo, la sesión no es válida o el usuario no tiene `Cambio_Ruta`
+- **WHEN** la sesión no es válida o el usuario no tiene `Cambio_Ruta`
 - **THEN** se devuelve un código y mensaje funcional seguro
 - **AND THEN** no se revelan destinos ni se invoca el motor legacy
 
@@ -52,15 +52,15 @@ El sistema SHALL bloquear solicitudes de aprobación pendientes antes de termina
 - **THEN** la operación devuelve bloqueo funcional sin invocar el adaptador
 - **AND THEN** no se reasigna ni modifica una respuesta
 
-### Requirement: RQ-05 — Presentación progresiva y fallback legacy
+### Requirement: RQ-05 — Presentación moderna oficial
 
-El sistema SHALL enlazar la experiencia moderna de grupo solo mediante el bootstrap existente. Con el gate inactivo SHALL conservar exactamente el postback y modal Web Forms de Enviar a grupo. Continuar flujo SHALL conservar `PreviewEnviarTarea`, `EjecutarEnvioTarea`, `IdConector`, sus destinos y su adaptador actual.
+El sistema SHALL enlazar la experiencia moderna de grupo solo mediante el bootstrap existente para todo contexto Workflow válido y no SHALL exponer un segundo postback o modal Web Forms de Enviar a grupo. Continuar flujo SHALL conservar `PreviewEnviarTarea`, `EjecutarEnvioTarea`, `IdConector`, sus destinos y su adaptador actual.
 
-#### Scenario: Gate inactivo
+#### Scenario: Contexto inválido
 
-- **WHEN** el gate existente no está activo para la solicitud
+- **WHEN** la solicitud no dispone de contexto Workflow válido
 - **THEN** la página no registra la interacción ASMX moderna de grupo
-- **AND THEN** el usuario continúa por el camino legacy sin una llamada ASMX de fallback
+- **AND THEN** no se ofrece una llamada o postback alternativo que omita la validación
 
 ### Requirement: RQ-06 — Resultado público y auditoría sanitizada
 
@@ -74,10 +74,10 @@ El sistema SHALL normalizar resultados de éxito, bloqueo y error sin exponer SQ
 
 ### Requirement: RQ-07 — Evidencia y reversa controlada
 
-El sistema SHALL documentar y ejecutar pruebas focales, compilación y QA manual de seguridad, concurrencia, accesibilidad, fallback y no regresión. E2E autenticada, carga o edición del gate SHALL requerir autorización explícita del ambiente y cuentas descartables. El rollback SHALL usar el gate existente sin migrar ni revertir transiciones confirmadas.
+El sistema SHALL documentar y ejecutar pruebas focales, compilación y QA manual de seguridad, concurrencia, accesibilidad y no regresión. E2E autenticada o carga SHALL requerir autorización explícita del ambiente y cuentas descartables. La reversa SHALL usar control de versiones sin migrar ni revertir transiciones confirmadas.
 
 #### Scenario: Validación sin autorización de ambiente
 
 - **WHEN** no existe autorización explícita para E2E, carga o activación
 - **THEN** se ejecutan solo build, pruebas locales y QA manual autorizados
-- **AND THEN** la evidencia registra la limitación y el gate queda en su estado seguro requerido
+- **AND THEN** la evidencia registra la limitación y no se crea configuración de rollout

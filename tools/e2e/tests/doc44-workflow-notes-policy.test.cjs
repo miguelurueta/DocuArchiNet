@@ -41,9 +41,7 @@ test('DOC-44 conserva presentación moderna única y configuración segura de en
   assert.doesNotMatch(codeBehind, /Panel_notas_modernas\.Visible = WorkflowCentroTrabajoModernActive/);
   assert.doesNotMatch(codeBehind, /Panel_Buttonanotacion/);
   assert.doesNotMatch(taskSelection, /Panel_Buttonanotacion|modernNotesEnabled/);
-  assert.match(configuration, /WorkflowCentroTrabajoModernActive" value="false"/i);
-  assert.match(configuration, /WorkflowCentroTrabajoModernUsers" value=""/i);
-  assert.match(configuration, /WorkflowCentroTrabajoModernGroups" value=""/i);
+  assert.doesNotMatch(configuration, /WorkflowCentroTrabajoModernActive|WorkflowCentroTrabajoModernUsers|WorkflowCentroTrabajoModernGroups/i);
   assert.doesNotMatch(page, /GridView_lista_notas|ImageButtonanotacion/);
   assert.match(page, /id="workflow-notes-modern-access"[\s\S]*?aria-controls="Panel_notas_modernas"[\s\S]*?aria-haspopup="dialog"/);
   assert.match(page, /id="workflow-notes-modern-access-count"/);

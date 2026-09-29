@@ -136,4 +136,4 @@ El sistema SHALL mantener fuera de la importación la asignación y cierre de ta
 #### Scenario: E2E sin autorización
 
 - **WHEN** se intenta una corrida real que puede mutar documentos sin autorización explícita
-- **THEN** la plataforma se detiene antes de activar el gate o realizar escrituras
+- **THEN** la plataforma se detiene antes de modificar configuración de rollout o realizar escrituras

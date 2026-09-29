@@ -52,11 +52,11 @@ test("la política oficial habilita todo contexto Workflow válido sin leer conf
     assert.doesNotMatch(gateSource, /ConfigurationManager|AppSettings|WorkflowCentroTrabajoModern|Pilot|Rollback|Excluded|Contiene\(/);
 });
 
-test("la configuración local mantiene el gate global desactivado y sin audiencias", () => {
-    assert.equal(appSettingValue("WorkflowCentroTrabajoModernActive"), "false");
-    assert.equal(appSettingValue("WorkflowCentroTrabajoModernOfficialMode"), "false");
-    assert.equal(appSettingValue("WorkflowCentroTrabajoModernUsers"), "");
-    assert.equal(appSettingValue("WorkflowCentroTrabajoModernGroups"), "");
+test("la configuración local no conserva flags ni audiencias de rollout", () => {
+    assert.equal(hasAppSetting("WorkflowCentroTrabajoModernActive"), false);
+    assert.equal(hasAppSetting("WorkflowCentroTrabajoModernOfficialMode"), false);
+    assert.equal(hasAppSetting("WorkflowCentroTrabajoModernUsers"), false);
+    assert.equal(hasAppSetting("WorkflowCentroTrabajoModernGroups"), false);
     assert.ok(hasAppSetting("WorkflowCentroTrabajoModernLayers"));
     assert.equal(hasAppSetting("WorkflowCentroTrabajoModernEnabled"), false);
     assert.equal(hasAppSetting("WorkflowCentroTrabajoModernPilotProfiles"), false);
@@ -75,15 +75,15 @@ test("el DTO publica el estado oficial y conserva los códigos de negocio", () =
 });
 
 test("la presentación es constante y el contexto conserva únicamente los bootstraps operativos", () => {
-    assert.match(pageSource, /Public ReadOnly Property WorkflowCentroTrabajoModernActive As Boolean\s+Get\s+Return WorkflowTransitionModernActive\s+End Get\s+End Property/);
+    assert.doesNotMatch(pageSource, /WorkflowCentroTrabajoModernActive|ImportarServicioWebFeatureGate/);
     assert.match(pageSource, /Public ReadOnly Property WorkflowCentroTrabajoModernPresentationEnabled As Boolean\s+Get\s+Return True\s+End Get\s+End Property/);
-    assert.match(pageSource, /_workflowTransitionModernActive = WorkflowModernPresentationBootstrap\.EstaActivaParaSolicitudActual\(\)/);
+    assert.match(pageSource, /_workflowModernContextAvailable = WorkflowModernPresentationBootstrap\.EstaActivaParaSolicitudActual\(\)/);
     assert.doesNotMatch(pageSource, /WorkflowCentroTrabajoModernEnabled|WorkflowCentroTrabajoModernPilotProfiles|CurrentWorkflowPilotIsEnabled/);
-    assert.match(pageMarkup, /<link href="\.\.\/Styles\/workflow-centro-trabajo-moderno\.css\?v=20260902-doc45-icon-colors1/);
+    assert.match(pageMarkup, /<link href="\.\.\/Styles\/workflow-centro-trabajo-moderno\.css\?v=20260929-enlase-actions3/);
     assert.match(pageMarkup, /<script src="\.\.\/js\/workflow\/centro-trabajo-visual\.js\?v=20260821-modern-actions4/);
     assert.doesNotMatch(pageMarkup, /<% If WorkflowCentroTrabajoModernActive Then %>\s+<link href="\.\.\/Styles\/workflow-centro-trabajo-moderno\.css/);
-    assert.match(pageSource, /RegisterWorkflowTransitionModernStyle\(\)\s+RegisterWorkflowTransitionPagePresentationScript\(\)\s+RegisterWorkflowEnvioUsuarioModernPresentation\(\)\s+RegisterWorkflowReturnActivityModernPresentation\(\)\s+RegisterWorkflowReturnUserPreviousModernPresentation\(\)\s+If Not WorkflowTransitionModernActive Then\s+Return\s+End If\s+If ImportarServicioWebModernActive Then\s+RegisterImportarServicioWebModernAssets\(\)\s+RegisterImportarServicioWebModernBootstrap\(\)\s+End If\s+RegisterConfirmationDialogStyle\(\)/);
-    assert.match(pageSource, /If Not WorkflowTransitionModernActive Then[\s\S]*?Return[\s\S]*?RegisterWorkflowTransitionModernBootstrap\(\)[\s\S]*?RegisterWorkflowEnvioGrupoModernBootstrap\(\)/);
+    assert.match(pageSource, /RegisterWorkflowTransitionModernStyle\(\)[\s\S]*?If Not WorkflowModernContextAvailable Then\s+Return\s+End If\s+RegisterImportarServicioWebModernAssets\(\)\s+RegisterImportarServicioWebModernBootstrap\(\)\s+RegisterConfirmationDialogStyle\(\)/);
+    assert.match(pageSource, /If Not WorkflowModernContextAvailable Then[\s\S]*?Return[\s\S]*?RegisterWorkflowTransitionModernBootstrap\(\)[\s\S]*?RegisterWorkflowEnvioGrupoModernBootstrap\(\)/);
     assert.match(pageSource, /Private Sub RegisterWorkflowEnvioUsuarioModernPresentation\(\)[\s\S]*?RegisterWorkflowEnvioUsuarioModernBootstrap\(\)[\s\S]*?End Sub/);
     assert.match(pageSource, /Private Sub RegisterWorkflowReturnActivityModernPresentation\(\)[\s\S]*?RegisterWorkflowReturnActivityModernBootstrap\(\)[\s\S]*?End Sub/);
     assert.match(pageSource, /Private Sub RegisterWorkflowReturnUserPreviousModernPresentation\(\)[\s\S]*?RegisterWorkflowReturnUserPreviousModernBootstrap\(\)[\s\S]*?End Sub/);
@@ -97,7 +97,7 @@ test("la presentación es constante y el contexto conserva únicamente los boots
 });
 
 test("continuar y enviar a grupo son controles modernos únicos sin respaldo legacy", () => {
-    assert.match(pageSource, /Public ReadOnly Property WorkflowCentroTrabajoModernOperationDisabledAttribute As String\s+Get\s+If WorkflowCentroTrabajoModernActive Then\s+Return " aria-disabled=""false"""\s+End If\s+Return " disabled=""disabled"" aria-disabled=""true"""/);
+    assert.match(pageSource, /Public ReadOnly Property WorkflowCentroTrabajoModernOperationDisabledAttribute As String\s+Get\s+If WorkflowModernContextAvailable Then\s+Return " aria-disabled=""false"""\s+End If\s+Return " disabled=""disabled"" aria-disabled=""true"""/);
     assert.match(pageMarkup, /<button id="workflow-group-send-trigger" type="button"[^>]*?WorkflowCentroTrabajoModernOperationDisabledAttribute[^>]*?>/);
     assert.match(pageMarkup, /<button id="workflow-transition-trigger" type="button"[^>]*?WorkflowCentroTrabajoModernOperationDisabledAttribute[^>]*?>/);
     assert.doesNotMatch(pageMarkup, /WorkflowCentroTrabajoModernActive/);

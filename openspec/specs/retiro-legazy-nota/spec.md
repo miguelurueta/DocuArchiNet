@@ -47,7 +47,7 @@ El sistema SHALL conservar los endpoints `Service_*_nota_tarea_workflow`, `WebFo
 
 ### Requirement: Evidencia integrada y protegida
 
-El sistema SHALL reutilizar exclusivamente el arnés de `tools/e2e`, SHALL exigir autorización explícita antes de autenticación, mutación o activación temporal del gate y SHALL producir únicamente evidencia saneada. Trazabilidad: D-03, RQ-03.
+El sistema SHALL reutilizar exclusivamente el arnés de `tools/e2e`, SHALL exigir autorización explícita antes de autenticación o mutación y SHALL producir únicamente evidencia saneada sin modificar configuración de rollout. Trazabilidad: D-03, RQ-03.
 
 #### Scenario: Validación sin autorización de ambiente
 
@@ -68,20 +68,19 @@ El sistema SHALL reutilizar exclusivamente el arnés de `tools/e2e`, SHALL exigi
 - **THEN** la evidencia contiene solo estados, códigos, conteos, latencias y huellas permitidas
 - **AND** no contiene credenciales, cookies, tokens, cadenas de conexión, contenido de notas ni cuerpos HTTP
 
-### Requirement: Rollback y gate seguro
+### Requirement: Reversa segura por control de versiones
 
-El sistema SHALL conservar un rollback atómico por control de versiones sin mantener doble presentación activa y SHALL dejar `WorkflowCentroTrabajoModernActive=false`, con usuarios y grupos vacíos, al terminar cualquier corrida incluso si falla. Trazabilidad: D-04, RQ-04.
+El sistema SHALL conservar una reversa atómica por control de versiones sin mantener doble presentación activa y sin crear configuración de rollout ni audiencias piloto durante ninguna corrida. Trazabilidad: D-04, RQ-04.
 
 #### Scenario: Finalización exitosa
 
 - **WHEN** una corrida autorizada concluye correctamente
-- **THEN** el runner restaura el gate a `false`
-- **AND** restaura usuarios y grupos a listas vacías
+- **THEN** el runner confirma que no alteró configuración de rollout
 - **AND** confirma que no existe doble operación por acción
 
 #### Scenario: Error durante la corrida
 
-- **WHEN** ocurre una excepción, timeout o aserción fallida después de habilitar temporalmente el gate
+- **WHEN** ocurre una excepción, timeout o aserción fallida durante una corrida autorizada
 - **THEN** el bloque de limpieza intenta restaurar la configuración segura
 - **AND** una restauración no verificable bloquea el cierre del cambio
 
@@ -132,7 +131,7 @@ El sistema SHALL tratar código, pruebas focales, compilación, E2E real autoriz
 
 - **WHEN** un contexto Workflow válido activa la experiencia moderna mediante la política oficial
 - **THEN** la E2E no modifica `Web.config` para forzar visibilidad
-- **AND** confirma al inicio y al final `WorkflowCentroTrabajoModernActive=false` y audiencias vacías
+- **AND** confirma al inicio y al final la ausencia de claves de rollout y audiencias
 
 #### Scenario: Falta de autorización o datos
 

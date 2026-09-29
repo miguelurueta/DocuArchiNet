@@ -439,17 +439,17 @@ test('DOC-71 repite la creación con la misma clave y exige recuperar la misma i
   assert.equal(result.codes.expedientMode, 'without-expedient');
 });
 
-test('runner restaura el gate y aplica integridad legacy desde finally', () => {
+test('runner restaura la configuración temporal y aplica integridad legacy desde finally', () => {
   const source = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'run-workflow-e2e-platform.cjs'), 'utf8');
   const platform = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'support', 'workflow-e2e-platform.cjs'), 'utf8');
-  assert.match(source, /finally\s*\{\s*await restoreGate\(\)/);
-  assert.match(source, /await restoreGate\(\);\s*await assertPlatformIntegrity/);
+  assert.match(source, /finally\s*\{\s*await restoreConfiguration\(\)/);
+  assert.match(source, /await restoreConfiguration\(\);\s*await assertPlatformIntegrity/);
   assert.match(source, /captureLegacyIntegrityBaseline\(\{ root: repositoryRoot \}\)/);
   assert.match(source, /assertPlatformIntegrity\(\{ \.\.\.options, legacyBaseline \}\)/);
   assert.match(source, /ImportarServicioWebProviderId" value="\(\?:\|INTEGRACIONSII\)"/);
   assert.match(source, /ImportarServicioWebProviderId" value="INTEGRACIONSII"/);
-  assert.match(source, /WorkflowCentroTrabajoModernUsers" value="\[\^"\\s\]\+"/);
-  assert.match(source, /enableTemporaryGate\(plan, secrets\['workflow-account'\]\)/);
+  assert.doesNotMatch(source, /enableTemporaryGate|WorkflowCentroTrabajoModernActive" value="true/);
+  assert.match(source, /configureTemporaryScenario\(plan\)/);
   assert.match(source, /collectSecrets: async \(\) => secrets/);
   assert.match(source, /workflow\/Webworkflow\.aspx/);
   assert.match(source, /initializeWorkflowContext\(context, currentPlan\)/);
@@ -500,18 +500,16 @@ test('runner restaura el gate y aplica integridad legacy desde finally', () => {
   assert.match(platform, /git', \['diff', '--name-only', '--', \.\.\.LEGACY_INTEGRITY_PATHS\]/);
   assert.match(platform, /LEGACY_INTEGRITY_PATHS/);
   assert.match(platform, /legacyBaseline\[relativePath\]/);
-  assert.match(platform, /WorkflowCentroTrabajoModernActive" value="false/);
+  assert.match(platform, /retiredGateIsAbsent|WorkflowCentroTrabajoModernActive\|WorkflowCentroTrabajoModernUsers/);
 });
 
-test('DOC-79 reutiliza la plataforma y verifica gate integral y fallback legacy', () => {
+test('DOC-79 reutiliza la plataforma oficial sin gate y conserva fallback legacy', () => {
   const service = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'webservice', 'WebServiceImportarServicioWebModern.asmx.vb'), 'utf8');
-  const gate = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'Infrastructure', 'Workflow', 'ImportarServicioWeb', 'ImportarServicioWebFeatureGate.vb'), 'utf8');
+  const project = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'GestionDocumental-Docuarchi.net.vbproj'), 'utf8');
   const page = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'workflow', 'Webworkflow.aspx'), 'utf8');
   const ui = fs.readFileSync(path.resolve(__dirname, '..', '..', '..', 'js', 'workflow', 'importar-servicio-web', 'importar-servicio-web-ui.js'), 'utf8');
-  assert.match(service, /New ImportarServicioWebFeatureGate\(\)\.EstaHabilitado\(session\.Contexto\)/);
-  assert.match(gate, /WorkflowCentroTrabajoModernActive/);
-  assert.match(gate, /contexto Is Nothing OrElse Not contexto\.EsValido\(\) Then Return False/);
-  assert.doesNotMatch(gate, /WorkflowCentroTrabajoModernUsers|WorkflowCentroTrabajoModernGroups/);
+  assert.doesNotMatch(service + project, /ImportarServicioWebFeatureGate|WorkflowCentroTrabajoModernActive|FEATURE_DISABLED/);
+  assert.match(service, /TryBuildImportContext\(request, importContext, session, contextFailure\)/);
   assert.equal((page.match(/data-import-legacy-root="true"/g) || []).length, 3);
   assert.match(ui, /querySelectorAll\('\[data-import-legacy-root="true"\]'\)/);
   assert.match(ui, /data-import-modern-bound/);

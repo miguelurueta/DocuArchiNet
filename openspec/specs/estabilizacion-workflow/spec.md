@@ -30,14 +30,14 @@ El sistema SHALL implementar el alcance definido para DOC-44.
 - **WHEN** el consumidor moderno lista, consulta, cuenta, crea, actualiza o elimina una nota
 - **THEN** usa un único cliente y contrato moderno con `idTarea` explícito y resultados funcionales del backend
 
-#### Scenario: Exclusión mutua y rollback (D-03, RQ-03)
+#### Scenario: Exclusión mutua y reversa (D-03, RQ-03)
 
-- **WHEN** el gate está deshabilitado
-- **THEN** permanece disponible el fallback legacy y el cliente moderno no ejecuta operaciones
-- **WHEN** el gate está activo en un contexto autorizado
+- **WHEN** el contexto Workflow no es válido
+- **THEN** el cliente moderno no ejecuta operaciones
+- **WHEN** existe un contexto Workflow autenticado y válido
 - **THEN** se muestra la ruta moderna y se oculta el disparador legacy para evitar doble operación
 
 #### Scenario: Regresión y evidencia autorizada (D-04, RQ-04)
 
 - **WHEN** se valida autorización, cruces de tarea/nota, contenido, cursor, conflicto y rollback
-- **THEN** existe una E2E exclusiva de Workflow que reutiliza la infraestructura existente, conserva evidencia saneada y exige autorización explícita y restauración del gate para toda corrida real
+- **THEN** existe una E2E exclusiva de Workflow que reutiliza la infraestructura existente, conserva evidencia saneada y exige autorización explícita sin modificar configuración de rollout

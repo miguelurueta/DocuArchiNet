@@ -494,10 +494,8 @@ function validateAuthorizations(definitionOrStages, authorizations) {
 async function assertWorkflowIntegrity(root = repositoryRoot) {
   const configPath = path.join(root, 'Web.config');
   const configuration = await fs.readFile(configPath, 'utf8');
-  const gateIsOff = /<add key="WorkflowCentroTrabajoModernActive" value="false"\s*\/>/i.test(configuration) &&
-    /<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i.test(configuration) &&
-    /<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i.test(configuration);
-  if (!gateIsOff) fail('El gate Workflow debe permanecer apagado y sin alcance.');
+  const retiredGateIsAbsent = !/WorkflowCentroTrabajoModernActive|WorkflowCentroTrabajoModernUsers|WorkflowCentroTrabajoModernGroups/i.test(configuration);
+  if (!retiredGateIsAbsent) fail('El gate Workflow retirado no puede reaparecer en la configuración.');
   const changedLegacyPages = execFileSync('git', ['diff', '--name-only', '--', 'workflow/Webworkflow.aspx', 'workflow/Webworkflow.aspx.vb'], {
     cwd: root,
     encoding: 'utf8'

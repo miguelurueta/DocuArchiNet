@@ -12,9 +12,9 @@ El sistema SHALL abrir el modal moderno existente desde `a_adj_service_web` usan
 - **WHEN** el usuario activa el servicio web en una preasignación ENLASE válida
 - **THEN** la UI consulta la capacidad de anexos mediante el cliente API moderno
 
-#### Scenario: Rollback por gate
-- **WHEN** el gate moderno está inactivo
-- **THEN** el recorrido legacy permanece disponible y la UI moderna no captura el disparador
+#### Scenario: Contexto inválido
+- **WHEN** la sesión no aporta un contexto Workflow válido
+- **THEN** la UI moderna no captura el disparador ni inicia una importación
 
 ### Requirement: RQ-02 Contexto aislado por tarea
 El sistema SHALL ligar consulta, preview, intención, recuperación y proyección a la tarea, proveedor y capacidad capturados.
@@ -97,5 +97,5 @@ El sistema SHALL conservar constancias y legacy y demostrar la integración medi
 - **THEN** se cubren contexto, listado, preview, preparación, cierre, refresco, asignación y CSS sin regresión
 
 #### Scenario: E2E real
-- **WHEN** existe autorización expresa para ambiente, cuenta, gate y recurso aplicable
-- **THEN** se reutiliza `tools/e2e`, se sanea evidencia y se verifica la restauración final del gate
+- **WHEN** existe autorización expresa para ambiente, cuenta y recurso aplicable
+- **THEN** se reutiliza `tools/e2e`, se sanea evidencia y se verifica que no se modificó configuración de rollout

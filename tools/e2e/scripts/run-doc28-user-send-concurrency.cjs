@@ -92,10 +92,8 @@ async function writeEvidence(evidence) {
 
 async function assertLocalGateOff() {
   const configuration = await fs.readFile(path.join(repositoryRoot, 'Web.config'), 'utf8');
-  if (!/<add key="WorkflowCentroTrabajoModernActive" value="false"\s*\/>/i.test(configuration) ||
-      !/<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i.test(configuration) ||
-      !/<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i.test(configuration)) {
-    throw new Error('El gate local debe permanecer apagado y sin alcance para la carrera DOC-28.');
+  if (/WorkflowCentroTrabajoModernActive|WorkflowCentroTrabajoModernUsers|WorkflowCentroTrabajoModernGroups/i.test(configuration)) {
+    throw new Error('El gate Workflow retirado no puede reaparecer durante la carrera DOC-28.');
   }
 }
 

@@ -73,7 +73,7 @@ El sistema SHALL distinguir la vista temporal y reutilizar el visor vigente solo
 
 ### Requirement: Fallo cerrado
 
-El sistema SHALL bloquear la vista si el mediador, B10, gate o proveedor no están disponibles. Origen: D-05, RQ-05.
+El sistema SHALL bloquear la vista si el mediador, B10, el contexto autenticado o el proveedor no están disponibles. Origen: D-05, RQ-05.
 
 #### Scenario: Dependencia ausente
 

@@ -16,7 +16,7 @@
     function failureState(code, states) {
         if (/FORBIDDEN|UNAUTHORIZED|NOT_AUTHORIZED/.test(code)) { return states.unauthorized; }
         if (/EXPIR/.test(code)) { return states.expired; }
-        if (/FEATURE_DISABLED|BLOCKED|B10/.test(code)) { return states.blocked; }
+        if (/BLOCKED|B10/.test(code)) { return states.blocked; }
         return states.unavailable;
     }
 

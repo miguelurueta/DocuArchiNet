@@ -64,4 +64,4 @@ El sistema SHALL conservar evidencia automatizada y E2E saneada, conforme a D-08
 
 #### Scenario: Verificación
 - **WHEN** valida DOC-70
-- **THEN** suites, build, SELECT y telemetría demuestran contrato, cero SII y gate restaurado
+- **THEN** suites, build, SELECT y telemetría demuestran contrato, cero SII y ausencia de cambios de rollout

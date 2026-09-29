@@ -60,14 +60,14 @@ El sistema SHALL autorizar y mediar cada preview con expiración, tipo, tamaño,
 - **WHEN** el contexto no autoriza el recurso o el descriptor expiró
 - **THEN** se rechaza sin descargar ni revelar ruta física o secretos
 
-### Requirement: RQ-07 Gate de servidor (D-07)
+### Requirement: RQ-07 Contexto autenticado de servidor (D-07)
 
-El sistema SHALL evaluar `WorkflowCentroTrabajoModernActive` en servidor antes de ejecutar rutas modernas.
+El sistema SHALL validar en servidor una sesión Workflow o Gestión autenticada y un contexto Workflow válido antes de ejecutar rutas modernas. La disponibilidad oficial no SHALL depender de configuración de rollout, usuarios o grupos piloto.
 
-#### Scenario: Gate apagado
+#### Scenario: Contexto inválido
 
-- **WHEN** el gate está desactivado
-- **THEN** responde `FEATURE_DISABLED` sin invocar proveedor, preview, orquestador o almacenamiento
+- **WHEN** la sesión no está autenticada o el contexto Workflow no es válido
+- **THEN** responde un rechazo de autorización sin invocar proveedor, preview, orquestador o almacenamiento
 
 ### Requirement: RQ-08 Persistencia coordinada (D-08)
 

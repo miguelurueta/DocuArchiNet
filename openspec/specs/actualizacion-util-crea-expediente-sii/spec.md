@@ -78,4 +78,4 @@ El sistema SHALL mantener evidencia automatizada y E2E saneada de ambas ramas, c
 
 #### Scenario: Verificación final
 - **WHEN** se valida DOC-71
-- **THEN** pruebas y controles SELECT demuestran efectos esperados y gate restaurado
+- **THEN** pruebas y controles SELECT demuestran efectos esperados y ausencia de cambios de rollout

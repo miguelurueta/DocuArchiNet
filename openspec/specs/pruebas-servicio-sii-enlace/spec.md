@@ -15,7 +15,7 @@ El sistema SHALL mantener un inventario versionado que relacione riesgos y condi
 - **THEN** la validación falla indicando el riesgo y la referencia ausente
 
 ### Requirement: RQ-02 Regresión determinista integral
-El sistema SHALL validar localmente capacidad, contexto ENLASE, consulta, preview, preparación, tipología, intención, reconciliación, lista documental, cambio de tarea, asignación explícita, accesibilidad, gate y legacy.
+El sistema SHALL validar localmente capacidad, contexto ENLASE, consulta, preview, preparación, tipología, intención, reconciliación, lista documental, cambio de tarea, asignación explícita, accesibilidad y autorización.
 
 #### Scenario: Suite afectada
 - **WHEN** se ejecuta la batería DOC-83
@@ -80,22 +80,22 @@ El sistema SHALL demostrar que una selección individual o múltiple usa una int
 - **THEN** la interfaz no crea una fila parcial, mantiene visible el resultado y no invoca interacciones heredadas con gabinete vacío
 
 
-### Requirement: RQ-05 Gate reversible y legacy disponible
-El sistema SHALL usar el gate existente, publicarlo activo globalmente en despliegues `Release`, sin audiencias de usuario o grupo, y conservar el recorrido legacy cuando el gate esté apagado en la configuración base reversible.
+### Requirement: RQ-05 Versión oficial y reversa disponible
+El sistema SHALL publicar la capacidad como oficial en despliegues `Release`, sin configuración de rollout ni audiencias de usuario o grupo, y permitir reversa por control de versiones.
 
 #### Scenario: Activación oficial transversal
 - **WHEN** se aplica la transformación `Web.Release.config`
-- **THEN** `WorkflowCentroTrabajoModernActive` queda en `true`, usuarios y grupos permanecen vacíos y toda sesión Workflow válida puede usar la capacidad sin filtros por identidad o grupo
+- **THEN** no se agregan claves de rollout y toda sesión Workflow válida puede usar la capacidad sin filtros por identidad o grupo
 
 #### Scenario: Finalización normal o fallida
-- **WHEN** termina o se interrumpe cualquier corrida que habilitó temporalmente el gate
-- **THEN** el gate queda en `false`, usuarios y grupos vacíos y la integridad legacy coincide con la línea base
+- **WHEN** termina o se interrumpe cualquier corrida autorizada
+- **THEN** no quedan cambios de configuración de rollout y la integridad coincide con la línea base
 
 #### Scenario: Aceptación visual manual controlada
-- **WHEN** un responsable autoriza ambiente, gate, ejecución y recurso descartable para comprobar la proyección inmediata ENLASE
-- **THEN** el runner abre una sesión autenticada visible, espera que WebForms quede estable, abre la ventana moderna y exige una lista SII importable antes de tomar la línea base; luego limita la inspección a diez minutos, exige una llamada real al inserter y una fila nueva sin recarga ni postback, valida una interacción sin error, captura los controles registrados y restaura el gate en `finally`
-#### Scenario: Gate apagado
-- **WHEN** la funcionalidad moderna no está habilitada
+- **WHEN** un responsable autoriza ambiente, ejecución y recurso descartable para comprobar la proyección inmediata ENLASE
+- **THEN** el runner abre una sesión autenticada visible, espera que WebForms quede estable, abre la ventana moderna y exige una lista SII importable antes de tomar la línea base; luego limita la inspección a diez minutos, exige una llamada real al inserter y una fila nueva sin recarga ni postback, valida una interacción sin error y captura los controles registrados
+#### Scenario: Contexto no autorizado
+- **WHEN** la sesión o el contexto Workflow no son válidos
 - **THEN** no se registra el bootstrap moderno y los handlers legacy continúan disponibles
 
 ### Requirement: RQ-06 Autorización y acceso negativo
@@ -131,6 +131,5 @@ El sistema SHALL impedir el cierre completo mientras falte una prueba obligatori
 - **THEN** se registra el bloqueo sin declarar validación completa ni sustituir la integración real por mocks
 
 #### Scenario: Matriz satisfecha
-- **WHEN** pruebas, build, E2E aplicables, gate, legacy, persistencia, idempotencia, tarea, asignación, evidencia y documentación cumplen la matriz
+- **WHEN** pruebas, build, E2E aplicables, autorización, persistencia, idempotencia, tarea, asignación, evidencia y documentación cumplen la matriz
 - **THEN** DOC-83 puede continuar por validación, archivo, publicación y cierre exclusivamente mediante OPSXJ
-
