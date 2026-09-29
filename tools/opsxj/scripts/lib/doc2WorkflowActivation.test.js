@@ -258,7 +258,6 @@ describe("DOC-2 workflow visual activation", () => {
     [
       "Continuar flujo",
       "Elegir actividad anterior",
-      "js/workflow/Webworkflow.js?v=20260903-doc45-empty-ready1",
       "workflow-centro-trabajo-moderno.css",
       'aria-label="Seleccionar todos los documentos"',
       'role="status" aria-live="polite"',
@@ -266,6 +265,7 @@ describe("DOC-2 workflow visual activation", () => {
       'aria-label="Abrir detalle del radicado"',
       'id="ctw-workflow-route-modal-title"',
     ].forEach((marker) => expect(page).toContain(marker));
+    expect(page).toMatch(/js\/workflow\/Webworkflow\.js\?v=[A-Za-z0-9._-]+/);
     expect(page).toMatch(/centro-trabajo-visual\.js\?v=[A-Za-z0-9._-]+/);
     expect(workflowScript).toContain("actualiza_titulo_lista_actividades_workflow");
     expect(workflowScript).not.toContain("Se abrirá la lista de actividades anteriores para elegir el destino de la devolución.");
