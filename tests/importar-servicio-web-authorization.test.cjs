@@ -32,6 +32,7 @@ test("ENLASE valida tarea abierta por ruta sin exigir asignacion previa", () => 
     assert.match(sql, /FECHA_FIN IS NULL/);
     assert.match(sql, /ESTADO_TAREA=0/);
     assert.doesNotMatch(sql, /ID_USUARIO|FECHA_SELECCION/);
+    assert.doesNotMatch(sql, /NOT EXISTS|MAX\s*\(|HISTOR/i);
   });
   assert.match(source, /ID_USUARIO=@idUsuario AND FECHA_SELECCION IS NOT NULL/);
 });

@@ -14,6 +14,12 @@ test("mapea registration del contrato SII como inscripción visible", () => {
   assert.equal(response.items[0].importable, true);
 });
 
+test("un antecedente confirmado habilita reimportación explícita sin confundirse con un documento nuevo", () => {
+  const response = mapper.mapResponse({ Items: [{ ExternalKey: "anexo-existente", DisplayName: "Recibo", ImportStatus: "Importado", AllowedActions: ["View", "Reimport"] }] });
+  assert.equal(response.items[0].importable, true);
+  assert.equal(response.items[0].reimportable, true);
+});
+
 test("rechaza respuesta o item sin forma mínima", () => {
   assert.throws(() => mapper.mapResponse({ Error: { Codigo: "SERVER_BARCODE_UNAVAILABLE" }, Items: [] }), /SERVER_BARCODE_UNAVAILABLE/);
   assert.throws(() => mapper.mapResponse({}), /SII_QUERY_RESPONSE_INVALID/);

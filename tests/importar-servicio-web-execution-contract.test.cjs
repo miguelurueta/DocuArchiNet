@@ -20,6 +20,19 @@ test('Execute proyecta solamente documentos confirmados para el frontend', () =>
   assert.match(reconciliation, /ProtectUnconfirmedExecution[\s\S]*DocumentId=Nothing[\s\S]*DocumentName=Nothing[\s\S]*ContentType=Nothing/);
 });
 
+test('la proyección autoritativa ENLASE conserva el DTO efímero solo para el mismo ítem documento y tarea', () => {
+  assert.match(reconciliation,/ProjectExecutionResult[\s\S]*PreserveExecutionProjection\(context, execution, item\)/);
+  assert.match(reconciliation,/Not String\.Equals\(context\.Capability, SiiImportProvider\.AnnexesEnlaseCapability/);
+  assert.match(reconciliation,/authoritative\.Status, "Disponible"/);
+  assert.match(reconciliation,/candidate\.DocumentId\.Value <> authoritative\.DocumentId\.Value/);
+  assert.match(reconciliation,/candidate\.TaskId <> authoritative\.TaskId/);
+  assert.match(reconciliation,/candidate\.ClientItemId, authoritative\.ClientItemId/);
+  assert.match(reconciliation,/candidate\.ExternalKey, authoritative\.ExternalKey/);
+  assert.match(reconciliation,/projection\.DocumentId <> authoritative\.DocumentId\.Value/);
+  assert.match(reconciliation,/projection\.TaskId <> authoritative\.TaskId/);
+  assert.match(reconciliation,/authoritative\.EnlaseProjection = projection/);
+});
+
 test('la transicion usa parametros, transaccion y version optimista', () => {
   assert.match(repo, /Function ActualizarTransicion/);
   assert.match(repo, /version_token=@oldVersion/);

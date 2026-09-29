@@ -24,12 +24,25 @@
         return "No procesada";
     }
 
+    function mapProjection(value) {
+        value = value || {};
+        if (!value.CabinetName && !value.cabinetName) { return null; }
+        return {
+            cabinetName: text(value.CabinetName || value.cabinetName), documentId: Number(value.DocumentId || value.documentId) || 0,
+            radicado: text(value.Radicado || value.radicado), storageType: text(value.StorageType || value.storageType),
+            documentName: text(value.DocumentName || value.documentName), taskId: Number(value.TaskId || value.taskId) || 0,
+            signatureStatus: Number(value.SignatureStatus !== undefined ? value.SignatureStatus : value.signatureStatus) || 0,
+            iconClass: text(value.IconClass || value.iconClass)
+        };
+    }
+
     function mapItem(item) {
         item = item || {};
         return {
             clientItemId: text(item.ClientItemId), externalKey: text(item.ExternalKey), backendPhase: text(item.Status || item.ReachedPhase),
             visibleState: visibleState(item), message: text(item.Message), errorCode: text(item.ErrorCode), documentId: item.DocumentId || null,
             taskId: Number(item.TaskId) || 0, documentName: text(item.DocumentName), contentType: text(item.ContentType),
+            enlaseProjection: mapProjection(item.EnlaseProjection || item.enlaseProjection),
             persistenceKnown: item.PersistenceKnown === true, retryable: item.Retryable === true, correlationId: text(item.CorrelationId)
         };
     }

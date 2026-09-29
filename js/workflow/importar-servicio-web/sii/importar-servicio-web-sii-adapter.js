@@ -2,8 +2,8 @@
     "use strict";
     var canonicalId = "INTEGRACIONSII";
     function text(value) { return value == null ? "" : String(value); }
-    function appendCell(row, value, className) { var cell = row.ownerDocument.createElement("td"); cell.textContent = text(value) || "—"; if (className) { cell.className = className; } row.appendChild(cell); }
-    function appendHeader(row, value, className) { var header = row.ownerDocument.createElement("th"); header.scope = "col"; header.textContent = value; if (className) { header.className = className; } row.appendChild(header); }
+    function appendCell(row, value, className) { var cell = row.ownerDocument.createElement("td"), fullText = text(value); cell.textContent = fullText || "—"; cell.className = "importar-servicio-web-sii__data-cell" + (className ? " " + className : ""); if (fullText) { cell.title = fullText; } row.appendChild(cell); }
+    function appendHeader(row, value, className) { var header = row.ownerDocument.createElement("th"); header.scope = "col"; header.textContent = value; header.className = "importar-servicio-web-sii__data-heading" + (className ? " " + className : ""); row.appendChild(header); }
     function create(options) {
         options = options || {};
         var api = options.api, mapper = options.mapper || root.ImportarServicioWebSiiContractMapper, model = options.list || root.ImportarServicioWebSiiList, contextFactory = options.contextFactory || function () { return {}; }, list;
@@ -18,7 +18,7 @@
                     return api.queryItems(context);
                 }).then(function (response) {
                     var mapped = mapper.mapResponse(response), snapshot = list.replace(mapped.items);
-                    return { Items: snapshot.items, DocumentTypes: (resolvedCapabilities && resolvedCapabilities.DocumentTypes) || [], ContinuationToken: mapped.continuationToken, Radicado: text(response && response.Radicado) };
+                    return { Items: snapshot.items, DocumentTypes: (resolvedCapabilities && resolvedCapabilities.DocumentTypes) || [], DocumentTypeRequired: !resolvedCapabilities || resolvedCapabilities.DocumentTypeRequired !== false, ContinuationToken: mapped.continuationToken, Radicado: text(response && response.Radicado) };
                 });
             },
             renderItems: function (container, data) {
@@ -35,16 +35,17 @@
                 selectAllHeader.scope = "col"; selectAllHeader.className = "importar-servicio-web-sii__select-heading";
                 selectAll.type = "checkbox"; selectAll.disabled = !items.some(function (item) { return item.importable; }); selectAll.setAttribute("data-import-select-all", "true"); selectAll.setAttribute("aria-label", "Seleccionar o deseleccionar todas las inscripciones disponibles");
                 selectAllLabel.textContent = "Seleccionar"; selectAllHeader.appendChild(selectAll); selectAllHeader.appendChild(selectAllLabel); headerRow.appendChild(selectAllHeader);
-                ["Libro", "Inscripción", "Fecha", "Naturaleza / acto", "Noticia", "Referencia", "Estado"].forEach(function (label) { appendHeader(headerRow, label); });
+                var columns = [{ label: "Libro", field: "book", className: "importar-servicio-web-sii__column--book" }, { label: "Inscripción", field: "inscription", className: "importar-servicio-web-sii__column--inscription" }, { label: "Fecha", field: "date", className: "importar-servicio-web-sii__column--date" }, { label: "Naturaleza / acto", field: "act", className: "importar-servicio-web-sii__column--act" }, { label: "Noticia", field: "news", className: "importar-servicio-web-sii__column--news" }, { label: "Referencia", field: "reference", className: "importar-servicio-web-sii__column--reference" }, { label: "Estado", field: "importStatus", className: "importar-servicio-web-sii__column--state" }];
+                columns.forEach(function (column) { appendHeader(headerRow, column.label, column.className); });
                 appendHeader(headerRow, "Acciones", "importar-servicio-web-sii__actions-heading"); head.appendChild(headerRow);
                 items.forEach(function (item) {
                     var row = doc.createElement("tr"), selectCell = doc.createElement("td"), select = doc.createElement("input"), preview = doc.createElement("button"), prepare = doc.createElement("button"), actions = doc.createElement("div"), actionCell = doc.createElement("td");
                     row.setAttribute("data-external-key", text(item.externalKey)); row.setAttribute("data-internal-document-id", text(item.internalDocumentId));
                     select.type = "checkbox"; select.disabled = !item.importable; select.setAttribute("data-import-select", "true"); select.setAttribute("data-external-key", text(item.externalKey)); select.setAttribute("aria-label", "Seleccionar " + text(item.displayName));
                     selectCell.className = "importar-servicio-web-sii__select-cell"; selectCell.appendChild(select); row.appendChild(selectCell);
-                    [item.book, item.inscription, item.date, item.act, item.news, item.reference, item.importStatus].forEach(function (column, index) { appendCell(row, column, index === 4 ? "importar-servicio-web-sii__news" : (index === 6 ? "importar-servicio-web-sii__state" : "")); });
+                    columns.forEach(function (column) { appendCell(row, item[column.field], column.className + (column.field === "news" ? " importar-servicio-web-sii__news" : (column.field === "importStatus" ? " importar-servicio-web-sii__state" : ""))); });
                     preview.type = "button"; preview.className = "importar-servicio-web-sii__preview"; preview.setAttribute("data-import-preview", "true"); preview.setAttribute("data-external-key", text(item.externalKey)); preview.setAttribute("data-internal-document-id", text(item.internalDocumentId)); preview.textContent = "Vista previa";
-                    prepare.type = "button"; prepare.className = "importar-servicio-web-sii__prepare"; prepare.disabled = !item.importable; prepare.setAttribute("data-import-prepare", "true"); prepare.setAttribute("data-external-key", text(item.externalKey)); prepare.textContent = "Preparar"; if (prepare.disabled) { prepare.title = "No disponible: " + (text(item.importStatus) || "estado sin determinar"); }
+                    prepare.type = "button"; prepare.className = "importar-servicio-web-sii__prepare"; prepare.disabled = !item.importable; prepare.setAttribute("data-import-prepare", "true"); prepare.setAttribute("data-external-key", text(item.externalKey)); prepare.textContent = item.reimportable ? "Reimportar" : "Preparar"; if (prepare.disabled) { prepare.title = "No disponible: " + (text(item.importStatus) || "estado sin determinar"); }
                     actions.className = "importar-servicio-web-sii__row-actions"; actions.appendChild(preview); actions.appendChild(prepare); actionCell.className = "importar-servicio-web-sii__actions-cell"; actionCell.appendChild(actions); row.appendChild(actionCell); body.appendChild(row);
                 });
                 table.appendChild(caption); table.appendChild(head); table.appendChild(body); scroll.appendChild(table); container.appendChild(scroll);

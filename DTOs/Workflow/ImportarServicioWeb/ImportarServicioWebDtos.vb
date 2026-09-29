@@ -52,6 +52,7 @@ End Class
     Public Property ContextAllowed As Boolean
     Public Property Capabilities As IList(Of ProviderCapabilityDto)
     Public Property DocumentTypes As IList(Of ImportDocumentTypeDto)
+    Public Property DocumentTypeRequired As Boolean
 End Class
 
 <Serializable()> Public Class ImportDocumentTypeDto
@@ -138,6 +139,9 @@ End Class
     Public Property DocumentTypeName As String
     Public Property FileName As String
     Public Property ContentType As String
+    ' Confirmación explícita del usuario para volver a importar la misma identidad externa.
+    ' Una segunda ExternalKey del mismo tipo documental no requiere esta marca.
+    Public Property ReimportRequested As Boolean
 End Class
 
 <Serializable()> Public Class PreflightImportRequestDto
@@ -200,6 +204,18 @@ End Class
     Public Property ContentType As String
     Public Property EvidenceStatus As String
     Public Property RecoveryAllowed As Boolean
+    Public Property EnlaseProjection As ImportEnlaseDocumentProjectionDto
+End Class
+
+<Serializable()> Public Class ImportEnlaseDocumentProjectionDto
+    Public Property CabinetName As String
+    Public Property DocumentId As Long
+    Public Property Radicado As String
+    Public Property StorageType As String
+    Public Property DocumentName As String
+    Public Property TaskId As Long
+    Public Property SignatureStatus As Integer
+    Public Property IconClass As String
 End Class
 
 <Serializable()> Public Class PreflightImportResponseDto

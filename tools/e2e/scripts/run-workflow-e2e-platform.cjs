@@ -7,6 +7,7 @@ const { chromium, request } = require('playwright');
 const {
   collectConfirmation,
   collectValue,
+  promptWithTimeout,
   requireInteractiveConsole
 } = require('./support/interactive-e2e-console.cjs');
 const { queryFingerprint } = require('./support/doc32-e2e-odbc.cjs');
@@ -162,7 +163,8 @@ async function selectWorkflowTask(page, plan) {
       timeout: Math.min(plan.profile.budgetMs, 60000)
     });
     const expectedTaskId = String(taskId);
-    if (['import-sii-enlase-read', 'import-sii-enlase-ui', 'import-sii-enlase-execution'].includes(plan.scenario.id)) {
+    if (['import-sii-enlase-read', 'import-sii-enlase-ui', 'import-sii-enlase-layout-review', 'import-sii-enlase-execution', 'import-sii-enlase-manual-visual'].includes(plan.scenario.id) ||
+        plan.scenario.id === 'import-sii-enlase-assignment') {
       const enlaceSelection = page.locator('#HiddenIdFlujo');
       await enlaceSelection.waitFor({ state: 'attached', timeout: Math.min(plan.profile.budgetMs, 60000) });
       const isExpectedEnlase = (value) => {
@@ -257,6 +259,353 @@ async function initializeWorkflowContext(context, plan) {
   return context;
 }
 
+async function inspectEnlaseAssignmentUi({ context, plan }) {
+  const page = await context.newPage();
+  let dialogObserved = false;
+  const onDialog = async (dialog) => {
+    dialogObserved = true;
+    await dialog.dismiss().catch(() => {});
+  };
+  page.on('dialog', onDialog);
+  try {
+    await selectWorkflowTask(page, plan);
+    const timeout = Math.min(plan.profile.budgetMs, 60000);
+    const panel = page.locator('#Panel_admon_documentos');
+    const action = page.locator('#enlase-assign-action:visible');
+    const officialButton = page.locator('#Buttonaceptar');
+    await panel.waitFor({ state: 'visible', timeout });
+    await action.waitFor({ state: 'visible', timeout });
+    if (await action.getAttribute('data-import-context-action') !== 'true' ||
+        await officialButton.getAttribute('data-import-context-action') !== 'true') {
+      fail('IMPORT_E2E_ENLASE_ASSIGNMENT_ACTION_INVALID');
+    }
+    const postback = page.waitForResponse((response) =>
+      response.request().method() === 'POST' && /\/workflow\/Webworkflow\.aspx(?:\?|$)/i.test(response.url()),
+    { timeout });
+    await action.click();
+    const response = await postback.catch(() => fail('IMPORT_E2E_ENLASE_ASSIGNMENT_POSTBACK_UNAVAILABLE'));
+    if (!response.ok()) fail('IMPORT_E2E_ENLASE_ASSIGNMENT_POSTBACK_FAILED');
+    await page.waitForFunction(() => {
+      const button = document.querySelector('#Buttonaceptar');
+      return button && button.disabled === false && !/espere/i.test(String(button.value || ''));
+    }, null, { timeout }).catch(() => fail('IMPORT_E2E_ENLASE_ASSIGNMENT_RESULT_UNAVAILABLE'));
+    await page.waitForTimeout(250);
+    const panelVisible = await panel.isVisible();
+    const assignmentResult = panelVisible ? 'BLOCKED' : 'ASSIGNED';
+    if (assignmentResult === 'BLOCKED' && !dialogObserved) {
+      fail('IMPORT_E2E_ENLASE_ASSIGNMENT_BLOCK_REASON_UNAVAILABLE');
+    }
+    return Object.freeze({
+      codes: Object.freeze({ assignmentResult, authoritativeValidation: 'CONFIRMED' }),
+      count: 1,
+      latenciesMs: Object.freeze([])
+    });
+  } finally {
+    page.off('dialog', onDialog);
+    await page.close();
+  }
+}
+
+async function confirmManualVisual(label, deadline) {
+  const remaining = deadline - Date.now();
+  if (remaining <= 0) fail('IMPORT_E2E_MANUAL_VISUAL_TIMEOUT');
+  const confirmation = await promptWithTimeout(`${label} (escriba SI)`, remaining);
+  if (confirmation === null) fail('IMPORT_E2E_MANUAL_VISUAL_TIMEOUT');
+  if (String(confirmation).toUpperCase() !== 'SI') fail('IMPORT_E2E_MANUAL_VISUAL_REJECTED');
+}
+
+function validateManualVisualRows(rows, taskId, projectionCount) {
+  const added = (Array.isArray(rows) ? rows : []).filter((row) => row && String(row.id || '').trim());
+  if (!Number.isInteger(projectionCount) || projectionCount < 1) fail('IMPORT_E2E_MANUAL_VISUAL_PROJECTION_NOT_OBSERVED');
+  if (added.length === 0) fail('IMPORT_E2E_MANUAL_VISUAL_ROW_UNAVAILABLE');
+  for (const row of added) {
+    const id = String(row.id || '').trim();
+    const parts = String(row.contract || '').split('|').map((part) => part.trim());
+    if (!/^\d+$/.test(id) || Number(id) <= 0 || parts.length < 8 || parts.slice(0, 8).some((part) => !part) ||
+        parts[1] !== id || Number(parts[5]) !== Number(taskId) || !/^-?\d+$/.test(parts[6])) {
+      fail('IMPORT_E2E_MANUAL_VISUAL_ROW_CONTRACT_INVALID');
+    }
+  }
+  return added.length;
+}
+
+async function inspectEnlaseManualVisual({ context, plan }) {
+  requireInteractiveConsole();
+  const page = await context.newPage();
+  const deadline = Date.now() + Math.min(plan.profile.budgetMs, 600000);
+  const marker = `doc83-${Date.now()}`;
+  let dialogObserved = false;
+  const onDialog = async (dialog) => {
+    dialogObserved = true;
+    await dialog.dismiss().catch(() => {});
+  };
+  page.on('dialog', onDialog);
+  try {
+    await selectWorkflowTask(page, plan);
+    await page.bringToFront();
+    const timeout = Math.min(plan.profile.budgetMs, 60000);
+    await page.waitForFunction(() => {
+      const manager = window.Sys && window.Sys.WebForms && window.Sys.WebForms.PageRequestManager
+        ? window.Sys.WebForms.PageRequestManager.getInstance() : null;
+      return !manager || !manager.get_isInAsyncPostBack();
+    }, null, { timeout }).catch(() => fail('IMPORT_E2E_MANUAL_VISUAL_UI_NOT_STABLE'));
+    const trigger = page.locator('#a_adj_service_web');
+    await trigger.waitFor({ state: 'visible', timeout });
+    await page.waitForFunction(() => {
+      const candidate = document.getElementById('a_adj_service_web');
+      return candidate && candidate.getAttribute('data-import-modern-active') === 'true' &&
+        candidate.getAttribute('data-import-modern-bound') === 'true';
+    }, null, { timeout }).catch(() => fail('IMPORT_E2E_MANUAL_VISUAL_BOOTSTRAP_INACTIVE'));
+    await trigger.click();
+    const modal = page.locator('#importar-servicio-web-modal');
+    await modal.waitFor({ state: 'visible', timeout });
+    await page.locator('#importar-servicio-web-modal[data-import-state=resultados]').waitFor({ state: 'visible', timeout })
+      .catch(() => fail('IMPORT_E2E_MANUAL_VISUAL_ITEMS_UNAVAILABLE'));
+    const importActions = page.locator('[data-import-prepare=true]:visible:not([disabled])');
+    const importActionCount = await importActions.count();
+    if (importActionCount < 1) fail('IMPORT_E2E_MANUAL_VISUAL_ITEMS_UNAVAILABLE');
+    const rows = page.locator('#GridView_list_documento_relacion tr[id_rad]');
+    const baseline = await page.evaluate((value) => {
+      const resolveGrid = () => document.getElementById('GridView_list_documento_relacion');
+      const grid = resolveGrid();
+      const originalInsert = window.insert_row_documento_relacionado;
+      if (!grid) return { ready: false, code: 'GRID_UNAVAILABLE', initialRowCount: 0 };
+      if (typeof originalInsert !== 'function') return { ready: false, code: 'INSERTER_UNAVAILABLE', initialRowCount: 0 };
+      const initialRows = Array.prototype.slice.call(grid.querySelectorAll('tr[id_rad]'));
+      window.__doc83ManualVisualMarker = value;
+      window.__doc83ManualVisualProjectionCount = 0;
+      window.__doc83ManualVisualProjectionRows = [];
+      window.__doc83ManualVisualPostbackCount = 0;
+      window.__doc83ManualVisualPostbackKinds = [];
+      const manager = window.Sys && window.Sys.WebForms && window.Sys.WebForms.PageRequestManager
+        ? window.Sys.WebForms.PageRequestManager.getInstance() : null;
+      if (manager) manager.add_beginRequest(function (sender, args) {
+        const element = args && typeof args.get_postBackElement === 'function' ? args.get_postBackElement() : null;
+        const id = String(element && element.id || '');
+        let kind = 'UNKNOWN';
+        if (id === 'Button_actualiza_trevie_seleccion') kind = 'DOCUMENT_REFRESH';
+        else if (/selecion_treview_documento|visualiza_documento|visor/i.test(id)) kind = 'DOCUMENT_INTERACTION';
+        else if (id) kind = 'OTHER_CONTROL';
+        window.__doc83ManualVisualPostbackCount += 1;
+        window.__doc83ManualVisualPostbackKinds.push(kind);
+      });
+      window.insert_row_documento_relacionado = function () {
+        const currentGrid = resolveGrid();
+        const beforeIds = currentGrid ? Array.prototype.map.call(currentGrid.querySelectorAll('tr[id_rad]'), function (row) {
+          return String(row.getAttribute('id_rad') || '').trim();
+        }) : [];
+        const destination = String(arguments[1] || '');
+        const result = originalInsert.apply(this, arguments);
+        const liveGrid = resolveGrid();
+        const addedRows = liveGrid ? Array.prototype.filter.call(liveGrid.querySelectorAll('tr[id_rad]'), function (row) {
+          return beforeIds.indexOf(String(row.getAttribute('id_rad') || '').trim()) < 0;
+        }) : [];
+        if (destination === 'rad' && addedRows.length) {
+          window.__doc83ManualVisualProjectionCount += addedRows.length;
+          addedRows.forEach(function (row) {
+            window.__doc83ManualVisualProjectionRows.push({
+              id: String(row.getAttribute('id_rad') || '').trim(),
+              contract: String(row.getAttribute('idd_rad') || '').trim()
+            });
+          });
+        }
+        return result;
+      };
+      return { ready: true, code: 'READY', initialRowCount: initialRows.length };
+    }, marker);
+    if (!baseline.ready) fail(`IMPORT_E2E_MANUAL_VISUAL_${baseline.code}`);
+    console.log(`DOC83_MANUAL_VISUAL_READY initialRows=${baseline.initialRowCount}; siiActions=${importActionCount}. La lista SII está cargada. Use Importar/Reimportar y NO recargue; confirme únicamente cuando aparezca una fila nueva.`);
+    await confirmManualVisual('¿Confirma que la fila apareció inmediatamente sin recargar?', deadline);
+    if (page.isClosed()) fail('IMPORT_E2E_MANUAL_VISUAL_BROWSER_CLOSED');
+    const markerPreserved = await page.evaluate((value) => window.__doc83ManualVisualMarker === value, marker).catch(() => false);
+    if (!markerPreserved) fail('IMPORT_E2E_MANUAL_VISUAL_RELOAD_DETECTED');
+    const modalVisible = await modal.isVisible().catch(() => true);
+    if (modalVisible) fail('IMPORT_E2E_MANUAL_VISUAL_RESULT_NOT_CLOSED');
+    const observed = await page.evaluate(() => ({
+      projectionCount: Number(window.__doc83ManualVisualProjectionCount) || 0,
+      postbackCount: Number(window.__doc83ManualVisualPostbackCount) || 0,
+      postbackKinds: Array.isArray(window.__doc83ManualVisualPostbackKinds) ? window.__doc83ManualVisualPostbackKinds.slice(0, 5) : [],
+      rows: Array.isArray(window.__doc83ManualVisualProjectionRows) ? window.__doc83ManualVisualProjectionRows.slice(0) : []
+    }));
+    const addedCount = validateManualVisualRows(observed.rows, plan.profile.taskId, observed.projectionCount);
+    if (observed.postbackCount > 0) {
+      console.log(`DOC83_MANUAL_VISUAL_POSTBACK_DIAGNOSTIC count=${observed.postbackCount}; kinds=${observed.postbackKinds.join(',') || 'UNKNOWN'}; projectionCount=${observed.projectionCount}; addedRows=${observed.rows.length}`);
+      fail('IMPORT_E2E_MANUAL_VISUAL_POSTBACK_OBSERVED');
+    }
+    if (dialogObserved) fail('IMPORT_E2E_MANUAL_VISUAL_DIALOG_OBSERVED');
+    dialogObserved = false;
+    console.log('DOC83_MANUAL_VISUAL_ROW_CONFIRMED. Abra una vez el documento recién agregado y verifique que no aparezca un error.');
+    await confirmManualVisual('¿Confirma que el documento abrió sin error?', deadline);
+    if (page.isClosed()) fail('IMPORT_E2E_MANUAL_VISUAL_BROWSER_CLOSED');
+    if (dialogObserved) fail('IMPORT_E2E_MANUAL_VISUAL_INTERACTION_FAILED');
+    return Object.freeze({
+      codes: Object.freeze({ manualVisual: 'CONFIRMED', gridProjection: 'CONFIRMED', rowInteraction: 'CONFIRMED' }),
+      count: addedCount,
+      latenciesMs: Object.freeze([])
+    });
+  } finally {
+    page.off('dialog', onDialog);
+    await page.close().catch(() => {});
+  }
+}
+async function inspectEnlaseLayoutReview({ context, plan }) {
+  requireInteractiveConsole();
+  const page = await context.newPage();
+  const deadline = Date.now() + Math.min(plan.profile.budgetMs, 600000);
+  let mutationRequests = 0;
+  const onRequest = (request) => {
+    if (/WebServiceImportarServicioWebModern\.asmx\/(?:CreateImportIntent|ExecuteImportIntent)(?:\?|$)/i.test(request.url())) mutationRequests += 1;
+  };
+  page.on('request', onRequest);
+  try {
+    await page.setViewportSize({ width: 1100, height: 800 });
+    await selectWorkflowTask(page, plan);
+    await page.bringToFront();
+    const timeout = Math.min(plan.profile.budgetMs, 60000);
+    await page.waitForFunction(() => {
+      const manager = window.Sys && window.Sys.WebForms && window.Sys.WebForms.PageRequestManager
+        ? window.Sys.WebForms.PageRequestManager.getInstance() : null;
+      return !manager || !manager.get_isInAsyncPostBack();
+    }, null, { timeout }).catch(() => fail('IMPORT_E2E_LAYOUT_REVIEW_UI_NOT_STABLE'));
+    const trigger = page.locator('#a_adj_service_web');
+    await trigger.waitFor({ state: 'visible', timeout });
+    await page.waitForFunction(() => {
+      const candidate = document.getElementById('a_adj_service_web');
+      return candidate && candidate.getAttribute('data-import-modern-active') === 'true' &&
+        candidate.getAttribute('data-import-modern-bound') === 'true';
+    }, null, { timeout }).catch(() => fail('IMPORT_E2E_LAYOUT_REVIEW_BOOTSTRAP_INACTIVE'));
+    await trigger.click();
+    const modal = page.locator('#importar-servicio-web-modal');
+    await modal.waitFor({ state: 'visible', timeout });
+    await page.locator('#importar-servicio-web-modal[data-import-state=resultados]').waitFor({ state: 'visible', timeout })
+      .catch(() => fail('IMPORT_E2E_LAYOUT_REVIEW_ITEMS_UNAVAILABLE'));
+    const tableScroll = page.locator('.importar-servicio-web-sii__table-scroll');
+    await tableScroll.waitFor({ state: 'visible', timeout });
+    const layout = await tableScroll.evaluate((element) => {
+      const dataCells = Array.from(element.querySelectorAll('td.importar-servicio-web-sii__data-cell'));
+      const actionCells = Array.from(element.querySelectorAll('td.importar-servicio-web-sii__actions-cell'));
+      const rows = Array.from(element.querySelectorAll('tbody tr'));
+      const scrollStyle = getComputedStyle(element);
+      const invalidDataCells = dataCells.filter((cell) => {
+        const style = getComputedStyle(cell);
+        const rect = cell.getBoundingClientRect();
+        const tableRect = element.querySelector('table')?.getBoundingClientRect();
+        return style.overflowX !== 'hidden' || style.textOverflow !== 'ellipsis' ||
+          rect.width <= 0 || !tableRect || rect.left < tableRect.left - 1 || rect.right > tableRect.right + 1;
+      }).length;
+      const invalidActionCells = actionCells.filter((cell) => {
+        const style = getComputedStyle(cell);
+        return style.position !== 'sticky' || /rgba?\(0,\s*0,\s*0,\s*0\)|transparent/i.test(style.backgroundColor);
+      }).length;
+      return {
+        rows: rows.length,
+        dataCells: dataCells.length,
+        truncatedCells: dataCells.filter((cell) => cell.scrollWidth > cell.clientWidth + 1).length,
+        invalidDataCells,
+        invalidActionCells,
+        overflowX: scrollStyle.overflowX,
+        overflowY: scrollStyle.overflowY,
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth
+      };
+    });
+    if (layout.rows < 1 || layout.dataCells < 1) fail('IMPORT_E2E_LAYOUT_REVIEW_ITEMS_UNAVAILABLE');
+    if (layout.invalidDataCells !== 0 || layout.invalidActionCells !== 0 ||
+        layout.overflowX !== 'auto' || layout.overflowY !== 'auto' || layout.clientWidth <= 0 || layout.scrollWidth < layout.clientWidth) {
+      fail('IMPORT_E2E_LAYOUT_REVIEW_CONTAINMENT_INVALID');
+    }
+    if (mutationRequests !== 0) fail('IMPORT_E2E_LAYOUT_REVIEW_MUTATION_OBSERVED');
+    console.log(`DOC83_LAYOUT_REVIEW_READY rows=${layout.rows}; dataCells=${layout.dataCells}; truncatedCells=${layout.truncatedCells}. Revise que los textos no se superpongan, que Acciones permanezca legible y que el desplazamiento ocurra dentro de la tabla.`);
+    await confirmManualVisual('¿Confirma que no hay textos superpuestos y que el scroll permanece dentro de la tabla?', deadline);
+    if (page.isClosed()) fail('IMPORT_E2E_LAYOUT_REVIEW_BROWSER_CLOSED');
+    if (mutationRequests !== 0) fail('IMPORT_E2E_LAYOUT_REVIEW_MUTATION_OBSERVED');
+
+    const selectAll = page.locator('[data-import-select-all="true"]');
+    const selectableCount = await page.locator('[data-import-select="true"]:visible:not([disabled])').count();
+    if (selectableCount < 2 || !await selectAll.isVisible()) fail('IMPORT_E2E_LAYOUT_REVIEW_MULTIPLE_ITEMS_UNAVAILABLE');
+    await selectAll.check();
+    await page.locator('[data-import-prepare-selected="true"]:visible:not([disabled])').click();
+    const preparation = page.locator('#importar-servicio-web-preparation');
+    await preparation.waitFor({ state: 'visible', timeout });
+    await page.waitForFunction(() => {
+      const confirm = document.getElementById('importar-servicio-web-preparation-confirm');
+      return confirm && confirm.disabled === false;
+    }, null, { timeout }).catch(() => fail('IMPORT_E2E_LAYOUT_REVIEW_PREPARATION_UNAVAILABLE'));
+    const preparationLayout = await preparation.evaluate((panel) => {
+      const items = panel.querySelector('#importar-servicio-web-preparation-items');
+      const actions = panel.querySelector('.importar-servicio-web__preparation-actions');
+      const confirm = panel.querySelector('#importar-servicio-web-preparation-confirm');
+      const cancel = panel.querySelector('#importar-servicio-web-preparation-cancel');
+      if (!items || !actions || !confirm || !cancel) return { valid: false, itemCount: 0 };
+      const panelRect = panel.getBoundingClientRect();
+      const actionsRect = actions.getBoundingClientRect();
+      const itemsStyle = getComputedStyle(items);
+      return {
+        valid: actionsRect.top >= panelRect.top - 1 && actionsRect.bottom <= panelRect.bottom + 1 &&
+          actionsRect.bottom <= window.innerHeight + 1 && confirm.offsetParent !== null && cancel.offsetParent !== null &&
+          itemsStyle.overflowY === 'auto',
+        itemCount: items.children.length
+      };
+    });
+    if (!preparationLayout.valid || preparationLayout.itemCount < 2) fail('IMPORT_E2E_LAYOUT_REVIEW_PREPARATION_ACTIONS_INVALID');
+    console.log(`DOC83_PREPARATION_REVIEW_READY items=${preparationLayout.itemCount}. Revise que Cancelar y Crear intención permanezcan visibles mientras desplaza únicamente la lista de documentos.`);
+    await confirmManualVisual('¿Confirma que los botones de preparación permanecen visibles y que no aparece el bloque Plan previsto?', deadline);
+    await page.locator('#importar-servicio-web-preparation-cancel').click();
+    await preparation.waitFor({ state: 'hidden', timeout });
+
+    const previewButton = page.locator('[data-import-preview="true"]:visible').first();
+    await previewButton.click();
+    const preview = page.locator('#importar-servicio-web-preview');
+    await page.locator('#importar-servicio-web-preview[data-preview-state="disponible"], #importar-servicio-web-preview[data-preview-state="formato-no-visualizable"]').waitFor({ state: 'visible', timeout })
+      .catch(() => fail('IMPORT_E2E_LAYOUT_REVIEW_PREVIEW_UNAVAILABLE'));
+    const previewLayout = await preview.evaluate((panel) => {
+      const back = panel.querySelector('#importar-servicio-web-preview-back');
+      const frame = panel.querySelector('#importar-servicio-web-preview-frame');
+      const list = document.getElementById('importar-servicio-web-list');
+      const style = getComputedStyle(panel);
+      const panelRect = panel.getBoundingClientRect();
+      const frameRect = frame && !frame.hidden ? frame.getBoundingClientRect() : null;
+      return {
+        valid: !!back && back.offsetParent !== null && !!list && list.hidden === true &&
+          style.display === 'flex' && style.flexDirection === 'column' && panelRect.bottom <= window.innerHeight + 1 &&
+          (!frameRect || (frameRect.top >= panelRect.top - 1 && frameRect.bottom <= panelRect.bottom + 1)),
+        frameVisible: !!frameRect
+      };
+    });
+    if (!previewLayout.valid) fail('IMPORT_E2E_LAYOUT_REVIEW_PREVIEW_ALIGNMENT_INVALID');
+    console.log(`DOC83_PREVIEW_REVIEW_READY frameVisible=${previewLayout.frameVisible ? 'SI' : 'NO'}. Revise que Volver a documentos esté visible y que el visor quede alineado verticalmente.`);
+    await confirmManualVisual('¿Confirma que puede volver a documentos y que el preview no presenta desajuste vertical?', deadline);
+    if (await preview.isVisible()) {
+      await page.locator('#importar-servicio-web-preview-back:visible').click();
+      await preview.waitFor({ state: 'hidden', timeout });
+    }
+    if (!await page.locator('#importar-servicio-web-list').isVisible()) fail('IMPORT_E2E_LAYOUT_REVIEW_LIST_NOT_RESTORED');
+    await page.locator('#importar-servicio-web-close').click();
+    await modal.waitFor({ state: 'hidden', timeout }).catch(() => fail('IMPORT_E2E_LAYOUT_REVIEW_CLOSE_INVALID'));
+    return Object.freeze({
+      codes: Object.freeze({ layoutReview: 'CONFIRMED', cellContainment: 'CONFIRMED', internalScroll: 'CONFIRMED', preparationActions: 'CONFIRMED', previewNavigation: 'CONFIRMED', mutations: 'NOT_OBSERVED' }),
+      count: layout.rows,
+      latenciesMs: Object.freeze([])
+    });
+  } finally {
+    page.off('request', onRequest);
+    await page.close().catch(() => {});
+  }
+}
+
+async function inspectWorkflowSession(options) {
+  if (options.plan.scenario.expectations.includes('manual-layout-review')) {
+    return inspectEnlaseLayoutReview(options);
+  }
+  if (options.plan.scenario.expectations.includes('manual-visual-execution')) {
+    return inspectEnlaseManualVisual(options);
+  }
+  if (options.plan.scenario.expectations.includes('explicit-assignment-ui')) {
+    return inspectEnlaseAssignmentUi(options);
+  }
+  return inspectImportPreviewUi(options);
+}
+
 async function inspectImportPreviewUi({ context, plan }) {
   const page = await context.newPage();
   const isEnlaseUi = plan.scenario.expectations.includes('enlase-ui');
@@ -264,7 +613,7 @@ async function inspectImportPreviewUi({ context, plan }) {
   let preflightRequests = 0;
   let mutationRequests = 0;
   let queryRequestsObserved = 0;
-  let queryContextInjected = 0;
+  let queryBarcodeSupplied = false;
   let queryContextMismatch = false;
   const queryRoute = /\/webservice\/WebServiceImportarServicioWebModern\.asmx\/QueryItems(?:\?|$)/i;
   const onRequest = (request) => {
@@ -284,15 +633,11 @@ async function inspectImportPreviewUi({ context, plan }) {
         return;
       }
       queryRequestsObserved += 1;
-      if (!payload.request.CodigoBarras) {
-        payload.request.CodigoBarras = plan.profile.codigoBarras;
-        queryContextInjected += 1;
-      } else if (String(payload.request.CodigoBarras) !== plan.profile.codigoBarras) {
-        queryContextMismatch = true;
-        await route.abort('blockedbyclient');
-        return;
+      if (payload.request.CodigoBarras) {
+        queryBarcodeSupplied = true;
+        if (String(payload.request.CodigoBarras) !== plan.profile.codigoBarras) queryContextMismatch = true;
       }
-      await route.continue({ postData: JSON.stringify(payload) });
+      await route.continue();
     });
     const trigger = page.locator(isEnlaseUi ? '#a_adj_service_web' : '#ctw-document-action-service');
     const triggerToggle = page.locator('.ctw-document-more-toggle:visible').first();
@@ -318,7 +663,7 @@ async function inspectImportPreviewUi({ context, plan }) {
     } catch {
       fail('IMPORT_E2E_PREVIEW_UI_RESULTS_UNAVAILABLE');
     }
-    if (queryRequestsObserved > 1 || queryContextInjected > 1 || queryContextMismatch) {
+    if (queryRequestsObserved > 1 || queryBarcodeSupplied || queryContextMismatch) {
       fail('IMPORT_E2E_PREVIEW_UI_QUERY_CONTEXT_INVALID');
     }
     if (await modal.getAttribute('data-import-state') !== 'resultados') {
@@ -352,16 +697,29 @@ async function inspectImportPreviewUi({ context, plan }) {
     const prepareButton = importablePreparationRows.first();
     await prepareButton.click();
     const preparation = page.locator('#importar-servicio-web-preparation');
+    if (!await preparation.isVisible()) {
+      const preparationStatus = await page.locator('#importar-servicio-web-status').textContent()
+        .then((value) => String(value || '').trim());
+      if (preparationStatus === 'No hay catálogo autorizado para preparar la importación.') {
+        fail('IMPORT_E2E_PREPARATION_UI_CATALOG_UNAVAILABLE');
+      }
+      fail('IMPORT_E2E_PREPARATION_UI_PANEL_UNAVAILABLE');
+    }
     await preparation.waitFor({ state: 'visible', timeout });
     const preparationTitle = page.locator('#importar-servicio-web-preparation-title');
     if (await preparationTitle.evaluate((element) => document.activeElement === element) !== true) {
       fail('IMPORT_E2E_PREPARATION_UI_FOCUS_INVALID');
     }
     const preparationConfirm = page.locator('#importar-servicio-web-preparation-confirm');
+    const documentTypeOptional = await page.locator('.importar-servicio-web__document-type-optional').count() > 0;
     const documentType = page.locator('[data-import-document-type]').first();
-    const options = await documentType.locator('option').count();
-    if (options < 2) fail('IMPORT_E2E_PREPARATION_UI_CATALOG_UNAVAILABLE');
-    if (Number(await documentType.inputValue()) !== Number(plan.profile.documentTypeId)) fail('IMPORT_E2E_PREPARATION_UI_DEFAULT_TYPE_INVALID');
+    if (!documentTypeOptional) {
+      const options = await documentType.locator('option').count();
+      if (options < 2) fail('IMPORT_E2E_PREPARATION_UI_CATALOG_UNAVAILABLE');
+      if (Number(await documentType.inputValue()) !== Number(plan.profile.documentTypeId)) fail('IMPORT_E2E_PREPARATION_UI_DEFAULT_TYPE_INVALID');
+    } else if (await page.locator('[data-import-document-type]').count() !== 0) {
+      fail('IMPORT_E2E_PREPARATION_UI_OPTIONAL_TYPE_INVALID');
+    }
     await preparationConfirm.waitFor({ state: 'visible', timeout });
     await page.waitForFunction(() => {
       const confirm = document.querySelector('#importar-servicio-web-preparation-confirm');
@@ -389,8 +747,10 @@ async function inspectImportPreviewUi({ context, plan }) {
       const prepareSelected = page.locator('[data-import-prepare-selected="true"]:visible:not([disabled])');
       await prepareSelected.click();
       await preparation.waitFor({ state: 'visible', timeout });
-      if (await page.locator('[data-import-document-type]').count() !== selectableCount) fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_INVALID');
-      if (await page.locator('[data-import-document-type]').evaluateAll((elements, expected) => elements.some((element) => Number(element.value) !== Number(expected)), plan.profile.documentTypeId)) fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_DEFAULT_TYPE_INVALID');
+      const multipleDocumentTypes = page.locator('[data-import-document-type]');
+      if ((!documentTypeOptional && await multipleDocumentTypes.count() !== selectableCount) ||
+          (documentTypeOptional && await multipleDocumentTypes.count() !== 0)) fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_INVALID');
+      if (!documentTypeOptional && await multipleDocumentTypes.evaluateAll((elements, expected) => elements.some((element) => Number(element.value) !== Number(expected)), plan.profile.documentTypeId)) fail('IMPORT_E2E_PREPARATION_UI_MULTIPLE_DEFAULT_TYPE_INVALID');
       await page.waitForFunction(() => {
         const confirm = document.querySelector('#importar-servicio-web-preparation-confirm');
         return confirm && confirm.disabled === false;
@@ -463,7 +823,7 @@ async function enableTemporaryGate(plan, workflowAccount) {
       !/<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i.test(original) ||
       !/<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i.test(original)) fail('E2E_PLATFORM_GATE_INTEGRITY_FAILED');
   let enabled = original.replace(/(<add key="WorkflowCentroTrabajoModernActive" value=")false("\s*\/>)/i, '$1true$2');
-  const authorizedAccount = String(workflowAccount || '').trim();
+  const authorizedAccount = String(workflowAccount || (plan.scenario.stage === 'anonymous' ? 'e2e-anonymous' : '')).trim();
   if (!/^[A-Za-z0-9._@-]{1,128}$/.test(authorizedAccount)) fail('E2E_PLATFORM_GATE_AUDIENCE_INVALID');
   enabled = enabled.replace(/(<add key="WorkflowCentroTrabajoModernUsers" value=")("\s*\/>)/i,
     (_match, prefix, suffix) => `${prefix}${authorizedAccount}${suffix}`);
@@ -482,6 +842,11 @@ async function enableTemporaryGate(plan, workflowAccount) {
     fail('E2E_PLATFORM_GATE_ENABLE_FAILED');
   }
   await fs.writeFile(webConfigPath, enabled, 'utf8');
+  const applied = await fs.readFile(webConfigPath, 'utf8');
+  if (!/<add key="WorkflowCentroTrabajoModernActive" value="true"\s*\/>/i.test(applied) ||
+      !/<add key="WorkflowCentroTrabajoModernUsers" value="[^"\s]+"\s*\/>/i.test(applied)) {
+    fail('E2E_PLATFORM_GATE_ENABLE_FAILED');
+  }
   let restored = false;
   return async () => {
     if (restored) return;
@@ -494,11 +859,18 @@ async function waitForApplicationReload(plan) {
   const api = await request.newContext({ ignoreHTTPSErrors: plan.profile.ignoreHttpsErrors === true });
   try {
     const login = new URL('gestor.aspx', plan.profile.baseUrl).toString();
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      const response = await api.get(login, { timeout: Math.min(plan.profile.budgetMs, 60000) });
-      if (!response.ok()) fail('E2E_PLATFORM_RELOAD_STABILIZATION_FAILED');
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+    let consecutiveSuccesses = 0;
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      try {
+        const response = await api.get(login, { timeout: Math.min(plan.profile.budgetMs, 5000) });
+        consecutiveSuccesses = response.ok() ? consecutiveSuccesses + 1 : 0;
+        if (consecutiveSuccesses >= 2) return;
+      } catch {
+        consecutiveSuccesses = 0;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
+    fail('E2E_PLATFORM_RELOAD_STABILIZATION_FAILED');
   } finally {
     await api.dispose();
   }
@@ -524,7 +896,7 @@ async function main() {
     authorizations,
     temporaryDirectory,
     collectSecrets: async () => secrets,
-    createBrowser: async (selectedProfile) => chromium.launch(selectedProfile.browser || {}),
+    createBrowser: async (selectedProfile) => chromium.launch({ ...(selectedProfile.browser || {}), headless: !plan.scenario.expectations.some((expectation) => ['manual-visual-execution', 'manual-layout-review'].includes(expectation)) }),
     createSession: async ({ browser, plan: currentPlan, environment }) => {
       const context = await createAuthenticatedWorkflowSession(browser, {
         baseUrl: currentPlan.profile.baseUrl,
@@ -539,7 +911,7 @@ async function main() {
     createClient,
     invoke: (requestOptions) => invokeNotes({ ...requestOptions, plan }),
     consumePreview: consumeImportPreview,
-    inspectSession: inspectImportPreviewUi,
+    inspectSession: inspectWorkflowSession,
     readControl: readWorkflowControl,
       writeEvidence,
       assertIntegrity: async (options) => {
@@ -562,6 +934,8 @@ main().catch((error) => {
 
 module.exports = {
   collectAuthorizations,
+  inspectEnlaseAssignmentUi,
   inspectImportPreviewUi,
+  inspectWorkflowSession,
   parseArguments
 };

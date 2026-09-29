@@ -26,4 +26,6 @@ test('ejecución, espera y proyección mantienen contratos únicos', () => {
   assert.match(ui, /renderPending\(\)[\s\S]*progressAdapter\.execute\(request\)/);
   assert.match(ui, /reconciliation\.complete\(snapshot, request\)[\s\S]*settleAfterResult\(control, snapshot, reconciled\)/);
   assert.match(ui, /function closeAfterResult\(control, snapshot\)[\s\S]*documentList\.synchronize\(snapshot\)/);
+  assert.match(ui, /createLegacyGridAppender/);
+  assert.match(ui, /insert_row_documento_relacionado\(legacyData, destination, versioned\)/);
 });

@@ -5,12 +5,13 @@ const { NOTES_WRITE_E2E_ADAPTER } = require('../adapters/notes-write-e2e-adapter
 const { IMPORTAR_SERVICIO_WEB_E2E_ADAPTER } = require('../adapters/importar-servicio-web-e2e-adapter.cjs');
 
 const SAFE_ID = /^[a-z][a-z0-9-]{1,79}$/;
-const STAGES = Object.freeze(['anonymous', 'read', 'preview', 'execution', 'concurrency', 'ui-lock']);
+const STAGES = Object.freeze(['anonymous', 'read', 'preview', 'execution', 'assignment', 'concurrency', 'ui-lock']);
 const STAGE_HANDLER = Object.freeze({
   anonymous: 'executeAnonymous',
   read: 'executeRead',
   preview: 'executePreview',
   execution: 'executeExecution',
+  assignment: 'executeAssignment',
   concurrency: 'executeConcurrency',
   'ui-lock': 'executeUiLock'
 });
@@ -42,6 +43,10 @@ const CONTROL_REGISTRY = Object.freeze({
   'notes-task-state': Object.freeze({
     id: 'notes-task-state',
     query: 'SELECT ID_ANOTACION, INICIO_TAREAS_WORKFLOW_ID_TAREA, ID_ACTIVIDAD, ID_USUARIO, FECHA_ANOTACION, ESTADO_TAREA FROM ANOTACION_TAREA WHERE INICIO_TAREAS_WORKFLOW_ID_TAREA = ? ORDER BY ID_ANOTACION'
+  }),
+  'workflow-assignment-state': Object.freeze({
+    id: 'workflow-assignment-state',
+    query: 'SELECT ID_ESTADO, INICIO_TAREAS_WORKFLOW_ID_TAREA, ID_ACTIVIDAD, FECHA_INICIO, FECHA_SELECCION, FECHA_FIN, ESTADO_TAREA, ID_USUARIO, ID_FLUJO_TRABAJO, ID_ACTIVIDAD_FLUJO_TRABAJO FROM estados_tarea_workflow WHERE INICIO_TAREAS_WORKFLOW_ID_TAREA = ? ORDER BY ID_ESTADO'
   }),
   'notes-audit': Object.freeze({
     id: 'notes-audit',
@@ -108,6 +113,16 @@ const ADAPTER_REGISTRY = Object.freeze({
 });
 
 const SCENARIO_REGISTRY = Object.freeze({
+  'import-sii-enlase-anonymous': Object.freeze({
+    id: 'import-sii-enlase-anonymous', doc: 'doc83', stage: 'anonymous', adapterId: 'importar-servicio-web',
+    requiredAuthorizations: Object.freeze(['environment', 'gate']),
+    requiredSecrets: Object.freeze([]),
+    resource: null,
+    controls: Object.freeze([]),
+    controlExpectations: Object.freeze({}),
+    transport: Object.freeze({ session: 'none', service: 'importar-servicio-web-modern' }),
+    expectations: Object.freeze(['blocked-without-session', 'temporary-feature-gate', 'sanitized-evidence'])
+  }),
   'notes-anonymous': Object.freeze({
     id: 'notes-anonymous',
     doc: 'doc41',
@@ -180,6 +195,16 @@ const SCENARIO_REGISTRY = Object.freeze({
     transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
     expectations: Object.freeze(['real-sii', 'enlase-context', 'enlase-ui', 'no-state-change', 'secure-preview-ui', 'temporary-feature-gate', 'sanitized-evidence'])
   }),
+  'import-sii-enlase-layout-review': Object.freeze({
+    id: 'import-sii-enlase-layout-review', doc: 'doc83', stage: 'read', adapterId: 'importar-servicio-web',
+    requiredAuthorizations: Object.freeze(['environment', 'gate']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-task', role: 'read', profileField: 'taskId', mutating: false }),
+    controls: IMPORT_CONTROLS,
+    controlExpectations: IMPORT_CONTROLS_UNCHANGED,
+    transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
+    expectations: Object.freeze(['real-sii', 'enlase-context', 'manual-layout-review', 'no-state-change', 'temporary-feature-gate', 'sanitized-evidence'])
+  }),
   'import-sii-enlase-execution': Object.freeze({
     id: 'import-sii-enlase-execution', doc: 'doc81', stage: 'execution', adapterId: 'importar-servicio-web',
     requiredAuthorizations: Object.freeze(['environment', 'gate']),
@@ -189,7 +214,27 @@ const SCENARIO_REGISTRY = Object.freeze({
     controlExpectations: IMPORT_ENLASE_EXECUTION_CONTROLS,
     transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
     expectations: Object.freeze(['real-sii', 'enlase-context', 'single-intent', 'physical-evidence', 'no-expedient-effects', 'no-task-transition', 'temporary-feature-gate', 'sanitized-evidence'])
-  }),  'import-sii-read': Object.freeze({
+  }),
+  'import-sii-enlase-manual-visual': Object.freeze({
+    id: 'import-sii-enlase-manual-visual', doc: 'doc83', stage: 'execution', adapterId: 'importar-servicio-web',
+    requiredAuthorizations: Object.freeze(['environment', 'gate']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-task', role: 'manual-visual', profileField: 'taskId', mutating: true, contractId: 'workflow-task-controls' }),
+    controls: IMPORT_CONTROLS,
+    controlExpectations: IMPORT_ENLASE_EXECUTION_CONTROLS,
+    transport: Object.freeze({ session: 'workflow', service: 'importar-servicio-web-modern' }),
+    expectations: Object.freeze(['real-sii', 'enlase-context', 'manual-visual-execution', 'secure-preview-ui', 'temporary-feature-gate', 'sanitized-evidence'])
+  }),  'import-sii-enlase-assignment': Object.freeze({
+    id: 'import-sii-enlase-assignment', doc: 'doc83', stage: 'assignment', adapterId: 'importar-servicio-web',
+    requiredAuthorizations: Object.freeze(['environment', 'gate']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-task', role: 'assignment', profileField: 'taskId', mutating: true, contractId: 'workflow-task-controls' }),
+    controls: Object.freeze(['workflow-assignment-state']),
+    controlExpectations: Object.freeze({ 'workflow-assignment-state': 'assignment-mode' }),
+    transport: Object.freeze({ session: 'workflow', service: 'workflow-enlase-assignment' }),
+    expectations: Object.freeze(['enlase-context', 'explicit-assignment-ui', 'authoritative-document-validation', 'temporary-feature-gate', 'sanitized-evidence'])
+  }),
+  'import-sii-read': Object.freeze({
     id: 'import-sii-read', doc: 'doc56', stage: 'read', adapterId: 'importar-servicio-web',
     requiredAuthorizations: Object.freeze(['environment', 'gate']),
     requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
@@ -273,7 +318,7 @@ function validateScenario(scenario) {
     fail('E2E_PLATFORM_SCENARIO_INVALID');
   }
   for (const expectation of Object.values(scenario.controlExpectations)) {
-    if (!['changed', 'unchanged', 'expedient-mode'].includes(expectation)) fail('E2E_PLATFORM_SCENARIO_INVALID');
+    if (!['changed', 'unchanged', 'expedient-mode', 'assignment-mode'].includes(expectation)) fail('E2E_PLATFORM_SCENARIO_INVALID');
   }
   if (!scenario.transport || typeof scenario.transport !== 'object' || !['none', 'workflow'].includes(scenario.transport.session) || typeof scenario.transport.service !== 'string') {
     fail('E2E_PLATFORM_SCENARIO_INVALID');

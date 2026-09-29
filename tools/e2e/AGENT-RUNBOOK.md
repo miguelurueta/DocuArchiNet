@@ -238,3 +238,36 @@ npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario import-sii-e
 ```
 
 Los controles SQL permanecen registrados y son únicamente `SELECT`. La corrida confirma intención idempotente, documento con evidencia lógica/física, ausencia de efectos de expediente y preservación del estado de la tarea. En `finally` restaura el gate a `false`, con usuarios y grupos vacíos, y conserva evidencia saneada.
+
+## DOC-83 asignación explícita ENLASE
+
+DOC-83 reutiliza la misma sesión, TTY, ciclo de recursos y restauración con `import-sii-enlase-assignment`. Es una etapa mutadora independiente de la importación y requiere otra tarea descartable. No llama al servicio SII: acciona `enlase-assign-action`, deja que `Buttonaceptar_Click` revalide los documentos obligatorios y compara un `SELECT` registrado sobre `estados_tarea_workflow`.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario import-sii-enlase-assignment --profile <perfil-runtime.json> --authorize environment,gate,execution,discardable-resource
+```
+
+`assignmentResult=BLOCKED` solo es válido con el control intacto y un aviso funcional observado. `assignmentResult=ASSIGNED` exige cambio en el control. La evidencia no guarda el texto del aviso ni identidades. Cualquiera de los caminos consume conservadoramente el recurso para impedir una repetición accidental; una validación exitosa posterior necesita otra tarea descartable y una autorización nueva.
+## DOC-83 aceptación visual ENLASE
+
+La activación manual aislada de `WorkflowCentroTrabajoModernActive` está prohibida. Para comprobar que una importación aparece inmediatamente en `GridView_list_documento_relacion` sin recargar, use exclusivamente `import-sii-enlase-manual-visual`.
+
+La etapa es mutadora: exige autorización de ambiente, gate, ejecución y recurso descartable, cuenta Workflow, MySQL de solo lectura y una tarea ENLASE operable. El navegador visible pertenece al runner; no abra otra sesión ni cambie de tarea. El plazo total es de diez minutos.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario import-sii-enlase-manual-visual --profile <perfil-runtime.json> --authorize environment,gate,execution,discardable-resource
+```
+
+El runner espera que WebForms termine su actualización, abre la ventana moderna y solo muestra el primer hito cuando la lista SII contiene al menos una acción `Importar/Reimportar`; no retira ni oculta documentos existentes. Use esa acción sin recargar y confirme `SI` únicamente cuando aparezca una fila nueva. El runner exige una llamada real al inserter con destino `rad`, ausencia de postback y los ocho campos de `idd_rad`. En el segundo hito, abra una vez el documento agregado y confirme `SI` únicamente si no apareció error. No asigne, elimine, reemplace ni cambie tipología durante esta corrida.
+
+El runner compara los siete controles de importación, consume la reserva solo si termina correctamente y restaura en `finally` el gate a `false`, con usuarios y grupos vacíos. Timeout, respuesta distinta de `SI`, cierre del navegador, recarga, fila ausente, contrato incompleto, diálogo de error o huellas inesperadas producen un fallo saneado.
+
+## DOC-83 revisión visual de la tabla SII
+
+Para revisar textos extensos, preparación masiva y preview sin importar documentos, use `import-sii-enlase-layout-review`. Es una etapa de lectura: abre un navegador visible, exige que las celdas contengan el texto con elipsis, que Acciones permanezca fija y opaca, que el desplazamiento sea interno, que el footer de preparación permanezca visible y que el preview sustituya la lista con retorno explícito. Cada confirmación manual solo se solicita después de sus controles automáticos.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario import-sii-enlase-layout-review --profile <perfil-runtime.json> --authorize environment,gate
+```
+
+La corrida no llama `CreateImportIntent` ni `ExecuteImportIntent`, compara como invariantes los siete controles y restaura el gate en `finally`. El runner selecciona y abre la preparación, la cancela, abre un preview y vuelve a la lista. No pulse manualmente Preparar, Crear intención, Importar ni Reimportar durante esta revisión; limite su interacción a responder las tres confirmaciones de consola después de observar cada hito.

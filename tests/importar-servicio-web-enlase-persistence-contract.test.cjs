@@ -234,14 +234,16 @@ test('listado ENLASE oculta documento válido y rehabilita únicamente el recurs
   assert.match(status, /verifiedMissing\.Add\(row\.Key\)/);
   assert.match(status, /If pair\.Value\.Confirmado OrElse verifiedMissing\.Contains\(pair\.Key\) Then pair\.Value\.TieneNovedad=False/);
 });
-test('preflight bloquea evidencia física válida y permite recuperación cuando ya no existe', () => {
+test('preflight exige confirmación explícita para reimportar y permite recuperación cuando el recurso físico ya no existe', () => {
   const preflight = fs.readFileSync('Services/Workflow/ImportarServicioWeb/ServicioPreflightImportacion.vb', 'utf8');
   const web = fs.readFileSync('webservice/WebServiceImportarServicioWebModern.asmx.vb', 'utf8');
   assert.match(preflight, /_status\.ObtenerLote\(contexto, contexto\.ProviderId, keys\)/);
-  assert.match(preflight, /state\.Confirmado[\s\S]*DOCUMENT_ALREADY_IMPORTED/);
-  assert.doesNotMatch(preflight, /state\.TieneAntecedente[\s\S]*DOCUMENT_ALREADY_IMPORTED/);
+  assert.match(preflight, /state\.Confirmado[\s\S]*explicitReimports\.Contains\(key\)[\s\S]*DOCUMENT_REIMPORT_CONFIRMATION_REQUIRED/);
+  assert.match(preflight, /DOCUMENT_REIMPORT_EXPLICIT/);
+  assert.doesNotMatch(preflight, /DOCUMENT_ALREADY_IMPORTED/);
+  assert.doesNotMatch(preflight, /state\.TieneAntecedente[\s\S]*DOCUMENT_REIMPORT_CONFIRMATION_REQUIRED/);
   assert.match(preflight, /ExpedientMode = ModoExpedienteImportacion\.GestionarExpediente AndAlso configuration\.IdentityFields\.Count = 0/);
-  assert.match(web, /New ServicioPreflightImportacion\(validator, documentTypes, effectConfiguration, New ImportEffectPlanBuilder\(\), itemStatus\)/);
+  assert.match(web, /New ServicioPreflightImportacion\(validator, documentTypes, effectConfiguration, New ImportEffectPlanBuilder\(\), itemStatus, documentTypeCatalog\)/);
 });
 test('máquina y agregación distinguen omisión idempotente, recuperable e incierto', () => {
   const orchestrator = fs.readFileSync('Services/Workflow/ImportarServicioWeb/ImportServiceOrchestrator.vb', 'utf8');
@@ -328,4 +330,22 @@ test('ENLASE persiste un nombre técnico acotado y no la descripción del provee
   assert.match(preflight, /item\.ExternalKey\.Trim\(\)\.Length > 500/);
   assert.match(preflight, /Not String\.Equals\(contexto\.Capability,[\s\S]*AnnexesEnlaseCapability[\s\S]*item\.FileName[\s\S]*Length > 500/);
   assert.match(adapter, /item\.FileName = 'documento-sii\.pdf'/);
+});
+
+test('proyección ENLASE transporta un DTO tipado y nunca expone dato_lista', () => {
+  const adapter = fs.readFileSync('Infrastructure/Workflow/ImportarServicioWeb/Storage/LegacyEnlaseImportDocumentStorageAdapter.vb', 'utf8');
+  const steps = fs.readFileSync('Services/Workflow/ImportarServicioWeb/ImportExecutionSteps.vb', 'utf8');
+  const orchestrator = fs.readFileSync('Services/Workflow/ImportarServicioWeb/ImportServiceOrchestrator.vb', 'utf8');
+  const projection = block(dtos, '<Serializable()> Public Class ImportEnlaseDocumentProjectionDto', '<Serializable()> Public Class PreflightImportResponseDto');
+  for (const field of ['CabinetName','DocumentId','Radicado','StorageType','DocumentName','TaskId','SignatureStatus','IconClass']) {
+    assert.match(projection, new RegExp(`Public Property ${field} As`));
+  }
+  assert.match(adapter, /CrearProyeccion\(comando, imagen, idImagen\)/);
+  assert.match(adapter, /String\.IsNullOrWhiteSpace\(Convert\.ToString\(imagen\.DBT\)\), imagen\.extension/);
+  assert.doesNotMatch(adapter, /String\.IsNullOrWhiteSpace\(Convert\.ToString\(imagen\.DBT\)\), imagen\.tipodocumental/);
+  assert.match(adapter, /\.ProyeccionDocumentoEnlase = proyeccion/);
+  assert.match(steps, /item\.ProyeccionDocumentoEnlase = resultado\.ProyeccionDocumentoEnlase/);
+  assert.match(orchestrator, /\.EnlaseProjection = If\(confirmed, MapEnlaseProjection\(item\), Nothing\)/);
+  assert.doesNotMatch(dtos, /dato_lista/i);
+  assert.doesNotMatch(orchestrator, /dato_lista/i);
 });

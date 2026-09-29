@@ -109,6 +109,7 @@ End Interface
 
 Public Interface IImportDocumentTypeCatalogRepository
     Function Obtener(ByVal contexto As ContextoImportacionServicio) As IList(Of TipoDocumentalCatalogoImportacion)
+    Function RequiereSeleccion(ByVal contexto As ContextoImportacionServicio) As Boolean
 End Interface
 
 Public Interface IImportItemStatusRepository

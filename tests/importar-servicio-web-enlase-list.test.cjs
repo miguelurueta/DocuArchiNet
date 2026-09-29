@@ -31,3 +31,21 @@ test('selección general solo considera anexos importables y acciones permanecen
   assert.equal(nodes.filter(node => node.getAttribute && node.getAttribute('data-import-preview') === 'true').length, 2);
   assert.equal(nodes.filter(node => node.getAttribute && node.getAttribute('data-import-prepare') === 'true' && node.disabled).length, 1);
 });
+
+test('un anexo importado confirmado muestra acción Reimportar habilitada', () => {
+  const doc = createDocument(), container = doc.createElement('div');
+  list.render(container, { Items: [{ externalKey: 'A-1', displayName: 'Recibo existente', importable: true, reimportable: true, importStatus: 'IMPORTADO' }] });
+  const nodes = all(container), action = nodes.find(node => node.getAttribute && node.getAttribute('data-import-prepare') === 'true');
+  assert.equal(action.disabled, false);
+  assert.equal(action.textContent, 'Reimportar');
+});
+
+test('celdas largas usan columnas semánticas y conservan el texto completo como título', () => {
+  const doc = createDocument(), container = doc.createElement('div');
+  list.render(container, { Items: [{ externalKey: 'A-1', displayName: 'Nombre de anexo deliberadamente extenso', contentType: 'application/pdf', reference: 'Referencia extensa', importStatus: 'DISPONIBLE', importable: true }] });
+  const nodes = all(container), dataCells = nodes.filter(node => String(node.className || '').includes('importar-servicio-web-sii__data-cell'));
+  assert.equal(dataCells.length, 5);
+  assert.equal(dataCells[0].title, 'Nombre de anexo deliberadamente extenso');
+  assert.match(dataCells[0].className, /importar-servicio-web-sii__column--annex/);
+  assert.match(dataCells[3].className, /importar-servicio-web-sii__column--reference/);
+});

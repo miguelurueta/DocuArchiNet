@@ -140,12 +140,19 @@ Public NotInheritable Class StoreImportExecutionStep
     Private ReadOnly _metadata As IImportStorageMetadataRepository
     Private ReadOnly _documentTypes As IImportDocumentTypeResolver
     Private ReadOnly _storage As IImportDocumentStoragePort
+    Private ReadOnly _catalog As IImportDocumentTypeCatalogRepository
 
     Public Sub New(ByVal metadata As IImportStorageMetadataRepository, ByVal documentTypes As IImportDocumentTypeResolver, ByVal storage As IImportDocumentStoragePort)
+        Me.New(metadata, documentTypes, storage, Nothing)
+    End Sub
+
+    Public Sub New(ByVal metadata As IImportStorageMetadataRepository, ByVal documentTypes As IImportDocumentTypeResolver,
+                   ByVal storage As IImportDocumentStoragePort, ByVal catalog As IImportDocumentTypeCatalogRepository)
         If metadata Is Nothing OrElse documentTypes Is Nothing OrElse storage Is Nothing Then Throw New ArgumentNullException("dependency")
         _metadata = metadata
         _documentTypes = documentTypes
         _storage = storage
+        _catalog = catalog
     End Sub
 
     Public ReadOnly Property FaseConfirmada As FaseImportacionServicio Implements IImportExecutionStep.FaseConfirmada
@@ -157,30 +164,36 @@ Public NotInheritable Class StoreImportExecutionStep
     Public Function Ejecutar(ByVal contexto As ContextoImportacionServicio,
                              ByVal intencion As IntencionImportacionServicio,
                              ByVal item As ResultadoElementoImportacion) As ResultadoFaseImportacion Implements IImportExecutionStep.Ejecutar
-        If intencion Is Nothing OrElse intencion.ContextoOriginal Is Nothing OrElse item Is Nothing OrElse String.IsNullOrWhiteSpace(item.NombreTipoDocumental) Then Return Fallo("INVALID_STORAGE_CONTEXT", True)
+        If intencion Is Nothing OrElse intencion.ContextoOriginal Is Nothing OrElse item Is Nothing Then Return Fallo("INVALID_STORAGE_CONTEXT", True)
         Dim command As ComandoAlmacenamientoImportacion = Nothing
         Try
             Dim metadata = _metadata.Resolver(contexto)
             If metadata Is Nothing Then Return Fallo("STORAGE_METADATA_UNAVAILABLE", True)
-            If Not item.IdTipoDocumental.HasValue Then Return Fallo("INVALID_DOCUMENT_TYPE", True)
-            Dim documentType As ResolucionTipoDocumentalImportacion
-            Try
-                documentType = _documentTypes.Resolver(contexto, item.IdTipoDocumental.Value, item.NombreTipoDocumental)
-            Catch
-                Return Fallo("DOCUMENT_TYPE_RESOLUTION_UNAVAILABLE", True)
-            End Try
-            If documentType Is Nothing OrElse Not documentType.Valida Then
-                Return Fallo(If(documentType Is Nothing OrElse String.IsNullOrWhiteSpace(documentType.Codigo), "DOCUMENT_TYPE_RESOLUTION_FAILED", documentType.Codigo), True)
+            Dim documentTypeRequired = True
+            If _catalog IsNot Nothing Then documentTypeRequired = _catalog.RequiereSeleccion(contexto)
+            Dim documentType As New ResolucionTipoDocumentalImportacion With {.Valida = Not documentTypeRequired}
+            If item.IdTipoDocumental.HasValue AndAlso item.IdTipoDocumental.Value > 0 AndAlso Not String.IsNullOrWhiteSpace(item.NombreTipoDocumental) Then
+                Try
+                    documentType = _documentTypes.Resolver(contexto, item.IdTipoDocumental.Value, item.NombreTipoDocumental)
+                Catch
+                    Return Fallo("DOCUMENT_TYPE_RESOLUTION_UNAVAILABLE", True)
+                End Try
+                If documentType Is Nothing OrElse Not documentType.Valida Then
+                    Return Fallo(If(documentType Is Nothing OrElse String.IsNullOrWhiteSpace(documentType.Codigo), "DOCUMENT_TYPE_RESOLUTION_FAILED", documentType.Codigo), True)
+                End If
+            ElseIf documentTypeRequired Then
+                Return Fallo("INVALID_DOCUMENT_TYPE", True)
             End If
             command = New ComandoAlmacenamientoImportacion With {
             .RutaArchivo = item.RutaArchivoPreparado, .NombreGabinete = metadata.NombreGabinete,
             .Radicado = intencion.ContextoOriginal.Radicado, .NombreRutaWorkflow = metadata.NombreRutaWorkflow,
             .IdRutaWorkflow = intencion.ContextoOriginal.IdRuta, .IdTareaWorkflow = item.IdTareaDestino,
-            .DescripcionTipo = documentType.NombreTipoDocumental,
+            .DescripcionTipo = If(documentType.NombreTipoDocumental, String.Empty),
             .IdTipoListaChequeo = documentType.IdTipoListaChequeo,
             .TipoAlmacenamiento = 2, .NombreClaseFormatoDocumento = metadata.NombreClaseFormatoDocumento,
             .NombreArchivoOrigen = item.NombreArchivo, .FormatoProveedor = If(item.MetadatosSii Is Nothing, Nothing, item.MetadatosSii.Formato),
             .TipoContenidoOrigen = item.TipoContenido, .Capability = intencion.ContextoOriginal.Capability,
+            .DocumentTypeRequired = documentTypeRequired,
             .ProviderReference = intencion.ContextoOriginal.ProviderReference, .ExternalKey = item.IdentidadExterna.ExternalKey,
             .IdTramite = intencion.ContextoOriginal.IdTramite, .MetadatosSii = item.MetadatosSii}
             If item.MetadatosSii Is Nothing Then Return Fallo("SII_STORAGE_METADATA_UNAVAILABLE", True)
@@ -210,7 +223,12 @@ Public NotInheritable Class StoreImportExecutionStep
             Return FalloDiagnostico("DOCUMENT_STORAGE_PREPARATION_FAILED", ex.Message)
         End Try
         Try
-            Return _storage.Almacenar(command)
+            Dim resultado = _storage.Almacenar(command)
+            If resultado IsNot Nothing AndAlso resultado.Exitoso AndAlso resultado.IdDocumento.HasValue AndAlso
+               resultado.ProyeccionDocumentoEnlase IsNot Nothing Then
+                item.ProyeccionDocumentoEnlase = resultado.ProyeccionDocumentoEnlase
+            End If
+            Return resultado
         Finally
             Try
                 If Not String.IsNullOrWhiteSpace(item.RutaArchivoPreparado) AndAlso File.Exists(item.RutaArchivoPreparado) Then File.Delete(item.RutaArchivoPreparado)

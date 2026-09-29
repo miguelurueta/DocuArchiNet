@@ -28,6 +28,21 @@ test('resultado incierto se reconcilia una sola vez por identidad externa', asyn
   assert.equal(result.items[0].documentId,41);
 });
 
+test('éxito de ejecución se reconcilia antes de proyectar TaskId y nombre autoritativos', async () => {
+  let reconciliations=0;
+  const adapter=reconciliation.create({api:{getImportIntent:async()=>({Items:[]}),reconcileImportIntent:async request=>{
+    reconciliations++;
+    return {IntentId:request.IntentId,Status:'Completado',Items:[{ExternalKey:request.ExternalKey,Status:'Disponible',TaskId:1001,DocumentId:42,DocumentName:'Recibo De Caja'}]};
+  }}});
+  const projection={CabinetName:'MERCANTIL',DocumentId:42,Radicado:'S002469800',StorageType:'PDF',DocumentName:'Recibo De Caja',TaskId:1001,SignatureStatus:0,IconClass:'fa-file-pdf'};
+  const result=await adapter.complete({IntentId:'intent-1',Status:'Completada',Items:[{ExternalKey:'external-1',Status:'Completada',DocumentId:42,TaskId:0,DocumentName:'',EnlaseProjection:projection}]},context);
+  assert.equal(reconciliations,1);
+  assert.equal(result.items[0].status,'Disponible');
+  assert.equal(result.items[0].taskId,1001);
+  assert.equal(result.items[0].documentName,'Recibo De Caja');
+  assert.equal(result.items[0].enlaseProjection.cabinetName,'MERCANTIL');
+  assert.equal(result.items[0].enlaseProjection.documentId,42);
+});
 test('timeout, ausencia y estado desconocido nunca se convierten en disponible', () => {
   for (const state of ['Verificando','ResultadoIncierto','EstadoFuturo','']) {
     assert.notEqual(reconciliation.mapItem({Status:state,DocumentId:88}).status,'Disponible');

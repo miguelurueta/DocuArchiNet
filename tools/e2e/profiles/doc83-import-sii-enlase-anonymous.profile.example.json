@@ -1,0 +1,6 @@
+{
+  "scenarioId": "import-sii-enlase-anonymous",
+  "baseUrl": "http://localhost/GestionDocumental-Docuarchi.net/",
+  "budgetMs": 10000,
+  "ignoreHttpsErrors": false
+}

@@ -1,0 +1,16 @@
+{
+  "scenarioId": "import-sii-enlase-layout-review",
+  "baseUrl": "https://workflow.example.invalid/GestionDocumental-Docuarchi.net/",
+  "module": "WORKFLOW REGISTRO",
+  "environment": "pruebas-autorizadas",
+  "odbcDsn": "workflowdocument",
+  "taskId": 1,
+  "radicado": "RADICADO-SANEADO",
+  "codigoBarras": "CODIGO-SANEADO",
+  "sampleSize": 20,
+  "budgetMs": 600000,
+  "browser": {
+    "channel": "chrome"
+  },
+  "ignoreHttpsErrors": false
+}

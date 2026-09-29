@@ -15,6 +15,17 @@
         var raw = item && (item.Status || item.status || item.backendPhase || item.ReachedPhase || item.reachedPhase || item.visibleState);
         return visibleStates[key(raw)] || "Verificando";
     }
+    function mapProjection(value) {
+        value = value || {};
+        if (!value.CabinetName && !value.cabinetName) { return null; }
+        return {
+            cabinetName: text(value.CabinetName || value.cabinetName), documentId: number(value.DocumentId || value.documentId),
+            radicado: text(value.Radicado || value.radicado), storageType: text(value.StorageType || value.storageType),
+            documentName: text(value.DocumentName || value.documentName), taskId: number(value.TaskId || value.taskId),
+            signatureStatus: Number(value.SignatureStatus !== undefined ? value.SignatureStatus : value.signatureStatus) || 0,
+            iconClass: text(value.IconClass || value.iconClass)
+        };
+    }
     function mapItem(item) {
         item = item || {};
         return {
@@ -22,7 +33,8 @@
             status: state(item), documentId: number(item.DocumentId || item.documentId) || null,
             taskId: number(item.TaskId || item.taskId), documentName: text(item.DocumentName || item.documentName),
             contentType: text(item.ContentType || item.contentType), message: text(item.Message || item.message),
-            errorCode: text(item.ErrorCode || item.errorCode), correlationId: text(item.CorrelationId || item.correlationId)
+            errorCode: text(item.ErrorCode || item.errorCode), correlationId: text(item.CorrelationId || item.correlationId),
+            enlaseProjection: mapProjection(item.EnlaseProjection || item.enlaseProjection)
         };
     }
     function adapt(response) {
@@ -45,13 +57,13 @@
         function get(base) { return Promise.resolve(api.getImportIntent(request(base))).then(adapt); }
         function reconcile(base, externalKey) { return Promise.resolve(api.reconcileImportIntent(request(base, externalKey))).then(adapt); }
         function complete(execution, base) {
-            var snapshot = adapt(execution), uncertain = snapshot.items.filter(function (item) { return item.status === "ResultadoIncierto" || item.status === "Verificando"; }), seen = {};
+            var snapshot = adapt(execution), uncertain = snapshot.items.filter(function (item) { return item.status === "ResultadoIncierto" || item.status === "Verificando" || (item.status === "Completado" && item.documentId > 0); }), seen = {};
             uncertain = uncertain.filter(function (item) { if (!item.externalKey || seen[item.externalKey]) { return false; } seen[item.externalKey] = true; return true; });
             if (!uncertain.length) { return Promise.resolve(snapshot); }
             return Promise.all(uncertain.map(function (item) { return reconcile(base, item.externalKey); })).then(function (responses) {
                 var replacements = {};
                 responses.forEach(function (result) { result.items.forEach(function (item) { replacements[item.externalKey] = item; }); });
-                snapshot.items = snapshot.items.map(function (item) { return replacements[item.externalKey] || item; });
+                snapshot.items = snapshot.items.map(function (item) { var replacement = replacements[item.externalKey]; if (!replacement) { return item; } if (!replacement.enlaseProjection && item.enlaseProjection) { replacement.enlaseProjection = item.enlaseProjection; } return replacement; });
                 snapshot.status = snapshot.items.some(function (item) { return item.status !== "Disponible" && item.status !== "Completado"; }) ? "Parcial" : "Completado";
                 return snapshot;
             });

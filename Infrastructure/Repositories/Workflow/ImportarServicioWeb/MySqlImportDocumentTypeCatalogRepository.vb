@@ -30,6 +30,24 @@ Public NotInheritable Class MySqlImportDocumentTypeCatalogRepository
         End Using
     End Function
 
+    Public Function RequiereSeleccion(ByVal contexto As ContextoImportacionServicio) As Boolean Implements IImportDocumentTypeCatalogRepository.RequiereSeleccion
+        If contexto Is Nothing OrElse contexto.IdTramite <= 0 Then Throw New InvalidOperationException("DOCUMENT_TYPE_CONTEXT_INVALID")
+        Const sql As String = "SELECT COALESCE(MAX(OBLIGA_LISTA_CHEQUEO),0) AS checklist_required " &
+            "FROM RA_DIG_CONFIG_DIGITALIZACION WHERE tipo_doc_entrante_id_Tipo_Doc_Entrante=@procedureId"
+        Using connection = _connections.CreateOpenConnection(ModuleContext(contexto))
+            Dim values = _executor.ExecuteReader(connection, Nothing, sql,
+                New List(Of IDataParameter) From {New MySqlParameter("@procedureId", contexto.IdTramite)},
+                AddressOf MapRequired)
+            Return values.Count = 1 AndAlso values(0)
+        End Using
+    End Function
+
+    Private Shared Function MapRequired(ByVal reader As IDataReader) As IList(Of Boolean)
+        Dim result As New List(Of Boolean)()
+        If reader.Read() Then result.Add(Convert.ToInt32(reader("checklist_required")) = 1)
+        Return result
+    End Function
+
     Private Shared Function Map(ByVal reader As IDataReader) As IList(Of TipoDocumentalCatalogoImportacion)
         Dim result As New List(Of TipoDocumentalCatalogoImportacion)(), ids As New HashSet(Of Integer)()
         While reader.Read()

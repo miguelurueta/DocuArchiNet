@@ -7,6 +7,7 @@ const root = path.resolve(__dirname, "..");
 const service = fs.readFileSync(path.join(root, "webservice/WebServiceImportarServicioWebModern.asmx.vb"), "utf8");
 const gate = fs.readFileSync(path.join(root, "Infrastructure/Workflow/ImportarServicioWeb/ImportarServicioWebFeatureGate.vb"), "utf8");
 const configuration = fs.readFileSync(path.join(root, "web.config"), "utf8");
+const releaseConfiguration = fs.readFileSync(path.join(root, "Web.Release.config"), "utf8");
 
 test("cada endpoint ASMX implementado evalua el gate antes de sus dependencias", () => {
   for (const method of ["ResolveCapabilities", "QueryItems", "GetPreview", "PreflightImport", "CreateImportIntent", "ExecuteImportIntent", "GetImportIntent", "ReconcileImportIntent"]) {
@@ -52,4 +53,10 @@ test("configuración versionada conserva el gate desactivado y sin listas de aud
   assert.match(configuration, /<add key="WorkflowCentroTrabajoModernActive" value="false"\s*\/>/i);
   assert.match(configuration, /<add key="WorkflowCentroTrabajoModernUsers" value=""\s*\/>/i);
   assert.match(configuration, /<add key="WorkflowCentroTrabajoModernGroups" value=""\s*\/>/i);
+});
+
+test("despliegue Release habilita globalmente el gate y conserva audiencias vacías", () => {
+  assert.match(releaseConfiguration, /WorkflowCentroTrabajoModernActive" value="true"/i);
+  assert.match(releaseConfiguration, /WorkflowCentroTrabajoModernUsers" value=""/i);
+  assert.match(releaseConfiguration, /WorkflowCentroTrabajoModernGroups" value=""/i);
 });

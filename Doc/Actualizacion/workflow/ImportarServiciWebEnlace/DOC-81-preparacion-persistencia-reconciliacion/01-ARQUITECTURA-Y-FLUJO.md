@@ -16,7 +16,9 @@ Repositorio `DocuArchiNet`: frontera ASMX, servicios de preflight/intención/orq
   v
 [ServicioPreflightImportacion.Preflight(contexto, request)]
   |-- selección vacía/duplicada/tipología no autorizada --> Error seguro, sin escritura
-  |-- evidencia física válida ya importada -------------> DOCUMENT_ALREADY_IMPORTED
+  |-- misma ExternalKey confirmada sin acción explícita -> DOCUMENT_REIMPORT_CONFIRMATION_REQUIRED
+  |-- misma ExternalKey + ReimportRequested=true --------> plan ejecutable + DOCUMENT_REIMPORT_EXPLICIT
+  |-- antecedente histórico sin recurso físico ----------> disponible como importación normal
   `-- selección válida ----------------------------------> comandos + fingerprint
   |
   | CreateImportIntent(request)

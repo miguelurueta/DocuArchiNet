@@ -39,6 +39,37 @@ function prompt(label, defaultValue) {
   });
 }
 
+function promptWithTimeout(label, timeoutMs) {
+  return new Promise((resolve) => {
+    process.stdout.write(`${label}: `);
+    let value = '';
+    let settled = false;
+    const finish = (result, timedOut) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      process.stdin.off('data', onData);
+      process.stdin.pause();
+      if (timedOut) process.stdout.write('\n');
+      resolve(result);
+    };
+    const onData = (chunk) => {
+      const text = String(chunk);
+      if (text.includes('\u0003')) { finish('', false); return; }
+      const lineEnd = text.search(/[\r\n]/);
+      if (lineEnd >= 0) {
+        value += text.slice(0, lineEnd);
+        finish(value.trim(), false);
+        return;
+      }
+      value += text;
+    };
+    const timer = setTimeout(() => finish(null, true), timeoutMs);
+    process.stdin.setEncoding('utf8');
+    process.stdin.resume();
+    process.stdin.on('data', onData);
+  });
+}
 function promptSecret(label) {
   return new Promise((resolve) => {
     process.stdout.write(`${label}: `);
@@ -136,6 +167,7 @@ module.exports = {
   collectConfirmation,
   collectValue,
   promptSecret,
+  promptWithTimeout,
   redactChildOutput,
   requireInteractiveConsole,
   runChild

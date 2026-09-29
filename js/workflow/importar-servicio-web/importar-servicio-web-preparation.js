@@ -3,7 +3,7 @@
     function text(value) { return value == null ? "" : String(value).trim(); }
     function normalize(row, taskId) {
         if (!row || !text(row.externalKey) || Number(taskId) <= 0) { throw new Error("PREPARATION_ITEM_INVALID"); }
-        return { ClientItemId: text(row.clientItemId, text(row.externalKey)) || text(row.externalKey), ExternalKey: text(row.externalKey), TargetTaskId: Number(taskId), DocumentTypeId: row.documentTypeId == null ? null : Number(row.documentTypeId), DocumentTypeName: text(row.documentTypeName), FileName: text(row.fileName), ContentType: text(row.contentType) };
+        return { ClientItemId: text(row.clientItemId, text(row.externalKey)) || text(row.externalKey), ExternalKey: text(row.externalKey), TargetTaskId: Number(taskId), DocumentTypeId: row.documentTypeId == null ? null : Number(row.documentTypeId), DocumentTypeName: text(row.documentTypeName), FileName: text(row.fileName), ContentType: text(row.contentType), ReimportRequested: row.reimportRequested === true };
     }
     function unique(rows, taskId) {
         var seen = {}, items = [];
@@ -19,8 +19,11 @@
         return text(value).toUpperCase().replace(/[ÁÀÄÂ]/g, "A").replace(/[ÉÈËÊ]/g, "E").replace(/[ÍÌÏÎ]/g, "I").replace(/[ÓÒÖÔ]/g, "O").replace(/[ÚÙÜÛ]/g, "U").replace(/Ñ/g, "N").replace(/[^A-Z0-9]+/g, " ").trim();
     }
     function defaultDocumentType(catalog) {
-        var allowed = (catalog || []).filter(function (entry) { return catalogId(entry) > 0 && catalogName(entry); }), matches;
+        var allowed = (catalog || []).filter(function (entry) { return catalogId(entry) > 0 && catalogName(entry); }), required, matches;
         if (allowed.length === 1) { return allowed[0]; }
+        required = allowed.filter(function (entry) { return entry.Required === true || entry.Obligatorio === true; });
+        if (required.length === 1) { return required[0]; }
+        if (required.length > 1) { return null; }
         matches = allowed.filter(function (entry) { var name = normalizeCatalogName(catalogName(entry)); return /(^| )CONSTANCIA( |$)/.test(name) && /(^| )INSCRIPCION( |$)/.test(name); });
         return matches.length === 1 ? matches[0] : null;
     }

@@ -7,6 +7,7 @@ const service = fs.readFileSync('webservice/WebServiceImportarServicioWebModern.
 const gate = fs.readFileSync('Infrastructure/Workflow/ImportarServicioWeb/ImportarServicioWebFeatureGate.vb', 'utf8');
 const pageSource = fs.readFileSync('workflow/Webworkflow.aspx.vb', 'utf8');
 const config = fs.readFileSync('web.config', 'utf8');
+const releaseConfig = fs.readFileSync('Web.Release.config', 'utf8');
 const operations = ['ResolveCapabilities', 'QueryItems', 'GetPreview', 'PreflightImport', 'CreateImportIntent', 'ExecuteImportIntent', 'GetImportIntent', 'ReconcileImportIntent'];
 
 test('las ocho operaciones cortan por gate antes de validar o resolver dependencias', () => {
@@ -35,4 +36,10 @@ test('la configuración versionada conserva la interfaz global desactivada sin a
   assert.match(config, /WorkflowCentroTrabajoModernActive" value="false"/i);
   assert.match(config, /WorkflowCentroTrabajoModernUsers" value=""/i);
   assert.match(config, /WorkflowCentroTrabajoModernGroups" value=""/i);
+});
+
+test('la transformación Release activa la interfaz para toda sesión Workflow sin audiencias', () => {
+  assert.match(releaseConfig, /WorkflowCentroTrabajoModernActive" value="true"[\s\S]*?xdt:Transform="SetAttributes"[\s\S]*?xdt:Locator="Match\(key\)"/i);
+  assert.match(releaseConfig, /WorkflowCentroTrabajoModernUsers" value=""[\s\S]*?xdt:Transform="SetAttributes"[\s\S]*?xdt:Locator="Match\(key\)"/i);
+  assert.match(releaseConfig, /WorkflowCentroTrabajoModernGroups" value=""[\s\S]*?xdt:Transform="SetAttributes"[\s\S]*?xdt:Locator="Match\(key\)"/i);
 });

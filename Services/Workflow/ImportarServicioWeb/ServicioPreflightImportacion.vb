@@ -9,6 +9,7 @@ Public NotInheritable Class ServicioPreflightImportacion
     Private ReadOnly _configurations As IImportEffectConfigurationRepository
     Private ReadOnly _planBuilder As ImportEffectPlanBuilder
     Private ReadOnly _status As IImportItemStatusRepository
+    Private ReadOnly _catalog As IImportDocumentTypeCatalogRepository
     Public Sub New(ByVal validador As ValidadorContextoImportacion, ByVal documentTypes As IImportDocumentTypeResolver)
         Me.New(validador, documentTypes, Nothing, New ImportEffectPlanBuilder())
     End Sub
@@ -21,12 +22,19 @@ Public NotInheritable Class ServicioPreflightImportacion
     Public Sub New(ByVal validador As ValidadorContextoImportacion, ByVal documentTypes As IImportDocumentTypeResolver,
                    ByVal configurations As IImportEffectConfigurationRepository, ByVal planBuilder As ImportEffectPlanBuilder,
                    ByVal status As IImportItemStatusRepository)
+        Me.New(validador, documentTypes, configurations, planBuilder, status, Nothing)
+    End Sub
+
+    Public Sub New(ByVal validador As ValidadorContextoImportacion, ByVal documentTypes As IImportDocumentTypeResolver,
+                   ByVal configurations As IImportEffectConfigurationRepository, ByVal planBuilder As ImportEffectPlanBuilder,
+                   ByVal status As IImportItemStatusRepository, ByVal catalog As IImportDocumentTypeCatalogRepository)
         If validador Is Nothing OrElse documentTypes Is Nothing Then Throw New ArgumentNullException("dependency")
         _validador = validador
         _documentTypes = documentTypes
         _configurations = configurations
         _planBuilder = If(planBuilder, New ImportEffectPlanBuilder())
         _status = status
+        _catalog = catalog
     End Sub
     Public Function Preflight(ByVal contexto As ContextoImportacionServicio,
                               ByVal request As PreflightImportRequestDto) As PreflightImportResponseDto
@@ -41,19 +49,34 @@ Public NotInheritable Class ServicioPreflightImportacion
         End If
         Dim clientIds As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
         Dim externalKeys As New HashSet(Of String)(StringComparer.Ordinal)
+        Dim explicitReimports As New HashSet(Of String)(StringComparer.Ordinal)
+        Dim hasExplicitReimport = False
+        Dim documentTypeRequired = True
+        Try
+            If _catalog IsNot Nothing Then documentTypeRequired = _catalog.RequiereSeleccion(contexto)
+        Catch
+            Return Fail(response, "DOCUMENT_TYPE_POLICY_UNAVAILABLE", "No fue posible validar la política de tipología documental.")
+        End Try
         For Each item In request.Items
-            If item Is Nothing OrElse String.IsNullOrWhiteSpace(item.ClientItemId) OrElse item.ClientItemId.Trim().Length > 128 OrElse String.IsNullOrWhiteSpace(item.ExternalKey) OrElse item.ExternalKey.Trim().Length > 500 OrElse item.TargetTaskId <> contexto.IdTarea OrElse Not item.DocumentTypeId.HasValue OrElse item.DocumentTypeId.Value <= 0 OrElse String.IsNullOrWhiteSpace(item.DocumentTypeName) OrElse item.DocumentTypeName.Trim().Length > 255 OrElse If(item.ContentType, String.Empty).Trim().Length > 255 OrElse (Not String.Equals(contexto.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase) AndAlso If(item.FileName, String.Empty).Trim().Length > 500) Then Return Fail(response, "INVALID_SELECTION", "La selección contiene un elemento no válido.")
+            If item Is Nothing OrElse String.IsNullOrWhiteSpace(item.ClientItemId) OrElse item.ClientItemId.Trim().Length > 128 OrElse String.IsNullOrWhiteSpace(item.ExternalKey) OrElse item.ExternalKey.Trim().Length > 500 OrElse item.TargetTaskId <> contexto.IdTarea OrElse If(item.DocumentTypeName, String.Empty).Trim().Length > 255 OrElse If(item.ContentType, String.Empty).Trim().Length > 255 OrElse (Not String.Equals(contexto.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase) AndAlso If(item.FileName, String.Empty).Trim().Length > 500) Then Return Fail(response, "INVALID_SELECTION", "La selección contiene un elemento no válido.")
             If Not clientIds.Add(item.ClientItemId.Trim()) OrElse Not externalKeys.Add(item.ExternalKey.Trim()) Then Return Fail(response, "DUPLICATE_SELECTION", "La selección contiene elementos duplicados.")
-            Dim documentType As ResolucionTipoDocumentalImportacion
-            Try
-                documentType = _documentTypes.Resolver(contexto, item.DocumentTypeId.Value, item.DocumentTypeName)
-            Catch
-                Return Fail(response, "DOCUMENT_TYPE_RESOLUTION_UNAVAILABLE", "No fue posible validar la tipología documental.")
-            End Try
-            If documentType Is Nothing OrElse Not documentType.Valida Then
-                Return Fail(response, "DOCUMENT_TYPE_INVALID", "La tipología documental no corresponde al trámite.")
+            If item.ReimportRequested Then explicitReimports.Add(item.ExternalKey.Trim())
+            Dim hasDocumentType = item.DocumentTypeId.HasValue AndAlso item.DocumentTypeId.Value > 0 AndAlso Not String.IsNullOrWhiteSpace(item.DocumentTypeName)
+            If documentTypeRequired AndAlso Not hasDocumentType Then Return Fail(response, "DOCUMENT_TYPE_REQUIRED", "Debe seleccionar la tipología documental.")
+            If hasDocumentType Then
+                Dim documentType As ResolucionTipoDocumentalImportacion
+                Try
+                    documentType = _documentTypes.Resolver(contexto, item.DocumentTypeId.Value, item.DocumentTypeName)
+                Catch
+                    Return Fail(response, "DOCUMENT_TYPE_RESOLUTION_UNAVAILABLE", "No fue posible validar la tipología documental.")
+                End Try
+                If documentType Is Nothing OrElse Not documentType.Valida Then
+                    Return Fail(response, "DOCUMENT_TYPE_INVALID", "La tipología documental no corresponde al trámite.")
+                End If
+            ElseIf item.DocumentTypeId.HasValue OrElse Not String.IsNullOrWhiteSpace(item.DocumentTypeName) Then
+                Return Fail(response, "INVALID_DOCUMENT_TYPE", "La tipología documental está incompleta.")
             End If
-            response.Commands.Add(New DocumentCommandDto With {.ClientItemId = item.ClientItemId.Trim(), .ExternalKey = item.ExternalKey.Trim(), .DocumentTypeId = item.DocumentTypeId, .DocumentTypeName = item.DocumentTypeName.Trim(), .FileName = item.FileName, .ContentType = item.ContentType})
+            response.Commands.Add(New DocumentCommandDto With {.ClientItemId = item.ClientItemId.Trim(), .ExternalKey = item.ExternalKey.Trim(), .DocumentTypeId = item.DocumentTypeId, .DocumentTypeName = If(item.DocumentTypeName, String.Empty).Trim(), .FileName = item.FileName, .ContentType = item.ContentType})
         Next
         If _status IsNot Nothing AndAlso String.Equals(contexto.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase) Then
             Try
@@ -62,7 +85,10 @@ Public NotInheritable Class ServicioPreflightImportacion
                 For Each key In keys
                     Dim state As EstadoItemListadoImportacion = Nothing
                     If states.TryGetValue(key, state) AndAlso state IsNot Nothing AndAlso state.Confirmado Then
-                        Return Fail(response, "DOCUMENT_ALREADY_IMPORTED", "Uno de los documentos seleccionados ya está disponible.")
+                        If Not explicitReimports.Contains(key) Then
+                            Return Fail(response, "DOCUMENT_REIMPORT_CONFIRMATION_REQUIRED", "Confirme la reimportación del documento existente.")
+                        End If
+                        hasExplicitReimport = True
                     End If
                 Next
             Catch
@@ -89,7 +115,8 @@ Public NotInheritable Class ServicioPreflightImportacion
         For Each plan In plans : response.EffectPlans.Add(plan) : Next
         response.Requirements.Add(New ImportRequirementDto With {.Codigo = "CONTEXT_AUTHORIZED", .Satisfecho = True})
         response.Requirements.Add(New ImportRequirementDto With {.Codigo = "SELECTION_VALID", .Satisfecho = True})
-        response.Requirements.Add(New ImportRequirementDto With {.Codigo = "DOCUMENT_TYPE_ALLOWED", .Satisfecho = True})
+        If hasExplicitReimport Then response.Requirements.Add(New ImportRequirementDto With {.Codigo = "DOCUMENT_REIMPORT_EXPLICIT", .Satisfecho = True})
+        response.Requirements.Add(New ImportRequirementDto With {.Codigo = If(documentTypeRequired, "DOCUMENT_TYPE_ALLOWED", "DOCUMENT_TYPE_NOT_REQUIRED"), .Satisfecho = True})
         response.Requirements.Add(New ImportRequirementDto With {.Codigo = "EFFECT_CONFIGURATION_AVAILABLE", .Satisfecho = True})
         response.ContextFingerprint = Fingerprint(contexto, request.Capability, request.Items, configuration)
         response.IsValid = True
@@ -107,7 +134,7 @@ Public NotInheritable Class ServicioPreflightImportacion
     Private Shared Function Fingerprint(ByVal context As ContextoImportacionServicio, ByVal capability As String, ByVal items As IEnumerable(Of ImportItemSelectionDto), ByVal configuration As ImportEffectConfiguration) As String
         Dim values As New List(Of String)()
         For Each item In items
-            values.Add(item.ExternalKey.Trim() & "|" & item.TargetTaskId.ToString(Globalization.CultureInfo.InvariantCulture) & "|" & item.DocumentTypeId.Value.ToString(Globalization.CultureInfo.InvariantCulture) & "|" & item.DocumentTypeName.Trim())
+            values.Add(item.ExternalKey.Trim() & "|" & item.TargetTaskId.ToString(Globalization.CultureInfo.InvariantCulture) & "|" & If(item.DocumentTypeId.HasValue, item.DocumentTypeId.Value.ToString(Globalization.CultureInfo.InvariantCulture), String.Empty) & "|" & If(item.DocumentTypeName, String.Empty).Trim() & "|" & If(item.ReimportRequested, "REIMPORT", "IMPORT"))
         Next
         values.Sort(StringComparer.Ordinal)
         Dim canonical = context.IdUsuario.ToString(Globalization.CultureInfo.InvariantCulture) & "|" &
