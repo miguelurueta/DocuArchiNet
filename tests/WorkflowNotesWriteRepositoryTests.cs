@@ -82,9 +82,21 @@ internal static class WorkflowNotesWriteRepositoryTests
     private static void ConditionalMutationsDoNotAuditCrossedResourcesOrConflicts()
     {
         AssertCrossTaskIsRejectedBeforeMutation();
-        AssertRejectedConditionalMutation("propietario distinto", UpdateRequest());
-        AssertRejectedConditionalMutation("conflicto de versión", UpdateRequest());
-        AssertRejectedConditionalMutation("tarea que cambió de estado", UpdateRequest());
+        AssertRejectedConditionalMutation(
+            "propietario distinto",
+            UpdateRequest(),
+            Workflow.CodigosResultadoNotasWorkflow.NotOwner,
+            UserId + 1);
+        AssertRejectedConditionalMutation(
+            "conflicto de versión",
+            UpdateRequest(),
+            Workflow.CodigosResultadoNotasWorkflow.VersionConflict,
+            UserId);
+        AssertRejectedConditionalMutation(
+            "tarea que cambió de estado",
+            UpdateRequest(),
+            Workflow.CodigosResultadoNotasWorkflow.VersionConflict,
+            UserId);
         AssertRejectedConditionalDelete();
     }
 
@@ -115,13 +127,22 @@ internal static class WorkflowNotesWriteRepositoryTests
         Assert(!executor.Commands.Any(command => command.Contains("wf_log_workflow")), "auditoría de tarea cruzada");
     }
 
-    private static void AssertRejectedConditionalMutation(string label, Workflow.SolicitudActualizarNotaWorkflow request)
+    private static void AssertRejectedConditionalMutation(
+        string label,
+        Workflow.SolicitudActualizarNotaWorkflow request,
+        string expectedCode,
+        int diagnosticAuthorId)
     {
-        var executor = new FakeExecutor { Preflight = Preflight(true), ConditionalRows = 0 };
+        var executor = new FakeExecutor
+        {
+            Preflight = Preflight(true),
+            ConditionalRows = 0,
+            DiagnosticAuthorId = diagnosticAuthorId
+        };
         var connection = new FakeConnection();
         var result = Repository(executor, connection).Actualizar(Context(), Task(), request);
 
-        Equal(Workflow.CodigosResultadoNotasWorkflow.VersionConflict, result.Codigo, label);
+        Equal(expectedCode, result.Codigo, label);
         Equal(1, executor.NonQueryCalls, $"mutación condicionada para {label}");
         var mutation = executor.Commands.First(command => command.StartsWith("UPDATE ANOTACION_TAREA", StringComparison.Ordinal));
         Assert(mutation.Contains("ID_ANOTACION=@idNota"), $"nota condicionada para {label}");
@@ -262,6 +283,7 @@ internal static class WorkflowNotesWriteRepositoryTests
         public int ConditionalRows = 1;
         public long ExistingNoteId;
         public long InsertedNoteId = 55L;
+        public int DiagnosticAuthorId = UserId;
         public int NonQueryCalls;
         public readonly List<string> Commands = new List<string>();
 
@@ -280,6 +302,7 @@ internal static class WorkflowNotesWriteRepositoryTests
             Commands.Add(commandText);
             if (commandText.Contains("SELECT LAST_INSERT_ID()")) return InsertedNoteId;
             if (commandText.Contains("workflow_notas_idempotencia")) return ExistingNoteId > 0 ? $"{ExistingNoteId}|{StoredVersion}" : "0|";
+            if (commandText.Contains("SELECT COALESCE(ID_USUARIO, 0) FROM ANOTACION_TAREA")) return DiagnosticAuthorId;
             return 0L;
         }
 
