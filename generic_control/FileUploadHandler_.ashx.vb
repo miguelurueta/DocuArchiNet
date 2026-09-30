@@ -76,6 +76,9 @@ Public Class FileUploadHandler_
                 Dim id_expediente As Integer = context.Request("id_respuesta")
                 Dim name_modulo As String = context.Request("name_modulo")
                 Dim FechaCarga As String = context.Request("FechaCarga")
+                Dim IdRegistroEstadoRadicacion As Long = 0
+                Long.TryParse(Convert.ToString(context.Request("id_registro_estado_radicacion")), IdRegistroEstadoRadicacion)
+                Dim RadicadoRadicacion As String = Convert.ToString(context.Request("radicado_radicacion")).Trim()
                 Dim id_imagen As Integer = 0
                 If id_expediente = 0 Then
                     id_expediente = HttpContext.Current.Session.Item("PG_SELECCION_ID_EXPEIDENTE")
@@ -324,7 +327,9 @@ Public Class FileUploadHandler_
                                                                      FechaCarga,
                                                                      stru_datos_image_lista,
                                                                      id_tarea_workflow,
-                                                                     contador)
+                                                                     contador,
+                                                                     IdRegistroEstadoRadicacion,
+                                                                     RadicadoRadicacion)
                     If Result <> "YES" Then
                         uploadFiles.error_sistema = Result
                     Else

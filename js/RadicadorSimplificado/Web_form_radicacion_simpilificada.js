@@ -314,6 +314,12 @@ const event_element_click_promise = async (e) => {
 //----Activa la carga del archivo desde dispositivo---------////
 const ActivaCargaArchivosRadicacionSimplificada = async () => {
     try {
+        const RegistroEstadoSeleccionado = CONST_STRU_RAD_ASIN[0].stru_registro_estado;
+        const RadicadoSeleccionado = RegistroEstadoSeleccionado ? RegistroEstadoSeleccionado.consecutivo_radicado : "";
+        if (!Number.isFinite(Number(CONST_ID_REGISTRO_ESTADO)) || Number(CONST_ID_REGISTRO_ESTADO) <= 0 ||
+            String(RadicadoSeleccionado || "").trim() === "") {
+            return "No existe un contexto válido del radicado seleccionado. Actualice la pantalla e intente nuevamente.";
+        }
         let Rest = await ServiceRESTSolicitaListaTramiteAutoVinculacionGabinete(CONST_STRU_RAD_ASIN[0].DG_ID_TRAMITE);
         if (Rest.error) {
             return Rest.message;
@@ -329,6 +335,8 @@ const ActivaCargaArchivosRadicacionSimplificada = async () => {
             name_serivce_list: "service_source_list_item_control_general_documento_radicado",
             name_class_serivce_list: "WebServiceRadicacion.asmx",
             element_html_table: "table_doc_flow_select", element_html_lab_conteo: "Label_documentos", apost_html_lab_conteo: "Documentos",
+            IdRegistroEstadoRadicacion: CONST_ID_REGISTRO_ESTADO,
+            RadicadoRadicacion: String(RadicadoSeleccionado).trim(),
             setioption_obliga_tipologia: Rest.interface_config_digitaliza.Obliga_Lista_Chequeo
         });
         let result = await IniLoadPerson(_OPtionFileLoad);
@@ -850,6 +858,7 @@ const show_activa_cambio_tipo_documental_rad_simple = async (name_control, name_
 const Create_interface_radicacion_simplificada =  (name_control_padre, class_name_form_control, asigna_valor, apost_name_content, add_check) => {
     try {
         const ConfigsTom = [];
+        const formControlConfiguration = ITEM_GENERAL_CONTROL_ARRAY_ASING.slice();
         //----------Limpia los controles anidados en los tab
         for (var i = 0; i < ITEM_GENERAL_CONTROL_ARRAY_ASING.length; i++) {
             let name_padre_control = document.getElementById(ITEM_GENERAL_CONTROL_ARRAY_ASING[i].name_tab_control);
@@ -999,7 +1008,7 @@ const Create_interface_radicacion_simplificada =  (name_control_padre, class_nam
 
                     }
                 }
-                imputhml.addEventListener("change", event_change_drowslis_form);
+                imputhml.addEventListener("change", (event) => event_change_drowslis_form(event, formControlConfiguration));
                 //Descripcion_Documento
                 if (ITEM_GENERAL_CONTROL_ARRAY_ASING[i].name_campo == "Descripcion_Documento") {
                     imputhml.addEventListener("change", EventActualizaControlTom);
@@ -1037,6 +1046,7 @@ const Create_interface_radicacion_simplificada =  (name_control_padre, class_nam
             imputhml.setAttribute("atrib_control_tip_correo", ITEM_GENERAL_CONTROL_ARRAY_ASING[i].control_tip_correo);
             imputhml.setAttribute("atrib_value_campo_old", ITEM_GENERAL_CONTROL_ARRAY_ASING[i].value_campo_old);
             imputhml.setAttribute("atrib_drow_name_control_id", ITEM_GENERAL_CONTROL_ARRAY_ASING[i].drow_name_control_id);
+            imputhml.setAttribute("atrib_campo_beetwen", 0);
             imputhml.setAttribute("atrib_Tom_alow", ITEM_GENERAL_CONTROL_ARRAY_ASING[i].Tom_alow);
             imputhml.id = ITEM_GENERAL_CONTROL_ARRAY_ASING[i].name_campo + "_" + class_name_form_control;
             imputhml.classList.add(class_name_form_control); 
@@ -1327,7 +1337,7 @@ const asigna_gestion_soporte_documental = async (stru_asing_soporte_array) => {
             if (Panel_auto_vincular.style.display !== 'none') {
                 boton_rad_simpl_auto_vincula.addEventListener("click", handler_element_event, false);
             }
-            destroy_table_bootstrap_table('table_doc_flow_select');
+            destroy_table_bootstrap_table('table_doc_flow_select', 'div_rad_simple_content_table');
             let class_stru_row_Gabinete_Generic = JSON.parse(stru_asing_soporte_array[0].ROW_GABINETE_GENERIC[0].Obj_ilist_row_generic);
             init_row_feld_table_boostrap_table("table_doc_flow_select", stru_asing_soporte_array[0].ROW_GABINETE_GENERIC[0].Obj_ilist_fileds_generic,
                 class_stru_row_Gabinete_Generic, "div_rad_simple_content_table", null, null, "single","bt-selected",false,true,true);
@@ -1388,7 +1398,7 @@ const eliminar_gestion_soporte_documental = async (stru_asing_soporte_array) => 
             }
             CONST_ID_REGISTRO_ESTADO = 0;
             CONST_ID_IMAGEN_RAD = 0;
-            destroy_table_bootstrap_table("table_doc_flow_select");
+            destroy_table_bootstrap_table("table_doc_flow_select", "div_rad_simple_content_table");
             resolve("YES");
         } catch (ex) {
             resolve(ex.message + " funcion asigna_gestion_soporte_documental");

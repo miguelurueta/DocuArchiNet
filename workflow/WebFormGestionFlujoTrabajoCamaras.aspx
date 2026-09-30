@@ -25,8 +25,8 @@
     <script src="../bootstrap/table/dist/bootstrap-table-locale-all.js"></script>   
      <script src="../bootstrap/table/dist/extensions/export/bootstrap-table-export.min.js"></script>
     <script src="../bootstrap/table/dist/extensions/export/bootstrap-table-export.js"></script>     
-    <script src="../js/table_boo/table_boot_config.js"></script>
-    <script src="../js/java_general/BootstrapTable.js"></script>
+    <script src="../js/table_boo/table_boot_config.js?v=20260930-bootstrap-global-collision1"></script>
+    <script src="../js/java_general/BootstrapTable.js?v=20260930-bootstrap-global-collision1"></script>
     <script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
     <script  src="../Awesome/js/all.js"></script>    
     <link href="../Awesome/css/fontawesome.css" rel="stylesheet"/>

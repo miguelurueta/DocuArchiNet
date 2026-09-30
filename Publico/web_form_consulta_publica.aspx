@@ -29,8 +29,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/bootstrap-table.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/bootstrap-table-locale-all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
-    <script src="../js/table_boo/table_boot_config.js"></script>
-    <script src="../js/java_general/BootstrapTable.js"></script>
+    <script src="../js/table_boo/table_boot_config.js?v=20260930-bootstrap-global-collision1"></script>
+    <script src="../js/java_general/BootstrapTable.js?v=20260930-bootstrap-global-collision1"></script>
     <script  src="../Awesome/js/all.js"></script>
     <script src="../js/java_general/ubicacion_code_java.js" type="text/javascript"></script>   
     <script src="../generic_control/FileUploadHandler.js" type="text/javascript"></script>
