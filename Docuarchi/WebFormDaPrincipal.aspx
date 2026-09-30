@@ -16,8 +16,8 @@
     <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <script src="../bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
     <link href="../Styles/bootra-person.css" rel="stylesheet" />  
-    <script src="../js/table_boo/table_boot_config.js" type="text/javascript"></script>
-    <script src="../js/java_general/BootstrapTable.js" type="text/javascript"></script>
+    <script src="../js/table_boo/table_boot_config.js?v=20260930-bootstrap-global-collision1" type="text/javascript"></script>
+    <script src="../js/java_general/BootstrapTable.js?v=20260930-bootstrap-global-collision1" type="text/javascript"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/bootstrap-table.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.29.0/tableExport.min.js" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/bootstrap-table.min.js" type="text/javascript"></script>

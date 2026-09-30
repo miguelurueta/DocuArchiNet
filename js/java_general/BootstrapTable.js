@@ -482,25 +482,30 @@ const init_feld_table_boostrap_table = (name_table, array_fiels_table_bootstra, 
 const destroy_table_bootstrap_table = (name_table, name_parent_table, class_delete, class_add) => {
     let $table = $('#' + name_table);
     let height_table = 440;
+    let parent_table = name_parent_table ? document.getElementById(name_parent_table) : null;
     let classes = [];
     classes.push("table");
     //classes.push("table-hover");
     if (class_delete == null) {
         classes.push("table-bordered");
     }
-    if (class_add !== null) {
+    if (class_add != null) {
         classes.push(class_add);
     }
-    if (document.getElementById(name_parent_table) != null) {
-        height_table = document.getElementById(name_parent_table).clientHeight - 5;
+    if (parent_table != null) {
+        height_table = parent_table.clientHeight - 5;
     }
-    if (document.getElementById(name_parent_table) != null) {
-        height_table = document.getElementById(name_parent_table).clientHeight - 5;
-        $table.bootstrapTable('destroy').bootstrapTable({
+    if (!$table.length || typeof $table.bootstrapTable !== "function") {
+        return false;
+    }
+    $table.bootstrapTable('destroy');
+    if (parent_table != null) {
+        $table.bootstrapTable({
             height: height_table,
             classes: classes.join(' ')
         })
     }
+    return true;
 }
 const table_reize_heigth = (name_table, heig_table, class_delete, class_add, allowedcollapse = false) => {
     let $table = $('#' + name_table);

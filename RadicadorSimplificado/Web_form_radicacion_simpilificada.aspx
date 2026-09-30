@@ -17,10 +17,10 @@
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
     <script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
     <link href="../js/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
-    <script src="../js/RadicadorSimplificado/Web_form_radicacion_simpilificada.js"></script>
+    <script src="../js/RadicadorSimplificado/Web_form_radicacion_simpilificada.js?v=20260930-form-state-isolation1"></script>
     <script src="../js/java_general/general_code_java.js"></script>
     <script src="../js/java_general/general_config.js"></script>
-    <script src="../js/java_general/general_control_java.js"></script>
+    <script src="../js/java_general/general_control_java.js?v=20260930-form-metadata1"></script>
     <script src="../js/java_general/JSProgresBar.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" type="text/javascript"></script>
     <link href="../Styles/bootra-person.css" rel="stylesheet" />
@@ -31,15 +31,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/bootstrap-table.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/bootstrap-table-locale-all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
-    <script src="../js/table_boo/table_boot_config.js"></script>
-    <script src="../js/java_general/BootstrapTable.js"></script>
+    <script src="../js/table_boo/table_boot_config.js?v=20260930-bootstrap-global-collision1"></script>
+    <script src="../js/java_general/BootstrapTable.js?v=20260930-bootstrap-global-collision1"></script>
     <script src="../js/java_general/JS_firma_digital.js"></script>
     <script src="../js/java_general/gestion_meta_dato.js"></script>
     <script src="../js/java_general/JSReplaceScanFile.js"></script>
     <script src="../js/versiondocumento/gestion_version_documento.js"></script>
     <script  src="../Awesome/js/all.js"></script>
     <script src="../js/java_general/ubicacion_code_java.js" type="text/javascript"></script>   
-    <script src="../generic_control/FileUploadHandler.js" type="text/javascript"></script>
+    <script src="../generic_control/FileUploadHandler.js?v=20260930-radicacion-context1" type="text/javascript"></script>
     <link href="../generic_control/UploadFile.css" rel="stylesheet" />
     <link href="../Awesome/css/fontawesome.css" rel="stylesheet"/>
     <link href="../Awesome/css/brands.css" rel="stylesheet"/>

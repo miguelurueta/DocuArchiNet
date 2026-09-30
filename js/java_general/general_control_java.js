@@ -581,6 +581,7 @@ function valida_solicita_datos_control_general(name_espace_class) {
         let atrib_value_campo_old = "";
         let atrib_name_campo_id = "";
         let atrib_drow_name_control_id = "";
+        let control_element_id = "";
         let atrib_Tom_alow = "";
         let value_campo_beetwen = "";
         let atrib_campo_beetwen = "0";
@@ -680,10 +681,11 @@ function valida_solicita_datos_control_general(name_espace_class) {
             atrib_campo_v = control_element_[i].attributes["atrib_campo_v"].value;
             atrib_campo_nl = control_element_[i].attributes["atrib_campo_nl"].value;
             atrib_campo_tip = control_element_[i].attributes["atrib_campo_tip"].value;
-            atrib_campo_id = control_element_[i].id;
+            atrib_campo_id = control_element_[i].attributes["atrib_campo_id"].value;
             atrib_campo_t = control_element_[i].attributes["atrib_campo_t"].value;
             atrib_campo_tbl = control_element_[i].attributes["atrib_campo_tbl"].value;
-            atrib_name_campo_id = control_element_[i].id;
+            atrib_name_campo_id = control_element_[i].attributes["atrib_name_campo_id"].value;
+            control_element_id = control_element_[i].id;
             valor_campo = control_element_[i].value;
             atrib_value_campo_old = control_element_[i].attributes["atrib_value_campo_old"].value;
             atrib_drow_name_control_id = control_element_[i].attributes["atrib_drow_name_control_id"].value;
@@ -733,12 +735,12 @@ function valida_solicita_datos_control_general(name_espace_class) {
                 }
             }
                 //----------Asigna el valor del beetwen al campo padre-----------///
-                let HtmpCampoPar = document.getElementById(atrib_campo_id + "_par");
+                let HtmpCampoPar = document.getElementById(control_element_id + "_par");
                 if (HtmpCampoPar) {
                     value_campo_beetwen = HtmpCampoPar.value;
                 }
                 //--------Setea el valor del campo par si el campo padre esta lleno--------///     
-                let namePadre = atrib_name_campo_id.replace("_par", "");
+                let namePadre = control_element_id.replace("_par", "");
                 let htmlPadre = document.getElementById(namePadre);
                 if (atrib_campo_beetwen == 1 && htmlPadre?.value) {
                     valor_campo = "";
@@ -814,6 +816,7 @@ const valida_solicita_datos_control_general_async = async (name_espace_class) =>
             let atrib_value_campo_old = "";
             let atrib_name_campo_id = "";
             let atrib_drow_name_control_id = "";
+            let control_element_id = "";
             let value_campo_beetwen = "";
             let atrib_campo_beetwen = "0";
             let control_element_ = document.getElementsByClassName(name_espace_class);
@@ -882,10 +885,11 @@ const valida_solicita_datos_control_general_async = async (name_espace_class) =>
                 atrib_campo_v = control_element_[i].attributes["atrib_campo_v"].value;
                 atrib_campo_nl = control_element_[i].attributes["atrib_campo_nl"].value;
                 atrib_campo_tip = control_element_[i].attributes["atrib_campo_tip"].value;
-                atrib_campo_id = control_element_[i].id;
+                atrib_campo_id = control_element_[i].attributes["atrib_campo_id"].value;
                 atrib_campo_t = control_element_[i].attributes["atrib_campo_t"].value;
                 atrib_campo_tbl = control_element_[i].attributes["atrib_campo_tbl"].value;
-                atrib_name_campo_id = control_element_[i].id;
+                atrib_name_campo_id = control_element_[i].attributes["atrib_name_campo_id"].value;
+                control_element_id = control_element_[i].id;
                 valor_campo = control_element_[i].value;
                 atrib_value_campo_old = control_element_[i].attributes["atrib_value_campo_old"].value;
                 atrib_drow_name_control_id = control_element_[i].attributes["atrib_drow_name_control_id"].value;
@@ -921,12 +925,12 @@ const valida_solicita_datos_control_general_async = async (name_espace_class) =>
                     }
                 }
                 //----------Asigna el valor del beetwen al campo padre-----------///
-                let HtmpCampoPar = document.getElementById(atrib_campo_id + "_par");
+                let HtmpCampoPar = document.getElementById(control_element_id + "_par");
                 if (HtmpCampoPar) {
                     value_campo_beetwen = HtmpCampoPar.value;
                 }
                 //--------Setea el valor del campo par si el campo padre esta lleno--------///     
-                let namePadre = atrib_name_campo_id.replace("_par", "");
+                let namePadre = control_element_id.replace("_par", "");
                 let htmlPadre = document.getElementById(namePadre);
                 if (atrib_campo_beetwen == 1 && htmlPadre?.value) {
                     valor_campo = "";
@@ -1480,6 +1484,7 @@ function Create_interface_formulario_control(name_control_padre, class_name_form
             imputhml.setAttribute("atrib_control_tip_correo", ITEM_GENERAL_CONTROL_ARRAY_ASING[i].control_tip_correo);
             imputhml.setAttribute("atrib_value_campo_old", ITEM_GENERAL_CONTROL_ARRAY_ASING[i].value_campo_old);
             imputhml.setAttribute("atrib_drow_name_control_id", ITEM_GENERAL_CONTROL_ARRAY_ASING[i].drow_name_control_id);
+            imputhml.setAttribute("atrib_campo_beetwen", 0);
             imputhml.setAttribute("atrib_Tom_alow", ITEM_GENERAL_CONTROL_ARRAY_ASING[i].Tom_alow);
             imputhml.id = ITEM_GENERAL_CONTROL_ARRAY_ASING[i].name_campo + "_" + class_name_form_control;
             imputhml.classList.add(class_name_form_control);
@@ -1607,9 +1612,10 @@ function search_valor_campo_form_control(name_espace_class) {
 //ZONA DROWLIST 
 //--------------------------//---------------------
 //--Event control change
-function event_change_drowslis_form(e) {
+function event_change_drowslis_form(e, control_configuration) {
     let ecourrent = e.currentTarget;
     let value_e = ecourrent.value; 
+    let form_control_configuration = Array.isArray(control_configuration) ? control_configuration : ITEM_GENERAL_CONTROL_ARRAY_ASING;
     let atrrib_name_control_destino = ecourrent.attributes["atrib_campo_drow_destino"].nodeValue;
     let atrrib_name_espace_control = ecourrent.attributes["atrib_name_espace_control"].nodeValue;
     let atrrib_name_control = ecourrent.attributes["atrib_campo_n"].nodeValue;
@@ -1618,10 +1624,10 @@ function event_change_drowslis_form(e) {
         return true;
     } 
     if (document.getElementById(name_control)) {   
-        let array_drow_config_list = Drow_confing_service(atrrib_name_control_destino, ITEM_GENERAL_CONTROL_ARRAY_ASING);
+        let array_drow_config_list = Drow_confing_service(atrrib_name_control_destino, form_control_configuration);
         if (array_drow_config_list) { 
             //-Clear drow relacionado al control
-            Drow_delete_rows(atrrib_name_espace_control, atrrib_name_control, ITEM_GENERAL_CONTROL_ARRAY_ASING);
+            Drow_delete_rows(atrrib_name_espace_control, atrrib_name_control, form_control_configuration);
             service_source_ilist_drow_control_general(value_e, array_drow_config_list, name_control);
         }
     } else {

@@ -41,8 +41,8 @@
     <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.29.0/libs/jsPDF/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.2/dist/extensions/export/bootstrap-table-export.min.js"></script>
    
-    <script src="../js/table_boo/table_boot_config.js"></script>
-    <script src="../js/java_general/BootstrapTable.js"></script>
+    <script src="../js/table_boo/table_boot_config.js?v=20260930-bootstrap-global-collision1"></script>
+    <script src="../js/java_general/BootstrapTable.js?v=20260930-bootstrap-global-collision1"></script>
     <script  src="../Awesome/js/all.js"></script>
      <link href="../Awesome/css/fontawesome.css" rel="stylesheet"/>
   <link href="../Awesome/css/brands.css" rel="stylesheet"/>

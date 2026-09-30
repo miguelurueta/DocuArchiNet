@@ -104,6 +104,8 @@ class LoadFilePERSON {
             CargaTipologia: 1,                                   ///-----Representa si se dibuja la tipogia en el registro del documento
             CargaFecha: 0,                                       ///-----Representa si se dibuja la tipogia en el registro del documento
             CargaPreview: 0,                                     ///-----Representa si se dibuja la tipogia en el registro del documento
+            IdRegistroEstadoRadicacion: 0,                       ///-----Contexto inmutable del registro seleccionado en Radicación Simplificada
+            RadicadoRadicacion: "",                              ///-----Radicado visible asociado al registro seleccionado
             TipoFormulario: 1                                    ///-----Representa el tipo formulario que dibuja 1-Dinamico 2-Estatico
 
         }
@@ -1155,6 +1157,10 @@ _removeFirstClass(classString) {
             formdata.append("nombre_tipo_documento", DescripcionTipoDocumento);
             formdata.append("name_modulo", this.settings.name_modulo);
             formdata.append("FechaCarga", TextCampoFecha);
+            if (this.settings.evento_adjunta === "ADJUNTARADICACION") {
+                formdata.append("id_registro_estado_radicacion", this.settings.IdRegistroEstadoRadicacion);
+                formdata.append("radicado_radicacion", this.settings.RadicadoRadicacion);
+            }
             FilePerson.ContenUploadArray.push({
                 id: Id, name: NombreArchivo, IdTipoDocumento: IdTipoDocumento,
                 DescripcionTipoDocumento: DescripcionTipoDocumento, FormData: formdata

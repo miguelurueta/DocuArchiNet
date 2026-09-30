@@ -7,7 +7,7 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const legacyPath = path.join(root, "workflow/ClassAlmacenamiento.vb");
 const adapterPath = path.join(root, "Infrastructure/Workflow/ImportarServicioWeb/Storage/LegacyImportDocumentStorageAdapter.vb");
-const expectedLegacyBlob = "b8b5b6ea0b48626e8e8ce9fe3031fbe6a2eeefa1";
+const expectedLegacyBlob = "d7bb4d010a04911903da98580e089ae4b799c672";
 
 const gitBlobHash = (buffer) => {
   const header = Buffer.from(`blob ${buffer.length}\0`);

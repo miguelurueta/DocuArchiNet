@@ -5803,7 +5803,9 @@ Public Class ClassAlmacenamiento
                             ByVal FechaCarga As String,
                             ByRef StruDatosImageLista As stru_datos_image_lista,
                             ByRef IdTareaWorkflow As Long,
-                            ByRef Contador As String) As String
+                            ByRef Contador As String,
+                            Optional ByVal IdRegistroEstadoRadicacion As Long = 0,
+                            Optional ByVal RadicadoRadicacion As String = "") As String
         '-----------------------------------------------------------------------------------------------
         'Funcion : Activa guardar documentos que se carga desde dispositivos por la interfaz de carga
         '          de java script
@@ -6125,11 +6127,27 @@ Public Class ClassAlmacenamiento
             If HttpContext.Current.Session.Item("WF_TIPO_ADJUNTA") = "ADJUNTARADICACION" Then
                 Dim Class_ra_rad_estados_modulo_radicacion As New Class_ra_rad_estados_modulo_radicacion
                 Dim StruRegistroEstado As stru_registro_estado = Nothing
-                Result = Class_ra_rad_estados_modulo_radicacion.SolicitaDatosEstructuraEstadoRadicado(HttpContext.Current.Session.Item("RA_ID_REGISTRO_RADICADO"),
+                Dim IdRegistroEstadoSeleccionado As Long = IdRegistroEstadoRadicacion
+                If IdRegistroEstadoSeleccionado <= 0 Then
+                    IdRegistroEstadoSeleccionado = Val(HttpContext.Current.Session.Item("RA_ID_REGISTRO_RADICADO"))
+                End If
+                Result = Class_ra_rad_estados_modulo_radicacion.SolicitaDatosEstructuraEstadoRadicado(IdRegistroEstadoSeleccionado,
                                                                                                       StruRegistroEstado)
 
                 If Result <> "YES" Then
                     Return Result
+                End If
+                If Not String.IsNullOrWhiteSpace(RadicadoRadicacion) AndAlso
+                   Not String.IsNullOrWhiteSpace(StruRegistroEstado.consecutivo_radicado) AndAlso
+                   Not String.Equals(RadicadoRadicacion.Trim(), StruRegistroEstado.consecutivo_radicado.Trim(), StringComparison.Ordinal) Then
+                    Return "El radicado enviado no corresponde al registro de estado seleccionado. Actualice la pantalla e intente nuevamente."
+                End If
+                Dim RadicadoRegistroSeleccionado As String = StruRegistroEstado.consecutivo_radicado
+                If String.IsNullOrWhiteSpace(RadicadoRegistroSeleccionado) Then
+                    RadicadoRegistroSeleccionado = RadicadoRadicacion
+                End If
+                If String.IsNullOrWhiteSpace(RadicadoRegistroSeleccionado) Then
+                    Return "El registro seleccionado no contiene un radicado válido para adjuntar el documento. Actualice la pantalla e intente nuevamente."
                 End If
                 If IdTipoChek = 0 Or IdTipoChek = -1 Then
                     HttpContext.Current.Session.Item("DG_LISTA_CHEQUEO") = "-1"
@@ -6152,7 +6170,8 @@ Public Class ClassAlmacenamiento
                                                          0,
                                                          "",
                                                          IdImagenAlmacenada,
-                                                         StruDatosImageLista)
+                                                         StruDatosImageLista,
+                                                         RadicadoRegistroSeleccionado)
                 If Result <> "YES" Then
                     UploadSaveFile = Result
                     Exit Function
@@ -8041,7 +8060,8 @@ Public Class ClassAlmacenamiento
                                              ByVal TipoAlmacen As Integer,
                                              ByVal DatosEnlaceScript As String,
                                              ByRef IdImagenAlamacenada As Integer,
-                                             ByRef EstructuraDatosImagen As stru_datos_image_lista) As String
+                                             ByRef EstructuraDatosImagen As stru_datos_image_lista,
+                                             Optional ByVal ConsecutivoRadicadoEstado As String = "") As String
         '-----------------------------------------------------------------------------------------------
         'Funcion : Alista los datos de pre almacenamiento para documentos que se adjuntan dsde el radicado
         '-----------------------------------------------------------------------------------------------
@@ -8172,6 +8192,12 @@ Public Class ClassAlmacenamiento
                 Case Else
                     Return "Imposible determinar si el tipo de tarea Workflow es interna o externa en relación con el número de tarea Workflow (" & StructureDatosTareaWorkflow.FLUJO_INTERNO_WF & ")"
             End Select
+            'En Radicación Simplificada el registro de estado ya contiene el radicado seleccionado.
+            'Se conserva la resolución histórica desde la tarea y solo se usa este valor si aquella
+            'fuente no tiene dato, evitando enviar un radicado vacío al almacenamiento compartido.
+            If String.IsNullOrWhiteSpace(Radicado) AndAlso Not String.IsNullOrWhiteSpace(ConsecutivoRadicadoEstado) Then
+                Radicado = ConsecutivoRadicadoEstado.Trim()
+            End If
             Result = AlmacenaDocumentosRadicacion(EvaluaActualizaImagenWorkflow,
                                                   Gabinete,
                                                   Radicado,

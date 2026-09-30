@@ -30,8 +30,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/bootstrap-table-locale-all.min.js" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.23.1/dist/extensions/export/bootstrap-table-export.min.js" type="text/javascript"></script>
     <script src="../js/versiondocumento/gestion_version_documento.js"></script>
-    <script src="../js/table_boo/table_boot_config.js" type="text/javascript"></script>
-    <script src="../js/java_general/BootstrapTable.js" type="text/javascript"></script>
+    <script src="../js/table_boo/table_boot_config.js?v=20260930-bootstrap-global-collision1" type="text/javascript"></script>
+    <script src="../js/java_general/BootstrapTable.js?v=20260930-bootstrap-global-collision1" type="text/javascript"></script>
     <script src="../js/MyJavaScriptFile.js"></script> 
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
    <script src="../js/Filtrar.js"></script>
