@@ -27,12 +27,39 @@ Public NotInheritable Class LegacyImportDocumentStorageAdapter
                 campos, ValorCampo(comando.Campos, "MATRICULA"), comando.NombreCaso, comando.NombreClaseFormatoDocumento,
                 idImagen, imagen)
             If String.Equals(respuesta, "YES", StringComparison.OrdinalIgnoreCase) Then
-                Return New ResultadoFaseImportacion With {.Exitoso = True, .PersistenciaConocida = True, .IdDocumento = idImagen}
+                Return New ResultadoFaseImportacion With {
+                    .Exitoso = True,
+                    .PersistenciaConocida = True,
+                    .IdDocumento = idImagen,
+                    .ProyeccionDocumentoWorkflow = CrearProyeccionWorkflow(comando, imagen, idImagen)}
             End If
             Return Fallo(ClasificarRechazo(respuesta), MensajeDiagnosticoLegacy(respuesta & " | " & DiagnosticoFormato(comando)), True)
         Catch ex As Exception
             Return Fallo("DOCUMENT_STORAGE_UNCERTAIN", MensajeDiagnosticoLegacy(ex.Message & " | " & DiagnosticoFormato(comando)), False)
         End Try
+    End Function
+
+    Private Shared Function CrearProyeccionWorkflow(ByVal comando As ComandoAlmacenamientoImportacion,
+                                                     ByVal imagen As stru_datos_image_lista,
+                                                     ByVal idImagen As Integer) As ProyeccionDocumentoWorkflowImportacion
+        If comando Is Nothing OrElse idImagen <= 0 OrElse comando.IdTareaWorkflow <= 0 Then Return Nothing
+        Dim gabinete = If(String.IsNullOrWhiteSpace(imagen.nombre_gabinete), comando.NombreGabinete, imagen.nombre_gabinete)
+        Dim radicado = If(String.IsNullOrWhiteSpace(imagen.radicado), comando.Radicado, imagen.radicado)
+        Dim tipoFisico = If(String.IsNullOrWhiteSpace(Convert.ToString(imagen.DBT)), imagen.extension, Convert.ToString(imagen.DBT))
+        Dim tipologia = If(String.IsNullOrWhiteSpace(imagen.notipodocumento), comando.DescripcionTipo, imagen.notipodocumento)
+        Dim icono = imagen.icono_icono_awe_some
+        If String.IsNullOrWhiteSpace(gabinete) OrElse String.IsNullOrWhiteSpace(radicado) OrElse
+           String.IsNullOrWhiteSpace(tipoFisico) OrElse String.IsNullOrWhiteSpace(tipologia) OrElse
+           String.IsNullOrWhiteSpace(icono) Then Return Nothing
+        Return New ProyeccionDocumentoWorkflowImportacion With {
+            .NombreGabinete = gabinete,
+            .IdDocumento = idImagen,
+            .Radicado = radicado,
+            .TipoFisico = tipoFisico,
+            .Tipologia = tipologia,
+            .IdTarea = comando.IdTareaWorkflow,
+            .EstadoFirma = imagen.estado_firma_digital,
+            .ClaseIcono = icono}
     End Function
 
     Private Shared Function ClasificarRechazo(ByVal respuesta As String) As String

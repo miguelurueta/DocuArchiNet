@@ -18,14 +18,35 @@
     function normalizeCatalogName(value) {
         return text(value).toUpperCase().replace(/[ÁÀÄÂ]/g, "A").replace(/[ÉÈËÊ]/g, "E").replace(/[ÍÌÏÎ]/g, "I").replace(/[ÓÒÖÔ]/g, "O").replace(/[ÚÙÜÛ]/g, "U").replace(/Ñ/g, "N").replace(/[^A-Z0-9]+/g, " ").trim();
     }
+    function editDistance(left, right) {
+        var previous = [], current, row, column;
+        for (column = 0; column <= right.length; column += 1) { previous[column] = column; }
+        for (row = 1; row <= left.length; row += 1) {
+            current = [row];
+            for (column = 1; column <= right.length; column += 1) {
+                current[column] = Math.min(current[column - 1] + 1, previous[column] + 1, previous[column - 1] + (left.charAt(row - 1) === right.charAt(column - 1) ? 0 : 1));
+            }
+            previous = current;
+        }
+        return previous[right.length];
+    }
+    function containsNearWord(name, expected) {
+        return normalizeCatalogName(name).split(" ").some(function (word) { return word && editDistance(word, expected) <= 2; });
+    }
+    function isRegistrationCertificate(entry) {
+        var name = catalogName(entry);
+        return containsNearWord(name, "CONSTANCIA") && containsNearWord(name, "INSCRIPCION");
+    }
     function defaultDocumentType(catalog) {
         var allowed = (catalog || []).filter(function (entry) { return catalogId(entry) > 0 && catalogName(entry); }), required, matches;
         if (allowed.length === 1) { return allowed[0]; }
+        matches = allowed.filter(isRegistrationCertificate);
+        if (matches.length === 1) { return matches[0]; }
+        if (matches.length > 1) { return null; }
         required = allowed.filter(function (entry) { return entry.Required === true || entry.Obligatorio === true; });
         if (required.length === 1) { return required[0]; }
         if (required.length > 1) { return null; }
-        matches = allowed.filter(function (entry) { var name = normalizeCatalogName(catalogName(entry)); return /(^| )CONSTANCIA( |$)/.test(name) && /(^| )INSCRIPCION( |$)/.test(name); });
-        return matches.length === 1 ? matches[0] : null;
+        return null;
     }
     function assignDefaultDocumentType(items, catalog) {
         var selected = defaultDocumentType(catalog);

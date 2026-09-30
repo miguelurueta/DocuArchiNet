@@ -30,3 +30,9 @@ test('transporta la proyección ENLASE tipada del resultado confirmado', () => {
   const mapped=progress.mapItem({Status:'Completada',DocumentId:92,TaskId:220586,EnlaseProjection:{CabinetName:'MERCANTIL',DocumentId:92,Radicado:'S002469800',StorageType:'PDF',DocumentName:'Recibo De Caja',TaskId:220586,SignatureStatus:0,IconClass:'fa-file-pdf'}});
   assert.deepEqual(mapped.enlaseProjection,{cabinetName:'MERCANTIL',documentId:92,radicado:'S002469800',storageType:'PDF',documentName:'Recibo De Caja',taskId:220586,signatureStatus:0,iconClass:'fa-file-pdf'});
 });
+
+test('transporta la proyección Workflow tipada sin reutilizar el contrato ENLASE', () => {
+  const mapped=progress.mapItem({Status:'Completada',DocumentId:93,TaskId:220586,WorkflowProjection:{CabinetName:'MERCANTIL',DocumentId:93,Radicado:'S002469800',StorageType:'PDF',DocumentTypeName:'Certificado de tradición',TaskId:220586,SignatureStatus:0,IconClass:'fa-file-pdf'}});
+  assert.deepEqual(mapped.workflowProjection,{cabinetName:'MERCANTIL',documentId:93,radicado:'S002469800',storageType:'PDF',documentTypeName:'Certificado de tradición',taskId:220586,signatureStatus:0,iconClass:'fa-file-pdf'});
+  assert.equal(mapped.enlaseProjection,null);
+});

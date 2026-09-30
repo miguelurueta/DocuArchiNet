@@ -1,9 +1,10 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07 -->
+# fix-sellos-sii Specification
+
 ## Purpose
 
 Garantizar que los sellos y constancias importados desde SII se proyecten de inmediato como documentos Workflow completos y operables, sin recargar la lista ni alterar el recorrido protegido de ENLASE.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: RQ-01 Proyección Workflow completa desde el almacenamiento confirmado
 

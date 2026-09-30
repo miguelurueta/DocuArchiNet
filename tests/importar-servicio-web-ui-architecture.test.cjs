@@ -16,7 +16,7 @@ test('la importación moderna conserva una composición y una entrada canónicas
 });
 
 test('la UI usa los adaptadores existentes sin arnés ni transporte paralelo', () => {
-  for (const dependency of ['ImportarServicioWebApi', 'ImportarServicioWebProviderRegistry', 'ImportarServicioWebProgressAdapter', 'ImportarServicioWebReconciliation', 'ImportarServicioWebDocumentListAdapter']) {
+  for (const dependency of ['ImportarServicioWebApi', 'ImportarServicioWebProviderRegistry', 'ImportarServicioWebProgressAdapter', 'ImportarServicioWebReconciliation', 'ImportarServicioWebDocumentListAdapter', 'ImportarServicioWebWorkflowDocumentListAdapter']) {
     assert.match(ui, new RegExp(dependency));
   }
   assert.doesNotMatch(ui, /playwright|puppeteer|localStorage|XMLHttpRequest|new WebSocket/i);
@@ -29,4 +29,5 @@ test('ejecución, espera y proyección mantienen contratos únicos', () => {
   assert.match(ui, /function closeAfterResult\(control, snapshot\)[\s\S]*documentList\.synchronize\(snapshot\)/);
   assert.match(ui, /createLegacyGridAppender/);
   assert.match(ui, /insert_row_documento_relacionado\(legacyData, destination, versioned\)/);
+  assert.doesNotMatch(ui, /Button_actualiza_trevie_seleccion|PageRequestManager|refreshDocumentListPartial/);
 });

@@ -177,27 +177,13 @@
         control.closeButton.setAttribute("aria-disabled", control.executionCloseLocked ? "true" : "false");
     }
 
-    function refreshDocumentListPartial(control) {
-        var button = document.getElementById("Button_actualiza_trevie_seleccion"), manager;
-        if (!button || typeof button.click !== "function" || !window.Sys || !window.Sys.WebForms || !window.Sys.WebForms.PageRequestManager) { return Promise.resolve(false); }
-        manager = window.Sys.WebForms.PageRequestManager.getInstance();
-        return new Promise(function (resolve) {
-            var completed = false, timeoutId;
-            function finish(updated) {
-                if (completed) { return; }
-                completed = true; window.clearTimeout(timeoutId); manager.remove_endRequest(onEndRequest); resolve(updated);
-            }
-            function onEndRequest() { finish(true); }
-            manager.add_endRequest(onEndRequest);
-            timeoutId = window.setTimeout(function () { finish(false); }, 15000);
-            button.click();
-        });
-    }
-
     function closeAfterResult(control, snapshot) {
-        var projection = control.documentList.synchronize(snapshot), completion = control.projectionCompletion || Promise.resolve(!projection.refreshed);
-        control.projectionCompletion = null;
-        return Promise.resolve(completion).catch(function () { return false; }).then(function (projected) { setExecutionCloseLock(control, false); if (projected === false) { control.progressStatus.textContent = "El documento fue importado, pero no pudo agregarse a la lista visible. Mantenga esta ventana abierta y reintente la proyeccion."; return snapshot; } close(control, true); return snapshot; });
+        var projection = control.documentList.synchronize(snapshot);
+        var projected = projection.documents.length > 0 && projection.appended === projection.documents.length && projection.refreshed === false;
+        setExecutionCloseLock(control, false);
+        if (!projected) { control.progressStatus.textContent = "El documento fue importado, pero no pudo agregarse a la lista visible. Mantenga esta ventana abierta y reintente la proyeccion."; return Promise.resolve(snapshot); }
+        close(control, true);
+        return Promise.resolve(snapshot);
     }
 
     function shouldCloseAfterResult(execution, authoritative) {
@@ -401,7 +387,7 @@
         var apiFactory = options.api || window.ImportarServicioWebApi;
         var registryFactory = options.registry || window.ImportarServicioWebProviderRegistry;
         var coreFactory = options.core || window.ImportarServicioWebCore;
-        var control, registry, api, siiFactory, enlaseFactory, assignmentBridgeFactory, progressAdapterFactory, progressViewFactory, reconciliationFactory, documentListFactory, guardFactory, recoveryFactory, contextControls, appendImportedDocument;
+        var control, registry, api, siiFactory, enlaseFactory, assignmentBridgeFactory, progressAdapterFactory, progressViewFactory, reconciliationFactory, documentListFactory, workflowDocumentListFactory, guardFactory, recoveryFactory, contextControls, appendImportedDocument, appendEnlaseDocument, appendWorkflowDocument;
 
         if (activeControl && activeControl.modal === modal) { triggers.forEach(function (candidate) { bindTrigger(activeControl, candidate); }); return activeControl; }
         if (!trigger) { return null; }
@@ -425,8 +411,9 @@
         progressViewFactory = options.progressView || window.ImportarServicioWebProgressView;
         reconciliationFactory = options.reconciliation || window.ImportarServicioWebReconciliation;
         documentListFactory = options.documentList || window.ImportarServicioWebDocumentListAdapter;
+        workflowDocumentListFactory = options.workflowDocumentList || window.ImportarServicioWebWorkflowDocumentListAdapter;
         guardFactory = options.taskContextGuard || window.ImportarServicioWebTaskContextGuard; recoveryFactory = options.recovery || window.ImportarServicioWebRecovery;
-        if (!control.preparation || !window.ImportarServicioWebIntentClient || !progressAdapterFactory || !progressViewFactory || !reconciliationFactory || !documentListFactory || !guardFactory || !recoveryFactory || !control.preparationPanel || !control.preparationTitle || !control.preparationStatus || !control.preparationItems || !control.preparationClose || !control.preparationCancel || !control.preparationConfirm || !control.progressPanel || !control.progressTitle || !control.progressStatus || !control.progressSummary || !control.progressResults) { return null; }
+        if (!control.preparation || !window.ImportarServicioWebIntentClient || !progressAdapterFactory || !progressViewFactory || !reconciliationFactory || !documentListFactory || !workflowDocumentListFactory || !guardFactory || !recoveryFactory || !control.preparationPanel || !control.preparationTitle || !control.preparationStatus || !control.preparationItems || !control.preparationClose || !control.preparationCancel || !control.preparationConfirm || !control.progressPanel || !control.progressTitle || !control.progressStatus || !control.progressSummary || !control.progressResults) { return null; }
         control.intentClient = (options.intentClient || window.ImportarServicioWebIntentClient).create({ api: api });
         control.progressAdapter = progressAdapterFactory.create({ api: api });
         control.reconciliation = reconciliationFactory.create({ api: api });
@@ -436,17 +423,17 @@
         control.taskContextGuard = guardFactory.create({ currentTaskId: function () { return taskId(control); }, controls: contextControls, eventTarget: window });
         control.recovery = recoveryFactory.create({ api: api, adapt: control.reconciliation.adapt });
         appendImportedDocument = options.appendImportedDocument;
-        if (typeof appendImportedDocument !== "function" && typeof documentListFactory.createLegacyGridAppender === "function") {
-            appendImportedDocument = documentListFactory.createLegacyGridAppender({ document: document, resolveTarget: function () { return isEnlase(control) ? { gridId: "GridView_list_documento_relacion", destination: "rad", rowIdAttribute: "id_rad" } : { gridId: "GridView_list_documento_relacion_wf", destination: "wf", rowIdAttribute: "id_wf" }; }, insertRow: function (legacyData, destination, versioned) {
-                if (typeof window.insert_row_documento_relacionado !== "function") { return false; }
-                window.insert_row_documento_relacionado(legacyData, destination, versioned);
-                return true;
-            } });
+        function insertRow(legacyData, destination, versioned) {
+            if (typeof window.insert_row_documento_relacionado !== "function") { return false; }
+            window.insert_row_documento_relacionado(legacyData, destination, versioned);
+            return true;
         }
-        control.documentList = documentListFactory.create({ currentTaskId: function () { return taskId(control); }, appendDocument: appendImportedDocument, refresh: function (request) {
-            if (isEnlase(control)) { control.projectionCompletion = Promise.resolve(false); return; }
-            control.projectionCompletion = options.refreshDocumentList ? Promise.resolve(options.refreshDocumentList(request)) : refreshDocumentListPartial(control);
-        }, openDocument: function (id) { return control.importedViewer.open(id); } });
+        if (typeof appendImportedDocument !== "function" && typeof documentListFactory.createLegacyGridAppender === "function" && typeof workflowDocumentListFactory.create === "function") {
+            appendEnlaseDocument = documentListFactory.createLegacyGridAppender({ document: document, resolveTarget: function () { return { gridId: "GridView_list_documento_relacion", destination: "rad", rowIdAttribute: "id_rad" }; }, insertRow: insertRow });
+            appendWorkflowDocument = workflowDocumentListFactory.create({ document: document, currentTaskId: function () { return taskId(control); }, insertRow: insertRow });
+            appendImportedDocument = function (item) { return isEnlase(control) ? appendEnlaseDocument(item) : appendWorkflowDocument(item); };
+        }
+        control.documentList = documentListFactory.create({ currentTaskId: function () { return taskId(control); }, appendDocument: appendImportedDocument, openDocument: function (id) { return control.importedViewer.open(id); } });
         control.progressView = progressViewFactory.create({ panel: control.progressPanel, status: control.progressStatus, summary: control.progressSummary, results: control.progressResults, canViewImported: function (item) { return control.documentList.isAuthorized(item); }, viewImported: function (item) { control.documentList.open(item.documentId); } });
         control.preview.subscribe(function (snapshot) { renderPreview(control, snapshot); });
         control.previewFrame.addEventListener("load", function () { previewFrameLoaded(control); });
@@ -475,7 +462,7 @@
         return control;
     }
 
-    var ui = { initialize: initialize, open: open, close: close, onKeydown: onKeydown, createBackendAdapter: createBackendAdapter, createImportedViewerAdapter: createImportedViewerAdapter, openPreview: openPreview, openPreparation: openPreparation, closePreparation: closePreparation, executeCreatedIntent: executeCreatedIntent, setExecutionCloseLock: setExecutionCloseLock, shouldCloseAfterResult: shouldCloseAfterResult, settleAfterResult: settleAfterResult, refreshDocumentListPartial: refreshDocumentListPartial, closeAfterResult: closeAfterResult, previewFrameLoaded: previewFrameLoaded, previewFrameFailed: previewFrameFailed, updateSelectionState: updateSelectionState, restoreListContext: restoreListContext, restoreTriggerFocus: restoreTriggerFocus, getActiveControl: function () { return activeControl; } };
+    var ui = { initialize: initialize, open: open, close: close, onKeydown: onKeydown, createBackendAdapter: createBackendAdapter, createImportedViewerAdapter: createImportedViewerAdapter, openPreview: openPreview, openPreparation: openPreparation, closePreparation: closePreparation, executeCreatedIntent: executeCreatedIntent, setExecutionCloseLock: setExecutionCloseLock, shouldCloseAfterResult: shouldCloseAfterResult, settleAfterResult: settleAfterResult, closeAfterResult: closeAfterResult, previewFrameLoaded: previewFrameLoaded, previewFrameFailed: previewFrameFailed, updateSelectionState: updateSelectionState, restoreListContext: restoreListContext, restoreTriggerFocus: restoreTriggerFocus, getActiveControl: function () { return activeControl; } };
     window.ImportarServicioWebUi = ui;
     if (typeof module !== "undefined" && module.exports) { module.exports = ui; }
     if (window.Sys && window.Sys.Application && typeof window.Sys.Application.add_load === "function") { window.Sys.Application.add_load(initialize); }

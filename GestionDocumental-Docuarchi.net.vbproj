@@ -1897,6 +1897,7 @@
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-api.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-core.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-document-list-adapter.js" />
+    <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-workflow-document-list-adapter.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-intent-client.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-preparation.js" />
     <Content Include="js\workflow\importar-servicio-web\importar-servicio-web-progress-adapter.js" />

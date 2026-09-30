@@ -36,6 +36,18 @@
         };
     }
 
+    function mapWorkflowProjection(value) {
+        value = value || {};
+        if (!value.CabinetName && !value.cabinetName) { return null; }
+        return {
+            cabinetName: text(value.CabinetName || value.cabinetName), documentId: Number(value.DocumentId || value.documentId) || 0,
+            radicado: text(value.Radicado || value.radicado), storageType: text(value.StorageType || value.storageType),
+            documentTypeName: text(value.DocumentTypeName || value.documentTypeName), taskId: Number(value.TaskId || value.taskId) || 0,
+            signatureStatus: Number(value.SignatureStatus !== undefined ? value.SignatureStatus : value.signatureStatus) || 0,
+            iconClass: text(value.IconClass || value.iconClass)
+        };
+    }
+
     function mapItem(item) {
         item = item || {};
         return {
@@ -43,6 +55,7 @@
             visibleState: visibleState(item), message: text(item.Message), errorCode: text(item.ErrorCode), documentId: item.DocumentId || null,
             taskId: Number(item.TaskId) || 0, documentName: text(item.DocumentName), contentType: text(item.ContentType),
             enlaseProjection: mapProjection(item.EnlaseProjection || item.enlaseProjection),
+            workflowProjection: mapWorkflowProjection(item.WorkflowProjection || item.workflowProjection),
             persistenceKnown: item.PersistenceKnown === true, retryable: item.Retryable === true, correlationId: text(item.CorrelationId)
         };
     }

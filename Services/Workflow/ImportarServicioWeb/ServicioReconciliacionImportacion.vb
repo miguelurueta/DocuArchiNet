@@ -50,6 +50,7 @@ Public NotInheritable Class ServicioReconciliacionImportacion
             .VersionToken=snapshot.VersionToken}
         For Each item In Project(snapshot)
             PreserveExecutionProjection(context, execution, item)
+            PreserveWorkflowExecutionProjection(context, execution, item)
             response.Items.Add(item)
         Next
         For Each effect In ProjectExpedientEffects(snapshot) : response.ExpedientEffects.Add(effect) : Next
@@ -80,6 +81,33 @@ Public NotInheritable Class ServicioReconciliacionImportacion
                String.IsNullOrWhiteSpace(projection.StorageType) OrElse String.IsNullOrWhiteSpace(projection.DocumentName) OrElse
                String.IsNullOrWhiteSpace(projection.IconClass) Then Continue For
             authoritative.EnlaseProjection = projection
+            Exit For
+        Next
+    End Sub
+
+    Private Shared Sub PreserveWorkflowExecutionProjection(ByVal context As ContextoImportacionServicio,
+                                                           ByVal execution As ExecuteImportIntentResponseDto,
+                                                           ByVal authoritative As ImportItemResultDto)
+        If context Is Nothing OrElse execution Is Nothing OrElse authoritative Is Nothing OrElse
+           String.Equals(context.Capability, SiiImportProvider.AnnexesEnlaseCapability, StringComparison.OrdinalIgnoreCase) OrElse
+           Not String.Equals(authoritative.Status, "Disponible", StringComparison.Ordinal) OrElse
+           Not authoritative.DocumentId.HasValue OrElse authoritative.DocumentId.Value <= 0 OrElse
+           authoritative.TaskId <> context.IdTarea OrElse String.IsNullOrWhiteSpace(authoritative.ClientItemId) OrElse
+           String.IsNullOrWhiteSpace(authoritative.ExternalKey) Then Return
+
+        For Each candidate In execution.Items
+            If candidate Is Nothing OrElse candidate.WorkflowProjection Is Nothing OrElse
+               Not candidate.DocumentId.HasValue OrElse candidate.DocumentId.Value <> authoritative.DocumentId.Value OrElse
+               candidate.TaskId <> authoritative.TaskId OrElse
+               Not String.Equals(candidate.ClientItemId, authoritative.ClientItemId, StringComparison.Ordinal) OrElse
+               Not String.Equals(candidate.ExternalKey, authoritative.ExternalKey, StringComparison.Ordinal) Then Continue For
+
+            Dim projection = candidate.WorkflowProjection
+            If projection.DocumentId <> authoritative.DocumentId.Value OrElse projection.TaskId <> authoritative.TaskId OrElse
+               String.IsNullOrWhiteSpace(projection.CabinetName) OrElse String.IsNullOrWhiteSpace(projection.Radicado) OrElse
+               String.IsNullOrWhiteSpace(projection.StorageType) OrElse String.IsNullOrWhiteSpace(projection.DocumentTypeName) OrElse
+               String.IsNullOrWhiteSpace(projection.IconClass) Then Continue For
+            authoritative.WorkflowProjection = projection
             Exit For
         Next
     End Sub
