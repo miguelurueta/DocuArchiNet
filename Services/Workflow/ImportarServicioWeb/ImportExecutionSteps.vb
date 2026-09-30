@@ -228,6 +228,10 @@ Public NotInheritable Class StoreImportExecutionStep
                resultado.ProyeccionDocumentoEnlase IsNot Nothing Then
                 item.ProyeccionDocumentoEnlase = resultado.ProyeccionDocumentoEnlase
             End If
+            If resultado IsNot Nothing AndAlso resultado.Exitoso AndAlso resultado.IdDocumento.HasValue AndAlso
+               resultado.ProyeccionDocumentoWorkflow IsNot Nothing Then
+                item.ProyeccionDocumentoWorkflow = resultado.ProyeccionDocumentoWorkflow
+            End If
             Return resultado
         Finally
             Try

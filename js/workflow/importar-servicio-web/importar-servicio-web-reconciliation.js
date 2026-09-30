@@ -26,6 +26,17 @@
             iconClass: text(value.IconClass || value.iconClass)
         };
     }
+    function mapWorkflowProjection(value) {
+        value = value || {};
+        if (!value.CabinetName && !value.cabinetName) { return null; }
+        return {
+            cabinetName: text(value.CabinetName || value.cabinetName), documentId: number(value.DocumentId || value.documentId),
+            radicado: text(value.Radicado || value.radicado), storageType: text(value.StorageType || value.storageType),
+            documentTypeName: text(value.DocumentTypeName || value.documentTypeName), taskId: number(value.TaskId || value.taskId),
+            signatureStatus: Number(value.SignatureStatus !== undefined ? value.SignatureStatus : value.signatureStatus) || 0,
+            iconClass: text(value.IconClass || value.iconClass)
+        };
+    }
     function mapItem(item) {
         item = item || {};
         return {
@@ -34,7 +45,8 @@
             taskId: number(item.TaskId || item.taskId), documentName: text(item.DocumentName || item.documentName),
             contentType: text(item.ContentType || item.contentType), message: text(item.Message || item.message),
             errorCode: text(item.ErrorCode || item.errorCode), correlationId: text(item.CorrelationId || item.correlationId),
-            enlaseProjection: mapProjection(item.EnlaseProjection || item.enlaseProjection)
+            enlaseProjection: mapProjection(item.EnlaseProjection || item.enlaseProjection),
+            workflowProjection: mapWorkflowProjection(item.WorkflowProjection || item.workflowProjection)
         };
     }
     function adapt(response) {
@@ -63,7 +75,7 @@
             return Promise.all(uncertain.map(function (item) { return reconcile(base, item.externalKey); })).then(function (responses) {
                 var replacements = {};
                 responses.forEach(function (result) { result.items.forEach(function (item) { replacements[item.externalKey] = item; }); });
-                snapshot.items = snapshot.items.map(function (item) { var replacement = replacements[item.externalKey]; if (!replacement) { return item; } if (!replacement.enlaseProjection && item.enlaseProjection) { replacement.enlaseProjection = item.enlaseProjection; } return replacement; });
+                snapshot.items = snapshot.items.map(function (item) { var replacement = replacements[item.externalKey]; if (!replacement) { return item; } if (!replacement.enlaseProjection && item.enlaseProjection) { replacement.enlaseProjection = item.enlaseProjection; } if (!replacement.workflowProjection && item.workflowProjection) { replacement.workflowProjection = item.workflowProjection; } return replacement; });
                 snapshot.status = snapshot.items.some(function (item) { return item.status !== "Disponible" && item.status !== "Completado"; }) ? "Parcial" : "Completado";
                 return snapshot;
             });

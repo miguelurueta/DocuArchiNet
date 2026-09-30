@@ -31,9 +31,8 @@
             grid = document.getElementById(target.gridId);
             if (!grid) { return false; }
             if (contains(grid, documentId, target.rowIdAttribute)) { return true; }
-            // ENLASE y Workflow tienen contratos legacy diferentes. Solo la frontera cliente crea la cadena delimitada.
-            legacyData = target.destination === "rad" ? enlaseData(documentItem, documentId, taskId) :
-                ["", documentId, "", "", legacyField(documentItem.documentName) || "Documento importado", taskId, "", "fa-file"].join("|");
+            // Este adaptador conserva exclusivamente el contrato probado de ENLASE.
+            legacyData = target.destination === "rad" ? enlaseData(documentItem, documentId, taskId) : "";
             if (!legacyData) { return false; }
             insertRow(legacyData, target.destination, 1);
             return contains(grid, documentId, target.rowIdAttribute);
@@ -49,7 +48,7 @@
                 var documentId = number(item && (item.documentId || item.DocumentId)), itemTask = number(item && (item.taskId || item.TaskId)), status = String(item && (item.status || item.Status || item.visibleState) || "");
                 if ((status !== "Disponible" && status !== "Completado") || !documentId || !task || itemTask !== task || seen[documentId]) { return; }
                 seen[documentId] = true;
-                confirmed.push({ documentId: documentId, taskId: itemTask, externalKey: String(item.externalKey || item.ExternalKey || ""), documentName: String(item.documentName || item.DocumentName || ""), contentType: String(item.contentType || item.ContentType || ""), enlaseProjection: item.enlaseProjection || item.EnlaseProjection || null });
+                confirmed.push({ documentId: documentId, taskId: itemTask, externalKey: String(item.externalKey || item.ExternalKey || ""), documentName: String(item.documentName || item.DocumentName || ""), contentType: String(item.contentType || item.ContentType || ""), enlaseProjection: item.enlaseProjection || item.EnlaseProjection || null, workflowProjection: item.workflowProjection || item.WorkflowProjection || null });
             });
             return confirmed;
         }

@@ -43,6 +43,13 @@ test('éxito de ejecución se reconcilia antes de proyectar TaskId y nombre auto
   assert.equal(result.items[0].enlaseProjection.cabinetName,'MERCANTIL');
   assert.equal(result.items[0].enlaseProjection.documentId,42);
 });
+test('la reconciliación conserva la proyección Workflow confirmada por la ejecución', async () => {
+  const adapter=reconciliation.create({api:{getImportIntent:async()=>({Items:[]}),reconcileImportIntent:async request=>({IntentId:request.IntentId,Status:'Completado',Items:[{ExternalKey:request.ExternalKey,Status:'Disponible',TaskId:1001,DocumentId:43,DocumentName:'Certificado'}]})}});
+  const projection={CabinetName:'MERCANTIL',DocumentId:43,Radicado:'S002469800',StorageType:'PDF',DocumentTypeName:'Certificado',TaskId:1001,SignatureStatus:0,IconClass:'fa-file-pdf'};
+  const result=await adapter.complete({IntentId:'intent-1',Status:'Completada',Items:[{ExternalKey:'external-2',Status:'Completada',DocumentId:43,TaskId:1001,WorkflowProjection:projection}]},context);
+  assert.equal(result.items[0].workflowProjection.documentTypeName,'Certificado');
+  assert.equal(result.items[0].workflowProjection.documentId,43);
+});
 test('timeout, ausencia y estado desconocido nunca se convierten en disponible', () => {
   for (const state of ['Verificando','ResultadoIncierto','EstadoFuturo','']) {
     assert.notEqual(reconciliation.mapItem({Status:state,DocumentId:88}).status,'Disponible');

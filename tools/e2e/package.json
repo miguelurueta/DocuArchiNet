@@ -36,6 +36,7 @@
     "test:doc56:policy": "node --test tests/importar-servicio-web-modern.spec.cjs",
     "test:doc83:closure": "node --test tests/doc83-sii-enlase-closure-matrix.test.cjs",
     "test:doc83:regression": "node scripts/run-doc83-regression.cjs",
+    "test:doc84:workflow-row": "playwright test tests/doc84-workflow-document-row.spec.cjs --reporter=list",
     "test:doc33:policy": "node --test tests/doc33-return-activity-ui-policy.test.cjs",
     "test:notes:anonymous": "node scripts/run-notes-workflow-interactive.cjs anonymous",
     "test:notes:read": "node scripts/run-notes-workflow-interactive.cjs read",

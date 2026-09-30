@@ -29,12 +29,19 @@ test('predetermina Constancia de Inscripción sin depender de mayúsculas o tild
   assert.equal(result.documentType.DocumentTypeId,154);
   assert.deepEqual(result.items.map(item=>[item.DocumentTypeId,item.DocumentTypeName]),[[154,'Constancia De Inscripción'],[154,'Constancia De Inscripción']]);
 });
-test('predetermina el unico tipo obligatorio antes que Constancia de Inscripcion', () => {
+test('predetermina Constancia de Inscripcion antes que otra tipología obligatoria', () => {
   const catalog=[{DocumentTypeId:154,Name:'Constancia De Inscripcion',Required:false},{DocumentTypeId:186,Name:'Recibo De Caja',Required:true}];
   const result=preparation.assignDefaultDocumentType(preparation.individual({externalKey:'a'},1),catalog);
-  assert.equal(result.documentType.DocumentTypeId,186);
-  assert.equal(result.items[0].DocumentTypeName,'Recibo De Caja');
-  assert.equal(preparation.defaultDocumentType(catalog.concat([{DocumentTypeId:99,Name:'Otro obligatorio',Required:true}])),null);
+  assert.equal(result.documentType.DocumentTypeId,154);
+  assert.equal(result.items[0].DocumentTypeName,'Constancia De Inscripcion');
+  assert.equal(preparation.defaultDocumentType([{DocumentTypeId:186,Name:'Recibo De Caja',Required:true},{DocumentTypeId:99,Name:'Otro obligatorio',Required:true}]),null);
+});
+
+test('reconoce errores ortográficos menores en Contancia de Inscrpcion', () => {
+  const catalog=[{DocumentTypeId:10,Name:'Recibo De Caja'},{DocumentTypeId:154,Name:'Contancia de Inscrpcion'}];
+  const result=preparation.assignDefaultDocumentType(preparation.individual({externalKey:'a'},1),catalog);
+  assert.equal(result.documentType.DocumentTypeId,154);
+  assert.equal(result.items[0].DocumentTypeName,'Contancia de Inscrpcion');
 });
 
 
@@ -65,7 +72,7 @@ test('UI integra preparación explícita, acciones persistentes y restauración 
   assert.match(ui,/preparationContext\.focus\.focus/);
   assert.match(markup,/importar-servicio-web-preparation-confirm/);
   assert.match(markup,/Crear intención/);
-  assert.match(ui,/Button_actualiza_trevie_seleccion/);
+  assert.doesNotMatch(ui,/Button_actualiza_trevie_seleccion|PageRequestManager|refreshDocumentListPartial/);
   assert.match(ui,/function updateSelectionState\(control\)/);
   assert.match(ui,/publicErrorCode\(error\)/);
   assert.match(ui,/No fue posible validar la preparación \(/);
@@ -79,7 +86,6 @@ test('UI integra preparación explícita, acciones persistentes y restauración 
   assert.match(ui,/control\.executionCloseLocked && force !== true/);
   assert.match(ui,/settleAfterResult\(control, snapshot, reconciled\)/);
   assert.match(ui,/function shouldCloseAfterResult/);
-  assert.match(ui,/remove_endRequest\(onEndRequest\)/);
   assert.match(css,/#importar-servicio-web-preparation-confirm/);
   assert.match(css,/#importar-servicio-web-preparation-cancel/);
   assert.match(css,/\.importar-servicio-web__preparation-items\s*\{[^}]*overflow:\s*auto/);

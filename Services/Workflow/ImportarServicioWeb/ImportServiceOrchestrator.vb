@@ -235,7 +235,17 @@ Public NotInheritable Class ImportServiceOrchestrator
 
     Private Shared Function MapItem(ByVal item As ResultadoElementoImportacion) As ImportItemResultDto
         Dim confirmed = item.Fase = FaseImportacionServicio.Reconciliada OrElse item.Fase = FaseImportacionServicio.Completada
-        Return New ImportItemResultDto With {.ClientItemId = item.ClientItemId, .ExternalKey = If(item.IdentidadExterna Is Nothing, Nothing, item.IdentidadExterna.ExternalKey), .Status = item.Fase.ToString(), .DocumentId = If(confirmed, item.IdDocumento, Nothing), .TaskId = item.IdTareaDestino, .DocumentName = item.NombreTipoDocumental, .ContentType = item.TipoContenido, .ErrorCode = item.CodigoError, .Message = item.MensajeVisible, .PersistenceKnown = item.PersistenciaConocida, .Retryable = item.Reintentable, .CorrelationId = item.CorrelationId, .EvidenceStatus = If(confirmed, "Confirmed", "PendingVerification"), .RecoveryAllowed = False, .EnlaseProjection = If(confirmed, MapEnlaseProjection(item), Nothing)}
+        Return New ImportItemResultDto With {.ClientItemId = item.ClientItemId, .ExternalKey = If(item.IdentidadExterna Is Nothing, Nothing, item.IdentidadExterna.ExternalKey), .Status = item.Fase.ToString(), .DocumentId = If(confirmed, item.IdDocumento, Nothing), .TaskId = item.IdTareaDestino, .DocumentName = item.NombreTipoDocumental, .ContentType = item.TipoContenido, .ErrorCode = item.CodigoError, .Message = item.MensajeVisible, .PersistenceKnown = item.PersistenciaConocida, .Retryable = item.Reintentable, .CorrelationId = item.CorrelationId, .EvidenceStatus = If(confirmed, "Confirmed", "PendingVerification"), .RecoveryAllowed = False, .EnlaseProjection = If(confirmed, MapEnlaseProjection(item), Nothing), .WorkflowProjection = If(confirmed, MapWorkflowProjection(item), Nothing)}
+    End Function
+    Private Shared Function MapWorkflowProjection(ByVal item As ResultadoElementoImportacion) As ImportWorkflowDocumentProjectionDto
+        Dim value = item.ProyeccionDocumentoWorkflow
+        If value Is Nothing OrElse Not item.IdDocumento.HasValue OrElse value.IdDocumento <> item.IdDocumento.Value OrElse
+           value.IdTarea <> item.IdTareaDestino Then Return Nothing
+        Return New ImportWorkflowDocumentProjectionDto With {
+            .CabinetName = value.NombreGabinete, .DocumentId = value.IdDocumento,
+            .Radicado = value.Radicado, .StorageType = value.TipoFisico,
+            .DocumentTypeName = value.Tipologia, .TaskId = value.IdTarea,
+            .SignatureStatus = value.EstadoFirma, .IconClass = value.ClaseIcono}
     End Function
     Private Shared Function MapEnlaseProjection(ByVal item As ResultadoElementoImportacion) As ImportEnlaseDocumentProjectionDto
         Dim value = item.ProyeccionDocumentoEnlase

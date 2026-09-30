@@ -205,6 +205,7 @@ End Class
     Public Property EvidenceStatus As String
     Public Property RecoveryAllowed As Boolean
     Public Property EnlaseProjection As ImportEnlaseDocumentProjectionDto
+    Public Property WorkflowProjection As ImportWorkflowDocumentProjectionDto
 End Class
 
 <Serializable()> Public Class ImportEnlaseDocumentProjectionDto
@@ -213,6 +214,17 @@ End Class
     Public Property Radicado As String
     Public Property StorageType As String
     Public Property DocumentName As String
+    Public Property TaskId As Long
+    Public Property SignatureStatus As Integer
+    Public Property IconClass As String
+End Class
+
+<Serializable()> Public Class ImportWorkflowDocumentProjectionDto
+    Public Property CabinetName As String
+    Public Property DocumentId As Long
+    Public Property Radicado As String
+    Public Property StorageType As String
+    Public Property DocumentTypeName As String
     Public Property TaskId As Long
     Public Property SignatureStatus As Integer
     Public Property IconClass As String

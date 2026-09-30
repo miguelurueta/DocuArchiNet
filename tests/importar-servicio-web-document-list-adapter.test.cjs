@@ -56,37 +56,11 @@ test('autoriza la acción solo para documento confirmado de la tarea visible', (
   assert.equal(adapter.isAuthorized({visibleState:'Verificando',taskId:1001,documentId:45}),false);
 });
 
-test('proyecta el documento confirmado en el grid workflow mediante el inserter legacy', () => {
-  const rows=[];
-  const grid={getElementsByTagName:name=>name==='tr'?rows:[]};
-  const document={getElementById:id=>id==='GridView_list_documento_relacion_wf'?grid:null};
-  const calls=[];
-  const append=documentList.createLegacyGridAppender({document,insertRow:(data,destination,versioned)=>{
-    calls.push({data,destination,versioned});
-    const fields=data.split('|');
-    rows.push({getAttribute:name=>name==='id_wf'?fields[1]:null});
-  }});
-  assert.equal(append({documentId:90,taskId:220586,documentName:'Recibo <Caja>|2026.pdf'}),true);
-  assert.equal(calls.length,1);
-  assert.equal(calls[0].destination,'wf');
-  assert.equal(calls[0].versioned,1);
-  assert.equal(calls[0].data,'|90|||Recibo &lt;Caja&gt;2026.pdf|220586||fa-file');
-  const legacyFields=calls[0].data.split('|');
-  assert.equal(legacyFields[1],'90');
-  assert.equal(legacyFields[4],'Recibo &lt;Caja&gt;2026.pdf');
-  assert.equal(legacyFields[5],'220586');
-});
-
-test('usa una etiqueta visible segura cuando el resultado no devuelve nombre', () => {
-  const rows=[];
-  const grid={getElementsByTagName:name=>name==='tr'?rows:[]};
-  let fields;
-  const append=documentList.createLegacyGridAppender({document:{getElementById:()=>grid},insertRow:data=>{
-    fields=data.split('|');
-    rows.push({getAttribute:name=>name==='id_wf'?fields[1]:null});
-  }});
-  assert.equal(append({documentId:91,taskId:220586,documentName:''}),true);
-  assert.equal(fields[4],'Documento importado');
+test('el adaptador ENLASE no fabrica filas parciales para Workflow', () => {
+  let inserts=0;
+  const append=documentList.createLegacyGridAppender({document:{getElementById:()=>({getElementsByTagName:()=>[]})},insertRow:()=>{inserts+=1;}});
+  assert.equal(append({documentId:90,taskId:220586,documentName:'Recibo.pdf'}),false);
+  assert.equal(inserts,0);
 });
 
 test('ENLASE proyecta el contrato completo en el grid del radicado mediante destino rad', () => {
@@ -116,11 +90,11 @@ test('ENLASE rechaza la proyección incompleta y no inserta una fila parcial', (
   assert.equal(append({documentId:92,taskId:220586,enlaseProjection:{documentId:92,taskId:220586,radicado:'S002469800'}}),false);
   assert.equal(inserts,0);
 });
-test('no duplica una fila ya proyectada por documentId', () => {
-  const rows=[{getAttribute:name=>name==='id_wf'?'90':null}];
+test('ENLASE no duplica una fila ya proyectada por documentId', () => {
+  const rows=[{getAttribute:name=>name==='id_rad'?'90':null}];
   const grid={getElementsByTagName:()=>rows};
   let inserts=0;
-  const append=documentList.createLegacyGridAppender({document:{getElementById:()=>grid},insertRow:()=>{inserts+=1;}});
-  assert.equal(append({documentId:90,taskId:220586,documentName:'Recibo.pdf'}),true);
+  const append=documentList.createLegacyGridAppender({document:{getElementById:()=>grid},resolveTarget:()=>({gridId:'GridView_list_documento_relacion',destination:'rad',rowIdAttribute:'id_rad'}),insertRow:()=>{inserts+=1;}});
+  assert.equal(append({documentId:90,taskId:220586,enlaseProjection:{cabinetName:'MERCANTIL',documentId:90,radicado:'S1',storageType:'PDF',documentName:'Recibo',taskId:220586,iconClass:'fa-file-pdf'}}),true);
   assert.equal(inserts,0);
 });
