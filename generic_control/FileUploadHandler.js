@@ -981,20 +981,37 @@ class LoadFilePERSON {
                 insert_row_producion_documental(DateCampo); insert_row_documento_relacionado
             }
             if (this.settings.funcion_name == "adjunta_documeto_version_document") {
-                let IconoAsome = UploadFilesResult[0].Class_list_detalle_version_document[0].IconoAsome;
-                if (FilePerson.settings.TipoTable == "asp.net") {
-                    cahange_icono_image_table_asp_net_general(FilePerson.settings.name_class_element_icono_aspnet,
-                        UploadFilesResult[0].Class_list_detalle_version_document[0].IconoAsome
-                    )
-                }
-                if (FilePerson.settings.TipoTable == "bootstrap") {
-                    let NameCampo = FilePerson.settings.NameCampo;
-                    let ValueIcono = 0;
-                    //Desactiva la opción de firma digital
-                    updateCelByUniqueIdReinit(FilePerson.settings.NameTable, FilePerson.settings.NameCampo, FilePerson.settings.id_imagen, 0);
-                    ValueIcono = UploadFilesResult[0].Class_list_detalle_version_document[0].DBT;
-                    NameCampo = "DBT";
-                    updateCelByUniqueIdReinit(FilePerson.settings.NameTable, NameCampo, FilePerson.settings.id_imagen, ValueIcono);
+                if (this.settings.evento_adjunta == "ADJUNTARADICACION") {
+                    const detalle = UploadFilesResult[0].Class_list_detalle_version_document[0];
+                    const row = {
+                        ID: UploadFilesResult[0].id_image,
+                        PAG: 0,
+                        TIPODOCUMENTO: UploadFilesResult[0].notitipodocumental,
+                        ESTADO_FIRMA_DIGITAL: UploadFilesResult[0].estado_firma_digital,
+                        IconoAsome: detalle.IconoAsome,
+                        DBT: detalle.DBT
+                    };
+                    insert_row_table(this.settings.element_html_table, row);
+                    const htmlLabel = document.getElementById(this.settings.element_html_lab_conteo);
+                    if (htmlLabel) {
+                        htmlLabel.innerText = this.settings.apost_html_lab_conteo + " " + total_row_table(this.settings.element_html_table);
+                    }
+                } else {
+                    let IconoAsome = UploadFilesResult[0].Class_list_detalle_version_document[0].IconoAsome;
+                    if (FilePerson.settings.TipoTable == "asp.net") {
+                        cahange_icono_image_table_asp_net_general(FilePerson.settings.name_class_element_icono_aspnet,
+                            UploadFilesResult[0].Class_list_detalle_version_document[0].IconoAsome
+                        )
+                    }
+                    if (FilePerson.settings.TipoTable == "bootstrap") {
+                        let NameCampo = FilePerson.settings.NameCampo;
+                        let ValueIcono = 0;
+                        //Desactiva la opción de firma digital
+                        updateCelByUniqueIdReinit(FilePerson.settings.NameTable, FilePerson.settings.NameCampo, FilePerson.settings.id_imagen, 0);
+                        ValueIcono = UploadFilesResult[0].Class_list_detalle_version_document[0].DBT;
+                        NameCampo = "DBT";
+                        updateCelByUniqueIdReinit(FilePerson.settings.NameTable, NameCampo, FilePerson.settings.id_imagen, ValueIcono);
+                    }
                 }
             }
             if (this.settings.funcion_name == "adjunta_nueva_version_document") {

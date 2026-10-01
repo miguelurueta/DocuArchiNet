@@ -9935,8 +9935,9 @@
     <Compile Include="Infrastructure\Workflow\DevolverUsuarioAnterior\WorkflowLegacyDevolverUsuarioAnteriorAuditoriaAdapter.vb" />
     <Compile Include="Domain\Shared\ContextoModulo.vb" />
     <Compile Include="Infrastructure\Shared\Data\ModuleDataContracts.vb" />
-    <Compile Include="Infrastructure\Shared\Data\ModuleConnectionFactory.vb" />
-    <Compile Include="Infrastructure\Shared\Data\AdoNetDataInfrastructure.vb" />
+      <Compile Include="Infrastructure\Shared\Data\ModuleConnectionFactory.vb" />
+      <Compile Include="Infrastructure\Shared\Data\ModuleSessionConnectionStringResolver.vb" />
+      <Compile Include="Infrastructure\Shared\Data\AdoNetDataInfrastructure.vb" />
     <Compile Include="Infrastructure\Shared\Data\WorkflowModuleConnectionFactory.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlWorkflowPreviewRepositories.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlNotasWorkflowRepository.vb" />
@@ -9954,6 +9955,11 @@
     <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyEnvioUsuarioRequisitosAdapter.vb" />
     <Compile Include="Infrastructure\Workflow\Terminar\WorkflowLegacyAuditoriaAdapter.vb" />
     <Compile Include="Infrastructure\Workflow\Terminar\ConfiguracionWorkflowModernFeatureGate.vb" />
+    <Compile Include="Modelo\RadicacionSimplificada\Adjuntos\ContextoAdjuntoRadicacion.vb" />
+    <Compile Include="Modelo\RadicacionSimplificada\Adjuntos\ResultadoAdjuntoRadicacion.vb" />
+    <Compile Include="Modelo\RadicacionSimplificada\Adjuntos\IContextoAdjuntoRadicacionRepository.vb" />
+    <Compile Include="Infrastructure\Repositories\RadicacionSimplificada\Adjuntos\MySqlContextoAdjuntoRadicacionRepository.vb" />
+    <Compile Include="Services\RadicacionSimplificada\Adjuntos\ServicioAdjuntoRadicacion.vb" />
     <Compile Include="workflow\ClassAlmacenamiento.vb" />
     <Compile Include="workflow\ClassAñadirDocumento.vb" />
     <Compile Include="workflow\ClassEdtiScript.vb" />

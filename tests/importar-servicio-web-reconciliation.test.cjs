@@ -26,8 +26,8 @@ test('reconstruye intención completa o item focal desde persistencia', () => {
   assert.match(repository, /WORKFLOW_RECONCILIATION_UNAVAILABLE/);
   assert.match(repository, /DOCUARCHI_RECONCILIATION_UNAVAILABLE/);
   assert.match(webmethod, /SafeReconciliationCode/);
-  assert.match(sessionGate, /Dim esSesionGestion As Boolean = EsSesionGestionAutenticada\(requestContext\)[\s\S]*If Not esSesionGestion Then[\s\S]*CadenaConexionWorkflow = CrearCadenaConexion\(requestContext\)[\s\S]*CadenaConexionDocuarchi = CrearCadenaConexion\(requestContext, "DA_"\)[\s\S]*CadenaConexionRadicacion = CrearCadenaConexion\(requestContext, "RA_"\)[\s\S]*Return resultado/);
-  assert.match(sessionGate, /SolicitaDatosUsuarioGestionLogin[\s\S]*CadenaConexionWorkflow = CrearCadenaConexion\(requestContext\)[\s\S]*CadenaConexionDocuarchi = CrearCadenaConexion\(requestContext, "DA_"\)[\s\S]*CadenaConexionRadicacion = CrearCadenaConexion\(requestContext, "RA_"\)[\s\S]*resultado\.Contexto = contexto/);
+  assert.match(sessionGate, /Dim esSesionGestion As Boolean = EsSesionGestionAutenticada\(requestContext\)[\s\S]*If Not esSesionGestion Then[\s\S]*CadenaConexionWorkflow = ModuleSessionConnectionStringResolver\.Resolve\(requestContext\)[\s\S]*CadenaConexionDocuarchi = ModuleSessionConnectionStringResolver\.Resolve\(requestContext, "DA_"\)[\s\S]*CadenaConexionRadicacion = ModuleSessionConnectionStringResolver\.Resolve\(requestContext, "RA_"\)[\s\S]*Return resultado/);
+  assert.match(sessionGate, /SolicitaDatosUsuarioGestionLogin[\s\S]*CadenaConexionWorkflow = ModuleSessionConnectionStringResolver\.Resolve\(requestContext\)[\s\S]*CadenaConexionDocuarchi = ModuleSessionConnectionStringResolver\.Resolve\(requestContext, "DA_"\)[\s\S]*CadenaConexionRadicacion = ModuleSessionConnectionStringResolver\.Resolve\(requestContext, "RA_"\)[\s\S]*resultado\.Contexto = contexto/);
 });
 
 test('todas las lecturas del repositorio son parametrizadas y no mutan', () => {

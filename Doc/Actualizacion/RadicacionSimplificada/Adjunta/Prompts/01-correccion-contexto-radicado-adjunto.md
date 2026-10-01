@@ -1,8 +1,20 @@
 # Prompt 01 — Corrección del contexto de radicado al adjuntar documentos
 
+## ROL ESPERADO
+
 Actúa como arquitecto y desarrollador senior especialista en ASP.NET Web Forms, VB.NET, .NET Framework 4.6.1, JavaScript legacy y MySQL. Corrige la regresión de Radicación Simplificada que intenta almacenar un documento con el radicado vacío, sin modificar el comportamiento de los demás consumidores del control compartido de carga.
 
 La solución debe recuperar la semántica comprobada de la implementación legacy: para adjuntar desde el módulo de radicación, el radicado autoritativo procede del registro de estado seleccionado y llega explícitamente al almacenamiento. No debe redescubrirse desde `DAT_ADIC_TAR` antes de consultar la plantilla.
+
+## UNIDAD DE ENTREGA Y GOBIERNO E2E
+
+Código, E2E real, validación autorizada y evidencia saneada forman parte integral del mismo cambio y constituyen una única unidad de entrega; no crear una tarea o entrega E2E independiente.
+
+Usar secretos efímeros y no exponer, imprimir, persistir ni guardar credenciales, cookies, tokens o cadenas de conexión. Las verificaciones de datos son exclusivamente `SELECT` parametrizados y la evidencia debe permanecer saneada.
+
+La cobertura incluye autorización y control de acceso, lectura sin mutación para las precondiciones, escrituras autorizadas positiva y negativa, y regresión relacionada. La concurrencia no aplica a este defecto de identidad de una carga individual y no debe introducirse como prueba mutante adicional sin alcance y autorización propios.
+
+Respetar feature flags, gates, usuarios y grupos sin habilitarlos arbitrariamente. No cerrar sin validación autorizada; registrar un bloqueo explícito cuando falten ambiente, cuenta o recurso descartable. Se prohíbe reemplazar la E2E con mocks, simulaciones, resultados inventados o evidencia ficticia.
 
 ## Objetivo
 
@@ -99,6 +111,8 @@ End Class
 ### 2. Resolución única en servidor
 
 Crear `IContextoAdjuntoRadicacionRepository.ObtenerAutorizado(...)` y su implementación `MySqlContextoAdjuntoRadicacionRepository.ObtenerAutorizado(...)`. La implementación debe resolver el contexto mediante una consulta parametrizada desde `id_estado_radicado`, validar su pertenencia y devolver el radicado no vacío. Esta operación se ejecuta una sola vez por carga lógica y antes de construir índices o consultar la plantilla.
+
+La composición debe reutilizar `ModuleSessionConnectionStringResolver`, `RadicacionModuleConnectionFactory` y `AdoNetDataExecutor`. El resolver compartido centraliza el algoritmo de cadena de conexión que utiliza Workflow sin acoplar almacenamiento a su gate de presentación. `MySqlContextoAdjuntoRadicacionRepository` debe recibir `IModuleConnectionFactory` e `IDataExecutor` obligatoriamente; no debe incorporar constructor productivo implícito, fábrica privada, acceso directo a `HttpContext` ni reconstrucción de credenciales.
 
 Crear `ServicioAdjuntoRadicacion.Adjuntar(...)` para coordinar la solicitud, el repository, la comparación del radicado informativo y la preparación del almacenamiento. El servicio no conoce controles Web Forms ni construye SQL. Su salida interna es `ResultadoAdjuntoRadicacion`; el contrato HTTP existente continúa siendo `uploadFiles`.
 
@@ -358,7 +372,11 @@ Si no existen autorización, cuenta o recurso descartable, registrar la E2E como
 - Enlace, SII, Producción, Gestión de respuestas, Workflow e importación de sellos conservan pruebas de regresión aprobadas.
 - La compilación termina sin errores y las advertencias preexistentes se distinguen de cualquier advertencia nueva.
 
-## Ruta documental obligatoria
+## DOCUMENTACION TECNICA
+
+Antes de crear el paquete, ubicar documentación existente y actualizarla cuando corresponda; si no existe, documentar expresamente la ausencia y la ruta requerida.
+
+### Ruta documental obligatoria
 
 Crear un único paquete documental para el ticket real dentro de:
 

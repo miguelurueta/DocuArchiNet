@@ -1,0 +1,18 @@
+{
+  "baseUrl": "https://ambiente-pruebas/app/",
+  "ignoreHttpsErrors": false,
+  "module": "GESTOR",
+  "pagePath": "RadicadorSimplificado/Web_form_radicacion_simpilificada.aspx",
+  "stateRecordId": 123,
+  "expectedRadicado": "RADICADO-DESCARTABLE",
+  "typologyText": "Constancia de Inscripción",
+  "positiveFixturePath": "fixtures/doc85-constancia-inscripcion.pdf",
+  "negativeFixturePath": "fixtures/doc85-constancia-inscripcion-negativa.pdf",
+  "mysqlHost": "servidor-pruebas",
+  "mysqlPort": 3306,
+  "mysqlDatabase": "base_pruebas",
+  "contextSql": "SELECT consecutivo_radicado AS radicado, id_tarea_workflow AS tarea, system_plantilla_radicado_id_Plantilla AS plantilla, tipo_doc_entrante_id_Tipo_Doc_Entrante AS tramite FROM ra_rad_estados_modulo_radicacion WHERE id_estado_radicado = ?",
+  "datAdicSql": "SELECT Radicado AS radicado FROM DAT_ADIC_TAR_RUTA_AUTORIZADA WHERE IdTarea = ?",
+  "documentCountSql": "SELECT COUNT(*) AS total FROM TABLA_DOCUMENTAL_AUTORIZADA WHERE RADICADO = ?",
+  "timeoutMilliseconds": 120000
+}
