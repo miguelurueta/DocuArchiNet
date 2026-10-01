@@ -1,6 +1,5 @@
 Imports System
 Imports System.Web
-Imports MySql.Data.MySqlClient
 
 'Valida y completa el contexto de preview en una sesión Gestión ya autenticada.
 'No es un feature gate y no acepta datos del navegador.
@@ -199,12 +198,12 @@ Public NotInheritable Class WorkflowPreviewSessionContextGate
         If Not esSesionGestion Then
             If contexto.EsValido() Then
                 resultado.Contexto = contexto
-                resultado.CadenaConexionWorkflow = CrearCadenaConexion(requestContext)
+                resultado.CadenaConexionWorkflow = ModuleSessionConnectionStringResolver.Resolve(requestContext)
                 If String.IsNullOrWhiteSpace(resultado.CadenaConexionWorkflow) Then
                     resultado.Contexto = New ContextoModuloWorkflow()
                 Else
-                    resultado.CadenaConexionDocuarchi = CrearCadenaConexion(requestContext, "DA_")
-                    resultado.CadenaConexionRadicacion = CrearCadenaConexion(requestContext, "RA_")
+                    resultado.CadenaConexionDocuarchi = ModuleSessionConnectionStringResolver.Resolve(requestContext, "DA_")
+                    resultado.CadenaConexionRadicacion = ModuleSessionConnectionStringResolver.Resolve(requestContext, "RA_")
                 End If
             End If
             Return resultado
@@ -246,13 +245,13 @@ Public NotInheritable Class WorkflowPreviewSessionContextGate
         End If
 
         requestContext.Session.Item("Login_Usuario_Workfow") = loginWorkflow
-        resultado.CadenaConexionWorkflow = CrearCadenaConexion(requestContext)
+        resultado.CadenaConexionWorkflow = ModuleSessionConnectionStringResolver.Resolve(requestContext)
         If String.IsNullOrWhiteSpace(resultado.CadenaConexionWorkflow) Then
             LimpiarContextoWorkflow(requestContext)
             Return resultado
         End If
-        resultado.CadenaConexionDocuarchi = CrearCadenaConexion(requestContext, "DA_")
-        resultado.CadenaConexionRadicacion = CrearCadenaConexion(requestContext, "RA_")
+        resultado.CadenaConexionDocuarchi = ModuleSessionConnectionStringResolver.Resolve(requestContext, "DA_")
+        resultado.CadenaConexionRadicacion = ModuleSessionConnectionStringResolver.Resolve(requestContext, "RA_")
 
         resultado.Contexto = contexto
         Return resultado
@@ -296,39 +295,6 @@ Public NotInheritable Class WorkflowPreviewSessionContextGate
     Private Shared Function EsGrupoSinScripts(ByVal resultado As String) As Boolean
         Return Not String.IsNullOrWhiteSpace(resultado) AndAlso
                resultado.IndexOf("Usuario sin script registrados", StringComparison.OrdinalIgnoreCase) >= 0
-    End Function
-
-    Private Shared Function CrearCadenaConexion(ByVal requestContext As HttpContext,
-                                                Optional ByVal prefijoSesion As String = "") As String
-        Dim servidor As String = Convert.ToString(requestContext.Session.Item(prefijoSesion & "IP_SERVER_MODULO")).Trim()
-        Dim baseDatos As String = Convert.ToString(requestContext.Session.Item(prefijoSesion & "DB_NAME_MODULO")).Trim()
-        Dim usuario As String = Convert.ToString(requestContext.Session.Item(prefijoSesion & "USER_DBMS_MODULO")).Trim()
-        Dim clave As String = Convert.ToString(requestContext.Session.Item(prefijoSesion & "PASW_DBMS_MODULO"))
-        Dim tipo As String = Convert.ToString(requestContext.Session.Item(prefijoSesion & "TYPE_DBMS_MODULO")).Trim()
-        If Not String.Equals(tipo, "mysql", StringComparison.OrdinalIgnoreCase) OrElse
-           String.IsNullOrWhiteSpace(servidor) OrElse String.IsNullOrWhiteSpace(baseDatos) OrElse
-           String.IsNullOrWhiteSpace(usuario) OrElse String.IsNullOrWhiteSpace(clave) Then
-            Return String.Empty
-        End If
-
-        Dim builder As New MySqlConnectionStringBuilder With {
-            .Server = servidor,
-            .Database = baseDatos,
-            .UserID = usuario,
-            .Password = clave,
-            .Pooling = EsHabilitado(requestContext.Session.Item(prefijoSesion & "ACTIVA_POOL_DBMS"))
-        }
-        Dim maximoPool As Integer = 0
-        If Integer.TryParse(Convert.ToString(requestContext.Session.Item(prefijoSesion & "NUMERO_DBMS_CONEX")), maximoPool) AndAlso maximoPool > 0 Then
-            builder.MaximumPoolSize = maximoPool
-        End If
-        Return builder.ConnectionString
-    End Function
-
-    Private Shared Function EsHabilitado(ByVal valor As Object) As Boolean
-        Dim texto As String = Convert.ToString(valor).Trim()
-        Return texto = "1" OrElse String.Equals(texto, "true", StringComparison.OrdinalIgnoreCase) OrElse
-               String.Equals(texto, "yes", StringComparison.OrdinalIgnoreCase)
     End Function
 
     Private Shared Sub LimpiarContextoWorkflow(ByVal requestContext As HttpContext)

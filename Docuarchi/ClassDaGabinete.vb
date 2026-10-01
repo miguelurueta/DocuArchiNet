@@ -709,6 +709,32 @@ Public Class ClassDaGabinete
     Function SolicitaDatosCamposIndiceGabinete(CDParmeterValoresCamposGabinete As CDParmeterValoresCamposGabinete,
                                                ByRef Radicado As String,
                                                ByRef CDcamposAsignaAlmacenamiento As List(Of CDcamposAsignaAlmacenamiento)) As String
+        Try
+            Dim Result As String = ""
+            Dim Class_DAT_ADIC_TAR As New Class_DAT_ADIC_TAR
+            Dim ClassConfiguracionListadoRuta As New Class_configuracion_listado_ruta
+            Dim NombreCampoRadicado As String = ""
+            Result = ClassConfiguracionListadoRuta.SolicitaNombreCampoRadicadoRuta(CDParmeterValoresCamposGabinete.IdRutaWorkflow,
+                                                                                   NombreCampoRadicado)
+            If Result <> "YES" Then Return Result
+            Result = Class_DAT_ADIC_TAR.SolicitaRadicadoTareaWorkflow(NombreCampoRadicado,
+                                                                      CDParmeterValoresCamposGabinete.NombreRutaWorkflow,
+                                                                      CDParmeterValoresCamposGabinete.IdTareaWorkflow,
+                                                                      Radicado)
+            If Result <> "YES" Then Return Result
+            Return ConstruirDatosCamposIndiceGabineteConRadicado(CDParmeterValoresCamposGabinete,
+                                                                  Radicado,
+                                                                  0,
+                                                                  CDcamposAsignaAlmacenamiento)
+        Catch ex As Exception
+            Return "Inconsistencia general funcion SolicitaDatosCamposIndiceGabinete " & ex.Message
+        End Try
+    End Function
+
+    Function ConstruirDatosCamposIndiceGabineteConRadicado(CDParmeterValoresCamposGabinete As CDParmeterValoresCamposGabinete,
+                                                           ByVal Radicado As String,
+                                                           ByVal IdPlantillaEsperada As Integer,
+                                                           ByRef CDcamposAsignaAlmacenamiento As List(Of CDcamposAsignaAlmacenamiento)) As String
         '--------------------------------------------------------------------------------------------------
         'Funcion : Asgina campos y datos de alamacenamiento para indice de gabinete de la relación gabinete
         '          plantilla de radicación
@@ -733,29 +759,15 @@ Public Class ClassDaGabinete
         '--------------------------------------------------------------------------------------------------
         Try
             Dim Result As String = ""
-            Dim Class_DAT_ADIC_TAR As New Class_DAT_ADIC_TAR
-            Dim ClassConfiguracionListadoRuta As New Class_configuracion_listado_ruta
-            Dim NombreCampoRadicado As String = ""
-            Result = ClassConfiguracionListadoRuta.SolicitaNombreCampoRadicadoRuta(CDParmeterValoresCamposGabinete.IdRutaWorkflow,
-                                                                                   NombreCampoRadicado)
-            If Result <> "YES" Then
-                SolicitaDatosCamposIndiceGabinete = Result
-                Exit Function
-            End If
-            Result = Class_DAT_ADIC_TAR.SolicitaRadicadoTareaWorkflow(NombreCampoRadicado,
-                                                                      CDParmeterValoresCamposGabinete.NombreRutaWorkflow,
-                                                                      CDParmeterValoresCamposGabinete.IdTareaWorkflow,
-                                                                      Radicado)
-            If Result <> "YES" Then
-                SolicitaDatosCamposIndiceGabinete = Result
-                Exit Function
+            If String.IsNullOrWhiteSpace(Radicado) Then
+                Return "El radicado autoritativo es obligatorio para construir los índices del gabinete."
             End If
             Dim Class_system1 As New Class_system1
             Dim IdGabineteDocuarchi As Integer = 0
             Result = Class_system1.SolicitaIdGabineteDocuarchi(CDParmeterValoresCamposGabinete.Gabinete,
                                                                IdGabineteDocuarchi)
             If Result <> "YES" Then
-                SolicitaDatosCamposIndiceGabinete = Result
+                ConstruirDatosCamposIndiceGabineteConRadicado = Result
                 Exit Function
             End If
             Dim Class_ra_registro_general_radicacion As New Class_ra_registro_general_radicacion
@@ -763,7 +775,7 @@ Public Class ClassDaGabinete
             Result = Class_ra_registro_general_radicacion.SolicitaNombrePlantillaRadicado(Radicado,
                                                                                           NombrePlantillaRadicado)
             If Result <> "YES" Then
-                SolicitaDatosCamposIndiceGabinete = Result
+                ConstruirDatosCamposIndiceGabineteConRadicado = Result
                 Exit Function
             End If
             Dim Class_system_plantilla_radicado As New Class_system_plantilla_radicado
@@ -771,8 +783,11 @@ Public Class ClassDaGabinete
             Result = Class_system_plantilla_radicado.SolicitaIdPlantillaRadicado(IdPlantillaRadicado,
                                                                                  NombrePlantillaRadicado)
             If Result <> "YES" Then
-                SolicitaDatosCamposIndiceGabinete = Result
+                ConstruirDatosCamposIndiceGabineteConRadicado = Result
                 Exit Function
+            End If
+            If IdPlantillaEsperada > 0 AndAlso IdPlantillaRadicado <> IdPlantillaEsperada Then
+                Return "La plantilla del radicado no corresponde al registro de estado seleccionado."
             End If
             Dim Class_ra_relacion_plantilla_gabinete As New Class_ra_relacion_plantilla_gabinete
             Dim stru_campos_plantilla_gabinete() As csfc_structure_relacion_campos_plantilla_ruta = Nothing
@@ -780,7 +795,7 @@ Public Class ClassDaGabinete
                                                                                                   IdGabineteDocuarchi,
                                                                                                   stru_campos_plantilla_gabinete)
             If Result <> "YES" Then
-                SolicitaDatosCamposIndiceGabinete = Result
+                ConstruirDatosCamposIndiceGabineteConRadicado = Result
                 Exit Function
             End If
             Dim Class_plantillas_radicacion As New Class_plantillas_radicacion
@@ -788,7 +803,7 @@ Public Class ClassDaGabinete
                                                                                             Radicado,
                                                                                             NombrePlantillaRadicado)
             If Result <> "YES" Then
-                SolicitaDatosCamposIndiceGabinete = Result
+                ConstruirDatosCamposIndiceGabineteConRadicado = Result
                 Exit Function
             End If
             '--------------------------------------------------------
@@ -800,7 +815,7 @@ Public Class ClassDaGabinete
                     If Not stru_campos_plantilla_gabinete(i).dato_campo_plantilla Is Nothing And stru_campos_plantilla_gabinete(i).dato_campo_plantilla <> "" Then
                         Result = ClassGestionFechas.csfc_Formatea_Fecha_Time_MYSQL_Fecha_Inicio(stru_campos_plantilla_gabinete(i).dato_campo_plantilla)
                         If Result <> "YES" Then
-                            SolicitaDatosCamposIndiceGabinete = Result
+                            ConstruirDatosCamposIndiceGabineteConRadicado = Result
                             Exit Function
                         End If
                     End If
@@ -810,7 +825,7 @@ Public Class ClassDaGabinete
                     If Not stru_campos_plantilla_gabinete(i).dato_campo_plantilla Is Nothing And stru_campos_plantilla_gabinete(i).dato_campo_plantilla <> "" Then
                         Result = ClassGestionFechas.csfc_Formatea_Fecha_Almacenamiento_Time_bsd(stru_campos_plantilla_gabinete(i).dato_campo_plantilla)
                         If Result <> "YES" Then
-                            SolicitaDatosCamposIndiceGabinete = Result
+                            ConstruirDatosCamposIndiceGabineteConRadicado = Result
                             Exit Function
                         End If
                     End If
@@ -825,10 +840,10 @@ Public Class ClassDaGabinete
                     CDcamposAsignaAlmacenamiento.Add(IlistCDcamposAsignaAlmacenamiento)
                 Next
             End If
-            SolicitaDatosCamposIndiceGabinete = "YES"
+            ConstruirDatosCamposIndiceGabineteConRadicado = "YES"
             Exit Function
         Catch ex As Exception
-            SolicitaDatosCamposIndiceGabinete = "Inconsistencia general funcion SolicitaDatosCamposIndiceGabinete " & ex.Message
+            ConstruirDatosCamposIndiceGabineteConRadicado = "Inconsistencia general funcion ConstruirDatosCamposIndiceGabineteConRadicado " & ex.Message
         End Try
     End Function
     Function ActualizaIndiceDocumentosGabineteRleacionadoTareaWorkflow(ByVal IdTareaWorkflow As Long,

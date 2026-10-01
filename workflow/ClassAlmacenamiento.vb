@@ -5804,8 +5804,98 @@ Public Class ClassAlmacenamiento
                             ByRef StruDatosImageLista As stru_datos_image_lista,
                             ByRef IdTareaWorkflow As Long,
                             ByRef Contador As String,
-                            Optional ByVal IdRegistroEstadoRadicacion As Long = 0,
-                            Optional ByVal RadicadoRadicacion As String = "") As String
+                            ByVal IdRegistroEstadoRadicacion As Long,
+                            ByVal RadicadoRadicacion As String) As String
+        Try
+            If Not String.Equals(Convert.ToString(HttpContext.Current.Session.Item("WF_TIPO_ADJUNTA")),
+                                 "ADJUNTARADICACION",
+                                 StringComparison.Ordinal) Then
+                Return "La operación de adjunto no corresponde a Radicación Simplificada."
+            End If
+            If IdRegistroEstadoRadicacion <= 0 Then
+                Return "El registro seleccionado no es válido para adjuntar el documento."
+            End If
+
+            Dim IdUsuarioRadicacion As Integer = 0
+            Integer.TryParse(Convert.ToString(HttpContext.Current.Session.Item("RA_ID_USUARIO")), IdUsuarioRadicacion)
+            Dim LoginUsuario As String = Convert.ToString(HttpContext.Current.Session.Item("GA_LOGINUSUARIOGESTION")).Trim()
+            If String.IsNullOrWhiteSpace(LoginUsuario) Then
+                LoginUsuario = Convert.ToString(HttpContext.Current.Session.Item("Login_Usuario_Workfow")).Trim()
+            End If
+            Dim ContextoOperacion As New ContextoModulo With {
+                .CodigoModulo = "RADICACION_SIMPLIFICADA",
+                .IdUsuario = IdUsuarioRadicacion,
+                .LoginUsuario = LoginUsuario
+            }
+            Dim CadenaConexionRadicacion As String = ModuleSessionConnectionStringResolver.Resolve(HttpContext.Current, "RA_")
+            If String.IsNullOrWhiteSpace(CadenaConexionRadicacion) Then
+                Return "No fue posible resolver la conexión autorizada de Radicación para adjuntar el documento."
+            End If
+            Dim Repositorio As IContextoAdjuntoRadicacionRepository =
+                New MySqlContextoAdjuntoRadicacionRepository(
+                    New RadicacionModuleConnectionFactory(CadenaConexionRadicacion),
+                    New AdoNetDataExecutor())
+            Dim Servicio As New ServicioAdjuntoRadicacion(Repositorio)
+            Dim Resultado As ResultadoAdjuntoRadicacion = Servicio.Adjuntar(
+                ContextoOperacion,
+                IdRegistroEstadoRadicacion,
+                RadicadoRadicacion,
+                Function(ContextoAdjunto As ContextoAdjuntoRadicacion) As ResultadoAdjuntoRadicacion
+                    If IdTipoChek = 0 OrElse IdTipoChek = -1 Then
+                        HttpContext.Current.Session.Item("DG_LISTA_CHEQUEO") = "-1"
+                    Else
+                        HttpContext.Current.Session.Item("DG_LISTA_CHEQUEO") = IdTipoChek
+                    End If
+                    Dim EvaluaActualizaImagenWorkflow As Integer = If(ContextoAdjunto.IdTareaWorkflow > 0, 1, 0)
+                    Dim IdImagenAlmacenada As Integer = 0
+                    Dim DatosImagen As stru_datos_image_lista = Nothing
+                    Dim ResultadoPreparacion As String = PreAlmacenaDocumentosRadicacionConContexto(
+                        ContextoAdjunto,
+                        DescripcionTipoDocumento,
+                        IdTipoChek,
+                        "",
+                        "DOCUMENTO ELECTRONICO",
+                        EvaluaActualizaImagenWorkflow,
+                        2,
+                        0,
+                        "",
+                        IdImagenAlmacenada,
+                        DatosImagen)
+                    If ResultadoPreparacion <> "YES" Then
+                        Return ResultadoAdjuntoRadicacion.Fallo(ResultadoPreparacion, ContextoAdjunto)
+                    End If
+                    Return ResultadoAdjuntoRadicacion.Correcto(ContextoAdjunto,
+                                                               IdImagenAlmacenada,
+                                                               DatosImagen)
+                End Function)
+
+            If Resultado Is Nothing OrElse Not Resultado.Exito Then
+                Return If(Resultado Is Nothing OrElse String.IsNullOrWhiteSpace(Resultado.Mensaje),
+                          "No fue posible adjuntar el documento al radicado seleccionado.",
+                          Resultado.Mensaje)
+            End If
+
+            StruDatosImageLista = Resultado.DatosImagen
+            IdTareaWorkflow = Resultado.Contexto.IdTareaWorkflow
+            If StruDatosImageLista.notipodocumento = "" OrElse StruDatosImageLista.notipodocumento = "Documento" Then
+                StruDatosImageLista.notipodocumento = "D-" & StruDatosImageLista.id_imagen
+            End If
+            Return "YES"
+        Catch ex As Exception
+            Return "No fue posible adjuntar el documento al radicado seleccionado."
+        End Try
+    End Function
+
+    Function UploadSaveFile(ByVal IdExpediente As Integer,
+                            ByVal IdTipoChek As Integer,
+                            ByVal DescripcionTipoDocumento As String,
+                            ByVal EstadoChekAdjuntoAnexo As Integer,
+                            ByVal EstadoChekRelacionado As Integer,
+                            ByVal NumeroDocRelacionado As Integer,
+                            ByVal FechaCarga As String,
+                            ByRef StruDatosImageLista As stru_datos_image_lista,
+                            ByRef IdTareaWorkflow As Long,
+                            ByRef Contador As String) As String
         '-----------------------------------------------------------------------------------------------
         'Funcion : Activa guardar documentos que se carga desde dispositivos por la interfaz de carga
         '          de java script
@@ -6112,66 +6202,6 @@ Public Class ClassAlmacenamiento
                                                                                                              evalua_flujo_ruta,
                                                                                                              2,
                                                                                                              2)
-                If Result <> "YES" Then
-                    UploadSaveFile = Result
-                    Exit Function
-                Else
-                    If StruDatosImageLista.notipodocumento = "" Or StruDatosImageLista.notipodocumento = "Documento" Then
-                        Dim nun_doc As Object = Val(NumeroDocRelacionado) + 1
-                        StruDatosImageLista.notipodocumento = "D-" & StruDatosImageLista.id_imagen
-                    End If
-                    UploadSaveFile = "YES"
-                    Exit Function
-                End If
-            End If
-            If HttpContext.Current.Session.Item("WF_TIPO_ADJUNTA") = "ADJUNTARADICACION" Then
-                Dim Class_ra_rad_estados_modulo_radicacion As New Class_ra_rad_estados_modulo_radicacion
-                Dim StruRegistroEstado As stru_registro_estado = Nothing
-                Dim IdRegistroEstadoSeleccionado As Long = IdRegistroEstadoRadicacion
-                If IdRegistroEstadoSeleccionado <= 0 Then
-                    IdRegistroEstadoSeleccionado = Val(HttpContext.Current.Session.Item("RA_ID_REGISTRO_RADICADO"))
-                End If
-                Result = Class_ra_rad_estados_modulo_radicacion.SolicitaDatosEstructuraEstadoRadicado(IdRegistroEstadoSeleccionado,
-                                                                                                      StruRegistroEstado)
-
-                If Result <> "YES" Then
-                    Return Result
-                End If
-                If Not String.IsNullOrWhiteSpace(RadicadoRadicacion) AndAlso
-                   Not String.IsNullOrWhiteSpace(StruRegistroEstado.consecutivo_radicado) AndAlso
-                   Not String.Equals(RadicadoRadicacion.Trim(), StruRegistroEstado.consecutivo_radicado.Trim(), StringComparison.Ordinal) Then
-                    Return "El radicado enviado no corresponde al registro de estado seleccionado. Actualice la pantalla e intente nuevamente."
-                End If
-                Dim RadicadoRegistroSeleccionado As String = StruRegistroEstado.consecutivo_radicado
-                If String.IsNullOrWhiteSpace(RadicadoRegistroSeleccionado) Then
-                    RadicadoRegistroSeleccionado = RadicadoRadicacion
-                End If
-                If String.IsNullOrWhiteSpace(RadicadoRegistroSeleccionado) Then
-                    Return "El registro seleccionado no contiene un radicado válido para adjuntar el documento. Actualice la pantalla e intente nuevamente."
-                End If
-                If IdTipoChek = 0 Or IdTipoChek = -1 Then
-                    HttpContext.Current.Session.Item("DG_LISTA_CHEQUEO") = "-1"
-                Else
-                    HttpContext.Current.Session.Item("DG_LISTA_CHEQUEO") = IdTipoChek
-                End If
-                Dim EvaluaActualizaImagenWorkflow As Integer = 0
-                If StruRegistroEstado.id_tarea_workflow <> 0 Then
-                    EvaluaActualizaImagenWorkflow = 1
-                End If
-                Dim IdImagenAlmacenada As Integer = 0
-                Result = PreAlmacenaDocumentosRadicacion(DescripcionTipoDocumento,
-                                                         IdTipoChek,
-                                                         "",
-                                                         StruRegistroEstado.id_tarea_workflow,
-                                                         StruRegistroEstado.tipo_doc_entrante_id_Tipo_Doc_Entrante,
-                                                         NombreClaseDocumento,
-                                                         EvaluaActualizaImagenWorkflow,
-                                                         2,
-                                                         0,
-                                                         "",
-                                                         IdImagenAlmacenada,
-                                                         StruDatosImageLista,
-                                                         RadicadoRegistroSeleccionado)
                 If Result <> "YES" Then
                     UploadSaveFile = Result
                     Exit Function
@@ -8060,8 +8090,7 @@ Public Class ClassAlmacenamiento
                                              ByVal TipoAlmacen As Integer,
                                              ByVal DatosEnlaceScript As String,
                                              ByRef IdImagenAlamacenada As Integer,
-                                             ByRef EstructuraDatosImagen As stru_datos_image_lista,
-                                             Optional ByVal ConsecutivoRadicadoEstado As String = "") As String
+                                             ByRef EstructuraDatosImagen As stru_datos_image_lista) As String
         '-----------------------------------------------------------------------------------------------
         'Funcion : Alista los datos de pre almacenamiento para documentos que se adjuntan dsde el radicado
         '-----------------------------------------------------------------------------------------------
@@ -8192,12 +8221,6 @@ Public Class ClassAlmacenamiento
                 Case Else
                     Return "Imposible determinar si el tipo de tarea Workflow es interna o externa en relación con el número de tarea Workflow (" & StructureDatosTareaWorkflow.FLUJO_INTERNO_WF & ")"
             End Select
-            'En Radicación Simplificada el registro de estado ya contiene el radicado seleccionado.
-            'Se conserva la resolución histórica desde la tarea y solo se usa este valor si aquella
-            'fuente no tiene dato, evitando enviar un radicado vacío al almacenamiento compartido.
-            If String.IsNullOrWhiteSpace(Radicado) AndAlso Not String.IsNullOrWhiteSpace(ConsecutivoRadicadoEstado) Then
-                Radicado = ConsecutivoRadicadoEstado.Trim()
-            End If
             Result = AlmacenaDocumentosRadicacion(EvaluaActualizaImagenWorkflow,
                                                   Gabinete,
                                                   Radicado,
@@ -8220,6 +8243,98 @@ Public Class ClassAlmacenamiento
             Return Result
         Catch ex As Exception
             Return "Inconsistencia general funcion AlmacenaDocumentosRadicacion " & ex.Message
+        End Try
+    End Function
+    Function PreAlmacenaDocumentosRadicacionConContexto(ByVal Contexto As ContextoAdjuntoRadicacion,
+                                                        ByVal DescripcionTipo As String,
+                                                        ByVal IdTipoChekLista As Integer,
+                                                        ByVal RutaArchivo As String,
+                                                        ByVal NombreClaseDocumento As String,
+                                                        ByVal EvaluaActualizaImagenWorkflow As Integer,
+                                                        ByVal TipoAlmacenamiento As Integer,
+                                                        ByVal TipoAlmacen As Integer,
+                                                        ByVal DatosEnlaceScript As String,
+                                                        ByRef IdImagenAlamacenada As Integer,
+                                                        ByRef EstructuraDatosImagen As stru_datos_image_lista) As String
+        Try
+            If Contexto Is Nothing OrElse Not Contexto.EsValido() Then
+                Return "El contexto autorizado del radicado no es válido para adjuntar el documento."
+            End If
+
+            Dim Result As String = ""
+            Dim IdRutaWorkflow As Integer = Val(HttpContext.Current.Session("Id_Ruta_Workflow"))
+            Dim NombreRutaWorkflow As String = Convert.ToString(HttpContext.Current.Session("WF_RUTAWORKFLOW")).Trim()
+            If IdRutaWorkflow <= 0 OrElse String.IsNullOrWhiteSpace(NombreRutaWorkflow) Then
+                Return "No fue posible determinar la ruta de Workflow del registro seleccionado."
+            End If
+
+            Dim Configuracion As New Class_ra_dig_config_digitalizacion
+            Dim DatosConfiguracion As Stru_config_digitalizacion = Nothing
+            Result = Configuracion.SolicitaDatosConfiguracionDigitalizacionPorTramite(Contexto.IdTipoTramite,
+                                                                                       DatosConfiguracion)
+            If Result <> "YES" Then Return Result
+            If DatosConfiguracion.OBLIGA_LISTA_CHEQUEO = 1 AndAlso
+               (IdTipoChekLista = -1 OrElse IdTipoChekLista = 0) Then
+                Return "Por favor, indique el tipo documental correspondiente al documento que desea adjuntar.​"
+            End If
+
+            Dim DatosTarea As structure_datos_tarea_workflow = Nothing
+            Dim DatosAdicionales As New Class_DAT_ADIC_TAR
+            Result = DatosAdicionales.SolicitaDatosEstructuraBasicaTareaWorkflow(NombreRutaWorkflow,
+                                                                                 Contexto.IdTareaWorkflow,
+                                                                                 DatosTarea)
+            If Result <> "YES" Then Return Result
+            If DatosTarea.ID_GABINETE <= 0 Then
+                Return "Imposible encontrar el identificador del gabinete asociado a la tarea de Workflow (" & Contexto.IdTareaWorkflow & ")."
+            End If
+            If DatosTarea.FLUJO_INTERNO_WF <> 1 Then
+                Return "El registro seleccionado no corresponde a una tarea interna de Radicación Simplificada."
+            End If
+
+            Dim Gabinete As String = ""
+            Dim ConfiguracionGabinete As New Class_configuracion_gabinete
+            Result = ConfiguracionGabinete.SolicitanombreGabineteWorkflow(DatosTarea.ID_GABINETE, Gabinete)
+            If Result <> "YES" Then Return Result
+            If Not String.IsNullOrWhiteSpace(Contexto.NombreGabinete) AndAlso
+               Not String.Equals(Contexto.NombreGabinete, Gabinete, StringComparison.OrdinalIgnoreCase) Then
+                Return "El gabinete de la tarea no corresponde al registro de estado seleccionado."
+            End If
+
+            Dim Parametros As New CDParmeterValoresCamposGabinete With {
+                .IdTareaWorkflow = Contexto.IdTareaWorkflow,
+                .IdRutaWorkflow = IdRutaWorkflow,
+                .NombreRutaWorkflow = NombreRutaWorkflow,
+                .Gabinete = Gabinete
+            }
+            Dim Campos As New List(Of CDcamposAsignaAlmacenamiento)
+            Dim Gabinetes As New ClassDaGabinete
+            Result = Gabinetes.ConstruirDatosCamposIndiceGabineteConRadicado(Parametros,
+                                                                             Contexto.Radicado,
+                                                                             Contexto.IdPlantilla,
+                                                                             Campos)
+            If Result <> "YES" Then Return Result
+
+            Return AlmacenaDocumentosRadicacion(EvaluaActualizaImagenWorkflow,
+                                                 Gabinete,
+                                                 Contexto.Radicado,
+                                                 RutaArchivo,
+                                                 NombreRutaWorkflow,
+                                                 IdRutaWorkflow,
+                                                 Contexto.IdTareaWorkflow,
+                                                 DescripcionTipo,
+                                                 IdTipoChekLista,
+                                                 TipoAlmacenamiento,
+                                                 Campos,
+                                                 "",
+                                                 "",
+                                                 NombreClaseDocumento,
+                                                 TipoAlmacen,
+                                                 DatosEnlaceScript,
+                                                 DatosTarea.ID_IMAGEN,
+                                                 IdImagenAlamacenada,
+                                                 EstructuraDatosImagen)
+        Catch ex As Exception
+            Return "No fue posible preparar el almacenamiento del documento para el radicado seleccionado."
         End Try
     End Function
     Function PreAlmacenaDocumentoProduccion(ByVal IdExpediente As Integer,

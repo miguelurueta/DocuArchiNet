@@ -79,7 +79,7 @@ test("preview y ejecución aceptan los mismos orígenes de sesión autenticada",
     assert.match(previewBlock, /Not esSesionGestion AndAlso Not EsSesionWorkflowAutenticada\(requestContext\)/);
     assert.match(contextGateSource, /Private Shared Function EsOrigenSesionPermitido[\s\S]*?EsSesionGestionAutenticada\(requestContext\) OrElse EsSesionWorkflowAutenticada\(requestContext\)/);
     assert.match(contextGateSource, /Private Shared Function EsSesionWorkflowAutenticada[\s\S]*?"WORKFLOW DOCUMENTAL"[\s\S]*?"Login_Usuario_Workfow"/);
-    assert.match(previewBlock, /If Not esSesionGestion Then[\s\S]*?contexto\.EsValido\(\)[\s\S]*?CrearCadenaConexion\(requestContext\)/);
+    assert.match(previewBlock, /If Not esSesionGestion Then[\s\S]*?contexto\.EsValido\(\)[\s\S]*?ModuleSessionConnectionStringResolver\.Resolve\(requestContext\)/);
 });
 
 test("el preview de usuario filtra y pagina destinos autorizados mediante solo lecturas", () => {

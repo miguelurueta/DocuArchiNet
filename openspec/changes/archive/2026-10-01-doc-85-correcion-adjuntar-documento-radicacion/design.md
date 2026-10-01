@@ -1,3 +1,4 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06 -->
 ## Context
 
 DOC-85: CORRECION-ADJUNTAR-DOCUMENTO-RADICACION
@@ -444,26 +445,67 @@ DOC-85: CORRECION-ADJUNTAR-DOCUMENTO-RADICACION
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Corregir exclusivamente la rama `ADJUNTARADICACION` para que use el radicado persistido del registro de estado.
+- Resolver autorización e identidad una sola vez y transportar un contexto tipado hasta el almacenamiento.
+- Preservar contratos compartidos, recorridos legacy y actualización JavaScript sin recarga.
+- Entregar pruebas locales y una E2E real controlada, sin ejecutar esta última sin autorización explícita.
 
 **Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+- Modificar el handler o JavaScript compartidos.
+- Cambiar la semántica global de `SolicitaRadicadoTareaWorkflow` o del retorno legacy `YES`.
+- Alterar Enlace, SII, importación de sellos, Producción, Gestión de respuestas o Workflow seleccionado.
+- Introducir un feature gate o usar el radicado del navegador como autoridad.
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Identidad autoritativa del registro de estado
+
+`IdRegistroEstadoRadicacion` identifica el registro que el servidor valida. El único radicado autoritativo es `ra_rad_estados_modulo_radicacion.consecutivo_radicado`. `RadicadoRadicacion`, recibido del navegador, es informativo: si viene vacío no reemplaza el valor persistido y, si difiere, la operación falla antes del almacenamiento.
+
+### D-02 — Contexto inmutable y resolución única
+
+Se introducen `ContextoAdjuntoRadicacion`, `ResultadoAdjuntoRadicacion`, `IContextoAdjuntoRadicacionRepository`, `MySqlContextoAdjuntoRadicacionRepository` y `ServicioAdjuntoRadicacion`. El repository ejecuta una consulta parametrizada por carga lógica y materializa tarea, trámite, plantilla, destino y radicado. El service valida la correspondencia con el valor informativo y coordina el flujo sin SQL ni controles Web Forms.
+
+### D-03 — Construcción de índices sin redescubrimiento
+
+`ClassAlmacenamiento.PreAlmacenaDocumentosRadicacionConContexto` recibe el contexto y delega en `ClassDaGabinete.ConstruirDatosCamposIndiceGabineteConRadicado`. El constructor exige un radicado no vacío, no llama `SolicitaRadicadoTareaWorkflow` y reutiliza `AlmacenaDocumentosRadicacion` y `ClassAlmacenamiento.Almacenamiento`.
+
+### D-04 — Adaptación por sobrecargas compatibles
+
+`UploadSaveFile` queda dividido en una sobrecarga legacy de diez argumentos y otra de doce argumentos exclusiva de `ADJUNTARADICACION`. Los dos datos del contexto dejan de ser opcionales. `PreAlmacenaDocumentosRadicacion` conserva el recorrido histórico sin el fallback tardío ni el argumento opcional `ConsecutivoRadicadoEstado`.
+
+### D-05 — Frontera compartida protegida
+
+`generic_control/FileUploadHandler_.ashx.vb` y `js/RadicadorSimplificado/Web_form_radicacion_simpilificada.js` permanecen sin cambios. La E2E real demostró que la rama compartida `adjunta_documeto_version_document` trataba la carga de Radicación como reemplazo y no insertaba la fila nueva. `generic_control/FileUploadHandler.js` incorpora una bifurcación mínima por `evento_adjunta == "ADJUNTARADICACION"`: inserta la fila y actualiza su conteo; el `else` conserva literalmente la actualización histórica de versiones para todos los demás consumidores. No hay postback, `DataBind` ni recarga.
+
+### D-06 — Verificación y operación segura
+
+La evidencia combina caracterización estructural, pruebas ejecutables del contexto/service/repository, resolución de sobrecargas, regresión de consumidores legacy, compilación y E2E real positiva y negativa. La E2E usa exclusivamente `tools/e2e`, requiere autorización ambiental explícita y consultas de control `SELECT`; no activa ni modifica `WorkflowCentroTrabajoModernActive`.
+
+### D-07 — Reutilización de infraestructura transversal
+
+La composición de `ADJUNTARADICACION` reutiliza `ModuleSessionConnectionStringResolver`, `RadicacionModuleConnectionFactory` y `AdoNetDataExecutor`. El resolver extrae y centraliza el mismo algoritmo de sesión que utilizaba el gate de Workflow, de modo que ambos consumidores dependen de infraestructura compartida y no entre sí. `MySqlContextoAdjuntoRadicacionRepository` solo acepta dependencias inyectadas: no crea una fábrica privada, no reconstruye credenciales y no abre una segunda vía de acceso a datos. La E2E permanece dentro de `tools/e2e` y reutiliza su sesión autenticada y consola interactiva; no se fuerza su flujo multipart/UI dentro del runner ASMX `workflow-e2e-platform`, cuyo contrato actual no admite esa operación.
 
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+- La clase legacy concentra varias responsabilidades; se reduce el riesgo añadiendo una ruta específica y conservando la ruta histórica.
+- Una sobrecarga equivocada podría desviar otros eventos; las pruebas deben inventariar llamadas por bloque funcional y compilar el proyecto completo.
+- Una segunda consulta podría mezclar contexto entre archivos; el contexto inmutable se resuelve una vez por carga lógica.
+- La E2E produce persistencia real; su ejecución exige recurso descartable autorizado y evidencia saneada.
+- La ausencia de autorización E2E permite avanzar en pruebas locales, pero impide declarar el cambio cerrado.
 
 ## Migration Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+1. Caracterizar el defecto y proteger los archivos compartidos con pruebas de contrato.
+2. Introducir modelos, repository y service sin conectar aún consumidores legacy.
+3. Añadir el constructor de índices y preparación específica con contexto.
+4. Separar las sobrecargas de `UploadSaveFile` y conectar solo `ADJUNTARADICACION`.
+5. Retirar el fallback tardío y comprobar que las llamadas legacy mantienen su ruta.
+6. Ejecutar pruebas focales, regresión, compilación y revisión de diff.
+7. Integrar la E2E en el harness existente y ejecutarla únicamente tras recibir autorización explícita.
+8. Revertir el conjunto de cambios de DOC-85 si falla la compatibilidad; no se requiere migración de datos ni activación de gate.
 
 ## Open Questions
 
-- TBD
+- No hay decisiones arquitectónicas abiertas para iniciar la implementación. La selección del ambiente, cuenta y recurso descartable se resuelve como autorización operativa antes de ejecutar la E2E.
