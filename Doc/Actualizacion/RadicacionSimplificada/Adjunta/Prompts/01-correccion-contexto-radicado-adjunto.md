@@ -10,6 +10,8 @@ Conseguir que `ADJUNTARADICACION` almacene el documento utilizando el `consecuti
 
 La corrección debe quedar aislada de Gestión de respuestas, Workflow seleccionado, Producción documental, ENLASE, SII, Consulta de radicado y cualquier otro evento atendido por `FileUploadHandler_.ashx` o `ClassAlmacenamiento`.
 
+La decisión arquitectónica oficial está consolidada en `Doc/Actualizacion/RadicacionSimplificada/Adjunta/Exploracion/01-exploracion-consolidada-contexto-radicado-adjunto.md`. Debe leerse completa antes de implementar. Ante una diferencia con alternativas anteriores, prevalece esa exploración y este prompt actualizado.
+
 ## Diagnóstico confirmado
 
 El error visible es:
@@ -79,24 +81,26 @@ El servidor debe rechazar de forma cerrada:
 
 ### 1. Contexto tipado e inmutable
 
-Introducir un contexto específico para la operación, con un nombre coherente con las convenciones reales, equivalente a:
+Introducir `ContextoAdjuntoRadicacion` como contexto específico de la operación. Debe construirse en servidor y exponer propiedades de solo lectura, equivalentes a:
 
 ```vb
-Public Class ContextoAdjuntoRadicacion
-    Public Property IdRegistroEstado As Long
-    Public Property Radicado As String
-    Public Property IdTareaWorkflow As Long
-    Public Property IdTipoTramite As Integer
-    Public Property IdPlantilla As Integer
-    Public Property NombreGabinete As String
+Public NotInheritable Class ContextoAdjuntoRadicacion
+    Public ReadOnly Property IdRegistroEstado As Long
+    Public ReadOnly Property Radicado As String
+    Public ReadOnly Property IdTareaWorkflow As Long
+    Public ReadOnly Property IdTipoTramite As Integer
+    Public ReadOnly Property IdPlantilla As Integer
+    Public ReadOnly Property NombreGabinete As String
 End Class
 ```
 
-No es obligatorio conservar exactamente todas estas propiedades si el análisis demuestra que alguna no es necesaria, pero `IdRegistroEstado`, `Radicado`, `IdTareaWorkflow` e identidad del destino no pueden viajar como valores ambiguos o volver a obtenerse desde estado web mutable.
+`IdRegistroEstado`, `Radicado`, `IdTareaWorkflow`, `IdTipoTramite` e identidad del destino no pueden viajar como valores ambiguos ni volver a obtenerse desde estado web mutable. `NombreGabinete` puede materializarse durante la resolución o validación del destino, pero una vez construido el contexto no puede modificarse.
 
 ### 2. Resolución única en servidor
 
-Crear una operación específica, o una abstracción equivalente, que resuelva el contexto desde `id_estado_radicado`, valide su pertenencia y devuelva el radicado no vacío. Esta operación debe ejecutarse una sola vez por carga lógica y antes de construir índices o consultar la plantilla.
+Crear `IContextoAdjuntoRadicacionRepository.ObtenerAutorizado(...)` y su implementación `MySqlContextoAdjuntoRadicacionRepository.ObtenerAutorizado(...)`. La implementación debe resolver el contexto mediante una consulta parametrizada desde `id_estado_radicado`, validar su pertenencia y devolver el radicado no vacío. Esta operación se ejecuta una sola vez por carga lógica y antes de construir índices o consultar la plantilla.
+
+Crear `ServicioAdjuntoRadicacion.Adjuntar(...)` para coordinar la solicitud, el repository, la comparación del radicado informativo y la preparación del almacenamiento. El servicio no conoce controles Web Forms ni construye SQL. Su salida interna es `ResultadoAdjuntoRadicacion`; el contrato HTTP existente continúa siendo `uploadFiles`.
 
 No leer el radicado autoritativo desde:
 
@@ -116,7 +120,7 @@ Construir campos e índices del gabinete
 Almacenar el documento
 ```
 
-Crear un método nuevo para construir datos de gabinete con un radicado ya validado. Puede llamarse `ConstruirDatosCamposIndiceGabineteConRadicado` o adoptar la convención real del código.
+Crear `ClassDaGabinete.ConstruirDatosCamposIndiceGabineteConRadicado(...)` para construir los datos de gabinete con un radicado ya validado.
 
 Ese método debe:
 
@@ -131,21 +135,37 @@ Ese método debe:
 
 Mantener intacto el método compartido `SolicitaDatosCamposIndiceGabinete(...)` para los consumidores que todavía resuelven el radicado desde la tarea. Puede delegar en el nuevo constructor después de aplicar su resolución histórica, pero no cambiar su firma, retorno ni semántica desde este cambio.
 
-No agregar otro parámetro opcional primitivo a `UploadSaveFile(...)`, `PreAlmacenaDocumentosRadicacion(...)` o al resolver compartido. Preferir un contexto específico o una sobrecarga inequívoca utilizada exclusivamente por `ADJUNTARADICACION`.
+No modificar `generic_control/FileUploadHandler_.ashx.vb`, `generic_control/FileUploadHandler.js` ni `js/RadicadorSimplificado/Web_form_radicacion_simpilificada.js`. El transporte actual ya entrega el ID del registro y el radicado informativo y el handler ya realiza la llamada de doce argumentos.
+
+Separar la firma actual de `UploadSaveFile(...)` en dos sobrecargas no opcionales:
+
+- una sobrecarga legacy de diez argumentos, con el contrato histórico de los demás eventos;
+- una sobrecarga de doce argumentos, exclusiva de `ADJUNTARADICACION`, que recibe obligatoriamente `IdRegistroEstadoRadicacion` y `RadicadoRadicacion` y delega en `ServicioAdjuntoRadicacion.Adjuntar(...)`.
+
+No conservar `IdRegistroEstadoRadicacion` ni `RadicadoRadicacion` como argumentos opcionales. La llamada existente del handler debe compilar sin alteraciones y resolver la sobrecarga de doce argumentos. Las llamadas existentes de diez argumentos deben resolver la sobrecarga legacy.
+
+Crear `ClassAlmacenamiento.PreAlmacenaDocumentosRadicacionConContexto(...)` para la nueva ruta. Debe recibir `ContextoAdjuntoRadicacion`, no consultar otra vez el registro de estado, no ejecutar `SolicitaRadicadoTareaWorkflow(...)` y reutilizar `AlmacenaDocumentosRadicacion(...)` sin cambiar su contrato.
+
+Mantener `PreAlmacenaDocumentosRadicacion(...)` como recorrido histórico. Retirar de esa firma el argumento opcional `ConsecutivoRadicadoEstado` y retirar el fallback tardío agregado después del `Select Case`.
 
 ### 5. Flujo objetivo
 
 ```txt
-FileUploadHandler_.ashx
-  -> detectar exactamente ADJUNTARADICACION
-  -> resolver ContextoAdjuntoRadicacion en servidor
-  -> validar identidad y correspondencia informativa del cliente
-  -> prealmacenar con contexto explícito
-  -> construir índices con Contexto.Radicado
-  -> consultar plantilla con Contexto.Radicado
-  -> almacenar documento
-  -> devolver la estructura de imagen existente
-  -> insertar/actualizar la interfaz mediante el recorrido actual
+FileUploadHandler_.ashx sin cambios
+  -> llamada existente de doce argumentos
+  -> UploadSaveFile, sobrecarga exclusiva de ADJUNTARADICACION
+  -> ServicioAdjuntoRadicacion.Adjuntar
+  -> MySqlContextoAdjuntoRadicacionRepository.ObtenerAutorizado
+  -> ContextoAdjuntoRadicacion inmutable
+  -> validar correspondencia informativa del cliente
+  -> PreAlmacenaDocumentosRadicacionConContexto
+  -> ConstruirDatosCamposIndiceGabineteConRadicado
+  -> AlmacenaDocumentosRadicacion existente
+  -> ClassAlmacenamiento.Almacenamiento existente
+  -> ResultadoAdjuntoRadicacion
+  -> sobrecarga copia resultados a stru_datos_image_lista
+  -> handler mapea uploadFiles sin cambios
+  -> interfaz inserta/actualiza mediante el recorrido JavaScript actual
 ```
 
 No debe existir una segunda resolución del radicado entre la construcción del contexto y el almacenamiento.
@@ -158,6 +178,9 @@ Verificar nombres, firmas y dependencias reales antes de modificar:
 generic_control/
 ├── FileUploadHandler.js
 └── FileUploadHandler_.ashx.vb
+
+Doc/Actualizacion/RadicacionSimplificada/Adjunta/Exploracion/
+└── 01-exploracion-consolidada-contexto-radicado-adjunto.md
 
 js/RadicadorSimplificado/
 └── Web_form_radicacion_simpilificada.js
@@ -176,6 +199,17 @@ workflow/
 Docuarchi/
 └── ClassDaGabinete.vb
 
+Modelo/RadicacionSimplificada/Adjuntos/
+├── ContextoAdjuntoRadicacion.vb
+├── ResultadoAdjuntoRadicacion.vb
+└── IContextoAdjuntoRadicacionRepository.vb
+
+Services/RadicacionSimplificada/Adjuntos/
+└── ServicioAdjuntoRadicacion.vb
+
+Infrastructure/Repositories/RadicacionSimplificada/Adjuntos/
+└── MySqlContextoAdjuntoRadicacionRepository.vb
+
 tests/
 ├── radicacion-simple-attachment-radicado-fallback.test.cjs
 └── bootstrap-table-global-contract.test.cjs
@@ -188,6 +222,9 @@ Revisar el diff no confirmado existente antes de editar. Parte del intento previ
 - No modificar el comportamiento de `GESTION_RESPUESTA`.
 - No modificar el comportamiento de `WORKFLOWSELECCION`.
 - No modificar el comportamiento de `PRODUCCION`.
+- No modificar `generic_control/FileUploadHandler_.ashx.vb`.
+- No modificar `generic_control/FileUploadHandler.js`.
+- No modificar `js/RadicadorSimplificado/Web_form_radicacion_simpilificada.js`.
 - No modificar ENLASE, importación SII ni importación de sellos.
 - No cambiar globalmente el contrato de `SolicitaRadicadoTareaWorkflow(...)` en esta corrección.
 - No reinterpretar el retorno legacy `YES` para todos sus consumidores.
@@ -204,15 +241,21 @@ Revisar el diff no confirmado existente antes de editar. Parte del intento previ
 ## Tareas atómicas sugeridas
 
 1. Caracterizar con una prueba el fallo actual: `DAT_ADIC_TAR` vacío provoca la consulta de plantilla con radicado vacío antes del fallback.
-2. Caracterizar las ramas compartidas de `FileUploadHandler_.ashx.vb` y `UploadSaveFile(...)` para impedir desplazamientos accidentales entre llamadas de firma similar.
-3. Introducir el contexto tipado de adjunto de radicación y su resolver autoritativo.
-4. Crear el constructor de campos de gabinete que recibe un radicado obligatorio y no lo redescubre.
-5. Adaptar exclusivamente `ADJUNTARADICACION` para usar ese recorrido.
-6. Retirar del intento previo los parámetros opcionales o fallbacks que queden redundantes, sin alterar cambios del usuario no relacionados.
-7. Mantener el adaptador legacy para los demás módulos y demostrar que conserva su comportamiento.
-8. Agregar pruebas de valores vacíos, discrepancia cliente-servidor, registro inexistente y pertenencia inválida.
-9. Agregar pruebas de regresión de las ramas compartidas y de carga múltiple.
-10. Compilar con MSBuild, ejecutar suites focales y documentar resultados y limitaciones.
+2. Proteger mediante prueba la huella o estructura aprobada de `FileUploadHandler_.ashx.vb` y demostrar que el archivo no cambia.
+3. Caracterizar todas las llamadas actuales a `UploadSaveFile(...)` y separar la resolución de las sobrecargas de diez y doce argumentos.
+4. Introducir `ContextoAdjuntoRadicacion`, `ResultadoAdjuntoRadicacion` e `IContextoAdjuntoRadicacionRepository`.
+5. Implementar `MySqlContextoAdjuntoRadicacionRepository.ObtenerAutorizado(...)` con consulta parametrizada y resolución única.
+6. Implementar `ServicioAdjuntoRadicacion.Adjuntar(...)` sin dependencias de Web Forms ni SQL.
+7. Crear `ConstruirDatosCamposIndiceGabineteConRadicado(...)`, que recibe un radicado obligatorio y no lo redescubre.
+8. Crear `PreAlmacenaDocumentosRadicacionConContexto(...)` y reutilizar `AlmacenaDocumentosRadicacion(...)`.
+9. Convertir `UploadSaveFile(...)` en sobrecargas inequívocas de diez y doce argumentos sin modificar el handler.
+10. Retirar `ConsecutivoRadicadoEstado` opcional y el fallback tardío de `PreAlmacenaDocumentosRadicacion(...)`.
+11. Mantener el recorrido legacy para los demás módulos y demostrar que conserva su comportamiento.
+12. Agregar pruebas de valores vacíos, discrepancia cliente-servidor, registro inexistente, pertenencia inválida y carga múltiple.
+13. Compilar con MSBuild, ejecutar suites focales y de regresión, y documentar resultados y limitaciones.
+14. Integrar la suite E2E real, su validador, iniciador interactivo, perfil de ejemplo no sensible y comando `test:radicacion-simple:attachment` dentro de `tools/e2e`.
+15. Ejecutar la E2E positiva y negativa contra el ambiente, cuenta y recurso descartable expresamente autorizados, con consultas de control de solo lectura y evidencia saneada.
+16. Confirmar al cierre que el gate permanece en `false`, con usuarios y grupos vacíos; si falta autorización o recurso descartable, registrar el bloqueo y no declarar el cambio cerrado.
 
 ## Matriz mínima de no regresión
 
@@ -228,30 +271,90 @@ Revisar el diff no confirmado existente antes de editar. Parte del intento previ
 
 ## Pruebas obligatorias
 
+- Prueba que proteja la huella o caracterización estructural aprobada de `FileUploadHandler_.ashx.vb`; el diff final no puede modificar ese archivo.
 - Prueba que reproduzca el defecto con tarea válida y radicado vacío en `DAT_ADIC_TAR`.
-- Prueba que demuestre que la plantilla se consulta con `StruRegistroEstado.consecutivo_radicado`.
+- Prueba que demuestre que `MySqlContextoAdjuntoRadicacionRepository.ObtenerAutorizado(...)` resuelve una sola vez el registro mediante SQL parametrizado y materializa `ContextoAdjuntoRadicacion`.
+- Prueba que demuestre que la plantilla se consulta con `ContextoAdjuntoRadicacion.Radicado`.
 - Prueba negativa con `id_estado_radicado` inexistente.
 - Prueba negativa con `consecutivo_radicado` vacío en el registro autoritativo.
 - Prueba negativa ante discrepancia entre el valor informativo del navegador y base de datos.
+- Prueba que confirme que un radicado informativo vacío no reemplaza ni bloquea el valor autoritativo no vacío.
 - Prueba de aislamiento que falle si el contexto nuevo aparece en una rama diferente de `ADJUNTARADICACION`.
-- Prueba de caracterización de todas las llamadas similares a `UploadSaveFile(...)`; delimitar bloques por sus `If evento_adjunta`, no usar una expresión global que pueda coincidir con otra rama.
+- Prueba de resolución de sobrecargas: las llamadas de diez argumentos conservan el recorrido legacy y la llamada existente de doce argumentos usa exclusivamente `ServicioAdjuntoRadicacion`.
+- Prueba de caracterización de todas las llamadas similares a `UploadSaveFile(...)`; delimitar los bloques funcionales y no usar una expresión global que pueda coincidir con otra llamada.
+- Prueba que demuestre que `PreAlmacenaDocumentosRadicacionConContexto(...)` no referencia `SolicitaRadicadoTareaWorkflow(...)` y llama una sola vez `AlmacenaDocumentosRadicacion(...)`.
 - Prueba que demuestre que `SolicitaDatosCamposIndiceGabinete(...)` conserva el recorrido legacy para consumidores existentes.
 - Prueba de varios archivos que demuestre que todos conservan el mismo contexto validado sin mezcla con otra operación.
+- Prueba que confirme que `stru_datos_image_lista` y la respuesta `uploadFiles` conservan todos sus campos actuales.
 - Suite `bootstrap-table-global-contract.test.cjs` para confirmar que esta corrección no reintroduce la colisión JavaScript anterior.
 - Compilación completa de `GestionDocumental-Docuarchi.net.vbproj` con MSBuild.
 - `git diff --check` y revisión manual del diff para detectar cambios fuera de alcance.
 
 Las pruebas locales deben ser deterministas y no depender de autenticación, red, SII ni escritura en bases de datos reales. Una prueba estructural no sustituye una prueba ejecutable del constructor o resolver nuevo.
 
+### E2E real obligatoria
+
+Agregar una E2E real de Radicación Simplificada integrada exclusivamente en `tools/e2e`; no crear otro proyecto Playwright, login, `.env`, almacenamiento de cookies ni harness paralelo. La implementación debe incorporar:
+
+```text
+tools/e2e/tests/radicacion-simple-attachment.spec.cjs
+tools/e2e/scripts/assert-radicacion-simple-attachment-config.cjs
+tools/e2e/scripts/run-radicacion-simple-attachment-interactive.cjs
+tools/e2e/profiles/radicacion-simple-attachment.profile.example.json
+tools/e2e/package.json -> test:radicacion-simple:attachment
+```
+
+La suite debe reutilizar `tools/e2e/tests/support/authenticated-workflow-session.cjs`, abrir la interfaz real de Radicación Simplificada, seleccionar un registro descartable autorizado, abrir el control real de adjuntos, cargar un fixture documental no sensible, escoger tipología cuando sea obligatoria y confirmar mediante el flujo de usuario. No se permite sustituir esta prueba por invocación directa de una función VB, mock del handler, respuesta sintética ni prueba estructural.
+
+La E2E positiva debe demostrar de extremo a extremo:
+
+- el registro seleccionado tiene `consecutivo_radicado` autoritativo no vacío;
+- la precondición autorizada reproduce `DAT_ADIC_TAR` sin radicado disponible para la tarea;
+- el POST real atraviesa `FileUploadHandler_.ashx.vb` sin modificarlo;
+- el documento queda almacenado con el radicado de `ra_rad_estados_modulo_radicacion`;
+- plantilla, gabinete, tipología e índices corresponden al registro autorizado;
+- la respuesta conserva el contrato `uploadFiles`;
+- la fila aparece en la interfaz mediante JavaScript, con tipología, formato, icono y acciones;
+- no ocurre navegación, postback, `DataBind`, recarga parcial ni recarga completa;
+- una consulta `SELECT` posterior confirma una sola persistencia documental relacionada con el radicado esperado.
+
+Agregar también una E2E negativa real con sesión autenticada que altere exclusivamente el radicado informativo del multipart para hacerlo diferente al valor autoritativo. Debe comprobar que el servidor rechaza la inconsistencia, no agrega una fila en la interfaz y las consultas `SELECT` antes/después conservan el conteo documental. No alterar el ID autoritativo del registro ni crear una ruta de prueba dentro del producto.
+
+Antes de ejecutar la E2E autenticada, leer y cumplir `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`. La corrida exige autorización explícita para:
+
+- ambiente de pruebas;
+- cuenta autorizada;
+- registro de estado y tarea descartables;
+- carga documental real;
+- fixture y tipología permitidos;
+- consultas de control mediante una cuenta MySQL/ODBC de solo lectura.
+
+El perfil contiene solo configuración no sensible. Las credenciales se capturan de forma efímera e interactiva, no se imprimen ni persisten. Todas las consultas de control son `SELECT` parametrizados; no se permiten `INSERT`, `UPDATE`, `DELETE`, DDL ni procedimientos de limpieza desde la cuenta de evidencia. La evidencia conserva solo códigos, conteos, identificadores saneados, latencias y huellas; no conserva contenido documental, credenciales, cookies, tokens, cadenas de conexión ni cuerpos completos de respuesta.
+
+La E2E no puede activar ni modificar `WorkflowCentroTrabajoModernActive`, usuarios o grupos. Antes y después de la corrida debe verificarse que el gate permanezca en `false` y las listas vacías. El cierre debe ejecutarse también si la prueba falla.
+
+Si no existen autorización, cuenta o recurso descartable, registrar la E2E como bloqueo operacional. Las pruebas locales pueden aprobar, pero no se puede declarar el ticket cerrado ni la E2E aprobada, y no se permite reemplazarla por mocks.
+
 ## Criterios de aceptación
 
+- `generic_control/FileUploadHandler_.ashx.vb`, `generic_control/FileUploadHandler.js` y `js/RadicadorSimplificado/Web_form_radicacion_simpilificada.js` permanecen sin cambios.
 - Adjuntar un documento desde Radicación Simplificada no consulta la plantilla con radicado vacío.
 - Funciona cuando la tarea todavía no tiene el radicado disponible en `DAT_ADIC_TAR`.
 - El radicado usado para plantilla, índices y almacenamiento coincide con el registro de estado seleccionado.
+- Las llamadas de diez argumentos resuelven la sobrecarga legacy de `UploadSaveFile(...)` y la llamada actual de doce argumentos resuelve la sobrecarga exclusiva de Radicación Simplificada.
+- `IdRegistroEstadoRadicacion`, `RadicadoRadicacion` y `ConsecutivoRadicadoEstado` no permanecen como argumentos opcionales ambiguos.
+- El repository resuelve una sola vez el contexto desde `ra_rad_estados_modulo_radicacion` mediante una consulta parametrizada.
+- El radicado del navegador nunca sustituye un `consecutivo_radicado` ausente.
+- La nueva preparación no invoca `SolicitaRadicadoTareaWorkflow(...)`.
 - Una discrepancia o ausencia de identidad falla antes del almacenamiento definitivo.
 - El archivo no queda registrado bajo otra tarea, gabinete, plantilla o radicado.
 - No se agregan parámetros opcionales ambiguos a contratos compartidos.
 - No cambia ninguna rama diferente de `ADJUNTARADICACION`.
+- `AlmacenaDocumentosRadicacion(...)` y `ClassAlmacenamiento.Almacenamiento(...)` se reutilizan sin crear un motor de almacenamiento paralelo.
+- La respuesta conserva `stru_datos_image_lista` y el contrato HTTP `uploadFiles` existentes.
+- Existe una E2E real integrada a `tools/e2e` que aprueba el almacenamiento con `DAT_ADIC_TAR` vacío y el rechazo por radicado informativo inconsistente.
+- La E2E confirma inserción JavaScript sin recarga y persistencia única mediante controles `SELECT`.
+- La E2E real autorizada fue ejecutada con resultado aprobado; si falta autorización o recurso descartable, el cambio no puede declararse cerrado.
 - Enlace, SII, Producción, Gestión de respuestas, Workflow e importación de sellos conservan pruebas de regresión aprobadas.
 - La compilación termina sin errores y las advertencias preexistentes se distinguen de cualquier advertencia nueva.
 
@@ -285,7 +388,8 @@ Entregar código, pruebas y documentación coherentes con la implementación rea
 2. Cómo se evitó la segunda resolución desde `DAT_ADIC_TAR`.
 3. Qué contratos legacy permanecieron intactos.
 4. Qué pruebas demuestran aislamiento y no regresión.
-5. Qué validaciones no se ejecutaron por falta de autorización.
+5. Qué resultado obtuvo la E2E real positiva y negativa, con evidencia saneada.
+6. Qué validaciones no se ejecutaron por falta de autorización y por qué impiden el cierre.
 
 ## Contexto obligatorio
 
@@ -293,6 +397,8 @@ Antes de implementar, leer completamente:
 
 - `AGENTS.md`;
 - este prompt;
+- `Doc/Actualizacion/RadicacionSimplificada/Adjunta/Exploracion/01-exploracion-consolidada-contexto-radicado-adjunto.md`;
+- `tools/e2e/AGENT-RUNBOOK.md` antes de diseñar o ejecutar la E2E real;
 - los archivos de las rutas canónicas;
 - las pruebas focales existentes;
 - la implementación legacy de referencia indicada;
