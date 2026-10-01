@@ -47,6 +47,7 @@ Generated_Code/
 
 # Paquetes restaurables
 packages/
+/node_modules/
 *.nupkg
 
 # Sistema operativo
