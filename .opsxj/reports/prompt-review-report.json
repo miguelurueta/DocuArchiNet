@@ -1,7 +1,7 @@
 {
   "status": "pass",
-  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\workflow\\RegistroTareaRuta\\Prompt\\01-correccion-registro-recibo-ruta-sii.md",
-  "reviewedAtUtc": "2026-10-04T15:22:20.018Z",
+  "promptPath": "D:\\imagenesda\\DocuachiNet\\DocuArchiNet\\Doc\\Actualizacion\\ProduccionDcoumental\\CargaDocumento\\01-prompt-implementacion-correccion-carga-documentos.md",
+  "reviewedAtUtc": "2026-10-05T21:43:30.172Z",
   "technologyProfile": "legacy-webforms-vb",
   "summary": {
     "blockers": 0,
