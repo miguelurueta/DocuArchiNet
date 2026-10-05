@@ -12,7 +12,7 @@ const { validateProfile } = require('./workflow-e2e-platform-profile.cjs');
 const execute = promisify(execFile);
 const repositoryRoot = path.resolve(__dirname, '..', '..', '..', '..');
 const SENSITIVE_EVIDENCE = /passw(?:ord)?|pwd|cookie|token|secret|credential|credencial|connection|conexion|authorization|authorized|usuario|user|contenido|nota|request|response|mysql|odbc/i;
-const SAFE_CODE = /^(?:E2E_PLATFORM|E2E_RESOURCE|NOTES_READ|NOTES_ANONYMOUS|NOTES_WRITE|NOTES_CONCURRENCY|IMPORT_E2E)_[A-Z0-9_]{3,100}$/;
+const SAFE_CODE = /^(?:E2E_PLATFORM|E2E_RESOURCE|NOTES_READ|NOTES_ANONYMOUS|NOTES_WRITE|NOTES_CONCURRENCY|IMPORT_E2E|REGISTRO_RUTA_SII_E2E)_[A-Z0-9_]{3,100}$/;
 const SAFE_STAGE_AUTHORIZATIONS = Object.freeze({
   anonymous: Object.freeze([]),
   read: Object.freeze([]),
@@ -40,6 +40,12 @@ class PlatformExecutionError extends Error {
 
 function fail(code, diagnostic = '') {
   throw new PlatformExecutionError(code, diagnostic);
+}
+
+function normalizeDocumentUrl(value) {
+  const url = new URL(value);
+  url.hash = '';
+  return url.toString();
 }
 
 function safeDiagnostic(value) {
@@ -94,21 +100,39 @@ function createRegisteredResourceContract(plan, environment, readControl) {
   const captureGeneration = async () => {
     const fingerprints = await captureControls(plan.controls, plan, environment, readControl);
     if (Object.keys(fingerprints).length === 0) fail('E2E_PLATFORM_RESOURCE_INVALID');
-    return createHash('sha256').update(JSON.stringify(fingerprints)).digest('hex');
+    return Object.freeze({
+      fingerprints,
+      hash: createHash('sha256').update(JSON.stringify(fingerprints)).digest('hex')
+    });
   };
   return Object.freeze({
     id: resource.contractId,
     scope: 'local',
     resources: Object.freeze({
       [resource.role]: Object.freeze({
-        descriptor: (profile) => Object.freeze({ taskId: profile[resource.profileField] }),
-        preflight: async ({ descriptor }) => Object.freeze({
-          available: Number.isSafeInteger(descriptor?.taskId) && descriptor.taskId > 0,
-          code: 'E2E_RESOURCE_READY',
-          resourceKey: `${resource.kind}:${descriptor.taskId}`,
-          generation: await captureGeneration()
-        }),
-        observeGeneration: async () => captureGeneration(),
+        descriptor: (profile) => resource.profileField === 'taskId'
+          ? Object.freeze({ taskId: profile.taskId })
+          : Object.freeze({ value: profile[resource.profileField] }),
+        preflight: async ({ descriptor }) => {
+          const generation = await captureGeneration();
+          const validDescriptor = resource.profileField === 'taskId'
+            ? Number.isSafeInteger(descriptor?.taskId) && descriptor.taskId > 0
+            : typeof descriptor?.value === 'string' && /^[SR][0-9]{9}$/.test(descriptor.value);
+          const emptyFingerprint = createHash('sha256').update('').digest('hex');
+          const receiptAvailable = plan.scenario.id !== 'registro-ruta-sii-execution' || [
+            'registro-ruta-sii-workflow',
+            'registro-ruta-sii-registro-publico',
+            'registro-ruta-sii-relacion'
+          ].every((id) => generation.fingerprints[id] === emptyFingerprint);
+          const available = validDescriptor && receiptAvailable;
+          return Object.freeze({
+            available,
+            code: available ? 'E2E_RESOURCE_READY' : (validDescriptor && !receiptAvailable ? 'E2E_RESOURCE_ALREADY_EXISTS' : 'E2E_RESOURCE_UNAVAILABLE'),
+            resourceKey: `${resource.kind}:${createHash('sha256').update(String(descriptor?.taskId || descriptor?.value || '')).digest('hex')}`,
+            generation: generation.hash
+          });
+        },
+        observeGeneration: async () => (await captureGeneration()).hash,
         consumeOnSuccess: true
       })
     })
@@ -142,6 +166,14 @@ function createRuntimeEnvironment(plan, secrets) {
     if (!target || !assertSecretValue(value)) fail('E2E_PLATFORM_SECRET_REQUIRED');
     environment[target] = value;
   }
+  if (plan.scenario.id === 'registro-ruta-sii-execution') {
+    environment.DOC87_E2E_ODBC_DSN = plan.profile.odbcDsn;
+    environment.DOC87_DA_E2E_ODBC_DSN = plan.profile.docuarchiOdbcDsn;
+    environment.DOC87_E2E_MYSQL_USER = values['readonly-db-user'];
+    environment.DOC87_E2E_MYSQL_PASSWORD = values['readonly-db-password'];
+    environment.DOC87_DA_E2E_MYSQL_USER = values['readonly-db-user'];
+    environment.DOC87_DA_E2E_MYSQL_PASSWORD = values['readonly-db-password'];
+  }
   return environment;
 }
 
@@ -151,6 +183,7 @@ function eraseSecrets(values, environment) {
   }
   if (environment && typeof environment === 'object') {
     for (const name of Object.values(SECRET_ENVIRONMENT)) delete environment[name];
+    for (const name of ['DOC87_E2E_MYSQL_USER', 'DOC87_E2E_MYSQL_PASSWORD', 'DOC87_DA_E2E_MYSQL_USER', 'DOC87_DA_E2E_MYSQL_PASSWORD']) delete environment[name];
   }
 }
 
@@ -218,6 +251,10 @@ function controlsMeetExpectation(plan, before, after, result) {
       const mode = result?.codes?.expedientMode;
       if ((mode === 'without-expedient' && changed) || (mode === 'with-expedient' && !changed) ||
           !['without-expedient', 'with-expedient'].includes(mode)) return false;
+    }
+    if (expectation === 'relation-mode') {
+      const mode = result?.codes?.relationMode;
+      if ((mode === 'pending' && changed) || (mode === 'confirmed' && !changed) || !['pending', 'confirmed'].includes(mode)) return false;
     }
     if (expectation === 'assignment-mode') {
       const mode = result?.codes?.assignmentResult;
@@ -387,7 +424,8 @@ async function executePlatformRun(options) {
       adapterResult = await handler({ invoke: restrictedInvoke, consumePreview: restrictedPreviewConsumer, taskId: plan.profile.taskId, noteId: plan.profile.noteId, budgetMs: plan.profile.budgetMs, profile: plan.profile });
     }
     if (plan.scenario.expectations.includes('secure-preview-ui') || plan.scenario.expectations.includes('explicit-assignment-ui') ||
-        plan.scenario.expectations.includes('manual-visual-execution') || plan.scenario.expectations.includes('manual-layout-review')) {
+        plan.scenario.expectations.includes('manual-visual-execution') || plan.scenario.expectations.includes('manual-layout-review') ||
+        plan.scenario.expectations.includes('registro-ruta-sii-ui')) {
       if (typeof inspectSession !== 'function' || !context) fail('E2E_PLATFORM_SESSION_INSPECTOR_REQUIRED');
       const inspection = await inspectSession({ context, plan });
       if (!inspection || typeof inspection !== 'object' || Array.isArray(inspection)) fail('E2E_PLATFORM_SESSION_INSPECTION_INVALID');
@@ -413,7 +451,8 @@ async function executePlatformRun(options) {
         if (!failure) failure = error;
       }
     }
-    if (reservation) await closeQuietly({ close: () => lifecycle.finalize(reservation, false) });
+    const observedControlMutation = Object.keys(before).length > 0 && after && !controlsUnchanged(before, after);
+    if (reservation) await closeQuietly({ close: () => lifecycle.finalize(reservation, !failure || observedControlMutation) });
     await closeQuietly(concurrentClient, 'dispose');
     await closeQuietly(concurrentContext);
     await closeQuietly(client, 'dispose');
@@ -465,6 +504,7 @@ module.exports = {
   createRegisteredResourceContract,
   eraseSecrets,
   executePlatformRun,
+  normalizeDocumentUrl,
   preflightPlatform,
   requiredAuthorizationsFor
 };

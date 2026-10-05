@@ -35,7 +35,8 @@
     <script  src="../Awesome/js/brands.js"></script>
     <script  src="../Awesome/js/solid.js"></script>
     <script  src="../Awesome/js/fontawesome.js"></script>
-    <script src="../js/workflow/WebFormGestionFlujoTrabajoCamaras.js"></script>
+    <script src="../js/workflow/registro-tarea-ruta-sii.js?v=20261005-doc87-4"></script>
+    <script src="../js/workflow/WebFormGestionFlujoTrabajoCamaras.js?v=20261005-doc87-4"></script>
     <script src="../js/java_general/general_code_java.js?v=20260827-compatible-events5"></script>
     <script src="../js/java_general/general_config.js"></script>
     <script src="../js/java_general/general_control_java.js"></script>
@@ -137,7 +138,7 @@
                             <input class="form-control  conten_registro_ruta form-controls" id="TextBox_recibo_caja_rut" type="text" maxlength="30" atrib_aleas_c="recibo" atrib_campo_o="1"
                                 atrib_campo_n="recibo" atrib_campo_v="1" atrib_campo_tip="1" atrib_campo_nl="0" atrib_campo_id="0" atrib_name_campo_id="null"
                                 atrib_campo_t="VARCHAR" atrib_campo_tbl="" atrib_campo_drow_destino="null" atrib_name_espace_control="conten_registro_ruta"
-                                atrib_control_tip_correo="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
+                                atrib_control_tip_correo="0" atrib_campo_beetwen="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
 
                             <div class="input-group-append">
                                 <a id="Button_consultar_recibo_sii_rut" title="consultar recibo" class="btn btn-success" href="#"><i class="far fa-search"></i></a>
@@ -152,18 +153,18 @@
                             <input id="TextBox_codigo_barras_ruta" disabled="disabled" type="text" class="form-control w-100 conten_registro_ruta form-controls" maxlength="30" atrib_aleas_c="codigo barras" atrib_campo_o="1"
                                 atrib_campo_n="codigo_barras" atrib_campo_v="1" atrib_campo_tip="1" atrib_campo_nl="0" atrib_campo_id="0" atrib_name_campo_id="null"
                                 atrib_campo_t="VARCHAR" atrib_campo_tbl="" atrib_campo_drow_destino="null" atrib_name_espace_control="conten_registro_ruta"
-                                atrib_control_tip_correo="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
+                                atrib_control_tip_correo="0" atrib_campo_beetwen="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
                         </div>
                     </div>
                     <div class="row pb-2 ml-0 mr-0">
                         <div class="col-4 pl-0 pr-0">
-                            <span class="h6 font-weight-light">Matricula *</span>
+                            <span class="h6 font-weight-light">Matricula</span>
                         </div>
                         <div class="col-8">
-                            <input id="TextBox_matricula_rut" disabled="disabled" type="text" class="form-control w-100 conten_registro_ruta form-controls" maxlength="30" atrib_aleas_c="matricula" atrib_campo_o="1"
-                                atrib_campo_n="matricula" atrib_campo_v="1" atrib_campo_tip="1" atrib_campo_nl="0" atrib_campo_id="0" atrib_name_campo_id="null"
+                            <input id="TextBox_matricula_rut" disabled="disabled" type="text" class="form-control w-100 conten_registro_ruta form-controls" maxlength="30" atrib_aleas_c="matricula" atrib_campo_o="0"
+                                atrib_campo_n="matricula" atrib_campo_v="1" atrib_campo_tip="1" atrib_campo_nl="1" atrib_campo_id="0" atrib_name_campo_id="null"
                                 atrib_campo_t="VARCHAR" atrib_campo_tbl="" atrib_campo_drow_destino="null" atrib_name_espace_control="conten_registro_ruta"
-                                atrib_control_tip_correo="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
+                                atrib_control_tip_correo="0" atrib_campo_beetwen="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
                         </div>
                     </div>
                     <div class="row pb-2 ml-0 mr-0">
@@ -174,7 +175,7 @@
                             <input id="TextBox_razon_social_ruta" disabled="disabled" type="text" class="form-control w-100 conten_registro_ruta form-controls" maxlength="120" atrib_aleas_c="Razón Social" atrib_campo_o="1"
                                 atrib_campo_n="rscocial" atrib_campo_v="1" atrib_campo_tip="1" atrib_campo_nl="0" atrib_campo_id="0" atrib_name_campo_id="null"
                                 atrib_campo_t="VARCHAR" atrib_campo_tbl="" atrib_campo_drow_destino="null" atrib_name_espace_control="conten_registro_ruta"
-                                atrib_control_tip_correo="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
+                                atrib_control_tip_correo="0" atrib_campo_beetwen="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
                         </div>
                     </div>
                     <div class="row pb-2 ml-0 mr-0">
@@ -185,7 +186,7 @@
                             <select id="DropDownList_tramites_rut" class="form-select form-select-lg mb-3 w-100 conten_registro_ruta form-control-drow" atrib_aleas_c="Tramite " atrib_campo_o="1"
                                 atrib_campo_n="id_tramite" atrib_campo_v="1"
                                 atrib_campo_tip="0" atrib_campo_nl="1" atrib_campo_id="0" atrib_name_campo_id="null" atrib_campo_t="VARCHAR" atrib_campo_tbl="RAD_GESTION"
-                                atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_ruta" atrib_control_tip_correo="0"
+                                atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_ruta" atrib_control_tip_correo="0" atrib_campo_beetwen="0"
                                 atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null">
                             </select>
                         </div>
@@ -198,7 +199,7 @@
                             <select id="DropDownList_actividades_ruta" class="form-select form-select-lg mb-3 w-100 conten_registro_ruta form-control-drow" atrib_aleas_c="Actividad ruta" atrib_campo_o="1"
                                 atrib_campo_n="id_actividad" atrib_campo_v="1"
                                 atrib_campo_tip="0" atrib_campo_nl="1" atrib_campo_id="0" atrib_name_campo_id="null" atrib_campo_t="VARCHAR" atrib_campo_tbl="RAD_GESTION"
-                                atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_ruta" atrib_control_tip_correo="0"
+                                atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_ruta" atrib_control_tip_correo="0" atrib_campo_beetwen="0"
                                 atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null">
                             </select>
                         </div>
@@ -256,7 +257,7 @@
                             <input class="form-control  conten_registro_flujo form-controls" id="TextBox_recibo_caja_flujo" type="text" maxlength="30" atrib_aleas_c="recibo" atrib_campo_o="1"
                                 atrib_campo_n="recibo" atrib_campo_v="1" atrib_campo_tip="1" atrib_campo_nl="0" atrib_campo_id="0" atrib_name_campo_id="null"
                                 atrib_campo_t="VARCHAR" atrib_campo_tbl="" atrib_campo_drow_destino="null" atrib_name_espace_control="conten_registro_flujo"
-                                atrib_control_tip_correo="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
+                                atrib_control_tip_correo="0" atrib_campo_beetwen="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
                             <div class="input-group-append">
                                 <a id="Button_consultar_recibo_sii_flujo" title="consultar recibo" class="btn btn-success" href="#"><i class="far fa-search"></i></a>
                             </div>
@@ -270,7 +271,7 @@
                             <input id="TextBox_codigo_barras_flujo" disabled="disabled" type="text" class="form-control w-100 conten_registro_flujo form-controls" maxlength="30" atrib_aleas_c="codigo barras" atrib_campo_o="1"
                                 atrib_campo_n="codigo_barras" atrib_campo_v="1" atrib_campo_tip="1" atrib_campo_nl="0" atrib_campo_id="0" atrib_name_campo_id="null"
                                 atrib_campo_t="VARCHAR" atrib_campo_tbl="" atrib_campo_drow_destino="null" atrib_name_espace_control="conten_registro_flujo"
-                                atrib_control_tip_correo="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
+                                atrib_control_tip_correo="0" atrib_campo_beetwen="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
                         </div>
                     </div>
                     <div class="row pb-2 ml-0 mr-0">
@@ -281,7 +282,7 @@
                             <input id="TextBox_matricula_flujo" type="text" disabled="disabled" class="form-control w-100 conten_registro_flujo form-controls" maxlength="30" atrib_aleas_c="matricula" atrib_campo_o="1"
                                 atrib_campo_n="matricula" atrib_campo_v="1" atrib_campo_tip="1" atrib_campo_nl="0" atrib_campo_id="0" atrib_name_campo_id="null"
                                 atrib_campo_t="VARCHAR" atrib_campo_tbl="" atrib_campo_drow_destino="null" atrib_name_espace_control="conten_registro_flujo"
-                                atrib_control_tip_correo="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null"  />
+                                atrib_control_tip_correo="0" atrib_campo_beetwen="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null"  />
                         </div>
                     </div>
                     <div class="row pb-2 ml-0 mr-0">
@@ -292,7 +293,7 @@
                             <input id="TextBox_razon_social_flujo" disabled="disabled" type="text" class="form-control w-100 conten_registro_flujo form-controls" maxlength="120" atrib_aleas_c="Razón Social" atrib_campo_o="1"
                                 atrib_campo_n="rscocial" atrib_campo_v="1" atrib_campo_tip="1" atrib_campo_nl="0" atrib_campo_id="0" atrib_name_campo_id="null"
                                 atrib_campo_t="VARCHAR" atrib_campo_tbl="" atrib_campo_drow_destino="null" atrib_name_espace_control="conten_registro_flujo"
-                                atrib_control_tip_correo="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
+                                atrib_control_tip_correo="0" atrib_campo_beetwen="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
                         </div>
                     </div>
                     <div class="row pb-2 ml-0 mr-0">
@@ -303,7 +304,7 @@
                             <select id="DropDownList_tramites_flujo" disabled="disabled" class="form-select form-select-lg mb-3 w-100 conten_registro_flujo form-control-drow" atrib_aleas_c="Tramite " atrib_campo_o="1"
                                 atrib_campo_n="id_tramite" atrib_campo_v="1"
                                 atrib_campo_tip="0" atrib_campo_nl="1" atrib_campo_id="0" atrib_name_campo_id="null" atrib_campo_t="VARCHAR" atrib_campo_tbl=""
-                                atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo" atrib_control_tip_correo="0"
+                                atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo" atrib_control_tip_correo="0" atrib_campo_beetwen="0"
                                 atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null">
                             </select>
                         </div>
@@ -316,7 +317,7 @@
                             <select id="DropDownList_flujos" class="form-select form-select-lg mb-3 w-100 conten_registro_flujo form-control-drow" atrib_aleas_c="Flujo trabajo" atrib_campo_o="1"
                                 atrib_campo_n="id_flujo" atrib_campo_v="1"
                                 atrib_campo_tip="0" atrib_campo_nl="1" atrib_campo_id="0" atrib_name_campo_id="null" atrib_campo_t="VARCHAR" atrib_campo_tbl=""
-                                atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo" atrib_control_tip_correo="0"
+                                atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo" atrib_control_tip_correo="0" atrib_campo_beetwen="0"
                                 atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null">
                             </select>
                         </div>
@@ -330,7 +331,7 @@
                             <select id="DropDownList_actividades_flujo" class="form-select form-select-lg mb-3 w-100 conten_registro_flujo form-control-drow" atrib_aleas_c="Actividad flujo" atrib_campo_o="1"
                                 atrib_campo_n="id_actividad" atrib_campo_v="1"
                                 atrib_campo_tip="0" atrib_campo_nl="1" atrib_campo_id="0" atrib_name_campo_id="null" atrib_campo_t="VARCHAR" atrib_campo_tbl=""
-                                atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo" atrib_control_tip_correo="0"
+                                atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo" atrib_control_tip_correo="0" atrib_campo_beetwen="0"
                                 atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null">
                             </select>
                         </div>
@@ -344,7 +345,7 @@
                             <select id="DropDownList_usurios_flujo" class="form-select form-select-lg mb-3 w-100 conten_registro_flujo form-control-drow" atrib_aleas_c="Usuario de la  tarea" atrib_campo_o="1"
                                 atrib_campo_n="id_usuario" atrib_campo_v="1"
                                 atrib_campo_tip="0" atrib_campo_nl="1" atrib_campo_id="0" atrib_name_campo_id="null" atrib_campo_t="VARCHAR" atrib_campo_tbl=""
-                                atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo" atrib_control_tip_correo="0"
+                                atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo" atrib_control_tip_correo="0" atrib_campo_beetwen="0"
                                 atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null">
                             </select>
                         </div>
@@ -1119,7 +1120,7 @@
                                     <input class="form-control  conten_registro_flujo_tarea_sii form-controls" id="TextBox_recibo_flujo_tarea_sii" disabled="disabled" type="text" maxlength="30" atrib_aleas_c="recibo" atrib_campo_o="1"
                                         atrib_campo_n="recibo" atrib_campo_v="1" atrib_campo_tip="1" atrib_campo_nl="0" atrib_campo_id="0" atrib_name_campo_id="null"
                                         atrib_campo_t="VARCHAR" atrib_campo_tbl="" atrib_campo_drow_destino="null" atrib_name_espace_control="conten_registro_flujo_tarea_sii"
-                                        atrib_control_tip_correo="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
+                                        atrib_control_tip_correo="0" atrib_campo_beetwen="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
                                 </div>
                             </div>
                             <div class="row pb-2 ml-0 mr-0">
@@ -1130,7 +1131,7 @@
                                     <input id="TextBox_codigo_barras_flujo_tarea_sii" type="text" disabled="disabled" class="form-control w-100 conten_registro_flujo_tarea_sii form-controls" maxlength="30" atrib_aleas_c="codigo barras" atrib_campo_o="1"
                                         atrib_campo_n="codigo_barras" atrib_campo_v="1" atrib_campo_tip="1" atrib_campo_nl="0" atrib_campo_id="0" atrib_name_campo_id="null"
                                         atrib_campo_t="VARCHAR" atrib_campo_tbl="" atrib_campo_drow_destino="null" atrib_name_espace_control="conten_registro_flujo_tarea_sii"
-                                        atrib_control_tip_correo="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
+                                        atrib_control_tip_correo="0" atrib_campo_beetwen="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
                                 </div>
                             </div>
                             <div class="row pb-2 ml-0 mr-0">
@@ -1141,7 +1142,7 @@
                                     <input id="TextBox_matricula_flujo_tarea_sii" type="text" class="form-control w-100 conten_registro_flujo_tarea_sii form-controls" maxlength="30" atrib_aleas_c="matricula" atrib_campo_o="1"
                                         atrib_campo_n="matricula" atrib_campo_v="1" atrib_campo_tip="1" atrib_campo_nl="0" atrib_campo_id="0" atrib_name_campo_id="null"
                                         atrib_campo_t="VARCHAR" atrib_campo_tbl="" atrib_campo_drow_destino="null" atrib_name_espace_control="conten_registro_flujo_tarea_sii"
-                                        atrib_control_tip_correo="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
+                                        atrib_control_tip_correo="0" atrib_campo_beetwen="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
                                 </div>
                             </div>
                             <div class="row pb-2 ml-0 mr-0">
@@ -1152,7 +1153,7 @@
                                     <input id="TextBox_razon_social_flujo_tarea_sii" type="text" class="form-control w-100 conten_registro_flujo_tarea_sii form-controls" maxlength="120" atrib_aleas_c="Razón Social" atrib_campo_o="1"
                                         atrib_campo_n="rscocial" atrib_campo_v="1" atrib_campo_tip="1" atrib_campo_nl="0" atrib_campo_id="0" atrib_name_campo_id="null"
                                         atrib_campo_t="VARCHAR" atrib_campo_tbl="" atrib_campo_drow_destino="null" atrib_name_espace_control="conten_registro_flujo_tarea_sii"
-                                        atrib_control_tip_correo="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
+                                        atrib_control_tip_correo="0" atrib_campo_beetwen="0" atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null" />
                                 </div>
                             </div>
                             <div class="row pb-2 ml-0 mr-0">
@@ -1163,7 +1164,7 @@
                                     <select id="DropDownList_tramites_flujo_tarea_sii"  class="form-select form-select-lg mb-3 w-100 conten_registro_flujo_tarea_sii form-control-drow" atrib_aleas_c="Tramite " atrib_campo_o="1"
                                         atrib_campo_n="id_tramite" atrib_campo_v="1"
                                         atrib_campo_tip="0" atrib_campo_nl="1" atrib_campo_id="0" atrib_name_campo_id="null" atrib_campo_t="VARCHAR" atrib_campo_tbl=""
-                                        atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo_tarea_sii" atrib_control_tip_correo="0"
+                                        atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo_tarea_sii" atrib_control_tip_correo="0" atrib_campo_beetwen="0"
                                         atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null">
                                     </select>
                                 </div>
@@ -1176,7 +1177,7 @@
                                     <select id="DropDownList_flujos_tarea_sii" class="form-select form-select-lg mb-3 w-100 conten_registro_flujo_tarea_sii form-control-drow" atrib_aleas_c="Flujo trabajo" atrib_campo_o="1"
                                         atrib_campo_n="id_flujo" atrib_campo_v="1"
                                         atrib_campo_tip="0" atrib_campo_nl="1" atrib_campo_id="0" atrib_name_campo_id="null" atrib_campo_t="VARCHAR" atrib_campo_tbl=""
-                                        atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo_tarea_sii" atrib_control_tip_correo="0"
+                                        atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo_tarea_sii" atrib_control_tip_correo="0" atrib_campo_beetwen="0"
                                         atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null">
                                     </select>
                                 </div>
@@ -1189,7 +1190,7 @@
                                     <select id="DropDownList_actividades_flujo_sii" class="form-select form-select-lg mb-3 w-100 conten_registro_flujo_tarea_sii form-control-drow" atrib_aleas_c="Actividad flujo" atrib_campo_o="1"
                                         atrib_campo_n="id_actividad_fjujo" atrib_campo_v="1"
                                         atrib_campo_tip="0" atrib_campo_nl="1" atrib_campo_id="0" atrib_name_campo_id="null" atrib_campo_t="VARCHAR" atrib_campo_tbl=""
-                                        atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo_tarea_sii" atrib_control_tip_correo="0"
+                                        atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo_tarea_sii" atrib_control_tip_correo="0" atrib_campo_beetwen="0"
                                         atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null">
                                     </select>
                                 </div>
@@ -1202,7 +1203,7 @@
                                     <select id="DropDownList_actividades_ruta_sii" class="form-select form-select-lg mb-3 w-100 conten_registro_flujo_tarea_sii form-control-drow" atrib_aleas_c="Usuario de la  tarea" atrib_campo_o="1"
                                         atrib_campo_n="id_actividad" atrib_campo_v="1"
                                         atrib_campo_tip="0" atrib_campo_nl="1" atrib_campo_id="0" atrib_name_campo_id="null" atrib_campo_t="VARCHAR" atrib_campo_tbl=""
-                                        atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo_tarea_sii" atrib_control_tip_correo="0"
+                                        atrib_campo_drow_destino="" atrib_name_espace_control="conten_registro_flujo_tarea_sii" atrib_control_tip_correo="0" atrib_campo_beetwen="0"
                                         atrib_value_campo_old="null" atrib_drow_name_control_id="null" atrib_tom_alow="null">
                                     </select>
                                 </div>

@@ -3,9 +3,9 @@ param(
     [string]$Sql,
 
     [Parameter(Mandatory = $true)]
-    [Int64]$TaskId,
+    [string]$TaskId,
 
-    [ValidatePattern('^(?:DOC[0-9]+|NOTES)_E2E$')]
+    [ValidatePattern('^(?:DOC[0-9]+(?:_DA)?|NOTES)_E2E$')]
     [string]$EnvironmentPrefix = 'DOC32_E2E'
 )
 
@@ -29,16 +29,18 @@ try {
     try {
         $command = $connection.CreateCommand()
         $command.CommandText = $Sql
-        # MySQL ODBC 5.2 accepts a 32-bit positional marker more reliably for
-        # the normal Workflow task range, while preserving bigint support for
-        # installations with larger identifiers.
-        $parameterType = if ($TaskId -ge [Int32]::MinValue -and $TaskId -le [Int32]::MaxValue) {
+        $numericTask = 0L
+        $isNumericTask = [Int64]::TryParse($TaskId, [ref]$numericTask)
+        $parameterType = if ($isNumericTask -and $numericTask -ge [Int32]::MinValue -and $numericTask -le [Int32]::MaxValue) {
             [System.Data.Odbc.OdbcType]::Integer
-        } else {
+        } elseif ($isNumericTask) {
             [System.Data.Odbc.OdbcType]::BigInt
+        } else {
+            [System.Data.Odbc.OdbcType]::VarChar
         }
         $parameter = $command.Parameters.Add('@task', $parameterType)
-        $parameter.Value = $TaskId
+        if (-not $isNumericTask) { $parameter.Size = 160 }
+        $parameter.Value = if ($isNumericTask) { $numericTask } else { $TaskId }
         $stage = 'execute'
         $reader = $command.ExecuteReader()
         try {

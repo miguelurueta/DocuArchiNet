@@ -16,6 +16,7 @@ const {
   executePlatformRun,
   assertPlatformIntegrity,
   captureLegacyIntegrityBaseline,
+  normalizeDocumentUrl,
   preflightPlatform,
   requiredAuthorizationsFor
 } = require('./support/workflow-e2e-platform.cjs');
@@ -250,6 +251,7 @@ async function selectWorkflowTask(page, plan) {
 }
 
 async function initializeWorkflowContext(context, plan) {
+  if (plan.scenario.resource?.profileField !== 'taskId') return context;
   const page = await context.newPage();
   try {
     await selectWorkflowTask(page, plan);
@@ -594,6 +596,9 @@ async function inspectEnlaseLayoutReview({ context, plan }) {
 }
 
 async function inspectWorkflowSession(options) {
+  if (options.plan.scenario.expectations.includes('registro-ruta-sii-ui')) {
+    return inspectRegistroRutaSiiUi(options);
+  }
   if (options.plan.scenario.expectations.includes('manual-layout-review')) {
     return inspectEnlaseLayoutReview(options);
   }
@@ -604,6 +609,135 @@ async function inspectWorkflowSession(options) {
     return inspectEnlaseAssignmentUi(options);
   }
   return inspectImportPreviewUi(options);
+}
+
+async function inspectRegistroRutaSiiUi({ context, plan }) {
+  const page = await context.newPage();
+  const timeout = Math.min(plan.profile.budgetMs, 60000);
+  const mutationPattern = /WebServiceWorkflow\.asmx\/Service_registro_tarea_ruta_sii(?:\?|$)/i;
+  let mutationRequests = 0;
+  let navigationCount = 0;
+  let documentUrl = null;
+  const onRequest = (request) => { if (request.method() === 'POST' && mutationPattern.test(request.url())) mutationRequests += 1; };
+  const onNavigation = (frame) => {
+    if (frame !== page.mainFrame() || documentUrl === null) return;
+    if (normalizeDocumentUrl(frame.url()) !== documentUrl) navigationCount += 1;
+  };
+  page.on('request', onRequest);
+  page.on('framenavigated', onNavigation);
+  try {
+    await page.goto(new URL('workflow/WebFormGestionFlujoTrabajoCamaras.aspx', plan.profile.baseUrl).toString(), { waitUntil: 'domcontentloaded', timeout });
+    documentUrl = normalizeDocumentUrl(page.url());
+    navigationCount = 0;
+    const receipt = plan.profile.receipt;
+    const prefix = page.locator('#DropDownList_ante_pone_rut');
+    const number = page.locator('#TextBox_recibo_caja_rut');
+    const query = page.locator('#Button_consultar_recibo_sii_rut');
+    const register = page.locator('#Button_registro_actividad_ruta');
+    const barcode = page.locator('#TextBox_codigo_barras_ruta');
+    const procedure = page.locator('#DropDownList_tramites_rut');
+    const activity = page.locator('#DropDownList_actividades_ruta');
+    const routeTab = page.locator('#util_sii_registro_tarea_ruta a');
+    const routePanel = page.locator('#registro_ruta');
+
+    const routePermission = await page.evaluate(async () => {
+      try {
+        const response = await fetch('../webservice/WebServiceWorkflow.asmx/Service_Solicita_permisos_usuario_workflow_intgracion_sii', {
+          method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json; charset=utf-8' },
+          body: JSON.stringify({ parameter: 0 })
+        });
+        if (!response.ok) return 'HTTP_FAILURE';
+        const envelope = await response.json();
+        const row = envelope && Array.isArray(envelope.d) ? envelope.d[0] : null;
+        if (!row) return 'MALFORMED';
+        if (row.Error_gestion !== 'YES') {
+          const error = String(row.Error_gestion || '');
+          if (/usuario sin permisos/i.test(error)) return 'NO_PERMISSION_ROW';
+          if (/error funcion|inconsistencia|inonistencia/i.test(error)) return 'QUERY_FAILURE';
+          return 'SERVICE_REJECTED';
+        }
+        if (!row.permisos_int_sii) return 'MALFORMED';
+        return Number(row.permisos_int_sii.util_sii_registro_tarea_ruta) === 1 ? 'AUTHORIZED' : 'FORBIDDEN';
+      } catch (_) {
+        return 'MALFORMED';
+      }
+    });
+    if (['FORBIDDEN', 'NO_PERMISSION_ROW'].includes(routePermission)) fail('REGISTRO_RUTA_SII_E2E_ACCOUNT_FORBIDDEN');
+    if (routePermission === 'QUERY_FAILURE') fail('REGISTRO_RUTA_SII_E2E_PERMISSION_QUERY_FAILED');
+    if (routePermission === 'SERVICE_REJECTED') fail('REGISTRO_RUTA_SII_E2E_PERMISSION_REJECTED');
+    if (routePermission === 'HTTP_FAILURE') fail('REGISTRO_RUTA_SII_E2E_PERMISSION_HTTP_FAILED');
+    if (routePermission !== 'AUTHORIZED') fail('REGISTRO_RUTA_SII_E2E_PERMISSION_UNAVAILABLE');
+
+    await routeTab.waitFor({ state: 'visible', timeout })
+      .catch(() => fail('REGISTRO_RUTA_SII_E2E_ROUTE_TAB_UNAVAILABLE'));
+    await routeTab.click();
+    await routePanel.waitFor({ state: 'visible', timeout })
+      .catch(() => fail('REGISTRO_RUTA_SII_E2E_ROUTE_PANEL_UNAVAILABLE'));
+
+    const consult = async () => {
+      await prefix.selectOption({ label: receipt[0] });
+      await number.fill(receipt.slice(1));
+      await query.click();
+      await page.waitForFunction(() => {
+        const barcodeValue = document.querySelector('#TextBox_codigo_barras_ruta')?.value || '';
+        const procedureValue = Number(document.querySelector('#DropDownList_tramites_rut')?.value || 0);
+        return barcodeValue.trim().length > 0 && procedureValue > 0;
+      }, null, { timeout }).catch(() => fail('REGISTRO_RUTA_SII_E2E_QUERY_CONTEXT_UNAVAILABLE'));
+    };
+
+    await consult();
+    const changedDigit = receipt.endsWith('9') ? '8' : '9';
+    await number.fill(receipt.slice(1, -1) + changedDigit);
+    await register.click();
+    await page.waitForTimeout(200);
+    if (mutationRequests !== 0) fail('REGISTRO_RUTA_SII_E2E_STALE_CONTEXT_MUTATED');
+
+    await consult();
+    const zeroOption = activity.locator('option[value="0"]');
+    if (await zeroOption.count() !== 1) fail('REGISTRO_RUTA_SII_E2E_EMPTY_ACTIVITY_UNAVAILABLE');
+    await activity.selectOption('0');
+    await register.click();
+    await page.waitForTimeout(200);
+    if (mutationRequests !== 0) fail('REGISTRO_RUTA_SII_E2E_EMPTY_ACTIVITY_MUTATED');
+
+    await activity.selectOption(String(plan.profile.activityId));
+    const procedureId = await procedure.inputValue();
+    if (!/^\d+$/.test(procedureId) || Number(procedureId) <= 0) fail('REGISTRO_RUTA_SII_E2E_PROCEDURE_INVALID');
+    const responsePromise = page.waitForResponse((response) => mutationPattern.test(response.url()), { timeout });
+    await register.click();
+    const response = await responsePromise.catch(() => fail('REGISTRO_RUTA_SII_E2E_RESPONSE_UNAVAILABLE'));
+    if (!response.ok()) fail('REGISTRO_RUTA_SII_E2E_RESPONSE_FAILED');
+    const envelope = await response.json().catch(() => fail('REGISTRO_RUTA_SII_E2E_RESPONSE_INVALID'));
+    const resultCode = envelope?.d?.[0]?.error_result;
+    if (!['YES', 'REGISTERED_RELATION_PENDING'].includes(resultCode)) fail('REGISTRO_RUTA_SII_E2E_REGISTRATION_REJECTED');
+    await page.locator('#error_div_registro_ruta').waitFor({ state: 'visible', timeout }).catch(() => fail('REGISTRO_RUTA_SII_E2E_CONFIRMATION_UNAVAILABLE'));
+    const confirmation = String(await page.locator('#error_div_registro_ruta').textContent() || '');
+    if (!/registrad/i.test(confirmation)) fail('REGISTRO_RUTA_SII_E2E_CONFIRMATION_INVALID');
+    if (navigationCount !== 0 || mutationRequests !== 1) fail('REGISTRO_RUTA_SII_E2E_UI_CONTRACT_INVALID');
+
+    const retry = await page.evaluate(async ({ recibo, idActividad, idTramite }) => {
+      const response = await fetch('../webservice/WebServiceWorkflow.asmx/Service_registro_tarea_ruta_sii', {
+        method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        body: JSON.stringify({ parameter: { recibo, id_tramite: Number(idTramite), id_actividad: Number(idActividad) } })
+      });
+      return response.json();
+    }, { recibo: receipt, idActividad: plan.profile.activityId, idTramite: procedureId });
+    if (!['ALREADY_REGISTERED', 'ALREADY_REGISTERED_RELATION_PENDING'].includes(retry?.d?.[0]?.error_result) || mutationRequests !== 2) {
+      fail('REGISTRO_RUTA_SII_E2E_RETRY_INVALID');
+    }
+    return Object.freeze({
+      codes: Object.freeze({
+        staleContext: 'BLOCKED', emptyActivity: 'BLOCKED', registration: resultCode,
+        retry: retry.d[0].error_result, relationMode: retry.d[0].error_result === 'YES' ? 'confirmed' : 'pending', navigation: 'NOT_OBSERVED'
+      }),
+      count: 1,
+      latenciesMs: Object.freeze([])
+    });
+  } finally {
+    page.off('request', onRequest);
+    page.off('framenavigated', onNavigation);
+    await page.close().catch(() => {});
+  }
 }
 
 async function inspectImportPreviewUi({ context, plan }) {
@@ -804,7 +938,8 @@ async function inspectImportPreviewUi({ context, plan }) {
 
 async function readWorkflowControl({ control, taskId, environment }) {
   try {
-    return await queryFingerprint(control.query, taskId, environment, 'NOTES_E2E');
+    const prefix = control.source === 'docuarchi' ? 'DOC87_DA_E2E' : (control.id.startsWith('registro-ruta-sii-') ? 'DOC87_E2E' : 'NOTES_E2E');
+    return await queryFingerprint(control.query, taskId, environment, prefix);
   } catch (error) {
     const message = String(error?.message || '');
     if (/tabla requerida/i.test(message)) fail('E2E_PLATFORM_CONTROL_TABLE_UNAVAILABLE');

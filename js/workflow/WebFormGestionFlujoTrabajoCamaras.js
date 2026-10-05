@@ -17,6 +17,18 @@ let INTERVAL_EVENT_GENERAL;
 let DATOS_REGISTRO_RUE_SII;
 let RECIBO_VIRTUAL_SII;
 
+const limpiar_contexto_registro_ruta_sii = () => {
+    RegistroTareaRutaSii.invalidate();
+    $("#DropDownList_tramites_rut").empty();
+    $("#DropDownList_actividades_ruta").empty();
+    $("#DropDownList_usurios_ruta").empty();
+    document.getElementById("TextBox_razon_social_ruta").value = "";
+    document.getElementById("TextBox_matricula_rut").value = "";
+    document.getElementById("TextBox_codigo_barras_ruta").value = "";
+};
+
+const invalidar_contexto_registro_ruta_sii = () => limpiar_contexto_registro_ruta_sii();
+
 $(window).on("load", function () {
     try {   
         let elment = document.getElementsByClassName("da_event_captive");
@@ -65,6 +77,14 @@ const ini_event_page = () => {
         if (elment_a_document_production) {
             elment_a_document_production.addEventListener("click", handler_element_event, false);
         }
+    }
+    let receiptRoute = document.getElementById("TextBox_recibo_caja_rut");
+    let prefixRoute = document.getElementById("DropDownList_ante_pone_rut");
+    if (receiptRoute) {
+        receiptRoute.addEventListener("input", invalidar_contexto_registro_ruta_sii, false);
+    }
+    if (prefixRoute) {
+        prefixRoute.addEventListener("change", invalidar_contexto_registro_ruta_sii, false);
     }
     //------Agrega los eventos onchange de los html option
     array_element = new Array;
@@ -207,7 +227,12 @@ const event_element_click_promise = async (e) => {
             }
             let ElemntHtmlOption = document.getElementById("DropDownList_ante_pone_rut");
             let apost_LETER = ElemntHtmlOption.options[ElemntHtmlOption.selectedIndex].text;
-            radicado = zeroFillFReciboSII(apost_LETER, radicado);
+            radicado = RegistroTareaRutaSii.canonicalize(apost_LETER, radicado);
+            if (!radicado) {
+                limpiar_contexto_registro_ruta_sii();
+                alert_bot("El recibo debe tener prefijo S o R y entre uno y nueve dígitos.", 'warning', "error_div_registro_ruta");
+                return true;
+            }
             document.getElementById("TextBox_recibo_caja_rut").value = radicado;
             result = await Service_REST_solicita_datos_estructura_consulta_recibo_ruta_interfaz_SII(radicado);
             if (result != "YES") {
@@ -232,17 +257,33 @@ const event_element_click_promise = async (e) => {
             }
         }
         if (name_control == "Button_registro_actividad_ruta") {
-            result = await valida_solicita_datos_control_general_async("conten_registro_ruta");     
-            if (result != "YES") {
-                alert_bot(result, 'warning', "error_div_registro_ruta");
+            let prefixElement = document.getElementById("DropDownList_ante_pone_rut");
+            let commandResult = RegistroTareaRutaSii.buildCommand(
+                prefixElement.options[prefixElement.selectedIndex].text,
+                document.getElementById("TextBox_recibo_caja_rut").value,
+                document.getElementById("DropDownList_tramites_rut").value,
+                document.getElementById("DropDownList_actividades_ruta").value);
+            if (!commandResult.ok) {
+                alert_bot(commandResult.message, 'warning', "error_div_registro_ruta");
                 return true;
             }
-            result = await Service_REST_Registra_tarea_ruta_SII(ITEM_GENERAL_CONTROL_ARRAY);
-            if (result != "YES") {
+            if (!RegistroTareaRutaSii.tryBeginSubmit()) {
+                return true;
+            }
+            result = await Service_REST_Registra_tarea_ruta_SII(commandResult.command);
+            if (result == "ALREADY_REGISTERED") {
+                alert_bot("El recibo ya se encuentra registrado en la ruta de trabajo.", 'warning', "error_div_registro_ruta");
+                return true;
+            } else if (result == "ALREADY_REGISTERED_RELATION_PENDING") {
+                alert_bot("El recibo ya estaba registrado y su relación documental continúa pendiente.", 'warning', "error_div_registro_ruta");
+                return true;
+            } else if (result != "YES" && result != "REGISTERED_RELATION_PENDING") {
                 alert_bot(result, 'warning', "error_div_registro_ruta");
                 return true;
             } else {
                 restore_value_form_control("conten_registro_ruta");
+                limpiar_contexto_registro_ruta_sii();
+                alert_bot(result == "YES" ? "La tarea fue registrada correctamente." : "La tarea fue registrada; la relación documental quedó pendiente de reconciliación.", result == "YES" ? 'success' : 'warning', "error_div_registro_ruta");
             }   
         }
         if (name_control == "Button_registro_actividad_flujo") {
@@ -360,6 +401,9 @@ const event_element_click_promise = async (e) => {
     catch (ex) {
         alert_bot(ex.message, 'warning', "error_div_error_general");
     } finally {
+        if (name_control == "Button_registro_actividad_ruta") {
+            RegistroTareaRutaSii.endSubmit();
+        }
         document.getElementById(name_control).disabled = false;
         progres_hiden('progres_bar');
         
@@ -1555,48 +1599,29 @@ const Service_REST_solicita_datos_estructura_consulta_recibo_ruta_interfaz_SII =
                 processData: false,
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
-                    if (data.d[0].Error_gestion !== "YES") {
-                        $("#DropDownList_tramites_rut").empty();
-                        $("#DropDownList_actividades_ruta").empty();
-                        $("#DropDownList_usurios_ruta").empty();
-                        document.getElementById("TextBox_razon_social_ruta").value = "";
-                        document.getElementById("TextBox_matricula_rut").value = "";
-                        document.getElementById("TextBox_codigo_barras_ruta").value = "";
-                        resolve(data.d[0].Error_gestion);
-                    } else {
-                        $("#DropDownList_tramites_rut").empty();
-                        $("#DropDownList_actividades_ruta").empty();
-                        $("#DropDownList_usurios_ruta").empty();
-                        let Rsocial = data.d[0].Class_parram_consultarRadicado.nombre;
-                        if (Rsocial !== "") {
-                            Rsocial = Rsocial.replace("'", "");
-                            Rsocial = Rsocial.replace("/", "");
-                        }
-                        document.getElementById("TextBox_razon_social_ruta").value = Rsocial;
-                        document.getElementById("TextBox_matricula_rut").value = data.d[0].Class_parram_consultarRadicado.matricula;
-                        document.getElementById("TextBox_codigo_barras_ruta").value = data.d[0].Class_parram_consultarRadicado.radicado;
-                        let ITEMS_DATOS_DROW_ = new Array();
-                        $.each(data.d[0].Class_service_ilist_drowlist, function (k, v) {
-                            ITEMS_DATOS_DROW_.push(v);
-                        });
-                        let element_drow = document.getElementById("DropDownList_tramites_rut");
-                        for (var i = 0; i < ITEMS_DATOS_DROW_.length; i++) {
-                            let spliT = ITEMS_DATOS_DROW_[i].id_value.split("|");
-                            element_drow[i] = new Option(ITEMS_DATOS_DROW_[i].value_campo, spliT[0]);
-                            if (spliT[1] == data.d[0].Class_parram_consultarRadicado.subtipotramite) {
-                                element_drow[i].selected = true;
-                            }
-                        }
-                        ITEMS_DATOS_DROW_ = new Array();
-                        $.each(data.d[0].Class_service_ilist_drowlist_actividad, function (k, v) {
-                            ITEMS_DATOS_DROW_.push(v);
-                        });
-                        element_drow = document.getElementById("DropDownList_actividades_ruta");
-                        for (var i = 0; i < ITEMS_DATOS_DROW_.length; i++) {
-                            element_drow[i] = new Option(ITEMS_DATOS_DROW_[i].value_campo, ITEMS_DATOS_DROW_[i].id_value);    
-                        }
-                        resolve("YES");
+                    let normalized = RegistroTareaRutaSii.normalizeQuery(radicado, data);
+                    limpiar_contexto_registro_ruta_sii();
+                    if (!normalized.ok) {
+                        resolve(normalized.message);
+                        return;
                     }
+                    let route = normalized.snapshot;
+                    document.getElementById("TextBox_razon_social_ruta").value = route.name;
+                    document.getElementById("TextBox_matricula_rut").value = route.enrollment;
+                    document.getElementById("TextBox_codigo_barras_ruta").value = route.barcode;
+                    let procedureElement = document.getElementById("DropDownList_tramites_rut");
+                    procedureElement.add(new Option("Seleccione un trámite", "0", true, normalized.requiresProcedureSelection));
+                    normalized.procedures.forEach(function (item) {
+                        procedureElement.add(new Option(item.value_campo, String(item.id_value).split("|")[0]));
+                    });
+                    procedureElement.value = normalized.requiresProcedureSelection ? "0" : String(route.procedureId);
+                    let activityElement = document.getElementById("DropDownList_actividades_ruta");
+                    activityElement.add(new Option("Seleccione una actividad", "0", true, true));
+                    normalized.activities.forEach(function (item) {
+                        activityElement.add(new Option(item.value_campo, item.id_value));
+                    });
+                    RegistroTareaRutaSii.setSnapshot(route);
+                    resolve("YES");
                 }, error: function (xception, textStatus, errorThrown) {
 
                     if (xception.status === 0) {
@@ -2772,21 +2797,22 @@ const Service_REST_solicita_actividades_workflow_flujo_inicio = async (id_activi
     return result;
 }
 const Service_REST_Registra_tarea_ruta_SII = async (parameter) => {
-    var serialice = JSON.stringify(parameter);
     let myPromise = new Promise(function (resolve) {
         try {
             $.ajax('../webservice/WebServiceWorkflow.asmx/Service_registro_tarea_ruta_sii', {
-                data: "{" + "'parameter':'" + serialice + "'}",
+                data: JSON.stringify({ parameter: parameter }),
                 dataType: 'json',
                 type: "POST",
                 traditional: true,
                 processData: false,
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
-                    if (data.d[0].error_result !== "YES") {
-                        resolve(data.d[0].error_result);
+                    if (!data || !Array.isArray(data.d) || data.d.length !== 1 || !data.d[0]) {
+                        resolve("Respuesta inválida del servicio de registro.");
+                    } else if (data.d[0].error_result !== "YES" && data.d[0].error_result !== "REGISTERED_RELATION_PENDING") {
+                        resolve(data.d[0].error_result || "No fue posible registrar la tarea.");
                     } else {
-                        resolve("YES");
+                        resolve(data.d[0].error_result);
                     }
                 }, error: function (xception, textStatus, errorThrown) {
                     //ESTADO_EVENT_GENERAL = "out";
@@ -2800,7 +2826,7 @@ const Service_REST_Registra_tarea_ruta_SII = async (parameter) => {
 
                     } else if (xception.status == 500) {
 
-                        resolve('Internal Server Error [500].' + xception.responseText);
+                        resolve('El servicio no pudo completar el registro.');
 
                     } else if (textStatus === 'parsererror') {
 
@@ -2816,7 +2842,7 @@ const Service_REST_Registra_tarea_ruta_SII = async (parameter) => {
 
                     } else {
 
-                        resolve('Uncaught Error: ' + xception.responseText);
+                        resolve('No fue posible completar la solicitud.');
 
                     }
                 }

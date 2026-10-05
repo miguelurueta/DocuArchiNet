@@ -9939,6 +9939,11 @@
       <Compile Include="Infrastructure\Shared\Data\ModuleSessionConnectionStringResolver.vb" />
       <Compile Include="Infrastructure\Shared\Data\AdoNetDataInfrastructure.vb" />
     <Compile Include="Infrastructure\Shared\Data\WorkflowModuleConnectionFactory.vb" />
+    <Compile Include="Modelo\Workflow\RegistroTareaRutaSii\RegistroTareaRutaSiiModels.vb" />
+    <Compile Include="Modelo\Workflow\RegistroTareaRutaSii\RegistroTareaRutaSiiInterfaces.vb" />
+    <Compile Include="Infrastructure\Repositories\Workflow\RegistroTareaRutaSii\MySqlRegistroTareaRutaSiiRepository.vb" />
+    <Compile Include="Services\Workflow\RegistroTareaRutaSii\ServicioRegistroTareaRutaSii.vb" />
+    <Compile Include="webservice\RegistroTareaRutaSiiCommandAdapter.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlWorkflowPreviewRepositories.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\MySqlNotasWorkflowRepository.vb" />
     <Compile Include="Infrastructure\Workflow\Notas\NotasWorkflowCursorCodec.vb" />

@@ -1,0 +1,12 @@
+{
+  "scenarioId": "registro-ruta-sii-execution",
+  "baseUrl": "https://workflow.example.invalid/GestionDocumental-Docuarchi.net/",
+  "module": "WORKFLOW REGISTRO",
+  "environment": "pruebas-autorizadas",
+  "odbcDsn": "workflowconta",
+  "docuarchiOdbcDsn": "docuarchi",
+  "receipt": "S000000001",
+  "activityId": 1,
+  "budgetMs": 60000,
+  "ignoreHttpsErrors": false
+}
