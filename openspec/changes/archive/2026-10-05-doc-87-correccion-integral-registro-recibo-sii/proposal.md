@@ -1,6 +1,14 @@
-## Context
+## Why
 
-DOC-87: CORRECCION-INTEGRAL-REGISTRO-RECIBO-SII
+CORRECCION-INTEGRAL-REGISTRO-RECIBO-SII. Ver detalle funcional completo del ticket en la seccion Jira Details.
+
+## What Changes
+
+- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-87.
+- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
+- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
+- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Por instrucción posterior del usuario, se completa también el atributo contractual ausente en los controles de `conten_registro_flujo` y `conten_registro_flujo_tarea_sii`, sin modificar su comportamiento ni el validador compartido.
 
 ## Jira Details
 
@@ -471,29 +479,21 @@ DOC-87: CORRECCION-INTEGRAL-REGISTRO-RECIBO-SII
 > Criterio de cierre
 > No declarar la corrección terminada porque el mensaje JavaScript desaparezca o porque el formulario se limpie. Debe demostrarse que el recibo consultado es el mismo que se registra, que los catálogos son válidos, que el servidor autoriza y revalida, que todas las escrituras son seguras y atómicas, que no hay duplicados y que la operación real fue verificada con evidencia autorizada.
 
-## Goals / Non-Goals
+## Jira Metadata
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Tipo: Tarea
+- Prioridad: Medium
+- Labels: CORRECCION, INTEGRAL, RECIBO, REGISTRO, SII
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+## Capabilities
 
-## Decisions
+### New Capabilities
+- `correccion-integral-registro-recibo-sii`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### Modified Capabilities
+- 
 
+## Impact
 
-## Risks / Trade-offs
-
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
-
-## Migration Plan
-
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
-
-## Open Questions
-
-- TBD
+- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
+- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.

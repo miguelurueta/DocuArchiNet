@@ -4,7 +4,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { resolveScenario } = require('./workflow-e2e-platform-registry.cjs');
 
-const PROFILE_KEYS = new Set(['scenarioId', 'baseUrl', 'module', 'environment', 'odbcDsn', 'taskId', 'noteId', 'radicado', 'codigoBarras', 'documentTypeId', 'documentTypeName', 'intentId', 'sampleSize', 'minimumExpedientCount', 'prepareStoppedIntent', 'concurrencyLevel', 'previewExpiryMinutes', 'budgetMs', 'browser', 'ignoreHttpsErrors']);
+const PROFILE_KEYS = new Set(['scenarioId', 'baseUrl', 'module', 'environment', 'odbcDsn', 'docuarchiOdbcDsn', 'taskId', 'receipt', 'activityId', 'noteId', 'radicado', 'codigoBarras', 'documentTypeId', 'documentTypeName', 'intentId', 'sampleSize', 'minimumExpedientCount', 'prepareStoppedIntent', 'concurrencyLevel', 'previewExpiryMinutes', 'budgetMs', 'browser', 'ignoreHttpsErrors']);
 const FORBIDDEN_KEY = /(passw(?:ord)?|pwd|cookie|token|secret|credential|credencial|connection|conexion|sql|query|command|comando|script|mysql|database|user)/i;
 const FORBIDDEN_VALUE = /(?:mysql|odbc):\/\/|(?:^|[;\s])(?:password|pwd|uid)\s*=|\b(?:SELECT|INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO)\b/i;
 const SAFE_LABEL = /^[A-Za-z0-9_-]{2,80}$/;
@@ -81,6 +81,13 @@ function validateProfile(input) {
   }
   if (scenario.controls.length > 0) {
     profile.odbcDsn = assertSafeText(input.odbcDsn, SAFE_DSN, 'E2E_PLATFORM_PROFILE_DSN_INVALID');
+  }
+  if (scenario.id === 'registro-ruta-sii-execution') {
+    profile.docuarchiOdbcDsn = assertSafeText(input.docuarchiOdbcDsn, SAFE_DSN, 'E2E_PLATFORM_PROFILE_DSN_INVALID');
+    profile.receipt = assertSafeText(input.receipt, /^[SR][0-9]{9}$/, 'E2E_PLATFORM_PROFILE_RECEIPT_INVALID');
+    profile.activityId = assertPositiveInteger(input.activityId, 'E2E_PLATFORM_PROFILE_ACTIVITY_INVALID');
+  } else if (input.docuarchiOdbcDsn !== undefined || input.receipt !== undefined || input.activityId !== undefined) {
+    fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
   }
   if (scenario.resource?.profileField === 'taskId') {
     profile.taskId = assertPositiveInteger(input.taskId, 'E2E_PLATFORM_PROFILE_TASK_INVALID');

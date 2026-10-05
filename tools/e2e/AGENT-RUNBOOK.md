@@ -271,3 +271,15 @@ npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario import-sii-e
 ```
 
 La corrida no llama `CreateImportIntent` ni `ExecuteImportIntent`, compara como invariantes los siete controles y restaura el gate en `finally`. El runner selecciona y abre la preparación, la cancela, abre un preview y vuelve a la lista. No pulse manualmente Preparar, Crear intención, Importar ni Reimportar durante esta revisión; limite su interacción a responder las tres confirmaciones de consola después de observar cada hito.
+
+## DOC-87 — Registro de recibo SII para ruta
+
+DOC-87 reutiliza `test:workflow:platform` mediante `registro-ruta-sii-execution`. No usa el spec Playwright aislado como recorrido oficial. Copie el perfil de ejemplo dentro de `tools/e2e/profiles/` con otro nombre y configure únicamente URL, módulo, ambiente, los dos DSN no sensibles, recibo SII descartable, actividad y presupuesto.
+
+La plataforma solicita por TTY la cuenta Workflow, contraseña y la cuenta MySQL de solo lectura. Reserva el recibo mediante una huella local, valida por `SELECT` el outbox/registro público y la relación Docuarchi, bloquea recibo editado y actividad `0`, ejecuta una sola alta desde la UI y reintenta el mismo comando para probar idempotencia. No activa ningún gate.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario registro-ruta-sii-execution --profile <perfil-runtime.json> --authorize environment,execution,discardable-resource
+```
+
+La evidencia conserva exclusivamente códigos, conteos, huellas y eventos de reserva. El recibo, datos SII, credenciales, cookies y cadenas de conexión no se escriben en artefactos.

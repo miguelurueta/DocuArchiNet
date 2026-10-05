@@ -550,7 +550,7 @@ Public Class WebServiceWorkflow
     End Function
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_crea_interface_registro_gestion(ByVal id As Object) As IEnumerable(Of control_general_drow_lista)
+    Public Function Service_crea_interface_registro_gestion(ByVal id As Object) As List(Of control_general_drow_lista)
         '---------------------------------------------------------------------------
         'Funcion : Servicio que expone los datos para la creación de la interface
         '          del registro de gestión al usuario workflow
@@ -598,7 +598,7 @@ Public Class WebServiceWorkflow
     End Function
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_solicita_descripcion_tarea_actividad_flujo(ByVal parameter As Object) As IEnumerable(Of Class_config_general_service)
+    Public Function Service_solicita_descripcion_tarea_actividad_flujo(ByVal parameter As Object) As List(Of Class_config_general_service)
         Dim resultList = New List(Of Class_config_general_service)()
         Dim resultList_error = New List(Of Class_config_general_service)()
         Dim parameter_gestion As Class_config_general_service = New Class_config_general_service()
@@ -630,7 +630,7 @@ Public Class WebServiceWorkflow
     End Function
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_Actualiza_descripcion_actividad_flujo_trabajo(ByVal parameter As Object) As IEnumerable(Of Class_config_general_service)
+    Public Function Service_Actualiza_descripcion_actividad_flujo_trabajo(ByVal parameter As Object) As List(Of Class_config_general_service)
         Dim resultList = New List(Of Class_config_general_service)
         Dim parameter_gestion As Class_config_general_service = New Class_config_general_service
         Try
@@ -933,7 +933,7 @@ Public Class WebServiceWorkflow
     End Function
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_Solicita_permisos_usuario_workflow_intgracion_sii(ByVal parameter As Object) As IEnumerable(Of Class_permisos_usuarios_workflow_service)
+    Public Function Service_Solicita_permisos_usuario_workflow_intgracion_sii(ByVal parameter As Object) As List(Of Class_permisos_usuarios_workflow_service)
         '---------------------------------------------------------------------------
         'Funcion : Servicio que expone la estructura de persmisos de usuario para 
         '          integración con el sistema SII
@@ -971,7 +971,7 @@ Public Class WebServiceWorkflow
     End Function
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_registro_tarea_ruta_sii(ByVal parameter As Object) As IEnumerable(Of class_service_workflow)
+    Public Function Service_registro_tarea_ruta_sii(ByVal parameter As Object) As List(Of class_service_workflow)
         '---------------------------------------------------------------------------
         'Funcion : Servicio que expone el registro de una tarea externa SII
         '          
@@ -992,48 +992,40 @@ Public Class WebServiceWorkflow
         Dim resultList = New List(Of class_service_workflow)()
         Dim parameter_gestion As class_service_workflow = New class_service_workflow()
         Try
-            Dim Result As String = ""
-            Dim ClassGestionTareasFlujoTrabajo As New ClassGestionTareasFlujoTrabajo
-            Dim deserialize_parameter As New List(Of Class_config_general_service)
-            deserialize_parameter = Newtonsoft.Json.JsonConvert.DeserializeObject(Of List(Of Class_config_general_service))(parameter)
-            If deserialize_parameter Is Nothing Then
-                parameter_gestion.error_result = "Imposible deserializar los datos del formulario"
+            Dim command As SolicitudRegistroTareaRutaSii = Nothing
+            If Not RegistroTareaRutaSiiCommandAdapter.TryParse(parameter, command) Then
+                parameter_gestion.error_result = "La solicitud de registro no es válida."
                 resultList.Add(parameter_gestion)
                 Return resultList
             End If
-            Dim class_registro_tarea_ccv_SII As New class_registro_tarea_ccv_SII
-            For i As Integer = 0 To deserialize_parameter.Count - 1
-                Select Case deserialize_parameter.Item(i).name_campo
-                    Case "recibo"
-                        class_registro_tarea_ccv_SII.recibo = deserialize_parameter.Item(i).value_campo
-                    Case "codigo_barras"
-                        class_registro_tarea_ccv_SII.codigo_barras = deserialize_parameter.Item(i).value_campo
-                    Case "matricula"
-                        class_registro_tarea_ccv_SII.matricula = deserialize_parameter.Item(i).value_campo
-                    Case "rscocial"
-                        class_registro_tarea_ccv_SII.rscocial = deserialize_parameter.Item(i).value_campo
-                    Case "id_actividad"
-                        class_registro_tarea_ccv_SII.id_actividad = deserialize_parameter.Item(i).value_campo
-                    Case "id_tramite"
-                        class_registro_tarea_ccv_SII.id_tramite = deserialize_parameter.Item(i).value_campo
-
-                End Select
-            Next
-            class_registro_tarea_ccv_SII.id_usuario_workflow_transacion = 0
-            class_registro_tarea_ccv_SII.codigo_rue = ""
-            class_registro_tarea_ccv_SII.option_registra_log = 0
-            parameter_gestion.error_result = ClassGestionTareasFlujoTrabajo.Registra_tarea_ruta_SII(class_registro_tarea_ccv_SII)
+            Dim userId As Integer = 0
+            Integer.TryParse(Convert.ToString(HttpContext.Current.Session.Item("Id_Usuario_Workflow")), userId)
+            Dim login = Convert.ToString(HttpContext.Current.Session.Item("Login_Usuario_Workfow")).Trim()
+            If String.IsNullOrWhiteSpace(login) Then login = Convert.ToString(HttpContext.Current.Session.Item("GA_LOGINUSUARIOGESTION")).Trim()
+            Dim context As New ContextoModulo With {.CodigoModulo = "REGISTRO_TAREA_RUTA_SII", .IdUsuario = userId, .LoginUsuario = login}
+            Dim workflowConnection = ModuleSessionConnectionStringResolver.Resolve(HttpContext.Current)
+            Dim docuarchiConnection = ModuleSessionConnectionStringResolver.Resolve(HttpContext.Current, "DA_")
+            If Not context.EsValido() OrElse String.IsNullOrWhiteSpace(workflowConnection) OrElse String.IsNullOrWhiteSpace(docuarchiConnection) Then
+                parameter_gestion.error_result = "La sesión Workflow no es válida."
+                resultList.Add(parameter_gestion)
+                Return resultList
+            End If
+            Dim repository As IRegistroTareaRutaSiiRepository = New MySqlRegistroTareaRutaSiiRepository(New WorkflowModuleConnectionFactory(workflowConnection), New AdoNetDataExecutor())
+            Dim relation As IRelacionRutaSiiGateway = New MySqlRelacionRutaSiiGateway(New DocuarchiModuleConnectionFactory(docuarchiConnection))
+            Dim service As New ServicioRegistroTareaRutaSii(repository, relation, New LegacyConsultaAutoritativaRutaSii())
+            Dim result = service.Ejecutar(context, command)
+            parameter_gestion.error_result = result.Codigo
             resultList.Add(parameter_gestion)
             Return resultList
-        Catch ex As Exception
-            parameter_gestion.error_result = ex.Message
+        Catch
+            parameter_gestion.error_result = "No fue posible completar el registro de la tarea."
             resultList.Add(parameter_gestion)
             Return resultList
         End Try
     End Function
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_registro_tarea_flujo_sii(ByVal parameter As Object) As IEnumerable(Of class_service_workflow)
+    Public Function Service_registro_tarea_flujo_sii(ByVal parameter As Object) As List(Of class_service_workflow)
         '----------------------------------------------------------------------------------
         'Funcion : Servicio que expone el registro de una tarea externa SII
         '          
@@ -1098,7 +1090,7 @@ Public Class WebServiceWorkflow
     End Function
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_registro_flujo_trabajo_sii_rue(ByVal parameter As Object) As IEnumerable(Of class_service_workflow)
+    Public Function Service_registro_flujo_trabajo_sii_rue(ByVal parameter As Object) As List(Of class_service_workflow)
         '----------------------------------------------------------------------------------
         'Funcion : Servicio que expone el registro de una tarea externa RUE SII
         '          
@@ -1173,7 +1165,7 @@ Public Class WebServiceWorkflow
     End Function
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_actualiza_datos_imagen_workflow_SII(ByVal parameter As Object) As IEnumerable(Of class_service_workflow)
+    Public Function Service_actualiza_datos_imagen_workflow_SII(ByVal parameter As Object) As List(Of class_service_workflow)
         '---------------------------------------------------------------------------
         'Funcion : Servicio que expone la funcion de actualización la imagen en  una 
         '          ruta con el consecutivo de recibo SII
@@ -1208,7 +1200,7 @@ Public Class WebServiceWorkflow
     End Function
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_Read_file_fast_Excell(ByVal parameter As Object) As IEnumerable(Of class_service_workflow)
+    Public Function Service_Read_file_fast_Excell(ByVal parameter As Object) As List(Of class_service_workflow)
         '---------------------------------------------------------------------------
         'Funcion : Servicio que expone la funcion de actualización la imagen en  una 
         '          ruta con el consecutivo de recibo SII
@@ -1244,7 +1236,7 @@ Public Class WebServiceWorkflow
     End Function
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_eliminar_flujo_workflow_SII(ByVal parameter As Object) As IEnumerable(Of class_service_workflow)
+    Public Function Service_eliminar_flujo_workflow_SII(ByVal parameter As Object) As List(Of class_service_workflow)
         '---------------------------------------------------------------------------
         'Funcion : Servicio que expone la funcion de eliminación de tareas SII
         '          
@@ -2019,7 +2011,7 @@ Public Class WebServiceWorkflow
     <Script.Services.ScriptMethod()>
     Public Function Service_exporta_dcoumento_gabinete_workflow(ByVal nombre_gabinete As String,
                                                                 ByVal nombre_gabinete_destino As String,
-                                                                ByVal id_imagen As Integer) As IEnumerable(Of Class_config_general_service)
+                                                                ByVal id_imagen As Integer) As List(Of Class_config_general_service)
         Dim resultList = New List(Of Class_config_general_service)()
         Dim parameter_gestion As Class_config_general_service = New Class_config_general_service()
         Try
@@ -2060,7 +2052,7 @@ Public Class WebServiceWorkflow
     End Function
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_solicita_lista_gabinetes_permitidos(ByVal id As Object) As IEnumerable(Of control_general_drow_lista)
+    Public Function Service_solicita_lista_gabinetes_permitidos(ByVal id As Object) As List(Of control_general_drow_lista)
         Dim resul_service = New List(Of control_general_drow_lista)()
         Dim item As New control_general_drow_lista
         Dim lista_item_drow As New List(Of control_drow_lista)
@@ -2173,7 +2165,7 @@ Public Class WebServiceWorkflow
     End Function
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_Eval_tarea_default_workflow(ByVal parameter As Object) As IEnumerable(Of Class_config_general_service)
+    Public Function Service_Eval_tarea_default_workflow(ByVal parameter As Object) As List(Of Class_config_general_service)
         Dim resultList = New List(Of Class_config_general_service)()
         Dim parameter_gestion As Class_config_general_service = New Class_config_general_service()
         Try
@@ -2200,7 +2192,7 @@ Public Class WebServiceWorkflow
     End Function
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_solicita_structucre_consulta_ruta(ByVal parameter As Object) As IEnumerable(Of Class_config_general_service)
+    Public Function Service_solicita_structucre_consulta_ruta(ByVal parameter As Object) As List(Of Class_config_general_service)
         Dim resultList = New List(Of Class_config_general_service)()
         Dim parameter_gestion As Class_config_general_service = New Class_config_general_service()
         Try
@@ -2221,7 +2213,7 @@ Public Class WebServiceWorkflow
     Dim Class_configuracion_listado_ruta_valor_campo_ As Class_configuracion_listado_ruta_valor_campo_() = New Class_configuracion_listado_ruta_valor_campo_() {}
     <WebMethod(EnableSession:=True)>
     <Script.Services.ScriptMethod()>
-    Public Function Service_solicita_valor_nombre_campo_radicado_beneficiario(ByVal id_tarea As Object) As IEnumerable(Of Class_configuracion_listado_ruta_valor_campo_)
+    Public Function Service_solicita_valor_nombre_campo_radicado_beneficiario(ByVal id_tarea As Object) As List(Of Class_configuracion_listado_ruta_valor_campo_)
         Dim stru_result_list = Class_configuracion_listado_ruta_valor_campo_.ToList
         Dim stru_result As New Class_configuracion_listado_ruta_valor_campo_
         Try

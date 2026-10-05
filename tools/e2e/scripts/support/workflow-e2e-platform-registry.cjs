@@ -3,6 +3,7 @@
 const { NOTES_READ_E2E_ADAPTER } = require('../adapters/notes-read-e2e-adapter.cjs');
 const { NOTES_WRITE_E2E_ADAPTER } = require('../adapters/notes-write-e2e-adapter.cjs');
 const { IMPORTAR_SERVICIO_WEB_E2E_ADAPTER } = require('../adapters/importar-servicio-web-e2e-adapter.cjs');
+const { REGISTRO_TAREA_RUTA_SII_E2E_ADAPTER } = require('../adapters/registro-tarea-ruta-sii-e2e-adapter.cjs');
 
 const SAFE_ID = /^[a-z][a-z0-9-]{1,79}$/;
 const STAGES = Object.freeze(['anonymous', 'read', 'preview', 'execution', 'assignment', 'concurrency', 'ui-lock']);
@@ -79,6 +80,30 @@ const CONTROL_REGISTRY = Object.freeze({
   'import-document-index-state': Object.freeze({
     id: 'import-document-index-state',
     query: 'SELECT related.intent_id, related.image_id, related.cabinet_index_status, related.electronic_index_status, related.xml_index_status, related.reconciliation_status FROM workflow_import_related_document related WHERE related.task_id = ? ORDER BY related.intent_id, related.image_id, related.cabinet_name'
+  }),
+  'registro-ruta-sii-workflow': Object.freeze({
+    id: 'registro-ruta-sii-workflow', source: 'workflow',
+    query: 'SELECT operation_id, route_id, route_name, task_id, receipt, enrollment, cabinet_name, status, attempts, last_error_code FROM workflow_registro_ruta_sii_outbox WHERE receipt = ? ORDER BY operation_id'
+  }),
+  'registro-ruta-sii-registro-publico': Object.freeze({
+    id: 'registro-ruta-sii-registro-publico', source: 'workflow',
+    query: 'SELECT DATOS_RECIBO, CODIGO_BARRAS, RAZON_SOCIAL, MATRICULA, COD_SEDE, ID_GABINETE, NOMBRE_GABINETE, ID_RUTA, FLAG FROM F_W_E_REGISTROPUBLICO WHERE DATOS_RECIBO = ? ORDER BY DATOS_RECIBO'
+  }),
+  'registro-ruta-sii-relacion': Object.freeze({
+    id: 'registro-ruta-sii-relacion', source: 'docuarchi',
+    query: 'SELECT expediente_archivo_ID_EXPEDIENTE, RadicadoExterno, FechaRegistro FROM ra_relacion_radicado_externo_expediente WHERE RadicadoExterno = ? ORDER BY expediente_archivo_ID_EXPEDIENTE'
+  }),
+  'registro-ruta-sii-outbox-unico': Object.freeze({
+    id: 'registro-ruta-sii-outbox-unico', source: 'workflow',
+    query: "SELECT CASE WHEN COUNT(*) <= 1 THEN 'VALID' ELSE 'INVALID' END AS cardinalidad FROM workflow_registro_ruta_sii_outbox WHERE receipt = ?"
+  }),
+  'registro-ruta-sii-registro-unico': Object.freeze({
+    id: 'registro-ruta-sii-registro-unico', source: 'workflow',
+    query: "SELECT CASE WHEN COUNT(*) <= 1 THEN 'VALID' ELSE 'INVALID' END AS cardinalidad FROM F_W_E_REGISTROPUBLICO WHERE DATOS_RECIBO = ?"
+  }),
+  'registro-ruta-sii-relacion-unica': Object.freeze({
+    id: 'registro-ruta-sii-relacion-unica', source: 'docuarchi',
+    query: "SELECT CASE WHEN COUNT(*) <= 1 THEN 'VALID' ELSE 'INVALID' END AS cardinalidad FROM ra_relacion_radicado_externo_expediente WHERE RadicadoExterno = ?"
   })
 });
 
@@ -109,10 +134,31 @@ const IMPORT_ENLASE_EXECUTION_CONTROLS = Object.freeze({
 const ADAPTER_REGISTRY = Object.freeze({
   [NOTES_READ_E2E_ADAPTER.id]: NOTES_READ_E2E_ADAPTER,
   [NOTES_WRITE_E2E_ADAPTER.id]: NOTES_WRITE_E2E_ADAPTER,
-  [IMPORTAR_SERVICIO_WEB_E2E_ADAPTER.id]: IMPORTAR_SERVICIO_WEB_E2E_ADAPTER
+  [IMPORTAR_SERVICIO_WEB_E2E_ADAPTER.id]: IMPORTAR_SERVICIO_WEB_E2E_ADAPTER,
+  [REGISTRO_TAREA_RUTA_SII_E2E_ADAPTER.id]: REGISTRO_TAREA_RUTA_SII_E2E_ADAPTER
 });
 
 const SCENARIO_REGISTRY = Object.freeze({
+  'registro-ruta-sii-execution': Object.freeze({
+    id: 'registro-ruta-sii-execution', doc: 'doc87', stage: 'execution', adapterId: 'registro-tarea-ruta-sii',
+    requiredAuthorizations: Object.freeze(['environment']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-route-receipt', role: 'execution', profileField: 'receipt', mutating: true, contractId: 'workflow-route-receipt-controls' }),
+    controls: Object.freeze([
+      'registro-ruta-sii-workflow', 'registro-ruta-sii-registro-publico', 'registro-ruta-sii-relacion',
+      'registro-ruta-sii-outbox-unico', 'registro-ruta-sii-registro-unico', 'registro-ruta-sii-relacion-unica'
+    ]),
+    controlExpectations: Object.freeze({
+      'registro-ruta-sii-workflow': 'changed',
+      'registro-ruta-sii-registro-publico': 'changed',
+      'registro-ruta-sii-relacion': 'relation-mode',
+      'registro-ruta-sii-outbox-unico': 'unchanged',
+      'registro-ruta-sii-registro-unico': 'unchanged',
+      'registro-ruta-sii-relacion-unica': 'unchanged'
+    }),
+    transport: Object.freeze({ session: 'workflow', service: 'workflow-registro-ruta-sii' }),
+    expectations: Object.freeze(['registro-ruta-sii-ui', 'single-task', 'idempotent-retry', 'no-navigation', 'sanitized-evidence'])
+  }),
   'import-sii-enlase-anonymous': Object.freeze({
     id: 'import-sii-enlase-anonymous', doc: 'doc83', stage: 'anonymous', adapterId: 'importar-servicio-web',
     requiredAuthorizations: Object.freeze(['environment', 'gate']),
@@ -318,7 +364,7 @@ function validateScenario(scenario) {
     fail('E2E_PLATFORM_SCENARIO_INVALID');
   }
   for (const expectation of Object.values(scenario.controlExpectations)) {
-    if (!['changed', 'unchanged', 'expedient-mode', 'assignment-mode'].includes(expectation)) fail('E2E_PLATFORM_SCENARIO_INVALID');
+    if (!['changed', 'unchanged', 'expedient-mode', 'assignment-mode', 'relation-mode'].includes(expectation)) fail('E2E_PLATFORM_SCENARIO_INVALID');
   }
   if (!scenario.transport || typeof scenario.transport !== 'object' || !['none', 'workflow'].includes(scenario.transport.session) || typeof scenario.transport.service !== 'string') {
     fail('E2E_PLATFORM_SCENARIO_INVALID');
