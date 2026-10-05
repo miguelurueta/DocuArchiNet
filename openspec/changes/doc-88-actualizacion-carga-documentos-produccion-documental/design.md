@@ -1,0 +1,430 @@
+## Context
+
+DOC-88: ACTUALIZACION-CARGA-DOCUMENTOS-PRODUCCION-DOCUMENTAL
+
+## Jira Details
+
+> Prompt 01 — Corrección segura de carga de documentos en Producción Documental
+> Rol esperado
+> Actúa como arquitecto y desarrollador senior especialista en   Web Forms,   sobre .NET Framework 4.6.1, JavaScript legacy, MySQL y almacenamiento documental Docuarchi.
+> Implementa una corrección quirúrgica para el error mostrado durante la carga de documentos en Producción Documental:
+> Referencia a objeto no establecida como instancia de un objeto.
+> Antes de diseñar o modificar código, lee completo el diagnóstico canónico:
+> Doc/Actualizacion/ProduccionDcoumental/CargaDocumento/00-diagnostico-carga-documentos.md
+> No asumas una causa exacta solo por el texto de la excepción. Primero caracteriza si el fallo ocurre al preparar el modal, al enviar el archivo, durante la persistencia o al proyectar el resultado en la interfaz.
+> Objetivo
+> Conseguir que la carga de uno o varios documentos desde Producción Documental:
+> use un contexto autorizado, coherente y validado;
+> 
+> nunca desreferencie objetos, arreglos o listas no materializados;
+> 
+> produzca mensajes funcionales controlados en lugar de excepciones genéricas;
+> 
+> confirme por separado persistencia y actualización visual;
+> 
+> no duplique documentos ante reintentos o respuestas perdidas;
+> 
+> mantenga intactos todos los demás eventos y consumidores del cargador compartido.
+> 
+> Requisitos positivos: sí debe
+> La solución sí debe incluir:
+> reproducción o caracterización verificable del límite exacto que falla;
+> 
+> validación local de cada referencia y colección antes de consumirla;
+> 
+> respuestas deterministas y saneadas para éxito, rechazo y resultado incierto;
+> 
+> preservación explícita de los contratos compartidos;
+> 
+> idempotencia ante reintentos y pérdida de respuesta;
+> 
+> pruebas unitarias o de caracterización, QA manual reproducible, compilación y evidencia de no regresión.
+> 
+> Flujo paso a paso y comportamiento esperado
+> Recibir la solicitud sin tratar los identificadores del navegador como autorización.
+> 
+> Validar sesión, evento PRODUCCION, selección y archivo.
+> 
+> Resolver una sola vez el expediente y el contexto autorizado de producción.
+> 
+> Comprobar que referencias, arreglos, listas, configuración y tipología estén materializados.
+> 
+> Rechazar el intento con un código funcional si falta cualquier precondición.
+> 
+> Crear o reconocer la identidad estable del intento para controlar reenvíos.
+> 
+> Almacenar únicamente cuando el contexto completo sea válido.
+> 
+> Confirmar el resultado de persistencia antes de responder éxito.
+> 
+> Proyectar en la interfaz solamente los datos realmente devueltos por el servidor.
+> 
+> Ante una respuesta perdida o una falla visual, consultar el resultado del intento antes de repetir la escritura.
+> 
+> Restricción máxima de compatibilidad
+> El código no debe crear ningún tipo de regresión con otras funciones, módulos, eventos, servicios, formularios o consumidores existentes.
+> Esta condición es obligatoria y debe demostrarse con pruebas. No basta con afirmar que el cambio está aislado.
+> En particular, la corrección no puede alterar el comportamiento observable de:
+> ADJUNTARADICACION y toda la solución DOC-85;
+> 
+> GESTION_RESPUESTA;
+> 
+> WORKFLOWSELECCION;
+> 
+> WORKFLOWENLACE;
+> 
+> RADICA_WORKFLOW;
+> 
+> ENLACE_RADICADO;
+> 
+> importación SII;
+> 
+> ENLASE;
+> 
+> ADJUNTAVERSION y REMPLAZAVERSION;
+> 
+> digitalización y escáner;
+> 
+> PQRS;
+> 
+> adjuntos y documentos relacionados;
+> 
+> descarga, visualización, firma, metadatos y demás funciones de Producción Documental;
+> 
+> contratos HTTP existentes del handler y de los servicios ASMX.
+> 
+> Si resulta indispensable modificar un archivo compartido, el nuevo comportamiento debe quedar delimitado explícitamente por el evento PRODUCCION, conservar el recorrido anterior para cualquier otro evento y contar con pruebas de invariancia de las ramas no afectadas.
+> Rutas obligatorias de revisión
+> Revisa nombres, firmas y dependencias reales antes de modificar:
+> Gestion/
+> ├── WebFormProducionDocumental.aspx
+> ├── WebFormProducionDocumental.aspx.vb
+> ├── ClassGaProducionDocumental.vb
+> ├── ClassGaExpediente.vb
+> ├── Class_Ra_gabexp_relacion_index_gabinete_expediente.vb
+> ├── Class_ra_gabexp_relacion_campos_gabinete_expediente.vb
+> └── Class_ra_config_upload_gestion.vb
+> 
+> js/gestion/
+> └── WebFormProducionDocumental.js
+> 
+> generic_control/
+> ├── FileUploadHandler.js
+> └── FileUploadHandler_.ashx.vb
+> 
+> webservice/
+> └── WebServiceProducion.asmx.vb
+> 
+> workflow/
+> └── ClassAlmacenamiento.vb
+> 
+> Docuarchi/
+> ├── Class_DETALLE_GABIENETE.vb
+> ├── ClassRaCamposFechaGabineteProduccion.vb
+> └── Class_system1.vb
+> 
+> Doc/Actualizacion/RadicacionSimplificada/Adjunta/
+> └── documentación canónica de DOC-85Diagnóstico obligatorio antes de implementar
+> Caracteriza mediante pruebas o un arnés aislado los cuatro límites siguientes:
+> ServiceSolicitaCargarDocumentoExpediente.
+> 
+> Service_parameter_upload("PRODUCCION") y carga de tipologías.
+> 
+> FileUploadHandler_.ashx con evento_adjunta=PRODUCCION.
+> 
+> PreAlmacenaDocumentoProduccion y AlmacenamientoDocumentoProduccionDocumental.
+> 
+> Para cada límite demuestra:
+> entrada válida;
+> 
+> selección ausente o caducada;
+> 
+> expediente inexistente;
+> 
+> usuario sin autorización;
+> 
+> gabinete ausente o inválido;
+> 
+> relación de campos inexistente;
+> 
+> tipología vacía, inexistente o incompatible;
+> 
+> arreglo, lista u objeto de salida vacío;
+> 
+> archivo temporal ausente;
+> 
+> falla después de persistir pero antes de actualizar la interfaz.
+> 
+> No cambies código hasta identificar cuál escenario reproduce el mensaje reportado. Si no es posible reproducirlo localmente, agrega caracterización que demuestre los puntos inseguros y conserva explícitamente la incertidumbre en la documentación.
+> Diseño requerido
+> 1. Contexto específico de carga
+> Introduce, si la caracterización lo justifica, un contexto específico de Producción Documental construido en servidor. Debe representar como mínimo:
+> identificador del usuario autorizado;
+> 
+> identificador del nivel;
+> 
+> identificador del expediente;
+> 
+> nombre o identificador del gabinete de producción;
+> 
+> serie y subserie aplicables;
+> 
+> tipología seleccionada;
+> 
+> configuración de carga aplicable.
+> 
+> El contexto debe ser tipado, validado e inmutable durante una carga lógica. No debe construirse confiando únicamente en valores del navegador.
+> 2. Resolución única y autorización
+> Resuelve el contexto desde el expediente seleccionado y la sesión autenticada. Verifica pertenencia o permiso efectivo antes de guardar.
+> No uses como autoridad única:
+> texto visible del TreeView;
+> 
+> posición de una fila;
+> 
+> variables JavaScript globales;
+> 
+> IdExpediente enviado por el navegador sin validación;
+> 
+> rutas físicas recibidas del cliente;
+> 
+> valores de sesión que no correspondan a la selección actual.
+> 
+> Las consultas nuevas deben ser parametrizadas. No concatenes identificadores o texto del usuario en SQL.
+> 3. Validación explícita de salidas
+> Antes de acceder a un índice (0), .Item(0), .Length, .Count o una propiedad de referencia, valida explícitamente:
+> referencia distinta de Nothing;
+> 
+> colección materializada;
+> 
+> cantidad mínima esperada;
+> 
+> identidad correspondiente a la solicitud;
+> 
+> campos obligatorios no vacíos.
+> 
+> Un retorno textual YES no sustituye estas validaciones.
+> 4. Separación de responsabilidades
+> Separa conceptualmente:
+> Autorizar selección
+>   -> resolver contexto de producción
+>   -> validar archivo y tipología
+>   -> preparar índices
+>   -> almacenar
+>   -> confirmar persistencia
+>   -> proyectar resultado en interfazLa falla de proyección visual después de persistir no debe provocar automáticamente una segunda escritura.
+> 5. Contrato de errores
+> No expongas ex.Message directamente al usuario. Devuelve errores funcionales saneados con códigos de etapa, por ejemplo:
+> PRODUCCION_CARGA_CONTEXTO_INVALIDO;
+> 
+> PRODUCCION_CARGA_CONFIGURACION_INCOMPLETA;
+> 
+> PRODUCCION_CARGA_TIPOLOGIA_INVALIDA;
+> 
+> PRODUCCION_CARGA_ALMACENAMIENTO_RECHAZADO;
+> 
+> PRODUCCION_CARGA_CONFIRMACION_INCIERTA;
+> 
+> PRODUCCION_CARGA_PROYECCION_FALLIDA.
+> 
+> La traza técnica puede conservar detalle suficiente para diagnóstico, pero nunca debe imprimir credenciales, cookies, tokens, cadenas de conexión, contenido documental ni rutas sensibles.
+> 6. Correcciones JavaScript delimitadas
+> Corrige los Catch relacionados con este recorrido que usan ex.mensaje; JavaScript estándar usa ex.message.
+> Corrige la construcción de la fila de insert_row_producion_documental: no uses la propiedad inexistente id_imageinsert_row_documento_relacionado. Define y prueba el contrato exacto de la cadena o, preferiblemente, utiliza una estructura explícita compatible con la función existente.
+> No reemplaces globalmente el cargador compartido, no introduzcas recargas de página, DataBind, postbacks artificiales ni temporizadores como solución de consistencia.
+> Idempotencia y resultado incierto
+> Antes de repetir una escritura, determina si el documento ya fue persistido. La clave de idempotencia debe surgir de datos estables del intento y no únicamente del nombre del archivo.
+> Debes cubrir:
+> doble clic en Guardar;
+> 
+> reintento del navegador;
+> 
+> timeout después de almacenar;
+> 
+> respuesta HTTP perdida;
+> 
+> falla al insertar la fila visual;
+> 
+> carga múltiple con éxito parcial.
+> 
+> No introduzcas scripts SQL como requisito operativo para detectar si una carga ya existe. La aplicación debe realizar la comprobación mediante su contrato normal de persistencia.
+> Compatibilidad del handler compartido
+> Conserva el contrato de UploadFilesResult para todos los consumidores existentes. Si modificas FileUploadHandler_.ashx.vb o FileUploadHandler.js:
+> agrega una prueba de inventario de todos los eventos soportados;
+> 
+> demuestra que solamente PRODUCCION entra al nuevo recorrido;
+> 
+> preserva firmas, nombres de campos y semántica de respuestas de las demás ramas;
+> 
+> ejecuta las suites de Radicación Simplificada, Workflow, SII, ENLASE, versiones y adjuntos;
+> 
+> no elimines protecciones o pruebas de huella existentes sin reemplazarlas por una garantía equivalente o superior.
+> 
+> Matriz mínima de pruebas
+> Escenario
+> Resultado requerido
+> Expediente válido, usuario propietario 
+> Guarda una vez y proyecta una fila correcta. 
+> Expediente válido, permiso delegado 
+> Guarda solo si el permiso autoriza carga. 
+> Selección vacía o nivel en lugar de expediente 
+> Rechazo controlado antes de crear el intento. 
+> Expediente cerrado 
+> Rechazo sin persistencia. 
+> Expediente inexistente 
+> Rechazo sin NullReferenceException. 
+> Gabinete no configurado 
+> Error funcional saneado, sin persistencia. 
+> Tipología obligatoria ausente 
+> Rechazo antes del almacenamiento. 
+> Resolver retorna YES con salida vacía 
+> Rechazo explícito; nunca se accede a (0). 
+> Archivo temporal ausente 
+> Rechazo controlado. 
+> Persistencia exitosa y proyección fallida 
+> Se informa resultado incierto o recuperación; no se duplica al reintentar. 
+> Doble envío del mismo intento 
+> Un solo documento efectivo. 
+> Varios archivos 
+> Resultado individual por archivo y sin contaminación entre elementos. 
+> ADJUNTARADICACION 
+> Comportamiento DOC-85 intacto. 
+> Otros eventos del handler 
+> Firmas, payloads y comportamiento sin cambios. 
+> Pruebas obligatorias de no regresión
+> Además de las pruebas focales de Producción Documental, ejecuta y documenta:
+> compilación completa de la solución;
+> 
+> pruebas de contratos del cargador compartido;
+> 
+> pruebas DOC-85 de Radicación Simplificada;
+> 
+> pruebas de adjuntos Workflow;
+> 
+> pruebas de importación SII y ENLASE relacionadas con el handler;
+> 
+> pruebas de versiones documentales;
+> 
+> pruebas de archivos múltiples;
+> 
+> git diff --check;
+> 
+> validación OpenSpec estricta si se crea un cambio.
+> 
+> Como evidencia estructural, ejecuta la compilación con el mecanismo real de la solución, por ejemplo msbuild.exe GestionDocumental-Docuarchi.net.sln /t:Build /p:Configuration=Debug /m, ajustando únicamente la ruta de MSBuild si el entorno lo requiere. Registra el comando, código de salida y resumen de errores o advertencias.
+> Ejecuta las pruebas unitarias o de caracterización disponibles y documenta un QA manual reproducible para los casos que no tengan arnés automatizado. Registra comandos, datos no sensibles, resultado esperado y resultado obtenido; no reemplaces evidencia automatizable por una afirmación narrativa.
+> Ninguna prueba existente debe deshabilitarse, relajarse o modificarse para ocultar una regresión. Si una prueba debe cambiar porque el contrato aprobado cambia, documenta la decisión y demuestra compatibilidad para todos los consumidores.
+> E2E y ambiente real
+> La implementación E2E es parte integral del mismo cambio funcional y de su cierre: código, E2E, validación autorizada y evidencia saneada forman una sola unidad de entrega. La ejecución contra un ambiente real sigue condicionada a la autorización explícita indicada abajo; si esta falta, debe quedar como bloqueo explícito y no como una entrega independiente simulada.
+> Antes de cualquier E2E autenticada, lee completos AGENTS.md y tools/e2e/AGENT-RUNBOOK.md.
+> Reutiliza exclusivamente la infraestructura existente de tools/e2e. No crees un login, arnés, proyecto Playwright, configuración, .env ni mecanismo de autenticación paralelo.
+> No ejecutes E2E real, carga ni mutaciones externas sin autorización explícita del ambiente, cuentas o usuarios de prueba, expediente, datos descartables, archivos de prueba y consultas de evidencia.
+> Usa secretos efímeros exclusivamente mediante el mecanismo autorizado. No expongas, imprimas, persistas ni guardes credenciales, cookies, tokens o cadenas de conexión. Las consultas de control deben ser exclusivamente SELECT y toda evidencia debe ser evidencia saneada.
+> Una E2E autorizada debe comprobar como mínimo:
+> autenticación y autorización efectiva de la cuenta de prueba;
+> 
+> lectura sin mutación al preparar y consultar el contexto;
+> 
+> rechazo seguro de selección inválida;
+> 
+> escrituras autorizadas solamente sobre el expediente y los datos descartables aprobados;
+> 
+> carga positiva de un archivo descartable y persistencia exactamente una vez;
+> 
+> fila visual correcta y reintento sin duplicado;
+> 
+> concurrencia o doble envío controlado;
+> 
+> regresión: ausencia de efectos en expedientes, eventos o módulos no seleccionados.
+> 
+> Respeta feature flags, gates, usuarios y grupos existentes sin habilitarlos arbitrariamente. No cerrar el cambio ni declarar cumplido un criterio de aceptación sin validación autorizada; si falta autorización, cuenta, ambiente o recurso, registrar un bloqueo explícito. No usar mocks, simulaciones ni evidencia ficticia para declarar el cierre E2E.
+> Restricciones críticas
+> No realizar una corrección global de todas las ramas de UploadSaveFile.
+> 
+> No alterar la resolución autoritativa implementada por DOC-85.
+> 
+> No confiar en datos enviados por JavaScript como autorización.
+> 
+> No resolver el defecto con location.reload, postback, DataBind o espera artificial.
+> 
+> No ocultar el error sustituyéndolo por un Try/Catch que continúe con datos incompletos.
+> 
+> No retornar YES si el contexto o el resultado requerido no fue materializado.
+> 
+> No duplicar documentos para recuperar una interfaz desactualizada.
+> 
+> No introducir un feature gate para esta corrección.
+> 
+> No reintroducir WorkflowCentroTrabajoModernActive ni listas de usuarios o grupos.
+> 
+> No cambiar funciones ajenas para acomodar una entrada inválida de PRODUCCION.
+> 
+> No ejecutar SQL de escritura como diagnóstico.
+> 
+> No guardar ni imprimir información sensible.
+> 
+> No crear ningún tipo de regresión con las demás funciones existentes.
+> 
+> Documentación técnica
+> Ubica la documentación existente relacionada con Producción Documental, el cargador compartido y DOC-85, y actualiza la documentación canónica aplicable. Si no existe una ruta documental adecuada, registra expresamente esa ausencia y solicita o propone la ruta antes de dispersar documentación nueva.
+> La documentación técnica debe conservar el diagnóstico en su archivo independiente e incluir funciones y contratos afectados, flujo paso a paso, causa comprobada, validaciones introducidas, errores funcionales, garantías de idempotencia, compatibilidad, evidencia y plan de reversa.
+> Entregable final
+> Caracterización reproducible de la causa.
+> 
+> Diseño del contexto y límites afectados.
+> 
+> Implementación mínima y aislada.
+> 
+> Pruebas focales y de no regresión.
+> 
+> Evidencia de compilación.
+> 
+> Documentación del contrato antes y después.
+> 
+> Plan de reversa.
+> 
+> Resultado E2E únicamente si fue autorizado.
+> 
+> Criterios de aceptación
+> La corrección está completa solamente cuando:
+> el escenario original ya no produce NullReferenceException;
+> 
+> los estados incompletos son rechazados antes de desreferenciar datos;
+> 
+> una carga válida persiste exactamente una vez;
+> 
+> la interfaz refleja el documento correcto;
+> 
+> un reintento no duplica el documento;
+> 
+> todas las pruebas focales y compartidas aprueban;
+> 
+> la compilación completa aprueba;
+> 
+> se demuestra explícitamente que ninguna otra función o módulo sufrió regresiones.
+
+## Goals / Non-Goals
+
+**Goals**
+- Refinar alcance tecnico usando el contexto completo de Jira.
+- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+
+**Non-Goals**
+- Cambios fuera del alcance descrito por el ticket.
+
+## Decisions
+
+1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+
+
+## Risks / Trade-offs
+
+- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+
+## Migration Plan
+
+1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
+2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+
+## Open Questions
+
+- TBD
