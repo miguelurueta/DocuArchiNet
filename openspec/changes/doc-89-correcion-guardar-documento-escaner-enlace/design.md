@@ -1,0 +1,444 @@
+## Context
+
+DOC-89: CORRECION-GUARDAR-DOCUMENTO-ESCANER-ENLACE
+
+## Jira Details
+
+> Prompt 01 — Corrección quirúrgica del falso repintado al guardar documentos digitalizados
+> Rol esperado
+> Actúa como arquitecto y desarrollador senior especialista en   Web Forms sobre .NET Framework 4.6.1, Microsoft   AJAX, UpdatePanel, JavaScript legacy, Dynamsoft Web TWAIN y almacenamiento documental Docuarchi.
+> Implementa una corrección mínima y verificable para el defecto visual observado al guardar un documento escaneado desde la opción Enlace de documentos de Workflow: durante el almacenamiento la interfaz desaparece, queda una pantalla blanca con el texto Procesando... y un spinner, y luego reaparece con el documento incorporado.
+> La corrección no debe crear ningún tipo de regresión en otras funciones, módulos, eventos, postbacks, indicadores de progreso, formularios ni consumidores existentes. Esta restricción es obligatoria y debe demostrarse con pruebas.
+> CONTEXTO
+> WebFormEscan.aspx, WebFormEscan.js, online_demo_operation.js, Dynamsoft Web TWAIN y las funciones que preparan o guardan imágenes digitalizadas conforman un componente compartido. El mismo escáner se reutiliza desde diferentes módulos y tipos de operación; no pertenece exclusivamente a Enlace de documentos.
+> El defecto confirmado no está en la captura de imágenes ni en la persistencia del escáner. Se presenta en la página padre Webworkflow.aspx, cuando el async postback específico de ButtonAlmacenar combina el overlay legacy overlay_ con el estilo moderno ctw-loading-indicator sobre el mismo nodo #progres_bar.
+> Por lo tanto, la implementación debe partir de estas reglas:
+> no modificar globalmente el componente de escaneo para resolver un defecto de presentación del contenedor padre;
+> 
+> preferir una corrección delimitada al manejo visual de ButtonAlmacenar en Webworkflow;
+> 
+> tratar cualquier cambio en WebFormEscan, Dynamsoft o sus callbacks como una ampliación de alcance que requiere justificación, caracterización adicional y aprobación explícita;
+> 
+> inventariar y probar todos los consumidores reales antes de modificar una función, selector o estilo compartido;
+> 
+> conservar el comportamiento observable de cada módulo que reutiliza el escáner.
+> 
+> Evidencia de reproducción
+> Video suministrado para el diagnóstico:
+> C:\\Users\\maum_\\Downloads\\Grabación 2026-10-06 152416-error-desaparece-interfaz-guarda-escaneada.mp4
+> Secuencia observada:
+> El usuario abre Enlace de documentos y trabaja dentro del iframe de digitalización.
+> 
+> Selecciona una tipología en el modal Guardar como.
+> 
+> Pulsa Aceptar.
+> 
+> Dynamsoft muestra Processing... (2/3) mientras prepara y envía el documento.
+> 
+> La página padre queda completamente blanca durante aproximadamente un segundo; solo permanecen Procesando... y el spinner.
+> 
+> La misma interfaz reaparece y la nueva tipología se incorpora al árbol de documentos.
+> 
+> El visor conserva la página y el documento cargado, lo que confirma que no ocurre una navegación completa.
+> 
+> Diagnóstico confirmado
+> No se trata de un postback completo ni de una recarga del navegador. El recorrido ejecuta un async postback de Microsoft   AJAX en la página padre:
+> WebFormEscan.aspx
+>   -> Button_guardar_popup
+>   -> Gurdar_documento_htpp_server()
+>   -> Dynamsoft HTTP upload
+>   -> activa_document_save()
+>   -> window.parent.ButtonAlmacenar.click()
+>   -> async postback de Webworkflow.aspx
+>   -> ButtonAlmacenar_Click
+>   -> ClassAlmacenamiento.UploadSaveFileScan()
+>   -> Hidden_result_load_ = "YES"
+>   -> CheckStatus/endRequest
+>   -> insert_row_documento_relacionado()La desaparición visual se produce en la página padre cuando InitializeRequest detecta ButtonAlmacenar y llama:
+> posicion_update_pogres_modal('progres_bar');Esta función agrega la clase legacy overlay_, fuerza el ancho del indicador a 100%, lo muestra y lo ubica desde las coordenadas (0,0). La clase overlay_ aporta alto y ancho completos.
+> El mismo nodo #progres_bar recibe en la experiencia moderna la clase ctw-loading-indicator. La regla:
+> #progres_bar.ctw-loading-indicator {
+>   background: #fff;
+> }sobrescribe el fondo translúcido de .overlay_. Como ambas responsabilidades recaen sobre el mismo nodo, el indicador compacto se convierte en una superficie blanca de pantalla completa. La interfaz no se destruye: queda oculta detrás del indicador hasta endRequest.
+> Objetivo
+> Mantener visible y estable la interfaz de Enlace de documentos mientras se almacena el documento digitalizado, mostrando una señal de progreso proporcionada y accesible, sin modificar el almacenamiento real, la actualización del árbol ni el contrato de digitalización.
+> El resultado esperado es:
+> Usuario pulsa Aceptar
+>   -> se procesa y almacena una sola vez
+>   -> la interfaz permanece visible
+>   -> se muestra un indicador de progreso acotado
+>   -> finaliza el async postback
+>   -> se inserta exactamente una fila/nodo
+>   -> el visor y la selección conservan su estadoAlcance obligatorio
+> Revisar nombres, firmas, selectores y dependencias reales antes de modificar:
+> workflow/WebFormEscan.aspx
+> 
+> workflow/WebFormEscan.aspx.vb
+> 
+> js/workflow/WebFormEscan.js
+> 
+> Resources/online_demo_operation.js
+> 
+> workflow/Webform_save_digital_image.aspx
+> 
+> workflow/Webform_save_digital_image.aspx.vb
+> 
+> workflow/Webworkflow.aspx
+> 
+> workflow/Webworkflow.aspx.vb
+> 
+> js/workflow/Webworkflow.js
+> 
+> js/java_general/GredviewControl.js
+> 
+> workflow/ClassAlmacenamiento.vb
+> 
+> Styles/Aplicaction.css
+> 
+> Styles/workflow-centro-trabajo-moderno.css
+> 
+> Inventario obligatorio de consumidores compartidos
+> Antes de implementar, comprobar en código y documentar como mínimo los contextos controlados por DG_TIPODIGITALIZACION y Hidden21:
+> Contexto compartido
+> Continuación actual que debe preservarse
+> TRAMITE 
+> almacenamiento en la página padre mediante ButtonAlmacenar 
+> TRAMITE_ADJUNTOWORKFLOW 
+> almacenamiento o asociación al documento seleccionado 
+> TRAMITE SIMPLE 
+> window.parent.save_document_scan.click() 
+> PRODUCCION 
+> flujo de Producción Documental existente 
+> MIGRACION 
+> window.parent.save_document_scan.click() 
+> REMPLAZAVERSION 
+> window.parent.Button_save_replace_dig.click() 
+> Añadir a documento 
+> Button_añade_documento.click() 
+> El inventario debe ampliarse si la búsqueda encuentra otros consumidores. No asumir que esta tabla es exhaustiva sin contrastarla con el repositorio.
+> Para cada consumidor se debe registrar si utiliza:
+> activa_document_save();
+> 
+> Gurdar_documento_htpp_server();
+> 
+> ButtonAlmacenar u otro botón padre;
+> 
+> progres_bar, overlay_ o ctw-loading-indicator;
+> 
+> el callback de Dynamsoft;
+> 
+> un UpdatePanel propio o de la página contenedora.
+> 
+> Requisitos funcionales
+> RF-01 — Conservar el async postback
+> ButtonAlmacenar debe continuar ejecutándose como async postback dentro de su UpdatePanel. No convertirlo en postback completo ni sustituirlo por recarga, navegación o actualización global.
+> RF-02 — Mantener visible la interfaz
+> Durante el almacenamiento, el indicador no debe reemplazar visualmente toda la superficie con fondo blanco. El modal, el árbol y el visor deben permanecer perceptibles detrás o alrededor del progreso.
+> RF-03 — Indicador acotado
+> El estado Procesando... debe mostrarse como indicador compacto o como overlay visualmente translúcido. Un mismo nodo no debe actuar simultáneamente como superficie de bloqueo de pantalla completa y como tarjeta blanca de progreso.
+> RF-04 — Una sola persistencia
+> La operación debe conservar una sola ejecución de:
+> ClassAlmacenamiento.UploadSaveFileScan(...)No introducir reintentos, doble clic programático, temporizadores de recuperación ni una segunda llamada al almacenamiento.
+> RF-05 — Proyección incremental
+> Después del almacenamiento exitoso debe conservarse el recorrido actual:
+> Hidden_result_load_ = "YES"
+>   -> Hidden_date_row_
+>   -> CheckStatus/endRequest
+>   -> insert_row_documento_relacionado(...)La corrección no debe ejecutar DataBind, reconstruir todo el árbol ni recargar el iframe para mostrar el nuevo documento.
+> RF-06 — Aislamiento por operación
+> El comportamiento nuevo debe quedar delimitado a ButtonAlmacenar o a un estado explícito y comprobable de almacenamiento desde digitalización.
+> No alterar inadvertidamente el comportamiento de Button_guardar_desicion, aunque actualmente comparte posicion_update_pogres_modal().
+> La solución SHALL NOT cambiar globalmente WebFormEscan, activa_document_save(), Gurdar_documento_htpp_server(), .overlay_ ni ctw-loading-indicator si el mismo resultado puede obtenerse mediante una rama, selector o estado específico de ButtonAlmacenar en la página padre.
+> RF-07 — Compatibilidad moderna oficial
+> La experiencia moderna es la oficial. La solución debe corregir la composición entre overlay_ y ctw-loading-indicator sin reintroducir feature flags, WorkflowCentroTrabajoModernActive, listas de usuarios o grupos ni rutas visuales legacy paralelas.
+> Restricción máxima de no regresión
+> El código no debe crear ningún tipo de regresión con otras funciones existentes.
+> En particular, demostrar que permanecen intactos:
+> apertura y cierre de Enlace de documentos;
+> 
+> escaneo, carga y edición dentro de WebFormEscan.aspx;
+> 
+> guardado de documentos relacionados a Workflow;
+> 
+> TRAMITE y TRAMITE_ADJUNTOWORKFLOW;
+> 
+> Button_guardar_desicion;
+> 
+> adjuntos mediante FileUploadHandler;
+> 
+> carga desde dispositivo;
+> 
+> carga desde servicios web/SII/ENLASE;
+> 
+> actualización y selección del árbol de documentos;
+> 
+> visor, página actual y buffer de Dynamsoft;
+> 
+> otros consumidores de progres_bar, overlay_ y ctw-loading-indicator;
+> 
+> contratos de UploadSaveFileScan e insert_row_documento_relacionado;
+> 
+> comportamiento de errores y mensajes existentes.
+> 
+> los recorridos PRODUCCION, MIGRACION, TRAMITE SIMPLE y REMPLAZAVERSION que reutilizan el mismo escáner;
+> 
+> las operaciones Nuevo, Agregar, Insertar y Reemplazar del buffer Dynamsoft;
+> 
+> guardado en PDF, PDF/A y TIF conforme a la configuración existente;
+> 
+> callbacks, sesión y archivos temporales usados por los demás módulos consumidores.
+> 
+> Si se modifica una función o estilo compartido, agregar pruebas explícitas de invariancia para cada rama no afectada. Preferir un selector o función específica para la operación antes que cambiar globalmente .overlay_ o .ctw-loading-indicator.
+> No basta con afirmar que el cambio está aislado. La evidencia debe enumerar los consumidores identificados, la rama ejecutada antes y después y las pruebas que demuestran que sus contratos permanecen sin cambios.
+> Restricciones críticas
+> No resolver el defecto mediante:
+> location.reload();
+> 
+> recarga del iframe;
+> 
+> postback completo;
+> 
+> DataBind global;
+> 
+> ocultamiento permanente del progreso;
+> 
+> espera artificial o setTimeout;
+> 
+> eliminación de UpdatePanel;
+> 
+> segunda escritura para recuperar la interfaz;
+> 
+> modificación del almacenamiento para compensar un defecto CSS;
+> 
+> cambio global de .overlay_ sin demostrar compatibilidad;
+> 
+> reintroducción de gates o activación por usuarios/grupos;
+> 
+> captura genérica de excepciones que oculte el error;
+> 
+> relajación o eliminación de pruebas existentes.
+> 
+> Hallazgos secundarios fuera del alcance principal
+> El análisis identificó comportamiento legacy frágil en Resources/online_demo_operation.js:
+> OnHttpUploadSuccess() no continúa el almacenamiento porque activa_document_save() está comentado.
+> 
+> OnHttpUploadFailure() continúa únicamente cuando Dynamsoft retorna -2003.
+> 
+> No modificar este contrato dentro de la corrección visual sin caracterización independiente y aprobación explícita. Documentarlo como deuda técnica separada. Mezclar ambos cambios ampliaría innecesariamente el riesgo del componente compartido.
+> También existe el typo .css("heigth", "100%") en posicion_update_pogres_modal(). No corregirlo aisladamente como supuesto origen: actualmente .overlay_ ya aporta height: 100%. Cualquier ajuste debe responder al diseño final del indicador y contar con pruebas.
+> Diseño esperado
+> Antes de escribir código, comparar al menos estas alternativas:
+> Indicador compacto específico para ButtonAlmacenar, sin agregar overlay_.
+> 
+> Overlay translúcido y tarjeta interna de progreso con responsabilidades separadas.
+> 
+> Indicador acotado al modal Enlace de documentos en lugar del viewport completo.
+> 
+> Seleccionar la alternativa con menor superficie de cambio y menor impacto compartido. La opción recomendada es aislar ButtonAlmacenar y conservar sin cambios las demás operaciones que usan posicion_update_pogres_modal().
+> Pruebas obligatorias
+> Caracterización estructural
+> Agregar pruebas que confirmen:
+> ButtonAlmacenar permanece dentro de UpdatePanel_boton_tool.
+> 
+> No existe PostBackTrigger ni RegisterPostBackControl para ButtonAlmacenar.
+> 
+> InitializeRequest no aplica una superficie blanca de pantalla completa durante esta operación.
+> 
+> CheckStatus oculta el progreso en finally.
+> 
+> El éxito llama una sola vez a insert_row_documento_relacionado.
+> 
+> El cambio no modifica la rama de Button_guardar_desicion.
+> 
+> Los selectores modernos no convierten el indicador compacto en overlay blanco.
+> 
+> Matriz mínima
+> Escenario
+> Resultado requerido
+> Guardar documento escaneado válido desde Enlace 
+> La interfaz permanece visible y se agrega un único nodo 
+> Almacenamiento en progreso 
+> Indicador visible, acotado y accesible 
+> Almacenamiento exitoso 
+> Se oculta el indicador y se conserva el visor 
+> Almacenamiento rechazado 
+> Se oculta el indicador y se presenta el error existente 
+> Doble clic en Aceptar 
+> Una sola operación efectiva 
+> Button_guardar_desicion 
+> Comportamiento anterior intacto 
+> Adjuntar archivo tradicional 
+> Sin cambios 
+> Importación SII/ENLASE 
+> Sin cambios 
+> Experiencia moderna 
+> Sin pantalla blanca completa 
+> Fin del async postback 
+> No quedan clases, dimensiones ni bloqueos residuales 
+> Verificación técnica
+> Ejecutar y documentar:
+> pruebas focales nuevas del indicador;
+> 
+> suites existentes de Workflow y documentos relacionados;
+> 
+> pruebas de ENLASE/SII relacionadas;
+> 
+> pruebas del cargador compartido;
+> 
+> compilación completa de la solución mediante MSBuild, por ejemplo msbuild.exe GestionDocumental-Docuarchi.net.sln /t:Build /p:Configuration=Debug /m, ajustando únicamente la ruta del ejecutable si el entorno lo requiere;
+> 
+> evidencia estructural de compilación que registre comando, código de salida, número de errores y número de advertencias;
+> 
+> git diff --check;
+> 
+> validación OpenSpec estricta si se crea un cambio;
+> 
+> QA manual reproducible usando el mismo recorrido del video.
+> 
+> Evidencia E2E
+> La implementación E2E es parte integral del mismo cambio funcional y de su cierre. Código, E2E, validación autorizada y evidencia saneada forman una sola unidad de entrega; no dividir la E2E como tarea, cambio o entrega independiente.
+> Antes de cualquier E2E autenticada, leer completos AGENTS.md y tools/e2e/AGENT-RUNBOOK.md.
+> No ejecutar E2E real, autenticación, carga ni mutación sin autorización explícita del ambiente, usuarios o cuentas de prueba, tarea o expediente, documento y demás datos descartables.
+> 
+> Usar secretos efímeros exclusivamente mediante el mecanismo autorizado.
+> 
+> No exponer, imprimir, registrar ni persistir credenciales, contraseñas, cookies, tokens, cabeceras de autorización o cadenas de conexión.
+> 
+> Las verificaciones de control deben ser exclusivamente consultas SELECT parametrizadas y de alcance mínimo.
+> 
+> Toda evidencia debe ser saneada: solo códigos funcionales, conteos, estados, tiempos y huellas no reversibles; nunca contenido documental ni datos sensibles.
+> 
+> Reutilizar exclusivamente la infraestructura E2E existente; no crear login, .env, proyecto Playwright, perfil con secretos ni mecanismo de autenticación paralelo.
+> 
+> Respetar feature flags, gates, usuarios, grupos y configuración existentes sin habilitarlos, alterarlos ni eludirlos arbitrariamente.
+> 
+> No cerrar el cambio sin validación autorizada. Si falta autorización, ambiente, cuenta o recurso descartable, registrar un bloqueo explícito.
+> 
+> No usar mocks, simulaciones, inspección estática ni evidencia ficticia para declarar cumplida la validación E2E real.
+> 
+> La E2E autorizada debe comprobar, como mínimo:
+> autenticación y autorización efectiva de la cuenta de prueba;
+> 
+> lectura sin mutación del contexto antes de aceptar;
+> 
+> rechazo seguro cuando falte selección, permiso o archivo;
+> 
+> que el clic en Aceptar no genera navegación completa;
+> 
+> que ocurre exactamente un async postback de ButtonAlmacenar;
+> 
+> que la interfaz no queda cubierta por una superficie blanca;
+> 
+> que la única escritura se realiza sobre la tarea y el documento descartable expresamente autorizados;
+> 
+> que el almacenamiento se ejecuta exactamente una vez;
+> 
+> que doble clic o concurrencia no provocan una segunda escritura;
+> 
+> que aparece exactamente un nuevo nodo;
+> 
+> que el visor conserva la página y el documento;
+> 
+> que al terminar no permanece ningún overlay visible;
+> 
+> que no existen efectos sobre tareas, expedientes, módulos ni consumidores no seleccionados;
+> 
+> que los contextos compartidos del escáner conservan sus contratos mediante pruebas de regresión relacionadas.
+> 
+> La cobertura E2E debe demostrar explícitamente, cuando aplique, autorización o control de acceso, lectura sin mutación, escrituras autorizadas únicamente sobre los recursos descartables aprobados, concurrencia controlada y regresión relacionada con los módulos que reutilizan el escáner.
+> DOCUMENTACION TECNICA
+> Antes de crear documentación nueva, ubicar documentación existente sobre Workflow, Enlace de documentos, digitalización, Dynamsoft, overlays e indicadores modernos. Actualizar documentación existente y la documentación canónica aplicable. Si no existe una ruta adecuada, registrar expresamente la ausencia, solicitar la ruta y documentar la ruta requerida antes de dispersar nuevos archivos.
+> Registrar o actualizar en un diagnóstico independiente:
+> evidencia temporal del video;
+> 
+> recorrido de funciones real;
+> 
+> diferencia entre postback completo y async postback;
+> 
+> causa CSS comprobada;
+> 
+> archivos y contratos afectados;
+> 
+> decisión de diseño seleccionada;
+> 
+> garantías de no regresión;
+> 
+> pruebas ejecutadas;
+> 
+> resultado E2E autorizado;
+> 
+> plan de reversa.
+> 
+> La documentación debe identificar expresamente que el escáner es compartido, enumerar sus consumidores verificados y explicar por qué la corrección queda en el contenedor de Workflow o, si esto no es posible, por qué es indispensable tocar el componente común.
+> ENTREGABLE FINAL
+> El cambio debe entregar como una sola unidad:
+> caracterización reproducible de la pantalla blanca observada en el video;
+> 
+> inventario verificado de módulos y operaciones que reutilizan el escáner;
+> 
+> diseño de aislamiento y análisis de impacto sobre consumidores compartidos;
+> 
+> implementación mínima, preferiblemente delimitada a ButtonAlmacenar en la página padre;
+> 
+> pruebas focales del async postback y del indicador visual;
+> 
+> pruebas de invariancia para todos los consumidores compartidos identificados;
+> 
+> compilación MSBuild con evidencia estructural;
+> 
+> documentación técnica canónica actualizada o ausencia/ruta requerida registrada;
+> 
+> E2E integrada al mismo cambio, ejecutada únicamente con autorización explícita y evidencia saneada;
+> 
+> plan de reversa que permita retirar solo la corrección visual sin alterar digitalización ni almacenamiento.
+> 
+> Criterios de aceptación
+> La corrección se considera completa únicamente cuando:
+> guardar desde digitalización conserva el async postback existente;
+> 
+> la interfaz de Enlace de documentos permanece visible durante la operación;
+> 
+> no aparece la superficie blanca de pantalla completa;
+> 
+> el indicador comunica progreso sin apropiarse visualmente de todo el formulario;
+> 
+> el documento se almacena exactamente una vez;
+> 
+> se inserta exactamente un nodo en el árbol;
+> 
+> el visor, la página seleccionada y el buffer conservan su estado;
+> 
+> errores y rechazos también retiran correctamente el indicador;
+> 
+> Button_guardar_desicion y los demás consumidores compartidos no cambian;
+> 
+> aprueban pruebas focales, regresión compartida, compilación y QA/E2E autorizado;
+> 
+> no se introduce ningún tipo de regresión con otras funciones del sistema.
+
+## Goals / Non-Goals
+
+**Goals**
+- Refinar alcance tecnico usando el contexto completo de Jira.
+- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+
+**Non-Goals**
+- Cambios fuera del alcance descrito por el ticket.
+
+## Decisions
+
+1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+
+
+## Risks / Trade-offs
+
+- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+
+## Migration Plan
+
+1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
+2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+
+## Open Questions
+
+- TBD
