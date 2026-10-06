@@ -1046,14 +1046,27 @@ Public Class ClassGaProducionDocumental
     Function SolicitaCargarDocumentoExpediente(ByRef CDexpedienteSeleccionado As CDexpedienteSeleccionado) As String
         Try
             Dim ClassGaExpediente As New ClassGaExpediente
-            If InStr(HttpContext.Current.Session.Item("PG_SELECCION_TREVIEEW_PRODUCCION"), "|") = 0 Then
+            Dim SeleccionProduccion As String = Convert.ToString(HttpContext.Current.Session.Item("PG_SELECCION_TREVIEEW_PRODUCCION"))
+            If String.IsNullOrWhiteSpace(SeleccionProduccion) Then
                 SolicitaCargarDocumentoExpediente = "Por favor, seleccione el expediente al cual desea adjuntar el documento."
                 Exit Function
             End If
-            Dim split() As String = HttpContext.Current.Session.Item("PG_SELECCION_TREVIEEW_PRODUCCION").Split("|")
-            CDexpedienteSeleccionado.IdExpediente = Val(split(2))
-            CDexpedienteSeleccionado.IdNivelExpediente = Val(split(1))
+            Dim SeleccionPartes() As String = SeleccionProduccion.Split("|"c)
+            If SeleccionPartes.Length < 3 Then
+                SolicitaCargarDocumentoExpediente = "Por favor, seleccione el expediente al cual desea adjuntar el documento."
+                Exit Function
+            End If
+            CDexpedienteSeleccionado.IdExpediente = Val(SeleccionPartes(2))
+            CDexpedienteSeleccionado.IdNivelExpediente = Val(SeleccionPartes(1))
+            If CDexpedienteSeleccionado.IdExpediente <= 0 OrElse CDexpedienteSeleccionado.IdNivelExpediente <= 0 Then
+                SolicitaCargarDocumentoExpediente = "Por favor, seleccione el expediente al cual desea adjuntar el documento."
+                Exit Function
+            End If
             CDexpedienteSeleccionado.IdUsuarioGestion = HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION")
+            If CDexpedienteSeleccionado.IdUsuarioGestion <= 0 Then
+                SolicitaCargarDocumentoExpediente = "PRODUCCION_CARGA_CONTEXTO_INVALIDO"
+                Exit Function
+            End If
             Dim EstadoExpediente As Integer = 0
             Dim EstadoPublico As Integer = 0
             Dim Result As String = ClassGaExpediente.Retorna_estado_expediente(CDexpedienteSeleccionado.IdExpediente,
@@ -1086,7 +1099,7 @@ Public Class ClassGaProducionDocumental
                     SolicitaCargarDocumentoExpediente = Result
                     Exit Function
                 End If
-                If stru_permisos_niveles.carga_archivo = 0 Then
+                If stru_permisos_niveles.id_permisos_niveles <= 0 OrElse stru_permisos_niveles.carga_archivo = 0 Then
                     SolicitaCargarDocumentoExpediente = "El usuario no tiene permisos para cargar archivos al expediente, ya que el nivel al que pertenece dicho expediente es propiedad de otro usuario."
                     Exit Function
                 End If
@@ -1094,7 +1107,7 @@ Public Class ClassGaProducionDocumental
             SolicitaCargarDocumentoExpediente = "YES"
             Exit Function
         Catch ex As Exception
-            SolicitaCargarDocumentoExpediente = "Inconsistencia general funcion SolicitaAgregarDocumentoExpediente " & ex.Message
+            SolicitaCargarDocumentoExpediente = "PRODUCCION_CARGA_CONTEXTO_INVALIDO"
         End Try
     End Function
     Function SolicitaListaTipologiasExpediente(ByVal IdExpediente As Integer,
@@ -1107,6 +1120,10 @@ Public Class ClassGaProducionDocumental
                                                                          EstruUnidadConservacion)
             If Result <> "YES" Then
                 SolicitaListaTipologiasExpediente = Result
+                Exit Function
+            End If
+            If EstruUnidadConservacion Is Nothing OrElse EstruUnidadConservacion.Length = 0 Then
+                SolicitaListaTipologiasExpediente = "PRODUCCION_CARGA_CONTEXTO_INVALIDO"
                 Exit Function
             End If
             Dim Class_ra_tipo_doc_series As New Class_ra_tipo_doc_series
@@ -1128,7 +1145,7 @@ Public Class ClassGaProducionDocumental
             SolicitaListaTipologiasExpediente = "YES"
             Exit Function
         Catch ex As Exception
-            SolicitaListaTipologiasExpediente = "Inconsistencia general funcion SolicitaListaTipologiasExpediente " & ex.Message
+            SolicitaListaTipologiasExpediente = "PRODUCCION_CARGA_CONTEXTO_INVALIDO"
         End Try
     End Function
     Function Solicitar_agregar_documento_a_carpeta_expediente(ByVal id_expediente As Integer,

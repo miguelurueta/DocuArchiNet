@@ -58,7 +58,7 @@ Public Class WebServiceProducion
             ListCDproduccion.Add(ItemCDproduccion)
             Return ListCDproduccion
         Catch ex As Exception
-            ItemCDproduccion.AppError = "Inconsistencia general funcion  ServiceSolicitaCargarDocumentoExpediente " & ex.Message
+            ItemCDproduccion.AppError = "PRODUCCION_CARGA_CONTEXTO_INVALIDO"
             ListCDproduccion.Add(ItemCDproduccion)
             Return ListCDproduccion
         End Try
@@ -206,6 +206,13 @@ Public Class WebServiceProducion
                         resultList.Add(parameter_upload)
                         Return resultList
                     Else
+                        If ra_config_upload_gestion.ID_CONFIG_UPLOAD_GESTION <= 0 OrElse
+                           String.IsNullOrWhiteSpace(ra_config_upload_gestion.EXTENSION_UPLOAD) OrElse
+                           ra_config_upload_gestion.LENG_UPLOAD <= 0 Then
+                            parameter_upload.error_result = "PRODUCCION_CARGA_CONFIGURACION_INCOMPLETA"
+                            resultList.Add(parameter_upload)
+                            Return resultList
+                        End If
                         parameter_upload.error_result = "YES"
                         parameter_upload.ExtensionPermitida = ra_config_upload_gestion.EXTENSION_UPLOAD
                         parameter_upload.Maximo_tamano_archivo_byte = ra_config_upload_gestion.LENG_UPLOAD
@@ -287,7 +294,11 @@ Public Class WebServiceProducion
                     End If
             End Select
         Catch ex As Exception
-            parameter_upload.error_result = ex.Message
+            If Convert.ToString(parameter) = "PRODUCCION" Then
+                parameter_upload.error_result = "PRODUCCION_CARGA_CONFIGURACION_INCOMPLETA"
+            Else
+                parameter_upload.error_result = ex.Message
+            End If
             resultList.Add(parameter_upload)
             Return resultList
         End Try

@@ -283,3 +283,23 @@ npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario registro-rut
 ```
 
 La evidencia conserva exclusivamente códigos, conteos, huellas y eventos de reserva. El recibo, datos SII, credenciales, cookies y cadenas de conexión no se escriben en artefactos.
+
+## DOC-88 — Carga en Producción Documental
+
+DOC-88 reutiliza `test:workflow:platform` mediante `production-document-upload-preview`. Copie `doc88-production-document-upload.profile.example.json` dentro de `tools/e2e/profiles/` con otro nombre y configure únicamente URL, módulo, ambiente, DSN no sensible, identificador y etiqueta exacta del expediente de prueba, tipología, PDF del directorio `fixtures` y presupuesto. El perfil no admite rutas externas, SQL ni secretos.
+
+La plataforma solicita por TTY la cuenta de aplicación, contraseña y la cuenta de lectura. Antes de abrir el navegador exige confirmaciones separadas para ambiente, cuenta y archivo. Ejecuta únicamente un control `SELECT` parametrizado sobre `registro_producion_documental`; no reserva un recurso mutante.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario production-document-upload-preview --profile <perfil-runtime.json> --authorize environment,account,discardable-file
+```
+
+La corrida comprueba rechazo sin selección, contexto correspondiente al expediente autorizado, apertura del cargador, preparación local del PDF y selección exacta de la tipología. No activa `Guardar`. Una ruta defensiva aborta cualquier solicitud inesperada al handler antes de que llegue al servidor y detiene la corrida. El control de persistencia debe permanecer sin cambios.
+
+La evidencia conserva solo códigos, conteos, cambio de huellas y eventos de reserva. No persiste expediente, nombre del archivo, contenido, tipología, credenciales, cookies ni cadenas de conexión.
+
+La carga positiva real se ejecuta en un escenario separado y requiere además autorizaciones de ejecución y recurso descartable. Activa `Guardar` una sola vez, valida la respuesta del handler, la proyección visual y el cambio del control `SELECT`. No reintenta si el almacenamiento es rechazado.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario production-document-upload-execution --profile <perfil-runtime-ejecucion.json> --authorize environment,account,discardable-file,execution,discardable-resource
+```

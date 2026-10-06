@@ -1,0 +1,14 @@
+{
+  "scenarioId": "production-document-upload-preview",
+  "baseUrl": "https://gestion.example.invalid/GestionDocumental-Docuarchi.net/",
+  "module": "GESTOR",
+  "environment": "pruebas-autorizadas",
+  "odbcDsn": "docuarchi",
+  "expedientId": 123,
+  "expedientLabel": "EXPEDIENTE DESCARTABLE DOC88",
+  "documentTypeId": 50,
+  "documentTypeName": "Comprobante de Egreso",
+  "fixturePath": "doc85-constancia-inscripcion.pdf",
+  "budgetMs": 60000,
+  "ignoreHttpsErrors": false
+}

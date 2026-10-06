@@ -378,7 +378,15 @@ class LoadFilePERSON {
         }
     }
     async _EventEnviarArchivosServer(event) {
+        let EsCargaProduccion = false;
         try {
+            EsCargaProduccion = FilePerson.settings.evento_adjunta == "PRODUCCION";
+            if (EsCargaProduccion && FilePerson._ProduccionCargaActiva === true) {
+                return true;
+            }
+            if (EsCargaProduccion) {
+                FilePerson._ProduccionCargaActiva = true;
+            }
             delete_alert_boot();
             let Result = "";
             Result = await FilePerson._SolicitaEstructuraTablaUpload(FilePerson._NameElementTable, -1);
@@ -393,12 +401,24 @@ class LoadFilePERSON {
             }
 
         } catch (ex) {
-            alert_bot("Error _EventEnviarArchivosServer " + ex.mensaje, 'warning', FilePerson.settings.NameContenedorError);
+            alert_bot("Error _EventEnviarArchivosServer " + (EsCargaProduccion ? ex.message : ex.mensaje), 'warning', FilePerson.settings.NameContenedorError);
+        } finally {
+            if (EsCargaProduccion) {
+                FilePerson._ProduccionCargaActiva = false;
+            }
         }
     }
     async _EventEnviarArchivoServer(e) {
         let timer;
+        let EsCargaProduccion = false;
         try {
+            EsCargaProduccion = FilePerson.settings.evento_adjunta == "PRODUCCION";
+            if (EsCargaProduccion && FilePerson._ProduccionCargaActiva === true) {
+                return true;
+            }
+            if (EsCargaProduccion) {
+                FilePerson._ProduccionCargaActiva = true;
+            }
             delete_alert_boot();
             let Result = "";
 
@@ -430,10 +450,13 @@ class LoadFilePERSON {
             }
 
         } catch (ex) {
-            alert_bot("Error _EventEnviarArchivoServer " + ex.mensaje, 'warning', FilePerson.settings.NameContenedorError);
+            alert_bot("Error _EventEnviarArchivoServer " + (EsCargaProduccion ? ex.message : ex.mensaje), 'warning', FilePerson.settings.NameContenedorError);
         } finally {
             clearTimeout(timer);
             FilePerson._OcultarLoading();
+            if (EsCargaProduccion) {
+                FilePerson._ProduccionCargaActiva = false;
+            }
         }
     }
     async _EventDragLeave(e) {
@@ -927,6 +950,9 @@ class LoadFilePERSON {
             Result = await JSProgresBarBoot(_OPtionProgresBar);
             return Result;
         } catch (ex) {
+            if (FilePerson.settings.evento_adjunta == "PRODUCCION") {
+                return "PRODUCCION_CARGA_CONFIRMACION_INCIERTA";
+            }
             return "Inconsistecia general funcion  _PreEnvioArchivosServidor " + ex.mensaje;
         }
     }
@@ -945,6 +971,10 @@ class LoadFilePERSON {
             }
             // Parseo correcto del JSON
             const UploadFilesResult = await respuesta.json();
+            if (this.settings.evento_adjunta == "PRODUCCION" &&
+                (!Array.isArray(UploadFilesResult) || UploadFilesResult.length == 0 || !UploadFilesResult[0])) {
+                return "PRODUCCION_CARGA_CONFIRMACION_INCIERTA";
+            }
             if (UploadFilesResult[0].error_sistema !== "YES") {
                 return UploadFilesResult[0].error_sistema;
             }
@@ -959,6 +989,9 @@ class LoadFilePERSON {
             Result = await FilePerson._ValidaCierreModal();
             return Result;
         } catch (ex) {
+            if (this.settings.evento_adjunta == "PRODUCCION") {
+                return "PRODUCCION_CARGA_CONFIRMACION_INCIERTA";
+            }
             return "Inconsistecia general funcion  _EnviaArchivoServidor " + ex.mensaje;
         }
     }
@@ -968,7 +1001,24 @@ class LoadFilePERSON {
      */
     async _RegistraArchivoInterfaz(UploadFilesResult) {
         try {
-            if (this.settings.funcion_name == "insert_row_producion_documental") {
+            if (this.settings.funcion_name == "insert_row_producion_documental" && this.settings.evento_adjunta == "PRODUCCION") {
+                if (!Array.isArray(UploadFilesResult) || UploadFilesResult.length == 0 ||
+                    !UploadFilesResult[0] || !UploadFilesResult[0].id_registro ||
+                    !UploadFilesResult[0].id_image || !UploadFilesResult[0].nombre_archivo) {
+                    return "PRODUCCION_CARGA_PROYECCION_FALLIDA";
+                }
+                var FileIconSome = "fa-file";
+                if (UploadFilesResult[0].icono_icono_awe_some != "") {
+                    var espacio = " ";
+                    var spli_some = UploadFilesResult[0].icono_icono_awe_some.split(espacio);
+                    FileIconSome = spli_some[1];
+                }
+                let DateCampo = "|" + UploadFilesResult[0].id_registro + "|" + UploadFilesResult[0].nombre_archivo + "|" + UploadFilesResult[0].fecha + "|" +
+                    UploadFilesResult[0].tipodocumental + "|" + UploadFilesResult[0].name_gabinete + "|" + UploadFilesResult[0].aleas + "|" +
+                    UploadFilesResult[0].estado_firma_digital + "|" + FileIconSome + "|" + UploadFilesResult[0].id_image;
+                insert_row_producion_documental(DateCampo);
+            }
+            if (this.settings.funcion_name == "insert_row_producion_documental" && this.settings.evento_adjunta != "PRODUCCION") {
                 var FileIconSome = "fa-file";
                 if (UploadFilesResult[0].icono_icono_awe_some != "") {
                     var espacio = " ";
@@ -1057,6 +1107,9 @@ class LoadFilePERSON {
             }
             return "YES";
         } catch (ex) {
+            if (this.settings.evento_adjunta == "PRODUCCION") {
+                return "PRODUCCION_CARGA_PROYECCION_FALLIDA";
+            }
             return "Inconsistencia funcion _RegistraArchivoInterfaz " + ex.mensaje;
         }
     }

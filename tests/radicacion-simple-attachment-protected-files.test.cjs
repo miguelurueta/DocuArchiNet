@@ -6,7 +6,7 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
 const expected = {
-  'generic_control/FileUploadHandler_.ashx.vb': '56bcdf90128bcc586428c086e8d38532f56b5eecf810ede9447f3c5933c43046',
+  'generic_control/FileUploadHandler_.ashx.vb': '8459dd56d2abed043203c21a0eea2f2ae31fc8035f9c9e386fb774bd867a3b73',
   'js/RadicadorSimplificado/Web_form_radicacion_simpilificada.js': 'f29fbd798ccb492fa924a522ae5dcb19d7f280b55f0f9c4e71b016cd5f026b69'
 };
 

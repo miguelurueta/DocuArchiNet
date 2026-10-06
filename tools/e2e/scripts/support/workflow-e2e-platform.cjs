@@ -12,7 +12,7 @@ const { validateProfile } = require('./workflow-e2e-platform-profile.cjs');
 const execute = promisify(execFile);
 const repositoryRoot = path.resolve(__dirname, '..', '..', '..', '..');
 const SENSITIVE_EVIDENCE = /passw(?:ord)?|pwd|cookie|token|secret|credential|credencial|connection|conexion|authorization|authorized|usuario|user|contenido|nota|request|response|mysql|odbc/i;
-const SAFE_CODE = /^(?:E2E_PLATFORM|E2E_RESOURCE|NOTES_READ|NOTES_ANONYMOUS|NOTES_WRITE|NOTES_CONCURRENCY|IMPORT_E2E|REGISTRO_RUTA_SII_E2E)_[A-Z0-9_]{3,100}$/;
+const SAFE_CODE = /^(?:E2E_PLATFORM|E2E_RESOURCE|NOTES_READ|NOTES_ANONYMOUS|NOTES_WRITE|NOTES_CONCURRENCY|IMPORT_E2E|REGISTRO_RUTA_SII_E2E|PRODUCCION_DOCUMENTAL_E2E)_[A-Z0-9_]{3,100}$/;
 const SAFE_STAGE_AUTHORIZATIONS = Object.freeze({
   anonymous: Object.freeze([]),
   read: Object.freeze([]),
@@ -117,7 +117,9 @@ function createRegisteredResourceContract(plan, environment, readControl) {
           const generation = await captureGeneration();
           const validDescriptor = resource.profileField === 'taskId'
             ? Number.isSafeInteger(descriptor?.taskId) && descriptor.taskId > 0
-            : typeof descriptor?.value === 'string' && /^[SR][0-9]{9}$/.test(descriptor.value);
+            : plan.scenario.id === 'production-document-upload-execution'
+              ? Number.isSafeInteger(descriptor?.value) && descriptor.value > 0
+              : typeof descriptor?.value === 'string' && /^[SR][0-9]{9}$/.test(descriptor.value);
           const emptyFingerprint = createHash('sha256').update('').digest('hex');
           const receiptAvailable = plan.scenario.id !== 'registro-ruta-sii-execution' || [
             'registro-ruta-sii-workflow',
@@ -174,6 +176,11 @@ function createRuntimeEnvironment(plan, secrets) {
     environment.DOC87_DA_E2E_MYSQL_USER = values['readonly-db-user'];
     environment.DOC87_DA_E2E_MYSQL_PASSWORD = values['readonly-db-password'];
   }
+  if (plan.scenario.id === 'production-document-upload-preview' || plan.scenario.id === 'production-document-upload-execution') {
+    environment.DOC88_E2E_ODBC_DSN = plan.profile.odbcDsn;
+    environment.DOC88_E2E_MYSQL_USER = values['readonly-db-user'];
+    environment.DOC88_E2E_MYSQL_PASSWORD = values['readonly-db-password'];
+  }
   return environment;
 }
 
@@ -183,7 +190,7 @@ function eraseSecrets(values, environment) {
   }
   if (environment && typeof environment === 'object') {
     for (const name of Object.values(SECRET_ENVIRONMENT)) delete environment[name];
-    for (const name of ['DOC87_E2E_MYSQL_USER', 'DOC87_E2E_MYSQL_PASSWORD', 'DOC87_DA_E2E_MYSQL_USER', 'DOC87_DA_E2E_MYSQL_PASSWORD']) delete environment[name];
+    for (const name of ['DOC87_E2E_MYSQL_USER', 'DOC87_E2E_MYSQL_PASSWORD', 'DOC87_DA_E2E_MYSQL_USER', 'DOC87_DA_E2E_MYSQL_PASSWORD', 'DOC88_E2E_MYSQL_USER', 'DOC88_E2E_MYSQL_PASSWORD']) delete environment[name];
   }
 }
 
@@ -225,9 +232,13 @@ function createRestrictedInvoker({ adapter, client, invoke }) {
 async function captureControls(controls, plan, environment, readControl) {
   if (controls.length === 0) return Object.freeze({});
   if (typeof readControl !== 'function') fail('E2E_PLATFORM_CONTROL_READER_REQUIRED');
+  const controlProfileField = plan.scenario.controlProfileField || plan.scenario.resource?.profileField;
+  if (typeof controlProfileField !== 'string' || plan.profile[controlProfileField] === undefined) {
+    fail('E2E_PLATFORM_CONTROL_PARAMETER_INVALID');
+  }
   const fingerprints = {};
   for (const control of controls) {
-    const value = await readControl({ control, taskId: plan.profile[plan.scenario.resource.profileField], environment, profile: plan.profile });
+    const value = await readControl({ control, taskId: plan.profile[controlProfileField], environment, profile: plan.profile });
     if (typeof value !== 'string' || !/^[a-f0-9]{64}$/i.test(value)) fail('E2E_PLATFORM_CONTROL_FAILED');
     fingerprints[control.id] = value.toLowerCase();
   }
@@ -425,7 +436,8 @@ async function executePlatformRun(options) {
     }
     if (plan.scenario.expectations.includes('secure-preview-ui') || plan.scenario.expectations.includes('explicit-assignment-ui') ||
         plan.scenario.expectations.includes('manual-visual-execution') || plan.scenario.expectations.includes('manual-layout-review') ||
-        plan.scenario.expectations.includes('registro-ruta-sii-ui')) {
+        plan.scenario.expectations.includes('registro-ruta-sii-ui') || plan.scenario.expectations.includes('production-document-upload-preview-ui') ||
+        plan.scenario.expectations.includes('production-document-upload-execution-ui')) {
       if (typeof inspectSession !== 'function' || !context) fail('E2E_PLATFORM_SESSION_INSPECTOR_REQUIRED');
       const inspection = await inspectSession({ context, plan });
       if (!inspection || typeof inspection !== 'object' || Array.isArray(inspection)) fail('E2E_PLATFORM_SESSION_INSPECTION_INVALID');

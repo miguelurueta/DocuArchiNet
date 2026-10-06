@@ -8371,12 +8371,22 @@ Public Class ClassAlmacenamiento
         '------------------------------------------------------------------------------------------------
         Try
             Dim Result As String = ""
+            If IdExpediente <= 0 OrElse IdTipoLogia <= 0 OrElse
+               String.IsNullOrWhiteSpace(DescripcionTipo) OrElse
+               String.IsNullOrWhiteSpace(RutaArchivoAlmacenar) Then
+                PreAlmacenaDocumentoProduccion = "PRODUCCION_CARGA_CONTEXTO_INVALIDO"
+                Exit Function
+            End If
             Dim NombreGabinete As String = "PRODUCIONDOC"
             Dim ClassGaExpediente As New ClassGaExpediente
             Result = ClassGaExpediente.SolicitaGabineteProducionExpediente(IdExpediente,
                                                                            NombreGabinete)
             If Result <> "YES" Then
-                PreAlmacenaDocumentoProduccion = Result
+                PreAlmacenaDocumentoProduccion = "PRODUCCION_CARGA_GABINETE_INVALIDO"
+                Exit Function
+            End If
+            If String.IsNullOrWhiteSpace(NombreGabinete) Then
+                PreAlmacenaDocumentoProduccion = "PRODUCCION_CARGA_CONFIGURACION_INCOMPLETA"
                 Exit Function
             End If
             Dim IdGabineteDocuarchi As Integer = 0
@@ -8384,7 +8394,11 @@ Public Class ClassAlmacenamiento
             Result = Class_system1.SolicitaIdGabineteDocuarchi(NombreGabinete,
                                                                IdGabineteDocuarchi)
             If Result <> "YES" Then
-                PreAlmacenaDocumentoProduccion = Result
+                PreAlmacenaDocumentoProduccion = "PRODUCCION_CARGA_GABINETE_INVALIDO"
+                Exit Function
+            End If
+            If IdGabineteDocuarchi <= 0 Then
+                PreAlmacenaDocumentoProduccion = "PRODUCCION_CARGA_CONFIGURACION_INCOMPLETA"
                 Exit Function
             End If
             '////------------------------Asigna valores y campos para indice de gabinete heredados del expediente----------------------///
@@ -8396,7 +8410,7 @@ Public Class ClassAlmacenamiento
                                                                                                                               ObligaViculoExpeGabinete,
                                                                                                                               StruRelExpGabinete)
             If Result <> "YES" Then
-                PreAlmacenaDocumentoProduccion = Result
+                PreAlmacenaDocumentoProduccion = "PRODUCCION_CARGA_RELACION_INDICE_INVALIDA"
                 Exit Function
             End If
             Dim IlistCDcamposAsignaAlmacenamiento As New CDcamposAsignaAlmacenamiento
@@ -8414,13 +8428,13 @@ Public Class ClassAlmacenamiento
             Result = ClassRaCamposFechaGabineteProduccion.SolicitaCamposFechaGabineteProduccion(IdGabineteDocuarchi,
                                                                                                 CDCamposFechaGabinetePro)
             If Result <> "YES" Then
-                PreAlmacenaDocumentoProduccion = Result
+                PreAlmacenaDocumentoProduccion = "PRODUCCION_CARGA_CAMPOS_FECHA_INVALIDOS"
                 Exit Function
             End If
             If Not CDCamposFechaGabinetePro Is Nothing Then
                 For i As Integer = 0 To CDCamposFechaGabinetePro.Count - 1
                     If CDCamposFechaGabinetePro.Item(i).Tipo <> "DATE" Then
-                        PreAlmacenaDocumentoProduccion = "No es posible actualizar el campo (" & CDCamposFechaGabinetePro.Item(i).Campo & ") con la fecha de carga, ya que no corresponde a un tipo de dato fecha."
+                        PreAlmacenaDocumentoProduccion = "PRODUCCION_CARGA_CAMPOS_FECHA_INVALIDOS"
                         Exit Function
                     End If
                     IlistCDcamposAsignaAlmacenamiento = New CDcamposAsignaAlmacenamiento
@@ -8453,7 +8467,7 @@ Public Class ClassAlmacenamiento
             PreAlmacenaDocumentoProduccion = Result
             Exit Function
         Catch ex As Exception
-            PreAlmacenaDocumentoProduccion = "Inconsistencia general funcion PreAlmacenaDocumentoProduccion " & ex.Message
+            PreAlmacenaDocumentoProduccion = "PRODUCCION_CARGA_ALMACENAMIENTO_RECHAZADO"
         End Try
     End Function
     Function AlmacenaDocumentoTareaWorkflow(ByVal ActivaGuardaValorRadicado As Integer,
@@ -8828,10 +8842,14 @@ Public Class ClassAlmacenamiento
             Dim ClassNeodynamic As New ClassNeodynamic
             Dim MatrizDocumentosFinal() As String
             Erase MatrizDocumentosFinal
+            If String.IsNullOrWhiteSpace(RutaArchivoAlmacenar) Then
+                AlmacenamientoDocumentoProduccionDocumental = "PRODUCCION_CARGA_ARCHIVO_NO_DISPONIBLE"
+                Exit Function
+            End If
             Dim File As New FileInfo(RutaArchivoAlmacenar)
             Dim Result As String = ""
             If File.Exists = False Then
-                AlmacenamientoDocumentoProduccionDocumental = "Lamentamos informarle que no fue posible acceder al archivo solicitado (" & File.FullName & ")"
+                AlmacenamientoDocumentoProduccionDocumental = "PRODUCCION_CARGA_ARCHIVO_NO_DISPONIBLE"
                 Exit Function
             End If
             If UCase(File.Extension) = ".TIF" Then
@@ -8870,7 +8888,11 @@ Public Class ClassAlmacenamiento
             Result = ClassGaExpediente.SolicitaDatosEstructuraExpediente(IdExpediente,
                                                                          EsctructuraExpediente)
             If Result <> "YES" Then
-                AlmacenamientoDocumentoProduccionDocumental = Result
+                AlmacenamientoDocumentoProduccionDocumental = "PRODUCCION_CARGA_EXPEDIENTE_INVALIDO"
+                Exit Function
+            End If
+            If EsctructuraExpediente Is Nothing OrElse EsctructuraExpediente.Length = 0 Then
+                AlmacenamientoDocumentoProduccionDocumental = "PRODUCCION_CARGA_CONTEXTO_INVALIDO"
                 Exit Function
             End If
             CDclasificacionTipoDocumental.DescripcionTipoDocumento = DescripcionTipo
@@ -8888,7 +8910,7 @@ Public Class ClassAlmacenamiento
             Result = ClassGaTipoDocumental.SolicitaIdTipoFormatoDocumento(NombreClaseFormatoDocumento,
                                                                           IdClaseFormatoDocumento)
             If Result <> "YES" Then
-                AlmacenamientoDocumentoProduccionDocumental = Result
+                AlmacenamientoDocumentoProduccionDocumental = "PRODUCCION_CARGA_CLASE_DOCUMENTAL_INVALIDA"
                 Exit Function
             End If
             NombreTipoDocumento = NombreClaseFormatoDocumento
@@ -8897,7 +8919,7 @@ Public Class ClassAlmacenamiento
             Dim ClassGestionFechas As New ClassGestionFechas
             Result = ClassGestionFechas.FormateaFechaAlmacenamiento(DateTyme)
             If Result <> "YES" Then
-                AlmacenamientoDocumentoProduccionDocumental = Result
+                AlmacenamientoDocumentoProduccionDocumental = "PRODUCCION_CARGA_FECHA_INVALIDA"
                 Exit Function
             End If
             FechaElaboracion = DateTyme
@@ -8940,7 +8962,7 @@ Public Class ClassAlmacenamiento
             EstructuraDatosPrevioAlmacenamineto(6).valor_campo = CDclasificacionTipoDocumental.NombreSubSerie
             Dim Icount As Integer = 6
             '///---------------Asignamos los valores externos para estructura del indice de gabinetes-------------/////
-            If CDcamposAsignaAlmacenamiento.Count > 0 Then
+            If CDcamposAsignaAlmacenamiento IsNot Nothing AndAlso CDcamposAsignaAlmacenamiento.Count > 0 Then
                 For i As Integer = 0 To CDcamposAsignaAlmacenamiento.Count - 1
                     If CDcamposAsignaAlmacenamiento.Item(i).ValorCampoGabinete <> "" Then
                         Icount += 1
@@ -8959,7 +8981,7 @@ Public Class ClassAlmacenamiento
                                                                                     NombreGabinete,
                                                                                     EstructuraDatosPrevioAlmacenamineto)
             If Result <> "YES" Then
-                AlmacenamientoDocumentoProduccionDocumental = Result
+                AlmacenamientoDocumentoProduccionDocumental = "PRODUCCION_CARGA_INDICE_GABINETE_INVALIDO"
                 Exit Function
             End If
             Dim TipoArchivoDocuarchi As String = ""
@@ -8967,7 +8989,7 @@ Public Class ClassAlmacenamiento
             Result = Class_da_extension.SolicitaTipoArchivoDocuarchiExtension(File.Extension,
                                                                               TipoArchivoDocuarchi)
             If Result <> "YES" Then
-                AlmacenamientoDocumentoProduccionDocumental = Result
+                AlmacenamientoDocumentoProduccionDocumental = "PRODUCCION_CARGA_EXTENSION_INVALIDA"
                 Exit Function
             End If
             '-----------------------------------------------
@@ -8989,7 +9011,7 @@ Public Class ClassAlmacenamiento
             EstructuraGestionAlmacenamiento.CLASE_DOCUMENTO, EstructuraGestionAlmacenamiento.FECHA_ELABORACION, "", NombreArchivo, IdRegistro, 1, EstadoFirmaDigital, 0,
             0)
             If Result <> "YES" Then
-                AlmacenamientoDocumentoProduccionDocumental = Result
+                AlmacenamientoDocumentoProduccionDocumental = "PRODUCCION_CARGA_PERSISTENCIA_RECHAZADA"
                 Exit Function
             End If
             Dim classgabinete As New ClassDaGabinete
@@ -9027,7 +9049,7 @@ Public Class ClassAlmacenamiento
             AlmacenamientoDocumentoProduccionDocumental = "YES"
             Exit Function
         Catch ex As Exception
-            AlmacenamientoDocumentoProduccionDocumental = "Incosistencia general funcion AlmacenamientoDocumentoProduccionDocumental " & ex.Message
+            AlmacenamientoDocumentoProduccionDocumental = "PRODUCCION_CARGA_ALMACENAMIENTO_RECHAZADO"
         End Try
     End Function
     Function AlmacenaDocumentosRadicacion(ByVal EvaluaActualizaImagenWorkflow As Integer,
