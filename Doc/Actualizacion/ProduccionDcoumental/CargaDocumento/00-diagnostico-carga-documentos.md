@@ -6,9 +6,11 @@ En el módulo **Producción Documental**, durante la carga de documentos, la int
 
 > Referencia a objeto no establecida como instancia de un objeto.
 
-Este documento registra una exploración estática del código. No constituye todavía una confirmación de la línea exacta mediante ejecución real, traza de servidor o reproducción E2E.
+Este documento inició como exploración estática y fue actualizado con la reproducción E2E real del 2026-10-06.
 
 ## Conclusión ejecutiva
+
+La reproducción confirmó la causa inmediata en `generic_control/FileUploadHandler_.ashx.vb`: Producción no envía el parámetro opcional `radicado_radicacion`, pero el handler ejecutaba `.Trim()` sobre su valor nulo antes de llegar a `UploadSaveFile`. Por eso la respuesta exponía `Referencia a objeto no establecida como instancia de un objeto` y el control de persistencia permanecía sin cambios.
 
 El defecto pertenece a la misma familia arquitectónica de la corrección realizada en Radicación Simplificada mediante DOC-85: una cadena legacy depende de contexto mutable y consume estructuras de salida suponiendo que fueron materializadas correctamente.
 
@@ -119,9 +121,9 @@ La revisión de historial indica que las funciones específicas de Producción D
 4. **Persistencia correcta con falla de proyección:** el documento existe, pero `_RegistraArchivoInterfaz` falla o construye una fila corrupta.
 5. **Estado compartido entre cargas:** variables globales como `FilePerson`, `CDproduccion` o la ruta temporal de sesión conservan información de una operación previa.
 
-## Evidencia necesaria para confirmar la causa exacta
+## Evidencia utilizada para confirmar la causa exacta
 
-Sin imprimir datos sensibles, una reproducción controlada debe registrar:
+Sin imprimir datos sensibles, la reproducción controlada registró:
 
 - si el modal alcanzó a abrir;
 - endpoint que devolvió el error;
@@ -151,8 +153,8 @@ La futura corrección debe aislarse a la carga `PRODUCCION`. No debe cambiar la 
 ## Estado de la exploración
 
 - Diagnóstico estático: completado.
-- Línea exacta confirmada por traza o reproducción: pendiente.
-- Cambios de aplicación: ninguno.
-- E2E autenticada: no ejecutada.
-- Consultas a bases de datos: no ejecutadas.
+- Línea exacta confirmada por reproducción E2E: lectura de `radicado_radicacion` ausente seguida de `.Trim()` en el handler.
+- Cambio de aplicación: valor vacío seguro, validación de contexto temporal y códigos de etapa limitados a `PRODUCCION`.
+- E2E autenticada: completada con almacenamiento y proyección confirmados.
+- Consulta de control: `SELECT` registrado con cambio confirmado.
 

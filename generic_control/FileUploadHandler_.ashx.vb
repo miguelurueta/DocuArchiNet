@@ -56,6 +56,8 @@ Public Class FileUploadHandler_
         Dim resultList = New List(Of UploadFilesResult)()
         Dim jFilesJson As String = ""
         Dim uploadFiles As UploadFilesResult = New UploadFilesResult()
+        Dim eventoAdjuntaActual As String = ""
+        Dim etapaCargaProduccion As String = "PRODUCCION_CARGA_HANDLER_SOLICITUD_INVALIDA"
         Try
             If context.Request.Files.Count > 0 Then
                 Dim file As HttpPostedFile = context.Request.Files(0)
@@ -70,6 +72,10 @@ Public Class FileUploadHandler_
                 Dim estado_adjunta_relacionado As Integer = context.Request("chek_adjunta_relacionado")
                 Dim estado_adjunta_anexo As Integer = context.Request("chek_adjunta_anexo")
                 Dim evento_adjunta As String = context.Request("evento_adjunta")
+                eventoAdjuntaActual = Convert.ToString(evento_adjunta)
+                If eventoAdjuntaActual = "PRODUCCION" Then
+                    etapaCargaProduccion = "PRODUCCION_CARGA_HANDLER_CONTEXTO_TEMPORAL_INVALIDO"
+                End If
                 Dim numero_documento_relacionado As String = context.Request("num_docu_relacion")
                 Dim id_respuesta As String = context.Request("id_respuesta")
                 Dim tipo_adjunta As Integer = context.Request("tipo_adjunta")
@@ -78,12 +84,25 @@ Public Class FileUploadHandler_
                 Dim FechaCarga As String = context.Request("FechaCarga")
                 Dim IdRegistroEstadoRadicacion As Long = 0
                 Long.TryParse(Convert.ToString(context.Request("id_registro_estado_radicacion")), IdRegistroEstadoRadicacion)
-                Dim RadicadoRadicacion As String = Convert.ToString(context.Request("radicado_radicacion")).Trim()
+                Dim RadicadoRadicacion As String = If(context.Request("radicado_radicacion"), String.Empty).Trim()
                 Dim id_imagen As Integer = 0
-                If id_expediente = 0 Then
-                    id_expediente = HttpContext.Current.Session.Item("PG_SELECCION_ID_EXPEIDENTE")
+                Dim sesionActual As System.Web.SessionState.HttpSessionState = context.Session
+                If eventoAdjuntaActual = "PRODUCCION" Then
+                    etapaCargaProduccion = "PRODUCCION_CARGA_HANDLER_SESION_INVALIDA"
+                    If sesionActual Is Nothing Then
+                        Throw New InvalidOperationException()
+                    End If
                 End If
-                Dim pat_user As String = HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION")
+                If id_expediente = 0 Then
+                    id_expediente = sesionActual.Item("PG_SELECCION_ID_EXPEIDENTE")
+                End If
+                Dim pat_user As String = Convert.ToString(sesionActual.Item("GA_IDUSUARIOGESTION")).Trim()
+                If eventoAdjuntaActual = "PRODUCCION" AndAlso String.IsNullOrWhiteSpace(pat_user) Then
+                    Throw New InvalidOperationException()
+                End If
+                If eventoAdjuntaActual = "PRODUCCION" Then
+                    etapaCargaProduccion = "PRODUCCION_CARGA_HANDLER_RUTA_TEMPORAL_INVALIDA"
+                End If
                 Dim path As String = context.Server.MapPath("../Temp_Image/upload_file/" & pat_user & "/")
                 If Directory.Exists(path) = False Then
                     Directory.CreateDirectory(path)
@@ -91,6 +110,9 @@ Public Class FileUploadHandler_
                 Dim path_temp As String = context.Server.MapPath("../Temp_Image/upload_file_tiif/" & pat_user & "/")
                 If Directory.Exists(path_temp) = False Then
                     Directory.CreateDirectory(path_temp)
+                End If
+                If eventoAdjuntaActual = "PRODUCCION" Then
+                    etapaCargaProduccion = "PRODUCCION_CARGA_HANDLER_ARCHIVO_TEMPORAL_INVALIDO"
                 End If
                 file.SaveAs(path & file.FileName)
                 uploadFiles.name = file.FileName
@@ -359,6 +381,7 @@ Public Class FileUploadHandler_
                 If evento_adjunta = "PRODUCCION" Then
                     HttpContext.Current.Session.Item("WF_TIPO_ADJUNTA") = "PRODUCCION"
                     HttpContext.Current.Session.Item("WF_RUTA_TEMPO_ADJUNTA") = path & file.FileName
+                    etapaCargaProduccion = "PRODUCCION_CARGA_HANDLER_ALMACENAMIENTO_INVALIDO"
                     Result = ref_calssAlamacenamiento.UploadSaveFile(id_expediente,
                                                                      id_tipo_documento,
                                                                      nombre_tipo_documento,
@@ -372,6 +395,7 @@ Public Class FileUploadHandler_
                     If Result <> "YES" Then
                         uploadFiles.error_sistema = Result
                     Else
+                        etapaCargaProduccion = "PRODUCCION_CARGA_HANDLER_RESPUESTA_INVALIDA"
                         uploadFiles.error_sistema = "YES"
                         uploadFiles.name_gabinete = stru_datos_image_lista.nombre_gabinete
                         uploadFiles.id_image = stru_datos_image_lista.id_imagen
@@ -387,6 +411,7 @@ Public Class FileUploadHandler_
                         uploadFiles.aleas = stru_datos_image_lista.aleas
                         uploadFiles.nombre_archivo = stru_datos_image_lista.nombre_archivo
                     End If
+                    etapaCargaProduccion = "PRODUCCION_CARGA_HANDLER_SERIALIZACION_INVALIDA"
                 End If
                 Dim radicado As String = ""
                 Dim id_tipo_envio_respuesta As Integer = 0
@@ -497,7 +522,11 @@ Public Class FileUploadHandler_
                 context.Response.Write(jFilesJson)
             End If
         Catch ex As Exception
-            uploadFiles.error_sistema = ex.Message
+            If eventoAdjuntaActual = "PRODUCCION" Then
+                uploadFiles.error_sistema = etapaCargaProduccion
+            Else
+                uploadFiles.error_sistema = ex.Message
+            End If
             resultList.Add(uploadFiles)
             jFilesJson = JsonConvert.SerializeObject(resultList)
             context.Response.Write(jFilesJson)

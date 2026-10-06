@@ -4,6 +4,7 @@ const { NOTES_READ_E2E_ADAPTER } = require('../adapters/notes-read-e2e-adapter.c
 const { NOTES_WRITE_E2E_ADAPTER } = require('../adapters/notes-write-e2e-adapter.cjs');
 const { IMPORTAR_SERVICIO_WEB_E2E_ADAPTER } = require('../adapters/importar-servicio-web-e2e-adapter.cjs');
 const { REGISTRO_TAREA_RUTA_SII_E2E_ADAPTER } = require('../adapters/registro-tarea-ruta-sii-e2e-adapter.cjs');
+const { PRODUCTION_DOCUMENT_UPLOAD_E2E_ADAPTER } = require('../adapters/production-document-upload-e2e-adapter.cjs');
 
 const SAFE_ID = /^[a-z][a-z0-9-]{1,79}$/;
 const STAGES = Object.freeze(['anonymous', 'read', 'preview', 'execution', 'assignment', 'concurrency', 'ui-lock']);
@@ -104,6 +105,10 @@ const CONTROL_REGISTRY = Object.freeze({
   'registro-ruta-sii-relacion-unica': Object.freeze({
     id: 'registro-ruta-sii-relacion-unica', source: 'docuarchi',
     query: "SELECT CASE WHEN COUNT(*) <= 1 THEN 'VALID' ELSE 'INVALID' END AS cardinalidad FROM ra_relacion_radicado_externo_expediente WHERE RadicadoExterno = ?"
+  }),
+  'production-document-records': Object.freeze({
+    id: 'production-document-records', source: 'docuarchi',
+    query: 'SELECT ID_REGISTRO_PRODUCION_DOCUMENTAL, ID_DOCUMENTO_DOCUARCHI_ALMACEN, NOMBRE_GABINETE, DESCRIPCION_TIPO_DOCUMENTO, SEGUNDO_NOMBRE_DOCUMENTO FROM registro_producion_documental WHERE EXPEDIENTE_ARCHIVO_ID_EXPEDIENTE = ? ORDER BY ID_REGISTRO_PRODUCION_DOCUMENTAL'
   })
 });
 
@@ -135,10 +140,33 @@ const ADAPTER_REGISTRY = Object.freeze({
   [NOTES_READ_E2E_ADAPTER.id]: NOTES_READ_E2E_ADAPTER,
   [NOTES_WRITE_E2E_ADAPTER.id]: NOTES_WRITE_E2E_ADAPTER,
   [IMPORTAR_SERVICIO_WEB_E2E_ADAPTER.id]: IMPORTAR_SERVICIO_WEB_E2E_ADAPTER,
-  [REGISTRO_TAREA_RUTA_SII_E2E_ADAPTER.id]: REGISTRO_TAREA_RUTA_SII_E2E_ADAPTER
+  [REGISTRO_TAREA_RUTA_SII_E2E_ADAPTER.id]: REGISTRO_TAREA_RUTA_SII_E2E_ADAPTER,
+  [PRODUCTION_DOCUMENT_UPLOAD_E2E_ADAPTER.id]: PRODUCTION_DOCUMENT_UPLOAD_E2E_ADAPTER
 });
 
 const SCENARIO_REGISTRY = Object.freeze({
+  'production-document-upload-execution': Object.freeze({
+    id: 'production-document-upload-execution', doc: 'doc88', stage: 'execution', adapterId: 'production-document-upload',
+    requiredAuthorizations: Object.freeze(['environment', 'account', 'discardable-file']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'production-document-expedient', role: 'execution', profileField: 'expedientId', mutating: true, contractId: 'production-document-expedient-controls' }),
+    controlProfileField: 'expedientId',
+    controls: Object.freeze(['production-document-records']),
+    controlExpectations: Object.freeze({ 'production-document-records': 'changed' }),
+    transport: Object.freeze({ session: 'workflow', service: 'production-document-upload' }),
+    expectations: Object.freeze(['production-document-upload-execution-ui', 'single-upload-request', 'visual-projection', 'no-navigation', 'sanitized-evidence'])
+  }),
+  'production-document-upload-preview': Object.freeze({
+    id: 'production-document-upload-preview', doc: 'doc88', stage: 'preview', adapterId: 'production-document-upload',
+    requiredAuthorizations: Object.freeze(['environment', 'account', 'discardable-file']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: null,
+    controlProfileField: 'expedientId',
+    controls: Object.freeze(['production-document-records']),
+    controlExpectations: Object.freeze({ 'production-document-records': 'unchanged' }),
+    transport: Object.freeze({ session: 'workflow', service: 'production-document-upload' }),
+    expectations: Object.freeze(['production-document-upload-preview-ui', 'no-upload-request', 'no-navigation', 'sanitized-evidence'])
+  }),
   'registro-ruta-sii-execution': Object.freeze({
     id: 'registro-ruta-sii-execution', doc: 'doc87', stage: 'execution', adapterId: 'registro-tarea-ruta-sii',
     requiredAuthorizations: Object.freeze(['environment']),
@@ -377,6 +405,10 @@ function validateScenario(scenario) {
     if (scenario.resource.mutating && (typeof scenario.resource.contractId !== 'string' || !SAFE_ID.test(scenario.resource.contractId))) {
       fail('E2E_PLATFORM_SCENARIO_INVALID');
     }
+  }
+  if (scenario.controlProfileField !== undefined &&
+      (typeof scenario.controlProfileField !== 'string' || !/^[a-z][A-Za-z0-9]{1,79}$/.test(scenario.controlProfileField))) {
+    fail('E2E_PLATFORM_SCENARIO_INVALID');
   }
 }
 

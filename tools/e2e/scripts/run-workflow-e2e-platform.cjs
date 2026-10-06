@@ -28,6 +28,8 @@ const repositoryRoot = path.resolve(e2eRoot, '..', '..');
 const SAFE_IDENTIFIER = /^[a-z][a-z0-9-]{1,79}$/;
 const AUTHORIZATION_LABELS = Object.freeze({
   environment: '¿Autoriza este ambiente de pruebas?',
+  account: '¿Confirma que la cuenta indicada está autorizada para esta prueba?',
+  'discardable-file': '¿Confirma que el archivo de prueba es descartable?',
   'local-tls': '¿Autoriza temporalmente el certificado local autofirmado?',
   execution: '¿Autoriza la ejecución sobre un recurso descartable?',
   concurrency: '¿Autoriza la concurrencia sobre un recurso descartable?',
@@ -46,6 +48,40 @@ function fail(code) {
   const error = new Error(`La plataforma E2E no inició la corrida (${code}).`);
   error.code = code;
   throw error;
+}
+
+function classifyProductionStorageRejection(value) {
+  const message = String(value || '').normalize('NFKC').toLocaleUpperCase('es-CO');
+  if (message.includes('INCONSISTENCIA GENERAL FUNCION UPLOAD_SAVE_FILE_GESTION_RESPUESTA')) return 'PRODUCCION_DOCUMENTAL_E2E_UPLOAD_SAVE_EXCEPTION';
+  if (/REFERENCIA A OBJETO|OBJECT REFERENCE|NULLREFERENCE/.test(message)) return 'PRODUCCION_DOCUMENTAL_E2E_HANDLER_NULL_REFERENCE';
+  if (message.includes('PRODUCCION_CARGA_ARCHIVO_NO_DISPONIBLE')) return 'PRODUCCION_DOCUMENTAL_E2E_FILE_UNAVAILABLE';
+  if (message.includes('PRODUCCION_CARGA_CONTEXTO_INVALIDO')) return 'PRODUCCION_DOCUMENTAL_E2E_CONTEXT_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_CONFIGURACION_INCOMPLETA')) return 'PRODUCCION_DOCUMENTAL_E2E_CONFIGURATION_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_ALMACENAMIENTO_RECHAZADO')) return 'PRODUCCION_DOCUMENTAL_E2E_STORAGE_EXCEPTION';
+  if (message.includes('PRODUCCION_CARGA_GABINETE_INVALIDO')) return 'PRODUCCION_DOCUMENTAL_E2E_CABINET_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_RELACION_INDICE_INVALIDA')) return 'PRODUCCION_DOCUMENTAL_E2E_INDEX_RELATION_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_CAMPOS_FECHA_INVALIDOS')) return 'PRODUCCION_DOCUMENTAL_E2E_DATE_FIELDS_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_EXPEDIENTE_INVALIDO')) return 'PRODUCCION_DOCUMENTAL_E2E_EXPEDIENT_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_CLASE_DOCUMENTAL_INVALIDA')) return 'PRODUCCION_DOCUMENTAL_E2E_DOCUMENT_CLASS_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_FECHA_INVALIDA')) return 'PRODUCCION_DOCUMENTAL_E2E_DATE_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_INDICE_GABINETE_INVALIDO')) return 'PRODUCCION_DOCUMENTAL_E2E_CABINET_INDEX_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_EXTENSION_INVALIDA')) return 'PRODUCCION_DOCUMENTAL_E2E_EXTENSION_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_PERSISTENCIA_RECHAZADA')) return 'PRODUCCION_DOCUMENTAL_E2E_PERSISTENCE_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_HANDLER_SOLICITUD_INVALIDA')) return 'PRODUCCION_DOCUMENTAL_E2E_HANDLER_REQUEST_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_HANDLER_CONTEXTO_TEMPORAL_INVALIDO')) return 'PRODUCCION_DOCUMENTAL_E2E_HANDLER_TEMP_CONTEXT_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_HANDLER_SESION_INVALIDA')) return 'PRODUCCION_DOCUMENTAL_E2E_HANDLER_SESSION_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_HANDLER_RUTA_TEMPORAL_INVALIDA')) return 'PRODUCCION_DOCUMENTAL_E2E_HANDLER_TEMP_PATH_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_HANDLER_ARCHIVO_TEMPORAL_INVALIDO')) return 'PRODUCCION_DOCUMENTAL_E2E_HANDLER_TEMP_FILE_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_HANDLER_ALMACENAMIENTO_INVALIDO')) return 'PRODUCCION_DOCUMENTAL_E2E_HANDLER_STORAGE_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_HANDLER_RESPUESTA_INVALIDA')) return 'PRODUCCION_DOCUMENTAL_E2E_HANDLER_OUTPUT_REJECTED';
+  if (message.includes('PRODUCCION_CARGA_HANDLER_SERIALIZACION_INVALIDA')) return 'PRODUCCION_DOCUMENTAL_E2E_HANDLER_SERIALIZATION_REJECTED';
+  if (/CAMPO.*OBLIGATOR|MATR[IÍ].*CAMPO|GABINETE/.test(message)) return 'PRODUCCION_DOCUMENTAL_E2E_CABINET_CONFIGURATION_REJECTED';
+  if (/CLASE.*DOCUMENTO|TIPO.*DOCUMENTO|FORMATO/.test(message)) return 'PRODUCCION_DOCUMENTAL_E2E_DOCUMENT_CLASS_REJECTED';
+  if (/EXTENSI[ÓO]N|DA_EXTENSION/.test(message)) return 'PRODUCCION_DOCUMENTAL_E2E_EXTENSION_REJECTED';
+  if (/EXPEDIENTE/.test(message)) return 'PRODUCCION_DOCUMENTAL_E2E_EXPEDIENT_REJECTED';
+  if (/RUTA.*ALMACEN|DISCO|CARPETA/.test(message)) return 'PRODUCCION_DOCUMENTAL_E2E_STORAGE_CONFIGURATION_REJECTED';
+  if (/P[AÁ]GINA|PDF|ITEXT/.test(message)) return 'PRODUCCION_DOCUMENTAL_E2E_DOCUMENT_ANALYSIS_REJECTED';
+  return 'PRODUCCION_DOCUMENTAL_E2E_STORAGE_REJECTED';
 }
 
 function parseArguments(argv) {
@@ -596,6 +632,10 @@ async function inspectEnlaseLayoutReview({ context, plan }) {
 }
 
 async function inspectWorkflowSession(options) {
+  if (options.plan.scenario.expectations.includes('production-document-upload-preview-ui') ||
+      options.plan.scenario.expectations.includes('production-document-upload-execution-ui')) {
+    return inspectProductionDocumentUploadPreviewUi(options);
+  }
   if (options.plan.scenario.expectations.includes('registro-ruta-sii-ui')) {
     return inspectRegistroRutaSiiUi(options);
   }
@@ -609,6 +649,212 @@ async function inspectWorkflowSession(options) {
     return inspectEnlaseAssignmentUi(options);
   }
   return inspectImportPreviewUi(options);
+}
+
+async function inspectProductionDocumentUploadPreviewUi({ context, plan }) {
+  const page = await context.newPage();
+  const executesStorage = plan.scenario.expectations.includes('production-document-upload-execution-ui');
+  const timeout = Math.min(plan.profile.budgetMs, 60000);
+  const uploadPattern = /generic_control\/fileuploadhandler_\.ashx(?:\?|$)/i;
+  const pagePattern = /\/Gestion\/WebFormProducionDocumental\.aspx(?:\?|$)/i;
+  const productionPageUrl = new URL('Gestion/WebFormProducionDocumental.aspx', plan.profile.baseUrl).toString();
+  const preparationServiceUrl = new URL('webservice/WebServiceProducion.asmx/ServiceSolicitaCargarDocumentoExpediente', plan.profile.baseUrl).toString();
+  const fixtureRoot = path.resolve(e2eRoot, 'fixtures');
+  const fixturePath = path.resolve(fixtureRoot, plan.profile.fixturePath);
+  if (path.dirname(fixturePath) !== fixtureRoot || path.extname(fixturePath).toLowerCase() !== '.pdf') {
+    fail('PRODUCCION_DOCUMENTAL_E2E_FIXTURE_INVALID');
+  }
+  try {
+    await fs.access(fixturePath);
+  } catch {
+    fail('PRODUCCION_DOCUMENTAL_E2E_FIXTURE_UNAVAILABLE');
+  }
+
+  let uploadRequests = 0;
+  let observedUploadRequests = 0;
+  let navigationCount = 0;
+  let documentUrl = null;
+  const onNavigation = (frame) => {
+    if (frame !== page.mainFrame() || documentUrl === null) return;
+    if (normalizeDocumentUrl(frame.url()) !== documentUrl) navigationCount += 1;
+  };
+  const onRequest = (request) => {
+    if (request.method() === 'POST' && uploadPattern.test(request.url())) observedUploadRequests += 1;
+  };
+  page.on('framenavigated', onNavigation);
+  page.on('request', onRequest);
+
+  const requestPreparation = async () => {
+    const response = await context.request.post(preparationServiceUrl, {
+      data: JSON.stringify({ parameter: '0' }),
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      timeout
+    }).catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_PREPARATION_TRANSPORT_FAILED'));
+    if (!response.ok()) fail('PRODUCCION_DOCUMENTAL_E2E_PREPARATION_TRANSPORT_FAILED');
+    const payload = await response.json()
+      .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_PREPARATION_RESPONSE_INVALID'));
+    return payload?.d?.[0] || null;
+  };
+
+  try {
+    await page.goto(productionPageUrl, {
+      waitUntil: 'domcontentloaded', timeout
+    });
+    documentUrl = normalizeDocumentUrl(page.url());
+    navigationCount = 0;
+
+    const hasLevelNode = await page.evaluate(() => Array.isArray(window.ITEMS_DATOS) && window.ITEMS_DATOS.some((item) => {
+      const element = document.getElementById(item.id);
+      const tagform = String(element?.title || '').split('\\')[0];
+      return element && tagform !== '' && !tagform.includes('|');
+    }));
+    if (hasLevelNode) {
+      const invalidSelectionPostback = page.waitForResponse((response) =>
+        response.request().method() === 'POST' && pagePattern.test(response.url()), { timeout });
+      const invalidSelectionPrepared = await page.evaluate(() => {
+        const candidate = window.ITEMS_DATOS.find((item) => {
+          const element = document.getElementById(item.id);
+          const tagform = String(element?.title || '').split('\\')[0];
+          return element && tagform !== '' && !tagform.includes('|');
+        });
+        if (!candidate || typeof window.OnSearchClick !== 'function') return false;
+        window.OnSearchClick(candidate.id, 'TreeViewArchivo');
+        return true;
+      });
+      if (!invalidSelectionPrepared) fail('PRODUCCION_DOCUMENTAL_E2E_LEVEL_SELECTION_FAILED');
+      const invalidPostback = await invalidSelectionPostback
+        .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_LEVEL_POSTBACK_UNAVAILABLE'));
+      if (!invalidPostback.ok()) fail('PRODUCCION_DOCUMENTAL_E2E_LEVEL_POSTBACK_FAILED');
+      const invalidPreparation = await requestPreparation();
+      const invalidResult = invalidPreparation?.AppError;
+      const invalidResultText = typeof invalidResult === 'string' ? invalidResult.trim() : '';
+      const blockedInvalidSelection = invalidResultText !== '' && invalidResultText !== 'YES' &&
+        !/(?:referencia a objeto|object reference|nullreference|\bexception\b|stack trace|inconsistencia general)/i.test(invalidResultText);
+      if (!blockedInvalidSelection) fail('PRODUCCION_DOCUMENTAL_E2E_INVALID_SELECTION_RESPONSE_UNSAFE');
+      if (observedUploadRequests !== 0) fail('PRODUCCION_DOCUMENTAL_E2E_INVALID_SELECTION_REQUESTED_UPLOAD');
+      await page.goto(productionPageUrl, { waitUntil: 'domcontentloaded', timeout })
+        .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_LEVEL_RECOVERY_FAILED'));
+    }
+
+    await page.waitForFunction((expedientId) => Array.isArray(window.ITEMS_DATOS) && window.ITEMS_DATOS.some((item) => {
+      const element = document.getElementById(item.id);
+      const tagform = String(element?.title || '').split('\\')[0];
+      const parts = tagform.split('|');
+      return element && parts.length >= 3 && Number(parts[2]) === expedientId;
+    }), plan.profile.expedientId, { timeout }).catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_EXPEDIENT_NOT_LISTED'));
+
+    const selectionPostback = page.waitForResponse((response) =>
+      response.request().method() === 'POST' && pagePattern.test(response.url()), { timeout });
+    const selected = await page.evaluate((expedientId) => {
+      const matches = window.ITEMS_DATOS.filter((item) => {
+        const element = document.getElementById(item.id);
+        const tagform = String(element?.title || '').split('\\')[0];
+        const parts = tagform.split('|');
+        return element && parts.length >= 3 && Number(parts[2]) === expedientId;
+      });
+      if (matches.length !== 1 || typeof window.OnSearchClick !== 'function') return false;
+      window.OnSearchClick(matches[0].id, 'TreeViewArchivo');
+      return true;
+    }, plan.profile.expedientId);
+    if (!selected) fail('PRODUCCION_DOCUMENTAL_E2E_EXPEDIENT_AMBIGUOUS');
+    const postback = await selectionPostback.catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_SELECTION_POSTBACK_UNAVAILABLE'));
+    if (!postback.ok()) fail('PRODUCCION_DOCUMENTAL_E2E_SELECTION_POSTBACK_FAILED');
+    await page.goto(productionPageUrl, { waitUntil: 'domcontentloaded', timeout })
+      .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_SELECTION_RECOVERY_FAILED'));
+    documentUrl = normalizeDocumentUrl(page.url());
+    navigationCount = 0;
+    await page.waitForFunction(() => typeof ActivaCargaArchivos === 'function', null, { timeout })
+      .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_UPLOAD_FUNCTION_UNAVAILABLE'));
+
+    const prepared = await requestPreparation();
+    if (!prepared || prepared.AppError !== 'YES' ||
+        Number(prepared.CDexpedienteSeleccionado?.[0]?.IdExpediente) !== plan.profile.expedientId) {
+      fail('PRODUCCION_DOCUMENTAL_E2E_CONTEXT_MISMATCH');
+    }
+
+    const uploadActivation = page.locator('#a_load_file:visible, #ma_load_file:visible');
+    if (await uploadActivation.count() !== 1) fail('PRODUCCION_DOCUMENTAL_E2E_UPLOAD_ACTIVATION_AMBIGUOUS');
+    await uploadActivation.click()
+      .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_UPLOAD_ACTIVATION_FAILED'));
+    const modal = page.locator('#modal_adjunta_documeto_load_documento_006');
+    await modal.waitFor({ state: 'visible', timeout }).catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_UPLOAD_UNAVAILABLE'));
+    if (!executesStorage) {
+      await page.route(uploadPattern, async (route) => {
+        uploadRequests += 1;
+        await route.abort();
+      }).catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_UPLOAD_INTERCEPTION_FAILED'));
+    }
+    await page.locator('#file_element_adjunta_documeto_load_documento_006').setInputFiles(fixturePath)
+      .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_FILE_SELECTION_FAILED'));
+    const pendingRow = page.locator('#table_file_element_adjunta_documeto_load_documento_006 tr[NameFile]');
+    await pendingRow.waitFor({ state: 'visible', timeout })
+      .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_FILE_PREPARATION_FAILED'));
+    if (await pendingRow.count() !== 1) fail('PRODUCCION_DOCUMENTAL_E2E_FILE_PREPARATION_FAILED');
+    const typology = pendingRow.locator('select[id^="element_input_"]');
+    if (await typology.count() !== 1) fail('PRODUCCION_DOCUMENTAL_E2E_DOCUMENT_TYPE_UNAVAILABLE');
+    await typology.selectOption({ value: String(plan.profile.documentTypeId) })
+      .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_DOCUMENT_TYPE_INVALID'));
+    const selectedTypologyName = await typology.locator('option:checked').textContent()
+      .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_DOCUMENT_TYPE_READ_FAILED'));
+    const normalizeTypologyName = (value) => String(value || '').normalize('NFKC').replace(/\s+/g, ' ').trim().toLocaleUpperCase('es-CO');
+    if (normalizeTypologyName(selectedTypologyName) !== normalizeTypologyName(plan.profile.documentTypeName)) {
+      fail('PRODUCCION_DOCUMENTAL_E2E_DOCUMENT_TYPE_MISMATCH');
+    }
+    const save = pendingRow.locator('a[title="Guardar archivo"]');
+    if (await save.count() !== 1) fail('PRODUCCION_DOCUMENTAL_E2E_SAVE_UNAVAILABLE');
+    if (executesStorage) {
+      const existingRows = await page.locator('#data_grid tr[id]').evaluateAll((rows) => rows.map((row) => row.id));
+      const uploadResponsePromise = page.waitForResponse((response) =>
+        response.request().method() === 'POST' && uploadPattern.test(response.url()), { timeout });
+      await save.click().catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_SAVE_FAILED'));
+      const uploadResponse = await uploadResponsePromise
+        .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_RESPONSE_UNAVAILABLE'));
+      if (!uploadResponse.ok()) fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_HTTP_FAILED');
+      const uploadEnvelope = await uploadResponse.json()
+        .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_RESPONSE_INVALID'));
+      const stored = Array.isArray(uploadEnvelope) && uploadEnvelope.length === 1 ? uploadEnvelope[0] : null;
+      if (!stored) fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_ENVELOPE_INVALID');
+      if (stored.error_sistema !== 'YES') fail(classifyProductionStorageRejection(stored.error_sistema));
+      if (Number(stored.id_registro) <= 0) fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_RECORD_ID_INVALID');
+      if (Number(stored.id_image) <= 0) fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_IMAGE_ID_INVALID');
+      if (typeof stored.nombre_archivo !== 'string' || stored.nombre_archivo.trim() === '') {
+        fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_FILE_NAME_INVALID');
+      }
+      await page.waitForFunction(({ rowId, previousRows }) => {
+        const row = document.querySelector(`#data_grid tr[id="${CSS.escape(String(rowId))}"]`);
+        return Boolean(row) && !previousRows.includes(String(rowId));
+      }, { rowId: stored.id_registro, previousRows: existingRows }, { timeout })
+        .catch(() => fail('PRODUCCION_DOCUMENTAL_E2E_PROJECTION_FAILED'));
+      await page.waitForTimeout(250);
+      if (observedUploadRequests !== 1) fail('PRODUCCION_DOCUMENTAL_E2E_UPLOAD_COUNT_INVALID');
+      if (navigationCount !== 0) fail('PRODUCCION_DOCUMENTAL_E2E_UI_CONTRACT_INVALID');
+      return Object.freeze({
+        codes: Object.freeze({
+          invalidSelection: 'BLOCKED', preparation: 'CONFIRMED', documentType: 'CONFIRMED',
+          storage: 'CONFIRMED', projection: 'CONFIRMED', navigation: 'NOT_OBSERVED'
+        }),
+        count: 1,
+        latenciesMs: Object.freeze([])
+      });
+    }
+    await page.waitForTimeout(250);
+    if (uploadRequests !== 0 || observedUploadRequests !== 0) fail('PRODUCCION_DOCUMENTAL_E2E_STORAGE_REQUESTED');
+    if (navigationCount !== 0) fail('PRODUCCION_DOCUMENTAL_E2E_UI_CONTRACT_INVALID');
+
+    return Object.freeze({
+      codes: Object.freeze({
+        invalidSelection: 'BLOCKED', preparation: 'CONFIRMED', documentType: 'CONFIRMED',
+        storage: 'NOT_INVOKED', navigation: 'NOT_OBSERVED'
+      }),
+      count: 1,
+      latenciesMs: Object.freeze([])
+    });
+  } finally {
+    await page.unroute(uploadPattern).catch(() => {});
+    page.off('framenavigated', onNavigation);
+    page.off('request', onRequest);
+    await page.close().catch(() => {});
+  }
 }
 
 async function inspectRegistroRutaSiiUi({ context, plan }) {
@@ -938,7 +1184,9 @@ async function inspectImportPreviewUi({ context, plan }) {
 
 async function readWorkflowControl({ control, taskId, environment }) {
   try {
-    const prefix = control.source === 'docuarchi' ? 'DOC87_DA_E2E' : (control.id.startsWith('registro-ruta-sii-') ? 'DOC87_E2E' : 'NOTES_E2E');
+    const prefix = control.id.startsWith('production-document-')
+      ? 'DOC88_E2E'
+      : control.source === 'docuarchi' ? 'DOC87_DA_E2E' : (control.id.startsWith('registro-ruta-sii-') ? 'DOC87_E2E' : 'NOTES_E2E');
     return await queryFingerprint(control.query, taskId, environment, prefix);
   } catch (error) {
     const message = String(error?.message || '');
@@ -1062,6 +1310,7 @@ module.exports = {
   collectAuthorizations,
   inspectEnlaseAssignmentUi,
   inspectImportPreviewUi,
+  inspectProductionDocumentUploadPreviewUi,
   inspectWorkflowSession,
   parseArguments
 };

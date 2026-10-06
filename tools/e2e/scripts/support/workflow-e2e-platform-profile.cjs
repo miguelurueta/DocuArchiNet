@@ -4,7 +4,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { resolveScenario } = require('./workflow-e2e-platform-registry.cjs');
 
-const PROFILE_KEYS = new Set(['scenarioId', 'baseUrl', 'module', 'environment', 'odbcDsn', 'docuarchiOdbcDsn', 'taskId', 'receipt', 'activityId', 'noteId', 'radicado', 'codigoBarras', 'documentTypeId', 'documentTypeName', 'intentId', 'sampleSize', 'minimumExpedientCount', 'prepareStoppedIntent', 'concurrencyLevel', 'previewExpiryMinutes', 'budgetMs', 'browser', 'ignoreHttpsErrors']);
+const PROFILE_KEYS = new Set(['scenarioId', 'baseUrl', 'module', 'environment', 'odbcDsn', 'docuarchiOdbcDsn', 'taskId', 'receipt', 'activityId', 'noteId', 'radicado', 'codigoBarras', 'documentTypeId', 'documentTypeName', 'intentId', 'sampleSize', 'minimumExpedientCount', 'prepareStoppedIntent', 'concurrencyLevel', 'previewExpiryMinutes', 'budgetMs', 'browser', 'ignoreHttpsErrors', 'expedientId', 'expedientLabel', 'fixturePath']);
 const FORBIDDEN_KEY = /(passw(?:ord)?|pwd|cookie|token|secret|credential|credencial|connection|conexion|sql|query|command|comando|script|mysql|database|user)/i;
 const FORBIDDEN_VALUE = /(?:mysql|odbc):\/\/|(?:^|[;\s])(?:password|pwd|uid)\s*=|\b(?:SELECT|INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO)\b/i;
 const SAFE_LABEL = /^[A-Za-z0-9_-]{2,80}$/;
@@ -48,6 +48,11 @@ function assertPositiveInteger(value, code) {
   return value;
 }
 
+function assertPositiveIdentifier(value, code) {
+  if (!Number.isSafeInteger(value) || value <= 0) fail(code);
+  return value;
+}
+
 function validateBrowser(value) {
   if (value === undefined) return undefined;
   assertPlainObject(value);
@@ -87,6 +92,17 @@ function validateProfile(input) {
     profile.receipt = assertSafeText(input.receipt, /^[SR][0-9]{9}$/, 'E2E_PLATFORM_PROFILE_RECEIPT_INVALID');
     profile.activityId = assertPositiveInteger(input.activityId, 'E2E_PLATFORM_PROFILE_ACTIVITY_INVALID');
   } else if (input.docuarchiOdbcDsn !== undefined || input.receipt !== undefined || input.activityId !== undefined) {
+    fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
+  }
+  if (scenario.id === 'production-document-upload-preview' || scenario.id === 'production-document-upload-execution') {
+    profile.expedientId = assertPositiveIdentifier(input.expedientId, 'E2E_PLATFORM_PROFILE_EXPEDIENT_INVALID');
+    if (input.expedientLabel !== undefined) {
+      profile.expedientLabel = assertSafeText(input.expedientLabel, /^[^\r\n\t]{1,255}$/u, 'E2E_PLATFORM_PROFILE_EXPEDIENT_LABEL_INVALID').trim();
+    }
+    profile.documentTypeId = assertPositiveInteger(input.documentTypeId, 'E2E_PLATFORM_PROFILE_DOCUMENT_TYPE_INVALID');
+    profile.documentTypeName = assertSafeText(input.documentTypeName, /^[^\r\n\t]{1,255}$/u, 'E2E_PLATFORM_PROFILE_DOCUMENT_TYPE_NAME_INVALID').trim();
+    profile.fixturePath = assertSafeText(input.fixturePath, /^[A-Za-z0-9][A-Za-z0-9_.-]{0,119}\.pdf$/i, 'E2E_PLATFORM_PROFILE_FIXTURE_INVALID');
+  } else if (input.expedientId !== undefined || input.expedientLabel !== undefined || input.fixturePath !== undefined) {
     fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
   }
   if (scenario.resource?.profileField === 'taskId') {
@@ -157,6 +173,11 @@ function validateProfile(input) {
       profile.minimumExpedientCount = assertPositiveInteger(input.minimumExpedientCount, 'E2E_PLATFORM_PROFILE_EXPEDIENT_COUNT_INVALID');
       if (profile.minimumExpedientCount < 2 || profile.minimumExpedientCount > 20) fail('E2E_PLATFORM_PROFILE_EXPEDIENT_COUNT_INVALID');
     } else if (input.minimumExpedientCount !== undefined) {
+      fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
+    }
+  } else if (scenario.id === 'production-document-upload-preview' || scenario.id === 'production-document-upload-execution') {
+    if (input.radicado !== undefined || input.codigoBarras !== undefined || input.sampleSize !== undefined || input.concurrencyLevel !== undefined ||
+        input.intentId !== undefined || input.minimumExpedientCount !== undefined) {
       fail('E2E_PLATFORM_PROFILE_STAGE_FIELD_INVALID');
     }
   } else if (input.radicado !== undefined || input.codigoBarras !== undefined || input.sampleSize !== undefined || input.concurrencyLevel !== undefined ||
