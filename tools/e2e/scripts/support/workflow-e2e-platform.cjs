@@ -12,7 +12,7 @@ const { validateProfile } = require('./workflow-e2e-platform-profile.cjs');
 const execute = promisify(execFile);
 const repositoryRoot = path.resolve(__dirname, '..', '..', '..', '..');
 const SENSITIVE_EVIDENCE = /passw(?:ord)?|pwd|cookie|token|secret|credential|credencial|connection|conexion|authorization|authorized|usuario|user|contenido|nota|request|response|mysql|odbc/i;
-const SAFE_CODE = /^(?:E2E_PLATFORM|E2E_RESOURCE|NOTES_READ|NOTES_ANONYMOUS|NOTES_WRITE|NOTES_CONCURRENCY|IMPORT_E2E|REGISTRO_RUTA_SII_E2E|PRODUCCION_DOCUMENTAL_E2E)_[A-Z0-9_]{3,100}$/;
+const SAFE_CODE = /^(?:E2E_PLATFORM|E2E_RESOURCE|NOTES_READ|NOTES_ANONYMOUS|NOTES_WRITE|NOTES_CONCURRENCY|IMPORT_E2E|REGISTRO_RUTA_SII_E2E|PRODUCCION_DOCUMENTAL_E2E|SCANNER_LINK_E2E)_[A-Z0-9_]{3,100}$/;
 const SAFE_STAGE_AUTHORIZATIONS = Object.freeze({
   anonymous: Object.freeze([]),
   read: Object.freeze([]),
@@ -437,7 +437,8 @@ async function executePlatformRun(options) {
     if (plan.scenario.expectations.includes('secure-preview-ui') || plan.scenario.expectations.includes('explicit-assignment-ui') ||
         plan.scenario.expectations.includes('manual-visual-execution') || plan.scenario.expectations.includes('manual-layout-review') ||
         plan.scenario.expectations.includes('registro-ruta-sii-ui') || plan.scenario.expectations.includes('production-document-upload-preview-ui') ||
-        plan.scenario.expectations.includes('production-document-upload-execution-ui')) {
+        plan.scenario.expectations.includes('production-document-upload-execution-ui') ||
+        plan.scenario.expectations.includes('scanner-link-overlay-ui')) {
       if (typeof inspectSession !== 'function' || !context) fail('E2E_PLATFORM_SESSION_INSPECTOR_REQUIRED');
       const inspection = await inspectSession({ context, plan });
       if (!inspection || typeof inspection !== 'object' || Array.isArray(inspection)) fail('E2E_PLATFORM_SESSION_INSPECTION_INVALID');

@@ -93,6 +93,73 @@
                function ApplicationLoadHandler(sender, args) {
                    Sys.WebForms.PageRequestManager.getInstance().add_endRequest(CheckStatus);
                }
+               var estado_progreso_almacenamiento_digitalizado = null;
+               function mostrar_progreso_almacenamiento_digitalizado() {
+                   var progreso = document.getElementById("progres_bar");
+                   if (!progreso) {
+                       return;
+                   }
+
+                   var imagen = document.getElementById("imgr_modal");
+                   if (!estado_progreso_almacenamiento_digitalizado) {
+                       estado_progreso_almacenamiento_digitalizado = {
+                           position: progreso.style.position,
+                           width: progreso.style.width,
+                           height: progreso.style.height,
+                           top: progreso.style.top,
+                           left: progreso.style.left,
+                           transform: progreso.style.transform,
+                           zIndex: progreso.style.zIndex,
+                           pointerEvents: progreso.style.pointerEvents,
+                           imagePosition: imagen ? imagen.style.position : "",
+                           imageTop: imagen ? imagen.style.top : "",
+                           imageLeft: imagen ? imagen.style.left : ""
+                       };
+                   }
+
+                   progreso.classList.remove("overlay_");
+                   progreso.style.display = "block";
+                   progreso.style.position = "fixed";
+                   progreso.style.width = "200px";
+                   progreso.style.height = "auto";
+                   progreso.style.top = "50%";
+                   progreso.style.left = "50%";
+                   progreso.style.transform = "translate(-50%, -50%)";
+                   progreso.style.zIndex = "4000009";
+                   progreso.style.pointerEvents = "none";
+                   if (imagen) {
+                       imagen.style.position = "static";
+                       imagen.style.top = "";
+                       imagen.style.left = "";
+                   }
+               }
+               function limpiar_progreso_almacenamiento_digitalizado() {
+                   var progreso = document.getElementById("progres_bar");
+                   if (!progreso) {
+                       return;
+                   }
+
+                   progreso.classList.remove("overlay_");
+                   progreso.style.display = "none";
+                   if (estado_progreso_almacenamiento_digitalizado) {
+                       progreso.style.position = estado_progreso_almacenamiento_digitalizado.position;
+                       progreso.style.width = estado_progreso_almacenamiento_digitalizado.width;
+                       progreso.style.height = estado_progreso_almacenamiento_digitalizado.height;
+                       progreso.style.top = estado_progreso_almacenamiento_digitalizado.top;
+                       progreso.style.left = estado_progreso_almacenamiento_digitalizado.left;
+                       progreso.style.transform = estado_progreso_almacenamiento_digitalizado.transform;
+                       progreso.style.zIndex = estado_progreso_almacenamiento_digitalizado.zIndex;
+                       progreso.style.pointerEvents = estado_progreso_almacenamiento_digitalizado.pointerEvents;
+
+                       var imagen = document.getElementById("imgr_modal");
+                       if (imagen) {
+                           imagen.style.position = estado_progreso_almacenamiento_digitalizado.imagePosition;
+                           imagen.style.top = estado_progreso_almacenamiento_digitalizado.imageTop;
+                           imagen.style.left = estado_progreso_almacenamiento_digitalizado.imageLeft;
+                       }
+                       estado_progreso_almacenamiento_digitalizado = null;
+                   }
+               }
                function InitializeRequest(sender, args) {
                    //
                    elment_postbak = args.get_postBackElement();
@@ -120,10 +187,10 @@
                        posicion_update_pogres('progres_bar');
                    }
     
-                   if (elment_postbak.id == "ButtonAlmacenar" || elment_postbak.id == "Button_guardar_desicion") {
-
+                   if (elment_postbak.id == "ButtonAlmacenar") {
+                       mostrar_progreso_almacenamiento_digitalizado();
+                   } else if (elment_postbak.id == "Button_guardar_desicion") {
                        posicion_update_pogres_modal('progres_bar');
-                       
                    } else {
                        posicion_update_pogres('progres_bar');
                    }
@@ -507,6 +574,9 @@
                        alert(" Funcion CheckStatus asincrona workflow.aspx error : " + err.message);
                    }
                    finally {
+                       if (elment_postbak && elment_postbak.id == "ButtonAlmacenar") {
+                           limpiar_progreso_almacenamiento_digitalizado();
+                       }
                        progres_hiden('progres_bar');
                        resize_adjunta_documento();
                        resize_adjunta_documento_automatico();

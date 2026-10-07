@@ -303,3 +303,15 @@ La carga positiva real se ejecuta en un escenario separado y requiere además au
 ```powershell
 npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario production-document-upload-execution --profile <perfil-runtime-ejecucion.json> --authorize environment,account,discardable-file,execution,discardable-resource
 ```
+
+## DOC-89 — Guardado desde escáner en Enlace de documentos
+
+DOC-89 reutiliza `test:workflow:platform` mediante `scanner-link-overlay-execution`. Copie `doc89-scanner-link-overlay.profile.example.json` dentro de `tools/e2e/profiles/` con otro nombre y configure únicamente URL, módulo, ambiente, DSN ODBC no sensible, tarea descartable y presupuesto. No agregue tipología, contenido documental, SQL ni secretos al perfil.
+
+La etapa abre un navegador visible. Después de seleccionar la tarea autorizada, siga el recorrido Enlace de documentos → digitalización → Guardar como y haga doble clic una sola vez sobre `Aceptar`. La plataforma observa exactamente un `ButtonAlmacenar`, un async postback, un indicador compacto sin `.overlay_`, una sola fila nueva, ausencia de navegación y conservación del visor y buffer. El control registrado `workflow-assignment-state` es un `SELECT` parametrizado y debe permanecer sin cambios.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario scanner-link-overlay-execution --profile <perfil-runtime.json> --authorize environment,account,execution,discardable-resource
+```
+
+La ejecución exige autorización expresa del ambiente, cuenta, tarea y documento digitalizado descartables. La evidencia conserva únicamente códigos, conteos y huellas; nunca credenciales, cookies, contenido o cadenas de conexión.

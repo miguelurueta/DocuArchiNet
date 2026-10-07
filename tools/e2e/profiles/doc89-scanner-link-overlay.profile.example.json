@@ -1,0 +1,13 @@
+{
+  "scenarioId": "scanner-link-overlay-execution",
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "module": "GESTOR",
+  "environment": "GESTOR",
+  "odbcDsn": "workflowconta",
+  "taskId": 1,
+  "budgetMs": 600000,
+  "browser": {
+    "channel": "chrome"
+  },
+  "ignoreHttpsErrors": false
+}
