@@ -5,6 +5,7 @@ const { NOTES_WRITE_E2E_ADAPTER } = require('../adapters/notes-write-e2e-adapter
 const { IMPORTAR_SERVICIO_WEB_E2E_ADAPTER } = require('../adapters/importar-servicio-web-e2e-adapter.cjs');
 const { REGISTRO_TAREA_RUTA_SII_E2E_ADAPTER } = require('../adapters/registro-tarea-ruta-sii-e2e-adapter.cjs');
 const { PRODUCTION_DOCUMENT_UPLOAD_E2E_ADAPTER } = require('../adapters/production-document-upload-e2e-adapter.cjs');
+const { SCANNER_LINK_OVERLAY_E2E_ADAPTER } = require('../adapters/scanner-link-overlay-e2e-adapter.cjs');
 
 const SAFE_ID = /^[a-z][a-z0-9-]{1,79}$/;
 const STAGES = Object.freeze(['anonymous', 'read', 'preview', 'execution', 'assignment', 'concurrency', 'ui-lock']);
@@ -141,10 +142,21 @@ const ADAPTER_REGISTRY = Object.freeze({
   [NOTES_WRITE_E2E_ADAPTER.id]: NOTES_WRITE_E2E_ADAPTER,
   [IMPORTAR_SERVICIO_WEB_E2E_ADAPTER.id]: IMPORTAR_SERVICIO_WEB_E2E_ADAPTER,
   [REGISTRO_TAREA_RUTA_SII_E2E_ADAPTER.id]: REGISTRO_TAREA_RUTA_SII_E2E_ADAPTER,
-  [PRODUCTION_DOCUMENT_UPLOAD_E2E_ADAPTER.id]: PRODUCTION_DOCUMENT_UPLOAD_E2E_ADAPTER
+  [PRODUCTION_DOCUMENT_UPLOAD_E2E_ADAPTER.id]: PRODUCTION_DOCUMENT_UPLOAD_E2E_ADAPTER,
+  [SCANNER_LINK_OVERLAY_E2E_ADAPTER.id]: SCANNER_LINK_OVERLAY_E2E_ADAPTER
 });
 
 const SCENARIO_REGISTRY = Object.freeze({
+  'scanner-link-overlay-execution': Object.freeze({
+    id: 'scanner-link-overlay-execution', doc: 'doc89', stage: 'execution', adapterId: 'scanner-link-overlay',
+    requiredAuthorizations: Object.freeze(['environment', 'account']),
+    requiredSecrets: Object.freeze(['workflow-account', 'workflow-password', 'readonly-db-user', 'readonly-db-password']),
+    resource: Object.freeze({ kind: 'workflow-task', role: 'scanner-link', profileField: 'taskId', mutating: true, contractId: 'workflow-task-controls' }),
+    controls: Object.freeze(['workflow-assignment-state']),
+    controlExpectations: Object.freeze({ 'workflow-assignment-state': 'unchanged' }),
+    transport: Object.freeze({ session: 'workflow', service: 'scanner-link-overlay' }),
+    expectations: Object.freeze(['scanner-link-overlay-ui', 'single-storage', 'single-projection', 'no-navigation', 'sanitized-evidence'])
+  }),
   'production-document-upload-execution': Object.freeze({
     id: 'production-document-upload-execution', doc: 'doc88', stage: 'execution', adapterId: 'production-document-upload',
     requiredAuthorizations: Object.freeze(['environment', 'account', 'discardable-file']),

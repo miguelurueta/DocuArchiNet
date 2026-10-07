@@ -286,8 +286,45 @@ async function selectWorkflowTask(page, plan) {
     if (await selectedTask.inputValue() !== expectedTaskId) fail('E2E_PLATFORM_TASK_CONTEXT_UNAVAILABLE');
 }
 
+async function selectScannerLinkTask(page, plan) {
+  const taskId = plan.profile[plan.scenario.resource.profileField];
+  if (!Number.isSafeInteger(taskId) || taskId <= 0) fail('E2E_PLATFORM_TASK_CONTEXT_INVALID');
+  const expectedTaskId = String(taskId);
+  await page.goto(new URL('workflow/Webworkflow.aspx', plan.profile.baseUrl).toString(), {
+    waitUntil: 'domcontentloaded',
+    timeout: Math.min(plan.profile.budgetMs, 60000)
+  });
+  const selectedTask = page.locator('#Hidden_id_tarea_selecionada');
+  await selectedTask.waitFor({ state: 'attached', timeout: Math.min(plan.profile.budgetMs, 60000) });
+  const hasExpectedContext = async () => page.evaluate((expected) => {
+    if (document.querySelector('#Hidden_id_tarea_selecionada')?.value === expected) return true;
+    const enlace = String(document.querySelector('#HiddenIdFlujo')?.value || '').split('|');
+    return enlace.length >= 4 && enlace[0] === expected && enlace[3].toUpperCase() === 'ENLASE';
+  }, expectedTaskId);
+  if (await hasExpectedContext()) return;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    console.log(`DOC89_TASK_SELECTION_READY. Seleccione en el navegador la tarea descartable autorizada y no cambie de tarea durante la corrida. Intento ${attempt}/3.`);
+    const confirmation = await promptWithTimeout('Cuando la tarea autorizada esté abierta, escriba SI', Math.min(plan.profile.budgetMs, 600000));
+    if (confirmation === null) fail('SCANNER_LINK_E2E_TASK_SELECTION_TIMEOUT');
+    if (String(confirmation).trim().toUpperCase() !== 'SI') fail('SCANNER_LINK_E2E_TASK_SELECTION_REJECTED');
+    const selected = await page.waitForFunction(
+      (expected) => {
+        if (document.querySelector('#Hidden_id_tarea_selecionada')?.value === expected) return true;
+        const enlace = String(document.querySelector('#HiddenIdFlujo')?.value || '').split('|');
+        return enlace.length >= 4 && enlace[0] === expected && enlace[3].toUpperCase() === 'ENLASE';
+      },
+      expectedTaskId,
+      { timeout: Math.min(plan.profile.budgetMs, 30000) }
+    ).then(() => true).catch(() => false);
+    if (selected) return;
+    console.log('DOC89_TASK_SELECTION_RETRY. El contexto aún no coincide; seleccione nuevamente la tarea autorizada antes de confirmar.');
+  }
+  fail('SCANNER_LINK_E2E_TASK_CONTEXT_REJECTED');
+}
+
 async function initializeWorkflowContext(context, plan) {
   if (plan.scenario.resource?.profileField !== 'taskId') return context;
+  if (plan.scenario.expectations.includes('scanner-link-overlay-ui')) return context;
   const page = await context.newPage();
   try {
     await selectWorkflowTask(page, plan);
@@ -632,6 +669,9 @@ async function inspectEnlaseLayoutReview({ context, plan }) {
 }
 
 async function inspectWorkflowSession(options) {
+  if (options.plan.scenario.expectations.includes('scanner-link-overlay-ui')) {
+    return inspectScannerLinkOverlayUi(options);
+  }
   if (options.plan.scenario.expectations.includes('production-document-upload-preview-ui') ||
       options.plan.scenario.expectations.includes('production-document-upload-execution-ui')) {
     return inspectProductionDocumentUploadPreviewUi(options);
@@ -649,6 +689,159 @@ async function inspectWorkflowSession(options) {
     return inspectEnlaseAssignmentUi(options);
   }
   return inspectImportPreviewUi(options);
+}
+
+async function inspectScannerLinkOverlayUi({ context, plan }) {
+  const timeout = Math.min(plan.profile.budgetMs, 600000);
+  const deadline = Date.now() + timeout;
+  await context.addInitScript(() => {
+    window.__doc89FrameState = { guardarClicks: 0 };
+    document.addEventListener('click', (event) => {
+      if (event.target && event.target.id === 'Button_guardar_popup') {
+        window.__doc89FrameState.guardarClicks += 1;
+      }
+    }, true);
+  });
+
+  const page = await context.newPage();
+  let navigationCount = 0;
+  let postbackCount = 0;
+  const workflowPattern = /\/workflow\/Webworkflow\.aspx(?:\?|$)/i;
+  const onNavigation = (frame) => {
+    if (frame === page.mainFrame()) navigationCount += 1;
+  };
+  const onRequest = (request) => {
+    if (request.method() === 'POST' && workflowPattern.test(request.url()) &&
+        /ButtonAlmacenar/i.test(String(request.postData() || ''))) {
+      postbackCount += 1;
+    }
+  };
+  page.on('framenavigated', onNavigation);
+  page.on('request', onRequest);
+
+  try {
+    await selectScannerLinkTask(page, plan);
+    navigationCount = 0;
+    const before = await page.evaluate(() => ({
+      rows: document.querySelectorAll('#GridView_list_documento_relacion tr[id_rad], #GridView_list_documento_relacion_wf tr[id_wf]').length,
+      task: `${document.querySelector('#Hidden_id_tarea_selecionada')?.value || ''}::${document.querySelector('#HiddenIdFlujo')?.value || ''}`,
+      selection: ['#hidden_selecion_documento_treview', '#hiden_seleccion_documento_id', '#hiden_seleccion_documento_id_wf']
+        .map((selector) => document.querySelector(selector)?.value || '').join('::'),
+      viewer: (() => {
+        const area = document.querySelector('#Area_Visor');
+        const raw = document.querySelector('#IframeVisor_')?.getAttribute('src') || '';
+        return {
+          visible: !!area && getComputedStyle(area).display !== 'none',
+          src: raw ? new URL(raw, document.baseURI).href : ''
+        };
+      })()
+    }));
+
+    await page.evaluate(() => {
+      const state = window.__doc89OverlayState = {
+        initializeCount: 0,
+        endCount: 0,
+        buttonClicks: 0,
+        samples: [],
+        endHidden: false,
+        endOverlay: false
+      };
+      const button = document.querySelector('#ButtonAlmacenar');
+      button?.addEventListener('click', () => { state.buttonClicks += 1; }, true);
+      const manager = window.Sys?.WebForms?.PageRequestManager?.getInstance();
+      if (!manager) throw new Error('SCANNER_LINK_E2E_REQUEST_MANAGER_UNAVAILABLE');
+      manager.add_initializeRequest((_sender, args) => {
+        if (args.get_postBackElement()?.id !== 'ButtonAlmacenar') return;
+        state.initializeCount += 1;
+        window.requestAnimationFrame(() => {
+          const progress = document.querySelector('#progres_bar');
+          if (!progress) return;
+          const rectangle = progress.getBoundingClientRect();
+          state.samples.push({
+            visible: getComputedStyle(progress).display !== 'none',
+            overlay: progress.classList.contains('overlay_'),
+            width: Math.round(rectangle.width),
+            height: Math.round(rectangle.height),
+            viewportWidth: window.innerWidth,
+            viewportHeight: window.innerHeight
+          });
+        });
+      });
+      manager.add_endRequest(() => {
+        if (!window.elment_postbak || window.elment_postbak.id !== 'ButtonAlmacenar') return;
+        state.endCount += 1;
+        window.setTimeout(() => {
+          const progress = document.querySelector('#progres_bar');
+          state.endHidden = !!progress && getComputedStyle(progress).display === 'none';
+          state.endOverlay = !!progress && progress.classList.contains('overlay_');
+        }, 0);
+      });
+    }).catch(() => fail('SCANNER_LINK_E2E_INSTRUMENTATION_FAILED'));
+
+    console.log('DOC89_SCANNER_READY. En el navegador: abra Enlace de documentos, entre a digitalización, prepare un documento descartable, seleccione la tipología y haga doble clic una sola vez sobre Aceptar. Después de aceptar, no seleccione el nodo nuevo ni cambie el visor antes de escribir SI. No recargue ni cambie de tarea.');
+    const confirmation = await promptWithTimeout('Cuando el nuevo nodo sea visible y el progreso haya terminado, escriba SI', Math.max(1, deadline - Date.now()));
+    if (confirmation === null) fail('SCANNER_LINK_E2E_MANUAL_TIMEOUT');
+    if (String(confirmation).trim().toUpperCase() !== 'SI') fail('SCANNER_LINK_E2E_MANUAL_REJECTED');
+
+    await page.waitForFunction(() => window.__doc89OverlayState?.endCount === 1 && window.__doc89OverlayState?.endHidden === true,
+      null, { timeout: Math.max(1, deadline - Date.now()) })
+      .catch(() => fail('SCANNER_LINK_E2E_POSTBACK_INCOMPLETE'));
+    const after = await page.evaluate(() => ({
+      rows: document.querySelectorAll('#GridView_list_documento_relacion tr[id_rad], #GridView_list_documento_relacion_wf tr[id_wf]').length,
+      task: `${document.querySelector('#Hidden_id_tarea_selecionada')?.value || ''}::${document.querySelector('#HiddenIdFlujo')?.value || ''}`,
+      selection: ['#hidden_selecion_documento_treview', '#hiden_seleccion_documento_id', '#hiden_seleccion_documento_id_wf']
+        .map((selector) => document.querySelector(selector)?.value || '').join('::'),
+      viewer: (() => {
+        const area = document.querySelector('#Area_Visor');
+        const raw = document.querySelector('#IframeVisor_')?.getAttribute('src') || '';
+        return {
+          visible: !!area && getComputedStyle(area).display !== 'none',
+          src: raw ? new URL(raw, document.baseURI).href : ''
+        };
+      })(),
+      state: window.__doc89OverlayState
+    }));
+    const scannerFrameElement = await page.locator('#IframeDitaliza_').elementHandle().catch(() => null);
+    const scannerFrame = scannerFrameElement ? await scannerFrameElement.contentFrame().catch(() => null) : null;
+    const scannerState = scannerFrame
+      ? await scannerFrame.evaluate(() => ({
+          guardarClicks: window.__doc89FrameState?.guardarClicks || 0,
+          bufferCount: Number((window.DWObject || window.Dynamsoft?.DWT?.GetWebTwain?.('dwtcontrolContainer'))?.HowManyImagesInBuffer || 0),
+          pagerCount: Number((String(document.querySelector('#Paginador')?.textContent || '').match(/(?:de|of)\s+(\d+)/i) || [])[1] || 0)
+        })).catch(() => null)
+      : null;
+    const sample = after.state?.samples?.[0];
+    if (!sample || sample.visible !== true || sample.overlay !== false || sample.width > 360 || sample.height > 180 ||
+        sample.width * sample.height >= sample.viewportWidth * sample.viewportHeight * 0.25) {
+      fail('SCANNER_LINK_E2E_PROGRESS_NOT_COMPACT');
+    }
+    if (after.state.initializeCount !== 1 || after.state.endCount !== 1 || after.state.buttonClicks !== 1 || postbackCount !== 1) {
+      fail('SCANNER_LINK_E2E_MULTIPLE_STORAGE_ATTEMPTS');
+    }
+    if (after.state.endHidden !== true || after.state.endOverlay !== false) fail('SCANNER_LINK_E2E_PROGRESS_RESIDUAL');
+    if (after.rows !== before.rows + 1) fail('SCANNER_LINK_E2E_PROJECTION_COUNT_INVALID');
+    if (navigationCount !== 0) fail('SCANNER_LINK_E2E_NAVIGATION_OBSERVED');
+    if (after.task !== before.task) fail('SCANNER_LINK_E2E_TASK_NOT_PRESERVED');
+    if (after.selection !== before.selection) fail('SCANNER_LINK_E2E_SELECTION_NOT_PRESERVED');
+    if (after.viewer.visible !== before.viewer.visible) fail('SCANNER_LINK_E2E_VIEWER_VISIBILITY_NOT_PRESERVED');
+    if (before.viewer.visible && after.viewer.src !== before.viewer.src) fail('SCANNER_LINK_E2E_VIEWER_NOT_PRESERVED');
+    if (!scannerState) fail('SCANNER_LINK_E2E_SCANNER_FRAME_UNAVAILABLE');
+    if (scannerState.guardarClicks < 1) fail('SCANNER_LINK_E2E_ACCEPT_NOT_OBSERVED');
+    if (scannerState.bufferCount < 1 && scannerState.pagerCount < 1) fail('SCANNER_LINK_E2E_SCANNER_BUFFER_NOT_PRESERVED');
+
+    return Object.freeze({
+      codes: Object.freeze({
+        asyncPostback: 'CONFIRMED', progress: 'COMPACT', overlay: 'NOT_OBSERVED',
+        storage: 'SINGLE_EFFECTIVE', projection: 'SINGLE_NODE', context: 'PRESERVED', scannerBuffer: 'PRESERVED'
+      }),
+      count: 1,
+      latenciesMs: Object.freeze([])
+    });
+  } finally {
+    page.off('framenavigated', onNavigation);
+    page.off('request', onRequest);
+    await page.close().catch(() => {});
+  }
 }
 
 async function inspectProductionDocumentUploadPreviewUi({ context, plan }) {
@@ -1270,7 +1463,7 @@ async function main() {
     authorizations,
     temporaryDirectory,
     collectSecrets: async () => secrets,
-    createBrowser: async (selectedProfile) => chromium.launch({ ...(selectedProfile.browser || {}), headless: !plan.scenario.expectations.some((expectation) => ['manual-visual-execution', 'manual-layout-review'].includes(expectation)) }),
+    createBrowser: async (selectedProfile) => chromium.launch({ ...(selectedProfile.browser || {}), headless: !plan.scenario.expectations.some((expectation) => ['manual-visual-execution', 'manual-layout-review', 'scanner-link-overlay-ui'].includes(expectation)) }),
     createSession: async ({ browser, plan: currentPlan, environment }) => {
       const context = await createAuthenticatedWorkflowSession(browser, {
         baseUrl: currentPlan.profile.baseUrl,
