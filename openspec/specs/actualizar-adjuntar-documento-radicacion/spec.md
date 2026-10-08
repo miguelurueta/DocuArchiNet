@@ -1,5 +1,10 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07 -->
-## ADDED Requirements
+# actualizar-adjuntar-documento-radicacion Specification
+
+## Purpose
+
+Definir la carga documental segura de Radicación Entrante, su estado de interfaz y la separación contractual respecto de Radicación Simplificada y los demás consumidores compartidos.
+
+## Requirements
 
 ### Requirement: RQ-01 — Origen explícito de Radicación Entrante
 
