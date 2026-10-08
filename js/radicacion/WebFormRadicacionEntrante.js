@@ -460,7 +460,7 @@ const ActivaAdjuntarDocumentoRadicacion = async () => {
         let _OPtionFileLoad = ({
             NameLoadProceso: "ADJUNTARADICACION",
             NameContenedorError: "error_content_adjunta_documeto_load_documento_006",
-            funcion_name: "insert_row_documento_relacionado", evento_adjunta: "ADJUNTARADICACION",
+            funcion_name: "insert_row_documento_relacionado", evento_adjunta: "ADJUNTARADICACION_CLASICA",
             IdRespuestaIdExpediente: 0,
             NameContendorLoadDocumento: "soporte_envio", ModalWidth: 75, CargaTipologia: 1,
             CargaFecha: 1, CargaPreview: 1, multi_select: "multiple",
@@ -1316,7 +1316,8 @@ function Set_documento_seleccionado(id_imagen_, nombre_gabinete_) {
     }
 }
 function inicio_tab_radicador() {
-    if (document.getElementById("Hidden_radicado_seleccion").value !== "") {
+    var radicadoAsignado = document.getElementById("Hidden_radicado_seleccion").value.trim();
+    if (radicadoAsignado !== "") {
         tab_sow('soporte_envio', 'soporte-envio_nav');
         tab_enabled('soporte-envio_nav');
         tab_disable('home-radicador');
@@ -1327,56 +1328,33 @@ function inicio_tab_radicador() {
         }
        
     } else {
-        
-        if (document.getElementById("Hidden_numero_rad_pend").value == "0") {
-            tab_sow('home_radic', 'home-radicador');
-            tab_enabled('home-radicador');
-            tab_disable('soporte-envio_nav');
-            document.getElementById("Are_Digitalizacion").style.display = "none";
-            document.getElementById('Area_Visor').style.display = 'none';
-            show_tab_boton_content_radicado();
-        } else {
-            tab_sow('soporte_envio', 'soporte-envio_nav');
-            tab_enabled('soporte-envio_nav');
-            document.getElementById("Are_Digitalizacion").style.display = "none";
-            document.getElementById('Area_Visor').style.display = 'none';
-            show_tab_boton_content_gestion_radicado();
-        }
-               
+        tab_sow('home_radic', 'home-radicador');
+        tab_enabled('home-radicador');
+        tab_disable('soporte-envio_nav');
+        document.getElementById("Are_Digitalizacion").style.display = "none";
+        document.getElementById('Area_Visor').style.display = 'none';
+        show_tab_boton_content_radicado();
     }
 }
-function tab_sow(name, namepadre) {  
-    $('#' + name).toggleClass('active');
-    $('#' + namepadre).toggleClass('active');
+function tab_sow(name, namepadre) {
+    $('#home_radic, #soporte_envio').removeClass('active show');
+    $('#home-radicador, #soporte-envio_nav').removeClass('active').attr('aria-selected', 'false');
+    $('#' + name).addClass('active show');
+    $('#' + namepadre).addClass('active').attr('aria-selected', 'true');
 }
 function tab_disable(name) {
-    if ($('#' + name).hasClass("disabled") === false) {
-        $('#' + name).toggleClass('disabled');
-        $('#' + name + 'i').toggleClass('d-none');
-    }
-
+    $('#' + name).addClass('disabled').attr('aria-disabled', 'true');
+    $('#' + name + 'i').removeClass('d-none');
 }
 function tab_enabled(name) {
-    if ($('#' + name).hasClass("disabled") === true) {
-        $('#' + name).toggleClass('disabled');
-        $('#' + name + 'i').toggleClass('d-none');
-    }
-
+    $('#' + name).removeClass('disabled').attr('aria-disabled', 'false');
+    $('#' + name + 'i').addClass('d-none');
 }
 function nuevo_radicado_tab() {
     try {
-    $(".active").each(function () {
-        if ($(this).hasClass("active") === true) {
-            $(this).toggleClass("active");
-        }     
-    });
     tab_sow('home_radic', 'home-radicador');
     tab_enabled('home-radicador');
-    if (document.getElementById("Hidden_numero_rad_pend").value == "0") {
-        tab_disable('soporte-envio_nav');
-    } else {
-        tab_enabled('soporte-envio_nav');
-    }
+    tab_disable('soporte-envio_nav');
     document.getElementById("Are_Digitalizacion").style.display = "none";
     document.getElementById('Area_Visor').style.display = 'none';
     if (document.getElementById("tab_nuevo_radicado")) {
@@ -1415,11 +1393,6 @@ function show_tab_boton_content_gestion_radicado() {
 }
 function asig_radicado_tab() {
     try {
-        $(".active").each(function () {
-            if ($(this).hasClass("active") === true) {
-                $(this).toggleClass("active");
-            }
-        });
         tab_sow('soporte_envio', 'soporte-envio_nav');
         tab_enabled('soporte-envio_nav');
         tab_disable('home-radicador');
@@ -1437,12 +1410,9 @@ function asig_radicado_tab() {
 }
 function terminar_radicado_tab() {
     try {
-        if (document.getElementById("Hidden_numero_rad_pend").value == "0") {
-            tab_disable('soporte-envio_nav');
-            
-        } else {
-            tab_enabled('soporte-envio_nav');
-        }
+        tab_sow('home_radic', 'home-radicador');
+        tab_enabled('home-radicador');
+        tab_disable('soporte-envio_nav');
         document.getElementById("Are_Digitalizacion").style.display = "none";
         document.getElementById('Area_Visor').style.display = 'none';
         if (document.getElementById("GridView_list_documento_relacion")) {

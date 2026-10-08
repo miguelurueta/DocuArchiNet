@@ -41,6 +41,8 @@
     "test:doc88:policy": "node --test tests/doc88-production-document-upload-policy.test.cjs",
     "test:doc89:policy": "node --test tests/doc89-scanner-link-overlay-policy.test.cjs",
     "test:radicacion-simple:attachment": "node scripts/run-radicacion-simple-attachment-interactive.cjs",
+    "test:doc90:policy": "node --test tests/doc90-radicacion-classic-attachment-policy.test.cjs",
+    "test:doc90:radicacion-classic-attachment": "node scripts/run-doc90-radicacion-classic-attachment-interactive.cjs",
     "test:doc33:policy": "node --test tests/doc33-return-activity-ui-policy.test.cjs",
     "test:notes:anonymous": "node scripts/run-notes-workflow-interactive.cjs anonymous",
     "test:notes:read": "node scripts/run-notes-workflow-interactive.cjs read",

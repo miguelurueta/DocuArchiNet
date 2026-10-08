@@ -1,0 +1,15 @@
+{
+  "baseUrl": "https://ambiente-pruebas/app/",
+  "ignoreHttpsErrors": false,
+  "module": "GESTOR",
+  "pagePath": "radicador/WebFormRadicacionEntrante.aspx",
+  "expectedRadicado": "RADICADO-DESCARTABLE",
+  "typologyText": "Constancia de Inscripción",
+  "fixturePath": "fixtures/doc85-constancia-inscripcion.pdf",
+  "mysqlHost": "servidor-pruebas",
+  "mysqlPort": 3306,
+  "mysqlDatabase": "base_pruebas",
+  "contextSql": "SELECT rre.id_estado_radicado AS estado, rre.estado AS estado_pendiente, rre.consecutivo_radicado AS radicado, rre.id_tarea_workflow AS tarea, rre.system_plantilla_radicado_id_Plantilla AS plantilla, spr.Nombre_Plantilla_Radicado AS plantilla_nombre, rre.tipo_doc_entrante_id_Tipo_Doc_Entrante AS tramite FROM ra_rad_estados_modulo_radicacion AS rre INNER JOIN system_plantilla_radicado AS spr ON spr.id_Plantilla = rre.system_plantilla_radicado_id_Plantilla WHERE rre.consecutivo_radicado = ?",
+  "documentCountSql": "SELECT COUNT(*) AS total FROM TABLA_DOCUMENTAL_AUTORIZADA WHERE RADICADO = ?",
+  "timeoutMilliseconds": 120000
+}

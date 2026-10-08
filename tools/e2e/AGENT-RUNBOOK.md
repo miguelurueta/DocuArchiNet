@@ -315,3 +315,21 @@ npm.cmd --prefix tools/e2e run test:workflow:platform -- --scenario scanner-link
 ```
 
 La ejecución exige autorización expresa del ambiente, cuenta, tarea y documento digitalizado descartables. La evidencia conserva únicamente códigos, conteos y huellas; nunca credenciales, cookies, contenido o cadenas de conexión.
+
+## DOC-90 — Adjunto en Radicación Entrante clásica
+
+DOC-90 tiene un runner interactivo propio porque debe seleccionar primero la plantilla autorizada de Radicación Entrante en el menú oficial y luego recorrer la selección clásica de pendientes antes de abrir el cargador. Copie `doc90-radicacion-classic-attachment.profile.example.json` dentro de `tools/e2e/profiles/` con otro nombre y configure únicamente URL, módulo, radicado descartable pendiente, tipología, PDF del directorio `fixtures`, conexión MySQL no sensible y dos consultas de control. El `SELECT` de contexto recibe el radicado autorizado y debe devolver estado, estado pendiente, plantilla y nombre de plantilla con los alias del ejemplo. Las consultas deben ser un único `SELECT` con exactamente un parámetro `?`.
+
+El runner solicita por TTY la cuenta de aplicación, contraseña y cuenta MySQL de solo lectura. También exige cuatro confirmaciones independientes: ambiente, cuenta, carga real y recurso descartable. Selecciona el registro por el flujo real de Radicación Entrante, comprueba el evento `ADJUNTARADICACION_CLASICA`, confirma que el multipart no incluye `id_registro_estado_radicacion` ni `radicado_radicacion`, y exige una sola persistencia y una sola fila visible sin postback.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:doc90:radicacion-classic-attachment -- --profile tools/e2e/profiles/<perfil-runtime.json>
+```
+
+La matriz funcional debe completarse también con la no regresión de Radicación Simplificada, usando una autorización y un recurso descartable independientes:
+
+```powershell
+npm.cmd --prefix tools/e2e run test:radicacion-simple:attachment -- --profile tools/e2e/profiles/<perfil-doc85-runtime.json>
+```
+
+Ninguno de estos comandos se ejecuta sin autorización explícita. La evidencia DOC-90 conserva únicamente fecha, huella del recurso, banderas y conteos; no guarda radicado, credenciales, cookies, consultas, cadenas de conexión ni contenido documental.

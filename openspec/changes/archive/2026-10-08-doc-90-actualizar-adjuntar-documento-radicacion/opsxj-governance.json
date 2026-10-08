@@ -1,0 +1,120 @@
+{
+  "version": 3,
+  "issueKey": "DOC-90",
+  "changeName": "doc-90-actualizar-adjuntar-documento-radicacion",
+  "impact": "cross_cutting",
+  "requiredEvidence": [
+    "unit",
+    "manual_qa"
+  ],
+  "documentation": [
+    "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/01-ResumenTecnico.md",
+    "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/02-ImpactoUI.md",
+    "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/03-ServiciosYReglas.md",
+    "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/04-ContratosIntegracion.md",
+    "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/05-PruebasEvidencia.md"
+  ],
+  "documentationContract": [
+    {
+      "path": "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/01-ResumenTecnico.md",
+      "requiredSections": [
+        "## Causa raíz",
+        "## Solución"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-90",
+        "changeName": "doc-90-actualizar-adjuntar-documento-radicacion",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/02-ImpactoUI.md",
+      "requiredSections": [
+        "## Superficie modificada",
+        "## Superficies preservadas"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-90",
+        "changeName": "doc-90-actualizar-adjuntar-documento-radicacion",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/03-ServiciosYReglas.md",
+      "requiredSections": [
+        "## Ruta clásica"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-90",
+        "changeName": "doc-90-actualizar-adjuntar-documento-radicacion",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/04-ContratosIntegracion.md",
+      "requiredSections": [
+        "## Contratos de radicación"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-90",
+        "changeName": "doc-90-actualizar-adjuntar-documento-radicacion",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    },
+    {
+      "path": "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/05-PruebasEvidencia.md",
+      "requiredSections": [
+        "## Automatización local",
+        "## E2E real"
+      ],
+      "minimumContentLength": 180,
+      "identity": {
+        "issueKey": "DOC-90",
+        "changeName": "doc-90-actualizar-adjuntar-documento-radicacion",
+        "impact": "cross_cutting"
+      },
+      "closureRestrictions": [
+        "tbd",
+        "template_comment",
+        "open_checklist",
+        "template_instruction"
+      ]
+    }
+  ],
+  "refinement": {
+    "version": 1,
+    "required": true,
+    "path": "openspec/changes/doc-90-actualizar-adjuntar-documento-radicacion/refinement.md",
+    "state": "approved",
+    "taskOriginFormat": "Origen: D-XX, RQ-XX",
+    "enforcement": "Cada decision debe llegar a design, spec y tasks; no se admiten reglas de framework ajeno al perfil tecnologico."
+  }
+}
