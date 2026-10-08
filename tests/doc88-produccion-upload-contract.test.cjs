@@ -8,9 +8,10 @@ const root = path.resolve(__dirname, '..');
 const handlerPath = path.join(root, 'generic_control', 'FileUploadHandler_.ashx.vb');
 const source = fs.readFileSync(handlerPath, 'utf8');
 
-test('el handler servidor compartido conserva la huella de DOC-85', () => {
-  const fingerprint = crypto.createHash('sha256').update(fs.readFileSync(handlerPath)).digest('hex');
-  assert.equal(fingerprint, '8459dd56d2abed043203c21a0eea2f2ae31fc8035f9c9e386fb774bd867a3b73');
+test('el handler servidor compartido conserva la huella aprobada tras DOC-90', () => {
+  const normalized = fs.readFileSync(handlerPath, 'utf8').replace(/\r\n/g, '\n');
+  const fingerprint = crypto.createHash('sha256').update(normalized).digest('hex');
+  assert.equal(fingerprint, '8a42b7439f754e23d257e67a3591e46f99063c648d01847ba6aa891ddbdff6c1');
 });
 
 test('el handler sanea por etapa únicamente la excepción de PRODUCCION', () => {

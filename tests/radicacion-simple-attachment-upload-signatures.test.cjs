@@ -38,7 +38,7 @@ function extractCalls(source) {
   return calls;
 }
 
-test('el inventario conserva siete consumidores legacy y uno exclusivo de Radicación Simplificada', () => {
+test('el inventario conserva ocho consumidores legacy y uno exclusivo de Radicación Simplificada', () => {
   const calls = consumers.flatMap((relativePath) => {
     const source = fs.readFileSync(path.join(root, ...relativePath.split('/')), 'utf8');
     return extractCalls(source).map((call) => ({ ...call, relativePath, source }));
@@ -46,8 +46,8 @@ test('el inventario conserva siete consumidores legacy y uno exclusivo de Radica
   const legacy = calls.filter((call) => call.arity === 10);
   const radicacion = calls.filter((call) => call.arity === 12);
 
-  assert.equal(calls.length, 8);
-  assert.equal(legacy.length, 7);
+  assert.equal(calls.length, 9);
+  assert.equal(legacy.length, 8);
   assert.equal(radicacion.length, 1);
   assert.equal(radicacion[0].relativePath, 'generic_control/FileUploadHandler_.ashx.vb');
   const branchStart = radicacion[0].source.lastIndexOf('If evento_adjunta = "ADJUNTARADICACION" Then', radicacion[0].offset);

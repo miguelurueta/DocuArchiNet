@@ -337,6 +337,45 @@ Public Class FileUploadHandler_
                         uploadFiles.nombre_archivo = stru_datos_image_lista.nombre_archivo
                     End If
                 End If
+                If evento_adjunta = "ADJUNTARADICACION_CLASICA" Then
+                    HttpContext.Current.Session.Item("WF_RUTA_TEMPO_ADJUNTA") = path & file.FileName
+                    HttpContext.Current.Session.Item("WF_TIPO_ADJUNTA") = "ADJUNTARADICACION_CLASICA"
+                    Result = ref_calssAlamacenamiento.UploadSaveFile(id_expediente,
+                                                                     id_tipo_documento,
+                                                                     nombre_tipo_documento,
+                                                                     estado_adjunta_anexo,
+                                                                     estado_adjunta_relacionado,
+                                                                     numero_documento_relacionado,
+                                                                     FechaCarga,
+                                                                     stru_datos_image_lista,
+                                                                     id_tarea_workflow,
+                                                                     contador)
+                    If Result <> "YES" Then
+                        uploadFiles.error_sistema = Result
+                    Else
+                        Dim item_ilist As class_list_detalle_version_document
+                        item_ilist = New class_list_detalle_version_document
+                        item_ilist.DBT = stru_datos_image_lista.DBT
+                        item_ilist.ESTADO_FIRMA_DIGITAL = stru_datos_image_lista.estado_firma_digital
+                        item_ilist.IconoAsome = stru_datos_image_lista.icono_icono_awe_some
+                        item_ilist.TIPO_ARCHIVO = stru_datos_image_lista.tipodocumental
+                        uploadFiles.Class_list_detalle_version_document.Add(item_ilist)
+                        uploadFiles.name_gabinete = stru_datos_image_lista.nombre_gabinete
+                        uploadFiles.id_image = stru_datos_image_lista.id_imagen
+                        uploadFiles.radicado = stru_datos_image_lista.radicado
+                        uploadFiles.tipodocumental = stru_datos_image_lista.tipodocumental
+                        uploadFiles.notitipodocumental = stru_datos_image_lista.notipodocumento
+                        uploadFiles.id_tarea_workflow = id_tarea_workflow
+                        uploadFiles.estado_firma_digital = stru_datos_image_lista.estado_firma_digital
+                        uploadFiles.contador_paginas = contador
+                        uploadFiles.icono_icono_awe_some = stru_datos_image_lista.icono_icono_awe_some
+                        uploadFiles.id_registro = stru_datos_image_lista.id_registro
+                        uploadFiles.fecha = stru_datos_image_lista.fecha
+                        uploadFiles.aleas = stru_datos_image_lista.aleas
+                        uploadFiles.nombre_archivo = stru_datos_image_lista.nombre_archivo
+                        uploadFiles.error_sistema = "YES"
+                    End If
+                End If
                 If evento_adjunta = "ADJUNTARADICACION" Then
                     HttpContext.Current.Session.Item("WF_RUTA_TEMPO_ADJUNTA") = path & file.FileName
                     HttpContext.Current.Session.Item("WF_TIPO_ADJUNTA") = "ADJUNTARADICACION"

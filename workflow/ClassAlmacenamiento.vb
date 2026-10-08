@@ -6214,6 +6214,82 @@ Public Class ClassAlmacenamiento
                     Exit Function
                 End If
             End If
+            If HttpContext.Current.Session.Item("WF_TIPO_ADJUNTA") = "ADJUNTARADICACION_CLASICA" Then
+                Dim ContextoModulo As String = Convert.ToString(HttpContext.Current.Session.Item("RA_MODULO_SELECCIONADO"))
+                Dim PartesContextoModulo() As String = ContextoModulo.Split("|"c)
+                If PartesContextoModulo.Length < 3 OrElse
+                   Not String.Equals(PartesContextoModulo(0).Trim(), "RADICACION", StringComparison.OrdinalIgnoreCase) OrElse
+                   Not String.Equals(PartesContextoModulo(2).Trim(), "RADICACION ENTRANTE", StringComparison.OrdinalIgnoreCase) Then
+                    Return "El módulo seleccionado no corresponde a Radicación Entrante."
+                End If
+
+                Dim IdPlantillaSeleccionada As Long = 0
+                Long.TryParse(Convert.ToString(HttpContext.Current.Session.Item("RA_ID_PLANTILLA_RADICADO_SELECCIONADO")),
+                              IdPlantillaSeleccionada)
+                If IdPlantillaSeleccionada <= 0 Then
+                    Return "La plantilla seleccionada no es válida para adjuntar el documento."
+                End If
+
+                Dim IdRegistroEstadoSeleccionado As Long = 0
+                Long.TryParse(Convert.ToString(HttpContext.Current.Session.Item("RA_ID_REGISTRO_RADICADO")),
+                              IdRegistroEstadoSeleccionado)
+                If IdRegistroEstadoSeleccionado <= 0 Then
+                    Return "El registro seleccionado no es válido para adjuntar el documento."
+                End If
+
+                Dim ClassRaRadEstados As New Class_ra_rad_estados_modulo_radicacion
+                Dim StruRegistroEstado As stru_registro_estado = Nothing
+                Result = ClassRaRadEstados.SolicitaDatosEstructuraEstadoRadicado(IdRegistroEstadoSeleccionado,
+                                                                                 StruRegistroEstado)
+                If Result <> "YES" Then
+                    Return Result
+                End If
+                If StruRegistroEstado.system_plantilla_radicado_id_Plantilla <> IdPlantillaSeleccionada Then
+                    Return "El registro seleccionado no corresponde a la plantilla activa de Radicación Entrante."
+                End If
+                If String.IsNullOrWhiteSpace(StruRegistroEstado.consecutivo_radicado) Then
+                    Return "El registro seleccionado no contiene un radicado válido para adjuntar el documento."
+                End If
+                If StruRegistroEstado.id_tarea_workflow <= 0 Then
+                    Return "El registro seleccionado no contiene una tarea válida para adjuntar el documento."
+                End If
+                If StruRegistroEstado.tipo_doc_entrante_id_Tipo_Doc_Entrante <= 0 Then
+                    Return "El registro seleccionado no contiene un trámite válido para adjuntar el documento."
+                End If
+
+                If IdTipoChek = 0 OrElse IdTipoChek = -1 Then
+                    HttpContext.Current.Session.Item("DG_LISTA_CHEQUEO") = "-1"
+                Else
+                    HttpContext.Current.Session.Item("DG_LISTA_CHEQUEO") = IdTipoChek
+                End If
+
+                Dim EvaluaActualizaImagenWorkflow As Integer = 1
+                Dim IdImagenAlmacenada As Integer = 0
+                Result = PreAlmacenaDocumentosRadicacion(DescripcionTipoDocumento,
+                                                         IdTipoChek,
+                                                         "",
+                                                         StruRegistroEstado.id_tarea_workflow,
+                                                         StruRegistroEstado.tipo_doc_entrante_id_Tipo_Doc_Entrante,
+                                                         NombreClaseDocumento,
+                                                         EvaluaActualizaImagenWorkflow,
+                                                         2,
+                                                         0,
+                                                         "",
+                                                         IdImagenAlmacenada,
+                                                         StruDatosImageLista,
+                                                         StruRegistroEstado.consecutivo_radicado,
+                                                         IdPlantillaSeleccionada)
+                If Result <> "YES" Then
+                    Return Result
+                End If
+
+                If StruDatosImageLista.notipodocumento = "" OrElse
+                   StruDatosImageLista.notipodocumento = "Documento" Then
+                    StruDatosImageLista.notipodocumento = "D-" & StruDatosImageLista.id_imagen
+                End If
+                IdTareaWorkflow = StruRegistroEstado.id_tarea_workflow
+                Return "YES"
+            End If
             If HttpContext.Current.Session.Item("WF_TIPO_ADJUNTA") = "PRODUCCION" Then
                 Result = ClassAlmacenamiento.PreAlmacenaDocumentoProduccion(IdExpediente,
                                                                             HttpContext.Current.Session("WF_RUTA_TEMPO_ADJUNTA"),
@@ -8090,7 +8166,9 @@ Public Class ClassAlmacenamiento
                                              ByVal TipoAlmacen As Integer,
                                              ByVal DatosEnlaceScript As String,
                                              ByRef IdImagenAlamacenada As Integer,
-                                             ByRef EstructuraDatosImagen As stru_datos_image_lista) As String
+                                             ByRef EstructuraDatosImagen As stru_datos_image_lista,
+                                             Optional ByVal ConsecutivoRadicadoEstado As String = "",
+                                             Optional ByVal IdPlantillaRadicadoEstado As Long = 0) As String
         '-----------------------------------------------------------------------------------------------
         'Funcion : Alista los datos de pre almacenamiento para documentos que se adjuntan dsde el radicado
         '-----------------------------------------------------------------------------------------------
@@ -8177,6 +8255,10 @@ Public Class ClassAlmacenamiento
             '////------------------------Asigna valores y campos para indice de gabinete----------------------///
             Dim CDcamposAsignaAlmacenamiento As New List(Of CDcamposAsignaAlmacenamiento)
             Dim Radicado As String = ""
+            Dim TieneRadicadoEstado As Boolean = Not String.IsNullOrWhiteSpace(ConsecutivoRadicadoEstado)
+            If TieneRadicadoEstado Then
+                Radicado = ConsecutivoRadicadoEstado.Trim()
+            End If
             Dim CDParameterValoresCamposIndiceGabinete As New CDParameterValoresCamposIndiceGabinete
             Select Case StructureDatosTareaWorkflow.FLUJO_INTERNO_WF
                 '///------------------------Caso flujo externo---------------///
@@ -8212,9 +8294,16 @@ Public Class ClassAlmacenamiento
                     CDParameterValoresCamposIndiceGabinete.CDParmeterValoresCamposGabinete.NombreRutaWorkflow = NombreRutaWorflow
                     CDParameterValoresCamposIndiceGabinete.CDParmeterValoresCamposGabinete.Gabinete = Gabinete
                     Dim ClassDaGabinete As New ClassDaGabinete
-                    Result = ClassDaGabinete.SolicitaDatosCamposIndiceGabinete(CDParameterValoresCamposIndiceGabinete.CDParmeterValoresCamposGabinete,
-                                                                               Radicado,
-                                                                               CDcamposAsignaAlmacenamiento)
+                    If TieneRadicadoEstado Then
+                        Result = ClassDaGabinete.ConstruirDatosCamposIndiceGabineteConRadicado(CDParameterValoresCamposIndiceGabinete.CDParmeterValoresCamposGabinete,
+                                                                                               Radicado,
+                                                                                               CInt(IdPlantillaRadicadoEstado),
+                                                                                               CDcamposAsignaAlmacenamiento)
+                    Else
+                        Result = ClassDaGabinete.SolicitaDatosCamposIndiceGabinete(CDParameterValoresCamposIndiceGabinete.CDParmeterValoresCamposGabinete,
+                                                                                   Radicado,
+                                                                                   CDcamposAsignaAlmacenamiento)
+                    End If
                     If Result <> "YES" Then
                         Return Result
                     End If
