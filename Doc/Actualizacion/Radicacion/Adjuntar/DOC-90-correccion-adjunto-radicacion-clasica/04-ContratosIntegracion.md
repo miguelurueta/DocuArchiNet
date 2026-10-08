@@ -1,5 +1,9 @@
 # DOC-90 — Contratos e integraciones
 
+- Ticket: DOC-90
+- Cambio OpenSpec: doc-90-actualizar-adjuntar-documento-radicacion
+- Clasificacion: cross_cutting
+
 ## Contratos de radicación
 
 | Origen | Evento | Identidad autoritativa | Firma | Preparación | Resultado |

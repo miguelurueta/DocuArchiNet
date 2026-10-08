@@ -1,5 +1,9 @@
 # DOC-90 — Impacto UI
 
+- Ticket: DOC-90
+- Cambio OpenSpec: doc-90-actualizar-adjuntar-documento-radicacion
+- Clasificacion: cross_cutting
+
 ## Superficie modificada
 
 La única pantalla modificada es `radicador/WebFormRadicacionEntrante.aspx`. Su función `ActivaAdjuntarDocumentoRadicacion` conserva modal, tipologías, preview, selección múltiple y `funcion_name = "insert_row_documento_relacionado"`; cambia `evento_adjunta` a `ADJUNTARADICACION_CLASICA`.

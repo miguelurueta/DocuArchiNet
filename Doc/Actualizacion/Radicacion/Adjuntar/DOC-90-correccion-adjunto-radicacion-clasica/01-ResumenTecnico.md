@@ -1,6 +1,8 @@
 # DOC-90 — Corrección del adjunto en Radicación Entrante
 
-- Cambio OpenSpec: `doc-90-actualizar-adjuntar-documento-radicacion`
+- Ticket: DOC-90
+- Cambio OpenSpec: doc-90-actualizar-adjuntar-documento-radicacion
+- Clasificacion: cross_cutting
 - Alcance funcional: Radicación Entrante clásica
 - Frontera protegida: Radicación Simplificada / DOC-85 y demás consumidores del cargador
 

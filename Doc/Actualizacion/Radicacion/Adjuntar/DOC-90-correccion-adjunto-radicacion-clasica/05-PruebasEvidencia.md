@@ -1,5 +1,9 @@
 # DOC-90 — Pruebas y evidencia
 
+- Ticket: DOC-90
+- Cambio OpenSpec: doc-90-actualizar-adjuntar-documento-radicacion
+- Clasificacion: cross_cutting
+
 Fecha de ejecución final: 2026-10-08.
 
 ## Automatización local

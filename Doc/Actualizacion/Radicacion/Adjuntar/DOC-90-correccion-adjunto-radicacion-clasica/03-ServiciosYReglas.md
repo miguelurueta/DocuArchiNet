@@ -1,5 +1,9 @@
 # DOC-90 — Servicios y reglas
 
+- Ticket: DOC-90
+- Cambio OpenSpec: doc-90-actualizar-adjuntar-documento-radicacion
+- Clasificacion: cross_cutting
+
 ## Ruta clásica
 
 `FileUploadHandler_` traduce `ADJUNTARADICACION_CLASICA` a `WF_TIPO_ADJUNTA = "ADJUNTARADICACION_CLASICA"`, conserva la ruta temporal en sesión e invoca `ClassAlmacenamiento.UploadSaveFile` con diez argumentos.

@@ -8,18 +8,18 @@
     "manual_qa"
   ],
   "documentation": [
-    "Doc/Tecnica/Opsxj/doc-90-actualizar-adjuntar-documento-radicacion/01-ResumenTecnico.md",
-    "Doc/Tecnica/Opsxj/doc-90-actualizar-adjuntar-documento-radicacion/02-ImpactoUI.md",
-    "Doc/Tecnica/Opsxj/doc-90-actualizar-adjuntar-documento-radicacion/03-ServiciosYReglas.md",
-    "Doc/Tecnica/Opsxj/doc-90-actualizar-adjuntar-documento-radicacion/04-ContratosIntegracion.md",
-    "Doc/Tecnica/Opsxj/doc-90-actualizar-adjuntar-documento-radicacion/05-PruebasEvidencia.md"
+    "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/01-ResumenTecnico.md",
+    "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/02-ImpactoUI.md",
+    "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/03-ServiciosYReglas.md",
+    "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/04-ContratosIntegracion.md",
+    "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/05-PruebasEvidencia.md"
   ],
   "documentationContract": [
     {
-      "path": "Doc/Tecnica/Opsxj/doc-90-actualizar-adjuntar-documento-radicacion/01-ResumenTecnico.md",
+      "path": "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/01-ResumenTecnico.md",
       "requiredSections": [
-        "## Objetivo",
-        "## Alcance y compatibilidad"
+        "## Causa raíz",
+        "## Solución"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -35,10 +35,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-90-actualizar-adjuntar-documento-radicacion/02-ImpactoUI.md",
+      "path": "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/02-ImpactoUI.md",
       "requiredSections": [
-        "## Superficies UI",
-        "## Validacion visual"
+        "## Superficie modificada",
+        "## Superficies preservadas"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -54,9 +54,9 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-90-actualizar-adjuntar-documento-radicacion/03-ServiciosYReglas.md",
+      "path": "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/03-ServiciosYReglas.md",
       "requiredSections": [
-        "## Servicios y reglas"
+        "## Ruta clásica"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -72,9 +72,9 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-90-actualizar-adjuntar-documento-radicacion/04-ContratosIntegracion.md",
+      "path": "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/04-ContratosIntegracion.md",
       "requiredSections": [
-        "## Contratos e integraciones"
+        "## Contratos de radicación"
       ],
       "minimumContentLength": 180,
       "identity": {
@@ -90,10 +90,10 @@
       ]
     },
     {
-      "path": "Doc/Tecnica/Opsxj/doc-90-actualizar-adjuntar-documento-radicacion/05-PruebasEvidencia.md",
+      "path": "Doc/Actualizacion/Radicacion/Adjuntar/DOC-90-correccion-adjunto-radicacion-clasica/05-PruebasEvidencia.md",
       "requiredSections": [
-        "## Evidencia requerida",
-        "## QA/E2E WebForms"
+        "## Automatización local",
+        "## E2E real"
       ],
       "minimumContentLength": 180,
       "identity": {
