@@ -18,7 +18,7 @@
     <script src="../js/jquery.contextMenu.js" type="text/javascript"></script>
     <link href="../js/ui/jquery-ui.css" rel="stylesheet" />
     <script src="../js/java_general/gestion_meta_dato.js" type="text/javascript"></script>  
-    <script src="../js/radicacion/WebFormRadicacionEntrante.js"></script>
+    <script src="../js/radicacion/WebFormRadicacionEntrante.js?v=20261007-doc90-3"></script>
     <script src="../js/java_general/general_control_java.js"></script>
     <script src="../js/java_general/general_code_java.js"></script>
     <script src="../generic_control/FileUploadHandler.js" type="text/javascript"></script>
@@ -183,8 +183,15 @@
                             <a class="nav-link nav-link-person "  id="soporte-envio_nav" data-toggle="tab" href="#soporte_envio" role="tab" aria-controls="profile" aria-selected="false"><i id="soporte-envio_navi" class="fal fa-lock d-none"></i> Envío y soporte documental</a>
                         </li>
                         <div style="float: right" class="div_link_pend ml-auto pd-2">
-                            <i id="i_radicado_pendiente" style="color: darkorange; display: none" class="fas fa-bell fa-spin"></i>
-                            <a class="nav-link_ float-right " id="num_rad_pendiente" onclick="asigna_radicado_pendiente('R00001')" href="#settings"></a>
+                            <asp:UpdatePanel ID="UpdatePanel_pendientes_radicacion" runat="server" UpdateMode="Always" RenderMode="Inline">
+                                <ContentTemplate>
+                                    <asp:Panel ID="Panel_pendiente_radicado" CssClass="navbar-nav " runat="server">
+                                        <a class="nav-link_ float-right" title="lista pendientes" id="A1" onclick="activa_boton_client_server('Button_tool_lista_pendientes_radicados');" href="#settings"><i id="i1" style="color: darkorange" class="fas fa-bell "></i> Pendientes : </a>
+                                        <asp:Label ID="Label_numero_item" runat="server" Text="" CssClass="h6 font-weight-light ml-1" style=""></asp:Label>
+                                        <input id="Hidden_numero_rad_pend" type="hidden" value="0" runat="server"/>
+                                    </asp:Panel>
+                                </ContentTemplate>
+                            </asp:UpdatePanel>
                         </div>
                     </ul>
                 </div>
@@ -358,10 +365,6 @@
                                         </asp:Panel>
                                     </div>
                                     <div style="float:right" class="div_link_pend ml-auto pd-2">
-                                        <asp:Panel ID="Panel_pendiente_radicado" CssClass="navbar-nav " runat="server">    
-                                            <a class="nav-link_ float-right" title="lista pendientes" id="A1" onclick="activa_boton_client_server('Button_tool_lista_pendientes_radicados');" href="#settings">  <i id="i1" style="color: darkorange" class="fas fa-bell "></i> Pendientes : </a>       
-                                            <asp:Label ID="Label_numero_item" runat="server" Text="" CssClass="h6 font-weight-light ml-1" style=""></asp:Label>                
-                                        </asp:Panel> 
                                         <asp:Label ID="Label_estado_selecion" runat="server" Text="" CssClass="h6 font-weight-light" style=" color: #6d7fcc;  font-size:10px; display:block"></asp:Label>               
                                     </div>
                                 </nav>
@@ -508,7 +511,8 @@
             <asp:UpdatePanel ID="UpdatePanel_boton_tool" runat="server" UpdateMode="Conditional" RenderMode="Inline">
                 <ContentTemplate>
                     <input id="Hidden_result_boton_tool" type="hidden" value="" runat="server"/> 
-                     <input id="HiddenIdFlujo" type="hidden" value="0" runat="server"/>
+                    <input id="HiddenIdFlujo" type="hidden" value="0" runat="server"/>
+                    <input id="Hidden_radicado_seleccion" type="hidden" value="" runat="server"/>
                     <input id="HiddenRuta_" type="hidden" value="0" runat="server"/>
                      <input id="hide_ruta" type="hidden" value="" runat="server"/> 
                     <input id="Hidden_id_actividad_envio" type="hidden" value="0" runat="server"/> 
@@ -551,8 +555,6 @@
             <input id="Hiddentramiteseleccion" type="hidden" value="" runat="server"/>
             <input id="Hiddenheigpaginapopup" type="hidden" value="475" runat="server"/>
             <input id="Hiddennameasigna" type="hidden" value="RADICACION_ENTRANTE" runat="server"/>
-            <input id="Hidden_radicado_seleccion" type="hidden" value="" runat="server"/>
-            <input id="Hidden_numero_rad_pend" type="hidden" value="0" runat="server"/>
              <div id="cler" style="clear: both"></div>      
             <asp:Panel ID="Panel_lista_actividades_worflow_ruta" runat="server" Style="display:none;  width: 80%; height:100%" CssClass="modal_content_general">
                 <asp:ModalPopupExtender ID="ModalPopupExtender_edition_lista_actividades_worflow_ruta"  runat="server"   

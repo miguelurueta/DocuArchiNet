@@ -69,7 +69,7 @@ test('la preparación específica no redescubre el radicado desde DAT_ADIC_TAR',
   assert.match(constructor, /String\.IsNullOrWhiteSpace\(Radicado\)/);
 });
 
-test('el recorrido histórico pierde el fallback tardío y conserva su resolver', () => {
+test('el recorrido legacy admite el radicado autoritativo clásico sin alterar la preparación específica DOC-85', () => {
   const legacy = sliceBetween(
     storageSource,
     'Function PreAlmacenaDocumentosRadicacion(',
@@ -77,8 +77,8 @@ test('el recorrido histórico pierde el fallback tardío y conserva su resolver'
   );
 
   assert.match(legacy, /SolicitaDatosCamposIndiceGabinete\(/);
-  assert.doesNotMatch(legacy, /ConsecutivoRadicadoEstado/);
-  assert.doesNotMatch(legacy, /String\.IsNullOrWhiteSpace\(Radicado\)/);
+  assert.match(legacy, /Optional ByVal ConsecutivoRadicadoEstado As String = ""/);
+  assert.match(legacy, /Not String\.IsNullOrWhiteSpace\(ConsecutivoRadicadoEstado\)[\s\S]*Radicado = ConsecutivoRadicadoEstado\.Trim\(\)/);
 });
 
 test('la carga conserva el transporte y la proyección JavaScript existentes', () => {

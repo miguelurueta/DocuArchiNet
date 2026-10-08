@@ -6,13 +6,13 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
 const expected = {
-  'generic_control/FileUploadHandler_.ashx.vb': '8459dd56d2abed043203c21a0eea2f2ae31fc8035f9c9e386fb774bd867a3b73',
-  'js/RadicadorSimplificado/Web_form_radicacion_simpilificada.js': 'f29fbd798ccb492fa924a522ae5dcb19d7f280b55f0f9c4e71b016cd5f026b69'
+  'generic_control/FileUploadHandler_.ashx.vb': '8a42b7439f754e23d257e67a3591e46f99063c648d01847ba6aa891ddbdff6c1',
+  'js/RadicadorSimplificado/Web_form_radicacion_simpilificada.js': '3c780836a0f379bc1dd0cfd901d122d1066ada4f219dd79aa868ab359324e645'
 };
 
 for (const [relativePath, fingerprint] of Object.entries(expected)) {
-  test(`${relativePath} conserva la huella aprobada por DOC-85`, () => {
-    const content = fs.readFileSync(path.join(root, ...relativePath.split('/')));
+  test(`${relativePath} conserva la huella aprobada tras DOC-90`, () => {
+    const content = fs.readFileSync(path.join(root, ...relativePath.split('/')), 'utf8').replace(/\r\n/g, '\n');
     const actual = crypto.createHash('sha256').update(content).digest('hex');
     assert.equal(actual, fingerprint);
   });

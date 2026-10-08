@@ -18,12 +18,13 @@ const root = path.resolve(__dirname, '..', '..', '..');
 const read = (...segments) => fs.readFileSync(path.join(root, ...segments), 'utf8');
 const profileExample = () => JSON.parse(read('tools', 'e2e', 'profiles', 'doc88-production-document-upload.profile.example.json'));
 
-test('DOC-88 conserva el handler servidor compartido y delimita el cliente a PRODUCCION', () => {
+test('DOC-88 conserva el handler aprobado tras DOC-90 y delimita el cliente a PRODUCCION', () => {
   const handlerPath = path.join(root, 'generic_control', 'FileUploadHandler_.ashx.vb');
-  const handlerHash = crypto.createHash('sha256').update(fs.readFileSync(handlerPath)).digest('hex');
+  const normalizedHandler = fs.readFileSync(handlerPath, 'utf8').replace(/\r\n/g, '\n');
+  const handlerHash = crypto.createHash('sha256').update(normalizedHandler).digest('hex');
   const client = read('generic_control', 'FileUploadHandler.js');
 
-  assert.equal(handlerHash, '8459dd56d2abed043203c21a0eea2f2ae31fc8035f9c9e386fb774bd867a3b73');
+  assert.equal(handlerHash, '8a42b7439f754e23d257e67a3591e46f99063c648d01847ba6aa891ddbdff6c1');
   assert.match(fs.readFileSync(handlerPath, 'utf8'), /If eventoAdjuntaActual = "PRODUCCION" Then[\s\S]*uploadFiles\.error_sistema = etapaCargaProduccion[\s\S]*Else[\s\S]*uploadFiles\.error_sistema = ex\.Message/);
   assert.match(client, /funcion_name == "insert_row_producion_documental" && this\.settings\.evento_adjunta == "PRODUCCION"/);
   assert.match(client, /funcion_name == "insert_row_producion_documental" && this\.settings\.evento_adjunta != "PRODUCCION"/);
