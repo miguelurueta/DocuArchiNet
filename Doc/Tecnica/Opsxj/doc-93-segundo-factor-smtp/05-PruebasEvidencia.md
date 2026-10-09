@@ -4,7 +4,9 @@
 - Cambio OpenSpec: doc-93-segundo-factor-smtp
 - Clasificacion: cross_cutting
 
-## Evidencia ejecutada
+## Evidencia requerida
+
+La evidencia requerida fue ejecutada con los siguientes resultados:
 
 - `node --test tests/login-second-factor-foundation.test.cjs tests/login-second-factor-persistence.test.cjs tests/login-second-factor-smtp.test.cjs`: 8/8 PASS.
 - `node --test tests/doc93-technical-documentation.test.cjs`: 4/4 PASS.
