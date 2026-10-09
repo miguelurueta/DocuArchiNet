@@ -1,0 +1,40 @@
+%% Convención: CODE = símbolo resoluble del repositorio; EXT = actor/dependencia externa; CONCEPT = estado o regla conceptual.
+%% Fuentes: webservice/Login/SegundoFactor/SessionPendingSecondFactorContextStore.vb | Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb | Modelo/Login/SegundoFactor/SegundoFactorModels.vb | Infrastructure/Login/SegundoFactor/Security/SystemSecondFactorClock.vb
+%% Referencias CODE: CODE:SessionPendingSecondFactorContextStore.Save | CODE:SessionPendingSecondFactorContextStore.GetCurrent | CODE:SessionPendingSecondFactorContextStore.Clear | CODE:ISecondFactorClock | CODE:PendingSecondFactorContext
+sequenceDiagram
+actor Caller as EXT: consumidor WebForms futuro
+participant Store as CODE: SessionPendingSecondFactorContextStore
+participant Clock as CODE: ISecondFactorClock
+participant Session as EXT: HttpSessionStateBase
+
+Caller->>Store: Save(context: PendingSecondFactorContext): Void
+Store->>Clock: UtcNow: DateTime
+Clock-->>Store: fecha UTC
+alt context es Nothing
+  Store-->>Caller: ArgumentNullException
+else ExpiresAtUtc <= UtcNow
+  Store-->>Caller: ArgumentException
+else contexto vigente
+  Store->>Session: Item(LOGIN_SECOND_FACTOR_PENDING_V1) = context
+  Store-->>Caller: Void
+end
+
+Caller->>Store: GetCurrent(): PendingSecondFactorContext
+Store->>Session: Item(LOGIN_SECOND_FACTOR_PENDING_V1)
+Session-->>Store: Object o Nothing
+alt no existe o tipo incompatible
+  Store-->>Caller: Nothing
+else contexto existente
+  Store->>Clock: UtcNow: DateTime
+  Clock-->>Store: fecha UTC
+  alt contexto expirado
+    Store->>Session: Remove(LOGIN_SECOND_FACTOR_PENDING_V1): Void
+    Store-->>Caller: Nothing
+  else contexto vigente
+    Store-->>Caller: PendingSecondFactorContext
+  end
+end
+
+Caller->>Store: Clear(): Void
+Store->>Session: Remove(LOGIN_SECOND_FACTOR_PENDING_V1): Void
+Store-->>Caller: Void

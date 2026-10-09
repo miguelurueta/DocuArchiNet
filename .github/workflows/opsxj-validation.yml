@@ -7,6 +7,11 @@ on:
       - "openspec/**"
       - "Doc/Actualizacion/workflow/ImportarServicioWeb/**"
       - "Doc/Actualizacion/workflow/ImportarServiciWebEnlace/**"
+      - "Doc/Actualizacion/Login/Implementacion/DOC-91/**"
+      - "Modelo/Login/SegundoFactor/**"
+      - "DTOs/Login/SegundoFactor/**"
+      - "Infrastructure/Login/SegundoFactor/**"
+      - "webservice/Login/SegundoFactor/**"
       - "js/workflow/importar-servicio-web/**"
       - "DTOs/Workflow/ImportarServicioWeb/**"
       - "Modelo/Workflow/ImportarServicioWeb/**"
@@ -16,6 +21,7 @@ on:
       - "tests/doc80-technical-documentation.test.cjs"
       - "tests/doc81-technical-documentation.test.cjs"
       - "tests/doc82-technical-documentation.test.cjs"
+      - "tests/doc91-technical-documentation.test.cjs"
       - "tools/validation/Validate-Doc72DotNetSymbols.ps1"
       - "tools/validation/Doc72SourceValidator/**"
       - ".github/workflows/opsxj-validation.yml"
@@ -72,6 +78,12 @@ jobs:
 
       - name: Validate DOC-82 .NET signatures with Roslyn
         run: dotnet run --project ./tools/validation/Doc72SourceValidator/Doc72SourceValidator.csproj -- ./Doc/Actualizacion/workflow/ImportarServiciWebEnlace/DOC-82-interfaz-integracion-asignacion/diagram-contract.json .
+
+      - name: Validate DOC-91 Mermaid diagrams and documentation contract
+        run: node --test tests/doc91-technical-documentation.test.cjs
+
+      - name: Validate DOC-91 .NET declarations and signatures with Roslyn
+        run: dotnet run --project ./tools/validation/Doc72SourceValidator/Doc72SourceValidator.csproj -- ./Doc/Actualizacion/Login/Implementacion/DOC-91/diagram-contract.json .
 
       - name: Validate OpenSpec changes
         run: npx --yes @fission-ai/openspec@1.7.0 validate --all --strict

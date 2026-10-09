@@ -1,0 +1,48 @@
+%% Convención: CODE = símbolo resoluble del repositorio; EXT = actor/dependencia externa; CONCEPT = estado o regla conceptual.
+%% Fuentes: Infrastructure/Login/SegundoFactor/Security/CryptographicSecondFactorOtpGenerator.vb | Infrastructure/Login/SegundoFactor/Security/HmacSecondFactorCodeProtector.vb | Infrastructure/Login/SegundoFactor/Security/AppSettingsSecondFactorKeyProvider.vb | Modelo/Login/SegundoFactor/SegundoFactorModels.vb
+%% Referencias CODE: CODE:CryptographicSecondFactorOtpGenerator.GenerateCode | CODE:HmacSecondFactorCodeProtector.Protect | CODE:HmacSecondFactorCodeProtector.Verify | CODE:AppSettingsSecondFactorKeyProvider.GetActiveKey | CODE:AppSettingsSecondFactorKeyProvider.TryGetKey | CODE:SecondFactorContractValidation.IsSixDigitCode
+sequenceDiagram
+actor Caller as EXT: consumidor interno futuro
+participant Generator as CODE: CryptographicSecondFactorOtpGenerator
+participant RNG as EXT: RandomNumberGenerator
+participant Protector as CODE: HmacSecondFactorCodeProtector
+participant Keys as CODE: AppSettingsSecondFactorKeyProvider
+participant HMAC as EXT: HMACSHA256
+
+Caller->>Generator: GenerateCode(): String
+loop sample >= 4294000000
+  Generator->>RNG: GetBytes(buffer: Byte()): Void
+  RNG-->>Generator: cuatro bytes aleatorios
+end
+Generator-->>Caller: OTP de seis dígitos
+
+Caller->>Protector: Protect(context: SecondFactorProtectionContext, code: String): String
+alt context es Nothing o code no tiene seis dígitos
+  Protector-->>Caller: ArgumentNullException o ArgumentException
+else entrada válida
+  Protector->>Keys: GetActiveKey(): SecondFactorKeyMaterial
+  alt llave activa ausente o inválida
+    Keys-->>Caller: InvalidOperationException
+  else llave válida
+    Keys-->>Protector: SecondFactorKeyMaterial
+    Protector->>HMAC: ComputeHash(payload UTF-8): Byte[]
+    HMAC-->>Protector: MAC SHA-256
+    Protector-->>Caller: v1:keyId:base64mac
+  end
+end
+
+Caller->>Protector: Verify(context: SecondFactorProtectionContext, code: String, protectedCode: String): Boolean
+alt formato, versión, OTP, Base64 o longitud inválidos
+  Protector-->>Caller: false
+else formato v1 válido
+  Protector->>Keys: TryGetKey(keyId: String, key: SecondFactorKeyMaterial ByRef): Boolean
+  alt llave desconocida
+    Keys-->>Protector: false
+    Protector-->>Caller: false
+  else llave localizada
+    Keys-->>Protector: true y key
+    Protector->>HMAC: ComputeHash(payload UTF-8): Byte[]
+    HMAC-->>Protector: MAC esperado
+    Protector-->>Caller: comparación XOR de igual longitud
+  end
+end

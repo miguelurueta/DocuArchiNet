@@ -1,0 +1,61 @@
+%% Convención: CODE = símbolo resoluble del repositorio; EXT = actor/dependencia externa; CONCEPT = estado o regla conceptual.
+%% Fuentes: Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb | Modelo/Login/SegundoFactor/SegundoFactorModels.vb | Infrastructure/Login/SegundoFactor/Security/CryptographicSecondFactorOtpGenerator.vb | Infrastructure/Login/SegundoFactor/Security/HmacSecondFactorCodeProtector.vb | Infrastructure/Login/SegundoFactor/Security/AppSettingsSecondFactorKeyProvider.vb | Infrastructure/Login/SegundoFactor/Security/SystemSecondFactorClock.vb | webservice/Login/SegundoFactor/SessionPendingSecondFactorContextStore.vb
+%% Referencias CODE: CODE:ISecondFactorOtpGenerator | CODE:CryptographicSecondFactorOtpGenerator | CODE:ISecondFactorCodeProtector | CODE:HmacSecondFactorCodeProtector | CODE:ISecondFactorKeyProvider | CODE:AppSettingsSecondFactorKeyProvider | CODE:ISecondFactorClock | CODE:SystemSecondFactorClock | CODE:IPendingSecondFactorContextStore | CODE:SessionPendingSecondFactorContextStore
+classDiagram
+direction LR
+class ISecondFactorOtpGenerator {
+  <<CODE interface>>
+  +GenerateCode() String
+}
+class CryptographicSecondFactorOtpGenerator {
+  <<CODE class>>
+  +GenerateCode() String
+  +Dispose() Void
+}
+class ISecondFactorCodeProtector {
+  <<CODE interface>>
+  +Protect(SecondFactorProtectionContext, String) String
+  +Verify(SecondFactorProtectionContext, String, String) Boolean
+}
+class HmacSecondFactorCodeProtector {
+  <<CODE class>>
+  +Protect(SecondFactorProtectionContext, String) String
+  +Verify(SecondFactorProtectionContext, String, String) Boolean
+}
+class ISecondFactorKeyProvider {
+  <<CODE interface>>
+  +GetActiveKey() SecondFactorKeyMaterial
+  +TryGetKey(String, SecondFactorKeyMaterial ByRef) Boolean
+}
+class AppSettingsSecondFactorKeyProvider {
+  <<CODE class>>
+  +GetActiveKey() SecondFactorKeyMaterial
+  +TryGetKey(String, SecondFactorKeyMaterial ByRef) Boolean
+}
+class ISecondFactorClock {
+  <<CODE interface>>
+  +UtcNow DateTime
+}
+class SystemSecondFactorClock {
+  <<CODE class>>
+  +UtcNow DateTime
+}
+class IPendingSecondFactorContextStore {
+  <<CODE interface>>
+  +Save(PendingSecondFactorContext) Void
+  +GetCurrent() PendingSecondFactorContext
+  +Clear() Void
+}
+class SessionPendingSecondFactorContextStore {
+  <<CODE class>>
+  +Save(PendingSecondFactorContext) Void
+  +GetCurrent() PendingSecondFactorContext
+  +Clear() Void
+}
+ISecondFactorOtpGenerator <|.. CryptographicSecondFactorOtpGenerator
+ISecondFactorCodeProtector <|.. HmacSecondFactorCodeProtector
+ISecondFactorKeyProvider <|.. AppSettingsSecondFactorKeyProvider
+ISecondFactorClock <|.. SystemSecondFactorClock
+IPendingSecondFactorContextStore <|.. SessionPendingSecondFactorContextStore
+HmacSecondFactorCodeProtector --> ISecondFactorKeyProvider
+SessionPendingSecondFactorContextStore --> ISecondFactorClock
