@@ -12,6 +12,7 @@ La entrega permanece inactiva: ninguna página, ASMX o flujo de login instancia 
 
 - Suite local DOC-91/DOC-92/DOC-93: 8 pruebas aprobadas.
 - MSBuild .NET Framework 4.6.1: código 0; conserva advertencias históricas del proyecto.
+- CI compila y ejecuta de forma aislada el corte DOC-93 con Roslyn y dobles sin red; no depende de las fuentes legacy no versionadas que aún referencia el `.vbproj`.
 - SMTP real: no ejecutado porque no existe autorización vigente específica de ambiente, cuenta y buzón para DOC-93.
 - E2E WebForms: no aplica; DOC-93 no expone interfaz ni endpoint.
 

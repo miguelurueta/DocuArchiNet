@@ -29,6 +29,7 @@ on:
       - "tests/doc93-technical-documentation.test.cjs"
       - "tests/login-second-factor-smtp.test.cjs"
       - "tests/LoginSecondFactorSmtpBehaviorTests.cs"
+      - "tests/MySqlParameterTestDouble.vb"
       - "tools/validation/Validate-Doc72DotNetSymbols.ps1"
       - "tools/validation/Doc72SourceValidator/**"
       - ".github/workflows/opsxj-validation.yml"

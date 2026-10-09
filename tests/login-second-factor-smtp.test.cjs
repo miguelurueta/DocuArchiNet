@@ -14,13 +14,34 @@ const sources = [
   'Infrastructure\\Login\\SegundoFactor\\Smtp\\SecondFactorSmtpTransport.vb',
   'Infrastructure\\Login\\SegundoFactor\\Smtp\\SecondFactorSmtpEmailSender.vb'
 ];
+const behaviorSources = [
+  'Domain\\Shared\\ContextoModulo.vb',
+  'Infrastructure\\Shared\\Data\\ModuleDataContracts.vb',
+  'Modelo\\Login\\SegundoFactor\\SegundoFactorModels.vb',
+  'Modelo\\Login\\SegundoFactor\\SegundoFactorInterfaces.vb',
+  ...sources,
+  'tests\\MySqlParameterTestDouble.vb'
+];
 
 function read(relative) { return fs.readFileSync(path.join(root, ...relative.split('\\')), 'utf8'); }
 function run(command, args, options = {}) {
   return execFileSync(command, args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...options });
 }
-function compiler() {
-  return run('powershell.exe', ['-NoProfile', '-Command', '(Get-Command csc.exe -ErrorAction Stop).Source']).trim();
+function frameworkCompiler(name) {
+  try {
+    for (const msbuild of run('where.exe', ['msbuild.exe']).split(/\r?\n/).filter(Boolean)) {
+      for (const bin of [path.dirname(msbuild), path.dirname(path.dirname(msbuild))]) {
+        const candidate = path.join(bin, 'Roslyn', name);
+        if (fs.existsSync(candidate)) return candidate;
+      }
+    }
+  } catch { /* continúa con el compilador de .NET Framework */ }
+  const windows = process.env.WINDIR || 'C:\\Windows';
+  for (const framework of ['Framework64', 'Framework']) {
+    const candidate = path.join(windows, 'Microsoft.NET', framework, 'v4.0.30319', name);
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return run('powershell.exe', ['-NoProfile', '-Command', `(Get-Command ${name} -ErrorAction Stop).Source`]).trim();
 }
 
 test('DOC-93: rutas, contrato SQL y aislamiento respetan la arquitectura aprobada', () => {
@@ -46,15 +67,18 @@ test('DOC-93: rutas, contrato SQL y aislamiento respetan la arquitectura aprobad
 });
 
 test('DOC-93: comportamiento SMTP se valida con dobles y sin red', () => {
-  run('msbuild.exe', [project, '/t:Build', '/p:Configuration=Debug', '/m:1', '/v:minimal']);
-  const build = path.join(root, 'bin');
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'doc93-smtp-'));
   try {
-    for (const name of ['GestionDocumental-Docuarchi.net.dll', 'MySql.Data.dll']) fs.copyFileSync(path.join(build, name), path.join(directory, name));
+    const assembly = path.join(directory, 'GestionDocumental-Docuarchi.net.dll');
+    run(frameworkCompiler('vbc.exe'), [
+      '/nologo', '/target:library', '/rootnamespace:GestionDocumental_Docuarchi.net', `/out:${assembly}`,
+      '/reference:System.Data.dll', '/reference:System.dll',
+      ...behaviorSources.map(relative => path.join(root, ...relative.split('\\')))
+    ]);
     const executable = path.join(directory, 'LoginSecondFactorSmtpBehaviorTests.exe');
-    run(compiler(), [
+    run(frameworkCompiler('csc.exe'), [
       '/nologo', '/target:exe', `/out:${executable}`,
-      `/reference:${path.join(directory, 'GestionDocumental-Docuarchi.net.dll')}`,
+      `/reference:${assembly}`,
       '/reference:System.Data.dll', '/reference:System.dll',
       path.join(__dirname, 'LoginSecondFactorSmtpBehaviorTests.cs')
     ]);
