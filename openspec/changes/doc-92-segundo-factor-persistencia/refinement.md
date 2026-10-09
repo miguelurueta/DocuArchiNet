@@ -31,6 +31,7 @@
 | D-07 | Derivar condición desde consumo/intentos/expiración y aceptar límites del esquema. | Contrato físico | D-07 | RQ-07 | 2.3, 4.1 |
 | D-08 | No entregar apply, rollback ni cleanup porque no hay cambio físico. | Decisión explícita del usuario | D-08 | RQ-08 | 3.1 |
 | D-09 | Pruebas locales siempre; MySQL real solo autorizado. | Reglas del repo | D-09 | RQ-09 | 3.4, 4.2, 4.3 |
+| D-10 | Documentación y diagramas verificables estructuralmente contra VB.NET. | Solicitud arquitectónica | D-10 | RQ-10 | 5.1, 5.2, 5.3, 5.4 |
 
 ## Requisitos verificables
 
@@ -45,6 +46,7 @@
 | RQ-07 | Solo se representan señales soportadas. | Activo/bloqueado/expirado/consumido derivados. | No existe estado finalization-failed persistido. |
 | RQ-08 | Despliegue sin migración. | Carpeta SQL contiene únicamente explicación. | Sin rollback de esquema necesario. |
 | RQ-09 | Evidencia honesta. | Local verde; integración omitida sin autorización. | No atribuir aislamiento real a dobles. |
+| RQ-10 | Documentación trazable al código. | Inventario explícito, Mermaid y Roslyn en CI. | La estructura no prueba fidelidad conductual completa. |
 
 ## Reglas de trazabilidad
 

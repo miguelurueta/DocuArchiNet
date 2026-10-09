@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
 # Especificación — Persistencia compatible del segundo factor
 
 ## ADDED Requirements
@@ -89,3 +89,18 @@ La implementación SHALL incluir pruebas locales y un harness MySQL descartable 
 #### Scenario: ausencia de autorización
 - **WHEN** no existe autorización vigente
 - **THEN** la integración real queda `SKIP`, no aprobada.
+
+### Requirement: RQ-10 — Documentación estructural verificable (D-10)
+
+DOC-92 SHALL documentar únicamente componentes implementados y SHALL mantener un inventario explícito de diagramas y símbolos verificables contra el código.
+
+#### Scenario: validación documental completa
+- **WHEN** se ejecuta la prueba documental
+- **THEN** falla si falta un diagrama requerido o su sintaxis Mermaid es inválida
+- **AND** falla si una clase, interfaz, relación, método, parámetro, retorno o propiedad no coincide estructuralmente con VB.NET
+- **AND** excluye únicamente actores `EXT:` y conceptos `CONCEPT:` declarados.
+
+#### Scenario: límite de la evidencia
+- **WHEN** la prueba documental termina correctamente
+- **THEN** se informa que acredita existencia y correspondencia estructural
+- **AND** no se presenta como demostración completa del comportamiento o de todos los casos de uso.

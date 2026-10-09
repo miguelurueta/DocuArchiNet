@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
 # Diseño técnico — DOC-92
 
 ## Evidencia inspeccionada
@@ -65,6 +65,10 @@ No se persisten `CREATED`, `FINALIZING`, `DELIVERY_FAILED`, `REVOKED` o `FINALIZ
 
 Las pruebas locales cubren contrato exacto, parámetros, HMAC, payload nulo, intentos, consumo único y rollback del reemplazo. El harness MySQL crea la tabla exacta solamente en una base descartable `doc92_*` cuando existe autorización vigente; en otro caso queda omitido explícitamente.
 
+## D-10 — Documentación comprobable contra código
+
+La documentación DOC-92 mantiene un manifiesto explícito de documentos, diagramas, declaraciones, relaciones interfaz/implementación, firmas y propiedades. Mermaid valida sintaxis y Roslyn para Visual Basic valida estructuralmente archivos, tipos, pertenencia de métodos, parámetros, retornos y sobrecargas. Solo actores `EXT:` y conceptos `CONCEPT:` quedan excluidos de resolución contra código. La prueba se integra en el workflow existente y declara que la correspondencia estructural no demuestra por sí sola fidelidad conductual completa.
+
 ## Inventario
 
 | Acción | Ruta |
@@ -77,3 +81,6 @@ Las pruebas locales cubren contrato exacto, parámetros, HMAC, payload nulo, int
 | Crear | `tests/login-second-factor-persistence.test.cjs` |
 | Crear | `tools/e2e/tests/login-second-factor-persistence.integration.test.cjs` |
 | Documentar | `Doc/Actualizacion/Login/Implementacion/DOC-92/` y `Doc/Tecnica/Opsxj/doc-92-segundo-factor-persistencia/` |
+| Crear | `Doc/Actualizacion/Login/Implementacion/DOC-92/diagram-contract.json` y `Diagramas/*.mmd` |
+| Crear | `tests/doc92-technical-documentation.test.cjs` |
+| Modificar | `tools/validation/Doc72SourceValidator/Program.cs` y `.github/workflows/opsxj-validation.yml` |

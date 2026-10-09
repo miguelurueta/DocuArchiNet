@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
+<!-- opsxj:refinement-traceability version=1 artifact=tasks decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
 # Tareas atómicas — DOC-92
 
 - [x] 1.1 [S] Mantener proyección persistida sin login. Área/archivos: `Modelo/Login/SegundoFactor/SegundoFactorModels.vb`. Origen: D-05, RQ-05. Verificación: compilación y prueba de identidad canónica.
@@ -15,3 +15,7 @@
 - [x] 4.1 [M] Actualizar documentación técnica y limitaciones. Área/archivos: documentación DOC-92. Origen: D-07, RQ-07. Verificación: consistencia con código.
 - [x] 4.2 [M] Ejecutar MSBuild y regresiones DOC-91/DOC-92. Área/archivos: proyecto y pruebas. Origen: D-09, RQ-09. Verificación: códigos de salida registrados.
 - [x] 4.3 [S] Validar OpenSpec, trazabilidad y diff. Área/archivos: cambio OpenSpec DOC-92. Origen: D-09, RQ-09. Verificación: validadores en código 0.
+- [x] 5.1 [L] Documentar arquitectura, diagramas, casos de uso, inventario y pendientes contra el código existente. Área/archivos: `Doc/Actualizacion/Login/Implementacion/DOC-92/`. Origen: D-10, RQ-10. Verificación: revisión cruzada de rutas, firmas y comportamiento.
+- [x] 5.2 [M] Crear manifiesto explícito y prueba Mermaid para documentos, diagramas y referencias. Área/archivos: `diagram-contract.json`, `tests/doc92-technical-documentation.test.cjs`. Origen: D-10, RQ-10. Verificación: Node test.
+- [x] 5.3 [M] Extender el validador Roslyn para relaciones interfaz/implementación e integrar DOC-92 en CI. Área/archivos: `tools/validation/Doc72SourceValidator/Program.cs`, `.github/workflows/opsxj-validation.yml`. Origen: D-10, RQ-10. Verificación: dotnet run y contrato CI.
+- [x] 5.4 [S] Ejecutar pruebas documentales, OpenSpec estricto y registrar resultados honestos. Área/archivos: evidencia DOC-92. Origen: D-10, RQ-10. Verificación: comandos y códigos de salida.

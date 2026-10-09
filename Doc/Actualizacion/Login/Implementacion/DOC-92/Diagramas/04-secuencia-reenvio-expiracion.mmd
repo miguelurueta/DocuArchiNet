@@ -1,0 +1,44 @@
+%% Convención: CODE = símbolo resoluble del repositorio; EXT = actor/dependencia externa; CONCEPT = estado, tabla o regla conceptual.
+%% Fuentes: Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb | Infrastructure/Shared/Data/ModuleDataContracts.vb | Modelo/Login/SegundoFactor/SegundoFactorModels.vb
+%% Referencias CODE: CODE:MySqlSecondFactorChallengeRepository.ReplaceForResend | CODE:MySqlSecondFactorChallengeRepository.Revoke | CODE:MySqlSecondFactorChallengeRepository.Expire | CODE:MySqlSecondFactorChallengeRepository.MarkDeliveryFailed | CODE:IDataExecutor.ExecuteReader | CODE:IDataExecutor.ExecuteNonQuery
+sequenceDiagram
+actor Caller as EXT: consumidor interno futuro
+participant Repo as CODE: MySqlSecondFactorChallengeRepository
+participant Executor as CODE: IDataExecutor
+participant Database as EXT: MySQL docuarchi
+
+Caller->>Repo: ReplaceForResend(previousChallengeId: Guid, replacement: SegundoFactorChallenge, protectedCode: String, sessionBindingHash: String, requestedAtUtc: DateTime): Boolean
+alt identificadores, UTC, estado, contador o HMAC inválidos
+  Repo-->>Caller: excepción o false según la precondición
+else entrada válida
+  Repo->>Executor: ExecuteReader(connection, transaction, SELECT FOR UPDATE, parameters, projector): PersistenceRow
+  alt fila no activa, cooldown menor a 60 segundos o identidad distinta
+    Repo->>Database: Commit sin cambios
+    Repo-->>Caller: false
+  else reemplazo permitido
+    Repo->>Executor: ExecuteNonQuery(connection, transaction, UPDATE Consumed igual a 1, parameters): Integer
+    alt revocación no afecta una fila
+      Repo->>Database: Commit
+      Repo-->>Caller: false
+    else anterior revocado
+      Repo->>Executor: ExecuteNonQuery(connection, transaction, INSERT reemplazo, parameters): Integer
+      alt inserción correcta
+        Repo->>Database: Commit
+        Repo-->>Caller: true
+      else inserción no realizada o excepción
+        Repo->>Database: Rollback
+        Repo-->>Caller: InvalidOperationException o error propagado
+      end
+    end
+  end
+end
+
+Caller->>Repo: Revoke(challengeId: Guid): Boolean
+Repo->>Executor: ExecuteNonQuery(connection, null, UPDATE activo a Consumed 1, parameters): Integer
+Repo-->>Caller: afectó exactamente una fila
+Caller->>Repo: Expire(challengeId: Guid, observedAtUtc: DateTime): Boolean
+Repo->>Executor: ExecuteNonQuery(connection, null, UPDATE vencido a Consumed 1, parameters): Integer
+Repo-->>Caller: afectó exactamente una fila
+Caller->>Repo: MarkDeliveryFailed(challengeId: Guid, failedAtUtc: DateTime): Boolean
+Repo->>Executor: ExecuteNonQuery(connection, null, UPDATE activo a Consumed 1, parameters): Integer
+Repo-->>Caller: afectó exactamente una fila

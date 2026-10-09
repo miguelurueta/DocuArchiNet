@@ -15,3 +15,14 @@ La compatibilidad con DocuArchiCore es estructural y permite convivencia en la t
 Las seis pruebas locales DOC-91/DOC-92, el refinamiento OPSXJ y OpenSpec estricto terminaron en código 0. La integración MySQL quedó `SKIP` por ausencia de autorización vigente; no se atribuye aprobación real. Consulte `Doc/Tecnica/Opsxj/doc-92-segundo-factor-persistencia/05-PruebasEvidencia.md`.
 
 No se ejecutó ni se requiere DDL sobre la base existente.
+
+## Documentación técnica verificada
+
+- [Arquitectura y diagramas](01-ARQUITECTURA-Y-DIAGRAMAS.md)
+- [Casos de uso implementados](02-CASOS-DE-USO.md)
+- [Inventario técnico](03-INVENTARIO-TECNICO.md)
+- [Validación y pendientes](04-VALIDACION-Y-PENDIENTES.md)
+- Contrato automático: `diagram-contract.json`
+- Diagramas requeridos: `Diagramas/*.mmd`
+
+La documentación cubre la persistencia DOC-92 dentro de `DocuArchiNet`. `DocuArchiCore` se usa como referencia arquitectónica de compatibilidad física, pero sus fuentes externas no son resueltas por la prueba CI de este repositorio.

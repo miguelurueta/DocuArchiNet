@@ -8,7 +8,7 @@ var manifestPath = Path.GetFullPath(args[0]);
 var repoRoot = Path.GetFullPath(args[1]);
 using var document = JsonDocument.Parse(File.ReadAllText(manifestPath));
 var manifest = document.RootElement;
-var excluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".git", "bin", "obj", "packages", "node_modules" };
+var excluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".git", ".tmp", ".worktrees", "bin", "obj", "packages", "node_modules" };
 var files = Directory.EnumerateFiles(repoRoot, "*.vb", SearchOption.AllDirectories)
     .Where(path => !path.Split(Path.DirectorySeparatorChar).Any(excluded.Contains));
 var roots = files.Select(path => VisualBasicSyntaxTree.ParseText(File.ReadAllText(path), path: path).GetRoot()).ToArray();
@@ -81,6 +81,31 @@ if (manifest.TryGetProperty("dotnetDeclarations", out var declarations))
     }
 }
 
+if (manifest.TryGetProperty("dotnetImplements", out var implementations))
+{
+    foreach (var relationship in implementations.EnumerateObject())
+    {
+        var expected = relationship.Value;
+        var typeName = expected.GetProperty("type").GetString()!;
+        var interfaceName = expected.GetProperty("interface").GetString()!;
+        var expectedFile = Path.GetFullPath(Path.Combine(repoRoot, expected.GetProperty("file").GetString()!.Replace('/', Path.DirectorySeparatorChar)));
+        var classes = FindTypes(typeName).OfType<ClassBlockSyntax>()
+            .Where(type => string.Equals(Path.GetFullPath(type.SyntaxTree.FilePath), expectedFile, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        if (classes.Length != 1)
+        {
+            errors.Add($"{relationship.Name}: clase {typeName} inexistente o ambigua en {expected.GetProperty("file").GetString()} (coincidencias={classes.Length})");
+            continue;
+        }
+        var declaredInterfaces = classes[0].DescendantNodes().OfType<ImplementsStatementSyntax>()
+            .SelectMany(statement => statement.Types)
+            .Select(TypeName)
+            .ToArray();
+        if (!declaredInterfaces.Contains(interfaceName, StringComparer.Ordinal))
+            errors.Add($"{relationship.Name}: {typeName} no implementa {interfaceName} en {expected.GetProperty("file").GetString()}; implementa=[{string.Join(',', declaredInterfaces)}]");
+    }
+}
+
 if (manifest.TryGetProperty("dotnetEnums", out var enums))
 {
     foreach (var contract in enums.EnumerateObject())
@@ -135,8 +160,13 @@ foreach (var dto in manifest.GetProperty("dotnetTypes").EnumerateObject())
     foreach (var contract in dto.Value.EnumerateArray().Select(x => x.GetString()!))
     {
         var parts = contract.Split(':', 2);
-        var property = properties.SingleOrDefault(p => p.Identifier.ValueText == parts[0]);
-        if (property is null) { errors.Add($"DTO {dto.Name}: propiedad {parts[0]} inexistente"); continue; }
+        var matchingProperties = properties.Where(p => p.Identifier.ValueText == parts[0]).ToArray();
+        if (matchingProperties.Length != 1)
+        {
+            errors.Add($"Tipo {dto.Name}: propiedad {parts[0]} inexistente o ambigua (coincidencias={matchingProperties.Length})");
+            continue;
+        }
+        var property = matchingProperties[0];
         var actual = TypeName((property.AsClause as SimpleAsClauseSyntax)?.Type);
         if (actual != parts[1]) errors.Add($"DTO {dto.Name}.{parts[0]}: tipo {actual}, esperado {parts[1]}");
     }
@@ -146,4 +176,5 @@ if (errors.Count > 0) throw new InvalidOperationException(string.Join(Environmen
 var contractName = manifest.TryGetProperty("name", out var nameElement) ? nameElement.GetString() : "DOC-72";
 var declarationCount = manifest.TryGetProperty("dotnetDeclarations", out var declaredTypes) ? declaredTypes.EnumerateObject().Count() : 0;
 var enumCount = manifest.TryGetProperty("dotnetEnums", out var declaredEnums) ? declaredEnums.EnumerateObject().Count() : 0;
-Console.WriteLine($"{contractName} Roslyn symbols: PASS ({declarationCount} declaraciones, {enumCount} enums, {manifest.GetProperty("dotnetSymbols").EnumerateObject().Count()} firmas, {manifest.GetProperty("dotnetTypes").EnumerateObject().Count()} tipos con propiedades).");
+var implementationCount = manifest.TryGetProperty("dotnetImplements", out var declaredImplementations) ? declaredImplementations.EnumerateObject().Count() : 0;
+Console.WriteLine($"{contractName} Roslyn symbols: PASS ({declarationCount} declaraciones, {implementationCount} relaciones, {enumCount} enums, {manifest.GetProperty("dotnetSymbols").EnumerateObject().Count()} firmas, {manifest.GetProperty("dotnetTypes").EnumerateObject().Count()} tipos con propiedades).");

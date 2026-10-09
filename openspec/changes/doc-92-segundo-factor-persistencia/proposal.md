@@ -11,11 +11,13 @@ DocuArchiNet debe utilizar la misma tabla 2FA que DocuArchiCore sin modificar su
 - Guardar la identidad canónica en `AuthUserId`, el HMAC versionado en `CodeHash` y `AuthPayloadJson=NULL` para no persistir contexto sensible.
 - Derivar la condición operativa desde `Consumed`, `Attempts` y `ExpiresAtUtc`, únicas señales disponibles en el contrato compartido.
 - Probar compatibilidad estructural y concurrencia; MySQL real sigue sujeto a autorización vigente.
+- Documentar la arquitectura, casos de uso e inventario realmente implementados y validar automáticamente diagramas Mermaid y firmas VB.NET mediante análisis Roslyn.
 
 ## Impact
 
 - Modifica modelos/puerto y agrega `MySqlSecondFactorChallengeRepository`.
 - No modifica base de datos, ASMX, UI, SMTP ni login productivo.
+- La prueba documental y su integración CI no modifican lógica de aplicación.
 - DocuArchiCore conserva lectura/escritura de sus filas porque el contrato físico permanece idéntico.
 
 ## Limitación aceptada
