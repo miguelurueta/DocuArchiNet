@@ -1,0 +1,26 @@
+%% Convención: CODE = símbolo resoluble del repositorio; EXT = actor/dependencia externa; CONCEPT = tabla, estado o regla conceptual.
+%% Fuentes: Infrastructure/Login/SegundoFactor/Smtp/SecondFactorSmtpTransport.vb | Infrastructure/Login/SegundoFactor/Smtp/FrameworkSmtpClientAdapter.vb | Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb
+%% Referencias CODE: CODE:SecondFactorSmtpTransport.Send | CODE:ISecondFactorSmtpClientFactory.Create | CODE:ISecondFactorSmtpClient.Send | CODE:FrameworkSmtpClientFactory.Create | CODE:FrameworkSmtpClientAdapter.Send | CODE:FrameworkSmtpClientAdapter.Dispose
+sequenceDiagram
+actor Sender as CODE: SecondFactorSmtpEmailSender
+participant Transport as CODE: SecondFactorSmtpTransport
+participant Factory as CODE: ISecondFactorSmtpClientFactory
+participant Client as CODE: ISecondFactorSmtpClient
+participant Server as EXT: servidor SMTP
+Sender->>Transport: Send(configuration: SecondFactorSmtpConfiguration, message: SecondFactorEmailMessage): SecondFactorSmtpDelivery
+alt configuración o mensaje nulo, remitente o destinatario inválido
+  Transport-->>Sender: Failed, OTP_DELIVERY_FAILED
+else mensaje construible
+  Note over Transport: MailMessage con asunto fijo, OTP, expiración y advertencias
+  Transport->>Factory: Create(configuration: SecondFactorSmtpConfiguration): ISecondFactorSmtpClient
+  Factory-->>Transport: cliente configurado
+  Transport->>Client: Send(message: MailMessage): Void
+  Client->>Server: envío síncrono
+  alt aceptado por cliente
+    Transport->>Client: Dispose(): Void
+    Transport-->>Sender: Submitted, OTP_SUBMITTED
+  else excepción
+    Transport->>Client: Dispose(): Void
+    Transport-->>Sender: Failed, OTP_DELIVERY_FAILED
+  end
+end

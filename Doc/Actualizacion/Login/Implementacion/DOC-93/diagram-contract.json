@@ -1,0 +1,139 @@
+{
+  "name": "DOC-93",
+  "version": 1,
+  "notation": "Mermaid",
+  "requiredDocuments": [
+    "README.md",
+    "01-ARQUITECTURA-Y-DIAGRAMAS.md",
+    "02-CASOS-DE-USO.md",
+    "03-INVENTARIO-TECNICO.md",
+    "04-VALIDACION-Y-PENDIENTES.md"
+  ],
+  "requiredDiagrams": [
+    {
+      "path": "Diagramas/01-componentes-clases.mmd",
+      "kind": "class",
+      "symbols": [
+        "CODE:ISecondFactorEmailSender",
+        "CODE:SecondFactorSmtpEmailSender",
+        "CODE:ISecondFactorSmtpConfigurationRepository",
+        "CODE:MySqlSecondFactorSmtpConfigurationRepository",
+        "CODE:ISecondFactorSmtpTransport",
+        "CODE:SecondFactorSmtpTransport",
+        "CODE:ISecondFactorSmtpClientFactory",
+        "CODE:FrameworkSmtpClientFactory",
+        "CODE:ISecondFactorSmtpClient",
+        "CODE:FrameworkSmtpClientAdapter",
+        "CODE:SecondFactorSmtpConfiguration",
+        "CODE:SecondFactorSmtpConfigurationResolution",
+        "CODE:SecondFactorSmtpDelivery",
+        "CODE:SecondFactorSmtpDeliveryStatus",
+        "CODE:IModuleConnectionFactory",
+        "CODE:IDataExecutor"
+      ],
+      "signatures": []
+    },
+    {
+      "path": "Diagramas/02-secuencia-resolver-configuracion.mmd",
+      "kind": "sequence",
+      "symbols": [
+        "CODE:MySqlSecondFactorSmtpConfigurationRepository.Resolve",
+        "CODE:IModuleConnectionFactory.CreateOpenConnection",
+        "CODE:IDataExecutor.ExecuteReader"
+      ],
+      "signatures": [
+        "Resolve(): SecondFactorSmtpConfigurationResolution",
+        "CreateOpenConnection(contexto: ContextoModulo): IDbConnection",
+        "ExecuteReader(connection: IDbConnection, transaction: IDbTransaction, commandText: String, parameters: IEnumerable, projector: Func): T"
+      ]
+    },
+    {
+      "path": "Diagramas/03-secuencia-enviar-otp.mmd",
+      "kind": "sequence",
+      "symbols": [
+        "CODE:SecondFactorSmtpTransport.Send",
+        "CODE:ISecondFactorSmtpClientFactory.Create",
+        "CODE:ISecondFactorSmtpClient.Send",
+        "CODE:FrameworkSmtpClientFactory.Create",
+        "CODE:FrameworkSmtpClientAdapter.Send",
+        "CODE:FrameworkSmtpClientAdapter.Dispose"
+      ],
+      "signatures": [
+        "Send(configuration: SecondFactorSmtpConfiguration, message: SecondFactorEmailMessage): SecondFactorSmtpDelivery",
+        "Create(configuration: SecondFactorSmtpConfiguration): ISecondFactorSmtpClient",
+        "Send(message: MailMessage): Void",
+        "Dispose(): Void"
+      ]
+    },
+    {
+      "path": "Diagramas/04-secuencia-fachada.mmd",
+      "kind": "sequence",
+      "symbols": [
+        "CODE:SecondFactorSmtpEmailSender.Send",
+        "CODE:ISecondFactorSmtpConfigurationRepository.Resolve",
+        "CODE:ISecondFactorSmtpTransport.Send"
+      ],
+      "signatures": [
+        "Send(message: SecondFactorEmailMessage): SecondFactorDeliveryResult",
+        "Resolve(): SecondFactorSmtpConfigurationResolution",
+        "Send(configuration: SecondFactorSmtpConfiguration, message: SecondFactorEmailMessage): SecondFactorSmtpDelivery"
+      ]
+    }
+  ],
+  "dotnetDeclarations": {
+    "CODE:ISecondFactorEmailSender": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorEmailSender", "kind": "interface" },
+    "CODE:ISecondFactorSmtpConfigurationRepository": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorSmtpConfigurationRepository", "kind": "interface" },
+    "CODE:ISecondFactorSmtpTransport": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorSmtpTransport", "kind": "interface" },
+    "CODE:ISecondFactorSmtpClientFactory": { "file": "Infrastructure/Login/SegundoFactor/Smtp/FrameworkSmtpClientAdapter.vb", "type": "ISecondFactorSmtpClientFactory", "kind": "interface" },
+    "CODE:ISecondFactorSmtpClient": { "file": "Infrastructure/Login/SegundoFactor/Smtp/FrameworkSmtpClientAdapter.vb", "type": "ISecondFactorSmtpClient", "kind": "interface" },
+    "CODE:SecondFactorSmtpEmailSender": { "file": "Infrastructure/Login/SegundoFactor/Smtp/SecondFactorSmtpEmailSender.vb", "type": "SecondFactorSmtpEmailSender", "kind": "class" },
+    "CODE:MySqlSecondFactorSmtpConfigurationRepository": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorSmtpConfigurationRepository.vb", "type": "MySqlSecondFactorSmtpConfigurationRepository", "kind": "class" },
+    "CODE:SecondFactorSmtpTransport": { "file": "Infrastructure/Login/SegundoFactor/Smtp/SecondFactorSmtpTransport.vb", "type": "SecondFactorSmtpTransport", "kind": "class" },
+    "CODE:FrameworkSmtpClientFactory": { "file": "Infrastructure/Login/SegundoFactor/Smtp/FrameworkSmtpClientAdapter.vb", "type": "FrameworkSmtpClientFactory", "kind": "class" },
+    "CODE:FrameworkSmtpClientAdapter": { "file": "Infrastructure/Login/SegundoFactor/Smtp/FrameworkSmtpClientAdapter.vb", "type": "FrameworkSmtpClientAdapter", "kind": "class" },
+    "CODE:SecondFactorSmtpConfiguration": { "file": "Modelo/Login/SegundoFactor/SegundoFactorSmtpModels.vb", "type": "SecondFactorSmtpConfiguration", "kind": "class" },
+    "CODE:SecondFactorSmtpConfigurationResolution": { "file": "Modelo/Login/SegundoFactor/SegundoFactorSmtpModels.vb", "type": "SecondFactorSmtpConfigurationResolution", "kind": "class" },
+    "CODE:SecondFactorSmtpDelivery": { "file": "Modelo/Login/SegundoFactor/SegundoFactorSmtpModels.vb", "type": "SecondFactorSmtpDelivery", "kind": "class" },
+    "CODE:SecondFactorSmtpDeliveryStatus": { "file": "Modelo/Login/SegundoFactor/SegundoFactorSmtpModels.vb", "type": "SecondFactorSmtpDeliveryStatus", "kind": "enum" },
+    "CODE:IModuleConnectionFactory": { "file": "Infrastructure/Shared/Data/ModuleDataContracts.vb", "type": "IModuleConnectionFactory", "kind": "interface" },
+    "CODE:IDataExecutor": { "file": "Infrastructure/Shared/Data/ModuleDataContracts.vb", "type": "IDataExecutor", "kind": "interface" }
+  },
+  "dotnetImplements": {
+    "CODE:SecondFactorSmtpEmailSender.implements": { "file": "Infrastructure/Login/SegundoFactor/Smtp/SecondFactorSmtpEmailSender.vb", "type": "SecondFactorSmtpEmailSender", "interface": "ISecondFactorEmailSender" },
+    "CODE:MySqlSecondFactorSmtpConfigurationRepository.implements": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorSmtpConfigurationRepository.vb", "type": "MySqlSecondFactorSmtpConfigurationRepository", "interface": "ISecondFactorSmtpConfigurationRepository" },
+    "CODE:SecondFactorSmtpTransport.implements": { "file": "Infrastructure/Login/SegundoFactor/Smtp/SecondFactorSmtpTransport.vb", "type": "SecondFactorSmtpTransport", "interface": "ISecondFactorSmtpTransport" },
+    "CODE:FrameworkSmtpClientFactory.implements": { "file": "Infrastructure/Login/SegundoFactor/Smtp/FrameworkSmtpClientAdapter.vb", "type": "FrameworkSmtpClientFactory", "interface": "ISecondFactorSmtpClientFactory" },
+    "CODE:FrameworkSmtpClientAdapter.implements": { "file": "Infrastructure/Login/SegundoFactor/Smtp/FrameworkSmtpClientAdapter.vb", "type": "FrameworkSmtpClientAdapter", "interface": "ISecondFactorSmtpClient" }
+  },
+  "dotnetEnums": {
+    "SecondFactorSmtpDeliveryStatus": ["Submitted", "Disabled", "InvalidConfiguration", "AmbiguousConfiguration", "Failed"]
+  },
+  "dotnetSymbols": {
+    "CODE:ISecondFactorEmailSender.Send": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorEmailSender", "method": "Send", "parameters": ["SecondFactorEmailMessage"], "return": "SecondFactorDeliveryResult" },
+    "CODE:ISecondFactorSmtpConfigurationRepository.Resolve": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorSmtpConfigurationRepository", "method": "Resolve", "parameters": [], "return": "SecondFactorSmtpConfigurationResolution" },
+    "CODE:ISecondFactorSmtpTransport.Send": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorSmtpTransport", "method": "Send", "parameters": ["SecondFactorSmtpConfiguration", "SecondFactorEmailMessage"], "return": "SecondFactorSmtpDelivery" },
+    "CODE:SecondFactorSmtpEmailSender.Send": { "file": "Infrastructure/Login/SegundoFactor/Smtp/SecondFactorSmtpEmailSender.vb", "type": "SecondFactorSmtpEmailSender", "method": "Send", "parameters": ["SecondFactorEmailMessage"], "return": "SecondFactorDeliveryResult" },
+    "CODE:MySqlSecondFactorSmtpConfigurationRepository.Resolve": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorSmtpConfigurationRepository.vb", "type": "MySqlSecondFactorSmtpConfigurationRepository", "method": "Resolve", "parameters": [], "return": "SecondFactorSmtpConfigurationResolution" },
+    "CODE:SecondFactorSmtpTransport.Send": { "file": "Infrastructure/Login/SegundoFactor/Smtp/SecondFactorSmtpTransport.vb", "type": "SecondFactorSmtpTransport", "method": "Send", "parameters": ["SecondFactorSmtpConfiguration", "SecondFactorEmailMessage"], "return": "SecondFactorSmtpDelivery" },
+    "CODE:ISecondFactorSmtpClientFactory.Create": { "file": "Infrastructure/Login/SegundoFactor/Smtp/FrameworkSmtpClientAdapter.vb", "type": "ISecondFactorSmtpClientFactory", "method": "Create", "parameters": ["SecondFactorSmtpConfiguration"], "return": "ISecondFactorSmtpClient" },
+    "CODE:FrameworkSmtpClientFactory.Create": { "file": "Infrastructure/Login/SegundoFactor/Smtp/FrameworkSmtpClientAdapter.vb", "type": "FrameworkSmtpClientFactory", "method": "Create", "parameters": ["SecondFactorSmtpConfiguration"], "return": "ISecondFactorSmtpClient" },
+    "CODE:ISecondFactorSmtpClient.Send": { "file": "Infrastructure/Login/SegundoFactor/Smtp/FrameworkSmtpClientAdapter.vb", "type": "ISecondFactorSmtpClient", "method": "Send", "parameters": ["MailMessage"], "return": "System.Void" },
+    "CODE:FrameworkSmtpClientAdapter.Send": { "file": "Infrastructure/Login/SegundoFactor/Smtp/FrameworkSmtpClientAdapter.vb", "type": "FrameworkSmtpClientAdapter", "method": "Send", "parameters": ["MailMessage"], "return": "System.Void" },
+    "CODE:FrameworkSmtpClientAdapter.Dispose": { "file": "Infrastructure/Login/SegundoFactor/Smtp/FrameworkSmtpClientAdapter.vb", "type": "FrameworkSmtpClientAdapter", "method": "Dispose", "parameters": [], "return": "System.Void" },
+    "CODE:IModuleConnectionFactory.CreateOpenConnection": { "file": "Infrastructure/Shared/Data/ModuleDataContracts.vb", "type": "IModuleConnectionFactory", "method": "CreateOpenConnection", "parameters": ["ContextoModulo"], "return": "IDbConnection" },
+    "CODE:IDataExecutor.ExecuteReader": { "file": "Infrastructure/Shared/Data/ModuleDataContracts.vb", "type": "IDataExecutor", "method": "ExecuteReader", "parameters": ["IDbConnection", "IDbTransaction", "System.String", "IEnumerable<IDataParameter>", "Func<IDataReader,T>"], "return": "T" }
+  },
+  "dotnetTypes": {
+    "SecondFactorSmtpConfiguration": [
+      "Host:System.String", "Port:System.Int32", "SenderAddress:System.String", "Username:System.String", "Password:System.String", "Domain:System.String", "TimeoutMilliseconds:System.Int32", "EnableSsl:System.Boolean", "UseDefaultCredentials:System.Boolean", "IsBodyHtml:System.Boolean"
+    ],
+    "SecondFactorSmtpConfigurationResolution": ["Status:SecondFactorSmtpDeliveryStatus", "Configuration:SecondFactorSmtpConfiguration"],
+    "SecondFactorSmtpDelivery": ["Status:SecondFactorSmtpDeliveryStatus", "PublicCode:System.String"],
+    "SecondFactorEmailMessage": ["Recipient:SecondFactorRecipient", "Code:System.String", "ExpiresAtUtc:System.DateTime"],
+    "SecondFactorDeliveryResult": ["Success:System.Boolean", "PublicCode:System.String"]
+  },
+  "excludedKinds": {
+    "external": ["EXT: consumidor interno futuro", "EXT: MySQL Radicación", "EXT: servidor SMTP"],
+    "conceptual": ["CONCEPT: fila Config_Smpt_Side", "CONCEPT: configuración SMTP válida", "CONCEPT: resultado público sanitizado"]
+  }
+}

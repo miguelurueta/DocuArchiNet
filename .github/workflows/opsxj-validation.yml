@@ -9,6 +9,7 @@ on:
       - "Doc/Actualizacion/workflow/ImportarServiciWebEnlace/**"
       - "Doc/Actualizacion/Login/Implementacion/DOC-91/**"
       - "Doc/Actualizacion/Login/Implementacion/DOC-92/**"
+      - "Doc/Actualizacion/Login/Implementacion/DOC-93/**"
       - "Modelo/Login/SegundoFactor/**"
       - "DTOs/Login/SegundoFactor/**"
       - "Infrastructure/Login/SegundoFactor/**"
@@ -25,6 +26,10 @@ on:
       - "tests/doc82-technical-documentation.test.cjs"
       - "tests/doc91-technical-documentation.test.cjs"
       - "tests/doc92-technical-documentation.test.cjs"
+      - "tests/doc93-technical-documentation.test.cjs"
+      - "tests/login-second-factor-smtp.test.cjs"
+      - "tests/LoginSecondFactorSmtpBehaviorTests.cs"
+      - "tests/MySqlParameterTestDouble.vb"
       - "tools/validation/Validate-Doc72DotNetSymbols.ps1"
       - "tools/validation/Doc72SourceValidator/**"
       - ".github/workflows/opsxj-validation.yml"
@@ -44,6 +49,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -93,6 +103,15 @@ jobs:
 
       - name: Validate DOC-92 .NET declarations, relationships and signatures with Roslyn
         run: dotnet run --project ./tools/validation/Doc72SourceValidator/Doc72SourceValidator.csproj -- ./Doc/Actualizacion/Login/Implementacion/DOC-92/diagram-contract.json .
+
+      - name: Validate DOC-93 Mermaid diagrams and documentation contract
+        run: node --test tests/doc93-technical-documentation.test.cjs
+
+      - name: Validate DOC-93 .NET declarations, relationships and signatures with Roslyn
+        run: dotnet run --project ./tools/validation/Doc72SourceValidator/Doc72SourceValidator.csproj -- ./Doc/Actualizacion/Login/Implementacion/DOC-93/diagram-contract.json .
+
+      - name: Validate DOC-93 SMTP contracts without network
+        run: node --test tests/login-second-factor-smtp.test.cjs
 
       - name: Validate OpenSpec changes
         run: npx --yes @fission-ai/openspec@1.7.0 validate --all --strict

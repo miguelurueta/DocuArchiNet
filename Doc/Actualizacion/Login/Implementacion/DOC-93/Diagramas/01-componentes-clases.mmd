@@ -1,0 +1,68 @@
+%% Convención: CODE = símbolo resoluble del repositorio; EXT = actor/dependencia externa; CONCEPT = tabla, estado o regla conceptual.
+%% Fuentes: Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb | Modelo/Login/SegundoFactor/SegundoFactorSmtpModels.vb | Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorSmtpConfigurationRepository.vb | Infrastructure/Login/SegundoFactor/Smtp/SecondFactorSmtpEmailSender.vb | Infrastructure/Login/SegundoFactor/Smtp/SecondFactorSmtpTransport.vb | Infrastructure/Login/SegundoFactor/Smtp/FrameworkSmtpClientAdapter.vb | Infrastructure/Shared/Data/ModuleDataContracts.vb
+%% Referencias CODE: CODE:ISecondFactorEmailSender | CODE:SecondFactorSmtpEmailSender | CODE:ISecondFactorSmtpConfigurationRepository | CODE:MySqlSecondFactorSmtpConfigurationRepository | CODE:ISecondFactorSmtpTransport | CODE:SecondFactorSmtpTransport | CODE:ISecondFactorSmtpClientFactory | CODE:FrameworkSmtpClientFactory | CODE:ISecondFactorSmtpClient | CODE:FrameworkSmtpClientAdapter | CODE:SecondFactorSmtpConfiguration | CODE:SecondFactorSmtpConfigurationResolution | CODE:SecondFactorSmtpDelivery | CODE:SecondFactorSmtpDeliveryStatus | CODE:IModuleConnectionFactory | CODE:IDataExecutor
+classDiagram
+direction LR
+class ISecondFactorEmailSender {
+  <<CODE interface>>
+  +Send(SecondFactorEmailMessage) SecondFactorDeliveryResult
+}
+class SecondFactorSmtpEmailSender {
+  <<CODE class>>
+  +Send(SecondFactorEmailMessage) SecondFactorDeliveryResult
+}
+class ISecondFactorSmtpConfigurationRepository {
+  <<CODE interface>>
+  +Resolve() SecondFactorSmtpConfigurationResolution
+}
+class MySqlSecondFactorSmtpConfigurationRepository {
+  <<CODE class>>
+  +Resolve() SecondFactorSmtpConfigurationResolution
+}
+class ISecondFactorSmtpTransport {
+  <<CODE interface>>
+  +Send(SecondFactorSmtpConfiguration, SecondFactorEmailMessage) SecondFactorSmtpDelivery
+}
+class SecondFactorSmtpTransport {
+  <<CODE class>>
+  +Send(SecondFactorSmtpConfiguration, SecondFactorEmailMessage) SecondFactorSmtpDelivery
+}
+class ISecondFactorSmtpClientFactory {
+  <<CODE interface>>
+  +Create(SecondFactorSmtpConfiguration) ISecondFactorSmtpClient
+}
+class FrameworkSmtpClientFactory {
+  <<CODE class>>
+  +Create(SecondFactorSmtpConfiguration) ISecondFactorSmtpClient
+}
+class ISecondFactorSmtpClient {
+  <<CODE interface>>
+  +Send(MailMessage) Void
+  +Dispose() Void
+}
+class FrameworkSmtpClientAdapter {
+  <<CODE class>>
+  +Send(MailMessage) Void
+  +Dispose() Void
+}
+class SecondFactorSmtpConfiguration { <<CODE class>> }
+class SecondFactorSmtpConfigurationResolution { <<CODE class>> }
+class SecondFactorSmtpDelivery { <<CODE class>> }
+class SecondFactorSmtpDeliveryStatus { <<CODE enum>> }
+class IModuleConnectionFactory { <<CODE interface>> }
+class IDataExecutor { <<CODE interface>> }
+ISecondFactorEmailSender <|.. SecondFactorSmtpEmailSender
+ISecondFactorSmtpConfigurationRepository <|.. MySqlSecondFactorSmtpConfigurationRepository
+ISecondFactorSmtpTransport <|.. SecondFactorSmtpTransport
+ISecondFactorSmtpClientFactory <|.. FrameworkSmtpClientFactory
+ISecondFactorSmtpClient <|.. FrameworkSmtpClientAdapter
+SecondFactorSmtpEmailSender --> ISecondFactorSmtpConfigurationRepository
+SecondFactorSmtpEmailSender --> ISecondFactorSmtpTransport
+MySqlSecondFactorSmtpConfigurationRepository --> IModuleConnectionFactory
+MySqlSecondFactorSmtpConfigurationRepository --> IDataExecutor
+MySqlSecondFactorSmtpConfigurationRepository --> SecondFactorSmtpConfigurationResolution
+SecondFactorSmtpTransport --> ISecondFactorSmtpClientFactory
+SecondFactorSmtpTransport --> SecondFactorSmtpDelivery
+FrameworkSmtpClientFactory --> FrameworkSmtpClientAdapter
+SecondFactorSmtpConfigurationResolution --> SecondFactorSmtpDeliveryStatus
+SecondFactorSmtpDelivery --> SecondFactorSmtpDeliveryStatus

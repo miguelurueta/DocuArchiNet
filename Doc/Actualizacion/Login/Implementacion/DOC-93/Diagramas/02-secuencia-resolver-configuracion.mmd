@@ -1,0 +1,28 @@
+%% Convención: CODE = símbolo resoluble del repositorio; EXT = actor/dependencia externa; CONCEPT = tabla, estado o regla conceptual.
+%% Fuentes: Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorSmtpConfigurationRepository.vb | Infrastructure/Shared/Data/ModuleDataContracts.vb | Modelo/Login/SegundoFactor/SegundoFactorSmtpModels.vb
+%% Referencias CODE: CODE:MySqlSecondFactorSmtpConfigurationRepository.Resolve | CODE:IModuleConnectionFactory.CreateOpenConnection | CODE:IDataExecutor.ExecuteReader
+sequenceDiagram
+actor Caller as EXT: consumidor interno futuro
+participant Repo as CODE: MySqlSecondFactorSmtpConfigurationRepository
+participant Connections as CODE: IModuleConnectionFactory
+participant Executor as CODE: IDataExecutor
+participant Database as EXT: MySQL Radicación
+Caller->>Repo: Resolve(): SecondFactorSmtpConfigurationResolution
+Repo->>Connections: CreateOpenConnection(contexto: ContextoModulo): IDbConnection
+Connections-->>Repo: conexión abierta
+Repo->>Executor: ExecuteReader(connection: IDbConnection, transaction: IDbTransaction, commandText: String, parameters: IEnumerable, projector: Func): T
+Executor->>Database: SELECT columnas explícitas WHERE ESTADO_ENVIO=@enabled
+alt cero filas
+  Repo-->>Caller: Disabled, configuration Nothing
+else más de una fila
+  Repo-->>Caller: AmbiguousConfiguration, configuration Nothing
+else una fila inválida
+  Note over Repo: host/remitente/puerto/flags/credenciales/timeout
+  Repo-->>Caller: InvalidConfiguration, configuration Nothing
+else una fila válida
+  Note over Repo: timeout = min(SMTP_TIEMPO * 100000, 120000)
+  Repo-->>Caller: Submitted, SecondFactorSmtpConfiguration
+end
+opt excepción de conexión, ejecución o proyección
+  Repo-->>Caller: Failed, sin detalle interno
+end
