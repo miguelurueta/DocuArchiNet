@@ -1,95 +1,122 @@
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
 ## ADDED Requirements
-### Requirement: DOBLE-FACTOR-CONTRATO
-El sistema SHALL implementar el alcance definido para DOC-91.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- # 01 — Fundación de contratos y seguridad 2FA
-- 
-- ## ROL ESPERADO
-- 
-- Actúa como arquitecto de seguridad y desarrollador senior VB.NET/.NET Framework 4.6.1.
-- 
-- ## OBJETIVO
-- 
-- Implementar la fundación interna de Login 2FA sin persistencia, SMTP, ASMX ni cambios visibles en el login.
-- 
-- ## CONTEXTO
-- 
-- Antes de editar, crea o continúa el OpenSpec de la Jira actual y lee completa `Doc/Actualizacion/Login/Exploracion/exploracion-doble-factor-autenticacion.md`. Contrasta sus decisiones con el código vigente; si existe una contradicción material, detente y documéntala, no inventes otra arquitectura.
-- 
-- ## PRECONDICIONES DE RUTAS
-- 
-- Antes de implementar, inventaría en `design.md` nombres, namespaces y archivos exactos. Esta tarea solo puede crear o modificar:
-- 
-- - `Modelo/Login/SegundoFactor/` para estados, value objects, resultados e interfaces puras.
-- - `DTOs/Login/SegundoFactor/` para respuestas públicas compartidas previstas por la frontera; ningún DTO puede contener secretos.
-- - `Infrastructure/Login/SegundoFactor/Security/` para RNG, HMAC y lectura segura de llaves.
-- - `Infrastructure/Repositories/Login/SegundoFactor/` es la ruta reservada para implementaciones MySQL posteriores; esta tarea solo define sus puertos y no crea archivos allí.
-- - `webservice/Login/SegundoFactor/` exclusivamente para el adaptador de contexto pendiente en Session; ningún modelo de dominio se define allí.
-- - `tests/` o `tools/validation/` para pruebas/validadores, y `GestionDocumental-Docuarchi.net.vbproj` para registrar cada archivo.
-- 
-- No crear todavía archivos en `Services/Login/SegundoFactor/`, `Infrastructure/Repositories/Login/SegundoFactor/` ni `webservice/WebServiceLoginSegundoFactor.asmx(.vb)`. No mover clases existentes. Una desviación requiere evidencia del árbol actual y decisión explícita `D-XX`.
-- 
-- ## REQUISITOS POSITIVOS
-- 
-- 1. Crear modelos y resultados tipados para identidad canónica, configuración 2FA, challenge, estados, contexto pendiente y respuestas públicas.
-- 2. Crear interfaces pequeñas para reloj UTC, generador OTP, protector HMAC, repositorio de configuración, repositorio de challenge, resolvedor de destinatario, correo y finalizador de login. Las interfaces no deben depender de WebForms, SMTP o SQL.
-- 3. Implementar OTP de seis dígitos con RNG criptográfico y muestreo sin sesgo compatible con .NET 4.6.1.
-- 4. Implementar HMAC-SHA256 con formato `v1:<keyId>:<base64mac>`, clave Base64 mínima de 32 bytes, entrada que incluya propósito, challenge, identidad canónica, vínculo de sesión y OTP, y comparación XOR de tiempo constante.
-- 5. Leer llaves mediante configuración inyectable con nombres `LoginSecondFactorHmacActiveKeyId` y `LoginSecondFactorHmacKey.<keyId>`; soportar llave activa y llaves anteriores durante la vida de challenges. No incluir secretos reales en `Web.config` ni en pruebas.
-- 6. Implementar un almacén de contexto pendiente en Session en la frontera de presentación. Debe contener solo IDs ya resueltos, login normalizado, destino enmascarado, challenge, nonce y tiempo; nunca contraseña, OTP, correo completo, credenciales técnicas ni objetos de conexión.
-- 7. Registrar los nuevos `.vb` explícitamente en `GestionDocumental-Docuarchi.net.vbproj` usando el mismo `Compile`/`Content` de archivos equivalentes. No crear `src/`, otra aplicación ni otro framework.
-- 
-- ## Contratos vinculantes
-- 
-- - Propósito inicial único: `LOGIN`.
-- - Estados: `CREATED`, `SENT`, `FINALIZING`, `COMPLETED`, `DELIVERY_FAILED`, `BLOCKED`, `EXPIRED`, `REVOKED`, `FINALIZATION_FAILED`.
-- - Máximo 5 intentos, cooldown 60 segundos, un envío inicial y hasta 2 reenvíos.
-- - `RequiereSegundoFactor`: `1` activo; `0`/`NULL` desactivado; otro valor inválido.
-- - Proveedor activo permitido: `EMAIL = 1`; TOTP y demás valores no soportados.
-- - Expiración válida: 1 a 10 minutos.
-- - Los mensajes públicos no deben revelar existencia del usuario, correo completo, SQL, excepción ni estado interno.
-- 
-- ## RESTRICCIONES CRITICAS Y REGLAS DE ANTIRREGRESION
-- 
-- - No modificar `gestor.aspx`, `ClassGestorSesion`, `ClassCorreo`, base de datos, configuración SMTP, recuperación de contraseña ni Forms Authentication.
-- - Preservar el login existente: estas clases no deben ser llamadas por producción hasta una integración posterior explícita.
-- - No copiar JWT, `UserAuthContext`, `EmailSenderStub` ni payloads del Core.
-- - No generar logs con OTP, HMAC, llave, contraseña, correo completo o conexión.
-- - La fundación debe permanecer inactiva y sin alterar el login hasta integrarse deliberadamente en tareas posteriores.
-- 
-- ## PRUEBAS OBLIGATORIAS
-- 
-- Reutiliza la infraestructura del repositorio. Cubre generación y formato OTP, ausencia de sesgo por contrato determinista, HMAC y separación por contexto, llave ausente/inválida/desconocida, rotación, comparación de longitudes diferentes, expiración con reloj controlado, normalización de identidad, enmascarado y rechazo de secretos en el contexto pendiente. Agrega validación estructural Roslyn/CJS solo si aporta una garantía que una prueba de comportamiento no cubre.
-- 
-- Ejecuta pruebas focales y:
-- 
-- ```text
-- msbuild .\GestionDocumental-Docuarchi.net.vbproj /t:Build /p:Configuration=Debug
-- ```
-- 
-- Si MSBuild no está disponible, registra el bloqueo y una comprobación reproducible; no afirmes compilación exitosa.
-- 
-- ## CRITERIOS DE ACEPTACION
-- 
-- - Los contratos compilan en .NET Framework 4.6.1 y no están acoplados a infraestructura.
-- - La criptografía cumple exactamente el formato y controles definidos.
-- - Ningún secreto real fue creado, versionado, impreso o persistido.
-- - El login y correo legacy permanecen sin cambios.
-- - El OpenSpec de esta Jira contiene decisiones `D-XX`, requisitos `RQ-XX`, tareas atómicas y trazabilidad a pruebas.
-- 
-- ## DOCUMENTACION TECNICA
-- 
-- Actualiza la documentación existente afectada y conserva la exploración como fuente arquitectónica. Registra decisiones y evidencia sanitizada en `Doc/Actualizacion/Login/Implementacion/<JIRA>/`; si una ruta esperada no existe, documenta la ruta creada y la razón.
-- 
-- ## ENTREGABLE FINAL
-- 
-- Entrega archivos, contratos exactos, pruebas unitarias con ruta y caso cubierto, comandos, códigos de salida, resultados, riesgos y evidencia sanitizada.
+### Requirement: RQ-01 Fundación aislada
+
+El sistema SHALL incorporar contratos 2FA únicamente en las rutas inventariadas y sin activarlos desde el login productivo. Esta requirement materializa D-01.
+
+#### Scenario: Compilación sin activación
+
+- **WHEN** se agregan los archivos y entradas `Compile` de DOC-91
+- **THEN** el proyecto compila sin nuevas referencias desde `gestor.aspx`, `ClassGestorSesion`, `ClassCorreo`, Forms Authentication, SMTP, ASMX o repositorios MySQL
+
+### Requirement: RQ-02 Modelo y política canónicos
+
+El sistema SHALL representar propósito `LOGIN`, los nueve estados aprobados, identidad normalizada y política 5 intentos/60 segundos/2 reenvíos, EMAIL=1 y expiración de 1 a 10 minutos. Esta requirement materializa D-02.
+
+#### Scenario: Configuración válida
+
+- **WHEN** la configuración indica requerido=1, proveedor=1 y expiración entre 1 y 10
+- **THEN** se construye una configuración activa con los límites vinculantes
+
+#### Scenario: Configuración inválida o desactivada
+
+- **WHEN** requerido es 0 o NULL
+- **THEN** la configuración queda desactivada sin challenge
+- **AND WHEN** requerido, proveedor o expiración queda fuera del contrato
+- **THEN** el modelo la rechaza sin degradación silenciosa
+
+### Requirement: RQ-03 OTP uniforme y tiempo comprobable
+
+El sistema SHALL generar OTP de seis dígitos con RNG criptográfico y muestreo por rechazo, y SHALL consultar tiempo mediante un reloj inyectable. Esta requirement materializa D-03.
+
+#### Scenario: Generación sin sesgo de módulo
+
+- **WHEN** la fuente criptográfica entrega una muestra dentro del mayor múltiplo aceptable
+- **THEN** el resultado contiene exactamente seis caracteres numéricos
+- **AND WHEN** entrega una muestra fuera del límite
+- **THEN** el generador la descarta y solicita otra muestra
+
+#### Scenario: Expiración determinista
+
+- **WHEN** un reloj controlado alcanza la expiración del challenge
+- **THEN** el modelo lo considera expirado sin consultar `DateTime.Now`
+
+### Requirement: RQ-04 Protección HMAC ligada al contexto
+
+El sistema SHALL proteger códigos con HMAC-SHA256 en formato `v1:<keyId>:<base64mac>` usando propósito, challenge, identidad, vínculo de sesión y OTP, y SHALL comparar MAC de igual longitud mediante acumulación XOR. Esta requirement materializa D-04.
+
+#### Scenario: Verificación válida
+
+- **WHEN** código, contexto y llave coinciden con el valor protegido
+- **THEN** la verificación retorna verdadero
+
+#### Scenario: Manipulación o formato inválido
+
+- **WHEN** cambia cualquier componente, versión, llave, longitud, Base64 o MAC
+- **THEN** la verificación retorna falso sin aceptar prefijos ni lanzar detalles sensibles
+
+### Requirement: RQ-05 Anillo de llaves externo y rotable
+
+El sistema SHALL resolver la llave activa desde `LoginSecondFactorHmacActiveKeyId` y cada material desde `LoginSecondFactorHmacKey.<keyId>`, exigiendo Base64 de al menos 32 bytes. Esta requirement materializa D-05.
+
+#### Scenario: Rotación durante challenge vigente
+
+- **WHEN** un hash fue creado con una llave anterior aún configurada
+- **THEN** puede verificarse por su `keyId`, mientras nuevas protecciones usan solo la llave activa
+
+#### Scenario: Configuración insegura
+
+- **WHEN** falta la llave, el identificador no existe, Base64 es inválido o el material tiene menos de 32 bytes
+- **THEN** la operación falla de forma cerrada y no usa un valor por defecto
+
+### Requirement: RQ-06 Contexto pendiente mínimo en Session
+
+El sistema SHALL aislar `HttpSessionStateBase` en un adaptador que guarda solo IDs resueltos, login normalizado, destino enmascarado, challenge, nonce y tiempos. Esta requirement materializa D-06.
+
+#### Scenario: Ciclo del contexto
+
+- **WHEN** se guarda un contexto válido
+- **THEN** puede recuperarse hasta expirar y `Clear` lo elimina
+
+#### Scenario: Datos prohibidos
+
+- **WHEN** se inspecciona el contrato persistido en Session
+- **THEN** no contiene contraseña, OTP, correo completo, HMAC, llave, credenciales ni conexión
+
+### Requirement: RQ-07 Respuesta pública sanitizada
+
+El sistema SHALL definir DTO serializables que expongan solo éxito, código público, mensaje neutro, destino enmascarado y tiempos relativos. Esta requirement materializa D-07.
+
+#### Scenario: Inspección de DTO
+
+- **WHEN** se inspeccionan propiedades y una instancia serializada
+- **THEN** no aparecen ID interno, login, correo completo, estado persistido, SQL, excepción o secreto
+
+### Requirement: RQ-08 Evidencia reproducible y antirregresión
+
+El sistema SHALL disponer de pruebas focales de los contratos anteriores, registrar los archivos en el proyecto y conservar evidencia sanitizada del build. Esta requirement materializa D-08.
+
+#### Scenario: Validación de la fundación
+
+- **WHEN** se ejecutan la suite focal, MSBuild Debug y la inspección estructural
+- **THEN** terminan con código cero, todos los fuentes están registrados una vez y no existen cambios en archivos legacy prohibidos
+
+#### Scenario: Herramienta no disponible
+
+- **WHEN** MSBuild no está disponible en el ambiente
+- **THEN** se registra el comando, el bloqueo y la comprobación alternativa sin declarar compilación exitosa
+
+### Requirement: RQ-09 Documentación estructural verificable
+
+El sistema SHALL mantener un inventario explícito de diagramas Mermaid y resolver sus referencias `CODE` mediante análisis Roslyn de Visual Basic. Esta requirement materializa D-09.
+
+#### Scenario: Diagrama o símbolo inconsistente
+
+- **WHEN** falta un diagrama requerido, Mermaid rechaza su sintaxis, una fuente no existe o una declaración/firma/DTO difiere del manifiesto
+- **THEN** la prueba falla indicando archivo, símbolo y motivo
+
+#### Scenario: Exclusiones controladas
+
+- **WHEN** un participante no se resuelve contra el repositorio
+- **THEN** solo se admite si está inventariado como `EXT:` o `CONCEPT:`

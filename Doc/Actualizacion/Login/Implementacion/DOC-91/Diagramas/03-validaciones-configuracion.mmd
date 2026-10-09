@@ -1,0 +1,21 @@
+%% Convención: CODE = símbolo resoluble del repositorio; EXT = actor/dependencia externa; CONCEPT = estado o regla conceptual.
+%% Fuentes: Modelo/Login/SegundoFactor/SegundoFactorModels.vb | Infrastructure/Login/SegundoFactor/Security/AppSettingsSecondFactorKeyProvider.vb
+%% Referencias CODE: CODE:SegundoFactorConfiguration | CODE:SegundoFactorChallenge.IsExpired | CODE:SecondFactorContractValidation.IsSixDigitCode | CODE:SecondFactorContractValidation.IsMaskedEmailDestination | CODE:SecondFactorContractValidation.MaskEmailAddress | CODE:AppSettingsSecondFactorKeyProvider.GetActiveKey | CODE:AppSettingsSecondFactorKeyProvider.TryGetKey
+flowchart TD
+  A["EXT: consumidor interno"] --> B["CODE: SegundoFactorConfiguration"]
+  B --> C{"CONCEPT: RequiereSegundoFactor"}
+  C -->|0 o NULL| D["CONCEPT: configuración desactivada"]
+  C -->|distinto de 0, 1 o NULL| E["ArgumentOutOfRangeException"]
+  C -->|1| F{"CONCEPT: providerType = EMAIL 1"}
+  F -->|no| E
+  F -->|sí| G{"CONCEPT: expirationMinutes entre 1 y 10"}
+  G -->|no| E
+  G -->|sí| H["CONCEPT: configuración activa"]
+  A --> I["CODE: SecondFactorContractValidation.IsSixDigitCode(code: String): Boolean"]
+  A --> P["CODE: SecondFactorContractValidation.IsMaskedEmailDestination(destination: String): Boolean"]
+  A --> J["CODE: SecondFactorContractValidation.MaskEmailAddress(emailAddress: String): String"]
+  A --> K["CODE: SegundoFactorChallenge.IsExpired(clock: ISecondFactorClock): Boolean"]
+  A --> L["CODE: AppSettingsSecondFactorKeyProvider.GetActiveKey(): SecondFactorKeyMaterial"]
+  L --> M["CODE: AppSettingsSecondFactorKeyProvider.TryGetKey(keyId: String, key: SecondFactorKeyMaterial ByRef): Boolean"]
+  M -->|Base64 válido y al menos 32 bytes| N["CONCEPT: llave disponible"]
+  M -->|ausente, desconocida o inválida| O["CONCEPT: fallo cerrado"]

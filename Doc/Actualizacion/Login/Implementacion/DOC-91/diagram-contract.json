@@ -1,0 +1,194 @@
+{
+  "name": "DOC-91",
+  "version": 1,
+  "notation": "Mermaid",
+  "requiredDocuments": [
+    "README.md",
+    "01-ARQUITECTURA-Y-DIAGRAMAS.md",
+    "02-CASOS-DE-USO.md",
+    "03-INVENTARIO-TECNICO.md",
+    "04-VALIDACION-Y-PENDIENTES.md"
+  ],
+  "requiredDiagrams": [
+    {
+      "path": "Diagramas/01-componentes-clases.mmd",
+      "kind": "class",
+      "symbols": [
+        "CODE:ISecondFactorOtpGenerator",
+        "CODE:CryptographicSecondFactorOtpGenerator",
+        "CODE:ISecondFactorCodeProtector",
+        "CODE:HmacSecondFactorCodeProtector",
+        "CODE:ISecondFactorKeyProvider",
+        "CODE:AppSettingsSecondFactorKeyProvider",
+        "CODE:ISecondFactorClock",
+        "CODE:SystemSecondFactorClock",
+        "CODE:IPendingSecondFactorContextStore",
+        "CODE:SessionPendingSecondFactorContextStore"
+      ],
+      "signatures": []
+    },
+    {
+      "path": "Diagramas/02-secuencia-seguridad.mmd",
+      "kind": "sequence",
+      "symbols": [
+        "CODE:CryptographicSecondFactorOtpGenerator.GenerateCode",
+        "CODE:HmacSecondFactorCodeProtector.Protect",
+        "CODE:HmacSecondFactorCodeProtector.Verify",
+        "CODE:AppSettingsSecondFactorKeyProvider.GetActiveKey",
+        "CODE:AppSettingsSecondFactorKeyProvider.TryGetKey",
+        "CODE:SecondFactorContractValidation.IsSixDigitCode"
+      ],
+      "signatures": [
+        "GenerateCode(): String",
+        "Protect(context: SecondFactorProtectionContext, code: String): String",
+        "Verify(context: SecondFactorProtectionContext, code: String, protectedCode: String): Boolean",
+        "GetActiveKey(): SecondFactorKeyMaterial",
+        "TryGetKey(keyId: String, key: SecondFactorKeyMaterial ByRef): Boolean"
+      ]
+    },
+    {
+      "path": "Diagramas/03-validaciones-configuracion.mmd",
+      "kind": "flowchart",
+      "symbols": [
+        "CODE:SegundoFactorConfiguration",
+        "CODE:SegundoFactorChallenge.IsExpired",
+        "CODE:SecondFactorContractValidation.IsSixDigitCode",
+        "CODE:SecondFactorContractValidation.IsMaskedEmailDestination",
+        "CODE:SecondFactorContractValidation.MaskEmailAddress",
+        "CODE:AppSettingsSecondFactorKeyProvider.GetActiveKey",
+        "CODE:AppSettingsSecondFactorKeyProvider.TryGetKey"
+      ],
+      "signatures": [
+        "IsSixDigitCode(code: String): Boolean",
+        "IsMaskedEmailDestination(destination: String): Boolean",
+        "MaskEmailAddress(emailAddress: String): String",
+        "IsExpired(clock: ISecondFactorClock): Boolean",
+        "GetActiveKey(): SecondFactorKeyMaterial",
+        "TryGetKey(keyId: String, key: SecondFactorKeyMaterial ByRef): Boolean"
+      ]
+    },
+    {
+      "path": "Diagramas/04-secuencia-session.mmd",
+      "kind": "sequence",
+      "symbols": [
+        "CODE:SessionPendingSecondFactorContextStore.Save",
+        "CODE:SessionPendingSecondFactorContextStore.GetCurrent",
+        "CODE:SessionPendingSecondFactorContextStore.Clear",
+        "CODE:ISecondFactorClock",
+        "CODE:PendingSecondFactorContext"
+      ],
+      "signatures": [
+        "Save(context: PendingSecondFactorContext): Void",
+        "GetCurrent(): PendingSecondFactorContext",
+        "Clear(): Void",
+        "UtcNow: DateTime"
+      ]
+    }
+  ],
+  "dotnetDeclarations": {
+    "CODE:SegundoFactorPurpose": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SegundoFactorPurpose", "kind": "enum" },
+    "CODE:SegundoFactorChallengeState": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SegundoFactorChallengeState", "kind": "enum" },
+    "CODE:SegundoFactorIdentity": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SegundoFactorIdentity", "kind": "class" },
+    "CODE:SegundoFactorConfiguration": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SegundoFactorConfiguration", "kind": "class" },
+    "CODE:SegundoFactorChallenge": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SegundoFactorChallenge", "kind": "class" },
+    "CODE:SecondFactorProtectionContext": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorProtectionContext", "kind": "class" },
+    "CODE:SecondFactorKeyMaterial": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorKeyMaterial", "kind": "class" },
+    "CODE:SecondFactorRecipient": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorRecipient", "kind": "class" },
+    "CODE:SecondFactorEmailMessage": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorEmailMessage", "kind": "class" },
+    "CODE:SecondFactorDeliveryResult": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorDeliveryResult", "kind": "class" },
+    "CODE:LegacyLoginFinalizationResult": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "LegacyLoginFinalizationResult", "kind": "class" },
+    "CODE:PendingSecondFactorContext": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "PendingSecondFactorContext", "kind": "class" },
+    "CODE:SecondFactorContractValidation": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorContractValidation", "kind": "class" },
+    "CODE:ISecondFactorClock": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorClock", "kind": "interface" },
+    "CODE:ISecondFactorOtpGenerator": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorOtpGenerator", "kind": "interface" },
+    "CODE:ISecondFactorCodeProtector": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorCodeProtector", "kind": "interface" },
+    "CODE:ISecondFactorKeyProvider": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorKeyProvider", "kind": "interface" },
+    "CODE:ISecondFactorConfigurationRepository": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorConfigurationRepository", "kind": "interface" },
+    "CODE:ISecondFactorChallengeRepository": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "kind": "interface" },
+    "CODE:ISecondFactorRecipientResolver": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorRecipientResolver", "kind": "interface" },
+    "CODE:ISecondFactorEmailSender": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorEmailSender", "kind": "interface" },
+    "CODE:ILegacyLoginFinalizer": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ILegacyLoginFinalizer", "kind": "interface" },
+    "CODE:IPendingSecondFactorContextStore": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "IPendingSecondFactorContextStore", "kind": "interface" },
+    "CODE:SegundoFactorEstadoDto": { "file": "DTOs/Login/SegundoFactor/SegundoFactorDtos.vb", "type": "SegundoFactorEstadoDto", "kind": "class" },
+    "CODE:SegundoFactorResultadoDto": { "file": "DTOs/Login/SegundoFactor/SegundoFactorDtos.vb", "type": "SegundoFactorResultadoDto", "kind": "class" },
+    "CODE:SystemSecondFactorClock": { "file": "Infrastructure/Login/SegundoFactor/Security/SystemSecondFactorClock.vb", "type": "SystemSecondFactorClock", "kind": "class" },
+    "CODE:CryptographicSecondFactorOtpGenerator": { "file": "Infrastructure/Login/SegundoFactor/Security/CryptographicSecondFactorOtpGenerator.vb", "type": "CryptographicSecondFactorOtpGenerator", "kind": "class" },
+    "CODE:ISecondFactorSettings": { "file": "Infrastructure/Login/SegundoFactor/Security/AppSettingsSecondFactorKeyProvider.vb", "type": "ISecondFactorSettings", "kind": "interface" },
+    "CODE:ConfigurationManagerSecondFactorSettings": { "file": "Infrastructure/Login/SegundoFactor/Security/AppSettingsSecondFactorKeyProvider.vb", "type": "ConfigurationManagerSecondFactorSettings", "kind": "class" },
+    "CODE:AppSettingsSecondFactorKeyProvider": { "file": "Infrastructure/Login/SegundoFactor/Security/AppSettingsSecondFactorKeyProvider.vb", "type": "AppSettingsSecondFactorKeyProvider", "kind": "class" },
+    "CODE:HmacSecondFactorCodeProtector": { "file": "Infrastructure/Login/SegundoFactor/Security/HmacSecondFactorCodeProtector.vb", "type": "HmacSecondFactorCodeProtector", "kind": "class" },
+    "CODE:SessionPendingSecondFactorContextStore": { "file": "webservice/Login/SegundoFactor/SessionPendingSecondFactorContextStore.vb", "type": "SessionPendingSecondFactorContextStore", "kind": "class" }
+  },
+  "dotnetEnums": {
+    "SegundoFactorPurpose": ["LOGIN"],
+    "SegundoFactorChallengeState": ["CREATED", "SENT", "FINALIZING", "COMPLETED", "DELIVERY_FAILED", "BLOCKED", "EXPIRED", "REVOKED", "FINALIZATION_FAILED"]
+  },
+  "dotnetSymbols": {
+    "CODE:SegundoFactorChallenge.IsExpired": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SegundoFactorChallenge", "method": "IsExpired", "parameters": ["ISecondFactorClock"], "return": "System.Boolean" },
+    "CODE:SecondFactorContractValidation.IsSixDigitCode": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorContractValidation", "method": "IsSixDigitCode", "parameters": ["System.String"], "return": "System.Boolean" },
+    "CODE:SecondFactorContractValidation.IsMaskedEmailDestination": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorContractValidation", "method": "IsMaskedEmailDestination", "parameters": ["System.String"], "return": "System.Boolean" },
+    "CODE:SecondFactorContractValidation.MaskEmailAddress": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorContractValidation", "method": "MaskEmailAddress", "parameters": ["System.String"], "return": "System.String" },
+    "CODE:ISecondFactorOtpGenerator.GenerateCode": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorOtpGenerator", "method": "GenerateCode", "parameters": [], "return": "System.String" },
+    "CODE:ISecondFactorCodeProtector.Protect": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorCodeProtector", "method": "Protect", "parameters": ["SecondFactorProtectionContext", "System.String"], "return": "System.String" },
+    "CODE:ISecondFactorCodeProtector.Verify": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorCodeProtector", "method": "Verify", "parameters": ["SecondFactorProtectionContext", "System.String", "System.String"], "return": "System.Boolean" },
+    "CODE:ISecondFactorKeyProvider.GetActiveKey": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorKeyProvider", "method": "GetActiveKey", "parameters": [], "return": "SecondFactorKeyMaterial" },
+    "CODE:ISecondFactorKeyProvider.TryGetKey": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorKeyProvider", "method": "TryGetKey", "parameters": ["System.String", "SecondFactorKeyMaterial&"], "return": "System.Boolean" },
+    "CODE:ISecondFactorConfigurationRepository.GetConfiguration": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorConfigurationRepository", "method": "GetConfiguration", "parameters": ["System.Int32"], "return": "SegundoFactorConfiguration" },
+    "CODE:ISecondFactorChallengeRepository.Create": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "Create", "parameters": ["SegundoFactorChallenge", "System.String", "System.String"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.GetForVerification": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "GetForVerification", "parameters": ["Guid", "System.String"], "return": "SegundoFactorChallenge" },
+    "CODE:ISecondFactorChallengeRepository.RegisterFailedAttempt": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "RegisterFailedAttempt", "parameters": ["Guid", "System.Int32"], "return": "SegundoFactorChallenge" },
+    "CODE:ISecondFactorChallengeRepository.TryBeginFinalization": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "TryBeginFinalization", "parameters": ["Guid", "System.Int32"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.Complete": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "Complete", "parameters": ["Guid"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.FailFinalization": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "FailFinalization", "parameters": ["Guid"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.Revoke": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "Revoke", "parameters": ["Guid"], "return": "System.Boolean" },
+    "CODE:ISecondFactorRecipientResolver.Resolve": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorRecipientResolver", "method": "Resolve", "parameters": ["SegundoFactorIdentity"], "return": "SecondFactorRecipient" },
+    "CODE:ISecondFactorEmailSender.Send": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorEmailSender", "method": "Send", "parameters": ["SecondFactorEmailMessage"], "return": "SecondFactorDeliveryResult" },
+    "CODE:ILegacyLoginFinalizer.FinalizeLogin": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ILegacyLoginFinalizer", "method": "FinalizeLogin", "parameters": ["PendingSecondFactorContext"], "return": "LegacyLoginFinalizationResult" },
+    "CODE:IPendingSecondFactorContextStore.Save": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "IPendingSecondFactorContextStore", "method": "Save", "parameters": ["PendingSecondFactorContext"], "return": "System.Void" },
+    "CODE:IPendingSecondFactorContextStore.GetCurrent": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "IPendingSecondFactorContextStore", "method": "GetCurrent", "parameters": [], "return": "PendingSecondFactorContext" },
+    "CODE:IPendingSecondFactorContextStore.Clear": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "IPendingSecondFactorContextStore", "method": "Clear", "parameters": [], "return": "System.Void" },
+    "CODE:CryptographicSecondFactorOtpGenerator.GenerateCode": { "file": "Infrastructure/Login/SegundoFactor/Security/CryptographicSecondFactorOtpGenerator.vb", "type": "CryptographicSecondFactorOtpGenerator", "method": "GenerateCode", "parameters": [], "return": "System.String" },
+    "CODE:CryptographicSecondFactorOtpGenerator.Dispose": { "file": "Infrastructure/Login/SegundoFactor/Security/CryptographicSecondFactorOtpGenerator.vb", "type": "CryptographicSecondFactorOtpGenerator", "method": "Dispose", "parameters": [], "return": "System.Void" },
+    "CODE:ISecondFactorSettings.GetValue": { "file": "Infrastructure/Login/SegundoFactor/Security/AppSettingsSecondFactorKeyProvider.vb", "type": "ISecondFactorSettings", "method": "GetValue", "parameters": ["System.String"], "return": "System.String" },
+    "CODE:ConfigurationManagerSecondFactorSettings.GetValue": { "file": "Infrastructure/Login/SegundoFactor/Security/AppSettingsSecondFactorKeyProvider.vb", "type": "ConfigurationManagerSecondFactorSettings", "method": "GetValue", "parameters": ["System.String"], "return": "System.String" },
+    "CODE:AppSettingsSecondFactorKeyProvider.GetActiveKey": { "file": "Infrastructure/Login/SegundoFactor/Security/AppSettingsSecondFactorKeyProvider.vb", "type": "AppSettingsSecondFactorKeyProvider", "method": "GetActiveKey", "parameters": [], "return": "SecondFactorKeyMaterial" },
+    "CODE:AppSettingsSecondFactorKeyProvider.TryGetKey": { "file": "Infrastructure/Login/SegundoFactor/Security/AppSettingsSecondFactorKeyProvider.vb", "type": "AppSettingsSecondFactorKeyProvider", "method": "TryGetKey", "parameters": ["System.String", "SecondFactorKeyMaterial&"], "return": "System.Boolean" },
+    "CODE:HmacSecondFactorCodeProtector.Protect": { "file": "Infrastructure/Login/SegundoFactor/Security/HmacSecondFactorCodeProtector.vb", "type": "HmacSecondFactorCodeProtector", "method": "Protect", "parameters": ["SecondFactorProtectionContext", "System.String"], "return": "System.String" },
+    "CODE:HmacSecondFactorCodeProtector.Verify": { "file": "Infrastructure/Login/SegundoFactor/Security/HmacSecondFactorCodeProtector.vb", "type": "HmacSecondFactorCodeProtector", "method": "Verify", "parameters": ["SecondFactorProtectionContext", "System.String", "System.String"], "return": "System.Boolean" },
+    "CODE:SessionPendingSecondFactorContextStore.Save": { "file": "webservice/Login/SegundoFactor/SessionPendingSecondFactorContextStore.vb", "type": "SessionPendingSecondFactorContextStore", "method": "Save", "parameters": ["PendingSecondFactorContext"], "return": "System.Void" },
+    "CODE:SessionPendingSecondFactorContextStore.GetCurrent": { "file": "webservice/Login/SegundoFactor/SessionPendingSecondFactorContextStore.vb", "type": "SessionPendingSecondFactorContextStore", "method": "GetCurrent", "parameters": [], "return": "PendingSecondFactorContext" },
+    "CODE:SessionPendingSecondFactorContextStore.Clear": { "file": "webservice/Login/SegundoFactor/SessionPendingSecondFactorContextStore.vb", "type": "SessionPendingSecondFactorContextStore", "method": "Clear", "parameters": [], "return": "System.Void" }
+  },
+  "dotnetTypes": {
+    "SegundoFactorEstadoDto": [
+      "RequiereCodigo:System.Boolean",
+      "DestinoEnmascarado:System.String",
+      "ExpiraEnSegundos:System.Int32",
+      "ReenvioDisponibleEnSegundos:System.Int32"
+    ],
+    "SegundoFactorResultadoDto": [
+      "Exito:System.Boolean",
+      "Codigo:System.String",
+      "MensajeVisible:System.String",
+      "Estado:SegundoFactorEstadoDto"
+    ],
+    "ISecondFactorClock": ["UtcNow:System.DateTime"],
+    "SystemSecondFactorClock": ["UtcNow:System.DateTime"]
+  },
+  "excludedKinds": {
+    "external": [
+      "EXT: consumidor interno futuro",
+      "EXT: consumidor WebForms futuro",
+      "EXT: RandomNumberGenerator",
+      "EXT: HMACSHA256",
+      "EXT: HttpSessionStateBase"
+    ],
+    "conceptual": [
+      "CONCEPT: configuración activa",
+      "CONCEPT: configuración desactivada",
+      "CONCEPT: regla de activación/proveedor/vigencia",
+      "CONCEPT: llave disponible",
+      "CONCEPT: fallo cerrado"
+    ]
+  }
+}

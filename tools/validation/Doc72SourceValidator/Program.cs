@@ -12,7 +12,7 @@ var excluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".git", "
 var files = Directory.EnumerateFiles(repoRoot, "*.vb", SearchOption.AllDirectories)
     .Where(path => !path.Split(Path.DirectorySeparatorChar).Any(excluded.Contains));
 var roots = files.Select(path => VisualBasicSyntaxTree.ParseText(File.ReadAllText(path), path: path).GetRoot()).ToArray();
-var typeBlocks = roots.SelectMany(root => root.DescendantNodes().Where(node => node is ClassBlockSyntax or InterfaceBlockSyntax)).ToArray();
+var typeBlocks = roots.SelectMany(root => root.DescendantNodes().Where(node => node is ClassBlockSyntax or InterfaceBlockSyntax or EnumBlockSyntax)).ToArray();
 var errors = new List<string>();
 
 string TypeName(TypeSyntax? type)
@@ -52,9 +52,46 @@ string BlockName(SyntaxNode node) => node switch
 {
     ClassBlockSyntax c => c.ClassStatement.Identifier.ValueText,
     InterfaceBlockSyntax i => i.InterfaceStatement.Identifier.ValueText,
+    EnumBlockSyntax e => e.EnumStatement.Identifier.ValueText,
     _ => string.Empty
 };
 SyntaxNode[] FindTypes(string name) => typeBlocks.Where(block => BlockName(block) == name).ToArray();
+
+string BlockKind(SyntaxNode node) => node switch
+{
+    ClassBlockSyntax => "class",
+    InterfaceBlockSyntax => "interface",
+    EnumBlockSyntax => "enum",
+    _ => string.Empty
+};
+
+if (manifest.TryGetProperty("dotnetDeclarations", out var declarations))
+{
+    foreach (var declaration in declarations.EnumerateObject())
+    {
+        var expected = declaration.Value;
+        var typeName = expected.GetProperty("type").GetString()!;
+        var expectedKind = expected.GetProperty("kind").GetString()!;
+        var expectedFile = Path.GetFullPath(Path.Combine(repoRoot, expected.GetProperty("file").GetString()!.Replace('/', Path.DirectorySeparatorChar)));
+        var matches = FindTypes(typeName).Where(type =>
+            BlockKind(type) == expectedKind &&
+            string.Equals(Path.GetFullPath(type.SyntaxTree.FilePath), expectedFile, StringComparison.OrdinalIgnoreCase)).ToArray();
+        if (matches.Length != 1)
+            errors.Add($"{declaration.Name}: declaración {expectedKind} {typeName} inexistente o ambigua en {expected.GetProperty("file").GetString()} (coincidencias={matches.Length})");
+    }
+}
+
+if (manifest.TryGetProperty("dotnetEnums", out var enums))
+{
+    foreach (var contract in enums.EnumerateObject())
+    {
+        var matches = FindTypes(contract.Name).OfType<EnumBlockSyntax>().ToArray();
+        if (matches.Length != 1) { errors.Add($"Enum {contract.Name} inexistente o ambiguo"); continue; }
+        var actual = matches[0].Members.OfType<EnumMemberDeclarationSyntax>().Select(member => member.Identifier.ValueText).ToArray();
+        var expected = contract.Value.EnumerateArray().Select(value => value.GetString()!).ToArray();
+        if (!actual.SequenceEqual(expected)) errors.Add($"Enum {contract.Name}: miembros [{string.Join(',', actual)}], esperados [{string.Join(',', expected)}]");
+    }
+}
 
 foreach (var symbol in manifest.GetProperty("dotnetSymbols").EnumerateObject())
 {
@@ -107,4 +144,6 @@ foreach (var dto in manifest.GetProperty("dotnetTypes").EnumerateObject())
 
 if (errors.Count > 0) throw new InvalidOperationException(string.Join(Environment.NewLine, errors));
 var contractName = manifest.TryGetProperty("name", out var nameElement) ? nameElement.GetString() : "DOC-72";
-Console.WriteLine($"{contractName} Roslyn symbols: PASS ({manifest.GetProperty("dotnetSymbols").EnumerateObject().Count()} firmas, {manifest.GetProperty("dotnetTypes").EnumerateObject().Count()} tipos).");
+var declarationCount = manifest.TryGetProperty("dotnetDeclarations", out var declaredTypes) ? declaredTypes.EnumerateObject().Count() : 0;
+var enumCount = manifest.TryGetProperty("dotnetEnums", out var declaredEnums) ? declaredEnums.EnumerateObject().Count() : 0;
+Console.WriteLine($"{contractName} Roslyn symbols: PASS ({declarationCount} declaraciones, {enumCount} enums, {manifest.GetProperty("dotnetSymbols").EnumerateObject().Count()} firmas, {manifest.GetProperty("dotnetTypes").EnumerateObject().Count()} tipos con propiedades).");

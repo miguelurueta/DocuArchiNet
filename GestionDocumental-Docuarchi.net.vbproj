@@ -9892,6 +9892,14 @@
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Expedients\SiiDocumentIndexAdapter.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Expedients\LegacySiiDocumentIndexPhysicalGateway.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\MySqlSiiImportAuthorizationRepository.vb" />
+    <Compile Include="Modelo\Login\SegundoFactor\SegundoFactorModels.vb" />
+    <Compile Include="Modelo\Login\SegundoFactor\SegundoFactorInterfaces.vb" />
+    <Compile Include="DTOs\Login\SegundoFactor\SegundoFactorDtos.vb" />
+    <Compile Include="Infrastructure\Login\SegundoFactor\Security\SystemSecondFactorClock.vb" />
+    <Compile Include="Infrastructure\Login\SegundoFactor\Security\CryptographicSecondFactorOtpGenerator.vb" />
+    <Compile Include="Infrastructure\Login\SegundoFactor\Security\AppSettingsSecondFactorKeyProvider.vb" />
+    <Compile Include="Infrastructure\Login\SegundoFactor\Security\HmacSecondFactorCodeProtector.vb" />
+    <Compile Include="webservice\Login\SegundoFactor\SessionPendingSecondFactorContextStore.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernModels.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernInterfaces.vb" />
     <Compile Include="Modelo\Workflow\ImportarServicioWeb\ImportarServicioWebModels.vb" />

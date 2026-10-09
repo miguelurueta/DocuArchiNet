@@ -1,13 +1,13 @@
 ## Why
 
-DOBLE-FACTOR-CONTRATO. Ver detalle funcional completo del ticket en la seccion Jira Details.
+El repositorio necesita una base 2FA propia, compatible con WebForms/VB.NET net461 y con las tablas compartidas verificadas, antes de integrar persistencia, correo, servicios o interfaz. Separar esta fundación permite fijar contratos y primitivas de seguridad sin alterar el login vigente.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-91.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Se agregan modelos y puertos internos para identidad, configuración, challenge, destinatario, correo, persistencia y finalización.
+- Se implementan OTP criptográfico, HMAC versionado, anillo de llaves inyectable y reloj UTC.
+- Se agrega un adaptador mínimo de contexto pendiente en Session y DTO públicos sanitizados.
+- Se incorporan pruebas focales y registro explícito en el proyecto, manteniendo la fundación desconectada de producción.
 
 ## Jira Details
 
@@ -103,13 +103,13 @@ DOBLE-FACTOR-CONTRATO. Ver detalle funcional completo del ticket en la seccion J
 ## Capabilities
 
 ### New Capabilities
-- `doble-factor-contrato`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `doble-factor-contrato`: Contratos y primitivas internas de seguridad para una futura autenticación 2FA de propósito LOGIN.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
+- Nuevos archivos bajo `Modelo/Login/SegundoFactor/`, `DTOs/Login/SegundoFactor/`, `Infrastructure/Login/SegundoFactor/Security/` y `webservice/Login/SegundoFactor/`.
+- Actualización de `GestionDocumental-Docuarchi.net.vbproj`, pruebas y documentación.
+- Sin cambio observable en login, UI, sesión autenticada, SMTP, ASMX o base de datos.
