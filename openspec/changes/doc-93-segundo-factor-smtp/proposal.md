@@ -1,13 +1,14 @@
 ## Why
 
-SEGUNDO-FACTOR-SMTP. Ver detalle funcional completo del ticket en la seccion Jira Details.
+El segundo factor necesita entregar OTP usando la configuración SMTP vigente sin acoplarse al correo legacy, elegir arbitrariamente entre varias filas activas ni filtrar secretos ante fallos.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-93.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Agregar modelos y puertos SMTP tipados compatibles con los contratos DOC-91.
+- Leer explícitamente la fila activa de `Config_Smpt_Side` usando las abstracciones ADO.NET existentes.
+- Rechazar configuración ausente, ambigua o inválida antes de abrir una conexión SMTP.
+- Agregar un transporte exclusivo para OTP con timeout acotado, recursos descartables y errores sanitizados.
+- Mantener sin cambios `ClassCorreo`, recuperación de contraseña, login, UI, ASMX y esquema MySQL.
 
 ## Jira Details
 
@@ -102,13 +103,13 @@ SEGUNDO-FACTOR-SMTP. Ver detalle funcional completo del ticket en la seccion Jir
 ## Capabilities
 
 ### New Capabilities
-- `segundo-factor-smtp`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `segundo-factor-smtp`: Resolución y transporte SMTP interno, tipado y fail-closed para OTP.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
+- Nuevas fuentes en `Modelo/Login/SegundoFactor`, `Infrastructure/Repositories/Login/SegundoFactor` e `Infrastructure/Login/SegundoFactor/Smtp`.
+- Alta de fuentes en el `.vbproj`, pruebas sin red y documentación DOC-93.
+- Sin endpoint, UI, activación del login, cambio de datos/esquema ni modificación del correo legacy.
