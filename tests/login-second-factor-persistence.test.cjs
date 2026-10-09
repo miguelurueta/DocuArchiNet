@@ -26,15 +26,10 @@ test('DOC-92: contrato, rutas y SQL respetan el límite de persistencia', () => 
   assert.doesNotMatch(repositoryText, /HttpContext|System\.Web|\bSession\b|\bconect\b/i);
   assert.doesNotMatch(repositoryText, /CommandText|CreateCommand\(/i);
 
-  const expected = ['00-preflight.sql', '01-apply.sql', '02-postflight.sql', '03-rollback.sql', '04-cleanup-terminal.sql', 'README.md'];
-  for (const name of expected) assert.equal(fs.existsSync(path.join(sqlRoot, name)), true, `Falta ${name}`);
-  const apply = read(path.join(sqlRoot, '01-apply.sql'));
-  for (const column of ['Purpose','SessionBindingHash','State','KeyId','ResendCount','LastSentAtUtc','TerminalAtUtc','UpdatedAtUtc','SchemaVersion']) assert.match(apply, new RegExp(`COLUMN_NAME='${column}'`));
-  for (const index of ['IX_ra_auth_sfc_identity_purpose_state','IX_ra_auth_sfc_session_state','IX_ra_auth_sfc_state_expiry']) assert.match(apply, new RegExp(index));
-  assert.doesNotMatch(apply, /UPDATE\s+ra_auth_second_factor_challenge|DELETE\s+FROM/i);
-  const cleanup = read(path.join(sqlRoot, '04-cleanup-terminal.sql'));
-  assert.match(cleanup, /TerminalAtUtc\s*</);
-  assert.doesNotMatch(cleanup, /CREATE\s+EVENT|SCHEDULER|cron/i);
+  assert.deepEqual(fs.readdirSync(sqlRoot).sort(), ['README.md']);
+  assert.match(read(path.join(sqlRoot, 'README.md')), /no requiere migración/i);
+  assert.match(repositoryText, /ChallengeId,AuthUserId,Provider,CodeHash,ExpiresAtUtc,Consumed,Attempts,CreatedAtUtc,AuthPayloadJson/);
+  assert.doesNotMatch(repositoryText, /\bSchemaVersion\b|\bSessionBindingHash\b.*(?:SELECT|INSERT|UPDATE)|\bTerminalAtUtc\b|\bLastSentAtUtc\b/);
   const integration = read(path.join(root, 'tools', 'e2e', 'tests', 'login-second-factor-persistence.integration.test.cjs'));
   assert.match(integration, /DOC92_MYSQL_AUTHORIZED\s*===\s*'SI'/);
   assert.match(integration, /\^doc92_/);

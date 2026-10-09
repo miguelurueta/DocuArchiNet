@@ -137,30 +137,24 @@ Public NotInheritable Class SecondFactorStoredChallenge
                    ByVal purpose As SegundoFactorPurpose,
                    ByVal state As SegundoFactorChallengeState,
                    ByVal attempts As Integer,
-                   ByVal resendCount As Integer,
                    ByVal createdAtUtc As DateTime,
-                   ByVal expiresAtUtc As DateTime,
-                   ByVal lastSentAtUtc As Nullable(Of DateTime))
+                   ByVal expiresAtUtc As DateTime)
         If challengeId = Guid.Empty Then Throw New ArgumentException("El challenge es obligatorio.", NameOf(challengeId))
         If String.IsNullOrWhiteSpace(canonicalIdentity) Then Throw New ArgumentException("La identidad canónica es obligatoria.", NameOf(canonicalIdentity))
         If purpose <> SegundoFactorPurpose.LOGIN Then Throw New ArgumentOutOfRangeException(NameOf(purpose))
         If Not [Enum].IsDefined(GetType(SegundoFactorChallengeState), state) Then Throw New ArgumentOutOfRangeException(NameOf(state))
         If attempts < 0 OrElse attempts > SegundoFactorConfiguration.MaxAttempts Then Throw New ArgumentOutOfRangeException(NameOf(attempts))
-        If resendCount < 0 OrElse resendCount > SegundoFactorConfiguration.MaxResends Then Throw New ArgumentOutOfRangeException(NameOf(resendCount))
         EnsureUtc(createdAtUtc, NameOf(createdAtUtc))
         EnsureUtc(expiresAtUtc, NameOf(expiresAtUtc))
         If expiresAtUtc <= createdAtUtc Then Throw New ArgumentException("La expiración debe ser posterior a la creación.", NameOf(expiresAtUtc))
-        If lastSentAtUtc.HasValue Then EnsureUtc(lastSentAtUtc.Value, NameOf(lastSentAtUtc))
 
         Me.ChallengeId = challengeId
         Me.CanonicalIdentity = canonicalIdentity.Trim()
         Me.Purpose = purpose
         Me.State = state
         Me.Attempts = attempts
-        Me.ResendCount = resendCount
         Me.CreatedAtUtc = createdAtUtc
         Me.ExpiresAtUtc = expiresAtUtc
-        Me.LastSentAtUtc = lastSentAtUtc
     End Sub
 
     Public ReadOnly Property ChallengeId As Guid
@@ -168,10 +162,8 @@ Public NotInheritable Class SecondFactorStoredChallenge
     Public ReadOnly Property Purpose As SegundoFactorPurpose
     Public ReadOnly Property State As SegundoFactorChallengeState
     Public ReadOnly Property Attempts As Integer
-    Public ReadOnly Property ResendCount As Integer
     Public ReadOnly Property CreatedAtUtc As DateTime
     Public ReadOnly Property ExpiresAtUtc As DateTime
-    Public ReadOnly Property LastSentAtUtc As Nullable(Of DateTime)
 
     Private Shared Sub EnsureUtc(ByVal value As DateTime, ByVal parameterName As String)
         If value.Kind <> DateTimeKind.Utc Then Throw New ArgumentException("La fecha debe expresarse en UTC.", parameterName)

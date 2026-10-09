@@ -12,7 +12,7 @@ internal static class LoginSecondFactorPersistenceBehaviorTests
     {
         try
         {
-            CreatesVersionedChallengeWithoutAuthPayload();
+            CreatesCompatibleChallengeWithoutAuthPayload();
             ReadsCanonicalProjectionWithoutInventingLogin();
             FifthAttemptBlocksAtomically();
             FinalizationUsesRowLockAndExpectedState();
@@ -28,7 +28,7 @@ internal static class LoginSecondFactorPersistenceBehaviorTests
         }
     }
 
-    private static void CreatesVersionedChallengeWithoutAuthPayload()
+    private static void CreatesCompatibleChallengeWithoutAuthPayload()
     {
         var executor = new FakeExecutor();
         executor.NonQueryResults.Enqueue(1);
@@ -38,10 +38,10 @@ internal static class LoginSecondFactorPersistenceBehaviorTests
         Equal(0, fixture.Transaction.Rollbacks, "rollback de creación");
         var command = executor.Commands.Single();
         Contains(command.Sql, "AuthPayloadJson");
-        Contains(command.Sql, "@schemaVersion,NULL");
+        Contains(command.Sql, "@createdAt,NULL");
         Equal("7:11:RADICADOR:42", command.Value("@authUserId"), "identidad canónica");
-        Equal(1, Convert.ToInt32(command.Value("@schemaVersion")), "versión");
-        Equal("active", command.Value("@keyId"), "key id");
+        Assert(!command.Values.ContainsKey("@schemaVersion"), "No debe depender de una columna de versión.");
+        Assert(!command.Values.ContainsKey("@keyId"), "El keyId permanece dentro de CodeHash.");
     }
 
     private static void ReadsCanonicalProjectionWithoutInventingLogin()
@@ -66,7 +66,8 @@ internal static class LoginSecondFactorPersistenceBehaviorTests
         Equal(5, result.Attempts, "quinto intento");
         Equal(Login2Fa.SegundoFactorChallengeState.BLOCKED, result.State, "bloqueo");
         Assert(executor.Commands[0].Sql.EndsWith("FOR UPDATE", StringComparison.Ordinal), "lectura bloqueante");
-        Equal("BLOCKED", executor.Commands[1].Value("@nextState"), "estado persistido");
+        Assert(!executor.Commands[1].Values.ContainsKey("@nextState"), "El estado se deriva; no se persiste.");
+        Equal(5, Convert.ToInt32(executor.Commands[1].Value("@nextAttempts")), "intentos persistidos");
         Equal(1, fixture.Transaction.Commits, "commit del bloqueo");
     }
 
@@ -78,9 +79,8 @@ internal static class LoginSecondFactorPersistenceBehaviorTests
         var fixture = Fixture(executor);
         Assert(fixture.Repository.TryBeginFinalization(KnownId(), 1), "adquisición");
         Contains(executor.Commands[0].Sql, "FOR UPDATE");
-        Contains(executor.Commands[1].Sql, "State=@expectedState");
-        Equal("FINALIZING", executor.Commands[1].Value("@nextState"), "estado adquirido");
-        Equal(0, Convert.ToInt32(executor.Commands[1].Value("@expectedAttempts")) - 1, "intento esperado");
+        Contains(executor.Commands[1].Sql, "SET Consumed=1");
+        Equal(1, Convert.ToInt32(executor.Commands[1].Value("@expectedAttempts")), "intento esperado");
     }
 
     private static void ReplacementFailureRollsBackRevocation()
@@ -126,15 +126,12 @@ internal static class LoginSecondFactorPersistenceBehaviorTests
     {
         var table = new DataTable();
         table.Columns.Add("ChallengeId", typeof(string)); table.Columns.Add("AuthUserId", typeof(string));
-        table.Columns.Add("Purpose", typeof(string)); table.Columns.Add("State", typeof(string));
-        table.Columns.Add("Attempts", typeof(int)); table.Columns.Add("ResendCount", typeof(int));
-        table.Columns.Add("CreatedAtUtc", typeof(DateTime)); table.Columns.Add("ExpiresAtUtc", typeof(DateTime));
-        table.Columns.Add("LastSentAtUtc", typeof(DateTime)); table.Columns.Add("TerminalAtUtc", typeof(DateTime));
-        table.Columns.Add("UpdatedAtUtc", typeof(DateTime)); table.Columns.Add("SchemaVersion", typeof(int));
-        table.Columns.Add("SessionBindingHash", typeof(string)); table.Columns.Add("CodeHash", typeof(string));
-        table.Columns.Add("Consumed", typeof(bool)); table.Columns.Add("KeyId", typeof(string));
-        table.Rows.Add(KnownId().ToString("D"), "7:11:RADICADOR:42", "LOGIN", state.ToString(), attempts, resendCount,
-            Now.AddMinutes(-3), Now.AddMinutes(5), lastSent, DBNull.Value, Now, 1, "session-hash", ProtectedCode(), false, "active");
+        table.Columns.Add("Provider", typeof(string)); table.Columns.Add("CodeHash", typeof(string));
+        table.Columns.Add("ExpiresAtUtc", typeof(DateTime)); table.Columns.Add("Consumed", typeof(bool));
+        table.Columns.Add("Attempts", typeof(int)); table.Columns.Add("CreatedAtUtc", typeof(DateTime));
+        table.Columns.Add("AuthPayloadJson", typeof(string));
+        table.Rows.Add(KnownId().ToString("D"), "7:11:RADICADOR:42", "EMAIL", ProtectedCode(), Now.AddMinutes(5),
+            state == Login2Fa.SegundoFactorChallengeState.COMPLETED, attempts, lastSent, DBNull.Value);
         return table;
     }
 

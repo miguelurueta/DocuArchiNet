@@ -1,17 +1,22 @@
-# DOC-92 — Persistencia transaccional del segundo factor
+# DOC-92 — Persistencia del segundo factor sobre esquema existente
 
-Implementa el almacenamiento central e inactivo de challenges 2FA. No activa el login, no publica endpoints y no envía correo.
+- Ticket: DOC-92
+- Cambio OpenSpec: doc-92-segundo-factor-persistencia
+- Clasificacion: cross_cutting
 
-## Componentes
+## Objetivo
+
+Incorporar el repositorio inactivo de challenges 2FA reutilizando sin alteraciones la tabla compartida `docuarchi.ra_auth_second_factor_challenge`. DOC-92 no activa el login, no envía correo, no publica endpoints y no modifica la lógica visual.
+
+## Alcance y compatibilidad
 
 - Modelos y puerto: `Modelo/Login/SegundoFactor/`.
-- Implementación: `Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb`.
-- Esquema: `Doc/Actualizacion/Login/Implementacion/DOC-92/Sql/`.
-- Pruebas locales: `tests/login-second-factor-persistence.test.cjs`.
-- Integración MySQL protegida: `tools/e2e/tests/login-second-factor-persistence.integration.test.cjs`.
+- Repositorio: `Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb`.
+- Tabla reutilizada: `ra_auth_second_factor_challenge`, con sus diez columnas existentes.
+- Pruebas: dobles locales y harness MySQL sobre base descartable protegida.
 
-La persistencia usa identidad canónica, no login. Por eso la lectura devuelve `SecondFactorStoredChallenge`; el login continúa en `PendingSecondFactorContext`. Las firmas legacy que exigirían reconstruir el login permanecen para compatibilidad, pero la implementación MySQL las rechaza explícitamente.
+No se crean tablas, columnas, índices, procedimientos ni eventos. Tampoco existe migración, backfill, limpieza o rollback SQL en DOC-92.
 
-## Compatibilidad y reversa
+La compatibilidad es física: DocuArchiNet puede convivir con las filas del repositorio nuevo en la misma tabla. No significa que una aplicación pueda consumir challenges emitidos por la otra, porque difieren el formato criptográfico de `CodeHash` y el uso de `AuthPayloadJson`. Cada aplicación valida únicamente challenges que ella misma emitió.
 
-Las nueve columnas son nullable para convivir con filas legacy. Solo `SchemaVersion=1` participa en el flujo nuevo. Se preservan índices existentes y no se hace backfill. `03-rollback.sql` revierte artefactos DOC-92, pero pierde atributos v1 y exige respaldo.
+La identidad persistida es la clave canónica en `AuthUserId`; no se guarda ni se reconstruye el login. Los estados funcionales se derivan de `Consumed`, `Attempts` y `ExpiresAtUtc`.

@@ -1,20 +1,17 @@
 # Implementación DOC-92
 
-Se implementó la persistencia transaccional e inactiva del challenge 2FA: contrato compatible, proyección sin login, repositorio MySQL parametrizado, paquete SQL idempotente, pruebas locales y harness de integración protegido.
+DOC-92 implementa un repositorio transaccional e inactivo para segundo factor reutilizando exactamente `ra_auth_second_factor_challenge`. No crea ni altera tablas, columnas o índices; por ello la carpeta `Sql` contiene solamente la explicación de que no existe migración.
 
-## Decisión corregida durante implementación
+La tabla guarda la identidad canónica en `AuthUserId`, no el login. `GetVerificationData` y `RegisterFailedAttemptData` retornan `SecondFactorStoredChallenge`; las firmas heredadas que exigirían reconstruir un login inexistente lanzan `NotSupportedException` en este adaptador.
 
-La tabla guarda `AuthUserId` canónico y no guarda login. `SegundoFactorIdentity` no puede rehidratarse sin inventar datos. Por ello `GetVerificationData` y `RegisterFailedAttemptData` retornan `SecondFactorStoredChallenge`. Las dos firmas antiguas que retornan `SegundoFactorChallenge` permanecen en el puerto, pero el repositorio MySQL lanza `NotSupportedException`; los consumidores nuevos no deben usarlas.
+`Consumed`, `Attempts` y `ExpiresAtUtc` son las únicas señales persistidas para derivar disponibilidad y estado. `TryBeginFinalization` adquiere el challenge mediante el cambio atómico `Consumed=0 -> 1`. El esquema no representa estados intermedios: si el finalizador falla después de adquirirlo, el usuario debe reiniciar el login.
+
+## Compatibilidad
+
+La compatibilidad con DocuArchiCore es estructural y permite convivencia en la tabla. Las filas no son intercambiables entre aplicaciones debido a sus diferentes contratos de `CodeHash` y `AuthPayloadJson`; DocuArchiNet deja este último en `NULL`.
 
 ## Evidencia
 
-- Build MSBuild: código 0.
-- Pruebas DOC-91 + DOC-92: 6 aprobadas, 0 fallidas.
-- Integración MySQL descartable: automatizada pero no ejecutada; faltó autorización vigente específica y se registró como `SKIP`.
-- DDL/rollback/cleanup real: no ejecutados.
+Las seis pruebas locales DOC-91/DOC-92, el refinamiento OPSXJ y OpenSpec estricto terminaron en código 0. La integración MySQL quedó `SKIP` por ausencia de autorización vigente; no se atribuye aprobación real. Consulte `Doc/Tecnica/Opsxj/doc-92-segundo-factor-persistencia/05-PruebasEvidencia.md`.
 
-## Riesgo residual
-
-La sintaxis y correspondencia estructural de SQL están verificadas localmente, pero la idempotencia y el ganador único requieren ejecución posterior en MySQL descartable autorizado. El rollback pierde los atributos v1 y exige respaldo. No existe atomicidad distribuida con el futuro finalizador de login.
-
-Consulta [Sql/README.md](Sql/README.md) para el orden de despliegue y reversa.
+No se ejecutó ni se requiere DDL sobre la base existente.

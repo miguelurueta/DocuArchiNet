@@ -1,21 +1,26 @@
 # DOC-92 — Contratos e integración
 
-No existen endpoints, handlers ni payloads HTTP en este cambio.
+- Ticket: DOC-92
+- Cambio OpenSpec: doc-92-segundo-factor-persistencia
+- Clasificacion: cross_cutting
 
-## Contrato físico v1
+## Contratos e integraciones
 
-| Columna | Tipo | Regla |
-| --- | --- | --- |
-| `Purpose` | `VARCHAR(20)` | `LOGIN` para esta entrega |
-| `SessionBindingHash` | `VARCHAR(200)` | Vínculo no reversible |
-| `State` | `VARCHAR(30)` | Estado del grafo 2FA |
-| `KeyId` | `VARCHAR(100)` | Extraído de `v1:keyId:mac` |
-| `ResendCount` | `INT UNSIGNED` | 0 a 2 |
-| `LastSentAtUtc` | `DATETIME` | Nullable hasta envío |
-| `TerminalAtUtc` | `DATETIME` | Informado al terminar |
-| `UpdatedAtUtc` | `DATETIME` | UTC de transición |
-| `SchemaVersion` | `SMALLINT UNSIGNED` | `1` para filas nuevas |
+No existen endpoints, handlers ni payloads HTTP en este cambio. El único contrato externo es la tabla existente `ra_auth_second_factor_challenge` compartida con DocuArchiCore.
 
-Índices nuevos: identidad/propósito/estado, sesión/estado y estado/expiración. Se preservan `uq_challengeid` e `IX_ra_auth_sfc_authuserid`.
+| Columna existente | Uso en DocuArchiNet |
+| --- | --- |
+| `Id` | Clave autoincremental administrada por MySQL. |
+| `ChallengeId` | UUID público único del challenge. |
+| `AuthUserId` | Identidad canónica del módulo, grupo, tipo e identificador. |
+| `Provider` | Valor fijo `EMAIL`. |
+| `CodeHash` | Valor protegido `v1:keyId:mac`; no contiene el OTP en claro. |
+| `ExpiresAtUtc` | Caducidad UTC. |
+| `Consumed` | Bandera atómica de inutilización/adquisición. |
+| `Attempts` | Número de verificaciones fallidas. |
+| `CreatedAtUtc` | Creación UTC y referencia de cooldown. |
+| `AuthPayloadJson` | `NULL` en filas emitidas por DocuArchiNet. |
 
-Orden operativo: preflight → respaldo → apply → postflight. Los scripts no fueron ejecutados en una base real durante DOC-92. La limpieza es manual y conserva 30 días; no instala scheduler.
+Se preservan los índices existentes: clave primaria de `Id`, unicidad de `ChallengeId` e índice de `AuthUserId`. DOC-92 no añade ni altera ningún artefacto físico.
+
+DocuArchiCore usa la misma forma de tabla, pero su `CodeHash` y `AuthPayloadJson` responden a otro contrato. Por seguridad y consistencia, los challenges no son intercambiables entre aplicaciones: la compatibilidad buscada es coexistencia sobre el mismo esquema, no validación cruzada.
