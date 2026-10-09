@@ -1,0 +1,78 @@
+%% Convención: CODE = símbolo resoluble del repositorio; EXT = actor/dependencia externa; CONCEPT = estado, tabla o regla conceptual.
+%% Fuentes: Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb | Modelo/Login/SegundoFactor/SegundoFactorModels.vb | Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb | Infrastructure/Shared/Data/ModuleDataContracts.vb | Infrastructure/Shared/Data/ModuleConnectionFactory.vb | Infrastructure/Shared/Data/AdoNetDataInfrastructure.vb | Infrastructure/Login/SegundoFactor/Security/SystemSecondFactorClock.vb
+%% Referencias CODE: CODE:ISecondFactorChallengeRepository | CODE:MySqlSecondFactorChallengeRepository | CODE:IModuleConnectionFactory | CODE:ModuleConnectionFactory | CODE:IDataExecutor | CODE:AdoNetDataExecutor | CODE:ITransactionFactory | CODE:DbTransactionFactory | CODE:ISecondFactorClock | CODE:SystemSecondFactorClock | CODE:SegundoFactorChallenge | CODE:SecondFactorStoredChallenge | CODE:SecondFactorChallengeVerificationData
+classDiagram
+direction LR
+class ISecondFactorChallengeRepository {
+  <<CODE interface>>
+  +Create(SegundoFactorChallenge, String, String) Boolean
+  +GetVerificationData(Guid, String) SecondFactorChallengeVerificationData
+  +RegisterFailedAttemptData(Guid, Integer) SecondFactorStoredChallenge
+  +TryBeginFinalization(Guid, Integer) Boolean
+  +ReplaceForResend(Guid, SegundoFactorChallenge, String, String, DateTime) Boolean
+}
+class MySqlSecondFactorChallengeRepository {
+  <<CODE class>>
+  +Create(SegundoFactorChallenge, String, String) Boolean
+  +GetVerificationData(Guid, String) SecondFactorChallengeVerificationData
+  +RegisterFailedAttemptData(Guid, Integer) SecondFactorStoredChallenge
+  +TryBeginFinalization(Guid, Integer) Boolean
+  +ReplaceForResend(Guid, SegundoFactorChallenge, String, String, DateTime) Boolean
+}
+class IModuleConnectionFactory {
+  <<CODE interface>>
+  +CreateOpenConnection(ContextoModulo) IDbConnection
+}
+class ModuleConnectionFactory {
+  <<CODE class>>
+  +CreateOpenConnection(ContextoModulo) IDbConnection
+}
+class IDataExecutor {
+  <<CODE interface>>
+  +ExecuteNonQuery(IDbConnection, IDbTransaction, String, IEnumerable) Integer
+  +ExecuteScalar(IDbConnection, IDbTransaction, String, IEnumerable) Object
+  +ExecuteReader(IDbConnection, IDbTransaction, String, IEnumerable, Func) T
+}
+class AdoNetDataExecutor {
+  <<CODE class>>
+  +ExecuteNonQuery(IDbConnection, IDbTransaction, String, IEnumerable) Integer
+  +ExecuteScalar(IDbConnection, IDbTransaction, String, IEnumerable) Object
+  +ExecuteReader(IDbConnection, IDbTransaction, String, IEnumerable, Func) T
+}
+class ITransactionFactory {
+  <<CODE interface>>
+  +BeginTransaction(IDbConnection) IDbTransaction
+}
+class DbTransactionFactory {
+  <<CODE class>>
+  +BeginTransaction(IDbConnection) IDbTransaction
+}
+class ISecondFactorClock {
+  <<CODE interface>>
+  +UtcNow DateTime
+}
+class SystemSecondFactorClock {
+  <<CODE class>>
+  +UtcNow DateTime
+}
+class SegundoFactorChallenge {
+  <<CODE class>>
+}
+class SecondFactorStoredChallenge {
+  <<CODE class>>
+}
+class SecondFactorChallengeVerificationData {
+  <<CODE class>>
+}
+ISecondFactorChallengeRepository <|.. MySqlSecondFactorChallengeRepository
+IModuleConnectionFactory <|.. ModuleConnectionFactory
+IDataExecutor <|.. AdoNetDataExecutor
+ITransactionFactory <|.. DbTransactionFactory
+ISecondFactorClock <|.. SystemSecondFactorClock
+MySqlSecondFactorChallengeRepository --> IModuleConnectionFactory
+MySqlSecondFactorChallengeRepository --> IDataExecutor
+MySqlSecondFactorChallengeRepository --> ITransactionFactory
+MySqlSecondFactorChallengeRepository --> ISecondFactorClock
+MySqlSecondFactorChallengeRepository --> SegundoFactorChallenge
+MySqlSecondFactorChallengeRepository --> SecondFactorStoredChallenge
+MySqlSecondFactorChallengeRepository --> SecondFactorChallengeVerificationData

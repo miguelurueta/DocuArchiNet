@@ -26,11 +26,17 @@ End Interface
 Public Interface ISecondFactorChallengeRepository
     Function Create(ByVal challenge As SegundoFactorChallenge, ByVal protectedCode As String, ByVal sessionBindingHash As String) As Boolean
     Function GetForVerification(ByVal challengeId As Guid, ByVal sessionBindingHash As String) As SegundoFactorChallenge
+    Function GetVerificationData(ByVal challengeId As Guid, ByVal sessionBindingHash As String) As SecondFactorChallengeVerificationData
+    Function MarkSent(ByVal challengeId As Guid, ByVal sentAtUtc As DateTime) As Boolean
+    Function MarkDeliveryFailed(ByVal challengeId As Guid, ByVal failedAtUtc As DateTime) As Boolean
     Function RegisterFailedAttempt(ByVal challengeId As Guid, ByVal expectedAttempts As Integer) As SegundoFactorChallenge
+    Function RegisterFailedAttemptData(ByVal challengeId As Guid, ByVal expectedAttempts As Integer) As SecondFactorStoredChallenge
     Function TryBeginFinalization(ByVal challengeId As Guid, ByVal expectedAttempts As Integer) As Boolean
     Function Complete(ByVal challengeId As Guid) As Boolean
     Function FailFinalization(ByVal challengeId As Guid) As Boolean
     Function Revoke(ByVal challengeId As Guid) As Boolean
+    Function ReplaceForResend(ByVal previousChallengeId As Guid, ByVal replacement As SegundoFactorChallenge, ByVal protectedCode As String, ByVal sessionBindingHash As String, ByVal requestedAtUtc As DateTime) As Boolean
+    Function Expire(ByVal challengeId As Guid, ByVal observedAtUtc As DateTime) As Boolean
 End Interface
 
 Public Interface ISecondFactorRecipientResolver

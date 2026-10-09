@@ -131,6 +131,57 @@ Public NotInheritable Class SegundoFactorChallenge
     End Sub
 End Class
 
+Public NotInheritable Class SecondFactorStoredChallenge
+    Public Sub New(ByVal challengeId As Guid,
+                   ByVal canonicalIdentity As String,
+                   ByVal purpose As SegundoFactorPurpose,
+                   ByVal state As SegundoFactorChallengeState,
+                   ByVal attempts As Integer,
+                   ByVal createdAtUtc As DateTime,
+                   ByVal expiresAtUtc As DateTime)
+        If challengeId = Guid.Empty Then Throw New ArgumentException("El challenge es obligatorio.", NameOf(challengeId))
+        If String.IsNullOrWhiteSpace(canonicalIdentity) Then Throw New ArgumentException("La identidad canónica es obligatoria.", NameOf(canonicalIdentity))
+        If purpose <> SegundoFactorPurpose.LOGIN Then Throw New ArgumentOutOfRangeException(NameOf(purpose))
+        If Not [Enum].IsDefined(GetType(SegundoFactorChallengeState), state) Then Throw New ArgumentOutOfRangeException(NameOf(state))
+        If attempts < 0 OrElse attempts > SegundoFactorConfiguration.MaxAttempts Then Throw New ArgumentOutOfRangeException(NameOf(attempts))
+        EnsureUtc(createdAtUtc, NameOf(createdAtUtc))
+        EnsureUtc(expiresAtUtc, NameOf(expiresAtUtc))
+        If expiresAtUtc <= createdAtUtc Then Throw New ArgumentException("La expiración debe ser posterior a la creación.", NameOf(expiresAtUtc))
+
+        Me.ChallengeId = challengeId
+        Me.CanonicalIdentity = canonicalIdentity.Trim()
+        Me.Purpose = purpose
+        Me.State = state
+        Me.Attempts = attempts
+        Me.CreatedAtUtc = createdAtUtc
+        Me.ExpiresAtUtc = expiresAtUtc
+    End Sub
+
+    Public ReadOnly Property ChallengeId As Guid
+    Public ReadOnly Property CanonicalIdentity As String
+    Public ReadOnly Property Purpose As SegundoFactorPurpose
+    Public ReadOnly Property State As SegundoFactorChallengeState
+    Public ReadOnly Property Attempts As Integer
+    Public ReadOnly Property CreatedAtUtc As DateTime
+    Public ReadOnly Property ExpiresAtUtc As DateTime
+
+    Private Shared Sub EnsureUtc(ByVal value As DateTime, ByVal parameterName As String)
+        If value.Kind <> DateTimeKind.Utc Then Throw New ArgumentException("La fecha debe expresarse en UTC.", parameterName)
+    End Sub
+End Class
+
+Public NotInheritable Class SecondFactorChallengeVerificationData
+    Public Sub New(ByVal challenge As SecondFactorStoredChallenge, ByVal protectedCode As String)
+        If challenge Is Nothing Then Throw New ArgumentNullException(NameOf(challenge))
+        If String.IsNullOrWhiteSpace(protectedCode) Then Throw New ArgumentException("El código protegido es obligatorio.", NameOf(protectedCode))
+        Me.Challenge = challenge
+        Me.ProtectedCode = protectedCode.Trim()
+    End Sub
+
+    Public ReadOnly Property Challenge As SecondFactorStoredChallenge
+    Public ReadOnly Property ProtectedCode As String
+End Class
+
 Public NotInheritable Class SecondFactorProtectionContext
     Public Sub New(ByVal purpose As SegundoFactorPurpose,
                    ByVal challengeId As Guid,

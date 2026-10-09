@@ -1,0 +1,189 @@
+{
+  "name": "DOC-92",
+  "version": 1,
+  "notation": "Mermaid",
+  "requiredDocuments": [
+    "README.md",
+    "01-ARQUITECTURA-Y-DIAGRAMAS.md",
+    "02-CASOS-DE-USO.md",
+    "03-INVENTARIO-TECNICO.md",
+    "04-VALIDACION-Y-PENDIENTES.md"
+  ],
+  "requiredDiagrams": [
+    {
+      "path": "Diagramas/01-componentes-clases.mmd",
+      "kind": "class",
+      "symbols": [
+        "CODE:ISecondFactorChallengeRepository",
+        "CODE:MySqlSecondFactorChallengeRepository",
+        "CODE:IModuleConnectionFactory",
+        "CODE:ModuleConnectionFactory",
+        "CODE:IDataExecutor",
+        "CODE:AdoNetDataExecutor",
+        "CODE:ITransactionFactory",
+        "CODE:DbTransactionFactory",
+        "CODE:ISecondFactorClock",
+        "CODE:SystemSecondFactorClock",
+        "CODE:SegundoFactorChallenge",
+        "CODE:SecondFactorStoredChallenge",
+        "CODE:SecondFactorChallengeVerificationData"
+      ],
+      "signatures": []
+    },
+    {
+      "path": "Diagramas/02-secuencia-crear-consultar.mmd",
+      "kind": "sequence",
+      "symbols": [
+        "CODE:MySqlSecondFactorChallengeRepository.Create",
+        "CODE:MySqlSecondFactorChallengeRepository.GetVerificationData",
+        "CODE:IModuleConnectionFactory.CreateOpenConnection",
+        "CODE:ITransactionFactory.BeginTransaction",
+        "CODE:IDataExecutor.ExecuteNonQuery",
+        "CODE:IDataExecutor.ExecuteReader"
+      ],
+      "signatures": [
+        "Create(challenge: SegundoFactorChallenge, protectedCode: String, sessionBindingHash: String): Boolean",
+        "GetVerificationData(challengeId: Guid, sessionBindingHash: String): SecondFactorChallengeVerificationData",
+        "CreateOpenConnection(contexto: ContextoModulo): IDbConnection",
+        "BeginTransaction(connection: IDbConnection): IDbTransaction"
+      ]
+    },
+    {
+      "path": "Diagramas/03-secuencia-intentos-finalizacion.mmd",
+      "kind": "sequence",
+      "symbols": [
+        "CODE:MySqlSecondFactorChallengeRepository.RegisterFailedAttemptData",
+        "CODE:MySqlSecondFactorChallengeRepository.TryBeginFinalization",
+        "CODE:MySqlSecondFactorChallengeRepository.Complete",
+        "CODE:MySqlSecondFactorChallengeRepository.FailFinalization",
+        "CODE:IDataExecutor.ExecuteReader",
+        "CODE:IDataExecutor.ExecuteNonQuery"
+      ],
+      "signatures": [
+        "RegisterFailedAttemptData(challengeId: Guid, expectedAttempts: Integer): SecondFactorStoredChallenge",
+        "TryBeginFinalization(challengeId: Guid, expectedAttempts: Integer): Boolean",
+        "Complete(challengeId: Guid): Boolean",
+        "FailFinalization(challengeId: Guid): Boolean"
+      ]
+    },
+    {
+      "path": "Diagramas/04-secuencia-reenvio-expiracion.mmd",
+      "kind": "sequence",
+      "symbols": [
+        "CODE:MySqlSecondFactorChallengeRepository.ReplaceForResend",
+        "CODE:MySqlSecondFactorChallengeRepository.Revoke",
+        "CODE:MySqlSecondFactorChallengeRepository.Expire",
+        "CODE:MySqlSecondFactorChallengeRepository.MarkDeliveryFailed",
+        "CODE:IDataExecutor.ExecuteReader",
+        "CODE:IDataExecutor.ExecuteNonQuery"
+      ],
+      "signatures": [
+        "ReplaceForResend(previousChallengeId: Guid, replacement: SegundoFactorChallenge, protectedCode: String, sessionBindingHash: String, requestedAtUtc: DateTime): Boolean",
+        "Revoke(challengeId: Guid): Boolean",
+        "Expire(challengeId: Guid, observedAtUtc: DateTime): Boolean",
+        "MarkDeliveryFailed(challengeId: Guid, failedAtUtc: DateTime): Boolean"
+      ]
+    }
+  ],
+  "dotnetDeclarations": {
+    "CODE:ISecondFactorChallengeRepository": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "kind": "interface" },
+    "CODE:ISecondFactorClock": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorClock", "kind": "interface" },
+    "CODE:IModuleConnectionFactory": { "file": "Infrastructure/Shared/Data/ModuleDataContracts.vb", "type": "IModuleConnectionFactory", "kind": "interface" },
+    "CODE:IDataExecutor": { "file": "Infrastructure/Shared/Data/ModuleDataContracts.vb", "type": "IDataExecutor", "kind": "interface" },
+    "CODE:ITransactionFactory": { "file": "Infrastructure/Shared/Data/ModuleDataContracts.vb", "type": "ITransactionFactory", "kind": "interface" },
+    "CODE:ModuleConnectionFactory": { "file": "Infrastructure/Shared/Data/ModuleConnectionFactory.vb", "type": "ModuleConnectionFactory", "kind": "class" },
+    "CODE:AdoNetDataExecutor": { "file": "Infrastructure/Shared/Data/AdoNetDataInfrastructure.vb", "type": "AdoNetDataExecutor", "kind": "class" },
+    "CODE:DbTransactionFactory": { "file": "Infrastructure/Shared/Data/AdoNetDataInfrastructure.vb", "type": "DbTransactionFactory", "kind": "class" },
+    "CODE:SystemSecondFactorClock": { "file": "Infrastructure/Login/SegundoFactor/Security/SystemSecondFactorClock.vb", "type": "SystemSecondFactorClock", "kind": "class" },
+    "CODE:MySqlSecondFactorChallengeRepository": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "kind": "class" },
+    "CODE:SegundoFactorChallenge": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SegundoFactorChallenge", "kind": "class" },
+    "CODE:SecondFactorStoredChallenge": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorStoredChallenge", "kind": "class" },
+    "CODE:SecondFactorChallengeVerificationData": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorChallengeVerificationData", "kind": "class" },
+    "CODE:ContextoModulo": { "file": "Domain/Shared/ContextoModulo.vb", "type": "ContextoModulo", "kind": "class" },
+    "CODE:PersistenceRow": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "PersistenceRow", "kind": "class" }
+  },
+  "dotnetImplements": {
+    "CODE:MySqlSecondFactorChallengeRepository.implements": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "interface": "ISecondFactorChallengeRepository" },
+    "CODE:ModuleConnectionFactory.implements": { "file": "Infrastructure/Shared/Data/ModuleConnectionFactory.vb", "type": "ModuleConnectionFactory", "interface": "IModuleConnectionFactory" },
+    "CODE:AdoNetDataExecutor.implements": { "file": "Infrastructure/Shared/Data/AdoNetDataInfrastructure.vb", "type": "AdoNetDataExecutor", "interface": "IDataExecutor" },
+    "CODE:DbTransactionFactory.implements": { "file": "Infrastructure/Shared/Data/AdoNetDataInfrastructure.vb", "type": "DbTransactionFactory", "interface": "ITransactionFactory" },
+    "CODE:SystemSecondFactorClock.implements": { "file": "Infrastructure/Login/SegundoFactor/Security/SystemSecondFactorClock.vb", "type": "SystemSecondFactorClock", "interface": "ISecondFactorClock" }
+  },
+  "dotnetSymbols": {
+    "CODE:ISecondFactorChallengeRepository.Create": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "Create", "parameters": ["SegundoFactorChallenge", "System.String", "System.String"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.GetForVerification": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "GetForVerification", "parameters": ["Guid", "System.String"], "return": "SegundoFactorChallenge" },
+    "CODE:ISecondFactorChallengeRepository.GetVerificationData": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "GetVerificationData", "parameters": ["Guid", "System.String"], "return": "SecondFactorChallengeVerificationData" },
+    "CODE:ISecondFactorChallengeRepository.MarkSent": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "MarkSent", "parameters": ["Guid", "System.DateTime"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.MarkDeliveryFailed": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "MarkDeliveryFailed", "parameters": ["Guid", "System.DateTime"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.RegisterFailedAttempt": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "RegisterFailedAttempt", "parameters": ["Guid", "System.Int32"], "return": "SegundoFactorChallenge" },
+    "CODE:ISecondFactorChallengeRepository.RegisterFailedAttemptData": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "RegisterFailedAttemptData", "parameters": ["Guid", "System.Int32"], "return": "SecondFactorStoredChallenge" },
+    "CODE:ISecondFactorChallengeRepository.TryBeginFinalization": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "TryBeginFinalization", "parameters": ["Guid", "System.Int32"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.Complete": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "Complete", "parameters": ["Guid"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.FailFinalization": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "FailFinalization", "parameters": ["Guid"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.Revoke": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "Revoke", "parameters": ["Guid"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.ReplaceForResend": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "ReplaceForResend", "parameters": ["Guid", "SegundoFactorChallenge", "System.String", "System.String", "System.DateTime"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.Expire": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "Expire", "parameters": ["Guid", "System.DateTime"], "return": "System.Boolean" },
+
+    "CODE:MySqlSecondFactorChallengeRepository.Create": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "method": "Create", "parameters": ["SegundoFactorChallenge", "System.String", "System.String"], "return": "System.Boolean" },
+    "CODE:MySqlSecondFactorChallengeRepository.GetForVerification": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "method": "GetForVerification", "parameters": ["Guid", "System.String"], "return": "SegundoFactorChallenge" },
+    "CODE:MySqlSecondFactorChallengeRepository.GetVerificationData": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "method": "GetVerificationData", "parameters": ["Guid", "System.String"], "return": "SecondFactorChallengeVerificationData" },
+    "CODE:MySqlSecondFactorChallengeRepository.MarkSent": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "method": "MarkSent", "parameters": ["Guid", "System.DateTime"], "return": "System.Boolean" },
+    "CODE:MySqlSecondFactorChallengeRepository.MarkDeliveryFailed": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "method": "MarkDeliveryFailed", "parameters": ["Guid", "System.DateTime"], "return": "System.Boolean" },
+    "CODE:MySqlSecondFactorChallengeRepository.RegisterFailedAttempt": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "method": "RegisterFailedAttempt", "parameters": ["Guid", "System.Int32"], "return": "SegundoFactorChallenge" },
+    "CODE:MySqlSecondFactorChallengeRepository.RegisterFailedAttemptData": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "method": "RegisterFailedAttemptData", "parameters": ["Guid", "System.Int32"], "return": "SecondFactorStoredChallenge" },
+    "CODE:MySqlSecondFactorChallengeRepository.TryBeginFinalization": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "method": "TryBeginFinalization", "parameters": ["Guid", "System.Int32"], "return": "System.Boolean" },
+    "CODE:MySqlSecondFactorChallengeRepository.Complete": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "method": "Complete", "parameters": ["Guid"], "return": "System.Boolean" },
+    "CODE:MySqlSecondFactorChallengeRepository.FailFinalization": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "method": "FailFinalization", "parameters": ["Guid"], "return": "System.Boolean" },
+    "CODE:MySqlSecondFactorChallengeRepository.Revoke": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "method": "Revoke", "parameters": ["Guid"], "return": "System.Boolean" },
+    "CODE:MySqlSecondFactorChallengeRepository.ReplaceForResend": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "method": "ReplaceForResend", "parameters": ["Guid", "SegundoFactorChallenge", "System.String", "System.String", "System.DateTime"], "return": "System.Boolean" },
+    "CODE:MySqlSecondFactorChallengeRepository.Expire": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "MySqlSecondFactorChallengeRepository", "method": "Expire", "parameters": ["Guid", "System.DateTime"], "return": "System.Boolean" },
+
+    "CODE:IModuleConnectionFactory.CreateOpenConnection": { "file": "Infrastructure/Shared/Data/ModuleDataContracts.vb", "type": "IModuleConnectionFactory", "method": "CreateOpenConnection", "parameters": ["ContextoModulo"], "return": "IDbConnection" },
+    "CODE:IDataExecutor.ExecuteNonQuery": { "file": "Infrastructure/Shared/Data/ModuleDataContracts.vb", "type": "IDataExecutor", "method": "ExecuteNonQuery", "parameters": ["IDbConnection", "IDbTransaction", "System.String", "IEnumerable<IDataParameter>"], "return": "System.Int32" },
+    "CODE:IDataExecutor.ExecuteScalar": { "file": "Infrastructure/Shared/Data/ModuleDataContracts.vb", "type": "IDataExecutor", "method": "ExecuteScalar", "parameters": ["IDbConnection", "IDbTransaction", "System.String", "IEnumerable<IDataParameter>"], "return": "Object" },
+    "CODE:IDataExecutor.ExecuteReader": { "file": "Infrastructure/Shared/Data/ModuleDataContracts.vb", "type": "IDataExecutor", "method": "ExecuteReader", "parameters": ["IDbConnection", "IDbTransaction", "System.String", "IEnumerable<IDataParameter>", "Func<IDataReader,T>"], "return": "T" },
+    "CODE:ITransactionFactory.BeginTransaction": { "file": "Infrastructure/Shared/Data/ModuleDataContracts.vb", "type": "ITransactionFactory", "method": "BeginTransaction", "parameters": ["IDbConnection"], "return": "IDbTransaction" },
+    "CODE:ModuleConnectionFactory.CreateOpenConnection": { "file": "Infrastructure/Shared/Data/ModuleConnectionFactory.vb", "type": "ModuleConnectionFactory", "method": "CreateOpenConnection", "parameters": ["ContextoModulo"], "return": "IDbConnection" },
+    "CODE:AdoNetDataExecutor.ExecuteNonQuery": { "file": "Infrastructure/Shared/Data/AdoNetDataInfrastructure.vb", "type": "AdoNetDataExecutor", "method": "ExecuteNonQuery", "parameters": ["IDbConnection", "IDbTransaction", "System.String", "IEnumerable<IDataParameter>"], "return": "System.Int32" },
+    "CODE:AdoNetDataExecutor.ExecuteScalar": { "file": "Infrastructure/Shared/Data/AdoNetDataInfrastructure.vb", "type": "AdoNetDataExecutor", "method": "ExecuteScalar", "parameters": ["IDbConnection", "IDbTransaction", "System.String", "IEnumerable<IDataParameter>"], "return": "Object" },
+    "CODE:AdoNetDataExecutor.ExecuteReader": { "file": "Infrastructure/Shared/Data/AdoNetDataInfrastructure.vb", "type": "AdoNetDataExecutor", "method": "ExecuteReader", "parameters": ["IDbConnection", "IDbTransaction", "System.String", "IEnumerable<IDataParameter>", "Func<IDataReader,T>"], "return": "T" },
+    "CODE:AdoNetDataExecutor.CrearComando": { "file": "Infrastructure/Shared/Data/AdoNetDataInfrastructure.vb", "type": "AdoNetDataExecutor", "method": "CrearComando", "parameters": ["IDbConnection", "IDbTransaction", "System.String", "IEnumerable<IDataParameter>"], "return": "IDbCommand", "visibility": "nonpublic" },
+    "CODE:DbTransactionFactory.BeginTransaction": { "file": "Infrastructure/Shared/Data/AdoNetDataInfrastructure.vb", "type": "DbTransactionFactory", "method": "BeginTransaction", "parameters": ["IDbConnection"], "return": "IDbTransaction" },
+    "CODE:ContextoModulo.EsValido": { "file": "Domain/Shared/ContextoModulo.vb", "type": "ContextoModulo", "method": "EsValido", "parameters": [], "return": "System.Boolean" },
+    "CODE:PersistenceRow.ToStoredChallenge": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "type": "PersistenceRow", "method": "ToStoredChallenge", "parameters": ["System.DateTime"], "return": "SecondFactorStoredChallenge" }
+  },
+  "dotnetTypes": {
+    "SegundoFactorChallenge": [
+      "ChallengeId:Guid", "Identity:SegundoFactorIdentity", "Purpose:SegundoFactorPurpose", "State:SegundoFactorChallengeState",
+      "Attempts:System.Int32", "ResendCount:System.Int32", "CreatedAtUtc:System.DateTime", "ExpiresAtUtc:System.DateTime"
+    ],
+    "SecondFactorStoredChallenge": [
+      "ChallengeId:Guid", "CanonicalIdentity:System.String", "Purpose:SegundoFactorPurpose", "State:SegundoFactorChallengeState",
+      "Attempts:System.Int32", "CreatedAtUtc:System.DateTime", "ExpiresAtUtc:System.DateTime"
+    ],
+    "SecondFactorChallengeVerificationData": [
+      "Challenge:SecondFactorStoredChallenge", "ProtectedCode:System.String"
+    ],
+    "ContextoModulo": [
+      "CodigoModulo:System.String", "IdUsuario:System.Int32", "IdGrupo:System.Int32", "LoginUsuario:System.String"
+    ],
+    "ISecondFactorClock": ["UtcNow:System.DateTime"],
+    "SystemSecondFactorClock": ["UtcNow:System.DateTime"],
+    "PersistenceRow": [
+      "ChallengeId:Guid", "CanonicalIdentity:System.String", "ProtectedCode:System.String", "ExpiresAtUtc:System.DateTime",
+      "Consumed:System.Boolean", "Attempts:System.Int32", "CreatedAtUtc:System.DateTime"
+    ]
+  },
+  "excludedKinds": {
+    "external": [
+      "EXT: consumidor interno futuro",
+      "EXT: MySQL docuarchi"
+    ],
+    "conceptual": [
+      "CONCEPT: transacción ADO.NET",
+      "CONCEPT: fila ra_auth_second_factor_challenge",
+      "CONCEPT: challenge activo",
+      "CONCEPT: challenge consumido"
+    ]
+  }
+}

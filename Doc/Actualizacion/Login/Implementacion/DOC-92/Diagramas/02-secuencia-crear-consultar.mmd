@@ -1,0 +1,44 @@
+%% Convención: CODE = símbolo resoluble del repositorio; EXT = actor/dependencia externa; CONCEPT = estado, tabla o regla conceptual.
+%% Fuentes: Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb | Infrastructure/Shared/Data/ModuleDataContracts.vb | Modelo/Login/SegundoFactor/SegundoFactorModels.vb
+%% Referencias CODE: CODE:MySqlSecondFactorChallengeRepository.Create | CODE:MySqlSecondFactorChallengeRepository.GetVerificationData | CODE:IModuleConnectionFactory.CreateOpenConnection | CODE:ITransactionFactory.BeginTransaction | CODE:IDataExecutor.ExecuteNonQuery | CODE:IDataExecutor.ExecuteReader
+sequenceDiagram
+actor Caller as EXT: consumidor interno futuro
+participant Repo as CODE: MySqlSecondFactorChallengeRepository
+participant Connections as CODE: IModuleConnectionFactory
+participant Transactions as CODE: ITransactionFactory
+participant Executor as CODE: IDataExecutor
+participant Database as EXT: MySQL docuarchi
+
+Caller->>Repo: Create(challenge: SegundoFactorChallenge, protectedCode: String, sessionBindingHash: String): Boolean
+alt challenge nulo, estado distinto de CREATED, vínculo vacío o HMAC inválido
+  Repo-->>Caller: ArgumentException o ArgumentNullException
+else entrada válida
+  Repo->>Connections: CreateOpenConnection(contexto: ContextoModulo): IDbConnection
+  Connections-->>Repo: conexión abierta
+  Repo->>Transactions: BeginTransaction(connection: IDbConnection): IDbTransaction
+  Transactions-->>Repo: transacción
+  Repo->>Executor: ExecuteNonQuery(connection, transaction, INSERT parametrizado, parameters): Integer
+  Executor->>Database: INSERT columnas existentes y AuthPayloadJson NULL
+  Database-->>Executor: filas afectadas
+  alt ejecución sin excepción
+    Repo->>Database: Commit
+    Repo-->>Caller: true si afectó una fila o false en otro caso
+  else error técnico
+    Repo->>Database: Rollback
+    Repo-->>Caller: excepción propagada
+  end
+end
+
+Caller->>Repo: GetVerificationData(challengeId: Guid, sessionBindingHash: String): SecondFactorChallengeVerificationData
+alt Guid vacío o vínculo vacío
+  Repo-->>Caller: ArgumentException
+else entrada válida
+  Repo->>Connections: CreateOpenConnection(contexto: ContextoModulo): IDbConnection
+  Repo->>Executor: ExecuteReader(connection, null, SELECT parametrizado, parameters, projector): PersistenceRow
+  Executor->>Database: SELECT Provider EMAIL, Consumed 0, Attempts menor a 5 y no vencido
+  alt no existe fila elegible
+    Repo-->>Caller: Nothing
+  else fila elegible
+    Repo-->>Caller: SecondFactorChallengeVerificationData
+  end
+end

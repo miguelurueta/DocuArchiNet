@@ -57,6 +57,7 @@
     "inspect:doc44:test-data": "node scripts/inspect-doc44-test-data-interactive.cjs",
     "inspect:notes:schema": "node scripts/inspect-notes-column-schema-interactive.cjs",
     "inspect:login:2fa-schema": "node scripts/inspect-login-second-factor-schema-interactive.cjs",
+    "test:doc92:persistence": "node --test tests/login-second-factor-persistence.integration.test.cjs",
     "migrate:doc81:intent-schema": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/apply-doc81-intent-schema-interactive.ps1"
   },
   "devDependencies": {

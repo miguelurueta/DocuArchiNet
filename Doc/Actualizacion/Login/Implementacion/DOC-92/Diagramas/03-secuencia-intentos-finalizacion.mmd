@@ -1,0 +1,44 @@
+%% Convención: CODE = símbolo resoluble del repositorio; EXT = actor/dependencia externa; CONCEPT = estado, tabla o regla conceptual.
+%% Fuentes: Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb | Infrastructure/Shared/Data/ModuleDataContracts.vb
+%% Referencias CODE: CODE:MySqlSecondFactorChallengeRepository.RegisterFailedAttemptData | CODE:MySqlSecondFactorChallengeRepository.TryBeginFinalization | CODE:MySqlSecondFactorChallengeRepository.Complete | CODE:MySqlSecondFactorChallengeRepository.FailFinalization | CODE:IDataExecutor.ExecuteReader | CODE:IDataExecutor.ExecuteNonQuery
+sequenceDiagram
+actor Caller as EXT: consumidor interno futuro
+participant Repo as CODE: MySqlSecondFactorChallengeRepository
+participant Executor as CODE: IDataExecutor
+participant Database as EXT: MySQL docuarchi
+
+Caller->>Repo: RegisterFailedAttemptData(challengeId: Guid, expectedAttempts: Integer): SecondFactorStoredChallenge
+alt challenge vacío o expectedAttempts fuera de 0 a 4
+  Repo-->>Caller: excepción de argumento
+else entrada válida
+  Repo->>Executor: ExecuteReader(connection, transaction, SELECT FOR UPDATE, parameters, projector): PersistenceRow
+  Executor->>Database: bloqueo por ChallengeId y Provider EMAIL
+  alt fila ausente, consumida, vencida, bloqueada o intento distinto
+    Repo->>Database: Commit sin actualización
+    Repo-->>Caller: Nothing
+  else fila activa y valor esperado
+    Repo->>Executor: ExecuteNonQuery(connection, transaction, UPDATE Attempts, parameters): Integer
+    alt una fila actualizada
+      Repo->>Database: Commit
+      Repo-->>Caller: SecondFactorStoredChallenge, BLOCKED si Attempts igual a 5
+    else carrera o precondición perdida
+      Repo->>Database: Commit
+      Repo-->>Caller: Nothing
+    end
+  end
+end
+
+Caller->>Repo: TryBeginFinalization(challengeId: Guid, expectedAttempts: Integer): Boolean
+Repo->>Executor: ExecuteReader(connection, transaction, SELECT FOR UPDATE, parameters, projector): PersistenceRow
+alt fila activa e intentos coinciden
+  Repo->>Executor: ExecuteNonQuery(connection, transaction, UPDATE Consumed igual a 1, parameters): Integer
+  Repo-->>Caller: true solo para una actualización ganadora
+else fila no elegible
+  Repo-->>Caller: false
+end
+
+Caller->>Repo: Complete(challengeId: Guid): Boolean
+Repo-->>Caller: true si existe fila EMAIL consumida
+Caller->>Repo: FailFinalization(challengeId: Guid): Boolean
+Repo-->>Caller: true si existe fila EMAIL consumida
+Note over Caller,Repo: El esquema no distingue COMPLETED de fallo posterior a la adquisición.
