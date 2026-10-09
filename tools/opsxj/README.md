@@ -109,6 +109,16 @@ comando `opsxj:prompt-review` permanece como alias compatible.
 Puede recibir `--tech-profile <perfil>`; sin esa opción detecta señales
 inequívocas del prompt y usa `generic` cuando no hay suficiente contexto.
 
+Para el perfil `legacy-webforms-vb`, un prompt que implemente dos o más capas
+entre modelos, DTOs, servicios, repositorios y servicios web debe incluir una
+sección `PRECONDICIONES DE RUTAS`. La revisión exige las rutas concretas de
+cada responsabilidad mencionada, un inventario previo de archivos exactos en
+`design.md` y el registro explícito de archivos nuevos en
+`GestionDocumental-Docuarchi.net.vbproj`. El hallazgo bloqueante es
+`LEGACY_LAYER_PATH_PRECONDITIONS_REQUIRED`. Las tareas documentales o de
+release que excluyen expresamente cambios de código multicapa no activan esta
+regla.
+
 La validación local no modifica Jira ni GitHub. `opsxj:archive` y
 `opsxj:close` son las únicas operaciones que pueden ejecutar acciones remotas,
 de manera explícita. Configure `GIT_AUTO_PUSH=false` salvo que el equipo haya
