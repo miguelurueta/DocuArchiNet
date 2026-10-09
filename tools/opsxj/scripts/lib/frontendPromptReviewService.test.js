@@ -282,6 +282,110 @@ describe("frontendPromptReviewService", () => {
     ]));
   });
 
+  it("blocks layered Web Forms implementation without route preconditions", () => {
+    const findings = testFrontendPromptReview({
+      technologyProfile: "legacy-webforms-vb",
+      promptText: [
+        "## Rol esperado",
+        "Arquitecto ASP.NET Web Forms y VB.NET.",
+        "## Contexto",
+        "Modificar gestor.aspx.vb.",
+        "## Objetivo",
+        "Implementar modelos, DTOs, servicios, repositorios y un ASMX.",
+        "## Restricciones criticas",
+        "No romper el login existente.",
+        "## Pruebas obligatorias",
+        "Ejecutar pruebas unitarias, MSBuild y registrar comandos con resultado.",
+        "## Documentacion tecnica",
+        "Actualizar la documentacion existente.",
+        "## Criterios de aceptacion",
+        "El flujo queda validado.",
+        "## Entregable final",
+        "Codigo y evidencia.",
+      ].join("\n"),
+    });
+
+    expect(findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          severity: "BLOCKER",
+          code: "LEGACY_LAYER_PATH_PRECONDITIONS_REQUIRED",
+          evidence: expect.stringContaining("Modelo/<dominio>/<capacidad>/"),
+        }),
+      ]),
+    );
+  });
+
+  it("accepts complete route preconditions for layered Web Forms implementation", () => {
+    const findings = testFrontendPromptReview({
+      technologyProfile: "legacy-webforms-vb",
+      promptText: [
+        "## Rol esperado",
+        "Arquitecto ASP.NET Web Forms y VB.NET.",
+        "## Contexto",
+        "Modificar gestor.aspx.vb.",
+        "## Objetivo",
+        "Implementar modelos, DTOs, servicios, repositorios y un ASMX.",
+        "## Precondiciones de rutas",
+        "Inventariar en design.md los archivos exactos antes de implementar.",
+        "Modelos: Modelo/Login/SegundoFactor/.",
+        "DTOs: DTOs/Login/SegundoFactor/.",
+        "Servicios: Services/Login/SegundoFactor/.",
+        "Repositorios: Infrastructure/Repositories/Login/SegundoFactor/.",
+        "Servicio web: webservice/WebServiceLoginSegundoFactor.asmx y webservice/WebServiceLoginSegundoFactor.asmx.vb.",
+        "Registrar archivos nuevos en GestionDocumental-Docuarchi.net.vbproj.",
+        "## Restricciones criticas",
+        "No romper el login existente ni colocar SQL en el ASMX.",
+        "## Pruebas obligatorias",
+        "Ejecutar pruebas unitarias, MSBuild y registrar comandos con resultado.",
+        "## Documentacion tecnica",
+        "Actualizar la documentacion existente.",
+        "## Criterios de aceptacion",
+        "El flujo queda validado.",
+        "## Entregable final",
+        "Codigo y evidencia.",
+      ].join("\n"),
+    });
+
+    expect(
+      findings.some(
+        (finding) =>
+          finding.code === "LEGACY_LAYER_PATH_PRECONDITIONS_REQUIRED",
+      ),
+    ).toBe(false);
+  });
+
+  it("does not require layered routes for a legacy single-file correction", () => {
+    const findings = testFrontendPromptReview({
+      technologyProfile: "legacy-webforms-vb",
+      promptText: [
+        "## Rol esperado",
+        "Desarrollador ASP.NET Web Forms y VB.NET.",
+        "## Contexto",
+        "Modificar gestor.aspx.vb.",
+        "## Objetivo",
+        "Corregir una validacion local del postback.",
+        "## Restricciones criticas",
+        "No modificar otras capas.",
+        "## Pruebas obligatorias",
+        "Ejecutar prueba unitaria, MSBuild y registrar comandos con resultado.",
+        "## Documentacion tecnica",
+        "Actualizar la documentacion existente.",
+        "## Criterios de aceptacion",
+        "La validacion queda corregida.",
+        "## Entregable final",
+        "Codigo y evidencia.",
+      ].join("\n"),
+    });
+
+    expect(
+      findings.some(
+        (finding) =>
+          finding.code === "LEGACY_LAYER_PATH_PRECONDITIONS_REQUIRED",
+      ),
+    ).toBe(false);
+  });
+
   it("builds correction guidance for structural prompt findings", () => {
     const correction = buildPromptReviewCorrection({
       findings: [
@@ -313,6 +417,22 @@ describe("frontendPromptReviewService", () => {
 
     expect(correction).toContain("mismo cambio");
     expect(correction).toContain("unidad de entrega");
+  });
+
+  it("builds layered Web Forms route correction guidance", () => {
+    const correction = buildPromptReviewCorrection({
+      findings: [
+        {
+          severity: "BLOCKER",
+          code: "LEGACY_LAYER_PATH_PRECONDITIONS_REQUIRED",
+        },
+      ],
+    });
+
+    expect(correction).toContain("## Precondiciones de rutas");
+    expect(correction).toContain("Modelo/<dominio>/<capacidad>/");
+    expect(correction).toContain("Infrastructure/Repositories");
+    expect(correction).toContain("GestionDocumental-Docuarchi.net.vbproj");
   });
 
   it("reports blockers when required enterprise sections are missing", () => {

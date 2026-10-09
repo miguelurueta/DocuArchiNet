@@ -295,6 +295,88 @@ const hasLegacyCodeLocationGuidance = (text) =>
     /(?:code-behind|Web Forms|VB\.NET|UpdatePanel|GridView)\b/i,
   ]);
 
+const LEGACY_LAYER_PATH_RULES = [
+  {
+    name: "modelos",
+    mentions: /\bmodelos?\b|\bvalue\s+objects?\b/i,
+    route: /\bModelo[\\/][^\s]+/i,
+    expected: "Modelo/<dominio>/<capacidad>/",
+  },
+  {
+    name: "DTOs",
+    mentions: /\bdtos?\b|\brequests?\b|\bresponses?\b/i,
+    route: /\bDTOs[\\/][^\s]+/i,
+    expected: "DTOs/<dominio>/<capacidad>/",
+  },
+  {
+    name: "servicios",
+    mentions: /\bservicios?\b|\bcasos?\s+de\s+uso\b|\borquestaci[oó]n\b/i,
+    route: /\bServices[\\/][^\s]+/i,
+    expected: "Services/<dominio>/<capacidad>/",
+  },
+  {
+    name: "repositorios",
+    mentions: /\brepositorios?\b|\bpersistencia\b/i,
+    route: /\bInfrastructure[\\/]Repositories[\\/][^\s]+/i,
+    expected: "Infrastructure/Repositories/<dominio>/<capacidad>/",
+  },
+  {
+    name: "servicio web",
+    mentions: /\bservicios?\s+web\b|\bwebservice\b|\basmx\b/i,
+    route: /\bwebservice[\\/][^\s]+/i,
+    expected: "webservice/<Servicio>.asmx y webservice/<Servicio>.asmx.vb",
+  },
+];
+
+const getMentionedLegacyLayerPathRules = (text) =>
+  LEGACY_LAYER_PATH_RULES.filter((rule) => rule.mentions.test(text));
+
+const explicitlyExcludesLegacyLayeredCode = (normalized) =>
+  hasAny(normalized, [
+    /\bno\s+crea(?:r)?\b[\s\S]{0,120}\bmodelos?\b[\s\S]{0,80}\bdtos?\b[\s\S]{0,80}\bservicios?\b/,
+    /\bsolo\s+(?:documentacion|runbook|despliegue|release)\b[\s\S]{0,80}\bsin\s+cambios?\s+de\s+codigo\b/,
+  ]);
+
+const getMissingLegacyLayerPathPreconditions = ({ text, normalized }) => {
+  const mentionedRules = getMentionedLegacyLayerPathRules(text);
+  if (mentionedRules.length < 2 || explicitlyExcludesLegacyLayeredCode(normalized)) {
+    return [];
+  }
+
+  const missing = mentionedRules
+    .filter((rule) => !rule.route.test(text))
+    .map((rule) => rule.name + ": " + rule.expected);
+
+  if (
+    !hasAny(normalized, [
+      /\bprecondiciones?\s+de\s+rutas?\b/,
+      /\breglas?\s+de\s+ubicacion\s+de\s+codigo\b/,
+    ])
+  ) {
+    missing.unshift("seccion PRECONDICIONES DE RUTAS");
+  }
+
+  if (
+    !hasAny(normalized, [
+      /\binventari\w*\b[\s\S]{0,100}\barchivos?\s+exactos?\b/,
+      /\blistar?\b[\s\S]{0,100}\barchivos?\s+exactos?\b/,
+    ])
+  ) {
+    missing.push("inventario previo de archivos exactos en design.md");
+  }
+
+  if (
+    !/GestionDocumental-Docuarchi\.net\.vbproj/i.test(text) ||
+    !/\b(registrar|incluir|agregar|alta)\w*\b/i.test(normalized)
+  ) {
+    missing.push(
+      "registro explicito de archivos en GestionDocumental-Docuarchi.net.vbproj",
+    );
+  }
+
+  return missing;
+};
+
 const hasToolingCodeLocationGuidance = (text) =>
   hasAny(text, [
     /tools[\\/]opsxj[\\/]scripts[\\/]/i,
@@ -881,6 +963,28 @@ const addStructuralFindings = ({ findings, text, technologyProfile }) => {
   }
 
   if (
+    mentionsImplementation &&
+    !isPromptReviewToolingPrompt &&
+    technologyProfile === "legacy-webforms-vb"
+  ) {
+    const missingLayerPathPreconditions =
+      getMissingLegacyLayerPathPreconditions({ text, normalized });
+    if (missingLayerPathPreconditions.length > 0) {
+      findings.push(
+        newPromptReviewFinding({
+          severity: "BLOCKER",
+          code: "LEGACY_LAYER_PATH_PRECONDITIONS_REQUIRED",
+          message:
+            "El prompt Web Forms implementa varias capas pero no define precondiciones de rutas completas.",
+          expected:
+            "Agregar PRECONDICIONES DE RUTAS, inventariar archivos exactos en design.md, ubicar cada responsabilidad en su capa y registrar archivos en GestionDocumental-Docuarchi.net.vbproj.",
+          evidence: "Faltan: " + missingLayerPathPreconditions.join("; "),
+        }),
+      );
+    }
+  }
+
+  if (
     mentionsCodeWork &&
     !isPromptReviewToolingPrompt &&
     technologyProfile === "frontend-react-ts"
@@ -1378,6 +1482,22 @@ const correctionSnippets = new Map([
       "- Si se construye una app reusable o componente compartido, ubicarlo bajo `src/app/Components/<NombreComponente>/` o la ruta compartida equivalente existente.",
       "- Si se implementa comportamiento de modulo funcional, ubicarlo bajo `src/modules/<modulo>/components/`, `hooks/`, `services/`, `adapters/` o `types/` segun responsabilidad.",
       "- Adaptarse a la estructura existente del repo antes de crear carpetas nuevas.",
+    ].join("\n"),
+  ],
+  [
+    "LEGACY_LAYER_PATH_PRECONDITIONS_REQUIRED",
+    [
+      "## Precondiciones de rutas",
+      "- Inventariar en design.md los archivos exactos, clases/interfaces, funciones y firmas que se crearan o modificaran.",
+      "- Modelos y puertos: Modelo/<dominio>/<capacidad>/.",
+      "- DTOs request/response: DTOs/<dominio>/<capacidad>/.",
+      "- Casos de uso y orquestacion: Services/<dominio>/<capacidad>/.",
+      "- Repositorios MySQL: Infrastructure/Repositories/<dominio>/<capacidad>/.",
+      "- Adaptadores tecnicos: Infrastructure/<dominio>/<capacidad>/.",
+      "- Servicio Web Forms/ASMX: webservice/<Servicio>.asmx y webservice/<Servicio>.asmx.vb; prohibir SQL y reglas de negocio en la frontera.",
+      "- Registrar cada .vb, .asmx y recurso nuevo en GestionDocumental-Docuarchi.net.vbproj segun un archivo equivalente.",
+      "- No ubicar repositorios en Services, DTOs en Modelo ni acceso a Session/HttpContext dentro de Infrastructure.",
+      "- Aplicar solo las rutas correspondientes al alcance y justificar en design.md cualquier desviacion con evidencia del repo.",
     ].join("\n"),
   ],
   [
