@@ -55,18 +55,18 @@ El esquema SHALL conservar `uq_challengeid` e `IX_ra_auth_sfc_authuserid`, y SHA
 
 ### Requirement: RQ-04 — Infraestructura y SQL seguros (D-04)
 
-El repositorio SHALL obtener la conexión central mediante `IModuleConnectionFactory`, ejecutar mediante `IDataExecutor`, delimitar transacciones mediante `ITransactionFactory` y parametrizar todos los valores.
+El repositorio SHALL obtener la conexión central mediante `IModuleConnectionFactory`, ejecutar mediante `IDataExecutor`, delimitar transacciones mediante `ITransactionFactory`, obtener UTC mediante `ISecondFactorClock` y parametrizar todos los valores.
 
 #### Scenario: inspección estructural
 
 - **WHEN** se valida `MySqlSecondFactorChallengeRepository`
-- **THEN** su constructor recibe las cuatro dependencias definidas por D-04
+- **THEN** su constructor recibe las cinco dependencias definidas por D-04
 - **AND** no referencia `HttpContext`, `Session`, cookies ni la clase legacy `conect`
 - **AND** no concatena valores externos en SQL.
 
 ### Requirement: RQ-05 — Contrato compatible y lectura verificable (D-05)
 
-`ISecondFactorChallengeRepository` SHALL conservar todas las firmas entregadas por DOC-91 y SHALL agregar las operaciones de D-05. `GetVerificationData` SHALL retornar el challenge y el código HMAC protegido necesarios para una verificación posterior.
+`ISecondFactorChallengeRepository` SHALL conservar todas las firmas entregadas por DOC-91 y SHALL agregar las operaciones de D-05. `GetVerificationData` SHALL retornar una proyección persistida con identidad canónica y el código HMAC protegido, sin reconstruir ni inventar el login.
 
 #### Scenario: consumidor compilado contra DOC-91
 
@@ -79,6 +79,12 @@ El repositorio SHALL obtener la conexión central mediante `IModuleConnectionFac
 - **WHEN** se invoca `GetVerificationData(challengeId, sessionBindingHash)`
 - **THEN** retorna `SecondFactorChallengeVerificationData`
 - **AND** incluye `ProtectedCode` sin exponer material de llave.
+
+#### Scenario: firma legacy sin identidad rehidratable
+
+- **WHEN** un consumidor invoca `GetForVerification` o `RegisterFailedAttempt` sobre la implementación MySQL
+- **THEN** recibe `NotSupportedException` con indicación de usar `GetVerificationData`
+- **AND** no se consulta una tabla de usuarios ni se fabrica `LoginNormalizado`.
 
 #### Scenario: formato HMAC inválido
 

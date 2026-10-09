@@ -20,7 +20,7 @@ Evidencia inspeccionada:
 
 | Acción | Ruta | Símbolo o propósito |
 | --- | --- | --- |
-| Modificar | `Modelo/Login/SegundoFactor/SegundoFactorModels.vb` | Agregar `SecondFactorChallengeVerificationData` sin romper modelos existentes |
+| Modificar | `Modelo/Login/SegundoFactor/SegundoFactorModels.vb` | Agregar `SecondFactorStoredChallenge` y `SecondFactorChallengeVerificationData` sin fabricar login al rehidratar |
 | Modificar | `Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb` | Extender de forma compatible `ISecondFactorChallengeRepository` |
 | Crear | `Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb` | Implementación MySQL transaccional |
 | Crear | `Doc/Actualizacion/Login/Implementacion/DOC-92/Sql/00-preflight.sql` | Verificación no destructiva del esquema y motor |
@@ -76,24 +76,26 @@ El preflight falla si la tabla no usa InnoDB, porque el diseño depende de bloqu
 New(connections As IModuleConnectionFactory,
     executor As IDataExecutor,
     transactions As ITransactionFactory,
-    centralContext As ContextoModulo)
+    centralContext As ContextoModulo,
+    clock As ISecondFactorClock)
 ```
 
-Todas las sentencias parametrizan valores. La conexión se obtiene del contexto central ya existente. Infrastructure no lee configuración web, `Session`, `HttpContext`, cookies ni datos del request.
+Todas las sentencias parametrizan valores. La conexión se obtiene del contexto central ya existente y el tiempo UTC proviene de `ISecondFactorClock`; no se usa reloj global en las transiciones. Infrastructure no lee configuración web, `Session`, `HttpContext`, cookies ni datos del request.
 
 ### D-05 — Extensión contractual compatible
 
-No se eliminan las firmas de DOC-91. Se agrega `SecondFactorChallengeVerificationData`, que reúne `Challenge As SegundoFactorChallenge` y `ProtectedCode As String`, y se incorporan operaciones explícitas:
+No se eliminan las firmas de DOC-91. Persistencia no puede reconstruir honestamente `SegundoFactorIdentity`, porque la tabla guarda la identidad canónica y deliberadamente no guarda el login. Se agregan `SecondFactorStoredChallenge`, con `CanonicalIdentity` y los campos persistidos, y `SecondFactorChallengeVerificationData`, que reúne `Challenge As SecondFactorStoredChallenge` y `ProtectedCode As String`. Se incorporan operaciones explícitas:
 
 ```vb
-Function GetVerificationData(challengeId As String, sessionBindingHash As String) As SecondFactorChallengeVerificationData
-Function MarkSent(challengeId As String, sentAtUtc As DateTime) As Boolean
-Function MarkDeliveryFailed(challengeId As String, failedAtUtc As DateTime) As Boolean
-Function ReplaceForResend(previousChallengeId As String, replacement As SegundoFactorChallenge, protectedCode As String, sessionBindingHash As String, requestedAtUtc As DateTime) As Boolean
-Function Expire(challengeId As String, observedAtUtc As DateTime) As Boolean
+Function GetVerificationData(challengeId As Guid, sessionBindingHash As String) As SecondFactorChallengeVerificationData
+Function MarkSent(challengeId As Guid, sentAtUtc As DateTime) As Boolean
+Function MarkDeliveryFailed(challengeId As Guid, failedAtUtc As DateTime) As Boolean
+Function RegisterFailedAttemptData(challengeId As Guid, expectedAttempts As Integer) As SecondFactorStoredChallenge
+Function ReplaceForResend(previousChallengeId As Guid, replacement As SegundoFactorChallenge, protectedCode As String, sessionBindingHash As String, requestedAtUtc As DateTime) As Boolean
+Function Expire(challengeId As Guid, observedAtUtc As DateTime) As Boolean
 ```
 
-`GetForVerification` se conserva y puede delegar a la nueva lectura. `KeyId` se deriva y valida desde el formato protegido `v1:keyId:mac`; no se duplica una llave secreta.
+`GetForVerification` y `RegisterFailedAttempt` se conservan para no romper el contrato de DOC-91, pero la implementación MySQL falla explícitamente con `NotSupportedException`: no inventa `LoginNormalizado`. Los consumidores nuevos deben usar `GetVerificationData` y `RegisterFailedAttemptData`; el login requerido para finalizar permanece en `PendingSecondFactorContext`. `KeyId` se deriva y valida desde `v1:keyId:mac`; no se duplica una llave secreta.
 
 ### D-06 — Mutaciones atómicas y control de concurrencia
 

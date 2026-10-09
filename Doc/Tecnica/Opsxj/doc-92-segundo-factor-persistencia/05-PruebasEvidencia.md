@@ -1,13 +1,13 @@
-# SEGUNDO-FACTOR-PERSISTENCIA
+# DOC-92 — Pruebas y evidencia
 
-- Ticket: DOC-92
-- Cambio OpenSpec: doc-92-segundo-factor-persistencia
-- Clasificacion: cross_cutting (Transversal)
-## Evidencia requerida
+Fecha: 2026-10-09.
 
-- [ ] unit: comando, resultado, fecha y referencia verificable.
-- [ ] manual_qa: comando, resultado, fecha y referencia verificable.
+| Comando | Código | Resultado |
+| --- | ---: | --- |
+| `msbuild.exe GestionDocumental-Docuarchi.net.vbproj /t:Build /p:Configuration=Debug /m:1 /v:minimal` | 0 | Compilación correcta; advertencias legacy preexistentes |
+| `node --test tests/login-second-factor-persistence.test.cjs tests/login-second-factor-foundation.test.cjs` | 0 | 6/6 pruebas aprobadas |
+| `npm.cmd --prefix tools/e2e run test:doc92:persistence` | 0 | Harness localizado; integración omitida por falta de autorización vigente |
 
-## QA/E2E WebForms
+Las pruebas locales validan contrato, SQL emitido, parámetros, bloqueo declarado, quinto intento, rollback del reenvío y regresión DOC-91 con dobles. No demuestran el aislamiento real de MySQL.
 
-Las pruebas E2E automatizadas no se suponen disponibles. Cuando aplique, registrar ambiente, pasos manuales, resultado y limitacion; si hay automatizacion real, adjuntar comando y reporte.
+La integración real está automatizada para una base descartable cuyo nombre debe comenzar por `doc92_`; exige `DOC92_MYSQL_AUTHORIZED=SI` y secretos efímeros. En esta ejecución quedó `SKIP`. No es una prueba E2E WebForms porque DOC-92 no tiene recorrido de usuario.
