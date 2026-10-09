@@ -1,9 +1,10 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
+# doble-factor-contrato Specification
+
 ## Purpose
 
 Define el comportamiento verificable de la fundación interna de autenticación de segundo factor para login, manteniéndola aislada e inactiva hasta una integración posterior explícita.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: RQ-01 Fundación aislada
 
