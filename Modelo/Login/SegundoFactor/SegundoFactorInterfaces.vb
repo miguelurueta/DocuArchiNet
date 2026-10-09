@@ -47,6 +47,15 @@ Public Interface ISecondFactorEmailSender
     Function Send(ByVal message As SecondFactorEmailMessage) As SecondFactorDeliveryResult
 End Interface
 
+Public Interface ISecondFactorSmtpConfigurationRepository
+    Function Resolve() As SecondFactorSmtpConfigurationResolution
+End Interface
+
+Public Interface ISecondFactorSmtpTransport
+    Function Send(ByVal configuration As SecondFactorSmtpConfiguration,
+                  ByVal message As SecondFactorEmailMessage) As SecondFactorSmtpDelivery
+End Interface
+
 Public Interface ILegacyLoginFinalizer
     Function FinalizeLogin(ByVal context As PendingSecondFactorContext) As LegacyLoginFinalizationResult
 End Interface

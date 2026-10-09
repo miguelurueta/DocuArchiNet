@@ -9893,8 +9893,13 @@
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Expedients\LegacySiiDocumentIndexPhysicalGateway.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\MySqlSiiImportAuthorizationRepository.vb" />
     <Compile Include="Modelo\Login\SegundoFactor\SegundoFactorModels.vb" />
+    <Compile Include="Modelo\Login\SegundoFactor\SegundoFactorSmtpModels.vb" />
     <Compile Include="Modelo\Login\SegundoFactor\SegundoFactorInterfaces.vb" />
     <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\MySqlSecondFactorChallengeRepository.vb" />
+    <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\MySqlSecondFactorSmtpConfigurationRepository.vb" />
+    <Compile Include="Infrastructure\Login\SegundoFactor\Smtp\FrameworkSmtpClientAdapter.vb" />
+    <Compile Include="Infrastructure\Login\SegundoFactor\Smtp\SecondFactorSmtpTransport.vb" />
+    <Compile Include="Infrastructure\Login\SegundoFactor\Smtp\SecondFactorSmtpEmailSender.vb" />
     <Compile Include="DTOs\Login\SegundoFactor\SegundoFactorDtos.vb" />
     <Compile Include="Infrastructure\Login\SegundoFactor\Security\SystemSecondFactorClock.vb" />
     <Compile Include="Infrastructure\Login\SegundoFactor\Security\CryptographicSecondFactorOtpGenerator.vb" />

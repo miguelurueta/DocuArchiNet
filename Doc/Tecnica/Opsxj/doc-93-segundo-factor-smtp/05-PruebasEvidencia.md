@@ -4,12 +4,17 @@
 - Cambio OpenSpec: doc-93-segundo-factor-smtp
 - Clasificacion: cross_cutting
 
-## Evidencia requerida
+## Evidencia ejecutada
 
-La implementación deberá ejecutar pruebas estructurales, runner conductual sin red, regresiones DOC-91/DOC-92, MSBuild, OpenSpec estricto y gobierno OPSXJ. La matriz incluye cardinalidad 0/1/>1, nulos, rangos, banderas, credenciales, SSL, timeout normal/acotado/overflow, cuerpo mínimo, excepción, disposición y sanitización.
+- `node --test tests/login-second-factor-foundation.test.cjs tests/login-second-factor-persistence.test.cjs tests/login-second-factor-smtp.test.cjs`: 8/8 PASS.
+- `node --test tests/doc93-technical-documentation.test.cjs`: 4/4 PASS.
+- Validador Roslyn: PASS con 16 declaraciones, 5 relaciones, 1 enum, 13 firmas y 5 tipos.
+- MSBuild .NET Framework 4.6.1: código 0, con advertencias históricas del proyecto.
+- Refinamiento OPSXJ y OpenSpec estricto: PASS.
+- Diff focal de `ClassCorreo.vb` y `ClassRaEnvioCorrespondencia.vb`: vacío.
 
-En esta fase solo se validan los artefactos de planificación; las evidencias funcionales se registrarán después de implementar las tareas y no se anticipan como aprobadas.
+La matriz sin red cubre cardinalidad 0/1/>1, nulos, rangos, banderas, credenciales, SSL, timeout normal/acotado/overflow, cuerpo mínimo, excepción, disposición y sanitización.
 
 ## QA/E2E WebForms
 
-E2E WebForms no aplica: DOC-93 no publica UI ni endpoint. El envío SMTP real tampoco se ejecuta sin autorización explícita y vigente para ambiente, cuenta y buzón descartable. Un test con dobles no acredita conectividad ni entrega real.
+E2E WebForms no aplica: DOC-93 no publica UI ni endpoint. No se ejecutó envío SMTP real porque no existe autorización explícita vigente para ambiente, cuenta y buzón descartable. Las pruebas con dobles no acreditan conectividad ni entrega real.

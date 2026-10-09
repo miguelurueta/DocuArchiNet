@@ -1,0 +1,30 @@
+%% Convención: CODE = símbolo resoluble del repositorio; EXT = actor/dependencia externa; CONCEPT = tabla, estado o regla conceptual.
+%% Fuentes: Infrastructure/Login/SegundoFactor/Smtp/SecondFactorSmtpEmailSender.vb | Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb | Modelo/Login/SegundoFactor/SegundoFactorSmtpModels.vb
+%% Referencias CODE: CODE:SecondFactorSmtpEmailSender.Send | CODE:ISecondFactorSmtpConfigurationRepository.Resolve | CODE:ISecondFactorSmtpTransport.Send
+sequenceDiagram
+actor Caller as EXT: consumidor ISecondFactorEmailSender
+participant Sender as CODE: SecondFactorSmtpEmailSender
+participant Repository as CODE: ISecondFactorSmtpConfigurationRepository
+participant Transport as CODE: ISecondFactorSmtpTransport
+Caller->>Sender: Send(message: SecondFactorEmailMessage): SecondFactorDeliveryResult
+alt mensaje nulo
+  Sender-->>Caller: false, OTP_DELIVERY_FAILED
+else mensaje presente
+  Sender->>Repository: Resolve(): SecondFactorSmtpConfigurationResolution
+  alt Disabled
+    Sender-->>Caller: false, OTP_DISABLED
+  else InvalidConfiguration
+    Sender-->>Caller: false, OTP_CONFIGURATION_INVALID
+  else AmbiguousConfiguration
+    Sender-->>Caller: false, OTP_CONFIGURATION_AMBIGUOUS
+  else Failed o estado inesperado
+    Sender-->>Caller: false, OTP_DELIVERY_FAILED
+  else Submitted
+    Sender->>Transport: Send(configuration: SecondFactorSmtpConfiguration, message: SecondFactorEmailMessage): SecondFactorSmtpDelivery
+    alt transporte Submitted
+      Sender-->>Caller: true, OTP_SUBMITTED
+    else otro resultado o excepción
+      Sender-->>Caller: false, OTP_DELIVERY_FAILED
+    end
+  end
+end

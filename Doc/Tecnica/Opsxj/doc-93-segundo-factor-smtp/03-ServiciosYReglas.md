@@ -6,7 +6,7 @@
 
 ## Servicios y reglas
 
-`SecondFactorSmtpEmailSender` conservará `ISecondFactorEmailSender.Send(SecondFactorEmailMessage) As SecondFactorDeliveryResult` y coordinará `ISecondFactorSmtpConfigurationRepository` con `ISecondFactorSmtpTransport`.
+`SecondFactorSmtpEmailSender` conserva `ISecondFactorEmailSender.Send(SecondFactorEmailMessage) As SecondFactorDeliveryResult` y coordina `ISecondFactorSmtpConfigurationRepository` con `ISecondFactorSmtpTransport`.
 
 La configuración exige exactamente una fila activa. Cero filas produce `Disabled`; más de una, `AmbiguousConfiguration`; campos inválidos, `InvalidConfiguration`; aceptación SMTP, `Submitted`; excepción técnica, `Failed`. El timeout mantiene `SMTP_TIEMPO * 100000` con overflow comprobado y máximo 120000 ms. `DOMINIO_SMTP` se lee pero no forma parte de `NetworkCredential`.
 

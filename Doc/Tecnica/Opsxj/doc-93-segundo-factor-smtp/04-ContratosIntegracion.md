@@ -6,9 +6,9 @@
 
 ## Contratos e integraciones
 
-No se crea endpoint, handler, DTO HTTP ni autorización web. La integración interna prevista es:
+No se creó endpoint, handler, DTO HTTP ni autorización web. La integración interna implementada es:
 
-`ISecondFactorEmailSender → ISecondFactorSmtpConfigurationRepository → IModuleConnectionFactory/IDataExecutor → Config_Smpt_Side → ISecondFactorSmtpTransport → System.Net.Mail`.
+`ISecondFactorEmailSender → SecondFactorSmtpEmailSender → ISecondFactorSmtpConfigurationRepository → MySqlSecondFactorSmtpConfigurationRepository → IModuleConnectionFactory/IDataExecutor → Config_Smpt_Side → ISecondFactorSmtpTransport → SecondFactorSmtpTransport → ISecondFactorSmtpClientFactory → FrameworkSmtpClientAdapter`.
 
 La consulta enumera `SERV_SMTP`, `PUERTO_SERV_SMTP`, `USUARIO_SMTP`, `PASW_SMTP`, `DOMINIO_SMTP`, `SMTP_TIEMPO`, `ESTADO_SSL`, `ESTADO_ENVIO`, `ESTADO_BODY` y `ESTADO_CREDENCIAL`, filtrando con parámetro `ESTADO_ENVIO=@enabled`.
 

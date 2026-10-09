@@ -10,4 +10,4 @@ No aplica. DOC-93 no modifica páginas WebForms, controles, JavaScript, estilos,
 
 ## Validacion visual
 
-No aplica recorrido visual porque el cambio es infraestructura inactiva. La antirregresión se comprobará mediante diff y pruebas que impidan referencias desde login/ASMX/UI.
+No aplica recorrido visual porque el cambio es infraestructura inactiva. La antirregresión quedó comprobada por la prueba estructural que mantiene login/ASMX/UI y correo legacy fuera del diff DOC-93.
