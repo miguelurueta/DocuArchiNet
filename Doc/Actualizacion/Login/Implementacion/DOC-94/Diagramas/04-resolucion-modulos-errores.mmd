@@ -1,0 +1,19 @@
+%% Convención: CODE = símbolo resoluble | EXT = actor/sistema externo | CONCEPT = elemento conceptual
+%% Fuentes: Infrastructure/Repositories/Login/SegundoFactor/SecondFactorPrincipalRepositoryResolver.vb | Infrastructure/Repositories/Login/SegundoFactor/MySqlDocuarchiSecondFactorPrincipalRepository.vb | Infrastructure/Repositories/Login/SegundoFactor/MySqlGestorSecondFactorPrincipalRepository.vb | Infrastructure/Repositories/Login/SegundoFactor/MySqlRadicacionSecondFactorPrincipalRepository.vb | Infrastructure/Repositories/Login/SegundoFactor/MySqlWorkflowSecondFactorPrincipalRepository.vb | Services/Login/SegundoFactor/SecondFactorPreAuthenticationService.vb
+%% Referencias CODE: CODE:ISecondFactorPrincipalRepositoryResolver.Resolve | CODE:SecondFactorPrincipalRepositoryResolver.Resolve | CODE:MySqlDocuarchiSecondFactorPrincipalRepository | CODE:MySqlGestorSecondFactorPrincipalRepository | CODE:MySqlRadicacionSecondFactorPrincipalRepository | CODE:MySqlWorkflowSecondFactorPrincipalRepository | CODE:ISecondFactorPrincipalRepository.Resolve
+flowchart TD
+  A[CONCEPT: TIPO_MODULO central] --> B["CODE: SecondFactorPrincipalRepositoryResolver.Resolve(moduleType: String): ISecondFactorPrincipalRepository"]
+  B -->|DOCUARCHI CONTENEDOR| C[CODE: MySqlDocuarchiSecondFactorPrincipalRepository]
+  B -->|GESTOR DOCUMENTAL| D[CODE: MySqlGestorSecondFactorPrincipalRepository]
+  B -->|RADICACION DOCUMENTAL| E[CODE: MySqlRadicacionSecondFactorPrincipalRepository]
+  B -->|WORKFLOW DOCUMENTAL| F[CODE: MySqlWorkflowSecondFactorPrincipalRepository]
+  B -->|otro| G[CONCEPT: LOGIN_MODULE_UNSUPPORTED]
+  C --> H["CODE: ISecondFactorPrincipalRepository.Resolve(context: ContextoPreautenticacionModulo): SecondFactorPrincipal"]
+  D --> H
+  E --> H
+  F --> H
+  H -->|cero filas| I[CONCEPT: principal no encontrado]
+  H -->|más de una fila| J[CONCEPT: principal ambiguo]
+  H -->|ID inválido| K[CONCEPT: fallo cerrado sanitizado]
+  H -->|correo vacío y 2FA activo| L[CONCEPT: SECOND_FACTOR_EMAIL_UNAVAILABLE]
+  H -->|correo vacío y 2FA apagado| M[CONCEPT: continuar finalización legacy]

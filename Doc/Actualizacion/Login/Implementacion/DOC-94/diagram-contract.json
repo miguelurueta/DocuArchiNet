@@ -1,0 +1,129 @@
+{
+  "name": "DOC-94",
+  "version": 1,
+  "notation": "Mermaid",
+  "requiredDocuments": [
+    "README.md",
+    "01-ARQUITECTURA-Y-DIAGRAMAS.md",
+    "02-CASOS-DE-USO.md",
+    "03-INVENTARIO-TECNICO.md",
+    "04-VALIDACION-Y-PENDIENTES.md"
+  ],
+  "requiredDiagrams": [
+    {
+      "path": "Diagramas/01-componentes-clases.mmd",
+      "kind": "class",
+      "symbols": [
+        "CODE:ISecondFactorPreAuthenticationService", "CODE:SecondFactorPreAuthenticationService",
+        "CODE:ISecondFactorLoginModuleRepository", "CODE:OdbcSecondFactorLoginModuleRepository",
+        "CODE:ISecondFactorPrincipalRepository", "CODE:MySqlSecondFactorPrincipalRepositoryBase",
+        "CODE:ISecondFactorPrincipalRepositoryResolver", "CODE:SecondFactorPrincipalRepositoryResolver",
+        "CODE:ILegacyLoginFinalizer", "CODE:ClassGestorSesion",
+        "CODE:SecondFactorPreAuthenticationRequest", "CODE:SecondFactorPreAuthenticationResult", "CODE:LegacyLoginFinalizationContext"
+      ],
+      "signatures": []
+    },
+    {
+      "path": "Diagramas/02-secuencia-2fa-desactivado.mmd",
+      "kind": "sequence",
+      "symbols": [
+        "CODE:ClassGestorSesion.InicioAplicacionWebGestorDocumental", "CODE:ISecondFactorPreAuthenticationService.Execute",
+        "CODE:SecondFactorPreAuthenticationService.Execute", "CODE:ISecondFactorLoginModuleRepository.Resolve",
+        "CODE:ISecondFactorPrincipalRepository.Resolve", "CODE:ILegacyLoginFinalizer.FinalizeLogin", "CODE:ClassGestorSesion.FinalizeLogin"
+      ],
+      "signatures": [
+        "InicioAplicacionWebGestorDocumental(modulo: String, user: String, passs: String, nombre_empresa: String): String",
+        "Execute(request: SecondFactorPreAuthenticationRequest): SecondFactorPreAuthenticationResult",
+        "Resolve(companyName: String, moduleName: String): SecondFactorLoginModule",
+        "Resolve(context: ContextoPreautenticacionModulo): SecondFactorPrincipal",
+        "FinalizeLogin(context: LegacyLoginFinalizationContext): LegacyLoginFinalizationResult"
+      ]
+    },
+    {
+      "path": "Diagramas/03-secuencia-2fa-activo.mmd",
+      "kind": "sequence",
+      "symbols": [
+        "CODE:ClassGestorSesion.InicioAplicacionWebGestorDocumental", "CODE:SecondFactorPreAuthenticationService.Execute",
+        "CODE:OdbcSecondFactorLoginModuleRepository.Resolve", "CODE:MySqlSecondFactorPrincipalRepositoryBase.Resolve"
+      ],
+      "signatures": [
+        "InicioAplicacionWebGestorDocumental(modulo: String, user: String, passs: String, nombre_empresa: String): String",
+        "Execute(request: SecondFactorPreAuthenticationRequest): SecondFactorPreAuthenticationResult",
+        "Resolve(companyName: String, moduleName: String): SecondFactorLoginModule",
+        "Resolve(context: ContextoPreautenticacionModulo): SecondFactorPrincipal"
+      ]
+    },
+    {
+      "path": "Diagramas/04-resolucion-modulos-errores.mmd",
+      "kind": "flow",
+      "symbols": [
+        "CODE:ISecondFactorPrincipalRepositoryResolver.Resolve", "CODE:SecondFactorPrincipalRepositoryResolver.Resolve",
+        "CODE:MySqlDocuarchiSecondFactorPrincipalRepository", "CODE:MySqlGestorSecondFactorPrincipalRepository",
+        "CODE:MySqlRadicacionSecondFactorPrincipalRepository", "CODE:MySqlWorkflowSecondFactorPrincipalRepository",
+        "CODE:ISecondFactorPrincipalRepository.Resolve"
+      ],
+      "signatures": [
+        "Resolve(moduleType: String): ISecondFactorPrincipalRepository",
+        "Resolve(context: ContextoPreautenticacionModulo): SecondFactorPrincipal"
+      ]
+    }
+  ],
+  "dotnetDeclarations": {
+    "CODE:ISecondFactorPreAuthenticationService": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorPreAuthenticationService", "kind": "interface" },
+    "CODE:SecondFactorPreAuthenticationService": { "file": "Services/Login/SegundoFactor/SecondFactorPreAuthenticationService.vb", "type": "SecondFactorPreAuthenticationService", "kind": "class" },
+    "CODE:ISecondFactorLoginModuleRepository": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorLoginModuleRepository", "kind": "interface" },
+    "CODE:OdbcSecondFactorLoginModuleRepository": { "file": "Infrastructure/Repositories/Login/SegundoFactor/OdbcSecondFactorLoginModuleRepository.vb", "type": "OdbcSecondFactorLoginModuleRepository", "kind": "class" },
+    "CODE:ISecondFactorPrincipalRepository": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorPrincipalRepository", "kind": "interface" },
+    "CODE:MySqlSecondFactorPrincipalRepositoryBase": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorPrincipalRepositoryBase.vb", "type": "MySqlSecondFactorPrincipalRepositoryBase", "kind": "class" },
+    "CODE:ISecondFactorPrincipalRepositoryResolver": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorPrincipalRepositoryResolver", "kind": "interface" },
+    "CODE:SecondFactorPrincipalRepositoryResolver": { "file": "Infrastructure/Repositories/Login/SegundoFactor/SecondFactorPrincipalRepositoryResolver.vb", "type": "SecondFactorPrincipalRepositoryResolver", "kind": "class" },
+    "CODE:ILegacyLoginFinalizer": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ILegacyLoginFinalizer", "kind": "interface" },
+    "CODE:ClassGestorSesion": { "file": "Defaul/ClassGestorSesion.vb", "type": "ClassGestorSesion", "kind": "class" },
+    "CODE:SecondFactorPreAuthenticationRequest": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorPreAuthenticationRequest", "kind": "class" },
+    "CODE:SecondFactorPreAuthenticationResult": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorPreAuthenticationResult", "kind": "class" },
+    "CODE:LegacyLoginFinalizationContext": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "LegacyLoginFinalizationContext", "kind": "class" },
+    "CODE:SecondFactorLoginModule": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorLoginModule", "kind": "class" },
+    "CODE:SecondFactorPrincipal": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "SecondFactorPrincipal", "kind": "class" },
+    "CODE:LegacyLoginFinalizationResult": { "file": "Modelo/Login/SegundoFactor/SegundoFactorModels.vb", "type": "LegacyLoginFinalizationResult", "kind": "class" },
+    "CODE:ContextoPreautenticacionModulo": { "file": "Domain/Shared/ContextoPreautenticacionModulo.vb", "type": "ContextoPreautenticacionModulo", "kind": "class" },
+    "CODE:MySqlDocuarchiSecondFactorPrincipalRepository": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlDocuarchiSecondFactorPrincipalRepository.vb", "type": "MySqlDocuarchiSecondFactorPrincipalRepository", "kind": "class" },
+    "CODE:MySqlGestorSecondFactorPrincipalRepository": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlGestorSecondFactorPrincipalRepository.vb", "type": "MySqlGestorSecondFactorPrincipalRepository", "kind": "class" },
+    "CODE:MySqlRadicacionSecondFactorPrincipalRepository": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlRadicacionSecondFactorPrincipalRepository.vb", "type": "MySqlRadicacionSecondFactorPrincipalRepository", "kind": "class" },
+    "CODE:MySqlWorkflowSecondFactorPrincipalRepository": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlWorkflowSecondFactorPrincipalRepository.vb", "type": "MySqlWorkflowSecondFactorPrincipalRepository", "kind": "class" }
+  },
+  "dotnetImplements": {
+    "CODE:SecondFactorPreAuthenticationService.implements": { "file": "Services/Login/SegundoFactor/SecondFactorPreAuthenticationService.vb", "type": "SecondFactorPreAuthenticationService", "interface": "ISecondFactorPreAuthenticationService" },
+    "CODE:OdbcSecondFactorLoginModuleRepository.implements": { "file": "Infrastructure/Repositories/Login/SegundoFactor/OdbcSecondFactorLoginModuleRepository.vb", "type": "OdbcSecondFactorLoginModuleRepository", "interface": "ISecondFactorLoginModuleRepository" },
+    "CODE:MySqlSecondFactorPrincipalRepositoryBase.implements": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorPrincipalRepositoryBase.vb", "type": "MySqlSecondFactorPrincipalRepositoryBase", "interface": "ISecondFactorPrincipalRepository" },
+    "CODE:SecondFactorPrincipalRepositoryResolver.implements": { "file": "Infrastructure/Repositories/Login/SegundoFactor/SecondFactorPrincipalRepositoryResolver.vb", "type": "SecondFactorPrincipalRepositoryResolver", "interface": "ISecondFactorPrincipalRepositoryResolver" },
+    "CODE:ClassGestorSesion.implements": { "file": "Defaul/ClassGestorSesion.vb", "type": "ClassGestorSesion", "interface": "ILegacyLoginFinalizer" }
+  },
+  "dotnetEnums": {
+    "SecondFactorPreAuthenticationStatus": ["FINALIZED", "SECOND_FACTOR_REQUIRED", "REJECTED"]
+  },
+  "dotnetSymbols": {
+    "CODE:ISecondFactorPreAuthenticationService.Execute": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorPreAuthenticationService", "method": "Execute", "parameters": ["SecondFactorPreAuthenticationRequest"], "return": "SecondFactorPreAuthenticationResult" },
+    "CODE:SecondFactorPreAuthenticationService.Execute": { "file": "Services/Login/SegundoFactor/SecondFactorPreAuthenticationService.vb", "type": "SecondFactorPreAuthenticationService", "method": "Execute", "parameters": ["SecondFactorPreAuthenticationRequest"], "return": "SecondFactorPreAuthenticationResult" },
+    "CODE:ISecondFactorLoginModuleRepository.Resolve": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorLoginModuleRepository", "method": "Resolve", "parameters": ["System.String", "System.String"], "return": "SecondFactorLoginModule" },
+    "CODE:OdbcSecondFactorLoginModuleRepository.Resolve": { "file": "Infrastructure/Repositories/Login/SegundoFactor/OdbcSecondFactorLoginModuleRepository.vb", "type": "OdbcSecondFactorLoginModuleRepository", "method": "Resolve", "parameters": ["System.String", "System.String"], "return": "SecondFactorLoginModule" },
+    "CODE:ISecondFactorPrincipalRepository.Resolve": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorPrincipalRepository", "method": "Resolve", "parameters": ["ContextoPreautenticacionModulo"], "return": "SecondFactorPrincipal" },
+    "CODE:MySqlSecondFactorPrincipalRepositoryBase.Resolve": { "file": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorPrincipalRepositoryBase.vb", "type": "MySqlSecondFactorPrincipalRepositoryBase", "method": "Resolve", "parameters": ["ContextoPreautenticacionModulo"], "return": "SecondFactorPrincipal" },
+    "CODE:ISecondFactorPrincipalRepositoryResolver.Resolve": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorPrincipalRepositoryResolver", "method": "Resolve", "parameters": ["System.String"], "return": "ISecondFactorPrincipalRepository" },
+    "CODE:SecondFactorPrincipalRepositoryResolver.Resolve": { "file": "Infrastructure/Repositories/Login/SegundoFactor/SecondFactorPrincipalRepositoryResolver.vb", "type": "SecondFactorPrincipalRepositoryResolver", "method": "Resolve", "parameters": ["System.String"], "return": "ISecondFactorPrincipalRepository" },
+    "CODE:ILegacyLoginFinalizer.FinalizeLogin": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ILegacyLoginFinalizer", "method": "FinalizeLogin", "parameters": ["LegacyLoginFinalizationContext"], "return": "LegacyLoginFinalizationResult" },
+    "CODE:ClassGestorSesion.FinalizeLogin": { "file": "Defaul/ClassGestorSesion.vb", "type": "ClassGestorSesion", "method": "FinalizeLogin", "parameters": ["LegacyLoginFinalizationContext"], "return": "LegacyLoginFinalizationResult" },
+    "CODE:ClassGestorSesion.InicioAplicacionWebGestorDocumental": { "file": "Defaul/ClassGestorSesion.vb", "type": "ClassGestorSesion", "method": "InicioAplicacionWebGestorDocumental", "parameters": ["System.String", "System.String", "System.String", "System.String"], "return": "System.String" }
+  },
+  "dotnetTypes": {
+    "LegacyLoginFinalizationContext": ["EmpresaId:System.Int32", "ModuloId:System.Int32", "ModuleType:System.String", "InternalUserId:System.Int64", "NormalizedLogin:System.String"],
+    "SecondFactorLoginModule": ["EmpresaId:System.Int32", "ModuloId:System.Int32", "ModuleName:System.String", "ModuleType:System.String", "Configuration:SegundoFactorConfiguration"],
+    "SecondFactorPrincipal": ["InternalUserId:System.Int64", "NormalizedLogin:System.String", "EmailAddress:System.String", "MaskedDestination:System.String"],
+    "SecondFactorPreAuthenticationRequest": ["CompanyName:System.String", "ModuleName:System.String", "ValidatedLogin:System.String", "PrincipalContext:ContextoPreautenticacionModulo"],
+    "SecondFactorPreAuthenticationResult": ["Status:SecondFactorPreAuthenticationStatus", "PublicCode:System.String", "LoginModule:SecondFactorLoginModule", "Principal:SecondFactorPrincipal", "Finalization:LegacyLoginFinalizationResult"],
+    "LegacyLoginFinalizationResult": ["Success:System.Boolean", "RedirectRequired:System.Boolean", "LocalRoute:System.String", "PublicCode:System.String"]
+  },
+  "excludedKinds": {
+    "external": ["EXT: Cliente WebForms", "EXT: catálogo central ODBC", "EXT: bases MySQL de módulos"],
+    "conceptual": ["CONCEPT: configuración 2FA", "CONCEPT: efectos autenticados", "CONCEPT: fallo cerrado sanitizado"]
+  }
+}

@@ -57,7 +57,23 @@ Public Interface ISecondFactorSmtpTransport
 End Interface
 
 Public Interface ILegacyLoginFinalizer
-    Function FinalizeLogin(ByVal context As PendingSecondFactorContext) As LegacyLoginFinalizationResult
+    Function FinalizeLogin(ByVal context As LegacyLoginFinalizationContext) As LegacyLoginFinalizationResult
+End Interface
+
+Public Interface ISecondFactorLoginModuleRepository
+    Function Resolve(ByVal companyName As String, ByVal moduleName As String) As SecondFactorLoginModule
+End Interface
+
+Public Interface ISecondFactorPrincipalRepository
+    Function Resolve(ByVal context As ContextoPreautenticacionModulo) As SecondFactorPrincipal
+End Interface
+
+Public Interface ISecondFactorPrincipalRepositoryResolver
+    Function Resolve(ByVal moduleType As String) As ISecondFactorPrincipalRepository
+End Interface
+
+Public Interface ISecondFactorPreAuthenticationService
+    Function Execute(ByVal request As SecondFactorPreAuthenticationRequest) As SecondFactorPreAuthenticationResult
 End Interface
 
 Public Interface IPendingSecondFactorContextStore

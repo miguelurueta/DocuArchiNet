@@ -1,0 +1,52 @@
+{
+  "DOCUARCHI CONTENEDOR": [
+    "SolicitaloginUsuarioDocuarchi",
+    "ID_USUARIO_DOCUARCHI",
+    "SolicitaGrupoRelacionadousuarioDocuarchi",
+    "SolicitaIdUsuarioGestionRelacionUsuarioDocuarchi",
+    "AsignaPermisosPerfilUsuarioGestion",
+    "Retorna_id_empresa_usuario_gestion",
+    "SolicitaLoginUsuarioGestion",
+    "RegtraLogSesionUsuarioDocuarchi"
+  ],
+  "WORKFLOW DOCUMENTAL": [
+    "InicializaSesionModuloWorkflow",
+    "CompilaScriptUsuario",
+    "SolicitaIdUsuarioGestionRelacionadoUsuarioWorkflow",
+    "GA_IDUSUARIOGESTION",
+    "SolicitaIdUsuarioDocuarchiRelacionadoUsuarioGestion",
+    "SolicitaloginUsuarioDocuarchi",
+    "SolicitaGrupoRelacionadousuarioDocuarchi",
+    "SolicitaIdUsuarioRadicadorRelacionadoUsuarioGestion",
+    "AsignaPermisosPerfilUsuarioGestion",
+    "Retorna_id_empresa_usuario_gestion",
+    "SolicitaLoginUsuarioGestion",
+    "Inicializa_gestion_correspondencia"
+  ],
+  "RADICACION DOCUMENTAL": [
+    "Inicializa_Radicador",
+    "SolicitaIdUsuarioDocuarchiRelacionadoUsuarioGestion",
+    "GA_IDUSUARIOGESTION",
+    "Retorna_id_empresa_usuario_gestion",
+    "SolicitaLoginUsuarioGestion",
+    "AsignaPermisosPerfilUsuarioGestion",
+    "SolicitaIdUsuarioDocuarchiRelacionadoUsuarioGestion",
+    "SolicitaloginUsuarioDocuarchi",
+    "SolicitaGrupoRelacionadousuarioDocuarchi",
+    "RegistraLogSesionUsuarioRadicador"
+  ],
+  "GESTOR DOCUMENTAL": [
+    "SolicitaDatosUsuarioGestionLogin",
+    "GA_LOGINUSUARIOGESTION",
+    "AsignaPermisosPerfilUsuarioGestion",
+    "Retorna_id_empresa_usuario_gestion",
+    "RA_ID_USUARIO",
+    "ID_USUARIO_DOCUARCHI",
+    "SolicitaloginUsuarioDocuarchi",
+    "SolicitaGrupoRelacionadousuarioDocuarchi",
+    "InicializaSesionModuloWorkflow",
+    "CompilaScriptUsuario",
+    "RegistroSesionLogusuarioGestionDocumental",
+    "Inicializa_gestion_correspondencia"
+  ]
+}

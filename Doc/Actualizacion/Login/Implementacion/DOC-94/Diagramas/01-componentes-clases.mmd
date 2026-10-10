@@ -1,0 +1,38 @@
+%% Convención: CODE = símbolo resoluble | EXT = actor/sistema externo | CONCEPT = elemento conceptual
+%% Fuentes: Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb | Modelo/Login/SegundoFactor/SegundoFactorModels.vb | Services/Login/SegundoFactor/SecondFactorPreAuthenticationService.vb | Infrastructure/Repositories/Login/SegundoFactor/OdbcSecondFactorLoginModuleRepository.vb | Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorPrincipalRepositoryBase.vb | Infrastructure/Repositories/Login/SegundoFactor/SecondFactorPrincipalRepositoryResolver.vb | Defaul/ClassGestorSesion.vb
+%% Referencias CODE: CODE:ISecondFactorPreAuthenticationService | CODE:SecondFactorPreAuthenticationService | CODE:ISecondFactorLoginModuleRepository | CODE:OdbcSecondFactorLoginModuleRepository | CODE:ISecondFactorPrincipalRepository | CODE:MySqlSecondFactorPrincipalRepositoryBase | CODE:ISecondFactorPrincipalRepositoryResolver | CODE:SecondFactorPrincipalRepositoryResolver | CODE:ILegacyLoginFinalizer | CODE:ClassGestorSesion | CODE:SecondFactorPreAuthenticationRequest | CODE:SecondFactorPreAuthenticationResult | CODE:LegacyLoginFinalizationContext
+classDiagram
+class ISecondFactorPreAuthenticationService { <<interface>>
+  +Execute(SecondFactorPreAuthenticationRequest) SecondFactorPreAuthenticationResult
+}
+class SecondFactorPreAuthenticationService
+class ISecondFactorLoginModuleRepository { <<interface>>
+  +Resolve(String, String) SecondFactorLoginModule
+}
+class OdbcSecondFactorLoginModuleRepository
+class ISecondFactorPrincipalRepository { <<interface>>
+  +Resolve(ContextoPreautenticacionModulo) SecondFactorPrincipal
+}
+class MySqlSecondFactorPrincipalRepositoryBase
+class ISecondFactorPrincipalRepositoryResolver { <<interface>>
+  +Resolve(String) ISecondFactorPrincipalRepository
+}
+class SecondFactorPrincipalRepositoryResolver
+class ILegacyLoginFinalizer { <<interface>>
+  +FinalizeLogin(LegacyLoginFinalizationContext) LegacyLoginFinalizationResult
+}
+class ClassGestorSesion
+class SecondFactorPreAuthenticationRequest
+class SecondFactorPreAuthenticationResult
+class LegacyLoginFinalizationContext
+ISecondFactorPreAuthenticationService <|.. SecondFactorPreAuthenticationService
+ISecondFactorLoginModuleRepository <|.. OdbcSecondFactorLoginModuleRepository
+ISecondFactorPrincipalRepository <|.. MySqlSecondFactorPrincipalRepositoryBase
+ISecondFactorPrincipalRepositoryResolver <|.. SecondFactorPrincipalRepositoryResolver
+ILegacyLoginFinalizer <|.. ClassGestorSesion
+SecondFactorPreAuthenticationService --> ISecondFactorLoginModuleRepository
+SecondFactorPreAuthenticationService --> ISecondFactorPrincipalRepositoryResolver
+SecondFactorPreAuthenticationService --> ILegacyLoginFinalizer
+SecondFactorPreAuthenticationService --> SecondFactorPreAuthenticationRequest
+SecondFactorPreAuthenticationService --> SecondFactorPreAuthenticationResult
+ClassGestorSesion --> LegacyLoginFinalizationContext

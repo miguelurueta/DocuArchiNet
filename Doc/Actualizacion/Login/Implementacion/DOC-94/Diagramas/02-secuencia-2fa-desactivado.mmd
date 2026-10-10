@@ -1,0 +1,25 @@
+%% Convención: CODE = símbolo resoluble | EXT = actor/sistema externo | CONCEPT = elemento conceptual
+%% Fuentes: Defaul/ClassGestorSesion.vb | Services/Login/SegundoFactor/SecondFactorPreAuthenticationService.vb | Infrastructure/Repositories/Login/SegundoFactor/OdbcSecondFactorLoginModuleRepository.vb | Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb
+%% Referencias CODE: CODE:ClassGestorSesion.InicioAplicacionWebGestorDocumental | CODE:ISecondFactorPreAuthenticationService.Execute | CODE:SecondFactorPreAuthenticationService.Execute | CODE:ISecondFactorLoginModuleRepository.Resolve | CODE:ISecondFactorPrincipalRepository.Resolve | CODE:ILegacyLoginFinalizer.FinalizeLogin | CODE:ClassGestorSesion.FinalizeLogin
+sequenceDiagram
+actor Client as EXT: Cliente WebForms
+participant Login as CODE: ClassGestorSesion
+participant Service as CODE: SecondFactorPreAuthenticationService
+participant Modules as CODE: ISecondFactorLoginModuleRepository
+participant Principal as CODE: ISecondFactorPrincipalRepository
+Client->>Login: InicioAplicacionWebGestorDocumental(modulo: String, user: String, passs: String, nombre_empresa: String): String
+Login->>Login: ValidaUserAplicacion(...): String
+alt credenciales inválidas
+  Login-->>Client: error legacy
+else credenciales válidas
+  Login->>Service: Execute(request: SecondFactorPreAuthenticationRequest): SecondFactorPreAuthenticationResult
+  Service->>Modules: Resolve(companyName: String, moduleName: String): SecondFactorLoginModule
+  Modules-->>Service: configuración 0 o NULL
+  Service->>Principal: Resolve(context: ContextoPreautenticacionModulo): SecondFactorPrincipal
+  Note over Service,Principal: CONCEPT: el correo es opcional en 0 o NULL
+  Service->>Login: FinalizeLogin(context: LegacyLoginFinalizationContext): LegacyLoginFinalizationResult
+  Login-->>Service: Success=True
+  Service-->>Login: status FINALIZED
+  Login->>Login: FormsAuthentication.RedirectFromLoginPage
+  Login-->>Client: YES
+end

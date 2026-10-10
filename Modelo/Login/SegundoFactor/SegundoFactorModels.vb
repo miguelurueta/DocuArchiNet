@@ -254,8 +254,132 @@ End Class
 
 Public NotInheritable Class LegacyLoginFinalizationResult
     Public Property Success As Boolean
+    Public Property RedirectRequired As Boolean
     Public Property LocalRoute As String
     Public Property PublicCode As String
+End Class
+
+Public Enum SecondFactorPreAuthenticationStatus
+    FINALIZED = 1
+    SECOND_FACTOR_REQUIRED = 2
+    REJECTED = 3
+End Enum
+
+Public NotInheritable Class LegacyLoginFinalizationContext
+    Public Sub New(ByVal empresaId As Integer,
+                   ByVal moduloId As Integer,
+                   ByVal moduleType As String,
+                   ByVal internalUserId As Long,
+                   ByVal normalizedLogin As String)
+        If empresaId <= 0 Then Throw New ArgumentOutOfRangeException(NameOf(empresaId))
+        If moduloId <= 0 Then Throw New ArgumentOutOfRangeException(NameOf(moduloId))
+        If String.IsNullOrWhiteSpace(moduleType) Then Throw New ArgumentException("El tipo de módulo es obligatorio.", NameOf(moduleType))
+        If internalUserId <= 0 Then Throw New ArgumentOutOfRangeException(NameOf(internalUserId))
+        If String.IsNullOrWhiteSpace(normalizedLogin) Then Throw New ArgumentException("El login es obligatorio.", NameOf(normalizedLogin))
+
+        Me.EmpresaId = empresaId
+        Me.ModuloId = moduloId
+        Me.ModuleType = moduleType.Trim().ToUpperInvariant()
+        Me.InternalUserId = internalUserId
+        Me.NormalizedLogin = normalizedLogin.Trim().ToUpperInvariant()
+    End Sub
+
+    Public ReadOnly Property EmpresaId As Integer
+    Public ReadOnly Property ModuloId As Integer
+    Public ReadOnly Property ModuleType As String
+    Public ReadOnly Property InternalUserId As Long
+    Public ReadOnly Property NormalizedLogin As String
+End Class
+
+Public NotInheritable Class SecondFactorLoginModule
+    Public Sub New(ByVal empresaId As Integer,
+                   ByVal moduloId As Integer,
+                   ByVal moduleName As String,
+                   ByVal moduleType As String,
+                   ByVal configuration As SegundoFactorConfiguration)
+        If empresaId <= 0 Then Throw New ArgumentOutOfRangeException(NameOf(empresaId))
+        If moduloId <= 0 Then Throw New ArgumentOutOfRangeException(NameOf(moduloId))
+        If String.IsNullOrWhiteSpace(moduleName) Then Throw New ArgumentException("El módulo es obligatorio.", NameOf(moduleName))
+        If String.IsNullOrWhiteSpace(moduleType) Then Throw New ArgumentException("El tipo de módulo es obligatorio.", NameOf(moduleType))
+        If configuration Is Nothing Then Throw New ArgumentNullException(NameOf(configuration))
+
+        Me.EmpresaId = empresaId
+        Me.ModuloId = moduloId
+        Me.ModuleName = moduleName.Trim()
+        Me.ModuleType = moduleType.Trim().ToUpperInvariant()
+        Me.Configuration = configuration
+    End Sub
+
+    Public ReadOnly Property EmpresaId As Integer
+    Public ReadOnly Property ModuloId As Integer
+    Public ReadOnly Property ModuleName As String
+    Public ReadOnly Property ModuleType As String
+    Public ReadOnly Property Configuration As SegundoFactorConfiguration
+End Class
+
+Public NotInheritable Class SecondFactorPrincipal
+    Public Sub New(ByVal internalUserId As Long,
+                   ByVal normalizedLogin As String,
+                   ByVal emailAddress As String)
+        If internalUserId <= 0 Then Throw New ArgumentOutOfRangeException(NameOf(internalUserId))
+        If String.IsNullOrWhiteSpace(normalizedLogin) Then Throw New ArgumentException("El login es obligatorio.", NameOf(normalizedLogin))
+
+        Me.InternalUserId = internalUserId
+        Me.NormalizedLogin = normalizedLogin.Trim().ToUpperInvariant()
+        Me.EmailAddress = If(emailAddress, String.Empty).Trim()
+        Me.MaskedDestination = If(String.IsNullOrWhiteSpace(Me.EmailAddress),
+                                  String.Empty,
+                                  SecondFactorContractValidation.MaskEmailAddress(Me.EmailAddress))
+    End Sub
+
+    Public ReadOnly Property InternalUserId As Long
+    Public ReadOnly Property NormalizedLogin As String
+    Friend ReadOnly Property EmailAddress As String
+    Public ReadOnly Property MaskedDestination As String
+End Class
+
+Public NotInheritable Class SecondFactorPreAuthenticationRequest
+    Public Sub New(ByVal companyName As String,
+                   ByVal moduleName As String,
+                   ByVal validatedLogin As String,
+                   ByVal principalContext As ContextoPreautenticacionModulo)
+        If String.IsNullOrWhiteSpace(companyName) Then Throw New ArgumentException("La empresa es obligatoria.", NameOf(companyName))
+        If String.IsNullOrWhiteSpace(moduleName) Then Throw New ArgumentException("El módulo es obligatorio.", NameOf(moduleName))
+        If String.IsNullOrWhiteSpace(validatedLogin) Then Throw New ArgumentException("El login validado es obligatorio.", NameOf(validatedLogin))
+        If principalContext Is Nothing OrElse Not principalContext.EsValido() Then Throw New ArgumentException("El contexto de conexión es inválido.", NameOf(principalContext))
+
+        Me.CompanyName = companyName.Trim()
+        Me.ModuleName = moduleName.Trim()
+        Me.ValidatedLogin = validatedLogin.Trim()
+        Me.PrincipalContext = principalContext
+    End Sub
+
+    Public ReadOnly Property CompanyName As String
+    Public ReadOnly Property ModuleName As String
+    Public ReadOnly Property ValidatedLogin As String
+    Public ReadOnly Property PrincipalContext As ContextoPreautenticacionModulo
+End Class
+
+Public NotInheritable Class SecondFactorPreAuthenticationResult
+    Public Sub New(ByVal status As SecondFactorPreAuthenticationStatus,
+                   ByVal publicCode As String,
+                   ByVal loginModule As SecondFactorLoginModule,
+                   ByVal principal As SecondFactorPrincipal,
+                   ByVal finalization As LegacyLoginFinalizationResult)
+        If Not [Enum].IsDefined(GetType(SecondFactorPreAuthenticationStatus), status) Then Throw New ArgumentOutOfRangeException(NameOf(status))
+        If String.IsNullOrWhiteSpace(publicCode) Then Throw New ArgumentException("El código público es obligatorio.", NameOf(publicCode))
+        Me.Status = status
+        Me.PublicCode = publicCode.Trim().ToUpperInvariant()
+        Me.LoginModule = loginModule
+        Me.Principal = principal
+        Me.Finalization = finalization
+    End Sub
+
+    Public ReadOnly Property Status As SecondFactorPreAuthenticationStatus
+    Public ReadOnly Property PublicCode As String
+    Public ReadOnly Property LoginModule As SecondFactorLoginModule
+    Public ReadOnly Property Principal As SecondFactorPrincipal
+    Public ReadOnly Property Finalization As LegacyLoginFinalizationResult
 End Class
 
 Public NotInheritable Class PendingSecondFactorContext

@@ -125,3 +125,19 @@ El sistema SHALL mantener un inventario explícito de diagramas Mermaid y resolv
 
 - **WHEN** un participante no se resuelve contra el repositorio
 - **THEN** solo se admite si está inventariado como `EXT:` o `CONCEPT:`
+
+### Requirement: RQ-10 Finalización independiente de challenge
+
+El contrato `ILegacyLoginFinalizer` SHALL recibir un `LegacyLoginFinalizationContext` que represente solamente la identidad y el módulo ya verificados.
+
+#### Scenario: Finalización sin segundo factor
+
+- **WHEN** el login legacy tiene segundo factor apagado
+- **THEN** puede finalizar sin construir un `PendingSecondFactorContext`
+- **AND** conserva el mismo resultado observable previo.
+
+#### Scenario: Continuación OTP futura
+
+- **WHEN** una implementación posterior verifique un challenge
+- **THEN** podrá traducir la identidad verificada al mismo `LegacyLoginFinalizationContext`
+- **AND** reutilizará el único finalizador sin duplicar lógica legacy.
