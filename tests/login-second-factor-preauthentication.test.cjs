@@ -20,19 +20,54 @@ const requiredSources = [
   'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlWorkflowSecondFactorPrincipalRepository.vb',
   'Infrastructure\\Repositories\\Login\\SegundoFactor\\SecondFactorPrincipalRepositoryResolver.vb'
 ];
+const behaviorSources = [
+  'Domain\\Shared\\ContextoModulo.vb',
+  'Domain\\Shared\\ContextoPreautenticacionModulo.vb',
+  'Infrastructure\\Shared\\Data\\ModuleDataContracts.vb',
+  'Modelo\\Login\\SegundoFactor\\SegundoFactorModels.vb',
+  'Modelo\\Login\\SegundoFactor\\SegundoFactorSmtpModels.vb',
+  'Modelo\\Login\\SegundoFactor\\SegundoFactorInterfaces.vb',
+  'Services\\Login\\SegundoFactor\\SecondFactorPreAuthenticationService.vb',
+  'Infrastructure\\Repositories\\Login\\SegundoFactor\\OdbcSecondFactorLoginModuleRepository.vb',
+  'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlSecondFactorPrincipalRepositoryBase.vb',
+  'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlDocuarchiSecondFactorPrincipalRepository.vb',
+  'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlGestorSecondFactorPrincipalRepository.vb',
+  'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlRadicacionSecondFactorPrincipalRepository.vb',
+  'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlWorkflowSecondFactorPrincipalRepository.vb',
+  'Infrastructure\\Repositories\\Login\\SegundoFactor\\SecondFactorPrincipalRepositoryResolver.vb',
+  'tests\\MySqlParameterTestDouble.vb'
+];
 
 function run(command, args, options = {}) { return execFileSync(command, args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...options }); }
-function compiler() { return run('powershell.exe', ['-NoProfile', '-Command', '(Get-Command csc.exe -ErrorAction Stop).Source']).trim(); }
+function frameworkCompiler(name) {
+  try {
+    for (const msbuild of run('where.exe', ['msbuild.exe']).split(/\r?\n/).filter(Boolean)) {
+      for (const bin of [path.dirname(msbuild), path.dirname(path.dirname(msbuild))]) {
+        const candidate = path.join(bin, 'Roslyn', name);
+        if (fs.existsSync(candidate)) return candidate;
+      }
+    }
+  } catch { /* continúa con el compilador de .NET Framework */ }
+  const windows = process.env.WINDIR || 'C:\\Windows';
+  for (const framework of ['Framework64', 'Framework']) {
+    const candidate = path.join(windows, 'Microsoft.NET', framework, 'v4.0.30319', name);
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return run('powershell.exe', ['-NoProfile', '-Command', `(Get-Command ${name} -ErrorAction Stop).Source`]).trim();
+}
 function read(relative) { return fs.readFileSync(path.join(root, ...relative.split('/')), 'utf8'); }
 
 test('DOC-94: contratos, repositorios y decisión cumplen comportamiento net461', () => {
-  run('msbuild.exe', [project, '/t:Build', '/p:Configuration=Debug', '/m:1', '/v:minimal']);
-  const build = path.join(root, 'bin');
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'doc94-preauth-'));
   try {
-    for (const name of ['GestionDocumental-Docuarchi.net.dll', 'MySql.Data.dll']) fs.copyFileSync(path.join(build, name), path.join(directory, name));
+    const assembly = path.join(directory, 'GestionDocumental-Docuarchi.net.dll');
+    run(frameworkCompiler('vbc.exe'), [
+      '/nologo', '/target:library', '/rootnamespace:GestionDocumental_Docuarchi.net', `/out:${assembly}`,
+      '/reference:System.Data.dll', '/reference:System.dll',
+      ...behaviorSources.map(relative => path.join(root, ...relative.split('\\')))
+    ]);
     const executable = path.join(directory, 'LoginSecondFactorPreAuthenticationBehaviorTests.exe');
-    run(compiler(), ['/nologo', '/target:exe', `/out:${executable}`, `/reference:${path.join(directory, 'GestionDocumental-Docuarchi.net.dll')}`, '/reference:System.Data.dll', source]);
+    run(frameworkCompiler('csc.exe'), ['/nologo', '/target:exe', `/out:${executable}`, `/reference:${assembly}`, '/reference:System.Data.dll', '/reference:System.dll', source]);
     assert.match(run(executable, [], { cwd: directory }), /preauthentication behavior tests: passed/);
   } finally { fs.rmSync(directory, { recursive: true, force: true }); }
 });
