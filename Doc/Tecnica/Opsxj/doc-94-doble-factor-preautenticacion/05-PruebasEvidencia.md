@@ -5,9 +5,17 @@
 - Clasificacion: cross_cutting (Transversal)
 ## Evidencia requerida
 
-- [ ] unit: comando, resultado, fecha y referencia verificable.
-- [ ] manual_qa: comando, resultado, fecha y referencia verificable.
+- [x] unit: el 2026-10-10 la suite focal aprobó 6/6 y la regresión
+  DOC-91/92/93/94 aprobó 31/31. Comandos y resultados completos en
+  `Doc/Actualizacion/Login/Implementacion/DOC-94/04-VALIDACION-Y-PENDIENTES.md`.
+- [x] manual_qa: confirmación funcional del solicitante registrada el
+  2026-10-10 para continuar el flujo. No incluyó E2E autenticado, SMTP real ni
+  consultas de base de datos.
 
 ## QA/E2E WebForms
 
-Las pruebas E2E automatizadas no se suponen disponibles. Cuando aplique, registrar ambiente, pasos manuales, resultado y limitacion; si hay automatizacion real, adjuntar comando y reporte.
+No se ejecutó E2E autenticado porque DOC-94 no introduce la interfaz de
+challenge y no se otorgó una autorización específica de ambiente/cuenta para
+esta corrida. Las pruebas usan dobles locales y validación estructural; la
+limitación sobre efectos finales de Session, permisos y auditoría está
+registrada en la verificación OpenSpec archivada.

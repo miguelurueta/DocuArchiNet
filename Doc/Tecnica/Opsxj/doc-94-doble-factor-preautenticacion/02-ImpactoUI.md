@@ -5,9 +5,14 @@
 - Clasificacion: cross_cutting (Transversal)
 ## Superficies UI
 
-- [ ] Paginas WebForms, UserControls, modales y tablas afectadas.
-- [ ] Estados de foco, hover, seleccion, responsive y accesibilidad.
+- [x] No se modifican páginas WebForms, UserControls, modales, tablas ni
+  estilos. La integración ocurre en `ClassGestorSesion` después de validar
+  credenciales.
+- [x] Foco, hover, selección, responsive y accesibilidad no aplican porque
+  DOC-94 no incorpora ni altera controles visuales.
 
 ## Validacion visual
 
-Registrar captura o recorrido manual reproducible cuando aplique.
+No aplica captura visual. La validación manual confirmada cubrió el flujo
+funcional existente con 2FA desactivado; la pantalla de challenge queda fuera
+del alcance de DOC-94 y será provista por la entrega de interfaz correspondiente.
