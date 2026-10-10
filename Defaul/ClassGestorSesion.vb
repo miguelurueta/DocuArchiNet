@@ -26,6 +26,7 @@ Public Structure stru_inicio_menu
     Public tipo_modulo As String
 End Structure
 Public Class ClassGestorSesion
+    Implements ILegacyLoginFinalizer
     Public Structure stru_detalle_web_service
         Dim id_modulo As Integer
         Dim ACTIVA_WEB_SERVICE As Integer
@@ -2366,419 +2367,479 @@ Public Class ClassGestorSesion
                 Exit Function
             End If
 
-            If Modulestr = "DOCUARCHI CONTENEDOR" Then
-                '-----------------------------------
-                'Retorna login usuario docuarchi
-                '-----------------------------------
-                Dim Refclasda As New ClassDaIncioDocuarchi
-                Result = Refclasda.SolicitaloginUsuarioDocuarchi(id_usuario_da,
-                                                                   HttpContext.Current.Session.Item("DA_Login_Usuario"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
-                '-----------------------------------
-                'Retorna id usuario gestion
-                '-----------------------------------
-                HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI") = id_usuario_da
-                '-----------------------------------
-                'Retorna grupo usuario docuarchi
-                '-----------------------------------
-                Dim Refclasinicio As New Class_relacion_usu_grup
-                Result = Refclasinicio.SolicitaGrupoRelacionadousuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"),
-                                                                                 HttpContext.Current.Session.Item("DA_gruposusu"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
-                Dim id_user_gestion_da As Integer = 0
-                Dim Refclasgestor As New ClassGestorDocumental
-                Dim id_usuario_gestion_wf As Integer = 0
-                Result = Refclasgestor.SolicitaIdUsuarioGestionRelacionUsuarioDocuarchi(id_usuario_da,
-                                                                                        id_user_gestion_da)
-                If Result <> "YES" Then
-                    'InicioAplicacionWebGestorDocumental = Result
-                    'Exit Function
-                End If
-
-                '-----------------------------------
-                'Asigna perfil gestiòn documental
-                '-----------------------------------
-                Dim ref_Class_remit_dest_interno_perfil_produccion As New Class_remit_dest_interno_perfil_produccion
-                If id_user_gestion_da <> 0 Then
-                    Result = ref_Class_remit_dest_interno_perfil_produccion.AsignaPermisosPerfilUsuarioGestion(id_user_gestion_da)
-                    If Result <> "YES" Then
-                        InicioAplicacionWebGestorDocumental = Result
-                        Exit Function
-                    End If
-                    '-------------------------------------
-                    'Retorna id empresa usuario gestión
-                    '-------------------------------------
-                    Dim ref_gestion As New ClassAdmonEmpresa
-                    Result = ref_gestion.Retorna_id_empresa_usuario_gestion(HttpContext.Current.Session.Item("GA_IDEMPRESA"),
-                                                                            id_user_gestion_da)
-                    If Result <> "YES" Then
-                        InicioAplicacionWebGestorDocumental = Result
-                        Exit Function
-                    End If
-                    '--------------------------------------
-                    'Retorna login usuario de gestion
-                    '--------------------------------------
-                    Dim ref_gestor_documental As New ClassGestorDocumental
-                    Result = ref_gestor_documental.SolicitaLoginUsuarioGestion(id_user_gestion_da,
-                                                                                 HttpContext.Current.Session.Item("GA_LOGINUSUARIOGESTION"))
-                    If Result <> "YES" Then
-                        InicioAplicacionWebGestorDocumental = Result
-                        Exit Function
-                    End If
-                End If
-
-                '--------------------------------------------------
-                'Inserta log de usuario
-                '--------------------------------------------------
-                Result = Refclasda.RegtraLogSesionUsuarioDocuarchi(id_usuario_da,
-                                                                       HttpContext.Current.Session.Item("ip_host_name"),
-                                                                       HttpContext.Current.Session.Item("id_registro_sesion_log"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
+            passs = String.Empty
+            Dim preAuthentication As ISecondFactorPreAuthenticationService = CreateSecondFactorPreAuthenticationService(user)
+            Dim preAuthenticationRequest As New SecondFactorPreAuthenticationRequest(
+                nombre_empresa,
+                modulo,
+                user,
+                New ContextoPreautenticacionModulo With {
+                    .CodigoModulo = Modulestr,
+                    .IdUsuario = 0,
+                    .IdGrupo = 0,
+                    .LoginUsuario = user})
+            Dim preAuthenticationResult As SecondFactorPreAuthenticationResult = preAuthentication.Execute(preAuthenticationRequest)
+            If preAuthenticationResult Is Nothing Then
+                InicioAplicacionWebGestorDocumental = "PREAUTHENTICATION_FAILED"
+                Exit Function
             End If
-            Dim Refclas_inicio As New Class_inicializa_gestion_correspondencia
-            Dim mEval As New ClassEdtiScript
-            Dim Reflcas As New InicioWorkflow
-            If Modulestr = "WORKFLOW DOCUMENTAL" Then
-                Result = refclasiniciowf.InicializaSesionModuloWorkflow(user)
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
-                '--------------------------------------------------
-                'Compila escript
-                '--------------------------------------------------
-                HttpContext.Current.Session("SESIONCOMPILAR") = Reflcas.CompilaScriptUsuario(HttpContext.Current.Session("Id_Grupo_Workflow"),
-                                                                                               mEval)
-                '-----------------------------------
-                'Retorna id usuario gestion
-                '-----------------------------------
-                Dim Refclasgestor As New ClassGestorDocumental
-                Dim id_usuario_gestion_wf As Integer = 0
-                Result = Refclasgestor.SolicitaIdUsuarioGestionRelacionadoUsuarioWorkflow(HttpContext.Current.Session.Item("Id_Usuario_Workflow"),
-                                                                                         id_usuario_gestion_wf)
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = "YES"
-                    Exit Function
+            If preAuthenticationResult.Status = SecondFactorPreAuthenticationStatus.SECOND_FACTOR_REQUIRED Then
+                InicioAplicacionWebGestorDocumental = "SECOND_FACTOR_REQUIRED"
+                Exit Function
+            End If
+            If preAuthenticationResult.Status <> SecondFactorPreAuthenticationStatus.FINALIZED OrElse
+               preAuthenticationResult.Finalization Is Nothing OrElse
+               Not preAuthenticationResult.Finalization.Success Then
+                InicioAplicacionWebGestorDocumental = preAuthenticationResult.PublicCode
+                Exit Function
+            End If
+            If preAuthenticationResult.Finalization.RedirectRequired Then
+                FormsAuthentication.RedirectFromLoginPage(preAuthenticationResult.Principal.NormalizedLogin, False)
+            End If
+            InicioAplicacionWebGestorDocumental = "YES"
+        Catch ex As Exception
+            InicioAplicacionWebGestorDocumental = "Inconsistencia función InicioAplicacionWebGestorDocumental " & ex.Message
+        End Try
+    End Function
+    Public Function FinalizeLogin(ByVal context As LegacyLoginFinalizationContext) As LegacyLoginFinalizationResult Implements ILegacyLoginFinalizer.FinalizeLogin
+        If context Is Nothing Then Return LegacyFinalizationFailure("LOGIN_FINALIZATION_CONTEXT_INVALID")
+        If context.InternalUserId > Integer.MaxValue Then Return LegacyFinalizationFailure("LOGIN_FINALIZATION_CONTEXT_INVALID")
 
-                End If
-                HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION") = id_usuario_gestion_wf
-                '-----------------------------------------------------
-                'Retorna id usuario docuarchi de workflow relacionado 
-                '-----------------------------------------------------
-                Result = Refclasgestor.SolicitaIdUsuarioDocuarchiRelacionadoUsuarioGestion(id_usuario_gestion_wf,
-                                                                                           HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    'Exit Function
-                End If
-                '-----------------------------------
-                'Retorna login usuario docuarchi
-                '-----------------------------------
-                Dim Refclasda As New ClassDaIncioDocuarchi
-                Result = Refclasda.SolicitaloginUsuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"),
-                                                                   HttpContext.Current.Session.Item("DA_Login_Usuario"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
-                '-----------------------------------
-                'Retorna grupo usuario docuarchi
-                '-----------------------------------
-                Dim Refclasinicio As New Class_relacion_usu_grup
-                Result = Refclasinicio.SolicitaGrupoRelacionadousuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"),
-                                                                                HttpContext.Current.Session.Item("DA_gruposusu"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
-                '-----------------------------------------------------
-                'Retrona la identificacion de usuario de gestion
-                '-----------------------------------------------------
-                Result = Refclasgestor.SolicitaIdUsuarioRadicadorRelacionadoUsuarioGestion(id_usuario_gestion_wf,
-                                                                                           HttpContext.Current.Session.Item("RA_ID_USUARIO"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    'Exit Function
-                End If
-                '-----------------------------------
-                'Asigna perfil gestiòn documental
-                '-----------------------------------
-                Dim ref_Class_remit_dest_interno_perfil_produccion As New Class_remit_dest_interno_perfil_produccion
-                If id_usuario_gestion_wf <> 0 Then
-                    Result = ref_Class_remit_dest_interno_perfil_produccion.AsignaPermisosPerfilUsuarioGestion(id_usuario_gestion_wf)
-                    If Result <> "YES" Then
-                        InicioAplicacionWebGestorDocumental = Result
-                        Exit Function
-                    End If
-                    '-------------------------------------
-                    'Retorna id empresa usuario gestión
-                    '-------------------------------------
-                    Dim ref_gestion As New ClassAdmonEmpresa
-                    Result = ref_gestion.Retorna_id_empresa_usuario_gestion(HttpContext.Current.Session.Item("GA_IDEMPRESA"),
-                                                                            id_usuario_gestion_wf)
-                    If Result <> "YES" Then
-                        InicioAplicacionWebGestorDocumental = Result
-                        Exit Function
-                    End If
-                    '--------------------------------------
-                    'Retorna login usuario de gestion
-                    '--------------------------------------
-                    Dim ref_gestor_documental As New ClassGestorDocumental
-                    Result = ref_gestor_documental.SolicitaLoginUsuarioGestion(id_usuario_gestion_wf,
-                                                                                 HttpContext.Current.Session.Item("GA_LOGINUSUARIOGESTION"))
-                    If Result <> "YES" Then
-                        InicioAplicacionWebGestorDocumental = Result
-                        Exit Function
-                    End If
-                End If
-
-                Result = Refclas_inicio.Inicializa_gestion_correspondencia(HttpContext.Current.Session.Item("Id_Usuario_Workflow"),
-                                                                           HttpContext.Current.Session.Item("Id_Ruta_Workflow"),
-                                                                           HttpContext.Current.Session.Item("Id_Grupo_Workflow"))
-                If Result <> "YES" Then
-                    'InicioAplicacionWebGestorDocumental = Result
-                    'Exit Function
-                End If
+        Dim Modulestr As String = context.ModuleType
+        Dim user As String = context.NormalizedLogin
+        Dim id_usuario_da As Integer = CInt(context.InternalUserId)
+        Dim Result As String = String.Empty
+        Dim refclasiniciowf As New InicioWorkflow
+        Dim refclasgestiondocumental As New ClassGestionDocumental
+        If Modulestr = "DOCUARCHI CONTENEDOR" Then
+            '-----------------------------------
+            'Retorna login usuario docuarchi
+            '-----------------------------------
+            Dim Refclasda As New ClassDaIncioDocuarchi
+            Result = Refclasda.SolicitaloginUsuarioDocuarchi(id_usuario_da,
+                                                               HttpContext.Current.Session.Item("DA_Login_Usuario"))
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            '-----------------------------------
+            'Retorna id usuario gestion
+            '-----------------------------------
+            HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI") = id_usuario_da
+            '-----------------------------------
+            'Retorna grupo usuario docuarchi
+            '-----------------------------------
+            Dim Refclasinicio As New Class_relacion_usu_grup
+            Result = Refclasinicio.SolicitaGrupoRelacionadousuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"),
+                                                                             HttpContext.Current.Session.Item("DA_gruposusu"))
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            Dim id_user_gestion_da As Integer = 0
+            Dim Refclasgestor As New ClassGestorDocumental
+            Dim id_usuario_gestion_wf As Integer = 0
+            Result = Refclasgestor.SolicitaIdUsuarioGestionRelacionUsuarioDocuarchi(id_usuario_da,
+                                                                                    id_user_gestion_da)
+            If Result <> "YES" Then
+                'InicioAplicacionWebGestorDocumental = Result
+                'Exit Function
             End If
 
-            If Modulestr = "RADICACION DOCUMENTAL" Then
-                Dim id_usuario_gestion_ra As Integer = 0
-                Dim id_usuario_login As String = ""
-                Dim refclas2 As New ClassInicioRadicador
-                Result = refclas2.Inicializa_Radicador(user, HttpContext.Current.Session.Item("RA_ID_USUARIO"), id_usuario_gestion_ra, id_usuario_login)
+            '-----------------------------------
+            'Asigna perfil gestiòn documental
+            '-----------------------------------
+            Dim ref_Class_remit_dest_interno_perfil_produccion As New Class_remit_dest_interno_perfil_produccion
+            If id_user_gestion_da <> 0 Then
+                Result = ref_Class_remit_dest_interno_perfil_produccion.AsignaPermisosPerfilUsuarioGestion(id_user_gestion_da)
                 If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = "YES"
-                    HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION") & "Usuario gestión=" & Result & vbCrLf
-                    Exit Function
-                End If
-                Dim refclas_gestor_documental As New ClassGestorDocumental
-                Result = refclas_gestor_documental.SolicitaIdUsuarioDocuarchiRelacionadoUsuarioGestion(id_usuario_gestion_ra, HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = "YES"
-                    HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION") & "Usuario gestión=" & Result & vbCrLf
-                    Exit Function
-                End If
-                HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION") = id_usuario_gestion_ra
-                '-------------------------------------
-                'Retorna id empresa usuario gestión
-                '-------------------------------------
-                Dim ref_gestion As New ClassAdmonEmpresa
-                Result = ref_gestion.Retorna_id_empresa_usuario_gestion(HttpContext.Current.Session.Item("GA_IDEMPRESA"), id_usuario_gestion_ra)
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
-
-                '--------------------------------------
-                'Retorna login usuario de gestion
-                '--------------------------------------
-                Dim ref_gestor_documental As New ClassGestorDocumental
-                Result = ref_gestor_documental.SolicitaLoginUsuarioGestion(id_usuario_gestion_ra, HttpContext.Current.Session.Item("GA_LOGINUSUARIOGESTION"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
-                '-----------------------------------
-                'Asigna perfil gestiòn documental
-                '-----------------------------------
-                Dim ref_Class_remit_dest_interno_perfil_produccion As New Class_remit_dest_interno_perfil_produccion
-                Result = ref_Class_remit_dest_interno_perfil_produccion.AsignaPermisosPerfilUsuarioGestion(id_usuario_gestion_ra)
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
-                '-----------------------------------------------------
-                'Retorna id usuario docuarchi de workflow relacionado 
-                '-----------------------------------------------------
-                Result = refclas_gestor_documental.SolicitaIdUsuarioDocuarchiRelacionadoUsuarioGestion(id_usuario_gestion_ra, HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    'Exit Function
-                End If
-                '-----------------------------------
-                'Retorna login usuario docuarchi
-                '-----------------------------------
-                Dim Refclasda As New ClassDaIncioDocuarchi
-                Result = Refclasda.SolicitaloginUsuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"), HttpContext.Current.Session.Item("DA_Login_Usuario"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
-                '-----------------------------------
-                'Retorna grupo usuario docuarchi
-                '-----------------------------------
-                Dim Refclasinicio As New Class_relacion_usu_grup
-                Result = Refclasinicio.SolicitaGrupoRelacionadousuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"),
-                                                                       HttpContext.Current.Session.Item("DA_gruposusu"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
-                '--------------------------------------------------
-                'Inserta log de usuario
-                '--------------------------------------------------
-                Result = refclas2.RegistraLogSesionUsuarioRadicador(HttpContext.Current.Session.Item("RA_ID_USUARIO"), HttpContext.Current.Session.Item("ip_host_name"), HttpContext.Current.Session.Item("id_registro_sesion_log_ra"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
-            End If
-
-            Dim id_usuario_gestion As Integer = 0
-            Dim login_usuario_workflow As String = ""
-            Dim id_usuario_workflow As Integer = 0
-            Dim login_usuario_docuarchi As String = ""
-            Dim id_usuario_docuarchi As Integer = 0
-            Dim login_usuario_radicacion As String = ""
-            Dim id_usuario_radicacion As Integer = 0
-            If Modulestr = "GESTOR DOCUMENTAL" Then
-                '---------------------------------
-                'Asigna los datos de relacion del
-                'perfil de usuario gestion
-                'con los modulos workflow, docuarchi,
-                'y radicacion
-                '---------------------------------
-                Result = refclasgestiondocumental.SolicitaDatosUsuarioGestionLogin(user,
-                                                                                      id_usuario_gestion,
-                                                                                      login_usuario_workflow,
-                                                                                      id_usuario_workflow,
-                                                                                      login_usuario_docuarchi,
-                                                                                      id_usuario_docuarchi,
-                                                                                      login_usuario_radicacion,
-                                                                                      id_usuario_radicacion)
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
-                HttpContext.Current.Session.Item("GA_LOGINUSUARIOGESTION") = UCase(user)
-                '-----------------------------------
-                'Asigna perfil gestiòn documental
-                '-----------------------------------
-                Dim ref_Class_remit_dest_interno_perfil_produccion As New Class_remit_dest_interno_perfil_produccion
-                Result = ref_Class_remit_dest_interno_perfil_produccion.AsignaPermisosPerfilUsuarioGestion(id_usuario_gestion)
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
+                    Return LegacyFinalizationFailure(Result)
                 End If
                 '-------------------------------------
                 'Retorna id empresa usuario gestión
                 '-------------------------------------
                 Dim ref_gestion As New ClassAdmonEmpresa
                 Result = ref_gestion.Retorna_id_empresa_usuario_gestion(HttpContext.Current.Session.Item("GA_IDEMPRESA"),
-                                                                        id_usuario_gestion)
+                                                                        id_user_gestion_da)
                 If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
+                    Return LegacyFinalizationFailure(Result)
                 End If
-                '----------------------------------------------
-                'Asigna perfil radicación
-                '----------------------------------------------
-                If id_usuario_radicacion <> 0 Then
-                    HttpContext.Current.Session.Item("RA_ID_USUARIO") = id_usuario_radicacion
-                End If
-                HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI") = id_usuario_docuarchi
-                '-----------------------------------
-                'Retorna login usuario docuarchi
-                '-----------------------------------
-                Dim Refclasda As New ClassDaIncioDocuarchi
-                Result = Refclasda.SolicitaloginUsuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"),
-                                                                   HttpContext.Current.Session.Item("DA_Login_Usuario"))
+                '--------------------------------------
+                'Retorna login usuario de gestion
+                '--------------------------------------
+                Dim ref_gestor_documental As New ClassGestorDocumental
+                Result = ref_gestor_documental.SolicitaLoginUsuarioGestion(id_user_gestion_da,
+                                                                             HttpContext.Current.Session.Item("GA_LOGINUSUARIOGESTION"))
                 If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
+                    Return LegacyFinalizationFailure(Result)
                 End If
-                '-----------------------------------
-                'Retorna grupo usuario docuarchi
-                '-----------------------------------
-                Dim Refclasinicio As New Class_relacion_usu_grup
-                Result = Refclasinicio.SolicitaGrupoRelacionadousuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"),
-                                                                                HttpContext.Current.Session.Item("DA_gruposusu"))
-                If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
-                End If
-                '---------------------------------------------
-                'Inicializa workflow
-                '---------------------------------------------
-                If id_usuario_workflow <> 0 Then
-                    Result = refclasiniciowf.InicializaSesionModuloWorkflow(login_usuario_workflow)
-                    If Result <> "YES" Then
-                        InicioAplicacionWebGestorDocumental = Result
-                        Exit Function
-                    End If
-                    '--------------------------------------------------
-                    'Compila escript
-                    '--------------------------------------------------
-                    HttpContext.Current.Session("SESIONCOMPILAR") = Reflcas.CompilaScriptUsuario(HttpContext.Current.Session("Id_Grupo_Workflow"),
-                                                                                                mEval)
-                End If
+            End If
 
-                '--------------------------------------------------
-                'Inserta log de usuario
-                '--------------------------------------------------
-                Dim ref_Class_log_usuario_gestion As New Class_log_usuario_gestion
-                Result = ref_Class_log_usuario_gestion.RegistroSesionLogusuarioGestionDocumental(id_usuario_gestion,
-                                                                                                 HttpContext.Current.Session.Item("ip_host_name"),
-                                                                                                 HttpContext.Current.Session.Item("id_registro_sesion_log_gd"))
+            '--------------------------------------------------
+            'Inserta log de usuario
+            '--------------------------------------------------
+            Result = Refclasda.RegtraLogSesionUsuarioDocuarchi(id_usuario_da,
+                                                                   HttpContext.Current.Session.Item("ip_host_name"),
+                                                                   HttpContext.Current.Session.Item("id_registro_sesion_log"))
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+        End If
+        Dim Refclas_inicio As New Class_inicializa_gestion_correspondencia
+        Dim mEval As New ClassEdtiScript
+        Dim Reflcas As New InicioWorkflow
+        If Modulestr = "WORKFLOW DOCUMENTAL" Then
+            Result = refclasiniciowf.InicializaSesionModuloWorkflow(user)
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            '--------------------------------------------------
+            'Compila escript
+            '--------------------------------------------------
+            HttpContext.Current.Session("SESIONCOMPILAR") = Reflcas.CompilaScriptUsuario(HttpContext.Current.Session("Id_Grupo_Workflow"),
+                                                                                           mEval)
+            '-----------------------------------
+            'Retorna id usuario gestion
+            '-----------------------------------
+            Dim Refclasgestor As New ClassGestorDocumental
+            Dim id_usuario_gestion_wf As Integer = 0
+            Result = Refclasgestor.SolicitaIdUsuarioGestionRelacionadoUsuarioWorkflow(HttpContext.Current.Session.Item("Id_Usuario_Workflow"),
+                                                                                     id_usuario_gestion_wf)
+            If Result <> "YES" Then
+                Return LegacyFinalizationSuccess(False)
+
+            End If
+            HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION") = id_usuario_gestion_wf
+            '-----------------------------------------------------
+            'Retorna id usuario docuarchi de workflow relacionado
+            '-----------------------------------------------------
+            Result = Refclasgestor.SolicitaIdUsuarioDocuarchiRelacionadoUsuarioGestion(id_usuario_gestion_wf,
+                                                                                       HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"))
+            If Result <> "YES" Then
+                ' El recorrido legacy continúa aunque la relación opcional no exista.
+                'Exit Function
+            End If
+            '-----------------------------------
+            'Retorna login usuario docuarchi
+            '-----------------------------------
+            Dim Refclasda As New ClassDaIncioDocuarchi
+            Result = Refclasda.SolicitaloginUsuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"),
+                                                               HttpContext.Current.Session.Item("DA_Login_Usuario"))
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            '-----------------------------------
+            'Retorna grupo usuario docuarchi
+            '-----------------------------------
+            Dim Refclasinicio As New Class_relacion_usu_grup
+            Result = Refclasinicio.SolicitaGrupoRelacionadousuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"),
+                                                                            HttpContext.Current.Session.Item("DA_gruposusu"))
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            '-----------------------------------------------------
+            'Retrona la identificacion de usuario de gestion
+            '-----------------------------------------------------
+            Result = Refclasgestor.SolicitaIdUsuarioRadicadorRelacionadoUsuarioGestion(id_usuario_gestion_wf,
+                                                                                       HttpContext.Current.Session.Item("RA_ID_USUARIO"))
+            If Result <> "YES" Then
+                ' El recorrido legacy continúa aunque la relación opcional no exista.
+                'Exit Function
+            End If
+            '-----------------------------------
+            'Asigna perfil gestiòn documental
+            '-----------------------------------
+            Dim ref_Class_remit_dest_interno_perfil_produccion As New Class_remit_dest_interno_perfil_produccion
+            If id_usuario_gestion_wf <> 0 Then
+                Result = ref_Class_remit_dest_interno_perfil_produccion.AsignaPermisosPerfilUsuarioGestion(id_usuario_gestion_wf)
                 If Result <> "YES" Then
-                    InicioAplicacionWebGestorDocumental = Result
-                    Exit Function
+                    Return LegacyFinalizationFailure(Result)
                 End If
-                Result = Refclas_inicio.Inicializa_gestion_correspondencia(HttpContext.Current.Session.Item("Id_Usuario_Workflow"),
-                                                                           HttpContext.Current.Session.Item("Id_Ruta_Workflow"),
-                                                                           HttpContext.Current.Session.Item("Id_Grupo_Workflow"))
+                '-------------------------------------
+                'Retorna id empresa usuario gestión
+                '-------------------------------------
+                Dim ref_gestion As New ClassAdmonEmpresa
+                Result = ref_gestion.Retorna_id_empresa_usuario_gestion(HttpContext.Current.Session.Item("GA_IDEMPRESA"),
+                                                                        id_usuario_gestion_wf)
                 If Result <> "YES" Then
-                    'InicioAplicacionWebGestorDocumental = Result
-                    'Exit Function
+                    Return LegacyFinalizationFailure(Result)
+                End If
+                '--------------------------------------
+                'Retorna login usuario de gestion
+                '--------------------------------------
+                Dim ref_gestor_documental As New ClassGestorDocumental
+                Result = ref_gestor_documental.SolicitaLoginUsuarioGestion(id_usuario_gestion_wf,
+                                                                             HttpContext.Current.Session.Item("GA_LOGINUSUARIOGESTION"))
+                If Result <> "YES" Then
+                    Return LegacyFinalizationFailure(Result)
                 End If
             End If
-            Dim stru_service() As stru_detalle_web_service = Nothing
-            'Result = Me.Gestor_Retorna_Detalle_webserice(HttpContext.Current.Session.Item("EMPRESA_GESTION"), stru_service)
-            'If Result <> "YES" Then
-            '    InicioAplicacionWebGestorDocumental = Result
-            '    Exit Function
-            'End If
-            If Not stru_service Is Nothing Then
-                For i As Integer = 0 To stru_service.Length - 1
-                    Select Case stru_service(i).TIPO_MODULO
-                        Case "WORKFLOW DOCUMENTAL"
-                            HttpContext.Current.Session.Item("ACTIVA_WEB_SERVICE") = stru_service(i).ACTIVA_WEB_SERVICE
-                            HttpContext.Current.Session.Item("URL_WEB_SERVICE") = stru_service(i).URL_WEB_SERVICE
-                            HttpContext.Current.Session.Item("USER_WEB_SERVICE") = stru_service(i).USER_WEB_SERVICE
-                            HttpContext.Current.Session.Item("PASW_WEB_SERVICE") = stru_service(i).PASW_WEB_SERVICE
-                        Case "RADICACION DOCUMENTAL"
-                            HttpContext.Current.Session.Item("RA_ACTIVA_WEB_SERVICE") = stru_service(i).ACTIVA_WEB_SERVICE
-                            HttpContext.Current.Session.Item("RA_URL_WEB_SERVICE") = stru_service(i).URL_WEB_SERVICE
-                            HttpContext.Current.Session.Item("RA_USER_WEB_SERVICE") = stru_service(i).USER_WEB_SERVICE
-                            HttpContext.Current.Session.Item("RA_PASW_WEB_SERVICE") = stru_service(i).PASW_WEB_SERVICE
-                        Case "DOCUARCHI CONTENEDOR"
-                            HttpContext.Current.Session.Item("DA_ACTIVA_WEB_SERVICE") = stru_service(i).ACTIVA_WEB_SERVICE
-                            HttpContext.Current.Session.Item("DA_URL_WEB_SERVICE") = stru_service(i).URL_WEB_SERVICE
-                            HttpContext.Current.Session.Item("DA_USER_WEB_SERVICE") = stru_service(i).USER_WEB_SERVICE
-                            HttpContext.Current.Session.Item("DA_PASW_WEB_SERVICE") = stru_service(i).PASW_WEB_SERVICE
-                        Case "GESTOR DOCUMENTAL"
-                            HttpContext.Current.Session.Item("GA_ACTIVA_WEB_SERVICE") = stru_service(i).ACTIVA_WEB_SERVICE
-                            HttpContext.Current.Session.Item("GA_URL_WEB_SERVICE") = stru_service(i).URL_WEB_SERVICE
-                            HttpContext.Current.Session.Item("GA_USER_WEB_SERVICE") = stru_service(i).USER_WEB_SERVICE
-                            HttpContext.Current.Session.Item("GA_PASW_WEB_SERVICE") = stru_service(i).PASW_WEB_SERVICE
-                    End Select
-                Next
+
+            Result = Refclas_inicio.Inicializa_gestion_correspondencia(HttpContext.Current.Session.Item("Id_Usuario_Workflow"),
+                                                                       HttpContext.Current.Session.Item("Id_Ruta_Workflow"),
+                                                                       HttpContext.Current.Session.Item("Id_Grupo_Workflow"))
+            If Result <> "YES" Then
+                'InicioAplicacionWebGestorDocumental = Result
+                'Exit Function
             End If
-            FormsAuthentication.RedirectFromLoginPage(user, False)
-            InicioAplicacionWebGestorDocumental = "YES"
-        Catch ex As Exception
-            InicioAplicacionWebGestorDocumental = "Inconsistencia función InicioAplicacionWebGestorDocumental " & ex.Message
-        End Try
+        End If
+
+        If Modulestr = "RADICACION DOCUMENTAL" Then
+            Dim id_usuario_gestion_ra As Integer = 0
+            Dim id_usuario_login As String = ""
+            Dim refclas2 As New ClassInicioRadicador
+            Result = refclas2.Inicializa_Radicador(user, HttpContext.Current.Session.Item("RA_ID_USUARIO"), id_usuario_gestion_ra, id_usuario_login)
+            If Result <> "YES" Then
+                HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION") & "Usuario gestión=" & Result & vbCrLf
+                Return LegacyFinalizationSuccess(False)
+            End If
+            Dim refclas_gestor_documental As New ClassGestorDocumental
+            Result = refclas_gestor_documental.SolicitaIdUsuarioDocuarchiRelacionadoUsuarioGestion(id_usuario_gestion_ra, HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"))
+            If Result <> "YES" Then
+                HttpContext.Current.Session.Item("DETALLE_SESION") = HttpContext.Current.Session.Item("DETALLE_SESION") & "Usuario gestión=" & Result & vbCrLf
+                Return LegacyFinalizationSuccess(False)
+            End If
+            HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION") = id_usuario_gestion_ra
+            '-------------------------------------
+            'Retorna id empresa usuario gestión
+            '-------------------------------------
+            Dim ref_gestion As New ClassAdmonEmpresa
+            Result = ref_gestion.Retorna_id_empresa_usuario_gestion(HttpContext.Current.Session.Item("GA_IDEMPRESA"), id_usuario_gestion_ra)
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+
+            '--------------------------------------
+            'Retorna login usuario de gestion
+            '--------------------------------------
+            Dim ref_gestor_documental As New ClassGestorDocumental
+            Result = ref_gestor_documental.SolicitaLoginUsuarioGestion(id_usuario_gestion_ra, HttpContext.Current.Session.Item("GA_LOGINUSUARIOGESTION"))
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            '-----------------------------------
+            'Asigna perfil gestiòn documental
+            '-----------------------------------
+            Dim ref_Class_remit_dest_interno_perfil_produccion As New Class_remit_dest_interno_perfil_produccion
+            Result = ref_Class_remit_dest_interno_perfil_produccion.AsignaPermisosPerfilUsuarioGestion(id_usuario_gestion_ra)
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            '-----------------------------------------------------
+            'Retorna id usuario docuarchi de workflow relacionado
+            '-----------------------------------------------------
+            Result = refclas_gestor_documental.SolicitaIdUsuarioDocuarchiRelacionadoUsuarioGestion(id_usuario_gestion_ra, HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"))
+            If Result <> "YES" Then
+                ' El recorrido legacy continúa aunque la relación opcional no exista.
+                'Exit Function
+            End If
+            '-----------------------------------
+            'Retorna login usuario docuarchi
+            '-----------------------------------
+            Dim Refclasda As New ClassDaIncioDocuarchi
+            Result = Refclasda.SolicitaloginUsuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"), HttpContext.Current.Session.Item("DA_Login_Usuario"))
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            '-----------------------------------
+            'Retorna grupo usuario docuarchi
+            '-----------------------------------
+            Dim Refclasinicio As New Class_relacion_usu_grup
+            Result = Refclasinicio.SolicitaGrupoRelacionadousuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"),
+                                                                   HttpContext.Current.Session.Item("DA_gruposusu"))
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            '--------------------------------------------------
+            'Inserta log de usuario
+            '--------------------------------------------------
+            Result = refclas2.RegistraLogSesionUsuarioRadicador(HttpContext.Current.Session.Item("RA_ID_USUARIO"), HttpContext.Current.Session.Item("ip_host_name"), HttpContext.Current.Session.Item("id_registro_sesion_log_ra"))
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+        End If
+
+        Dim id_usuario_gestion As Integer = 0
+        Dim login_usuario_workflow As String = ""
+        Dim id_usuario_workflow As Integer = 0
+        Dim login_usuario_docuarchi As String = ""
+        Dim id_usuario_docuarchi As Integer = 0
+        Dim login_usuario_radicacion As String = ""
+        Dim id_usuario_radicacion As Integer = 0
+        If Modulestr = "GESTOR DOCUMENTAL" Then
+            '---------------------------------
+            'Asigna los datos de relacion del
+            'perfil de usuario gestion
+            'con los modulos workflow, docuarchi,
+            'y radicacion
+            '---------------------------------
+            Result = refclasgestiondocumental.SolicitaDatosUsuarioGestionLogin(user,
+                                                                                  id_usuario_gestion,
+                                                                                  login_usuario_workflow,
+                                                                                  id_usuario_workflow,
+                                                                                  login_usuario_docuarchi,
+                                                                                  id_usuario_docuarchi,
+                                                                                  login_usuario_radicacion,
+                                                                                  id_usuario_radicacion)
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            HttpContext.Current.Session.Item("GA_LOGINUSUARIOGESTION") = UCase(user)
+            '-----------------------------------
+            'Asigna perfil gestiòn documental
+            '-----------------------------------
+            Dim ref_Class_remit_dest_interno_perfil_produccion As New Class_remit_dest_interno_perfil_produccion
+            Result = ref_Class_remit_dest_interno_perfil_produccion.AsignaPermisosPerfilUsuarioGestion(id_usuario_gestion)
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            '-------------------------------------
+            'Retorna id empresa usuario gestión
+            '-------------------------------------
+            Dim ref_gestion As New ClassAdmonEmpresa
+            Result = ref_gestion.Retorna_id_empresa_usuario_gestion(HttpContext.Current.Session.Item("GA_IDEMPRESA"),
+                                                                    id_usuario_gestion)
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            '----------------------------------------------
+            'Asigna perfil radicación
+            '----------------------------------------------
+            If id_usuario_radicacion <> 0 Then
+                HttpContext.Current.Session.Item("RA_ID_USUARIO") = id_usuario_radicacion
+            End If
+            HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI") = id_usuario_docuarchi
+            '-----------------------------------
+            'Retorna login usuario docuarchi
+            '-----------------------------------
+            Dim Refclasda As New ClassDaIncioDocuarchi
+            Result = Refclasda.SolicitaloginUsuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"),
+                                                               HttpContext.Current.Session.Item("DA_Login_Usuario"))
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            '-----------------------------------
+            'Retorna grupo usuario docuarchi
+            '-----------------------------------
+            Dim Refclasinicio As New Class_relacion_usu_grup
+            Result = Refclasinicio.SolicitaGrupoRelacionadousuarioDocuarchi(HttpContext.Current.Session.Item("ID_USUARIO_DOCUARCHI"),
+                                                                            HttpContext.Current.Session.Item("DA_gruposusu"))
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            '---------------------------------------------
+            'Inicializa workflow
+            '---------------------------------------------
+            If id_usuario_workflow <> 0 Then
+                Result = refclasiniciowf.InicializaSesionModuloWorkflow(login_usuario_workflow)
+                If Result <> "YES" Then
+                    Return LegacyFinalizationFailure(Result)
+                End If
+                '--------------------------------------------------
+                'Compila escript
+                '--------------------------------------------------
+                HttpContext.Current.Session("SESIONCOMPILAR") = Reflcas.CompilaScriptUsuario(HttpContext.Current.Session("Id_Grupo_Workflow"),
+                                                                                            mEval)
+            End If
+
+            '--------------------------------------------------
+            'Inserta log de usuario
+            '--------------------------------------------------
+            Dim ref_Class_log_usuario_gestion As New Class_log_usuario_gestion
+            Result = ref_Class_log_usuario_gestion.RegistroSesionLogusuarioGestionDocumental(id_usuario_gestion,
+                                                                                             HttpContext.Current.Session.Item("ip_host_name"),
+                                                                                             HttpContext.Current.Session.Item("id_registro_sesion_log_gd"))
+            If Result <> "YES" Then
+                Return LegacyFinalizationFailure(Result)
+            End If
+            Result = Refclas_inicio.Inicializa_gestion_correspondencia(HttpContext.Current.Session.Item("Id_Usuario_Workflow"),
+                                                                       HttpContext.Current.Session.Item("Id_Ruta_Workflow"),
+                                                                       HttpContext.Current.Session.Item("Id_Grupo_Workflow"))
+            If Result <> "YES" Then
+                'InicioAplicacionWebGestorDocumental = Result
+                'Exit Function
+            End If
+        End If
+        Dim stru_service() As stru_detalle_web_service = Nothing
+        'Result = Me.Gestor_Retorna_Detalle_webserice(HttpContext.Current.Session.Item("EMPRESA_GESTION"), stru_service)
+        'If Result <> "YES" Then
+        '    InicioAplicacionWebGestorDocumental = Result
+        '    Exit Function
+        'End If
+        If Not stru_service Is Nothing Then
+            For i As Integer = 0 To stru_service.Length - 1
+                Select Case stru_service(i).TIPO_MODULO
+                    Case "WORKFLOW DOCUMENTAL"
+                        HttpContext.Current.Session.Item("ACTIVA_WEB_SERVICE") = stru_service(i).ACTIVA_WEB_SERVICE
+                        HttpContext.Current.Session.Item("URL_WEB_SERVICE") = stru_service(i).URL_WEB_SERVICE
+                        HttpContext.Current.Session.Item("USER_WEB_SERVICE") = stru_service(i).USER_WEB_SERVICE
+                        HttpContext.Current.Session.Item("PASW_WEB_SERVICE") = stru_service(i).PASW_WEB_SERVICE
+                    Case "RADICACION DOCUMENTAL"
+                        HttpContext.Current.Session.Item("RA_ACTIVA_WEB_SERVICE") = stru_service(i).ACTIVA_WEB_SERVICE
+                        HttpContext.Current.Session.Item("RA_URL_WEB_SERVICE") = stru_service(i).URL_WEB_SERVICE
+                        HttpContext.Current.Session.Item("RA_USER_WEB_SERVICE") = stru_service(i).USER_WEB_SERVICE
+                        HttpContext.Current.Session.Item("RA_PASW_WEB_SERVICE") = stru_service(i).PASW_WEB_SERVICE
+                    Case "DOCUARCHI CONTENEDOR"
+                        HttpContext.Current.Session.Item("DA_ACTIVA_WEB_SERVICE") = stru_service(i).ACTIVA_WEB_SERVICE
+                        HttpContext.Current.Session.Item("DA_URL_WEB_SERVICE") = stru_service(i).URL_WEB_SERVICE
+                        HttpContext.Current.Session.Item("DA_USER_WEB_SERVICE") = stru_service(i).USER_WEB_SERVICE
+                        HttpContext.Current.Session.Item("DA_PASW_WEB_SERVICE") = stru_service(i).PASW_WEB_SERVICE
+                    Case "GESTOR DOCUMENTAL"
+                        HttpContext.Current.Session.Item("GA_ACTIVA_WEB_SERVICE") = stru_service(i).ACTIVA_WEB_SERVICE
+                        HttpContext.Current.Session.Item("GA_URL_WEB_SERVICE") = stru_service(i).URL_WEB_SERVICE
+                        HttpContext.Current.Session.Item("GA_USER_WEB_SERVICE") = stru_service(i).USER_WEB_SERVICE
+                        HttpContext.Current.Session.Item("GA_PASW_WEB_SERVICE") = stru_service(i).PASW_WEB_SERVICE
+                End Select
+            Next
+        End If
+
+        Return LegacyFinalizationSuccess(True)
     End Function
+
+    Private Function CreateSecondFactorPreAuthenticationService(ByVal validatedLogin As String) As ISecondFactorPreAuthenticationService
+        Dim centralSettings As ConnectionStringSettings = ConfigurationManager.ConnectionStrings("OdbcServicesGestor")
+        If centralSettings Is Nothing OrElse String.IsNullOrWhiteSpace(centralSettings.ConnectionString) Then
+            Throw New InvalidOperationException("SECOND_FACTOR_CENTRAL_CONNECTION_UNAVAILABLE")
+        End If
+
+        Dim executor As IDataExecutor = New AdoNetDataExecutor()
+        Dim centralContext As New ContextoPreautenticacionModulo With {
+            .CodigoModulo = "GESTOR_CATALOG",
+            .IdUsuario = 0,
+            .IdGrupo = 0,
+            .LoginUsuario = validatedLogin}
+        Dim modules As ISecondFactorLoginModuleRepository =
+            New OdbcSecondFactorLoginModuleRepository(
+                New GestorCatalogOdbcConnectionFactory(centralSettings.ConnectionString),
+                executor,
+                centralContext)
+
+        Dim docuarchiConnection As String = ModuleSessionConnectionStringResolver.Resolve(HttpContext.Current, "DA_")
+        Dim gestorRadicacionConnection As String = ModuleSessionConnectionStringResolver.Resolve(HttpContext.Current, "RA_")
+        Dim workflowConnection As String = ModuleSessionConnectionStringResolver.Resolve(HttpContext.Current)
+        Dim principals As ISecondFactorPrincipalRepositoryResolver =
+            New SecondFactorPrincipalRepositoryResolver(
+                New MySqlDocuarchiSecondFactorPrincipalRepository(New DocuarchiModuleConnectionFactory(docuarchiConnection), executor),
+                New MySqlGestorSecondFactorPrincipalRepository(New GestorModuleConnectionFactory(gestorRadicacionConnection), executor),
+                New MySqlRadicacionSecondFactorPrincipalRepository(New RadicacionModuleConnectionFactory(gestorRadicacionConnection), executor),
+                New MySqlWorkflowSecondFactorPrincipalRepository(New WorkflowModuleConnectionFactory(workflowConnection), executor))
+
+        Return New SecondFactorPreAuthenticationService(modules, principals, Me)
+    End Function
+
+    Private Shared Function LegacyFinalizationSuccess(ByVal redirectRequired As Boolean) As LegacyLoginFinalizationResult
+        Return New LegacyLoginFinalizationResult With {
+            .Success = True,
+            .RedirectRequired = redirectRequired,
+            .PublicCode = "YES"}
+    End Function
+
+    Private Shared Function LegacyFinalizationFailure(ByVal publicCode As String) As LegacyLoginFinalizationResult
+        Return New LegacyLoginFinalizationResult With {
+            .Success = False,
+            .RedirectRequired = False,
+            .PublicCode = If(String.IsNullOrWhiteSpace(publicCode), "LOGIN_FINALIZATION_FAILED", publicCode)}
+    End Function
+
+
     Function Recuperar_pasword_usuario(ByVal user As String,
                                        ByRef correo_electronico_usuario As String,
                                        ByVal Nombre_Aplication As String,

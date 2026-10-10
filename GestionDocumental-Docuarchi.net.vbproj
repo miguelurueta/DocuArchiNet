@@ -9895,6 +9895,14 @@
     <Compile Include="Modelo\Login\SegundoFactor\SegundoFactorModels.vb" />
     <Compile Include="Modelo\Login\SegundoFactor\SegundoFactorSmtpModels.vb" />
     <Compile Include="Modelo\Login\SegundoFactor\SegundoFactorInterfaces.vb" />
+    <Compile Include="Services\Login\SegundoFactor\SecondFactorPreAuthenticationService.vb" />
+    <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\OdbcSecondFactorLoginModuleRepository.vb" />
+    <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\MySqlSecondFactorPrincipalRepositoryBase.vb" />
+    <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\MySqlDocuarchiSecondFactorPrincipalRepository.vb" />
+    <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\MySqlGestorSecondFactorPrincipalRepository.vb" />
+    <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\MySqlRadicacionSecondFactorPrincipalRepository.vb" />
+    <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\MySqlWorkflowSecondFactorPrincipalRepository.vb" />
+    <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\SecondFactorPrincipalRepositoryResolver.vb" />
     <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\MySqlSecondFactorChallengeRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\MySqlSecondFactorSmtpConfigurationRepository.vb" />
     <Compile Include="Infrastructure\Login\SegundoFactor\Smtp\FrameworkSmtpClientAdapter.vb" />
@@ -9948,6 +9956,7 @@
     <Compile Include="Infrastructure\Workflow\DevolverUsuarioAnterior\WorkflowLegacyDevolverUsuarioAnteriorExecutorAdapter.vb" />
     <Compile Include="Infrastructure\Workflow\DevolverUsuarioAnterior\WorkflowLegacyDevolverUsuarioAnteriorAuditoriaAdapter.vb" />
     <Compile Include="Domain\Shared\ContextoModulo.vb" />
+    <Compile Include="Domain\Shared\ContextoPreautenticacionModulo.vb" />
     <Compile Include="Infrastructure\Shared\Data\ModuleDataContracts.vb" />
       <Compile Include="Infrastructure\Shared\Data\ModuleConnectionFactory.vb" />
       <Compile Include="Infrastructure\Shared\Data\ModuleSessionConnectionStringResolver.vb" />

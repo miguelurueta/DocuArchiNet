@@ -1,0 +1,24 @@
+%% Convención: CODE = símbolo resoluble | EXT = actor/sistema externo | CONCEPT = elemento conceptual
+%% Fuentes: Defaul/ClassGestorSesion.vb | Services/Login/SegundoFactor/SecondFactorPreAuthenticationService.vb | Infrastructure/Repositories/Login/SegundoFactor/OdbcSecondFactorLoginModuleRepository.vb | Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorPrincipalRepositoryBase.vb
+%% Referencias CODE: CODE:ClassGestorSesion.InicioAplicacionWebGestorDocumental | CODE:SecondFactorPreAuthenticationService.Execute | CODE:OdbcSecondFactorLoginModuleRepository.Resolve | CODE:MySqlSecondFactorPrincipalRepositoryBase.Resolve
+sequenceDiagram
+actor Client as EXT: Cliente WebForms
+participant Login as CODE: ClassGestorSesion
+participant Service as CODE: SecondFactorPreAuthenticationService
+participant Modules as CODE: OdbcSecondFactorLoginModuleRepository
+participant Principal as CODE: MySqlSecondFactorPrincipalRepositoryBase
+Client->>Login: InicioAplicacionWebGestorDocumental(modulo: String, user: String, passs: String, nombre_empresa: String): String
+Login->>Service: Execute(request: SecondFactorPreAuthenticationRequest): SecondFactorPreAuthenticationResult
+Service->>Modules: Resolve(companyName: String, moduleName: String): SecondFactorLoginModule
+Modules-->>Service: RequiereSegundoFactor=1
+Service->>Principal: Resolve(context: ContextoPreautenticacionModulo): SecondFactorPrincipal
+alt correo ausente o inválido
+  Principal-->>Service: identidad sin destino utilizable
+  Service-->>Login: SECOND_FACTOR_EMAIL_UNAVAILABLE
+  Login-->>Client: SECOND_FACTOR_EMAIL_UNAVAILABLE
+else correo válido
+  Principal-->>Service: identidad y destino enmascarado
+  Note over Service: CONCEPT: no finalizador, cookie, permisos, auditoría ni challenge
+  Service-->>Login: SECOND_FACTOR_REQUIRED
+  Login-->>Client: SECOND_FACTOR_REQUIRED
+end

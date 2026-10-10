@@ -1,5 +1,6 @@
 Imports System
 Imports System.Data
+Imports System.Data.Odbc
 Imports MySql.Data.MySqlClient
 
 'Factoría de conexión creada a partir de una configuración ya resuelta por Presentation.
@@ -50,4 +51,30 @@ Public NotInheritable Class RadicacionModuleConnectionFactory
     Public Sub New(ByVal connectionString As String)
         MyBase.New(connectionString, "Radicacion")
     End Sub
+End Class
+
+Public NotInheritable Class GestorModuleConnectionFactory
+    Inherits ModuleSnapshotConnectionFactory
+
+    Public Sub New(ByVal connectionString As String)
+        MyBase.New(connectionString, "Gestor")
+    End Sub
+End Class
+
+Public NotInheritable Class GestorCatalogOdbcConnectionFactory
+    Implements IModuleConnectionFactory
+
+    Private ReadOnly _connectionString As String
+
+    Public Sub New(ByVal connectionString As String)
+        If String.IsNullOrWhiteSpace(connectionString) Then Throw New ArgumentException("Se requiere la conexión central de Gestor.", NameOf(connectionString))
+        _connectionString = connectionString
+    End Sub
+
+    Public Function CreateOpenConnection(ByVal contexto As ContextoModulo) As IDbConnection Implements IModuleConnectionFactory.CreateOpenConnection
+        If contexto Is Nothing OrElse Not contexto.EsValido() Then Throw New InvalidOperationException("MODULE_CONTEXT_INVALID")
+        Dim connection As New OdbcConnection(_connectionString)
+        connection.Open()
+        Return connection
+    End Function
 End Class

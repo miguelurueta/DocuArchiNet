@@ -16,6 +16,7 @@ const sources = [
 ];
 const behaviorSources = [
   'Domain\\Shared\\ContextoModulo.vb',
+  'Domain\\Shared\\ContextoPreautenticacionModulo.vb',
   'Infrastructure\\Shared\\Data\\ModuleDataContracts.vb',
   'Modelo\\Login\\SegundoFactor\\SegundoFactorModels.vb',
   'Modelo\\Login\\SegundoFactor\\SegundoFactorInterfaces.vb',

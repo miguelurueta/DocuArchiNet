@@ -72,10 +72,21 @@ test('DOC-91: proyecto registra una vez cada fuente y puertos no acoplan infraes
   }
 });
 
-test('DOC-91: fundación permanece sin referencias desde archivos productivos legacy', () => {
+test('DOC-91/DOC-94: fundación solo se referencia desde integraciones aprobadas', () => {
   const normalize = value => value.replace(/[\\/]/g, path.sep).toLowerCase();
   const allowed = new Set(requiredSources.map(normalize));
   allowed.add(normalize('Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlSecondFactorChallengeRepository.vb'));
+  for (const relative of [
+    'Defaul\\ClassGestorSesion.vb',
+    'Infrastructure\\Repositories\\Login\\SegundoFactor\\OdbcSecondFactorLoginModuleRepository.vb',
+    'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlSecondFactorPrincipalRepositoryBase.vb',
+    'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlDocuarchiSecondFactorPrincipalRepository.vb',
+    'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlGestorSecondFactorPrincipalRepository.vb',
+    'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlRadicacionSecondFactorPrincipalRepository.vb',
+    'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlWorkflowSecondFactorPrincipalRepository.vb',
+    'Infrastructure\\Repositories\\Login\\SegundoFactor\\SecondFactorPrincipalRepositoryResolver.vb',
+    'Services\\Login\\SegundoFactor\\SecondFactorPreAuthenticationService.vb'
+  ]) allowed.add(normalize(relative));
   const symbols = /SegundoFactorIdentity|SegundoFactorConfiguration|PendingSecondFactorContext|CryptographicSecondFactorOtpGenerator|HmacSecondFactorCodeProtector|SessionPendingSecondFactorContextStore/;
   const trackedSources = run('git', ['-c', 'core.quotepath=false', 'ls-files', '-z', '*.vb', '*.aspx', '*.ascx', '*.ashx', '*.js'])
     .split('\0')
