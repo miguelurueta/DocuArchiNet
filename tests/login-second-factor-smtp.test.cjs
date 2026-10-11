@@ -50,7 +50,8 @@ test('DOC-93: rutas, contrato SQL y aislamiento respetan la arquitectura aprobad
   for (const source of sources) assert.equal(projectText.split(`Include="${source}"`).length - 1, 1, `${source} debe registrarse una vez.`);
 
   const repository = read(sources[1]);
-  assert.match(repository, /SELECT SERV_SMTP, PUERTO_SERV_SMTP, USUARIO_SMTP, PASW_SMTP, DOMINIO_SMTP, SMTP_TIEMPO, ESTADO_SSL, ESTADO_ENVIO, ESTADO_BODY, ESTADO_CREDENCIAL FROM Config_Smpt_Side WHERE ESTADO_ENVIO=@enabled/);
+  assert.match(repository, /SELECT SERV_SMTP, PUERTO_SERV_SMTP, USUARIO_SMTP, PASW_SMTP, DOMINIO_SMTP, SMTP_TIEMPO, ESTADO_SSL, ESTADO_ENVIO, ESTADO_CREDENCIAL FROM Config_Smpt_Side WHERE ESTADO_ENVIO=@enabled/);
+  assert.doesNotMatch(repository, /ESTADO_BODY/);
   assert.match(repository, /IModuleConnectionFactory/);
   assert.match(repository, /IDataExecutor/);
   assert.doesNotMatch(repository, /SELECT\s+\*|LIMIT\s+1|HttpContext|System\.Web|\bSession\b|\bconect\b/i);

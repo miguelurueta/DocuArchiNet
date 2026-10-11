@@ -49,7 +49,6 @@ No existen DTOs HTTP DOC-93.
 | misma | `SMTP_TIEMPO` | Timeout legacy | Positivo, sin overflow al multiplicar por 100000, máximo efectivo 120000 ms. |
 | misma | `ESTADO_SSL` | SSL | Solo 0/1. |
 | misma | `ESTADO_ENVIO` | Selección/confirmación | Parámetro `@enabled=1`; fila debe conservar valor 1. |
-| misma | `ESTADO_BODY` | HTML/texto | Solo 0/1. |
 | misma | `ESTADO_CREDENCIAL` | Default/explícita | Solo 0/1. |
 
 ## Códigos públicos

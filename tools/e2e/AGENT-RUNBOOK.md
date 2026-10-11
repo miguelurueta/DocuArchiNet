@@ -75,6 +75,7 @@ El resultado esperado es `Active=false` y listas vacías. Si difiere, detener la
 | Notas escritura | `npm.cmd --prefix tools/e2e run test:notes:write` | Autorización explícita, tarea descartable y MySQL solo lectura. | Validación contractual: crear idempotente, editar/conflicto/eliminar. |
 | Notas concurrencia | `npm.cmd --prefix tools/e2e run test:notes:concurrency` | Autorización doble, tarea descartable distinta, nota semilla propia y MySQL solo lectura. | Validación contractual: exactamente dos actualizaciones, una efectiva y un bloqueo seguro. |
 | DOC-43/44/45 UI Notas | `npm.cmd --prefix tools/e2e run test:doc44:workflow-notes` | Ambiente, cuenta y tarea descartable expresamente autorizados; datos para lecturas negativas y una nota ajena perteneciente a la misma tarea. | La presentación moderna es única; una nota propia extensa valida lectura completa y una nota ajena valida ausencia de acciones y rechazo `NotOwner`, sin modificar el gate. |
+| DOC-95 Login 2FA ASMX | `npm.cmd --prefix tools/e2e run test:doc95:second-factor -- --profile <perfil>` | Autorización nueva para ambiente, cuenta, buzón, challenge, carrera exacta y datos descartables. | Postback real crea el reto, estado saneado pendiente y exactamente una de dos verificaciones del mismo OTP completa el login. |
 
 ## Cierre de cada corrida
 
@@ -333,3 +334,27 @@ npm.cmd --prefix tools/e2e run test:radicacion-simple:attachment -- --profile to
 ```
 
 Ninguno de estos comandos se ejecuta sin autorización explícita. La evidencia DOC-90 conserva únicamente fecha, huella del recurso, banderas y conteos; no guarda radicado, credenciales, cookies, consultas, cadenas de conexión ni contenido documental.
+
+## DOC-95 — Orquestación Login 2FA por ASMX
+
+DOC-95 reutiliza el formulario `gestor.aspx`, `tests/support/authenticated-workflow-session.cjs`, la consola TTY y Playwright ya instalados. No crea login, configuración, buzón automatizado, navegador ni `.env` paralelos. El perfil contiene únicamente URL, módulo con 2FA activo, política TLS y timeout; no admite cuentas, contraseñas, OTP, challenge ni conexiones.
+
+La ejecución crea y consume datos reales. Antes de abrir el navegador solicita confirmaciones independientes para ambiente, cuenta, acceso al buzón, creación/consumo del challenge, carrera exacta de dos verificaciones y datos descartables. La cuenta y contraseña se capturan en el TTY; después del postback, el responsable consulta el buzón autorizado e ingresa el OTP de seis dígitos de forma oculta. No pegue secretos en el perfil, variables persistentes, chat o artefactos.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:doc95:second-factor -- --profile profiles/<perfil-runtime.json>
+```
+
+El escenario llama `ObtenerEstado` y exige estado `PENDIENTE`, destino enmascarado y vigencia positiva. Luego envía exactamente dos llamadas `Verificar` con el mismo OTP: una debe completar y devolver una ruta local; la otra debe fallar cerrada. No usa consultas SQL. Si en el futuro se agregan controles de base de datos, deberán ser exclusivamente `SELECT` y usar una cuenta de solo lectura. La evidencia solo imprime banderas y el conteo de ganadores; nunca OTP, identidad, destino, cookie, challenge, ruta, cuerpo HTTP o excepciones.
+
+Para estabilidad de arranque existe `--scenario stability`. El runner no recicla IIS: el responsable debe autorizar y ejecutar el reciclado por un canal separado. Inmediatamente después, el escenario solicita una autorización adicional y realiza tres sesiones nuevas secuenciales; cada una crea un challenge y correo nuevos, solicita su OTP oculto, completa el login, comprueba la cookie y cierra el contexto antes de la siguiente. No lo ejecute con un solo OTP reutilizado.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:doc95:second-factor -- --scenario stability --profile profiles/<perfil-runtime.json>
+```
+
+El modo siguiente valida registro y perfil sin TTY, login, navegador, correo ni escritura real; no sustituye la E2E autorizada:
+
+```powershell
+npm.cmd --prefix tools/e2e run test:doc95:second-factor -- --check --profile profiles/doc95-login-second-factor.profile.example.json
+```

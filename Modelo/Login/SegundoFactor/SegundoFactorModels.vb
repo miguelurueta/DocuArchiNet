@@ -383,6 +383,8 @@ Public NotInheritable Class SecondFactorPreAuthenticationResult
 End Class
 
 Public NotInheritable Class PendingSecondFactorContext
+    ' Sobrecarga conservada para consumidores DOC-91. Los contextos nuevos deben usar
+    ' la firma completa para que el gate pueda reconstruir el módulo y el reenvío.
     Public Sub New(ByVal empresaId As Integer,
                    ByVal moduloId As Integer,
                    ByVal internalUserId As Long,
@@ -392,36 +394,175 @@ Public NotInheritable Class PendingSecondFactorContext
                    ByVal sessionNonce As String,
                    ByVal createdAtUtc As DateTime,
                    ByVal expiresAtUtc As DateTime)
+        Me.New(empresaId,
+               moduloId,
+               String.Empty,
+               internalUserId,
+               normalizedLogin,
+               maskedDestination,
+               challengeId,
+               sessionNonce,
+               0,
+               createdAtUtc,
+               expiresAtUtc)
+    End Sub
+
+    Public Sub New(ByVal empresaId As Integer,
+                   ByVal moduloId As Integer,
+                   ByVal moduleType As String,
+                   ByVal internalUserId As Long,
+                   ByVal normalizedLogin As String,
+                   ByVal maskedDestination As String,
+                   ByVal challengeId As Guid,
+                   ByVal sessionNonce As String,
+                   ByVal resendCount As Integer,
+                   ByVal createdAtUtc As DateTime,
+                   ByVal expiresAtUtc As DateTime)
         If empresaId <= 0 Then Throw New ArgumentOutOfRangeException(NameOf(empresaId))
         If moduloId <= 0 Then Throw New ArgumentOutOfRangeException(NameOf(moduloId))
+        If moduleType Is Nothing Then Throw New ArgumentNullException(NameOf(moduleType))
         If internalUserId <= 0 Then Throw New ArgumentOutOfRangeException(NameOf(internalUserId))
         If String.IsNullOrWhiteSpace(normalizedLogin) Then Throw New ArgumentException("El login es obligatorio.", NameOf(normalizedLogin))
         If Not SecondFactorContractValidation.IsMaskedEmailDestination(maskedDestination) Then Throw New ArgumentException("El destino debe estar enmascarado.", NameOf(maskedDestination))
         If challengeId = Guid.Empty Then Throw New ArgumentException("El challenge es obligatorio.", NameOf(challengeId))
         If String.IsNullOrWhiteSpace(sessionNonce) Then Throw New ArgumentException("El nonce de sesión es obligatorio.", NameOf(sessionNonce))
+        If resendCount < 0 OrElse resendCount > SegundoFactorConfiguration.MaxResends Then Throw New ArgumentOutOfRangeException(NameOf(resendCount))
         If createdAtUtc.Kind <> DateTimeKind.Utc OrElse expiresAtUtc.Kind <> DateTimeKind.Utc Then Throw New ArgumentException("Las fechas deben expresarse en UTC.")
         If expiresAtUtc <= createdAtUtc Then Throw New ArgumentException("La expiración debe ser posterior a la creación.", NameOf(expiresAtUtc))
 
         Me.EmpresaId = empresaId
         Me.ModuloId = moduloId
+        Me.ModuleType = moduleType.Trim().ToUpperInvariant()
         Me.InternalUserId = internalUserId
         Me.NormalizedLogin = normalizedLogin.Trim().ToUpperInvariant()
         Me.MaskedDestination = maskedDestination.Trim()
         Me.ChallengeId = challengeId
         Me.SessionNonce = sessionNonce.Trim()
+        Me.ResendCount = resendCount
         Me.CreatedAtUtc = createdAtUtc
         Me.ExpiresAtUtc = expiresAtUtc
     End Sub
 
     Public ReadOnly Property EmpresaId As Integer
     Public ReadOnly Property ModuloId As Integer
+    Public ReadOnly Property ModuleType As String
     Public ReadOnly Property InternalUserId As Long
     Public ReadOnly Property NormalizedLogin As String
     Public ReadOnly Property MaskedDestination As String
     Public ReadOnly Property ChallengeId As Guid
     Public ReadOnly Property SessionNonce As String
+    Public ReadOnly Property ResendCount As Integer
     Public ReadOnly Property CreatedAtUtc As DateTime
     Public ReadOnly Property ExpiresAtUtc As DateTime
+End Class
+
+Public Enum SecondFactorAuthenticationState
+    NONE = 0
+    PENDING = 1
+    COMPLETED = 2
+    REJECTED = 3
+End Enum
+
+Public Enum SecondFactorDiagnosticStage
+    PREAUTHENTICATION = 0
+    LOGIN_MODULE_RESOLUTION = 1
+    PRINCIPAL_REPOSITORY_RESOLUTION = 2
+    PRINCIPAL_RESOLUTION = 3
+    AUTHENTICATION_SERVICE_RESOLUTION = 4
+    AUTHENTICATION_START = 5
+    IDENTITY_BUILD = 6
+    CODE_PROTECTION = 7
+    CHALLENGE_CREATION = 8
+    EMAIL_DELIVERY = 9
+    CHALLENGE_SENT_CONFIRMATION = 10
+    PENDING_CONTEXT_SAVE = 11
+    RECIPIENT_VALIDATION = 12
+    AUTHENTICATION_STATUS = 13
+    AUTHENTICATION_VERIFY = 14
+    SESSION_CONTEXT_RESOLUTION = 15
+    CHALLENGE_LOOKUP = 16
+    CODE_VALIDATION = 17
+    CODE_VERIFICATION = 18
+    FAILED_ATTEMPT_REGISTRATION = 19
+    FINALIZATION_ACQUISITION = 20
+    LEGACY_FINALIZATION = 21
+    CHALLENGE_COMPLETION = 22
+    LOCAL_ROUTE_RESOLUTION = 23
+    TICKET_ISSUANCE = 24
+    AUTHENTICATION_RESEND = 25
+    RECIPIENT_RESOLUTION = 26
+    CHALLENGE_REPLACEMENT = 27
+    AUTHENTICATION_CANCEL = 28
+    CHALLENGE_REVOCATION = 29
+    DELIVERY_CONFIGURATION_DISABLED = 30
+    DELIVERY_CONFIGURATION_INVALID = 31
+    DELIVERY_CONFIGURATION_AMBIGUOUS = 32
+    COMPENSATION = 33
+End Enum
+
+Public Enum SecondFactorDiagnosticOutcome
+    STARTED = 0
+    SUCCEEDED = 1
+    REJECTED = 2
+    FAILED = 3
+End Enum
+
+' Entrada interna construida después de validar credenciales. No contiene contraseña.
+Public NotInheritable Class SecondFactorAuthenticationStartRequest
+    Public Sub New(ByVal loginModule As SecondFactorLoginModule,
+                   ByVal principal As SecondFactorPrincipal)
+        Me.New(loginModule, principal, Guid.NewGuid())
+    End Sub
+
+    Public Sub New(ByVal loginModule As SecondFactorLoginModule,
+                   ByVal principal As SecondFactorPrincipal,
+                   ByVal correlationId As Guid)
+        If loginModule Is Nothing Then Throw New ArgumentNullException(NameOf(loginModule))
+        If principal Is Nothing Then Throw New ArgumentNullException(NameOf(principal))
+        If correlationId = Guid.Empty Then Throw New ArgumentException("La correlación es obligatoria.", NameOf(correlationId))
+        Me.LoginModule = loginModule
+        Me.Principal = principal
+        Me.CorrelationId = correlationId
+    End Sub
+
+    Public ReadOnly Property LoginModule As SecondFactorLoginModule
+    Public ReadOnly Property Principal As SecondFactorPrincipal
+    Public ReadOnly Property CorrelationId As Guid
+End Class
+
+' Resultado interno sin challenge, nonce, hash, correo completo ni detalles de excepción.
+Public NotInheritable Class SecondFactorAuthenticationResult
+    Public Sub New(ByVal success As Boolean,
+                   ByVal publicCode As String,
+                   ByVal state As SecondFactorAuthenticationState,
+                   ByVal maskedDestination As String,
+                   ByVal expiresInSeconds As Integer,
+                   ByVal resendAvailableInSeconds As Integer,
+                   ByVal localRoute As String)
+        If String.IsNullOrWhiteSpace(publicCode) Then Throw New ArgumentException("El código público es obligatorio.", NameOf(publicCode))
+        If Not [Enum].IsDefined(GetType(SecondFactorAuthenticationState), state) Then Throw New ArgumentOutOfRangeException(NameOf(state))
+        If expiresInSeconds < 0 Then Throw New ArgumentOutOfRangeException(NameOf(expiresInSeconds))
+        If resendAvailableInSeconds < 0 Then Throw New ArgumentOutOfRangeException(NameOf(resendAvailableInSeconds))
+        If Not String.IsNullOrWhiteSpace(maskedDestination) AndAlso Not SecondFactorContractValidation.IsMaskedEmailDestination(maskedDestination) Then
+            Throw New ArgumentException("El destino debe estar enmascarado.", NameOf(maskedDestination))
+        End If
+
+        Me.Success = success
+        Me.PublicCode = publicCode.Trim().ToUpperInvariant()
+        Me.State = state
+        Me.MaskedDestination = If(maskedDestination, String.Empty).Trim()
+        Me.ExpiresInSeconds = expiresInSeconds
+        Me.ResendAvailableInSeconds = resendAvailableInSeconds
+        Me.LocalRoute = If(localRoute, String.Empty).Trim()
+    End Sub
+
+    Public ReadOnly Property Success As Boolean
+    Public ReadOnly Property PublicCode As String
+    Public ReadOnly Property State As SecondFactorAuthenticationState
+    Public ReadOnly Property MaskedDestination As String
+    Public ReadOnly Property ExpiresInSeconds As Integer
+    Public ReadOnly Property ResendAvailableInSeconds As Integer
+    Public ReadOnly Property LocalRoute As String
 End Class
 
 Public NotInheritable Class SecondFactorContractValidation

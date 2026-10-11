@@ -70,7 +70,7 @@ internal static class LoginSecondFactorSmtpBehaviorTests
         var config = normal.Resolution.Configuration;
         Equal("smtp.example.test", config.Host, "host"); Equal(587, config.Port, "puerto");
         Equal(100000, config.TimeoutMilliseconds, "timeout compatible");
-        Assert(config.EnableSsl && !config.UseDefaultCredentials && config.IsBodyHtml, "banderas");
+        Assert(config.EnableSsl && !config.UseDefaultCredentials && !config.IsBodyHtml, "banderas");
         Equal("legacy-domain", config.Domain, "dominio preservado");
 
         var capped = Resolve(ConfigurationTableWithValidRow(timeout: 2));
@@ -89,7 +89,7 @@ internal static class LoginSecondFactorSmtpBehaviorTests
             ConfigurationTableWithValidRow(port: 65536), ConfigurationTableWithValidRow(username: "invalid"),
             ConfigurationTableWithValidRow(timeout: 0), ConfigurationTableWithValidRow(timeout: 21475),
             ConfigurationTableWithValidRow(ssl: 2), ConfigurationTableWithValidRow(enabled: 0),
-            ConfigurationTableWithValidRow(body: 2), ConfigurationTableWithValidRow(credential: 2),
+            ConfigurationTableWithValidRow(credential: 2),
             ConfigurationTableWithValidRow(credential: 1, password: null)
         };
         foreach (var table in invalidTables)
@@ -130,8 +130,12 @@ internal static class LoginSecondFactorSmtpBehaviorTests
         Equal("OTP_SUBMITTED", result.PublicCode, "código de envío");
         Assert(factory.Client.Disposed, "cliente liberado"); Equal(1, factory.Client.SendCalls, "un envío");
         Equal("Código de verificación", factory.Client.Subject, "asunto fijo");
-        Equal("sender@example.test", factory.Client.From, "remitente"); Equal("user@example.test", factory.Client.To, "destinatario");
-        Contains(factory.Client.Body, "123456"); Contains(factory.Client.Body, "2026-10-09 19:30 UTC");
+        Equal("sender@example.test", factory.Client.From, "dirección del remitente");
+        Equal("Sistema de gestión Docuarchi.net web", factory.Client.FromDisplayName, "nombre visible del remitente");
+        Equal("user@example.test", factory.Client.To, "destinatario");
+        Contains(factory.Client.Body, "Su código de verificación es 123456");
+        DoesNotContain(factory.Client.Body, "123456.");
+        Contains(factory.Client.Body, "09/10/2026 02:30 p. m. (hora Colombia)");
         Contains(factory.Client.Body, "No comparta"); Contains(factory.Client.Body, "ignore este mensaje");
         Assert(factory.Client.Body.IndexOf("user@example.test", StringComparison.OrdinalIgnoreCase) < 0, "el cuerpo no contiene destinatario");
     }
@@ -192,21 +196,22 @@ internal static class LoginSecondFactorSmtpBehaviorTests
     private static DataTable ConfigurationTable()
     {
         var table = new DataTable();
-        foreach (var name in new[] { "SERV_SMTP", "PUERTO_SERV_SMTP", "USUARIO_SMTP", "PASW_SMTP", "DOMINIO_SMTP", "SMTP_TIEMPO", "ESTADO_SSL", "ESTADO_ENVIO", "ESTADO_BODY", "ESTADO_CREDENCIAL" }) table.Columns.Add(name, typeof(object));
+        foreach (var name in new[] { "SERV_SMTP", "PUERTO_SERV_SMTP", "USUARIO_SMTP", "PASW_SMTP", "DOMINIO_SMTP", "SMTP_TIEMPO", "ESTADO_SSL", "ESTADO_ENVIO", "ESTADO_CREDENCIAL" }) table.Columns.Add(name, typeof(object));
         return table;
     }
-    private static DataTable ConfigurationTableWithValidRow(string host = "smtp.example.test", int port = 587, string username = "sender@example.test", string password = "secret", long timeout = 1, int ssl = 1, int enabled = 1, int body = 1, int credential = 1)
+    private static DataTable ConfigurationTableWithValidRow(string host = "smtp.example.test", int port = 587, string username = "sender@example.test", string password = "secret", long timeout = 1, int ssl = 1, int enabled = 1, int credential = 1)
     {
-        var table = ConfigurationTable(); AddValidRow(table, host, port, username, password, timeout, ssl, enabled, body, credential); return table;
+        var table = ConfigurationTable(); AddValidRow(table, host, port, username, password, timeout, ssl, enabled, credential); return table;
     }
-    private static void AddValidRow(DataTable table, string host = "smtp.example.test", int port = 587, string username = "sender@example.test", string password = "secret", long timeout = 1, int ssl = 1, int enabled = 1, int body = 1, int credential = 1)
+    private static void AddValidRow(DataTable table, string host = "smtp.example.test", int port = 587, string username = "sender@example.test", string password = "secret", long timeout = 1, int ssl = 1, int enabled = 1, int credential = 1)
     {
-        table.Rows.Add(Value(host), port, Value(username), Value(password), "legacy-domain", timeout, ssl, enabled, body, credential);
+        table.Rows.Add(Value(host), port, Value(username), Value(password), "legacy-domain", timeout, ssl, enabled, credential);
     }
     private static object Value(string value) { return value == null ? (object)DBNull.Value : value; }
 
     private static void Assert(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
     private static void Contains(string value, string expected) { Assert(value != null && value.IndexOf(expected, StringComparison.Ordinal) >= 0, "No contiene: " + expected); }
+    private static void DoesNotContain(string value, string unexpected) { Assert(value == null || value.IndexOf(unexpected, StringComparison.Ordinal) < 0, "Contiene valor inesperado: " + unexpected); }
     private static void Equal<T>(T expected, T actual, string label) { if (!EqualityComparer<T>.Default.Equals(expected, actual)) throw new InvalidOperationException(label + ": esperado=" + expected + ", actual=" + actual); }
 
     private sealed class RepositoryResult
@@ -239,8 +244,8 @@ internal static class LoginSecondFactorSmtpBehaviorTests
     }
     private sealed class FakeSmtpClient : Login2Fa.ISecondFactorSmtpClient
     {
-        public int SendCalls; public bool Disposed; public Exception Error; public string Subject; public string Body; public string From; public string To;
-        public void Send(MailMessage message) { SendCalls++; Subject = message.Subject; Body = message.Body; From = message.From.Address; To = message.To.Single().Address; if (Error != null) throw Error; }
+        public int SendCalls; public bool Disposed; public Exception Error; public string Subject; public string Body; public string From; public string FromDisplayName; public string To;
+        public void Send(MailMessage message) { SendCalls++; Subject = message.Subject; Body = message.Body; From = message.From.Address; FromDisplayName = message.From.DisplayName; To = message.To.Single().Address; if (Error != null) throw Error; }
         public void Dispose() { Disposed = true; }
     }
     private sealed class FakeConfigurationRepository : Login2Fa.ISecondFactorSmtpConfigurationRepository

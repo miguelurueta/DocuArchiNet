@@ -39,6 +39,9 @@ Generated_Code/
 /tools/e2e/.env.*
 /tools/opsxj/node_modules/
 
+# Secretos locales de appSettings; se aprovisionan por ambiente y nunca se versionan.
+/AppSettings.local.config
+
 # Worktrees auxiliares locales: se administran con `git worktree` y no se versionan.
 /.worktrees/
 

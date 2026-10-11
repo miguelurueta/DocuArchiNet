@@ -2398,7 +2398,7 @@ Public Class ClassGestorSesion
             End If
             InicioAplicacionWebGestorDocumental = "YES"
         Catch ex As Exception
-            InicioAplicacionWebGestorDocumental = "Inconsistencia función InicioAplicacionWebGestorDocumental " & ex.Message
+            InicioAplicacionWebGestorDocumental = "LOGIN_UNAVAILABLE"
         End Try
     End Function
     Public Function FinalizeLogin(ByVal context As LegacyLoginFinalizationContext) As LegacyLoginFinalizationResult Implements ILegacyLoginFinalizer.FinalizeLogin
@@ -2822,7 +2822,17 @@ Public Class ClassGestorSesion
                 New MySqlRadicacionSecondFactorPrincipalRepository(New RadicacionModuleConnectionFactory(gestorRadicacionConnection), executor),
                 New MySqlWorkflowSecondFactorPrincipalRepository(New WorkflowModuleConnectionFactory(workflowConnection), executor))
 
-        Return New SecondFactorPreAuthenticationService(modules, principals, Me)
+        Dim diagnostics As ISecondFactorDiagnosticSink = New EventLogSecondFactorDiagnosticSink()
+
+        Dim authenticationFactory As Func(Of SecondFactorLoginModule, SecondFactorPrincipal, ISecondFactorAuthenticationService) =
+            Function(loginModule As SecondFactorLoginModule, principal As SecondFactorPrincipal) As ISecondFactorAuthenticationService
+                Return LoginSecondFactorCompositionFactory.Create(HttpContext.Current,
+                                                                  Me,
+                                                                  principal.InternalUserId,
+                                                                  loginModule.ModuleType,
+                                                                  principal.NormalizedLogin)
+            End Function
+        Return New SecondFactorPreAuthenticationService(modules, principals, Me, Nothing, authenticationFactory, diagnostics)
     End Function
 
     Private Shared Function LegacyFinalizationSuccess(ByVal redirectRequired As Boolean) As LegacyLoginFinalizationResult

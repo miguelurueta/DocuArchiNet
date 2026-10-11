@@ -1,0 +1,35 @@
+%% Convención: CODE = símbolo resoluble del repositorio | EXT = actor/sistema externo | CONCEPT = estado o decisión conceptual
+%% Fuentes: Defaul/ClassGestorSesion.vb | Services/Login/SegundoFactor/SecondFactorPreAuthenticationService.vb | Services/Login/SegundoFactor/SecondFactorAuthenticationService.vb | Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb | Infrastructure/Login/SegundoFactor/Diagnostics/TraceSecondFactorDiagnosticSink.vb | webservice/WebServiceLoginSegundoFactor.asmx.vb
+%% Referencias CODE: CODE:ClassGestorSesion.InicioAplicacionWebGestorDocumental | CODE:SecondFactorPreAuthenticationService.Execute | CODE:ISecondFactorAuthenticationService.Start | CODE:SecondFactorAuthenticationService.Start | CODE:ISecondFactorChallengeRepository.Create | CODE:ISecondFactorEmailSender.Send | CODE:ISecondFactorChallengeRepository.MarkSent | CODE:IPendingSecondFactorContextStore.Save | CODE:ISecondFactorDiagnosticSink.Record | CODE:WebServiceLoginSegundoFactor.ObtenerEstado | CODE:ISecondFactorAuthenticationService.GetStatus
+sequenceDiagram
+actor Browser as EXT Cliente WebForms
+participant Login as CODE ClassGestorSesion
+participant Pre as CODE SecondFactorPreAuthenticationService
+participant Auth as CODE SecondFactorAuthenticationService
+participant Repo as CODE ISecondFactorChallengeRepository
+participant Mail as CODE ISecondFactorEmailSender
+participant Store as CODE IPendingSecondFactorContextStore
+participant Diag as CODE ISecondFactorDiagnosticSink
+participant Api as CODE WebServiceLoginSegundoFactor
+Browser->>Login: InicioAplicacionWebGestorDocumental(modulo: String, user: String, passs: String, nombre_empresa: String): String
+Login->>Pre: Execute(request: SecondFactorPreAuthenticationRequest): SecondFactorPreAuthenticationResult
+alt 2FA desactivado
+  Pre-->>Login: FINALIZED por finalizador legacy
+else 2FA activo
+  Pre->>Auth: Start(request: SecondFactorAuthenticationStartRequest): SecondFactorAuthenticationResult
+  Auth->>Diag: Record(correlationId: Guid, stage: SecondFactorDiagnosticStage, outcome: SecondFactorDiagnosticOutcome): Void
+  Auth->>Repo: Create(challenge, protectedCode, sessionBindingHash)
+  alt creación o envío falla
+    Auth-->>Pre: fallo cerrado, Session limpia
+  else envío correcto
+    Auth->>Mail: Send(message)
+    Auth->>Repo: MarkSent(challengeId, sentAtUtc)
+    Auth->>Store: Save(context)
+    Auth->>Diag: Record(correlationId, PENDING_CONTEXT_SAVE, SUCCEEDED)
+    Auth-->>Pre: SECOND_FACTOR_REQUIRED
+  end
+end
+Browser->>Api: ObtenerEstado(): SegundoFactorEstadoDto
+Api->>Auth: GetStatus(): SecondFactorAuthenticationResult
+Auth-->>Api: pendiente o sesión inválida
+Api-->>Browser: DTO saneado

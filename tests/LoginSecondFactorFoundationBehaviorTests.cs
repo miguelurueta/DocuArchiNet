@@ -18,6 +18,8 @@ internal static class LoginSecondFactorFoundationBehaviorTests
             HmacIsVersionedBoundAndRotatable();
             KeyConfigurationFailsClosed();
             PendingSessionContextIsMinimalAndExpires();
+            OrchestrationContractsRemainInternalAndTyped();
+            WebFormsAdaptersRemainNarrowAndSanitized();
             PublicDtosRemainSanitized();
             Console.WriteLine("login-second-factor foundation behavior tests: passed");
             return 0;
@@ -98,9 +100,9 @@ internal static class LoginSecondFactorFoundationBehaviorTests
         Assert(!protector.Verify(new Login2Fa.SecondFactorProtectionContext(Login2Fa.SegundoFactorPurpose.LOGIN, Guid.NewGuid(), context.CanonicalIdentity, context.SessionBinding), "123456", protectedCode), "Challenge alterado.");
         Assert(!protector.Verify(new Login2Fa.SecondFactorProtectionContext(Login2Fa.SegundoFactorPurpose.LOGIN, id, "1:2:GESTION:4", context.SessionBinding), "123456", protectedCode), "Identidad alterada.");
         Assert(!protector.Verify(new Login2Fa.SecondFactorProtectionContext(Login2Fa.SegundoFactorPurpose.LOGIN, id, context.CanonicalIdentity, "session-hash-b"), "123456", protectedCode), "Sesión alterada.");
-        Assert(!protector.Verify(context, "123456", "v2:old:AAAA"), "Versión desconocida.");
-        Assert(!protector.Verify(context, "123456", "v1:missing:AAAA"), "Llave desconocida.");
-        Assert(!protector.Verify(context, "123456", "v1:old:not-base64"), "Base64 inválido.");
+        Throws<InvalidOperationException>(() => protector.Verify(context, "123456", "v2:old:AAAA"), "versión desconocida");
+        Throws<InvalidOperationException>(() => protector.Verify(context, "123456", "v1:missing:AAAA"), "llave desconocida");
+        Throws<InvalidOperationException>(() => protector.Verify(context, "123456", "v1:old:not-base64"), "Base64 inválido");
         Assert(!protector.Verify(context, "123456", "v1:old:" + Convert.ToBase64String(new byte[31])), "Longitud distinta.");
 
         settings.Values[Login2Fa.AppSettingsSecondFactorKeyProvider.ActiveKeyIdSetting] = "new";
@@ -130,6 +132,8 @@ internal static class LoginSecondFactorFoundationBehaviorTests
         var pending = new Login2Fa.PendingSecondFactorContext(1, 2, 3, " user ", "u***@example.test", Guid.NewGuid(), "synthetic-nonce", now, now.AddMinutes(5));
         store.Save(pending);
         Equal("USER", store.GetCurrent().NormalizedLogin, "round-trip Session");
+        Equal(String.Empty, store.GetCurrent().ModuleType, "constructor compatible sin tipo de módulo");
+        Equal(0, store.GetCurrent().ResendCount, "constructor compatible sin reenvíos");
         store.Clear();
         Assert(store.GetCurrent() == null, "Clear explícito elimina el contexto.");
         Equal(0, session.Values.Count, "Session limpia después de Clear.");
@@ -138,6 +142,11 @@ internal static class LoginSecondFactorFoundationBehaviorTests
         clock.Value = now.AddMinutes(5);
         Assert(store.GetCurrent() == null, "El contexto expirado se elimina.");
         Equal(0, session.Values.Count, "Session limpia al expirar.");
+
+        var complete = new Login2Fa.PendingSecondFactorContext(1, 2, " RADICACION DOCUMENTAL ", 3, " user ", "u***@example.test", Guid.NewGuid(), "new-nonce", 2, now, now.AddMinutes(5));
+        Equal("RADICACION DOCUMENTAL", complete.ModuleType, "tipo de módulo normalizado");
+        Equal(2, complete.ResendCount, "contador de reenvíos");
+        Throws<ArgumentOutOfRangeException>(() => new Login2Fa.PendingSecondFactorContext(1, 2, "RADICACION DOCUMENTAL", 3, "user", "u***@example.test", Guid.NewGuid(), "nonce", 3, now, now.AddMinutes(5)), "límite de reenvíos");
 
         var forbidden = new[] { "Password", "Otp", "Code", "Email", "Hmac", "Key", "Connection", "Credential" };
         var names = typeof(Login2Fa.PendingSecondFactorContext).GetProperties().Select(p => p.Name).ToArray();
@@ -149,9 +158,64 @@ internal static class LoginSecondFactorFoundationBehaviorTests
         Assert(typeof(Login2Fa.SegundoFactorEstadoDto).IsSerializable, "Estado DTO serializable.");
         Assert(typeof(Login2Fa.SegundoFactorResultadoDto).IsSerializable, "Resultado DTO serializable.");
         var stateNames = typeof(Login2Fa.SegundoFactorEstadoDto).GetProperties().Select(p => p.Name).OrderBy(x => x).ToArray();
-        Assert(stateNames.SequenceEqual(new[] { "DestinoEnmascarado", "ExpiraEnSegundos", "ReenvioDisponibleEnSegundos", "RequiereCodigo" }.OrderBy(x => x)), "Superficie exacta de estado.");
+        Assert(stateNames.SequenceEqual(new[] { "DestinoEnmascarado", "EstadoPublico", "ExpiraEnSegundos", "ReenvioDisponibleEnSegundos", "RequiereCodigo" }.OrderBy(x => x)), "Superficie exacta de estado.");
         var resultNames = typeof(Login2Fa.SegundoFactorResultadoDto).GetProperties().Select(p => p.Name).OrderBy(x => x).ToArray();
-        Assert(resultNames.SequenceEqual(new[] { "Codigo", "Estado", "Exito", "MensajeVisible" }.OrderBy(x => x)), "Superficie exacta de resultado.");
+        Assert(resultNames.SequenceEqual(new[] { "Codigo", "Estado", "Exito", "MensajeVisible", "RutaLocal" }.OrderBy(x => x)), "Superficie exacta de resultado.");
+        var forbidden = new[] { "Challenge", "Id", "Login", "Email", "Nonce", "Hmac", "Hash", "Exception", "Sql", "Smtp", "ReturnUrl" };
+        Assert(!stateNames.Concat(resultNames).Any(name => forbidden.Any(word => name.IndexOf(word, StringComparison.OrdinalIgnoreCase) >= 0)), "Los DTO no deben declarar datos internos.");
+    }
+
+    private static void OrchestrationContractsRemainInternalAndTyped()
+    {
+        var service = typeof(Login2Fa.ISecondFactorAuthenticationService);
+        var signatures = service.GetMethods().ToDictionary(method => method.Name, method => method);
+        Assert(signatures.Keys.OrderBy(x => x).SequenceEqual(new[] { "Cancel", "GetStatus", "Resend", "Start", "Verify" }.OrderBy(x => x)), "El servicio expone exactamente cinco casos de uso.");
+        Equal(typeof(Login2Fa.SecondFactorAuthenticationStartRequest), signatures["Start"].GetParameters().Single().ParameterType, "request tipado de inicio");
+        Equal(typeof(string), signatures["Verify"].GetParameters().Single().ParameterType, "código tipado");
+        Assert(signatures.Values.All(method => method.ReturnType == typeof(Login2Fa.SecondFactorAuthenticationResult)), "Todos los casos retornan el resultado interno.");
+
+        var result = new Login2Fa.SecondFactorAuthenticationResult(false, " rejected ", Login2Fa.SecondFactorAuthenticationState.REJECTED, String.Empty, 0, 0, String.Empty);
+        Equal("REJECTED", result.PublicCode, "código público normalizado");
+        var forbidden = new[] { "Password", "Otp", "Challenge", "Nonce", "Email", "Hmac", "Hash", "Connection", "Credential" };
+        foreach (var type in new[] { typeof(Login2Fa.SecondFactorAuthenticationStartRequest), typeof(Login2Fa.SecondFactorAuthenticationResult) })
+            Assert(!type.GetProperties().Any(property => forbidden.Any(word => property.Name.IndexOf(word, StringComparison.OrdinalIgnoreCase) >= 0)), type.Name + " no declara secretos.");
+
+        var ticketMethod = typeof(Login2Fa.ISecondFactorAuthenticationTicketIssuer).GetMethod("Issue");
+        Equal(typeof(void), ticketMethod.ReturnType, "emisor de ticket");
+        Equal(typeof(string), ticketMethod.GetParameters().Single().ParameterType, "login para ticket");
+        Equal(typeof(string), typeof(Login2Fa.ILoginLocalRouteResolver).GetMethod("Resolve").ReturnType, "resolvedor de ruta local");
+    }
+
+    private static void WebFormsAdaptersRemainNarrowAndSanitized()
+    {
+        var now = new DateTime(2026, 10, 10, 12, 0, 0, DateTimeKind.Utc);
+        var clock = new FakeClock { Value = now };
+        var session = new DictionarySession();
+        var store = new Login2Fa.SessionPendingSecondFactorContextStore(session, clock);
+        store.Save(new Login2Fa.PendingSecondFactorContext(1, 2, "RADICACION DOCUMENTAL", 3, "USER", "u***@example.test", Guid.NewGuid(), "nonce", 0, now, now.AddMinutes(5)));
+        var gate = new Login2Fa.LoginSecondFactorSessionGate(new FakeHttpContext(session), clock);
+        Equal("RADICACION DOCUMENTAL", gate.AsegurarContexto().ModuleType, "gate obtiene solo Session");
+        clock.Value = now.AddMinutes(5);
+        Assert(gate.AsegurarContexto() == null, "gate rechaza expirado");
+
+        string issuedLogin = null; bool persistent = true;
+        var issuer = new Login2Fa.FormsAuthenticationTicketIssuer((login, remember) => { issuedLogin = login; persistent = remember; });
+        issuer.Issue(" user ");
+        Equal("USER", issuedLogin, "ticket normalizado");
+        Equal(false, persistent, "cookie no persistente");
+        Equal("~/Defaul/WebFormInicioDocuarchiGestion.aspx", new Login2Fa.LegacyLoginLocalRouteResolver().Resolve(), "ruta local fija");
+
+        var mapper = new Login2Fa.LoginSecondFactorPresentationMapper();
+        var pending = mapper.MapResult(new Login2Fa.SecondFactorAuthenticationResult(false, "SECOND_FACTOR_PENDING", Login2Fa.SecondFactorAuthenticationState.PENDING, "u***@example.test", 120, 30, String.Empty));
+        Equal(true, pending.Estado.RequiereCodigo, "estado pendiente");
+        Equal(String.Empty, pending.RutaLocal, "sin ruta antes de completar");
+        var completed = mapper.MapResult(new Login2Fa.SecondFactorAuthenticationResult(true, "SECOND_FACTOR_COMPLETED", Login2Fa.SecondFactorAuthenticationState.COMPLETED, String.Empty, 0, 0, "~/Defaul/WebFormInicioDocuarchiGestion.aspx"));
+        Equal("~/Defaul/WebFormInicioDocuarchiGestion.aspx", completed.RutaLocal, "ruta solo al completar");
+        var internalFailure = mapper.Failure("internal_sql_error");
+        Equal("SECOND_FACTOR_UNAVAILABLE", internalFailure.Codigo, "código interno fuera del catálogo");
+        Assert(!internalFailure.MensajeVisible.Contains("sql"), "error interno saneado");
+        Assert(mapper.Failure("SECOND_FACTOR_DELIVERY_FAILED").MensajeVisible.Contains("enviar"), "descripción segura de entrega");
+        Assert(mapper.Failure("SECOND_FACTOR_BLOCKED").MensajeVisible.Contains("intentos"), "descripción segura de bloqueo");
     }
 
     private static void Assert(bool condition, string message)
@@ -206,5 +270,11 @@ internal static class LoginSecondFactorFoundationBehaviorTests
             set { Values[name] = value; }
         }
         public override void Remove(string name) { Values.Remove(name); }
+    }
+    private sealed class FakeHttpContext : HttpContextBase
+    {
+        private readonly HttpSessionStateBase _session;
+        public FakeHttpContext(HttpSessionStateBase session) { _session = session; }
+        public override HttpSessionStateBase Session { get { return _session; } }
     }
 }

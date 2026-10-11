@@ -25,17 +25,23 @@ Public NotInheritable Class HmacSecondFactorCodeProtector
     Public Function Verify(ByVal context As SecondFactorProtectionContext,
                            ByVal code As String,
                            ByVal protectedCode As String) As Boolean Implements ISecondFactorCodeProtector.Verify
-        If context Is Nothing OrElse Not SecondFactorContractValidation.IsSixDigitCode(code) OrElse String.IsNullOrWhiteSpace(protectedCode) Then Return False
+        If context Is Nothing Then Throw New ArgumentNullException(NameOf(context))
+        If Not SecondFactorContractValidation.IsSixDigitCode(code) Then Return False
+        If String.IsNullOrWhiteSpace(protectedCode) Then Throw New InvalidOperationException("SECOND_FACTOR_PROTECTED_CODE_INVALID")
         Dim parts As String() = protectedCode.Split(":"c)
-        If parts.Length <> 3 OrElse Not String.Equals(parts(0), FormatVersion, StringComparison.Ordinal) Then Return False
+        If parts.Length <> 3 OrElse Not String.Equals(parts(0), FormatVersion, StringComparison.Ordinal) Then
+            Throw New InvalidOperationException("SECOND_FACTOR_PROTECTED_CODE_INVALID")
+        End If
 
         Dim key As SecondFactorKeyMaterial = Nothing
-        If Not _keys.TryGetKey(parts(1), key) OrElse key Is Nothing Then Return False
+        If Not _keys.TryGetKey(parts(1), key) OrElse key Is Nothing Then
+            Throw New InvalidOperationException("SECOND_FACTOR_KEY_UNAVAILABLE")
+        End If
         Dim suppliedMac As Byte()
         Try
             suppliedMac = Convert.FromBase64String(parts(2))
         Catch ex As FormatException
-            Return False
+            Throw New InvalidOperationException("SECOND_FACTOR_PROTECTED_CODE_INVALID", ex)
         End Try
         Dim expectedMac As Byte() = ComputeMac(key, context, code)
         Return FixedTimeEquals(expectedMac, suppliedMac)

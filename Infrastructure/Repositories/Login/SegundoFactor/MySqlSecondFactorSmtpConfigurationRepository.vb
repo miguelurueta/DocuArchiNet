@@ -11,7 +11,7 @@ Public NotInheritable Class MySqlSecondFactorSmtpConfigurationRepository
 
     Private Const MaximumTimeoutMilliseconds As Integer = 120000
     Private Const LegacyTimeoutMultiplier As Long = 100000L
-    Private Const SelectConfigurationSql As String = "SELECT SERV_SMTP, PUERTO_SERV_SMTP, USUARIO_SMTP, PASW_SMTP, DOMINIO_SMTP, SMTP_TIEMPO, ESTADO_SSL, ESTADO_ENVIO, ESTADO_BODY, ESTADO_CREDENCIAL FROM Config_Smpt_Side WHERE ESTADO_ENVIO=@enabled"
+    Private Const SelectConfigurationSql As String = "SELECT SERV_SMTP, PUERTO_SERV_SMTP, USUARIO_SMTP, PASW_SMTP, DOMINIO_SMTP, SMTP_TIEMPO, ESTADO_SSL, ESTADO_ENVIO, ESTADO_CREDENCIAL FROM Config_Smpt_Side WHERE ESTADO_ENVIO=@enabled"
 
     Private ReadOnly _connections As IModuleConnectionFactory
     Private ReadOnly _executor As IDataExecutor
@@ -67,7 +67,6 @@ Public NotInheritable Class MySqlSecondFactorSmtpConfigurationRepository
             .Timeout = DbValue(reader, "SMTP_TIEMPO"),
             .Ssl = DbValue(reader, "ESTADO_SSL"),
             .Enabled = DbValue(reader, "ESTADO_ENVIO"),
-            .BodyHtml = DbValue(reader, "ESTADO_BODY"),
             .Credential = DbValue(reader, "ESTADO_CREDENCIAL")}
     End Function
 
@@ -77,14 +76,13 @@ Public NotInheritable Class MySqlSecondFactorSmtpConfigurationRepository
         Dim timeoutUnits As Long
         Dim sslFlag As Integer
         Dim enabledFlag As Integer
-        Dim bodyFlag As Integer
         Dim credentialFlag As Integer
 
         If row Is Nothing OrElse String.IsNullOrWhiteSpace(row.Host) Then Return False
         If Not TryInt32(row.Port, port) OrElse port < 1 OrElse port > 65535 Then Return False
         If String.IsNullOrWhiteSpace(row.Username) OrElse Not IsValidEmail(row.Username) Then Return False
         If Not TryFlag(row.Ssl, sslFlag) OrElse Not TryFlag(row.Enabled, enabledFlag) OrElse enabledFlag <> 1 Then Return False
-        If Not TryFlag(row.BodyHtml, bodyFlag) OrElse Not TryFlag(row.Credential, credentialFlag) Then Return False
+        If Not TryFlag(row.Credential, credentialFlag) Then Return False
         If Not TryInt64(row.Timeout, timeoutUnits) OrElse timeoutUnits <= 0 Then Return False
         If timeoutUnits > Integer.MaxValue \ LegacyTimeoutMultiplier Then Return False
         Dim convertedTimeout As Long = timeoutUnits * LegacyTimeoutMultiplier
@@ -100,7 +98,7 @@ Public NotInheritable Class MySqlSecondFactorSmtpConfigurationRepository
                                                           effectiveTimeout,
                                                           sslFlag = 1,
                                                           credentialFlag = 0,
-                                                          bodyFlag = 1)
+                                                          False)
         Return True
     End Function
 
@@ -155,7 +153,6 @@ Public NotInheritable Class MySqlSecondFactorSmtpConfigurationRepository
         Public Property Timeout As Object
         Public Property Ssl As Object
         Public Property Enabled As Object
-        Public Property BodyHtml As Object
         Public Property Credential As Object
     End Class
 End Class

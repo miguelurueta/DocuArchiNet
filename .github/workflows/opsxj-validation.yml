@@ -11,6 +11,7 @@ on:
       - "Doc/Actualizacion/Login/Implementacion/DOC-92/**"
       - "Doc/Actualizacion/Login/Implementacion/DOC-93/**"
       - "Doc/Actualizacion/Login/Implementacion/DOC-94/**"
+      - "Doc/Actualizacion/Login/Implementacion/DOC-95/**"
       - "Modelo/Login/SegundoFactor/**"
       - "DTOs/Login/SegundoFactor/**"
       - "Infrastructure/Login/SegundoFactor/**"
@@ -29,6 +30,14 @@ on:
       - "tests/doc92-technical-documentation.test.cjs"
       - "tests/doc93-technical-documentation.test.cjs"
       - "tests/doc94-technical-documentation.test.cjs"
+      - "tests/doc95-technical-documentation.test.cjs"
+      - "tests/login-second-factor-authentication.test.cjs"
+      - "tests/login-second-factor-asmx.test.cjs"
+      - "tools/e2e/scripts/run-doc95-login-second-factor-interactive.cjs"
+      - "tools/e2e/tests/doc95-login-second-factor-policy.test.cjs"
+      - "tools/e2e/profiles/doc95-login-second-factor.profile.example.json"
+      - "tools/e2e/package.json"
+      - "tools/e2e/AGENT-RUNBOOK.md"
       - "tests/login-second-factor-smtp.test.cjs"
       - "tests/login-second-factor-preauthentication.test.cjs"
       - "tests/LoginSecondFactorPreAuthenticationBehaviorTests.cs"
@@ -125,6 +134,18 @@ jobs:
 
       - name: Validate DOC-94 preauthentication contracts without infrastructure
         run: node --test tests/login-second-factor-preauthentication.test.cjs
+
+      - name: Validate DOC-95 Mermaid diagrams and documentation contract
+        run: node --test tests/doc95-technical-documentation.test.cjs
+
+      - name: Validate DOC-95 .NET declarations, relationships and signatures with Roslyn
+        run: dotnet run --project ./tools/validation/Doc72SourceValidator/Doc72SourceValidator.csproj -- ./Doc/Actualizacion/Login/Implementacion/DOC-95/diagram-contract.json .
+
+      - name: Validate DOC-95 orchestration and ASMX contracts without infrastructure
+        run: node --test tests/login-second-factor-authentication.test.cjs tests/login-second-factor-asmx.test.cjs
+
+      - name: Validate DOC-95 E2E registration without real execution
+        run: npm.cmd --prefix tools/e2e run test:doc95:policy
 
       - name: Validate OpenSpec changes
         run: npx --yes @fission-ai/openspec@1.7.0 validate --all --strict

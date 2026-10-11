@@ -12,6 +12,7 @@ const repoRoot = path.join(root, 'Infrastructure', 'Repositories', 'Login', 'Seg
 const requiredSources = [
   'Domain\\Shared\\ContextoPreautenticacionModulo.vb',
   'Services\\Login\\SegundoFactor\\SecondFactorPreAuthenticationService.vb',
+  'Services\\Login\\SegundoFactor\\NullSecondFactorDiagnosticSink.vb',
   'Infrastructure\\Repositories\\Login\\SegundoFactor\\OdbcSecondFactorLoginModuleRepository.vb',
   'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlSecondFactorPrincipalRepositoryBase.vb',
   'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlDocuarchiSecondFactorPrincipalRepository.vb',
@@ -28,6 +29,7 @@ const behaviorSources = [
   'Modelo\\Login\\SegundoFactor\\SegundoFactorSmtpModels.vb',
   'Modelo\\Login\\SegundoFactor\\SegundoFactorInterfaces.vb',
   'Services\\Login\\SegundoFactor\\SecondFactorPreAuthenticationService.vb',
+  'Services\\Login\\SegundoFactor\\NullSecondFactorDiagnosticSink.vb',
   'Infrastructure\\Repositories\\Login\\SegundoFactor\\OdbcSecondFactorLoginModuleRepository.vb',
   'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlSecondFactorPrincipalRepositoryBase.vb',
   'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlDocuarchiSecondFactorPrincipalRepository.vb',
@@ -102,11 +104,13 @@ test('DOC-94: cuatro adaptadores conservan tabla, columnas y parámetro', () => 
   assert.match(central, /RAZON_SOCIAL_EMPRESA=\?.*NOMBRE_MODULO=\?/i);
 });
 
-test('DOC-94: alcance excluye correo, challenge, ASMX y UI', () => {
+test('DOC-94/DOC-95: preautenticación conserva límites y la frontera queda aislada', () => {
   const service = read('Services/Login/SegundoFactor/SecondFactorPreAuthenticationService.vb');
   assert.doesNotMatch(service, /ISecondFactorEmailSender|ISecondFactorChallengeRepository|HttpContext|FormsAuthentication|\.aspx|\.asmx/i);
+  assert.match(service, /New SecondFactorAuthenticationStartRequest\(loginModule, principal, correlationId\)/);
   const projectText = fs.readFileSync(project, 'utf8');
-  assert.equal(projectText.includes('WebServiceLoginSegundoFactor'), false);
+  assert.equal(projectText.split('Include="webservice\\WebServiceLoginSegundoFactor.asmx"').length - 1, 1);
+  assert.equal(projectText.split('Include="webservice\\WebServiceLoginSegundoFactor.asmx.vb"').length - 1, 1);
 });
 
 test('DOC-94: finalizador conserva orden de efectos caracterizado por módulo', () => {

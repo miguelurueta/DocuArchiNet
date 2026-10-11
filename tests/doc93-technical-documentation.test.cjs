@@ -65,7 +65,8 @@ test('DOC-93 inventaría firmas, casos, columnas y límites sin inventar capas',
   const inventory = fs.readFileSync(path.join(docsRoot, '03-INVENTARIO-TECNICO.md'), 'utf8');
   for (const declaration of Object.values(manifest.dotnetDeclarations)) assert.ok(inventory.includes(`\`${declaration.type}\``) || inventory.includes(declaration.type), `inventario: falta ${declaration.type}`);
   for (const symbol of Object.values(manifest.dotnetSymbols)) assert.ok(inventory.includes(symbol.method), `inventario: falta ${symbol.type}.${symbol.method}`);
-  for (const column of ['SERV_SMTP','PUERTO_SERV_SMTP','USUARIO_SMTP','PASW_SMTP','DOMINIO_SMTP','SMTP_TIEMPO','ESTADO_SSL','ESTADO_ENVIO','ESTADO_BODY','ESTADO_CREDENCIAL']) assert.ok(inventory.includes(`\`${column}\``), `columna ausente: ${column}`);
+  for (const column of ['SERV_SMTP','PUERTO_SERV_SMTP','USUARIO_SMTP','PASW_SMTP','DOMINIO_SMTP','SMTP_TIEMPO','ESTADO_SSL','ESTADO_ENVIO','ESTADO_CREDENCIAL']) assert.ok(inventory.includes(`\`${column}\``), `columna ausente: ${column}`);
+  assert.ok(!inventory.includes('`ESTADO_BODY`'), 'el inventario no debe exigir la columna inexistente ESTADO_BODY');
   const cases = fs.readFileSync(path.join(docsRoot, '02-CASOS-DE-USO.md'), 'utf8');
   for (let number = 1; number <= 5; number += 1) assert.match(cases, new RegExp(`## UC-${String(number).padStart(2, '0')}\\b`));
   const docs = manifest.requiredDocuments.map(file => fs.readFileSync(path.join(docsRoot, file), 'utf8')).join('\n');

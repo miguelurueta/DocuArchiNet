@@ -1,0 +1,38 @@
+%% Convención: CODE = símbolo resoluble del repositorio | EXT = actor/sistema externo | CONCEPT = estado o decisión conceptual
+%% Fuentes: webservice/WebServiceLoginSegundoFactor.asmx.vb | Services/Login/SegundoFactor/SecondFactorAuthenticationService.vb | Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb | Defaul/ClassGestorSesion.vb
+%% Referencias CODE: CODE:WebServiceLoginSegundoFactor.Verificar | CODE:ISecondFactorAuthenticationService.Verify | CODE:ISecondFactorChallengeRepository.GetVerificationData | CODE:ISecondFactorChallengeRepository.RegisterFailedAttemptData | CODE:ISecondFactorChallengeRepository.TryBeginFinalization | CODE:ILegacyLoginFinalizer.FinalizeLogin | CODE:ISecondFactorChallengeRepository.Complete | CODE:ISecondFactorAuthenticationTicketIssuer.Issue | CODE:ILoginLocalRouteResolver.Resolve
+sequenceDiagram
+actor Browser as EXT Cliente WebForms
+participant Api as CODE WebServiceLoginSegundoFactor
+participant Auth as CODE ISecondFactorAuthenticationService
+participant Repo as CODE ISecondFactorChallengeRepository
+participant Finalizer as CODE ILegacyLoginFinalizer
+participant Route as CODE ILoginLocalRouteResolver
+participant Ticket as CODE ISecondFactorAuthenticationTicketIssuer
+Browser->>Api: Verificar(codigo: String): SegundoFactorResultadoDto
+Api->>Auth: Verify(code: String): SecondFactorAuthenticationResult
+alt formato distinto de seis dígitos
+  Auth-->>Api: SECOND_FACTOR_CODE_INVALID sin repositorio
+else formato válido
+  Auth->>Repo: GetVerificationData(challengeId: Guid, sessionBindingHash: String)
+  alt HMAC incorrecto
+    Auth->>Repo: RegisterFailedAttemptData(challengeId, expectedAttempts)
+    Auth-->>Api: inválido o bloqueado al quinto intento
+  else HMAC correcto
+    Auth->>Repo: TryBeginFinalization(challengeId: Guid, expectedAttempts: Integer): Boolean
+    alt pierde la carrera
+      Auth-->>Api: sesión no elegible
+    else ganador exclusivo
+      Auth->>Finalizer: FinalizeLogin(context: LegacyLoginFinalizationContext): LegacyLoginFinalizationResult
+      alt finalizador o Complete falla
+        Auth-->>Api: fallo cerrado, sin cookie
+      else finalización confirmada
+        Auth->>Repo: Complete(challengeId)
+        Auth->>Route: Resolve()
+        Auth->>Ticket: Issue(normalizedLogin: String): Void
+        Auth-->>Api: SECOND_FACTOR_COMPLETED y ruta local
+      end
+    end
+  end
+end
+Api-->>Browser: DTO saneado
