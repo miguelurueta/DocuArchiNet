@@ -2,7 +2,6 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { chromium } = require('playwright');
 const {
   collectConfirmation,
   collectValue,
@@ -182,6 +181,7 @@ async function main() {
     return;
   }
 
+  const { chromium } = require('playwright');
   requireInteractiveConsole();
   const authorization = {};
   await collectConfirmation(authorization, 'environment', '¿Autoriza el ambiente de pruebas para DOC-95?');
