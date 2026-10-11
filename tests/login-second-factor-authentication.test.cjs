@@ -8,19 +8,49 @@ const test = require('node:test');
 const root = path.resolve(__dirname, '..');
 const project = path.join(root, 'GestionDocumental-Docuarchi.net.vbproj');
 const source = path.join(__dirname, 'LoginSecondFactorAuthenticationBehaviorTests.cs');
+const behaviorSources = [
+  'Domain\\Shared\\ContextoModulo.vb',
+  'Domain\\Shared\\ContextoPreautenticacionModulo.vb',
+  'Modelo\\Login\\SegundoFactor\\SegundoFactorModels.vb',
+  'Modelo\\Login\\SegundoFactor\\SegundoFactorSmtpModels.vb',
+  'Modelo\\Login\\SegundoFactor\\SegundoFactorInterfaces.vb',
+  'Infrastructure\\Login\\SegundoFactor\\Diagnostics\\TraceSecondFactorDiagnosticSink.vb',
+  'Services\\Login\\SegundoFactor\\NullSecondFactorDiagnosticSink.vb',
+  'Services\\Login\\SegundoFactor\\SecondFactorAuthenticationService.vb'
+];
 
 function run(command, args, options = {}) { return execFileSync(command, args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], ...options }); }
-function csharpCompiler() { return run('powershell.exe', ['-NoProfile', '-Command', '(Get-Command csc.exe -ErrorAction Stop).Source']).trim(); }
+function frameworkCompiler(name) {
+  try {
+    for (const msbuild of run('where.exe', ['msbuild.exe']).split(/\r?\n/).filter(Boolean)) {
+      for (const bin of [path.dirname(msbuild), path.dirname(path.dirname(msbuild))]) {
+        const candidate = path.join(bin, 'Roslyn', name);
+        if (fs.existsSync(candidate)) return candidate;
+      }
+    }
+  } catch { /* continúa con el compilador de .NET Framework */ }
+  const windows = process.env.WINDIR || 'C:\\Windows';
+  for (const framework of ['Framework64', 'Framework']) {
+    const candidate = path.join(windows, 'Microsoft.NET', framework, 'v4.0.30319', name);
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return run('powershell.exe', ['-NoProfile', '-Command', `(Get-Command ${name} -ErrorAction Stop).Source`]).trim();
+}
 
 test('DOC-95: orquestador cumple inicio, estado, verificación, reenvío y cancelación', () => {
-  run('msbuild', [project, '/t:Build', '/p:Configuration=Debug', '/m:1', '/v:minimal']);
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'doc95-auth-'));
   try {
-    const assembly = path.join(root, 'bin', 'GestionDocumental-Docuarchi.net.dll');
-    const copied = path.join(directory, path.basename(assembly));
+    const assembly = path.join(directory, 'GestionDocumental-Docuarchi.net.dll');
+    run(frameworkCompiler('vbc.exe'), [
+      '/nologo', '/target:library', '/define:TRACE=True', '/rootnamespace:GestionDocumental_Docuarchi.net', `/out:${assembly}`,
+      '/reference:System.dll', '/reference:System.Core.dll',
+      ...behaviorSources.map(relative => path.join(root, ...relative.split('\\')))
+    ]);
     const executable = path.join(directory, 'LoginSecondFactorAuthenticationBehaviorTests.exe');
-    fs.copyFileSync(assembly, copied);
-    run(csharpCompiler(), ['/nologo', '/target:exe', `/out:${executable}`, `/reference:${copied}`, source]);
+    run(frameworkCompiler('csc.exe'), [
+      '/nologo', '/target:exe', `/out:${executable}`, `/reference:${assembly}`,
+      '/reference:System.dll', '/reference:System.Core.dll', source
+    ]);
     assert.match(run(executable, [], { cwd: directory }), /authentication behavior tests: passed/);
   } finally { fs.rmSync(directory, { recursive: true, force: true }); }
 });
