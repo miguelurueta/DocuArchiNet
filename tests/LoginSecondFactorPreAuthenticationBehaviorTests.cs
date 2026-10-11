@@ -15,6 +15,9 @@ internal static class LoginSecondFactorPreAuthenticationBehaviorTests
             PrincipalAdaptersUseTheFourVerifiedContracts();
             DisabledConfigurationFinalizesOnce();
             ActiveConfigurationHasZeroAuthenticatedEffects();
+            ActiveConfigurationDelegatesStartWithoutChangingDisabledFlow();
+            AuthenticationCompositionIsLazyAndUsesAuthoritativePrincipal();
+            DiagnosticsCorrelatePreAuthenticationWithStart();
             InvalidAndMissingDataFailClosed();
             Console.WriteLine("login-second-factor preauthentication behavior tests: passed");
             return 0;
@@ -144,6 +147,75 @@ internal static class LoginSecondFactorPreAuthenticationBehaviorTests
         Equal("EMPRESA B", secondCompanyExecutor.Commands.Single().Values[0], "aislamiento empresa B");
     }
 
+    private static void ActiveConfigurationDelegatesStartWithoutChangingDisabledFlow()
+    {
+        foreach (var type in ModuleTypes())
+        {
+            var finalizer = new FakeFinalizer();
+            var authentication = new FakeAuthentication();
+            var config = new Login2Fa.SegundoFactorConfiguration(1, 1, 5);
+            var module = new Login2Fa.SecondFactorLoginModule(7, 11, "RAD GESTION", type, config);
+            var service = new Login2Fa.SecondFactorPreAuthenticationService(new FakeModuleRepository(module), Resolver(new FakePrincipalRepository()), finalizer, authentication);
+            var result = service.Execute(Request(type));
+            Equal(Login2Fa.SecondFactorPreAuthenticationStatus.SECOND_FACTOR_REQUIRED, result.Status, "inicio delegado " + type);
+            Equal(1, authentication.StartCalls, "una delegación " + type);
+            Equal(0, finalizer.Calls, "sin finalizador activo " + type);
+        }
+
+        var disabledAuth = new FakeAuthentication();
+        var disabledModule = new Login2Fa.SecondFactorLoginModule(7, 11, "RAD GESTION", "GESTOR DOCUMENTAL", new Login2Fa.SegundoFactorConfiguration(0, null, null));
+        var disabledFinalizer = new FakeFinalizer();
+        var disabledService = new Login2Fa.SecondFactorPreAuthenticationService(new FakeModuleRepository(disabledModule), Resolver(new FakePrincipalRepository()), disabledFinalizer, disabledAuth);
+        Equal(Login2Fa.SecondFactorPreAuthenticationStatus.FINALIZED, disabledService.Execute(Request("GESTOR DOCUMENTAL")).Status, "apagado intacto");
+        Equal(0, disabledAuth.StartCalls, "apagado no invoca orquestador");
+        Equal(1, disabledFinalizer.Calls, "apagado finaliza legacy");
+    }
+
+    private static void AuthenticationCompositionIsLazyAndUsesAuthoritativePrincipal()
+    {
+        var authentication = new FakeAuthentication();
+        var factoryCalls = 0;
+        long observedUserId = 0;
+        string observedModuleType = null;
+        Func<Login2Fa.SecondFactorLoginModule, Login2Fa.SecondFactorPrincipal, Login2Fa.ISecondFactorAuthenticationService> factory = (module, principal) =>
+        {
+            factoryCalls++;
+            observedUserId = principal.InternalUserId;
+            observedModuleType = module.ModuleType;
+            return authentication;
+        };
+
+        var disabledModule = new Login2Fa.SecondFactorLoginModule(7, 11, "RAD GESTION", "GESTOR DOCUMENTAL", new Login2Fa.SegundoFactorConfiguration(0, null, null));
+        var disabledFinalizer = new FakeFinalizer();
+        var disabled = new Login2Fa.SecondFactorPreAuthenticationService(new FakeModuleRepository(disabledModule), Resolver(new FakePrincipalRepository()), disabledFinalizer, null, factory);
+        Equal(Login2Fa.SecondFactorPreAuthenticationStatus.FINALIZED, disabled.Execute(Request("GESTOR DOCUMENTAL")).Status, "apagado finaliza sin componer 2FA");
+        Equal(0, factoryCalls, "apagado no construye infraestructura 2FA");
+
+        var activeModule = new Login2Fa.SecondFactorLoginModule(7, 11, "RAD GESTION", "GESTOR DOCUMENTAL", new Login2Fa.SegundoFactorConfiguration(1, 1, 5));
+        var active = new Login2Fa.SecondFactorPreAuthenticationService(new FakeModuleRepository(activeModule), Resolver(new FakePrincipalRepository()), new FakeFinalizer(), null, factory);
+        Equal(Login2Fa.SecondFactorPreAuthenticationStatus.SECOND_FACTOR_REQUIRED, active.Execute(Request("GESTOR DOCUMENTAL")).Status, "activo compone e inicia 2FA");
+        Equal(1, factoryCalls, "activo compone una vez");
+        Equal(42L, observedUserId, "factoría recibe ID del repositorio autoritativo");
+        Equal("GESTOR DOCUMENTAL", observedModuleType, "factoría recibe tipo del catálogo autoritativo");
+        Equal(1, authentication.StartCalls, "activo inicia una vez");
+    }
+
+    private static void DiagnosticsCorrelatePreAuthenticationWithStart()
+    {
+        var diagnostics = new FakeDiagnostics();
+        var authentication = new FakeAuthentication();
+        var module = new Login2Fa.SecondFactorLoginModule(7, 11, "RAD GESTION", "GESTOR DOCUMENTAL", new Login2Fa.SegundoFactorConfiguration(1, 1, 5));
+        var service = new Login2Fa.SecondFactorPreAuthenticationService(new FakeModuleRepository(module), Resolver(new FakePrincipalRepository()), new FakeFinalizer(), authentication, null, diagnostics);
+        Equal(Login2Fa.SecondFactorPreAuthenticationStatus.SECOND_FACTOR_REQUIRED, service.Execute(Request("GESTOR DOCUMENTAL")).Status, "preautenticación instrumentada");
+        Assert(authentication.LastCorrelationId != Guid.Empty, "Start recibe correlación");
+        Assert(diagnostics.Entries.Count > 0, "preautenticación emite etapas");
+        Assert(diagnostics.Entries.All(entry => entry.CorrelationId == authentication.LastCorrelationId), "correlación atraviesa preautenticación y Start");
+        Assert(diagnostics.Entries.Any(entry => entry.Stage == Login2Fa.SecondFactorDiagnosticStage.PRINCIPAL_RESOLUTION && entry.Outcome == Login2Fa.SecondFactorDiagnosticOutcome.SUCCEEDED), "resolución de principal observada");
+
+        diagnostics.ThrowOnRecord = true;
+        Equal(Login2Fa.SecondFactorPreAuthenticationStatus.SECOND_FACTOR_REQUIRED, service.Execute(Request("GESTOR DOCUMENTAL")).Status, "telemetría no bloquea preautenticación");
+    }
+
     private static Login2Fa.SecondFactorPreAuthenticationService Service(string type, int? flag, FakeFinalizer finalizer, Login2Fa.ISecondFactorPrincipalRepository principal)
     {
         var config = new Login2Fa.SegundoFactorConfiguration(flag, flag == 1 ? (int?)1 : null, flag == 1 ? (int?)5 : null);
@@ -224,6 +296,32 @@ internal static class LoginSecondFactorPreAuthenticationBehaviorTests
         public Login2Fa.LegacyLoginFinalizationResult FinalizeLogin(Login2Fa.LegacyLoginFinalizationContext context)
         {
             Calls++; LastContext = context; return new Login2Fa.LegacyLoginFinalizationResult { Success = true, LocalRoute = "/legacy", PublicCode = "YES" };
+        }
+    }
+    private sealed class FakeAuthentication : Login2Fa.ISecondFactorAuthenticationService
+    {
+        public int StartCalls;
+        public Guid LastCorrelationId;
+        public Login2Fa.SecondFactorAuthenticationResult Start(Login2Fa.SecondFactorAuthenticationStartRequest request) { StartCalls++; LastCorrelationId = request.CorrelationId; return new Login2Fa.SecondFactorAuthenticationResult(false, "SECOND_FACTOR_REQUIRED", Login2Fa.SecondFactorAuthenticationState.PENDING, request.Principal.MaskedDestination, 300, 60, String.Empty); }
+        public Login2Fa.SecondFactorAuthenticationResult GetStatus() { throw new NotSupportedException(); }
+        public Login2Fa.SecondFactorAuthenticationResult Verify(string code) { throw new NotSupportedException(); }
+        public Login2Fa.SecondFactorAuthenticationResult Resend() { throw new NotSupportedException(); }
+        public Login2Fa.SecondFactorAuthenticationResult Cancel() { throw new NotSupportedException(); }
+    }
+    private sealed class DiagnosticEntry
+    {
+        public Guid CorrelationId;
+        public Login2Fa.SecondFactorDiagnosticStage Stage;
+        public Login2Fa.SecondFactorDiagnosticOutcome Outcome;
+    }
+    private sealed class FakeDiagnostics : Login2Fa.ISecondFactorDiagnosticSink
+    {
+        public readonly List<DiagnosticEntry> Entries = new List<DiagnosticEntry>();
+        public bool ThrowOnRecord;
+        public void Record(Guid correlationId, Login2Fa.SecondFactorDiagnosticStage stage, Login2Fa.SecondFactorDiagnosticOutcome outcome)
+        {
+            if (ThrowOnRecord) throw new InvalidOperationException("synthetic diagnostics failure");
+            Entries.Add(new DiagnosticEntry { CorrelationId = correlationId, Stage = stage, Outcome = outcome });
         }
     }
     private sealed class RecordedCommand { public string Sql; public readonly List<object> Values = new List<object>(); }

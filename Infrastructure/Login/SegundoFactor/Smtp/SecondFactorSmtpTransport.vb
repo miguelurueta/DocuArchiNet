@@ -7,6 +7,8 @@ Public NotInheritable Class SecondFactorSmtpTransport
     Implements ISecondFactorSmtpTransport
 
     Private Const Subject As String = "Código de verificación"
+    Private Const SenderDisplayName As String = "Sistema de gestión Docuarchi.net web"
+    Private Shared ReadOnly ColombiaUtcOffset As TimeSpan = TimeSpan.FromHours(-5)
     Private ReadOnly _clients As ISecondFactorSmtpClientFactory
 
     Public Sub New(ByVal clients As ISecondFactorSmtpClientFactory)
@@ -33,7 +35,7 @@ Public NotInheritable Class SecondFactorSmtpTransport
                                           ByVal message As SecondFactorEmailMessage) As MailMessage
         Dim mail As New MailMessage()
         Try
-            mail.From = New MailAddress(configuration.SenderAddress)
+            mail.From = New MailAddress(configuration.SenderAddress, SenderDisplayName)
             mail.To.Add(New MailAddress(message.Recipient.EmailAddress))
             mail.Subject = Subject
             mail.SubjectEncoding = Encoding.UTF8
@@ -49,15 +51,27 @@ Public NotInheritable Class SecondFactorSmtpTransport
 
     Private Shared Function BuildBody(ByVal message As SecondFactorEmailMessage,
                                       ByVal isHtml As Boolean) As String
-        Dim expiration As String = message.ExpiresAtUtc.ToString("yyyy-MM-dd HH:mm 'UTC'", CultureInfo.InvariantCulture)
+        Dim expiration As String = FormatColombiaExpiration(message.ExpiresAtUtc)
         If isHtml Then
-            Return "<p>Su código de verificación es <strong>" & message.Code & "</strong>.</p>" &
+            Return "<p>Su código de verificación es <strong>" & message.Code & "</strong></p>" &
                    "<p>Expira: " & expiration & ".</p>" &
                    "<p>No comparta este código. Si no inició este acceso, ignore este mensaje.</p>"
         End If
-        Return "Su código de verificación es " & message.Code & "." & Environment.NewLine &
+        Return "Su código de verificación es " & message.Code & Environment.NewLine &
                "Expira: " & expiration & "." & Environment.NewLine &
                "No comparta este código. Si no inició este acceso, ignore este mensaje."
+    End Function
+
+    Private Shared Function FormatColombiaExpiration(ByVal expiresAtUtc As DateTime) As String
+        Dim colombia As DateTimeOffset = New DateTimeOffset(expiresAtUtc).ToOffset(ColombiaUtcOffset)
+        Dim hour12 As Integer = colombia.Hour Mod 12
+        If hour12 = 0 Then hour12 = 12
+        Dim period As String = If(colombia.Hour < 12, "a. m.", "p. m.")
+        Return String.Format(CultureInfo.InvariantCulture,
+                             "{0:dd/MM/yyyy} {1:00}:{0:mm} {2} (hora Colombia)",
+                             colombia,
+                             hour12,
+                             period)
     End Function
 
     Private Shared Function FailedDelivery() As SecondFactorSmtpDelivery

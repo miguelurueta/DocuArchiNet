@@ -4,6 +4,7 @@ Imports System
 <Serializable()>
 Public Class SegundoFactorEstadoDto
     Public Property RequiereCodigo As Boolean
+    Public Property EstadoPublico As String
     Public Property DestinoEnmascarado As String
     Public Property ExpiraEnSegundos As Integer
     Public Property ReenvioDisponibleEnSegundos As Integer
@@ -15,4 +16,5 @@ Public Class SegundoFactorResultadoDto
     Public Property Codigo As String
     Public Property MensajeVisible As String
     Public Property Estado As SegundoFactorEstadoDto
+    Public Property RutaLocal As String
 End Class

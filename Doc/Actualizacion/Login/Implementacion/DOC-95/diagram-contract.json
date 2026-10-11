@@ -1,0 +1,167 @@
+{
+  "name": "DOC-95",
+  "version": 1,
+  "notation": "Mermaid",
+  "requiredDocuments": [
+    "README.md",
+    "01-ARQUITECTURA-Y-DIAGRAMAS.md",
+    "02-CASOS-DE-USO.md",
+    "03-INVENTARIO-TECNICO.md",
+    "04-VALIDACION-Y-PENDIENTES.md"
+  ],
+  "requiredDiagrams": [
+    {
+      "path": "Diagramas/01-componentes-clases.mmd",
+      "kind": "class",
+      "symbols": [
+        "CODE:ISecondFactorAuthenticationService", "CODE:SecondFactorAuthenticationService",
+        "CODE:ISecondFactorChallengeRepository", "CODE:ISecondFactorEmailSender",
+        "CODE:IPendingSecondFactorContextStore", "CODE:ILegacyLoginFinalizer",
+        "CODE:ISecondFactorAuthenticationTicketIssuer", "CODE:ILoginLocalRouteResolver",
+        "CODE:ISecondFactorDiagnosticSink", "CODE:EventLogSecondFactorDiagnosticSink", "CODE:TraceSecondFactorDiagnosticSink",
+        "CODE:LoginSecondFactorCompositionFactory", "CODE:WebServiceLoginSegundoFactor"
+      ],
+      "signatures": []
+    },
+    {
+      "path": "Diagramas/02-secuencia-inicio-estado.mmd",
+      "kind": "sequence",
+      "symbols": [
+        "CODE:ClassGestorSesion.InicioAplicacionWebGestorDocumental",
+        "CODE:SecondFactorPreAuthenticationService.Execute",
+        "CODE:ISecondFactorAuthenticationService.Start",
+        "CODE:SecondFactorAuthenticationService.Start",
+        "CODE:ISecondFactorChallengeRepository.Create",
+        "CODE:ISecondFactorEmailSender.Send",
+        "CODE:ISecondFactorChallengeRepository.MarkSent",
+        "CODE:IPendingSecondFactorContextStore.Save",
+        "CODE:ISecondFactorDiagnosticSink.Record",
+        "CODE:WebServiceLoginSegundoFactor.ObtenerEstado",
+        "CODE:ISecondFactorAuthenticationService.GetStatus"
+      ],
+      "signatures": [
+        "InicioAplicacionWebGestorDocumental(modulo: String, user: String, passs: String, nombre_empresa: String): String",
+        "Execute(request: SecondFactorPreAuthenticationRequest): SecondFactorPreAuthenticationResult",
+        "Start(request: SecondFactorAuthenticationStartRequest): SecondFactorAuthenticationResult",
+        "Record(correlationId: Guid, stage: SecondFactorDiagnosticStage, outcome: SecondFactorDiagnosticOutcome): Void",
+        "ObtenerEstado(): SegundoFactorEstadoDto",
+        "GetStatus(): SecondFactorAuthenticationResult"
+      ]
+    },
+    {
+      "path": "Diagramas/03-secuencia-verificacion-concurrencia.mmd",
+      "kind": "sequence",
+      "symbols": [
+        "CODE:WebServiceLoginSegundoFactor.Verificar",
+        "CODE:ISecondFactorAuthenticationService.Verify",
+        "CODE:ISecondFactorChallengeRepository.GetVerificationData",
+        "CODE:ISecondFactorChallengeRepository.RegisterFailedAttemptData",
+        "CODE:ISecondFactorChallengeRepository.TryBeginFinalization",
+        "CODE:ILegacyLoginFinalizer.FinalizeLogin",
+        "CODE:ISecondFactorChallengeRepository.Complete",
+        "CODE:ISecondFactorAuthenticationTicketIssuer.Issue",
+        "CODE:ILoginLocalRouteResolver.Resolve"
+      ],
+      "signatures": [
+        "Verificar(codigo: String): SegundoFactorResultadoDto",
+        "Verify(code: String): SecondFactorAuthenticationResult",
+        "TryBeginFinalization(challengeId: Guid, expectedAttempts: Integer): Boolean",
+        "FinalizeLogin(context: LegacyLoginFinalizationContext): LegacyLoginFinalizationResult",
+        "Issue(normalizedLogin: String): Void"
+      ]
+    },
+    {
+      "path": "Diagramas/04-reenvio-cancelacion-errores.mmd",
+      "kind": "flow",
+      "symbols": [
+        "CODE:WebServiceLoginSegundoFactor.Reenviar", "CODE:ISecondFactorAuthenticationService.Resend",
+        "CODE:ISecondFactorRecipientResolver.Resolve", "CODE:ISecondFactorChallengeRepository.ReplaceForResend",
+        "CODE:WebServiceLoginSegundoFactor.Cancelar", "CODE:ISecondFactorAuthenticationService.Cancel",
+        "CODE:ISecondFactorChallengeRepository.Revoke", "CODE:LoginSecondFactorPresentationMapper.MapResult"
+      ],
+      "signatures": [
+        "Reenviar(): SegundoFactorResultadoDto",
+        "Resend(): SecondFactorAuthenticationResult",
+        "Cancelar(): SegundoFactorResultadoDto",
+        "Cancel(): SecondFactorAuthenticationResult"
+      ]
+    }
+  ],
+  "dotnetDeclarations": {
+    "CODE:ISecondFactorAuthenticationService": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorAuthenticationService", "kind": "interface" },
+    "CODE:SecondFactorAuthenticationService": { "file": "Services/Login/SegundoFactor/SecondFactorAuthenticationService.vb", "type": "SecondFactorAuthenticationService", "kind": "class" },
+    "CODE:ISecondFactorChallengeRepository": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "kind": "interface" },
+    "CODE:ISecondFactorEmailSender": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorEmailSender", "kind": "interface" },
+    "CODE:ISecondFactorRecipientResolver": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorRecipientResolver", "kind": "interface" },
+    "CODE:IPendingSecondFactorContextStore": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "IPendingSecondFactorContextStore", "kind": "interface" },
+    "CODE:ILegacyLoginFinalizer": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ILegacyLoginFinalizer", "kind": "interface" },
+    "CODE:ISecondFactorAuthenticationTicketIssuer": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorAuthenticationTicketIssuer", "kind": "interface" },
+    "CODE:ILoginLocalRouteResolver": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ILoginLocalRouteResolver", "kind": "interface" },
+    "CODE:ISecondFactorDiagnosticSink": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorDiagnosticSink", "kind": "interface" },
+    "CODE:TraceSecondFactorDiagnosticSink": { "file": "Infrastructure/Login/SegundoFactor/Diagnostics/TraceSecondFactorDiagnosticSink.vb", "type": "TraceSecondFactorDiagnosticSink", "kind": "class" },
+    "CODE:EventLogSecondFactorDiagnosticSink": { "file": "Infrastructure/Login/SegundoFactor/Diagnostics/EventLogSecondFactorDiagnosticSink.vb", "type": "EventLogSecondFactorDiagnosticSink", "kind": "class" },
+    "CODE:SecondFactorRecipientResolver": { "file": "Services/Login/SegundoFactor/SecondFactorRecipientResolver.vb", "type": "SecondFactorRecipientResolver", "kind": "class" },
+    "CODE:LoginSecondFactorCompositionFactory": { "file": "webservice/Login/SegundoFactor/LoginSecondFactorCompositionFactory.vb", "type": "LoginSecondFactorCompositionFactory", "kind": "class" },
+    "CODE:LoginSecondFactorSessionGate": { "file": "webservice/Login/SegundoFactor/LoginSecondFactorSessionGate.vb", "type": "LoginSecondFactorSessionGate", "kind": "class" },
+    "CODE:LoginSecondFactorPresentationMapper": { "file": "webservice/Login/SegundoFactor/LoginSecondFactorPresentationMapper.vb", "type": "LoginSecondFactorPresentationMapper", "kind": "class" },
+    "CODE:FormsAuthenticationTicketIssuer": { "file": "webservice/Login/SegundoFactor/FormsAuthenticationTicketIssuer.vb", "type": "FormsAuthenticationTicketIssuer", "kind": "class" },
+    "CODE:LegacyLoginLocalRouteResolver": { "file": "webservice/Login/SegundoFactor/LegacyLoginLocalRouteResolver.vb", "type": "LegacyLoginLocalRouteResolver", "kind": "class" },
+    "CODE:WebServiceLoginSegundoFactor": { "file": "webservice/WebServiceLoginSegundoFactor.asmx.vb", "type": "WebServiceLoginSegundoFactor", "kind": "class" },
+    "CODE:ClassGestorSesion": { "file": "Defaul/ClassGestorSesion.vb", "type": "ClassGestorSesion", "kind": "class" },
+    "CODE:SecondFactorPreAuthenticationService": { "file": "Services/Login/SegundoFactor/SecondFactorPreAuthenticationService.vb", "type": "SecondFactorPreAuthenticationService", "kind": "class" }
+  },
+  "dotnetImplements": {
+    "CODE:SecondFactorAuthenticationService.implements": { "file": "Services/Login/SegundoFactor/SecondFactorAuthenticationService.vb", "type": "SecondFactorAuthenticationService", "interface": "ISecondFactorAuthenticationService" },
+    "CODE:SecondFactorRecipientResolver.implements": { "file": "Services/Login/SegundoFactor/SecondFactorRecipientResolver.vb", "type": "SecondFactorRecipientResolver", "interface": "ISecondFactorRecipientResolver" },
+    "CODE:FormsAuthenticationTicketIssuer.implements": { "file": "webservice/Login/SegundoFactor/FormsAuthenticationTicketIssuer.vb", "type": "FormsAuthenticationTicketIssuer", "interface": "ISecondFactorAuthenticationTicketIssuer" },
+    "CODE:LegacyLoginLocalRouteResolver.implements": { "file": "webservice/Login/SegundoFactor/LegacyLoginLocalRouteResolver.vb", "type": "LegacyLoginLocalRouteResolver", "interface": "ILoginLocalRouteResolver" },
+    "CODE:TraceSecondFactorDiagnosticSink.implements": { "file": "Infrastructure/Login/SegundoFactor/Diagnostics/TraceSecondFactorDiagnosticSink.vb", "type": "TraceSecondFactorDiagnosticSink", "interface": "ISecondFactorDiagnosticSink" },
+    "CODE:EventLogSecondFactorDiagnosticSink.implements": { "file": "Infrastructure/Login/SegundoFactor/Diagnostics/EventLogSecondFactorDiagnosticSink.vb", "type": "EventLogSecondFactorDiagnosticSink", "interface": "ISecondFactorDiagnosticSink" }
+  },
+  "dotnetEnums": {
+    "SecondFactorAuthenticationState": ["NONE", "PENDING", "COMPLETED", "REJECTED"],
+    "SecondFactorDiagnosticStage": ["PREAUTHENTICATION", "LOGIN_MODULE_RESOLUTION", "PRINCIPAL_REPOSITORY_RESOLUTION", "PRINCIPAL_RESOLUTION", "AUTHENTICATION_SERVICE_RESOLUTION", "AUTHENTICATION_START", "IDENTITY_BUILD", "CODE_PROTECTION", "CHALLENGE_CREATION", "EMAIL_DELIVERY", "CHALLENGE_SENT_CONFIRMATION", "PENDING_CONTEXT_SAVE", "RECIPIENT_VALIDATION", "AUTHENTICATION_STATUS", "AUTHENTICATION_VERIFY", "SESSION_CONTEXT_RESOLUTION", "CHALLENGE_LOOKUP", "CODE_VALIDATION", "CODE_VERIFICATION", "FAILED_ATTEMPT_REGISTRATION", "FINALIZATION_ACQUISITION", "LEGACY_FINALIZATION", "CHALLENGE_COMPLETION", "LOCAL_ROUTE_RESOLUTION", "TICKET_ISSUANCE", "AUTHENTICATION_RESEND", "RECIPIENT_RESOLUTION", "CHALLENGE_REPLACEMENT", "AUTHENTICATION_CANCEL", "CHALLENGE_REVOCATION", "DELIVERY_CONFIGURATION_DISABLED", "DELIVERY_CONFIGURATION_INVALID", "DELIVERY_CONFIGURATION_AMBIGUOUS", "COMPENSATION"],
+    "SecondFactorDiagnosticOutcome": ["STARTED", "SUCCEEDED", "REJECTED", "FAILED"]
+  },
+  "dotnetSymbols": {
+    "CODE:ClassGestorSesion.InicioAplicacionWebGestorDocumental": { "file": "Defaul/ClassGestorSesion.vb", "type": "ClassGestorSesion", "method": "InicioAplicacionWebGestorDocumental", "parameters": ["System.String", "System.String", "System.String", "System.String"], "return": "System.String" },
+    "CODE:SecondFactorPreAuthenticationService.Execute": { "file": "Services/Login/SegundoFactor/SecondFactorPreAuthenticationService.vb", "type": "SecondFactorPreAuthenticationService", "method": "Execute", "parameters": ["SecondFactorPreAuthenticationRequest"], "return": "SecondFactorPreAuthenticationResult" },
+    "CODE:ISecondFactorAuthenticationService.Start": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorAuthenticationService", "method": "Start", "parameters": ["SecondFactorAuthenticationStartRequest"], "return": "SecondFactorAuthenticationResult" },
+    "CODE:ISecondFactorAuthenticationService.GetStatus": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorAuthenticationService", "method": "GetStatus", "parameters": [], "return": "SecondFactorAuthenticationResult" },
+    "CODE:ISecondFactorAuthenticationService.Verify": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorAuthenticationService", "method": "Verify", "parameters": ["System.String"], "return": "SecondFactorAuthenticationResult" },
+    "CODE:ISecondFactorAuthenticationService.Resend": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorAuthenticationService", "method": "Resend", "parameters": [], "return": "SecondFactorAuthenticationResult" },
+    "CODE:ISecondFactorAuthenticationService.Cancel": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorAuthenticationService", "method": "Cancel", "parameters": [], "return": "SecondFactorAuthenticationResult" },
+    "CODE:SecondFactorAuthenticationService.Start": { "file": "Services/Login/SegundoFactor/SecondFactorAuthenticationService.vb", "type": "SecondFactorAuthenticationService", "method": "Start", "parameters": ["SecondFactorAuthenticationStartRequest"], "return": "SecondFactorAuthenticationResult" },
+    "CODE:ISecondFactorChallengeRepository.Create": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "Create", "parameters": ["SegundoFactorChallenge", "System.String", "System.String"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.MarkSent": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "MarkSent", "parameters": ["Guid", "System.DateTime"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.GetVerificationData": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "GetVerificationData", "parameters": ["Guid", "System.String"], "return": "SecondFactorChallengeVerificationData" },
+    "CODE:ISecondFactorChallengeRepository.RegisterFailedAttemptData": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "RegisterFailedAttemptData", "parameters": ["Guid", "System.Int32"], "return": "SecondFactorStoredChallenge" },
+    "CODE:ISecondFactorChallengeRepository.TryBeginFinalization": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "TryBeginFinalization", "parameters": ["Guid", "System.Int32"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.Complete": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "Complete", "parameters": ["Guid"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.ReplaceForResend": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "ReplaceForResend", "parameters": ["Guid", "SegundoFactorChallenge", "System.String", "System.String", "System.DateTime"], "return": "System.Boolean" },
+    "CODE:ISecondFactorChallengeRepository.Revoke": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorChallengeRepository", "method": "Revoke", "parameters": ["Guid"], "return": "System.Boolean" },
+    "CODE:ISecondFactorEmailSender.Send": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorEmailSender", "method": "Send", "parameters": ["SecondFactorEmailMessage"], "return": "SecondFactorDeliveryResult" },
+    "CODE:ISecondFactorDiagnosticSink.Record": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorDiagnosticSink", "method": "Record", "parameters": ["Guid", "SecondFactorDiagnosticStage", "SecondFactorDiagnosticOutcome"], "return": "System.Void" },
+    "CODE:IPendingSecondFactorContextStore.Save": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "IPendingSecondFactorContextStore", "method": "Save", "parameters": ["PendingSecondFactorContext"], "return": "System.Void" },
+    "CODE:ISecondFactorRecipientResolver.Resolve": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorRecipientResolver", "method": "Resolve", "parameters": ["SegundoFactorIdentity"], "return": "SecondFactorRecipient" },
+    "CODE:ILegacyLoginFinalizer.FinalizeLogin": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ILegacyLoginFinalizer", "method": "FinalizeLogin", "parameters": ["LegacyLoginFinalizationContext"], "return": "LegacyLoginFinalizationResult" },
+    "CODE:ISecondFactorAuthenticationTicketIssuer.Issue": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ISecondFactorAuthenticationTicketIssuer", "method": "Issue", "parameters": ["System.String"], "return": "System.Void" },
+    "CODE:ILoginLocalRouteResolver.Resolve": { "file": "Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb", "type": "ILoginLocalRouteResolver", "method": "Resolve", "parameters": [], "return": "System.String" },
+    "CODE:WebServiceLoginSegundoFactor.ObtenerEstado": { "file": "webservice/WebServiceLoginSegundoFactor.asmx.vb", "type": "WebServiceLoginSegundoFactor", "method": "ObtenerEstado", "parameters": [], "return": "SegundoFactorEstadoDto" },
+    "CODE:WebServiceLoginSegundoFactor.Verificar": { "file": "webservice/WebServiceLoginSegundoFactor.asmx.vb", "type": "WebServiceLoginSegundoFactor", "method": "Verificar", "parameters": ["System.String"], "return": "SegundoFactorResultadoDto" },
+    "CODE:WebServiceLoginSegundoFactor.Reenviar": { "file": "webservice/WebServiceLoginSegundoFactor.asmx.vb", "type": "WebServiceLoginSegundoFactor", "method": "Reenviar", "parameters": [], "return": "SegundoFactorResultadoDto" },
+    "CODE:WebServiceLoginSegundoFactor.Cancelar": { "file": "webservice/WebServiceLoginSegundoFactor.asmx.vb", "type": "WebServiceLoginSegundoFactor", "method": "Cancelar", "parameters": [], "return": "SegundoFactorResultadoDto" },
+    "CODE:LoginSecondFactorPresentationMapper.MapResult": { "file": "webservice/Login/SegundoFactor/LoginSecondFactorPresentationMapper.vb", "type": "LoginSecondFactorPresentationMapper", "method": "MapResult", "parameters": ["SecondFactorAuthenticationResult"], "return": "SegundoFactorResultadoDto" }
+  },
+  "dotnetTypes": {
+    "PendingSecondFactorContext": ["EmpresaId:System.Int32", "ModuloId:System.Int32", "ModuleType:System.String", "InternalUserId:System.Int64", "NormalizedLogin:System.String", "MaskedDestination:System.String", "ChallengeId:Guid", "SessionNonce:System.String", "ResendCount:System.Int32", "CreatedAtUtc:System.DateTime", "ExpiresAtUtc:System.DateTime"],
+    "SecondFactorAuthenticationStartRequest": ["LoginModule:SecondFactorLoginModule", "Principal:SecondFactorPrincipal", "CorrelationId:Guid"],
+    "SecondFactorAuthenticationResult": ["Success:System.Boolean", "PublicCode:System.String", "State:SecondFactorAuthenticationState", "MaskedDestination:System.String", "ExpiresInSeconds:System.Int32", "ResendAvailableInSeconds:System.Int32", "LocalRoute:System.String"],
+    "SegundoFactorEstadoDto": ["RequiereCodigo:System.Boolean", "EstadoPublico:System.String", "DestinoEnmascarado:System.String", "ExpiraEnSegundos:System.Int32", "ReenvioDisponibleEnSegundos:System.Int32"],
+    "SegundoFactorResultadoDto": ["Exito:System.Boolean", "Codigo:System.String", "MensajeVisible:System.String", "Estado:SegundoFactorEstadoDto", "RutaLocal:System.String"]
+  },
+  "excludedKinds": {
+    "external": ["EXT: Cliente WebForms", "EXT: servidor SMTP", "EXT: navegador E2E", "EXT: buzón autorizado"],
+    "conceptual": ["CONCEPT: Session pendiente", "CONCEPT: ganador exclusivo", "CONCEPT: fallo cerrado", "CONCEPT: estado físico consumido"]
+  }
+}

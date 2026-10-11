@@ -1,0 +1,29 @@
+%% Convención: CODE = símbolo resoluble del repositorio | EXT = actor/sistema externo | CONCEPT = estado o decisión conceptual
+%% Fuentes: Modelo/Login/SegundoFactor/SegundoFactorInterfaces.vb | Services/Login/SegundoFactor/SecondFactorAuthenticationService.vb | Infrastructure/Login/SegundoFactor/Diagnostics/EventLogSecondFactorDiagnosticSink.vb | Infrastructure/Login/SegundoFactor/Diagnostics/TraceSecondFactorDiagnosticSink.vb | webservice/Login/SegundoFactor/LoginSecondFactorCompositionFactory.vb | webservice/WebServiceLoginSegundoFactor.asmx.vb
+%% Referencias CODE: CODE:ISecondFactorAuthenticationService | CODE:SecondFactorAuthenticationService | CODE:ISecondFactorChallengeRepository | CODE:ISecondFactorEmailSender | CODE:IPendingSecondFactorContextStore | CODE:ILegacyLoginFinalizer | CODE:ISecondFactorAuthenticationTicketIssuer | CODE:ILoginLocalRouteResolver | CODE:ISecondFactorDiagnosticSink | CODE:EventLogSecondFactorDiagnosticSink | CODE:TraceSecondFactorDiagnosticSink | CODE:LoginSecondFactorCompositionFactory | CODE:WebServiceLoginSegundoFactor
+classDiagram
+class WebServiceLoginSegundoFactor
+class LoginSecondFactorCompositionFactory
+class ISecondFactorAuthenticationService { <<interface>> }
+class SecondFactorAuthenticationService
+class ISecondFactorChallengeRepository { <<interface>> }
+class ISecondFactorEmailSender { <<interface>> }
+class IPendingSecondFactorContextStore { <<interface>> }
+class ILegacyLoginFinalizer { <<interface>> }
+class ISecondFactorAuthenticationTicketIssuer { <<interface>> }
+class ILoginLocalRouteResolver { <<interface>> }
+class ISecondFactorDiagnosticSink { <<interface>> }
+class TraceSecondFactorDiagnosticSink
+class EventLogSecondFactorDiagnosticSink
+WebServiceLoginSegundoFactor --> LoginSecondFactorCompositionFactory
+LoginSecondFactorCompositionFactory --> SecondFactorAuthenticationService
+ISecondFactorAuthenticationService <|.. SecondFactorAuthenticationService
+SecondFactorAuthenticationService --> ISecondFactorChallengeRepository
+SecondFactorAuthenticationService --> ISecondFactorEmailSender
+SecondFactorAuthenticationService --> IPendingSecondFactorContextStore
+SecondFactorAuthenticationService --> ILegacyLoginFinalizer
+SecondFactorAuthenticationService --> ISecondFactorAuthenticationTicketIssuer
+SecondFactorAuthenticationService --> ILoginLocalRouteResolver
+ISecondFactorDiagnosticSink <|.. TraceSecondFactorDiagnosticSink
+ISecondFactorDiagnosticSink <|.. EventLogSecondFactorDiagnosticSink
+SecondFactorAuthenticationService --> ISecondFactorDiagnosticSink

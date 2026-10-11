@@ -1,0 +1,6 @@
+{
+  "baseUrl": "https://ambiente-pruebas/app/",
+  "ignoreHttpsErrors": false,
+  "module": "MODULO-CON-2FA-ACTIVO",
+  "timeoutMilliseconds": 60000
+}

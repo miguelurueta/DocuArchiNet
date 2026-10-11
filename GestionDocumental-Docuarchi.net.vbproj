@@ -8496,6 +8496,7 @@
     <Content Include="webservice\WebServiceRadicacion.asmx" />
     <Content Include="webservice\WebServiceWorkflow.asmx" />
     <Content Include="webservice\WebServiceWorkflowModern.asmx" />
+    <Content Include="webservice\WebServiceLoginSegundoFactor.asmx" />
     <Content Include="webservice\WebServiceImportarServicioWebModern.asmx" />
     <Content Include="workflow\ImportarServicioWebPreview.ashx" />
     <Content Include="webservice\WebServiceWorkflowNotesModern.asmx" />
@@ -9779,6 +9780,10 @@
       <DependentUpon>WebServiceWorkflowModern.asmx</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="webservice\WebServiceLoginSegundoFactor.asmx.vb">
+      <DependentUpon>WebServiceLoginSegundoFactor.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="webservice\WebServiceImportarServicioWebModern.asmx.vb">
       <DependentUpon>WebServiceImportarServicioWebModern.asmx</DependentUpon>
       <SubType>Component</SubType>
@@ -9896,6 +9901,9 @@
     <Compile Include="Modelo\Login\SegundoFactor\SegundoFactorSmtpModels.vb" />
     <Compile Include="Modelo\Login\SegundoFactor\SegundoFactorInterfaces.vb" />
     <Compile Include="Services\Login\SegundoFactor\SecondFactorPreAuthenticationService.vb" />
+    <Compile Include="Services\Login\SegundoFactor\SecondFactorAuthenticationService.vb" />
+    <Compile Include="Services\Login\SegundoFactor\NullSecondFactorDiagnosticSink.vb" />
+    <Compile Include="Services\Login\SegundoFactor\SecondFactorRecipientResolver.vb" />
     <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\OdbcSecondFactorLoginModuleRepository.vb" />
     <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\MySqlSecondFactorPrincipalRepositoryBase.vb" />
     <Compile Include="Infrastructure\Repositories\Login\SegundoFactor\MySqlDocuarchiSecondFactorPrincipalRepository.vb" />
@@ -9908,12 +9916,19 @@
     <Compile Include="Infrastructure\Login\SegundoFactor\Smtp\FrameworkSmtpClientAdapter.vb" />
     <Compile Include="Infrastructure\Login\SegundoFactor\Smtp\SecondFactorSmtpTransport.vb" />
     <Compile Include="Infrastructure\Login\SegundoFactor\Smtp\SecondFactorSmtpEmailSender.vb" />
+    <Compile Include="Infrastructure\Login\SegundoFactor\Diagnostics\TraceSecondFactorDiagnosticSink.vb" />
+    <Compile Include="Infrastructure\Login\SegundoFactor\Diagnostics\EventLogSecondFactorDiagnosticSink.vb" />
     <Compile Include="DTOs\Login\SegundoFactor\SegundoFactorDtos.vb" />
     <Compile Include="Infrastructure\Login\SegundoFactor\Security\SystemSecondFactorClock.vb" />
     <Compile Include="Infrastructure\Login\SegundoFactor\Security\CryptographicSecondFactorOtpGenerator.vb" />
     <Compile Include="Infrastructure\Login\SegundoFactor\Security\AppSettingsSecondFactorKeyProvider.vb" />
     <Compile Include="Infrastructure\Login\SegundoFactor\Security\HmacSecondFactorCodeProtector.vb" />
     <Compile Include="webservice\Login\SegundoFactor\SessionPendingSecondFactorContextStore.vb" />
+    <Compile Include="webservice\Login\SegundoFactor\LoginSecondFactorSessionGate.vb" />
+    <Compile Include="webservice\Login\SegundoFactor\FormsAuthenticationTicketIssuer.vb" />
+    <Compile Include="webservice\Login\SegundoFactor\LegacyLoginLocalRouteResolver.vb" />
+    <Compile Include="webservice\Login\SegundoFactor\LoginSecondFactorPresentationMapper.vb" />
+    <Compile Include="webservice\Login\SegundoFactor\LoginSecondFactorCompositionFactory.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernModels.vb" />
     <Compile Include="Modelo\Workflow\Terminar\WorkflowModernInterfaces.vb" />
     <Compile Include="Modelo\Workflow\ImportarServicioWeb\ImportarServicioWebModels.vb" />

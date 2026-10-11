@@ -1,0 +1,23 @@
+%% Convención: CODE = símbolo resoluble del repositorio | EXT = actor/sistema externo | CONCEPT = estado o decisión conceptual
+%% Fuentes: webservice/WebServiceLoginSegundoFactor.asmx.vb | Services/Login/SegundoFactor/SecondFactorAuthenticationService.vb | Services/Login/SegundoFactor/SecondFactorRecipientResolver.vb | webservice/Login/SegundoFactor/LoginSecondFactorPresentationMapper.vb
+%% Referencias CODE: CODE:WebServiceLoginSegundoFactor.Reenviar | CODE:ISecondFactorAuthenticationService.Resend | CODE:ISecondFactorRecipientResolver.Resolve | CODE:ISecondFactorChallengeRepository.ReplaceForResend | CODE:WebServiceLoginSegundoFactor.Cancelar | CODE:ISecondFactorAuthenticationService.Cancel | CODE:ISecondFactorChallengeRepository.Revoke | CODE:LoginSecondFactorPresentationMapper.MapResult
+flowchart TD
+  A[EXT Cliente WebForms] --> B["CODE WebServiceLoginSegundoFactor.Reenviar<br/>Reenviar(): SegundoFactorResultadoDto"]
+  B --> C["CODE ISecondFactorAuthenticationService.Resend<br/>Resend(): SecondFactorAuthenticationResult"]
+  C --> D{CONCEPT Session pendiente vigente}
+  D -- No --> X[CONCEPT fallo cerrado y limpieza]
+  D -- Sí --> E{CONCEPT cooldown cumplido y reenvíos menores a dos}
+  E -- No --> Y[CONCEPT estado pendiente con cooldown o límite]
+  E -- Sí --> F[CODE ISecondFactorRecipientResolver.Resolve]
+  F --> G[CODE ISecondFactorChallengeRepository.ReplaceForResend]
+  G --> H{CONCEPT SMTP y MarkSent correctos}
+  H -- No --> X
+  H -- Sí --> I[CONCEPT reemplazar Session con challenge nuevo]
+  A --> J["CODE WebServiceLoginSegundoFactor.Cancelar<br/>Cancelar(): SegundoFactorResultadoDto"]
+  J --> K["CODE ISecondFactorAuthenticationService.Cancel<br/>Cancel(): SecondFactorAuthenticationResult"]
+  K --> L[CODE ISecondFactorChallengeRepository.Revoke]
+  L --> M[CONCEPT limpiar Session idempotentemente]
+  X --> N[CODE LoginSecondFactorPresentationMapper.MapResult]
+  Y --> N
+  I --> N
+  M --> N

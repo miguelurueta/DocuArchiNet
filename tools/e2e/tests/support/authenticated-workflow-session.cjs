@@ -68,6 +68,8 @@ function sessionFailureMessage(stage) {
       return 'No fue posible preparar el formulario de inicio de sesión E2E.';
     case 'postback':
       return 'El inicio de sesión E2E no recibió el postback esperado.';
+    case 'postback-observer':
+      return 'No fue posible inspeccionar de forma segura el resultado público del inicio de sesión E2E.';
     case 'load':
       return 'El inicio de sesión E2E no completó la carga posterior al postback.';
     default:
@@ -95,6 +97,7 @@ async function createAuthenticatedWorkflowSession(browser, options) {
 
   let context;
   let page;
+  let dialogObservation;
   let stage = 'context';
   try {
     // La sonda pública y la configuración normal de Playwright crean el
@@ -104,6 +107,18 @@ async function createAuthenticatedWorkflowSession(browser, options) {
       ? await browser.newContext({ ignoreHTTPSErrors: true })
       : await browser.newContext();
     page = await context.newPage();
+    if (typeof configuration.onDialogCompleted === 'function') {
+      dialogObservation = new Promise((resolve) => {
+        page.once('dialog', async (dialog) => {
+          try {
+            await configuration.onDialogCompleted(page, dialog.message());
+          } finally {
+            await dialog.dismiss().catch(() => {});
+            resolve();
+          }
+        });
+      });
+    }
     stage = 'navigate';
     await page.goto(url, { waitUntil: 'commit', timeout });
     stage = 'module-control';
@@ -118,7 +133,14 @@ async function createAuthenticatedWorkflowSession(browser, options) {
     stage = 'postback';
     const postback = page.waitForResponse(loginPostbackFor(url), { timeout });
     await page.locator(LOGIN_SELECTORS.submit).click();
-    await postback;
+    const postbackResponse = await postback;
+    if (typeof configuration.onPostbackCompleted === 'function') {
+      stage = 'postback-observer';
+      await configuration.onPostbackCompleted(page, postbackResponse);
+    }
+    if (dialogObservation) {
+      await Promise.race([dialogObservation, new Promise(resolve => setTimeout(resolve, 750))]);
+    }
     return context;
   } catch (error) {
     await closeQuietly(context);

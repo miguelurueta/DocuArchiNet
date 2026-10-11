@@ -4,9 +4,12 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const { LOGIN_SELECTORS, createAuthenticatedWorkflowSession, sessionFailureMessage } = require('./support/authenticated-workflow-session.cjs');
 
-function createPlaywrightDouble({ failAt } = {}) {
+function createPlaywrightDouble({ failAt, dialogMessage } = {}) {
   const calls = { contextAttempts: 0, gotoAttempts: [], pageAttempts: 0, selectors: [], fills: [], waits: [], closed: { context: false, page: false } };
   const page = {
+    once(event, handler) {
+      if (event === 'dialog') calls.dialogHandler = handler;
+    },
     async goto(url, options) {
       calls.goto = { url, options };
       calls.gotoAttempts.push({ url, options });
@@ -27,6 +30,12 @@ function createPlaywrightDouble({ failAt } = {}) {
         async click() {
           calls.clicked = selector;
           if (failAt === 'click') throw new Error('click failed');
+          if (dialogMessage && calls.dialogHandler) {
+            await calls.dialogHandler({
+              message: () => dialogMessage,
+              async dismiss() { calls.dialogDismissed = true; }
+            });
+          }
         }
       };
     },
@@ -39,6 +48,7 @@ function createPlaywrightDouble({ failAt } = {}) {
         })
       };
       if (failAt === 'postback') throw new Error('postback failed');
+      return { async text() { return 'SECOND_FACTOR_REQUIRED'; } };
     },
     async waitForLoadState(value) { calls.loadState = value; },
     async close() { calls.closed.page = true; }
@@ -98,6 +108,33 @@ test('conserva el contexto predeterminado cuando HTTPS no requiere excepción', 
   await createAuthenticatedWorkflowSession(browser, configuration(environment, { ignoreHTTPSErrors: false, preflightOnly: true }));
 
   assert.equal(calls.contextOptions, undefined);
+});
+
+test('permite observar el postback público antes de cerrar la página', async () => {
+  const { browser, calls } = createPlaywrightDouble();
+  const environment = { E2E_MODULE: 'GESTOR', E2E_USER: 'usuario-prueba', E2E_PASSWORD: 'valor-prueba' };
+  let publicCode = '';
+
+  await createAuthenticatedWorkflowSession(browser, configuration(environment, {
+    onPostbackCompleted: async (_page, response) => { publicCode = await response.text(); }
+  }));
+
+  assert.equal(publicCode, 'SECOND_FACTOR_REQUIRED');
+  assert.equal(calls.closed.page, true);
+  assert.equal(calls.closed.context, false);
+});
+
+test('permite clasificar y descartar el diálogo WebForms sin imprimirlo', async () => {
+  const { browser, calls } = createPlaywrightDouble({ dialogMessage: 'SECOND_FACTOR_START_FAILED detalle no público' });
+  const environment = { E2E_MODULE: 'GESTOR', E2E_USER: 'usuario-prueba', E2E_PASSWORD: 'valor-prueba' };
+  let observed = '';
+
+  await createAuthenticatedWorkflowSession(browser, configuration(environment, {
+    onDialogCompleted: async (_page, message) => { observed = message.split(' ')[0]; }
+  }));
+
+  assert.equal(observed, 'SECOND_FACTOR_START_FAILED');
+  assert.equal(calls.dialogDismissed, true);
 });
 
 test('preserva la resolución estándar de una URL base sin barra final', async () => {

@@ -47,6 +47,13 @@ Public Interface ISecondFactorEmailSender
     Function Send(ByVal message As SecondFactorEmailMessage) As SecondFactorDeliveryResult
 End Interface
 
+' Telemetría deliberadamente cerrada: solo acepta correlación y enums saneados.
+Public Interface ISecondFactorDiagnosticSink
+    Sub Record(ByVal correlationId As Guid,
+               ByVal stage As SecondFactorDiagnosticStage,
+               ByVal outcome As SecondFactorDiagnosticOutcome)
+End Interface
+
 Public Interface ISecondFactorSmtpConfigurationRepository
     Function Resolve() As SecondFactorSmtpConfigurationResolution
 End Interface
@@ -80,4 +87,20 @@ Public Interface IPendingSecondFactorContextStore
     Sub Save(ByVal context As PendingSecondFactorContext)
     Function GetCurrent() As PendingSecondFactorContext
     Sub Clear()
+End Interface
+
+Public Interface ISecondFactorAuthenticationService
+    Function Start(ByVal request As SecondFactorAuthenticationStartRequest) As SecondFactorAuthenticationResult
+    Function GetStatus() As SecondFactorAuthenticationResult
+    Function Verify(ByVal code As String) As SecondFactorAuthenticationResult
+    Function Resend() As SecondFactorAuthenticationResult
+    Function Cancel() As SecondFactorAuthenticationResult
+End Interface
+
+Public Interface ISecondFactorAuthenticationTicketIssuer
+    Sub Issue(ByVal normalizedLogin As String)
+End Interface
+
+Public Interface ILoginLocalRouteResolver
+    Function Resolve() As String
 End Interface
