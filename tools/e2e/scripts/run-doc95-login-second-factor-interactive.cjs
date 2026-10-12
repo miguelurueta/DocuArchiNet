@@ -133,7 +133,7 @@ async function runConcurrencyScenario(context, profile) {
 }
 
 function publicLoginCode(responseText) {
-  const match = String(responseText || '').match(/\b(?:SECOND_FACTOR_(?:REQUIRED|START_FAILED|DELIVERY_FAILED|EMAIL_UNAVAILABLE|UNAVAILABLE)|PREAUTHENTICATION_(?:FAILED|INVALID)|LOGIN_(?:MODULE_NOT_FOUND|MODULE_UNSUPPORTED|FINALIZATION_FAILED))\b/);
+  const match = String(responseText || '').match(/\b(?:SECOND_FACTOR_(?:REQUIRED|START_FAILED|DELIVERY_FAILED|EMAIL_UNAVAILABLE|PRINCIPAL_NOT_FOUND|UNAVAILABLE)|PREAUTHENTICATION_(?:FAILED|INVALID)|LOGIN_(?:MODULE_NOT_FOUND|MODULE_UNSUPPORTED|FINALIZATION_FAILED))\b/);
   return match ? match[0] : '';
 }
 
@@ -250,4 +250,14 @@ if (require.main === module) {
   });
 }
 
-module.exports = { allowedProfileFields, assertCompleted, assertConcurrency, assertPending, loadProfile, publicLoginCode, requestedScenario };
+module.exports = {
+  allowedProfileFields,
+  assertCompleted,
+  assertConcurrency,
+  assertPending,
+  createPendingSession,
+  loadProfile,
+  publicLoginCode,
+  requestedScenario,
+  runVerifyScenario
+};
