@@ -256,3 +256,18 @@ test('operador DOC-98 limita activación y rollback a snapshots exactos', () => 
   assert.equal(state.off.length, 3);
   assert.equal(operator.fingerprint(rows), operator.fingerprint(rows));
 });
+
+test('E2E transversal DOC-98 reutiliza DOC-95 y no persiste credenciales', () => {
+  const runnerPath = 'tools/e2e/scripts/run-doc98-transversal-login-interactive.cjs';
+  const runner = read(runnerPath);
+  const packageJson = JSON.parse(read('tools/e2e/package.json'));
+  assert.equal(packageJson.scripts['test:doc98:transversal-login'], 'node scripts/run-doc98-transversal-login-interactive.cjs');
+  assert.match(runner, /require\('\.\/run-doc95-login-second-factor-interactive\.cjs'\)/);
+  assert.match(runner, /createPendingSession/);
+  assert.match(runner, /runVerifyScenario/);
+  assert.match(runner, /requireInteractiveConsole\(\)/);
+  assert.match(runner, /OTP nuevo por m[oó]dulo/);
+  assert.match(runner, /DOC98_TRANSVERSAL_E2E_RESULT=PASSED/);
+  assert.match(runner, /Ejecute rollback con el snapshot/);
+  assert.doesNotMatch(runner, /writeFile|appendFile|console\.log\([^\n]*(?:secrets\.(?:account|password)|environment\.DOC95_E2E_(?:ACCOUNT|PASSWORD)|moduleNames\[(?:index|\d+)\])/i);
+});

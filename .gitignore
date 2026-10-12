@@ -47,6 +47,7 @@ Generated_Code/
 
 # Bitacora local append-only del flujo OPSXJ; no se versiona ni contiene secretos.
 /.opsxj/runs/
+/.opsxj/runtime/
 
 # Paquetes restaurables
 packages/

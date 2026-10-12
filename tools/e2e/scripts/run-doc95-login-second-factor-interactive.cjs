@@ -250,4 +250,14 @@ if (require.main === module) {
   });
 }
 
-module.exports = { allowedProfileFields, assertCompleted, assertConcurrency, assertPending, loadProfile, publicLoginCode, requestedScenario };
+module.exports = {
+  allowedProfileFields,
+  assertCompleted,
+  assertConcurrency,
+  assertPending,
+  createPendingSession,
+  loadProfile,
+  publicLoginCode,
+  requestedScenario,
+  runVerifyScenario
+};
