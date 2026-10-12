@@ -232,6 +232,10 @@ test('operador DOC-98 limita activación y rollback a snapshots exactos', () => 
   assert.match(runner, /flag:\s*'wx'/);
   assert.match(runner, /DOC98_OUTSIDE_ROWS_UNCHANGED=true/);
   assert.match(runner, /DOC98_SNAPSHOT_AVAILABLE=true/);
+  assert.match(runner, /activate-one/);
+  assert.match(runner, /rollback-one/);
+  assert.match(runner, /DOC98_WAVE_ACTIVATION_COMMITTED=true/);
+  assert.match(runner, /DOC98_WAVE_ROLLBACK_COMMITTED=true/);
   assert.match(runner, /collectConfirmation/);
   assert.doesNotMatch(runner, /console\.log\([^\n]*(?:moduleName|companyId|moduleId|password|user)/i);
 
@@ -255,6 +259,9 @@ test('operador DOC-98 limita activación y rollback a snapshots exactos', () => 
   assert.equal(state.on.length, 1);
   assert.equal(state.off.length, 3);
   assert.equal(operator.fingerprint(rows), operator.fingerprint(rows));
+  const snapshot = { targetRows: state.normalized, changedModuleIds: [1, 3, 4] };
+  assert.equal(operator.snapshotModule(snapshot, 'M3').moduleId, 3);
+  assert.throws(() => operator.snapshotModule(snapshot, 'M2'), /DOC98_WAVE_MODULE_INVALID/);
 });
 
 test('E2E transversal DOC-98 reutiliza DOC-95 y no persiste credenciales', () => {
@@ -262,12 +269,14 @@ test('E2E transversal DOC-98 reutiliza DOC-95 y no persiste credenciales', () =>
   const runner = read(runnerPath);
   const packageJson = JSON.parse(read('tools/e2e/package.json'));
   assert.equal(packageJson.scripts['test:doc98:transversal-login'], 'node scripts/run-doc98-transversal-login-interactive.cjs');
+  assert.equal(packageJson.scripts['test:doc98:module-login'], 'node scripts/run-doc98-transversal-login-interactive.cjs');
   assert.match(runner, /require\('\.\/run-doc95-login-second-factor-interactive\.cjs'\)/);
   assert.match(runner, /createPendingSession/);
   assert.match(runner, /runVerifyScenario/);
   assert.match(runner, /requireInteractiveConsole\(\)/);
   assert.match(runner, /OTP nuevo por m[oó]dulo/);
   assert.match(runner, /Cuenta autorizada para m[oó]dulo/);
+  assert.match(runner, /optionalArgument\('--module'\)/);
   assert.doesNotMatch(runner, /Cuenta transversal autorizada/);
   assert.match(runner, /DOC98_TRANSVERSAL_E2E_RESULT=PASSED/);
   assert.match(runner, /Ejecute rollback con el snapshot/);

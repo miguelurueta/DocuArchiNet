@@ -22,7 +22,12 @@ function profilePath() {
   return path.resolve(process.argv[index + 1]);
 }
 
-function loadModuleNames() {
+function optionalArgument(name) {
+  const index = process.argv.indexOf(name);
+  return index < 0 || !process.argv[index + 1] ? '' : String(process.argv[index + 1]).trim();
+}
+
+function loadModuleNames(selectedModule = '') {
   const snapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf8'));
   if (snapshot.version !== 1 || !Array.isArray(snapshot.targetRows) || snapshot.targetRows.length < 1) {
     throw new Error('DOC98_SNAPSHOT_INVALID');
@@ -31,13 +36,16 @@ function loadModuleNames() {
   if (names.some(name => !name || /[\r\n=]/.test(name)) || new Set(names).size !== names.length) {
     throw new Error('DOC98_MODULE_MANIFEST_INVALID');
   }
-  return names;
+  if (!selectedModule) return names;
+  const selected = names.filter(name => name === selectedModule);
+  if (selected.length !== 1) throw new Error('DOC98_WAVE_MODULE_INVALID');
+  return selected;
 }
 
 async function main() {
   requireInteractiveConsole();
   const baseProfile = loadProfile(profilePath());
-  const moduleNames = loadModuleNames();
+  const moduleNames = loadModuleNames(optionalArgument('--module'));
   const authorization = {};
   await collectConfirmation(authorization, 'environment', '¿Autoriza el ambiente de pruebas para la verificación transversal DOC-98?');
   await collectConfirmation(authorization, 'account', '¿Autoriza esta cuenta para probar todas las filas de módulo del manifiesto?');

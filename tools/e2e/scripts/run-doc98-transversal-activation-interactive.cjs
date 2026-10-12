@@ -154,7 +154,10 @@ async function collectSecretsAndAuthorization(mode) {
   if (mode === 'activar') {
     await collectConfirmation(secrets, 'mutation', '¿Autoriza activar transversalmente las cuatro filas apagadas del manifiesto validado?');
     await collectConfirmation(secrets, 'rollback', '¿Confirma que el snapshot local se conservará para rollback hasta finalizar QA?');
-  } else if (mode === 'rollback') {
+  } else if (mode === 'activate-one') {
+    await collectConfirmation(secrets, 'mutation', '¿Autoriza activar únicamente el módulo indicado para esta oleada DOC-98?');
+    await collectConfirmation(secrets, 'rollback', '¿Confirma que se revertirá únicamente esta fila si la E2E falla?');
+  } else if (mode === 'rollback' || mode === 'rollback-one') {
     await collectConfirmation(secrets, 'mutation', '¿Autoriza restaurar exactamente las filas modificadas por DOC-98?');
   }
   return secrets;
@@ -256,11 +259,68 @@ async function rollback(connection) {
   console.log('DOC98_OUTSIDE_ROWS_UNCHANGED=true');
 }
 
+function snapshotModule(snapshot, moduleName) {
+  const normalizedName = String(moduleName || '').trim();
+  const matches = snapshot.targetRows.filter(row => row.moduleName === normalizedName);
+  if (matches.length !== 1 || !snapshot.changedModuleIds.includes(matches[0].moduleId)) {
+    throw new Error('DOC98_WAVE_MODULE_INVALID');
+  }
+  return matches[0];
+}
+
+async function activateOne(connection, moduleName) {
+  const snapshot = readSnapshot();
+  const original = snapshotModule(snapshot, moduleName);
+  await connection.beginTransaction();
+  const currentRows = (await queryRows(connection, TARGET_LOCK_SQL)).map(normalizeRow);
+  const current = currentRows.find(row => row.moduleId === original.moduleId);
+  if (!current || fingerprint([current]) !== fingerprint([original])) throw new Error('DOC98_WAVE_PRECONDITION_CHANGED');
+  const [result] = await connection.execute(ACTIVATE_SQL, [
+    original.moduleId, original.companyId, original.moduleName, original.moduleType,
+    original.requiredFlag, original.providerType, original.expiryMinutes
+  ]);
+  if (Number(result.affectedRows) !== 1) throw new Error('DOC98_WAVE_ROW_CONFLICT');
+  const afterRows = (await queryRows(connection, TARGET_SELECT_SQL)).map(normalizeRow);
+  const after = afterRows.find(row => row.moduleId === original.moduleId);
+  if (!after || after.requiredFlag !== 1 || after.providerType !== 1 || after.expiryMinutes !== original.expiryMinutes) {
+    throw new Error('DOC98_WAVE_POSTCONDITION_FAILED');
+  }
+  if (fingerprint(await queryRows(connection, OUTSIDE_SELECT_SQL)) !== snapshot.outsideFingerprint) throw new Error('DOC98_OUTSIDE_ROWS_CHANGED');
+  await connection.commit();
+  console.log('DOC98_WAVE_ACTIVATION_COMMITTED=true');
+  console.log('DOC98_WAVE_TARGET_ON=true');
+  console.log('DOC98_OUTSIDE_ROWS_UNCHANGED=true');
+}
+
+async function rollbackOne(connection, moduleName) {
+  const snapshot = readSnapshot();
+  const original = snapshotModule(snapshot, moduleName);
+  await connection.beginTransaction();
+  const currentRows = (await queryRows(connection, TARGET_LOCK_SQL)).map(normalizeRow);
+  const current = currentRows.find(row => row.moduleId === original.moduleId);
+  if (!current || current.requiredFlag !== 1 || current.providerType !== 1 || current.expiryMinutes !== original.expiryMinutes) {
+    throw new Error('DOC98_WAVE_ROLLBACK_PRECONDITION_CHANGED');
+  }
+  const [result] = await connection.execute(RESTORE_SQL, [
+    original.requiredFlag, original.providerType, original.expiryMinutes,
+    original.moduleId, original.companyId, original.moduleName, original.moduleType, original.expiryMinutes
+  ]);
+  if (Number(result.affectedRows) !== 1) throw new Error('DOC98_WAVE_ROLLBACK_ROW_CONFLICT');
+  const restoredRows = (await queryRows(connection, TARGET_SELECT_SQL)).map(normalizeRow);
+  const restored = restoredRows.find(row => row.moduleId === original.moduleId);
+  if (!restored || fingerprint([restored]) !== fingerprint([original])) throw new Error('DOC98_WAVE_ROLLBACK_POSTCONDITION_FAILED');
+  if (fingerprint(await queryRows(connection, OUTSIDE_SELECT_SQL)) !== snapshot.outsideFingerprint) throw new Error('DOC98_OUTSIDE_ROWS_CHANGED');
+  await connection.commit();
+  console.log('DOC98_WAVE_ROLLBACK_COMMITTED=true');
+  console.log('DOC98_WAVE_TARGET_RESTORED=true');
+  console.log('DOC98_OUTSIDE_ROWS_UNCHANGED=true');
+}
+
 async function main() {
   requireInteractiveConsole();
   assertSqlScope();
   const mode = String(argument('--mode')).toLowerCase();
-  if (!['activate', 'verify', 'rollback'].includes(mode)) throw new Error('DOC98_MODE_INVALID');
+  if (!['activate', 'verify', 'rollback', 'activate-one', 'rollback-one'].includes(mode)) throw new Error('DOC98_MODE_INVALID');
   const metadata = readiness.loadDatabaseMetadata(path.resolve(argument('--db-profile')));
   const expected = mode === 'activate' ? {
     total: positiveIntegerArgument('--expected-total'),
@@ -268,6 +328,7 @@ async function main() {
     off: positiveIntegerArgument('--expected-off')
   } : null;
   if (expected && (expected.total < 1 || expected.on + expected.off !== expected.total || expected.off < 1)) throw new Error('DOC98_EXPECTED_COUNTS_INVALID');
+  const moduleName = mode.endsWith('-one') ? argument('--module') : null;
   const label = mode === 'activate' ? 'activar' : mode;
   const secrets = await collectSecretsAndAuthorization(label);
   let connection;
@@ -281,7 +342,9 @@ async function main() {
       activationCommitted = true;
     }
     else if (mode === 'verify') await verify(connection);
-    else await rollback(connection);
+    else if (mode === 'rollback') await rollback(connection);
+    else if (mode === 'activate-one') await activateOne(connection, moduleName);
+    else await rollbackOne(connection, moduleName);
   } catch (error) {
     await connection?.rollback().catch(() => {});
     if (mode === 'activate' && !activationCommitted && fs.existsSync(snapshotPath)) {
@@ -302,4 +365,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { ACTIVATE_SQL, OUTSIDE_SELECT_SQL, RESTORE_SQL, TARGET_LOCK_SQL, TARGET_SELECT_SQL, assertSqlScope, classify, fingerprint, normalizeRow, safeFailureCode };
+module.exports = { ACTIVATE_SQL, OUTSIDE_SELECT_SQL, RESTORE_SQL, TARGET_LOCK_SQL, TARGET_SELECT_SQL, activateOne, assertSqlScope, classify, fingerprint, normalizeRow, rollbackOne, safeFailureCode, snapshotModule };
