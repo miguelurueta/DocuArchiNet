@@ -73,15 +73,19 @@ function positiveIntegerArgument(name) {
 }
 
 function normalizeRow(row) {
+  const field = (snakeCase, camelCase) => Object.prototype.hasOwnProperty.call(row, snakeCase) ? row[snakeCase] : row[camelCase];
+  const requiredFlag = field('required_flag', 'requiredFlag');
+  const providerType = field('provider_type', 'providerType');
+  const expiryMinutes = field('expiry_minutes', 'expiryMinutes');
   return {
-    moduleId: Number(row.module_id),
-    companyId: Number(row.company_id),
-    moduleName: String(row.module_name || '').trim(),
-    moduleType: String(row.module_type || '').trim(),
-    enabled: Number(row.enabled),
-    requiredFlag: row.required_flag === null ? null : Number(row.required_flag),
-    providerType: row.provider_type === null ? null : Number(row.provider_type),
-    expiryMinutes: row.expiry_minutes === null ? null : Number(row.expiry_minutes)
+    moduleId: Number(field('module_id', 'moduleId')),
+    companyId: Number(field('company_id', 'companyId')),
+    moduleName: String(field('module_name', 'moduleName') || '').trim(),
+    moduleType: String(field('module_type', 'moduleType') || '').trim(),
+    enabled: Number(field('enabled', 'enabled')),
+    requiredFlag: requiredFlag === null ? null : Number(requiredFlag),
+    providerType: providerType === null ? null : Number(providerType),
+    expiryMinutes: expiryMinutes === null ? null : Number(expiryMinutes)
   };
 }
 

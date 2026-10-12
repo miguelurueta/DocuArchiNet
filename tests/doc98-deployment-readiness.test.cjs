@@ -259,6 +259,8 @@ test('operador DOC-98 limita activación y rollback a snapshots exactos', () => 
   assert.equal(state.on.length, 1);
   assert.equal(state.off.length, 3);
   assert.equal(operator.fingerprint(rows), operator.fingerprint(rows));
+  assert.equal(operator.fingerprint(state.normalized), operator.fingerprint(rows));
+  assert.notEqual(operator.fingerprint([{ ...state.normalized[0], requiredFlag: 1 }]), operator.fingerprint([state.normalized[0]]));
   const snapshot = { targetRows: state.normalized, changedModuleIds: [1, 3, 4] };
   assert.equal(operator.snapshotModule(snapshot, 'M3').moduleId, 3);
   assert.throws(() => operator.snapshotModule(snapshot, 'M2'), /DOC98_WAVE_MODULE_INVALID/);
