@@ -21,6 +21,15 @@
                                                            TextBoxuser.Text,
                                                            TextBoxpasw.Text,
                                                            Hiddenempresagestion.Value)
+            If Result = "SECOND_FACTOR_REQUIRED" Then
+                TextBoxpasw.Text = String.Empty
+                ScriptManager.RegisterStartupScript(Me.UpdatePanel1,
+                                                    Me.UpdatePanel1.GetType(),
+                                                    "DocuArchiSegundoFactorIniciar",
+                                                    "if(window.DocuArchiSegundoFactor){window.DocuArchiSegundoFactor.iniciar();}",
+                                                    True)
+                Exit Sub
+            End If
             If Result <> "YES" Then
                 reclas.Showscripman(Result, Me.UpdatePanel1)
                 Exit Sub

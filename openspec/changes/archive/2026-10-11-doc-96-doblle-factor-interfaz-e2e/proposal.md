@@ -1,6 +1,13 @@
-## Context
+## Why
 
-DOC-96: DOBLLE-FACTOR-INTERFAZ-E2E
+DOBLLE-FACTOR-INTERFAZ-E2E. Ver detalle funcional completo del ticket en la seccion Jira Details.
+
+## What Changes
+
+- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-96.
+- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
+- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
+- Se deja lista una base coherente para continuar con design, specs y tasks.
 
 ## Jira Details
 
@@ -87,29 +94,25 @@ DOC-96: DOBLLE-FACTOR-INTERFAZ-E2E
 > 
 > Entrega archivos, pruebas unitarias con ruta/caso, E2E y resultados reales, build, evidencia, limitaciones y bloqueos. No declares cierre si el código incorporado carece de la validación autorizada exigida; informa el estado exacto.
 
-## Goals / Non-Goals
+## Jira Metadata
 
-**Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Tipo: Tarea
+- Prioridad: Medium
+- Labels: DOBLE, E2E, FACTOR, INTERFAZ
 
-**Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+## Decisión de refinamiento autorizada
 
-## Decisions
+El 2026-10-11, después de comprobar que las cuentas suministradas para módulos configurados OFF no completaban el login legacy, el usuario autorizó expresamente un control temporal sobre `GESTOR`. La excepción se limita a `gestor_modulos.RequiereSegundoFactor`: exige snapshot ON válido, `UPDATE` guardado, restauración en `finally` y confirmación posterior ON mediante `SELECT` independiente. No autoriza cambios persistentes, otras columnas, tablas ni configuración funcional de la entrega. Esta decisión posterior complementa —sin reescribir— la restricción original conservada en `Jira Details`.
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+## Capabilities
 
+### New Capabilities
+- `doblle-factor-interfaz-e2e`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
 
-## Risks / Trade-offs
+### Modified Capabilities
+- 
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+## Impact
 
-## Migration Plan
-
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
-
-## Open Questions
-
-- TBD
+- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
+- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.

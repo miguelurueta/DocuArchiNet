@@ -1,0 +1,8 @@
+{
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "ignoreHttpsErrors": false,
+  "moduleOff": "MODULO_2FA_APAGADO",
+  "moduleOn": "MODULO_2FA_ACTIVO",
+  "timeoutMilliseconds": 30000,
+  "maxExpiryWaitMilliseconds": 600000
+}
