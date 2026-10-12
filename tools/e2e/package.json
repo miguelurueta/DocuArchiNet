@@ -57,6 +57,8 @@
     "inspect:doc44:test-data": "node scripts/inspect-doc44-test-data-interactive.cjs",
     "inspect:notes:schema": "node scripts/inspect-notes-column-schema-interactive.cjs",
     "inspect:login:2fa-schema": "node scripts/inspect-login-second-factor-schema-interactive.cjs",
+    "inspect:doc98:readiness": "node scripts/inspect-doc98-transversal-readiness-interactive.cjs",
+    "run:doc98:activation": "node scripts/run-doc98-transversal-activation-interactive.cjs",
     "configure:doc95:hmac:local": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/configure-doc95-hmac-local.ps1",
     "test:doc92:persistence": "node --test tests/login-second-factor-persistence.integration.test.cjs",
     "test:doc95:second-factor": "node scripts/run-doc95-login-second-factor-interactive.cjs",

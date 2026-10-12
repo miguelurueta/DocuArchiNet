@@ -41,6 +41,8 @@ on:
       - "tests/login-second-factor-authentication.test.cjs"
       - "tests/login-second-factor-asmx.test.cjs"
       - "tools/e2e/scripts/run-doc95-login-second-factor-interactive.cjs"
+      - "tools/e2e/scripts/inspect-doc98-transversal-readiness-interactive.cjs"
+      - "tools/e2e/scripts/run-doc98-transversal-activation-interactive.cjs"
       - "tools/e2e/tests/doc95-login-second-factor-policy.test.cjs"
       - "tools/e2e/tests/doc96-login-second-factor-ui-policy.test.cjs"
       - "tools/e2e/tests/doc97-login-second-factor-regression-policy.test.cjs"

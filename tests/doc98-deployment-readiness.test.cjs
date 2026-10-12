@@ -192,3 +192,67 @@ test('OpenSpec mantiene trazabilidad D-10/RQ-10 y estado real bloqueado', () => 
   assert.match(read('openspec/changes/doc-98-doble-factor-despliegue/specs/doble-factor-despliegue/spec.md'), /sin habilitaci[oó]n, lista, bandera ni excepci[oó]n por usuario/i);
   assert.match(read('Doc/Actualizacion/Login/Implementacion/DOC-98/04-VALIDACION-Y-EVIDENCIA.md'), /Activaci[oó]n transversal:\s*`BLOQUEADA`/i);
 });
+
+test('preflight interactivo DOC-98 es SELECT-only, saneado y está registrado', () => {
+  const runnerPath = 'tools/e2e/scripts/inspect-doc98-transversal-readiness-interactive.cjs';
+  const runner = read(runnerPath);
+  const inspector = require(path.join(root, runnerPath));
+  const packageJson = JSON.parse(read('tools/e2e/package.json'));
+  assert.equal(packageJson.scripts['inspect:doc98:readiness'], 'node scripts/inspect-doc98-transversal-readiness-interactive.cjs');
+  assert.match(runner, /requireInteractiveConsole\(\)/);
+  assert.match(runner, /collectConfirmation/);
+  assert.match(runner, /multipleStatements:\s*false/);
+  assert.match(runner, /DOC98_PREFLIGHT_SELECT_ONLY=true/);
+  assert.match(runner, /DOC98_PREFLIGHT_READY=/);
+  assert.doesNotMatch(runner, /profile\.(?:password|passwd|secret|credential|mysqlUser|mysqlUrl|connectionString)/i);
+  for (const type of ['DOCUARCHI CONTENEDOR', 'GESTOR DOCUMENTAL', 'RADICACION DOCUMENTAL', 'WORKFLOW DOCUMENTAL']) {
+    assert.match(runner, new RegExp(type));
+  }
+  assert.doesNotThrow(() => inspector.assertReadOnly());
+  const metadata = inspector.loadDatabaseMetadata(path.join(root, 'tools/e2e/profiles/doc90-radicacion-classic-attachment.local.runtime.json'));
+  assert.deepEqual(Object.keys(metadata).sort(), ['database', 'host', 'port']);
+  const schema = { challenge_columns: 10, primary_id: 1, unique_challenge: 1, auth_user_index: 1, module_columns: 8, smtp_columns: 9 };
+  const modules = inspector.TARGET_TYPES.map(module_type => ({ module_type, total_count: 1, on_count: 0, off_count: 1, invalid_flag_count: 0, expiry_gap_count: 0 }));
+  assert.equal(inspector.evaluate(schema, modules, { ambiguous_count: 0 }, { active_count: 1 }).ready, true);
+  assert.equal(inspector.evaluate(schema, modules.slice(1), { ambiguous_count: 0 }, { active_count: 1 }).ready, false);
+});
+
+test('operador DOC-98 limita activación y rollback a snapshots exactos', () => {
+  const runnerPath = 'tools/e2e/scripts/run-doc98-transversal-activation-interactive.cjs';
+  const runner = read(runnerPath);
+  const operator = require(path.join(root, runnerPath));
+  const packageJson = JSON.parse(read('tools/e2e/package.json'));
+  assert.equal(packageJson.scripts['run:doc98:activation'], 'node scripts/run-doc98-transversal-activation-interactive.cjs');
+  assert.doesNotThrow(() => operator.assertSqlScope());
+  assert.match(operator.ACTIVATE_SQL, /UPDATE\s+gestor_modulos/i);
+  assert.match(operator.ACTIVATE_SQL, /ID_MODULO=\?/i);
+  assert.match(operator.ACTIVATE_SQL, /EMPRESA_GESTION_DOCUMENTAL_ID_EMPRESA=\?/i);
+  assert.match(operator.ACTIVATE_SQL, /RequiereSegundoFactor\s*<=>\s*\?/i);
+  assert.match(operator.RESTORE_SQL, /SegundoFactorTiempoExpira=\?/i);
+  assert.match(runner, /flag:\s*'wx'/);
+  assert.match(runner, /DOC98_OUTSIDE_ROWS_UNCHANGED=true/);
+  assert.match(runner, /DOC98_SNAPSHOT_AVAILABLE=true/);
+  assert.match(runner, /collectConfirmation/);
+  assert.doesNotMatch(runner, /console\.log\([^\n]*(?:moduleName|companyId|moduleId|password|user)/i);
+
+  const rows = [
+    ['DOCUARCHI CONTENEDOR', 0],
+    ['GESTOR DOCUMENTAL', 1],
+    ['RADICACION DOCUMENTAL', null],
+    ['WORKFLOW DOCUMENTAL', 0]
+  ].map(([module_type, required_flag], index) => ({
+    module_id: index + 1,
+    company_id: 1,
+    module_name: `M${index + 1}`,
+    module_type,
+    enabled: 1,
+    required_flag,
+    provider_type: 1,
+    expiry_minutes: 10
+  }));
+  const state = operator.classify(rows);
+  assert.equal(state.valid, true);
+  assert.equal(state.on.length, 1);
+  assert.equal(state.off.length, 3);
+  assert.equal(operator.fingerprint(rows), operator.fingerprint(rows));
+});
