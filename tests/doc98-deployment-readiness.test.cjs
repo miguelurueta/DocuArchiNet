@@ -267,6 +267,8 @@ test('E2E transversal DOC-98 reutiliza DOC-95 y no persiste credenciales', () =>
   assert.match(runner, /runVerifyScenario/);
   assert.match(runner, /requireInteractiveConsole\(\)/);
   assert.match(runner, /OTP nuevo por m[oó]dulo/);
+  assert.match(runner, /Cuenta autorizada para m[oó]dulo/);
+  assert.doesNotMatch(runner, /Cuenta transversal autorizada/);
   assert.match(runner, /DOC98_TRANSVERSAL_E2E_RESULT=PASSED/);
   assert.match(runner, /Ejecute rollback con el snapshot/);
   assert.doesNotMatch(runner, /writeFile|appendFile|console\.log\([^\n]*(?:secrets\.(?:account|password)|environment\.DOC95_E2E_(?:ACCOUNT|PASSWORD)|moduleNames\[(?:index|\d+)\])/i);

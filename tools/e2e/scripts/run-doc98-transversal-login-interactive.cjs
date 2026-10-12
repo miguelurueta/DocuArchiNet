@@ -46,9 +46,6 @@ async function main() {
   await collectConfirmation(authorization, 'discardable', '¿Confirma que cuenta, buzón y challenges son datos de prueba descartables?');
   if (baseProfile.ignoreHttpsErrors) await collectConfirmation(authorization, 'tls', '¿Autoriza el certificado autofirmado del ambiente?');
 
-  const secrets = {};
-  await collectValue(secrets, 'account', 'Cuenta transversal autorizada');
-  await collectValue(secrets, 'password', 'Contraseña', { secret: true });
   const { chromium } = require('playwright');
   const browser = await chromium.launch({ headless: true });
   let context;
@@ -56,26 +53,32 @@ async function main() {
   try {
     for (let index = 0; index < moduleNames.length; index += 1) {
       const profile = { ...baseProfile, module: moduleNames[index] };
+      const secrets = {};
+      await collectValue(secrets, 'account', `Cuenta autorizada para módulo ${index + 1} (${profile.module})`);
+      await collectValue(secrets, 'password', 'Contraseña', { secret: true });
       const environment = {
         DOC95_E2E_MODULE: profile.module,
         DOC95_E2E_ACCOUNT: secrets.account,
         DOC95_E2E_PASSWORD: secrets.password
       };
-      const pending = await createPendingSession(browser, profile, environment);
-      context = pending.context;
-      console.log(`DOC98_MODULE_${index + 1}_PENDING_OK=true`);
-      await runVerifyScenario(context, profile);
-      passed += 1;
-      console.log(`DOC98_MODULE_${index + 1}_VERIFY_OK=true`);
-      environment.DOC95_E2E_PASSWORD = '';
-      await context.close();
-      context = null;
+      try {
+        const pending = await createPendingSession(browser, profile, environment);
+        context = pending.context;
+        console.log(`DOC98_MODULE_${index + 1}_PENDING_OK=true`);
+        await runVerifyScenario(context, profile);
+        passed += 1;
+        console.log(`DOC98_MODULE_${index + 1}_VERIFY_OK=true`);
+      } finally {
+        environment.DOC95_E2E_PASSWORD = '';
+        secrets.password = '';
+        await context?.close().catch(() => {});
+        context = null;
+      }
     }
     console.log(`DOC98_TRANSVERSAL_MODULES=${moduleNames.length}`);
     console.log(`DOC98_TRANSVERSAL_PASSED=${passed}`);
     console.log('DOC98_TRANSVERSAL_E2E_RESULT=PASSED');
   } finally {
-    secrets.password = '';
     await context?.close().catch(() => {});
     await browser.close().catch(() => {});
   }

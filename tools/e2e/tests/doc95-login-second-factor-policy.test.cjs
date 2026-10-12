@@ -26,6 +26,7 @@ test('DOC-95 registra un único runner común y un perfil sin secretos', () => {
 test('DOC-95 clasifica solo códigos públicos permitidos sin imprimir el postback', () => {
   const { publicLoginCode, requestedScenario } = require('../scripts/run-doc95-login-second-factor-interactive.cjs');
   assert.equal(publicLoginCode('<script>SECOND_FACTOR_START_FAILED</script>'), 'SECOND_FACTOR_START_FAILED');
+  assert.equal(publicLoginCode('<script>SECOND_FACTOR_PRINCIPAL_NOT_FOUND</script>'), 'SECOND_FACTOR_PRINCIPAL_NOT_FOUND');
   assert.equal(publicLoginCode('<script>detalle SQL contraseña=secreto</script>'), '');
   assert.equal(requestedScenario(['node', 'runner', '--scenario', 'expiry']), 'expiry');
   assert.equal(requestedScenario(['node', 'runner', '--scenario', 'verify']), 'verify');
