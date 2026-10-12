@@ -320,11 +320,32 @@ async function rollbackOne(connection, moduleName) {
   console.log('DOC98_OUTSIDE_ROWS_UNCHANGED=true');
 }
 
+async function diagnoseOne(connection, moduleName) {
+  const snapshot = readSnapshot();
+  const original = normalizeRow(snapshotModule(snapshot, moduleName));
+  const currentRows = (await queryRows(connection, TARGET_SELECT_SQL)).map(normalizeRow);
+  const current = currentRows.find(row => row.moduleId === original.moduleId);
+  const exists = Boolean(current);
+  const identityMatches = exists && current.moduleId === original.moduleId && current.companyId === original.companyId &&
+    current.moduleName === original.moduleName && current.moduleType === original.moduleType && current.enabled === original.enabled;
+  const requiredMatches = exists && current.requiredFlag === original.requiredFlag;
+  const providerMatches = exists && current.providerType === original.providerType;
+  const expiryMatches = exists && current.expiryMinutes === original.expiryMinutes;
+  console.log('DOC98_WAVE_DIAGNOSTIC_SELECT_ONLY=true');
+  console.log(`DOC98_WAVE_TARGET_EXISTS=${exists}`);
+  console.log(`DOC98_WAVE_IDENTITY_MATCHES=${identityMatches}`);
+  console.log(`DOC98_WAVE_REQUIRED_FLAG_MATCHES=${requiredMatches}`);
+  console.log(`DOC98_WAVE_PROVIDER_MATCHES=${providerMatches}`);
+  console.log(`DOC98_WAVE_EXPIRY_MATCHES=${expiryMatches}`);
+  console.log(`DOC98_WAVE_TARGET_IS_ON=${exists && current.requiredFlag === 1 && current.providerType === 1}`);
+  console.log(`DOC98_WAVE_SNAPSHOT_MATCHES=${exists && fingerprint([current]) === fingerprint([original])}`);
+}
+
 async function main() {
   requireInteractiveConsole();
   assertSqlScope();
   const mode = String(argument('--mode')).toLowerCase();
-  if (!['activate', 'verify', 'rollback', 'activate-one', 'rollback-one'].includes(mode)) throw new Error('DOC98_MODE_INVALID');
+  if (!['activate', 'verify', 'rollback', 'activate-one', 'rollback-one', 'diagnose-one'].includes(mode)) throw new Error('DOC98_MODE_INVALID');
   const metadata = readiness.loadDatabaseMetadata(path.resolve(argument('--db-profile')));
   const expected = mode === 'activate' ? {
     total: positiveIntegerArgument('--expected-total'),
@@ -348,7 +369,8 @@ async function main() {
     else if (mode === 'verify') await verify(connection);
     else if (mode === 'rollback') await rollback(connection);
     else if (mode === 'activate-one') await activateOne(connection, moduleName);
-    else await rollbackOne(connection, moduleName);
+    else if (mode === 'rollback-one') await rollbackOne(connection, moduleName);
+    else await diagnoseOne(connection, moduleName);
   } catch (error) {
     await connection?.rollback().catch(() => {});
     if (mode === 'activate' && !activationCommitted && fs.existsSync(snapshotPath)) {
@@ -369,4 +391,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { ACTIVATE_SQL, OUTSIDE_SELECT_SQL, RESTORE_SQL, TARGET_LOCK_SQL, TARGET_SELECT_SQL, activateOne, assertSqlScope, classify, fingerprint, normalizeRow, rollbackOne, safeFailureCode, snapshotModule };
+module.exports = { ACTIVATE_SQL, OUTSIDE_SELECT_SQL, RESTORE_SQL, TARGET_LOCK_SQL, TARGET_SELECT_SQL, activateOne, assertSqlScope, classify, diagnoseOne, fingerprint, normalizeRow, rollbackOne, safeFailureCode, snapshotModule };

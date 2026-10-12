@@ -234,6 +234,8 @@ test('operador DOC-98 limita activación y rollback a snapshots exactos', () => 
   assert.match(runner, /DOC98_SNAPSHOT_AVAILABLE=true/);
   assert.match(runner, /activate-one/);
   assert.match(runner, /rollback-one/);
+  assert.match(runner, /diagnose-one/);
+  assert.match(runner, /DOC98_WAVE_DIAGNOSTIC_SELECT_ONLY=true/);
   assert.match(runner, /DOC98_WAVE_ACTIVATION_COMMITTED=true/);
   assert.match(runner, /DOC98_WAVE_ROLLBACK_COMMITTED=true/);
   assert.match(runner, /collectConfirmation/);
