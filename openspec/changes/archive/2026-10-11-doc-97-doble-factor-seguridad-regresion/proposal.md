@@ -4,10 +4,11 @@ DOBLE-FACTOR-SEGURIDAD-REGRESION. Ver detalle funcional completo del ticket en l
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-97.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Inventariar y auditar el flujo Login 2FA implementado por DOC-91 a DOC-96.
+- Crear una matriz determinista para los cuatro módulos, con seguridad, errores, concurrencia y aislamiento.
+- Corregir exclusivamente defectos funcionales demostrados por pruebas reproducibles.
+- Integrar al workflow existente las verificaciones estables DOC-96 y DOC-97.
+- Ejecutar E2E solo con autorización DOC-97, configuración inmutable y evidencia saneada.
 
 ## Jira Details
 
@@ -94,13 +95,12 @@ DOBLE-FACTOR-SEGURIDAD-REGRESION. Ver detalle funcional completo del ticket en l
 ## Capabilities
 
 ### New Capabilities
-- `doble-factor-seguridad-regresion`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `doble-factor-seguridad-regresion`: auditoría transversal, matriz verificable y no regresión del Login 2FA.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
+- Pruebas locales/E2E en infraestructura existente, documentación DOC-97 y ampliación de `.github/workflows/opsxj-validation.yml`.
+- Las rutas productivas solo cambian si se reproduce un defecto; no se prevén DDL, contratos públicos ni endpoints nuevos.

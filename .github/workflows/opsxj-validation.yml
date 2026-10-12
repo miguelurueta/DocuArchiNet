@@ -12,6 +12,8 @@ on:
       - "Doc/Actualizacion/Login/Implementacion/DOC-93/**"
       - "Doc/Actualizacion/Login/Implementacion/DOC-94/**"
       - "Doc/Actualizacion/Login/Implementacion/DOC-95/**"
+      - "Doc/Actualizacion/Login/Implementacion/DOC-96/**"
+      - "Doc/Actualizacion/Login/Implementacion/DOC-97/**"
       - "Modelo/Login/SegundoFactor/**"
       - "DTOs/Login/SegundoFactor/**"
       - "Infrastructure/Login/SegundoFactor/**"
@@ -31,10 +33,15 @@ on:
       - "tests/doc93-technical-documentation.test.cjs"
       - "tests/doc94-technical-documentation.test.cjs"
       - "tests/doc95-technical-documentation.test.cjs"
+      - "tests/doc96-login-second-factor-ui-policy.test.cjs"
+      - "tests/login-second-factor-regression.test.cjs"
+      - "tests/Fixtures/Login/SegundoFactor/doc97-regression-manifest.json"
       - "tests/login-second-factor-authentication.test.cjs"
       - "tests/login-second-factor-asmx.test.cjs"
       - "tools/e2e/scripts/run-doc95-login-second-factor-interactive.cjs"
       - "tools/e2e/tests/doc95-login-second-factor-policy.test.cjs"
+      - "tools/e2e/tests/doc96-login-second-factor-ui-policy.test.cjs"
+      - "tools/e2e/tests/doc97-login-second-factor-regression-policy.test.cjs"
       - "tools/e2e/profiles/doc95-login-second-factor.profile.example.json"
       - "tools/e2e/package.json"
       - "tools/e2e/AGENT-RUNBOOK.md"
@@ -146,6 +153,15 @@ jobs:
 
       - name: Validate DOC-95 E2E registration without real execution
         run: npm.cmd --prefix tools/e2e run test:doc95:policy
+
+      - name: Validate DOC-96 UI and E2E registration without real execution
+        run: npm.cmd --prefix tools/e2e run test:doc96:policy
+
+      - name: Validate DOC-97 transversal second-factor regression
+        run: node --test tests/login-second-factor-regression.test.cjs tests/login-second-factor-preauthentication.test.cjs tests/login-second-factor-authentication.test.cjs
+
+      - name: Validate DOC-97 E2E governance without real execution
+        run: npm.cmd --prefix tools/e2e run test:doc97:policy
 
       - name: Validate OpenSpec changes
         run: npx --yes @fission-ai/openspec@1.7.0 validate --all --strict
