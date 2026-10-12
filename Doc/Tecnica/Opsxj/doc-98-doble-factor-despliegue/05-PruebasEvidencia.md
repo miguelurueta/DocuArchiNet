@@ -5,15 +5,26 @@
 - Clasificacion: cross_cutting (Transversal)
 ## Evidencia requerida
 
-- unit: `node --test tests/doc98-deployment-readiness.test.cjs`; 7/7 PASS el 2026-10-12.
+- unit: `node --test tests/doc98-deployment-readiness.test.cjs`; 10/10 PASS el 2026-10-12.
 - suite 2FA estable: 42/42 PASS.
 - politicas E2E sin infraestructura: DOC-95 7/7, DOC-96 21/21 y DOC-97 3/3 PASS.
-- build: PASS con cero errores y dos advertencias preexistentes de cache/binding.
+- build: PASS con cero errores y una advertencia preexistente de binding.
 - OpenSpec estricto y `opsxj:refine -- DOC-98 --sync`: PASS.
-- manual_qa/operacion real: `BLOQUEADA`; falta autorizacion especifica de ambiente, manifiesto, ventana y cuentas descartables.
+- manual_qa/operacion real: activacion global y rollback controlado ejecutados con autorizacion; verificacion final `SELECT` confirma cinco filas objetivo ON y filas externas sin cambios.
 
 ## QA/E2E WebForms
 
-Se reutilizan las politicas y E2E DOC-95/DOC-96/DOC-97. No se ejecuta E2E real ni SQL mutable sin autorizacion expresa. Una futura evidencia debe ser saneada y no incluir OTP, correo, login, cookie, llave, `AuthUserId`, `CodeHash`, credenciales o conexiones.
+Se reutilizaron las politicas y E2E DOC-95/DOC-96/DOC-97. La operacion real exigio autorizacion interactiva y mantuvo OTP, correo, login, cookie, llave, `AuthUserId`, `CodeHash`, credenciales y conexiones fuera de la evidencia.
 
-La prueba local DOC-98 valida inventario, trazabilidad y guardas estaticas; no demuestra por si sola una activacion correcta en un ambiente real.
+Resultados saneados de esta ronda:
+
+- preflight: PASS;
+- activacion: manifiesto de cinco filas, una previamente ON y cuatro afectadas; PASS;
+- rollback ensayado tras una puerta E2E fallida: cuatro filas restauradas; PASS;
+- RADICACION: OTP y autenticacion completa; PASS;
+- WORKFLOW REGISTRO: OTP y autenticacion completa; PASS;
+- verificacion final: todas las filas objetivo ON y filas externas intactas; PASS;
+- Docuarchi.net: prueba descartada por el operador, sin resultado declarado;
+- Workflow Contabilidad: sin una nueva salida E2E adjunta a DOC-98.
+
+La prueba local DOC-98 valida inventario, trazabilidad y guardas estaticas; la verificacion SQL confirma configuracion final, pero ninguna de ellas demuestra por si sola la validez de identidad/correo de todos los usuarios ni cobertura E2E completa por modulo.

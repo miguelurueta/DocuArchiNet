@@ -185,12 +185,15 @@ test('observabilidad y documentación no exponen secretos ni datos personales', 
   assert.doesNotMatch(allText, /(?:Server|Data Source)\s*=.+;(?:Database|Initial Catalog)\s*=/i);
 });
 
-test('OpenSpec mantiene trazabilidad D-10/RQ-10 y estado real bloqueado', () => {
+test('OpenSpec mantiene trazabilidad D-10/RQ-10 y estado operativo real', () => {
   assert.match(read('openspec/changes/doc-98-doble-factor-despliegue/design.md'), /D-10/);
   assert.match(read('openspec/changes/doc-98-doble-factor-despliegue/specs/doble-factor-despliegue/spec.md'), /RQ-10/);
   assert.match(read('openspec/changes/doc-98-doble-factor-despliegue/tasks.md'), /D-10[\s\S]*RQ-10|RQ-10[\s\S]*D-10/);
   assert.match(read('openspec/changes/doc-98-doble-factor-despliegue/specs/doble-factor-despliegue/spec.md'), /sin habilitaci[oó]n, lista, bandera ni excepci[oó]n por usuario/i);
-  assert.match(read('Doc/Actualizacion/Login/Implementacion/DOC-98/04-VALIDACION-Y-EVIDENCIA.md'), /Activaci[oó]n transversal:\s*`BLOQUEADA`/i);
+  const evidence = read('Doc/Actualizacion/Login/Implementacion/DOC-98/04-VALIDACION-Y-EVIDENCIA.md');
+  assert.match(evidence, /Activaci[oó]n transversal del ambiente autorizado:\s*`ACTIVADO`/i);
+  assert.match(evidence, /Docuarchi\.net:\s*descartada/i);
+  assert.match(evidence, /Workflow Contabilidad.*pendiente|pendiente.*Workflow Contabilidad/i);
 });
 
 test('preflight interactivo DOC-98 es SELECT-only, saneado y está registrado', () => {

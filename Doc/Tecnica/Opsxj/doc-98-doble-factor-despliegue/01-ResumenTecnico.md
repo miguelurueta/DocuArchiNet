@@ -15,4 +15,5 @@ Preparar el despliegue reversible y la activacion transversal de la implementaci
 - Compatibilidad: con el flag `0`/`NULL` se conserva el login legacy.
 - Reversa: restauracion exacta de los tres valores del snapshot; challenges pendientes expiran naturalmente.
 - Documentacion operativa: `Doc/Actualizacion/Login/Implementacion/DOC-98/`.
-- Estado de ambiente: `BLOQUEADO`; no se ejecuto mutacion ni activacion real durante la preparacion local.
+- Estado del ambiente autorizado: `ACTIVADO`; una verificacion final `SELECT` confirmo las cinco filas objetivo ON y cero cambios fuera del manifiesto.
+- Cobertura funcional registrada en DOC-98: RADICACION y WORKFLOW REGISTRO PASS. Docuarchi.net fue descartado por decision del operador y no se declara probado en esta ronda.
