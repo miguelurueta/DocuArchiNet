@@ -1,0 +1,26 @@
+{
+  "flow": [
+    { "path": "gestor.aspx.vb", "symbol": "Button1_Click" },
+    { "path": "Services/Login/SegundoFactor/SecondFactorPreAuthenticationService.vb", "symbol": "Execute" },
+    { "path": "Services/Login/SegundoFactor/SecondFactorAuthenticationService.vb", "symbol": "Start" },
+    { "path": "Infrastructure/Repositories/Login/SegundoFactor/MySqlSecondFactorChallengeRepository.vb", "symbol": "TryBeginFinalization" },
+    { "path": "Infrastructure/Login/SegundoFactor/Smtp/SecondFactorSmtpEmailSender.vb", "symbol": "Send" },
+    { "path": "webservice/WebServiceLoginSegundoFactor.asmx.vb", "symbol": "Verificar" },
+    { "path": "webservice/Login/SegundoFactor/FormsAuthenticationTicketIssuer.vb", "symbol": "Issue" },
+    { "path": "js/login/segundo-factor.js", "symbol": "SECOND_FACTOR_COMPLETED" }
+  ],
+  "modules": [
+    "DOCUARCHI CONTENEDOR",
+    "GESTOR DOCUMENTAL",
+    "RADICACION DOCUMENTAL",
+    "WORKFLOW DOCUMENTAL"
+  ],
+  "behaviorEvidence": [
+    "DisabledConfigurationFinalizesOnce",
+    "ActiveConfigurationHasZeroAuthenticatedEffects",
+    "InvalidAndMissingDataFailClosed",
+    "FifthAttemptBlocksAndConcurrentVerifyHasOneWinner",
+    "SessionAndIdentityIsolationRejectCrossContext",
+    "ResendAndCancelReplaceAndRevoke"
+  ]
+}

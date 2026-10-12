@@ -17,6 +17,7 @@ internal static class LoginSecondFactorAuthenticationBehaviorTests
             ProtectionFailureDoesNotConsumeAnOtpAttempt();
             InvalidFormatDoesNotReadRepository();
             FifthAttemptBlocksAndConcurrentVerifyHasOneWinner();
+            SessionAndIdentityIsolationRejectCrossContext();
             ResendAndCancelReplaceAndRevoke();
             Console.WriteLine("login-second-factor authentication behavior tests: passed");
             return 0;
@@ -124,6 +125,50 @@ internal static class LoginSecondFactorAuthenticationBehaviorTests
         var ticket = new Harness(); ticket.Service.Start(ticket.Request()); ticket.Tickets.ThrowOnIssue = true;
         Equal("SECOND_FACTOR_VERIFICATION_FAILED", ticket.Service.Verify("123456").PublicCode, "fallo ticket");
         Equal(null, ticket.Store.Value, "fallo ticket limpia Session");
+    }
+
+    private static void SessionAndIdentityIsolationRejectCrossContext()
+    {
+        var h = new Harness();
+        h.Service.Start(h.Request());
+        var original = h.Store.Value;
+
+        h.Store.Value = new Login2Fa.PendingSecondFactorContext(
+            original.EmpresaId + 1, original.ModuloId, original.ModuleType,
+            original.InternalUserId, original.NormalizedLogin, original.MaskedDestination,
+            original.ChallengeId, "different-session-binding", original.ResendCount,
+            original.CreatedAtUtc, original.ExpiresAtUtc);
+        Equal("SECOND_FACTOR_SESSION_INVALID", h.Service.Verify("123456").PublicCode, "binding de otra sesión");
+        Equal(0, h.Finalizer.Calls, "otra sesión no finaliza");
+        Equal(0, h.Tickets.Calls, "otra sesión no obtiene cookie");
+
+        foreach (var altered in new[] {
+            AlterContext(original, original.EmpresaId + 1, original.ModuloId, original.ModuleType, original.InternalUserId, original.NormalizedLogin),
+            AlterContext(original, original.EmpresaId, original.ModuloId + 1, original.ModuleType, original.InternalUserId, original.NormalizedLogin),
+            AlterContext(original, original.EmpresaId, original.ModuloId, "GESTOR DOCUMENTAL", original.InternalUserId, original.NormalizedLogin),
+            AlterContext(original, original.EmpresaId, original.ModuloId, original.ModuleType, original.InternalUserId + 1, original.NormalizedLogin)
+        })
+        {
+            var isolatedStore = new Store { Value = altered };
+            Equal("SECOND_FACTOR_SESSION_INVALID", h.CreateService(isolatedStore).Verify("123456").PublicCode, "identidad cruzada");
+        }
+        Equal(0, h.Finalizer.Calls, "identidades cruzadas no finalizan");
+        Equal(0, h.Tickets.Calls, "identidades cruzadas no obtienen cookie");
+
+        var replayStore = new Store { Value = original };
+        var replayService = h.CreateService(replayStore);
+        Equal("SECOND_FACTOR_COMPLETED", replayService.Verify("123456").PublicCode, "sesión autoritativa completa");
+        replayStore.Value = original;
+        Equal("SECOND_FACTOR_SESSION_INVALID", replayService.Verify("123456").PublicCode, "challenge consumido no admite replay");
+        Equal(1, h.Finalizer.Calls, "replay no repite finalizador");
+        Equal(1, h.Tickets.Calls, "replay no repite cookie");
+    }
+
+    private static Login2Fa.PendingSecondFactorContext AlterContext(Login2Fa.PendingSecondFactorContext source, int empresaId, int moduloId, string moduleType, long userId, string login)
+    {
+        return new Login2Fa.PendingSecondFactorContext(empresaId, moduloId, moduleType, userId, login,
+            source.MaskedDestination, source.ChallengeId, source.SessionNonce, source.ResendCount,
+            source.CreatedAtUtc, source.ExpiresAtUtc);
     }
 
     private static void ResendAndCancelReplaceAndRevoke()
@@ -282,12 +327,12 @@ internal static class LoginSecondFactorAuthenticationBehaviorTests
 
     private sealed class Repository : Login2Fa.ISecondFactorChallengeRepository
     {
-        public Login2Fa.SegundoFactorChallenge Challenge; public string ProtectedCode; public bool Consumed; public bool CreateSuccess = true, MarkSentSuccess = true, CompleteSuccess = true;
+        public Login2Fa.SegundoFactorChallenge Challenge; public string ProtectedCode; public string SessionBinding; public bool Consumed; public bool CreateSuccess = true, MarkSentSuccess = true, CompleteSuccess = true;
         public int CreateCalls, MarkSentCalls, GetCalls, BeginCalls, CompleteCalls, ReplaceCalls, RevokeCalls;
         public System.Collections.Generic.List<string> Order;
-        public bool Create(Login2Fa.SegundoFactorChallenge challenge, string protectedCode, string sessionBindingHash) { CreateCalls++; Challenge = challenge; ProtectedCode = protectedCode; Consumed = false; return CreateSuccess; }
+        public bool Create(Login2Fa.SegundoFactorChallenge challenge, string protectedCode, string sessionBindingHash) { CreateCalls++; Challenge = challenge; ProtectedCode = protectedCode; SessionBinding = sessionBindingHash; Consumed = false; return CreateSuccess; }
         public Login2Fa.SegundoFactorChallenge GetForVerification(Guid id, string binding) { return Challenge; }
-        public Login2Fa.SecondFactorChallengeVerificationData GetVerificationData(Guid id, string binding) { GetCalls++; if (Challenge == null || Consumed || Challenge.ChallengeId != id) return null; return Data(); }
+        public Login2Fa.SecondFactorChallengeVerificationData GetVerificationData(Guid id, string binding) { GetCalls++; if (Challenge == null || Consumed || Challenge.ChallengeId != id || !String.Equals(SessionBinding, binding, StringComparison.Ordinal)) return null; return Data(); }
         public bool MarkSent(Guid id, DateTime at) { MarkSentCalls++; return MarkSentSuccess && !Consumed && Challenge != null && Challenge.ChallengeId == id; }
         public bool MarkDeliveryFailed(Guid id, DateTime at) { Consumed = true; return true; }
         public Login2Fa.SegundoFactorChallenge RegisterFailedAttempt(Guid id, int expected) { return null; }
@@ -296,7 +341,7 @@ internal static class LoginSecondFactorAuthenticationBehaviorTests
         public bool Complete(Guid id) { CompleteCalls++; lock (Order) Order.Add("complete"); return CompleteSuccess && Consumed; }
         public bool FailFinalization(Guid id) { return Consumed; }
         public bool Revoke(Guid id) { RevokeCalls++; Consumed = true; return true; }
-        public bool ReplaceForResend(Guid previous, Login2Fa.SegundoFactorChallenge replacement, string protectedCode, string binding, DateTime requested) { ReplaceCalls++; if (Consumed) return false; Challenge = replacement; ProtectedCode = protectedCode; Consumed = false; return true; }
+        public bool ReplaceForResend(Guid previous, Login2Fa.SegundoFactorChallenge replacement, string protectedCode, string binding, DateTime requested) { ReplaceCalls++; if (Consumed) return false; Challenge = replacement; ProtectedCode = protectedCode; SessionBinding = binding; Consumed = false; return true; }
         public bool Expire(Guid id, DateTime at) { Consumed = true; return true; }
         private Login2Fa.SecondFactorChallengeVerificationData Data()
         {
