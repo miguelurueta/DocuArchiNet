@@ -14,6 +14,7 @@ on:
       - "Doc/Actualizacion/Login/Implementacion/DOC-95/**"
       - "Doc/Actualizacion/Login/Implementacion/DOC-96/**"
       - "Doc/Actualizacion/Login/Implementacion/DOC-97/**"
+      - "Doc/Actualizacion/Login/Implementacion/DOC-98/**"
       - "Modelo/Login/SegundoFactor/**"
       - "DTOs/Login/SegundoFactor/**"
       - "Infrastructure/Login/SegundoFactor/**"
@@ -35,6 +36,7 @@ on:
       - "tests/doc95-technical-documentation.test.cjs"
       - "tests/doc96-login-second-factor-ui-policy.test.cjs"
       - "tests/login-second-factor-regression.test.cjs"
+      - "tests/doc98-deployment-readiness.test.cjs"
       - "tests/Fixtures/Login/SegundoFactor/doc97-regression-manifest.json"
       - "tests/login-second-factor-authentication.test.cjs"
       - "tests/login-second-factor-asmx.test.cjs"
@@ -167,6 +169,9 @@ jobs:
 
       - name: Validate DOC-97 E2E governance without real execution
         run: npm.cmd --prefix tools/e2e run test:doc97:policy
+
+      - name: Validate DOC-98 deployment readiness without infrastructure
+        run: node --test tests/doc98-deployment-readiness.test.cjs
 
       - name: Validate OpenSpec changes
         run: npx --yes @fission-ai/openspec@1.7.0 validate --all --strict

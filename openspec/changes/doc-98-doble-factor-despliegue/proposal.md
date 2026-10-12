@@ -1,107 +1,32 @@
 ## Why
 
-DOBLE-FACTOR-DESPLIEGUE. Ver detalle funcional completo del ticket en la seccion Jira Details.
+El Login 2FA ya está implementado y verificado, pero su operación depende de conocimiento disperso entre DOC-91..97. Se requiere una entrega reproducible que permita instalar la infraestructura con 2FA apagado, habilitar un piloto acotado, observarlo y revertirlo sin exponer secretos ni afectar otros módulos.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-98.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
-
-## Jira Details
-
-> # 08 — Despliegue, activación gradual y rollback
-> 
-> ## ROL ESPERADO
-> 
-> Actúa como arquitecto de solución y responsable de release.
-> 
-> ## OBJETIVO
-> 
-> Preparar, en el OpenSpec independiente de esta Jira, una entrega operable y reversible del Login 2FA ya verificado. Esta tarea no autoriza desplegar ni activar producción.
-> 
-> ## CONTEXTO
-> 
-> Lee la exploración, migraciones, configuración, CI, evidencia transversal y convenciones de despliegue existentes antes de redactar o modificar scripts.
-> 
-> ## PRECONDICIONES DE RUTAS
-> 
-> Esta Jira no crea modelos, DTOs, servicios, repositorios ni ASMX. El `design.md` debe confirmar que los binarios ya entregados están registrados en `GestionDocumental-Docuarchi.net.vbproj`. Sus cambios se limitan a:
-> 
-> - `Doc/Actualizacion/Login/Implementacion/<JIRA>/` para runbook, matriz go/no-go y evidencia;
-> - `Doc/Actualizacion/Login/Implementacion/<JIRA>/Sql/` para preflight/apply/rollback operativos que pertenezcan a esta Jira;
-> - transformaciones/configuración ya usadas por el proyecto, solo si el ambiente las versiona y sin valores secretos;
-> - `.github/workflows/opsxj-validation.yml` únicamente si falta una puerta automatizable demostrada.
-> 
-> No duplicar SQL de la tarea 02, no crear scripts sueltos en la raíz y no modificar rutas de código para acomodar el despliegue.
-> 
-> ## REQUISITOS POSITIVOS
-> 
-> 1. Consolidar orden exacto: respaldo/verificación, migración aditiva, despliegue binario/config, inyección de llaves, smoke técnico con 2FA apagado, activación controlada y observación.
-> 2. Crear runbook parametrizado por ambiente sin valores secretos ni credenciales de ejemplo reales.
-> 3. Definir prechecks solo lectura para esquema, índices, una sola fila SMTP `ESTADO_ENVIO = 1`, llave activa/disponibilidad de llaves anteriores, valores 2FA y timeout Session.
-> 4. Definir activación por fila central de `gestor_modulos`, primero una empresa/módulo/cuenta autorizada; `0`/`NULL` es el estado compatible inicial. No modificar copias homónimas de otros esquemas.
-> 5. Definir observabilidad sanitizada: challenges por estado, entregas fallidas, bloqueos, expiraciones y finalizaciones fallidas; nunca OTP, hash, llave, correo, login completo o conexión.
-> 6. Definir rotación de llave con convivencia durante máximo 10 minutos más margen operativo y retiro posterior comprobado.
-> 7. Definir limpieza autorizada de estados terminales mayores de 30 días; no instalar un scheduler inexistente.
-> 8. Definir rollback por capa: desactivar 2FA, rollback binario compatible, tratamiento de challenges pendientes y reversión DDL solo si es segura. No borrar columnas/datos en un rollback de emergencia.
-> 
-> ## RESTRICCIONES CRITICAS
-> 
-> - No desplegar, migrar, activar, rotar llaves, limpiar datos ni enviar correo sin autorización explícita de ambiente y operación.
-> - No versionar secretos, incluir comandos destructivos automáticos, borrar columnas en rollback ni habilitar bypass.
-> - No modificar comportamiento de Login, recuperación o correo en esta tarea salvo un defecto documental/script comprobado.
-> 
-> ## PUERTAS GO/NO-GO
-> 
-> - Build/CI y matriz transversal en verde o bloqueos aceptados explícitamente.
-> - Migración verificada en ambiente no productivo y reaplicación idempotente.
-> - Login de los cuatro módulos comprobado con 2FA apagado.
-> - SMTP, llave y correo de cuentas piloto validados sin exposición.
-> - E2E autorizado del piloto exitoso antes de ampliar.
-> - Métricas, responsable de decisión y ventana de reversión definidos.
-> 
-> Ante error de configuración, aumento de `DELIVERY_FAILED`/`FINALIZATION_FAILED`, pérdida de login legacy o imposibilidad de verificar OTP, el runbook debe indicar desactivar la fila 2FA afectada y preservar evidencia; nunca habilitar un bypass.
-> 
-> ## PRUEBAS OBLIGATORIAS
-> 
-> Valida sintaxis/completitud de scripts y runbooks, ensaya en infraestructura descartable autorizada y ejecuta smoke sin mutación no autorizada. Registra comandos y salidas saneadas. Si no hay ambiente o autorización, entrega el runbook como no ejecutado y enumera exactamente la puerta pendiente.
-> 
-> Incluye evidencia unitaria/focal reproducible para validadores y scripts; un ensayo operativo/E2E real requiere el runbook, autorización vigente, infraestructura existente, secretos efímeros, controles `SELECT` y evidencia sanitizada. Sin ambiente autorizado, registra bloqueo y no afirma ejecución.
-> 
-> ## CRITERIOS DE ACEPTACION
-> 
-> - El despliegue es secuencial, verificable y reversible sin depender de conocimiento tácito.
-> - La activación no cambia módulos distintos al piloto.
-> - Desactivar 2FA restaura el recorrido legacy sin quitar la infraestructura instalada.
-> - Ningún secreto está versionado y ninguna activación real ocurrió por efecto de esta tarea.
-> - El OpenSpec traza requisitos/decisiones a scripts, gates y evidencias.
-> 
-> ## DOCUMENTACION TECNICA
-> 
-> Actualiza documentación operativa existente y guarda runbook, matriz go/no-go y evidencia bajo `Doc/Actualizacion/Login/Implementacion/<JIRA>/`.
-> 
-> ## ENTREGABLE FINAL
-> 
-> Entrega runbook, scripts no destructivos, pruebas con rutas/casos, comandos, códigos de salida, responsables/gates, riesgos y bloqueos; declara expresamente que no se activó producción.
-
-## Jira Metadata
-
-- Tipo: Tarea
-- Prioridad: Medium
-- Labels: DESPLIEGUE, DOBLE, FACTOR
+- Consolidar un runbook parametrizado con responsables, orden de despliegue, puertas go/no-go y evidencia saneada.
+- Incorporar prechecks de solo lectura para esquema existente, índices, SMTP activo, configuración central, llaves externas y timeout de Session.
+- Definir scripts operativos guardados para activar o desactivar exclusivamente una fila piloto de `gestor_modulos`, sin tocar esquemas homónimos.
+- Completar, después del piloto aprobado, la activación controlada de todas las filas centrales de los cuatro módulos para que 2FA aplique transversalmente a cualquier usuario que ingrese por el módulo.
+- Mantener la activación exclusivamente en la configuración central del módulo: no crear banderas, listas, excepciones ni dependencias de activación por usuario. La resolución de identidad y correo se evalúa en tiempo de autenticación y falla cerrada cuando los datos del principal son inválidos.
+- Definir observabilidad compatible con las señales físicas de challenges y los diagnósticos sanitizados existentes.
+- Documentar rotación de llaves, limpieza manual autorizada de terminales mayores de 30 días y rollback por capas.
+- Añadir pruebas estáticas y reproducibles; el piloto y la activación global real requieren autorización vigente y evidencia por oleada.
+- No crear DDL: DOC-92 confirmó que la tabla, columnas e índices necesarios ya existen.
 
 ## Capabilities
 
 ### New Capabilities
-- `doble-factor-despliegue`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `doble-factor-despliegue`: preparación operativa, activación gradual, observación, rotación, limpieza y rollback compatible del Login 2FA.
 
 ### Modified Capabilities
-- 
+
+Ninguna. Los contratos funcionales entregados por DOC-91..97 permanecen sin cambios.
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
+- Documentación y scripts: `Doc/Actualizacion/Login/Implementacion/DOC-98/` y `Sql/`.
+- Validación: pruebas CJS locales y, solo si falta una puerta demostrada, `.github/workflows/opsxj-validation.yml`.
+- Configuración existente: `AppSettings.local.config` no versionado, Session de 10 minutos, catálogo central `gestor_modulos` y repositorios de identidad de los cuatro módulos.
+- Datos operativos: la implementación culmina con las filas objetivo en `RequiereSegundoFactor=1`, `EMAIL=1` y expiración válida, únicamente después de todas las puertas y autorizaciones.
+- Sin cambios en modelos, DTOs, servicios, repositorios, ASMX, Login, recuperación, SMTP legacy ni esquema.

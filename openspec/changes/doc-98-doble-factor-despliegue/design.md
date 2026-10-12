@@ -1,107 +1,73 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
 ## Context
 
-DOC-98: DOBLE-FACTOR-DESPLIEGUE
+DOC-91..97 entregaron Login 2FA sobre Web Forms/VB.NET 4.6.1, MySQL y configuración externa. El `.vbproj` registra sus fuentes y recursos. `Web.config` usa `AppSettings.local.config` y Session InProc de 10 minutos. DOC-92 determinó que no existe migración: se reutilizan las diez columnas y los índices actuales de `ra_auth_second_factor_challenge`.
 
-## Jira Details
-
-> # 08 — Despliegue, activación gradual y rollback
-> 
-> ## ROL ESPERADO
-> 
-> Actúa como arquitecto de solución y responsable de release.
-> 
-> ## OBJETIVO
-> 
-> Preparar, en el OpenSpec independiente de esta Jira, una entrega operable y reversible del Login 2FA ya verificado. Esta tarea no autoriza desplegar ni activar producción.
-> 
-> ## CONTEXTO
-> 
-> Lee la exploración, migraciones, configuración, CI, evidencia transversal y convenciones de despliegue existentes antes de redactar o modificar scripts.
-> 
-> ## PRECONDICIONES DE RUTAS
-> 
-> Esta Jira no crea modelos, DTOs, servicios, repositorios ni ASMX. El `design.md` debe confirmar que los binarios ya entregados están registrados en `GestionDocumental-Docuarchi.net.vbproj`. Sus cambios se limitan a:
-> 
-> - `Doc/Actualizacion/Login/Implementacion/<JIRA>/` para runbook, matriz go/no-go y evidencia;
-> - `Doc/Actualizacion/Login/Implementacion/<JIRA>/Sql/` para preflight/apply/rollback operativos que pertenezcan a esta Jira;
-> - transformaciones/configuración ya usadas por el proyecto, solo si el ambiente las versiona y sin valores secretos;
-> - `.github/workflows/opsxj-validation.yml` únicamente si falta una puerta automatizable demostrada.
-> 
-> No duplicar SQL de la tarea 02, no crear scripts sueltos en la raíz y no modificar rutas de código para acomodar el despliegue.
-> 
-> ## REQUISITOS POSITIVOS
-> 
-> 1. Consolidar orden exacto: respaldo/verificación, migración aditiva, despliegue binario/config, inyección de llaves, smoke técnico con 2FA apagado, activación controlada y observación.
-> 2. Crear runbook parametrizado por ambiente sin valores secretos ni credenciales de ejemplo reales.
-> 3. Definir prechecks solo lectura para esquema, índices, una sola fila SMTP `ESTADO_ENVIO = 1`, llave activa/disponibilidad de llaves anteriores, valores 2FA y timeout Session.
-> 4. Definir activación por fila central de `gestor_modulos`, primero una empresa/módulo/cuenta autorizada; `0`/`NULL` es el estado compatible inicial. No modificar copias homónimas de otros esquemas.
-> 5. Definir observabilidad sanitizada: challenges por estado, entregas fallidas, bloqueos, expiraciones y finalizaciones fallidas; nunca OTP, hash, llave, correo, login completo o conexión.
-> 6. Definir rotación de llave con convivencia durante máximo 10 minutos más margen operativo y retiro posterior comprobado.
-> 7. Definir limpieza autorizada de estados terminales mayores de 30 días; no instalar un scheduler inexistente.
-> 8. Definir rollback por capa: desactivar 2FA, rollback binario compatible, tratamiento de challenges pendientes y reversión DDL solo si es segura. No borrar columnas/datos en un rollback de emergencia.
-> 
-> ## RESTRICCIONES CRITICAS
-> 
-> - No desplegar, migrar, activar, rotar llaves, limpiar datos ni enviar correo sin autorización explícita de ambiente y operación.
-> - No versionar secretos, incluir comandos destructivos automáticos, borrar columnas en rollback ni habilitar bypass.
-> - No modificar comportamiento de Login, recuperación o correo en esta tarea salvo un defecto documental/script comprobado.
-> 
-> ## PUERTAS GO/NO-GO
-> 
-> - Build/CI y matriz transversal en verde o bloqueos aceptados explícitamente.
-> - Migración verificada en ambiente no productivo y reaplicación idempotente.
-> - Login de los cuatro módulos comprobado con 2FA apagado.
-> - SMTP, llave y correo de cuentas piloto validados sin exposición.
-> - E2E autorizado del piloto exitoso antes de ampliar.
-> - Métricas, responsable de decisión y ventana de reversión definidos.
-> 
-> Ante error de configuración, aumento de `DELIVERY_FAILED`/`FINALIZATION_FAILED`, pérdida de login legacy o imposibilidad de verificar OTP, el runbook debe indicar desactivar la fila 2FA afectada y preservar evidencia; nunca habilitar un bypass.
-> 
-> ## PRUEBAS OBLIGATORIAS
-> 
-> Valida sintaxis/completitud de scripts y runbooks, ensaya en infraestructura descartable autorizada y ejecuta smoke sin mutación no autorizada. Registra comandos y salidas saneadas. Si no hay ambiente o autorización, entrega el runbook como no ejecutado y enumera exactamente la puerta pendiente.
-> 
-> Incluye evidencia unitaria/focal reproducible para validadores y scripts; un ensayo operativo/E2E real requiere el runbook, autorización vigente, infraestructura existente, secretos efímeros, controles `SELECT` y evidencia sanitizada. Sin ambiente autorizado, registra bloqueo y no afirma ejecución.
-> 
-> ## CRITERIOS DE ACEPTACION
-> 
-> - El despliegue es secuencial, verificable y reversible sin depender de conocimiento tácito.
-> - La activación no cambia módulos distintos al piloto.
-> - Desactivar 2FA restaura el recorrido legacy sin quitar la infraestructura instalada.
-> - Ningún secreto está versionado y ninguna activación real ocurrió por efecto de esta tarea.
-> - El OpenSpec traza requisitos/decisiones a scripts, gates y evidencias.
-> 
-> ## DOCUMENTACION TECNICA
-> 
-> Actualiza documentación operativa existente y guarda runbook, matriz go/no-go y evidencia bajo `Doc/Actualizacion/Login/Implementacion/<JIRA>/`.
-> 
-> ## ENTREGABLE FINAL
-> 
-> Entrega runbook, scripts no destructivos, pruebas con rutas/casos, comandos, códigos de salida, responsables/gates, riesgos y bloqueos; declara expresamente que no se activó producción.
+El refinamiento de DOC-98 no ejecuta operaciones. Su implementación sí debe culminar en activación global controlada, después del piloto y únicamente con autorización nueva por ambiente, cuentas, ventana y datos.
 
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+- Convertir la implementación verificada en una secuencia operable, auditable y reversible.
+- Impedir que un piloto cambie módulos, empresas o esquemas distintos del objetivo aprobado.
+- Dejar 2FA activo transversalmente para todos los módulos objetivo, sin habilitación ni exclusión por usuario.
+- Probar documentación y scripts sin infraestructura real.
 
 **Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+- Crear o modificar lógica de producto, contratos públicos, tablas, columnas, índices o schedulers.
+- Ejecutar mutaciones sin autorización vigente o versionar secretos.
+- Inventar estados físicos que la tabla no persiste.
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Limitar DOC-98 a operación y validación
+Los únicos propietarios nuevos serán documentación, SQL operativo bajo `DOC-98/Sql`, pruebas documentales y una puerta CI solo si falta. No se modificarán modelos, DTOs, servicios, repositorios, ASMX, UI, recuperación ni correo. El runbook verificará el registro único de binarios 2FA en el `.vbproj`.
 
+### D-02 — No crear una migración inexistente
+La “migración aditiva” se resuelve como comprobación del esquema ya instalado. DOC-92 declara que no hay apply/rollback DDL. El preflight comprobará por `information_schema` columnas e índices y será NO-GO si faltan; no intentará repararlos.
+
+### D-03 — Mantener llaves fuera del repositorio
+Se usarán `LoginSecondFactorHmacActiveKeyId` y `LoginSecondFactorHmacKey.<keyId>` en la fuente externa existente. El control confirma presencia, Base64 válido y mínimo 32 bytes sin imprimir valores. También verifica Session=10 minutos y exactamente una fila SMTP `ESTADO_ENVIO=1`.
+
+### D-04 — Fijar una secuencia con abortos explícitos
+Orden: autorización/respaldo; preflight; build/CI; esquema; binarios/configuración; smoke de cuatro módulos con 2FA `0`/`NULL`; diagnóstico agregado de identidades/correos; SMTP/llave/cuenta piloto; activación de una fila; E2E autorizado; observación; activación por oleadas de las filas restantes; verificación global. Una fase fallida bloquea las posteriores. El diagnóstico de principales informa riesgo operativo, pero no es un selector ni una dependencia de activación por usuario.
+
+### D-05 — Activar únicamente una fila central y guardada
+La activación apunta a `gestor_modulos` central con identificadores y valores esperados del operador. Exige snapshot, estado `0`/`NULL`, `EMAIL=1`, expiración `1..10`, cardinalidad uno y una fila afectada. La desactivación restaura `RequiereSegundoFactor=0`; nunca toca copias homónimas ni ofrece bypass.
+
+### D-06 — Separar métricas persistidas de diagnósticos
+SQL solo derivará pendiente, consumido, bloqueado por cinco intentos y expirado desde `Consumed`, `Attempts` y `ExpiresAtUtc`. Entrega/finalización fallida se observa en eventos sanitizados `correlation/stage/outcome`, porque no son estados físicos distintos. No se exponen OTP, MAC, llave, correo, login, identidad, conexión o excepción.
+
+### D-07 — Rotar por identificador conservando verificabilidad
+El formato `v1:keyId:mac` permite verificar con la llave original. La rotación instala la nueva, conserva la anterior, cambia el identificador activo y mantiene ambas durante 10 minutos más el margen registrado. La anterior se retira solo tras comprobar cero challenges elegibles que la referencien.
+
+### D-08 — Limpiar solo terminales antiguos manualmente
+No habrá scheduler. Primero se cuentan candidatos mayores de 30 días excluyendo filas elegibles. Toda limpieza requiere autorización específica, transacción, límite, revisión de cardinalidad y confirmación manual. DOC-98 no la ejecuta.
+
+### D-09 — Revertir por capas sin borrar datos
+Ante configuración inválida, pérdida de login legacy, OTP imposible o aumento de fallos, primero se desactiva solo el piloto. Los pendientes expiran naturalmente; no se borran ni reinterpretan. Luego se restaura el paquete aprobado. El rollback de emergencia no elimina esquema ni evidencia.
+
+### D-10 — Culminar con activación global transversal por oleadas acotadas
+Después de aprobar el piloto, la operación construirá un manifiesto exhaustivo de filas centrales para DocuArchi, Gestor, Radicación y Workflow en todas las empresas objetivo. Cada oleada usa IDs explícitos, snapshots y conteo esperado, se verifica antes de continuar y conserva rollback por fila. La aceptación final exige todas las filas del manifiesto en `RequiereSegundoFactor=1`, `SecondFactorProviderType=1` y expiración `1..10`, sin filas fuera del manifiesto modificadas. Esa configuración pertenece al módulo y se aplica a cualquier principal que intente autenticarse: no existen columnas, listas, banderas, excepciones ni bypass de activación por usuario. Las tablas de principales se consultan únicamente para resolver identidad y correo durante el login; un dato inválido falla cerrado y no altera el alcance transversal de la configuración.
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+- La tabla no diferencia todos los estados de dominio; se combinan agregados y diagnósticos sin sobreafirmar precisión.
+- Session InProc implica que reciclados invalidan contextos pendientes y obligan a reiniciar login.
+- La falta de transacción distribuida entre finalizador legacy y challenge sigue como riesgo residual DOC-97.
+- Los scripts reducen error humano, pero no sustituyen autorización, respaldo ni responsable go/no-go.
+- Usuarios con correo ausente/inválido o identidad ambigua no reciben excepción: su autenticación falla cerrada y el diagnóstico agregado permite remediar el dato sin introducir activación por usuario.
 
 ## Migration Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+1. Preparar artefacto, configuración externa y paquete previo sin secretos.
+2. Ejecutar preflight y build/CI; cualquier diferencia es NO-GO.
+3. Desplegar con módulos OFF/NULL y completar smoke legacy.
+4. Revisar el diagnóstico agregado de principales y activar una fila piloto autorizada, sin convertir ese diagnóstico en una lista de habilitación.
+5. Ejecutar E2E y observar el piloto; ante umbral de aborto, aplicar D-09.
+6. Activar las filas restantes por oleadas explícitas y verificar los cuatro módulos tras cada oleada.
+7. Cerrar solo al demostrar configuración global activa, comportamiento transversal y ausencia de cambios fuera del manifiesto.
 
 ## Open Questions
 
-- TBD
+- Cada solicitud operativa debe nombrar ambiente, empresa, módulo, cuenta piloto, aprobador, operador, observador, ventana, margen, umbrales y paquete de rollback; DOC-98 no asigna valores ni personas.
