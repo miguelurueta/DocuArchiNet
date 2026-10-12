@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
@@ -63,6 +64,22 @@ const requiredProjectItems = [
 
 function read(relative) {
   return fs.readFileSync(path.join(root, relative), 'utf8');
+}
+
+function resolveOpenSpecChangeRoot() {
+  const active = path.join(root, 'openspec', 'changes', 'doc-98-doble-factor-despliegue');
+  if (fs.existsSync(active)) return active;
+
+  const archiveRoot = path.join(root, 'openspec', 'changes', 'archive');
+  const archived = fs.readdirSync(archiveRoot, { withFileTypes: true })
+    .filter(entry => entry.isDirectory() && /^\d{4}-\d{2}-\d{2}-doc-98-doble-factor-despliegue$/.test(entry.name))
+    .map(entry => path.join(archiveRoot, entry.name));
+  assert.equal(archived.length, 1, 'DOC-98: debe existir exactamente un cambio OpenSpec activo o archivado');
+  return archived[0];
+}
+
+function readOpenSpecChange(relative) {
+  return fs.readFileSync(path.join(resolveOpenSpecChangeRoot(), relative), 'utf8');
 }
 
 function stripSqlComments(sql) {
@@ -186,17 +203,17 @@ test('observabilidad y documentación no exponen secretos ni datos personales', 
 });
 
 test('OpenSpec mantiene trazabilidad D-10/RQ-10 y estado operativo real', () => {
-  assert.match(read('openspec/changes/doc-98-doble-factor-despliegue/design.md'), /D-10/);
-  assert.match(read('openspec/changes/doc-98-doble-factor-despliegue/specs/doble-factor-despliegue/spec.md'), /RQ-10/);
-  assert.match(read('openspec/changes/doc-98-doble-factor-despliegue/tasks.md'), /D-10[\s\S]*RQ-10|RQ-10[\s\S]*D-10/);
-  assert.match(read('openspec/changes/doc-98-doble-factor-despliegue/specs/doble-factor-despliegue/spec.md'), /sin habilitaci[oó]n, lista, bandera ni excepci[oó]n por usuario/i);
+  assert.match(readOpenSpecChange('design.md'), /D-10/);
+  assert.match(readOpenSpecChange('specs/doble-factor-despliegue/spec.md'), /RQ-10/);
+  assert.match(readOpenSpecChange('tasks.md'), /D-10[\s\S]*RQ-10|RQ-10[\s\S]*D-10/);
+  assert.match(readOpenSpecChange('specs/doble-factor-despliegue/spec.md'), /sin habilitaci[oó]n, lista, bandera ni excepci[oó]n por usuario/i);
   const evidence = read('Doc/Actualizacion/Login/Implementacion/DOC-98/04-VALIDACION-Y-EVIDENCIA.md');
   assert.match(evidence, /Activaci[oó]n transversal del ambiente autorizado:\s*`ACTIVADO`/i);
   assert.match(evidence, /Docuarchi\.net:\s*descartada/i);
   assert.match(evidence, /WORKFLOW REGISTRO era la [uú]nica prueba pendiente/i);
 });
 
-test('preflight interactivo DOC-98 es SELECT-only, saneado y está registrado', () => {
+test('preflight interactivo DOC-98 es SELECT-only, saneado y está registrado', t => {
   const runnerPath = 'tools/e2e/scripts/inspect-doc98-transversal-readiness-interactive.cjs';
   const runner = read(runnerPath);
   const inspector = require(path.join(root, runnerPath));
@@ -212,7 +229,11 @@ test('preflight interactivo DOC-98 es SELECT-only, saneado y está registrado', 
     assert.match(runner, new RegExp(type));
   }
   assert.doesNotThrow(() => inspector.assertReadOnly());
-  const metadata = inspector.loadDatabaseMetadata(path.join(root, 'tools/e2e/profiles/doc90-radicacion-classic-attachment.local.runtime.json'));
+  const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'doc98-readiness-'));
+  t.after(() => fs.rmSync(fixtureRoot, { recursive: true, force: true }));
+  const fixturePath = path.join(fixtureRoot, 'database-metadata.json');
+  fs.writeFileSync(fixturePath, JSON.stringify({ mysqlHost: 'localhost', mysqlPort: 3306, mysqlDatabase: 'doc98_test' }), 'utf8');
+  const metadata = inspector.loadDatabaseMetadata(fixturePath);
   assert.deepEqual(Object.keys(metadata).sort(), ['database', 'host', 'port']);
   const schema = { challenge_columns: 10, primary_id: 1, unique_challenge: 1, auth_user_index: 1, module_columns: 8, smtp_columns: 9 };
   const modules = inspector.TARGET_TYPES.map(module_type => ({ module_type, total_count: 1, on_count: 0, off_count: 1, invalid_flag_count: 0, expiry_gap_count: 0 }));
