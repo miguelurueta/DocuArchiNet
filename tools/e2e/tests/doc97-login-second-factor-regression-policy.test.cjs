@@ -6,6 +6,19 @@ const test = require('node:test');
 const e2eRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(e2eRoot, '..', '..');
 const read = file => fs.readFileSync(path.join(repoRoot, ...file.split('/')), 'utf8');
+const changeName = 'doc-97-doble-factor-seguridad-regresion';
+
+function resolveDoc97ChangeRoot() {
+  const changesRoot = path.join(repoRoot, 'openspec', 'changes');
+  const activeRoot = path.join(changesRoot, changeName);
+  if (fs.existsSync(activeRoot)) return activeRoot;
+
+  const archiveRoot = path.join(changesRoot, 'archive');
+  const archived = fs.readdirSync(archiveRoot, { withFileTypes: true })
+    .filter(entry => entry.isDirectory() && entry.name.endsWith(`-${changeName}`));
+  assert.equal(archived.length, 1, `DOC-97 debe existir una vez en active o archive; encontrados: ${archived.length}`);
+  return path.join(archiveRoot, archived[0].name);
+}
 
 test('DOC-97 registra una política única y reutiliza la infraestructura 2FA', () => {
   const packageJson = JSON.parse(read('tools/e2e/package.json'));
@@ -16,8 +29,9 @@ test('DOC-97 registra una política única y reutiliza la infraestructura 2FA', 
 });
 
 test('DOC-97 no usa el control temporal de flags como evidencia', () => {
-  const tasks = read('openspec/changes/doc-97-doble-factor-seguridad-regresion/tasks.md');
-  const spec = read('openspec/changes/doc-97-doble-factor-seguridad-regresion/specs/doble-factor-seguridad-regresion/spec.md');
+  const changeRoot = resolveDoc97ChangeRoot();
+  const tasks = fs.readFileSync(path.join(changeRoot, 'tasks.md'), 'utf8');
+  const spec = fs.readFileSync(path.join(changeRoot, 'specs', 'doble-factor-seguridad-regresion', 'spec.md'), 'utf8');
   assert.doesNotMatch(tasks, /run-doc96-gestor-off-temporary-interactive\.cjs/);
   assert.match(spec, /mantener flags intactos/i);
   assert.match(spec, /controles `SELECT`/);

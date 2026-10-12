@@ -80,10 +80,15 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: tools/opsxj/package-lock.json
+          cache-dependency-path: |
+            tools/opsxj/package-lock.json
+            tools/e2e/package-lock.json
 
       - name: Install opsxj dependencies
         run: npm.cmd --prefix tools/opsxj ci
+
+      - name: Install E2E policy dependencies
+        run: npm.cmd --prefix tools/e2e ci
 
       - name: Run opsxj tests
         run: npm.cmd --prefix tools/opsxj test
