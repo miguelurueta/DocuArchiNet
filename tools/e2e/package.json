@@ -62,6 +62,8 @@
     "test:doc95:second-factor": "node scripts/run-doc95-login-second-factor-interactive.cjs",
     "diagnose:doc95:pending": "node scripts/diagnose-doc95-pending-interactive.cjs",
     "test:doc95:policy": "node --test tests/doc95-login-second-factor-policy.test.cjs",
+    "test:doc96:login-ui": "node scripts/run-doc96-login-second-factor-ui-interactive.cjs",
+    "test:doc96:policy": "node --test tests/doc96-login-second-factor-ui-policy.test.cjs tests/authenticated-workflow-session.test.cjs",
     "migrate:doc81:intent-schema": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/apply-doc81-intent-schema-interactive.ps1"
   },
   "devDependencies": {

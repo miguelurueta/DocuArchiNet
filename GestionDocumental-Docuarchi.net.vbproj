@@ -7791,6 +7791,8 @@
     <Content Include="js\ui\jquery.min.js" />
     <Content Include="js\validate_campos.js" />
     <Content Include="js\workflow\gestor.js" />
+    <Content Include="js\login\segundo-factor.js" />
+    <Content Include="Styles\login\segundo-factor.css" />
     <Content Include="js\workflow\WebFormConsultaTareasWorkflow.js" />
     <Content Include="js\workflow\WebFormContenedorPageWF.js" />
     <Content Include="js\gestion\WebFormGaGestionUnidadConservacion.js" />

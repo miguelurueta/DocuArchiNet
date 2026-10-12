@@ -85,7 +85,12 @@ test('DOC-91/DOC-94: fundación solo se referencia desde integraciones aprobadas
     'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlRadicacionSecondFactorPrincipalRepository.vb',
     'Infrastructure\\Repositories\\Login\\SegundoFactor\\MySqlWorkflowSecondFactorPrincipalRepository.vb',
     'Infrastructure\\Repositories\\Login\\SegundoFactor\\SecondFactorPrincipalRepositoryResolver.vb',
-    'Services\\Login\\SegundoFactor\\SecondFactorPreAuthenticationService.vb'
+    'Services\\Login\\SegundoFactor\\SecondFactorPreAuthenticationService.vb',
+    'Services\\Login\\SegundoFactor\\SecondFactorAuthenticationService.vb',
+    'Services\\Login\\SegundoFactor\\SecondFactorRecipientResolver.vb',
+    'webservice\\Login\\SegundoFactor\\LoginSecondFactorCompositionFactory.vb',
+    'webservice\\Login\\SegundoFactor\\LoginSecondFactorSessionGate.vb',
+    'webservice\\WebServiceLoginSegundoFactor.asmx.vb'
   ]) allowed.add(normalize(relative));
   const symbols = /SegundoFactorIdentity|SegundoFactorConfiguration|PendingSecondFactorContext|CryptographicSecondFactorOtpGenerator|HmacSecondFactorCodeProtector|SessionPendingSecondFactorContextStore/;
   const trackedSources = run('git', ['-c', 'core.quotepath=false', 'ls-files', '-z', '*.vb', '*.aspx', '*.ascx', '*.ashx', '*.js'])

@@ -25,6 +25,7 @@
     <script  src="Awesome/js/solid.js"type="text/javascript"></script>
     <script  src="Awesome/js/fontawesome.js"type="text/javascript"></script>  
     <script src="js/workflow/gestor.js"type="text/javascript"></script> 
+    <link href="Styles/login/segundo-factor.css" rel="stylesheet" />
     
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="colorlib/vendor/bootstrap/css/bootstrap.min.css"/>
@@ -212,6 +213,26 @@ body .limiter { min-height:100vh; }
                                 </div>
                             </div>
                         </asp:Panel>
+                        <section id="docuarchi-segundo-factor-panel"
+                            class="da-login-2fa"
+                            data-endpoint="webservice/WebServiceLoginSegundoFactor.asmx"
+                            aria-labelledby="docuarchi-segundo-factor-titulo"
+                            hidden>
+                            <h2 id="docuarchi-segundo-factor-titulo" class="da-login-2fa__title">Verificación de seguridad</h2>
+                            <p class="da-login-2fa__instruction">Ingrese el código de seis dígitos enviado a <strong id="docuarchi-segundo-factor-destino"></strong>.</p>
+                            <label for="docuarchi-segundo-factor-codigo" class="da-login-2fa__label">Código de verificación</label>
+                            <input id="docuarchi-segundo-factor-codigo" class="da-login-2fa__input" type="text"
+                                inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}"
+                                aria-describedby="docuarchi-segundo-factor-estado docuarchi-segundo-factor-error" />
+                            <p id="docuarchi-segundo-factor-estado" class="da-login-2fa__status" aria-live="polite"></p>
+                            <p id="docuarchi-segundo-factor-error" class="da-login-2fa__error" role="alert"></p>
+                            <div class="da-login-2fa__actions">
+                                <button id="docuarchi-segundo-factor-validar" type="button" class="btn btn-primary">Validar código</button>
+                                <button id="docuarchi-segundo-factor-reenviar" type="button" class="btn btn-light">Reenviar código</button>
+                                <button id="docuarchi-segundo-factor-cancelar" type="button" class="btn btn-link">Cancelar</button>
+                            </div>
+                        </section>
+                        <p id="docuarchi-segundo-factor-login-error" class="da-login-2fa__login-error" role="alert"></p>
                     </ContentTemplate>
                 </asp:UpdatePanel>
             </asp:Panel>
@@ -321,5 +342,6 @@ body .limiter { min-height:100vh; }
 	<script src="colorlib/vendor/countdowntime/countdowntime.js" type="text/javascript"></script>
 <!--===============================================================================================-->
 	<script src="colorlib/js/main.js" type="text/javascript"></script>
+    <script src="js/login/segundo-factor.js" type="text/javascript"></script>
     </form>
 </asp:Content>

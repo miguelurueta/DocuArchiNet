@@ -77,11 +77,18 @@ function sessionFailureMessage(stage) {
   }
 }
 
+function sessionFailure(stage) {
+  const error = new Error(sessionFailureMessage(stage));
+  error.code = `WORKFLOW_LOGIN_${String(stage || 'unknown').replace(/[^a-z0-9]/gi, '_').toUpperCase()}_FAILED`;
+  error.stage = stage;
+  return error;
+}
+
 /**
  * Crea un BrowserContext autenticado mediante el formulario Web Forms de Gestión.
  * El llamador es responsable de cerrar el contexto retornado.
  */
-async function createAuthenticatedWorkflowSession(browser, options) {
+async function createWorkflowLoginSession(browser, options) {
   const configuration = options || {};
   const environment = configuration.environment || process.env;
   const baseUrl = normalizeBaseUrl(configuration.baseUrl);
@@ -98,6 +105,8 @@ async function createAuthenticatedWorkflowSession(browser, options) {
   let context;
   let page;
   let dialogObservation;
+  let postbackResponse;
+  const preservePage = configuration.preservePage === true;
   let stage = 'context';
   try {
     // La sonda pública y la configuración normal de Playwright crean el
@@ -126,14 +135,14 @@ async function createAuthenticatedWorkflowSession(browser, options) {
     await moduleControl.waitFor({ state: 'attached', timeout });
     stage = 'module-option';
     await moduleControl.selectOption({ value: moduleValue });
-    if (configuration.preflightOnly === true) return context;
+    if (configuration.preflightOnly === true) return preservePage ? { context, page, postbackResponse: null } : context;
     stage = 'credentials';
     await page.locator(LOGIN_SELECTORS.user).fill(user);
     await page.locator(LOGIN_SELECTORS.password).fill(password);
     stage = 'postback';
     const postback = page.waitForResponse(loginPostbackFor(url), { timeout });
     await page.locator(LOGIN_SELECTORS.submit).click();
-    const postbackResponse = await postback;
+    postbackResponse = await postback;
     if (typeof configuration.onPostbackCompleted === 'function') {
       stage = 'postback-observer';
       await configuration.onPostbackCompleted(page, postbackResponse);
@@ -141,17 +150,27 @@ async function createAuthenticatedWorkflowSession(browser, options) {
     if (dialogObservation) {
       await Promise.race([dialogObservation, new Promise(resolve => setTimeout(resolve, 750))]);
     }
-    return context;
+    return preservePage ? { context, page, postbackResponse } : context;
   } catch (error) {
     await closeQuietly(context);
-    throw new Error(sessionFailureMessage(stage));
+    throw sessionFailure(stage);
   } finally {
-    await closeQuietly(page);
+    if (!preservePage) await closeQuietly(page);
   }
+}
+
+async function createAuthenticatedWorkflowSession(browser, options) {
+  return createWorkflowLoginSession(browser, { ...(options || {}), preservePage: false });
+}
+
+async function createWorkflowLoginPageSession(browser, options) {
+  return createWorkflowLoginSession(browser, { ...(options || {}), preservePage: true });
 }
 
 module.exports = {
   LOGIN_SELECTORS,
   createAuthenticatedWorkflowSession,
+  createWorkflowLoginPageSession,
+  sessionFailure,
   sessionFailureMessage
 };

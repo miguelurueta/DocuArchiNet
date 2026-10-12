@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const { LOGIN_SELECTORS, createAuthenticatedWorkflowSession, sessionFailureMessage } = require('./support/authenticated-workflow-session.cjs');
+const { LOGIN_SELECTORS, createAuthenticatedWorkflowSession, createWorkflowLoginPageSession, sessionFailureMessage } = require('./support/authenticated-workflow-session.cjs');
 
 function createPlaywrightDouble({ failAt, dialogMessage } = {}) {
   const calls = { contextAttempts: 0, gotoAttempts: [], pageAttempts: 0, selectors: [], fills: [], waits: [], closed: { context: false, page: false } };
@@ -124,6 +124,21 @@ test('permite observar el postback público antes de cerrar la página', async (
   assert.equal(calls.closed.context, false);
 });
 
+test('la variante UI conserva página, contexto y respuesta sin romper la API legacy', async () => {
+  const { browser, calls, context } = createPlaywrightDouble();
+  const environment = { E2E_MODULE: 'GESTOR', E2E_USER: 'usuario-prueba', E2E_PASSWORD: 'valor-prueba' };
+
+  const result = await createWorkflowLoginPageSession(browser, configuration(environment));
+
+  assert.equal(result.context, context);
+  assert.equal(typeof result.page.locator, 'function');
+  assert.equal(await result.postbackResponse.text(), 'SECOND_FACTOR_REQUIRED');
+  assert.equal(calls.closed.page, false);
+  assert.equal(calls.closed.context, false);
+  await result.page.close();
+  assert.equal(calls.closed.page, true);
+});
+
 test('permite clasificar y descartar el diálogo WebForms sin imprimirlo', async () => {
   const { browser, calls } = createPlaywrightDouble({ dialogMessage: 'SECOND_FACTOR_START_FAILED detalle no público' });
   const environment = { E2E_MODULE: 'GESTOR', E2E_USER: 'usuario-prueba', E2E_PASSWORD: 'valor-prueba' };
@@ -162,10 +177,15 @@ test('cierra contexto y página si el postback falla sin exponer valores', async
   const { browser, calls } = createPlaywrightDouble({ failAt: 'click' });
   const environment = { E2E_MODULE: 'GESTOR', E2E_USER: 'usuario-prueba', E2E_PASSWORD: 'valor-prueba' };
 
-  await assert.rejects(
-    () => createAuthenticatedWorkflowSession(browser, configuration(environment)),
-    /no recibió el postback esperado/i
-  );
+  await assert.rejects(async () => {
+    try {
+      await createAuthenticatedWorkflowSession(browser, configuration(environment));
+    } catch (error) {
+      assert.equal(error.stage, 'postback');
+      assert.equal(error.code, 'WORKFLOW_LOGIN_POSTBACK_FAILED');
+      throw error;
+    }
+  }, /no recibió el postback esperado/i);
 
   assert.equal(calls.closed.page, true);
   assert.equal(calls.closed.context, true);
