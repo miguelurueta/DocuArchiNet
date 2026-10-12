@@ -48,6 +48,6 @@ Prohibido registrar: credenciales, conexiones, llaves, key IDs, cookies, OTP, lo
 - E2E real WORKFLOW REGISTRO: PASS; estado pendiente, OTP válido y cookie autenticada.
 - E2E Docuarchi.net: descartada por indicación del operador; no se declara ejecutada.
 - Verificación final autorizada y solo lectura: las cinco filas objetivo están activas, ninguna fila externa cambió y `DOC98_VERIFY_READY=true`.
-- Activación transversal del ambiente autorizado: `ACTIVADO`; permanece pendiente completar o referenciar evidencia E2E representativa de Docuarchi.net y Workflow Contabilidad antes de declarar cobertura E2E por cada módulo.
+- Activación transversal del ambiente autorizado: `ACTIVADO`. El operador confirmó que WORKFLOW REGISTRO era la única prueba pendiente y descartó repetir Docuarchi.net; DOC-98 no atribuye a esta ronda una E2E que no se ejecutó.
 
 La evidencia confirma configuración y correspondencia estructural. No demuestra por sí sola que todos los usuarios tengan identidad y correo válidos; esos datos continúan fallando de forma cerrada durante cada login.

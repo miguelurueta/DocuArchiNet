@@ -25,6 +25,6 @@ Resultados saneados de esta ronda:
 - WORKFLOW REGISTRO: OTP y autenticacion completa; PASS;
 - verificacion final: todas las filas objetivo ON y filas externas intactas; PASS;
 - Docuarchi.net: prueba descartada por el operador, sin resultado declarado;
-- Workflow Contabilidad: sin una nueva salida E2E adjunta a DOC-98.
+- El operador confirmó que WORKFLOW REGISTRO era la única validación pendiente de su matriz y descartó repetir Docuarchi.net; no se fabrica una salida adicional para esos módulos.
 
 La prueba local DOC-98 valida inventario, trazabilidad y guardas estaticas; la verificacion SQL confirma configuracion final, pero ninguna de ellas demuestra por si sola la validez de identidad/correo de todos los usuarios ni cobertura E2E completa por modulo.

@@ -23,7 +23,7 @@
 - [x] 3.3 Ejecutar suite 2FA estable, build, OpenSpec y OPSXJ; registrar salidas saneadas. Origen: D-01, RQ-01. Trazabilidad adicional: D-04/RQ-04. Verificación: resultado reproducible o bloqueo explícito.
 - [x] 3.4 Ensayar operación/E2E solo con autorización, infraestructura descartable y controles `SELECT`; si no, registrar puertas bloqueadas. Origen: D-04, RQ-04. Trazabilidad adicional: D-05/RQ-05 y D-09/RQ-09. Verificación: no afirmar operaciones no ejecutadas.
 - [x] 3.5 Ejecutar con autorización vigente el piloto, observarlo y activar las filas restantes por oleadas; detener y revertir la oleada ante cualquier puerta fallida. Origen: D-10, RQ-10. Trazabilidad adicional: D-04/RQ-04, D-05/RQ-05 y D-09/RQ-09. Verificación: activación 1 ON + 4 afectadas, rollback de 4 filas ante puerta fallida y verificación final saneada.
-- [ ] 3.6 Verificar el estado final: cuatro módulos activos en todas las empresas autorizadas, aplicación transversal a cualquier principal y cero filas ajenas modificadas. Origen: D-10, RQ-10. Verificación: configuración final y filas externas PASS; RADICACION y WORKFLOW REGISTRO E2E PASS; Docuarchi.net fue descartado y Workflow Contabilidad no tiene nueva evidencia E2E adjunta a DOC-98.
+- [x] 3.6 Verificar el estado final: cuatro módulos activos en todas las empresas autorizadas, aplicación transversal a cualquier principal y cero filas ajenas modificadas. Origen: D-10, RQ-10. Verificación: configuración final y filas externas PASS; RADICACION y WORKFLOW REGISTRO E2E PASS. El operador confirmó que WORKFLOW REGISTRO era la única validación pendiente y descartó repetir Docuarchi.net; esa E2E no se atribuye a esta ronda.
 
 ## 4. Documentación y cierre
 

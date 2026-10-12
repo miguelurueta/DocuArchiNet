@@ -193,7 +193,7 @@ test('OpenSpec mantiene trazabilidad D-10/RQ-10 y estado operativo real', () => 
   const evidence = read('Doc/Actualizacion/Login/Implementacion/DOC-98/04-VALIDACION-Y-EVIDENCIA.md');
   assert.match(evidence, /Activaci[oó]n transversal del ambiente autorizado:\s*`ACTIVADO`/i);
   assert.match(evidence, /Docuarchi\.net:\s*descartada/i);
-  assert.match(evidence, /Workflow Contabilidad.*pendiente|pendiente.*Workflow Contabilidad/i);
+  assert.match(evidence, /WORKFLOW REGISTRO era la [uú]nica prueba pendiente/i);
 });
 
 test('preflight interactivo DOC-98 es SELECT-only, saneado y está registrado', () => {
