@@ -1,0 +1,92 @@
+## ADDED Requirements
+### Requirement: STREAMER-HTTP-RANGOS
+El sistema SHALL implementar el alcance definido para DOC-102.
+#### Scenario: Flujo principal
+- **WHEN** se ejecuta el caso de uso principal del ticket
+- **THEN** el comportamiento coincide con las reglas funcionales esperadas
+#### Scenario: No-regresion
+- **WHEN** se valida el modulo afectado
+- **THEN** no se rompen flujos existentes
+### Requirement: Detalle funcional Jira
+El sistema SHALL considerar las reglas detalladas del ticket.
+
+#### Scenario: Reglas del ticket
+- # Prompt 04 — Streaming, HTTP Range y caché autorizada del PDF
+- ## Contexto de ejecución OPSXJ
+- Este prompt corresponde a una Jira independiente. Ejecuta `opsxj:new` al iniciar para crear su OpenSpec autónomo. Verifica primero el visor y las métricas vigentes después de los prompts anteriores, sin reutilizar sus cambios OpenSpec.
+- ## Rol esperado
+- Actúa como arquitecto full stack senior especializado en HTTP, ASP.NET handlers, streaming, PDF.js, seguridad documental y compatibilidad WebForms.
+- ## Fuentes obligatorias
+- - Exploración técnica completa.
+- - `workflow/Handler_image_wf.ashx` y `workflow/Handler_image_wf.ashx.vb`.
+- - `ClassRaEnvioCorrespondencia.ReadFile(...)` y sus efectos.
+- - `pdfjs/pdf_anotate_view/script.js` y `pdf_viewer_anotate.js`.
+- - Constructores de URL en `Docuarchi/ClassVisualisaDocumento.vb`, `workflow/ClassWorflowVisor.vb` y `Gestion/ClassGaProducionDocumental.vb`.
+- - Consumidores simples del handler inventariados en la exploración.
+- ## Objetivo
+- Permitir que PDF.js solicite y renderice por rangos sin esperar la materialización completa `fetch -> Blob -> FileReader -> Uint8Array`, preservando autorización, aislamiento y consumidores legacy.
+- ## Diseño obligatorio
+- Antes de implementar, documenta:
+- - autoridad para resolver el documento y evitar confiar en una ruta libre del navegador;
+- - contrato compatible para consumidores enriquecidos y simples;
+- - semántica de `GET`, `HEAD`, `Range`, `If-Range`, `ETag`/`Last-Modified`, `206`, `200`, `304` y `416`;
+- - límites, tipos MIME, disposición, errores públicos y cierre de streams;
+- - efecto de `IRequiresSessionState` sobre concurrencia y alternativa compatible si el handler no escribe sesión.
+- ## Implementación obligatoria
+- 1. Servir el archivo mediante `FileStream`/streaming; no leer el PDF completo en `Byte()` ni usar `BinaryWrite` del cuerpo completo.
+- 2. Implementar un único rango válido por solicitud con validación de límites, `Content-Range`, `Content-Length`, `Accept-Ranges: bytes` y `206`.
+- 3. Responder correctamente a rango inválido con `416` sin filtrar ruta.
+- 4. Definir validadores de caché compatibles con autorización; nunca permitir reutilización entre usuarios o documentos no autorizados.
+- 5. Hacer que PDF.js reciba una URL y gestione streaming/rangos directamente.
+- 6. Eliminar del camino enriquecido `fetch`, `Blob`, `FileReader` y copia a `Uint8Array`.
+- 7. Mantener adaptador temporal para consumidores simples y formatos no PDF.
+- 8. No aceptar una ruta física nueva como autoridad. Si el contrato actual impide resolver el documento de forma segura, registrar la deuda y diseñar una referencia opaca/servidor sin inventar tablas.
+- ## Restricciones y antirregresión
+- - No agregar tablas, columnas, almacenamiento externo o CDN.
+- - No debilitar autenticación o autorización para habilitar rangos.
+- - No devolver rutas físicas en encabezados, errores o logs.
+- - No habilitar caché pública de documentos privados.
+- - No cambiar guardado de grafos en esta tarea.
+- - Preservar Workflow, Gestión de Correspondencia, Producción Documental, aprobación, versiones, migración y visores externos inventariados.
+- ## Pruebas obligatorias
+- - Archivo completo, rango inicial, intermedio, sufijo, límite exacto, fuera de límite y header múltiple rechazado/controlado.
+- - `Content-Length`, `Content-Range`, MIME, `HEAD`, validadores y cierre ante desconexión.
+- - Acceso sin sesión, documento ajeno, referencia inválida y traversal.
+- - Regresión de consumidores simples.
+- - E2E local autorizada que demuestre primer canvas sin transferir necesariamente los 33,6 MB completos.
+- - Medición remota o con perfil de red controlado; registrar bytes transferidos y tiempo a primera página.
+- ## Criterios de aceptación
+- - PDF.js comienza con URL/rangos y no necesita descargar todo antes de inicializar.
+- - El handler no materializa el PDF completo en memoria.
+- - Las respuestas HTTP cumplen rangos y seguridad.
+- - Los módulos consumidores mantienen su comportamiento.
+- ## Documentación y entrega
+- Documenta contrato HTTP, amenazas, compatibilidad, pruebas y métricas en `Doc/Actualizacion/VisorPdf/Implementacion/<JIRA>/`.
+- ## Correcciones opsxj:prompt-review
+- Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
+- ## Rol esperado
+- Definir el rol tecnico esperado para ejecutar el ticket.
+- ## Objetivo
+- Describir el objetivo funcional y tecnico verificable.
+- ## Restricciones criticas
+- - No introducir cambios fuera del alcance declarado.
+- - No romper comportamiento existente ni contratos publicos.
+- ## Criterios de aceptacion
+- - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
+- ## Contexto obligatorio
+- Listar archivos, modulos, servicios, hooks, adapters y documentacion que deben leerse antes de implementar.
+- ## Pruebas obligatorias
+- Ejecutar pruebas Node focales del contrato HTTP, E2E con Playwright y MSBuild del proyecto Web Forms afectado; registrar comandos y resultados.
+- ## Documentacion tecnica
+- Actualizar el paquete documental canonico del ticket.
+- ## Entregable final
+- Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
+- Agregar regla para [FLOW_DETAIL_REQUIRED]: Flujo paso a paso, secuencia o comportamiento esperado.
+- Exigir MSBuild del proyecto Web Forms, pruebas Node focales del handler y validación E2E autorizada; registrar el resultado.
+- Registrar comandos ejecutados, resultados obtenidos y evidencia en `05-PruebasEvidencia.md`.
+- Declarar que código + E2E + validación autorizada + evidencia saneada son una única unidad de entrega dentro del mismo cambio; no crear una tarea o entrega E2E independiente.
+- Reutilizar exclusivamente `tools/e2e`, su autenticación, configuración, validadores, evidencias y utilidades; prohibir login, arnés, proyecto Playwright, configuración o `.env` paralelos.
+- Antes de autenticar, exigir lectura de `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`; ejecutar solo con ambiente, cuentas y datos/tareas descartables expresamente autorizados.
+- Exigir secretos efímeros, prohibir exponer/imprimir/persistir credenciales, cookies, tokens y cadenas de conexión, usar verificaciones solo `SELECT` y conservar evidencia saneada.
+- Exigir cobertura E2E, cuando aplique, de autorización/control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada.
+- Respetar feature flags, gates, usuarios, grupos y seguridad sin habilitarlos arbitrariamente; no cerrar sin validación autorizada, registrar bloqueo explícito y prohibir mocks, simulaciones, resultados inventados y evidencia ficticia.
