@@ -1,8 +1,8 @@
-# Prompt 02 — Planificador de render, cancelación, scroll y zoom
+# Prompt 02 — Planificador de render, cancelación, scroll, zoom y clasificación de errores
 
 ## Contexto de ejecución OPSXJ
 
-Trabaja exclusivamente en el ticket OPSXJ recibido. No ejecutes `opsxj:new`. Verifica primero los artefactos e implementación reales del Prompt 01 y crea el OpenSpec autónomo de esta Jira.
+Este prompt corresponde a una Jira independiente. Ejecuta `opsxj:new` al iniciar para crear su OpenSpec autónomo. Usa la exploración y la línea base existentes como antecedentes; no abras un segundo cambio para la misma Jira.
 
 ## Rol esperado
 
@@ -13,11 +13,13 @@ Actúa como especialista senior en JavaScript, PDF.js, rendimiento del navegador
 - `../Exploracion/01-diagnostico-rendimiento-visor-pdf-grafos.md`.
 - `pdfjs/pdf_anotate_view/pdf_viewer_anotate.js`, especialmente `_visiblePages`, `loadPages`, `_loadingTask`, `_renderPage`, `_cleanPage`, `setZoom` y eventos de scroll.
 - `pdfjs/pdf_anotate_view/script.js`.
-- Evidencia y pruebas del Prompt 01.
+- `tools/e2e/scripts/run-workflow-pdf-viewer-performance-interactive.cjs`.
+- `tools/e2e/tests/workflow-pdf-viewer-performance-policy.test.cjs`.
+- Línea base y evidencia saneada registradas en la exploración.
 
 ## Objetivo
 
-Eliminar renderizados duplicados u obsoletos y reducir el bloqueo del hilo principal durante scroll y zoom, conservando el resultado visual, página activa, anotaciones y contratos públicos.
+Clasificar de forma saneada el error JavaScript observado en la línea base, evitar que una corrida con errores se declare limpia y eliminar renderizados duplicados u obsoletos para reducir el bloqueo del hilo principal durante scroll y zoom, conservando el resultado visual, página activa, anotaciones y contratos públicos.
 
 ## Diseño obligatorio
 
@@ -31,17 +33,22 @@ idle -> queued -> rendering -> rendered
 
 Define identidad de trabajo por página, generación de zoom/rotación, deduplicación y política de cancelación. Una página no puede tener dos `RenderTask` efectivos de la misma generación.
 
+Documenta además los eventos `error`, `unhandledrejection`, `pageerror`, respuestas HTTP y contextos de ejecución que el runner clasificará. La clasificación debe usar códigos estables, tipo, archivo base y línea, sin conservar URL, query string, rutas, mensajes libres ni datos documentales.
+
 ## Implementación obligatoria
 
-1. Corregir `_loadingTask()` para mantener el estado ocupado hasta que la promesa de render finalice o falle.
-2. Hacer que `_renderPage()` y la cadena llamadora retornen promesas verificables.
-3. Deduplicar páginas pendientes y eliminar entradas inválidas.
-4. Conservar y cancelar `RenderTask` de PDF.js cuando una página deja de ser necesaria o cambia la generación de zoom/rotación.
-5. Evitar que una finalización antigua reemplace el canvas de una generación nueva.
-6. Sustituir el escaneo costoso de todas las páginas por observación de viewport o una estrategia equivalente demostrablemente acotada; conservar páginas adyacentes configurables.
-7. Aplicar debounce/coalescencia a scroll y acciones rápidas de zoom sin volver lenta la primera interacción.
-8. Separar lecturas y escrituras de layout y limitar trabajo por frame.
-9. Mantener página activa, posición de scroll, grafos locales y rotación.
+1. Extender el runner existente para clasificar errores del frame principal, visor, worker y recursos opcionales mediante códigos saneados y estables.
+2. Separar `PASSED`, `PASSED_WITH_OBSERVATIONS` y fallo funcional; una medición con errores no puede terminar silenciosamente como limpia.
+3. Reproducir y clasificar el error observado en las tres iteraciones de la línea base antes de modificar el planificador. Si su causa pertenece a los símbolos de este prompt, corregirla aquí; si pertenece a dependencias, transporte u otro propietario, registrar código, origen y prompt responsable sin ocultarla.
+4. Corregir `_loadingTask()` para mantener el estado ocupado hasta que la promesa de render finalice o falle.
+5. Hacer que `_renderPage()` y la cadena llamadora retornen promesas verificables.
+6. Deduplicar páginas pendientes y eliminar entradas inválidas.
+7. Conservar y cancelar `RenderTask` de PDF.js cuando una página deja de ser necesaria o cambia la generación de zoom/rotación.
+8. Evitar que una finalización antigua reemplace el canvas de una generación nueva.
+9. Sustituir el escaneo costoso de todas las páginas por observación de viewport o una estrategia equivalente demostrablemente acotada; conservar páginas adyacentes configurables.
+10. Aplicar debounce/coalescencia a scroll y acciones rápidas de zoom sin volver lenta la primera interacción.
+11. Separar lecturas y escrituras de layout y limitar trabajo por frame.
+12. Mantener página activa, posición de scroll, grafos locales y rotación.
 
 ## Restricciones y antirregresión
 
@@ -50,6 +57,8 @@ Define identidad de trabajo por página, generación de zoom/rotación, deduplic
 - No eliminar render diferido ni renderizar todas las páginas para simplificar.
 - No usar esperas fijas como mecanismo de sincronización.
 - No introducir workers o frameworks adicionales sin demostrar necesidad y compatibilidad.
+- No guardar mensajes libres, URLs, rutas, queries, credenciales ni datos documentales para clasificar errores.
+- No ocultar errores con `catch` vacíos ni corregir fuera del propietario identificado.
 
 ## Pruebas obligatorias
 
@@ -57,6 +66,8 @@ Define identidad de trabajo por página, generación de zoom/rotación, deduplic
 - Cancelación por salida de viewport, zoom rápido y rotación.
 - Finalización tardía de una generación obsoleta.
 - Conservación de página activa y scroll.
+- Contratos de clasificación, sanitización y estados finales del runner.
+- Prueba que demuestre que la evidencia no contiene URL, query, ruta, tarea, documento ni credenciales.
 - E2E de lectura autorizada con el PDF pesado y comparación contra línea base.
 - Presupuesto inicial: reducir materialmente los 3.548 ms de tareas largas del scroll y la tarea de 435 ms del zoom. El porcentaje final debe justificarse con evidencia, no fijarse ocultando eventos.
 
@@ -66,6 +77,8 @@ Define identidad de trabajo por página, generación de zoom/rotación, deduplic
 - La cola permanece ocupada hasta finalizar y recupera estado tras error/cancelación.
 - Scroll y zoom mejoran respecto a la línea base sin alterar la imagen ni los grafos.
 - El error de una página no bloquea permanentemente las demás.
+- Una corrida con errores queda clasificada como observación o fallo, nunca como `PASSED` limpio.
+- El error repetible queda clasificado y asignado al archivo propietario; si pertenece al planificador, queda corregido en este cambio.
 
 ## Documentación y entrega
 

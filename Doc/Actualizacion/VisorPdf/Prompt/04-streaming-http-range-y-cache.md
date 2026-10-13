@@ -2,7 +2,7 @@
 
 ## Contexto de ejecución OPSXJ
 
-Ejecuta este prompt dentro del ticket OPSXJ recibido. No crees otro cambio manual. Verifica primero el visor y las métricas vigentes después de los prompts anteriores.
+Este prompt corresponde a una Jira independiente. Ejecuta `opsxj:new` al iniciar para crear su OpenSpec autónomo. Verifica primero el visor y las métricas vigentes después de los prompts anteriores, sin reutilizar sus cambios OpenSpec.
 
 ## Rol esperado
 

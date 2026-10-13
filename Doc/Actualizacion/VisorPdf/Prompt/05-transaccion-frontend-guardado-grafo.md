@@ -2,7 +2,7 @@
 
 ## Contexto de ejecución OPSXJ
 
-Trabaja en el ticket OPSXJ recibido y en su OpenSpec. No ejecutes `opsxj:new`. Esta es la primera tarea mutadora de la secuencia y exige un PDF descartable para su E2E.
+Este prompt corresponde a una Jira independiente. Ejecuta `opsxj:new` al iniciar para crear su OpenSpec autónomo. Esta es la primera tarea mutadora de la secuencia y exige un PDF descartable para su E2E.
 
 ## Rol esperado
 
