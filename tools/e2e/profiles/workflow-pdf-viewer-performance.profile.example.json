@@ -1,0 +1,15 @@
+{
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "module": "GESTOR",
+  "taskId": 1,
+  "documentOrdinal": 1,
+  "documentTitle": "Documento PDF de prueba",
+  "iterations": 3,
+  "scrollSteps": 12,
+  "timeoutMilliseconds": 120000,
+  "headless": true,
+  "browser": {
+    "channel": "chrome"
+  },
+  "ignoreHttpsErrors": false
+}
