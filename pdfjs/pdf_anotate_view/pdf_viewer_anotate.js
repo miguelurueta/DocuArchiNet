@@ -681,7 +681,10 @@
             }
             this._setActivePage(i);
         }
-        _page_anotate() {
+        async _page_anotate() {
+            if (typeof window.loadViewerCapability === "function") {
+                await window.loadViewerCapability("fabric");
+            }
             let page_brus = this.pages[this._activePage].$div;
             let k = page_brus[0].firstElementChild;
             let intance = this;
@@ -762,7 +765,10 @@
                 inputElement.click()
             }
         }
-        _page_fabric(i) {
+        async _page_fabric(i) {
+            if (typeof window.loadViewerCapability === "function") {
+                await window.loadViewerCapability("fabric");
+            }
             let id_canvas = 'page-' + (1) + '-canvas';
             var background = i.firstElementChild.toDataURL("image/png");
             var rl = i.firstElementChild;
@@ -780,12 +786,20 @@
             this.fabricObjects.push(fabricObj);
             return fabricObj;
         }
-        _Add_captureFromSTU() {
+        async _Add_captureFromSTU() {
             if (this.anotate_add_firma == 0) {
                 this.PdfViwerAlert("Usuario sin permiso para adjuntar firma de tableta digital", "warning", "container-general");
                 return true;
             }
-            captureFromSTU();
+            try {
+                if (typeof window.loadViewerCapability === "function") {
+                    await window.loadViewerCapability("wacom");
+                }
+                return captureFromSTU();
+            } catch (error) {
+                this.PdfViwerAlert("No fue posible cargar la tableta digital. Intente nuevamente.", "warning", "container-general");
+                return false;
+            }
         }
         /**
          * 
@@ -974,10 +988,18 @@
          * 
         Printer pdf
          */
-          _PrinterPdf() {
+          async _PrinterPdf() {
             if (this.anotate_printer == 0) {
                 this.PdfViwerAlert("Usuario sin permisos para imprimir el documento", "warning", "container-general");
                 return true;
+            }
+            try {
+                if (typeof window.loadViewerCapability === "function") {
+                    await window.loadViewerCapability("print");
+                }
+            } catch (error) {
+                this.PdfViwerAlert("No fue posible cargar la impresión. Intente nuevamente.", "warning", "container-general");
+                return false;
             }
             let array_parameter = pdfViewer._PropertiTransac()
             let url_page = pdfViewer.getUrlPage();
@@ -1190,7 +1212,7 @@
          * @param {string} document - the url of the document to load
          */
         load_config_stamp_graf() {
-            service_config_itex_stamp_interface();
+            return service_config_itex_stamp_interface();
         }
         async loadDocument(document, url_src_fromat, ur_firma_user, array_parameter) {
             // Now prepare a placeholder for the pages       
@@ -1231,7 +1253,7 @@
         }
         /** acive windows config itex stamp */
         config_stamp() {
-            service_configuracion_itex_stamp_user();
+            return service_configuracion_itex_stamp_user();
         }
 
         UpdateInstConfigStamp() {

@@ -458,3 +458,29 @@ La segunda corrida autorizada confirmó el ajuste con los cinco hitos funcionale
 | Bloqueo en zoom | 435 ms | 104 ms | -76,1 % |
 
 La interacción mejora materialmente, aunque la mediana de primera página aumenta 110 ms. El runner vuelve a producir `FAILED` porque el error de `pdf.worker.entry.min.js` continúa presente; esto demuestra que DOC-100 no lo oculta y conserva su asignación a DOC-101. La evidencia versión 2 superó el control de sanitización.
+
+## Actualización DOC-101 — núcleo y capacidades diferidas
+
+DOC-101 implementó localmente la corrección del frente de arranque:
+
+- `pdf.min.js` queda como único script PDF.js del frame y el worker 3.4.120 se configura mediante `GlobalWorkerOptions.workerSrc`; se retiran worker-entry y sandbox del arranque;
+- jQuery UI local 1.12.1, Bootstrap bundle y Font Awesome `all.js` quedan como propietarios únicos de sus familias;
+- grafo, Wacom, impresión, Fabric y Prettify se cargan al primer uso mediante una promesa memoizada y reintentable;
+- la configuración de sello deja de consultarse durante una lectura simple y se reutiliza después de su primera solicitud;
+- el runner añade conteos saneados por categoría sin conservar URLs ni datos de tarea/documento.
+
+La validación local aprobó 26/26 contratos y la sintaxis de los tres JavaScript modificados. Los recursos locales reutilizados ya están incluidos en `GestionDocumental-Docuarchi.net.vbproj`, por lo cual no hubo cambio del proyecto.
+
+La medición autenticada final de DOC-101 completó tres iteraciones sobre 34 páginas con estado `PASSED`, todos los hitos verdaderos, cero fallos y una tarea larga. No se observó el error `pdf.worker.entry.min.js`. Los conteos exclusivos del iframe fueron 27 solicitudes `core`, 45 `other` y cero solicitudes de `graph`, `wacom`, `print`, `fabric` o `prettify` durante lectura.
+
+| Métrica | Línea base | DOC-101 | Variación |
+| --- | ---: | ---: | ---: |
+| `domInteractive` inicial | 1.679 ms | 389 ms | -76,8 % |
+| `domInteractive` recargas | 92–98 ms | 40 / 28 ms | al menos -56,5 % |
+| Primer canvas inicial | 2.902 ms | 1.696 ms | -41,6 % |
+| Mediana primer canvas | 878 ms | 519 ms | -40,9 % |
+| Tareas largas de carga | 5 | 1 | -80,0 % |
+
+La mejora de arranque queda demostrada para lectura, scroll y zoom.
+
+La matriz E2E separada terminó `PASSED`: cargó grafo y configuración, creó y retiró una firma personal sin guardar, comprobó Print.js, Fabric, Prettify y el contrato de descarga, y mantuvo la lectura estable. Sin una tableta física, abortó deliberadamente `q.js`, comprobó el rechazo localizado sin alterar PDF/página/scroll/zoom y reintentó hasta exponer el SDK Wacom. El resultado global `PASSED_WITH_OBSERVATIONS` contiene únicamente ese fallo opcional provocado; no hubo cambio persistente ni se afirma una captura física.

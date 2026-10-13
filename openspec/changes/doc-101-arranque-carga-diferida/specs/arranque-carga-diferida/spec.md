@@ -1,88 +1,98 @@
-## ADDED Requirements
-### Requirement: ARRANQUE-CARGA-DIFERIDA
-El sistema SHALL implementar el alcance definido para DOC-101.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08 -->
+## Purpose
 
-#### Scenario: Reglas del ticket
-- # Prompt 03 — Arranque y carga diferida de dependencias del visor
-- ## Contexto de ejecución OPSXJ
-- Este prompt corresponde a una Jira independiente. Ejecuta `opsxj:new` al iniciar para crear su OpenSpec autónomo. Inspecciona la implementación y evidencia del Prompt 02, pero no asumas que fue completado ni reutilices su cambio.
-- ## Rol esperado
-- Actúa como arquitecto frontend senior especializado en carga web legacy, compatibilidad de librerías y reducción segura de JavaScript crítico.
-- ## Fuentes obligatorias
-- - Exploración del visor y métricas vigentes.
-- - `pdfjs/pdf_anotate_view/index.html` completo.
-- - `script.js`, `pdf_viewer_anotate.js`, `extend_fabric.js`, scripts Wacom, impresión, Bootstrap, jQuery y jQuery UI referenciados.
-- - `GestionDocumental-Docuarchi.net.vbproj` para recursos desplegados.
-- ## Objetivo
-- Reducir el costo de la primera apertura eliminando duplicados y sacando del camino crítico las capacidades opcionales, sin perder visualización, grafos, firma, impresión o compatibilidad WebForms.
-- ## Inventario obligatorio previo
-- En `design.md`, crea una tabla por recurso con: ruta/URL, versión, símbolo aportado, consumidor real, momento necesario, duplicidad, política local/CDN e integridad. Verifica expresamente:
-- - múltiples jQuery UI;
-- - Popper duplicado;
-- - scripts PDF.js worker/sandbox/entry cargados como scripts normales;
-- - Font Awesome múltiple;
-- - Wacom y `signature_sdk.js` duplicados;
-- - Prettify, jsPDF, Fabric e impresión.
-- ## Implementación obligatoria
-- 1. Definir un núcleo mínimo para visualizar PDF y renderizar la primera página.
-- 2. Eliminar referencias duplicadas solo después de probar el propietario de cada símbolo.
-- 3. Cargar Fabric, Wacom, jsPDF, impresión, configuración de grafo y herramientas equivalentes cuando se active su capacidad.
-- 4. Mantener una única versión compatible de cada dependencia.
-- 5. Preferir recursos ya versionados en el repositorio cuando existan y documentar cualquier CDN que permanezca.
-- 6. Evitar que una dependencia opcional ausente impida visualizar el PDF; la capacidad afectada debe fallar de forma localizada y comprensible.
-- 7. Conservar orden determinista, CSP/integridad existentes y registro en `.vbproj` de recursos nuevos.
-- ## Restricciones y antirregresión
-- - No actualizar versiones mayores durante esta tarea salvo requisito demostrado y pruebas específicas.
-- - No retirar Wacom, firma, impresión o grafos por considerarlos poco usados.
-- - No agregar bundler, SPA o framework nuevo.
-- - No introducir recursos remotos adicionales.
-- - No modificar todavía transporte del PDF o persistencia de grafos.
-- ## Pruebas obligatorias
-- - Contrato estático que detecte duplicados prohibidos e inventario requerido.
-- - Matriz: solo visualización, grafo, firma personal, Wacom disponible/no disponible, impresión y descarga.
-- - Arranque con una dependencia opcional simulada como fallida.
-- - E2E de lectura con medición de `domInteractive`, primer canvas, errores y solicitudes.
-- - Comparación explícita contra 1.679 ms de `domInteractive` en la primera carga y 92–98 ms en recargas.
-- ## Criterios de aceptación
-- - El visor básico no depende de cargar herramientas opcionales.
-- - No existen cargas duplicadas conocidas.
-- - Todas las capacidades habilitadas conservan comportamiento.
-- - La primera apertura mejora y no aparecen errores nuevos.
-- ## Documentación y entrega
-- Registra inventario antes/después, decisiones de versiones, matriz y métricas en `Doc/Actualizacion/VisorPdf/Implementacion/<JIRA>/`.
-- ## Correcciones opsxj:prompt-review
-- Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-- ## Rol esperado
-- Definir el rol tecnico esperado para ejecutar el ticket.
-- ## Objetivo
-- Describir el objetivo funcional y tecnico verificable.
-- ## Restricciones criticas
-- - No introducir cambios fuera del alcance declarado.
-- - No romper comportamiento existente ni contratos publicos.
-- ## Criterios de aceptacion
-- - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-- ## Contexto obligatorio
-- Listar archivos, modulos, servicios, hooks, adapters y documentacion que deben leerse antes de implementar.
-- ## Pruebas obligatorias
-- Ejecutar pruebas Node focales, validación sintáctica JavaScript y E2E con Playwright; ejecutar MSBuild únicamente si se toca código compilado y registrar comandos y resultados.
-- ## Documentacion tecnica
-- Actualizar el paquete documental canonico del ticket.
-- ## Entregable final
-- Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-- Exigir validación sintáctica JavaScript, pruebas Node focales y, si se modifica código compilado, MSBuild; registrar el resultado.
-- Exigir pruebas focales con la infraestructura Node existente; no agregar un framework de pruebas innecesario.
-- Registrar comandos ejecutados, resultados obtenidos y evidencia en `05-PruebasEvidencia.md`.
-- Declarar que código + E2E + validación autorizada + evidencia saneada son una única unidad de entrega dentro del mismo cambio; no crear una tarea o entrega E2E independiente.
-- Reutilizar exclusivamente `tools/e2e`, su autenticación, configuración, validadores, evidencias y utilidades; prohibir login, arnés, proyecto Playwright, configuración o `.env` paralelos.
-- Antes de autenticar, exigir lectura de `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`; ejecutar solo con ambiente, cuentas y datos/tareas descartables expresamente autorizados.
-- Exigir secretos efímeros, prohibir exponer/imprimir/persistir credenciales, cookies, tokens y cadenas de conexión, usar verificaciones solo `SELECT` y conservar evidencia saneada.
-- Exigir cobertura E2E, cuando aplique, de autorización/control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada.
-- Respetar feature flags, gates, usuarios, grupos y seguridad sin habilitarlos arbitrariamente; no cerrar sin validación autorizada, registrar bloqueo explícito y prohibir mocks, simulaciones, resultados inventados y evidencia ficticia.
+Reducir el trabajo y las solicitudes de la primera apertura del visor PDF sin perder capacidades opcionales ni compatibilidad con su integración WebForms.
+
+## ADDED Requirements
+
+### Requirement: Arranque mínimo del visor
+El visor SHALL renderizar el primer canvas sin descargar ni ejecutar dependencias de Wacom, impresión, Fabric, Prettify o configuración de grafo. <!-- RQ-01; D-01 -->
+
+#### Scenario: Apertura de solo lectura
+- **WHEN** el usuario abre un documento y no activa herramientas opcionales
+- **THEN** el primer canvas aparece usando únicamente el núcleo declarado y no existen solicitudes de capacidades opcionales
+
+#### Scenario: Navegación básica
+- **WHEN** el documento básico ya está visible
+- **THEN** scroll, zoom, rotación y navegación continúan operativos sin cargar capacidades opcionales
+
+### Requirement: Worker PDF aislado del frame
+El visor SHALL ejecutar el worker de PDF.js mediante `GlobalWorkerOptions.workerSrc` y SHALL NOT cargar worker, sandbox o worker-entry como scripts normales del frame. <!-- RQ-02; D-02 -->
+
+#### Scenario: Primer render con worker
+- **WHEN** `pdfjsLib.getDocument` procesa el documento
+- **THEN** PDF.js resuelve su worker dedicado con la misma versión del núcleo y completa el primer canvas
+
+#### Scenario: Artefactos no ejecutables en el frame
+- **WHEN** se inspeccionan scripts y errores de la página
+- **THEN** `pdf.worker.entry.min.js`, `pdf.worker.min.js` y `pdf.sandbox.min.js` no aparecen como scripts del documento y no generan el error atribuido a DOC-101
+
+### Requirement: Propietario único de dependencias
+El visor SHALL mantener un único propietario compatible por familia de jQuery UI, Popper, Font Awesome, Prettify y Wacom, y SHALL NOT cargar recursos sin consumidor demostrado. <!-- RQ-03; D-03 -->
+
+#### Scenario: Contrato estático de duplicados
+- **WHEN** se analiza `index.html`
+- **THEN** cada familia permitida satisface la cardinalidad y versión definidas en el inventario aprobado
+
+#### Scenario: Compatibilidad del propietario conservado
+- **WHEN** se usan dropdown, modal, iconos, arrastre, redimensión o menú contextual
+- **THEN** el símbolo proviene del propietario seleccionado y el comportamiento visible se conserva
+
+### Requirement: Carga opcional memoizada y ordenada
+El visor SHALL cargar cada capacidad opcional con una promesa compartida, orden determinista y verificación de su símbolo final. <!-- RQ-04; D-04 -->
+
+#### Scenario: Activación concurrente
+- **WHEN** una capacidad se solicita varias veces mientras está cargando
+- **THEN** todas las solicitudes reciben la misma promesa y cada recurso se inserta como máximo una vez
+
+#### Scenario: Capacidad ya disponible
+- **WHEN** una capacidad completada vuelve a solicitarse
+- **THEN** el cargador reutiliza su estado sin crear nuevos nodos ni solicitudes
+
+### Requirement: Activación en el punto de uso
+El visor SHALL solicitar Wacom, impresión, Fabric, Prettify y configuración de grafo únicamente desde la acción que consume cada capacidad. <!-- RQ-05; D-05 -->
+
+#### Scenario: Wacom
+- **WHEN** el usuario activa la tableta digital
+- **THEN** la cadena Wacom se carga una vez en orden y después se invoca `captureFromSTU`
+
+#### Scenario: Impresión
+- **WHEN** el usuario solicita imprimir
+- **THEN** los recursos de impresión se cargan antes de invocar `printJS`
+
+#### Scenario: Configuración de grafo o firma
+- **WHEN** el usuario activa una acción que requiere configuración de sello o plugins de grafo
+- **THEN** esos recursos y el WebMethod correspondiente se solicitan en ese momento y no durante la apertura básica
+
+### Requirement: Fallo opcional localizado
+El visor SHALL mantener el PDF operativo cuando una dependencia opcional no pueda cargarse y SHALL informar el fallo únicamente en la capacidad afectada. <!-- RQ-06; D-06 -->
+
+#### Scenario: Recurso opcional ausente
+- **WHEN** falla un script, estilo o símbolo final de una capacidad opcional
+- **THEN** la acción muestra un error comprensible, habilita reintento y conserva lectura, scroll y zoom
+
+#### Scenario: Reintento
+- **WHEN** el usuario repite una capacidad cuya carga anterior falló
+- **THEN** el cargador realiza un nuevo intento sin duplicar recursos que sí terminaron correctamente
+
+### Requirement: Compatibilidad y política de recursos
+DOC-101 SHALL conservar contratos WebForms, versiones mayores, orígenes remotos y metadatos de despliegue fuera de los cambios expresamente aprobados. <!-- RQ-07; D-07 -->
+
+#### Scenario: Revisión de entrega
+- **WHEN** se inspecciona el diff
+- **THEN** no existen cambios de transporte, persistencia, permisos, payloads, bundler o framework y no se agregaron CDN nuevos
+
+#### Scenario: Recurso local nuevo
+- **WHEN** la implementación incorpora un archivo estático local
+- **THEN** el recurso se registra en `GestionDocumental-Docuarchi.net.vbproj` y conserva la política de despliegue existente
+
+### Requirement: Evidencia reproducible de arranque
+DOC-101 SHALL medir solicitudes, `domInteractive`, primer canvas y errores mediante la infraestructura E2E saneada existente. <!-- RQ-08; D-08 -->
+
+#### Scenario: Validación autorizada
+- **WHEN** existe autorización vigente y se ejecutan tres iteraciones con el documento aprobado
+- **THEN** la evidencia compara la primera apertura con 1.679 ms, las recargas con 92–98 ms y registra hitos, solicitudes y errores sin datos sensibles
+
+#### Scenario: Validación no autorizada
+- **WHEN** no existe autorización vigente para ambiente, cuenta y documento
+- **THEN** no se ejecuta E2E real y se registra el bloqueo sin inventar resultados

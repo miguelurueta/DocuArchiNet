@@ -1,5 +1,157 @@
 var pdf;
-var url_response = "" 
+var url_response = ""
+
+const PDFJS_WORKER_SRC = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js";
+if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_SRC;
+}
+
+const viewerCapabilityPromises = Object.create(null);
+const viewerCapabilities = Object.freeze({
+    graph: {
+        styles: [
+            "../../js/jquery-ui-1.12.1.custom/jquery-ui.min.css",
+            "../../js/jquery.contextMenu.css"
+        ],
+        scripts: [
+            "../../js/jquery-ui-1.12.1.custom/jquery-ui.min.js",
+            "../../js/jquery.contextMenu.js",
+            { src: "https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js", optional: true }
+        ],
+        ready: function () {
+            return Boolean(window.jQuery && window.jQuery.fn && window.jQuery.fn.draggable &&
+                window.jQuery.fn.resizable && window.jQuery.fn.contextMenu);
+        }
+    },
+    wacom: {
+        styles: ["../wacom/demoButtons.css"],
+        scripts: [
+            "../wacom/q.js",
+            "../wacom/BigInt.js",
+            "../wacom/wgssStuSdk.js",
+            "../wacom/sjcl.js",
+            "../wacom/demoButtons_encryption.js",
+            "../wacom/signature_sdk.js",
+            "../wacom/sigCaptDialog.js",
+            "../wacom/stuCaptDialog.js",
+            "../wacom/wacom.js"
+        ],
+        ready: function () { return typeof window.captureFromSTU === "function"; }
+    },
+    print: {
+        styles: ["../../printer_js/print.min.css"],
+        scripts: ["../../printer_js/print.min.js"],
+        ready: function () { return typeof window.printJS === "function"; }
+    },
+    fabric: {
+        styles: [],
+        scripts: ["https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.3.0/fabric.min.js"],
+        ready: function () { return Boolean(window.fabric && window.fabric.Canvas); }
+    },
+    prettify: {
+        styles: [],
+        scripts: ["https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js"],
+        ready: function () { return Boolean(window.PR && typeof window.PR.prettyPrint === "function"); }
+    }
+});
+
+function viewerResourceUrl(value) {
+    return new URL(value, document.baseURI).href;
+}
+
+function findViewerResource(selector, attribute, url) {
+    const expected = viewerResourceUrl(url);
+    return Array.from(document.querySelectorAll(selector)).find(function (element) {
+        return viewerResourceUrl(element.getAttribute(attribute)) === expected;
+    });
+}
+
+function loadViewerStyle(url) {
+    const existing = findViewerResource("link[rel='stylesheet'][href]", "href", url);
+    if (existing) return Promise.resolve(existing);
+    return new Promise(function (resolve, reject) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = url;
+        link.setAttribute("data-viewer-resource", url);
+        link.onload = function () { resolve(link); };
+        link.onerror = function () { link.remove(); reject(new Error("VIEWER_STYLE_LOAD_FAILED")); };
+        document.head.appendChild(link);
+    });
+}
+
+function loadViewerScript(resource) {
+    const descriptor = typeof resource === "string" ? { src: resource, optional: false } : resource;
+    const existing = findViewerResource("script[src]", "src", descriptor.src);
+    if (existing) return Promise.resolve(existing);
+    return new Promise(function (resolve, reject) {
+        const script = document.createElement("script");
+        script.src = descriptor.src;
+        script.async = false;
+        script.setAttribute("data-viewer-resource", descriptor.src);
+        script.onload = function () { resolve(script); };
+        script.onerror = function () {
+            script.remove();
+            if (descriptor.optional) resolve(null);
+            else reject(new Error("VIEWER_SCRIPT_LOAD_FAILED"));
+        };
+        document.head.appendChild(script);
+    });
+}
+
+function loadViewerCapability(name) {
+    const capability = viewerCapabilities[name];
+    if (!capability) return Promise.reject(new Error("VIEWER_CAPABILITY_UNKNOWN"));
+    if (capability.ready()) return Promise.resolve(name);
+    if (viewerCapabilityPromises[name]) return viewerCapabilityPromises[name];
+
+    viewerCapabilityPromises[name] = Promise.all(capability.styles.map(loadViewerStyle))
+        .then(function () {
+            return capability.scripts.reduce(function (promise, resource) {
+                return promise.then(function () { return loadViewerScript(resource); });
+            }, Promise.resolve());
+        })
+        .then(function () {
+            if (!capability.ready()) throw new Error("VIEWER_CAPABILITY_SYMBOL_MISSING");
+            return name;
+        })
+        .catch(function (error) {
+            delete viewerCapabilityPromises[name];
+            throw error;
+        });
+    return viewerCapabilityPromises[name];
+}
+
+function optionalCapabilityControl(event) {
+    const target = event && event.currentTarget;
+    return target && typeof target.closest === "function" ? target.closest("button") : null;
+}
+
+function reportOptionalCapabilityError(label) {
+    const message = "No fue posible cargar " + label + ". Intente nuevamente.";
+    if (pdfViewer && typeof pdfViewer.PdfViwerAlert === "function") {
+        pdfViewer.PdfViwerAlert(message, "warning", "container-general");
+    } else {
+        console.warn(message);
+    }
+}
+
+async function runOptionalCapability(event, name, label, action) {
+    const control = optionalCapabilityControl(event);
+    if (control) control.disabled = true;
+    try {
+        await loadViewerCapability(name);
+        return await action();
+    } catch (error) {
+        reportOptionalCapabilityError(label);
+        return false;
+    } finally {
+        if (control) control.disabled = false;
+    }
+}
+
+window.viewerCapabilities = viewerCapabilities;
+window.loadViewerCapability = loadViewerCapability;
 function load_pdf_anotate(url_response, url_src, url_firma_) {
     pdf = new PDFAnnotate("pdf-container_", url_response, url_src, url_firma_, {
         onPageUpdated(page, oldData, newData) {
@@ -80,6 +232,54 @@ $(window).on("load", function () {
 })
 //------------------ZONA PDFVIWER-2-----------------------------------------------
 let pdfViewer;
+let stampConfigurationPromise = null;
+
+function ensureStampConfiguration(showInterface) {
+    if (!stampConfigurationPromise) {
+        stampConfigurationPromise = Promise.resolve(pdfViewer.config_stamp()).then(function () {
+            const config = pdfViewer.itex_config_stamp;
+            if (!config || !config[0] || config[0].error_sistema !== "YES") {
+                throw new Error("VIEWER_STAMP_CONFIGURATION_FAILED");
+            }
+            return config;
+        }).catch(function (error) {
+            stampConfigurationPromise = null;
+            throw error;
+        });
+    }
+    return stampConfigurationPromise.then(function (config) {
+        if (showInterface) asign_connfig_itext_stamp(config);
+        return config;
+    });
+}
+
+function initializeViewerContextMenus() {
+    if (typeof window.context_menu !== "function") return;
+    document.querySelectorAll("#pdf-container_ canvas[id]").forEach(function (canvas) {
+        if (canvas.getAttribute("data-viewer-context-menu") === "ready") return;
+        window.context_menu(canvas.id);
+        canvas.setAttribute("data-viewer-context-menu", "ready");
+    });
+}
+
+async function activateViewerContextMenu(event) {
+    if (window.jQuery && window.jQuery.fn && window.jQuery.fn.contextMenu) return;
+    const canvas = event.target && event.target.closest ? event.target.closest("#pdf-container_ canvas[id]") : null;
+    if (!canvas) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    await runOptionalCapability(event, "graph", "el menú contextual", async function () {
+        await ensureStampConfiguration(false);
+        initializeViewerContextMenus();
+        const repeated = new MouseEvent("contextmenu", {
+            bubbles: true,
+            cancelable: true,
+            clientX: event.clientX,
+            clientY: event.clientY
+        });
+        canvas.dispatchEvent(repeated);
+    });
+}
 function setHorizontal() {
     document.querySelector(".maindoc").classList.add("horizontal-scroll");
     pdfViewer.refreshAll();
@@ -129,7 +329,6 @@ function load_pdf_viwer_anotation(document, url_src_fromat, ur_firma_user, param
     pdfViewer.loadDocument(document, url_src_fromat, ur_firma_user, paramenter_pdf_view).then(function () {
         //document.querySelector('#filedownload').download = PDFFILE;
    });
-    pdfViewer.config_stamp();
 }
 
 
@@ -178,9 +377,13 @@ const configToolbarPdfView = () => {
     pdf_btn_printer_page.addEventListener("click", pdfTool_viwer_Printer, false);
     pdf_a_paramneter_grafo.addEventListener("click", pdfTool_parameter_grafo, false);
     Pdf_btn_update_insert.addEventListener("click", pdfBtn_update_insert, false);
+    document.getElementById("pdf-container_").addEventListener("contextmenu", activateViewerContextMenu, true);
 }
-const pdfTool_parameter_grafo = (event) => {
-    pdfViewer.load_config_stamp_graf();
+const pdfTool_parameter_grafo = async (event) => {
+    return runOptionalCapability(event, "graph", "los parámetros del grafo", function () {
+        initializeViewerContextMenus();
+        return ensureStampConfiguration(true);
+    });
 }
 const pdfBtn_update_insert = (event) => {
     pdfViewer.UpdateInstConfigStamp();
@@ -191,8 +394,12 @@ function scale_pdfTool_viwer_plus(event) {
 function scale_pdfTool_viwer_minus(event) {
     pdfViewer.setZoom('out');
 }
-function add_pdfTool_viwer_stamp(event) {
-    pdfViewer._Add_interface_anotate(1,0,0);
+async function add_pdfTool_viwer_stamp(event) {
+    return runOptionalCapability(event, "graph", "la firma personal", async function () {
+        await ensureStampConfiguration(false);
+        initializeViewerContextMenus();
+        return pdfViewer._Add_interface_anotate(1,0,0);
+    });
 }
 function donwload_pdfTool_viwer(event) {
     pdfViewer._DonwloadPage();
@@ -203,11 +410,17 @@ function pdfTool_viwer_rotate_redo(event) {
 function pdfTool_viwer_rotate_undo(event) {
     pdfViewer.rotate(-90, true);
 }
-function pdfTool_viwer_captureFromSTU(event) {
-    pdfViewer._Add_captureFromSTU();
+async function pdfTool_viwer_captureFromSTU(event) {
+    if (pdfViewer.anotate_add_firma == 0) return pdfViewer._Add_captureFromSTU();
+    return runOptionalCapability(event, "wacom", "la tableta digital", function () {
+        return pdfViewer._Add_captureFromSTU();
+    });
 }
-function pdfTool_viwer_Printer(event) {
-    pdfViewer._PrinterPdf();
+async function pdfTool_viwer_Printer(event) {
+    if (pdfViewer.anotate_printer == 0) return pdfViewer._PrinterPdf();
+    return runOptionalCapability(event, "print", "la impresión", function () {
+        return pdfViewer._PrinterPdf();
+    });
 }
 //------------------FIN----------------------------------------------------
 function configToolbar() {
@@ -332,11 +545,13 @@ function clearPage() {
     pdf.clearActivePage();
 }
 
-function showPdfData() {
+async function showPdfData(event) {
     var string = pdf.serializePdf();
     $('#dataModal .modal-body pre').first().text(string);
-    PR.prettyPrint();
-    $('#dataModal').modal('show');
+    return runOptionalCapability(event, "prettify", "el detalle del PDF", function () {
+        PR.prettyPrint();
+        $('#dataModal').modal('show');
+    });
 }
 
 $(function () {
