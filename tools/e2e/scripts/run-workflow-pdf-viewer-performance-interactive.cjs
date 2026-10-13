@@ -21,6 +21,31 @@ const allowedProfileFields = new Set([
 ]);
 const allowedFailureFields = Object.freeze(['code', 'source', 'type', 'fileBase', 'line']);
 const requiredSources = new Set(['main_frame', 'viewer', 'worker']);
+const requestCountCategories = Object.freeze(['core', 'graph', 'wacom', 'print', 'fabric', 'prettify', 'other']);
+
+function classifyViewerRequest(value) {
+  let pathname = '';
+  try { pathname = new URL(value, 'https://viewer.invalid/').pathname.toLowerCase(); } catch { return 'other'; }
+  if (/\/wacom\//.test(pathname)) return 'wacom';
+  if (/\/printer_js\//.test(pathname)) return 'print';
+  if (/fabric(?:\.min)?\.js$/.test(pathname)) return 'fabric';
+  if (/prettify(?:\.min)?\.js$/.test(pathname)) return 'prettify';
+  if (/jquery-ui|contextmenu|touch-punch/.test(pathname)) return 'graph';
+  if (/\/pdfjs\/pdf_anotate_view\/|\/workflow\/handler_image_wf\.ashx$/.test(pathname)) return 'core';
+  return 'other';
+}
+
+function createRequestCounts() {
+  return Object.seal(Object.fromEntries(requestCountCategories.map(category => [category, 0])));
+}
+
+function isViewerFrameRequest(requestUrl, frameUrl) {
+  const viewerPath = /\/pdfjs\/pdf_anotate_view\/index\.html$/i;
+  try {
+    if (viewerPath.test(new URL(requestUrl).pathname)) return true;
+  } catch { return false; }
+  try { return viewerPath.test(new URL(frameUrl).pathname); } catch { return false; }
+}
 
 function safeFileBase(value) {
   if (typeof value !== 'string' || !value) return '';
@@ -377,13 +402,88 @@ function summarize(samples) {
   return Object.freeze({ minimumMs: values[0], medianMs: median, maximumMs: values[values.length - 1] });
 }
 
-async function writeEvidence(evidence) {
-  const destination = path.join(e2eRoot, 'artifacts', 'workflow-pdf-viewer-performance.json');
+async function writeEvidence(evidence, fileName = 'workflow-pdf-viewer-performance.json') {
+  const destination = path.join(e2eRoot, 'artifacts', fileName);
   await fsp.mkdir(path.dirname(destination), { recursive: true });
   await fsp.writeFile(destination, `${JSON.stringify(evidence, null, 2)}\n`, 'utf8');
 }
 
-async function runMeasurement(profile, environment) {
+async function exerciseCapabilityMatrix(page, frame) {
+  const graphAndSignature = await frame.evaluate(async () => {
+    await window.loadViewerCapability('graph');
+    await ensureStampConfiguration(false);
+    initializeViewerContextMenus();
+    const permissionGranted = Number(pdfViewer.anotate_add_firma) !== 0;
+    const before = new Set(Array.from(document.querySelectorAll('[id^="div-drav-image-"]')).map(item => item.id));
+    if (permissionGranted) pdfViewer._Add_interface_anotate(1, 0, 0);
+    const overlay = Array.from(document.querySelectorAll('[id^="div-drav-image-"]')).find(item => !before.has(item.id));
+    const overlayCreated = Boolean(overlay);
+    overlay?.remove();
+    return {
+      ready: Boolean(window.jQuery?.fn?.draggable && window.jQuery?.fn?.resizable && window.jQuery?.fn?.contextMenu),
+      configurationLoaded: Boolean(pdfViewer.itex_config_stamp?.[0]?.error_sistema === 'YES'),
+      signature: { permissionGranted, overlayCreated, removedWithoutSave: overlayCreated && !document.getElementById(overlay.id) }
+    };
+  });
+
+  await page.route('**/wacom/q.js', route => route.abort('failed'));
+  const wacomUnavailable = await frame.evaluate(async () => {
+    const container = document.querySelector('#pdf-container_');
+    const pdfReference = pdfViewer.pdf;
+    const before = {
+      activePage: pdfViewer.getActivePageNumber(),
+      pageCount: Number(pdfViewer.pdf?.numPages || 0),
+      scrollTop: Number(container?.scrollTop || 0),
+      zoom: Number(pdfViewer.getZoom?.() || 0)
+    };
+    let rejected = false;
+    try { await window.loadViewerCapability('wacom'); } catch { rejected = true; }
+    return {
+      rejected,
+      statePreserved: pdfReference === pdfViewer.pdf &&
+        before.activePage === pdfViewer.getActivePageNumber() &&
+        before.pageCount === Number(pdfViewer.pdf?.numPages || 0) &&
+        before.scrollTop === Number(container?.scrollTop || 0) &&
+        before.zoom === Number(pdfViewer.getZoom?.() || 0)
+    };
+  });
+  await page.unroute('**/wacom/q.js');
+
+  const remaining = await frame.evaluate(async () => {
+    await window.loadViewerCapability('wacom');
+    await window.loadViewerCapability('print');
+    await window.loadViewerCapability('fabric');
+    await window.loadViewerCapability('prettify');
+    const canvas = document.querySelector('#pdf-container_ canvas');
+    return {
+      wacomSdkReady: typeof window.captureFromSTU === 'function',
+      printSdkReady: typeof window.printJS === 'function',
+      fabricReady: Boolean(window.fabric?.Canvas),
+      prettifyReady: Boolean(window.PR?.prettyPrint),
+      downloadContractReady: typeof donwload_pdfTool_viwer === 'function' && Boolean(document.getElementById('pdf_btn_down_load')),
+      downloadPermissionGranted: Number(pdfViewer.anotate_save) !== 0,
+      readStable: Boolean(canvas && canvas.width > 0 && canvas.height > 0 && pdfViewer.pdf?.numPages > 0)
+    };
+  });
+
+  const signatureAccepted = graphAndSignature.signature.permissionGranted
+    ? graphAndSignature.signature.overlayCreated && graphAndSignature.signature.removedWithoutSave
+    : !graphAndSignature.signature.overlayCreated;
+  const passed = graphAndSignature.ready && graphAndSignature.configurationLoaded && signatureAccepted &&
+    wacomUnavailable.rejected && wacomUnavailable.statePreserved && remaining.wacomSdkReady &&
+    remaining.printSdkReady && remaining.fabricReady && remaining.prettifyReady &&
+    remaining.downloadContractReady && remaining.readStable;
+  return Object.freeze({
+    graphAndSignature,
+    wacomUnavailable,
+    remaining,
+    physicalWacomPresent: false,
+    persistedDocumentChange: false,
+    result: passed ? 'PASSED' : 'FAILED'
+  });
+}
+
+async function runMeasurement(profile, environment, options = {}) {
   const browser = await chromium.launch({ ...(profile.browser || {}), headless: profile.headless });
   let context;
   try {
@@ -399,14 +499,27 @@ async function runMeasurement(profile, environment) {
     await installPerformanceProbe(context);
     const page = await context.newPage();
     const failures = [];
-    const network = { handlerStatuses: [], viewerHttpErrors: 0, failedHandlerRequests: 0 };
+    const network = {
+      handlerStatuses: [], viewerHttpErrors: 0, failedHandlerRequests: 0,
+      requestCounts: createRequestCounts()
+    };
+    page.on('request', request => {
+      let frameUrl = '';
+      try { frameUrl = request.frame().url(); } catch { /* Solicitudes sin frame no se atribuyen al visor. */ }
+      if (!isViewerFrameRequest(request.url(), frameUrl)) return;
+      const category = classifyViewerRequest(request.url());
+      network.requestCounts[category] += 1;
+    });
     page.on('response', response => {
       let pathname = '';
       try { pathname = new URL(response.url()).pathname; } catch { return; }
       if (/\/workflow\/Handler_image_wf\.ashx$/i.test(pathname)) network.handlerStatuses.push(response.status());
       if (response.status() >= 400) {
         let source = 'main_frame';
-        if (/\/pdfjs\/pdf_anotate_view\//i.test(pathname)) {
+        const category = classifyViewerRequest(pathname);
+        if (!['core', 'other'].includes(category)) {
+          source = 'optional_resource';
+        } else if (/\/pdfjs\/pdf_anotate_view\//i.test(pathname)) {
           source = 'viewer';
           network.viewerHttpErrors += 1;
         } else if (/\.(?:map|ico|woff2?|ttf)$/i.test(pathname)) {
@@ -422,8 +535,12 @@ async function runMeasurement(profile, environment) {
         const pathname = new URL(request.url()).pathname;
         fileName = pathname;
         if (/\/workflow\/Handler_image_wf\.ashx$/i.test(pathname)) network.failedHandlerRequests += 1;
-        if (/\/pdfjs\/pdf_anotate_view\//i.test(pathname)) source = 'viewer';
-        if (/\.(?:map|ico|woff2?|ttf)$/i.test(pathname)) source = 'optional_resource';
+        const category = classifyViewerRequest(pathname);
+        if (!['core', 'other'].includes(category) || /\.(?:map|ico|woff2?|ttf)$/i.test(pathname)) {
+          source = 'optional_resource';
+        } else if (/\/pdfjs\/pdf_anotate_view\//i.test(pathname)) {
+          source = 'viewer';
+        }
       } catch { /* La evidencia no conserva URL ni causa de transporte. */ }
       failures.push(classifyBrowserFailure({ type: 'resource', source, fileName }));
     });
@@ -479,6 +596,7 @@ async function runMeasurement(profile, environment) {
       console.log(`WORKFLOW_PDF_PERF_ITERATION_${iteration + 1}_FIRST_CANVAS=true`);
     }
 
+    const capabilityMatrix = options.capabilityMatrix ? await exerciseCapabilityMatrix(page, frame) : null;
     const probeFailures = samples.flatMap(sample => sample.classifiedErrors || []);
     const uniqueFailures = [...new Map([...failures, ...probeFailures].map(item => [JSON.stringify(item), item])).values()];
     const milestones = Object.freeze({
@@ -491,18 +609,22 @@ async function runMeasurement(profile, environment) {
     const result = deriveResult({ milestones, failures: uniqueFailures });
     const evidence = Object.freeze({
       schemaVersion: 2,
-      scenario: 'workflow-pdf-viewer-performance-read',
+      scenario: capabilityMatrix ? 'workflow-pdf-viewer-capability-matrix' : 'workflow-pdf-viewer-performance-read',
       capturedAtUtc: new Date().toISOString(),
       mode: profile.headless ? 'headless' : 'headed',
       iterations: samples.length,
       summary: summarize(samples),
       samples,
       interactions: { scroll, zoom },
+      requestCounts: { ...network.requestCounts },
+      ...(capabilityMatrix ? { capabilityMatrix } : {}),
       milestones,
       failures: uniqueFailures,
       result
     });
-    await writeEvidence(evidence);
+    await writeEvidence(evidence, capabilityMatrix
+      ? 'workflow-pdf-viewer-capability-matrix.json'
+      : 'workflow-pdf-viewer-performance.json');
     return evidence;
   } finally {
     await context?.close().catch(() => {});
@@ -519,12 +641,14 @@ async function main() {
   await collectConfirmation(values, 'WORKFLOW_PDF_PERF_ENVIRONMENT_AUTHORIZED', '¿Autoriza el ambiente para medir el visor PDF?');
   await collectConfirmation(values, 'WORKFLOW_PDF_PERF_ACCOUNT_AUTHORIZED', '¿Autoriza esta cuenta y tarea para la medición?');
   await collectConfirmation(values, 'WORKFLOW_PDF_PERF_VIEW_LOG_AUTHORIZED', '¿Autoriza el registro normal de visualización generado al abrir el documento?');
-  const evidence = await runMeasurement(profile, { ...process.env, ...values });
+  const capabilityMatrix = process.argv.includes('--capability-matrix');
+  const evidence = await runMeasurement(profile, { ...process.env, ...values }, { capabilityMatrix });
   console.log(`WORKFLOW_PDF_PERF_FIRST_CANVAS_MEDIAN_MS=${evidence.summary.medianMs}`);
   console.log(`WORKFLOW_PDF_PERF_PAGE_COUNT=${evidence.samples[0].pageCount}`);
   console.log(`WORKFLOW_PDF_PERF_LONG_TASKS=${evidence.samples.reduce((sum, sample) => sum + sample.longTaskCount, 0)}`);
   console.log(`WORKFLOW_PDF_PERF_RESULT=${evidence.result}`);
-  if (evidence.result === 'FAILED') process.exitCode = 2;
+  if (capabilityMatrix) console.log(`WORKFLOW_PDF_CAPABILITY_MATRIX_RESULT=${evidence.capabilityMatrix.result}`);
+  if (evidence.result === 'FAILED' || evidence.capabilityMatrix?.result === 'FAILED') process.exitCode = 2;
 }
 
 if (require.main === module) {
@@ -543,12 +667,17 @@ if (require.main === module) {
 module.exports = {
   allowedProfileFields,
   allowedFailureFields,
+  classifyViewerRequest,
+  createRequestCounts,
   captureViewerMetrics,
   classifyBrowserFailure,
   classifyPageError,
   deriveResult,
+  exerciseCapabilityMatrix,
   loadProfile,
+  isViewerFrameRequest,
   measureScroll,
   measureZoom,
+  requestCountCategories,
   summarize
 };

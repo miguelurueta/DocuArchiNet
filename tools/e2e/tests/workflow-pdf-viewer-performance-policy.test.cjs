@@ -7,10 +7,14 @@ const path = require('node:path');
 const test = require('node:test');
 const {
   allowedFailureFields,
+  classifyViewerRequest,
+  createRequestCounts,
   classifyBrowserFailure,
   classifyPageError,
   deriveResult,
+  isViewerFrameRequest,
   loadProfile,
+  requestCountCategories,
   summarize
 } = require('../scripts/run-workflow-pdf-viewer-performance-interactive.cjs');
 
@@ -50,6 +54,33 @@ test('la evidencia resume tiempos sin incluir identidad de tarea, documento ni U
   assert.doesNotMatch(runner, /console\.(?:log|error)\([^\n]*(?:url|src|rut_image|cookie)/i);
 });
 
+test('clasifica solicitudes en conteos cerrados sin conservar URL ni query', () => {
+  const cases = [
+    ['https://host.invalid/pdfjs/pdf_anotate_view/script.js?task=77', 'core'],
+    ['https://host.invalid/pdfjs/wacom/signature_sdk.js?token=secret', 'wacom'],
+    ['https://host.invalid/printer_js/print.min.js', 'print'],
+    ['https://cdn.invalid/fabric.min.js', 'fabric'],
+    ['https://cdn.invalid/prettify.min.js', 'prettify'],
+    ['https://host.invalid/pdfjs/pdf_anotate_view/js/jquery.contextMenu.js', 'graph'],
+    ['https://host.invalid/bootstrap.min.css', 'other']
+  ];
+  for (const [url, expected] of cases) assert.equal(classifyViewerRequest(url), expected);
+  const counts = createRequestCounts();
+  assert.deepEqual(Object.keys(counts), requestCountCategories);
+  assert.deepEqual(Object.values(counts), requestCountCategories.map(() => 0));
+  assert.match(runner, /requestCounts:\s*\{\s*\.\.\.network\.requestCounts\s*\}/);
+  assert.doesNotMatch(JSON.stringify(counts), /https?:|task=|token|secret/i);
+});
+
+test('los conteos incluyen solo solicitudes originadas por el iframe oficial', () => {
+  const viewer = 'https://host.invalid/pdfjs/pdf_anotate_view/index.html';
+  assert.equal(isViewerFrameRequest(viewer, 'about:blank'), true);
+  assert.equal(isViewerFrameRequest('https://host.invalid/pdfjs/wacom/q.js', viewer), true);
+  assert.equal(isViewerFrameRequest('https://host.invalid/js/jquery-ui.min.js', 'https://host.invalid/workflow/Webworkflow.aspx'), false);
+  assert.equal(isViewerFrameRequest('https://host.invalid/main.css', ''), false);
+  assert.match(runner, /if \(!isViewerFrameRequest\(request\.url\(\), frameUrl\)\) return/);
+});
+
 test('la medición abre el visor oficial sin invocar persistencia de grafos', () => {
   assert.match(runner, /createAuthenticatedWorkflowSession/);
   assert.match(runner, /tip_event=\"seleccion_tarea_wf\"/);
@@ -65,6 +96,18 @@ test('la medición abre el visor oficial sin invocar persistencia de grafos', ()
   assert.match(runner, /WORKFLOW_PDF_PERF_SCROLL_COMPLETED/);
   assert.doesNotMatch(runner, /service_anotate_pdf_image/);
   assert.doesNotMatch(runner, /Pdf_btn_update_insert/);
+});
+
+test('la matriz opcional es no persistente y produce evidencia separada', () => {
+  assert.match(runner, /--capability-matrix/);
+  assert.match(runner, /workflow-pdf-viewer-capability-matrix\.json/);
+  assert.match(runner, /persistedDocumentChange:\s*false/);
+  assert.match(runner, /physicalWacomPresent:\s*false/);
+  assert.match(runner, /overlay\?\.remove\(\)/);
+  assert.match(runner, /route\.abort\('failed'\)/);
+  assert.match(runner, /wacomUnavailable\.statePreserved/);
+  assert.doesNotMatch(runner, /exerciseCapabilityMatrix[\s\S]*service_anotate_pdf_image/);
+  assert.doesNotMatch(runner, /exerciseCapabilityMatrix[\s\S]*Pdf_btn_update_insert/);
 });
 
 test('clasifica errores con un contrato cerrado y saneado', () => {
@@ -100,10 +143,15 @@ test('deriva PASSED, PASSED_WITH_OBSERVATIONS y FAILED sin falsos limpios', () =
   const optional = classifyBrowserFailure({ type: 'resource', source: 'optional_resource', fileName: 'ui.woff2' });
   const optionalScript = classifyBrowserFailure({ type: 'error', source: 'optional_resource', fileName: 'ui.js' });
   const viewer = classifyBrowserFailure({ type: 'pageerror', source: 'viewer', fileName: 'viewer.js' });
+  const workerEntry = classifyPageError({
+    stack: 'ReferenceError\n at https://host.invalid/pdfjs/pdf_anotate_view/pdf.worker.entry.min.js:1:2'
+  });
   assert.equal(deriveResult({ milestones, failures: [] }), 'PASSED');
   assert.equal(deriveResult({ milestones, failures: [optional] }), 'PASSED_WITH_OBSERVATIONS');
   assert.equal(deriveResult({ milestones, failures: [optionalScript] }), 'FAILED');
   assert.equal(deriveResult({ milestones, failures: [viewer] }), 'FAILED');
+  assert.equal(workerEntry.fileBase, 'pdf.worker.entry.min.js');
+  assert.equal(deriveResult({ milestones, failures: [workerEntry] }), 'FAILED');
   assert.equal(deriveResult({ milestones: { ...milestones, zoom: false }, failures: [] }), 'FAILED');
   assert.doesNotMatch(runner, /WORKFLOW_PDF_PERF_RESULT=PASSED['"`]/);
 });
