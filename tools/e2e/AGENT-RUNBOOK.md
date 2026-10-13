@@ -335,6 +335,18 @@ npm.cmd --prefix tools/e2e run test:radicacion-simple:attachment -- --profile to
 
 Ninguno de estos comandos se ejecuta sin autorización explícita. La evidencia DOC-90 conserva únicamente fecha, huella del recurso, banderas y conteos; no guarda radicado, credenciales, cookies, consultas, cadenas de conexión ni contenido documental.
 
+## Medición de rendimiento del visor PDF en Workflow
+
+La medición reutiliza la sesión autenticada y el recorrido oficial de Workflow. No llama directamente al handler con una ruta construida por la prueba. Copie `workflow-pdf-viewer-performance.profile.example.json` dentro de `tools/e2e/profiles/` con otro nombre terminado en `.runtime.json` y configure URL, módulo, tarea, ordinal del documento PDF y parámetros de medición. No agregue rutas físicas, identificadores documentales, consultas ni secretos.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:workflow:pdf-viewer-performance -- --profile profiles/<perfil-runtime.json>
+```
+
+El runner selecciona la tarea mediante `seleccion_tarea_wf`, abre el documento mediante `vis_doc_selecion_wf` y exige que `ifrm_visor_` navegue al visor oficial `pdf_anotate_view`. Mide carga inicial, recargas controladas, primera página, transferencia saneada, canvases, tareas largas, scroll y zoom. No invoca `service_anotate_pdf_image`, no pulsa el control de persistencia y no modifica el PDF.
+
+La apertura normal registra la visualización mediante la lógica existente de la aplicación. Por ello se requieren confirmaciones separadas para ambiente, cuenta/tarea y registro de visualización. La evidencia omite URL, query string, ruta física, cuenta, tarea, documento, cookies y credenciales. Si el objetivo posterior es medir el guardado de un grafo, debe utilizarse otro escenario, un PDF descartable y una autorización explícita de modificación.
+
 ## DOC-95 — Orquestación Login 2FA por ASMX
 
 DOC-95 reutiliza el formulario `gestor.aspx`, `tests/support/authenticated-workflow-session.cjs`, la consola TTY y Playwright ya instalados. No crea login, configuración, buzón automatizado, navegador ni `.env` paralelos. El perfil contiene únicamente URL, módulo con 2FA activo, política TLS y timeout; no admite cuentas, contraseñas, OTP, challenge ni conexiones.
