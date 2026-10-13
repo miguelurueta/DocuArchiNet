@@ -416,3 +416,45 @@ La lentitud tiene tres focos principales:
 3. **Persistencia:** cada grafo provoca una reescritura completa, una segunda lectura para extraer la página y una copia final sobre el documento original.
 
 La corrección debe abordarse por capas y con medición previa. Reemplazar completamente el visor no es una precondición: los defectos principales pueden aislarse y corregirse conservando el contrato actual con WebForms, PDF.js, el WebMethod y las tablas existentes.
+
+## Actualización DOC-100 — planificador por viewport
+
+DOC-100 implementó localmente la primera corrección del frente de interacción:
+
+- cola secuencial identificada por `página:generación`, con deduplicación y espera real de `getPage` y `RenderTask.promise`;
+- cancelación de `RenderTask` al cambiar zoom, rotación o conjunto necesario, y protección contra commits de generaciones obsoletas;
+- `IntersectionObserver` para mantener visibles y adyacentes, con fallback geométrico y coalescencia por `requestAnimationFrame`;
+- clasificación saneada de errores y estados finales `PASSED`, `PASSED_WITH_OBSERVATIONS` y `FAILED` en el runner oficial;
+- 14 pruebas Node locales aprobadas y validación sintáctica de todos los JavaScript modificados.
+
+### Primera validación E2E de DOC-100
+
+El 13 de octubre de 2026 se ejecutaron las tres iteraciones autorizadas sobre el mismo perfil de 34 páginas. Todos los hitos funcionales terminaron, la evidencia pasó el control de sanitización y el runner devolvió correctamente `FAILED` en vez de ocultar errores.
+
+| Métrica | Línea base | DOC-100 corrida 1 | Variación |
+| --- | ---: | ---: | ---: |
+| Primera carga | 2.902 ms | 4.204 ms | +44,9 % |
+| Mediana primer canvas | 878 ms | 893 ms | +1,7 % |
+| Scroll total | 3.902 ms | 3.398 ms | -12,9 % |
+| Bloqueo en scroll | 3.548 ms | 3.321 ms | -6,4 % |
+| Zoom total | 779 ms | 948 ms | +21,7 % |
+| Bloqueo en zoom | 435 ms | 635 ms | +46,0 % |
+
+La mejora de scroll es modesta y zoom empeoró, por lo que la aceptación de rendimiento no se considera satisfecha. La corrida clasificó `WORKFLOW_PDF_PAGE_ERROR` y `WORKFLOW_PDF_SCRIPT_ERROR`; este último quedó asociado a `pdf.worker.entry.min.js`. `index.html` carga `pdf.worker.min.js`, `pdf.sandbox.min.js` y `pdf.worker.entry.min.js` como scripts normales. Ese propietario corresponde expresamente a DOC-101, Prompt 03 — arranque y dependencias diferidas; DOC-100 no retirará esas referencias fuera de su alcance.
+
+Como ajuste posterior a esta corrida, el planificador pasó a redibujar primero solo páginas realmente intersectadas tras zoom/rotación y deja las adyacentes para reconciliación deduplicada posterior. Este ajuste conserva 14/14 pruebas locales aprobadas.
+
+### Segunda validación E2E de DOC-100
+
+La segunda corrida autorizada confirmó el ajuste con los cinco hitos funcionales completos:
+
+| Métrica | Línea base | DOC-100 final | Variación |
+| --- | ---: | ---: | ---: |
+| Primera carga | 2.902 ms | 2.569 ms | -11,5 % |
+| Mediana primer canvas | 878 ms | 988 ms | +12,5 % |
+| Scroll total | 3.902 ms | 3.065 ms | -21,5 % |
+| Bloqueo en scroll | 3.548 ms | 2.773 ms | -21,8 % |
+| Zoom total | 779 ms | 447 ms | -42,6 % |
+| Bloqueo en zoom | 435 ms | 104 ms | -76,1 % |
+
+La interacción mejora materialmente, aunque la mediana de primera página aumenta 110 ms. El runner vuelve a producir `FAILED` porque el error de `pdf.worker.entry.min.js` continúa presente; esto demuestra que DOC-100 no lo oculta y conserva su asignación a DOC-101. La evidencia versión 2 superó el control de sanitización.

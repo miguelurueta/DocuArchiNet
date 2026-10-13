@@ -6,6 +6,10 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const {
+  allowedFailureFields,
+  classifyBrowserFailure,
+  classifyPageError,
+  deriveResult,
   loadProfile,
   summarize
 } = require('../scripts/run-workflow-pdf-viewer-performance-interactive.cjs');
@@ -61,4 +65,45 @@ test('la medición abre el visor oficial sin invocar persistencia de grafos', ()
   assert.match(runner, /WORKFLOW_PDF_PERF_SCROLL_COMPLETED/);
   assert.doesNotMatch(runner, /service_anotate_pdf_image/);
   assert.doesNotMatch(runner, /Pdf_btn_update_insert/);
+});
+
+test('clasifica errores con un contrato cerrado y saneado', () => {
+  const cases = [
+    [{ type: 'error', source: 'main_frame', fileName: 'https://host/app.js?task=99', line: 8 }, 'WORKFLOW_PDF_SCRIPT_ERROR'],
+    [{ type: 'pageerror', source: 'viewer', fileName: 'C:\\private\\viewer.js', line: 19, message: 'documento secreto' }, 'WORKFLOW_PDF_PAGE_ERROR'],
+    [{ type: 'error', source: 'worker', fileName: '/pdf.worker.js#token', line: 4 }, 'WORKFLOW_PDF_WORKER_ERROR'],
+    [{ type: 'resource', source: 'optional_resource', fileName: '/fonts/ui.woff2?user=ana' }, 'WORKFLOW_PDF_OPTIONAL_RESOURCE_FAILED'],
+    [{ type: 'not-known', source: 'not-known', fileName: '/folder/file.js' }, 'WORKFLOW_PDF_UNKNOWN_FAILURE']
+  ];
+  for (const [input, code] of cases) {
+    const classified = classifyBrowserFailure(input);
+    assert.deepEqual(Object.keys(classified), allowedFailureFields);
+    assert.equal(classified.code, code);
+    assert.doesNotMatch(JSON.stringify(classified), /https?:|private|task=|token|documento secreto|user=ana/i);
+  }
+});
+
+test('pageerror extrae solo archivo y línea sin conservar stack, URL ni mensaje', () => {
+  const classified = classifyPageError({
+    name: 'ReferenceError',
+    message: 'documento privado',
+    stack: 'ReferenceError: documento privado\n    at https://host.invalid/pdfjs/pdf_anotate_view/pdf.worker.entry.min.js?token=secret:1:45'
+  });
+  assert.deepEqual(classified, {
+    code: 'WORKFLOW_PDF_PAGE_ERROR', source: 'viewer', type: 'pageerror', fileBase: 'pdf.worker.entry.min.js', line: 1
+  });
+  assert.doesNotMatch(JSON.stringify(classified), /https?:|token|secret|documento|stack/i);
+});
+
+test('deriva PASSED, PASSED_WITH_OBSERVATIONS y FAILED sin falsos limpios', () => {
+  const milestones = { documentSelected: true, firstCanvas: true, scroll: true, zoom: true, reloads: true };
+  const optional = classifyBrowserFailure({ type: 'resource', source: 'optional_resource', fileName: 'ui.woff2' });
+  const optionalScript = classifyBrowserFailure({ type: 'error', source: 'optional_resource', fileName: 'ui.js' });
+  const viewer = classifyBrowserFailure({ type: 'pageerror', source: 'viewer', fileName: 'viewer.js' });
+  assert.equal(deriveResult({ milestones, failures: [] }), 'PASSED');
+  assert.equal(deriveResult({ milestones, failures: [optional] }), 'PASSED_WITH_OBSERVATIONS');
+  assert.equal(deriveResult({ milestones, failures: [optionalScript] }), 'FAILED');
+  assert.equal(deriveResult({ milestones, failures: [viewer] }), 'FAILED');
+  assert.equal(deriveResult({ milestones: { ...milestones, zoom: false }, failures: [] }), 'FAILED');
+  assert.doesNotMatch(runner, /WORKFLOW_PDF_PERF_RESULT=PASSED['"`]/);
 });
