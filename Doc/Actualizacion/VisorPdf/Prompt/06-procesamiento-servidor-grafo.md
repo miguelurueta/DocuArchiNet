@@ -2,7 +2,7 @@
 
 ## Contexto de ejecución OPSXJ
 
-Ejecuta dentro del ticket OPSXJ entregado. No abras otro ticket. Verifica el contrato frontend real del Prompt 05 y crea el OpenSpec de esta Jira antes de implementar.
+Este prompt corresponde a una Jira independiente. Ejecuta `opsxj:new` al iniciar para crear su OpenSpec autónomo. Verifica el contrato frontend real del Prompt 05 antes de implementar, sin reutilizar su cambio OpenSpec.
 
 ## Rol esperado
 

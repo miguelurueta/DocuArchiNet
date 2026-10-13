@@ -2,7 +2,7 @@
 
 ## Contexto de ejecución OPSXJ
 
-Este prompt continúa el ticket OPSXJ proporcionado y crea su OpenSpec propio. No abras otro ticket ni asumas implementados los prompts anteriores sin inspección.
+Este prompt corresponde a una Jira independiente. Ejecuta `opsxj:new` al iniciar para crear su OpenSpec autónomo. Inspecciona la implementación y evidencia del Prompt 02, pero no asumas que fue completado ni reutilices su cambio.
 
 ## Rol esperado
 

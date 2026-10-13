@@ -2,7 +2,7 @@
 
 ## Contexto de ejecución OPSXJ
 
-Este prompt cierra la secuencia en el ticket OPSXJ recibido. No ejecutes `opsxj:new`. Inspecciona implementación, pruebas y limitaciones reales de los prompts 01–06; no declares completa una corrección ausente.
+Este prompt corresponde a la Jira independiente que cierra la secuencia. Ejecuta `opsxj:new` al iniciar para crear su OpenSpec autónomo. Inspecciona implementación, pruebas y limitaciones reales de los prompts 02–06; no declares completa una corrección ausente ni reutilices sus cambios OpenSpec.
 
 ## Rol esperado
 
