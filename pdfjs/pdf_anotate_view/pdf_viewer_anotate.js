@@ -137,9 +137,9 @@
                 // Function called when a page is rendered
                 onPageRender: (page, i) => { },
                 // Function called to obtain a page that shows an error when the document could not be loaded (returns a jQuery object)
-                errorPage: () => {
-                    $(`<div class="placeholder"></div>`).addClass(this.settings.pageClass).append($(`<p class="m-auto"></p>`).text("could not load document"))
-                },
+                errorPage: () => $(`<div class="placeholder"></div>`)
+                    .addClass(this.settings.pageClass)
+                    .append($(`<p class="m-auto"></p>`).text("could not load document")),
                 // Posible zoom values to iterate over using "in" and "out"
                 zoomValues: [0.25, 0.5, 0.75, 1, 1.25, 1.50, 2, 4, 8],
                 // Function called when the zoom level changes (it receives the zoom level)
@@ -168,6 +168,19 @@
 
             // Add a reference to this object to the container
             $container.get(0)._pdfjsViewer = this;
+
+            // Render scheduling state. Work is identified by page and zoom/rotation generation.
+            this._renderGeneration = 0;
+            this._pagesLoading = [];
+            this._renderJobs = new Map();
+            this._renderTasks = new Map();
+            this._loading = false;
+            this._visibles = [];
+            this._intersections = new Map();
+            this._observerHasEntries = false;
+            this._viewportObserver = null;
+            this._visibleFrame = null;
+            this._forceVisibleRedraw = false;
 
             // Add the event listeners
             this._setScrollListener();
@@ -219,11 +232,8 @@
             container.scrollTop = prevScroll.top * this._zoom.current / prevzoom;
 
             // Force to redraw the visible pages to upgrade the resolution
-            if (this.estate_anotate == 0) {
-                this._visiblePages(true);
-            } else {
-                this._visiblePages(true);
-            }
+            this._advanceRenderGeneration();
+            this._scheduleVisiblePages(true);
             
             // Call the callback (if provided)
             if (typeof this.settings.onZoomChange === "function")
@@ -275,6 +285,56 @@
             $page.find(`.${this.settings.contentClass}`).empty().append($emptyContent)
         }
 
+        _advanceRenderGeneration() {
+            this._renderGeneration += 1;
+            this._renderTasks.forEach(function (renderTask) {
+                if (renderTask && typeof renderTask.cancel === "function") {
+                    try { renderTask.cancel(); } catch (error) { /* Cancellation is best effort. */ }
+                }
+            });
+            this._renderTasks.clear();
+            this._pagesLoading = [];
+            this._renderJobs.forEach(function (job) {
+                if (job.state === "queued" || job.state === "rendering") job.state = "cancelled";
+            });
+            return this._renderGeneration;
+        }
+
+        _scheduleVisiblePages(forceRedraw = false) {
+            this._forceVisibleRedraw = this._forceVisibleRedraw || forceRedraw;
+            if (this._visibleFrame !== null) return;
+            let schedule = window.requestAnimationFrame || function (callback) { return window.setTimeout(callback, 0); };
+            this._visibleFrame = schedule.call(window, function () {
+                let force = this._forceVisibleRedraw;
+                this._visibleFrame = null;
+                this._forceVisibleRedraw = false;
+                this._visiblePages(force);
+            }.bind(this));
+        }
+
+        _setupViewportObserver() {
+            if (this._viewportObserver) this._viewportObserver.disconnect();
+            this._intersections.clear();
+            this._observerHasEntries = false;
+            if (typeof window.IntersectionObserver !== "function") {
+                this._viewportObserver = null;
+                return;
+            }
+            this._viewportObserver = new window.IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    let pageNumber = Number(entry.target.getAttribute("data-page"));
+                    if (!Number.isInteger(pageNumber)) return;
+                    if (entry.isIntersecting && entry.intersectionRatio > 0) {
+                        this._intersections.set(pageNumber, entry.intersectionRatio);
+                    } else {
+                        this._intersections.delete(pageNumber);
+                    }
+                }.bind(this));
+                this._observerHasEntries = true;
+                this._scheduleVisiblePages();
+            }.bind(this), { root: this.$container.get(0), threshold: [0, this.settings.visibleThreshold, 1] });
+        }
+
         /**
          * Function that replaces the content with the empty class in a page with a new content
          * @param {*} $page the page to be modified
@@ -288,33 +348,13 @@
          *  Recalculates which pages are now visible and forces redrawing them (moreover it cleans those not visible) 
         */
         refreshAll() {
-            this._visiblePages(true);
+            this._advanceRenderGeneration();
+            this._scheduleVisiblePages(true);
         }
 
         /** Function that creates a scroll handler to update the active page and to load more pages as the scroll position changes */
         _setScrollListener() {
-            // Create a scroll handler that prevents reentrance if called multiple times and the loading of pages is not finished
-            let scrollLock = false;
-            let scrollPos = { top: 0, left: 0 };
-
-            this.__scrollHandler = function (e) {
-                // Avoid re-entrance for the same event while loading pages
-                if (scrollLock === true) {
-                    return;
-                }
-                scrollLock = true;
-                let container = this.$container.get(0);
-                if ((Math.abs(container.scrollTop - scrollPos.top) > (container.clientHeight * 0.2 * this._zoom.current)) ||
-                    (Math.abs(container.scrollLeft - scrollPos.left) > (container.clientWidth * 0.2 * this._zoom.current))) {
-                    scrollPos = {
-                        top: container.scrollTop,
-                        left: container.scrollLeft
-                    }
-                    this._visiblePages();
-                }
-
-                scrollLock = false;
-            }.bind(this);
+            this.__scrollHandler = function () { this._scheduleVisiblePages(); }.bind(this);
 
             // Set the scroll handler
             this.$container.off('scroll');
@@ -403,6 +443,7 @@
                     pageinfo = this._createSkeleton(pageinfo, i);
                     this.pages[i] = pageinfo;
                     this._placeSkeleton(pageinfo, i);
+                    if (this._viewportObserver) this._viewportObserver.observe(pageinfo.$div.get(0));
 
                     // Call the callback function (if provided)
                     if (typeof this.settings.onNewPage === "function") {
@@ -485,23 +526,32 @@
                 return;
             }
 
-            // Calculate the visible area for each page and consider it visible if the visible area is greater than 0
-            //Calcule el área visible para cada página y considérela visible si el área visible es mayor que 0.
-            let $visibles = this.pages.filter(function (pageinfo) {
-                let areaVisible = this._areaOfPageVisible(pageinfo.$div);
-                if (areaVisible > max_area) {
-                    max_area = areaVisible;
-                    i_page = pageinfo.$div.data('page');
-                }
-                return areaVisible > 0;
-            }.bind(this)).map((x) => x.$div);
+            let $visibles;
+            if (this._viewportObserver && this._observerHasEntries) {
+                let observed = [...this._intersections.entries()].sort(function (left, right) { return left[0] - right[0]; });
+                observed.forEach(function (entry) {
+                    if (entry[1] > max_area) { max_area = entry[1]; i_page = entry[0]; }
+                });
+                $visibles = observed.map(function (entry) { return this.pages[entry[0]].$div; }.bind(this));
+            } else {
+                // Compatibility fallback used only when IntersectionObserver is unavailable or has not emitted yet.
+                $visibles = this.pages.filter(function (pageinfo) {
+                    let areaVisible = this._areaOfPageVisible(pageinfo.$div);
+                    if (areaVisible > max_area) {
+                        max_area = areaVisible;
+                        i_page = pageinfo.$div.data('page');
+                    }
+                    return areaVisible > 0;
+                }.bind(this)).map((x) => x.$div);
+            }
 
             // Set the active page --Establece la página activa.
             this._setActivePage(i_page);
 
             // Now get the visible pages
             //Ahora obtenga las páginas visibles.
-            let visibles = $visibles.map((x) => $(x).data('page'));
+            let visiblePageNumbers = $visibles.map((x) => x.data('page'));
+            let visibles = [...visiblePageNumbers];
             if (visibles.length > 0) {
                 // Now will add some extra pages (before and after) the visible ones, to have them prepared in case of scroll
                 //Ahora añadiremos algunas páginas extra (antes y después) de las visibles, para tenerlas preparadas en caso de desplazamiento.
@@ -519,18 +569,17 @@
 
             // Now will draw the visible pages, but if not forcing, will only draw those that were not visible before
             //Ahora dibujará las páginas visibles, pero si no las fuerza, solo dibujará aquellas que antes no eran visibles.
-            let nowVisibles = visibles;
-            if (!forceRedraw) {
-                nowVisibles = visibles.filter(function (x) {
-                    return !this._visibles.includes(x)
-                }.bind(this));
-            }
+            // After zoom/rotation, redraw strictly intersecting pages first. Adjacent pages remain
+            // available at their previous resolution and are refreshed when reconciliation needs them.
+            // In the normal path loadPages receives the whole bounded set and deduplicates it by generation.
+            let nowVisibles = forceRedraw ? visiblePageNumbers : visibles;
 
             // Get the pages that were visible before, that are not visible now, and clear them -
             //Obtenga las páginas que eran visibles antes, que no lo son ahora y elimínelas.
             this._visibles.filter(function (x) {
                 return !visibles.includes(x)
             }).forEach(function (i) {
+                this._cancelPageRender(i);
                 this._cleanPage(this.pages[i].$div);
             }.bind(this))
 
@@ -546,23 +595,45 @@
          * @param  {...pageinfo} pages - the pages to load
          */
         loadPages(...pages) {
-            this._pagesLoading.push(...pages);
-            if (this._loading) {
-                return;
+            pages.forEach(function (pageNumber) {
+                pageNumber = Number(pageNumber);
+                if (!Number.isInteger(pageNumber) || pageNumber < 1 || !this.pdf || pageNumber > this.pdf.numPages) return;
+                let id = pageNumber + ":" + this._renderGeneration;
+                let existing = this._renderJobs.get(id);
+                if (existing && ["queued", "rendering", "rendered"].includes(existing.state)) return;
+                let job = { id: id, pageNumber: pageNumber, generation: this._renderGeneration, state: "queued" };
+                this._renderJobs.set(id, job);
+                this._pagesLoading.push(job);
+            }.bind(this));
+            return this._loadingTask();
+        }
+
+        _cancelPageRender(pageNumber) {
+            let task = this._renderTasks.get(pageNumber);
+            if (task && typeof task.cancel === "function") {
+                try { task.cancel(); } catch (error) { /* Cancellation is best effort. */ }
             }
-            this._loadingTask();
+            this._renderTasks.delete(pageNumber);
+            this._renderJobs.forEach(function (job) {
+                if (job.pageNumber === pageNumber && job.state !== "cancelled") job.state = "cancelled";
+            });
         }
 
         /**
          * Function that gets the pages pending to load and renders them sequentially (to avoid multiple rendering promises)
          */
-        _loadingTask() {
+        async _loadingTask() {
+            if (this._loading) return this._loadingPromise;
             this._loading = true;
-            if (this._pagesLoading.length > 0) {
-                let pagei = this._pagesLoading.shift();
-                this.pdf.getPage(pagei).then(function (page) {
+            this._loadingPromise = (async function () {
+              while (this._pagesLoading.length > 0) {
+                let job = this._pagesLoading.shift();
+                if (!job || job.state === "cancelled" || job.generation !== this._renderGeneration) continue;
+                job.state = "rendering";
+                try {
+                    let page = await this.pdf.getPage(job.pageNumber);
                     // Render the page and update the information about the page with the loaded values  if (this.pages_anotate.push({ "page ": page, "page_number": i }))
-                    let swuit_page = -1;     
+                    let swuit_page = -1;
                     if (this.pages_anotate.length > 0) {
                         for (let k = 0; k < this.pages_anotate.length; k++)  {
                             if (page._pageIndex == this.pages_anotate[k]._pageIndex) {
@@ -570,21 +641,24 @@
                             }
                         }
                     }
-                    if (swuit_page != -1) {      
-                        this._renderPage(this.pages_anotate[swuit_page].page, pagei);
-                    } else {
-                        this._renderPage(page, pagei);
+                    let pageToRender = swuit_page !== -1 ? this.pages_anotate[swuit_page].page : page;
+                    await this._renderPage(pageToRender, job.pageNumber, job);
+                    if (job.state !== "cancelled") job.state = "rendered";
+                } catch (error) {
+                    let cancelled = job.state === "cancelled" || error?.name === "RenderingCancelledException";
+                    job.state = "cancelled";
+                    if (!cancelled && job.generation === this._renderGeneration && this.pages[job.pageNumber]) {
+                        let errorContent = this.settings.errorPage.call(this, job.pageNumber);
+                        if (errorContent) this._setPageContent(this.pages[job.pageNumber].$div, errorContent);
                     }
-                    
-                }.bind(this)).then(function (pageinfo) {
-                    // Once loaded, we are not loading anymore
-                    if (this._pagesLoading.length > 0) {
-                        this._loadingTask();
-                    }
-                }.bind(this));
-            }
-            // Free the loading state
-            this._loading = false;
+                }
+              }
+            }.bind(this))().finally(function () {
+                this._loading = false;
+                this._loadingPromise = null;
+                if (this._pagesLoading.length > 0) this._loadingTask();
+            }.bind(this));
+            return this._loadingPromise;
         }
 
         /**
@@ -950,9 +1024,11 @@
          * @param {*} i - the number of the page to be rendered
          * @returns a promise to render the page (the result of the promise will be the pageinfo)
          */
-        _renderPage(page, i) {
+        _renderPage(page, i, job = null) {
+            let generation = job ? job.generation : this._renderGeneration;
             // Get the pageinfo structure
             let pageinfo = this.pages[i];
+            if (!pageinfo) return Promise.reject(new Error("PDF_VIEWER_PAGE_UNAVAILABLE"));
             // Calculate the pixel ratio of the device (we'll use a minimum of 1)
             let pixel_ratio = Math.max(window.devicePixelRatio || 1, 1);
 
@@ -978,8 +1054,14 @@
                 viewport: viewport
             };
           
-            // Render the page and put the resulting rendered canvas into the page $div
-            return page.render(renderContext).promise.then(function () {
+            // Retain PDF.js RenderTask so obsolete viewport/generation work can be cancelled.
+            let renderTask = page.render(renderContext);
+            this._renderTasks.set(i, renderTask);
+            return renderTask.promise.then(function () {
+                if (generation !== this._renderGeneration || (job && (job.state === "cancelled" || !this._visibles.includes(i)))) {
+                    if (job) job.state = "cancelled";
+                    return pageinfo;
+                }
                 this._setPageContent(pageinfo.$div, $canvas);
                 // Call the callback (if provided)
                 if (typeof this.settings.onPageRender === "function") {
@@ -990,6 +1072,8 @@
                 div_conten[0].addEventListener("contextmenu", printMousePos);
                 context_menu(div_conten[0].id);
                 return pageinfo;
+            }.bind(this)).finally(function () {
+                if (this._renderTasks.get(i) === renderTask) this._renderTasks.delete(i);
             }.bind(this));
         }
 
@@ -1086,15 +1170,15 @@
          * @returns a promise that is resolved when the viewer is fully initialized
          */
         forceViewerInitialization() {
+            this._advanceRenderGeneration();
             // Store the pdf file
             // Now prepare a placeholder for the pages
             this.pages = [];
             // Remove all the pages
             this.$container.find(`.${this.settings.pageClass}`).remove();
-            this._pagesLoading = [];
-            this._loading = false;
             this._visibles = [];
             this._activePage = null;
+            this._setupViewportObserver();
             return this.pdf.getPage(1).then(function (page) {
                 this._createSkeletons(page);
                 this._visiblePages();

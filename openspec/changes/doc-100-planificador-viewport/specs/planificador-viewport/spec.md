@@ -1,137 +1,83 @@
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07 -->
 ## ADDED Requirements
-### Requirement: PLANIFICADOR-VIEWPORT
-El sistema SHALL implementar el alcance definido para DOC-100.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
 
-#### Scenario: Reglas del ticket
-- # Prompt 02 — Planificador de render, cancelación, scroll, zoom y clasificación de errores
-- ## Contexto de ejecución OPSXJ
-- Este prompt corresponde a una Jira independiente. Ejecuta `opsxj:new` al iniciar para crear su OpenSpec autónomo. Usa la exploración y la línea base existentes como antecedentes; no abras un segundo cambio para la misma Jira.
-- ## Rol esperado
-- Actúa como especialista senior en JavaScript, PDF.js, rendimiento del navegador y coordinación asíncrona.
-- ## Fuentes obligatorias
-- - `../Exploracion/01-diagnostico-rendimiento-visor-pdf-grafos.md`.
-- - `pdfjs/pdf_anotate_view/pdf_viewer_anotate.js`, especialmente `_visiblePages`, `loadPages`, `_loadingTask`, `_renderPage`, `_cleanPage`, `setZoom` y eventos de scroll.
-- - `pdfjs/pdf_anotate_view/script.js`.
-- - `tools/e2e/scripts/run-workflow-pdf-viewer-performance-interactive.cjs`.
-- - `tools/e2e/tests/workflow-pdf-viewer-performance-policy.test.cjs`.
-- - Línea base y evidencia saneada registradas en la exploración.
-- ## Objetivo
-- Clasificar de forma saneada el error JavaScript observado en la línea base, evitar que una corrida con errores se declare limpia y eliminar renderizados duplicados u obsoletos para reducir el bloqueo del hilo principal durante scroll y zoom, conservando el resultado visual, página activa, anotaciones y contratos públicos.
-- ## Diseño obligatorio
-- Documenta en `design.md` una máquina de estados explícita:
-- ```text
-- idle -> queued -> rendering -> rendered
--                  |              |
--                  +-> cancelled <-+
-- ```
-- Define identidad de trabajo por página, generación de zoom/rotación, deduplicación y política de cancelación. Una página no puede tener dos `RenderTask` efectivos de la misma generación.
-- Documenta además los eventos `error`, `unhandledrejection`, `pageerror`, respuestas HTTP y contextos de ejecución que el runner clasificará. La clasificación debe usar códigos estables, tipo, archivo base y línea, sin conservar URL, query string, rutas, mensajes libres ni datos documentales.
-- ## Implementación obligatoria
-- 1. Extender el runner existente para clasificar errores del frame principal, visor, worker y recursos opcionales mediante códigos saneados y estables.
-- 2. Separar `PASSED`, `PASSED_WITH_OBSERVATIONS` y fallo funcional; una medición con errores no puede terminar silenciosamente como limpia.
-- 3. Reproducir y clasificar el error observado en las tres iteraciones de la línea base antes de modificar el planificador. Si su causa pertenece a los símbolos de este prompt, corregirla aquí; si pertenece a dependencias, transporte u otro propietario, registrar código, origen y prompt responsable sin ocultarla.
-- 4. Corregir `_loadingTask()` para mantener el estado ocupado hasta que la promesa de render finalice o falle.
-- 5. Hacer que `_renderPage()` y la cadena llamadora retornen promesas verificables.
-- 6. Deduplicar páginas pendientes y eliminar entradas inválidas.
-- 7. Conservar y cancelar `RenderTask` de PDF.js cuando una página deja de ser necesaria o cambia la generación de zoom/rotación.
-- 8. Evitar que una finalización antigua reemplace el canvas de una generación nueva.
-- 9. Sustituir el escaneo costoso de todas las páginas por observación de viewport o una estrategia equivalente demostrablemente acotada; conservar páginas adyacentes configurables.
-- 10. Aplicar debounce/coalescencia a scroll y acciones rápidas de zoom sin volver lenta la primera interacción.
-- 11. Separar lecturas y escrituras de layout y limitar trabajo por frame.
-- 12. Mantener página activa, posición de scroll, grafos locales y rotación.
-- ## Restricciones y antirregresión
-- - No cambiar el handler, el WebMethod, iTextSharp ni la persistencia.
-- - No cambiar identificadores DOM, botones o firmas públicas consumidas por `script.js`.
-- - No eliminar render diferido ni renderizar todas las páginas para simplificar.
-- - No usar esperas fijas como mecanismo de sincronización.
-- - No introducir workers o frameworks adicionales sin demostrar necesidad y compatibilidad.
-- - No guardar mensajes libres, URLs, rutas, queries, credenciales ni datos documentales para clasificar errores.
-- - No ocultar errores con `catch` vacíos ni corregir fuera del propietario identificado.
-- ## Pruebas obligatorias
-- - Cola vacía, una página, duplicados, múltiples páginas y error de `getPage`/render.
-- - Cancelación por salida de viewport, zoom rápido y rotación.
-- - Finalización tardía de una generación obsoleta.
-- - Conservación de página activa y scroll.
-- - Contratos de clasificación, sanitización y estados finales del runner.
-- - Prueba que demuestre que la evidencia no contiene URL, query, ruta, tarea, documento ni credenciales.
-- - E2E de lectura autorizada con el PDF pesado y comparación contra línea base.
-- - Presupuesto inicial: reducir materialmente los 3.548 ms de tareas largas del scroll y la tarea de 435 ms del zoom. El porcentaje final debe justificarse con evidencia, no fijarse ocultando eventos.
-- ## Criterios de aceptación
-- - No hay renderizados efectivos duplicados por página/generación.
-- - La cola permanece ocupada hasta finalizar y recupera estado tras error/cancelación.
-- - Scroll y zoom mejoran respecto a la línea base sin alterar la imagen ni los grafos.
-- - El error de una página no bloquea permanentemente las demás.
-- - Una corrida con errores queda clasificada como observación o fallo, nunca como `PASSED` limpio.
-- - El error repetible queda clasificado y asignado al archivo propietario; si pertenece al planificador, queda corregido en este cambio.
-- ## Documentación y entrega
-- Documenta estado, invariantes, firmas, pruebas y métricas en `Doc/Actualizacion/VisorPdf/Implementacion/<JIRA>/`. Entrega diff focalizado, comandos, resultados y pendientes reales.
-- ## Correcciones opsxj:prompt-review
-- Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-- ## Rol esperado
-- Definir el rol tecnico esperado para ejecutar el ticket.
-- ## Objetivo
-- Describir el objetivo funcional y tecnico verificable.
-- ## Restricciones criticas
-- - No introducir cambios fuera del alcance declarado.
-- - No romper comportamiento existente ni contratos publicos.
-- ## Criterios de aceptacion
-- - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-- ## Contexto obligatorio
-- Listar archivos, modulos, servicios, hooks, adapters y documentacion que deben leerse antes de implementar.
-- ## Pruebas obligatorias
-- Ejecutar pruebas Node focales, validación sintáctica JavaScript y E2E con Playwright; ejecutar MSBuild únicamente si se toca código compilado y registrar comandos y resultados.
-- ## Documentacion tecnica
-- Actualizar el paquete documental canonico del ticket.
-- ## Entregable final
-- Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-- ## Reglas de ubicacion de codigo
-- - Mantener el planificador y estado del visor en `pdfjs/pdf_anotate_view/pdf_viewer_anotate.js` y la coordinación UI existente en `pdfjs/pdf_anotate_view/script.js`.
-- - Mantener las pruebas y mediciones en `tools/e2e/`; no crear otro proyecto Playwright ni una aplicación frontend paralela.
-- - Antes de crear archivos de producción, demostrar que la responsabilidad no pertenece a uno de los módulos existentes.
-- Agregar regla para [CONTRACT_DETAIL_REQUIRED]: Props, callbacks, eventos, request/response, payloads o tipos documentados.
-- Exigir validación sintáctica JavaScript, pruebas Node focales y, si se modifica código compilado, MSBuild; registrar el resultado.
-- Exigir pruebas focales con la infraestructura Node existente y dobles controlados de PDF.js/DOM cuando aplique; no introducir Vitest ni Testing Library solo para esta tarea.
-- Declarar que código + E2E + validación autorizada + evidencia saneada son una única unidad de entrega dentro del mismo cambio; no crear una tarea o entrega E2E independiente.
-- Reutilizar exclusivamente `tools/e2e`, su autenticación, configuración, validadores, evidencias y utilidades; prohibir login, arnés, proyecto Playwright, configuración o `.env` paralelos.
-- Antes de autenticar, exigir lectura de `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`; ejecutar solo con ambiente, cuentas y datos/tareas descartables expresamente autorizados.
-- Exigir secretos efímeros, prohibir exponer/imprimir/persistir credenciales, cookies, tokens y cadenas de conexión, usar verificaciones solo `SELECT` y conservar evidencia saneada.
-- Exigir cobertura E2E, cuando aplique, de autorización/control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada.
-- Respetar feature flags, gates, usuarios, grupos y seguridad sin habilitarlos arbitrariamente; no cerrar sin validación autorizada, registrar bloqueo explícito y prohibir mocks, simulaciones, resultados inventados y evidencia ficticia.
-- ## Correcciones opsxj:prompt-review
-- Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-- ## Ruta documental obligatoria
-- La documentacion debe quedar en una ruta canonica segun el contexto:
-- Usar `Doc/Actualizacion/VisorPdf/Implementacion/<JIRA>/`, sustituyendo `<JIRA>` por la clave OPSXJ real recibida. No inventar un identificador distinto.
-- ## Paquete documental minimo
-- Generar como minimo:
-- ```txt
-- 00-Indice.md
-- 01-Arquitectura.md
-- 02-FlujoIntegracion.md
-- 03-ContratoUploadYMapping.md
-- 04-EstadosErroresYAntiregresion.md
-- 05-PruebasEvidencia.md
-- 06-Diagramas.md
-- 07-Metadata.md
-- ```
-- 00-Indice.md debe incluir objetivo, alcance, componentes, hooks/adapters/servicios, modulos, dependencias y listado documental.
-- 01-Arquitectura.md debe explicar decisiones arquitectonicas, reutilizacion, responsabilidades, desacople, alternativas descartadas, componentes de presentacion, contenedores, servicios, adapters, mappers, hooks e infraestructura.
-- 02-FlujoIntegracion.md debe cubrir usuario, renderizado, carga de datos, requests, backend, responses, estado, interfaz UI y batch/lote si aplica.
-- 03-ContratoUploadYMapping.md debe documentar props, contexto, DTOs, request, response, modelos, transformacion/mapping, deduplicacion, metadata y frontera frontend/backend.
-- 04-EstadosErroresYAntiregresion.md debe cubrir estado inicial, carga/loading, exito, errores, datos incompletos, estados parciales, respuestas invalidas, antirregresion, remount, refresh, recargas silenciosas, duplicacion, logica heredada y soluciones temporales.
-- 05-PruebasEvidencia.md debe listar pruebas unitarias, integracion, manuales, comandos, resultados, limitaciones, riesgos y evidencia.
-- 06-Diagramas.md debe incluir componentes, secuencia, flujo principal, flujo alterno, casos de uso, estados y Mermaid o formato estructurado legible.
-- 07-Metadata.md debe consolidar la clave OPSXJ real, rama, fecha, estado, archivos modificados, prompt, dependencias, riesgos y deuda técnica.
-- Crear carpeta `Diagramas/` dentro del paquete documental para diagramas individuales.
-- ## Tabla de funciones creadas o modificadas
-- | Funcion | Ruta | Ubicacion | Parametros | Responsabilidad |
-- | --- | --- | --- | --- | --- |
-- | `<nombre>` | `<path>` | `<componente/hook/service/adapter>` | `<params>` | `<responsabilidad>` |
+### Requirement: Clasificación saneada de errores
+El runner SHALL clasificar fallos de frame principal, visor, worker y recursos opcionales sin persistir información documental o de sesión. <!-- RQ-01; D-01 -->
+
+#### Scenario: Error clasificado
+- **WHEN** se recibe `error`, `unhandledrejection`, `pageerror`, respuesta HTTP fallida o fallo de recurso
+- **THEN** la evidencia contiene únicamente código estable, origen, tipo, archivo base y línea saneada
+
+#### Scenario: Dato no permitido
+- **WHEN** el origen contiene mensaje libre, stack, URL, query, ruta, tarea, usuario, documento, cookie o contenido
+- **THEN** el dato no se persiste ni se imprime y una categoría desconocida queda como fallo seguro
+
+### Requirement: Resultado final honesto
+El runner SHALL derivar su resultado de los hitos funcionales y errores clasificados. <!-- RQ-02; D-02 -->
+
+#### Scenario: Corrida limpia
+- **WHEN** selección, primer canvas, scroll, zoom y recargas terminan sin errores
+- **THEN** el resultado es `PASSED`
+
+#### Scenario: Observación opcional
+- **WHEN** los hitos terminan y solo existe un fallo conocido de recurso opcional
+- **THEN** el resultado es `PASSED_WITH_OBSERVATIONS`
+
+#### Scenario: Fallo funcional
+- **WHEN** falta un hito, ocurre un error requerido o existe un error no clasificado
+- **THEN** el resultado es `FAILED` y el proceso devuelve código distinto de cero
+
+### Requirement: Cola secuencial y deduplicada
+El visor SHALL mantener máximo un trabajo efectivo por página y generación y esperar la promesa real del render. <!-- RQ-03; D-03 -->
+
+#### Scenario: Solicitudes duplicadas
+- **WHEN** una página/generación ya está en cola, renderizando o renderizada
+- **THEN** no se inicia un segundo `RenderTask` efectivo
+
+#### Scenario: Error o cancelación
+- **WHEN** `getPage` o render falla o se cancela
+- **THEN** la cola libera su estado en `finally` y continúa con el siguiente trabajo
+
+### Requirement: Generaciones y cancelación
+El visor SHALL invalidar trabajo obsoleto e impedir que sus resultados reemplacen contenido vigente. <!-- RQ-04; D-04 -->
+
+#### Scenario: Zoom o rotación rápida
+- **WHEN** cambia la generación durante un render
+- **THEN** el trabajo anterior se cancela cuando sea posible y su finalización no instala el canvas
+
+#### Scenario: Página deja de ser necesaria
+- **WHEN** una página sale del conjunto visible/adyacente
+- **THEN** su tarea efectiva se cancela o su resultado queda descartado
+
+### Requirement: Planificación acotada por viewport
+El visor SHALL reconciliar únicamente páginas visibles y adyacentes y agrupar ráfagas de eventos. <!-- RQ-05; D-05 -->
+
+#### Scenario: Scroll rápido
+- **WHEN** ocurren múltiples eventos de scroll en un frame
+- **THEN** se ejecuta como máximo una reconciliación de viewport para ese frame
+
+#### Scenario: Observer no disponible
+- **WHEN** `IntersectionObserver` no existe
+- **THEN** el visor usa un fallback geométrico coalescido sin cambiar el contrato público
+
+### Requirement: Compatibilidad visual y aislamiento
+El visor SHALL conservar API, DOM y estado visual, y aislar el fallo de una página. <!-- RQ-06; D-06 -->
+
+#### Scenario: Interacción conservada
+- **WHEN** el usuario navega, amplía o rota
+- **THEN** se conservan página activa, posición proporcional, overlays, anotaciones y rotación
+
+#### Scenario: Fallo de página
+- **WHEN** una página no puede cargarse o renderizarse
+- **THEN** se muestra su estado de error y las demás páginas continúan procesándose
+
+### Requirement: Verificación reproducible
+DOC-100 SHALL validarse con pruebas focales, política, sintaxis y evidencia autorizada. <!-- RQ-07; D-07 -->
+
+#### Scenario: Validación local
+- **WHEN** se ejecutan pruebas Node y validación sintáctica
+- **THEN** clasificación, sanitización, cola, cancelación, generaciones, viewport y compatibilidad terminan sin fallos
+
+#### Scenario: E2E no autorizada
+- **WHEN** no existe autorización vigente de ambiente, cuenta y tarea
+- **THEN** no se ejecuta la prueba autenticada y se registra el bloqueo sin afirmar que el error real desapareció

@@ -19,6 +19,72 @@ const allowedProfileFields = new Set([
   'baseUrl', 'module', 'taskId', 'documentOrdinal', 'documentTitle', 'iterations', 'scrollSteps',
   'timeoutMilliseconds', 'headless', 'browser', 'ignoreHttpsErrors'
 ]);
+const allowedFailureFields = Object.freeze(['code', 'source', 'type', 'fileBase', 'line']);
+const requiredSources = new Set(['main_frame', 'viewer', 'worker']);
+
+function safeFileBase(value) {
+  if (typeof value !== 'string' || !value) return '';
+  const withoutQuery = value.split(/[?#]/, 1)[0];
+  const base = withoutQuery.split(/[\\/]/).pop() || '';
+  return /^[A-Za-z0-9._-]{1,120}$/.test(base) ? base : '';
+}
+
+function classifyBrowserFailure(input = {}) {
+  const knownSources = new Set(['main_frame', 'viewer', 'worker', 'optional_resource']);
+  const source = knownSources.has(input.source) ? input.source : 'main_frame';
+  const types = new Set(['error', 'unhandledrejection', 'pageerror', 'http', 'resource']);
+  const type = types.has(input.type) ? input.type : 'unknown';
+  const status = Number.isInteger(Number(input.status)) ? Number(input.status) : 0;
+  let code = 'WORKFLOW_PDF_UNKNOWN_FAILURE';
+  if (source === 'optional_resource' && ['http', 'resource'].includes(type)) {
+    code = 'WORKFLOW_PDF_OPTIONAL_RESOURCE_FAILED';
+  } else if (type === 'http') {
+    code = status >= 500 ? 'WORKFLOW_PDF_HTTP_SERVER_ERROR' : 'WORKFLOW_PDF_HTTP_ERROR';
+  } else if (type === 'resource') {
+    code = 'WORKFLOW_PDF_RESOURCE_FAILED';
+  } else if (type === 'unhandledrejection') {
+    code = 'WORKFLOW_PDF_UNHANDLED_REJECTION';
+  } else if (type === 'pageerror') {
+    code = 'WORKFLOW_PDF_PAGE_ERROR';
+  } else if (type === 'error') {
+    code = source === 'worker' ? 'WORKFLOW_PDF_WORKER_ERROR' : 'WORKFLOW_PDF_SCRIPT_ERROR';
+  }
+  return Object.freeze({
+    code,
+    source,
+    type,
+    fileBase: safeFileBase(input.fileName),
+    line: Math.max(0, Number.isSafeInteger(Number(input.line)) ? Number(input.line) : 0)
+  });
+}
+
+function classifyPageError(error) {
+  const stack = typeof error?.stack === 'string' ? error.stack : '';
+  const match = stack.match(/((?:https?:\/\/)?[^\s()]+?\.js)(?:[?#][^\s():]*)?(?::(\d+))(?::\d+)?/i);
+  const location = match?.[1] || '';
+  const source = /\/pdfjs\/pdf_anotate_view\//i.test(location) || /(?:pdf[_-]viewer|pdf\.worker)/i.test(location)
+    ? 'viewer'
+    : 'main_frame';
+  return classifyBrowserFailure({
+    type: 'pageerror',
+    source,
+    fileName: location,
+    line: match ? Number(match[2]) : 0
+  });
+}
+
+function deriveResult(input = {}) {
+  const milestones = input.milestones || {};
+  const complete = ['documentSelected', 'firstCanvas', 'scroll', 'zoom', 'reloads']
+    .every(name => milestones[name] === true);
+  const failures = Array.isArray(input.failures) ? input.failures : [];
+  const hasRequiredFailure = failures.some(item => !item || requiredSources.has(item.source) ||
+    item.code !== 'WORKFLOW_PDF_OPTIONAL_RESOURCE_FAILED');
+  if (!complete || hasRequiredFailure) {
+    return 'FAILED';
+  }
+  return failures.length > 0 ? 'PASSED_WITH_OBSERVATIONS' : 'PASSED';
+}
 
 function fail(code) {
   const error = new Error(code);
@@ -127,9 +193,20 @@ async function selectWorkflowTask(page, profile) {
 
 async function installPerformanceProbe(context) {
   await context.addInitScript(() => {
-    const probe = window.__workflowPdfPerformance = { longTasks: [], errors: 0, rejections: 0 };
-    window.addEventListener('error', () => { probe.errors += 1; });
-    window.addEventListener('unhandledrejection', () => { probe.rejections += 1; });
+    const probe = window.__workflowPdfPerformance = { longTasks: [], errors: [] };
+    const fileBase = value => {
+      const clean = String(value || '').split(/[?#]/, 1)[0];
+      const base = clean.split(/[\\/]/).pop() || '';
+      return /^[A-Za-z0-9._-]{1,120}$/.test(base) ? base : '';
+    };
+    const source = () => /\/pdfjs\/pdf_anotate_view\//i.test(location.pathname) ? 'viewer' : 'main_frame';
+    window.addEventListener('error', event => {
+      const fromWorker = typeof Worker === 'function' && event.target instanceof Worker;
+      probe.errors.push({ code: fromWorker ? 'WORKFLOW_PDF_WORKER_ERROR' : 'WORKFLOW_PDF_SCRIPT_ERROR', source: fromWorker ? 'worker' : source(), type: 'error', fileBase: fileBase(event.filename), line: Math.max(0, Number(event.lineno || 0)) });
+    });
+    window.addEventListener('unhandledrejection', () => {
+      probe.errors.push({ code: 'WORKFLOW_PDF_UNHANDLED_REJECTION', source: source(), type: 'unhandledrejection', fileBase: '', line: 0 });
+    });
     try {
       const observer = new PerformanceObserver(list => {
         for (const entry of list.getEntries()) {
@@ -182,8 +259,7 @@ async function waitForFirstCanvas(page, timeout, network) {
         nonZeroCanvasCount: canvases.filter(canvas => canvas.width > 0 && canvas.height > 0).length,
         containerWidth: Math.round(container?.clientWidth || 0),
         containerHeight: Math.round(container?.clientHeight || 0),
-        scriptErrorCount: Number(probe.errors || 0),
-        unhandledRejectionCount: Number(probe.rejections || 0)
+        classifiedErrors: Array.isArray(probe.errors) ? probe.errors : []
       };
     }).catch(() => ({ frameEvaluationFailed: true }));
     const diagnostic = Object.freeze({
@@ -232,8 +308,7 @@ async function captureViewerMetrics(frame, elapsedMs) {
       longTaskCount: longTasks.length,
       longTaskTotalMs: longTasks.reduce((sum, entry) => sum + Number(entry.duration || 0), 0),
       longestTaskMs: longTasks.reduce((maximum, entry) => Math.max(maximum, Number(entry.duration || 0)), 0),
-      scriptErrorCount: Number(probe.errors || 0),
-      unhandledRejectionCount: Number(probe.rejections || 0)
+      classifiedErrors: Array.isArray(probe.errors) ? probe.errors : []
     };
   }, elapsedMs);
 }
@@ -323,21 +398,38 @@ async function runMeasurement(profile, environment) {
     });
     await installPerformanceProbe(context);
     const page = await context.newPage();
-    const failures = { requests: 0, pageErrors: 0 };
+    const failures = [];
     const network = { handlerStatuses: [], viewerHttpErrors: 0, failedHandlerRequests: 0 };
     page.on('response', response => {
       let pathname = '';
       try { pathname = new URL(response.url()).pathname; } catch { return; }
       if (/\/workflow\/Handler_image_wf\.ashx$/i.test(pathname)) network.handlerStatuses.push(response.status());
-      if (/\/pdfjs\/pdf_anotate_view\//i.test(pathname) && response.status() >= 400) network.viewerHttpErrors += 1;
+      if (response.status() >= 400) {
+        let source = 'main_frame';
+        if (/\/pdfjs\/pdf_anotate_view\//i.test(pathname)) {
+          source = 'viewer';
+          network.viewerHttpErrors += 1;
+        } else if (/\.(?:map|ico|woff2?|ttf)$/i.test(pathname)) {
+          source = 'optional_resource';
+        }
+        failures.push(classifyBrowserFailure({ type: 'http', source, status: response.status(), fileName: pathname }));
+      }
     });
     page.on('requestfailed', request => {
-      failures.requests += 1;
+      let source = 'main_frame';
+      let fileName = '';
       try {
-        if (/\/workflow\/Handler_image_wf\.ashx$/i.test(new URL(request.url()).pathname)) network.failedHandlerRequests += 1;
+        const pathname = new URL(request.url()).pathname;
+        fileName = pathname;
+        if (/\/workflow\/Handler_image_wf\.ashx$/i.test(pathname)) network.failedHandlerRequests += 1;
+        if (/\/pdfjs\/pdf_anotate_view\//i.test(pathname)) source = 'viewer';
+        if (/\.(?:map|ico|woff2?|ttf)$/i.test(pathname)) source = 'optional_resource';
       } catch { /* La evidencia no conserva URL ni causa de transporte. */ }
+      failures.push(classifyBrowserFailure({ type: 'resource', source, fileName }));
     });
-    page.on('pageerror', () => { failures.pageErrors += 1; });
+    page.on('pageerror', error => {
+      failures.push(classifyPageError(error));
+    });
     await selectWorkflowTask(page, profile);
     const rows = page.locator('#GridView_list_documento_relacion_wf tr[id_wf]:visible');
     const documents = page.locator('#GridView_list_documento_relacion_wf [tip_event="vis_doc_selecion_wf"]:visible');
@@ -387,8 +479,18 @@ async function runMeasurement(profile, environment) {
       console.log(`WORKFLOW_PDF_PERF_ITERATION_${iteration + 1}_FIRST_CANVAS=true`);
     }
 
+    const probeFailures = samples.flatMap(sample => sample.classifiedErrors || []);
+    const uniqueFailures = [...new Map([...failures, ...probeFailures].map(item => [JSON.stringify(item), item])).values()];
+    const milestones = Object.freeze({
+      documentSelected: true,
+      firstCanvas: samples.length === profile.iterations,
+      scroll: scroll?.steps === profile.scrollSteps,
+      zoom: zoom?.stable === true,
+      reloads: samples.length === profile.iterations
+    });
+    const result = deriveResult({ milestones, failures: uniqueFailures });
     const evidence = Object.freeze({
-      schemaVersion: 1,
+      schemaVersion: 2,
       scenario: 'workflow-pdf-viewer-performance-read',
       capturedAtUtc: new Date().toISOString(),
       mode: profile.headless ? 'headless' : 'headed',
@@ -396,7 +498,9 @@ async function runMeasurement(profile, environment) {
       summary: summarize(samples),
       samples,
       interactions: { scroll, zoom },
-      failures
+      milestones,
+      failures: uniqueFailures,
+      result
     });
     await writeEvidence(evidence);
     return evidence;
@@ -419,7 +523,8 @@ async function main() {
   console.log(`WORKFLOW_PDF_PERF_FIRST_CANVAS_MEDIAN_MS=${evidence.summary.medianMs}`);
   console.log(`WORKFLOW_PDF_PERF_PAGE_COUNT=${evidence.samples[0].pageCount}`);
   console.log(`WORKFLOW_PDF_PERF_LONG_TASKS=${evidence.samples.reduce((sum, sample) => sum + sample.longTaskCount, 0)}`);
-  console.log('WORKFLOW_PDF_PERF_RESULT=PASSED');
+  console.log(`WORKFLOW_PDF_PERF_RESULT=${evidence.result}`);
+  if (evidence.result === 'FAILED') process.exitCode = 2;
 }
 
 if (require.main === module) {
@@ -437,7 +542,11 @@ if (require.main === module) {
 
 module.exports = {
   allowedProfileFields,
+  allowedFailureFields,
   captureViewerMetrics,
+  classifyBrowserFailure,
+  classifyPageError,
+  deriveResult,
   loadProfile,
   measureScroll,
   measureZoom,
