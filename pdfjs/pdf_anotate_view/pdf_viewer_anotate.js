@@ -194,6 +194,7 @@
             this.url_firma = "";
             this.url_block;
             this.url_document = "";
+            this.loadingMode = "stream";
             this.anotate_id_imagen = 0;
             this.anotate_cabinete_imagen = "";
             this.anotate_radicado = "";
@@ -1012,7 +1013,7 @@
          updatte page width url  this.pdf.getPage(pagei)
          */
         async  _updatePage(i,document) {
-            let loadingTask = pdfjsLib.getDocument(document);
+            let loadingTask = pdfjsLib.getDocument(this._createLoadingSource(document, "stream"));
             let pdf_ = await loadingTask.promise;
             let page = await pdf_.getPage(1);
             this._renderPage(page, i);
@@ -1231,13 +1232,14 @@
             this.anotate_add_stamp = array_parameter[0].url_add_stamp;
             this.anotate_printer = array_parameter[0].url_printer;
             this.anotate_add_firma = array_parameter[0].url_add_firma;
+            this.loadingMode = array_parameter[0].pdf_load_mode === "range" ? "range" : "stream";
             // Let's free the pdf file (if there was one before), and rely on the garbage collector to free the memory
             this.pdf = null;
             // let' s asing url stamp user
             this.ur_firma_user = ur_firma_user;
             
             // Load the task and return the promise to load the document
-            let loadingTask =  pdfjsLib.getDocument(document);
+            let loadingTask = pdfjsLib.getDocument(this._createLoadingSource(document));
             
             return loadingTask.promise.then(function (pdf) {
                 // Store the pdf file and get the 
@@ -1250,6 +1252,24 @@
                     this.settings.onDocumentReady.call(this);
                 }
             }.bind(this));
+        }
+        _createLoadingSource(document, loadingMode) {
+            if (typeof document !== "string") return document;
+            const selectedMode = loadingMode || this.loadingMode;
+            if (selectedMode !== "range") {
+                return {
+                    url: document,
+                    disableRange: true,
+                    disableStream: false,
+                    disableAutoFetch: false
+                };
+            }
+            return {
+                url: document,
+                disableStream: true,
+                disableAutoFetch: true,
+                rangeChunkSize: 262144
+            };
         }
         /** acive windows config itex stamp */
         config_stamp() {

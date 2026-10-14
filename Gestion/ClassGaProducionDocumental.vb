@@ -7829,7 +7829,15 @@ Public Class ClassGaProducionDocumental
                             save = 1
                         End If
                     End If
-                    Iframe_visor_externo_da.Attributes("SRC") = "../pdfjs/pdf_anotate_view/index.html?rut_image=" & matri_doc(1) & "&urimage_format=" & matri_doc(1).Replace("\", "|") & "&url_firma=" &
+                    Dim archivoStreaming As New FileInfo(matri_doc(1))
+                    Dim referenciaStreaming As New DocumentoStreamingReferencia()
+                    Dim docRef As String = referenciaStreaming.Emitir(matri_doc(1), archivoStreaming.Name, "application/pdf", HttpContext.Current.Session.SessionID)
+                    Dim modoCargaPdf As String = EstrategiaCargaPdf.Seleccionar(matri_doc(1))
+                    If String.IsNullOrWhiteSpace(docRef) Then
+                        Activa_visualizacion_documento_producion = "No fue posible autorizar la visualización del documento"
+                        Exit Function
+                    End If
+                    Iframe_visor_externo_da.Attributes("SRC") = "../pdfjs/pdf_anotate_view/index.html?doc_ref=" & HttpUtility.UrlEncode(docRef) & "&pdf_load_mode=" & HttpUtility.UrlEncode(modoCargaPdf) & "&urimage_format=" & matri_doc(1).Replace("\", "|") & "&url_firma=" &
                                 "../" & HttpContext.Current.Session("WF_RUTA_FIRMA_FINAL") & "&" & "ash=../../workflow/Handler_image_wf.ashx" &
                                 "&url_id_imagen=" & id_imagen & "&url_cabinete_imagen=" & nombre_gabinete &
                                 "&url_radicado=" & "" & "&url_id_workflow=" & 0 & "&url_desc_transacion=" & "PRODUCCION DOCUMENTAL" &

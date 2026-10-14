@@ -1,112 +1,99 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08 -->
 ## Context
 
-DOC-102: STREAMER-HTTP-RANGOS
+`Handler_image_wf.ashx.vb` recibe `rut_image`, normaliza `|` a `/`, obtiene la extensión desde esa ruta y delega en `ClassRaEnvioCorrespondencia.ReadFile`. Ese método cambia atributos del archivo, reserva un `Byte()` del tamaño total y lo llena antes de que el handler use `BinaryWrite` para PDF. El handler implementa `IRequiresSessionState`, aunque no escribe sesión, por lo que solicitudes concurrentes de rangos quedarían serializadas.
 
-## Jira Details
-
-> # Prompt 04 — Streaming, HTTP Range y caché autorizada del PDF
-> ## Contexto de ejecución OPSXJ
-> Este prompt corresponde a una Jira independiente. Ejecuta `opsxj:new` al iniciar para crear su OpenSpec autónomo. Verifica primero el visor y las métricas vigentes después de los prompts anteriores, sin reutilizar sus cambios OpenSpec.
-> ## Rol esperado
-> Actúa como arquitecto full stack senior especializado en HTTP, ASP.NET handlers, streaming, PDF.js, seguridad documental y compatibilidad WebForms.
-> ## Fuentes obligatorias
-> - Exploración técnica completa.
-> - `workflow/Handler_image_wf.ashx` y `workflow/Handler_image_wf.ashx.vb`.
-> - `ClassRaEnvioCorrespondencia.ReadFile(...)` y sus efectos.
-> - `pdfjs/pdf_anotate_view/script.js` y `pdf_viewer_anotate.js`.
-> - Constructores de URL en `Docuarchi/ClassVisualisaDocumento.vb`, `workflow/ClassWorflowVisor.vb` y `Gestion/ClassGaProducionDocumental.vb`.
-> - Consumidores simples del handler inventariados en la exploración.
-> ## Objetivo
-> Permitir que PDF.js solicite y renderice por rangos sin esperar la materialización completa `fetch -> Blob -> FileReader -> Uint8Array`, preservando autorización, aislamiento y consumidores legacy.
-> ## Diseño obligatorio
-> Antes de implementar, documenta:
-> - autoridad para resolver el documento y evitar confiar en una ruta libre del navegador;
-> - contrato compatible para consumidores enriquecidos y simples;
-> - semántica de `GET`, `HEAD`, `Range`, `If-Range`, `ETag`/`Last-Modified`, `206`, `200`, `304` y `416`;
-> - límites, tipos MIME, disposición, errores públicos y cierre de streams;
-> - efecto de `IRequiresSessionState` sobre concurrencia y alternativa compatible si el handler no escribe sesión.
-> ## Implementación obligatoria
-> 1. Servir el archivo mediante `FileStream`/streaming; no leer el PDF completo en `Byte()` ni usar `BinaryWrite` del cuerpo completo.
-> 2. Implementar un único rango válido por solicitud con validación de límites, `Content-Range`, `Content-Length`, `Accept-Ranges: bytes` y `206`.
-> 3. Responder correctamente a rango inválido con `416` sin filtrar ruta.
-> 4. Definir validadores de caché compatibles con autorización; nunca permitir reutilización entre usuarios o documentos no autorizados.
-> 5. Hacer que PDF.js reciba una URL y gestione streaming/rangos directamente.
-> 6. Eliminar del camino enriquecido `fetch`, `Blob`, `FileReader` y copia a `Uint8Array`.
-> 7. Mantener adaptador temporal para consumidores simples y formatos no PDF.
-> 8. No aceptar una ruta física nueva como autoridad. Si el contrato actual impide resolver el documento de forma segura, registrar la deuda y diseñar una referencia opaca/servidor sin inventar tablas.
-> ## Restricciones y antirregresión
-> - No agregar tablas, columnas, almacenamiento externo o CDN.
-> - No debilitar autenticación o autorización para habilitar rangos.
-> - No devolver rutas físicas en encabezados, errores o logs.
-> - No habilitar caché pública de documentos privados.
-> - No cambiar guardado de grafos en esta tarea.
-> - Preservar Workflow, Gestión de Correspondencia, Producción Documental, aprobación, versiones, migración y visores externos inventariados.
-> ## Pruebas obligatorias
-> - Archivo completo, rango inicial, intermedio, sufijo, límite exacto, fuera de límite y header múltiple rechazado/controlado.
-> - `Content-Length`, `Content-Range`, MIME, `HEAD`, validadores y cierre ante desconexión.
-> - Acceso sin sesión, documento ajeno, referencia inválida y traversal.
-> - Regresión de consumidores simples.
-> - E2E local autorizada que demuestre primer canvas sin transferir necesariamente los 33,6 MB completos.
-> - Medición remota o con perfil de red controlado; registrar bytes transferidos y tiempo a primera página.
-> ## Criterios de aceptación
-> - PDF.js comienza con URL/rangos y no necesita descargar todo antes de inicializar.
-> - El handler no materializa el PDF completo en memoria.
-> - Las respuestas HTTP cumplen rangos y seguridad.
-> - Los módulos consumidores mantienen su comportamiento.
-> ## Documentación y entrega
-> Documenta contrato HTTP, amenazas, compatibilidad, pruebas y métricas en `Doc/Actualizacion/VisorPdf/Implementacion/<JIRA>/`.
-> ## Correcciones opsxj:prompt-review
-> Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-> ## Rol esperado
-> Definir el rol tecnico esperado para ejecutar el ticket.
-> ## Objetivo
-> Describir el objetivo funcional y tecnico verificable.
-> ## Restricciones criticas
-> - No introducir cambios fuera del alcance declarado.
-> - No romper comportamiento existente ni contratos publicos.
-> ## Criterios de aceptacion
-> - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-> ## Contexto obligatorio
-> Listar archivos, modulos, servicios, hooks, adapters y documentacion que deben leerse antes de implementar.
-> ## Pruebas obligatorias
-> Ejecutar pruebas Node focales del contrato HTTP, E2E con Playwright y MSBuild del proyecto Web Forms afectado; registrar comandos y resultados.
-> ## Documentacion tecnica
-> Actualizar el paquete documental canonico del ticket.
-> ## Entregable final
-> Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-> Agregar regla para [FLOW_DETAIL_REQUIRED]: Flujo paso a paso, secuencia o comportamiento esperado.
-> Exigir MSBuild del proyecto Web Forms, pruebas Node focales del handler y validación E2E autorizada; registrar el resultado.
-> Registrar comandos ejecutados, resultados obtenidos y evidencia en `05-PruebasEvidencia.md`.
-> Declarar que código + E2E + validación autorizada + evidencia saneada son una única unidad de entrega dentro del mismo cambio; no crear una tarea o entrega E2E independiente.
-> Reutilizar exclusivamente `tools/e2e`, su autenticación, configuración, validadores, evidencias y utilidades; prohibir login, arnés, proyecto Playwright, configuración o `.env` paralelos.
-> Antes de autenticar, exigir lectura de `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`; ejecutar solo con ambiente, cuentas y datos/tareas descartables expresamente autorizados.
-> Exigir secretos efímeros, prohibir exponer/imprimir/persistir credenciales, cookies, tokens y cadenas de conexión, usar verificaciones solo `SELECT` y conservar evidencia saneada.
-> Exigir cobertura E2E, cuando aplique, de autorización/control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada.
-> Respetar feature flags, gates, usuarios, grupos y seguridad sin habilitarlos arbitrariamente; no cerrar sin validación autorizada, registrar bloqueo explícito y prohibir mocks, simulaciones, resultados inventados y evidencia ficticia.
+El arranque de `pdfjs/pdf_anotate_view/script.js` reconstruye la URL del handler y ejecuta `fetch`, `blob`, `FileReader` y `Uint8Array` antes de llamar a `loadDocument`. `PDFjsViewer.loadDocument` ya pasa su argumento a `pdfjsLib.getDocument`, por lo que admite una URL sin cambiar la API interna. Los constructores enriquecidos actuales se encuentran en `Docuarchi/ClassVisualisaDocumento.vb`, `workflow/ClassWorflowVisor.vb` y `Gestion/ClassGaProducionDocumental.vb`; además existen consumidores simples de `rut_image` para descargas, formatos no PDF, versiones, migración y visores externos.
 
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+
+- Reducir tiempo y bytes hasta el primer canvas permitiendo que PDF.js negocie streaming y rangos.
+- Evitar materializar el documento completo en memoria del servidor o del navegador para abrir el visor enriquecido.
+- Hacer que la autoridad del flujo nuevo sea una referencia emitida por servidor, no una ruta libre.
+- Cumplir semántica HTTP observable para `GET`, `HEAD`, Range y revalidación privada.
+- Mantener las acciones de anotación, firma, impresión y descarga, y aislar el adaptador legacy.
 
 **Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+
+- Agregar persistencia, tablas, almacenamiento externo, CDN o un framework nuevo.
+- Cambiar el guardado de grafos o los permisos funcionales del visor.
+- Migrar en esta entrega cada consumidor simple de `rut_image`; su deuda queda delimitada y comprobada por regresión.
+- Habilitar caché pública o acceso sin la sesión/autorización que originó la referencia.
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Referencia opaca emitida por servidor
 
+Se añadirá un componente VB.NET bajo `Infrastructure/Documentos/Streaming/` que cree y resuelva una referencia protegida con `MachineKey`. El payload versionado incluirá ruta canónica, expiración UTC, identidad de sesión y metadatos mínimos de presentación. La referencia se codificará para URL y solo podrá resolverse en la misma sesión antes de expirar. La protección autenticada evita modificar ruta, identidad o vencimiento; una referencia inválida, ajena o expirada producirá un error genérico sin revelar la causa ni la ruta. <!-- D-01; RQ-01 -->
+
+Los tres constructores enriquecidos emitirán `doc_ref` después de haber resuelto el documento mediante sus reglas actuales. El navegador nunca construirá ni enviará una ruta física nueva para activar streaming. No se inventan tablas ni una segunda fuente de autorización.
+
+### D-02 — Semántica determinista de método y rango
+
+El handler aceptará `GET` y `HEAD`. Para una referencia autorizada sin `Range` responderá `200`; para un único rango válido `bytes=start-end`, `bytes=start-` o `bytes=-suffix` responderá `206`. Rechazará rangos múltiples, sintaxis inválida, sufijo cero, inicio fuera del archivo o fin anterior al inicio con `416` y `Content-Range: bytes */<length>`. El fin superior se limitará al último byte. `HEAD` devolverá los encabezados de la representación completa y ningún cuerpo. <!-- D-02; RQ-02 -->
+
+### D-03 — Caché privada y validadores ligados a la referencia
+
+Las respuestas autorizadas usarán `Cache-Control: private, no-cache, must-revalidate`, `Vary: Cookie`, `ETag` fuerte opaco y `Last-Modified` normalizado a segundos. El ETag se derivará de la referencia autorizada y metadatos del archivo, sin exponer la ruta. `If-None-Match` tendrá precedencia sobre `If-Modified-Since` para devolver `304` en solicitudes completas. `If-Range` solo conservará el rango cuando coincida el ETag fuerte o un HTTP-date válido que no sea anterior a la modificación; de otro modo se enviará `200` completo. <!-- D-03; RQ-03 -->
+
+La URL opaca, el enlace a sesión y la caché privada impiden que una respuesta validada para un usuario se reutilice como autorización para otro.
+
+### D-04 — Streaming acotado y cierre seguro
+
+El handler abrirá `FileStream` con lectura y compartición compatibles y copiará únicamente el intervalo seleccionado mediante un buffer fijo. No llamará a `ReadFile`, no cambiará atributos, no creará un `Byte()` del tamaño del documento y no usará `BinaryWrite`. Establecerá `Content-Length`, `Content-Range` cuando aplique, `Accept-Ranges: bytes`, MIME explícito y `Content-Disposition` con nombre saneado. Cerrará stream y buffer mediante `Using`, comprobará desconexión y finalizará con `CompleteRequest`, sin `Response.End` ni mensajes de excepción públicos. <!-- D-04; RQ-04 -->
+
+### D-05 — Sesión de solo lectura para concurrencia
+
+`Handler_image_wf` cambiará de `IRequiresSessionState` a `IReadOnlySessionState`. La emisión de la referencia ocurre en la página que ya tiene autorización y puede escribir su propia respuesta; el handler solo compara la identidad de sesión incluida y no muta sesión, tarea, auditoría o documento. Esto permite que PDF.js emita rangos concurrentes sin el bloqueo exclusivo del handler actual. <!-- D-05; RQ-05 -->
+
+### D-06 — PDF.js consume URL con estrategia adaptativa
+
+`script.js` construirá una única URL autorizada a partir de `ash` y `doc_ref`, la pasará a `load_pdf_viwer_anotation` y eliminará del arranque `fetch`, `Blob`, `FileReader` y la copia a `Uint8Array`. El servidor inspeccionará como máximo 4 KiB del encabezado, sin modificar el archivo: un PDF de al menos 1 MiB con diccionario `/Linearized` usará rangos de 256 KiB con `disableStream` y `disableAutoFetch`; un PDF pequeño, no linearizado o indeterminado usará una sola respuesta `200` con `disableRange`, conservando streaming progresivo. La selección viajará como una sugerencia de rendimiento sin autoridad documental; `doc_ref` seguirá siendo la única autoridad del flujo nuevo. <!-- D-06; RQ-06 -->
+
+El pegado de grafo conservará `url_document`/`urimage_format`, el web service iText, su payload y las coordenadas actuales. `_updatePage` abrirá la URL de salida mediante streaming completo para refrescar únicamente la página afectada, evitando exigir Range a una URL devuelta por el contrato legacy. Las entradas binarias existentes conservarán su contrato.
+
+### D-07 — Adaptador legacy delimitado
+
+`rut_image` permanecerá temporalmente para consumidores simples inventariados, incluidos visores de descarga, formatos no PDF, versiones/migración y ramas `LIBRE_PDF`. Ese camino también se transmitirá por bloques para retirar `ReadFile/BinaryWrite`, pero no anunciará Range ni validadores nuevos y no podrá activar el contrato `doc_ref`. Los constructores enriquecidos migrados no volverán a emitir `rut_image` como autoridad de apertura. La deuda de autorización de consumidores simples queda explícita y no se amplía. <!-- D-07; RQ-07 -->
+
+### D-08 — Validación como unidad de entrega
+
+Se añadirán pruebas focales del parser/rendimiento HTTP y políticas estáticas de integración; se ejecutarán MSBuild y OpenSpec estricto. La E2E real reutilizará exclusivamente `tools/e2e`, después de leer `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`, y requerirá autorización expresa de ambiente, cuenta y documento. La evidencia saneada registrará estados, encabezados, bytes transferidos y tiempo a primer canvas sin secretos ni rutas. Código, runner y evidencia forman una sola entrega. <!-- D-08; RQ-08 -->
+
+## HTTP Flow
+
+1. Una clase de visor resuelve el documento con el flujo legacy ya autorizado.
+2. El servidor emite una referencia protegida, expirable y ligada a la sesión, y la incluye como `doc_ref` en la URL del visor.
+3. El emisor inspecciona el encabezado y añade `pdf_load_mode=range|stream`; `script.js` entrega `Handler_image_wf.ashx?doc_ref=...` directamente a PDF.js.
+4. El handler valida método, sesión, referencia, expiración y existencia antes de abrir el archivo.
+5. El handler evalúa condiciones de caché y luego `Range`/`If-Range` con reglas deterministas.
+6. El cuerpo completo o parcial se copia desde `FileStream` con memoria acotada; `HEAD`, `304` y `416` no envían cuerpo.
+7. PDF.js solicita rangos para PDF linearizados o consume una respuesta secuencial para los demás; ambos caminos usan streaming acotado del servidor.
+8. Acciones opcionales continúan usando sus permisos y contratos vigentes; ninguna respuesta del streamer modifica estado.
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+- `MachineKey` debe ser coherente entre nodos del mismo despliegue; una configuración distinta invalidará referencias al cambiar de nodo. La validación de despliegue deberá comprobarlo sin registrar claves.
+- Mantener `rut_image` evita romper consumidores simples, pero conserva una deuda de autorización preexistente. Se reduce su superficie al impedir que reciba las capacidades nuevas y se documenta para una migración posterior.
+- `private, no-cache` permite almacenamiento privado con revalidación; aumenta solicitudes respecto de una caché `max-age`, pero evita servir documentos privados sin revalidar.
+- Un rango muy pequeño genera más solicitudes. PDF.js controlará su tamaño estándar; el servidor mantendrá buffer fijo y validación de límites.
+- El cliente puede desconectarse durante la copia. El cierre determinista evita retener handles y el error no se expondrá como fallo de negocio.
+- `disableAutoFetch` evita la precarga especulativa, pero no puede impedir que el parser solicite todos los bytes necesarios para resolver una página. La E2E final del documento aprobado confirmó el contrato Range y aun así consumió sus 33.589.755 bytes codificados antes del primer canvas; garantizar carga parcial exige optimización o linearización documental fuera de este alcance.
+- La detección de `/Linearized` es deliberadamente conservadora. Un falso negativo usa streaming completo compatible; un parámetro `pdf_load_mode` alterado solo afecta rendimiento y nunca concede acceso porque el handler valida `doc_ref`.
+- La E2E adaptativa del documento aprobado eligió streaming secuencial, redujo la mediana de 1.123 ms a 624 ms y sustituyó 61 rangos por una respuesta `200` por iteración. El beneficio observado es latencia/sobrecarga HTTP; el volumen total permanece igual porque el PDF no está linearizado.
 
 ## Migration Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
+1. Incorporar y probar referencia, parser, validadores y copia acotada sin conectar el visor.
+2. Migrar los tres constructores enriquecidos para emitir `doc_ref` y registrar el archivo nuevo en el proyecto.
+3. Cambiar `script.js` a URL directa y selección adaptativa manteniendo `urimage_format` para acciones legacy y streaming completo para el refresco posterior al grafo.
+4. Ejecutar pruebas focales, MSBuild y regresión de consumidores simples.
+5. Con autorización explícita, ejecutar E2E y comparar bytes/primer canvas con la evidencia DOC-101 vigente.
+6. Rollback: restaurar en los tres constructores el parámetro `rut_image` y la precarga del cliente; el adaptador legacy permanece disponible durante esta entrega.
 
 ## Open Questions
 
-- TBD
+- La validación E2E deberá confirmar si el balanceador del ambiente mantiene `MachineKey` compartida y afinidad de sesión; si no, la referencia fallará cerrada y se documentará como bloqueo de despliegue.
+- La migración definitiva de consumidores simples y la eliminación de `rut_image` requieren un ticket posterior porque abarcan flujos públicos, externos y de formatos no PDF con autoridades distintas.

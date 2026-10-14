@@ -173,7 +173,14 @@ Public Class ClassVisualisaDocumento
                     Dim file_inf As New IO.FileInfo(matri_doc(1))
                     If UCase(file_inf.Extension) = ".PDF" Then
                         If HttpContext.Current.Session("UTIL_VISOR_EXPRESS") = 1 And HttpContext.Current.Session("VALIDA_VISOR_EXPRES") = 1 And anula_visor_espress <> 1 Then
-                            ifrm_visor.Attributes("SRC") = "../pdfjs/pdf_anotate_view/index.html?rut_image=" & matri_doc(1) & "&urimage_format=" & matri_doc(1).Replace("\", "|") & "&url_firma=" &
+                            Dim referenciaStreaming As New DocumentoStreamingReferencia()
+                            Dim docRef As String = referenciaStreaming.Emitir(matri_doc(1), file_inf.Name, "application/pdf", HttpContext.Current.Session.SessionID)
+                            Dim modoCargaPdf As String = EstrategiaCargaPdf.Seleccionar(matri_doc(1))
+                            If String.IsNullOrWhiteSpace(docRef) Then
+                                Visualiza_documento_workflow_visor = "No fue posible autorizar la visualización del documento"
+                                Exit Function
+                            End If
+                            ifrm_visor.Attributes("SRC") = "../pdfjs/pdf_anotate_view/index.html?doc_ref=" & HttpUtility.UrlEncode(docRef) & "&pdf_load_mode=" & HttpUtility.UrlEncode(modoCargaPdf) & "&urimage_format=" & matri_doc(1).Replace("\", "|") & "&url_firma=" &
                                 "../" & HttpContext.Current.Session("WF_RUTA_FIRMA_FINAL") & "&" & "ash=../../workflow/Handler_image_wf.ashx" &
                                 "&url_id_imagen=" & HttpContext.Current.Session.Item("WF_ID_DOCUMENTO_SELECCIONADO") & "&url_cabinete_imagen=" & HttpContext.Current.Session.Item("WF_GABINETE_SELECCIONADO") &
                                 "&url_radicado=" & "" & "&url_id_workflow=" & id_tarea_workflow & "&url_desc_transacion=" & "WORKFLOW" &

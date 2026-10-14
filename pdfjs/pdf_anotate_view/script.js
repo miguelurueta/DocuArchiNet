@@ -152,6 +152,29 @@ async function runOptionalCapability(event, name, label, action) {
 
 window.viewerCapabilities = viewerCapabilities;
 window.loadViewerCapability = loadViewerCapability;
+
+function buildAuthorizedPdfUrl(urlParams) {
+    const handlerPath = urlParams.get("ash");
+    const documentReference = urlParams.get("doc_ref");
+    if (!handlerPath || !documentReference) return null;
+    const separator = handlerPath.indexOf("?") >= 0 ? "&" : "?";
+    return handlerPath + separator + "doc_ref=" + encodeURIComponent(documentReference);
+}
+
+function reportDocumentLoadError() {
+    const message = "No fue posible abrir el documento autorizado.";
+    if (typeof pdfViewer !== "undefined" && pdfViewer && typeof pdfViewer.PdfViwerAlert === "function") {
+        pdfViewer.PdfViwerAlert(message, "warning", "container-general");
+    } else {
+        console.warn(message);
+    }
+}
+
+function normalizePdfLoadingMode(value) {
+    return value === "range" ? "range" : "stream";
+}
+
+window.buildAuthorizedPdfUrl = buildAuthorizedPdfUrl;
 function load_pdf_anotate(url_response, url_src, url_firma_) {
     pdf = new PDFAnnotate("pdf-container_", url_response, url_src, url_firma_, {
         onPageUpdated(page, oldData, newData) {
@@ -169,10 +192,9 @@ $(window).on("load", function () {
     window.addEventListener("resize", rezize_event);
     configToolbarPdfView();
     auto_size_pdf_anotate();
-    const reader = new FileReader();
     const valores = window.location.search;
     const urlParams = new URLSearchParams(valores);
-    let url_src = urlParams.get("ash") + "?rut_image=" + urlParams.get("rut_image");
+    let url_src = buildAuthorizedPdfUrl(urlParams);
     let url_src_fromat = urlParams.get("ash") + "?rut_image=" + urlParams.get("urimage_format");
     let ur_firma_user = urlParams.get("url_firma");
     let url_id_imagen = 0;
@@ -193,6 +215,7 @@ $(window).on("load", function () {
     if (urlParams.get("url_add_stamp")) { url_add_stamp = urlParams.get("url_add_stamp"); };
     let url_add_firma = 0;
     if (urlParams.get("url_add_firma")) { url_add_firma = urlParams.get("url_add_firma"); };
+    let pdf_load_mode = normalizePdfLoadingMode(urlParams.get("pdf_load_mode"));
     let paramenter_pdf_view;
     paramenter_pdf_view = new Array ({
         "url_id_imagen": url_id_imagen,
@@ -203,23 +226,15 @@ $(window).on("load", function () {
         "url_printer": url_printer,
         "url_save": url_save,
         "url_add_stamp": url_add_stamp,
-        "url_add_firma" : url_add_firma
+        "url_add_firma": url_add_firma,
+        "pdf_load_mode": pdf_load_mode
                         });
 
-    fetch(url_src)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.blob();
-        })
-        .then((response) => {
-            reader.readAsArrayBuffer(response);
-            reader.addEventListener("loadend", () => {                
-                const data = new Uint8Array(reader.result);
-                load_pdf_viwer_anotation(data, url_src_fromat, ur_firma_user, paramenter_pdf_view);
-            });             
-        });
+    if (!url_src) {
+        reportDocumentLoadError();
+        return;
+    }
+    load_pdf_viwer_anotation(url_src, url_src_fromat, ur_firma_user, paramenter_pdf_view);
     
     function rezize_event() {
         try {
@@ -326,9 +341,12 @@ function load_pdf_viwer_anotation(document, url_src_fromat, ur_firma_user, param
     });
 
     /** Load the initial PDF file */
-    pdfViewer.loadDocument(document, url_src_fromat, ur_firma_user, paramenter_pdf_view).then(function () {
+    return pdfViewer.loadDocument(document, url_src_fromat, ur_firma_user, paramenter_pdf_view).then(function () {
         //document.querySelector('#filedownload').download = PDFFILE;
-   });
+    }).catch(function () {
+        reportDocumentLoadError();
+        return false;
+    });
 }
 
 

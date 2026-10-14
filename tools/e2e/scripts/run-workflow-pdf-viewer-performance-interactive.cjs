@@ -39,6 +39,53 @@ function createRequestCounts() {
   return Object.seal(Object.fromEntries(requestCountCategories.map(category => [category, 0])));
 }
 
+function sanitizeHandlerExchange(input = {}) {
+  const requestHeaders = input.requestHeaders || {};
+  const responseHeaders = input.responseHeaders || {};
+  const status = Number(input.status);
+  const contentLength = Number(responseHeaders['content-length']);
+  const contentRangeMatch = String(responseHeaders['content-range'] || '').match(/\/(\d+)$/);
+  const contentRangeLength = Number(contentRangeMatch?.[1]);
+  return Object.freeze({
+    status: Number.isInteger(status) && status >= 100 && status <= 599 ? status : 0,
+    rangeRequested: typeof requestHeaders.range === 'string' && /^bytes=/i.test(requestHeaders.range),
+    acceptRangesBytes: String(responseHeaders['accept-ranges'] || '').toLowerCase() === 'bytes',
+    contentRangePresent: typeof responseHeaders['content-range'] === 'string',
+    contentLengthBytes: Number.isSafeInteger(contentLength) && contentLength >= 0 ? contentLength : 0,
+    documentLengthBytes: Number.isSafeInteger(contentRangeLength) && contentRangeLength > 0
+      ? contentRangeLength
+      : (status === 200 && Number.isSafeInteger(contentLength) && contentLength > 0 ? contentLength : 0),
+    etagPresent: typeof responseHeaders.etag === 'string' && responseHeaders.etag.length > 0,
+    lastModifiedPresent: typeof responseHeaders['last-modified'] === 'string',
+    privateCache: /(?:^|,)\s*private(?:\s|,|$)/i.test(String(responseHeaders['cache-control'] || '')),
+    varyCookie: String(responseHeaders.vary || '').split(',').some(value => value.trim().toLowerCase() === 'cookie')
+  });
+}
+
+function summarizeHandlerExchanges(exchanges = []) {
+  const safe = exchanges.map(sanitizeHandlerExchange);
+  return Object.freeze({
+    requestCount: safe.length,
+    rangeRequestCount: safe.filter(item => item.rangeRequested).length,
+    statuses: Object.freeze(safe.reduce((counts, item) => {
+      const key = String(item.status);
+      counts[key] = (counts[key] || 0) + 1;
+      return counts;
+    }, {})),
+    declaredResponseBytes: safe.reduce((sum, item) => sum + item.contentLengthBytes, 0),
+    documentLengthBytes: safe.reduce((maximum, item) => Math.max(maximum, item.documentLengthBytes), 0),
+    contract: Object.freeze({
+      acceptRanges: safe.some(item => item.acceptRangesBytes),
+      contentRange: safe.some(item => item.contentRangePresent),
+      etag: safe.some(item => item.etagPresent),
+      lastModified: safe.some(item => item.lastModifiedPresent),
+      validators: safe.some(item => item.etagPresent && item.lastModifiedPresent),
+      privateCache: safe.some(item => item.privateCache),
+      varyCookie: safe.some(item => item.varyCookie)
+    })
+  });
+}
+
 function isViewerFrameRequest(requestUrl, frameUrl) {
   const viewerPath = /\/pdfjs\/pdf_anotate_view\/index\.html$/i;
   try {
@@ -100,7 +147,10 @@ function classifyPageError(error) {
 
 function deriveResult(input = {}) {
   const milestones = input.milestones || {};
-  const complete = ['documentSelected', 'firstCanvas', 'scroll', 'zoom', 'reloads']
+  const requiredMilestones = ['documentSelected', 'firstCanvas', 'scroll', 'zoom', 'reloads'];
+  if (Object.prototype.hasOwnProperty.call(milestones, 'transportPolicy')) requiredMilestones.push('transportPolicy');
+  if (Object.prototype.hasOwnProperty.call(milestones, 'partialFirstCanvas')) requiredMilestones.push('partialFirstCanvas');
+  const complete = requiredMilestones
     .every(name => milestones[name] === true);
   const failures = Array.isArray(input.failures) ? input.failures : [];
   const hasRequiredFailure = failures.some(item => !item || requiredSources.has(item.source) ||
@@ -304,13 +354,13 @@ async function waitForFirstCanvas(page, timeout, network) {
   return waitForViewerFrame(page, timeout);
 }
 
-async function captureViewerMetrics(frame, elapsedMs) {
-  return frame.evaluate((outerElapsed) => {
+async function captureViewerMetrics(frame, elapsedMs, handlerExchanges = []) {
+  const browserMetrics = await frame.evaluate((outerElapsed) => {
     const viewer = typeof pdfViewer === 'undefined' ? null : pdfViewer;
     const probe = window.__workflowPdfPerformance || {};
     const resources = performance.getEntriesByType('resource');
     const navigation = performance.getEntriesByType('navigation')[0];
-    const pdfResource = [...resources].reverse().find(entry => {
+    const pdfResources = resources.filter(entry => {
       try { return /\/workflow\/Handler_image_wf\.ashx$/i.test(new URL(entry.name).pathname); } catch { return false; }
     });
     const canvases = Array.from(document.querySelectorAll('#pdf-container_ canvas'));
@@ -322,13 +372,20 @@ async function captureViewerMetrics(frame, elapsedMs) {
       pageCount: Number(viewer?.pdf?.numPages || document.querySelectorAll('#pdf-container_ .pdfpage').length || 0),
       canvasCount: canvases.length,
       canvasPixels: canvases.reduce((sum, canvas) => sum + (canvas.width * canvas.height), 0),
-      handler: pdfResource ? {
-        durationMs: Math.round(pdfResource.duration),
-        ttfbMs: Math.round(pdfResource.responseStart - pdfResource.startTime),
-        downloadMs: Math.round(pdfResource.responseEnd - pdfResource.responseStart),
-        transferBytes: Number(pdfResource.transferSize || 0),
-        encodedBytes: Number(pdfResource.encodedBodySize || 0),
-        decodedBytes: Number(pdfResource.decodedBodySize || 0)
+      pdfLoading: {
+        mode: viewer?.loadingMode === 'range' ? 'range' : 'stream',
+        disableRange: viewer?.pdf?.loadingParams?.disableRange === true,
+        disableStream: viewer?.pdf?.loadingParams?.disableStream === true,
+        disableAutoFetch: viewer?.pdf?.loadingParams?.disableAutoFetch === true
+      },
+      handler: pdfResources.length > 0 ? {
+        requestCount: pdfResources.length,
+        durationMs: Math.round(Math.max(...pdfResources.map(entry => entry.responseEnd)) - Math.min(...pdfResources.map(entry => entry.startTime))),
+        ttfbMs: Math.round(Math.min(...pdfResources.map(entry => entry.responseStart - entry.startTime))),
+        downloadMs: Math.round(Math.max(...pdfResources.map(entry => entry.responseEnd - entry.responseStart))),
+        transferBytes: pdfResources.reduce((sum, entry) => sum + Number(entry.transferSize || 0), 0),
+        encodedBytes: pdfResources.reduce((sum, entry) => sum + Number(entry.encodedBodySize || 0), 0),
+        decodedBytes: pdfResources.reduce((sum, entry) => sum + Number(entry.decodedBodySize || 0), 0)
       } : null,
       longTaskCount: longTasks.length,
       longTaskTotalMs: longTasks.reduce((sum, entry) => sum + Number(entry.duration || 0), 0),
@@ -336,6 +393,14 @@ async function captureViewerMetrics(frame, elapsedMs) {
       classifiedErrors: Array.isArray(probe.errors) ? probe.errors : []
     };
   }, elapsedMs);
+  const streamingContract = summarizeHandlerExchanges(handlerExchanges);
+  const transferred = Number(browserMetrics.handler?.transferBytes || 0);
+  const partialBeforeFirstCanvas = streamingContract.rangeRequestCount > 0 &&
+    streamingContract.documentLengthBytes > 0 && transferred < streamingContract.documentLengthBytes;
+  const transportPolicySatisfied = browserMetrics.pdfLoading.mode === 'range'
+    ? partialBeforeFirstCanvas
+    : streamingContract.rangeRequestCount === 0 && Number(streamingContract.statuses['200'] || 0) > 0;
+  return Object.freeze({ ...browserMetrics, streamingContract, partialBeforeFirstCanvas, transportPolicySatisfied });
 }
 
 async function measureScroll(frame, steps) {
@@ -501,6 +566,7 @@ async function runMeasurement(profile, environment, options = {}) {
     const failures = [];
     const network = {
       handlerStatuses: [], viewerHttpErrors: 0, failedHandlerRequests: 0,
+      handlerExchanges: [],
       requestCounts: createRequestCounts()
     };
     page.on('request', request => {
@@ -513,7 +579,14 @@ async function runMeasurement(profile, environment, options = {}) {
     page.on('response', response => {
       let pathname = '';
       try { pathname = new URL(response.url()).pathname; } catch { return; }
-      if (/\/workflow\/Handler_image_wf\.ashx$/i.test(pathname)) network.handlerStatuses.push(response.status());
+      if (/\/workflow\/Handler_image_wf\.ashx$/i.test(pathname)) {
+        network.handlerStatuses.push(response.status());
+        network.handlerExchanges.push({
+          status: response.status(),
+          requestHeaders: response.request().headers(),
+          responseHeaders: response.headers()
+        });
+      }
       if (response.status() >= 400) {
         let source = 'main_frame';
         const category = classifyViewerRequest(pathname);
@@ -534,7 +607,10 @@ async function runMeasurement(profile, environment, options = {}) {
       try {
         const pathname = new URL(request.url()).pathname;
         fileName = pathname;
-        if (/\/workflow\/Handler_image_wf\.ashx$/i.test(pathname)) network.failedHandlerRequests += 1;
+        if (/\/workflow\/Handler_image_wf\.ashx$/i.test(pathname)) {
+          network.failedHandlerRequests += 1;
+          return;
+        }
         const category = classifyViewerRequest(pathname);
         if (!['core', 'other'].includes(category) || /\.(?:map|ico|woff2?|ttf)$/i.test(pathname)) {
           source = 'optional_resource';
@@ -568,12 +644,14 @@ async function runMeasurement(profile, environment, options = {}) {
     }
 
     const samples = [];
+    let handlerExchangeStart = network.handlerExchanges.length;
     let started = performance.now();
     await selectedDocument.click();
     console.log('WORKFLOW_PDF_PERF_DOCUMENT_SELECTED=true');
     let frame = await waitForViewerFrame(page, profile.timeoutMilliseconds);
     frame = await waitForFirstCanvas(page, profile.timeoutMilliseconds, network);
-    samples.push(await captureViewerMetrics(frame, performance.now() - started));
+    samples.push(await captureViewerMetrics(frame, performance.now() - started,
+      network.handlerExchanges.slice(handlerExchangeStart)));
     console.log('WORKFLOW_PDF_PERF_ITERATION_1_FIRST_CANVAS=true');
     const scroll = await measureScroll(frame, profile.scrollSteps);
     console.log('WORKFLOW_PDF_PERF_SCROLL_COMPLETED=true');
@@ -581,6 +659,7 @@ async function runMeasurement(profile, environment, options = {}) {
     console.log('WORKFLOW_PDF_PERF_ZOOM_COMPLETED=true');
 
     for (let iteration = 1; iteration < profile.iterations; iteration += 1) {
+      handlerExchangeStart = network.handlerExchanges.length;
       started = performance.now();
       const navigated = page.waitForEvent('framenavigated', {
         predicate: candidate => candidate === frame,
@@ -592,23 +671,30 @@ async function runMeasurement(profile, environment, options = {}) {
       await navigated;
       frame = await waitForViewerFrame(page, profile.timeoutMilliseconds);
       frame = await waitForFirstCanvas(page, profile.timeoutMilliseconds, network);
-      samples.push(await captureViewerMetrics(frame, performance.now() - started));
+      samples.push(await captureViewerMetrics(frame, performance.now() - started,
+        network.handlerExchanges.slice(handlerExchangeStart)));
       console.log(`WORKFLOW_PDF_PERF_ITERATION_${iteration + 1}_FIRST_CANVAS=true`);
     }
 
     const capabilityMatrix = options.capabilityMatrix ? await exerciseCapabilityMatrix(page, frame) : null;
+    if (network.failedHandlerRequests > 0 && !network.handlerStatuses.some(status => status === 200 || status === 206)) {
+      failures.push(classifyBrowserFailure({ type: 'resource', source: 'main_frame', fileName: 'Handler_image_wf.ashx' }));
+    }
     const probeFailures = samples.flatMap(sample => sample.classifiedErrors || []);
     const uniqueFailures = [...new Map([...failures, ...probeFailures].map(item => [JSON.stringify(item), item])).values()];
+    const allRangeMode = samples.every(sample => sample.pdfLoading?.mode === 'range');
     const milestones = Object.freeze({
       documentSelected: true,
       firstCanvas: samples.length === profile.iterations,
       scroll: scroll?.steps === profile.scrollSteps,
       zoom: zoom?.stable === true,
-      reloads: samples.length === profile.iterations
+      reloads: samples.length === profile.iterations,
+      transportPolicy: samples.every(sample => sample.transportPolicySatisfied === true),
+      ...(allRangeMode ? { partialFirstCanvas: samples.every(sample => sample.partialBeforeFirstCanvas === true) } : {})
     });
     const result = deriveResult({ milestones, failures: uniqueFailures });
     const evidence = Object.freeze({
-      schemaVersion: 2,
+      schemaVersion: 4,
       scenario: capabilityMatrix ? 'workflow-pdf-viewer-capability-matrix' : 'workflow-pdf-viewer-performance-read',
       capturedAtUtc: new Date().toISOString(),
       mode: profile.headless ? 'headless' : 'headed',
@@ -646,6 +732,8 @@ async function main() {
   console.log(`WORKFLOW_PDF_PERF_FIRST_CANVAS_MEDIAN_MS=${evidence.summary.medianMs}`);
   console.log(`WORKFLOW_PDF_PERF_PAGE_COUNT=${evidence.samples[0].pageCount}`);
   console.log(`WORKFLOW_PDF_PERF_LONG_TASKS=${evidence.samples.reduce((sum, sample) => sum + sample.longTaskCount, 0)}`);
+  console.log(`WORKFLOW_PDF_PERF_LOADING_MODE=${evidence.samples[0].pdfLoading.mode.toUpperCase()}`);
+  console.log(`WORKFLOW_PDF_PERF_TRANSPORT_POLICY=${evidence.milestones.transportPolicy ? 'PASSED' : 'FAILED'}`);
   console.log(`WORKFLOW_PDF_PERF_RESULT=${evidence.result}`);
   if (capabilityMatrix) console.log(`WORKFLOW_PDF_CAPABILITY_MATRIX_RESULT=${evidence.capabilityMatrix.result}`);
   if (evidence.result === 'FAILED' || evidence.capabilityMatrix?.result === 'FAILED') process.exitCode = 2;
@@ -679,5 +767,7 @@ module.exports = {
   measureScroll,
   measureZoom,
   requestCountCategories,
+  sanitizeHandlerExchange,
+  summarizeHandlerExchanges,
   summarize
 };
