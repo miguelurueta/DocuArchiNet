@@ -15,6 +15,8 @@ const {
   isViewerFrameRequest,
   loadProfile,
   requestCountCategories,
+  sanitizeHandlerExchange,
+  summarizeHandlerExchanges,
   summarize
 } = require('../scripts/run-workflow-pdf-viewer-performance-interactive.cjs');
 
@@ -79,6 +81,43 @@ test('los conteos incluyen solo solicitudes originadas por el iframe oficial', (
   assert.equal(isViewerFrameRequest('https://host.invalid/js/jquery-ui.min.js', 'https://host.invalid/workflow/Webworkflow.aspx'), false);
   assert.equal(isViewerFrameRequest('https://host.invalid/main.css', ''), false);
   assert.match(runner, /if \(!isViewerFrameRequest\(request\.url\(\), frameUrl\)\) return/);
+});
+
+test('DOC-102 sanea contrato Range y bytes sin conservar cabeceras sensibles', () => {
+  const rawExchange = {
+    status: 206,
+    requestHeaders: { range: 'bytes=0-65535', cookie: 'sesion=privada' },
+    responseHeaders: {
+      'accept-ranges': 'bytes', 'content-range': 'bytes 0-65535/900000',
+      'content-length': '65536', etag: '"secreto"', 'last-modified': 'Mon, 12 Oct 2026 12:00:00 GMT',
+      'cache-control': 'private, max-age=0, must-revalidate', vary: 'Accept-Encoding, Cookie'
+    }
+  };
+  const exchange = sanitizeHandlerExchange(rawExchange);
+  assert.deepEqual(exchange, {
+    status: 206, rangeRequested: true, acceptRangesBytes: true, contentRangePresent: true,
+    contentLengthBytes: 65536, documentLengthBytes: 900000, etagPresent: true, lastModifiedPresent: true,
+    privateCache: true, varyCookie: true
+  });
+  const summary = summarizeHandlerExchanges([rawExchange]);
+  assert.equal(summary.rangeRequestCount, 1);
+  assert.equal(summary.statuses['206'], 1);
+  assert.equal(summary.declaredResponseBytes, 65536);
+  assert.equal(summary.documentLengthBytes, 900000);
+  assert.deepEqual(summary.contract, {
+    acceptRanges: true, contentRange: true, etag: true, lastModified: true,
+    validators: true, privateCache: true, varyCookie: true
+  });
+  assert.doesNotMatch(JSON.stringify(summary), /bytes=|sesion|privada|secreto|0-65535|Mon,|GMT|\"[a-f0-9]{16,}\"/i);
+  assert.match(runner, /const streamingContract = summarizeHandlerExchanges/);
+  assert.match(runner, /partialBeforeFirstCanvas/);
+  assert.match(runner, /loadingParams\?\.disableAutoFetch === true/);
+  assert.match(runner, /loadingParams\?\.disableRange === true/);
+  assert.match(runner, /transportPolicySatisfied/);
+  assert.match(runner, /rangeRequestCount === 0/);
+  assert.match(runner, /WORKFLOW_PDF_PERF_LOADING_MODE=/);
+  assert.match(runner, /WORKFLOW_PDF_PERF_TRANSPORT_POLICY=/);
+  assert.match(runner, /failedHandlerRequests > 0 && !network\.handlerStatuses\.some/);
 });
 
 test('la medición abre el visor oficial sin invocar persistencia de grafos', () => {
@@ -147,6 +186,10 @@ test('deriva PASSED, PASSED_WITH_OBSERVATIONS y FAILED sin falsos limpios', () =
     stack: 'ReferenceError\n at https://host.invalid/pdfjs/pdf_anotate_view/pdf.worker.entry.min.js:1:2'
   });
   assert.equal(deriveResult({ milestones, failures: [] }), 'PASSED');
+  assert.equal(deriveResult({ milestones: { ...milestones, partialFirstCanvas: true }, failures: [] }), 'PASSED');
+  assert.equal(deriveResult({ milestones: { ...milestones, partialFirstCanvas: false }, failures: [] }), 'FAILED');
+  assert.equal(deriveResult({ milestones: { ...milestones, transportPolicy: true }, failures: [] }), 'PASSED');
+  assert.equal(deriveResult({ milestones: { ...milestones, transportPolicy: false }, failures: [] }), 'FAILED');
   assert.equal(deriveResult({ milestones, failures: [optional] }), 'PASSED_WITH_OBSERVATIONS');
   assert.equal(deriveResult({ milestones, failures: [optionalScript] }), 'FAILED');
   assert.equal(deriveResult({ milestones, failures: [viewer] }), 'FAILED');

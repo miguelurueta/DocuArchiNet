@@ -104,7 +104,14 @@ Public Class ClassWorflowVisor
                                 Dim save As Integer = 1
                                 Dim stamp As Integer = 1
                                 Dim firma As Integer = 1
-                                ifrm_visor.Attributes("SRC") = "../pdfjs/pdf_anotate_view/index.html?rut_image=" & matri_doc(1) & "&urimage_format=" & matri_doc(1).Replace("\", "|") & "&url_firma=" &
+                                Dim referenciaStreaming As New DocumentoStreamingReferencia()
+                                Dim docRef As String = referenciaStreaming.Emitir(matri_doc(1), fielinf.Name, "application/pdf", HttpContext.Current.Session.SessionID)
+                                Dim modoCargaPdf As String = EstrategiaCargaPdf.Seleccionar(matri_doc(1))
+                                If String.IsNullOrWhiteSpace(docRef) Then
+                                    Lista_documento_visor_clasificacion = "No fue posible autorizar la visualización del documento"
+                                    Exit Function
+                                End If
+                                ifrm_visor.Attributes("SRC") = "../pdfjs/pdf_anotate_view/index.html?doc_ref=" & HttpUtility.UrlEncode(docRef) & "&pdf_load_mode=" & HttpUtility.UrlEncode(modoCargaPdf) & "&urimage_format=" & matri_doc(1).Replace("\", "|") & "&url_firma=" &
                                 "../" & HttpContext.Current.Session("WF_RUTA_FIRMA_FINAL") & "&" & "ash=../../workflow/Handler_image_wf.ashx" &
                                 "&url_id_imagen=" & id_imagen & "&url_cabinete_imagen=" & nombre_gabinete &
                                 "&url_radicado=" & "" & "&url_id_workflow=" & 0 & "&url_desc_transacion=" & "VISORAPROBACION" &

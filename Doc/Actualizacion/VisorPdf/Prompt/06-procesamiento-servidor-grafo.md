@@ -15,6 +15,7 @@ Actúa como arquitecto backend senior especializado en VB.NET, iTextSharp, archi
 - `itextshare/Class_ItexShare.vb`, `add_anotate_image_pdf(...)`, `Create_file_pagina(...)` y resolución de rutas.
 - `workflow/Class_transparent.vb` completo.
 - DTO `Class_itext_anotate`, auditoría y validación de firma digital.
+- Contrato y evidencia reales del Prompt 04: política adaptativa `RANGE`/`STREAM`, clasificación por tamaño y `/Linearized`, y separación entre bytes únicos y bytes físicos.
 
 ## Objetivo
 
@@ -29,6 +30,7 @@ Antes de refactorizar, crea fixtures PDF descartables y registra huellas antes/d
 - transparencia activada/desactivada;
 - distintas escalas y posiciones límite;
 - documento firmado digitalmente;
+- documento linealizado descartable, registrando la presencia de `/Linearized` antes y después del pegado de grafo con iTextSharp;
 - error antes y después de crear temporal;
 - dos operaciones concurrentes del mismo usuario y de usuarios diferentes.
 
@@ -43,11 +45,15 @@ Antes de refactorizar, crea fixtures PDF descartables y registra huellas antes/d
 7. Validar dimensiones, página, rotación, escala y tamaño del payload antes de abrir iText.
 8. Mantener la validación de certificado antes de cualquier escritura y retornar errores públicos saneados.
 9. No registrar rutas, base64 ni detalles sensibles en la auditoría; revisar el texto actual `datos_add_grafo` y conservar solo información permitida.
+10. Clasificar el PDF final por su estructura real después del reemplazo. Si iTextSharp elimina `/Linearized`, registrar el cambio y asegurar que la siguiente apertura use el fallback `STREAM`; no publicar una expectativa falsa de descarga parcial.
+11. Mantener desacopladas la mutación documental y la estrategia de transporte: el guardado del grafo produce un PDF válido y el visor decide `RANGE`/`STREAM` al leerlo. No ejecutar linealización externa dentro del WebMethod ni después de firmar.
 
 ## Restricciones y antirregresión
 
 - No actualizar iTextSharp ni cambiar de biblioteca en esta Jira.
 - No agregar tablas/columnas, colas o almacenamiento externo.
+- No agregar Ghostscript, ejecutables externos ni una dependencia de linealización en producción; la POC del Prompt 04 no se convierte en requisito de este ticket.
+- No cambiar el modelo de almacenamiento ni exigir conservar `/Linearized` si iTextSharp reescribe válidamente el documento; la garantía obligatoria es clasificar el resultado y aplicar el fallback seguro.
 - No modificar PDFs reales no descartables durante pruebas.
 - No considerar éxito hasta confirmar archivo final válido.
 - No degradar firma digital, rotación, coordenadas o transparencia.
@@ -55,6 +61,7 @@ Antes de refactorizar, crea fixtures PDF descartables y registra huellas antes/d
 ## Pruebas obligatorias
 
 - Comparación visual/estructural de salida por fixture y página.
+- Comparación de `/Linearized` antes/después con fixture descartable: si se conserva, validar que la política puede elegir `RANGE`; si se pierde, validar que el visor elige `STREAM` sin error, rangos redundantes ni afirmación de descarga parcial.
 - Fallos en cada etapa con limpieza de temporales y original intacto.
 - Concurrencia controlada sin colisiones ni contaminación cruzada.
 - Archivo grande con medición por fase: imagen, transparencia, stamper, validación, reemplazo y refresco.
@@ -66,6 +73,8 @@ Antes de refactorizar, crea fixtures PDF descartables y registra huellas antes/d
 - Temporales aislados y eliminados de forma determinista.
 - Original preservado ante cualquier fallo previo al reemplazo.
 - Resultado documental equivalente y tiempo medido menor o justificado.
+- El modo de carga posterior al pegado refleja el PDF realmente persistido; la pérdida de linealización no rompe visualización, scroll ni navegación y queda cubierta por el fallback `STREAM`.
+- No se modifica almacenamiento ni se introduce linealización productiva como condición para cerrar esta Jira.
 - Errores y auditoría no filtran información sensible.
 
 ## Documentación y entrega
