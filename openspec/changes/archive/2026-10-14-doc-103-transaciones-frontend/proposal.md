@@ -1,0 +1,118 @@
+## Why
+
+El visor elimina actualmente el overlay del grafo antes de que la imagen termine de cargar y antes de que el servidor confirme la mutación. Esto produce falso éxito, pérdida de capacidad de reintento y riesgo de doble envío ante errores o clics repetidos.
+
+## What Changes
+
+- Convertir el guardado activo en una promesa autoritativa desde validación hasta refresco de la página.
+- Aplicar single-flight por documento, página y overlay, con controles bloqueados y liberación en `finally`.
+- Normalizar la colección ASMX y separar commit, commit con advertencia, rechazo, respuesta inválida y resultado incierto.
+- Incorporar timeout, cancelación al abandonar el visor y mensajes públicos saneados sin reintento automático.
+- Esperar el refresco de una sola página conservando página activa, zoom y scroll.
+- Probar el contrato con doble sin escritura y E2E mutadora únicamente bajo autorización y PDF descartable.
+
+## Jira Details
+
+> # Prompt 05 — Transacción frontend para guardar un grafo
+> ## Contexto de ejecución OPSXJ
+> Este prompt corresponde a una Jira independiente. Ejecuta `opsxj:new` al iniciar para crear su OpenSpec autónomo. Esta es la primera tarea mutadora de la secuencia y exige un PDF descartable para su E2E.
+> ## Rol esperado
+> Actúa como especialista senior en JavaScript asíncrono, UX transaccional, WebMethods ASMX y prevención de doble envío.
+> ## Fuentes obligatorias
+> - Exploración del visor.
+> - `pdfjs/pdf_anotate_view/pdf_viewer_anotate.js`, especialmente `save_anotate_firma(...)` y `service_anotate_pdf_image(...)`.
+> - `pdfjs/pdf_anotate_view/pdfannotate.js` para determinar si es código inactivo o contrato duplicado.
+> - `webservice/WebService_itext.asmx.vb` y DTO `Class_itext_anotate`.
+> - Pruebas/E2E existentes del visor.
+> ## Objetivo
+> Convertir el guardado de grafo en una operación esperable, single-flight y observable que solo retire el elemento local y actualice la página después de una respuesta autoritativa exitosa.
+> ## Flujo obligatorio
+> ```text
+> Usuario confirma
+>   -> validar grafo/página/contexto
+>   -> bloquear acción y marcar operación activa
+>   -> POST ASMX exactamente una vez
+>   -> respuesta tipada/saneada
+>      -> éxito: actualizar solo página afectada y retirar overlay
+>      -> error: conservar overlay para reintento explícito
+>   -> liberar bloqueo en finally
+> ```
+> ## Implementación obligatoria
+> 1. Hacer que `save_anotate_firma(...)` y el transporte retornen `Promise` real.
+> 2. Eliminar el éxito anticipado actual que retorna `"YES"` antes de terminar AJAX.
+> 3. Implementar single-flight por documento/página/grafo y deshabilitar el control durante la solicitud.
+> 4. Establecer timeout explícito, cancelación al destruir el visor y `finally` confiable.
+> 5. Normalizar la respuesta ASMX sin depender de comparaciones incoherentes entre `data.d` y colecciones.
+> 6. No eliminar el grafo local si falla validación, red, parser, servidor, auditoría crítica o actualización de página.
+> 7. Sustituir `alert` y exposición de `responseText` por códigos públicos y mensajes seguros usando el componente de aviso existente.
+> 8. Actualizar solo la página afectada y evitar recargar el PDF completo cuando el contrato servidor lo permita; si no lo permite, documentar la dependencia para el Prompt 06.
+> ## Restricciones y antirregresión
+> - No cambiar todavía el algoritmo iText ni rutas temporales.
+> - No reintentar automáticamente una mutación de resultado incierto.
+> - No aceptar éxito por HTTP 200 si el contrato funcional falló.
+> - No imprimir payload base64, ruta, documento, usuario, respuesta cruda o excepción.
+> - No alterar firma, Wacom, descarga o impresión.
+> ## Pruebas obligatorias
+> - Éxito, error funcional, 401/403, 404, 500, timeout, aborto, JSON inválido y respuesta incompleta.
+> - Doble clic y múltiples eventos: exactamente una solicitud efectiva.
+> - Resultado incierto: no reintento automático y overlay conservado.
+> - Actualización de una página sin perder página activa, zoom o scroll.
+> - E2E local con doble de ASMX sin escritura.
+> - E2E real exclusivamente con PDF descartable y autorizaciones de ambiente, cuenta y modificación; comprobar una sola solicitud y un solo efecto.
+> ## Criterios de aceptación
+> - La UI nunca anuncia éxito antes del servidor.
+> - Una acción produce como máximo una mutación efectiva.
+> - Los errores son accionables y no filtran detalles.
+> - La experiencia de visualización restante no cambia.
+> ## Documentación y entrega
+> Documenta estados UI, códigos, contrato, pruebas y evidencia en `Doc/Actualizacion/VisorPdf/Implementacion/<JIRA>/`.
+> ## Correcciones opsxj:prompt-review
+> Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
+> ## Rol esperado
+> Definir el rol tecnico esperado para ejecutar el ticket.
+> ## Objetivo
+> Describir el objetivo funcional y tecnico verificable.
+> ## Restricciones criticas
+> - No introducir cambios fuera del alcance declarado.
+> - No romper comportamiento existente ni contratos publicos.
+> ## Criterios de aceptacion
+> - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
+> ## Contexto obligatorio
+> Listar archivos, modulos, servicios, hooks, adapters y documentacion que deben leerse antes de implementar.
+> ## Pruebas obligatorias
+> Ejecutar pruebas Node focales, validación sintáctica JavaScript y E2E con Playwright; ejecutar MSBuild únicamente si cambia el contrato ASMX y registrar comandos y resultados.
+> ## Documentacion tecnica
+> Actualizar el paquete documental canonico del ticket.
+> ## Entregable final
+> Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
+> Agregar regla para [ANTI_REGRESSION_DETAIL_REQUIRED]: Reglas explicitas de no romper, preservar, no llamar o no usar workarounds.
+> Exigir validación sintáctica JavaScript, pruebas Node focales y MSBuild si cambia código compilado; registrar el resultado.
+> Exigir pruebas focales con la infraestructura Node existente y un doble controlado del ASMX; no agregar un framework de pruebas innecesario.
+> Declarar que código + E2E + validación autorizada + evidencia saneada son una única unidad de entrega dentro del mismo cambio; no crear una tarea o entrega E2E independiente.
+> Reutilizar exclusivamente `tools/e2e`, su autenticación, configuración, validadores, evidencias y utilidades; prohibir login, arnés, proyecto Playwright, configuración o `.env` paralelos.
+> Antes de autenticar, exigir lectura de `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`; ejecutar solo con ambiente, cuentas y datos/tareas descartables expresamente autorizados.
+> Exigir secretos efímeros, prohibir exponer/imprimir/persistir credenciales, cookies, tokens y cadenas de conexión, usar verificaciones solo `SELECT` y conservar evidencia saneada.
+> Exigir cobertura E2E, cuando aplique, de autorización/control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada.
+> Respetar feature flags, gates, usuarios, grupos y seguridad sin habilitarlos arbitrariamente; no cerrar sin validación autorizada, registrar bloqueo explícito y prohibir mocks, simulaciones, resultados inventados y evidencia ficticia.
+
+## Jira Metadata
+
+- Tipo: Tarea
+- Prioridad: Medium
+- Labels: FRONTEND, TRANSACCIONES
+
+## Capabilities
+
+### New Capabilities
+- `transaciones-frontend`: Transacción cliente esperable y single-flight para persistir un grafo y confirmar el refresco de la página afectada.
+
+### Modified Capabilities
+- 
+
+## Impact
+
+- Código activo: `pdfjs/pdf_anotate_view/pdf_viewer_anotate.js`.
+- Integración preservada: `webservice/WebService_itext.asmx.vb`, `Class_itext_anotate`, iTextSharp y transporte `stream` de DOC-102.
+- Pruebas: Node y Playwright existentes bajo `tools/e2e`; no se agrega framework ni arnés paralelo.
+- Sin migración de datos, tablas, almacenamiento o cambio de contrato servidor.
+

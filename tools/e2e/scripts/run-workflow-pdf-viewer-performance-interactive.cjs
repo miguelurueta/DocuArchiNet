@@ -767,7 +767,9 @@ module.exports = {
   measureScroll,
   measureZoom,
   requestCountCategories,
+  selectWorkflowTask,
   sanitizeHandlerExchange,
   summarizeHandlerExchanges,
-  summarize
+  summarize,
+  waitForViewerFrame
 };
