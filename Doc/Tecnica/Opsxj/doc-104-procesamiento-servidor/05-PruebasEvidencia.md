@@ -38,4 +38,4 @@ La primera tentativa fue rechazada antes de mutar porque el cliente enviaba simu
 - El fixture mayor de 1 MiB con marcador `/Linearized` clasificó `range` antes del estampado. La salida iText conservó el marcador pero quedó por debajo del umbral, por lo que clasificó correctamente `stream`; no se ejecutó linealización externa.
 - La matriz transaccional comprobó staged inválido, fallo de reemplazo, revalidación fallida con rollback, exclusión sobre el mismo documento, paralelismo de locks distintos y liberación de recursos.
 
-La barrera de certificado permanece pendiente de validación con un documento descartable registrado realmente como firmado; no se reemplazó por mocks ni por alterar datos de certificado.
+La barrera de certificado no tuvo validación real porque no existe un documento firmado descartable. El responsable aceptó explícitamente este riesgo residual para cerrar DOC-104, apoyado en el orden contractual probado y el runner `signed` preparado. No se reemplazó por mocks, no se alteraron datos de certificado y no se declara una ejecución inexistente.

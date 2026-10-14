@@ -20,6 +20,6 @@ Las pruebas locales no requieren autenticación. Para modo real, leer `tools/e2e
 
 El escenario real `normal` terminó `PASSED` con un único POST, efecto único y controles ODBC `SELECT` completos. El cliente normaliza la imagen a una fuente exclusiva —archivo o base64— antes de invocar el ASMX; el runner clasifica rechazos mediante códigos cerrados sin persistir el mensaje o cuerpo de respuesta.
 
-La caracterización local adicional cubre rotaciones 0/90/180/270, huellas visuales reproducibles, tamaño 90 x 90, `/Linearized`, fallback `stream`, fallos de reemplazo/revalidación, rollback, locks y liberación de archivos. El único caso pendiente es un documento descartable registrado realmente como firmado.
+La caracterización local adicional cubre rotaciones 0/90/180/270, huellas visuales reproducibles, tamaño 90 x 90, `/Linearized`, fallback `stream`, fallos de reemplazo/revalidación, rollback, locks y liberación de archivos. El caso real firmado no se ejecutó por inexistencia del fixture y fue aceptado explícitamente como riesgo residual de cierre.
 
 El runner admite el escenario protegido `signed`: espera el rechazo cerrado del certificado, compara hash, longitud y `Last-Modified` del PDF antes/después, valida la huella `SELECT` y falla si detecta cualquier cambio. No debe ejecutarse sobre un documento no descartable.

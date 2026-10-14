@@ -88,6 +88,7 @@ Antes de refactorizar se capturarán huellas de fixtures descartables para pági
 - Mantener 90 x 90 preserva compatibilidad pero deja sin efecto visual el ancho/alto enviado; corregirlo requiere caracterización funcional separada.
 - El refresco del PDF completo en modo stream puede transferir más bytes que el PDF de una página, pero elimina una segunda reescritura iText y un temporal compartido. La E2E medirá este intercambio.
 - Aplicar correctamente la tolerancia puede cambiar píxeles que antes no cambiaban por el defecto del bucle. La comparación de fixtures deberá demostrar el resultado aprobado antes de desplegar.
+- El ambiente de cierre no tiene un PDF firmado descartable. El responsable aceptó el riesgo residual de no ejecutar ese único escenario real; se conserva la barrera previa en código, la prueba de orden contractual y un runner `signed` estricto para validación futura. No se registra el escenario como ejecutado.
 
 ## Migration Plan
 

@@ -6,21 +6,19 @@ Fecha: 2026-10-14.
 
 | Dimensión | Estado |
 | --- | --- |
-| Completitud | 23/24 tareas; 10/10 requisitos con implementación |
-| Corrección | 19/20 escenarios verificados; documento firmado pendiente por dato externo |
+| Completitud | 24/24 tareas; 10/10 requisitos con implementación |
+| Corrección | 19/20 escenarios ejecutados; 1 aceptado con riesgo residual documentado |
 | Coherencia | D-01 a D-10 seguidas; sin contradicciones detectadas |
 
 ## CRITICAL
 
-### Fixture firmado no disponible
-
-La tarea 2.3 y el escenario «Documento firmado» no tienen evidencia de ejecución real porque el ambiente autorizado no dispone de un PDF descartable registrado como firmado.
-
-Acción requerida antes de archivar: proporcionar una tarea/PDF firmado descartable y ejecutar el escenario `signed` descrito en `06-BloqueoFixtureFirmado.md`. No marcar la tarea, archivar el cambio ni declarar cobertura 20/20 antes de obtener `DOC104_SERVER_PROCESSING_RESULT=PASSED`.
+Ninguno. La indisponibilidad del fixture firmado fue aceptada expresamente como riesgo residual y no se presenta como evidencia ejecutada.
 
 ## WARNING
 
-Ninguno adicional.
+### Escenario real firmado no ejecutado
+
+El escenario «Documento firmado» conserva cobertura estructural y runner preparado, pero no evidencia real por falta del dato descartable. Acción futura: ejecutar `signed` cuando exista el fixture y adjuntar el resultado saneado.
 
 ## SUGGESTION
 
@@ -41,4 +39,4 @@ Ninguna adicional.
 
 ## Evaluación final
 
-Existe un único problema crítico externo. No se detectaron defectos adicionales de implementación, divergencias del diseño ni escenarios pendientes distintos del documento firmado. El cambio está listo para revisión, pero no para archivo definitivo.
+No existen problemas críticos. No se detectaron defectos adicionales de implementación ni divergencias del diseño. El cambio queda listo para archivo con una advertencia de riesgo residual aceptada y trazable; la cobertura real firmada puede completarse posteriormente sin cambiar el código productivo.

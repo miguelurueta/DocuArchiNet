@@ -2,9 +2,9 @@
 
 ## Estado
 
-`BLOCKED_BY_SIGNED_TEST_DATA` desde 2026-10-14.
+`ACCEPTED_WITH_RESIDUAL_RISK` desde 2026-10-14 por decisión explícita del responsable.
 
-La implementación y las verificaciones locales están completas salvo el caso real de un documento descartable registrado como firmado. El ambiente autorizado no dispone de ese dato de prueba. No se crea un certificado artificial, no se modifica el registro de certificados y no se sustituye la evidencia por un mock.
+La implementación y las verificaciones locales están completas. El caso real de un documento descartable registrado como firmado no se ejecutó porque el ambiente autorizado no dispone de ese dato de prueba. Para finalizar DOC-104, el responsable acepta expresamente ese riesgo residual. No se crea un certificado artificial, no se modifica el registro de certificados y no se sustituye la evidencia por un mock.
 
 ## Evidencia disponible
 
@@ -21,4 +21,4 @@ Cuando exista una tarea con PDF firmado y descartable, copiar el perfil DOC-104 
 npm.cmd --prefix tools/e2e run test:doc104:server-processing -- --mode real --scenario signed --profile profiles/<perfil-firmado.runtime.json>
 ```
 
-La ejecución requiere nuevamente autorización explícita del ambiente, cuenta, tarea y PDF descartable. Las credenciales se capturan exclusivamente por TTY. Si termina `PASSED`, se registra la evidencia saneada, se marca la tarea 2.3 y se habilita la verificación final; hasta entonces el cambio no debe archivarse como completo.
+La ejecución requiere nuevamente autorización explícita del ambiente, cuenta, tarea y PDF descartable. Las credenciales se capturan exclusivamente por TTY. Si termina `PASSED`, se registra la evidencia saneada y se retira el riesgo residual histórico; su ausencia no bloquea el cierre actual aprobado y nunca debe reinterpretarse como una prueba ya ejecutada.

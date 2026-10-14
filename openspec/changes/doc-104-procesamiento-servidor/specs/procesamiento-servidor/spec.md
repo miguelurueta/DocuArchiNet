@@ -13,6 +13,8 @@ DOC-104 SHALL conservar la firma del WebMethod y el DTO actuales, aceptar exacta
 - **WHEN** el registro de certificado indica que el documento está firmado
 - **THEN** la operación se rechaza con mensaje público y no crea imagen, lock, staged, backup ni auditoría de mutación
 
+> Nota de verificación DOC-104: el ambiente de cierre no dispone de un documento firmado descartable. El responsable acepta el riesgo residual con evidencia estructural de la barrera previa y runner real preparado; esta excepción no cambia el comportamiento requerido ni afirma una ejecución firmada.
+
 #### Scenario: Payload inválido
 - **WHEN** el cuerpo no contiene exactamente un `Class_itext_anotate` utilizable
 - **THEN** el servidor rechaza sin invocar iTextSharp y sin incluir una excepción en la respuesta
