@@ -34,6 +34,7 @@ El alcance sustituye la apertura enriquecida basada en ruta y materialización c
 | D-06 | Pasar URL autorizada directamente a `pdfjsLib.getDocument`; conservar ruta formateada solo para acciones legacy. | `script.js:168-220`; `loadDocument` ya acepta URL. | D-06 | RQ-06 | 3.1-3.3, 4.5, 4.7, 5.3 |
 | D-07 | Mantener `rut_image` como adaptador simple sin Range/caché nueva y transmitirlo por bloques; impedir nuevos usos enriquecidos. | Inventario de referencias a `Handler_image_wf.ashx?rut_image`. | D-07 | RQ-07 | 2.10, 3.4, 4.5, 5.1, 5.3 |
 | D-08 | Integrar pruebas HTTP, políticas, MSBuild y E2E autorizada con bytes/primer canvas en la infraestructura existente. | `tools/e2e` y contrato de Jira/AGENTS. | D-08 | RQ-08 | 4.1-4.7, 5.1-5.4 |
+| D-09 | Evaluar linearización únicamente sobre un derivado temporal local, midiendo PDF.js sin reemplazar fuente ni cambiar almacenamiento/runtime. | Ghostscript 10.07.1 instalado, fixture público y PDF.js/Playwright existentes. | D-09 | RQ-09 | 6.1-6.4 |
 
 ## Requisitos verificables
 
@@ -47,6 +48,7 @@ El alcance sustituye la apertura enriquecida basada en ruta y materialización c
 | RQ-06 | Primer canvas inicia desde URL sin precarga completa. | Ausencia de fetch/blob/reader/copia y acciones del visor preservadas. | Los servicios de edición aún requieren `urimage_format`. |
 | RQ-07 | Consumidores simples conservan comportamiento y quedan separados del contrato nuevo. | MIME/disposición/cuerpo equivalentes; Range legacy no habilitado. | Deuda de ruta física existente requiere ticket posterior. |
 | RQ-08 | Evidencia reproducible demuestra contrato, seguridad, build y mejora real. | Pruebas focales, MSBuild, OpenSpec y E2E autorizada saneada. | Sin autorización se registra bloqueo, nunca evidencia ficticia. |
+| RQ-09 | Una prueba local cuantifica el beneficio potencial de Fast Web View sin persistencia ni documentos reales. | Baseline y derivado temporal: páginas/render equivalentes, bytes/solicitudes/tiempo a primer canvas y limpieza final. | Ghostscript reescribe el PDF; no habilitar en producción sin validar firmas, cifrado, formularios, anotaciones y licencia. |
 
 ## Reglas de trazabilidad obligatorias
 
@@ -54,9 +56,9 @@ El alcance sustituye la apertura enriquecida basada en ruta y materialización c
 2. Las tareas deben nombrar área/archivos, complejidad y una verificación primaria reproducible.
 3. Archivos VB.NET nuevos deben registrarse en `GestionDocumental-Docuarchi.net.vbproj`.
 4. La E2E real exige autorización explícita, lectura previa del runbook, secretos efímeros, evidencia saneada y controles únicamente `SELECT`.
-5. El mapa aprobado conserva cobertura explícita D-01..D-08 y RQ-01..RQ-08; cualquier cambio de alcance exige actualizar diseño, spec y tareas conjuntamente.
+5. El mapa aprobado conserva cobertura explícita D-01..D-09 y RQ-01..RQ-09; cualquier cambio de alcance exige actualizar diseño, spec y tareas conjuntamente.
 
 ## Resultado del refinamiento
 
-- Estado: aprobado con diseño, requisitos y 31 tareas atómicas trazadas D-01..D-08 / RQ-01..RQ-08.
+- Estado: ampliado con prueba de concepto local y 37 tareas atómicas trazadas D-01..D-09 / RQ-01..RQ-09.
 - Próximo paso: ejecutar `opsxj:refine -- DOC-102 --sync`, revisión técnica y luego implementación en orden de dependencias.

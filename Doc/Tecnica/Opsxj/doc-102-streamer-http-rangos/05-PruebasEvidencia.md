@@ -10,8 +10,8 @@ Fecha local: 2026-10-14.
 
 ### Resultados automatizados
 
-- `npm.cmd --prefix tools/e2e run test:workflow:pdf-viewer-streaming:policy`: PASS, 7/7. Compila y ejecuta codec, rangos, condiciones y escritor sobre .NET Framework; valida integración JS y fronteras legacy.
-- `npm.cmd --prefix tools/e2e run test:workflow:pdf-viewer-performance:policy`: PASS, 34/34. Incluye carga diferida previa, arranque, sanitización y contrato DOC-102.
+- `npm.cmd --prefix tools/e2e run test:workflow:pdf-viewer-streaming:policy`: PASS, 11/11. Compila y ejecuta codec, rangos, condiciones y escritor sobre .NET Framework; valida integración JS, fronteras legacy y aislamiento de la prueba de linearización.
+- `npm.cmd --prefix tools/e2e run test:workflow:pdf-viewer-performance:policy`: PASS, 38/38. Incluye carga diferida previa, arranque, sanitización, contrato DOC-102 y política del experimento temporal.
 - `MSBuild.exe GestionDocumental-Docuarchi.net.sln /t:Build /p:Configuration=Debug /m /nologo /v:minimal /clp:ErrorsOnly`: PASS, código 0; genera `GestionDocumental-Docuarchi.net.dll`.
 
 La compilación completa conserva advertencias históricas de ensamblados/código legacy; no se observó una advertencia atribuible a los archivos DOC-102.
@@ -52,3 +52,22 @@ La repetición autorizada posterior terminó `PASSED` con evidencia esquema 4 ca
 Frente a la línea base Range de 1.123 ms, la mediana disminuyó 499 ms (44,4 %) y se eliminaron 61 solicitudes parciales por iteración. No se afirma ahorro de bytes para este PDF no linearizado; la mejora comprobada es menor latencia y sobrecarga HTTP, sin materialización completa en memoria del servidor o del JavaScript del visor.
 
 No se ejecutó carga ni escritura documental. Cualquier control de persistencia debe ser exclusivamente `SELECT`. La evidencia no persiste credenciales, cookies, tokens, URL, ruta ni nombre documental.
+
+### Prueba local de linearización sin persistencia
+
+Comando: `npm.cmd --prefix tools/e2e run test:doc102:linearization-poc`.
+
+Resultado `PASSED` sobre un fixture público repetido hasta 168 páginas, bajo un perfil local controlado aproximado de 26,21 Mbps:
+
+| Métrica hasta primer canvas | No linearizado | Linearizado |
+|---|---:|---:|
+| Tamaño total | 1.092.272 bytes | 1.153.756 bytes |
+| Bytes únicos consultados | 305.840 (28 %) | 105.180 (9,12 %) |
+| Bytes físicos escritos | 633.520 | 695.004 |
+| Solicitudes totales / Range | 4 / 3 | 4 / 3 |
+| Tiempo | 488 ms | 536 ms |
+| Páginas | 168 | 168 |
+
+La huella renderizada de la primera página fue equivalente, el fixture mantuvo hash y fecha, y el directorio temporal fue eliminado. La linearización redujo 65,6 % la cobertura única requerida, pero no redujo bytes físicos ni tiempo en este fixture pequeño debido a solicitudes solapadas. No se presenta como garantía de rendimiento productivo ni se probó sobre el documento autorizado de 33,6 MB.
+
+Ghostscript permaneció como herramienta de estación y no fue añadido a la aplicación. Antes de una adopción deben resolverse licenciamiento/redistribución y regresiones sobre cifrado, firmas, formularios, anotaciones, metadatos, salida iText y equivalencia visual completa.

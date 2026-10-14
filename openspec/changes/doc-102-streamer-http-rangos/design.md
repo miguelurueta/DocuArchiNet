@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08 -->
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
 ## Context
 
 `Handler_image_wf.ashx.vb` recibe `rut_image`, normaliza `|` a `/`, obtiene la extensión desde esa ruta y delega en `ClassRaEnvioCorrespondencia.ReadFile`. Ese método cambia atributos del archivo, reserva un `Byte()` del tamaño total y lo llena antes de que el handler use `BinaryWrite` para PDF. El handler implementa `IRequiresSessionState`, aunque no escribe sesión, por lo que solicitudes concurrentes de rangos quedarían serializadas.
@@ -62,6 +62,12 @@ El pegado de grafo conservará `url_document`/`urimage_format`, el web service i
 
 Se añadirán pruebas focales del parser/rendimiento HTTP y políticas estáticas de integración; se ejecutarán MSBuild y OpenSpec estricto. La E2E real reutilizará exclusivamente `tools/e2e`, después de leer `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`, y requerirá autorización expresa de ambiente, cuenta y documento. La evidencia saneada registrará estados, encabezados, bytes transferidos y tiempo a primer canvas sin secretos ni rutas. Código, runner y evidencia forman una sola entrega. <!-- D-08; RQ-08 -->
 
+### D-09 — Linearización evaluada solo como derivado temporal
+
+La viabilidad se medirá con Ghostscript `pdfwrite -dFastWebView=true`, disponible en la estación de prueba, sobre una copia sintética construida desde un fixture público del repositorio. Un servidor HTTP local con soporte de rango entregará la línea base y la variante al mismo `pdfjs/build/pdf.js` usado por la aplicación. El runner medirá bytes, solicitudes y tiempo hasta renderizar la primera página, comparará cantidad de páginas y huella del canvas, y eliminará todos los temporales en `finally`. No se autenticará, no se abrirán documentos del sistema, no se sustituirá el original y Ghostscript no se agregará al runtime ni al despliegue de DOC-102. <!-- D-09; RQ-09 -->
+
+El resultado es evidencia de factibilidad, no autorización para reescribir PDFs productivos. Una adopción posterior deberá validar licenciamiento, documentos cifrados, firmas digitales, formularios, anotaciones y el efecto de cada reescritura iText sobre la linearización.
+
 ## HTTP Flow
 
 1. Una clase de visor resuelve el documento con el flujo legacy ya autorizado.
@@ -72,6 +78,7 @@ Se añadirán pruebas focales del parser/rendimiento HTTP y políticas estática
 6. El cuerpo completo o parcial se copia desde `FileStream` con memoria acotada; `HEAD`, `304` y `416` no envían cuerpo.
 7. PDF.js solicita rangos para PDF linearizados o consume una respuesta secuencial para los demás; ambos caminos usan streaming acotado del servidor.
 8. Acciones opcionales continúan usando sus permisos y contratos vigentes; ninguna respuesta del streamer modifica estado.
+9. El experimento aislado genera y sirve copias temporales fuera del flujo anterior; al terminar elimina las copias y no cambia la referencia documental ni el almacenamiento.
 
 ## Risks / Trade-offs
 
@@ -83,6 +90,7 @@ Se añadirán pruebas focales del parser/rendimiento HTTP y políticas estática
 - `disableAutoFetch` evita la precarga especulativa, pero no puede impedir que el parser solicite todos los bytes necesarios para resolver una página. La E2E final del documento aprobado confirmó el contrato Range y aun así consumió sus 33.589.755 bytes codificados antes del primer canvas; garantizar carga parcial exige optimización o linearización documental fuera de este alcance.
 - La detección de `/Linearized` es deliberadamente conservadora. Un falso negativo usa streaming completo compatible; un parámetro `pdf_load_mode` alterado solo afecta rendimiento y nunca concede acceso porque el handler valida `doc_ref`.
 - La E2E adaptativa del documento aprobado eligió streaming secuencial, redujo la mediana de 1.123 ms a 624 ms y sustituyó 61 rangos por una respuesta `200` por iteración. El beneficio observado es latencia/sobrecarga HTTP; el volumen total permanece igual porque el PDF no está linearizado.
+- Ghostscript puede reescribir fuentes, formularios, anotaciones, metadatos o estructuras avanzadas; Fast Web View es incompatible con PDF cifrado y no preserva firmas criptográficas después de una reescritura. Por eso la prueba no altera el archivo fuente y no constituye todavía una solución productiva.
 
 ## Migration Plan
 

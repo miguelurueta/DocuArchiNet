@@ -11,6 +11,7 @@ El visor enriquecido descarga hoy el PDF completo mediante `fetch -> Blob -> Fil
 - Entregar a PDF.js la URL autorizada directamente, seleccionando rangos para PDF grandes linearizados y streaming secuencial para PDF no linearizados o pequeños, sin precarga completa en JavaScript.
 - Conservar temporalmente `rut_image` como adaptador de compatibilidad para consumidores simples inventariados, sin otorgarle las capacidades nuevas de rango o caché autorizada.
 - Añadir pruebas focales del contrato HTTP, regresión estática de consumidores, MSBuild y E2E autorizada con bytes transferidos y tiempo a primer canvas.
+- Ejecutar una prueba de concepto local y descartable de linearización, sin reemplazar documentos ni cambiar el almacenamiento, para medir con el PDF.js existente los bytes requeridos hasta el primer canvas y delimitar una posible evolución posterior.
 
 ## Capabilities
 
@@ -30,6 +31,7 @@ El visor enriquecido descarga hoy el PDF completo mediante `fetch -> Blob -> Fil
 - Cliente PDF.js: `pdfjs/pdf_anotate_view/script.js`; `pdf_viewer_anotate.js` conserva una sola instancia y selecciona entre dos fuentes URL del mismo handler.
 - Compatibilidad: consumidores simples del parámetro `rut_image`, descarga, impresión, firma, sello, aprobación, versiones y visores externos.
 - Sin cambios de tablas, columnas, almacenamiento externo, CDN ni guardado de grafos.
+- Prueba experimental: `tools/e2e/scripts/run-doc102-linearization-poc.cjs`, Ghostscript instalado en la estación y archivos exclusivamente temporales.
 
 ## Jira Metadata
 

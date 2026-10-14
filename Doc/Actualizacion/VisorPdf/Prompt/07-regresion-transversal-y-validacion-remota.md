@@ -42,7 +42,7 @@ Identifica explícitamente consumidores pendientes; no declares cobertura total 
 1. Consolidar perfiles E2E no sensibles y reutilizar autenticación/selección existentes.
 2. Ejecutar línea base y resultado final con el mismo PDF local para comparar bytes, primera página, `domInteractive`, tareas largas, scroll y zoom.
 3. Ejecutar contra servidor remoto autorizado o emulación de red documentada al menos en perfiles equivalentes a 10, 20, 50 y 100 Mbps, con latencia declarada.
-4. Verificar que rangos reduzcan bytes necesarios para primera página y que recargas/caché respeten autorización.
+4. Verificar que rangos reduzcan bytes únicos necesarios para la primera página cuando el PDF sea grande y linearizado. Para PDF no linearizado, aceptar streaming secuencial únicamente si evita la materialización completa en memoria y demuestra mejor latencia/sobrecarga que forzar rangos. Separar bytes únicos del documento y bytes físicos de red cuando existan solicitudes solapadas; verificar siempre que recargas/caché respeten autorización.
 5. Ejecutar la matriz funcional por módulo y los recorridos simples del handler.
 6. Ejecutar guardado exactamente una vez sobre PDF descartable, verificando integridad, auditoría permitida y ausencia de doble solicitud.
 7. Definir presupuestos finales basados en evidencia, separando carga fría/caliente y local/remota.
@@ -58,7 +58,7 @@ Identifica explícitamente consumidores pendientes; no declares cobertura total 
 
 ## Criterios de aceptación
 
-- Primera página remota ya no depende de transferir el PDF completo cuando el servidor admite rangos.
+- Para PDF grandes linearizados, la primera página remota usa una fracción comprobada del documento; para PDF no linearizados, la estrategia adaptativa evita afirmar descarga parcial y demuestra el beneficio real del streaming secuencial.
 - Scroll y zoom mejoran materialmente frente a 3.548 ms y 435 ms bloqueantes de la línea base.
 - No hay errores JavaScript no clasificados, solicitudes duplicadas ni temporales compartidos.
 - Todos los consumidores ejecutados conservan comportamiento y permisos.

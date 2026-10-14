@@ -32,3 +32,11 @@ Rollback: revertir conjuntamente emisores, `script.js`, handler, componentes `In
 ## Validación
 
 Las pruebas focales, la política integral del visor y MSBuild pasan. La E2E adaptativa terminó `PASSED`: eligió `stream`, realizó un único `200` sin rangos por iteración y redujo la mediana de primer canvas de 1.123 ms a 624 ms para el PDF aprobado. Scroll y zoom continuaron operativos, con una tarea larga agregada. Consultar `Doc/Tecnica/Opsxj/doc-102-streamer-http-rangos/05-PruebasEvidencia.md`.
+
+## Prueba de concepto de linearización
+
+Sin modificar almacenamiento ni documentos del sistema, `tools/e2e/scripts/run-doc102-linearization-poc.cjs` construye en temporal un PDF sintético de 168 páginas desde el fixture público `help/help_searh_public_document.pdf`, genera una variante Fast Web View mediante Ghostscript y sirve ambas variantes por HTTP Range al PDF.js incluido en el repositorio. La prueba usa un perfil local controlado de aproximadamente 26,21 Mbps y elimina los derivados en `finally`.
+
+La corrida reproducible confirmó igual cantidad de páginas y la misma huella visual de la primera página. La cobertura única necesaria hasta el primer canvas bajó de 305.840 bytes (28 %) a 105.180 bytes (9,12 %), una reducción del 65,6 %. En este fixture pequeño no mejoraron los bytes físicos enviados ni el tiempo: hubo solapamiento entre el `200` inicial y tres rangos, y el tiempo pasó de 488 a 536 ms. El resultado demuestra que Fast Web View habilita acceso parcial, no que garantice por sí solo menor latencia o tráfico.
+
+Ghostscript no se incorpora al runtime ni al despliegue. Una decisión productiva posterior debe validar licenciamiento/redistribución, PDF cifrado, firmas digitales, formularios, anotaciones, metadatos, equivalencia visual completa y si una reescritura posterior con iText conserva o destruye la linearización.

@@ -26,3 +26,9 @@ Todas las representaciones autorizadas anuncian `Accept-Ranges: bytes`, ETag fue
 `rut_image` continúa para descarga, otros formatos, versiones/migración, visores externos y ramas `LIBRE_PDF`. Devuelve cuerpo completo por bloques, caché `no-store`, sin `206`, `Accept-Ranges`, ETag ni el nuevo modelo de autorización. Los tres emisores enriquecidos no pueden volver a usarlo, protegidos por una prueba de política.
 
 No hay migración de datos, cambio de esquema ni nueva conexión externa.
+
+## Contrato experimental local
+
+`npm.cmd --prefix tools/e2e run test:doc102:linearization-poc` opera fuera del flujo productivo. Solo usa un fixture público, `127.0.0.1`, un directorio temporal y el PDF.js existente. Ghostscript genera la variante `FastWebView`; el runner valida `/Linearized`, páginas, huella del primer canvas, bytes únicos, bytes físicos, solicitudes y limpieza. No recibe `doc_ref`, sesión, credenciales ni rutas de documentos del sistema y nunca reemplaza el fixture.
+
+El contrato experimental no forma parte del handler ni crea una nueva modalidad de almacenamiento. Su salida es evidencia para una decisión posterior, no una dependencia desplegable.

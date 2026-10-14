@@ -1,4 +1,4 @@
-<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08 -->
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
 ## Purpose
 
 Permitir que el visor PDF enriquecido obtenga documentos privados mediante una referencia autorizada y rangos HTTP, reduciendo memoria, bytes iniciales y tiempo a primera página sin romper consumidores WebForms existentes.
@@ -112,3 +112,14 @@ DOC-102 SHALL verificar contrato HTTP, seguridad, compilación, compatibilidad y
 #### Scenario: E2E no autorizada
 - **WHEN** falta autorización o un recurso descartable válido
 - **THEN** no se ejecuta la prueba real, se registra el bloqueo y no se sustituyen resultados con mocks o evidencia inventada
+
+### Requirement: Prueba descartable de linearización
+El cambio SHALL demostrar localmente el efecto de Fast Web View sobre una copia temporal sintética, sin reemplazar el archivo fuente, modificar almacenamiento, autenticar contra un ambiente ni incorporar la herramienta de conversión al runtime de la aplicación. <!-- RQ-09; D-09 -->
+
+#### Scenario: Comparación controlada con PDF.js
+- **WHEN** el runner crea desde un fixture público una línea base mayor de 1 MiB y una variante linearizada
+- **THEN** sirve ambas por HTTP Range al PDF.js existente, registra bytes y solicitudes hasta el primer canvas y confirma igual cantidad de páginas y render equivalente de la primera página
+
+#### Scenario: Aislamiento y limpieza
+- **WHEN** la prueba termina con éxito o error
+- **THEN** elimina su directorio temporal, no reemplaza el fixture y solo emite métricas saneadas sin rutas, contenido documental ni datos de sesión

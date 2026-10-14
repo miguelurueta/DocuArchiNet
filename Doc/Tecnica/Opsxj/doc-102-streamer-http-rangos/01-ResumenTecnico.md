@@ -18,7 +18,10 @@ Reducir el tiempo y los bytes necesarios para mostrar la primera página del PDF
 - Adaptador `rut_image` conservado para consumidores simples, siempre con cuerpo completo y sin contrato Range.
 - Selector de transporte de solo lectura: rangos para PDF grandes linearizados y streaming secuencial para PDF pequeños/no linearizados; refresco iText/grafo siempre compatible.
 - Evidencia E2E saneada: estados, conteos Range, encabezados booleanos y bytes agregados; nunca URL, token, cookie o ruta.
+- Prueba local descartable de Fast Web View: reduce cobertura única de primera página de 28 % a 9,12 % sobre fixture sintético, sin modificar fuente ni almacenamiento; no se integra Ghostscript al runtime.
 
 ## Compatibilidad y límite
 
 Se preservan `urimage_format`, permisos de impresión/descarga/firma/sello y acciones existentes. DOC-102 no cambia tareas, documentos, auditoría ni esquema de base de datos. La deuda de autorización del adaptador legacy no se amplía y queda fuera del contrato nuevo.
+
+La prueba de concepto no autoriza linearización productiva. Sus límites pendientes incluyen licencia y despliegue de la herramienta, cifrado, firmas, formularios, anotaciones, equivalencia integral y la posible pérdida de Fast Web View tras una reescritura iText.

@@ -12,6 +12,7 @@ const script = read('pdfjs/pdf_anotate_view/script.js');
 const viewer = read('pdfjs/pdf_anotate_view/pdf_viewer_anotate.js');
 const handler = read('workflow/Handler_image_wf.ashx.vb');
 const strategy = read('Infrastructure/Documentos/Streaming/EstrategiaCargaPdf.vb');
+const linearizationPoc = read('tools/e2e/scripts/run-doc102-linearization-poc.cjs');
 const emitters = [
   'Docuarchi/ClassVisualisaDocumento.vb',
   'workflow/ClassWorflowVisor.vb',
@@ -124,4 +125,15 @@ test('DOC-102 handler separa streaming autorizado y adaptación legacy', () => {
 test('DOC-102 no escribe sesión ni registra efectos de negocio desde el handler', () => {
   assert.doesNotMatch(handler, /Session(?:\.Item)?\s*\([^\)]*\)\s*=/i);
   assert.doesNotMatch(handler, /Registrar|Repository|ExecuteNonQuery|\b(?:INSERT|UPDATE|DELETE)\s+(?:INTO|FROM|[A-Za-z_])/i);
+});
+
+test('DOC-102 prueba linearización solo con derivados temporales y servidor local', () => {
+  assert.match(linearizationPoc, /mkdtempSync\(path\.join\(os\.tmpdir\(\), 'doc102-linearization-poc-'\)\)/);
+  assert.match(linearizationPoc, /'-dFastWebView=true'/);
+  assert.match(linearizationPoc, /server\.listen\(0, '127\.0\.0\.1'/);
+  assert.match(linearizationPoc, /disableStream: true/);
+  assert.match(linearizationPoc, /disableAutoFetch: true/);
+  assert.match(linearizationPoc, /fs\.rmSync\(tempDirectory, \{ recursive: true, force: true \}\)/);
+  assert.match(linearizationPoc, /fixtureHashBefore === sha256\(fixture\)/);
+  assert.doesNotMatch(linearizationPoc, /authenticated-workflow-session|cookie|authorization/i);
 });
