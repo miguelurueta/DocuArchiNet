@@ -1,0 +1,14 @@
+{
+  "baseUrl": "https://ambiente-pruebas.example/app/",
+  "module": "GESTOR",
+  "taskId": 1,
+  "documentOrdinal": 1,
+  "timeoutMilliseconds": 120000,
+  "headless": false,
+  "browser": {
+    "channel": "chrome"
+  },
+  "ignoreHttpsErrors": false,
+  "odbcDsn": "workflowdocument",
+  "documentStateSql": "SELECT ID_ESTADO, INICIO_TAREAS_WORKFLOW_ID_TAREA, ID_ACTIVIDAD, FECHA_INICIO, FECHA_SELECCION, FECHA_FIN, ESTADO_TAREA, ID_USUARIO, ID_FLUJO_TRABAJO, ID_ACTIVIDAD_FLUJO_TRABAJO FROM estados_tarea_workflow WHERE INICIO_TAREAS_WORKFLOW_ID_TAREA = ? ORDER BY ID_ESTADO"
+}

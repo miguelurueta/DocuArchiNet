@@ -27,6 +27,24 @@ function fail(code) {
   throw error;
 }
 
+function classifySaveResponse(data, prefix = 'DOC103') {
+  if (!data || !Array.isArray(data.d) || data.d.length !== 1 || !data.d[0] || typeof data.d[0] !== 'object') {
+    return `${prefix}_SAVE_RESPONSE_INVALID`;
+  }
+  const response = data.d[0];
+  if (response.error_sistema === 'YES') return null;
+  const publicMessage = String(response.error_sistema || '');
+  if (/firmado digitalmente/i.test(publicMessage)) return `${prefix}_DOCUMENT_SIGNED`;
+  if (/validar el estado del documento/i.test(publicMessage)) return `${prefix}_CERTIFICATE_VALIDATION_FAILED`;
+  if (/siendo actualizado/i.test(publicMessage)) return `${prefix}_DOCUMENT_LOCKED`;
+  if (/única imagen válida/i.test(publicMessage)) return `${prefix}_IMAGE_SOURCE_INVALID`;
+  if (/localizar la imagen/i.test(publicMessage)) return `${prefix}_IMAGE_NOT_FOUND`;
+  if (/localizar el documento/i.test(publicMessage)) return `${prefix}_DOCUMENT_NOT_FOUND`;
+  if (/validar el documento actualizado/i.test(publicMessage)) return `${prefix}_STAGED_PDF_INVALID`;
+  if (/confirmar el documento actualizado/i.test(publicMessage)) return `${prefix}_PDF_REPLACE_FAILED`;
+  return `${prefix}_SERVER_REJECTED`;
+}
+
 function positiveInteger(value, code, maximum = Number.MAX_SAFE_INTEGER) {
   const number = Number(value);
   if (!Number.isSafeInteger(number) || number < 1 || number > maximum) fail(code);
@@ -142,7 +160,19 @@ async function controlFingerprint(sql, taskId, environment, dsn, code) {
   }
 }
 
-async function runReal(profile, environment) {
+async function browserDocumentFingerprint(frame, prefix) {
+  return frame.evaluate(async () => {
+    const response = await fetch(pdfViewer.getUrlPage(), { cache: 'no-store', credentials: 'same-origin' });
+    if (!response.ok) throw new Error('DOCUMENT_READ_FAILED');
+    const bytes = await response.arrayBuffer();
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    const hash = Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('');
+    return Object.freeze({ hash, length: bytes.byteLength, lastModified: response.headers.get('last-modified') || '' });
+  }).catch(() => fail(`${prefix}_DOCUMENT_FINGERPRINT_FAILED`));
+}
+
+async function runReal(profile, environment, options = {}) {
+  const failurePrefix = options.failurePrefix === 'DOC104' ? 'DOC104' : 'DOC103';
   const beforeDocument = await controlFingerprint(profile.documentStateSql, profile.taskId, environment, profile.odbcDsn, 'DOC103_DOCUMENT_SELECT_PREFLIGHT_FAILED');
   let browser;
   try { browser = await chromium.launch({ ...(profile.browser || {}), headless: profile.headless }); }
@@ -180,7 +210,35 @@ async function runReal(profile, environment) {
       if (!overlay) throw new Error('DOC103_OVERLAY_UNAVAILABLE');
       return { overlayId: overlay.id, page: pdfViewer.getActivePageNumber(), zoom: pdfViewer.getZoom(), left: container.scrollLeft, top: container.scrollTop };
     }).catch(error => fail(/^[A-Z0-9_]+$/.test(error?.message || '') ? error.message : 'DOC103_OVERLAY_UNAVAILABLE'));
+    const beforeBinary = options.captureDocumentFingerprint === true
+      ? await browserDocumentFingerprint(frame, failurePrefix) : null;
+    const saveResponsePromise = page.waitForResponse(response => {
+      try {
+        return response.request().method() === 'POST' &&
+          /\/webservice\/WebService_itext\.asmx\/service_anotate_pdf_image$/i.test(new URL(response.url()).pathname);
+      } catch { return false; }
+    }, { timeout: Math.min(profile.timeoutMilliseconds, 45000) });
     await frame.locator(`#${before.overlayId} [event_drag="save"]`).click();
+    const saveResponse = await saveResponsePromise.catch(() => fail(`${failurePrefix}_SAVE_RESPONSE_TIMEOUT`));
+    const savePayload = await saveResponse.json().catch(() => fail(`${failurePrefix}_SAVE_RESPONSE_INVALID`));
+    const rejectionCode = classifySaveResponse(savePayload, failurePrefix);
+    if (rejectionCode && rejectionCode === options.expectedRejectionCode) {
+      const afterBinary = await browserDocumentFingerprint(frame, failurePrefix);
+      const afterDocument = await controlFingerprint(profile.documentStateSql, profile.taskId, environment, profile.odbcDsn, 'DOC103_DOCUMENT_SELECT_POSTCHECK_FAILED');
+      const binaryUnchanged = beforeBinary && beforeBinary.lastModified !== '' &&
+        beforeBinary.hash === afterBinary.hash &&
+        beforeBinary.length === afterBinary.length && beforeBinary.lastModified === afterBinary.lastModified;
+      const evidence = sanitizeEvidence({
+        mode: 'real', result: postCount === 1 && beforeDocument === afterDocument && binaryUnchanged ? 'PASSED' : 'FAILED',
+        scenarios: 1, postCount, normalizedResult: 'rejected', overlayRemoved: false,
+        activePagePreserved: true, zoomPreserved: true, scrollPreserved: true,
+        singleEffect: postCount === 1, selectControlsCompleted: true
+      });
+      await writeEvidence(evidence);
+      if (evidence.result !== 'PASSED') fail(`${failurePrefix}_SIGNED_DOCUMENT_CHANGED`);
+      return evidence;
+    }
+    if (rejectionCode) fail(rejectionCode);
     await frame.locator(`#${before.overlayId}`).waitFor({ state: 'detached', timeout: profile.timeoutMilliseconds }).catch(() => fail('DOC103_SAVE_NOT_CONFIRMED'));
     const after = await frame.evaluate(() => {
       const container = document.querySelector('#pdf-container_');
@@ -244,4 +302,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { loadProfile, runDouble, sanitizeEvidence, validateSelect };
+module.exports = { classifySaveResponse, loadProfile, runDouble, runReal, sanitizeEvidence, validateSelect };
