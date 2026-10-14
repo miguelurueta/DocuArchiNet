@@ -9,9 +9,9 @@ La exploración ya cumple la función de diagnóstico, observabilidad inicial y 
 | 01 | [01-observabilidad-y-error-javascript.md](01-observabilidad-y-error-javascript.md) | **Retirado.** Se conserva para trazabilidad con Jira; no se ejecuta. | Alcance absorbido por el Prompt 02. |
 | 02 | [02-planificador-render-y-viewport.md](02-planificador-render-y-viewport.md) | Error JavaScript clasificado, resultado E2E honesto, cola secuencial, deduplicación, cancelación y scroll/zoom no bloqueantes. | Contratos del runner, pruebas deterministas y comparación con línea base. |
 | 03 | [03-arranque-y-dependencias-diferidas.md](03-arranque-y-dependencias-diferidas.md) | Dependencias únicas, locales cuando corresponda y carga diferida de edición. | Matriz de capacidades y regresión visual/funcional. |
-| 04 | [04-streaming-http-range-y-cache.md](04-streaming-http-range-y-cache.md) | Handler con rangos/streaming y PDF.js consumiendo URL sin materialización completa. | Contratos HTTP y E2E local/remota de primera página. |
+| 04 | [04-streaming-http-range-y-cache.md](04-streaming-http-range-y-cache.md) | Handler con política adaptativa `RANGE`/`STREAM` y PDF.js consumiendo URL sin materialización completa. | Contratos HTTP, métricas de bytes únicos/físicos y POC efímera de Fast Web View. |
 | 05 | [05-transaccion-frontend-guardado-grafo.md](05-transaccion-frontend-guardado-grafo.md) | Guardado esperado, single-flight, errores saneados y UI consistente. | Dobles sin escritura y E2E mutadora descartable autorizada. |
-| 06 | [06-procesamiento-servidor-grafo.md](06-procesamiento-servidor-grafo.md) | Temporales aislados y procesamiento iText/transparencia medido y seguro. | Caracterización documental, concurrencia y rollback. |
+| 06 | [06-procesamiento-servidor-grafo.md](06-procesamiento-servidor-grafo.md) | Temporales aislados, procesamiento iText seguro y clasificación del PDF resultante para `RANGE`/`STREAM`. | Caracterización documental incluida `/Linearized` antes/después, concurrencia y rollback. |
 | 07 | [07-regresion-transversal-y-validacion-remota.md](07-regresion-transversal-y-validacion-remota.md) | Matriz final de módulos, presupuestos de rendimiento y despliegue gradual. | E2E por consumidor, prueba remota y rollback verificable. |
 
 Reglas comunes:
@@ -28,5 +28,6 @@ Reglas comunes:
 - Las E2E reales requieren autorización vigente de ambiente y cuenta. El guardado de grafos exige además un PDF descartable y autorización explícita de modificación.
 - Todo archivo nuevo que forme parte del proyecto WebForms debe registrarse en `GestionDocumental-Docuarchi.net.vbproj` reproduciendo el tipo de elemento de un equivalente existente.
 - Registrar comandos y códigos de salida reales. Un bloqueo se informa sin afirmar que la prueba pasó.
+- No equiparar soporte HTTP Range con descarga parcial garantizada. La evidencia debe separar cobertura única del PDF y bytes físicos de red; documentos no linealizados pueden usar `STREAM` sin modificar el almacenamiento.
 
 La secuencia separa deliberadamente lectura y mutación. Los prompts activos 02–04 no deben guardar grafos ni modificar PDFs; los prompts 05–06 trabajan únicamente con documentos descartables y controles antes/después. El Prompt 07 solo ejecuta mutaciones cuando exista autorización explícita y un documento descartable.

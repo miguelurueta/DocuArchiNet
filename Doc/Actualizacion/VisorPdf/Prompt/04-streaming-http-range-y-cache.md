@@ -19,7 +19,7 @@ Actúa como arquitecto full stack senior especializado en HTTP, ASP.NET handlers
 
 ## Objetivo
 
-Permitir que PDF.js solicite y renderice por rangos sin esperar la materialización completa `fetch -> Blob -> FileReader -> Uint8Array`, preservando autorización, aislamiento y consumidores legacy.
+Permitir que PDF.js consuma una URL autorizada sin la materialización cliente completa `fetch -> Blob -> FileReader -> Uint8Array` y seleccione de forma adaptativa entre `Range` y streaming completo. Usar rangos únicamente cuando la estructura y el tamaño del PDF permitan una descarga parcial efectiva; para documentos pequeños, no linealizados o indeterminados, priorizar un único stream `200` que evite solicitudes solapadas y mantenga rápida la primera visualización.
 
 ## Diseño obligatorio
 
@@ -28,19 +28,23 @@ Antes de implementar, documenta:
 - autoridad para resolver el documento y evitar confiar en una ruta libre del navegador;
 - contrato compatible para consumidores enriquecidos y simples;
 - semántica de `GET`, `HEAD`, `Range`, `If-Range`, `ETag`/`Last-Modified`, `206`, `200`, `304` y `416`;
+- criterio determinista para clasificar el documento como `RANGE` o `STREAM`, considerando como mínimo tamaño y presencia real del diccionario `/Linearized` al inicio del PDF;
+- diferencia entre bytes únicos del documento alcanzados hasta el primer canvas y bytes físicos transferidos por HTTP, incluidos encabezados y rangos solapados;
 - límites, tipos MIME, disposición, errores públicos y cierre de streams;
 - efecto de `IRequiresSessionState` sobre concurrencia y alternativa compatible si el handler no escribe sesión.
 
 ## Implementación obligatoria
 
 1. Servir el archivo mediante `FileStream`/streaming; no leer el PDF completo en `Byte()` ni usar `BinaryWrite` del cuerpo completo.
-2. Implementar un único rango válido por solicitud con validación de límites, `Content-Range`, `Content-Length`, `Accept-Ranges: bytes` y `206`.
+2. Implementar un único rango válido por solicitud con validación de límites, `Content-Range`, `Content-Length`, `Accept-Ranges: bytes` y `206`, sin convertir `Range` en la política obligatoria para todos los PDF.
 3. Responder correctamente a rango inválido con `416` sin filtrar ruta.
 4. Definir validadores de caché compatibles con autorización; nunca permitir reutilización entre usuarios o documentos no autorizados.
 5. Hacer que PDF.js reciba una URL y gestione streaming/rangos directamente.
 6. Eliminar del camino enriquecido `fetch`, `Blob`, `FileReader` y copia a `Uint8Array`.
 7. Mantener adaptador temporal para consumidores simples y formatos no PDF.
 8. No aceptar una ruta física nueva como autoridad. Si el contrato actual impide resolver el documento de forma segura, registrar la deuda y diseñar una referencia opaca/servidor sin inventar tablas.
+9. Aplicar una política adaptativa y explícita: `RANGE` para PDF grandes y realmente linealizados; `STREAM` para PDF pequeños, no linealizados o cuya estructura no permita garantizar acceso incremental eficiente. El fallback nunca debe volver a materializar el archivo completo en JavaScript.
+10. Mantener el almacenamiento actual. Cualquier prueba de Fast Web View/linealización debe ser una POC local, efímera y descartable, fuera del camino productivo y sin sobrescribir el documento fuente.
 
 ## Restricciones y antirregresión
 
@@ -49,6 +53,8 @@ Antes de implementar, documenta:
 - No devolver rutas físicas en encabezados, errores o logs.
 - No habilitar caché pública de documentos privados.
 - No cambiar guardado de grafos en esta tarea.
+- No incorporar Ghostscript, otro ejecutable externo ni una etapa de linealización en producción.
+- No afirmar que `206` garantiza por sí solo menos bytes físicos o menor latencia: PDF.js puede emitir rangos solapados y algunos PDF necesitan gran parte del archivo antes del primer canvas.
 - Preservar Workflow, Gestión de Correspondencia, Producción Documental, aprobación, versiones, migración y visores externos inventariados.
 
 ## Pruebas obligatorias
@@ -57,14 +63,18 @@ Antes de implementar, documenta:
 - `Content-Length`, `Content-Range`, MIME, `HEAD`, validadores y cierre ante desconexión.
 - Acceso sin sesión, documento ajeno, referencia inválida y traversal.
 - Regresión de consumidores simples.
-- E2E local autorizada que demuestre primer canvas sin transferir necesariamente los 33,6 MB completos.
-- Medición remota o con perfil de red controlado; registrar bytes transferidos y tiempo a primera página.
+- E2E local autorizada que demuestre primer canvas mediante la política seleccionada, sin exigir descarga parcial cuando el PDF no sea linealizado.
+- Caso grande y linealizado que seleccione `RANGE` y demuestre cobertura única parcial antes del primer canvas; caso pequeño o no linealizado que seleccione `STREAM`, realice una sola respuesta `200` y no emita rangos redundantes.
+- POC descartable que compare el mismo PDF antes/después de Fast Web View sin modificar almacenamiento: páginas, primer canvas y resultado visual equivalentes, temporal eliminado y fuente intacta.
+- Medición remota o con perfil de red controlado; registrar por separado tiempo a primera página, bytes únicos del PDF, bytes físicos transferidos, cantidad de solicitudes y modo `RANGE`/`STREAM`.
 
 ## Criterios de aceptación
 
-- PDF.js comienza con URL/rangos y no necesita descargar todo antes de inicializar.
+- PDF.js comienza con URL y no necesita `Blob`, `FileReader` ni copia completa a `Uint8Array` antes de inicializar.
 - El handler no materializa el PDF completo en memoria.
 - Las respuestas HTTP cumplen rangos y seguridad.
+- La selección `RANGE`/`STREAM` refleja la estructura real del archivo: la descarga parcial solo se declara lograda cuando la evidencia prueba menor cobertura única antes del primer canvas; en archivos no linealizados se acepta `STREAM` si evita sobrecosto y mantiene o mejora la latencia.
+- La POC de linealización informa beneficios y costos sin convertir el cambio de almacenamiento ni el ejecutable externo en dependencia productiva.
 - Los módulos consumidores mantienen su comportamiento.
 
 ## Documentación y entrega
