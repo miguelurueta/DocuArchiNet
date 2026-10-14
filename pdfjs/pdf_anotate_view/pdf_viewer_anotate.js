@@ -844,6 +844,7 @@
             ahtml.setAttribute("onclick", "event_drag_anotate(event,this);");
             ahtml.setAttribute("title", "Cerrar");
             ahtml.setAttribute("parent_id", id_div_dag);
+            ahtml.setAttribute("parent_page", this.getActivePageNumber());
             ahtml.setAttribute("event_drag", "close");
             ahtml.appendChild(ihtml);
             div_barra.appendChild(ahtml);
@@ -859,7 +860,7 @@
             ahtml.setAttribute("onclick", "event_drag_anotate(event,this);");
             ahtml.setAttribute("title", "Guardar");
             ahtml.setAttribute("parent_id", id_div_dag);
-            //ahtml.setAttribute("parent_page", active_canvas);
+            ahtml.setAttribute("parent_page", this.getActivePageNumber());
             ahtml.setAttribute("ur_image_drag", this.ur_firma_user);
             ahtml.setAttribute("ur_image_drag64", this.ur_data64);
             ahtml.setAttribute("event_drag", "save");
@@ -1016,8 +1017,9 @@
             let loadingTask = pdfjsLib.getDocument(this._createLoadingSource(document, "stream"));
             let pdf_ = await loadingTask.promise;
             let page = await pdf_.getPage(1);
-            this._renderPage(page, i);
-            this._add_anotate_page(page, i);      
+            await this._renderPage(page, i);
+            await this._add_anotate_page(page, i);
+            return true;
         }
         //Agrega las paginas con anotacion
         async  _add_anotate_page(page, i) {
@@ -1286,95 +1288,190 @@
 //Configuración de eventos 
 //***********************************************************************
 let STRU_ANOTATE_IMAGE = new Array();
+const DOC103_ANOTATE_TIMEOUT_MS = 30000;
+const DOC103_PENDING_ANNOTATIONS = new Map();
+const DOC103_PUBLIC_MESSAGES = Object.freeze({
+    INVALID_INPUT: "No fue posible validar el grafo. Revise la anotación e intente nuevamente.",
+    IMAGE_LOAD_FAILED: "No fue posible preparar la imagen del grafo. Intente nuevamente.",
+    ACCESS_DENIED: "La sesión no tiene autorización para guardar el grafo.",
+    SERVICE_NOT_FOUND: "El servicio de guardado no está disponible.",
+    REJECTED: "El servidor rechazó el guardado del grafo.",
+    INVALID_RESPONSE: "El servicio devolvió una respuesta no válida.",
+    UNCERTAIN: "No fue posible confirmar el resultado. Recargue y verifique el documento antes de reintentar.",
+    ABORTED: "El guardado fue cancelado. Verifique el documento antes de reintentar.",
+    REFRESH_FAILED: "El servidor procesó la solicitud, pero no fue posible actualizar la página. Recargue y verifique antes de reintentar.",
+    COMMITTED_WITH_WARNING: "El grafo se guardó, pero no fue posible completar el registro de auditoría."
+});
+
+function doc103Result(state, code, extra) {
+    return Object.assign({ state: state, code: code }, extra || {});
+}
+
+function normalizeAnotateResponse(data) {
+    if (!data || !Array.isArray(data.d) || data.d.length === 0) {
+        return doc103Result("invalid_response", "INVALID_RESPONSE");
+    }
+    const response = data.d[0];
+    if (!response || typeof response !== "object") {
+        return doc103Result("invalid_response", "INVALID_RESPONSE");
+    }
+    if (response.error_sistema !== "YES") return doc103Result("rejected", "REJECTED");
+    if (typeof response.url_salida !== "string" || response.url_salida.trim() === "") {
+        return doc103Result("invalid_response", "INVALID_RESPONSE");
+    }
+    return doc103Result(
+        response.error_log === "YES" ? "committed" : "committed_with_warning",
+        response.error_log === "YES" ? "COMMITTED" : "COMMITTED_WITH_WARNING",
+        { pageUrl: response.url_salida }
+    );
+}
+
+function classifyAnotateTransportFailure(xhr, textStatus) {
+    const status = xhr && Number.isFinite(Number(xhr.status)) ? Number(xhr.status) : 0;
+    if (status === 401 || status === 403) return doc103Result("rejected", "ACCESS_DENIED");
+    if (status === 404) return doc103Result("rejected", "SERVICE_NOT_FOUND");
+    if (textStatus === "parsererror") return doc103Result("invalid_response", "INVALID_RESPONSE");
+    if (textStatus === "abort") return doc103Result("uncertain", "ABORTED");
+    return doc103Result("uncertain", "UNCERTAIN");
+}
+
+function notifyAnotateResult(result) {
+    const code = result && result.code ? result.code : "UNCERTAIN";
+    pdfViewer.PdfViwerAlert(DOC103_PUBLIC_MESSAGES[code] || DOC103_PUBLIC_MESSAGES.UNCERTAIN, "warning", "container-general");
+}
+
+function annotationOperationKey(documentKey, page, overlayId) {
+    return [String(documentKey || ""), String(page || ""), String(overlayId || "")].join(":");
+}
+
+function pendingAnnotationForOverlay(overlayId) {
+    for (const operation of DOC103_PENDING_ANNOTATIONS.values()) {
+        if (operation.overlayId === overlayId) return operation;
+    }
+    return null;
+}
+
+function setAnnotationControlsPending(overlayId, pending) {
+    const bar = document.getElementById(overlayId + "_bar");
+    if (!bar || !bar.children) return;
+    Array.prototype.forEach.call(bar.children, function (control) {
+        if (!control || typeof control.setAttribute !== "function") return;
+        control.setAttribute("aria-disabled", pending ? "true" : "false");
+        if (pending) {
+            control.setAttribute("data-doc103-pending", "true");
+            control.setAttribute("aria-busy", "true");
+            control.setAttribute("tabindex", "-1");
+            control.style.pointerEvents = "none";
+        } else {
+            control.removeAttribute("data-doc103-pending");
+            control.removeAttribute("aria-busy");
+            control.removeAttribute("tabindex");
+            control.style.pointerEvents = "";
+        }
+    });
+}
+
+function cancelPendingAnnotations() {
+    DOC103_PENDING_ANNOTATIONS.forEach(function (operation) { operation.cancel(); });
+}
+
+if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+    window.addEventListener("pagehide", cancelPendingAnnotations);
+}
+
 async function event_drag_anotate(event, element) {
     let value_id_parent = $(element).attr("parent_id");
-    let page_drag = pdfViewer.getActivePageNumber();
+    let overlay_page = Number($(element).attr("parent_page"));
+    let page_drag = Number.isFinite(overlay_page) && overlay_page > 0 ? overlay_page : pdfViewer.getActivePageNumber();
     let even_drag = $(element).attr("event_drag");
     let ur_image_drag = $(element).attr("ur_image_drag");
     let ur_image_drag_bit64 = $(element).attr("ur_image_drag64");
     if (even_drag == "close") {
+        const pendingClose = pendingAnnotationForOverlay(value_id_parent);
+        if (pendingClose) return pendingClose.promise;
         let drag_div_parent = document.getElementById(value_id_parent);
         if (drag_div_parent) {
             drag_div_parent.parentElement.removeChild(drag_div_parent);
         }
+        return true;
     }
     if (even_drag == "save") {
         let drag_canvas = document.getElementById('page-' + (page_drag) + '-canvas')
         let drag_div_parent = document.getElementById(value_id_parent);
         let div_imag = document.getElementById(value_id_parent + "img");
         let div_bar = document.getElementById(value_id_parent + "_bar");
-        if (drag_div_parent) {
-            let currentTop = drag_div_parent.style.top.replace("px", "");
-            let bar_heigt = div_bar.style.height.replace("px", "");
-            let currentX = drag_div_parent.style.left.replace("px", "");
-            //let bar_heigt = div_bar.style.height.replace("px", "");
-            //let currentX = lef_eventX;
-            //let currentY = Top_eventY;
-            //alto del canvas de la imagen
-            let canvas_heigth = drag_canvas.clientHeight;
-            let currentY = canvas_heigth - currentTop; // resta al ancho del lienzo del canvas a la posición para que se ajuste a la posición del de itex
-            let canvas_width = drag_canvas.clientWidth;
-            //currentX = canvas_width - currentX;
-            let anotate_width = div_imag.clientWidth;
-            let anotate_height = div_imag.clientHeight;
-            let pdf_file_width = drag_canvas.clientWidth;
-            let pdf_file_height = drag_canvas.clientHeight;
-            let pdf_file_page = page_drag;
-            let anotate_file_src = ur_image_drag;
-            let anotate_scale = pdfViewer.getZoom();
-            let anotate_file_bit = ur_image_drag_bit64;
-            let pdf_anotate_id_imagen = pdfViewer.anotate_id_imagen;
-            let pdf_anotate_cabinete_imagen = pdfViewer.anotate_cabinete_imagen;
-            let pdf_anotate_radicado = pdfViewer.anotate_radicado;
-            let pdf_anotate_id_workflow = pdfViewer.anotate_id_workflow;
-            let pdf_anotate_desc_transacion = pdfViewer.anotate_desc_transacion;
-            let pdf_rotate_ = pdfViewer._rotation;
-            let itex_value_stamp_transparent = 100;
-            let itex_aplicate_transparent_stamp = 1;
-            if (pdfViewer.itex_config_stamp[0].error_sistema == "YES") {
-                itex_value_stamp_transparent = pdfViewer.itex_config_stamp[0].itex_value_stamp_transparent;
-                itex_aplicate_transparent_stamp = pdfViewer.itex_config_stamp[0].itex_aplicate_transparent_stamp;
-            }
-            let res = confirm("Desea guadar la anotación de grafo");
-            if (res == false) {
-                return "";
-            }
-            let res_sav = save_anotate_firma(currentX, currentY, anotate_width, anotate_height, pdf_file_page, anotate_file_src, anotate_file_bit,
-                anotate_scale, pdf_file_width, pdf_file_height, pdf_anotate_id_imagen, pdf_anotate_cabinete_imagen, pdf_anotate_radicado,
-                pdf_anotate_id_workflow, pdf_anotate_desc_transacion, pdf_rotate_, itex_aplicate_transparent_stamp,
-                itex_value_stamp_transparent
-            );
-            if (res_sav == "YES") {
-               drag_div_parent.parentElement.removeChild(drag_div_parent);
-            }
-
+        const imageSource = ur_image_drag || ur_image_drag_bit64;
+        const currentTop = drag_div_parent ? Number.parseFloat(drag_div_parent.style.top) : NaN;
+        const currentX = drag_div_parent ? Number.parseFloat(drag_div_parent.style.left) : NaN;
+        if (!value_id_parent || !drag_canvas || !drag_div_parent || !div_imag || !div_bar || !imageSource ||
+            !Number.isFinite(page_drag) || page_drag < 1 || !Number.isFinite(currentTop) || !Number.isFinite(currentX) ||
+            drag_canvas.clientWidth <= 0 || drag_canvas.clientHeight <= 0 || div_imag.clientWidth <= 0 || div_imag.clientHeight <= 0) {
+            const invalid = doc103Result("rejected", "INVALID_INPUT");
+            notifyAnotateResult(invalid);
+            return invalid;
         }
+        const operationKey = annotationOperationKey(pdfViewer.getUrlPage(), page_drag, value_id_parent);
+        if (DOC103_PENDING_ANNOTATIONS.has(operationKey)) return DOC103_PENDING_ANNOTATIONS.get(operationKey).promise;
+        if (confirm("Desea guardar la anotación de grafo") === false) return doc103Result("rejected", "USER_CANCELLED");
 
+        const operationContext = { cancelled: false, abort: null };
+        const stampConfig = pdfViewer.itex_config_stamp && pdfViewer.itex_config_stamp[0];
+        const transparency = stampConfig && stampConfig.error_sistema === "YES" ? stampConfig.itex_value_stamp_transparent : 100;
+        const applyTransparency = stampConfig && stampConfig.error_sistema === "YES" ? stampConfig.itex_aplicate_transparent_stamp : 1;
+        setAnnotationControlsPending(value_id_parent, true);
+        const operation = save_anotate_firma(
+            currentX, drag_canvas.clientHeight - currentTop, div_imag.clientWidth, div_imag.clientHeight,
+            page_drag, ur_image_drag, ur_image_drag_bit64, pdfViewer.getZoom(), drag_canvas.clientWidth,
+            drag_canvas.clientHeight, pdfViewer.anotate_id_imagen, pdfViewer.anotate_cabinete_imagen,
+            pdfViewer.anotate_radicado, pdfViewer.anotate_id_workflow, pdfViewer.anotate_desc_transacion,
+            pdfViewer._rotation, applyTransparency, transparency, operationContext
+        ).then(async function (result) {
+            if (result.state !== "committed" && result.state !== "committed_with_warning") throw result;
+            try {
+                await pdfViewer._updatePage(page_drag, result.pageUrl);
+            } catch (error) {
+                throw doc103Result("uncertain", "REFRESH_FAILED");
+            }
+            pdfViewer.estate_anotate = 1;
+            if (drag_div_parent.parentElement) drag_div_parent.parentElement.removeChild(drag_div_parent);
+            if (result.state === "committed_with_warning") notifyAnotateResult(result);
+            return result;
+        }).catch(function (failure) {
+            const result = failure && failure.code ? failure : doc103Result("uncertain", "UNCERTAIN");
+            notifyAnotateResult(result);
+            return result;
+        }).finally(function () {
+            DOC103_PENDING_ANNOTATIONS.delete(operationKey);
+            setAnnotationControlsPending(value_id_parent, false);
+        });
+        DOC103_PENDING_ANNOTATIONS.set(operationKey, {
+            overlayId: value_id_parent,
+            promise: operation,
+            cancel: function () {
+                if (operationContext.cancelled) return;
+                operationContext.cancelled = true;
+                if (typeof operationContext.abort === "function") operationContext.abort();
+                else if (typeof operationContext.rejectCancel === "function") operationContext.rejectCancel();
+            }
+        });
+        return operation;
     }
+    return doc103Result("rejected", "INVALID_INPUT");
 }
 function save_anotate_firma(currentX, currentY, anotate_width, anotate_height, pdf_file_page, anotate_file_src, anotate_file_bit, anotate_scale, pdf_file_width, pdf_file_height,
     pdf_anotate_id_imagen, pdf_anotate_cabinete_imagen, pdf_anotate_radicado, pdf_anotate_id_workflow,
-    pdf_anotate_desc_transacion, _rotation, _aplica_transparente, _num_tranaparent) {
-    try {
-        var canvas = document.getElementById("page-" + pdf_file_page + "-canvas");
-        var ctx = canvas.getContext("2d");
-        star_img = new Image();
-        if (anotate_file_src !== "") {
-            star_img.src = anotate_file_src;
-        } else {
-            star_img.src = anotate_file_bit;
+    pdf_anotate_desc_transacion, _rotation, _aplica_transparente, _num_tranaparent, operationContext) {
+    return new Promise(function (resolve, reject) {
+        if (operationContext) {
+            operationContext.rejectCancel = function () { reject(doc103Result("uncertain", "ABORTED")); };
         }
-
+        const star_img = new Image();
         star_img.onload = function () {
-            _Go(star_img);
-        }
-        function _Go(star_img) {
-            _Anotate_server();
-
-        }
-        function _Anotate_server() {
-            STRU_ANOTATE_IMAGE = new Array();
-            STRU_ANOTATE_IMAGE.push({
+            if (operationContext && operationContext.cancelled) {
+                reject(doc103Result("uncertain", "ABORTED"));
+                return;
+            }
+            const payload = [{
                 "pdf_file_src": pdfViewer.getUrlPage(), "pdf_file_page": pdf_file_page, "anotate_file_src": anotate_file_src,
                 "anotate_file_bit": anotate_file_bit, "anotate_width": anotate_width, "anotate_heigth": anotate_height,
                 "anotate_x": currentX, "anotate_y": currentY, "anotate_scale": anotate_scale, "anotate_type": "img",
@@ -1382,22 +1479,13 @@ function save_anotate_firma(currentX, currentY, anotate_width, anotate_height, p
                 "anotate_cabinete_imagen": pdf_anotate_cabinete_imagen, "anotate_radicado": pdf_anotate_radicado, "anotate_id_workflow": pdf_anotate_id_workflow,
                 "anotate_desc_transacion": pdf_anotate_desc_transacion, "rotation": _rotation, "aplica_transparente": _aplica_transparente,
                 "num_tranaparent" : _num_tranaparent
-            });
-            service_anotate_pdf_image(pdf_file_page);
-        }
-        function _ResetCanvas() {
-            ctx.fillStyle = 'transparent';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-        function _DrawImage(star_img) {
-            //ctx.drawImage(star_img, currentX, currentY);
-            //cache_inst.replace_page();
-
-        }
-        return "YES";
-    } catch (ex) {
-        return ex.message;
-    }
+            }];
+            STRU_ANOTATE_IMAGE = payload;
+            service_anotate_pdf_image(pdf_file_page, payload, operationContext).then(resolve, reject);
+        };
+        star_img.onerror = function () { reject(doc103Result("rejected", "IMAGE_LOAD_FAILED")); };
+        star_img.src = anotate_file_src || anotate_file_bit;
+    });
 }
 let Top_event=0;
 let lef_event=0;
@@ -1505,69 +1593,27 @@ const save_config_itex_stamp = () => {
 }
 //zona de web service
 
-function service_anotate_pdf_image(pdf_file_page) {
-    try {
-        var serialice = JSON.stringify(STRU_ANOTATE_IMAGE);
-        $.ajax('../../webservice/WebService_itext.asmx/service_anotate_pdf_image', {
+function service_anotate_pdf_image(pdf_file_page, payload, operationContext) {
+    return new Promise(function (resolve, reject) {
+        const serialice = JSON.stringify(payload || STRU_ANOTATE_IMAGE);
+        const jqXHR = $.ajax('../../webservice/WebService_itext.asmx/service_anotate_pdf_image', {
             data: "{'anotate':" + "'" + serialice + "'}",
             dataType: 'json',
             type: "POST",
+            timeout: DOC103_ANOTATE_TIMEOUT_MS,
             traditional: true,
             processData: false,
             contentType: "application/json; charset=utf-8",
             success: function (data) {
-                if (data.d !== "YES") {
-                    if (data.d[0].error_sistema != "YES") {
-                        pdfViewer.PdfViwerAlert(data.d[0].error_sistema, "warning", "container-general");
-                        return "";
-                    } else {
-                        pdfViewer.estate_anotate = 1;
-                        pdfViewer._updatePage(pdf_file_page, data.d[0].url_salida);
-                        if (data.d[0].error_log != "YES") {
-                            pdfViewer.PdfViwerAlert("El grafo se registro correctamente en el documento y se vera reflejado en el documento, pero el sistema no pudo registrar el log  por este error: " + data.d[0].error_log, "warning", "container-general");
-                        }
-                        return true;
-                    }
-
-                }
-            }, error: function (xception, textStatus, errorThrown) {
-
-                if (xception.status === 0) {
-
-                    alert('Not connect: Verify Network.');
-
-                } else if (xception.status == 404) {
-
-                    alert('Requested page not found [404]');
-
-                } else if (xception.status == 500) {
-
-                    alert('Internal Server Error [500].' + xception.responseText);
-
-                } else if (textStatus === 'parsererror') {
-
-                    alert('Requested JSON parse failed.');
-
-                } else if (textStatus === 'timeout') {
-
-                    alert('Time out error.');
-
-                } else if (textStatus === 'abort') {
-
-                    alert('Ajax request aborted.');
-
-                } else {
-
-                    alert('Uncaught Error: ' + xception.responseText);
-
-                }
+                const result = normalizeAnotateResponse(data);
+                if (result.state === "committed" || result.state === "committed_with_warning") resolve(result);
+                else reject(result);
+            }, error: function (xception, textStatus) {
+                reject(classifyAnotateTransportFailure(xception, textStatus));
             }
         });
-    }
-    catch (ex) {
-        //ESTADO_EVENT_GENERAL = "out";
-        alert('service_anotate_pdf_image  ' + ex.message);
-    }
+        if (operationContext) operationContext.abort = function () { jqXHR.abort(); };
+    });
 }
 function service_download_pdf_visor_plus(url_pdf, parameter_log, operation) {
     try {

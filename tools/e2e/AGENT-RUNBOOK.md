@@ -347,6 +347,22 @@ El runner selecciona la tarea mediante `seleccion_tarea_wf`, abre el documento m
 
 La apertura normal registra la visualización mediante la lógica existente de la aplicación. Por ello se requieren confirmaciones separadas para ambiente, cuenta/tarea y registro de visualización. La evidencia omite URL, query string, ruta física, cuenta, tarea, documento, cookies y credenciales. Si el objetivo posterior es medir el guardado de un grafo, debe utilizarse otro escenario, un PDF descartable y una autorización explícita de modificación.
 
+## DOC-103 — Guardado transaccional de grafo
+
+El modo `double` valida localmente la matriz transaccional sin login, red ni escritura documental. Usa el DOM, `Image`, jQuery y ASMX controlados por el arnés Node existente:
+
+```powershell
+npm.cmd --prefix tools/e2e run test:doc103:graph-save -- --mode double
+```
+
+El modo `real` es mutador. Antes de solicitar cuenta o contraseña exige, por separado, autorización del ambiente, de la cuenta y confirmación de que el PDF seleccionado es descartable. Copie `profiles/doc103-graph-save.profile.example.json` con sufijo `.runtime.json`; no incluya secretos, rutas físicas ni identificadores documentales. `documentStateSql` debe ser una sola sentencia `SELECT`, contener exactamente un parámetro `?` y ejecutarse contra el único DSN `workflowdocument` del perfil con la cuenta ODBC de solo lectura capturada en la consola. La huella de tarea debe permanecer igual: el efecto documental se comprueba mediante un único POST confirmado, refresco parcial y retiro del overlay. No se consulta `logdocuarchi` ni se introduce otro origen.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:doc103:graph-save -- --mode real --profile profiles/<perfil-runtime.json>
+```
+
+La corrida real crea un overlay con la firma configurada para la cuenta, acepta una sola confirmación, observa exactamente un POST a `service_anotate_pdf_image` y espera el retiro del overlay después del refresco parcial. Verifica que página, zoom y scroll no cambien, y compara huellas `SELECT` antes/después. Si falta una autorización, el documento no es descartable, no existe permiso/firma o fallan los controles de solo lectura, debe detenerse sin autenticar o sin mutar, según la fase. La evidencia ignorada conserva únicamente conteos, estados normalizados y banderas; nunca URL, query, cuenta, tarea, documento, ruta, imagen, cookies, tokens, credenciales ni resultados SQL.
+
 ## DOC-95 — Orquestación Login 2FA por ASMX
 
 DOC-95 reutiliza el formulario `gestor.aspx`, `tests/support/authenticated-workflow-session.cjs`, la consola TTY y Playwright ya instalados. No crea login, configuración, buzón automatizado, navegador ni `.env` paralelos. El perfil contiene únicamente URL, módulo con 2FA activo, política TLS y timeout; no admite cuentas, contraseñas, OTP, challenge ni conexiones.
