@@ -1,10 +1,10 @@
 # PROCESAMIENTO-SERVIDOR
 
 - Ticket: DOC-104
-- Cambio OpenSpec: `doc-104-procesamiento-servidor`
-- Clasificación: transversal VB.NET/ASMX/iTextSharp/PDF.js
+- Cambio OpenSpec: doc-104-procesamiento-servidor
+- Clasificacion: cross_cutting
 
-## Resultado implementado
+## Objetivo
 
 El guardado del grafo deja de reutilizar temporales por usuario y deja de copiar directamente sobre el PDF original. Cada operación usa GUID, lock por documento, imagen preparada propia, PDF staged adyacente, backup y validación anterior/posterior al reemplazo.
 
@@ -30,7 +30,7 @@ Cliente DOC-103
   -> libera recursos y limpia artefactos propios
 ```
 
-## Compatibilidad y reversa
+## Alcance y compatibilidad
 
 - Se conservan endpoint ASMX, arreglo `Class_itext_anotate` y colección `service_itex`.
 - No cambia almacenamiento, esquema, iTextSharp ni autorización de rutas.

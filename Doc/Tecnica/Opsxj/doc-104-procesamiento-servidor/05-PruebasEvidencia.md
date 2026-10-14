@@ -1,6 +1,12 @@
 # PROCESAMIENTO-SERVIDOR — PRUEBAS Y EVIDENCIA
 
+- Ticket: DOC-104
+- Cambio OpenSpec: doc-104-procesamiento-servidor
+- Clasificacion: cross_cutting
+
 Fecha: 2026-10-14.
+
+## Evidencia requerida
 
 | Prueba | Resultado |
 | --- | --- |
@@ -23,7 +29,7 @@ Fecha: 2026-10-14.
 - La transacción focal crea PDFs sintéticos en un directorio temporal y los elimina en `finally`.
 - La evidencia del modo doble tiene esquema cerrado y no conserva rutas, consultas o secretos.
 
-## Validación real
+## QA/E2E WebForms
 
 La E2E mutadora del escenario normal se ejecutó con autorización explícita de ambiente, cuenta y PDF/grafo descartables. Produjo exactamente un POST, un efecto confirmado y controles antes/después exclusivamente `SELECT`; la evidencia saneada no conserva rutas, consultas, cuentas, credenciales ni contenido.
 

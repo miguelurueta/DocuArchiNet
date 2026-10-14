@@ -1,6 +1,12 @@
 # PROCESAMIENTO-SERVIDOR — CONTRATOS
 
-## ASMX preservado
+- Ticket: DOC-104
+- Cambio OpenSpec: doc-104-procesamiento-servidor
+- Clasificacion: cross_cutting
+
+## Contratos e integraciones
+
+### ASMX preservado
 
 - Endpoint: `WebService_itext.asmx/service_anotate_pdf_image`.
 - Método: POST JSON autenticado con sesión existente.

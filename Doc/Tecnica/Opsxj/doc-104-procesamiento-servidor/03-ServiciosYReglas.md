@@ -1,5 +1,11 @@
 # PROCESAMIENTO-SERVIDOR — SERVICIOS Y REGLAS
 
+- Ticket: DOC-104
+- Cambio OpenSpec: doc-104-procesamiento-servidor
+- Clasificacion: cross_cutting
+
+## Servicios y reglas
+
 ## `WebService_itext.service_anotate_pdf_image`
 
 1. Deserializa exactamente un `Class_itext_anotate`.

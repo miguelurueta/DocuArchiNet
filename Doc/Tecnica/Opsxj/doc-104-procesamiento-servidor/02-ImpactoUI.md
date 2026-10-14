@@ -1,13 +1,17 @@
 # PROCESAMIENTO-SERVIDOR — IMPACTO UI
 
-## Superficie modificada
+- Ticket: DOC-104
+- Cambio OpenSpec: doc-104-procesamiento-servidor
+- Clasificacion: cross_cutting
+
+## Superficies UI
 
 Solo cambia `PDFjsViewer._updatePage(i, document)` en `pdfjs/pdf_anotate_view/pdf_viewer_anotate.js`:
 
 - antes abría un PDF temporal de una página mediante `getPage(1)`;
 - ahora abre el documento actualizado mediante transporte `stream` y solicita `getPage(i)`.
 
-## Comportamiento preservado
+## Validacion visual
 
 - Un guardado produce un solo POST.
 - El overlay permanece hasta commit y refresco confirmados.
