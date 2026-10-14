@@ -1,7 +1,8 @@
 # DOC-102 — streamer HTTP por rangos
 
-- Cambio OpenSpec: `doc-102-streamer-http-rangos`
-- Clasificación: transversal
+- Ticket: DOC-102
+- Cambio OpenSpec: doc-102-streamer-http-rangos
+- Clasificacion: cross_cutting
 - Estado técnico: estrategia adaptativa implementada, compilada y validada mediante E2E autenticada (`PASSED`, mediana 624 ms)
 
 ## Objetivo

@@ -1,5 +1,9 @@
 # DOC-102 — impacto en el visor
 
+- Ticket: DOC-102
+- Cambio OpenSpec: doc-102-streamer-http-rangos
+- Clasificacion: cross_cutting
+
 ## Recorrido de apertura
 
 ```text
@@ -26,7 +30,7 @@
           v
 [Primer canvas visible]
           |
-          +------> scroll/zoom/navegación reutilizan bytes o piden rangos adicionales
+          +=====> scroll/zoom/navegación reutilizan bytes o piden rangos adicionales
 ```
 
 No se precarga el PDF completo mediante código JavaScript propio. Un PDF grande linearizado usa rangos; un PDF no linearizado o pequeño usa una única respuesta secuencial para evitar decenas de rangos que finalmente sumarían el archivo completo. Scroll, zoom y navegación reutilizan los bytes disponibles. Los botones de guardar, imprimir, descargar, firma y sello siguen usando `urimage_format`; no se cambió su contrato. El pegado de grafo conserva el servicio iText y refresca solo la página modificada por streaming completo.

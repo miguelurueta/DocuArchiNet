@@ -1,5 +1,9 @@
 # DOC-102 — contrato e integración
 
+- Ticket: DOC-102
+- Cambio OpenSpec: doc-102-streamer-http-rangos
+- Clasificacion: cross_cutting
+
 ## Contratos e integraciones
 
 ### Entrada autorizada

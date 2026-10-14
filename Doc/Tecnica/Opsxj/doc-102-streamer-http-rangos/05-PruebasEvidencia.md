@@ -1,5 +1,9 @@
 # DOC-102 — pruebas y evidencia
 
+- Ticket: DOC-102
+- Cambio OpenSpec: doc-102-streamer-http-rangos
+- Clasificacion: cross_cutting
+
 Fecha local: 2026-10-14.
 
 ## Evidencia requerida

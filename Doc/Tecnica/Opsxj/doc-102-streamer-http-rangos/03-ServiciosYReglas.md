@@ -1,5 +1,9 @@
 # DOC-102 — componentes y reglas
 
+- Ticket: DOC-102
+- Cambio OpenSpec: doc-102-streamer-http-rangos
+- Clasificacion: cross_cutting
+
 ## Flujo técnico
 
 ```text
