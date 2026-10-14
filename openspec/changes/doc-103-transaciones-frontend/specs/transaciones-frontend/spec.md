@@ -1,94 +1,102 @@
-## ADDED Requirements
-### Requirement: TRANSACIONES-FRONTEND
-El sistema SHALL implementar el alcance definido para DOC-103.
-#### Scenario: Flujo principal
-- **WHEN** se ejecuta el caso de uso principal del ticket
-- **THEN** el comportamiento coincide con las reglas funcionales esperadas
-#### Scenario: No-regresion
-- **WHEN** se valida el modulo afectado
-- **THEN** no se rompen flujos existentes
-### Requirement: Detalle funcional Jira
-El sistema SHALL considerar las reglas detalladas del ticket.
+<!-- opsxj:refinement-traceability version=1 artifact=spec decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09 -->
 
-#### Scenario: Reglas del ticket
-- # Prompt 05 — Transacción frontend para guardar un grafo
-- ## Contexto de ejecución OPSXJ
-- Este prompt corresponde a una Jira independiente. Ejecuta `opsxj:new` al iniciar para crear su OpenSpec autónomo. Esta es la primera tarea mutadora de la secuencia y exige un PDF descartable para su E2E.
-- ## Rol esperado
-- Actúa como especialista senior en JavaScript asíncrono, UX transaccional, WebMethods ASMX y prevención de doble envío.
-- ## Fuentes obligatorias
-- - Exploración del visor.
-- - `pdfjs/pdf_anotate_view/pdf_viewer_anotate.js`, especialmente `save_anotate_firma(...)` y `service_anotate_pdf_image(...)`.
-- - `pdfjs/pdf_anotate_view/pdfannotate.js` para determinar si es código inactivo o contrato duplicado.
-- - `webservice/WebService_itext.asmx.vb` y DTO `Class_itext_anotate`.
-- - Pruebas/E2E existentes del visor.
-- ## Objetivo
-- Convertir el guardado de grafo en una operación esperable, single-flight y observable que solo retire el elemento local y actualice la página después de una respuesta autoritativa exitosa.
-- ## Flujo obligatorio
-- ```text
-- Usuario confirma
--   -> validar grafo/página/contexto
--   -> bloquear acción y marcar operación activa
--   -> POST ASMX exactamente una vez
--   -> respuesta tipada/saneada
--      -> éxito: actualizar solo página afectada y retirar overlay
--      -> error: conservar overlay para reintento explícito
--   -> liberar bloqueo en finally
-- ```
-- ## Implementación obligatoria
-- 1. Hacer que `save_anotate_firma(...)` y el transporte retornen `Promise` real.
-- 2. Eliminar el éxito anticipado actual que retorna `"YES"` antes de terminar AJAX.
-- 3. Implementar single-flight por documento/página/grafo y deshabilitar el control durante la solicitud.
-- 4. Establecer timeout explícito, cancelación al destruir el visor y `finally` confiable.
-- 5. Normalizar la respuesta ASMX sin depender de comparaciones incoherentes entre `data.d` y colecciones.
-- 6. No eliminar el grafo local si falla validación, red, parser, servidor, auditoría crítica o actualización de página.
-- 7. Sustituir `alert` y exposición de `responseText` por códigos públicos y mensajes seguros usando el componente de aviso existente.
-- 8. Actualizar solo la página afectada y evitar recargar el PDF completo cuando el contrato servidor lo permita; si no lo permite, documentar la dependencia para el Prompt 06.
-- ## Restricciones y antirregresión
-- - No cambiar todavía el algoritmo iText ni rutas temporales.
-- - No reintentar automáticamente una mutación de resultado incierto.
-- - No aceptar éxito por HTTP 200 si el contrato funcional falló.
-- - No imprimir payload base64, ruta, documento, usuario, respuesta cruda o excepción.
-- - No alterar firma, Wacom, descarga o impresión.
-- ## Pruebas obligatorias
-- - Éxito, error funcional, 401/403, 404, 500, timeout, aborto, JSON inválido y respuesta incompleta.
-- - Doble clic y múltiples eventos: exactamente una solicitud efectiva.
-- - Resultado incierto: no reintento automático y overlay conservado.
-- - Actualización de una página sin perder página activa, zoom o scroll.
-- - E2E local con doble de ASMX sin escritura.
-- - E2E real exclusivamente con PDF descartable y autorizaciones de ambiente, cuenta y modificación; comprobar una sola solicitud y un solo efecto.
-- ## Criterios de aceptación
-- - La UI nunca anuncia éxito antes del servidor.
-- - Una acción produce como máximo una mutación efectiva.
-- - Los errores son accionables y no filtran detalles.
-- - La experiencia de visualización restante no cambia.
-- ## Documentación y entrega
-- Documenta estados UI, códigos, contrato, pruebas y evidencia en `Doc/Actualizacion/VisorPdf/Implementacion/<JIRA>/`.
-- ## Correcciones opsxj:prompt-review
-- Estas reglas fueron agregadas desde `opsxj:prompt-review` para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-- ## Rol esperado
-- Definir el rol tecnico esperado para ejecutar el ticket.
-- ## Objetivo
-- Describir el objetivo funcional y tecnico verificable.
-- ## Restricciones criticas
-- - No introducir cambios fuera del alcance declarado.
-- - No romper comportamiento existente ni contratos publicos.
-- ## Criterios de aceptacion
-- - El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-- ## Contexto obligatorio
-- Listar archivos, modulos, servicios, hooks, adapters y documentacion que deben leerse antes de implementar.
-- ## Pruebas obligatorias
-- Ejecutar pruebas Node focales, validación sintáctica JavaScript y E2E con Playwright; ejecutar MSBuild únicamente si cambia el contrato ASMX y registrar comandos y resultados.
-- ## Documentacion tecnica
-- Actualizar el paquete documental canonico del ticket.
-- ## Entregable final
-- Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-- Agregar regla para [ANTI_REGRESSION_DETAIL_REQUIRED]: Reglas explicitas de no romper, preservar, no llamar o no usar workarounds.
-- Exigir validación sintáctica JavaScript, pruebas Node focales y MSBuild si cambia código compilado; registrar el resultado.
-- Exigir pruebas focales con la infraestructura Node existente y un doble controlado del ASMX; no agregar un framework de pruebas innecesario.
-- Declarar que código + E2E + validación autorizada + evidencia saneada son una única unidad de entrega dentro del mismo cambio; no crear una tarea o entrega E2E independiente.
-- Reutilizar exclusivamente `tools/e2e`, su autenticación, configuración, validadores, evidencias y utilidades; prohibir login, arnés, proyecto Playwright, configuración o `.env` paralelos.
-- Antes de autenticar, exigir lectura de `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`; ejecutar solo con ambiente, cuentas y datos/tareas descartables expresamente autorizados.
-- Exigir secretos efímeros, prohibir exponer/imprimir/persistir credenciales, cookies, tokens y cadenas de conexión, usar verificaciones solo `SELECT` y conservar evidencia saneada.
-- Exigir cobertura E2E, cuando aplique, de autorización/control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada.
-- Respetar feature flags, gates, usuarios, grupos y seguridad sin habilitarlos arbitrariamente; no cerrar sin validación autorizada, registrar bloqueo explícito y prohibir mocks, simulaciones, resultados inventados y evidencia ficticia.
+## Purpose
+
+Garantizar que el guardado de un grafo en el visor PDF sea una transacción cliente esperable, de envío único, recuperable y segura, sin alterar el contrato servidor existente.
+
+## ADDED Requirements
+
+### Requirement: Propietario único de la transacción
+DOC-103 SHALL implementar la transacción de guardado únicamente en el script productivo cargado por el visor y SHALL NOT reactivar ni duplicar la lógica en el visor anterior comentado. <!-- RQ-01; D-01 -->
+
+#### Scenario: Ruta productiva
+- **WHEN** se abre `pdf_anotate_view/index.html`
+- **THEN** `pdf_viewer_anotate.js` posee el flujo de guardado y `pdfannotate.js` no se ejecuta
+
+### Requirement: Confirmación autoritativa antes de retirar el overlay
+El visor SHALL mantener el overlay local hasta que carga de imagen, POST, respuesta funcional y refresco de página hayan terminado correctamente. <!-- RQ-02; D-02 -->
+
+#### Scenario: Guardado y refresco exitosos
+- **WHEN** el servidor confirma la mutación y la página afectada termina de actualizarse
+- **THEN** el visor retira únicamente el overlay persistido y resuelve la operación como confirmada
+
+#### Scenario: Fallo antes de confirmar
+- **WHEN** falla validación, carga de imagen, transporte, contrato funcional o refresco
+- **THEN** el overlay permanece disponible y la UI no anuncia éxito
+
+### Requirement: Single-flight por grafo
+El visor SHALL permitir como máximo una solicitud de guardado pendiente por combinación de documento, página y overlay. <!-- RQ-03; D-03 -->
+
+#### Scenario: Doble clic o eventos repetidos
+- **WHEN** se solicita guardar varias veces mientras la primera operación continúa pendiente
+- **THEN** se emite un solo POST y las invocaciones posteriores no crean otra mutación
+
+#### Scenario: Liberación determinista
+- **WHEN** la operación termina con éxito, fallo o cancelación
+- **THEN** el registro pendiente se elimina y los controles existentes se rehabilitan en `finally`
+
+### Requirement: Timeout y cancelación controlados
+El transporte SHALL declarar un timeout de 30 segundos, conservar una operación cancelable y abortarla cuando se abandona el visor, sin reintento automático. <!-- RQ-04; D-04 -->
+
+#### Scenario: Timeout o abandono
+- **WHEN** expira el timeout o ocurre `pagehide` con un POST pendiente
+- **THEN** el transporte se aborta, el bloqueo local se libera, el overlay se conserva y no se genera otro POST
+
+#### Scenario: Resultado incierto
+- **WHEN** la conexión se pierde o el servidor falla después de recibir potencialmente la solicitud
+- **THEN** la UI informa un resultado incierto sin afirmar rollback ni repetir la mutación
+
+### Requirement: Normalización estricta de respuesta ASMX
+El cliente SHALL aceptar éxito únicamente cuando `data.d` sea una colección válida cuyo resultado declare éxito funcional y proporcione la URL de la página actualizada. <!-- RQ-05; D-05 -->
+
+#### Scenario: Commit confirmado
+- **WHEN** el primer resultado contiene `error_sistema = "YES"`, `url_salida` válida y `error_log = "YES"`
+- **THEN** la operación se clasifica `committed` y continúa al refresco
+
+#### Scenario: Commit con advertencia
+- **WHEN** el PDF fue confirmado pero `error_log` informa fallo posterior
+- **THEN** la operación se clasifica `committed_with_warning`, refresca la página y no se reintenta automáticamente
+
+#### Scenario: HTTP 200 inválido
+- **WHEN** `data.d` falta, no es colección, está vacío, declara error funcional o no contiene URL de salida
+- **THEN** el cliente no declara éxito y conserva el overlay
+
+### Requirement: Errores públicos saneados
+El visor SHALL presentar errores mediante su componente de aviso con textos públicos fijos y SHALL NOT mostrar respuestas, payloads, rutas, usuarios o excepciones crudas. <!-- RQ-06; D-06 -->
+
+#### Scenario: Matriz de fallos
+- **WHEN** ocurre 401/403, 404, 500, error de parser, timeout, aborto o respuesta incompleta
+- **THEN** se muestra la categoría pública correspondiente sin `responseText`, `errorThrown` ni `ex.message`
+
+### Requirement: Refresco esperado de una página
+El visor SHALL esperar la carga, render y actualización de caché de la página persistida usando el transporte compatible de DOC-102 y SHALL preservar navegación y escala. <!-- RQ-07; D-07 -->
+
+#### Scenario: Página actualizada
+- **WHEN** el ASMX devuelve `url_salida` válida
+- **THEN** solo la página afectada se descarga y renderiza antes de resolver, sin cambiar página activa, zoom o scroll
+
+#### Scenario: Refresco fallido
+- **WHEN** descarga, render o actualización de caché falla
+- **THEN** la promesa rechaza, el overlay permanece y el visor no se reinicializa
+
+### Requirement: Compatibilidad de fronteras existentes
+DOC-103 SHALL conservar sin cambios el WebMethod, DTO, payload, algoritmo iText, temporales, firma, Wacom, impresión, descarga y permisos vigentes. <!-- RQ-08; D-08 -->
+
+#### Scenario: Regresión transversal
+- **WHEN** se valida el cambio
+- **THEN** las capacidades no relacionadas mantienen sus contratos y `pdfannotate.js` continúa inactivo
+
+### Requirement: Evidencia integral y protegida
+DOC-103 SHALL probar la transacción con dobles sin escritura y con una E2E real únicamente cuando exista autorización específica y un PDF descartable. <!-- RQ-09; D-09 -->
+
+#### Scenario: Prueba controlada sin escritura
+- **WHEN** se ejecuta la suite local
+- **THEN** un doble ASMX cubre éxito, advertencia, fallos, concurrencia, timeout, aborto y refresco sin modificar documentos
+
+#### Scenario: E2E mutadora autorizada
+- **WHEN** ambiente, cuenta y PDF descartable están expresamente autorizados
+- **THEN** una acción genera un POST y un efecto, verificados con controles antes/después exclusivamente `SELECT` y evidencia saneada
+
+#### Scenario: E2E sin autorización
+- **WHEN** falta cualquiera de las autorizaciones o el documento descartable
+- **THEN** el runner se detiene antes de autenticar o mutar y registra el bloqueo sin inventar resultados

@@ -1,13 +1,15 @@
 ## Why
 
-TRANSACIONES-FRONTEND. Ver detalle funcional completo del ticket en la seccion Jira Details.
+El visor elimina actualmente el overlay del grafo antes de que la imagen termine de cargar y antes de que el servidor confirme la mutación. Esto produce falso éxito, pérdida de capacidad de reintento y riesgo de doble envío ante errores o clics repetidos.
 
 ## What Changes
 
-- Se genera automaticamente una propuesta OpenSpec basada en el issue DOC-103.
-- Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
-- Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
-- Se deja lista una base coherente para continuar con design, specs y tasks.
+- Convertir el guardado activo en una promesa autoritativa desde validación hasta refresco de la página.
+- Aplicar single-flight por documento, página y overlay, con controles bloqueados y liberación en `finally`.
+- Normalizar la colección ASMX y separar commit, commit con advertencia, rechazo, respuesta inválida y resultado incierto.
+- Incorporar timeout, cancelación al abandonar el visor y mensajes públicos saneados sin reintento automático.
+- Esperar el refresco de una sola página conservando página activa, zoom y scroll.
+- Probar el contrato con doble sin escritura y E2E mutadora únicamente bajo autorización y PDF descartable.
 
 ## Jira Details
 
@@ -102,13 +104,15 @@ TRANSACIONES-FRONTEND. Ver detalle funcional completo del ticket en la seccion J
 ## Capabilities
 
 ### New Capabilities
-- `transaciones-frontend`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
+- `transaciones-frontend`: Transacción cliente esperable y single-flight para persistir un grafo y confirmar el refresco de la página afectada.
 
 ### Modified Capabilities
 - 
 
 ## Impact
 
-- Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
-- Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
+- Código activo: `pdfjs/pdf_anotate_view/pdf_viewer_anotate.js`.
+- Integración preservada: `webservice/WebService_itext.asmx.vb`, `Class_itext_anotate`, iTextSharp y transporte `stream` de DOC-102.
+- Pruebas: Node y Playwright existentes bajo `tools/e2e`; no se agrega framework ni arnés paralelo.
+- Sin migración de datos, tablas, almacenamiento o cambio de contrato servidor.
 
