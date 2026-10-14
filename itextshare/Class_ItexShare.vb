@@ -126,167 +126,303 @@ Public Class Class_ItexShare
             download_pdf_visor_plus = "Inconsistencia general funcion download_pdf_visor_plus " & ex.Message
         End Try
     End Function
+    Private Const MaxGraphImageBytes As Integer = 10 * 1024 * 1024
+    Private Const MaxGraphImageDimension As Integer = 4096
+
+    Private NotInheritable Class PdfGraphOperationContext
+        Public Property OperationId As String
+        Public Property OperationDirectory As String
+        Public Property SourceImagePath As String
+        Public Property PreparedImagePath As String
+        Public Property StagedPdfPath As String
+        Public Property BackupPdfPath As String
+        Public Property FailedPdfPath As String
+        Public Property LockPath As String
+    End Class
+
     Function add_anotate_image_pdf(ByVal itext_anotate As Class_itext_anotate,
                                    ByRef top As String,
                                    ByRef url_pagina As String) As String
-        Dim reader As iTextSharp.text.pdf.PdfReader = Nothing
-        Dim stamper As iTextSharp.text.pdf.PdfStamper = Nothing
-        Dim img As iTextSharp.text.Image = Nothing
-        Dim underContent As iTextSharp.text.pdf.PdfContentByte = Nothing
+        Dim loadingMode As String = EstrategiaCargaPdf.ModoStreamingCompleto
+        Return add_anotate_image_pdf(itext_anotate, top, url_pagina, loadingMode)
+    End Function
+
+    Function add_anotate_image_pdf(ByVal itext_anotate As Class_itext_anotate,
+                                   ByRef top As String,
+                                   ByRef url_pagina As String,
+                                   ByRef loadingMode As String) As String
+        Dim operation As PdfGraphOperationContext = Nothing
+        Dim documentLock As FileStream = Nothing
+        Dim preserveBackup As Boolean = False
         Try
-            Dim pat_user As String = HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION")
-            If pat_user = "" Or pat_user Is Nothing Then
-                pat_user = "user_none"
-            End If
-            Dim path As String = HttpContext.Current.Server.MapPath("../Temp_Image/upload_file/" & pat_user & "/")
-            If Directory.Exists(path) = False Then
-                Directory.CreateDirectory(path)
-            End If
-            Dim path_transparent As String = path & pat_user & "_1.png"
-            Dim pdf_file_src As String = ""
-            Dim Result As String = Solicita_ruta_imagen(itext_anotate.pdf_file_src,
-                                                        pdf_file_src)
-            If Result <> "YES" Then
-                add_anotate_image_pdf = Result
-                Exit Function
-            End If
-            If System.IO.File.Exists(pdf_file_src) = False Then
-                add_anotate_image_pdf = "Imposible encontar el pdf (" & pdf_file_src & ")"
-                Exit Function
-            End If
-            Dim fil As New System.IO.FileInfo(pdf_file_src)
-            Dim path_pdf_temporal As String = path & "_" & fil.Name
-            Dim ClassBase64 As New ClassBase64
-            Dim file_path_anotation As String = path & pat_user & ".png"
-            Dim anotate_file_src As String = ""
-            If itext_anotate.anotate_file_src <> "" And Not itext_anotate.anotate_file_src Is Nothing Then
-                Dim file_tempo_anotate_file_src As String = itext_anotate.anotate_file_src.ToString.Replace("../", "")
-                file_tempo_anotate_file_src = "../" & file_tempo_anotate_file_src
-                anotate_file_src = HttpContext.Current.Server.MapPath(file_tempo_anotate_file_src)
-                If System.IO.File.Exists(anotate_file_src) = False Then
-                    add_anotate_image_pdf = "Imposible encontar la firma (" & anotate_file_src & ")"
-                    Exit Function
-                End If
-            Else
-                itext_anotate.anotate_file_bit = itext_anotate.anotate_file_bit.ToString.Replace("data:image/png;base64,", "")
-                Result = ClassBase64.DecodeBase64ToFile(itext_anotate.anotate_file_bit, file_path_anotation)
-                If Result <> "YES" Then
-                    add_anotate_image_pdf = "Error decodificado base 64 (" & Result & ")"
-                    Exit Function
-                End If
-                anotate_file_src = file_path_anotation
-            End If
-            Dim Class_transparent As New Class_transparent
-            Dim image_bitman As System.Drawing.Bitmap = New System.Drawing.Bitmap(anotate_file_src)
-            Dim image_ As System.Drawing.Bitmap = Nothing
-            If itext_anotate.aplica_transparente = 1 Then
-                image_ = Class_transparent.TransparentAsync(image_bitman,
-                                                            System.Drawing.Color.White,
-                                                            itext_anotate.num_tranaparent,
-                                                            Result)
-                If Result <> "YES" Then
-                    add_anotate_image_pdf = "Error removiendo fondo de la stampa (" & Result & ")"
-                    Exit Function
-                End If
-                If File.Exists(path_transparent) Then
-                    File.Delete(path_transparent)
-                End If
-                image_bitman.Dispose()
-                image_.Save(path_transparent, System.Drawing.Imaging.ImageFormat.Png)
-            Else
-                image_bitman.Save(path_transparent, System.Drawing.Imaging.ImageFormat.Png)
-            End If
-            anotate_file_src = path_transparent
-            reader = New iTextSharp.text.pdf.PdfReader(pdf_file_src)
-            Dim get_page_size = reader.GetPageSize(itext_anotate.pdf_file_page)
-            Dim heigth_page = 0
-            Dim width_page = 0
-            If itext_anotate.rotation <> 0 Then
-                heigth_page = get_page_size.width
-                width_page = get_page_size.height
-            Else
-                heigth_page = get_page_size.height
-                width_page = get_page_size.width
-            End If
-            Dim heigth_pdf_canvas = itext_anotate.pdf_file_heigth
-            Dim width_pdf_canvas = itext_anotate.pdf_file_width
-            Dim dist_heigth = 1
-            Dim dist_width = 1
-            If itext_anotate.rotation <> 0 Then
-                If heigth_page > heigth_pdf_canvas Then
-                    dist_heigth = heigth_page - heigth_pdf_canvas
-                Else
-                    dist_heigth = heigth_pdf_canvas - heigth_page
-                End If
-                If width_page > width_pdf_canvas Then
-                    dist_width = width_page - width_pdf_canvas
-                Else
-                    dist_width = width_pdf_canvas - width_page
-                End If
-            Else
-                dist_heigth = heigth_pdf_canvas - heigth_page
-                dist_width = width_pdf_canvas - width_page
-
-            End If
-            'Determina el factor de escala 
-            Dim y_anotate = 0
-            Dim x_anotate = 0
-            Dim W_scale
-            If width_page < width_pdf_canvas Then
-                W_scale = width_pdf_canvas / width_page
-            Else
-                W_scale = width_page / width_pdf_canvas
-            End If
-            Dim H_scale
-            If heigth_page < heigth_pdf_canvas Then
-                H_scale = heigth_pdf_canvas / heigth_page
-            Else
-                H_scale = heigth_page / heigth_pdf_canvas
-            End If
-            If itext_anotate.rotation <> 0 Then
-                y_anotate = (itext_anotate.anotate_y / H_scale) - (itext_anotate.anotate_heigth)
-                x_anotate = (itext_anotate.anotate_x / W_scale)
-                'x_anotate = itext_anotate.anotate_x - dist_width
-                'y_anotate = (itext_anotate.anotate_y - dist_heigth) - itext_anotate.anotate_heigth
-                top = "y-anotate : " & y_anotate & " heigth_page : " & heigth_page & "  heigth_pdf_canvas : " & heigth_pdf_canvas &
-                  " itext_anotate.anotate_y : " & itext_anotate.anotate_y & "  itext_anotate.anotate_heigth : " & itext_anotate.anotate_heigth &
-                  " h_scale : " & H_scale & "   x-anotate : " & x_anotate & " width_page : " & width_page & "  width_pdf_canvas : " & width_pdf_canvas &
-                 " itext_anotate.anotate_x : " & itext_anotate.anotate_x & "  itext_anotate.anotate_width : " & itext_anotate.anotate_width & " w_scale : " & W_scale
-            Else
-                y_anotate = (itext_anotate.anotate_y / H_scale) - (itext_anotate.anotate_heigth)
-                x_anotate = (itext_anotate.anotate_x / W_scale)
-                top = "y-anotate : " & y_anotate & " heigth_page : " & heigth_page & "  heigth_pdf_canvas : " & heigth_pdf_canvas &
-                    " itext_anotate.anotate_y : " & itext_anotate.anotate_y & "  itext_anotate.anotate_heigth : " & itext_anotate.anotate_heigth &
-                    " h_scale : " & H_scale & "   x-anotate : " & x_anotate & " width_page : " & width_page & "  width_pdf_canvas : " & width_pdf_canvas &
-                   " itext_anotate.anotate_x : " & itext_anotate.anotate_x & "  itext_anotate.anotate_width : " & itext_anotate.anotate_width & " w_scale : " & W_scale
+            Dim pdfFileSource As String = ""
+            If Solicita_ruta_imagen(Convert.ToString(itext_anotate.pdf_file_src), pdfFileSource) <> "YES" OrElse
+               Not File.Exists(pdfFileSource) Then
+                Return "No fue posible localizar el documento"
             End If
 
-            If File.Exists(path_pdf_temporal) Then
-                File.Delete(path_pdf_temporal)
+            Dim documentInfo As New FileInfo(pdfFileSource)
+            operation = CreateGraphOperation(documentInfo)
+            Try
+                documentLock = New FileStream(operation.LockPath,
+                                              FileMode.OpenOrCreate,
+                                              FileAccess.ReadWrite,
+                                              FileShare.None)
+            Catch ex As IOException
+                Return "El documento está siendo actualizado"
+            End Try
+
+            Directory.CreateDirectory(operation.OperationDirectory)
+            Dim preparedImage As String = ""
+            Dim prepareResult As String = PrepareGraphImage(itext_anotate, operation, preparedImage)
+            If prepareResult <> "YES" Then Return prepareResult
+
+            Dim pageNumber As Integer = Convert.ToInt32(itext_anotate.pdf_file_page)
+            Dim rotation As Integer = Convert.ToInt32(itext_anotate.rotation)
+            Dim canvasHeight As Double = Convert.ToDouble(itext_anotate.pdf_file_heigth)
+            Dim canvasWidth As Double = Convert.ToDouble(itext_anotate.pdf_file_width)
+            Dim annotationX As Double = Convert.ToDouble(itext_anotate.anotate_x)
+            Dim annotationY As Double = Convert.ToDouble(itext_anotate.anotate_y)
+            Dim annotationHeight As Double = Convert.ToDouble(itext_anotate.anotate_heigth)
+            Dim originalPageCount As Integer = 0
+            Dim reader As PdfReader = Nothing
+            Dim stamper As PdfStamper = Nothing
+            Dim outputStream As FileStream = Nothing
+
+            Try
+                reader = New PdfReader(pdfFileSource)
+                originalPageCount = reader.NumberOfPages
+                If pageNumber < 1 OrElse pageNumber > originalPageCount Then
+                    Return "La página solicitada no es válida"
+                End If
+
+                Dim pageSize = reader.GetPageSize(pageNumber)
+                Dim pageHeight As Double = pageSize.Height
+                Dim pageWidth As Double = pageSize.Width
+                If rotation Mod 180 <> 0 Then
+                    pageHeight = pageSize.Width
+                    pageWidth = pageSize.Height
+                End If
+
+                Dim widthScale As Double = If(pageWidth < canvasWidth,
+                                              canvasWidth / pageWidth,
+                                              pageWidth / canvasWidth)
+                Dim heightScale As Double = If(pageHeight < canvasHeight,
+                                               canvasHeight / pageHeight,
+                                               pageHeight / canvasHeight)
+                Dim annotationPdfY As Single = CSng((annotationY / heightScale) - annotationHeight)
+                Dim annotationPdfX As Single = CSng(annotationX / widthScale)
+
+                outputStream = New FileStream(operation.StagedPdfPath,
+                                              FileMode.CreateNew,
+                                              FileAccess.Write,
+                                              FileShare.None)
+                stamper = New PdfStamper(reader, outputStream)
+                Dim graphImage As iTextSharp.text.Image = iTextSharp.text.Image.GetInstance(preparedImage)
+                graphImage.SetAbsolutePosition(annotationPdfX, annotationPdfY)
+                graphImage.ScaleAbsolute(90, 90)
+                stamper.GetOverContent(pageNumber).AddImage(graphImage)
+                stamper.Close()
+                stamper = Nothing
+                outputStream = Nothing
+                reader.Close()
+                reader = Nothing
+            Finally
+                If stamper IsNot Nothing Then stamper.Close()
+                If outputStream IsNot Nothing Then outputStream.Dispose()
+                If reader IsNot Nothing Then reader.Close()
+            End Try
+
+            If Not ValidatePdf(operation.StagedPdfPath, originalPageCount, pageNumber) Then
+                Return "No fue posible validar el documento actualizado"
             End If
-            stamper = New iTextSharp.text.pdf.PdfStamper(reader, New System.IO.FileStream(path_pdf_temporal, System.IO.FileMode.Create))
-            img = iTextSharp.text.Image.GetInstance(anotate_file_src)
-            img.SetAbsolutePosition(x_anotate, y_anotate)
-            img.ScaleAbsolute(itext_anotate.anotate_width, itext_anotate.anotate_heigth)
-            img.ScaleAbsolute(90, 90)
-            underContent = stamper.GetOverContent(itext_anotate.pdf_file_page)
-            underContent.AddImage(img)
-            stamper.Close()
-            reader.Close()
-            If image_ IsNot Nothing Then
-                image_.Dispose()
+            If Not ReplacePdfSafely(operation,
+                                    pdfFileSource,
+                                    originalPageCount,
+                                    pageNumber,
+                                    preserveBackup) Then
+                Return "No fue posible confirmar el documento actualizado"
             End If
-            Create_file_pagina(path_pdf_temporal, path, pat_user, itext_anotate.pdf_file_page, url_pagina)
-            If File.Exists(url_pagina) Then
-                url_pagina = "../../Temp_Image/upload_file/" & pat_user & "/" & pat_user & ".pdf"
-            End If
-            File.Copy(path_pdf_temporal, pdf_file_src, True)
-            File.Delete(path_pdf_temporal)
-            add_anotate_image_pdf = "YES"
-        Catch ex As Exception
-            add_anotate_image_pdf = "Inconsistencia general funcion add_anotate_image_pdf " & ex.Message
+
+            loadingMode = EstrategiaCargaPdf.Seleccionar(pdfFileSource)
+            url_pagina = BuildRefreshUrl(Convert.ToString(itext_anotate.pdf_file_src), operation.OperationId)
+            top = "YES"
+            Return "YES"
+        Catch
+            Return "No fue posible actualizar el documento"
+        Finally
+            If documentLock IsNot Nothing Then documentLock.Dispose()
+            CleanupGraphOperation(operation, preserveBackup)
         End Try
     End Function
+
+    Private Function CreateGraphOperation(ByVal documentInfo As FileInfo) As PdfGraphOperationContext
+        Dim operationId As String = Guid.NewGuid().ToString("N")
+        Dim userId As String = Convert.ToString(HttpContext.Current.Session.Item("GA_IDUSUARIOGESTION"))
+        If String.IsNullOrWhiteSpace(userId) Then userId = "user_none"
+        Dim operationDirectory As String = HttpContext.Current.Server.MapPath(
+            "../Temp_Image/upload_file/" & userId & "/" & operationId & "/")
+        Dim prefix As String = "." & documentInfo.Name & "." & operationId
+        Return New PdfGraphOperationContext With {
+            .OperationId = operationId,
+            .OperationDirectory = operationDirectory,
+            .SourceImagePath = Path.Combine(operationDirectory, "source.png"),
+            .PreparedImagePath = Path.Combine(operationDirectory, "prepared.png"),
+            .StagedPdfPath = Path.Combine(documentInfo.DirectoryName, prefix & ".staged.pdf"),
+            .BackupPdfPath = Path.Combine(documentInfo.DirectoryName, prefix & ".backup.pdf"),
+            .FailedPdfPath = Path.Combine(documentInfo.DirectoryName, prefix & ".failed.pdf"),
+            .LockPath = Path.Combine(documentInfo.DirectoryName, "." & documentInfo.Name & ".graph.lock")
+        }
+    End Function
+
+    Private Function PrepareGraphImage(ByVal annotation As Class_itext_anotate,
+                                       ByVal operation As PdfGraphOperationContext,
+                                       ByRef preparedImage As String) As String
+        Dim fileSource As String = Convert.ToString(annotation.anotate_file_src)
+        Dim encodedSource As String = Convert.ToString(annotation.anotate_file_bit)
+        Dim hasFile As Boolean = Not String.IsNullOrWhiteSpace(fileSource)
+        Dim hasBase64 As Boolean = Not String.IsNullOrWhiteSpace(encodedSource)
+        If hasFile = hasBase64 Then Return "Debe proporcionar una única imagen válida"
+
+        Dim sourcePath As String = ""
+        If hasFile Then
+            Dim relativeSource As String = fileSource.Replace("../", "")
+            sourcePath = HttpContext.Current.Server.MapPath("../" & relativeSource)
+            If Not File.Exists(sourcePath) Then Return "No fue posible localizar la imagen"
+        Else
+            Const prefix As String = "data:image/png;base64,"
+            If encodedSource.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) Then
+                encodedSource = encodedSource.Substring(prefix.Length)
+            End If
+            If encodedSource.Length > ((MaxGraphImageBytes + 2) \ 3) * 4 Then
+                Return "La imagen supera el tamaño permitido"
+            End If
+            Dim imageBytes As Byte()
+            Try
+                imageBytes = Convert.FromBase64String(encodedSource)
+            Catch
+                Return "La imagen codificada no es válida"
+            End Try
+            If imageBytes.Length = 0 OrElse imageBytes.Length > MaxGraphImageBytes Then
+                Return "La imagen supera el tamaño permitido"
+            End If
+            File.WriteAllBytes(operation.SourceImagePath, imageBytes)
+            sourcePath = operation.SourceImagePath
+        End If
+
+        Try
+            Using sourceBitmap As New System.Drawing.Bitmap(sourcePath)
+                If sourceBitmap.Width < 1 OrElse sourceBitmap.Height < 1 OrElse
+                   sourceBitmap.Width > MaxGraphImageDimension OrElse
+                   sourceBitmap.Height > MaxGraphImageDimension Then
+                    Return "Las dimensiones de la imagen no son válidas"
+                End If
+
+                Dim outputBitmap As System.Drawing.Bitmap = Nothing
+                Try
+                    If Convert.ToInt32(annotation.aplica_transparente) = 1 Then
+                        Dim transparent As New Class_transparent
+                        Dim transparentResult As String = ""
+                        outputBitmap = transparent.Transparent(sourceBitmap,
+                                                               System.Drawing.Color.White,
+                                                               Convert.ToInt32(annotation.num_tranaparent),
+                                                               transparentResult)
+                        If transparentResult <> "YES" OrElse outputBitmap Is Nothing Then
+                            Return "No fue posible aplicar transparencia"
+                        End If
+                    Else
+                        outputBitmap = New System.Drawing.Bitmap(sourceBitmap)
+                    End If
+                    outputBitmap.Save(operation.PreparedImagePath,
+                                      System.Drawing.Imaging.ImageFormat.Png)
+                Finally
+                    If outputBitmap IsNot Nothing Then outputBitmap.Dispose()
+                End Try
+            End Using
+        Catch
+            Return "La imagen no tiene un formato válido"
+        End Try
+
+        preparedImage = operation.PreparedImagePath
+        Return "YES"
+    End Function
+
+    Private Function ValidatePdf(ByVal filePath As String,
+                                 ByVal expectedPages As Integer,
+                                 ByVal targetPage As Integer) As Boolean
+        If Not File.Exists(filePath) OrElse New FileInfo(filePath).Length = 0 Then Return False
+        Dim reader As PdfReader = Nothing
+        Try
+            reader = New PdfReader(filePath)
+            Return reader.NumberOfPages = expectedPages AndAlso
+                   targetPage >= 1 AndAlso targetPage <= reader.NumberOfPages
+        Catch
+            Return False
+        Finally
+            If reader IsNot Nothing Then reader.Close()
+        End Try
+    End Function
+
+    Private Function ReplacePdfSafely(ByVal operation As PdfGraphOperationContext,
+                                      ByVal originalPath As String,
+                                      ByVal expectedPages As Integer,
+                                      ByVal targetPage As Integer,
+                                      ByRef preserveBackup As Boolean) As Boolean
+        Try
+            File.Replace(operation.StagedPdfPath, originalPath, operation.BackupPdfPath, True)
+        Catch
+            Return False
+        End Try
+
+        If ValidatePdf(originalPath, expectedPages, targetPage) Then
+            Try
+                If File.Exists(operation.BackupPdfPath) Then File.Delete(operation.BackupPdfPath)
+            Catch
+                ' El PDF ya fue confirmado; la limpieza final volverá a intentar borrar el backup propio.
+            End Try
+            Return True
+        End If
+
+        Try
+            File.Replace(operation.BackupPdfPath, originalPath, operation.FailedPdfPath, True)
+            If File.Exists(operation.FailedPdfPath) Then File.Delete(operation.FailedPdfPath)
+        Catch
+            preserveBackup = File.Exists(operation.BackupPdfPath)
+        End Try
+        Return False
+    End Function
+
+    Private Function BuildRefreshUrl(ByVal sourceUrl As String, ByVal operationId As String) As String
+        Dim separator As String = If(sourceUrl.IndexOf("?", StringComparison.Ordinal) >= 0, "&", "?")
+        Return sourceUrl & separator & "doc104_refresh=" & operationId
+    End Function
+
+    Private Sub CleanupGraphOperation(ByVal operation As PdfGraphOperationContext,
+                                      ByVal preserveBackup As Boolean)
+        If operation Is Nothing Then Return
+        Try
+            If Directory.Exists(operation.OperationDirectory) Then
+                Directory.Delete(operation.OperationDirectory, True)
+            End If
+        Catch
+        End Try
+        For Each ownedPath As String In New String() {operation.StagedPdfPath, operation.FailedPdfPath}
+            Try
+                If File.Exists(ownedPath) Then File.Delete(ownedPath)
+            Catch
+            End Try
+        Next
+        If Not preserveBackup Then
+            Try
+                If File.Exists(operation.BackupPdfPath) Then File.Delete(operation.BackupPdfPath)
+            Catch
+            End Try
+        End If
+        Try
+            If File.Exists(operation.LockPath) Then File.Delete(operation.LockPath)
+        Catch
+        End Try
+    End Sub
     Function Solicita_ruta_imagen(ByVal src_source_file As String,
                                   ByRef src_opout_file As String) As String
         Try

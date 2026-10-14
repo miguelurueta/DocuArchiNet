@@ -1,179 +1,99 @@
+<!-- opsxj:refinement-traceability version=1 artifact=design decisions=D-01,D-02,D-03,D-04,D-05,D-06,D-07,D-08,D-09,D-10 -->
+
 ## Context
 
-DOC-104: PROCESAMIENTO-SERVIDOR
+`WebService_itext.service_anotate_pdf_image(...)` deserializa un arreglo `Class_itext_anotate`, consulta el certificado y delega la mutación en `Class_ItexShare.add_anotate_image_pdf(...)`. La implementación actual usa nombres temporales derivados solo del usuario (`usuario.png`, `usuario_1.png`, `_<documento>.pdf` y `usuario.pdf`), sobrescribe el original con `File.Copy(..., True)` y genera un PDF adicional de una página mediante `Create_file_pagina(...)`.
 
-## Jira Details
+`Class_transparent.TransparentAsync(...)` es síncrono. Su recorrido descendente no declara `Step -1`, por lo que la tolerancia no se aplica como expresa el código; corregirlo con `GetPixel/SetPixel` agravaría el costo. En el estampado, `ScaleAbsolute(anotate_width, anotate_heigth)` es reemplazado inmediatamente por `ScaleAbsolute(90, 90)`, de modo que 90 x 90 es el resultado visual legacy que esta optimización debe preservar.
 
-> Prompt 06 — Procesamiento servidor, temporales y transparencia del grafo
-> Contexto de ejecución OPSXJ
-> Este prompt corresponde a una Jira independiente. Ejecuta opsxj:new al iniciar para crear su OpenSpec autónomo. Verifica el contrato frontend real del Prompt 05 antes de implementar, sin reutilizar su cambio OpenSpec.
-> Rol esperado
-> Actúa como arquitecto backend senior especializado en VB.NET, iTextSharp, archivos, concurrencia, integridad documental y manejo de imágenes.
-> Fuentes obligatorias
-> Exploración técnica y métricas vigentes.
-> 
-> webservice/WebService_itext.asmx.vb, service_anotate_pdf_image(...).
-> 
-> itextshare/Class_ItexShare.vb, add_anotate_image_pdf(...), Create_file_pagina(...) y resolución de rutas.
-> 
-> workflow/Class_transparent.vb completo.
-> 
-> DTO Class_itext_anotate, auditoría y validación de firma digital.
-> 
-> Contrato y evidencia reales del Prompt 04: política adaptativa RANGE/STREAM, clasificación por tamaño y /Linearized, y separación entre bytes únicos y bytes físicos.
-> 
-> Objetivo
-> Reducir aperturas/copias innecesarias y eliminar colisiones de temporales, manteniendo idéntico resultado visual, validación de firma, auditoría y reemplazo seguro del documento.
-> Caracterización obligatoria previa
-> Antes de refactorizar, crea fixtures PDF descartables y registra huellas antes/después para:
-> página normal y rotada;
-> 
-> grafo desde archivo y base64;
-> 
-> transparencia activada/desactivada;
-> 
-> distintas escalas y posiciones límite;
-> 
-> documento firmado digitalmente;
-> 
-> documento linealizado descartable, registrando la presencia de /Linearized antes y después del pegado de grafo con iTextSharp;
-> 
-> error antes y después de crear temporal;
-> 
-> dos operaciones concurrentes del mismo usuario y de usuarios diferentes.
-> 
-> Implementación obligatoria
-> Usar nombres temporales únicos por operación/documento; no reutilizar usuario.png, usuario_1.png, _<nombre>.pdf ni limpiar indiscriminadamente el directorio compartido.
-> 
-> Liberar Bitmap, PdfReader, PdfStamper, streams e imágenes mediante Using/Finally, incluso ante error.
-> 
-> Escribir a un temporal completo, validar que pueda abrirse y reemplazar el original de forma segura; conservar mecanismo de recuperación ante fallo de copia.
-> 
-> Evitar la segunda apertura/extracción de página si el frontend puede refrescarla mediante el contrato de lectura vigente; si sigue siendo necesaria, medirla y aislarla.
-> 
-> Corregir TransparentAsync a partir de pruebas: no llamarlo asíncrono si no lo es y no introducir un ciclo GetPixel/SetPixel por píxel como solución de rendimiento.
-> 
-> Implementar transparencia eficiente con acceso bloqueado al bitmap o mecanismo equivalente compatible, preservando tolerancia y alfa.
-> 
-> Validar dimensiones, página, rotación, escala y tamaño del payload antes de abrir iText.
-> 
-> Mantener la validación de certificado antes de cualquier escritura y retornar errores públicos saneados.
-> 
-> No registrar rutas, base64 ni detalles sensibles en la auditoría; revisar el texto actual datos_add_grafo y conservar solo información permitida.
-> 
-> Clasificar el PDF final por su estructura real después del reemplazo. Si iTextSharp elimina /Linearized, registrar el cambio y asegurar que la siguiente apertura use el fallback STREAM; no publicar una expectativa falsa de descarga parcial.
-> 
-> Mantener desacopladas la mutación documental y la estrategia de transporte: el guardado del grafo produce un PDF válido y el visor decide RANGE/STREAM al leerlo. No ejecutar linealización externa dentro del WebMethod ni después de firmar.
-> 
-> Restricciones y antirregresión
-> No actualizar iTextSharp ni cambiar de biblioteca en esta Jira.
-> 
-> No agregar tablas/columnas, colas o almacenamiento externo.
-> 
-> No agregar Ghostscript, ejecutables externos ni una dependencia de linealización en producción; la POC del Prompt 04 no se convierte en requisito de este ticket.
-> 
-> No cambiar el modelo de almacenamiento ni exigir conservar /Linearized si iTextSharp reescribe válidamente el documento; la garantía obligatoria es clasificar el resultado y aplicar el fallback seguro.
-> 
-> No modificar PDFs reales no descartables durante pruebas.
-> 
-> No considerar éxito hasta confirmar archivo final válido.
-> 
-> No degradar firma digital, rotación, coordenadas o transparencia.
-> 
-> Pruebas obligatorias
-> Comparación visual/estructural de salida por fixture y página.
-> 
-> Comparación de /Linearized antes/después con fixture descartable: si se conserva, validar que la política puede elegir RANGE; si se pierde, validar que el visor elige STREAM sin error, rangos redundantes ni afirmación de descarga parcial.
-> 
-> Fallos en cada etapa con limpieza de temporales y original intacto.
-> 
-> Concurrencia controlada sin colisiones ni contaminación cruzada.
-> 
-> Archivo grande con medición por fase: imagen, transparencia, stamper, validación, reemplazo y refresco.
-> 
-> E2E mutadora autorizada con una sola persistencia y control antes/después.
-> 
-> Regresión de otras funciones de Class_ItexShare afectadas por helpers compartidos.
-> 
-> Criterios de aceptación
-> Temporales aislados y eliminados de forma determinista.
-> 
-> Original preservado ante cualquier fallo previo al reemplazo.
-> 
-> Resultado documental equivalente y tiempo medido menor o justificado.
-> 
-> El modo de carga posterior al pegado refleja el PDF realmente persistido; la pérdida de linealización no rompe visualización, scroll ni navegación y queda cubierta por el fallback STREAM.
-> 
-> No se modifica almacenamiento ni se introduce linealización productiva como condición para cerrar esta Jira.
-> 
-> Errores y auditoría no filtran información sensible.
-> 
-> Documentación y entrega
-> Documenta transacción de archivos, rollback, recursos, concurrencia, métricas y pruebas en Doc/Actualizacion/VisorPdf/Implementacion/<JIRA>/.
-> Correcciones opsxj:prompt-review
-> Estas reglas fueron agregadas desde opsxj:prompt-review para cubrir hallazgos estructurales corregibles. Deben ajustarse al contexto real del ticket antes de enviar a implementacion.
-> Rol esperado
-> Definir el rol tecnico esperado para ejecutar el ticket.
-> Objetivo
-> Describir el objetivo funcional y tecnico verificable.
-> Restricciones criticas
-> No introducir cambios fuera del alcance declarado.
-> 
-> No romper comportamiento existente ni contratos publicos.
-> 
-> Criterios de aceptacion
-> El comportamiento implementado cumple el flujo esperado y queda validado con evidencia.
-> 
-> Contexto obligatorio
-> Listar archivos, modulos, servicios, hooks, adapters y documentacion que deben leerse antes de implementar.
-> Pruebas obligatorias
-> Ejecutar pruebas focales, MSBuild del proyecto Web Forms afectado y E2E con Playwright cuando el flujo lo requiera; registrar comandos y resultados.
-> Documentacion tecnica
-> Actualizar el paquete documental canonico del ticket.
-> Entregable final
-> Entregar codigo, pruebas, documentacion, diagramas y evidencia coherente con lo realmente implementado.
-> Precondiciones de rutas
-> Inventariar en design.md las firmas reales de webservice/WebService_itext.asmx.vb, itextshare/Class_ItexShare.vb y workflow/Class_transparent.vb antes de modificarlas.
-> 
-> Mantener el WebMethod como frontera de transporte y la transformación PDF en las clases existentes; no trasladar SQL, sesión o reglas ajenas al servicio.
-> 
-> Registrar en GestionDocumental-Docuarchi.net.vbproj cualquier archivo compilado nuevo solo si la solución existente realmente requiere crearlo.
-> 
-> No crear modelos, DTOs, repositorios ni servicios paralelos sin una necesidad demostrada en design.md.
-> 
-> Agregar regla para [FLOW_DETAIL_REQUIRED]: Flujo paso a paso, secuencia o comportamiento esperado.
-> Exigir MSBuild del proyecto Web Forms afectado, pruebas focales del procesamiento y evidencia de concurrencia; registrar el resultado.
-> Exigir pruebas focales con la infraestructura existente y archivos PDF descartables; no agregar Vitest ni Testing Library para código VB.NET.
-> Declarar que código + E2E + validación autorizada + evidencia saneada son una única unidad de entrega dentro del mismo cambio; no crear una tarea o entrega E2E independiente.
-> Reutilizar exclusivamente tools/e2e, su autenticación, configuración, validadores, evidencias y utilidades; prohibir login, arnés, proyecto Playwright, configuración o .env paralelos.
-> Antes de autenticar, exigir lectura de AGENTS.md y tools/e2e/AGENT-RUNBOOK.md; ejecutar solo con ambiente, cuentas y datos/tareas descartables expresamente autorizados.
-> Exigir secretos efímeros, prohibir exponer/imprimir/persistir credenciales, cookies, tokens y cadenas de conexión, usar verificaciones solo SELECT y conservar evidencia saneada.
-> Exigir cobertura E2E, cuando aplique, de autorización/control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada.
-> Respetar feature flags, gates, usuarios, grupos y seguridad sin habilitarlos arbitrariamente; no cerrar sin validación autorizada, registrar bloqueo explícito y prohibir mocks, simulaciones, resultados inventados y evidencia ficticia.
+DOC-103 ya garantiza un POST único, espera la respuesta ASMX y refresca antes de retirar el overlay. Su `_updatePage(i, document)` consume `stream`, pero abre siempre `getPage(1)` porque el servidor devuelve un PDF temporal de una página. DOC-102 clasifica el PDF real con `EstrategiaCargaPdf.Seleccionar(...)`: solo un archivo de al menos 1 MiB con `/Linearized` en los primeros 4 KiB usa `range`; cualquier otro resultado usa `stream`.
 
 ## Goals / Non-Goals
 
 **Goals**
-- Refinar alcance tecnico usando el contexto completo de Jira.
-- Definir decisiones arquitectonicas, riesgos y plan de migracion.
+
+- Aislar cada operación y evitar contaminación entre usuarios, documentos o solicitudes concurrentes.
+- Preservar certificado, página, coordenadas y resultado visual 90 x 90 mientras se vuelve determinista la liberación de recursos.
+- Construir y validar un PDF completo antes de reemplazar el original con backup recuperable.
+- Eliminar la extracción adicional de una página y refrescar la página afectada desde el documento vigente.
+- Clasificar la estructura persistida y sanear errores y auditoría.
 
 **Non-Goals**
-- Cambios fuera del alcance descrito por el ticket.
+
+- Cambiar iTextSharp, almacenamiento, esquema, colas, DTO público de entrada o firma del WebMethod.
+- Agregar Ghostscript, linealización productiva o exigir que iTextSharp conserve `/Linearized`.
+- Corregir en esta Jira el tamaño histórico 90 x 90 o rediseñar todas las transformaciones geométricas.
+- Reemplazar la autorización legacy de rutas o migrar otros consumidores de `rut_image`.
 
 ## Decisions
 
-1. Las decisiones funcionales y tecnicas se completan durante `opsxj:refine`; no se inyectan politicas de otro perfil tecnologico.
+### D-01 — Frontera ASMX y barrera de certificado
 
+Se conservarán `service_anotate_pdf_image(ByVal anotate As Object) As IEnumerable(Of service_itex)` y `Class_itext_anotate`. El WebMethod exigirá exactamente un elemento, validará presencia y tipos antes de delegar y mantendrá `Solicita_registro_certificado_archivo_imagen_gabinete(...)` antes de crear directorios, decodificar base64 o abrir el PDF. Todo rechazo usará mensajes públicos cerrados, nunca `ex.Message`. <!-- D-01; RQ-01 -->
+
+### D-02 — Validación acotada antes de iText
+
+Página, canvas, coordenadas, tamaño, escala y tolerancia se convertirán explícitamente con cultura invariante y deberán ser finitos y positivos donde corresponda. La rotación admitirá solo 0, 90, 180 o 270; transparencia solo 0 o 1; tolerancia, 0 a 255. El base64 decodificado se limitará a 10 MiB y la imagen a 4096 x 4096. El límite superior de página se verificará inmediatamente después de abrir `PdfReader` y antes de crear `PdfStamper`. <!-- D-02; RQ-02 -->
+
+### D-03 — Exclusión por documento y temporales por operación
+
+Cada invocación generará `operationId = Guid.NewGuid().ToString("N")`. Un archivo lateral adyacente al PDF, abierto con `FileShare.None`, dará exclusión entre procesos que comparten almacenamiento: operaciones sobre el mismo documento fallarán de forma controlada si ya está en actualización; documentos distintos seguirán en paralelo. Imágenes intermedias vivirán bajo `Temp_Image/upload_file/<usuario>/<operationId>/`; staged y backup vivirán junto al original para que el reemplazo no cruce volúmenes. Solo se eliminarán rutas propiedad de esa operación. <!-- D-03; RQ-03 -->
+
+### D-04 — Transparencia síncrona mediante LockBits
+
+`TransparentAsync` dejará de existir en el camino productivo. `Class_transparent.Transparent(...)` recorrerá un `Bitmap` en formato compatible mediante `LockBits`, respetará stride y canal alfa, y pondrá alfa cero únicamente cuando las tres diferencias RGB sean estrictamente menores que la tolerancia. Los píxeles no coincidentes conservarán RGB y alfa. No se utilizará `GetPixel/SetPixel`. <!-- D-04; RQ-04 -->
+
+### D-05 — Estampado compatible y recursos deterministas
+
+`add_anotate_image_pdf(...)` conservará el cálculo legacy de página rotada y el tamaño efectivo 90 x 90; no reinterpretará en esta Jira el ancho/alto recibido. `Bitmap`, `PdfReader`, `PdfStamper`, `FileStream` e imágenes administradas se cerrarán mediante `Using` o `Finally` en éxito, rechazo y excepción. La página deberá estar dentro de `1..NumberOfPages` antes de solicitar `GetOverContent`. <!-- D-05; RQ-05 -->
+
+### D-06 — Staging, validación y reemplazo recuperable
+
+iTextSharp escribirá solo `.<nombre>.<operationId>.staged.pdf`. Cerrado el stamper, el staged se reabrirá para comprobar longitud positiva, lectura válida, igual número de páginas y existencia de la página objetivo. Después se ejecutará `File.Replace(staged, original, backup)` en el mismo directorio. El original se reabrirá tras el reemplazo; si esa validación falla se restaurará el backup. Si `File.Replace` no está soportado, la operación fallará cerrada y no caerá en una copia destructiva. <!-- D-06; RQ-06 -->
+
+### D-07 — Refresco del documento vigente sin PDF de una página
+
+`Create_file_pagina(...)` saldrá del flujo de guardado. El servidor devolverá en `url_salida` la URL de lectura legacy recibida con un parámetro opaco de invalidación de caché, sin exponer ruta física. `_updatePage(i, document)` mantendrá `_createLoadingSource(document, "stream")` pero solicitará `getPage(i)`. Así se conserva el contrato `pageUrl` de DOC-103, se evita el temporal público `{usuario}.pdf` y solo se renderiza la página afectada. <!-- D-07; RQ-07 -->
+
+### D-08 — Clasificación posterior, desacoplada de la mutación
+
+Solo después de confirmar el reemplazo se ejecutará `EstrategiaCargaPdf.Seleccionar(original)`. La medición registrará `range` o `stream` sin ruta ni contenido. La respuesta de refresco seguirá forzando `stream`; la clasificación documenta la siguiente apertura y no convierte la mutación en un mecanismo de transporte. No se ejecutará linealización externa. <!-- D-08; RQ-08 -->
+
+### D-09 — Errores y auditoría saneados
+
+Se eliminarán de `datos_add_grafo` `anotate_file_src`, `pdf_file_src`, base64 y excepciones. La auditoría conservará identificadores funcionales ya autorizados, página, tipo de operación, resultado y modo de carga. Un fallo anterior al reemplazo devuelve rechazo; un fallo de auditoría posterior conserva `error_sistema = "YES"` y `error_log <> "YES"`, que DOC-103 interpreta como `committed_with_warning` sin reintento. <!-- D-09; RQ-09 -->
+
+### D-10 — Caracterización y validación como unidad de entrega
+
+Antes de refactorizar se capturarán huellas de fixtures descartables para página normal/rotada, imagen de archivo/base64, transparencia, límites, firma y `/Linearized`. Las pruebas cubrirán fallos por etapa, concurrencia sobre igual/distinto documento, recursos liberados, equivalencia visual y tiempo por fase. La E2E real reutilizará `tools/e2e`, requerirá las autorizaciones del runbook y usará controles exclusivamente `SELECT`; código, pruebas, documentación y evidencia pertenecen al mismo cambio. <!-- D-10; RQ-10 -->
+
+## Processing Flow
+
+1. El cliente DOC-103 envía un único POST y conserva el overlay.
+2. El WebMethod valida cardinalidad/tipos y consulta el certificado sin escribir.
+3. `Class_ItexShare` resuelve la ruta existente y adquiere el lock por documento.
+4. La operación crea exclusivamente sus rutas con GUID y carga archivo o base64.
+5. `Class_transparent` transforma la imagen con `LockBits` si aplica.
+6. `PdfReader` valida página; `PdfStamper` escribe el staged con el grafo 90 x 90.
+7. Todos los handles se cierran; el staged se reabre y valida.
+8. `File.Replace` conserva backup, reemplaza y permite restauración comprobada.
+9. El PDF persistido se clasifica `range|stream`; la auditoría registra solo campos permitidos.
+10. La respuesta entrega la URL vigente con cache-buster; `_updatePage` abre `getPage(i)` en modo stream.
+11. `Finally` elimina directorio de operación, staged/backup residuales y libera el lock.
 
 ## Risks / Trade-offs
 
-- El refinamiento debe identificar compatibilidad, riesgos y limites del modulo afectado antes de iniciar cambios.
+- El lock lateral coordina procesos que comparten el mismo sistema de archivos, pero no un almacenamiento replicado sin locks compartidos; ante conflicto se rechaza en vez de arriesgar pérdida de actualización.
+- `File.Replace` puede no estar disponible en algún proveedor de archivos. Fallar sin tocar el original prioriza integridad sobre disponibilidad.
+- Mantener 90 x 90 preserva compatibilidad pero deja sin efecto visual el ancho/alto enviado; corregirlo requiere caracterización funcional separada.
+- El refresco del PDF completo en modo stream puede transferir más bytes que el PDF de una página, pero elimina una segunda reescritura iText y un temporal compartido. La E2E medirá este intercambio.
+- Aplicar correctamente la tolerancia puede cambiar píxeles que antes no cambiaban por el defecto del bucle. La comparación de fixtures deberá demostrar el resultado aprobado antes de desplegar.
 
 ## Migration Plan
 
-1. Completar y aprobar `refinement.md` antes de marcar tareas de implementacion.
-2. Sincronizar cada decision con design, spec y tasks mediante `opsxj:refine --sync`.
-
-## Open Questions
-
-- TBD
+1. Crear caracterización y pruebas de política que fallen con las colisiones y contratos actuales.
+2. Incorporar validación, lock, workspace y transparencia sin conectar aún el reemplazo.
+3. Implementar staging/validación/reemplazo y ejecutar fallos controlados sobre copias descartables.
+4. Cambiar el refresco coordinadamente en backend y `_updatePage`, manteniendo el contrato ASMX de colección.
+5. Ejecutar pruebas focales, MSBuild, regresión DOC-102/DOC-103 y E2E autorizada.
+6. Rollback: restaurar código anterior desde Git; no se requiere migración de datos. Cualquier backup de una operación fallida se restaura antes de responder y se documenta sin revelar su ruta.

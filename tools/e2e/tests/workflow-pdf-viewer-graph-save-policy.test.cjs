@@ -11,7 +11,7 @@ const index = read('pdfjs/pdf_anotate_view/index.html');
 const viewer = read('pdfjs/pdf_anotate_view/pdf_viewer_anotate.js');
 const runner = read('tools/e2e/scripts/run-doc103-graph-save-interactive.cjs');
 const profile = read('tools/e2e/profiles/doc103-graph-save.profile.example.json');
-const { sanitizeEvidence, validateSelect } = require('../scripts/run-doc103-graph-save-interactive.cjs');
+const { classifySaveResponse, sanitizeEvidence, validateSelect } = require('../scripts/run-doc103-graph-save-interactive.cjs');
 
 test('DOC-103 conserva un único propietario productivo del guardado', () => {
   assert.match(index, /<script src="\.\/pdf_viewer_anotate\.js"><\/script>/);
@@ -24,11 +24,14 @@ test('DOC-103 mantiene intactas las fronteras del servidor y capacidades vecinas
   const changed = require('node:child_process').execFileSync(
     'git', ['diff', '--name-only', 'origin/main'], { cwd: root, encoding: 'utf8' }
   );
-  const forbidden = [
-    'webservice/WebService_itext.asmx.vb', 'itextshare/Class_ItexShare.vb',
-    'pdfjs/pdf_anotate_view/pdfannotate.js'
-  ];
+  // DOC-104 es el propietario explícito de la evolución servidor posterior a DOC-103.
+  // La regresión cliente sigue prohibiendo reactivar el visor anterior.
+  const forbidden = ['pdfjs/pdf_anotate_view/pdfannotate.js'];
   for (const file of forbidden) assert.doesNotMatch(changed.replaceAll('\\', '/'), new RegExp(`^${file}$`, 'm'), file);
+  const service = read('webservice/WebService_itext.asmx.vb');
+  const itext = read('itextshare/Class_ItexShare.vb');
+  assert.match(service, /Public Function service_anotate_pdf_image\(ByVal anotate As Object\) As IEnumerable\(Of service_itex\)/);
+  assert.match(itext, /Public Class Class_itext_anotate/);
   assert.match(viewer, /service_download_pdf_visor_plus/);
   assert.match(viewer, /service_printer_pdf_visor_plus/);
   assert.match(viewer, /captureFromSTU/);
@@ -75,6 +78,12 @@ test('controles DOC-103 admiten exclusivamente SELECT parametrizado', () => {
   for (const sql of ['UPDATE tabla SET valor = ?', 'SELECT * FROM tabla', 'SELECT * FROM tabla WHERE id = ?; DELETE FROM tabla']) {
     assert.throws(() => validateSelect(sql, 'INVALID'), /INVALID/);
   }
+});
+
+test('runner DOC-103 termina inmediatamente ante rechazo saneado', () => {
+  assert.match(runner, /page\.waitForResponse/);
+  assert.match(runner, /classifySaveResponse\(savePayload, failurePrefix\)/);
+  assert.equal(classifySaveResponse({ d: [{ error_sistema: 'El documento está siendo actualizado' }] }), 'DOC103_DOCUMENT_LOCKED');
 });
 
 test('evidencia DOC-103 tiene esquema cerrado y rechaza datos sensibles', () => {

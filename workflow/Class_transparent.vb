@@ -1,54 +1,78 @@
-﻿Imports System.Runtime.CompilerServices
 Imports System
 Imports System.Drawing
-Imports System.Threading.Tasks
+Imports System.Drawing.Imaging
+Imports System.Runtime.InteropServices
+
 Public Class Class_transparent
 
-    Function TransparentAsync(ByVal image As Bitmap, ByVal color As Color, ByVal tolerance As Integer, ByRef result As String) As Object
-        Try
-            Dim result_ As String = ""
-            Dim bitm As Object
-            bitm = Me.Transparent(image, color, tolerance, result_)
-            If result_ = "YES" Then
-                result = result_
-                Return bitm
-            Else
-                result = result_
-                Return Nothing
-            End If
-        Catch ex As Exception
-            Return ex.Message
-        End Try
-    End Function
-    Function Transparent(ByVal image As Bitmap, ByVal color As Color, ByVal tolerance As Integer, ByRef result As String) As Bitmap
-        Try
-            Dim b As Bitmap = New Bitmap(image)
-            Me.ForEachPixel(b, Function(i, j, col)
-                                   If IsCloseTo(color, col, tolerance) Then
-                                       b.SetPixel(i, j, color)
-                                   End If
-                               End Function)
-            b.MakeTransparent(color)
-            result = "YES"
-            Return b
-        Catch ex As Exception
-            result = ex.Message
-        End Try
-    End Function
+    Function Transparent(ByVal image As Bitmap,
+                         ByVal color As Color,
+                         ByVal tolerance As Integer,
+                         ByRef result As String) As Bitmap
+        If image Is Nothing Then
+            result = "Imagen inválida"
+            Return Nothing
+        End If
+        If tolerance < 0 OrElse tolerance > 255 Then
+            result = "Tolerancia inválida"
+            Return Nothing
+        End If
 
+        Dim transparentBitmap As Bitmap = Nothing
+        Dim bitmapData As BitmapData = Nothing
+        Try
+            transparentBitmap = New Bitmap(image.Width, image.Height, PixelFormat.Format32bppArgb)
+            Using graphics As Graphics = Graphics.FromImage(transparentBitmap)
+                graphics.DrawImageUnscaled(image, 0, 0)
+            End Using
 
-    Sub ForEachPixel(ByVal image As Bitmap, ByVal onPixel As Action(Of Integer, Integer, Color))
-        For i As Integer = image.Size.Width - 1 To 0
-            For j As Integer = image.Size.Height - 1 To 0
-                onPixel(i, j, image.GetPixel(i, j))
+            Dim rectangle As New Rectangle(0, 0, transparentBitmap.Width, transparentBitmap.Height)
+            bitmapData = transparentBitmap.LockBits(rectangle,
+                                                     ImageLockMode.ReadWrite,
+                                                     PixelFormat.Format32bppArgb)
+
+            Dim stride As Integer = Math.Abs(bitmapData.Stride)
+            Dim pixels(stride * transparentBitmap.Height - 1) As Byte
+            Marshal.Copy(bitmapData.Scan0, pixels, 0, pixels.Length)
+
+            For y As Integer = 0 To transparentBitmap.Height - 1
+                Dim rowOffset As Integer = If(bitmapData.Stride >= 0,
+                                              y * stride,
+                                              (transparentBitmap.Height - 1 - y) * stride)
+                For x As Integer = 0 To transparentBitmap.Width - 1
+                    Dim offset As Integer = rowOffset + (x * 4)
+                    Dim blue As Integer = pixels(offset)
+                    Dim green As Integer = pixels(offset + 1)
+                    Dim red As Integer = pixels(offset + 2)
+
+                    If Math.Abs(color.R - red) < tolerance AndAlso
+                       Math.Abs(color.G - green) < tolerance AndAlso
+                       Math.Abs(color.B - blue) < tolerance Then
+                        pixels(offset + 3) = 0
+                    End If
+                Next
             Next
-        Next
-    End Sub
 
+            Marshal.Copy(pixels, 0, bitmapData.Scan0, pixels.Length)
+            transparentBitmap.UnlockBits(bitmapData)
+            bitmapData = Nothing
+            result = "YES"
+            Return transparentBitmap
+        Catch
+            result = "No fue posible aplicar transparencia"
+            Return Nothing
+        Finally
+            If bitmapData IsNot Nothing AndAlso transparentBitmap IsNot Nothing Then
+                transparentBitmap.UnlockBits(bitmapData)
+            End If
+            If result <> "YES" AndAlso transparentBitmap IsNot Nothing Then transparentBitmap.Dispose()
+        End Try
+    End Function
 
     Function IsCloseTo(ByVal color As Color, ByVal anotherColor As Color, ByVal tolerance As Integer) As Boolean
-        Return Math.Abs(color.R - anotherColor.R) < tolerance AndAlso Math.Abs(color.G - anotherColor.G) < tolerance AndAlso Math.Abs(color.B - anotherColor.B) < tolerance
+        Return Math.Abs(color.R - anotherColor.R) < tolerance AndAlso
+               Math.Abs(color.G - anotherColor.G) < tolerance AndAlso
+               Math.Abs(color.B - anotherColor.B) < tolerance
     End Function
-
 
 End Class

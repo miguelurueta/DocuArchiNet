@@ -1016,7 +1016,7 @@
         async  _updatePage(i,document) {
             let loadingTask = pdfjsLib.getDocument(this._createLoadingSource(document, "stream"));
             let pdf_ = await loadingTask.promise;
-            let page = await pdf_.getPage(1);
+            let page = await pdf_.getPage(i);
             await this._renderPage(page, i);
             await this._add_anotate_page(page, i);
             return true;
@@ -1400,7 +1400,10 @@ async function event_drag_anotate(event, element) {
         let drag_div_parent = document.getElementById(value_id_parent);
         let div_imag = document.getElementById(value_id_parent + "img");
         let div_bar = document.getElementById(value_id_parent + "_bar");
-        const imageSource = ur_image_drag || ur_image_drag_bit64;
+        const hasFileImageSource = typeof ur_image_drag === "string" && ur_image_drag.trim() !== "";
+        const selectedFileImageSource = hasFileImageSource ? ur_image_drag : "";
+        const selectedBase64ImageSource = hasFileImageSource ? "" : ur_image_drag_bit64;
+        const imageSource = selectedFileImageSource || selectedBase64ImageSource;
         const currentTop = drag_div_parent ? Number.parseFloat(drag_div_parent.style.top) : NaN;
         const currentX = drag_div_parent ? Number.parseFloat(drag_div_parent.style.left) : NaN;
         if (!value_id_parent || !drag_canvas || !drag_div_parent || !div_imag || !div_bar || !imageSource ||
@@ -1421,7 +1424,7 @@ async function event_drag_anotate(event, element) {
         setAnnotationControlsPending(value_id_parent, true);
         const operation = save_anotate_firma(
             currentX, drag_canvas.clientHeight - currentTop, div_imag.clientWidth, div_imag.clientHeight,
-            page_drag, ur_image_drag, ur_image_drag_bit64, pdfViewer.getZoom(), drag_canvas.clientWidth,
+            page_drag, selectedFileImageSource, selectedBase64ImageSource, pdfViewer.getZoom(), drag_canvas.clientWidth,
             drag_canvas.clientHeight, pdfViewer.anotate_id_imagen, pdfViewer.anotate_cabinete_imagen,
             pdfViewer.anotate_radicado, pdfViewer.anotate_id_workflow, pdfViewer.anotate_desc_transacion,
             pdfViewer._rotation, applyTransparency, transparency, operationContext
