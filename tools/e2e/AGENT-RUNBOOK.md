@@ -363,6 +363,38 @@ npm.cmd --prefix tools/e2e run test:doc103:graph-save -- --mode real --profile p
 
 La corrida real crea un overlay con la firma configurada para la cuenta, acepta una sola confirmación, observa exactamente un POST a `service_anotate_pdf_image` y espera el retiro del overlay después del refresco parcial. Verifica que página, zoom y scroll no cambien, y compara huellas `SELECT` antes/después. Si falta una autorización, el documento no es descartable, no existe permiso/firma o fallan los controles de solo lectura, debe detenerse sin autenticar o sin mutar, según la fase. La evidencia ignorada conserva únicamente conteos, estados normalizados y banderas; nunca URL, query, cuenta, tarea, documento, ruta, imagen, cookies, tokens, credenciales ni resultados SQL.
 
+## DOC-105 — Matriz transversal del visor PDF
+
+DOC-105 reutiliza la sesión autenticada, selección Workflow, medición PDF y guardado DOC-103 existentes. No crea login, configuración Playwright ni `.env` paralelos. Copie `doc105-pdf-cross-module.profile.example.json` con sufijo `.runtime.json`; complete únicamente consumidores autorizados, selectores/rutas relativas conocidas y la matriz de red. No incluya secretos ni rutas físicas.
+
+La matriz de lectura exige confirmaciones separadas para ambiente, cuenta/consumidores y registros normales de visualización. Captura la cuenta y contraseña por TTY, crea una sesión autorizada, aplica por CDP perfiles de 10/20/50/100 Mbps y ejecuta carga fría y caliente. Un consumidor deshabilitado o inaccesible queda `BLOCKED`; nunca se convierte en aprobación transversal. Gestión de Correspondencia conserva su ventana nativa de solo lectura (`anula_visor_espress = 1`): allí se valida el iframe hacia `Handler_image_wf.ashx`, la autorización y el transporte, mientras canvas, overlay y scroll/zoom de PDF.js son `NOT_APPLICABLE`.
+
+```powershell
+npm.cmd --prefix tools/e2e run test:doc105:pdf-cross-module -- --profile profiles/<perfil-runtime.json>
+```
+
+Para conservar exactamente la tarea y PDF de una medición Workflow anterior sin copiar sus identificadores, se admite `--workflow-profile profiles/<perfil-rendimiento-runtime.json>`. Este modo habilita únicamente Workflow y registra las otras cuatro clases como `BLOCKED`; cada una requiere después un perfil DOC-105 con su contexto autorizado. No habilita consumidores por inferencia.
+
+Para diagnóstico acotado puede agregarse `--network remote-10|remote-20|remote-50|remote-100`. La corrida sigue ejecutando frío y caliente y no sustituye la matriz completa.
+
+Para diagnosticar el scroll horizontal, `--consumer production --diagnose-horizontal-layout` reutiliza autenticación y recorrido de Producción, abre una sola vez y mide cuatro niveles mediante el botón Acercar. Rechaza mutaciones y otros consumidores; aborta el servicio de pegado de grafo. Usa viewport 1500x880 y no emula redes ni ejecuta la matriz fría/caliente. Conserva únicamente números/booleanos de zoom, anchos, alturas, desplazamiento y recorte inferior a través de los iframes en `artifacts/doc105-horizontal-layout.json`. `FAILED` señala desbordamiento sin desplazamiento efectivo o borde inferior recortado; sin desbordamiento queda `INCONCLUSIVE`. Un gutter cero puede ser barra superpuesta del navegador y no demuestra por sí mismo ausencia. No sustituye una prueba visual ni la matriz global. Cuenta y contraseña se capturan exclusivamente por TTY.
+
+Migración admite `--migration-selection profiles/<seleccion>.runtime.json`, incompatible con los otros selectores operativos. Campos: `cabinetName`, `searchField`, `searchValue`, `documentPrefix`. Abre el menú oficial y selecciona solo una coincidencia exacta del campo y única del prefijo. La opción de panel de migración consulta original y destino existentes; el runner no pulsa convertir/reemplazar/guardar/eliminar. Exige destino existente en `Iframe_visor_pdf` y mide solo sus respuestas. Sin destino no aprueba. Los datos de selección quedan en perfil ignorado y las credenciales solo en TTY.
+
+Versiones de Radicación entrante admite `--versions-selection profiles/<seleccion>.runtime.json`, incompatible con `--docuarchi-selection`. Campos cerrados: `templateName`, `radicado` y `documentTitle`. Usa la cuenta a la que ya está asignado el radicado. El runner abre la plantilla exacta por el menú, verifica el radicado asignado y no pulsa asignación de pendientes. Abre el historial del documento exacto y visualiza una versión existente; no adjunta, restaura, reemplaza ni elimina. Un contexto diferente detiene la prueba. Este modo habilita únicamente `versions` y deshabilita mutaciones.
+
+En selección de Migración, `view` es opcional: `converted` conserva la prueba de destino existente y `source` reproduce el visor del original. Ambos usan el menú lateral y el campo primario de búsqueda del gabinete. `source` registra `DOC105_MIGRATION_SOURCE_PREVIEW` y nunca sirve como evidencia de aprobación del destino convertido ni de versiones. No se modifica el documento en ninguno de esos modos.
+
+Para la selección Docuarchi use `--docuarchi-selection profiles/<seleccion>.runtime.json`, con `cabinetName`, `searchField` y `searchValue` autorizados. La coincidencia debe ser exacta y única. El campo opcional `simpleClass` acepta solo `docuarchiExternal` (predeterminado) o `docuarchiDownload`. Descarga exige un documento no PDF que presente el botón oficial; espera finalización, cuenta bytes y contrasta HTTP 200/Content-Length. No guarda contenido en evidencia ni abre Word; elimina únicamente el temporal de esa descarga administrado por Playwright. Todas las otras clases y mutaciones permanecen deshabilitadas.
+
+Cuando las cuentas autorizadas difieren por módulo, use `--consumer workflow|correspondence|production|approvalExternal|simpleHandler`. La corrida habilita exclusivamente esa clase y conserva las demás como `BLOCKED`; no combine esta opción con `--enable-inventoried-consumers`. Cada módulo solicita su propia cuenta por TTY y sus resultados se consolidan después sin compartir credenciales.
+
+Si el perfil base procede de Workflow pero el consumidor pertenece a Gestión, declare el valor público del selector de login mediante `--module GESTOR`. Esta opción solo cambia el módulo elegido en el formulario para esa corrida; no persiste cuentas, no altera el perfil runtime y no habilita permisos inexistentes.
+
+El guardado es opcional y permanece deshabilitado por defecto. Para habilitarlo, `mutation.consumer` debe ser `workflow` y `mutation.profile` debe señalar un perfil DOC-103 runtime dentro de `profiles/`. La consola solicita otra autorización para cuenta/tarea y PDF descartable, además de la cuenta ODBC de solo lectura. El runner delega en la protección DOC-103 y exige exactamente un POST; no permite mutación en Correspondencia, Producción, externo ni handler simple.
+
+La evidencia conserva consumidor categórico, perfil de red, caché, estado, HTTP, modo, tiempos, conteos y bytes agregados. No guarda URLs, queries, IDs, títulos, rutas, payloads, cookies, tokens, credenciales o conexiones. `RANGE` solo se considera parcial con `206`, total conocido y unión de bytes previa al primer canvas menor que el documento; `STREAM 200` nunca se presenta como parcial.
+
 ## DOC-95 — Orquestación Login 2FA por ASMX
 
 DOC-95 reutiliza el formulario `gestor.aspx`, `tests/support/authenticated-workflow-session.cjs`, la consola TTY y Playwright ya instalados. No crea login, configuración, buzón automatizado, navegador ni `.env` paralelos. El perfil contiene únicamente URL, módulo con 2FA activo, política TLS y timeout; no admite cuentas, contraseñas, OTP, challenge ni conexiones.

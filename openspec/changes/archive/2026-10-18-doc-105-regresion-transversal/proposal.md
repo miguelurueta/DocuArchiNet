@@ -8,6 +8,10 @@ REGRESION-TRANSVERSAL. Ver detalle funcional completo del ticket en la seccion J
 - Se formaliza una propuesta OpenSpec inicial derivada del ticket Jira.
 - Se captura el resumen y la descripcion del ticket como punto de partida para refinement posterior.
 - Se deja lista una base coherente para continuar con design, specs y tasks.
+- La evidencia remota de DOC-105 amplía el alcance: los PDF grandes no linealizados pueden preparar en segundo plano un derivado temporal linealizado para HTTP Range, sin reescribir el original ni cambiar almacenamiento; `STREAM` permanece como fallback seguro.
+- La espera inicial del visor tendrá progreso accesible real hasta el primer canvas y dejará de forzar `pdf.getData()` durante el arranque.
+- Gestión de Correspondencia conserva deliberadamente su ventana nativa de solo lectura: `anula_visor_espress = 1` envía el PDF al handler y no activa PDF.js. DOC-105 valida allí autorización y transporte; canvas, scroll/zoom PDF.js y overlay quedan `NOT_APPLICABLE`.
+- La E2E de Producción Documental reveló que un `206 RANGE` puede transferir casi todo un PDF pesado antes del primer canvas. DOC-105 incorpora una compuerta útil de primera página y una corrección productiva verificable; una cobertura apenas inferior al 100 % no se acepta como mejora.
 
 ## Jira Details
 

@@ -87,11 +87,15 @@ test('DOC-104 envía una sola fuente de imagen al servidor', () => {
   assert.match(save, /page_drag, selectedFileImageSource, selectedBase64ImageSource/);
 });
 
-test('DOC-104 clasifica únicamente el PDF confirmado y conserva tamaño legacy', () => {
+test('DOC-105 clasifica únicamente el PDF confirmado y respeta geometría del visor', () => {
   const replace = itext.indexOf('ReplacePdfSafely');
   const classify = itext.indexOf('EstrategiaCargaPdf.Seleccionar', replace);
   assert.ok(replace > 0 && classify > replace);
-  assert.match(itext, /graphImage\.ScaleAbsolute\(90, 90\)/);
+  assert.doesNotMatch(itext, /graphImage\.ScaleAbsolute\(90, 90\)/);
+  assert.match(itext, /GeometriaGrafoPdf\.Matriz\(/);
+  assert.match(itext, /stamper\.RotateContents = False/);
+  assert.match(itext, /reader\.GetCropBox\(pageNumber\)/);
+  assert.match(itext, /AddImage\(graphImage,[\s\S]*?CSng\(matrix\(5\)\)/);
   assert.doesNotMatch(itext, /Ghostscript|FastWebView|Linearized/);
 });
 

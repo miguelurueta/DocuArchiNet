@@ -74,6 +74,6 @@ test('la matriz conserva IDs, handlers y símbolos de cada capacidad', () => {
   assert.match(scriptSource, /addEventListener\("contextmenu", activateViewerContextMenu, true\)/);
   assert.match(scriptSource, /initializeViewerContextMenus\(\)/);
   assert.match(scriptSource, /anotate_add_firma == 0/);
-  assert.match(scriptSource, /anotate_printer == 0/);
+  assert.match(viewerSource, /anotate_printer == 0/);
   for (const iconClass of ['fal', 'fad', 'far']) assert.match(indexSource + viewerSource, new RegExp(`\\b${iconClass}\\b`));
 });

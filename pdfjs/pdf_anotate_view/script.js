@@ -137,10 +137,12 @@ function reportOptionalCapabilityError(label) {
 }
 
 async function runOptionalCapability(event, name, label, action) {
+    if (!isViewerInteractionReady()) return false;
     const control = optionalCapabilityControl(event);
     if (control) control.disabled = true;
     try {
         await loadViewerCapability(name);
+        if (!isViewerInteractionReady()) return false;
         return await action();
     } catch (error) {
         reportOptionalCapabilityError(label);
@@ -161,8 +163,231 @@ function buildAuthorizedPdfUrl(urlParams) {
     return handlerPath + separator + "doc_ref=" + encodeURIComponent(documentReference);
 }
 
+function buildAuthorizedPdfUrlFromReference(handlerPath, documentReference) {
+    if (!handlerPath || !documentReference) return null;
+    const separator = handlerPath.indexOf("?") >= 0 ? "&" : "?";
+    return handlerPath + separator + "doc_ref=" + encodeURIComponent(documentReference);
+}
+
+let documentLoadingTerminal = false;
+let documentLoadingTelemetry = { loaded: 0, total: 0, firstCanvasLoaded: 0, firstCanvasTotal: 0, firstCanvasSource: "full" };
+let fullDocumentFirstPageReady = false;
+let documentLoadFailed = false;
+let knownDocumentPageCount = 0;
+
+function updateDocumentPageCounter(page, total) {
+    if (Number.isInteger(total) && total > 0) knownDocumentPageCount = total;
+    const current = document.getElementById("pdf_page_find");
+    const count = document.getElementById("num_page_total");
+    if (current && Number.isInteger(page) && page > 0 && (!knownDocumentPageCount || page <= knownDocumentPageCount)) current.value = String(page);
+    if (current) current.setAttribute("max", String(knownDocumentPageCount));
+    if (count) count.value = knownDocumentPageCount ? String(knownDocumentPageCount) : "…";
+}
+
+function isViewerInteractionReady() {
+    return fullDocumentFirstPageReady && !documentLoadFailed;
+}
+
+function updateViewerToolbar() {
+    const toolbar = document.getElementById("tool_pdf");
+    if (!toolbar) return;
+    // The fieldset lock preserves each button's own permission/capability lock.
+    toolbar.disabled = !isViewerInteractionReady();
+    toolbar.setAttribute("aria-busy", String(!isViewerInteractionReady() && !documentLoadFailed));
+}
+
+function markFullDocumentPageReady() {
+    if (documentLoadFailed) return;
+    fullDocumentFirstPageReady = true;
+    updateViewerToolbar();
+}
+
+function normalizeDocumentLoadProgress(progress) {
+    const loaded = Number(progress && progress.loaded);
+    const total = Number(progress && progress.total);
+    if (!Number.isFinite(loaded) || loaded < 0 || !Number.isFinite(total) || total <= 0) {
+        return { determinate: false, percent: 0 };
+    }
+    return { determinate: true, percent: Math.max(0, Math.min(100, Math.round((loaded / total) * 100))) };
+}
+
+function setDocumentLoadingState(state, progress) {
+    const overlay = document.getElementById("pdf-document-loading");
+    const text = document.getElementById("pdf-document-loading-text");
+    const progressElement = document.getElementById("pdf-document-loading-progress");
+    const percentElement = document.getElementById("pdf-document-loading-percent");
+    const container = document.getElementById("container-general");
+    if (!overlay || !text || !progressElement || !percentElement) return false;
+
+    if (state === "start") {
+        fullDocumentFirstPageReady = false;
+        documentLoadFailed = false;
+        knownDocumentPageCount = 0;
+        const current = document.getElementById("pdf_page_find");
+        if (current) current.value = "…";
+        updateDocumentPageCounter(null, null);
+        updateViewerToolbar();
+        documentLoadingTerminal = false;
+        documentLoadingTelemetry = { loaded: 0, total: 0, firstCanvasLoaded: 0, firstCanvasTotal: 0, firstCanvasSource: "full" };
+        state = "loading";
+    }
+    if (state === "error") {
+        documentLoadFailed = true;
+        updateViewerToolbar();
+    }
+    if (documentLoadingTerminal && state !== "error") return true;
+    overlay.classList.toggle("pdf-document-loading--error", state === "error");
+
+    if (state === "ready") {
+        if (documentLoadingTelemetry.firstCanvasLoaded === 0) {
+            documentLoadingTelemetry.firstCanvasLoaded = documentLoadingTelemetry.loaded;
+            documentLoadingTelemetry.firstCanvasTotal = documentLoadingTelemetry.total;
+        }
+        documentLoadingTerminal = true;
+        overlay.hidden = true;
+        overlay.setAttribute("aria-busy", "false");
+        if (container) container.setAttribute("aria-busy", "false");
+        return true;
+    }
+
+    overlay.hidden = false;
+    overlay.setAttribute("aria-busy", state === "error" ? "false" : "true");
+    if (container) container.setAttribute("aria-busy", state === "error" ? "false" : "true");
+
+    if (state === "error") {
+        documentLoadingTerminal = true;
+        text.textContent = "No fue posible abrir el documento autorizado.";
+        progressElement.removeAttribute("value");
+        percentElement.textContent = "";
+        return true;
+    }
+
+    const normalized = normalizeDocumentLoadProgress(progress);
+    const loaded = Number(progress && progress.loaded);
+    const total = Number(progress && progress.total);
+    if (Number.isFinite(loaded) && loaded >= 0) documentLoadingTelemetry.loaded = loaded;
+    if (Number.isFinite(total) && total > 0) documentLoadingTelemetry.total = total;
+    if (normalized.determinate) {
+        progressElement.value = normalized.percent;
+        progressElement.setAttribute("aria-valuenow", String(normalized.percent));
+        percentElement.textContent = normalized.percent + "%";
+        text.textContent = normalized.percent >= 100 ? "Preparando la primera página…" : "Cargando documento…";
+    } else {
+        progressElement.removeAttribute("value");
+        progressElement.removeAttribute("aria-valuenow");
+        percentElement.textContent = "";
+        text.textContent = state === "rendering" ? "Preparando la primera página…" : "Cargando documento…";
+    }
+    return true;
+}
+
+window.normalizeDocumentLoadProgress = normalizeDocumentLoadProgress;
+window.updateDocumentPageCounter = updateDocumentPageCounter;
+window.markFullDocumentPageReady = markFullDocumentPageReady;
+window.setDocumentLoadingState = setDocumentLoadingState;
+window.getDocumentLoadingTelemetry = function () {
+    return {
+        firstCanvasLoaded: documentLoadingTelemetry.firstCanvasLoaded,
+        firstCanvasTotal: documentLoadingTelemetry.firstCanvasTotal,
+        firstCanvasSource: documentLoadingTelemetry.firstCanvasSource
+    };
+};
+
+async function loadFirstPagePreview(url) {
+    if (!url) return false;
+    const container = document.getElementById("pdf-container_");
+    if (!container) return false;
+    const wrapper = document.createElement("div");
+    wrapper.id = "pdf-first-page-preview";
+    wrapper.className = "pdf-first-page-preview";
+    wrapper.setAttribute("aria-label", "Vista previa de la primera página");
+    wrapper.hidden = true;
+    const canvas = document.createElement("canvas");
+    wrapper.appendChild(canvas);
+    container.insertBefore(wrapper, container.firstChild);
+    let previewProgress = { loaded: 0, total: 0 };
+    let active = true;
+    let loadingTask;
+    let renderTask;
+    let timer;
+    let paintFrame;
+    const deadline = new Promise(resolve => {
+        timer = setTimeout(() => { active = false; resolve(false); }, 3000);
+    });
+    const renderPreview = async () => {
+        loadingTask = pdfjsLib.getDocument({
+            url: url,
+            disableRange: true,
+            disableStream: false,
+            disableAutoFetch: true
+        });
+        loadingTask.onProgress = function (progress) {
+            if (!active) return;
+            previewProgress = {
+                loaded: Math.max(0, Number(progress && progress.loaded) || 0),
+                total: Math.max(0, Number(progress && progress.total) || 0)
+            };
+            setDocumentLoadingState("loading", progress);
+        };
+        const previewPdf = await loadingTask.promise;
+        if (!active) return false;
+        const page = await previewPdf.getPage(1);
+        if (!active) return false;
+        const scale = 1.25; // Same initial zoom as PDFjsViewer.
+        const viewport = page.getViewport({ scale: scale });
+        canvas.width = Math.ceil(viewport.width);
+        canvas.height = Math.ceil(viewport.height);
+        renderTask = page.render({ canvasContext: canvas.getContext("2d"), viewport: viewport });
+        await renderTask.promise;
+        if (!active) return false;
+        if (fullDocumentFirstPageReady || documentLoadFailed || !wrapper.isConnected) {
+            wrapper.remove();
+            return false;
+        }
+        documentLoadingTelemetry.firstCanvasLoaded = previewProgress.loaded;
+        documentLoadingTelemetry.firstCanvasTotal = previewProgress.total;
+        documentLoadingTelemetry.firstCanvasSource = "preview";
+        wrapper.dataset.ready = "true";
+        wrapper.hidden = false;
+        updateDocumentPageCounter(1, null); // The preview's numPages is not the document total.
+        setDocumentLoadingState("ready");
+        // Give the browser a paint opportunity before the principal starts.
+        // The same deadline covers suspended animation frames in hidden tabs.
+        await new Promise(resolve => {
+            paintFrame = requestAnimationFrame(() => {
+                if (!active) return;
+                paintFrame = requestAnimationFrame(resolve);
+            });
+        });
+        return active;
+    };
+    let shown = false;
+    try {
+        shown = await Promise.race([renderPreview(), deadline]);
+        return shown;
+    } catch (_) {
+        return false;
+    } finally {
+        active = false;
+        clearTimeout(timer);
+        if (paintFrame !== undefined) cancelAnimationFrame(paintFrame);
+        if (!shown) wrapper.remove();
+        try { renderTask?.cancel(); } catch (_) { /* Already settled. */ }
+        try { Promise.resolve(loadingTask?.destroy()).catch(() => {}); } catch (_) { /* Best-effort cleanup. */ }
+    }
+}
+
+function removeFirstPagePreview() {
+    const preview = document.getElementById("pdf-first-page-preview");
+    if (preview) preview.remove();
+}
+
+window.loadFirstPagePreview = loadFirstPagePreview;
+window.removeFirstPagePreview = removeFirstPagePreview;
+
 function reportDocumentLoadError() {
     const message = "No fue posible abrir el documento autorizado.";
+    if (setDocumentLoadingState("error")) return;
     if (typeof pdfViewer !== "undefined" && pdfViewer && typeof pdfViewer.PdfViwerAlert === "function") {
         pdfViewer.PdfViwerAlert(message, "warning", "container-general");
     } else {
@@ -189,12 +414,14 @@ function load_pdf_anotate(url_response, url_src, url_firma_) {
     });
 }
 $(window).on("load", function () {
+    setDocumentLoadingState("start");
     window.addEventListener("resize", rezize_event);
     configToolbarPdfView();
     auto_size_pdf_anotate();
     const valores = window.location.search;
     const urlParams = new URLSearchParams(valores);
     let url_src = buildAuthorizedPdfUrl(urlParams);
+    let first_page_url = buildAuthorizedPdfUrlFromReference(urlParams.get("ash"), urlParams.get("first_page_doc_ref"));
     let url_src_fromat = urlParams.get("ash") + "?rut_image=" + urlParams.get("urimage_format");
     let ur_firma_user = urlParams.get("url_firma");
     let url_id_imagen = 0;
@@ -234,7 +461,13 @@ $(window).on("load", function () {
         reportDocumentLoadError();
         return;
     }
-    load_pdf_viwer_anotation(url_src, url_src_fromat, ur_firma_user, paramenter_pdf_view);
+    if (first_page_url) {
+        loadFirstPagePreview(first_page_url).then(function (shown) {
+            return load_pdf_viwer_anotation(url_src, url_src_fromat, ur_firma_user, paramenter_pdf_view, shown);
+        }).catch(reportDocumentLoadError);
+    } else {
+        load_pdf_viwer_anotation(url_src, url_src_fromat, ur_firma_user, paramenter_pdf_view);
+    }
     
     function rezize_event() {
         try {
@@ -309,7 +542,8 @@ function togglethumbs(el) {
         document.querySelector('.thumbnails').classList.remove('hide');
     }
 }
-function load_pdf_viwer_anotation(document, url_src_fromat, ur_firma_user, paramenter_pdf_view) {
+function load_pdf_viwer_anotation(document, url_src_fromat, ur_firma_user, paramenter_pdf_view, preservePreview) {
+    if (!preservePreview) setDocumentLoadingState("start");
     /** Now create the PDFjsViewer object in the DIV */
     pdfViewer = new PDFjsViewer($('.maindoc'), {
         zoomValues: [0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4],
@@ -325,18 +559,28 @@ function load_pdf_viwer_anotation(document, url_src_fromat, ur_firma_user, param
             let pagetotal = this.getPageCount();
 
             //pdfThumbnails.setActivePage(pageno);
-            $('#pdf_page_find').val(pageno);
-            $('#pdf_page_find').attr('max', pagetotal);
-            $('#num_page_total').val(pagetotal);
+            updateDocumentPageCounter(pageno, pagetotal);
+        },
+
+        onDocumentMetadata: function (total) {
+            updateDocumentPageCounter(null, total);
+        },
+
+        onDocumentProgress: function (progress) {
+            setDocumentLoadingState("loading", progress);
+        },
+
+        onPageRender: function () {
+            markFullDocumentPageReady();
+            removeFirstPagePreview();
+            setDocumentLoadingState("ready");
         },
 
         /** zoom to fit when the document is loaded and create the object if wanted to be downloaded */
         onDocumentReady: function () {
+            updateDocumentPageCounter(null, this.getPageCount());
             pdfViewer.setZoom('');
-            pdfViewer.pdf.getData().then(function (data) {
-                //document.querySelector('#filedownload').href = URL.createObjectURL(new Blob([data], { type: 'application/pdf' }));
-                //document.querySelector('#filedownload').target = '_blank';
-            });
+            setDocumentLoadingState("rendering");
         }
     });
 
@@ -375,6 +619,12 @@ pdfThumbnails.setActivePage = function (pageno) {
 
 pdfThumbnails.loadDocument(PDFFILE);*/
 const configToolbarPdfView = () => {
+    document.getElementById("tool_pdf").addEventListener("click", function (event) {
+        if (!isViewerInteractionReady()) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }
+    }, true);
     let zon_plus = document.getElementById("pdf_btn_zon_plus");
     let zon_minus = document.getElementById("pdf_btn_zon_minus");
     let btn_tbl_sing = document.getElementById("pdf_btn_tbl_sing");
@@ -385,14 +635,14 @@ const configToolbarPdfView = () => {
     let pdf_btn_printer_page = document.getElementById("pdf_btn_printer_page");
     let pdf_a_paramneter_grafo = document.getElementById("pdf_a_paramneter_grafo");
     let Pdf_btn_update_insert = document.getElementById("Pdf_btn_update_insert");
-    zon_plus.addEventListener("click", scale_pdfTool_viwer_plus, false);
-    zon_minus.addEventListener("click", scale_pdfTool_viwer_minus, false);
+    zon_plus.closest("button").addEventListener("click", scale_pdfTool_viwer_plus, false);
+    zon_minus.closest("button").addEventListener("click", scale_pdfTool_viwer_minus, false);
     btn_tbl_sing.addEventListener("click", add_pdfTool_viwer_stamp, false);
-    pdf_btn_down_load.addEventListener("click", donwload_pdfTool_viwer, false);
-    pdf_btn_tbl_desk_redo.addEventListener("click", pdfTool_viwer_rotate_redo, false);
-    pdf_btn_tbl_desk_undo.addEventListener("click", pdfTool_viwer_rotate_undo, false);
+    pdf_btn_down_load.closest("button").addEventListener("click", donwload_pdfTool_viwer, false);
+    pdf_btn_tbl_desk_redo.closest("button").addEventListener("click", pdfTool_viwer_rotate_redo, false);
+    pdf_btn_tbl_desk_undo.closest("button").addEventListener("click", pdfTool_viwer_rotate_undo, false);
     tbl_digital.addEventListener("click", pdfTool_viwer_captureFromSTU, false);
-    pdf_btn_printer_page.addEventListener("click", pdfTool_viwer_Printer, false);
+    pdf_btn_printer_page.closest("button").addEventListener("click", pdfTool_viwer_Printer, false);
     pdf_a_paramneter_grafo.addEventListener("click", pdfTool_parameter_grafo, false);
     Pdf_btn_update_insert.addEventListener("click", pdfBtn_update_insert, false);
     document.getElementById("pdf-container_").addEventListener("contextmenu", activateViewerContextMenu, true);
@@ -407,9 +657,11 @@ const pdfBtn_update_insert = (event) => {
     pdfViewer.UpdateInstConfigStamp();
 }
 function scale_pdfTool_viwer_plus(event) {
+    if (!isViewerInteractionReady()) return false;
     pdfViewer.setZoom('in');
 }
 function scale_pdfTool_viwer_minus(event) {
+    if (!isViewerInteractionReady()) return false;
     pdfViewer.setZoom('out');
 }
 async function add_pdfTool_viwer_stamp(event) {
@@ -419,26 +671,87 @@ async function add_pdfTool_viwer_stamp(event) {
         return pdfViewer._Add_interface_anotate(1,0,0);
     });
 }
+let viewerDownloadPending = null;
+let viewerDownloadStatusTimer = null;
 function donwload_pdfTool_viwer(event) {
-    pdfViewer._DonwloadPage();
+    if (viewerDownloadPending) return viewerDownloadPending;
+    if (!isViewerInteractionReady()) return false;
+    const control = document.getElementById("pdf_btn_down_load").closest("button");
+    if (control.disabled) return false;
+    const status = document.getElementById("pdf-download-status");
+    clearTimeout(viewerDownloadStatusTimer);
+    viewerDownloadStatusTimer = null;
+    control.disabled = true;
+    control.setAttribute("aria-busy", "true");
+    status.hidden = false;
+    status.textContent = "Preparando descarga… Espere, por favor.";
+    viewerDownloadPending = Promise.resolve().then(function () {
+        return pdfViewer._DonwloadPage();
+    }).then(function (result) {
+        status.textContent = result === false ? "No tiene permiso para descargar el documento." :
+            "Descarga enviada al navegador. Revise sus descargas.";
+        if (result !== false) {
+            const timer = setTimeout(function () {
+                if (viewerDownloadStatusTimer !== timer) return;
+                status.hidden = true;
+                status.textContent = "";
+                viewerDownloadStatusTimer = null;
+            }, 5000);
+            viewerDownloadStatusTimer = timer;
+        }
+        return result;
+    }).catch(function () {
+        status.textContent = "No fue posible preparar la descarga. Intente nuevamente.";
+        return false;
+    }).finally(function () {
+        control.disabled = false;
+        control.removeAttribute("aria-busy");
+        viewerDownloadPending = null;
+    });
+    return viewerDownloadPending;
 }
 function pdfTool_viwer_rotate_redo(event) {
-    pdfViewer.rotate(90, true);
+    if (!isViewerInteractionReady()) return false;
+    return pdfViewer.rotate(90, true).catch(reportDocumentLoadError);
 }
 function pdfTool_viwer_rotate_undo(event) {
-    pdfViewer.rotate(-90, true);
+    if (!isViewerInteractionReady()) return false;
+    return pdfViewer.rotate(-90, true).catch(reportDocumentLoadError);
 }
 async function pdfTool_viwer_captureFromSTU(event) {
+    if (!isViewerInteractionReady()) return false;
     if (pdfViewer.anotate_add_firma == 0) return pdfViewer._Add_captureFromSTU();
     return runOptionalCapability(event, "wacom", "la tableta digital", function () {
         return pdfViewer._Add_captureFromSTU();
     });
 }
-async function pdfTool_viwer_Printer(event) {
-    if (pdfViewer.anotate_printer == 0) return pdfViewer._PrinterPdf();
-    return runOptionalCapability(event, "print", "la impresión", function () {
+let viewerPrintPending = null;
+function pdfTool_viwer_Printer(event) {
+    if (viewerPrintPending) return viewerPrintPending;
+    if (!isViewerInteractionReady()) return false;
+    const control = document.getElementById("pdf_btn_printer_page").closest("button");
+    if (control.disabled) return false;
+    const status = document.getElementById("pdf-print-status");
+    control.disabled = true;
+    control.setAttribute("aria-busy", "true");
+    status.hidden = false;
+    status.textContent = "Preparando impresión… Espere, por favor.";
+    viewerPrintPending = Promise.resolve().then(function () {
         return pdfViewer._PrinterPdf();
+    }).then(function (result) {
+        status.hidden = result !== false;
+        status.textContent = result === false ? "No tiene permiso para imprimir el documento." : "";
+        return result;
+    }).catch(function () {
+        status.hidden = false;
+        status.textContent = "No fue posible preparar la impresión. Intente nuevamente.";
+        return false;
+    }).finally(function () {
+        control.disabled = false;
+        control.removeAttribute("aria-busy");
+        viewerPrintPending = null;
     });
+    return viewerPrintPending;
 }
 //------------------FIN----------------------------------------------------
 function configToolbar() {

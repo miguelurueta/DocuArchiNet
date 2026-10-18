@@ -172,7 +172,7 @@ async function browserDocumentFingerprint(frame, prefix) {
 }
 
 async function runReal(profile, environment, options = {}) {
-  const failurePrefix = options.failurePrefix === 'DOC104' ? 'DOC104' : 'DOC103';
+  const failurePrefix = ['DOC104', 'DOC105'].includes(options.failurePrefix) ? options.failurePrefix : 'DOC103';
   const beforeDocument = await controlFingerprint(profile.documentStateSql, profile.taskId, environment, profile.odbcDsn, 'DOC103_DOCUMENT_SELECT_PREFLIGHT_FAILED');
   let browser;
   try { browser = await chromium.launch({ ...(profile.browser || {}), headless: profile.headless }); }

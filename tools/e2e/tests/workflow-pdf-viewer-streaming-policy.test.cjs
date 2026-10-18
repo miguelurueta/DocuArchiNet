@@ -10,14 +10,27 @@ const root = path.resolve(__dirname, '../../..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 const script = read('pdfjs/pdf_anotate_view/script.js');
 const viewer = read('pdfjs/pdf_anotate_view/pdf_viewer_anotate.js');
+const styles = read('pdfjs/pdf_anotate_view/styles.css');
 const handler = read('workflow/Handler_image_wf.ashx.vb');
 const strategy = read('Infrastructure/Documentos/Streaming/EstrategiaCargaPdf.vb');
+const preparer = read('Infrastructure/Documentos/Streaming/PreparadorVisualizacionPdf.vb');
 const linearizationPoc = read('tools/e2e/scripts/run-doc102-linearization-poc.cjs');
 const emitters = [
   'Docuarchi/ClassVisualisaDocumento.vb',
   'workflow/ClassWorflowVisor.vb',
   'Gestion/ClassGaProducionDocumental.vb'
 ];
+
+test('DOC-105 Producción reserva PDF.js a PDF y conserva descarga externa para Word', () => {
+  const source = read('Gestion/ClassGaProducionDocumental.vb');
+  const start = source.indexOf('Function Activa_visualizacion_documento_producion(');
+  assert.ok(start >= 0);
+  const method = source.slice(start, source.indexOf('End Function', start));
+  assert.match(method, /If String\.Equals\(extension, "\.PDF", StringComparison\.OrdinalIgnoreCase\) AndAlso\s+HttpContext\.Current\.Session\("UTIL_VISOR_EXPRESS_PRODUCION"\) = 1 AndAlso HttpContext\.Current\.Session\("VALIDA_VISOR_EXPRES"\) = 1 Then/);
+  assert.match(method, /Else\s+Iframe_visor_externo_da\.Attributes\("SRC"\) = "\.\.\/Docuarchi\/WebFormDaVisorExterno\.aspx"/);
+  const fallback = read('Docuarchi/WebFormDaVisorExterno.aspx.vb');
+  assert.match(fallback, /If UCase\(file_inf\.Extension\) = "\.PDF" Then[\s\S]*?Else[\s\S]*?WebFormDaVisorExternoDescarga\.aspx/);
+});
 
 test('DOC-102 construye una URL autorizada y falla cerrada sin parámetros', () => {
   const match = script.match(/function buildAuthorizedPdfUrl\(urlParams\) \{[\s\S]*?\n\}/);
@@ -51,11 +64,15 @@ test('DOC-102 entrega URL a PDF.js sin precargar el documento completo', () => {
   assert.match(viewer, /this\.url_document\s*=\s*url_src_fromat/);
   assert.match(viewer, /this\.url_block\s*=\s*document/);
   assert.match(viewer, /url:\s*document/);
-  assert.match(viewer, /disableStream:\s*true/);
   assert.match(viewer, /disableAutoFetch:\s*true/);
-  assert.match(viewer, /rangeChunkSize:\s*262144/);
+  assert.match(viewer, /rangeChunkSize:\s*1048576/);
   assert.match(viewer, /disableRange:\s*true/);
   assert.match(viewer, /disableStream:\s*false/);
+  const rangeSourceStart = viewer.indexOf('return {', viewer.indexOf('if (selectedMode !== "range")') + 1);
+  const rangeSource = viewer.slice(rangeSourceStart, viewer.indexOf('/** acive windows config', rangeSourceStart));
+  assert.match(rangeSource, /disableRange:\s*false/);
+  assert.match(rangeSource, /disableStream:\s*true/);
+  assert.match(rangeSource, /disableAutoFetch:\s*true/);
   assert.match(viewer, /_createLoadingSource\(document,\s*"stream"\)/,
     'El refresco posterior al pegado de grafo debe usar el transporte compatible.');
   assert.match(viewer, /pdfjsLib\.getDocument\(this\._createLoadingSource\(document\)\)/);
@@ -73,12 +90,60 @@ test('DOC-102 preserva el pegado de grafo y refresca solo la página afectada', 
   assert.match(viewer, /service_anotate_pdf_image/);
 });
 
-test('DOC-102 selecciona rangos solo para PDF grandes y linearizados', () => {
+test('DOC-105 conserva streaming para PDF no linealizado tras fallar la compuerta remota', () => {
   assert.match(strategy, /UmbralRangosBytes\s+As Long\s*=\s*1048576L/);
+  assert.match(strategy, /Return If\(EsCabeceraLinearizada\(cabecera\), ModoRangos, ModoStreamingCompleto\)/);
+  assert.match(strategy, /inicioPdf >= 0 AndAlso inicioPdf <= 16/);
   assert.match(strategy, /EsCabeceraLinearizada/);
   assert.match(strategy, /FileShare\.ReadWrite Or FileShare\.Delete/);
   assert.match(strategy, /Return ModoStreamingCompleto/);
   assert.doesNotMatch(strategy, /File\.(?:Write|Move|Copy|Delete)|\.Write\s*\(/);
+});
+
+test('DOC-105 prepara un derivado linealizado sin bloquear ni sustituir el original', () => {
+  assert.match(preparer, /ThreadPool\.QueueUserWorkItem/);
+  assert.match(preparer, /EnPreparacion\.TryAdd/);
+  assert.match(preparer, /-dFastWebView=true/);
+  assert.match(preparer, /File\.Move\(temporal, rutaDerivado\)/);
+  assert.match(preparer, /-dFirstPage=1/);
+  assert.match(preparer, /RutaVistaPreviaPrimeraPagina/);
+  assert.match(preparer, /EsDerivadoEficaz/);
+  assert.match(preparer, /FirstSectionMaximumBytes/);
+  assert.match(strategy, /TryObtenerSeccionInicialLinearizada/);
+  assert.match(preparer, /EsDerivadoValido\(rutaDerivado\)/);
+  assert.match(preparer, /Not Path\.IsPathRooted\(configurado\)/);
+  assert.match(preparer, /\.RutaVisualizacion = rutaOriginal/);
+  assert.match(preparer, /\.ModoCarga = EstrategiaCargaPdf\.Seleccionar\(rutaOriginal\)/);
+  assert.doesNotMatch(preparer, /File\.(?:WriteAllBytes|Copy)\([^\r\n]*rutaOriginal/);
+
+  for (const relative of emitters) {
+    const source = read(relative);
+    assert.match(source, /PreparadorVisualizacionPdf\.Preparar\(matri_doc\(1\)\)/, relative);
+    assert.match(source, /Emitir\(preparacionPdf\.RutaVisualizacion/, relative);
+    assert.match(source, /first_page_doc_ref=/, relative);
+    assert.match(source, /urimage_format=" & matri_doc\(1\)/, relative);
+  }
+});
+
+test('DOC-105 prepara la vista previa en la primera apertura y difiere solo el derivado completo', () => {
+  assert.match(preparer, /GenerarVistaPrevia\(capturaRuta, capturaLongitud, capturaEscritura, rutaVistaPrevia\)/);
+  assert.match(preparer, /RutaVistaPreviaPrimeraPagina = rutaVistaPrevia/);
+  assert.match(preparer, /ThreadPool\.QueueUserWorkItem\([\s\S]*GenerarDerivado\(capturaRuta, capturaLongitud, capturaEscritura, rutaDerivado\)/);
+  assert.match(preparer, /ModoRangos AndAlso EsDerivadoEficaz\(rutaOriginal\)/);
+});
+
+test('DOC-105 muestra una primera página temporal y la retira al renderizar el documento completo', () => {
+  assert.match(script, /function loadFirstPagePreview\(url\)/);
+  assert.match(script, /first_page_doc_ref/);
+  assert.match(script, /pdfjsLib\.getDocument\(\{[\s\S]*disableStream:\s*false/);
+  assert.match(script, /documentLoadingTelemetry\.firstCanvasSource = "preview"/);
+  assert.match(script, /wrapper\.hidden = true/);
+  assert.match(script, /wrapper\.dataset\.ready = "true"/);
+  assert.match(script, /fullDocumentFirstPageReady \|\| documentLoadFailed \|\| !wrapper\.isConnected/);
+  assert.match(script, /function removeFirstPagePreview\(\)/);
+  assert.match(script, /onPageRender:[\s\S]*markFullDocumentPageReady\(\);[\s\S]*removeFirstPagePreview\(\)/);
+  assert.match(styles, /\.pdf-first-page-preview\s*\{[\s\S]*position:\s*absolute;[\s\S]*inset:\s*0;/);
+  assert.match(styles, /#pdf-container_\s*\{[\s\S]*position:\s*relative;/);
 });
 
 test('DOC-102 usa doc_ref en emisores enriquecidos y preserva adaptadores simples', () => {

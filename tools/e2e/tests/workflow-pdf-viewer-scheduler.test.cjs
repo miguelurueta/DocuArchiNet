@@ -194,7 +194,7 @@ test('el fallback geométrico funciona y las ráfagas se coalescen a un frame', 
   assert.deepEqual(fallback.loaded, [1, 2]);
 });
 
-test('zoom y rotación preservan scroll proporcional y coalescen reconciliación', async () => {
+test('zoom preserva proporción y rotación conserva número de página', async () => {
   const { PDFjsViewer } = loadViewer();
   const container = { scrollTop: 100, scrollLeft: 40, scrollHeight: 1000, scrollWidth: 400 };
   let generations = 0;
@@ -214,14 +214,50 @@ test('zoom y rotación preservan scroll proporcional y coalescen reconciliación
   assert.equal(generations, 1);
   assert.equal(scheduled, 1);
 
-  viewer.forceViewerInitialization = async () => {
+  viewer.pdf = { numPages: 287 };
+  viewer._activePage = 12;
+  let anchor;
+  viewer.forceViewerInitialization = async target => {
+    anchor = target;
     container.scrollHeight = 2000;
     container.scrollWidth = 800;
   };
   await viewer.rotate(90);
   assert.equal(viewer._rotation, 90);
-  assert.equal(container.scrollTop, 400);
-  assert.equal(container.scrollLeft, 160);
+  assert.equal(anchor, 12);
+  assert.equal(container.scrollTop, 200); // No global scroll proportion applied by rotate.
+  assert.equal(container.scrollLeft, 80);
+});
+
+test('giros concurrentes conservan ancla y solo la última inicialización publica', async () => {
+  const { PDFjsViewer } = loadViewer();
+  const first = deferred();
+  const second = deferred();
+  let calls = 0;
+  let skeletons = 0;
+  const positions = [];
+  const viewer = Object.create(PDFjsViewer.prototype);
+  Object.assign(viewer, {
+    pdf: { getPage: () => (++calls === 1 ? first.promise : second.promise) },
+    pageCount: 287, _activePage: 12, _rotation: 0,
+    _zoom: { current: 1.5, zoomPages(value) { assert.equal(value, 1.5); } },
+    settings: { pageClass: 'page' },
+    $container: { find: () => ({ remove() {} }) },
+    _advanceRenderGeneration() {}, _setupViewportObserver() {},
+    _createSkeletons() { skeletons++; },
+    scrollToPage(number) { positions.push(number); this._activePage = number; },
+    _visiblePages() { assert.equal(this._activePage, 12); }
+  });
+  const a = viewer.rotate(90, true);
+  const b = viewer.rotate(90, true);
+  second.resolve({});
+  await b;
+  first.resolve({});
+  await a;
+  assert.equal(viewer._rotation, 180);
+  assert.equal(skeletons, 1);
+  assert.deepEqual(positions, [12]);
+  assert.equal(viewer._rotationAnchorPage, null);
 });
 
 test('conserva contratos públicos, DOM y coordinación de anotaciones', () => {

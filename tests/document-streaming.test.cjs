@@ -11,7 +11,8 @@ const vbSources = [
   'Infrastructure/Documentos/Streaming/RangoHttpDocumento.vb',
   'Infrastructure/Documentos/Streaming/CondicionesHttpDocumento.vb',
   'Infrastructure/Documentos/Streaming/EscritorStreamingDocumento.vb',
-  'Infrastructure/Documentos/Streaming/EstrategiaCargaPdf.vb'
+  'Infrastructure/Documentos/Streaming/EstrategiaCargaPdf.vb',
+  'Infrastructure/Documentos/Streaming/PreparadorVisualizacionPdf.vb'
 ].map(value => path.join(root, value));
 const csSources = [
   'DocumentStreamingReferenceBehaviorTests.cs',
@@ -42,7 +43,7 @@ test('DOC-102: referencia, rangos, condiciones y escritor cumplen contrato net46
     const executable = path.join(directory, 'DocumentStreamingBehaviorTests.exe');
     run(compiler('vbc.exe'), [
       '/nologo', '/target:library', `/out:${assembly}`,
-      '/reference:System.dll', '/reference:System.Core.dll', '/reference:System.Web.dll',
+      '/reference:System.dll', '/reference:System.Core.dll', '/reference:System.Web.dll', '/reference:System.Configuration.dll',
       ...vbSources
     ]);
     run(compiler('csc.exe'), [
@@ -63,7 +64,8 @@ test('DOC-102: proyecto registra cada componente streaming exactamente una vez',
     'Infrastructure\\Documentos\\Streaming\\RangoHttpDocumento.vb',
     'Infrastructure\\Documentos\\Streaming\\CondicionesHttpDocumento.vb',
     'Infrastructure\\Documentos\\Streaming\\EscritorStreamingDocumento.vb',
-    'Infrastructure\\Documentos\\Streaming\\EstrategiaCargaPdf.vb'
+    'Infrastructure\\Documentos\\Streaming\\EstrategiaCargaPdf.vb',
+    'Infrastructure\\Documentos\\Streaming\\PreparadorVisualizacionPdf.vb'
   ]) {
     assert.equal(project.split(`Include="${relative}"`).length - 1, 1, relative);
   }

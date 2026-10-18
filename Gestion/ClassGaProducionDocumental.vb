@@ -7803,7 +7803,8 @@ Public Class ClassGaProducionDocumental
                 Activa_visualizacion_documento_producion = "YES"
                 Exit Function
             Else
-                If HttpContext.Current.Session("UTIL_VISOR_EXPRESS_PRODUCION") = 1 And HttpContext.Current.Session("VALIDA_VISOR_EXPRES") = 1 Then
+                If String.Equals(extension, ".PDF", StringComparison.OrdinalIgnoreCase) AndAlso
+                    HttpContext.Current.Session("UTIL_VISOR_EXPRESS_PRODUCION") = 1 AndAlso HttpContext.Current.Session("VALIDA_VISOR_EXPRES") = 1 Then
                     Dim refclas_vis As New ClassVisualisaDocumento
                     Dim matri_doc() As String = Nothing
                     Result = refclas_vis.Genera_Matris_Documentos_Almacenados(id_imagen,
@@ -7830,14 +7831,19 @@ Public Class ClassGaProducionDocumental
                         End If
                     End If
                     Dim archivoStreaming As New FileInfo(matri_doc(1))
+                    Dim preparacionPdf As ResultadoPreparacionPdf = PreparadorVisualizacionPdf.Preparar(matri_doc(1))
                     Dim referenciaStreaming As New DocumentoStreamingReferencia()
-                    Dim docRef As String = referenciaStreaming.Emitir(matri_doc(1), archivoStreaming.Name, "application/pdf", HttpContext.Current.Session.SessionID)
-                    Dim modoCargaPdf As String = EstrategiaCargaPdf.Seleccionar(matri_doc(1))
+                    Dim docRef As String = referenciaStreaming.Emitir(preparacionPdf.RutaVisualizacion, archivoStreaming.Name, "application/pdf", HttpContext.Current.Session.SessionID)
+                    Dim primeraPaginaRef As String = ""
+                    If Not String.IsNullOrWhiteSpace(preparacionPdf.RutaVistaPreviaPrimeraPagina) Then
+                        primeraPaginaRef = referenciaStreaming.Emitir(preparacionPdf.RutaVistaPreviaPrimeraPagina, archivoStreaming.Name, "application/pdf", HttpContext.Current.Session.SessionID)
+                    End If
+                    Dim modoCargaPdf As String = preparacionPdf.ModoCarga
                     If String.IsNullOrWhiteSpace(docRef) Then
                         Activa_visualizacion_documento_producion = "No fue posible autorizar la visualización del documento"
                         Exit Function
                     End If
-                    Iframe_visor_externo_da.Attributes("SRC") = "../pdfjs/pdf_anotate_view/index.html?doc_ref=" & HttpUtility.UrlEncode(docRef) & "&pdf_load_mode=" & HttpUtility.UrlEncode(modoCargaPdf) & "&urimage_format=" & matri_doc(1).Replace("\", "|") & "&url_firma=" &
+                    Iframe_visor_externo_da.Attributes("SRC") = "../pdfjs/pdf_anotate_view/index.html?doc_ref=" & HttpUtility.UrlEncode(docRef) & "&first_page_doc_ref=" & HttpUtility.UrlEncode(primeraPaginaRef) & "&pdf_load_mode=" & HttpUtility.UrlEncode(modoCargaPdf) & "&urimage_format=" & matri_doc(1).Replace("\", "|") & "&url_firma=" &
                                 "../" & HttpContext.Current.Session("WF_RUTA_FIRMA_FINAL") & "&" & "ash=../../workflow/Handler_image_wf.ashx" &
                                 "&url_id_imagen=" & id_imagen & "&url_cabinete_imagen=" & nombre_gabinete &
                                 "&url_radicado=" & "" & "&url_id_workflow=" & 0 & "&url_desc_transacion=" & "PRODUCCION DOCUMENTAL" &

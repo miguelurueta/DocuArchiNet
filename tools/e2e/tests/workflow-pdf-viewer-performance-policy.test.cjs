@@ -12,6 +12,8 @@ const {
   classifyBrowserFailure,
   classifyPageError,
   deriveResult,
+  evaluateFirstCanvasTransport,
+  installPerformanceProbe,
   isViewerFrameRequest,
   loadProfile,
   requestCountCategories,
@@ -22,6 +24,71 @@ const {
 
 const runnerPath = path.resolve(__dirname, '../scripts/run-workflow-pdf-viewer-performance-interactive.cjs');
 const runner = fs.readFileSync(runnerPath, 'utf8');
+
+test('DOC-105 preview completo pequeño no equivale al PDF principal completo', () => {
+  const metrics = { pdfLoading: { mode: 'RANGE' }, firstCanvasSnapshot: {
+    source: 'preview', loaded: 390850, total: 390850, completedResourceBytes: 390850
+  }, handler: { transferBytes: 10040894 } };
+  const contract = { statuses: { '200': 2, '206': 10 }, rangeRequestCount: 10, documentLengthBytes: 9646444 };
+  const result = evaluateFirstCanvasTransport(metrics, contract);
+  assert.equal(result.transportPolicySatisfied, true);
+  assert.equal(result.firstCanvasByteScope, 'preview_representation');
+  for (const replacement of [
+    { statuses: { '200': 1 } }, { rangeRequestCount: 0 }, { documentLengthBytes: 0 },
+    { documentLengthBytes: 390850 }
+  ]) assert.equal(evaluateFirstCanvasTransport(metrics, { ...contract, ...replacement }).transportPolicySatisfied, false);
+  assert.equal(evaluateFirstCanvasTransport({ ...metrics, firstCanvasSnapshot: {
+    source: 'preview', loaded: 0, total: 390850
+  } }, contract).transportPolicySatisfied, false);
+  for (const completedResourceBytes of [0, 9646444, 10040894]) {
+    assert.equal(evaluateFirstCanvasTransport({ ...metrics, firstCanvasSnapshot: {
+      ...metrics.firstCanvasSnapshot, completedResourceBytes
+    } }, contract).transportPolicySatisfied, false);
+  }
+});
+
+test('DOC-105 principal completo y bytes ausentes no pasan como carga parcial', () => {
+  const contract = { statuses: { '206': 1 }, rangeRequestCount: 1, documentLengthBytes: 900000 };
+  const metrics = { pdfLoading: { mode: 'range' }, firstCanvasProgress: { source: 'full', loaded: 900000, total: 900000 } };
+  assert.equal(evaluateFirstCanvasTransport(metrics, contract).transportPolicySatisfied, false);
+  assert.equal(evaluateFirstCanvasTransport({ ...metrics, firstCanvasProgress: null }, contract).transportPolicySatisfied, false);
+  const partial = { ...metrics, firstCanvasProgress: { source: 'full', loaded: 100000, total: 900000 } };
+  assert.equal(evaluateFirstCanvasTransport(partial, contract).transportPolicySatisfied, true);
+  assert.equal(evaluateFirstCanvasTransport(partial, { ...contract, statuses: { '200': 1 } }).transportPolicySatisfied, false);
+  const stream = evaluateFirstCanvasTransport({ ...partial, pdfLoading: { mode: 'stream' } }, {
+    statuses: { '200': 1 }, rangeRequestCount: 0, documentLengthBytes: 900000
+  });
+  assert.equal(stream.transportPolicySatisfied, true);
+  assert.equal(stream.partialBeforeFirstCanvas, false);
+});
+
+test('DOC-105 snapshot no se sustituye por tráfico y progreso posteriores', async () => {
+  const vm = require('node:vm');
+  let init;
+  await installPerformanceProbe({ addInitScript: async callback => { init = callback; } });
+  const listeners = {};
+  let mutation;
+  let ready = false;
+  let bytes = 390850;
+  const window = { addEventListener: (name, callback) => { listeners[name] = callback; },
+    getDocumentLoadingTelemetry: () => ({ firstCanvasLoaded: bytes, firstCanvasTotal: bytes }) };
+  const context = { window, location: { pathname: '/pdfjs/pdf_anotate_view/index.html' }, URL,
+    document: { documentElement: {}, querySelector: selector =>
+      ready && selector.includes('data-ready') ? { width: 100, height: 200 } : null },
+    performance: { now: () => 419, getEntriesByType: () => [{ name: 'https://example.invalid/workflow/Handler_image_wf.ashx', encodedBodySize: bytes }] },
+    MutationObserver: class { constructor(callback) { mutation = callback; } observe() {} } };
+  vm.runInNewContext(`(${init.toString()})()`, context);
+  listeners.DOMContentLoaded();
+  assert.equal(window.__workflowPdfPerformance.firstCanvas, undefined);
+  ready = true;
+  mutation();
+  const snapshot = JSON.stringify(window.__workflowPdfPerformance.firstCanvas);
+  bytes = 9646444;
+  mutation();
+  assert.equal(JSON.stringify(window.__workflowPdfPerformance.firstCanvas), snapshot);
+  assert.equal(window.__workflowPdfPerformance.firstCanvas.loaded, 390850);
+  assert.doesNotMatch(snapshot, /https?:|example|ashx/);
+});
 
 function withProfile(value, action) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'workflow-pdf-perf-policy-'));
@@ -114,6 +181,7 @@ test('DOC-102 sanea contrato Range y bytes sin conservar cabeceras sensibles', (
   assert.match(runner, /loadingParams\?\.disableAutoFetch === true/);
   assert.match(runner, /loadingParams\?\.disableRange === true/);
   assert.match(runner, /transportPolicySatisfied/);
+  assert.match(runner, /String\(browserMetrics\.pdfLoading\?\.mode \|\| ''\)\.toLowerCase\(\)/);
   assert.match(runner, /rangeRequestCount === 0/);
   assert.match(runner, /WORKFLOW_PDF_PERF_LOADING_MODE=/);
   assert.match(runner, /WORKFLOW_PDF_PERF_TRANSPORT_POLICY=/);
