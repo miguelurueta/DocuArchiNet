@@ -79,6 +79,8 @@ El indicador no agregará sondeos, solicitudes ni temporizadores de progreso fic
 
 ### D-13 — Primera página útil, no parcialidad nominal
 
+Alcance temporal: el límite de 3 segundos de 11.13 comienza en el cargador de preview del navegador. No incluye `GenerarVistaPrevia`, invocada sincrónicamente por `PreparadorVisualizacionPdf.Preparar` cuando hace falta preparar esa página, ni la navegación previa. La generación del derivado completo sí se encola en segundo plano. No se afirma que la apertura completa ni toda preparación del servidor estén acotadas a 3 segundos; tampoco se modifica ese comportamiento mediante esta aclaración documental.
+
 Ajuste autorizado de arranque (11.13): cuando existe preview, se prioriza su render y una oportunidad de pintura antes del principal. Un límite de 3 segundos cubre carga, render y frames suspendidos; error/ausencia continúa inmediatamente. Al vencer se invalida el trabajo y se cancelan recursos sin esperar su destrucción. Callbacks tardíos no publican progreso ni canvas. Preview exitoso conserva estado/contador/telemetría al arrancar el principal, manteniendo controles bloqueados hasta su render. El límite es una cota de fallback, no una mejora de latencia demostrada.
 
 La E2E de Producción Documental sobre un PDF pesado observó `RANGE` y HTTP 206, pero necesitó 231.079.058 de 289.799.314 bytes (79,74 %), 223 solicitudes y 48.774/56.662 ms antes del primer canvas. Ese resultado es una regresión aunque la unión de intervalos sea matemáticamente menor al total.

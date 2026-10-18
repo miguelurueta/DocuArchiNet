@@ -1,5 +1,9 @@
 ## Archivo con salvedades — 2026-10-18
 
+Continuación documental de 8.8: reconciliados los escenarios RQ-11 (STREAM del original sin derivado apto) y RQ-12 (preview visible no habilita toolbar) con diseño, código y pruebas existentes. Aclarado en RQ-13/D-13 que el plazo de 3 segundos es del navegador, no de la generación servidor ni de la apertura completa. No cambia código productivo, checkbox ni aceptación operativa; se conservan las cinco salvedades.
+
+Verificación de esta continuación con el Validator de OpenSpec instalado, directamente sobre el archivo: validateChangeDeltaSpecs en modo estricto PASS; validateChange de proposal en modo estricto FAIL por «Consider splitting changes with more than 10 deltas». El conjunto ya contiene 20 requisitos y esta corrección no agrega requisitos. No se equipara esa comprobación directa con el check CI ni se proclama validación estricta integral aprobada. Los 91 estados de tareas permanecen idénticos.
+
 Mantenimiento documental de la tarea 8.8 posterior al archivo: normalizados 35 orígenes al formato D/RQ inicial que reconoce OPSXJ, conservando todas sus referencias; consolidado índice D-12 a D-20 en refinement. Validación de gobernanza: trazabilidad PASS, cuatro controles de cierre todavía FAIL. No cambia ningún checkbox, alcance, evidencia E2E ni autorización de archivo.
 
 El usuario confirma explícitamente archivar DOC-105 con cinco tareas incompletas y sin sincronizar especificaciones. Estado conservado: 86/91 completas; 7.5, 7.5.5, 7.6, 8.6 y 9.6 permanecen sin marcar. Esta decisión de cierre con excepciones no acredita cobertura transversal, rollback probado, guardado instrumentado ni aprobación de despliegue. Las restricciones originales y sus evidencias se conservan para trazabilidad; la excepción de archivo fue autorizada expresamente, no inferida de pruebas aprobadas. No se crean tickets de seguimiento ni se afirma cierre en Jira mediante este archivo local.

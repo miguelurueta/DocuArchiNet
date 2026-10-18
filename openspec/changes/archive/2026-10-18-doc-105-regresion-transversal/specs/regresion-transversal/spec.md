@@ -122,7 +122,7 @@ El sistema SHALL distinguir parcialidad nominal de una primera página útil. Un
 #### Scenario: Prioridad acotada de la primera página temporal
 
 - **WHEN** existe una representación temporal de primera página
-- **THEN** el arranque prioriza su render y oportunidad de pintura antes del principal durante un máximo de 3 segundos; error o timeout continúa con el principal, cancela el trabajo temporal y rechaza callbacks tardíos sin reiniciar el contador de un preview exitoso
+- **THEN** el arranque en el navegador prioriza su render y oportunidad de pintura antes del principal durante un máximo de 3 segundos; error o timeout continúa con el principal, cancela el trabajo temporal y rechaza callbacks tardíos sin reiniciar el contador de un preview exitoso. Este límite no incluye la generación previa del preview en el servidor ni garantiza un tiempo total de apertura de 3 segundos
 
 ### Requirement: RQ-01 Matriz completa de consumidores
 
@@ -280,8 +280,13 @@ El sistema SHALL usar `RANGE` directamente solo para PDF linealizados de al meno
 
 #### Scenario: PDF grande no linealizado
 
-- **WHEN** un PDF válido de al menos 1 MiB no contiene `/Linearized`
-- **THEN** el visor solicita HTTP 206 con carga automática deshabilitada y puede renderizar la primera página con una unión de bytes menor al total
+- **WHEN** un PDF válido de al menos 1 MiB no contiene `/Linearized` y todavía no existe un derivado apto para rangos
+- **THEN** la selección del documento principal conserva `STREAM` del original; si la preparación está habilitada puede generar el derivado completo en segundo plano, sin forzar `RANGE` sobre el original ni afirmar descarga parcial
+
+#### Scenario: Derivado apto disponible
+
+- **WHEN** la preparación dispone de una representación temporal validada y eficaz para rangos
+- **THEN** el documento principal usa `RANGE`, con carga automática deshabilitada; la aceptación de parcialidad y rendimiento depende de las mediciones y presupuestos de RQ-05 y RQ-13, no solo del modo seleccionado
 
 #### Scenario: Fallback compatible
 
@@ -333,7 +338,7 @@ El visor SHALL mostrar un estado accesible de carga desde el HTML inicial hasta 
 #### Scenario: Primer canvas visible
 
 - **WHEN** una página termina de renderizarse y su canvas se inserta en el visor
-- **THEN** el overlay se oculta, se elimina el estado ocupado y quedan disponibles scroll y navegación sin una espera artificial
+- **THEN** el overlay documental se oculta y deja de indicar carga; si el canvas pertenece solo al preview, la toolbar conserva su bloqueo y estado ocupado conforme a RQ-14. Las herramientas se habilitan únicamente después del render principal, según permisos y bloqueos individuales
 
 #### Scenario: Total desconocido o error
 
