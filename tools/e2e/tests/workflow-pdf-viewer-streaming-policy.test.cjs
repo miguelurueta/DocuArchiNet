@@ -132,6 +132,16 @@ test('DOC-105 prepara la vista previa en la primera apertura y difiere solo el d
   assert.match(preparer, /ModoRangos AndAlso EsDerivadoEficaz\(rutaOriginal\)/);
 });
 
+test('DOC-105 limpieza exige propiedad y la publica solo despues del movimiento atomico', () => {
+  assert.match(preparer, /File\.Move\(temporal, rutaDerivado\)\s+RegistrarAcceso\(rutaDerivado, True\)/);
+  assert.match(preparer, /File\.Move\(temporal, rutaVistaPrevia\)\s+RegistrarAcceso\(rutaVistaPrevia, True\)/);
+  assert.equal((preparer.match(/RegistrarAcceso\([^\r\n]*, True\)/g) || []).length, 2);
+  assert.match(preparer, /If Not EsCachePropia\(ruta\) Then Continue For/);
+  assert.match(preparer, /If Not EsRutaSinReparse\(directorio\) Then Return/);
+  assert.match(preparer, /FileAttributes\.ReparsePoint/);
+  assert.doesNotMatch(preparer, /ultimoUso[^\r\n]*File\.GetLastWriteTimeUtc\(ruta\)/);
+});
+
 test('DOC-105 muestra una primera página temporal y la retira al renderizar el documento completo', () => {
   assert.match(script, /function loadFirstPagePreview\(url\)/);
   assert.match(script, /first_page_doc_ref/);

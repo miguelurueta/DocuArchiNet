@@ -1,5 +1,11 @@
 # Pruebas locales DOC-105
 
+## Corrección 13.1 — propiedad de caché, 2026-10-18
+
+Prueba roja/verde real sobre VB compilado mediante `node --test tests/document-streaming.test.cjs`: antes, `LimpiarExpirados` borraba el fixture ajeno foreign.pdf; después conserva PDF ajenos, nombres hash sin marca, marcas legacy/vacías/incorrectas, archivos recientes, subcarpetas, temporales de generación y marcas bloqueadas. Elimina derivado y preview propios vencidos junto a sus marcas. Verifica que acceso no crea propiedad, publicación sí, no sobrescribe marca ajena y una generación activa en el proceso se conserva hasta quedar inactiva. Solo archivos sintéticos en directorio temporal exclusivo; no se usó Ghostscript, documentos reales ni credenciales.
+
+Resultado: streaming compilado 2/2; `test:workflow:pdf-viewer-performance:policy` 74/74 (incluye contrato de publicación después de File.Move y rechazo de reparse points); `test:doc105:pdf-cross-module:policy` 70/70; `test:doc104:server-processing:policy` 34/34; `test:doc105:toolbar-dom` 1/1. MSBuild Debug termina con código 0 y advertencias existentes. La protección de reparse points se verificó por contrato estático, no se ejecutó una prueba de junction real. No sustituye E2E autenticada, ensayo operativo de rollback ni revisión global de cierre.
+
 ## Preflight del lanzador Migración convertido — 2026-10-18
 
 Tarea 7.5.5: el lanzador local ignorado `.tmp/run-doc105-migration-converted.ps1` entregaba tools/e2e/profiles/... al validador que exige profiles/*.runtime.json. Se cambia el directorio de trabajo a tools/e2e relativo a PSScriptRoot, junto con las rutas del runner y ambos perfiles. Antes de una futura ejecución conserva copia del artefacto transversal existente (incluida evidencia SOURCE_PREVIEW); no borra ni reinterpreta resultados previos.

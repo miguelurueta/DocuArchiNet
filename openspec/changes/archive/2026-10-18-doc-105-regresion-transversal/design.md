@@ -65,6 +65,8 @@ Ante una regresión, la matriz se detiene para esa celda, se registra la causa y
 
 ### D-11 — Derivado linealizado temporal sin cambiar almacenamiento
 
+Corrección 13.1: la limpieza automática exige nombre de 64 hexadecimales con sufijo `.pdf` o `.first.pdf` y marcador `.use` versionado ligado al nombre. Solo una publicación exitosa crea propiedad; acceder a caché legacy no la adopta. Se excluyen rutas con reparse points, subdirectorios, temporales de generación, marcas ilegibles y claves en preparación en el proceso actual. Los archivos sin propiedad comprobable se conservan, incluso si son antiguos. La invalidación de una caché existente tampoco borra archivos sin esa propiedad. Esta marca no sustituye ACL: el directorio debe ser dedicado y no escribible por usuarios ajenos; no se garantiza exclusión distribuida entre procesos IIS.
+
 La matriz autorizada demostró que el PDF real de 33.592.820 bytes usa `STREAM` y que su primer canvas crece de 4.341–6.612 ms a 100 Mbps hasta 29.183–32.618 ms a 10 Mbps, transfiriendo el archivo completo en cada carga. También rechazó forzar `RANGE` sobre el original no linealizado: PDF.js realizó 63 solicitudes, cubrió prácticamente los 33.592.820 bytes y empeoró el primer canvas a 8.003/5.828 ms.
 
 Para un PDF válido de al menos 1 MiB no linealizado, el servidor podrá crear en segundo plano un derivado linealizado temporal y cacheado. La primera apertura conserva `STREAM` del original y nunca espera el proceso; una apertura posterior usa `RANGE` únicamente si el derivado existe y su cabecera valida `/Linearized`. La configuración es global y administrativa, no por usuario o grupo. Ejecutable ausente, desactivación, timeout, salida inválida o cualquier error retornan de forma cerrada al original.

@@ -1,5 +1,7 @@
 # Despliegue gradual y rollback DOC-105
 
+Actualización 13.1: la limpieza automática solo admite nombres hash propios con marcador `.use` versionado creado al publicar. Las marcas vacías antiguas no se actualizan ni habilitan borrado: conservar esos archivos y revisar una limpieza manual separadamente si hiciera falta, nunca borrar por patrón una carpeta compartida. Usar un directorio dedicado con ACL restrictivas; la marca no autentica frente a un actor con permisos de escritura. Rutas redirigidas se excluyen de la limpieza. El control de generación activa es por proceso IIS, no distribuido. No se activa preparación ni se limpian documentos reales como parte de esta corrección.
+
 DOC-105 no activa producción. Este procedimiento solo puede ejecutarse con autorización adicional del ambiente y ventana correspondiente.
 
 ## Precondiciones

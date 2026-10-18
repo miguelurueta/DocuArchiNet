@@ -1,5 +1,13 @@
 ## Archivo con salvedades — 2026-10-18
 
+## 13. Corrección autorizada durante revisión de cierre
+
+- [x] 13.1 [M] Restringir limpieza a derivados publicados por el preparador, preservando PDF ajenos, archivos sin marca verificable y generaciones activas en el proceso. Área: `PreparadorVisualizacionPdf.vb`, pruebas compiladas existentes y documentación DOC-105. Origen: D-10, RQ-10, D-11, RQ-11. Verificación: prueba roja compilada reproduce borrado de foreign.pdf sintético; prueba verde conserva ajenos/sin marca/legacy/recientes/subcarpetas y elimina solo propios vencidos. Publicación genera marca versionada; acceso no adopta archivos; marca bloqueada conserva PDF. Streaming 2/2, visor 74/74, DOC-105 70/70, grafos 34/34, DOM 1/1 y MSBuild Debug código 0 con advertencias existentes. No se ejecutó limpieza ni E2E sobre documentos reales. Autorizado por el usuario después del hallazgo de revisión.
+
+Estado posterior a 13.1: 87/92 tareas completas; las mismas cinco salvedades permanecen abiertas y vinculadas a DOC-106–109. Los conteos 86/91 inferiores describen el archivo previo a esta corrección.
+
+## Historia del archivo
+
 Seguimiento autorizado posterior (opción 1, cierre funcional con salvedades): creados y vinculados en Jira DOC-106 para 7.5/7.5.5, DOC-107 para 7.6, DOC-108 para 8.6 y DOC-109 para 9.6 y la cobertura remota acotada de 7.2. Permanecen 86/91 completas: las cinco tareas abiertas no se marcan ejecutadas por crear seguimiento. Esta anotación actualiza la afirmación histórica inferior de que no se crean tickets, sin cambiar el archivo original ni afirmar cierre Jira. Detalle y requisitos de revisión/QA en errores-pendientes.md.
 
 Continuación documental de 8.8: reconciliados los escenarios RQ-11 (STREAM del original sin derivado apto) y RQ-12 (preview visible no habilita toolbar) con diseño, código y pruebas existentes. Aclarado en RQ-13/D-13 que el plazo de 3 segundos es del navegador, no de la generación servidor ni de la apertura completa. No cambia código productivo, checkbox ni aceptación operativa; se conservan las cinco salvedades.

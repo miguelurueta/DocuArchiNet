@@ -6,6 +6,7 @@ Imports System.Globalization
 Imports System.IO
 Imports System.Security.Cryptography
 Imports System.Text
+Imports System.Text.RegularExpressions
 Imports System.Threading
 
 Public NotInheritable Class ResultadoPreparacionPdf
@@ -57,8 +58,14 @@ Public NotInheritable Class PreparadorVisualizacionPdf
                 Return resultado
             End If
             Try
-                If File.Exists(rutaDerivado) AndAlso Not derivadoValido Then File.Delete(rutaDerivado)
-                If File.Exists(rutaVistaPrevia) AndAlso Not vistaPreviaValida Then File.Delete(rutaVistaPrevia)
+                If File.Exists(rutaDerivado) AndAlso Not derivadoValido Then
+                    If Not EsCachePropia(rutaDerivado) Then Return resultado
+                    File.Delete(rutaDerivado)
+                End If
+                If File.Exists(rutaVistaPrevia) AndAlso Not vistaPreviaValida Then
+                    If Not EsCachePropia(rutaVistaPrevia) Then Return resultado
+                    File.Delete(rutaVistaPrevia)
+                End If
             Catch
                 Return resultado
             End Try
@@ -118,7 +125,7 @@ Public NotInheritable Class PreparadorVisualizacionPdf
 
             Try
                 File.Move(temporal, rutaDerivado)
-                RegistrarAcceso(rutaDerivado)
+                RegistrarAcceso(rutaDerivado, True)
             Catch ex As IOException
                 ' Otro proceso IIS pudo publicar la misma versión primero.
                 If Not EsDerivadoValido(rutaDerivado) Then Throw
@@ -153,6 +160,7 @@ Public NotInheritable Class PreparadorVisualizacionPdf
                Not EsPdfValido(temporal) Then Return False
             Try
                 File.Move(temporal, rutaVistaPrevia)
+                RegistrarAcceso(rutaVistaPrevia, True)
             Catch ex As IOException
                 If Not EsPdfValido(rutaVistaPrevia) Then Throw
             End Try
@@ -301,11 +309,14 @@ Public NotInheritable Class PreparadorVisualizacionPdf
 
     Private Shared Sub LimpiarExpirados(ByVal directorio As String)
         Try
+            If Not EsRutaSinReparse(directorio) Then Return
             Dim limite As DateTime = DateTime.UtcNow.AddHours(-ObtenerRetencionHoras())
             For Each ruta As String In Directory.GetFiles(directorio, "*.pdf")
                 Try
+                    If Not EsCachePropia(ruta) Then Continue For
+                    If EnPreparacion.ContainsKey(Path.GetFileName(ruta).Substring(0, 64)) Then Continue For
                     Dim marcaUso As String = ruta & ".use"
-                    Dim ultimoUso As DateTime = If(File.Exists(marcaUso), File.GetLastWriteTimeUtc(marcaUso), File.GetLastWriteTimeUtc(ruta))
+                    Dim ultimoUso As DateTime = File.GetLastWriteTimeUtc(marcaUso)
                     If ultimoUso < limite Then
                         File.Delete(ruta)
                         If File.Exists(marcaUso) Then File.Delete(marcaUso)
@@ -317,12 +328,48 @@ Public NotInheritable Class PreparadorVisualizacionPdf
         End Try
     End Sub
 
-    Private Shared Sub RegistrarAcceso(ByVal rutaDerivado As String)
+    Private Shared Function EsRutaSinReparse(ByVal ruta As String) As Boolean
+        Try
+            Dim actual As String = Path.GetFullPath(ruta)
+            While Not String.IsNullOrEmpty(actual)
+                If (File.GetAttributes(actual) And FileAttributes.ReparsePoint) <> 0 Then Return False
+                actual = Path.GetDirectoryName(actual)
+            End While
+            Return True
+        Catch
+            Return False
+        End Try
+    End Function
+
+    Private Shared Function EsCachePropia(ByVal ruta As String) As Boolean
+        Try
+            Dim nombre As String = Path.GetFileName(ruta)
+            If Not Regex.IsMatch(nombre, "\A[0-9a-f]{64}(\.first)?\.pdf\z", RegexOptions.CultureInvariant) Then Return False
+            Dim marca As New FileInfo(ruta & ".use")
+            If Not marca.Exists OrElse marca.Length > 256 Then Return False
+            If Not EsRutaSinReparse(ruta) OrElse Not EsRutaSinReparse(marca.FullName) Then Return False
+            Return String.Equals(File.ReadAllText(marca.FullName), "DocuArchiNet.PdfCache.v1:" & nombre, StringComparison.Ordinal)
+        Catch
+            Return False
+        End Try
+    End Function
+
+    Private Shared Sub RegistrarAcceso(ByVal rutaDerivado As String, Optional ByVal publicadoPorEstaOperacion As Boolean = False)
         Try
             Dim marcaUso As String = rutaDerivado & ".use"
-            Using marca As New FileStream(marcaUso, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite Or FileShare.Delete)
-                marca.SetLength(0)
-            End Using
+            If publicadoPorEstaOperacion Then
+                ' Only a successful publication may create ownership; never adopt old/foreign files.
+                If Not EsRutaSinReparse(rutaDerivado) Then Return
+                If File.Exists(marcaUso) Then
+                    If Not EsCachePropia(rutaDerivado) Then Return
+                Else
+                    Using marca As New FileStream(marcaUso, FileMode.CreateNew, FileAccess.Write, FileShare.None)
+                        Dim contenido As Byte() = Encoding.UTF8.GetBytes("DocuArchiNet.PdfCache.v1:" & Path.GetFileName(rutaDerivado))
+                        marca.Write(contenido, 0, contenido.Length)
+                    End Using
+                End If
+            End If
+            If Not EsCachePropia(rutaDerivado) Then Return
             File.SetLastWriteTimeUtc(marcaUso, DateTime.UtcNow)
         Catch
             ' La marca solo gobierna limpieza; nunca invalida un derivado correcto.

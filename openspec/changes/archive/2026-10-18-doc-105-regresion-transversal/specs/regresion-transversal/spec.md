@@ -288,6 +288,11 @@ El sistema SHALL usar `RANGE` directamente solo para PDF linealizados de al meno
 - **WHEN** la preparación dispone de una representación temporal validada y eficaz para rangos
 - **THEN** el documento principal usa `RANGE`, con carga automática deshabilitada; la aceptación de parcialidad y rendimiento depende de las mediciones y presupuestos de RQ-05 y RQ-13, no solo del modo seleccionado
 
+#### Scenario: Limpieza de caché sin afectar archivos ajenos
+
+- **WHEN** se ejecuta la limpieza automática de derivados vencidos
+- **THEN** el sistema SHALL eliminar únicamente nombres de caché reconocidos con marca de propiedad versionada y verificable emitida al publicar; SHALL conservar archivos sin marca, marcas legacy o ilegibles, archivos recientes y generaciones activas en el proceso, sin recorrer subdirectorios ni rutas redirigidas. El acceso a un archivo existente no SHALL convertirlo en propiedad del preparador
+
 #### Scenario: Fallback compatible
 
 - **WHEN** el archivo es pequeño, no tiene una cabecera PDF válida o no puede inspeccionarse

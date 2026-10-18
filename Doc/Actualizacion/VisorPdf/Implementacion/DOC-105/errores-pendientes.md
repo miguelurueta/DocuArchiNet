@@ -1,5 +1,9 @@
 # Errores y pendientes DOC-105
 
+## Hallazgo de revisión corregido — tarea 13.1
+
+La limpieza aceptaba cualquier PDF antiguo en la carpeta configurada, sin acreditar propiedad. Corregido con nombre de caché reconocido, marca versionada creada solo al publicar, rechazo de rutas redirigidas y conservación ante incertidumbre. También se protege la eliminación de caché inválida frente a archivos sin propiedad. Prueba compilada roja/verde y resultados en 03-PruebasLocales.md; no hubo limpieza de datos reales. El hallazgo focal se considera corregido, no una aprobación automática de todo DOC-105. Estado actual: 87/92 tareas completas, mismas cinco salvedades en DOC-106–109. Las menciones 86/91 describen el estado anterior.
+
 ## Seguimientos creados para cierre funcional — 2026-10-18
 
 El usuario seleccionó expresamente la opción 1: cierre funcional con salvedades y creación de seguimientos. Se crearon las siguientes tareas Jira, vinculadas a DOC-105 mediante `Relates`, en estado `Por hacer`. No se modificó el estado de DOC-105 ni se aprobaron validaciones pendientes.
