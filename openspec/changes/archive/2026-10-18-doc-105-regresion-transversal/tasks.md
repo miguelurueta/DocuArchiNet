@@ -1,5 +1,7 @@
 ## Archivo con salvedades — 2026-10-18
 
+Seguimiento autorizado posterior (opción 1, cierre funcional con salvedades): creados y vinculados en Jira DOC-106 para 7.5/7.5.5, DOC-107 para 7.6, DOC-108 para 8.6 y DOC-109 para 9.6 y la cobertura remota acotada de 7.2. Permanecen 86/91 completas: las cinco tareas abiertas no se marcan ejecutadas por crear seguimiento. Esta anotación actualiza la afirmación histórica inferior de que no se crean tickets, sin cambiar el archivo original ni afirmar cierre Jira. Detalle y requisitos de revisión/QA en errores-pendientes.md.
+
 Continuación documental de 8.8: reconciliados los escenarios RQ-11 (STREAM del original sin derivado apto) y RQ-12 (preview visible no habilita toolbar) con diseño, código y pruebas existentes. Aclarado en RQ-13/D-13 que el plazo de 3 segundos es del navegador, no de la generación servidor ni de la apertura completa. No cambia código productivo, checkbox ni aceptación operativa; se conservan las cinco salvedades.
 
 Verificación de esta continuación con el Validator de OpenSpec instalado, directamente sobre el archivo: validateChangeDeltaSpecs en modo estricto PASS; validateChange de proposal en modo estricto FAIL por «Consider splitting changes with more than 10 deltas». El conjunto ya contiene 20 requisitos y esta corrección no agrega requisitos. No se equipara esa comprobación directa con el check CI ni se proclama validación estricta integral aprobada. Los 91 estados de tareas permanecen idénticos.

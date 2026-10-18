@@ -1,5 +1,20 @@
 # Errores y pendientes DOC-105
 
+## Seguimientos creados para cierre funcional — 2026-10-18
+
+El usuario seleccionó expresamente la opción 1: cierre funcional con salvedades y creación de seguimientos. Se crearon las siguientes tareas Jira, vinculadas a DOC-105 mediante `Relates`, en estado `Por hacer`. No se modificó el estado de DOC-105 ni se aprobaron validaciones pendientes.
+
+| Origen DOC-105 | Seguimiento | Alcance pendiente |
+| --- | --- | --- |
+| 7.5 y 7.5.5 | [DOC-106](https://contasoftcompany.atlassian.net/browse/DOC-106) | Consulta del destino ya convertido en Migración; no repetir ni confundir el original ya validado |
+| 7.6 | [DOC-107](https://contasoftcompany.atlassian.net/browse/DOC-107) | Guardado único instrumentado, POST=1 y controles SELECT autorizados |
+| 8.6 | [DOC-108](https://contasoftcompany.atlassian.net/browse/DOC-108) | Ensayo recuperable de rollback y smoke test en ambiente autorizado |
+| 9.6 y limitación de 7.2 | [DOC-109](https://contasoftcompany.atlassian.net/browse/DOC-109) | Redes comparables de Workflow derivado y Correspondencia, sin sustituir PDF ni consumidores |
+
+Esta tabla prevalece sobre las menciones históricas inferiores de ausencia de tickets. Los cinco checkboxes originales permanecen abiertos como evidencia de trabajo no ejecutado en DOC-105; transferir su seguimiento no significa completarlo. Cada ticket incluye alcance, criterios de aceptación, autorización de ambiente/cuentas/datos y restricciones de saneamiento. La autorización para crear tickets no autoriza ejecutar sus pruebas, mutaciones o rollback.
+
+Para tramitar el cierre funcional todavía debe registrarse la revisión técnica y la aceptación de QA del alcance efectivamente probado, citando estos cuatro seguimientos y sus exclusiones. La conformidad con crear seguimientos no se registra como QA global aprobada. OPSXJ no reconoce automáticamente esta transferencia como cumplimiento de tareas; no se altera el validador ni se fuerzan confirmaciones para omitir sus controles. Sin merge, transición Jira ni despliegue por esta actualización.
+
 ## Cierre con salvedades autorizado — 2026-10-18
 
 Archivo local de OpenSpec autorizado expresamente por el usuario con 86/91 tareas completas, cinco pendientes y sin sincronizar especificaciones principales. Destino: `openspec/changes/archive/2026-10-18-doc-105-regresion-transversal/`. Este estado prevalece sobre las menciones históricas a «no se archiva»; no cambia resultados de pruebas, no declara cobertura completa ni autoriza producción. No se afirma transición de Jira, publicación, commit ni cierre de las tareas pendientes.
