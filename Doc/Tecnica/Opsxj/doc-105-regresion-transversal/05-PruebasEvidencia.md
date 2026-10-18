@@ -8,7 +8,9 @@ Cambio: `doc-105-regresion-transversal`. Impacto: `cross_cutting`.
 
 ## Evidencia requerida
 
-Preparación de PR: se repitieron visor 73/73, política DOC-105 70/70, servidor/grafo 34/34 y streaming compilado 2/2. `opsxj:validate DOC-105` sigue FAIL por seis controles: refinement:no_placeholders, refinement:tasks:origins, openspec_tasks, openspec_review, evidence:unit y evidence:manual_qa. Las ejecuciones locales no equivalen al registro de evidencia por SHA en OPSXJ. Publicación solicitada como borrador, no merge ni cierre Jira; las salvedades no se convierten en controles aprobados.
+Preparación de PR: se repitieron visor 73/73, política DOC-105 70/70, servidor/grafo 34/34 y streaming compilado 2/2. La validación inicial reportó seis controles fallidos. Revisión documental posterior del 2026-10-18: se sustituyó la palabra ambigua «todo», se normalizó el orden de 35 orígenes sin eliminar referencias y se incorporó al índice de refinamiento D-12 a D-20, ya presentes en diseño/especificación/tareas. `opsxj:validate DOC-105` ahora sigue FAIL por cuatro controles: openspec_tasks, openspec_review, evidence:unit y evidence:manual_qa. Las ejecuciones locales no equivalen al registro de evidencia por SHA en OPSXJ. Publicación solicitada como borrador, no merge ni cierre Jira; las salvedades no se convierten en controles aprobados.
+
+El check GitHub `OpenSpec and opsxj tests` del commit `b795b2c1`, ejecución 39130096608, terminó PASSED en 3m7s. Ese resultado pertenece a ese commit y no sustituye los cuatro controles anteriores ni valida automáticamente revisiones posteriores. La revisión actual es documental y limitada; no se registra como revisión completa de implementación.
 
 Consolidación al archivo: visor 73/73, DOC-105 70/70, DOM Chrome 1/1 y MSBuild Debug código 0 con advertencias históricas. Evidencia y límites detallados en `Doc/Actualizacion/VisorPdf/Implementacion/DOC-105/03-PruebasLocales.md`. Los resultados históricos inferiores no representan el estado final.
 

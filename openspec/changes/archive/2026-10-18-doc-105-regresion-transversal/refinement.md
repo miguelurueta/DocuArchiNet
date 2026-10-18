@@ -37,7 +37,7 @@
 
 | ID | Resultado observable | Criterio principal | Riesgo/compatibilidad |
 | --- | --- | --- | --- |
-| RQ-01 | Matriz enumera todo consumidor conocido. | Ninguna fila omitida o declarada aprobada sin ejecución. | Cobertura falsa. |
+| RQ-01 | Matriz enumera cada consumidor conocido. | Ninguna fila omitida o declarada aprobada sin ejecución. | Cobertura falsa. |
 | RQ-02 | Un arnés reutiliza autenticación y políticas existentes. | No aparece login, `.env` o Playwright paralelo. | Fuga de secretos. |
 | RQ-03 | Todos los módulos producen el mismo esquema de medición. | Adaptador navega; medidor observa. | Selectores frágiles. |
 | RQ-04 | Hay muestras frías/calientes para cuatro redes. | Perfil y latencia quedan declarados. | Caché sesgada. |
@@ -48,6 +48,34 @@
 | RQ-09 | Rollback es reproducible y no usa gate legacy. | Smoke posterior restaura visor anterior. | Despliegue irreversible. |
 | RQ-10 | Toda corrección queda localizada y revalidada. | Prueba focal + MSBuild + celda repetida. | Cambio transversal accidental. |
 | RQ-11 | Un PDF grande no linealizado puede lograr descarga parcial sin cambiar almacenamiento. | Primera apertura no bloquea; una posterior usa 206 y menos bytes antes del canvas. | Costo CPU, licencia del linealizador y caché temporal. |
+
+## Consolidación documental posterior al archivo — 2026-10-18
+
+Este índice incorpora las ampliaciones ya descritas en design, spec y tareas 10–12. No introduce alcance ni autorizaciones nuevas, no modifica las cinco salvedades del archivo y no constituye revisión técnica aprobada.
+
+| ID | Decisión verificable | Evidencia de código | Requirement |
+| --- | --- | --- | --- |
+| D-12 | Mostrar carga accesible y progreso real hasta el canvas, sin getData al arrancar. | `pdfjs/pdf_anotate_view/script.js`, `pdf_viewer_anotate.js`. | RQ-12 |
+| D-13 | Exigir primera página útil y priorizar preview con espera acotada. | `script.js`, `Infrastructure/Documentos/Streaming/PreparadorVisualizacionPdf.vb`. | RQ-13 |
+| D-14 | Conservar contador y bloquear herramientas según disponibilidad y operación. | `script.js`, `index.html`, `styles.css`. | RQ-14 |
+| D-15 | Conservar configuración explícita de transparencia, sin activación global. | `pdfjs/pdf_anotate_view/pdf_viewer_anotate.js`. | RQ-15 |
+| D-16 | Convertir el rectángulo visual del grafo al espacio PDF con escala y giro. | Motor del visor y geometría VB documentados en tarea 12.11. | RQ-16 |
+| D-17 | Revelar grafos desplazando solo el contenedor documental. | `pdfjs/pdf_anotate_view/pdf_viewer_anotate.js`. | RQ-17 |
+| D-18 | Reservar cabecera del modal de Producción y mantener visible su borde inferior. | `Gestion/WebFormProducionDocumental.aspx` y su JavaScript. | RQ-18 |
+| D-19 | Insertar el grafo en la zona de lectura y mantener acciones opacas. | Motor y estilos del visor, tarea 12.14. | RQ-19 |
+| D-20 | Mantener espera y bloqueo de impresión hasta cierre, fallback o error. | Coordinador y motor del visor, tarea 12.15. | RQ-20 |
+
+| ID | Resultado observable | Criterio principal | Riesgo/compatibilidad |
+| --- | --- | --- | --- |
+| RQ-12 | Carga visible sin progreso ficticio. | Overlay, progreso real y error estable. | Accesibilidad y consumo completo accidental. |
+| RQ-13 | Primera página útil con presupuesto verificable. | Preview priorizado hasta 3 segundos; callbacks tardíos invalidados. | Parcialidad nominal no equivale a rendimiento. |
+| RQ-14 | Contador no vacío y herramientas coherentes. | Preview no habilita acciones; descarga y giro conservan contratos. | Carreras y operaciones duplicadas. |
+| RQ-15 | Transparencia confirmada se conserva al reabrir. | Error mantiene configuración anterior; catálogo sin duplicados. | No alterar original ni valores globales. |
+| RQ-16 | Rectángulo y orientación coherentes al guardar. | Conversión con escala, rotación y origen PDF; rechazo de geometría inválida. | No sustituye guardado instrumentado. |
+| RQ-17 | Cabecera y cierre del modal no se desplazan. | Scroll exclusivo del área documental. | Iframes y ancestros recortables. |
+| RQ-18 | Barra horizontal accesible con zoom. | Borde inferior visible y extremo derecho alcanzable. | Medición ancestral sin falsos recortes. |
+| RQ-19 | Grafo y Guardar visibles al insertar. | Intersección página/viewport, sin recentrado tras interacción. | Imagen tardía y opacidad de acciones. |
+| RQ-20 | Impresión informa preparación y evita duplicados. | onLoadingEnd no libera; cierre, fallback o error sí. | Cierre por foco es heurístico, no impresión física. |
 
 ## Resultado del refinamiento
 
