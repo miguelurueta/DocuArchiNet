@@ -816,6 +816,7 @@
             }
             //Solicita el div de la pagina activa
             let content_canvas_ = this.getActivePage();
+            if (!content_canvas_) return false;
             let content_canvas = content_canvas_[0];
             if (content_canvas == null) {
                 return true;
@@ -829,15 +830,16 @@
             }
             //Creando bara de botonoes
             let div_barra = document.createElement("div");
-            div_barra.style.backgroundColor = "#5b6dcd";
             div_barra.classList.add("modal-header_");
+            div_barra.classList.add("pdf-annotation-actions");
             div_barra.id = id_div_dag + "_bar";
             //add buton cerrar ventana
             var ihtml = document.createElement("i");
-            ihtml.style.color = "black";
             ihtml.classList.add("fas");
             ihtml.classList.add("fa-times");
-            var ahtml = document.createElement("a");
+            var ahtml = document.createElement("button");
+            ahtml.type = "button";
+            ahtml.setAttribute("aria-label", "Cancelar grafo");
             ahtml.classList.add("btn");
             ahtml.classList.add("btn-link");
             ahtml.classList.add("btn-sm");
@@ -850,10 +852,11 @@
             div_barra.appendChild(ahtml);
             //add boton salvar anotacion
             ihtml = document.createElement("i");
-            ihtml.style.color = "black";
             ihtml.classList.add("fas");
             ihtml.classList.add("fa-save");
-            ahtml = document.createElement("a");
+            ahtml = document.createElement("button");
+            ahtml.type = "button";
+            ahtml.setAttribute("aria-label", "Guardar grafo");
             ahtml.classList.add("btn");
             ahtml.classList.add("btn-link");
             ahtml.classList.add("btn-sm");
@@ -865,12 +868,14 @@
             ahtml.setAttribute("ur_image_drag64", this.ur_data64);
             ahtml.setAttribute("event_drag", "save");
             ahtml.appendChild(ihtml);
+            ahtml.appendChild(document.createTextNode(" Guardar"));
             div_barra.appendChild(ahtml);
           
             let div_drad = document.createElement("div");
             div_drad.style.border = "1px solid rgba(0,0,0,.2)";
             div_drad.style.borderRadius = "10px";
             div_drad.classList.add("ui-widget-content");
+            div_drad.classList.add("pdf-annotation-overlay");
             div_drad.id = id_div_dag;
             div_drad.style.position = "absolute";
             let img_drag = document.createElement("img");
@@ -880,35 +885,36 @@
             div_drad.appendChild(img_drag);
             div_drad.appendChild(div_barra);
             let image_sr = new Image();
-            if (this.ur_firma_user !== "") {
-                image_sr.src = this.ur_firma_user;
-            } else {
-                image_sr.src = this.ur_data64;
-            }
             content_canvas.appendChild(div_drad);
             if (utili_elimina !== 1) {
                 this.settings.Inconter_Stamp ++;
             }
-            image_sr.onload = function () {
+            const useReadingPosition = topconten_ === 0;
+            let positionTouched = false;
+            div_drad.addEventListener("pointerdown", () => { positionTouched = true; }, { once: true });
+            image_sr.onload = () => {
+                if (!div_drad.isConnected) return;
+                const ratio = Math.min(1, 100 / image_sr.naturalWidth, 100 / image_sr.naturalHeight);
+                img_drag.width = image_sr.naturalWidth * ratio;
+                img_drag.height = image_sr.naturalHeight * ratio;
                 img_drag.src = image_sr.src;
+                if (!positionTouched) {
+                    if (useReadingPosition) this._positionAnnotationInReadingArea(content_canvas, div_drad);
+                    else this._revealAnnotation(div_drad);
+                }
             };
+            image_sr.src = this.ur_firma_user !== "" ? this.ur_firma_user : this.ur_data64;
            
-            let container_ = document.getElementById("container-general");
             var topconten = 0;
             var lefconten = 0;
             if (topconten_ !== 0) {
                 topconten = topconten_;
                 lefconten = lefconten_;
-            } else {
-                topconten = container_.clientHeight / 2;
-                lefconten = content_canvas.clientWidth / 2;
             }
             div_drad.style.top = topconten + "px";
             div_drad.style.left = lefconten + "px";
-            if (this.isInViewport(div_drad) == false) {
-                div_drad.scrollIntoView();
-            }
-            $("#" + id_div_dag).css({ opacity: 0.5 });
+            if (useReadingPosition) this._positionAnnotationInReadingArea(content_canvas, div_drad);
+            else this._revealAnnotation(div_drad);
             //left = $("#" + id_div_dag).position.left;
             //top = $("#" + id_div_dag).position.top;
             $("#" + id_div_dag).draggable({
@@ -937,6 +943,43 @@
                 }
             }
             );
+        }
+        _positionAnnotationInReadingArea(page, overlay) {
+            const container = this.$container.get(0);
+            if (!container || !container.contains(overlay)) return;
+            const viewport = container.getBoundingClientRect();
+            const paper = page.getBoundingClientRect();
+            const stamp = overlay.getBoundingClientRect();
+            const scaleX = paper.width / page.offsetWidth;
+            const scaleY = paper.height / page.offsetHeight;
+            if (!(scaleX > 0 && scaleY > 0)) return;
+            const left = Math.max(paper.left, viewport.left + container.clientLeft);
+            const top = Math.max(paper.top, viewport.top + container.clientTop);
+            const right = Math.min(paper.right, viewport.left + container.clientLeft + container.clientWidth);
+            const bottom = Math.min(paper.bottom, viewport.top + container.clientTop + container.clientHeight);
+            if (right <= left || bottom <= top) return;
+            // Centrar el formulario completo en la intersección visible, no en toda la página.
+            const x = left + Math.max(0, (right - left - stamp.width) / 2);
+            const y = top + Math.max(0, (bottom - top - stamp.height) / 2);
+            overlay.style.left = Math.max(0, (x - paper.left) / scaleX - page.clientLeft) + "px";
+            overlay.style.top = Math.max(0, (y - paper.top) / scaleY - page.clientTop) + "px";
+        }
+        _revealAnnotation(element) {
+            const container = this.$container.get(0);
+            if (!container || !element || !container.contains(element)) return;
+            // No scrollIntoView: atraviesa el iframe y desplaza también el modal anfitrión.
+            const bounds = container.getBoundingClientRect();
+            const rect = element.getBoundingClientRect();
+            const top = bounds.top + container.clientTop;
+            const left = bounds.left + container.clientLeft;
+            const bottom = top + container.clientHeight;
+            const right = left + container.clientWidth;
+            const dy = rect.top < top ? rect.top - top :
+                rect.bottom > bottom ? Math.min(rect.top - top, rect.bottom - bottom) : 0;
+            const dx = rect.left < left ? rect.left - left :
+                rect.right > right ? Math.min(rect.left - left, rect.right - right) : 0;
+            container.scrollTop += dy;
+            container.scrollLeft += dx;
         }
         isInViewport(elem) {
         if (elem) {
@@ -980,11 +1023,11 @@
         _DonwloadPage() {
             if (this.anotate_save == 0) {
                 this.PdfViwerAlert("Usuario sin permisos para descargar el documento", "warning", "container-general");
-                return true;
+                return false;
             }
             let array_parameter = pdfViewer._PropertiTransac()
             let url_page = pdfViewer.getUrlPage();
-            service_download_pdf_visor_plus(url_page, array_parameter,"Descarga");
+            return service_download_pdf_visor_plus(url_page, array_parameter,"Descarga");
         }
         /**
          * 
@@ -993,19 +1036,21 @@
           async _PrinterPdf() {
             if (this.anotate_printer == 0) {
                 this.PdfViwerAlert("Usuario sin permisos para imprimir el documento", "warning", "container-general");
-                return true;
+                return false;
             }
             try {
                 if (typeof window.loadViewerCapability === "function") {
                     await window.loadViewerCapability("print");
                 }
+                if (typeof window.isViewerInteractionReady === "function" && !window.isViewerInteractionReady()) {
+                    throw new Error("VIEWER_PRINT_NOT_READY");
+                }
             } catch (error) {
-                this.PdfViwerAlert("No fue posible cargar la impresión. Intente nuevamente.", "warning", "container-general");
-                return false;
+                throw new Error("VIEWER_PRINT_CAPABILITY_FAILED");
             }
             let array_parameter = pdfViewer._PropertiTransac()
             let url_page = pdfViewer.getUrlPage();
-            service_printer_pdf_visor_plus(url_page, array_parameter, "Imprime");
+            return service_printer_pdf_visor_plus(url_page, array_parameter, "Imprime");
             
             
         }
@@ -1165,27 +1210,21 @@
          * @param {*} accumulate - whether the rotation is accumulated or not
          */
         rotate(deg, accumulate = false) {
+            if (!this.pdf) return Promise.resolve(false);
+            const targetPage = this._rotationAnchorPage || this._activePage || 1;
+            this._rotationAnchorPage = targetPage;
             if (accumulate) {
                 deg = deg + this._rotation;
             }
 
             this._rotation = deg;
-            let container = this.$container.get(0);
-            let prevScroll = {
-                top: container.scrollTop,
-                left: container.scrollLeft,
-                height: container.scrollHeight,
-                width: container.scrollWidth
-            };
-            return this.forceViewerInitialization().then(function () {
-                let newScroll = {
-                    top: container.scrollTop,
-                    left: container.scrollLeft,
-                    height: container.scrollHeight,
-                    width: container.scrollWidth
-                };
-                container.scrollTop = prevScroll.top * (newScroll.height / prevScroll.height);
-                container.scrollLeft = prevScroll.left * (newScroll.width / prevScroll.width);
+            const pending = this.forceViewerInitialization(targetPage);
+            this._rotationInitialization = pending;
+            return pending.finally(function () {
+                if (this._rotationInitialization === pending) {
+                    this._rotationInitialization = null;
+                    this._rotationAnchorPage = null;
+                }
             }.bind(this));
 
         }
@@ -1194,8 +1233,9 @@
          *   the rotation of the pages)
          * @returns a promise that is resolved when the viewer is fully initialized
          */
-        forceViewerInitialization() {
+        forceViewerInitialization(targetPage = 1) {
             this._advanceRenderGeneration();
+            const request = this._initializationRequest = (this._initializationRequest || 0) + 1;
             // Store the pdf file
             // Now prepare a placeholder for the pages
             this.pages = [];
@@ -1205,9 +1245,12 @@
             this._activePage = null;
             this._setupViewportObserver();
             return this.pdf.getPage(1).then(function (page) {
+                if (request !== this._initializationRequest) return false;
                 this._createSkeletons(page);
+                this._zoom.zoomPages(this._zoom.current);
+                this.scrollToPage(Math.max(1, Math.min(targetPage, this.pageCount)));
                 this._visiblePages();
-                this._setActivePage(1);
+                return true;
             }.bind(this));
         }
         /** 
@@ -1242,11 +1285,19 @@
             
             // Load the task and return the promise to load the document
             let loadingTask = pdfjsLib.getDocument(this._createLoadingSource(document));
+            loadingTask.onProgress = function (progress) {
+                if (typeof this.settings.onDocumentProgress === "function") {
+                    this.settings.onDocumentProgress.call(this, progress);
+                }
+            }.bind(this);
             
             return loadingTask.promise.then(function (pdf) {
                 // Store the pdf file and get the 
                 this.pdf = pdf;
                 this.pageCount = pdf.numPages;
+                if (typeof this.settings.onDocumentMetadata === "function") {
+                    this.settings.onDocumentMetadata.call(this, this.pageCount);
+                }
                 this._rotation = 0;
                 return this.forceViewerInitialization();
             }.bind(this)).then(function () {
@@ -1268,9 +1319,16 @@
             }
             return {
                 url: document,
+                // La vista previa independiente ya entrega la primera página útil. El
+                // documento completo queda en rangos bajo demanda para no iniciar en
+                // segundo plano una transferencia progresiva de todo el PDF pesado.
+                disableRange: false,
                 disableStream: true,
                 disableAutoFetch: true,
-                rangeChunkSize: 262144
+                // Un bloque de 256 KiB convirtió PDFs grandes con una primera sección extensa
+                // en cientos de viajes HTTP secuenciales. 1 MiB limita esa latencia sin
+                // habilitar la precarga automática del resto del documento.
+                rangeChunkSize: 1048576
             };
         }
         /** acive windows config itex stamp */
@@ -1404,11 +1462,14 @@ async function event_drag_anotate(event, element) {
         const selectedFileImageSource = hasFileImageSource ? ur_image_drag : "";
         const selectedBase64ImageSource = hasFileImageSource ? "" : ur_image_drag_bit64;
         const imageSource = selectedFileImageSource || selectedBase64ImageSource;
-        const currentTop = drag_div_parent ? Number.parseFloat(drag_div_parent.style.top) : NaN;
-        const currentX = drag_div_parent ? Number.parseFloat(drag_div_parent.style.left) : NaN;
+        const canvasRect = drag_canvas && drag_canvas.getBoundingClientRect();
+        const imageRect = div_imag && div_imag.getBoundingClientRect();
+        const currentTop = imageRect && canvasRect ? imageRect.top - canvasRect.top : NaN;
+        const currentX = imageRect && canvasRect ? imageRect.left - canvasRect.left : NaN;
         if (!value_id_parent || !drag_canvas || !drag_div_parent || !div_imag || !div_bar || !imageSource ||
             !Number.isFinite(page_drag) || page_drag < 1 || !Number.isFinite(currentTop) || !Number.isFinite(currentX) ||
-            drag_canvas.clientWidth <= 0 || drag_canvas.clientHeight <= 0 || div_imag.clientWidth <= 0 || div_imag.clientHeight <= 0) {
+            ![canvasRect.width, canvasRect.height, imageRect.width, imageRect.height].every(Number.isFinite) ||
+            canvasRect.width <= 0 || canvasRect.height <= 0 || imageRect.width <= 0 || imageRect.height <= 0) {
             const invalid = doc103Result("rejected", "INVALID_INPUT");
             notifyAnotateResult(invalid);
             return invalid;
@@ -1423,9 +1484,9 @@ async function event_drag_anotate(event, element) {
         const applyTransparency = stampConfig && stampConfig.error_sistema === "YES" ? stampConfig.itex_aplicate_transparent_stamp : 1;
         setAnnotationControlsPending(value_id_parent, true);
         const operation = save_anotate_firma(
-            currentX, drag_canvas.clientHeight - currentTop, div_imag.clientWidth, div_imag.clientHeight,
-            page_drag, selectedFileImageSource, selectedBase64ImageSource, pdfViewer.getZoom(), drag_canvas.clientWidth,
-            drag_canvas.clientHeight, pdfViewer.anotate_id_imagen, pdfViewer.anotate_cabinete_imagen,
+            currentX, canvasRect.height - currentTop, imageRect.width, imageRect.height,
+            page_drag, selectedFileImageSource, selectedBase64ImageSource, pdfViewer.getZoom(), canvasRect.width,
+            canvasRect.height, pdfViewer.anotate_id_imagen, pdfViewer.anotate_cabinete_imagen,
             pdfViewer.anotate_radicado, pdfViewer.anotate_id_workflow, pdfViewer.anotate_desc_transacion,
             pdfViewer._rotation, applyTransparency, transparency, operationContext
         ).then(async function (result) {
@@ -1559,6 +1620,7 @@ function context_menu(id_div_dag) {
 }
 const asign_connfig_itext_stamp = (itex_config_stamp) => {
     let select_itext_stamp = document.getElementById("select_itext_stamp");
+    select_itext_stamp.replaceChildren();
     for (let i = 0; i < itex_config_stamp[0].item_itext.length; i++) {
         let opt = document.createElement("OPTION");
         opt.text = itex_config_stamp[0].item_itext[i].text;
@@ -1592,7 +1654,7 @@ const save_config_itex_stamp = () => {
         'id_user_config': 0, 'itex_value_stamp_transparent': valor_campo, 'itex_aplicate_transparent_stamp': chek_itent
         , 'item_itext': null, 'error_sistema' : "YES"}
     )
-    service_update_insert_configuracion_itex_stamp_user(array_config_item_stamp);
+    return service_update_insert_configuracion_itex_stamp_user(array_config_item_stamp);
 }
 //zona de web service
 
@@ -1619,7 +1681,8 @@ function service_anotate_pdf_image(pdf_file_page, payload, operationContext) {
     });
 }
 function service_download_pdf_visor_plus(url_pdf, parameter_log, operation) {
-    try {
+    return new Promise(function (resolve, reject) {
+      try {
         var serialice = JSON.stringify(parameter_log);
         $.ajax('../../webservice/WebService_itext.asmx/service_download_pdf_visor_plus', {
             data: "{'anotate':" + "'" + url_pdf + "','parameter_log':'" + serialice + "','operation':'" + operation + "'}",
@@ -1629,120 +1692,66 @@ function service_download_pdf_visor_plus(url_pdf, parameter_log, operation) {
             processData: false,
             contentType: "application/json; charset=utf-8",
             success: function (data) {
-                if (data.d !== "YES") {
-                    if (data.d[0].error_sistema != "YES") {
-                        alert(data.d[0].error_sistema);
-                        return "";
-                    } else {
-                        dowload_file(data.d[0].url_salida, data.d[0].name_file);
-                        if (data.d[0].error_log != "YES") {
-                            alert("Se descargo el documento, con error en el log de descarga : " + data.d[0].error_log);
-                        }
-                        return true;
+                try {
+                    const result = data && Array.isArray(data.d) && data.d[0];
+                    if (!result || result.error_sistema !== "YES" ||
+                        typeof result.url_salida !== "string" || !result.url_salida.trim() ||
+                        typeof result.name_file !== "string" || !result.name_file.trim()) {
+                        reject(new Error("VIEWER_DOWNLOAD_REJECTED"));
+                        return;
                     }
-
-                }
+                    dowload_file(result.url_salida, result.name_file);
+                    if (result.error_log !== "YES") {
+                        pdfViewer.PdfViwerAlert("Descarga enviada al navegador con una advertencia de registro.", "warning", "container-general");
+                    }
+                    resolve(true);
+                } catch (_) { reject(new Error("VIEWER_DOWNLOAD_FAILED")); }
             }, error: function (xception, textStatus, errorThrown) {
-
-                if (xception.status === 0) {
-
-                    alert('Not connect: Verify Network.');
-
-                } else if (xception.status == 404) {
-
-                    alert('Requested page not found [404]');
-
-                } else if (xception.status == 500) {
-
-                    alert('Internal Server Error [500].' + xception.responseText);
-
-                } else if (textStatus === 'parsererror') {
-
-                    alert('Requested JSON parse failed.');
-
-                } else if (textStatus === 'timeout') {
-
-                    alert('Time out error.');
-
-                } else if (textStatus === 'abort') {
-
-                    alert('Ajax request aborted.');
-
-                } else {
-
-                    alert('Uncaught Error: ' + xception.responseText);
-
-                }
+                reject(new Error("VIEWER_DOWNLOAD_TRANSPORT_FAILED"));
             }
         });
-    }
-    catch (ex) {
-        //ESTADO_EVENT_GENERAL = "out";
-        alert('service_download_pdf_visor_plus  ' + ex.message);
-    }
+      } catch (_) { reject(new Error("VIEWER_DOWNLOAD_FAILED")); }
+    });
 }
 function service_printer_pdf_visor_plus(url_pdf, parameter_log, operation) {
-    try {
-        var serialice = JSON.stringify(parameter_log);
-        $.ajax('../../webservice/WebService_itext.asmx/service_download_pdf_visor_plus', {
-            data: "{'anotate':" + "'" + url_pdf + "','parameter_log':'" + serialice + "','operation':'" + operation + "'}",
-            dataType: 'json',
-            type: "POST",
-            traditional: true,
-            processData: false,
-            contentType: "application/json; charset=utf-8",
-            success: function (data) {
-                if (data.d !== "YES") {
-                    if (data.d[0].error_sistema != "YES") {
-                        alert(data.d[0].error_sistema);
-                        return "";
-                    } else {
-                        var CurrentPathName = unescape(location.pathname);
-                        var CurrentPath = CurrentPathName.substring(1, CurrentPathName.lastIndexOf("/") + 1);
-                        let spli_ = CurrentPath.split("/");
-                        let url_printer = location.origin +  data.d[0].url_path;
-                        printJS({ printable: url_printer, type: 'pdf' });
-                    }
-
-                }
-            }, error: function (xception, textStatus, errorThrown) {
-
-                if (xception.status === 0) {
-
-                    alert('Not connect: Verify Network.');
-
-                } else if (xception.status == 404) {
-
-                    alert('Requested page not found [404]');
-
-                } else if (xception.status == 500) {
-
-                    alert('Internal Server Error [500].' + xception.responseText);
-
-                } else if (textStatus === 'parsererror') {
-
-                    alert('Requested JSON parse failed.');
-
-                } else if (textStatus === 'timeout') {
-
-                    alert('Time out error.');
-
-                } else if (textStatus === 'abort') {
-
-                    alert('Ajax request aborted.');
-
-                } else {
-
-                    alert('Uncaught Error: ' + xception.responseText);
-
-                }
-            }
-        });
-    }
-    catch (ex) {
-        //ESTADO_EVENT_GENERAL = "out";
-        alert('service_printer_pdf_visor_plus  ' + ex.message);
-    }
+    return new Promise(function (resolve, reject) {
+        const fail = function () { reject(new Error("VIEWER_PRINT_FAILED")); };
+        // Loading end is NOT dialog completion: Chromium may still be preparing
+        // its preview. Only dialog close (including cancel) releases single-flight.
+        // Defer completion so a synchronous library error always wins.
+        const complete = function () { Promise.resolve().then(function () { resolve(true); }); };
+        try {
+            var serialice = JSON.stringify(parameter_log);
+            $.ajax('../../webservice/WebService_itext.asmx/service_download_pdf_visor_plus', {
+                data: "{'anotate':" + "'" + url_pdf + "','parameter_log':'" + serialice + "','operation':'" + operation + "'}",
+                dataType: 'json',
+                type: "POST",
+                traditional: true,
+                processData: false,
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    try {
+                        const result = data && Array.isArray(data.d) && data.d[0];
+                        if (!result || result.error_sistema !== "YES" ||
+                            typeof result.url_path !== "string" || !result.url_path.trim()) {
+                            fail();
+                            return;
+                        }
+                        printJS({
+                            printable: location.origin + result.url_path,
+                            type: 'pdf',
+                            onError: fail,
+                            onLoadingEnd: function () {},
+                            // Unsupported browsers open a separate PDF tab instead.
+                            onIncompatibleBrowser: complete,
+                            onPrintDialogClose: complete
+                        });
+                    } catch (_) { fail(); }
+                },
+                error: fail
+            });
+        } catch (_) { fail(); }
+    });
 }
 async function service_config_itex_stamp_interface () {
     let error_array = new Array();
@@ -1911,13 +1920,15 @@ async function service_update_insert_configuracion_itex_stamp_user(array_item) {
             }
         });
     })
-    pdfViewer.itex_config_stamp = await myPromise;
-    if (pdfViewer.itex_config_stamp[0].error_sistema != "YES") {
-        pdfViewer.PdfViwerAlert(pdfViewer.itex_config_stamp[0].error_sistema, "warning", "exampleModal");
+    const result = await myPromise;
+    if (!Array.isArray(result) || !result[0] || result[0].error_sistema !== "YES") {
+        pdfViewer.PdfViwerAlert("No fue posible confirmar la configuración. Cierre y vuelva a abrir el visor para verificarla antes de guardar un grafo.", "warning", "exampleModal");
+        return false;
     } else {
         pdfViewer.itex_config_stamp[0].itex_value_stamp_transparent = array_item[0].itex_value_stamp_transparent;
         pdfViewer.itex_config_stamp[0].itex_aplicate_transparent_stamp = array_item[0].itex_aplicate_transparent_stamp;
         $('#exampleModal').modal('hide');
+        return true;
     }
 
 }

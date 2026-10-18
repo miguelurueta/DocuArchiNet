@@ -21,7 +21,7 @@
     <link href="../Styles/Aplicaction.css" rel="stylesheet" />
     <script src="../js/MyJavaScriptFile.js"></script> 
     <script src="../js/Reportes/JSEsportaReportes.js"></script>
-    <script src="../js/gestion/WebFormProducionDocumental.js"></script>  
+    <script src="../js/gestion/WebFormProducionDocumental.js?v=doc105-layout-1"></script>
     <script src="../js/validate_campos.js"></script>
     <script src="../generic_control/FileUploadHandler.js" type="text/javascript"></script>
     <script src="../js/java_general/JSProgresBar.js"></script>
@@ -52,6 +52,7 @@
   <script  src="../Awesome/js/fontawesome.js"></script>
     
     <style type="text/css">
+        #UpdatePanel_visor_externo { height: 100%; min-height: 0; }
         .auto-style1 {
             height: 29px;
         }
@@ -1458,20 +1459,21 @@
                <asp:Panel ID="Panel_visor_externo" runat="server" Style="display:none; overflow:hidden" ForeColor="White" Width="98%" Height="100% " CssClass="modal_content_general">
                   <asp:ModalPopupExtender ID="ModalPopupExtender_visor_externo" runat="Server" BackgroundCssClass="FondoAplicacion" TargetControlID="Button_visor_externo"
                       PopupControlID="Panel_visor_externo"  CancelControlID="ButtonSalir_visor_externo"></asp:ModalPopupExtender>
-                  <div id="Cabecerapendiente_visor_externo" class="modal_title_superior">        
+                  <div style="display:flex; flex-direction:column; height:100%; min-height:0">
+                  <div id="Cabecerapendiente_visor_externo" class="modal_title_superior" style="flex-shrink:0">
                        <button type="button" value="ButtonSalir_visor_externo" class="close da_event_captive mr-2">&times;</button>                     
                   </div>
-                  <div id="Cotenedorpendiente_visor_externo" style="color: Black; background-color: #FFFFFF; height: 90%; width: 100%; overflow:hidden" class="modal_content_back">                 
+                  <div id="Cotenedorpendiente_visor_externo" style="color: Black; background-color: #FFFFFF; flex:1; min-height:0; width:100%; overflow:hidden; box-sizing:border-box" class="modal_content_back">
                       <asp:UpdatePanel ID="UpdatePanel_visor_externo" runat="server" UpdateMode="Conditional">
                           <ContentTemplate>
-                              <iframe id="Iframe_visor_externo_da_" runat="server" frameborder="0"  style="width:100%; height:100%; overflow:hidden"></iframe>
+                              <iframe id="Iframe_visor_externo_da_" runat="server" frameborder="0"  style="display:block; width:100%; height:100%; border:0; overflow:hidden"></iframe>
                           </ContentTemplate>
                       </asp:UpdatePanel>
                             <asp:Button ID="Button_visor_externo" CssClass="invisible" runat="server" Text="" Height="1px" Width="1px" style="display:none" />
                              <asp:Button ID="ButtonSalir_visor_externo" runat="Server" Text="" CssClass="invisible" 
                               Height="1px" Width="1px" style="display:none"  />
                   </div>
-                  
+                  </div>
               </asp:Panel>
         <!--Popup radica interno-->
                <asp:Panel ID="Panel_radica_interno" runat="server" Style="display:none; overflow:hidden" ForeColor="White" Width="98%" Height="100% " CssClass="modal_content_general">

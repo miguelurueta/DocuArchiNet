@@ -13,10 +13,56 @@ const runner = read('tools/e2e/scripts/run-doc103-graph-save-interactive.cjs');
 const profile = read('tools/e2e/profiles/doc103-graph-save.profile.example.json');
 const { classifySaveResponse, sanitizeEvidence, validateSelect } = require('../scripts/run-doc103-graph-save-interactive.cjs');
 
+test('DOC-105 conserva transparencia confirmada y catálogo compartido al reabrir sin duplicar opciones', async () => {
+  const vm = require('node:vm');
+  const config = [{ error_sistema: 'YES', itex_aplicate_transparent_stamp: 0,
+    itex_value_stamp_transparent: 10, item_itext: [{ text: '10', value: 10 }, { text: '20', value: 20 }] }];
+  const select = { options: [], replaceChildren() { this.options = []; }, add(option) { this.options.push(option); } };
+  const checkbox = { checked: false };
+  const requests = [];
+  const alerts = [];
+  const jquery = () => ({ modal() {} });
+  jquery.ajax = (_url, options) => requests.push(options);
+  const context = vm.createContext({
+    $: jquery,
+    document: { getElementById: id => id === 'select_itext_stamp' ? select : checkbox, createElement: () => ({}) },
+    pdfViewer: { itex_config_stamp: config, config_stamp: async () => {}, PdfViwerAlert: text => alerts.push(text) }
+  });
+  vm.runInContext(viewer.slice(viewer.indexOf('const asign_connfig_itext_stamp'), viewer.indexOf('const save_config_itex_stamp')), context);
+  vm.runInContext(viewer.slice(viewer.indexOf('async function service_update_insert_configuracion_itex_stamp_user')), context);
+  const script = read('pdfjs/pdf_anotate_view/script.js');
+  vm.runInContext(script.slice(script.indexOf('let stampConfigurationPromise'), script.indexOf('function initializeViewerContextMenus')), context);
+  await context.ensureStampConfiguration(true);
+  assert.equal(checkbox.checked, false);
+  const pending = context.service_update_insert_configuracion_itex_stamp_user([
+    { itex_aplicate_transparent_stamp: 1, itex_value_stamp_transparent: 20 }
+  ]);
+  assert.equal(config[0].itex_aplicate_transparent_stamp, 0);
+  requests[0].success({ d: [{ error_sistema: 'YES' }] });
+  assert.equal(await pending, true);
+  assert.equal(context.pdfViewer.itex_config_stamp, config);
+  await context.ensureStampConfiguration(true);
+  assert.equal(checkbox.checked, true);
+  assert.equal(select.options.length, 2);
+  assert.equal(select.options[1].selected, true);
+  for (const response of [null, [{ error_sistema: 'PRIVATE_FIXTURE' }]]) {
+    const failed = context.service_update_insert_configuracion_itex_stamp_user([
+      { itex_aplicate_transparent_stamp: 0, itex_value_stamp_transparent: 10 }
+    ]);
+    requests.at(-1).success({ d: response });
+    assert.equal(await failed, false);
+    assert.equal(config[0].itex_aplicate_transparent_stamp, 1);
+    assert.equal(config[0].itex_value_stamp_transparent, 20);
+  }
+  assert.equal(alerts.length, 2);
+  assert.doesNotMatch(alerts.join(' '), /PRIVATE_FIXTURE/);
+  assert.match(index, /Tolerancia al blanco \(no es porcentaje\)/);
+});
+
 test('DOC-103 conserva un único propietario productivo del guardado', () => {
-  assert.match(index, /<script src="\.\/pdf_viewer_anotate\.js"><\/script>/);
+  assert.match(index, /<script src="\.\/pdf_viewer_anotate\.js(?:\?v=[^"&]+)?"><\/script>/);
   assert.match(index, /<!--\s*<script src="\.\/pdfannotate\.js"><\/script>\s*-->/);
-  assert.equal((index.match(/<script src="\.\/pdf_viewer_anotate\.js"><\/script>/g) || []).length, 1);
+  assert.equal((index.match(/<script src="\.\/pdf_viewer_anotate\.js(?:\?v=[^"&]+)?"><\/script>/g) || []).length, 1);
   assert.equal((index.match(/^\s*<script src="\.\/pdfannotate\.js"><\/script>/gm) || []).length, 0);
 });
 

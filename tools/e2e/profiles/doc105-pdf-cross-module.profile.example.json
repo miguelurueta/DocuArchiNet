@@ -1,0 +1,31 @@
+{
+  "baseUrl": "https://localhost/GestionDocumental-Docuarchi.net/",
+  "module": "GESTOR",
+  "timeoutMilliseconds": 120000,
+  "headless": true,
+  "browser": {
+    "channel": "chrome"
+  },
+  "ignoreHttpsErrors": false,
+  "iterations": 3,
+  "scrollSteps": 12,
+  "networkProfiles": [
+    { "name": "remote-10", "downloadMbps": 10, "latencyMilliseconds": 100, "firstPageBudget": { "maxMilliseconds": 60000, "maxBytesBeforeCanvas": 33554432, "maxDocumentFractionBeforeCanvas": 0.5, "maxRequestsBeforeCanvas": 64 } },
+    { "name": "remote-20", "downloadMbps": 20, "latencyMilliseconds": 80, "firstPageBudget": { "maxMilliseconds": 35000, "maxBytesBeforeCanvas": 33554432, "maxDocumentFractionBeforeCanvas": 0.5, "maxRequestsBeforeCanvas": 64 } },
+    { "name": "remote-50", "downloadMbps": 50, "latencyMilliseconds": 60, "firstPageBudget": { "maxMilliseconds": 20000, "maxBytesBeforeCanvas": 33554432, "maxDocumentFractionBeforeCanvas": 0.5, "maxRequestsBeforeCanvas": 64 } },
+    { "name": "remote-100", "downloadMbps": 100, "latencyMilliseconds": 40, "firstPageBudget": { "maxMilliseconds": 15000, "maxBytesBeforeCanvas": 33554432, "maxDocumentFractionBeforeCanvas": 0.5, "maxRequestsBeforeCanvas": 64 } }
+  ],
+  "cacheModes": ["cold", "warm"],
+  "consumers": [
+    { "kind": "workflow", "enabled": true, "taskId": 1, "documentOrdinal": 1 },
+    { "kind": "correspondence", "enabled": false, "entryPath": "Defaul/WebFormInicioDocuarchiGestion.aspx", "menuSelector": "#CR-GT-01_card_boton", "containerFrameSelector": "#ContentPlacenter_ifrm_ds_", "contextOrdinal": 1, "documentOrdinal": 1, "rowSelector": "[tip_event=\"documento_solic_tramite\"]", "openSelector": "[tip_event=\"vis_doc_selecion_wf\"]:has(.fa-file-pdf)", "viewerFrameSelector": "#ifrm_visor_" },
+    { "kind": "production", "enabled": false, "entryPath": "Defaul/WebFormInicioDocuarchiGestion.aspx", "menuSelector": "#GD-GD-14_card_boton", "containerFrameSelector": "#ContentPlacenter_ifrm_ds_", "contextSelector": "#TreeViewArchivo a", "contextOrdinal": 1, "documentOrdinal": 1, "rowSelector": "#data_grid tr[id]", "openSelector": "a[title=\"Visualiza archivo\"]", "viewerFrameSelector": "#Iframe_visor_externo_da_" },
+    { "kind": "approvalExternal", "enabled": false, "entryPath": "Gestion/WebFormGaconsultaclasificacion.aspx", "contextSelector": "#TreeViewEstructura a[href*=\"__doPostBack\"]", "contextOrdinal": 1, "documentOrdinal": 1, "rowSelector": "[tip_event=\"ver_doc_col\"][title=\"Con documentos\"]", "openSelector": "[tip_event=\"ver_doc\"]", "containerFrameSelector": "#Iframe_visor_externo__", "viewerFrameSelector": "#ifrm_visor_" },
+    { "kind": "simpleHandler", "enabled": false, "simpleClass": "workflowOtherFormats", "taskId": 1, "documentOrdinal": 1, "entryPath": "workflow/WebFormVisor_Otros_Formatos.aspx", "viewerFrameSelector": "#ifrm_visor_" }
+  ],
+  "mutation": {
+    "enabled": false,
+    "consumer": "workflow",
+    "profile": "profiles/doc103-graph-save.runtime.json"
+  }
+}

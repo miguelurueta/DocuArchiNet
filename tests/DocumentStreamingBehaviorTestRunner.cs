@@ -9,6 +9,7 @@ internal static class DocumentStreamingBehaviorTestRunner
         DocumentStreamingConditionalBehaviorTests.Run();
         DocumentStreamingWriterBehaviorTests.Run();
         DocumentStreamingStrategyBehaviorTests.Run();
+        DocumentStreamingStrategyBehaviorTests.RunCacheCleanup();
         Console.WriteLine("document streaming behavior tests: passed");
         return 0;
     }

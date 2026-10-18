@@ -9017,6 +9017,7 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="itextshare\Class_ItexShare.vb" />
+    <Compile Include="itextshare\GeometriaGrafoPdf.vb" />
     <Compile Include="itextshare\Class_ra_config_itex_stamp.vb" />
     <Compile Include="Login.aspx.designer.vb">
       <DependentUpon>Login.aspx</DependentUpon>
@@ -9873,6 +9874,7 @@
     <Compile Include="Infrastructure\Documentos\Streaming\CondicionesHttpDocumento.vb" />
     <Compile Include="Infrastructure\Documentos\Streaming\EscritorStreamingDocumento.vb" />
     <Compile Include="Infrastructure\Documentos\Streaming\EstrategiaCargaPdf.vb" />
+    <Compile Include="Infrastructure\Documentos\Streaming\PreparadorVisualizacionPdf.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Storage\LegacyImportDocumentStorageAdapter.vb" />
     <Compile Include="Infrastructure\Workflow\ImportarServicioWeb\Storage\LegacyEnlaseImportDocumentStorageAdapter.vb" />
     <Compile Include="Infrastructure\Repositories\Workflow\ImportarServicioWeb\MySqlImportIntentRepository.vb" />

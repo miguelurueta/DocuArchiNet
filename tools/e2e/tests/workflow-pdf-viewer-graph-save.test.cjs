@@ -40,6 +40,9 @@ function createHarness(scenario = { type: 'success', data: { d: [{ error_sistema
   const overlay = createElement('overlay', { style: { top: '25px', left: '30px' }, parentElement: container });
   const canvas = createElement('page-2-canvas', { clientWidth: 800, clientHeight: 1000 });
   const image = createElement('overlayimg', { clientWidth: 90, clientHeight: 60 });
+  canvas.getBoundingClientRect = () => ({ left: 100, top: -200, width: canvas.clientWidth, height: canvas.clientHeight });
+  image.getBoundingClientRect = () => ({ left: 100 + Number.parseFloat(overlay.style.left) + 1,
+    top: -200 + Number.parseFloat(overlay.style.top) + 1, width: image.clientWidth, height: image.clientHeight });
   for (const item of [bar, overlay, canvas, image]) elements.set(item.id, item);
 
   let imageMode = 'success';
@@ -104,6 +107,7 @@ function createHarness(scenario = { type: 'success', data: { d: [{ error_sistema
       const extraBar = createElement(`${id}_bar`, { children: extraControls });
       const extraOverlay = createElement(id, { style: { top: '35px', left: `${left}px` }, parentElement: container });
       const extraImage = createElement(`${id}img`, { clientWidth: 80, clientHeight: 55 });
+      extraImage.getBoundingClientRect = () => ({ left: 100 + left + 1, top: -164, width: 80, height: 55 });
       for (const item of [extraBar, extraOverlay, extraImage]) elements.set(item.id, item);
       return {
         overlay: extraOverlay, controls: extraControls,
@@ -179,6 +183,19 @@ test('entrada incompleta no confirma ni inicia transporte', async () => {
   assert.equal(h.ajaxCalls, 0);
   assert.equal(h.overlay.removed, false);
   assert.equal(h.alerts.length, 1);
+});
+
+test('DOC-105 envía rectángulo real de imagen relativo al canvas sin borde ni barra', async () => {
+  const h = createHarness();
+  await h.api.event_drag_anotate({}, h.button);
+  const encoded = h.ajaxOptions.data;
+  const payload = JSON.parse(encoded.slice("{'anotate':'".length, -2))[0];
+  assert.equal(payload.anotate_x, 31);
+  assert.equal(payload.anotate_y, 974);
+  assert.equal(payload.anotate_width, 90);
+  assert.equal(payload.anotate_heigth, 60);
+  assert.equal(payload.pdf_file_width, 800);
+  assert.equal(payload.pdf_file_heigth, 1000);
 });
 
 test('fallos conservan overlay, saneán aviso y no reintentan', async () => {

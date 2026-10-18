@@ -2983,8 +2983,8 @@ function prevent_lista_permisos(event, element) {
                 }
             }
             $('#Panel_visor_externo').css("height", (espacio_iframe - 5) + "px");
-            $('#Cotenedorpendiente_visor_externo').css("height", (espacio_iframe - 5) + "px");
-            $('#Iframe_visor_externo_da_').css("height", (espacio_iframe - 5) + "px");
+            // El cuerpo flex reserva la cabecera y el borde, incluso al abrir desde oculto.
+            // No dar al iframe la altura completa del modal: oculta su scrollbar inferior.
 
 
         }

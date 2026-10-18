@@ -197,31 +197,24 @@ Public Class Class_ItexShare
                 End If
 
                 Dim pageSize = reader.GetPageSize(pageNumber)
-                Dim pageHeight As Double = pageSize.Height
-                Dim pageWidth As Double = pageSize.Width
-                If rotation Mod 180 <> 0 Then
-                    pageHeight = pageSize.Width
-                    pageWidth = pageSize.Height
-                End If
-
-                Dim widthScale As Double = If(pageWidth < canvasWidth,
-                                              canvasWidth / pageWidth,
-                                              pageWidth / canvasWidth)
-                Dim heightScale As Double = If(pageHeight < canvasHeight,
-                                               canvasHeight / pageHeight,
-                                               pageHeight / canvasHeight)
-                Dim annotationPdfY As Single = CSng((annotationY / heightScale) - annotationHeight)
-                Dim annotationPdfX As Single = CSng(annotationX / widthScale)
+                Dim crop = reader.GetCropBox(pageNumber)
+                Dim matrix = GeometriaGrafoPdf.Matriz(
+                    Math.Max(pageSize.Left, crop.Left), Math.Max(pageSize.Bottom, crop.Bottom),
+                    Math.Min(pageSize.Right, crop.Right), Math.Min(pageSize.Top, crop.Top),
+                    rotation, canvasWidth, canvasHeight, annotationX, annotationY,
+                    Convert.ToDouble(itext_anotate.anotate_width), annotationHeight)
 
                 outputStream = New FileStream(operation.StagedPdfPath,
                                               FileMode.CreateNew,
                                               FileAccess.Write,
                                               FileShare.None)
                 stamper = New PdfStamper(reader, outputStream)
+                ' PDF.js usa rotation explícita: no aplicar además el /Rotate del documento.
+                stamper.RotateContents = False
                 Dim graphImage As iTextSharp.text.Image = iTextSharp.text.Image.GetInstance(preparedImage)
-                graphImage.SetAbsolutePosition(annotationPdfX, annotationPdfY)
-                graphImage.ScaleAbsolute(90, 90)
-                stamper.GetOverContent(pageNumber).AddImage(graphImage)
+                stamper.GetOverContent(pageNumber).AddImage(graphImage,
+                    CSng(matrix(0)), CSng(matrix(1)), CSng(matrix(2)),
+                    CSng(matrix(3)), CSng(matrix(4)), CSng(matrix(5)))
                 stamper.Close()
                 stamper = Nothing
                 outputStream = Nothing
