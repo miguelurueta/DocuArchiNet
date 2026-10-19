@@ -31,6 +31,10 @@ Cada resultado mantiene una observación informativa `MANUAL_REVIEW_RECOMMENDED`
 
 ## Correcciones y comprobación de coherencia
 
+Requisito explícito de reutilización E2E: todos los prompts incorporan inventario de `tools/e2e`, rutas de suites y soporte, extensión compatible de autenticación cuando sea necesaria, reporteros existentes y prohibición de infraestructura paralela. La ausencia de duplicación y la regresión de consumidores afectados forman parte de la aceptación. Se repitió la revisión tras esta precisión: 12 PASS, sin bloqueantes/mayores/menores; evidencia y huellas actualizadas. Solo se modificó documentación.
+
+Ampliación posterior: se agregaron escenarios E2E identificados por capacidad en cada prompt, con precondiciones, pasos, aserciones y evidencia de cierre. La [estrategia progresiva](../Validacion/01-estrategia-e2e-capacidades.md) distingue pruebas de fundaciones/adaptadores de recorridos integrados. Se repitió el comando sobre los 12 textos ampliados: todos PASS con cero bloqueantes/mayores/menores y la observación informativa de revisión humana. El JSON enlazado contiene las huellas actualizadas. No se ejecutaron E2E ni se implementaron suites por esta ampliación documental.
+
 | Aspecto | Tratamiento |
 |---|---|
 | Estructura del prompt | Rol, objetivo, restricciones, aceptación, pruebas, documentación y entrega explícitos; se conservaron los requisitos detallados existentes. |

@@ -76,6 +76,30 @@ Reutilizar exclusivamente autenticación, configuración, validadores y utilidad
 
 Usar secretos efímeros; no imprimir ni guardar credenciales, cookies, tokens o cadenas de conexión. Consultas de control solo SELECT; conservar evidencia saneada. Respetar gates de seguridad existentes, sin habilitar arbitrariamente funciones o permisos para probar. No reintroducir flags ni listas de usuarios/grupos como activación de la experiencia moderna. No cerrar sin validación requerida: ante ambiente o autorización ausente, registrar bloqueo explícito, casos no ejecutados y motivo; mocks y simulaciones no sustituyen evidencia real.
 
+## E2E POR CAPACIDAD Y CRITERIO DE CIERRE
+
+### Reutilizaci?n obligatoria de infraestructura E2E
+
+Antes de escribir pruebas, inventariar y reutilizar `tools/e2e/package.json`, `tools/e2e/playwright.config.cjs`, `tools/e2e/tests/support/`, `tools/e2e/scripts/`, `tools/e2e/fixtures/` y `tools/e2e/AGENT-RUNBOOK.md`. Ubicar las nuevas especificaciones en `tools/e2e/tests/` y registrar solo los comandos necesarios en el paquete existente. Usar los reporteros y directorios de evidencia ya configurados; conservar saneamiento de secretos y datos sensibles tambi?n en capturas y trazas.
+
+Reutilizar `tools/e2e/tests/support/authenticated-workflow-session.cjs` cuando su contrato soporte el acceso requerido; verificarlo antes, sin fabricar tareas Workflow. Si falta soporte para Producci?n, ampliar de forma compatible el soporte compartido y su configuraci?n/runner existente, con pruebas de regresi?n de los consumidores afectados. Reutilizar validadores de autorizaci?n, perfiles y utilidades aplicables identificados en el inventario; documentar qu? se reutiliza y qu? extensi?n m?nima necesita esta capacidad. No copiar suites completas ni introducir login, almacenamiento de sesi?n, .env, dependencias, instalaci?n de navegadores, runner o configuraci?n Playwright paralelos. Un script delgado nuevo dentro de `tools/e2e/scripts/` solo puede seleccionar escenarios y delegar en los mecanismos compartidos; no reimplementar autenticaci?n ni autorizaci?n.
+
+No cambiar globalmente workers, reintentos, timeouts, permisos o configuraci?n para lograr pruebas verdes. Cualquier extensi?n compartida debe mantener los contratos de las suites existentes y acreditar regresi?n pertinente. Las pruebas DOC-88 de pol?tica son evidencia est?tica complementaria, no reemplazan los escenarios E2E reales. El inventario de reutilizaci?n y la ausencia de infraestructura duplicada son criterios de aceptaci?n de esta entrega; para 04 se documentan y para 13 solo se implementan al activar su alcance opcional.
+
+Implementar estos escenarios como parte de la entrega, reutilizando `tools/e2e`. Son pruebas futuras: esta documentación no acredita suites creadas ni corridas. Leer [la estrategia de comprobación progresiva](Validacion/01-estrategia-e2e-capacidades.md).
+
+| ID | Precondiciones | Pasos del recorrido | Aserciones obligatorias |
+|---|---|---|---|
+| ALM-01 | 09 conectado a 10; expediente confirmado y staging íntegro. | Procesar nombres de dos patrones, ceros iniciales y homónimos; consultar documento desde gabinete y expediente. | Campos índice y tipología correctos; nombre/extensión conservados; vínculo e índice documental verificados cuando apliquen. |
+| ALM-02 | Fallo controlado tras almacenar y antes de confirmar incorporación. | Interrumpir respuesta; consultar; reconciliar y reanudar fase pendiente. | Mismo documento; no segundo almacenamiento; staging retenido hasta verificación; incorporación completada o incertidumbre explícita. |
+| ALM-03 | Dos operaciones descartables autorizadas sobre recurso compartido. | Ejecutar importación y carga individual concurrentes; validar nombres, temporales y relaciones. | Sin cruce de sesión, borrado ajeno ni índice perdido. Compatibilidad con SII requiere escenario autorizado separado, sin modificar SII. |
+
+Para cada caso registrar estado EJECUTADO_OK, FALLIDO o NO_EJECUTADO, SHA probado, ambiente, datos sintéticos, pasos/comando real, evidencia saneada de UI/HTTP y comprobaciones persistidas de solo lectura. No declarar aprobada una capacidad únicamente con mocks o revisión estática. Un caso bloqueado debe identificar dependencia y responsable; no se omite del informe.
+
+Antes de 10, cerrar únicamente verificación de contrato/integración del adaptador por invocación interna autorizada. Los escenarios anteriores se completan al integrarlo con 10 y la ventana real: mantenerlos NO_EJECUTADO por dependencia hasta entonces, sin crear un endpoint público de prueba ni afirmar E2E completa.
+
+Entregar especificación automatizada y comando reproducible dentro de la infraestructura existente; el nombre final se inventaría en `Diseno/design.md`. Si la autorización no permite ejecutarla, entregar suite y evidencia local pertinente, manteniendo la validación real pendiente. No habilitar permisos ni ejecutar cargas por inferencia de este prompt.
+
 ## DOCUMENTACIÓN TÉCNICA
 
 Actualizar documentación existente en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/`: `Diseno/` para contratos y decisiones, y `Validacion/` para evidencia. Mantener guía 00 y consumidores sincronizados si cambia un contrato. No abrir una segunda fuente de verdad. Registrar archivos y funciones afectados, dependencia propietaria, casos ejecutados/no ejecutados y riesgos pendientes. Una revisión estructural PASS no certifica implementación ni ausencia de regresiones.

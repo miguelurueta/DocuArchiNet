@@ -74,6 +74,18 @@ Recorrer manualmente contratos y transiciones con dos raíces: una lista y otra 
 
 E2E no aplica a esta entrega: produce solo contratos y documentación, sin recorrido de usuario ejecutable. La QA manual revisa consistencia, enlaces, propiedad de tablas, fases y matriz de fallos. MSBuild no aplica porque no se modifica código; no atribuir resultados de compilación ni pruebas reales a este diseño. Documentar casos que las entregas de implementación deberán ejecutar.
 
+## E2E POR CAPACIDAD Y CRITERIO DE CIERRE
+
+### Reutilizaci?n obligatoria de infraestructura E2E
+
+Antes de escribir pruebas, inventariar y reutilizar `tools/e2e/package.json`, `tools/e2e/playwright.config.cjs`, `tools/e2e/tests/support/`, `tools/e2e/scripts/`, `tools/e2e/fixtures/` y `tools/e2e/AGENT-RUNBOOK.md`. Ubicar las nuevas especificaciones en `tools/e2e/tests/` y registrar solo los comandos necesarios en el paquete existente. Usar los reporteros y directorios de evidencia ya configurados; conservar saneamiento de secretos y datos sensibles tambi?n en capturas y trazas.
+
+Reutilizar `tools/e2e/tests/support/authenticated-workflow-session.cjs` cuando su contrato soporte el acceso requerido; verificarlo antes, sin fabricar tareas Workflow. Si falta soporte para Producci?n, ampliar de forma compatible el soporte compartido y su configuraci?n/runner existente, con pruebas de regresi?n de los consumidores afectados. Reutilizar validadores de autorizaci?n, perfiles y utilidades aplicables identificados en el inventario; documentar qu? se reutiliza y qu? extensi?n m?nima necesita esta capacidad. No copiar suites completas ni introducir login, almacenamiento de sesi?n, .env, dependencias, instalaci?n de navegadores, runner o configuraci?n Playwright paralelos. Un script delgado nuevo dentro de `tools/e2e/scripts/` solo puede seleccionar escenarios y delegar en los mecanismos compartidos; no reimplementar autenticaci?n ni autorizaci?n.
+
+No cambiar globalmente workers, reintentos, timeouts, permisos o configuraci?n para lograr pruebas verdes. Cualquier extensi?n compartida debe mantener los contratos de las suites existentes y acreditar regresi?n pertinente. Las pruebas DOC-88 de pol?tica son evidencia est?tica complementaria, no reemplazan los escenarios E2E reales. El inventario de reutilizaci?n y la ausencia de infraestructura duplicada son criterios de aceptaci?n de esta entrega; para 04 se documentan y para 13 solo se implementan al activar su alcance opcional.
+
+Esta entrega no ejecuta funcionalidad: E2E no aplica al diseño documental. Debe definir fixtures, observables y precondiciones de los escenarios de 02–13 en el contrato común; revisar que cada caso tenga propietario y que no exija componentes posteriores para validar una fundación. No marcar escenarios como ejecutados al aprobar el diseño.
+
 ## DOCUMENTACIÓN TÉCNICA
 
 Actualizar documentación existente en `Doc/Actualizacion/ProduccionDcoumental/ImportacionCarpetas/`: `Diseno/` para contratos y decisiones, y `Validacion/` para evidencia. Mantener guía 00 y consumidores sincronizados si cambia un contrato. No abrir una segunda fuente de verdad. Registrar archivos y funciones afectados, dependencia propietaria, casos ejecutados/no ejecutados y riesgos pendientes. Una revisión estructural PASS no certifica implementación ni ausencia de regresiones.
