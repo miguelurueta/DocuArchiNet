@@ -4,6 +4,8 @@ Los prompts 02 y 03 describen el alcance funcional; 04–12 lo descomponen en en
 
 ## Instrucciones comunes obligatorias
 
+Cada prompt contiene escenarios identificados con precondiciones, pasos y aserciones en «E2E POR CAPACIDAD Y CRITERIO DE CIERRE». Seguir la [estrategia de comprobación progresiva](Validacion/01-estrategia-e2e-capacidades.md): verificar capacidades conforme estén disponibles, sin esperar a 12 para descubrir fallos de perfil, inventario o recepción. Las E2E no ejecutables por dependencias se mantienen pendientes, no aprobadas.
+
 Los prompts 02–13 incluyen ahora secciones explícitas de rol, objetivo, restricciones, rutas, aceptación, pruebas y evidencia para revisión individual con `opsxj:prompt-review --tech-profile legacy-webforms-vb --no-fix`. Las rutas nuevas son propuestas comunes: antes de implementar se concreta el inventario de archivos y propietarios en `Diseno/design.md`, complementario al diseño existente. No son componentes ya creados. La tabla repetida en los prompts delimita responsabilidades; no autoriza construir todas las capas en cada entrega.
 
 Las pruebas del comportamiento implementado forman parte de cada entrega. El 12 consolida la verificación transversal y no posterga las comprobaciones de componentes anteriores. 04 solo produce documentación y no requiere E2E ni compilación; 07-A valida sus fundaciones sin depender de 06/UI y 07-B incorpora confirmación/recepción. Los adaptadores 08/09 se verifican por contrato sin endpoints de prueba que eludan 10. Una integración aún no disponible se declara pendiente. El 13 conserva su activación opcional explícita.
