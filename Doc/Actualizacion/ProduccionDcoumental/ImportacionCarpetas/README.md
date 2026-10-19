@@ -35,6 +35,8 @@ La política predeterminada exige todos los archivos, con modo parcial configura
 
 ## Exploración
 
+- [Revisión estructural de los prompts 02–13](Exploracion/07-revision-estructural-prompts.md): correcciones, resultados de `opsxj:prompt-review` y límites de la validación.
+
 - [Diagnóstico de coherencia e integración de prompts](Exploracion/06-diagnostico-coherencia-prompts.md): matriz de hallazgos, correcciones documentales, riesgos pendientes y verificación ejecutada.
 
 - [Arquitectura y funcionamiento](Exploracion/00-exploracion-importacion-masiva-por-carpetas.md).

@@ -4,6 +4,12 @@ Los prompts 02 y 03 describen el alcance funcional; 04–12 lo descomponen en en
 
 ## Instrucciones comunes obligatorias
 
+Los prompts 02–13 incluyen ahora secciones explícitas de rol, objetivo, restricciones, rutas, aceptación, pruebas y evidencia para revisión individual con `opsxj:prompt-review --tech-profile legacy-webforms-vb --no-fix`. Las rutas nuevas son propuestas comunes: antes de implementar se concreta el inventario de archivos y propietarios en `Diseno/design.md`, complementario al diseño existente. No son componentes ya creados. La tabla repetida en los prompts delimita responsabilidades; no autoriza construir todas las capas en cada entrega.
+
+Las pruebas del comportamiento implementado forman parte de cada entrega. El 12 consolida la verificación transversal y no posterga las comprobaciones de componentes anteriores. 04 solo produce documentación y no requiere E2E ni compilación; 07-A valida sus fundaciones sin depender de 06/UI y 07-B incorpora confirmación/recepción. Los adaptadores 08/09 se verifican por contrato sin endpoints de prueba que eludan 10. Una integración aún no disponible se declara pendiente. El 13 conserva su activación opcional explícita.
+
+Resultado y límites de la revisión: [revisión estructural de prompts](Exploracion/07-revision-estructural-prompts.md).
+
 Cada prompt especializado debe ejecutarse leyendo esta guía, el 03 y sus referencias indicadas. Actúa como arquitecto/desarrollador senior ASP.NET WebForms, VB.NET, JavaScript y MySQL. Revisa AGENTS.md, los cambios locales y el estado real de las dependencias antes de editar. No presupongas que ejecutar un prompt anterior significa que sus componentes existen o que su SQL fue aplicado.
 
 - Respeta la aplicación existente: framework 4.6.1, WebForms, JavaScript, ASMX/ASHX y acceso a datos verificados en el repositorio. No migres de framework ni inventes infraestructura desplegada.
