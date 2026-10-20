@@ -6,67 +6,32 @@ Actúa como arquitecto y desarrollador senior en ASP.NET WebForms, VB.NET, JavaS
 
 ## OBJETIVO
 
-Integrar el recorrido de importación desde el nivel seleccionado de Producción mediante las entregas 04–12, sin una implementación paralela a los prompts especializados.
-
-Fecha: 2026-10-19. Alcance: implementación posterior del recorrido de importación desde dispositivo. Este documento no indica que la funcionalidad ni sus tablas ya existan.
-
-Este es el prompt general del recorrido. Su implementación se descompone en los prompts 04–12 según [00-guia-ejecucion-prompts.md](00-guia-ejecucion-prompts.md); el 13 es opcional y requiere activar ese alcance. Al ejecutar un prompt especializado, este documento aporta contexto y requisitos transversales, no obliga a implementar a la vez todas las entregas. No duplicar repositorios, contratos ni scripts entre prompts.
-
-## Prompt
-
-Actúa como arquitecto senior y desarrollador especializado en JavaScript, ASP.NET WebForms, VB.NET y MySQL. Implementa la importación documental por carpetas desde dispositivos en Producción Documental, reutilizando las capacidades compatibles del repositorio y preservando íntegramente SII.
+Implementar importación desde dispositivos en Producción Documental mediante las entregas 04–12 de [la guía 00](00-guia-ejecucion-prompts.md); 13 requiere activar su alcance opcional. Este prompt general aporta requisitos transversales: no obliga a ejecutar todas las entregas al trabajar una especializada ni autoriza duplicar repositorios, contratos o scripts. Reutilizar capacidades compatibles y preservar SII. El texto describe implementación futura, no componentes o tablas ya existentes.
 
 ### 1. Contexto obligatorio
 
-Lee AGENTS.md y las instrucciones aplicables. Lee, desde este directorio:
+Leer AGENTS y, desde este directorio, `02-prompt-implementacion-perfil-importacion.md`, `Exploracion/00-exploracion-importacion-masiva-por-carpetas.md`, `01-diagnostico-reutilizacion-tablas.md`, `02-evidencia-esquema-perfil.json`, `03-validacion-bd-y-definicion-perfil.md`, `04-diagrama-flujo-tecnico-perfil.md` y `05-contexto-tecnico-carga-carpetas.md` (estos cinco últimos también bajo `Exploracion/`). Leer `Prototipo/README.md` y `Prototipo/importacion-carpetas.html`: preservar interacción, sustituir ejemplos/validación local/simulación por contratos reales.
 
-- `02-prompt-implementacion-perfil-importacion.md`.
-- `Exploracion/00-exploracion-importacion-masiva-por-carpetas.md`.
-- `Exploracion/01-diagnostico-reutilizacion-tablas.md`.
-- `Exploracion/02-evidencia-esquema-perfil.json`.
-- `Exploracion/03-validacion-bd-y-definicion-perfil.md`.
-- `Exploracion/04-diagrama-flujo-tecnico-perfil.md`.
-- `Exploracion/05-contexto-tecnico-carga-carpetas.md`.
-- `Prototipo/README.md` y `Prototipo/importacion-carpetas.html`: base gráfica interactiva. Preservar el recorrido visual y sustituir ejemplos, validaciones locales y ejecución simulada por contratos reales; no copiar sus datos fijos como reglas de negocio.
+La exploración 03 precisa hipótesis de tablas; diagramas son propuestas. Verificar código/perfil actuales y símbolos/rutas de la matriz 05. Stack existente: WebForms/VB.NET 4.6.1, JavaScript, ASMX/ASHX; no asumir Core/MVC, React, API nueva desplegada o worker.
 
-El documento 03 de la exploración precisa las hipótesis iniciales sobre tablas. Los diagramas incluyen propuestas, no contratos implementados. Verifica el estado actual del código y del perfil antes de diseñar.
-
-Inspecciona los símbolos y rutas de la matriz del documento 05. No presupongas ASP.NET Core/MVC, React, una API nueva desplegada ni un worker disponible. El proyecto revisado utiliza WebForms/VB.NET, framework 4.6.1, JavaScript, servicios ASMX y ASHX.
-
-Dependencia: esta carga consume una versión publicada del perfil. Si su implementación aún no existe, identifica los contratos necesarios y el orden de entrega; avanza en componentes independientes y pruebas mediante dobles explícitos. No declares la carga completa ni construyas configuración paralela o fija para eludir esa dependencia. La administración de perfiles pertenece al prompt anterior.
+La carga depende de una versión publicada del perfil. Si falta, identificar contratos/orden y avanzar solo componentes independientes con dobles explícitos; no declarar carga completa ni crear configuración fija/paralela. Administración de perfiles pertenece a 02.
 
 ### 2. Resultado funcional
 
-El usuario selecciona un nivel en la estructura existente de Producción Documental y abre desde allí la ventana «Importar carpetas». Dentro de ella selecciona un perfil autorizado compatible, agrega una o varias carpetas, revisa expedientes/documentos propuestos, confirma y obtiene resultados persistidos por carpeta y archivo. Los expedientes se crean bajo el nivel recibido; los documentos se almacenan en el gabinete y quedan incorporados al expediente correspondiente.
+Desde un nivel elegible del árbol existente, el usuario abre «Importar carpetas», elige perfil publicado compatible, agrega raíces, revisa expedientes/documentos, confirma y consulta resultados persistidos por carpeta/archivo. Cada raíz seleccionada representa un expediente bajo ese nivel; los documentos se almacenan en el gabinete y se incorporan al expediente. Nombre visible según regla de carpeta; código según política del perfil, sin concatenación improvisada ni formato fijo de orden.
 
-Implementa como modalidad inicial propuesta «cada raíz seleccionada representa un expediente». El nombre visible procede de la carpeta según la regla del perfil; el código único se resuelve por su política, no por una concatenación improvisada. No confundas nombre con identidad ni fijes formato de orden de trabajo.
+- Reutilizar árbol, administración de estructuras y permisos existentes. No crear otro explorador, selector de nivel en el asistente ni niveles a partir de carpetas/subcarpetas.
+- Capturar ID/ámbito del nivel al abrir; validar en servidor existencia, elegibilidad, permisos y coherencia. Mostrar ruta canónica de solo lectura, obtenida del servidor; no usarla como identidad. Destino ausente/no elegible impide abrir.
+- Gabinete, clasificación y nivel de Producción son conceptos distintos. El perfil debe ser compatible y nunca redirigir el nivel. Todas las raíces usan el mismo nivel confirmado; distribuir entre niveles requiere otra capacidad.
+- Conservar ID/ámbito en preflight, plan, lote y comando de creación. Cambiar árbol, pestaña o sesión no mueve un lote. Para otro destino, cerrar y abrir una nueva preparación desde el árbol.
+- Revalidar al preparar, confirmar y crear. Nivel movido, ámbito cambiado, indisponible o permiso revocado detiene lo afectado para revisión, sin redirección silenciosa.
+- La creación recibe `id_nivel_padre`: verificar ID de expediente y relación devuelta con el nivel confirmado. Obtener solo un ID de expediente no acredita ubicación.
 
-**Requisito confirmado: los expedientes deben crearse dentro de una estructura específica de Producción Documental.** Resuelve explícitamente el nivel padre existente, su identificador y su ámbito. El gabinete identifica dónde se almacenan los documentos; no sustituye la ubicación del expediente dentro del árbol de Producción. La clasificación documental tampoco determina por sí sola esa ubicación.
+Ejemplo no fijo: nivel existente «Gestión de compras» → carpetas 1246566/1246567 → dos expedientes hijos; gabinete «Documentos de compras» almacena sus documentos de forma independiente.
 
-- El usuario ya explora y administra la estructura mediante el árbol existente de Producción. Selecciona allí un nivel elegible y desde ese contexto pulsa «Importar carpetas» para abrir la ventana. Reutilizar esa selección y sus permisos; no desarrollar otro explorador, creador de estructuras o selector de nivel dentro del asistente.
-- Al abrir, capturar explícitamente ID y ámbito del nivel seleccionado, verificarlos en servidor y mostrar la ruta completa como destino de solo lectura. El perfil debe ser compatible con ese contexto; no lo sustituye ni redirige hacia otro nivel. Mostrar una vista previa de los expedientes bajo él. No abrir la operación con destino ausente o no elegible.
-- En esta primera modalidad, todas las raíces seleccionadas crean expedientes bajo el mismo nivel confirmado. No convertir automáticamente carpetas/subcarpetas físicas en niveles nuevos de Producción. Una distribución de raíces entre varios niveles requiere otra capacidad explícita.
-- Incluir el ID del nivel padre y su ámbito en preflight, plan confirmado, registro del lote y comando de creación. La ruta visible se obtiene del servidor; no se usa como clave de identidad. Para otro destino, cerrar la ventana, seleccionar otro nivel en el árbol y abrir una nueva preparación. Nunca cambiar un lote confirmado al cambiar la selección del árbol o la sesión.
-- Verificar permisos, existencia, elegibilidad y coherencia del nivel al preparar, confirmar y crear cada expediente. Si el nivel cambia de ubicación/ámbito o deja de estar disponible, detener las operaciones afectadas para revisar el destino; no redirigirlas silenciosamente.
-- La operación existente de creación recibe `id_nivel_padre` y devuelve identificadores de relación. Verificar después de crear que el expediente quedó vinculado al nivel confirmado; no considerar suficiente obtener un ID de expediente.
+El perfil define si las subcarpetas aportan archivos al mismo expediente o se rechazan; no crear expedientes por nivel físico automáticamente. Rechazar estrategias no implementadas. El inventario de archivos no representa carpetas vacías; informarlo sin fabricarlas. Archivos sueltos requieren política explícita.
 
-Ejemplo ilustrativo de estructura resultante:
-
-```text
-Producción Documental
-└── Archivo de gestión
-    └── Área administrativa
-        └── Gestión de compras             ← nivel padre existente, seleccionado
-            ├── 1246566                    ← expediente creado por la primera carpeta
-            └── 1246567                    ← expediente creado por la segunda carpeta
-
-Gabinete Documentos de compras             ← almacenamiento documental independiente
-└── Documentos incorporados a cada expediente anterior
-```
-
-El perfil debe expresar explícitamente si las subcarpetas aportan sus archivos al mismo expediente o si esa estructura no se admite. No crear un expediente por cada nivel automáticamente. Rechazar estrategias aún no implementadas. No importar carpetas vacías mediante un inventario que solo entrega archivos ni aceptar archivos sueltos sin una política definida.
-
-Fuera de alcance inicial: lectura de rutas de servidor/red, servicios externos nuevos, ejecución desatendida con el navegador cerrado, selección automática de archivos locales después de recargar, ZIP como sustituto de carpeta y un framework general de conectores. La separación entre origen, perfil y operaciones documentales debe permitir una extensión posterior sin introducir ahora infraestructura especulativa.
+Fuera del alcance inicial: rutas servidor/red, servicios externos nuevos, ejecución desatendida con navegador cerrado, acceso automático a archivos locales tras recarga, ZIP sustituto de carpeta y framework general de conectores. Separar origen/perfil/operaciones permite evolucionar sin infraestructura especulativa.
 
 ### 3. Reutilización y aislamiento
 
@@ -80,56 +45,29 @@ No uses el ASHX compartido como coordinador del lote. Si una operación legacy r
 
 ### 4. Cliente JavaScript
 
-#### 4.1. Base gráfica y recorrido aprobados por el usuario
+#### 4.1. Base gráfica y recorrido aprobados
 
-Usa `Prototipo/importacion-carpetas.html`, su CSS, JavaScript y README como referencia de interacción. El usuario aprobó el flujo corregido que abre la importación desde la estructura existente. Esta decisión prevalece sobre menciones anteriores a seleccionar el nivel dentro del perfil o del asistente. La aprobación visual no convierte los catálogos, permisos, límites, temporizadores ni resultados ficticios de la maqueta en requisitos de negocio.
+Usar HTML/CSS/JS y README de `Prototipo/` como referencia visual: árbol existente → nivel elegible → «Importar carpetas» → validar contexto → ventana con destino fijo → Perfil → Carpetas → Revisión → confirmar/ejecutar → Resultados → actualizar rama de origen. Sin nivel o permiso no habilitar apertura. Esta decisión sustituye propuestas anteriores de seleccionar nivel dentro del perfil/asistente.
 
-```text
-Producción Documental: árbol y navegación existentes
-    │
-    ├─ Sin nivel elegible / sin permiso → no habilitar importación
-    │
-    └─ Nivel seleccionado → acción «Importar carpetas»
-                              │
-                              ▼
-                   Validar contexto en servidor
-                              │
-                              ▼
-                   Abrir ventana con destino fijo
-                              │
-                  Perfil → Carpetas → Revisión
-                              │
-                              ▼
-                      Confirmar y ejecutar
-                              │
-                              ▼
-                    Resultados por documento
-                              │
-                              ▼
-                Actualizar el nivel de origen en el árbol
-```
+Integrar `Gestion/WebFormProducionDocumental.aspx` y `js/gestion/WebFormProducionDocumental.js` tras verificar contrato del nodo y acción de menú/barra. No copiar el árbol simulado ni convertir `ActivaCargaArchivos` en carga multiexpediente; preservar su contrato individual. La aprobación visual no convierte catálogos, límites, permisos, temporizadores o resultados ficticios en reglas de negocio.
 
-Concreta la integración en `Gestion/WebFormProducionDocumental.aspx` y `js/gestion/WebFormProducionDocumental.js`, después de identificar el contrato real del nodo seleccionado y la acción de menú/barra adecuada. No copies la pantalla de navegación simulada del HTML: ya existe en el módulo. No uses `ActivaCargaArchivos` como si fuera importación multiexpediente; su carga individual permanece disponible y sin cambio de contrato.
-
-| Parte de la ventana | Comportamiento requerido |
+| Parte | Requisito |
 |---|---|
-| Cabecera y destino | Nombre de la operación, ruta completa del nivel recibido y destino de solo lectura. Sin selector de estructura ni botones para crear niveles. |
-| Paso 1: Perfil | Listar versiones publicadas autorizadas y compatibles con el nivel recibido. Mostrar clasificación, gabinete, responsable, restricciones y reglas. Cambiar perfil conserva el nivel y obliga a recalcular el plan. |
-| Paso 2: Carpetas | Agregar carpetas repetidamente, quitar pendientes, mostrar cantidades/tamaños y expedientes propuestos bajo el nivel de origen. |
-| Paso 3: Revisión | Mostrar valores resueltos o pendientes de creación, detalle por archivo, filtros e incidencias. Consumir `puedeConfirmar` del servidor según errores globales, unidades elegibles, modo y ámbito de integridad; no bloquear todo por cualquier incidencia individual si el perfil permite parcial. Exigir revisión del destino y contenido. |
-| Paso 4: Resultados | Mostrar estados persistidos, identificadores reales, avance, fallos parciales y acciones permitidas según el estado. Distinguir resultado incierto de fallo confirmado. |
-| Panel de contexto | Mantener visibles perfil/versión, clasificación, nivel de Producción y gabinete; distinguir ubicación del expediente de almacenamiento de documentos. |
+| Cabecera/destino | Operación y ruta completa de solo lectura; sin selector ni creación de niveles. |
+| Perfil | Versiones publicadas autorizadas compatibles; mostrar clasificación, gabinete, responsable, restricciones y reglas. Cambiarlo conserva nivel e invalida plan. |
+| Carpetas | Agregar raíces repetidamente, quitar pendientes, cantidades/tamaños y expedientes propuestos bajo origen. |
+| Revisión | Valores resueltos/diferidos, filtros e incidencias por archivo; consumir `puedeConfirmar` según errores globales, unidades elegibles, modo/ámbito. En parcial, un error individual no bloquea todo. Revisar destino y contenido. |
+| Resultados | Estados persistidos, IDs reales, avance, fallos parciales y acciones permitidas; distinguir incierto de fallo confirmado. |
+| Contexto | Perfil/versión, clasificación, nivel y gabinete visibles; distinguir ubicación del expediente y almacenamiento. |
 
-Reutiliza el modal y controles compatibles del proyecto. La implementación puede adaptar dimensiones y estilos del prototipo para encajar en el módulo, manteniendo su recorrido. Encapsula CSS y estado JavaScript; usa `type="button"` donde no corresponda postback y contempla ClientID generado por WebForms. No dupliques formularios ASP.NET, bibliotecas, handlers de eventos ni controles tras un UpdatePanel. Verifica la inicialización y liberación de recursos al abrir, cerrar y abrir nuevamente.
+Reutilizar modal/controles compatibles y adaptar dimensiones sin cambiar recorrido. Encapsular CSS/estado, respetar ClientID y usar `type="button"` sin postback accidental. No duplicar formularios ASP.NET, bibliotecas, eventos ni controles tras UpdatePanel. Inicializar y liberar recursos correctamente al cerrar/reabrir. Eliminar ejemplos, IDs DEMO, selector de escenarios y simulaciones de producción.
 
-#### 4.2. Contexto de apertura, cierre y actualización del árbol
+#### 4.2. Apertura, cierre y árbol
 
-- La acción captura el identificador del nivel seleccionado y solicita validación de servidor. Usuario y ámbito efectivo se resuelven desde la autenticación y los recursos autorizados; no se confía en valores enviados por el navegador. El servidor devuelve la ruta canónica y los permisos/capacidades pertinentes.
-- Conserva el contexto validado en la preparación y posteriormente en el lote. No releas una variable de sesión de «nivel seleccionado» para decidir cada creación. Navegar en otra pestaña no puede cambiar el destino de un lote abierto.
-- Para otro nivel, cerrar la ventana y abrir una nueva preparación desde el árbol. Si hay una preparación local sin confirmar, comunicar su descarte cuando corresponda; no perder archivos seleccionados silenciosamente por un postback o por cambiar de perfil.
-- Cerrar una ventana no equivale a cancelar operaciones del servidor ni a borrar el lote. Si hay trabajo confirmado, conservar su identidad para consultar/reanudar con autorización. Los archivos locales aún no recibidos pueden requerir nueva selección. La maqueta descarta estado al reabrir; no copiar esa limitación como comportamiento de producción para lotes confirmados.
-- Al finalizar o al recibir resultados confirmados, actualizar mediante el mecanismo existente la rama del nivel de origen y sus expedientes creados. No reconstruir todo el árbol, cambiar la selección actual del usuario o agregar nodos basándose únicamente en el nombre de la carpeta. Usar IDs y relaciones confirmadas, y evitar nodos duplicados al consultar nuevamente el lote.
-- Si el nivel no está visible al terminar, conservar los resultados y permitir ubicar el expediente mediante navegación existente. No redirigirlo ni vincularlo a otro nivel para resolver un problema de presentación.
+- El cliente envía referencia del nivel; servidor resuelve usuario/ámbito efectivo desde autenticación y recursos autorizados, devuelve ruta canónica y capacidades. No confiar en identidad cliente ni releer selección mutable de sesión para crear.
+- Otro destino requiere nueva preparación desde el árbol. Advertir descarte de preparación sin confirmar; no perder archivos por postback o cambio de perfil.
+- Cerrar no cancela peticiones servidor ni borra lote: conservar ID para consulta/reanudación autorizada. Archivos no recibidos pueden requerir reselección; no copiar el descarte de estado de la maqueta para lotes confirmados.
+- Actualizar la rama de origen mediante mecanismos existentes, IDs y relaciones confirmados, sin reconstruir árbol, duplicar nodos o alterar selección actual. Si el nivel no está visible, conservar resultados y permitir navegación existente al expediente; no cambiar su vínculo por un problema de presentación.
 
 #### 4.3. Inventario y transferencia
 
@@ -203,31 +141,18 @@ No incluir `USE` de una base operativa, credenciales, borrados ni modificaciones
 
 ### 10. Verificación y criterios de aceptación
 
-Prueba reglas y coordinación con pruebas de comportamiento, no solo búsquedas de texto:
+Verificar comportamiento, no solo búsquedas de texto:
 
-- Sin selección válida o sin permiso no se inicia la importación; una petición directa con un nivel manipulado es rechazada en servidor.
-- Seleccionar un nivel y pulsar la acción existente abre una única ventana con su ruta de solo lectura. No aparece un segundo selector de estructura ni se crean niveles.
-- Cambiar de perfil conserva el nivel de origen; perfiles incompatibles no permiten confirmar. Cambiar la selección en otra pestaña no altera el plan ni el lote.
-- Cerrar y reabrir desde otro nivel inicia una preparación con el nuevo contexto sin modificar lotes anteriores. Abrir repetidamente no duplica eventos ni solicitudes.
-- Los resultados confirmados actualizan la rama de origen con IDs reales sin duplicar nodos, sin recrear la estructura y sin alterar la navegación actual del usuario.
-- La versión productiva elimina los botones «Cargar ejemplo», el selector de escenarios, IDs DEMO y temporizadores de simulación. Los errores y resultados provienen de operaciones reales y verificables.
-
-- Dos raíces producen dos expedientes y cada documento queda en el destino correspondiente.
-- Los dos expedientes quedan relacionados con el nivel padre confirmado de Producción. Cambiar la selección del árbol en otra pestaña no cambia el destino del lote; un nivel eliminado, movido o sin permiso bloquea la operación afectada y requiere revisión.
-- Archivos homónimos en raíces/subcarpetas distintas conservan identidad y contenido.
-- Dos raíces con igual nombre no se fusionan silenciosamente.
-- Subcarpetas siguen la estrategia explícita; se informa la limitación de carpetas vacías.
-- Cambiar inventario o perfil invalida el plan; no se acepta un plan ajeno, incompleto o manipulado.
-- Doble confirmación, reenvío y dos clientes concurrentes no repiten operaciones confirmadas.
-- Fallo después de crear expediente o almacenar documento y antes de responder conserva IDs o produce un estado incierto sin reintento ciego.
-- Pérdida de sesión, cierre/recarga y cancelación permiten consultar resultados sin prometer recuperación de archivos locales no enviados.
-- Ruta maliciosa, tamaño real excedido, gabinete no autorizado y tipología inválida se rechazan en servidor.
-- El servidor vuelve a validar cuando cambian permisos, disponibilidad del perfil o esquema del gabinete.
-- Los valores de nombre de archivo se aplican al índice correcto según perfil y no alteran relaciones compartidas.
-- El éxito requiere almacenamiento e incorporación verificados; no basta con HTTP 200 o transferencia finalizada.
-- La carga individual sigue funcionando y SII permanece sin cambios.
-
-Ejecuta las verificaciones DOC-88 pertinentes como regresión y distingue su alcance estático. Compila con herramientas reales del proyecto. Pruebas autenticadas o cargas reales requieren autorización del ambiente/cuentas y el runbook aplicable; no realizarlas por tener conexión disponible. No guardar credenciales, cookies ni cadenas de conexión. Reporta con precisión las pruebas no ejecutadas y cómo completarlas.
+- Sin nivel válido/permiso no se inicia; servidor rechaza referencia manipulada. Apertura única, ruta de solo lectura, sin segundo selector ni niveles nuevos.
+- Cambio de perfil conserva nivel e invalida plan; perfiles incompatibles impiden confirmar. Otra pestaña/sesión no altera destino. Cerrar/reabrir desde otro nivel crea preparación nueva, sin modificar lotes ni duplicar eventos/solicitudes.
+- Resultados actualizan rama mediante IDs reales, sin nodos duplicados ni alterar navegación. Producción no contiene «Cargar ejemplo», escenarios ficticios, IDs DEMO o temporizadores simulados.
+- Dos raíces generan dos expedientes relacionados con nivel confirmado y documentos en destino correcto. Nivel eliminado/movido/sin permiso bloquea lo afectado para revisión.
+- Homónimos en raíces/subcarpetas conservan identidad/contenido; raíces homónimas no se fusionan. Subcarpetas siguen política y se informa limitación de vacías.
+- Inventario/perfil cambiado invalida plan; rechazar planes ajenos, incompletos o manipulados. Doble confirmación, reenvío y clientes concurrentes no repiten efectos confirmados.
+- Fallo tras crear/almacenar antes de responder conserva IDs o estado incierto, sin reintento ciego. Sesión perdida, cierre/recarga/cancelación permiten consultar sin prometer recuperar bytes locales no enviados.
+- Rechazar ruta maliciosa, exceso real de tamaño, gabinete no autorizado y tipología inválida. Revalidar cambios de permiso, perfil y esquema de gabinete.
+- Índices extraídos siguen perfil y no alteran relaciones compartidas. Éxito exige almacenamiento e incorporación verificados, no HTTP 200 ni transferencia finalizada.
+- Carga individual operativa y SII sin cambios. Ejecutar DOC-88 pertinente distinguiendo evidencia estática; pruebas reales sujetas a autorización/runbook. Reportar no ejecutadas y cómo completarlas.
 
 ### 11. Orden de entrega
 
@@ -242,11 +167,11 @@ Trabaja hasta completar el alcance autorizado; no presentes la interfaz de selec
 
 ## CONTEXTO Y CONTRATO DE INTEGRACIÓN
 
-Leer `00-guia-ejecucion-prompts.md` y los artefactos vigentes de `Diseno/`; distinguir propuestas de componentes existentes. Para esta entrega, documentar el contrato request/response, autoridad, errores, estados y efectos permitidos. Flujo de referencia: Cliente → entrada ASMX/ASHX (responsabilidad de Controller) → Service → Repository/adaptadores → respuesta; no imponer ASP.NET MVC a WebForms. Los adaptadores internos de 08/09 no se exponen como operaciones públicas independientes.
+Leer guía 00 y diseño vigente. Documentar request/response, autoridad, errores, estados y efectos: Cliente → ASMX/ASHX (responsabilidad Controller) → Service → Repository/adaptadores → respuesta. No introducir MVC ni endpoints públicos de adaptadores 08/09.
 
 ## PRECONDICIONES DE RUTAS
 
-Antes de implementar, inventariar los archivos exactos en `Diseno/design.md`, con propietario (prompt), existentes/nuevos, responsabilidad y consumidores. Es un mapa de implementación complementario a `Diseno/01-modelo-datos.md` y `Diseno/02-contratos-operacion.md`, no otro diseño de contratos. Si existe un cambio OpenSpec, referenciar ese mapa desde su `design.md` sin duplicarlo. Verificar estas ubicaciones propuestas contra el repositorio; no afirmar que los archivos nuevos ya existen ni crear todas las capas por ejecutar esta entrega.
+Antes de implementar, inventariar archivos exactos, propietario, responsabilidad, consumidores y condición nuevo/existente en `Diseno/design.md`. Complementa modelo/contratos de `Diseno/`; OpenSpec lo referencia sin duplicarlo. Verificar estas rutas propuestas; no crear todas las capas por entrega ni afirmar archivos existentes:
 
 | Responsabilidad | Ubicación común propuesta | Propiedad |
 |---|---|---|
@@ -260,41 +185,37 @@ Antes de implementar, inventariar los archivos exactos en `Diseno/design.md`, co
 | Integración visual existente | `Gestion/WebFormProducionDocumental.aspx`, su code-behind `.aspx.vb` y `js/gestion/WebFormProducionDocumental.js` | 05 integra; 11 extiende resultados sobre la misma ventana. |
 | JavaScript específico nuevo | `js/gestion/ImportacionCarpetas/` | 05 estado/transporte/renderizado; 11 seguimiento; nombres exactos en el inventario. |
 
-Registrar los archivos nuevos de compilación y contenido en `GestionDocumental-Docuarchi.net.vbproj` según el tipo de recurso. Mantener namespaces y referencias compatibles con .NET Framework 4.6.1. Las rutas nuevas son destino de implementación, no evidencia de componentes existentes. El host opcional del 13 requiere su propio inventario tras decidir alojamiento; no inventar un ejecutable desplegado.
+Registrar compilación/contenido en `GestionDocumental-Docuarchi.net.vbproj`, manteniendo namespaces y referencias .NET Framework 4.6.1. Inventariar host del 13 solo tras decidir alojamiento; no presumir un ejecutable desplegado.
 
 ## RESTRICCIONES CRÍTICAS
 
-No debe modificarse SII: código, tablas, configuración, contratos ni consumidores. Preservar carga individual y contratos legacy; no cambiar pruebas/huellas para ocultar regresiones. No crear otro árbol ni cambiar el nivel al elegir perfil. No usar autorregistro, tareas ficticias, valores fijos del ejemplo ni temporizadores del prototipo como implementación productiva.
+Aplicar restricciones de las secciones 2–9: SII y carga individual intactos; sin árboles, motores o repositorios paralelos, autorregistro, tareas ficticias ni valores DEMO productivos. No alterar pruebas/huellas para ocultar regresiones. COMPLETO_OBLIGATORIO requiere elegir EXPEDIENTE/LOTE al publicar y congelarlo en plan/lote; PARCIAL_PERMITIDO usa NO_APLICA. Preservar efectos y reconciliar; sin rollback global.
 
-Mantener COMPLETO_OBLIGATORIO configurable por EXPEDIENTE o LOTE; exigir elección al publicar y congelarla en plan/lote. PARCIAL_PERMITIDO usa NO_APLICA. No prometer rollback global: conservar efectos confirmados y reconciliar incertidumbre. Cada prompt implementa solo su responsabilidad según la guía 00; no duplicar motor, repositorios ni endpoints.
-
-El equipo aplica SQL manualmente: MySQL 5.1, sin migraciones automáticas. Los scripts de perfil pertenecen a 02 y los operativos a 07; otros cambios justificados usan incrementos coordinados. No ejecutar SQL por tener conexión ni declarar aplicado un script por existir.
+SQL manual MySQL 5.1: perfil pertenece a 02; operación a 07. Cambios posteriores usan incrementos coordinados; existir un script o conexión no acredita ni autoriza aplicación.
 
 ## CRITERIOS DE ACEPTACIÓN
 
-Desde un nivel autorizado, importar dos raíces y verificar expediente, gabinete e índices; repetir confirmación y recuperación sin duplicar efectos. Cubrir completo/EXPEDIENTE, completo/LOTE y parcial.
+Cumplir la matriz de la sección 10 y REC-01/02 en completo/EXPEDIENTE, completo/LOTE y parcial: dos raíces en destino autorizado, índices correctos y repetición/recuperación sin duplicación.
 
 ## PRUEBAS OBLIGATORIAS
 
-Desde un nivel autorizado, importar dos raíces y verificar expediente, gabinete e índices; repetir confirmación y recuperación sin duplicar efectos. Cubrir completo/EXPEDIENTE, completo/LOTE y parcial.
+Pruebas unitarias o QA manual reproducible según impacto e integración para persistencia/efectos; registrar comandos, entorno, resultados y limitaciones. Compilar cambios VB/proyecto con MSBuild y configuración real del vbproj, no build .NET moderno; documentar herramientas/referencias ausentes. Verificar JavaScript con `node --check <archivo-real>` y pruebas de comportamiento. DOC-88 acredita regresión estática, no persistencia real.
 
-Ejecutar pruebas unitarias o QA manual reproducible según el impacto, además de integración para persistencia y efectos. Registrar comandos, entorno, resultado y limitaciones. Para cambios VB/proyecto, compilar con MSBuild usando la configuración real de `GestionDocumental-Docuarchi.net.vbproj`; no sustituirlo por un build .NET moderno. Si faltan herramientas/referencias, registrar la limitación. Para JavaScript, comprobar sintaxis con `node --check <archivo-real>` y comportamiento con la infraestructura existente. Las suites DOC-88 aplicables son evidencia estática, no prueba de persistencia real.
+E2E, código, validación autorizada y evidencia saneada son parte integral del mismo cambio. 12 consolida regresión, no sustituye pruebas por componente. Adaptadores internos se prueban primero por contrato/integración, sin endpoints auxiliares; dependencias faltantes dejan integración pendiente, no aprobada.
 
-La validación E2E del comportamiento entregado es parte integral del mismo cambio: código, pruebas, validación autorizada y evidencia saneada forman su unidad de entrega. El prompt 12 consolida regresión transversal; no sustituye las pruebas de cada componente. Para servicios/adaptadores internos, validar primero contratos y fallos mediante unitarias/integración; no crear endpoints de prueba para eludir el coordinador. Si el recorrido depende de componentes posteriores, registrar integración pendiente y no declarar cerrado el comportamiento integrado.
+Antes de autenticar, leer `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md`. Requiere autorización explícita de ambiente, cuentas y datos descartables, no concedida por este prompt. Cubrir autorización, lectura sin mutación, escrituras autorizadas, concurrencia y regresión.
 
-Reutilizar exclusivamente autenticación, configuración, validadores y utilidades de `tools/e2e`; no crear login, arnés, proyecto Playwright ni .env paralelos. Leer `AGENTS.md` y `tools/e2e/AGENT-RUNBOOK.md` antes de autenticar. Ejecutar pruebas reales solo con autorización explícita del ambiente, cuentas y datos descartables; este prompt no concede esa autorización. Cubrir control de acceso, lectura sin mutación, escrituras autorizadas, concurrencia y regresión relacionada con esta entrega.
-
-Usar secretos efímeros; no imprimir ni guardar credenciales, cookies, tokens o cadenas de conexión. Consultas de control solo SELECT; conservar evidencia saneada. Respetar gates de seguridad existentes, sin habilitar arbitrariamente funciones o permisos para probar. No reintroducir flags ni listas de usuarios/grupos como activación de la experiencia moderna. No cerrar sin validación requerida: ante ambiente o autorización ausente, registrar bloqueo explícito, casos no ejecutados y motivo; mocks y simulaciones no sustituyen evidencia real.
+Secretos efímeros: no imprimir ni guardar credenciales, cookies, tokens o cadenas de conexión. Controles solo SELECT y evidencia saneada. Respetar gates existentes, sin habilitar arbitrariamente permisos/funciones ni reintroducir flags o listas de usuarios/grupos para activar la experiencia moderna. No cerrar sin validación requerida: registrar bloqueo explícito, motivo y casos no ejecutados; mocks/simulaciones no sustituyen evidencia real.
 
 ## E2E POR CAPACIDAD Y CRITERIO DE CIERRE
 
-### Reutilizaci?n obligatoria de infraestructura E2E
+### Reutilización obligatoria de infraestructura E2E
 
-Antes de escribir pruebas, inventariar y reutilizar `tools/e2e/package.json`, `tools/e2e/playwright.config.cjs`, `tools/e2e/tests/support/`, `tools/e2e/scripts/`, `tools/e2e/fixtures/` y `tools/e2e/AGENT-RUNBOOK.md`. Ubicar las nuevas especificaciones en `tools/e2e/tests/` y registrar solo los comandos necesarios en el paquete existente. Usar los reporteros y directorios de evidencia ya configurados; conservar saneamiento de secretos y datos sensibles tambi?n en capturas y trazas.
+Inventariar y reutilizar `tools/e2e/package.json`, `tools/e2e/playwright.config.cjs`, `tools/e2e/tests/support/`, `tools/e2e/scripts/`, `tools/e2e/fixtures/` y runbook. Especificaciones nuevas en `tools/e2e/tests/`, comandos en el paquete existente y reporteros/directorios configurados; sanear capturas/trazas.
 
-Reutilizar `tools/e2e/tests/support/authenticated-workflow-session.cjs` cuando su contrato soporte el acceso requerido; verificarlo antes, sin fabricar tareas Workflow. Si falta soporte para Producci?n, ampliar de forma compatible el soporte compartido y su configuraci?n/runner existente, con pruebas de regresi?n de los consumidores afectados. Reutilizar validadores de autorizaci?n, perfiles y utilidades aplicables identificados en el inventario; documentar qu? se reutiliza y qu? extensi?n m?nima necesita esta capacidad. No copiar suites completas ni introducir login, almacenamiento de sesi?n, .env, dependencias, instalaci?n de navegadores, runner o configuraci?n Playwright paralelos. Un script delgado nuevo dentro de `tools/e2e/scripts/` solo puede seleccionar escenarios y delegar en los mecanismos compartidos; no reimplementar autenticaci?n ni autorizaci?n.
+Verificar compatibilidad de `tools/e2e/tests/support/authenticated-workflow-session.cjs` con Producción; no fabricar tareas Workflow. Si falta soporte, extender autenticación/configuración/runner compartidos de forma compatible y probar consumidores afectados. Documentar validadores de autorización, perfiles y utilidades reutilizados y extensión mínima necesaria.
 
-No cambiar globalmente workers, reintentos, timeouts, permisos o configuraci?n para lograr pruebas verdes. Cualquier extensi?n compartida debe mantener los contratos de las suites existentes y acreditar regresi?n pertinente. Las pruebas DOC-88 de pol?tica son evidencia est?tica complementaria, no reemplazan los escenarios E2E reales. El inventario de reutilizaci?n y la ausencia de infraestructura duplicada son criterios de aceptaci?n de esta entrega; para 04 se documentan y para 13 solo se implementan al activar su alcance opcional.
+No copiar suites. No crear login, sesión, .env, dependencias, instalación de navegadores, runner o configuración Playwright paralelos. Scripts nuevos en `tools/e2e/scripts/` solo seleccionan escenarios y delegan en mecanismos compartidos, sin reimplementar autenticación/autorización. No cambiar globalmente workers, reintentos, timeouts, permisos o configuración para lograr pruebas verdes. Toda extensión preserva contratos y acredita regresión pertinente. DOC-88 de política complementa, no reemplaza E2E real. Inventario de reutilización y ausencia de duplicación son criterios de aceptación; 04 los documenta y 13 actúa solo al activar alcance.
 
 Implementar estos escenarios como parte de la entrega, reutilizando `tools/e2e`. Son pruebas futuras: esta documentación no acredita suites creadas ni corridas. Leer [la estrategia de comprobación progresiva](Validacion/01-estrategia-e2e-capacidades.md).
 
