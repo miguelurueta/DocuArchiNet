@@ -27,15 +27,15 @@ No incluye motor de importación, lectura de carpetas, lotes, creación de exped
 > 1. Lecturas y verificación inicial
 > Lee las instrucciones AGENTS.md aplicables y estos documentos, relativos a esta carpeta:
 > Exploracion/00-exploracion-importacion-masiva-por-carpetas.md.
-> 
+>
 > Exploracion/01-diagnostico-reutilizacion-tablas.md.
-> 
+>
 > Exploracion/02-evidencia-esquema-perfil.json.
-> 
+>
 > Exploracion/03-validacion-bd-y-definicion-perfil.md.
-> 
+>
 > Exploracion/04-diagrama-flujo-tecnico-perfil.md.
-> 
+>
 > El documento 03 precisa los hallazgos estáticos del 01. El diagrama 04 incluye operaciones futuras de importación: implementa únicamente las correspondientes al perfil y a su selección; no interpretes todo el diagrama como alcance de esta entrega.
 > Verifica el código actual antes de editar. Identifica el punto de entrada de la interfaz, autenticación, permisos, acceso a datos, consultas de catálogos, manejo de errores, pruebas y mecanismo de despliegue SQL. Registra rutas y símbolos concretos que justifican las decisiones. La exploración identificó WebForms,   y componentes ASMX/ASHX; no presupongas   Core, MVC, Entity Framework ni dependencias modernas.
 > 2. Objetivo y límites
@@ -45,76 +45,76 @@ No incluye motor de importación, lectura de carpetas, lotes, creación de exped
 > Quedan fuera de esta entrega: lectura real de carpetas, transferencia de archivos, creación de expedientes, almacenamiento en gabinete, incorporación documental, ejecución de lotes, colas, reintentos operativos y procesamiento masivo. No crees tablas de lote o archivo para completar artificialmente este alcance. Se admite probar reglas con nombres y metadatos de ejemplo, sin acceder al sistema de archivos ni producir efectos documentales.
 > 3. Restricciones obligatorias
 > No modificar SII: código, tablas, configuración, índices, consumidores ni comportamiento. No refactorizar componentes compartidos para adaptar SII al nuevo perfil.
-> 
+>
 > Reutilizar componentes existentes solo cuando puedan invocarse sin alterar sus contratos ni afectar a otros consumidores. Si no son compatibles, crear un adaptador o una operación propia y acotada.
-> 
+>
 > No guardar perfiles en autorregistro, configuración de conexión de servicios, tablas Workflow de SII ni perfiles administrativos de usuarios.
-> 
+>
 > No asignar un ID de autorregistro para representar este perfil: existen efectos sobre la edición posterior del expediente.
-> 
+>
 > No modificar relaciones predeterminadas compartidas de gabinete para resolver reglas particulares de un perfil.
-> 
+>
 > No incorporar formatos de nombres fijos. 1246566-125-OrdenCompra es únicamente un ejemplo.
-> 
+>
 > No introducir credenciales, cadenas de conexión ni datos reales sensibles en código, documentación, logs o pruebas.
-> 
+>
 > La creación y actualización de tablas las realiza el equipo del usuario. Entregar los cambios necesarios en un archivo SQL compatible con MySQL 5.1; no ejecutarlo contra la base configurada ni aplicar migraciones automáticamente al iniciar la aplicación. Cualquier inspección adicional será de solo lectura y limitada a lo necesario.
-> 
+>
 > No ejecutar E2E autenticado ni carga real sin la autorización específica requerida por las instrucciones del repositorio.
-> 
+>
 > 4. Diseño de persistencia
 > Concreta un modelo relacional basado en tres responsabilidades:
 > integracion_perfil: identidad estable, código, nombre, descripción, ámbito y disponibilidad.
-> 
+>
 > integracion_perfil_version: revisión, estado, configuración documental efectiva, políticas y datos de creación/publicación.
-> 
+>
 > integracion_perfil_regla: asignaciones y extracción de valores asociadas a una versión.
-> 
+>
 > Son nombres propuestos, no tablas existentes confirmadas. Define columnas, tipos, longitudes, nulabilidad, índices, unicidad, relaciones y control de concurrencia. Justifica cualquier tabla adicional necesaria para una relación múltiple; no fuerces tres tablas si eso exige cadenas ambiguas o estructuras sin integridad.
 > La evidencia disponible corresponde a MySQL 5.1.37 e InnoDB. Produce SQL compatible con ese entorno, sin asumir columnas JSON nativas, restricciones CHECK efectivas ni funciones de versiones posteriores. Respeta tipos y collation de las referencias reales. Valida las relaciones entre esquemas antes de proponer claves foráneas físicas.
 > Entrega obligatoria del archivo SQL
 > Si la implementación requiere crear tablas o modificar estructuras existentes, crea el archivo Sql/01-perfil-importacion-mysql51.sql dentro de este directorio ImportacionCarpetas. El modelo propuesto requiere tablas nuevas, por lo que este archivo es un entregable esperado de la implementación. Debe contener DDL concreto y completo, coherente con los repositorios implementados; no basta con describir tablas en Markdown ni generar migraciones dependientes de un ORM.
 > Incluir los CREATE TABLE necesarios y los ALTER TABLE estrictamente justificados, con índices y relaciones en orden de dependencia. Se mantiene la prohibición de modificar tablas de SII o relaciones compartidas para adaptar este perfil.
-> 
+>
 > Encabezar el archivo con versión objetivo, precondiciones, objetos afectados y pasos de ejecución manual. No incluir credenciales ni fijar una base operativa mediante USE; indicar que el equipo debe seleccionar la base destino.
-> 
+>
 > Usar sintaxis soportada por MySQL 5.1, motor InnoDB y codificación/collation compatibles con el esquema real. No utilizar utf8mb4, JSON nativo, columnas generadas ni variantes modernas de ALTER TABLE ... IF NOT EXISTS.
-> 
+>
 > Documentar cómo comprobar el estado previo y posterior mediante consultas de solo lectura. Definir si el script admite repetición; no afirmar idempotencia por usar únicamente CREATE TABLE IF NOT EXISTS, que no verifica la estructura de una tabla preexistente.
-> 
+>
 > No incluir borrado de datos, recreación destructiva de tablas ni cambios ajenos al perfil. Si hacen falta datos iniciales propios, separarlos claramente y evitar identificadores de negocio inventados.
-> 
+>
 > Documentar recuperación ante ejecución parcial: el DDL de MySQL 5.1 puede producir commits implícitos y no se revierte como una transacción de datos. No prometer rollback transaccional del esquema ni automatizar eliminación de tablas con información.
-> 
+>
 > Entregar el archivo para revisión y ejecución por el equipo del usuario. Informar con precisión si solo se revisó estáticamente o si se validó en un entorno de pruebas autorizado; no afirmar que fue aplicado a la base operativa.
-> 
+>
 > Reutiliza en lectura los catálogos existentes de clasificación, tipología, tipos de expediente, niveles, responsables, gabinetes y campos índice. system1 y detalle_gabienete son autoridades existentes del gabinete; no crees catálogos paralelos. Los permisos administrativos existentes no equivalen automáticamente a permisos de administrar perfiles: verifica su integración efectiva.
 > No reutilices las equivalencias de tipologías de SII para escribir reglas nuevas. Evita los lectores compartidos que ignoran el filtro por autorregistro o que seleccionan una relación global por gabinete.
 > Guarda perfil, versión y reglas de forma transaccional. Publica mediante una operación atómica que compruebe la revisión esperada. Una versión publicada es inmutable; editarla inicia un nuevo borrador. La disponibilidad del perfil se administra sin reescribir versiones históricas. Define de forma inequívoca qué versión publicada devuelve la selección habitual.
 > 5. Configuración funcional
 > Implementa los siguientes grupos y valida su coherencia en el servidor:
 > Identificación: código estable, nombre, descripción y ámbito derivado del modelo real de la aplicación.
-> 
+>
 > Clasificación: fondo, instrumento, área, serie y subserie cuando corresponda; verificar las relaciones y no exigir una subserie artificial.
-> 
+>
 > Expediente: tipo de expediente, unidad documental, responsable y fuentes de los demás campos requeridos por las operaciones existentes. El nivel de Producción procede de la estructura que el usuario ya seleccionó antes de abrir la ventana de importación; el perfil valida su compatibilidad, no lo sustituye ni exige seleccionarlo nuevamente dentro del asistente.
-> 
+>
 > Carpetas: estrategia explícita para determinar qué carpeta representa un expediente y qué ocurre con subcarpetas, carpetas vacías y archivos sueltos.
-> 
+>
 > Identidad del expediente: distinguir nombre visible de código único; configurar sus fuentes sin confundir nombre con identidad.
-> 
+>
 > Destino: gabinete autorizado y campos índice pertenecientes a ese gabinete.
-> 
+>
 > Reglas: valores constantes, heredados de los datos del expediente o extraídos del nombre de carpeta/archivo.
-> 
+>
 > Tipología: fuente y resolución contra tipos documentales válidos para la clasificación.
-> 
+>
 > Coincidencias: política explícita; no fusionar ni sobrescribir automáticamente por coincidencia de nombre. La opción inicial conservadora será reportar conflicto.
-> 
+>
 > Restricciones: extensiones y límites compatibles con las restricciones generales; el perfil solo puede restringirlas más.
-> 
+>
 > Integridad de importación: modo predeterminado COMPLETO_OBLIGATORIO; PARCIAL_PERMITIDO solo mediante configuración explícita de la versión publicada. Mostrar y conservar la política efectiva. Ambos ámbitos están aprobados y deben implementarse: EXPEDIENTE y LOTE, elegibles en el perfil. En modo completo la selección es obligatoria antes de publicar, sin valor implícito; en parcial el ámbito efectivo es NO_APLICA. No publicar una configuración con semántica de ejecución ambigua. La política no implica rollback de efectos documentales ni permite omitir archivos silenciosamente.
-> 
+>
 > Las decisiones de negocio que la exploración deja abiertas no se presentarán como acordadas. Para configuraciones imprescindibles, exige selección explícita antes de publicar; no introduzcas valores silenciosos. Implementa únicamente estrategias con semántica definida y documenta cuáles quedan disponibles para la futura ejecución. Si una decisión pendiente impide concretar un contrato, formula una pregunta acotada y continúa el trabajo independiente.
 > Un borrador puede estar incompleto, pero no puede guardar identificadores manipulados, destinos ajenos al gabinete ni estructuras de reglas inválidas. Publicar requiere resolver las fuentes obligatorias y validar la configuración completa. Un valor particular que solo se conocerá al importar se valida en ejecución; no exijas que exista durante la publicación.
 > 6. Reglas de extracción y asignación
@@ -126,58 +126,58 @@ No incluye motor de importación, lectura de carpetas, lotes, creación de exped
 > 7. Recorrido técnico
 > Respeta la separación Cliente → entrada HTTP (Controller conceptual) → Service → Repository → Respuesta, adaptándola a la arquitectura real.
 > Cliente: formulario, catálogos dependientes, edición de reglas, pendientes del borrador, prueba de nombres, publicación y selección.
-> 
+>
 > Entrada HTTP: autenticación, contexto confiable del usuario, contrato, validación estructural y traducción de resultados al formato existente. Aplica la protección contra solicitudes falsificadas correspondiente a la aplicación.
-> 
+>
 > Service: autorización por operación y recurso, validación documental, reglas, transiciones de estado, concurrencia y transacciones coordinadas.
-> 
+>
 > Repository: consultas parametrizadas y persistencia, sin lógica de presentación. Los nombres dinámicos de campos deben validarse contra metadatos permitidos; no concatenar entrada libre como identificadores SQL.
-> 
+>
 > Respuesta: identificadores de perfil/versión, revisión, estado, configuración autorizada y errores por campo; sin stack traces ni detalles sensibles.
-> 
+>
 > Implementa operaciones equivalentes a consultar catálogos, listar perfiles autorizados, obtener detalle, crear perfil/borrador, guardar borrador, crear nueva versión, probar reglas, publicar, activar/desactivar disponibilidad y seleccionar versión. Define nombres y contratos siguiendo las convenciones encontradas; no inventes un framework nuevo para conseguir esa lista.
 > La selección devuelve una configuración versionada leída del servidor; nunca confía en reglas reenviadas por el navegador ni en una selección mutable de sesión. Revalida disponibilidad, permisos y referencias externas al seleccionar. Seleccionar o publicar no crea expedientes, lotes ni documentos.
 > 8. Criterios de aceptación y pruebas
 > Un usuario autorizado guarda un borrador incompleto y recibe los requisitos pendientes.
-> 
+>
 > Una configuración inconsistente no se publica y conserva su borrador.
-> 
+>
 > Se comprueba pertenencia de campos al gabinete y coherencia de clasificación/tipología.
-> 
+>
 > Los permisos se verifican en servidor para cada operación; manipular un ID no permite acceder a otro ámbito o recurso.
-> 
+>
 > Dos ediciones concurrentes no se sobrescriben silenciosamente; una publicación con revisión obsoleta falla de forma controlada.
-> 
+>
 > Una versión publicada no admite edición. Una nueva versión no altera la anterior.
-> 
+>
 > Perfiles inactivos o no autorizados no se ofrecen ni pueden seleccionarse mediante petición directa.
-> 
+>
 > El resolvedor procesa al menos dos estructuras de nombres diferentes mediante configuración, además de constantes y valores heredados.
-> 
+>
 > Valores ausentes, tipos inválidos, longitudes excedidas y asignaciones ambiguas producen errores verificables.
-> 
+>
 > Guardar o publicar es atómico ante fallos de persistencia.
-> 
+>
 > La prueba de reglas, publicación y selección no producen cambios documentales.
-> 
+>
 > No hay cambios en SII ni en sus contratos, tablas o configuración.
-> 
+>
 > Prueba comportamiento real de servicio y resolvedor, y persistencia en un entorno de pruebas disponible y autorizado. Compila con las herramientas del proyecto y ejecuta las comprobaciones pertinentes. No presentes mocks o búsquedas estáticas como prueba de una transacción real. Si no puedes ejecutar una verificación, registra la limitación y el procedimiento pendiente; no afirmes que pasó.
 > 9. Entregables y forma de trabajo
 > Diagnóstico breve de encaje con rutas reales, decisiones y alcance antes de implementar.
-> 
+>
 > Diseño físico y contratos documentados, diferenciando evidencia, decisiones técnicas y pendientes funcionales.
-> 
+>
 > Archivo Sql/01-perfil-importacion-mysql51.sql, compatible con MySQL 5.1, con todas las creaciones y actualizaciones de estructura necesarias, comprobaciones y procedimiento de ejecución manual/recuperación. El equipo del usuario aplica los cambios; no realizar despliegue automático ni borrar perfiles o versiones.
-> 
+>
 > Implementación integrada de interfaz, entrada HTTP, servicios y repositorios.
-> 
+>
 > Pruebas y resultados, incluidos límites de la validación ejecutada.
-> 
+>
 > Actualización de la exploración con lo efectivamente implementado y lo pendiente para la futura importación.
-> 
+>
 > Informe final con archivos relevantes, comportamiento entregado, cómo verificarlo y evidencia del aislamiento de SII.
-> 
+>
 > Avanza con las decisiones técnicas reversibles dentro de este alcance. No te detengas en un plan si puedes implementar. No ejecutes migraciones en la base operativa, no publiques despliegues y no amplíes el trabajo al motor de importación. Comprueba el diff final para preservar cambios ajenos y demostrar que SII permanece intacto.
 > CONTEXTO Y CONTRATO DE INTEGRACIÓN
 > Leer 00-guia-ejecucion-prompts.md y los artefactos vigentes de Diseno/; distinguir propuestas de componentes existentes. Para esta entrega, documentar el contrato request/response, autoridad, errores, estados y efectos permitidos. Flujo de referencia: Cliente → entrada ASMX/ASHX (responsabilidad de Controller) → Service → Repository/adaptadores → respuesta; no imponer   MVC a WebForms. Los adaptadores internos de 08/09 no se exponen como operaciones públicas independientes.
@@ -186,33 +186,33 @@ No incluye motor de importación, lectura de carpetas, lotes, creación de exped
 > Responsabilidad
 > Ubicación común propuesta
 > Propiedad
-> Modelos y puertos 
-> Modelo/ProduccionDocumental/ImportacionCarpetas/ 
-> 04 define; cada entrega añade solo su contrato. 
-> DTOs de entrada/salida 
-> DTOs/ProduccionDocumental/ImportacionCarpetas/ 
-> 02/06/07/10/11 según operación. 
-> Servicios y reglas 
-> Services/ProduccionDocumental/ImportacionCarpetas/ 
-> 02 perfil; 06 plan; 07 recepción; 10 coordinación; 11 consulta/mantenimiento. 
-> Repositorios 
-> Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/ 
-> 02 perfil; 07-A operación. Los demás consumen sus interfaces. 
-> Adaptadores documentales 
-> Infrastructure/ProduccionDocumental/ImportacionCarpetas/ 
-> 08 expedientes; 09 almacenamiento e incorporación. 
-> Servicio web nuevo 
-> webservice/WebServiceImportacionCarpetas.asmx y webservice/WebServiceImportacionCarpetas.asmx.vb 
-> Una fachada de las operaciones anteriores; sin reglas documentales en transporte. 
-> Recepción multipart nueva 
-> generic_control/ImportacionCarpetasUpload.ashx y generic_control/ImportacionCarpetasUpload.ashx.vb 
-> 07-B; delega en su servicio; no sustituye el handler compartido. 
-> Integración visual existente 
-> Gestion/WebFormProducionDocumental.aspx, su code-behind .aspx.vb y js/gestion/WebFormProducionDocumental.js 
-> 05 integra; 11 extiende resultados sobre la misma ventana. 
-> JavaScript específico nuevo 
-> js/gestion/ImportacionCarpetas/ 
-> 05 estado/transporte/renderizado; 11 seguimiento; nombres exactos en el inventario. 
+> Modelos y puertos
+> Modelo/ProduccionDocumental/ImportacionCarpetas/
+> 04 define; cada entrega añade solo su contrato.
+> DTOs de entrada/salida
+> DTOs/ProduccionDocumental/ImportacionCarpetas/
+> 02/06/07/10/11 según operación.
+> Servicios y reglas
+> Services/ProduccionDocumental/ImportacionCarpetas/
+> 02 perfil; 06 plan; 07 recepción; 10 coordinación; 11 consulta/mantenimiento.
+> Repositorios
+> Infrastructure/Repositories/ProduccionDocumental/ImportacionCarpetas/
+> 02 perfil; 07-A operación. Los demás consumen sus interfaces.
+> Adaptadores documentales
+> Infrastructure/ProduccionDocumental/ImportacionCarpetas/
+> 08 expedientes; 09 almacenamiento e incorporación.
+> Servicio web nuevo
+> webservice/WebServiceImportacionCarpetas.asmx y webservice/WebServiceImportacionCarpetas.asmx.vb
+> Una fachada de las operaciones anteriores; sin reglas documentales en transporte.
+> Recepción multipart nueva
+> generic_control/ImportacionCarpetasUpload.ashx y generic_control/ImportacionCarpetasUpload.ashx.vb
+> 07-B; delega en su servicio; no sustituye el handler compartido.
+> Integración visual existente
+> Gestion/WebFormProducionDocumental.aspx, su code-behind .aspx.vb y js/gestion/WebFormProducionDocumental.js
+> 05 integra; 11 extiende resultados sobre la misma ventana.
+> JavaScript específico nuevo
+> js/gestion/ImportacionCarpetas/
+> 05 estado/transporte/renderizado; 11 seguimiento; nombres exactos en el inventario.
 > Registrar los archivos nuevos de compilación y contenido en GestionDocumental-Docuarchi.net.vbproj según el tipo de recurso. Mantener namespaces y referencias compatibles con .NET Framework 4.6.1. Las rutas nuevas son destino de implementación, no evidencia de componentes existentes. El host opcional del 13 requiere su propio inventario tras decidir alojamiento; no inventar un ejecutable desplegado.
 > RESTRICCIONES CRÍTICAS
 > No debe modificarse SII: código, tablas, configuración, contratos ni consumidores. Preservar carga individual y contratos legacy; no cambiar pruebas/huellas para ocultar regresiones. No crear otro árbol ni cambiar el nivel al elegir perfil. No usar autorregistro, tareas ficticias, valores fijos del ejemplo ni temporizadores del prototipo como implementación productiva.
@@ -236,18 +236,18 @@ No incluye motor de importación, lectura de carpetas, lotes, creación de exped
 > Precondiciones
 > Pasos del recorrido
 > Aserciones obligatorias
-> PER-01 
-> Administración de perfil implementada; catálogo y SQL de perfil disponibles. 
-> Crear perfil con reglas de nombre; intentar publicar completo sin ámbito; elegir EXPEDIENTE y publicar; cerrar sesión de pantalla y volver a consultar. 
-> Se rechaza la publicación incompleta; la versión válida conserva reglas y ámbito al volver a abrir. 
-> PER-02 
-> Perfil publicado y usuario sin permiso de administración. 
-> Publicar otra versión con ámbito LOTE; consultar versión anterior; intentar modificar/publicar con usuario restringido. 
-> La versión anterior es inmutable; nueva versión independiente; servidor rechaza acceso no autorizado, sin escritura. 
-> PER-03 
-> Perfil con campos constantes, heredados y dos patrones de nombre configurados. 
-> Guardar, recargar y validar ambos ejemplos desde la administración; introducir campo obligatorio ausente y tipología inválida. 
-> Reglas persistidas producen los valores previstos; inválidos generan errores por campo y no se publican. 
+> PER-01
+> Administración de perfil implementada; catálogo y SQL de perfil disponibles.
+> Crear perfil con reglas de nombre; intentar publicar completo sin ámbito; elegir EXPEDIENTE y publicar; cerrar sesión de pantalla y volver a consultar.
+> Se rechaza la publicación incompleta; la versión válida conserva reglas y ámbito al volver a abrir.
+> PER-02
+> Perfil publicado y usuario sin permiso de administración.
+> Publicar otra versión con ámbito LOTE; consultar versión anterior; intentar modificar/publicar con usuario restringido.
+> La versión anterior es inmutable; nueva versión independiente; servidor rechaza acceso no autorizado, sin escritura.
+> PER-03
+> Perfil con campos constantes, heredados y dos patrones de nombre configurados.
+> Guardar, recargar y validar ambos ejemplos desde la administración; introducir campo obligatorio ausente y tipología inválida.
+> Reglas persistidas producen los valores previstos; inválidos generan errores por campo y no se publican.
 > Para cada caso registrar estado EJECUTADO_OK, FALLIDO o NO_EJECUTADO, SHA probado, ambiente, datos sintéticos, pasos/comando real, evidencia saneada de UI/HTTP y comprobaciones persistidas de solo lectura. No declarar aprobada una capacidad únicamente con mocks o revisión estática. Un caso bloqueado debe identificar dependencia y responsable; no se omite del informe.
 > Entregar especificación automatizada y comando reproducible dentro de la infraestructura existente; el nombre final se inventaría en Diseno/design.md. Si la autorización no permite ejecutarla, entregar suite y evidencia local pertinente, manteniendo la validación real pendiente. No habilitar permisos ni ejecutar cargas por inferencia de este prompt.
 > DOCUMENTACIÓN TÉCNICA
@@ -267,10 +267,9 @@ No incluye motor de importación, lectura de carpetas, lotes, creación de exped
 - `produccion-importacion-carpeta-perfil`: Capacidad derivada del ticket Jira para continuar el refinamiento funcional en OpenSpec.
 
 ### Modified Capabilities
-- 
+-
 
 ## Impact
 
 - Nueva propuesta inicial en `openspec/changes/<changeName>/proposal.md`.
 - Impacto funcional pendiente de refinamiento en los siguientes artefactos OpenSpec.
-
