@@ -1,0 +1,2228 @@
+﻿{
+    "inspectedUtc":  "2026-10-20T13:57:43.7032019Z",
+    "scope":  "SELECT metadata only; configured connections and registered document modules; no secrets",
+    "sources":  [
+                    {
+                        "source":  "config:OdbcServices",
+                        "status":  "OK",
+                        "database":  {
+                                         "schema_name":  "docuarchi",
+                                         "server_version":  "5.1.37-community"
+                                     },
+                        "visibleRelevantTables":  [
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "test",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowdocument",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta_congente",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta_ini",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflow_primavera",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      }
+                                                  ],
+                        "missingInSelectedSchema":  [
+                                                        "integracion_perfil",
+                                                        "integracion_perfil_version",
+                                                        "integracion_perfil_regla"
+                                                    ]
+                    },
+                    {
+                        "source":  "config:OdbcServicesGestor",
+                        "status":  "OK",
+                        "database":  {
+                                         "schema_name":  "docuarchi",
+                                         "server_version":  "5.1.37-community"
+                                     },
+                        "visibleRelevantTables":  [
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "test",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowdocument",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta_congente",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta_ini",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflow_primavera",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      }
+                                                  ],
+                        "missingInSelectedSchema":  [
+                                                        "integracion_perfil",
+                                                        "integracion_perfil_version",
+                                                        "integracion_perfil_regla"
+                                                    ]
+                    },
+                    {
+                        "source":  "config:MyDbContext",
+                        "status":  "FAILED",
+                        "errorType":  "MethodInvocationException"
+                    },
+                    {
+                        "source":  "module:8:WORKFLOW DOCUMENTAL",
+                        "status":  "OK",
+                        "database":  {
+                                         "schema_name":  "workflowtconta",
+                                         "server_version":  "5.1.37-community"
+                                     },
+                        "visibleRelevantTables":  [
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "test",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowdocument",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta_congente",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta_ini",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflow_primavera",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      }
+                                                  ],
+                        "missingInSelectedSchema":  [
+                                                        "empresa_gestion_documental",
+                                                        "remit_dest_interno",
+                                                        "remit_dest_interno_perfil_produccion",
+                                                        "registro_organigrama",
+                                                        "ra_pro_niveles",
+                                                        "expediente_archivo",
+                                                        "system1",
+                                                        "detalle_gabienete",
+                                                        "tipo_doc_series",
+                                                        "ra_pro_permisos_niveles",
+                                                        "integracion_perfil",
+                                                        "integracion_perfil_version",
+                                                        "integracion_perfil_regla"
+                                                    ]
+                    },
+                    {
+                        "source":  "module:11:DOCUARCHI CONTENEDOR",
+                        "status":  "OK",
+                        "database":  {
+                                         "schema_name":  "docuarchi",
+                                         "server_version":  "5.1.37-community"
+                                     },
+                        "visibleRelevantTables":  [
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "test",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowdocument",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta_congente",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta_ini",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflow_primavera",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      }
+                                                  ],
+                        "missingInSelectedSchema":  [
+                                                        "integracion_perfil",
+                                                        "integracion_perfil_version",
+                                                        "integracion_perfil_regla"
+                                                    ]
+                    },
+                    {
+                        "source":  "module:12:GESTOR DOCUMENTAL",
+                        "status":  "OK",
+                        "database":  {
+                                         "schema_name":  "docuarchi",
+                                         "server_version":  "5.1.37-community"
+                                     },
+                        "visibleRelevantTables":  [
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "test",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowdocument",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta_congente",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta_ini",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflow_primavera",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      }
+                                                  ],
+                        "missingInSelectedSchema":  [
+                                                        "integracion_perfil",
+                                                        "integracion_perfil_version",
+                                                        "integracion_perfil_regla"
+                                                    ]
+                    },
+                    {
+                        "source":  "module:14:WORKFLOW DOCUMENTAL",
+                        "status":  "OK",
+                        "database":  {
+                                         "schema_name":  "workflowdocument",
+                                         "server_version":  "5.1.37-community"
+                                     },
+                        "visibleRelevantTables":  [
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_congente",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ini",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_primavera",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_ucartagena",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "detalle_gabienete",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "empresa_gestion_documental",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "expediente_archivo",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "ra_pro_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "ra_pro_permisos_niveles",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "registro_organigrama",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "system1",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "docuarchi_vehillanos",
+                                                          "TABLE_NAME":  "tipo_doc_series",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "test",
+                                                          "TABLE_NAME":  "remit_dest_interno",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowdocument",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta_congente",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflowtconta_ini",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      },
+                                                      {
+                                                          "TABLE_SCHEMA":  "workflow_primavera",
+                                                          "TABLE_NAME":  "gestor_modulos",
+                                                          "ENGINE":  "InnoDB"
+                                                      }
+                                                  ],
+                        "missingInSelectedSchema":  [
+                                                        "empresa_gestion_documental",
+                                                        "remit_dest_interno",
+                                                        "remit_dest_interno_perfil_produccion",
+                                                        "registro_organigrama",
+                                                        "ra_pro_niveles",
+                                                        "expediente_archivo",
+                                                        "system1",
+                                                        "detalle_gabienete",
+                                                        "tipo_doc_series",
+                                                        "ra_pro_permisos_niveles",
+                                                        "integracion_perfil",
+                                                        "integracion_perfil_version",
+                                                        "integracion_perfil_regla"
+                                                    ]
+                    }
+                ],
+    "documentModuleComparisons":  [
+                                      {
+                                          "sourceA":  "module:12:GESTOR DOCUMENTAL",
+                                          "sourceB":  "module:11:DOCUARCHI CONTENEDOR",
+                                          "sameReportedServerAndSchema":  true
+                                      }
+                                  ]
+}

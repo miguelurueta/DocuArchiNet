@@ -1,0 +1,62 @@
+{
+  "inspectedUtc": "2026-10-20T13:12:32.664Z",
+  "scope": "static prompt review; no implementation, SQL or E2E executed",
+  "results": [
+    {
+      "prompt": "02-prompt-implementacion-perfil-importacion.md",
+      "exitCode": 0,
+      "status": "pass",
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "prompt": "06-prompt-validacion-plan.md",
+      "exitCode": 0,
+      "status": "pass",
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "prompt": "08-prompt-adaptador-expedientes.md",
+      "exitCode": 0,
+      "status": "pass",
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "prompt": "10-prompt-coordinacion-recuperacion.md",
+      "exitCode": 0,
+      "status": "pass",
+      "findings": [
+        {
+          "severity": "INFO",
+          "code": "MANUAL_REVIEW_RECOMMENDED",
+          "message": "Validacion automatica sin bloqueantes; revisar coherencia semantica antes de Jira.",
+          "expected": "Revision humana del prompt.",
+          "evidence": null
+        }
+      ]
+    }
+  ]
+}

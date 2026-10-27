@@ -1,0 +1,8 @@
+{
+  "resultado": "PASS",
+  "permisoEsquema": "tinyint unsigned NOT NULL DEFAULT 0",
+  "asignacionesConAmbosPermisos": 0,
+  "politicaFuentesConfigurada": false,
+  "alcance": "SELECT esquema y conteo de permisos; lectura de presencia de politica; sin escrituras",
+  "fechaUtc": "2026-10-22T19:24:14.2079083Z"
+}

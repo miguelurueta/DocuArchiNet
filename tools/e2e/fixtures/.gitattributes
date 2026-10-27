@@ -1,0 +1,2 @@
+# Preserve the byte offsets of the synthetic DOC-110 PDFs on Windows checkout.
+doc110-*.pdf binary

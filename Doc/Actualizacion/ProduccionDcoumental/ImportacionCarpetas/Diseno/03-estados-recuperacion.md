@@ -87,7 +87,7 @@ Nombre original y extensión deben conservarse por contrato soportado. La funci�
 
 ## 7. Publicación, permisos y reanudación
 
-Publicar versión nueva no altera lote anterior. Propuesta técnica conservadora: desactivar perfil impide nuevas confirmaciones y nuevos efectos, conservando consultas para actores autorizados. Reactivar permite reevaluar el lote con su versión original; no copiar reglas nuevas. Esta semántica debe validarse como decisión operativa antes de habilitar administración productiva.
+Decisión aprobada 2026-10-20: publicar otra versión no altera lotes anteriores. Desactivar perfil impide nuevas selecciones y confirmaciones; lotes ya confirmados continúan con snapshot original y permisos vigentes. Detener lote es una acción explícita independiente; pérdida de autorización impide nuevos efectos afectados. Reactivar no reanuda automáticamente lotes detenidos. Contrato y carreras: [coincidencias/disponibilidad](06-coincidencias-disponibilidad.md).
 
 Permisos diferenciados: administrar/publicar perfil, preparar/confirmar importación, recibir, ejecutar, consultar, reconciliar y mantenimiento. Resolverlos con el modelo existente, sin reutilizar indiscriminadamente permiso de gabinete. Pérdida de un permiso de ejecución no habilita consulta a un actor no autorizado; un operador autorizado debe poder investigar incertidumbre.
 

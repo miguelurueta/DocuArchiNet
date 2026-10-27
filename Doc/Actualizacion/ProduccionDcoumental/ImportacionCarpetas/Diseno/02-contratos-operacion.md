@@ -8,7 +8,7 @@ Propuesta: ASMX nuevo para control JSON y ASHX nuevo para contenido multipart, f
 
 ASMX devuelve DTO tipado: el cliente desempaqueta `d` si corresponde, sin doble serialización ni JSON como cadena dentro de JSON. ASHX devuelve el mismo sobre lógico sin `d`. El adaptador HTTP de frontend oculta esa diferencia. Toda mutación requiere protección contra solicitudes falsificadas compatible con la aplicación; incluirla también en multipart. No inventar cookies, reutilizar autenticación existente y resolver usuario/ámbito efectivo en servidor.
 
-IDs UID/legacy y cantidades de bytes se representan como cadenas canónicas para no perder precisión en JavaScript. Revisiones y contadores acotados se representan como enteros. UTC en formato ISO 8601 con Z. Hash en hexadecimal minúscula de 64 caracteres; JSON no envía bytes del contenido. El request no puede incluir nombres SQL ni ruta física de staging.
+IDs incrementales/legacy y cantidades de bytes se representan como cadenas canónicas para no perder precisión en JavaScript. Revisiones y contadores acotados se representan como enteros. Instantes de auditoría en UTC ISO 8601 con Z; fechas documentales de calendario sin zona según contrato 05. Hash en hexadecimal minúscula de 64 caracteres; JSON no envía bytes del contenido. El request no puede incluir nombres SQL ni ruta física de staging.
 
 Sobre común:
 
@@ -141,3 +141,9 @@ Propuesta de paginación por cursor opaco ligado a lote/filtro, orden estable po
 | ESQUEMA_NO_DISPONIBLE | Solo capacidad nueva no disponible; carga individual sigue operativa. |
 
 El prompt 12 debe probar serialización real ASMX/ASHX, status HTTP, sesión expirada y CSRF; este documento no certifica que el pipeline actual ya los resuelva.
+
+### COR-03 — Búsqueda asistida de perfiles
+ListarPerfiles acepta termino opcional (texto hasta 160 caracteres). Su predicado es coincidencia parcial literal en codigo OR nombre, siempre dentro del ámbito autorizado; codigo sigue siendo un filtro exacto independiente y nombre conserva su contrato anterior. Comparación según collation existente, sin prometer insensibilidad a mayúsculas/acentos. No se interpretan comodines ni expresiones SQL. El autocompletado pide página 1 de 10 resultados desde 2 caracteres y espera 300 ms. Muestra código — nombre; conserva perfilId en cada sugerencia y selecciona el código único del ámbito para filtrar la lista sin abrirla. Buscar aplica el término libre; Limpiar vuelve a la primera página sin filtros. Se reutiliza jQuery UI 1.8.22 y PerfilImportacionApi, misma autorización/CSRF; no hay endpoint ni tabla nuevos.
+
+### COR-04 — Catálogos guiados y consulta puntual
+ConsultarCatalogo agrega referencia opcional al DTO cerrado y la transmite al filtro autorizado existente del adaptador. El editor pide página 1/tamaño 1 para resolver el nombre de un ID guardado ausente de la página actual. Sin referencia conserva la paginación anterior. No sustituir valores faltantes ni omitir permisos RA/DA. Frontend invalida descendientes al cambiar padres, reinicia páginas y descarta respuestas de contextos/vistas anteriores; no hay dependencia Fondo → Instrumento. Índices se consultan automáticamente por gabinete. Publicar exige formulario guardado; Consultar estado se reserva a conflicto/resultado incierto y protege ediciones locales. Evidencia y límites: Validacion/doc110-cor04-detalle-guiado.md.

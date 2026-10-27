@@ -1492,7 +1492,7 @@ async function main() {
   }
 }
 
-main().catch((error) => {
+if (require.main === module) main().catch((error) => {
   const code = /^[A-Z0-9_]{3,120}$/.test(error?.code || '') ? error.code : 'E2E_PLATFORM_RUNNER_FAILED';
   console.error(`La plataforma E2E se detuvo de forma segura (${code}). No se mostraron valores sensibles.`);
   if (typeof error?.diagnostic === 'string' && error.diagnostic) console.error(`LEGACY_FUNCTION_RESPONSE: ${error.diagnostic}`);

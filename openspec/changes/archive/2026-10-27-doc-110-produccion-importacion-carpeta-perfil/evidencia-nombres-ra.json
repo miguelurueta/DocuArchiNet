@@ -1,0 +1,8 @@
+﻿{
+    "inspectedUtc":  "2026-10-20T14:02:44.1636201Z",
+    "source":  "OdbcServices",
+    "scope":  "SELECT metadata only; requested ra_ table names",
+    "existingTables":  [
+
+                       ]
+}

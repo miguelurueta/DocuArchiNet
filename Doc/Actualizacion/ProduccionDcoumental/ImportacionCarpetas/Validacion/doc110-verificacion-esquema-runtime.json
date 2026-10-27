@@ -1,0 +1,6 @@
+{
+    "resultado":  "PASS",
+    "alcance":  "SELECT; sin escrituras, sin login ni E2E",
+    "fechaUtc":  "2026-10-20T18:32:43.9975040Z",
+    "operacion":  "MySqlPerfilImportacionRepository.VerificarEsquema"
+}

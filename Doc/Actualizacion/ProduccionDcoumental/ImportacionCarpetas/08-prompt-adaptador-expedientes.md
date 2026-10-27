@@ -27,6 +27,8 @@ Inspecciona `Gestion/ClassGaExpediente.vb`, `Registrar_Expediente_Conservacion`,
 
 Después de crear y verificar el expediente, devolver los datos reales requeridos por fuentes diferidas de índices. No convertirlos en reglas nuevas ni modificar la versión del perfil. Caracterizar también concurrencia con la creación manual existente: una exclusión propia del lote no protege otros escritores. No exponer la creación como endpoint que permita saltarse la habilitación de 10; el contrato interno y sus precondiciones se prueban aisladamente antes de integrar el coordinador.
 
+Consumir `Diseno/05-contrato-fuentes-expediente.md`: distinguir entradas previas a creación de propiedades reales TRAS_EXPEDIENTE; convertir referencias de responsable a los argumentos legacy y verificar límites físicos. No ampliar silenciosamente el límite inicial de código ni resolver fecha/responsable con valores implícitos. La generación legacy de código exige caracterización propia antes de habilitarla.
+
 Prueba dos raíces en un nivel, nombre repetido en ámbitos distintos, reejecución de la misma raíz, permisos revocados, nivel movido, código inválido y fallo después de crear pero antes de registrar. Demostrar que no se usa un destino nuevo por cambiar la selección del árbol. Entregar matriz de dependencias de sesión/efectos, adaptador, contrato de resultado conocido/rechazado/incierto y pruebas. Reutilizar repositorios 07; cualquier DDL adicional se entrega como SQL MySQL 5.1 coordinado, nunca contra SII.
 
 ## CONTEXTO Y CONTRATO DE INTEGRACIÓN
@@ -102,3 +104,7 @@ Actualizar documentación existente en `Doc/Actualizacion/ProduccionDcoumental/I
 ## ENTREGABLE FINAL
 
 Resolver y verificar expedientes bajo el nivel confirmado mediante un adaptador interno, conservando la incertidumbre sin recreaciones automáticas. Entregar los artefactos especificados en este prompt y una relación verificable de cambios, pruebas, resultados y pendientes. No declarar funcionalidades completas por entregar únicamente stubs, mocks o documentación.
+
+## Políticas aprobadas de coincidencias y disponibilidad
+
+Aplicar `Diseno/06-coincidencias-disponibilidad.md`: BLOQUEAR por defecto o REUTILIZAR_VALIDADO, persistidos en versión/snapshot. Reutilizar exige coincidencia única, empresa/estructura/clasificación compatibles, estado y permisos; no modifica el expediente para hacerlo coincidir ni omite archivos. Desactivar impide nuevas selecciones/confirmaciones; lotes confirmados continúan con snapshot y permisos vigentes. El perfil configura, preparación verifica al confirmar y adaptador ejecuta únicamente dentro de su alcance. No implementar control de lotes en DOC-110. Incorporar las pruebas que correspondan a esta entrega; contrato aprobado no acredita capacidades implementadas.

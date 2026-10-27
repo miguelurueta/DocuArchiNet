@@ -58,9 +58,9 @@ Quedan fuera de esta entrega: lectura real de carpetas, transferencia de archivo
 
 Concreta un modelo relacional basado en tres responsabilidades:
 
-- `integracion_perfil`: identidad estable, código, nombre, descripción, ámbito y disponibilidad.
-- `integracion_perfil_version`: revisión, estado, configuración documental efectiva, políticas y datos de creación/publicación.
-- `integracion_perfil_regla`: asignaciones y extracción de valores asociadas a una versión.
+- `ra_integracion_perfil`: identidad estable, código, nombre, descripción, ámbito y disponibilidad.
+- `ra_integracion_perfil_version`: revisión, estado, configuración documental efectiva, políticas y datos de creación/publicación.
+- `ra_integracion_perfil_regla`: asignaciones y extracción de valores asociadas a una versión.
 
 Son nombres propuestos, no tablas existentes confirmadas. Define columnas, tipos, longitudes, nulabilidad, índices, unicidad, relaciones y control de concurrencia. Justifica cualquier tabla adicional necesaria para una relación múltiple; no fuerces tres tablas si eso exige cadenas ambiguas o estructuras sin integridad.
 
@@ -113,6 +113,8 @@ Define explícitamente cómo se trata la extensión del archivo, separadores, po
 Debe existir un valor final inequívoco por destino. Rechaza asignaciones ambiguas o define una precedencia explícita, persistida y probada. Valida tipo, longitud y pertenencia al catálogo; no supongas que un código extraído es directamente un ID interno de tipología.
 
 Respeta los límites funcionales y físicos de los consumidores. La exploración encontró código de expediente de hasta 45 caracteres en una operación existente aunque la columna admita 70; verifica el consumidor que se integrará y aplica el límite compatible. No modifiques esa operación compartida en este alcance.
+
+Aplica el contrato técnico `Diseno/05-contrato-fuentes-expediente.md` al cerrar D-03/RQ-03: código de perfil y de expediente separados, fuentes previas a creación, fechas con formato explícito y responsable resuelto por catálogo. Conservación comprueba 70 caracteres pero otros recorridos comprueban 45: el contrato inicial propone 45 por compatibilidad, sin truncamiento. Una ampliación requiere caracterización del adaptador 08. Este contrato no resuelve la política de coincidencias ni autoriza generación automática de códigos.
 
 Ofrece una vista de prueba de reglas con entradas textuales y resultados por campo, errores y advertencias. Esa prueba no almacena documentos ni sustituye la validación posterior con archivos reales.
 
@@ -234,3 +236,15 @@ Actualizar documentación existente en `Doc/Actualizacion/ProduccionDcoumental/I
 ## ENTREGABLE FINAL
 
 Implementar administración, versionado, publicación y selección de perfiles, con reglas configurables y SQL manual; no ejecutar importaciones. Entregar los artefactos especificados en este prompt y una relación verificable de cambios, pruebas, resultados y pendientes. No declarar funcionalidades completas por entregar únicamente stubs, mocks o documentación.
+
+## Políticas aprobadas de coincidencias y disponibilidad
+
+Formato SQL 01 actualizado por instrucción del usuario: entregar solo los tres CREATE TABLE y el ALTER TABLE del permiso, sin SELECT de validación ni instrucciones de revisión dentro del script. Esta instrucción específica reemplaza las exigencias anteriores de incluir pre/postcontroles en ese archivo. No ejecutar el DDL automáticamente.
+
+Restricción multibase confirmada: aplicar `Diseno/08-origenes-datos.md`. Perfil/empresa/usuario en RA no implica gabinete/índices en RA. Identificar conexión por método del catálogo y resolver identidad de gabinete sin igualar IDs/nombres entre RA/DA. No introducir JOIN/FK/transacción global ni dar por definitivo el vínculo SQL antes de esa caracterización.
+
+Administración de permisos: el usuario confirmó que reside en otra aplicación fuera de este repo. DOC-110 entrega columna SQL, carga/lectura y autorización del permiso; no crear pantalla/endpoint local de asignación. Contrato de integración: `openspec/changes/doc-110-produccion-importacion-carpeta-perfil/contrato-administracion-externa.md`. La concesión/revocación mediante la aplicación externa se verifica antes de habilitación, sin bloquear implementación local ni asumir API/ticket externo.
+
+Contrato técnico de transporte: `Diseno/07-contrato-http-seguridad-perfil.md`. Implementar DTO/operaciones, revisión diferenciada, guard local y recuperación del cliente conforme a ese documento. La validación administrativa de selección no habilita IMPORTAR_CARPETAS; no desplegar mutaciones sin verificar sesión/token/respuestas HTTP. Es contrato de implementación, no evidencia de endpoints existentes.
+
+Aplicar `Diseno/06-coincidencias-disponibilidad.md`: BLOQUEAR por defecto o REUTILIZAR_VALIDADO, persistidos en versión/snapshot. Reutilizar exige coincidencia única, empresa/estructura/clasificación compatibles, estado y permisos; no modifica el expediente para hacerlo coincidir ni omite archivos. Desactivar impide nuevas selecciones/confirmaciones; lotes confirmados continúan con snapshot y permisos vigentes. El perfil configura, preparación verifica al confirmar y adaptador ejecuta únicamente dentro de su alcance. No implementar control de lotes en DOC-110. Incorporar las pruebas que correspondan a esta entrega; contrato aprobado no acredita capacidades implementadas.

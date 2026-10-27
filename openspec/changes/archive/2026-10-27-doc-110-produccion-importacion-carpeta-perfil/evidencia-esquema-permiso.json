@@ -1,0 +1,664 @@
+﻿{
+    "inspectedUtc":  "2026-10-20T12:23:39.0640466Z",
+    "scope":  "Configured OdbcServices, SELECT only, metadata and aggregate counts; no permission assignments",
+    "table":  [
+                  {
+                      "TABLE_NAME":  "remit_dest_interno_perfil_produccion",
+                      "ENGINE":  "InnoDB",
+                      "TABLE_COLLATION":  "latin1_swedish_ci"
+                  }
+              ],
+    "columns":  [
+                    {
+                        "COLUMN_NAME":  "id_perfil_produccion",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  null,
+                        "COLUMN_KEY":  "PRI"
+                    },
+                    {
+                        "COLUMN_NAME":  "remit_dest_interno_idremit_dest_interno",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  null,
+                        "COLUMN_KEY":  "MUL"
+                    },
+                    {
+                        "COLUMN_NAME":  "Manager_Produccion",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "Generar_Documento",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "Anular_documento",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "Eliminar_documento",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "Almacenar_Documento",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "Radicar_enviar_documento",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "MANAGER_CONFIGURACION",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "MANAGER_GESTION",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "REGISTRA_UNIDAD_CONSERVACION",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "EDITA_UNIDAD_CONSERVACION",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ELIMINA_UNIDAD_CONSERVACION",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ARCHIVA_UNIDAD_CONSERVACION",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "APLICATRD_UNIDAD_CONSERVACION",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "TRANSLADO_UNIDAD_CONSERVACION",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "REGISTRA_EXPEDIENTES",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "EDITA_EXPEDIENTES",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ELIMINA_EXPEDIENTES",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ARCHIVA_EXPEDIENTES",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "APLICATRD_EXPEDIENTES",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "TRANSLADO_EXPEDIENTES",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "REGISTRA_DOCUMENTOS",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "EDITA_DOCUMENTOS",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ELIMINA_DOCUMENTOS",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ARCHIVA_DOCUMENTOS",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "APLICATRD_DOCUMENTOS",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "TRANSLADO_DOCUMENTOS",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "PRESTAMO_ARCHIVO",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "CLASIFICA_DOCUMENTOS",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ASIGNA_UNIDAD_CONSERVACION_DOCUMENTOS",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ASIGNA_EXPEDIENTE_DOCUMENTOS",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "SELECCIONA_CLASE_DOCUMENTOS",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "CLASIFICA_UNIDAD_CONSERVACION",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "CLASIFICA_EXPEDIENTES",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "PERFIL_USUARIO_MENSAJERIA",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ADMINISTRACION_ORGANICA",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ADMINISTRACION_ESTRUCTURA_ARCHIVO",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ADMINISTRACION_TRD",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ADMINISTRACION_TVD",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ADMINISTRACION_CCD",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "PRODUCCION_MANAGER",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "GESTION_FISICA",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "GESTION_EXPEDIENTE",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "GESTION_UNIDAD_CONSERVACION",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "CONSULTA_EXPEDIENTE",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "CONSULTA_CUADRO_CLASIFICACION",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "CONSULTA_TABLA_RETENCION",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "ADMINISTRACION_INSTRUMENTO",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "FIRMA_DIGITAL_DOCUMENTO_GD",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "Radicar_enviar_documento_master_interno",
+                        "COLUMN_TYPE":  "int(10) unsigned",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VISOR_EXPRESS_PRODUCION",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VISOR_EXPRESS_APROBACION",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VISOR_EXPRESS_EXPEDIENTE",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VISOR_EXPRESS_CONSULTAS",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VISOR_EXPRESS_DOCUARCHI",
+                        "COLUMN_TYPE":  "int(11)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_MODULO_CONSULTA_MIGRA_FORMATO_ARCHIVO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_MODULO_MIGRA_FORMATO_ARCHIVO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_MIGRA_FORMATO_ARCHIVO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_MIGRA_LOAD_FORMATO_ARCHIVO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_MIGRA_REMPLAZA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_MIG_AUTO_VINCULA_DOC_EXPEDIENTE",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_MIGRA_UPDATE_TIPOLOGIA",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_MIGRA_UPDATE_INDICE_BATCH",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_MIG_RESTAURA_VERSION_DOCUMENTO_GABINETE",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_PR_RESTAURA_VERSION_DOCUMENTO_GABINETE",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_DA_RESTAURA_VERSION_DOCUMENTO_GABINETE",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_RA_RESTAURA_VERSION_DOCUMENTO_GABINETE",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_COR_RESTAURA_VERSION_DOCUMENTO_GABINETE",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_MASTER_RESTAURA_VERSION_DOCUMENTO_GABINETE",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_MIG_ELIMINA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_PR_ELIMINA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_DA_ELIMINA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_RA_ELIMINA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_COR_ELIMINA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_CON_MIGRA_ELIMINA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_MASTER_ELIMINA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_MIG_REMPLAZA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_PR_REMPLAZA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_DA_REMPLAZA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_RA_REMPLAZA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_COR_REMPLAZA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_VER_MASTER_REMPLAZA_VERSION_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_FIR_MASTER_ELIMINA_DOCUMENTO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_FIR_MASTER_ELIMINA_REGISTRO_FIRMA",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTILGCOROptionHCarchivaTramite",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_GCOR_CTX_HIST_INDEX_ESTADO",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_GCOR_CTX_HIST_INDEX_REINDEXAR",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    },
+                    {
+                        "COLUMN_NAME":  "UTIL_GCOR_CTX_HIST_INDEX_OPERAR",
+                        "COLUMN_TYPE":  "int(10)",
+                        "IS_NULLABLE":  "NO",
+                        "COLUMN_DEFAULT":  "0",
+                        "COLUMN_KEY":  ""
+                    }
+                ],
+    "indexes":  [
+                    {
+                        "INDEX_NAME":  "PRIMARY",
+                        "NON_UNIQUE":  0,
+                        "SEQ_IN_INDEX":  1,
+                        "COLUMN_NAME":  "id_perfil_produccion"
+                    },
+                    {
+                        "INDEX_NAME":  "Remit_Dest_Interno_Perfil_Produccion_FKIndex1",
+                        "NON_UNIQUE":  1,
+                        "SEQ_IN_INDEX":  1,
+                        "COLUMN_NAME":  "remit_dest_interno_idremit_dest_interno"
+                    }
+                ],
+    "cardinality":  [
+                        {
+                            "rows_total":  78,
+                            "distinct_users":  78
+                        }
+                    ],
+    "duplicateGroups":  [
+                            {
+                                "duplicate_user_groups":  0
+                            }
+                        ],
+    "namesInUse":  [
+
+                   ]
+}
