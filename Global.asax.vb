@@ -522,6 +522,7 @@ Public Class Global_asax
         Session.Item("GA_Radicar_enviar_documento") = 0
         Session.Item("Radicar_enviar_documento_master_interno") = 0
         Session.Item("GA_MANAGER_CONFIGURACION") = 0
+        Session.Item("GA_ADMINISTRAR_PERFILES_IMPORTACION") = 0
         Session.Item("GA_MANAGER_GESTION") = 0
         Session.Item("GESTION_FISICA") = 0
         Session.Item("GA_REGISTRA_UNIDAD_CONSERVACION") = 0

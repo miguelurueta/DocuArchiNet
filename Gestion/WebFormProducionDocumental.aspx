@@ -10,7 +10,6 @@
      <script src="../js/ui/jquery-ui-1.8.22.custom.js" type="text/javascript"></script>
       <link href="../js/ui/jquery-ui.css" rel="stylesheet" />
      <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-    <script src="../bootstrap/js/bootstrap.min.js"></script>
     <link href="../Styles/bootra-person.css" rel="stylesheet" />
     <link href="../tokenzize2/tokenize2.min.css" rel="stylesheet" />
     <script src="../tokenzize2/tokenize2.1.min.js"></script>
@@ -64,6 +63,12 @@
 </head>
 <body style="margin:0px">
     <form id="form1" runat="server" onkeypress="return caracter_especial(event,this)">
+        <%= RenderPerfilImportacion() %>
+        <link href="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css?v=doc110-menu-20261024-2" rel="stylesheet" />
+        <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionApi.js"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ProveedorAdminEditor.js?v=doc110-source-diagnostics-20261027-1"></script>
+        <script src="../js/gestion/ImportacionCarpetas/FuenteAdminEditor.js"></script>
+        <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.js?v=doc110-ensayo-20261026-1"></script>
          <asp:ScriptManager ID="ScriptManager1" runat="server" AsyncPostBackTimeout="9900">
      </asp:ScriptManager>
         <script type="text/javascript" language="javascript">

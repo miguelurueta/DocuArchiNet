@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -8706,6 +8706,41 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Code\MyUtils.vb" />
+    <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionModels.vb" />
+    <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\ProveedorIndicesModels.vb" />
+    <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\AdministracionProveedorModels.vb" />
+    <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\FuenteImportacionModels.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\ReglasFuenteImportacion.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\ServicioFuenteImportacion.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\MetadatosFuenteImportacion.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlFuenteImportacionRepository.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\ServicioAdministracionProveedor.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\ValidadorAdministracionProveedor.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlAdministracionProveedorRepository.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\MySqlProveedorDatosIndices.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\PoliticaFuentesProveedor.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\RestriccionTablasFuente.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\MetadatosProveedorIndices.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlProveedorIndicesRepository.vb" />
+    <Compile Include="Modelo\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionInterfaces.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\ResolvedorReglasPerfilImportacion.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\ReglasProveedorIndices.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\CoordinadorProveedorIndices.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\ValidadorPerfilImportacion.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionJson.vb" />
+    <Compile Include="Services\ProduccionDocumental\ImportacionCarpetas\ServicioPerfilImportacion.vb" />
+    <Compile Include="Infrastructure\Repositories\ProduccionDocumental\ImportacionCarpetas\MySqlPerfilImportacionRepository.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionContextAdapter.vb" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionRequestGuard.vb" />
+    <Content Include="js\gestion\ImportacionCarpetas\PerfilImportacionApi.js" />
+    <Compile Include="Infrastructure\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionCatalogAdapter.vb" />
+    <Compile Include="DTOs\ProduccionDocumental\ImportacionCarpetas\PerfilImportacionDtos.vb" />
+    <Compile Include="webservice\WebServiceImportacionCarpetas.asmx.vb" />
+    <Content Include="webservice\WebServiceImportacionCarpetas.asmx" />
+    <Content Include="js\gestion\ImportacionCarpetas\PerfilImportacionEditor.js" />
+    <Content Include="js\gestion\ImportacionCarpetas\ProveedorAdminEditor.js" />
+    <Content Include="js\gestion\ImportacionCarpetas\FuenteAdminEditor.js" />
+    <Content Include="js\gestion\ImportacionCarpetas\PerfilImportacionEditor.css" />
     <Compile Include="AndesFima\Class_andes_firma.vb" />
     <Compile Include="App_Start\RouteConfig.vb" />
     <Compile Include="Controllers\Account\AccountController.vb" />

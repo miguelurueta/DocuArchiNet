@@ -1,8 +1,10 @@
 # Diseño 04 — Decisiones, pendientes y secuencia
 
-Estado de entrega: cuatro documentos de diseño producidos; **decisión de ámbitos cerrada por aprobación explícita del usuario**: ambos configurables en el perfil. Los restantes pendientes técnicos siguen vigentes. No se generó ni ejecutó DDL y no se modificaron servicios, aplicación, prototipo o SII.
+Estado actualizado: diseño y contrato de fuentes documentados; **decisión de ámbitos cerrada por aprobación explícita del usuario**: ambos configurables en el perfil. SQL 01 generado como archivo revisable, no ejecutado. No se modificaron servicios, aplicación, prototipo o SII. P02 tiene ámbito RA y política de permisos definidos en DOC-110; asignación administrativa confirmada en aplicación externa; aceptación conjunta antes de habilitación. Las políticas de coincidencias y disponibilidad fueron aprobadas el 2026-10-20 y se desarrollan en `06-coincidencias-disponibilidad.md`; P03 conserva caracterización técnica del adaptador.
 
 ## 1. Decisiones confirmadas del usuario
+
+Confirmación de contexto: los permisos de Producción se administran en otra aplicación fuera del repositorio. DOC-110 entrega el campo y su consumo autorizado; la asignación pertenece a esa aplicación. Contrato y aceptación conjunta registrados en OpenSpec DOC-110, sin nuevo administrador local.
 
 | ID | Decisión | Consecuencia |
 |---|---|---|
@@ -22,7 +24,7 @@ Estas decisiones de arquitectura son propuestas revisables; no se atribuyen como
 | ID | Propuesta | Motivo / límite |
 |---|---|---|
 | T01 | Nueve tablas nuevas con FK solo entre entidades propias. | Tres de configuración y seis de preparación/operación; catálogos legacy referenciados/verificados sin alterar índices ni SII. |
-| T02 | UID ASCII como PK nueva, revisiones CAS y claves únicas explícitas. | Transporte sin pérdida de precisión y no depender de índices textuales largos. No garantiza exactamente una vez en legacy. |
+| T02 | INT UNSIGNED AUTO_INCREMENT como PK nueva, revisiones CAS y claves únicas explícitas. | Generación por MySQL y referencias INT UNSIGNED; transporte decimal canónico como String. No garantiza exactamente una vez en legacy. |
 | T03 | Documentos JSON escapados ASCII en LONGTEXT con esquemas cerrados. | MySQL 5.1 sin JSON nativo; conservar snapshots/Unicode sin duplicar catálogos. Límites/validadores son obligatorios. |
 | T04 | Referencias legacy lógicas canónicas. | Esquemas y claves mixtos; ID de expediente solo no representa toda su identidad física. Mapeo real pendiente antes de DDL. |
 | T05 | Preparación completa por request acotado inicialmente. | Evitar protocolo de fragmentos incompleto. Volumen objetivo podría exigir extensión contractual antes de implementar, no un aumento global improvisado. |
@@ -31,7 +33,7 @@ Estas decisiones de arquitectura son propuestas revisables; no se atribuyen como
 | T08 | Ejecución acotada impulsada por peticiones; worker separado opcional. | Compatibilidad inicial con operación web; no prometer continuidad con navegador cerrado. |
 | T09 | Staging retenido más copia de trabajo consumible. | Legacy observado borra archivos; recuperación no puede depender del único archivo que consume. |
 | T10 | Fuentes diferidas para IDs/consecutivos del expediente. | No crear expedientes durante preview ni inventar valores. |
-| T11 | Desactivación del perfil suspende nuevas confirmaciones/efectos y preserva investigación autorizada. | Propuesta operativa conservadora a validar antes de publicar administración; no cambia snapshot. |
+| T11 — RESUELTO | Desactivar bloquea nuevas selecciones/confirmaciones; lotes confirmados continúan con snapshot y permisos vigentes. | Aprobado 2026-10-20. Detención explícita y pérdida de permiso se tratan separadamente; ver contrato 06. |
 
 ## 3. Pendientes y condiciones de salida
 
@@ -39,7 +41,7 @@ Estas decisiones de arquitectura son propuestas revisables; no se atribuyen como
 |---|---|---|---|---|
 | P01 — RESUELTO | El usuario aprobó soportar ambos ámbitos configurables en el perfil. | Decisión del usuario; contratos 02/04/06/10 | Ya no bloquea el diseño de la barrera. | Implementar y probar ambas ramas; elegir explícitamente al publicar en modo completo. |
 | P02 | Mapeo efectivo de identidad/ámbito/nivel y permisos de administración/importación. | Investigación 02/06/07-A | SQL/contratos finales de referencias y autorización. | Interfaces y pruebas con identidades sintéticas bien señaladas. |
-| P03 | Código único, fecha documental/responsable, editabilidad posterior y política de coincidencias autorizada. | Diseño funcional aplicado a perfil 02/adaptador 08 | Publicación de perfiles concretos y creación real. | Borradores y fuentes configurables sin valores inventados. |
+| P03 — PARCIAL | Fuentes documentadas en 05; BLOQUEAR/default y REUTILIZAR_VALIDADO aprobados en 06. Caracterizar identidad real/comparación y compatibilidad del adaptador. | Perfil 02 y adaptador 08 | Habilitar reutilización/creación operativa sin caracterización. | Persistir/validar opciones del perfil y redactar pruebas; no inventar identidad. |
 | P04 | Volumen y tamaños objetivo, límites de preparación/recepción, navegadores y tiempos de operación. | Usuario/operación; 04/07/12 | Capacidad anunciada, cuotas definitivas y necesidad de fragmentación. | Implementar límites configurables y errores de rechazo sin declarar capacidades ficticias. |
 | P05 | Retención de staging, intentos e historial y mecanismo de mantenimiento. | Operación; 11 | Borrado automático. | Consulta, listado en seco y limpieza solo bajo política configurada. |
 | P06 | Aislamiento de sesión, copias temporales, nombre original y concurrencia externa. | Caracterización 08/09 | Declarar reusable adaptador legacy y ejecutar efectos. | Persistencia, interfaz y contratos sin éxito simulado. |

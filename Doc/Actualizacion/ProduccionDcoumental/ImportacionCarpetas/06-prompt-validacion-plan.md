@@ -104,3 +104,11 @@ Actualizar documentación existente en `Doc/Actualizacion/ProduccionDcoumental/I
 ## ENTREGABLE FINAL
 
 Preparar un plan autorizado y determinista, con incidencias y valores diferidos explícitos, sin crear expedientes ni almacenar documentos. Entregar los artefactos especificados en este prompt y una relación verificable de cambios, pruebas, resultados y pendientes. No declarar funcionalidades completas por entregar únicamente stubs, mocks o documentación.
+
+## Políticas aprobadas de coincidencias y disponibilidad
+
+Aplicar `Diseno/06-coincidencias-disponibilidad.md`: BLOQUEAR por defecto o REUTILIZAR_VALIDADO, persistidos en versión/snapshot. Reutilizar exige coincidencia única, empresa/estructura/clasificación compatibles, estado y permisos; no modifica el expediente para hacerlo coincidir ni omite archivos. Desactivar impide nuevas selecciones/confirmaciones; lotes confirmados continúan con snapshot y permisos vigentes. El perfil configura, preparación verifica al confirmar y adaptador ejecuta únicamente dentro de su alcance. No implementar control de lotes en DOC-110. Incorporar las pruebas que correspondan a esta entrega; contrato aprobado no acredita capacidades implementadas.
+
+## Extensión AMP-01 — consumo de valores de proveedores
+
+Aplicar el contrato [09-proveedores-datos-indices](Diseno/09-proveedores-datos-indices.md), sección Entrega al plan y al ejecutor. Conservar valores canónicos y procedencia mínima por archivo/índice; distinguir dependencias TRAS_EXPEDIENTE. El ejecutor consume valores confirmados sin reconsultar por un reintento de almacenamiento. Actualizar datos exige nueva revisión/confirmación; permisos e integridad EXPEDIENTE/LOTE siguen vigentes. Este vínculo es documental: el proveedor y su origen no se consideran implementados por existir este prompt.

@@ -9,7 +9,8 @@ La evidencia `Exploracion/02-evidencia-esquema-perfil.json` corresponde a MySQL 
 Decisiones técnicas propuestas:
 
 - Todas las tablas nuevas InnoDB. Nombres siguientes son nuevos y deben verificarse libres antes de entregar el SQL.
-- `UID`: CHAR(32) CHARACTER SET ascii COLLATE ascii_bin, GUID sin guiones generado en aplicación. PK y referencias nuevas usan exactamente ese tipo. Los identificadores se transportan como cadenas; su opacidad no sustituye autorización.
+- `ID`: INT UNSIGNED; solo las PK usan AUTO_INCREMENT de MySQL. Referencias del mismo tipo sin autoincremento. Transporte como cadena decimal canónica entre 1 y 4294967295; ausencia opcional null, nunca cero. No es una secuencia por empresa ni garantiza números sin huecos. La autorización se verifica por ámbito en cada operación.
+- `UID`: CHAR(32) ASCII/ascii_bin reservado para referencias opacas de staging y tokens técnicos; no para PK ni FK de entidades.
 - `HASH`: BINARY(32), SHA-256 calculado en aplicación; no depender de funciones SQL de otra versión. Las comparaciones de identidad de petición verifican también su representación canónica cuando corresponda, no solo la huella.
 - `CODE`: VARCHAR(40) CHARACTER SET ascii COLLATE ascii_bin para estados/modos cerrados. Sin ENUM ni CHECK como única validación: Service valida transiciones.
 - `DOC`: LONGTEXT CHARACTER SET ascii COLLATE ascii_bin con documento JSON de esquema versionado, serialización determinista y Unicode escapado. No es JSON nativo MySQL. Rechazar claves repetidas, propiedades no permitidas, números fuera de rango y tamaño/profundidad excedidos. No se admiten expresiones ejecutables ni nombres SQL libres. Es una representación de configuración/evidencia, no un catálogo paralelo.
@@ -21,29 +22,31 @@ Decisiones técnicas propuestas:
 
 ## 2. Configuración — SQL 01, propietario prompt 02
 
-### `integracion_perfil`
+Materialización documental: [SQL 01](../Sql/01-perfil-importacion-mysql51.sql) y [procedimiento/diccionario físico](../Sql/01-aplicacion-perfil-importacion.md). Preparados para revisión; no aplicados. Ámbito DOC-110: empresa documental del usuario en el origen RA. Se verificaron nombres libres y esquema de permisos mediante SELECT el 2026-10-20, sin acreditar otros ambientes.
+
+### `ra_integracion_perfil`
 
 | Columna | Tipo | Semántica |
 |---|---|---|
-| perfil_id | UID PK | Identidad estable. |
+| perfil_id | ID PK | Identidad estable. |
 | ambito_ref | VARCHAR(128) ASCII | Ámbito autorizado de configuración. |
 | codigo | VARCHAR(64) ASCII | Código estable, normalizado, no nombre visible. |
 | nombre | VARCHAR(160) UTF8 | Identificación administrativa del perfil. |
 | descripcion | TEXT UTF8 NULL | Ayuda de uso. |
 | activo | TINYINT UNSIGNED | 0/1; desactivar no borra versiones. |
-| version_publicada_id | UID NULL | Referencia a versión publicada habitual. |
+| version_publicada_id | ID NULL | Referencia a versión publicada habitual. |
 | creado_por, actualizado_por | VARCHAR(128) ASCII | Identidades canónicas de auditoría. |
 | creado_utc, actualizado_utc | DATETIME | Auditoría. |
 | revision | INT UNSIGNED | Concurrencia de edición administrativa. |
 
 UQ `(ambito_ref,codigo)`. Índice de listado `(ambito_ref,activo,perfil_id)`. La referencia a versión publicada se valida con pertenencia al perfil en transacción; para evitar ciclo DDL puede mantenerse lógica, sin FK física en la cabecera. La FK versión→perfil sí es física.
 
-### `integracion_perfil_version`
+### `ra_integracion_perfil_version`
 
 | Columna | Tipo | Semántica |
 |---|---|---|
-| version_id | UID PK | Versión estable. |
-| perfil_id | UID FK | Perfil propietario. |
+| version_id | ID PK | Versión estable. |
+| perfil_id | ID FK | Perfil propietario. |
 | numero | INT UNSIGNED | Número por perfil, asignado transaccionalmente. |
 | estado | CODE | BORRADOR o PUBLICADA. No borrar publicación histórica. |
 | revision | INT UNSIGNED | CAS de borrador/publicación. |
@@ -61,11 +64,11 @@ UQ `(ambito_ref,codigo)`. Índice de listado `(ambito_ref,activo,perfil_id)`. La
 
 UQ `(perfil_id,numero)`; índice `(perfil_id,estado,numero)`. Estado, cabecera, revisión y pertenencia se bloquean/comprueban al publicar. Una publicación no modifica otra versión. El DOC usa un esquema cerrado: referencias de clasificación separadas por concepto, fuentes del código/fecha/responsable, políticas y límites. Los tipos/relaciones de catálogo los verifica el adaptador, no el cliente.
 
-### `integracion_perfil_regla`
+### `ra_integracion_perfil_regla`
 
 | Columna | Tipo | Semántica |
 |---|---|---|
-| regla_id, version_id | UID PK; UID FK | Identidad y versión. |
+| regla_id, version_id | ID PK; ID FK | Identidad y versión. |
 | destino_tipo | CODE | CAMPO_EXPEDIENTE, INDICE_GABINETE o TIPOLOGIA. |
 | destino_ref | VARCHAR(128) ASCII | Referencia registrada del campo; no expresión SQL. |
 | fuente_tipo | CODE | CONSTANTE, CARPETA, ARCHIVO o EXPEDIENTE. |
@@ -82,9 +85,9 @@ UQ `(version_id,destino_tipo,destino_ref)`: una asignación final por destino. S
 
 | Columna | Tipo | Semántica |
 |---|---|---|
-| plan_id | UID PK | Preparación asociada al contexto de apertura. |
+| plan_id | ID PK | Preparación asociada al contexto de apertura. |
 | ambito_ref, usuario_ref, nivel_ref | VARCHAR(128) ASCII | Contexto validado, nunca autoridad libre del request. |
-| version_id | UID FK | Versión publicada elegida. |
+| version_id | ID FK | Versión publicada elegida. |
 | estado | CODE | REVISABLE, BLOQUEADO, CONFIRMADO, EXPIRADO. |
 | revision | INT UNSIGNED | Revisión entregada a confirmación. |
 | esquema_doc | SMALLINT UNSIGNED | Contrato del plan. |
@@ -98,12 +101,12 @@ UQ `(version_id,destino_tipo,destino_ref)`: una asignación final por destino. S
 
 | Columna | Tipo | Semántica |
 |---|---|---|
-| lote_id | UID PK | Identidad de ejecución. |
-| plan_id | UID FK UNIQUE | Un lote por plan confirmado. |
+| lote_id | ID PK | Identidad de ejecución. |
+| plan_id | ID FK UNIQUE | Un lote por plan confirmado. |
 | ambito_ref, solicitante_ref, nivel_ref | VARCHAR(128) ASCII | Contexto de origen fijado. |
 | clave_confirmacion | VARCHAR(64) ASCII | Clave de idempotencia dentro del solicitante/ámbito. |
 | solicitud_hash | HASH | Igual clave/diferente solicitud produce conflicto. |
-| version_id | UID FK | Versión fija del perfil. |
+| version_id | ID FK | Versión fija del perfil. |
 | modo_integridad, ambito_integridad | CODE | Copia efectiva; ámbito no puede ser NULL al confirmar. |
 | contexto_doc, config_doc | DOC | Snapshots con esquema y configuración incluyendo reglas. |
 | estado | CODE | Agregado operativo según diseño 03. |
@@ -119,13 +122,13 @@ UQ `(ambito_ref,solicitante_ref,clave_confirmacion)`; sus caracteres ASCII manti
 
 | Columna | Tipo | Semántica |
 |---|---|---|
-| raiz_id, lote_id | UID PK; UID FK | Identidad persistida y lote. |
+| raiz_id, lote_id | ID PK; ID FK | Identidad persistida y lote. |
 | cliente_raiz_id | VARCHAR(64) ASCII | Correlación de la selección local. |
 | datos_doc | DOC | Nombre original, propuesta de expediente y fuentes diferidas. |
 | estado | CODE | Fase de raíz según diseño 03. |
 | identidad_expediente_doc | DOC NULL | Esquema lógico resuelto por despliegue, ID/código real y relación al nivel; no nombre como identidad. |
 | valores_efectivos_doc | DOC NULL | Valores concretados tras creación, incluida fecha fijada. |
-| intento_activo_id | UID NULL | Reclamación de efecto; referencia lógica a intento para evitar ciclo DDL. |
+| intento_activo_id | ID NULL | Reclamación de efecto; referencia lógica a intento para evitar ciclo DDL. |
 | revision | INT UNSIGNED | CAS. |
 | creado_utc, actualizado_utc | DATETIME | Auditoría. |
 
@@ -135,7 +138,7 @@ UQ `(lote_id,cliente_raiz_id)`, índice `(lote_id,estado)`. Copiar el nombre no 
 
 | Columna | Tipo | Semántica |
 |---|---|---|
-| archivo_id, raiz_id | UID PK; UID FK | Identidad y raíz. Lote se deriva por raíz. |
+| archivo_id, raiz_id | ID PK; ID FK | Identidad y raíz. Lote se deriva por raíz. |
 | cliente_archivo_id | VARCHAR(64) ASCII | Correlación cliente; UQ por raíz. |
 | origen_doc | DOC | Nombre original, ruta relativa exacta/normalizada y fecha local informativa. |
 | ruta_hash | HASH | SHA-256 de ruta normalizada dentro de raíz. |
@@ -147,7 +150,7 @@ UQ `(lote_id,cliente_raiz_id)`, índice `(lote_id,estado)`. Copiar el nombre no 
 | plan_valores_doc | DOC | Valores de preflight y fuentes diferidas. |
 | valores_efectivos_doc | DOC NULL | Materialización validada antes del efecto. |
 | resultado_doc | DOC NULL | IDs reales, evidencia y fase pendiente, sin secretos. |
-| intento_activo_id | UID NULL | Reclamación. |
+| intento_activo_id | ID NULL | Reclamación. |
 | revision | INT UNSIGNED | CAS. |
 | creado_utc, actualizado_utc | DATETIME | Auditoría. |
 
@@ -157,8 +160,8 @@ UQ `(raiz_id,cliente_archivo_id)` y `(raiz_id,ruta_hash)`. Comparar ruta canóni
 
 | Columna | Tipo | Semántica |
 |---|---|---|
-| intento_id, lote_id | UID PK; UID FK | Identidad y lote. |
-| raiz_id, archivo_id | UID NULL FK | Exactamente el recurso correspondiente a fase; validación Service. |
+| intento_id, lote_id | ID PK; ID FK | Identidad y lote. |
+| raiz_id, archivo_id | ID NULL FK | Exactamente el recurso correspondiente a fase; validación Service. |
 | fase | CODE | RECEPCION, CREAR_EXPEDIENTE, ALMACENAR, INCORPORAR o VERIFICAR. |
 | estado | CODE | RESERVADO, EN_CURSO, CONFIRMADO, RECHAZADO o INCIERTO. |
 | ejecutor_ref | VARCHAR(128) ASCII | Identidad de instancia/operador, no cookie ni credencial. |
@@ -174,10 +177,10 @@ UQ `(raiz_id,cliente_archivo_id)` y `(raiz_id,ruta_hash)`. Comparar ruta canóni
 
 | Columna | Tipo | Semántica |
 |---|---|---|
-| evento_id, lote_id | UID PK; UID FK | Identidad y lote. |
-| intento_id | UID NULL FK | Correlación. |
+| evento_id, lote_id | ID PK; ID FK | Identidad y lote. |
+| intento_id | ID NULL FK | Correlación. |
 | recurso_tipo, accion, codigo | CODE | Evento estructurado. |
-| recurso_id | UID NULL | Referencia lógica según recurso_tipo. |
+| recurso_id | ID NULL | Referencia lógica según recurso_tipo. |
 | actor_ref | VARCHAR(128) ASCII | Actor autenticado/técnico. |
 | ocurrido_utc | DATETIME | UTC. |
 | detalle_doc | DOC | Cambios/evidencia saneados; sin contenidos binarios ni secretos. |
