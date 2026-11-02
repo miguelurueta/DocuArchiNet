@@ -64,6 +64,12 @@
 <body style="margin:0px">
     <form id="form1" runat="server" onkeypress="return caracter_especial(event,this)">
         <%= RenderPerfilImportacion() %>
+        <%= RenderImportacionCarpetas() %>
+        <link href="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.css?v=doc111-ui-20261028-1" rel="stylesheet" />
+        <script src="../js/gestion/ImportacionCarpetas/InventarioImportacion.js?v=doc111-ui-20261028-1"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasApi.js?v=doc111-ui-20261028-1"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetasVista.js?v=doc111-ui-20261028-1"></script>
+        <script src="../js/gestion/ImportacionCarpetas/ImportacionCarpetas.js?v=doc111-ui-20261028-1"></script>
         <link href="../js/gestion/ImportacionCarpetas/PerfilImportacionEditor.css?v=doc110-menu-20261024-2" rel="stylesheet" />
         <script src="../js/gestion/ImportacionCarpetas/PerfilImportacionApi.js"></script>
         <script src="../js/gestion/ImportacionCarpetas/ProveedorAdminEditor.js?v=doc110-source-diagnostics-20261027-1"></script>

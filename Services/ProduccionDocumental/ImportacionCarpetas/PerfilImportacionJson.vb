@@ -89,6 +89,32 @@ Public NotInheritable Class PerfilImportacionJson
         End Using
     End Function
 
+    'El repositorio canoniza el orden de las reglas al guardar el plan. Ese
+    'orden fisico no cambia la publicacion, pero sus campos y metadatos si.
+    Public Shared Function MismaPublicacion(actual As SnapshotPerfilImportacionOperativa, prevista As SnapshotPerfilImportacionOperativa) As Boolean
+        If actual Is Nothing OrElse prevista Is Nothing OrElse actual.Reglas Is Nothing OrElse prevista.Reglas Is Nothing OrElse actual.Reglas.Any(Function(r) r Is Nothing) OrElse prevista.Reglas.Any(Function(r) r Is Nothing) Then Return False
+        Return String.Equals(PublicacionOrdenada(actual), PublicacionOrdenada(prevista), StringComparison.Ordinal)
+    End Function
+
+    Private Shared Function PublicacionOrdenada(original As SnapshotPerfilImportacionOperativa) As String
+        Dim copia = Leer(Of SnapshotPerfilImportacionOperativa)(Escribir(original))
+        copia.Reglas = copia.Reglas.OrderBy(Function(r) r.DestinoTipo, StringComparer.Ordinal).ThenBy(Function(r) r.DestinoRef, StringComparer.Ordinal).ToList()
+        Return Escribir(copia)
+    End Function
+
+    'Identidad/revision/estado cambian al persistir o confirmar; no forman parte
+    'del contenido inmutable del plan. Fechas, destino y evaluacion si se sellan.
+    Public Shared Function HuellaPlan(plan As PlanImportacionCarpetas) As Byte()
+        If plan Is Nothing Then Throw New PerfilImportacionException("SOLICITUD_INVALIDA", "Plan inválido.")
+        Using sha = SHA256.Create()
+            Return sha.ComputeHash(Encoding.ASCII.GetBytes(Escribir(New With {
+                .esquema = plan.EsquemaDoc, .contexto = plan.Contexto,
+                .snapshot = plan.Snapshot, .manifiesto = plan.Manifiesto,
+                .resultado = plan.Resultado, .creadoUtc = plan.CreadoUtc,
+                .expiraUtc = plan.ExpiraUtc})))
+        End Using
+    End Function
+
     Private Shared Function Ordenar(token As JToken) As JToken
         If TypeOf token Is JObject Then
             Dim salida As New JObject()

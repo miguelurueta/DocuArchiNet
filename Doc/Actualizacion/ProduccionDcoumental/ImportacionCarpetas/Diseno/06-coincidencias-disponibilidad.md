@@ -54,3 +54,17 @@ Reutilizar expediente no omite archivos, no concede sobrescritura documental y n
 - Integración: reutilización no reduce inventario de archivos ni declara completitud sin incorporación confirmada.
 
 Estos son criterios de pruebas futuras. No se ejecutaron como parte de esta aprobación documental.
+
+## Implementación preventiva DOC-111, 2026-10-28
+
+El lector parametrizado del repositorio operativo consulta candidatos por `CODIGO_UNICO`, `ID_EMPRESA_EXPEDIENTE` y `CODIGO_AREA_TRD` (máximo dos filas). El área corresponde a `AreaRef`: el catálogo operativo usa `areas_depart_radicacion.Codigo_Area`, la misma referencia que resuelve Conservación antes de escribir CODIGO_AREA_TRD. No usa el nombre de carpeta como identidad.
+
+La consulta abarca **todos los volúmenes**. Es una restricción conservadora del recorrido: no se inventa un volumen implícito para reproducir un lector legacy cuyo filtro no coincide con el INSERT inspeccionado. Puede exigir revisión para códigos que otra operación permitiría en volúmenes distintos. Tampoco incluye un filtro por nivel o clasificación que pudiera ocultar un conflicto existente. El mensaje no devuelve datos o IDs del candidato.
+
+Antes de la búsqueda se comprueban tipos de columnas y charset/collation de CODIGO_UNICO. La conexión de esta lectura usa UTF-8; se exige conversión de ida/vuelta sin pérdida. En este corte se admiten charsets `latin1` y `utf8`, compatibles con MySQL 5.1; otro origen deja la capacidad indisponible. Los códigos se comparan dentro del inventario mediante expresiones CONVERT/COLLATE con identificadores obtenidos de metadatos y validados; todos los valores usan parámetros. Las correlaciones de raíz usan ascii_bin para conservar distinción de mayúsculas. La comparación, incluidos acentos, mayúsculas y espacios finales, pertenece al motor; las pruebas locales no certifican su resultado en un servidor real.
+
+Con cero candidatos puede proponerse creación bajo cualquiera de las dos políticas. BLOQUEAR rechaza uno o varios candidatos; REUTILIZAR_VALIDADO con un candidato devuelve `REUTILIZACION_NO_DISPONIBLE` y con varios devuelve `COINCIDENCIA_AMBIGUA`. No se ejecuta una reutilización ni se cambia de política silenciosamente. Completar reutilización exige verificar identidad/relación/clasificación/estado/permisos y conservar esa identidad en el plan antes de habilitarla.
+
+Una comprobación fallida no equivale a cero candidatos. El servicio deja incidencia global no confirmable si faltan metadatos o lectura; conserva incidencias y raíces originales. La consulta no reserva identidad, no crea expedientes y no garantiza ausencia de carreras con escritores externos. Confirmar reconsulta para las unidades que el plan permite ejecutar; el adaptador deberá revalidar antes del efecto.
+
+Evidencia de este corte: `Validacion/doc111-plan-confirmacion-20261028.md`. Consultas y composición verificadas con dobles locales explícitos; comparación física, controles reales y reutilización completa pendientes.

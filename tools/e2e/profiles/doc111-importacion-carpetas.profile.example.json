@@ -1,0 +1,17 @@
+{
+  "baseUrl": "https://test.invalid/app/",
+  "module": "GESTOR",
+  "odbcDsn": "dsn-ra-pruebas",
+  "docuarchiOdbcDsn": "dsn-da-pruebas",
+  "ignoreHttpsErrors": false,
+  "timeoutMilliseconds": 300000,
+  "nivelRef": "7",
+  "versionId": "5",
+  "mode": "EXPEDIENTE",
+  "pdfFixture": "doc110-carga-individual.pdf",
+  "rootNames": ["DOC111-PRUEBA-1", "DOC111-PRUEBA-2"],
+  "expectations": [
+    {"codigo": "DOC111-PRUEBA-1", "nombre": "DOC111-PRUEBA-1", "tipologiaId": "9", "indices": [{"referencia":"91","tipo":"TEXTO","valor":"0007"}]},
+    {"codigo": "DOC111-PRUEBA-2", "nombre": "DOC111-PRUEBA-2", "tipologiaId": "9", "indices": [{"referencia":"91","tipo":"TEXTO","valor":"0007"}]}
+  ]
+}

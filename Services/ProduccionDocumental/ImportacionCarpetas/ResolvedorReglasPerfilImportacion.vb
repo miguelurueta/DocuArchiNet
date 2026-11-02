@@ -128,6 +128,20 @@ Public Class ResolvedorReglasPerfilImportacion
         Return resultado
     End Function
 
+    'Comprueba una salida ya resuelta sin volver a ejecutar su fuente.
+    'Las fechas persistidas ya estan en formato canonico, independientemente
+    'del formato de entrada configurado para carpeta/proveedor.
+    Friend Shared Function ValidarValorResuelto(regla As ReglaPerfilImportacion, valor As String) As String
+        If regla Is Nothing Then Return "REGLA_INVALIDA"
+        Dim copia = PerfilImportacionJson.Leer(Of ReglaPerfilImportacion)(PerfilImportacionJson.Escribir(regla))
+        If copia.TipoValor = "FECHA" Then copia.FormatoFecha = "yyyy-MM-dd"
+        Dim convertido As String = Nothing
+        Dim errorValor = Convertir(copia, valor, convertido)
+        If errorValor IsNot Nothing Then Return errorValor
+        If Not String.Equals(convertido, valor, StringComparison.Ordinal) Then Return "VALOR_NO_CANONICO"
+        Return Nothing
+    End Function
+
     Private Shared Function Convertir(regla As ReglaPerfilImportacion, valor As String, ByRef convertido As String) As String
         Dim requerido = regla.Obligatoria OrElse (regla.DestinoTipo = "CAMPO_EXPEDIENTE" AndAlso {"CODIGO", "NOMBRE", "FECHA_INICIAL"}.Contains(regla.DestinoRef))
         If String.IsNullOrWhiteSpace(valor) Then

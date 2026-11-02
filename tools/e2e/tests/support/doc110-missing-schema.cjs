@@ -1,13 +1,14 @@
 'use strict';
 const {expect}=require('@playwright/test');
 
-async function verifyMissingSchema({bridge,listProfiles,checkUnavailableUI,upload}){
+async function verifyMissingSchema({bridge,listProfiles,checkUnavailableUI,upload,expectedMissingTables=3}){
+  expect([1,3].includes(expectedMissingTables)).toBe(true);
   const before=await bridge.send('LEGACY_COUNT');
   expect(before.ok&&before.stage==='LEGACY_COUNT').toBe(true);
   let restore=false,result;
   try{
     restore=true;
-    const hidden=await bridge.send('HIDE');expect(hidden.ok&&hidden.stage==='HIDDEN'&&hidden.missingOriginalTables===3).toBe(true);
+    const hidden=await bridge.send('HIDE');expect(hidden.ok&&hidden.stage==='HIDDEN'&&hidden.missingOriginalTables===expectedMissingTables).toBe(true);
     const response=await listProfiles();
     expect(response.status).toBe(503);expect(response.result?.ok).toBe(false);
     expect(response.result?.codigo).toBe('CAPACIDAD_NO_DISPONIBLE');expect(response.result?.datos==null).toBe(true);

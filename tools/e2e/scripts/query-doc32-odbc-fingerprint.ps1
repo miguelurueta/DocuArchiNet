@@ -2,8 +2,10 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$Sql,
 
-    [Parameter(Mandatory = $true)]
     [string]$TaskId,
+
+    [ValidateSet('Fingerprint','Rows')]
+    [string]$ResultMode = 'Fingerprint',
 
     [ValidatePattern('^(?:DOC[0-9]+(?:_DA)?|NOTES)_E2E$')]
     [string]$EnvironmentPrefix = 'DOC32_E2E'
@@ -17,7 +19,15 @@ try {
     $user = [Environment]::GetEnvironmentVariable(('{0}_MYSQL_USER' -f $EnvironmentPrefix))
     $password = [Environment]::GetEnvironmentVariable(('{0}_MYSQL_PASSWORD' -f $EnvironmentPrefix))
     if ([string]::IsNullOrWhiteSpace($dsn) -or [string]::IsNullOrWhiteSpace($user) -or [string]::IsNullOrWhiteSpace($password)) { throw 'missing-input' }
-    if ($dsn -notmatch '^[A-Za-z0-9 _.-]+$' -or $Sql -notmatch '^\s*SELECT\b' -or $Sql -match ';|\b(?:INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO)\b' -or ([regex]::Matches($Sql, '\?')).Count -ne 1) { throw 'invalid-input' }
+    if ($dsn -notmatch '^[A-Za-z0-9 _.-]+$' -or $Sql -notmatch '^\s*SELECT\b' -or $Sql -match ';|\b(?:INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO|LOCK|SLEEP|BENCHMARK)\b') { throw 'invalid-input' }
+    $controlParameters=@()
+    if($ResultMode -eq 'Rows'){
+        $parameterJson=[Environment]::GetEnvironmentVariable(('{0}_SELECT_PARAMETERS' -f $EnvironmentPrefix))
+        if([string]::IsNullOrWhiteSpace($parameterJson) -or $parameterJson -notmatch '^\s*\['){throw 'invalid-parameters'}
+        $controlParameters=ConvertFrom-Json -InputObject $parameterJson
+        if($controlParameters.Count -gt 128 -or ([regex]::Matches($Sql,'\?')).Count -ne $controlParameters.Count){throw 'invalid-parameters'}
+        foreach($value in $controlParameters){if($null -ne $value -and $value -isnot [string] -and $value -isnot [ValueType]){throw 'invalid-parameters'}}
+    }elseif(([regex]::Matches($Sql,'\?')).Count -ne 1 -or [string]::IsNullOrWhiteSpace($TaskId)){throw 'invalid-input'}
 
     $builder = [System.Data.Odbc.OdbcConnectionStringBuilder]::new()
     $builder['DSN'] = $dsn
@@ -29,6 +39,14 @@ try {
     try {
         $command = $connection.CreateCommand()
         $command.CommandText = $Sql
+        $command.CommandTimeout = 15
+        if($ResultMode -eq 'Rows'){
+            foreach($value in $controlParameters){
+                $parameter=$command.Parameters.Add('@p'+$command.Parameters.Count,[System.Data.Odbc.OdbcType]::VarChar)
+                $parameter.Size=if($null -eq $value){1}else{[Math]::Max(1,[Convert]::ToString($value,[Globalization.CultureInfo]::InvariantCulture).Length)}
+                $parameter.Value=if($null -eq $value){[DBNull]::Value}else{[Convert]::ToString($value,[Globalization.CultureInfo]::InvariantCulture)}
+            }
+        }else{
         $numericTask = 0L
         $isNumericTask = [Int64]::TryParse($TaskId, [ref]$numericTask)
         $parameterType = if ($isNumericTask -and $numericTask -ge [Int32]::MinValue -and $numericTask -le [Int32]::MaxValue) {
@@ -41,10 +59,24 @@ try {
         $parameter = $command.Parameters.Add('@task', $parameterType)
         if (-not $isNumericTask) { $parameter.Size = 160 }
         $parameter.Value = if ($isNumericTask) { $numericTask } else { $TaskId }
+        }
         $stage = 'execute'
         $reader = $command.ExecuteReader()
         try {
             $stage = 'read'
+            if($ResultMode -eq 'Rows'){
+                # IPC to the test process only. The caller must never print/persist rows.
+                $rows=New-Object 'System.Collections.Generic.List[object]'
+                while($reader.Read()){
+                    if($rows.Count -ge 10000){throw 'row-limit'}
+                    $row=[ordered]@{}
+                    for($column=0;$column -lt $reader.FieldCount;$column++){
+                        $row[$reader.GetName($column)]=if($reader.IsDBNull($column)){$null}elseif($reader.GetFieldType($column) -eq [byte[]]){[Convert]::ToBase64String([byte[]]$reader.GetValue($column))}elseif($reader.GetFieldType($column) -eq [DateTime]){([DateTime]$reader.GetValue($column)).ToString('yyyy-MM-dd HH:mm:ss',[Globalization.CultureInfo]::InvariantCulture)}else{[Convert]::ToString($reader.GetValue($column),[Globalization.CultureInfo]::InvariantCulture)}
+                    }
+                    $rows.Add([pscustomobject]$row)
+                }
+                [Console]::Out.WriteLine((ConvertTo-Json -InputObject @($rows.ToArray()) -Depth 5 -Compress))
+            }else{
             $serializedRows = New-Object System.Text.StringBuilder
             while ($reader.Read()) {
                 for ($column = 0; $column -lt $reader.FieldCount; $column += 1) {
@@ -64,6 +96,7 @@ try {
             $bytes = [System.Text.Encoding]::UTF8.GetBytes($serializedRows.ToString())
             $hash = [System.Security.Cryptography.SHA256]::Create().ComputeHash($bytes)
             [Console]::Out.WriteLine(([System.BitConverter]::ToString($hash) -replace '-', '').ToLowerInvariant())
+            }
         } finally {
             $reader.Dispose()
             $command.Dispose()
@@ -72,6 +105,8 @@ try {
         $connection.Dispose()
     }
 } catch {
+    $odbcError=$null;$candidate=$_.Exception
+    while($null -ne $candidate){if($candidate -is [System.Data.Odbc.OdbcException]){$odbcError=$candidate;break};$candidate=$candidate.InnerException}
     $rootException = $_.Exception
     while ($rootException.InnerException -ne $null) {
         $rootException = $rootException.InnerException
@@ -83,8 +118,18 @@ try {
         'fingerprint' { 'DOC32_ODBC_FINGERPRINT_FAILED' }
         default { 'DOC32_ODBC_INPUT_FAILED' }
     }
-    if ($stage -eq 'execute' -and $rootException -is [System.Data.Odbc.OdbcException]) {
-        $sqlStates = @($rootException.Errors | ForEach-Object { $_.SQLState })
+    if($stage -eq 'open' -and $null -ne $odbcError){
+        $states=@($odbcError.Errors|ForEach-Object{$_.SQLState})
+        $native=@($odbcError.Errors|ForEach-Object{$_.NativeError})
+        if($states -contains '28000' -or $native -contains 1045){$marker='DOC32_ODBC_AUTHENTICATION_FAILED'}
+        elseif($states -contains 'IM002'){$marker='DOC32_ODBC_DSN_UNAVAILABLE'}
+        elseif($states -contains 'IM003'){$marker='DOC32_ODBC_DRIVER_UNAVAILABLE'}
+        elseif($native -contains 1044){$marker='DOC32_ODBC_DATABASE_ACCESS_DENIED'}
+        elseif($native -contains 1049){$marker='DOC32_ODBC_DATABASE_UNAVAILABLE'}
+        elseif($states|Where-Object{$_ -like '08*' -or $_ -like 'HYT*'}){$marker='DOC32_ODBC_CONNECTION_UNAVAILABLE'}
+    }
+    if ($stage -eq 'execute' -and $null -ne $odbcError) {
+        $sqlStates = @($odbcError.Errors | ForEach-Object { $_.SQLState })
         if ($sqlStates -contains '42S22') {
             $marker = 'DOC32_ODBC_COLUMN_UNAVAILABLE'
         } elseif ($sqlStates -contains '42S02') {

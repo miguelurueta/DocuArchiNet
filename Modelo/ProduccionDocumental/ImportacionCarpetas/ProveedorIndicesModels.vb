@@ -1,6 +1,14 @@
 Option Strict On
 Imports System.Collections.Generic
 
+Public Interface IProveedorIndicesLecturaOperativa
+    Function ObtenerPublicacion(contexto As ContextoImportacionCarpetas, proveedorId As String, versionId As String) As ProveedorIndicesVersion
+End Interface
+Public Interface IProveedorDatosIndicesOperativos
+    Function AutorizarOperativo(contexto As ContextoImportacionCarpetas, version As ProveedorIndicesVersion) As Boolean
+    Function ConsultarOperativo(contexto As ContextoImportacionCarpetas, version As ProveedorIndicesVersion, clave As String) As ResultadoProveedorIndices
+End Interface
+
 'Configuracion administrativa de solo lectura; nunca se recibe del navegador.
 Public Class ProveedorIndicesVersion
     Public Property Estado As String = "BORRADOR"

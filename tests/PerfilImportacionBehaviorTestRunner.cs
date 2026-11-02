@@ -12,6 +12,7 @@ public static class PerfilImportacionBehaviorTestRunner {
             PoliticaFuentesProveedorBehaviorTests.Run();
             AdministracionProveedorBehaviorTests.Run();
             FuenteImportacionBehaviorTests.Run();
+            ImportacionCarpetasBehaviorTests.Run();
             Console.WriteLine("DOC-110 behavior tests: passed");
             return 0;
         } catch (Exception error) {

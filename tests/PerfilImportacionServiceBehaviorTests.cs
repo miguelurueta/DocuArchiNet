@@ -152,7 +152,7 @@ public static class PerfilImportacionServiceBehaviorTests {
         return new ReglaPerfilImportacion {DestinoTipo=type,DestinoRef=field,FuenteTipo="CONSTANTE",TipoValor=valueType,ValorConstante=value,FormatoFecha="yyyy-MM-dd"};
     }
     // Dobles explícitos: prueban orquestación, no transacciones ni aislamiento MySQL.
-    class CatalogDouble : IPerfilImportacionCatalogos, IClasificacionEnsayoPerfil {
+    internal class CatalogDouble : IPerfilImportacionCatalogos, IClasificacionEnsayoPerfil {
         public Dictionary<string,string> ClasificacionPropuesta(ContextoPerfilImportacion c,ConfiguracionPerfilImportacion p){return new Dictionary<string,string>{{"SERIE_CODIGO","0007"}};}
         public bool Reject;
         public int ValueChecks;
@@ -162,7 +162,7 @@ public static class PerfilImportacionServiceBehaviorTests {
         public List<IncidenciaPerfilImportacion> ValidarValores(ContextoPerfilImportacion c,ConfiguracionPerfilImportacion p,List<ValorReglaPerfilImportacion> v) { ValueChecks++;return new List<IncidenciaPerfilImportacion>(); }
         public bool NivelCompatible(ContextoPerfilImportacion c,ConfiguracionPerfilImportacion p,string n) { return true; }
     }
-    class RepositoryDouble : IPerfilImportacionRepository {
+    internal class RepositoryDouble : IPerfilImportacionRepository {
         public PerfilImportacion Profile; public int Writes, Reads; public byte[] Hash; public FiltroPerfilesImportacion LastFilter; public ContextoPerfilImportacion LastContext;
         public void VerificarEsquema() {}
         public PerfilImportacion Obtener(ContextoPerfilImportacion c,string p,string v) {Reads++;return Profile;}

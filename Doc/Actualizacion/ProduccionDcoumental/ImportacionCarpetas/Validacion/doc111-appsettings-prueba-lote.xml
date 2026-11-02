@@ -1,0 +1,17 @@
+<!-- DESCARTADA POR EL USUARIO. No aplicar ni usar como mecanismo de habilitacion.
+     Conservada como evidencia de la propuesta rechazada, no como configuracion vigente.
+     Propuesta para el ambiente local autorizado. No aplicada a Web.config.
+     Agregar estos elementos dentro del appSettings existente, sin reemplazarlo.
+     No habilita limpieza automatica ni contiene credenciales. -->
+<appSettings>
+  <add key="Doc111.MaximoRaices" value="2" />
+  <add key="Doc111.MaximoArchivos" value="2" />
+  <add key="Doc111.MaximoBytesArchivo" value="1048576" />
+  <add key="Doc111.MaximoBytesLote" value="2097152" />
+  <add key="Doc111.MaximoBytesManifiesto" value="65536" />
+  <add key="Doc111.DuracionPlanSegundos" value="900" />
+  <add key="Doc111.RetencionStagingSegundos" value="604800" />
+  <add key="Doc111.Staging.MaximoPaginasPdf" value="100" />
+  <add key="Doc111.Staging.MaximoObjetosPdf" value="10000" />
+  <add key="Doc111.Consulta.MaximoPagina" value="25" />
+</appSettings>

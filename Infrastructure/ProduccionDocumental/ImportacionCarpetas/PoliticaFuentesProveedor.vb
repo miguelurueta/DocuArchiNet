@@ -36,11 +36,26 @@ Public Class PoliticaFuentesProveedor
     End Sub
     Public Function Fuentes(contexto As ContextoPerfilImportacion) As List(Of FuenteProveedorAutorizada)
         If contexto Is Nothing OrElse Not contexto.PuedeAdministrar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.AmbitoRef) Then Throw New PerfilImportacionException("ACCESO_DENEGADO", "Contexto no autorizado.")
-        Return _fuentes.Where(Function(f) f.AmbitoRef = contexto.AmbitoRef AndAlso _tablas.Permite(f.ConexionRef, f.Tabla)).Select(Function(f) New FuenteProveedorAutorizada With {.AmbitoRef = f.AmbitoRef, .ConexionRef = f.ConexionRef, .Tabla = f.Tabla, .ExclusivaEmpresa = f.ExclusivaEmpresa, .ColumnaEmpresaAutorizada = f.ColumnaEmpresaAutorizada, .Columnas = f.Columnas.ToList()}).ToList()
+        Return FuentesEmpresa(contexto.AmbitoRef)
+    End Function
+    Public Function FuentesOperativas(contexto As ContextoImportacionCarpetas) As List(Of FuenteProveedorAutorizada)
+        If contexto Is Nothing OrElse Not contexto.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.AmbitoRef) Then Throw New PerfilImportacionException("ACCESO_DENEGADO", "Contexto no autorizado.")
+        Return FuentesEmpresa(contexto.AmbitoRef)
+    End Function
+    Private Function FuentesEmpresa(ambitoRef As String) As List(Of FuenteProveedorAutorizada)
+        Return _fuentes.Where(Function(f) f.AmbitoRef = ambitoRef AndAlso _tablas.Permite(f.ConexionRef, f.Tabla)).Select(Function(f) New FuenteProveedorAutorizada With {.AmbitoRef = f.AmbitoRef, .ConexionRef = f.ConexionRef, .Tabla = f.Tabla, .ExclusivaEmpresa = f.ExclusivaEmpresa, .ColumnaEmpresaAutorizada = f.ColumnaEmpresaAutorizada, .Columnas = f.Columnas.ToList()}).ToList()
     End Function
     Public Function Permite(contexto As ContextoPerfilImportacion, version As ProveedorIndicesVersion) As Boolean
         If version Is Nothing OrElse version.Propiedades Is Nothing Then Return False
-        Dim f = Fuentes(contexto).SingleOrDefault(Function(x) x.ConexionRef = version.ConexionRef AndAlso x.Tabla = version.Tabla)
+        Return PermiteVersion(Fuentes(contexto), version)
+    End Function
+    Public Function PermiteOperativa(contexto As ContextoImportacionCarpetas, version As ProveedorIndicesVersion) As Boolean
+        If version Is Nothing OrElse version.Propiedades Is Nothing Then Return False
+        If contexto Is Nothing OrElse version.AmbitoRef <> contexto.AmbitoRef Then Return False
+        Return PermiteVersion(FuentesOperativas(contexto), version)
+    End Function
+    Private Shared Function PermiteVersion(fuentes As List(Of FuenteProveedorAutorizada), version As ProveedorIndicesVersion) As Boolean
+        Dim f = fuentes.SingleOrDefault(Function(x) x.ConexionRef = version.ConexionRef AndAlso x.Tabla = version.Tabla)
         If f IsNot Nothing AndAlso f.ColumnaEmpresaAutorizada IsNot Nothing AndAlso If(version.ColumnaEmpresa, "") <> f.ColumnaEmpresaAutorizada Then Return False
         Return f IsNot Nothing AndAlso f.Columnas.Contains(version.ColumnaClave) AndAlso (If(String.IsNullOrEmpty(version.ColumnaEmpresa), f.ExclusivaEmpresa, f.Columnas.Contains(version.ColumnaEmpresa))) AndAlso version.Propiedades.All(Function(p) p IsNot Nothing AndAlso f.Columnas.Contains(p.Columna))
     End Function

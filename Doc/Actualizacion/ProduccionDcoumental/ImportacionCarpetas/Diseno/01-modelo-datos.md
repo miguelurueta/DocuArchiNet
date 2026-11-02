@@ -81,7 +81,7 @@ UQ `(version_id,destino_tipo,destino_ref)`: una asignación final por destino. S
 
 ## 3. Preparación y ejecución — SQL 02, propietario prompt 07-A
 
-### `integracion_plan`
+### `ra_integracion_plan`
 
 | Columna | Tipo | Semántica |
 |---|---|---|
@@ -97,7 +97,7 @@ UQ `(version_id,destino_tipo,destino_ref)`: una asignación final por destino. S
 
 Índice `(ambito_ref,usuario_ref,creado_utc)`. Cada preparación cambia la revisión o crea otro plan; el contrato 02 de diseño decide aquí nueva preparación = nuevo plan_id para simplificar trazabilidad. No editar un plan CONFIRMADO. La ventana de expiración y límites del manifiesto son parámetros de operación pendientes; sin configuración no aceptar payload ilimitado.
 
-### `integracion_lote`
+### `ra_integracion_lote`
 
 | Columna | Tipo | Semántica |
 |---|---|---|
@@ -118,7 +118,7 @@ UQ `(version_id,destino_tipo,destino_ref)`: una asignación final por destino. S
 
 UQ `(ambito_ref,solicitante_ref,clave_confirmacion)`; sus caracteres ASCII mantienen este índice dentro de 767 bytes sin indexar textos largos. Índices `(ambito_ref,solicitante_ref,creado_utc)` y `(estado,actualizado_utc)`. Confirmación inserta lote/raíces/archivos y marca plan en una transacción; restricciones únicas resuelven carreras. Los totales de resultados se derivan de archivos, no se reemplaza el inventario original.
 
-### `integracion_raiz`
+### `ra_integracion_raiz`
 
 | Columna | Tipo | Semántica |
 |---|---|---|
@@ -134,7 +134,7 @@ UQ `(ambito_ref,solicitante_ref,clave_confirmacion)`; sus caracteres ASCII manti
 
 UQ `(lote_id,cliente_raiz_id)`, índice `(lote_id,estado)`. Copiar el nombre no autoriza reutilizar un expediente de otro lote. Referencias documentales tienen esquema de identidad tipado en el adaptador; no pueden señalar una base arbitraria.
 
-### `integracion_archivo`
+### `ra_integracion_archivo`
 
 | Columna | Tipo | Semántica |
 |---|---|---|
@@ -156,7 +156,7 @@ UQ `(lote_id,cliente_raiz_id)`, índice `(lote_id,estado)`. Copiar el nombre no 
 
 UQ `(raiz_id,cliente_archivo_id)` y `(raiz_id,ruta_hash)`. Comparar ruta canónica completa ante repetición/hash coincidente; colisión desigual bloquea, no fusiona. Normalización no aplica case folding global de archivos: distinguir rutas originales y detectar alias peligrosos según contrato de recepción, sin perder correspondencia local. Índice `(raiz_id,estado_recepcion,estado_efecto)`.
 
-### `integracion_intento`
+### `ra_integracion_intento`
 
 | Columna | Tipo | Semántica |
 |---|---|---|
@@ -173,7 +173,7 @@ UQ `(raiz_id,cliente_archivo_id)` y `(raiz_id,ruta_hash)`. Comparar ruta canóni
 
 Índice `(lote_id,estado,inicio_utc)` y por recurso/fase. La exclusión se consigue actualizando intento_activo_id del recurso bajo bloqueo de fila; un índice de historial no garantiza por sí mismo un único efecto activo. No mantener la transacción MySQL abierta mientras corre almacenamiento legacy en otras conexiones.
 
-### `integracion_evento`
+### `ra_integracion_evento`
 
 | Columna | Tipo | Semántica |
 |---|---|---|
@@ -200,6 +200,10 @@ perfil → versión → reglas
 No existen FK nuevas a tablas SII ni lotes en su esquema. El prompt 02 entrega SQL 01 con tablas perfil/versión/regla; 07-A entrega SQL 02 con plan/lote/raíz/archivo/intento/evento. Crear primero padres; las referencias de puntero activo/publicación se mantienen lógicas verificadas para evitar ciclos y comprobar pertenencia. FKs al lote y recurso en intentos no prueban misma pertenencia: el repositorio debe resolverlo dentro de la transacción.
 
 ## 5. Límites y aceptación del modelo
+
+Estado posterior a la aplicación, 2026-10-27: el usuario ejecutó manualmente SQL 02 y el verificador del repositorio confirmó tablas, columnas, índices y FK mediante SELECT. Las seis tablas operativas están vacías; IMPORTAR_CARPETAS continúa en cero. Véase `../Validacion/doc111-esquema-instalado-20261027.md`. Los contrastes de nombres libres citados a continuación describen la comprobación previa, no el estado instalado actual. La persistencia de planes y la ejecución documental siguen pendientes de implementación y prueba.
+
+Contraste DOC-111 del 2026-10-27: `tools/e2e/artifacts/doc111-schema-preflight.json` registra únicamente metadatos del ambiente configurado. Confirma MySQL 5.1.37-community, `ra_integracion_perfil_version.version_id` INT UNSIGNED incremental/no nulo y padre InnoDB; la tabla de permisos también es InnoDB. Los seis nombres operativos `ra_integracion_plan/lote/raiz/archivo/intento/evento` del modelo están libres e `IMPORTAR_CARPETAS` está ausente. La referencia numérica a versión no depende de una collation; las nuevas columnas de texto se declaran ASCII/ascii_bin explícitamente. Las collations legacy citadas en sección 1 siguen siendo evidencia previa, no una nueva inspección documental. Antes de aplicar se repetirán metadatos e índices/PK del padre, ausencia de destinos y nombres de FK según `../Sql/02-aplicacion-carga-carpetas.md`. No se consultaron filas RA/DA ni se ejecutó DDL. La traducción de contexto real a referencias canónicas sigue siendo responsabilidad del adaptador operativo y debe verificarse antes de habilitarlo; las nuevas tablas no imponen FK a identidades legacy.
 
 El modelo está propuesto para permitir diseño paralelo, no declara listas cerradas de campos legacy ya verificadas para todos los ambientes. Antes del SQL final: resolver mapeo ámbito/usuario/nivel, contratos DOC cerrados, validación de los ámbitos aprobados, longitudes de catálogos, tamaños configurados de JSON, calendario UTC y retención. Publicar requiere referencias completas y reglas soportadas; almacenamiento debe validar representabilidad en catálogos legacy.
 

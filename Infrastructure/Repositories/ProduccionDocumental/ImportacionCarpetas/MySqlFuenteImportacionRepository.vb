@@ -14,16 +14,23 @@ Public Class MySqlFuenteImportacionRepository
     End Sub
     Public Function CargarPolitica(c As ContextoPerfilImportacion, Optional tablas As RestriccionTablasFuente = Nothing) As PoliticaFuentesProveedor
         If c Is Nothing OrElse Not c.PuedeAdministrar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(c.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(c.AmbitoRef) Then Throw Fallo("ACCESO_DENEGADO")
+        Return CargarPoliticaEmpresa(c.AmbitoRef, tablas)
+    End Function
+    Public Function CargarPoliticaOperativa(c As ContextoImportacionCarpetas, Optional tablas As RestriccionTablasFuente = Nothing) As PoliticaFuentesProveedor
+        If c Is Nothing OrElse Not c.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(c.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(c.AmbitoRef) Then Throw Fallo("ACCESO_DENEGADO")
+        Return CargarPoliticaEmpresa(c.AmbitoRef, tablas)
+    End Function
+    Private Function CargarPoliticaEmpresa(ambitoRef As String, tablas As RestriccionTablasFuente) As PoliticaFuentesProveedor
         Return Transaccion(Function(cn, tx)
                                Dim fuentes As New Dictionary(Of String, FuenteProveedorAutorizada)(StringComparer.Ordinal)
-                               Using cmd = Comando(cn, tx, "SELECT f.fuente_id,f.conexion_ref,f.tabla_nombre,f.modo_aislamiento,f.columna_empresa,c.nombre FROM ra_integracion_fuente f LEFT JOIN ra_integracion_fuente_columna c ON c.fuente_id=f.fuente_id WHERE f.ambito_ref=@ambito AND f.activo=1 ORDER BY f.fuente_id,c.nombre", "@ambito", c.AmbitoRef)
+                               Using cmd = Comando(cn, tx, "SELECT f.fuente_id,f.conexion_ref,f.tabla_nombre,f.modo_aislamiento,f.columna_empresa,c.nombre FROM ra_integracion_fuente f LEFT JOIN ra_integracion_fuente_columna c ON c.fuente_id=f.fuente_id WHERE f.ambito_ref=@ambito AND f.activo=1 ORDER BY f.fuente_id,c.nombre", "@ambito", ambitoRef)
                                    Using r = cmd.ExecuteReader()
                                        While r.Read()
                                            Dim id = Convert.ToString(r(0), CultureInfo.InvariantCulture)
                                            If Not fuentes.ContainsKey(id) Then
                                                Dim modo = CStr(r(3))
                                                If modo <> "CONEXION" AndAlso modo <> "COLUMNA" Then Throw Fallo("CONFIGURACION_INVALIDA")
-                                               fuentes.Add(id, New FuenteProveedorAutorizada With {.AmbitoRef = c.AmbitoRef, .ConexionRef = CStr(r(1)), .Tabla = CStr(r(2)), .ExclusivaEmpresa = modo = "CONEXION", .ColumnaEmpresaAutorizada = CStr(r(4))})
+                                               fuentes.Add(id, New FuenteProveedorAutorizada With {.AmbitoRef = ambitoRef, .ConexionRef = CStr(r(1)), .Tabla = CStr(r(2)), .ExclusivaEmpresa = modo = "CONEXION", .ColumnaEmpresaAutorizada = CStr(r(4))})
                                                If fuentes.Count > 256 Then Throw Fallo("CAPACIDAD_NO_DISPONIBLE")
                                            End If
                                            If Not r.IsDBNull(5) Then fuentes(id).Columnas.Add(CStr(r(5)))

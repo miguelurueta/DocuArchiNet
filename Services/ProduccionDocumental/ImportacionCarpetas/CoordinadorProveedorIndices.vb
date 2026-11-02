@@ -21,20 +21,40 @@ Public Class CoordinadorProveedorIndices
         Dim errores As New List(Of IncidenciaPerfilImportacion)()
         For Each regla In reglas.Where(Function(r) r.FuenteTipo = "PROVEEDOR")
             Dim v = _repositorio.Obtener(contexto, regla.Proveedor.ProveedorId, regla.Proveedor.VersionId)
-            If Not Compatible(contexto, regla, v) Then errores.Add(New IncidenciaPerfilImportacion(Campo(regla), "PROVEEDOR_INCOMPATIBLE", "Revise la version y propiedad del proveedor."))
+            If Not Compatible(contexto.AmbitoRef, regla, v) Then errores.Add(New IncidenciaPerfilImportacion(Campo(regla), "PROVEEDOR_INCOMPATIBLE", "Revise la version y propiedad del proveedor."))
         Next
         Return errores
     End Function
 
     Public Function Ensayar(contexto As ContextoPerfilImportacion, reglas As List(Of ReglaPerfilImportacion), ejemplos As List(Of EjemploPerfilImportacion)) As List(Of ResultadoEnsayoPerfilImportacion)
+        Return ResolverValores(contexto.AmbitoRef, reglas, ejemplos,
+                              Function(id, version) _repositorio.Obtener(contexto, id, version),
+                              Function(version, clave) _proveedor.Consultar(contexto, version, clave))
+    End Function
+
+    Public Function ResolverOperativo(contexto As ContextoImportacionCarpetas, reglas As List(Of ReglaPerfilImportacion), ejemplos As List(Of EjemploPerfilImportacion)) As List(Of ResultadoEnsayoPerfilImportacion)
+        Dim estructura = New ResolvedorReglasPerfilImportacion().ValidarEstructura(reglas)
+        If estructura.Count <> 0 Then Throw New ConfiguracionPerfilImportacionException(estructura)
+        Dim errores = ValidarOperativo(contexto, reglas)
+        If errores.Count > 0 Then Throw New ConfiguracionPerfilImportacionException(errores)
+        Dim repositorio = TryCast(_repositorio, IProveedorIndicesLecturaOperativa)
+        Dim motor = TryCast(_proveedor, IProveedorDatosIndicesOperativos)
+        'Sin fuentes proveedor, el resolvedor puro funciona aunque esos puertos
+        'no esten presentes. Las lambdas solo se invocan para reglas PROVEEDOR.
+        Return ResolverValores(contexto.AmbitoRef, reglas, ejemplos,
+                              Function(id, version) repositorio.ObtenerPublicacion(contexto, id, version),
+                              Function(version, clave) motor.ConsultarOperativo(contexto, version, clave), True)
+    End Function
+
+    Private Function ResolverValores(ambito As String, reglas As List(Of ReglaPerfilImportacion), ejemplos As List(Of EjemploPerfilImportacion), obtener As Func(Of String, String, ProveedorIndicesVersion), consultar As Func(Of ProveedorIndicesVersion, String, ResultadoProveedorIndices), Optional procedenciaOperativa As Boolean = False) As List(Of ResultadoEnsayoPerfilImportacion)
         Dim resolvedor As New ResolvedorReglasPerfilImportacion()
         Dim errores = resolvedor.ValidarEstructura(reglas)
         If errores.Count > 0 Then Throw New ConfiguracionPerfilImportacionException(errores)
         Dim versiones As New Dictionary(Of String, ProveedorIndicesVersion)(StringComparer.Ordinal)
         For Each regla In reglas.Where(Function(r) r.FuenteTipo = "PROVEEDOR")
             Dim id = regla.Proveedor.ProveedorId & ":" & regla.Proveedor.VersionId
-            If Not versiones.ContainsKey(id) Then versiones.Add(id, _repositorio.Obtener(contexto, regla.Proveedor.ProveedorId, regla.Proveedor.VersionId))
-            If Not Compatible(contexto, regla, versiones(id)) Then Throw New PerfilImportacionException("CONFIGURACION_INVALIDA", "Proveedor incompatible.")
+            If Not versiones.ContainsKey(id) Then versiones.Add(id, obtener(regla.Proveedor.ProveedorId, regla.Proveedor.VersionId))
+            If Not Compatible(ambito, regla, versiones(id)) Then Throw New PerfilImportacionException("CONFIGURACION_INVALIDA", "Proveedor incompatible.")
         Next
         Dim respuestas As New Dictionary(Of String, ResultadoProveedorIndices)(StringComparer.Ordinal)
         Dim resultados As New List(Of ResultadoEnsayoPerfilImportacion)()
@@ -50,13 +70,14 @@ Public Class CoordinadorProveedorIndices
                     Continue For
                 End If
                 If clave.Valores(0).Diferido Then
-                    salida.Valores.Add(New ValorReglaPerfilImportacion With {.DestinoTipo = regla.DestinoTipo, .DestinoRef = regla.DestinoRef, .FuenteTipo = "PROVEEDOR", .TipoValor = regla.TipoValor, .Diferido = True, .PropiedadPendiente = regla.Proveedor.Clave.PropiedadExpediente})
+                    salida.Valores.Add(New ValorReglaPerfilImportacion With {.DestinoTipo = regla.DestinoTipo, .DestinoRef = regla.DestinoRef, .FuenteTipo = "PROVEEDOR", .TipoValor = regla.TipoValor, .Diferido = True, .PropiedadPendiente = regla.Proveedor.Clave.PropiedadExpediente,
+                        .Procedencia = If(procedenciaOperativa, regla.Proveedor.ProveedorId & ":" & regla.Proveedor.VersionId & ":" & regla.Proveedor.Propiedad, Nothing)})
                     Continue For
                 End If
                 Dim id = regla.Proveedor.ProveedorId & ":" & regla.Proveedor.VersionId
                 'IDs decimales y prefijo separado de la clave; no hay colisiones por delimitadores en la clave.
                 Dim cacheKey = id & ":" & clave.Valores(0).Valor
-                If Not respuestas.ContainsKey(cacheKey) Then respuestas.Add(cacheKey, _proveedor.Consultar(contexto, versiones(id), clave.Valores(0).Valor))
+                If Not respuestas.ContainsKey(cacheKey) Then respuestas.Add(cacheKey, consultar(versiones(id), clave.Valores(0).Valor))
                 Dim respuesta = respuestas(cacheKey)
                 If respuesta Is Nothing OrElse respuesta.Codigo <> "OK" Then
                     Dim codigo = If(respuesta Is Nothing, "ORIGEN_NO_DISPONIBLE", respuesta.Codigo)
@@ -84,6 +105,7 @@ Public Class CoordinadorProveedorIndices
                 Dim resuelto = resolvedor.Resolver(New List(Of ReglaPerfilImportacion) From {copia}, New EjemploPerfilImportacion())
                 For Each item In resuelto.Valores
                     item.FuenteTipo = "PROVEEDOR"
+                    If procedenciaOperativa Then item.Procedencia = regla.Proveedor.ProveedorId & ":" & regla.Proveedor.VersionId & ":" & regla.Proveedor.Propiedad
                     salida.Valores.Add(item)
                 Next
                 salida.Incidencias.AddRange(resuelto.Incidencias)
@@ -96,8 +118,25 @@ Public Class CoordinadorProveedorIndices
     Private Shared Function Campo(regla As ReglaPerfilImportacion) As String
         Return regla.DestinoTipo & ":" & regla.DestinoRef
     End Function
-    Private Shared Function Compatible(contexto As ContextoPerfilImportacion, regla As ReglaPerfilImportacion, version As ProveedorIndicesVersion) As Boolean
-        If version Is Nothing OrElse Not version.Activo OrElse version.Estado <> "PUBLICADA" OrElse version.AmbitoRef <> contexto.AmbitoRef OrElse
+
+    Public Function ValidarOperativo(contexto As ContextoImportacionCarpetas, reglas As List(Of ReglaPerfilImportacion)) As List(Of IncidenciaPerfilImportacion)
+        If contexto Is Nothing OrElse Not contexto.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.AmbitoRef) Then Throw New PerfilImportacionException("ACCESO_DENEGADO", "Contexto no autorizado.")
+        If reglas Is Nothing OrElse reglas.Any(Function(r) r Is Nothing) Then Throw New PerfilImportacionException("CONFIGURACION_INVALIDA", "Reglas no válidas.")
+        Dim salida As New List(Of IncidenciaPerfilImportacion)()
+        Dim fuentes = reglas.Where(Function(r) r.FuenteTipo = "PROVEEDOR").ToList()
+        If fuentes.Count = 0 Then Return salida
+        Dim repositorio = TryCast(_repositorio, IProveedorIndicesLecturaOperativa)
+        Dim motor = TryCast(_proveedor, IProveedorDatosIndicesOperativos)
+        If repositorio Is Nothing OrElse motor Is Nothing Then Throw New PerfilImportacionException("CAPACIDAD_NO_DISPONIBLE", "La consulta operativa de proveedores no está disponible.")
+        For Each regla In fuentes
+            If regla.Proveedor Is Nothing OrElse regla.Proveedor.Clave Is Nothing Then Throw New PerfilImportacionException("CONFIGURACION_INVALIDA", "Fuente de proveedor no válida.")
+            Dim version = repositorio.ObtenerPublicacion(contexto, regla.Proveedor.ProveedorId, regla.Proveedor.VersionId)
+            If Not Compatible(contexto.AmbitoRef, regla, version) OrElse Not motor.AutorizarOperativo(contexto, version) Then salida.Add(New IncidenciaPerfilImportacion(Campo(regla), "PROVEEDOR_INCOMPATIBLE", "Revise la publicación y autorización vigente del proveedor."))
+        Next
+        Return salida
+    End Function
+    Private Shared Function Compatible(ambitoRef As String, regla As ReglaPerfilImportacion, version As ProveedorIndicesVersion) As Boolean
+        If version Is Nothing OrElse Not version.Activo OrElse version.Estado <> "PUBLICADA" OrElse version.AmbitoRef <> ambitoRef OrElse
             version.ProveedorId <> regla.Proveedor.ProveedorId OrElse version.VersionId <> regla.Proveedor.VersionId OrElse
             version.TipoClave <> regla.Proveedor.Clave.TipoValor OrElse version.Propiedades Is Nothing Then Return False
         Dim propiedades = version.Propiedades.Where(Function(p) p.Nombre = regla.Proveedor.Propiedad).ToList()

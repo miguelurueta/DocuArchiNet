@@ -10,15 +10,18 @@ Imports MySql.Data.MySqlClient
 'Adaptador comun: no contiene nombres de tablas de negocio ni resuelve sesion.
 Public Class MySqlProveedorDatosIndices
     Implements IProveedorDatosIndices
+    Implements IProveedorDatosIndicesOperativos
     Private ReadOnly _conexion As Func(Of String, String)
     Private ReadOnly _leer As Func(Of String, String, Object(), DataTable)
     Private ReadOnly _autorizada As Func(Of ContextoPerfilImportacion, ProveedorIndicesVersion, Boolean)
+    Private ReadOnly _autorizadaOperativa As Func(Of ContextoImportacionCarpetas, ProveedorIndicesVersion, Boolean)
 
-    Public Sub New(conexion As Func(Of String, String), Optional leer As Func(Of String, String, Object(), DataTable) = Nothing, Optional autorizada As Func(Of ContextoPerfilImportacion, ProveedorIndicesVersion, Boolean) = Nothing)
+    Public Sub New(conexion As Func(Of String, String), Optional leer As Func(Of String, String, Object(), DataTable) = Nothing, Optional autorizada As Func(Of ContextoPerfilImportacion, ProveedorIndicesVersion, Boolean) = Nothing, Optional autorizadaOperativa As Func(Of ContextoImportacionCarpetas, ProveedorIndicesVersion, Boolean) = Nothing)
         If conexion Is Nothing Then Throw New ArgumentNullException("conexion")
         _conexion = conexion
         _leer = If(leer, AddressOf LeerMySql)
         _autorizada = autorizada
+        _autorizadaOperativa = autorizadaOperativa
     End Sub
 
     Public Function Consultar(contexto As ContextoPerfilImportacion, version As ProveedorIndicesVersion, clave As String) As ResultadoProveedorIndices Implements IProveedorDatosIndices.Consultar
@@ -28,6 +31,20 @@ Public Class MySqlProveedorDatosIndices
             version Is Nothing OrElse Not version.Activo OrElse version.AmbitoRef <> contexto.AmbitoRef Then Return Resultado("ACCESO_DENEGADO")
         If Not ConfiguracionValida(version) Then Return Resultado("CONFIGURACION_INVALIDA")
         If _autorizada Is Nothing OrElse Not _autorizada(contexto, version) Then Return Resultado("ACCESO_DENEGADO")
+        Return ConsultarDatos(contexto.AmbitoRef, version, clave)
+    End Function
+
+    Public Function AutorizarOperativo(contexto As ContextoImportacionCarpetas, version As ProveedorIndicesVersion) As Boolean Implements IProveedorDatosIndicesOperativos.AutorizarOperativo
+        If contexto Is Nothing OrElse Not contexto.PuedeImportar OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.UsuarioRef) OrElse Not ValidadorPerfilImportacion.ReferenciaValida(contexto.AmbitoRef) OrElse version Is Nothing OrElse Not version.Activo OrElse version.Estado <> "PUBLICADA" OrElse version.AmbitoRef <> contexto.AmbitoRef OrElse Not ConfiguracionValida(version) Then Return False
+        Return _autorizadaOperativa IsNot Nothing AndAlso _autorizadaOperativa(contexto, version)
+    End Function
+
+    Public Function ConsultarOperativo(contexto As ContextoImportacionCarpetas, version As ProveedorIndicesVersion, clave As String) As ResultadoProveedorIndices Implements IProveedorDatosIndicesOperativos.ConsultarOperativo
+        If Not AutorizarOperativo(contexto, version) Then Return Resultado("ACCESO_DENEGADO")
+        Return ConsultarDatos(contexto.AmbitoRef, version, clave)
+    End Function
+
+    Private Function ConsultarDatos(ambitoRef As String, version As ProveedorIndicesVersion, clave As String) As ResultadoProveedorIndices
         If String.IsNullOrEmpty(clave) OrElse clave.Length > 4096 Then Return Resultado("CLAVE_INVALIDA")
         If clave.Any(Function(c) c = ChrW(0) OrElse Char.IsSurrogate(c)) Then Return Resultado("CLAVE_INVALIDA")
         If version.TipoClave = "FECHA" Then
@@ -51,10 +68,10 @@ Public Class MySqlProveedorDatosIndices
                 If Not Compatible(campos, propiedad.Columna, propiedad.Tipo) Then Return Resultado("CONFIGURACION_INVALIDA")
             Next
             If Not PerfilImportacionCatalogAdapter.ValorCompatible(campos(version.ColumnaClave), clave) Then Return Resultado("CLAVE_INVALIDA")
-            If filtrarEmpresa AndAlso Not PerfilImportacionCatalogAdapter.ValorCompatible(campos(version.ColumnaEmpresa), contexto.AmbitoRef) Then Return Resultado("CONFIGURACION_INVALIDA")
+            If filtrarEmpresa AndAlso Not PerfilImportacionCatalogAdapter.ValorCompatible(campos(version.ColumnaEmpresa), ambitoRef) Then Return Resultado("CONFIGURACION_INVALIDA")
             Dim columnas = String.Join(",", version.Propiedades.Select(Function(p) Identificador(p.Columna) & " AS " & Identificador(p.Nombre)))
             Dim sql = "SELECT " & columnas & " FROM " & Identificador(version.Tabla) & " WHERE " & Identificador(version.ColumnaClave) & "=@clave" & If(filtrarEmpresa, " AND " & Identificador(version.ColumnaEmpresa) & "=@empresa", "") & " LIMIT 2"
-            Dim parametros As Object() = If(filtrarEmpresa, New Object() {"@clave", clave, "@empresa", contexto.AmbitoRef}, New Object() {"@clave", clave})
+            Dim parametros As Object() = If(filtrarEmpresa, New Object() {"@clave", clave, "@empresa", ambitoRef}, New Object() {"@clave", clave})
             Dim datos = _leer(cadena, sql, parametros)
             If datos.Rows.Count = 0 Then Return Resultado("SIN_COINCIDENCIA")
             If datos.Rows.Count <> 1 Then Return Resultado("AMBIGUO")

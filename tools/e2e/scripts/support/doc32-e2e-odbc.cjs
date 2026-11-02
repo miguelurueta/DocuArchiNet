@@ -128,6 +128,24 @@ async function queryActiveActivity(idTarea, environment = process.env, prefix = 
   }
 }
 
+async function queryRows(sql, parameters, environment = process.env, prefix = 'DOC32_E2E', runtime = {}) {
+  assertDsn(environment, prefix);
+  if(typeof sql!=='string'||!/^\s*SELECT\b/i.test(sql)||/;|\b(?:INSERT|UPDATE|DELETE|CALL|EXEC|DROP|ALTER|CREATE|REPLACE|TRUNCATE|GRANT|REVOKE|SET|USE|LOAD|OUTFILE|INTO|LOCK|SLEEP|BENCHMARK)\b/i.test(sql)||!Array.isArray(parameters)||parameters.length>128||(sql.match(/\?/g)||[]).length!==parameters.length||parameters.some(v=>v!==null&&!(typeof v==='string'&&v.length<=2048)&&!(typeof v==='number'&&Number.isSafeInteger(v))))throw new Error('DOC111_SELECT_REQUIRED');
+  const childEnvironment={...environment,[prefixName(prefix,'SELECT_PARAMETERS')]:JSON.stringify(parameters)};
+  try {
+    const result=await (runtime.execute||execute)('powershell.exe',['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',scriptPath,'-Sql',sql,'-ResultMode','Rows','-EnvironmentPrefix',prefix],{env:childEnvironment,windowsHide:true,maxBuffer:8*1024*1024});
+    const rows=JSON.parse(result.stdout.replace(/^\uFEFF/,''));
+    if(!Array.isArray(rows)||rows.some(r=>!r||typeof r!=='object'||Array.isArray(r)))throw new Error('invalid-rows');
+    return rows;
+  }catch(error){
+    const markers={AUTHENTICATION_FAILED:'AUTHENTICATION_FAILED',DSN_UNAVAILABLE:'DSN_UNAVAILABLE',DRIVER_UNAVAILABLE:'DRIVER_UNAVAILABLE',DATABASE_ACCESS_DENIED:'DATABASE_ACCESS_DENIED',DATABASE_UNAVAILABLE:'DATABASE_UNAVAILABLE',CONNECTION_UNAVAILABLE:'CONNECTION_UNAVAILABLE',OPEN_FAILED:'OPEN_FAILED',QUERY_FAILED:'QUERY_FAILED',COLUMN_UNAVAILABLE:'COLUMN_UNAVAILABLE',TABLE_UNAVAILABLE:'TABLE_UNAVAILABLE',QUERY_UNSUPPORTED:'QUERY_UNSUPPORTED',RESULT_FAILED:'RESULT_FAILED',INPUT_FAILED:'INPUT_FAILED'};
+    const marker=String(error?.stderr||'').trim();
+    const suffix=Object.keys(markers).find(key=>marker==='DOC32_ODBC_'+key);
+    throw new Error(suffix?'DOC111_SELECT_'+markers[suffix]:'DOC111_SELECT_FAILED');
+  }
+  finally{delete childEnvironment[prefixName(prefix,'SELECT_PARAMETERS')];delete childEnvironment[prefixName(prefix,'MYSQL_USER')];delete childEnvironment[prefixName(prefix,'MYSQL_PASSWORD')];}
+}
+
 module.exports = {
   assertDsn,
   finalActivityMatches,
@@ -135,5 +153,6 @@ module.exports = {
   queryActiveActivity,
   queryFinalActivity,
   queryFingerprint,
+  queryRows,
   safeFailureMessage
 };
